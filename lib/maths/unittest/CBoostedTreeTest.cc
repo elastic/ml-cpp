@@ -11,8 +11,8 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
-#include <maths/CBoostedTreeLoss.h>
 #include <maths/CBoostedTreeFactory.h>
+#include <maths/CBoostedTreeLoss.h>
 #include <maths/CSolvers.h>
 #include <maths/CTools.h>
 

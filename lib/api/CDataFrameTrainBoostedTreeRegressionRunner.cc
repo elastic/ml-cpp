@@ -10,8 +10,8 @@
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <maths/CBoostedTree.h>
-#include <maths/CBoostedTreeLoss.h>
 #include <maths/CBoostedTreeFactory.h>
+#include <maths/CBoostedTreeLoss.h>
 #include <maths/CDataFrameUtils.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
