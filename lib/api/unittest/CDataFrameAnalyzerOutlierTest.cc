@@ -84,7 +84,7 @@ void addOutlierTestData(TStrVec fieldNames,
     }
 
     frame->finishWritingRows();
-    maths::CDataFrameAnalysisInstrumentationStub instrumentation;
+    maths::CDataFrameOutliersInstrumentationStub instrumentation;
     maths::COutliers::compute(
         {1, 1, true, method, numberNeighbours, computeFeatureInfluence, 0.05},
         *frame, instrumentation);

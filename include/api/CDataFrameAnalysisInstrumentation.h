@@ -16,6 +16,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <rapidjson/document.h>
 
 namespace ml {
 namespace api {
@@ -28,6 +29,8 @@ namespace api {
 //! write the state at different iteration into the results pipe.
 class API_EXPORT CDataFrameAnalysisInstrumentation
     : virtual public maths::CDataFrameAnalysisInstrumentationInterface {
+public:
+    using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
 
 public:
     explicit CDataFrameAnalysisInstrumentation(const std::string& jobId);
@@ -59,7 +62,7 @@ public:
     void resetProgress();
 
     //! Set pointer to the writer object.
-    void writer(core::CRapidJsonConcurrentLineWriter* writer);
+    void writer(TRapidJsonWriter* writer);
 
     //! Trigger the next step of the job. This will initiate writing the job state
     //! to the results pipe.
@@ -72,19 +75,18 @@ public:
 
 protected:
     virtual counter_t::ECounterTypes memoryCounterType() = 0;
-    core::CRapidJsonConcurrentLineWriter* writer();
+    TRapidJsonWriter* writer();
 
 private:
-    void writeProgress(std::uint32_t step);
     void writeMemory(std::int64_t timestamp);
-    virtual void writeAnalysisStats(std::int64_t timestamp, std::uint32_t step) = 0;
-    void writeState(std::uint32_t step);
+    virtual void writeAnalysisStats(std::int64_t /* timestamp */, std::uint32_t /* step */) {};
+    virtual void writeState(std::uint32_t step);
 
 private:
     std::atomic_bool m_Finished;
     std::atomic_size_t m_FractionalProgress;
     std::atomic<std::int64_t> m_Memory;
-    core::CRapidJsonConcurrentLineWriter* m_Writer;
+    TRapidJsonWriter* m_Writer;
     std::string m_JobId;
 };
 
@@ -124,6 +126,9 @@ protected:
 
 private:
     void writeAnalysisStats(std::int64_t timestamp, std::uint32_t step) override;
+    void writeHyperparameters(rapidjson::Value& parentObject);
+    void writeValidationLoss(rapidjson::Value& parentObject);
+    void writeTimingStats(rapidjson::Value& parentObject);
 
 private:
     SHyperparameters m_Hyperparameters;

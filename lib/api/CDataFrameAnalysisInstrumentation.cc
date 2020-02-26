@@ -7,6 +7,7 @@
 
 #include <boost/iostreams/filter/zlib.hpp>
 #include <core/CTimeUtils.h>
+#include <rapidjson/document.h>
 
 namespace ml {
 namespace api {
@@ -30,6 +31,27 @@ const std::string VALIDATION_LOSS_VALUES_TAG{"values"};
 const std::string VALIDATION_NUM_FOLDS_TAG{"num_folds"};
 const std::string TIMING_ELAPSED_TIME_TAG{"elapsed_time"};
 const std::string TIMING_ITERATION_TIME_TAG{"iteration_time"};
+
+// Hyperparameters
+const std::string ETA_TAG{"eta"};
+const std::string CLASS_ASSIGNMENT_OBJECTIVE_TAG{"class_assignment_objective"};
+const std::string REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG{"regularization_depth_penalty_multiplier"};
+const std::string REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG{"regularization_soft_tree_depth_limit"};
+const std::string REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG{
+    "regularization_soft_tree_depth_tolerance"};
+const std::string REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG{
+    "regularization_tree_size_penalty_multiplier"};
+const std::string REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG{
+    "regularization_leaf_weight_penalty_multiplier"};
+const std::string DOWNSAMPLE_FACTOR_TAG{"downsample_factor"};
+const std::string NUM_FOLDS_TAG{"num_folds"};
+const std::string MAX_TREES_TAG{"max_trees"};
+const std::string FEATURE_BAG_FRACTION_TAG{"feature_bag_fraction"};
+const std::string ETA_GROWTH_RATE_PER_TREE_TAG{"eta_growth_rate_per_tree"};
+const std::string MAX_ATTEMPTS_TO_ADD_TREE_TAG{"max_attempts_to_add_tree"};
+const std::string NUM_SPLITS_PER_FEATURE_TAG{"num_splits_per_feature"};
+const std::string MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER_TAG{
+    "max_optimization_rounds_per_hyperparameter"};
 
 const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
                                               << ((sizeof(std::size_t) - 2) * 8)};
@@ -86,24 +108,13 @@ void CDataFrameAnalysisInstrumentation::nextStep(std::uint32_t step) {
 }
 
 void CDataFrameAnalysisInstrumentation::writeState(std::uint32_t step) {
-    // this->writeProgress(step);
     std::int64_t timestamp{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
     this->writeMemory(timestamp);
+    this->writeAnalysisStats(timestamp, step);
 }
 
 std::int64_t CDataFrameAnalysisInstrumentation::memory() const {
     return m_Memory.load();
-}
-
-void CDataFrameAnalysisInstrumentation::writeProgress(std::uint32_t step) {
-    if (m_Writer != nullptr) {
-        m_Writer->StartObject();
-        m_Writer->Key(STEP_TAG);
-        m_Writer->Uint(step);
-        m_Writer->Key(PROGRESS_TAG);
-        m_Writer->Double(this->progress());
-        m_Writer->EndObject();
-    }
 }
 
 void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
@@ -159,8 +170,79 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t 
         writer->String(this->jobId());
         writer->Key(TIMESTAMP_TAG);
         writer->Int64(timestamp);
+        rapidjson::Value hyperparametersObject{writer->makeObject()};
+        this->writeHyperparameters(hyperparametersObject);
+        writer->Key(HYPERPARAMETERS_TAG);
+        writer->write(hyperparametersObject);
         writer->EndObject();
     }
+}
+
+void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::Value& parentObject) {
+    if (this->writer() != nullptr) {
+        
+    this->writer()->addMember(
+        ETA_TAG, rapidjson::Value(this->m_Hyperparameters.s_Eta).Move(), parentObject);
+    // TODO convert from ENUM to String
+    this->writer()->addMember(
+        CLASS_ASSIGNMENT_OBJECTIVE_TAG,
+        rapidjson::Value(this->m_Hyperparameters.s_ClassAssignmentObjective).Move(),
+        parentObject);
+    this->writer()->addMember(
+        REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
+        rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_DepthPenaltyMultiplier)
+            .Move(),
+        parentObject);
+    this->writer()->addMember(
+        REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
+        rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_SoftTreeDepthLimit)
+            .Move(),
+        parentObject);
+    this->writer()->addMember(
+        REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
+        rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_SoftTreeDepthTolerance)
+            .Move(),
+        parentObject);
+    this->writer()->addMember(
+        REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
+        rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_TreeSizePenaltyMultiplier)
+            .Move(),
+        parentObject);
+    this->writer()->addMember(
+        REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
+        rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_LeafWeightPenaltyMultiplier)
+            .Move(),
+        parentObject);
+    this->writer()->addMember(
+        DOWNSAMPLE_FACTOR_TAG,
+        rapidjson::Value(this->m_Hyperparameters.s_DownsampleFactor).Move(), parentObject);
+    this->writer()->addMember(
+        NUM_FOLDS_TAG, rapidjson::Value(this->m_Hyperparameters.s_NumFolds).Move(), parentObject);
+    this->writer()->addMember(
+        MAX_TREES_TAG, rapidjson::Value(this->m_Hyperparameters.s_MaxTrees).Move(), parentObject);
+    this->writer()->addMember(
+        FEATURE_BAG_FRACTION_TAG,
+        rapidjson::Value(this->m_Hyperparameters.s_FeatureBagFraction).Move(), parentObject);
+    this->writer()->addMember(
+        ETA_GROWTH_RATE_PER_TREE_TAG,
+        rapidjson::Value(this->m_Hyperparameters.s_EtaGrowthRatePerTree).Move(),
+        parentObject);
+    this->writer()->addMember(
+        MAX_ATTEMPTS_TO_ADD_TREE_TAG,
+        rapidjson::Value(this->m_Hyperparameters.s_MaxAttemptsToAddTree).Move(),
+        parentObject);
+    this->writer()->addMember(
+        NUM_SPLITS_PER_FEATURE_TAG,
+        rapidjson::Value(this->m_Hyperparameters.s_NumSplitsPerFeature).Move(), parentObject);
+    this->writer()->addMember(MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER_TAG,
+                              rapidjson::Value(this->m_Hyperparameters.s_MaxOptimizationRoundsPerHyperparameter)
+                                  .Move(),
+                              parentObject);
+    }
+}
+void CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss(rapidjson::Value& /* parentObject */) {
+}
+void CDataFrameTrainBoostedTreeInstrumentation::writeTimingStats(rapidjson::Value& /* parentObject */) {
 }
 }
 }
