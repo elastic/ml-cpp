@@ -16,6 +16,7 @@
 #include <maths/CDataFrameUtils.h>
 #include <maths/COrderings.h>
 #include <maths/CTools.h>
+#include <maths/CTreeShapFeatureImportance.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
@@ -86,12 +87,11 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     const TStrVec& categoricalFieldNames{spec.categoricalFieldNames()};
     if (std::find(categoricalFieldNames.begin(), categoricalFieldNames.end(),
                   this->dependentVariableFieldName()) == categoricalFieldNames.end()) {
-        HANDLE_FATAL(<< "Input error: trying to perform classification with numeric target.");
+        HANDLE_FATAL(<< "Input error: trying to perform classification with numeric target.")
     }
     if (PREDICTION_FIELD_NAME_BLACKLIST.count(this->predictionFieldName()) > 0) {
         HANDLE_FATAL(<< "Input error: " << PREDICTION_FIELD_NAME << " must not be equal to any of "
-                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST)
-                     << ".");
+                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST) << ".")
     }
 }
 
@@ -116,7 +116,8 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     const auto& tree = this->boostedTree();
     this->writeOneRow(frame, tree.columnHoldingDependentVariable(),
                       tree.columnHoldingPrediction(),
-                      tree.probabilityAtWhichToAssignClassOne(), row, writer);
+                      tree.probabilityAtWhichToAssignClassOne(), row, writer,
+                      tree.shap());
 }
 
 void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
@@ -125,7 +126,8 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     std::size_t columnHoldingPrediction,
     double probabilityAtWhichToAssignClassOne,
     const TRowRef& row,
-    core::CRapidJsonConcurrentLineWriter& writer) const {
+    core::CRapidJsonConcurrentLineWriter& writer,
+    maths::CTreeShapFeatureImportance* featureImportance) const {
 
     // TODO generalise when supporting multiple categories.
 
@@ -177,22 +179,19 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         writer.EndArray();
     }
 
-    if (this->topShapValues() > 0) {
-        auto largestShapValues =
-            maths::CBasicStatistics::orderStatisticsAccumulator<std::size_t>(
-                this->topShapValues(), [&row](std::size_t lhs, std::size_t rhs) {
-                    return std::fabs(row[lhs]) > std::fabs(row[rhs]);
-                });
-        for (auto col : this->boostedTree().columnsHoldingShapValues()) {
-            largestShapValues.add(col);
-        }
-        largestShapValues.sort();
-        for (auto i : largestShapValues) {
-            if (row[i] != 0.0) {
-                writer.Key(frame.columnNames()[i]);
-                writer.Double(row[i]);
-            }
-        }
+    if (featureImportance != nullptr) {
+        featureImportance->shap(
+            row, [&writer](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
+                           const TStrVec& names,
+                           const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+                for (auto i : indices) {
+                    if (shap[i].norm() != 0.0) {
+                        writer.Key(names[i]);
+                        // TODO fixme
+                        writer.Double(shap[i](0));
+                    }
+                }
+            });
     }
     writer.EndObject();
 }
@@ -231,7 +230,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::validate(const core::CDataFrame
         HANDLE_FATAL(<< "Input error: only binary classification is supported. "
                      << "Trying to predict '" << frame.columnNames()[dependentVariableColumn]
                      << "' which has '" << categoryCount << "' categories. "
-                     << "The number of rows read is '" << frame.numberRows() << "'.");
+                     << "The number of rows read is '" << frame.numberRows() << "'.")
     }
 }
 
@@ -249,7 +248,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelDefinition(
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES{"num_top_classes"};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::PREDICTION_FIELD_TYPE{"prediction_field_type"};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::CLASS_ASSIGNMENT_OBJECTIVE{"class_assignment_objective"};
-// clang-format off
+// clang-format on
 
 const std::string& CDataFrameTrainBoostedTreeClassifierRunnerFactory::name() const {
     return NAME;
@@ -257,7 +256,8 @@ const std::string& CDataFrameTrainBoostedTreeClassifierRunnerFactory::name() con
 
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&) const {
-    HANDLE_FATAL(<< "Input error: classification has a non-optional parameter '" << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.")
+    HANDLE_FATAL(<< "Input error: classification has a non-optional parameter '"
+                 << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.")
     return nullptr;
 }
 

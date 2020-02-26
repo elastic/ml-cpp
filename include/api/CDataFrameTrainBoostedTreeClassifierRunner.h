@@ -13,6 +13,9 @@
 #include <rapidjson/fwd.h>
 
 namespace ml {
+namespace maths {
+class CTreeShapFeatureImportance;
+}
 namespace api {
 
 //! \brief Runs boosted tree classification on a core::CDataFrame.
@@ -52,7 +55,8 @@ public:
                      std::size_t columnHoldingPrediction,
                      double probabilityAtWhichToAssignClassOne,
                      const TRowRef& row,
-                     core::CRapidJsonConcurrentLineWriter& writer) const;
+                     core::CRapidJsonConcurrentLineWriter& writer,
+                     maths::CTreeShapFeatureImportance* featureImportance = nullptr) const;
 
     //! \return A serialisable definition of the trained classification model.
     TInferenceModelDefinitionUPtr
