@@ -378,8 +378,11 @@ void CBoostedTreeImpl::initializeTreeShap(const core::CDataFrame& frame) {
         m_TreeShap = std::make_unique<CTreeShapFeatureImportance>(
             frame, *m_Encoder, m_BestForest, m_NumberTopShapValues);
     } else {
+        // TODO these are not currently written into the inference model
+        // but they would be nice to expose since they provide good insight
+        // into how the splits affect the target variable.
         // Set internal node values anyway.
-        CTreeShapFeatureImportance::computeInternalNodeValues(m_BestForest);
+        //CTreeShapFeatureImportance::computeInternalNodeValues(m_BestForest);
     }
 }
 
