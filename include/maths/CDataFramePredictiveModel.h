@@ -12,7 +12,6 @@
 #include <maths/ImportExport.h>
 
 #include <boost/optional.hpp>
-#include <boost/range/irange.hpp>
 
 #include <functional>
 #include <utility>
@@ -24,13 +23,13 @@ class CDataFrame;
 class CRapidJsonConcurrentLineWriter;
 }
 namespace maths {
+class CTreeShapFeatureImportance;
 
 //! \brief Defines the interface for fitting and inferring a predictive model
 //! with a data frame.
 class MATHS_EXPORT CDataFramePredictiveModel {
 public:
     using TDoubleVec = std::vector<double>;
-    using TSizeRange = boost::integer_range<std::size_t>;
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
     using TTrainingStateCallback = std::function<void(TPersistFunc)>;
 
@@ -39,9 +38,6 @@ public:
         E_Accuracy,     //!< Maximize prediction accuracy.
         E_MinimumRecall //!< Maximize the minimum per class recall.
     };
-
-public:
-    static const std::string SHAP_PREFIX;
 
 public:
     virtual ~CDataFramePredictiveModel() = default;
@@ -55,22 +51,16 @@ public:
     //! \warning This can only be called after train.
     virtual void predict() const = 0;
 
-    //! Write SHAP values to the data frame supplied to the contructor.
+    //! Get the SHAP value calculator.
     //!
-    //! \warning This can only be called after train.
-    virtual void computeShapValues() = 0;
+    //! \warning Will return a nullptr if a trained model isn't available.
+    virtual CTreeShapFeatureImportance* shap() const = 0;
 
     //! Get the column containing the dependent variable.
     virtual std::size_t columnHoldingDependentVariable() const = 0;
 
     //! Get the column containing the model's prediction for the dependent variable.
     virtual std::size_t columnHoldingPrediction() const = 0;
-
-    //! Get the number of largest SHAP values that will be returned for every row.
-    virtual std::size_t topShapValues() const = 0;
-
-    //! Get the optional vector of column indices with SHAP values
-    virtual TSizeRange columnsHoldingShapValues() const = 0;
 
     //! Get the probability threshold at which to classify a row as class one.
     virtual double probabilityAtWhichToAssignClassOne() const = 0;

@@ -481,8 +481,8 @@ void CBoostedTree::predict() const {
     m_Impl->predict(this->frame());
 }
 
-void CBoostedTree::computeShapValues() {
-    m_Impl->computeShapValues(this->frame());
+CTreeShapFeatureImportance* CBoostedTree::shap() const {
+    return m_Impl->shap();
 }
 
 std::size_t CBoostedTree::columnHoldingDependentVariable() const {
@@ -531,17 +531,6 @@ void CBoostedTree::accept(CBoostedTree::CVisitor& visitor) const {
 
 const CBoostedTreeHyperparameters& CBoostedTree::bestHyperparameters() const {
     return m_Impl->bestHyperparameters();
-}
-
-CBoostedTree::TSizeRange CBoostedTree::columnsHoldingShapValues() const {
-    return m_Impl->columnsHoldingShapValues();
-}
-
-std::size_t CBoostedTree::topShapValues() const {
-    if (m_Impl) {
-        return m_Impl->topShapValues();
-    }
-    return 0;
 }
 }
 }

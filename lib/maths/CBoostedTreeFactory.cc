@@ -1125,8 +1125,8 @@ CBoostedTreeFactory& CBoostedTreeFactory::rowsPerFeature(std::size_t rowsPerFeat
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::topShapValues(std::size_t topShapValues) {
-    m_TreeImpl->m_TopShapValues = topShapValues;
+CBoostedTreeFactory& CBoostedTreeFactory::numberTopShapValues(std::size_t numberTopShapValues) {
+    m_TreeImpl->m_NumberTopShapValues = numberTopShapValues;
     return *this;
 }
 
