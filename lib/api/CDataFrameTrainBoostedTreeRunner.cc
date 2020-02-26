@@ -168,7 +168,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         m_BoostedTreeFactory->bayesianOptimisationRestarts(bayesianOptimisationRestarts);
     }
     if (numTopFeatureImportanceValues > 0) {
-        m_BoostedTreeFactory->topShapValues(numTopFeatureImportanceValues);
+        m_BoostedTreeFactory->numberTopShapValues(numTopFeatureImportanceValues);
     }
 }
 
@@ -207,10 +207,6 @@ const maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeF
     return *m_BoostedTreeFactory;
 }
 
-std::size_t CDataFrameTrainBoostedTreeRunner::topShapValues() const {
-    return m_BoostedTree == nullptr ? 0 : m_BoostedTree->topShapValues();
-}
-
 void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     auto dependentVariablePos = std::find(frame.columnNames().begin(),
                                           frame.columnNames().end(),
@@ -244,7 +240,6 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     this->validate(frame, dependentVariableColumn);
     m_BoostedTree->train();
     m_BoostedTree->predict();
-    m_BoostedTree->computeShapValues();
 
     core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) = watch.stop();
 }

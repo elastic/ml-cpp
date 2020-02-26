@@ -6,47 +6,30 @@
 #include <test/CTestTmpDir.h>
 
 #include <core/CLogger.h>
+#include <core/CResourceLocator.h>
 
 #include <boost/filesystem.hpp>
-
-#include <errno.h>
-#include <pwd.h>
-#include <string.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 namespace ml {
 namespace test {
 
 std::string CTestTmpDir::tmpDir() {
-    // Try to create a user-specific sub-directory of the temporary directory so
-    // that multiple users sharing the same server don't clash.  However, if
-    // this fails for any reason drop back to just raw /tmp.
-    struct passwd pwd;
-    ::memset(&pwd, 0, sizeof(pwd));
-    static const size_t BUFSIZE(16384);
-    char buffer[BUFSIZE] = {'\0'};
-    struct passwd* result(nullptr);
-    ::getpwuid_r(::getuid(), &pwd, buffer, BUFSIZE, &result);
-    if (result == nullptr || result->pw_name == nullptr) {
-        LOG_ERROR(<< "Could not get current user name: " << ::strerror(errno));
-        return "/tmp";
-    }
-
-    std::string userSubdir("/tmp/");
-    userSubdir += result->pw_name;
-
+    // Try to create a temporary sub-directory under the build directory at the
+    // top level of the repo.  This ensures multiple users sharing the same
+    // server don't clash.
+    boost::filesystem::path tmpPath{core::CResourceLocator::cppRootDir()};
+    tmpPath /= "build";
+    tmpPath /= "tmp";
     try {
         // Prior existence of the directory is not considered an error by
         // boost::filesystem, and this is what we want
-        boost::filesystem::path directoryPath(userSubdir);
-        boost::filesystem::create_directories(directoryPath);
+        boost::filesystem::create_directories(tmpPath);
     } catch (std::exception& e) {
-        LOG_ERROR(<< "Failed to create directory " << userSubdir << " - " << e.what());
-        return "/tmp";
+        LOG_ERROR(<< "Failed to create directory " << tmpPath << " - " << e.what());
+        return ".";
     }
 
-    return userSubdir;
+    return tmpPath.string();
 }
 }
 }

@@ -95,7 +95,7 @@ public:
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
     //! Set the number of training examples we need per feature we'll include.
-    CBoostedTreeFactory& topShapValues(std::size_t topShapValues);
+    CBoostedTreeFactory& numberTopShapValues(std::size_t numberTopShapValues);
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&

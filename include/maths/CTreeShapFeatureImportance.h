@@ -14,6 +14,9 @@
 #include <vector>
 
 namespace ml {
+namespace core {
+class CDataFrame;
+}
 namespace maths {
 
 //! \brief Computes SHAP (SHapley Additive exPlanation) values for feature importance estimation for gradient boosting
@@ -27,26 +30,49 @@ namespace maths {
 //! tree, and D is the maximum depth of a tree in the ensemble.
 class MATHS_EXPORT CTreeShapFeatureImportance {
 public:
-    using TTree = std::vector<CBoostedTreeNode>;
-    using TTreeVec = std::vector<TTree>;
     using TIntVec = std::vector<int>;
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
+    using TSizeVec = std::vector<std::size_t>;
+    using TStrVec = std::vector<std::string>;
+    using TRowRef = core::CDataFrame::TRowRef;
+    using TTree = std::vector<CBoostedTreeNode>;
+    using TTreeVec = std::vector<TTree>;
+    using TVector = CDenseVector<double>;
+    using TVectorVec = std::vector<TVector>;
+    using TShapWriter =
+        std::function<void(const TSizeVec&, const TStrVec&, const TVectorVec&)>;
 
 public:
-    explicit CTreeShapFeatureImportance(TTreeVec trees, std::size_t threads = 1);
+    static const std::string SHAP_PREFIX;
 
-    //! Compute SHAP values for the data in \p frame using the specified \p encoder.
-    //! The results are written directly back into the \p frame, the index of the first result column is controller
-    //! by \p offset.
-    void shap(core::CDataFrame& frame, const CDataFrameCategoryEncoder& encoder, std::size_t offset);
+public:
+    CTreeShapFeatureImportance(const core::CDataFrame& frame,
+                               const CDataFrameCategoryEncoder& encoder,
+                               TTreeVec& trees,
+                               std::size_t numberTopShapValues);
 
-    //! Recursively computes inner node values as weighted average of the children (leaf) values
-    //! \returns The maximum depth the the tree.
-    static size_t updateNodeValues(TTree& tree, std::size_t nodeIndex, std::size_t depth);
+    //! Compute SHAP values for the data in frame for which this was constructed.
+    //!
+    //! The results for each row of m_Frame are passed to \p writer from up to
+    //! m_NumberThreads threads simultaneously. Results are passed as a vector
+    //! of values where the i'th value corresponds to the i'th input feature to
+    //! m_Encoder.
+    void shap(const TRowRef& row, TShapWriter writer);
 
-    //! Get the reference to the trees.
-    TTreeVec& trees() { return m_Trees; }
+    //! Compute the number of rows of \p frame reaching each node in the \p forest.
+    static void computeNumberSamples(std::size_t numberThreads,
+                                     const core::CDataFrame& frame,
+                                     const CDataFrameCategoryEncoder& encoder,
+                                     TTreeVec& forest);
+
+    //! Compute inner node values as weighted average of the children (leaf) values.
+    //!
+    //! The weights are the number of rows of \p frame reaching each node.
+    static void computeInternalNodeValues(TTreeVec& forest);
+
+    //! Get the maximum depth of any tree in \p forest.
+    static std::size_t depth(const TTreeVec& forest);
 
 private:
     //! Collects the elements of the path through decision tree that are updated together
@@ -59,8 +85,6 @@ private:
     using TElementVec = std::vector<SPathElement>;
     using TElementItr = TElementVec::iterator;
     using TDoubleVecItr = TDoubleVec::iterator;
-    using TVector = CDenseVector<double>;
-    using TVectorVec = std::vector<TVector>;
 
     class CSplitPath {
     public:
@@ -135,10 +159,12 @@ private:
     };
 
 private:
+    static void computeInternalNodeValues(TTree& tree, std::size_t nodeIndex);
+    static std::size_t depth(const TTree& tree, std::size_t nodeIndex);
+
     //! Recursively traverses all pathes in the \p tree and updated SHAP values once it hits a leaf.
     //! Ref. Algorithm 2 in the paper by Lundberg et al.
     void shapRecursive(const TTree& tree,
-                       const CDataFrameCategoryEncoder& encoder,
                        const CEncodedDataFrameRowRef& encodedRow,
                        std::size_t nodeIndex,
                        double parentFractionZero,
@@ -159,8 +185,14 @@ private:
     static void unwindPath(CSplitPath& path, int pathIndex, int& nextIndex);
 
 private:
-    TTreeVec m_Trees;
-    std::size_t m_NumberThreads;
+    std::size_t m_NumberTopShapValues;
+    const CDataFrameCategoryEncoder* m_Encoder;
+    const TTreeVec* m_Forest;
+    TStrVec m_ColumnNames;
+    TElementVec m_PathStorage;
+    TDoubleVec m_ScaleStorage;
+    TVectorVec m_ShapValues;
+    TSizeVec m_TopShapValues;
 };
 }
 }
