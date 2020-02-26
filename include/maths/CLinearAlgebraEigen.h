@@ -292,7 +292,7 @@ public:
         return true;
     }
 
-private:
+    //! Convert to a std::vector.
     std::vector<SCALAR> toStdVector() const {
         std::vector<SCALAR> result;
         result.reserve(this->size());
@@ -301,6 +301,8 @@ private:
         }
         return result;
     }
+
+private:
     static CDenseVector<SCALAR> fromStdVector(const std::vector<SCALAR>& vector) {
         CDenseVector<SCALAR> result(vector.size());
         for (std::size_t i = 0; i < vector.size(); ++i) {
