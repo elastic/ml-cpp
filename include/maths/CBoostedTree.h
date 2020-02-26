@@ -450,22 +450,16 @@ public:
     //! \warning This can only be called after train.
     void predict() const override;
 
-    //! Write SHAP values to the data frame supplied to the constructor.
+    //! Get the SHAP value calculator.
     //!
-    //! \warning This can only be called after train.
-    void computeShapValues() override;
+    //! \warning Will return a nullptr if a trained model isn't available.
+    CTreeShapFeatureImportance* shap() const override;
 
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const override;
 
     //! Get the column containing the model's prediction for the dependent variable.
     std::size_t columnHoldingPrediction() const override;
-
-    //! Get the optional vector of column indices with SHAP values
-    TSizeRange columnsHoldingShapValues() const override;
-
-    //! Get the number of largest SHAP values that will be returned for every row.
-    std::size_t topShapValues() const override;
 
     //! Get the probability threshold at which to classify a row as class one.
     double probabilityAtWhichToAssignClassOne() const override;

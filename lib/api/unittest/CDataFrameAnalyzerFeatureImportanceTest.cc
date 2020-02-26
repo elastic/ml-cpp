@@ -9,6 +9,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CDataFramePredictiveModel.h>
 #include <maths/CTools.h>
+#include <maths/CTreeShapFeatureImportance.h>
 
 #include <api/CDataFrameAnalyzer.h>
 
@@ -262,7 +263,7 @@ struct SFixture {
 
 template<typename RESULTS>
 double readShapValue(const RESULTS& results, std::string shapField) {
-    shapField = maths::CDataFramePredictiveModel::SHAP_PREFIX + shapField;
+    shapField = maths::CTreeShapFeatureImportance::SHAP_PREFIX + shapField;
     if (results["row_results"]["results"]["ml"].HasMember(shapField)) {
         return results["row_results"]["results"]["ml"][shapField].GetDouble();
     }
@@ -298,7 +299,7 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
             c4Sum += std::fabs(c4);
             // assert that no SHAP value for the dependent variable is returned
             BOOST_TEST_REQUIRE(result["row_results"]["results"]["ml"].HasMember(
-                                   maths::CDataFramePredictiveModel::SHAP_PREFIX +
+                                   maths::CTreeShapFeatureImportance::SHAP_PREFIX +
                                    "target") == false);
         }
     }
@@ -401,14 +402,18 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoShap, SFixture) {
 
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            BOOST_TEST_REQUIRE(result["row_results"]["results"]["ml"].HasMember(
-                                   maths::CDataFramePredictiveModel::SHAP_PREFIX + "c1") == false);
-            BOOST_TEST_REQUIRE(result["row_results"]["results"]["ml"].HasMember(
-                                   maths::CDataFramePredictiveModel::SHAP_PREFIX + "c2") == false);
-            BOOST_TEST_REQUIRE(result["row_results"]["results"]["ml"].HasMember(
-                                   maths::CDataFramePredictiveModel::SHAP_PREFIX + "c3") == false);
-            BOOST_TEST_REQUIRE(result["row_results"]["results"]["ml"].HasMember(
-                                   maths::CDataFramePredictiveModel::SHAP_PREFIX + "c4") == false);
+            BOOST_TEST_REQUIRE(
+                result["row_results"]["results"]["ml"].HasMember(
+                    maths::CTreeShapFeatureImportance::SHAP_PREFIX + "c1") == false);
+            BOOST_TEST_REQUIRE(
+                result["row_results"]["results"]["ml"].HasMember(
+                    maths::CTreeShapFeatureImportance::SHAP_PREFIX + "c2") == false);
+            BOOST_TEST_REQUIRE(
+                result["row_results"]["results"]["ml"].HasMember(
+                    maths::CTreeShapFeatureImportance::SHAP_PREFIX + "c3") == false);
+            BOOST_TEST_REQUIRE(
+                result["row_results"]["results"]["ml"].HasMember(
+                    maths::CTreeShapFeatureImportance::SHAP_PREFIX + "c4") == false);
         }
     }
 }
