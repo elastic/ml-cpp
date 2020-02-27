@@ -4,6 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "maths/CBoostedTree.h"
+#include "maths/CDataFrameAnalysisInstrumentationInterface.h"
 #include <atomic>
 #include <maths/CBoostedTreeImpl.h>
 
@@ -43,6 +45,8 @@ const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
 
 const std::string HYPERPARAMETER_OPTIMIZATION_PHASE{"hyperparameter_optimization"};
 const std::string TRAINING_FINAL_TREE_PHASE{"training_final_tree"};
+
+const std::array<std::string, 1> REGRESSION_LOSSES{CMse::NAME};
 
 //! \brief Record the memory used by a supplied object using the RAII idiom.
 class CScopeRecordMemoryUsage {
@@ -147,6 +151,12 @@ CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,
           m_Regularization,       m_DownsampleFactor,   m_Eta,
           m_EtaGrowthRatePerTree, m_MaximumNumberTrees, m_FeatureBagFraction},
       m_Instrumentation{instrumentation != nullptr ? instrumentation : &INSTRUMENTATION_STUB} {
+    if (std::find(REGRESSION_LOSSES.begin(), REGRESSION_LOSSES.end(),
+                  m_Loss->name()) != REGRESSION_LOSSES.end()) {
+        m_Instrumentation->type(CDataFrameTrainBoostedTreeInstrumentationInterface::E_Regression);
+    } else {
+        m_Instrumentation->type(CDataFrameTrainBoostedTreeInstrumentationInterface::E_Classification);
+    }
 }
 
 CBoostedTreeImpl::CBoostedTreeImpl() = default;

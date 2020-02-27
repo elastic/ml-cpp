@@ -221,7 +221,7 @@ void addPredictionTestData(EPredictionType type,
 }
 
 BOOST_AUTO_TEST_CASE(testMemoryState) {
-    std::string jobId{"JOB123"};
+    std::string jobId{"testJob"};
     std::int64_t memoryUsage{1000};
     std::int64_t timeBefore{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
     std::stringstream outpustStream;
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
 }
 
 BOOST_AUTO_TEST_CASE(testAnalysisTrainState) {
-    std::string jobId{"JOB123"};
+    std::string jobId{"testJob"};
     std::int64_t memoryUsage{1000};
     std::int64_t timeBefore{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
     std::stringstream outputStream;
@@ -292,6 +292,57 @@ BOOST_AUTO_TEST_CASE(testTrainingRegression) {
             test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
         outputWriterFactory};
     addPredictionTestData(E_Regression, fieldNames, fieldValues, analyzer, expectedPredictions);
+
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    std::ifstream schemaFileStream("testfiles/instrumentation/supervised_learning_stats.schema.json");
+    BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
+    std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
+                           std::istreambuf_iterator<char>());
+    rapidjson::Document schemaDocument;
+    BOOST_REQUIRE_MESSAGE(schemaDocument.Parse(schemaJson).HasParseError() == false,
+                          "Cannot parse JSON schema!");
+    rapidjson::SchemaDocument schema(schemaDocument);
+    rapidjson::SchemaValidator validator(schema);
+
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("analysis_stats")) {
+            BOOST_TEST_REQUIRE(result["analysis_stats"].HasMember("classification_stats"));
+            if (result["analysis_stats"]["classification_stats"].Accept(validator) == false) {
+                rapidjson::StringBuffer sb;
+                validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
+                LOG_ERROR(<< "Invalid schema: " << sb.GetString());
+                LOG_ERROR(<< "Invalid keyword: " << validator.GetInvalidSchemaKeyword());
+                sb.Clear();
+                validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
+                LOG_ERROR(<< "Invalid document: " << sb.GetString());
+                BOOST_FAIL("Schema validation failed");
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testTrainingClassification) {
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    TDoubleVec expectedPredictions;
+
+    TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    api::CDataFrameAnalyzer analyzer{
+        test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
+            test::CDataFrameAnalysisSpecificationFactory::classification(),
+            "target", 100, 5, 6000000, 0, 0, {"target"}),
+        outputWriterFactory};
+    addPredictionTestData(E_BinaryClassification, fieldNames, fieldValues,
+                          analyzer, expectedPredictions);
 
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
