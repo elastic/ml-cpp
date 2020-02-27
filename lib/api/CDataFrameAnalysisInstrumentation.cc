@@ -195,10 +195,6 @@ void CDataFrameTrainBoostedTreeInstrumentation::numFolds(std::size_t numFolds) {
     m_NumFolds = numFolds;
 }
 
-void CDataFrameTrainBoostedTreeInstrumentation::hyperparameters(const SHyperparameters& hyperparameters) {
-    m_Hyperparameters = hyperparameters;
-}
-
 void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t timestamp) {
     auto* writer{this->writer()};
     if (writer != nullptr) {

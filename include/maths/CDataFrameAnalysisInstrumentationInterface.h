@@ -106,7 +106,6 @@ public:
     virtual void lossType(const std::string& lossType) = 0;
     virtual void lossValues(std::string fold, TDoubleVec&& lossValues) = 0;
     virtual void numFolds(std::size_t numFolds) = 0;
-    virtual void hyperparameters(const SHyperparameters& hyperparameters) = 0;
     virtual SHyperparameters& hyperparameters() = 0;
 };
 
@@ -132,7 +131,6 @@ public:
     void lossType(const std::string& /* lossType */) override{};
     void lossValues(std::string /* fold */, TDoubleVec&& /* lossValues */) override{};
     void numFolds(std::size_t /* numFolds */) override{};
-    void hyperparameters(const SHyperparameters& /* hyperparameters */) override{};
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; };
 
 private:

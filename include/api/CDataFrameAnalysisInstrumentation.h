@@ -81,7 +81,7 @@ protected:
 
 private:
     void writeMemory(std::int64_t timestamp);
-    virtual void writeAnalysisStats(std::int64_t /* timestamp */){};
+    virtual void writeAnalysisStats(std::int64_t timestamp) = 0;
     virtual void writeState();
 
 private:
@@ -119,7 +119,6 @@ public:
     void lossType(const std::string& lossType) override;
     void lossValues(std::string fold, TDoubleVec&& lossValues) override;
     void numFolds(std::size_t numFolds) override;
-    void hyperparameters(const SHyperparameters& hyperparameters) override;
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; };
 
 protected:
