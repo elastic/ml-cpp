@@ -28,8 +28,11 @@ namespace maths {
 using namespace outliers_detail;
 
 namespace {
+
+const std::string COMPUTE_OUTLIER_SCORES{"compute_outlier_scores"};
+
 using TRowItr = core::CDataFrame::TRowItr;
-using TStepCallback = std::function<void(std::uint32_t)>;
+using TStepCallback = std::function<void(const std::string&)>;
 
 double shift(double score) {
     return std::exp(-2.0) + score;
@@ -377,10 +380,9 @@ CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points) const {
     TScorerVec scores(points.size());
     m_RecordMemoryUsage(core::CMemory::dynamicSize(scores));
 
-    std::uint32_t step{0};
     for (const auto& model : m_Models) {
         model.addOutlierScores(points, scores, m_RecordMemoryUsage);
-        m_RecordStep(step++);
+        m_RecordStep(COMPUTE_OUTLIER_SCORES);
     }
     return scores;
 }

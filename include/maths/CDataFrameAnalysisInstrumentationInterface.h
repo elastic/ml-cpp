@@ -24,7 +24,7 @@ class MATHS_EXPORT CDataFrameAnalysisInstrumentationInterface {
 public:
     using TProgressCallback = std::function<void(double)>;
     using TMemoryUsageCallback = std::function<void(std::int64_t)>;
-    using TStepCallback = std::function<void(std::uint32_t)>;
+    using TStepCallback = std::function<void(const std::string&)>;
 
 public:
     virtual ~CDataFrameAnalysisInstrumentationInterface() = default;
@@ -41,7 +41,7 @@ public:
     virtual void updateProgress(double fractionalProgress) = 0;
     //! Trigger the next step of the job. This will initiate writing the job state
     //! to the results pipe.
-    virtual void nextStep(std::uint32_t step) = 0;
+    virtual void nextStep(const std::string& phase = "") = 0;
     //! Factory for the updateProgress() callback function object.
     TProgressCallback progressCallback() {
         return [this](double fractionalProgress) {
@@ -54,7 +54,7 @@ public:
     }
     //! Factory for the nextStep() callback function object.
     TStepCallback stepCallback() {
-        return [this](std::uint32_t step) { this->nextStep(step); };
+        return [this](const std::string& phase) { this->nextStep(phase); };
     }
 };
 
@@ -102,10 +102,9 @@ public:
     virtual ~CDataFrameTrainBoostedTreeInstrumentationInterface() = default;
     virtual void type(EStatsType type) = 0;
     virtual void iteration(std::size_t iteration) = 0;
-    virtual void startTime(std::uint64_t timestamp) = 0;
     virtual void iterationTime(std::uint64_t delta) = 0;
     virtual void lossType(const std::string& lossType) = 0;
-    virtual void lossValues(std::size_t fold, TDoubleVec&& lossValues) = 0;
+    virtual void lossValues(std::string fold, TDoubleVec&& lossValues) = 0;
     virtual void numFolds(std::size_t numFolds) = 0;
     virtual void hyperparameters(const SHyperparameters& hyperparameters) = 0;
     virtual SHyperparameters& hyperparameters() = 0;
@@ -117,7 +116,7 @@ class MATHS_EXPORT CDataFrameOutliersInstrumentationStub final
 public:
     void updateMemoryUsage(std::int64_t) override {}
     void updateProgress(double) override {}
-    void nextStep(std::uint32_t) override {}
+    void nextStep(const std::string& /* phase */) override {}
 };
 
 //! \brief Dummies out all instrumentation.
@@ -126,13 +125,12 @@ class MATHS_EXPORT CDataFrameAnalysisInstrumentationStub final
 public:
     void updateMemoryUsage(std::int64_t) override {}
     void updateProgress(double) override {}
-    void nextStep(std::uint32_t) override {}
+    void nextStep(const std::string& /* phase */) override {}
     void type(EStatsType /* type */) override{};
     void iteration(std::size_t /* iteration */) override{};
-    void startTime(std::uint64_t /* timestamp */) override{};
     void iterationTime(std::uint64_t /* delta */) override{};
     void lossType(const std::string& /* lossType */) override{};
-    void lossValues(std::size_t /* fold */, TDoubleVec&& /* lossValues */) override{};
+    void lossValues(std::string /* fold */, TDoubleVec&& /* lossValues */) override{};
     void numFolds(std::size_t /* numFolds */) override{};
     void hyperparameters(const SHyperparameters& /* hyperparameters */) override{};
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; };

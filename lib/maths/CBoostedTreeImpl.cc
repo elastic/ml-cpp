@@ -23,6 +23,7 @@
 #include <maths/CSampling.h>
 #include <maths/CSetTools.h>
 #include <maths/CTreeShapFeatureImportance.h>
+#include <string>
 
 namespace ml {
 namespace maths {
@@ -39,6 +40,9 @@ namespace {
 // quantiles anyway. So we amortise their compute cost w.r.t. training trees
 // by only refreshing once every MINIMUM_SPLIT_REFRESH_INTERVAL trees we add.
 const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
+
+const std::string HYPERPARAMETER_OPTIMIZATION_PHASE{"hyperparameter_optimization"};
+const std::string TRAINING_FINAL_TREE_PHASE{"training_final_tree"};
 
 //! \brief Record the memory used by a supplied object using the RAII idiom.
 class CScopeRecordMemoryUsage {
@@ -186,7 +190,6 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         core::CStopWatch stopWatch;
         stopWatch.start();
         std::uint64_t lastLap{stopWatch.lap()};
-        m_Instrumentation->startTime(lastLap);
 
         // Hyperparameter optimisation loop.
 
@@ -226,7 +229,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
             timeAccumulator.add(static_cast<double>(delta));
             lastLap = currentLap;
-            m_Instrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
+            m_Instrumentation->nextStep(HYPERPARAMETER_OPTIMIZATION_PHASE);
         }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
@@ -234,8 +237,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         this->restoreBestHyperparameters();
         std::tie(m_BestForest, std::ignore, std::ignore) = this->trainForest(
             frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
-
-        m_Instrumentation->nextStep(static_cast<std::uint32_t>(m_CurrentRound));
+        m_Instrumentation->iteration(m_CurrentRound);
+        m_Instrumentation->nextStep(TRAINING_FINAL_TREE_PHASE);
         this->recordState(recordTrainStateCallback);
 
         timeAccumulator.add(static_cast<double>(stopWatch.stop()));
@@ -465,7 +468,7 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame) {
         lossMoments.add(loss);
         m_FoldRoundTestLosses[fold][m_CurrentRound] = loss;
         numberTrees.push_back(static_cast<double>(forest.size()));
-        m_Instrumentation->lossValues(fold, std::move(lossValues));
+        m_Instrumentation->lossValues(std::to_string(fold), std::move(lossValues));
     }
     m_TrainingProgress.increment(m_MaximumNumberTrees * folds.size());
     LOG_TRACE(<< "skipped " << folds.size() << " folds");

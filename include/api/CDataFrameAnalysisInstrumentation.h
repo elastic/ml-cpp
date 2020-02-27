@@ -14,9 +14,11 @@
 
 #include <api/ImportExport.h>
 
+#include <rapidjson/document.h>
+
 #include <atomic>
 #include <cstdint>
-#include <rapidjson/document.h>
+#include <unordered_map>
 
 namespace ml {
 namespace api {
@@ -66,7 +68,7 @@ public:
 
     //! Trigger the next step of the job. This will initiate writing the job state
     //! to the results pipe.
-    void nextStep(std::uint32_t step) override;
+    void nextStep(const std::string& phase = "") override;
 
     //! \return The peak memory usage.
     std::int64_t memory() const;
@@ -79,8 +81,8 @@ protected:
 
 private:
     void writeMemory(std::int64_t timestamp);
-    virtual void writeAnalysisStats(std::int64_t /* timestamp */, std::uint32_t /* step */) {};
-    virtual void writeState(std::uint32_t step);
+    virtual void writeAnalysisStats(std::int64_t /* timestamp */){};
+    virtual void writeState();
 
 private:
     std::atomic_bool m_Finished;
@@ -101,7 +103,7 @@ protected:
     counter_t::ECounterTypes memoryCounterType() override;
 
 private:
-    void writeAnalysisStats(std::int64_t timestamp, std::uint32_t step) override;
+    void writeAnalysisStats(std::int64_t timestamp) override;
 };
 
 class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation final
@@ -111,26 +113,35 @@ public:
     explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId)
         : CDataFrameAnalysisInstrumentation(jobId){};
 
-    void type(EStatsType /* type */) override{};
-    void iteration(std::size_t /* iteration */) override{};
-    void startTime(std::uint64_t /* timestamp */) override{};
-    void iterationTime(std::uint64_t /* delta */) override{};
-    void lossType(const std::string& /* lossType */) override{};
-    void lossValues(std::size_t /* fold */, TDoubleVec&& /* lossValues */) override{};
-    void numFolds(std::size_t /* numFolds */) override{};
-    void hyperparameters(const SHyperparameters& /* hyperparameters */) override{};
+    void type(EStatsType type) override;
+    void iteration(std::size_t iteration) override;
+    void iterationTime(std::uint64_t delta) override;
+    void lossType(const std::string& lossType) override;
+    void lossValues(std::string fold, TDoubleVec&& lossValues) override;
+    void numFolds(std::size_t numFolds) override;
+    void hyperparameters(const SHyperparameters& hyperparameters) override;
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; };
 
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
 
 private:
-    void writeAnalysisStats(std::int64_t timestamp, std::uint32_t step) override;
+    using TLossMap = std::unordered_map<std::string, TDoubleVec>;
+
+private:
+    void writeAnalysisStats(std::int64_t timestamp) override;
     void writeHyperparameters(rapidjson::Value& parentObject);
     void writeValidationLoss(rapidjson::Value& parentObject);
     void writeTimingStats(rapidjson::Value& parentObject);
 
 private:
+    EStatsType m_Type;
+    std::size_t m_Iteration;
+    std::uint64_t m_IterationTime;
+    std::uint64_t m_ElapsedTime;
+    std::string m_LossType;
+    TLossMap m_LossValues;
+    std::size_t m_NumFolds;
     SHyperparameters m_Hyperparameters;
 };
 }

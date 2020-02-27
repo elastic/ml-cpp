@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "https://raw.githubusercontent.com/elastic/ml-json-schemas-private/master/schemas/instrumentation/analysis_stats.schema.json",
+  "title": "analysis_stats",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "description": "Data Frame Analytics Job ID. Populated by Java."
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Milliseconds since Unix Epoch"
+    },
+    "regression_stats": {
+      "$ref": "supervised_learning_stats.schema.json"
+    },
+    "classification_stats": {
+      "$ref": "supervised_learning_stats.schema.json"
+    },
+    "outlier_detection_stats": {
+      "$ref": "outlier_detection_stats.schema.json"
+    }
+  },
+  "oneOf": [
+    {
+      "required": [
+        "regression_stats"
+      ]
+    },
+    {
+      "required": [
+        "classification_stats"
+      ]
+    },
+    {
+      "required": [
+        "outlier_detection_stats"
+      ]
+    }
+  ],
+  "additionalProperties": false
+}

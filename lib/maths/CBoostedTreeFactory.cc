@@ -98,6 +98,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
     this->selectFeaturesAndEncodeCategories(frame);
     this->determineFeatureDataTypes(frame);
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
 
     if (this->initializeFeatureSampleDistribution()) {
         this->initializeHyperparameters(frame);
@@ -123,6 +124,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     this->resumeRestoredTrainingProgressMonitoring();
     this->resizeDataFrame(frame);
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
 
     return TBoostedTreeUPtr{
         new CBoostedTree{frame, m_RecordTrainingState, std::move(m_TreeImpl)}};
