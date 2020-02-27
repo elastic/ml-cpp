@@ -17,6 +17,7 @@
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
+#include <maths/CBoostedTreeLoss.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
@@ -155,11 +156,12 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     if (m_DependentVariable >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
-                     << "' was incorrectly initialized. Please report this problem.");
+                     << "' was incorrectly initialized. Please report this problem.")
         return;
     }
     if (m_Loss == nullptr) {
-        HANDLE_FATAL(<< "Internal error: must supply a loss function. Please report this problem.");
+        HANDLE_FATAL(<< "Internal error: must supply a loss function. "
+                     << "Please report this problem.")
     }
 
     LOG_TRACE(<< "Main training loop...");
@@ -302,7 +304,7 @@ void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainStat
 void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
     if (m_BestForestTestLoss == INF) {
         HANDLE_FATAL(<< "Internal error: no model available for prediction. "
-                     << "Please report this problem.");
+                     << "Please report this problem.")
         return;
     }
     bool successful;
@@ -316,7 +318,7 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
         });
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: failed model inference. "
-                     << "Please report this problem.");
+                     << "Please report this problem.")
     }
 }
 

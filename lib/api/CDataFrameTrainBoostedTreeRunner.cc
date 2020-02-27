@@ -15,6 +15,7 @@
 
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
+#include <maths/CBoostedTreeLoss.h>
 #include <maths/CDataFrameUtils.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
@@ -97,16 +98,16 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double softTreeDepthTolerance{parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
     double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
     if (alpha != -1.0 && alpha < 0.0) {
-        HANDLE_FATAL(<< "Input error: bad alpha value. It should be non-negative.");
+        HANDLE_FATAL(<< "Input error: bad alpha value. It should be non-negative.")
     }
     if (lambda != -1.0 && lambda < 0.0) {
-        HANDLE_FATAL(<< "Input error: bad lambda value. It should be non-negative.");
+        HANDLE_FATAL(<< "Input error: bad lambda value. It should be non-negative.")
     }
     if (gamma != -1.0 && gamma < 0.0) {
-        HANDLE_FATAL(<< "Input error: bad gamma value. It should be non-negative.");
+        HANDLE_FATAL(<< "Input error: bad gamma value. It should be non-negative.")
     }
     if (eta != -1.0 && (eta <= 0.0 || eta > 1.0)) {
-        HANDLE_FATAL(<< "Input error: bad eta value. It should be in the range (0, 1].");
+        HANDLE_FATAL(<< "Input error: bad eta value. It should be in the range (0, 1].")
     }
     if (softTreeDepthLimit != -1.0 && softTreeDepthLimit < 0.0) {
         HANDLE_FATAL(<< "Input error: bad tree depth limit value. It should be non-negative.")
@@ -117,7 +118,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     if (featureBagFraction != -1.0 &&
         (featureBagFraction <= 0.0 || featureBagFraction > 1.0)) {
         HANDLE_FATAL(<< "Input error: bad feature bag fraction. "
-                     << "It should be in the range (0, 1]");
+                     << "It should be in the range (0, 1]")
     }
 
     m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
@@ -187,21 +188,21 @@ const std::string& CDataFrameTrainBoostedTreeRunner::predictionFieldName() const
 
 const maths::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
     if (m_BoostedTree == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree missing. Please report this problem.");
+        HANDLE_FATAL(<< "Internal error: boosted tree missing. Please report this problem.")
     }
     return *m_BoostedTree;
 }
 
 maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() {
     if (m_BoostedTreeFactory == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
+        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.")
     }
     return *m_BoostedTreeFactory;
 }
 
 const maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() const {
     if (m_BoostedTreeFactory == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
+        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.")
     }
     return *m_BoostedTreeFactory;
 }
@@ -217,7 +218,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     if (dependentVariablePos == frame.columnNames().end()) {
         HANDLE_FATAL(<< "Input error: supplied variable to predict '"
                      << m_DependentVariableFieldName << "' is missing from training"
-                     << " data " << core::CContainerPrinter::print(frame.columnNames()));
+                     << " data " << core::CContainerPrinter::print(frame.columnNames()))
         return;
     }
 
