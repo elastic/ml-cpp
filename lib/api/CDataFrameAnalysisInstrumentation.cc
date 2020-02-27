@@ -3,10 +3,8 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "/usr/local/gcc73/include/boost-1_71/boost/iostreams/filter/zlib.hpp"
 #include <api/CDataFrameAnalysisInstrumentation.h>
 
-#include <c++/7/bits/c++config.h>
 #include <core/CTimeUtils.h>
 
 #include <cstdint>

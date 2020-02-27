@@ -21,6 +21,7 @@ SRCS= \
     $(OS_SRCS) \
     CBoostTestXmlOutput.cc \
     CDataFrameAnalysisSpecificationFactory.cc \
+    CDataFrameAnalyzerTrainingFactory.cc \
     CMultiFileDataAdder.cc \
     CMultiFileSearcher.cc \
     CRandomNumbers.cc \

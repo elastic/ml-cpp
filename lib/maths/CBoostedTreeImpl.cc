@@ -151,12 +151,6 @@ CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,
           m_Regularization,       m_DownsampleFactor,   m_Eta,
           m_EtaGrowthRatePerTree, m_MaximumNumberTrees, m_FeatureBagFraction},
       m_Instrumentation{instrumentation != nullptr ? instrumentation : &INSTRUMENTATION_STUB} {
-    if (std::find(REGRESSION_LOSSES.begin(), REGRESSION_LOSSES.end(),
-                  m_Loss->name()) != REGRESSION_LOSSES.end()) {
-        m_Instrumentation->type(CDataFrameTrainBoostedTreeInstrumentationInterface::E_Regression);
-    } else {
-        m_Instrumentation->type(CDataFrameTrainBoostedTreeInstrumentationInterface::E_Classification);
-    }
 }
 
 CBoostedTreeImpl::CBoostedTreeImpl() = default;
@@ -175,6 +169,13 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     }
     if (m_Loss == nullptr) {
         HANDLE_FATAL(<< "Internal error: must supply a loss function. Please report this problem.");
+    }
+
+    if (std::find(REGRESSION_LOSSES.begin(), REGRESSION_LOSSES.end(),
+                  m_Loss->name()) != REGRESSION_LOSSES.end()) {
+        m_Instrumentation->type(CDataFrameTrainBoostedTreeInstrumentationInterface::E_Regression);
+    } else {
+        m_Instrumentation->type(CDataFrameTrainBoostedTreeInstrumentationInterface::E_Classification);
     }
 
     LOG_TRACE(<< "Main training loop...");
