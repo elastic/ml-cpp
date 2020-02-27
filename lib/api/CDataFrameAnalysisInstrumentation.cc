@@ -230,6 +230,12 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t 
         writer->EndObject();
         writer->EndObject();
     }
+    this->reset();
+}
+
+void CDataFrameTrainBoostedTreeInstrumentation::reset() {
+    // Clear the map of loss values before the next iteration
+    m_LossValues.clear();
 }
 
 void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::Value& parentObject) {
@@ -305,7 +311,6 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss(rapidjson::V
     if (writer != nullptr) {
         writer->addMember(VALIDATION_LOSS_TYPE_TAG, m_LossType, parentObject);
         rapidjson::Value lossValuesObject{writer->makeObject()};
-        // writer->StartObject();
         for (auto& element : m_LossValues) {
             rapidjson::Value array{writer->makeArray(element.second.size())};
             for (double lossValue : element.second) {
@@ -315,7 +320,6 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss(rapidjson::V
             writer->addMember(element.first, array, lossValuesObject);
         }
         writer->addMember(VALIDATION_LOSS_VALUES_TAG, lossValuesObject, parentObject);
-        // writer->EndObject();
     }
 }
 void CDataFrameTrainBoostedTreeInstrumentation::writeTimingStats(rapidjson::Value& parentObject) {

@@ -7,16 +7,15 @@
 #ifndef INCLUDED_ml_test_CDataFrameAnalyzerTrainingFactory_h
 #define INCLUDED_ml_test_CDataFrameAnalyzerTrainingFactory_h
 
-#include <api/CDataFrameAnalysisInstrumentation.h>
-#include <api/CDataFrameAnalyzer.h>
-
 #include <core/CDataFrame.h>
 
 #include <maths/CBoostedTreeFactory.h>
 #include <maths/CTools.h>
 
-#include <test/CRandomNumbers.h>
+#include <api/CDataFrameAnalysisInstrumentation.h>
+#include <api/CDataFrameAnalyzer.h>
 
+#include <test/CRandomNumbers.h>
 #include <test/ImportExport.h>
 
 #include <string>

@@ -132,12 +132,13 @@ private:
     void writeHyperparameters(rapidjson::Value& parentObject);
     void writeValidationLoss(rapidjson::Value& parentObject);
     void writeTimingStats(rapidjson::Value& parentObject);
+    void reset();
 
 private:
     EStatsType m_Type;
     std::size_t m_Iteration;
     std::uint64_t m_IterationTime;
-    std::uint64_t m_ElapsedTime;
+    std::uint64_t m_ElapsedTime = 0;
     std::string m_LossType;
     TLossMap m_LossValues;
     std::size_t m_NumFolds;

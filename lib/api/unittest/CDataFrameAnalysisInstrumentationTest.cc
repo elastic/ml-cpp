@@ -133,6 +133,7 @@ BOOST_AUTO_TEST_CASE(testTrainingRegression) {
             }
         }
     }
+    // TODO add memory format test
 }
 
 BOOST_AUTO_TEST_CASE(testTrainingClassification) {

@@ -4,9 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "maths/CBoostedTree.h"
-#include "maths/CDataFrameAnalysisInstrumentationInterface.h"
-#include <atomic>
 #include <maths/CBoostedTreeImpl.h>
 
 #include <core/CContainerPrinter.h>
@@ -19,13 +16,14 @@
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
+#include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
+#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
 #include <maths/CSetTools.h>
 #include <maths/CTreeShapFeatureImportance.h>
-#include <string>
 
 namespace ml {
 namespace maths {
@@ -42,10 +40,8 @@ namespace {
 // quantiles anyway. So we amortise their compute cost w.r.t. training trees
 // by only refreshing once every MINIMUM_SPLIT_REFRESH_INTERVAL trees we add.
 const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
-
 const std::string HYPERPARAMETER_OPTIMIZATION_PHASE{"hyperparameter_optimization"};
 const std::string TRAINING_FINAL_TREE_PHASE{"training_final_tree"};
-
 const std::array<std::string, 1> REGRESSION_LOSSES{CMse::NAME};
 
 //! \brief Record the memory used by a supplied object using the RAII idiom.
