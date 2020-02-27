@@ -12,6 +12,7 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CLinearAlgebraFwd.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -682,6 +683,31 @@ public:
     logisticFunction(double x, double width = 1.0, double x0 = 0.0, double sign = 1.0) {
         return sigmoid(std::exp(std::copysign(1.0, sign) * (x - x0) / width));
     }
+
+    //! Compute the softmax from the minomial logit values \p logit.
+    //!
+    //! i.e. \f$[\sigma(z)]_i = \frac{exp(z_i)}{\sum_j exp(z_j)}\f$.
+    //!
+    //! \tparam COLLECTION Is assumed to be a collection type, i.e. it
+    //! must support iterator based access.
+    template<typename COLLECTION>
+    static COLLECTION softmax(COLLECTION z) {
+        COLLECTION probabilities{std::move(z)};
+        double Z{0.0};
+        double zmax{*std::max_element(z.begin(), z.end())};
+        for (auto& pi : probabilities) {
+            pi = std::exp(pi - zmax);
+            Z += pi;
+        }
+        for (auto& pi : probabilities) {
+            pi /= Z;
+        }
+        return probabilities;
+    }
+
+    //! Specialize the softmax for our dense vector type.
+    template<typename T>
+    static CDenseVector<T> softmax(CDenseVector<T> z);
 
     //! Linearly interpolate a function on the interval [\p a, \p b].
     static double linearlyInterpolate(double a, double b, double fa, double fb, double x);

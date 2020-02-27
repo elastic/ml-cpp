@@ -66,9 +66,9 @@ private:
 
 //! \brief Finds the value to add to a set of predicted log-odds which minimises
 //! regularised cross entropy loss w.r.t. the actual categories.
-class MATHS_EXPORT CArgMinLogisticImpl final : public CArgMinLossImpl {
+class MATHS_EXPORT CArgMinBinomialLogisticImpl final : public CArgMinLossImpl {
 public:
-    CArgMinLogisticImpl(double lambda);
+    CArgMinBinomialLogisticImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
     void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
@@ -102,6 +102,28 @@ private:
     TMinMaxAccumulator m_PredictionMinMax;
     TDoubleVector2x1 m_CategoryCounts;
     TDoubleVector2x1Vec m_BucketCategoryCounts;
+};
+
+//! \brief Finds the value to add to a set of predicted multinomial logit which
+//! minimises regularised cross entropy loss w.r.t. the actual classes.
+class MATHS_EXPORT CArgMinMultinomialLogisticImpl final : public CArgMinLossImpl {
+public:
+    CArgMinMultinomialLogisticImpl(std::size_t numberClasses, double lambda);
+    std::unique_ptr<CArgMinLossImpl> clone() const override;
+    bool nextPass() override;
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
+    void merge(const CArgMinLossImpl& other) override;
+    TDoubleVector value() const override;
+
+private:
+    using TVector = CVector<double>;
+    using TVectorVec = std::vector<TVector>;
+
+private:
+    std::size_t m_CurrentPass = 0;
+    TVector m_CategoryCounts;
+    // tbd
+    TVectorVec m_BucketCategoryCounts;
 };
 }
 
@@ -247,6 +269,45 @@ public:
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda) const override;
     const std::string& name() const override;
+};
+
+//!  \brief Implements loss for multinomial logistic regression.
+//!
+//! DESCRIPTION:\n
+//! This targets the cross-entropy loss using the forest to predict the class
+//! probabilities via the softmax function:
+//! <pre class="fragment">
+//!   \f$\displaystyle l_i(p) = -\sum_i a_{ij} \log(\sigma(p))\f$
+//! </pre>
+//! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ denotes
+//! the vector valued prediction and \f$\sigma(p)\$ is the softmax function, i.e.
+//! \f$[\sigma(p)]_j = \frac{e^{p_i}}{\sum_k e^{p_k}}\f$.
+class MATHS_EXPORT CMultinomialLogisticRegression final : public CLoss {
+public:
+    static const std::string NAME;
+
+public:
+    CMultinomialLogisticRegression(std::size_t numberClasses);
+    std::unique_ptr<CLoss> clone() const override;
+    std::size_t numberParameters() const override;
+    double value(const TMemoryMappedFloatVector& prediction,
+                 double actual,
+                 double weight = 1.0) const override;
+    void gradient(const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  TWriter writer,
+                  double weight = 1.0) const override;
+    void curvature(const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   TWriter writer,
+                   double weight = 1.0) const override;
+    bool isCurvatureConstant() const override;
+    TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
+    CArgMinLoss minimizer(double lambda) const override;
+    const std::string& name() const override;
+
+private:
+    std::size_t m_NumberClasses;
 };
 }
 }

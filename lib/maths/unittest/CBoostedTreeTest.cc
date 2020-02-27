@@ -887,10 +887,11 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
 
 BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
 
-    using maths::boosted_tree_detail::CArgMinLogisticImpl;
+    using maths::boosted_tree_detail::CArgMinBinomialLogisticImpl;
 
     // All predictions equal and zero.
     {
+<<<<<<< Updated upstream
         CArgMinLogisticImpl argmin{0.0};
         maths::CFloatStorage storage[]{0.0};
         TMemoryMappedFloatVector prediction{storage, 1};
@@ -898,6 +899,13 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
         argmin.add(prediction, 1.0);
         argmin.add(prediction, 1.0);
         argmin.add(prediction, 0.0);
+=======
+        CArgMinBinomialLogisticImpl argmin{0.0};
+        argmin.add({0.0}, 0.0);
+        argmin.add({0.0}, 1.0);
+        argmin.add({0.0}, 1.0);
+        argmin.add({0.0}, 0.0);
+>>>>>>> Stashed changes
         argmin.nextPass();
         BOOST_REQUIRE_EQUAL(0.0, argmin.value()[0]);
     }
@@ -914,7 +922,7 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
         }
         weights.resize(labels.size(), 0.0);
 
-        CArgMinLogisticImpl argmin{0.0};
+        CArgMinBinomialLogisticImpl argmin{0.0};
         std::size_t numberPasses{0};
         std::size_t counts[2]{0, 0};
 
@@ -938,7 +946,7 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
 
     // Test underflow of probabilities.
     {
-        CArgMinLogisticImpl argmin{0.0};
+        CArgMinBinomialLogisticImpl argmin{0.0};
 
         TDoubleVec predictions{-500.0, -30.0, -15.0, -400.0};
         TDoubleVec actuals{1.0, 1.0, 0.0, 1.0};
@@ -974,7 +982,7 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerRandom) {
     // Test that we a good approximation of the additive term for the log-odds
     // which minimises the cross entropy objective.
 
-    using maths::boosted_tree_detail::CArgMinLogisticImpl;
+    using maths::boosted_tree_detail::CArgMinBinomialLogisticImpl;
 
     test::CRandomNumbers rng;
 
@@ -1025,8 +1033,8 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerRandom) {
             LOG_DEBUG(<< "expected = " << expected
                       << " objective at expected = " << objectiveAtExpected);
 
-            CArgMinLogisticImpl argmin{lambda};
-            CArgMinLogisticImpl argminPartition[2]{{lambda}, {lambda}};
+            CArgMinBinomialLogisticImpl argmin{lambda};
+            CArgMinBinomialLogisticImpl argminPartition[2]{{lambda}, {lambda}};
             auto nextPass = [&] {
                 bool done{argmin.nextPass() == false};
                 done &= (argminPartition[0].nextPass() == false);
