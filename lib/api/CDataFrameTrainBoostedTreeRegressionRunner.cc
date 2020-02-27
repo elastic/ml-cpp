@@ -11,6 +11,7 @@
 
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
+#include <maths/CBoostedTreeLoss.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/CTreeShapFeatureImportance.h>
 
