@@ -149,7 +149,7 @@ CArgMinLogisticImpl::TDoubleVector CArgMinLogisticImpl::value() const {
         double prediction{m_PredictionMinMax.initialized()
                               ? (m_PredictionMinMax.min() + m_PredictionMinMax.max()) / 2.0
                               : 0.0};
-        objective = [&](double weight) {
+        objective = [prediction, this](double weight) {
             double logOdds{prediction + weight};
             double c0{m_CategoryCounts(0)};
             double c1{m_CategoryCounts(1)};
