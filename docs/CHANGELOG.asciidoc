@@ -58,6 +58,7 @@ necessary. This will improve the allocation of data frame analyses to cluster no
 the build from version 2.20 to 2.34.  (See {ml-pull}1013[#1013].)
 * Add instrumentation information for supervised learning data frame analytics jobs.
 (See {ml-pull}1031[#1031].)
+* Remove all memory overheads for computing tree SHAP values. (See {ml-pull}1023[#1023].)
 
 === Bug Fixes
 

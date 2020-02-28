@@ -63,7 +63,7 @@ Unlike most automake-based tools, gcc must be built in a directory adjacent to t
 tar zxvf gcc-7.5.0.tar.gz
 cd gcc-7.5.0
 contrib/download_prerequisites
-sed -i -e 's/$(SHLIB_LDFLAGS)/$(LDFLAGS) $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc
+sed -i -e 's/$(SHLIB_LDFLAGS)/-Wl,-z,relro -Wl,-z,now $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc
 cd ..
 mkdir gcc-7.5.0-build
 cd gcc-7.5.0-build

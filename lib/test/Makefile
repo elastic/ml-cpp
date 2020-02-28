@@ -15,7 +15,6 @@ LIBS:=$(LIB_ML_CORE) $(LIB_ML_MATHS) $(LIB_ML_API)
 
 PLATFORM_SRCS= \
     CShellCmdEscape.cc \
-    CTestTmpDir.cc \
 
 SRCS= \
     $(OS_SRCS) \
@@ -26,6 +25,7 @@ SRCS= \
     CMultiFileSearcher.cc \
     CRandomNumbers.cc \
     CTestObserver.cc \
+    CTestTmpDir.cc \
     CThreadDataReader.cc \
     CThreadDataWriter.cc \
     CTimeSeriesTestData.cc \

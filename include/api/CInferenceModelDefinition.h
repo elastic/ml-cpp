@@ -149,6 +149,7 @@ class API_EXPORT CTree final : public CTrainedModel {
 public:
     class CTreeNode : public CSerializableToJson {
     public:
+        using TDoubleVec = std::vector<double>;
         using TNodeIndex = std::uint32_t;
         using TOptionalNodeIndex = boost::optional<TNodeIndex>;
         using TOptionalDouble = boost::optional<double>;
@@ -157,7 +158,7 @@ public:
         CTreeNode(TNodeIndex nodeIndex,
                   double threshold,
                   bool defaultLeft,
-                  double leafValue,
+                  TDoubleVec leafValue,
                   std::size_t splitFeature,
                   std::size_t numberSamples,
                   const TOptionalNodeIndex& leftChild,
@@ -178,7 +179,7 @@ public:
         std::size_t m_SplitFeature;
         std::size_t m_NumberSamples;
         double m_Threshold;
-        double m_LeafValue;
+        TDoubleVec m_LeafValue;
         TOptionalDouble m_SplitGain;
     };
     using TTreeNodeVec = std::vector<CTreeNode>;
