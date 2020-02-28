@@ -10,6 +10,7 @@
 
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTreeImpl.h>
+#include <maths/CBoostedTreeLoss.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>
