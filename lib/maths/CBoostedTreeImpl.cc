@@ -17,6 +17,7 @@
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
+#include <maths/CBoostedTreeLoss.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
@@ -155,11 +156,12 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     if (m_DependentVariable >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
-                     << "' was incorrectly initialized. Please report this problem.");
+                     << "' was incorrectly initialized. Please report this problem.")
         return;
     }
     if (m_Loss == nullptr) {
-        HANDLE_FATAL(<< "Internal error: must supply a loss function. Please report this problem.");
+        HANDLE_FATAL(<< "Internal error: must supply a loss function. "
+                     << "Please report this problem.")
     }
 
     LOG_TRACE(<< "Main training loop...");
@@ -242,55 +244,12 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     }
 
     this->computeProbabilityAtWhichToAssignClassOne(frame);
-
-    // populate numberSamples field in the final forest
-    this->computeNumberSamples(frame);
+    this->initializeTreeShap(frame);
 
     // Force progress to one because we can have early exit from loop skip altogether.
     m_Instrumentation->updateProgress(1.0);
     m_Instrumentation->updateMemoryUsage(
         static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
-}
-
-void CBoostedTreeImpl::computeNumberSamples(const core::CDataFrame& frame) {
-    for (auto& tree : m_BestForest) {
-        if (tree.size() == 1) {
-            root(tree).numberSamples(frame.numberRows());
-        } else {
-            auto result = frame.readRows(
-                m_NumberThreads,
-                core::bindRetrievableState(
-                    [&](TSizeVec& samplesPerNode, const TRowItr& beginRows, const TRowItr& endRows) {
-                        for (auto row = beginRows; row != endRows; ++row) {
-                            auto encodedRow{m_Encoder->encode(*row)};
-                            const CBoostedTreeNode* node{&root(tree)};
-                            samplesPerNode[0] += 1;
-                            std::size_t nextIndex;
-                            while (node->isLeaf() == false) {
-                                if (node->assignToLeft(encodedRow)) {
-                                    nextIndex = node->leftChildIndex();
-                                } else {
-                                    nextIndex = node->rightChildIndex();
-                                }
-                                samplesPerNode[nextIndex] += 1;
-                                node = &(tree[nextIndex]);
-                            }
-                        }
-                    },
-                    TSizeVec(tree.size())));
-            auto& state = result.first;
-            TSizeVec totalSamplesPerNode{std::move(state[0].s_FunctionState)};
-            for (std::size_t i = 1; i < state.size(); ++i) {
-                for (std::size_t nodeIndex = 0;
-                     nodeIndex < totalSamplesPerNode.size(); ++nodeIndex) {
-                    totalSamplesPerNode[nodeIndex] += state[i].s_FunctionState[nodeIndex];
-                }
-            }
-            for (std::size_t i = 0; i < tree.size(); ++i) {
-                tree[i].numberSamples(totalSamplesPerNode[i]);
-            }
-        }
-    }
 }
 
 void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {
@@ -302,7 +261,7 @@ void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainStat
 void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
     if (m_BestForestTestLoss == INF) {
         HANDLE_FATAL(<< "Internal error: no model available for prediction. "
-                     << "Please report this problem.");
+                     << "Please report this problem.")
         return;
     }
     bool successful;
@@ -316,7 +275,7 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
         });
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: failed model inference. "
-                     << "Please report this problem.");
+                     << "Please report this problem.")
     }
 }
 
@@ -346,11 +305,8 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
                                          PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
     std::size_t bayesianOptimisationMemoryUsage{CBayesianOptimisation::estimateMemoryUsage(
         this->numberHyperparametersToTune(), m_NumberRounds)};
-    std::size_t shapMemoryUsage{
-        m_TopShapValues > 0 ? numberRows * numberColumns * sizeof(CFloatStorage) : 0};
     return sizeof(*this) + forestMemoryUsage + foldRoundLossMemoryUsage +
-           hyperparametersMemoryUsage +
-           std::max(leafNodeStatisticsMemoryUsage, shapMemoryUsage) + // not concurrent
+           hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage +
            dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
            trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage;
 }
@@ -411,6 +367,24 @@ void CBoostedTreeImpl::computeProbabilityAtWhichToAssignClassOne(const core::CDa
                 m_DependentVariable, predictionColumn(m_NumberInputColumns));
             break;
         }
+    }
+}
+
+void CBoostedTreeImpl::initializeTreeShap(const core::CDataFrame& frame) {
+    // Populate number samples reaching each node.
+    CTreeShapFeatureImportance::computeNumberSamples(m_NumberThreads, frame,
+                                                     *m_Encoder, m_BestForest);
+
+    if (m_NumberTopShapValues > 0) {
+        // Create the SHAP calculator.
+        m_TreeShap = std::make_unique<CTreeShapFeatureImportance>(
+            frame, *m_Encoder, m_BestForest, m_NumberTopShapValues);
+    } else {
+        // TODO these are not currently written into the inference model
+        // but they would be nice to expose since they provide good insight
+        // into how the splits affect the target variable.
+        // Set internal node values anyway.
+        //CTreeShapFeatureImportance::computeInternalNodeValues(m_BestForest);
     }
 }
 
@@ -1235,9 +1209,7 @@ const std::string STOP_CROSS_VALIDATION_EARLY_TAG{"stop_cross_validation_eraly"}
 const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
 const std::string TRAINING_PROGRESS_TAG{"training_progress"};
-const std::string TOP_SHAP_VALUES_TAG{"top_shap_values"};
-const std::string FIRST_SHAP_COLUMN_INDEX{"first_shap_column_index"};
-const std::string LAST_SHAP_COLUMN_INDEX{"last_shap_column_index"};
+const std::string NUMBER_TOP_SHAP_VALUES_TAG{"top_shap_values"};
 }
 
 const std::string& CBoostedTreeImpl::bestHyperparametersName() {
@@ -1307,9 +1279,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                                  m_MaximumNumberTreesOverride, inserter);
     inserter.insertValue(LOSS_TAG, m_Loss->name());
-    core::CPersistUtils::persist(TOP_SHAP_VALUES_TAG, m_TopShapValues, inserter);
-    core::CPersistUtils::persist(FIRST_SHAP_COLUMN_INDEX, m_FirstShapColumnIndex, inserter);
-    core::CPersistUtils::persist(LAST_SHAP_COLUMN_INDEX, m_LastShapColumnIndex, inserter);
+    core::CPersistUtils::persist(NUMBER_TOP_SHAP_VALUES_TAG, m_NumberTopShapValues, inserter);
 }
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -1406,14 +1376,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                 core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                                              m_MaximumNumberTreesOverride, traverser))
         RESTORE(LOSS_TAG, restoreLoss(m_Loss, traverser))
-        RESTORE(TOP_SHAP_VALUES_TAG,
-                core::CPersistUtils::restore(TOP_SHAP_VALUES_TAG, m_TopShapValues, traverser))
-        RESTORE(FIRST_SHAP_COLUMN_INDEX,
-                core::CPersistUtils::restore(FIRST_SHAP_COLUMN_INDEX,
-                                             m_FirstShapColumnIndex, traverser))
-        RESTORE(LAST_SHAP_COLUMN_INDEX,
-                core::CPersistUtils::restore(LAST_SHAP_COLUMN_INDEX,
-                                             m_LastShapColumnIndex, traverser))
+        RESTORE(NUMBER_TOP_SHAP_VALUES_TAG,
+                core::CPersistUtils::restore(NUMBER_TOP_SHAP_VALUES_TAG,
+                                             m_NumberTopShapValues, traverser))
     } while (traverser.next());
 
     return true;
@@ -1461,32 +1426,8 @@ const CBoostedTreeHyperparameters& CBoostedTreeImpl::bestHyperparameters() const
     return m_BestHyperparameters;
 }
 
-void CBoostedTreeImpl::computeShapValues(core::CDataFrame& frame) {
-    if (m_TopShapValues > 0) {
-        if (m_BestForestTestLoss == INF) {
-            HANDLE_FATAL(<< "Internal error: no model available for prediction. "
-                         << "Please report this problem.");
-            return;
-        }
-        auto treeFeatureImportance = std::make_unique<CTreeShapFeatureImportance>(
-            m_BestForest, m_NumberThreads);
-        std::size_t offset{frame.numberColumns()};
-
-        // Resize data frame to write SHAP values.
-        std::size_t lastMemoryUsage{core::CMemory::dynamicSize(frame)};
-        frame.resizeColumns(m_NumberThreads, frame.numberColumns() + m_NumberInputColumns);
-        m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(frame) - lastMemoryUsage);
-
-        m_FirstShapColumnIndex = offset;
-        m_LastShapColumnIndex = frame.numberColumns() - 1;
-        TStrVec columnNames(frame.columnNames());
-        for (std::size_t i = 0; i < m_NumberInputColumns; ++i) {
-            columnNames[offset + i] = CDataFramePredictiveModel::SHAP_PREFIX +
-                                      frame.columnNames()[i];
-        }
-        frame.columnNames(columnNames);
-        treeFeatureImportance->shap(frame, *m_Encoder, offset);
-    }
+CTreeShapFeatureImportance* CBoostedTreeImpl::shap() {
+    return m_TreeShap.get();
 }
 
 const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureSampleProbabilities() const {
@@ -1503,14 +1444,6 @@ std::size_t CBoostedTreeImpl::columnHoldingDependentVariable() const {
 
 double CBoostedTreeImpl::probabilityAtWhichToAssignClassOne() const {
     return m_ProbabilityAtWhichToAssignClassOne;
-}
-
-CBoostedTreeImpl::TSizeRange CBoostedTreeImpl::columnsHoldingShapValues() const {
-    return TSizeRange{m_FirstShapColumnIndex, m_LastShapColumnIndex + 1};
-}
-
-std::size_t CBoostedTreeImpl::topShapValues() const {
-    return m_TopShapValues;
 }
 
 std::size_t CBoostedTreeImpl::numberInputColumns() const {
