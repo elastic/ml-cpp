@@ -136,7 +136,7 @@ double trace(std::size_t columns, const TMemoryMappedFloatVector& upperTriangle)
     return result;
 }
 
-CDataFrameAnalysisInstrumentationStub INSTRUMENTATION_STUB;
+CDataFrameTrainBoostedTreeInstrumentationStub INSTRUMENTATION_STUB;
 }
 
 CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,

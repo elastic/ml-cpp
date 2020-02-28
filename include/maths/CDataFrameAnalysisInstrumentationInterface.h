@@ -129,7 +129,7 @@ public:
 };
 
 //! \brief Dummies out all instrumentation for supervised learning.
-class MATHS_EXPORT CDataFrameAnalysisInstrumentationStub final
+class MATHS_EXPORT CDataFrameTrainBoostedTreeInstrumentationStub final
     : public CDataFrameTrainBoostedTreeInstrumentationInterface {
 public:
     void updateMemoryUsage(std::int64_t) override {}
