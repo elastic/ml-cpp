@@ -289,7 +289,7 @@ private:
 
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;
-    
+
     //! Record hyperparameters for instrumentation.
     void recordHyperparameters();
 
