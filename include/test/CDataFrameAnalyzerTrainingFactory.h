@@ -10,6 +10,7 @@
 #include <core/CDataFrame.h>
 
 #include <maths/CBoostedTreeFactory.h>
+#include <maths/CBoostedTreeLoss.h>
 #include <maths/CTools.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
