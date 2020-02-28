@@ -891,21 +891,13 @@ BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
 
     // All predictions equal and zero.
     {
-<<<<<<< Updated upstream
-        CArgMinLogisticImpl argmin{0.0};
+        CArgMinBinomialLogisticImpl argmin{0.0};
         maths::CFloatStorage storage[]{0.0};
         TMemoryMappedFloatVector prediction{storage, 1};
         argmin.add(prediction, 0.0);
         argmin.add(prediction, 1.0);
         argmin.add(prediction, 1.0);
         argmin.add(prediction, 0.0);
-=======
-        CArgMinBinomialLogisticImpl argmin{0.0};
-        argmin.add({0.0}, 0.0);
-        argmin.add({0.0}, 1.0);
-        argmin.add({0.0}, 1.0);
-        argmin.add({0.0}, 0.0);
->>>>>>> Stashed changes
         argmin.nextPass();
         BOOST_REQUIRE_EQUAL(0.0, argmin.value()[0]);
     }

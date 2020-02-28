@@ -8,6 +8,7 @@
 #define INCLUDED_ml_maths_CBoostedTreeLoss_h
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CKMeansOnline.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/ImportExport.h>
@@ -81,10 +82,12 @@ private:
     using TDoubleVector2x1Vec = std::vector<TDoubleVector2x1>;
 
 private:
+    static constexpr std::size_t NUMBER_BUCKETS = 128;
+
+private:
     std::size_t bucket(double prediction) const {
         double bucket{(prediction - m_PredictionMinMax.min()) / this->bucketWidth()};
-        return std::min(static_cast<std::size_t>(bucket),
-                        m_BucketCategoryCounts.size() - 1);
+        return std::min(static_cast<std::size_t>(bucket), m_BucketsClassCounts.size() - 1);
     }
 
     double bucketCentre(std::size_t bucket) const {
@@ -94,14 +97,14 @@ private:
 
     double bucketWidth() const {
         return m_PredictionMinMax.range() /
-               static_cast<double>(m_BucketCategoryCounts.size());
+               static_cast<double>(m_BucketsClassCounts.size());
     }
 
 private:
     std::size_t m_CurrentPass = 0;
     TMinMaxAccumulator m_PredictionMinMax;
-    TDoubleVector2x1 m_CategoryCounts;
-    TDoubleVector2x1Vec m_BucketCategoryCounts;
+    TDoubleVector2x1 m_ClassCounts;
+    TDoubleVector2x1Vec m_BucketsClassCounts;
 };
 
 //! \brief Finds the value to add to a set of predicted multinomial logit which
@@ -116,14 +119,20 @@ public:
     TDoubleVector value() const override;
 
 private:
-    using TVector = CVector<double>;
-    using TVectorVec = std::vector<TVector>;
+    using TDoubleVectorVec = std::vector<TDoubleVector>;
+    using TKMeans = CKMeansOnline<TDoubleVector>;
 
 private:
+    static constexpr std::size_t NUMBER_CENTRES = 128;
+
+private:
+    std::size_t m_NumberClass = 0;
     std::size_t m_CurrentPass = 0;
-    TVector m_CategoryCounts;
-    // tbd
-    TVectorVec m_BucketCategoryCounts;
+    TDoubleVector m_ClassCounts;
+    TDoubleVector m_DoublePrediction;
+    TKMeans m_PredictionSketch;
+    TDoubleVectorVec m_Centres;
+    TDoubleVectorVec m_CentresClassCounts;
 };
 }
 

@@ -559,24 +559,24 @@ protected:
 
     //! Add \p count copies of \p mx to the cluster \p cluster.
     static void add(const TDoublePoint& mx, double count, TFloatMeanAccumulatorDoublePr& cluster) {
-        double nx = count;
-        TDoublePoint vx(0.0);
-        double nc = CBasicStatistics::count(cluster.first);
-        TDoublePoint mc = CBasicStatistics::mean(cluster.first);
-        TDoublePoint vc(cluster.second);
-        TDoubleMeanVarAccumulator moments =
+        double nx{count};
+        TDoublePoint vx{las::zero(mx)};
+        double nc{CBasicStatistics::count(cluster.first)};
+        TDoublePoint mc{CBasicStatistics::mean(cluster.first)};
+        TDoublePoint vc{cluster.second * las::ones(mx)};
+        TDoubleMeanVarAccumulator moments{
             CBasicStatistics::momentsAccumulator(nc, mc, vc) +
-            CBasicStatistics::momentsAccumulator(nx, mx, vx);
-        TFloatCoordinate ncx = CBasicStatistics::count(moments);
-        TFloatPoint mcx = CBasicStatistics::mean(moments);
+            CBasicStatistics::momentsAccumulator(nx, mx, vx)};
+        TFloatCoordinate ncx{CBasicStatistics::count(moments)};
+        TFloatPoint mcx{CBasicStatistics::mean(moments)};
         cluster.first = CBasicStatistics::momentsAccumulator(ncx, mcx);
         cluster.second = variance(moments);
     }
 
     //! Get the spherically symmetric variance from \p moments.
     static double variance(const TDoubleMeanVarAccumulator& moments) {
-        const TDoublePoint& v = CBasicStatistics::maximumLikelihoodVariance(moments);
-        return v.L1() / static_cast<double>(v.dimension());
+        const TDoublePoint& v{CBasicStatistics::maximumLikelihoodVariance(moments)};
+        return las::L1(v) / static_cast<double>(las::dimension(v));
     }
 
 private:

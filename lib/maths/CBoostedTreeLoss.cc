@@ -6,6 +6,7 @@
 
 #include <maths/CBoostedTreeLoss.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CSolvers.h>
 #include <maths/CTools.h>
 #include <maths/CToolsDetail.h>
@@ -84,8 +85,8 @@ CArgMinMseImpl::TDoubleVector CArgMinMseImpl::value() const {
 }
 
 CArgMinBinomialLogisticImpl::CArgMinBinomialLogisticImpl(double lambda)
-    : CArgMinLossImpl{lambda}, m_CategoryCounts{0},
-      m_BucketCategoryCounts(128, TDoubleVector2x1{0.0}) {
+    : CArgMinLossImpl{lambda}, m_ClassCounts{0},
+      m_BucketsClassCounts(NUMBER_BUCKETS, TDoubleVector2x1{0.0}) {
 }
 
 std::unique_ptr<CArgMinLossImpl> CArgMinBinomialLogisticImpl::clone() const {
@@ -103,11 +104,11 @@ void CArgMinBinomialLogisticImpl::add(const TMemoryMappedFloatVector& prediction
     switch (m_CurrentPass) {
     case 0: {
         m_PredictionMinMax.add(prediction(0));
-        m_CategoryCounts(static_cast<std::size_t>(actual)) += weight;
+        m_ClassCounts(static_cast<std::size_t>(actual)) += weight;
         break;
     }
     case 1: {
-        auto& count = m_BucketCategoryCounts[this->bucket(prediction(0))];
+        auto& count = m_BucketsClassCounts[this->bucket(prediction(0))];
         count(static_cast<std::size_t>(actual)) += weight;
         break;
     }
@@ -122,11 +123,11 @@ void CArgMinBinomialLogisticImpl::merge(const CArgMinLossImpl& other) {
         switch (m_CurrentPass) {
         case 0:
             m_PredictionMinMax += logistic->m_PredictionMinMax;
-            m_CategoryCounts += logistic->m_CategoryCounts;
+            m_ClassCounts += logistic->m_ClassCounts;
             break;
         case 1:
-            for (std::size_t i = 0; i < m_BucketCategoryCounts.size(); ++i) {
-                m_BucketCategoryCounts[i] += logistic->m_BucketCategoryCounts[i];
+            for (std::size_t i = 0; i < m_BucketsClassCounts.size(); ++i) {
+                m_BucketsClassCounts[i] += logistic->m_BucketsClassCounts[i];
             }
             break;
         default:
@@ -145,30 +146,32 @@ CArgMinBinomialLogisticImpl::TDoubleVector CArgMinBinomialLogisticImpl::value() 
     // case we only need one pass over the data and can compute the optimal
     // value from the counts of the two categories.
     if (this->bucketWidth() == 0.0) {
-        objective = [this](double weight) {
-            double c0{m_CategoryCounts(0)};
-            double c1{m_CategoryCounts(1)};
+        double prediction{(m_PredictionMinMax.min() + m_PredictionMinMax.max()) / 2.0};
+        objective = [&](double weight) {
+            double logOdds{prediction + weight};
+            double c0{m_ClassCounts(0)};
+            double c1{m_ClassCounts(1)};
             return this->lambda() * CTools::pow2(weight) -
-                   c0 * logOneMinusLogistic(weight) - c1 * logLogistic(weight);
+                   c0 * logOneMinusLogistic(logOdds) - c1 * logLogistic(logOdds);
         };
 
         // Weight shrinkage means the optimal weight will be somewhere between
         // the logit of the empirical probability and zero.
-        double c0{m_CategoryCounts(0) + 1.0};
-        double c1{m_CategoryCounts(1) + 1.0};
+        double c0{m_ClassCounts(0) + 1.0};
+        double c1{m_ClassCounts(1) + 1.0};
         double empiricalProbabilityC1{c1 / (c0 + c1)};
         double empiricalLogOddsC1{
             std::log(empiricalProbabilityC1 / (1.0 - empiricalProbabilityC1))};
-        minWeight = empiricalProbabilityC1 < 0.5 ? empiricalLogOddsC1 : 0.0;
-        maxWeight = empiricalProbabilityC1 < 0.5 ? 0.0 : empiricalLogOddsC1;
+        minWeight = (empiricalProbabilityC1 < 0.5 ? empiricalLogOddsC1 : 0.0) - prediction;
+        maxWeight = (empiricalProbabilityC1 < 0.5 ? 0.0 : empiricalLogOddsC1) - prediction;
 
     } else {
         objective = [this](double weight) {
             double loss{0.0};
-            for (std::size_t i = 0; i < m_BucketCategoryCounts.size(); ++i) {
+            for (std::size_t i = 0; i < m_BucketsClassCounts.size(); ++i) {
                 double logOdds{this->bucketCentre(i) + weight};
-                double c0{m_BucketCategoryCounts[i](0)};
-                double c1{m_BucketCategoryCounts[i](1)};
+                double c0{m_BucketsClassCounts[i](0)};
+                double c1{m_BucketsClassCounts[i](1)};
                 loss -= c0 * logOneMinusLogistic(logOdds) + c1 * logLogistic(logOdds);
             }
             return loss + this->lambda() * CTools::pow2(weight);
@@ -203,7 +206,9 @@ CArgMinBinomialLogisticImpl::TDoubleVector CArgMinBinomialLogisticImpl::value() 
 
 CArgMinMultinomialLogisticImpl::CArgMinMultinomialLogisticImpl(std::size_t numberClasses,
                                                                double lambda)
-    : CArgMinLossImpl{lambda}, m_CategoryCounts{numberClasses, 0} {
+    : CArgMinLossImpl{lambda}, m_NumberClass{numberClasses},
+      m_ClassCounts{TDoubleVector::Zero(numberClasses)}, m_PredictionSketch{NUMBER_CENTRES},
+      m_CentresClassCounts(NUMBER_CENTRES, TDoubleVector::Zero(numberClasses)) {
 }
 
 std::unique_ptr<CArgMinLossImpl> CArgMinMultinomialLogisticImpl::clone() const {
@@ -211,21 +216,95 @@ std::unique_ptr<CArgMinLossImpl> CArgMinMultinomialLogisticImpl::clone() const {
 }
 
 bool CArgMinMultinomialLogisticImpl::nextPass() {
-    // TODO
-    return true;
+
+    // Extract the k-centres.
+    TKMeans::TSphericalClusterVecVec centres;
+    if (m_PredictionSketch.kmeans(NUMBER_CENTRES, centres) == false) {
+        m_Centres.push_back(TDoubleVector::Zero(m_NumberClasses));
+        m_CurrentPass += 2;
+    } else {
+        m_Centres.reserve(centres.size());
+        for (auto& centre : centres) {
+            m_Centres.push_back(std::move(static_cast<TDoubleVector&>(centre[0])));
+        }
+        m_CurrentPass += m_Centres.size() == 1 ? 2 : 1;
+    }
+
+    // Clear memory used by k-means.
+    m_PredictionSketch = TKMeans{0};
+
+    return m_CurrentPass < 2;
 }
 
 void CArgMinMultinomialLogisticImpl::add(const TMemoryMappedFloatVector& prediction,
                                          double actual,
                                          double weight) {
-    // TODO
+
+    using TMinAccumulator = CBasicStatistics::SMin<std::pair<double, std::size_t>>::TAccumulator;
+
+    switch (m_CurrentPass) {
+    case 0: {
+        // We have a member variable to avoid allocating a tempory each time.
+        m_DoublePrediction = prediction;
+        m_PredictionSketch.add(m_DoublePrediction, weight);
+        m_ClassCounts(static_cast<std::size_t>(actual)) += weight;
+        break;
+    }
+    case 1: {
+        TMinAccumulator nearest;
+        for (std::size_t i = 0; i < m_Centres.size(); ++i) {
+            nearest.add({(m_Centres[i] - prediction).lpNorm<2>(), i});
+        }
+        auto& count = m_CentresClassCounts[nearest[0].second];
+        count(static_cast<std::size_t>(actual)) += weight;
+        break;
+    }
+    default:
+        break;
+    }
 }
 
 void CArgMinMultinomialLogisticImpl::merge(const CArgMinLossImpl& other) {
-    // TODO
+    const auto* logistic = dynamic_cast<const CArgMinMultinomialLogisticImpl*>(&other);
+    if (logistic != nullptr) {
+        switch (m_CurrentPass) {
+        case 0:
+            m_PredictionSketch.merge(logistic->m_PredictionSketch);
+            m_ClassCounts += logistic->m_ClassCounts;
+            break;
+        case 1:
+            for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
+                m_CentresClassCounts[i] += logistic->m_CentresClassCounts[i];
+            }
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 CArgMinMultinomialLogisticImpl::TDoubleVector CArgMinMultinomialLogisticImpl::value() const {
+
+    std::function<double(const TDoubleVector&)> objective;
+
+    TDoubleVector probabilities;
+
+    // This is true if and only if all the predictions were identical. In this
+    // case we only need one pass over the data and can compute the optimal
+    // value from the counts of the categories.
+    if (m_Centres.empty()) {
+
+        objective = [&](const TDoubleVector& weight) {
+            probabilities = weight;
+            probabilities = CTools::softmax(probabilities);
+            return this->lambda() * weight.lpNorm<2>() - m_ClassCounts.transpose() * probabilities;
+        };
+
+        // How to initialize restarts?
+    } else {
+    }
+
+    // LBFGS with multiple restarts.
     // TODO
     return TDoubleVector{};
 }
