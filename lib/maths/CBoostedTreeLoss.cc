@@ -144,6 +144,8 @@ CArgMinLogisticImpl::TDoubleVector CArgMinLogisticImpl::value() const {
     // case we only need one pass over the data and can compute the optimal
     // value from the counts of the two categories.
     if (this->bucketWidth() == 0.0) {
+        // This is the (unique) predicted value for the rows in leaf by the forest
+        // so far (i.e. without the weight for the leaf we're about to add).
         double prediction{(m_PredictionMinMax.min() + m_PredictionMinMax.max()) / 2.0};
         objective = [&](double weight) {
             double logOdds{prediction + weight};
