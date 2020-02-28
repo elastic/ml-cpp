@@ -174,8 +174,8 @@ BOOST_AUTO_TEST_CASE(testTrainingClassification) {
 
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("analysis_stats")) {
-            BOOST_TEST_REQUIRE(result["analysis_stats"].HasMember("regression_stats"));
-            if (result["analysis_stats"]["regression_stats"].Accept(validator) == false) {
+            BOOST_TEST_REQUIRE(result["analysis_stats"].HasMember("classification_stats"));
+            if (result["analysis_stats"]["classification_stats"].Accept(validator) == false) {
                 rapidjson::StringBuffer sb;
                 validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
                 LOG_ERROR(<< "Invalid schema: " << sb.GetString());

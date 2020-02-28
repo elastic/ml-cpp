@@ -23,7 +23,7 @@
 
 namespace ml {
 namespace test {
-
+//! \brief Collection of helping methods to create regression and classification data for tests.
 class TEST_EXPORT CDataFrameAnalyzerTrainingFactory {
 public:
     enum EPredictionType { E_Regression, E_BinaryClassification };

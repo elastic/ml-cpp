@@ -35,6 +35,7 @@ public:
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
 
 public:
+    //! Constructs an intrumentation object an analytics job with a given \p jobId.
     explicit CDataFrameAnalysisInstrumentation(const std::string& jobId);
 
     //! Adds \p delta to the memory usage statistics.
@@ -68,11 +69,13 @@ public:
 
     //! Trigger the next step of the job. This will initiate writing the job state
     //! to the results pipe.
+    //! \todo use \p phase to tag different phases of the analysis job.
     void nextStep(const std::string& phase = "") override;
 
     //! \return The peak memory usage.
     std::int64_t memory() const;
 
+    //! \return The id of the data frame analytics job.
     const std::string& jobId() const;
 
 protected:
@@ -92,6 +95,7 @@ private:
     std::string m_JobId;
 };
 
+//! \brief Instrumentation class for Outlier Detection jobs.
 class API_EXPORT CDataFrameOutliersInstrumentation final
     : public CDataFrameAnalysisInstrumentation,
       public maths::CDataFrameOutliersInstrumentationInterface {
@@ -106,6 +110,11 @@ private:
     void writeAnalysisStats(std::int64_t timestamp) override;
 };
 
+//! \brief Instrumentation class for Supervised Learning jobs.
+//!
+//! DESCRIPTION:\n
+//! This class extends CDataFrameAnalysisInstrumentation with a setters
+//! for hyperparameters, validatioin loss results, and job timing.
 class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation final
     : public CDataFrameAnalysisInstrumentation,
       public maths::CDataFrameTrainBoostedTreeInstrumentationInterface {
@@ -113,12 +122,17 @@ public:
     explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId)
         : CDataFrameAnalysisInstrumentation(jobId){};
 
+    //! Supevised learning job \p type, can be E_Regression or E_Classification.
     void type(EStatsType type) override;
+    //! Current \p iteration number.
     void iteration(std::size_t iteration) override;
+    //! Run time of the iteration.
     void iterationTime(std::uint64_t delta) override;
+    //! Type of the validation loss result, e.g. "mse".
     void lossType(const std::string& lossType) override;
+    //! List of \p lossValues of validation error for the given \p fold.
     void lossValues(std::string fold, TDoubleVec&& lossValues) override;
-    void numFolds(std::size_t numFolds) override;
+    //! \return Strucutre contains hyperparameters.
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; };
 
 protected:
@@ -141,7 +155,6 @@ private:
     std::uint64_t m_ElapsedTime = 0;
     std::string m_LossType;
     TLossMap m_LossValues;
-    std::size_t m_NumFolds;
     SHyperparameters m_Hyperparameters;
 };
 }

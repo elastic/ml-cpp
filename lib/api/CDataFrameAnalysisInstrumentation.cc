@@ -191,10 +191,6 @@ void CDataFrameTrainBoostedTreeInstrumentation::lossValues(std::string fold,
     m_LossValues.emplace(std::make_pair(fold, lossValues));
 }
 
-void CDataFrameTrainBoostedTreeInstrumentation::numFolds(std::size_t numFolds) {
-    m_NumFolds = numFolds;
-}
-
 void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t timestamp) {
     auto* writer{this->writer()};
     if (writer != nullptr) {

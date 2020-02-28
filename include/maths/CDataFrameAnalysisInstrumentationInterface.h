@@ -61,6 +61,11 @@ public:
 class MATHS_EXPORT CDataFrameOutliersInstrumentationInterface
     : virtual public CDataFrameAnalysisInstrumentationInterface {};
 
+//! \brief Instrumentation interface for Supervised Learning jobs.
+//!
+//! DESCRIPTION:\n
+//! This interface extends CDataFrameAnalysisInstrumentationInterface with a setters
+//! for hyperparameters, validatioin loss results, and job timing.
 class MATHS_EXPORT CDataFrameTrainBoostedTreeInstrumentationInterface
     : virtual public CDataFrameAnalysisInstrumentationInterface {
 public:
@@ -100,16 +105,21 @@ public:
 
 public:
     virtual ~CDataFrameTrainBoostedTreeInstrumentationInterface() = default;
+    //! Supevised learning job \p type, can be E_Regression or E_Classification.
     virtual void type(EStatsType type) = 0;
+    //! Current \p iteration number.
     virtual void iteration(std::size_t iteration) = 0;
+    //! Run time of the iteration.
     virtual void iterationTime(std::uint64_t delta) = 0;
+    //! Type of the validation loss result, e.g. "mse".
     virtual void lossType(const std::string& lossType) = 0;
+    //! List of \p lossValues of validation error for the given \p fold.
     virtual void lossValues(std::string fold, TDoubleVec&& lossValues) = 0;
-    virtual void numFolds(std::size_t numFolds) = 0;
+    //! \return Strucutre contains hyperparameters.
     virtual SHyperparameters& hyperparameters() = 0;
 };
 
-//! \brief Dummies out all instrumentation.
+//! \brief Dummies out all instrumentation for outlier detection.
 class MATHS_EXPORT CDataFrameOutliersInstrumentationStub final
     : public CDataFrameOutliersInstrumentationInterface {
 public:
@@ -118,7 +128,7 @@ public:
     void nextStep(const std::string& /* phase */) override {}
 };
 
-//! \brief Dummies out all instrumentation.
+//! \brief Dummies out all instrumentation for supervised learning.
 class MATHS_EXPORT CDataFrameAnalysisInstrumentationStub final
     : public CDataFrameTrainBoostedTreeInstrumentationInterface {
 public:
@@ -130,7 +140,6 @@ public:
     void iterationTime(std::uint64_t /* delta */) override{};
     void lossType(const std::string& /* lossType */) override{};
     void lossValues(std::string /* fold */, TDoubleVec&& /* lossValues */) override{};
-    void numFolds(std::size_t /* numFolds */) override{};
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; };
 
 private:
