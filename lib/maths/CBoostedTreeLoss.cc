@@ -144,11 +144,17 @@ CArgMinLogisticImpl::TDoubleVector CArgMinLogisticImpl::value() const {
     // case we only need one pass over the data and can compute the optimal
     // value from the counts of the two categories.
     if (this->bucketWidth() == 0.0) {
-        objective = [this](double weight) {
+        // This is the (unique) predicted value for the rows in leaf by the forest
+        // so far (i.e. without the weight for the leaf we're about to add).
+        double prediction{m_PredictionMinMax.initialized()
+                              ? (m_PredictionMinMax.min() + m_PredictionMinMax.max()) / 2.0
+                              : 0.0};
+        objective = [prediction, this](double weight) {
+            double logOdds{prediction + weight};
             double c0{m_CategoryCounts(0)};
             double c1{m_CategoryCounts(1)};
             return this->lambda() * CTools::pow2(weight) -
-                   c0 * logOneMinusLogistic(weight) - c1 * logLogistic(weight);
+                   c0 * logOneMinusLogistic(logOdds) - c1 * logLogistic(logOdds);
         };
 
         // Weight shrinkage means the optimal weight will be somewhere between
@@ -158,8 +164,8 @@ CArgMinLogisticImpl::TDoubleVector CArgMinLogisticImpl::value() const {
         double empiricalProbabilityC1{c1 / (c0 + c1)};
         double empiricalLogOddsC1{
             std::log(empiricalProbabilityC1 / (1.0 - empiricalProbabilityC1))};
-        minWeight = empiricalProbabilityC1 < 0.5 ? empiricalLogOddsC1 : 0.0;
-        maxWeight = empiricalProbabilityC1 < 0.5 ? 0.0 : empiricalLogOddsC1;
+        minWeight = (empiricalProbabilityC1 < 0.5 ? empiricalLogOddsC1 : 0.0) - prediction;
+        maxWeight = (empiricalProbabilityC1 < 0.5 ? 0.0 : empiricalLogOddsC1) - prediction;
 
     } else {
         objective = [this](double weight) {
@@ -200,6 +206,7 @@ CArgMinLogisticImpl::TDoubleVector CArgMinLogisticImpl::value() const {
     return result;
 }
 }
+
 namespace boosted_tree {
 
 CArgMinLoss::CArgMinLoss(const CArgMinLoss& other)
