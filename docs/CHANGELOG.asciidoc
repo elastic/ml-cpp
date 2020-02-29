@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.6.2
+
+=== Bug Fixes
+
+* Fix a bug in the calculation of the minimum loss leaf values for classification.
+(See {ml-pull}1032[#1032].)
+
 == {es} version 7.6.0
 
 === New Features
