@@ -911,7 +911,8 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
     using TArgMinLossVec = std::vector<CArgMinLoss>;
 
     TArgMinLossVec leafValues(
-        tree.size(), m_Loss->minimizer(m_Regularization.leafWeightPenaltyMultiplier()));
+        tree.size(),
+        m_Loss->minimizer(m_Regularization.leafWeightPenaltyMultiplier(), m_Rng));
     auto nextPass = [&] {
         bool done{true};
         for (const auto& value : leafValues) {

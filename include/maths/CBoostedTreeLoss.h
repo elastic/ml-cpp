@@ -11,6 +11,7 @@
 #include <maths/CKMeansOnline.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraEigen.h>
+#include <maths/CPRNG.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -113,12 +114,22 @@ private:
 //! minimises regularised cross entropy loss w.r.t. the actual classes.
 class MATHS_EXPORT CArgMinMultinomialLogisticImpl final : public CArgMinLossImpl {
 public:
-    CArgMinMultinomialLogisticImpl(std::size_t numberClasses, double lambda);
+    using TObjective = std::function<double(const TDoubleVector&)>;
+    using TObjectiveGradient = std::function<TDoubleVector(const TDoubleVector&)>;
+
+public:
+    CArgMinMultinomialLogisticImpl(std::size_t numberClasses,
+                                   double lambda,
+                                   const CPRNG::CXorOShiro128Plus& rng);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
     void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
+
+    // Exposed for unit testing.
+    TObjective objective() const;
+    TObjectiveGradient objectiveGradient() const;
 
 private:
     using TDoubleVectorVec = std::vector<TDoubleVector>;
@@ -126,10 +137,12 @@ private:
 
 private:
     static constexpr std::size_t NUMBER_CENTRES = 128;
+    static constexpr std::size_t NUMBER_RESTARTS = 5;
 
 private:
     std::size_t m_NumberClasses = 0;
     std::size_t m_CurrentPass = 0;
+    mutable CPRNG::CXorOShiro128Plus m_Rng;
     TDoubleVector m_ClassCounts;
     TDoubleVector m_DoublePrediction;
     TKMeans m_PredictionSketch;
@@ -216,7 +229,8 @@ public:
     //! Transforms a prediction from the forest to the target space.
     virtual TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const = 0;
     //! Get an object which computes the leaf value that minimises loss.
-    virtual CArgMinLoss minimizer(double lambda) const = 0;
+    virtual CArgMinLoss minimizer(double lambda,
+                                  const CPRNG::CXorOShiro128Plus& rng) const = 0;
     //! Get the name of the loss function
     virtual const std::string& name() const = 0;
 
@@ -245,7 +259,7 @@ public:
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
-    CArgMinLoss minimizer(double lambda) const override;
+    CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
 };
 
@@ -278,7 +292,7 @@ public:
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
-    CArgMinLoss minimizer(double lambda) const override;
+    CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
 };
 
@@ -314,7 +328,7 @@ public:
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
-    CArgMinLoss minimizer(double lambda) const override;
+    CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
 
 private:
