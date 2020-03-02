@@ -96,8 +96,10 @@ private:
     }
 
     double bucketWidth() const {
-        return m_PredictionMinMax.range() /
-               static_cast<double>(m_BucketsClassCounts.size());
+        return m_PredictionMinMax.initialized()
+                   ? m_PredictionMinMax.range() /
+                         static_cast<double>(m_BucketCategoryCounts.size())
+                   : 0.0;
     }
 
 private:

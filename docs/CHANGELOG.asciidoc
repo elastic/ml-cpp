@@ -65,6 +65,13 @@ the build from version 2.20 to 2.34.  (See {ml-pull}1013[#1013].)
 * Account for the data frame's memory when estimating the peak memory used by classification
 and regression model training. (See {ml-pull}996[#996].)
 
+== {es} version 7.6.2
+
+=== Bug Fixes
+
+* Fix a bug in the calculation of the minimum loss leaf values for classification.
+(See {ml-pull}1032[#1032].)
+
 == {es} version 7.6.0
 
 === New Features
