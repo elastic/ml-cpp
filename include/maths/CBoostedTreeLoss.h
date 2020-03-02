@@ -98,7 +98,7 @@ private:
     double bucketWidth() const {
         return m_PredictionMinMax.initialized()
                    ? m_PredictionMinMax.range() /
-                         static_cast<double>(m_BucketCategoryCounts.size())
+                         static_cast<double>(m_BucketsClassCounts.size())
                    : 0.0;
     }
 
@@ -128,7 +128,7 @@ private:
     static constexpr std::size_t NUMBER_CENTRES = 128;
 
 private:
-    std::size_t m_NumberClass = 0;
+    std::size_t m_NumberClasses = 0;
     std::size_t m_CurrentPass = 0;
     TDoubleVector m_ClassCounts;
     TDoubleVector m_DoublePrediction;

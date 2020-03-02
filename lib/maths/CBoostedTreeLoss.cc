@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "maths/CLinearAlgebraEigen.h"
 #include <maths/CBoostedTreeLoss.h>
 
 #include <maths/CBasicStatistics.h>
@@ -32,6 +33,16 @@ double logLogistic(double logOdds) {
         return logOdds;
     }
     return CTools::fastLog(CTools::logisticFunction(logOdds));
+}
+
+template<typename T>
+CDenseVector<T> logSoftmax(CDenseVector<T> z) {
+    // Version which handles overflow and underflow when taking exponentials.
+    double zmax{z.maxCoeff()};
+    z = z - zmax * CDenseVector<T>::Ones(z.size());
+    double Z{z.array().exp().template lpNorm<1>()};
+    z = z - std::log(Z) * CDenseVector<T>::Ones(z.size());
+    return std::move(z);
 }
 }
 
@@ -153,8 +164,8 @@ CArgMinBinomialLogisticImpl::TDoubleVector CArgMinBinomialLogisticImpl::value() 
                               : 0.0};
         objective = [prediction, this](double weight) {
             double logOdds{prediction + weight};
-            double c0{m_CategoryCounts(0)};
-            double c1{m_CategoryCounts(1)};
+            double c0{m_ClassCounts(0)};
+            double c1{m_ClassCounts(1)};
             return this->lambda() * CTools::pow2(weight) -
                    c0 * logOneMinusLogistic(logOdds) - c1 * logLogistic(logOdds);
         };
@@ -210,7 +221,7 @@ CArgMinBinomialLogisticImpl::TDoubleVector CArgMinBinomialLogisticImpl::value() 
 
 CArgMinMultinomialLogisticImpl::CArgMinMultinomialLogisticImpl(std::size_t numberClasses,
                                                                double lambda)
-    : CArgMinLossImpl{lambda}, m_NumberClass{numberClasses},
+    : CArgMinLossImpl{lambda}, m_NumberClasses{numberClasses},
       m_ClassCounts{TDoubleVector::Zero(numberClasses)}, m_PredictionSketch{NUMBER_CENTRES},
       m_CentresClassCounts(NUMBER_CENTRES, TDoubleVector::Zero(numberClasses)) {
 }
@@ -299,13 +310,22 @@ CArgMinMultinomialLogisticImpl::TDoubleVector CArgMinMultinomialLogisticImpl::va
     if (m_Centres.empty()) {
 
         objective = [&](const TDoubleVector& weight) {
-            probabilities = weight;
-            probabilities = CTools::softmax(probabilities);
+            probabilities = m_Centres[0] + weight;
+            probabilities = logSoftmax(std::move(probabilities));
             return this->lambda() * weight.lpNorm<2>() - m_ClassCounts.transpose() * probabilities;
         };
 
-        // How to initialize restarts?
     } else {
+
+        objective = [&](const TDoubleVector& weight) {
+            double loss{0.0};
+            for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
+                probabilities = m_Centres[i] + weight;
+                probabilities = logSoftmax(std::move(probabilities));
+                loss -= m_CentresClassCounts[i].transpose() * probabilities;
+            }
+            return loss + this->lambda() * weight.lpNorm<2>();
+        };
     }
 
     // LBFGS with multiple restarts.
