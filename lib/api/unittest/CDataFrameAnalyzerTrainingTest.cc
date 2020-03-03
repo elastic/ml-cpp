@@ -382,30 +382,65 @@ BOOST_AUTO_TEST_CASE(testMissingString) {
     TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
     TStrVec fieldValues{"a", "2.0", "3.0", "4.0", "5.0", "0", ""};
 
-    test::CDataFrameAnalysisSpecificationFactory specFactory;
-    api::CDataFrameAnalyzer analyzer{
-        specFactory.rows(5).predictionCategoricalFieldNames({"f1"}).predictionSpec(
-            test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
-        outputWriterFactory};
+    // Test default value.
+    {
+        std::string a{"a"};
+        std::string b{"b"};
+        std::string missing{core::CDataFrame::DEFAULT_MISSING_STRING};
 
-    std::string a{"a"};
-    std::string b{"b"};
-    std::string missing{core::CDataFrame::DEFAULT_MISSING_STRING};
-    TBoolVec isMissing;
-    for (const auto& category : {a, missing, b, a, missing}) {
-        fieldValues[0] = category;
-        analyzer.handleRecord(fieldNames, fieldValues);
-        isMissing.push_back(category == missing);
-    }
-    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        api::CDataFrameAnalyzer analyzer{
+            specFactory.rows(5).predictionCategoricalFieldNames({"f1"}).predictionSpec(
+                test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
+            outputWriterFactory};
 
-    analyzer.dataFrame().readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
-        std::size_t i{0};
-        for (auto row = beginRows; row != endRows; ++row, ++i) {
-            BOOST_REQUIRE_EQUAL(isMissing[row->index()],
-                                maths::CDataFrameUtils::isMissing((*row)[0]));
+        TBoolVec isMissing;
+        for (const auto& category : {a, missing, b, a, missing}) {
+            fieldValues[0] = category;
+            analyzer.handleRecord(fieldNames, fieldValues);
+            isMissing.push_back(category == missing);
         }
-    });
+        analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+        analyzer.dataFrame().readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+            std::size_t i{0};
+            for (auto row = beginRows; row != endRows; ++row, ++i) {
+                BOOST_REQUIRE_EQUAL(isMissing[row->index()],
+                                    maths::CDataFrameUtils::isMissing((*row)[0]));
+            }
+        });
+    }
+
+    // Test custom value.
+    {
+        std::string a{"a"};
+        std::string b{"b"};
+        std::string missing{"foo"};
+
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        api::CDataFrameAnalyzer analyzer{
+            specFactory.rows(5)
+                .predictionCategoricalFieldNames({"f1"})
+                .missingString("foo")
+                .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
+            outputWriterFactory};
+
+        TBoolVec isMissing;
+        for (const auto& category : {a, missing, b, a, missing}) {
+            fieldValues[0] = category;
+            analyzer.handleRecord(fieldNames, fieldValues);
+            isMissing.push_back(category == missing);
+        }
+        analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+        analyzer.dataFrame().readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+            std::size_t i{0};
+            for (auto row = beginRows; row != endRows; ++row, ++i) {
+                BOOST_REQUIRE_EQUAL(isMissing[row->index()],
+                                    maths::CDataFrameUtils::isMissing((*row)[0]));
+            }
+        });
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
@@ -975,7 +1010,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
     test::CDataFrameAnalysisSpecificationFactory specFactory;
     api::CDataFrameAnalyzer analyzer{
         specFactory.rows(1000)
-            .columns(27000000)
+            .memoryLimit(27000000)
             .predictionCategoricalFieldNames({"x1", "x2", "x5"})
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(), "x5"),
         outputWriterFactory};

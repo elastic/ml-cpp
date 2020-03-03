@@ -6,6 +6,8 @@
 
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 
+#include <core/CDataFrame.h>
+
 #include <api/CDataFrameAnalysisSpecification.h>
 
 #include <iostream>
@@ -75,8 +77,10 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
     writer.Key(CDataFrameAnalysisSpecification::RESULTS_FIELD);
     writer.String(resultsField);
 
-    writer.Key(CDataFrameAnalysisSpecification::MISSING_FIELD_VALUE);
-    writer.String(missingFieldValue);
+    if (missingFieldValue != core::CDataFrame::DEFAULT_MISSING_STRING) {
+        writer.Key(CDataFrameAnalysisSpecification::MISSING_FIELD_VALUE);
+        writer.String(missingFieldValue);
+    }
 
     rapidjson::Value array(rapidjson::kArrayType);
     for (const auto& field : categoricalFields) {

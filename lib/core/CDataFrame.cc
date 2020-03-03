@@ -643,7 +643,7 @@ bool CDataFrame::maskedRowsInSlice(ITR& maskedRow,
 
 const std::size_t CDataFrame::MAX_CATEGORICAL_CARDINALITY{
     1 << (std::numeric_limits<float>::digits)};
-const std::string CDataFrame::DEFAULT_MISSING_STRING{"\0"};
+const std::string CDataFrame::DEFAULT_MISSING_STRING{"\0", 1};
 
 CDataFrame::CDataFrameRowSliceWriter::CDataFrameRowSliceWriter(
     std::size_t numberRows,
