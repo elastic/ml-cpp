@@ -40,8 +40,12 @@ BOOST_AUTO_TEST_CASE(testComputeExecutionStrategyForOutliers) {
         for (auto numberCols : numbersCols) {
             LOG_DEBUG(<< "# rows = " << numberRows << ", # cols = " << numberCols);
 
-            auto spec{test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
-                numberRows, numberCols, 100000000, "", 0, true)};
+            test::CDataFrameAnalysisSpecificationFactory specFactory;
+            auto spec = specFactory.rows(numberRows)
+                            .columns(numberCols)
+                            .memoryLimit(100000000)
+                            .outlierComputeInfluence(true)
+                            .outlierSpec();
             api::CDataFrameOutliersRunnerFactory factory;
             auto runner = factory.make(*spec);
 
@@ -83,8 +87,13 @@ BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
     // Test large memory requirement without disk usage
     {
         errors.clear();
-        auto spec = test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
-            1000, 100, 500000, "", 0, true, false);
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        auto spec = specFactory.rows(1000)
+                        .columns(100)
+                        .memoryLimit(500000)
+                        .outlierComputeInfluence(true)
+                        .diskUsageAllowed(false)
+                        .outlierSpec();
 
         // single error is registered that the memory limit is to low
         LOG_DEBUG(<< "errors = " << core::CContainerPrinter::print(errors));
@@ -97,8 +106,13 @@ BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
     // Test large memory requirement with disk usage
     {
         errors.clear();
-        auto spec = test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
-            1000, 100, 500000, "", 0, true, true);
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        auto spec = specFactory.rows(1000)
+                        .columns(100)
+                        .memoryLimit(500000)
+                        .outlierComputeInfluence(true)
+                        .diskUsageAllowed(true)
+                        .outlierSpec();
 
         // no error should be registered
         BOOST_REQUIRE_EQUAL(0, static_cast<int>(errors.size()));
@@ -107,8 +121,13 @@ BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
     // Test low memory requirement without disk usage
     {
         errors.clear();
-        auto spec = test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
-            10, 10, 500000, "", 0, true, false);
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        auto spec = specFactory.rows(10)
+                        .columns(10)
+                        .memoryLimit(500000)
+                        .outlierComputeInfluence(true)
+                        .diskUsageAllowed(false)
+                        .outlierSpec();
 
         // no error should be registered
         BOOST_REQUIRE_EQUAL(0, static_cast<int>(errors.size()));
@@ -131,10 +150,13 @@ void testEstimateMemoryUsage(std::int64_t numberRows,
 
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
 
-    // The output writer won't close the JSON structures until is is destroyed
+    // The output writer won't close the JSON structures until is is destroyed.
     {
-        auto spec{test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
-            numberRows, 5, 100000000, "", 0, true)};
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        auto spec = specFactory.rows(numberRows)
+                        .memoryLimit(100000000)
+                        .outlierComputeInfluence(true)
+                        .outlierSpec();
 
         core::CJsonOutputStreamWrapper wrappedOutStream(sstream);
         api::CMemoryUsageEstimationResultJsonWriter writer(wrappedOutStream);
@@ -189,7 +211,7 @@ void testColumnsForWhichEmptyIsMissing(const std::string& analysis,
                                        const TBoolVec& expectedEmptyIsMissing) {
     std::string parameters{"{\"dependent_variable\": \"" + dependentVariableName + "\"}"};
     std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", 10000, 5, 100000000, 1, categoricalFields, true,
+        "testJob", 10000, 5, 100000000, 1, "", categoricalFields, true,
         test::CTestTmpDir::tmpDir(), "", analysis, parameters)};
     api::CDataFrameAnalysisSpecification spec{jsonSpec};
     auto emptyIsMissing = spec.columnsForWhichEmptyIsMissing(fieldNames);
