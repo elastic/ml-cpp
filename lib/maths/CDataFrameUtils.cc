@@ -563,9 +563,11 @@ CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
         [&](TDoubleVecVec& counts, TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t i : columnMask) {
-                    std::size_t category{static_cast<std::size_t>((*row)[i])};
-                    counts[i].resize(std::max(counts[i].size(), category + 1), 0.0);
-                    counts[i][category] += 1.0;
+                    if (isMissing((*row)[i]) == false) {
+                        std::size_t category{static_cast<std::size_t>((*row)[i])};
+                        counts[i].resize(std::max(counts[i].size(), category + 1), 0.0);
+                        counts[i][category] += 1.0;
+                    }
                 }
             }
         },
@@ -588,12 +590,12 @@ CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
                                     readCategoryCounts, &rowMask),
                      copyCategoryCounts, reduceCategoryCounts, result) == false) {
             HANDLE_FATAL(<< "Internal error: failed to calculate category"
-                         << " frequencies. Please report this problem.");
+                         << " frequencies. Please report this problem.")
             return result;
         }
     } catch (const std::exception& e) {
         HANDLE_FATAL(<< "Internal error: '" << e.what() << "' exception calculating"
-                     << " category frequencies. Please report this problem.");
+                     << " category frequencies. Please report this problem.")
     }
 
     double Z{rowMask.manhattan()};
@@ -628,7 +630,7 @@ CDataFrameUtils::meanValueOfTargetForCategories(const CColumnValue& target,
         [&](TMeanAccumulatorVecVec& means_, TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 for (std::size_t i : columnMask) {
-                    if (isMissing(target(*row)) == false) {
+                    if (isMissing((*row)[i]) == false && isMissing(target(*row)) == false) {
                         std::size_t category{static_cast<std::size_t>((*row)[i])};
                         means_[i].resize(std::max(means_[i].size(), category + 1));
                         means_[i][category].add(target(*row));
@@ -654,12 +656,12 @@ CDataFrameUtils::meanValueOfTargetForCategories(const CColumnValue& target,
         if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readColumnMeans, &rowMask),
                      copyColumnMeans, reduceColumnMeans, means) == false) {
             HANDLE_FATAL(<< "Internal error: failed to calculate mean target values"
-                         << " for categories. Please report this problem.");
+                         << " for categories. Please report this problem.")
             return result;
         }
     } catch (const std::exception& e) {
         HANDLE_FATAL(<< "Internal error: '" << e.what() << "' exception calculating"
-                     << " mean target values for categories. Please report this problem.");
+                     << " mean target values for categories. Please report this problem.")
         return result;
     }
     for (std::size_t i = 0; i < result.size(); ++i) {
@@ -760,7 +762,7 @@ CDataFrameUtils::maximumMinimumRecallDecisionThreshold(std::size_t numberThreads
     TQuantileSketchVec classProbabilityClassOneQuantiles;
     if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readQuantiles, &rowMask),
                  copyQuantiles, reduceQuantiles, classProbabilityClassOneQuantiles) == false) {
-        HANDLE_FATAL(<< "Failed to compute category quantiles");
+        HANDLE_FATAL(<< "Failed to compute category quantiles")
         return 0.5;
     }
 
