@@ -15,6 +15,7 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
+#include <iterator>
 #include <maths/CBasicStatistics.h>
 #include <maths/CChecksum.h>
 #include <maths/CInformationCriteria.h>
@@ -84,12 +85,13 @@ protected:
     using TFloatCoordinate = typename SCoordinate<TFloatPoint>::Type;
     using TFloatPointDoublePr = std::pair<TFloatPoint, double>;
     using TFloatPointDoublePrVec = std::vector<TFloatPointDoublePr>;
-    using TFloatMeanAccumulator = typename CBasicStatistics::SSampleMean<TFloatPoint>::TAccumulator;
-    using TFloatMeanAccumulatorDoublePr = std::pair<TFloatMeanAccumulator, double>;
-    using TFloatMeanAccumulatorDoublePrVec = std::vector<TFloatMeanAccumulatorDoublePr>;
-    using TDoubleMeanAccumulator =
+    using TFloatPointMeanAccumulator =
+        typename CBasicStatistics::SSampleMean<TFloatPoint>::TAccumulator;
+    using TFloatPointMeanAccumulatorDoublePr = std::pair<TFloatPointMeanAccumulator, double>;
+    using TFloatPointMeanAccumulatorDoublePrVec = std::vector<TFloatPointMeanAccumulatorDoublePr>;
+    using TDoublePointMeanAccumulator =
         typename CBasicStatistics::SSampleMean<TDoublePoint>::TAccumulator;
-    using TDoubleMeanVarAccumulator =
+    using TDoublePointMeanVarAccumulator =
         typename CBasicStatistics::SSampleMeanVar<TDoublePoint>::TAccumulator;
 
 protected:
@@ -133,7 +135,7 @@ public:
     CKMeansOnline(std::size_t k,
                   double decayRate,
                   double minimumCategoryCount,
-                  TFloatMeanAccumulatorDoublePrVec& clusters)
+                  TFloatPointMeanAccumulatorDoublePrVec& clusters)
         : m_K(std::max(k, MINIMUM_SPACE)), m_DecayRate(decayRate),
           m_MinimumCategoryCount(minimumCategoryCount) {
         m_Clusters.swap(clusters);
@@ -148,8 +150,8 @@ public:
         m_MinimumCategoryCount = params.s_MinimumCategoryCount;
 
         do {
-            const std::string name = traverser.name();
-            RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()));
+            const std::string& name{traverser.name()};
+            RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()))
             RESTORE(K_TAG, core::CPersistUtils::restore(K_TAG, m_K, traverser))
             RESTORE(CLUSTERS_TAG,
                     core::CPersistUtils::restore(CLUSTERS_TAG, m_Clusters, traverser))
@@ -186,9 +188,9 @@ public:
         result.clear();
         result.reserve(m_Clusters.size());
         for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-            const TFloatPoint& m = CBasicStatistics::mean(m_Clusters[i].first);
-            double n = CBasicStatistics::count(m_Clusters[i].first);
-            double v = m_Clusters[i].second;
+            const TFloatPoint& m{CBasicStatistics::mean(m_Clusters[i].first)};
+            double n{CBasicStatistics::count(m_Clusters[i].first)};
+            double v{m_Clusters[i].second};
             result.emplace_back(m, SCountAndVariance(n, v));
         }
     }
@@ -254,7 +256,7 @@ public:
 
         CKMeans<TSphericalCluster> kmeans;
         kmeans.setPoints(clusters);
-        CBasicStatistics::COrderStatisticsStack<double, 1> minCost;
+        CBasicStatistics::SMin<double>::TAccumulator minCost;
         TSphericalClusterVec centres;
         TSphericalClusterVecVec candidates;
         for (std::size_t i = 0u; i < NUMBER_SEEDS; ++i) {
@@ -290,7 +292,7 @@ public:
         }
 
         result.reserve(split.size());
-        TFloatMeanAccumulatorDoublePrVec clusters;
+        TFloatPointMeanAccumulatorDoublePrVec clusters;
         for (std::size_t i = 0u; i < split.size(); ++i) {
             clusters.clear();
             clusters.reserve(split[i].size());
@@ -311,8 +313,7 @@ public:
         if (m_PointsBuffer.size() < MAXIMUM_BUFFER_SIZE) {
             m_PointsBuffer.emplace_back(x, count);
         } else {
-            m_Clusters.push_back(TFloatMeanAccumulatorDoublePr());
-            CKMeansOnline::add(x, count, m_Clusters.back());
+            m_Clusters.emplace_back(CBasicStatistics::momentsAccumulator(count, x), 0.0);
             this->reduce();
         }
     }
@@ -323,10 +324,9 @@ public:
     void merge(const CKMeansOnline& other) {
         LOG_TRACE(<< "Merge");
 
-        for (std::size_t i = 0u; i < other.m_PointsBuffer.size(); ++i) {
-            m_Clusters.push_back(TFloatMeanAccumulatorDoublePr());
-            CKMeansOnline::add(other.m_PointsBuffer[i].first,
-                               other.m_PointsBuffer[i].second, m_Clusters.back());
+        for (const auto& point : other.m_PointsBuffer) {
+            m_Clusters.emplace_back(
+                CBasicStatistics::momentsAccumulator(point.second, point.first), 0.0);
         }
         m_Clusters.insert(m_Clusters.end(), other.m_Clusters.begin(),
                           other.m_Clusters.end());
@@ -334,7 +334,7 @@ public:
         this->reduce();
 
         // Reclaim memory from the vector buffer.
-        TFloatMeanAccumulatorDoublePrVec categories(m_Clusters);
+        TFloatPointMeanAccumulatorDoublePrVec categories(m_Clusters);
         m_Clusters.swap(categories);
     }
 
@@ -348,7 +348,7 @@ public:
             return;
         }
 
-        double alpha = std::exp(-m_DecayRate * time);
+        double alpha{std::exp(-m_DecayRate * time)};
         LOG_TRACE(<< "alpha = " << alpha);
 
         this->age(alpha);
@@ -388,17 +388,15 @@ public:
         using TDoubleVec = std::vector<double>;
         using TDoubleSizePr = std::pair<double, std::size_t>;
 
-        static const double ALMOST_ONE = 0.99999;
-
         // See, for example, Effective C++ item 3.
         const_cast<CKMeansOnline*>(this)->reduce();
         LOG_TRACE(<< "categories = " << core::CContainerPrinter::print(m_Clusters));
 
         TDoubleVec counts;
         counts.reserve(m_Clusters.size());
-        double Z = 0.0;
+        double Z{0.0};
         for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-            double ni = CBasicStatistics::count(m_Clusters[i].first);
+            double ni{CBasicStatistics::count(m_Clusters[i].first)};
             counts.push_back(ni);
             Z += ni;
         }
@@ -412,35 +410,35 @@ public:
         result.reserve(2 * numberSamples);
 
         TDoubleVec weights;
-        TDoublePointVec categorySamples;
+        TDoublePointVec clusterSamples;
         for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-            double ni = counts[i];
+            double ni{counts[i]};
 
-            categorySamples.clear();
-            TDoublePoint m = CBasicStatistics::mean(m_Clusters[i].first);
+            clusterSamples.clear();
+            TDoublePoint m{CBasicStatistics::mean(m_Clusters[i].first)};
             if (m_Clusters[i].second == 0.0) {
-                categorySamples.push_back(m);
+                clusterSamples.push_back(m);
             } else {
-                std::size_t ni_ = static_cast<std::size_t>(std::ceil(ni));
+                std::size_t ni_{static_cast<std::size_t>(std::ceil(ni))};
                 TDoublePoint v(m_Clusters[i].second);
-                sampleGaussian(ni_, m, v.asDiagonal(), categorySamples);
+                sampleGaussian(ni_, m, v.asDiagonal(), clusterSamples);
             }
 
-            ni /= static_cast<double>(categorySamples.size());
+            ni /= static_cast<double>(clusterSamples.size());
 
-            result.insert(result.end(), categorySamples.begin(), categorySamples.end());
-            weights.insert(weights.end(), categorySamples.size(), ni);
+            result.insert(result.end(), clusterSamples.begin(), clusterSamples.end());
+            weights.insert(weights.end(), clusterSamples.size(), ni);
         }
         LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(result));
         LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
 
-        TDoublePointVec final;
-        final.reserve(static_cast<std::size_t>(
+        TDoublePointVec finalSamples;
+        finalSamples.reserve(static_cast<std::size_t>(
             std::ceil(std::accumulate(weights.begin(), weights.end(), 0.0))));
-        TDoubleMeanAccumulator sample;
+        TDoublePointMeanAccumulator sample{las::zero(result[0])};
         for (;;) {
-            CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 1> nearest;
-            const TDoublePoint& sample_ = CBasicStatistics::mean(sample);
+            CBasicStatistics::SMin<TDoubleSizePr>::TAccumulator nearest;
+            const TDoublePoint& sample_{CBasicStatistics::mean(sample)};
             for (std::size_t j = 0u; j < result.size(); ++j) {
                 if (weights[j] > 0.0) {
                     nearest.add({las::distance(result[j], sample_), j});
@@ -450,20 +448,20 @@ public:
                 break;
             }
 
-            std::size_t j = nearest[0].second;
-            const TDoublePoint& xj = result[j];
+            std::size_t j{nearest[0].second};
+            const TDoublePoint& xj{result[j]};
             do {
-                double nj = std::min(1.0 - CBasicStatistics::count(sample), weights[j]);
+                double nj{std::min(1.0 - CBasicStatistics::count(sample), weights[j])};
                 sample.add(xj, nj);
                 weights[j] -= nj;
                 if (CBasicStatistics::count(sample) > ALMOST_ONE) {
-                    final.push_back(CBasicStatistics::mean(sample));
-                    sample = TDoubleMeanAccumulator();
+                    finalSamples.push_back(CBasicStatistics::mean(sample));
+                    sample = TDoublePointMeanAccumulator{las::zero(result[0])};
                 }
             } while (weights[j] > 0.0);
         }
 
-        result.swap(final);
+        result = std::move(finalSamples);
         LOG_TRACE(<< "# samples = " << result.size());
         LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(result));
     }
@@ -474,7 +472,7 @@ public:
     }
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const {
+    std::uint64_t checksum(std::uint64_t seed = 0) const {
         seed = CChecksum::calculate(seed, m_K);
         seed = CChecksum::calculate(seed, m_DecayRate);
         seed = CChecksum::calculate(seed, m_Clusters);
@@ -520,9 +518,10 @@ protected:
     //! Reduce the number of clusters to m_K by k-means clustering.
     void reduce() {
         // Add all the points as new spherical clusters and reduce.
+        deduplicate(m_PointsBuffer);
         for (const auto& point : m_PointsBuffer) {
-            m_Clusters.push_back(TFloatMeanAccumulatorDoublePr());
-            CKMeansOnline::add(point.first, point.second, m_Clusters.back());
+            m_Clusters.emplace_back(
+                CBasicStatistics::momentsAccumulator(point.second, point.first), 0.0);
         }
         m_PointsBuffer.clear();
 
@@ -542,12 +541,12 @@ protected:
 
         m_Clusters.resize(kclusters.size());
         for (std::size_t i = 0u; i < kclusters.size(); ++i) {
-            TDoubleMeanVarAccumulator cluster;
+            TDoublePointMeanVarAccumulator cluster{las::zero(kclusters[i][0])};
             for (const auto& point : kclusters[i]) {
                 cluster.add(point);
             }
-            double n = CBasicStatistics::count(cluster);
-            const TDoublePoint& m = CBasicStatistics::mean(cluster);
+            double n{CBasicStatistics::count(cluster)};
+            const TDoublePoint& m{CBasicStatistics::mean(cluster)};
             m_Clusters[i].first = CBasicStatistics::momentsAccumulator(
                 TFloatCoordinate(n), TFloatPoint(m));
             m_Clusters[i].second = variance(cluster);
@@ -557,27 +556,44 @@ protected:
         LOG_TRACE(<< "# reduced clusters = " << m_Clusters.size());
     }
 
-    //! Add \p count copies of \p mx to the cluster \p cluster.
-    static void add(const TDoublePoint& mx, double count, TFloatMeanAccumulatorDoublePr& cluster) {
-        double nx{count};
-        TDoublePoint vx{las::zero(mx)};
-        double nc{CBasicStatistics::count(cluster.first)};
-        TDoublePoint mc{CBasicStatistics::mean(cluster.first)};
-        TDoublePoint vc{cluster.second * las::ones(mx)};
-        TDoubleMeanVarAccumulator moments{
-            CBasicStatistics::momentsAccumulator(nc, mc, vc) +
-            CBasicStatistics::momentsAccumulator(nx, mx, vx)};
-        TFloatCoordinate ncx{CBasicStatistics::count(moments)};
-        TFloatPoint mcx{CBasicStatistics::mean(moments)};
-        cluster.first = CBasicStatistics::momentsAccumulator(ncx, mcx);
-        cluster.second = variance(moments);
+    //! Remove any duplicates in \p points.
+    //!
+    //! \note We assume \p points is small so the bruteforce approach is fast.
+    static void deduplicate(TFloatPointDoublePrVec& points) {
+        TSizeVec remove;
+        remove.reserve(points.size());
+        for (std::size_t i = 0; i < points.size(); ++i) {
+            for (std::size_t j = i + 1; j < points.size(); ++j) {
+                if (points[i].first == points[j].first) {
+                    points[i].second += points[j].second;
+                    remove.push_back(j);
+                }
+            }
+            if (remove.size() > 0) {
+                remove.push_back(points.size());
+                auto back = points.begin() + remove[0];
+                auto end = back;
+                for (std::size_t j = 1; j < remove.size(); ++j) {
+                    auto start = end + 1;
+                    end = points.begin() + remove[j];
+                    for (/**/; start != end; ++start, ++back) {
+                        *back = std::move(*start);
+                    }
+                }
+                points.erase(back, points.end());
+                remove.clear();
+            }
+        }
     }
 
     //! Get the spherically symmetric variance from \p moments.
-    static double variance(const TDoubleMeanVarAccumulator& moments) {
+    static double variance(const TDoublePointMeanVarAccumulator& moments) {
         const TDoublePoint& v{CBasicStatistics::maximumLikelihoodVariance(moments)};
         return las::L1(v) / static_cast<double>(las::dimension(v));
     }
+
+private:
+    static constexpr double ALMOST_ONE = 0.99999;
 
 private:
     //! The random number generator.
@@ -593,7 +609,7 @@ private:
     double m_MinimumCategoryCount;
 
     //! The clusters we are maintaining.
-    TFloatMeanAccumulatorDoublePrVec m_Clusters;
+    TFloatPointMeanAccumulatorDoublePrVec m_Clusters;
 
     //! A buffer of the points added while the space constraint
     //! is satisfied.

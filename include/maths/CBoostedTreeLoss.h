@@ -307,12 +307,12 @@ public:
 //! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ denotes
 //! the vector valued prediction and \f$\sigma(p)\$ is the softmax function, i.e.
 //! \f$[\sigma(p)]_j = \frac{e^{p_i}}{\sum_k e^{p_k}}\f$.
-class MATHS_EXPORT CMultinomialLogisticRegression final : public CLoss {
+class MATHS_EXPORT CMultinomialLogistic final : public CLoss {
 public:
     static const std::string NAME;
 
 public:
-    CMultinomialLogisticRegression(std::size_t numberClasses);
+    CMultinomialLogistic(std::size_t numberClasses);
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
