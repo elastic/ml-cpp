@@ -141,7 +141,8 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
         m_DiskUsageAllowed = parameters[DISK_USAGE_ALLOWED].fallback(DEFAULT_DISK_USAGE_ALLOWED);
 
         double missing;
-        if (core::CStringUtils::stringToTypeSilent(m_MissingFieldValue, missing)) {
+        if (m_MissingFieldValue != core::CDataFrame::DEFAULT_MISSING_STRING &&
+            core::CStringUtils::stringToTypeSilent(m_MissingFieldValue, missing)) {
             HANDLE_FATAL(<< "Input error: you can't use a number (" << missing
                          << ") to denote a missing field value.")
         }
