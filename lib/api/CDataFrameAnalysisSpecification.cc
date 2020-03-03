@@ -8,6 +8,7 @@
 
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
+#include <core/CStringUtils.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameOutliersRunner.h>
@@ -139,9 +140,14 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
         m_CategoricalFieldNames = parameters[CATEGORICAL_FIELD_NAMES].fallback(TStrVec{});
         m_DiskUsageAllowed = parameters[DISK_USAGE_ALLOWED].fallback(DEFAULT_DISK_USAGE_ALLOWED);
 
+        double missing;
+        if (core::CStringUtils::stringToTypeSilent(m_MissingFieldValue, missing)) {
+            HANDLE_FATAL(<< "Input error: you can't use a number (" << missing
+                         << ") to denote a missing field value.")
+        }
         if (m_DiskUsageAllowed && m_TemporaryDirectory.empty()) {
             HANDLE_FATAL(<< "Input error: temporary directory path should be explicitly set if disk"
-                            " usage is allowed! Please report this problem.");
+                            " usage is allowed! Please report this problem.")
         }
 
         auto jsonAnalysis = parameters[ANALYSIS].jsonObject();

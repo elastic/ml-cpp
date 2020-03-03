@@ -357,6 +357,18 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }
+
+    LOG_DEBUG(<< "Missing field value is numeric");
+    {
+        errors.clear();
+        std::string parameters{"{\"dependent_variable\": \"value\"}"};
+        api::CDataFrameAnalysisSpecification spec{
+            api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+                "testJob", 10000, 5, 100000000, 1, "42", {}, true,
+                test::CTestTmpDir::tmpDir(), "", "regression", parameters)};
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        BOOST_TEST_REQUIRE(errors.size() > 0);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testRunAnalysis) {
