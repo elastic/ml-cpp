@@ -405,7 +405,7 @@ BOOST_AUTO_TEST_CASE(testRunAnalysis) {
             BOOST_TEST_REQUIRE(runner->instrumentation().progress() <= 1.0);
         }
 
-        LOG_DEBUG(<< "final progress = " << lastProgress);
+        LOG_TRACE(<< "final progress = " << lastProgress);
         BOOST_REQUIRE_EQUAL(1.0, runner->instrumentation().progress());
     }
 }

@@ -449,9 +449,6 @@ public:
     //! Write the string which indicates that a value is missing.
     void missingString(std::string missing);
 
-    //! Write for which columns an empty string implies the value is missing.
-    void emptyIsMissing(TBoolVec emptyIsMissing);
-
     //! Write which columns contain categorical data.
     void categoricalColumns(TStrVec categoricalColumnNames);
 
@@ -585,11 +582,6 @@ private:
 
     //! The string which indicates that a category is missing.
     std::string m_MissingString;
-
-    //! Indicator vector for treating empty strings as missing values.
-    // TODO Remove once Java passes the correct value for the missing target
-    // for classification.
-    TBoolVec m_EmptyIsMissing;
 
     //! Indicator vector of the columns which contain categorical values.
     TBoolVec m_ColumnIsCategorical;
