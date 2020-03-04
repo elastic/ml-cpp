@@ -124,8 +124,9 @@ CDataFrame::CDataFrame(bool inMainMemory,
                        const TWriteSliceToStoreFunc& writeSliceToStore)
     : m_InMainMemory{inMainMemory}, m_NumberColumns{numberColumns},
       m_RowCapacity{numberColumns}, m_SliceCapacityInRows{sliceCapacityInRows},
-      m_ReadAndWriteToStoreSyncStrategy{readAndWriteToStoreSyncStrategy}, m_WriteSliceToStore{writeSliceToStore},
-      m_ColumnNames(numberColumns), m_CategoricalColumnValues(numberColumns),
+      m_ReadAndWriteToStoreSyncStrategy{readAndWriteToStoreSyncStrategy},
+      m_WriteSliceToStore{writeSliceToStore}, m_ColumnNames(numberColumns),
+      m_CategoricalColumnValues(numberColumns), m_MissingString{DEFAULT_MISSING_STRING},
       m_EmptyIsMissing(numberColumns, false),
       m_ColumnIsCategorical(numberColumns, false) {
 }
@@ -216,7 +217,13 @@ void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues, const std::strin
     auto stringToValue = [this](bool isCategorical, TStrSizeUMap& categoryLookup,
                                 TStrVec& categories, bool emptyIsMissing,
                                 const std::string& columnValue) {
+        if (columnValue == m_MissingString) {
+            ++m_MissingValueCount;
+            return core::CFloatStorage{valueOfMissing()};
+        }
+
         if (isCategorical) {
+            // TODO Remove when Java passes special missing value string.
             if (columnValue.empty() && emptyIsMissing) {
                 return core::CFloatStorage{valueOfMissing()};
             }
@@ -251,6 +258,7 @@ void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues, const std::strin
 
         double value;
         if (columnValue.empty()) {
+            // TODO Remove when Java passes special missing value string.
             ++m_MissingValueCount;
             return core::CFloatStorage{valueOfMissing()};
         } else if (core::CStringUtils::stringToTypeSilent(columnValue, value) == false) {
@@ -298,6 +306,10 @@ void CDataFrame::columnNames(TStrVec columnNames) {
     } else {
         m_ColumnNames = std::move(columnNames);
     }
+}
+
+void CDataFrame::missingString(std::string missing) {
+    m_MissingString = std::move(missing);
 }
 
 void CDataFrame::emptyIsMissing(TBoolVec emptyIsMissing) {
@@ -374,6 +386,7 @@ std::size_t CDataFrame::memoryUsage() const {
     std::size_t memory{CMemory::dynamicSize(m_ColumnNames)};
     memory += CMemory::dynamicSize(m_CategoricalColumnValues);
     memory += CMemory::dynamicSize(m_CategoricalColumnValueLookup);
+    memory += CMemory::dynamicSize(m_MissingString);
     memory += CMemory::dynamicSize(m_EmptyIsMissing);
     memory += CMemory::dynamicSize(m_ColumnIsCategorical);
     memory += CMemory::dynamicSize(m_Slices);
@@ -630,6 +643,7 @@ bool CDataFrame::maskedRowsInSlice(ITR& maskedRow,
 
 const std::size_t CDataFrame::MAX_CATEGORICAL_CARDINALITY{
     1 << (std::numeric_limits<float>::digits)};
+const std::string CDataFrame::DEFAULT_MISSING_STRING{"\0", 1};
 
 CDataFrame::CDataFrameRowSliceWriter::CDataFrameRowSliceWriter(
     std::size_t numberRows,
