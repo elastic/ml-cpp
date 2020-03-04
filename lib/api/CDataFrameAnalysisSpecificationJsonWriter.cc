@@ -6,6 +6,8 @@
 
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 
+#include <core/CDataFrame.h>
+
 #include <api/CDataFrameAnalysisSpecification.h>
 
 #include <iostream>
@@ -20,6 +22,7 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
                                                       std::size_t numberThreads,
                                                       const std::string& temporaryDirectory,
                                                       const std::string& resultsField,
+                                                      const std::string& missingFieldValue,
                                                       const TStrVec& categoricalFields,
                                                       bool diskUsageAllowed,
                                                       const std::string& analysisName,
@@ -34,8 +37,8 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
         }
     }
     write(jobId, rows, cols, memoryLimit, numberThreads, temporaryDirectory,
-          resultsField, categoricalFields, diskUsageAllowed, analysisName,
-          analysisParametersDoc, writer);
+          resultsField, missingFieldValue, categoricalFields, diskUsageAllowed,
+          analysisName, analysisParametersDoc, writer);
 }
 
 void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
@@ -45,6 +48,7 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
                                                       std::size_t numberThreads,
                                                       const std::string& temporaryDirectory,
                                                       const std::string& resultsField,
+                                                      const std::string& missingFieldValue,
                                                       const TStrVec& categoricalFields,
                                                       bool diskUsageAllowed,
                                                       const std::string& analysisName,
@@ -72,6 +76,11 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
 
     writer.Key(CDataFrameAnalysisSpecification::RESULTS_FIELD);
     writer.String(resultsField);
+
+    if (missingFieldValue != core::CDataFrame::DEFAULT_MISSING_STRING) {
+        writer.Key(CDataFrameAnalysisSpecification::MISSING_FIELD_VALUE);
+        writer.String(missingFieldValue);
+    }
 
     rapidjson::Value array(rapidjson::kArrayType);
     for (const auto& field : categoricalFields) {
@@ -105,24 +114,26 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
     writer.Flush();
 }
 
-std::string
-CDataFrameAnalysisSpecificationJsonWriter::jsonString(const std::string& jobId,
-                                                      size_t rows,
-                                                      size_t cols,
-                                                      size_t memoryLimit,
-                                                      size_t numberThreads,
-                                                      const TStrVec& categoricalFields,
-                                                      bool diskUsageAllowed,
-                                                      const std::string& tempDir,
-                                                      const std::string& resultField,
-                                                      const std::string& analysisName,
-                                                      const std::string& analysisParameters) {
+std::string CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+    const std::string& jobId,
+    std::size_t rows,
+    std::size_t cols,
+    std::size_t memoryLimit,
+    std::size_t numberThreads,
+    const std::string& missingFieldValue,
+    const TStrVec& categoricalFields,
+    bool diskUsageAllowed,
+    const std::string& tempDir,
+    const std::string& resultField,
+    const std::string& analysisName,
+    const std::string& analysisParameters) {
     rapidjson::StringBuffer stringBuffer;
     TRapidJsonLineWriter writer;
     writer.Reset(stringBuffer);
 
     write(jobId, rows, cols, memoryLimit, numberThreads, tempDir, resultField,
-          categoricalFields, diskUsageAllowed, analysisName, analysisParameters, writer);
+          missingFieldValue, categoricalFields, diskUsageAllowed, analysisName,
+          analysisParameters, writer);
 
     return stringBuffer.GetString();
 }

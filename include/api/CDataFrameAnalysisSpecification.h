@@ -66,6 +66,7 @@ public:
     static const std::string THREADS;
     static const std::string TEMPORARY_DIRECTORY;
     static const std::string RESULTS_FIELD;
+    static const std::string MISSING_FIELD_VALUE;
     static const std::string CATEGORICAL_FIELD_NAMES;
     static const std::string DISK_USAGE_ALLOWED;
     static const std::string ANALYSIS;
@@ -203,6 +204,7 @@ private:
     std::string m_ResultsField;
     std::string m_JobId;
     std::string m_AnalysisName;
+    std::string m_MissingFieldValue;
     TStrVec m_CategoricalFieldNames;
     bool m_DiskUsageAllowed;
     // TODO Sparse table support
