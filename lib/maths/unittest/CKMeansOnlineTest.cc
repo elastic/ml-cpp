@@ -175,9 +175,9 @@ BOOST_AUTO_TEST_CASE(testAdd) {
 }
 
 BOOST_AUTO_TEST_CASE(testDeduplicate) {
-
-    // Test we correctly remove duplicates:
+    // Test we behaviour:
     //   - If all points are duplicates
+    //   - If no points are duplicates
     //   - For random permutation of duplicates
 
     CKMeansOnlineForTest<TVector2>::TFloatPointDoublePrVec points;
@@ -189,6 +189,19 @@ BOOST_AUTO_TEST_CASE(testDeduplicate) {
     BOOST_REQUIRE_EQUAL(1, points.size());
     BOOST_REQUIRE_EQUAL(TVector2{0.0}, points[0].first);
     BOOST_REQUIRE_EQUAL(4.0, points[0].second);
+    points.clear();
+
+    points.emplace_back(TVector2{0.0}, 1.0);
+    points.emplace_back(TVector2{1.0}, 2.0);
+    points.emplace_back(TVector2{2.0}, 1.0);
+    CKMeansOnlineForTest<TVector2>::deduplicate(points);
+    BOOST_REQUIRE_EQUAL(3, points.size());
+    BOOST_REQUIRE_EQUAL(TVector2{0.0}, points[0].first);
+    BOOST_REQUIRE_EQUAL(1.0, points[0].second);
+    BOOST_REQUIRE_EQUAL(TVector2{1.0}, points[1].first);
+    BOOST_REQUIRE_EQUAL(2.0, points[1].second);
+    BOOST_REQUIRE_EQUAL(TVector2{2.0}, points[2].first);
+    BOOST_REQUIRE_EQUAL(1.0, points[2].second);
     points.clear();
 
     test::CRandomNumbers rng;

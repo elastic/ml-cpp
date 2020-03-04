@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "core/CContainerPrinter.h"
 #include <maths/CBoostedTreeLoss.h>
 
 #include <maths/CBasicStatistics.h>
@@ -239,21 +238,37 @@ std::unique_ptr<CArgMinLossImpl> CArgMinMultinomialLogisticImpl::clone() const {
 
 bool CArgMinMultinomialLogisticImpl::nextPass() {
 
-    // Extract the k-centres.
-    TKMeans::TSphericalClusterVecVec centres;
-    if (m_PredictionSketch.kmeans(NUMBER_CENTRES, centres) == false) {
-        m_Centres.push_back(TDoubleVector::Zero(m_NumberClasses));
-        m_CurrentPass += 2;
-    } else {
-        m_Centres.reserve(centres.size());
-        for (auto& centre : centres) {
-            m_Centres.push_back(std::move(static_cast<TDoubleVector&>(centre[0])));
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<TDoubleVector>::TAccumulator;
+
+    if (m_CurrentPass == 0) {
+        TKMeans::TSphericalClusterVecVec clusters;
+        if (m_PredictionSketch.kmeans(NUMBER_CENTRES, clusters) == false) {
+            m_Centres.push_back(TDoubleVector::Zero(m_NumberClasses));
+            m_CurrentPass += 2;
+        } else {
+            // Extract the k-centres.
+            m_Centres.reserve(clusters.size());
+            for (const auto& cluster : clusters) {
+                TMeanAccumulator centre{TDoubleVector::Zero(m_NumberClasses)};
+                for (const auto& point : cluster) {
+                    centre.add(point);
+                }
+                m_Centres.push_back(CBasicStatistics::mean(centre));
+            }
+            std::sort(m_Centres.begin(), m_Centres.end());
+            m_Centres.erase(std::unique(m_Centres.begin(), m_Centres.end()),
+                            m_Centres.end());
+            LOG_TRACE(<< "# centres = " << m_Centres.size());
+            m_CurrentPass += m_Centres.size() == 1 ? 2 : 1;
         }
-        m_CurrentPass += m_Centres.size() == 1 ? 2 : 1;
+
+        // Reclaim the memory used by k-means.
+        m_PredictionSketch = TKMeans{0};
+    } else {
+        ++m_CurrentPass;
     }
 
-    // Clear memory used by k-means.
-    m_PredictionSketch = TKMeans{0};
+    LOG_TRACE(<< "current pass = " << m_CurrentPass);
 
     return m_CurrentPass < 2;
 }

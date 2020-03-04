@@ -15,7 +15,6 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
-#include <iterator>
 #include <maths/CBasicStatistics.h>
 #include <maths/CChecksum.h>
 #include <maths/CInformationCriteria.h>
@@ -30,6 +29,7 @@
 
 #include <cmath>
 #include <cstddef>
+#include <iterator>
 #include <numeric>
 #include <utility>
 #include <vector>
@@ -66,21 +66,6 @@ public:
     using TKMeansOnlineVec = std::vector<CKMeansOnline>;
 
 protected:
-    //! \brief Checks if a cluster should be deleted based on its count.
-    class CShouldDelete {
-    public:
-        CShouldDelete(double minimumCategoryCount)
-            : m_MinimumCategoryCount(minimumCategoryCount) {}
-
-        template<typename CLUSTER>
-        bool operator()(const CLUSTER& cluster) const {
-            return CBasicStatistics::count(cluster.first) < m_MinimumCategoryCount;
-        }
-
-    private:
-        double m_MinimumCategoryCount;
-    };
-
     using TFloatPoint = typename SFloatingPoint<POINT, CFloatStorage>::Type;
     using TFloatCoordinate = typename SCoordinate<TFloatPoint>::Type;
     using TFloatPointDoublePr = std::pair<TFloatPoint, double>;
@@ -124,9 +109,8 @@ public:
     //! subject to this constraint so will generally hold \p k
     //! clusters.
     CKMeansOnline(std::size_t k, double decayRate = 0.0, double minimumCategoryCount = MINIMUM_CATEGORY_COUNT)
-        : m_K(std::max(k, MINIMUM_SPACE)), m_DecayRate(decayRate),
-          m_MinimumCategoryCount(minimumCategoryCount) {
-        m_Clusters.reserve(m_K + MAXIMUM_BUFFER_SIZE + 1u);
+        : m_K{std::max(k, MINIMUM_SPACE)}, m_DecayRate{decayRate}, m_MinimumCategoryCount{minimumCategoryCount} {
+        m_Clusters.reserve(m_K + MAXIMUM_BUFFER_SIZE + 1);
         m_PointsBuffer.reserve(MAXIMUM_BUFFER_SIZE);
     }
 
@@ -139,7 +123,7 @@ public:
         : m_K(std::max(k, MINIMUM_SPACE)), m_DecayRate(decayRate),
           m_MinimumCategoryCount(minimumCategoryCount) {
         m_Clusters.swap(clusters);
-        m_Clusters.reserve(m_K + MAXIMUM_BUFFER_SIZE + 1u);
+        m_Clusters.reserve(m_K + MAXIMUM_BUFFER_SIZE + 1);
         m_PointsBuffer.reserve(MAXIMUM_BUFFER_SIZE);
     }
 
@@ -265,9 +249,14 @@ public:
             kmeans.setCentres(centres);
             kmeans.run(MAX_ITERATIONS);
             kmeans.clusters(candidates);
+            candidates.erase(std::remove_if(candidates.begin(), candidates.end(),
+                                            [](TSphericalClusterVec& cluster) {
+                                                return cluster.empty();
+                                            }),
+                             candidates.end());
             CSphericalGaussianInfoCriterion<TSphericalCluster, E_BIC> criterion;
             criterion.add(candidates);
-            double cost = criterion.calculate();
+            double cost{criterion.calculate()};
             if (minCost.add(cost)) {
                 result.swap(candidates);
             }
@@ -365,7 +354,10 @@ public:
         // Prune any dead categories: we're not interested in
         // maintaining categories with low counts.
         m_Clusters.erase(std::remove_if(m_Clusters.begin(), m_Clusters.end(),
-                                        CShouldDelete(m_MinimumCategoryCount)),
+                                        [this](const auto& cluster) {
+                                            return CBasicStatistics::count(
+                                                       cluster.first) < m_MinimumCategoryCount;
+                                        }),
                          m_Clusters.end());
 
         LOG_TRACE(<< "clusters = " << core::CContainerPrinter::print(m_Clusters));
@@ -560,30 +552,16 @@ protected:
     //!
     //! \note We assume \p points is small so the bruteforce approach is fast.
     static void deduplicate(TFloatPointDoublePrVec& points) {
-        TSizeVec remove;
-        remove.reserve(points.size());
-        for (std::size_t i = 0; i < points.size(); ++i) {
-            for (std::size_t j = i + 1; j < points.size(); ++j) {
-                if (points[i].first == points[j].first) {
-                    points[i].second += points[j].second;
-                    remove.push_back(j);
-                }
-            }
-            if (remove.size() > 0) {
-                remove.push_back(points.size());
-                auto back = points.begin() + remove[0];
-                auto end = back;
-                for (std::size_t j = 1; j < remove.size(); ++j) {
-                    auto start = end + 1;
-                    end = points.begin() + remove[j];
-                    for (/**/; start != end; ++start, ++back) {
-                        *back = std::move(*start);
-                    }
-                }
-                points.erase(back, points.end());
-                remove.clear();
+        std::sort(points.begin(), points.end());
+        auto back = points.begin();
+        for (auto i = back + 1; i != points.end(); ++i) {
+            if (back->first == i->first) {
+                back->second += i->second;
+            } else if (++back != i) {
+                *back = std::move(*i);
             }
         }
+        points.erase(back + 1, points.end());
     }
 
     //! Get the spherically symmetric variance from \p moments.
