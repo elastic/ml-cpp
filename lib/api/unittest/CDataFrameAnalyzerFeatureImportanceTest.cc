@@ -134,12 +134,21 @@ struct SFixture {
         auto outputWriterFactory = [&]() {
             return std::make_unique<core::CJsonOutputStreamWrapper>(s_Output);
         };
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
         api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                test::CDataFrameAnalysisSpecificationFactory::regression(),
-                "target", s_Rows, 5, 26000000, 0, 0, {"c1"}, s_Alpha, s_Lambda,
-                s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance, s_Eta,
-                s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
+            specFactory.rows(s_Rows)
+                .memoryLimit(26000000)
+                .predictionCategoricalFieldNames({"c1"})
+                .predictionAlpha(s_Alpha)
+                .predictionLambda(s_Lambda)
+                .predictionGamma(s_Gamma)
+                .predictionSoftTreeDepthLimit(s_SoftTreeDepthLimit)
+                .predictionSoftTreeDepthTolerance(s_SoftTreeDepthTolerance)
+                .predictionEta(s_Eta)
+                .predictionMaximumNumberTrees(s_MaximumNumberTrees)
+                .predictionFeatureBagFraction(s_FeatureBagFraction)
+                .predictionNumberTopShapValues(shapValues)
+                .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
             outputWriterFactory};
         TStrVec fieldNames{"target", "c1", "c2", "c3", "c4", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};
@@ -178,12 +187,21 @@ struct SFixture {
         auto outputWriterFactory = [&]() {
             return std::make_unique<core::CJsonOutputStreamWrapper>(s_Output);
         };
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
         api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                test::CDataFrameAnalysisSpecificationFactory::classification(),
-                "target", s_Rows, 5, 26000000, 0, 0, {"target"}, s_Alpha,
-                s_Lambda, s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance,
-                s_Eta, s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
+            specFactory.rows(s_Rows)
+                .memoryLimit(26000000)
+                .predictionCategoricalFieldNames({"target"})
+                .predictionAlpha(s_Alpha)
+                .predictionLambda(s_Lambda)
+                .predictionGamma(s_Gamma)
+                .predictionSoftTreeDepthLimit(s_SoftTreeDepthLimit)
+                .predictionSoftTreeDepthTolerance(s_SoftTreeDepthTolerance)
+                .predictionEta(s_Eta)
+                .predictionMaximumNumberTrees(s_MaximumNumberTrees)
+                .predictionFeatureBagFraction(s_FeatureBagFraction)
+                .predictionNumberTopShapValues(shapValues)
+                .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(), "target"),
             outputWriterFactory};
         TStrVec fieldNames{"target", "c1", "c2", "c3", "c4", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};
@@ -217,12 +235,20 @@ struct SFixture {
         auto outputWriterFactory = [&]() {
             return std::make_unique<core::CJsonOutputStreamWrapper>(s_Output);
         };
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
         api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-                test::CDataFrameAnalysisSpecificationFactory::regression(),
-                "target", s_Rows, 5, 26000000, 0, 0, {}, s_Alpha, s_Lambda,
-                s_Gamma, s_SoftTreeDepthLimit, s_SoftTreeDepthTolerance, s_Eta,
-                s_MaximumNumberTrees, s_FeatureBagFraction, shapValues),
+            specFactory.rows(s_Rows)
+                .memoryLimit(26000000)
+                .predictionAlpha(s_Alpha)
+                .predictionLambda(s_Lambda)
+                .predictionGamma(s_Gamma)
+                .predictionSoftTreeDepthLimit(s_SoftTreeDepthLimit)
+                .predictionSoftTreeDepthTolerance(s_SoftTreeDepthTolerance)
+                .predictionEta(s_Eta)
+                .predictionMaximumNumberTrees(s_MaximumNumberTrees)
+                .predictionFeatureBagFraction(s_FeatureBagFraction)
+                .predictionNumberTopShapValues(shapValues)
+                .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
             outputWriterFactory};
         TStrVec fieldNames{"target", "c1", "c2", "c3", "c4", ".", "."};
         TStrVec fieldValues{"", "", "", "", "", "0", ""};

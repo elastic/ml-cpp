@@ -50,6 +50,8 @@ necessary. This will improve the allocation of data frame analyses to cluster no
 * Upgrade the compiler used on Linux from gcc 7.3 to gcc 7.5, and the binutils used in
 the build from version 2.20 to 2.34.  (See {ml-pull}1013[#1013].)
 * Remove all memory overheads for computing tree SHAP values. (See {ml-pull}1023[#1023].)
+* Distinguish between empty and missing categorical fields in classification and regression
+model training. (See {ml-pull}1034[#1034].)
 
 === Bug Fixes
 
