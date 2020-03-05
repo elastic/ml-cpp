@@ -70,12 +70,11 @@ void CDataFrameAnalysisInstrumentation::writer(core::CRapidJsonConcurrentLineWri
 }
 
 void CDataFrameAnalysisInstrumentation::nextStep(std::uint32_t step) {
-    // TODO uncomment, once Java code becomes available
-    // this->writeState(step);
+    this->writeState(step);
 }
 
 void CDataFrameAnalysisInstrumentation::writeState(std::uint32_t step) {
-    // this->writeProgress(step);
+    this->writeProgress(step);
     std::int64_t timestamp{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
     this->writeMemory(timestamp);
 }

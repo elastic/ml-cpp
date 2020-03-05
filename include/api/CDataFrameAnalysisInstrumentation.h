@@ -84,23 +84,25 @@ private:
     std::string m_JobId;
 };
 
+//! \brief Outlier instrumentation.
 class API_EXPORT CDataFrameOutliersInstrumentation final
     : public CDataFrameAnalysisInstrumentation {
 public:
     explicit CDataFrameOutliersInstrumentation(const std::string& jobId)
-        : CDataFrameAnalysisInstrumentation(jobId){};
+        : CDataFrameAnalysisInstrumentation(jobId) {}
 
-protected:
+private:
     counter_t::ECounterTypes memoryCounterType() override;
 };
 
+//! \brief Predictive model training instrumentation.
 class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation final
     : public CDataFrameAnalysisInstrumentation {
 public:
     explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId)
-        : CDataFrameAnalysisInstrumentation(jobId){};
+        : CDataFrameAnalysisInstrumentation(jobId) {}
 
-protected:
+private:
     counter_t::ECounterTypes memoryCounterType() override;
 };
 }

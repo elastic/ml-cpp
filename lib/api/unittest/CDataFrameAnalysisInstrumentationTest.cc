@@ -31,18 +31,22 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
         outputStream.flush();
     }
     std::int64_t timeAfter{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
+
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(outputStream.str()));
+
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
     BOOST_TEST_REQUIRE(results.IsArray() == true);
-
-    const auto& result{results[0]};
-    BOOST_TEST_REQUIRE(result["analytics_memory_usage"].IsObject() == true);
-    BOOST_TEST_REQUIRE(result["analytics_memory_usage"]["job_id"].GetString() == jobId);
-    BOOST_TEST_REQUIRE(result["analytics_memory_usage"]["peak_usage_bytes"].GetInt64() ==
-                       memoryUsage);
-    BOOST_TEST_REQUIRE(result["analytics_memory_usage"]["timestamp"].GetInt64() >= timeBefore);
-    BOOST_TEST_REQUIRE(result["analytics_memory_usage"]["timestamp"].GetInt64() <= timeAfter);
+    for (auto i = results.Begin(); i != results.End(); ++i) {
+        if (i->HasMember("analytics_memory_usage")) {
+            BOOST_TEST_REQUIRE((*i)["analytics_memory_usage"].IsObject() == true);
+            BOOST_TEST_REQUIRE((*i)["analytics_memory_usage"]["job_id"].GetString() == jobId);
+            BOOST_TEST_REQUIRE(
+                (*i)["analytics_memory_usage"]["peak_usage_bytes"].GetInt64() == memoryUsage);
+            BOOST_TEST_REQUIRE((*i)["analytics_memory_usage"]["timestamp"].GetInt64() >= timeBefore);
+            BOOST_TEST_REQUIRE((*i)["analytics_memory_usage"]["timestamp"].GetInt64() <= timeAfter);
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
