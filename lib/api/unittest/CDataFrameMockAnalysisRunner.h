@@ -16,6 +16,10 @@
 #include <functional>
 
 class CDataFrameMockAnalysisState final : public ml::api::CDataFrameAnalysisInstrumentation {
+public:
+    CDataFrameMockAnalysisState(const std::string& jobId)
+        : ml::api::CDataFrameAnalysisInstrumentation(jobId) {}
+
 protected:
     ml::counter_t::ECounterTypes memoryCounterType() override;
 };

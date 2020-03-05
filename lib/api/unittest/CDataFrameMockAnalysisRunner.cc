@@ -10,7 +10,7 @@
 #include <core/CLoopProgress.h>
 
 CDataFrameMockAnalysisRunner::CDataFrameMockAnalysisRunner(const ml::api::CDataFrameAnalysisSpecification& spec)
-    : ml::api::CDataFrameAnalysisRunner{spec} {
+    : ml::api::CDataFrameAnalysisRunner{spec}, m_Instrumentation{spec.jobId()} {
 }
 
 std::size_t CDataFrameMockAnalysisRunner::numberExtraColumns() const {
