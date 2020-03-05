@@ -238,6 +238,9 @@ public:
     //! The maximum number of distinct categorical fields we can faithfully represent.
     static const std::size_t MAX_CATEGORICAL_CARDINALITY;
 
+    //! The default value indicating that a value is missing.
+    static const std::string DEFAULT_MISSING_STRING;
+
 public:
     //! \param[in] inMainMemory True if the data frame is stored in main memory.
     //! \param[in] numberColumns The number of columns in the data frame.
@@ -443,6 +446,9 @@ public:
     //! Write the column names.
     void columnNames(TStrVec columnNames);
 
+    //! Write the string which indicates that a value is missing.
+    void missingString(std::string missing);
+
     //! Write for which columns an empty string implies the value is missing.
     void emptyIsMissing(TBoolVec emptyIsMissing);
 
@@ -577,7 +583,12 @@ private:
     //! A lookup for the integer value of categories.
     TStrSizeUMapVec m_CategoricalColumnValueLookup;
 
+    //! The string which indicates that a category is missing.
+    std::string m_MissingString;
+
     //! Indicator vector for treating empty strings as missing values.
+    // TODO Remove once Java passes the correct value for the missing target
+    // for classification.
     TBoolVec m_EmptyIsMissing;
 
     //! Indicator vector of the columns which contain categorical values.

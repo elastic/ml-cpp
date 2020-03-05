@@ -28,16 +28,16 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     auto errorHandler = [&errors](std::string error) { errors.push_back(error); };
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
 
-    const auto spec{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-        test::CDataFrameAnalysisSpecificationFactory::regression(), "dep_var",
-        5, 6, 13000000, 0, 0)};
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
+    auto spec = specFactory.rows(5).columns(6).memoryLimit(13000000).predictionSpec(
+        test::CDataFrameAnalysisSpecificationFactory::regression(), "dep_var");
     rapidjson::Document jsonParameters;
     jsonParameters.Parse("{"
                          "  \"dependent_variable\": \"dep_var\","
                          "  \"prediction_field_name\": \"is_training\""
                          "}");
-    const auto parameters{
-        api::CDataFrameTrainBoostedTreeRegressionRunner::parameterReader().read(jsonParameters)};
+    auto parameters =
+        api::CDataFrameTrainBoostedTreeRegressionRunner::parameterReader().read(jsonParameters);
     api::CDataFrameTrainBoostedTreeRegressionRunner runner(*spec, parameters);
 
     BOOST_TEST_REQUIRE(errors.size() == 1);
