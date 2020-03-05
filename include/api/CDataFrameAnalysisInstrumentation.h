@@ -77,11 +77,11 @@ private:
     void writeState(std::uint32_t step);
 
 private:
+    std::string m_JobId;
     std::atomic_bool m_Finished;
     std::atomic_size_t m_FractionalProgress;
     std::atomic<std::int64_t> m_Memory;
     core::CRapidJsonConcurrentLineWriter* m_Writer;
-    std::string m_JobId;
 };
 
 //! \brief Outlier instrumentation.

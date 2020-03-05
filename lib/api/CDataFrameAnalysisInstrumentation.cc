@@ -57,7 +57,7 @@ double CDataFrameAnalysisInstrumentation::progress() const {
 }
 
 CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::string& jobId)
-    : m_Finished{false}, m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr}, m_JobId{jobId} {
+    : m_JobId{jobId}, m_Finished{false}, m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
 }
 
 void CDataFrameAnalysisInstrumentation::resetProgress() {
