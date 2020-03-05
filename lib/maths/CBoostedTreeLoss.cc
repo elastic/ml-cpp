@@ -228,8 +228,7 @@ CArgMinMultinomialLogisticImpl::CArgMinMultinomialLogisticImpl(std::size_t numbe
                                                                double lambda,
                                                                const CPRNG::CXorOShiro128Plus& rng)
     : CArgMinLossImpl{lambda}, m_NumberClasses{numberClasses}, m_Rng{rng},
-      m_ClassCounts{TDoubleVector::Zero(numberClasses)}, m_PredictionSketch{NUMBER_CENTRES},
-      m_CentresClassCounts(NUMBER_CENTRES, TDoubleVector::Zero(numberClasses)) {
+      m_ClassCounts{TDoubleVector::Zero(numberClasses)}, m_PredictionSketch{NUMBER_CENTRES} {
 }
 
 std::unique_ptr<CArgMinLossImpl> CArgMinMultinomialLogisticImpl::clone() const {
@@ -260,6 +259,8 @@ bool CArgMinMultinomialLogisticImpl::nextPass() {
                             m_Centres.end());
             LOG_TRACE(<< "# centres = " << m_Centres.size());
             m_CurrentPass += m_Centres.size() == 1 ? 2 : 1;
+            m_CentresClassCounts.resize(m_Centres.size(),
+                                        TDoubleVector::Zero(m_NumberClasses));
         }
 
         // Reclaim the memory used by k-means.
@@ -382,21 +383,21 @@ CArgMinMultinomialLogisticImpl::TDoubleVector CArgMinMultinomialLogisticImpl::va
 }
 
 CArgMinMultinomialLogisticImpl::TObjective CArgMinMultinomialLogisticImpl::objective() const {
-    TDoubleVector probabilities;
+    TDoubleVector logProbabilities;
     double lambda{this->lambda()};
     if (m_Centres.size() == 1) {
-        return [probabilities, lambda, this](const TDoubleVector& weight) mutable {
-            probabilities = m_Centres[0] + weight;
-            probabilities = logSoftmax(std::move(probabilities));
-            return lambda * weight.squaredNorm() - m_ClassCounts.transpose() * probabilities;
+        return [logProbabilities, lambda, this](const TDoubleVector& weight) mutable {
+            logProbabilities = m_Centres[0] + weight;
+            logProbabilities = logSoftmax(std::move(logProbabilities));
+            return lambda * weight.squaredNorm() - m_ClassCounts.transpose() * logProbabilities;
         };
     }
-    return [probabilities, lambda, this](const TDoubleVector& weight) mutable {
+    return [logProbabilities, lambda, this](const TDoubleVector& weight) mutable {
         double loss{0.0};
         for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
-            probabilities = m_Centres[i] + weight;
-            probabilities = logSoftmax(std::move(probabilities));
-            loss -= m_CentresClassCounts[i].transpose() * probabilities;
+            logProbabilities = m_Centres[i] + weight;
+            logProbabilities = logSoftmax(std::move(logProbabilities));
+            loss -= m_CentresClassCounts[i].transpose() * logProbabilities;
         }
         return loss + lambda * weight.squaredNorm();
     };
@@ -411,9 +412,7 @@ CArgMinMultinomialLogisticImpl::objectiveGradient() const {
             probabilities = m_Centres[0] + weight;
             probabilities = CTools::softmax(std::move(probabilities));
             return TDoubleVector{2.0 * lambda * weight -
-                                 (probabilities.array() * m_ClassCounts.array()).matrix() /
-                                     (m_ClassCounts.transpose() * probabilities) -
-                                 probabilities};
+                                 (m_ClassCounts - m_ClassCounts.array().sum() * probabilities)};
         };
     }
     return [probabilities, lambda, this](const TDoubleVector& weight) mutable -> TDoubleVector {
@@ -421,10 +420,8 @@ CArgMinMultinomialLogisticImpl::objectiveGradient() const {
         for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
             probabilities = m_Centres[i] + weight;
             probabilities = CTools::softmax(std::move(probabilities));
-            lossGradient -=
-                (probabilities.array() * m_CentresClassCounts[i].array()).matrix() /
-                    (m_CentresClassCounts[i].transpose() * probabilities) -
-                probabilities;
+            lossGradient -= m_CentresClassCounts[i] -
+                            m_CentresClassCounts[i].array().sum() * probabilities;
         }
         return TDoubleVector{2.0 * lambda * weight + lossGradient};
     };

@@ -280,6 +280,59 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticLossForUnderflow) {
 }
 
 BOOST_AUTO_TEST_CASE(testMultinomialLogisticGradient) {
+    // Test that the gradient function is close to the numerical derivative
+    // of the objective.
+
+    maths::CPRNG::CXorOShiro128Plus rng;
+    test::CRandomNumbers testRng;
+
+    for (std::size_t t = 0; t < 10; ++t) {
+
+        CArgMinMultinomialLogisticImpl argmin{3, 0.1 * static_cast<double>(t + 1), rng};
+
+        TDoubleVec labels;
+        testRng.generateUniformSamples(0.0, 3.0, 20, labels);
+
+        TDoubleVec predictions;
+        if (t % 2 == 0) {
+            predictions.resize(3 * labels.size(), 0.0);
+        } else {
+            testRng.generateUniformSamples(-1.0, 1.0, 3 * labels.size(), predictions);
+        }
+
+        do {
+            for (std::size_t i = 0; i < labels.size(); ++i) {
+                maths::CFloatStorage storage[]{predictions[3 * i], predictions[3 * i + 1],
+                                               predictions[3 * i + 2]};
+                TMemoryMappedFloatVector prediction{storage, 3};
+                argmin.add(prediction, std::floor(labels[i]));
+            }
+        } while (argmin.nextPass());
+
+        auto objective = argmin.objective();
+        auto objectiveGradient = argmin.objectiveGradient();
+
+        double eps{1e-3};
+        TDoubleVec probes;
+        testRng.generateUniformSamples(-1.0, 1.0, 30, probes);
+        for (std::size_t i = 0; i < probes.size(); i += 3) {
+            TDoubleVector probe{3};
+            probe(0) = probes[i];
+            probe(1) = probes[i + 1];
+            probe(2) = probes[i + 2];
+
+            TDoubleVector expectedGradient{3};
+            for (std::size_t j = 0; j < 3; ++j) {
+                TDoubleVector shift{TDoubleVector::Zero(3)};
+                shift(j) = eps;
+                expectedGradient(j) =
+                    (objective(probe + shift) - objective(probe - shift)) / (2.0 * eps);
+            }
+            TDoubleVector actualGradient{objectiveGradient(probe)};
+
+            BOOST_REQUIRE_SMALL((expectedGradient - actualGradient).norm(), eps);
+        }
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
@@ -289,6 +342,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
     // All predictions equal and zero.
     {
         CArgMinMultinomialLogisticImpl argmin{3, 0.0, rng};
+
         maths::CFloatStorage storage[]{0.0, 0.0, 0.0};
         TMemoryMappedFloatVector prediction{storage, 3};
         argmin.add(prediction, 0.0);
@@ -298,42 +352,51 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
         argmin.add(prediction, 2.0);
         argmin.add(prediction, 1.0);
         BOOST_REQUIRE_EQUAL(false, argmin.nextPass());
-        LOG_DEBUG(<< argmin.value().transpose());
+
+        TDoubleVector expectedProbabilities{3};
+        expectedProbabilities(0) = 2.0 / 6.0;
+        expectedProbabilities(1) = 3.0 / 6.0;
+        expectedProbabilities(2) = 1.0 / 6.0;
+        TDoubleVector actualProbabilities{maths::CTools::softmax(argmin.value())};
+
+        BOOST_REQUIRE_SMALL((actualProbabilities - expectedProbabilities).norm(), 1e-3);
     }
 
     // All predictions are equal and 0.5.
-    {
+    for (std::size_t t = 0; t < 1; ++t) {
         test::CRandomNumbers testRng;
 
         TDoubleVec labels;
-        testRng.generateUniformSamples(0.0, 2.0, 1000, labels);
+        testRng.generateUniformSamples(0.0, 2.0, 20, labels);
         for (auto& label : labels) {
             label = std::floor(label + 0.3);
         }
 
         CArgMinMultinomialLogisticImpl argmin{3, 0.0, rng};
+
         std::size_t numberPasses{0};
         std::size_t counts[]{0, 0, 0};
+        maths::CFloatStorage storage[]{0.5, 0.5, 0.5};
+        TMemoryMappedFloatVector prediction{storage, 3};
 
         do {
             ++numberPasses;
-            for (std::size_t i = 0; i < labels.size(); ++i) {
-                maths::CFloatStorage storage[]{0.5, 0.5, 0.5};
-                TMemoryMappedFloatVector prediction{storage, 3};
-                argmin.add(prediction, labels[i]);
-                ++counts[static_cast<std::size_t>(labels[i])];
+            for (const auto& label : labels) {
+                argmin.add(prediction, label);
+                ++counts[static_cast<std::size_t>(label)];
             }
         } while (argmin.nextPass());
 
-        TDoubleVector p{3};
-        p(0) = static_cast<double>(counts[0]) / 1000.0;
-        p(1) = static_cast<double>(counts[1]) / 1000.0;
-        p(2) = static_cast<double>(counts[2]) / 1000.0;
-        TDoubleVector expected{maths::CTools::softmax(p).array().log()};
-        TDoubleVector actual{argmin.value()};
-
         BOOST_REQUIRE_EQUAL(std::size_t{1}, numberPasses);
-        BOOST_REQUIRE_SMALL((actual - expected).lpNorm<1>(), 0.001);
+
+        TDoubleVector expectedProbabilities{3};
+        expectedProbabilities(0) = static_cast<double>(counts[0]) / 20.0;
+        expectedProbabilities(1) = static_cast<double>(counts[1]) / 20.0;
+        expectedProbabilities(2) = static_cast<double>(counts[2]) / 20.0;
+        TDoubleVector actualLogit{prediction + argmin.value()};
+        TDoubleVector actualProbabilities{maths::CTools::softmax(actualLogit)};
+
+        BOOST_REQUIRE_SMALL((actualProbabilities - expectedProbabilities).norm(), 0.001);
     }
 
     // Test underflow of probabilities.
