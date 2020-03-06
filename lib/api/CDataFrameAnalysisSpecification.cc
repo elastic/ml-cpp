@@ -118,14 +118,14 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
     rapidjson::Document specification;
     if (specification.Parse(jsonSpecification.c_str()) == false) {
         HANDLE_FATAL(<< "Input error: failed to parse analysis specification '"
-                     << jsonSpecification << "'. Please report this problem.");
+                     << jsonSpecification << "'. Please report this problem.")
     } else {
 
         auto parameters = CONFIG_READER.read(specification);
 
         for (auto name : {ROWS, COLS, MEMORY_LIMIT, THREADS}) {
             if (parameters[name].as<std::size_t>() == 0) {
-                HANDLE_FATAL(<< "Input error: '" << name << "' must be non-zero");
+                HANDLE_FATAL(<< "Input error: '" << name << "' must be non-zero")
             }
         }
         m_NumberRows = parameters[ROWS].as<std::size_t>();
@@ -207,8 +207,11 @@ CDataFrameAnalysisSpecification::makeDataFrame() {
     return result;
 }
 
-CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(core::CDataFrame& frame) const {
+CDataFrameAnalysisRunner*
+CDataFrameAnalysisSpecification::run(core::CDataFrame& frame,
+                                     core::CRapidJsonConcurrentLineWriter* writer) const {
     if (m_Runner != nullptr) {
+        m_Runner->instrumentation().writer(writer);
         m_Runner->run(frame);
         return m_Runner.get();
     }
@@ -218,18 +221,10 @@ CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::run(core::CDataFrame&
 void CDataFrameAnalysisSpecification::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {
     if (m_Runner == nullptr) {
         HANDLE_FATAL(<< "Internal error: no runner available so can't estimate memory."
-                     << " Please report this problem.");
+                     << " Please report this problem.")
         return;
     }
     m_Runner->estimateMemoryUsage(writer);
-}
-
-TBoolVec CDataFrameAnalysisSpecification::columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const {
-    if (m_Runner == nullptr) {
-        HANDLE_FATAL(<< "Internal error: no runner available. Please report this problem.");
-        return TBoolVec(fieldNames.size(), false);
-    }
-    return m_Runner->columnsForWhichEmptyIsMissing(fieldNames);
 }
 
 void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& jsonAnalysis) {
@@ -251,7 +246,7 @@ void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& j
     }
 
     HANDLE_FATAL(<< "Input error: unexpected analysis name '" << m_AnalysisName
-                 << "'. Please report this problem.");
+                 << "'. Please report this problem.")
 }
 
 CDataFrameAnalysisSpecification::TDataAdderUPtr

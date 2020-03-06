@@ -40,9 +40,6 @@ public:
     CDataFrameTrainBoostedTreeClassifierRunner(const CDataFrameAnalysisSpecification& spec,
                                                const CDataFrameAnalysisParameters& parameters);
 
-    //! \return Indicator of columns for which empty value should be treated as missing.
-    TBoolVec columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const override;
-
     //! Write the prediction for \p row to \p writer.
     void writeOneRow(const core::CDataFrame& frame,
                      const TRowRef& row,

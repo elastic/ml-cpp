@@ -204,31 +204,4 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor1000Rows) {
     testEstimateMemoryUsage(1000, "403kB", "142kB", 0);
 }
 
-void testColumnsForWhichEmptyIsMissing(const std::string& analysis,
-                                       const std::string& dependentVariableName,
-                                       const TStrVec& fieldNames,
-                                       const TStrVec& categoricalFields,
-                                       const TBoolVec& expectedEmptyIsMissing) {
-    std::string parameters{"{\"dependent_variable\": \"" + dependentVariableName + "\"}"};
-    std::string jsonSpec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", 10000, 5, 100000000, 1, "", categoricalFields, true,
-        test::CTestTmpDir::tmpDir(), "", analysis, parameters)};
-    api::CDataFrameAnalysisSpecification spec{jsonSpec};
-    auto emptyIsMissing = spec.columnsForWhichEmptyIsMissing(fieldNames);
-    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedEmptyIsMissing),
-                        core::CContainerPrinter::print(emptyIsMissing));
-}
-
-BOOST_AUTO_TEST_CASE(testColumnsForWhichEmptyIsMissingClassification) {
-    testColumnsForWhichEmptyIsMissing("classification", "class",
-                                      {"feature_1", "feature_2", "feature_3", "class"},
-                                      {"class"}, {false, false, false, true});
-}
-
-BOOST_AUTO_TEST_CASE(testColumnsForWhichEmptyIsMissingRegression) {
-    testColumnsForWhichEmptyIsMissing("regression", "value",
-                                      {"feature_1", "feature_2", "feature_3", "value"},
-                                      {}, {false, false, false, false});
-}
-
 BOOST_AUTO_TEST_SUITE_END()
