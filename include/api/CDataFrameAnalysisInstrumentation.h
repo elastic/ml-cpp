@@ -30,7 +30,7 @@ class API_EXPORT CDataFrameAnalysisInstrumentation
     : public maths::CDataFrameAnalysisInstrumentationInterface {
 
 public:
-    CDataFrameAnalysisInstrumentation();
+    explicit CDataFrameAnalysisInstrumentation(const std::string& jobId);
 
     //! Adds \p delta to the memory usage statistics.
     void updateMemoryUsage(std::int64_t delta) override;
@@ -73,25 +73,36 @@ protected:
 
 private:
     void writeProgress(std::uint32_t step);
-    void writeMemory(std::uint32_t step);
+    void writeMemory(std::int64_t timestamp);
     void writeState(std::uint32_t step);
 
 private:
+    std::string m_JobId;
     std::atomic_bool m_Finished;
     std::atomic_size_t m_FractionalProgress;
     std::atomic<std::int64_t> m_Memory;
     core::CRapidJsonConcurrentLineWriter* m_Writer;
 };
 
+//! \brief Outlier instrumentation.
 class API_EXPORT CDataFrameOutliersInstrumentation final
     : public CDataFrameAnalysisInstrumentation {
-protected:
+public:
+    explicit CDataFrameOutliersInstrumentation(const std::string& jobId)
+        : CDataFrameAnalysisInstrumentation(jobId) {}
+
+private:
     counter_t::ECounterTypes memoryCounterType() override;
 };
 
+//! \brief Predictive model training instrumentation.
 class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation final
     : public CDataFrameAnalysisInstrumentation {
-protected:
+public:
+    explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId)
+        : CDataFrameAnalysisInstrumentation(jobId) {}
+
+private:
     counter_t::ECounterTypes memoryCounterType() override;
 };
 }
