@@ -308,8 +308,9 @@ void CBinomialLogistic::gradient(const TMemoryMappedFloatVector& prediction,
                                  double weight) const {
     if (prediction(0) > -LOG_EPSILON && actual == 1.0) {
         writer(0, -weight * std::exp(-prediction(0)));
+    } else {
+        writer(0, weight * (CTools::logisticFunction(prediction(0)) - actual));
     }
-    writer(0, weight * (CTools::logisticFunction(prediction(0)) - actual));
 }
 
 void CBinomialLogistic::curvature(const TMemoryMappedFloatVector& prediction,
@@ -318,9 +319,10 @@ void CBinomialLogistic::curvature(const TMemoryMappedFloatVector& prediction,
                                   double weight) const {
     if (prediction(0) > -LOG_EPSILON) {
         writer(0, weight * std::exp(-prediction(0)));
+    } else {
+        double probability{CTools::logisticFunction(prediction(0))};
+        writer(0, weight * probability * (1.0 - probability));
     }
-    double probability{CTools::logisticFunction(prediction(0))};
-    writer(0, weight * probability * (1.0 - probability));
 }
 
 bool CBinomialLogistic::isCurvatureConstant() const {
