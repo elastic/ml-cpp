@@ -552,16 +552,18 @@ protected:
     //!
     //! \note We assume \p points is small so the bruteforce approach is fast.
     static void deduplicate(TFloatPointDoublePrVec& points) {
-        std::sort(points.begin(), points.end());
-        auto back = points.begin();
-        for (auto i = back + 1; i != points.end(); ++i) {
-            if (back->first == i->first) {
-                back->second += i->second;
-            } else if (++back != i) {
-                *back = std::move(*i);
+        if (points.size() > 1) {
+            std::sort(points.begin(), points.end());
+            auto back = points.begin();
+            for (auto i = back + 1; i != points.end(); ++i) {
+                if (back->first == i->first) {
+                    back->second += i->second;
+                } else if (++back != i) {
+                    *back = std::move(*i);
+                }
             }
+            points.erase(back + 1, points.end());
         }
-        points.erase(back + 1, points.end());
     }
 
     //! Get the spherically symmetric variance from \p moments.
