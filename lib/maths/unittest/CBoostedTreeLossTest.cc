@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "core/CContainerPrinter.h"
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CPRNG.h>
 #include <maths/CSolvers.h>
@@ -25,18 +26,19 @@ BOOST_AUTO_TEST_SUITE(CBoostedTreeLossTest)
 
 using namespace ml;
 using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
 using TDoubleVector = maths::boosted_tree::CLoss::TDoubleVector;
 using TMemoryMappedFloatVector = maths::boosted_tree::CLoss::TMemoryMappedFloatVector;
-using maths::boosted_tree::CBinomialLogistic;
-using maths::boosted_tree::CMultinomialLogistic;
-using maths::boosted_tree_detail::CArgMinBinomialLogisticImpl;
-using maths::boosted_tree_detail::CArgMinMultinomialLogisticImpl;
+using maths::boosted_tree::CBinomialLogisticLoss;
+using maths::boosted_tree::CMultinomialLogisticLoss;
+using maths::boosted_tree_detail::CArgMinBinomialLogisticLossImpl;
+using maths::boosted_tree_detail::CArgMinMultinomialLogisticLossImpl;
 
 BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerEdgeCases) {
 
     // All predictions equal and zero.
     {
-        CArgMinBinomialLogisticImpl argmin{0.0};
+        CArgMinBinomialLogisticLossImpl argmin{0.0};
         maths::CFloatStorage storage[]{0.0};
         TMemoryMappedFloatVector prediction{storage, 1};
         argmin.add(prediction, 0.0);
@@ -57,7 +59,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerEdgeCases) {
             label = std::floor(label + 0.3);
         }
 
-        CArgMinBinomialLogisticImpl argmin{0.0};
+        CArgMinBinomialLogisticLossImpl argmin{0.0};
         std::size_t numberPasses{0};
         std::size_t counts[]{0, 0};
 
@@ -81,29 +83,29 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerEdgeCases) {
 
     // Test underflow of probabilities.
     {
-        CArgMinBinomialLogisticImpl argmin{0.0};
+        CArgMinBinomialLogisticLossImpl argmin{0.0};
 
         TDoubleVec predictions{-500.0, -30.0, -15.0, -400.0};
-        TDoubleVec actuals{1.0, 1.0, 0.0, 1.0};
+        TDoubleVec labels{1.0, 1.0, 0.0, 1.0};
         do {
             for (std::size_t i = 0; i < predictions.size(); ++i) {
                 maths::CFloatStorage storage[]{predictions[i]};
                 TMemoryMappedFloatVector prediction{storage, 1};
-                argmin.add(prediction, actuals[i]);
+                argmin.add(prediction, labels[i]);
             }
         } while (argmin.nextPass());
 
         double minimizer{argmin.value()[0]};
 
         // Check we're at the minimum.
-        CBinomialLogistic loss;
+        CBinomialLogisticLoss loss;
         TDoubleVec losses;
         for (double eps : {-10.0, 0.0, 10.0}) {
             double lossAtEps{0.0};
             for (std::size_t i = 0; i < predictions.size(); ++i) {
                 maths::CFloatStorage storage[]{predictions[i] + minimizer + eps};
                 TMemoryMappedFloatVector probe{storage, 1};
-                lossAtEps += loss.value(probe, actuals[i]);
+                lossAtEps += loss.value(probe, labels[i]);
             }
             losses.push_back(lossAtEps);
         }
@@ -166,8 +168,8 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerRandom) {
             LOG_DEBUG(<< "expected = " << expected
                       << " objective at expected = " << objectiveAtExpected);
 
-            CArgMinBinomialLogisticImpl argmin{lambda};
-            CArgMinBinomialLogisticImpl argminPartition[2]{{lambda}, {lambda}};
+            CArgMinBinomialLogisticLossImpl argmin{lambda};
+            CArgMinBinomialLogisticLossImpl argminPartition[2]{{lambda}, {lambda}};
             auto nextPass = [&] {
                 bool done{argmin.nextPass() == false};
                 done &= (argminPartition[0].nextPass() == false);
@@ -215,7 +217,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticLossForUnderflow) {
 
     double eps{100.0 * std::numeric_limits<double>::epsilon()};
 
-    CBinomialLogistic loss;
+    CBinomialLogisticLoss loss;
 
     // Losses should be very nearly linear function of log-odds when they're large.
     {
@@ -288,7 +290,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticGradient) {
 
     for (std::size_t t = 0; t < 10; ++t) {
 
-        CArgMinMultinomialLogisticImpl argmin{3, 0.1 * static_cast<double>(t + 1), rng};
+        CArgMinMultinomialLogisticLossImpl argmin{3, 0.1 * static_cast<double>(t + 1), rng};
 
         TDoubleVec labels;
         testRng.generateUniformSamples(0.0, 3.0, 20, labels);
@@ -302,7 +304,8 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticGradient) {
 
         do {
             for (std::size_t i = 0; i < labels.size(); ++i) {
-                maths::CFloatStorage storage[]{predictions[3 * i], predictions[3 * i + 1],
+                maths::CFloatStorage storage[]{predictions[3 * i + 0],
+                                               predictions[3 * i + 1],
                                                predictions[3 * i + 2]};
                 TMemoryMappedFloatVector prediction{storage, 3};
                 argmin.add(prediction, std::floor(labels[i]));
@@ -341,7 +344,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
 
     // All predictions equal and zero.
     {
-        CArgMinMultinomialLogisticImpl argmin{3, 0.0, rng};
+        CArgMinMultinomialLogisticLossImpl argmin{3, 0.0, rng};
 
         maths::CFloatStorage storage[]{0.0, 0.0, 0.0};
         TMemoryMappedFloatVector prediction{storage, 3};
@@ -363,7 +366,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
     }
 
     // All predictions are equal and 0.5.
-    for (std::size_t t = 0; t < 1; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         test::CRandomNumbers testRng;
 
         TDoubleVec labels;
@@ -372,7 +375,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
             label = std::floor(label + 0.3);
         }
 
-        CArgMinMultinomialLogisticImpl argmin{3, 0.0, rng};
+        CArgMinMultinomialLogisticLossImpl argmin{3, 0.0, rng};
 
         std::size_t numberPasses{0};
         std::size_t counts[]{0, 0, 0};
@@ -400,37 +403,75 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
     }
 
     // Test underflow of probabilities.
+    LOG_DEBUG(<< "Test underflow");
     {
-        // TODO
+        CArgMinMultinomialLogisticLossImpl argmin{3, 0.0, rng};
 
-        CArgMinBinomialLogisticImpl argmin{0.0};
-
-        TDoubleVec predictions{-500.0, -30.0, -15.0, -400.0};
-        TDoubleVec actuals{1.0, 1.0, 0.0, 1.0};
+        TDoubleVecVec predictions{{-230.0, -200.0, -200.0},
+                                  {-30.0, -10.0, -20.0},
+                                  {-15.0, -50.0, -30.0},
+                                  {-400.0, -350.0, -300.0}};
+        TDoubleVec labels{1.0, 1.0, 0.0, 2.0};
         do {
             for (std::size_t i = 0; i < predictions.size(); ++i) {
-                maths::CFloatStorage storage[]{predictions[i]};
-                TMemoryMappedFloatVector prediction{storage, 1};
-                argmin.add(prediction, actuals[i]);
+                maths::CFloatStorage storage[]{predictions[i][0], predictions[i][1],
+                                               predictions[i][2]};
+                TMemoryMappedFloatVector prediction{storage, 3};
+                argmin.add(prediction, labels[i]);
             }
         } while (argmin.nextPass());
 
-        double minimizer{argmin.value()[0]};
+        TDoubleVector minimizer{argmin.value()};
 
-        // Check we're at the minimum.
-        CBinomialLogistic loss;
-        TDoubleVec losses;
-        for (double eps : {-10.0, 0.0, 10.0}) {
-            double lossAtEps{0.0};
-            for (std::size_t i = 0; i < predictions.size(); ++i) {
-                maths::CFloatStorage storage[]{predictions[i] + minimizer + eps};
-                TMemoryMappedFloatVector probe{storage, 1};
-                lossAtEps += loss.value(probe, actuals[i]);
+        // Check we're at a minimum.
+        CMultinomialLogisticLoss loss{3};
+        for (std::size_t i = 0; i < 3; ++i) {
+            TDoubleVec losses;
+            for (double eps : {-30.0, 0.0, 30.0}) {
+                double lossAtEps{0.0};
+                for (std::size_t j = 0; j < predictions.size(); ++j) {
+                    maths::CFloatStorage storage[]{predictions[j][0] + minimizer(0),
+                                                   predictions[j][1] + minimizer(1),
+                                                   predictions[j][2] + minimizer(2)};
+                    storage[i] += eps;
+                    TMemoryMappedFloatVector probe{storage, 3};
+                    lossAtEps += loss.value(probe, labels[j]);
+                }
+                losses.push_back(lossAtEps);
             }
-            losses.push_back(lossAtEps);
+            LOG_DEBUG(<< core::CContainerPrinter::print(losses));
+            BOOST_TEST_REQUIRE(losses[0] >= losses[1]);
+            BOOST_TEST_REQUIRE(losses[2] >= losses[1]);
         }
-        BOOST_TEST_REQUIRE(losses[0] >= losses[1]);
-        BOOST_TEST_REQUIRE(losses[2] >= losses[1]);
+    }
+
+    // All labels equal.
+    {
+        CArgMinMultinomialLogisticLossImpl argmin{3, 0.0, rng};
+
+        maths::CFloatStorage storage[]{0.0, 0.0, 0.0};
+        TMemoryMappedFloatVector prediction{storage, 3};
+        TDoubleVec labels{1.0, 1.0, 1.0, 1.0};
+
+        do {
+            for (const auto& label : labels) {
+                argmin.add(prediction, label);
+            }
+        } while (argmin.nextPass());
+
+        TDoubleVector minimizer{argmin.value()};
+
+        double totalLoss{0.0};
+        CMultinomialLogisticLoss loss{3};
+        for (const auto& label : labels) {
+            maths::CFloatStorage probeStorage[]{prediction(0) + minimizer(0),
+                                                prediction(1) + minimizer(1),
+                                                prediction(2) + minimizer(2)};
+            TMemoryMappedFloatVector probe{probeStorage, 3};
+            totalLoss += loss.value(probe, label);
+        }
+
+        BOOST_REQUIRE_SMALL(totalLoss, 1e-3);
     }
 }
 

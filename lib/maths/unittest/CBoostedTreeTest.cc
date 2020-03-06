@@ -938,9 +938,10 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
         fillDataFrame(trainRows, rows - trainRows, cols, {false, false, false, true},
                       x, TDoubleVec(rows, 0.0), target, *frame);
 
-        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                              1, std::make_unique<maths::boosted_tree::CBinomialLogistic>())
-                              .buildFor(*frame, cols - 1);
+        auto regression =
+            maths::CBoostedTreeFactory::constructFromParameters(
+                1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
+                .buildFor(*frame, cols - 1);
 
         regression->train();
         regression->predict();
@@ -1010,7 +1011,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
     frame->finishWritingRows();
 
     auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CBinomialLogistic>())
+                          1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
                           .buildFor(*frame, cols - 1);
 
     regression->train();

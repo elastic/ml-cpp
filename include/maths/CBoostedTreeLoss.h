@@ -68,9 +68,9 @@ private:
 
 //! \brief Finds the value to add to a set of predicted log-odds which minimises
 //! regularised cross entropy loss w.r.t. the actual categories.
-class MATHS_EXPORT CArgMinBinomialLogisticImpl final : public CArgMinLossImpl {
+class MATHS_EXPORT CArgMinBinomialLogisticLossImpl final : public CArgMinLossImpl {
 public:
-    CArgMinBinomialLogisticImpl(double lambda);
+    CArgMinBinomialLogisticLossImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
     void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
@@ -112,15 +112,15 @@ private:
 
 //! \brief Finds the value to add to a set of predicted multinomial logit which
 //! minimises regularised cross entropy loss w.r.t. the actual classes.
-class MATHS_EXPORT CArgMinMultinomialLogisticImpl final : public CArgMinLossImpl {
+class MATHS_EXPORT CArgMinMultinomialLogisticLossImpl final : public CArgMinLossImpl {
 public:
     using TObjective = std::function<double(const TDoubleVector&)>;
     using TObjectiveGradient = std::function<TDoubleVector(const TDoubleVector&)>;
 
 public:
-    CArgMinMultinomialLogisticImpl(std::size_t numberClasses,
-                                   double lambda,
-                                   const CPRNG::CXorOShiro128Plus& rng);
+    CArgMinMultinomialLogisticLossImpl(std::size_t numberClasses,
+                                       double lambda,
+                                       const CPRNG::CXorOShiro128Plus& rng);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
     void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
@@ -272,7 +272,7 @@ public:
 //! </pre>
 //! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ is the
 //! prediction and \f$S(\cdot)\f$ denotes the logistic function.
-class MATHS_EXPORT CBinomialLogistic final : public CLoss {
+class MATHS_EXPORT CBinomialLogisticLoss final : public CLoss {
 public:
     static const std::string NAME;
 
@@ -307,12 +307,12 @@ public:
 //! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ denotes
 //! the vector valued prediction and \f$\sigma(p)\$ is the softmax function, i.e.
 //! \f$[\sigma(p)]_j = \frac{e^{p_i}}{\sum_k e^{p_k}}\f$.
-class MATHS_EXPORT CMultinomialLogistic final : public CLoss {
+class MATHS_EXPORT CMultinomialLogisticLoss final : public CLoss {
 public:
     static const std::string NAME;
 
 public:
-    CMultinomialLogistic(std::size_t numberClasses);
+    CMultinomialLogisticLoss(std::size_t numberClasses);
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,

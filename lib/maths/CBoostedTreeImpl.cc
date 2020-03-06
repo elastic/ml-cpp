@@ -357,7 +357,8 @@ void CBoostedTreeImpl::initializePerFoldTestLosses() {
 }
 
 void CBoostedTreeImpl::computeProbabilityAtWhichToAssignClassOne(const core::CDataFrame& frame) {
-    if (m_Loss->name() == boosted_tree::CBinomialLogistic::NAME) {
+    // TODO generalize for multi-class.
+    if (m_Loss->name() == boosted_tree::CBinomialLogisticLoss::NAME) {
         switch (m_ClassAssignmentObjective) {
         case CBoostedTree::E_Accuracy:
             break;
