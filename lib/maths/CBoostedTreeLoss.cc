@@ -532,8 +532,9 @@ void CBinomialLogisticLoss::gradient(const TMemoryMappedFloatVector& prediction,
                                      double weight) const {
     if (prediction(0) > -LOG_EPSILON && actual == 1.0) {
         writer(0, -weight * std::exp(-prediction(0)));
+    } else {
+        writer(0, weight * (CTools::logisticFunction(prediction(0)) - actual));
     }
-    writer(0, weight * (CTools::logisticFunction(prediction(0)) - actual));
 }
 
 void CBinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& prediction,
@@ -542,9 +543,10 @@ void CBinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& prediction
                                       double weight) const {
     if (prediction(0) > -LOG_EPSILON) {
         writer(0, weight * std::exp(-prediction(0)));
+    } else {
+        double probability{CTools::logisticFunction(prediction(0))};
+        writer(0, weight * probability * (1.0 - probability));
     }
-    double probability{CTools::logisticFunction(prediction(0))};
-    writer(0, weight * probability * (1.0 - probability));
 }
 
 bool CBinomialLogisticLoss::isCurvatureConstant() const {
@@ -607,16 +609,18 @@ void CMultinomialLogisticLoss::gradient(const TMemoryMappedFloatVector& predicti
     for (int i = 0; i < predictions.size(); ++i) {
         logZ += std::exp(predictions(i) - zmax);
     }
-    logZ = CTools::fastLog(logZ);
+    logZ = zmax + CTools::fastLog(logZ);
 
     for (int i = 0; i < predictions.size(); ++i) {
         if (i == static_cast<int>(actual)) {
-            if (predictions(i) - zmax - logZ > -LOG_EPSILON) {
-                writer(i, -weight * std::exp(-(predictions(i) - zmax - logZ)));
+            if (predictions(i) - logZ > -LOG_EPSILON) {
+                writer(i, -weight * std::exp(-(predictions(i) - logZ)));
+            } else {
+                writer(i, weight * (std::exp(predictions(i) - logZ) - 1.0));
             }
-            writer(i, weight * (std::exp(predictions(i) - zmax - logZ) - 1.0));
+        } else {
+            writer(i, weight * std::exp(predictions(i) - logZ));
         }
-        writer(i, weight * std::exp(predictions(i) - zmax - logZ));
     }
 }
 
@@ -634,18 +638,18 @@ void CMultinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& predict
     for (int i = 0; i < predictions.size(); ++i) {
         logZ += std::exp(predictions(i) - zmax);
     }
-    logZ = CTools::fastLog(logZ);
+    logZ = zmax + CTools::fastLog(logZ);
 
     for (std::size_t i = 0, k = 0; i < m_NumberClasses; ++i) {
-        if (predictions(i) - zmax - logZ > -LOG_EPSILON) {
-            writer(i, weight * std::exp(-(predictions(i) - zmax - logZ)));
+        if (predictions(i) - logZ > -LOG_EPSILON) {
+            writer(i, weight * std::exp(-(predictions(i) - logZ)));
         } else {
-            double probability{std::exp(predictions(i) - zmax - logZ)};
+            double probability{std::exp(predictions(i) - logZ)};
             writer(i, weight * weight * probability * (1.0 - probability));
         }
         for (std::size_t j = i + 1; j < m_NumberClasses; ++j, ++k) {
-            double probabilities[]{std::exp(predictions(i) - zmax - logZ),
-                                   std::exp(predictions(j) - zmax - logZ)};
+            double probabilities[]{std::exp(predictions(i) - logZ),
+                                   std::exp(predictions(j) - logZ)};
             writer(k, -weight * probabilities[0] * probabilities[1]);
         }
     }

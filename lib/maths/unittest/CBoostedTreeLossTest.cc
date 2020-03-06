@@ -221,18 +221,19 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticLossForUnderflow) {
 
     // Losses should be very nearly linear function of log-odds when they're large.
     {
-        maths::CFloatStorage predictions[]{1.0 - std::log(eps), 1.0 + std::log(eps)};
-        TMemoryMappedFloatVector prediction0{&predictions[0], 1};
-        TMemoryMappedFloatVector prediction1{&predictions[1], 1};
-        TDoubleVec lastLoss{loss.value(prediction0, 0.0), loss.value(prediction1, 1.0)};
+        maths::CFloatStorage storage[]{1.0 - std::log(eps), 1.0 + std::log(eps)};
+        TMemoryMappedFloatVector predictions[]{{&storage[0], 1}, {&storage[1], 1}};
+        TDoubleVec previousLoss{loss.value(predictions[0], 0.0),
+                                loss.value(predictions[1], 1.0)};
+        LOG_DEBUG(<< core::CContainerPrinter::print(previousLoss));
         for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
-            predictions[0] = scale - std::log(eps);
-            predictions[1] = scale + std::log(eps);
-            TDoubleVec currentLoss{loss.value(prediction0, 0.0),
-                                   loss.value(prediction1, 1.0)};
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.25, lastLoss[0] - currentLoss[0], 0.005);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(-0.25, lastLoss[1] - currentLoss[1], 0.005);
-            lastLoss = currentLoss;
+            storage[0] = scale - std::log(eps);
+            storage[1] = scale + std::log(eps);
+            TDoubleVec currentLoss{loss.value(predictions[0], 0.0),
+                                   loss.value(predictions[1], 1.0)};
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.25, previousLoss[0] - currentLoss[0], 0.005);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(-0.25, previousLoss[1] - currentLoss[1], 0.005);
+            previousLoss = currentLoss;
         }
     }
 
@@ -241,42 +242,41 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticLossForUnderflow) {
     {
         auto readDerivatives = [&](double prediction, TDoubleVec& gradients,
                                    TDoubleVec& curvatures) {
-            maths::CFloatStorage predictions[]{prediction + std::log(eps),
-                                               prediction - std::log(eps)};
-            TMemoryMappedFloatVector prediction0{&predictions[0], 1};
-            TMemoryMappedFloatVector prediction1{&predictions[1], 1};
-            loss.gradient(prediction0, 0.0, [&](std::size_t, double value) {
+            maths::CFloatStorage storage[]{prediction + std::log(eps),
+                                           prediction - std::log(eps)};
+            TMemoryMappedFloatVector predictions[]{{&storage[0], 1}, {&storage[1], 1}};
+            loss.gradient(predictions[0], 0.0, [&](std::size_t, double value) {
                 gradients[0] = value;
             });
-            loss.gradient(prediction1, 1.0, [&](std::size_t, double value) {
+            loss.gradient(predictions[1], 1.0, [&](std::size_t, double value) {
                 gradients[1] = value;
             });
-            loss.curvature(prediction0, 0.0, [&](std::size_t, double value) {
+            loss.curvature(predictions[0], 0.0, [&](std::size_t, double value) {
                 curvatures[0] = value;
             });
-            loss.curvature(prediction1, 1.0, [&](std::size_t, double value) {
+            loss.curvature(predictions[1], 1.0, [&](std::size_t, double value) {
                 curvatures[1] = value;
             });
         };
 
-        TDoubleVec lastGradient(2);
-        TDoubleVec lastCurvature(2);
-        readDerivatives(1.0, lastGradient, lastCurvature);
+        TDoubleVec previousGradient(2);
+        TDoubleVec previousCurvature(2);
+        readDerivatives(1.0, previousGradient, previousCurvature);
 
         for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
             TDoubleVec currentGradient(2);
             TDoubleVec currentCurvature(2);
             readDerivatives(scale, currentGradient, currentCurvature);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(0.25),
-                                         lastGradient[0] / currentGradient[0], 0.01);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(-0.25),
-                                         lastGradient[1] / currentGradient[1], 0.01);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                std::exp(0.25), lastCurvature[0] / currentCurvature[0], 0.01);
+                std::exp(0.25), previousGradient[0] / currentGradient[0], 0.01);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                std::exp(-0.25), lastCurvature[1] / currentCurvature[1], 0.01);
-            lastGradient = currentGradient;
-            lastCurvature = currentCurvature;
+                std::exp(-0.25), previousGradient[1] / currentGradient[1], 0.01);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                std::exp(0.25), previousCurvature[0] / currentCurvature[0], 0.01);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                std::exp(-0.25), previousCurvature[1] / currentCurvature[1], 0.01);
+            previousGradient = currentGradient;
+            previousCurvature = currentCurvature;
         }
     }
 }
@@ -479,6 +479,84 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerRandom) {
 }
 
 BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
+
+    // Test the behaviour of value, gradient and Hessian of the logistic loss in
+    // the regime where the probabilities underflow.
+
+    using TFloatVec = std::vector<maths::CFloatStorage>;
+
+    double eps{std::numeric_limits<double>::epsilon()};
+
+    auto logits = [](double x, TFloatVec& result) { result.assign({0.0, x}); };
+
+    CMultinomialLogisticLoss loss{2};
+
+    // Losses should be very nearly linear function of log-odds when they're large.
+    {
+        TFloatVec storage[2];
+        logits(1.0 - std::log(eps), storage[0]);
+        logits(1.0 + std::log(eps), storage[1]);
+
+        TMemoryMappedFloatVector predictions[]{{&storage[0][0], 2}, {&storage[1][0], 2}};
+        TDoubleVec previousLoss{loss.value(predictions[0], 0.0),
+                                loss.value(predictions[1], 1.0)};
+
+        for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
+            logits(scale - std::log(eps), storage[0]);
+            logits(scale + std::log(eps), storage[1]);
+            TDoubleVec currentLoss{loss.value(predictions[0], 0.0),
+                                   loss.value(predictions[1], 1.0)};
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.25, previousLoss[0] - currentLoss[0], 0.005);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(-0.25, previousLoss[1] - currentLoss[1], 0.005);
+            previousLoss = currentLoss;
+        }
+    }
+
+    // The gradient and curvature should be proportional to the exponential of the
+    // log-odds when they're small.
+    /*TODO
+    {
+        auto readDerivatives = [&](double prediction,
+                                   TDoubleVecVec& gradients,
+                                   TDoubleVecVec& curvatures) {
+            TFloatVec storage[2];
+            logits(prediction + std::log(eps), storage[0]);
+            logits(prediction - std::log(eps), storage[1]);
+            TMemoryMappedFloatVector predictions[]{{&storage[0][0], 2}, {&storage[1][0], 2}};
+            loss.gradient(predictions[0], 0.0, [&](std::size_t i, double value) {
+                gradients[0][i] = value;
+            });
+            loss.gradient(predictions[1], 1.0, [&](std::size_t i, double value) {
+                gradients[1][i] = value;
+            });
+            loss.curvature(predictions[0], 0.0, [&](std::size_t i, double value) {
+                curvatures[0][i] = value;
+            });
+            loss.curvature(predictions[1], 1.0, [&](std::size_t i, double value) {
+                curvatures[1][i] = value;
+            });
+        };
+
+        TDoubleVecVec previousGradient(2, TDoubleVec(2));
+        TDoubleVecVec previousCurvature(2, TDoubleVec(3));
+        readDerivatives(1.0, previousGradient, previousCurvature);
+
+        for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
+            TDoubleVecVec currentGradient(2, TDoubleVec(2));
+            TDoubleVecVec currentCurvature(2, TDoubleVec(3));
+            readDerivatives(scale, currentGradient, currentCurvature);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(0.25),
+                                         previousGradient[0][1] / currentGradient[0][1], 0.01);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(-0.25),
+                                         previousGradient[1][1] / currentGradient[1][1], 0.01);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                std::exp(0.25), previousCurvature[0][2] / currentCurvature[0][1], 0.01);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                std::exp(-0.25), previousCurvature[1][2] / currentCurvature[1][1], 0.01);
+            previousGradient = currentGradient;
+            previousCurvature = currentCurvature;
+        }
+    }*/
 }
 
 BOOST_AUTO_TEST_SUITE_END()
