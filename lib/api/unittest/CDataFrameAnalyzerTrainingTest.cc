@@ -266,7 +266,7 @@ void addPredictionTestData(EPredictionType type,
         treeFactory.featureBagFraction(featureBagFraction);
     }
 
-    ml::api::CDataFrameTrainBoostedTreeInstrumentation instrumentation;
+    ml::api::CDataFrameTrainBoostedTreeInstrumentation instrumentation("testJob");
     treeFactory.analysisInstrumentation(instrumentation);
 
     auto tree = treeFactory.buildFor(*frame, weights.size());
@@ -653,7 +653,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithRowsMissingTargetVa
     }
     for (std::size_t i = 40; i < 50; ++i) {
         fieldValues[0] = std::to_string(feature[i]);
-        fieldValues[1] = "";
+        fieldValues[1] = core::CDataFrame::DEFAULT_MISSING_STRING;
         fieldValues[2] = std::to_string(i);
         analyzer.handleRecord(fieldNames, fieldValues);
     }
@@ -985,10 +985,8 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
         return [expected](double actual) { return expected == actual; };
     };
 
-    auto missing = []() {
-        return [](double actual) {
-            return maths::CDataFrameUtils::isMissing(actual);
-        };
+    auto missing = [](double actual) {
+        return maths::CDataFrameUtils::isMissing(actual);
     };
 
     auto assertRow = [&](const std::size_t row_i,
@@ -1007,11 +1005,14 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
+    std::string missingString{"foo"};
+
     test::CDataFrameAnalysisSpecificationFactory specFactory;
     api::CDataFrameAnalyzer analyzer{
         specFactory.rows(1000)
             .memoryLimit(27000000)
             .predictionCategoricalFieldNames({"x1", "x2", "x5"})
+            .missingString(missingString)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(), "x5"),
         outputWriterFactory};
 
@@ -1019,11 +1020,11 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
     analyzer.handleRecord(fieldNames, {"x11", "x21", "0", "0", "x51", "0", ""});
     analyzer.handleRecord(fieldNames, {"x12", "x22", "1", "1", "x52", "1", ""});
     analyzer.handleRecord(fieldNames, {"", "x23", "2", "2", "x51", "2", ""});
-    analyzer.handleRecord(fieldNames, {"x14", "x24", "3", "3", "", "3", ""});
+    analyzer.handleRecord(fieldNames, {"x14", "x24", "3", "3", missingString, "3", ""});
     analyzer.handleRecord(fieldNames, {"x15", "x25", "4", "4", "x51", "4", ""});
     analyzer.handleRecord(fieldNames, {"x11", "x26", "5", "5", "x52", "5", ""});
-    analyzer.handleRecord(fieldNames, {"x12", "", "6", "6", "", "6", ""});
-    analyzer.handleRecord(fieldNames, {"x13", "x21", "7", "7", "", "7", ""});
+    analyzer.handleRecord(fieldNames, {"x12", "", "6", "6", missingString, "6", ""});
+    analyzer.handleRecord(fieldNames, {"x13", "x21", "7", "7", missingString, "7", ""});
     analyzer.handleRecord(fieldNames, {"x14", "x22", "8", "8", "x51", "8", ""});
     analyzer.handleRecord(fieldNames, {"", "x23", "9", "9", "x52", "9", ""});
     analyzer.receivedAllRows();
@@ -1036,11 +1037,11 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
         assertRow(0, {eq(0.0), eq(0.0), eq(0.0), eq(0.0), eq(0.0)}, rows[0]);
         assertRow(1, {eq(1.0), eq(1.0), eq(1.0), eq(1.0), eq(1.0)}, rows[1]);
         assertRow(2, {eq(2.0), eq(2.0), eq(2.0), eq(2.0), eq(0.0)}, rows[2]);
-        assertRow(3, {eq(3.0), eq(3.0), eq(3.0), eq(3.0), missing()}, rows[3]);
+        assertRow(3, {eq(3.0), eq(3.0), eq(3.0), eq(3.0), missing}, rows[3]);
         assertRow(4, {eq(4.0), eq(4.0), eq(4.0), eq(4.0), eq(0.0)}, rows[4]);
         assertRow(5, {eq(0.0), eq(5.0), eq(5.0), eq(5.0), eq(1.0)}, rows[5]);
-        assertRow(6, {eq(1.0), eq(6.0), eq(6.0), eq(6.0), missing()}, rows[6]);
-        assertRow(7, {eq(5.0), eq(0.0), eq(7.0), eq(7.0), missing()}, rows[7]);
+        assertRow(6, {eq(1.0), eq(6.0), eq(6.0), eq(6.0), missing}, rows[6]);
+        assertRow(7, {eq(5.0), eq(0.0), eq(7.0), eq(7.0), missing}, rows[7]);
         assertRow(8, {eq(3.0), eq(1.0), eq(8.0), eq(8.0), eq(0.0)}, rows[8]);
         assertRow(9, {eq(2.0), eq(2.0), eq(9.0), eq(9.0), eq(1.0)}, rows[9]);
     });

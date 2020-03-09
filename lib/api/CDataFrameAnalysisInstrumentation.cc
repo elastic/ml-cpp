@@ -3,8 +3,9 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-
 #include <api/CDataFrameAnalysisInstrumentation.h>
+
+#include <core/CTimeUtils.h>
 
 namespace ml {
 namespace api {
@@ -12,7 +13,11 @@ namespace api {
 namespace {
 const std::string STEP_TAG{"step"};
 const std::string PROGRESS_TAG{"progress"};
-const std::string PEAK_MEMORY_USAGE_TAG{"peak_memory_usage"};
+const std::string PEAK_MEMORY_USAGE_TAG{"peak_usage_bytes"};
+const std::string TYPE_TAG{"type"};
+const std::string JOB_ID_TAG{"job_id"};
+const std::string TIMESTAMP_TAG{"timestamp"};
+const std::string MEMORY_TYPE{"analytics_memory_usage"};
 
 const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
                                               << ((sizeof(std::size_t) - 2) * 8)};
@@ -51,8 +56,8 @@ double CDataFrameAnalysisInstrumentation::progress() const {
                      static_cast<double>(MAXIMUM_FRACTIONAL_PROGRESS);
 }
 
-CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation()
-    : m_Finished{false}, m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
+CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::string& jobId)
+    : m_JobId{jobId}, m_Finished{false}, m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
 }
 
 void CDataFrameAnalysisInstrumentation::resetProgress() {
@@ -64,14 +69,14 @@ void CDataFrameAnalysisInstrumentation::writer(core::CRapidJsonConcurrentLineWri
     m_Writer = writer;
 }
 
-void CDataFrameAnalysisInstrumentation::nextStep(std::uint32_t /*step*/) {
-    // TODO reactivate state writing, once the Java backend can accept it
-    //    this->writeState(step);
+void CDataFrameAnalysisInstrumentation::nextStep(std::uint32_t step) {
+    this->writeState(step);
 }
 
-void CDataFrameAnalysisInstrumentation::writeState(std::uint32_t step) {
-    this->writeProgress(step);
-    this->writeMemory(step);
+void CDataFrameAnalysisInstrumentation::writeState(std::uint32_t /*step*/) {
+    //this->writeProgress(step);
+    //std::int64_t timestamp{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
+    //this->writeMemory(timestamp);
 }
 
 std::int64_t CDataFrameAnalysisInstrumentation::memory() const {
@@ -89,13 +94,18 @@ void CDataFrameAnalysisInstrumentation::writeProgress(std::uint32_t step) {
     }
 }
 
-void CDataFrameAnalysisInstrumentation::writeMemory(std::uint32_t step) {
+void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
     if (m_Writer != nullptr) {
         m_Writer->StartObject();
-        m_Writer->Key(STEP_TAG);
-        m_Writer->Uint(step);
+        m_Writer->Key(MEMORY_TYPE);
+        m_Writer->StartObject();
+        m_Writer->Key(JOB_ID_TAG);
+        m_Writer->String(m_JobId);
+        m_Writer->Key(TIMESTAMP_TAG);
+        m_Writer->Int64(timestamp);
         m_Writer->Key(PEAK_MEMORY_USAGE_TAG);
         m_Writer->Int64(m_Memory.load());
+        m_Writer->EndObject();
         m_Writer->EndObject();
     }
 }

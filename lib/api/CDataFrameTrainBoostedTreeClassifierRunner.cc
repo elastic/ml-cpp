@@ -97,19 +97,6 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     }
 }
 
-TBoolVec CDataFrameTrainBoostedTreeClassifierRunner::columnsForWhichEmptyIsMissing(
-    const TStrVec& fieldNames) const {
-    // The only field for which empty value should be treated as missing is dependent
-    // variable which has empty value for non-training rows.
-    TBoolVec emptyAsMissing(fieldNames.size(), false);
-    auto pos = std::find(fieldNames.begin(), fieldNames.end(),
-                         this->dependentVariableFieldName());
-    if (pos != fieldNames.end()) {
-        emptyAsMissing[pos - fieldNames.begin()] = true;
-    }
-    return emptyAsMissing;
-}
-
 void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     const core::CDataFrame& frame,
     const TRowRef& row,

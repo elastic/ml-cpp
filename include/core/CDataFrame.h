@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <functional>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -449,9 +450,6 @@ public:
     //! Write the string which indicates that a value is missing.
     void missingString(std::string missing);
 
-    //! Write for which columns an empty string implies the value is missing.
-    void emptyIsMissing(TBoolVec emptyIsMissing);
-
     //! Write which columns contain categorical data.
     void categoricalColumns(TStrVec categoricalColumnNames);
 
@@ -490,7 +488,9 @@ public:
                                            std::size_t numberColumns);
 
     //! Get the value to use for a missing element in a data frame.
-    static double valueOfMissing();
+    static constexpr double valueOfMissing() {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
 
 private:
     using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
@@ -585,11 +585,6 @@ private:
 
     //! The string which indicates that a category is missing.
     std::string m_MissingString;
-
-    //! Indicator vector for treating empty strings as missing values.
-    // TODO Remove once Java passes the correct value for the missing target
-    // for classification.
-    TBoolVec m_EmptyIsMissing;
 
     //! Indicator vector of the columns which contain categorical values.
     TBoolVec m_ColumnIsCategorical;

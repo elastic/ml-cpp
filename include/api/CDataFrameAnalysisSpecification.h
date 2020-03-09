@@ -172,22 +172,22 @@ public:
     //! \note The commit of the results of the analysis is atomic per partition.
     //! \warning This assumes that there is no access to the data frame in the
     //! calling thread until the runner has finished.
-    CDataFrameAnalysisRunner* run(core::CDataFrame& frame) const;
+    CDataFrameAnalysisRunner*
+    run(core::CDataFrame& frame,
+        core::CRapidJsonConcurrentLineWriter* outputWriter = nullptr) const;
 
     //! Estimates memory usage in two cases:
     //!   1. disk is not used (the whole data frame fits in main memory)
     //!   2. disk is used (only one partition needs to be loaded to main memory)
     void estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const;
 
-    //! \return Indicator of columns for which empty value should be treated as missing.
-    TBoolVec columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const;
-
-    //! \return shared pointer to the persistence stream.
+    //! \return The stream to which to persist state if there is one.
     TDataAdderUPtr persister() const;
 
+    //! \return The stream from which to retore state if there is one.
     TDataSearcherUPtr restoreSearcher() const;
 
-    //! Get pointer to the analysis runner.
+    //! \return The analysis runner.
     CDataFrameAnalysisRunner* runner();
 
 private:
