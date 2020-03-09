@@ -390,10 +390,6 @@ std::size_t CDataFrame::estimateMemoryUsage(bool inMainMemory,
     return inMainMemory ? numberRows * numberColumns * sizeof(float) : 0;
 }
 
-double CDataFrame::valueOfMissing() {
-    return std::numeric_limits<double>::quiet_NaN();
-}
-
 CDataFrame::TRowFuncVecBoolPr
 CDataFrame::parallelApplyToAllRows(std::size_t numberThreads,
                                    std::size_t beginRows,

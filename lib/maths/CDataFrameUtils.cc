@@ -824,9 +824,11 @@ CDataFrameUtils::TSizeDoublePrVecVecVec CDataFrameUtils::categoricalMicWithColum
                 1, 0, frame.numberRows(),
                 [&](TRowItr beginRows, TRowItr endRows) {
                     for (auto row = beginRows; row != endRows; ++row) {
+                        if (isMissing((*row)[i]) || isMissing(target(*row))) {
+                            continue;
+                        }
                         std::size_t category{static_cast<std::size_t>((*row)[i])};
-                        if (frequencies[i][category] >= minimumFrequency &&
-                            isMissing(target(*row)) == false) {
+                        if (frequencies[i][category] >= minimumFrequency) {
                             sampler.sample(*row);
                         }
                     }
@@ -905,6 +907,9 @@ CDataFrameUtils::TSizeDoublePrVecVecVec CDataFrameUtils::categoricalMicWithColum
 
             encoders.clear();
             for (const auto& sample : samples) {
+                if (isMissing(sample[i])) {
+                    continue;
+                }
                 std::size_t category{static_cast<std::size_t>(sample[i])};
                 if (frequencies[i][category] >= minimumFrequency) {
                     auto encoder = makeEncoder(i, i, category);
