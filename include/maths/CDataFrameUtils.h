@@ -122,9 +122,15 @@ public:
         COneHotCategoricalColumnValue(std::size_t column, std::size_t category)
             : CColumnValue{column}, m_Category{category} {}
         double operator()(const TRowRef& row) const override {
+            if (isMissing(row[this->column()])) {
+                return core::CDataFrame::valueOfMissing();
+            }
             return static_cast<std::size_t>(row[this->column()]) == m_Category ? 1.0 : 0.0;
         }
         double operator()(const TFloatVec& row) const override {
+            if (isMissing(row[this->column()])) {
+                return core::CDataFrame::valueOfMissing();
+            }
             return static_cast<std::size_t>(row[this->column()]) == m_Category ? 1.0 : 0.0;
         }
         std::size_t hash() const override { return m_Category; }
@@ -140,10 +146,16 @@ public:
         CFrequencyCategoricalColumnValue(std::size_t column, const TDoubleVec& frequencies)
             : CColumnValue{column}, m_Frequencies{&frequencies} {}
         double operator()(const TRowRef& row) const override {
+            if (isMissing(row[this->column()])) {
+                return core::CDataFrame::valueOfMissing();
+            }
             std::size_t category{static_cast<std::size_t>(row[this->column()])};
             return (*m_Frequencies)[category];
         }
         double operator()(const TFloatVec& row) const override {
+            if (isMissing(row[this->column()])) {
+                return core::CDataFrame::valueOfMissing();
+            }
             std::size_t category{static_cast<std::size_t>(row[this->column()])};
             return (*m_Frequencies)[category];
         }
@@ -166,10 +178,16 @@ public:
             : CColumnValue{column}, m_RareCategories{&rareCategories}, m_TargetMeanValues{&targetMeanValues} {
         }
         double operator()(const TRowRef& row) const override {
+            if (isMissing(row[this->column()])) {
+                return core::CDataFrame::valueOfMissing();
+            }
             std::size_t category{static_cast<std::size_t>(row[this->column()])};
             return this->isRare(category) ? 0.0 : (*m_TargetMeanValues)[category];
         }
         double operator()(const TFloatVec& row) const override {
+            if (isMissing(row[this->column()])) {
+                return core::CDataFrame::valueOfMissing();
+            }
             std::size_t category{static_cast<std::size_t>(row[this->column()])};
             return this->isRare(category) ? 0.0 : (*m_TargetMeanValues)[category];
         }

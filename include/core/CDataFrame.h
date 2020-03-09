@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <functional>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -490,7 +491,9 @@ public:
                                            std::size_t numberColumns);
 
     //! Get the value to use for a missing element in a data frame.
-    static double valueOfMissing();
+    static constexpr double valueOfMissing() {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
 
 private:
     using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;

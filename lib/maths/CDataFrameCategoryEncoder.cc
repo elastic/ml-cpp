@@ -7,6 +7,7 @@
 #include <maths/CDataFrameCategoryEncoder.h>
 
 #include <core/CContainerPrinter.h>
+#include <core/CDataFrame.h>
 #include <core/CLogger.h>
 #include <core/CPackedBitVector.h>
 #include <core/CPersistUtils.h>
@@ -452,7 +453,9 @@ EEncoding CDataFrameCategoryEncoder::COneHotEncoding::type() const {
 }
 
 double CDataFrameCategoryEncoder::COneHotEncoding::encode(double value) const {
-    return static_cast<std::size_t>(value) == m_HotCategory;
+    return CDataFrameUtils::isMissing(value)
+               ? core::CDataFrame::valueOfMissing()
+               : static_cast<std::size_t>(value) == m_HotCategory;
 }
 
 bool CDataFrameCategoryEncoder::COneHotEncoding::isBinary() const {
@@ -503,6 +506,9 @@ EEncoding CDataFrameCategoryEncoder::CMappedEncoding::type() const {
 }
 
 double CDataFrameCategoryEncoder::CMappedEncoding::encode(double value) const {
+    if (CDataFrameUtils::isMissing(value)) {
+        return core::CDataFrame::valueOfMissing();
+    }
     std::size_t category{static_cast<std::size_t>(value)};
     return category < m_Map.size() ? m_Map[category] : m_Fallback;
 }
