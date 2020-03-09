@@ -42,6 +42,7 @@ public:
     static const std::string ETA;
     static const std::string SOFT_TREE_DEPTH_LIMIT;
     static const std::string SOFT_TREE_DEPTH_TOLERANCE;
+    static const std::string MAX_TREES;
     static const std::string MAXIMUM_NUMBER_TREES;
     static const std::string FEATURE_BAG_FRACTION;
     static const std::string NUMBER_FOLDS;
