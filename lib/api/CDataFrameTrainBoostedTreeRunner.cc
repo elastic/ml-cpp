@@ -155,7 +155,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         m_BoostedTreeFactory->softTreeDepthTolerance(softTreeDepthTolerance);
     }
     // This is deprecated in favour of max_trees
-    // Will be removed after java side is changed to pass max_trees
+    // TODO Will be removed after java side is changed to pass max_trees
     if (maximumNumberTrees > 0) {
         m_BoostedTreeFactory->maximumNumberTrees(maximumNumberTrees);
     }
