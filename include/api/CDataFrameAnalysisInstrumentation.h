@@ -16,6 +16,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <memory>
 
 namespace ml {
 namespace api {
@@ -24,10 +25,24 @@ namespace api {
 //!
 //! DESCRIPTION:\n
 //! Responsible for collecting data frame analysis job statistics, i.e. memory usage,
-//! progress, parameters, quality of results. The class also implements the functionality to
-//! write the state at different iteration into the results pipe.
+//! progress, parameters, quality of results. This also implements the functionality
+//! to write the JSON statistics to a specified output stream in a thread safe manner.
 class API_EXPORT CDataFrameAnalysisInstrumentation
     : public maths::CDataFrameAnalysisInstrumentationInterface {
+public:
+    //! \brief Set the output stream for the lifetime of this object.
+    class API_EXPORT CScopeSetOutputStream {
+    public:
+        CScopeSetOutputStream(CDataFrameAnalysisInstrumentation& instrumentation,
+                              core::CJsonOutputStreamWrapper& outStream);
+        ~CScopeSetOutputStream();
+
+        CScopeSetOutputStream(const CScopeSetOutputStream&) = delete;
+        CScopeSetOutputStream& operator=(const CScopeSetOutputStream&) = delete;
+
+    private:
+        CDataFrameAnalysisInstrumentation& m_Instrumentation;
+    };
 
 public:
     explicit CDataFrameAnalysisInstrumentation(const std::string& jobId);
@@ -58,9 +73,6 @@ public:
     //! Reset variables related to the job progress.
     void resetProgress();
 
-    //! Set pointer to the writer object.
-    void writer(core::CRapidJsonConcurrentLineWriter* writer);
-
     //! Trigger the next step of the job. This will initiate writing the job state
     //! to the results pipe.
     void nextStep(std::uint32_t step) override;
@@ -72,6 +84,9 @@ protected:
     virtual counter_t::ECounterTypes memoryCounterType() = 0;
 
 private:
+    using TWriterUPtr = std::unique_ptr<core::CRapidJsonConcurrentLineWriter>;
+
+private:
     void writeProgress(std::uint32_t step);
     void writeMemory(std::int64_t timestamp);
     void writeState(std::uint32_t step);
@@ -81,7 +96,7 @@ private:
     std::atomic_bool m_Finished;
     std::atomic_size_t m_FractionalProgress;
     std::atomic<std::int64_t> m_Memory;
-    core::CRapidJsonConcurrentLineWriter* m_Writer;
+    TWriterUPtr m_Writer;
 };
 
 //! \brief Outlier instrumentation.

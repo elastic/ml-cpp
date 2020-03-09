@@ -393,8 +393,10 @@ BOOST_AUTO_TEST_CASE(testRunAnalysis) {
         auto frameAndDirectory = core::makeMainStorageDataFrame(10);
         auto frame = std::move(frameAndDirectory.first);
 
-        api::CDataFrameAnalysisRunner* runner{spec.run(*frame)};
+        api::CDataFrameAnalysisRunner* runner{spec.runner()};
         BOOST_TEST_REQUIRE(runner != nullptr);
+
+        runner->run(*frame);
 
         double lastProgress{runner->instrumentation().progress()};
         while (runner->instrumentation().finished() == false) {
