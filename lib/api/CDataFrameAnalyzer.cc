@@ -132,15 +132,13 @@ void CDataFrameAnalyzer::run() {
     auto outStream = m_ResultsStreamSupplier();
     core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
 
-    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->runner()};
-    if (analysis == nullptr) {
-        return;
+    auto analysisRunner = m_AnalysisSpecification->run(*m_DataFrame, &outputWriter);
+
+    if (analysisRunner != nullptr) {
+        this->monitorProgress(*analysisRunner, outputWriter);
+        analysisRunner->waitToFinish();
+        this->writeResultsOf(*analysisRunner, outputWriter);
     }
-    analysis->instrumentation().writer(&outputWriter);
-    m_AnalysisSpecification->run(*m_DataFrame);
-    this->monitorProgress(*analysis, outputWriter);
-    analysis->waitToFinish();
-    this->writeResultsOf(*analysis, outputWriter);
 }
 
 const CDataFrameAnalyzer::TTemporaryDirectoryPtr& CDataFrameAnalyzer::dataFrameDirectory() const {
@@ -248,8 +246,6 @@ void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
         TStrVec columnNames{fieldNames.begin() + m_BeginDataFieldValues,
                             fieldNames.begin() + m_EndDataFieldValues};
         m_DataFrame->columnNames(columnNames);
-        m_DataFrame->emptyIsMissing(
-            m_AnalysisSpecification->columnsForWhichEmptyIsMissing(columnNames));
         m_DataFrame->categoricalColumns(m_AnalysisSpecification->categoricalFieldNames());
         m_CapturedFieldNames = true;
     }
