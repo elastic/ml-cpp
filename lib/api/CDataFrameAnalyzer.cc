@@ -131,11 +131,11 @@ void CDataFrameAnalyzer::run() {
     // get called and the wrapped stream does its job to close the array.
 
     auto analysisRunner = m_AnalysisSpecification->runner();
-    if (m_DataFrame != nullptr && analysisRunner != nullptr) {
+    if (analysisRunner != nullptr) {
         // We currently use a stream factory because the results are wrapped in
         // an array. This is managed by the CJsonOutputStreamWrapper constructor
-        // and destructor. We should probably migrate result to NDJSON format at
-        // which point this would no longer be necessary.
+        // and destructor. We should probably migrate to NDJSON format at which
+        // point this would no longer be necessary.
         auto outStream = m_ResultsStreamSupplier();
 
         CDataFrameAnalysisInstrumentation::CScopeSetOutputStream setStream{
