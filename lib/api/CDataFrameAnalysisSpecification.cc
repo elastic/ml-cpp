@@ -207,15 +207,8 @@ CDataFrameAnalysisSpecification::makeDataFrame() {
     return result;
 }
 
-CDataFrameAnalysisRunner*
-CDataFrameAnalysisSpecification::run(core::CDataFrame& frame,
-                                     core::CRapidJsonConcurrentLineWriter* writer) const {
-    if (m_Runner != nullptr) {
-        m_Runner->instrumentation().writer(writer);
-        m_Runner->run(frame);
-        return m_Runner.get();
-    }
-    return nullptr;
+CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::runner() {
+    return m_Runner.get();
 }
 
 void CDataFrameAnalysisSpecification::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {
@@ -275,10 +268,6 @@ const std::string& CDataFrameAnalysisSpecification::jobId() const {
 
 const std::string& CDataFrameAnalysisSpecification::analysisName() const {
     return m_AnalysisName;
-}
-
-CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::runner() {
-    return m_Runner.get();
 }
 }
 }

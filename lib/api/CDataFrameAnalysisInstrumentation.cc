@@ -65,18 +65,14 @@ void CDataFrameAnalysisInstrumentation::resetProgress() {
     m_Finished.store(false);
 }
 
-void CDataFrameAnalysisInstrumentation::writer(core::CRapidJsonConcurrentLineWriter* writer) {
-    m_Writer = writer;
-}
-
 void CDataFrameAnalysisInstrumentation::nextStep(std::uint32_t step) {
     this->writeState(step);
 }
 
 void CDataFrameAnalysisInstrumentation::writeState(std::uint32_t /*step*/) {
     //this->writeProgress(step);
-    //std::int64_t timestamp{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
-    //this->writeMemory(timestamp);
+    std::int64_t timestamp{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
+    this->writeMemory(timestamp);
 }
 
 std::int64_t CDataFrameAnalysisInstrumentation::memory() const {
@@ -116,6 +112,18 @@ counter_t::ECounterTypes CDataFrameOutliersInstrumentation::memoryCounterType() 
 
 counter_t::ECounterTypes CDataFrameTrainBoostedTreeInstrumentation::memoryCounterType() {
     return counter_t::E_DFTPMPeakMemoryUsage;
+}
+
+CDataFrameAnalysisInstrumentation::CScopeSetOutputStream::CScopeSetOutputStream(
+    CDataFrameAnalysisInstrumentation& instrumentation,
+    core::CJsonOutputStreamWrapper& outStream)
+    : m_Instrumentation{instrumentation} {
+    instrumentation.m_Writer =
+        std::make_unique<core::CRapidJsonConcurrentLineWriter>(outStream);
+}
+
+CDataFrameAnalysisInstrumentation::CScopeSetOutputStream::~CScopeSetOutputStream() {
+    m_Instrumentation.m_Writer = nullptr;
 }
 }
 }

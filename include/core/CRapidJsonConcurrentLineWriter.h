@@ -14,13 +14,27 @@ namespace ml {
 namespace core {
 
 //! \brief
-//! A Json line writer for concurrently writing to a shared output stream
+//! A Json line writer for concurrently writing to a shared output stream.
 //!
 //! DESCRIPTION:\n
 //! Takes a wrapped output stream, hides all buffering/pooling/concurrency.
+//! CRapidJsonConcurrentLineWriter objects must not be shared between threads.
+//! The intended usage is as follows:
+//! \code{.cpp}
+//! std::ostringstream stream;
+//! core::CJsonOutputStreamWrapper streamWrapper{stream};
+//! std::thread thread{[&streamWrapper]() {
+//!     core::CRapidJsonConcurrentLineWriter writer{streamWrapper};
+//!     writer.StartObject();
+//!     writer.Key("foo");
+//!     writer.Int(1)
+//!     writer.EndObject();
+//! }};
+//! ...
+//! \endcode
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! hard code encoding and stream type
+//! Hardcode encoding and stream type.
 //!
 class CORE_EXPORT CRapidJsonConcurrentLineWriter
     : public CRapidJsonLineWriter<rapidjson::StringBuffer> {
