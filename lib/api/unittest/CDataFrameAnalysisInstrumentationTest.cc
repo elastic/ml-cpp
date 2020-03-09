@@ -23,10 +23,10 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
     std::stringstream outputStream;
     {
         core::CJsonOutputStreamWrapper streamWrapper(outputStream);
-        core::CRapidJsonConcurrentLineWriter writer(streamWrapper);
         api::CDataFrameTrainBoostedTreeInstrumentation instrumentation(jobId);
+        api::CDataFrameTrainBoostedTreeInstrumentation::CScopeSetOutputStream setStream{
+            instrumentation, streamWrapper};
         instrumentation.updateMemoryUsage(memoryUsage);
-        instrumentation.writer(&writer);
         instrumentation.nextStep(0);
         outputStream.flush();
     }
@@ -37,6 +37,7 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
 
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
     BOOST_TEST_REQUIRE(results.IsArray() == true);
+    bool hasMemoryUsage{false};
     for (auto i = results.Begin(); i != results.End(); ++i) {
         if (i->HasMember("analytics_memory_usage")) {
             BOOST_TEST_REQUIRE((*i)["analytics_memory_usage"].IsObject() == true);
@@ -45,8 +46,10 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
                 (*i)["analytics_memory_usage"]["peak_usage_bytes"].GetInt64() == memoryUsage);
             BOOST_TEST_REQUIRE((*i)["analytics_memory_usage"]["timestamp"].GetInt64() >= timeBefore);
             BOOST_TEST_REQUIRE((*i)["analytics_memory_usage"]["timestamp"].GetInt64() <= timeAfter);
+            hasMemoryUsage = true;
         }
     }
+    BOOST_TEST_REQUIRE(hasMemoryUsage);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

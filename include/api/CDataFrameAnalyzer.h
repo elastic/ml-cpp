@@ -44,6 +44,9 @@ public:
                        TJsonOutputStreamWrapperUPtrSupplier resultsStreamSupplier);
     ~CDataFrameAnalyzer();
 
+    CDataFrameAnalyzer(const CDataFrameAnalyzer&) = delete;
+    CDataFrameAnalyzer& operator=(const CDataFrameAnalyzer&) = delete;
+
     //! This is true if the analyzer is receiving control messages.
     bool usingControlMessages() const;
 

@@ -161,20 +161,8 @@ public:
     //! appropriate.
     TDataFrameUPtrTemporaryDirectoryPtrPr makeDataFrame();
 
-    //! Run the analysis in a background thread.
-    //!
-    //! This returns a handle to the object responsible for running the analysis.
-    //! Destroying this object waits for the analysis to complete and joins the
-    //! thread. It is expected that the caller will mainly sleep and wake up
-    //! periodically to report progess, errors and see if it has finished.
-    //!
-    //! \return A handle to the analysis runner.
-    //! \note The commit of the results of the analysis is atomic per partition.
-    //! \warning This assumes that there is no access to the data frame in the
-    //! calling thread until the runner has finished.
-    CDataFrameAnalysisRunner*
-    run(core::CDataFrame& frame,
-        core::CRapidJsonConcurrentLineWriter* outputWriter = nullptr) const;
+    //! \return A handle to the object responsible for running the analysis.
+    CDataFrameAnalysisRunner* runner();
 
     //! Estimates memory usage in two cases:
     //!   1. disk is not used (the whole data frame fits in main memory)
@@ -186,9 +174,6 @@ public:
 
     //! \return The stream from which to retore state if there is one.
     TDataSearcherUPtr restoreSearcher() const;
-
-    //! \return The analysis runner.
-    CDataFrameAnalysisRunner* runner();
 
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);

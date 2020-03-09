@@ -69,6 +69,8 @@ model training. (See {ml-pull}1034[#1034].)
 (See {ml-pull}970[#970], issue: {ml-issue}949[#949].)
 * Account for the data frame's memory when estimating the peak memory used by classification
 and regression model training. (See {ml-pull}996[#996].)
+* Rename classification and regression parameter maximum_number_trees to max_trees.
+(See {ml-pull}1047[#1047].)
 
 == {es} version 7.6.2
 
