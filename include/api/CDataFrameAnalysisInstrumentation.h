@@ -113,8 +113,8 @@ private:
 //! \brief Instrumentation class for Supervised Learning jobs.
 //!
 //! DESCRIPTION:\n
-//! This class extends CDataFrameAnalysisInstrumentation with a setters
-//! for hyperparameters, validatioin loss results, and job timing.
+//! This class extends CDataFrameAnalysisInstrumentation with setters
+//! for hyperparameters, validation loss results, and job timing.
 class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation final
     : public CDataFrameAnalysisInstrumentation,
       public maths::CDataFrameTrainBoostedTreeInstrumentationInterface {
@@ -122,7 +122,7 @@ public:
     explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId)
         : CDataFrameAnalysisInstrumentation(jobId){};
 
-    //! Supevised learning job \p type, can be E_Regression or E_Classification.
+    //! Supervised learning job \p type, can be E_Regression or E_Classification.
     void type(EStatsType type) override;
     //! Current \p iteration number.
     void iteration(std::size_t iteration) override;
@@ -132,7 +132,7 @@ public:
     void lossType(const std::string& lossType) override;
     //! List of \p lossValues of validation error for the given \p fold.
     void lossValues(std::string fold, TDoubleVec&& lossValues) override;
-    //! \return Strucutre contains hyperparameters.
+    //! \return Structure contains hyperparameters.
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; };
 
 protected:

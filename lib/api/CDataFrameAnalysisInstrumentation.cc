@@ -235,71 +235,73 @@ void CDataFrameTrainBoostedTreeInstrumentation::reset() {
 }
 
 void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::Value& parentObject) {
-    if (this->writer() != nullptr) {
+    auto* writer{this->writer()};
 
-        this->writer()->addMember(
-            ETA_TAG, rapidjson::Value(this->m_Hyperparameters.s_Eta).Move(), parentObject);
+    if (writer != nullptr) {
+
+        writer->addMember(ETA_TAG,
+                          rapidjson::Value(this->m_Hyperparameters.s_Eta).Move(),
+                          parentObject);
         if (m_Type == E_Classification) {
-            this->writer()->addMember(
-                CLASS_ASSIGNMENT_OBJECTIVE_TAG,
-                CLASS_ASSIGNMENT_OBJECTIVE[this->m_Hyperparameters.s_ClassAssignmentObjective],
-                parentObject);
+            writer->addMember(CLASS_ASSIGNMENT_OBJECTIVE_TAG,
+                              CLASS_ASSIGNMENT_OBJECTIVE[this->m_Hyperparameters.s_ClassAssignmentObjective],
+                              parentObject);
         }
-        this->writer()->addMember(
+        writer->addMember(
             REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
             rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_DepthPenaltyMultiplier)
                 .Move(),
             parentObject);
-        this->writer()->addMember(
+        writer->addMember(
             REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
             rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_SoftTreeDepthLimit)
                 .Move(),
             parentObject);
-        this->writer()->addMember(
+        writer->addMember(
             REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
             rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_SoftTreeDepthTolerance)
                 .Move(),
             parentObject);
-        this->writer()->addMember(
+        writer->addMember(
             REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
             rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_TreeSizePenaltyMultiplier)
                 .Move(),
             parentObject);
-        this->writer()->addMember(
+        writer->addMember(
             REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
             rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_LeafWeightPenaltyMultiplier)
                 .Move(),
             parentObject);
-        this->writer()->addMember(
+        writer->addMember(
             DOWNSAMPLE_FACTOR_TAG,
             rapidjson::Value(this->m_Hyperparameters.s_DownsampleFactor).Move(),
             parentObject);
-        this->writer()->addMember(
-            NUM_FOLDS_TAG,
-            rapidjson::Value(this->m_Hyperparameters.s_NumFolds).Move(), parentObject);
-        this->writer()->addMember(
-            MAX_TREES_TAG,
-            rapidjson::Value(this->m_Hyperparameters.s_MaxTrees).Move(), parentObject);
-        this->writer()->addMember(
+        writer->addMember(NUM_FOLDS_TAG,
+                          rapidjson::Value(this->m_Hyperparameters.s_NumFolds).Move(),
+                          parentObject);
+        writer->addMember(MAX_TREES_TAG,
+                          rapidjson::Value(this->m_Hyperparameters.s_MaxTrees).Move(),
+                          parentObject);
+        writer->addMember(
             FEATURE_BAG_FRACTION_TAG,
             rapidjson::Value(this->m_Hyperparameters.s_FeatureBagFraction).Move(),
             parentObject);
-        this->writer()->addMember(
+        writer->addMember(
             ETA_GROWTH_RATE_PER_TREE_TAG,
             rapidjson::Value(this->m_Hyperparameters.s_EtaGrowthRatePerTree).Move(),
             parentObject);
-        this->writer()->addMember(
+        writer->addMember(
             MAX_ATTEMPTS_TO_ADD_TREE_TAG,
             rapidjson::Value(this->m_Hyperparameters.s_MaxAttemptsToAddTree).Move(),
             parentObject);
-        this->writer()->addMember(
+        writer->addMember(
             NUM_SPLITS_PER_FEATURE_TAG,
             rapidjson::Value(this->m_Hyperparameters.s_NumSplitsPerFeature).Move(),
             parentObject);
-        this->writer()->addMember(MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER_TAG,
-                                  rapidjson::Value(this->m_Hyperparameters.s_MaxOptimizationRoundsPerHyperparameter)
-                                      .Move(),
-                                  parentObject);
+        writer->addMember(MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER_TAG,
+                          rapidjson::Value(this->m_Hyperparameters.s_MaxOptimizationRoundsPerHyperparameter)
+                              .Move(),
+                          parentObject);
     }
 }
 void CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss(rapidjson::Value& parentObject) {

@@ -582,7 +582,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
     LOG_TRACE(<< "Trained one forest");
 
-    return {forest, stoppingCondition.bestLoss(), losses};
+    return {forest, stoppingCondition.bestLoss(), std::move(losses)};
 }
 
 core::CPackedBitVector
