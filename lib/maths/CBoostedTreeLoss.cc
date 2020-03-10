@@ -229,11 +229,11 @@ CArgMinMultinomialLogisticLossImpl::CArgMinMultinomialLogisticLossImpl(std::size
                                                                        const CPRNG::CXorOShiro128Plus& rng)
     : CArgMinLossImpl{lambda}, m_NumberClasses{numberClasses}, m_Rng{rng},
       m_ClassCounts{TDoubleVector::Zero(numberClasses)},
-      m_PredictionSketch{NUMBER_CENTRES / 2, // The number of
-                         0.0, // Rate at which information is aged out (irrelevant)
-                         0.0, // Minimum permitted cluster size (irrelevant)
+      m_PredictionSketch{NUMBER_CENTRES / 2, // The size of the partition
+                         0.0, // The rate at which information is aged out (irrelevant)
+                         0.0, // The minimum permitted cluster size (irrelevant)
                          NUMBER_CENTRES / 2, // The buffer size
-                         1,   // The number of seeds of k-means to try
+                         1,   // The number of seeds for k-means to try
                          2} { // The number of iterations to use in k-means
 }
 
@@ -245,11 +245,11 @@ bool CArgMinMultinomialLogisticLossImpl::nextPass() {
 
     using TMeanAccumulator = CBasicStatistics::SSampleMean<TDoubleVector>::TAccumulator;
 
-    if (m_CurrentPass == 0) {
+    if (m_CurrentPass++ == 0) {
         TKMeans::TSphericalClusterVecVec clusters;
         if (m_PredictionSketch.kmeans(NUMBER_CENTRES / 2, clusters) == false) {
             m_Centres.push_back(TDoubleVector::Zero(m_NumberClasses));
-            m_CurrentPass += 2;
+            ++m_CurrentPass;
         } else {
             // Extract the k-centres.
             m_Centres.reserve(clusters.size());
@@ -264,15 +264,13 @@ bool CArgMinMultinomialLogisticLossImpl::nextPass() {
             m_Centres.erase(std::unique(m_Centres.begin(), m_Centres.end()),
                             m_Centres.end());
             LOG_TRACE(<< "# centres = " << m_Centres.size());
-            m_CurrentPass += m_Centres.size() == 1 ? 2 : 1;
+            m_CurrentPass += m_Centres.size() == 1 ? 1 : 0;
             m_CentresClassCounts.resize(m_Centres.size(),
                                         TDoubleVector::Zero(m_NumberClasses));
         }
 
         // Reclaim the memory used by k-means.
         m_PredictionSketch = TKMeans{0};
-    } else {
-        ++m_CurrentPass;
     }
 
     LOG_TRACE(<< "current pass = " << m_CurrentPass);
