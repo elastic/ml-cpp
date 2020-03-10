@@ -684,7 +684,7 @@ public:
         return sigmoid(std::exp(std::copysign(1.0, sign) * (x - x0) / width));
     }
 
-    //! Compute the softmax from the minomial logit values \p logit.
+    //! Compute the softmax from the multinomial logit values \p logit.
     //!
     //! i.e. \f$[\sigma(z)]_i = \frac{exp(z_i)}{\sum_j exp(z_j)}\f$.
     //!
