@@ -68,6 +68,23 @@ private:
 
 //! \brief Finds the value to add to a set of predicted log-odds which minimises
 //! regularised cross entropy loss w.r.t. the actual categories.
+//!
+//! DESCRIPTION:\n
+//! We want to find the weight which minimizes the log-loss, i.e. which satisfies
+//! <pre class="fragment">
+//!   \f$\displaystyle arg\min_w{ \lambda w^2 -\sum_i{ a_i \log(S(p_i + w)) + (1 - a_i) \log(1 - S(p_i + w)) } }\f$
+//! </pre>
+//!
+//! Rather than working with this function directly we bucket the predictions `p_i`
+//! in a first pass over the data and compute weight which minimizes the approximate
+//! function
+//! <pre class="fragment">
+//! \f$\displaystyle arg\min_w{ \lambda w^2 -\sum_{B}{ c_{1,B} \log(S(\bar{p}_B + w)) + c_{0,B} \log(1 - S(\bar{p}_B + w)) } }\f$
+//! </pre>
+//!
+//! Here, \f$B\f$ ranges over the buckets, \f$\bar{p}_B\f$ denotes the B'th bucket
+//! centre and \f$c_{0,B}\f$ and \f$c_{1,B}\f$ denote the counts of actual classes
+//! 0 and 1, respectively, in the bucket \f$B\f$.
 class MATHS_EXPORT CArgMinBinomialLogisticLossImpl final : public CArgMinLossImpl {
 public:
     CArgMinBinomialLogisticLossImpl(double lambda);
@@ -112,6 +129,25 @@ private:
 
 //! \brief Finds the value to add to a set of predicted multinomial logit which
 //! minimises regularised cross entropy loss w.r.t. the actual classes.
+//!
+//! DESCRIPTION:\n
+//! We want to find the weight which minimizes the log-loss, i.e. which satisfies
+//! <pre class="fragment">
+//!   \f$\displaystyle arg\min_w{ \lambda \|w\|^2 -\sum_i{ \log([softmax(p_i + w)]_{a_i}) } }\f$
+//! </pre>
+//!
+//! Here, \f$a_i\f$ is the index of the i'th example's true class. Rather than
+//! working with this function directly we approximate it by the means and count
+//! of predictions in a partition of the original data, i.e. we compute the weight
+//! weight which satisfies
+//! <pre class="fragment">
+//! \f$\displaystyle arg\min_w{ \lambda \|w\|^2 -\sum_P{ c_{a_i, P} \log([softmax(\bar{p}_P + w)]) } }\f$
+//! </pre>
+//!
+//! Here, \f$P\f$ ranges over the subsets of the partition, \f$\bar{p}_P\f$ denotes
+//! the mean of the predictions in the P'th subset and \f$c_{a_i, P}\f$ denote the
+//! counts of each classes \f$\{a_i\}\f$ in the subset \f$P\f$. We compute this
+//! partition by k-means.
 class MATHS_EXPORT CArgMinMultinomialLogisticLossImpl final : public CArgMinLossImpl {
 public:
     using TObjective = std::function<double(const TDoubleVector&)>;
