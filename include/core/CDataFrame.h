@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <functional>
 #include <iterator>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -238,6 +239,9 @@ public:
     //! The maximum number of distinct categorical fields we can faithfully represent.
     static const std::size_t MAX_CATEGORICAL_CARDINALITY;
 
+    //! The default value indicating that a value is missing.
+    static const std::string DEFAULT_MISSING_STRING;
+
 public:
     //! \param[in] inMainMemory True if the data frame is stored in main memory.
     //! \param[in] numberColumns The number of columns in the data frame.
@@ -443,8 +447,8 @@ public:
     //! Write the column names.
     void columnNames(TStrVec columnNames);
 
-    //! Write for which columns an empty string implies the value is missing.
-    void emptyIsMissing(TBoolVec emptyIsMissing);
+    //! Write the string which indicates that a value is missing.
+    void missingString(std::string missing);
 
     //! Write which columns contain categorical data.
     void categoricalColumns(TStrVec categoricalColumnNames);
@@ -484,7 +488,9 @@ public:
                                            std::size_t numberColumns);
 
     //! Get the value to use for a missing element in a data frame.
-    static double valueOfMissing();
+    static constexpr double valueOfMissing() {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
 
 private:
     using TStrSizeUMap = boost::unordered_map<std::string, std::size_t>;
@@ -577,8 +583,8 @@ private:
     //! A lookup for the integer value of categories.
     TStrSizeUMapVec m_CategoricalColumnValueLookup;
 
-    //! Indicator vector for treating empty strings as missing values.
-    TBoolVec m_EmptyIsMissing;
+    //! The string which indicates that a category is missing.
+    std::string m_MissingString;
 
     //! Indicator vector of the columns which contain categorical values.
     TBoolVec m_ColumnIsCategorical;

@@ -7,8 +7,9 @@
 
 #include <core/CTimeUtils.h>
 
-#include <cstdint>
 #include <rapidjson/document.h>
+
+#include <cstdint>
 #include <string>
 
 namespace ml {
@@ -94,16 +95,12 @@ double CDataFrameAnalysisInstrumentation::progress() const {
 }
 
 CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::string& jobId)
-    : m_Finished{false}, m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr}, m_JobId{jobId} {
+    : m_JobId{jobId}, m_Finished{false}, m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr}, m_JobId{jobId} {
 }
 
 void CDataFrameAnalysisInstrumentation::resetProgress() {
     m_FractionalProgress.store(0.0);
     m_Finished.store(false);
-}
-
-void CDataFrameAnalysisInstrumentation::writer(core::CRapidJsonConcurrentLineWriter* writer) {
-    m_Writer = writer;
 }
 
 void CDataFrameAnalysisInstrumentation::nextStep(const std::string& /* phase */) {
@@ -129,8 +126,6 @@ std::int64_t CDataFrameAnalysisInstrumentation::memory() const {
 void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
     if (m_Writer != nullptr) {
         m_Writer->StartObject();
-        m_Writer->Key(TYPE_TAG);
-        m_Writer->String(MEMORY_TYPE_TAG);
         m_Writer->Key(JOB_ID_TAG);
         m_Writer->String(m_JobId);
         m_Writer->Key(TIMESTAMP_TAG);
@@ -328,6 +323,18 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeTimingStats(rapidjson::Valu
         writer->addMember(TIMING_ITERATION_TIME_TAG,
                           rapidjson::Value(m_IterationTime).Move(), parentObject);
     }
+}
+
+CDataFrameAnalysisInstrumentation::CScopeSetOutputStream::CScopeSetOutputStream(
+    CDataFrameAnalysisInstrumentation& instrumentation,
+    core::CJsonOutputStreamWrapper& outStream)
+    : m_Instrumentation{instrumentation} {
+    instrumentation.m_Writer =
+        std::make_unique<core::CRapidJsonConcurrentLineWriter>(outStream);
+}
+
+CDataFrameAnalysisInstrumentation::CScopeSetOutputStream::~CScopeSetOutputStream() {
+    m_Instrumentation.m_Writer = nullptr;
 }
 }
 }

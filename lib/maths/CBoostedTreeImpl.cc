@@ -974,7 +974,9 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
     } while (nextPass());
 
     for (std::size_t i = 0; i < tree.size(); ++i) {
-        tree[i].value(eta * leafValues[i].value());
+        if (tree[i].isLeaf()) {
+            tree[i].value(eta * leafValues[i].value());
+        }
     }
 
     LOG_TRACE(<< "tree =\n" << root(tree).print(tree));

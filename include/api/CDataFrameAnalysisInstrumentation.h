@@ -18,6 +18,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <memory>
 #include <unordered_map>
 
 namespace ml {
@@ -27,12 +28,26 @@ namespace api {
 //!
 //! DESCRIPTION:\n
 //! Responsible for collecting data frame analysis job statistics, i.e. memory usage,
-//! progress, parameters, quality of results. The class also implements the functionality to
-//! write the state at different iteration into the results pipe.
+//! progress, parameters, quality of results. This also implements the functionality
+//! to write the JSON statistics to a specified output stream in a thread safe manner.
 class API_EXPORT CDataFrameAnalysisInstrumentation
     : virtual public maths::CDataFrameAnalysisInstrumentationInterface {
 public:
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
+
+    //! \brief Set the output stream for the lifetime of this object.
+    class API_EXPORT CScopeSetOutputStream {
+    public:
+        CScopeSetOutputStream(CDataFrameAnalysisInstrumentation& instrumentation,
+                              core::CJsonOutputStreamWrapper& outStream);
+        ~CScopeSetOutputStream();
+
+        CScopeSetOutputStream(const CScopeSetOutputStream&) = delete;
+        CScopeSetOutputStream& operator=(const CScopeSetOutputStream&) = delete;
+
+    private:
+        CDataFrameAnalysisInstrumentation& m_Instrumentation;
+    };
 
 public:
     //! Constructs an intrumentation object an analytics job with a given \p jobId.
@@ -83,15 +98,19 @@ protected:
     TRapidJsonWriter* writer();
 
 private:
+    using TWriterUPtr = std::unique_ptr<core::CRapidJsonConcurrentLineWriter>;
+
+private:
     void writeMemory(std::int64_t timestamp);
     virtual void writeAnalysisStats(std::int64_t timestamp) = 0;
     virtual void writeState();
 
 private:
+    std::string m_JobId;
     std::atomic_bool m_Finished;
     std::atomic_size_t m_FractionalProgress;
     std::atomic<std::int64_t> m_Memory;
-    TRapidJsonWriter* m_Writer;
+    TWriterUPtr m_Writer;
     std::string m_JobId;
 };
 
@@ -101,7 +120,7 @@ class API_EXPORT CDataFrameOutliersInstrumentation final
       public maths::CDataFrameOutliersInstrumentationInterface {
 public:
     explicit CDataFrameOutliersInstrumentation(const std::string& jobId)
-        : CDataFrameAnalysisInstrumentation(jobId){};
+        : CDataFrameAnalysisInstrumentation(jobId){}
 
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
@@ -120,7 +139,7 @@ class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation final
       public maths::CDataFrameTrainBoostedTreeInstrumentationInterface {
 public:
     explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId)
-        : CDataFrameAnalysisInstrumentation(jobId){};
+        : CDataFrameAnalysisInstrumentation(jobId){}
 
     //! Supervised learning job \p type, can be E_Regression or E_Classification.
     void type(EStatsType type) override;
@@ -133,7 +152,7 @@ public:
     //! List of \p lossValues of validation error for the given \p fold.
     void lossValues(std::string fold, TDoubleVec&& lossValues) override;
     //! \return Structure contains hyperparameters.
-    SHyperparameters& hyperparameters() override { return m_Hyperparameters; };
+    SHyperparameters& hyperparameters() override { return m_Hyperparameters; }
 
 protected:
     counter_t::ECounterTypes memoryCounterType() override;

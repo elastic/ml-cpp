@@ -39,7 +39,7 @@ using TRunnerFactoryUPtrVec = std::vector<TRunnerFactoryUPtr>;
 std::string createSpecJsonForTempDirDiskUsageTest(bool tempDirPathSet, bool diskUsageAllowed) {
     std::string tempDir = tempDirPathSet ? test::CTestTmpDir::tmpDir() : "";
     return api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", 100, 3, 500000, 1, {}, diskUsageAllowed, tempDir, "",
+        "testJob", 100, 3, 500000, 1, "", {}, diskUsageAllowed, tempDir, "",
         "outlier_detection", "");
 }
 }
@@ -340,7 +340,7 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         std::string parameters{"{\"dependent_variable\": \"class\"}"};
         api::CDataFrameAnalysisSpecification spec{
             api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-                "testJob", 10000, 5, 100000000, 1, {}, true,
+                "testJob", 10000, 5, 100000000, 1, "", {}, true,
                 test::CTestTmpDir::tmpDir(), "", "classification", parameters)};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         BOOST_TEST_REQUIRE(errors.size() > 0);
@@ -352,7 +352,19 @@ BOOST_AUTO_TEST_CASE(testCreate) {
         std::string parameters{"{\"dependent_variable\": \"value\"}"};
         api::CDataFrameAnalysisSpecification spec{
             api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-                "testJob", 10000, 5, 100000000, 1, {"value"}, true,
+                "testJob", 10000, 5, 100000000, 1, "", {"value"}, true,
+                test::CTestTmpDir::tmpDir(), "", "regression", parameters)};
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        BOOST_TEST_REQUIRE(errors.size() > 0);
+    }
+
+    LOG_DEBUG(<< "Missing field value is numeric");
+    {
+        errors.clear();
+        std::string parameters{"{\"dependent_variable\": \"value\"}"};
+        api::CDataFrameAnalysisSpecification spec{
+            api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
+                "testJob", 10000, 5, 100000000, 1, "42", {}, true,
                 test::CTestTmpDir::tmpDir(), "", "regression", parameters)};
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         BOOST_TEST_REQUIRE(errors.size() > 0);
@@ -372,7 +384,8 @@ BOOST_AUTO_TEST_CASE(testRunAnalysis) {
     };
 
     std::string jsonSpec = api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", 100, 10, 1000, 1, {}, true, test::CTestTmpDir::tmpDir(), "", "test", "");
+        "testJob", 100, 10, 1000, 1, "", {}, true, test::CTestTmpDir::tmpDir(),
+        "", "test", "");
 
     for (std::size_t i = 0; i < 10; ++i) {
         api::CDataFrameAnalysisSpecification spec{testFactory(), jsonSpec};
@@ -380,8 +393,10 @@ BOOST_AUTO_TEST_CASE(testRunAnalysis) {
         auto frameAndDirectory = core::makeMainStorageDataFrame(10);
         auto frame = std::move(frameAndDirectory.first);
 
-        api::CDataFrameAnalysisRunner* runner{spec.run(*frame)};
+        api::CDataFrameAnalysisRunner* runner{spec.runner()};
         BOOST_TEST_REQUIRE(runner != nullptr);
+
+        runner->run(*frame);
 
         double lastProgress{runner->instrumentation().progress()};
         while (runner->instrumentation().finished() == false) {
@@ -392,7 +407,7 @@ BOOST_AUTO_TEST_CASE(testRunAnalysis) {
             BOOST_TEST_REQUIRE(runner->instrumentation().progress() <= 1.0);
         }
 
-        LOG_DEBUG(<< "final progress = " << lastProgress);
+        LOG_TRACE(<< "final progress = " << lastProgress);
         BOOST_REQUIRE_EQUAL(1.0, runner->instrumentation().progress());
     }
 }

@@ -11,6 +11,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 
 #include <chrono>
@@ -129,18 +130,24 @@ void CDataFrameAnalyzer::run() {
     // We create the writer in run so that when it is finished destructors
     // get called and the wrapped stream does its job to close the array.
 
-    auto outStream = m_ResultsStreamSupplier();
-    core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
+    auto analysisRunner = m_AnalysisSpecification->runner();
+    if (analysisRunner != nullptr) {
+        // We currently use a stream factory because the results are wrapped in
+        // an array. This is managed by the CJsonOutputStreamWrapper constructor
+        // and destructor. We should probably migrate to NDJSON format at which
+        // point this would no longer be necessary.
+        auto outStream = m_ResultsStreamSupplier();
 
-    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->runner()};
-    if (analysis == nullptr) {
-        return;
+        CDataFrameAnalysisInstrumentation::CScopeSetOutputStream setStream{
+            analysisRunner->instrumentation(), *outStream};
+
+        analysisRunner->run(*m_DataFrame);
+
+        core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
+        this->monitorProgress(*analysisRunner, outputWriter);
+        analysisRunner->waitToFinish();
+        this->writeResultsOf(*analysisRunner, outputWriter);
     }
-    analysis->instrumentation().writer(&outputWriter);
-    m_AnalysisSpecification->run(*m_DataFrame);
-    this->monitorProgress(*analysis, outputWriter);
-    analysis->waitToFinish();
-    this->writeResultsOf(*analysis, outputWriter);
 }
 
 const CDataFrameAnalyzer::TTemporaryDirectoryPtr& CDataFrameAnalyzer::dataFrameDirectory() const {
@@ -248,8 +255,6 @@ void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
         TStrVec columnNames{fieldNames.begin() + m_BeginDataFieldValues,
                             fieldNames.begin() + m_EndDataFieldValues};
         m_DataFrame->columnNames(columnNames);
-        m_DataFrame->emptyIsMissing(
-            m_AnalysisSpecification->columnsForWhichEmptyIsMissing(columnNames));
         m_DataFrame->categoricalColumns(m_AnalysisSpecification->categoricalFieldNames());
         m_CapturedFieldNames = true;
     }
