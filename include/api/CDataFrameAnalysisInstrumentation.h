@@ -79,9 +79,6 @@ public:
     //! Reset variables related to the job progress.
     void resetProgress();
 
-    //! Set pointer to the writer object.
-    void writer(TRapidJsonWriter* writer);
-
     //! Trigger the next step of the job. This will initiate writing the job state
     //! to the results pipe.
     //! \todo use \p phase to tag different phases of the analysis job.
@@ -94,11 +91,12 @@ public:
     const std::string& jobId() const;
 
 protected:
-    virtual counter_t::ECounterTypes memoryCounterType() = 0;
-    TRapidJsonWriter* writer();
+    using TWriter = core::CRapidJsonConcurrentLineWriter;
+    using TWriterUPtr = std::unique_ptr<TWriter>;
 
-private:
-    using TWriterUPtr = std::unique_ptr<core::CRapidJsonConcurrentLineWriter>;
+protected:
+    virtual counter_t::ECounterTypes memoryCounterType() = 0;
+    TWriter* writer();
 
 private:
     void writeMemory(std::int64_t timestamp);
@@ -111,7 +109,6 @@ private:
     std::atomic_size_t m_FractionalProgress;
     std::atomic<std::int64_t> m_Memory;
     TWriterUPtr m_Writer;
-    std::string m_JobId;
 };
 
 //! \brief Instrumentation class for Outlier Detection jobs.
@@ -120,7 +117,7 @@ class API_EXPORT CDataFrameOutliersInstrumentation final
       public maths::CDataFrameOutliersInstrumentationInterface {
 public:
     explicit CDataFrameOutliersInstrumentation(const std::string& jobId)
-        : CDataFrameAnalysisInstrumentation(jobId){}
+        : CDataFrameAnalysisInstrumentation(jobId) {}
 
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
@@ -139,7 +136,7 @@ class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation final
       public maths::CDataFrameTrainBoostedTreeInstrumentationInterface {
 public:
     explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId)
-        : CDataFrameAnalysisInstrumentation(jobId){}
+        : CDataFrameAnalysisInstrumentation(jobId) {}
 
     //! Supervised learning job \p type, can be E_Regression or E_Classification.
     void type(EStatsType type) override;

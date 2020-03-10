@@ -95,7 +95,7 @@ double CDataFrameAnalysisInstrumentation::progress() const {
 }
 
 CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::string& jobId)
-    : m_JobId{jobId}, m_Finished{false}, m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr}, m_JobId{jobId} {
+    : m_JobId{jobId}, m_Finished{false}, m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
 }
 
 void CDataFrameAnalysisInstrumentation::resetProgress() {
@@ -140,8 +140,8 @@ const std::string& CDataFrameAnalysisInstrumentation::jobId() const {
     return m_JobId;
 }
 
-core::CRapidJsonConcurrentLineWriter* CDataFrameAnalysisInstrumentation::writer() {
-    return m_Writer;
+CDataFrameAnalysisInstrumentation::TWriter* CDataFrameAnalysisInstrumentation::writer() {
+    return m_Writer.get();
 }
 
 counter_t::ECounterTypes CDataFrameOutliersInstrumentation::memoryCounterType() {
@@ -153,7 +153,7 @@ counter_t::ECounterTypes CDataFrameTrainBoostedTreeInstrumentation::memoryCounte
 }
 
 void CDataFrameOutliersInstrumentation::writeAnalysisStats(std::int64_t timestamp) {
-    auto* writer{this->writer()};
+    auto writer = this->writer();
     if (writer != nullptr) {
         writer->StartObject();
         writer->Key(JOB_ID_TAG);
@@ -187,7 +187,7 @@ void CDataFrameTrainBoostedTreeInstrumentation::lossValues(std::string fold,
 }
 
 void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t timestamp) {
-    auto* writer{this->writer()};
+    auto* writer = this->writer();
     if (writer != nullptr) {
         writer->StartObject();
         writer->Key(JOB_ID_TAG);
@@ -230,7 +230,7 @@ void CDataFrameTrainBoostedTreeInstrumentation::reset() {
 }
 
 void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::Value& parentObject) {
-    auto* writer{this->writer()};
+    auto* writer = this->writer();
 
     if (writer != nullptr) {
 
@@ -300,7 +300,7 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::
     }
 }
 void CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss(rapidjson::Value& parentObject) {
-    auto* writer{this->writer()};
+    auto* writer = this->writer();
     if (writer != nullptr) {
         writer->addMember(VALIDATION_LOSS_TYPE_TAG, m_LossType, parentObject);
         rapidjson::Value lossValuesObject{writer->makeObject()};
@@ -316,7 +316,7 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss(rapidjson::V
     }
 }
 void CDataFrameTrainBoostedTreeInstrumentation::writeTimingStats(rapidjson::Value& parentObject) {
-    auto* writer{this->writer()};
+    auto* writer = this->writer();
     if (writer != nullptr) {
         writer->addMember(TIMING_ELAPSED_TIME_TAG,
                           rapidjson::Value(m_ElapsedTime).Move(), parentObject);
