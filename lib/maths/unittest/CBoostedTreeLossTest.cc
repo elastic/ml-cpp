@@ -5,6 +5,7 @@
  */
 
 #include "core/CContainerPrinter.h"
+#include "maths/CLbfgs.h"
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CPRNG.h>
 #include <maths/CSolvers.h>
@@ -28,11 +29,34 @@ using namespace ml;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TDoubleVector = maths::boosted_tree::CLoss::TDoubleVector;
+using TDoubleVectorVec = std::vector<TDoubleVector>;
 using TMemoryMappedFloatVector = maths::boosted_tree::CLoss::TMemoryMappedFloatVector;
 using maths::boosted_tree::CBinomialLogisticLoss;
 using maths::boosted_tree::CMultinomialLogisticLoss;
 using maths::boosted_tree_detail::CArgMinBinomialLogisticLossImpl;
 using maths::boosted_tree_detail::CArgMinMultinomialLogisticLossImpl;
+
+namespace {
+void minimizeGridSearch(std::function<double(const TDoubleVector&)> objective,
+                        double scale,
+                        int d,
+                        TDoubleVector& x,
+                        double& min,
+                        TDoubleVector& argmin) {
+    if (d == x.size()) {
+        double value{objective(x)};
+        if (value < min) {
+            min = value;
+            argmin = x;
+        }
+        return;
+    }
+    for (double xd : {-0.5, -0.4, -0.3, -0.2, -0.1, 0.0, 0.1, 0.2, 0.3, 0.4, 0.5}) {
+        x(d) = scale * xd;
+        minimizeGridSearch(objective, scale, d + 1, x, min, argmin);
+    }
+}
+}
 
 BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerEdgeCases) {
 
@@ -117,22 +141,22 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerEdgeCases) {
 BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerRandom) {
 
     // Test that we a good approximation of the additive term for the log-odds
-    // which minimises the cross entropy objective.
+    // which minimises the exact cross entropy objective.
 
     test::CRandomNumbers rng;
 
     TDoubleVec labels;
-    TDoubleVec weights;
+    TDoubleVec predictions;
 
     for (auto lambda : {0.0, 10.0}) {
 
         LOG_DEBUG(<< "lambda = " << lambda);
 
-        // The true objective.
-        auto objective = [&](double weight) {
+        // The exact objective.
+        auto exactObjective = [&](double weight) {
             double loss{0.0};
             for (std::size_t i = 0; i < labels.size(); ++i) {
-                double p{maths::CTools::logisticFunction(weights[i] + weight)};
+                double p{maths::CTools::logisticFunction(predictions[i] + weight)};
                 loss -= (1.0 - labels[i]) * maths::CTools::fastLog(1.0 - p) +
                         labels[i] * maths::CTools::fastLog(p);
             }
@@ -150,11 +174,11 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerRandom) {
             for (auto& label : labels) {
                 label = std::floor(label + 0.5);
             }
-            weights.clear();
+            predictions.clear();
             for (const auto& label : labels) {
                 TDoubleVec weight;
                 rng.generateNormalSamples(label, 2.0, 1, weight);
-                weights.push_back(weight[0]);
+                predictions.push_back(weight[0]);
                 min = std::min(min, weight[0]);
                 max = std::max(max, weight[0]);
             }
@@ -162,11 +186,11 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerRandom) {
             double expected;
             double objectiveAtExpected;
             std::size_t maxIterations{20};
-            maths::CSolvers::minimize(-max, -min, objective(-max), objective(-min),
-                                      objective, 1e-3, maxIterations, expected,
-                                      objectiveAtExpected);
+            maths::CSolvers::minimize(-max, -min, exactObjective(-max),
+                                      exactObjective(-min), exactObjective, 1e-3,
+                                      maxIterations, expected, objectiveAtExpected);
             LOG_DEBUG(<< "expected = " << expected
-                      << " objective at expected = " << objectiveAtExpected);
+                      << " objective(expected) = " << objectiveAtExpected);
 
             CArgMinBinomialLogisticLossImpl argmin{lambda};
             CArgMinBinomialLogisticLossImpl argminPartition[2]{{lambda}, {lambda}};
@@ -179,13 +203,13 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerRandom) {
 
             do {
                 for (std::size_t i = 0; i < labels.size() / 2; ++i) {
-                    maths::CFloatStorage storage[]{weights[i]};
+                    maths::CFloatStorage storage[]{predictions[i]};
                     TMemoryMappedFloatVector prediction{storage, 1};
                     argmin.add(prediction, labels[i]);
                     argminPartition[0].add(prediction, labels[i]);
                 }
                 for (std::size_t i = labels.size() / 2; i < labels.size(); ++i) {
-                    maths::CFloatStorage storage[]{weights[i]};
+                    maths::CFloatStorage storage[]{predictions[i]};
                     TMemoryMappedFloatVector prediction{storage, 1};
                     argmin.add(prediction, labels[i]);
                     argminPartition[1].add(prediction, labels[i]);
@@ -196,14 +220,14 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerRandom) {
 
             double actual{argmin.value()(0)};
             double actualPartition{argminPartition[0].value()(0)};
-            LOG_DEBUG(<< "actual = " << actual
-                      << " objective at actual = " << objective(actual));
+            double objectiveAtActual{exactObjective(actual)};
+            LOG_DEBUG(<< "actual = " << actual << " objective(actual) = " << objectiveAtActual);
 
             // We should be within 1% for the value and 0.001% for the objective
             // at the value.
             BOOST_REQUIRE_EQUAL(actual, actualPartition);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 0.01 * std::fabs(expected));
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(objectiveAtExpected, objective(actual),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(objectiveAtExpected, objectiveAtActual,
                                          1e-5 * objectiveAtExpected);
         }
     }
@@ -282,6 +306,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticLossForUnderflow) {
 }
 
 BOOST_AUTO_TEST_CASE(testMultinomialLogisticGradient) {
+
     // Test that the gradient function is close to the numerical derivative
     // of the objective.
 
@@ -341,6 +366,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticGradient) {
 BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
 
     maths::CPRNG::CXorOShiro128Plus rng;
+    test::CRandomNumbers testRng;
 
     // All predictions equal and zero.
     {
@@ -367,7 +393,6 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
 
     // All predictions are equal and 0.5.
     for (std::size_t t = 0; t < 10; ++t) {
-        test::CRandomNumbers testRng;
 
         TDoubleVec labels;
         testRng.generateUniformSamples(0.0, 2.0, 20, labels);
@@ -476,6 +501,98 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
 }
 
 BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerRandom) {
+
+    // Test that we a good approximation of the additive term for the log-odds
+    // which minimises the exact cross entropy objective.
+
+    maths::CPRNG::CXorOShiro128Plus rng;
+    test::CRandomNumbers testRng;
+
+    TDoubleVec labels;
+    TDoubleVectorVec predictions;
+
+    double scales[]{6.0, 1.0};
+    double lambdas[]{0.0, 10.0};
+
+    for (auto i : {0, 1}) {
+
+        double lambda{lambdas[i]};
+
+        LOG_DEBUG(<< "lambda = " << lambda);
+
+        // The exact objective.
+        auto exactObjective = [&](const TDoubleVector& weight) {
+            double loss{0.0};
+            for (std::size_t j = 0; j < labels.size(); ++j) {
+                TDoubleVector probabilities{predictions[j] + weight};
+                probabilities = maths::CTools::softmax(std::move(probabilities));
+                loss -= maths::CTools::fastLog(probabilities(static_cast<int>(labels[j])));
+            }
+            return loss + lambda * weight.squaredNorm();
+        };
+
+        // This loop is fuzzing the predicted log-odds and testing we get consistently
+        // good estimates of the true minimizer.
+
+        double sumObjectiveGridSearch{0.0};
+        double sumObjectiveAtActual{0.0};
+
+        for (std::size_t t = 0; t < 10; ++t) {
+
+            testRng.generateUniformSamples(0.0, 2.0, 500, labels);
+            for (auto& label : labels) {
+                label = std::floor(label + 0.5);
+            }
+
+            predictions.clear();
+            for (const auto& label : labels) {
+                TDoubleVec prediction;
+                testRng.generateNormalSamples(0.0, 2.0, 3, prediction);
+                prediction[static_cast<std::size_t>(label)] += 1.0;
+                predictions.push_back(TDoubleVector::fromStdVector(prediction));
+            }
+
+            TDoubleVector weight{3};
+            double objectiveGridSearch{std::numeric_limits<double>::max()};
+            TDoubleVector argminGridSearch;
+            minimizeGridSearch(exactObjective, scales[i], 0, weight,
+                               objectiveGridSearch, argminGridSearch);
+            LOG_DEBUG(<< "argmin grid search = " << argminGridSearch.transpose()
+                      << ", min objective grid search = " << objectiveGridSearch);
+
+            std::size_t numberPasses{0};
+            maths::CFloatStorage storage[]{0.0, 0.0, 0.0};
+            TMemoryMappedFloatVector prediction{storage, 3};
+
+            CArgMinMultinomialLogisticLossImpl argmin{3, lambda, rng};
+
+            do {
+                ++numberPasses;
+                for (std::size_t j = 0; j < labels.size(); ++j) {
+                    storage[0] = predictions[j](0);
+                    storage[1] = predictions[j](1);
+                    storage[2] = predictions[j](2);
+                    argmin.add(prediction, labels[j]);
+                }
+            } while (argmin.nextPass());
+
+            BOOST_REQUIRE_EQUAL(std::size_t{2}, numberPasses);
+
+            TDoubleVector actual{argmin.value()};
+            double objectiveAtActual{exactObjective(actual)};
+            LOG_DEBUG(<< "actual = " << actual.transpose()
+                      << ", objective(actual) = " << objectiveAtActual);
+
+            BOOST_TEST_REQUIRE(objectiveAtActual < 1.01 * objectiveGridSearch);
+
+            sumObjectiveGridSearch += objectiveGridSearch;
+            sumObjectiveAtActual += objectiveAtActual;
+        }
+
+        LOG_DEBUG(<< "sum min objective grid search = " << sumObjectiveGridSearch);
+        LOG_DEBUG(<< "sum objective(actual) = " << sumObjectiveAtActual);
+        BOOST_TEST_REQUIRE(sumObjectiveAtActual < sumObjectiveGridSearch);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
@@ -514,15 +631,14 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
 
     // The gradient and curvature should be proportional to the exponential of the
     // log-odds when they're small.
-    /*TODO
-    {
-        auto readDerivatives = [&](double prediction,
-                                   TDoubleVecVec& gradients,
+    /* TODO {
+        auto readDerivatives = [&](double prediction, TDoubleVecVec& gradients,
                                    TDoubleVecVec& curvatures) {
             TFloatVec storage[2];
             logits(prediction + std::log(eps), storage[0]);
             logits(prediction - std::log(eps), storage[1]);
-            TMemoryMappedFloatVector predictions[]{{&storage[0][0], 2}, {&storage[1][0], 2}};
+            TMemoryMappedFloatVector predictions[]{{&storage[0][0], 2},
+                                                   {&storage[1][0], 2}};
             loss.gradient(predictions[0], 0.0, [&](std::size_t i, double value) {
                 gradients[0][i] = value;
             });
@@ -545,10 +661,10 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
             TDoubleVecVec currentGradient(2, TDoubleVec(2));
             TDoubleVecVec currentCurvature(2, TDoubleVec(3));
             readDerivatives(scale, currentGradient, currentCurvature);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(0.25),
-                                         previousGradient[0][1] / currentGradient[0][1], 0.01);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(-0.25),
-                                         previousGradient[1][1] / currentGradient[1][1], 0.01);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                std::exp(0.25), previousGradient[0][1] / currentGradient[0][1], 0.01);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                std::exp(-0.25), previousGradient[1][1] / currentGradient[1][1], 0.01);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 std::exp(0.25), previousCurvature[0][2] / currentCurvature[0][1], 0.01);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(

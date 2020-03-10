@@ -228,7 +228,13 @@ CArgMinMultinomialLogisticLossImpl::CArgMinMultinomialLogisticLossImpl(std::size
                                                                        double lambda,
                                                                        const CPRNG::CXorOShiro128Plus& rng)
     : CArgMinLossImpl{lambda}, m_NumberClasses{numberClasses}, m_Rng{rng},
-      m_ClassCounts{TDoubleVector::Zero(numberClasses)}, m_PredictionSketch{NUMBER_CENTRES} {
+      m_ClassCounts{TDoubleVector::Zero(numberClasses)},
+      m_PredictionSketch{NUMBER_CENTRES / 2, // The number of
+                         0.0, // Rate at which information is aged out (irrelevant)
+                         0.0, // Minimum permitted cluster size (irrelevant)
+                         NUMBER_CENTRES / 2, // The buffer size
+                         1,   // The number of seeds of k-means to try
+                         2} { // The number of iterations to use in k-means
 }
 
 std::unique_ptr<CArgMinLossImpl> CArgMinMultinomialLogisticLossImpl::clone() const {
@@ -241,7 +247,7 @@ bool CArgMinMultinomialLogisticLossImpl::nextPass() {
 
     if (m_CurrentPass == 0) {
         TKMeans::TSphericalClusterVecVec clusters;
-        if (m_PredictionSketch.kmeans(NUMBER_CENTRES, clusters) == false) {
+        if (m_PredictionSketch.kmeans(NUMBER_CENTRES / 2, clusters) == false) {
             m_Centres.push_back(TDoubleVector::Zero(m_NumberClasses));
             m_CurrentPass += 2;
         } else {

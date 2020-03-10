@@ -34,6 +34,7 @@ using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAc
 using TVector2 = maths::CVectorNx1<double, 2>;
 using TVector2Vec = std::vector<TVector2>;
 using TVector2VecVec = std::vector<TVector2Vec>;
+using TFloatVector2 = maths::CVectorNx1<maths::CFloatStorage, 2>;
 using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
 using TMeanVar2Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator;
 using TVector5 = maths::CVectorNx1<double, 5>;
@@ -46,9 +47,10 @@ public:
     using TSphericalClusterVec = typename maths::CKMeansOnline<POINT>::TSphericalClusterVec;
     using TFloatCoordinate = typename maths::CKMeansOnline<POINT>::TFloatCoordinate;
     using TFloatPoint = typename maths::CKMeansOnline<POINT>::TFloatPoint;
-    using TFloatPointDoublePrVec = typename maths::CKMeansOnline<POINT>::TFloatPointDoublePrVec;
     using TFloatPointMeanAccumulatorDoublePr =
         typename maths::CKMeansOnline<POINT>::TFloatPointMeanAccumulatorDoublePr;
+    using TFloatPointMeanAccumulatorDoublePrVec =
+        typename maths::CKMeansOnline<POINT>::TFloatPointMeanAccumulatorDoublePrVec;
     using TDoublePointMeanVarAccumulator =
         typename maths::CKMeansOnline<POINT>::TDoublePointMeanVarAccumulator;
     using TDoublePoint = typename maths::CKMeansOnline<POINT>::TDoublePoint;
@@ -57,8 +59,8 @@ public:
     CKMeansOnlineForTest(std::size_t k, double decayRate = 0.0)
         : maths::CKMeansOnline<POINT>(k, decayRate) {}
 
-    static void deduplicate(TFloatPointDoublePrVec& points) {
-        maths::CKMeansOnline<POINT>::deduplicate(points);
+    static void deduplicate(TFloatPointMeanAccumulatorDoublePrVec& clusters) {
+        maths::CKMeansOnline<POINT>::deduplicate(clusters);
     }
 
     static void add(const POINT& mx, double count, TFloatPointMeanAccumulatorDoublePr& cluster) {
@@ -180,53 +182,82 @@ BOOST_AUTO_TEST_CASE(testDeduplicate) {
     //   - If no points are duplicates
     //   - For random permutation of duplicates
 
-    CKMeansOnlineForTest<TVector2>::TFloatPointDoublePrVec points;
+    CKMeansOnlineForTest<TVector2>::TFloatPointMeanAccumulatorDoublePrVec points;
 
-    points.emplace_back(TVector2{0.0}, 1.0);
-    points.emplace_back(TVector2{0.0}, 2.0);
-    points.emplace_back(TVector2{0.0}, 1.0);
+    points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                            maths::CFloatStorage{1.0}, TFloatVector2{0.0}),
+                        0.0);
+    points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                            maths::CFloatStorage{2.0}, TFloatVector2{0.0}),
+                        0.0);
+    points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                            maths::CFloatStorage{1.0}, TFloatVector2{0.0}),
+                        0.0);
     CKMeansOnlineForTest<TVector2>::deduplicate(points);
     BOOST_REQUIRE_EQUAL(1, points.size());
-    BOOST_REQUIRE_EQUAL(TVector2{0.0}, points[0].first);
-    BOOST_REQUIRE_EQUAL(4.0, points[0].second);
+    BOOST_REQUIRE_EQUAL(TFloatVector2{0.0},
+                        maths::CBasicStatistics::mean(points[0].first));
+    BOOST_REQUIRE_EQUAL(4.0, maths::CBasicStatistics::count(points[0].first));
+    BOOST_REQUIRE_EQUAL(0.0, points[0].second);
     points.clear();
 
-    points.emplace_back(TVector2{0.0}, 1.0);
-    points.emplace_back(TVector2{1.0}, 2.0);
-    points.emplace_back(TVector2{2.0}, 1.0);
+    points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                            maths::CFloatStorage{1.0}, TFloatVector2{0.0}),
+                        0.0);
+    points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                            maths::CFloatStorage{2.0}, TFloatVector2{1.0}),
+                        0.0);
+    points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                            maths::CFloatStorage{1.0}, TFloatVector2{2.0}),
+                        0.0);
     CKMeansOnlineForTest<TVector2>::deduplicate(points);
     BOOST_REQUIRE_EQUAL(3, points.size());
-    BOOST_REQUIRE_EQUAL(TVector2{0.0}, points[0].first);
-    BOOST_REQUIRE_EQUAL(1.0, points[0].second);
-    BOOST_REQUIRE_EQUAL(TVector2{1.0}, points[1].first);
-    BOOST_REQUIRE_EQUAL(2.0, points[1].second);
-    BOOST_REQUIRE_EQUAL(TVector2{2.0}, points[2].first);
-    BOOST_REQUIRE_EQUAL(1.0, points[2].second);
+    BOOST_REQUIRE_EQUAL(TFloatVector2{0.0},
+                        maths::CBasicStatistics::mean(points[0].first));
+    BOOST_REQUIRE_EQUAL(1.0, maths::CBasicStatistics::count(points[0].first));
+    BOOST_REQUIRE_EQUAL(0.0, points[0].second);
+    BOOST_REQUIRE_EQUAL(TFloatVector2{1.0},
+                        maths::CBasicStatistics::mean(points[1].first));
+    BOOST_REQUIRE_EQUAL(2.0, maths::CBasicStatistics::count(points[1].first));
+    BOOST_REQUIRE_EQUAL(0.0, points[1].second);
+    BOOST_REQUIRE_EQUAL(TFloatVector2{2.0},
+                        maths::CBasicStatistics::mean(points[2].first));
+    BOOST_REQUIRE_EQUAL(1.0, maths::CBasicStatistics::count(points[2].first));
+    BOOST_REQUIRE_EQUAL(0.0, points[2].second);
     points.clear();
 
     test::CRandomNumbers rng;
     for (std::size_t t = 1; t <= 100; ++t) {
         for (std::size_t i = 0; i < 5; ++i) {
-            points.emplace_back(TVector2{0.0}, static_cast<double>(i));
+            points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                                    maths::CFloatStorage{static_cast<double>(i)},
+                                    TFloatVector2{0.0}),
+                                0.0);
         }
         for (std::size_t i = 0; i < 7; ++i) {
-            points.emplace_back(TVector2{1.0}, 1.0);
+            points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                                    maths::CFloatStorage{1.0}, TFloatVector2{1.0}),
+                                0.0);
         }
         for (std::size_t i = 0; i < 3; ++i) {
-            points.emplace_back(TVector2{2.0}, 2.0);
+            points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                                    maths::CFloatStorage{2.0}, TFloatVector2{2.0}),
+                                0.0);
         }
         rng.random_shuffle(points.begin(), points.end());
 
         CKMeansOnlineForTest<TVector2>::deduplicate(points);
 
-        std::sort(points.begin(), points.end());
         BOOST_REQUIRE_EQUAL(3, points.size());
-        BOOST_REQUIRE_EQUAL(TVector2{0.0}, points[0].first);
-        BOOST_REQUIRE_EQUAL(10.0, points[0].second);
-        BOOST_REQUIRE_EQUAL(TVector2{1.0}, points[1].first);
-        BOOST_REQUIRE_EQUAL(7.0, points[1].second);
-        BOOST_REQUIRE_EQUAL(TVector2{2.0}, points[2].first);
-        BOOST_REQUIRE_EQUAL(6.0, points[2].second);
+        BOOST_REQUIRE_EQUAL(TFloatVector2{0.0},
+                            maths::CBasicStatistics::mean(points[0].first));
+        BOOST_REQUIRE_EQUAL(10.0, maths::CBasicStatistics::count(points[0].first));
+        BOOST_REQUIRE_EQUAL(TFloatVector2{1.0},
+                            maths::CBasicStatistics::mean(points[1].first));
+        BOOST_REQUIRE_EQUAL(7.0, maths::CBasicStatistics::count(points[1].first));
+        BOOST_REQUIRE_EQUAL(TFloatVector2{2.0},
+                            maths::CBasicStatistics::mean(points[2].first));
+        BOOST_REQUIRE_EQUAL(6.0, maths::CBasicStatistics::count(points[2].first));
 
         points.clear();
     }
@@ -266,7 +297,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
             kmeans.add(points[i], counts[i]);
             expected.add(points[i], counts[i]);
 
-            if ((i + 1) % 7 == 0) {
+            if (((i - 10) + 1) % 7 == 0) {
                 CKMeansOnlineForTest<TVector2>::TSphericalClusterVec clusters;
                 kmeans.clusters(clusters);
                 BOOST_TEST_REQUIRE(clusters.size() <= 10);
@@ -442,7 +473,7 @@ BOOST_AUTO_TEST_CASE(testSplit) {
     TVector2Vec points;
     for (std::size_t i = 0u; i < 2; ++i) {
         TDoubleVec coordinates;
-        rng.generateNormalSamples(m[i], v[i], 350, coordinates);
+        rng.generateNormalSamples(m[i], v[i], 352, coordinates);
         for (std::size_t j = 0u; j < coordinates.size(); j += 2) {
             double c[]{coordinates[j + 0], coordinates[j + 1]};
             points.push_back(TVector2(c));
@@ -450,10 +481,18 @@ BOOST_AUTO_TEST_CASE(testSplit) {
     }
 
     maths::CKMeansOnline<TVector2> kmeansOnline(30);
-    for (std::size_t i = 0u; i < points.size(); ++i) {
+    const std::size_t BUFFERING{0};
+    const std::size_t NOT_BUFFERING{1};
+    std::size_t counts[2]{0, 0};
+    for (std::size_t i = 0; i < 30; ++i) {
         kmeansOnline.add(points[i]);
     }
-    BOOST_TEST_REQUIRE(!kmeansOnline.buffering());
+    for (std::size_t i = 30; i < points.size(); ++i) {
+        kmeansOnline.add(points[i]);
+        ++counts[kmeansOnline.buffering() ? BUFFERING : NOT_BUFFERING];
+    }
+    BOOST_REQUIRE_EQUAL(counts[BUFFERING], maths::CKMeansOnline<TVector2>::BUFFER_SIZE *
+                                               counts[NOT_BUFFERING]);
 
     std::size_t one[]{0, 2, 7, 18, 19, 22};
     std::size_t two[]{3, 4, 5, 6, 10, 11, 23, 24};
