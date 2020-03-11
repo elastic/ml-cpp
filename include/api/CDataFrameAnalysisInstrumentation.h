@@ -33,7 +33,8 @@ namespace api {
 class API_EXPORT CDataFrameAnalysisInstrumentation
     : virtual public maths::CDataFrameAnalysisInstrumentationInterface {
 public:
-    using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
+    using TWriter = core::CRapidJsonConcurrentLineWriter;
+    using TWriterUPtr = std::unique_ptr<TWriter>;
 
     //! \brief Set the output stream for the lifetime of this object.
     class API_EXPORT CScopeSetOutputStream {
@@ -90,13 +91,11 @@ public:
     //! \return The id of the data frame analytics job.
     const std::string& jobId() const;
 
-protected:
-    using TWriter = core::CRapidJsonConcurrentLineWriter;
-    using TWriterUPtr = std::unique_ptr<TWriter>;
+    // TODO move to protected
+    TWriter* writer();
 
 protected:
     virtual counter_t::ECounterTypes memoryCounterType() = 0;
-    TWriter* writer();
 
 private:
     void writeMemory(std::int64_t timestamp);
