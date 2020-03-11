@@ -260,7 +260,7 @@ bool CArgMinMultinomialLogisticLossImpl::nextPass() {
                 }
                 m_Centres.push_back(CBasicStatistics::mean(centre));
             }
-            std::sort(m_Centres.begin(), m_Centres.end());
+            std::stable_sort(m_Centres.begin(), m_Centres.end());
             m_Centres.erase(std::unique(m_Centres.begin(), m_Centres.end()),
                             m_Centres.end());
             LOG_TRACE(<< "# centres = " << m_Centres.size());

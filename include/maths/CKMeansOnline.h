@@ -558,10 +558,11 @@ protected:
     //! \note We assume \p points is small so the bruteforce approach is fast.
     static void deduplicate(TFloatPointMeanAccumulatorDoublePrVec& clusters) {
         if (clusters.size() > 1) {
-            std::sort(clusters.begin(), clusters.end(), [](const auto& lhs, const auto& rhs) {
-                return CBasicStatistics::mean(lhs.first) <
-                       CBasicStatistics::mean(rhs.first);
-            });
+            std::stable_sort(clusters.begin(), clusters.end(),
+                             [](const auto& lhs, const auto& rhs) {
+                                 return CBasicStatistics::mean(lhs.first) <
+                                        CBasicStatistics::mean(rhs.first);
+                             });
             auto back = clusters.begin();
             for (auto i = back + 1; i != clusters.end(); ++i) {
                 if (CBasicStatistics::mean(back->first) == CBasicStatistics::mean(i->first)) {
