@@ -269,8 +269,8 @@ public:
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-        inserter.insertValue(DENSE_VECTOR_TAG,
-                             core::CPersistUtils::toString(this->toStdVector()));
+        inserter.insertValue(DENSE_VECTOR_TAG, core::CPersistUtils::toString(
+                                                   this->to<std::vector<SCALAR>>()));
     }
 
     //! Populate the object from serialized data.
@@ -286,8 +286,11 @@ public:
     }
 
     //! Convert to a std::vector.
-    std::vector<SCALAR> toStdVector() const {
-        std::vector<SCALAR> result;
+    //!
+    //! It is assumed that COLLECTION supports reserve and push_back.
+    template<typename COLLECTION>
+    COLLECTION to() const {
+        COLLECTION result;
         result.reserve(this->size());
         for (int i = 0; i < this->size(); ++i) {
             result.push_back(this->coeff(i));

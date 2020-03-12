@@ -232,14 +232,14 @@ public:
     std::size_t columnHoldingDependentVariable() const override;
 
     //! Read the model prediction from \p row.
-    TDoubleVec readPrediction(const TRowRef& row) const override;
+    TDouble2Vec readPrediction(const TRowRef& row) const override;
 
     //! Read the raw model prediction from \p row and make posthoc adjustments.
     //!
     //! For example, classification multiplicative weights are used for each
     //! class to target different objectives (accuracy or minimum recall) when
     //! assigning classes.
-    TDoubleVec readAndAdjustPrediction(const TRowRef& row) const override;
+    TDouble2Vec readAndAdjustPrediction(const TRowRef& row) const override;
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;

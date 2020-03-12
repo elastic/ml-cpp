@@ -123,8 +123,8 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     core::CRapidJsonConcurrentLineWriter& writer,
     maths::CTreeShapFeatureImportance* featureImportance) const {
 
-    TDoubleVec probabilities{readClassProbabilities(row)};
-    TDoubleVec scores{readClassScores(row)};
+    auto probabilities = readClassProbabilities(row);
+    auto scores = readClassScores(row);
 
     double actualClassId{row[columnHoldingDependentVariable]};
     std::size_t predictedClassId(std::max_element(scores.begin(), scores.end()) -

@@ -1430,7 +1430,7 @@ void CBoostedTreeImpl::accept(CBoostedTree::CVisitor& visitor) {
             node.accept(visitor);
         }
     }
-    visitor.addClassificationWeights(m_ClassificationWeights.toStdVector());
+    visitor.addClassificationWeights(m_ClassificationWeights.to<TDoubleVec>());
 }
 
 const CBoostedTreeHyperparameters& CBoostedTreeImpl::bestHyperparameters() const {

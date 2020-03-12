@@ -167,15 +167,15 @@ std::size_t CBoostedTree::columnHoldingDependentVariable() const {
     return m_Impl->columnHoldingDependentVariable();
 }
 
-CBoostedTree::TDoubleVec CBoostedTree::readPrediction(const TRowRef& row) const {
+CBoostedTree::TDouble2Vec CBoostedTree::readPrediction(const TRowRef& row) const {
     const auto& loss = m_Impl->loss();
     return loss
         .transform(boosted_tree_detail::readPrediction(
             row, m_Impl->numberInputColumns(), loss.numberParameters()))
-        .toStdVector();
+        .to<TDouble2Vec>();
 }
 
-CBoostedTree::TDoubleVec CBoostedTree::readAndAdjustPrediction(const TRowRef& row) const {
+CBoostedTree::TDouble2Vec CBoostedTree::readAndAdjustPrediction(const TRowRef& row) const {
 
     const auto& loss = m_Impl->loss();
 
@@ -191,7 +191,7 @@ CBoostedTree::TDoubleVec CBoostedTree::readAndAdjustPrediction(const TRowRef& ro
         break;
     }
 
-    return prediction.toStdVector();
+    return prediction.to<TDouble2Vec>();
 }
 
 const CBoostedTree::TNodeVecVec& CBoostedTree::trainedModel() const {

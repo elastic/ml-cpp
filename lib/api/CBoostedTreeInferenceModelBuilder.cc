@@ -99,7 +99,7 @@ void CBoostedTreeInferenceModelBuilder::addNode(std::size_t splitFeature,
         HANDLE_FATAL(<< "Internal error. Tree points to a nullptr.")
     }
     tree->treeStructure().emplace_back(tree->size(), splitValue, assignMissingToLeft,
-                                       nodeValue.toStdVector(), splitFeature,
+                                       nodeValue.to<TDoubleVec>(), splitFeature,
                                        numberSamples, leftChild, rightChild, gain);
 }
 

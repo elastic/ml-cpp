@@ -8,6 +8,7 @@
 #define INCLUDED_ml_maths_CDataFramePredictiveModel_h
 
 #include <core/CDataFrame.h>
+#include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 
 #include <maths/ImportExport.h>
@@ -31,6 +32,7 @@ class CTreeShapFeatureImportance;
 class MATHS_EXPORT CDataFramePredictiveModel {
 public:
     using TDoubleVec = std::vector<double>;
+    using TDouble2Vec = core::CSmallVector<double, 2>;
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
     using TTrainingStateCallback = std::function<void(TPersistFunc)>;
     using TRowRef = core::CDataFrame::TRowRef;
@@ -62,10 +64,10 @@ public:
     virtual std::size_t columnHoldingDependentVariable() const = 0;
 
     //! Read the prediction out of \p row.
-    virtual TDoubleVec readPrediction(const TRowRef& row) const = 0;
+    virtual TDouble2Vec readPrediction(const TRowRef& row) const = 0;
 
     //! Read the raw model prediction from \p row and make posthoc adjustments.
-    virtual TDoubleVec readAndAdjustPrediction(const TRowRef& row) const = 0;
+    virtual TDouble2Vec readAndAdjustPrediction(const TRowRef& row) const = 0;
 
     //! \name Test Only
     //@{
