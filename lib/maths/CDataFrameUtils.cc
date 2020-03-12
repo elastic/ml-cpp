@@ -747,7 +747,7 @@ CDataFrameUtils::maximumMinimumRecallClassWeights(std::size_t numberThreads,
                 for (auto row = beginRows; row != endRows; ++row) {
                     if (isMissing((*row)[targetColumn]) == false) {
                         quantiles[static_cast<std::size_t>((*row)[targetColumn])]
-                            .add(readPrediction(*row)(0));
+                            .add(readPrediction(*row)(1));
                     }
                 }
             },

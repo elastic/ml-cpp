@@ -303,6 +303,7 @@ public:
                    TWriter writer,
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
+    //! \return \p prediction.
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
@@ -337,6 +338,7 @@ public:
                    TWriter writer,
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
+    //! \return (P(class 0), P(class 1)).
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
@@ -374,6 +376,7 @@ public:
                    TWriter writer,
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
+    //! \return (P(class 0), P(class 1), ..., P(class n)).
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;

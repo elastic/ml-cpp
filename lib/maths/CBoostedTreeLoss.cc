@@ -567,8 +567,10 @@ bool CBinomialLogisticLoss::isCurvatureConstant() const {
 
 CBinomialLogisticLoss::TDoubleVector
 CBinomialLogisticLoss::transform(const TMemoryMappedFloatVector& prediction) const {
-    TDoubleVector result{prediction};
-    result(0) = CTools::logisticFunction(result(0));
+    double p1{CTools::logisticFunction(prediction(0))};
+    TDoubleVector result{2};
+    result(0) = 1.0 - p1;
+    result(1) = p1;
     return result;
 }
 

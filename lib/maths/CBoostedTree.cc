@@ -169,9 +169,10 @@ std::size_t CBoostedTree::columnHoldingDependentVariable() const {
 
 CBoostedTree::TDoubleVec CBoostedTree::readPrediction(const TRowRef& row) const {
     const auto& loss = m_Impl->loss();
-    auto result = loss.transform(boosted_tree_detail::readPrediction(
-        row, m_Impl->numberInputColumns(), loss.numberParameters()));
-    return result.toStdVector();
+    return loss
+        .transform(boosted_tree_detail::readPrediction(
+            row, m_Impl->numberInputColumns(), loss.numberParameters()))
+        .toStdVector();
 }
 
 CBoostedTree::TDoubleVec CBoostedTree::readAndAdjustPrediction(const TRowRef& row) const {
