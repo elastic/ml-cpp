@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "maths/CBoostedTreeUtils.h"
 #include <maths/CBoostedTreeImpl.h>
 
 #include <core/CContainerPrinter.h>
@@ -160,7 +161,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         return;
     }
     if (m_Loss == nullptr) {
-        HANDLE_FATAL(<< "Internal error: must supply a loss function. "
+        HANDLE_FATAL(<< "Internal error: must supply a loss function for training. "
                      << "Please report this problem.")
     }
 
@@ -243,7 +244,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             m_BestForest.size();
     }
 
-    this->computeProbabilityAtWhichToAssignClassOne(frame);
+    this->computeClassificationWeights(frame);
     this->initializeTreeShap(frame);
 
     // Force progress to one because we can have early exit from loop skip altogether.
@@ -356,16 +357,22 @@ void CBoostedTreeImpl::initializePerFoldTestLosses() {
     }
 }
 
-void CBoostedTreeImpl::computeProbabilityAtWhichToAssignClassOne(const core::CDataFrame& frame) {
-    // TODO generalize for multi-class.
-    if (m_Loss->name() == boosted_tree::CBinomialLogisticLoss::NAME) {
+void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& frame) {
+    if (m_Loss->type() == CLoss::E_BinaryClassification ||
+        m_Loss->type() == CLoss::E_MulticlassClassification) {
+
         switch (m_ClassAssignmentObjective) {
         case CBoostedTree::E_Accuracy:
+            m_ClassificationWeights = TVector::Ones(m_Loss->numberParameters());
             break;
         case CBoostedTree::E_MinimumRecall:
-            m_ProbabilityAtWhichToAssignClassOne = CDataFrameUtils::maximumMinimumRecallDecisionThreshold(
+            m_ClassificationWeights = CDataFrameUtils::maximumMinimumRecallClassWeights(
                 m_NumberThreads, frame, this->allTrainingRowsMask(),
-                m_DependentVariable, predictionColumn(m_NumberInputColumns));
+                m_Loss->type() == CLoss::E_BinaryClassification ? 2 : m_Loss->numberParameters(),
+                m_DependentVariable, [this](const TRowRef& row) {
+                    return m_Loss->transform(readPrediction(
+                        row, m_NumberInputColumns, m_Loss->numberParameters()));
+                });
             break;
         }
     }
@@ -1423,7 +1430,7 @@ void CBoostedTreeImpl::accept(CBoostedTree::CVisitor& visitor) {
             node.accept(visitor);
         }
     }
-    visitor.addProbabilityAtWhichToAssignClassOne(m_ProbabilityAtWhichToAssignClassOne);
+    visitor.addClassificationWeights(m_ClassificationWeights.toStdVector());
 }
 
 const CBoostedTreeHyperparameters& CBoostedTreeImpl::bestHyperparameters() const {
@@ -1442,16 +1449,24 @@ const CBoostedTreeImpl::TNodeVecVec& CBoostedTreeImpl::trainedModel() const {
     return m_BestForest;
 }
 
+CBoostedTreeImpl::TLossFunction& CBoostedTreeImpl::loss() const {
+    if (m_Loss == nullptr) {
+        HANDLE_FATAL(<< "Internal error: loss function unavailable. "
+                     << "Please report this problem.")
+    }
+    return *m_Loss;
+}
+
 std::size_t CBoostedTreeImpl::columnHoldingDependentVariable() const {
     return m_DependentVariable;
 }
 
-double CBoostedTreeImpl::probabilityAtWhichToAssignClassOne() const {
-    return m_ProbabilityAtWhichToAssignClassOne;
-}
-
 std::size_t CBoostedTreeImpl::numberInputColumns() const {
     return m_NumberInputColumns;
+}
+
+CBoostedTreeImpl::TVector CBoostedTreeImpl::classificationWeights() const {
+    return m_ClassificationWeights;
 }
 
 const double CBoostedTreeImpl::MINIMUM_RELATIVE_GAIN_PER_SPLIT{1e-7};

@@ -240,10 +240,18 @@ public:
     using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
     using TWriter = std::function<void(std::size_t, double)>;
 
+    enum EType {
+        E_BinaryClassification,
+        E_MulticlassClassification,
+        E_Regression
+    };
+
 public:
     virtual ~CLoss() = default;
     //! Clone the loss.
     virtual std::unique_ptr<CLoss> clone() const = 0;
+    //! Get the type of prediction problem to which this loss applies.
+    virtual EType type() const = 0;
     //! The number of parameters to the loss function.
     virtual std::size_t numberParameters() const = 0;
     //! The value of the loss function.
@@ -281,6 +289,7 @@ public:
 
 public:
     std::unique_ptr<CLoss> clone() const override;
+    EType type() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
@@ -314,6 +323,7 @@ public:
 
 public:
     std::unique_ptr<CLoss> clone() const override;
+    EType type() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
@@ -349,6 +359,7 @@ public:
 
 public:
     CMultinomialLogisticLoss(std::size_t numberClasses);
+    EType type() const override;
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,

@@ -21,6 +21,7 @@
 
 namespace ml {
 namespace maths {
+using namespace boosted_tree;
 using namespace boosted_tree_detail;
 
 namespace {
@@ -166,12 +167,30 @@ std::size_t CBoostedTree::columnHoldingDependentVariable() const {
     return m_Impl->columnHoldingDependentVariable();
 }
 
-std::size_t CBoostedTree::columnHoldingPrediction() const {
-    return predictionColumn(m_Impl->numberInputColumns());
+CBoostedTree::TDoubleVec CBoostedTree::readPrediction(const TRowRef& row) const {
+    const auto& loss = m_Impl->loss();
+    auto result = loss.transform(boosted_tree_detail::readPrediction(
+        row, m_Impl->numberInputColumns(), loss.numberParameters()));
+    return result.toStdVector();
 }
 
-double CBoostedTree::probabilityAtWhichToAssignClassOne() const {
-    return m_Impl->probabilityAtWhichToAssignClassOne();
+CBoostedTree::TDoubleVec CBoostedTree::readAndAdjustPrediction(const TRowRef& row) const {
+
+    const auto& loss = m_Impl->loss();
+
+    auto prediction = loss.transform(boosted_tree_detail::readPrediction(
+        row, m_Impl->numberInputColumns(), loss.numberParameters()));
+
+    switch (loss.type()) {
+    case CLoss::E_BinaryClassification:
+    case CLoss::E_MulticlassClassification:
+        prediction = m_Impl->classificationWeights().array() * prediction.array();
+        break;
+    case CLoss::E_Regression:
+        break;
+    }
+
+    return prediction.toStdVector();
 }
 
 const CBoostedTree::TNodeVecVec& CBoostedTree::trainedModel() const {

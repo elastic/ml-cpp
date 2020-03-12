@@ -196,7 +196,6 @@ private:
 class MATHS_EXPORT CBoostedTree final : public CDataFramePredictiveModel {
 public:
     using TStrVec = std::vector<std::string>;
-    using TRowRef = core::CDataFrame::TRowRef;
     using TLossFunctionUPtr = std::unique_ptr<boosted_tree::CLoss>;
     using TDataFramePtr = core::CDataFrame*;
     using TNodeVec = std::vector<CBoostedTreeNode>;
@@ -207,7 +206,7 @@ public:
     public:
         virtual ~CVisitor() = default;
         virtual void addTree() = 0;
-        virtual void addProbabilityAtWhichToAssignClassOne(double probability) = 0;
+        virtual void addClassificationWeights(TDoubleVec weights) = 0;
     };
 
 public:
@@ -232,11 +231,15 @@ public:
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const override;
 
-    //! Get the column containing the model's prediction for the dependent variable.
-    std::size_t columnHoldingPrediction() const override;
+    //! Read the model prediction from \p row.
+    TDoubleVec readPrediction(const TRowRef& row) const override;
 
-    //! Get the probability threshold at which to classify a row as class one.
-    double probabilityAtWhichToAssignClassOne() const override;
+    //! Read the raw model prediction from \p row and make posthoc adjustments.
+    //!
+    //! For example, classification multiplicative weights are used for each
+    //! class to target different objectives (accuracy or minimum recall) when
+    //! assigning classes.
+    TDoubleVec readAndAdjustPrediction(const TRowRef& row) const override;
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;

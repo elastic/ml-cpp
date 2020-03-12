@@ -444,7 +444,7 @@ CDataFrameUtils::columnQuantiles(std::size_t numberThreads,
                                  const TSizeVec& columnMask,
                                  CQuantileSketch estimateQuantiles,
                                  const CDataFrameCategoryEncoder* encoder,
-                                 TWeightFunction weight) {
+                                 const TWeightFunc& weight) {
 
     auto readQuantiles = core::bindRetrievableState(
         [&](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) {
@@ -733,55 +733,66 @@ CDataFrameUtils::metricMicWithColumn(const CColumnValue& target,
                   std::min(NUMBER_SAMPLES_TO_COMPUTE_MIC, frame.numberRows()));
 }
 
-double
-CDataFrameUtils::maximumMinimumRecallDecisionThreshold(std::size_t numberThreads,
-                                                       const core::CDataFrame& frame,
-                                                       const core::CPackedBitVector& rowMask,
-                                                       std::size_t targetColumn,
-                                                       std::size_t predictionColumn) {
+CDataFrameUtils::TDoubleVector
+CDataFrameUtils::maximumMinimumRecallClassWeights(std::size_t numberThreads,
+                                                  const core::CDataFrame& frame,
+                                                  const core::CPackedBitVector& rowMask,
+                                                  std::size_t numberClasses,
+                                                  std::size_t targetColumn,
+                                                  const TReadPredictionFunc& readPrediction) {
 
-    auto readQuantiles = core::bindRetrievableState(
-        [&](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                if (isMissing((*row)[targetColumn]) == false) {
-                    quantiles[static_cast<std::size_t>((*row)[targetColumn])].add(
-                        CTools::logisticFunction((*row)[predictionColumn]));
+    if (numberClasses == 2) {
+        auto readQuantiles = core::bindRetrievableState(
+            [&](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    if (isMissing((*row)[targetColumn]) == false) {
+                        quantiles[static_cast<std::size_t>((*row)[targetColumn])]
+                            .add(readPrediction(*row)(0));
+                    }
                 }
+            },
+            TQuantileSketchVec(2, CQuantileSketch{CQuantileSketch::E_Linear, 100}));
+        auto copyQuantiles = [](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
+            result = std::move(quantiles);
+        };
+        auto reduceQuantiles = [&](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
+            for (std::size_t i = 0; i < 2; ++i) {
+                result[i] += quantiles[i];
             }
-        },
-        TQuantileSketchVec(2, CQuantileSketch{CQuantileSketch::E_Linear, 100}));
-    auto copyQuantiles = [](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
-        result = std::move(quantiles);
-    };
-    auto reduceQuantiles = [&](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
-        for (std::size_t i = 0; i < 2; ++i) {
-            result[i] += quantiles[i];
-        }
-    };
+        };
 
-    TQuantileSketchVec classProbabilityClassOneQuantiles;
-    if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readQuantiles, &rowMask),
-                 copyQuantiles, reduceQuantiles, classProbabilityClassOneQuantiles) == false) {
-        HANDLE_FATAL(<< "Failed to compute category quantiles")
-        return 0.5;
+        TQuantileSketchVec classProbabilityClassOneQuantiles;
+        if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readQuantiles, &rowMask),
+                     copyQuantiles, reduceQuantiles,
+                     classProbabilityClassOneQuantiles) == false) {
+            HANDLE_FATAL(<< "Failed to compute category quantiles")
+            return TDoubleVector::Ones(2);
+        }
+
+        auto minRecall = [&](double threshold) {
+            double cdf[2];
+            classProbabilityClassOneQuantiles[0].cdf(threshold, cdf[0]);
+            classProbabilityClassOneQuantiles[1].cdf(threshold, cdf[1]);
+            double recalls[]{cdf[0], 1.0 - cdf[1]};
+            return std::min(recalls[0], recalls[1]);
+        };
+
+        double threshold;
+        double minRecallAtThreshold;
+        std::size_t maxIterations{20};
+        CSolvers::maximize(0.0, 1.0, minRecall(0.0), minRecall(1.0), minRecall,
+                           1e-3, maxIterations, threshold, minRecallAtThreshold);
+        LOG_TRACE(<< "threshold = " << threshold
+                  << ", min recall at threshold = " << minRecallAtThreshold);
+
+        TDoubleVector result{2};
+        result(0) = 0.5 / (1.0 - threshold);
+        result(1) = 0.5 / threshold;
+        return result;
     }
 
-    auto minRecall = [&](double threshold) {
-        double cdf[2];
-        classProbabilityClassOneQuantiles[0].cdf(threshold, cdf[0]);
-        classProbabilityClassOneQuantiles[1].cdf(threshold, cdf[1]);
-        double recalls[]{cdf[0], 1.0 - cdf[1]};
-        return std::min(recalls[0], recalls[1]);
-    };
-
-    double threshold;
-    double minRecallAtThreshold;
-    std::size_t maxIterations{20};
-    CSolvers::maximize(0.0, 1.0, minRecall(0.0), minRecall(1.0), minRecall,
-                       1e-3, maxIterations, threshold, minRecallAtThreshold);
-    LOG_TRACE(<< "threshold = " << threshold
-              << ", min recall at threshold = " << minRecallAtThreshold);
-    return threshold;
+    // TODO fixme
+    return TDoubleVector::Ones(numberClasses);
 }
 
 bool CDataFrameUtils::isMissing(double x) {

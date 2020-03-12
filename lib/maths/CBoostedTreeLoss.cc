@@ -475,6 +475,10 @@ std::unique_ptr<CLoss> CMse::clone() const {
     return std::make_unique<CMse>(*this);
 }
 
+CMse::EType CMse::type() const {
+    return E_Regression;
+}
+
 std::size_t CMse::numberParameters() const {
     return 1;
 }
@@ -517,6 +521,10 @@ const std::string CMse::NAME{"mse"};
 
 std::unique_ptr<CLoss> CBinomialLogisticLoss::clone() const {
     return std::make_unique<CBinomialLogisticLoss>(*this);
+}
+
+CBinomialLogisticLoss::EType CBinomialLogisticLoss::type() const {
+    return E_BinaryClassification;
 }
 
 std::size_t CBinomialLogisticLoss::numberParameters() const {
@@ -581,6 +589,10 @@ CMultinomialLogisticLoss::CMultinomialLogisticLoss(std::size_t numberClasses)
 
 std::unique_ptr<CLoss> CMultinomialLogisticLoss::clone() const {
     return std::make_unique<CMultinomialLogisticLoss>(m_NumberClasses);
+}
+
+CMultinomialLogisticLoss::EType CMultinomialLogisticLoss::type() const {
+    return E_MulticlassClassification;
 }
 
 std::size_t CMultinomialLogisticLoss::numberParameters() const {
