@@ -77,7 +77,8 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters)
     : CDataFrameTrainBoostedTreeRunner{
-          spec, parameters, std::make_unique<maths::boosted_tree::CBinomialLogistic>()} {
+          spec, parameters,
+          std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>()} {
 
     m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::size_t{0});
     m_PredictionFieldType =

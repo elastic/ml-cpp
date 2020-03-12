@@ -511,7 +511,7 @@ BOOST_AUTO_TEST_CASE(testSplitAndMerge) {
         LOG_DEBUG(<< "mean meanError = " << maths::CBasicStatistics::mean(meanMeanError));
         LOG_DEBUG(<< "mean covError  = " << maths::CBasicStatistics::mean(meanCovError));
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanMeanError) < 0.013);
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanCovError) < 0.030);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanCovError) < 0.044);
     }
 }
 
