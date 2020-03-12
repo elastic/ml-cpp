@@ -975,7 +975,7 @@ BOOST_AUTO_TEST_CASE(testMeanValueOfTargetForCategoriesWithMissing) {
             }
         }
         rng.generateUniformSamples(0.0, 1.0, 1, u01);
-        if (u01[i] < 0.9) {
+        if (u01[0] < 0.9) {
             for (std::size_t j = 0; j + 1 < cols; ++j) {
                 if (maths::CDataFrameUtils::isMissing(values[j][i]) == false) {
                     values[cols - 1][i] += values[j][i];
