@@ -249,7 +249,7 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(const std::string& analys
         writer.Double(m_Eta);
     }
     if (m_MaximumNumberTrees > 0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::MAXIMUM_NUMBER_TREES);
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::MAX_TREES);
         writer.Uint64(m_MaximumNumberTrees);
     }
     if (m_FeatureBagFraction > 0.0) {
