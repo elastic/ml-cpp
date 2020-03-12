@@ -34,6 +34,7 @@
 
 * Add instrumentation to report statistics related to data frame analytics jobs, i.e.
 progress, memory usage, etc. (See {ml-pull}906[#906].)
+* Multiclass classification. (See {ml-pull}1037[#1037].)
 
 === Enhancements
 

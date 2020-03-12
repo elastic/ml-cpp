@@ -300,6 +300,13 @@ void CTools::spread(double a, double b, double separation, T& points) {
 
     LOG_TRACE(<< "# iterations = " << iteration << " # points = " << n + 1);
 }
+
+template<typename T>
+CDenseVector<T> CTools::softmax(CDenseVector<T> z) {
+    double zmax{z.maxCoeff()};
+    z = (z.array() - zmax).exp();
+    return z / z.template lpNorm<1>();
+}
 }
 }
 
