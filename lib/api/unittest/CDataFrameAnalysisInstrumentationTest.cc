@@ -43,6 +43,7 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
         outputStream.flush();
     }
     std::int64_t timeAfter{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
+    LOG_DEBUG(<< outputStream.str());
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(outputStream.str()));
@@ -145,7 +146,6 @@ BOOST_AUTO_TEST_CASE(testTrainingClassification) {
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-    LOG_DEBUG(<< output.str());
 
     std::ifstream schemaFileStream("testfiles/instrumentation/supervised_learning_stats.schema.json");
     BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
