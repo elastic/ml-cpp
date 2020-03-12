@@ -75,9 +75,9 @@ private:
 //!   \f$\displaystyle arg\min_w{ \lambda w^2 -\sum_i{ a_i \log(S(p_i + w)) + (1 - a_i) \log(1 - S(p_i + w)) } }\f$
 //! </pre>
 //!
-//! Rather than working with this function directly we bucket the predictions `p_i`
-//! in a first pass over the data and compute weight which minimizes the approximate
-//! function
+//! Rather than working with this function directly we we approximate it by computing
+//! the predictions `p_i` and actual class counts in a uniform bucketing of the data,
+//! i.e. we compute the weight which satisfies
 //! <pre class="fragment">
 //! \f$\displaystyle arg\min_w{ \lambda w^2 -\sum_{B}{ c_{1,B} \log(S(\bar{p}_B + w)) + c_{0,B} \log(1 - S(\bar{p}_B + w)) } }\f$
 //! </pre>
@@ -137,9 +137,9 @@ private:
 //! </pre>
 //!
 //! Here, \f$a_i\f$ is the index of the i'th example's true class. Rather than
-//! working with this function directly we approximate it by the means and count
-//! of predictions in a partition of the original data, i.e. we compute the weight
-//! weight which satisfies
+//! working with this function directly we approximate it by the means of the
+//! predictions and counts of actual classes in a partition of the data, i.e.
+//! we compute the weight which satisfies
 //! <pre class="fragment">
 //! \f$\displaystyle arg\min_w{ \lambda \|w\|^2 -\sum_P{ c_{a_i, P} \log([softmax(\bar{p}_P + w)]) } }\f$
 //! </pre>
