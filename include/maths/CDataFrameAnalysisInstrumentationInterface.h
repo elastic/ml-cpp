@@ -115,7 +115,7 @@ public:
     virtual void lossType(const std::string& lossType) = 0;
     //! List of \p lossValues of validation error for the given \p fold.
     virtual void lossValues(std::string fold, TDoubleVec&& lossValues) = 0;
-    //! \return Strucutre contains hyperparameters.
+    //! \return Structure contains hyperparameters.
     virtual SHyperparameters& hyperparameters() = 0;
 };
 

@@ -42,7 +42,7 @@ using TPoint = maths::CDenseVector<double>;
 using TPointVec = std::vector<TPoint>;
 using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>(const TPointVec&)>;
 
-class CTestInstrumentation final : public maths::CDataFrameAnalysisInstrumentationInterface {
+class CTestInstrumentation final : public maths::CDataFrameOutliersInstrumentationInterface {
 public:
     using TProgressCallbackOpt = boost::optional<TProgressCallback>;
     using TMemoryUsageCallbackOpt = boost::optional<TMemoryUsageCallback>;
@@ -68,7 +68,7 @@ public:
         m_MemoryUsageCallback = memoryUsageCallback;
     }
 
-    void nextStep(std::uint32_t /*uint32*/) override {}
+    void nextStep(const std::string& /*uint32*/) override {}
 
 private:
     TProgressCallbackOpt m_ProgressCallback;
