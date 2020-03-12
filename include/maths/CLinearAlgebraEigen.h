@@ -25,6 +25,7 @@
 #include <Eigen/SVD>
 #include <Eigen/SparseCore>
 
+#include <algorithm>
 #include <iterator>
 
 namespace Eigen {
@@ -43,7 +44,7 @@ bool operator<(const SparseMatrix<SCALAR, FLAGS, STORAGE_INDEX>& lhs,
     LESS_OR_GREATER(lhs.cols(), rhs.cols())
     for (STORAGE_INDEX i = 0; i < lhs.rows(); ++i) {
         for (STORAGE_INDEX j = 0; j < lhs.cols(); ++j) {
-            LESS_OR_GREATER(lhs.coeff(i, j), rhs.coeff(i, j))
+            LESS_OR_GREATER(lhs(i, j), rhs(i, j))
         }
     }
     return false;
@@ -55,7 +56,7 @@ bool operator<(const SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& lhs,
                const SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& rhs) {
     LESS_OR_GREATER(lhs.size(), rhs.size())
     for (STORAGE_INDEX i = 0; i < lhs.size(); ++i) {
-        LESS_OR_GREATER(lhs.coeff(i), rhs(i))
+        LESS_OR_GREATER(lhs(i), rhs(i))
     }
     return false;
 }
@@ -66,12 +67,8 @@ bool operator<(const Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& lh
                const Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& rhs) {
     LESS_OR_GREATER(lhs.rows(), rhs.rows())
     LESS_OR_GREATER(lhs.cols(), rhs.cols())
-    for (decltype(lhs.rows()) i = 0; i < lhs.rows(); ++i) {
-        for (decltype(lhs.cols()) j = 0; j < lhs.cols(); ++j) {
-            LESS_OR_GREATER(lhs.coeff(i, j), rhs.coeff(i, j))
-        }
-    }
-    return false;
+    return std::lexicographical_compare(lhs.data(), lhs.data() + lhs.size(),
+                                        rhs.data(), rhs.data() + rhs.size());
 }
 
 //! Less than on an Eigen memory mapped matrix.
@@ -80,12 +77,8 @@ bool operator<(const Map<PLAIN_OBJECT_TYPE, OPTIONS, STRIDE_TYPE>& lhs,
                const Map<PLAIN_OBJECT_TYPE, OPTIONS, STRIDE_TYPE>& rhs) {
     LESS_OR_GREATER(lhs.rows(), rhs.rows())
     LESS_OR_GREATER(lhs.cols(), rhs.cols())
-    for (decltype(lhs.rows()) i = 0; i < lhs.rows(); ++i) {
-        for (decltype(lhs.cols()) j = 0; j < lhs.cols(); ++j) {
-            LESS_OR_GREATER(lhs.coeff(i, j), rhs.coeff(i, j))
-        }
-    }
-    return false;
+    return std::lexicographical_compare(lhs.data(), lhs.data() + lhs.size(),
+                                        rhs.data(), rhs.data() + rhs.size());
 }
 
 #undef LESS_OR_GREATER
@@ -302,7 +295,7 @@ public:
         return result;
     }
 
-private:
+    //! Convert from a std::vector.
     static CDenseVector<SCALAR> fromStdVector(const std::vector<SCALAR>& vector) {
         CDenseVector<SCALAR> result(vector.size());
         for (std::size_t i = 0; i < vector.size(); ++i) {

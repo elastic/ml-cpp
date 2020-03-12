@@ -312,8 +312,8 @@ BOOST_AUTO_TEST_CASE(testClusteringVanilla) {
             }
             LOG_DEBUG(<< "mean error = " << meanError[0]);
             LOG_DEBUG(<< "covariance error = " << covError[0]);
-            BOOST_TEST_REQUIRE(meanError[0] < 0.034);
-            BOOST_TEST_REQUIRE(covError[0] < 0.39);
+            BOOST_TEST_REQUIRE(meanError[0] < 0.045);
+            BOOST_TEST_REQUIRE(covError[0] < 0.36);
             meanMeanError.add(meanError[0]);
             meanCovError.add(covError[0]);
         }
@@ -653,6 +653,9 @@ BOOST_AUTO_TEST_CASE(testLargeHistory) {
 }
 
 BOOST_AUTO_TEST_CASE(testLatLongData) {
+    // Check that the log likelihood of the data in the lat_long.csv
+    // is significantly increased by clustering.
+
     using TTimeDoubleVecPr = std::pair<core_t::TTime, TDoubleVec>;
     using TTimeDoubleVecPrVec = std::vector<TTimeDoubleVecPr>;
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
@@ -714,8 +717,8 @@ BOOST_AUTO_TEST_CASE(testLatLongData) {
 
     LOG_DEBUG(<< "gaussian log(L)  = " << maths::CBasicStatistics::mean(LLR));
     LOG_DEBUG(<< "clustered log(L) = " << maths::CBasicStatistics::mean(LLC));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(LLC) <
-                       0.6 * maths::CBasicStatistics::mean(LLR));
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(LLC) >
+                       0.4 * maths::CBasicStatistics::mean(LLR));
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {

@@ -357,7 +357,8 @@ void CBoostedTreeImpl::initializePerFoldTestLosses() {
 }
 
 void CBoostedTreeImpl::computeProbabilityAtWhichToAssignClassOne(const core::CDataFrame& frame) {
-    if (m_Loss->name() == boosted_tree::CBinomialLogistic::NAME) {
+    // TODO generalize for multi-class.
+    if (m_Loss->name() == boosted_tree::CBinomialLogisticLoss::NAME) {
         switch (m_ClassAssignmentObjective) {
         case CBoostedTree::E_Accuracy:
             break;
@@ -911,7 +912,8 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
     using TArgMinLossVec = std::vector<CArgMinLoss>;
 
     TArgMinLossVec leafValues(
-        tree.size(), m_Loss->minimizer(m_Regularization.leafWeightPenaltyMultiplier()));
+        tree.size(),
+        m_Loss->minimizer(m_Regularization.leafWeightPenaltyMultiplier(), m_Rng));
     auto nextPass = [&] {
         bool done{true};
         for (const auto& value : leafValues) {
