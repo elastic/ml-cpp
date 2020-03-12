@@ -120,7 +120,7 @@ public:
 };
 
 //! \brief Dummies out all instrumentation for outlier detection.
-class MATHS_EXPORT CDataFrameOutliersInstrumentationStub final
+class MATHS_EXPORT CDataFrameOutliersInstrumentationStub
     : public CDataFrameOutliersInstrumentationInterface {
 public:
     void updateMemoryUsage(std::int64_t) override {}
@@ -129,7 +129,7 @@ public:
 };
 
 //! \brief Dummies out all instrumentation for supervised learning.
-class MATHS_EXPORT CDataFrameTrainBoostedTreeInstrumentationStub final
+class MATHS_EXPORT CDataFrameTrainBoostedTreeInstrumentationStub
     : public CDataFrameTrainBoostedTreeInstrumentationInterface {
 public:
     void updateMemoryUsage(std::int64_t) override {}

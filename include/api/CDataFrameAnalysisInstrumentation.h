@@ -33,9 +33,6 @@ namespace api {
 class API_EXPORT CDataFrameAnalysisInstrumentation
     : virtual public maths::CDataFrameAnalysisInstrumentationInterface {
 public:
-    using TWriter = core::CRapidJsonConcurrentLineWriter;
-    using TWriterUPtr = std::unique_ptr<TWriter>;
-
     //! \brief Set the output stream for the lifetime of this object.
     class API_EXPORT CScopeSetOutputStream {
     public:
@@ -51,13 +48,13 @@ public:
     };
 
 public:
-    //! Constructs an intrumentation object an analytics job with a given \p jobId.
+    //! Constructs an instrumentation object an analytics job with a given \p jobId.
     explicit CDataFrameAnalysisInstrumentation(const std::string& jobId);
 
     //! Adds \p delta to the memory usage statistics.
     void updateMemoryUsage(std::int64_t delta) override;
 
-    //! This adds \p fractionalProgess to the current progress.
+    //! This adds \p fractionalProgress to the current progress.
     //!
     //! \note The caller should try to ensure that the sum of the values added
     //! at the end of the analysis is equal to one.
@@ -91,11 +88,13 @@ public:
     //! \return The id of the data frame analytics job.
     const std::string& jobId() const;
 
-    // TODO move to protected
-    TWriter* writer();
+protected:
+    using TWriter = core::CRapidJsonConcurrentLineWriter;
+    using TWriterUPtr = std::unique_ptr<TWriter>;
 
 protected:
     virtual counter_t::ECounterTypes memoryCounterType() = 0;
+    TWriter* writer();
 
 private:
     void writeMemory(std::int64_t timestamp);

@@ -194,10 +194,13 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t 
         writer->String(this->jobId());
         writer->Key(TIMESTAMP_TAG);
         writer->Int64(timestamp);
-        if (m_Type == E_Regression) {
+        switch (m_Type) {
+        case E_Regression:
             writer->Key(REGRESSION_STATS_TAG);
-        } else {
+            break;
+        case E_Classification:
             writer->Key(CLASSIFICATION_STATS_TAG);
+            break;
         }
         writer->StartObject();
         writer->Key(ITERATION_TAG);

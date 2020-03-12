@@ -47,7 +47,7 @@ using TMemoryMappedFloatVector = maths::boosted_tree::CLoss::TMemoryMappedFloatV
 
 namespace {
 
-class CTestInstrumentation : public maths::CDataFrameTrainBoostedTreeInstrumentationInterface {
+class CTestInstrumentation : public maths::CDataFrameTrainBoostedTreeInstrumentationStub {
 public:
     using TIntVec = std::vector<int>;
 
@@ -84,20 +84,11 @@ public:
                   << ", high water mark = " << m_MaxMemoryUsage.load());
     }
 
-    void nextStep(const std::string& /* phase */) override {}
-    void type(EStatsType /* type */) override {}
-    void iteration(std::size_t /* iteration */) override {}
-    void iterationTime(std::uint64_t /* delta */) override {}
-    void lossType(const std::string& /* lossType */) override {}
-    void lossValues(std::string /* fold */, TDoubleVec&& /* lossValues */) override {}
-    SHyperparameters& hyperparameters() override { return m_Hyperparamters; }
-
 private:
     std::atomic_int m_TotalFractionalProgress;
     TIntVec m_TenPercentProgressPoints;
     std::atomic<std::int64_t> m_MemoryUsage;
     std::atomic<std::int64_t> m_MaxMemoryUsage;
-    SHyperparameters m_Hyperparamters;
 };
 
 template<typename F>

@@ -42,7 +42,7 @@ using TPoint = maths::CDenseVector<double>;
 using TPointVec = std::vector<TPoint>;
 using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>(const TPointVec&)>;
 
-class CTestInstrumentation final : public maths::CDataFrameOutliersInstrumentationInterface {
+class CTestInstrumentation final : public maths::CDataFrameOutliersInstrumentationStub {
 public:
     using TProgressCallbackOpt = boost::optional<TProgressCallback>;
     using TMemoryUsageCallbackOpt = boost::optional<TMemoryUsageCallback>;
