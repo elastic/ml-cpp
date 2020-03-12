@@ -502,7 +502,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
 
 BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerRandom) {
 
-    // Test that we a good approximation of the additive term for the log-odds
+    // Test that we have a good approximation of the additive term for the log-odds
     // which minimises the exact cross entropy objective.
 
     maths::CPRNG::CXorOShiro128Plus rng;
