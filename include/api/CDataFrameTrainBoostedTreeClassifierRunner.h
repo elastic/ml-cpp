@@ -7,12 +7,12 @@
 #ifndef INCLUDED_ml_api_CDataFrameTrainBoostedTreeClassifierRunner_h
 #define INCLUDED_ml_api_CDataFrameTrainBoostedTreeClassifierRunner_h
 
+#include <core/CSmallVector.h>
+
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
-
-#include <vector>
 
 namespace ml {
 namespace maths {
@@ -24,9 +24,9 @@ namespace api {
 class API_EXPORT CDataFrameTrainBoostedTreeClassifierRunner final
     : public CDataFrameTrainBoostedTreeRunner {
 public:
-    using TDoubleVec = std::vector<double>;
-    using TReadPredictionFunc = std::function<TDoubleVec(const TRowRef&)>;
-    using TReadClassScoresFunc = std::function<TDoubleVec(const TRowRef&)>;
+    using TDouble2Vec = core::CSmallVector<double, 2>;
+    using TReadPredictionFunc = std::function<TDouble2Vec(const TRowRef&)>;
+    using TReadClassScoresFunc = std::function<TDouble2Vec(const TRowRef&)>;
 
     enum EPredictionFieldType {
         E_PredictionFieldTypeString,
@@ -52,17 +52,6 @@ public:
     void writeOneRow(const core::CDataFrame& frame,
                      const TRowRef& row,
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
-
-    //! Write the prediction for \p row to \p writer.
-    //!
-    //! \note This is only intended to be called directly from unit tests.
-    void writeOneRow(const core::CDataFrame& frame,
-                     std::size_t columnHoldingDependentVariable,
-                     const TReadPredictionFunc& readPrediction,
-                     const TReadClassScoresFunc& readClassScores,
-                     const TRowRef& row,
-                     core::CRapidJsonConcurrentLineWriter& writer,
-                     maths::CTreeShapFeatureImportance* featureImportance = nullptr) const;
 
     //! \return A serialisable definition of the trained classification model.
     TInferenceModelDefinitionUPtr

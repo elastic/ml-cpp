@@ -187,19 +187,14 @@ TDataFrameUPtr setupBinaryClassificationData(const TStrVec& fieldNames,
 
 enum EPredictionType { E_Regression, E_BinaryClassification };
 
-void appendPrediction(core::CDataFrame&, std::size_t, double prediction, double, TDoubleVec& predictions) {
+void appendPrediction(core::CDataFrame&, std::size_t, double prediction, TDoubleVec& predictions) {
     predictions.push_back(prediction);
 }
 
-void appendPrediction(core::CDataFrame& frame,
-                      std::size_t columnHoldingPrediction,
-                      double logOddsClass1,
-                      double threshold,
-                      TStrVec& predictions) {
-    predictions.push_back(
-        maths::CTools::logisticFunction(logOddsClass1) < threshold
-            ? frame.categoricalColumnValues()[columnHoldingPrediction][0]
-            : frame.categoricalColumnValues()[columnHoldingPrediction][1]);
+void appendPrediction(core::CDataFrame& frame, std::size_t target, double class1Score, TStrVec& predictions) {
+    predictions.push_back(class1Score < 0.5
+                              ? frame.categoricalColumnValues()[target][0]
+                              : frame.categoricalColumnValues()[target][1]);
 }
 
 template<typename T>
@@ -276,9 +271,8 @@ void addPredictionTestData(EPredictionType type,
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            double prediction{(*row)[tree->columnHoldingPrediction()]};
-            appendPrediction(*frame, weights.size(), prediction,
-                             tree->probabilityAtWhichToAssignClassOne(), expectedPredictions);
+            double class1Score{tree->readAndAdjustPrediction(*row)[1]};
+            appendPrediction(*frame, weights.size(), class1Score, expectedPredictions);
         }
     });
 }

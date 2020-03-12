@@ -104,27 +104,11 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     core::CRapidJsonConcurrentLineWriter& writer) const {
 
     const auto& tree = this->boostedTree();
-    auto readClassProbabilities = [&](const TRowRef& row_) {
-        return tree.readPrediction(row_);
-    };
-    auto readClassScores = [&](const TRowRef& row_) {
-        return tree.readAndAdjustPrediction(row_);
-    };
-    this->writeOneRow(frame, tree.columnHoldingDependentVariable(), readClassProbabilities,
-                      readClassScores, row, writer, tree.shap());
-}
+    std::size_t columnHoldingDependentVariable{tree.columnHoldingDependentVariable()};
+    maths::CTreeShapFeatureImportance* featureImportance{tree.shap()};
 
-void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
-    const core::CDataFrame& frame,
-    std::size_t columnHoldingDependentVariable,
-    const TReadPredictionFunc& readClassProbabilities,
-    const TReadClassScoresFunc& readClassScores,
-    const TRowRef& row,
-    core::CRapidJsonConcurrentLineWriter& writer,
-    maths::CTreeShapFeatureImportance* featureImportance) const {
-
-    auto probabilities = readClassProbabilities(row);
-    auto scores = readClassScores(row);
+    auto probabilities = tree.readPrediction(row);
+    auto scores = tree.readAndAdjustPrediction(row);
 
     double actualClassId{row[columnHoldingDependentVariable]};
     std::size_t predictedClassId(std::max_element(scores.begin(), scores.end()) -

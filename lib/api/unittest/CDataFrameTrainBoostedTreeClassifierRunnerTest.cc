@@ -6,6 +6,9 @@
 
 #include <core/CDataFrame.h>
 #include <core/CRegex.h>
+#include <core/CSmallVector.h>
+
+#include <maths/CTools.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
@@ -21,7 +24,9 @@
 BOOST_AUTO_TEST_SUITE(CDataFrameTrainBoostedTreeClassifierRunnerTest)
 
 using namespace ml;
+using TDouble2Vec = core::CSmallVector<double, 2>;
 using TRowItr = core::CDataFrame::TRowItr;
+using TRowRef = core::CDataFrame::TRowRef;
 using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
 
@@ -60,7 +65,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
                      T (rapidjson::Value::*extract)() const,
                      const std::vector<T>& expectedPredictions) {
     // Prepare input data frame
-    const std::string predictionField = dependentVariableField + "_prediction";
+    const std::string predictionField{dependentVariableField + "_prediction"};
     const TStrVec columnNames{"x1", "x2", "x3", "x4", "x5", predictionField};
     const TStrVec categoricalColumns{"x1", "x2", "x3", "x4", "x5"};
     const TStrVecVec rows{{"a", "b", "1.0", "1.0", "cat", "-1.0"},
@@ -68,8 +73,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
                           {"a", "b", "5.0", "0.0", "dog", "-0.1"},
                           {"c", "d", "5.0", "0.0", "dog", "1.0"},
                           {"e", "f", "5.0", "0.0", "dog", "1.5"}};
-    std::unique_ptr<core::CDataFrame> frame{
-        core::makeMainStorageDataFrame(columnNames.size()).first};
+    auto frame = core::makeMainStorageDataFrame(columnNames.size()).first;
     frame->columnNames(columnNames);
     frame->categoricalColumns(categoricalColumns);
     for (std::size_t i = 0; i < rows.size(); ++i) {
@@ -111,15 +115,8 @@ void testWriteOneRow(const std::string& dependentVariableField,
         core::CRapidJsonConcurrentLineWriter writer(outputStreamWrapper);
 
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
-            const auto columnHoldingDependentVariable{
-                std::find(columnNames.begin(), columnNames.end(), dependentVariableField) -
-                columnNames.begin()};
-            const auto columnHoldingPrediction{
-                std::find(columnNames.begin(), columnNames.end(), predictionField) -
-                columnNames.begin()};
             for (auto row = beginRows; row != endRows; ++row) {
-                runner.writeOneRow(*frame, columnHoldingDependentVariable,
-                                   columnHoldingPrediction, 0.5, *row, writer);
+                runner.writeOneRow(*frame, *row, writer);
             }
         });
     }
