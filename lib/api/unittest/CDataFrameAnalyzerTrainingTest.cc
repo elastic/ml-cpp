@@ -185,7 +185,11 @@ TDataFrameUPtr setupBinaryClassificationData(const TStrVec& fieldNames,
     return frame;
 }
 
-enum EPredictionType { E_Regression, E_BinaryClassification };
+enum EPredictionType {
+    E_Regression,
+    E_BinaryClassification,
+    E_MulticlassClassification
+};
 
 void appendPrediction(core::CDataFrame&, std::size_t, double prediction, TDoubleVec& predictions) {
     predictions.push_back(prediction);
@@ -221,11 +225,19 @@ void addPredictionTestData(EPredictionType type,
     rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, regressors);
 
     TStrVec targets;
-    auto frame = type == E_Regression
-                     ? setupLinearRegressionData(fieldNames, fieldValues, analyzer,
-                                                 weights, regressors, targets)
-                     : setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
-                                                     weights, regressors, targets);
+    auto frame = [&] {
+        switch (type) {
+        case E_Regression:
+            return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
+                                             weights, regressors, targets);
+        case E_BinaryClassification:
+            return setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
+                                                 weights, regressors, targets);
+        case E_MulticlassClassification:
+            // TODO
+            return TDataFrameUPtr{};
+        }
+    }();
 
     std::unique_ptr<maths::boosted_tree::CLoss> loss;
     if (type == E_Regression) {
@@ -271,8 +283,18 @@ void addPredictionTestData(EPredictionType type,
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            double class1Score{tree->readAndAdjustPrediction(*row)[1]};
-            appendPrediction(*frame, weights.size(), class1Score, expectedPredictions);
+            auto prediction = tree->readAndAdjustPrediction(*row);
+            switch (type) {
+            case E_Regression:
+                appendPrediction(*frame, weights.size(), prediction[0], expectedPredictions);
+                break;
+            case E_BinaryClassification:
+                appendPrediction(*frame, weights.size(), prediction[1], expectedPredictions);
+                break;
+            case E_MulticlassClassification:
+                // TODO.
+                break;
+            }
         }
     });
 }

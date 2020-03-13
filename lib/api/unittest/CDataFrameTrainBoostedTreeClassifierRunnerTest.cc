@@ -40,16 +40,9 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
                     .columns(6)
                     .memoryLimit(13000000)
                     .predictionCategoricalFieldNames({"dep_var"})
+                    .predictionFieldName("is_training")
                     .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
                                     "dep_var");
-    rapidjson::Document jsonParameters;
-    jsonParameters.Parse("{"
-                         "  \"dependent_variable\": \"dep_var\","
-                         "  \"prediction_field_name\": \"is_training\""
-                         "}");
-    auto parameters =
-        api::CDataFrameTrainBoostedTreeClassifierRunner::parameterReader().read(jsonParameters);
-    api::CDataFrameTrainBoostedTreeClassifierRunner runner(*spec, parameters);
 
     BOOST_TEST_REQUIRE(errors.size() == 1);
 
@@ -89,21 +82,13 @@ void testWriteOneRow(const std::string& dependentVariableField,
                     .columns(columnNames.size())
                     .memoryLimit(13000000)
                     .predictionCategoricalFieldNames(categoricalColumns)
+                    .predictionFieldType(predictionFieldType)
                     .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
                                     dependentVariableField);
+
     rapidjson::Document jsonParameters;
-    if (predictionFieldType.empty()) {
-        jsonParameters.Parse("{\"dependent_variable\": \"" + dependentVariableField + "\"}");
-    } else {
-        jsonParameters.Parse("{"
-                             "  \"dependent_variable\": \"" +
-                             dependentVariableField +
-                             "\","
-                             "  \"prediction_field_type\": \"" +
-                             predictionFieldType +
-                             "\""
-                             "}");
-    }
+    jsonParameters.Parse(specFactory.predictionParams(
+        test::CDataFrameAnalysisSpecificationFactory::classification(), dependentVariableField));
     auto parameters =
         api::CDataFrameTrainBoostedTreeClassifierRunner::parameterReader().read(jsonParameters);
     api::CDataFrameTrainBoostedTreeClassifierRunner runner{*spec, parameters};
@@ -115,8 +100,22 @@ void testWriteOneRow(const std::string& dependentVariableField,
         core::CRapidJsonConcurrentLineWriter writer(outputStreamWrapper);
 
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+            auto columnHoldingDependentVariable =
+                std::find(columnNames.begin(), columnNames.end(), dependentVariableField) -
+                columnNames.begin();
+            auto columnHoldingPrediction =
+                std::find(columnNames.begin(), columnNames.end(), predictionField) -
+                columnNames.begin();
+            auto readProbability = [&](const TRowRef& row) {
+                TDouble2Vec result(2);
+                double p{maths::CTools::logisticFunction(row[columnHoldingPrediction])};
+                result[0] = 1 - p;
+                result[1] = p;
+                return result;
+            };
             for (auto row = beginRows; row != endRows; ++row) {
-                runner.writeOneRow(*frame, *row, writer);
+                runner.writeOneRow(*frame, columnHoldingDependentVariable,
+                                   readProbability, readProbability, *row, writer);
             }
         });
     }
