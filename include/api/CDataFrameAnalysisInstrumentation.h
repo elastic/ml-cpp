@@ -153,7 +153,7 @@ protected:
     counter_t::ECounterTypes memoryCounterType() override;
 
 private:
-    using TLossMap = std::unordered_map<std::string, TDoubleVec>;
+    using TLossVec = std::vector<std::pair<std::string, TDoubleVec>>;
 
 private:
     void writeAnalysisStats(std::int64_t timestamp) override;
@@ -168,7 +168,7 @@ private:
     std::uint64_t m_IterationTime;
     std::uint64_t m_ElapsedTime = 0;
     std::string m_LossType;
-    TLossMap m_LossValues;
+    TLossVec m_LossValues;
     SHyperparameters m_Hyperparameters;
 };
 }

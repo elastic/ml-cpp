@@ -44,7 +44,7 @@ const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
 const std::string HYPERPARAMETER_OPTIMIZATION_PHASE{"hyperparameter_optimization"};
 const std::string TRAINING_FINAL_TREE_PHASE{"training_final_tree"};
 // TODO add isRegression() to the loss functions hierarchy instead of this constant
-const std::array<std::string, 1> REGRESSION_LOSSES{CMse::NAME};
+const std::array<std::string, 1> REGRESSION_LOSSES{"mse"};
 
 //! \brief Record the memory used by a supplied object using the RAII idiom.
 class CScopeRecordMemoryUsage {

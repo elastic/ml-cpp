@@ -43,7 +43,6 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
         outputStream.flush();
     }
     std::int64_t timeAfter{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
-    LOG_DEBUG(<< outputStream.str());
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(outputStream.str()));
@@ -91,32 +90,63 @@ BOOST_AUTO_TEST_CASE(testTrainingRegression) {
     rapidjson::ParseResult ok(results.Parse(output.str()));
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
-    std::ifstream schemaFileStream("testfiles/instrumentation/supervised_learning_stats.schema.json");
-    BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
-    std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
-                           std::istreambuf_iterator<char>());
-    rapidjson::Document schemaDocument;
-    BOOST_REQUIRE_MESSAGE(schemaDocument.Parse(schemaJson).HasParseError() == false,
-                          "Cannot parse JSON schema!");
-    rapidjson::SchemaDocument schema(schemaDocument);
-    rapidjson::SchemaValidator validator(schema);
+    std::ifstream regressionSchemaFileStream(
+        "testfiles/instrumentation/supervised_learning_stats.schema.json");
+    BOOST_REQUIRE_MESSAGE(regressionSchemaFileStream.is_open(), "Cannot open test file!");
+    std::string regressionSchemaJson((std::istreambuf_iterator<char>(regressionSchemaFileStream)),
+                                     std::istreambuf_iterator<char>());
+    rapidjson::Document regressionSchemaDocument;
+    BOOST_REQUIRE_MESSAGE(
+        regressionSchemaDocument.Parse(regressionSchemaJson).HasParseError() == false,
+        "Cannot parse JSON schema!");
+    rapidjson::SchemaDocument regressionSchema(regressionSchemaDocument);
+    rapidjson::SchemaValidator regressionValidator(regressionSchema);
 
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("analysis_stats")) {
-            BOOST_TEST_REQUIRE(result["analysis_stats"].HasMember("classification_stats"));
-            if (result["analysis_stats"]["classification_stats"].Accept(validator) == false) {
+            BOOST_TEST_REQUIRE(result["analysis_stats"].HasMember("regression_stats"));
+            if (result["analysis_stats"]["regression_stats"].Accept(regressionValidator) == false) {
                 rapidjson::StringBuffer sb;
-                validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
+                regressionValidator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
                 LOG_ERROR(<< "Invalid schema: " << sb.GetString());
-                LOG_ERROR(<< "Invalid keyword: " << validator.GetInvalidSchemaKeyword());
+                LOG_ERROR(<< "Invalid keyword: "
+                          << regressionValidator.GetInvalidSchemaKeyword());
                 sb.Clear();
-                validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
+                regressionValidator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
                 LOG_ERROR(<< "Invalid document: " << sb.GetString());
                 BOOST_FAIL("Schema validation failed");
             }
         }
     }
-    // TODO add memory format test
+
+    std::ifstream memorySchemaFileStream(
+        "testfiles/instrumentation/memory_usage.schema.json");
+    BOOST_REQUIRE_MESSAGE(memorySchemaFileStream.is_open(), "Cannot open test file!");
+    std::string memorySchemaJson((std::istreambuf_iterator<char>(memorySchemaFileStream)),
+                                     std::istreambuf_iterator<char>());
+    rapidjson::Document memorySchemaDocument;
+    BOOST_REQUIRE_MESSAGE(
+        memorySchemaDocument.Parse(memorySchemaJson).HasParseError() == false,
+        "Cannot parse JSON schema!");
+    rapidjson::SchemaDocument memorySchema(memorySchemaDocument);
+    rapidjson::SchemaValidator memoryValidator(memorySchema);
+
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("analytics_memory_usage")) {
+            BOOST_TEST_REQUIRE(result["analytics_memory_usage"].IsObject() == true);
+            if (result["analytics_memory_usage"].Accept(memoryValidator) == false) {
+                rapidjson::StringBuffer sb;
+                memoryValidator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
+                LOG_ERROR(<< "Invalid schema: " << sb.GetString());
+                LOG_ERROR(<< "Invalid keyword: "
+                          << memoryValidator.GetInvalidSchemaKeyword());
+                sb.Clear();
+                memoryValidator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
+                LOG_ERROR(<< "Invalid document: " << sb.GetString());
+                BOOST_FAIL("Schema validation failed");
+            }
+        }
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testTrainingClassification) {

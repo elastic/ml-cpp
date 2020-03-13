@@ -183,7 +183,7 @@ void CDataFrameTrainBoostedTreeInstrumentation::lossType(const std::string& loss
 
 void CDataFrameTrainBoostedTreeInstrumentation::lossValues(std::string fold,
                                                            TDoubleVec&& lossValues) {
-    m_LossValues.emplace(std::make_pair(fold, lossValues));
+    m_LossValues.emplace_back(std::move(fold), std::move(lossValues));
 }
 
 void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t timestamp) {
@@ -201,6 +201,10 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t 
         case E_Classification:
             writer->Key(CLASSIFICATION_STATS_TAG);
             break;
+        default:
+            LOG_ERROR(<< "Supervised learning type unknown or not set.");
+            writer->EndObject();
+            return;
         }
         writer->StartObject();
         writer->Key(ITERATION_TAG);
