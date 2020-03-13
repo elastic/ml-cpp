@@ -66,6 +66,42 @@ private:
     TMeanAccumulator m_MeanError;
 };
 
+//! \brief Finds the value to add to a set of predictions which approximately
+//! minimises the regularised Mean squared logarithmic error (MSLE).
+class MATHS_EXPORT CArgMinMsleImpl final : public CArgMinLossImpl {
+public:
+    CArgMinMsleImpl(double lambda);
+    std::unique_ptr<CArgMinLossImpl> clone() const override;
+    bool nextPass() override;
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
+    void merge(const CArgMinLossImpl& other) override;
+    TDoubleVector value() const override;
+
+private:
+    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TVector = CVectorNx1<double, 3>;
+    using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
+    using TVectorMeanAccumulatorVec = std::vector<TVectorMeanAccumulator>;
+
+private:
+    std::size_t bucket(double prediction) const {
+        double bucket{(prediction - m_LogPredictionMinMax.min()) / this->bucketWidth()};
+        return std::min(static_cast<std::size_t>(bucket), m_Buckets.size() - 1);
+    }
+
+    double bucketWidth() const {
+        return m_LogPredictionMinMax.range() / static_cast<double>(m_Buckets.size());
+    }
+
+private:
+    std::size_t m_CurrentPass = 0;
+    TMinMaxAccumulator m_LogPredictionMinMax;
+    TMeanAccumulator m_MeanLogActual;
+    TVectorMeanAccumulatorVec m_Buckets;
+    TMeanAccumulator m_MeanError;
+};
+
 //! \brief Finds the value to add to a set of predicted log-odds which minimises
 //! regularised cross entropy loss w.r.t. the actual categories.
 //!
@@ -369,6 +405,42 @@ public:
 
 private:
     std::size_t m_NumberClasses;
+};
+//! \brief The MSLE loss function.
+//!
+//! DESCRIPTION:\n
+//! Formally, the MSLE error definition we use is \f$(\log(1+p) - \log(1+a))^2\f$.
+//! However, we approximate this by a quadratic which has its the minimum p = a and
+//! matches the value and derivative of MSLE loss function. For example, if the
+//! current prediction for the i'th training point is \f$p_i\f$, the loss is defined
+//! as
+//! <pre class="fragment">
+//!   \f$\displaystyle l_i(p) = c_i + w_i(p - a_i)^2\f$
+//! </pre>
+//! where \f$w_i = \frac{\log(1+p_i) - \log(1+a_i)}{(1+p_i)(p_i-a_i)}\f$ and \f$c_i\f$
+//! is choosen so \f$l_i(p_i) = (\log(1+p_i) - \log(1+a_i))^2\f$.
+class MATHS_EXPORT CMsle final : public CLoss {
+public:
+    static const std::string NAME;
+
+public:
+    std::unique_ptr<CLoss> clone() const override;
+    std::size_t numberParameters() const override;
+    double value(const TMemoryMappedFloatVector& prediction,
+                 double actual,
+                 double weight = 1.0) const override;
+    void gradient(const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  TWriter writer,
+                  double weight = 1.0) const override;
+    void curvature(const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   TWriter writer,
+                   double weight = 1.0) const override;
+    bool isCurvatureConstant() const override;
+    TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
+    CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
+    const std::string& name() const override;
 };
 }
 }
