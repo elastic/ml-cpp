@@ -119,15 +119,13 @@ BOOST_AUTO_TEST_CASE(testTrainingRegression) {
         }
     }
 
-    std::ifstream memorySchemaFileStream(
-        "testfiles/instrumentation/memory_usage.schema.json");
+    std::ifstream memorySchemaFileStream("testfiles/instrumentation/memory_usage.schema.json");
     BOOST_REQUIRE_MESSAGE(memorySchemaFileStream.is_open(), "Cannot open test file!");
     std::string memorySchemaJson((std::istreambuf_iterator<char>(memorySchemaFileStream)),
-                                     std::istreambuf_iterator<char>());
+                                 std::istreambuf_iterator<char>());
     rapidjson::Document memorySchemaDocument;
-    BOOST_REQUIRE_MESSAGE(
-        memorySchemaDocument.Parse(memorySchemaJson).HasParseError() == false,
-        "Cannot parse JSON schema!");
+    BOOST_REQUIRE_MESSAGE(memorySchemaDocument.Parse(memorySchemaJson).HasParseError() == false,
+                          "Cannot parse JSON schema!");
     rapidjson::SchemaDocument memorySchema(memorySchemaDocument);
     rapidjson::SchemaValidator memoryValidator(memorySchema);
 
