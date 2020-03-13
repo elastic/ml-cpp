@@ -21,6 +21,7 @@
 #include <boost/iterator/counting_iterator.hpp>
 
 #include <cstddef>
+#include <cstdint>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -125,7 +126,7 @@ public:
         const TPointVec& points() const { return m_Points; }
 
         //! Get the cluster checksum.
-        uint64_t checksum() const { return m_Checksum; }
+        std::uint64_t checksum() const { return m_Checksum; }
 
     private:
         //! The centroid of the points in this cluster.
@@ -133,7 +134,7 @@ public:
         //! The points in the cluster.
         TPointVec m_Points;
         //! A checksum for the points in the cluster.
-        uint64_t m_Checksum;
+        std::uint64_t m_Checksum;
     };
 
     using TClusterVec = std::vector<CCluster>;
@@ -183,8 +184,9 @@ public:
         if (m_Centres.empty()) {
             return true;
         }
+        TMeanAccumulatorVec newCentres;
         for (std::size_t i = 0u; i < maxIterations; ++i) {
-            if (!this->updateCentres()) {
+            if (!this->updateCentres(newCentres)) {
                 return true;
             }
         }
@@ -481,19 +483,19 @@ protected:
 
 private:
     //! Single iteration of Lloyd's algorithm to update \p centres.
-    bool updateCentres() {
-        const TCoordinate precision = TCoordinate(5) *
-                                      std::numeric_limits<TCoordinate>::epsilon();
-        TMeanAccumulatorVec newCentres(m_Centres.size(),
-                                       TMeanAccumulator(las::zero(m_Centres[0])));
+    bool updateCentres(TMeanAccumulatorVec& newCentres) {
+        const TCoordinate precision{TCoordinate(5) *
+                                    std::numeric_limits<TCoordinate>::epsilon()};
+        newCentres.assign(m_Centres.size(), TMeanAccumulator(las::zero(m_Centres[0])));
         CCentroidComputer computer(m_Centres, newCentres);
         m_Points.preorderDepthFirst(computer);
         bool changed = false;
+        POINT newCentre;
         for (std::size_t i = 0u; i < newCentres.size(); ++i) {
-            POINT newCentre(CBasicStatistics::mean(newCentres[i]));
+            newCentre = CBasicStatistics::mean(newCentres[i]);
             if (las::distance(m_Centres[i], newCentre) >
                 precision * las::norm(m_Centres[i])) {
-                m_Centres[i] = newCentre;
+                las::swap(m_Centres[i], newCentre);
                 changed = true;
             }
         }

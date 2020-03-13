@@ -13,7 +13,6 @@
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
 #include <maths/CBoostedTreeLoss.h>
-#include <maths/CSolvers.h>
 #include <maths/CTools.h>
 
 #include <test/BoostTestCloseAbsolute.h>
@@ -23,11 +22,13 @@
 #include <boost/make_shared.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <algorithm>
 #include <fstream>
 #include <functional>
 #include <memory>
 #include <streambuf>
 #include <utility>
+#include <vector>
 
 BOOST_AUTO_TEST_SUITE(CBoostedTreeTest)
 
@@ -43,7 +44,6 @@ using TRowRef = core::CDataFrame::TRowRef;
 using TRowItr = core::CDataFrame::TRowItr;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-using TMemoryMappedFloatVector = maths::boosted_tree::CLoss::TMemoryMappedFloatVector;
 
 namespace {
 
@@ -883,259 +883,6 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testLogisticMinimizerEdgeCases) {
-
-    using maths::boosted_tree_detail::CArgMinLogisticImpl;
-
-    // All predictions equal and zero.
-    {
-        CArgMinLogisticImpl argmin{0.0};
-        maths::CFloatStorage storage[]{0.0};
-        TMemoryMappedFloatVector prediction{storage, 1};
-        argmin.add(prediction, 0.0);
-        argmin.add(prediction, 1.0);
-        argmin.add(prediction, 1.0);
-        argmin.add(prediction, 0.0);
-        argmin.nextPass();
-        BOOST_REQUIRE_EQUAL(0.0, argmin.value()[0]);
-    }
-
-    // All predictions are equal.
-    {
-        test::CRandomNumbers rng;
-
-        TDoubleVec labels;
-        TDoubleVec weights;
-        rng.generateUniformSamples(0.0, 1.0, 1000, labels);
-        for (auto& label : labels) {
-            label = std::floor(label + 0.3);
-        }
-        weights.resize(labels.size(), 0.0);
-
-        CArgMinLogisticImpl argmin{0.0};
-        std::size_t numberPasses{0};
-        std::size_t counts[2]{0, 0};
-
-        do {
-            ++numberPasses;
-            for (std::size_t i = 0; i < labels.size(); ++i) {
-                maths::CFloatStorage storage[]{weights[i]};
-                TMemoryMappedFloatVector prediction{storage, 1};
-                argmin.add(prediction, labels[i]);
-                ++counts[static_cast<std::size_t>(labels[i])];
-            }
-        } while (argmin.nextPass());
-
-        double p{static_cast<double>(counts[1]) / 1000.0};
-        double expected{std::log(p / (1.0 - p))};
-        double actual{argmin.value()[0]};
-
-        BOOST_REQUIRE_EQUAL(std::size_t{1}, numberPasses);
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 0.01 * std::fabs(expected));
-    }
-
-    // Test underflow of probabilities.
-    {
-        CArgMinLogisticImpl argmin{0.0};
-
-        TDoubleVec predictions{-500.0, -30.0, -15.0, -400.0};
-        TDoubleVec actuals{1.0, 1.0, 0.0, 1.0};
-        do {
-            for (std::size_t i = 0; i < predictions.size(); ++i) {
-                maths::CFloatStorage storage[]{predictions[i]};
-                TMemoryMappedFloatVector prediction{storage, 1};
-                argmin.add(prediction, actuals[i]);
-            }
-        } while (argmin.nextPass());
-
-        double minimizer{argmin.value()[0]};
-
-        // Check we're at the minimum.
-        maths::boosted_tree::CBinomialLogistic loss;
-        TDoubleVec losses;
-        for (double eps : {-10.0, 0.0, 10.0}) {
-            double lossAtEps{0.0};
-            for (std::size_t i = 0; i < predictions.size(); ++i) {
-                maths::CFloatStorage storage[]{predictions[i] + minimizer + eps};
-                TMemoryMappedFloatVector probe{storage, 1};
-                lossAtEps += loss.value(probe, actuals[i]);
-            }
-            losses.push_back(lossAtEps);
-        }
-        BOOST_TEST_REQUIRE(losses[0] >= losses[1]);
-        BOOST_TEST_REQUIRE(losses[2] >= losses[1]);
-    }
-}
-
-BOOST_AUTO_TEST_CASE(testLogisticMinimizerRandom) {
-
-    // Test that we a good approximation of the additive term for the log-odds
-    // which minimises the cross entropy objective.
-
-    using maths::boosted_tree_detail::CArgMinLogisticImpl;
-
-    test::CRandomNumbers rng;
-
-    TDoubleVec labels;
-    TDoubleVec weights;
-
-    for (auto lambda : {0.0, 10.0}) {
-
-        LOG_DEBUG(<< "lambda = " << lambda);
-
-        // The true objective.
-        auto objective = [&](double weight) {
-            double loss{0.0};
-            for (std::size_t i = 0; i < labels.size(); ++i) {
-                double p{maths::CTools::logisticFunction(weights[i] + weight)};
-                loss -= (1.0 - labels[i]) * maths::CTools::fastLog(1.0 - p) +
-                        labels[i] * maths::CTools::fastLog(p);
-            }
-            return loss + lambda * maths::CTools::pow2(weight);
-        };
-
-        // This loop is fuzzing the predicted log-odds and testing we get consistently
-        // good estimates of the true minimizer.
-        for (std::size_t t = 0; t < 10; ++t) {
-
-            double min{std::numeric_limits<double>::max()};
-            double max{-min};
-
-            rng.generateUniformSamples(0.0, 1.0, 1000, labels);
-            for (auto& label : labels) {
-                label = std::floor(label + 0.5);
-            }
-            weights.clear();
-            for (const auto& label : labels) {
-                TDoubleVec weight;
-                rng.generateNormalSamples(label, 2.0, 1, weight);
-                weights.push_back(weight[0]);
-                min = std::min(min, weight[0]);
-                max = std::max(max, weight[0]);
-            }
-
-            double expected;
-            double objectiveAtExpected;
-            std::size_t maxIterations{20};
-            maths::CSolvers::minimize(-max, -min, objective(-max), objective(-min),
-                                      objective, 1e-3, maxIterations, expected,
-                                      objectiveAtExpected);
-            LOG_DEBUG(<< "expected = " << expected
-                      << " objective at expected = " << objectiveAtExpected);
-
-            CArgMinLogisticImpl argmin{lambda};
-            CArgMinLogisticImpl argminPartition[2]{{lambda}, {lambda}};
-            auto nextPass = [&] {
-                bool done{argmin.nextPass() == false};
-                done &= (argminPartition[0].nextPass() == false);
-                done &= (argminPartition[1].nextPass() == false);
-                return done == false;
-            };
-
-            do {
-                for (std::size_t i = 0; i < labels.size() / 2; ++i) {
-                    maths::CFloatStorage storage[]{weights[i]};
-                    TMemoryMappedFloatVector prediction{storage, 1};
-                    argmin.add(prediction, labels[i]);
-                    argminPartition[0].add(prediction, labels[i]);
-                }
-                for (std::size_t i = labels.size() / 2; i < labels.size(); ++i) {
-                    maths::CFloatStorage storage[]{weights[i]};
-                    TMemoryMappedFloatVector prediction{storage, 1};
-                    argmin.add(prediction, labels[i]);
-                    argminPartition[1].add(prediction, labels[i]);
-                }
-                argminPartition[0].merge(argminPartition[1]);
-                argminPartition[1] = argminPartition[0];
-            } while (nextPass());
-
-            double actual{argmin.value()(0)};
-            double actualPartition{argminPartition[0].value()(0)};
-            LOG_DEBUG(<< "actual = " << actual
-                      << " objective at actual = " << objective(actual));
-
-            // We should be within 1% for the value and 0.001% for the objective
-            // at the value.
-            BOOST_REQUIRE_EQUAL(actual, actualPartition);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, actual, 0.01 * std::fabs(expected));
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(objectiveAtExpected, objective(actual),
-                                         1e-5 * objectiveAtExpected);
-        }
-    }
-}
-
-BOOST_AUTO_TEST_CASE(testLogisticLossForUnderflow) {
-
-    // Test the behaviour of value, gradient and curvature of the logistic loss in
-    // the vicinity the point at which we switch to using Taylor expansion of the
-    // logistic function is as expected.
-
-    double eps{100.0 * std::numeric_limits<double>::epsilon()};
-
-    maths::boosted_tree::CBinomialLogistic loss;
-
-    // Losses should be very nearly linear function of log-odds when they're large.
-    {
-        maths::CFloatStorage predictions[]{1.0 - std::log(eps), 1.0 + std::log(eps)};
-        TMemoryMappedFloatVector prediction0{&predictions[0], 1};
-        TMemoryMappedFloatVector prediction1{&predictions[1], 1};
-        TDoubleVec lastLoss{loss.value(prediction0, 0.0), loss.value(prediction1, 1.0)};
-        for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
-            predictions[0] = scale - std::log(eps);
-            predictions[1] = scale + std::log(eps);
-            TDoubleVec currentLoss{loss.value(prediction0, 0.0),
-                                   loss.value(prediction1, 1.0)};
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(0.25, lastLoss[0] - currentLoss[0], 0.005);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(-0.25, lastLoss[1] - currentLoss[1], 0.005);
-            lastLoss = currentLoss;
-        }
-    }
-
-    // The gradient and curvature should be proportional to the exponential of the
-    // log-odds when they're small.
-    {
-        auto readDerivatives = [&](double prediction, TDoubleVec& gradients,
-                                   TDoubleVec& curvatures) {
-            maths::CFloatStorage predictions[]{prediction + std::log(eps),
-                                               prediction - std::log(eps)};
-            TMemoryMappedFloatVector prediction0{&predictions[0], 1};
-            TMemoryMappedFloatVector prediction1{&predictions[1], 1};
-            loss.gradient(prediction0, 0.0, [&](std::size_t, double value) {
-                gradients[0] = value;
-            });
-            loss.gradient(prediction1, 1.0, [&](std::size_t, double value) {
-                gradients[1] = value;
-            });
-            loss.curvature(prediction0, 0.0, [&](std::size_t, double value) {
-                curvatures[0] = value;
-            });
-            loss.curvature(prediction1, 1.0, [&](std::size_t, double value) {
-                curvatures[1] = value;
-            });
-        };
-
-        TDoubleVec lastGradient(2);
-        TDoubleVec lastCurvature(2);
-        readDerivatives(1.0, lastGradient, lastCurvature);
-
-        for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
-            TDoubleVec currentGradient(2);
-            TDoubleVec currentCurvature(2);
-            readDerivatives(scale, currentGradient, currentCurvature);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(0.25),
-                                         lastGradient[0] / currentGradient[0], 0.01);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(std::exp(-0.25),
-                                         lastGradient[1] / currentGradient[1], 0.01);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                std::exp(0.25), lastCurvature[0] / currentCurvature[0], 0.01);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                std::exp(-0.25), lastCurvature[1] / currentCurvature[1], 0.01);
-            lastGradient = currentGradient;
-            lastCurvature = currentCurvature;
-        }
-    }
-}
-
 BOOST_AUTO_TEST_CASE(testLogisticRegression) {
 
     // The idea of this test is to create a random linear relationship between
@@ -1189,9 +936,10 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
         fillDataFrame(trainRows, rows - trainRows, cols, {false, false, false, true},
                       x, TDoubleVec(rows, 0.0), target, *frame);
 
-        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                              1, std::make_unique<maths::boosted_tree::CBinomialLogistic>())
-                              .buildFor(*frame, cols - 1);
+        auto regression =
+            maths::CBoostedTreeFactory::constructFromParameters(
+                1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
+                .buildFor(*frame, cols - 1);
 
         regression->train();
         regression->predict();
@@ -1261,7 +1009,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
     frame->finishWritingRows();
 
     auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CBinomialLogistic>())
+                          1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
                           .buildFor(*frame, cols - 1);
 
     regression->train();

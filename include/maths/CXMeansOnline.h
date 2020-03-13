@@ -391,7 +391,7 @@ public:
                 TKMeansOnline::kmeans(rng, node, 2, candidate);
                 LOG_TRACE(<< "candidate = " << core::CContainerPrinter::print(candidate));
 
-                if (candidate.size() != 2) {
+                if (candidate.size() > 2) {
                     LOG_ERROR(<< "Expected 2-split: "
                               << core::CContainerPrinter::print(candidate));
                     break;

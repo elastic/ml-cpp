@@ -48,9 +48,6 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(SOFT_TREE_DEPTH_TOLERANCE,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(MAX_TREES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        // TODO remove MAXIMUM_NUMBER_TREES
-        theReader.addParameter(MAXIMUM_NUMBER_TREES,
-                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(FEATURE_BAG_FRACTION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(NUMBER_FOLDS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
@@ -81,8 +78,6 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     std::size_t downsampleRowsPerFeature{
         parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
 
-    std::size_t maximumNumberTrees{
-        parameters[MAXIMUM_NUMBER_TREES].fallback(std::size_t{0})};
     std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
     std::size_t numberFolds{parameters[NUMBER_FOLDS].fallback(std::size_t{0})};
     std::size_t numberRoundsPerHyperparameter{
@@ -154,11 +149,6 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     }
     if (softTreeDepthTolerance > 0.0) {
         m_BoostedTreeFactory->softTreeDepthTolerance(softTreeDepthTolerance);
-    }
-    // This is deprecated in favour of max_trees
-    // TODO Will be removed after java side is changed to pass max_trees
-    if (maximumNumberTrees > 0) {
-        m_BoostedTreeFactory->maximumNumberTrees(maximumNumberTrees);
     }
     if (maxTrees > 0) {
         m_BoostedTreeFactory->maximumNumberTrees(maxTrees);
@@ -315,7 +305,6 @@ const std::string CDataFrameTrainBoostedTreeRunner::ETA{"eta"};
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT{"soft_tree_depth_limit"};
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE{"soft_tree_depth_tolerance"};
 const std::string CDataFrameTrainBoostedTreeRunner::MAX_TREES{"max_trees"};
-const std::string CDataFrameTrainBoostedTreeRunner::MAXIMUM_NUMBER_TREES{"maximum_number_trees"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION{"feature_bag_fraction"};
 const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_FOLDS{"number_folds"};
 const std::string CDataFrameTrainBoostedTreeRunner::STOP_CROSS_VALIDATION_EARLY{"stop_cross_validation_early"};

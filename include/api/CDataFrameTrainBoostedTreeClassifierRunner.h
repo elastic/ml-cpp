@@ -29,6 +29,7 @@ public:
     };
 
 public:
+    static const std::string NUM_CLASSES;
     static const std::string NUM_TOP_CLASSES;
     static const std::string PREDICTION_FIELD_TYPE;
     static const std::string CLASS_ASSIGNMENT_OBJECTIVE;

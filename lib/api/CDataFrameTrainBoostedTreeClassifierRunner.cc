@@ -53,6 +53,11 @@ const CDataFrameAnalysisConfigReader&
 CDataFrameTrainBoostedTreeClassifierRunner::parameterReader() {
     static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
         auto theReader = CDataFrameTrainBoostedTreeRunner::parameterReader();
+
+        // This is added as optional at the moment and is not used to
+        // allow java to supply it without breaking.
+        theReader.addParameter(NUM_CLASSES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+
         theReader.addParameter(NUM_TOP_CLASSES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         const std::string typeString{"string"};
         const std::string typeInt{"int"};
@@ -77,7 +82,8 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters)
     : CDataFrameTrainBoostedTreeRunner{
-          spec, parameters, std::make_unique<maths::boosted_tree::CBinomialLogistic>()} {
+          spec, parameters,
+          std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>()} {
 
     m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::size_t{0});
     m_PredictionFieldType =
@@ -233,6 +239,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelDefinition(
 }
 
 // clang-format off
+const std::string CDataFrameTrainBoostedTreeClassifierRunner::NUM_CLASSES{"num_classes"};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES{"num_top_classes"};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::PREDICTION_FIELD_TYPE{"prediction_field_type"};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::CLASS_ASSIGNMENT_OBJECTIVE{"class_assignment_objective"};
