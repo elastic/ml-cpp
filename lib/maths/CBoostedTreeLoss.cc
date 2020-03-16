@@ -29,7 +29,7 @@ double logOneMinusLogistic(double logOdds) {
     if (logOdds > -LOG_EPSILON) {
         return -logOdds;
     }
-    return CTools::fastLog(1.0 - CTools::logisticFunction(logOdds));
+    return std::log(1.0 - CTools::logisticFunction(logOdds));
 }
 
 double logLogistic(double logOdds) {
@@ -37,7 +37,7 @@ double logLogistic(double logOdds) {
     if (logOdds < LOG_EPSILON) {
         return logOdds;
     }
-    return CTools::fastLog(CTools::logisticFunction(logOdds));
+    return std::log(CTools::logisticFunction(logOdds));
 }
 
 template<typename T>
@@ -609,7 +609,7 @@ double CMultinomialLogisticLoss::value(const TMemoryMappedFloatVector& predictio
     for (int i = 0; i < predictions.size(); ++i) {
         logZ += std::exp(predictions(i) - zmax);
     }
-    logZ = zmax + CTools::fastLog(logZ);
+    logZ = zmax + std::log(logZ);
 
     // i.e. -log(z(actual))
     return weight * (logZ - predictions(static_cast<std::size_t>(actual)));
@@ -623,18 +623,29 @@ void CMultinomialLogisticLoss::gradient(const TMemoryMappedFloatVector& predicti
     // We prefer an implementation which avoids any memory allocations.
 
     double zmax{predictions.maxCoeff()};
+    double eps{0.0};
     double logZ{0.0};
     for (int i = 0; i < predictions.size(); ++i) {
-        logZ += std::exp(predictions(i) - zmax);
+        if (predictions(i) - zmax < LOG_EPSILON) {
+            // Sum the contributions from classes whose predicted probability
+            // is less than epsilon, for which we'd lose all nearly precision
+            // when adding to the normalisation coefficient.
+            eps += std::exp(predictions(i) - zmax);
+        } else {
+            logZ += std::exp(predictions(i) - zmax);
+        }
     }
-    logZ = zmax + CTools::fastLog(logZ);
+    logZ = zmax + std::log(logZ);
 
     for (int i = 0; i < predictions.size(); ++i) {
         if (i == static_cast<int>(actual)) {
-            if (predictions(i) - logZ > -LOG_EPSILON) {
-                writer(i, -weight * std::exp(-(predictions(i) - logZ)));
+            double probability{std::exp(predictions(i) - logZ)};
+            if (probability == 1.0) {
+                // We have that p = 1 / (1 + eps) and the gradient is p - 1.
+                // Use a Taylor expansion and drop terms of O(eps^2) to get:
+                writer(i, -weight * eps);
             } else {
-                writer(i, weight * (std::exp(predictions(i) - logZ) - 1.0));
+                writer(i, weight * (probability - 1.0));
             }
         } else {
             writer(i, weight * std::exp(predictions(i) - logZ));
@@ -652,23 +663,33 @@ void CMultinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& predict
     // We prefer an implementation which avoids any memory allocations.
 
     double zmax{predictions.maxCoeff()};
+    double eps{0.0};
     double logZ{0.0};
     for (int i = 0; i < predictions.size(); ++i) {
-        logZ += std::exp(predictions(i) - zmax);
+        if (predictions(i) - zmax < LOG_EPSILON) {
+            // Sum the contributions from classes whose predicted probability
+            // is less than epsilon, for which we'd lose all nearly precision
+            // when adding to the normalisation coefficient.
+            eps += std::exp(predictions(i) - zmax);
+        } else {
+            logZ += std::exp(predictions(i) - zmax);
+        }
     }
-    logZ = zmax + CTools::fastLog(logZ);
+    logZ = zmax + std::log(logZ);
 
     for (std::size_t i = 0, k = 0; i < m_NumberClasses; ++i) {
-        if (predictions(i) - logZ > -LOG_EPSILON) {
-            writer(i, weight * std::exp(-(predictions(i) - logZ)));
+        double probability{std::exp(predictions(i) - logZ)};
+        if (probability == 1.0) {
+            // We have that p = 1 / (1 + eps) and the curvature is p (1 - p).
+            // Use a Taylor expansion and drop terms of O(eps^2) to get:
+            writer(k++, weight * eps);
         } else {
-            double probability{std::exp(predictions(i) - logZ)};
-            writer(i, weight * weight * probability * (1.0 - probability));
+            writer(k++, weight * probability * (1.0 - probability));
         }
-        for (std::size_t j = i + 1; j < m_NumberClasses; ++j, ++k) {
+        for (std::size_t j = i + 1; j < m_NumberClasses; ++j) {
             double probabilities[]{std::exp(predictions(i) - logZ),
                                    std::exp(predictions(j) - logZ)};
-            writer(k, -weight * probabilities[0] * probabilities[1]);
+            writer(k++, -weight * probabilities[0] * probabilities[1]);
         }
     }
 }
