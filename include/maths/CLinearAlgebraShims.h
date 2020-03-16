@@ -7,8 +7,6 @@
 #ifndef INCLUDED_ml_maths_CLinearAlgebraShims_h
 #define INCLUDED_ml_maths_CLinearAlgebraShims_h
 
-#include <maths/CLinearAlgebra.h>
-#include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraFwd.h>
 #include <maths/CTypeTraits.h>
 
@@ -19,32 +17,6 @@
 namespace ml {
 namespace maths {
 namespace las {
-
-//! Swap two vectors or matrices efficiently.
-template<typename T>
-void swap(T& lhs, T& rhs) {
-    lhs.swap(rhs);
-}
-
-//! Swap two stack vectors.
-template<typename T, std::size_t N>
-void swap(CVectorNx1<T, N>& lhs, CVectorNx1<T, N>& rhs) {
-    std::swap(lhs, rhs);
-}
-
-//! Swap two annotated vectors and their annotations.
-template<typename VECTOR, typename ANNOTATION>
-void swap(CAnnotatedVector<VECTOR, ANNOTATION>& lhs,
-          CAnnotatedVector<VECTOR, ANNOTATION>& rhs) {
-    swap(static_cast<VECTOR&>(lhs), static_cast<VECTOR&>(rhs));
-    std::swap(lhs.annotation(), rhs.annotation());
-}
-
-//! Swap two stack matrices.
-template<typename T, std::size_t N>
-void swap(CSymmetricMatrixNxN<T, N>& lhs, CSymmetricMatrixNxN<T, N>& rhs) {
-    std::swap(lhs, rhs);
-}
 
 //! Get the dimension of one of our internal vectors.
 template<typename VECTOR>

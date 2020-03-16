@@ -217,6 +217,12 @@ public:
     }
 };
 
+//! Free efficient efficient swap for ADLU.
+template<typename SCALAR>
+void swap(CDenseMatrix<SCALAR>& lhs, CDenseMatrix<SCALAR>& rhs) {
+    lhs.swap(rhs);
+}
+
 //! \brief Gets a constant dense square matrix with specified dimension or with
 //! specified numbers of rows and columns.
 template<typename SCALAR>
@@ -311,6 +317,12 @@ public:
 template<typename SCALAR>
 const std::string CDenseVector<SCALAR>::DENSE_VECTOR_TAG{"dense_vector"};
 
+//! Free efficient efficient swap for ADLU.
+template<typename SCALAR>
+void swap(CDenseVector<SCALAR>& lhs, CDenseVector<SCALAR>& rhs) {
+    lhs.swap(rhs);
+}
+
 //! \brief Gets a constant dense vector with specified dimension.
 template<typename SCALAR>
 struct SConstant<CDenseVector<SCALAR>> {
@@ -391,6 +403,12 @@ private:
         new (base) TBase{const_cast<SCALAR*>(other.data()), other.rows(), other.cols()};
     }
 };
+
+//! Free efficient efficient swap for ADLU.
+template<typename SCALAR>
+void swap(CMemoryMappedDenseMatrix<SCALAR>& lhs, CMemoryMappedDenseMatrix<SCALAR>& rhs) {
+    lhs.swap(rhs);
+}
 
 //! \brief Gets a constant square dense matrix with specified dimension or with
 //! specified numbers of rows and columns.
@@ -504,6 +522,12 @@ private:
         new (base) TBase{const_cast<SCALAR*>(other.data()), other.size()};
     }
 };
+
+//! Free efficient efficient swap for ADLU.
+template<typename SCALAR>
+void swap(CMemoryMappedDenseVector<SCALAR>& lhs, CMemoryMappedDenseVector<SCALAR>& rhs) {
+    lhs.swap(rhs);
+}
 
 //! \brief Gets a constant dense vector with specified dimension.
 template<typename SCALAR>
