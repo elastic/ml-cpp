@@ -62,7 +62,8 @@ the build from version 2.20 to 2.34.  (See {ml-pull}1013[#1013].)
 * Remove all memory overheads for computing tree SHAP values. (See {ml-pull}1023[#1023].)
 * Distinguish between empty and missing categorical fields in classification and regression
 model training. (See {ml-pull}1034[#1034].)
-
+* Adds new `num_matches` and `preferred_to_categories` fields to category output.
+(See {ml-pull}1062[#1062])
 === Bug Fixes
 
 * Use largest ordered subset of categorization tokens for category reverse search regex.

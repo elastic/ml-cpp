@@ -168,7 +168,9 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
     if (exampleAdded || searchTermsChanged) {
         m_JsonOutputWriter.writeCategoryDefinition(
             categoryId, m_SearchTerms, m_SearchTermsRegex, m_MaxMatchingLength,
-            m_DataCategorizer->examplesCollector().examples(categoryId));
+            m_DataCategorizer->examplesCollector().examples(categoryId), 
+            m_DataCategorizer->numMatches(categoryId),
+            m_DataCategorizer->usurpedCategories(categoryId));
         if (categoryId % 10 == 0) {
             // Even if memory limiting is disabled, force a refresh occasionally
             // so the user has some idea what's going on with memory.

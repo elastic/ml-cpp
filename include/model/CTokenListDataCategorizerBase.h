@@ -176,6 +176,10 @@ public:
                                   std::size_t rareCategories,
                                   std::size_t deadCategories);
 
+    std::size_t numMatches(int categoryId) override;
+
+    CDataCategorizer::TIntVec usurpedCategories(int categoryId) override;
+
 protected:
     //! Split the string into a list of tokens.  The result of the
     //! tokenisation is returned in \p tokenIds, \p tokenUniqueIds and
