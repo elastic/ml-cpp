@@ -97,6 +97,12 @@ CDataFrameAnalysisSpecificationFactory::predictionBayesianOptimisationRestarts(s
 }
 
 CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionFieldName(const std::string& name) {
+    m_PredictionFieldName = name;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::predictionCategoricalFieldNames(const TStrVec& categorical) {
     m_CategoricalFieldNames = categorical;
     return *this;
@@ -169,12 +175,19 @@ CDataFrameAnalysisSpecificationFactory::predictionRestoreSearcherSupplier(
     return *this;
 }
 
-CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
-CDataFrameAnalysisSpecificationFactory::outlierSpec() const {
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::numberClasses(std::size_t number) {
+    m_NumberClasses = number;
+    return *this;
+}
 
-    std::size_t rows{m_Rows ? *m_Rows : 110};
-    std::size_t columns{m_Columns ? *m_Columns : 5};
-    std::size_t memoryLimit{m_MemoryLimit ? *m_MemoryLimit : 100000};
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionFieldType(const std::string& type) {
+    m_PredictionFieldType = type;
+    return *this;
+}
+
+std::string CDataFrameAnalysisSpecificationFactory::outlierParams() const {
 
     rapidjson::StringBuffer parameters;
     TRapidJsonLineWriter writer;
@@ -199,23 +212,29 @@ CDataFrameAnalysisSpecificationFactory::outlierSpec() const {
     writer.EndObject();
     writer.Flush();
 
+    return parameters.GetString();
+}
+
+CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
+CDataFrameAnalysisSpecificationFactory::outlierSpec() const {
+
+    std::size_t rows{m_Rows ? *m_Rows : 110};
+    std::size_t columns{m_Columns ? *m_Columns : 5};
+    std::size_t memoryLimit{m_MemoryLimit ? *m_MemoryLimit : 100000};
+
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
         "testJob", rows, columns, memoryLimit, 1, m_MissingString, {},
         m_DiskUsageAllowed, CTestTmpDir::tmpDir(), "ml",
-        api::CDataFrameOutliersRunnerFactory::NAME, parameters.GetString())};
+        api::CDataFrameOutliersRunnerFactory::NAME, this->outlierParams())};
 
     LOG_TRACE(<< "spec =\n" << spec);
 
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
 
-CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
-CDataFrameAnalysisSpecificationFactory::predictionSpec(const std::string& analysis,
-                                                       const std::string& dependentVariable) const {
-
-    std::size_t rows{m_Rows ? *m_Rows : 100};
-    std::size_t columns{m_Columns ? *m_Columns : 5};
-    std::size_t memoryLimit{m_MemoryLimit ? *m_MemoryLimit : 7000000};
+std::string
+CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& analysis,
+                                                         const std::string& dependentVariable) const {
 
     rapidjson::StringBuffer parameters;
     TRapidJsonLineWriter writer;
@@ -268,15 +287,37 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(const std::string& analys
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::NUM_TOP_FEATURE_IMPORTANCE_VALUES);
         writer.Uint64(m_NumberTopShapValues);
     }
+    if (m_PredictionFieldName.empty() == false) {
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::PREDICTION_FIELD_NAME);
+        writer.String(m_PredictionFieldName);
+    }
+    if (m_PredictionFieldType.empty() == false) {
+        writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::PREDICTION_FIELD_TYPE);
+        writer.String(m_PredictionFieldType);
+    }
     if (analysis == classification()) {
+        writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::NUM_CLASSES);
+        writer.Uint64(m_NumberClasses);
         writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES);
         writer.Uint64(1);
     }
     writer.EndObject();
 
+    return parameters.GetString();
+}
+
+CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
+CDataFrameAnalysisSpecificationFactory::predictionSpec(const std::string& analysis,
+                                                       const std::string& dependentVariable) const {
+
+    std::size_t rows{m_Rows ? *m_Rows : 100};
+    std::size_t columns{m_Columns ? *m_Columns : 5};
+    std::size_t memoryLimit{m_MemoryLimit ? *m_MemoryLimit : 7000000};
+
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", rows, columns, memoryLimit, 1, m_MissingString, m_CategoricalFieldNames,
-        true, CTestTmpDir::tmpDir(), "ml", analysis, parameters.GetString())};
+        "testJob", rows, columns, memoryLimit, 1, m_MissingString,
+        m_CategoricalFieldNames, true, CTestTmpDir::tmpDir(), "ml", analysis,
+        this->predictionParams(analysis, dependentVariable))};
 
     LOG_TRACE(<< "spec =\n" << spec);
 

@@ -133,7 +133,7 @@ public:
     //! Get the labels to use for each class.
     virtual const TOptionalStringVec& classificationLabels() const;
     //! Set weights by which to multiply classes when doing label assignment.
-    virtual void classificationWeights(const TDoubleVec& classificationWeights);
+    virtual void classificationWeights(TDoubleVec classificationWeights);
     //! Get weights by which to multiply classes when doing label assignment.
     virtual const TOptionalDoubleVec& classificationWeights() const;
 
@@ -218,7 +218,7 @@ public:
     //! Set the labels to use for each class.
     void classificationLabels(const TStringVec& classificationLabels) override;
     //! Set weights by which to multiply classes when doing label assignment.
-    void classificationWeights(const TDoubleVec& classificationWeights) override;
+    void classificationWeights(TDoubleVec classificationWeights) override;
     using CTrainedModel::classificationLabels;
     using CTrainedModel::classificationWeights;
     using CTrainedModel::targetType;

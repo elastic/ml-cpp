@@ -76,7 +76,7 @@ public:
     CRegressionInferenceModelBuilder(const TStrVec& fieldNames,
                                      std::size_t dependentVariableColumnIndex,
                                      const TStrVecVec& categoryNames);
-    void addProbabilityAtWhichToAssignClassOne(double probability) override;
+    void addClassificationWeights(TDoubleVec weights) override;
 
 private:
     void setTargetType() override;
@@ -90,7 +90,7 @@ public:
                                          std::size_t dependentVariableColumnIndex,
                                          const TStrVecVec& categoryNames);
     ~CClassificationInferenceModelBuilder() override = default;
-    void addProbabilityAtWhichToAssignClassOne(double probability) override;
+    void addClassificationWeights(TDoubleVec weights) override;
 
 private:
     void setTargetType() override;
