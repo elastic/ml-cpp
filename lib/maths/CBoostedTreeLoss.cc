@@ -475,6 +475,10 @@ std::unique_ptr<CLoss> CMse::clone() const {
     return std::make_unique<CMse>(*this);
 }
 
+CMse::EType CMse::type() const {
+    return E_Regression;
+}
+
 std::size_t CMse::numberParameters() const {
     return 1;
 }
@@ -519,6 +523,10 @@ std::unique_ptr<CLoss> CBinomialLogisticLoss::clone() const {
     return std::make_unique<CBinomialLogisticLoss>(*this);
 }
 
+CBinomialLogisticLoss::EType CBinomialLogisticLoss::type() const {
+    return E_BinaryClassification;
+}
+
 std::size_t CBinomialLogisticLoss::numberParameters() const {
     return 1;
 }
@@ -559,8 +567,10 @@ bool CBinomialLogisticLoss::isCurvatureConstant() const {
 
 CBinomialLogisticLoss::TDoubleVector
 CBinomialLogisticLoss::transform(const TMemoryMappedFloatVector& prediction) const {
-    TDoubleVector result{prediction};
-    result(0) = CTools::logisticFunction(result(0));
+    double p1{CTools::logisticFunction(prediction(0))};
+    TDoubleVector result{2};
+    result(0) = 1.0 - p1;
+    result(1) = p1;
     return result;
 }
 
@@ -581,6 +591,10 @@ CMultinomialLogisticLoss::CMultinomialLogisticLoss(std::size_t numberClasses)
 
 std::unique_ptr<CLoss> CMultinomialLogisticLoss::clone() const {
     return std::make_unique<CMultinomialLogisticLoss>(m_NumberClasses);
+}
+
+CMultinomialLogisticLoss::EType CMultinomialLogisticLoss::type() const {
+    return E_MulticlassClassification;
 }
 
 std::size_t CMultinomialLogisticLoss::numberParameters() const {

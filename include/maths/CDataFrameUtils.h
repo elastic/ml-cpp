@@ -67,7 +67,9 @@ public:
     using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
     using TSizeDoublePrVecVecVec = std::vector<TSizeDoublePrVecVec>;
     using TRowRef = core::CDataFrame::TRowRef;
-    using TWeightFunction = std::function<double(const TRowRef&)>;
+    using TWeightFunc = std::function<double(const TRowRef&)>;
+    using TDoubleVector = CDenseVector<double>;
+    using TReadPredictionFunc = std::function<TDoubleVector(const TRowRef)>;
     using TQuantileSketchVec = std::vector<CQuantileSketch>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
@@ -253,7 +255,7 @@ public:
                     const TSizeVec& columnMask,
                     CQuantileSketch quantileEstimator,
                     const CDataFrameCategoryEncoder* encoder = nullptr,
-                    TWeightFunction weight = unitWeight);
+                    const TWeightFunc& weight = unitWeight);
 
     //! \brief Compute disjoint stratified random train/test row masks suitable
     //! for cross-validation.
@@ -356,20 +358,23 @@ public:
                                           const core::CPackedBitVector& rowMask,
                                           TSizeVec columnMask);
 
-    //! Compute the decision threshold to apply to the predicted probability a row
-    //! is class one which maximizes the minimum per class recall.
+    //! Compute the multiplicative weights to apply to each class probability such
+    //! that choosing the maximum "weighted" probability class for each example
+    //! maximizes the minimum per class recall.
     //!
     //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute the threshold.
     //! \param[in] rowMask A mask of the rows from which to compute the threshold.
+    //! \param[in] numberClasses The number of possible classes.
     //! \param[in] targetColumn The index of the column to predict.
-    //! \param[in] predictionColumn The index of the column containing the prediction.
-    static double
-    maximumMinimumRecallDecisionThreshold(std::size_t numberThreads,
-                                          const core::CDataFrame& frame,
-                                          const core::CPackedBitVector& rowMask,
-                                          std::size_t targetColumn,
-                                          std::size_t predictionColumn);
+    //! \param[in] readPrediction Callback to read the prediction from a row.
+    static TDoubleVector
+    maximumMinimumRecallClassWeights(std::size_t numberThreads,
+                                     const core::CDataFrame& frame,
+                                     const core::CPackedBitVector& rowMask,
+                                     std::size_t numberClasses,
+                                     std::size_t targetColumn,
+                                     const TReadPredictionFunc& readPrediction);
 
     //! Check if a data frame value is missing.
     static bool isMissing(double value);
