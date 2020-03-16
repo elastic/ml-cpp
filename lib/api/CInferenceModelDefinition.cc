@@ -220,11 +220,11 @@ void CEnsemble::classificationLabels(const TStringVec& classificationLabels) {
     }
 }
 
-void CEnsemble::classificationWeights(const TDoubleVec& classificationWeights) {
-    this->CTrainedModel::classificationWeights(classificationWeights);
+void CEnsemble::classificationWeights(TDoubleVec classificationWeights) {
     for (auto& trainedModel : m_TrainedModels) {
         trainedModel->classificationWeights(classificationWeights);
     }
+    this->CTrainedModel::classificationWeights(std::move(classificationWeights));
 }
 
 void CTree::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const {
@@ -368,8 +368,8 @@ const CTrainedModel::TOptionalDoubleVec& CTrainedModel::classificationWeights() 
     return m_ClassificationWeights;
 }
 
-void CTrainedModel::classificationWeights(const TDoubleVec& classificationWeights) {
-    m_ClassificationWeights = classificationWeights;
+void CTrainedModel::classificationWeights(TDoubleVec classificationWeights) {
+    m_ClassificationWeights = std::move(classificationWeights);
 }
 
 void CInferenceModelDefinition::fieldNames(TStringVec&& fieldNames) {

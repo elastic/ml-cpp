@@ -185,21 +185,20 @@ TDataFrameUPtr setupBinaryClassificationData(const TStrVec& fieldNames,
     return frame;
 }
 
-enum EPredictionType { E_Regression, E_BinaryClassification };
+enum EPredictionType {
+    E_Regression,
+    E_BinaryClassification,
+    E_MulticlassClassification
+};
 
-void appendPrediction(core::CDataFrame&, std::size_t, double prediction, double, TDoubleVec& predictions) {
+void appendPrediction(core::CDataFrame&, std::size_t, double prediction, TDoubleVec& predictions) {
     predictions.push_back(prediction);
 }
 
-void appendPrediction(core::CDataFrame& frame,
-                      std::size_t columnHoldingPrediction,
-                      double logOddsClass1,
-                      double threshold,
-                      TStrVec& predictions) {
-    predictions.push_back(
-        maths::CTools::logisticFunction(logOddsClass1) < threshold
-            ? frame.categoricalColumnValues()[columnHoldingPrediction][0]
-            : frame.categoricalColumnValues()[columnHoldingPrediction][1]);
+void appendPrediction(core::CDataFrame& frame, std::size_t target, double class1Score, TStrVec& predictions) {
+    predictions.push_back(class1Score < 0.5
+                              ? frame.categoricalColumnValues()[target][0]
+                              : frame.categoricalColumnValues()[target][1]);
 }
 
 template<typename T>
@@ -226,11 +225,19 @@ void addPredictionTestData(EPredictionType type,
     rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, regressors);
 
     TStrVec targets;
-    auto frame = type == E_Regression
-                     ? setupLinearRegressionData(fieldNames, fieldValues, analyzer,
-                                                 weights, regressors, targets)
-                     : setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
-                                                     weights, regressors, targets);
+    auto frame = [&] {
+        switch (type) {
+        case E_Regression:
+            return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
+                                             weights, regressors, targets);
+        case E_BinaryClassification:
+            return setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
+                                                 weights, regressors, targets);
+        case E_MulticlassClassification:
+            // TODO
+            return TDataFrameUPtr{};
+        }
+    }();
 
     std::unique_ptr<maths::boosted_tree::CLoss> loss;
     if (type == E_Regression) {
@@ -276,9 +283,18 @@ void addPredictionTestData(EPredictionType type,
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            double prediction{(*row)[tree->columnHoldingPrediction()]};
-            appendPrediction(*frame, weights.size(), prediction,
-                             tree->probabilityAtWhichToAssignClassOne(), expectedPredictions);
+            auto prediction = tree->readAndAdjustPrediction(*row);
+            switch (type) {
+            case E_Regression:
+                appendPrediction(*frame, weights.size(), prediction[0], expectedPredictions);
+                break;
+            case E_BinaryClassification:
+                appendPrediction(*frame, weights.size(), prediction[1], expectedPredictions);
+                break;
+            case E_MulticlassClassification:
+                // TODO.
+                break;
+            }
         }
     });
 }

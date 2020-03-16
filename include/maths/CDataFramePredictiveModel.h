@@ -7,6 +7,8 @@
 #ifndef INCLUDED_ml_maths_CDataFramePredictiveModel_h
 #define INCLUDED_ml_maths_CDataFramePredictiveModel_h
 
+#include <core/CDataFrame.h>
+#include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 
 #include <maths/ImportExport.h>
@@ -30,8 +32,10 @@ class CTreeShapFeatureImportance;
 class MATHS_EXPORT CDataFramePredictiveModel {
 public:
     using TDoubleVec = std::vector<double>;
+    using TDouble2Vec = core::CSmallVector<double, 2>;
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
     using TTrainingStateCallback = std::function<void(TPersistFunc)>;
+    using TRowRef = core::CDataFrame::TRowRef;
 
     //! The objective for the classification decision (given predicted class probabilities).
     enum EClassAssignmentObjective {
@@ -59,11 +63,11 @@ public:
     //! Get the column containing the dependent variable.
     virtual std::size_t columnHoldingDependentVariable() const = 0;
 
-    //! Get the column containing the model's prediction for the dependent variable.
-    virtual std::size_t columnHoldingPrediction() const = 0;
+    //! Read the prediction out of \p row.
+    virtual TDouble2Vec readPrediction(const TRowRef& row) const = 0;
 
-    //! Get the probability threshold at which to classify a row as class one.
-    virtual double probabilityAtWhichToAssignClassOne() const = 0;
+    //! Read the raw model prediction from \p row and make posthoc adjustments.
+    virtual TDouble2Vec readAndAdjustPrediction(const TRowRef& row) const = 0;
 
     //! \name Test Only
     //@{
