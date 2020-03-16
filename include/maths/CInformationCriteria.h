@@ -201,12 +201,8 @@ public:
 
 public:
     CGaussianInfoCriterion() = default;
-    explicit CGaussianInfoCriterion(const TPointVecVec& x) {
-        this->add(x);
-    }
-    explicit CGaussianInfoCriterion(const TPointVec& x) {
-        this->add(x);
-    }
+    explicit CGaussianInfoCriterion(const TPointVecVec& x) { this->add(x); }
+    explicit CGaussianInfoCriterion(const TPointVec& x) { this->add(x); }
 
     //! Update the sufficient statistics for computing info content.
     void add(const TPointVecVec& x) {
