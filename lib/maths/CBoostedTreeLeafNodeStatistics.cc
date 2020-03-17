@@ -321,14 +321,14 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
             for (std::size_t i = 0; i < 2; ++i) {
                 Eigen::LLT<Eigen::Ref<Eigen::MatrixXd>> llt{hessian};
                 hessianInvg = llt.solve(g);
-                if ((hessian_ * hessianInvg - g).norm() > 1e-2 * g.norm()) {
+                if ((hessian_ * hessianInvg - g).norm() < 1e-2 * g.norm()) {
+                    return g.transpose() * hessianInvg;
+                } else {
                     hessian_.diagonal().array() += eps;
                     hessian = hessian_;
-                } else {
-                    return g.transpose() * hessianInvg;
                 }
             }
-            return -INF; // We couldn't invert the Hessian: discard this split.
+            return -INF / 2.0; // We couldn't invert the Hessian: discard this split.
         };
     }
 
