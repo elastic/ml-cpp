@@ -110,12 +110,12 @@ void CDataFrameAnalysisInstrumentation::nextStep(const std::string& /* phase */)
 void CDataFrameAnalysisInstrumentation::writeState() {
     std::int64_t timestamp{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
     if (m_Writer != nullptr) {
-        m_Writer->StartObject();
-        m_Writer->Key(MEMORY_TYPE_TAG);
-        this->writeMemory(timestamp);
-        m_Writer->Key(ANALYSIS_TYPE_TAG);
-        this->writeAnalysisStats(timestamp);
-        m_Writer->EndObject();
+        // m_Writer->StartObject();
+        // m_Writer->Key(MEMORY_TYPE_TAG);
+        // this->writeMemory(timestamp);
+        // m_Writer->Key(ANALYSIS_TYPE_TAG);
+        // this->writeAnalysisStats(timestamp);
+        // m_Writer->EndObject();
     }
 }
 
