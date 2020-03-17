@@ -12,6 +12,7 @@
 #include <core/CMemory.h>
 #include <core/CSmallVector.h>
 
+#include <maths/CLinearAlgebraShims.h>
 #include <maths/CTypeTraits.h>
 #include <maths/ImportExport.h>
 
@@ -246,14 +247,15 @@ public:
                 T r{x - s_Moments[0]};
                 T r2{r * r};
                 T dMean{mean - s_Moments[0]};
-                T dMean2{dMean * dMean};
+                T dMean2{las::componentwise(dMean) * las::componentwise(dMean)};
                 T variance{s_Moments[1]};
 
                 s_Moments[1] = beta * (variance + dMean2) + alpha * r2;
 
                 if (ORDER > 2) {
                     T skew{s_Moments[2]};
-                    T dSkew{(TCoordinate(3) * variance + dMean2) * dMean};
+                    T dSkew{TCoordinate(3) * variance + dMean2};
+                    dSkew = las::componentwise(dSkew) * las::componentwise(dMean);
 
                     s_Moments[2] = beta * (skew + dSkew) + alpha * r2 * r;
                 }
@@ -283,10 +285,10 @@ public:
 
             if (ORDER > 1) {
                 T dMeanLhs{meanLhs - s_Moments[0]};
-                T dMean2Lhs{dMeanLhs * dMeanLhs};
+                T dMean2Lhs{las::componentwise(dMeanLhs) * las::componentwise(dMeanLhs)};
                 T varianceLhs{s_Moments[1]};
                 T dMeanRhs{meanRhs - s_Moments[0]};
-                T dMean2Rhs{dMeanRhs * dMeanRhs};
+                T dMean2Rhs{las::componentwise(dMeanRhs) * las::componentwise(dMeanRhs)};
                 T varianceRhs{rhs.s_Moments[1]};
 
                 s_Moments[1] = beta * (varianceLhs + dMean2Lhs) +
@@ -294,10 +296,12 @@ public:
 
                 if (ORDER > 2) {
                     T skewLhs{s_Moments[2]};
-                    T dSkewLhs{(TCoordinate{3} * varianceLhs + dMean2Lhs) * dMeanLhs};
+                    T dSkewLhs{TCoordinate{3} * varianceLhs + dMean2Lhs};
+                    dSkewLhs = las::componentwise(dSkewLhs) * las::componentwise(dMeanLhs);
 
                     T skewRhs{rhs.s_Moments[2]};
-                    T dSkewRhs{(TCoordinate{3} * varianceRhs + dMean2Rhs) * dMeanRhs};
+                    T dSkewRhs{TCoordinate{3} * varianceRhs + dMean2Rhs};
+                    dSkewRhs = las::componentwise(dSkewRhs) * las::componentwise(dMeanRhs);
 
                     s_Moments[2] = beta * (skewLhs + dSkewLhs) + alpha * (skewRhs + dSkewRhs);
                 }
@@ -348,9 +352,9 @@ public:
 
             if (ORDER > 1) {
                 T dMeanLhs{s_Moments[0] - meanLhs};
-                T dMean2Lhs{dMeanLhs * dMeanLhs};
+                T dMean2Lhs{las::componentwise(dMeanLhs) * las::componentwise(dMeanLhs)};
                 T dMeanRhs{meanRhs - meanLhs};
-                T dMean2Rhs{dMeanRhs * dMeanRhs};
+                T dMean2Rhs{las::componentwise(dMeanRhs) * las::componentwise(dMeanRhs)};
                 T varianceRhs{rhs.s_Moments[1]};
 
                 s_Moments[1] = max(beta * (s_Moments[1] - dMean2Lhs) -
@@ -359,9 +363,11 @@ public:
 
                 if (ORDER > 2) {
                     T skewLhs{s_Moments[2]};
-                    T dSkewLhs{(TCoordinate{3} * s_Moments[1] + dMean2Lhs) * dMeanLhs};
+                    T dSkewLhs{TCoordinate{3} * s_Moments[1] + dMean2Lhs};
+                    dSkewLhs = las::componentwise(dSkewLhs) * las::componentwise(dMeanLhs);
                     T skewRhs{rhs.s_Moments[2]};
-                    T dSkewRhs{(TCoordinate{3} * varianceRhs + dMean2Rhs) * dMeanRhs};
+                    T dSkewRhs{TCoordinate{3} * varianceRhs + dMean2Rhs};
+                    dSkewRhs = las::componentwise(dSkewRhs) * las::componentwise(dMeanRhs);
 
                     s_Moments[2] = beta * (skewLhs - dSkewLhs) -
                                    alpha * (skewRhs + dSkewRhs - dSkewLhs);

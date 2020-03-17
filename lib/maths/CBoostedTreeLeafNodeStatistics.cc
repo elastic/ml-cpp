@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <limits>
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
 
 #include <core/CDataFrame.h>
@@ -298,20 +299,33 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
     TMinimumLoss minimumLoss;
 
     double lambda{regularization.leafWeightPenaltyMultiplier()};
-    Eigen::MatrixXd placeholder{d, d};
+    Eigen::MatrixXd hessian{d, d};
+    Eigen::VectorXd hinvg{d};
     if (m_NumberLossParameters == 1) {
-        // There is a large fixed overhead for using ldl^t even when g and h are
-        // scalar so we have special case handling.
+        // There is a significant overhead for using a matrix decomposition when g and h
+        // are scalar so we have special case handling.
         minimumLoss = [&](const TDoubleVector& g, const TDoubleMatrix& h) -> double {
             return CTools::pow2(g(0)) / (h(0, 0) + lambda);
         };
     } else {
-        // TODO use Cholesky (but need to handle positive semi-definite case).
         minimumLoss = [&](const TDoubleVector& g, const TDoubleMatrix& h) -> double {
-            placeholder =
-                (h + lambda * TDoubleMatrix::Identity(d, d)).selfadjointView<Eigen::Lower>();
-            Eigen::LDLT<Eigen::Ref<Eigen::MatrixXd>> ldlt{placeholder};
-            return g.transpose() * ldlt.solve(g);
+            hessian = (h + lambda * TDoubleMatrix::Identity(d, d)).selfadjointView<Eigen::Lower>();
+            // Since the Hessian is positive semidefinite, the trace is larger than the
+            // largest eigenvalue. Therefore, H_eps = H + eps * trace(H) * I will have
+            // condition number at least eps. As long as eps >> double epsilon we should
+            // be able to invert it accurately.
+            double eps{10000.0 * std::numeric_limits<double>::epsilon() * h.trace()};
+            for (std::size_t i = 0; i < 2; ++i) {
+                Eigen::LLT<Eigen::Ref<Eigen::MatrixXd>> llt{hessian};
+                hinvg = llt.solve(g);
+                if ((hessian * hinvg).norm() > 1e-3 * g.norm()) {
+                    // Search for the nearest non-singular hessian.
+                    hessian.diagonal().array() += eps;
+                } else {
+                    return g.transpose() * llt.solve(g);
+                }
+            }
+            return INF; // This really should never happen, but just in case.
         };
     }
 

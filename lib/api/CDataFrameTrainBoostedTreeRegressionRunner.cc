@@ -70,11 +70,10 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
 
     const auto& tree = this->boostedTree();
     const std::size_t columnHoldingDependentVariable{tree.columnHoldingDependentVariable()};
-    const std::size_t columnHoldingPrediction{tree.columnHoldingPrediction()};
 
     writer.StartObject();
     writer.Key(this->predictionFieldName());
-    writer.Double(row[columnHoldingPrediction]);
+    writer.Double(tree.readPrediction(row)[0]);
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
     auto featureImportance = tree.shap();
@@ -86,7 +85,6 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
                 for (auto i : indices) {
                     if (shap[i].norm() != 0.0) {
                         writer.Key(names[i]);
-                        // TODO fixme
                         writer.Double(shap[i](0));
                     }
                 }

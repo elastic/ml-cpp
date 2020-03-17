@@ -111,9 +111,9 @@ private:
 //!   \f$\displaystyle arg\min_w{ \lambda w^2 -\sum_i{ a_i \log(S(p_i + w)) + (1 - a_i) \log(1 - S(p_i + w)) } }\f$
 //! </pre>
 //!
-//! Rather than working with this function directly we bucket the predictions `p_i`
-//! in a first pass over the data and compute weight which minimizes the approximate
-//! function
+//! Rather than working with this function directly we we approximate it by computing
+//! the predictions `p_i` and actual class counts in a uniform bucketing of the data,
+//! i.e. we compute the weight which satisfies
 //! <pre class="fragment">
 //! \f$\displaystyle arg\min_w{ \lambda w^2 -\sum_{B}{ c_{1,B} \log(S(\bar{p}_B + w)) + c_{0,B} \log(1 - S(\bar{p}_B + w)) } }\f$
 //! </pre>
@@ -173,9 +173,9 @@ private:
 //! </pre>
 //!
 //! Here, \f$a_i\f$ is the index of the i'th example's true class. Rather than
-//! working with this function directly we approximate it by the means and count
-//! of predictions in a partition of the original data, i.e. we compute the weight
-//! weight which satisfies
+//! working with this function directly we approximate it by the means of the
+//! predictions and counts of actual classes in a partition of the data, i.e.
+//! we compute the weight which satisfies
 //! <pre class="fragment">
 //! \f$\displaystyle arg\min_w{ \lambda \|w\|^2 -\sum_P{ c_{a_i, P} \log([softmax(\bar{p}_P + w)]) } }\f$
 //! </pre>
@@ -276,10 +276,18 @@ public:
     using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
     using TWriter = std::function<void(std::size_t, double)>;
 
+    enum EType {
+        E_BinaryClassification,
+        E_MulticlassClassification,
+        E_Regression
+    };
+
 public:
     virtual ~CLoss() = default;
     //! Clone the loss.
     virtual std::unique_ptr<CLoss> clone() const = 0;
+    //! Get the type of prediction problem to which this loss applies.
+    virtual EType type() const = 0;
     //! The number of parameters to the loss function.
     virtual std::size_t numberParameters() const = 0;
     //! The value of the loss function.
@@ -317,6 +325,7 @@ public:
 
 public:
     std::unique_ptr<CLoss> clone() const override;
+    EType type() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
@@ -330,6 +339,7 @@ public:
                    TWriter writer,
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
+    //! \return \p prediction.
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
@@ -350,6 +360,7 @@ public:
 
 public:
     std::unique_ptr<CLoss> clone() const override;
+    EType type() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
@@ -363,6 +374,7 @@ public:
                    TWriter writer,
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
+    //! \return (P(class 0), P(class 1)).
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
@@ -385,6 +397,7 @@ public:
 
 public:
     CMultinomialLogisticLoss(std::size_t numberClasses);
+    EType type() const override;
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
@@ -399,6 +412,7 @@ public:
                    TWriter writer,
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
+    //! \return (P(class 0), P(class 1), ..., P(class n)).
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;

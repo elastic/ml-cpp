@@ -20,6 +20,7 @@
 
 #include <boost/iterator/counting_iterator.hpp>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <sstream>
@@ -495,7 +496,8 @@ private:
             newCentre = CBasicStatistics::mean(newCentres[i]);
             if (las::distance(m_Centres[i], newCentre) >
                 precision * las::norm(m_Centres[i])) {
-                las::swap(m_Centres[i], newCentre);
+                using std::swap;
+                swap(m_Centres[i], newCentre);
                 changed = true;
             }
         }
