@@ -180,6 +180,10 @@ public:
 
     CDataCategorizer::TIntVec usurpedCategories(int categoryId) override;
 
+    std::size_t numCategories() const override;
+
+    bool categoryChangedAndReset(int categoryId) override;
+
 protected:
     //! Split the string into a list of tokens.  The result of the
     //! tokenisation is returned in \p tokenIds, \p tokenUniqueIds and

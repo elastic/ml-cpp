@@ -340,4 +340,112 @@ BOOST_AUTO_TEST_CASE(testRestoreStateFailsWithEmptyState) {
     BOOST_TEST_REQUIRE(categorizer.restoreState(restoreSearcher, completeToTime) == false);
 }
 
+BOOST_AUTO_TEST_CASE(flushWritesOnlyChangedCategories) {
+    model::CLimits limits;
+    CFieldConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
+
+    std::ostringstream outputStrm;
+    {
+        CNullOutput nullOutput;
+        core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+        CJsonOutputWriter writer("job", wrappedOutputStream);
+
+        CFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer);
+
+        CFieldDataCategorizer::TStrStrUMap dataRowFields;
+        dataRowFields["message"] = "Node 1 started";
+
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+        dataRowFields["message"] = "Node 2 started";
+
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+        dataRowFields["message"] = "Somethingelse my message";
+
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+        CFieldDataCategorizer::TStrStrUMap flush;
+        flush["."] = "f42";
+
+        //! should write to the output buffer and the num_matches will end up being 2
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(flush));
+
+        dataRowFields["message"] = "Node 2 started";
+
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(flush));
+    }
+    const std::string& output = outputStrm.str();
+    LOG_DEBUG(<< "Output is: " << output);
+
+    auto findOccurrences = [](const std::string& str, const std::string& substr) {
+        int occurrences = 0;
+        std::string::size_type start = 0;
+        while ((start = str.find(substr, start)) != std::string::npos) {
+            ++occurrences;
+            start += substr.length(); 
+        }
+        return occurrences;
+    };
+    //! Output should have category_id 1 3 times. 2 for the first two calls, and one for the flush
+    BOOST_REQUIRE_EQUAL(findOccurrences(output, "\"category_id\":1"), 3);
+
+    //! Output should only have the initial persistence as it did not change after the flush 
+    BOOST_REQUIRE_EQUAL(findOccurrences(output, "\"category_id\":2"), 1);
+}
+
+BOOST_AUTO_TEST_CASE(finalizeWritesOnlyChangedCategories) {
+    model::CLimits limits;
+    CFieldConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
+
+    std::ostringstream outputStrm;
+    {
+        CNullOutput nullOutput;
+        core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+        CJsonOutputWriter writer("job", wrappedOutputStream);
+
+        CFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer);
+
+        CFieldDataCategorizer::TStrStrUMap dataRowFields;
+        dataRowFields["message"] = "Node 1 started";
+
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+        dataRowFields["message"] = "Node 2 started";
+
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+        dataRowFields["message"] = "Somethingelse my message";
+
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+        categorizer.finalise();
+
+        dataRowFields["message"] = "Node 2 started";
+
+        BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+        categorizer.finalise();
+    }
+    auto findOccurrences = [](const std::string& str, const std::string& substr) {
+        int occurrences = 0;
+        std::string::size_type start = 0;
+        while ((start = str.find(substr, start)) != std::string::npos) {
+            ++occurrences;
+            start += substr.length(); 
+        }
+        return occurrences;
+    };
+    const std::string& output = outputStrm.str();
+    LOG_DEBUG(<< "Output is: " << output);
+    //! Output should have category_id 1 3 times. 2 for the first two calls, and one for the finalize
+    BOOST_REQUIRE_EQUAL(findOccurrences(output, "\"category_id\":1"), 3);
+
+    //! Output should only have the initial persistence as it did not change after the finalize  
+    BOOST_REQUIRE_EQUAL(findOccurrences(output, "\"category_id\":2"), 1);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

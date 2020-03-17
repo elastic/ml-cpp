@@ -89,10 +89,13 @@ bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields) {
     // Non-empty control fields take precedence over everything else
     TStrStrUMapCItr iter = dataRowFields.find(CONTROL_FIELD_NAME);
     if (iter != dataRowFields.end() && !iter->second.empty()) {
+        // Always handle control messages, but signal completion of handling ONLY if we are the last handler
+        // e.g. flush requests are acknowledged here if this is the last handler
+        bool msgHandled = this->handleControlMessage(iter->second, !m_OutputHandler.consumesControlMessages());
         if (m_OutputHandler.consumesControlMessages()) {
             return m_OutputHandler.writeRow(dataRowFields, m_Overrides);
         }
-        return this->handleControlMessage(iter->second);
+        return msgHandled;
     }
 
     m_OutputFieldCategory =
@@ -112,7 +115,7 @@ void CFieldDataCategorizer::finalise() {
 
     // Make sure model size stats are up to date
     m_Limits.resourceMonitor().forceRefresh(*m_DataCategorizer);
-
+    writeOutChangedCategories();
     // Pass on the request in case we're chained
     m_OutputHandler.finalise();
 
@@ -166,6 +169,8 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
     bool exampleAdded{m_DataCategorizer->addExample(categoryId, fieldValue)};
     bool searchTermsChanged{this->createReverseSearch(categoryId)};
     if (exampleAdded || searchTermsChanged) {
+        //! signal that we noticed the change and are persisting here
+        m_DataCategorizer->categoryChangedAndReset(categoryId);
         m_JsonOutputWriter.writeCategoryDefinition(
             categoryId, m_SearchTerms, m_SearchTermsRegex, m_MaxMatchingLength,
             m_DataCategorizer->examplesCollector().examples(categoryId), 
@@ -474,7 +479,7 @@ void CFieldDataCategorizer::resetAfterCorruptRestore() {
     this->createCategorizer(m_CategorizationFieldName);
 }
 
-bool CFieldDataCategorizer::handleControlMessage(const std::string& controlMessage) {
+bool CFieldDataCategorizer::handleControlMessage(const std::string& controlMessage, bool lastHandler) {
     if (controlMessage.empty()) {
         LOG_ERROR(<< "Programmatic error - handleControlMessage should only be "
                      "called with non-empty control messages");
@@ -494,7 +499,7 @@ bool CFieldDataCategorizer::handleControlMessage(const std::string& controlMessa
         break;
     case 'f':
         // Flush ID comes after the initial f
-        this->acknowledgeFlush(controlMessage.substr(1));
+        this->acknowledgeFlush(controlMessage.substr(1), lastHandler);
         break;
     default:
         LOG_WARN(<< "Ignoring unknown control message of length "
@@ -508,13 +513,46 @@ bool CFieldDataCategorizer::handleControlMessage(const std::string& controlMessa
     return true;
 }
 
-void CFieldDataCategorizer::acknowledgeFlush(const std::string& flushId) {
+void CFieldDataCategorizer::acknowledgeFlush(const std::string& flushId, bool lastHandler) {
     if (flushId.empty()) {
         LOG_ERROR(<< "Received flush control message with no ID");
     } else {
         LOG_TRACE(<< "Received flush control message with ID " << flushId);
     }
-    m_JsonOutputWriter.acknowledgeFlush(flushId, 0);
+    writeOutChangedCategories();
+    if (lastHandler) {
+        m_JsonOutputWriter.acknowledgeFlush(flushId, 0);
+    }
+}
+
+void CFieldDataCategorizer::writeOutChangedCategories() {
+    int numCategories = static_cast<int>(m_DataCategorizer->numCategories());
+    if (numCategories == 0) {
+        return;
+    }
+    std::string searchTerms;
+    std::string searchTermsRegex;
+    std::size_t maxLength; 
+    bool wasCached(false);
+    for(int categoryId = 1; categoryId <= numCategories; categoryId++) {
+        if (m_DataCategorizer->categoryChangedAndReset(categoryId)) {
+            searchTerms.clear();
+            searchTermsRegex.clear();
+            maxLength = 0;
+            if (m_DataCategorizer->createReverseSearch(categoryId, searchTerms,
+                                                       searchTermsRegex, maxLength, wasCached) == false) {
+                LOG_WARN(<< "Unable to create or retrieve reverse search for storing for category: " << 
+                categoryId);
+                continue;
+            }
+            LOG_TRACE(<< "Writing out changed category: " << categoryId);
+            m_JsonOutputWriter.writeCategoryDefinition(
+                categoryId, searchTerms, searchTermsRegex, maxLength,
+                m_DataCategorizer->examplesCollector().examples(categoryId), 
+                m_DataCategorizer->numMatches(categoryId),
+                m_DataCategorizer->usurpedCategories(categoryId));
+        }
+    }
 }
 }
 }

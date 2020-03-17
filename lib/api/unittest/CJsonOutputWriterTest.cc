@@ -1298,7 +1298,7 @@ BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
         ml::core::CJsonOutputStreamWrapper outputStream(sstream);
         ml::api::CJsonOutputWriter writer("job", outputStream);
 
-        writer.writeCategoryDefinition(categoryId, terms, regex, maxMatchingLength, examples, std::size_t(0), vector<int>);
+        writer.writeCategoryDefinition(categoryId, terms, regex, maxMatchingLength, examples, 0, {});
     }
 
     rapidjson::Document arrayDoc;

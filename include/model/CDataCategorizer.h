@@ -136,6 +136,13 @@ public:
 
     virtual TIntVec usurpedCategories(int categoryId) = 0;
 
+    virtual std::size_t numCategories() const = 0;
+
+    //! Has the passed category changed since this method was called last?
+    //! Once called, the category is marked as unchanged, until the category
+    //! changes again.
+    virtual bool categoryChangedAndReset(int categoryId) = 0;
+
 protected:
     //! Used if no fields are supplied to the computeCategory() method.
     static const TStrStrUMap EMPTY_FIELDS;

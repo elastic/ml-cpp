@@ -917,8 +917,7 @@ void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
     m_Writer.Uint64(numMatches);
     m_Writer.String(PREFERRED_TO_CATEGORIES);
     m_Writer.StartArray();
-    for (TIntVecCIter iter = usurpedCategories.begin(); iter != usurpedCategories.end(); ++iter) {
-        int id = *iter;
+    for (int id : usurpedCategories) {
         m_Writer.Int(id);
     }
     m_Writer.EndArray();
