@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <limits>
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
 
 #include <core/CDataFrame.h>
@@ -14,6 +13,8 @@
 #include <maths/CBoostedTree.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CTools.h>
+
+#include <limits>
 
 namespace ml {
 namespace maths {
@@ -300,7 +301,8 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
     double lambda{regularization.leafWeightPenaltyMultiplier()};
     Eigen::MatrixXd hessian{d, d};
-    Eigen::VectorXd hinvg{d};
+    Eigen::MatrixXd hessian_{d, d};
+    Eigen::VectorXd hessianInvg{d};
     if (m_NumberLossParameters == 1) {
         // There is a significant overhead for using a matrix decomposition when g and h
         // are scalar so we have special case handling.
@@ -309,23 +311,24 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
         };
     } else {
         minimumLoss = [&](const TDoubleVector& g, const TDoubleMatrix& h) -> double {
-            hessian = (h + lambda * TDoubleMatrix::Identity(d, d)).selfadjointView<Eigen::Lower>();
+            hessian_ = hessian =
+                (h + lambda * TDoubleMatrix::Identity(d, d)).selfadjointView<Eigen::Lower>();
             // Since the Hessian is positive semidefinite, the trace is larger than the
             // largest eigenvalue. Therefore, H_eps = H + eps * trace(H) * I will have
             // condition number at least eps. As long as eps >> double epsilon we should
             // be able to invert it accurately.
-            double eps{10000.0 * std::numeric_limits<double>::epsilon() * h.trace()};
+            double eps{std::max(1e-5 * hessian.trace(), 1e-10)};
             for (std::size_t i = 0; i < 2; ++i) {
                 Eigen::LLT<Eigen::Ref<Eigen::MatrixXd>> llt{hessian};
-                hinvg = llt.solve(g);
-                if ((hessian * hinvg).norm() > 1e-3 * g.norm()) {
-                    // Search for the nearest non-singular hessian.
-                    hessian.diagonal().array() += eps;
+                hessianInvg = llt.solve(g);
+                if ((hessian_ * hessianInvg - g).norm() > 1e-2 * g.norm()) {
+                    hessian_.diagonal().array() += eps;
+                    hessian = hessian_;
                 } else {
-                    return g.transpose() * llt.solve(g);
+                    return g.transpose() * hessianInvg;
                 }
             }
-            return INF; // This really should never happen, but just in case.
+            return -INF; // We couldn't invert the Hessian: discard this split.
         };
     }
 
@@ -384,11 +387,16 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
             double gain[2];
             gain[ASSIGN_MISSING_TO_LEFT] =
-                minimumLoss(gl[ASSIGN_MISSING_TO_LEFT], hl[ASSIGN_MISSING_TO_LEFT]) +
-                minimumLoss(gr[ASSIGN_MISSING_TO_LEFT], hr[ASSIGN_MISSING_TO_LEFT]);
+                cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c
+                    ? -INF
+                    : minimumLoss(gl[ASSIGN_MISSING_TO_LEFT], hl[ASSIGN_MISSING_TO_LEFT]) +
+                          minimumLoss(gr[ASSIGN_MISSING_TO_LEFT], hr[ASSIGN_MISSING_TO_LEFT]);
             gain[ASSIGN_MISSING_TO_RIGHT] =
-                minimumLoss(gl[ASSIGN_MISSING_TO_RIGHT], hl[ASSIGN_MISSING_TO_RIGHT]) +
-                minimumLoss(gr[ASSIGN_MISSING_TO_RIGHT], hr[ASSIGN_MISSING_TO_RIGHT]);
+                cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c
+                    ? -INF
+                    : minimumLoss(gl[ASSIGN_MISSING_TO_RIGHT], hl[ASSIGN_MISSING_TO_RIGHT]) +
+                          minimumLoss(gr[ASSIGN_MISSING_TO_RIGHT],
+                                      hr[ASSIGN_MISSING_TO_RIGHT]);
 
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
