@@ -233,6 +233,78 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerRandom) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testBinomialLogisticLossGradientAndCurvature) {
+
+    // Test that the loss gradient and curvature functions are close to the
+    // numerical derivatives of the objective.
+
+    test::CRandomNumbers rng;
+
+    double eps{1e-3};
+    auto derivative = [eps](const std::function<double(TDoubleVector)>& f,
+                            TDoubleVector prediction, std::size_t i) {
+        prediction(i) += eps;
+        double result{f(prediction)};
+        prediction(i) -= 2.0 * eps;
+        result -= f(prediction);
+        result /= 2.0 * eps;
+        return result;
+    };
+
+    for (std::size_t t = 0; t < 100; ++t) {
+
+        CBinomialLogisticLoss loss;
+
+        TDoubleVec predictions{0.0};
+        if (t > 0) {
+            rng.generateUniformSamples(-1.0, 1.0, 1, predictions);
+        }
+
+        TDoubleVec actual;
+        rng.generateUniformSamples(0.0, 2.0, 1, actual);
+        actual[0] = std::floor(actual[0]);
+
+        double expectedGradient;
+        double expectedCurvature;
+        {
+            auto gradient = [&](TDoubleVector prediction) {
+                return derivative(
+                    [&](TDoubleVector prediction_) {
+                        maths::CFloatStorage storage[]{prediction_(0)};
+                        return loss.value(TMemoryMappedFloatVector{storage, 1}, actual[0]);
+                    },
+                    prediction, 0);
+            };
+            TDoubleVector prediction{1};
+            prediction(0) = predictions[0];
+            expectedGradient = gradient(prediction);
+            expectedCurvature = derivative(gradient, prediction, 0);
+        }
+
+        double actualGradient;
+        double actualCurvature;
+        {
+            maths::CFloatStorage storage[]{predictions[0]};
+            TMemoryMappedFloatVector prediction{storage, 1};
+            loss.gradient(prediction, actual[0], [&](std::size_t, double gradient) {
+                actualGradient = gradient;
+            });
+            loss.curvature(prediction, actual[0], [&](std::size_t, double curvature) {
+                actualCurvature = curvature;
+            });
+        }
+        if (t % 10 == 0) {
+            LOG_DEBUG(<< "actual gradient    = " << actualGradient);
+            LOG_DEBUG(<< "expected gradient  = " << expectedGradient);
+            LOG_DEBUG(<< "actual curvature   = " << actualCurvature);
+            LOG_DEBUG(<< "expected curvature = " << expectedCurvature);
+        }
+
+        BOOST_REQUIRE_SMALL(std::fabs(expectedGradient - actualGradient), 0.001);
+        BOOST_REQUIRE_SMALL(std::fabs(expectedCurvature - actualCurvature), 0.02);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testBinomialLogisticLossForUnderflow) {
 
     // Test the behaviour of value, gradient and curvature of the logistic loss in
@@ -305,7 +377,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticLossForUnderflow) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testMultinomialLogisticGradient) {
+BOOST_AUTO_TEST_CASE(testMultinomialLogisticArgminObjective) {
 
     // Test that the gradient function is close to the numerical derivative
     // of the objective.
@@ -321,7 +393,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticGradient) {
         testRng.generateUniformSamples(0.0, 3.0, 20, labels);
 
         TDoubleVec predictions;
-        if (t % 2 == 0) {
+        if (t == 0) {
             predictions.resize(3 * labels.size(), 0.0);
         } else {
             testRng.generateUniformSamples(-1.0, 1.0, 3 * labels.size(), predictions);
@@ -595,6 +667,84 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerRandom) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossGradientAndCurvature) {
+
+    // Test that the loss gradient and curvature functions are close to the
+    // numerical derivatives of the objective.
+
+    test::CRandomNumbers rng;
+
+    double eps{1e-3};
+    auto derivative = [eps](const std::function<double(TDoubleVector)>& f,
+                            TDoubleVector prediction, std::size_t i) {
+        prediction(i) += eps;
+        double result{f(prediction)};
+        prediction(i) -= 2.0 * eps;
+        result -= f(prediction);
+        result /= 2.0 * eps;
+        return result;
+    };
+
+    for (std::size_t t = 0; t < 100; ++t) {
+
+        CMultinomialLogisticLoss loss{3};
+
+        TDoubleVec predictions(3, 0.0);
+        if (t > 0) {
+            rng.generateUniformSamples(-1.0, 1.0, 3, predictions);
+        }
+
+        TDoubleVec actual;
+        rng.generateUniformSamples(0.0, 3.0, 1, actual);
+        actual[0] = std::floor(actual[0]);
+
+        TDoubleVector expectedGradient{3};
+        TDoubleVector expectedCurvature{6};
+
+        for (std::size_t i = 0, k = 0; i < 3; ++i) {
+            auto gi = [&](TDoubleVector prediction) {
+                return derivative(
+                    [&](TDoubleVector prediction_) {
+                        maths::CFloatStorage storage[]{
+                            prediction_(0), prediction_(1), prediction_(2)};
+                        return loss.value(TMemoryMappedFloatVector{storage, 3}, actual[0]);
+                    },
+                    prediction, i);
+            };
+
+            TDoubleVector prediction{3};
+            prediction(0) = predictions[0];
+            prediction(1) = predictions[1];
+            prediction(2) = predictions[2];
+
+            expectedGradient(i) = gi(prediction);
+            for (std::size_t j = i; j < 3; ++j, ++k) {
+                expectedCurvature(k) = derivative(gi, prediction, j);
+            }
+        }
+
+        maths::CFloatStorage storage[]{predictions[0], predictions[1], predictions[2]};
+        TMemoryMappedFloatVector prediction{storage, 3};
+        TDoubleVector actualGradient{3};
+        loss.gradient(prediction, actual[0], [&](std::size_t k, double gradient) {
+            actualGradient(k) = gradient;
+        });
+        TDoubleVector actualCurvature{6};
+        loss.curvature(prediction, actual[0], [&](std::size_t k, double curvature) {
+            actualCurvature(k) = curvature;
+        });
+        if (t % 10 == 0) {
+            LOG_DEBUG(<< "actual gradient    = " << actualGradient.transpose());
+            LOG_DEBUG(<< "expected gradient  = " << expectedGradient.transpose());
+            LOG_DEBUG(<< "actual curvature   = " << actualCurvature.transpose());
+            LOG_DEBUG(<< "expected curvature = " << expectedCurvature.transpose());
+        }
+
+        BOOST_REQUIRE_SMALL((expectedGradient - actualGradient).norm(), 0.001);
+        BOOST_REQUIRE_SMALL((expectedCurvature - actualCurvature).norm(), 0.02);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
 
     // Test the behaviour of value, gradient and Hessian of the logistic loss in
@@ -602,7 +752,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
 
     using TFloatVec = std::vector<maths::CFloatStorage>;
 
-    double eps{std::numeric_limits<double>::epsilon()};
+    double eps{100.0 * std::numeric_limits<double>::epsilon()};
 
     auto logits = [](double x, TFloatVec& result) { result.assign({0.0, x}); };
 
@@ -631,7 +781,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
 
     // The gradient and curvature should be proportional to the exponential of the
     // log-odds when they're small.
-    /* TODO {
+    {
         auto readDerivatives = [&](double prediction, TDoubleVecVec& gradients,
                                    TDoubleVecVec& curvatures) {
             TFloatVec storage[2];
@@ -662,17 +812,17 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
             TDoubleVecVec currentCurvature(2, TDoubleVec(3));
             readDerivatives(scale, currentGradient, currentCurvature);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                std::exp(0.25), previousGradient[0][1] / currentGradient[0][1], 0.01);
+                std::exp(0.25), previousGradient[0][1] / currentGradient[0][1], 0.04);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                std::exp(-0.25), previousGradient[1][1] / currentGradient[1][1], 0.01);
+                std::exp(-0.25), previousGradient[1][1] / currentGradient[1][1], 0.04);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                std::exp(0.25), previousCurvature[0][2] / currentCurvature[0][1], 0.01);
+                std::exp(0.25), previousCurvature[0][2] / currentCurvature[0][2], 0.04);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                std::exp(-0.25), previousCurvature[1][2] / currentCurvature[1][1], 0.01);
+                std::exp(-0.25), previousCurvature[1][2] / currentCurvature[1][2], 0.04);
             previousGradient = currentGradient;
             previousCurvature = currentCurvature;
         }
-    }*/
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

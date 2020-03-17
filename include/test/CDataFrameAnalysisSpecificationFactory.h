@@ -56,6 +56,7 @@ public:
     predicitionNumberRoundsPerHyperparameter(std::size_t rounds);
     CDataFrameAnalysisSpecificationFactory&
     predictionBayesianOptimisationRestarts(std::size_t restarts);
+    CDataFrameAnalysisSpecificationFactory& predictionFieldName(const std::string& name);
     CDataFrameAnalysisSpecificationFactory&
     predictionCategoricalFieldNames(const TStrVec& categorical);
     CDataFrameAnalysisSpecificationFactory& predictionAlpha(double alpha);
@@ -72,7 +73,15 @@ public:
     CDataFrameAnalysisSpecificationFactory&
     predictionRestoreSearcherSupplier(TRestoreSearcherSupplier* restoreSearcherSupplier);
 
+    // Classification
+    CDataFrameAnalysisSpecificationFactory& numberClasses(std::size_t number);
+    CDataFrameAnalysisSpecificationFactory& predictionFieldType(const std::string& type);
+
+    std::string outlierParams() const;
     TSpecificationUPtr outlierSpec() const;
+
+    std::string predictionParams(const std::string& analysis,
+                                 const std::string& dependentVariable) const;
     TSpecificationUPtr predictionSpec(const std::string& analysis,
                                       const std::string& dependentVariable) const;
 
@@ -94,6 +103,7 @@ private:
     std::size_t m_NumberRoundsPerHyperparameter = 0;
     std::size_t m_BayesianOptimisationRestarts = 0;
     TStrVec m_CategoricalFieldNames;
+    std::string m_PredictionFieldName;
     double m_Alpha = -1.0;
     double m_Lambda = -1.0;
     double m_Gamma = -1.0;
@@ -105,6 +115,9 @@ private:
     std::size_t m_NumberTopShapValues = 0;
     TPersisterSupplier* m_PersisterSupplier = nullptr;
     TRestoreSearcherSupplier* m_RestoreSearcherSupplier = nullptr;
+    // Classification
+    std::size_t m_NumberClasses = 2;
+    std::string m_PredictionFieldType;
 };
 }
 }

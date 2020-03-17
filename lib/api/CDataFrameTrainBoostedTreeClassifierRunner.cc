@@ -24,6 +24,7 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ElasticsearchStateIndex.h>
 
+#include <memory>
 #include <numeric>
 #include <set>
 
@@ -53,11 +54,7 @@ const CDataFrameAnalysisConfigReader&
 CDataFrameTrainBoostedTreeClassifierRunner::parameterReader() {
     static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
         auto theReader = CDataFrameTrainBoostedTreeRunner::parameterReader();
-
-        // This is added as optional at the moment and is not used to
-        // allow java to supply it without breaking.
-        theReader.addParameter(NUM_CLASSES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-
+        theReader.addParameter(NUM_CLASSES, CDataFrameAnalysisConfigReader::E_RequiredParameter);
         theReader.addParameter(NUM_TOP_CLASSES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         const std::string typeString{"string"};
         const std::string typeInt{"int"};
@@ -82,8 +79,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters)
     : CDataFrameTrainBoostedTreeRunner{
-          spec, parameters,
-          std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>()} {
+          spec, parameters, loss(parameters[NUM_CLASSES].as<std::size_t>())} {
 
     m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::size_t{0});
     m_PredictionFieldType =
@@ -108,32 +104,24 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     core::CRapidJsonConcurrentLineWriter& writer) const {
 
     const auto& tree = this->boostedTree();
-    this->writeOneRow(frame, tree.columnHoldingDependentVariable(),
-                      tree.columnHoldingPrediction(),
-                      tree.probabilityAtWhichToAssignClassOne(), row, writer,
-                      tree.shap());
+    this->writeOneRow(
+        frame, tree.columnHoldingDependentVariable(),
+        [&](const TRowRef& row_) { return tree.readPrediction(row_); },
+        [&](const TRowRef& row_) { return tree.readAndAdjustPrediction(row_); },
+        row, writer, tree.shap());
 }
 
 void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     const core::CDataFrame& frame,
     std::size_t columnHoldingDependentVariable,
-    std::size_t columnHoldingPrediction,
-    double probabilityAtWhichToAssignClassOne,
+    const TReadPredictionFunc& readClassProbabilities,
+    const TReadClassScoresFunc& readClassScores,
     const TRowRef& row,
     core::CRapidJsonConcurrentLineWriter& writer,
     maths::CTreeShapFeatureImportance* featureImportance) const {
 
-    // TODO generalise when supporting multiple categories.
-
-    // Fetch log odds of class encoded as "1" (the classes are encoded as "0" and "1").
-    double predictedLogOddsOfClass1{row[columnHoldingPrediction]};
-    double probabilityOfClass1{maths::CTools::logisticFunction(predictedLogOddsOfClass1)};
-
-    // We adjust the probabilities to account for the threshold for choosing class 1.
-
-    TDoubleVec probabilities{1.0 - probabilityOfClass1, probabilityOfClass1};
-    TDoubleVec scores{0.5 / (1.0 - probabilityAtWhichToAssignClassOne) * probabilities[0],
-                      0.5 / probabilityAtWhichToAssignClassOne * probabilities[1]};
+    auto probabilities = readClassProbabilities(row);
+    auto scores = readClassScores(row);
 
     double actualClassId{row[columnHoldingDependentVariable]};
     std::size_t predictedClassId(std::max_element(scores.begin(), scores.end()) -
@@ -216,14 +204,29 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue(
     }
 }
 
+CDataFrameTrainBoostedTreeClassifierRunner::TLossFunctionUPtr
+CDataFrameTrainBoostedTreeClassifierRunner::loss(std::size_t numberClasses) {
+    using namespace maths::boosted_tree;
+    return numberClasses == 2
+               ? TLossFunctionUPtr{std::make_unique<CBinomialLogisticLoss>()}
+               : TLossFunctionUPtr{std::make_unique<CMultinomialLogisticLoss>(numberClasses)};
+}
+
 void CDataFrameTrainBoostedTreeClassifierRunner::validate(const core::CDataFrame& frame,
                                                           std::size_t dependentVariableColumn) const {
     std::size_t categoryCount{
         frame.categoricalColumnValues()[dependentVariableColumn].size()};
-    if (categoryCount != 2) {
-        HANDLE_FATAL(<< "Input error: only binary classification is supported. "
-                     << "Trying to predict '" << frame.columnNames()[dependentVariableColumn]
-                     << "' which has '" << categoryCount << "' categories. "
+    if (categoryCount < 2) {
+        HANDLE_FATAL(<< "Input error: can't run classification unless there are at least "
+                     << "two classes. Trying to predict '"
+                     << frame.columnNames()[dependentVariableColumn] << "' which has '"
+                     << categoryCount << "' categories in the training data. "
+                     << "The number of rows read is '" << frame.numberRows() << "'.")
+    } else if (categoryCount > MAX_NUMBER_CLASSES) {
+        HANDLE_FATAL(<< "Input error: the maximum number of classes supported is "
+                     << MAX_NUMBER_CLASSES << ". Trying to predict '"
+                     << frame.columnNames()[dependentVariableColumn] << "' which has '"
+                     << categoryCount << "' categories in the training data. "
                      << "The number of rows read is '" << frame.numberRows() << "'.")
     }
 }
@@ -239,6 +242,9 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelDefinition(
 }
 
 // clang-format off
+// The MAX_NUMBER_CLASSES must match the value used in the Java code. See the
+// MAX_DEPENDENT_VARIABLE_CARDINALITY in the x-pack classification code.
+const std::size_t CDataFrameTrainBoostedTreeClassifierRunner::MAX_NUMBER_CLASSES{30};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::NUM_CLASSES{"num_classes"};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES{"num_top_classes"};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::PREDICTION_FIELD_TYPE{"prediction_field_type"};

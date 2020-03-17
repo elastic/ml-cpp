@@ -7,6 +7,8 @@
 #ifndef INCLUDED_ml_api_CDataFrameTrainBoostedTreeClassifierRunner_h
 #define INCLUDED_ml_api_CDataFrameTrainBoostedTreeClassifierRunner_h
 
+#include <core/CSmallVector.h>
+
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 #include <api/ImportExport.h>
 
@@ -22,6 +24,10 @@ namespace api {
 class API_EXPORT CDataFrameTrainBoostedTreeClassifierRunner final
     : public CDataFrameTrainBoostedTreeRunner {
 public:
+    using TDouble2Vec = core::CSmallVector<double, 2>;
+    using TReadPredictionFunc = std::function<TDouble2Vec(const TRowRef&)>;
+    using TReadClassScoresFunc = std::function<TDouble2Vec(const TRowRef&)>;
+
     enum EPredictionFieldType {
         E_PredictionFieldTypeString,
         E_PredictionFieldTypeInt,
@@ -29,6 +35,7 @@ public:
     };
 
 public:
+    static const std::size_t MAX_NUMBER_CLASSES;
     static const std::string NUM_CLASSES;
     static const std::string NUM_TOP_CLASSES;
     static const std::string PREDICTION_FIELD_TYPE;
@@ -47,11 +54,12 @@ public:
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
 
     //! Write the prediction for \p row to \p writer.
-    //! This is not intended to be called in production. Should only be used in tests.
+    //!
+    //! \note This is only intended to be called directly from unit tests.
     void writeOneRow(const core::CDataFrame& frame,
                      std::size_t columnHoldingDependentVariable,
-                     std::size_t columnHoldingPrediction,
-                     double probabilityAtWhichToAssignClassOne,
+                     const TReadPredictionFunc& readClassProbabilities,
+                     const TReadClassScoresFunc& readClassScores,
                      const TRowRef& row,
                      core::CRapidJsonConcurrentLineWriter& writer,
                      maths::CTreeShapFeatureImportance* featureImportance = nullptr) const;
@@ -62,6 +70,8 @@ public:
                              const TStrVecVec& categoryNames) const override;
 
 private:
+    static TLossFunctionUPtr loss(std::size_t numberClasses);
+
     void validate(const core::CDataFrame& frame,
                   std::size_t dependentVariableColumn) const override;
 

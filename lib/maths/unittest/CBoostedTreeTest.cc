@@ -91,12 +91,12 @@ private:
     std::atomic<std::int64_t> m_MaxMemoryUsage;
 };
 
-template<typename F>
+template<typename F, typename G>
 auto computeEvaluationMetrics(const core::CDataFrame& frame,
                               std::size_t beginTestRows,
                               std::size_t endTestRows,
-                              std::size_t columnHoldingPrediction,
-                              const F& target,
+                              const F& actual,
+                              const G& target,
                               double noiseVariance) {
 
     TMeanVarAccumulator functionMoments;
@@ -105,7 +105,7 @@ auto computeEvaluationMetrics(const core::CDataFrame& frame,
     frame.readRows(1, beginTestRows, endTestRows, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             functionMoments.add(target(*row));
-            modelPredictionErrorMoments.add(target(*row) - (*row)[columnHoldingPrediction]);
+            modelPredictionErrorMoments.add(target(*row) - actual(*row));
         }
     });
 
@@ -215,7 +215,10 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
             double bias;
             double rSquared;
             std::tie(bias, rSquared) = computeEvaluationMetrics(
-                *frame, trainRows, rows, regression->columnHoldingPrediction(),
+                *frame, trainRows, rows,
+                [&](const TRowRef& row) {
+                    return regression->readPrediction(row)[0];
+                },
                 target, noiseVariance / static_cast<double>(rows));
             modelBias[test].push_back(bias);
             modelRSquared[test].push_back(rSquared);
@@ -483,8 +486,8 @@ BOOST_AUTO_TEST_CASE(testThreading) {
 
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                std::size_t index{regression->columnHoldingPrediction()};
-                modelPredictionErrorMoments.add(target(*row) - (*row)[index]);
+                modelPredictionErrorMoments.add(
+                    target(*row) - regression->readPrediction(*row)[0]);
             }
         });
 
@@ -579,8 +582,7 @@ BOOST_AUTO_TEST_CASE(testConstantTarget) {
 
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
-            std::size_t index{regression->columnHoldingPrediction()};
-            modelPredictionError.add(1.0 - (*row)[index]);
+            modelPredictionError.add(1.0 - regression->readPrediction(*row)[0]);
         }
     });
 
@@ -653,7 +655,9 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
     double modelBias;
     double modelRSquared;
     std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
-        *frame, trainRows, rows, regression->columnHoldingPrediction(), target, 0.0);
+        *frame, trainRows, rows,
+        [&](const TRowRef& row) { return regression->readPrediction(row)[0]; },
+        target, 0.0);
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
@@ -695,7 +699,8 @@ BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
     double modelBias;
     double modelRSquared;
     std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
-        *frame, trainRows, rows, regression->columnHoldingPrediction(),
+        *frame, trainRows, rows,
+        [&](const TRowRef& row) { return regression->readPrediction(row)[0]; },
         [&](const TRowRef& x) { return 10.0 * x[0]; }, 0.0);
 
     LOG_DEBUG(<< "bias = " << modelBias);
@@ -740,7 +745,8 @@ BOOST_AUTO_TEST_CASE(testSingleSplit) {
     double modelBias;
     double modelRSquared;
     std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
-        *frame, 0, rows, regression->columnHoldingPrediction(),
+        *frame, 0, rows,
+        [&](const TRowRef& row) { return regression->readPrediction(row)[0]; },
         [](const TRowRef& row) { return 10.0 * row[0]; }, 0.0);
 
     LOG_DEBUG(<< "bias = " << modelBias);
@@ -800,8 +806,12 @@ BOOST_AUTO_TEST_CASE(testTranslationInvariance) {
 
         double modelBias;
         double modelRSquared;
-        std::tie(modelBias, modelRSquared) = computeEvaluationMetrics(
-            *frame, trainRows, rows, regression->columnHoldingPrediction(), target_, 0.0);
+        std::tie(modelBias, modelRSquared) =
+            computeEvaluationMetrics(*frame, trainRows, rows,
+                                     [&](const TRowRef& row) {
+                                         return regression->readPrediction(row)[0];
+                                     },
+                                     target_, 0.0);
 
         LOG_DEBUG(<< "bias = " << modelBias);
         LOG_DEBUG(<< " R^2 = " << modelRSquared);
@@ -936,21 +946,20 @@ BOOST_AUTO_TEST_CASE(testLogisticRegression) {
         fillDataFrame(trainRows, rows - trainRows, cols, {false, false, false, true},
                       x, TDoubleVec(rows, 0.0), target, *frame);
 
-        auto regression =
+        auto classifier =
             maths::CBoostedTreeFactory::constructFromParameters(
                 1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
                 .buildFor(*frame, cols - 1);
 
-        regression->train();
-        regression->predict();
+        classifier->train();
+        classifier->predict();
 
         TMeanAccumulator logRelativeError;
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (row->index() >= trainRows) {
-                    std::size_t index{regression->columnHoldingPrediction()};
                     double expectedProbability{probability(*row)};
-                    double actualProbability{maths::CTools::logisticFunction((*row)[index])};
+                    double actualProbability{classifier->readPrediction(*row)[1]};
                     logRelativeError.add(
                         std::log(std::max(actualProbability, expectedProbability) /
                                  std::min(actualProbability, expectedProbability)));
@@ -1008,14 +1017,13 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
     }
     frame->finishWritingRows();
 
-    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                          1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
-                          .buildFor(*frame, cols - 1);
+    auto classification =
+        maths::CBoostedTreeFactory::constructFromParameters(
+            1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
+            .buildFor(*frame, cols - 1);
 
-    regression->train();
-    regression->predict();
-    LOG_DEBUG(<< "P(class 1) threshold = "
-              << regression->probabilityAtWhichToAssignClassOne());
+    classification->train();
+    classification->predict();
 
     TDoubleVec precisions;
     TDoubleVec recalls;
@@ -1026,11 +1034,8 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
         TDoubleVec falseNegatives(2, 0.0);
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                double logOddsClassOne{(*row)[regression->columnHoldingPrediction()]};
-                double prediction{maths::CTools::logisticFunction(logOddsClassOne) <
-                                          regression->probabilityAtWhichToAssignClassOne()
-                                      ? 0.0
-                                      : 1.0};
+                double prediction{
+                    classification->readAndAdjustPrediction(*row)[1] < 0.5 ? 0.0 : 1.0};
                 if (row->index() >= trainRows &&
                     row->index() < trainRows + classesRowCounts[2]) {
                     // Actual is zero.
@@ -1053,7 +1058,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
     LOG_DEBUG(<< "recalls    = " << core::CContainerPrinter::print(recalls));
 
     BOOST_TEST_REQUIRE(std::fabs(precisions[0] - precisions[1]) < 0.1);
-    BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.13);
+    BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.14);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
@@ -1247,7 +1252,7 @@ BOOST_AUTO_TEST_CASE(testMissingFeatures) {
     frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
         for (auto row = beginRows; row != endRows; ++row) {
             if (maths::CDataFrameUtils::isMissing((*row)[cols - 1])) {
-                actualPredictions.push_back((*row)[regression->columnHoldingPrediction()]);
+                actualPredictions.push_back(regression->readPrediction(*row)[0]);
             }
         }
     });
