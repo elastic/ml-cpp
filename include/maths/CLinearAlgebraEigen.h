@@ -9,6 +9,7 @@
 
 #include <core/CMemory.h>
 #include <core/CPersistUtils.h>
+#include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
@@ -306,6 +307,16 @@ public:
 
     //! Convert from a std::vector.
     static CDenseVector<SCALAR> fromStdVector(const std::vector<SCALAR>& vector) {
+        CDenseVector<SCALAR> result(vector.size());
+        for (std::size_t i = 0; i < vector.size(); ++i) {
+            result(i) = vector[i];
+        }
+        return result;
+    }
+
+    //! Convert from a core::CSmallVector.
+    template<std::size_t N>
+    static CDenseVector<SCALAR> fromSmallVector(const core::CSmallVector<SCALAR, N>& vector) {
         CDenseVector<SCALAR> result(vector.size());
         for (std::size_t i = 0; i < vector.size(); ++i) {
             result(i) = vector[i];
