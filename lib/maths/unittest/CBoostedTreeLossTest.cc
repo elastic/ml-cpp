@@ -3,14 +3,17 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
+#include <boost/test/tools/old/interface.hpp>
+#include <cmath>
+#include <core/CContainerPrinter.h>
 
-#include "core/CContainerPrinter.h"
-#include "maths/CLbfgs.h"
+#include <maths/CLbfgs.h>
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CPRNG.h>
 #include <maths/CSolvers.h>
 #include <maths/CTools.h>
 #include <maths/CToolsDetail.h>
+#include <maths/CBasicStatistics.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
@@ -35,6 +38,7 @@ using maths::boosted_tree::CBinomialLogisticLoss;
 using maths::boosted_tree::CMultinomialLogisticLoss;
 using maths::boosted_tree_detail::CArgMinBinomialLogisticLossImpl;
 using maths::boosted_tree_detail::CArgMinMultinomialLogisticLossImpl;
+using maths::boosted_tree_detail::CArgMinMsleImpl;
 
 namespace {
 void minimizeGridSearch(std::function<double(const TDoubleVector&)> objective,
@@ -822,6 +826,69 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
             previousGradient = currentGradient;
             previousCurvature = currentCurvature;
         }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testMsleArgminObjective){
+    // Test that the gradient function is close to the numerical derivative
+    // of the objective.
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+    maths::CPRNG::CXorOShiro128Plus rng;
+    test::CRandomNumbers testRng;
+    TMeanAccumulator expectedErrorAccumulator;
+
+    for (std::size_t t = 0; t < 10; ++t) {
+        // double lambda{0.1 * static_cast<double>(t + 1)};
+        double lambda{0.0};
+        CArgMinMsleImpl argmin{lambda};
+
+        TDoubleVec targets;
+        testRng.generateUniformSamples(0.0, 3.0, 20, targets);
+
+        TDoubleVec predictions;
+        if (t == 0) {
+            predictions.resize(3 * targets.size(), 0.0);
+        } else {
+            testRng.generateUniformSamples(0.0, 3.0, targets.size(), predictions);
+        }
+
+        do {
+            for (std::size_t i = 0; i < targets.size(); ++i) {
+                maths::CFloatStorage storage[]{predictions[i]};
+                TMemoryMappedFloatVector prediction{storage, 1};
+                argmin.add(prediction, targets[i]);
+            }
+        } while (argmin.nextPass());
+
+        auto objective = argmin.objective();
+
+        for (std::size_t i = 0; i < targets.size(); ++i) {
+            double error{std::log2(targets[i]+1) - std::log2(predictions[i]+1)};
+            expectedErrorAccumulator.add(error*error);
+        }
+        double expectedObjectiveValue{maths::CBasicStatistics::mean(expectedErrorAccumulator) + lambda};
+        LOG_DEBUG(<< "Objective " << objective(0.0) << " expected " << expectedObjectiveValue);
+        BOOST_REQUIRE_SMALL(std::abs(objective(0.0)-expectedObjectiveValue), 1e-5);
+        // TDoubleVec probes;
+        // testRng.generateUniformSamples(-1.0, 1.0, 30, probes);
+        // for (std::size_t i = 0; i < probes.size(); i += 3) {
+        //     TDoubleVector probe{3};
+        //     probe(0) = probes[i];
+        //     probe(1) = probes[i + 1];
+        //     probe(2) = probes[i + 2];
+
+        //     TDoubleVector expectedGradient{3};
+        //     for (std::size_t j = 0; j < 3; ++j) {
+        //         TDoubleVector shift{TDoubleVector::Zero(3)};
+        //         shift(j) = eps;
+        //         expectedGradient(j) =
+        //             (objective(probe + shift) - objective(probe - shift)) / (2.0 * eps);
+        //     }
+        //     TDoubleVector actualGradient{objectiveGradient(probe)};
+
+        //     BOOST_REQUIRE_SMALL((expectedGradient - actualGradient).norm(), eps);
+        // }
     }
 }
 

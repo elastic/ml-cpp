@@ -69,6 +69,9 @@ private:
 //! \brief Finds the value to add to a set of predictions which approximately
 //! minimises the regularised Mean squared logarithmic error (MSLE).
 class MATHS_EXPORT CArgMinMsleImpl final : public CArgMinLossImpl {
+    public:
+    using TObjective = std::function<double(double)>;
+
 public:
     CArgMinMsleImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
@@ -76,6 +79,9 @@ public:
     void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
+
+    // Exposed for unit testing.
+    TObjective objective() const;
 
 private:
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
@@ -438,6 +444,7 @@ public:
     static const std::string NAME;
 
 public:
+    EType type() const override;
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,

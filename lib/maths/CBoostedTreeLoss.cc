@@ -448,7 +448,7 @@ bool CArgMinMsleImpl::nextPass() {
 }
 
 void CArgMinMsleImpl::add(const TMemoryMappedFloatVector& prediction, double actual, double weight) {
-    double logPrediction{CTools::fastLog(1.0 + std::exp(prediction(0)))};
+    double logPrediction{CTools::fastLog(1.0 + prediction(0))};
     double logActual{CTools::fastLog(1.0 + actual)};
     switch (m_CurrentPass) {
     case 0: {
@@ -461,7 +461,7 @@ void CArgMinMsleImpl::add(const TMemoryMappedFloatVector& prediction, double act
         TVector example;
         example(0) = CTools::pow2(logError);
         example(1) = logError;
-        example(2) = std::exp(prediction(0));
+        example(2) = prediction(0);
         m_Buckets[this->bucket(logPrediction)].add(example, weight);
         break;
     }
@@ -498,33 +498,13 @@ CArgMinMsleImpl::TDoubleVector CArgMinMsleImpl::value() const {
     double maxLogWeight;
 
     if (this->bucketWidth() == 0.0) {
-        objective = [this](double logWeight) {
-            double weight{std::exp(logWeight)};
-            return CTools::fastLog(1.0 + weight) *
-                       CBasicStatistics::count(m_MeanLogActual) *
-                       (CTools::fastLog(1.0 + weight) -
-                        2.0 * CBasicStatistics::mean(m_MeanLogActual)) +
-                   this->lambda() * CTools::pow2(std::exp(logWeight));
-        };
+        objective = this->objective();
 
         minLogWeight = -4.0;
         maxLogWeight = CBasicStatistics::mean(m_MeanLogActual);
 
     } else {
-        objective = [this](double logWeight) {
-            double loss{0.0};
-            for (const auto& bucket : m_Buckets) {
-                double count{CBasicStatistics::count(bucket)};
-                double logMse{CBasicStatistics::mean(bucket)(0)};
-                double logMeanError{CBasicStatistics::mean(bucket)(1)};
-                double prediction{CBasicStatistics::mean(bucket)(2)};
-                double logPredictionRatio{CTools::fastLog(
-                    (1.0 + prediction * std::exp(logWeight)) / (1.0 + prediction))};
-                loss += count * (logMse - 2.0 * logMeanError * logPredictionRatio +
-                                 CTools::pow2(logPredictionRatio));
-            }
-            return loss + this->lambda() * CTools::pow2(std::exp(logWeight));
-        };
+        objective = this->objective();
 
         // If the weight smaller than the minimum log error every prediction is low.
         // Conversely, if it's larger than the maximum log error every prediction is
@@ -562,6 +542,35 @@ CArgMinMsleImpl::TDoubleVector CArgMinMsleImpl::value() const {
     result(0) = globalMinimum[0].second;
     return result;
 }
+
+CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
+    if (this->bucketWidth() == 0.0) {
+        return [this](double logWeight) {
+            double weight{std::exp(logWeight)};
+            return CTools::fastLog(1.0 + weight) *
+                       CBasicStatistics::count(m_MeanLogActual) *
+                       (CTools::fastLog(1.0 + weight) -
+                        2.0 * CBasicStatistics::mean(m_MeanLogActual)) +
+                   this->lambda() * CTools::pow2(std::exp(logWeight));
+        };
+    } else {
+        return [this](double logWeight) {
+            double loss{0.0};
+            for (const auto& bucket : m_Buckets) {
+                double count{CBasicStatistics::count(bucket)};
+                double logMse{CBasicStatistics::mean(bucket)(0)};
+                double logMeanError{CBasicStatistics::mean(bucket)(1)};
+                double prediction{CBasicStatistics::mean(bucket)(2)};
+                double logPredictionRatio{CTools::fastLog(
+                    (1.0 + prediction * std::exp(logWeight)) / (1.0 + prediction))};
+                loss += count * (logMse - 2.0 * logMeanError * logPredictionRatio +
+                                 CTools::pow2(logPredictionRatio));
+            }
+            return loss + this->lambda() * CTools::pow2(std::exp(logWeight));
+        };
+    }
+}
+
 }
 
 namespace boosted_tree {
@@ -647,6 +656,10 @@ const std::string& CMse::name() const {
 }
 
 const std::string CMse::NAME{"mse"};
+
+CLoss::EType CMsle::type() const {
+    return E_Regression;
+}
 
 std::unique_ptr<CLoss> CMsle::clone() const {
     return std::make_unique<CMsle>(*this);
