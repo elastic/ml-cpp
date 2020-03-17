@@ -27,7 +27,11 @@ namespace test {
 //! \brief Collection of helping methods to create regression and classification data for tests.
 class TEST_EXPORT CDataFrameAnalyzerTrainingFactory {
 public:
-    enum EPredictionType { E_Regression, E_BinaryClassification };
+    enum EPredictionType {
+        E_Regression,
+        E_BinaryClassification,
+        E_MulticlassClassification
+    };
     using TStrVec = std::vector<std::string>;
     using TDoubleVec = std::vector<double>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
@@ -57,11 +61,19 @@ public:
         rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, regressors);
 
         TStrVec targets;
-        auto frame = type == E_Regression
-                         ? setupLinearRegressionData(fieldNames, fieldValues, analyzer,
-                                                     weights, regressors, targets)
-                         : setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
-                                                         weights, regressors, targets);
+        auto frame = [&] {
+            switch (type) {
+            case E_Regression:
+                return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
+                                                 weights, regressors, targets);
+            case E_BinaryClassification:
+                return setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
+                                                     weights, regressors, targets);
+            case E_MulticlassClassification:
+                // TODO
+                return TDataFrameUPtr{};
+            }
+        }();
 
         std::unique_ptr<maths::boosted_tree::CLoss> loss;
         if (type == E_Regression) {
@@ -107,10 +119,18 @@ public:
 
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                double prediction{(*row)[tree->columnHoldingPrediction()]};
-                appendPrediction(*frame, weights.size(), prediction,
-                                 tree->probabilityAtWhichToAssignClassOne(),
-                                 expectedPredictions);
+                auto prediction = tree->readAndAdjustPrediction(*row);
+                switch (type) {
+                case E_Regression:
+                    appendPrediction(*frame, weights.size(), prediction[0], expectedPredictions);
+                    break;
+                case E_BinaryClassification:
+                    appendPrediction(*frame, weights.size(), prediction[1], expectedPredictions);
+                    break;
+                case E_MulticlassClassification:
+                    // TODO.
+                    break;
+                }
             }
         });
     }
@@ -133,13 +153,11 @@ private:
     using TRowItr = core::CDataFrame::TRowItr;
 
 private:
-    static void
-    appendPrediction(core::CDataFrame&, std::size_t, double prediction, double, TDoubleVec& predictions);
+    static void appendPrediction(core::CDataFrame&, std::size_t, double prediction, TDoubleVec& predictions);
 
     static void appendPrediction(core::CDataFrame& frame,
-                                 std::size_t columnHoldingPrediction,
-                                 double logOddsClass1,
-                                 double threshold,
+                                 std::size_t target,
+                                 double class1Score,
                                  TStrVec& predictions);
 };
 }

@@ -12,20 +12,17 @@ namespace test {
 void CDataFrameAnalyzerTrainingFactory::appendPrediction(core::CDataFrame&,
                                                          std::size_t,
                                                          double prediction,
-                                                         double,
                                                          TDoubleVec& predictions) {
     predictions.push_back(prediction);
 }
 
 void CDataFrameAnalyzerTrainingFactory::appendPrediction(core::CDataFrame& frame,
-                                                         std::size_t columnHoldingPrediction,
-                                                         double logOddsClass1,
-                                                         double threshold,
+                                                         std::size_t target,
+                                                         double class1Score,
                                                          TStrVec& predictions) {
-    predictions.push_back(
-        maths::CTools::logisticFunction(logOddsClass1) < threshold
-            ? frame.categoricalColumnValues()[columnHoldingPrediction][0]
-            : frame.categoricalColumnValues()[columnHoldingPrediction][1]);
+    predictions.push_back(class1Score < 0.5
+                              ? frame.categoricalColumnValues()[target][0]
+                              : frame.categoricalColumnValues()[target][1]);
 }
 
 CDataFrameAnalyzerTrainingFactory::TDataFrameUPtr
