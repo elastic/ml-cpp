@@ -80,7 +80,7 @@ public:
             : s_DepthPenaltyMultiplier{depthPenaltyMultiplier},
               s_SoftTreeDepthLimit{softTreeDepthLimit}, s_SoftTreeDepthTolerance{softTreeDepthTolerance},
               s_TreeSizePenaltyMultiplier{treeSizePenaltyMultiplier},
-              s_LeafWeightPenaltyMultiplier{leafWeightPenaltyMultiplier} {};
+              s_LeafWeightPenaltyMultiplier{leafWeightPenaltyMultiplier} {}
         double s_DepthPenaltyMultiplier = -1.0;
         double s_SoftTreeDepthLimit = -1.0;
         double s_SoftTreeDepthTolerance = -1.0;

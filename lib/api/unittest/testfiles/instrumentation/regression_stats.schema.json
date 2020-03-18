@@ -2,15 +2,7 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "$id": "https://raw.githubusercontent.com/elastic/ml-json-schemas-private/master/schemas/instrumentation/supervised_learning_stats.schema.json",
   "description": "Instrumentation data specific to the supervised learning jobs.",
-  "title": "supervised_learning_stats",
-  "definitions": {
-    "loss_values": {
-      "type": "array",
-      "items": {
-        "type": "number"
-      }
-    }
-  },
+  "title": "regression_stats",
   "type": "object",
   "properties": {
     "iteration": {
@@ -21,10 +13,6 @@
       "properties": {
         "eta": {
           "type": "number"
-        },
-        "class_assignment_objective": {
-          "type": "string",
-          "enum": ["accuracy", "minimum_recall"]
         },
         "regularization_depth_penalty_multiplier": {
           "type": "number"
@@ -73,19 +61,35 @@
         "loss_type": {
           "description": "Loss metric name",
           "type": "string",
-          "enum": ["mse", "binomial_logistic"]
-
+          "enum": [
+            "mse"
+          ]
         },
-        "values": {
+        "fold_values": {
           "description": "Validation loss values for every added decision tree during forest growing procedure",
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/loss_values"
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fold": {
+                "type": "integer"
+              },
+              "values": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "additionalProperties": false
           }
         }
       },
       "additionalProperties": false,
-      "required": ["loss_type", "values"]
+      "required": [
+        "loss_type",
+        "fold_values"
+      ]
     },
     "timing_stats": {
       "type": "object",

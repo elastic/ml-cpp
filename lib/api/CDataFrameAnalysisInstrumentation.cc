@@ -33,10 +33,11 @@ const std::string TIMING_ELAPSED_TIME_TAG{"elapsed_time"};
 const std::string TIMING_ITERATION_TIME_TAG{"iteration_time"};
 const std::string TIMING_STATS_TAG{"timing_stats"};
 const std::string TYPE_TAG{"type"};
+const std::string VALIDATION_FOLD_TAG{"fold"};
+const std::string VALIDATION_FOLD_VALUES_TAG{"fold_values"};
 const std::string VALIDATION_LOSS_TAG{"validation_loss"};
 const std::string VALIDATION_LOSS_TYPE_TAG{"loss_type"};
 const std::string VALIDATION_LOSS_VALUES_TAG{"values"};
-const std::string VALIDATION_NUM_FOLDS_TAG{"num_folds"};
 
 // Hyperparameters
 const std::string CLASS_ASSIGNMENT_OBJECTIVE_TAG{"class_assignment_objective"};
@@ -278,12 +279,16 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::
             DOWNSAMPLE_FACTOR_TAG,
             rapidjson::Value(this->m_Hyperparameters.s_DownsampleFactor).Move(),
             parentObject);
-        writer->addMember(NUM_FOLDS_TAG,
-                          rapidjson::Value(this->m_Hyperparameters.s_NumFolds).Move(),
-                          parentObject);
-        writer->addMember(MAX_TREES_TAG,
-                          rapidjson::Value(this->m_Hyperparameters.s_MaxTrees).Move(),
-                          parentObject);
+        writer->addMember(
+            NUM_FOLDS_TAG,
+            rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_NumFolds))
+                .Move(),
+            parentObject);
+        writer->addMember(
+            MAX_TREES_TAG,
+            rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_MaxTrees))
+                .Move(),
+            parentObject);
         writer->addMember(
             FEATURE_BAG_FRACTION_TAG,
             rapidjson::Value(this->m_Hyperparameters.s_FeatureBagFraction).Move(),
@@ -294,32 +299,38 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::
             parentObject);
         writer->addMember(
             MAX_ATTEMPTS_TO_ADD_TREE_TAG,
-            rapidjson::Value(this->m_Hyperparameters.s_MaxAttemptsToAddTree).Move(),
+            rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_MaxAttemptsToAddTree))
+                .Move(),
             parentObject);
         writer->addMember(
             NUM_SPLITS_PER_FEATURE_TAG,
-            rapidjson::Value(this->m_Hyperparameters.s_NumSplitsPerFeature).Move(),
+            rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_NumSplitsPerFeature))
+                .Move(),
             parentObject);
-        writer->addMember(MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER_TAG,
-                          rapidjson::Value(this->m_Hyperparameters.s_MaxOptimizationRoundsPerHyperparameter)
-                              .Move(),
-                          parentObject);
+        writer->addMember(
+            MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER_TAG,
+            rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_MaxOptimizationRoundsPerHyperparameter))
+                .Move(),
+            parentObject);
     }
 }
 void CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss(rapidjson::Value& parentObject) {
     auto* writer = this->writer();
     if (writer != nullptr) {
         writer->addMember(VALIDATION_LOSS_TYPE_TAG, m_LossType, parentObject);
-        rapidjson::Value lossValuesObject{writer->makeObject()};
+        rapidjson::Value lossValuesArray{writer->makeArray()};
         for (auto& element : m_LossValues) {
+            rapidjson::Value item{writer->makeObject()};
+            writer->addMember(VALIDATION_FOLD_TAG, element.first, item);
             rapidjson::Value array{writer->makeArray(element.second.size())};
             for (double lossValue : element.second) {
                 array.PushBack(rapidjson::Value(lossValue).Move(),
                                writer->getRawAllocator());
             }
-            writer->addMember(element.first, array, lossValuesObject);
+            writer->addMember(VALIDATION_LOSS_VALUES_TAG, array, item);
+            lossValuesArray.PushBack(item, writer->getRawAllocator());
         }
-        writer->addMember(VALIDATION_LOSS_VALUES_TAG, lossValuesObject, parentObject);
+        writer->addMember(VALIDATION_FOLD_VALUES_TAG, lossValuesArray, parentObject);
     }
 }
 void CDataFrameTrainBoostedTreeInstrumentation::writeTimingStats(rapidjson::Value& parentObject) {

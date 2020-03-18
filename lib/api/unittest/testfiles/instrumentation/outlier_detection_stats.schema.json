@@ -9,7 +9,7 @@
       "type": "object",
       "description": "List of job parameters specified by user or determined by algorithmic heuristics",
       "properties": {
-        "n_neighbours": {
+        "n_neighbors": {
           "description": "Defines the value for how many nearest neighbors each method of outlier detection will use to calculate its outlier score.",
           "type": "integer"
         },
@@ -42,14 +42,19 @@
       },
       "additionalProperties": false
     },
-    "elapsed_time": {
-      "description": "Job runtime so far in ms.",
-      "type": "number"
+    "timing_stats": {
+      "type": "object",
+      "properties": {
+        "elapsed_time": {
+          "description": "Job runtime so far in ms.",
+          "type": "integer"
+        }
+      }
     }
   },
   "required": [
     "parameters",
-    "elapsed_time"
+    "timing_stats"
   ],
   "additionalProperties": false
 }
