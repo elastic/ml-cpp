@@ -693,7 +693,7 @@ public:
     //! \param[in] instrumentation Manages writing out telemetry.
     static void compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
-                        CDataFrameAnalysisInstrumentationInterface& instrumentation);
+                        CDataFrameOutliersInstrumentationInterface& instrumentation);
 
     //! Estimate the amount of memory that will be used computing outliers
     //! for a data frame.

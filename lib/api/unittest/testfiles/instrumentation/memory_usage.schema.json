@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "https://raw.githubusercontent.com/elastic/ml-json-schemas-private/master/schemas/instrumentation/memory_usage.schema.json",
+  "description": "Data frame analytics peak memory usage",
+  "title": "analytics_memory_usage",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "description": "Data Frame Analytics Job ID. Populated by Java.",
+      "type": "string"
+    },
+    "timestamp": {
+      "description": "Milliseconds since Unix Epoch",
+      "type": "integer"
+    },
+    "peak_usage_bytes": {
+      "description": "Peak memory usage for the data frame analytics job in bytes",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "peak_usage_bytes"
+  ],
+  "additionalProperties": false
+}
