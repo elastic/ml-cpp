@@ -92,11 +92,15 @@ double CPrior::offsetMargin() const {
     return 0.0;
 }
 
-void CPrior::addSamples(const TDouble1Vec& /*samples*/, const TDoubleWeightsAry1Vec& weights) {
+void CPrior::addSamples(const TDouble1Vec& samples, const TDoubleWeightsAry1Vec& weights) {
     double n = 0.0;
     try {
-        for (const auto& weight : weights) {
-            n += maths_t::countForUpdate(weight);
+        for (std::size_t i = 0; i < weights.size(); ++i) {
+            double x = samples[i];
+            double n = maths_t::countForUpdate(weights[i]);
+            if (CMathsFuncs::isFinite(x) && CMathsFuncs::isFinite(n)) {
+                n += maths_t::countForUpdate(weights[i]);
+            }
         }
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Failed to extract sample counts: " << e.what());

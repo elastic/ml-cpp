@@ -310,7 +310,11 @@ void COneOfNPrior::addSamples(const TDouble1Vec& samples,
     n = this->numberSamples() - n;
 
     for (std::size_t i = 0; i < samples.size(); ++i) {
-        m_SampleMoments.add(samples[i], maths_t::countForUpdate(weights[i]));
+        double x = samples[i];
+        double n_ = maths_t::countForUpdate(weights[i]);
+        if (CMathsFuncs::isFinite(x) && CMathsFuncs::isFinite(n_)) {
+            m_SampleMoments.add(x, n_);
+        }
     }
 
     // For this 1-of-n model we assume that all the data come from one

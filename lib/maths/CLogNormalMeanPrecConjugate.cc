@@ -577,10 +577,11 @@ public:
         result = 0.0;
         for (std::size_t i = 0u; i < m_Samples.size(); ++i) {
             double residual = m_Samples[i];
-            if (residual <= 0.0) {
+            double n = maths_t::countForUpdate(m_Weights[i]);
+            if (residual <= 0.0 || !CMathsFuncs::isFinite(residual) ||
+                !CMathsFuncs::isFinite(n)) {
                 continue;
             }
-            double n = maths_t::countForUpdate(m_Weights[i]);
             residual = std::log(residual + x) - m_Mean;
             result += n * CTools::pow2(residual);
         }
@@ -779,10 +780,18 @@ void CLogNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
 
         TMeanAccumulator logSamplesMean_;
         for (std::size_t i = 0u; i < samples.size(); ++i) {
+            double x = samples[i] + m_Offset;
             double n = maths_t::countForUpdate(weights[i]);
             double varianceScale = maths_t::seasonalVarianceScale(weights[i]) *
                                    maths_t::countVarianceScale(weights[i]);
-            double x = samples[i] + m_Offset;
+            if (x <= 0.0 || !CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(n) ||
+                !CMathsFuncs::isFinite(varianceScale)) {
+                LOG_ERROR(<< "Discarding sample = " << x << ", weight = " << n
+                          << ", variance scale = " << varianceScale);
+                continue;
+            }
+
+            indices.push_back(i);
             numberSamples += n;
             double t = varianceScale == 1.0
                            ? r
@@ -814,14 +823,17 @@ void CLogNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
     } else {
         TMeanVarAccumulator logSamplesMoments;
         for (std::size_t i = 0u; i < samples.size(); ++i) {
+            double x = samples[i] + m_Offset;
             double n = maths_t::countForUpdate(weights[i]);
             double varianceScale = maths_t::seasonalVarianceScale(weights[i]) *
                                    maths_t::countVarianceScale(weights[i]);
-            double x = samples[i] + m_Offset;
-            if (x <= 0.0) {
-                LOG_ERROR(<< "Discarding " << x << " it's not log-normal");
+            if (x <= 0.0 || !CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(n) ||
+                !CMathsFuncs::isFinite(varianceScale)) {
+                LOG_ERROR(<< "Discarding sample = " << x << ", weight = " << n
+                          << ", variance scale = " << varianceScale);
                 continue;
             }
+
             numberSamples += n;
             double t = varianceScale == 1.0
                            ? r
