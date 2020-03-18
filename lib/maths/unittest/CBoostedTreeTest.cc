@@ -50,7 +50,7 @@ using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAc
 
 namespace {
 
-class CTestInstrumentation : public maths::CDataFrameAnalysisInstrumentationInterface {
+class CTestInstrumentation : public maths::CDataFrameTrainBoostedTreeInstrumentationStub {
 public:
     using TIntVec = std::vector<int>;
 
@@ -86,8 +86,6 @@ public:
         LOG_TRACE(<< "current memory = " << m_MemoryUsage.load()
                   << ", high water mark = " << m_MaxMemoryUsage.load());
     }
-
-    void nextStep(std::uint32_t) override {}
 
 private:
     std::atomic_int m_TotalFractionalProgress;

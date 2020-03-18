@@ -1,0 +1,133 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "https://raw.githubusercontent.com/elastic/ml-json-schemas-private/master/schemas/instrumentation/supervised_learning_stats.schema.json",
+  "description": "Instrumentation data specific to the supervised learning jobs.",
+  "title": "classification_stats",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "description": "Data Frame Analytics Job ID."
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Milliseconds since Unix Epoch"
+    },
+    "iteration": {
+      "type": "integer"
+    },
+    "hyperparameters": {
+      "type": "object",
+      "properties": {
+        "eta": {
+          "type": "number"
+        },
+        "class_assignment_objective": {
+          "type": "string",
+          "enum": [
+            "accuracy",
+            "minimum_recall"
+          ]
+        },
+        "regularization_depth_penalty_multiplier": {
+          "type": "number"
+        },
+        "regularization_soft_tree_depth_limit": {
+          "type": "number"
+        },
+        "regularization_soft_tree_depth_tolerance": {
+          "type": "number"
+        },
+        "regularization_tree_size_penalty_multiplier": {
+          "type": "number"
+        },
+        "regularization_leaf_weight_penalty_multiplier": {
+          "type": "number"
+        },
+        "downsample_factor": {
+          "type": "number"
+        },
+        "num_folds": {
+          "type": "integer"
+        },
+        "max_trees": {
+          "type": "integer"
+        },
+        "feature_bag_fraction": {
+          "type": "number"
+        },
+        "eta_growth_rate_per_tree": {
+          "type": "number"
+        },
+        "max_attempts_to_add_tree": {
+          "type": "integer"
+        },
+        "num_splits_per_feature": {
+          "type": "integer"
+        },
+        "max_optimization_rounds_per_hyperparameter": {
+          "type": "integer"
+        }
+      }
+    },
+    "validation_loss": {
+      "type": "object",
+      "properties": {
+        "loss_type": {
+          "description": "Loss metric name",
+          "type": "string",
+          "enum": [
+            "binomial_logistic"
+          ]
+        },
+        "fold_values": {
+          "description": "Validation loss values for every added decision tree during forest growing procedure",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "fold": {
+                "type": "integer"
+              },
+              "values": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "loss_type",
+        "fold_values"
+      ]
+    },
+    "timing_stats": {
+      "type": "object",
+      "properties": {
+        "elapsed_time": {
+          "description": "Job runtime so far in ms.",
+          "type": "integer"
+        },
+        "iteration_time": {
+          "description": "Runtime of the last iteration in ms.",
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "job_id",
+    "timestamp",
+    "iteration",
+    "hyperparameters",
+    "validation_loss",
+    "timing_stats"
+  ]
+}

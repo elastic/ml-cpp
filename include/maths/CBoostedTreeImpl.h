@@ -65,7 +65,7 @@ public:
     using TRegularization = CBoostedTreeRegularization<double>;
     using TSizeVec = std::vector<std::size_t>;
     using TSizeRange = boost::integer_range<std::size_t>;
-    using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
+    using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
@@ -163,7 +163,7 @@ private:
     using TOptionalSize = boost::optional<std::size_t>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
-    using TNodeVecVecDoublePr = std::pair<TNodeVecVec, double>;
+    using TNodeVecVecDoubleDoubleVecTuple = std::tuple<TNodeVecVec, double, TDoubleVec>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
@@ -203,10 +203,11 @@ private:
                                                      const core::CPackedBitVector& testingRowMask) const;
 
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
-    TNodeVecVecDoublePr trainForest(core::CDataFrame& frame,
-                                    const core::CPackedBitVector& trainingRowMask,
-                                    const core::CPackedBitVector& testingRowMask,
-                                    core::CLoopProgress& trainingProgress) const;
+    TNodeVecVecDoubleDoubleVecTuple
+    trainForest(core::CDataFrame& frame,
+                const core::CPackedBitVector& trainingRowMask,
+                const core::CPackedBitVector& testingRowMask,
+                core::CLoopProgress& trainingProgress) const;
 
     //! Randomly downsamples the training row mask by the downsample factor.
     core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
@@ -294,6 +295,9 @@ private:
 
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;
+
+    //! Record hyperparameters for instrumentation.
+    void recordHyperparameters();
 
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
