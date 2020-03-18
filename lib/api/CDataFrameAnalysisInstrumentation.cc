@@ -115,7 +115,7 @@ void CDataFrameAnalysisInstrumentation::resetProgress() {
 
 void CDataFrameAnalysisInstrumentation::nextStep(const std::string& /* phase */) {
     // TODO reactivate once Java part is ready
-    this->writeState();
+    // this->writeState();
 }
 
 void CDataFrameAnalysisInstrumentation::writeState() {
