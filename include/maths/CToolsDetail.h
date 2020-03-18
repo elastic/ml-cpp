@@ -305,7 +305,8 @@ template<typename T>
 CDenseVector<T> CTools::softmax(CDenseVector<T> z) {
     double zmax{z.maxCoeff()};
     z = (z.array() - zmax).exp();
-    return z / z.template lpNorm<1>();
+    z /= z.template lpNorm<1>();
+    return std::move(z);
 }
 }
 }
