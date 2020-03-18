@@ -7,7 +7,6 @@
 #ifndef INCLUDED_ml_maths_CDataFrameAnalysisInstrumentationInterface_h
 #define INCLUDED_ml_maths_CDataFrameAnalysisInstrumentationInterface_h
 
-#include <c++/7/bits/c++config.h>
 #include <maths/CBoostedTree.h>
 #include <maths/ImportExport.h>
 

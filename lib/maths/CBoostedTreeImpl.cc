@@ -248,9 +248,9 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         this->restoreBestHyperparameters();
         std::tie(m_BestForest, std::ignore, std::ignore) = this->trainForest(
             frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
+        this->recordState(recordTrainStateCallback);
         m_Instrumentation->iteration(m_CurrentRound);
         m_Instrumentation->nextStep(TRAINING_FINAL_TREE_PHASE);
-        this->recordState(recordTrainStateCallback);
 
         timeAccumulator.add(static_cast<double>(stopWatch.stop()));
 
