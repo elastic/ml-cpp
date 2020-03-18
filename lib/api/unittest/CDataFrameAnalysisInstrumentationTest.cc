@@ -90,8 +90,7 @@ BOOST_AUTO_TEST_CASE(testTrainingRegression) {
     rapidjson::ParseResult ok(results.Parse(output.str()));
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
-    std::ifstream regressionSchemaFileStream(
-        "testfiles/instrumentation/supervised_learning_stats.schema.json");
+    std::ifstream regressionSchemaFileStream("testfiles/instrumentation/regression_stats.schema.json");
     BOOST_REQUIRE_MESSAGE(regressionSchemaFileStream.is_open(), "Cannot open test file!");
     std::string regressionSchemaJson((std::istreambuf_iterator<char>(regressionSchemaFileStream)),
                                      std::istreambuf_iterator<char>());
@@ -175,7 +174,7 @@ BOOST_AUTO_TEST_CASE(testTrainingClassification) {
     rapidjson::ParseResult ok(results.Parse(output.str()));
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
-    std::ifstream schemaFileStream("testfiles/instrumentation/supervised_learning_stats.schema.json");
+    std::ifstream schemaFileStream("testfiles/instrumentation/classification_stats.schema.json");
     BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
     std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
                            std::istreambuf_iterator<char>());

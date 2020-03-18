@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_maths_CDataFrameAnalysisInstrumentationInterface_h
 #define INCLUDED_ml_maths_CDataFrameAnalysisInstrumentationInterface_h
 
+#include <c++/7/bits/c++config.h>
 #include <maths/CBoostedTree.h>
 #include <maths/ImportExport.h>
 
@@ -114,7 +115,7 @@ public:
     //! Type of the validation loss result, e.g. "mse".
     virtual void lossType(const std::string& lossType) = 0;
     //! List of \p lossValues of validation error for the given \p fold.
-    virtual void lossValues(std::string fold, TDoubleVec&& lossValues) = 0;
+    virtual void lossValues(std::size_t fold, TDoubleVec&& lossValues) = 0;
     //! \return Structure contains hyperparameters.
     virtual SHyperparameters& hyperparameters() = 0;
 };
@@ -139,7 +140,7 @@ public:
     void iteration(std::size_t /* iteration */) override {}
     void iterationTime(std::uint64_t /* delta */) override {}
     void lossType(const std::string& /* lossType */) override {}
-    void lossValues(std::string /* fold */, TDoubleVec&& /* lossValues */) override {}
+    void lossValues(std::size_t /* fold */, TDoubleVec&& /* lossValues */) override {}
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; }
 
 private:

@@ -182,7 +182,7 @@ void CDataFrameTrainBoostedTreeInstrumentation::lossType(const std::string& loss
     m_LossType = lossType;
 }
 
-void CDataFrameTrainBoostedTreeInstrumentation::lossValues(std::string fold,
+void CDataFrameTrainBoostedTreeInstrumentation::lossValues(std::size_t fold,
                                                            TDoubleVec&& lossValues) {
     m_LossValues.emplace_back(std::move(fold), std::move(lossValues));
 }
@@ -321,7 +321,9 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeValidationLoss(rapidjson::V
         rapidjson::Value lossValuesArray{writer->makeArray()};
         for (auto& element : m_LossValues) {
             rapidjson::Value item{writer->makeObject()};
-            writer->addMember(VALIDATION_FOLD_TAG, element.first, item);
+            writer->addMember(
+                VALIDATION_FOLD_TAG,
+                rapidjson::Value(static_cast<std::uint64_t>(element.first)).Move(), item);
             rapidjson::Value array{writer->makeArray(element.second.size())};
             for (double lossValue : element.second) {
                 array.PushBack(rapidjson::Value(lossValue).Move(),

@@ -458,7 +458,7 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame) {
         lossMoments.add(loss);
         m_FoldRoundTestLosses[fold][m_CurrentRound] = loss;
         numberTrees.push_back(static_cast<double>(forest.size()));
-        m_Instrumentation->lossValues(std::to_string(fold), std::move(lossValues));
+        m_Instrumentation->lossValues(fold, std::move(lossValues));
     }
     m_TrainingProgress.increment(m_MaximumNumberTrees * folds.size());
     LOG_TRACE(<< "skipped " << folds.size() << " folds");

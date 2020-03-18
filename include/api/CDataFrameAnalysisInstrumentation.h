@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisInstrumentation_h
 #define INCLUDED_ml_api_CDataFrameAnalysisInstrumentation_h
 
+#include <c++/7/bits/c++config.h>
 #include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
@@ -145,7 +146,7 @@ public:
     //! Type of the validation loss result, e.g. "mse".
     void lossType(const std::string& lossType) override;
     //! List of \p lossValues of validation error for the given \p fold.
-    void lossValues(std::string fold, TDoubleVec&& lossValues) override;
+    void lossValues(std::size_t fold, TDoubleVec&& lossValues) override;
     //! \return Structure contains hyperparameters.
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; }
 
@@ -153,7 +154,7 @@ protected:
     counter_t::ECounterTypes memoryCounterType() override;
 
 private:
-    using TLossVec = std::vector<std::pair<std::string, TDoubleVec>>;
+    using TLossVec = std::vector<std::pair<std::size_t, TDoubleVec>>;
 
 private:
     void writeAnalysisStats(std::int64_t timestamp) override;
