@@ -7,7 +7,6 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisInstrumentation_h
 #define INCLUDED_ml_api_CDataFrameAnalysisInstrumentation_h
 
-#include <c++/7/bits/c++config.h>
 #include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
