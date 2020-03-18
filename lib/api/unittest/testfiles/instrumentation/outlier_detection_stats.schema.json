@@ -5,6 +5,14 @@
   "description": "Instrumentation data specific to the outlier detection jobs.",
   "type": "object",
   "properties": {
+     "job_id": {
+      "type": "string",
+      "description": "Data Frame Analytics Job ID."
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Milliseconds since Unix Epoch"
+    },
     "parameters": {
       "type": "object",
       "description": "List of job parameters specified by user or determined by algorithmic heuristics",
@@ -53,6 +61,8 @@
     }
   },
   "required": [
+    "job_id",
+    "timestamp",
     "parameters",
     "timing_stats"
   ],

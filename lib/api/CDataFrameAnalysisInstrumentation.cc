@@ -18,12 +18,12 @@ namespace api {
 namespace {
 
 // clang-format off
-const std::string ANALYSIS_TYPE_TAG{"analysis_stats"};
 const std::string CLASSIFICATION_STATS_TAG{"classification_stats"};
 const std::string HYPERPARAMETERS_TAG{"hyperparameters"};
 const std::string ITERATION_TAG{"iteration"};
 const std::string JOB_ID_TAG{"job_id"};
 const std::string MEMORY_TYPE_TAG{"analytics_memory_usage"};
+const std::string OUTLIER_DETECTION_STATS{"outlier_detection_stats"};
 const std::string PEAK_MEMORY_USAGE_TAG{"peak_usage_bytes"};
 const std::string PROGRESS_TAG{"progress"};
 const std::string REGRESSION_STATS_TAG{"regression_stats"};
@@ -56,6 +56,15 @@ const std::string REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG{"regularizat
 const std::string REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG{"regularization_soft_tree_depth_limit"};
 const std::string REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG{"regularization_soft_tree_depth_tolerance"};
 const std::string REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG{"regularization_tree_size_penalty_multiplier"};
+
+// Outlier detection parameters
+const std::string N_NEIGHBORS{"n_neighbors"};
+const std::string METHODS{"methods"};
+const std::string COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
+const std::string FEATURE_INFLUENCE_THRESHOLD{"feature_influence_threshold"};
+const std::string OUTLIER_FRACTION{"outlier_fraction"};
+const std::string STANDARDIZATION_ENABLED{"standardization_enabled"};
+
 // clang-format on
 
 const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
@@ -106,7 +115,7 @@ void CDataFrameAnalysisInstrumentation::resetProgress() {
 
 void CDataFrameAnalysisInstrumentation::nextStep(const std::string& /* phase */) {
     // TODO reactivate once Java part is ready
-    // this->writeState();
+    this->writeState();
 }
 
 void CDataFrameAnalysisInstrumentation::writeState() {
@@ -115,7 +124,6 @@ void CDataFrameAnalysisInstrumentation::writeState() {
         m_Writer->StartObject();
         m_Writer->Key(MEMORY_TYPE_TAG);
         this->writeMemory(timestamp);
-        m_Writer->Key(ANALYSIS_TYPE_TAG);
         this->writeAnalysisStats(timestamp);
         m_Writer->EndObject();
     }
@@ -157,6 +165,7 @@ counter_t::ECounterTypes CDataFrameTrainBoostedTreeInstrumentation::memoryCounte
 void CDataFrameOutliersInstrumentation::writeAnalysisStats(std::int64_t timestamp) {
     auto writer = this->writer();
     if (writer != nullptr) {
+        writer->Key(OUTLIER_DETECTION_STATS);
         writer->StartObject();
         writer->Key(JOB_ID_TAG);
         writer->String(this->jobId());
@@ -191,11 +200,6 @@ void CDataFrameTrainBoostedTreeInstrumentation::lossValues(std::size_t fold,
 void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t timestamp) {
     auto* writer = this->writer();
     if (writer != nullptr) {
-        writer->StartObject();
-        writer->Key(JOB_ID_TAG);
-        writer->String(this->jobId());
-        writer->Key(TIMESTAMP_TAG);
-        writer->Int64(timestamp);
         switch (m_Type) {
         case E_Regression:
             writer->Key(REGRESSION_STATS_TAG);
@@ -205,10 +209,13 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t 
             break;
         default:
             LOG_ERROR(<< "Supervised learning type unknown or not set.");
-            writer->EndObject();
             return;
         }
         writer->StartObject();
+        writer->Key(JOB_ID_TAG);
+        writer->String(this->jobId());
+        writer->Key(TIMESTAMP_TAG);
+        writer->Int64(timestamp);
         writer->Key(ITERATION_TAG);
         writer->Uint64(m_Iteration);
 
@@ -227,7 +234,6 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t 
         writer->Key(TIMING_STATS_TAG);
         writer->write(timingStatsObject);
 
-        writer->EndObject();
         writer->EndObject();
     }
     this->reset();
