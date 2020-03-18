@@ -361,15 +361,18 @@ void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& fram
     if (m_Loss->type() == CLoss::E_BinaryClassification ||
         m_Loss->type() == CLoss::E_MulticlassClassification) {
 
+        std::size_t numberClasses{m_Loss->type() == CLoss::E_BinaryClassification
+                                      ? 2
+                                      : m_Loss->numberParameters()};
+
         switch (m_ClassAssignmentObjective) {
         case CBoostedTree::E_Accuracy:
-            m_ClassificationWeights = TVector::Ones(m_Loss->numberParameters());
+            m_ClassificationWeights = TVector::Ones(numberClasses);
             break;
         case CBoostedTree::E_MinimumRecall:
             m_ClassificationWeights = CDataFrameUtils::maximumMinimumRecallClassWeights(
                 m_NumberThreads, frame, this->allTrainingRowsMask(),
-                m_Loss->type() == CLoss::E_BinaryClassification ? 2 : m_Loss->numberParameters(),
-                m_DependentVariable, [this](const TRowRef& row) {
+                numberClasses, m_DependentVariable, [this](const TRowRef& row) {
                     return m_Loss->transform(readPrediction(
                         row, m_NumberInputColumns, m_Loss->numberParameters()));
                 });
