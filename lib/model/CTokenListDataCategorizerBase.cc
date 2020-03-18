@@ -632,10 +632,10 @@ CDataCategorizer::TIntVec CTokenListDataCategorizerBase::usurpedCategories(int c
         LOG_ERROR(<< "Programmatic error - invalid ML category: " << categoryId);
         return usurped;
     }
-    auto iter = std::find_if(m_CategoriesByCount.begin(), m_CategoriesByCount.end(), 
-                             [categoryId](const TSizeSizePr& pr){
+    auto iter = std::find_if(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
+                             [categoryId](const TSizeSizePr& pr) {
                                  return pr.second == static_cast<std::size_t>(categoryId);
-                                 });
+                             });
     if (iter == m_CategoriesByCount.end()) {
         LOG_WARN(<< "Could not find category definition for category: " << categoryId);
         return usurped;
@@ -643,7 +643,8 @@ CDataCategorizer::TIntVec CTokenListDataCategorizerBase::usurpedCategories(int c
     ++iter;
     const CTokenListCategory& category{m_Categories[categoryId - 1]};
     for (; iter != m_CategoriesByCount.end(); ++iter) {
-        const CTokenListCategory& lessFrequentCategory{m_Categories[static_cast<int>(iter->second) - 1]};
+        const CTokenListCategory& lessFrequentCategory{
+            m_Categories[static_cast<int>(iter->second) - 1]};
         bool matchesSearch{category.maxMatchingStringLen() >=
                                lessFrequentCategory.maxMatchingStringLen() &&
                            category.isMissingCommonTokenWeightZero(

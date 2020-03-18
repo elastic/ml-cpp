@@ -60,9 +60,8 @@ CTokenListCategory::CTokenListCategory(bool isDryRun,
       m_OrderedCommonTokenEndIndex{baseTokenIds.size()},
       // Note: m_CommonUniqueTokenIds is required to be in sorted order, and
       // this relies on uniqueTokenIds being in sorted order
-      m_CommonUniqueTokenIds{uniqueTokenIds.begin(), uniqueTokenIds.end()},
-      m_CommonUniqueTokenWeight{0}, m_OrigUniqueTokenWeight{0}, m_NumMatches{isDryRun ? 0u : 1u},
-      m_Changed{!isDryRun} {
+      m_CommonUniqueTokenIds{uniqueTokenIds.begin(), uniqueTokenIds.end()}, m_CommonUniqueTokenWeight{0},
+      m_OrigUniqueTokenWeight{0}, m_NumMatches{isDryRun ? 0u : 1u}, m_Changed{!isDryRun} {
     for (auto uniqueTokenId : uniqueTokenIds) {
         m_CommonUniqueTokenWeight += uniqueTokenId.second;
     }

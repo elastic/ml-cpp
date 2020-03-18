@@ -147,7 +147,7 @@ private:
     void acknowledgeFlush(const std::string& flushId, bool lastHandler);
 
     //! Writes out to the JSON output writer any category that has changed
-    //! since the last time this method was called. 
+    //! since the last time this method was called.
     void writeOutChangedCategories();
 
 private:

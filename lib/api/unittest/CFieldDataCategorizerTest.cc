@@ -386,14 +386,14 @@ BOOST_AUTO_TEST_CASE(flushWritesOnlyChangedCategories) {
         std::string::size_type start = 0;
         while ((start = str.find(substr, start)) != std::string::npos) {
             ++occurrences;
-            start += substr.length(); 
+            start += substr.length();
         }
         return occurrences;
     };
     //! Output should have category_id 1 3 times. 2 for the first two calls, and one for the flush
     BOOST_REQUIRE_EQUAL(findOccurrences(output, "\"category_id\":1"), 3);
 
-    //! Output should only have the initial persistence as it did not change after the flush 
+    //! Output should only have the initial persistence as it did not change after the flush
     BOOST_REQUIRE_EQUAL(findOccurrences(output, "\"category_id\":2"), 1);
 }
 
@@ -435,7 +435,7 @@ BOOST_AUTO_TEST_CASE(finalizeWritesOnlyChangedCategories) {
         std::string::size_type start = 0;
         while ((start = str.find(substr, start)) != std::string::npos) {
             ++occurrences;
-            start += substr.length(); 
+            start += substr.length();
         }
         return occurrences;
     };
@@ -444,7 +444,7 @@ BOOST_AUTO_TEST_CASE(finalizeWritesOnlyChangedCategories) {
     //! Output should have category_id 1 3 times. 2 for the first two calls, and one for the finalize
     BOOST_REQUIRE_EQUAL(findOccurrences(output, "\"category_id\":1"), 3);
 
-    //! Output should only have the initial persistence as it did not change after the finalize  
+    //! Output should only have the initial persistence as it did not change after the finalize
     BOOST_REQUIRE_EQUAL(findOccurrences(output, "\"category_id\":2"), 1);
 }
 
