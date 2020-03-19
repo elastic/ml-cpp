@@ -663,7 +663,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerRandom) {
 
         LOG_DEBUG(<< "sum min objective grid search = " << sumObjectiveGridSearch);
         LOG_DEBUG(<< "sum objective(actual) = " << sumObjectiveAtActual);
-        BOOST_TEST_REQUIRE(sumObjectiveAtActual < sumObjectiveGridSearch);
+        BOOST_TEST_REQUIRE(sumObjectiveAtActual < 1.01 * sumObjectiveGridSearch);
     }
 }
 

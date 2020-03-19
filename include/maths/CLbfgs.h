@@ -206,6 +206,8 @@ private:
         m_Dg.clear();
         m_Dx.set_capacity(std::min(m_Rank, las::dimension(x0)));
         m_Dg.set_capacity(std::min(m_Rank, las::dimension(x0)));
+        m_Rho.clear();
+        m_Alpha.clear();
     }
 
     bool converged(double eps) const {

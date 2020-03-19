@@ -616,7 +616,6 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                                 std::max(m_NumberSplitsPerFeature, std::size_t{50}), m_Rng},
             m_Encoder.get(),
             [this](const TRowRef& row) {
-                // TODO Think about what scalar measure of the Hessian to use here?
                 std::size_t numberLossParameters{m_Loss->numberParameters()};
                 return trace(numberLossParameters,
                              readLossCurvature(row, m_NumberInputColumns, numberLossParameters));

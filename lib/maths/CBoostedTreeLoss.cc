@@ -247,7 +247,7 @@ bool CArgMinMultinomialLogisticLossImpl::nextPass() {
 
     if (m_CurrentPass++ == 0) {
         TKMeans::TSphericalClusterVecVec clusters;
-        if (m_PredictionSketch.kmeans(NUMBER_CENTRES / 2, clusters) == false) {
+        if (m_PredictionSketch.kmeans(NUMBER_CENTRES / 4, clusters) == false) {
             m_Centres.push_back(TDoubleVector::Zero(m_NumberClasses));
             ++m_CurrentPass;
         } else {
@@ -365,7 +365,6 @@ CArgMinMultinomialLogisticLossImpl::value() const {
     TDoubleVector x0(m_NumberClasses);
     TObjective objective{this->objective()};
     TObjectiveGradient objectiveGradient{this->objectiveGradient()};
-    CLbfgs<TDoubleVector> lgbfs{5};
     for (std::size_t i = 0; i < NUMBER_RESTARTS; ++i) {
         for (int j = 0; j < x0.size(); ++j) {
             double alpha{CSampling::uniformSample(m_Rng, 0.0, 1.0)};
@@ -375,6 +374,7 @@ CArgMinMultinomialLogisticLossImpl::value() const {
         LOG_TRACE(<< "x0 = " << x0.transpose());
 
         double loss;
+        CLbfgs<TDoubleVector> lgbfs{5};
         std::tie(x0, loss) = lgbfs.minimize(objective, objectiveGradient, std::move(x0));
         if (minLoss.add(loss)) {
             result = x0;
@@ -423,7 +423,7 @@ CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
             return TDoubleVector{2.0 * lambda * weight + lossGradient};
         };
     }
-    return [probabilities, lossGradient, lambda, this](const TDoubleVector& weight) mutable  {
+    return [probabilities, lossGradient, lambda, this](const TDoubleVector& weight) mutable {
         lossGradient.array() = 0.0;
         for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
             double n{m_CentresClassCounts[i].array().sum()};
