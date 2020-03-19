@@ -28,6 +28,9 @@ namespace api {
 namespace {
 // Output
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
+const std::string FEATURE_NAME_FIELD_NAME{"feature_name"};
+const std::string IMPORTANCE_FIELD_NAME{"importance"};
+const std::string FEATURE_IMPORTANCE_FIELD_NAME{"feature_importance"};
 
 const std::set<std::string> PREDICTION_FIELD_NAME_BLACKLIST{IS_TRAINING_FIELD_NAME};
 }
@@ -82,12 +85,19 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
             row, [&writer](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
                            const TStrVec& names,
                            const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+                writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
+                writer.StartArray();
                 for (auto i : indices) {
                     if (shap[i].norm() != 0.0) {
-                        writer.Key(names[i]);
+                        writer.StartObject();
+                        writer.Key(FEATURE_NAME_FIELD_NAME);
+                        writer.String(names[i]);
+                        writer.Key(IMPORTANCE_FIELD_NAME);
                         writer.Double(shap[i](0));
+                        writer.EndObject();
                     }
                 }
+                writer.EndArray();
             });
     }
     writer.EndObject();

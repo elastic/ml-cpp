@@ -44,6 +44,9 @@ const std::string TOP_CLASSES_FIELD_NAME{"top_classes"};
 const std::string CLASS_NAME_FIELD_NAME{"class_name"};
 const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
 const std::string CLASS_SCORE_FIELD_NAME{"class_score"};
+const std::string FEATURE_NAME_FIELD_NAME{"feature_name"};
+const std::string IMPORTANCE_FIELD_NAME{"importance"};
+const std::string FEATURE_IMPORTANCE_FIELD_NAME{"feature_importance"};
 
 const TStrSet PREDICTION_FIELD_NAME_BLACKLIST{
     IS_TRAINING_FIELD_NAME, PREDICTION_PROBABILITY_FIELD_NAME,
@@ -163,16 +166,29 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
 
     if (featureImportance != nullptr) {
         featureImportance->shap(
-            row, [&writer](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
-                           const TStrVec& names,
-                           const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+            row, [&writer, &classValues](
+                     const maths::CTreeShapFeatureImportance::TSizeVec& indices,
+                     const TStrVec& names,
+                     const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+                writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
+                writer.StartArray();
                 for (auto i : indices) {
                     if (shap[i].norm() != 0.0) {
-                        writer.Key(names[i]);
-                        // TODO fixme
-                        writer.Double(shap[i](0));
+                        writer.StartObject();
+                        writer.Key(FEATURE_NAME_FIELD_NAME);
+                        writer.String(names[i]);
+                        double absSum{0.0};
+                        for (int j = 0; j < shap[i].size(); ++j) {
+                            absSum += std::abs(shap[i](j));
+                            writer.Key(classValues[j]);
+                            writer.Double(shap[i](j));
+                        }
+                        writer.Key(IMPORTANCE_FIELD_NAME);
+                        writer.Double(absSum);
+                        writer.EndObject();
                     }
                 }
+                writer.EndArray();
             });
     }
     writer.EndObject();
