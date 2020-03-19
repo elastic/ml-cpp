@@ -903,16 +903,15 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
     // The idea of this test is to create a random linear relationship between
     // the feature values and the log-odds of class 1, i.e.
     //
-    //   log-odds(class_1) = sum_i{ w * x_i }
+    //   log-odds(class_1) = sum_i{ w * x_i + noise }
     //
     // where, w is some fixed weight vector and x_i denoted the i'th feature vector.
     //
     // We try to recover this relationship in logistic regression by observing
-    // the actual labels. We want to test that we've roughly correctly estimated
-    // the linear function. However, we target the cross-entropy which means we
-    // target effectively target relative error in the estimated probabilities.
-    // We therefore check the log of the ratio between the actual and predicted
-    // class probabilities.
+    // the actual labels and want to test that we've roughly correctly estimated
+    // the linear function. Because we target the cross-entropy we're effectively
+    // targeting relative error in the estimated probabilities. Therefore, we bound
+    // the log of the ratio between the actual and predicted class probabilities.
 
     test::CRandomNumbers rng;
 
@@ -1075,11 +1074,10 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
     // some fixed weight matrix and x_i denoted the i'th feature vector.
     //
     // We try to recover this relationship in logistic regression by observing
-    // the actual labels. We want to test that we've roughly correctly estimated
-    // the linear function. However, we target the cross-entropy which means we
-    // target effectively target relative error in the estimated probabilities.
-    // We therefore check the log of the ratio between the actual and predicted
-    // class probabilities.
+    // the actual labels and want to test that we've roughly correctly estimated
+    // the linear function. Because we target the cross-entropy we're effectively
+    // targeting relative error in the estimated probabilities. Therefore, we bound
+    // the log of the ratio between the actual and predicted class probabilities.
 
     using TVector = maths::CDenseVector<double>;
     using TMemoryMappedMatrix = maths::CMemoryMappedDenseMatrix<double>;
@@ -1100,7 +1098,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
     TDoubleVec noise;
     TDoubleVec uniform01;
 
-    for (std::size_t test = 0; test < 1 /*TODO 3*/; ++test) {
+    for (std::size_t test = 0; test < 3; ++test) {
         testRng.generateUniformSamples(-2.0, 2.0, numberClasses * numberFeatures, weights);
         testRng.generateNormalSamples(0.0, 1.0, numberFeatures * rows, noise);
         testRng.generateUniformSamples(0.0, 1.0, rows, uniform01);
@@ -1160,14 +1158,14 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
                   << maths::CBasicStatistics::mean(logRelativeError));
 
         // TODO investigate results
-        //BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 1.2);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 1.4);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::CBasicStatistics::mean(meanLogRelativeError));
     // TODO investigate results
-    //BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.5);
+    //BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 1.3);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {

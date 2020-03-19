@@ -172,7 +172,8 @@ private:
     using TKMeans = CKMeansOnline<TDoubleVector>;
 
 private:
-    static constexpr std::size_t NUMBER_CENTRES = 64;
+    static constexpr std::size_t NUMBER_CENTRES = 128;
+    static constexpr std::size_t NUMBER_RESTARTS = 5;
 
 private:
     std::size_t m_NumberClasses = 0;
