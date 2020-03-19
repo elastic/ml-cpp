@@ -116,7 +116,7 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
       m_RestoreSearcherSupplier{std::move(restoreSearcherSupplier)} {
 
     rapidjson::Document specification;
-    if (specification.Parse(jsonSpecification.c_str()) == false) {
+    if (specification.Parse(jsonSpecification) == false) {
         HANDLE_FATAL(<< "Input error: failed to parse analysis specification '"
                      << jsonSpecification << "'. Please report this problem.")
     } else {

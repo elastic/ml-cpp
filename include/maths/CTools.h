@@ -692,17 +692,16 @@ public:
     //! must support iterator based access.
     template<typename COLLECTION>
     static COLLECTION softmax(COLLECTION z) {
-        COLLECTION probabilities{std::move(z)};
         double Z{0.0};
         double zmax{*std::max_element(z.begin(), z.end())};
-        for (auto& pi : probabilities) {
-            pi = std::exp(pi - zmax);
-            Z += pi;
+        for (auto& zi : z) {
+            zi = std::exp(zi - zmax);
+            Z += zi;
         }
-        for (auto& pi : probabilities) {
-            pi /= Z;
+        for (auto& zi : z) {
+            zi /= Z;
         }
-        return probabilities;
+        return std::move(z);
     }
 
     //! Specialize the softmax for our dense vector type.
