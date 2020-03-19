@@ -1,0 +1,70 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id": "https://raw.githubusercontent.com/elastic/ml-json-schemas-private/master/schemas/instrumentation/outlier_detection_stats.schema.json",
+  "title": "outlier_detection_stats",
+  "description": "Instrumentation data specific to the outlier detection jobs.",
+  "type": "object",
+  "properties": {
+     "job_id": {
+      "type": "string",
+      "description": "Data Frame Analytics Job ID."
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Milliseconds since Unix Epoch"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "List of job parameters specified by user or determined by algorithmic heuristics",
+      "properties": {
+        "n_neighbors": {
+          "description": "Defines the value for how many nearest neighbors each method of outlier detection will use to calculate its outlier score.",
+          "type": "integer"
+        },
+        "methods": {
+          "description": "List of methods that outlier detection uses.",
+          "type": "array",
+          "items": [
+            {
+              "type": "string"
+            }
+          ],
+          "uniqueItems": true
+        },
+        "compute_feature_influence": {
+          "description": "If true, the feature influence calculation is enabled.",
+          "type": "boolean"
+        },
+        "feature_influence_threshold": {
+          "description": "The minimum outlier score that a document needs to have in order to calculate its feature influence score.",
+          "type": "number"
+        },
+        "outlier_fraction": {
+          "description": "The proportion of the data set that is assumed to be outlying prior to outlier detection.",
+          "type": "number"
+        },
+        "standardization_enabled": {
+          "description": "If true, then the following operation is performed on the columns before computing outlier scores: (x_i - mean(x_i)) / sd(x_i).",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
+    "timing_stats": {
+      "type": "object",
+      "properties": {
+        "elapsed_time": {
+          "description": "Job runtime so far in ms.",
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "required": [
+    "job_id",
+    "timestamp",
+    "parameters",
+    "timing_stats"
+  ],
+  "additionalProperties": false
+}
