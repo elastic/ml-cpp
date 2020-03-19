@@ -66,13 +66,6 @@ const std::string FEATURE_INFLUENCE_THRESHOLD{"feature_influence_threshold"};
 const std::string OUTLIER_FRACTION{"outlier_fraction"};
 const std::string STANDARDIZATION_ENABLED{"standardization_enabled"};
 
-// Outlier detection methods
-const std::string LOF{"Lof"};
-const std::string LDOF{"Ldof"};
-const std::string DISTANCE_KNN{"DistancekNN"};
-const std::string TOTAL_DISTANCE_KNN{"TotalDistancekNN"};
-const std::string ENSEMBLE{"Ensemble"};
-
 // clang-format on
 
 const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
@@ -122,7 +115,8 @@ void CDataFrameAnalysisInstrumentation::resetProgress() {
 }
 
 void CDataFrameAnalysisInstrumentation::nextStep(const std::string& /* phase */) {
-    this->writeState();
+    // TODO activate after Java part is ready
+    // this->writeState();
 }
 
 void CDataFrameAnalysisInstrumentation::writeState() {
