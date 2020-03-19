@@ -116,12 +116,20 @@ class API_EXPORT CDataFrameOutliersInstrumentation final
 public:
     explicit CDataFrameOutliersInstrumentation(const std::string& jobId)
         : CDataFrameAnalysisInstrumentation(jobId) {}
+    void parameters(const maths::COutliers::SComputeParameters& parameters) override;
+    void elapsedTime(std::uint64_t time) override;
 
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
 
 private:
     void writeAnalysisStats(std::int64_t timestamp) override;
+    void writeTimingStats(rapidjson::Value& parentObject);
+    void writeParameters(rapidjson::Value& parentObject);
+
+private:
+    maths::COutliers::SComputeParameters m_Parameters;
+    std::uint64_t m_ElapsedTime;
 };
 
 //! \brief Instrumentation class for Supervised Learning jobs.

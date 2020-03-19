@@ -680,7 +680,7 @@ public:
         std::size_t s_NumberNeighbours;
         //! If true also compute the feature influence.
         bool s_ComputeFeatureInfluence;
-        //! The fraction of true outliers amoung the points.
+        //! The fraction of true outliers among the points.
         double s_OutlierFraction;
     };
 

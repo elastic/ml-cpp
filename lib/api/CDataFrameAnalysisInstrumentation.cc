@@ -24,6 +24,7 @@ const std::string ITERATION_TAG{"iteration"};
 const std::string JOB_ID_TAG{"job_id"};
 const std::string MEMORY_TYPE_TAG{"analytics_memory_usage"};
 const std::string OUTLIER_DETECTION_STATS{"outlier_detection_stats"};
+const std::string PARAMETERS_TAG{"parameters"};
 const std::string PEAK_MEMORY_USAGE_TAG{"peak_usage_bytes"};
 const std::string PROGRESS_TAG{"progress"};
 const std::string REGRESSION_STATS_TAG{"regression_stats"};
@@ -64,6 +65,13 @@ const std::string COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
 const std::string FEATURE_INFLUENCE_THRESHOLD{"feature_influence_threshold"};
 const std::string OUTLIER_FRACTION{"outlier_fraction"};
 const std::string STANDARDIZATION_ENABLED{"standardization_enabled"};
+
+// Outlier detection methods
+const std::string LOF{"Lof"};
+const std::string LDOF{"Ldof"};
+const std::string DISTANCE_KNN{"DistancekNN"};
+const std::string TOTAL_DISTANCE_KNN{"TotalDistancekNN"};
+const std::string ENSEMBLE{"Ensemble"};
 
 // clang-format on
 
@@ -114,8 +122,7 @@ void CDataFrameAnalysisInstrumentation::resetProgress() {
 }
 
 void CDataFrameAnalysisInstrumentation::nextStep(const std::string& /* phase */) {
-    // TODO reactivate once Java part is ready
-    // this->writeState();
+    this->writeState();
 }
 
 void CDataFrameAnalysisInstrumentation::writeState() {
@@ -171,7 +178,75 @@ void CDataFrameOutliersInstrumentation::writeAnalysisStats(std::int64_t timestam
         writer->String(this->jobId());
         writer->Key(TIMESTAMP_TAG);
         writer->Int64(timestamp);
+
+        rapidjson::Value parametersObject{writer->makeObject()};
+        this->writeParameters(parametersObject);
+        writer->Key(PARAMETERS_TAG);
+        writer->write(parametersObject);
+
+        rapidjson::Value timingStatsObject{writer->makeObject()};
+        this->writeTimingStats(timingStatsObject);
+        writer->Key(TIMING_STATS_TAG);
+        writer->write(timingStatsObject);
+
         writer->EndObject();
+    }
+}
+
+void CDataFrameOutliersInstrumentation::parameters(const maths::COutliers::SComputeParameters& parameters) {
+    m_Parameters = parameters;
+}
+
+void CDataFrameOutliersInstrumentation::elapsedTime(std::uint64_t time) {
+    m_ElapsedTime = time;
+}
+
+void CDataFrameOutliersInstrumentation::writeTimingStats(rapidjson::Value& parentObject) {
+    auto* writer = this->writer();
+    if (writer != nullptr) {
+        writer->addMember(TIMING_ELAPSED_TIME_TAG,
+                          rapidjson::Value(m_ElapsedTime).Move(), parentObject);
+    }
+}
+
+void CDataFrameOutliersInstrumentation::writeParameters(rapidjson::Value& parentObject) {
+    auto* writer = this->writer();
+
+    if (writer != nullptr) {
+
+        writer->addMember(
+            N_NEIGHBORS,
+            rapidjson::Value(this->m_Parameters.s_NumberNeighbours).Move(), parentObject);
+        writer->addMember(
+            COMPUTE_FEATURE_INFLUENCE,
+            rapidjson::Value(this->m_Parameters.s_ComputeFeatureInfluence).Move(),
+            parentObject);
+        writer->addMember(OUTLIER_FRACTION,
+                          rapidjson::Value(this->m_Parameters.s_OutlierFraction).Move(),
+                          parentObject);
+        writer->addMember(
+            STANDARDIZATION_ENABLED,
+            rapidjson::Value(this->m_Parameters.s_StandardizeColumns).Move(), parentObject);
+        switch (this->m_Parameters.s_Method) {
+        case maths::COutliers::E_Lof:
+            writer->addMember(METHODS, LOF, parentObject);
+            break;
+        case maths::COutliers::E_Ldof:
+            writer->addMember(METHODS, LDOF, parentObject);
+            break;
+        case maths::COutliers::E_DistancekNN:
+            writer->addMember(METHODS, DISTANCE_KNN, parentObject);
+            break;
+        case maths::COutliers::E_TotalDistancekNN:
+            writer->addMember(METHODS, TOTAL_DISTANCE_KNN, parentObject);
+            break;
+        case maths::COutliers::E_Ensemble:
+            writer->addMember(METHODS, ENSEMBLE, parentObject);
+            break;
+        default:
+            writer->addMember(METHODS, "", parentObject);
+            break;
+        }
     }
 }
 

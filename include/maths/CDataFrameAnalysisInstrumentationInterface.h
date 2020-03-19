@@ -8,6 +8,7 @@
 #define INCLUDED_ml_maths_CDataFrameAnalysisInstrumentationInterface_h
 
 #include <maths/CBoostedTree.h>
+#include <maths/COutliers.h>
 #include <maths/ImportExport.h>
 
 #include <cstdint>
@@ -59,7 +60,11 @@ public:
 };
 
 class MATHS_EXPORT CDataFrameOutliersInstrumentationInterface
-    : virtual public CDataFrameAnalysisInstrumentationInterface {};
+    : virtual public CDataFrameAnalysisInstrumentationInterface {
+public:
+    virtual void parameters(const maths::COutliers::SComputeParameters& parameters) = 0;
+    virtual void elapsedTime(std::uint64_t time) = 0;
+};
 
 //! \brief Instrumentation interface for Supervised Learning jobs.
 //!
