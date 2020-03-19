@@ -28,21 +28,17 @@ namespace api {
 namespace {
 const CDataFrameAnalysisConfigReader& parameterReader() {
     static const CDataFrameAnalysisConfigReader PARAMETER_READER{[] {
-        const std::string lof{"lof"};
-        const std::string ldof{"ldof"};
-        const std::string knn{"distance_kth_nn"};
-        const std::string tnn{"distance_knn"};
         CDataFrameAnalysisConfigReader theReader;
         theReader.addParameter(CDataFrameOutliersRunner::STANDARDIZATION_ENABLED,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(CDataFrameOutliersRunner::N_NEIGHBORS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(CDataFrameOutliersRunner::METHOD,
-                               CDataFrameAnalysisConfigReader::E_OptionalParameter,
-                               {{lof, int{maths::COutliers::E_Lof}},
-                                {ldof, int{maths::COutliers::E_Ldof}},
-                                {knn, int{maths::COutliers::E_DistancekNN}},
-                                {tnn, int{maths::COutliers::E_TotalDistancekNN}}});
+        theReader.addParameter(
+            CDataFrameOutliersRunner::METHOD, CDataFrameAnalysisConfigReader::E_OptionalParameter,
+            {{maths::COutliers::LOF, int{maths::COutliers::E_Lof}},
+             {maths::COutliers::LDOF, int{maths::COutliers::E_Ldof}},
+             {maths::COutliers::DISTANCE_KNN, int{maths::COutliers::E_DistancekNN}},
+             {maths::COutliers::TOTAL_DISTANCE_KNN, int{maths::COutliers::E_TotalDistancekNN}}});
         theReader.addParameter(CDataFrameOutliersRunner::COMPUTE_FEATURE_INFLUENCE,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(CDataFrameOutliersRunner::FEATURE_INFLUENCE_THRESHOLD,

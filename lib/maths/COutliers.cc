@@ -1065,7 +1065,7 @@ void COutliers::compute(const SComputeParameters& params,
     bool successful{frame.inMainMemory() && params.s_NumberPartitions == 1
                         ? computeOutliersNoPartitions(params, frame, instrumentation)
                         : computeOutliersPartitioned(params, frame, instrumentation)};
-    std::uint64_t elapsedTime = stopWatch.lap() - startTime;
+    std::uint64_t elapsedTime{stopWatch.lap() - startTime};
     instrumentation.elapsedTime(elapsedTime);
     instrumentation.nextStep(COMPUTE_OUTLIER_SCORES);
     if (successful == false) {
@@ -1120,5 +1120,26 @@ void COutliers::noopRecordProgress(double) {
 
 void COutliers::noopRecordMemoryUsage(std::int64_t) {
 }
+
+std::string COutliers::print(EMethod method) {
+    switch (method) {
+    case E_Lof:
+        return LOF;
+    case maths::COutliers::E_Ldof:
+        return LDOF;
+    case maths::COutliers::E_DistancekNN:
+        return DISTANCE_KNN;
+    case maths::COutliers::E_TotalDistancekNN:
+        return TOTAL_DISTANCE_KNN;
+    case maths::COutliers::E_Ensemble:
+        return ENSEMBLE;
+    }
+}
+
+const std::string COutliers::LOF{"lof"};
+const std::string COutliers::LDOF{"ldof"};
+const std::string COutliers::DISTANCE_KNN{"distance_kth_nn"};
+const std::string COutliers::TOTAL_DISTANCE_KNN{"distance_knn"};
+const std::string COutliers::ENSEMBLE{"ensemble"};
 }
 }

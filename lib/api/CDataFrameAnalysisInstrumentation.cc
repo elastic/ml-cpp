@@ -234,26 +234,8 @@ void CDataFrameOutliersInstrumentation::writeParameters(rapidjson::Value& parent
         writer->addMember(
             STANDARDIZATION_ENABLED,
             rapidjson::Value(this->m_Parameters.s_StandardizeColumns).Move(), parentObject);
-        switch (this->m_Parameters.s_Method) {
-        case maths::COutliers::E_Lof:
-            writer->addMember(METHOD, LOF, parentObject);
-            break;
-        case maths::COutliers::E_Ldof:
-            writer->addMember(METHOD, LDOF, parentObject);
-            break;
-        case maths::COutliers::E_DistancekNN:
-            writer->addMember(METHOD, DISTANCE_KNN, parentObject);
-            break;
-        case maths::COutliers::E_TotalDistancekNN:
-            writer->addMember(METHOD, TOTAL_DISTANCE_KNN, parentObject);
-            break;
-        case maths::COutliers::E_Ensemble:
-            writer->addMember(METHOD, ENSEMBLE, parentObject);
-            break;
-        default:
-            writer->addMember(METHOD, "", parentObject);
-            break;
-        }
+        writer->addMember(METHOD, maths::COutliers::print(this->m_Parameters.s_Method),
+                          parentObject);
     }
 }
 

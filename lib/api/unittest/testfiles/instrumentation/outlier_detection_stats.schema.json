@@ -25,11 +25,11 @@
           "description": "Method that outlier detection uses.",
           "type": "string",
           "enum": [
-            "Lof",
-            "Ldof",
-            "DistancekNN",
-            "TotalDistancekNN",
-            "Ensemble"
+            "lof",
+            "ldof",
+            "distance_kth_nn",
+            "distance_knn",
+            "ensemble"
           ],
           "uniqueItems": true
         },
@@ -63,6 +63,8 @@
     }
   },
   "required": [
+    "job_id",
+    "timestamp",
     "parameters",
     "timing_stats"
   ],

@@ -659,6 +659,12 @@ public:
     template<typename POINT>
     using TAnnotatedPoint = CAnnotatedVector<POINT, std::size_t>;
 
+    static const std::string LOF;
+    static const std::string LDOF;
+    static const std::string DISTANCE_KNN;
+    static const std::string TOTAL_DISTANCE_KNN;
+    static const std::string ENSEMBLE;
+
     //! The outlier detection methods which are available.
     enum EMethod {
         E_Lof,
@@ -711,6 +717,9 @@ public:
                                                    std::size_t totalNumberPoints,
                                                    std::size_t partitionNumberPoints,
                                                    std::size_t dimension);
+
+    //! Return string representation of the \p method.
+    static std::string print(EMethod method);
 
     //! \name Test Interface
     //@{
