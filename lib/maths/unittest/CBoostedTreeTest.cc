@@ -1077,9 +1077,6 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
     // targeting relative error in the estimated probabilities. Therefore, we bound
     // the log of the ratio between the actual and predicted class probabilities.
 
-    // TODO Reenable when runtime is better.
-    return;
-
     using TVector = maths::CDenseVector<double>;
     using TMemoryMappedMatrix = maths::CMemoryMappedDenseMatrix<double>;
 
@@ -1158,15 +1155,13 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        // TODO investigate results
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 1.4);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 1.8);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::CBasicStatistics::mean(meanLogRelativeError));
-    // TODO investigate results
-    //BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 1.3);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.95);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {

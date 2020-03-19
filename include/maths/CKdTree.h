@@ -154,17 +154,21 @@ public:
         POINT s_Point;
     };
     using TNodeVec = std::vector<SNode>;
+    using TNodeVecItr = typename TNodeVec::iterator;
     using TNodeVecCItr = typename TNodeVec::const_iterator;
 
     //! \brief Iterates points in the tree.
+    template<typename MAYBE_CONST_POINT, typename ITR>
     class TPointIterator
-        : public boost::random_access_iterator_helper<TPointIterator, POINT, std::ptrdiff_t, const POINT*, const POINT&> {
+        : public boost::random_access_iterator_helper<TPointIterator<MAYBE_CONST_POINT, ITR>, MAYBE_CONST_POINT> {
     public:
         TPointIterator() = default;
-        TPointIterator(TNodeVecCItr itr) : m_Itr(itr) {}
-        const POINT& operator*() const { return m_Itr->s_Point; }
-        const POINT* operator->() const { return &m_Itr->s_Point; }
-        const POINT& operator[](std::ptrdiff_t n) { return m_Itr[n].s_Point; }
+        TPointIterator(ITR itr) : m_Itr(itr) {}
+        MAYBE_CONST_POINT& operator*() const { return m_Itr->s_Point; }
+        MAYBE_CONST_POINT* operator->() const { return &m_Itr->s_Point; }
+        MAYBE_CONST_POINT& operator[](std::ptrdiff_t n) {
+            return m_Itr[n].s_Point;
+        }
         bool operator==(const TPointIterator& rhs) const {
             return m_Itr == rhs.m_Itr;
         }
@@ -192,8 +196,10 @@ public:
         }
 
     private:
-        TNodeVecCItr m_Itr;
+        ITR m_Itr;
     };
+    using TPointItr = TPointIterator<POINT, TNodeVecItr>;
+    using TPointCItr = TPointIterator<const POINT, TNodeVecCItr>;
 
 public:
     //! Reserve space for \p n points.
@@ -293,11 +299,15 @@ public:
         }
     }
 
+    //! Get an const iterator over the points in the tree.
+    TPointCItr begin() const { return TPointCItr(m_Nodes.begin()); }
     //! Get an iterator over the points in the tree.
-    TPointIterator begin() const { return TPointIterator(m_Nodes.begin()); }
+    TPointItr begin() { return TPointItr(m_Nodes.begin()); }
 
+    //! Get an const iterator to the end of the points in the tree.
+    TPointCItr end() const { return TPointCItr(m_Nodes.end()); }
     //! Get an iterator to the end of the points in the tree.
-    TPointIterator end() const { return TPointIterator(m_Nodes.end()); }
+    TPointItr end() { return TPointItr(m_Nodes.end()); }
 
     //! A pre-order depth first traversal of the k-d tree nodes.
     //!
