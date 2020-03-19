@@ -69,6 +69,8 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
     m_ComputeFeatureInfluence = parameters[COMPUTE_FEATURE_INFLUENCE].fallback(true);
     m_FeatureInfluenceThreshold = parameters[FEATURE_INFLUENCE_THRESHOLD].fallback(0.1);
     m_OutlierFraction = parameters[OUTLIER_FRACTION].fallback(0.05);
+
+    m_Instrumentation.featureInfluenceThreshold(m_FeatureInfluenceThreshold);
 }
 
 CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec)

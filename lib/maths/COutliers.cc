@@ -10,6 +10,7 @@
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
 
+#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/CIntegration.h>
 #include <maths/CLinearAlgebraEigen.h>

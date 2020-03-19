@@ -14,7 +14,6 @@
 #include <core/Concurrency.h>
 
 #include <maths/CBasicStatistics.h>
-#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CKdTree.h>
 #include <maths/CLinearAlgebraShims.h>
 #include <maths/COrthogonaliser.h>
@@ -34,6 +33,9 @@
 
 namespace ml {
 namespace maths {
+
+class CDataFrameOutliersInstrumentationInterface;
+
 namespace outliers_detail {
 using TDoubleVec = std::vector<double>;
 using TDouble1Vec = core::CSmallVector<double, 1>;

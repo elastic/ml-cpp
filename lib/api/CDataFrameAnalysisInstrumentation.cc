@@ -60,7 +60,7 @@ const std::string REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG{"regularizatio
 
 // Outlier detection parameters
 const std::string N_NEIGHBORS{"n_neighbors"};
-const std::string METHODS{"methods"};
+const std::string METHOD{"method"};
 const std::string COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
 const std::string FEATURE_INFLUENCE_THRESHOLD{"feature_influence_threshold"};
 const std::string OUTLIER_FRACTION{"outlier_fraction"};
@@ -201,6 +201,10 @@ void CDataFrameOutliersInstrumentation::elapsedTime(std::uint64_t time) {
     m_ElapsedTime = time;
 }
 
+void CDataFrameOutliersInstrumentation::featureInfluenceThreshold(double featureInfluenceThreshold) {
+    m_FeatureInfluenceThreshold = featureInfluenceThreshold;
+}
+
 void CDataFrameOutliersInstrumentation::writeTimingStats(rapidjson::Value& parentObject) {
     auto* writer = this->writer();
     if (writer != nullptr) {
@@ -224,27 +228,30 @@ void CDataFrameOutliersInstrumentation::writeParameters(rapidjson::Value& parent
         writer->addMember(OUTLIER_FRACTION,
                           rapidjson::Value(this->m_Parameters.s_OutlierFraction).Move(),
                           parentObject);
+        writer->addMember(FEATURE_INFLUENCE_THRESHOLD,
+                          rapidjson::Value(this->m_FeatureInfluenceThreshold).Move(),
+                          parentObject);
         writer->addMember(
             STANDARDIZATION_ENABLED,
             rapidjson::Value(this->m_Parameters.s_StandardizeColumns).Move(), parentObject);
         switch (this->m_Parameters.s_Method) {
         case maths::COutliers::E_Lof:
-            writer->addMember(METHODS, LOF, parentObject);
+            writer->addMember(METHOD, LOF, parentObject);
             break;
         case maths::COutliers::E_Ldof:
-            writer->addMember(METHODS, LDOF, parentObject);
+            writer->addMember(METHOD, LDOF, parentObject);
             break;
         case maths::COutliers::E_DistancekNN:
-            writer->addMember(METHODS, DISTANCE_KNN, parentObject);
+            writer->addMember(METHOD, DISTANCE_KNN, parentObject);
             break;
         case maths::COutliers::E_TotalDistancekNN:
-            writer->addMember(METHODS, TOTAL_DISTANCE_KNN, parentObject);
+            writer->addMember(METHOD, TOTAL_DISTANCE_KNN, parentObject);
             break;
         case maths::COutliers::E_Ensemble:
-            writer->addMember(METHODS, ENSEMBLE, parentObject);
+            writer->addMember(METHOD, ENSEMBLE, parentObject);
             break;
         default:
-            writer->addMember(METHODS, "", parentObject);
+            writer->addMember(METHOD, "", parentObject);
             break;
         }
     }

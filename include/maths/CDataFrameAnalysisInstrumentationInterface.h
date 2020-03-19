@@ -64,6 +64,7 @@ class MATHS_EXPORT CDataFrameOutliersInstrumentationInterface
 public:
     virtual void parameters(const maths::COutliers::SComputeParameters& parameters) = 0;
     virtual void elapsedTime(std::uint64_t time) = 0;
+    virtual void featureInfluenceThreshold(double featureInfluenceThreshold) = 0;
 };
 
 //! \brief Instrumentation interface for Supervised Learning jobs.
@@ -131,6 +132,9 @@ public:
     void updateMemoryUsage(std::int64_t) override {}
     void updateProgress(double) override {}
     void nextStep(const std::string& /* phase */) override {}
+    void parameters(const maths::COutliers::SComputeParameters& /* parameters */) override{};
+    void elapsedTime(std::uint64_t /* time */) override{};
+    void featureInfluenceThreshold(double /* featureInfluenceThreshold */) override{};
 };
 
 //! \brief Dummies out all instrumentation for supervised learning.
