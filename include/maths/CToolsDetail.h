@@ -304,8 +304,10 @@ void CTools::spread(double a, double b, double separation, T& points) {
 template<typename T>
 CDenseVector<T> CTools::softmax(CDenseVector<T> z) {
     double zmax{z.maxCoeff()};
-    z = (z.array() - zmax).exp();
-    return z / z.template lpNorm<1>();
+    z.array() -= zmax;
+    z = z.array().exp();
+    z /= z.sum();
+    return std::move(z);
 }
 }
 }

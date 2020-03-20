@@ -173,7 +173,7 @@ private:
 
 private:
     static constexpr std::size_t NUMBER_CENTRES = 128;
-    static constexpr std::size_t NUMBER_RESTARTS = 5;
+    static constexpr std::size_t NUMBER_RESTARTS = 3;
 
 private:
     std::size_t m_NumberClasses = 0;
