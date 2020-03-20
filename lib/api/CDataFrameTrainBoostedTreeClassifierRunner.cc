@@ -177,14 +177,19 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                         writer.StartObject();
                         writer.Key(FEATURE_NAME_FIELD_NAME);
                         writer.String(names[i]);
-                        double absSum{0.0};
-                        for (int j = 0; j < shap[i].size(); ++j) {
-                            absSum += std::abs(shap[i](j));
-                            writer.Key(classValues[j]);
-                            writer.Double(shap[i](j));
+                        if (shap[i].size() == 1) {
+                            writer.Key(IMPORTANCE_FIELD_NAME);
+                            writer.Double(shap[i](0));
+                        } else {
+                            double absSum{0.0};
+                            for (int j = 0; j < shap[i].size(); ++j) {
+                                absSum += std::abs(shap[i](j));
+                                writer.Key(classValues[j]);
+                                writer.Double(shap[i](j));
+                            }
+                            writer.Key(IMPORTANCE_FIELD_NAME);
+                            writer.Double(absSum);
                         }
-                        writer.Key(IMPORTANCE_FIELD_NAME);
-                        writer.Double(absSum);
                         writer.EndObject();
                     }
                 }
