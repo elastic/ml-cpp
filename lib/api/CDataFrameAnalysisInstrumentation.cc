@@ -115,7 +115,8 @@ void CDataFrameAnalysisInstrumentation::resetProgress() {
 }
 
 void CDataFrameAnalysisInstrumentation::nextStep(const std::string& /* phase */) {
-    this->writeState();
+    // reactivate once java side is ready
+    // this->writeState();
 }
 
 void CDataFrameAnalysisInstrumentation::writeState() {
