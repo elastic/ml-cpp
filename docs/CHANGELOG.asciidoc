@@ -64,6 +64,7 @@ the build from version 2.20 to 2.34.  (See {ml-pull}1013[#1013].)
 model training. (See {ml-pull}1034[#1034].)
 * Add instrumentation information for supervised learning data frame analytics jobs.
 (See {ml-pull}1031[#1031].)
+* Write out feature importance for multi-class models. (See {ml-pull}1071[#1071])
 
 === Bug Fixes
 
