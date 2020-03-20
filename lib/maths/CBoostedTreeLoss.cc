@@ -448,7 +448,7 @@ bool CArgMinMsleImpl::nextPass() {
 }
 
 void CArgMinMsleImpl::add(const TMemoryMappedFloatVector& prediction, double actual, double weight) {
-    double logPrediction{CTools::fastLog(1.0 + prediction(0))};
+    double logPrediction{CTools::fastLog(1.0 + std::exp(prediction[0]))};
     double logActual{CTools::fastLog(1.0 + actual)};
     switch (m_CurrentPass) {
     case 0: {
@@ -461,7 +461,7 @@ void CArgMinMsleImpl::add(const TMemoryMappedFloatVector& prediction, double act
         TVector example;
         example(0) = CTools::pow2(logError);
         example(1) = logError;
-        example(2) = prediction(0);
+        example(2) = std::exp(prediction(0));
         m_Buckets[this->bucket(logPrediction)].add(example, weight);
         break;
     }
@@ -547,15 +547,17 @@ CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
     if (this->bucketWidth() == 0.0) {
         return [this](double logWeight) {
             double weight{std::exp(logWeight)};
-            return CTools::fastLog(1.0 + weight) *
+            double logWeightPlusOne{CTools::fastLog(1.0 + weight)};
+            return  logWeightPlusOne*
                        CBasicStatistics::count(m_MeanLogActual) *
-                       (CTools::fastLog(1.0 + weight) -
+                       (logWeightPlusOne -
                         2.0 * CBasicStatistics::mean(m_MeanLogActual)) +
-                   this->lambda() * CTools::pow2(std::exp(logWeight));
+                   this->lambda() * CTools::pow2(weight);
         };
     } else {
         return [this](double logWeight) {
             double loss{0.0};
+            double totalCount{0.0};
             for (const auto& bucket : m_Buckets) {
                 double count{CBasicStatistics::count(bucket)};
                 double logMse{CBasicStatistics::mean(bucket)(0)};
@@ -563,10 +565,12 @@ CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
                 double prediction{CBasicStatistics::mean(bucket)(2)};
                 double logPredictionRatio{CTools::fastLog(
                     (1.0 + prediction * std::exp(logWeight)) / (1.0 + prediction))};
-                loss += count * (logMse - 2.0 * logMeanError * logPredictionRatio +
-                                 CTools::pow2(logPredictionRatio));
+                // loss += count * (logMse - 2.0 * logMeanError * logPredictionRatio +
+                //                  CTools::pow2(logPredictionRatio));
+                loss += count*logMse;
+                totalCount += count;
             }
-            return loss + this->lambda() * CTools::pow2(std::exp(logWeight));
+            return loss/totalCount + this->lambda() * CTools::pow2(std::exp(logWeight));
         };
     }
 }

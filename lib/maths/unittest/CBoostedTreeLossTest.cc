@@ -836,26 +836,22 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective){
 
     maths::CPRNG::CXorOShiro128Plus rng;
     test::CRandomNumbers testRng;
-    TMeanAccumulator expectedErrorAccumulator;
 
     for (std::size_t t = 0; t < 10; ++t) {
-        // double lambda{0.1 * static_cast<double>(t + 1)};
-        double lambda{0.0};
+        TMeanAccumulator expectedErrorAccumulator;
+        double lambda{0.1 * static_cast<double>(t + 1)};
         CArgMinMsleImpl argmin{lambda};
 
         TDoubleVec targets;
         testRng.generateUniformSamples(0.0, 3.0, 20, targets);
 
         TDoubleVec predictions;
-        if (t == 0) {
-            predictions.resize(3 * targets.size(), 0.0);
-        } else {
-            testRng.generateUniformSamples(0.0, 3.0, targets.size(), predictions);
-        }
+        predictions.resize(targets.size(), 0.0);
+        testRng.generateUniformSamples(0.0, 3.0, targets.size(), predictions);
 
         do {
             for (std::size_t i = 0; i < targets.size(); ++i) {
-                maths::CFloatStorage storage[]{predictions[i]};
+                maths::CFloatStorage storage[]{std::log(predictions[i])};
                 TMemoryMappedFloatVector prediction{storage, 1};
                 argmin.add(prediction, targets[i]);
             }
@@ -864,11 +860,11 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective){
         auto objective = argmin.objective();
 
         for (std::size_t i = 0; i < targets.size(); ++i) {
-            double error{std::log2(targets[i]+1) - std::log2(predictions[i]+1)};
+            double error{std::log(targets[i]+1) - std::log(predictions[i]+1)};
             expectedErrorAccumulator.add(error*error);
         }
         double expectedObjectiveValue{maths::CBasicStatistics::mean(expectedErrorAccumulator) + lambda};
-        LOG_DEBUG(<< "Objective " << objective(0.0) << " expected " << expectedObjectiveValue);
+        // LOG_DEBUG(<< "Objective " << objective(0.0) << " expected " << expectedObjectiveValue);
         BOOST_REQUIRE_SMALL(std::abs(objective(0.0)-expectedObjectiveValue), 1e-5);
         // TDoubleVec probes;
         // testRng.generateUniformSamples(-1.0, 1.0, 30, probes);
