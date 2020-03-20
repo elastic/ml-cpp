@@ -31,7 +31,7 @@ public:
     virtual ~CDataFrameAnalysisInstrumentationInterface() = default;
     //! Adds \p delta to the memory usage statistics.
     virtual void updateMemoryUsage(std::int64_t delta) = 0;
-    //! This adds \p fractionalProgess to the current progress.
+    //! This adds \p fractionalProgress to the current progress.
     //!
     //! \note The caller should try to ensure that the sum of the values added
     //! at the end of the analysis is equal to one.
@@ -111,7 +111,7 @@ public:
 
 public:
     virtual ~CDataFrameTrainBoostedTreeInstrumentationInterface() = default;
-    //! Supevised learning job \p type, can be E_Regression or E_Classification.
+    //! Supervised learning job \p type, can be E_Regression or E_Classification.
     virtual void type(EStatsType type) = 0;
     //! Current \p iteration number.
     virtual void iteration(std::size_t iteration) = 0;
@@ -132,9 +132,9 @@ public:
     void updateMemoryUsage(std::int64_t) override {}
     void updateProgress(double) override {}
     void nextStep(const std::string& /* phase */) override {}
-    void parameters(const maths::COutliers::SComputeParameters& /* parameters */) override{};
-    void elapsedTime(std::uint64_t /* time */) override{};
-    void featureInfluenceThreshold(double /* featureInfluenceThreshold */) override{};
+    void parameters(const maths::COutliers::SComputeParameters& /* parameters */) override {}
+    void elapsedTime(std::uint64_t /* time */) override {}
+    void featureInfluenceThreshold(double /* featureInfluenceThreshold */) override {}
 };
 
 //! \brief Dummies out all instrumentation for supervised learning.

@@ -115,8 +115,7 @@ void CDataFrameAnalysisInstrumentation::resetProgress() {
 }
 
 void CDataFrameAnalysisInstrumentation::nextStep(const std::string& /* phase */) {
-    // TODO activate after Java part is ready
-    // this->writeState();
+    this->writeState();
 }
 
 void CDataFrameAnalysisInstrumentation::writeState() {
@@ -214,7 +213,9 @@ void CDataFrameOutliersInstrumentation::writeParameters(rapidjson::Value& parent
 
         writer->addMember(
             N_NEIGHBORS,
-            rapidjson::Value(this->m_Parameters.s_NumberNeighbours).Move(), parentObject);
+            rapidjson::Value(static_cast<std::uint64_t>(this->m_Parameters.s_NumberNeighbours))
+                .Move(),
+            parentObject);
         writer->addMember(
             COMPUTE_FEATURE_INFLUENCE,
             rapidjson::Value(this->m_Parameters.s_ComputeFeatureInfluence).Move(),
