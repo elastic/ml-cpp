@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE(testTrainingRegression) {
     bool hasMemoryUsage{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("analytics_memory_usage")) {
-            hasMemoryUsage = false;
+            hasMemoryUsage = true;
             BOOST_TEST_REQUIRE(result["analytics_memory_usage"].IsObject() == true);
             if (result["analytics_memory_usage"].Accept(memoryValidator) == false) {
                 rapidjson::StringBuffer sb;
