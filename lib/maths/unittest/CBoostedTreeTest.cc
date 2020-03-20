@@ -1155,13 +1155,13 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 1.8);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 2.1);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.95);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 1.3);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
