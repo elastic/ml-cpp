@@ -14,7 +14,6 @@
 #include <core/Concurrency.h>
 
 #include <maths/CBasicStatistics.h>
-#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CKdTree.h>
 #include <maths/CLinearAlgebraShims.h>
 #include <maths/COrthogonaliser.h>
@@ -34,6 +33,9 @@
 
 namespace ml {
 namespace maths {
+
+class CDataFrameOutliersInstrumentationInterface;
+
 namespace outliers_detail {
 using TDoubleVec = std::vector<double>;
 using TDouble1Vec = core::CSmallVector<double, 1>;
@@ -657,6 +659,12 @@ public:
     template<typename POINT>
     using TAnnotatedPoint = CAnnotatedVector<POINT, std::size_t>;
 
+    static const std::string LOF;
+    static const std::string LDOF;
+    static const std::string DISTANCE_KNN;
+    static const std::string TOTAL_DISTANCE_KNN;
+    static const std::string ENSEMBLE;
+
     //! The outlier detection methods which are available.
     enum EMethod {
         E_Lof,
@@ -680,7 +688,7 @@ public:
         std::size_t s_NumberNeighbours;
         //! If true also compute the feature influence.
         bool s_ComputeFeatureInfluence;
-        //! The fraction of true outliers amoung the points.
+        //! The fraction of true outliers among the points.
         double s_OutlierFraction;
     };
 
@@ -709,6 +717,9 @@ public:
                                                    std::size_t totalNumberPoints,
                                                    std::size_t partitionNumberPoints,
                                                    std::size_t dimension);
+
+    //! Return string representation of the \p method.
+    static std::string print(EMethod method);
 
     //! \name Test Interface
     //@{
