@@ -5,7 +5,7 @@
   "description": "Instrumentation data specific to the outlier detection jobs.",
   "type": "object",
   "properties": {
-     "job_id": {
+    "job_id": {
       "type": "string",
       "description": "Data Frame Analytics Job ID."
     },
@@ -21,13 +21,15 @@
           "description": "Defines the value for how many nearest neighbors each method of outlier detection will use to calculate its outlier score.",
           "type": "integer"
         },
-        "methods": {
-          "description": "List of methods that outlier detection uses.",
-          "type": "array",
-          "items": [
-            {
-              "type": "string"
-            }
+        "method": {
+          "description": "Method that outlier detection uses.",
+          "type": "string",
+          "enum": [
+            "lof",
+            "ldof",
+            "distance_kth_nn",
+            "distance_knn",
+            "ensemble"
           ],
           "uniqueItems": true
         },
