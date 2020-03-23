@@ -26,6 +26,7 @@
 namespace ml {
 namespace api {
 namespace {
+// Output
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
 
 const std::set<std::string> PREDICTION_FIELD_NAME_BLACKLIST{IS_TRAINING_FIELD_NAME};
