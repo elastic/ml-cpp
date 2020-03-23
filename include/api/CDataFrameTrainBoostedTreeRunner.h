@@ -50,6 +50,12 @@ public:
     static const std::string BAYESIAN_OPTIMISATION_RESTARTS;
     static const std::string NUM_TOP_FEATURE_IMPORTANCE_VALUES;
 
+    //Output
+    static const std::string IS_TRAINING_FIELD_NAME;
+    static const std::string FEATURE_NAME_FIELD_NAME;
+    static const std::string IMPORTANCE_FIELD_NAME;
+    static const std::string FEATURE_IMPORTANCE_FIELD_NAME;
+
 public:
     ~CDataFrameTrainBoostedTreeRunner() override;
 

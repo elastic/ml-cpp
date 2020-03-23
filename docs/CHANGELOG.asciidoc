@@ -65,7 +65,7 @@ model training. (See {ml-pull}1034[#1034].)
 * Add instrumentation information for supervised learning data frame analytics jobs.
 (See {ml-pull}1031[#1031].)
 * Add instrumentation information for outlier detection data frame analytics jobs.
-(See {ml-pull}1068[#1068].)
+* Write out feature importance for multi-class models. (See {ml-pull}1071[#1071])
 
 === Bug Fixes
 
