@@ -83,16 +83,16 @@ protected:
 
 public:
     //! The minimum permitted size for the clusterer.
-    static constexpr std::size_t MINIMUM_SPACE = 4;
+    static const std::size_t MINIMUM_SPACE;
 
     //! The maximum allowed size of the points buffer.
-    static constexpr std::size_t BUFFER_SIZE = 6;
+    static const std::size_t BUFFER_SIZE;
 
     //! The number of times to seed the clustering in reduce.
-    static constexpr std::size_t NUMBER_SEEDS = 5;
+    static const std::size_t NUMBER_SEEDS;
 
     //! The maximum number of iterations to use for k-means in reduce.
-    static constexpr std::size_t MAX_ITERATIONS = 10;
+    static const std::size_t MAX_ITERATIONS;
 
     static const core::TPersistenceTag K_TAG;
     static const core::TPersistenceTag BUFFER_SIZE_TAG;
@@ -652,6 +652,15 @@ private:
     //! The clusters we are maintaining.
     TStoragePointMeanAccumulatorDoublePrVec m_Clusters;
 };
+
+template<typename POINT, typename STORAGE_POINT>
+const std::size_t CKMeansOnline<POINT, STORAGE_POINT>::MINIMUM_SPACE = 4;
+template<typename POINT, typename STORAGE_POINT>
+const std::size_t CKMeansOnline<POINT, STORAGE_POINT>::BUFFER_SIZE = 6;
+template<typename POINT, typename STORAGE_POINT>
+const std::size_t CKMeansOnline<POINT, STORAGE_POINT>::NUMBER_SEEDS = 5;
+template<typename POINT, typename STORAGE_POINT>
+const std::size_t CKMeansOnline<POINT, STORAGE_POINT>::MAX_ITERATIONS = 10;
 
 template<typename POINT, typename STORAGE_POINT>
 const core::TPersistenceTag CKMeansOnline<POINT, STORAGE_POINT>::K_TAG("a", "k");
