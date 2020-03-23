@@ -26,7 +26,9 @@
 namespace ml {
 namespace api {
 namespace {
-const std::set<std::string> PREDICTION_FIELD_NAME_BLACKLIST{"is_training"};
+const std::string IS_TRAINING_FIELD_NAME{"is_training"};
+
+const std::set<std::string> PREDICTION_FIELD_NAME_BLACKLIST{IS_TRAINING_FIELD_NAME};
 }
 
 const CDataFrameAnalysisConfigReader&
@@ -71,7 +73,7 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.StartObject();
     writer.Key(this->predictionFieldName());
     writer.Double(tree.readPrediction(row)[0]);
-    writer.Key(CDataFrameTrainBoostedTreeRunner::IS_TRAINING_FIELD_NAME);
+    writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
     auto featureImportance = tree.shap();
     if (featureImportance != nullptr) {

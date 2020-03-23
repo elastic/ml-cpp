@@ -37,6 +37,7 @@ using TSizeVec = std::vector<std::size_t>;
 using TStrSet = std::set<std::string>;
 
 // Output
+const std::string IS_TRAINING_FIELD_NAME{"is_training"};
 const std::string PREDICTION_PROBABILITY_FIELD_NAME{"prediction_probability"};
 const std::string PREDICTION_SCORE_FIELD_NAME{"prediction_score"};
 const std::string TOP_CLASSES_FIELD_NAME{"top_classes"};
@@ -44,9 +45,9 @@ const std::string CLASS_NAME_FIELD_NAME{"class_name"};
 const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
 const std::string CLASS_SCORE_FIELD_NAME{"class_score"};
 
-const TStrSet PREDICTION_FIELD_NAME_BLACKLIST{"is_training", PREDICTION_PROBABILITY_FIELD_NAME,
-                                              PREDICTION_SCORE_FIELD_NAME,
-                                              TOP_CLASSES_FIELD_NAME};
+const TStrSet PREDICTION_FIELD_NAME_BLACKLIST{
+    IS_TRAINING_FIELD_NAME, PREDICTION_PROBABILITY_FIELD_NAME,
+    PREDICTION_SCORE_FIELD_NAME, TOP_CLASSES_FIELD_NAME};
 }
 
 const CDataFrameAnalysisConfigReader&
