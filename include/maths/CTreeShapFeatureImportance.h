@@ -44,9 +44,6 @@ public:
         std::function<void(const TSizeVec&, const TStrVec&, const TVectorVec&)>;
 
 public:
-    static const std::string SHAP_PREFIX;
-
-public:
     CTreeShapFeatureImportance(const core::CDataFrame& frame,
                                const CDataFrameCategoryEncoder& encoder,
                                TTreeVec& trees,

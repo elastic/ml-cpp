@@ -28,7 +28,7 @@ CTreeShapFeatureImportance::CTreeShapFeatureImportance(const core::CDataFrame& f
 
     m_ColumnNames.reserve(frame.columnNames().size());
     for (const auto& name : frame.columnNames()) {
-        m_ColumnNames.push_back(SHAP_PREFIX + name);
+        m_ColumnNames.push_back(name);
     }
 
     // When traversing a tree, we successively copy the parent path and add one
@@ -311,7 +311,5 @@ void CTreeShapFeatureImportance::unwindPath(CSplitPath& path, int pathIndex, int
     }
     --nextIndex;
 }
-
-const std::string CTreeShapFeatureImportance::SHAP_PREFIX{"feature_importance."};
 }
 }

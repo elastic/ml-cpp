@@ -75,6 +75,7 @@ public:
 
     // Classification
     CDataFrameAnalysisSpecificationFactory& numberClasses(std::size_t number);
+    CDataFrameAnalysisSpecificationFactory& numberTopClasses(std::size_t number);
     CDataFrameAnalysisSpecificationFactory& predictionFieldType(const std::string& type);
 
     std::string outlierParams() const;
@@ -117,6 +118,7 @@ private:
     TRestoreSearcherSupplier* m_RestoreSearcherSupplier = nullptr;
     // Classification
     std::size_t m_NumberClasses = 2;
+    std::size_t m_NumberTopClasses = 0;
     std::string m_PredictionFieldType;
 };
 }
