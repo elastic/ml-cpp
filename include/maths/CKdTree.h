@@ -36,6 +36,18 @@ namespace kdtree_detail {
 //! \brief Stubs out the node data parameter for k-d tree.
 struct SEmptyNodeData {};
 
+template<typename T>
+struct unwrapped_ref {
+    using type = T;
+};
+template<typename T>
+struct unwrapped_ref<std::reference_wrapper<T>> {
+    using type = T;
+};
+template<typename T>
+struct unwrapped_ref<std::reference_wrapper<const T>> {
+    using type = T;
+};
 } // kdtree_detail::
 
 //! \brief A k-d tree.
@@ -63,8 +75,9 @@ template<typename POINT, typename NODE_DATA = kdtree_detail::SEmptyNodeData>
 class CKdTree {
 public:
     using TDoubleVec = std::vector<double>;
+    using TPoint = typename kdtree_detail::unwrapped_ref<POINT>::type;
     using TPointVec = std::vector<POINT>;
-    using TCoordinate = typename SCoordinate<POINT>::Type;
+    using TCoordinate = typename SCoordinate<TPoint>::Type;
     using TCoordinatePrecise = typename SPromoted<TCoordinate>::Type;
     using TPointCRef = std::reference_wrapper<const POINT>;
     using TCoordinatePrecisePointCRefPr = std::pair<TCoordinatePrecise, TPointCRef>;
@@ -74,7 +87,7 @@ public:
     class CCoordinateLess {
     public:
         CCoordinateLess(std::size_t i) : m_I(i) {}
-        bool operator()(const POINT& lhs, const POINT& rhs) const {
+        bool operator()(const TPoint& lhs, const TPoint& rhs) const {
             return lhs(m_I) < rhs(m_I);
         }
 
@@ -230,7 +243,7 @@ public:
         if (begin == end) {
             return;
         }
-        m_Dimension = las::dimension(*begin);
+        m_Dimension = las::dimension(unwrap(*begin));
         m_Nodes.clear();
         m_Nodes.reserve(std::distance(begin, end));
         this->buildRecursively(nullptr, // Parent pointer
@@ -242,16 +255,21 @@ public:
     std::size_t size() const { return m_Nodes.size(); }
 
     //! Branch and bound search for nearest neighbour of \p point.
-    const POINT* nearestNeighbour(const POINT& point) const {
+    const POINT* nearestNeighbour(const TPoint& point) const {
+        // Sometimes the return type of las::zero() is not POINT. In this case
+        // we must convert it to POINT, but also must be careful that the POINT
+        // doesn't then end up referencing data owned by a temporary that has
+        // been destroyed.  (Some classes used for POINT do shallow copies.)
+        auto temp = las::zero(point);
+        TPoint distancesToHyperplanes{std::move(temp)};
+        return this->nearestNeighbour(point, distancesToHyperplanes);
+    }
+
+    //! Branch and bound search for nearest neighbour of \p point.
+    const POINT* nearestNeighbour(const TPoint& point, TPoint& distancesToHyperplanes) const {
         const POINT* nearest{nullptr};
         if (m_Nodes.size() > 0) {
             auto inf = std::numeric_limits<TCoordinatePrecise>::max();
-            // Sometimes the return type of las::zero() is not POINT. In this case
-            // we must convert it to POINT, but also must be careful that the POINT
-            // doesn't then end up referencing data owned by a temporary that has
-            // been destroyed.  (Some classes used for POINT do shallow copies.)
-            auto temp = las::zero(point);
-            POINT distancesToHyperplanes{std::move(temp)};
             return this->nearestNeighbour(point, m_Nodes[0], distancesToHyperplanes,
                                           0 /*split coordinate*/, nearest, inf);
         }
@@ -259,7 +277,21 @@ public:
     }
 
     //! Branch and bound search for nearest \p n neighbours of \p point.
-    void nearestNeighbours(std::size_t n, const POINT& point, TPointVec& result) const {
+    void nearestNeighbours(std::size_t n, const TPoint& point, TPointVec& result) const {
+        // Sometimes the return type of las::zero() is not POINT. In this case
+        // we must convert it to POINT, but also must be careful that the POINT
+        // doesn't then end up referencing data owned by a temporary that has
+        // been destroyed.  (Some classes used for POINT do shallow copies.)
+        auto temp = las::zero(point);
+        TPoint distancesToHyperplanes{std::move(temp)};
+        return this->nearestNeighbours(n, point, distancesToHyperplanes, result);
+    }
+
+    //! Branch and bound search for nearest \p n neighbours of \p point.
+    void nearestNeighbours(std::size_t n,
+                           const TPoint& point,
+                           TPoint& distancesToHyperplanes,
+                           TPointVec& result) const {
 
         result.clear();
 
@@ -271,12 +303,6 @@ public:
             // with infinite distances so we get the correct value for the furthest
             // nearest neighbour at the start of the branch and bound search.
             COrderings::SLess less;
-            // Sometimes the return type of las::zero() is not POINT. In this case
-            // we must convert it to POINT, but also must be careful that the POINT
-            // doesn't then end up referencing data owned by a temporary that has
-            // been destroyed.  (Some classes used for POINT do shallow copies.)
-            auto temp = las::zero(point);
-            POINT distancesToHyperplanes{std::move(temp)};
             TCoordinatePrecisePointCRefPrVec neighbours(
                 n, {inf, std::cref(m_Nodes[0].s_Point)});
             this->nearestNeighbours(point, less, m_Nodes[0], distancesToHyperplanes,
@@ -390,17 +416,17 @@ private:
     }
 
     //! Recursively find the nearest point to \p point.
-    const POINT* nearestNeighbour(const POINT& point,
+    const POINT* nearestNeighbour(const TPoint& point,
                                   const SNode& node,
-                                  POINT& distancesToHyperplanes,
+                                  TPoint& distancesToHyperplanes,
                                   std::size_t coordinate,
                                   const POINT* nearest,
                                   TCoordinatePrecise& distanceToNearest) const {
 
-        TCoordinatePrecise distance{las::distance(point, node.s_Point)};
+        TCoordinatePrecise distance{las::distance(point, unwrap(node.s_Point))};
 
         if (distance < distanceToNearest ||
-            (distance == distanceToNearest && node.s_Point < point)) {
+            (distance == distanceToNearest && unwrap(node.s_Point) < point)) {
             distanceToNearest = distance;
             nearest = &node.s_Point;
         }
@@ -409,7 +435,8 @@ private:
         const SNode* secondary{node.s_RightChild};
 
         if (primary != nullptr && secondary != nullptr) {
-            TCoordinate distanceToHyperplane{point(coordinate) - node.s_Point(coordinate)};
+            TCoordinate distanceToHyperplane{point(coordinate) -
+                                             unwrap(node.s_Point)(coordinate)};
 
             if (distanceToHyperplane > TCoordinate{0}) {
                 std::swap(primary, secondary);
@@ -441,20 +468,20 @@ private:
     }
 
     //! Recursively find the nearest point to \p point.
-    void nearestNeighbours(const POINT& point,
+    void nearestNeighbours(const TPoint& point,
                            const COrderings::SLess& less,
                            const SNode& node,
-                           POINT& distancesToHyperplanes,
+                           TPoint& distancesToHyperplanes,
                            std::size_t coordinate,
                            TCoordinatePrecisePointCRefPrVec& nearest) const {
 
-        TCoordinatePrecise distance{las::distance(point, node.s_Point)};
+        TCoordinatePrecise distance{las::distance(point, unwrap(node.s_Point))};
 
         if (distance < nearest.front().first ||
-            (distance == nearest.front().first && node.s_Point < point)) {
+            (distance == nearest.front().first && unwrap(node.s_Point) < point)) {
             std::pop_heap(nearest.begin(), nearest.end(), less);
             nearest.back().first = distance;
-            nearest.back().second = std::cref(node.s_Point);
+            nearest.back().second = std::cref(unwrap(node.s_Point));
             std::push_heap(nearest.begin(), nearest.end(), less);
         }
 
@@ -462,7 +489,8 @@ private:
         const SNode* secondary{node.s_RightChild};
 
         if (primary != nullptr && secondary != nullptr) {
-            TCoordinate distanceToHyperplane{point(coordinate) - node.s_Point(coordinate)};
+            TCoordinate distanceToHyperplane{point(coordinate) -
+                                             unwrap(node.s_Point)(coordinate)};
 
             if (distanceToHyperplane > TCoordinate{0}) {
                 std::swap(primary, secondary);
@@ -520,6 +548,11 @@ private:
         ++coordinate;
         // This branch works out significantly faster than modulo.
         return coordinate == m_Dimension ? 0 : coordinate;
+    }
+
+    //! Cast away any reference wrapper.
+    inline static const TPoint& unwrap(const POINT& p) {
+        return static_cast<const TPoint&>(p);
     }
 
 private:

@@ -550,6 +550,9 @@ public:
             return;
         }
 
+        using TPointCRef = std::reference_wrapper<const POINT>;
+        using TPointCRefVec = std::vector<TPointCRef>;
+
         std::size_t n = std::distance(beginPoints, endPoints);
         LOG_TRACE(<< "# points = " << n);
 
@@ -560,24 +563,33 @@ public:
         result.push_back(beginPoints[select]);
         LOG_TRACE(<< "selected to date = " << core::CContainerPrinter::print(result));
 
-        TDoubleVec distances(n, 0.0);
-        CKdTree<POINT> selected;
+        TPointCRefVec selected{std::cref(result.back())};
         selected.reserve(k);
+
+        CKdTree<TPointCRef> selectedLookup;
+        selectedLookup.reserve(k);
+
+        TDoubleVec distances(n, 0.0);
+        POINT distancesToHyperplanes{las::zero(result.back())};
 
         for (std::size_t i = 1; i < k; ++i) {
 
-            selected.build(result);
+            selectedLookup.build(selected);
 
             std::size_t j{0};
             for (ITR point = beginPoints; point != endPoints; ++j, ++point) {
-                const POINT* nn = selected.nearestNeighbour(*point);
-                distances[j] = nn != nullptr ? CTools::pow2(las::distance(*point, *nn)) : 0.0;
+                las::setZero(distancesToHyperplanes);
+                const auto* nn = selectedLookup.nearestNeighbour(*point, distancesToHyperplanes);
+                distances[j] = nn != nullptr
+                                   ? CTools::pow2(las::distance(*point, nn->get()))
+                                   : 0.0;
             }
 
             select = CSampling::categoricalSample(m_Rng, distances);
             LOG_TRACE(<< "select = " << select);
 
             result.push_back(beginPoints[select]);
+            selected.push_back(std::cref(result.back()));
             LOG_TRACE(<< "selected to date = " << core::CContainerPrinter::print(result));
         }
     }
