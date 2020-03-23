@@ -31,6 +31,7 @@
 #include <cstddef>
 #include <iterator>
 #include <numeric>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -52,7 +53,7 @@ namespace maths {
 //! CBasicStatistics::SSampleCentralMoments, support coordinate access
 //! by the brackets operator and have member functions called dimension
 //! and euclidean - which gives the Euclidean norm of the vector.
-template<typename POINT>
+template<typename POINT, typename STORAGE_POINT = typename SFloatingPoint<POINT, CFloatStorage>::Type>
 class CKMeansOnline {
 public:
     using TSizeVec = std::vector<std::size_t>;
@@ -65,14 +66,16 @@ public:
     using TKMeansOnlineVec = std::vector<CKMeansOnline>;
 
 protected:
-    using TFloatPoint = typename SFloatingPoint<POINT, CFloatStorage>::Type;
-    using TFloatCoordinate = typename SCoordinate<TFloatPoint>::Type;
-    using TFloatPointDoublePr = std::pair<TFloatPoint, double>;
-    using TFloatPointDoublePrVec = std::vector<TFloatPointDoublePr>;
-    using TFloatPointMeanAccumulator =
-        typename CBasicStatistics::SSampleMean<TFloatPoint>::TAccumulator;
-    using TFloatPointMeanAccumulatorDoublePr = std::pair<TFloatPointMeanAccumulator, double>;
-    using TFloatPointMeanAccumulatorDoublePrVec = std::vector<TFloatPointMeanAccumulatorDoublePr>;
+    using TStoragePoint = STORAGE_POINT;
+    using TStorageCoordinate = typename SCoordinate<TStoragePoint>::Type;
+    using TStoragePointDoublePr = std::pair<TStoragePoint, double>;
+    using TStoragePointDoublePrVec = std::vector<TStoragePointDoublePr>;
+    using TStoragePointMeanAccumulator =
+        typename CBasicStatistics::SSampleMean<TStoragePoint>::TAccumulator;
+    using TStoragePointMeanAccumulatorDoublePr =
+        std::pair<TStoragePointMeanAccumulator, double>;
+    using TStoragePointMeanAccumulatorDoublePrVec =
+        std::vector<TStoragePointMeanAccumulatorDoublePr>;
     using TDoublePointMeanAccumulator =
         typename CBasicStatistics::SSampleMean<TDoublePoint>::TAccumulator;
     using TDoublePointMeanVarAccumulator =
@@ -125,7 +128,7 @@ public:
     CKMeansOnline(std::size_t k,
                   double decayRate,
                   double minClusterSize,
-                  TFloatPointMeanAccumulatorDoublePrVec& clusters)
+                  TStoragePointMeanAccumulatorDoublePrVec& clusters)
         : CKMeansOnline{k, decayRate, minClusterSize} {
         m_Clusters.swap(clusters);
         m_Clusters.reserve(m_K + m_BufferSize + 1);
@@ -136,7 +139,7 @@ public:
                                 core::CStateRestoreTraverser& traverser) {
         m_DecayRate = params.s_DecayRate;
         m_MinClusterSize = params.s_MinimumCategoryCount;
-        TFloatPointDoublePrVec points;
+        TStoragePointDoublePrVec points;
 
         do {
             const std::string& name{traverser.name()};
@@ -189,14 +192,7 @@ public:
 
     //! Get the clusters being maintained.
     void clusters(TSphericalClusterVec& result) const {
-        result.clear();
-        result.reserve(m_Clusters.size());
-        for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
-            const TFloatPoint& m{CBasicStatistics::mean(m_Clusters[i].first)};
-            double n{CBasicStatistics::count(m_Clusters[i].first)};
-            double v{m_Clusters[i].second};
-            result.emplace_back(m, SCountAndVariance(n, v));
-        }
+        const_cast<CKMeansOnline*>(this)->clusters(result, std::false_type{});
     }
 
     //! Get our best estimate of the \p k means clustering of the
@@ -220,7 +216,7 @@ public:
         TSphericalClusterVec clusters;
         this->clusters(clusters);
 
-        return kmeans(m_Rng, clusters, k, result, m_NumberSeeds, m_MaxIterations);
+        return kmeans(m_Rng, std::move(clusters), k, result, m_NumberSeeds, m_MaxIterations);
     }
 
     //! Get our best estimate of the \p k means clustering of
@@ -233,7 +229,7 @@ public:
     //! of \p clusters.
     template<typename RNG>
     static bool kmeans(RNG& rng,
-                       TSphericalClusterVec& clusters,
+                       TSphericalClusterVec clusters,
                        std::size_t k,
                        TSphericalClusterVecVec& result,
                        std::size_t numberSeeds = NUMBER_SEEDS,
@@ -263,13 +259,14 @@ public:
         }
 
         CKMeans<TSphericalCluster> kmeans;
-        kmeans.setPoints(clusters);
+        kmeans.setPoints(std::move(clusters));
+
         CBasicStatistics::SMin<double>::TAccumulator minCost;
         TSphericalClusterVec centres;
         TSphericalClusterVecVec candidates;
-        for (std::size_t i = 0u; i < numberSeeds; ++i) {
+        for (std::size_t i = 0; i < numberSeeds; ++i) {
             CKMeansPlusPlusInitialization<TSphericalCluster, RNG> seedCentres(rng);
-            seedCentres.run(clusters, k, centres);
+            seedCentres.run(kmeans.beginPoints(), kmeans.endPoints(), k, centres);
             kmeans.setCentres(centres);
             kmeans.run(maxIterations);
             kmeans.clusters(candidates);
@@ -304,7 +301,7 @@ public:
         }
 
         result.reserve(split.size());
-        TFloatPointMeanAccumulatorDoublePrVec clusters;
+        TStoragePointMeanAccumulatorDoublePrVec clusters;
         for (std::size_t i = 0u; i < split.size(); ++i) {
             clusters.clear();
             clusters.reserve(split[i].size());
@@ -340,7 +337,7 @@ public:
         this->reduce();
 
         // Reclaim memory from the vector buffer.
-        TFloatPointMeanAccumulatorDoublePrVec categories(m_Clusters);
+        TStoragePointMeanAccumulatorDoublePrVec categories(m_Clusters);
         m_Clusters.swap(categories);
     }
 
@@ -531,22 +528,27 @@ protected:
         LOG_TRACE(<< "clusters = " << core::CContainerPrinter::print(m_Clusters));
         LOG_TRACE(<< "# clusters = " << m_Clusters.size());
 
-        TSphericalClusterVecVec newClusters;
         TSphericalClusterVec oldClusters;
-        this->clusters(oldClusters);
-        kmeans(m_Rng, oldClusters, m_K, newClusters, m_NumberSeeds, m_MaxIterations);
+        this->clusters(oldClusters, std::true_type{});
+
+        TDoublePointMeanVarAccumulator empty{las::zero(oldClusters[0])};
+
+        TSphericalClusterVecVec newClusters;
+        kmeans(m_Rng, std::move(oldClusters), m_K, newClusters, m_NumberSeeds, m_MaxIterations);
 
         m_Clusters.resize(newClusters.size());
-        for (std::size_t i = 0u; i < newClusters.size(); ++i) {
-            TDoublePointMeanVarAccumulator cluster{las::zero(oldClusters[0])};
+
+        TDoublePointMeanVarAccumulator centroid;
+        for (std::size_t i = 0; i < newClusters.size(); ++i) {
+            centroid = empty;
             for (const auto& point : newClusters[i]) {
-                cluster.add(point);
+                centroid.add(point);
             }
-            double n{CBasicStatistics::count(cluster)};
-            const TDoublePoint& m{CBasicStatistics::mean(cluster)};
-            m_Clusters[i].first = CBasicStatistics::momentsAccumulator(
-                TFloatCoordinate(n), TFloatPoint(m));
-            m_Clusters[i].second = variance(cluster);
+            double n{CBasicStatistics::count(centroid)};
+            TDoublePoint& m{CBasicStatistics::moment<0>(centroid)};
+            CBasicStatistics::count(m_Clusters[i].first) = n;
+            CBasicStatistics::moment<0>(m_Clusters[i].first) = std::move(m);
+            m_Clusters[i].second = variance(centroid);
         }
 
         LOG_TRACE(<< "reduced clusters = " << core::CContainerPrinter::print(m_Clusters));
@@ -556,7 +558,7 @@ protected:
     //! Remove any duplicates in \p points.
     //!
     //! \note We assume \p points is small so the bruteforce approach is fast.
-    static void deduplicate(TFloatPointMeanAccumulatorDoublePrVec& clusters) {
+    static void deduplicate(TStoragePointMeanAccumulatorDoublePrVec& clusters) {
         if (clusters.size() > 1) {
             std::stable_sort(clusters.begin(), clusters.end(),
                              [](const auto& lhs, const auto& rhs) {
@@ -577,6 +579,43 @@ protected:
             }
             clusters.erase(back + 1, clusters.end());
         }
+    }
+
+    //! Get the clusters being maintained optionally moving into \p result.
+    template<typename MOVE>
+    void clusters(TSphericalClusterVec& result, MOVE move) {
+        result.clear();
+        result.reserve(m_Clusters.size());
+        bool moved{false};
+        for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
+            TStoragePoint& m{CBasicStatistics::moment<0>(m_Clusters[i].first)};
+            double n{CBasicStatistics::count(m_Clusters[i].first)};
+            double v{m_Clusters[i].second};
+            moved |= append(m, n, v, result, move);
+        }
+        if (moved) {
+            m_Clusters.clear();
+        }
+    }
+
+    //! Move append \p m into \p result.
+    static bool append(POINT& m, double n, double v, TSphericalClusterVec& result, std::true_type) {
+        result.emplace_back(std::move(m), SCountAndVariance(n, v));
+        return true;
+    }
+    //! Copy append \p m into \p result.
+    template<typename OTHER_POINT>
+    static bool
+    append(OTHER_POINT& m, double n, double v, TSphericalClusterVec& result, std::true_type) {
+        result.emplace_back(m, SCountAndVariance(n, v));
+        return false;
+    }
+    //! Copy append \p m into \p result.
+    template<typename OTHER_POINT>
+    static bool
+    append(OTHER_POINT& m, double n, double v, TSphericalClusterVec& result, std::false_type) {
+        result.emplace_back(m, SCountAndVariance(n, v));
+        return false;
     }
 
     //! Get the spherically symmetric variance from \p moments.
@@ -611,32 +650,35 @@ private:
     double m_MinClusterSize;
 
     //! The clusters we are maintaining.
-    TFloatPointMeanAccumulatorDoublePrVec m_Clusters;
+    TStoragePointMeanAccumulatorDoublePrVec m_Clusters;
 };
 
-template<typename POINT>
-const std::size_t CKMeansOnline<POINT>::MINIMUM_SPACE = 4u;
-template<typename POINT>
-const std::size_t CKMeansOnline<POINT>::BUFFER_SIZE = 6u;
-template<typename POINT>
-const std::size_t CKMeansOnline<POINT>::NUMBER_SEEDS = 5u;
-template<typename POINT>
-const std::size_t CKMeansOnline<POINT>::MAX_ITERATIONS = 10u;
+template<typename POINT, typename STORAGE_POINT>
+const std::size_t CKMeansOnline<POINT, STORAGE_POINT>::MINIMUM_SPACE = 4;
+template<typename POINT, typename STORAGE_POINT>
+const std::size_t CKMeansOnline<POINT, STORAGE_POINT>::BUFFER_SIZE = 6;
+template<typename POINT, typename STORAGE_POINT>
+const std::size_t CKMeansOnline<POINT, STORAGE_POINT>::NUMBER_SEEDS = 5;
+template<typename POINT, typename STORAGE_POINT>
+const std::size_t CKMeansOnline<POINT, STORAGE_POINT>::MAX_ITERATIONS = 10;
 
-template<typename POINT>
-const core::TPersistenceTag CKMeansOnline<POINT>::K_TAG("a", "k");
-template<typename POINT>
-const core::TPersistenceTag CKMeansOnline<POINT>::CLUSTERS_TAG("b", "clusters");
-template<typename POINT>
-const core::TPersistenceTag CKMeansOnline<POINT>::POINTS_TAG("c", "points");
-template<typename POINT>
-const core::TPersistenceTag CKMeansOnline<POINT>::RNG_TAG("d", "rng");
-template<typename POINT>
-const core::TPersistenceTag CKMeansOnline<POINT>::BUFFER_SIZE_TAG("e", "buffer_size");
-template<typename POINT>
-const core::TPersistenceTag CKMeansOnline<POINT>::NUMBER_SEEDS_TAG("f", "number_seeds");
-template<typename POINT>
-const core::TPersistenceTag CKMeansOnline<POINT>::MAX_ITERATIONS_TAG("g", "max_iterations");
+template<typename POINT, typename STORAGE_POINT>
+const core::TPersistenceTag CKMeansOnline<POINT, STORAGE_POINT>::K_TAG("a", "k");
+template<typename POINT, typename STORAGE_POINT>
+const core::TPersistenceTag CKMeansOnline<POINT, STORAGE_POINT>::CLUSTERS_TAG("b", "clusters");
+template<typename POINT, typename STORAGE_POINT>
+const core::TPersistenceTag CKMeansOnline<POINT, STORAGE_POINT>::POINTS_TAG("c", "points");
+template<typename POINT, typename STORAGE_POINT>
+const core::TPersistenceTag CKMeansOnline<POINT, STORAGE_POINT>::RNG_TAG("d", "rng");
+template<typename POINT, typename STORAGE_POINT>
+const core::TPersistenceTag
+    CKMeansOnline<POINT, STORAGE_POINT>::BUFFER_SIZE_TAG("e", "buffer_size");
+template<typename POINT, typename STORAGE_POINT>
+const core::TPersistenceTag
+    CKMeansOnline<POINT, STORAGE_POINT>::NUMBER_SEEDS_TAG("f", "number_seeds");
+template<typename POINT, typename STORAGE_POINT>
+const core::TPersistenceTag
+    CKMeansOnline<POINT, STORAGE_POINT>::MAX_ITERATIONS_TAG("g", "max_iterations");
 }
 }
 

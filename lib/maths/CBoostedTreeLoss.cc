@@ -253,14 +253,14 @@ bool CArgMinMultinomialLogisticLossImpl::nextPass() {
         } else {
             // Extract the k-centres.
             m_Centres.reserve(clusters.size());
-            TMeanAccumulator initial{TDoubleVector::Zero(m_NumberClasses)};
-            TMeanAccumulator centre;
+            TMeanAccumulator empty{TDoubleVector::Zero(m_NumberClasses)};
+            TMeanAccumulator centroid;
             for (const auto& cluster : clusters) {
-                centre = initial;
+                centroid = empty;
                 for (const auto& point : cluster) {
-                    centre.add(point);
+                    centroid.add(point);
                 }
-                m_Centres.push_back(CBasicStatistics::mean(centre));
+                m_Centres.push_back(CBasicStatistics::mean(centroid));
             }
             std::stable_sort(m_Centres.begin(), m_Centres.end());
             m_Centres.erase(std::unique(m_Centres.begin(), m_Centres.end()),
