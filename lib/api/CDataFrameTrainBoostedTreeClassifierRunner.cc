@@ -37,19 +37,15 @@ using TSizeVec = std::vector<std::size_t>;
 using TStrSet = std::set<std::string>;
 
 // Output
-const std::string IS_TRAINING_FIELD_NAME{"is_training"};
 const std::string PREDICTION_PROBABILITY_FIELD_NAME{"prediction_probability"};
 const std::string PREDICTION_SCORE_FIELD_NAME{"prediction_score"};
 const std::string TOP_CLASSES_FIELD_NAME{"top_classes"};
 const std::string CLASS_NAME_FIELD_NAME{"class_name"};
 const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
 const std::string CLASS_SCORE_FIELD_NAME{"class_score"};
-const std::string FEATURE_NAME_FIELD_NAME{"feature_name"};
-const std::string IMPORTANCE_FIELD_NAME{"importance"};
-const std::string FEATURE_IMPORTANCE_FIELD_NAME{"feature_importance"};
 
 const TStrSet PREDICTION_FIELD_NAME_BLACKLIST{
-    IS_TRAINING_FIELD_NAME, PREDICTION_PROBABILITY_FIELD_NAME,
+    CDataFrameTrainBoostedTreeRunner::IS_TRAINING_FIELD_NAME, PREDICTION_PROBABILITY_FIELD_NAME,
     PREDICTION_SCORE_FIELD_NAME, TOP_CLASSES_FIELD_NAME};
 }
 
@@ -170,25 +166,23 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                      const maths::CTreeShapFeatureImportance::TSizeVec& indices,
                      const TStrVec& names,
                      const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
-                writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
+                writer.Key(CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME);
                 writer.StartArray();
                 for (auto i : indices) {
                     if (shap[i].norm() != 0.0) {
                         writer.StartObject();
-                        writer.Key(FEATURE_NAME_FIELD_NAME);
+                        writer.Key(CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME);
                         writer.String(names[i]);
                         if (shap[i].size() == 1) {
-                            writer.Key(IMPORTANCE_FIELD_NAME);
+                            writer.Key(CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
                             writer.Double(shap[i](0));
                         } else {
-                            double absSum{0.0};
                             for (int j = 0; j < shap[i].size(); ++j) {
-                                absSum += std::abs(shap[i](j));
                                 writer.Key(classValues[j]);
                                 writer.Double(shap[i](j));
                             }
-                            writer.Key(IMPORTANCE_FIELD_NAME);
-                            writer.Double(absSum);
+                            writer.Key(CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
+                            writer.Double(shap[i].lpNorm<1>());
                         }
                         writer.EndObject();
                     }

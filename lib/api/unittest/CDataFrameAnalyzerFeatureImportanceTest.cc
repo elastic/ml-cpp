@@ -10,9 +10,11 @@
 #include <maths/CDataFramePredictiveModel.h>
 #include <maths/CSampling.h>
 #include <maths/CTools.h>
+#include <maths/CToolsDetail.h>
 #include <maths/CTreeShapFeatureImportance.h>
 
 #include <api/CDataFrameAnalyzer.h>
+#include <api/CDataFrameTrainBoostedTreeRunner.h>
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CRandomNumbers.h>
@@ -384,11 +386,15 @@ struct SFixture {
 
 template<typename RESULTS>
 double readShapValue(const RESULTS& results, std::string shapField) {
-    if (results["row_results"]["results"]["ml"].HasMember("feature_importance")) {
+    if (results["row_results"]["results"]["ml"].HasMember(
+            api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)) {
         for (const auto& shapResult :
-             results["row_results"]["results"]["ml"]["feature_importance"].GetArray()) {
-            if (shapResult["feature_name"].GetString() == shapField) {
-                return shapResult["importance"].GetDouble();
+             results["row_results"]["results"]["ml"][api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME]
+                 .GetArray()) {
+            if (shapResult[api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME]
+                    .GetString() == shapField) {
+                return shapResult[api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME]
+                    .GetDouble();
             }
         }
     }
@@ -397,10 +403,13 @@ double readShapValue(const RESULTS& results, std::string shapField) {
 
 template<typename RESULTS>
 double readShapValue(const RESULTS& results, std::string shapField, std::string className) {
-    if (results["row_results"]["results"]["ml"].HasMember("feature_importance")) {
+    if (results["row_results"]["results"]["ml"].HasMember(
+            api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)) {
         for (const auto& shapResult :
-             results["row_results"]["results"]["ml"]["feature_importance"].GetArray()) {
-            if (shapResult["feature_name"].GetString() == shapField) {
+             results["row_results"]["results"]["ml"][api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME]
+                 .GetArray()) {
+            if (shapResult[api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME]
+                    .GetString() == shapField) {
                 if (shapResult.HasMember(className)) {
                     return shapResult[className].GetDouble();
                 }
@@ -596,7 +605,8 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoShap, SFixture) {
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             BOOST_TEST_REQUIRE(result["row_results"]["results"]["ml"].HasMember(
-                                   "feature_importance") == false);
+                                   api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME) ==
+                               false);
         }
     }
 }

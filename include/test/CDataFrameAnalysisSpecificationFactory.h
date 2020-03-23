@@ -118,7 +118,7 @@ private:
     TRestoreSearcherSupplier* m_RestoreSearcherSupplier = nullptr;
     // Classification
     std::size_t m_NumberClasses = 2;
-    std::size_t m_NumberTopClasses = 1;
+    std::size_t m_NumberTopClasses = 0;
     std::string m_PredictionFieldType;
 };
 }

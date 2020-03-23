@@ -26,13 +26,8 @@
 namespace ml {
 namespace api {
 namespace {
-// Output
-const std::string IS_TRAINING_FIELD_NAME{"is_training"};
-const std::string FEATURE_NAME_FIELD_NAME{"feature_name"};
-const std::string IMPORTANCE_FIELD_NAME{"importance"};
-const std::string FEATURE_IMPORTANCE_FIELD_NAME{"feature_importance"};
-
-const std::set<std::string> PREDICTION_FIELD_NAME_BLACKLIST{IS_TRAINING_FIELD_NAME};
+const std::set<std::string> PREDICTION_FIELD_NAME_BLACKLIST{
+    CDataFrameTrainBoostedTreeRunner::IS_TRAINING_FIELD_NAME};
 }
 
 const CDataFrameAnalysisConfigReader&
@@ -77,7 +72,7 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.StartObject();
     writer.Key(this->predictionFieldName());
     writer.Double(tree.readPrediction(row)[0]);
-    writer.Key(IS_TRAINING_FIELD_NAME);
+    writer.Key(CDataFrameTrainBoostedTreeRunner::IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
     auto featureImportance = tree.shap();
     if (featureImportance != nullptr) {
@@ -85,14 +80,14 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
             row, [&writer](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
                            const TStrVec& names,
                            const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
-                writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
+                writer.Key(CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME);
                 writer.StartArray();
                 for (auto i : indices) {
                     if (shap[i].norm() != 0.0) {
                         writer.StartObject();
-                        writer.Key(FEATURE_NAME_FIELD_NAME);
+                        writer.Key(CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME);
                         writer.String(names[i]);
-                        writer.Key(IMPORTANCE_FIELD_NAME);
+                        writer.Key(CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
                         writer.Double(shap[i](0));
                         writer.EndObject();
                     }
