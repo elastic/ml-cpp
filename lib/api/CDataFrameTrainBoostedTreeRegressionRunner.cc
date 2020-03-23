@@ -26,8 +26,7 @@
 namespace ml {
 namespace api {
 namespace {
-const std::set<std::string> PREDICTION_FIELD_NAME_BLACKLIST{
-    CDataFrameTrainBoostedTreeRunner::IS_TRAINING_FIELD_NAME};
+const std::set<std::string> PREDICTION_FIELD_NAME_BLACKLIST{"is_training"};
 }
 
 const CDataFrameAnalysisConfigReader&

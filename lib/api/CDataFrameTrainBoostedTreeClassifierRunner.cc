@@ -44,9 +44,9 @@ const std::string CLASS_NAME_FIELD_NAME{"class_name"};
 const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
 const std::string CLASS_SCORE_FIELD_NAME{"class_score"};
 
-const TStrSet PREDICTION_FIELD_NAME_BLACKLIST{
-    CDataFrameTrainBoostedTreeRunner::IS_TRAINING_FIELD_NAME, PREDICTION_PROBABILITY_FIELD_NAME,
-    PREDICTION_SCORE_FIELD_NAME, TOP_CLASSES_FIELD_NAME};
+const TStrSet PREDICTION_FIELD_NAME_BLACKLIST{"is_training", PREDICTION_PROBABILITY_FIELD_NAME,
+                                              PREDICTION_SCORE_FIELD_NAME,
+                                              TOP_CLASSES_FIELD_NAME};
 }
 
 const CDataFrameAnalysisConfigReader&
