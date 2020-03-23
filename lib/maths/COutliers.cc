@@ -10,6 +10,7 @@
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
 
+#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/CIntegration.h>
 #include <maths/CLinearAlgebraEigen.h>
@@ -382,7 +383,6 @@ CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points) const {
 
     for (const auto& model : m_Models) {
         model.addOutlierScores(points, scores, m_RecordMemoryUsage);
-        m_RecordStep(COMPUTE_OUTLIER_SCORES);
     }
     return scores;
 }
@@ -1053,6 +1053,10 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
 void COutliers::compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
                         CDataFrameOutliersInstrumentationInterface& instrumentation) {
+    instrumentation.parameters(params);
+    core::CStopWatch stopWatch;
+    stopWatch.start();
+    std::uint64_t startTime{stopWatch.lap()};
 
     if (params.s_StandardizeColumns) {
         CDataFrameUtils::standardizeColumns(params.s_NumberThreads, frame);
@@ -1061,7 +1065,9 @@ void COutliers::compute(const SComputeParameters& params,
     bool successful{frame.inMainMemory() && params.s_NumberPartitions == 1
                         ? computeOutliersNoPartitions(params, frame, instrumentation)
                         : computeOutliersPartitioned(params, frame, instrumentation)};
-
+    std::uint64_t elapsedTime{stopWatch.lap() - startTime};
+    instrumentation.elapsedTime(elapsedTime);
+    instrumentation.nextStep(COMPUTE_OUTLIER_SCORES);
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: computing outliers for data frame. There "
                      << "may be more details in the logs. Please report this problem.");
@@ -1114,5 +1120,26 @@ void COutliers::noopRecordProgress(double) {
 
 void COutliers::noopRecordMemoryUsage(std::int64_t) {
 }
+
+std::string COutliers::print(EMethod method) {
+    switch (method) {
+    case E_Lof:
+        return LOF;
+    case maths::COutliers::E_Ldof:
+        return LDOF;
+    case maths::COutliers::E_DistancekNN:
+        return DISTANCE_KNN;
+    case maths::COutliers::E_TotalDistancekNN:
+        return TOTAL_DISTANCE_KNN;
+    case maths::COutliers::E_Ensemble:
+        return ENSEMBLE;
+    }
+}
+
+const std::string COutliers::LOF{"lof"};
+const std::string COutliers::LDOF{"ldof"};
+const std::string COutliers::DISTANCE_KNN{"distance_kth_nn"};
+const std::string COutliers::TOTAL_DISTANCE_KNN{"distance_knn"};
+const std::string COutliers::ENSEMBLE{"ensemble"};
 }
 }
