@@ -587,6 +587,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
     api::CDataFrameAnalyzer analyzer{
         specFactory.memoryLimit(6000000)
             .predictionCategoricalFieldNames({"target"})
+            .numberTopClasses(1)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(), "target"),
         outputWriterFactory};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
