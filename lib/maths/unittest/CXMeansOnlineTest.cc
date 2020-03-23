@@ -312,8 +312,8 @@ BOOST_AUTO_TEST_CASE(testClusteringVanilla) {
             }
             LOG_DEBUG(<< "mean error = " << meanError[0]);
             LOG_DEBUG(<< "covariance error = " << covError[0]);
-            BOOST_TEST_REQUIRE(meanError[0] < 0.045);
-            BOOST_TEST_REQUIRE(covError[0] < 0.36);
+            BOOST_TEST_REQUIRE(meanError[0] < 0.04);
+            BOOST_TEST_REQUIRE(covError[0] < 0.39);
             meanMeanError.add(meanError[0]);
             meanCovError.add(covError[0]);
         }
@@ -419,7 +419,7 @@ BOOST_AUTO_TEST_CASE(testClusteringWithOutliers) {
     LOG_DEBUG(<< "mean meanError = " << maths::CBasicStatistics::mean(meanMeanError));
     LOG_DEBUG(<< "mean covError  = " << maths::CBasicStatistics::mean(meanCovError));
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanMeanError) < 0.03);
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanCovError) < 0.07);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanCovError) < 0.06);
 }
 
 BOOST_AUTO_TEST_CASE(testManyClusters) {
