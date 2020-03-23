@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE(testCentroids) {
         rng.generateUniformSamples(-500.0, 500.0, 20, samples2);
 
         {
-            LOG_DEBUG(<< "Vector2");
+            LOG_TRACE(<< "Vector2");
             maths::CKdTree<TVector2, CKMeansForTest<TVector2>::TKdTreeNodeData> tree;
 
             TVector2Vec points;
@@ -544,7 +544,8 @@ BOOST_AUTO_TEST_CASE(testPlusPlus) {
 
     using TSizeVec = std::vector<std::size_t>;
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TVector2VecCItr = TVector2Vec::const_iterator;
+    using TKMeansPlusPlusInitialization =
+        maths::CKMeansPlusPlusInitialization<TVector2, maths::CPRNG::CXorOShiro128Plus>;
 
     maths::CSampling::seed();
 
@@ -586,16 +587,15 @@ BOOST_AUTO_TEST_CASE(testPlusPlus) {
 
         TVector2Vec plusPlusCentres;
         maths::CPRNG::CXorOShiro128Plus rng_;
-        maths::CKMeansPlusPlusInitialization<TVector2, maths::CPRNG::CXorOShiro128Plus> kmeansPlusPlus(
-            rng_);
-        kmeansPlusPlus.run(flatPoints, k, plusPlusCentres);
+        TKMeansPlusPlusInitialization kmeansPlusPlusInitialization(rng_);
+        kmeansPlusPlusInitialization.run(flatPoints, k, plusPlusCentres);
 
         TSizeVec sampledClusters;
         for (std::size_t i = 0u; i < plusPlusCentres.size(); ++i) {
             std::size_t j = 0u;
             for (/**/; j < points.size(); ++j) {
-                TVector2VecCItr next = std::lower_bound(
-                    points[j].begin(), points[j].end(), plusPlusCentres[i]);
+                auto next = std::lower_bound(points[j].begin(), points[j].end(),
+                                             plusPlusCentres[i]);
                 if (next != points[j].end() && *next == plusPlusCentres[i]) {
                     break;
                 }

@@ -169,7 +169,7 @@ public:
 
 private:
     using TDoubleVectorVec = std::vector<TDoubleVector>;
-    using TKMeans = CKMeansOnline<TDoubleVector>;
+    using TKMeans = CKMeansOnline<TDoubleVector, TDoubleVector>;
 
 private:
     static constexpr std::size_t NUMBER_CENTRES = 128;
