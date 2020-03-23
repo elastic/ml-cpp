@@ -9,6 +9,7 @@
 
 #include <core/CLogger.h>
 #include <core/CMemory.h>
+#include <core/UnwrapRef.h>
 
 #include <maths/CAnnotatedVector.h>
 #include <maths/CBasicStatistics.h>
@@ -36,18 +37,6 @@ namespace kdtree_detail {
 //! \brief Stubs out the node data parameter for k-d tree.
 struct SEmptyNodeData {};
 
-template<typename T>
-struct unwrapped_ref {
-    using type = T;
-};
-template<typename T>
-struct unwrapped_ref<std::reference_wrapper<T>> {
-    using type = T;
-};
-template<typename T>
-struct unwrapped_ref<std::reference_wrapper<const T>> {
-    using type = T;
-};
 } // kdtree_detail::
 
 //! \brief A k-d tree.
@@ -75,7 +64,8 @@ template<typename POINT, typename NODE_DATA = kdtree_detail::SEmptyNodeData>
 class CKdTree {
 public:
     using TDoubleVec = std::vector<double>;
-    using TPoint = typename kdtree_detail::unwrapped_ref<POINT>::type;
+    using TPoint =
+        typename std::remove_const<typename core::unwrap_reference<POINT>::type>::type;
     using TPointVec = std::vector<POINT>;
     using TCoordinate = typename SCoordinate<TPoint>::Type;
     using TCoordinatePrecise = typename SPromoted<TCoordinate>::Type;
@@ -243,7 +233,7 @@ public:
         if (begin == end) {
             return;
         }
-        m_Dimension = las::dimension(unwrap(*begin));
+        m_Dimension = las::dimension(core::unwrap_ref(*begin));
         m_Nodes.clear();
         m_Nodes.reserve(std::distance(begin, end));
         this->buildRecursively(nullptr, // Parent pointer
@@ -423,10 +413,10 @@ private:
                                   const POINT* nearest,
                                   TCoordinatePrecise& distanceToNearest) const {
 
-        TCoordinatePrecise distance{las::distance(point, unwrap(node.s_Point))};
+        TCoordinatePrecise distance{las::distance(point, core::unwrap_ref(node.s_Point))};
 
         if (distance < distanceToNearest ||
-            (distance == distanceToNearest && unwrap(node.s_Point) < point)) {
+            (distance == distanceToNearest && core::unwrap_ref(node.s_Point) < point)) {
             distanceToNearest = distance;
             nearest = &node.s_Point;
         }
@@ -435,8 +425,8 @@ private:
         const SNode* secondary{node.s_RightChild};
 
         if (primary != nullptr && secondary != nullptr) {
-            TCoordinate distanceToHyperplane{point(coordinate) -
-                                             unwrap(node.s_Point)(coordinate)};
+            TCoordinate distanceToHyperplane{
+                point(coordinate) - core::unwrap_ref(node.s_Point)(coordinate)};
 
             if (distanceToHyperplane > TCoordinate{0}) {
                 std::swap(primary, secondary);
@@ -475,13 +465,13 @@ private:
                            std::size_t coordinate,
                            TCoordinatePrecisePointCRefPrVec& nearest) const {
 
-        TCoordinatePrecise distance{las::distance(point, unwrap(node.s_Point))};
+        TCoordinatePrecise distance{las::distance(point, core::unwrap_ref(node.s_Point))};
 
         if (distance < nearest.front().first ||
-            (distance == nearest.front().first && unwrap(node.s_Point) < point)) {
+            (distance == nearest.front().first && core::unwrap_ref(node.s_Point) < point)) {
             std::pop_heap(nearest.begin(), nearest.end(), less);
             nearest.back().first = distance;
-            nearest.back().second = std::cref(unwrap(node.s_Point));
+            nearest.back().second = std::cref(core::unwrap_ref(node.s_Point));
             std::push_heap(nearest.begin(), nearest.end(), less);
         }
 
@@ -489,8 +479,8 @@ private:
         const SNode* secondary{node.s_RightChild};
 
         if (primary != nullptr && secondary != nullptr) {
-            TCoordinate distanceToHyperplane{point(coordinate) -
-                                             unwrap(node.s_Point)(coordinate)};
+            TCoordinate distanceToHyperplane{
+                point(coordinate) - core::unwrap_ref(node.s_Point)(coordinate)};
 
             if (distanceToHyperplane > TCoordinate{0}) {
                 std::swap(primary, secondary);
@@ -548,11 +538,6 @@ private:
         ++coordinate;
         // This branch works out significantly faster than modulo.
         return coordinate == m_Dimension ? 0 : coordinate;
-    }
-
-    //! Cast away any reference wrapper.
-    inline static const TPoint& unwrap(const POINT& p) {
-        return static_cast<const TPoint&>(p);
     }
 
 private:
