@@ -119,8 +119,9 @@ public:
                   std::size_t bufferSize = BUFFER_SIZE,
                   std::size_t numberSeeds = NUMBER_SEEDS,
                   std::size_t maxIterations = MAX_ITERATIONS)
-        : m_K{std::max(k, MINIMUM_SPACE)}, m_BufferSize{bufferSize}, m_NumberSeeds{numberSeeds},
-          m_MaxIterations{maxIterations}, m_DecayRate{decayRate}, m_MinClusterSize{minClusterSize} {
+        : m_K{(k > MINIMUM_SPACE) ? k : MINIMUM_SPACE}, m_BufferSize{bufferSize},
+          m_NumberSeeds{numberSeeds}, m_MaxIterations{maxIterations},
+          m_DecayRate{decayRate}, m_MinClusterSize{minClusterSize} {
         m_Clusters.reserve(m_K + m_BufferSize + 1);
     }
 
