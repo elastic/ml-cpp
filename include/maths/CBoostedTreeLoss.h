@@ -8,10 +8,10 @@
 #define INCLUDED_ml_maths_CBoostedTreeLoss_h
 
 #include <maths/CBasicStatistics.h>
-#include <maths/CKMeansOnline.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CPRNG.h>
+#include <maths/CSampling.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -169,10 +169,10 @@ public:
 
 private:
     using TDoubleVectorVec = std::vector<TDoubleVector>;
-    using TKMeans = CKMeansOnline<TDoubleVector, TDoubleVector>;
+    using TSampler = CSampling::CVectorDissimilaritySampler<TDoubleVector>;
 
 private:
-    static constexpr std::size_t NUMBER_CENTRES = 128;
+    static constexpr std::size_t NUMBER_CENTRES = 64;
     static constexpr std::size_t NUMBER_RESTARTS = 3;
 
 private:
@@ -181,7 +181,7 @@ private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     TDoubleVector m_ClassCounts;
     TDoubleVector m_DoublePrediction;
-    TKMeans m_PredictionSketch;
+    TSampler m_Sampler;
     TDoubleVectorVec m_Centres;
     TDoubleVectorVec m_CentresClassCounts;
 };
