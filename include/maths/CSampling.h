@@ -219,9 +219,6 @@ public:
         }
 
     private:
-        using TDoubleVec = std::vector<double>;
-
-    private:
         double seedWeights() override {
             double result{0.0};
             for (std::size_t i = 0; i < m_Samples.size(); ++i) {
