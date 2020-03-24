@@ -147,7 +147,8 @@ private:
 //! Here, \f$P\f$ ranges over the subsets of the partition, \f$\bar{p}_P\f$ denotes
 //! the mean of the predictions in the P'th subset and \f$c_{a_i, P}\f$ denote the
 //! counts of each classes \f$\{a_i\}\f$ in the subset \f$P\f$. We compute this
-//! partition by k-means.
+//! partition via a weighted random sample where the weights are proportional to
+//! the mean distance between each point and the rest of the sample set.
 class MATHS_EXPORT CArgMinMultinomialLogisticLossImpl final : public CArgMinLossImpl {
 public:
     using TObjective = std::function<double(const TDoubleVector&)>;
