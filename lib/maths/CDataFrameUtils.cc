@@ -37,7 +37,7 @@ using TFloatVec = std::vector<CFloatStorage>;
 using TFloatVecVec = std::vector<TFloatVec>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TRowRef = core::CDataFrame::TRowRef;
-using TRowSampler = CSampling::CRandomStreamSampler<TRowRef>;
+using TRowSampler = CSampling::CReservoirSampler<TRowRef>;
 using TRowSamplerVec = std::vector<TRowSampler>;
 using TSizeEncoderPtrUMap =
     boost::unordered_map<std::size_t, std::unique_ptr<CDataFrameUtils::CColumnValue>>;

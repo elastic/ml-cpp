@@ -8,7 +8,12 @@
 #include <core/CLogger.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CLinearAlgebraEigen.h>
+#include <maths/CPRNG.h>
 #include <maths/CSampling.h>
+#include <maths/CStatisticalTests.h>
+
+#include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
 
@@ -212,6 +217,104 @@ BOOST_AUTO_TEST_CASE(testMultivariateNormalSample) {
                                0.1 * test_detail::frobenius(C_));
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE(testReservoirSampling) {
+
+    // Check we uniformly sample from a stream.
+
+    using TSampler = maths::CSampling::CReservoirSampler<double>;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+    TDoubleVec samples(200);
+    TSampler sampler{200, [&](std::size_t slot, const double& value) {
+                         samples[slot] = value;
+                     }};
+
+    TMeanAccumulator pValue;
+    for (std::size_t t = 0; t < 100; ++t) {
+        samples.assign(200, 0.0);
+        sampler.reset();
+        for (double x = 0.0; x < 1000.0; x += 1.0) {
+            sampler.sample(x);
+        }
+
+        maths::CStatisticalTests::CCramerVonMises cvm{20};
+        for (const auto& sample : samples) {
+            cvm.addF(sample / 1000.0);
+        }
+
+        // The p-value is small if the samples *aren't* distributed as expected.
+        BOOST_TEST_REQUIRE(cvm.pValue() > 0.05);
+        pValue.add(cvm.pValue());
+    }
+
+    LOG_DEBUG(<< "mean p-value = " << maths::CBasicStatistics::mean(pValue));
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(pValue) > 0.3);
+}
+
+BOOST_AUTO_TEST_CASE(testVectorDissimilaritySampler) {
+
+    // Test the average distance between points is significantly larger than
+    // for uniform random sampling.
+
+    using TVector = maths::CDenseVector<double>;
+    using TVectorVec = std::vector<TVector>;
+    using TReservoirSampler = maths::CSampling::CReservoirSampler<TVector>;
+    using TDissimilaritySampler = maths::CSampling::CVectorDissimilaritySampler<TVector>;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+    std::size_t numberSamples{100};
+
+    TVectorVec samples(numberSamples);
+    TReservoirSampler randomSampler{
+        numberSamples,
+        [&](std::size_t slot, const TVector& value) { samples[slot] = value; }};
+    TDissimilaritySampler dissimilaritySampler{numberSamples};
+
+    test::CRandomNumbers rng;
+
+    TMeanAccumulator percentageSeparationIncrease;
+
+    TVector x{4};
+    TDoubleVec components;
+    for (std::size_t t = 0; t < 50; ++t) {
+        samples.assign(numberSamples, TVector::Zero(3));
+        randomSampler.reset();
+        dissimilaritySampler.reset();
+        for (std::size_t i = 0; i < 1000; ++i) {
+            rng.generateLogNormalSamples(1.0, 2.0, 4, components);
+            for (std::size_t j = 0; j < components.size(); ++j) {
+                x(j) = components[j];
+            }
+            randomSampler.sample(x);
+            dissimilaritySampler.sample(x);
+        }
+
+        TMeanAccumulator randomSeparation;
+        TMeanAccumulator dissimilaritySeparation;
+        for (std::size_t i = 0; i < samples.size(); ++i) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
+                double distance{(samples[i] - samples[j]).norm()};
+                randomSeparation.add(distance);
+                distance = (dissimilaritySampler.samples()[i] -
+                            dissimilaritySampler.samples()[j])
+                               .norm();
+                dissimilaritySeparation.add(distance);
+            }
+        }
+        LOG_TRACE(<< "random mean separation = " << maths::CBasicStatistics::mean(randomSeparation)
+                  << ", dissimilar mean separation = "
+                  << maths::CBasicStatistics::mean(dissimilaritySeparation));
+        percentageSeparationIncrease.add(
+            100.0 *
+            (maths::CBasicStatistics::mean(dissimilaritySeparation) -
+             maths::CBasicStatistics::mean(randomSeparation)) /
+            maths::CBasicStatistics::mean(randomSeparation));
+    }
+    LOG_DEBUG(<< "% separation increase = "
+              << maths::CBasicStatistics::mean(percentageSeparationIncrease));
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentageSeparationIncrease) > 50.0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
