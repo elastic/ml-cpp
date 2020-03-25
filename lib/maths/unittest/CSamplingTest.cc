@@ -277,7 +277,6 @@ BOOST_AUTO_TEST_CASE(testVectorDissimilaritySampler) {
     TMeanAccumulator percentageSeparationIncrease;
 
     TVector x{4};
-    TDoubleVec p;
     TDoubleVec components;
     TDoubleVec shift{-1.0, 0.0, 10.0, -20.0};
     for (std::size_t t = 0; t < 50; ++t) {
