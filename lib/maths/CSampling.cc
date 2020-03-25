@@ -124,18 +124,15 @@ std::size_t doCategoricalSample(RNG& rng, TDoubleVec& probabilities) {
     std::size_t p = probabilities.size();
 
     // Construct the transform function.
-    for (std::size_t i = 1u; i < p; ++i) {
+    for (std::size_t i = 1; i < p; ++i) {
         probabilities[i] += probabilities[i - 1];
     }
 
-    double uniform0X;
     if (probabilities[p - 1] == 0.0) {
         return doUniformSample(rng, std::size_t(0), p);
-    } else {
-        boost::random::uniform_real_distribution<> uniform(0.0, probabilities[p - 1]);
-        uniform0X = uniform(rng);
     }
 
+    double uniform0X{doUniformSample(rng, 0.0, probabilities[p - 1])};
     return std::min(static_cast<std::size_t>(std::lower_bound(probabilities.begin(),
                                                               probabilities.end(), uniform0X) -
                                              probabilities.begin()),
