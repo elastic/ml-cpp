@@ -278,7 +278,6 @@ BOOST_AUTO_TEST_CASE(testVectorDissimilaritySampler) {
 
     TVector x{4};
     TDoubleVec components;
-    TDoubleVec shift{-1.0, 0.0, 10.0, -20.0};
     for (std::size_t t = 0; t < 50; ++t) {
         samples.assign(numberSamples, TVector::Zero(3));
         randomSampler.reset();

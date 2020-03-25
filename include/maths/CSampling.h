@@ -66,7 +66,7 @@ public:
             m_StreamWeight = m_SampleWeight = 0.0;
         }
 
-        //! Sample the value \p x uniformly at random.
+        //! Sample sample the value \p x.
         void sample(const T& x) {
             if (m_SampleSize < m_TargetSampleSize) {
                 this->doSample(m_SampleSize++, x, 1.0);
@@ -177,6 +177,16 @@ public:
     //! \brief Perform a weighted sample of stream of vectors of specified cardinality
     //! where the probability of sampling each vector is proportional to its average
     //! distance from the other sampled vectors.
+    //!
+    //! DESCRIPTION:\n
+    //! Each vector is sampled with probability
+    //! <pre class="fragment">
+    //!   \f$\displaystyle P(x) \propto \mathbb{E}\left[ \|x - Y\|_2 \right]\f$
+    //! </pre>
+    //! Here, \f$Y\f$ is distributed according to the empirical distribution of the
+    //! selected samples. This means samples already selected repel nearby ones from
+    //! subsequently being selected which has the effect tending to spread them more
+    //! regularly.
     template<typename T>
     class CVectorDissimilaritySampler final : public CStreamSampler<T> {
     public:
