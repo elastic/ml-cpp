@@ -21,8 +21,10 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
+#include <algorithm>
 #include <cstddef>
 #include <functional>
+#include <limits>
 #include <vector>
 
 namespace ml {
@@ -76,7 +78,8 @@ public:
 
             double weight{this->weight(x)};
             double p{uniformSample(m_Rng, 0.0, 1.0)};
-            if (p * (m_StreamWeight + weight) < m_SampleWeight + weight) {
+            double exchangeWeight{weight - this->minWeight()};
+            if (p * (m_StreamWeight + exchangeWeight) < m_SampleWeight + exchangeWeight) {
                 std::size_t slot{this->sampleToReplace(weight)};
                 if (slot < m_TargetSampleSize) {
                     m_SampleWeight += weight - this->doSample(slot, x, weight);
@@ -95,6 +98,7 @@ public:
     private:
         virtual double seedWeights() = 0;
         virtual double weight(const T& x) = 0;
+        virtual double minWeight() const = 0;
         virtual std::size_t sampleToReplace(double weight) = 0;
         virtual double doSample(std::size_t slot, const T& x, double weight) = 0;
 
@@ -157,6 +161,7 @@ public:
             return static_cast<double>(this->targetSampleSize());
         }
         double weight(const T&) override { return 1.0; }
+        double minWeight() const override { return 1.0; }
         std::size_t sampleToReplace(double) override {
             return uniformSample(this->rng(), 0, this->targetSampleSize() + 1);
         }
@@ -205,8 +210,8 @@ public:
             }
             if (m_SampleWeights.size() > this->targetSampleSize()) {
                 TSizeVec selected;
-                TDoubleVec probabilities{m_SampleWeights};
-                categoricalSampleWithoutReplacement(this->rng(), probabilities,
+                m_Probabilities.assign(m_SampleWeights.begin(), m_SampleWeights.end());
+                categoricalSampleWithoutReplacement(this->rng(), m_Probabilities,
                                                     this->targetSampleSize(), selected);
                 std::sort(selected.begin(), selected.end());
                 for (std::size_t i = 0; i < selected.size(); ++i) {
@@ -222,7 +227,9 @@ public:
         double seedWeights() override {
             double result{0.0};
             for (std::size_t i = 0; i < m_Samples.size(); ++i) {
-                result += m_SampleWeights[i] = this->weight(m_Samples[i]);
+                m_SampleWeights[i] = this->weight(m_Samples[i]);
+                m_MinWeight = std::min(m_MinWeight, m_SampleWeights[i]);
+                result += m_SampleWeights[i];
             }
             return result;
         }
@@ -236,12 +243,14 @@ public:
             return result / 10.0;
         }
 
+        double minWeight() const override { return m_MinWeight; }
+
         std::size_t sampleToReplace(double weight) override {
             if (this->sampleWeight() == 0.0) {
                 return uniformSample(this->rng(), 0, this->targetSampleSize() + 1);
             }
-            // We're choosing the sample to _evict_. Therefore, we choose the samples with
-            // probability proportional to their inverse weight.
+            // We're choosing the sample to _evict_ so use probabilities proportional
+            // to inverse weight.
             std::size_t n{m_SampleWeights.size()};
             m_Probabilities.resize(n + 1);
             double wmin{1e-6 * this->sampleWeight() / static_cast<double>(n + 1)};
@@ -258,11 +267,16 @@ public:
             }
             m_Samples[slot] = x;
             std::swap(m_SampleWeights[slot], weight);
+            if (weight == m_MinWeight) {
+                m_MinWeight = *std::min_element(m_SampleWeights.begin(),
+                                                m_SampleWeights.end());
+            }
             return weight;
         }
 
     private:
         TVec m_Samples;
+        double m_MinWeight = std::numeric_limits<double>::max();
         TDoubleVec m_SampleWeights;
         TDoubleVec m_Probabilities;
     };
