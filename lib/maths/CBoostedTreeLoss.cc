@@ -345,7 +345,7 @@ CArgMinMultinomialLogisticLossImpl::value() const {
             w0(j) = weightBoundingBox[0](j) +
                     alpha * (weightBoundingBox[1](j) - weightBoundingBox[0](j));
         }
-        LOG_TRACE(<< "x0 = " << w0.transpose());
+        LOG_TRACE(<< "w0 = " << w0.transpose());
 
         double loss;
         CLbfgs<TDoubleVector> lgbfs{5};
