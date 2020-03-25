@@ -839,7 +839,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
         static_cast<double>(n[0]) / static_cast<double>(n[1]),
         maths::CBasicStatistics::count(modeSampledCovariances[0]) /
             maths::CBasicStatistics::count(modeSampledCovariances[1]),
-        0.02);
+        0.05);
 }
 
 BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {

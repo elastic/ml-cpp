@@ -34,6 +34,12 @@
 
 * The macOS build platform for the {ml} C++ code is now High Sierra running Xcode 10.1,
   or Ubuntu 18.04 running clang 6.0 for cross compilation. (See {ml-pull}867[#867].)
+== {es} version 7.8.0
+
+=== Enhancements
+
+* Adds new `num_matches` and `preferred_to_categories` fields to category output.
+(See {ml-pull}1062[#1062])
 
 == {es} version 7.7.0
 
@@ -62,8 +68,11 @@ the build from version 2.20 to 2.34.  (See {ml-pull}1013[#1013].)
 * Remove all memory overheads for computing tree SHAP values. (See {ml-pull}1023[#1023].)
 * Distinguish between empty and missing categorical fields in classification and regression
 model training. (See {ml-pull}1034[#1034].)
-* Adds new `num_matches` and `preferred_to_categories` fields to category output.
-(See {ml-pull}1062[#1062])
+* Add instrumentation information for supervised learning data frame analytics jobs.
+(See {ml-pull}1031[#1031].)
+* Add instrumentation information for outlier detection data frame analytics jobs.
+* Write out feature importance for multi-class models. (See {ml-pull}1071[#1071])
+
 === Bug Fixes
 
 * Use largest ordered subset of categorization tokens for category reverse search regex.

@@ -29,7 +29,7 @@ double logOneMinusLogistic(double logOdds) {
     if (logOdds > -LOG_EPSILON) {
         return -logOdds;
     }
-    return CTools::fastLog(1.0 - CTools::logisticFunction(logOdds));
+    return std::log(1.0 - CTools::logisticFunction(logOdds));
 }
 
 double logLogistic(double logOdds) {
@@ -37,16 +37,16 @@ double logLogistic(double logOdds) {
     if (logOdds < LOG_EPSILON) {
         return logOdds;
     }
-    return CTools::fastLog(CTools::logisticFunction(logOdds));
+    return std::log(CTools::logisticFunction(logOdds));
 }
 
 template<typename T>
 CDenseVector<T> logSoftmax(CDenseVector<T> z) {
     // Version which handles overflow and underflow when taking exponentials.
     double zmax{z.maxCoeff()};
-    z = z - zmax * CDenseVector<T>::Ones(z.size());
-    double Z{z.array().exp().matrix().template lpNorm<1>()};
-    z = z - std::log(Z) * CDenseVector<T>::Ones(z.size());
+    z.array() -= zmax;
+    double Z{z.array().exp().sum()};
+    z.array() -= std::log(Z);
     return std::move(z);
 }
 }
@@ -229,10 +229,10 @@ CArgMinMultinomialLogisticLossImpl::CArgMinMultinomialLogisticLossImpl(std::size
                                                                        const CPRNG::CXorOShiro128Plus& rng)
     : CArgMinLossImpl{lambda}, m_NumberClasses{numberClasses}, m_Rng{rng},
       m_ClassCounts{TDoubleVector::Zero(numberClasses)},
-      m_PredictionSketch{NUMBER_CENTRES / 2, // The size of the partition
+      m_PredictionSketch{NUMBER_CENTRES / 4, // The size of the partition
                          0.0, // The rate at which information is aged out (irrelevant)
                          0.0, // The minimum permitted cluster size (irrelevant)
-                         NUMBER_CENTRES / 2, // The buffer size
+                         3 * NUMBER_CENTRES / 4, // The buffer size
                          1,   // The number of seeds for k-means to try
                          2} { // The number of iterations to use in k-means
 }
@@ -247,18 +247,20 @@ bool CArgMinMultinomialLogisticLossImpl::nextPass() {
 
     if (m_CurrentPass++ == 0) {
         TKMeans::TSphericalClusterVecVec clusters;
-        if (m_PredictionSketch.kmeans(NUMBER_CENTRES / 2, clusters) == false) {
+        if (m_PredictionSketch.kmeans(NUMBER_CENTRES / 4, clusters) == false) {
             m_Centres.push_back(TDoubleVector::Zero(m_NumberClasses));
             ++m_CurrentPass;
         } else {
             // Extract the k-centres.
             m_Centres.reserve(clusters.size());
+            TMeanAccumulator empty{TDoubleVector::Zero(m_NumberClasses)};
+            TMeanAccumulator centroid;
             for (const auto& cluster : clusters) {
-                TMeanAccumulator centre{TDoubleVector::Zero(m_NumberClasses)};
+                centroid = empty;
                 for (const auto& point : cluster) {
-                    centre.add(point);
+                    centroid.add(point);
                 }
-                m_Centres.push_back(CBasicStatistics::mean(centre));
+                m_Centres.push_back(CBasicStatistics::mean(centroid));
             }
             std::stable_sort(m_Centres.begin(), m_Centres.end());
             m_Centres.erase(std::unique(m_Centres.begin(), m_Centres.end()),
@@ -334,9 +336,7 @@ CArgMinMultinomialLogisticLossImpl::value() const {
     weightBoundingBox[0] = std::numeric_limits<double>::max() *
                            TDoubleVector::Ones(m_NumberClasses);
     weightBoundingBox[1] = -weightBoundingBox[0];
-
     if (m_Centres.size() == 1) {
-
         // Weight shrinkage means the optimal weight will be somewhere between
         // the logit of the empirical probability and zero.
         TDoubleVector empiricalProbabilities{m_ClassCounts.array() + 0.1};
@@ -348,9 +348,7 @@ CArgMinMultinomialLogisticLossImpl::value() const {
         weightBoundingBox[1] = weightBoundingBox[1].array().max(0.0);
         weightBoundingBox[0] = weightBoundingBox[0].array().min(empiricalLogOdds.array());
         weightBoundingBox[1] = weightBoundingBox[1].array().max(empiricalLogOdds.array());
-
     } else {
-
         for (const auto& centre : m_Centres) {
             weightBoundingBox[0] = weightBoundingBox[0].array().min(-centre.array());
             weightBoundingBox[1] = weightBoundingBox[1].array().max(-centre.array());
@@ -402,9 +400,11 @@ CArgMinMultinomialLogisticLossImpl::objective() const {
     return [logProbabilities, lambda, this](const TDoubleVector& weight) mutable {
         double loss{0.0};
         for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
-            logProbabilities = m_Centres[i] + weight;
-            logProbabilities = logSoftmax(std::move(logProbabilities));
-            loss -= m_CentresClassCounts[i].transpose() * logProbabilities;
+            if (m_CentresClassCounts[i].sum() > 0.0) {
+                logProbabilities = m_Centres[i] + weight;
+                logProbabilities = logSoftmax(std::move(logProbabilities));
+                loss -= m_CentresClassCounts[i].transpose() * logProbabilities;
+            }
         }
         return loss + lambda * weight.squaredNorm();
     };
@@ -412,23 +412,26 @@ CArgMinMultinomialLogisticLossImpl::objective() const {
 
 CArgMinMultinomialLogisticLossImpl::TObjectiveGradient
 CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
-    TDoubleVector probabilities;
+    TDoubleVector probabilities{m_NumberClasses};
+    TDoubleVector lossGradient{m_NumberClasses};
     double lambda{this->lambda()};
     if (m_Centres.size() == 1) {
-        return [probabilities, lambda, this](const TDoubleVector& weight) mutable {
+        return [probabilities, lossGradient, lambda, this](const TDoubleVector& weight) mutable {
             probabilities = m_Centres[0] + weight;
             probabilities = CTools::softmax(std::move(probabilities));
-            return TDoubleVector{2.0 * lambda * weight -
-                                 (m_ClassCounts - m_ClassCounts.array().sum() * probabilities)};
+            lossGradient = m_ClassCounts.array().sum() * probabilities - m_ClassCounts;
+            return TDoubleVector{2.0 * lambda * weight + lossGradient};
         };
     }
-    return [probabilities, lambda, this](const TDoubleVector& weight) mutable -> TDoubleVector {
-        TDoubleVector lossGradient{TDoubleVector::Zero(m_NumberClasses)};
+    return [probabilities, lossGradient, lambda, this](const TDoubleVector& weight) mutable {
+        lossGradient.array() = 0.0;
         for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
-            probabilities = m_Centres[i] + weight;
-            probabilities = CTools::softmax(std::move(probabilities));
-            lossGradient -= m_CentresClassCounts[i] -
-                            m_CentresClassCounts[i].array().sum() * probabilities;
+            double n{m_CentresClassCounts[i].array().sum()};
+            if (n > 0.0) {
+                probabilities = m_Centres[i] + weight;
+                probabilities = CTools::softmax(std::move(probabilities));
+                lossGradient -= m_CentresClassCounts[i] - n * probabilities;
+            }
         }
         return TDoubleVector{2.0 * lambda * weight + lossGradient};
     };
@@ -609,7 +612,7 @@ double CMultinomialLogisticLoss::value(const TMemoryMappedFloatVector& predictio
     for (int i = 0; i < predictions.size(); ++i) {
         logZ += std::exp(predictions(i) - zmax);
     }
-    logZ = zmax + CTools::fastLog(logZ);
+    logZ = zmax + std::log(logZ);
 
     // i.e. -log(z(actual))
     return weight * (logZ - predictions(static_cast<std::size_t>(actual)));
@@ -623,18 +626,29 @@ void CMultinomialLogisticLoss::gradient(const TMemoryMappedFloatVector& predicti
     // We prefer an implementation which avoids any memory allocations.
 
     double zmax{predictions.maxCoeff()};
+    double eps{0.0};
     double logZ{0.0};
     for (int i = 0; i < predictions.size(); ++i) {
-        logZ += std::exp(predictions(i) - zmax);
+        if (predictions(i) - zmax < LOG_EPSILON) {
+            // Sum the contributions from classes whose predicted probability
+            // is less than epsilon, for which we'd lose all nearly precision
+            // when adding to the normalisation coefficient.
+            eps += std::exp(predictions(i) - zmax);
+        } else {
+            logZ += std::exp(predictions(i) - zmax);
+        }
     }
-    logZ = zmax + CTools::fastLog(logZ);
+    logZ = zmax + std::log(logZ);
 
     for (int i = 0; i < predictions.size(); ++i) {
         if (i == static_cast<int>(actual)) {
-            if (predictions(i) - logZ > -LOG_EPSILON) {
-                writer(i, -weight * std::exp(-(predictions(i) - logZ)));
+            double probability{std::exp(predictions(i) - logZ)};
+            if (probability == 1.0) {
+                // We have that p = 1 / (1 + eps) and the gradient is p - 1.
+                // Use a Taylor expansion and drop terms of O(eps^2) to get:
+                writer(i, -weight * eps);
             } else {
-                writer(i, weight * (std::exp(predictions(i) - logZ) - 1.0));
+                writer(i, weight * (probability - 1.0));
             }
         } else {
             writer(i, weight * std::exp(predictions(i) - logZ));
@@ -652,23 +666,33 @@ void CMultinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& predict
     // We prefer an implementation which avoids any memory allocations.
 
     double zmax{predictions.maxCoeff()};
+    double eps{0.0};
     double logZ{0.0};
     for (int i = 0; i < predictions.size(); ++i) {
-        logZ += std::exp(predictions(i) - zmax);
+        if (predictions(i) - zmax < LOG_EPSILON) {
+            // Sum the contributions from classes whose predicted probability
+            // is less than epsilon, for which we'd lose all nearly precision
+            // when adding to the normalisation coefficient.
+            eps += std::exp(predictions(i) - zmax);
+        } else {
+            logZ += std::exp(predictions(i) - zmax);
+        }
     }
-    logZ = zmax + CTools::fastLog(logZ);
+    logZ = zmax + std::log(logZ);
 
     for (std::size_t i = 0, k = 0; i < m_NumberClasses; ++i) {
-        if (predictions(i) - logZ > -LOG_EPSILON) {
-            writer(i, weight * std::exp(-(predictions(i) - logZ)));
+        double probability{std::exp(predictions(i) - logZ)};
+        if (probability == 1.0) {
+            // We have that p = 1 / (1 + eps) and the curvature is p (1 - p).
+            // Use a Taylor expansion and drop terms of O(eps^2) to get:
+            writer(k++, weight * eps);
         } else {
-            double probability{std::exp(predictions(i) - logZ)};
-            writer(i, weight * weight * probability * (1.0 - probability));
+            writer(k++, weight * probability * (1.0 - probability));
         }
-        for (std::size_t j = i + 1; j < m_NumberClasses; ++j, ++k) {
+        for (std::size_t j = i + 1; j < m_NumberClasses; ++j) {
             double probabilities[]{std::exp(predictions(i) - logZ),
                                    std::exp(predictions(j) - logZ)};
-            writer(k, -weight * probabilities[0] * probabilities[1]);
+            writer(k++, -weight * probabilities[0] * probabilities[1]);
         }
     }
 }

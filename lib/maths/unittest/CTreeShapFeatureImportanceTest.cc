@@ -428,9 +428,6 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeExpectedNodeValues, SFixtureSingleTree) {
 BOOST_FIXTURE_TEST_CASE(testSingleTreeShap, SFixtureSingleTree) {
 
     TStrVec expectedNames{s_Frame->columnNames()};
-    for (auto& name : expectedNames) {
-        name = maths::CTreeShapFeatureImportance::SHAP_PREFIX + name;
-    }
 
     TDoubleVecVec expectedPhi{{-5., -2.5}, {-5., 2.5}, {5., -2.5}, {5., 2.5}};
 
@@ -460,9 +457,6 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeShap, SFixtureSingleTree) {
 BOOST_FIXTURE_TEST_CASE(testMultipleTreesShap, SFixtureMultipleTrees) {
 
     TStrVec expectedNames{s_Frame->columnNames()};
-    for (auto& name : expectedNames) {
-        name = maths::CTreeShapFeatureImportance::SHAP_PREFIX + name;
-    }
 
     TDoubleVecVec expectedPhi{
         {-1.65320002, -0.12444978}, {-1.65320002, -0.12444978},
@@ -511,9 +505,6 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeShapRandomDataFrame, SFixtureSingleTreeRan
     // 1 in paper by Lundberg et al.) on a random data set with a random tree.
 
     TStrVec expectedNames{s_Frame->columnNames()};
-    for (auto& name : expectedNames) {
-        name = maths::CTreeShapFeatureImportance::SHAP_PREFIX + name;
-    }
 
     CBruteForceTreeShap bfShap(s_Trees[0], s_NumberFeatures);
     auto expectedPhi = bfShap.shap(*s_Frame, *s_Encoder, 1);

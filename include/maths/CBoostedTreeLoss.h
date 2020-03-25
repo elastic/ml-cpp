@@ -169,11 +169,11 @@ public:
 
 private:
     using TDoubleVectorVec = std::vector<TDoubleVector>;
-    using TKMeans = CKMeansOnline<TDoubleVector>;
+    using TKMeans = CKMeansOnline<TDoubleVector, TDoubleVector>;
 
 private:
     static constexpr std::size_t NUMBER_CENTRES = 128;
-    static constexpr std::size_t NUMBER_RESTARTS = 5;
+    static constexpr std::size_t NUMBER_RESTARTS = 3;
 
 private:
     std::size_t m_NumberClasses = 0;
