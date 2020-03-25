@@ -18,6 +18,24 @@ namespace ml {
 namespace maths {
 namespace las {
 
+//! Assign \p x from a linear algebra expression.
+template<typename VECTOR>
+VECTOR& assignExpr(const VECTOR& x) {
+    return x;
+}
+
+//! Assign \p x from a linear algebra expression.
+template<typename SCALAR>
+auto assignExpr(CDenseVector<SCALAR>& x) -> decltype(x.assignExpr()) {
+    return x.assignExpr();
+}
+
+//! Assign \p x from a linear algebra expression.
+template<typename SCALAR>
+auto assignExpr(CDenseMatrix<SCALAR>& x) -> decltype(x.assignExpr()) {
+    return x.assignExpr();
+}
+
 //! Get the dimension of one of our internal vectors.
 template<typename VECTOR>
 std::size_t dimension(const VECTOR& x) {

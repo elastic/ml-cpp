@@ -199,6 +199,7 @@ public:
     CDenseMatrix(CDenseMatrix&& other) = default;
     CDenseMatrix& operator=(const CDenseMatrix& other) = default;
     CDenseMatrix& operator=(CDenseMatrix&& other) = default;
+    TBase& assignExpr() { return *this; }
     // @}
 
     //! Debug the memory usage of this object.
@@ -256,6 +257,7 @@ public:
     CDenseVector(CDenseVector&& other) = default;
     CDenseVector& operator=(const CDenseVector& other) = default;
     CDenseVector& operator=(CDenseVector&& other) = default;
+    TBase& assignExpr() { return *this; }
     // @}
 
     //! Debug the memory usage of this object.

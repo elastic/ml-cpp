@@ -1110,7 +1110,8 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
                 n(i) = noise[numberFeatures * row.index() + i];
             }
             TVector logit{W * x + n};
-            return maths::CTools::softmax(std::move(logit));
+            maths::CTools::inplaceSoftmax(logit);
+            return logit;
         };
 
         auto target = [&](const TRowRef& row) {

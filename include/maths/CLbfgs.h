@@ -141,8 +141,8 @@ public:
 
         // Functions to compute the augmented Lagrangian and its gradient w.r.t. x.
         auto al = [&](const VECTOR& x_) {
-            r1 = x_ - z1 + w1 - a;
-            r2 = x_ + z2 + w2 - b;
+            las::assignExpr(r1) = x_ - z1 + w1 - a;
+            las::assignExpr(r2) = x_ + z2 + w2 - b;
             double n1{las::norm(r1)};
             double n2{las::norm(r2)};
             // Explicitly construct the return type before returning from the lambda,
@@ -167,8 +167,8 @@ public:
             std::tie(x, std::ignore) = this->minimize(al, gal, x, eps, iterations);
 
             // z-minimization.
-            z1 = x - a + w1;
-            z2 = b - x - w2;
+            las::assignExpr(z1) = x - a + w1;
+            las::assignExpr(z2) = b - x - w2;
             las::max(zero, z1);
             las::max(zero, z2);
 
@@ -227,12 +227,14 @@ private:
 
         double s{1.0};
         double fs{f(m_X - s * m_P)};
+        VECTOR xs;
 
         for (std::size_t i = 0; i < MAXIMUM_BACK_TRACKING_ITERATIONS &&
                                 fs - m_Fx > this->minimumDecrease(s);
              ++i) {
             s *= m_StepScale;
-            fs = f(m_X - s * m_P);
+            las::assignExpr(xs) = m_X - s * m_P;
+            fs = f(xs);
         }
 
         m_Fl = m_Fx;
@@ -265,7 +267,7 @@ private:
             for (std::size_t i = k; i > 0; --i) {
                 m_Rho[i - 1] = 1.0 / (las::inner(m_Dg[i - 1], m_Dx[i - 1]) + eps);
                 m_Alpha[i - 1] = m_Rho[i - 1] * las::inner(m_Dx[i - 1], m_P);
-                m_P.noalias() -= m_Alpha[i - 1] * m_Dg[i - 1];
+                m_P -= m_Alpha[i - 1] * m_Dg[i - 1];
             }
 
             // The initialisation choice is free, this is an estimate for the
@@ -285,12 +287,11 @@ private:
                 double beta{m_Rho[i] * (las::inner(m_Dg[i], m_P) + eps)};
                 double gk{m_Alpha[i] - beta};
                 double gmax{hmax / las::norm(m_Dx[i])};
-                m_P.noalias() += std::copysign(std::min(std::fabs(gk), gmax), gk) *
-                                 m_Dx[i];
+                m_P += std::copysign(std::min(std::fabs(gk), gmax), gk) * m_Dx[i];
             }
 
             if (las::inner(m_Gx, m_P) <= 0.0) {
-                m_P = (las::norm(m_P) / (las::norm(m_Gx) + eps)) * m_Gx;
+                las::assignExpr(m_P) = (las::norm(m_P) / (las::norm(m_Gx) + eps)) * m_Gx;
             }
         } else {
             m_Initial = false;

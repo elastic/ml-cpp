@@ -40,14 +40,13 @@ double logLogistic(double logOdds) {
     return std::log(CTools::logisticFunction(logOdds));
 }
 
-template<typename T>
-CDenseVector<T> logSoftmax(CDenseVector<T> z) {
-    // Version which handles overflow and underflow when taking exponentials.
+//template<typename T>
+void inplaceLogSoftmax(Eigen::VectorXd& z) {
+    // Handle overflow and underflow when taking exponentials by subtracting zmax.
     double zmax{z.maxCoeff()};
     z.array() -= zmax;
     double Z{z.array().exp().sum()};
     z.array() -= std::log(Z);
-    return std::move(z);
 }
 }
 
@@ -388,12 +387,12 @@ CArgMinMultinomialLogisticLossImpl::value() const {
 
 CArgMinMultinomialLogisticLossImpl::TObjective
 CArgMinMultinomialLogisticLossImpl::objective() const {
-    TDoubleVector logProbabilities;
+    TDoubleVector logProbabilities{m_NumberClasses};
     double lambda{this->lambda()};
     if (m_Centres.size() == 1) {
         return [logProbabilities, lambda, this](const TDoubleVector& weight) mutable {
-            logProbabilities = m_Centres[0] + weight;
-            logProbabilities = logSoftmax(std::move(logProbabilities));
+            logProbabilities.assignExpr() = m_Centres[0] + weight;
+            inplaceLogSoftmax(logProbabilities);
             return lambda * weight.squaredNorm() - m_ClassCounts.transpose() * logProbabilities;
         };
     }
@@ -401,8 +400,8 @@ CArgMinMultinomialLogisticLossImpl::objective() const {
         double loss{0.0};
         for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
             if (m_CentresClassCounts[i].sum() > 0.0) {
-                logProbabilities = m_Centres[i] + weight;
-                logProbabilities = logSoftmax(std::move(logProbabilities));
+                logProbabilities.assignExpr() = m_Centres[i] + weight;
+                inplaceLogSoftmax(logProbabilities);
                 loss -= m_CentresClassCounts[i].transpose() * logProbabilities;
             }
         }
@@ -417,9 +416,9 @@ CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
     double lambda{this->lambda()};
     if (m_Centres.size() == 1) {
         return [probabilities, lossGradient, lambda, this](const TDoubleVector& weight) mutable {
-            probabilities = m_Centres[0] + weight;
-            probabilities = CTools::softmax(std::move(probabilities));
-            lossGradient = m_ClassCounts.array().sum() * probabilities - m_ClassCounts;
+            probabilities.assignExpr() = m_Centres[0] + weight;
+            CTools::inplaceSoftmax(probabilities);
+            lossGradient.assignExpr() = m_ClassCounts.array().sum() * probabilities - m_ClassCounts;
             return TDoubleVector{2.0 * lambda * weight + lossGradient};
         };
     }
@@ -428,8 +427,8 @@ CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
         for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
             double n{m_CentresClassCounts[i].array().sum()};
             if (n > 0.0) {
-                probabilities = m_Centres[i] + weight;
-                probabilities = CTools::softmax(std::move(probabilities));
+                probabilities.assignExpr() = m_Centres[i] + weight;
+                CTools::inplaceSoftmax(probabilities);
                 lossGradient -= m_CentresClassCounts[i] - n * probabilities;
             }
         }
@@ -704,7 +703,8 @@ bool CMultinomialLogisticLoss::isCurvatureConstant() const {
 CMultinomialLogisticLoss::TDoubleVector
 CMultinomialLogisticLoss::transform(const TMemoryMappedFloatVector& prediction) const {
     TDoubleVector result{prediction};
-    return CTools::softmax(std::move(result));
+    CTools::inplaceSoftmax(result);
+    return result;
 }
 
 CArgMinLoss CMultinomialLogisticLoss::minimizer(double lambda,
