@@ -17,7 +17,7 @@ build-eclipse/
 nb-configuration.xml
 nbactions.xml
 
-#vscode
+#vscode files
 .vscode
 .clangd
 
