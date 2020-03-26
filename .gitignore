@@ -17,6 +17,10 @@ build-eclipse/
 nb-configuration.xml
 nbactions.xml
 
+#vscode
+.vscode
+.clangd
+
 # gradle stuff
 .gradle/
 build/
