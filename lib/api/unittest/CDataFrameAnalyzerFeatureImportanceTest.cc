@@ -146,7 +146,7 @@ void setupMultiClassClassificationData(const TStrVec& fieldNames,
     TDoubleVec storage(numberClasses * numberFeatures);
     for (int i = 0; i < numberClasses; ++i) {
         for (int j = 0; j < numberFeatures; ++j) {
-            storage[j * numberClasses + i] = weights[j];
+            storage[j * numberClasses + i] = static_cast<double>(i) * weights[j];
         }
     }
     auto probability = [&](const TDoubleVec& row) {
@@ -569,37 +569,33 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
 
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            double c1Sum{readShapValue(result, "c1")};
-            double c2Sum{readShapValue(result, "c2")};
-            double c3Sum{readShapValue(result, "c3")};
-            double c4Sum{readShapValue(result, "c4")};
+            double c1{readShapValue(result, "c1")};
+            double c2{readShapValue(result, "c2")};
+            double c3{readShapValue(result, "c3")};
+            double c4{readShapValue(result, "c4")};
             // We should have at least one feature that is important
-            BOOST_TEST_REQUIRE((c1Sum > 0.0 || c2Sum > 0.0 || c3Sum > 0.0 || c4Sum > 0.0));
+            BOOST_TEST_REQUIRE((c1 > 0.0 || c2 > 0.0 || c3 > 0.0 || c4 > 0.0));
 
             // class shap values should sum(abs()) to the overall feature importance
             double c1f{readShapValue(result, "c1", "foo")};
             double c1bar{readShapValue(result, "c1", "bar")};
             double c1baz{readShapValue(result, "c1", "baz")};
-            BOOST_REQUIRE_CLOSE(
-                c1Sum, std::abs(c1f) + std::abs(c1bar) + std::abs(c1baz), 1e-6);
+            BOOST_REQUIRE_CLOSE(c1, std::abs(c1f) + std::abs(c1bar) + std::abs(c1baz), 1e-6);
 
             double c2f{readShapValue(result, "c2", "foo")};
             double c2bar{readShapValue(result, "c2", "bar")};
             double c2baz{readShapValue(result, "c2", "baz")};
-            BOOST_REQUIRE_CLOSE(
-                c2Sum, std::abs(c2f) + std::abs(c2bar) + std::abs(c2baz), 1e-6);
+            BOOST_REQUIRE_CLOSE(c2, std::abs(c2f) + std::abs(c2bar) + std::abs(c2baz), 1e-6);
 
             double c3f{readShapValue(result, "c3", "foo")};
             double c3bar{readShapValue(result, "c3", "bar")};
             double c3baz{readShapValue(result, "c3", "baz")};
-            BOOST_REQUIRE_CLOSE(
-                c3Sum, std::abs(c3f) + std::abs(c3bar) + std::abs(c3baz), 1e-6);
+            BOOST_REQUIRE_CLOSE(c3, std::abs(c3f) + std::abs(c3bar) + std::abs(c3baz), 1e-6);
 
             double c4f{readShapValue(result, "c4", "foo")};
             double c4bar{readShapValue(result, "c4", "bar")};
             double c4baz{readShapValue(result, "c4", "baz")};
-            BOOST_REQUIRE_CLOSE(
-                c4Sum, std::abs(c4f) + std::abs(c4bar) + std::abs(c4baz), 1e-6);
+            BOOST_REQUIRE_CLOSE(c4, std::abs(c4f) + std::abs(c4bar) + std::abs(c4baz), 1e-6);
         }
     }
 }
