@@ -122,12 +122,13 @@ CBayesianOptimisation::maximumExpectedImprovement() {
 
     } else {
 
+        TVector x;
         for (std::size_t i = 0; i < interpolates.size(); /**/) {
 
             for (int j = 0; j < interpolate.size(); ++i, ++j) {
                 interpolate(j) = interpolates[i];
             }
-            TVector x{a + interpolate.cwiseProduct(b - a)};
+            x = a + interpolate.cwiseProduct(b - a);
             double fx{minusEI(x)};
             LOG_TRACE(<< "x = " << x.transpose() << " EI(x) = " << fx);
 
@@ -146,11 +147,11 @@ CBayesianOptimisation::maximumExpectedImprovement() {
 
         CLbfgs<TVector> lbfgs{10};
 
+        TVector xcand;
+        double fcand;
         for (auto& x0 : seeds) {
 
             LOG_TRACE(<< "x0 = " << x0.second.transpose());
-            TVector xcand;
-            double fcand;
             std::tie(xcand, fcand) = lbfgs.constrainedMinimize(
                 minusEI, minusEIGradient, a, b, std::move(x0.second), rho);
             LOG_TRACE(<< " xcand = " << xcand.transpose() << " EI(cand) = " << fcand);
@@ -344,7 +345,7 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
         for (std::size_t j = 0; j < n; ++j) {
             scale(j) = scales[(i - 1) * n + j];
         }
-        a = scale.array().exp() * a.array();
+        a.array() = scale.array().exp() * a.array();
 
         double la;
         std::tie(a, la) = lbfgs.minimize(l, g, std::move(a), 1e-8, 75);
@@ -441,7 +442,7 @@ CBayesianOptimisation::kernelCovariates(const TVector& a, const TVector& x, doub
     for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
         Kxn(i) = this->kernel(a, x, m_FunctionMeanValues[i].first);
     }
-    return {Kxn, Kxx};
+    return {std::move(Kxn), Kxx};
 }
 
 double CBayesianOptimisation::kernel(const TVector& a, const TVector& x, const TVector& y) const {
