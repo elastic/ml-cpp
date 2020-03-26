@@ -40,9 +40,9 @@ double logLogistic(double logOdds) {
     return std::log(CTools::logisticFunction(logOdds));
 }
 
-//template<typename T>
-void inplaceLogSoftmax(Eigen::VectorXd& z) {
-    // Handle overflow and underflow when taking exponentials by subtracting zmax.
+template<typename SCALAR>
+void inplaceLogSoftmax(CDenseVector<SCALAR>& z) {
+    // Handle under/overflow when taking exponentials by subtracting zmax.
     double zmax{z.maxCoeff()};
     z.array() -= zmax;
     double Z{z.array().exp().sum()};
