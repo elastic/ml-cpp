@@ -145,8 +145,8 @@ void setupMultiClassClassificationData(const TStrVec& fieldNames,
     int numberClasses{static_cast<int>(classes.size())};
     TDoubleVec storage(numberClasses * numberFeatures);
     for (int i = 0; i < numberClasses; ++i) {
-        for (int j = 0; j < numberClasses; ++j) {
-            storage[i * numberFeatures + j] = weights[j];
+        for (int j = 0; j < numberFeatures; ++j) {
+            storage[j * numberFeatures + i] = weights[j];
         }
     }
     auto probability = [&](const TDoubleVec& row) {
