@@ -235,6 +235,10 @@ void CDataFrameOutliersInstrumentation::writeParameters(rapidjson::Value& parent
     }
 }
 
+CDataFrameTrainBoostedTreeInstrumentation::CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId)
+    : CDataFrameAnalysisInstrumentation(jobId) {
+}
+
 void CDataFrameTrainBoostedTreeInstrumentation::type(EStatsType type) {
     m_Type = type;
 }
