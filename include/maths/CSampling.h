@@ -13,6 +13,7 @@
 #include <core/CScopedFastLock.h>
 
 #include <maths/CLinearAlgebraFwd.h>
+#include <maths/CLinearAlgebraShims.h>
 #include <maths/CPRNG.h>
 #include <maths/ImportExport.h>
 
@@ -20,8 +21,10 @@
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 
+#include <algorithm>
 #include <cstddef>
 #include <functional>
+#include <limits>
 #include <vector>
 
 namespace ml {
@@ -41,6 +44,71 @@ public:
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TSizeVec = std::vector<std::size_t>;
     using TPtrdiffVec = std::vector<std::ptrdiff_t>;
+
+    //! \brief A basic stream sampler.
+    template<typename T>
+    class CStreamSampler {
+    public:
+        virtual ~CStreamSampler() = default;
+
+        //! Get the sampler's random number generator.
+        CPRNG::CXorOShiro128Plus& rng() { return m_Rng; }
+
+        //! Get the sample size.
+        std::size_t sampleSize() const { return m_SampleSize; }
+
+        //! Get the size of the sample we're targeting.
+        std::size_t targetSampleSize() const { return m_TargetSampleSize; }
+
+        //! Reset in preparation for resampling.
+        virtual void reset() {
+            m_SampleSize = 0;
+            m_StreamWeight = m_SampleWeight = 0.0;
+        }
+
+        //! Sample sample the value \p x.
+        void sample(const T& x) {
+            if (m_SampleSize < m_TargetSampleSize) {
+                this->doSample(m_SampleSize++, x, 1.0);
+                if (m_SampleSize == m_TargetSampleSize) {
+                    m_StreamWeight = m_SampleWeight = this->seedWeights();
+                }
+                return;
+            }
+
+            double weight{this->weight(x)};
+            double p{uniformSample(m_Rng, 0.0, 1.0)};
+            double exchangeWeight{weight - this->minWeight()};
+            if (p * (m_StreamWeight + exchangeWeight) < m_SampleWeight + exchangeWeight) {
+                std::size_t slot{this->sampleToReplace(weight)};
+                if (slot < m_TargetSampleSize) {
+                    m_SampleWeight += weight - this->doSample(slot, x, weight);
+                }
+            }
+            m_StreamWeight += weight;
+        }
+
+    protected:
+        explicit CStreamSampler(std::size_t targetSampleSize,
+                                const CPRNG::CXorOShiro128Plus& rng = CPRNG::CXorOShiro128Plus{})
+            : m_Rng{rng}, m_TargetSampleSize{targetSampleSize} {}
+
+        double sampleWeight() const { return m_SampleWeight; }
+
+    private:
+        virtual double seedWeights() = 0;
+        virtual double weight(const T& x) = 0;
+        virtual double minWeight() const = 0;
+        virtual std::size_t sampleToReplace(double weight) = 0;
+        virtual double doSample(std::size_t slot, const T& x, double weight) = 0;
+
+    private:
+        CPRNG::CXorOShiro128Plus m_Rng;
+        std::size_t m_TargetSampleSize;
+        std::size_t m_SampleSize = 0;
+        double m_StreamWeight = 0.0;
+        double m_SampleWeight = 0.0;
+    };
 
     //! \brief This produces (very nearly) a uniform random sample of a stream of values
     //! of a specified cardinality where the stream cardinality is not known in advance.
@@ -62,23 +130,19 @@ public:
     //! IMPLEMENTATION:\n
     //! To allow greater flexibility, this doesn't maintain the sample set, but instead a
     //! function is provided which is called when a value is sampled. This is passed the
-    //! index of the the item overwritten and the overwriting value. If the sample set is
+    //! index of the item overwritten and the overwriting value. If the sample set is
     //! wanted it is easy to provide a callback to achieve this as follows:
     //! \code{.cpp}
     //! std::vector<double> sample;
-    //! CRandomStreamSampler<double> sampler{[&sample](std::size_t i, const double& x) {
+    //! CReservoirSample<double> sampler{10, [&sample](std::size_t i, const double& x) {
     //!     if (i >= sample.size()) {
     //!         sample.resize(i + 1);
     //!     }
     //!     sample[i] = x;
     //! }};
-    //!
-    //! for (auto x : stream) {
-    //!     sampler.sample(x);
-    //! }
     //! \endcode
     template<typename T>
-    class CRandomStreamSampler {
+    class CReservoirSampler final : public CStreamSampler<T> {
     public:
         using TOnSampleCallback = std::function<void(std::size_t, const T&)>;
 
@@ -86,51 +150,145 @@ public:
         static const std::size_t MINIMUM_TARGET_SAMPLE_SIZE;
 
     public:
-        CRandomStreamSampler(std::size_t targetSampleSize,
-                             const TOnSampleCallback& onSample,
-                             const CPRNG::CXorOShiro128Plus& rng = CPRNG::CXorOShiro128Plus{})
-            : m_Rng{rng}, m_TargetSampleSize{std::max(targetSampleSize, MINIMUM_TARGET_SAMPLE_SIZE)},
-              m_OnSample{onSample} {}
+        CReservoirSampler(std::size_t targetSampleSize,
+                          TOnSampleCallback onSample,
+                          const CPRNG::CXorOShiro128Plus& rng = CPRNG::CXorOShiro128Plus{})
+            : CStreamSampler<T>(std::max(targetSampleSize, MINIMUM_TARGET_SAMPLE_SIZE), rng),
+              m_OnSample{std::move(onSample)} {}
 
-        //! Reset in preparation for resampling.
-        void reset() { m_StreamSize = m_SampleSize = 0; }
-
-        //! Get the sampler's random number generator.
-        CPRNG::CXorOShiro128Plus& rng() { return m_Rng; }
-
-        //! Get the size of the sample we're targeting.
-        std::size_t targetSampleSize() const { return m_TargetSampleSize; }
-
-        //! Get the sample size.
-        std::size_t sampleSize() const { return m_SampleSize; }
-
-        //! Get the size of the stream processed.
-        std::size_t streamSize() const { return m_StreamSize; }
-
-        //! Sample the value \p x uniformly at random.
-        void sample(const T& x) {
-            if (m_SampleSize < m_TargetSampleSize) {
-                m_OnSample(m_SampleSize, x);
-                ++m_SampleSize;
-            } else {
-                double p{uniformSample(m_Rng, 0.0, 1.0)};
-                if (p * static_cast<double>(m_StreamSize) < static_cast<double>(m_SampleSize)) {
-                    std::size_t slot{uniformSample(m_Rng, 0, m_SampleSize + 1)};
-                    if (slot < m_SampleSize) {
-                        m_OnSample(slot, x);
-                    }
-                }
-            }
-
-            ++m_StreamSize;
+    private:
+        double seedWeights() override {
+            return static_cast<double>(this->targetSampleSize());
+        }
+        double weight(const T&) override { return 1.0; }
+        double minWeight() const override { return 1.0; }
+        std::size_t sampleToReplace(double) override {
+            return uniformSample(this->rng(), 0, this->targetSampleSize() + 1);
+        }
+        double doSample(std::size_t slot, const T& x, double weight) override {
+            m_OnSample(slot, x);
+            return weight;
         }
 
     private:
-        CPRNG::CXorOShiro128Plus m_Rng;
-        std::size_t m_TargetSampleSize;
-        std::size_t m_StreamSize = 0;
-        std::size_t m_SampleSize = 0;
         TOnSampleCallback m_OnSample;
+    };
+
+    //! \brief Perform a weighted sample of stream of vectors of specified cardinality
+    //! where the probability of sampling each vector is proportional to its average
+    //! distance from the other sampled vectors.
+    //!
+    //! DESCRIPTION:\n
+    //! Each vector is sampled with probability
+    //! <pre class="fragment">
+    //!   \f$\displaystyle P(x) \propto \mathbb{E}\left[ \|x - Y\|_2 \right]\f$
+    //! </pre>
+    //! Here, \f$Y\f$ is distributed according to the empirical distribution of the
+    //! selected samples. This means samples already selected repel nearby ones from
+    //! subsequently being selected which has the effect tending to spread them more
+    //! regularly.
+    template<typename T>
+    class CVectorDissimilaritySampler final : public CStreamSampler<T> {
+    public:
+        using TVec = std::vector<T>;
+
+    public:
+        CVectorDissimilaritySampler(std::size_t targetSampleSize,
+                                    const CPRNG::CXorOShiro128Plus& rng = CPRNG::CXorOShiro128Plus{})
+            : CStreamSampler<T>(targetSampleSize, rng),
+              m_SampleWeights(targetSampleSize, 0.0) {
+            m_Samples.reserve(targetSampleSize);
+            m_Probabilities.reserve(targetSampleSize + 1);
+        }
+
+        const TVec& samples() const { return m_Samples; }
+        TVec& samples() { return m_Samples; }
+        const TDoubleVec& sampleWeights() const { return m_SampleWeights; }
+
+        void reset() override {
+            this->CStreamSampler<T>::reset();
+            m_SampleWeights.assign(this->targetSampleSize(), 0.0);
+            m_Samples.clear();
+        }
+
+        void merge(const CVectorDissimilaritySampler& other) {
+            m_Samples.insert(m_Samples.end(), other.m_Samples.begin(),
+                             other.m_Samples.end());
+            m_SampleWeights.resize(m_Samples.size());
+            for (std::size_t i = 0; i < m_Samples.size(); ++i) {
+                m_SampleWeights[i] = this->weight(m_Samples[i]);
+            }
+            if (m_SampleWeights.size() > this->targetSampleSize()) {
+                TSizeVec selected;
+                m_Probabilities.assign(m_SampleWeights.begin(), m_SampleWeights.end());
+                categoricalSampleWithoutReplacement(this->rng(), m_Probabilities,
+                                                    this->targetSampleSize(), selected);
+                std::sort(selected.begin(), selected.end());
+                for (std::size_t i = 0; i < selected.size(); ++i) {
+                    m_Samples[i] = m_Samples[selected[i]];
+                    m_SampleWeights[i] = m_SampleWeights[selected[i]];
+                }
+                m_Samples.resize(selected.size());
+                m_SampleWeights.resize(selected.size());
+            }
+        }
+
+    private:
+        double seedWeights() override {
+            double result{0.0};
+            for (std::size_t i = 0; i < m_Samples.size(); ++i) {
+                m_SampleWeights[i] = this->weight(m_Samples[i]);
+                m_MinWeight = std::min(m_MinWeight, m_SampleWeights[i]);
+                result += m_SampleWeights[i];
+            }
+            return result;
+        }
+
+        double weight(const T& x) override {
+            double result{0.0};
+            for (std::size_t i = 0; i < 10; ++i) {
+                result += las::distance(
+                    x, m_Samples[uniformSample(this->rng(), 0, m_Samples.size())]);
+            }
+            return result / 10.0;
+        }
+
+        double minWeight() const override { return m_MinWeight; }
+
+        std::size_t sampleToReplace(double weight) override {
+            if (this->sampleWeight() == 0.0) {
+                return uniformSample(this->rng(), 0, this->targetSampleSize() + 1);
+            }
+            // We're choosing the sample to _evict_ so use probabilities proportional
+            // to inverse weight.
+            std::size_t n{m_SampleWeights.size()};
+            m_Probabilities.resize(n + 1);
+            double wmin{1e-6 * this->sampleWeight() / static_cast<double>(n + 1)};
+            for (std::size_t i = 0; i < n; ++i) {
+                m_Probabilities[i] = 1.0 / std::max(m_SampleWeights[i], wmin);
+            }
+            m_Probabilities[n] = 1.0 / std::max(weight, wmin);
+            return categoricalSample(this->rng(), m_Probabilities);
+        }
+
+        double doSample(std::size_t slot, const T& x, double weight) override {
+            if (m_Samples.size() <= slot) {
+                m_Samples.resize(slot + 1);
+            }
+            m_Samples[slot] = x;
+            std::swap(m_SampleWeights[slot], weight);
+            if (weight == m_MinWeight) {
+                m_MinWeight = *std::min_element(m_SampleWeights.begin(),
+                                                m_SampleWeights.end());
+            }
+            return weight;
+        }
+
+    private:
+        TVec m_Samples;
+        double m_MinWeight = std::numeric_limits<double>::max();
+        TDoubleVec m_SampleWeights;
+        TDoubleVec m_Probabilities;
     };
 
     //! \brief A mockable random number generator which uses boost::random::mt11213b.
@@ -523,7 +681,7 @@ private:
 };
 
 template<typename T>
-const std::size_t CSampling::CRandomStreamSampler<T>::MINIMUM_TARGET_SAMPLE_SIZE{100};
+const std::size_t CSampling::CReservoirSampler<T>::MINIMUM_TARGET_SAMPLE_SIZE{100};
 }
 }
 
