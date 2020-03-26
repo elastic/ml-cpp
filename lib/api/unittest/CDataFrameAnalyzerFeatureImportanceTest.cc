@@ -150,8 +150,9 @@ void setupMultiClassClassificationData(const TStrVec& fieldNames,
         for (int i = 0; i < numberFeatures; ++i) {
             x(i) = row[i];
         }
-        TVector logit{W * x};
-        return maths::CTools::softmax(std::move(logit));
+        TVector result{W * x};
+        maths::CTools::inplaceSoftmax(result);
+        return result;
     };
     auto target = [&](const TDoubleVec& row) {
         TDoubleVec probabilities{probability(row).to<TDoubleVec>()};
@@ -413,19 +414,6 @@ double readShapValue(const RESULTS& results, std::string shapField, std::string 
                 if (shapResult.HasMember(className)) {
                     return shapResult[className].GetDouble();
                 }
-            }
-        }
-    }
-    return 0.0;
-}
-
-template<typename RESULTS>
-double readClassProbability(const RESULTS& results, std::string className) {
-    if (results["row_results"]["results"]["ml"].HasMember("top_classes")) {
-        for (const auto& topClasses :
-             results["row_results"]["results"]["ml"]["top_classes"].GetArray()) {
-            if (topClasses["class_name"].GetString() == className) {
-                return topClasses["class_probability"].GetDouble();
             }
         }
     }
