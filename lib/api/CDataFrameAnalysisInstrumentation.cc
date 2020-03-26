@@ -235,6 +235,10 @@ void CDataFrameOutliersInstrumentation::writeParameters(rapidjson::Value& parent
     }
 }
 
+CDataFrameTrainBoostedTreeInstrumentation::CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId)
+    : CDataFrameAnalysisInstrumentation(jobId) {
+}
+
 void CDataFrameTrainBoostedTreeInstrumentation::type(EStatsType type) {
     m_Type = type;
 }
@@ -267,9 +271,6 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t 
         case E_Classification:
             writer->Key(CLASSIFICATION_STATS_TAG);
             break;
-        default:
-            LOG_ERROR(<< "Supervised learning type unknown or not set.");
-            return;
         }
         writer->StartObject();
         writer->Key(JOB_ID_TAG);
