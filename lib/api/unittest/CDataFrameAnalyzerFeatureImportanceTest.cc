@@ -142,10 +142,15 @@ void setupMultiClassClassificationData(const TStrVec& fieldNames,
     maths::CPRNG::CXorOShiro128Plus rng;
     std::uniform_real_distribution<double> u01;
     int numberFeatures{static_cast<int>(weights.size())};
-    TDoubleVec w{weights};
     int numberClasses{static_cast<int>(classes.size())};
+    TDoubleVec storage(numberClasses * numberFeatures);
+    for (int i = 0; i < numberClasses; ++i) {
+        for (int j = 0; j < numberClasses; ++j) {
+            storage[i * numberFeatures + j] = weights[j];
+        }
+    }
     auto probability = [&](const TDoubleVec& row) {
-        TMemoryMappedMatrix W(&w[0], numberClasses, numberFeatures);
+        TMemoryMappedMatrix W(&storage[0], numberClasses, numberFeatures);
         TVector x(numberFeatures);
         for (int i = 0; i < numberFeatures; ++i) {
             x(i) = row[i];
@@ -175,8 +180,9 @@ void setupMultiClassClassificationData(const TStrVec& fieldNames,
 }
 
 struct SFixture {
-    rapidjson::Document
-    runRegression(std::size_t shapValues, TDoubleVec weights, double noiseVar = 0.0) {
+    rapidjson::Document runRegression(std::size_t shapValues,
+                                      const TDoubleVec& weights,
+                                      double noiseVar = 0.0) {
         auto outputWriterFactory = [&]() {
             return std::make_unique<core::CJsonOutputStreamWrapper>(s_Output);
         };
@@ -229,7 +235,8 @@ struct SFixture {
         return results;
     }
 
-    rapidjson::Document runClassification(std::size_t shapValues, TDoubleVec&& weights) {
+    rapidjson::Document runBinaryClassification(std::size_t shapValues,
+                                                const TDoubleVec& weights) {
         auto outputWriterFactory = [&]() {
             return std::make_unique<core::CJsonOutputStreamWrapper>(s_Output);
         };
@@ -278,7 +285,7 @@ struct SFixture {
     }
 
     rapidjson::Document runMultiClassClassification(std::size_t shapValues,
-                                                    TDoubleVec&& weights) {
+                                                    const TDoubleVec& weights) {
         auto outputWriterFactory = [&]() {
             return std::make_unique<core::CJsonOutputStreamWrapper>(s_Output);
         };
@@ -512,7 +519,7 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
 
     std::size_t topShapValues{4};
     TMeanVarAccumulator bias;
-    auto results{runClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
+    auto results{runBinaryClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
 
     double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
     for (const auto& result : results.GetArray()) {
