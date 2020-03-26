@@ -1217,12 +1217,14 @@ BOOST_AUTO_TEST_CASE(testSoftMax) {
     for (std::size_t t = 0; t < 100; ++t) {
 
         rng.generateUniformSamples(-3.0, 3.0, 5, z);
-        TDoubleVec p{CTools::softmax(z)};
+        TDoubleVec p{z};
+        CTools::inplaceSoftmax(p);
 
         BOOST_REQUIRE_CLOSE(1.0, std::accumulate(p.begin(), p.end(), 0.0), 1e-6);
         BOOST_TEST_REQUIRE(*std::min_element(p.begin(), p.end()) >= 0.0);
 
-        TDoubleVector p_{CTools::softmax(TDoubleVector::fromStdVector(z))};
+        TDoubleVector p_{TDoubleVector::fromStdVector(z)};
+        CTools::inplaceSoftmax(p_);
         for (std::size_t i = 0; i < 5; ++i) {
             BOOST_REQUIRE_CLOSE(p[i], p_[i], 1e-6);
         }
