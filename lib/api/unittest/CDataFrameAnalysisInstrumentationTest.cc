@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
     std::stringstream outputStream;
     {
         core::CJsonOutputStreamWrapper streamWrapper(outputStream);
-        api::CDataFrameTrainBoostedTreeInstrumentation instrumentation(jobId);
+        api::CDataFrameTrainBoostedTreeInstrumentation instrumentation{jobId};
         api::CDataFrameTrainBoostedTreeInstrumentation::CScopeSetOutputStream setStream{
             instrumentation, streamWrapper};
         instrumentation.updateMemoryUsage(memoryUsage);
