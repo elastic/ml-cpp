@@ -141,8 +141,8 @@ public:
 
         // Functions to compute the augmented Lagrangian and its gradient w.r.t. x.
         auto al = [&](const VECTOR& x_) {
-            las::assignExpr(r1) = x_ - z1 + w1 - a;
-            las::assignExpr(r2) = x_ + z2 + w2 - b;
+            r1 = x_ - z1 + w1 - a;
+            r2 = x_ + z2 + w2 - b;
             double n1{las::norm(r1)};
             double n2{las::norm(r2)};
             // Explicitly construct the return type before returning from the lambda,
@@ -167,8 +167,8 @@ public:
             std::tie(x, std::ignore) = this->minimize(al, gal, x, eps, iterations);
 
             // z-minimization.
-            las::assignExpr(z1) = x - a + w1;
-            las::assignExpr(z2) = b - x - w2;
+            z1 = x - a + w1;
+            z2 = b - x - w2;
             las::max(zero, z1);
             las::max(zero, z2);
 
@@ -233,7 +233,7 @@ private:
                                 fs - m_Fx > this->minimumDecrease(s);
              ++i) {
             s *= m_StepScale;
-            las::assignExpr(xs) = m_X - s * m_P;
+            xs = m_X - s * m_P;
             fs = f(xs);
         }
 
@@ -291,7 +291,7 @@ private:
             }
 
             if (las::inner(m_Gx, m_P) <= 0.0) {
-                las::assignExpr(m_P) = (las::norm(m_P) / (las::norm(m_Gx) + eps)) * m_Gx;
+                m_P = (las::norm(m_P) / (las::norm(m_Gx) + eps)) * m_Gx;
             }
         } else {
             m_Initial = false;

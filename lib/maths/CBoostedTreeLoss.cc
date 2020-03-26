@@ -372,7 +372,7 @@ CArgMinMultinomialLogisticLossImpl::objective() const {
     double lambda{this->lambda()};
     if (m_Centres.size() == 1) {
         return [logProbabilities, lambda, this](const TDoubleVector& weight) mutable {
-            logProbabilities.assignExpr() = m_Centres[0] + weight;
+            logProbabilities = m_Centres[0] + weight;
             inplaceLogSoftmax(logProbabilities);
             return lambda * weight.squaredNorm() - m_ClassCounts.transpose() * logProbabilities;
         };
@@ -381,7 +381,7 @@ CArgMinMultinomialLogisticLossImpl::objective() const {
         double loss{0.0};
         for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
             if (m_CentresClassCounts[i].sum() > 0.0) {
-                logProbabilities.assignExpr() = m_Centres[i] + weight;
+                logProbabilities = m_Centres[i] + weight;
                 inplaceLogSoftmax(logProbabilities);
                 loss -= m_CentresClassCounts[i].transpose() * logProbabilities;
             }
@@ -397,9 +397,9 @@ CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
     double lambda{this->lambda()};
     if (m_Centres.size() == 1) {
         return [probabilities, lossGradient, lambda, this](const TDoubleVector& weight) mutable {
-            probabilities.assignExpr() = m_Centres[0] + weight;
+            probabilities = m_Centres[0] + weight;
             CTools::inplaceSoftmax(probabilities);
-            lossGradient.assignExpr() = m_ClassCounts.array().sum() * probabilities - m_ClassCounts;
+            lossGradient = m_ClassCounts.array().sum() * probabilities - m_ClassCounts;
             return TDoubleVector{2.0 * lambda * weight + lossGradient};
         };
     }
@@ -408,7 +408,7 @@ CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
         for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
             double n{m_CentresClassCounts[i].array().sum()};
             if (n > 0.0) {
-                probabilities.assignExpr() = m_Centres[i] + weight;
+                probabilities = m_Centres[i] + weight;
                 CTools::inplaceSoftmax(probabilities);
                 lossGradient -= m_CentresClassCounts[i] - n * probabilities;
             }

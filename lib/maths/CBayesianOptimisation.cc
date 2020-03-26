@@ -118,7 +118,7 @@ CBayesianOptimisation::maximumExpectedImprovement() {
         for (int i = 0, j = 0; j < interpolate.size(); ++i, ++j) {
             interpolate(j) = interpolates[i];
         }
-        xmax.assignExpr() = a + interpolate.cwiseProduct(b - a);
+        xmax = a + interpolate.cwiseProduct(b - a);
 
     } else {
 
@@ -128,7 +128,7 @@ CBayesianOptimisation::maximumExpectedImprovement() {
             for (int j = 0; j < interpolate.size(); ++i, ++j) {
                 interpolate(j) = interpolates[i];
             }
-            x.assignExpr() = a + interpolate.cwiseProduct(b - a);
+            x = a + interpolate.cwiseProduct(b - a);
             double fx{minusEI(x)};
             LOG_TRACE(<< "x = " << x.transpose() << " EI(x) = " << fx);
 
@@ -166,7 +166,7 @@ CBayesianOptimisation::maximumExpectedImprovement() {
     // random search.
     TOptionalDouble expectedImprovement;
     if (xmax.size() == 0) {
-        xmax.assignExpr() = a + interpolate.cwiseProduct(b - a);
+        xmax = a + interpolate.cwiseProduct(b - a);
         expectedImprovement = TOptionalDouble{};
     } else if (fmax < 0.0 || CMathsFuncs::isFinite(fmax) == false) {
         expectedImprovement = TOptionalDouble{};
@@ -358,7 +358,7 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
 
     // Ensure that kernel lengths are always positive. It shouldn't change the results
     // but improves traceability.
-    m_KernelParameters.assignExpr() = amax.cwiseAbs();
+    m_KernelParameters = amax.cwiseAbs();
     LOG_TRACE(<< "kernel parameters = " << m_KernelParameters.transpose());
 
     return m_KernelParameters;
