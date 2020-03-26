@@ -199,6 +199,11 @@ public:
     CDenseMatrix(CDenseMatrix&& other) = default;
     CDenseMatrix& operator=(const CDenseMatrix& other) = default;
     CDenseMatrix& operator=(CDenseMatrix&& other) = default;
+    template<typename EXPR>
+    CDenseMatrix& operator=(const EXPR& expr) {
+        static_cast<TBase&>(*this) = expr;
+        return *this;
+    }
     // @}
 
     //! Debug the memory usage of this object.
@@ -256,6 +261,11 @@ public:
     CDenseVector(CDenseVector&& other) = default;
     CDenseVector& operator=(const CDenseVector& other) = default;
     CDenseVector& operator=(CDenseVector&& other) = default;
+    template<typename EXPR>
+    CDenseVector& operator=(const EXPR& expr) {
+        static_cast<TBase&>(*this) = expr;
+        return *this;
+    }
     // @}
 
     //! Debug the memory usage of this object.
