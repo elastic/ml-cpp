@@ -306,7 +306,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     // Java in the order they were written to the data_frame_analyzer so it
     // can join the extra columns with the original data frame.
     std::size_t numberThreads{1};
-    
+
     // TODO consider having a separate analysis phase to monitor result output instead
     LOG_INFO(<< "Start computing results. "
              << "For regression and classification with feature importance this may take a while.");
