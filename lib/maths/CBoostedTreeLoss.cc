@@ -238,7 +238,7 @@ bool CArgMinMultinomialLogisticLossImpl::nextPass() {
 
     if (m_CurrentPass++ == 0) {
         m_Centres = std::move(m_Sampler.samples());
-        std::stable_sort(m_Centres.begin(), m_Centres.end());
+        std::sort(m_Centres.begin(), m_Centres.end());
         m_Centres.erase(std::unique(m_Centres.begin(), m_Centres.end()),
                         m_Centres.end());
         LOG_TRACE(<< "# centres = " << m_Centres.size());
@@ -301,8 +301,6 @@ void CArgMinMultinomialLogisticLossImpl::merge(const CArgMinLossImpl& other) {
 CArgMinMultinomialLogisticLossImpl::TDoubleVector
 CArgMinMultinomialLogisticLossImpl::value() const {
 
-    using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
-
     TDoubleVector weightBoundingBox[2];
     weightBoundingBox[0] = std::numeric_limits<double>::max() *
                            TDoubleVector::Ones(m_NumberClasses);
@@ -328,42 +326,34 @@ CArgMinMultinomialLogisticLossImpl::value() const {
     LOG_TRACE(<< "bounding box blc = " << weightBoundingBox[0].transpose());
     LOG_TRACE(<< "bounding box trc = " << weightBoundingBox[1].transpose());
 
-    // Optimize via LBFGS with multiple restarts.
+    // The optimisation objective is convex. To see this note that we can write
+    // it as the sum_i{ f_ij(w) } + ||w||^2 with f_ij(w) = -[log(softmax_j(z_i + w))].
+    // Since the sum of convex functions is convex and ||.|| is clearly convex we
+    // just require the f_ij are convex. This is a standard result and follows from
+    // the fact that their Hessian is of the form H = diag(p) - p p^t where 1-norm
+    // of p is one. Convexity follows if this is positive definite. To verify note
+    // that x^t H x = ||p^(1/2) x||^2 ||p^(1/2)||^2 - (p^t x)^2, which is greater
+    // than 0 for all x via Cauchy-Schwarz. We optimize via LBFGS but truncate so
+    // that weights don't become too large for leaves with only one class. Usually
+    // shrinkage stops this happening, but we can train with lambda zero.
 
-    TMinAccumulator minLoss;
-    TDoubleVector result;
     TDoubleVector bounds[]{weightBoundingBox[0].array() - 5.0,
                            weightBoundingBox[1].array() + 5.0};
 
-    TDoubleVector w0(m_NumberClasses);
     TObjective objective{this->objective()};
     TObjectiveGradient objectiveGradient{this->objectiveGradient()};
-    for (std::size_t i = 0; i < NUMBER_RESTARTS; ++i) {
-        for (int j = 0; j < w0.size(); ++j) {
-            double alpha{CSampling::uniformSample(m_Rng, 0.0, 1.0)};
-            w0(j) = weightBoundingBox[0](j) +
-                    alpha * (weightBoundingBox[1](j) - weightBoundingBox[0](j));
-        }
-        LOG_TRACE(<< "w0 = " << w0.transpose());
 
-        double loss;
-        CLbfgs<TDoubleVector> lgbfs{5};
-        std::tie(w0, loss) = lgbfs.minimize(objective, objectiveGradient, std::move(w0));
+    TDoubleVector wmin(TDoubleVector::Zero(m_NumberClasses));
 
-        // Truncate the weight so the probabilities don't get too small if all the
-        // labels in a node are identical. Generally, shrinkage stops this happening
-        // but we can train with lambda zero.
-        w0 = w0.cwiseMax(bounds[0]).cwiseMin(bounds[1]);
-        loss = objective(w0);
+    double loss;
+    CLbfgs<TDoubleVector> lgbfs{5};
+    std::tie(wmin, loss) = lgbfs.minimize(objective, objectiveGradient, std::move(wmin));
+    LOG_TRACE(<< "loss* = " << loss << " weight* = " << wmin.transpose());
 
-        if (minLoss.add(loss)) {
-            result = w0;
-        }
-        LOG_TRACE(<< "loss = " << loss << " weight for loss = " << w0.transpose());
-    }
-    LOG_TRACE(<< "minimum loss = " << minLoss << " weight* = " << result.transpose());
+    wmin = wmin.cwiseMax(bounds[0]).cwiseMin(bounds[1]);
+    LOG_TRACE(<< "loss = " << objective(wmin) << " truncated weight = " << wmin.transpose());
 
-    return result;
+    return wmin;
 }
 
 CArgMinMultinomialLogisticLossImpl::TObjective
