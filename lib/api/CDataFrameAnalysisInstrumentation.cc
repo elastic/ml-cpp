@@ -49,12 +49,6 @@ const std::string VALIDATION_LOSS_TYPE_TAG{"loss_type"};
 const std::string VALIDATION_LOSS_VALUES_TAG{"values"};
 
 // Hyperparameters
-const TStrVec CLASS_ASSIGNMENT_OBJECTIVE{[] {
-    TStrVec result(2);
-    result[maths::CBoostedTree::E_Accuracy] = CDataFrameTrainBoostedTreeClassifierRunner::MAXIMIZE_ACCURACY;
-    result[maths::CBoostedTree::E_MinimumRecall] = CDataFrameTrainBoostedTreeClassifierRunner::MAXIMIZE_MINIMUM_RECALL;
-    return result;
-}()};
 // TODO we should expose these in the analysis config.
 const std::string ETA_GROWTH_RATE_PER_TREE_TAG{"eta_growth_rate_per_tree"};
 const std::string MAX_ATTEMPTS_TO_ADD_TREE_TAG{"max_attempts_to_add_tree"};
@@ -307,9 +301,10 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::
                           rapidjson::Value(this->m_Hyperparameters.s_Eta).Move(),
                           parentObject);
         if (m_Type == E_Classification) {
+            auto objective = this->m_Hyperparameters.s_ClassAssignmentObjective;
             writer->addMember(
                 CDataFrameTrainBoostedTreeClassifierRunner::CLASS_ASSIGNMENT_OBJECTIVE,
-                CLASS_ASSIGNMENT_OBJECTIVE[this->m_Hyperparameters.s_ClassAssignmentObjective],
+                CDataFrameTrainBoostedTreeClassifierRunner::CLASS_ASSIGNMENT_OBJECTIVE_VALUES[objective],
                 parentObject);
         }
         writer->addMember(
