@@ -462,7 +462,8 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
         expectedProbabilities(0) = 2.0 / 6.0;
         expectedProbabilities(1) = 3.0 / 6.0;
         expectedProbabilities(2) = 1.0 / 6.0;
-        TDoubleVector actualProbabilities{maths::CTools::softmax(argmin.value())};
+        TDoubleVector actualProbabilities{argmin.value()};
+        maths::CTools::inplaceSoftmax(actualProbabilities);
 
         BOOST_REQUIRE_SMALL((actualProbabilities - expectedProbabilities).norm(), 1e-3);
     }
@@ -497,8 +498,8 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
         expectedProbabilities(0) = static_cast<double>(counts[0]) / 20.0;
         expectedProbabilities(1) = static_cast<double>(counts[1]) / 20.0;
         expectedProbabilities(2) = static_cast<double>(counts[2]) / 20.0;
-        TDoubleVector actualLogit{prediction + argmin.value()};
-        TDoubleVector actualProbabilities{maths::CTools::softmax(actualLogit)};
+        TDoubleVector actualProbabilities{prediction + argmin.value()};
+        maths::CTools::inplaceSoftmax(actualProbabilities);
 
         BOOST_REQUIRE_SMALL((actualProbabilities - expectedProbabilities).norm(), 0.001);
     }
@@ -601,7 +602,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerRandom) {
             double loss{0.0};
             for (std::size_t j = 0; j < labels.size(); ++j) {
                 TDoubleVector probabilities{predictions[j] + weight};
-                probabilities = maths::CTools::softmax(std::move(probabilities));
+                maths::CTools::inplaceSoftmax(probabilities);
                 loss -= maths::CTools::fastLog(probabilities(static_cast<int>(labels[j])));
             }
             return loss + lambda * weight.squaredNorm();
@@ -667,7 +668,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerRandom) {
 
         LOG_DEBUG(<< "sum min objective grid search = " << sumObjectiveGridSearch);
         LOG_DEBUG(<< "sum objective(actual) = " << sumObjectiveAtActual);
-        BOOST_TEST_REQUIRE(sumObjectiveAtActual < sumObjectiveGridSearch);
+        BOOST_TEST_REQUIRE(sumObjectiveAtActual < 1.01 * sumObjectiveGridSearch);
     }
 }
 

@@ -13,7 +13,10 @@
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
 #include <maths/CBoostedTreeLoss.h>
+#include <maths/CPRNG.h>
+#include <maths/CSampling.h>
 #include <maths/CTools.h>
+#include <maths/CToolsDetail.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
@@ -47,7 +50,7 @@ using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAc
 
 namespace {
 
-class CTestInstrumentation : public maths::CDataFrameAnalysisInstrumentationInterface {
+class CTestInstrumentation : public maths::CDataFrameTrainBoostedTreeInstrumentationStub {
 public:
     using TIntVec = std::vector<int>;
 
@@ -83,8 +86,6 @@ public:
         LOG_TRACE(<< "current memory = " << m_MemoryUsage.load()
                   << ", high water mark = " << m_MaxMemoryUsage.load());
     }
-
-    void nextStep(std::uint32_t) override {}
 
 private:
     std::atomic_int m_TotalFractionalProgress;
@@ -895,19 +896,20 @@ BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testLogisticRegression) {
+BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
 
     // The idea of this test is to create a random linear relationship between
     // the feature values and the log-odds of class 1, i.e.
     //
-    //   log-odds(class_1) = sum_i{ w * x_i }
+    //   log-odds(class_1) = sum_i{ w * x_i + noise }
     //
     // where, w is some fixed weight vector and x_i denoted the i'th feature vector.
+    //
     // We try to recover this relationship in logistic regression by observing
-    // the actual labels. We want to test that we've roughly correctly estimated the
-    // log-odds function. However, we target the cross-entropy so the error in our
-    // estimates p_i^ should be measured in terms of cross entropy: sum_i{ p_i log(p_i^) }
-    // where p_i = logistic(sum_i{ w_i * x_i}).
+    // the actual labels and want to test that we've roughly correctly estimated
+    // the linear function. Because we target the cross-entropy we're effectively
+    // targeting relative error in the estimated probabilities. Therefore, we bound
+    // the log of the ratio between the actual and predicted class probabilities.
 
     test::CRandomNumbers rng;
 
@@ -1061,6 +1063,106 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
 
     BOOST_TEST_REQUIRE(std::fabs(precisions[0] - precisions[1]) < 0.1);
     BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.14);
+}
+
+BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
+
+    // The idea of this test is to create a random linear relationship between
+    // the feature values and the logit, i.e. logit_i = W * x_i for matrix W is
+    // some fixed weight matrix and x_i denoted the i'th feature vector.
+    //
+    // We try to recover this relationship in logistic regression by observing
+    // the actual labels and want to test that we've roughly correctly estimated
+    // the linear function. Because we target the cross-entropy we're effectively
+    // targeting relative error in the estimated probabilities. Therefore, we bound
+    // the log of the ratio between the actual and predicted class probabilities.
+
+    using TVector = maths::CDenseVector<double>;
+    using TMemoryMappedMatrix = maths::CMemoryMappedDenseMatrix<double>;
+
+    maths::CPRNG::CXorOShiro128Plus rng;
+    test::CRandomNumbers testRng;
+
+    std::size_t trainRows{1000};
+    std::size_t rows{1200};
+    std::size_t cols{4};
+    std::size_t capacity{600};
+    int numberClasses{3};
+    int numberFeatures{static_cast<int>(cols - 1)};
+
+    TMeanAccumulator meanLogRelativeError;
+
+    TDoubleVec weights;
+    TDoubleVec noise;
+    TDoubleVec uniform01;
+
+    for (std::size_t test = 0; test < 3; ++test) {
+        testRng.generateUniformSamples(-2.0, 2.0, numberClasses * numberFeatures, weights);
+        testRng.generateNormalSamples(0.0, 1.0, numberFeatures * rows, noise);
+        testRng.generateUniformSamples(0.0, 1.0, rows, uniform01);
+
+        auto probability = [&](const TRowRef& row) {
+            TMemoryMappedMatrix W(&weights[0], numberClasses, numberFeatures);
+            TVector x(numberFeatures);
+            TVector n{numberFeatures};
+            for (int i = 0; i < numberFeatures; ++i) {
+                x(i) = row[i];
+                n(i) = noise[numberFeatures * row.index() + i];
+            }
+            TVector result{W * x + n};
+            maths::CTools::inplaceSoftmax(result);
+            return result;
+        };
+
+        auto target = [&](const TRowRef& row) {
+            TDoubleVec probabilities{probability(row).to<TDoubleVec>()};
+            return static_cast<double>(maths::CSampling::categoricalSample(rng, probabilities));
+        };
+
+        TDoubleVecVec x(cols - 1);
+        for (std::size_t i = 0; i < cols - 1; ++i) {
+            testRng.generateUniformSamples(0.0, 4.0, rows, x[i]);
+        }
+
+        auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+
+        fillDataFrame(trainRows, rows - trainRows, cols, {false, false, false, true},
+                      x, TDoubleVec(rows, 0.0), target, *frame);
+
+        auto classifier =
+            maths::CBoostedTreeFactory::constructFromParameters(
+                1, std::make_unique<maths::boosted_tree::CMultinomialLogisticLoss>(numberClasses))
+                .buildFor(*frame, cols - 1);
+
+        classifier->train();
+        classifier->predict();
+
+        TMeanAccumulator logRelativeError;
+        frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                if (row->index() >= trainRows) {
+                    TVector expectedProbability{probability(*row)};
+                    TVector actualProbability{
+                        TVector::fromSmallVector(classifier->readPrediction(*row))};
+                    logRelativeError.add(
+                        (expectedProbability.cwiseMax(actualProbability).array() /
+                         expectedProbability.cwiseMin(actualProbability).array())
+                            .log()
+                            .sum() /
+                        3.0);
+                }
+            }
+        });
+        LOG_DEBUG(<< "log relative error = "
+                  << maths::CBasicStatistics::mean(logRelativeError));
+
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 2.1);
+        meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
+    }
+
+    LOG_DEBUG(<< "mean log relative error = "
+              << maths::CBasicStatistics::mean(meanLogRelativeError));
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 1.5);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {

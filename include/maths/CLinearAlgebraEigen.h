@@ -9,6 +9,7 @@
 
 #include <core/CMemory.h>
 #include <core/CPersistUtils.h>
+#include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
@@ -198,6 +199,11 @@ public:
     CDenseMatrix(CDenseMatrix&& other) = default;
     CDenseMatrix& operator=(const CDenseMatrix& other) = default;
     CDenseMatrix& operator=(CDenseMatrix&& other) = default;
+    template<typename EXPR>
+    CDenseMatrix& operator=(const EXPR& expr) {
+        static_cast<TBase&>(*this) = expr;
+        return *this;
+    }
     // @}
 
     //! Debug the memory usage of this object.
@@ -255,6 +261,11 @@ public:
     CDenseVector(CDenseVector&& other) = default;
     CDenseVector& operator=(const CDenseVector& other) = default;
     CDenseVector& operator=(CDenseVector&& other) = default;
+    template<typename EXPR>
+    CDenseVector& operator=(const EXPR& expr) {
+        static_cast<TBase&>(*this) = expr;
+        return *this;
+    }
     // @}
 
     //! Debug the memory usage of this object.
@@ -306,6 +317,16 @@ public:
 
     //! Convert from a std::vector.
     static CDenseVector<SCALAR> fromStdVector(const std::vector<SCALAR>& vector) {
+        CDenseVector<SCALAR> result(vector.size());
+        for (std::size_t i = 0; i < vector.size(); ++i) {
+            result(i) = vector[i];
+        }
+        return result;
+    }
+
+    //! Convert from a core::CSmallVector.
+    template<std::size_t N>
+    static CDenseVector<SCALAR> fromSmallVector(const core::CSmallVector<SCALAR, N>& vector) {
         CDenseVector<SCALAR> result(vector.size());
         for (std::size_t i = 0; i < vector.size(); ++i) {
             result(i) = vector[i];

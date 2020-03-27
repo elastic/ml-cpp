@@ -182,6 +182,12 @@ CDataFrameAnalysisSpecificationFactory::numberClasses(std::size_t number) {
 }
 
 CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::numberTopClasses(std::size_t number) {
+    m_NumberTopClasses = number;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::predictionFieldType(const std::string& type) {
     m_PredictionFieldType = type;
     return *this;
@@ -299,7 +305,7 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
         writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::NUM_CLASSES);
         writer.Uint64(m_NumberClasses);
         writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES);
-        writer.Uint64(1);
+        writer.Uint64(m_NumberTopClasses);
     }
     writer.EndObject();
 

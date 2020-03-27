@@ -17,6 +17,7 @@
 #include <maths/CChecksum.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraShims.h>
+#include <maths/CMathsFuncs.h>
 #include <maths/COrderings.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
@@ -451,7 +452,8 @@ private:
                          double splitAt,
                          bool leftChildHasFewerRows,
                          bool assignMissingToLeft)
-            : s_Gain{gain}, s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
+            : s_Gain{CMathsFuncs::isNan(gain) ? -boosted_tree_detail::INF : gain},
+              s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
               s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft} {
         }
 

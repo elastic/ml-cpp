@@ -101,12 +101,19 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
             row, [&writer](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
                            const TStrVec& names,
                            const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+                writer.Key(CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME);
+                writer.StartArray();
                 for (auto i : indices) {
                     if (shap[i].norm() != 0.0) {
-                        writer.Key(names[i]);
+                        writer.StartObject();
+                        writer.Key(CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME);
+                        writer.String(names[i]);
+                        writer.Key(CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
                         writer.Double(shap[i](0));
+                        writer.EndObject();
                     }
                 }
+                writer.EndArray();
             });
     }
     writer.EndObject();

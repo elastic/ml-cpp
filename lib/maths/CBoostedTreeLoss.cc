@@ -40,14 +40,13 @@ double logLogistic(double logOdds) {
     return std::log(CTools::logisticFunction(logOdds));
 }
 
-template<typename T>
-CDenseVector<T> logSoftmax(CDenseVector<T> z) {
-    // Version which handles overflow and underflow when taking exponentials.
+template<typename SCALAR>
+void inplaceLogSoftmax(CDenseVector<SCALAR>& z) {
+    // Handle under/overflow when taking exponentials by subtracting zmax.
     double zmax{z.maxCoeff()};
-    z = z - zmax * CDenseVector<T>::Ones(z.size());
-    double Z{z.array().exp().matrix().template lpNorm<1>()};
-    z = z - std::log(Z) * CDenseVector<T>::Ones(z.size());
-    return std::move(z);
+    z.array() -= zmax;
+    double Z{z.array().exp().sum()};
+    z.array() -= std::log(Z);
 }
 }
 
@@ -228,13 +227,7 @@ CArgMinMultinomialLogisticLossImpl::CArgMinMultinomialLogisticLossImpl(std::size
                                                                        double lambda,
                                                                        const CPRNG::CXorOShiro128Plus& rng)
     : CArgMinLossImpl{lambda}, m_NumberClasses{numberClasses}, m_Rng{rng},
-      m_ClassCounts{TDoubleVector::Zero(numberClasses)},
-      m_PredictionSketch{NUMBER_CENTRES / 2, // The size of the partition
-                         0.0, // The rate at which information is aged out (irrelevant)
-                         0.0, // The minimum permitted cluster size (irrelevant)
-                         NUMBER_CENTRES / 2, // The buffer size
-                         1,   // The number of seeds for k-means to try
-                         2} { // The number of iterations to use in k-means
+      m_ClassCounts{TDoubleVector::Zero(numberClasses)}, m_Sampler{NUMBER_CENTRES} {
 }
 
 std::unique_ptr<CArgMinLossImpl> CArgMinMultinomialLogisticLossImpl::clone() const {
@@ -243,34 +236,14 @@ std::unique_ptr<CArgMinLossImpl> CArgMinMultinomialLogisticLossImpl::clone() con
 
 bool CArgMinMultinomialLogisticLossImpl::nextPass() {
 
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<TDoubleVector>::TAccumulator;
-
     if (m_CurrentPass++ == 0) {
-        TKMeans::TSphericalClusterVecVec clusters;
-        if (m_PredictionSketch.kmeans(NUMBER_CENTRES / 2, clusters) == false) {
-            m_Centres.push_back(TDoubleVector::Zero(m_NumberClasses));
-            ++m_CurrentPass;
-        } else {
-            // Extract the k-centres.
-            m_Centres.reserve(clusters.size());
-            for (const auto& cluster : clusters) {
-                TMeanAccumulator centre{TDoubleVector::Zero(m_NumberClasses)};
-                for (const auto& point : cluster) {
-                    centre.add(point);
-                }
-                m_Centres.push_back(CBasicStatistics::mean(centre));
-            }
-            std::stable_sort(m_Centres.begin(), m_Centres.end());
-            m_Centres.erase(std::unique(m_Centres.begin(), m_Centres.end()),
-                            m_Centres.end());
-            LOG_TRACE(<< "# centres = " << m_Centres.size());
-            m_CurrentPass += m_Centres.size() == 1 ? 1 : 0;
-            m_CentresClassCounts.resize(m_Centres.size(),
-                                        TDoubleVector::Zero(m_NumberClasses));
-        }
-
-        // Reclaim the memory used by k-means.
-        m_PredictionSketch = TKMeans{0};
+        m_Centres = std::move(m_Sampler.samples());
+        std::stable_sort(m_Centres.begin(), m_Centres.end());
+        m_Centres.erase(std::unique(m_Centres.begin(), m_Centres.end()),
+                        m_Centres.end());
+        LOG_TRACE(<< "# centres = " << m_Centres.size());
+        m_CurrentPass += m_Centres.size() == 1 ? 1 : 0;
+        m_CentresClassCounts.resize(m_Centres.size(), TDoubleVector::Zero(m_NumberClasses));
     }
 
     LOG_TRACE(<< "current pass = " << m_CurrentPass);
@@ -288,7 +261,7 @@ void CArgMinMultinomialLogisticLossImpl::add(const TMemoryMappedFloatVector& pre
     case 0: {
         // We have a member variable to avoid allocating a tempory each time.
         m_DoublePrediction = prediction;
-        m_PredictionSketch.add(m_DoublePrediction, weight);
+        m_Sampler.sample(m_DoublePrediction);
         m_ClassCounts(static_cast<std::size_t>(actual)) += weight;
         break;
     }
@@ -311,7 +284,7 @@ void CArgMinMultinomialLogisticLossImpl::merge(const CArgMinLossImpl& other) {
     if (logistic != nullptr) {
         switch (m_CurrentPass) {
         case 0:
-            m_PredictionSketch.merge(logistic->m_PredictionSketch);
+            m_Sampler.merge(logistic->m_Sampler);
             m_ClassCounts += logistic->m_ClassCounts;
             break;
         case 1:
@@ -334,9 +307,7 @@ CArgMinMultinomialLogisticLossImpl::value() const {
     weightBoundingBox[0] = std::numeric_limits<double>::max() *
                            TDoubleVector::Ones(m_NumberClasses);
     weightBoundingBox[1] = -weightBoundingBox[0];
-
     if (m_Centres.size() == 1) {
-
         // Weight shrinkage means the optimal weight will be somewhere between
         // the logit of the empirical probability and zero.
         TDoubleVector empiricalProbabilities{m_ClassCounts.array() + 0.1};
@@ -348,9 +319,7 @@ CArgMinMultinomialLogisticLossImpl::value() const {
         weightBoundingBox[1] = weightBoundingBox[1].array().max(0.0);
         weightBoundingBox[0] = weightBoundingBox[0].array().min(empiricalLogOdds.array());
         weightBoundingBox[1] = weightBoundingBox[1].array().max(empiricalLogOdds.array());
-
     } else {
-
         for (const auto& centre : m_Centres) {
             weightBoundingBox[0] = weightBoundingBox[0].array().min(-centre.array());
             weightBoundingBox[1] = weightBoundingBox[1].array().max(-centre.array());
@@ -363,25 +332,34 @@ CArgMinMultinomialLogisticLossImpl::value() const {
 
     TMinAccumulator minLoss;
     TDoubleVector result;
+    TDoubleVector bounds[]{weightBoundingBox[0].array() - 5.0,
+                           weightBoundingBox[1].array() + 5.0};
 
-    TDoubleVector x0(m_NumberClasses);
+    TDoubleVector w0(m_NumberClasses);
     TObjective objective{this->objective()};
     TObjectiveGradient objectiveGradient{this->objectiveGradient()};
     for (std::size_t i = 0; i < NUMBER_RESTARTS; ++i) {
-        for (int j = 0; j < x0.size(); ++j) {
+        for (int j = 0; j < w0.size(); ++j) {
             double alpha{CSampling::uniformSample(m_Rng, 0.0, 1.0)};
-            x0(j) = weightBoundingBox[0](j) +
+            w0(j) = weightBoundingBox[0](j) +
                     alpha * (weightBoundingBox[1](j) - weightBoundingBox[0](j));
         }
-        LOG_TRACE(<< "x0 = " << x0.transpose());
+        LOG_TRACE(<< "w0 = " << w0.transpose());
 
         double loss;
         CLbfgs<TDoubleVector> lgbfs{5};
-        std::tie(x0, loss) = lgbfs.minimize(objective, objectiveGradient, std::move(x0));
+        std::tie(w0, loss) = lgbfs.minimize(objective, objectiveGradient, std::move(w0));
+
+        // Truncate the weight so the probabilities don't get too small if all the
+        // labels in a node are identical. Generally, shrinkage stops this happening
+        // but we can train with lambda zero.
+        w0 = w0.cwiseMax(bounds[0]).cwiseMin(bounds[1]);
+        loss = objective(w0);
+
         if (minLoss.add(loss)) {
-            result = x0;
+            result = w0;
         }
-        LOG_TRACE(<< "loss = " << loss << " weight for loss = " << x0.transpose());
+        LOG_TRACE(<< "loss = " << loss << " weight for loss = " << w0.transpose());
     }
     LOG_TRACE(<< "minimum loss = " << minLoss << " weight* = " << result.transpose());
 
@@ -390,21 +368,23 @@ CArgMinMultinomialLogisticLossImpl::value() const {
 
 CArgMinMultinomialLogisticLossImpl::TObjective
 CArgMinMultinomialLogisticLossImpl::objective() const {
-    TDoubleVector logProbabilities;
+    TDoubleVector logProbabilities{m_NumberClasses};
     double lambda{this->lambda()};
     if (m_Centres.size() == 1) {
         return [logProbabilities, lambda, this](const TDoubleVector& weight) mutable {
             logProbabilities = m_Centres[0] + weight;
-            logProbabilities = logSoftmax(std::move(logProbabilities));
+            inplaceLogSoftmax(logProbabilities);
             return lambda * weight.squaredNorm() - m_ClassCounts.transpose() * logProbabilities;
         };
     }
     return [logProbabilities, lambda, this](const TDoubleVector& weight) mutable {
         double loss{0.0};
         for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
-            logProbabilities = m_Centres[i] + weight;
-            logProbabilities = logSoftmax(std::move(logProbabilities));
-            loss -= m_CentresClassCounts[i].transpose() * logProbabilities;
+            if (m_CentresClassCounts[i].sum() > 0.0) {
+                logProbabilities = m_Centres[i] + weight;
+                inplaceLogSoftmax(logProbabilities);
+                loss -= m_CentresClassCounts[i].transpose() * logProbabilities;
+            }
         }
         return loss + lambda * weight.squaredNorm();
     };
@@ -412,23 +392,26 @@ CArgMinMultinomialLogisticLossImpl::objective() const {
 
 CArgMinMultinomialLogisticLossImpl::TObjectiveGradient
 CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
-    TDoubleVector probabilities;
+    TDoubleVector probabilities{m_NumberClasses};
+    TDoubleVector lossGradient{m_NumberClasses};
     double lambda{this->lambda()};
     if (m_Centres.size() == 1) {
-        return [probabilities, lambda, this](const TDoubleVector& weight) mutable {
+        return [probabilities, lossGradient, lambda, this](const TDoubleVector& weight) mutable {
             probabilities = m_Centres[0] + weight;
-            probabilities = CTools::softmax(std::move(probabilities));
-            return TDoubleVector{2.0 * lambda * weight -
-                                 (m_ClassCounts - m_ClassCounts.array().sum() * probabilities)};
+            CTools::inplaceSoftmax(probabilities);
+            lossGradient = m_ClassCounts.array().sum() * probabilities - m_ClassCounts;
+            return TDoubleVector{2.0 * lambda * weight + lossGradient};
         };
     }
-    return [probabilities, lambda, this](const TDoubleVector& weight) mutable -> TDoubleVector {
-        TDoubleVector lossGradient{TDoubleVector::Zero(m_NumberClasses)};
+    return [probabilities, lossGradient, lambda, this](const TDoubleVector& weight) mutable {
+        lossGradient.array() = 0.0;
         for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
-            probabilities = m_Centres[i] + weight;
-            probabilities = CTools::softmax(std::move(probabilities));
-            lossGradient -= m_CentresClassCounts[i] -
-                            m_CentresClassCounts[i].array().sum() * probabilities;
+            double n{m_CentresClassCounts[i].array().sum()};
+            if (n > 0.0) {
+                probabilities = m_Centres[i] + weight;
+                CTools::inplaceSoftmax(probabilities);
+                lossGradient -= m_CentresClassCounts[i] - n * probabilities;
+            }
         }
         return TDoubleVector{2.0 * lambda * weight + lossGradient};
     };
@@ -894,7 +877,8 @@ bool CMultinomialLogisticLoss::isCurvatureConstant() const {
 CMultinomialLogisticLoss::TDoubleVector
 CMultinomialLogisticLoss::transform(const TMemoryMappedFloatVector& prediction) const {
     TDoubleVector result{prediction};
-    return CTools::softmax(std::move(result));
+    CTools::inplaceSoftmax(result);
+    return result;
 }
 
 CArgMinLoss CMultinomialLogisticLoss::minimizer(double lambda,

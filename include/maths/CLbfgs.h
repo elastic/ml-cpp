@@ -136,11 +136,13 @@ public:
         VECTOR z2{zero};
         VECTOR w1{zero};
         VECTOR w2{zero};
+        VECTOR r1;
+        VECTOR r2;
 
         // Functions to compute the augmented Lagrangian and its gradient w.r.t. x.
         auto al = [&](const VECTOR& x_) {
-            VECTOR r1{x_ - z1 + w1 - a};
-            VECTOR r2{x_ + z2 + w2 - b};
+            r1 = x_ - z1 + w1 - a;
+            r2 = x_ + z2 + w2 - b;
             double n1{las::norm(r1)};
             double n2{las::norm(r2)};
             // Explicitly construct the return type before returning from the lambda,
@@ -204,6 +206,8 @@ private:
         m_Dg.clear();
         m_Dx.set_capacity(std::min(m_Rank, las::dimension(x0)));
         m_Dg.set_capacity(std::min(m_Rank, las::dimension(x0)));
+        m_Rho.clear();
+        m_Alpha.clear();
     }
 
     bool converged(double eps) const {
@@ -223,12 +227,14 @@ private:
 
         double s{1.0};
         double fs{f(m_X - s * m_P)};
+        VECTOR xs;
 
         for (std::size_t i = 0; i < MAXIMUM_BACK_TRACKING_ITERATIONS &&
                                 fs - m_Fx > this->minimumDecrease(s);
              ++i) {
             s *= m_StepScale;
-            fs = f(m_X - s * m_P);
+            xs = m_X - s * m_P;
+            fs = f(xs);
         }
 
         m_Fl = m_Fx;
@@ -256,12 +262,12 @@ private:
             double eps{std::numeric_limits<double>::epsilon() * las::norm(m_Gx)};
 
             std::size_t k{m_Dx.size()};
-            TDoubleVec rho(k);
-            TDoubleVec alpha(k);
+            m_Rho.resize(k);
+            m_Alpha.resize(k);
             for (std::size_t i = k; i > 0; --i) {
-                rho[i - 1] = 1.0 / (las::inner(m_Dg[i - 1], m_Dx[i - 1]) + eps);
-                alpha[i - 1] = rho[i - 1] * las::inner(m_Dx[i - 1], m_P);
-                m_P.noalias() -= alpha[i - 1] * m_Dg[i - 1];
+                m_Rho[i - 1] = 1.0 / (las::inner(m_Dg[i - 1], m_Dx[i - 1]) + eps);
+                m_Alpha[i - 1] = m_Rho[i - 1] * las::inner(m_Dx[i - 1], m_P);
+                m_P -= m_Alpha[i - 1] * m_Dg[i - 1];
             }
 
             // The initialisation choice is free, this is an estimate for the
@@ -278,11 +284,10 @@ private:
             m_P *= h0;
 
             for (std::size_t i = 0; i < k; ++i) {
-                double beta{rho[i] * (las::inner(m_Dg[i], m_P) + eps)};
-                double gk{alpha[i] - beta};
+                double beta{m_Rho[i] * (las::inner(m_Dg[i], m_P) + eps)};
+                double gk{m_Alpha[i] - beta};
                 double gmax{hmax / las::norm(m_Dx[i])};
-                m_P.noalias() += std::copysign(std::min(std::fabs(gk), gmax), gk) *
-                                 m_Dx[i];
+                m_P += std::copysign(std::min(std::fabs(gk), gmax), gk) * m_Dx[i];
             }
 
             if (las::inner(m_Gx, m_P) <= 0.0) {
@@ -314,6 +319,8 @@ private:
     VECTOR m_P;
     TVectorBuf m_Dx;
     TVectorBuf m_Dg;
+    TDoubleVec m_Rho;
+    TDoubleVec m_Alpha;
 };
 
 template<typename VECTOR>

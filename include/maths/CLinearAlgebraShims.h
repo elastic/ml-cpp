@@ -48,6 +48,14 @@ auto zero(const VECTOR& x) -> decltype(SConstant<VECTOR>::get(dimension(x), 0)) 
     return SConstant<VECTOR>::get(dimension(x), 0);
 }
 
+//! Zero all the components of \p x.
+template<typename VECTOR>
+void setZero(VECTOR& x) {
+    for (std::size_t i = 0; i < dimension(x); ++i) {
+        x(i) = 0.0;
+    }
+}
+
 //! Get the conformable zero initialized matrix for our internal stack vector.
 template<typename T, std::size_t N>
 CSymmetricMatrixNxN<T, N> conformableZeroMatrix(const CVectorNx1<T, N>& /*x*/) {

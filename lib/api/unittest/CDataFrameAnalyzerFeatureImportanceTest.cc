@@ -8,10 +8,13 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CDataFramePredictiveModel.h>
+#include <maths/CSampling.h>
 #include <maths/CTools.h>
+#include <maths/CToolsDetail.h>
 #include <maths/CTreeShapFeatureImportance.h>
 
 #include <api/CDataFrameAnalyzer.h>
+#include <api/CDataFrameTrainBoostedTreeRunner.h>
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CRandomNumbers.h>
@@ -27,12 +30,14 @@ using namespace ml;
 
 namespace {
 using TDoubleVec = std::vector<double>;
+using TVector = maths::CDenseVector<double>;
 using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TRowRef = core::CDataFrame::TRowRef;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TMemoryMappedMatrix = maths::CMemoryMappedDenseMatrix<double>;
 
 void setupLinearRegressionData(const TStrVec& fieldNames,
                                TStrVec& fieldValues,
@@ -128,9 +133,57 @@ void setupBinaryClassificationData(const TStrVec& fieldNames,
     }
 }
 
+void setupMultiClassClassificationData(const TStrVec& fieldNames,
+                                       TStrVec& fieldValues,
+                                       api::CDataFrameAnalyzer& analyzer,
+                                       const TDoubleVec& weights,
+                                       const TDoubleVec& values) {
+    TStrVec classes{"foo", "bar", "baz"};
+    maths::CPRNG::CXorOShiro128Plus rng;
+    std::uniform_real_distribution<double> u01;
+    int numberFeatures{static_cast<int>(weights.size())};
+    int numberClasses{static_cast<int>(classes.size())};
+    TDoubleVec storage(numberClasses * numberFeatures);
+    for (int i = 0; i < numberClasses; ++i) {
+        for (int j = 0; j < numberFeatures; ++j) {
+            storage[j * numberClasses + i] = static_cast<double>(i) * weights[j];
+        }
+    }
+    auto probability = [&](const TDoubleVec& row) {
+        TMemoryMappedMatrix W(&storage[0], numberClasses, numberFeatures);
+        TVector x(numberFeatures);
+        for (int i = 0; i < numberFeatures; ++i) {
+            x(i) = row[i];
+        }
+        TVector result{W * x};
+        maths::CTools::inplaceSoftmax(result);
+        return result;
+    };
+    auto target = [&](const TDoubleVec& row) {
+        TDoubleVec probabilities{probability(row).to<TDoubleVec>()};
+        return classes[maths::CSampling::categoricalSample(rng, probabilities)];
+    };
+
+    for (std::size_t i = 0; i < values.size(); i += weights.size()) {
+        TDoubleVec row(weights.size());
+        for (std::size_t j = 0; j < weights.size(); ++j) {
+            row[j] = values[i + j];
+        }
+
+        fieldValues[0] = target(row);
+        for (std::size_t j = 0; j < row.size(); ++j) {
+            fieldValues[j + 1] = core::CStringUtils::typeToStringPrecise(
+                row[j], core::CIEEE754::E_DoublePrecision);
+        }
+
+        analyzer.handleRecord(fieldNames, fieldValues);
+    }
+}
+
 struct SFixture {
-    rapidjson::Document
-    runRegression(std::size_t shapValues, TDoubleVec weights, double noiseVar = 0.0) {
+    rapidjson::Document runRegression(std::size_t shapValues,
+                                      const TDoubleVec& weights,
+                                      double noiseVar = 0.0) {
         auto outputWriterFactory = [&]() {
             return std::make_unique<core::CJsonOutputStreamWrapper>(s_Output);
         };
@@ -183,7 +236,8 @@ struct SFixture {
         return results;
     }
 
-    rapidjson::Document runClassification(std::size_t shapValues, TDoubleVec&& weights) {
+    rapidjson::Document runBinaryClassification(std::size_t shapValues,
+                                                const TDoubleVec& weights) {
         auto outputWriterFactory = [&]() {
             return std::make_unique<core::CJsonOutputStreamWrapper>(s_Output);
         };
@@ -211,6 +265,57 @@ struct SFixture {
         rng.generateUniformSamples(-10.0, 10.0, weights.size() * s_Rows, values);
 
         setupBinaryClassificationData(fieldNames, fieldValues, analyzer, weights, values);
+
+        analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+        LOG_DEBUG(<< "estimated memory usage = "
+                  << core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
+        LOG_DEBUG(<< "peak memory = "
+                  << core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage));
+        LOG_DEBUG(<< "time to train = " << core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain)
+                  << "ms");
+
+        BOOST_TEST_REQUIRE(
+            core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
+            core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
+
+        rapidjson::Document results;
+        rapidjson::ParseResult ok(results.Parse(s_Output.str()));
+        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        return results;
+    }
+
+    rapidjson::Document runMultiClassClassification(std::size_t shapValues,
+                                                    const TDoubleVec& weights) {
+        auto outputWriterFactory = [&]() {
+            return std::make_unique<core::CJsonOutputStreamWrapper>(s_Output);
+        };
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        api::CDataFrameAnalyzer analyzer{
+            specFactory.rows(s_Rows)
+                .memoryLimit(26000000)
+                .predictionCategoricalFieldNames({"target"})
+                .predictionAlpha(s_Alpha)
+                .predictionLambda(s_Lambda)
+                .predictionGamma(s_Gamma)
+                .predictionSoftTreeDepthLimit(s_SoftTreeDepthLimit)
+                .predictionSoftTreeDepthTolerance(s_SoftTreeDepthTolerance)
+                .predictionEta(s_Eta)
+                .predictionMaximumNumberTrees(s_MaximumNumberTrees)
+                .predictionFeatureBagFraction(s_FeatureBagFraction)
+                .predictionNumberTopShapValues(shapValues)
+                .numberClasses(3)
+                .numberTopClasses(3)
+                .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(), "target"),
+            outputWriterFactory};
+        TStrVec fieldNames{"target", "c1", "c2", "c3", "c4", ".", "."};
+        TStrVec fieldValues{"", "", "", "", "", "0", ""};
+        test::CRandomNumbers rng;
+
+        TDoubleVec values;
+        rng.generateUniformSamples(-10.0, 10.0, weights.size() * s_Rows, values);
+
+        setupMultiClassClassificationData(fieldNames, fieldValues, analyzer, weights, values);
 
         analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
@@ -289,9 +394,35 @@ struct SFixture {
 
 template<typename RESULTS>
 double readShapValue(const RESULTS& results, std::string shapField) {
-    shapField = maths::CTreeShapFeatureImportance::SHAP_PREFIX + shapField;
-    if (results["row_results"]["results"]["ml"].HasMember(shapField)) {
-        return results["row_results"]["results"]["ml"][shapField].GetDouble();
+    if (results["row_results"]["results"]["ml"].HasMember(
+            api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)) {
+        for (const auto& shapResult :
+             results["row_results"]["results"]["ml"][api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME]
+                 .GetArray()) {
+            if (shapResult[api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME]
+                    .GetString() == shapField) {
+                return shapResult[api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME]
+                    .GetDouble();
+            }
+        }
+    }
+    return 0.0;
+}
+
+template<typename RESULTS>
+double readShapValue(const RESULTS& results, std::string shapField, std::string className) {
+    if (results["row_results"]["results"]["ml"].HasMember(
+            api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)) {
+        for (const auto& shapResult :
+             results["row_results"]["results"]["ml"][api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME]
+                 .GetArray()) {
+            if (shapResult[api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME]
+                    .GetString() == shapField) {
+                if (shapResult.HasMember(className)) {
+                    return shapResult[className].GetDouble();
+                }
+            }
+        }
     }
     return 0.0;
 }
@@ -324,9 +455,7 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
             c3Sum += std::fabs(c3);
             c4Sum += std::fabs(c4);
             // assert that no SHAP value for the dependent variable is returned
-            BOOST_TEST_REQUIRE(result["row_results"]["results"]["ml"].HasMember(
-                                   maths::CTreeShapFeatureImportance::SHAP_PREFIX +
-                                   "target") == false);
+            BOOST_REQUIRE_EQUAL(readShapValue(result, "target"), 0.0);
         }
     }
 
@@ -378,7 +507,7 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
 
     std::size_t topShapValues{4};
     TMeanVarAccumulator bias;
-    auto results{runClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
+    auto results{runBinaryClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
 
     double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
     for (const auto& result : results.GetArray()) {
@@ -421,6 +550,44 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     BOOST_REQUIRE_SMALL(maths::CBasicStatistics::variance(bias), 1e-6);
 }
 
+BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SFixture) {
+
+    std::size_t topShapValues{4};
+    auto results{runMultiClassClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
+
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            double c1{readShapValue(result, "c1")};
+            double c2{readShapValue(result, "c2")};
+            double c3{readShapValue(result, "c3")};
+            double c4{readShapValue(result, "c4")};
+            // We should have at least one feature that is important
+            BOOST_TEST_REQUIRE((c1 > 0.0 || c2 > 0.0 || c3 > 0.0 || c4 > 0.0));
+
+            // class shap values should sum(abs()) to the overall feature importance
+            double c1f{readShapValue(result, "c1", "foo")};
+            double c1bar{readShapValue(result, "c1", "bar")};
+            double c1baz{readShapValue(result, "c1", "baz")};
+            BOOST_REQUIRE_CLOSE(c1, std::abs(c1f) + std::abs(c1bar) + std::abs(c1baz), 1e-6);
+
+            double c2f{readShapValue(result, "c2", "foo")};
+            double c2bar{readShapValue(result, "c2", "bar")};
+            double c2baz{readShapValue(result, "c2", "baz")};
+            BOOST_REQUIRE_CLOSE(c2, std::abs(c2f) + std::abs(c2bar) + std::abs(c2baz), 1e-6);
+
+            double c3f{readShapValue(result, "c3", "foo")};
+            double c3bar{readShapValue(result, "c3", "bar")};
+            double c3baz{readShapValue(result, "c3", "baz")};
+            BOOST_REQUIRE_CLOSE(c3, std::abs(c3f) + std::abs(c3bar) + std::abs(c3baz), 1e-6);
+
+            double c4f{readShapValue(result, "c4", "foo")};
+            double c4bar{readShapValue(result, "c4", "bar")};
+            double c4baz{readShapValue(result, "c4", "baz")};
+            BOOST_REQUIRE_CLOSE(c4, std::abs(c4f) + std::abs(c4bar) + std::abs(c4baz), 1e-6);
+        }
+    }
+}
+
 BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoShap, SFixture) {
     // Test that if topShapValue is set to 0, no feature importance values are returned.
     std::size_t topShapValues{0};
@@ -428,18 +595,9 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoShap, SFixture) {
 
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            BOOST_TEST_REQUIRE(
-                result["row_results"]["results"]["ml"].HasMember(
-                    maths::CTreeShapFeatureImportance::SHAP_PREFIX + "c1") == false);
-            BOOST_TEST_REQUIRE(
-                result["row_results"]["results"]["ml"].HasMember(
-                    maths::CTreeShapFeatureImportance::SHAP_PREFIX + "c2") == false);
-            BOOST_TEST_REQUIRE(
-                result["row_results"]["results"]["ml"].HasMember(
-                    maths::CTreeShapFeatureImportance::SHAP_PREFIX + "c3") == false);
-            BOOST_TEST_REQUIRE(
-                result["row_results"]["results"]["ml"].HasMember(
-                    maths::CTreeShapFeatureImportance::SHAP_PREFIX + "c4") == false);
+            BOOST_TEST_REQUIRE(result["row_results"]["results"]["ml"].HasMember(
+                                   api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME) ==
+                               false);
         }
     }
 }

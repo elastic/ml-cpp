@@ -691,23 +691,21 @@ public:
     //! \tparam COLLECTION Is assumed to be a collection type, i.e. it
     //! must support iterator based access.
     template<typename COLLECTION>
-    static COLLECTION softmax(COLLECTION z) {
-        COLLECTION probabilities{std::move(z)};
+    static void inplaceSoftmax(COLLECTION& z) {
         double Z{0.0};
         double zmax{*std::max_element(z.begin(), z.end())};
-        for (auto& pi : probabilities) {
-            pi = std::exp(pi - zmax);
-            Z += pi;
+        for (auto& zi : z) {
+            zi = std::exp(zi - zmax);
+            Z += zi;
         }
-        for (auto& pi : probabilities) {
-            pi /= Z;
+        for (auto& zi : z) {
+            zi /= Z;
         }
-        return probabilities;
     }
 
     //! Specialize the softmax for our dense vector type.
     template<typename T>
-    static CDenseVector<T> softmax(CDenseVector<T> z);
+    static void inplaceSoftmax(CDenseVector<T>& z);
 
     //! Linearly interpolate a function on the interval [\p a, \p b].
     static double linearlyInterpolate(double a, double b, double fa, double fb, double x);
