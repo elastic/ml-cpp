@@ -7,13 +7,13 @@
 #include <cmath>
 #include <core/CContainerPrinter.h>
 
-#include <maths/CLbfgs.h>
+#include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTreeLoss.h>
+#include <maths/CLbfgs.h>
 #include <maths/CPRNG.h>
 #include <maths/CSolvers.h>
 #include <maths/CTools.h>
 #include <maths/CToolsDetail.h>
-#include <maths/CBasicStatistics.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
@@ -37,8 +37,8 @@ using TMemoryMappedFloatVector = maths::boosted_tree::CLoss::TMemoryMappedFloatV
 using maths::boosted_tree::CBinomialLogisticLoss;
 using maths::boosted_tree::CMultinomialLogisticLoss;
 using maths::boosted_tree_detail::CArgMinBinomialLogisticLossImpl;
-using maths::boosted_tree_detail::CArgMinMultinomialLogisticLossImpl;
 using maths::boosted_tree_detail::CArgMinMsleImpl;
+using maths::boosted_tree_detail::CArgMinMultinomialLogisticLossImpl;
 
 namespace {
 void minimizeGridSearch(std::function<double(const TDoubleVector&)> objective,
@@ -829,7 +829,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testMsleArgminObjective){
+BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
     // Test that the gradient function is close to the numerical derivative
     // of the objective.
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
@@ -860,12 +860,13 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective){
         auto objective = argmin.objective();
 
         for (std::size_t i = 0; i < targets.size(); ++i) {
-            double error{std::log(targets[i]+1) - std::log(predictions[i]+1)};
-            expectedErrorAccumulator.add(error*error);
+            double error{std::log(targets[i] + 1) - std::log(predictions[i] + 1)};
+            expectedErrorAccumulator.add(error * error);
         }
-        double expectedObjectiveValue{maths::CBasicStatistics::mean(expectedErrorAccumulator) + lambda};
+        double expectedObjectiveValue{
+            maths::CBasicStatistics::mean(expectedErrorAccumulator) + lambda};
         // LOG_DEBUG(<< "Objective " << objective(0.0) << " expected " << expectedObjectiveValue);
-        BOOST_REQUIRE_SMALL(std::abs(objective(0.0)-expectedObjectiveValue), 1e-5);
+        BOOST_REQUIRE_SMALL(std::abs(objective(0.0) - expectedObjectiveValue), 1e-5);
         // TDoubleVec probes;
         // testRng.generateUniformSamples(-1.0, 1.0, 30, probes);
         // for (std::size_t i = 0; i < probes.size(); i += 3) {

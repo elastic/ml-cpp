@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_maths_CBoostedTreeLoss_h
 #define INCLUDED_ml_maths_CBoostedTreeLoss_h
 
+#include <c++/7/bits/c++config.h>
 #include <maths/CBasicStatistics.h>
 #include <maths/CKMeansOnline.h>
 #include <maths/CLinearAlgebra.h>
@@ -19,6 +20,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace ml {
@@ -69,7 +71,7 @@ private:
 //! \brief Finds the value to add to a set of predictions which approximately
 //! minimises the regularised Mean squared logarithmic error (MSLE).
 class MATHS_EXPORT CArgMinMsleImpl final : public CArgMinLossImpl {
-    public:
+public:
     using TObjective = std::function<double(double)>;
 
 public:
@@ -89,22 +91,38 @@ private:
     using TVector = CVectorNx1<double, 3>;
     using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
     using TVectorMeanAccumulatorVec = std::vector<TVectorMeanAccumulator>;
+    using TVectorMeanAccumulatorVecVec = std::vector<TVectorMeanAccumulatorVec>;
+    using TDoubleDoublePr = std::pair<double, double>;
+    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
 
 private:
-    std::size_t bucket(double prediction) const {
-        double bucket{(prediction - m_LogPredictionMinMax.min()) / this->bucketWidth()};
-        return std::min(static_cast<std::size_t>(bucket), m_Buckets.size() - 1);
+    TSizeSizePr bucket(double prediction, double actual) const {
+        auto bucketWidth{this->bucketWidth()};
+        double bucketPrediction{(prediction - m_ExpPredictionMinMax.min()) /
+                                bucketWidth.first};
+        std::size_t predictionBucketIndex{std::min(
+            static_cast<std::size_t>(bucketPrediction), m_Buckets.size() - 1)};
+
+        double bucketActual{(actual - m_LogActualMinMax.min()) / bucketWidth.second};
+        std::size_t actualBucketIndex{std::min(
+            static_cast<std::size_t>(bucketActual), m_Buckets[0].size() - 1)};
+
+        return std::make_pair(predictionBucketIndex, actualBucketIndex);
     }
 
-    double bucketWidth() const {
-        return m_LogPredictionMinMax.range() / static_cast<double>(m_Buckets.size());
+    TDoubleDoublePr bucketWidth() const {
+        double predictionBucketWidth = m_ExpPredictionMinMax.range() /
+                                       static_cast<double>(m_Buckets.size());
+        double actualBucketWidth = m_LogActualMinMax.range() /
+                                   static_cast<double>(m_Buckets[0].size());
+        return std::make_pair(predictionBucketWidth, actualBucketWidth);
     }
 
 private:
     std::size_t m_CurrentPass = 0;
-    TMinMaxAccumulator m_LogPredictionMinMax;
-    TMeanAccumulator m_MeanLogActual;
-    TVectorMeanAccumulatorVec m_Buckets;
+    TMinMaxAccumulator m_ExpPredictionMinMax;
+    TMinMaxAccumulator m_LogActualMinMax;
+    TVectorMeanAccumulatorVecVec m_Buckets;
     TMeanAccumulator m_MeanError;
 };
 
