@@ -10,6 +10,9 @@
 #include <core/CFloatStorage.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
+#include <core/CStopWatch.h>
+
+#include <maths/CBasicStatistics.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -23,6 +26,7 @@ namespace ml {
 namespace api {
 namespace {
 using TStrVec = std::vector<std::string>;
+using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 const std::string SPECIAL_COLUMN_FIELD_NAME{"."};
 
@@ -303,8 +307,18 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     // can join the extra columns with the original data frame.
     std::size_t numberThreads{1};
 
+    // TODO consider having a separate analysis phase to monitor result output instead
+    LOG_INFO(<< "Start computing results. "
+             << "For regression and classification with feature importance this may take a while.");
+
     using TRowItr = core::CDataFrame::TRowItr;
     m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
+        TMeanVarAccumulator timeAccumulator;
+        core::CStopWatch stopWatch;
+        stopWatch.start();
+        std::uint64_t lastLap{stopWatch.lap()};
+        std::size_t counter = 0;
+
         for (auto row = beginRows; row != endRows; ++row) {
             writer.StartObject();
             writer.Key(ROW_RESULTS);
@@ -320,8 +334,23 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
 
             writer.EndObject();
             writer.EndObject();
+
+            std::uint64_t currentLap{stopWatch.lap()};
+            std::uint64_t delta = currentLap - lastLap;
+
+            timeAccumulator.add(static_cast<double>(delta));
+            lastLap = currentLap;
+            // Log timing every 20000 rows to avoid output polution.
+            if (++counter % 20000 == 0) {
+                LOG_DEBUG(<< "Results computation in progress: " << counter << "/"
+                          << m_DataFrame->numberRows() << ". Average time per row in ms: "
+                          << maths::CBasicStatistics::mean(timeAccumulator) << " std. dev:  "
+                          << std::sqrt(maths::CBasicStatistics::variance(timeAccumulator)));
+            }
         }
     });
+
+    LOG_INFO(<< "Finished computing results.");
 
     // Write the resulting model for inference
     const auto& modelDefinition = m_AnalysisSpecification->runner()->inferenceModelDefinition(
