@@ -301,10 +301,9 @@ void CArgMinMultinomialLogisticLossImpl::merge(const CArgMinLossImpl& other) {
 CArgMinMultinomialLogisticLossImpl::TDoubleVector
 CArgMinMultinomialLogisticLossImpl::value() const {
 
-    TDoubleVector weightBoundingBox[2];
-    weightBoundingBox[0] = std::numeric_limits<double>::max() *
-                           TDoubleVector::Ones(m_NumberClasses);
-    weightBoundingBox[1] = -weightBoundingBox[0];
+    TDoubleVector bounds[2];
+    bounds[0] = std::numeric_limits<double>::max() * TDoubleVector::Ones(m_NumberClasses);
+    bounds[1] = -bounds[0];
     if (m_Centres.size() == 1) {
         // Weight shrinkage means the optimal weight will be somewhere between
         // the logit of the empirical probability and zero.
@@ -313,18 +312,20 @@ CArgMinMultinomialLogisticLossImpl::value() const {
                                  empiricalProbabilities.lpNorm<1>();
         TDoubleVector empiricalLogOdds{
             empiricalProbabilities.array().log().matrix() - m_Centres[0]};
-        weightBoundingBox[0] = weightBoundingBox[0].array().min(0.0);
-        weightBoundingBox[1] = weightBoundingBox[1].array().max(0.0);
-        weightBoundingBox[0] = weightBoundingBox[0].array().min(empiricalLogOdds.array());
-        weightBoundingBox[1] = weightBoundingBox[1].array().max(empiricalLogOdds.array());
+        bounds[0] = bounds[0].array().min(0.0);
+        bounds[1] = bounds[1].array().max(0.0);
+        bounds[0] = bounds[0].array().min(empiricalLogOdds.array());
+        bounds[1] = bounds[1].array().max(empiricalLogOdds.array());
     } else {
         for (const auto& centre : m_Centres) {
-            weightBoundingBox[0] = weightBoundingBox[0].array().min(-centre.array());
-            weightBoundingBox[1] = weightBoundingBox[1].array().max(-centre.array());
+            bounds[0] = bounds[0].array().min(-centre.array());
+            bounds[1] = bounds[1].array().max(-centre.array());
         }
     }
-    LOG_TRACE(<< "bounding box blc = " << weightBoundingBox[0].transpose());
-    LOG_TRACE(<< "bounding box trc = " << weightBoundingBox[1].transpose());
+    bounds[0].array() -= 5.0;
+    bounds[1].array() += 5.0;
+    LOG_TRACE(<< "bounding box (" << bounds[0].transpose() << ","
+              << bounds[1].transpose() << ")");
 
     // The optimisation objective is convex. To see this note that we can write
     // it as sum_i{ f_ij(w) } + ||w||^2 with f_ij(w) = -[log(softmax_j(z_i + w))].
@@ -337,13 +338,10 @@ CArgMinMultinomialLogisticLossImpl::value() const {
     // that weights don't become too large for leaves with only one class. Usually
     // shrinkage stops this happening, but we can train with lambda zero.
 
-    TDoubleVector bounds[]{weightBoundingBox[0].array() - 5.0,
-                           weightBoundingBox[1].array() + 5.0};
-
     TObjective objective{this->objective()};
     TObjectiveGradient objectiveGradient{this->objectiveGradient()};
 
-    TDoubleVector wmin(TDoubleVector::Zero(m_NumberClasses));
+    TDoubleVector wmin{(bounds[0] + bounds[1]) / 2.0};
 
     double loss;
     CLbfgs<TDoubleVector> lgbfs{5};
