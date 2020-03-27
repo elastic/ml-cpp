@@ -327,7 +327,7 @@ CArgMinMultinomialLogisticLossImpl::value() const {
     LOG_TRACE(<< "bounding box trc = " << weightBoundingBox[1].transpose());
 
     // The optimisation objective is convex. To see this note that we can write
-    // it as the sum_i{ f_ij(w) } + ||w||^2 with f_ij(w) = -[log(softmax_j(z_i + w))].
+    // it as sum_i{ f_ij(w) } + ||w||^2 with f_ij(w) = -[log(softmax_j(z_i + w))].
     // Since the sum of convex functions is convex and ||.|| is clearly convex we
     // just require the f_ij are convex. This is a standard result and follows from
     // the fact that their Hessian is of the form H = diag(p) - p p^t where 1-norm
