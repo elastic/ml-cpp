@@ -64,12 +64,10 @@ CDataFrameTrainBoostedTreeClassifierRunner::parameterReader() {
                                {{typeString, int{E_PredictionFieldTypeString}},
                                 {typeInt, int{E_PredictionFieldTypeInt}},
                                 {typeBool, int{E_PredictionFieldTypeBool}}});
-        const std::string accuracy{"maximize_accuracy"};
-        const std::string minRecall{"maximize_minimum_recall"};
         theReader.addParameter(
             CLASS_ASSIGNMENT_OBJECTIVE, CDataFrameAnalysisConfigReader::E_OptionalParameter,
-            {{accuracy, int{maths::CDataFramePredictiveModel::E_Accuracy}},
-             {minRecall, int{maths::CDataFramePredictiveModel::E_MinimumRecall}}});
+            {{MAXIMIZE_ACCURACY, int{maths::CDataFramePredictiveModel::E_Accuracy}},
+             {MAXIMIZE_MINIMUM_RECALL, int{maths::CDataFramePredictiveModel::E_MinimumRecall}}});
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -265,6 +263,8 @@ const std::string CDataFrameTrainBoostedTreeClassifierRunner::NUM_CLASSES{"num_c
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES{"num_top_classes"};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::PREDICTION_FIELD_TYPE{"prediction_field_type"};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::CLASS_ASSIGNMENT_OBJECTIVE{"class_assignment_objective"};
+const std::string CDataFrameTrainBoostedTreeClassifierRunner::MAXIMIZE_ACCURACY{"maximize_accuracy"};
+const std::string CDataFrameTrainBoostedTreeClassifierRunner::MAXIMIZE_MINIMUM_RECALL{"maximize_minimum_recall"};
 // clang-format on
 
 const std::string& CDataFrameTrainBoostedTreeClassifierRunnerFactory::name() const {

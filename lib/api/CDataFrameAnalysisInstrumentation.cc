@@ -7,15 +7,23 @@
 
 #include <core/CTimeUtils.h>
 
+#include <maths/CBoostedTree.h>
+
+#include <api/CDataFrameOutliersRunner.h>
+#include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
+#include <api/CDataFrameTrainBoostedTreeRunner.h>
+
 #include <rapidjson/document.h>
 
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace ml {
 namespace api {
 
 namespace {
+using TStrVec = std::vector<std::string>;
 
 // clang-format off
 const std::string CLASSIFICATION_STATS_TAG{"classification_stats"};
@@ -41,31 +49,16 @@ const std::string VALIDATION_LOSS_TYPE_TAG{"loss_type"};
 const std::string VALIDATION_LOSS_VALUES_TAG{"values"};
 
 // Hyperparameters
-const std::string CLASS_ASSIGNMENT_OBJECTIVE_TAG{"class_assignment_objective"};
-const std::string CLASS_ASSIGNMENT_OBJECTIVE[]{"accuracy", "minimum_recall"};
-const std::string DOWNSAMPLE_FACTOR_TAG{"downsample_factor"};
+const TStrVec CLASS_ASSIGNMENT_OBJECTIVE{[] {
+    TStrVec result(2);
+    result[maths::CBoostedTree::E_Accuracy] = CDataFrameTrainBoostedTreeClassifierRunner::MAXIMIZE_ACCURACY;
+    result[maths::CBoostedTree::E_MinimumRecall] = CDataFrameTrainBoostedTreeClassifierRunner::MAXIMIZE_MINIMUM_RECALL;
+    return result;
+}()};
+// TODO we should expose these in the analysis config.
 const std::string ETA_GROWTH_RATE_PER_TREE_TAG{"eta_growth_rate_per_tree"};
-const std::string ETA_TAG{"eta"};
-const std::string FEATURE_BAG_FRACTION_TAG{"feature_bag_fraction"};
 const std::string MAX_ATTEMPTS_TO_ADD_TREE_TAG{"max_attempts_to_add_tree"};
-const std::string MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER_TAG{"max_optimization_rounds_per_hyperparameter"};
-const std::string MAX_TREES_TAG{"max_trees"};
-const std::string NUM_FOLDS_TAG{"num_folds"};
 const std::string NUM_SPLITS_PER_FEATURE_TAG{"num_splits_per_feature"};
-const std::string REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG{"regularization_depth_penalty_multiplier"};
-const std::string REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG{"regularization_leaf_weight_penalty_multiplier"};
-const std::string REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG{"regularization_soft_tree_depth_limit"};
-const std::string REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG{"regularization_soft_tree_depth_tolerance"};
-const std::string REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG{"regularization_tree_size_penalty_multiplier"};
-
-// Outlier detection parameters
-const std::string N_NEIGHBORS{"n_neighbors"};
-const std::string METHOD{"method"};
-const std::string COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
-const std::string FEATURE_INFLUENCE_THRESHOLD{"feature_influence_threshold"};
-const std::string OUTLIER_FRACTION{"outlier_fraction"};
-const std::string STANDARDIZATION_ENABLED{"standardization_enabled"};
-
 // clang-format on
 
 const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
@@ -213,25 +206,25 @@ void CDataFrameOutliersInstrumentation::writeParameters(rapidjson::Value& parent
     if (writer != nullptr) {
 
         writer->addMember(
-            N_NEIGHBORS,
+            CDataFrameOutliersRunner::N_NEIGHBORS,
             rapidjson::Value(static_cast<std::uint64_t>(this->m_Parameters.s_NumberNeighbours))
                 .Move(),
             parentObject);
         writer->addMember(
-            COMPUTE_FEATURE_INFLUENCE,
+            CDataFrameOutliersRunner::COMPUTE_FEATURE_INFLUENCE,
             rapidjson::Value(this->m_Parameters.s_ComputeFeatureInfluence).Move(),
             parentObject);
-        writer->addMember(OUTLIER_FRACTION,
+        writer->addMember(CDataFrameOutliersRunner::OUTLIER_FRACTION,
                           rapidjson::Value(this->m_Parameters.s_OutlierFraction).Move(),
                           parentObject);
-        writer->addMember(FEATURE_INFLUENCE_THRESHOLD,
+        writer->addMember(CDataFrameOutliersRunner::FEATURE_INFLUENCE_THRESHOLD,
                           rapidjson::Value(this->m_FeatureInfluenceThreshold).Move(),
                           parentObject);
         writer->addMember(
-            STANDARDIZATION_ENABLED,
+            CDataFrameOutliersRunner::STANDARDIZATION_ENABLED,
             rapidjson::Value(this->m_Parameters.s_StandardizeColumns).Move(), parentObject);
-        writer->addMember(METHOD, maths::COutliers::print(this->m_Parameters.s_Method),
-                          parentObject);
+        writer->addMember(CDataFrameOutliersRunner::METHOD,
+                          maths::COutliers::print(this->m_Parameters.s_Method), parentObject);
     }
 }
 
@@ -310,55 +303,56 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::
 
     if (writer != nullptr) {
 
-        writer->addMember(ETA_TAG,
+        writer->addMember(CDataFrameTrainBoostedTreeRunner::ETA,
                           rapidjson::Value(this->m_Hyperparameters.s_Eta).Move(),
                           parentObject);
         if (m_Type == E_Classification) {
-            writer->addMember(CLASS_ASSIGNMENT_OBJECTIVE_TAG,
-                              CLASS_ASSIGNMENT_OBJECTIVE[this->m_Hyperparameters.s_ClassAssignmentObjective],
-                              parentObject);
+            writer->addMember(
+                CDataFrameTrainBoostedTreeClassifierRunner::CLASS_ASSIGNMENT_OBJECTIVE,
+                CLASS_ASSIGNMENT_OBJECTIVE[this->m_Hyperparameters.s_ClassAssignmentObjective],
+                parentObject);
         }
         writer->addMember(
-            REGULARIZATION_DEPTH_PENALTY_MULTIPLIER_TAG,
+            CDataFrameTrainBoostedTreeRunner::ALPHA,
             rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_DepthPenaltyMultiplier)
                 .Move(),
             parentObject);
         writer->addMember(
-            REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG,
+            CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT,
             rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_SoftTreeDepthLimit)
                 .Move(),
             parentObject);
         writer->addMember(
-            REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
+            CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE,
             rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_SoftTreeDepthTolerance)
                 .Move(),
             parentObject);
         writer->addMember(
-            REGULARIZATION_TREE_SIZE_PENALTY_MULTIPLIER_TAG,
+            CDataFrameTrainBoostedTreeRunner::GAMMA,
             rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_TreeSizePenaltyMultiplier)
                 .Move(),
             parentObject);
         writer->addMember(
-            REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG,
+            CDataFrameTrainBoostedTreeRunner::LAMBDA,
             rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_LeafWeightPenaltyMultiplier)
                 .Move(),
             parentObject);
         writer->addMember(
-            DOWNSAMPLE_FACTOR_TAG,
+            CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR,
             rapidjson::Value(this->m_Hyperparameters.s_DownsampleFactor).Move(),
             parentObject);
         writer->addMember(
-            NUM_FOLDS_TAG,
+            CDataFrameTrainBoostedTreeRunner::NUMBER_FOLDS,
             rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_NumFolds))
                 .Move(),
             parentObject);
         writer->addMember(
-            MAX_TREES_TAG,
+            CDataFrameTrainBoostedTreeRunner::MAX_TREES,
             rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_MaxTrees))
                 .Move(),
             parentObject);
         writer->addMember(
-            FEATURE_BAG_FRACTION_TAG,
+            CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION,
             rapidjson::Value(this->m_Hyperparameters.s_FeatureBagFraction).Move(),
             parentObject);
         writer->addMember(
@@ -376,7 +370,7 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::
                 .Move(),
             parentObject);
         writer->addMember(
-            MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER_TAG,
+            CDataFrameTrainBoostedTreeRunner::NUMBER_ROUNDS_PER_HYPERPARAMETER,
             rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_MaxOptimizationRoundsPerHyperparameter))
                 .Move(),
             parentObject);

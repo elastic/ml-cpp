@@ -40,6 +40,8 @@ public:
     static const std::string NUM_TOP_CLASSES;
     static const std::string PREDICTION_FIELD_TYPE;
     static const std::string CLASS_ASSIGNMENT_OBJECTIVE;
+    static const std::string MAXIMIZE_ACCURACY;
+    static const std::string MAXIMIZE_MINIMUM_RECALL;
 
 public:
     static const CDataFrameAnalysisConfigReader& parameterReader();
