@@ -52,10 +52,10 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(MAX_TREES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(FEATURE_BAG_FRACTION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(NUMBER_FOLDS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(NUM_FOLDS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(STOP_CROSS_VALIDATION_EARLY,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(NUMBER_ROUNDS_PER_HYPERPARAMETER,
+        theReader.addParameter(MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(BAYESIAN_OPTIMISATION_RESTARTS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
@@ -82,9 +82,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
 
     std::size_t maxTrees{parameters[MAX_TREES].fallback(std::size_t{0})};
-    std::size_t numberFolds{parameters[NUMBER_FOLDS].fallback(std::size_t{0})};
+    std::size_t numberFolds{parameters[NUM_FOLDS].fallback(std::size_t{0})};
     std::size_t numberRoundsPerHyperparameter{
-        parameters[NUMBER_ROUNDS_PER_HYPERPARAMETER].fallback(std::size_t{0})};
+        parameters[MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER].fallback(std::size_t{0})};
     std::size_t bayesianOptimisationRestarts{
         parameters[BAYESIAN_OPTIMISATION_RESTARTS].fallback(std::size_t{0})};
     bool stopCrossValidationEarly{parameters[STOP_CROSS_VALIDATION_EARLY].fallback(true)};
@@ -315,9 +315,9 @@ const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT{"soft_
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE{"soft_tree_depth_tolerance"};
 const std::string CDataFrameTrainBoostedTreeRunner::MAX_TREES{"max_trees"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION{"feature_bag_fraction"};
-const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_FOLDS{"number_folds"};
+const std::string CDataFrameTrainBoostedTreeRunner::NUM_FOLDS{"num_folds"};
 const std::string CDataFrameTrainBoostedTreeRunner::STOP_CROSS_VALIDATION_EARLY{"stop_cross_validation_early"};
-const std::string CDataFrameTrainBoostedTreeRunner::NUMBER_ROUNDS_PER_HYPERPARAMETER{"number_rounds_per_hyperparameter"};
+const std::string CDataFrameTrainBoostedTreeRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER{"max_optimization_rounds_per_hyperparameter"};
 const std::string CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS{"bayesian_optimisation_restarts"};
 const std::string CDataFrameTrainBoostedTreeRunner::NUM_TOP_FEATURE_IMPORTANCE_VALUES{"num_top_feature_importance_values"};
 const std::string CDataFrameTrainBoostedTreeRunner::IS_TRAINING_FIELD_NAME{"is_training"};

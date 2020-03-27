@@ -337,7 +337,7 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::
             rapidjson::Value(this->m_Hyperparameters.s_DownsampleFactor).Move(),
             parentObject);
         writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::NUMBER_FOLDS,
+            CDataFrameTrainBoostedTreeRunner::NUM_FOLDS,
             rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_NumFolds))
                 .Move(),
             parentObject);
@@ -365,7 +365,7 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::
                 .Move(),
             parentObject);
         writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::NUMBER_ROUNDS_PER_HYPERPARAMETER,
+            CDataFrameTrainBoostedTreeRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER,
             rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_MaxOptimizationRoundsPerHyperparameter))
                 .Move(),
             parentObject);
