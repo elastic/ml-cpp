@@ -153,7 +153,10 @@ public:
         CReservoirSampler(std::size_t targetSampleSize,
                           TOnSampleCallback onSample,
                           const CPRNG::CXorOShiro128Plus& rng = CPRNG::CXorOShiro128Plus{})
-            : CStreamSampler<T>(std::max(targetSampleSize, MINIMUM_TARGET_SAMPLE_SIZE), rng),
+            : CStreamSampler<T>(targetSampleSize > MINIMUM_TARGET_SAMPLE_SIZE
+                                    ? targetSampleSize
+                                    : MINIMUM_TARGET_SAMPLE_SIZE,
+                                rng),
               m_OnSample{std::move(onSample)} {}
 
     private:
