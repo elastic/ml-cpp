@@ -537,7 +537,6 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
                 }
                 losses.push_back(lossAtEps);
             }
-            LOG_DEBUG(<< core::CContainerPrinter::print(losses));
             BOOST_TEST_REQUIRE(losses[0] >= losses[1]);
             BOOST_TEST_REQUIRE(losses[2] >= losses[1]);
         }

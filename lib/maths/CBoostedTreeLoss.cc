@@ -301,32 +301,6 @@ void CArgMinMultinomialLogisticLossImpl::merge(const CArgMinLossImpl& other) {
 CArgMinMultinomialLogisticLossImpl::TDoubleVector
 CArgMinMultinomialLogisticLossImpl::value() const {
 
-    TDoubleVector bounds[2];
-    bounds[0] = std::numeric_limits<double>::max() * TDoubleVector::Ones(m_NumberClasses);
-    bounds[1] = -bounds[0];
-    if (m_Centres.size() == 1) {
-        // Weight shrinkage means the optimal weight will be somewhere between
-        // the logit of the empirical probability and zero.
-        TDoubleVector empiricalProbabilities{m_ClassCounts.array() + 0.1};
-        empiricalProbabilities = empiricalProbabilities /
-                                 empiricalProbabilities.lpNorm<1>();
-        TDoubleVector empiricalLogOdds{
-            empiricalProbabilities.array().log().matrix() - m_Centres[0]};
-        bounds[0] = bounds[0].array().min(0.0);
-        bounds[1] = bounds[1].array().max(0.0);
-        bounds[0] = bounds[0].array().min(empiricalLogOdds.array());
-        bounds[1] = bounds[1].array().max(empiricalLogOdds.array());
-    } else {
-        for (const auto& centre : m_Centres) {
-            bounds[0] = bounds[0].array().min(-centre.array());
-            bounds[1] = bounds[1].array().max(-centre.array());
-        }
-    }
-    bounds[0].array() -= 5.0;
-    bounds[1].array() += 5.0;
-    LOG_TRACE(<< "bounding box (" << bounds[0].transpose() << ","
-              << bounds[1].transpose() << ")");
-
     // The optimisation objective is convex. To see this note that we can write
     // it as sum_i{ f_ij(w) } + ||w||^2 with f_ij(w) = -[log(softmax_j(z_i + w))].
     // Since the sum of convex functions is convex and ||.|| is clearly convex we
@@ -334,22 +308,19 @@ CArgMinMultinomialLogisticLossImpl::value() const {
     // the fact that their Hessian is of the form H = diag(p) - p p^t where 1-norm
     // of p is one. Convexity follows if this is positive definite. To verify note
     // that x^t H x = ||p^(1/2) x||^2 ||p^(1/2)||^2 - (p^t x)^2, which is greater
-    // than 0 for all x via Cauchy-Schwarz. We optimize via LBFGS but truncate so
-    // that weights don't become too large for leaves with only one class. Usually
-    // shrinkage stops this happening, but we can train with lambda zero.
+    // than 0 for all x via Cauchy-Schwarz. We optimize via L-BFGS. Note also that
+    // we truncate lambda to be positive so the weights don't become too large for
+    // leaves with only one class.
 
     TObjective objective{this->objective()};
     TObjectiveGradient objectiveGradient{this->objectiveGradient()};
 
-    TDoubleVector wmin{(bounds[0] + bounds[1]) / 2.0};
+    TDoubleVector wmin{TDoubleVector::Zero(m_NumberClasses)};
 
     double loss;
     CLbfgs<TDoubleVector> lgbfs{5};
     std::tie(wmin, loss) = lgbfs.minimize(objective, objectiveGradient, std::move(wmin));
     LOG_TRACE(<< "loss* = " << loss << " weight* = " << wmin.transpose());
-
-    wmin = wmin.cwiseMax(bounds[0]).cwiseMin(bounds[1]);
-    LOG_TRACE(<< "loss = " << objective(wmin) << " truncated weight = " << wmin.transpose());
 
     return wmin;
 }
@@ -357,7 +328,7 @@ CArgMinMultinomialLogisticLossImpl::value() const {
 CArgMinMultinomialLogisticLossImpl::TObjective
 CArgMinMultinomialLogisticLossImpl::objective() const {
     TDoubleVector logProbabilities{m_NumberClasses};
-    double lambda{this->lambda()};
+    double lambda{std::max(this->lambda(), 1e-6)};
     if (m_Centres.size() == 1) {
         return [logProbabilities, lambda, this](const TDoubleVector& weight) mutable {
             logProbabilities = m_Centres[0] + weight;
@@ -382,7 +353,7 @@ CArgMinMultinomialLogisticLossImpl::TObjectiveGradient
 CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
     TDoubleVector probabilities{m_NumberClasses};
     TDoubleVector lossGradient{m_NumberClasses};
-    double lambda{this->lambda()};
+    double lambda{std::max(this->lambda(), 1e-6)};
     if (m_Centres.size() == 1) {
         return [probabilities, lossGradient, lambda, this](const TDoubleVector& weight) mutable {
             probabilities = m_Centres[0] + weight;
