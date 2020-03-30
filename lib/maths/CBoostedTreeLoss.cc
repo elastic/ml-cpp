@@ -419,6 +419,9 @@ CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
 
 CArgMinMsleImpl::CArgMinMsleImpl(double lambda)
     : CArgMinLossImpl{lambda}, m_Buckets(128) {
+    for (auto& bucket : m_Buckets) {
+        bucket.resize(128);
+    }
 }
 
 std::unique_ptr<CArgMinLossImpl> CArgMinMsleImpl::clone() const {
@@ -445,7 +448,7 @@ void CArgMinMsleImpl::add(const TMemoryMappedFloatVector& prediction, double act
         TVector example;
         example(0) = expPrediction;
         example(1) = logActual;
-        example(2) = logError; 
+        example(2) = logError;
         auto bucketIndex{this->bucket(expPrediction, logActual)};
         m_Buckets[bucketIndex.first][bucketIndex.second].add(example, weight);
         break;
@@ -495,8 +498,10 @@ CArgMinMsleImpl::TDoubleVector CArgMinMsleImpl::value() const {
     maxLogWeight = -minLogWeight;
     for (const auto& bucketsPrediction : m_Buckets) {
         for (const auto& bucketActual : bucketsPrediction) {
-            minLogWeight = std::min(minLogWeight, CBasicStatistics::mean(bucketActual)(2));
-            maxLogWeight = std::max(maxLogWeight, CBasicStatistics::mean(bucketActual)(2));
+            minLogWeight =
+                std::min(minLogWeight, CBasicStatistics::mean(bucketActual)(2));
+            maxLogWeight =
+                std::max(maxLogWeight, CBasicStatistics::mean(bucketActual)(2));
         }
     }
 
@@ -528,16 +533,20 @@ CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
     return [this](double logWeight) {
         double weight{std::exp(logWeight)};
         double loss{0.0};
+        double totalCount{0.0};
         for (const auto& bucketPrediction : m_Buckets) {
             for (const auto& bucketActual : bucketPrediction) {
                 double count{CBasicStatistics::count(bucketActual)};
-                double expPrediction{CBasicStatistics::mean(bucketActual)(0)};
-                double logActual{CBasicStatistics::mean(bucketActual)(1)};
-                double logPrediction{CTools::fastLog(1 + expPrediction * weight)};
-                loss += count * (CTools::pow2(logPrediction - logActual));
+                if (count > 0.0) {
+                    double expPrediction{CBasicStatistics::mean(bucketActual)(0)};
+                    double logActual{CBasicStatistics::mean(bucketActual)(1)};
+                    double logPrediction{CTools::fastLog(1 + expPrediction * weight)};
+                    loss += count * (CTools::pow2(logActual - logPrediction));
+                    totalCount += count;
+                }
             }
         }
-        return loss + this->lambda() * CTools::pow2(weight);
+        return loss / totalCount + this->lambda() * CTools::pow2(weight);
     };
 }
 }

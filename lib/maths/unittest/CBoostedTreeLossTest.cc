@@ -837,6 +837,7 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
 
     maths::CPRNG::CXorOShiro128Plus rng;
     test::CRandomNumbers testRng;
+    std::size_t numberSamples{10000};
 
     for (std::size_t t = 0; t < 10; ++t) {
         TMeanAccumulator expectedErrorAccumulator;
@@ -844,7 +845,7 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
         CArgMinMsleImpl argmin{lambda};
 
         TDoubleVec targets;
-        testRng.generateUniformSamples(0.0, 3.0, 20, targets);
+        testRng.generateUniformSamples(0.0, 3.0, numberSamples, targets);
 
         TDoubleVec predictions;
         predictions.resize(targets.size(), 0.0);
@@ -868,25 +869,6 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
             maths::CBasicStatistics::mean(expectedErrorAccumulator) + lambda};
         // LOG_DEBUG(<< "Objective " << objective(0.0) << " expected " << expectedObjectiveValue);
         BOOST_REQUIRE_SMALL(std::abs(objective(0.0) - expectedObjectiveValue), 1e-5);
-        // TDoubleVec probes;
-        // testRng.generateUniformSamples(-1.0, 1.0, 30, probes);
-        // for (std::size_t i = 0; i < probes.size(); i += 3) {
-        //     TDoubleVector probe{3};
-        //     probe(0) = probes[i];
-        //     probe(1) = probes[i + 1];
-        //     probe(2) = probes[i + 2];
-
-        //     TDoubleVector expectedGradient{3};
-        //     for (std::size_t j = 0; j < 3; ++j) {
-        //         TDoubleVector shift{TDoubleVector::Zero(3)};
-        //         shift(j) = eps;
-        //         expectedGradient(j) =
-        //             (objective(probe + shift) - objective(probe - shift)) / (2.0 * eps);
-        //     }
-        //     TDoubleVector actualGradient{objectiveGradient(probe)};
-
-        //     BOOST_REQUIRE_SMALL((expectedGradient - actualGradient).norm(), eps);
-        // }
     }
 }
 
