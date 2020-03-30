@@ -304,7 +304,7 @@ CArgMinMultinomialLogisticLossImpl::value() const {
     // The optimisation objective is convex. To see this note that we can write
     // it as sum_i{ f_ij(w) } + ||w||^2 with f_ij(w) = -[log(softmax_j(z_i + w))].
     // Since the sum of convex functions is convex and ||.|| is clearly convex we
-    // just require the f_ij are convex. This is a standard result and follows from
+    // just require the f_ij to be convex. This is a standard result and follows from
     // the fact that their Hessian is of the form H = diag(p) - p p^t where 1-norm
     // of p is one. Convexity follows if this is positive definite. To verify note
     // that x^t H x = ||p^(1/2) x||^2 ||p^(1/2)||^2 - (p^t x)^2, which is greater
