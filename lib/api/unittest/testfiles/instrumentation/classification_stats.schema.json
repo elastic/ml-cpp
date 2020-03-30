@@ -65,7 +65,7 @@
         "num_splits_per_feature": {
           "type": "integer"
         },
-        "number_rounds_per_hyperparameter": {
+        "max_optimization_rounds_per_hyperparameter": {
           "type": "integer"
         }
       }
