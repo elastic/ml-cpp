@@ -59,6 +59,8 @@ model training. (See {ml-pull}1034[#1034].)
 (See {ml-pull}1031[#1031].)
 * Add instrumentation information for outlier detection data frame analytics jobs.
 * Write out feature importance for multi-class models. (See {ml-pull}1071[#1071])
+* Enable system call filtering to the native process used with data frame analytics.
+(See {ml-pull}1098[#1098])
 
 === Bug Fixes
 
