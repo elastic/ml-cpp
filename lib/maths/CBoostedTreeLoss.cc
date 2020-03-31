@@ -482,19 +482,15 @@ void CArgMinMsleImpl::merge(const CArgMinLossImpl& other) {
 }
 
 CArgMinMsleImpl::TDoubleVector CArgMinMsleImpl::value() const {
-
-    using TMinAccumulator = CBasicStatistics::SMin<std::pair<double, double>>::TAccumulator;
-
     std::function<double(double)> objective;
     double minLogWeight;
     double maxLogWeight;
 
     objective = this->objective();
-    if (this->bucketWidth() == 0.0) {
+    if (this->bucketWidth().first == 0.0) {
         minLogWeight = -4.0;
-        maxLogWeight = CBasicStatistics::mean(m_MeanLogActual)
+        maxLogWeight = CBasicStatistics::mean(m_MeanLogActual);
     } else {
-
         // If the weight smaller than the minimum log error every prediction is low.
         // Conversely, if it's larger than the maximum log error every prediction is
         // high. In both cases, we can reduce the error by making the weight larger,
@@ -512,27 +508,16 @@ CArgMinMsleImpl::TDoubleVector CArgMinMsleImpl::value() const {
         }
     }
 
-    TMinAccumulator globalMinimum;
-
-    std::size_t intervals{10};
-    for (std::size_t i = intervals; i > 0; --i) {
-        double minimum;
-        double objectiveAtMinimum;
-        std::size_t maxIterations{5};
-        double a{(static_cast<double>(i) * minLogWeight +
-                  static_cast<double>(intervals - i) * maxLogWeight) /
-                 static_cast<double>(intervals)};
-        double b{(static_cast<double>(i - 1) * minLogWeight +
-                  static_cast<double>(intervals - i + 1) * maxLogWeight) /
-                 static_cast<double>(intervals)};
-        CSolvers::minimize(a, b, objective(a), objective(b), objective, 1e-3,
-                           maxIterations, minimum, objectiveAtMinimum);
-        LOG_TRACE(<< "minimum = " << minimum << " objective(minimum) = " << objectiveAtMinimum);
-        globalMinimum.add({objectiveAtMinimum, minimum});
-    }
+    double minimizer;
+    double objectiveAtMinimum;
+    std::size_t maxIterations{15};
+    CSolvers::minimize(minLogWeight, maxLogWeight, objective(minLogWeight),
+                       objective(maxLogWeight), objective, 1e-5, maxIterations,
+                       minimizer, objectiveAtMinimum);
+    LOG_TRACE(<< "minimum = " << minimizer << " objective(minimum) = " << objectiveAtMinimum);
 
     TDoubleVector result(1);
-    result(0) = globalMinimum[0].second;
+    result(0) = minimizer;
     return result;
 }
 

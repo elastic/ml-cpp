@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 #include <boost/test/tools/old/interface.hpp>
+#include <c++/7/bits/c++config.h>
 #include <cmath>
 #include <core/CContainerPrinter.h>
 
@@ -870,7 +871,7 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
                 }
                 double expectedObjectiveValue{
                     maths::CBasicStatistics::mean(expectedErrorAccumulator) + lambda};
-                BOOST_REQUIRE_SMALL(std::abs(objective(weight) - expectedObjectiveValue), 1e-5);
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(objective(0.0), expectedObjectiveValue, 1e-5);
             }
         }
     }
@@ -904,8 +905,70 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
             double expectedObjectiveValue{
                 maths::CBasicStatistics::mean(expectedErrorAccumulator) + lambda};
             LOG_DEBUG(<< "Objective " << objective(0.0) << " expected " << expectedObjectiveValue);
-            BOOST_REQUIRE_SMALL(std::abs(objective(0.0) - expectedObjectiveValue), 1e-5);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(objective(0.0), expectedObjectiveValue, 1e-5);
         }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testMsleArgminValue) {
+    // test on a single data point with known output
+    {
+        double lambda{0.0};
+        CArgMinMsleImpl argmin{lambda};
+        TDoubleVec targets;
+        maths::CPRNG::CXorOShiro128Plus rng;
+        test::CRandomNumbers testRng;
+        std::size_t numberSamples{1};
+        testRng.generateUniformSamples(0.0, 3.0, numberSamples, targets);
+
+        TDoubleVec predictions;
+        predictions.resize(targets.size(), 0.0);
+        testRng.generateUniformSamples(0.0, 3.0, targets.size(), predictions);
+
+        do {
+            for (std::size_t i = 0; i < targets.size(); ++i) {
+                maths::CFloatStorage storage[]{std::log(predictions[i])};
+                TMemoryMappedFloatVector prediction{storage, 1};
+                argmin.add(prediction, targets[i]);
+            }
+        } while (argmin.nextPass());
+        double optimalWeight{std::log(targets[0] / predictions[0])};
+        double estimatedWeight{argmin.value()[0]};
+        // LOG_DEBUG(<< "Estimate weight " << estimatedWeight << " true weight " << optimalWeight);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(optimalWeight, estimatedWeight, 1e-3);
+    }
+    // test against scipy and scikit learn
+    // To reproduce run in Python:
+    // from sklearn.metrics import mean_squared_log_error
+    // import numpy as np
+    // from scipy.optimize import minimize
+    // y_true = [3, 5, 2.5, 7]
+    // y_pred = [2.5, 5, 4, 8]
+    // def objective(logWeight):
+    //     return mean_squared_log_error(y_true, np.exp(logWeight)*y_pred)
+    // minimize(objective, 0.0)
+    {
+        double lambda{0.0};
+        CArgMinMsleImpl argmin{lambda};
+        TDoubleVec targets{3, 5, 2.5, 7};
+        TDoubleVec predictions{2.5, 5, 4, 8};
+
+        do {
+            for (std::size_t i = 0; i < targets.size(); ++i) {
+                maths::CFloatStorage storage[]{std::log(predictions[i])};
+                TMemoryMappedFloatVector prediction{storage, 1};
+                argmin.add(prediction, targets[i]);
+            }
+        } while (argmin.nextPass());
+        double optimalWeight{-0.11355011};
+        double optimalObjective{0.03145382791305494};
+        double estimatedWeight{argmin.value()[0]};
+        double estimatedObjective{argmin.objective()(estimatedWeight)};
+        LOG_DEBUG(<< "Estimated objective " << estimatedObjective
+                  << " optimal objective " << optimalObjective);
+        LOG_DEBUG(<< "Estimate weight " << estimatedWeight << " true weight " << optimalWeight);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(optimalObjective, estimatedObjective, 1e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(optimalWeight, estimatedWeight, 1e-2);
     }
 }
 
