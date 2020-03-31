@@ -52,10 +52,17 @@ void increaseOomKillerAdj() {
 }
 }
 
-void CProcessPriority::reducePriority() {
-    // Currently the only action is to increase the OOM killer adjustment, but
-    // there could be others in the future.
+void CProcessPriority::reduceMemoryPriority() {
     increaseOomKillerAdj();
+}
+
+void CProcessPriority::reduceCpuPriority() {
+    errno = 0;
+    // Linux's scheduler reduces priority more gradually than other *nix, so 
+    // nice value is 15 rather than 5
+    if (::nice(15) == -1 && errno != 0) {
+        LOG_ERROR(<< "Failed to reduce process priority: " << ::strerror(errno));
+    }
 }
 }
 }

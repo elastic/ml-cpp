@@ -132,12 +132,16 @@ int main(int argc, char** argv) {
     // statically links its own version library.
     LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
 
-    ml::core::CProcessPriority::reducePriority();
+    ml::core::CProcessPriority::reduceMemoryPriority();
 
     if (ioMgr.initIo() == false) {
         LOG_FATAL(<< "Failed to initialise IO");
         return EXIT_FAILURE;
     }
+
+    // Reduce CPU priority after connecting named pipes so the JVM gets more
+    // time when CPU is constrained
+    ml::core::CProcessPriority::reduceCpuPriority();
 
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
 

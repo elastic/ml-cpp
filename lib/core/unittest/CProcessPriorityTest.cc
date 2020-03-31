@@ -10,8 +10,12 @@
 
 BOOST_AUTO_TEST_SUITE(CProcessPriorityTest)
 
-BOOST_AUTO_TEST_CASE(testReducePriority) {
-    BOOST_REQUIRE_NO_THROW(ml::core::CProcessPriority::reducePriority());
+BOOST_AUTO_TEST_CASE(testReduceMemoryPriority) {
+    BOOST_REQUIRE_NO_THROW(ml::core::CProcessPriority::reduceMemoryPriority());
+}
+
+BOOST_AUTO_TEST_CASE(testReduceCpuPriority) {
+    BOOST_REQUIRE_NO_THROW(ml::core::CProcessPriority::reduceCpuPriority());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

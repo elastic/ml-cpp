@@ -26,19 +26,19 @@ namespace core {
 //! IMPLEMENTATION DECISIONS:\n
 //! This is a static class - it's not possible to construct an instance of it.
 //!
-//! The basic implementation does nothing.  Platform-specific implementations
-//! exist for platforms where we have decided to do something.
-//!
-//! Currently the only platform-specific implementation is for Linux, and it
-//! attempts to increase the OOM killer adjustment for the process such that
-//! it is more likely to be killed than other processes when the Linux kernel
-//! decides that there isn't enough free memory.
+//! On Linux we also attempt to increase the OOM killer adjustment for the
+//! process such that it is more likely to be killed than other processes
+//! when the Linux kernel decides that there isn't enough free memory.
 //!
 class CORE_EXPORT CProcessPriority : private CNonInstantiatable {
 public:
-    //! Reduce whatever priority measures are deemed appropriate for the
+    //! Reduce priority for memory if deemed appropriate for the
     //! current OS.
-    static void reducePriority();
+    static void reduceMemoryPriority();
+
+    //! Reduce priority for CPU if deemed appropriate for the
+    //! current OS.
+    static void reduceCpuPriority();
 };
 }
 }
