@@ -40,6 +40,7 @@ public:
     static const std::string NUM_TOP_CLASSES;
     static const std::string PREDICTION_FIELD_TYPE;
     static const std::string CLASS_ASSIGNMENT_OBJECTIVE;
+    static const TStrVec CLASS_ASSIGNMENT_OBJECTIVE_VALUES;
 
 public:
     static const CDataFrameAnalysisConfigReader& parameterReader();

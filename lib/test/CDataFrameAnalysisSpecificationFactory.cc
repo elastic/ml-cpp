@@ -282,7 +282,7 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
         writer.Double(m_FeatureBagFraction);
     }
     if (m_NumberRoundsPerHyperparameter > 0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::NUMBER_ROUNDS_PER_HYPERPARAMETER);
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER);
         writer.Uint64(m_NumberRoundsPerHyperparameter);
     }
     if (m_BayesianOptimisationRestarts > 0) {

@@ -68,6 +68,8 @@ public:
     CBoostedTreeFactory& stopCrossValidationEarly(bool stopEarly);
     //! The number of rows per feature to sample in the initial downsample.
     CBoostedTreeFactory& initialDownsampleRowsPerFeature(double rowsPerFeature);
+    //! The amount by which to downsample the data for stochastic gradient estimates.
+    CBoostedTreeFactory& downsampleFactor(double factor);
     //! Set the sum of leaf depth penalties multiplier.
     CBoostedTreeFactory& depthPenaltyMultiplier(double depthPenaltyMultiplier);
     //! Set the tree size penalty multiplier.
