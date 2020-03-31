@@ -58,7 +58,7 @@ void CProcessPriority::reduceMemoryPriority() {
 
 void CProcessPriority::reduceCpuPriority() {
     errno = 0;
-    // Linux's scheduler reduces priority more gradually than other *nix, so 
+    // Linux's scheduler reduces priority more gradually than other *nix, so
     // nice value is 15 rather than 5
     if (::nice(15) == -1 && errno != 0) {
         LOG_ERROR(<< "Failed to reduce process priority: " << ::strerror(errno));

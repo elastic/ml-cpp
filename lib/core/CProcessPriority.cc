@@ -8,8 +8,8 @@
 #include <core/CLogger.h>
 
 #include <errno.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
 namespace ml {
 namespace core {

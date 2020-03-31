@@ -35,6 +35,13 @@
 * The macOS build platform for the {ml} C++ code is now High Sierra running Xcode 10.1,
   or Ubuntu 18.04 running clang 6.0 for cross compilation. (See {ml-pull}867[#867].)
 
+== {es} version 7.8.0
+
+=== Enhancements
+
+* Reduce CPU scheduling priority of native analysis processes to favor the ES JVM
+  when CPU is constrained. (See {ml-pull}1109[#1109].)
+
 == {es} version 7.7.0
 
 === New Features

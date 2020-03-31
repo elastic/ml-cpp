@@ -26,6 +26,8 @@ namespace core {
 //! IMPLEMENTATION DECISIONS:\n
 //! This is a static class - it's not possible to construct an instance of it.
 //!
+//! On Linux and macOS we reduce the CPU scheduling priority using "nice".
+//!
 //! On Linux we also attempt to increase the OOM killer adjustment for the
 //! process such that it is more likely to be killed than other processes
 //! when the Linux kernel decides that there isn't enough free memory.
