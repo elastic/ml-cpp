@@ -875,7 +875,6 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
             }
         }
     }
-    // TODO add test for constant prediction
     {
         for (std::size_t t = 0; t < 3; ++t) {
             TMeanAccumulator expectedErrorAccumulator;
