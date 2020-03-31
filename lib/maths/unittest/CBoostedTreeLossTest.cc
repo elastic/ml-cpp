@@ -321,7 +321,6 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticLossForUnderflow) {
         TMemoryMappedFloatVector predictions[]{{&storage[0], 1}, {&storage[1], 1}};
         TDoubleVec previousLoss{loss.value(predictions[0], 0.0),
                                 loss.value(predictions[1], 1.0)};
-        LOG_DEBUG(<< core::CContainerPrinter::print(previousLoss));
         for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
             storage[0] = scale - std::log(eps);
             storage[1] = scale + std::log(eps);
@@ -537,7 +536,6 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
                 }
                 losses.push_back(lossAtEps);
             }
-            LOG_DEBUG(<< core::CContainerPrinter::print(losses));
             BOOST_TEST_REQUIRE(losses[0] >= losses[1]);
             BOOST_TEST_REQUIRE(losses[2] >= losses[1]);
         }
