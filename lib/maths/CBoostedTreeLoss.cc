@@ -440,6 +440,7 @@ void CArgMinMsleImpl::add(const TMemoryMappedFloatVector& prediction, double act
     case 0: {
         m_ExpPredictionMinMax.add(expPrediction);
         m_LogActualMinMax.add(logActual);
+        m_MeanLogActual.add(logActual, weight);
         break;
     }
     case 1: {
@@ -464,7 +465,8 @@ void CArgMinMsleImpl::merge(const CArgMinLossImpl& other) {
         switch (m_CurrentPass) {
         case 0:
             m_ExpPredictionMinMax += lmse->m_ExpPredictionMinMax;
-            m_LogActualMinMax + lmse->m_LogActualMinMax;
+            m_LogActualMinMax += lmse->m_LogActualMinMax;
+            m_MeanLogActual += lmse->m_MeanLogActual;
             break;
         case 1:
             for (std::size_t i = 0; i < m_Buckets.size(); ++i) {
@@ -488,20 +490,25 @@ CArgMinMsleImpl::TDoubleVector CArgMinMsleImpl::value() const {
     double maxLogWeight;
 
     objective = this->objective();
+    if (this->bucketWidth() == 0.0) {
+        minLogWeight = -4.0;
+        maxLogWeight = CBasicStatistics::mean(m_MeanLogActual)
+    } else {
 
-    // If the weight smaller than the minimum log error every prediction is low.
-    // Conversely, if it's larger than the maximum log error every prediction is
-    // high. In both cases, we can reduce the error by making the weight larger,
-    // respectively smaller. Therefore, the optimal weight must lie between these
-    // values.
-    minLogWeight = std::numeric_limits<double>::max();
-    maxLogWeight = -minLogWeight;
-    for (const auto& bucketsPrediction : m_Buckets) {
-        for (const auto& bucketActual : bucketsPrediction) {
-            minLogWeight =
-                std::min(minLogWeight, CBasicStatistics::mean(bucketActual)(2));
-            maxLogWeight =
-                std::max(maxLogWeight, CBasicStatistics::mean(bucketActual)(2));
+        // If the weight smaller than the minimum log error every prediction is low.
+        // Conversely, if it's larger than the maximum log error every prediction is
+        // high. In both cases, we can reduce the error by making the weight larger,
+        // respectively smaller. Therefore, the optimal weight must lie between these
+        // values.
+        minLogWeight = std::numeric_limits<double>::max();
+        maxLogWeight = -minLogWeight;
+        for (const auto& bucketsPrediction : m_Buckets) {
+            for (const auto& bucketActual : bucketsPrediction) {
+                minLogWeight = std::min(minLogWeight,
+                                        CBasicStatistics::mean(bucketActual)(2));
+                maxLogWeight = std::max(maxLogWeight,
+                                        CBasicStatistics::mean(bucketActual)(2));
+            }
         }
     }
 
@@ -531,22 +538,35 @@ CArgMinMsleImpl::TDoubleVector CArgMinMsleImpl::value() const {
 
 CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
     return [this](double logWeight) {
+
         double weight{std::exp(logWeight)};
         double loss{0.0};
         double totalCount{0.0};
-        for (const auto& bucketPrediction : m_Buckets) {
-            for (const auto& bucketActual : bucketPrediction) {
-                double count{CBasicStatistics::count(bucketActual)};
-                if (count > 0.0) {
-                    double expPrediction{CBasicStatistics::mean(bucketActual)(0)};
-                    double logActual{CBasicStatistics::mean(bucketActual)(1)};
-                    double logPrediction{CTools::fastLog(1 + expPrediction * weight)};
-                    loss += count * (CTools::pow2(logActual - logPrediction));
-                    totalCount += count;
+        if (this->bucketWidth().first == 0.0) {
+            // prediction is constant
+            double expPrediction{m_ExpPredictionMinMax.max()};
+            double logPrediction{CTools::fastLog(1 + expPrediction * weight)};
+            double meanLogActual{CBasicStatistics::mean(m_MeanLogActual)};
+            double meanLogActualSquared{CBasicStatistics::variance(m_MeanLogActual) +
+                                        CTools::pow2(meanLogActual)};
+            double loss{meanLogActualSquared - 2 * meanLogActual * logPrediction +
+                        CTools::pow2(logPrediction)};
+            return loss + this->lambda() * CTools::pow2(weight);
+        } else {
+            for (const auto& bucketPrediction : m_Buckets) {
+                for (const auto& bucketActual : bucketPrediction) {
+                    double count{CBasicStatistics::count(bucketActual)};
+                    if (count > 0.0) {
+                        double expPrediction{CBasicStatistics::mean(bucketActual)(0)};
+                        double logActual{CBasicStatistics::mean(bucketActual)(1)};
+                        double logPrediction{CTools::fastLog(1 + expPrediction * weight)};
+                        loss += count * (CTools::pow2(logActual - logPrediction));
+                        totalCount += count;
+                    }
                 }
             }
+            return loss / totalCount + this->lambda() * CTools::pow2(weight);
         }
-        return loss / totalCount + this->lambda() * CTools::pow2(weight);
     };
 }
 }

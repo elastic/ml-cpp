@@ -839,36 +839,73 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
     test::CRandomNumbers testRng;
     std::size_t numberSamples{10000};
 
-    for (std::size_t t = 0; t < 10; ++t) {
-        TMeanAccumulator expectedErrorAccumulator;
-        double lambda{0.1 * static_cast<double>(t + 1)};
-        CArgMinMsleImpl argmin{lambda};
+    {
+        for (std::size_t t = 0; t < 3; ++t) {
+            TMeanAccumulator expectedErrorAccumulator;
+            double lambda{0.1 * static_cast<double>(t + 1)};
+            CArgMinMsleImpl argmin{lambda};
 
-        TDoubleVec targets;
-        testRng.generateUniformSamples(0.0, 3.0, numberSamples, targets);
+            TDoubleVec targets;
+            testRng.generateUniformSamples(0.0, 3.0, numberSamples, targets);
 
-        TDoubleVec predictions;
-        predictions.resize(targets.size(), 0.0);
-        testRng.generateUniformSamples(0.0, 3.0, targets.size(), predictions);
+            TDoubleVec predictions;
+            predictions.resize(targets.size(), 0.0);
+            testRng.generateUniformSamples(0.0, 3.0, targets.size(), predictions);
 
-        do {
-            for (std::size_t i = 0; i < targets.size(); ++i) {
-                maths::CFloatStorage storage[]{std::log(predictions[i])};
-                TMemoryMappedFloatVector prediction{storage, 1};
-                argmin.add(prediction, targets[i]);
+            do {
+                for (std::size_t i = 0; i < targets.size(); ++i) {
+                    maths::CFloatStorage storage[]{std::log(predictions[i])};
+                    TMemoryMappedFloatVector prediction{storage, 1};
+                    argmin.add(prediction, targets[i]);
+                }
+            } while (argmin.nextPass());
+
+            auto objective = argmin.objective();
+
+            for (double weight = 0.0; weight < 1.0; weight += 1.0) {
+                for (std::size_t i = 0; i < targets.size(); ++i) {
+                    double error{std::log(targets[i] + 1) -
+                                 std::log(std::exp(weight) * predictions[i] + 1)};
+                    expectedErrorAccumulator.add(error * error);
+                }
+                double expectedObjectiveValue{
+                    maths::CBasicStatistics::mean(expectedErrorAccumulator) + lambda};
+                BOOST_REQUIRE_SMALL(std::abs(objective(weight) - expectedObjectiveValue), 1e-5);
             }
-        } while (argmin.nextPass());
-
-        auto objective = argmin.objective();
-
-        for (std::size_t i = 0; i < targets.size(); ++i) {
-            double error{std::log(targets[i] + 1) - std::log(predictions[i] + 1)};
-            expectedErrorAccumulator.add(error * error);
         }
-        double expectedObjectiveValue{
-            maths::CBasicStatistics::mean(expectedErrorAccumulator) + lambda};
-        // LOG_DEBUG(<< "Objective " << objective(0.0) << " expected " << expectedObjectiveValue);
-        BOOST_REQUIRE_SMALL(std::abs(objective(0.0) - expectedObjectiveValue), 1e-5);
+    }
+    // TODO add test for constant prediction
+    {
+        for (std::size_t t = 0; t < 3; ++t) {
+            TMeanAccumulator expectedErrorAccumulator;
+            double lambda{0.1 * static_cast<double>(t + 1)};
+            CArgMinMsleImpl argmin{lambda};
+
+            TDoubleVec targets;
+            testRng.generateUniformSamples(0.0, 3.0, numberSamples, targets);
+
+            TDoubleVec predictions;
+            predictions.resize(targets.size(), 0.0);
+            do {
+                for (std::size_t i = 0; i < targets.size(); ++i) {
+                    predictions[i] = 1.0;
+                    maths::CFloatStorage storage[]{std::log(predictions[i])};
+                    TMemoryMappedFloatVector prediction{storage, 1};
+                    argmin.add(prediction, targets[i]);
+                }
+            } while (argmin.nextPass());
+
+            auto objective = argmin.objective();
+
+            for (std::size_t i = 0; i < targets.size(); ++i) {
+                double error{std::log(targets[i] + 1) - std::log(predictions[i] + 1)};
+                expectedErrorAccumulator.add(error * error);
+            }
+            double expectedObjectiveValue{
+                maths::CBasicStatistics::mean(expectedErrorAccumulator) + lambda};
+            LOG_DEBUG(<< "Objective " << objective(0.0) << " expected " << expectedObjectiveValue);
+            BOOST_REQUIRE_SMALL(std::abs(objective(0.0) - expectedObjectiveValue), 1e-5);
+        }
     }
 }
 

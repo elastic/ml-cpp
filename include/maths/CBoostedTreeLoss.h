@@ -88,6 +88,7 @@ public:
 private:
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TVector = CVectorNx1<double, 3>;
     using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
     using TVectorMeanAccumulatorVec = std::vector<TVectorMeanAccumulator>;
@@ -123,6 +124,7 @@ private:
     TMinMaxAccumulator m_ExpPredictionMinMax;
     TMinMaxAccumulator m_LogActualMinMax;
     TVectorMeanAccumulatorVecVec m_Buckets;
+    TMeanVarAccumulator m_MeanLogActual;
     TMeanAccumulator m_MeanError;
 };
 
