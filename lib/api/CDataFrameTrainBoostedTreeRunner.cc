@@ -61,6 +61,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(NUM_TOP_FEATURE_IMPORTANCE_VALUES,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(TRAINING_PERCENT_FIELD_NAME,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -77,6 +79,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     m_PredictionFieldName = parameters[PREDICTION_FIELD_NAME].fallback(
         m_DependentVariableFieldName + "_prediction");
 
+    m_trainingPercent = parameters[TRAINING_PERCENT_FIELD_NAME].fallback(100.0) / 100.0;
     std::size_t downsampleRowsPerFeature{
         parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
     double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
@@ -290,7 +293,9 @@ std::size_t CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t totalNumberRows,
     std::size_t /*partitionNumberRows*/,
     std::size_t numberColumns) const {
-    return m_BoostedTreeFactory->estimateMemoryUsage(totalNumberRows, numberColumns);
+    return m_BoostedTreeFactory->estimateMemoryUsage(
+        static_cast<std::size_t>(static_cast<double>(totalNumberRows) * m_trainingPercent + 0.5),
+        numberColumns);
 }
 
 const CDataFrameAnalysisInstrumentation&
@@ -305,6 +310,7 @@ CDataFrameAnalysisInstrumentation& CDataFrameTrainBoostedTreeRunner::instrumenta
 // clang-format off
 const std::string CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME{"dependent_variable"};
 const std::string CDataFrameTrainBoostedTreeRunner::PREDICTION_FIELD_NAME{"prediction_field_name"};
+const std::string CDataFrameTrainBoostedTreeRunner::TRAINING_PERCENT_FIELD_NAME{"training_percent"};
 const std::string CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_ROWS_PER_FEATURE{"downsample_rows_per_feature"};
 const std::string CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR{"downsample_factor"};
 const std::string CDataFrameTrainBoostedTreeRunner::ALPHA{"alpha"};

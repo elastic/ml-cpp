@@ -1221,6 +1221,73 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
+
+    // Test estimation of the memory used training a model.
+
+    test::CRandomNumbers rng;
+
+    std::size_t rows{1000};
+    std::size_t cols{6};
+    std::size_t capacity{600};
+
+    for (std::size_t test = 0; test < 3; ++test) {
+        TDoubleVecVec x(cols - 1);
+        std::size_t num_test_rows{((test + 1) * 100)};
+        for (std::size_t i = 0; i < cols - 1; ++i) {
+            rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+        }
+
+        auto target = [&](std::size_t i) {
+            double result{0.0};
+            for (std::size_t j = 0; j < cols - 1; ++j) {
+                result += x[j][i];
+            }
+            return result;
+        };
+
+        auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+        frame->categoricalColumns(TBoolVec{true, false, false, false, false, false});
+        for (std::size_t i = 0; i < rows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                *(column++) = std::floor(x[0][i]);
+                for (std::size_t j = 1; j < cols - 1; ++j, ++column) {
+                    *column = x[j][i];
+                }
+                if (i < num_test_rows) {
+                    *column = core::CDataFrame::valueOfMissing();
+                } else {
+                    *column = target(i);
+                }
+            });
+        }
+        frame->finishWritingRows();
+
+        double percentTrainingRows = 1.0 - static_cast<double>(num_test_rows) /
+                                               static_cast<double>(rows);
+
+        std::int64_t estimatedMemory(
+            maths::CBoostedTreeFactory::constructFromParameters(
+                1, std::make_unique<maths::boosted_tree::CMse>())
+                .estimateMemoryUsage(static_cast<std::size_t>(static_cast<double>(rows) * percentTrainingRows),
+                                     cols));
+
+        CTestInstrumentation instrumentation;
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .analysisInstrumentation(instrumentation)
+                              .buildFor(*frame, cols - 1);
+
+        regression->train();
+
+        LOG_DEBUG(<< "percent training rows = " << percentTrainingRows);
+        LOG_DEBUG(<< "estimated memory usage = " << estimatedMemory);
+        LOG_DEBUG(<< "high water mark = " << instrumentation.maxMemoryUsage());
+
+        BOOST_TEST_REQUIRE(instrumentation.maxMemoryUsage() < estimatedMemory);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
 
     // Test progress monitoring invariants.

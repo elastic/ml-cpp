@@ -50,6 +50,7 @@ public:
     static const std::string MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER;
     static const std::string BAYESIAN_OPTIMISATION_RESTARTS;
     static const std::string NUM_TOP_FEATURE_IMPORTANCE_VALUES;
+    static const std::string TRAINING_PERCENT_FIELD_NAME;
 
     //Output
     static const std::string IS_TRAINING_FIELD_NAME;
@@ -115,6 +116,7 @@ private:
 
     std::string m_DependentVariableFieldName;
     std::string m_PredictionFieldName;
+    double m_trainingPercent;
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     CDataFrameTrainBoostedTreeInstrumentation m_Instrumentation;
