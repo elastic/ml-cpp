@@ -418,9 +418,10 @@ CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
 }
 
 CArgMinMsleImpl::CArgMinMsleImpl(double lambda)
-    : CArgMinLossImpl{lambda}, m_Buckets(128) {
+    : CArgMinLossImpl{lambda}, m_Buckets(1024) {
+        // TODO my intuition is that the number of buckets depends on the prediction range
     for (auto& bucket : m_Buckets) {
-        bucket.resize(128);
+        bucket.resize(1024);
     }
 }
 
