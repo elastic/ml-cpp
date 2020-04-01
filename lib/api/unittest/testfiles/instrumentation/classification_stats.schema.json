@@ -25,23 +25,23 @@
         "class_assignment_objective": {
           "type": "string",
           "enum": [
-            "accuracy",
-            "minimum_recall"
+            "maximize_accuracy",
+            "maximize_minimum_recall"
           ]
         },
-        "regularization_depth_penalty_multiplier": {
+        "alpha": {
           "type": "number"
         },
-        "regularization_soft_tree_depth_limit": {
+        "soft_tree_depth_limit": {
           "type": "number"
         },
-        "regularization_soft_tree_depth_tolerance": {
+        "soft_tree_depth_tolerance": {
           "type": "number"
         },
-        "regularization_tree_size_penalty_multiplier": {
+        "gamma": {
           "type": "number"
         },
-        "regularization_leaf_weight_penalty_multiplier": {
+        "lambda": {
           "type": "number"
         },
         "downsample_factor": {
