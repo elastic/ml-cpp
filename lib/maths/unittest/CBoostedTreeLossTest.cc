@@ -841,16 +841,15 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
     std::size_t numberSamples{10000};
 
     {
-        TMeanAccumulator expectedErrorAccumulator;
         double lambda{0.0};
         CArgMinMsleImpl argmin{lambda};
 
         TDoubleVec targets;
-        testRng.generateUniformSamples(1000.0, 10000.0, numberSamples, targets);
+        testRng.generateUniformSamples(1000.0, 100000.0, numberSamples, targets);
 
         TDoubleVec predictionErrors;
         predictionErrors.resize(targets.size(), 0.0);
-        testRng.generateUniformSamples(-10.0, 10.0, targets.size(), predictionErrors);
+        testRng.generateUniformSamples(-100.0, 100.0, targets.size(), predictionErrors);
 
         do {
             for (std::size_t i = 0; i < targets.size(); ++i) {
@@ -862,7 +861,8 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
 
         auto objective = argmin.objective();
 
-        for (double weight = 0.0; weight < 1.0; weight += 0.1) {
+        for (double weight = -1.0; weight < 1.0; weight += 0.1) {
+            TMeanAccumulator expectedErrorAccumulator;
             for (std::size_t i = 0; i < targets.size(); ++i) {
                 double error{
                     std::log(targets[i] + 1) -
@@ -873,43 +873,43 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
                 maths::CBasicStatistics::mean(expectedErrorAccumulator) +
                 lambda * maths::CTools::pow2(std::exp(weight))};
             double estimatedObjectiveValue{objective(weight)};
-            LOG_DEBUG(<< "testing for lambda " << lambda << " weight " << weight
-                      << " estimated objective " << estimatedObjectiveValue
-                      << " true objective " << expectedObjectiveValue <<
-                      " diff " << (estimatedObjectiveValue - expectedObjectiveValue));
-
-            // BOOST_REQUIRE_CLOSE_ABSOLUTE(estimatedObjectiveValue, expectedObjectiveValue, 1e-3);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(estimatedObjectiveValue,
+                                         expectedObjectiveValue, 1e-4);
         }
     }
 
     // Constant prediction
     {
         for (std::size_t t = 0; t < 3; ++t) {
-            TMeanAccumulator expectedErrorAccumulator;
             double lambda{0.1 * static_cast<double>(t + 1)};
             CArgMinMsleImpl argmin{lambda};
-            double prediction{1.0};
+            double constantPrediction{1000.0};
 
             TDoubleVec targets;
             testRng.generateUniformSamples(0.0, 10000.0, numberSamples, targets);
             do {
                 for (std::size_t i = 0; i < targets.size(); ++i) {
-                    maths::CFloatStorage storage[]{std::log(prediction)};
+                    maths::CFloatStorage storage[]{std::log(constantPrediction)};
                     TMemoryMappedFloatVector prediction{storage, 1};
                     argmin.add(prediction, targets[i]);
                 }
             } while (argmin.nextPass());
-
             auto objective = argmin.objective();
 
-            for (std::size_t i = 0; i < targets.size(); ++i) {
-                double error{std::log(targets[i] + 1) - std::log(prediction + 1)};
-                expectedErrorAccumulator.add(error * error);
+            for (double weight = -1.0; weight < 1.0; weight += 0.1) {
+                TMeanAccumulator expectedErrorAccumulator;
+                for (std::size_t i = 0; i < targets.size(); ++i) {
+                    double error{std::log(targets[i] + 1) -
+                                 std::log(constantPrediction * std::exp(weight) + 1)};
+                    expectedErrorAccumulator.add(error * error);
+                }
+                double expectedObjectiveValue{
+                    maths::CBasicStatistics::mean(expectedErrorAccumulator) +
+                    lambda * maths::CTools::pow2(std::exp(weight))};
+                double estimatedObjectiveValue{objective(weight)};
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(estimatedObjectiveValue,
+                                             expectedObjectiveValue, 1e-3);
             }
-            double expectedObjectiveValue{
-                maths::CBasicStatistics::mean(expectedErrorAccumulator) + lambda};
-            LOG_DEBUG(<< "Objective " << objective(0.0) << " expected " << expectedObjectiveValue);
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(objective(0.0), expectedObjectiveValue, 1e-5);
         }
     }
 }

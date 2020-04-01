@@ -418,10 +418,10 @@ CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
 }
 
 CArgMinMsleImpl::CArgMinMsleImpl(double lambda)
-    : CArgMinLossImpl{lambda}, m_Buckets(1024) {
-        // TODO my intuition is that the number of buckets depends on the prediction range
+    : CArgMinLossImpl{lambda}, m_Buckets(128) {
+    // TODO my intuition is that the number of buckets depends on the prediction range
     for (auto& bucket : m_Buckets) {
-        bucket.resize(1024);
+        bucket.resize(128);
     }
 }
 
