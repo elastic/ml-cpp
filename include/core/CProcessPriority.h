@@ -27,6 +27,9 @@ namespace core {
 //! This is a static class - it's not possible to construct an instance of it.
 //!
 //! On Linux and macOS we reduce the CPU scheduling priority using "nice".
+//! This should be done after connecting named pipes to the JVM, because
+//! named pipe connection can be time-sensitive and failures are hard to
+//! diagnose.
 //!
 //! On Linux we also attempt to increase the OOM killer adjustment for the
 //! process such that it is more likely to be killed than other processes

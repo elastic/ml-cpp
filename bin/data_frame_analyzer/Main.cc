@@ -134,6 +134,7 @@ int main(int argc, char** argv) {
     // statically links its own version library.
     LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
 
+    // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
 
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
@@ -144,7 +145,8 @@ int main(int argc, char** argv) {
     }
 
     // Reduce CPU priority after connecting named pipes so the JVM gets more
-    // time when CPU is constrained
+    // time when CPU is constrained.  Named pipe connection is time-sensitive,
+    // hence is done before reducing CPU priority.
     ml::core::CProcessPriority::reduceCpuPriority();
 
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
