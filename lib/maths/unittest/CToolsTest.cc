@@ -10,6 +10,7 @@
 #include <maths/CCompositeFunctions.h>
 #include <maths/CIntegration.h>
 #include <maths/CLinearAlgebra.h>
+#include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraTools.h>
 #include <maths/CLogTDistribution.h>
 #include <maths/CTools.h>
@@ -27,6 +28,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <array>
+#include <numeric>
 
 BOOST_AUTO_TEST_SUITE(CToolsTest)
 
@@ -1202,6 +1204,31 @@ BOOST_AUTO_TEST_CASE(testLgamma) {
     BOOST_TEST_REQUIRE((maths::CTools::lgamma(std::numeric_limits<double>::max() - 1,
                                               result, true) == false));
     BOOST_REQUIRE_EQUAL(result, std::numeric_limits<double>::infinity());
+}
+
+BOOST_AUTO_TEST_CASE(testSoftMax) {
+    // Test some invariants and that std::vector and maths::CDenseVector versions agree.
+
+    using TDoubleVector = maths::CDenseVector<double>;
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec z;
+    for (std::size_t t = 0; t < 100; ++t) {
+
+        rng.generateUniformSamples(-3.0, 3.0, 5, z);
+        TDoubleVec p{z};
+        CTools::inplaceSoftmax(p);
+
+        BOOST_REQUIRE_CLOSE(1.0, std::accumulate(p.begin(), p.end(), 0.0), 1e-6);
+        BOOST_TEST_REQUIRE(*std::min_element(p.begin(), p.end()) >= 0.0);
+
+        TDoubleVector p_{TDoubleVector::fromStdVector(z)};
+        CTools::inplaceSoftmax(p_);
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_CLOSE(p[i], p_[i], 1e-6);
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

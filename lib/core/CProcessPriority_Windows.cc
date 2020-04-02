@@ -5,12 +5,6 @@
  */
 #include <core/CProcessPriority.h>
 
-#include <core/CLogger.h>
-
-#include <errno.h>
-#include <string.h>
-#include <unistd.h>
-
 namespace ml {
 namespace core {
 
@@ -20,10 +14,7 @@ void CProcessPriority::reduceMemoryPriority() {
 }
 
 void CProcessPriority::reduceCpuPriority() {
-    errno = 0;
-    if (::nice(5) == -1 && errno != 0) {
-        LOG_ERROR(<< "Failed to reduce process priority: " << ::strerror(errno));
-    }
+    // Nothing at present on Windows
 }
 }
 }

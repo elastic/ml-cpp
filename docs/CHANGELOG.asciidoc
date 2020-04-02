@@ -35,6 +35,13 @@
 * The macOS build platform for the {ml} C++ code is now High Sierra running Xcode 10.1,
   or Ubuntu 18.04 running clang 6.0 for cross compilation. (See {ml-pull}867[#867].)
 
+== {es} version 7.8.0
+
+=== Enhancements
+
+* Reduce CPU scheduling priority of native analysis processes to favor the ES JVM
+  when CPU is constrained. (See {ml-pull}1109[#1109].)
+
 == {es} version 7.7.0
 
 === New Features
@@ -62,6 +69,12 @@ the build from version 2.20 to 2.34.  (See {ml-pull}1013[#1013].)
 * Remove all memory overheads for computing tree SHAP values. (See {ml-pull}1023[#1023].)
 * Distinguish between empty and missing categorical fields in classification and regression
 model training. (See {ml-pull}1034[#1034].)
+* Add instrumentation information for supervised learning data frame analytics jobs.
+(See {ml-pull}1031[#1031].)
+* Add instrumentation information for outlier detection data frame analytics jobs.
+* Write out feature importance for multi-class models. (See {ml-pull}1071[#1071])
+* Enable system call filtering to the native process used with data frame analytics.
+(See {ml-pull}1098[#1098])
 
 === Bug Fixes
 

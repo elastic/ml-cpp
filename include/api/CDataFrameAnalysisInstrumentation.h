@@ -14,9 +14,12 @@
 
 #include <api/ImportExport.h>
 
+#include <rapidjson/document.h>
+
 #include <atomic>
 #include <cstdint>
 #include <memory>
+#include <unordered_map>
 
 namespace ml {
 namespace api {
@@ -28,7 +31,7 @@ namespace api {
 //! progress, parameters, quality of results. This also implements the functionality
 //! to write the JSON statistics to a specified output stream in a thread safe manner.
 class API_EXPORT CDataFrameAnalysisInstrumentation
-    : public maths::CDataFrameAnalysisInstrumentationInterface {
+    : virtual public maths::CDataFrameAnalysisInstrumentationInterface {
 public:
     //! \brief Set the output stream for the lifetime of this object.
     class API_EXPORT CScopeSetOutputStream {
@@ -45,12 +48,13 @@ public:
     };
 
 public:
+    //! Constructs an instrumentation object an analytics job with a given \p jobId.
     explicit CDataFrameAnalysisInstrumentation(const std::string& jobId);
 
     //! Adds \p delta to the memory usage statistics.
     void updateMemoryUsage(std::int64_t delta) override;
 
-    //! This adds \p fractionalProgess to the current progress.
+    //! This adds \p fractionalProgress to the current progress.
     //!
     //! \note The caller should try to ensure that the sum of the values added
     //! at the end of the analysis is equal to one.
@@ -75,21 +79,27 @@ public:
 
     //! Trigger the next step of the job. This will initiate writing the job state
     //! to the results pipe.
-    void nextStep(std::uint32_t step) override;
+    //! \todo use \p phase to tag different phases of the analysis job.
+    void nextStep(const std::string& phase = "") override;
 
     //! \return The peak memory usage.
     std::int64_t memory() const;
 
+    //! \return The id of the data frame analytics job.
+    const std::string& jobId() const;
+
+protected:
+    using TWriter = core::CRapidJsonConcurrentLineWriter;
+    using TWriterUPtr = std::unique_ptr<TWriter>;
+
 protected:
     virtual counter_t::ECounterTypes memoryCounterType() = 0;
+    TWriter* writer();
 
 private:
-    using TWriterUPtr = std::unique_ptr<core::CRapidJsonConcurrentLineWriter>;
-
-private:
-    void writeProgress(std::uint32_t step);
     void writeMemory(std::int64_t timestamp);
-    void writeState(std::uint32_t step);
+    virtual void writeAnalysisStats(std::int64_t timestamp) = 0;
+    virtual void writeState();
 
 private:
     std::string m_JobId;
@@ -99,26 +109,76 @@ private:
     TWriterUPtr m_Writer;
 };
 
-//! \brief Outlier instrumentation.
+//! \brief Instrumentation class for Outlier Detection jobs.
 class API_EXPORT CDataFrameOutliersInstrumentation final
-    : public CDataFrameAnalysisInstrumentation {
+    : public CDataFrameAnalysisInstrumentation,
+      public maths::CDataFrameOutliersInstrumentationInterface {
 public:
     explicit CDataFrameOutliersInstrumentation(const std::string& jobId)
         : CDataFrameAnalysisInstrumentation(jobId) {}
+    void parameters(const maths::COutliers::SComputeParameters& parameters) override;
+    void elapsedTime(std::uint64_t time) override;
+    void featureInfluenceThreshold(double featureInfluenceThreshold) override;
+
+protected:
+    counter_t::ECounterTypes memoryCounterType() override;
 
 private:
-    counter_t::ECounterTypes memoryCounterType() override;
+    void writeAnalysisStats(std::int64_t timestamp) override;
+    void writeTimingStats(rapidjson::Value& parentObject);
+    void writeParameters(rapidjson::Value& parentObject);
+
+private:
+    maths::COutliers::SComputeParameters m_Parameters;
+    std::uint64_t m_ElapsedTime;
+    double m_FeatureInfluenceThreshold = -1.0;
 };
 
-//! \brief Predictive model training instrumentation.
+//! \brief Instrumentation class for Supervised Learning jobs.
+//!
+//! DESCRIPTION:\n
+//! This class extends CDataFrameAnalysisInstrumentation with setters
+//! for hyperparameters, validation loss results, and job timing.
 class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation final
-    : public CDataFrameAnalysisInstrumentation {
+    : public CDataFrameAnalysisInstrumentation,
+      public maths::CDataFrameTrainBoostedTreeInstrumentationInterface {
 public:
-    explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId)
-        : CDataFrameAnalysisInstrumentation(jobId) {}
+    explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId);
+
+    //! Supervised learning job \p type, can be E_Regression or E_Classification.
+    void type(EStatsType type) override;
+    //! Current \p iteration number.
+    void iteration(std::size_t iteration) override;
+    //! Run time of the iteration.
+    void iterationTime(std::uint64_t delta) override;
+    //! Type of the validation loss result, e.g. "mse".
+    void lossType(const std::string& lossType) override;
+    //! List of \p lossValues of validation error for the given \p fold.
+    void lossValues(std::size_t fold, TDoubleVec&& lossValues) override;
+    //! \return Structure contains hyperparameters.
+    SHyperparameters& hyperparameters() override { return m_Hyperparameters; }
+
+protected:
+    counter_t::ECounterTypes memoryCounterType() override;
 
 private:
-    counter_t::ECounterTypes memoryCounterType() override;
+    using TLossVec = std::vector<std::pair<std::size_t, TDoubleVec>>;
+
+private:
+    void writeAnalysisStats(std::int64_t timestamp) override;
+    void writeHyperparameters(rapidjson::Value& parentObject);
+    void writeValidationLoss(rapidjson::Value& parentObject);
+    void writeTimingStats(rapidjson::Value& parentObject);
+    void reset();
+
+private:
+    EStatsType m_Type = E_Regression;
+    std::size_t m_Iteration = 0;
+    std::uint64_t m_IterationTime = 0;
+    std::uint64_t m_ElapsedTime = 0;
+    std::string m_LossType;
+    TLossVec m_LossValues;
+    SHyperparameters m_Hyperparameters;
 };
 }
 }

@@ -45,6 +45,7 @@ const double MIN_FEATURE_BAG_FRACTION{0.2};
 const double MAX_FEATURE_BAG_FRACTION{0.8};
 const double MIN_DOWNSAMPLE_LINE_SEARCH_RANGE{2.0};
 const double MAX_DOWNSAMPLE_LINE_SEARCH_RANGE{144.0};
+const double MIN_DOWNSAMPLE_FACTOR{1e-3};
 const double MIN_DOWNSAMPLE_FACTOR_SCALE{0.3};
 const double MAX_DOWNSAMPLE_FACTOR_SCALE{3.0};
 // This isn't a hard limit but we increase the number of default training folds
@@ -99,6 +100,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
     this->selectFeaturesAndEncodeCategories(frame);
     this->determineFeatureDataTypes(frame);
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
 
     if (this->initializeFeatureSampleDistribution()) {
         this->initializeHyperparameters(frame);
@@ -124,6 +126,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     this->resumeRestoredTrainingProgressMonitoring();
     this->resizeDataFrame(frame);
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
+    m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
 
     return TBoostedTreeUPtr{
         new CBoostedTree{frame, m_RecordTrainingState, std::move(m_TreeImpl)}};
@@ -753,7 +756,7 @@ CBoostedTreeFactory::estimateTreeGainAndCurvature(core::CDataFrame& frame,
     std::size_t maximumNumberOfTrees{1};
     std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
     CBoostedTreeImpl::TNodeVecVec forest;
-    std::tie(forest, std::ignore) = m_TreeImpl->trainForest(
+    std::tie(forest, std::ignore, std::ignore) = m_TreeImpl->trainForest(
         frame, m_TreeImpl->m_TrainingRowMasks[0],
         m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
     std::swap(maximumNumberOfTrees, m_TreeImpl->m_MaximumNumberTrees);
@@ -821,7 +824,7 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
 
         CBoostedTreeImpl::TNodeVecVec forest;
         double testLoss;
-        std::tie(forest, testLoss) = m_TreeImpl->trainForest(
+        std::tie(forest, testLoss, std::ignore) = m_TreeImpl->trainForest(
             frame, m_TreeImpl->m_TrainingRowMasks[0],
             m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
         bopt.add(boptVector(regularizer), testLoss, 0.0);
@@ -842,7 +845,7 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
         }
         CBoostedTreeImpl::TNodeVecVec forest;
         double testLoss;
-        std::tie(forest, testLoss) = m_TreeImpl->trainForest(
+        std::tie(forest, testLoss, std::ignore) = m_TreeImpl->trainForest(
             frame, m_TreeImpl->m_TrainingRowMasks[0],
             m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
         bopt.add(regularizer, testLoss, 0.0);
@@ -1023,6 +1026,18 @@ CBoostedTreeFactory& CBoostedTreeFactory::initialDownsampleRowsPerFeature(double
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::downsampleFactor(double factor) {
+    if (factor <= MIN_DOWNSAMPLE_FACTOR) {
+        LOG_WARN(<< "Downsample factor must be non-negative");
+        factor = MIN_DOWNSAMPLE_FACTOR;
+    } else if (factor > 1.0) {
+        LOG_WARN(<< "Downsample factor must be no larger than one");
+        factor = 1.0;
+    }
+    m_TreeImpl->m_DownsampleFactorOverride = factor;
+    return *this;
+}
+
 CBoostedTreeFactory& CBoostedTreeFactory::depthPenaltyMultiplier(double depthPenaltyMultiplier) {
     if (depthPenaltyMultiplier < 0.0) {
         LOG_WARN(<< "Depth penalty multiplier must be non-negative");
@@ -1132,7 +1147,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::numberTopShapValues(std::size_t number
 }
 
 CBoostedTreeFactory& CBoostedTreeFactory::analysisInstrumentation(
-    CDataFrameAnalysisInstrumentationInterface& instrumentation) {
+    CDataFrameTrainBoostedTreeInstrumentationInterface& instrumentation) {
     m_TreeImpl->m_Instrumentation = &instrumentation;
     return *this;
 }

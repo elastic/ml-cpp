@@ -64,12 +64,12 @@ CDataFrameTrainBoostedTreeClassifierRunner::parameterReader() {
                                {{typeString, int{E_PredictionFieldTypeString}},
                                 {typeInt, int{E_PredictionFieldTypeInt}},
                                 {typeBool, int{E_PredictionFieldTypeBool}}});
-        const std::string accuracy{"maximize_accuracy"};
-        const std::string minRecall{"maximize_minimum_recall"};
+        int accuracy{maths::CDataFramePredictiveModel::E_Accuracy};
+        int recall{maths::CDataFramePredictiveModel::E_MinimumRecall};
         theReader.addParameter(
             CLASS_ASSIGNMENT_OBJECTIVE, CDataFrameAnalysisConfigReader::E_OptionalParameter,
-            {{accuracy, int{maths::CDataFramePredictiveModel::E_Accuracy}},
-             {minRecall, int{maths::CDataFramePredictiveModel::E_MinimumRecall}}});
+            {{CLASS_ASSIGNMENT_OBJECTIVE_VALUES[accuracy], accuracy},
+             {CLASS_ASSIGNMENT_OBJECTIVE_VALUES[recall], int{recall}}});
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -163,16 +163,32 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
 
     if (featureImportance != nullptr) {
         featureImportance->shap(
-            row, [&writer](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
-                           const TStrVec& names,
-                           const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+            row, [&writer, &classValues](
+                     const maths::CTreeShapFeatureImportance::TSizeVec& indices,
+                     const TStrVec& names,
+                     const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+                writer.Key(CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME);
+                writer.StartArray();
                 for (auto i : indices) {
                     if (shap[i].norm() != 0.0) {
-                        writer.Key(names[i]);
-                        // TODO fixme
-                        writer.Double(shap[i](0));
+                        writer.StartObject();
+                        writer.Key(CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME);
+                        writer.String(names[i]);
+                        if (shap[i].size() == 1) {
+                            writer.Key(CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
+                            writer.Double(shap[i](0));
+                        } else {
+                            for (int j = 0; j < shap[i].size(); ++j) {
+                                writer.Key(classValues[j]);
+                                writer.Double(shap[i](j));
+                            }
+                            writer.Key(CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
+                            writer.Double(shap[i].lpNorm<1>());
+                        }
+                        writer.EndObject();
                     }
                 }
+                writer.EndArray();
             });
     }
     writer.EndObject();
@@ -249,6 +265,8 @@ const std::string CDataFrameTrainBoostedTreeClassifierRunner::NUM_CLASSES{"num_c
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES{"num_top_classes"};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::PREDICTION_FIELD_TYPE{"prediction_field_type"};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::CLASS_ASSIGNMENT_OBJECTIVE{"class_assignment_objective"};
+const CDataFrameTrainBoostedTreeClassifierRunner::TStrVec
+CDataFrameTrainBoostedTreeClassifierRunner::CLASS_ASSIGNMENT_OBJECTIVE_VALUES{"maximize_accuracy", "maximize_minimum_recall"};
 // clang-format on
 
 const std::string& CDataFrameTrainBoostedTreeClassifierRunnerFactory::name() const {
