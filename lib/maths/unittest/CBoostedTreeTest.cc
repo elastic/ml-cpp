@@ -28,7 +28,7 @@
 #include <algorithm>
 #include <fstream>
 #include <functional>
-#include <limits.h>
+#include <limits>
 #include <memory>
 #include <streambuf>
 #include <utility>
@@ -1231,7 +1231,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
     std::size_t rows{1000};
     std::size_t cols{6};
     std::size_t capacity{600};
-    std::int64_t previousEstimatedMemory{LLONG_MAX};
+    std::int64_t previousEstimatedMemory{std::numeric_limits<std::int64_t>::max()};
 
     for (std::size_t test = 0; test < 3; ++test) {
         TDoubleVecVec x(cols - 1);
