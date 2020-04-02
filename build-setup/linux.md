@@ -249,3 +249,38 @@ sudo make install
 
 to complete the build.
 
+### valgrind
+
+`valgrind` is not required to build the code.  However, since we build `gcc` ourselves, if you want
+to debug with `valgrind` then you'll get better results if you build a version that's compatible
+with our `gcc` instead of using the version you can get via your package manager.
+
+If you find yourself needing to do this, download `valgrind` from <http://valgrind.org/downloads/> - the
+download file will be `valgrind-3.15.0.tar.bz2`.
+
+Extract it to a temporary directory using:
+
+```
+tar jxvf valgrind-3.15.0.tar.bz2
+```
+
+In the resulting `valgrind-3.15.0` directory, run:
+
+```
+unset CFLAGS
+unset CXXFLAGS
+./configure --prefix=/usr/local/gcc75 --disable-dependency-tracking --enable-only64bit
+```
+
+The reason for unsetting the compiler flags is that `valgrind` does not build correctly
+with the fortified options we have to use for libraries we ship.
+
+This should build an appropriate Makefile. Assuming it does, run:
+
+```
+make
+sudo make install
+```
+
+to complete the build.
+
