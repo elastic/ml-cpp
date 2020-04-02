@@ -576,13 +576,13 @@ public:
     bool operator()(double x, double& result) const {
         result = 0.0;
         for (std::size_t i = 0u; i < m_Samples.size(); ++i) {
-            double residual = m_Samples[i];
+            double residual = m_Samples[i] + x;
             double n = maths_t::countForUpdate(m_Weights[i]);
-            if (residual <= x || !CMathsFuncs::isFinite(residual) ||
+            if (residual <= 0.0 || !CMathsFuncs::isFinite(residual) ||
                 !CMathsFuncs::isFinite(n)) {
                 continue;
             }
-            residual = std::log(residual + x) - m_Mean;
+            residual = std::log(residual) - m_Mean;
             result += n * CTools::pow2(residual);
         }
         return true;
