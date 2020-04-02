@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <fstream>
 #include <functional>
+#include <limits.h>
 #include <memory>
 #include <streambuf>
 #include <utility>
@@ -1230,10 +1231,11 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
     std::size_t rows{1000};
     std::size_t cols{6};
     std::size_t capacity{600};
+    std::int64_t previousEstimatedMemory{LLONG_MAX};
 
     for (std::size_t test = 0; test < 3; ++test) {
         TDoubleVecVec x(cols - 1);
-        std::size_t num_test_rows{((test + 1) * 100)};
+        std::size_t numTestRows{((test + 1) * 100)};
         for (std::size_t i = 0; i < cols - 1; ++i) {
             rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
         }
@@ -1254,7 +1256,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
                 for (std::size_t j = 1; j < cols - 1; ++j, ++column) {
                     *column = x[j][i];
                 }
-                if (i < num_test_rows) {
+                if (i < numTestRows) {
                     *column = core::CDataFrame::valueOfMissing();
                 } else {
                     *column = target(i);
@@ -1263,7 +1265,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
         }
         frame->finishWritingRows();
 
-        double percentTrainingRows = 1.0 - static_cast<double>(num_test_rows) /
+        double percentTrainingRows = 1.0 - static_cast<double>(numTestRows) /
                                                static_cast<double>(rows);
 
         std::int64_t estimatedMemory(
@@ -1285,6 +1287,8 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
         LOG_DEBUG(<< "high water mark = " << instrumentation.maxMemoryUsage());
 
         BOOST_TEST_REQUIRE(instrumentation.maxMemoryUsage() < estimatedMemory);
+        BOOST_TEST_REQUIRE(previousEstimatedMemory > estimatedMemory);
+        previousEstimatedMemory = estimatedMemory;
     }
 }
 

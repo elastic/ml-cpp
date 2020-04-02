@@ -39,7 +39,8 @@
 
 === Enhancements
 
-* Take `training_percent` into account when estimating memory usage. (See {ml-pull}1111[1111].)
+* Take `training_percent` into account when estimating memory usage for classification and regression. 
+(See {ml-pull}1111[1111].)
 
 == {es} version 7.7.0
 

@@ -116,7 +116,7 @@ private:
 
     std::string m_DependentVariableFieldName;
     std::string m_PredictionFieldName;
-    double m_trainingPercent;
+    double m_TrainingPercent;
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     CDataFrameTrainBoostedTreeInstrumentation m_Instrumentation;
