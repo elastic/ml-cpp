@@ -173,8 +173,7 @@ private:
     using TSampler = CSampling::CVectorDissimilaritySampler<TDoubleVector>;
 
 private:
-    static constexpr std::size_t NUMBER_CENTRES = 64;
-    static constexpr std::size_t NUMBER_RESTARTS = 3;
+    static constexpr std::size_t NUMBER_CENTRES = 96;
 
 private:
     std::size_t m_NumberClasses = 0;
