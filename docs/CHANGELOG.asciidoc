@@ -34,12 +34,6 @@
 
 * The macOS build platform for the {ml} C++ code is now High Sierra running Xcode 10.1,
   or Ubuntu 18.04 running clang 6.0 for cross compilation. (See {ml-pull}867[#867].)
-== {es} version 7.8.0
-
-=== Enhancements
-
-* Adds new `num_matches` and `preferred_to_categories` fields to category output.
-(See {ml-pull}1062[#1062])
 
 == {es} version 7.8.0
 
@@ -49,6 +43,8 @@
   when CPU is constrained. (See {ml-pull}1109[#1109].)
 * Take `training_percent` into account when estimating memory usage for classification and regression. 
   (See {ml-pull}1111[1111].)
+* Adds new `num_matches` and `preferred_to_categories` fields to category output.
+  (See {ml-pull}1062[#1062])
 
 == {es} version 7.7.0
 

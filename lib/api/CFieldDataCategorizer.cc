@@ -504,9 +504,11 @@ bool CFieldDataCategorizer::handleControlMessage(const std::string& controlMessa
         this->acknowledgeFlush(controlMessage.substr(1), lastHandler);
         break;
     default:
-        LOG_WARN(<< "Ignoring unknown control message of length "
-                 << controlMessage.length() << " beginning with '"
-                 << controlMessage[0] << '\'');
+        if (lastHandler) {
+            LOG_WARN(<< "Ignoring unknown control message of length "
+                     << controlMessage.length() << " beginning with '"
+                     << controlMessage[0] << '\'');
+        }
         // Don't return false here (for the time being at least), as it
         // seems excessive to cause the entire job to fail
         break;
@@ -535,12 +537,9 @@ void CFieldDataCategorizer::writeOutChangedCategories() {
     std::string searchTerms;
     std::string searchTermsRegex;
     std::size_t maxLength;
-    bool wasCached(false);
+    bool wasCached{false};
     for (int categoryId = 1; categoryId <= numCategories; categoryId++) {
         if (m_DataCategorizer->categoryChangedAndReset(categoryId)) {
-            searchTerms.clear();
-            searchTermsRegex.clear();
-            maxLength = 0;
             if (m_DataCategorizer->createReverseSearch(categoryId, searchTerms, searchTermsRegex,
                                                        maxLength, wasCached) == false) {
                 LOG_WARN(<< "Unable to create or retrieve reverse search for storing for category: "
