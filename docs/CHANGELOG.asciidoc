@@ -34,6 +34,8 @@
 
 * Reduce CPU scheduling priority of native analysis processes to favor the ES JVM
   when CPU is constrained. (See {ml-pull}1109[#1109].)
+* Take `training_percent` into account when estimating memory usage for classification and regression. 
+  (See {ml-pull}1111[1111].)
 
 == {es} version 7.7.0
 
