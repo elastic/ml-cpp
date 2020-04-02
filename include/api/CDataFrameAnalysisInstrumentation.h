@@ -143,8 +143,7 @@ class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation final
     : public CDataFrameAnalysisInstrumentation,
       public maths::CDataFrameTrainBoostedTreeInstrumentationInterface {
 public:
-    explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId)
-        : CDataFrameAnalysisInstrumentation(jobId) {}
+    explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId);
 
     //! Supervised learning job \p type, can be E_Regression or E_Classification.
     void type(EStatsType type) override;
@@ -173,9 +172,9 @@ private:
     void reset();
 
 private:
-    EStatsType m_Type;
-    std::size_t m_Iteration;
-    std::uint64_t m_IterationTime;
+    EStatsType m_Type = E_Regression;
+    std::size_t m_Iteration = 0;
+    std::uint64_t m_IterationTime = 0;
     std::uint64_t m_ElapsedTime = 0;
     std::string m_LossType;
     TLossVec m_LossValues;

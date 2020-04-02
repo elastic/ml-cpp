@@ -321,7 +321,6 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticLossForUnderflow) {
         TMemoryMappedFloatVector predictions[]{{&storage[0], 1}, {&storage[1], 1}};
         TDoubleVec previousLoss{loss.value(predictions[0], 0.0),
                                 loss.value(predictions[1], 1.0)};
-        LOG_DEBUG(<< core::CContainerPrinter::print(previousLoss));
         for (double scale : {0.75, 0.5, 0.25, 0.0, -0.25, -0.5, -0.75, -1.0}) {
             storage[0] = scale - std::log(eps);
             storage[1] = scale + std::log(eps);
@@ -458,7 +457,8 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
         expectedProbabilities(0) = 2.0 / 6.0;
         expectedProbabilities(1) = 3.0 / 6.0;
         expectedProbabilities(2) = 1.0 / 6.0;
-        TDoubleVector actualProbabilities{maths::CTools::softmax(argmin.value())};
+        TDoubleVector actualProbabilities{argmin.value()};
+        maths::CTools::inplaceSoftmax(actualProbabilities);
 
         BOOST_REQUIRE_SMALL((actualProbabilities - expectedProbabilities).norm(), 1e-3);
     }
@@ -493,8 +493,8 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
         expectedProbabilities(0) = static_cast<double>(counts[0]) / 20.0;
         expectedProbabilities(1) = static_cast<double>(counts[1]) / 20.0;
         expectedProbabilities(2) = static_cast<double>(counts[2]) / 20.0;
-        TDoubleVector actualLogit{prediction + argmin.value()};
-        TDoubleVector actualProbabilities{maths::CTools::softmax(actualLogit)};
+        TDoubleVector actualProbabilities{prediction + argmin.value()};
+        maths::CTools::inplaceSoftmax(actualProbabilities);
 
         BOOST_REQUIRE_SMALL((actualProbabilities - expectedProbabilities).norm(), 0.001);
     }
@@ -536,7 +536,6 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerEdgeCases) {
                 }
                 losses.push_back(lossAtEps);
             }
-            LOG_DEBUG(<< core::CContainerPrinter::print(losses));
             BOOST_TEST_REQUIRE(losses[0] >= losses[1]);
             BOOST_TEST_REQUIRE(losses[2] >= losses[1]);
         }
@@ -597,7 +596,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerRandom) {
             double loss{0.0};
             for (std::size_t j = 0; j < labels.size(); ++j) {
                 TDoubleVector probabilities{predictions[j] + weight};
-                probabilities = maths::CTools::softmax(std::move(probabilities));
+                maths::CTools::inplaceSoftmax(probabilities);
                 loss -= maths::CTools::fastLog(probabilities(static_cast<int>(labels[j])));
             }
             return loss + lambda * weight.squaredNorm();

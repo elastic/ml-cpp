@@ -8,10 +8,10 @@
 #define INCLUDED_ml_maths_CBoostedTreeLoss_h
 
 #include <maths/CBasicStatistics.h>
-#include <maths/CKMeansOnline.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CPRNG.h>
+#include <maths/CSampling.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -147,7 +147,8 @@ private:
 //! Here, \f$P\f$ ranges over the subsets of the partition, \f$\bar{p}_P\f$ denotes
 //! the mean of the predictions in the P'th subset and \f$c_{a_i, P}\f$ denote the
 //! counts of each classes \f$\{a_i\}\f$ in the subset \f$P\f$. We compute this
-//! partition by k-means.
+//! partition via a weighted random sample where the weights are proportional to
+//! the mean distance between each point and the rest of the sample set.
 class MATHS_EXPORT CArgMinMultinomialLogisticLossImpl final : public CArgMinLossImpl {
 public:
     using TObjective = std::function<double(const TDoubleVector&)>;
@@ -169,11 +170,10 @@ public:
 
 private:
     using TDoubleVectorVec = std::vector<TDoubleVector>;
-    using TKMeans = CKMeansOnline<TDoubleVector, TDoubleVector>;
+    using TSampler = CSampling::CVectorDissimilaritySampler<TDoubleVector>;
 
 private:
-    static constexpr std::size_t NUMBER_CENTRES = 128;
-    static constexpr std::size_t NUMBER_RESTARTS = 3;
+    static constexpr std::size_t NUMBER_CENTRES = 96;
 
 private:
     std::size_t m_NumberClasses = 0;
@@ -181,7 +181,7 @@ private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     TDoubleVector m_ClassCounts;
     TDoubleVector m_DoublePrediction;
-    TKMeans m_PredictionSketch;
+    TSampler m_Sampler;
     TDoubleVectorVec m_Centres;
     TDoubleVectorVec m_CentresClassCounts;
 };

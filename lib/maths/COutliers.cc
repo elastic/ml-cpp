@@ -97,7 +97,7 @@ public:
         CModel make(const TMethodFactoryVec& methodFactories);
 
     private:
-        using TSampler = CSampling::CRandomStreamSampler<TRowRef>;
+        using TSampler = CSampling::CReservoirSampler<TRowRef>;
 
     private:
         TSampler makeSampler(CPRNG::CXorOShiro128Plus& rng, std::size_t sampleSize);
