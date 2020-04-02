@@ -1065,7 +1065,7 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
     // Use a large random sample of the data frame and compute the expected
     // optimisation objective for the whole data set from this.
 
-    using TDoubleVectorVec = std::vector<TDoubleVector>;
+    using TDoubleMatrix = CDenseMatrix<double>;
     using TDoubleVectorDoubleVectorPr = std::pair<TDoubleVector, TDoubleVector>;
     using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
 
@@ -1191,7 +1191,7 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
         TDoubleVector probabilities;
         TDoubleVector scores;
         auto computeObjectiveAndGradient = core::bindRetrievableState(
-            [=](TDoubleVectorVec& state, TRowItr beginRows, TRowItr endRows) mutable {
+            [=](TDoubleMatrix& state, TRowItr beginRows, TRowItr endRows) mutable {
                 for (auto row = beginRows; row != endRows; ++row) {
                     if (isMissing((*row)[targetColumn]) == false) {
                         std::size_t j{static_cast<std::size_t>((*row)[targetColumn])};
@@ -1199,8 +1199,8 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
                         CTools::inplaceSoftmax(probabilities);
                         scores = probabilities.cwiseProduct(weights);
                         CTools::inplaceSoftmax(scores);
-                        state[0](j) += (1.0 - scores(j)) / classCounts(j);
-                        state[j + 1] +=
+                        state(j, 0) += (1.0 - scores(j)) / classCounts(j);
+                        state.col(j + 1) +=
                             scores(j) *
                             probabilities
                                 .cwiseProduct(scores - TDoubleVector::Unit(numberClasses, j))
@@ -1208,25 +1208,20 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
                     }
                 }
             },
-            TDoubleVectorVec(numberClasses + 1,
-                             TDoubleVector{TDoubleVector::Zero(numberClasses)}));
-        auto copyObjectiveAndGradient = [](TDoubleVectorVec state, TDoubleVectorVec& result) {
+            TDoubleMatrix{TDoubleMatrix::Zero(numberClasses, numberClasses + 1)});
+        auto copyObjectiveAndGradient = [](TDoubleMatrix state, TDoubleMatrix& result) {
             result = std::move(state);
         };
-        auto reduceObjectiveAndGradient = [&](TDoubleVectorVec state,
-                                              TDoubleVectorVec& result) {
-            for (std::size_t i = 0; i < state.size(); ++i) {
-                result[i] += state[i];
-            }
-        };
+        auto reduceObjectiveAndGradient =
+            [&](TDoubleMatrix state, TDoubleMatrix& result) { result += state; };
 
-        TDoubleVectorVec objectiveAndGradient;
+        TDoubleMatrix objectiveAndGradient;
         doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
                                 computeObjectiveAndGradient, &rowMask),
                  copyObjectiveAndGradient, reduceObjectiveAndGradient, objectiveAndGradient);
         std::size_t max;
-        objectiveAndGradient[0].maxCoeff(&max);
-        return objectiveAndGradient[max + 1];
+        objectiveAndGradient.col(0).maxCoeff(&max);
+        return TDoubleVector{objectiveAndGradient.col(max + 1)};
     };
 
     TDoubleVector a;
