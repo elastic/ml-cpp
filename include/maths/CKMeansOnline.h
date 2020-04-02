@@ -126,11 +126,15 @@ public:
     }
 
     //! Construct with \p clusters.
-    CKMeansOnline(std::size_t k,
+    CKMeansOnline(TStoragePointMeanAccumulatorDoublePrVec& clusters,
+                  std::size_t k,
                   double decayRate,
-                  double minClusterSize,
-                  TStoragePointMeanAccumulatorDoublePrVec& clusters)
-        : CKMeansOnline{k, decayRate, minClusterSize} {
+                  double minClusterSize = MINIMUM_CATEGORY_COUNT,
+                  std::size_t bufferSize = BUFFER_SIZE,
+                  std::size_t numberSeeds = NUMBER_SEEDS,
+                  std::size_t maxIterations = MAX_ITERATIONS)
+        : CKMeansOnline{k,          decayRate,   minClusterSize,
+                        bufferSize, numberSeeds, maxIterations} {
         m_Clusters.swap(clusters);
         m_Clusters.reserve(m_K + m_BufferSize + 1);
     }
@@ -265,9 +269,9 @@ public:
         CBasicStatistics::SMin<double>::TAccumulator minCost;
         TSphericalClusterVec centres;
         TSphericalClusterVecVec candidates;
+        CKMeansPlusPlusInitialization<TSphericalCluster, RNG> seed{rng};
         for (std::size_t i = 0; i < numberSeeds; ++i) {
-            CKMeansPlusPlusInitialization<TSphericalCluster, RNG> seedCentres(rng);
-            seedCentres.run(kmeans.beginPoints(), kmeans.endPoints(), k, centres);
+            seed.run(kmeans.beginPoints(), kmeans.endPoints(), k, centres);
             kmeans.setCentres(centres);
             kmeans.run(maxIterations);
             kmeans.clusters(candidates);
@@ -309,7 +313,8 @@ public:
             for (std::size_t j = 0u; j < split[i].size(); ++j) {
                 clusters.push_back(m_Clusters[split[i][j]]);
             }
-            result.emplace_back(m_K, m_DecayRate, m_MinClusterSize, clusters);
+            result.emplace_back(clusters, m_K, m_DecayRate, m_MinClusterSize,
+                                m_BufferSize, m_NumberSeeds, m_MaxIterations);
         }
 
         return true;
@@ -561,11 +566,10 @@ protected:
     //! \note We assume \p points is small so the bruteforce approach is fast.
     static void deduplicate(TStoragePointMeanAccumulatorDoublePrVec& clusters) {
         if (clusters.size() > 1) {
-            std::stable_sort(clusters.begin(), clusters.end(),
-                             [](const auto& lhs, const auto& rhs) {
-                                 return CBasicStatistics::mean(lhs.first) <
-                                        CBasicStatistics::mean(rhs.first);
-                             });
+            std::sort(clusters.begin(), clusters.end(), [](const auto& lhs, const auto& rhs) {
+                return CBasicStatistics::mean(lhs.first) <
+                       CBasicStatistics::mean(rhs.first);
+            });
             auto back = clusters.begin();
             for (auto i = back + 1; i != clusters.end(); ++i) {
                 if (CBasicStatistics::mean(back->first) == CBasicStatistics::mean(i->first)) {

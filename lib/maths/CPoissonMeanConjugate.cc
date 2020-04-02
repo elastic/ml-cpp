@@ -332,10 +332,10 @@ void CPoissonMeanConjugate::addSamples(const TDouble1Vec& samples,
     double numberSamples = 0.0;
     double sampleSum = 0.0;
     for (std::size_t i = 0u; i < samples.size(); ++i) {
-        double n = maths_t::countForUpdate(weights[i]);
         double x = samples[i] + m_Offset;
-        if (!CMathsFuncs::isFinite(x) || x < 0.0) {
-            LOG_ERROR(<< "Discarding " << x << " it's not Poisson");
+        double n = maths_t::countForUpdate(weights[i]);
+        if (x < 0.0 || !CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(n)) {
+            LOG_ERROR(<< "Discarding sample = " << x << ", weight = " << n);
             continue;
         }
         numberSamples += n;
