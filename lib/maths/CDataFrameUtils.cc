@@ -1208,7 +1208,8 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
                     }
                 }
             },
-            TDoubleVectorVec(numberClasses + 1, TDoubleVector::Zero(numberClasses)));
+            TDoubleVectorVec(numberClasses + 1,
+                             TDoubleVector{TDoubleVector::Zero(numberClasses)}));
         auto copyObjectiveAndGradient = [](TDoubleVectorVec state, TDoubleVectorVec& result) {
             result = std::move(state);
         };
