@@ -719,7 +719,7 @@ public:
                                                    std::size_t dimension);
 
     //! Return string representation of the \p method.
-    static std::string print(EMethod method);
+    static const std::string& print(EMethod method);
 
     //! \name Test Interface
     //@{

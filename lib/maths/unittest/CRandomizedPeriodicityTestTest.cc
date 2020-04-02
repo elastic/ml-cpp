@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
                                           : falseNegatives[j - 3]) += 1.0;
                         if (rtests[j].test()) {
                             timeToDetectionMoments[j - 3].add(
-                                time - lastTruePositive[j - 3]);
+                                static_cast<double>(time - lastTruePositive[j - 3]));
                             timeToDetectionMax[j - 3].add(
                                 static_cast<double>(time - lastTruePositive[j - 3]));
                             lastTruePositive[j - 3] = time;

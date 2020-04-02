@@ -386,8 +386,8 @@ private:
         if (m_Tree[nodeIndex].isLeaf()) {
             return weight * m_Tree[nodeIndex].value();
         } else {
-            auto leftChildIndex{m_Tree[nodeIndex].leftChildIndex()};
-            auto rightChildIndex{m_Tree[nodeIndex].rightChildIndex()};
+            auto leftChildIndex = m_Tree[nodeIndex].leftChildIndex();
+            auto rightChildIndex = m_Tree[nodeIndex].rightChildIndex();
             if (S.find(m_Tree[nodeIndex].splitFeature()) != S.end()) {
                 if (m_Tree[nodeIndex].assignToLeft(x)) {
                     return this->conditionalExpectation(x, S, leftChildIndex, weight);
@@ -397,12 +397,12 @@ private:
             } else {
                 return this->conditionalExpectation(
                            x, S, leftChildIndex,
-                           weight * m_Tree[leftChildIndex].numberSamples() /
-                               m_Tree[nodeIndex].numberSamples()) +
+                           weight * static_cast<double>(m_Tree[leftChildIndex].numberSamples()) /
+                               static_cast<double>(m_Tree[nodeIndex].numberSamples())) +
                        this->conditionalExpectation(
                            x, S, rightChildIndex,
-                           weight * m_Tree[rightChildIndex].numberSamples() /
-                               m_Tree[nodeIndex].numberSamples());
+                           weight * static_cast<double>(m_Tree[rightChildIndex].numberSamples()) /
+                               static_cast<double>(m_Tree[nodeIndex].numberSamples()));
             }
         }
     }

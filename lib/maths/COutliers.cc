@@ -20,8 +20,10 @@
 
 #include <boost/math/distributions/lognormal.hpp>
 
+#include <cmath>
 #include <numeric>
 #include <sstream>
+#include <string>
 #include <tuple>
 
 namespace ml {
@@ -31,6 +33,7 @@ using namespace outliers_detail;
 namespace {
 
 const std::string COMPUTE_OUTLIER_SCORES{"compute_outlier_scores"};
+const std::string EMPTY_STRING;
 
 using TRowItr = core::CDataFrame::TRowItr;
 using TStepCallback = std::function<void(const std::string&)>;
@@ -1121,19 +1124,20 @@ void COutliers::noopRecordProgress(double) {
 void COutliers::noopRecordMemoryUsage(std::int64_t) {
 }
 
-std::string COutliers::print(EMethod method) {
+const std::string& COutliers::print(EMethod method) {
     switch (method) {
     case E_Lof:
         return LOF;
-    case maths::COutliers::E_Ldof:
+    case E_Ldof:
         return LDOF;
-    case maths::COutliers::E_DistancekNN:
+    case E_DistancekNN:
         return DISTANCE_KNN;
-    case maths::COutliers::E_TotalDistancekNN:
+    case E_TotalDistancekNN:
         return TOTAL_DISTANCE_KNN;
-    case maths::COutliers::E_Ensemble:
+    case E_Ensemble:
         return ENSEMBLE;
     }
+    return EMPTY_STRING;
 }
 
 const std::string COutliers::LOF{"lof"};

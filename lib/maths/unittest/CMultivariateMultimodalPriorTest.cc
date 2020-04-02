@@ -318,14 +318,14 @@ BOOST_AUTO_TEST_CASE(testMultipleModes) {
     LOG_DEBUG(<< "Mixture Normals");
     {
         const TSizeVec n{400, 600};
-        const double means[][2] = {{10.0, 10.0}, {20.0, 20.0}};
-        const double covariances[][3] = {{4.0, 1.0, 4.0}, {10.0, -4.0, 6.0}};
+        const double means[][2]{{10.0, 10.0}, {20.0, 20.0}};
+        const double covariances[][3]{{4.0, 1.0, 4.0}, {10.0, -4.0, 6.0}};
 
         TDouble10Vec1Vec samples;
         gaussianSamples(rng, n, means, covariances, samples);
 
-        double w[] = {n[0] / static_cast<double>(n[0] + n[1]),
-                      n[1] / static_cast<double>(n[0] + n[1])};
+        double w[]{static_cast<double>(n[0]) / static_cast<double>(n[0] + n[1]),
+                   static_cast<double>(n[1]) / static_cast<double>(n[0] + n[1])};
 
         double loss = 0.0;
         TMeanAccumulator differentialEntropy_;
