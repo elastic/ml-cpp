@@ -7,7 +7,6 @@
 #ifndef INCLUDED_ml_maths_CBoostedTreeLoss_h
 #define INCLUDED_ml_maths_CBoostedTreeLoss_h
 
-#include <c++/7/bits/c++config.h>
 #include <maths/CBasicStatistics.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraEigen.h>
@@ -451,7 +450,7 @@ private:
 //!
 //! DESCRIPTION:\n
 //! Formally, the MSLE error definition we use is \f$(\log(1+p) - \log(1+a))^2\f$.
-//! However, we approximate this by a quadratic which has its the minimum p = a and
+//! However, we approximate this by a quadratic form which has its minimum p = a and
 //! matches the value and derivative of MSLE loss function. For example, if the
 //! current prediction for the i'th training point is \f$p_i\f$, the loss is defined
 //! as
