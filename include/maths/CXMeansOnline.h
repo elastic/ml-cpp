@@ -27,6 +27,8 @@
 #include <maths/Constants.h>
 #include <maths/MathsTypes.h>
 
+#include <boost/optional.hpp>
+
 #include <cmath>
 #include <cstddef>
 #include <functional>
@@ -76,11 +78,12 @@ class CXMeansOnline : public CClusterer<CVectorNx1<T, N>> {
 public:
     using TPoint = CVectorNx1<T, N>;
     using TPointVec = std::vector<TPoint>;
-    using TPointPrecise = typename CClusterer<TPoint>::TPointPrecise;
-    using TPointPreciseVec = typename CClusterer<TPoint>::TPointPreciseVec;
-    using TPointPreciseDoublePrVec = typename CClusterer<TPoint>::TPointPreciseDoublePrVec;
-    using TSizeDoublePr = typename CClusterer<TPoint>::TSizeDoublePr;
-    using TSizeDoublePr2Vec = typename CClusterer<TPoint>::TSizeDoublePr2Vec;
+    using TClusterer = CClusterer<TPoint>;
+    using TPointPrecise = typename TClusterer::TPointPrecise;
+    using TPointPreciseVec = typename TClusterer::TPointPreciseVec;
+    using TPointPreciseDoublePrVec = typename TClusterer::TPointPreciseDoublePrVec;
+    using TSizeDoublePr = typename TClusterer::TSizeDoublePr;
+    using TSizeDoublePr2Vec = typename TClusterer::TSizeDoublePr2Vec;
     using TDoubleVec = std::vector<double>;
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TSizeVec = std::vector<std::size_t>;
@@ -101,9 +104,10 @@ public:
     class CCluster {
     public:
         explicit CCluster(const CXMeansOnline& clusterer)
-            : m_Index(clusterer.m_ClusterIndexGenerator.next()),
-              m_DataType(clusterer.m_DataType), m_DecayRate(clusterer.m_DecayRate),
-              m_Covariances(N), m_Structure(STRUCTURE_SIZE, clusterer.m_DecayRate) {}
+            : m_Index{clusterer.m_ClusterIndexGenerator.next()},
+              m_DataType{clusterer.m_DataType}, m_DecayRate{clusterer.m_DecayRate},
+              m_Covariances{N}, m_Structure{STRUCTURE_SIZE, clusterer.m_DecayRate,
+                                            MINIMUM_CATEGORY_COUNT, STRUCTURE_SIZE / 2} {}
 
         //! Initialize by traversing a state document.
         bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
@@ -291,10 +295,10 @@ public:
             std::size_t index[] = {indexGenerator.next(), indexGenerator.next()};
             indexGenerator.recycle(m_Index);
 
-            return TClusterClusterPr(CCluster(index[0], m_DataType, m_DecayRate,
-                                              covariances[0], structure[0]),
-                                     CCluster(index[1], m_DataType, m_DecayRate,
-                                              covariances[1], structure[1]));
+            return TClusterClusterPr{{index[0], m_DataType, m_DecayRate,
+                                      covariances[0], std::move(structure[0])},
+                                     {index[1], m_DataType, m_DecayRate,
+                                      covariances[1], std::move(structure[1])}};
         }
 
         //! Check if this and \p other cluster should merge.
@@ -305,11 +309,11 @@ public:
         }
 
         //! Merge this and \p other cluster.
-        CCluster merge(CCluster& other, CClustererTypes::CIndexGenerator& indexGenerator) {
-            CKMeansOnline<TPoint> structure(m_Structure);
+        CCluster merge(const CCluster& other, CClustererTypes::CIndexGenerator& indexGenerator) {
+            TKMeansOnline structure{std::move(m_Structure)};
             structure.merge(other.m_Structure);
-            CCluster result(indexGenerator.next(), m_DataType, m_DecayRate,
-                            m_Covariances + other.m_Covariances, structure);
+            CCluster result{indexGenerator.next(), m_DataType, m_DecayRate,
+                            m_Covariances + other.m_Covariances, std::move(structure)};
             indexGenerator.recycle(m_Index);
             indexGenerator.recycle(other.m_Index);
             return result;
@@ -348,9 +352,9 @@ public:
                  maths_t::EDataType dataType,
                  double decayRate,
                  const TCovariances& covariances,
-                 const CKMeansOnline<TPoint>& structure)
+                 TKMeansOnline structure)
             : m_Index(index), m_DataType(dataType), m_DecayRate(decayRate),
-              m_Covariances(covariances), m_Structure(structure) {}
+              m_Covariances(covariances), m_Structure(std::move(structure)) {}
 
         //! Search for a split of the data that satisfies the constraints
         //! on both the BIC divergence and minimum count.
@@ -418,11 +422,11 @@ public:
                 bool satisfiesCount = (nmin >= minimumCount);
                 LOG_TRACE(<< "count = " << nmin << " (to split " << minimumCount << ")");
 
-                // Check the distance constraint.
-                double distance = BICGain(covariances[0], covariances[1]);
-                bool satisfiesDistance = (distance > MINIMUM_SPLIT_DISTANCE);
-                LOG_TRACE(<< "BIC(1) - BIC(2) = " << distance << " (to split "
-                          << MINIMUM_SPLIT_DISTANCE << ")");
+                // Check the gain constraint.
+                double gain{BICGain(covariances[0], covariances[1])};
+                bool satisfiesGain{gain > MINIMUM_SPLIT_GAIN};
+                LOG_TRACE(<< "BIC(1) - BIC(2) = " << gain << " (to split "
+                          << MINIMUM_SPLIT_GAIN << ")");
 
                 if (!satisfiesCount) {
                     // Recurse to the (one) node with sufficient count.
@@ -438,7 +442,7 @@ public:
                                          candidate[0].end());
                         continue;
                     }
-                } else if (satisfiesDistance) {
+                } else if (satisfiesGain) {
                     LOG_TRACE(<< "Checking full split");
 
                     TSizeVec assignment(remainder.size());
@@ -454,11 +458,11 @@ public:
                         n[j] += CBasicStatistics::count(ci);
                     }
 
-                    distance = BICGain(covariances[0], covariances[1]);
-                    LOG_TRACE(<< "BIC(1) - BIC(2) = " << distance
-                              << " (to split " << MINIMUM_SPLIT_DISTANCE << ")");
+                    gain = BICGain(covariances[0], covariances[1]);
+                    LOG_TRACE(<< "BIC(1) - BIC(2) = " << gain << " (to split "
+                              << MINIMUM_SPLIT_GAIN << ")");
 
-                    if (distance > MINIMUM_SPLIT_DISTANCE) {
+                    if (gain > MINIMUM_SPLIT_GAIN) {
                         LOG_TRACE(<< "splitting");
 
                         typename CSphericalCluster<TPoint>::SLess less;
@@ -584,20 +588,18 @@ public:
                   double minimumCategoryCount = MINIMUM_CATEGORY_COUNT,
                   const CClustererTypes::TSplitFunc& splitFunc = CClustererTypes::CDoNothing(),
                   const CClustererTypes::TMergeFunc& mergeFunc = CClustererTypes::CDoNothing())
-        : CClusterer<TPoint>(splitFunc, mergeFunc), m_DataType(dataType),
+        : TClusterer(splitFunc, mergeFunc), m_DataType(dataType),
           m_WeightCalc(weightCalc), m_InitialDecayRate(decayRate),
-          m_DecayRate(decayRate), m_HistoryLength(0.0),
-          m_MinimumClusterFraction(minimumClusterFraction),
+          m_DecayRate(decayRate), m_MinimumClusterFraction(minimumClusterFraction),
           m_MinimumClusterCount(minimumClusterCount),
           m_MinimumCategoryCount(minimumCategoryCount),
-          m_Clusters(1, CCluster(*this)) {}
+          m_Clusters(1, CCluster{*this}) {}
 
     //! Construct by traversing a state document.
     CXMeansOnline(const SDistributionRestoreParams& params, core::CStateRestoreTraverser& traverser)
-        : CClusterer<TPoint>(CClustererTypes::CDoNothing(), CClustererTypes::CDoNothing()),
-          m_DataType(params.s_DataType), m_WeightCalc(maths_t::E_ClustersEqualWeight),
-          m_InitialDecayRate(params.s_DecayRate), m_DecayRate(params.s_DecayRate),
-          m_HistoryLength(), m_MinimumClusterFraction(), m_MinimumClusterCount(),
+        : TClusterer(CClustererTypes::CDoNothing(), CClustererTypes::CDoNothing()),
+          m_DataType(params.s_DataType), m_InitialDecayRate(params.s_DecayRate),
+          m_DecayRate(params.s_DecayRate),
           m_MinimumCategoryCount(params.s_MinimumCategoryCount) {
         traverser.traverseSubLevel(std::bind(&CXMeansOnline::acceptRestoreTraverser, this,
                                              std::cref(params), std::placeholders::_1));
@@ -608,10 +610,8 @@ public:
                   const CClustererTypes::TSplitFunc& splitFunc,
                   const CClustererTypes::TMergeFunc& mergeFunc,
                   core::CStateRestoreTraverser& traverser)
-        : CClusterer<TPoint>(splitFunc, mergeFunc), m_DataType(params.s_DataType),
-          m_WeightCalc(maths_t::E_ClustersEqualWeight),
+        : TClusterer(splitFunc, mergeFunc), m_DataType(params.s_DataType),
           m_InitialDecayRate(params.s_DecayRate), m_DecayRate(params.s_DecayRate),
-          m_HistoryLength(), m_MinimumClusterFraction(), m_MinimumClusterCount(),
           m_MinimumCategoryCount(params.s_MinimumCategoryCount) {
         traverser.traverseSubLevel(std::bind(&CXMeansOnline::acceptRestoreTraverser, this,
                                              std::cref(params), std::placeholders::_1));
@@ -619,7 +619,7 @@ public:
 
     //! The x-means clusterer has value semantics.
     CXMeansOnline(const CXMeansOnline& other)
-        : CClusterer<TPoint>(other.splitFunc(), other.mergeFunc()), m_Rng(other.m_Rng),
+        : TClusterer(other.splitFunc(), other.mergeFunc()), m_Rng(other.m_Rng),
           m_DataType(other.m_DataType), m_WeightCalc(other.m_WeightCalc),
           m_InitialDecayRate(other.m_InitialDecayRate),
           m_DecayRate(other.m_DecayRate), m_HistoryLength(other.m_HistoryLength),
@@ -628,6 +628,7 @@ public:
           m_MinimumCategoryCount(other.m_MinimumCategoryCount),
           m_ClusterIndexGenerator(other.m_ClusterIndexGenerator.deepCopy()),
           m_Clusters(other.m_Clusters) {}
+    CXMeansOnline(CXMeansOnline&&) = default;
 
     ~CXMeansOnline() = default;
 
@@ -639,11 +640,11 @@ public:
         }
         return *this;
     }
-    //@}
+    CXMeansOnline& operator=(CXMeansOnline&&) = default;
 
-    //! Efficiently swap the contents of two k-means objects.
+    //! Efficiently swap the contents of two x-means objects.
     void swap(CXMeansOnline& other) {
-        this->CClusterer<TPoint>::swap(other);
+        this->TClusterer::swap(other);
         std::swap(m_Rng, other.m_Rng);
         std::swap(m_DataType, other.m_DataType);
         std::swap(m_WeightCalc, other.m_WeightCalc);
@@ -770,7 +771,7 @@ public:
         //   Z = Sum_i{ P(i | x) }
 
         result.reserve(m_Clusters.size());
-        double lmax = boost::numeric::bounds<double>::lowest();
+        double lmax = -std::numeric_limits<double>::max();
         for (const auto& cluster : m_Clusters) {
             double likelihood = cluster.logLikelihoodFromCluster(m_WeightCalc, point);
             result.emplace_back(cluster.index(), likelihood);
@@ -810,8 +811,7 @@ public:
             }
         } else {
             using TDoubleSizePr = std::pair<double, std::size_t>;
-            using TMaxAccumulator =
-                CBasicStatistics::COrderStatisticsStack<TDoubleSizePr, 2, std::greater<TDoubleSizePr>>;
+            using TMaxAccumulator = CBasicStatistics::SMax<TDoubleSizePr, 2>::TAccumulator;
 
             TMaxAccumulator closest;
             for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
@@ -961,19 +961,6 @@ public:
                                [](double count, const CCluster& cluster) {
                                    return count + cluster.count();
                                });
-    }
-
-    //! Print a representation of the clusters that can be plotted in octave.
-    std::string printClusters() const {
-        if (m_Clusters.empty()) {
-            return std::string();
-        }
-        if (m_Clusters[0].dimension() > 2) {
-            return "Not supported";
-        }
-
-        // TODO
-        return std::string();
     }
 
     //! Get the index generator.
@@ -1132,7 +1119,7 @@ protected:
             return &m_Clusters[0];
         }
 
-        using TMinAccumulator = CBasicStatistics::COrderStatisticsStack<double, 1>;
+        using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
 
         CCluster* result = nullptr;
         TMinAccumulator min;
@@ -1191,7 +1178,7 @@ private:
 
     //! The minimum Kullback-Leibler divergence at which we'll
     //! split a cluster.
-    static const double MINIMUM_SPLIT_DISTANCE;
+    static const double MINIMUM_SPLIT_GAIN;
 
     //! The maximum Kullback-Leibler divergence for which we'll
     //! merge two cluster. This is intended to introduce hysteresis
@@ -1219,7 +1206,7 @@ private:
     maths_t::EDataType m_DataType;
 
     //! The style of the cluster weight calculation (see maths_t::EClusterWeightCalc).
-    maths_t::EClusterWeightCalc m_WeightCalc;
+    maths_t::EClusterWeightCalc m_WeightCalc = maths_t::E_ClustersEqualWeight;
 
     //! The initial rate at which information is lost.
     CFloatStorage m_InitialDecayRate;
@@ -1228,16 +1215,16 @@ private:
     CFloatStorage m_DecayRate;
 
     //! A measure of the length of history of the data clustered.
-    CFloatStorage m_HistoryLength;
+    CFloatStorage m_HistoryLength = 0.0;
 
     //! The minimum cluster fractional count.
-    CFloatStorage m_MinimumClusterFraction;
+    CFloatStorage m_MinimumClusterFraction = 0.0;
 
     //! The minimum cluster count.
-    CFloatStorage m_MinimumClusterCount;
+    CFloatStorage m_MinimumClusterCount = 0.0;
 
     //! The minimum count for a category in the sketch to cluster.
-    CFloatStorage m_MinimumCategoryCount;
+    CFloatStorage m_MinimumCategoryCount = 0.0;
 
     //! A generator of unique cluster indices.
     CClustererTypes::CIndexGenerator m_ClusterIndexGenerator;
@@ -1273,7 +1260,7 @@ template<typename T, std::size_t N>
 const core::TPersistenceTag CXMeansOnline<T, N>::STRUCTURE_TAG("c", "structure");
 
 template<typename T, std::size_t N>
-const double CXMeansOnline<T, N>::MINIMUM_SPLIT_DISTANCE(6.0);
+const double CXMeansOnline<T, N>::MINIMUM_SPLIT_GAIN(6.0);
 template<typename T, std::size_t N>
 const double CXMeansOnline<T, N>::MAXIMUM_MERGE_DISTANCE(2.0);
 template<typename T, std::size_t N>
