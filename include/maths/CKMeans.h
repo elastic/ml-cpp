@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_maths_CKMeans_h
 #define INCLUDED_ml_maths_CKMeans_h
 
+#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 
 #include <maths/CBasicStatistics.h>
@@ -23,6 +24,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <sstream>
 #include <utility>
 #include <vector>
@@ -545,58 +547,41 @@ public:
     //! \param[out] result Filled in with the seed centres.
     template<typename ITR>
     void run(ITR beginPoints, ITR endPoints, std::size_t k, TPointVec& result) const {
+
         result.clear();
         if (beginPoints == endPoints || k == 0) {
             return;
         }
 
-        using TPointCRef = std::reference_wrapper<const POINT>;
-        using TPointCRefVec = std::vector<TPointCRef>;
-
-        std::size_t n = std::distance(beginPoints, endPoints);
+        std::size_t n(std::distance(beginPoints, endPoints));
         LOG_TRACE(<< "# points = " << n);
 
-        std::size_t select = CSampling::uniformSample(m_Rng, std::size_t(0), n);
-        LOG_TRACE(<< "select = " << select);
-
         result.reserve(k);
-        result.push_back(beginPoints[select]);
-        LOG_TRACE(<< "selected to date = " << core::CContainerPrinter::print(result));
+        result.push_back(beginPoints[CSampling::uniformSample(m_Rng, std::size_t(0), n)]);
 
-        TPointCRefVec selected{std::cref(result.back())};
-        selected.reserve(k);
-
-        CKdTree<TPointCRef> selectedLookup;
-        selectedLookup.reserve(k);
-
-        TDoubleVec distances(n, 0.0);
-        POINT distancesToHyperplanes{las::zero(result.back())};
-
+        m_Distances.assign(n, std::numeric_limits<double>::max());
         for (std::size_t i = 1; i < k; ++i) {
+            this->updateDistances(result.back(), beginPoints, endPoints);
+            m_Probabilities.assign(m_Distances.begin(), m_Distances.end());
+            result.push_back(beginPoints[CSampling::categoricalSample(m_Rng, m_Probabilities)]);
+        }
+        LOG_TRACE(<< "selected = " << core::CContainerPrinter::print(result));
+    }
 
-            selectedLookup.build(selected);
-
-            std::size_t j{0};
-            for (ITR point = beginPoints; point != endPoints; ++j, ++point) {
-                las::setZero(distancesToHyperplanes);
-                const auto* nn = selectedLookup.nearestNeighbour(*point, distancesToHyperplanes);
-                distances[j] = nn != nullptr
-                                   ? CTools::pow2(las::distance(*point, nn->get()))
-                                   : 0.0;
-            }
-
-            select = CSampling::categoricalSample(m_Rng, distances);
-            LOG_TRACE(<< "select = " << select);
-
-            result.push_back(beginPoints[select]);
-            selected.push_back(std::cref(result.back()));
-            LOG_TRACE(<< "selected to date = " << core::CContainerPrinter::print(result));
+private:
+    template<typename ITR>
+    void updateDistances(const POINT& selected, ITR beginPoints, ITR endPoints) const {
+        std::size_t j{0};
+        for (ITR point = beginPoints; point != endPoints; ++j, ++point) {
+            m_Distances[j] = std::min(
+                m_Distances[j], CTools::pow2(las::distance(*point, selected)));
         }
     }
 
 private:
-    //! The random number generator.
     RNG& m_Rng;
+    mutable TDoubleVec m_Distances;
+    mutable TDoubleVec m_Probabilities;
 };
 }
 }
