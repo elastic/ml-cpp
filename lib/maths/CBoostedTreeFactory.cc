@@ -45,6 +45,7 @@ const double MIN_FEATURE_BAG_FRACTION{0.2};
 const double MAX_FEATURE_BAG_FRACTION{0.8};
 const double MIN_DOWNSAMPLE_LINE_SEARCH_RANGE{2.0};
 const double MAX_DOWNSAMPLE_LINE_SEARCH_RANGE{144.0};
+const double MIN_DOWNSAMPLE_FACTOR{1e-3};
 const double MIN_DOWNSAMPLE_FACTOR_SCALE{0.3};
 const double MAX_DOWNSAMPLE_FACTOR_SCALE{3.0};
 // This isn't a hard limit but we increase the number of default training folds
@@ -1022,6 +1023,18 @@ CBoostedTreeFactory& CBoostedTreeFactory::stopCrossValidationEarly(bool stopEarl
 
 CBoostedTreeFactory& CBoostedTreeFactory::initialDownsampleRowsPerFeature(double rowsPerFeature) {
     m_InitialDownsampleRowsPerFeature = rowsPerFeature;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::downsampleFactor(double factor) {
+    if (factor <= MIN_DOWNSAMPLE_FACTOR) {
+        LOG_WARN(<< "Downsample factor must be non-negative");
+        factor = MIN_DOWNSAMPLE_FACTOR;
+    } else if (factor > 1.0) {
+        LOG_WARN(<< "Downsample factor must be no larger than one");
+        factor = 1.0;
+    }
+    m_TreeImpl->m_DownsampleFactorOverride = factor;
     return *this;
 }
 
