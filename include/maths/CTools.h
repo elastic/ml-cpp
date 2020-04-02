@@ -26,6 +26,7 @@
 #include <cstring>
 #include <iosfwd>
 #include <limits>
+#include <numeric>
 #include <vector>
 
 namespace ml {
@@ -684,7 +685,7 @@ public:
         return sigmoid(std::exp(std::copysign(1.0, sign) * (x - x0) / width));
     }
 
-    //! Compute the softmax from the multinomial logit values \p logit.
+    //! Compute the softmax for the multinomial logit values \p logit.
     //!
     //! i.e. \f$[\sigma(z)]_i = \frac{exp(z_i)}{\sum_j exp(z_j)}\f$.
     //!
@@ -703,9 +704,28 @@ public:
         }
     }
 
-    //! Specialize the softmax for our dense vector type.
+    //! Compute the log of the softmax for the multinomial logit values \p logit.
+    template<typename COLLECTION>
+    static void inplaceLogSoftmax(COLLECTION& z) {
+        double zmax{*std::max_element(z.begin(), z.end())};
+        for (auto& zi : z) {
+            zi -= zmax;
+        }
+        double logZ{std::log(std::accumulate(
+            z.begin(), z.end(), 0.0,
+            [](double sum, const auto& zi) { return sum + std::exp(zi); }))};
+        for (auto& zi : z) {
+            zi -= logZ;
+        }
+    }
+
+    //! Specialize the softmax for CDenseVector.
     template<typename T>
     static void inplaceSoftmax(CDenseVector<T>& z);
+
+    //! Specialize the log(softmax) for CDenseVector.
+    template<typename SCALAR>
+    static void inplaceLogSoftmax(CDenseVector<SCALAR>& z);
 
     //! Linearly interpolate a function on the interval [\p a, \p b].
     static double linearlyInterpolate(double a, double b, double fa, double fb, double x);

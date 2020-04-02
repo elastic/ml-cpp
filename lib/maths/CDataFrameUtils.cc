@@ -13,16 +13,21 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CDataFrameCategoryEncoder.h>
+#include <maths/CLbfgs.h>
+#include <maths/CLinearAlgebraEigen.h>
 #include <maths/CMathsFuncs.h>
 #include <maths/CMic.h>
 #include <maths/COrderings.h>
+#include <maths/CPRNG.h>
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
 #include <maths/CSolvers.h>
 #include <maths/CTools.h>
+#include <maths/CToolsDetail.h>
 
 #include <boost/unordered_map.hpp>
 
+#include <limits>
 #include <memory>
 #include <numeric>
 #include <vector>
@@ -117,23 +122,21 @@ private:
     TRowSamplerVec m_Samplers;
     TSamplerSelector m_Selector;
 };
+using TStratifiedSamplerPtr = std::unique_ptr<CStratifiedSampler>;
 
 //! Get a classifier stratified row sampler for cross fold validation.
-std::pair<std::unique_ptr<CStratifiedSampler>, TDoubleVec>
+std::pair<TStratifiedSamplerPtr, TDoubleVec>
 classifierStratifiedCrossValidationRowSampler(std::size_t numberThreads,
                                               const core::CDataFrame& frame,
                                               std::size_t targetColumn,
                                               CPRNG::CXorOShiro128Plus rng,
-                                              std::size_t numberFolds,
-                                              const core::CPackedBitVector& allTrainingRowsMask) {
+                                              std::size_t desiredCount,
+                                              const core::CPackedBitVector& rowMask) {
 
     TDoubleVec categoryFrequencies{CDataFrameUtils::categoryFrequencies(
-        numberThreads, frame, allTrainingRowsMask, {targetColumn})[targetColumn]};
+        numberThreads, frame, rowMask, {targetColumn})[targetColumn]};
 
     TSizeVec categoryCounts;
-    double numberTrainingRows{allTrainingRowsMask.manhattan()};
-    std::size_t desiredCount{
-        (static_cast<std::size_t>(numberTrainingRows) + numberFolds / 2) / numberFolds};
     CSampling::weightedSample(desiredCount, categoryFrequencies, categoryCounts);
     LOG_TRACE(<< "desired category counts per test fold = "
               << core::CContainerPrinter::print(categoryCounts));
@@ -150,17 +153,17 @@ classifierStratifiedCrossValidationRowSampler(std::size_t numberThreads,
 }
 
 //! Get a regression stratified row sampler for cross fold validation.
-std::unique_ptr<CStratifiedSampler>
+TStratifiedSamplerPtr
 regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
                                              const core::CDataFrame& frame,
                                              std::size_t targetColumn,
                                              CPRNG::CXorOShiro128Plus rng,
-                                             std::size_t numberFolds,
+                                             std::size_t desiredCount,
                                              std::size_t numberBuckets,
-                                             const core::CPackedBitVector& allTrainingRowsMask) {
+                                             const core::CPackedBitVector& rowMask) {
 
     auto quantiles = CDataFrameUtils::columnQuantiles(
-                         numberThreads, frame, allTrainingRowsMask, {targetColumn},
+                         numberThreads, frame, rowMask, {targetColumn},
                          CQuantileSketch{CQuantileSketch::E_Linear, 50})
                          .first;
 
@@ -198,8 +201,7 @@ regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
     };
 
     TDoubleVec bucketFrequencies;
-    doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
-                            countBucketRows, &allTrainingRowsMask),
+    doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), countBucketRows, &rowMask),
              copyBucketRowCounts, reduceBucketRowCounts, bucketFrequencies);
     double totalCount{std::accumulate(bucketFrequencies.begin(),
                                       bucketFrequencies.end(), 0.0)};
@@ -208,8 +210,6 @@ regressionStratifiedCrossValiationRowSampler(std::size_t numberThreads,
     }
 
     TSizeVec bucketCounts;
-    std::size_t desiredCount{
-        (static_cast<std::size_t>(totalCount) + numberFolds / 2) / numberFolds};
     CSampling::weightedSample(desiredCount, bucketFrequencies, bucketCounts);
     LOG_TRACE(<< "desired bucket counts per fold = "
               << core::CContainerPrinter::print(bucketCounts));
@@ -495,17 +495,20 @@ CDataFrameUtils::stratifiedCrossValidationRowMasks(std::size_t numberThreads,
                                                    std::size_t numberFolds,
                                                    std::size_t numberBuckets,
                                                    const core::CPackedBitVector& allTrainingRowsMask) {
-
     TDoubleVec frequencies;
-    std::unique_ptr<CStratifiedSampler> sampler;
+    TStratifiedSamplerPtr sampler;
+
+    double numberTrainingRows{allTrainingRowsMask.manhattan()};
+    std::size_t desiredCount{
+        (static_cast<std::size_t>(numberTrainingRows) + numberFolds / 2) / numberFolds};
 
     if (frame.columnIsCategorical()[targetColumn]) {
         std::tie(sampler, frequencies) = classifierStratifiedCrossValidationRowSampler(
-            numberThreads, frame, targetColumn, rng, numberFolds, allTrainingRowsMask);
+            numberThreads, frame, targetColumn, rng, desiredCount, allTrainingRowsMask);
     } else {
         sampler = regressionStratifiedCrossValiationRowSampler(
-            numberThreads, frame, targetColumn, rng, numberFolds, numberBuckets,
-            allTrainingRowsMask);
+            numberThreads, frame, targetColumn, rng, desiredCount,
+            numberBuckets, allTrainingRowsMask);
     }
 
     LOG_TRACE(<< "number training rows = " << allTrainingRowsMask.manhattan());
@@ -586,13 +589,9 @@ CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
 
     TDoubleVecVec result;
     try {
-        if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
-                                    readCategoryCounts, &rowMask),
-                     copyCategoryCounts, reduceCategoryCounts, result) == false) {
-            HANDLE_FATAL(<< "Internal error: failed to calculate category"
-                         << " frequencies. Please report this problem.")
-            return result;
-        }
+        doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
+                                readCategoryCounts, &rowMask),
+                 copyCategoryCounts, reduceCategoryCounts, result);
     } catch (const std::exception& e) {
         HANDLE_FATAL(<< "Internal error: '" << e.what() << "' exception calculating"
                      << " category frequencies. Please report this problem.")
@@ -653,12 +652,8 @@ CDataFrameUtils::meanValueOfTargetForCategories(const CColumnValue& target,
 
     TMeanAccumulatorVecVec means;
     try {
-        if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readColumnMeans, &rowMask),
-                     copyColumnMeans, reduceColumnMeans, means) == false) {
-            HANDLE_FATAL(<< "Internal error: failed to calculate mean target values"
-                         << " for categories. Please report this problem.")
-            return result;
-        }
+        doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readColumnMeans, &rowMask),
+                 copyColumnMeans, reduceColumnMeans, means);
     } catch (const std::exception& e) {
         HANDLE_FATAL(<< "Internal error: '" << e.what() << "' exception calculating"
                      << " mean target values for categories. Please report this problem.")
@@ -741,58 +736,11 @@ CDataFrameUtils::maximumMinimumRecallClassWeights(std::size_t numberThreads,
                                                   std::size_t targetColumn,
                                                   const TReadPredictionFunc& readPrediction) {
 
-    if (numberClasses == 2) {
-        auto readQuantiles = core::bindRetrievableState(
-            [&](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    if (isMissing((*row)[targetColumn]) == false) {
-                        quantiles[static_cast<std::size_t>((*row)[targetColumn])]
-                            .add(readPrediction(*row)(1));
-                    }
-                }
-            },
-            TQuantileSketchVec(2, CQuantileSketch{CQuantileSketch::E_Linear, 100}));
-        auto copyQuantiles = [](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
-            result = std::move(quantiles);
-        };
-        auto reduceQuantiles = [&](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
-            for (std::size_t i = 0; i < 2; ++i) {
-                result[i] += quantiles[i];
-            }
-        };
-
-        TQuantileSketchVec classProbabilityClassOneQuantiles;
-        if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readQuantiles, &rowMask),
-                     copyQuantiles, reduceQuantiles,
-                     classProbabilityClassOneQuantiles) == false) {
-            HANDLE_FATAL(<< "Failed to compute category quantiles")
-            return TDoubleVector::Ones(2);
-        }
-
-        auto minRecall = [&](double threshold) {
-            double cdf[2];
-            classProbabilityClassOneQuantiles[0].cdf(threshold, cdf[0]);
-            classProbabilityClassOneQuantiles[1].cdf(threshold, cdf[1]);
-            double recalls[]{cdf[0], 1.0 - cdf[1]};
-            return std::min(recalls[0], recalls[1]);
-        };
-
-        double threshold;
-        double minRecallAtThreshold;
-        std::size_t maxIterations{20};
-        CSolvers::maximize(0.0, 1.0, minRecall(0.0), minRecall(1.0), minRecall,
-                           1e-3, maxIterations, threshold, minRecallAtThreshold);
-        LOG_TRACE(<< "threshold = " << threshold
-                  << ", min recall at threshold = " << minRecallAtThreshold);
-
-        TDoubleVector result{2};
-        result(0) = 0.5 / (1.0 - threshold);
-        result(1) = 0.5 / threshold;
-        return result;
-    }
-
-    // TODO fixme
-    return TDoubleVector::Ones(numberClasses);
+    return numberClasses == 2
+               ? maximizeMinimumRecallForBinary(numberThreads, frame, rowMask,
+                                                targetColumn, readPrediction)
+               : maximizeMinimumRecallForMulticlass(numberThreads, frame, rowMask, numberClasses,
+                                                    targetColumn, readPrediction);
 }
 
 bool CDataFrameUtils::isMissing(double x) {
@@ -1047,6 +995,261 @@ CDataFrameUtils::metricMicWithColumnDataFrameOnDisk(const CColumnValue& target,
     }
 
     return mics;
+}
+
+CDataFrameUtils::TDoubleVector
+CDataFrameUtils::maximizeMinimumRecallForBinary(std::size_t numberThreads,
+                                                const core::CDataFrame& frame,
+                                                const core::CPackedBitVector& rowMask,
+                                                std::size_t targetColumn,
+                                                const TReadPredictionFunc& readPrediction) {
+    TDoubleVector probabilities;
+    auto readQuantiles = core::bindRetrievableState(
+        [=](TQuantileSketchVec& quantiles, TRowItr beginRows, TRowItr endRows) mutable {
+            for (auto row = beginRows; row != endRows; ++row) {
+                if (isMissing((*row)[targetColumn]) == false) {
+                    std::size_t actualClass{static_cast<std::size_t>((*row)[targetColumn])};
+                    probabilities = readPrediction(*row);
+                    CTools::inplaceSoftmax(probabilities);
+                    quantiles[actualClass].add(probabilities(1));
+                }
+            }
+        },
+        TQuantileSketchVec(2, CQuantileSketch{CQuantileSketch::E_Linear, 100}));
+    auto copyQuantiles = [](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
+        result = std::move(quantiles);
+    };
+    auto reduceQuantiles = [&](TQuantileSketchVec quantiles, TQuantileSketchVec& result) {
+        for (std::size_t i = 0; i < 2; ++i) {
+            result[i] += quantiles[i];
+        }
+    };
+
+    TQuantileSketchVec classProbabilityClassOneQuantiles;
+    if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readQuantiles, &rowMask),
+                 copyQuantiles, reduceQuantiles, classProbabilityClassOneQuantiles) == false) {
+        HANDLE_FATAL(<< "Failed to compute category quantiles")
+        return TDoubleVector::Ones(2);
+    }
+
+    auto minRecall = [&](double threshold) {
+        double cdf[2];
+        classProbabilityClassOneQuantiles[0].cdf(threshold, cdf[0]);
+        classProbabilityClassOneQuantiles[1].cdf(threshold, cdf[1]);
+        double recalls[]{cdf[0], 1.0 - cdf[1]};
+        return std::min(recalls[0], recalls[1]);
+    };
+
+    double threshold;
+    double minRecallAtThreshold;
+    std::size_t maxIterations{20};
+    CSolvers::maximize(0.0, 1.0, minRecall(0.0), minRecall(1.0), minRecall,
+                       1e-3, maxIterations, threshold, minRecallAtThreshold);
+    LOG_TRACE(<< "threshold = " << threshold
+              << ", min recall at threshold = " << minRecallAtThreshold);
+
+    TDoubleVector result{2};
+    result(0) = threshold < 0.5 ? threshold / (1.0 - threshold) : 1.0;
+    result(1) = threshold < 0.5 ? 1.0 : (1.0 - threshold) / threshold;
+    return result;
+}
+
+CDataFrameUtils::TDoubleVector
+CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
+                                                    const core::CDataFrame& frame,
+                                                    const core::CPackedBitVector& rowMask,
+                                                    std::size_t numberClasses,
+                                                    std::size_t targetColumn,
+                                                    const TReadPredictionFunc& readPrediction) {
+
+    // Use a large random sample of the data frame and compute the expected
+    // optimisation objective for the whole data set from this.
+
+    using TDoubleVectorVec = std::vector<TDoubleVector>;
+    using TDoubleVectorDoubleVectorPr = std::pair<TDoubleVector, TDoubleVector>;
+    using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
+
+    CPRNG::CXorOShiro128Plus rng;
+    std::size_t numberSamples{std::min(std::size_t{1000}, rowMask.size())};
+
+    TStratifiedSamplerPtr sampler;
+    std::tie(sampler, std::ignore) = classifierStratifiedCrossValidationRowSampler(
+        numberThreads, frame, targetColumn, rng, numberSamples, rowMask);
+
+    TSizeVec rowIndices;
+    frame.readRows(1, 0, frame.numberRows(),
+                   [&](TRowItr beginRows, TRowItr endRows) {
+                       for (auto row = beginRows; row != endRows; ++row) {
+                           sampler->sample(*row);
+                       }
+                   },
+                   &rowMask);
+    sampler->finishSampling(rng, rowIndices);
+    std::sort(rowIndices.begin(), rowIndices.end());
+    core::CPackedBitVector sampleMask;
+    for (auto row : rowIndices) {
+        sampleMask.extend(false, row - sampleMask.size());
+        sampleMask.extend(true);
+    }
+    sampleMask.extend(false, rowMask.size() - sampleMask.size());
+    LOG_TRACE(<< "# row indices = " << rowIndices.size());
+
+    auto readClassCounts = core::bindRetrievableState(
+        [&](TDoubleVector& counts, TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                if (isMissing((*row)[targetColumn]) == false) {
+                    counts(static_cast<std::size_t>((*row)[targetColumn])) += 1.0;
+                }
+            }
+        },
+        TDoubleVector{TDoubleVector::Zero(numberClasses)});
+    auto copyClassCounts = [](TDoubleVector counts, TDoubleVector& result) {
+        result = std::move(counts);
+    };
+    auto reduceClassCounts = [&](TDoubleVector counts, TDoubleVector& result) {
+        result += counts;
+    };
+
+    TDoubleVector classCounts;
+    doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readClassCounts, &sampleMask),
+             copyClassCounts, reduceClassCounts, classCounts);
+    LOG_TRACE(<< "class counts = " << classCounts.transpose());
+
+    // We want to solve max_w{min_j{recall(class_j)}} = max_w{min_j{c_j(w) / n_j}}
+    // where c_j(w) and n_j are correct predictions for weight w and count of class_j
+    // in the sample set, respectively. We use an equivalent formulation
+    //
+    //   min_w{max_j{f_j(w)}} = min_w{max_j{1 - c_j(w) / n_j}}
+    //
+    // We use a smooth relaxation of f_j(w) = max_j{1 - 1{argmax_i(w_i p_i) == j} / n_j}
+    // given by f_j(w) = (1 - softmax_j(w_i p_i)) / n_j. Note that this isn't convex
+    // so we use multiple restarts.
+
+    TDoubleVector prediction;
+    auto readWeightBounds = core::bindRetrievableState(
+        [=](TDoubleVectorDoubleVectorPr& bounds, TRowItr beginRows, TRowItr endRows) mutable {
+            for (auto row = beginRows; row != endRows; ++row) {
+                if (isMissing((*row)[targetColumn]) == false) {
+                    prediction = readPrediction(*row);
+                    bounds.first = bounds.first.cwiseMin(prediction);
+                    bounds.second = bounds.second.cwiseMax(prediction);
+                }
+            }
+        },
+        TDoubleVectorDoubleVectorPr{
+            TDoubleVector::Constant(numberClasses, std::numeric_limits<double>::max()),
+            TDoubleVector::Constant(numberClasses, -std::numeric_limits<double>::max())});
+    auto copyWeightBounds = [](TDoubleVectorDoubleVectorPr bounds,
+                               TDoubleVectorDoubleVectorPr& result) {
+        result = std::move(bounds);
+    };
+    auto reduceWeightBounds = [&](TDoubleVectorDoubleVectorPr bounds,
+                                  TDoubleVectorDoubleVectorPr& result) {
+        result.first.cwiseMin(bounds.first);
+        result.second.cwiseMax(bounds.second);
+    };
+
+    TDoubleVectorDoubleVectorPr bounds;
+    doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readWeightBounds, &rowMask),
+             copyWeightBounds, reduceWeightBounds, bounds);
+
+    auto objective = [&](const TDoubleVector& weights) {
+        TDoubleVector probabilities;
+        TDoubleVector scores;
+        auto computeObjective = core::bindRetrievableState(
+            [=](TDoubleVector& state, TRowItr beginRows, TRowItr endRows) mutable {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    if (isMissing((*row)[targetColumn]) == false) {
+                        std::size_t j{static_cast<std::size_t>((*row)[targetColumn])};
+                        probabilities = readPrediction(*row);
+                        CTools::inplaceSoftmax(probabilities);
+                        scores = probabilities.cwiseProduct(weights);
+                        CTools::inplaceSoftmax(scores);
+                        state(j) += (1.0 - scores(j)) / classCounts(j);
+                    }
+                }
+            },
+            TDoubleVector{TDoubleVector::Zero(numberClasses)});
+        auto copyObjective = [](TDoubleVector state, TDoubleVector& result) {
+            result = std::move(state);
+        };
+        auto reduceObjective = [&](TDoubleVector state, TDoubleVector& result) {
+            result += state;
+        };
+
+        TDoubleVector objective_;
+        doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), computeObjective, &rowMask),
+                 copyObjective, reduceObjective, objective_);
+        return objective_.maxCoeff();
+    };
+
+    auto objectiveGradient = [&](const TDoubleVector& weights) {
+        TDoubleVector probabilities;
+        TDoubleVector scores;
+        auto computeObjectiveAndGradient = core::bindRetrievableState(
+            [=](TDoubleVectorVec& state, TRowItr beginRows, TRowItr endRows) mutable {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    if (isMissing((*row)[targetColumn]) == false) {
+                        std::size_t j{static_cast<std::size_t>((*row)[targetColumn])};
+                        probabilities = readPrediction(*row);
+                        CTools::inplaceSoftmax(probabilities);
+                        scores = probabilities.cwiseProduct(weights);
+                        CTools::inplaceSoftmax(scores);
+                        state[0](j) += (1.0 - scores(j)) / classCounts(j);
+                        state[j + 1] +=
+                            scores(j) *
+                            probabilities
+                                .cwiseProduct(scores - TDoubleVector::Unit(numberClasses, j))
+                                .cwiseQuotient(classCounts);
+                    }
+                }
+            },
+            TDoubleVectorVec(numberClasses + 1, TDoubleVector::Zero(numberClasses)));
+        auto copyObjectiveAndGradient = [](TDoubleVectorVec state, TDoubleVectorVec& result) {
+            result = std::move(state);
+        };
+        auto reduceObjectiveAndGradient = [&](TDoubleVectorVec state,
+                                              TDoubleVectorVec& result) {
+            for (std::size_t i = 0; i < state.size(); ++i) {
+                result[i] += state[i];
+            }
+        };
+
+        TDoubleVectorVec objectiveAndGradient;
+        doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
+                                computeObjectiveAndGradient, &rowMask),
+                 copyObjectiveAndGradient, reduceObjectiveAndGradient, objectiveAndGradient);
+        std::size_t max;
+        objectiveAndGradient[0].maxCoeff(&max);
+        return objectiveAndGradient[max + 1];
+    };
+
+    TDoubleVector a;
+    TDoubleVector b;
+    std::tie(a, b) = std::move(bounds);
+
+    TMinAccumulator minLoss;
+    TDoubleVector minWeights;
+    TDoubleVector w0{TDoubleVector::Ones(numberClasses)};
+    TDoubleVector interpolate{numberClasses};
+    for (std::size_t i = 0; i < 10; ++i) {
+        CLbfgs<TDoubleVector> lbfgs{5};
+        double loss;
+        std::tie(w0, loss) = lbfgs.minimize(objective, objectiveGradient, std::move(w0));
+        LOG_TRACE(<< "weights = " << w0.transpose() << ", loss = " << loss);
+        if (minLoss.add(loss)) {
+            minWeights = std::move(w0);
+        }
+        for (std::size_t j = 0; j < numberClasses; ++j) {
+            interpolate(j) = CSampling::uniformSample(rng, 0.0, 1.0);
+        }
+        w0 = (a + interpolate.cwiseProduct(b - a)).array().exp();
+    }
+
+    minWeights.array() /= minWeights.maxCoeff();
+    LOG_TRACE(<< "weights = " << minWeights.transpose());
+
+    return minWeights;
 }
 
 void CDataFrameUtils::removeMetricColumns(const core::CDataFrame& frame, TSizeVec& columnMask) {
