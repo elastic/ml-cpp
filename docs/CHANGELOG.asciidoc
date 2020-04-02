@@ -41,6 +41,8 @@
 
 * Reduce CPU scheduling priority of native analysis processes to favor the ES JVM
   when CPU is constrained. (See {ml-pull}1109[#1109].)
+* Support maximize minimum recall when assigning class labels for multiclass classification.
+  (See {ml-pull}1113[#1113].)
 
 == {es} version 7.7.0
 
