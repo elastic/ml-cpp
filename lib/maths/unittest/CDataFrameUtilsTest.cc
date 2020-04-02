@@ -1307,7 +1307,7 @@ BOOST_AUTO_TEST_CASE(testMaximumMinimumRecallClassWeights) {
             // We improved the minimum class recall by at least 10%.
             BOOST_TEST_REQUIRE(minRecalls[0][0] > 1.1 * minRecalls[0][1]);
 
-            // The minimum and maximum class recalls are close: we're at the global minimum.
+            // The minimum and maximum class recalls are close: we're at the global maximum.
             BOOST_TEST_REQUIRE(1.02 * minRecalls[0][0] > maxRecalls[0][0]);
             BOOST_TEST_REQUIRE(1.02 * minRecalls[1][0] > maxRecalls[1][0]);
         }
