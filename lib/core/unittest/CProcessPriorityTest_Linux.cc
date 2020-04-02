@@ -14,6 +14,8 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
+#include <sys/resource.h>
+#include <sys/time.h>
 #include <unistd.h>
 
 BOOST_AUTO_TEST_SUITE(CProcessPriorityTest)
@@ -51,8 +53,8 @@ bool readFromSystemFile(const std::string& fileName, std::string& content) {
 }
 }
 
-BOOST_AUTO_TEST_CASE(testReducePriority) {
-    BOOST_REQUIRE_NO_THROW(ml::core::CProcessPriority::reducePriority());
+BOOST_AUTO_TEST_CASE(testReduceMemoryPriority) {
+    BOOST_REQUIRE_NO_THROW(ml::core::CProcessPriority::reduceMemoryPriority());
 
     bool readFromOneOrOther(false);
 
@@ -78,6 +80,25 @@ BOOST_AUTO_TEST_CASE(testReducePriority) {
     }
 
     BOOST_TEST_REQUIRE(readFromOneOrOther);
+}
+
+BOOST_AUTO_TEST_CASE(testReduceCpuPriority) {
+    errno = 0;
+    int priorityBefore{::getpriority(0, PRIO_PROCESS)};
+    BOOST_REQUIRE_EQUAL(0, errno);
+    LOG_DEBUG(<< "process priority before reduction " << priorityBefore);
+    BOOST_REQUIRE_NO_THROW(ml::core::CProcessPriority::reduceCpuPriority());
+    errno = 0;
+    int priorityAfter{::getpriority(0, PRIO_PROCESS)};
+    BOOST_REQUIRE_EQUAL(0, errno);
+    LOG_DEBUG(<< "process priority after reduction " << priorityAfter);
+    if (priorityBefore < 19) {
+        // Lower priority number really means higher priority in plain English
+        BOOST_TEST_REQUIRE(priorityAfter > priorityBefore);
+    } else {
+        // Priority inherited from parent was already rock bottom
+        BOOST_REQUIRE_EQUAL(19, priorityAfter);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
