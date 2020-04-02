@@ -96,10 +96,10 @@ void CPrior::addSamples(const TDouble1Vec& samples, const TDoubleWeightsAry1Vec&
     double n = 0.0;
     try {
         for (std::size_t i = 0; i < weights.size(); ++i) {
-            double x = samples[i];
-            double n = maths_t::countForUpdate(weights[i]);
-            if (CMathsFuncs::isFinite(x) && CMathsFuncs::isFinite(n)) {
-                n += maths_t::countForUpdate(weights[i]);
+            double xi = samples[i];
+            double ni = maths_t::countForUpdate(weights[i]);
+            if (CMathsFuncs::isFinite(xi) && CMathsFuncs::isFinite(ni)) {
+                n += ni;
             }
         }
     } catch (const std::exception& e) {

@@ -578,7 +578,7 @@ public:
         for (std::size_t i = 0u; i < m_Samples.size(); ++i) {
             double residual = m_Samples[i];
             double n = maths_t::countForUpdate(m_Weights[i]);
-            if (residual <= 0.0 || !CMathsFuncs::isFinite(residual) ||
+            if (residual <= x || !CMathsFuncs::isFinite(residual) ||
                 !CMathsFuncs::isFinite(n)) {
                 continue;
             }
@@ -791,7 +791,6 @@ void CLogNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
                 continue;
             }
 
-            indices.push_back(i);
             numberSamples += n;
             double t = varianceScale == 1.0
                            ? r
