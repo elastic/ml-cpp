@@ -1094,6 +1094,7 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
     sampleMask.extend(false, rowMask.size() - sampleMask.size());
     LOG_TRACE(<< "# row indices = " << rowIndices.size());
 
+    // Compute the count of each class in the sample set.
     auto readClassCounts = core::bindRetrievableState(
         [&](TDoubleVector& counts, TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
@@ -1109,22 +1110,12 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
     auto reduceClassCounts = [&](TDoubleVector counts, TDoubleVector& result) {
         result += counts;
     };
-
     TDoubleVector classCounts;
     doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readClassCounts, &sampleMask),
              copyClassCounts, reduceClassCounts, classCounts);
     LOG_TRACE(<< "class counts = " << classCounts.transpose());
 
-    // We want to solve max_w{min_j{recall(class_j)}} = max_w{min_j{c_j(w) / n_j}}
-    // where c_j(w) and n_j are correct predictions for weight w and count of class_j
-    // in the sample set, respectively. We use an equivalent formulation
-    //
-    //   min_w{max_j{f_j(w)}} = min_w{max_j{1 - c_j(w) / n_j}}
-    //
-    // We use a smooth relaxation of f_j(w) = max_j{1 - 1{argmax_i(w_i p_i) == j} / n_j}
-    // given by f_j(w) = (1 - softmax_j(w_i p_i)) / n_j. Note that this isn't convex
-    // so we use multiple restarts.
-
+    // Get sensible bounds for the log weights.
     TDoubleVector prediction;
     auto readWeightBounds = core::bindRetrievableState(
         [=](TDoubleVectorDoubleVectorPr& bounds, TRowItr beginRows, TRowItr endRows) mutable {
@@ -1148,10 +1139,23 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
         result.first.cwiseMin(bounds.first);
         result.second.cwiseMax(bounds.second);
     };
-
     TDoubleVectorDoubleVectorPr bounds;
     doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readWeightBounds, &rowMask),
              copyWeightBounds, reduceWeightBounds, bounds);
+
+    // We want to solve max_w{min_j{recall(class_j)}} = max_w{min_j{c_j(w) / n_j}}
+    // where c_j(w) and n_j are correct predictions for weight w and count of class_j
+    // in the sample set, respectively. We use an equivalent formulation
+    //
+    //   min_w{max_j{f_j(w)}} = min_w{max_j{1 - c_j(w) / n_j}}
+    //
+    // We can write f_j(w) as
+    //
+    //    max_j{sum_i{1 - 1{argmax_i(w_i p_i) == j}} / n_j}                     (1)
+    //
+    // where 1{.} denotes the indicator function. (1) has a smooth relaxation given
+    // by f_j(w) = max_j{sum_i{1 - softmax_j(w_i p_i)} / n_j}. Note that this isn't
+    // convex so we use multiple restarts.
 
     auto objective = [&](const TDoubleVector& weights) {
         TDoubleVector probabilities;
@@ -1246,6 +1250,8 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
         w0 = (a + interpolate.cwiseProduct(b - a)).array().exp();
     }
 
+    // Since we take argmax_i w_i p_i we can multiply by a constant. We arrange for
+    // the largest weight to always be one.
     minWeights.array() /= minWeights.maxCoeff();
     LOG_TRACE(<< "weights = " << minWeights.transpose());
 
