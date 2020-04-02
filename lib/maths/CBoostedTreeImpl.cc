@@ -398,6 +398,8 @@ void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& fram
                 numberClasses, m_DependentVariable,
                 [storage, numberClasses, this](const TRowRef& row) mutable {
                     if (m_Loss->type() == CLoss::E_BinaryClassification) {
+                        // We predict the log-odds but this is expected to return
+                        // the log of the predicted class probabilities.
                         TMemoryMappedFloatVector result{&storage[0], 2};
                         result.array() = m_Loss
                                              ->transform(readPrediction(
