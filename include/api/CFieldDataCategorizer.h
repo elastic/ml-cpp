@@ -141,10 +141,14 @@ private:
     //!        buffers
     //! 'f' => Echo a flush ID so that the attached process knows that data
     //!        sent previously has all been processed
-    bool handleControlMessage(const std::string& controlMessage);
+    bool handleControlMessage(const std::string& controlMessage, bool lastHandler);
 
     //! Acknowledge a flush request
-    void acknowledgeFlush(const std::string& flushId);
+    void acknowledgeFlush(const std::string& flushId, bool lastHandler);
+
+    //! Writes out to the JSON output writer any category that has changed
+    //! since the last time this method was called.
+    void writeOutChangedCategories();
 
 private:
     //! The job ID
