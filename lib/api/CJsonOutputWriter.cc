@@ -69,6 +69,8 @@ const std::string TERMS("terms");
 const std::string REGEX("regex");
 const std::string MAX_MATCHING_LENGTH("max_matching_length");
 const std::string EXAMPLES("examples");
+const std::string NUM_MATCHES("num_matches");
+const std::string PREFERRED_TO_CATEGORIES("preferred_to_categories");
 const std::string BUCKET_SPAN("bucket_span");
 const std::string PROCESSING_TIME("processing_time_ms");
 const std::string TIME_INFLUENCER("bucket_time");
@@ -888,7 +890,9 @@ void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
                                                 const std::string& terms,
                                                 const std::string& regex,
                                                 std::size_t maxMatchingFieldLength,
-                                                const TStrFSet& examples) {
+                                                const TStrFSet& examples,
+                                                std::size_t numMatches,
+                                                const TIntVec& usurpedCategories) {
     m_Writer.StartObject();
     m_Writer.String(CATEGORY_DEFINITION);
     m_Writer.StartObject();
@@ -907,6 +911,14 @@ void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
     for (TStrFSetCItr itr = examples.begin(); itr != examples.end(); ++itr) {
         const std::string& example = *itr;
         m_Writer.String(example);
+    }
+    m_Writer.EndArray();
+    m_Writer.String(NUM_MATCHES);
+    m_Writer.Uint64(numMatches);
+    m_Writer.String(PREFERRED_TO_CATEGORIES);
+    m_Writer.StartArray();
+    for (int id : usurpedCategories) {
+        m_Writer.Int(id);
     }
     m_Writer.EndArray();
     m_Writer.EndObject();

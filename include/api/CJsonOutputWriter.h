@@ -111,6 +111,8 @@ public:
     using TStrVec = std::vector<std::string>;
     using TStr1Vec = core::CSmallVector<std::string, 1>;
     using TTimeVec = std::vector<core_t::TTime>;
+    using TIntVec = std::vector<int>;
+    using TIntVecCIter = std::vector<int>::const_iterator;
     using TDoubleVec = std::vector<double>;
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
@@ -242,7 +244,9 @@ public:
                                  const std::string& terms,
                                  const std::string& regex,
                                  std::size_t maxMatchingFieldLength,
-                                 const TStrFSet& examples);
+                                 const TStrFSet& examples,
+                                 std::size_t numMatches,
+                                 const TIntVec& usurpedCategories);
 
     //! Persist a normalizer by writing its state to the output
     void persistNormalizer(const model::CHierarchicalResultsNormalizer& normalizer,

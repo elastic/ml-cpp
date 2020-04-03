@@ -39,10 +39,16 @@
 
 === Enhancements
 
+* Speedup anomaly detection for the lat_long function. (See {ml-pull}1102[#1102].)
 * Reduce CPU scheduling priority of native analysis processes to favor the ES JVM
   when CPU is constrained. (See {ml-pull}1109[#1109].)
+* Take `training_percent` into account when estimating memory usage for classification and regression. 
+  (See {ml-pull}1111[1111].)
 * Support maximize minimum recall when assigning class labels for multiclass classification.
   (See {ml-pull}1113[#1113].)
+* Improve robustness of anomaly detection to bad input data. (See {ml-pull}1114[#1114].)
+* Adds new `num_matches` and `preferred_to_categories` fields to category output.
+  (See {ml-pull}1062[#1062])
 
 == {es} version 7.7.0
 
