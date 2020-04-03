@@ -613,9 +613,16 @@ void CNormalMeanPrecConjugate::addSamples(const TDouble1Vec& samples,
     double numberSamples = 0.0;
     TMeanVarAccumulator sampleMoments;
     for (std::size_t i = 0u; i < samples.size(); ++i) {
+        double x = samples[i];
         double n = maths_t::countForUpdate(weights[i]);
         double varianceScale = maths_t::seasonalVarianceScale(weights[i]) *
                                maths_t::countVarianceScale(weights[i]);
+        if (!CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(n) ||
+            !CMathsFuncs::isFinite(varianceScale)) {
+            LOG_ERROR(<< "Discarding sample = " << x << ", weight = " << n
+                      << ", variance scale = " << varianceScale);
+            continue;
+        }
         numberSamples += n;
         sampleMoments.add(samples[i], n / varianceScale);
     }
