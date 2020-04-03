@@ -324,7 +324,8 @@ private:
     TTokenListCategoryVec m_Categories;
 
     //! List of match count/index into category vector in descending order of
-    //! match count
+    //! match count.  Note that the second element is an index into m_Categories,
+    //! not a category ID.
     TSizeSizePrVec m_CategoriesByCount;
 
     //! Used for looking up tokens to a unique ID
