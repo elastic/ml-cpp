@@ -200,6 +200,9 @@ bool CTokenListDataCategorizerBase::createReverseSearch(int categoryId,
             return false;
         }
 
+        // Ensure all reference arguments are set before returning true
+        wasCached = false;
+        maxMatchingLength = 0;
         return true;
     }
 
@@ -207,8 +210,8 @@ bool CTokenListDataCategorizerBase::createReverseSearch(int categoryId,
     maxMatchingLength = category.maxMatchingStringLen();
 
     // If we can retrieve cached reverse search terms we'll save a lot of time
-    if (category.cachedReverseSearch(part1, part2) == true) {
-        wasCached = true;
+    wasCached = category.cachedReverseSearch(part1, part2);
+    if (wasCached) {
         return true;
     }
 
@@ -634,17 +637,17 @@ CDataCategorizer::TIntVec CTokenListDataCategorizerBase::usurpedCategories(int c
     }
     auto iter = std::find_if(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
                              [categoryId](const TSizeSizePr& pr) {
-                                 return pr.second == static_cast<std::size_t>(categoryId);
+                                 return pr.second ==
+                                        static_cast<std::size_t>(categoryId - 1);
                              });
     if (iter == m_CategoriesByCount.end()) {
         LOG_WARN(<< "Could not find category definition for category: " << categoryId);
         return usurped;
     }
-    ++iter;
+
     const CTokenListCategory& category{m_Categories[categoryId - 1]};
-    for (; iter != m_CategoriesByCount.end(); ++iter) {
-        const CTokenListCategory& lessFrequentCategory{
-            m_Categories[static_cast<int>(iter->second) - 1]};
+    for (++iter; iter != m_CategoriesByCount.end(); ++iter) {
+        const CTokenListCategory& lessFrequentCategory{m_Categories[iter->second]};
         bool matchesSearch{category.maxMatchingStringLen() >=
                                lessFrequentCategory.maxMatchingStringLen() &&
                            category.isMissingCommonTokenWeightZero(
@@ -652,9 +655,10 @@ CDataCategorizer::TIntVec CTokenListDataCategorizerBase::usurpedCategories(int c
                            category.containsCommonInOrderTokensInOrder(
                                lessFrequentCategory.baseTokenIds())};
         if (matchesSearch) {
-            usurped.emplace_back(static_cast<int>(iter->second));
+            usurped.emplace_back(1 + static_cast<int>(iter->second));
         }
     }
+    std::sort(usurped.begin(), usurped.end());
     return usurped;
 }
 

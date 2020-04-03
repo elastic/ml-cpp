@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -542,13 +543,13 @@ BOOST_FIXTURE_TEST_CASE(testUsurpedCategories, CTestFixture) {
                                                        500));
 
     BOOST_REQUIRE_EQUAL(2, categorizer.numMatches(1));
-    std::vector<int> expected{2, 3, 4, 5, 6};
-    std::vector<int> actual = categorizer.usurpedCategories(1);
 
-    BOOST_REQUIRE_EQUAL(expected.size(), actual.size());
-    for (std::size_t i = 0; i < actual.size(); i++) {
-        BOOST_REQUIRE_EQUAL(expected[i], actual[i]);
-    }
+    using TIntVec = std::vector<int>;
+    TIntVec expected{2, 3, 4, 5, 6, 7};
+    TIntVec actual{categorizer.usurpedCategories(1)};
+
+    BOOST_REQUIRE_EQUAL(ml::core::CContainerPrinter::print(expected),
+                        ml::core::CContainerPrinter::print(actual));
     checkMemoryUsageInstrumentation(categorizer);
 }
 
