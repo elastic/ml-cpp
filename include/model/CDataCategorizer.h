@@ -51,6 +51,7 @@ public:
 
     //! Shared pointer to an instance of this class
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
+    using TIntVec = std::vector<int>;
 
 public:
     CDataCategorizer(CLimits& limits, const std::string& fieldName);
@@ -130,6 +131,17 @@ public:
 
     //! Restore the examples collector
     bool restoreExamplesCollector(core::CStateRestoreTraverser& traverser);
+
+    virtual std::size_t numMatches(int categoryId) = 0;
+
+    virtual TIntVec usurpedCategories(int categoryId) = 0;
+
+    virtual std::size_t numCategories() const = 0;
+
+    //! Has the passed category changed since this method was called last?
+    //! Once called, the category is marked as unchanged, until the category
+    //! changes again.
+    virtual bool categoryChangedAndReset(int categoryId) = 0;
 
 protected:
     //! Used if no fields are supplied to the computeCategory() method.
