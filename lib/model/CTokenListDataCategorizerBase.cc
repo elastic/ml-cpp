@@ -618,6 +618,58 @@ CTokenListDataCategorizerBase::calculateCategorizationStatus(std::size_t categor
     return model_t::E_CategorizationStatusOk;
 }
 
+std::size_t CTokenListDataCategorizerBase::numMatches(int categoryId) {
+    if (categoryId < 1 || static_cast<std::size_t>(categoryId) > m_Categories.size()) {
+        LOG_ERROR(<< "Programmatic error - invalid ML category: " << categoryId);
+        return 0;
+    }
+    return m_Categories[categoryId - 1].numMatches();
+}
+
+CDataCategorizer::TIntVec CTokenListDataCategorizerBase::usurpedCategories(int categoryId) {
+    CDataCategorizer::TIntVec usurped;
+    if (categoryId < 1 || static_cast<std::size_t>(categoryId) > m_Categories.size()) {
+        LOG_ERROR(<< "Programmatic error - invalid ML category: " << categoryId);
+        return usurped;
+    }
+    auto iter = std::find_if(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
+                             [categoryId](const TSizeSizePr& pr) {
+                                 return pr.second == static_cast<std::size_t>(categoryId);
+                             });
+    if (iter == m_CategoriesByCount.end()) {
+        LOG_WARN(<< "Could not find category definition for category: " << categoryId);
+        return usurped;
+    }
+    ++iter;
+    const CTokenListCategory& category{m_Categories[categoryId - 1]};
+    for (; iter != m_CategoriesByCount.end(); ++iter) {
+        const CTokenListCategory& lessFrequentCategory{
+            m_Categories[static_cast<int>(iter->second) - 1]};
+        bool matchesSearch{category.maxMatchingStringLen() >=
+                               lessFrequentCategory.maxMatchingStringLen() &&
+                           category.isMissingCommonTokenWeightZero(
+                               lessFrequentCategory.commonUniqueTokenIds()) &&
+                           category.containsCommonInOrderTokensInOrder(
+                               lessFrequentCategory.baseTokenIds())};
+        if (matchesSearch) {
+            usurped.emplace_back(static_cast<int>(iter->second));
+        }
+    }
+    return usurped;
+}
+
+std::size_t CTokenListDataCategorizerBase::numCategories() const {
+    return m_Categories.size();
+}
+
+bool CTokenListDataCategorizerBase::categoryChangedAndReset(int categoryId) {
+    if (categoryId < 1 || static_cast<std::size_t>(categoryId) > m_Categories.size()) {
+        LOG_ERROR(<< "Programmatic error - invalid ML category: " << categoryId);
+        return false;
+    }
+    return m_Categories[categoryId - 1].isChangedAndReset();
+}
+
 CTokenListDataCategorizerBase::CTokenInfoItem::CTokenInfoItem(const std::string& str,
                                                               std::size_t index)
     : m_Str{str}, m_Index{index}, m_CategoryCount{0} {
