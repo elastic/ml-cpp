@@ -179,6 +179,9 @@ bool CTokenListDataCategorizerBase::createReverseSearch(int categoryId,
                                                         std::string& part2,
                                                         std::size_t& maxMatchingLength,
                                                         bool& wasCached) {
+    wasCached = false;
+    maxMatchingLength = 0;
+
     if (m_ReverseSearchCreator == nullptr) {
         LOG_ERROR(<< "Cannot create reverse search - no reverse search creator");
 
@@ -200,9 +203,6 @@ bool CTokenListDataCategorizerBase::createReverseSearch(int categoryId,
             return false;
         }
 
-        // Ensure all reference arguments are set before returning true
-        wasCached = false;
-        maxMatchingLength = 0;
         return true;
     }
 
