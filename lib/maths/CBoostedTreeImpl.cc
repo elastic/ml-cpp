@@ -785,18 +785,17 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
             leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder,
             m_Regularization, candidateSplits, this->featureBag(), tree[leaf->id()]);
 
-        scopeMemoryUsage.add(leftChild);
-        scopeMemoryUsage.add(rightChild);
-
         if (less(rightChild, leftChild)) {
             std::swap(leftChild, rightChild);
         }
 
         std::size_t n{leaves.size()};
         if (leftChild->gain() >= MINIMUM_RELATIVE_GAIN_PER_SPLIT * totalGain) {
+            scopeMemoryUsage.add(leftChild);
             leaves.push_back(std::move(leftChild));
         }
         if (rightChild->gain() >= MINIMUM_RELATIVE_GAIN_PER_SPLIT * totalGain) {
+            scopeMemoryUsage.add(rightChild);
             leaves.push_back(std::move(rightChild));
         }
         std::inplace_merge(leaves.begin(), leaves.begin() + n, leaves.end(), less);
