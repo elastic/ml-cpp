@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -518,6 +519,38 @@ BOOST_FIXTURE_TEST_CASE(testPreTokenisedPerformance, CTestFixture) {
     } else {
         BOOST_TEST_REQUIRE(preTokenisationTime <= inlineTokenisationTime);
     }
+}
+
+BOOST_FIXTURE_TEST_CASE(testUsurpedCategories, CTestFixture) {
+    TTokenListDataCategorizerKeepsFields categorizer(
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+
+    BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, "2015-10-18 18:01:51,963 INFO [main] org.mortbay.log: jetty-6.1.26\r",
+                                                       500));
+    BOOST_REQUIRE_EQUAL(2, categorizer.computeCategory(false, "2015-10-18 18:01:52,728 INFO [main] org.mortbay.log: Started HttpServer2$SelectChannelConnectorWithSafeStartup@0.0.0.0:62267\r",
+                                                       500));
+    BOOST_REQUIRE_EQUAL(3, categorizer.computeCategory(false, "2015-10-18 18:01:53,400 INFO [main] org.apache.hadoop.yarn.webapp.WebApps: Registered webapp guice modules\r",
+                                                       500));
+    BOOST_REQUIRE_EQUAL(4, categorizer.computeCategory(false, "2015-10-18 18:01:53,447 INFO [main] org.apache.hadoop.mapreduce.v2.app.rm.RMContainerRequestor: nodeBlacklistingEnabled:true\r",
+                                                       500));
+    BOOST_REQUIRE_EQUAL(5, categorizer.computeCategory(false, "2015-10-18 18:01:52,728 INFO [main] org.apache.hadoop.yarn.webapp.WebApps: Web app /mapreduce started at 62267\r",
+                                                       500));
+    BOOST_REQUIRE_EQUAL(6, categorizer.computeCategory(false, "2015-10-18 18:01:53,557 INFO [main] org.apache.hadoop.yarn.client.RMProxy: Connecting to ResourceManager at msra-sa-41/10.190.173.170:8030\r",
+                                                       500));
+    BOOST_REQUIRE_EQUAL(7, categorizer.computeCategory(false, "2015-10-18 18:01:53,713 INFO [main] org.apache.hadoop.mapreduce.v2.app.rm.RMContainerAllocator: maxContainerCapability: <memory:8192, vCores:32>\r",
+                                                       500));
+    BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, "2015-10-18 18:01:53,713 INFO [main] org.apache.hadoop.yarn.client.api.impl.ContainerManagementProtocolProxy: yarn.client.max-cached-nodemanagers-proxies : 0\r",
+                                                       500));
+
+    BOOST_REQUIRE_EQUAL(2, categorizer.numMatches(1));
+
+    using TIntVec = std::vector<int>;
+    TIntVec expected{2, 3, 4, 5, 6, 7};
+    TIntVec actual{categorizer.usurpedCategories(1)};
+
+    BOOST_REQUIRE_EQUAL(ml::core::CContainerPrinter::print(expected),
+                        ml::core::CContainerPrinter::print(actual));
+    checkMemoryUsageInstrumentation(categorizer);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

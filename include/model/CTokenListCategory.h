@@ -149,6 +149,10 @@ public:
     //! Get the memory used by this category.
     std::size_t memoryUsage() const;
 
+    //! Returns true if the category has changed recently and resets
+    //! the changed flag to false.
+    bool isChangedAndReset();
+
 private:
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
@@ -205,6 +209,9 @@ private:
     //! Cache reverse searches to save repeated recalculations
     std::string m_ReverseSearchPart1;
     std::string m_ReverseSearchPart2;
+
+    //! Has the category changed recently
+    bool m_Changed;
 };
 }
 }

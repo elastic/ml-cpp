@@ -32,8 +32,8 @@ const double VARIANCE_CONFIDENCE = 0.99;
 }
 
 double confidence(double df) {
-    boost::math::chi_squared_distribution<> chi(df);
-    return boost::math::quantile(chi, VARIANCE_CONFIDENCE) / df;
+    boost::math::chi_squared chi2(df);
+    return boost::math::quantile(chi2, VARIANCE_CONFIDENCE) / df;
 }
 
 #define LOG_DETERMINANT(N)                                                         \
