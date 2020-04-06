@@ -1066,7 +1066,6 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
     // optimisation objective for the whole data set from this.
 
     using TDoubleMatrix = CDenseMatrix<double>;
-    using TDoubleVectorDoubleVectorPr = std::pair<TDoubleVector, TDoubleVector>;
     using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
 
     CPRNG::CXorOShiro128Plus rng;
@@ -1095,53 +1094,40 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
     LOG_TRACE(<< "# row indices = " << rowIndices.size());
 
     // Compute the count of each class in the sample set.
-    auto readClassCounts = core::bindRetrievableState(
-        [&](TDoubleVector& counts, TRowItr beginRows, TRowItr endRows) {
+    auto readClassCountsAndRecalls = core::bindRetrievableState(
+        [&](TDoubleVector& state, TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 if (isMissing((*row)[targetColumn]) == false) {
-                    counts(static_cast<std::size_t>((*row)[targetColumn])) += 1.0;
+                    int j{static_cast<int>((*row)[targetColumn])};
+                    int k;
+                    readPrediction(*row).maxCoeff(&k);
+                    state(j) += 1.0;
+                    state(numberClasses + j) += j == k ? 1.0 : 0.0;
                 }
             }
         },
-        TDoubleVector{TDoubleVector::Zero(numberClasses)});
-    auto copyClassCounts = [](TDoubleVector counts, TDoubleVector& result) {
-        result = std::move(counts);
+        TDoubleVector{TDoubleVector::Zero(2 * numberClasses)});
+    auto copyClassCountsAndRecalls = [](TDoubleVector state, TDoubleVector& result) {
+        result = std::move(state);
     };
-    auto reduceClassCounts = [&](TDoubleVector counts, TDoubleVector& result) {
-        result += counts;
-    };
-    TDoubleVector classCounts;
-    doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readClassCounts, &sampleMask),
-             copyClassCounts, reduceClassCounts, classCounts);
+    auto reduceClassCountsAndRecalls =
+        [&](TDoubleVector state, TDoubleVector& result) { result += state; };
+    TDoubleVector classCountsAndRecalls;
+    doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
+                            readClassCountsAndRecalls, &sampleMask),
+             copyClassCountsAndRecalls, reduceClassCountsAndRecalls, classCountsAndRecalls);
+    TDoubleVector classCounts{classCountsAndRecalls.topRows(numberClasses)};
+    TDoubleVector classRecalls{classCountsAndRecalls.bottomRows(numberClasses)};
+    classRecalls.array() /= classCounts.array();
     LOG_TRACE(<< "class counts = " << classCounts.transpose());
+    LOG_TRACE(<< "class recalls = " << classRecalls.transpose());
 
-    // Get sensible bounds for the log weights.
-    TDoubleVector prediction;
-    auto readWeightBounds = core::bindRetrievableState(
-        [=](TDoubleVectorDoubleVectorPr& bounds, TRowItr beginRows, TRowItr endRows) mutable {
-            for (auto row = beginRows; row != endRows; ++row) {
-                if (isMissing((*row)[targetColumn]) == false) {
-                    prediction = readPrediction(*row);
-                    bounds.first = bounds.first.cwiseMin(prediction);
-                    bounds.second = bounds.second.cwiseMax(prediction);
-                }
-            }
-        },
-        TDoubleVectorDoubleVectorPr{
-            TDoubleVector::Constant(numberClasses, std::numeric_limits<double>::max()),
-            TDoubleVector::Constant(numberClasses, -std::numeric_limits<double>::max())});
-    auto copyWeightBounds = [](TDoubleVectorDoubleVectorPr bounds,
-                               TDoubleVectorDoubleVectorPr& result) {
-        result = std::move(bounds);
-    };
-    auto reduceWeightBounds = [&](TDoubleVectorDoubleVectorPr bounds,
-                                  TDoubleVectorDoubleVectorPr& result) {
-        result.first.cwiseMin(bounds.first);
-        result.second.cwiseMax(bounds.second);
-    };
-    TDoubleVectorDoubleVectorPr bounds;
-    doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readWeightBounds, &rowMask),
-             copyWeightBounds, reduceWeightBounds, bounds);
+    TSizeVec recallOrder(numberClasses);
+    std::iota(recallOrder.begin(), recallOrder.end(), 0);
+    std::sort(recallOrder.begin(), recallOrder.end(), [&](std::size_t lhs, std::size_t rhs) {
+        return classRecalls(lhs) > classRecalls(rhs);
+    });
+    LOG_TRACE(<< "decreasing recall order = " << core::CContainerPrinter::print(recallOrder));
 
     // We want to solve max_w{min_j{recall(class_j)}} = max_w{min_j{c_j(w) / n_j}}
     // where c_j(w) and n_j are correct predictions for weight w and count of class_j
@@ -1224,26 +1210,27 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
         return TDoubleVector{objectiveAndGradient.col(max + 1)};
     };
 
-    TDoubleVector a;
-    TDoubleVector b;
-    std::tie(a, b) = std::move(bounds);
+    // We always try initialising with all weights equal because our minimization
+    // algorithm ensures we'll only decrease the initial value of the optimisation
+    // objective. This means we'll never do worse than not reweighting. Also, we
+    // expect weights to be (roughly) monotonic increasing for decreasing recall
+    // and use this to bias initial values.
 
     TMinAccumulator minLoss;
     TDoubleVector minWeights;
     TDoubleVector w0{TDoubleVector::Ones(numberClasses)};
-    TDoubleVector interpolate{numberClasses};
-    for (std::size_t i = 0; i < 10; ++i) {
+    for (std::size_t i = 0; i < 5; ++i) {
         CLbfgs<TDoubleVector> lbfgs{5};
         double loss;
         std::tie(w0, loss) = lbfgs.minimize(objective, objectiveGradient, std::move(w0));
-        LOG_TRACE(<< "weights = " << w0.transpose() << ", loss = " << loss);
+        LOG_TRACE(<< "weights* = " << w0.transpose() << ", loss* = " << loss);
         if (minLoss.add(loss)) {
             minWeights = std::move(w0);
         }
-        for (std::size_t j = 0; j < numberClasses; ++j) {
-            interpolate(j) = CSampling::uniformSample(rng, 0.0, 1.0);
+        w0 = TDoubleVector::Ones(numberClasses);
+        for (std::size_t j = 1; j < numberClasses; ++j) {
+            w0(j) = w0(j - 1) * CSampling::uniformSample(rng, 0.9, 1.3);
         }
-        w0 = (a + interpolate.cwiseProduct(b - a)).array().exp();
     }
 
     // Since we take argmax_i w_i p_i we can multiply by a constant. We arrange for
