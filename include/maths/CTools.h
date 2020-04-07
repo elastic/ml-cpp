@@ -669,9 +669,7 @@ public:
     static double pow2(double x) { return x * x; }
 
     //! Compute a value from \p x which will be stable across platforms.
-    static double stable(double x) {
-        return STABLE_EPS * std::floor(x / STABLE_EPS + 0.5);
-    }
+    static double stable(double x) { return core::CIEEE754::dropbits(x, 1); }
 
     //! A version of std::log which is stable across platforms.
     static double stableLog(double x) { return stable(std::log(x)); }
@@ -737,9 +735,6 @@ public:
 
     //! A wrapper around lgamma which handles corner cases if requested
     static bool lgamma(double value, double& result, bool checkForFinite = true);
-
-private:
-    static constexpr double STABLE_EPS{10.0 * std::numeric_limits<double>::epsilon()};
 };
 }
 }
