@@ -36,10 +36,12 @@
 * Reduce CPU scheduling priority of native analysis processes to favor the ES JVM
   when CPU is constrained. (See {ml-pull}1109[#1109].)
 * Take `training_percent` into account when estimating memory usage for classification and regression. 
-  (See {ml-pull}1111[1111].)
+  (See {ml-pull}1111[#1111].)
 * Adds new `num_matches` and `preferred_to_categories` fields to category output.
   (See {ml-pull}1062[#1062])
 * Improve robustness of anomaly detection to bad input data. (See {ml-pull}1114[#1114].)
+* Switched data frame analytics model memory estimates from kilobytes to megabytes.
+  (See {ml-pull}1126[#1126], issue: {issue}54506[#54506].)
 
 == {es} version 7.7.0
 
