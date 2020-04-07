@@ -37,6 +37,7 @@ public:
     using TStrVec = std::vector<std::string>;
     using TDoubleVec = std::vector<double>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
+    using TLossUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
     using TTargetTransformer = std::function<double(double)>;
 
 public:
@@ -70,9 +71,9 @@ public:
                 return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
                                                  weights, regressors, targets);
             case E_MsleRegression:
-                return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
-                                                 weights, regressors, targets, 
-                                                 [](double x){return std::exp(x) - 1.0;});
+                return setupLinearRegressionData(
+                    fieldNames, fieldValues, analyzer, weights, regressors,
+                    targets, [](double x) { return std::exp(x) - 1.0; });
             case E_BinaryClassification:
                 return setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
                                                      weights, regressors, targets);
@@ -82,11 +83,21 @@ public:
             }
         }();
 
-        std::unique_ptr<maths::boosted_tree::CLoss> loss;
-        if (type == E_Regression) {
+        TLossUPtr loss;
+        switch (type) {
+        case E_Regression:
             loss = std::make_unique<maths::boosted_tree::CMse>();
-        } else {
+            break;
+        case E_MsleRegression:
+            loss = std::make_unique<maths::boosted_tree::CMsle>();
+            break;
+        case E_BinaryClassification:
             loss = std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>();
+            break;
+        case E_MulticlassClassification:
+            // TODO
+            loss = TLossUPtr{};
+            break;
         }
 
         maths::CBoostedTreeFactory treeFactory{
@@ -132,9 +143,11 @@ public:
                     appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
                     break;
                 case E_MsleRegression:
-                    appendPrediction(*frame, weights.size(), prediction[0], expectedPredictions);
+                    appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
                     break;
                 case E_BinaryClassification:
+                    appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
+                    break;
                 case E_MulticlassClassification:
                     appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
                     break;
@@ -149,13 +162,16 @@ public:
                                                         const TDoubleVec& weights,
                                                         const TDoubleVec& regressors,
                                                         TStrVec& targets);
-    static TDataFrameUPtr setupLinearRegressionData(const TStrVec& fieldNames,
-                                                    TStrVec& fieldValues,
-                                                    api::CDataFrameAnalyzer& analyzer,
-                                                    const TDoubleVec& weights,
-                                                    const TDoubleVec& regressors,
-                                                    TStrVec& targets,
-                                                    TTargetTransformer targetTransformer = [](double x){return x;});
+    static TDataFrameUPtr
+    setupLinearRegressionData(const TStrVec& fieldNames,
+                              TStrVec& fieldValues,
+                              api::CDataFrameAnalyzer& analyzer,
+                              const TDoubleVec& weights,
+                              const TDoubleVec& regressors,
+                              TStrVec& targets,
+                              TTargetTransformer targetTransformer = [](double x) {
+                                  return x;
+                              });
 
 private:
     using TDouble2Vec = core::CSmallVector<double, 2>;
