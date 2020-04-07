@@ -40,15 +40,6 @@ double logLogistic(double logOdds) {
     }
     return CTools::stableLog(CTools::logisticFunction(logOdds));
 }
-
-template<typename SCALAR>
-void inplaceLogSoftmax(CDenseVector<SCALAR>& z) {
-    // Handle under/overflow when taking exponentials by subtracting zmax.
-    double zmax{z.maxCoeff()};
-    z.array() -= zmax;
-    double Z{z.array().exp().sum()};
-    z.array() -= CTools::stableLog(Z);
-}
 }
 
 namespace boosted_tree_detail {
@@ -333,7 +324,7 @@ CArgMinMultinomialLogisticLossImpl::objective() const {
     if (m_Centres.size() == 1) {
         return [logProbabilities, lambda, this](const TDoubleVector& weight) mutable {
             logProbabilities = m_Centres[0] + weight;
-            inplaceLogSoftmax(logProbabilities);
+            CTools::inplaceLogSoftmax(logProbabilities);
             return lambda * weight.squaredNorm() - m_ClassCounts.transpose() * logProbabilities;
         };
     }
@@ -342,7 +333,7 @@ CArgMinMultinomialLogisticLossImpl::objective() const {
         for (std::size_t i = 0; i < m_CentresClassCounts.size(); ++i) {
             if (m_CentresClassCounts[i].sum() > 0.0) {
                 logProbabilities = m_Centres[i] + weight;
-                inplaceLogSoftmax(logProbabilities);
+                CTools::inplaceLogSoftmax(logProbabilities);
                 loss -= m_CentresClassCounts[i].transpose() * logProbabilities;
             }
         }

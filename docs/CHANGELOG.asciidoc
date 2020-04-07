@@ -52,7 +52,6 @@
 * Ensure classification and regression results agree for all our target operating systems.
   (See {ml-pull}1127[#1127].)
 
-
 == {es} version 7.7.0
 
 === New Features

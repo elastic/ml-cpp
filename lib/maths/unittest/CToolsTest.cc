@@ -1220,7 +1220,7 @@ BOOST_AUTO_TEST_CASE(testLgamma) {
     BOOST_REQUIRE_EQUAL(result, std::numeric_limits<double>::infinity());
 }
 
-BOOST_AUTO_TEST_CASE(testSoftMax) {
+BOOST_AUTO_TEST_CASE(testSoftmax) {
     // Test some invariants and that std::vector and maths::CDenseVector versions agree.
 
     using TDoubleVector = maths::CDenseVector<double>;
@@ -1245,8 +1245,36 @@ BOOST_AUTO_TEST_CASE(testSoftMax) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testStable) {
+BOOST_AUTO_TEST_CASE(testLogSoftmax) {
+    // Test some invariants and that std::vector and maths::CDenseVector versions agree.
 
+    using TDoubleVector = maths::CDenseVector<double>;
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec z;
+    for (std::size_t t = 0; t < 100; ++t) {
+
+        rng.generateUniformSamples(-3.0, 3.0, 5, z);
+        TDoubleVec p{z};
+        CTools::inplaceSoftmax(p);
+        TDoubleVec logP{z};
+        CTools::inplaceLogSoftmax(logP);
+
+        BOOST_TEST_REQUIRE(*std::max_element(logP.begin(), logP.end()) <= 0.0);
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_CLOSE(std::log(p[i]), logP[i], 1e-6);
+        }
+
+        TDoubleVector logP_{TDoubleVector::fromStdVector(z)};
+        CTools::inplaceLogSoftmax(logP_);
+        for (std::size_t i = 0; i < 5; ++i) {
+            BOOST_REQUIRE_CLOSE(logP[i], logP_[i], 1e-6);
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testStable) {
     // Test the bit representation of the stable log and exp of some random values.
     // This will fail if they're different on any of our target platforms.
 

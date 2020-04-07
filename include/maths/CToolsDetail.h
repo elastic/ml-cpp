@@ -11,6 +11,7 @@
 
 #include <maths/CCompositeFunctions.h>
 #include <maths/CIntegration.h>
+#include <maths/CLinearAlgebraEigen.h>
 #include <maths/CMixtureDistribution.h>
 #include <maths/COrderings.h>
 #include <maths/CTools.h>
@@ -307,6 +308,15 @@ void CTools::inplaceSoftmax(CDenseVector<T>& z) {
     z.array() -= zmax;
     z.array() = z.array().exp();
     z /= z.sum();
+}
+
+template<typename SCALAR>
+void CTools::inplaceLogSoftmax(CDenseVector<SCALAR>& z) {
+    // Handle under/overflow when taking exponentials by subtracting zmax.
+    double zmax{z.maxCoeff()};
+    z.array() -= zmax;
+    double Z{z.array().exp().sum()};
+    z.array() -= stableLog(Z);
 }
 }
 }
