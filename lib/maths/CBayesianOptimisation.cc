@@ -325,8 +325,8 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
     // We restart optimization with initial guess on different scales for global probing.
     TDoubleVec scales;
     scales.reserve((m_Restarts - 1) * n);
-    CSampling::uniformSample(m_Rng, std::log(0.1), std::log(4.0),
-                             (m_Restarts - 1) * n, scales);
+    CSampling::uniformSample(m_Rng, CTools::stableLog(0.1),
+                             CTools::stableLog(4.0), (m_Restarts - 1) * n, scales);
 
     TLikelihoodFunc l;
     TLikelihoodGradientFunc g;
@@ -446,11 +446,12 @@ CBayesianOptimisation::kernelCovariates(const TVector& a, const TVector& x, doub
 }
 
 double CBayesianOptimisation::kernel(const TVector& a, const TVector& x, const TVector& y) const {
-    return CTools::pow2(a(0)) * std::exp(-(x - y).transpose() *
-                                         (m_MinimumKernelCoordinateDistanceScale +
-                                          a.tail(a.size() - 1).cwiseAbs2().matrix())
-                                             .asDiagonal() *
-                                         (x - y));
+    return CTools::pow2(a(0)) *
+           CTools::stableExp(-(x - y).transpose() *
+                             (m_MinimumKernelCoordinateDistanceScale +
+                              a.tail(a.size() - 1).cwiseAbs2().matrix())
+                                 .asDiagonal() *
+                             (x - y));
 }
 
 void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

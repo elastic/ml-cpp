@@ -668,6 +668,17 @@ public:
     //! Compute \f$x^2\f$.
     static double pow2(double x) { return x * x; }
 
+    //! Compute a value from \p x which will be stable across platforms.
+    static double stable(double x) {
+        return STABLE_EPS * std::floor(x / STABLE_EPS + 0.5);
+    }
+
+    //! A version of std::log which is stable across platforms.
+    static double stableLog(double x) { return stable(std::log(x)); }
+
+    //! A version of std::log which is stable across platforms.
+    static double stableExp(double x) { return stable(std::exp(x)); }
+
     //! Sigmoid function of \p p.
     static double sigmoid(double p) { return 1.0 / (1.0 + 1.0 / p); }
 
@@ -681,7 +692,7 @@ public:
     //! \param[in] sign Determines whether it's a step up or down.
     static double
     logisticFunction(double x, double width = 1.0, double x0 = 0.0, double sign = 1.0) {
-        return sigmoid(std::exp(std::copysign(1.0, sign) * (x - x0) / width));
+        return sigmoid(stableExp(std::copysign(1.0, sign) * (x - x0) / width));
     }
 
     //! Compute the softmax from the multinomial logit values \p logit.
@@ -695,7 +706,7 @@ public:
         double Z{0.0};
         double zmax{*std::max_element(z.begin(), z.end())};
         for (auto& zi : z) {
-            zi = std::exp(zi - zmax);
+            zi = stableExp(zi - zmax);
             Z += zi;
         }
         for (auto& zi : z) {
@@ -726,6 +737,9 @@ public:
 
     //! A wrapper around lgamma which handles corner cases if requested
     static bool lgamma(double value, double& result, bool checkForFinite = true);
+
+private:
+    static constexpr double STABLE_EPS{10.0 * std::numeric_limits<double>::epsilon()};
 };
 }
 }
