@@ -143,7 +143,8 @@ int main(int argc, char** argv) {
     // statically links its own version library.
     LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
 
-    ml::core::CProcessPriority::reducePriority();
+    // Reduce memory priority before installing system call filters.
+    ml::core::CProcessPriority::reduceMemoryPriority();
 
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
@@ -151,6 +152,11 @@ int main(int argc, char** argv) {
         LOG_FATAL(<< "Failed to initialise IO");
         return EXIT_FAILURE;
     }
+
+    // Reduce CPU priority after connecting named pipes so the JVM gets more
+    // time when CPU is constrained.  Named pipe connection is time-sensitive,
+    // hence is done before reducing CPU priority.
+    ml::core::CProcessPriority::reduceCpuPriority();
 
     if (jobId.empty()) {
         LOG_FATAL(<< "No job ID specified");

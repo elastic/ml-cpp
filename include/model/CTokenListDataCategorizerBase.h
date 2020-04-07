@@ -176,6 +176,14 @@ public:
                                   std::size_t rareCategories,
                                   std::size_t deadCategories);
 
+    std::size_t numMatches(int categoryId) override;
+
+    CDataCategorizer::TIntVec usurpedCategories(int categoryId) override;
+
+    std::size_t numCategories() const override;
+
+    bool categoryChangedAndReset(int categoryId) override;
+
 protected:
     //! Split the string into a list of tokens.  The result of the
     //! tokenisation is returned in \p tokenIds, \p tokenUniqueIds and
@@ -316,7 +324,8 @@ private:
     TTokenListCategoryVec m_Categories;
 
     //! List of match count/index into category vector in descending order of
-    //! match count
+    //! match count.  Note that the second element is an index into m_Categories,
+    //! not a category ID.
     TSizeSizePrVec m_CategoriesByCount;
 
     //! Used for looking up tokens to a unique ID

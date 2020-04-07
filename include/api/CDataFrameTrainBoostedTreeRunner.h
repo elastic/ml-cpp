@@ -36,6 +36,7 @@ public:
     static const std::string DEPENDENT_VARIABLE_NAME;
     static const std::string PREDICTION_FIELD_NAME;
     static const std::string DOWNSAMPLE_ROWS_PER_FEATURE;
+    static const std::string DOWNSAMPLE_FACTOR;
     static const std::string ALPHA;
     static const std::string LAMBDA;
     static const std::string GAMMA;
@@ -44,11 +45,12 @@ public:
     static const std::string SOFT_TREE_DEPTH_TOLERANCE;
     static const std::string MAX_TREES;
     static const std::string FEATURE_BAG_FRACTION;
-    static const std::string NUMBER_FOLDS;
+    static const std::string NUM_FOLDS;
     static const std::string STOP_CROSS_VALIDATION_EARLY;
-    static const std::string NUMBER_ROUNDS_PER_HYPERPARAMETER;
+    static const std::string MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER;
     static const std::string BAYESIAN_OPTIMISATION_RESTARTS;
     static const std::string NUM_TOP_FEATURE_IMPORTANCE_VALUES;
+    static const std::string TRAINING_PERCENT_FIELD_NAME;
 
     //Output
     static const std::string IS_TRAINING_FIELD_NAME;
@@ -114,6 +116,7 @@ private:
 
     std::string m_DependentVariableFieldName;
     std::string m_PredictionFieldName;
+    double m_TrainingPercent;
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     CDataFrameTrainBoostedTreeInstrumentation m_Instrumentation;

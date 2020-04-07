@@ -69,7 +69,8 @@ public:
     using TRowRef = core::CDataFrame::TRowRef;
     using TWeightFunc = std::function<double(const TRowRef&)>;
     using TDoubleVector = CDenseVector<double>;
-    using TReadPredictionFunc = std::function<TDoubleVector(const TRowRef)>;
+    using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
+    using TReadPredictionFunc = std::function<TMemoryMappedFloatVector(const TRowRef&)>;
     using TQuantileSketchVec = std::vector<CQuantileSketch>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
@@ -408,6 +409,19 @@ private:
                                        const core::CPackedBitVector& rowMask,
                                        const TSizeVec& columnMask,
                                        std::size_t numberSamples);
+    static TDoubleVector
+    maximizeMinimumRecallForBinary(std::size_t numberThreads,
+                                   const core::CDataFrame& frame,
+                                   const core::CPackedBitVector& rowMask,
+                                   std::size_t targetColumn,
+                                   const TReadPredictionFunc& readPrediction);
+    static TDoubleVector
+    maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
+                                       const core::CDataFrame& frame,
+                                       const core::CPackedBitVector& rowMask,
+                                       std::size_t numberClasses,
+                                       std::size_t targetColumn,
+                                       const TReadPredictionFunc& readPrediction);
     static void removeMetricColumns(const core::CDataFrame& frame, TSizeVec& columnMask);
     static void removeCategoricalColumns(const core::CDataFrame& frame, TSizeVec& columnMask);
     static double unitWeight(const TRowRef&);

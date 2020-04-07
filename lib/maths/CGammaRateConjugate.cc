@@ -874,13 +874,15 @@ void CGammaRateConjugate::addSamples(const TDouble1Vec& samples,
     try {
         double shift = boost::math::digamma(m_LikelihoodShape);
         for (std::size_t i = 0u; i < samples.size(); ++i) {
+            double x = samples[i] + m_Offset;
             double n = maths_t::countForUpdate(weights[i]);
             double varianceScale = maths_t::seasonalVarianceScale(weights[i]) *
                                    maths_t::countVarianceScale(weights[i]);
 
-            double x = samples[i] + m_Offset;
-            if (!CMathsFuncs::isFinite(x) || x <= 0.0) {
-                LOG_ERROR(<< "Discarding " << x << " it's not gamma");
+            if (x <= 0.0 || !CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(n) ||
+                !CMathsFuncs::isFinite(varianceScale)) {
+                LOG_ERROR(<< "Discarding sample = " << x << ", weight = " << n
+                          << ", variance scale = " << varianceScale);
                 continue;
             }
 

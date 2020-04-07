@@ -8,6 +8,7 @@
 #define INCLUDED_ml_test_CDataFrameAnalyzerTrainingFactory_h
 
 #include <core/CDataFrame.h>
+#include <core/CSmallVector.h>
 
 #include <maths/CBoostedTreeFactory.h>
 #include <maths/CBoostedTreeLoss.h>
@@ -128,16 +129,14 @@ public:
                 auto prediction = tree->readAndAdjustPrediction(*row);
                 switch (type) {
                 case E_Regression:
-                    appendPrediction(*frame, weights.size(), prediction[0], expectedPredictions);
+                    appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
                     break;
                 case E_MsleRegression:
                     appendPrediction(*frame, weights.size(), prediction[0], expectedPredictions);
                     break;
                 case E_BinaryClassification:
-                    appendPrediction(*frame, weights.size(), prediction[1], expectedPredictions);
-                    break;
                 case E_MulticlassClassification:
-                    // TODO.
+                    appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
                     break;
                 }
             }
@@ -159,15 +158,19 @@ public:
                                                     TTargetTransformer targetTransformer = [](double x){return x;});
 
 private:
+    using TDouble2Vec = core::CSmallVector<double, 2>;
     using TBoolVec = std::vector<bool>;
     using TRowItr = core::CDataFrame::TRowItr;
 
 private:
-    static void appendPrediction(core::CDataFrame&, std::size_t, double prediction, TDoubleVec& predictions);
+    static void appendPrediction(core::CDataFrame&,
+                                 std::size_t,
+                                 const TDouble2Vec& prediction,
+                                 TDoubleVec& predictions);
 
     static void appendPrediction(core::CDataFrame& frame,
                                  std::size_t target,
-                                 double class1Score,
+                                 const TDouble2Vec& class1Score,
                                  TStrVec& predictions);
 };
 }

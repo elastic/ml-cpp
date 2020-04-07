@@ -377,12 +377,16 @@ void CBoostedTreeImpl::initializePerFoldTestLosses() {
 }
 
 void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& frame) {
+
+    using TFloatStorageVec = std::vector<CFloatStorage>;
+
     if (m_Loss->type() == CLoss::E_BinaryClassification ||
         m_Loss->type() == CLoss::E_MulticlassClassification) {
 
         std::size_t numberClasses{m_Loss->type() == CLoss::E_BinaryClassification
                                       ? 2
                                       : m_Loss->numberParameters()};
+        TFloatStorageVec storage(2);
 
         switch (m_ClassAssignmentObjective) {
         case CBoostedTree::E_Accuracy:
@@ -391,9 +395,20 @@ void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& fram
         case CBoostedTree::E_MinimumRecall:
             m_ClassificationWeights = CDataFrameUtils::maximumMinimumRecallClassWeights(
                 m_NumberThreads, frame, this->allTrainingRowsMask(),
-                numberClasses, m_DependentVariable, [this](const TRowRef& row) {
-                    return m_Loss->transform(readPrediction(
-                        row, m_NumberInputColumns, m_Loss->numberParameters()));
+                numberClasses, m_DependentVariable,
+                [storage, numberClasses, this](const TRowRef& row) mutable {
+                    if (m_Loss->type() == CLoss::E_BinaryClassification) {
+                        // We predict the log-odds but this is expected to return
+                        // the log of the predicted class probabilities.
+                        TMemoryMappedFloatVector result{&storage[0], 2};
+                        result.array() = m_Loss
+                                             ->transform(readPrediction(
+                                                 row, m_NumberInputColumns, numberClasses))
+                                             .array()
+                                             .log();
+                        return result;
+                    }
+                    return readPrediction(row, m_NumberInputColumns, numberClasses);
                 });
             break;
         }

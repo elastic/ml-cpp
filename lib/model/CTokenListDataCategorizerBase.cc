@@ -179,6 +179,9 @@ bool CTokenListDataCategorizerBase::createReverseSearch(int categoryId,
                                                         std::string& part2,
                                                         std::size_t& maxMatchingLength,
                                                         bool& wasCached) {
+    wasCached = false;
+    maxMatchingLength = 0;
+
     if (m_ReverseSearchCreator == nullptr) {
         LOG_ERROR(<< "Cannot create reverse search - no reverse search creator");
 
@@ -207,8 +210,8 @@ bool CTokenListDataCategorizerBase::createReverseSearch(int categoryId,
     maxMatchingLength = category.maxMatchingStringLen();
 
     // If we can retrieve cached reverse search terms we'll save a lot of time
-    if (category.cachedReverseSearch(part1, part2) == true) {
-        wasCached = true;
+    wasCached = category.cachedReverseSearch(part1, part2);
+    if (wasCached) {
         return true;
     }
 
@@ -616,6 +619,59 @@ CTokenListDataCategorizerBase::calculateCategorizationStatus(std::size_t categor
     }
 
     return model_t::E_CategorizationStatusOk;
+}
+
+std::size_t CTokenListDataCategorizerBase::numMatches(int categoryId) {
+    if (categoryId < 1 || static_cast<std::size_t>(categoryId) > m_Categories.size()) {
+        LOG_ERROR(<< "Programmatic error - invalid ML category: " << categoryId);
+        return 0;
+    }
+    return m_Categories[categoryId - 1].numMatches();
+}
+
+CDataCategorizer::TIntVec CTokenListDataCategorizerBase::usurpedCategories(int categoryId) {
+    CDataCategorizer::TIntVec usurped;
+    if (categoryId < 1 || static_cast<std::size_t>(categoryId) > m_Categories.size()) {
+        LOG_ERROR(<< "Programmatic error - invalid ML category: " << categoryId);
+        return usurped;
+    }
+    auto iter = std::find_if(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
+                             [categoryId](const TSizeSizePr& pr) {
+                                 return pr.second ==
+                                        static_cast<std::size_t>(categoryId - 1);
+                             });
+    if (iter == m_CategoriesByCount.end()) {
+        LOG_WARN(<< "Could not find category definition for category: " << categoryId);
+        return usurped;
+    }
+
+    const CTokenListCategory& category{m_Categories[categoryId - 1]};
+    for (++iter; iter != m_CategoriesByCount.end(); ++iter) {
+        const CTokenListCategory& lessFrequentCategory{m_Categories[iter->second]};
+        bool matchesSearch{category.maxMatchingStringLen() >=
+                               lessFrequentCategory.maxMatchingStringLen() &&
+                           category.isMissingCommonTokenWeightZero(
+                               lessFrequentCategory.commonUniqueTokenIds()) &&
+                           category.containsCommonInOrderTokensInOrder(
+                               lessFrequentCategory.baseTokenIds())};
+        if (matchesSearch) {
+            usurped.emplace_back(1 + static_cast<int>(iter->second));
+        }
+    }
+    std::sort(usurped.begin(), usurped.end());
+    return usurped;
+}
+
+std::size_t CTokenListDataCategorizerBase::numCategories() const {
+    return m_Categories.size();
+}
+
+bool CTokenListDataCategorizerBase::categoryChangedAndReset(int categoryId) {
+    if (categoryId < 1 || static_cast<std::size_t>(categoryId) > m_Categories.size()) {
+        LOG_ERROR(<< "Programmatic error - invalid ML category: " << categoryId);
+        return false;
+    }
+    return m_Categories[categoryId - 1].isChangedAndReset();
 }
 
 CTokenListDataCategorizerBase::CTokenInfoItem::CTokenInfoItem(const std::string& str,
