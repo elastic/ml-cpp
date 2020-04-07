@@ -570,6 +570,94 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingMsle) {
+
+    // Test the regression hyperparameter settings are correctly propagated to the
+    // analysis runner.
+
+    double alpha{2.0};
+    double lambda{1.0};
+    double gamma{10.0};
+    double softTreeDepthLimit{3.0};
+    double softTreeDepthTolerance{0.1};
+    double eta{0.9};
+    std::size_t maximumNumberTrees{1};
+    double featureBagFraction{0.3};
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
+    api::CDataFrameAnalyzer analyzerMsle{
+        specFactory.predictionAlpha(alpha)
+            .predictionLambda(lambda)
+            .predictionGamma(gamma)
+            .predictionSoftTreeDepthLimit(softTreeDepthLimit)
+            .predictionSoftTreeDepthTolerance(softTreeDepthTolerance)
+            .predictionEta(eta)
+            .predictionMaximumNumberTrees(maximumNumberTrees)
+            .predictionFeatureBagFraction(featureBagFraction)
+            .regressionLossFunction(test::CDataFrameAnalysisSpecificationFactory::TRegressionLossFunctionType::E_Msle)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
+        outputWriterFactory};
+
+    TDoubleVec expectedPredictions;
+
+    TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
+        test::CDataFrameAnalyzerTrainingFactory::E_MsleRegression, fieldNames, fieldValues,
+        analyzerMsle, expectedPredictions, 100, alpha, lambda, gamma, softTreeDepthLimit,
+        softTreeDepthTolerance, eta, maximumNumberTrees, featureBagFraction);
+    analyzerMsle.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    // Check best hyperparameters
+    const auto* runner{dynamic_cast<const api::CDataFrameTrainBoostedTreeRegressionRunner*>(
+        analyzerMsle.runner())};
+    const auto& boostedTree{runner->boostedTree()};
+    const auto& bestHyperparameters{boostedTree.bestHyperparameters()};
+    BOOST_TEST_REQUIRE(bestHyperparameters.eta() == eta);
+    BOOST_TEST_REQUIRE(bestHyperparameters.featureBagFraction() == featureBagFraction);
+    // TODO extend the test to add the checks for downsampleFactor and etaGrowthRatePerTree
+    //    BOOST_TEST_REQUIRE(bestHyperparameters.downsampleFactor() == downsampleFactor);
+    //    BOOST_TEST_REQUIRE(bestHyperparameters.etaGrowthRatePerTree() == etaGrowthRatePerTree);
+    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().depthPenaltyMultiplier() == alpha);
+    BOOST_TEST_REQUIRE(
+        bestHyperparameters.regularization().leafWeightPenaltyMultiplier() == lambda);
+    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().treeSizePenaltyMultiplier() == gamma);
+    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().softTreeDepthLimit() ==
+                       softTreeDepthLimit);
+    BOOST_TEST_REQUIRE(bestHyperparameters.regularization().softTreeDepthTolerance() ==
+                       softTreeDepthTolerance);
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    auto expectedPrediction = expectedPredictions.begin();
+    bool progressCompleted{false};
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                *expectedPrediction,
+                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
+                1e-4 * std::fabs(*expectedPrediction));
+            ++expectedPrediction;
+            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
+        } else if (result.HasMember("progress_percent")) {
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
+            progressCompleted = result["progress_percent"].GetInt() == 100;
+        }
+    }
+    BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
+    BOOST_TEST_REQUIRE(progressCompleted);
+}
+
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
 
     // Test the results the analyzer produces match running classification directly.

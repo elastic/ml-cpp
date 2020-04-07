@@ -28,6 +28,7 @@ namespace test {
 class TEST_EXPORT CDataFrameAnalyzerTrainingFactory {
 public:
     enum EPredictionType {
+        E_MsleRegression,
         E_Regression,
         E_BinaryClassification,
         E_MulticlassClassification
@@ -35,6 +36,7 @@ public:
     using TStrVec = std::vector<std::string>;
     using TDoubleVec = std::vector<double>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
+    using TTargetTransformer = std::function<double(double)>;
 
 public:
     template<typename T>
@@ -66,6 +68,10 @@ public:
             case E_Regression:
                 return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
                                                  weights, regressors, targets);
+            case E_MsleRegression:
+                return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
+                                                 weights, regressors, targets, 
+                                                 [](double x){return std::exp(x) - 1.0;});
             case E_BinaryClassification:
                 return setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
                                                      weights, regressors, targets);
@@ -124,6 +130,9 @@ public:
                 case E_Regression:
                     appendPrediction(*frame, weights.size(), prediction[0], expectedPredictions);
                     break;
+                case E_MsleRegression:
+                    appendPrediction(*frame, weights.size(), prediction[0], expectedPredictions);
+                    break;
                 case E_BinaryClassification:
                     appendPrediction(*frame, weights.size(), prediction[1], expectedPredictions);
                     break;
@@ -146,7 +155,8 @@ public:
                                                     api::CDataFrameAnalyzer& analyzer,
                                                     const TDoubleVec& weights,
                                                     const TDoubleVec& regressors,
-                                                    TStrVec& targets);
+                                                    TStrVec& targets,
+                                                    TTargetTransformer targetTransformer = [](double x){return x;});
 
 private:
     using TBoolVec = std::vector<bool>;

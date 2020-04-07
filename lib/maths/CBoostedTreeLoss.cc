@@ -669,10 +669,7 @@ void CMsle::gradient(const TMemoryMappedFloatVector& logPrediction,
     double logActual{CTools::fastLog(actual)};
     double log1PlusPrediction{CTools::fastLog(1.0 + prediction)};
     double log1PlusActual{CTools::fastLog(1.0 + actual)};
-    writer(0, prediction == actual
-                  ? 0.0
-                  : 2.0 * weight * CTools::pow2(log1PlusPrediction - log1PlusActual) /
-                        (logPrediction(0) - logActual));
+    writer(0, 2 * weight * (log1PlusPrediction - log1PlusActual) / (prediction + 1));
 }
 
 void CMsle::curvature(const TMemoryMappedFloatVector& logPrediction,
@@ -681,13 +678,11 @@ void CMsle::curvature(const TMemoryMappedFloatVector& logPrediction,
                       double weight) const {
     // Apply L'Hopital's rule in the limit prediction -> actual.
     double prediction{std::exp(logPrediction(0))};
-    double logActual{CTools::fastLog(actual)};
     double log1PlusPrediction{CTools::fastLog(1.0 + prediction)};
     double log1PlusActual{CTools::fastLog(1.0 + actual)};
-    writer(0, prediction == actual
-                  ? 2.0 * weight * CTools::pow2(actual / (1.0 + actual))
-                  : CTools::pow2((log1PlusPrediction - log1PlusActual) /
-                                 (logPrediction(0) - logActual)));
+    writer(0, prediction == actual ? 0.0
+                                   : 2.0 * weight * (log1PlusPrediction - log1PlusActual) /
+                                         ((prediction + 1) * (prediction - actual)));
 }
 
 bool CMsle::isCurvatureConstant() const {

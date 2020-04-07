@@ -25,6 +25,9 @@ public:
 
 public:
     static const std::string STRATIFIED_CROSS_VALIDATION;
+    static const std::string LOSS_FUNCTION;
+    static const std::string MSE;
+    static const std::string MSLE;
 
 public:
     static const CDataFrameAnalysisConfigReader& parameterReader();

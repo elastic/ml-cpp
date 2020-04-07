@@ -30,9 +30,6 @@ namespace api {
 namespace {
 // Output
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
-const std::string LOSS_FUNCTION{"loss_function"};
-const std::string MSE{"mse"};
-const std::string MSLE{"msle"};
 
 const std::set<std::string> PREDICTION_FIELD_NAME_BLACKLIST{IS_TRAINING_FIELD_NAME};
 }
@@ -136,6 +133,9 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition(
 
 // clang-format off
 const std::string CDataFrameTrainBoostedTreeRegressionRunner::STRATIFIED_CROSS_VALIDATION{"stratified_cross_validation"};
+const std::string CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION{"loss_function"};
+const std::string CDataFrameTrainBoostedTreeRegressionRunner::MSE{"mse"};
+const std::string CDataFrameTrainBoostedTreeRegressionRunner::MSLE{"msle"};
 // clang-format on
 
 const std::string& CDataFrameTrainBoostedTreeRegressionRunnerFactory::name() const {
