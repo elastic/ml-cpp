@@ -10,9 +10,12 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CDataFrameUtils.h>
+#include <maths/CLinearAlgebraEigen.h>
 #include <maths/CMic.h>
 #include <maths/COrderings.h>
 #include <maths/CQuantileSketch.h>
+#include <maths/CTools.h>
+#include <maths/CToolsDetail.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
@@ -1200,6 +1203,117 @@ BOOST_AUTO_TEST_CASE(testCategoryMicWithColumnWithMissing) {
         BOOST_REQUIRE_EQUAL(std::string{"[1, 3, 0, 4, 2]"},
                             core::CContainerPrinter::print(categoryOrder));
     }
+}
+
+BOOST_AUTO_TEST_CASE(testMaximumMinimumRecallClassWeights) {
+
+    // Test we reliably increase the minimum class recall for predictions with uneven accuracy.
+
+    using TDoubleVector = maths::CDenseVector<double>;
+    using TMemoryMappedFloatVector = maths::CMemoryMappedDenseVector<maths::CFloatStorage>;
+
+    std::size_t rows{5000};
+    std::size_t capacity{2000};
+
+    test::CRandomNumbers rng;
+
+    for (std::size_t numberClasses : {2, 3}) {
+
+        std::size_t cols{numberClasses + 1};
+
+        auto readPrediction = [&](const core::CDataFrame::TRowRef& row) {
+            return TMemoryMappedFloatVector{row.data(), static_cast<int>(numberClasses)};
+        };
+
+        TBoolVec categoricalColumns(cols, false);
+        categoricalColumns[numberClasses] = true;
+
+        for (std::size_t t = 0; t < 5; ++t) {
+            core::stopDefaultAsyncExecutor();
+
+            TDoubleVec predictions;
+            TSizeVec category;
+            auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+            frame->categoricalColumns(categoricalColumns);
+            for (std::size_t i = 0; i < rows; ++i) {
+                frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                    rng.generateUniformSamples(0, numberClasses, 1, category);
+                    rng.generateNormalSamples(0.0, 1.0, numberClasses, predictions);
+                    for (std::size_t j = 0; j < numberClasses; ++j) {
+                        column[j] += predictions[j];
+                    }
+                    column[category[0]] += static_cast<double>(category[0] + 1);
+                    column[numberClasses] = static_cast<double>(category[0]);
+                });
+            }
+            frame->finishWritingRows();
+
+            TDoubleVecVec minRecalls(2, TDoubleVec(2));
+            TDoubleVecVec maxRecalls(2, TDoubleVec(2));
+
+            std::size_t i{0};
+            for (auto numberThreads : {1, 4}) {
+
+                auto weights = maths::CDataFrameUtils::maximumMinimumRecallClassWeights(
+                    numberThreads, *frame, maskAll(rows), numberClasses,
+                    numberClasses, readPrediction);
+
+                TDoubleVector prediction;
+                TDoubleVector correct[2]{TDoubleVector::Zero(numberClasses),
+                                         TDoubleVector::Zero(numberClasses)};
+                TDoubleVector counts{TDoubleVector::Zero(numberClasses)};
+
+                frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
+                                       core::CDataFrame::TRowItr endRows) {
+                    for (auto row = beginRows; row != endRows; ++row) {
+                        prediction = readPrediction(*row);
+                        maths::CTools::inplaceSoftmax(prediction);
+                        std::size_t weightedPredictedClass;
+                        weights.cwiseProduct(prediction).maxCoeff(&weightedPredictedClass);
+                        std::size_t actualClass{
+                            static_cast<std::size_t>((*row)[numberClasses])};
+                        if (weightedPredictedClass == actualClass) {
+                            correct[0](actualClass) += 1.0;
+                        }
+                        std::size_t unweightedPredictedClass;
+                        prediction.maxCoeff(&unweightedPredictedClass);
+                        if (unweightedPredictedClass == actualClass) {
+                            correct[1](actualClass) += 1.0;
+                        }
+                        counts(actualClass) += 1.0;
+                    }
+                });
+
+                LOG_TRACE(<< "weighted class recalls = "
+                          << correct[0].cwiseQuotient(counts).transpose());
+                LOG_TRACE(<< "unweighted class recalls = "
+                          << correct[1].cwiseQuotient(counts).transpose());
+
+                minRecalls[i][0] = correct[0].cwiseQuotient(counts).minCoeff();
+                maxRecalls[i][0] = correct[0].cwiseQuotient(counts).maxCoeff();
+                minRecalls[i][1] = correct[1].cwiseQuotient(counts).minCoeff();
+                maxRecalls[i][1] = correct[1].cwiseQuotient(counts).maxCoeff();
+
+                ++i;
+                core::startDefaultAsyncExecutor();
+            }
+
+            LOG_DEBUG(<< "min recalls = " << core::CContainerPrinter::print(minRecalls));
+            LOG_DEBUG(<< "max recalls = " << core::CContainerPrinter::print(maxRecalls));
+
+            // Threaded and non-threaded results are close.
+            BOOST_REQUIRE_CLOSE(minRecalls[0][0], minRecalls[1][0], 1.0); // 1 %
+
+            // We improved the minimum class recall by at least 10%.
+            BOOST_TEST_REQUIRE(minRecalls[0][0] > 1.1 * minRecalls[0][1]);
+
+            // The minimum and maximum class recalls are close: we're at the global maximum.
+            BOOST_TEST_REQUIRE(1.02 * minRecalls[0][0] > maxRecalls[0][0]);
+            BOOST_TEST_REQUIRE(1.02 * minRecalls[1][0] > maxRecalls[1][0]);
+        }
+    }
+
+    core::stopDefaultAsyncExecutor();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
