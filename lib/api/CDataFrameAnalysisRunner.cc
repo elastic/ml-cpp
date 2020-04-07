@@ -32,6 +32,8 @@ std::size_t maximumNumberPartitions(const CDataFrameAnalysisSpecification& spec)
     // user to allocate more resources for the job in this case.
     return static_cast<std::size_t>(std::sqrt(static_cast<double>(spec.numberRows())) + 0.5);
 }
+
+const std::size_t BYTES_IN_MB{1024 * 1024};
 }
 
 CDataFrameAnalysisRunner::CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec)
@@ -54,11 +56,11 @@ void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJ
         this->estimateMemoryUsage(numberRows, numberRows, numberColumns)};
     std::size_t expectedMemoryWithDisk{this->estimateMemoryUsage(
         numberRows, numberRows / maxNumberPartitions, numberColumns)};
-    auto roundUpToNearestKilobyte = [](std::size_t bytes) {
-        return std::to_string((bytes + 1024 - 1) / 1024) + "kB";
+    auto roundUpToNearestMb = [](std::size_t bytes) {
+        return std::to_string((bytes + BYTES_IN_MB - 1) / BYTES_IN_MB) + "mb";
     };
-    writer.write(roundUpToNearestKilobyte(expectedMemoryWithoutDisk),
-                 roundUpToNearestKilobyte(expectedMemoryWithDisk));
+    writer.write(roundUpToNearestMb(expectedMemoryWithoutDisk),
+                 roundUpToNearestMb(expectedMemoryWithDisk));
 }
 
 void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
@@ -95,7 +97,7 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
 
     if (memoryUsage > memoryLimit) {
         auto roundMb = [](std::size_t memory) {
-            return 0.01 * static_cast<double>((100 * memory) / (1024 * 1024));
+            return 0.01 * static_cast<double>((100 * memory) / BYTES_IN_MB);
         };
 
         // Report rounded up to the nearest MB.
