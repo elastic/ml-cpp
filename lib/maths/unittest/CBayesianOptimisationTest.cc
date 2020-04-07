@@ -313,7 +313,7 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
     }
 
     LOG_DEBUG(<< "mean gain = " << maths::CBasicStatistics::mean(gain));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(gain) > 1.26);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(gain) > 1.23);
 }
 
 BOOST_AUTO_TEST_CASE(testPersistRestore) {

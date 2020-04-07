@@ -302,7 +302,7 @@ private:
         return m_BacktrackingMinDecrease * s * las::inner(m_Gx, m_P) / las::norm(m_P);
     }
 
-    constexpr double minimumStepSize() const {
+    double minimumStepSize() const {
         return std::pow(m_StepScale, static_cast<double>(MAXIMUM_BACK_TRACKING_ITERATIONS));
     }
 

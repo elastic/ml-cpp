@@ -28,6 +28,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <array>
+#include <bitset>
 #include <numeric>
 
 BOOST_AUTO_TEST_SUITE(CToolsTest)
