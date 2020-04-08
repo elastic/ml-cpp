@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
         rng.generateUniformSamples(-10.0, 10.0, 12, centreCoordinates);
         rng.generateUniformSamples(0.3, 4.0, 12, coordinateScales);
 
-        // Use sum of some different quadratric functions.
+        // Use sum of some different quadratic functions.
         TVector centres[]{TVector{4}, TVector{4}, TVector{4}};
         TVector scales[]{TVector{4}, TVector{4}, TVector{4}};
         for (std::size_t i = 0; i < 3; ++i) {
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
                       (x - centres[1])};
             double f3{(x - centres[2]).transpose() * scales[2].asDiagonal() *
                       (x - centres[2])};
-            return f1 + f2 + f3;
+            return f1 - 0.2 * f2 + f3;
         };
 
         maths::CBayesianOptimisation bopt{

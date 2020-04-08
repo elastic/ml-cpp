@@ -45,7 +45,7 @@ double CIEEE754::dropbits(double value, int bits) {
     static_assert(sizeof(double) == sizeof(SDoubleRep),
                   "SDoubleRep definition unsuitable for memcpy to double");
     std::memcpy(&parsed, &value, sizeof(double));
-    parsed.s_Mantissa = parsed.s_Mantissa & (IEEE754_MANTISSA_MASK << bits);
+    parsed.s_Mantissa &= ((IEEE754_MANTISSA_MASK << bits) & IEEE754_MANTISSA_MASK);
     std::memcpy(&value, &parsed, sizeof(double));
     return value;
 }

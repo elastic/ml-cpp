@@ -8,6 +8,7 @@
 #define INCLUDED_ml_maths_CLbfgs_h
 
 #include <maths/CLinearAlgebraShims.h>
+#include <maths/CTools.h>
 
 #include <boost/circular_buffer.hpp>
 
@@ -303,7 +304,8 @@ private:
     }
 
     double minimumStepSize() const {
-        return std::pow(m_StepScale, static_cast<double>(MAXIMUM_BACK_TRACKING_ITERATIONS));
+        return CTools::stable(std::pow(
+            m_StepScale, static_cast<double>(MAXIMUM_BACK_TRACKING_ITERATIONS)));
     }
 
 private:
