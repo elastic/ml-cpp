@@ -6,7 +6,8 @@
 
 OS=Linux
 
-CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/linux-x86_64
+HARDWARE_ARCH:=$(shell uname -m)
+CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/linux-$(HARDWARE_ARCH)
 
 CC=gcc
 CXX=g++ -std=gnu++14
@@ -23,9 +24,13 @@ COVERAGE=--coverage
 endif
 endif
 
+ifeq ($(HARDWARE_ARCH),x86_64)
+SIMDFLAGS=-msse4.2 -mfpmath=sse
+endif
+
 PLATPICFLAGS=-fPIC
 PLATPIEFLAGS=-fPIE
-CFLAGS=-g $(OPTCFLAGS) -msse4.2 -mfpmath=sse -fstack-protector -fno-math-errno -fno-permissive -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wparentheses -Wpointer-arith -Wswitch-enum $(COVERAGE)
+CFLAGS=-g $(OPTCFLAGS) $(SIMDFLAGS) -fstack-protector -fno-math-errno -fno-permissive -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wparentheses -Wpointer-arith -Wswitch-enum $(COVERAGE)
 CXXFLAGS=$(CFLAGS) -Wno-ctor-dtor-privacy -Wno-deprecated-declarations -Wold-style-cast -fvisibility-inlines-hidden
 CPPFLAGS=-isystem $(CPP_SRC_HOME)/3rd_party/include -isystem /usr/local/gcc75/include -D$(OS) -D_REENTRANT $(OPTCPPFLAGS)
 CDEPFLAGS=-MM
@@ -43,21 +48,30 @@ RESOURCES_DIR=resources
 LOCALLIBS=-lm -lpthread -ldl -lrt
 NETLIBS=-lnsl
 BOOSTVER=1_71
+ifeq ($(HARDWARE_ARCH),aarch64)
+BOOSTARCH=a64
+else
+BOOSTARCH=x64
+endif
 BOOSTGCCVER:=$(shell $(CXX) -dumpversion | awk -F. '{ print $$1; }')
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
 BOOSTINCLUDES=-isystem /usr/local/gcc75/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-BOOSTLOGLIBS=-lboost_log-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
-BOOSTLOGSETUPLIBS=-lboost_log_setup-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
-BOOSTREGEXLIBS=-lboost_regex-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
-BOOSTIOSTREAMSLIBS=-lboost_iostreams-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
-BOOSTPROGRAMOPTIONSLIBS=-lboost_program_options-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
-BOOSTTHREADLIBS=-lboost_thread-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER) -lboost_system-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
-BOOSTFILESYSTEMLIBS=-lboost_filesystem-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER) -lboost_system-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
-BOOSTDATETIMELIBS=-lboost_date_time-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
-BOOSTTESTLIBS=-lboost_unit_test_framework-gcc$(BOOSTGCCVER)-mt-x64-$(BOOSTVER)
+BOOSTLOGLIBS=-lboost_log-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTLOGSETUPLIBS=-lboost_log_setup-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTREGEXLIBS=-lboost_regex-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTIOSTREAMSLIBS=-lboost_iostreams-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTPROGRAMOPTIONSLIBS=-lboost_program_options-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTTHREADLIBS=-lboost_thread-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER) -lboost_system-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTFILESYSTEMLIBS=-lboost_filesystem-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER) -lboost_system-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTDATETIMELIBS=-lboost_date_time-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTTESTLIBS=-lboost_unit_test_framework-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
 RAPIDJSONINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/rapidjson/include
+ifeq ($(HARDWARE_ARCH),x86_64)
 RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
+else
+RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING
+endif
 EIGENINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/eigen
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY
 XMLINCLUDES=`/usr/local/gcc75/bin/xml2-config --cflags`
