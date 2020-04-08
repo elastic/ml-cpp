@@ -194,7 +194,7 @@ CDataFrameAnalysisSpecificationFactory::predictionFieldType(const std::string& t
 }
 
 CDataFrameAnalysisSpecificationFactory&
-CDataFrameAnalysisSpecificationFactory::regressionLossFunction(TRegressionLossFunctionType lossFunction) {
+CDataFrameAnalysisSpecificationFactory::regressionLossFunction(TRegressionLossFunction lossFunction) {
     m_RegressionLossFunction = lossFunction;
     return *this;
 }
@@ -317,10 +317,10 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     if (analysis == regression()) {
         writer.Key(api::CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION);
         switch (m_RegressionLossFunction) {
-        case TRegressionLossFunctionType::E_Msle:
+        case TRegressionLossFunction::E_Msle:
             writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSLE);
             break;
-        case TRegressionLossFunctionType::E_Mse:
+        case TRegressionLossFunction::E_Mse:
             writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSE);
             break;
         }

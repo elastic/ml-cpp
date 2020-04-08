@@ -3,9 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <boost/test/tools/old/interface.hpp>
-#include <c++/7/bits/c++config.h>
-#include <cmath>
 #include <core/CContainerPrinter.h>
 
 #include <maths/CBasicStatistics.h>
@@ -830,8 +827,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
 }
 
 BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
-    // Test that the gradient function is close to the numerical derivative
-    // of the objective.
+    // Test that the calculated objective function is close to the correct value.
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     maths::CPRNG::CXorOShiro128Plus rng;
@@ -839,40 +835,43 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
     std::size_t numberSamples{10000};
 
     {
-        double lambda{0.0};
-        CArgMinMsleImpl argmin{lambda};
+        for (std::size_t t = 0; t < 3; ++t) {
+            double lambda{0.1 * static_cast<double>(t + 1)};
+            CArgMinMsleImpl argmin{lambda};
 
-        TDoubleVec targets;
-        testRng.generateUniformSamples(1000.0, 100000.0, numberSamples, targets);
+            TDoubleVec targets;
+            testRng.generateUniformSamples(1000.0, 100000.0, numberSamples, targets);
 
-        TDoubleVec predictionErrors;
-        predictionErrors.resize(targets.size(), 0.0);
-        testRng.generateUniformSamples(-100.0, 100.0, targets.size(), predictionErrors);
+            TDoubleVec predictionErrors;
+            predictionErrors.resize(targets.size(), 0.0);
+            testRng.generateUniformSamples(-100.0, 100.0, targets.size(), predictionErrors);
 
-        do {
-            for (std::size_t i = 0; i < targets.size(); ++i) {
-                maths::CFloatStorage storage[]{std::log(targets[i] + predictionErrors[i])};
-                TMemoryMappedFloatVector prediction{storage, 1};
-                argmin.add(prediction, targets[i]);
+            do {
+                for (std::size_t i = 0; i < targets.size(); ++i) {
+                    maths::CFloatStorage storage[]{
+                        std::log(targets[i] + predictionErrors[i])};
+                    TMemoryMappedFloatVector prediction{storage, 1};
+                    argmin.add(prediction, targets[i]);
+                }
+            } while (argmin.nextPass());
+
+            auto objective = argmin.objective();
+
+            for (double weight = -1.0; weight < 1.0; weight += 0.1) {
+                TMeanAccumulator expectedErrorAccumulator;
+                for (std::size_t i = 0; i < targets.size(); ++i) {
+                    double error{
+                        std::log(targets[i] + 1) -
+                        std::log(std::exp(weight) * (targets[i] + predictionErrors[i]) + 1)};
+                    expectedErrorAccumulator.add(error * error);
+                }
+                double expectedObjectiveValue{
+                    maths::CBasicStatistics::mean(expectedErrorAccumulator) +
+                    lambda * maths::CTools::pow2(std::exp(weight))};
+                double estimatedObjectiveValue{objective(weight)};
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(estimatedObjectiveValue,
+                                             expectedObjectiveValue, 1e-4);
             }
-        } while (argmin.nextPass());
-
-        auto objective = argmin.objective();
-
-        for (double weight = -1.0; weight < 1.0; weight += 0.1) {
-            TMeanAccumulator expectedErrorAccumulator;
-            for (std::size_t i = 0; i < targets.size(); ++i) {
-                double error{
-                    std::log(targets[i] + 1) -
-                    std::log(std::exp(weight) * (targets[i] + predictionErrors[i]) + 1)};
-                expectedErrorAccumulator.add(error * error);
-            }
-            double expectedObjectiveValue{
-                maths::CBasicStatistics::mean(expectedErrorAccumulator) +
-                lambda * maths::CTools::pow2(std::exp(weight))};
-            double estimatedObjectiveValue{objective(weight)};
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(estimatedObjectiveValue,
-                                         expectedObjectiveValue, 1e-4);
         }
     }
 
@@ -969,7 +968,7 @@ BOOST_AUTO_TEST_CASE(testMsleArgminValue) {
         double estimatedObjective{argmin.objective()(estimatedWeight)};
         LOG_DEBUG(<< "Estimated objective " << estimatedObjective
                   << " optimal objective " << optimalObjective);
-        LOG_DEBUG(<< "Estimate weight " << estimatedWeight << " true weight " << optimalWeight);
+        LOG_DEBUG(<< "Estimated weight " << estimatedWeight << " true weight " << optimalWeight);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(optimalObjective, estimatedObjective, 1e-5);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(optimalWeight, estimatedWeight, 1e-2);
     }

@@ -369,7 +369,6 @@ CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
 
 CArgMinMsleImpl::CArgMinMsleImpl(double lambda)
     : CArgMinLossImpl{lambda}, m_Buckets(128) {
-    // TODO my intuition is that the number of buckets depends on the prediction range
     for (auto& bucket : m_Buckets) {
         bucket.resize(128);
     }
@@ -411,18 +410,18 @@ void CArgMinMsleImpl::add(const TMemoryMappedFloatVector& prediction, double act
 }
 
 void CArgMinMsleImpl::merge(const CArgMinLossImpl& other) {
-    const auto* lmse = dynamic_cast<const CArgMinMsleImpl*>(&other);
-    if (lmse != nullptr) {
+    const auto* mlse = dynamic_cast<const CArgMinMsleImpl*>(&other);
+    if (mlse != nullptr) {
         switch (m_CurrentPass) {
         case 0:
-            m_ExpPredictionMinMax += lmse->m_ExpPredictionMinMax;
-            m_LogActualMinMax += lmse->m_LogActualMinMax;
-            m_MeanLogActual += lmse->m_MeanLogActual;
+            m_ExpPredictionMinMax += mlse->m_ExpPredictionMinMax;
+            m_LogActualMinMax += mlse->m_LogActualMinMax;
+            m_MeanLogActual += mlse->m_MeanLogActual;
             break;
         case 1:
             for (std::size_t i = 0; i < m_Buckets.size(); ++i) {
                 for (std::size_t j = 0; j < m_Buckets[i].size(); ++j) {
-                    m_Buckets[i][j] += lmse->m_Buckets[i][j];
+                    m_Buckets[i][j] += mlse->m_Buckets[i][j];
                 }
             }
             break;
@@ -614,9 +613,7 @@ void CMsle::gradient(const TMemoryMappedFloatVector& logPrediction,
                      double actual,
                      TWriter writer,
                      double weight) const {
-    // Apply L'Hopital's rule in the limit prediction -> actual.
     double prediction{std::exp(logPrediction(0))};
-    double logActual{CTools::fastLog(actual)};
     double log1PlusPrediction{CTools::fastLog(1.0 + prediction)};
     double log1PlusActual{CTools::fastLog(1.0 + actual)};
     writer(0, 2 * weight * (log1PlusPrediction - log1PlusActual) / (prediction + 1));
@@ -626,10 +623,10 @@ void CMsle::curvature(const TMemoryMappedFloatVector& logPrediction,
                       double actual,
                       TWriter writer,
                       double weight) const {
-    // Apply L'Hopital's rule in the limit prediction -> actual.
     double prediction{std::exp(logPrediction(0))};
     double log1PlusPrediction{CTools::fastLog(1.0 + prediction)};
     double log1PlusActual{CTools::fastLog(1.0 + actual)};
+    // Apply L'Hopital's rule in the limit prediction -> actual.
     writer(0, prediction == actual ? 0.0
                                    : 2.0 * weight * (log1PlusPrediction - log1PlusActual) /
                                          ((prediction + 1) * (prediction - actual)));
