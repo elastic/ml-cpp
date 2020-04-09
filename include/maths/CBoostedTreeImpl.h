@@ -112,7 +112,7 @@ public:
     //! Get the number of columns training the model will add to the data frame.
     static std::size_t numberExtraColumnsForTrain(std::size_t numberLossParameters) {
         // We store as follows:
-        //   1. The predicted values for the dependent variables
+        //   1. The predicted values for the dependent variable
         //   2. The gradient of the loss function
         //   3. The upper triangle of the hessian of the loss function
         //   4. The example's weight

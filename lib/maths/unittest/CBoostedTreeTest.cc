@@ -1039,17 +1039,17 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
         TDoubleVec falseNegatives(2, 0.0);
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                double prediction{
-                    classification->readAndAdjustPrediction(*row)[1] < 0.5 ? 0.0 : 1.0};
+                auto scores = classification->readAndAdjustPrediction(*row);
+                std::size_t prediction(scores[1] < scores[0] ? 0 : 1);
                 if (row->index() >= trainRows &&
                     row->index() < trainRows + classesRowCounts[2]) {
                     // Actual is zero.
-                    (prediction == 0.0 ? truePositives[0] : falseNegatives[0]) += 1.0;
-                    (prediction == 0.0 ? trueNegatives[1] : falsePositives[1]) += 1.0;
+                    (prediction == 0 ? truePositives[0] : falseNegatives[0]) += 1.0;
+                    (prediction == 0 ? trueNegatives[1] : falsePositives[1]) += 1.0;
                 } else if (row->index() >= trainRows + classesRowCounts[2]) {
                     // Actual is one.
-                    (prediction == 1.0 ? truePositives[1] : falseNegatives[1]) += 1.0;
-                    (prediction == 1.0 ? trueNegatives[0] : falsePositives[0]) += 1.0;
+                    (prediction == 1 ? truePositives[1] : falseNegatives[1]) += 1.0;
+                    (prediction == 1 ? trueNegatives[0] : falsePositives[0]) += 1.0;
                 }
             }
         });
