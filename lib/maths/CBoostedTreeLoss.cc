@@ -26,10 +26,10 @@ const double EPSILON{100.0 * std::numeric_limits<double>::epsilon()};
 const double LOG_EPSILON{CTools::stableLog(EPSILON)};
 
 // MSLE CONSTANTS
-std::size_t MSLE_BUCKET_SIZE{32};
-std::size_t MSLE_PREDICTION_INDEX{0};
-std::size_t MSLE_ACTUAL_INDEX{1};
-std::size_t MSLE_ERROR_INDEX{2};
+const std::size_t MSLE_PREDICTION_INDEX{0};
+const std::size_t MSLE_ACTUAL_INDEX{1};
+const std::size_t MSLE_ERROR_INDEX{2};
+const std::size_t MSLE_BUCKET_SIZE{32};
 
 double logOneMinusLogistic(double logOdds) {
     // For large x logistic(x) = 1 - e^(-x) + O(e^(-2x))
