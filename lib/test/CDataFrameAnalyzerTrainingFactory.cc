@@ -11,18 +11,17 @@ namespace test {
 
 void CDataFrameAnalyzerTrainingFactory::appendPrediction(core::CDataFrame&,
                                                          std::size_t,
-                                                         double prediction,
+                                                         const TDouble2Vec& prediction,
                                                          TDoubleVec& predictions) {
-    predictions.push_back(prediction);
+    predictions.push_back(prediction[0]);
 }
 
 void CDataFrameAnalyzerTrainingFactory::appendPrediction(core::CDataFrame& frame,
                                                          std::size_t target,
-                                                         double class1Score,
+                                                         const TDouble2Vec& scores,
                                                          TStrVec& predictions) {
-    predictions.push_back(class1Score < 0.5
-                              ? frame.categoricalColumnValues()[target][0]
-                              : frame.categoricalColumnValues()[target][1]);
+    std::size_t i(std::max_element(scores.begin(), scores.end()) - scores.begin());
+    predictions.push_back(frame.categoricalColumnValues()[target][i]);
 }
 
 CDataFrameAnalyzerTrainingFactory::TDataFrameUPtr
