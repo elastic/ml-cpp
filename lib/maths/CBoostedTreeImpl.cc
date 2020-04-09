@@ -1466,7 +1466,11 @@ bool CBoostedTreeImpl::restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
     if (lossFunctionName == CMse::NAME) {
         loss = std::make_unique<CMse>();
         return true;
+    } else if (lossFunctionName == CMsle::NAME) {
+        loss = std::make_unique<CMsle>();
+        return true;
     }
+
     LOG_ERROR(<< "Error restoring loss function. Unknown loss function type '"
               << lossFunctionName << "'.");
     return false;
