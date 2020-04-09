@@ -22,6 +22,7 @@
 #include <boost/static_assert.hpp>
 
 #include <array>
+#include <cinttypes>
 #include <cmath>
 #include <cstring>
 #include <iosfwd>
@@ -456,7 +457,7 @@ private:
             //      (interpreted as an integer) to the corresponding
             //      double value and fastLog uses the same approach
             //      to extract the mantissa.
-            uint64_t dx = 0x10000000000000ull / BINS;
+            std::uint64_t dx = 0x10000000000000ull / BINS;
             core::CIEEE754::SDoubleRep x;
             x.s_Sign = 0;
             x.s_Mantissa = (dx / 2) & core::CIEEE754::IEEE754_MANTISSA_MASK;
@@ -469,12 +470,12 @@ private:
                 // Use memcpy() rather than union to adhere to strict
                 // aliasing rules
                 std::memcpy(&value, &x, sizeof(double));
-                m_Table[i] = std::log2(value);
+                m_Table[i] = stable(std::log2(value));
             }
         }
 
         //! Lookup log2 for a given mantissa.
-        const double& operator[](uint64_t mantissa) const {
+        const double& operator[](std::uint64_t mantissa) const {
             return m_Table[mantissa >> FAST_LOG_SHIFT];
         }
 
@@ -494,7 +495,7 @@ public:
     //! \note This is taken from the approach given in
     //! http://www.icsi.berkeley.edu/pubs/techreports/TR-07-002.pdf
     static double fastLog(double x) {
-        uint64_t mantissa;
+        std::uint64_t mantissa;
         int log2;
         core::CIEEE754::decompose(x, mantissa, log2);
         return 0.693147180559945 * (FAST_LOG_TABLE[mantissa] + log2);

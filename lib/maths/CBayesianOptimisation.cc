@@ -211,8 +211,8 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
         // the numerical error in such a way as to recover a non-singular matrix.
         // (Note that the solve routine deals with the zero for us.)
         double eps{std::numeric_limits<double>::epsilon() * Kldl.vectorD().maxCoeff()};
-        return 0.5 *
-               (f.transpose() * Kinvf + (Kldl.vectorD().array() + eps).log().sum());
+        return 0.5 * (f.transpose() * Kinvf +
+                      Kldl.vectorD().cwiseMax(eps).array().log().sum());
     };
 
     auto minusLogLikelihoodGradient = [=](const TVector& a) mutable {
@@ -462,11 +462,9 @@ CBayesianOptimisation::kernelCovariates(const TVector& a, const TVector& x, doub
 
 double CBayesianOptimisation::kernel(const TVector& a, const TVector& x, const TVector& y) const {
     return CTools::pow2(a(0)) *
-           CTools::stableExp(-(x - y).transpose() *
-                             (m_MinimumKernelCoordinateDistanceScale +
-                              a.tail(a.size() - 1).cwiseAbs2().matrix())
-                                 .asDiagonal() *
-                             (x - y));
+           CTools::stableExp(-(x - y).transpose() * (m_MinimumKernelCoordinateDistanceScale +
+                                                     a.tail(a.size() - 1).cwiseAbs2())
+                                                        .cwiseProduct(x - y));
 }
 
 void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
