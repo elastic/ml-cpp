@@ -22,8 +22,8 @@
 #include <boost/static_assert.hpp>
 
 #include <array>
-#include <cinttypes>
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <iosfwd>
 #include <limits>
