@@ -7,14 +7,14 @@
 #include <core/CIEEE754.h>
 
 #include <cmath>
+#include <cstring>
 
 namespace ml {
 namespace core {
 
 double CIEEE754::round(double value, EPrecision precision) {
-    // This first decomposes the value into the mantissa
-    // and exponent to avoid the problem with overflow if
-    // the values are close to max double.
+    // First decomposes the value into the mantissa and exponent to avoid the
+    // problem with overflow if the values are close to max double.
 
     int exponent;
     double mantissa = std::frexp(value, &exponent);
@@ -38,6 +38,16 @@ double CIEEE754::round(double value, EPrecision precision) {
     }
 
     return std::ldexp(mantissa, exponent);
+}
+
+double CIEEE754::dropbits(double value, int bits) {
+    SDoubleRep parsed;
+    static_assert(sizeof(double) == sizeof(SDoubleRep),
+                  "SDoubleRep definition unsuitable for memcpy to double");
+    std::memcpy(&parsed, &value, sizeof(double));
+    parsed.s_Mantissa &= ((IEEE754_MANTISSA_MASK << bits) & IEEE754_MANTISSA_MASK);
+    std::memcpy(&value, &parsed, sizeof(double));
+    return value;
 }
 }
 }
