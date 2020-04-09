@@ -617,6 +617,10 @@ std::size_t CMsle::numberParameters() const {
 double CMsle::value(const TMemoryMappedFloatVector& logPrediction, double actual, double weight) const {
     double prediction{std::exp(logPrediction(0))};
     double log1PlusPrediction{CTools::fastLog(1.0 + prediction)};
+    if (actual < 0.0) {
+        HANDLE_FATAL(<< "Input error: target value needs to be non-negative to use with MSLE loss, received: "
+                     << actual);
+    }
     double log1PlusActual{CTools::fastLog(1.0 + actual)};
     return weight * CTools::pow2(log1PlusPrediction - log1PlusActual);
 }
