@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     {
         core::CJsonOutputStreamWrapper wrappedOutStream(sstream);
         CMemoryUsageEstimationResultJsonWriter writer(wrappedOutStream);
-        writer.write("16kB", "8kB");
+        writer.write("16mb", "8mb");
     }
 
     rapidjson::Document arrayDoc;
@@ -42,10 +42,10 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     BOOST_TEST_REQUIRE(object.IsObject());
 
     BOOST_TEST_REQUIRE(object.HasMember("expected_memory_without_disk"));
-    BOOST_REQUIRE_EQUAL(std::string("16kB"),
+    BOOST_REQUIRE_EQUAL(std::string("16mb"),
                         std::string(object["expected_memory_without_disk"].GetString()));
     BOOST_TEST_REQUIRE(object.HasMember("expected_memory_with_disk"));
-    BOOST_REQUIRE_EQUAL(std::string("8kB"),
+    BOOST_REQUIRE_EQUAL(std::string("8mb"),
                         std::string(object["expected_memory_with_disk"].GetString()));
 }
 

@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
         // Unbiased...
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             0.0, modelBias[i][0],
-            9.1 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
         // Good R^2...
         BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
 
