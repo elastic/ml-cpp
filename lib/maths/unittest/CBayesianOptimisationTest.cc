@@ -250,14 +250,15 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
     TVector a(vector({-10.0, -10.0, -10.0, -10.0}));
     TVector b(vector({10.0, 10.0, 10.0, 10.0}));
 
-    TMeanAccumulator gain;
+    TMeanAccumulator meanImprovementBopt;
+    TMeanAccumulator meanImprovementRs;
 
     for (std::size_t test = 0; test < 20; ++test) {
 
         rng.generateUniformSamples(-10.0, 10.0, 12, centreCoordinates);
         rng.generateUniformSamples(0.3, 4.0, 12, coordinateScales);
 
-        // Use sum of some different quadratric functions.
+        // Use sum of some different quadratic functions.
         TVector centres[]{TVector{4}, TVector{4}, TVector{4}};
         TVector scales[]{TVector{4}, TVector{4}, TVector{4}};
         for (std::size_t i = 0; i < 3; ++i) {
@@ -273,7 +274,7 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
                       (x - centres[1])};
             double f3{(x - centres[2]).transpose() * scales[2].asDiagonal() *
                       (x - centres[2])};
-            return f1 + f2 + f3;
+            return 100.0 + f1 - 0.2 * f2 + f3;
         };
 
         maths::CBayesianOptimisation bopt{
@@ -292,28 +293,39 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
         }
 
         LOG_TRACE(<< "Bayesian optimisation...");
-        for (std::size_t i = 0; i < 10; ++i) {
+        double f0Bopt{fminBopt};
+        for (std::size_t i = 0; i < 20; ++i) {
             TVector x;
             std::tie(x, std::ignore) = bopt.maximumExpectedImprovement();
             LOG_TRACE(<< "x = " << x.transpose() << ", f(x) = " << f(x));
             bopt.add(x, f(x), 10.0);
             fminBopt = std::min(fminBopt, f(x));
         }
+        double improvementBopt{(f0Bopt - fminBopt) / f0Bopt};
 
         LOG_TRACE(<< "random search...");
-        for (std::size_t i = 0; i < 10; ++i) {
+        double f0Rs{fminRs};
+        for (std::size_t i = 0; i < 20; ++i) {
             rng.generateUniformSamples(0.0, 1.0, 4, randomSearch);
             TVector x{a + vector(randomSearch).asDiagonal() * (b - a)};
             LOG_TRACE(<< "x = " << x.transpose() << ", f(x) = " << f(x));
             fminRs = std::min(fminRs, f(x));
         }
+        double improvementRs{(f0Rs - fminRs) / f0Rs};
 
-        LOG_TRACE(<< "gain = " << fminRs / fminBopt);
-        gain.add(fminRs / fminBopt);
+        LOG_DEBUG(<< "% improvement BO = " << 100.0 * improvementBopt
+                  << ", % improvement RS = " << 100.0 * improvementRs);
+        BOOST_TEST_REQUIRE(improvementBopt > improvementRs);
+        meanImprovementBopt.add(improvementBopt);
+        meanImprovementRs.add(improvementRs);
     }
 
-    LOG_DEBUG(<< "mean gain = " << maths::CBasicStatistics::mean(gain));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(gain) > 1.26);
+    LOG_DEBUG(<< "mean % improvement BO = "
+              << 100.0 * maths::CBasicStatistics::mean(meanImprovementBopt));
+    LOG_DEBUG(<< "mean % improvement RS = "
+              << 100.0 * maths::CBasicStatistics::mean(meanImprovementRs));
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanImprovementBopt) >
+                       1.8 * maths::CBasicStatistics::mean(meanImprovementRs)); // 80%
 }
 
 BOOST_AUTO_TEST_CASE(testPersistRestore) {
