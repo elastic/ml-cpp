@@ -595,6 +595,10 @@ const std::string& CMse::name() const {
     return NAME;
 }
 
+bool CMse::isRegression() const {
+    return true;
+}
+
 const std::string CMse::NAME{"mse"};
 
 CLoss::EType CMsle::type() const {
@@ -655,6 +659,10 @@ CArgMinLoss CMsle::minimizer(double lambda, const CPRNG::CXorOShiro128Plus& /* r
 
 const std::string& CMsle::name() const {
     return NAME;
+}
+
+bool CMsle::isRegression() const {
+    return true;
 }
 
 const std::string CMsle::NAME{"msle"};
@@ -721,6 +729,10 @@ CArgMinLoss CBinomialLogisticLoss::minimizer(double lambda,
 
 const std::string& CBinomialLogisticLoss::name() const {
     return NAME;
+}
+
+bool CBinomialLogisticLoss::isRegression() const {
+    return false;
 }
 
 const std::string CBinomialLogisticLoss::NAME{"binomial_logistic"};
@@ -853,6 +865,10 @@ CArgMinLoss CMultinomialLogisticLoss::minimizer(double lambda,
 
 const std::string& CMultinomialLogisticLoss::name() const {
     return NAME;
+}
+
+bool CMultinomialLogisticLoss::isRegression() const {
+    return false;
 }
 
 const std::string CMultinomialLogisticLoss::NAME{"multinomial_logistic"};

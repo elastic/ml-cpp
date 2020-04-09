@@ -339,6 +339,9 @@ public:
     //! Get the name of the loss function
     virtual const std::string& name() const = 0;
 
+    //! Returns true if the loss function is used for regression.
+    virtual bool isRegression() const = 0;
+
 protected:
     CArgMinLoss makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& impl) const;
 };
@@ -368,6 +371,7 @@ public:
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
+    bool isRegression() const override;
 };
 
 //! \brief Implements loss for binomial logistic regression.
@@ -403,6 +407,7 @@ public:
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
+    bool isRegression() const override;
 };
 
 //!  \brief Implements loss for multinomial logistic regression.
@@ -441,6 +446,7 @@ public:
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
+    bool isRegression() const override;
 
 private:
     std::size_t m_NumberClasses;
@@ -481,6 +487,7 @@ public:
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
+    bool isRegression() const override;
 };
 }
 }

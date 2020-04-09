@@ -44,8 +44,6 @@ namespace {
 const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
 const std::string HYPERPARAMETER_OPTIMIZATION_PHASE{"hyperparameter_optimization"};
 const std::string TRAINING_FINAL_TREE_PHASE{"training_final_tree"};
-// TODO add isRegression() to the loss functions hierarchy instead of this constant
-const std::array<std::string, 1> REGRESSION_LOSSES{"mse"};
 
 //! \brief Record the memory used by a supplied object using the RAII idiom.
 class CScopeRecordMemoryUsage {
@@ -171,8 +169,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                      << "Please report this problem.")
     }
 
-    if (std::find(REGRESSION_LOSSES.begin(), REGRESSION_LOSSES.end(),
-                  m_Loss->name()) != REGRESSION_LOSSES.end()) {
+    if (m_Loss->isRegression()) {
         m_Instrumentation->type(CDataFrameTrainBoostedTreeInstrumentationInterface::E_Regression);
     } else {
         m_Instrumentation->type(CDataFrameTrainBoostedTreeInstrumentationInterface::E_Classification);
