@@ -25,7 +25,7 @@ namespace {
 double LOG_EPSILON{std::log(100.0 * std::numeric_limits<double>::epsilon())};
 
 // MSLE CONSTANTS
-std::size_t MSLE_BUCKET_SIZE{128};
+std::size_t MSLE_BUCKET_SIZE{32};
 std::size_t MSLE_PREDICTION_INDEX{0};
 std::size_t MSLE_ACTUAL_INDEX{1};
 std::size_t MSLE_ERROR_INDEX{2};

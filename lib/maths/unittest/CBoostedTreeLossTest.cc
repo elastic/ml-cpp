@@ -870,7 +870,7 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
                     lambda * maths::CTools::pow2(std::exp(weight))};
                 double estimatedObjectiveValue{objective(weight)};
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(estimatedObjectiveValue,
-                                             expectedObjectiveValue, 1e-4);
+                                             expectedObjectiveValue, 1e-3);
             }
         }
     }
