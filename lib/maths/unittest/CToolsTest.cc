@@ -28,6 +28,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <array>
+#include <bitset>
 #include <numeric>
 
 BOOST_AUTO_TEST_SUITE(CToolsTest)
@@ -342,6 +343,20 @@ public:
 private:
     const maths::CMixtureDistribution<T>& m_Mixture;
 };
+
+void printByte(const unsigned char& byte, std::ostream& o) {
+    o << std::bitset<CHAR_BIT>{byte};
+}
+
+template<typename T>
+std::string printBits(const T& t) {
+    std::ostringstream o;
+    const unsigned char* byte{reinterpret_cast<const unsigned char*>(&t)};
+    for (std::size_t s = 0; s < sizeof(t); ++s, ++byte) {
+        printByte(*byte, o);
+    }
+    return o.str();
+}
 }
 
 BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySample) {
@@ -1258,6 +1273,29 @@ BOOST_AUTO_TEST_CASE(testLogSoftmax) {
             BOOST_REQUIRE_CLOSE(logP[i], logP_[i], 1e-6);
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE(testStable) {
+    // Test the bit representation of the stable log and exp of some random values.
+    // This will fail if they're different on any of our target platforms.
+
+    BOOST_REQUIRE_EQUAL("1001000010101011111010010001000011111110001100011111001110111111",
+                        printBits(CTools::stableLog(0.301283021)));
+    BOOST_REQUIRE_EQUAL("1001010011010100101100111011101001100110101100010010110101000000",
+                        printBits(CTools::stableLog(2803801.9332)));
+    BOOST_REQUIRE_EQUAL("1100010011111111100101000001110111100000001011010001001101000000",
+                        printBits(CTools::stableLog(120.880233)));
+    BOOST_REQUIRE_EQUAL("1110111001101001111010100000001100101010100100110000011001000000",
+                        printBits(CTools::stableLog(16.808042323)));
+
+    BOOST_REQUIRE_EQUAL("1000000001000110101011010011001110111111101111000001000101000000",
+                        printBits(CTools::stableExp(1.48937498342)));
+    BOOST_REQUIRE_EQUAL("1101111011000110011111000001010001101011111111000011000001000000",
+                        printBits(CTools::stableExp(2.832390)));
+    BOOST_REQUIRE_EQUAL("0101111001100101111110101101101100100100111001101001001100111111",
+                        printBits(CTools::stableExp(-3.94080233)));
+    BOOST_REQUIRE_EQUAL("1111100000011010010001001000000100011011010100100000010101000000",
+                        printBits(CTools::stableExp(0.98023840)));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
