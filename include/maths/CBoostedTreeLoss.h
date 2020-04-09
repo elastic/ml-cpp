@@ -68,7 +68,7 @@ private:
 };
 
 //! \brief Finds the value to add to a set of predictions which approximately
-//! minimises the regularised Mean squared logarithmic error (MSLE).
+//! minimises the regularised mean squared logarithmic error (MSLE).
 class MATHS_EXPORT CArgMinMsleImpl final : public CArgMinLossImpl {
 public:
     using TObjective = std::function<double(double)>;
@@ -111,10 +111,10 @@ private:
     }
 
     TDoubleDoublePr bucketWidth() const {
-        double predictionBucketWidth = m_ExpPredictionMinMax.range() /
-                                       static_cast<double>(m_Buckets.size());
-        double actualBucketWidth = m_LogActualMinMax.range() /
-                                   static_cast<double>(m_Buckets[0].size());
+        double predictionBucketWidth{m_ExpPredictionMinMax.range() /
+                                     static_cast<double>(m_Buckets.size())};
+        double actualBucketWidth{m_LogActualMinMax.range() /
+                                 static_cast<double>(m_Buckets[0].size())};
         return std::make_pair(predictionBucketWidth, actualBucketWidth);
     }
 
@@ -457,7 +457,7 @@ private:
 //!   \f$\displaystyle l_i(p) = c_i + w_i(p - a_i)^2\f$
 //! </pre>
 //! where \f$w_i = \frac{\log(1+p_i) - \log(1+a_i)}{(1+p_i)(p_i-a_i)}\f$ and \f$c_i\f$
-//! is choosen so \f$l_i(p_i) = (\log(1+p_i) - \log(1+a_i))^2\f$.
+//! is chosen so \f$l_i(p_i) = (\log(1+p_i) - \log(1+a_i))^2\f$.
 class MATHS_EXPORT CMsle final : public CLoss {
 public:
     static const std::string NAME;

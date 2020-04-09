@@ -263,7 +263,7 @@ BOOST_AUTO_TEST_CASE(testMissingString) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingMse) {
 
     // Test the results the analyzer produces match running the regression directly.
 
@@ -572,7 +572,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingMsle) {
 
-    // Test that MSLE on scaled values predicts correct values same as MSE in testRunBoostedTreeRegressionTraining.
+    // Test running the analyser supplying the MSLE objective produces similar results to running the regression directly.
 
     double alpha{2.0};
     double lambda{1.0};

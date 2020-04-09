@@ -24,6 +24,12 @@ using namespace boosted_tree_detail;
 namespace {
 double LOG_EPSILON{std::log(100.0 * std::numeric_limits<double>::epsilon())};
 
+// MSLE CONSTANTS
+std::size_t MSLE_BUCKET_SIZE{128};
+std::size_t MSLE_PREDICTION_INDEX{0};
+std::size_t MSLE_ACTUAL_INDEX{1};
+std::size_t MSLE_ERROR_INDEX{2};
+
 double logOneMinusLogistic(double logOdds) {
     // For large x logistic(x) = 1 - e^(-x) + O(e^(-2x))
     if (logOdds > -LOG_EPSILON) {
@@ -368,9 +374,9 @@ CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
 }
 
 CArgMinMsleImpl::CArgMinMsleImpl(double lambda)
-    : CArgMinLossImpl{lambda}, m_Buckets(128) {
+    : CArgMinLossImpl{lambda}, m_Buckets(MSLE_BUCKET_SIZE) {
     for (auto& bucket : m_Buckets) {
-        bucket.resize(128);
+        bucket.resize(MSLE_BUCKET_SIZE);
     }
 }
 
@@ -397,9 +403,9 @@ void CArgMinMsleImpl::add(const TMemoryMappedFloatVector& prediction, double act
         double logError{logActual - CTools::fastLog(1.0 + expPrediction)};
 
         TVector example;
-        example(0) = expPrediction;
-        example(1) = logActual;
-        example(2) = logError;
+        example(MSLE_PREDICTION_INDEX) = expPrediction;
+        example(MSLE_ACTUAL_INDEX) = logActual;
+        example(MSLE_ERROR_INDEX) = logError;
         auto bucketIndex{this->bucket(expPrediction, logActual)};
         m_Buckets[bucketIndex.first][bucketIndex.second].add(example, weight);
         break;
@@ -432,7 +438,7 @@ void CArgMinMsleImpl::merge(const CArgMinLossImpl& other) {
 }
 
 CArgMinMsleImpl::TDoubleVector CArgMinMsleImpl::value() const {
-    std::function<double(double)> objective;
+    TObjective objective;
     double minLogWeight;
     double maxLogWeight;
 
@@ -450,10 +456,10 @@ CArgMinMsleImpl::TDoubleVector CArgMinMsleImpl::value() const {
         maxLogWeight = -minLogWeight;
         for (const auto& bucketsPrediction : m_Buckets) {
             for (const auto& bucketActual : bucketsPrediction) {
-                minLogWeight = std::min(minLogWeight,
-                                        CBasicStatistics::mean(bucketActual)(2));
-                maxLogWeight = std::max(maxLogWeight,
-                                        CBasicStatistics::mean(bucketActual)(2));
+                minLogWeight = std::min(
+                    minLogWeight, CBasicStatistics::mean(bucketActual)(MSLE_ERROR_INDEX));
+                maxLogWeight = std::max(
+                    maxLogWeight, CBasicStatistics::mean(bucketActual)(MSLE_ERROR_INDEX));
             }
         }
     }
@@ -492,8 +498,9 @@ CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
                 for (const auto& bucketActual : bucketPrediction) {
                     double count{CBasicStatistics::count(bucketActual)};
                     if (count > 0.0) {
-                        double expPrediction{CBasicStatistics::mean(bucketActual)(0)};
-                        double logActual{CBasicStatistics::mean(bucketActual)(1)};
+                        double expPrediction{CBasicStatistics::mean(
+                            bucketActual)(MSLE_PREDICTION_INDEX)};
+                        double logActual{CBasicStatistics::mean(bucketActual)(MSLE_ACTUAL_INDEX)};
                         double logPrediction{CTools::fastLog(1 + expPrediction * weight)};
                         loss += count * (CTools::pow2(logActual - logPrediction));
                         totalCount += count;

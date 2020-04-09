@@ -138,20 +138,7 @@ public:
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 auto prediction = tree->readAndAdjustPrediction(*row);
-                switch (type) {
-                case E_Regression:
-                    appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
-                    break;
-                case E_MsleRegression:
-                    appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
-                    break;
-                case E_BinaryClassification:
-                    appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
-                    break;
-                case E_MulticlassClassification:
-                    appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
-                    break;
-                }
+                appendPrediction(*frame, weights.size(), prediction, expectedPredictions);
             }
         });
     }
