@@ -24,13 +24,15 @@ COVERAGE=--coverage
 endif
 endif
 
-ifeq ($(HARDWARE_ARCH),x86_64)
-SIMDFLAGS=-msse4.2 -mfpmath=sse
+ifeq ($(HARDWARE_ARCH),aarch64)
+ARCHCFLAGS=-march=armv8-a+crc+crypto
+else
+ARCHCFLAGS=-msse4.2 -mfpmath=sse
 endif
 
 PLATPICFLAGS=-fPIC
 PLATPIEFLAGS=-fPIE
-CFLAGS=-g $(OPTCFLAGS) $(SIMDFLAGS) -fstack-protector -fno-math-errno -fno-permissive -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wparentheses -Wpointer-arith -Wswitch-enum $(COVERAGE)
+CFLAGS=-g $(OPTCFLAGS) $(ARCHCFLAGS) -fstack-protector -fno-math-errno -fno-permissive -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wparentheses -Wpointer-arith -Wswitch-enum $(COVERAGE)
 CXXFLAGS=$(CFLAGS) -Wno-ctor-dtor-privacy -Wno-deprecated-declarations -Wold-style-cast -fvisibility-inlines-hidden
 CPPFLAGS=-isystem $(CPP_SRC_HOME)/3rd_party/include -isystem /usr/local/gcc75/include -D$(OS) -D_REENTRANT $(OPTCPPFLAGS)
 CDEPFLAGS=-MM
@@ -67,10 +69,10 @@ BOOSTFILESYSTEMLIBS=-lboost_filesystem-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOST
 BOOSTDATETIMELIBS=-lboost_date_time-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
 BOOSTTESTLIBS=-lboost_unit_test_framework-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
 RAPIDJSONINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/rapidjson/include
-ifeq ($(HARDWARE_ARCH),x86_64)
-RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
+ifeq ($(HARDWARE_ARCH),aarch64)
+RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_NEON
 else
-RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING
+RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
 endif
 EIGENINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/eigen
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY
