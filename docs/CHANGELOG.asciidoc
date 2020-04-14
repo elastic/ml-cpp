@@ -51,6 +51,8 @@
   (See {ml-pull}1062[#1062].)
 * Reduce peak memory usage and memory estimates for classification and regression.
   (See {ml-pull}1125[#1125].)
+* Reduce variability of classification and regression results across our target operating systems.
+  (See {ml-pull}1127[#1127].)
 * Switched data frame analytics model memory estimates from kilobytes to megabytes.
   (See {ml-pull}1126[#1126], issue: {issue}54506[#54506].)
 

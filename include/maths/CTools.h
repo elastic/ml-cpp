@@ -23,6 +23,7 @@
 
 #include <array>
 #include <cmath>
+#include <cstdint>
 #include <cstring>
 #include <iosfwd>
 #include <limits>
@@ -456,7 +457,7 @@ private:
             //      (interpreted as an integer) to the corresponding
             //      double value and fastLog uses the same approach
             //      to extract the mantissa.
-            uint64_t dx = 0x10000000000000ull / BINS;
+            std::uint64_t dx = 0x10000000000000ull / BINS;
             core::CIEEE754::SDoubleRep x;
             x.s_Sign = 0;
             x.s_Mantissa = (dx / 2) & core::CIEEE754::IEEE754_MANTISSA_MASK;
@@ -469,12 +470,12 @@ private:
                 // Use memcpy() rather than union to adhere to strict
                 // aliasing rules
                 std::memcpy(&value, &x, sizeof(double));
-                m_Table[i] = std::log2(value);
+                m_Table[i] = stable(std::log2(value));
             }
         }
 
         //! Lookup log2 for a given mantissa.
-        const double& operator[](uint64_t mantissa) const {
+        const double& operator[](std::uint64_t mantissa) const {
             return m_Table[mantissa >> FAST_LOG_SHIFT];
         }
 
@@ -494,7 +495,7 @@ public:
     //! \note This is taken from the approach given in
     //! http://www.icsi.berkeley.edu/pubs/techreports/TR-07-002.pdf
     static double fastLog(double x) {
-        uint64_t mantissa;
+        std::uint64_t mantissa;
         int log2;
         core::CIEEE754::decompose(x, mantissa, log2);
         return 0.693147180559945 * (FAST_LOG_TABLE[mantissa] + log2);
@@ -669,6 +670,15 @@ public:
     //! Compute \f$x^2\f$.
     static double pow2(double x) { return x * x; }
 
+    //! Compute a value from \p x which will be stable across platforms.
+    static double stable(double x) { return core::CIEEE754::dropbits(x, 1); }
+
+    //! A version of std::log which is stable across platforms.
+    static double stableLog(double x) { return stable(std::log(x)); }
+
+    //! A version of std::log which is stable across platforms.
+    static double stableExp(double x) { return stable(std::exp(x)); }
+
     //! Sigmoid function of \p p.
     static double sigmoid(double p) { return 1.0 / (1.0 + 1.0 / p); }
 
@@ -682,7 +692,7 @@ public:
     //! \param[in] sign Determines whether it's a step up or down.
     static double
     logisticFunction(double x, double width = 1.0, double x0 = 0.0, double sign = 1.0) {
-        return sigmoid(std::exp(std::copysign(1.0, sign) * (x - x0) / width));
+        return sigmoid(stableExp(std::copysign(1.0, sign) * (x - x0) / width));
     }
 
     //! Compute the softmax for the multinomial logit values \p logit.
@@ -696,7 +706,7 @@ public:
         double Z{0.0};
         double zmax{*std::max_element(z.begin(), z.end())};
         for (auto& zi : z) {
-            zi = std::exp(zi - zmax);
+            zi = stableExp(zi - zmax);
             Z += zi;
         }
         for (auto& zi : z) {

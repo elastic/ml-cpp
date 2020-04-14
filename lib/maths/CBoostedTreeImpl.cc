@@ -1120,16 +1120,16 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     // Read parameters for last round.
     int i{0};
     if (m_DownsampleFactorOverride == boost::none) {
-        parameters(i++) = std::log(m_DownsampleFactor);
+        parameters(i++) = CTools::stableLog(m_DownsampleFactor);
     }
     if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-        parameters(i++) = std::log(m_Regularization.depthPenaltyMultiplier());
+        parameters(i++) = CTools::stableLog(m_Regularization.depthPenaltyMultiplier());
     }
     if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
-        parameters(i++) = std::log(m_Regularization.leafWeightPenaltyMultiplier());
+        parameters(i++) = CTools::stableLog(m_Regularization.leafWeightPenaltyMultiplier());
     }
     if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
-        parameters(i++) = std::log(m_Regularization.treeSizePenaltyMultiplier());
+        parameters(i++) = CTools::stableLog(m_Regularization.treeSizePenaltyMultiplier());
     }
     if (m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
         parameters(i++) = m_Regularization.softTreeDepthLimit();
@@ -1138,7 +1138,7 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         parameters(i++) = m_Regularization.softTreeDepthTolerance();
     }
     if (m_EtaOverride == boost::none) {
-        parameters(i++) = std::log(m_Eta);
+        parameters(i++) = CTools::stableLog(m_Eta);
         parameters(i++) = m_EtaGrowthRatePerTree;
     }
     if (m_FeatureBagFractionOverride == boost::none) {
@@ -1175,21 +1175,24 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     // Write parameters for next round.
     i = 0;
     if (m_DownsampleFactorOverride == boost::none) {
-        m_DownsampleFactor = std::exp(parameters(i++));
+        m_DownsampleFactor = CTools::stableExp(parameters(i++));
         TVector minBoundary;
         TVector maxBoundary;
         std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
         scale = std::min(scale, 2.0 * m_DownsampleFactor /
-                                    (std::exp(minBoundary(0)) + std::exp(maxBoundary(0))));
+                                    (CTools::stableExp(minBoundary(0)) +
+                                     CTools::stableExp(maxBoundary(0))));
     }
     if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-        m_Regularization.depthPenaltyMultiplier(std::exp(parameters(i++)));
+        m_Regularization.depthPenaltyMultiplier(CTools::stableExp(parameters(i++)));
     }
     if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
-        m_Regularization.leafWeightPenaltyMultiplier(scale * std::exp(parameters(i++)));
+        m_Regularization.leafWeightPenaltyMultiplier(
+            scale * CTools::stableExp(parameters(i++)));
     }
     if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
-        m_Regularization.treeSizePenaltyMultiplier(scale * std::exp(parameters(i++)));
+        m_Regularization.treeSizePenaltyMultiplier(
+            scale * CTools::stableExp(parameters(i++)));
     }
     if (m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
         m_Regularization.softTreeDepthLimit(parameters(i++));
@@ -1198,7 +1201,7 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         m_Regularization.softTreeDepthTolerance(parameters(i++));
     }
     if (m_EtaOverride == boost::none) {
-        m_Eta = std::exp(scale * parameters(i++));
+        m_Eta = CTools::stableExp(scale * parameters(i++));
         m_EtaGrowthRatePerTree = parameters(i++);
     }
     if (m_FeatureBagFractionOverride == boost::none) {
