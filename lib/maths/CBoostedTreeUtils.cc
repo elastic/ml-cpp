@@ -13,44 +13,57 @@ namespace ml {
 namespace maths {
 namespace boosted_tree_detail {
 using namespace boosted_tree;
-
-TMemoryMappedFloatVector readPrediction(const TRowRef& row,
-                                        std::size_t numberInputColumns,
-                                        std::size_t numberLossParamaters) {
-    return {row.data() + predictionColumn(numberInputColumns),
-            static_cast<int>(numberLossParamaters)};
+namespace {
+enum EExtraColumn { E_Prediction = 0, E_Gradient, E_Curvature, E_Weight };
 }
 
-void zeroPrediction(const TRowRef& row, std::size_t numberInputColumns, std::size_t numberLossParamaters) {
-    std::size_t offset{predictionColumn(numberInputColumns)};
-    for (std::size_t i = 0; i < numberLossParamaters; ++i) {
-        row.writeColumn(offset + i, 0.0);
+TSizeAlignmentPrVec extraColumns(std::size_t numberLossParameters) {
+    return {{numberLossParameters, core::CAlignment::E_Unaligned},
+            {numberLossParameters, core::CAlignment::E_Aligned16},
+            {numberLossParameters * numberLossParameters, core::CAlignment::E_Unaligned},
+            {1, core::CAlignment::E_Unaligned}};
+}
+
+TMemoryMappedFloatVector readPrediction(const TRowRef& row,
+                                        const TSizeVec& extraColumns,
+                                        std::size_t numberLossParameters) {
+    return {row.data() + extraColumns[E_Prediction], static_cast<int>(numberLossParameters)};
+}
+
+void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters) {
+    for (std::size_t i = 0; i < numberLossParameters; ++i) {
+        row.writeColumn(extraColumns[E_Prediction] + i, 0.0);
     }
 }
 
-TMemoryMappedFloatVector readLossGradient(const TRowRef& row,
-                                          std::size_t numberInputColumns,
-                                          std::size_t numberLossParameters) {
-    return {row.data() + lossGradientColumn(numberInputColumns, numberLossParameters),
-            static_cast<int>(numberLossParameters)};
+TAlignedMemoryMappedFloatVector readLossDerivatives(const TRowRef& row,
+                                                    const TSizeVec& extraColumns,
+                                                    std::size_t numberLossParameters) {
+    return {row.data() + extraColumns[E_Prediction],
+            static_cast<int>(numberLossParameters +
+                             lossHessianUpperTriangleSize(numberLossParameters))};
 }
 
-void zeroLossGradient(const TRowRef& row, std::size_t numberInputColumns, std::size_t numberLossParameters) {
-    std::size_t offset{lossGradientColumn(numberInputColumns, numberLossParameters)};
+TMemoryMappedFloatVector readLossGradient(const TRowRef& row,
+                                          const TSizeVec& extraColumns,
+                                          std::size_t numberLossParameters) {
+    return {row.data() + extraColumns[E_Gradient], static_cast<int>(numberLossParameters)};
+}
+
+void zeroLossGradient(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters) {
     for (std::size_t i = 0; i < numberLossParameters; ++i) {
-        row.writeColumn(offset + i, 0.0);
+        row.writeColumn(extraColumns[E_Gradient] + i, 0.0);
     }
 }
 
 void writeLossGradient(const TRowRef& row,
-                       std::size_t numberInputColumns,
+                       const TSizeVec& extraColumns,
                        const CLoss& loss,
                        const TMemoryMappedFloatVector& prediction,
                        double actual,
                        double weight) {
-    std::size_t offset{lossGradientColumn(numberInputColumns, prediction.size())};
-    auto writer = [&row, offset](std::size_t i, double value) {
-        row.writeColumn(offset + i, value);
+    auto writer = [&row, &extraColumns](std::size_t i, double value) {
+        row.writeColumn(extraColumns[E_Gradient] + i, value);
     };
     // We wrap the writer in another lambda which we know takes advantage
     // of std::function small size optimization to avoid heap allocations.
@@ -59,29 +72,27 @@ void writeLossGradient(const TRowRef& row,
 }
 
 TMemoryMappedFloatVector readLossCurvature(const TRowRef& row,
-                                           std::size_t numberInputColumns,
+                                           const TSizeVec& extraColumns,
                                            std::size_t numberLossParameters) {
-    return {row.data() + lossCurvatureColumn(numberInputColumns, numberLossParameters),
-            static_cast<int>(lossHessianStoredSize(numberLossParameters))};
+    return {row.data() + extraColumns[E_Curvature],
+            static_cast<int>(lossHessianUpperTriangleSize(numberLossParameters))};
 }
 
-void zeroLossCurvature(const TRowRef& row, std::size_t numberInputColumns, std::size_t numberLossParameters) {
-    std::size_t offset{lossCurvatureColumn(numberInputColumns, numberLossParameters)};
-    for (std::size_t i = 0, size = lossHessianStoredSize(numberLossParameters);
+void zeroLossCurvature(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters) {
+    for (std::size_t i = 0, size = lossHessianUpperTriangleSize(numberLossParameters);
          i < size; ++i) {
-        row.writeColumn(offset + i, 0.0);
+        row.writeColumn(extraColumns[E_Curvature] + i, 0.0);
     }
 }
 
 void writeLossCurvature(const TRowRef& row,
-                        std::size_t numberInputColumns,
+                        const TSizeVec& extraColumns,
                         const CLoss& loss,
                         const TMemoryMappedFloatVector& prediction,
                         double actual,
                         double weight) {
-    std::size_t offset{lossCurvatureColumn(numberInputColumns, prediction.size())};
-    auto writer = [&row, offset](std::size_t i, double value) {
-        row.writeColumn(offset + i, value);
+    auto writer = [&row, &extraColumns](std::size_t i, double value) {
+        row.writeColumn(extraColumns[E_Curvature] + i, value);
     };
     // We wrap the writer in another lambda which we know takes advantage
     // of std::function small size optimization to avoid heap allocations.
@@ -89,10 +100,12 @@ void writeLossCurvature(const TRowRef& row,
                    [&writer](std::size_t i, double value) { writer(i, value); }, weight);
 }
 
-double readExampleWeight(const TRowRef& row,
-                         std::size_t numberInputColumns,
-                         std::size_t numberLossParameters) {
-    return row[exampleWeightColumn(numberInputColumns, numberLossParameters)];
+double readExampleWeight(const TRowRef& row, const TSizeVec& extraColumns) {
+    return row[extraColumns[E_Weight]];
+}
+
+void writeExampleWeight(const TRowRef& row, const TSizeVec& extraColumns, double weight) {
+    row.writeColumn(extraColumns[E_Weight], weight);
 }
 
 double readActual(const TRowRef& row, std::size_t dependentVariable) {

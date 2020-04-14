@@ -725,9 +725,9 @@ CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
 
 std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeMainStorageDataFrame(std::size_t numberColumns,
-                         CAlignment::EType alignment,
                          boost::optional<std::size_t> sliceCapacity,
-                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
+                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy,
+                         CAlignment::EType alignment) {
     auto writer = [](std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes) {
         return std::make_unique<CMainMemoryDataFrameRowSlice>(
             firstRow, std::move(rows), std::move(docHashes));
@@ -748,9 +748,9 @@ std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeDiskStorageDataFrame(const std::string& rootDirectory,
                          std::size_t numberColumns,
                          std::size_t numberRows,
-                         CAlignment::EType alignment,
                          boost::optional<std::size_t> sliceCapacity,
-                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
+                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy,
+                         CAlignment::EType alignment) {
     std::size_t minimumSpace{2 * numberRows * numberColumns * sizeof(CFloatStorage)};
 
     auto directory = std::make_shared<CTemporaryDirectory>(rootDirectory, minimumSpace);

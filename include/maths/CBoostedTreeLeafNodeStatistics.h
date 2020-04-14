@@ -27,6 +27,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <limits>
 #include <numeric>
 #include <vector>
@@ -91,8 +92,6 @@ public:
         void add(std::size_t count, const TMemoryMappedFloatVector& derivatives) {
             m_Count += count;
             this->flatView() += derivatives;
-            //m_Gradient += gradient;
-            //this->curvatureTriangleView() += curvature;
         }
 
         //! Compute the accumulation of both collections of derivatives.
@@ -155,8 +154,9 @@ public:
 
     private:
         TMemoryMappedDoubleVector flatView() {
-            return {m_Curvature.data(),
-                    m_Gradient.rows() + m_Curvature.rows() * (m_Curvature.rows() + 1) / 2};
+            // Gradient + upper triangle of the Hessian.
+            long int n{m_Gradient.rows()};
+            return {m_Gradient.data(), n * (n + 3) / 2};
         }
 
     private:
@@ -297,6 +297,7 @@ public:
 
     private:
         using TDerivativesVecVec = std::vector<TDerivativesVec>;
+        using TAlignedDoubleVec = std::vector<double, core::CAlignedAllocator<double>>;
 
     private:
         static std::size_t number(const TDerivativesVec& derivatives) {
@@ -331,13 +332,9 @@ public:
             m_Derivatives.resize(splits.size());
             m_MissingDerivatives.reserve(splits.size());
 
-            m_Storage.resize(1);
-            std::size_t start{core::CAlignment::nextAligned(
-                &m_Storage[0], core::CAlignment::E_Aligned16)};
-            m_Storage.resize(
-                (totalNumberSplits + splits.size()) * derivatives + start - 1, 0.0);
+            m_Storage.resize((totalNumberSplits + splits.size()) * derivatives, 0.0);
 
-            double* storage{&m_Storage[start]};
+            double* storage{&m_Storage[0]};
             for (std::size_t i = 0; i < splits.size(); ++i, storage += derivatives) {
                 std::size_t size{number(splits[i])};
                 m_Derivatives[i].reserve(size);
@@ -355,28 +352,24 @@ public:
         }
 
         std::size_t gradients() const {
-            return core::CAlignment::roundupSizeof<double>(
-                       core::CAlignment::E_Aligned16, m_NumberLossParameters) /
-                   sizeof(double);
+            return core::CAlignment::roundup<double>(core::CAlignment::E_Aligned16,
+                                                     m_NumberLossParameters);
         }
 
         std::size_t curvatures() const {
-            return core::CAlignment::roundupSizeof<double>(
-                       core::CAlignment::E_Aligned16,
-                       m_NumberLossParameters * m_NumberLossParameters) /
-                   sizeof(double);
+            return m_NumberLossParameters * m_NumberLossParameters;
         }
 
     private:
         std::size_t m_NumberLossParameters = 0;
         TDerivativesVecVec m_Derivatives;
         TDerivativesVec m_MissingDerivatives;
-        TDoubleVec m_Storage;
+        TAlignedDoubleVec m_Storage;
     };
 
 public:
     CBoostedTreeLeafNodeStatistics(std::size_t id,
-                                   std::size_t numberInputColumns,
+                                   const TSizeVec& extraColumns,
                                    std::size_t numberLossParameters,
                                    std::size_t numberThreads,
                                    const core::CDataFrame& frame,
@@ -389,7 +382,7 @@ public:
 
     //! Only called by split but is public so it's accessible to std::make_shared.
     CBoostedTreeLeafNodeStatistics(std::size_t id,
-                                   std::size_t numberInputColumns,
+                                   const TSizeVec& extraColumns,
                                    std::size_t numberLossParameters,
                                    std::size_t numberThreads,
                                    const core::CDataFrame& frame,
@@ -465,6 +458,8 @@ public:
                                            std::size_t numberLossParameters);
 
 private:
+    using TSizeVecCRef = std::reference_wrapper<const TSizeVec>;
+
     //! \brief Statistics relating to a split of the node.
     struct MATHS_EXPORT SSplitStatistics
         : private boost::less_than_comparable<SSplitStatistics> {
@@ -520,7 +515,7 @@ private:
 private:
     std::size_t m_Id;
     std::size_t m_Depth;
-    std::size_t m_NumberInputColumns;
+    TSizeVecCRef m_ExtraColumns;
     std::size_t m_NumberLossParameters;
     const TImmutableRadixSetVec& m_CandidateSplits;
     core::CPackedBitVector m_RowMask;

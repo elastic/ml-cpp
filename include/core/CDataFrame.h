@@ -640,10 +640,10 @@ private:
 CORE_EXPORT
 std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeMainStorageDataFrame(std::size_t numberColumns,
-                         CAlignment::EType alignment = CAlignment::E_Unaligned,
                          boost::optional<std::size_t> sliceCapacity = boost::none,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
-                             CDataFrame::EReadWriteToStorage::E_Sync);
+                             CDataFrame::EReadWriteToStorage::E_Sync,
+                         CAlignment::EType alignment = CAlignment::E_Aligned16);
 
 //! Make a data frame which uses disk storage for its slices.
 //!
@@ -661,10 +661,10 @@ std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeDiskStorageDataFrame(const std::string& rootDirectory,
                          std::size_t numberColumns,
                          std::size_t numberRows,
-                         CAlignment::EType alignment = CAlignment::E_Unaligned,
                          boost::optional<std::size_t> sliceCapacity = boost::none,
                          CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy =
-                             CDataFrame::EReadWriteToStorage::E_Async);
+                             CDataFrame::EReadWriteToStorage::E_Async,
+                         CAlignment::EType alignment = CAlignment::E_Aligned16);
 }
 }
 

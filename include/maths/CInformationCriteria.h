@@ -194,7 +194,7 @@ class CGaussianInfoCriterion {
 public:
     using TPointVec = std::vector<POINT>;
     using TPointVecVec = std::vector<TPointVec>;
-    using TBarePoint = typename SStripped<POINT>::Type;
+    using TBarePoint = typename SUnannotated<POINT>::Type;
     using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
     using TCoordinate = typename SCoordinate<TBarePointPrecise>::Type;
     using TCovariances = CBasicStatistics::SSampleCovariances<TBarePointPrecise>;
