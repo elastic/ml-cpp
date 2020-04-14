@@ -709,6 +709,8 @@ BOOST_AUTO_TEST_CASE(testLatLongData) {
                 maths::gaussianLogLikelihood(covariance, x - mean, llj);
                 ll += w * std::exp(llj);
                 Z += w;
+                LOG_TRACE(<< "cluster " << j << " count " << clusters[j].count()
+                          << " centre " << clusters[j].centre());
             }
             ll /= Z;
             LLC.add(std::log(ll));
@@ -718,7 +720,7 @@ BOOST_AUTO_TEST_CASE(testLatLongData) {
     LOG_DEBUG(<< "gaussian log(L)  = " << maths::CBasicStatistics::mean(LLR));
     LOG_DEBUG(<< "clustered log(L) = " << maths::CBasicStatistics::mean(LLC));
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(LLC) >
-                       0.4 * maths::CBasicStatistics::mean(LLR));
+                       0.5 * maths::CBasicStatistics::mean(LLR));
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
