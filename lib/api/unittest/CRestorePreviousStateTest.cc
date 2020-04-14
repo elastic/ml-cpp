@@ -82,7 +82,8 @@ void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric) {
     std::ostringstream outputStrm;
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
     ml::api::CJsonOutputWriter writer("job", wrappedOutputStream);
-    ml::api::CFieldDataCategorizer restoredCategorizer("job", config, limits, writer, writer);
+    ml::api::CFieldDataCategorizer restoredCategorizer("job", config, limits,
+                                                       writer, writer, nullptr);
 
     std::ifstream inputStrm(stateFile.c_str());
     BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -147,7 +148,7 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
     std::string restoredSnapshotId;
     std::size_t numRestoredDocs(0);
     ml::api::CAnomalyJob restoredJob(
-        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream, nullptr,
         std::bind(&reportPersistComplete, std::placeholders::_1,
                   std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 

@@ -125,8 +125,8 @@ CAnomalyJob::CAnomalyJob(const std::string& jobId,
                          CFieldConfig& fieldConfig,
                          model::CAnomalyDetectorModelConfig& modelConfig,
                          core::CJsonOutputStreamWrapper& outputStream,
+                         CPersistenceManager* persistenceManager,
                          const TPersistCompleteFunc& persistCompleteFunc,
-                         CPersistenceManager* periodicPersister,
                          core_t::TTime maxQuantileInterval,
                          const std::string& timeFieldName,
                          const std::string& timeFieldFormat,
@@ -138,7 +138,7 @@ CAnomalyJob::CAnomalyJob(const std::string& jobId,
       m_LastFinalisedBucketEndTime(0), m_PersistCompleteFunc(persistCompleteFunc),
       m_TimeFieldName(timeFieldName), m_TimeFieldFormat(timeFieldFormat),
       m_MaxDetectors(std::numeric_limits<size_t>::max()),
-      m_PeriodicPersister(periodicPersister),
+      m_PersistenceManager(persistenceManager),
       m_MaxQuantileInterval(maxQuantileInterval),
       m_LastNormalizerPersistTime(core::CTimeUtils::now()), m_LatestRecordTime(0),
       m_LastResultsTime(0), m_Aggregator(modelConfig), m_Normalizer(modelConfig) {
@@ -260,8 +260,8 @@ void CAnomalyJob::finalise() {
     // Wait for any ongoing periodic persist to complete, so that the data adder
     // is not used by both a periodic background persist and foreground persist at the
     // same time
-    if (m_PeriodicPersister != nullptr) {
-        m_PeriodicPersister->waitForIdle();
+    if (m_PersistenceManager != nullptr) {
+        m_PersistenceManager->waitForIdle();
     }
 }
 
@@ -373,8 +373,8 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         this->doForecast(controlMessage);
         break;
     case 'w':
-        if (m_PeriodicPersister != nullptr && this->isPersistenceNeeded("state")) {
-            m_PeriodicPersister->startPersist(core::CTimeUtils::now());
+        if (m_PersistenceManager != nullptr && this->isPersistenceNeeded("state")) {
+            m_PersistenceManager->startPersist(core::CTimeUtils::now());
         }
         break;
     default:
@@ -466,8 +466,8 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
         // Check for periodic persistence immediately after calculating results
         // for the last bucket but before adding the first piece of data for the
         // next bucket
-        if (m_PeriodicPersister != nullptr) {
-            m_PeriodicPersister->startPersistIfAppropriate();
+        if (m_PersistenceManager != nullptr) {
+            m_PersistenceManager->startPersistIfAppropriate();
         }
     }
 
@@ -1014,9 +1014,9 @@ bool CAnomalyJob::persistModelsState(core::CDataAdder& persister,
 }
 
 bool CAnomalyJob::persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) {
-    if (m_PeriodicPersister != nullptr) {
+    if (m_PersistenceManager != nullptr) {
         // This will not happen if finalise() was called before persisting state
-        if (m_PeriodicPersister->isBusy()) {
+        if (m_PersistenceManager->isBusy()) {
             LOG_ERROR(<< "Cannot perform foreground persistence of state - periodic "
                          "background persistence is still in progress");
             return false;
@@ -1054,7 +1054,7 @@ bool CAnomalyJob::persistState(core::CDataAdder& persister, const std::string& d
 bool CAnomalyJob::backgroundPersistState() {
     LOG_INFO(<< "Background persist starting data copy");
 
-    if (m_PeriodicPersister == nullptr) {
+    if (m_PersistenceManager == nullptr) {
         return false;
     }
 
@@ -1096,13 +1096,13 @@ bool CAnomalyJob::backgroundPersistState() {
     std::sort(copiedDetectors.begin(), copiedDetectors.end(),
               maths::COrderings::SFirstLess());
 
-    if (m_PeriodicPersister->addPersistFunc(std::bind(
+    if (m_PersistenceManager->addPersistFunc(std::bind(
             &CAnomalyJob::runBackgroundPersist, this, args, std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Failed to add anomaly detector background persistence function");
         return false;
     }
 
-    m_PeriodicPersister->useBackgroundPersistence();
+    m_PersistenceManager->useBackgroundPersistence();
 
     return true;
 }
@@ -1287,17 +1287,17 @@ bool CAnomalyJob::periodicPersistStateInBackground() {
 bool CAnomalyJob::periodicPersistStateInForeground() {
     // Do NOT pass this request on to the output chainer. That logic is already present in persistState.
 
-    if (m_PeriodicPersister == nullptr) {
+    if (m_PersistenceManager == nullptr) {
         return false;
     }
 
-    if (m_PeriodicPersister->addPersistFunc(std::bind(
+    if (m_PersistenceManager->addPersistFunc(std::bind(
             &CAnomalyJob::runForegroundPersist, this, std::placeholders::_1)) == false) {
         LOG_ERROR(<< "Failed to add anomaly detector foreground persistence function");
         return false;
     }
 
-    m_PeriodicPersister->useForegroundPersistence();
+    m_PersistenceManager->useForegroundPersistence();
 
     return true;
 }

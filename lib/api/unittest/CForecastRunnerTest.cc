@@ -84,7 +84,8 @@ BOOST_AUTO_TEST_CASE(testSummaryCount) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
+        ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
+                                 streamWrapper, nullptr);
         populateJob(generateRecordWithSummaryCount, job);
 
         ml::api::CAnomalyJob::TStrStrUMap dataRows;
@@ -156,7 +157,8 @@ BOOST_AUTO_TEST_CASE(testPopulation) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
+        ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
+                                 streamWrapper, nullptr);
         populateJob(generatePopulationRecord, job);
 
         ml::api::CAnomalyJob::TStrStrUMap dataRows;
@@ -200,7 +202,8 @@ BOOST_AUTO_TEST_CASE(testRare) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
+        ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
+                                 streamWrapper, nullptr);
         populateJob(generateRecordWithStatus, job, 5000);
 
         ml::api::CAnomalyJob::TStrStrUMap dataRows;
@@ -241,7 +244,8 @@ BOOST_AUTO_TEST_CASE(testInsufficientData) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
+        ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
+                                 streamWrapper, nullptr);
         populateJob(generateRecord, job, 3);
 
         ml::api::CAnomalyJob::TStrStrUMap dataRows;

@@ -77,10 +77,10 @@ void detectorPersistHelper(const std::string& configFileName,
 
     {
         ml::api::CAnomalyJob origJob(
-            JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+            JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream, nullptr,
             std::bind(&reportPersistComplete, std::placeholders::_1,
                       std::ref(origSnapshotId), std::ref(numOrigDocs)),
-            nullptr, -1, "time", timeFormat);
+            -1, "time", timeFormat);
 
         ml::api::CDataProcessor* firstProcessor(&origJob);
 
@@ -88,8 +88,8 @@ void detectorPersistHelper(const std::string& configFileName,
         ml::api::COutputChainer outputChainer(origJob);
 
         // The categorizer knows how to assign categories to records
-        ml::api::CFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits,
-                                                   outputChainer, outputWriter);
+        ml::api::CFieldDataCategorizer categorizer(
+            JOB_ID, fieldConfig, limits, outputChainer, outputWriter, nullptr);
 
         if (fieldConfig.fieldNameSuperset().count(
                 ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
@@ -124,7 +124,7 @@ void detectorPersistHelper(const std::string& configFileName,
 
     {
         ml::api::CAnomalyJob restoredJob(
-            JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+            JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream, nullptr,
             std::bind(&reportPersistComplete, std::placeholders::_1,
                       std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 
@@ -135,7 +135,7 @@ void detectorPersistHelper(const std::string& configFileName,
 
         // The categorizer knows how to assign categories to records
         ml::api::CFieldDataCategorizer restoredCategorizer(
-            JOB_ID, fieldConfig, limits, restoredOutputChainer, outputWriter);
+            JOB_ID, fieldConfig, limits, restoredOutputChainer, outputWriter, nullptr);
 
         size_t numCategorizerDocs(0);
 

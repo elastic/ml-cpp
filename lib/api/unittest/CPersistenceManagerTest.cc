@@ -100,10 +100,10 @@ protected:
             ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);
 
             ml::api::CAnomalyJob job(
-                JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+                JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream, &persistenceManager,
                 std::bind(&reportPersistComplete, std::placeholders::_1,
                           std::ref(snapshotId), std::ref(numDocs)),
-                &persistenceManager, -1, "time", "%d/%b/%Y:%T %z");
+                -1, "time", "%d/%b/%Y:%T %z");
 
             ml::api::CDataProcessor* firstProcessor(&job);
 
@@ -224,10 +224,10 @@ protected:
             ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);
 
             ml::api::CAnomalyJob job(
-                JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+                JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream, &persistenceManager,
                 std::bind(&reportPersistComplete, std::placeholders::_1,
                           std::ref(snapshotId), std::ref(numDocs)),
-                &persistenceManager, -1, "time", "%d/%b/%Y:%T %z");
+                -1, "time", "%d/%b/%Y:%T %z");
 
             ml::api::CDataProcessor* firstProcessor(&job);
 

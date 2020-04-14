@@ -77,10 +77,10 @@ void detectorPersistHelper(const std::string& configFileName,
     std::string origSnapshotId;
     std::size_t numOrigDocs(0);
     ml::api::CAnomalyJob origJob(
-        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream, nullptr,
         std::bind(&reportPersistComplete, std::placeholders::_1,
                   std::ref(origSnapshotId), std::ref(numOrigDocs)),
-        nullptr, -1, "time", timeFormat);
+        -1, "time", timeFormat);
 
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
     const TInputParserUPtr parser{[&inputFilename, &inputStrm]() -> TInputParserUPtr {
@@ -136,7 +136,7 @@ void detectorPersistHelper(const std::string& configFileName,
     std::string restoredSnapshotId;
     std::size_t numRestoredDocs(0);
     ml::api::CAnomalyJob restoredJob(
-        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream, nullptr,
         std::bind(&reportPersistComplete, std::placeholders::_1,
                   std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 
