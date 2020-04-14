@@ -71,9 +71,9 @@ public:
                 return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
                                                  weights, regressors, targets);
             case E_MsleRegression:
-                return setupLinearRegressionData(
-                    fieldNames, fieldValues, analyzer, weights, regressors,
-                    targets, [](double x) { return std::exp(x) - 1.0; });
+                return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
+                                                 weights, regressors, targets,
+                                                 [](double x) { return x * x; });
             case E_BinaryClassification:
                 return setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
                                                      weights, regressors, targets);
