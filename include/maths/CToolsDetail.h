@@ -316,7 +316,7 @@ void CTools::inplaceLogSoftmax(CDenseVector<SCALAR>& z) {
     double zmax{z.maxCoeff()};
     z.array() -= zmax;
     double Z{z.array().exp().sum()};
-    z.array() -= std::log(Z);
+    z.array() -= stableLog(Z);
 }
 }
 }

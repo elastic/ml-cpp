@@ -126,7 +126,7 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
 }
 
 bool CBoostedTreeLeafNodeStatistics::operator<(const CBoostedTreeLeafNodeStatistics& rhs) const {
-    return m_BestSplit < rhs.m_BestSplit;
+    return COrderings::lexicographical_compare(m_BestSplit, m_Id, rhs.m_BestSplit, rhs.m_Id);
 }
 
 double CBoostedTreeLeafNodeStatistics::gain() const {
