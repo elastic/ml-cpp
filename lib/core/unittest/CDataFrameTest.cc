@@ -889,4 +889,60 @@ BOOST_FIXTURE_TEST_CASE(testAlignment, CTestFixture) {
     }
 }
 
+BOOST_FIXTURE_TEST_CASE(testAlignedExtraColumns, CTestFixture) {
+
+    // Test all the rows have the requested alignment.
+
+    using TAlignedFactoryFunc =
+        std::function<std::unique_ptr<core::CDataFrame>(core::CAlignment::EType)>;
+
+    std::size_t rows{5000};
+    std::size_t cols{15};
+    std::size_t capacity{1000};
+    TFloatVec components{testData(rows, cols)};
+    core::CDataFrame::TSizeAlignmentPrVec extraColumns{
+        {2, core::CAlignment::E_Unaligned},
+        {3, core::CAlignment::E_Aligned16},
+        {1, core::CAlignment::E_Unaligned}};
+    test::CRandomNumbers rng;
+
+    TAlignedFactoryFunc makeOnDisk = [=](core::CAlignment::EType alignment) {
+        return core::makeDiskStorageDataFrame(
+                   boost::filesystem::current_path().string(), cols, rows, alignment,
+                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
+            .first;
+    };
+    TAlignedFactoryFunc makeMainMemory = [=](core::CAlignment::EType alignment) {
+        return core::makeMainStorageDataFrame(cols, alignment, capacity,
+                                              core::CDataFrame::EReadWriteToStorage::E_Sync)
+            .first;
+    };
+
+    std::string type[]{"on disk", "main memory"};
+    std::size_t t{0};
+    for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+        for (auto alignment : {core::CAlignment::E_Aligned16, core::CAlignment::E_Aligned32}) {
+            LOG_DEBUG(<< "Test aligned " << alignment << " " << type[t]);
+
+            auto frame = factory(alignment);
+
+            for (std::size_t i = 0; i < components.size(); i += cols) {
+                frame->writeRow(makeWriter(components, cols, i));
+            }
+            frame->finishWritingRows();
+
+            auto offsets = frame->resizeColumns(1, extraColumns);
+
+            LOG_DEBUG(<< core::CContainerPrinter::print(offsets));
+
+            //frame->readRows(1, [alignment](TRowItr beginRows, TRowItr endRows) {
+            //    for (auto row = beginRows; row != endRows; ++row) {
+            //        BOOST_TEST_REQUIRE(core::CAlignment::isAligned(row->data(), alignment));
+            //    }
+            //});
+        }
+        ++t;
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

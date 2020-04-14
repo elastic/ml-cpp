@@ -219,12 +219,14 @@ private:
 class CORE_EXPORT CDataFrame final {
 public:
     using TBoolVec = std::vector<bool>;
+    using TSizeVec = std::vector<std::size_t>;
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
     using TStrCRng = CVectorRange<const TStrVec>;
     using TFloatVec = std::vector<CFloatStorage, CAlignedAllocator<CFloatStorage>>;
     using TFloatVecItr = TFloatVec::iterator;
     using TInt32Vec = std::vector<std::int32_t>;
+    using TSizeAlignmentPrVec = std::vector<std::pair<std::size_t, CAlignment::EType>>;
     using TRowRef = data_frame_detail::CRowRef;
     using TRowItr = data_frame_detail::CRowIterator;
     using TRowFunc = std::function<void(TRowItr, TRowItr)>;
@@ -305,6 +307,18 @@ public:
     //! \param[in] numberThreads The target number of threads to use.
     //! \param[in] numberColumns The desired number of columns.
     void resizeColumns(std::size_t numberThreads, std::size_t numberColumns);
+
+    //! Resize to contain \p extraColumns columns.
+    //!
+    //! These are split up into blocks of columns with their required alignment.
+    //! Pads are automatically inserted for alignment and a vector of the start
+    //! position of each block of columns is returned.
+    //!
+    //! \param[in] numberThreads The target number of threads to use.
+    //! \param[in] extraColumns The desired additional columns.
+    //! \return The index of each (block of) columns in \p extraColumns.
+    //! \warning This only supports alignments less than or equal the row alignment.
+    TSizeVec resizeColumns(std::size_t numberThreads, const TSizeAlignmentPrVec& extraColumns);
 
     //! This reads rows using one or more readers.
     //!

@@ -182,6 +182,26 @@ void CDataFrame::resizeColumns(std::size_t numberThreads, std::size_t numberColu
     m_NumberColumns = numberColumns;
 }
 
+CDataFrame::TSizeVec CDataFrame::resizeColumns(std::size_t numberThreads,
+                                               const TSizeAlignmentPrVec& extraColumns) {
+    TSizeVec result;
+    result.reserve(extraColumns.size());
+    std::size_t index{m_NumberColumns};
+    for (const auto& columns : extraColumns) {
+        std::size_t count;
+        CAlignment::EType alignment;
+        std::tie(count, alignment) = columns;
+        if (CAlignment::less(m_RowAlignment, alignment)) {
+            HANDLE_FATAL(<< "Unsupported column alignment " << CAlignment::print(alignment));
+        }
+        index = CAlignment::roundup<CFloatStorage>(alignment, index);
+        result.push_back(index);
+        index += count;
+    }
+    this->resizeColumns(numberThreads, index);
+    return result;
+}
+
 CDataFrame::TRowFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
                                                    std::size_t beginRows,
                                                    std::size_t endRows,
