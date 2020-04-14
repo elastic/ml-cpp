@@ -49,7 +49,12 @@ case `uname` in
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
             BOOST_LOCATION=/usr/local/gcc75/lib
             BOOST_COMPILER=gcc
-            BOOST_EXTENSION=mt-x64-1_71.so.1.71.0
+            if [ `uname -m` = aarch64 ] ; then
+                BOOST_ARCH=a64
+            else
+                BOOST_ARCH=x64
+            fi
+            BOOST_EXTENSION=mt-${BOOST_ARCH}-1_71.so.1.71.0
             BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
             XML_LOCATION=/usr/local/gcc75/lib
             XML_EXTENSION=.so.2
