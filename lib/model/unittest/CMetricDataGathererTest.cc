@@ -279,14 +279,14 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
                                  bucketLength, featureData);
             LOG_DEBUG(<< "featureData = " << core::CContainerPrinter::print(featureData));
             BOOST_TEST_REQUIRE(!featureData.empty());
-            BOOST_REQUIRE_EQUAL(
-                1.5, featureData[0].second[0].second.s_BucketValue->value()[0]);
-            BOOST_REQUIRE_EQUAL(
-                0.9, featureData[1].second[0].second.s_BucketValue->value()[0]);
-            BOOST_REQUIRE_EQUAL(
-                2.1, featureData[2].second[0].second.s_BucketValue->value()[0]);
-            BOOST_REQUIRE_EQUAL(
-                9.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                1.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-14);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                0.9, featureData[1].second[0].second.s_BucketValue->value()[0], 1e-14);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                2.1, featureData[2].second[0].second.s_BucketValue->value()[0], 1e-14);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                9.0, featureData[3].second[0].second.s_BucketValue->value()[0], 1e-14);
             BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
             BOOST_REQUIRE_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
             BOOST_REQUIRE_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
@@ -315,14 +315,14 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
             gatherer.sampleNow(startTime + bucketLength);
             gatherer.featureData(startTime + bucketLength, bucketLength, featureData);
             BOOST_TEST_REQUIRE(!featureData.empty());
-            BOOST_REQUIRE_EQUAL(
-                2.0, featureData[0].second[0].second.s_BucketValue->value()[0]);
-            BOOST_REQUIRE_EQUAL(
-                1.8, featureData[1].second[0].second.s_BucketValue->value()[0]);
-            BOOST_REQUIRE_EQUAL(
-                2.2, featureData[2].second[0].second.s_BucketValue->value()[0]);
-            BOOST_REQUIRE_EQUAL(
-                6.0, featureData[3].second[0].second.s_BucketValue->value()[0]);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                2.0, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-14);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                1.8, featureData[1].second[0].second.s_BucketValue->value()[0], 1e-14);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                2.2, featureData[2].second[0].second.s_BucketValue->value()[0], 1e-14);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                6.0, featureData[3].second[0].second.s_BucketValue->value()[0], 1e-14);
             BOOST_REQUIRE_EQUAL(true, featureData[3].second[0].second.s_IsInteger);
             BOOST_REQUIRE_EQUAL(std::string("[(700 [2.1] 1 2)]"),
                                 core::CContainerPrinter::print(
@@ -378,10 +378,12 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         BOOST_TEST_REQUIRE(!featureData.empty());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             3.5, featureData[0].second[0].second.s_BucketValue->value()[0], 1e-10);
-        BOOST_REQUIRE_EQUAL(3.2, featureData[1].second[0].second.s_BucketValue->value()[0]);
-        BOOST_REQUIRE_EQUAL(3.8, featureData[2].second[0].second.s_BucketValue->value()[0]);
-        BOOST_REQUIRE_EQUAL(
-            10.5, featureData[3].second[0].second.s_BucketValue->value()[0]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            3.2, featureData[1].second[0].second.s_BucketValue->value()[0], 1e-14);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            3.8, featureData[2].second[0].second.s_BucketValue->value()[0], 1e-14);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            10.5, featureData[3].second[0].second.s_BucketValue->value()[0], 1e-14);
         BOOST_REQUIRE_EQUAL(false, featureData[0].second[0].second.s_IsInteger);
         BOOST_REQUIRE_EQUAL(false, featureData[1].second[0].second.s_IsInteger);
         BOOST_REQUIRE_EQUAL(false, featureData[2].second[0].second.s_IsInteger);
