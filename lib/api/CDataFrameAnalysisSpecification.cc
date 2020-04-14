@@ -197,10 +197,11 @@ CDataFrameAnalysisSpecification::makeDataFrame() {
         return {};
     }
 
-    auto result = m_Runner->storeDataFrameInMainMemory()
-                      ? core::makeMainStorageDataFrame(m_NumberColumns)
-                      : core::makeDiskStorageDataFrame(m_TemporaryDirectory,
-                                                       m_NumberColumns, m_NumberRows);
+    auto result =
+        m_Runner->storeDataFrameInMainMemory()
+            ? core::makeMainStorageDataFrame(m_NumberColumns, m_Runner->rowAlignment())
+            : core::makeDiskStorageDataFrame(m_TemporaryDirectory, m_NumberColumns,
+                                             m_NumberRows, m_Runner->rowAlignment());
     result.first->missingString(m_MissingFieldValue);
     result.first->reserve(m_NumberThreads, m_NumberColumns + this->numberExtraColumns());
 

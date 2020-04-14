@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CAlignment.h>
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CDataFrameRowSlice.h>
@@ -126,8 +127,8 @@ BOOST_FIXTURE_TEST_CASE(testInMainMemoryBasicReadWrite, CTestFixture) {
                   << sync[static_cast<int>(readWriteToStoreAsync)]);
 
         for (auto end : {500 * cols, 2000 * cols, components.size()}) {
-            auto frameAndDirectory =
-                core::makeMainStorageDataFrame(cols, capacity, readWriteToStoreAsync);
+            auto frameAndDirectory = core::makeMainStorageDataFrame(
+                cols, core::CAlignment::E_Unaligned, capacity, readWriteToStoreAsync);
             auto frame = std::move(frameAndDirectory.first);
 
             for (std::size_t i = 0; i < end; i += cols) {
@@ -160,7 +161,8 @@ BOOST_FIXTURE_TEST_CASE(testInMainMemoryParallelRead, CTestFixture) {
 
         TFloatVec components{testData(rows, cols)};
 
-        auto frameAndDirectory = core::makeMainStorageDataFrame(cols, capacity);
+        auto frameAndDirectory = core::makeMainStorageDataFrame(
+            cols, core::CAlignment::E_Unaligned, capacity);
         auto frame = std::move(frameAndDirectory.first);
         for (std::size_t i = 0; i < components.size(); i += cols) {
             frame->writeRow(makeWriter(components, cols, i));
@@ -200,7 +202,7 @@ BOOST_FIXTURE_TEST_CASE(testOnDiskBasicReadWrite, CTestFixture) {
     TFloatVec components{testData(rows, cols)};
 
     auto frameAndDirectory = core::makeDiskStorageDataFrame(
-        test::CTestTmpDir::tmpDir(), cols, rows, capacity);
+        test::CTestTmpDir::tmpDir(), cols, rows, core::CAlignment::E_Unaligned, capacity);
     auto frame = std::move(frameAndDirectory.first);
 
     for (std::size_t i = 0; i < components.size(); i += cols) {
@@ -229,7 +231,7 @@ BOOST_FIXTURE_TEST_CASE(testOnDiskParallelRead, CTestFixture) {
     TFloatVec components{testData(rows, cols)};
 
     auto frameAndDirectory = core::makeDiskStorageDataFrame(
-        test::CTestTmpDir::tmpDir(), cols, rows, capacity);
+        test::CTestTmpDir::tmpDir(), cols, rows, core::CAlignment::E_Unaligned, capacity);
     auto frame = std::move(frameAndDirectory.first);
 
     for (std::size_t i = 0; i < components.size(); i += cols) {
@@ -269,11 +271,13 @@ BOOST_FIXTURE_TEST_CASE(testReadRange, CTestFixture) {
     TFloatVec components{testData(rows, cols)};
 
     TFactoryFunc makeOnDisk = [=] {
-        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows, capacity)
+        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows,
+                                              core::CAlignment::E_Unaligned, capacity)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {
-        return core::makeMainStorageDataFrame(cols, capacity).first;
+        return core::makeMainStorageDataFrame(cols, core::CAlignment::E_Unaligned, capacity)
+            .first;
     };
 
     std::string type[]{"on disk", "main memory"};
@@ -336,11 +340,13 @@ BOOST_FIXTURE_TEST_CASE(testWriteRange, CTestFixture) {
     TFloatVec components{testData(rows, cols)};
 
     TFactoryFunc makeOnDisk = [=] {
-        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows, capacity)
+        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows,
+                                              core::CAlignment::E_Unaligned, capacity)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {
-        return core::makeMainStorageDataFrame(cols, capacity).first;
+        return core::makeMainStorageDataFrame(cols, core::CAlignment::E_Unaligned, capacity)
+            .first;
     };
 
     std::string type[]{"on disk", "main memory"};
@@ -412,13 +418,14 @@ BOOST_FIXTURE_TEST_CASE(testMemoryUsage, CTestFixture) {
 
     const std::string& rootDirectory{test::CTestTmpDir::tmpDir()};
     TFactoryFunc makeOnDisk = [=] {
-        return core::makeDiskStorageDataFrame(rootDirectory, cols, rows, capacity,
-                                              core::CDataFrame::EReadWriteToStorage::E_Async)
+        return core::makeDiskStorageDataFrame(
+                   rootDirectory, cols, rows, core::CAlignment::E_Unaligned,
+                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {
-        return core::makeMainStorageDataFrame(
-                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync)
+        return core::makeMainStorageDataFrame(cols, core::CAlignment::E_Unaligned, capacity,
+                                              core::CDataFrame::EReadWriteToStorage::E_Sync)
             .first;
     };
 
@@ -457,13 +464,13 @@ BOOST_FIXTURE_TEST_CASE(testReserve, CTestFixture) {
 
     TFactoryFunc makeOnDisk = [=] {
         return core::makeDiskStorageDataFrame(
-                   test::CTestTmpDir::tmpDir(), cols, rows, capacity,
-                   core::CDataFrame::EReadWriteToStorage::E_Async)
+                   test::CTestTmpDir::tmpDir(), cols, rows, core::CAlignment::E_Unaligned,
+                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {
-        return core::makeMainStorageDataFrame(
-                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync)
+        return core::makeMainStorageDataFrame(cols, core::CAlignment::E_Unaligned, capacity,
+                                              core::CDataFrame::EReadWriteToStorage::E_Sync)
             .first;
     };
 
@@ -530,13 +537,13 @@ BOOST_FIXTURE_TEST_CASE(testResizeColumns, CTestFixture) {
 
     TFactoryFunc makeOnDisk = [=] {
         return core::makeDiskStorageDataFrame(
-                   test::CTestTmpDir::tmpDir(), cols, rows, capacity,
-                   core::CDataFrame::EReadWriteToStorage::E_Async)
+                   test::CTestTmpDir::tmpDir(), cols, rows, core::CAlignment::E_Unaligned,
+                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {
-        return core::makeMainStorageDataFrame(
-                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync)
+        return core::makeMainStorageDataFrame(cols, core::CAlignment::E_Unaligned, capacity,
+                                              core::CDataFrame::EReadWriteToStorage::E_Sync)
             .first;
     };
 
@@ -589,13 +596,13 @@ BOOST_FIXTURE_TEST_CASE(testWriteColumns, CTestFixture) {
 
     TFactoryFunc makeOnDisk = [=] {
         return core::makeDiskStorageDataFrame(
-                   test::CTestTmpDir::tmpDir(), cols, rows, capacity,
-                   core::CDataFrame::EReadWriteToStorage::E_Async)
+                   test::CTestTmpDir::tmpDir(), cols, rows, core::CAlignment::E_Unaligned,
+                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {
-        return core::makeMainStorageDataFrame(
-                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync)
+        return core::makeMainStorageDataFrame(cols, core::CAlignment::E_Unaligned, capacity,
+                                              core::CDataFrame::EReadWriteToStorage::E_Sync)
             .first;
     };
 
@@ -644,13 +651,13 @@ BOOST_FIXTURE_TEST_CASE(testDocHashes, CTestFixture) {
 
     TFactoryFunc makeOnDisk = [=] {
         return core::makeDiskStorageDataFrame(
-                   test::CTestTmpDir::tmpDir(), cols, rows, capacity,
-                   core::CDataFrame::EReadWriteToStorage::E_Async)
+                   test::CTestTmpDir::tmpDir(), cols, rows, core::CAlignment::E_Unaligned,
+                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {
-        return core::makeMainStorageDataFrame(
-                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync)
+        return core::makeMainStorageDataFrame(cols, core::CAlignment::E_Unaligned, capacity,
+                                              core::CDataFrame::EReadWriteToStorage::E_Sync)
             .first;
     };
 
@@ -714,12 +721,13 @@ BOOST_FIXTURE_TEST_CASE(testRowMask, CTestFixture) {
     TFactoryFunc makeOnDisk = [=] {
         return core::makeDiskStorageDataFrame(
                    boost::filesystem::current_path().string(), cols, rows,
-                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
+                   core::CAlignment::E_Unaligned, capacity,
+                   core::CDataFrame::EReadWriteToStorage::E_Async)
             .first;
     };
     TFactoryFunc makeMainMemory = [=] {
-        return core::makeMainStorageDataFrame(
-                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync)
+        return core::makeMainStorageDataFrame(cols, core::CAlignment::E_Unaligned, capacity,
+                                              core::CDataFrame::EReadWriteToStorage::E_Sync)
             .first;
     };
 
@@ -828,6 +836,56 @@ BOOST_FIXTURE_TEST_CASE(testRowMask, CTestFixture) {
                                     core::CContainerPrinter::print(readRowsIndices));
             }
         }
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(testAlignment, CTestFixture) {
+
+    // Test all the rows have the requested alignment.
+
+    using TAlignedFactoryFunc =
+        std::function<std::unique_ptr<core::CDataFrame>(core::CAlignment::EType)>;
+
+    std::size_t rows{5000};
+    std::size_t cols{15};
+    std::size_t capacity{1000};
+    TFloatVec components{testData(rows, cols)};
+
+    test::CRandomNumbers rng;
+
+    TAlignedFactoryFunc makeOnDisk = [=](core::CAlignment::EType alignment) {
+        return core::makeDiskStorageDataFrame(
+                   boost::filesystem::current_path().string(), cols, rows, alignment,
+                   capacity, core::CDataFrame::EReadWriteToStorage::E_Async)
+            .first;
+    };
+    TAlignedFactoryFunc makeMainMemory = [=](core::CAlignment::EType alignment) {
+        return core::makeMainStorageDataFrame(cols, alignment, capacity,
+                                              core::CDataFrame::EReadWriteToStorage::E_Sync)
+            .first;
+    };
+
+    std::string type[]{"on disk", "main memory"};
+    std::size_t t{0};
+    for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+        for (auto alignment : {core::CAlignment::E_Aligned8, core::CAlignment::E_Aligned16,
+                               core::CAlignment::E_Aligned32}) {
+            LOG_DEBUG(<< "Test aligned " << alignment << " " << type[t]);
+
+            auto frame = factory(alignment);
+
+            for (std::size_t i = 0; i < components.size(); i += cols) {
+                frame->writeRow(makeWriter(components, cols, i));
+            }
+            frame->finishWritingRows();
+
+            frame->readRows(1, [alignment](TRowItr beginRows, TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    BOOST_TEST_REQUIRE(core::CAlignment::isAligned(row->data(), alignment));
+                }
+            });
+        }
+        ++t;
     }
 }
 

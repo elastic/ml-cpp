@@ -24,12 +24,8 @@ CTreeShapFeatureImportance::CTreeShapFeatureImportance(const core::CDataFrame& f
                                                        const CDataFrameCategoryEncoder& encoder,
                                                        TTreeVec& forest,
                                                        std::size_t numberTopShapValues)
-    : m_NumberTopShapValues{numberTopShapValues}, m_Encoder{&encoder}, m_Forest{&forest} {
-
-    m_ColumnNames.reserve(frame.columnNames().size());
-    for (const auto& name : frame.columnNames()) {
-        m_ColumnNames.push_back(name);
-    }
+    : m_NumberTopShapValues{numberTopShapValues}, m_Encoder{&encoder}, m_Forest{&forest},
+      m_ColumnNames{frame.columnNames()} {
 
     // When traversing a tree, we successively copy the parent path and add one
     // new element to it. This means that if a tree has maxDepth depth, we store
