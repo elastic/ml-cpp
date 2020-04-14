@@ -137,9 +137,9 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
 
     TStrVec targets;
     // avoid negative targets
-    auto targetTransformer = (lossFunction == TRegressionLossFunction::E_Msle)
-                                 ? [](double x) { return x * x; }
-                                 : [](double x) { return x; };
+    auto targetTransformer = [&lossFunction](double x) {
+        return (lossFunction == TRegressionLossFunction::E_Msle) ? x * x : x;
+    };
     auto frame = test::CDataFrameAnalyzerTrainingFactory::setupLinearRegressionData(
         fieldNames, fieldValues, analyzer, weights, regressors, targets, targetTransformer);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
