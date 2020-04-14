@@ -900,10 +900,9 @@ BOOST_FIXTURE_TEST_CASE(testAlignedExtraColumns, CTestFixture) {
     std::size_t cols{15};
     std::size_t capacity{1000};
     TFloatVec components{testData(rows, cols)};
-    core::CDataFrame::TSizeAlignmentPrVec extraColumns{
-        {2, core::CAlignment::E_Unaligned},
-        {3, core::CAlignment::E_Aligned16},
-        {1, core::CAlignment::E_Unaligned}};
+    core::CDataFrame::TSizeAlignmentPrVec extraCols{{2, core::CAlignment::E_Unaligned},
+                                                    {3, core::CAlignment::E_Aligned16},
+                                                    {1, core::CAlignment::E_Unaligned}};
     test::CRandomNumbers rng;
 
     TAlignedFactoryFunc makeOnDisk = [=](core::CAlignment::EType alignment) {
@@ -931,15 +930,21 @@ BOOST_FIXTURE_TEST_CASE(testAlignedExtraColumns, CTestFixture) {
             }
             frame->finishWritingRows();
 
-            auto offsets = frame->resizeColumns(1, extraColumns);
+            auto offsets = frame->resizeColumns(1, extraCols);
+            for (std::size_t i = 1; i < offsets.size(); ++i) {
+                BOOST_TEST_REQUIRE(offsets[i] - offsets[i - 1] >=
+                                   extraCols[i - 1].first);
+            }
 
-            LOG_DEBUG(<< core::CContainerPrinter::print(offsets));
-
-            //frame->readRows(1, [alignment](TRowItr beginRows, TRowItr endRows) {
-            //    for (auto row = beginRows; row != endRows; ++row) {
-            //        BOOST_TEST_REQUIRE(core::CAlignment::isAligned(row->data(), alignment));
-            //    }
-            //});
+            BOOST_TEST_REQUIRE(extraCols.size() == offsets.size());
+            frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    for (std::size_t i = 0; i < extraCols.size(); ++i) {
+                        BOOST_TEST_REQUIRE(core::CAlignment::isAligned(
+                            row->data() + offsets[i], extraCols[i].second));
+                    }
+                }
+            });
         }
         ++t;
     }

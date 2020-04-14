@@ -167,11 +167,13 @@ void CDataFrame::reserve(std::size_t numberThreads, std::size_t rowCapacity) {
         return;
     }
 
+    std::size_t oldRowCapacity{m_RowCapacity};
     m_RowCapacity = rowCapacity;
 
-    parallel_for_each(numberThreads, m_Slices.begin(), m_Slices.end(), [this](TRowSlicePtr& slice) {
-        slice->reserve(m_NumberColumns, m_RowCapacity - m_NumberColumns);
-    });
+    parallel_for_each(numberThreads, m_Slices.begin(), m_Slices.end(),
+                      [oldRowCapacity, this](TRowSlicePtr& slice) {
+                          slice->reserve(oldRowCapacity, m_RowCapacity - oldRowCapacity);
+                      });
 }
 
 void CDataFrame::resizeColumns(std::size_t numberThreads, std::size_t numberColumns) {
