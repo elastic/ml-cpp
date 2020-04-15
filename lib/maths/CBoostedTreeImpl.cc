@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "maths/CBoostedTreeUtils.h"
 #include <maths/CBoostedTreeImpl.h>
 
 #include <core/CContainerPrinter.h>
@@ -20,12 +19,17 @@
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
 #include <maths/CBoostedTreeLoss.h>
+#include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
 #include <maths/CSetTools.h>
 #include <maths/CTreeShapFeatureImportance.h>
+
+#include <boost/circular_buffer.hpp>
+
+#include <algorithm>
 
 namespace ml {
 namespace maths {
@@ -313,10 +317,14 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     std::size_t foldRoundLossMemoryUsage{m_NumberFolds * m_NumberRounds *
                                          sizeof(TOptionalDouble)};
     std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
+    // We only maintain statistics for leaves we know we may possibly split this
+    // halves the peak number of statistics we maintain.
     std::size_t leafNodeStatisticsMemoryUsage{
-        maximumNumberLeaves * CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(
-                                  numberRows, maximumNumberFeatures, m_NumberSplitsPerFeature,
-                                  m_Loss->numberParameters())};
+        maximumNumberLeaves *
+        CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(
+            numberRows, maximumNumberFeatures, m_NumberSplitsPerFeature,
+            m_Loss->numberParameters()) /
+        2};
     std::size_t dataTypeMemoryUsage{maximumNumberFeatures * sizeof(CDataFrameUtils::SDataType)};
     std::size_t featureSampleProbabilities{maximumNumberFeatures * sizeof(double)};
     std::size_t missingFeatureMaskMemoryUsage{
@@ -724,14 +732,13 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     LOG_TRACE(<< "Training one tree...");
 
     using TLeafNodeStatisticsPtr = CBoostedTreeLeafNodeStatistics::TPtr;
-    using TLeafNodeStatisticsPtrQueue =
-        std::priority_queue<TLeafNodeStatisticsPtr, std::vector<TLeafNodeStatisticsPtr>, COrderings::SLess>;
+    using TLeafNodeStatisticsPtrQueue = boost::circular_buffer<TLeafNodeStatisticsPtr>;
 
     TNodeVec tree(1);
     tree.reserve(2 * maximumTreeSize + 1);
 
-    TLeafNodeStatisticsPtrQueue leaves;
-    leaves.push(std::make_shared<CBoostedTreeLeafNodeStatistics>(
+    TLeafNodeStatisticsPtrQueue leaves(maximumTreeSize / 2 + 3);
+    leaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatistics>(
         0 /*root*/, m_NumberInputColumns, m_Loss->numberParameters(),
         m_NumberThreads, frame, *m_Encoder, m_Regularization, candidateSplits,
         this->featureBag(), 0 /*depth*/, trainingRowMask));
@@ -755,10 +762,16 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
     double totalGain{0.0};
 
+    COrderings::SLess less;
+
     for (std::size_t i = 0; i < maximumTreeSize; ++i) {
 
-        auto leaf = leaves.top();
-        leaves.pop();
+        if (leaves.empty()) {
+            break;
+        }
+
+        auto leaf = leaves.back();
+        leaves.pop_back();
 
         scopeMemoryUsage.remove(leaf);
 
@@ -767,7 +780,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         }
 
         totalGain += leaf->gain();
-        LOG_TRACE(<< "splitting " << leaf->id() << " total gain = " << totalGain);
+        LOG_TRACE(<< "splitting " << leaf->id() << " leaf gain = " << leaf->gain()
+                  << " total gain = " << totalGain);
 
         std::size_t splitFeature;
         double splitValue;
@@ -786,11 +800,26 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
             leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder,
             m_Regularization, candidateSplits, this->featureBag(), tree[leaf->id()]);
 
-        scopeMemoryUsage.add(leftChild);
-        scopeMemoryUsage.add(rightChild);
+        if (less(rightChild, leftChild)) {
+            std::swap(leftChild, rightChild);
+        }
 
-        leaves.push(std::move(leftChild));
-        leaves.push(std::move(rightChild));
+        std::size_t n{leaves.size()};
+        if (leftChild->gain() >= MINIMUM_RELATIVE_GAIN_PER_SPLIT * totalGain) {
+            scopeMemoryUsage.add(leftChild);
+            leaves.push_back(std::move(leftChild));
+        }
+        if (rightChild->gain() >= MINIMUM_RELATIVE_GAIN_PER_SPLIT * totalGain) {
+            scopeMemoryUsage.add(rightChild);
+            leaves.push_back(std::move(rightChild));
+        }
+        std::inplace_merge(leaves.begin(), leaves.begin() + n, leaves.end(), less);
+
+        // Drop any leaves which can't possibly be split.
+        while (leaves.size() + i + 1 > maximumTreeSize) {
+            scopeMemoryUsage.remove(leaves.front());
+            leaves.pop_front();
+        }
     }
 
     tree.shrink_to_fit();

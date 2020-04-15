@@ -321,8 +321,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
               << "ms");
 
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
-                           counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 6000000);
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1500000);
+                           counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 4500000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1600000);
     BOOST_TEST_REQUIRE(
         core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
         core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
@@ -643,8 +643,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
               << "ms");
 
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(
-                           counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 6000000);
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1500000);
+                           counter_t::E_DFTPMEstimatedPeakMemoryUsage) < 4500000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) < 1600000);
     BOOST_TEST_REQUIRE(
         core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
         core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
