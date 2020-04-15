@@ -33,11 +33,20 @@ if (cppCrossCompile == null) {
     cppCrossCompile = ''
   }
 }
-if (cppCrossCompile != '' && cppCrossCompile != 'macosx') {
-  throw new GradleException("CPP_CROSS_COMPILE property must be empty or 'macosx'")
+if (cppCrossCompile != '' && cppCrossCompile != 'macosx' && cppCrossCompile != 'aarch64') {
+  throw new GradleException("CPP_CROSS_COMPILE property must be empty, 'macosx' or 'aarch64'")
 }
 
-String artifactClassifier = (isWindows ? "windows-x86_64" : ((isMacOsX || cppCrossCompile == 'macosx') ? "darwin-x86_64" : "linux-x86_64"))
+String artifactClassifier;
+if (isWindows) {
+  artifactClassifier = 'windows-x86_64'
+} else if (isMacOsX || cppCrossCompile == 'macosx') {
+  artifactClassifier = 'darwin-x86_64'
+} else if (cppCrossCompile != '') {
+  artifactClassifier = 'linux-' + cppCrossCompile
+} else {
+  artifactClassifier = 'linux-' + System.properties['os.arch']
+}
 
 // Always do the C++ build using bash (Git bash on Windows)
 project.ext.bash = isWindows ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"

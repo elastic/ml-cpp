@@ -61,7 +61,7 @@ class DownloadPlatformSpecific extends DefaultTask {
   @OutputDirectory
   File extractDirectory
 
-  List<String> platforms = [ 'darwin-x86_64', 'linux-x86_64', 'windows-x86_64' ]
+  List<String> platforms = [ 'darwin-x86_64', 'linux-aarch64', 'linux-x86_64', 'windows-x86_64' ]
 
   DownloadPlatformSpecific() {
     // Always run this task, in case the platform-specific zips have changed
@@ -105,7 +105,7 @@ class DownloadPlatformSpecific extends DefaultTask {
 task upload(type: UploadS3Task) {
   bucket 'prelert-artifacts'
   // Only upload the platform-specific artifacts in this task
-  def zipFileDir = fileTree("${buildDir}/distributions").matching { include "*-x86_64.zip" }
+  def zipFileDir = fileTree("${buildDir}/distributions").matching { include "*-aarch64.zip", "*-x86_64.zip" }
   for (zipFile in zipFileDir) {
     upload zipFile, "maven/${artifactGroupPath}/${artifactName}/${project.version}/${zipFile.name}"
   }

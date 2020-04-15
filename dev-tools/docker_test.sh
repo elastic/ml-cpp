@@ -15,7 +15,7 @@
 # Finally, the Docker container used for the build/test is deleted.
 
 usage() {
-    echo "Usage: $0 linux ..."
+    echo "Usage: $0 linux|linux_aarch64_native ..."
     exit 1
 }
 
@@ -25,7 +25,7 @@ while [ -n "$1" ]
 do
 
     case "$1" in
-        linux)
+        linux|linux_aarch64_native)
             PLATFORMS="$1 $PLATFORMS"
             ;;
         *)
