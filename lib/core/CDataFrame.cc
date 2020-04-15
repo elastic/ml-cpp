@@ -421,8 +421,7 @@ std::size_t CDataFrame::estimateMemoryUsage(bool inMainMemory,
                                             std::size_t numberColumns,
                                             CAlignment::EType alignment) {
     return inMainMemory
-               ? numberRows * CAlignment::roundup<CFloatStorage>(alignment, numberColumns) *
-                     sizeof(CFloatStorage)
+               ? numberRows * CAlignment::roundupSizeof<CFloatStorage>(alignment, numberColumns)
                : 0;
 }
 
@@ -602,7 +601,7 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
     funcs.reserve(1);
     funcs.emplace_back(std::move(func));
 
-    return TRowFuncVecBoolPr{std::move(std::move(funcs)), true};
+    return TRowFuncVecBoolPr{std::move(funcs), true};
 }
 
 void CDataFrame::applyToRowsOfOneSlice(TRowFunc& func,
