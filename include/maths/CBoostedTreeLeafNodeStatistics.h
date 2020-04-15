@@ -155,14 +155,14 @@ public:
     private:
         TMemoryMappedDoubleVector upperTriangularFlatView() {
             // Gradient + upper triangle of the Hessian.
-            long int n{m_Gradient.rows()};
+            auto n = m_Gradient.rows();
             return {m_Gradient.data(), n * (n + 3) / 2};
         }
 
         TMemoryMappedDoubleVector flatView() {
             // Gradient + pad + full Hessian.
-            long int n{m_Curvature.data() - m_Gradient.data() +
-                       m_Curvature.rows() * m_Curvature.cols()};
+            auto n = m_Curvature.data() - m_Gradient.data() +
+                     m_Curvature.rows() * m_Curvature.cols();
             return {m_Gradient.data(), n};
         }
 
