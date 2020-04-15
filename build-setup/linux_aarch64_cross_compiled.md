@@ -33,7 +33,7 @@ cd /usr
 tar jcvf ~/usr-aarch64-linux-gnu.tar.bz2 include lib lib64 local
 ```
 
-These instructions also assume the host platform is also CentOS 7, but x86_64 instead of aarch64.  It makes life much easier if the host distribution is the same as the target distribution.
+These instructions assume the host platform is also CentOS 7, but x86_64 instead of aarch64.  It makes life much easier if the host distribution is the same as the target distribution.
 
 Transfer the archive created in your home directory on the native aarch64 build server, `usr-aarch64-linux-gnu.tar.bz2`, to your home directory on the x86_64 host build server.
 
@@ -179,4 +179,3 @@ sudo make install
 ```
 
 to complete the build.
-
