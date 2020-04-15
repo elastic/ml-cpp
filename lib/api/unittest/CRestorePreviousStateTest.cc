@@ -11,15 +11,16 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
-#include <api/CAnomalyJob.h>
 #include <api/CCsvOutputWriter.h>
 #include <api/CFieldConfig.h>
-#include <api/CFieldDataCategorizer.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CResultNormalizer.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
+
+#include "CTestAnomalyJob.h"
+#include "CTestFieldDataCategorizer.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -82,7 +83,7 @@ void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric) {
     std::ostringstream outputStrm;
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
     ml::api::CJsonOutputWriter writer("job", wrappedOutputStream);
-    ml::api::CFieldDataCategorizer restoredCategorizer("job", config, limits, writer, writer);
+    CTestFieldDataCategorizer restoredCategorizer("job", config, limits, writer, writer);
 
     std::ifstream inputStrm(stateFile.c_str());
     BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -146,7 +147,7 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
 
     std::string restoredSnapshotId;
     std::size_t numRestoredDocs(0);
-    ml::api::CAnomalyJob restoredJob(
+    CTestAnomalyJob restoredJob(
         JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
         std::bind(&reportPersistComplete, std::placeholders::_1,
                   std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));

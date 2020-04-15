@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
     using TPersistenceManagerUPtr = std::unique_ptr<ml::api::CPersistenceManager>;
-    const TPersistenceManagerUPtr periodicPersister{
+    const TPersistenceManagerUPtr persistenceManager{
         [persistInterval, isPersistInForeground, &persister]() -> TPersistenceManagerUPtr {
             if (persistInterval >= 0) {
                 return std::make_unique<ml::api::CPersistenceManager>(
@@ -177,13 +177,13 @@ int main(int argc, char** argv) {
 
     // The categorizer knows how to assign categories to records
     ml::api::CFieldDataCategorizer categorizer(jobId, fieldConfig, limits, nullOutput,
-                                               outputWriter, periodicPersister.get());
+                                               outputWriter, persistenceManager.get());
 
-    if (periodicPersister != nullptr) {
-        periodicPersister->firstProcessorBackgroundPeriodicPersistFunc(std::bind(
+    if (persistenceManager != nullptr) {
+        persistenceManager->firstProcessorBackgroundPeriodicPersistFunc(std::bind(
             &ml::api::CFieldDataCategorizer::periodicPersistStateInBackground, &categorizer));
 
-        periodicPersister->firstProcessorForegroundPeriodicPersistFunc(std::bind(
+        persistenceManager->firstProcessorForegroundPeriodicPersistFunc(std::bind(
             &ml::api::CFieldDataCategorizer::periodicPersistStateInForeground, &categorizer));
     }
 

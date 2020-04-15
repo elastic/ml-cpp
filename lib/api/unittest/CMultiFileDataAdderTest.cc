@@ -14,7 +14,6 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
-#include <api/CAnomalyJob.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
 #include <api/CJsonOutputWriter.h>
@@ -23,6 +22,8 @@
 #include <test/CMultiFileDataAdder.h>
 #include <test/CMultiFileSearcher.h>
 #include <test/CTestTmpDir.h>
+
+#include "CTestAnomalyJob.h"
 
 #include <rapidjson/document.h>
 
@@ -76,11 +77,10 @@ void detectorPersistHelper(const std::string& configFileName,
 
     std::string origSnapshotId;
     std::size_t numOrigDocs(0);
-    ml::api::CAnomalyJob origJob(
-        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
-        std::bind(&reportPersistComplete, std::placeholders::_1,
-                  std::ref(origSnapshotId), std::ref(numOrigDocs)),
-        nullptr, -1, "time", timeFormat);
+    CTestAnomalyJob origJob(JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+                            std::bind(&reportPersistComplete, std::placeholders::_1,
+                                      std::ref(origSnapshotId), std::ref(numOrigDocs)),
+                            nullptr, -1, "time", timeFormat);
 
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
     const TInputParserUPtr parser{[&inputFilename, &inputStrm]() -> TInputParserUPtr {
@@ -90,8 +90,8 @@ void detectorPersistHelper(const std::string& configFileName,
         return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    BOOST_TEST_REQUIRE(parser->readStreamIntoMaps(std::bind(
-        &ml::api::CAnomalyJob::handleRecord, &origJob, std::placeholders::_1)));
+    BOOST_TEST_REQUIRE(parser->readStreamIntoMaps(
+        std::bind(&CTestAnomalyJob::handleRecord, &origJob, std::placeholders::_1)));
 
     // Persist the detector state to file(s)
 
@@ -105,15 +105,14 @@ void detectorPersistHelper(const std::string& configFileName,
         BOOST_TEST_REQUIRE(origJob.persistState(persister, ""));
     }
 
-    std::string origBaseDocId(JOB_ID + '_' + ml::api::CAnomalyJob::STATE_TYPE +
-                              '_' + origSnapshotId);
+    std::string origBaseDocId(JOB_ID + '_' + CTestAnomalyJob::STATE_TYPE + '_' + origSnapshotId);
 
     std::string temp;
     TStrVec origFileContents(numOrigDocs);
     for (size_t index = 0; index < numOrigDocs; ++index) {
         std::string expectedOrigFilename(baseOrigOutputFilename);
         expectedOrigFilename += "/_";
-        expectedOrigFilename += ml::api::CAnomalyJob::ML_STATE_INDEX;
+        expectedOrigFilename += CTestAnomalyJob::ML_STATE_INDEX;
         expectedOrigFilename += '/';
         expectedOrigFilename +=
             ml::core::CDataAdder::makeCurrentDocId(origBaseDocId, 1 + index);
@@ -135,7 +134,7 @@ void detectorPersistHelper(const std::string& configFileName,
 
     std::string restoredSnapshotId;
     std::size_t numRestoredDocs(0);
-    ml::api::CAnomalyJob restoredJob(
+    CTestAnomalyJob restoredJob(
         JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
         std::bind(&reportPersistComplete, std::placeholders::_1,
                   std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
@@ -160,13 +159,13 @@ void detectorPersistHelper(const std::string& configFileName,
         BOOST_TEST_REQUIRE(restoredJob.persistState(persister, ""));
     }
 
-    std::string restoredBaseDocId(JOB_ID + '_' + ml::api::CAnomalyJob::STATE_TYPE +
+    std::string restoredBaseDocId(JOB_ID + '_' + CTestAnomalyJob::STATE_TYPE +
                                   '_' + restoredSnapshotId);
 
     for (size_t index = 0; index < numRestoredDocs; ++index) {
         std::string expectedRestoredFilename(baseRestoredOutputFilename);
         expectedRestoredFilename += "/_";
-        expectedRestoredFilename += ml::api::CAnomalyJob::ML_STATE_INDEX;
+        expectedRestoredFilename += CTestAnomalyJob::ML_STATE_INDEX;
         expectedRestoredFilename += '/';
         expectedRestoredFilename +=
             ml::core::CDataAdder::makeCurrentDocId(restoredBaseDocId, 1 + index);
