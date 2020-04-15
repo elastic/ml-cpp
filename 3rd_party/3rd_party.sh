@@ -75,8 +75,25 @@ case `uname` in
             STL_LOCATION=
             ZLIB_LOCATION=
         else
-            echo "Cannot cross compile to $CPP_CROSS_COMPILE"
-            exit 3
+            SYSROOT=/usr/local/sysroot-$CPP_CROSS_COMPILE-linux-gnu
+            BOOST_LOCATION=$SYSROOT/usr/local/gcc75/lib
+            BOOST_COMPILER=gcc
+            if [ "$CPP_CROSS_COMPILE" = aarch64 ] ; then
+                BOOST_ARCH=a64
+            else
+                echo "Cannot cross compile to $CPP_CROSS_COMPILE"
+                exit 3
+            fi
+            BOOST_EXTENSION=mt-${BOOST_ARCH}-1_71.so.1.71.0
+            BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
+            XML_LOCATION=$SYSROOT/usr/local/gcc75/lib
+            XML_EXTENSION=.so.2
+            GCC_RT_LOCATION=$SYSROOT/usr/local/gcc75/lib64
+            GCC_RT_EXTENSION=.so.1
+            STL_LOCATION=$SYSROOT/usr/local/gcc75/lib64
+            STL_PREFIX=libstdc++
+            STL_EXTENSION=.so.6
+            ZLIB_LOCATION=
         fi
         ;;
 
@@ -183,7 +200,7 @@ fi
 case `uname` in
 
     Linux)
-        if [ -n "$INSTALL_DIR" -a -z "$CPP_CROSS_COMPILE" ] ; then
+        if [ -n "$INSTALL_DIR" -a "$CPP_CROSS_COMPILE" != macosx ] ; then
             cd "$INSTALL_DIR"
             for FILE in `find . -type f | egrep -v '^core|-debug$|libMl'`
             do
@@ -192,13 +209,7 @@ case `uname` in
                 if [ $? -eq 0 ] ; then
                     echo "Set RPATH in $FILE"
                 else
-                    # Set RPATH for 3rd party libraries that reference other libraries we ship
-                    ldd $FILE | grep /usr/local/lib >/dev/null 2>&1 && patchelf --set-rpath '$ORIGIN/.' $FILE
-                    if [ $? -eq 0 ] ; then
-                        echo "Set RPATH in $FILE"
-                    else
-                        echo "Did not set RPATH in $FILE"
-                    fi
+                    echo "Did not set RPATH in $FILE"
                 fi
             done
         fi

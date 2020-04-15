@@ -45,6 +45,8 @@
 * Improve robustness of anomaly detection to bad input data. (See {ml-pull}1114[#1114].)
 * Switched data frame analytics model memory estimates from kilobytes to megabytes.
   (See {ml-pull}1126[#1126], issue: {issue}54506[#54506].)
+* Added a {ml} native code build for Linux on AArch64. (See {ml-pull}1132[#1132] and
+  {ml-pull}1135[#1135].)
 
 == {es} version 7.7.0
 

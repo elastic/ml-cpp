@@ -9,10 +9,12 @@
 #
 # 1. If this is not a PR build, obtain credentials from Vault for the accessing
 #    S3
-# 2. If this is a PR build, check the code style
-# 3. Build and unit test the Linux version of the C++
-# 4. Build the macOS version of the C++
-# 5. If this is not a PR build, upload the builds to the artifacts directory on
+# 2. If this is a PR build and running on x86_64, check the code style
+# 3. Build and unit test the Linux version of the C++ on the native architecture
+# 4. If running on x86_64, cross compile the macOS build of the C++
+# 5. If this is not a PR build and running on x86_64, cross compile the aarch
+#    build of the C++
+# 6. If this is not a PR build, upload the builds to the artifacts directory on
 #    S3 that subsequent Java builds will download the C++ components from
 #
 # The steps run in Docker containers that ensure OS dependencies
@@ -47,6 +49,7 @@ if [ -z "$BUILD_SNAPSHOT" ] ; then
 fi
 
 VERSION=$(cat ../gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo)
+HARDWARE_ARCH=$(uname -m)
 
 # Jenkins sets BUILD_SNAPSHOT, but our Docker scripts require SNAPSHOT
 if [ "$BUILD_SNAPSHOT" = false ] ; then
@@ -64,31 +67,41 @@ git repack -a -d
 readonly GIT_TOPLEVEL=$(git rev-parse --show-toplevel 2> /dev/null)
 rm -f "${GIT_TOPLEVEL}/.git/objects/info/alternates"
 
-# If this is a PR build then fail fast on style checks
-if [ -n "$PR_AUTHOR" ] ; then
-    ./docker_check_style.sh
-fi
+# Build and test the native Linux architecture
+if [ "$HARDWARE_ARCH" = x86_64 ] ; then
 
-# Build and test Linux
-./docker_test.sh linux
+    # If this is a PR build then fail fast on style checks
+    if [ -n "$PR_AUTHOR" ] ; then
+        ./docker_check_style.sh
+    fi
+
+    ./docker_test.sh linux
+elif [ "$HARDWARE_ARCH" = aarch64 ] ; then
+    ./docker_test.sh linux_aarch64_native
+fi
 
 # If this is a PR build then run some Java integration tests
 if [ -n "$PR_AUTHOR" ] ; then
     if [ "$(uname -s)" = Linux ] ; then
         IVY_REPO="${GIT_TOPLEVEL}/../ivy"
         mkdir -p "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION"
-        cp "../build/distributions/ml-cpp-$VERSION-linux-x86_64.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION.zip"
+        cp "../build/distributions/ml-cpp-$VERSION-linux-$HARDWARE_ARCH.zip" "${IVY_REPO}/maven/org/elasticsearch/ml/ml-cpp/$VERSION/ml-cpp-$VERSION.zip"
         ./run_es_tests.sh "${GIT_TOPLEVEL}/.." "$(cd "${IVY_REPO}" && pwd)"
     else
         echo 'Not running ES integration tests on non-Linux platform:' $(uname -a)
     fi
 fi
 
-# Build macOS
-./docker_build.sh macosx
+# Cross compile macOS
+if [ "$HARDWARE_ARCH" = x86_64 ] ; then
+    ./docker_build.sh macosx
+fi
 
-# If this isn't a PR build then upload the artifacts
+# If this isn't a PR build then cross compile aarch64 and upload the artifacts
 if [ -z "$PR_AUTHOR" ] ; then
+    if [ "$HARDWARE_ARCH" = x86_64 ] ; then
+        ./docker_build.sh linux_aarch64_cross
+    fi
     cd ..
     ./gradlew --info -b upload.gradle -Dbuild.snapshot=$BUILD_SNAPSHOT upload
 fi

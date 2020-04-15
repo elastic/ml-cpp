@@ -34,8 +34,7 @@ case `uname` in
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             BUNDLE_PLATFORM=darwin-x86_64
         else
-            echo "Cannot cross compile to $CPP_CROSS_COMPILE"
-            exit 1
+            BUNDLE_PLATFORM=linux-$CPP_CROSS_COMPILE
         fi
         ;;
 
@@ -46,7 +45,7 @@ case `uname` in
 
     *)
         echo `uname 2>&1` "- unsupported operating system"
-        exit 2
+        exit 1
         ;;
 
 esac
