@@ -39,7 +39,7 @@ void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_
 TAlignedMemoryMappedFloatVector readLossDerivatives(const TRowRef& row,
                                                     const TSizeVec& extraColumns,
                                                     std::size_t numberLossParameters) {
-    return {row.data() + extraColumns[E_Prediction],
+    return {row.data() + extraColumns[E_Gradient],
             static_cast<int>(numberLossParameters +
                              lossHessianUpperTriangleSize(numberLossParameters))};
 }
