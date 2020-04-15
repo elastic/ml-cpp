@@ -22,17 +22,15 @@ class CORE_EXPORT CAlignment {
 public:
     //! Alignment types.
     enum EType {
-    E_Unaligned = 1,
-    E_Aligned8 = 8,
-    E_Aligned16 = 16,
-    E_Aligned32 = 32
+        E_Unaligned = 1,
+        E_Aligned8 = 8,
+        E_Aligned16 = 16,
+        E_Aligned32 = 32
     };
 
     //! This is an ordering by inclusion, i.e. \p lhs < \p rhs if an address is
     //! \p rhs aligned implies it is lhs aligned but not vice versa.
-    static bool less(EType lhs, EType rhs) {
-        return bytes(lhs) < bytes(rhs);
-    }
+    static bool less(EType lhs, EType rhs) { return bytes(lhs) < bytes(rhs); }
 
     //! Get the alignment of \p address.
     template<typename T>
@@ -53,18 +51,16 @@ public:
 
     //! Get the next index in \p buffer which is aligned to \p alignment.
     template<typename T, std::size_t N>
-    static std::size_t nextAligned(const std::array<T, N>& buffer,
-                                   std::size_t index,
-                                   EType alignment) {
+    static std::size_t
+    nextAligned(const std::array<T, N>& buffer, std::size_t index, EType alignment) {
         std::size_t offset_{offset(&buffer[index], alignment)};
         return offset_ == 0 ? index : index + (bytes(alignment) - offset_) / sizeof(T);
     }
 
     //! Get the next index in \p buffer which is aligned to \p alignment.
     template<typename T>
-    static std::size_t nextAligned(const std::vector<T>& buffer,
-                                   std::size_t index,
-                                   EType alignment) {
+    static std::size_t
+    nextAligned(const std::vector<T>& buffer, std::size_t index, EType alignment) {
         std::size_t offset_{offset(&buffer[index], alignment)};
         return offset_ == 0 ? index : index + (bytes(alignment) - offset_) / sizeof(T);
     }
@@ -84,13 +80,17 @@ public:
 
     //! Print the type.
     static std::string print(EType type) {
-    switch (type) {
-    case E_Unaligned: return "unaligned";
-    case E_Aligned8:  return "aligned 8";
-    case E_Aligned16: return "aligned 16";
-    case E_Aligned32: return "aligned 32";
-    }
-    return "";
+        switch (type) {
+        case E_Unaligned:
+            return "unaligned";
+        case E_Aligned8:
+            return "aligned 8";
+        case E_Aligned16:
+            return "aligned 16";
+        case E_Aligned32:
+            return "aligned 32";
+        }
+        return "";
     }
 
 private:
@@ -99,9 +99,7 @@ private:
         return reinterpret_cast<std::size_t>(address) & mask(alignment);
     }
 
-    static std::size_t mask(EType alignment) {
-        return bytes(alignment) - 1;
-    }
+    static std::size_t mask(EType alignment) { return bytes(alignment) - 1; }
 
     static std::size_t bytes(EType alignment) {
         return static_cast<std::size_t>(alignment);
