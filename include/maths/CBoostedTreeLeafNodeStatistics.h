@@ -97,8 +97,7 @@ public:
         //! Compute the accumulation of both collections of derivatives.
         void add(const CDerivatives& other) {
             m_Count += other.m_Count;
-            m_Gradient += other.m_Gradient;
-            m_Curvature += other.m_Curvature;
+            this->flatView() += const_cast<CDerivatives*>(&other)->flatView();
         }
 
         //! Set to the difference of \p lhs and \p rhs.

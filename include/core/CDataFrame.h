@@ -374,7 +374,7 @@ public:
         std::vector<READER> readers;
         readers.reserve(result.first.size());
         for (auto& reader_ : result.first) {
-            readers.push_back(std::move(*reader_.target<READER>()));
+            readers.emplace_back(std::move(*reader_.target<READER>()));
         }
 
         return {std::move(readers), result.second};
@@ -435,7 +435,7 @@ public:
         std::vector<WRITER> writers;
         writers.reserve(result.first.size());
         for (auto& writer_ : result.first) {
-            writers.push_back(std::move(*writer_.target<WRITER>()));
+            writers.emplace_back(std::move(*writer_.target<WRITER>()));
         }
 
         return {std::move(writers), result.second};

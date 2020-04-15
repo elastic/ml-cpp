@@ -486,13 +486,13 @@ CDataFrame::parallelApplyToAllRows(std::size_t numberThreads,
             },
             std::move(func)));
 
-    TRowFuncVec functions;
-    functions.reserve(results.size());
+    TRowFuncVec funcs;
+    funcs.reserve(results.size());
     for (auto& result : results) {
-        functions.emplace_back(std::move(result.s_FunctionState));
+        funcs.emplace_back(std::move(result.s_FunctionState));
     }
 
-    return {std::move(functions), successful.load()};
+    return {std::move(funcs), successful.load()};
 }
 
 CDataFrame::TRowFuncVecBoolPr
@@ -598,7 +598,11 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
         break;
     }
 
-    return {{std::move(func)}, true};
+    TRowFuncVec funcs;
+    funcs.reserve(1);
+    funcs.emplace_back(std::move(func));
+
+    return TRowFuncVecBoolPr{std::move(std::move(funcs)), true};
 }
 
 void CDataFrame::applyToRowsOfOneSlice(TRowFunc& func,
