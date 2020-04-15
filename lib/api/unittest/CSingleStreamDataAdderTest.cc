@@ -14,16 +14,17 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
-#include <api/CAnomalyJob.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
-#include <api/CFieldDataCategorizer.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CNdJsonInputParser.h>
 #include <api/COutputChainer.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
+
+#include "CTestAnomalyJob.h"
+#include "CTestFieldDataCategorizer.h"
 
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/test/unit_test.hpp>
@@ -76,11 +77,11 @@ void detectorPersistHelper(const std::string& configFileName,
     std::string origPersistedState;
 
     {
-        ml::api::CAnomalyJob origJob(
-            JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream, nullptr,
+        CTestAnomalyJob origJob(
+            JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
             std::bind(&reportPersistComplete, std::placeholders::_1,
                       std::ref(origSnapshotId), std::ref(numOrigDocs)),
-            -1, "time", timeFormat);
+            nullptr, -1, "time", timeFormat);
 
         ml::api::CDataProcessor* firstProcessor(&origJob);
 
@@ -88,11 +89,11 @@ void detectorPersistHelper(const std::string& configFileName,
         ml::api::COutputChainer outputChainer(origJob);
 
         // The categorizer knows how to assign categories to records
-        ml::api::CFieldDataCategorizer categorizer(
-            JOB_ID, fieldConfig, limits, outputChainer, outputWriter, nullptr);
+        CTestFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits,
+                                              outputChainer, outputWriter);
 
         if (fieldConfig.fieldNameSuperset().count(
-                ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
+                CTestFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
             LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
             firstProcessor = &categorizer;
         }
@@ -123,8 +124,8 @@ void detectorPersistHelper(const std::string& configFileName,
     std::string newPersistedState;
 
     {
-        ml::api::CAnomalyJob restoredJob(
-            JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream, nullptr,
+        CTestAnomalyJob restoredJob(
+            JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
             std::bind(&reportPersistComplete, std::placeholders::_1,
                       std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 
@@ -134,13 +135,13 @@ void detectorPersistHelper(const std::string& configFileName,
         ml::api::COutputChainer restoredOutputChainer(restoredJob);
 
         // The categorizer knows how to assign categories to records
-        ml::api::CFieldDataCategorizer restoredCategorizer(
-            JOB_ID, fieldConfig, limits, restoredOutputChainer, outputWriter, nullptr);
+        CTestFieldDataCategorizer restoredCategorizer(
+            JOB_ID, fieldConfig, limits, restoredOutputChainer, outputWriter);
 
         size_t numCategorizerDocs(0);
 
         if (fieldConfig.fieldNameSuperset().count(
-                ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
+                CTestFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
             LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
             numCategorizerDocs = 1;
             restoredFirstProcessor = &restoredCategorizer;

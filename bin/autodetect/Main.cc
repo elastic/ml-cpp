@@ -254,11 +254,11 @@ int main(int argc, char** argv) {
     }
 
     // The anomaly job knows how to detect anomalies
-    ml::api::CAnomalyJob job(jobId, limits, fieldConfig, modelConfig,
-                             wrappedOutputStream, persistenceManager.get(),
+    ml::api::CAnomalyJob job(jobId, limits, fieldConfig, modelConfig, wrappedOutputStream,
                              std::bind(&ml::api::CModelSnapshotJsonWriter::write,
                                        &modelSnapshotWriter, std::placeholders::_1),
-                             maxQuantileInterval, timeField, timeFormat, maxAnomalyRecords);
+                             persistenceManager.get(), maxQuantileInterval,
+                             timeField, timeFormat, maxAnomalyRecords);
 
     if (!quantilesStateFile.empty()) {
         if (job.initNormalizer(quantilesStateFile) == false) {

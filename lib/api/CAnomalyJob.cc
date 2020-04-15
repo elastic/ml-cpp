@@ -125,8 +125,8 @@ CAnomalyJob::CAnomalyJob(const std::string& jobId,
                          CFieldConfig& fieldConfig,
                          model::CAnomalyDetectorModelConfig& modelConfig,
                          core::CJsonOutputStreamWrapper& outputStream,
-                         CPersistenceManager* persistenceManager,
                          const TPersistCompleteFunc& persistCompleteFunc,
+                         CPersistenceManager* persistenceManager,
                          core_t::TTime maxQuantileInterval,
                          const std::string& timeFieldName,
                          const std::string& timeFieldFormat,
@@ -271,7 +271,7 @@ bool CAnomalyJob::initNormalizer(const std::string& quantilesStateFile) {
            model::CHierarchicalResultsNormalizer::E_Ok;
 }
 
-uint64_t CAnomalyJob::numRecordsHandled() const {
+std::uint64_t CAnomalyJob::numRecordsHandled() const {
     return m_NumRecordsHandled;
 }
 
@@ -621,7 +621,7 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
         this->updateNormalizerAndNormalizeResults(false, results);
     }
 
-    uint64_t processingTime = timer.stop();
+    std::uint64_t processingTime = timer.stop();
 
     // Model plots must be written first so the Java persists them
     // once the bucket result is processed
@@ -669,14 +669,14 @@ void CAnomalyJob::outputInterimResults(core_t::TTime bucketStartTime) {
         this->updateNormalizerAndNormalizeResults(true, results);
     }
 
-    uint64_t processingTime = timer.stop();
+    std::uint64_t processingTime = timer.stop();
     this->writeOutResults(true, results, bucketStartTime, processingTime);
 }
 
 void CAnomalyJob::writeOutResults(bool interim,
                                   model::CHierarchicalResults& results,
                                   core_t::TTime bucketTime,
-                                  uint64_t processingTime) {
+                                  std::uint64_t processingTime) {
     if (!results.empty()) {
         LOG_TRACE(<< "Got results object here: " << results.root()->s_RawAnomalyScore
                   << " / " << results.root()->s_NormalizedAnomalyScore

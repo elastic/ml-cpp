@@ -11,8 +11,9 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
-#include <api/CAnomalyJob.h>
 #include <api/CFieldConfig.h>
+
+#include "CTestAnomalyJob.h"
 
 #include <rapidjson/document.h>
 
@@ -27,40 +28,36 @@ BOOST_AUTO_TEST_SUITE(CForecastRunnerTest)
 namespace {
 
 using TGenerateRecord = void (*)(ml::core_t::TTime time,
-                                 ml::api::CAnomalyJob::TStrStrUMap& dataRows);
+                                 CTestAnomalyJob::TStrStrUMap& dataRows);
 
 const ml::core_t::TTime START_TIME{12000000};
 const ml::core_t::TTime BUCKET_LENGTH{3600};
 
-void generateRecord(ml::core_t::TTime time, ml::api::CAnomalyJob::TStrStrUMap& dataRows) {
+void generateRecord(ml::core_t::TTime time, CTestAnomalyJob::TStrStrUMap& dataRows) {
     dataRows["time"] = ml::core::CStringUtils::typeToString(time);
 }
 
 void generateRecordWithSummaryCount(ml::core_t::TTime time,
-                                    ml::api::CAnomalyJob::TStrStrUMap& dataRows) {
+                                    CTestAnomalyJob::TStrStrUMap& dataRows) {
     double x = static_cast<double>(time - START_TIME) / BUCKET_LENGTH;
     double count = (std::sin(x / 4.0) + 1.0) * 42.0 * std::pow(1.005, x);
     dataRows["time"] = ml::core::CStringUtils::typeToString(time);
     dataRows["count"] = ml::core::CStringUtils::typeToString(count);
 }
 
-void generateRecordWithStatus(ml::core_t::TTime time,
-                              ml::api::CAnomalyJob::TStrStrUMap& dataRows) {
+void generateRecordWithStatus(ml::core_t::TTime time, CTestAnomalyJob::TStrStrUMap& dataRows) {
     dataRows["time"] = ml::core::CStringUtils::typeToString(time);
     dataRows["status"] = (time / BUCKET_LENGTH) % 919 == 0 ? "404" : "200";
 }
 
-void generatePopulationRecord(ml::core_t::TTime time,
-                              ml::api::CAnomalyJob::TStrStrUMap& dataRows) {
+void generatePopulationRecord(ml::core_t::TTime time, CTestAnomalyJob::TStrStrUMap& dataRows) {
     dataRows["time"] = ml::core::CStringUtils::typeToString(time);
     dataRows["person"] = "jill";
 }
 
-void populateJob(TGenerateRecord generateRecord,
-                 ml::api::CAnomalyJob& job,
-                 std::size_t buckets = 1000) {
+void populateJob(TGenerateRecord generateRecord, CTestAnomalyJob& job, std::size_t buckets = 1000) {
     ml::core_t::TTime time = START_TIME;
-    ml::api::CAnomalyJob::TStrStrUMap dataRows;
+    CTestAnomalyJob::TStrStrUMap dataRows;
     for (std::size_t bucket = 0u; bucket < 2 * buckets;
          ++bucket, time += (BUCKET_LENGTH / 2)) {
         generateRecord(time, dataRows);
@@ -84,11 +81,10 @@ BOOST_AUTO_TEST_CASE(testSummaryCount) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                                 streamWrapper, nullptr);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
         populateJob(generateRecordWithSummaryCount, job);
 
-        ml::api::CAnomalyJob::TStrStrUMap dataRows;
+        CTestAnomalyJob::TStrStrUMap dataRows;
         dataRows["."] = "p{\"duration\":" + std::to_string(13 * BUCKET_LENGTH) +
                         ",\"forecast_id\": \"42\"" + ",\"forecast_alias\": \"sumcount\"" +
                         ",\"create_time\": \"1511370819\"" + ",\"expires_in\": \"" +
@@ -157,11 +153,10 @@ BOOST_AUTO_TEST_CASE(testPopulation) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                                 streamWrapper, nullptr);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
         populateJob(generatePopulationRecord, job);
 
-        ml::api::CAnomalyJob::TStrStrUMap dataRows;
+        CTestAnomalyJob::TStrStrUMap dataRows;
         dataRows["."] = "p{\"duration\":" + std::to_string(13 * BUCKET_LENGTH) +
                         ",\"forecast_id\": \"31\"" + ",\"create_time\": \"1511370819\" }";
         BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
@@ -202,11 +197,10 @@ BOOST_AUTO_TEST_CASE(testRare) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                                 streamWrapper, nullptr);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
         populateJob(generateRecordWithStatus, job, 5000);
 
-        ml::api::CAnomalyJob::TStrStrUMap dataRows;
+        CTestAnomalyJob::TStrStrUMap dataRows;
         dataRows["."] = "p{\"duration\":" + std::to_string(13 * BUCKET_LENGTH) +
                         ",\"forecast_id\": \"42\"" + ",\"create_time\": \"1511370819\"" +
                         ",\"expires_in\": \"8640000\" }";
@@ -244,11 +238,10 @@ BOOST_AUTO_TEST_CASE(testInsufficientData) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                                 streamWrapper, nullptr);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
         populateJob(generateRecord, job, 3);
 
-        ml::api::CAnomalyJob::TStrStrUMap dataRows;
+        CTestAnomalyJob::TStrStrUMap dataRows;
         dataRows["."] = "p{\"duration\":" + std::to_string(13 * BUCKET_LENGTH) +
                         ",\"forecast_id\": \"31\"" + ",\"create_time\": \"1511370819\" }";
         BOOST_TEST_REQUIRE(job.handleRecord(dataRows));

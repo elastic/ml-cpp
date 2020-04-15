@@ -11,13 +11,13 @@
 #include <model/CLimits.h>
 
 #include <api/CFieldConfig.h>
-#include <api/CFieldDataCategorizer.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CNullOutput.h>
 #include <api/COutputChainer.h>
 #include <api/COutputHandler.h>
 
 #include "CMockDataProcessor.h"
+#include "CTestFieldDataCategorizer.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
     core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
     CJsonOutputWriter writer("job", wrappedOutputStream);
 
-    CFieldDataCategorizer categorizer("job", config, limits, handler, writer, nullptr);
+    CTestFieldDataCategorizer categorizer("job", config, limits, handler, writer);
     BOOST_REQUIRE_EQUAL(false, handler.isNewStream());
     categorizer.newOutputStream();
     BOOST_REQUIRE_EQUAL(true, handler.isNewStream());
@@ -170,8 +170,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
         core::CJsonOutputStreamWrapper wrappedOutputStream2(outputStrm2);
         CJsonOutputWriter writer2("job", wrappedOutputStream2);
 
-        CFieldDataCategorizer newCategorizer("job", config2, limits2, handler2,
-                                             writer2, nullptr);
+        CTestFieldDataCategorizer newCategorizer("job", config2, limits2, handler2, writer2);
         CTestDataSearcher restorer(origJson);
         core_t::TTime time = 0;
         newCategorizer.restoreState(restorer, time);
@@ -195,7 +194,7 @@ BOOST_AUTO_TEST_CASE(testNodeReverseSearch) {
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
         CJsonOutputWriter writer("job", wrappedOutputStream);
 
-        CFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer, nullptr);
+        CTestFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer);
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
         dataRowFields["message"] = "Node 1 started";
@@ -234,7 +233,7 @@ BOOST_AUTO_TEST_CASE(testJobKilledReverseSearch) {
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
         CJsonOutputWriter writer("job", wrappedOutputStream);
 
-        CFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer, nullptr);
+        CTestFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer);
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
         dataRowFields["message"] = "[count_tweets] Killing job";
@@ -283,8 +282,7 @@ BOOST_AUTO_TEST_CASE(testPassOnControlMessages) {
 
         CMockDataProcessor mockProcessor(nullOutput);
         COutputChainer outputChainer(mockProcessor);
-        CFieldDataCategorizer categorizer("job", config, limits, outputChainer,
-                                          writer, nullptr);
+        CTestFieldDataCategorizer categorizer("job", config, limits, outputChainer, writer);
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
         dataRowFields["."] = "f7";
@@ -310,7 +308,8 @@ BOOST_AUTO_TEST_CASE(testHandleControlMessages) {
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
         CJsonOutputWriter writer("job", wrappedOutputStream);
 
-        CFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer, nullptr);
+        CTestFieldDataCategorizer categorizer("job", config, limits, nullOutput,
+                                              writer, nullptr);
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
         dataRowFields["."] = "f7";
@@ -335,7 +334,7 @@ BOOST_AUTO_TEST_CASE(testRestoreStateFailsWithEmptyState) {
     CNullOutput nullOutput;
     core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
     CJsonOutputWriter writer("job", wrappedOutputStream);
-    CFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer, nullptr);
+    CTestFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer, nullptr);
 
     core_t::TTime completeToTime(0);
     CEmptySearcher restoreSearcher;
@@ -353,7 +352,7 @@ BOOST_AUTO_TEST_CASE(flushWritesOnlyChangedCategories) {
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
         CJsonOutputWriter writer("job", wrappedOutputStream);
 
-        CFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer, nullptr);
+        CTestFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer);
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
         dataRowFields["message"] = "Node 1 started";
@@ -410,7 +409,7 @@ BOOST_AUTO_TEST_CASE(finalizeWritesOnlyChangedCategories) {
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
         CJsonOutputWriter writer("job", wrappedOutputStream);
 
-        CFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer, nullptr);
+        CTestFieldDataCategorizer categorizer("job", config, limits, nullOutput, writer);
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
         dataRowFields["message"] = "Node 1 started";

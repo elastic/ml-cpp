@@ -8,7 +8,6 @@
 
 #include <model/CLimits.h>
 
-#include <api/CAnomalyJob.h>
 #include <api/CFieldConfig.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CNdJsonInputParser.h>
@@ -17,6 +16,7 @@
 #include <test/CTestTmpDir.h>
 
 #include "CMockDataProcessor.h"
+#include "CTestAnomalyJob.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -48,10 +48,9 @@ BOOST_AUTO_TEST_CASE(testChaining) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
 
-        ml::api::CAnomalyJob job("job", limits, fieldConfig, modelConfig,
-                                 wrappedOutputStream, nullptr,
-                                 ml::api::CAnomalyJob::TPersistCompleteFunc(),
-                                 -1, "time", "%d/%b/%Y:%T %z");
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
+                            CTestAnomalyJob::TPersistCompleteFunc(), nullptr,
+                            -1, "time", "%d/%b/%Y:%T %z");
 
         ml::api::COutputChainer outputChainer(job);
 

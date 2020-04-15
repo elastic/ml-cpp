@@ -54,6 +54,13 @@
 * Switched data frame analytics model memory estimates from kilobytes to megabytes.
   (See {ml-pull}1126[#1126], issue: {issue}54506[#54506].)
 
+== {es} version 7.7.1
+
+=== Bug Fixes
+
+* Fixed background persistence of categorizer state (See {ml-pull}1137[#1126],
+  issue: {ml-issue}1136[#1136].)
+
 == {es} version 7.7.0
 
 === New Features

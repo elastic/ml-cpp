@@ -143,12 +143,12 @@ public:
                 CFieldConfig& fieldConfig,
                 model::CAnomalyDetectorModelConfig& modelConfig,
                 core::CJsonOutputStreamWrapper& outputBuffer,
+                const TPersistCompleteFunc& persistCompleteFunc,
                 CPersistenceManager* persistenceManager,
-                const TPersistCompleteFunc& persistCompleteFunc = TPersistCompleteFunc(),
-                core_t::TTime maxQuantileInterval = -1,
-                const std::string& timeFieldName = DEFAULT_TIME_FIELD_NAME,
-                const std::string& timeFieldFormat = EMPTY_STRING,
-                std::size_t maxAnomalyRecords = 0u);
+                core_t::TTime maxQuantileInterval,
+                const std::string& timeFieldName,
+                const std::string& timeFieldFormat,
+                std::size_t maxAnomalyRecords);
 
     ~CAnomalyJob() override;
 

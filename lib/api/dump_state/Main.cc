@@ -187,9 +187,9 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
             bucketSize, ml::model_t::E_None, "", bucketSize * latencyBuckets, false);
 
-    ml::api::CAnomalyJob origJob(
-        jobId, limits, fieldConfig, modelConfig, wrappedOutputStream, nullptr,
-        std::bind(&reportPersistComplete, std::placeholders::_1), -1, "time", timeFormat);
+    ml::api::CAnomalyJob origJob(jobId, limits, fieldConfig, modelConfig, wrappedOutputStream,
+                                 std::bind(&reportPersistComplete, std::placeholders::_1),
+                                 nullptr, -1, "time", timeFormat, 0);
 
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
     const TInputParserUPtr parser{[&inputFilename, &inputStrm]() -> TInputParserUPtr {
