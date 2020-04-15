@@ -35,9 +35,10 @@ struct SRowTo {
     static_assert(sizeof(T) < 0, "Vector type not supported");
 };
 
-template<typename T>
-struct SRowTo<CMemoryMappedDenseVector<T>> {
-    static CMemoryMappedDenseVector<T> dispatch(const core::CDataFrame::TRowRef& row) {
+template<typename T, Eigen::AlignmentType ALIGNMENT>
+struct SRowTo<CMemoryMappedDenseVector<T, ALIGNMENT>> {
+    static CMemoryMappedDenseVector<T, ALIGNMENT>
+    dispatch(const core::CDataFrame::TRowRef& row) {
         return {row.data(), static_cast<long>(row.numberColumns())};
     }
 };

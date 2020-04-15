@@ -320,44 +320,46 @@ public:
             // Note we ensure 16 byte alignment because we're using aligned memory
             // mapped vectors which have much better performance.
 
+            std::size_t numberFeatures{splits.size()};
             std::size_t totalNumberSplits{
                 std::accumulate(splits.begin(), splits.end(), std::size_t{0},
                                 [](std::size_t size, const auto& featureSplits) {
                                     return size + number(featureSplits);
                                 })};
 
-            std::size_t gradients{this->gradients()};
-            std::size_t derivatives{this->derivatives()};
+            std::size_t numberGradients{this->numberGradients()};
+            std::size_t numberDerivatives{this->numberDerivatives()};
 
-            m_Derivatives.resize(splits.size());
-            m_MissingDerivatives.reserve(splits.size());
+            m_Derivatives.resize(numberFeatures);
+            m_MissingDerivatives.reserve(numberFeatures);
 
-            m_Storage.resize((totalNumberSplits + splits.size()) * derivatives, 0.0);
+            m_Storage.resize((totalNumberSplits + numberFeatures) * numberDerivatives, 0.0);
 
             double* storage{&m_Storage[0]};
-            for (std::size_t i = 0; i < splits.size(); ++i, storage += derivatives) {
+            for (std::size_t i = 0; i < numberFeatures; ++i, storage += numberDerivatives) {
                 std::size_t size{number(splits[i])};
                 m_Derivatives[i].reserve(size);
-                for (std::size_t j = 0; j < size; ++j, storage += derivatives) {
-                    m_Derivatives[i].emplace_back(m_NumberLossParameters,
-                                                  storage, storage + gradients);
+                for (std::size_t j = 0; j < size; ++j, storage += numberDerivatives) {
+                    m_Derivatives[i].emplace_back(m_NumberLossParameters, storage,
+                                                  storage + numberGradients);
                 }
-                m_MissingDerivatives.emplace_back(m_NumberLossParameters,
-                                                  storage, storage + gradients);
+                m_MissingDerivatives.emplace_back(m_NumberLossParameters, storage,
+                                                  storage + numberGradients);
             }
         }
 
-        std::size_t derivatives() const {
-            return this->gradients() + this->curvatures();
+        std::size_t numberDerivatives() const {
+            return this->numberGradients() + this->numberCurvatures();
         }
 
-        std::size_t gradients() const {
+        std::size_t numberGradients() const {
             return core::CAlignment::roundup<double>(core::CAlignment::E_Aligned16,
                                                      m_NumberLossParameters);
         }
 
-        std::size_t curvatures() const {
-            return m_NumberLossParameters * m_NumberLossParameters;
+        std::size_t numberCurvatures() const {
+            return core::CAlignment::roundup<double>(
+                core::CAlignment::E_Aligned16, m_NumberLossParameters * m_NumberLossParameters);
         }
 
     private:
