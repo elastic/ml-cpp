@@ -30,7 +30,7 @@ case `uname` in
     Linux)
         SIMPLE_PLATFORM=linux
         if [ -z "$CPP_CROSS_COMPILE" ] ; then
-            BUNDLE_PLATFORM=linux-x86_64
+            BUNDLE_PLATFORM=linux-`uname -m`
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             BUNDLE_PLATFORM=darwin-x86_64
         else

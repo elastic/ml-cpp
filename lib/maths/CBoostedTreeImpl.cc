@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "maths/CBoostedTreeUtils.h"
 #include <maths/CBoostedTreeImpl.h>
 
 #include <core/CContainerPrinter.h>
@@ -20,12 +19,17 @@
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
 #include <maths/CBoostedTreeLoss.h>
+#include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
 #include <maths/CSetTools.h>
 #include <maths/CTreeShapFeatureImportance.h>
+
+#include <boost/circular_buffer.hpp>
+
+#include <algorithm>
 
 namespace ml {
 namespace maths {
@@ -313,10 +317,14 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     std::size_t foldRoundLossMemoryUsage{m_NumberFolds * m_NumberRounds *
                                          sizeof(TOptionalDouble)};
     std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
+    // We only maintain statistics for leaves we know we may possibly split this
+    // halves the peak number of statistics we maintain.
     std::size_t leafNodeStatisticsMemoryUsage{
-        maximumNumberLeaves * CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(
-                                  numberRows, maximumNumberFeatures, m_NumberSplitsPerFeature,
-                                  m_Loss->numberParameters())};
+        maximumNumberLeaves *
+        CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(
+            numberRows, maximumNumberFeatures, m_NumberSplitsPerFeature,
+            m_Loss->numberParameters()) /
+        2};
     std::size_t dataTypeMemoryUsage{maximumNumberFeatures * sizeof(CDataFrameUtils::SDataType)};
     std::size_t featureSampleProbabilities{maximumNumberFeatures * sizeof(double)};
     std::size_t missingFeatureMaskMemoryUsage{
@@ -377,12 +385,16 @@ void CBoostedTreeImpl::initializePerFoldTestLosses() {
 }
 
 void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& frame) {
+
+    using TFloatStorageVec = std::vector<CFloatStorage>;
+
     if (m_Loss->type() == CLoss::E_BinaryClassification ||
         m_Loss->type() == CLoss::E_MulticlassClassification) {
 
         std::size_t numberClasses{m_Loss->type() == CLoss::E_BinaryClassification
                                       ? 2
                                       : m_Loss->numberParameters()};
+        TFloatStorageVec storage(2);
 
         switch (m_ClassAssignmentObjective) {
         case CBoostedTree::E_Accuracy:
@@ -391,9 +403,20 @@ void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& fram
         case CBoostedTree::E_MinimumRecall:
             m_ClassificationWeights = CDataFrameUtils::maximumMinimumRecallClassWeights(
                 m_NumberThreads, frame, this->allTrainingRowsMask(),
-                numberClasses, m_DependentVariable, [this](const TRowRef& row) {
-                    return m_Loss->transform(readPrediction(
-                        row, m_NumberInputColumns, m_Loss->numberParameters()));
+                numberClasses, m_DependentVariable,
+                [storage, numberClasses, this](const TRowRef& row) mutable {
+                    if (m_Loss->type() == CLoss::E_BinaryClassification) {
+                        // We predict the log-odds but this is expected to return
+                        // the log of the predicted class probabilities.
+                        TMemoryMappedFloatVector result{&storage[0], 2};
+                        result.array() = m_Loss
+                                             ->transform(readPrediction(
+                                                 row, m_NumberInputColumns, numberClasses))
+                                             .array()
+                                             .log();
+                        return result;
+                    }
+                    return readPrediction(row, m_NumberInputColumns, numberClasses);
                 });
             break;
         }
@@ -709,14 +732,13 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     LOG_TRACE(<< "Training one tree...");
 
     using TLeafNodeStatisticsPtr = CBoostedTreeLeafNodeStatistics::TPtr;
-    using TLeafNodeStatisticsPtrQueue =
-        std::priority_queue<TLeafNodeStatisticsPtr, std::vector<TLeafNodeStatisticsPtr>, COrderings::SLess>;
+    using TLeafNodeStatisticsPtrQueue = boost::circular_buffer<TLeafNodeStatisticsPtr>;
 
     TNodeVec tree(1);
     tree.reserve(2 * maximumTreeSize + 1);
 
-    TLeafNodeStatisticsPtrQueue leaves;
-    leaves.push(std::make_shared<CBoostedTreeLeafNodeStatistics>(
+    TLeafNodeStatisticsPtrQueue leaves(maximumTreeSize / 2 + 3);
+    leaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatistics>(
         0 /*root*/, m_NumberInputColumns, m_Loss->numberParameters(),
         m_NumberThreads, frame, *m_Encoder, m_Regularization, candidateSplits,
         this->featureBag(), 0 /*depth*/, trainingRowMask));
@@ -740,10 +762,16 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
     double totalGain{0.0};
 
+    COrderings::SLess less;
+
     for (std::size_t i = 0; i < maximumTreeSize; ++i) {
 
-        auto leaf = leaves.top();
-        leaves.pop();
+        if (leaves.empty()) {
+            break;
+        }
+
+        auto leaf = leaves.back();
+        leaves.pop_back();
 
         scopeMemoryUsage.remove(leaf);
 
@@ -752,7 +780,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         }
 
         totalGain += leaf->gain();
-        LOG_TRACE(<< "splitting " << leaf->id() << " total gain = " << totalGain);
+        LOG_TRACE(<< "splitting " << leaf->id() << " leaf gain = " << leaf->gain()
+                  << " total gain = " << totalGain);
 
         std::size_t splitFeature;
         double splitValue;
@@ -771,11 +800,26 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
             leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder,
             m_Regularization, candidateSplits, this->featureBag(), tree[leaf->id()]);
 
-        scopeMemoryUsage.add(leftChild);
-        scopeMemoryUsage.add(rightChild);
+        if (less(rightChild, leftChild)) {
+            std::swap(leftChild, rightChild);
+        }
 
-        leaves.push(std::move(leftChild));
-        leaves.push(std::move(rightChild));
+        std::size_t n{leaves.size()};
+        if (leftChild->gain() >= MINIMUM_RELATIVE_GAIN_PER_SPLIT * totalGain) {
+            scopeMemoryUsage.add(leftChild);
+            leaves.push_back(std::move(leftChild));
+        }
+        if (rightChild->gain() >= MINIMUM_RELATIVE_GAIN_PER_SPLIT * totalGain) {
+            scopeMemoryUsage.add(rightChild);
+            leaves.push_back(std::move(rightChild));
+        }
+        std::inplace_merge(leaves.begin(), leaves.begin() + n, leaves.end(), less);
+
+        // Drop any leaves which can't possibly be split.
+        while (leaves.size() + i + 1 > maximumTreeSize) {
+            scopeMemoryUsage.remove(leaves.front());
+            leaves.pop_front();
+        }
     }
 
     tree.shrink_to_fit();
@@ -1076,16 +1120,16 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     // Read parameters for last round.
     int i{0};
     if (m_DownsampleFactorOverride == boost::none) {
-        parameters(i++) = std::log(m_DownsampleFactor);
+        parameters(i++) = CTools::stableLog(m_DownsampleFactor);
     }
     if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-        parameters(i++) = std::log(m_Regularization.depthPenaltyMultiplier());
+        parameters(i++) = CTools::stableLog(m_Regularization.depthPenaltyMultiplier());
     }
     if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
-        parameters(i++) = std::log(m_Regularization.leafWeightPenaltyMultiplier());
+        parameters(i++) = CTools::stableLog(m_Regularization.leafWeightPenaltyMultiplier());
     }
     if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
-        parameters(i++) = std::log(m_Regularization.treeSizePenaltyMultiplier());
+        parameters(i++) = CTools::stableLog(m_Regularization.treeSizePenaltyMultiplier());
     }
     if (m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
         parameters(i++) = m_Regularization.softTreeDepthLimit();
@@ -1094,7 +1138,7 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         parameters(i++) = m_Regularization.softTreeDepthTolerance();
     }
     if (m_EtaOverride == boost::none) {
-        parameters(i++) = std::log(m_Eta);
+        parameters(i++) = CTools::stableLog(m_Eta);
         parameters(i++) = m_EtaGrowthRatePerTree;
     }
     if (m_FeatureBagFractionOverride == boost::none) {
@@ -1131,21 +1175,24 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     // Write parameters for next round.
     i = 0;
     if (m_DownsampleFactorOverride == boost::none) {
-        m_DownsampleFactor = std::exp(parameters(i++));
+        m_DownsampleFactor = CTools::stableExp(parameters(i++));
         TVector minBoundary;
         TVector maxBoundary;
         std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
         scale = std::min(scale, 2.0 * m_DownsampleFactor /
-                                    (std::exp(minBoundary(0)) + std::exp(maxBoundary(0))));
+                                    (CTools::stableExp(minBoundary(0)) +
+                                     CTools::stableExp(maxBoundary(0))));
     }
     if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-        m_Regularization.depthPenaltyMultiplier(std::exp(parameters(i++)));
+        m_Regularization.depthPenaltyMultiplier(CTools::stableExp(parameters(i++)));
     }
     if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
-        m_Regularization.leafWeightPenaltyMultiplier(scale * std::exp(parameters(i++)));
+        m_Regularization.leafWeightPenaltyMultiplier(
+            scale * CTools::stableExp(parameters(i++)));
     }
     if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
-        m_Regularization.treeSizePenaltyMultiplier(scale * std::exp(parameters(i++)));
+        m_Regularization.treeSizePenaltyMultiplier(
+            scale * CTools::stableExp(parameters(i++)));
     }
     if (m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
         m_Regularization.softTreeDepthLimit(parameters(i++));
@@ -1154,7 +1201,7 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         m_Regularization.softTreeDepthTolerance(parameters(i++));
     }
     if (m_EtaOverride == boost::none) {
-        m_Eta = std::exp(scale * parameters(i++));
+        m_Eta = CTools::stableExp(scale * parameters(i++));
         m_EtaGrowthRatePerTree = parameters(i++);
     }
     if (m_FeatureBagFractionOverride == boost::none) {

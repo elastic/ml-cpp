@@ -451,12 +451,13 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                     maths::CBasicStatistics::count(meansAndVariances[0]),
                     maths::CBasicStatistics::count(vectorMeanAndVariances));
                 for (std::size_t j = 0u; j < 4; ++j) {
-                    BOOST_REQUIRE_EQUAL(
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         maths::CBasicStatistics::mean(meansAndVariances[j]),
-                        (maths::CBasicStatistics::mean(vectorMeanAndVariances))(j));
-                    BOOST_REQUIRE_EQUAL(
+                        (maths::CBasicStatistics::mean(vectorMeanAndVariances))(j), 1e-14);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         maths::CBasicStatistics::variance(meansAndVariances[j]),
-                        (maths::CBasicStatistics::variance(vectorMeanAndVariances))(j));
+                        (maths::CBasicStatistics::variance(vectorMeanAndVariances))(j),
+                        1e-14);
                 }
             }
         }
@@ -482,15 +483,17 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                     maths::CBasicStatistics::count(meansVariancesAndSkews[0]),
                     maths::CBasicStatistics::count(vectorMeanVarianceAndSkew));
                 for (std::size_t j = 0u; j < 4; ++j) {
-                    BOOST_REQUIRE_EQUAL(
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         maths::CBasicStatistics::mean(meansVariancesAndSkews[j]),
-                        (maths::CBasicStatistics::mean(vectorMeanVarianceAndSkew))(j));
-                    BOOST_REQUIRE_EQUAL(
+                        (maths::CBasicStatistics::mean(vectorMeanVarianceAndSkew))(j), 1e-14);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         maths::CBasicStatistics::variance(meansVariancesAndSkews[j]),
-                        (maths::CBasicStatistics::variance(vectorMeanVarianceAndSkew))(j));
-                    BOOST_REQUIRE_EQUAL(
+                        (maths::CBasicStatistics::variance(vectorMeanVarianceAndSkew))(j),
+                        1e-14);
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         maths::CBasicStatistics::skewness(meansVariancesAndSkews[j]),
-                        (maths::CBasicStatistics::skewness(vectorMeanVarianceAndSkew))(j));
+                        (maths::CBasicStatistics::skewness(vectorMeanVarianceAndSkew))(j),
+                        1e-14);
                 }
             }
         }

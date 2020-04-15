@@ -13,13 +13,14 @@
 
 #include <test/CRandomNumbers.h>
 
-#include <functional>
+#include <cinttypes>
+#include <string>
 
 class CDataFrameMockAnalysisState final : public ml::api::CDataFrameAnalysisInstrumentation {
 public:
     CDataFrameMockAnalysisState(const std::string& jobId)
         : ml::api::CDataFrameAnalysisInstrumentation(jobId) {}
-    void writeAnalysisStats(std::int64_t /* timestamp */) override{};
+    void writeAnalysisStats(std::int64_t /* timestamp */) override {}
 
 protected:
     ml::counter_t::ECounterTypes memoryCounterType() override;
