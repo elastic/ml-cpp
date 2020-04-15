@@ -45,7 +45,15 @@ if (isWindows) {
 } else if (cppCrossCompile != '') {
   artifactClassifier = 'linux-' + cppCrossCompile
 } else {
-  artifactClassifier = 'linux-' + System.properties['os.arch']
+  String osArch = System.properties['os.arch']
+  // Some versions of Java report hardware architectures that
+  // don't match other tools - these need to be normalized
+  if (osArch == 'amd64') {
+    osArch = 'x86_64'
+  } else if (osArch == 'i386') {
+    osArch = 'x86'
+  }
+  artifactClassifier = 'linux-' + osArch
 }
 
 // Always do the C++ build using bash (Git bash on Windows)
