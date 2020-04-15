@@ -58,8 +58,8 @@ SRCS=\
 	CSingleStreamDataAdderTest.cc \
 	CStateRestoreStreamFilterTest.cc \
 	CStringStoreTest.cc \
-    CTestAnomalyJob.cc \
-    CTestFieldDataCategorizer.cc \
+	CTestAnomalyJob.cc \
+	CTestFieldDataCategorizer.cc \
 
 include $(CPP_SRC_HOME)/mk/stdboosttest.mk
 
