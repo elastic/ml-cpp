@@ -12,11 +12,12 @@
 #include <model/CDataGatherer.h>
 #include <model/CLimits.h>
 
-#include <api/CAnomalyJob.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/CJsonOutputWriter.h>
+
+#include "CTestAnomalyJob.h"
 
 #include <rapidjson/document.h>
 
@@ -192,9 +193,9 @@ BOOST_AUTO_TEST_CASE(testBadTimes) {
         std::stringstream outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
-        api::CAnomalyJob::TStrStrUMap dataRows;
+        CTestAnomalyJob::TStrStrUMap dataRows;
         dataRows["wibble"] = "12345678";
         dataRows["value"] = "1.0";
         dataRows["greenhouse"] = "rhubarb";
@@ -215,9 +216,9 @@ BOOST_AUTO_TEST_CASE(testBadTimes) {
         std::stringstream outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
-        api::CAnomalyJob::TStrStrUMap dataRows;
+        CTestAnomalyJob::TStrStrUMap dataRows;
         dataRows["time"] = "hello";
         dataRows["value"] = "1.0";
         dataRows["greenhouse"] = "rhubarb";
@@ -238,11 +239,11 @@ BOOST_AUTO_TEST_CASE(testBadTimes) {
         std::stringstream outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
-                             api::CAnomalyJob::TPersistCompleteFunc(), nullptr,
-                             -1, "time", "%Y%m%m%H%M%S");
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
+                            CTestAnomalyJob::TPersistCompleteFunc(), nullptr,
+                            -1, "time", "%Y%m%m%H%M%S");
 
-        api::CAnomalyJob::TStrStrUMap dataRows;
+        CTestAnomalyJob::TStrStrUMap dataRows;
         dataRows["time"] = "hello world";
         dataRows["value"] = "1.0";
         dataRows["greenhouse"] = "rhubarb";
@@ -266,13 +267,13 @@ BOOST_AUTO_TEST_CASE(testOutOfSequence) {
         std::stringstream outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
         job.description();
         job.descriptionAndDebugMemoryUsage();
 
         // add records which create partitions
-        api::CAnomalyJob::TStrStrUMap dataRows;
+        CTestAnomalyJob::TStrStrUMap dataRows;
         dataRows["time"] = "12345678";
         dataRows["value"] = "1.0";
         dataRows["greenhouse"] = "rhubarb";
@@ -302,9 +303,9 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
         std::stringstream outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
-        api::CAnomalyJob::TStrStrUMap dataRows;
+        CTestAnomalyJob::TStrStrUMap dataRows;
         dataRows["."] = " ";
         BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
         BOOST_REQUIRE_EQUAL(uint64_t(0), job.numRecordsHandled());
@@ -332,14 +333,14 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
 
-        api::CAnomalyJob::TStrStrUMap dataRows;
+        CTestAnomalyJob::TStrStrUMap dataRows;
         dataRows["value"] = "2.0";
         dataRows["greenhouse"] = "rhubarb";
 
         std::stringstream outputStrm;
         {
             core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-            api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
             core_t::TTime time = 12345678;
             for (std::size_t i = 0; i < 50; i++, time += (BUCKET_SIZE / 2)) {
@@ -387,7 +388,7 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
         std::stringstream outputStrm2;
         {
             core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm2);
-            api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
             core_t::TTime time = 12345678;
             for (std::size_t i = 0; i < 50; i++, time += (BUCKET_SIZE / 2)) {
@@ -401,7 +402,7 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
                 }
                 BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
                 if (i == 40) {
-                    api::CAnomalyJob::TStrStrUMap rows;
+                    CTestAnomalyJob::TStrStrUMap rows;
                     rows["."] = "r" + ss.str() + " " + ss.str();
                     BOOST_TEST_REQUIRE(job.handleRecord(rows));
                     for (std::size_t j = 0; j < 100; j++) {
@@ -449,9 +450,9 @@ BOOST_AUTO_TEST_CASE(testSkipTimeControlMessage) {
     std::stringstream outputStrm;
     core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-    api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+    CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
-    api::CAnomalyJob::TStrStrUMap dataRows;
+    CTestAnomalyJob::TStrStrUMap dataRows;
 
     core_t::TTime time = 3600;
     for (std::size_t i = 0; i < 10; ++i, time += BUCKET_SIZE) {
@@ -504,7 +505,7 @@ BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
         std::stringstream outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
         BOOST_REQUIRE_EQUAL(false, job.isPersistenceNeeded("test state"));
 
@@ -530,9 +531,9 @@ BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
         std::stringstream outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
-        api::CAnomalyJob::TStrStrUMap dataRows;
+        CTestAnomalyJob::TStrStrUMap dataRows;
 
         std::ostringstream ss;
         ss << time;
@@ -563,9 +564,9 @@ BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
         std::stringstream outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
-        api::CAnomalyJob::TStrStrUMap dataRows;
+        CTestAnomalyJob::TStrStrUMap dataRows;
 
         time = 39600;
         dataRows["."] = "t39600";
@@ -609,9 +610,9 @@ BOOST_AUTO_TEST_CASE(testModelPlot) {
     {
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
-        api::CAnomalyJob::TStrStrUMap dataRows;
+        CTestAnomalyJob::TStrStrUMap dataRows;
         dataRows["time"] = "10000000";
         dataRows["value"] = "2.0";
         dataRows["animal"] = "baboon";
@@ -682,13 +683,13 @@ BOOST_AUTO_TEST_CASE(testInterimResultEdgeCases) {
 
     core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-    api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+    CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
     std::remove(logFile);
     BOOST_TEST_REQUIRE(ml::core::CLogger::instance().reconfigureFromFile(
         "testfiles/testLogErrors.boost.log.ini"));
 
-    api::CAnomalyJob::TStrStrUMap dataRows;
+    CTestAnomalyJob::TStrStrUMap dataRows;
     dataRows["time"] = "3610";
     dataRows["error"] = "e1";
     BOOST_TEST_REQUIRE(job.handleRecord(dataRows));
@@ -742,7 +743,7 @@ BOOST_AUTO_TEST_CASE(testRestoreFailsWithEmptyStream) {
     std::ostringstream outputStrm;
     core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-    api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+    CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
     core_t::TTime completeToTime(0);
     CEmptySearcher restoreSearcher;

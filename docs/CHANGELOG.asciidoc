@@ -58,6 +58,13 @@
 * Added a {ml} native code build for Linux on AArch64. (See {ml-pull}1132[#1132] and
   {ml-pull}1135[#1135].)
 
+== {es} version 7.7.1
+
+=== Bug Fixes
+
+* Fixed background persistence of categorizer state (See {ml-pull}1137[#1137],
+  issue: {ml-issue}1136[#1136].)
+
 == {es} version 7.7.0
 
 === New Features

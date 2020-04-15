@@ -11,7 +11,6 @@
 #include <model/CLimits.h>
 #include <model/CStringStore.h>
 
-#include <api/CAnomalyJob.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
@@ -19,6 +18,7 @@
 
 #include "CMockDataAdder.h"
 #include "CMockSearcher.h"
+#include "CTestAnomalyJob.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -53,7 +53,7 @@ core_t::TTime playData(core_t::TTime start,
                        int numPeople,
                        int numPartitions,
                        int anomaly,
-                       api::CAnomalyJob& job) {
+                       CTestAnomalyJob& job) {
     std::string people[] = {"Elgar", "Holst",   "Delius", "Vaughan Williams",
                             "Bliss", "Warlock", "Walton"};
     if (numPeople > 7) {
@@ -85,7 +85,7 @@ core_t::TTime playData(core_t::TTime start,
     api::CCsvInputParser parser(ss);
 
     BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
-        std::bind(&api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
+        std::bind(&CTestAnomalyJob::handleRecord, &job, std::placeholders::_1)));
 
     return t;
 }
@@ -156,7 +156,7 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
         wrappedOutputStream.syncFlush();
@@ -202,8 +202,8 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
-                             api::CAnomalyJob::TPersistCompleteFunc());
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
+                            CTestAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         BOOST_TEST_REQUIRE(job.restoreState(searcher, completeToTime));
@@ -243,8 +243,8 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
-                             api::CAnomalyJob::TPersistCompleteFunc());
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
+                            CTestAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         BOOST_TEST_REQUIRE(job.restoreState(searcher, completeToTime));
@@ -285,8 +285,8 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
-                             api::CAnomalyJob::TPersistCompleteFunc());
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
+                            CTestAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         BOOST_TEST_REQUIRE(job.restoreState(searcher, completeToTime));
@@ -346,7 +346,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
         wrappedOutputStream.syncFlush();
@@ -391,8 +391,8 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
-                             api::CAnomalyJob::TPersistCompleteFunc());
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
+                            CTestAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         BOOST_TEST_REQUIRE(job.restoreState(searcher, completeToTime));
@@ -433,8 +433,8 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
-                             api::CAnomalyJob::TPersistCompleteFunc());
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
+                            CTestAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         BOOST_TEST_REQUIRE(job.restoreState(searcher, completeToTime));
@@ -476,8 +476,8 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
-                             api::CAnomalyJob::TPersistCompleteFunc());
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream,
+                            CTestAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
         BOOST_TEST_REQUIRE(job.restoreState(searcher, completeToTime));
@@ -535,7 +535,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluencerStringPruning, CTestFixture) {
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
         // Play in a few buckets with influencers, and see that they stick around for
         // 3 buckets
