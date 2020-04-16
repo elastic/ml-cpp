@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor10000Rows) {
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor100000Rows) {
-    testEstimateMemoryUsage(100000, "41mb", "9mb", 0);
+    testEstimateMemoryUsage(100000, "41mb", "10mb", 0);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor10000000Rows) {
