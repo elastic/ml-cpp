@@ -517,7 +517,7 @@ private:
                                                    const CBoostedTreeNode& split,
                                                    const core::CPackedBitVector& parentRowMask);
     void addRowDerivatives(const CEncodedDataFrameRowRef& row,
-                           CSplitsDerivatives& splitDerivatives) const;
+                           CSplitsDerivatives& splitsDerivatives) const;
     SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;
 

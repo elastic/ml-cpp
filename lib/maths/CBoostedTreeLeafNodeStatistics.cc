@@ -171,9 +171,9 @@ CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(std::size_t numberRows,
     // case for memory usage. This is because the rows will be spread over many
     // rows so the masks will mainly contain 0 bits in this case.
     std::size_t rowMaskSize{numberRows / PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
-    std::size_t perSplitDerivativesSize{CSplitsDerivatives::estimateMemoryUsage(
+    std::size_t splitsDerivativesSize{CSplitsDerivatives::estimateMemoryUsage(
         numberFeatures, numberSplitsPerFeature, numberLossParameters)};
-    return sizeof(CBoostedTreeLeafNodeStatistics) + rowMaskSize + perSplitDerivativesSize;
+    return sizeof(CBoostedTreeLeafNodeStatistics) + rowMaskSize + splitsDerivativesSize;
 }
 
 void CBoostedTreeLeafNodeStatistics::maybeRecoverMemory() {
@@ -191,9 +191,9 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
     auto result = frame.readRows(
         numberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
-            [&](CSplitsDerivatives& perSplitDerivatives, TRowItr beginRows, TRowItr endRows) {
+            [&](CSplitsDerivatives& splitsDerivatives, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
-                    this->addRowDerivatives(encoder.encode(*row), perSplitDerivatives);
+                    this->addRowDerivatives(encoder.encode(*row), splitsDerivatives);
                 }
             },
             CSplitsDerivatives{m_CandidateSplits, m_NumberLossParameters}),
@@ -220,14 +220,14 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
             [&](std::pair<core::CPackedBitVector, CSplitsDerivatives>& state,
                 TRowItr beginRows, TRowItr endRows) {
                 auto& mask = state.first;
-                auto& perSplitDerivatives = state.second;
+                auto& splitsDerivatives = state.second;
                 for (auto row = beginRows; row != endRows; ++row) {
                     auto encodedRow = encoder.encode(*row);
                     if (split.assignToLeft(encodedRow) == isLeftChild) {
                         std::size_t index{row->index()};
                         mask.extend(false, index - mask.size());
                         mask.extend(true);
-                        this->addRowDerivatives(encodedRow, perSplitDerivatives);
+                        this->addRowDerivatives(encodedRow, splitsDerivatives);
                     }
                 }
             },
@@ -250,17 +250,17 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
 }
 
 void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRowRef& row,
-                                                       CSplitsDerivatives& perSplitDerivatives) const {
+                                                       CSplitsDerivatives& splitsDerivatives) const {
 
     const TRowRef& unencodedRow{row.unencodedRow()};
     auto derivatives = readLossDerivatives(unencodedRow, m_ExtraColumns, m_NumberLossParameters);
     for (std::size_t feature = 0; feature < m_CandidateSplits.size(); ++feature) {
         double featureValue{row[feature]};
         if (CDataFrameUtils::isMissing(featureValue)) {
-            perSplitDerivatives.addMissingDerivatives(feature, derivatives);
+            splitsDerivatives.addMissingDerivatives(feature, derivatives);
         } else {
             std::ptrdiff_t split{m_CandidateSplits[feature].upperBound(featureValue)};
-            perSplitDerivatives.addDerivatives(feature, split, derivatives);
+            splitsDerivatives.addDerivatives(feature, split, derivatives);
         }
     }
 }
