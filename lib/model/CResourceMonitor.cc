@@ -281,7 +281,8 @@ std::size_t CResourceMonitor::adjustedUsage(std::size_t usage) const {
     // This gives the user a fairer indication of how close the job is to hitting
     // the model memory limit in a concise manner (as the limit is scaled down by
     // the margin during the beginning period of the job's existence).
-    size_t adjustedUsage{static_cast<std::size_t>(usage / m_ByteLimitMargin)};
+    std::size_t adjustedUsage{
+        static_cast<std::size_t>(static_cast<double>(usage) / m_ByteLimitMargin)};
 
     adjustedUsage *= this->persistenceMemoryIncreaseFactor();
 

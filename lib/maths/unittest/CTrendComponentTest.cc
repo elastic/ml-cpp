@@ -280,9 +280,9 @@ BOOST_AUTO_TEST_CASE(testDecayRate) {
     for (core_t::TTime time = start; time < end; time += BUCKET_LENGTH) {
         double value{values[(time - start) / BUCKET_LENGTH]};
         component.add(time, value);
-        regression.add(time / 604800.0, value);
+        regression.add(static_cast<double>(time) / 604800.0, value);
 
-        double expectedPrediction{regression.predict(time / 604800.0)};
+        double expectedPrediction{regression.predict(static_cast<double>(time) / 604800.0)};
         double prediction{maths::CBasicStatistics::mean(component.value(time, 0.0))};
         error.add(std::fabs(prediction - expectedPrediction));
         level.add(value);
