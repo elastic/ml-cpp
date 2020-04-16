@@ -5,7 +5,7 @@
 # you may not use this file except in compliance with the Elastic License.
 #
 
-# Builds the machine learning C++ code for Linux or Mac OS X in a Docker
+# Builds the machine learning C++ code for Linux or macOS in a Docker
 # container.
 #
 # The output .zip files are then copied out of the container to the
@@ -15,7 +15,7 @@
 # Finally, the Docker container used for the build is deleted.
 
 usage() {
-    echo "Usage: $0 linux|macosx ..."
+    echo "Usage: $0 linux|linux_aarch64_cross|linux_aarch64_native|macosx ..."
     exit 1
 }
 
@@ -25,7 +25,7 @@ while [ -n "$1" ]
 do
 
     case "$1" in
-        linux|macosx)
+        linux|linux_aarch64_cross|linux_aarch64_native|macosx)
             PLATFORMS="$1 $PLATFORMS"
             ;;
         *)

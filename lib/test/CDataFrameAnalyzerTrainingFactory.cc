@@ -30,13 +30,15 @@ CDataFrameAnalyzerTrainingFactory::setupLinearRegressionData(const TStrVec& fiel
                                                              api::CDataFrameAnalyzer& analyzer,
                                                              const TDoubleVec& weights,
                                                              const TDoubleVec& regressors,
-                                                             TStrVec& targets) {
+                                                             TStrVec& targets,
+                                                             TTargetTransformer targetTransformer) {
 
-    auto target = [&weights](const TDoubleVec& regressors_) {
+    auto target = [&weights, &targetTransformer](const TDoubleVec& regressors_) {
         double result{0.0};
         for (std::size_t i = 0; i < weights.size(); ++i) {
             result += weights[i] * regressors_[i];
         }
+        result = targetTransformer(result);
         return core::CStringUtils::typeToStringPrecise(result, core::CIEEE754::E_DoublePrecision);
     };
 

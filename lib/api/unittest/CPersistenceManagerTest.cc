@@ -13,10 +13,8 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
-#include <api/CAnomalyJob.h>
 #include <api/CDataProcessor.h>
 #include <api/CFieldConfig.h>
-#include <api/CFieldDataCategorizer.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CModelSnapshotJsonWriter.h>
 #include <api/CNdJsonInputParser.h>
@@ -24,6 +22,9 @@
 #include <api/COutputChainer.h>
 #include <api/CPersistenceManager.h>
 #include <api/CSingleStreamDataAdder.h>
+
+#include "CTestAnomalyJob.h"
+#include "CTestFieldDataCategorizer.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -99,11 +100,10 @@ protected:
             ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
             ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);
 
-            ml::api::CAnomalyJob job(
-                JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
-                std::bind(&reportPersistComplete, std::placeholders::_1,
-                          std::ref(snapshotId), std::ref(numDocs)),
-                &persistenceManager, -1, "time", "%d/%b/%Y:%T %z");
+            CTestAnomalyJob job(JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+                                std::bind(&reportPersistComplete, std::placeholders::_1,
+                                          std::ref(snapshotId), std::ref(numDocs)),
+                                &persistenceManager, -1, "time", "%d/%b/%Y:%T %z");
 
             ml::api::CDataProcessor* firstProcessor(&job);
 
@@ -111,12 +111,11 @@ protected:
             ml::api::COutputChainer outputChainer(job);
 
             // The categorizer knows how to assign categories to records
-            ml::api::CFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits,
-                                                       outputChainer, outputWriter,
-                                                       &persistenceManager);
+            CTestFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits, outputChainer,
+                                                  outputWriter, &persistenceManager);
 
             if (fieldConfig.fieldNameSuperset().count(
-                    ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
+                    CTestFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
                 LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
                 firstProcessor = &categorizer;
             }
@@ -223,11 +222,10 @@ protected:
             ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
             ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);
 
-            ml::api::CAnomalyJob job(
-                JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
-                std::bind(&reportPersistComplete, std::placeholders::_1,
-                          std::ref(snapshotId), std::ref(numDocs)),
-                &persistenceManager, -1, "time", "%d/%b/%Y:%T %z");
+            CTestAnomalyJob job(JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+                                std::bind(&reportPersistComplete, std::placeholders::_1,
+                                          std::ref(snapshotId), std::ref(numDocs)),
+                                &persistenceManager, -1, "time", "%d/%b/%Y:%T %z");
 
             ml::api::CDataProcessor* firstProcessor(&job);
 
@@ -324,8 +322,8 @@ BOOST_FIXTURE_TEST_CASE(testBackgroundPersistCategorizationConsistency, CTestFix
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
         ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);
 
-        ml::api::CFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits, outputWriter,
-                                                   outputWriter, &persistenceManager);
+        CTestFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits, outputWriter,
+                                              outputWriter, &persistenceManager);
 
         std::istringstream inputStrm1{FIRST_INPUT};
         ml::api::CNdJsonInputParser parser1{inputStrm1};
@@ -410,8 +408,8 @@ BOOST_FIXTURE_TEST_CASE(testCategorizationOnlyPersist, CTestFixture) {
         ml::api::CNullOutput nullOutput;
 
         // The categorizer knows how to assign categories to records
-        ml::api::CFieldDataCategorizer categorizer(
-            JOB_ID, fieldConfig, limits, nullOutput, outputWriter, &persistenceManager);
+        CTestFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits, nullOutput,
+                                              outputWriter, &persistenceManager);
 
         ml::api::CNdJsonInputParser parser(inputStrm);
 

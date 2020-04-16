@@ -14,22 +14,16 @@
 # used for subsequent builds on this branch.  Then update the version to be
 # used for builds in docker/linux_builder/Dockerfile.
 
-if [ `uname -m` != x86_64 ] ; then
-    echo "Native build images must be built on the correct hardware architecture"
-    echo "Required: x86_64, Current:" `uname -m`
-    exit 1
-fi
-
 HOST=push.docker.elastic.co
 ACCOUNT=ml-dev
-REPOSITORY=ml-linux-build
-VERSION=14
+REPOSITORY=ml-linux-aarch64-cross-build
+VERSION=1
 
 set -e
 
 cd `dirname $0`
 
-docker build --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION linux_image
+docker build --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION linux_aarch64_cross_image
 # Get a username and password for this by visiting
 # https://docker.elastic.co:7000 and allowing it to authenticate against your
 # GitHub account

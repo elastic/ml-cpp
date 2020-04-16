@@ -18,11 +18,21 @@ namespace api {
 //! \brief Runs boosted tree regression on a core::CDataFrame.
 class API_EXPORT CDataFrameTrainBoostedTreeRegressionRunner final
     : public CDataFrameTrainBoostedTreeRunner {
+
+public:
+    using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
+    enum ELossFunctionType { E_Mse, E_Msle };
+
 public:
     static const std::string STRATIFIED_CROSS_VALIDATION;
+    static const std::string LOSS_FUNCTION;
+    static const std::string MSE;
+    static const std::string MSLE;
 
 public:
     static const CDataFrameAnalysisConfigReader& parameterReader();
+
+    static TLossFunctionUPtr lossFunction(const CDataFrameAnalysisParameters& parameters);
 
     //! This is not intended to be called directly: use CDataFrameTrainBoostedTreeRegressionRunnerFactory.
     CDataFrameTrainBoostedTreeRegressionRunner(const CDataFrameAnalysisSpecification& spec,
