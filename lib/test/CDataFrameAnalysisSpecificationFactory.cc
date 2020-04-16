@@ -193,6 +193,12 @@ CDataFrameAnalysisSpecificationFactory::predictionFieldType(const std::string& t
     return *this;
 }
 
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::regressionLossFunction(TRegressionLossFunction lossFunction) {
+    m_RegressionLossFunction = lossFunction;
+    return *this;
+}
+
 std::string CDataFrameAnalysisSpecificationFactory::outlierParams() const {
 
     rapidjson::StringBuffer parameters;
@@ -307,6 +313,19 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
         writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES);
         writer.Uint64(m_NumberTopClasses);
     }
+
+    if (analysis == regression()) {
+        writer.Key(api::CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION);
+        switch (m_RegressionLossFunction) {
+        case TRegressionLossFunction::E_Msle:
+            writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSLE);
+            break;
+        case TRegressionLossFunction::E_Mse:
+            writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSE);
+            break;
+        }
+    }
+
     writer.EndObject();
 
     return parameters.GetString();
