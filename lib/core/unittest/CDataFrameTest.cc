@@ -8,6 +8,7 @@
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CDataFrameRowSlice.h>
+#include <core/CFloatStorage.h>
 #include <core/CPackedBitVector.h>
 #include <core/Concurrency.h>
 
@@ -29,7 +30,8 @@ using namespace ml;
 namespace {
 using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
-using TFloatVec = std::vector<core::CFloatStorage>;
+using TFloatVec =
+    std::vector<core::CFloatStorage, core::CAlignedAllocator<core::CFloatStorage>>;
 using TFloatVecItr = TFloatVec::iterator;
 using TFloatVecCItr = TFloatVec::const_iterator;
 using TSizeFloatVecUMap = boost::unordered_map<std::size_t, TFloatVec>;
