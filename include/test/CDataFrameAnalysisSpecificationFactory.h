@@ -11,6 +11,7 @@
 #include <core/CDataSearcher.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
+#include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 
 #include <test/ImportExport.h>
 
@@ -32,6 +33,7 @@ public:
     using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
     using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
     using TSpecificationUPtr = std::unique_ptr<api::CDataFrameAnalysisSpecification>;
+    using TRegressionLossFunction = api::CDataFrameTrainBoostedTreeRegressionRunner::ELossFunctionType;
 
 public:
     CDataFrameAnalysisSpecificationFactory();
@@ -72,6 +74,10 @@ public:
     predictionPersisterSupplier(TPersisterSupplier* persisterSupplier);
     CDataFrameAnalysisSpecificationFactory&
     predictionRestoreSearcherSupplier(TRestoreSearcherSupplier* restoreSearcherSupplier);
+
+    // Regression
+    CDataFrameAnalysisSpecificationFactory&
+    regressionLossFunction(TRegressionLossFunction lossFunction);
 
     // Classification
     CDataFrameAnalysisSpecificationFactory& numberClasses(std::size_t number);
@@ -116,6 +122,8 @@ private:
     std::size_t m_NumberTopShapValues = 0;
     TPersisterSupplier* m_PersisterSupplier = nullptr;
     TRestoreSearcherSupplier* m_RestoreSearcherSupplier = nullptr;
+    // Regression
+    TRegressionLossFunction m_RegressionLossFunction = TRegressionLossFunction::E_Mse;
     // Classification
     std::size_t m_NumberClasses = 2;
     std::size_t m_NumberTopClasses = 0;

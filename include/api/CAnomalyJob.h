@@ -27,14 +27,13 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
@@ -144,12 +143,12 @@ public:
                 CFieldConfig& fieldConfig,
                 model::CAnomalyDetectorModelConfig& modelConfig,
                 core::CJsonOutputStreamWrapper& outputBuffer,
-                const TPersistCompleteFunc& persistCompleteFunc = TPersistCompleteFunc(),
-                CPersistenceManager* periodicPersister = nullptr,
-                core_t::TTime maxQuantileInterval = -1,
-                const std::string& timeFieldName = DEFAULT_TIME_FIELD_NAME,
-                const std::string& timeFieldFormat = EMPTY_STRING,
-                size_t maxAnomalyRecords = 0u);
+                const TPersistCompleteFunc& persistCompleteFunc,
+                CPersistenceManager* persistenceManager,
+                core_t::TTime maxQuantileInterval,
+                const std::string& timeFieldName,
+                const std::string& timeFieldFormat,
+                std::size_t maxAnomalyRecords);
 
     ~CAnomalyJob() override;
 
@@ -182,7 +181,7 @@ public:
     virtual bool initNormalizer(const std::string& quantilesStateFile);
 
     //! How many records did we handle?
-    uint64_t numRecordsHandled() const override;
+    std::uint64_t numRecordsHandled() const override;
 
     //! Is persistence needed?
     bool isPersistenceNeeded(const std::string& description) const override;
@@ -225,7 +224,7 @@ private:
     void writeOutResults(bool interim,
                          model::CHierarchicalResults& results,
                          core_t::TTime bucketTime,
-                         uint64_t processingTime);
+                         std::uint64_t processingTime);
 
     //! Reset buckets in the range specified by the control message.
     void resetBuckets(const std::string& controlMessage);
@@ -413,7 +412,7 @@ private:
     model::CAnomalyDetectorModelConfig& m_ModelConfig;
 
     //! Keep count of how many records we've handled
-    uint64_t m_NumRecordsHandled;
+    std::uint64_t m_NumRecordsHandled;
 
     //! Detector keys.
     TKeyVec m_DetectorKeys;
@@ -436,12 +435,11 @@ private:
     std::string m_TimeFieldFormat;
 
     //! License restriction on the number of detectors allowed
-    size_t m_MaxDetectors;
+    std::size_t m_MaxDetectors;
 
-    //! Pointer to periodic persister that works in the background.  May be
-    //! nullptr if this object is not responsible for starting periodic
-    //! persistence.
-    CPersistenceManager* m_PeriodicPersister;
+    //! Pointer to the persistence manager. May be nullptr if state persistence
+    //! is not required, for example in unit tests.
+    CPersistenceManager* m_PersistenceManager;
 
     //! If we haven't output quantiles for this long due to a big anomaly
     //! we'll output them to reflect decay.  Non-positive values mean never.

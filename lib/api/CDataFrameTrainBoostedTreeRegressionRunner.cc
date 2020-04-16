@@ -21,7 +21,9 @@
 #include <api/ElasticsearchStateIndex.h>
 
 #include <cmath>
+#include <memory>
 #include <set>
+#include <string>
 
 namespace ml {
 namespace api {
@@ -38,16 +40,30 @@ CDataFrameTrainBoostedTreeRegressionRunner::parameterReader() {
         auto theReader = CDataFrameTrainBoostedTreeRunner::parameterReader();
         theReader.addParameter(STRATIFIED_CROSS_VALIDATION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(LOSS_FUNCTION, CDataFrameAnalysisConfigReader::E_OptionalParameter,
+                               {{MSE, int{E_Mse}}, {MSLE, int{E_Msle}}});
         return theReader;
     }()};
     return PARAMETER_READER;
+}
+
+CDataFrameTrainBoostedTreeRegressionRunner::TLossFunctionUPtr
+CDataFrameTrainBoostedTreeRegressionRunner::lossFunction(const CDataFrameAnalysisParameters& parameters) {
+    ELossFunctionType lossFunctionType{parameters[LOSS_FUNCTION].fallback(E_Mse)};
+    switch (lossFunctionType) {
+    case E_Msle:
+        return std::make_unique<maths::boosted_tree::CMsle>();
+    case E_Mse:
+        return std::make_unique<maths::boosted_tree::CMse>();
+    }
 }
 
 CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters)
     : CDataFrameTrainBoostedTreeRunner{
-          spec, parameters, std::make_unique<maths::boosted_tree::CMse>()} {
+          spec, parameters,
+          CDataFrameTrainBoostedTreeRegressionRunner::lossFunction(parameters)} {
 
     this->boostedTreeFactory().stratifyRegressionCrossValidation(
         parameters[STRATIFIED_CROSS_VALIDATION].fallback(true));
@@ -117,6 +133,9 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition(
 
 // clang-format off
 const std::string CDataFrameTrainBoostedTreeRegressionRunner::STRATIFIED_CROSS_VALIDATION{"stratified_cross_validation"};
+const std::string CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION{"loss_function"};
+const std::string CDataFrameTrainBoostedTreeRegressionRunner::MSE{"mse"};
+const std::string CDataFrameTrainBoostedTreeRegressionRunner::MSLE{"msle"};
 // clang-format on
 
 const std::string& CDataFrameTrainBoostedTreeRegressionRunnerFactory::name() const {

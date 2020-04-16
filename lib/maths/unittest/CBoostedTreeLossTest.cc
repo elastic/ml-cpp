@@ -3,10 +3,11 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
+#include <core/CContainerPrinter.h>
 
-#include "core/CContainerPrinter.h"
-#include "maths/CLbfgs.h"
+#include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTreeLoss.h>
+#include <maths/CLbfgs.h>
 #include <maths/CPRNG.h>
 #include <maths/CSolvers.h>
 #include <maths/CTools.h>
@@ -34,6 +35,7 @@ using TMemoryMappedFloatVector = maths::boosted_tree::CLoss::TMemoryMappedFloatV
 using maths::boosted_tree::CBinomialLogisticLoss;
 using maths::boosted_tree::CMultinomialLogisticLoss;
 using maths::boosted_tree_detail::CArgMinBinomialLogisticLossImpl;
+using maths::boosted_tree_detail::CArgMinMsleImpl;
 using maths::boosted_tree_detail::CArgMinMultinomialLogisticLossImpl;
 
 namespace {
@@ -821,6 +823,154 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
             previousGradient = currentGradient;
             previousCurvature = currentCurvature;
         }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
+    // Test that the calculated objective function is close to the correct value.
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+    maths::CPRNG::CXorOShiro128Plus rng;
+    test::CRandomNumbers testRng;
+    std::size_t numberSamples{10000};
+
+    {
+        for (std::size_t t = 0; t < 3; ++t) {
+            double lambda{0.1 * static_cast<double>(t + 1)};
+            CArgMinMsleImpl argmin{lambda};
+
+            TDoubleVec targets;
+            testRng.generateUniformSamples(1000.0, 100000.0, numberSamples, targets);
+
+            TDoubleVec predictionErrors;
+            predictionErrors.resize(targets.size(), 0.0);
+            testRng.generateUniformSamples(-100.0, 100.0, targets.size(), predictionErrors);
+
+            do {
+                for (std::size_t i = 0; i < targets.size(); ++i) {
+                    maths::CFloatStorage storage[]{
+                        std::log(targets[i] + predictionErrors[i])};
+                    TMemoryMappedFloatVector prediction{storage, 1};
+                    argmin.add(prediction, targets[i]);
+                }
+            } while (argmin.nextPass());
+
+            auto objective = argmin.objective();
+
+            for (double weight = -1.0; weight < 1.0; weight += 0.1) {
+                TMeanAccumulator expectedErrorAccumulator;
+                for (std::size_t i = 0; i < targets.size(); ++i) {
+                    double error{
+                        std::log(targets[i] + 1) -
+                        std::log(std::exp(weight) * (targets[i] + predictionErrors[i]) + 1)};
+                    expectedErrorAccumulator.add(error * error);
+                }
+                double expectedObjectiveValue{
+                    maths::CBasicStatistics::mean(expectedErrorAccumulator) +
+                    lambda * maths::CTools::pow2(std::exp(weight))};
+                double estimatedObjectiveValue{objective(weight)};
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(estimatedObjectiveValue,
+                                             expectedObjectiveValue, 1e-3);
+            }
+        }
+    }
+
+    // Constant prediction
+    {
+        for (std::size_t t = 0; t < 3; ++t) {
+            double lambda{0.1 * static_cast<double>(t + 1)};
+            CArgMinMsleImpl argmin{lambda};
+            double constantPrediction{1000.0};
+
+            TDoubleVec targets;
+            testRng.generateUniformSamples(0.0, 10000.0, numberSamples, targets);
+            do {
+                for (std::size_t i = 0; i < targets.size(); ++i) {
+                    maths::CFloatStorage storage[]{std::log(constantPrediction)};
+                    TMemoryMappedFloatVector prediction{storage, 1};
+                    argmin.add(prediction, targets[i]);
+                }
+            } while (argmin.nextPass());
+            auto objective = argmin.objective();
+
+            for (double weight = -1.0; weight < 1.0; weight += 0.1) {
+                TMeanAccumulator expectedErrorAccumulator;
+                for (std::size_t i = 0; i < targets.size(); ++i) {
+                    double error{std::log(targets[i] + 1) -
+                                 std::log(constantPrediction * std::exp(weight) + 1)};
+                    expectedErrorAccumulator.add(error * error);
+                }
+                double expectedObjectiveValue{
+                    maths::CBasicStatistics::mean(expectedErrorAccumulator) +
+                    lambda * maths::CTools::pow2(std::exp(weight))};
+                double estimatedObjectiveValue{objective(weight)};
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(estimatedObjectiveValue,
+                                             expectedObjectiveValue, 1e-3);
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testMsleArgminValue) {
+    // test on a single data point with known output
+    {
+        double lambda{0.0};
+        CArgMinMsleImpl argmin{lambda};
+        TDoubleVec targets;
+        maths::CPRNG::CXorOShiro128Plus rng;
+        test::CRandomNumbers testRng;
+        std::size_t numberSamples{1};
+        testRng.generateUniformSamples(0.0, 10000.0, numberSamples, targets);
+
+        TDoubleVec predictions;
+        predictions.resize(targets.size(), 0.0);
+        testRng.generateUniformSamples(0.0, 10000.0, targets.size(), predictions);
+
+        do {
+            for (std::size_t i = 0; i < targets.size(); ++i) {
+                maths::CFloatStorage storage[]{std::log(predictions[i])};
+                TMemoryMappedFloatVector prediction{storage, 1};
+                argmin.add(prediction, targets[i]);
+            }
+        } while (argmin.nextPass());
+        double expectedWeight{std::log(targets[0] / predictions[0])};
+        double estimatedWeight{argmin.value()[0]};
+        // LOG_DEBUG(<< "Estimate weight " << estimatedWeight << " true weight " << optimalWeight);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeight, estimatedWeight, 1e-3);
+    }
+
+    // test against scipy and scikit learn
+    // To reproduce run in Python:
+    // from sklearn.metrics import mean_squared_log_error
+    // import numpy as np
+    // from scipy.optimize import minimize
+    // y_true = [3, 5, 2.5, 7]
+    // y_pred = [2.5, 5, 4, 8]
+    // def objective(logWeight):
+    //     return mean_squared_log_error(y_true, np.exp(logWeight)*y_pred)
+    // minimize(objective, 0.0)
+    {
+        double lambda{0.0};
+        CArgMinMsleImpl argmin{lambda};
+        TDoubleVec targets{3, 5, 2.5, 7};
+        TDoubleVec predictions{2.5, 5, 4, 8};
+
+        do {
+            for (std::size_t i = 0; i < targets.size(); ++i) {
+                maths::CFloatStorage storage[]{std::log(predictions[i])};
+                TMemoryMappedFloatVector prediction{storage, 1};
+                argmin.add(prediction, targets[i]);
+            }
+        } while (argmin.nextPass());
+        double optimalWeight{-0.11355011};
+        double optimalObjective{0.03145382791305494};
+        double estimatedWeight{argmin.value()[0]};
+        double estimatedObjective{argmin.objective()(estimatedWeight)};
+        LOG_DEBUG(<< "Estimated objective " << estimatedObjective
+                  << " optimal objective " << optimalObjective);
+        LOG_DEBUG(<< "Estimated weight " << estimatedWeight << " true weight " << optimalWeight);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(optimalObjective, estimatedObjective, 1e-5);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(optimalWeight, estimatedWeight, 1e-2);
     }
 }
 
