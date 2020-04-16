@@ -6,6 +6,7 @@
 
 #include <maths/COutliers.h>
 
+#include <core/CAlignment.h>
 #include <core/CDataFrame.h>
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
@@ -34,6 +35,8 @@ const std::string COMPUTE_OUTLIER_SCORES{"compute_outlier_scores"};
 
 using TRowItr = core::CDataFrame::TRowItr;
 using TStepCallback = std::function<void(const std::string&)>;
+using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
+using TDenseFloatVector = CDenseVector<CFloatStorage>;
 
 double shift(double score) {
     return std::exp(-2.0) + score;
@@ -878,7 +881,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
                                  core::CDataFrame& frame,
                                  CDataFrameAnalysisInstrumentationInterface& instrumentation) {
 
-    using TPoint = CMemoryMappedDenseVector<CFloatStorage>;
+    using TPoint = TMemoryMappedFloatVector;
     using TPointVec = std::vector<TPoint>;
 
     std::int64_t frameMemory{signedMemoryUsage(frame)};
@@ -964,7 +967,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
                                 core::CDataFrame& frame,
                                 CDataFrameAnalysisInstrumentationInterface& instrumentation) {
 
-    using TPoint = CDenseVector<CFloatStorage>;
+    using TPoint = TDenseFloatVector;
     using TPointVec = std::vector<TPoint>;
 
     core::CStopWatch watch{true};
@@ -1079,9 +1082,9 @@ std::size_t COutliers::estimateMemoryUsedByCompute(const SComputeParameters& par
                                                    std::size_t partitionNumberPoints,
                                                    std::size_t dimension) {
     return params.s_NumberPartitions == 1
-               ? COutliers::estimateMemoryUsedByCompute<CMemoryMappedDenseVector<CFloatStorage>>(
+               ? COutliers::estimateMemoryUsedByCompute<TMemoryMappedFloatVector>(
                      params, totalNumberPoints, partitionNumberPoints, dimension)
-               : COutliers::estimateMemoryUsedByCompute<CDenseVector<CFloatStorage>>(
+               : COutliers::estimateMemoryUsedByCompute<TDenseFloatVector>(
                      params, totalNumberPoints, partitionNumberPoints, dimension);
 }
 

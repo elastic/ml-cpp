@@ -170,8 +170,8 @@ std::size_t CBoostedTree::columnHoldingDependentVariable() const {
 CBoostedTree::TDouble2Vec CBoostedTree::readPrediction(const TRowRef& row) const {
     const auto& loss = m_Impl->loss();
     return loss
-        .transform(boosted_tree_detail::readPrediction(
-            row, m_Impl->numberInputColumns(), loss.numberParameters()))
+        .transform(boosted_tree_detail::readPrediction(row, m_Impl->extraColumns(),
+                                                       loss.numberParameters()))
         .to<TDouble2Vec>();
 }
 
@@ -180,7 +180,7 @@ CBoostedTree::TDouble2Vec CBoostedTree::readAndAdjustPrediction(const TRowRef& r
     const auto& loss = m_Impl->loss();
 
     auto prediction = loss.transform(boosted_tree_detail::readPrediction(
-        row, m_Impl->numberInputColumns(), loss.numberParameters()));
+        row, m_Impl->extraColumns(), loss.numberParameters()));
 
     switch (loss.type()) {
     case CLoss::E_BinaryClassification:

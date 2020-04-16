@@ -290,7 +290,7 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
         m_NumberThreads, 0, frame.numberRows(), [&](TRowItr beginRows, TRowItr endRows) {
             std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row = beginRows; row != endRows; ++row) {
-                auto prediction = readPrediction(*row, m_NumberInputColumns, numberLossParameters);
+                auto prediction = readPrediction(*row, m_ExtraColumns, numberLossParameters);
                 prediction = predictRow(m_Encoder->encode(*row), m_BestForest);
             }
         });
@@ -406,14 +406,14 @@ void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& fram
                         // We predict the log-odds but this is expected to return
                         // the log of the predicted class probabilities.
                         TMemoryMappedFloatVector result{&storage[0], 2};
-                        result.array() = m_Loss
-                                             ->transform(readPrediction(
-                                                 row, m_NumberInputColumns, numberClasses))
-                                             .array()
-                                             .log();
+                        result.array() =
+                            m_Loss
+                                ->transform(readPrediction(row, m_ExtraColumns, numberClasses))
+                                .array()
+                                .log();
                         return result;
                     }
-                    return readPrediction(row, m_NumberInputColumns, numberClasses);
+                    return readPrediction(row, m_ExtraColumns, numberClasses);
                 });
             break;
         }
@@ -507,9 +507,9 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
         [this](TRowItr beginRows, TRowItr endRows) {
             std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row = beginRows; row != endRows; ++row) {
-                zeroPrediction(*row, m_NumberInputColumns, numberLossParameters);
-                zeroLossGradient(*row, m_NumberInputColumns, numberLossParameters);
-                zeroLossCurvature(*row, m_NumberInputColumns, numberLossParameters);
+                zeroPrediction(*row, m_ExtraColumns, numberLossParameters);
+                zeroLossGradient(*row, m_ExtraColumns, numberLossParameters);
+                zeroLossCurvature(*row, m_ExtraColumns, numberLossParameters);
             }
         },
         &updateRowMask);
@@ -665,7 +665,7 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
             [this](const TRowRef& row) {
                 std::size_t numberLossParameters{m_Loss->numberParameters()};
                 return trace(numberLossParameters,
-                             readLossCurvature(row, m_NumberInputColumns, numberLossParameters));
+                             readLossCurvature(row, m_ExtraColumns, numberLossParameters));
             })
             .first;
 
@@ -736,8 +736,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
     TLeafNodeStatisticsPtrQueue leaves(maximumTreeSize / 2 + 3);
     leaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatistics>(
-        0 /*root*/, m_NumberInputColumns, m_Loss->numberParameters(),
-        m_NumberThreads, frame, *m_Encoder, m_Regularization, candidateSplits,
+        0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
+        frame, *m_Encoder, m_Regularization, candidateSplits,
         this->featureBag(), 0 /*depth*/, trainingRowMask));
 
     // We update local variables because the callback can be expensive if it
@@ -1006,11 +1006,10 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                 [&](TArgMinLossVec& leafValues_, TRowItr beginRows, TRowItr endRows) {
                     std::size_t numberLossParameters{m_Loss->numberParameters()};
                     for (auto row = beginRows; row != endRows; ++row) {
-                        auto prediction = readPrediction(*row, m_NumberInputColumns,
+                        auto prediction = readPrediction(*row, m_ExtraColumns,
                                                          numberLossParameters);
                         double actual{readActual(*row, m_DependentVariable)};
-                        double weight{readExampleWeight(*row, m_NumberInputColumns,
-                                                        numberLossParameters)};
+                        double weight{readExampleWeight(*row, m_ExtraColumns)};
                         leafValues_[root(tree).leafIndex(m_Encoder->encode(*row), tree)]
                             .add(prediction, actual, weight);
                     }
@@ -1040,14 +1039,12 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
         [&](TRowItr beginRows, TRowItr endRows) {
             std::size_t numberLossParameters{m_Loss->numberParameters()};
             for (auto row = beginRows; row != endRows; ++row) {
-                auto prediction = readPrediction(*row, m_NumberInputColumns, numberLossParameters);
+                auto prediction = readPrediction(*row, m_ExtraColumns, numberLossParameters);
                 double actual{readActual(*row, m_DependentVariable)};
-                double weight{readExampleWeight(*row, m_NumberInputColumns, numberLossParameters)};
+                double weight{readExampleWeight(*row, m_ExtraColumns)};
                 prediction += root(tree).value(m_Encoder->encode(*row), tree);
-                writeLossGradient(*row, m_NumberInputColumns, *m_Loss,
-                                  prediction, actual, weight);
-                writeLossCurvature(*row, m_NumberInputColumns, *m_Loss,
-                                   prediction, actual, weight);
+                writeLossGradient(*row, m_ExtraColumns, *m_Loss, prediction, actual, weight);
+                writeLossCurvature(*row, m_ExtraColumns, *m_Loss, prediction, actual, weight);
             }
         },
         &updateRowMask);
@@ -1062,8 +1059,7 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
             [&](TMeanAccumulator& loss, TRowItr beginRows, TRowItr endRows) {
                 std::size_t numberLossParameters{m_Loss->numberParameters()};
                 for (auto row = beginRows; row != endRows; ++row) {
-                    auto prediction = readPrediction(*row, m_NumberInputColumns,
-                                                     numberLossParameters);
+                    auto prediction = readPrediction(*row, m_ExtraColumns, numberLossParameters);
                     double actual{readActual(*row, m_DependentVariable)};
                     loss.add(m_Loss->value(prediction, actual));
                 }
@@ -1559,8 +1555,8 @@ std::size_t CBoostedTreeImpl::columnHoldingDependentVariable() const {
     return m_DependentVariable;
 }
 
-std::size_t CBoostedTreeImpl::numberInputColumns() const {
-    return m_NumberInputColumns;
+const CBoostedTreeImpl::TSizeVec& CBoostedTreeImpl::extraColumns() const {
+    return m_ExtraColumns;
 }
 
 CBoostedTreeImpl::TVector CBoostedTreeImpl::classificationWeights() const {
