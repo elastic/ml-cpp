@@ -308,7 +308,7 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
         BOOST_TEST_REQUIRE(gatherer->personId(message.s_Person, pid));
         BOOST_TEST_REQUIRE(gatherer->attributeId(message.s_Attribute, cid));
         ++expectedBucketPersonCounts[pid];
-        expectedBucketPersonAttributeCounts[{pid, cid}] += 1.0;
+        ++expectedBucketPersonAttributeCounts[{pid, cid}];
     }
 }
 

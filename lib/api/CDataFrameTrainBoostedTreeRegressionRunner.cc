@@ -56,6 +56,7 @@ CDataFrameTrainBoostedTreeRegressionRunner::lossFunction(const CDataFrameAnalysi
     case E_Mse:
         return std::make_unique<maths::boosted_tree::CMse>();
     }
+    return nullptr;
 }
 
 CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
