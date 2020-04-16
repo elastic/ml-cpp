@@ -19,6 +19,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace ml {
@@ -63,6 +64,66 @@ private:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 private:
+    TMeanAccumulator m_MeanError;
+};
+
+//! \brief Finds the value to add to a set of predictions which approximately
+//! minimises the regularised mean squared logarithmic error (MSLE).
+class MATHS_EXPORT CArgMinMsleImpl final : public CArgMinLossImpl {
+public:
+    using TObjective = std::function<double(double)>;
+
+public:
+    CArgMinMsleImpl(double lambda);
+    std::unique_ptr<CArgMinLossImpl> clone() const override;
+    bool nextPass() override;
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
+    void merge(const CArgMinLossImpl& other) override;
+    TDoubleVector value() const override;
+
+    // Exposed for unit testing.
+    TObjective objective() const;
+
+private:
+    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using TVector = CVectorNx1<double, 3>;
+    using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
+    using TVectorMeanAccumulatorVec = std::vector<TVectorMeanAccumulator>;
+    using TVectorMeanAccumulatorVecVec = std::vector<TVectorMeanAccumulatorVec>;
+    using TDoubleDoublePr = std::pair<double, double>;
+    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+
+private:
+    TSizeSizePr bucket(double prediction, double actual) const {
+        auto bucketWidth{this->bucketWidth()};
+        double bucketPrediction{(prediction - m_ExpPredictionMinMax.min()) /
+                                bucketWidth.first};
+        std::size_t predictionBucketIndex{std::min(
+            static_cast<std::size_t>(bucketPrediction), m_Buckets.size() - 1)};
+
+        double bucketActual{(actual - m_LogActualMinMax.min()) / bucketWidth.second};
+        std::size_t actualBucketIndex{std::min(
+            static_cast<std::size_t>(bucketActual), m_Buckets[0].size() - 1)};
+
+        return std::make_pair(predictionBucketIndex, actualBucketIndex);
+    }
+
+    TDoubleDoublePr bucketWidth() const {
+        double predictionBucketWidth{m_ExpPredictionMinMax.range() /
+                                     static_cast<double>(m_Buckets.size())};
+        double actualBucketWidth{m_LogActualMinMax.range() /
+                                 static_cast<double>(m_Buckets[0].size())};
+        return std::make_pair(predictionBucketWidth, actualBucketWidth);
+    }
+
+private:
+    std::size_t m_CurrentPass = 0;
+    TMinMaxAccumulator m_ExpPredictionMinMax;
+    TMinMaxAccumulator m_LogActualMinMax;
+    TVectorMeanAccumulatorVecVec m_Buckets;
+    TMeanVarAccumulator m_MeanLogActual;
     TMeanAccumulator m_MeanError;
 };
 
@@ -278,6 +339,9 @@ public:
     //! Get the name of the loss function
     virtual const std::string& name() const = 0;
 
+    //! Returns true if the loss function is used for regression.
+    virtual bool isRegression() const = 0;
+
 protected:
     CArgMinLoss makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& impl) const;
 };
@@ -307,6 +371,7 @@ public:
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
+    bool isRegression() const override;
 };
 
 //! \brief Implements loss for binomial logistic regression.
@@ -342,6 +407,7 @@ public:
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
+    bool isRegression() const override;
 };
 
 //!  \brief Implements loss for multinomial logistic regression.
@@ -380,9 +446,48 @@ public:
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
+    bool isRegression() const override;
 
 private:
     std::size_t m_NumberClasses;
+};
+//! \brief The MSLE loss function.
+//!
+//! DESCRIPTION:\n
+//! Formally, the MSLE error definition we use is \f$(\log(1+p) - \log(1+a))^2\f$.
+//! However, we approximate this by a quadratic form which has its minimum p = a and
+//! matches the value and derivative of MSLE loss function. For example, if the
+//! current prediction for the i'th training point is \f$p_i\f$, the loss is defined
+//! as
+//! <pre class="fragment">
+//!   \f$\displaystyle l_i(p) = c_i + w_i(p - a_i)^2\f$
+//! </pre>
+//! where \f$w_i = \frac{\log(1+p_i) - \log(1+a_i)}{(1+p_i)(p_i-a_i)}\f$ and \f$c_i\f$
+//! is chosen so \f$l_i(p_i) = (\log(1+p_i) - \log(1+a_i))^2\f$.
+class MATHS_EXPORT CMsle final : public CLoss {
+public:
+    static const std::string NAME;
+
+public:
+    EType type() const override;
+    std::unique_ptr<CLoss> clone() const override;
+    std::size_t numberParameters() const override;
+    double value(const TMemoryMappedFloatVector& prediction,
+                 double actual,
+                 double weight = 1.0) const override;
+    void gradient(const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  TWriter writer,
+                  double weight = 1.0) const override;
+    void curvature(const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   TWriter writer,
+                   double weight = 1.0) const override;
+    bool isCurvatureConstant() const override;
+    TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
+    CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
+    const std::string& name() const override;
+    bool isRegression() const override;
 };
 }
 }

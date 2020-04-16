@@ -51,6 +51,7 @@ using TDataAdderUPtr = std::unique_ptr<core::CDataAdder>;
 using TPersisterSupplier = std::function<TDataAdderUPtr()>;
 using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
 using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
+using TRegressionLossFunction = test::CDataFrameAnalysisSpecificationFactory::TRegressionLossFunction;
 
 class CTestDataSearcher : public core::CDataSearcher {
 public:
@@ -104,7 +105,10 @@ auto restoreTree(std::string persistedState, TDataFrameUPtr& frame, std::size_t 
 }
 
 template<typename F>
-void testOneRunOfBoostedTreeTrainingWithStateRecovery(F makeSpec, std::size_t iterationToRestartFrom) {
+void testOneRunOfBoostedTreeTrainingWithStateRecovery(
+    F makeSpec,
+    std::size_t iterationToRestartFrom,
+    TRegressionLossFunction lossFunction = TRegressionLossFunction::E_Mse) {
 
     std::stringstream outputStream;
     auto outputWriterFactory = [&outputStream]() {
@@ -132,8 +136,12 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(F makeSpec, std::size_t it
                                   fieldNames.begin());
 
     TStrVec targets;
+    // avoid negative targets
+    auto targetTransformer = [&lossFunction](double x) {
+        return (lossFunction == TRegressionLossFunction::E_Msle) ? x * x : x;
+    };
     auto frame = test::CDataFrameAnalyzerTrainingFactory::setupLinearRegressionData(
-        fieldNames, fieldValues, analyzer, weights, regressors, targets);
+        fieldNames, fieldValues, analyzer, weights, regressors, targets, targetTransformer);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     TStrVec persistedStates{
@@ -154,7 +162,8 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(F makeSpec, std::size_t it
 
     targets.clear();
     test::CDataFrameAnalyzerTrainingFactory::setupLinearRegressionData(
-        fieldNames, fieldValues, restoredAnalyzer, weights, regressors, targets);
+        fieldNames, fieldValues, restoredAnalyzer, weights, regressors, targets,
+        targetTransformer);
     restoredAnalyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     persistedStates = splitOnNull(std::stringstream{std::move(persistenceStream->str())});
@@ -263,7 +272,7 @@ BOOST_AUTO_TEST_CASE(testMissingString) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingMse) {
 
     // Test the results the analyzer produces match running the regression directly.
 
@@ -539,35 +548,103 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
 
         LOG_DEBUG(<< "Number parameters to search = " << params.numberUnset());
 
-        auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
-                            TPersisterSupplier persisterSupplier) {
-            test::CDataFrameAnalysisSpecificationFactory specFactory;
-            return specFactory.rows(numberExamples)
-                .memoryLimit(15000000)
-                .predicitionNumberRoundsPerHyperparameter(numberRoundsPerHyperparameter)
-                .predictionAlpha(params.s_Alpha)
-                .predictionLambda(params.s_Lambda)
-                .predictionGamma(params.s_Gamma)
-                .predictionSoftTreeDepthLimit(params.s_SoftTreeDepthLimit)
-                .predictionSoftTreeDepthTolerance(params.s_SoftTreeDepthTolerance)
-                .predictionEta(params.s_Eta)
-                .predictionMaximumNumberTrees(params.s_MaximumNumberTrees)
-                .predictionFeatureBagFraction(params.s_FeatureBagFraction)
-                .predictionPersisterSupplier(&persisterSupplier)
-                .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
-                                dependentVariable);
-        };
+        for (const auto& lossFunction :
+             {TRegressionLossFunction::E_Mse, TRegressionLossFunction::E_Msle}) {
+            LOG_DEBUG(<< "Loss function type " << lossFunction);
 
-        finalIteration = params.numberUnset() * numberRoundsPerHyperparameter;
-        if (finalIteration > 2) {
-            rng.generateUniformSamples(0, finalIteration - 2, 3, intermediateIterations);
-        }
+            auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
+                                TPersisterSupplier persisterSupplier) {
+                test::CDataFrameAnalysisSpecificationFactory specFactory;
+                return specFactory.rows(numberExamples)
+                    .memoryLimit(15000000)
+                    .predicitionNumberRoundsPerHyperparameter(numberRoundsPerHyperparameter)
+                    .predictionAlpha(params.s_Alpha)
+                    .predictionLambda(params.s_Lambda)
+                    .predictionGamma(params.s_Gamma)
+                    .predictionSoftTreeDepthLimit(params.s_SoftTreeDepthLimit)
+                    .predictionSoftTreeDepthTolerance(params.s_SoftTreeDepthTolerance)
+                    .predictionEta(params.s_Eta)
+                    .predictionMaximumNumberTrees(params.s_MaximumNumberTrees)
+                    .predictionFeatureBagFraction(params.s_FeatureBagFraction)
+                    .predictionPersisterSupplier(&persisterSupplier)
+                    .regressionLossFunction(lossFunction)
+                    .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
+                                    dependentVariable);
+            };
 
-        for (auto intermediateIteration : intermediateIterations) {
-            LOG_DEBUG(<< "restart from " << intermediateIteration);
-            testOneRunOfBoostedTreeTrainingWithStateRecovery(makeSpec, intermediateIteration);
+            finalIteration = params.numberUnset() * numberRoundsPerHyperparameter;
+            if (finalIteration > 2) {
+                rng.generateUniformSamples(0, finalIteration - 2, 3, intermediateIterations);
+            }
+
+            for (auto intermediateIteration : intermediateIterations) {
+                LOG_DEBUG(<< "restart from " << intermediateIteration);
+                testOneRunOfBoostedTreeTrainingWithStateRecovery(
+                    makeSpec, intermediateIteration, lossFunction);
+            }
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingMsle) {
+
+    // Test running the analyser supplying the MSLE objective produces similar results to running the regression directly.
+
+    double alpha{2.0};
+    double lambda{1.0};
+    double gamma{10.0};
+    double softTreeDepthLimit{3.0};
+    double softTreeDepthTolerance{0.1};
+    double eta{0.9};
+    std::size_t maximumNumberTrees{1};
+    double featureBagFraction{0.3};
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
+    api::CDataFrameAnalyzer analyzerMsle{
+        specFactory.predictionAlpha(alpha)
+            .predictionLambda(lambda)
+            .predictionGamma(gamma)
+            .predictionSoftTreeDepthLimit(softTreeDepthLimit)
+            .predictionSoftTreeDepthTolerance(softTreeDepthTolerance)
+            .predictionEta(eta)
+            .predictionMaximumNumberTrees(maximumNumberTrees)
+            .predictionFeatureBagFraction(featureBagFraction)
+            .regressionLossFunction(test::CDataFrameAnalysisSpecificationFactory::TRegressionLossFunction::E_Msle)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
+        outputWriterFactory};
+
+    TDoubleVec expectedPredictions;
+
+    TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
+        test::CDataFrameAnalyzerTrainingFactory::E_MsleRegression, fieldNames, fieldValues,
+        analyzerMsle, expectedPredictions, 100, alpha, lambda, gamma, softTreeDepthLimit,
+        softTreeDepthTolerance, eta, maximumNumberTrees, featureBagFraction);
+    analyzerMsle.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    auto expectedPrediction = expectedPredictions.begin();
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                *expectedPrediction,
+                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
+                1e-4 * std::fabs(*expectedPrediction));
+            ++expectedPrediction;
+            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
+        }
+    }
+    BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
 }
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
