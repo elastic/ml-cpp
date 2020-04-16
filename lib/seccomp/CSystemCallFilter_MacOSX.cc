@@ -88,7 +88,7 @@ void CSystemCallFilter::installSystemCallFilter() {
         if (errorbuf != nullptr) {
             msg += ": ";
             msg += errorbuf;
-            sandbox_free_error(errorbuf);
+            ::sandbox_free_error(errorbuf);
         }
         LOG_ERROR(<< msg);
     } else {
