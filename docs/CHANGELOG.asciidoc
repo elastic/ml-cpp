@@ -63,9 +63,9 @@
 
 === Bug Fixes
 
-* Fixed background persistence of categorizer state. (See {ml-pull}1137[#1137],
+* Fixed background persistence of categorizer state (See {ml-pull}1137[#1137],
   issue: {ml-issue}1136[#1136].)
-* Fixed macOS sandbox rules. (See {ml-pull}1146[#1146].)
+
 
 == {es} version 7.7.0
 
