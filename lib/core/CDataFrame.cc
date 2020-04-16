@@ -597,6 +597,9 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
         break;
     }
 
+    // TRowFuncVec funcs{std::move(func)}; moves func into an std::inializer_list
+    // but then *copies* from the list because the standard requires its elements
+    // are treated as constant, see 8.5.4/5.
     TRowFuncVec funcs;
     funcs.reserve(1);
     funcs.emplace_back(std::move(func));
