@@ -81,7 +81,7 @@ public:
                 // TODO
                 return TDataFrameUPtr{};
             }
-            return nullptr;
+            return TDataFrameUPtr{};
         }();
 
         TLossUPtr loss;
