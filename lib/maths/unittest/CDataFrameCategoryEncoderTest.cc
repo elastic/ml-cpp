@@ -605,7 +605,7 @@ BOOST_AUTO_TEST_CASE(testUnseenCategoryEncoding) {
 
     maths::CDataFrameCategoryEncoder encoder{{1, *frame, 3}};
 
-    TAlignedFloatVec unseen{3.0, 5.0, 4.0, 1.5};
+    TFloatVec unseen{3.0f, 5.0f, 4.0f, 1.5f};
     core::CDataFrame::TRowRef row{rows, unseen.begin(), unseen.end(), 0};
 
     auto encodedRow = encoder.encode(row);
