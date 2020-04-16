@@ -23,7 +23,6 @@ namespace {
 // to wake up blocking reads.
 // (allow system-sched (target self)) is required for "nice".
 // (allow file-read*) is required for reading config files.
-// (allow file-read*) is required for reading config files.
 // (allow file-write*) is required for mkfifo and that permission
 // can not be set using the more granular controls.
 // (debug deny) makes it easier to see which calls need adding
