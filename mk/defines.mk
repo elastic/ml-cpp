@@ -40,7 +40,11 @@ CPP_DISTRIBUTION_HOME=$(CPP_SRC_HOME)/build/distribution
 # Detect Linux
 ifeq ($(OS),$(linuxOS))
 ifdef CPP_CROSS_COMPILE
-include $(CPP_SRC_HOME)/mk/linux_crosscompile_$(CPP_CROSS_COMPILE).mk
+ifeq ($(CPP_CROSS_COMPILE),macosx)
+include $(CPP_SRC_HOME)/mk/linux_crosscompile_macosx.mk
+else
+include $(CPP_SRC_HOME)/mk/linux_crosscompile_linux.mk
+endif
 else
 include $(CPP_SRC_HOME)/mk/linux.mk
 endif
