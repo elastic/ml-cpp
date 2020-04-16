@@ -165,17 +165,17 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         featureImportance->shap(
             row, [&writer, &classValues](
                      const maths::CTreeShapFeatureImportance::TSizeVec& indices,
-                     const TStrVec& names,
+                     const TStrVec& featureNames,
                      const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
-                writer.Key(CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME);
+                writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
                 writer.StartArray();
                 for (auto i : indices) {
                     if (shap[i].norm() != 0.0) {
                         writer.StartObject();
-                        writer.Key(CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME);
-                        writer.String(names[i]);
+                        writer.Key(FEATURE_NAME_FIELD_NAME);
+                        writer.String(featureNames[i]);
                         if (shap[i].size() == 1) {
-                            writer.Key(CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
+                            writer.Key(IMPORTANCE_FIELD_NAME);
                             writer.Double(shap[i](0));
                         } else {
                             for (int j = 0; j < shap[i].size(); ++j) {

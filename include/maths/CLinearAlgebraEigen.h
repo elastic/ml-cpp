@@ -362,11 +362,11 @@ struct SConstant<CDenseVector<SCALAR>> {
 //! of CMemoryMappedDenseVector.
 //!
 //! \sa CMemoryMappedDenseVector for more information.
-template<typename SCALAR>
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT = Eigen::Unaligned>
 class CMemoryMappedDenseMatrix
-    : public Eigen::Map<typename CDenseMatrix<SCALAR>::TBase> {
+    : public Eigen::Map<typename CDenseMatrix<SCALAR>::TBase, ALIGNMENT> {
 public:
-    using TBase = Eigen::Map<typename CDenseMatrix<SCALAR>::TBase>;
+    using TBase = Eigen::Map<typename CDenseMatrix<SCALAR>::TBase, ALIGNMENT>;
 
     //! See core::CMemory.
     static bool dynamicSizeAlwaysZero() { return true; }
@@ -426,15 +426,16 @@ private:
 };
 
 //! Free efficient efficient swap for ADLU.
-template<typename SCALAR>
-void swap(CMemoryMappedDenseMatrix<SCALAR>& lhs, CMemoryMappedDenseMatrix<SCALAR>& rhs) {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+void swap(CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>& lhs,
+          CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>& rhs) {
     lhs.swap(rhs);
 }
 
 //! \brief Gets a constant square dense matrix with specified dimension or with
 //! specified numbers of rows and columns.
-template<typename SCALAR>
-struct SConstant<CMemoryMappedDenseMatrix<SCALAR>> {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+struct SConstant<CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>> {
     static auto get(std::ptrdiff_t dimension, SCALAR constant)
         -> decltype(SConstant<CDenseMatrix<SCALAR>>::get(dimension, 1)) {
         return SConstant<CDenseMatrix<SCALAR>>::get(dimension, constant);
@@ -476,12 +477,12 @@ struct SConstant<CMemoryMappedDenseMatrix<SCALAR>> {
 //! This better fits our needs with data frames where we want to reference the
 //! memory stored in the data frame rows, but never modify it directly through
 //! this vector type.
-template<typename SCALAR>
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT = Eigen::Unaligned>
 class CMemoryMappedDenseVector
-    : public Eigen::Map<typename CDenseVector<SCALAR>::TBase> {
+    : public Eigen::Map<typename CDenseVector<SCALAR>::TBase, ALIGNMENT> {
 public:
     using TDenseVector = CDenseVector<SCALAR>;
-    using TBase = Eigen::Map<typename TDenseVector::TBase>;
+    using TBase = Eigen::Map<typename TDenseVector::TBase, ALIGNMENT>;
 
     //! See core::CMemory.
     static bool dynamicSizeAlwaysZero() { return true; }
@@ -545,14 +546,15 @@ private:
 };
 
 //! Free efficient efficient swap for ADLU.
-template<typename SCALAR>
-void swap(CMemoryMappedDenseVector<SCALAR>& lhs, CMemoryMappedDenseVector<SCALAR>& rhs) {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+void swap(CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& lhs,
+          CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& rhs) {
     lhs.swap(rhs);
 }
 
 //! \brief Gets a constant dense vector with specified dimension.
-template<typename SCALAR>
-struct SConstant<CMemoryMappedDenseVector<SCALAR>> {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+struct SConstant<CMemoryMappedDenseVector<SCALAR, ALIGNMENT>> {
     static auto get(std::ptrdiff_t dimension, SCALAR constant)
         -> decltype(SConstant<CDenseVector<SCALAR>>::get(dimension, constant)) {
         return SConstant<CDenseVector<SCALAR>>::get(dimension, constant);

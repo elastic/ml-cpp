@@ -102,8 +102,8 @@ public:
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const;
 
-    //! Get the number of columns in the original data frame.
-    std::size_t numberInputColumns() const;
+    //! Get start indices of the extra columns.
+    const TSizeVec& extraColumns() const;
 
     //! Get the weights to apply to each class's predicted probability when
     //! assigning classes.
@@ -303,7 +303,7 @@ private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
-    std::size_t m_NumberInputColumns = 0;
+    TSizeVec m_ExtraColumns;
     TLossFunctionUPtr m_Loss;
     CBoostedTree::EClassAssignmentObjective m_ClassAssignmentObjective =
         CBoostedTree::E_MinimumRecall;

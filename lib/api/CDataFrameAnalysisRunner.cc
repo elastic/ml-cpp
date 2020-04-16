@@ -163,7 +163,7 @@ std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t totalNumbe
                                                           std::size_t numberColumns) const {
     return core::CDataFrame::estimateMemoryUsage(
                this->storeDataFrameInMainMemory(), totalNumberRows,
-               numberColumns + this->numberExtraColumns()) +
+               numberColumns + this->numberExtraColumns(), core::CAlignment::E_Aligned16) +
            this->estimateBookkeepingMemoryUsage(m_NumberPartitions, totalNumberRows,
                                                 partitionNumberRows, numberColumns);
 }

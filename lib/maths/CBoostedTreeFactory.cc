@@ -24,7 +24,6 @@ namespace ml {
 namespace maths {
 using namespace boosted_tree_detail;
 using TDoubleVec = std::vector<double>;
-using TSizeVec = std::vector<std::size_t>;
 using TRowItr = core::CDataFrame::TRowItr;
 
 namespace {
@@ -274,9 +273,9 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
 }
 
 void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
-    m_TreeImpl->m_NumberInputColumns = frame.numberColumns();
-    frame.resizeColumns(m_TreeImpl->m_NumberThreads,
-                        frame.numberColumns() + this->numberExtraColumnsForTrain());
+    std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
+    m_TreeImpl->m_ExtraColumns = frame.resizeColumns(
+        m_TreeImpl->m_NumberThreads, extraColumns(numberLossParameters));
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(frame));
 }
 
@@ -293,11 +292,8 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
 
     frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
                        [&](TRowItr beginRows, TRowItr endRows) {
-                           std::size_t column{exampleWeightColumn(
-                               m_TreeImpl->m_NumberInputColumns,
-                               m_TreeImpl->m_Loss->numberParameters())};
                            for (auto row = beginRows; row != endRows; ++row) {
-                               row->writeColumn(column, 1.0);
+                               writeExampleWeight(*row, m_TreeImpl->m_ExtraColumns, 1.0);
                            }
                        },
                        &allTrainingRowsMask);
