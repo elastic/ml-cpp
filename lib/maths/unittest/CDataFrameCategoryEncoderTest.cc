@@ -31,8 +31,7 @@ using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
 using TSizeVecVec = std::vector<TSizeVec>;
-using TFloatVec = std::vector<maths::CFloatStorage>;
-using TAlignedFloatVec =
+using TFloatVec =
     std::vector<maths::CFloatStorage, core::CAlignedAllocator<maths::CFloatStorage>>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
