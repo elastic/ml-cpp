@@ -87,7 +87,8 @@ BOOST_AUTO_TEST_CASE(testOptimizeXAxis) {
     mic.setup();
 
     std::size_t k{5};
-    std::size_t ck{static_cast<std::size_t>(k * mic.maximumXAxisPartitionSizeToSearch())};
+    std::size_t ck{static_cast<std::size_t>(
+        static_cast<double>(k) * mic.maximumXAxisPartitionSizeToSearch())};
 
     TDoubleVec pi(mic.equipartitionAxis(0, ck));
     TDoubleVec q(mic.equipartitionAxis(1, k));
