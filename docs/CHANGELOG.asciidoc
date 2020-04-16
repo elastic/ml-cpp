@@ -65,6 +65,8 @@
 
 * Fixed background persistence of categorizer state (See {ml-pull}1137[#1137],
   issue: {ml-issue}1136[#1136].)
+* Fixed erroneous behaviour when number of classes in configuration differs from the 
+  identified one. (See {ml-pull}1144[#1144].)
 
 
 == {es} version 7.7.0
