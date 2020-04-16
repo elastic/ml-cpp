@@ -32,6 +32,8 @@ using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
 using TSizeVecVec = std::vector<TSizeVec>;
 using TFloatVec = std::vector<maths::CFloatStorage>;
+using TAlignedFloatVec =
+    std::vector<maths::CFloatStorage, core::CAlignedAllocator<maths::CFloatStorage>>;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TMeanAccumulatorVecVec = std::vector<TMeanAccumulatorVec>;
@@ -604,7 +606,7 @@ BOOST_AUTO_TEST_CASE(testUnseenCategoryEncoding) {
 
     maths::CDataFrameCategoryEncoder encoder{{1, *frame, 3}};
 
-    TFloatVec unseen{3.0, 5.0, 4.0, 1.5};
+    TAlignedFloatVec unseen{3.0, 5.0, 4.0, 1.5};
     core::CDataFrame::TRowRef row{rows, unseen.begin(), unseen.end(), 0};
 
     auto encodedRow = encoder.encode(row);
