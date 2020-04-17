@@ -385,7 +385,7 @@ public:
         this->reseat(other);
     }
     CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix&& other) noexcept(
-        std::is_nothrow_move_assignable<TBase>::value)
+        std::is_nothrow_constructible<TBase>::value)
         : TBase{nullptr, 1, 1} {
         this->reseat(other);
     }
@@ -396,7 +396,7 @@ public:
         return *this;
     }
     CMemoryMappedDenseMatrix& operator=(CMemoryMappedDenseMatrix&& other) noexcept(
-        std::is_nothrow_move_assignable<TBase>::value) {
+        std::is_nothrow_constructible<TBase>::value) {
         if (this != &other) {
             this->reseat(other);
         }
@@ -509,7 +509,7 @@ public:
         this->reseat(other);
     }
     CMemoryMappedDenseVector(CMemoryMappedDenseVector&& other) noexcept(
-        std::is_nothrow_move_assignable<TBase>::value)
+        std::is_nothrow_constructible<TBase>::value)
         : TBase{nullptr, 1} {
         this->reseat(other);
     }
@@ -520,7 +520,7 @@ public:
         return *this;
     }
     CMemoryMappedDenseVector& operator=(CMemoryMappedDenseVector&& other) noexcept(
-        std::is_nothrow_move_assignable<TBase>::value) {
+        std::is_nothrow_constructible<TBase>::value) {
         if (this != &other) {
             this->reseat(other);
         }
