@@ -79,7 +79,7 @@ void CStaticThreadPool::shutdown() {
     // Signal to each thread that it is finished. We bind each task to a thread so
     // so each thread executes exactly one shutdown task.
     for (std::size_t id = 0; id < m_TaskQueues.size(); ++id) {
-        TTask done{[&] { m_Done = true; }};
+        TTask done{[this] { m_Done = true; }};
         m_TaskQueues[id].push(CWrappedTask{std::move(done), id});
     }
 
