@@ -582,7 +582,8 @@ BOOST_AUTO_TEST_CASE(testWithOutliers) {
 
             for (const auto& bucketLength : bucketLengths) {
                 core_t::TTime buckets{window / bucketLength};
-                std::size_t numberOutliers{static_cast<std::size_t>(0.12 * buckets)};
+                std::size_t numberOutliers{
+                    static_cast<std::size_t>(0.12 * static_cast<double>(buckets))};
                 rng.generateUniformSamples(0, buckets, numberOutliers, outliers);
                 rng.generateUniformSamples(0, 1.0, numberOutliers, spikeOrTroughSelector);
                 rng.generateNormalSamples(0.0, 9.0, buckets, noise);
@@ -632,7 +633,8 @@ BOOST_AUTO_TEST_CASE(testWithOutliers) {
 
         for (const auto& bucketLength : bucketLengths) {
             core_t::TTime buckets{window / bucketLength};
-            std::size_t numberOutliers{static_cast<std::size_t>(0.12 * buckets)};
+            std::size_t numberOutliers{
+                static_cast<std::size_t>(0.12 * static_cast<double>(buckets))};
             rng.generateUniformSamples(0, buckets, numberOutliers, outliers);
             rng.generateUniformSamples(0, 1.0, numberOutliers, spikeOrTroughSelector);
             rng.generateNormalSamples(0.0, 9.0, buckets, noise);
