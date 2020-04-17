@@ -137,10 +137,8 @@ operator=(const CDataFrameRowSliceHandle& other) {
     return *this;
 }
 
-CDataFrameRowSliceHandle& CDataFrameRowSliceHandle::operator=(CDataFrameRowSliceHandle&& other) {
-    m_Impl = std::move(other.m_Impl);
-    return *this;
-}
+CDataFrameRowSliceHandle& CDataFrameRowSliceHandle::
+operator=(CDataFrameRowSliceHandle&& other) = default;
 
 std::size_t CDataFrameRowSliceHandle::size() const {
     return m_Impl->rows().size();
@@ -183,7 +181,7 @@ bool CDataFrameRowSliceHandle::bad() const {
 CMainMemoryDataFrameRowSlice::CMainMemoryDataFrameRowSlice(std::size_t firstRow,
                                                            TFloatVec rows,
                                                            TInt32Vec docHashes)
-    : m_FirstRow{firstRow}, m_Rows{std::move(rows)}, m_DocHashes(docHashes) {
+    : m_FirstRow{firstRow}, m_Rows{std::move(rows)}, m_DocHashes{std::move(docHashes)} {
     LOG_TRACE(<< "slice size = " << m_Rows.size() << " capacity = " << m_Rows.capacity());
     m_Rows.shrink_to_fit();
     m_DocHashes.shrink_to_fit();

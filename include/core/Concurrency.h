@@ -260,7 +260,12 @@ parallel_for_each(std::size_t partitions,
         for (std::size_t i = start; i < end; ++i, progress.increment()) {
             f(i);
         }
-        return {std::forward<FUNCTION>(f)};
+
+        // Avoid the copy from an initializer_list.
+        std::vector<FUNCTION> functions;
+        functions.reserve(1);
+        functions.push_back(std::forward<FUNCTION>(f));
+        return functions;
     }
 
     std::vector<FUNCTION> functions{partitions, std::forward<FUNCTION>(f)};
@@ -353,7 +358,12 @@ parallel_for_each(std::size_t partitions,
         for (ITR i = start; i != end; ++i, progress.increment()) {
             f(*i);
         }
-        return {std::forward<FUNCTION>(f)};
+
+        // Avoid the copy from an initializer_list.
+        std::vector<FUNCTION> functions;
+        functions.reserve(1);
+        functions.push_back(std::forward<FUNCTION>(f));
+        return functions;
     }
 
     std::vector<FUNCTION> functions{partitions, std::forward<FUNCTION>(f)};
