@@ -42,7 +42,7 @@ public:
     using TRowRef = core::CDataFrame::TRowRef;
 
 public:
-    CEncodedDataFrameRowRef(TRowRef row, const CDataFrameCategoryEncoder& encoder);
+    CEncodedDataFrameRowRef(const TRowRef& row, const CDataFrameCategoryEncoder& encoder);
 
     //! Get column \p i value.
     CFloatStorage operator[](std::size_t encodedColumnIndex) const;
@@ -221,7 +221,7 @@ public:
     CDataFrameCategoryEncoder& operator=(const CDataFrameCategoryEncoder&) = delete;
 
     //! Get a row reference which encodes the categories in \p row.
-    CEncodedDataFrameRowRef encode(TRowRef row) const;
+    CEncodedDataFrameRowRef encode(const TRowRef& row) const;
 
     //! Get the MICs of the selected features.
     TDoubleVec encodedColumnMics() const;

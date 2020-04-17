@@ -54,7 +54,7 @@ CForecastRunner::SForecast::SForecast()
       s_Messages(), s_TemporaryFolder() {
 }
 
-CForecastRunner::SForecast::SForecast(SForecast&& other)
+CForecastRunner::SForecast::SForecast(SForecast&& other) noexcept
     : s_ForecastId(std::move(other.s_ForecastId)),
       s_ForecastAlias(std::move(other.s_ForecastAlias)),
       s_ForecastSeries(std::move(other.s_ForecastSeries)),
@@ -67,7 +67,7 @@ CForecastRunner::SForecast::SForecast(SForecast&& other)
       s_TemporaryFolder(std::move(other.s_TemporaryFolder)) {
 }
 
-CForecastRunner::SForecast& CForecastRunner::SForecast::operator=(SForecast&& other) {
+CForecastRunner::SForecast& CForecastRunner::SForecast::operator=(SForecast&& other) noexcept {
     s_ForecastId = std::move(other.s_ForecastId);
     s_ForecastAlias = std::move(other.s_ForecastAlias);
     s_ForecastSeries = std::move(other.s_ForecastSeries);
