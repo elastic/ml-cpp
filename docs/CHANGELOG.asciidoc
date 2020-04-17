@@ -67,6 +67,8 @@
 
 * Fixed background persistence of categorizer state (See {ml-pull}1137[#1137],
   issue: {ml-issue}1136[#1136].)
+* Fix classification job failures when number of classes in configuration differs from the number of classes present in the training data. (See {ml-pull}1144[#1144].)
+  identified one. (See {ml-pull}1144[#1144].)
 
 == {es} version 7.7.0
 
@@ -313,4 +315,3 @@ The bug exhibited itself on MacOS builds with versions of clangd > 10.0.0. (See 
 === Bug Fixes
 
 * Fixes an issue where interim results would be calculated after advancing time into an empty bucket. {ml-pull}416[#416]
-
