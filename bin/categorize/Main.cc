@@ -92,7 +92,8 @@ int main(int argc, char** argv) {
     // statically links its own version library.
     LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
 
-    ml::core::CProcessPriority::reducePriority();
+    // Reduce memory priority before installing system call filters.
+    ml::core::CProcessPriority::reduceMemoryPriority();
 
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
@@ -100,6 +101,11 @@ int main(int argc, char** argv) {
         LOG_FATAL(<< "Failed to initialise IO");
         return EXIT_FAILURE;
     }
+
+    // Reduce CPU priority after connecting named pipes so the JVM gets more
+    // time when CPU is constrained.  Named pipe connection is time-sensitive,
+    // hence is done before reducing CPU priority.
+    ml::core::CProcessPriority::reduceCpuPriority();
 
     if (jobId.empty()) {
         LOG_FATAL(<< "No job ID specified");
@@ -149,7 +155,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
     using TPersistenceManagerUPtr = std::unique_ptr<ml::api::CPersistenceManager>;
-    const TPersistenceManagerUPtr periodicPersister{
+    const TPersistenceManagerUPtr persistenceManager{
         [persistInterval, isPersistInForeground, &persister]() -> TPersistenceManagerUPtr {
             if (persistInterval >= 0) {
                 return std::make_unique<ml::api::CPersistenceManager>(
@@ -177,13 +183,13 @@ int main(int argc, char** argv) {
 
     // The categorizer knows how to assign categories to records
     ml::api::CFieldDataCategorizer categorizer(jobId, fieldConfig, limits, nullOutput,
-                                               outputWriter, periodicPersister.get());
+                                               outputWriter, persistenceManager.get());
 
-    if (periodicPersister != nullptr) {
-        periodicPersister->firstProcessorBackgroundPeriodicPersistFunc(std::bind(
+    if (persistenceManager != nullptr) {
+        persistenceManager->firstProcessorBackgroundPeriodicPersistFunc(std::bind(
             &ml::api::CFieldDataCategorizer::periodicPersistStateInBackground, &categorizer));
 
-        periodicPersister->firstProcessorForegroundPeriodicPersistFunc(std::bind(
+        persistenceManager->firstProcessorForegroundPeriodicPersistFunc(std::bind(
             &ml::api::CFieldDataCategorizer::periodicPersistStateInForeground, &categorizer));
     }
 

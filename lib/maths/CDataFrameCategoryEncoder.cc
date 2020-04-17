@@ -7,6 +7,7 @@
 #include <maths/CDataFrameCategoryEncoder.h>
 
 #include <core/CContainerPrinter.h>
+#include <core/CDataFrame.h>
 #include <core/CLogger.h>
 #include <core/CPackedBitVector.h>
 #include <core/CPersistUtils.h>
@@ -215,8 +216,9 @@ private:
 };
 }
 
-CEncodedDataFrameRowRef::CEncodedDataFrameRowRef(TRowRef row, const CDataFrameCategoryEncoder& encoder)
-    : m_Row{std::move(row)}, m_Encoder{&encoder} {
+CEncodedDataFrameRowRef::CEncodedDataFrameRowRef(const TRowRef& row,
+                                                 const CDataFrameCategoryEncoder& encoder)
+    : m_Row{row}, m_Encoder{&encoder} {
 }
 
 CFloatStorage CEncodedDataFrameRowRef::operator[](std::size_t encodedColumnIndex) const {
@@ -246,8 +248,8 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(core::CStateRestoreTraverse
     }
 }
 
-CEncodedDataFrameRowRef CDataFrameCategoryEncoder::encode(TRowRef row) const {
-    return {std::move(row), *this};
+CEncodedDataFrameRowRef CDataFrameCategoryEncoder::encode(const TRowRef& row) const {
+    return {row, *this};
 }
 
 CDataFrameCategoryEncoder::TDoubleVec CDataFrameCategoryEncoder::encodedColumnMics() const {
@@ -257,6 +259,18 @@ CDataFrameCategoryEncoder::TDoubleVec CDataFrameCategoryEncoder::encodedColumnMi
         mics.push_back(encoding->mic());
     }
     return mics;
+}
+
+std::size_t CDataFrameCategoryEncoder::numberInputColumns() const {
+    // This returns the highest "column index" + 1 of any feature selected as part
+    // of encoding and feature selection. For example, this is used to presize arrays
+    // containing values associated the features (such as feature importance) which
+    // allows direct addressing by the feature column index.
+    std::size_t result{0};
+    for (const auto& encoding : m_Encodings) {
+        result = std::max(result, encoding->inputColumnIndex());
+    }
+    return result + 1;
 }
 
 std::size_t CDataFrameCategoryEncoder::numberEncodedColumns() const {
@@ -440,7 +454,9 @@ EEncoding CDataFrameCategoryEncoder::COneHotEncoding::type() const {
 }
 
 double CDataFrameCategoryEncoder::COneHotEncoding::encode(double value) const {
-    return static_cast<std::size_t>(value) == m_HotCategory;
+    return CDataFrameUtils::isMissing(value)
+               ? core::CDataFrame::valueOfMissing()
+               : static_cast<std::size_t>(value) == m_HotCategory;
 }
 
 bool CDataFrameCategoryEncoder::COneHotEncoding::isBinary() const {
@@ -491,6 +507,9 @@ EEncoding CDataFrameCategoryEncoder::CMappedEncoding::type() const {
 }
 
 double CDataFrameCategoryEncoder::CMappedEncoding::encode(double value) const {
+    if (CDataFrameUtils::isMissing(value)) {
+        return core::CDataFrame::valueOfMissing();
+    }
     std::size_t category{static_cast<std::size_t>(value)};
     return category < m_Map.size() ? m_Map[category] : m_Fallback;
 }

@@ -10,7 +10,11 @@
 #include <core/CFloatStorage.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
+#include <core/CStopWatch.h>
 
+#include <maths/CBasicStatistics.h>
+
+#include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 
 #include <chrono>
@@ -22,6 +26,7 @@ namespace ml {
 namespace api {
 namespace {
 using TStrVec = std::vector<std::string>;
+using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
 const std::string SPECIAL_COLUMN_FIELD_NAME{"."};
 
@@ -129,18 +134,24 @@ void CDataFrameAnalyzer::run() {
     // We create the writer in run so that when it is finished destructors
     // get called and the wrapped stream does its job to close the array.
 
-    auto outStream = m_ResultsStreamSupplier();
-    core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
+    auto analysisRunner = m_AnalysisSpecification->runner();
+    if (analysisRunner != nullptr) {
+        // We currently use a stream factory because the results are wrapped in
+        // an array. This is managed by the CJsonOutputStreamWrapper constructor
+        // and destructor. We should probably migrate to NDJSON format at which
+        // point this would no longer be necessary.
+        auto outStream = m_ResultsStreamSupplier();
 
-    CDataFrameAnalysisRunner* analysis{m_AnalysisSpecification->runner()};
-    if (analysis == nullptr) {
-        return;
+        CDataFrameAnalysisInstrumentation::CScopeSetOutputStream setStream{
+            analysisRunner->instrumentation(), *outStream};
+
+        analysisRunner->run(*m_DataFrame);
+
+        core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
+        this->monitorProgress(*analysisRunner, outputWriter);
+        analysisRunner->waitToFinish();
+        this->writeResultsOf(*analysisRunner, outputWriter);
     }
-    analysis->instrumentation().writer(&outputWriter);
-    m_AnalysisSpecification->run(*m_DataFrame);
-    this->monitorProgress(*analysis, outputWriter);
-    analysis->waitToFinish();
-    this->writeResultsOf(*analysis, outputWriter);
 }
 
 const CDataFrameAnalyzer::TTemporaryDirectoryPtr& CDataFrameAnalyzer::dataFrameDirectory() const {
@@ -248,8 +259,6 @@ void CDataFrameAnalyzer::captureFieldNames(const TStrVec& fieldNames) {
         TStrVec columnNames{fieldNames.begin() + m_BeginDataFieldValues,
                             fieldNames.begin() + m_EndDataFieldValues};
         m_DataFrame->columnNames(columnNames);
-        m_DataFrame->emptyIsMissing(
-            m_AnalysisSpecification->columnsForWhichEmptyIsMissing(columnNames));
         m_DataFrame->categoricalColumns(m_AnalysisSpecification->categoricalFieldNames());
         m_CapturedFieldNames = true;
     }
@@ -298,8 +307,18 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     // can join the extra columns with the original data frame.
     std::size_t numberThreads{1};
 
+    // TODO consider having a separate analysis phase to monitor result output instead
+    LOG_INFO(<< "Start computing results. "
+             << "For regression and classification with feature importance this may take a while.");
+
     using TRowItr = core::CDataFrame::TRowItr;
     m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
+        TMeanVarAccumulator timeAccumulator;
+        core::CStopWatch stopWatch;
+        stopWatch.start();
+        std::uint64_t lastLap{stopWatch.lap()};
+        std::size_t counter = 0;
+
         for (auto row = beginRows; row != endRows; ++row) {
             writer.StartObject();
             writer.Key(ROW_RESULTS);
@@ -315,8 +334,23 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
 
             writer.EndObject();
             writer.EndObject();
+
+            std::uint64_t currentLap{stopWatch.lap()};
+            std::uint64_t delta = currentLap - lastLap;
+
+            timeAccumulator.add(static_cast<double>(delta));
+            lastLap = currentLap;
+            // Log timing every 20000 rows to avoid output polution.
+            if (++counter % 20000 == 0) {
+                LOG_DEBUG(<< "Results computation in progress: " << counter << "/"
+                          << m_DataFrame->numberRows() << ". Average time per row in ms: "
+                          << maths::CBasicStatistics::mean(timeAccumulator) << " std. dev:  "
+                          << std::sqrt(maths::CBasicStatistics::variance(timeAccumulator)));
+            }
         }
     });
+
+    LOG_INFO(<< "Finished computing results.");
 
     // Write the resulting model for inference
     const auto& modelDefinition = m_AnalysisSpecification->runner()->inferenceModelDefinition(

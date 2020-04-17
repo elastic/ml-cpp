@@ -11,7 +11,9 @@
 
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
+#include <maths/CBoostedTreeLoss.h>
 #include <maths/CDataFrameUtils.h>
+#include <maths/CTreeShapFeatureImportance.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <api/CDataFrameAnalysisConfigReader.h>
@@ -19,7 +21,9 @@
 #include <api/ElasticsearchStateIndex.h>
 
 #include <cmath>
+#include <memory>
 #include <set>
+#include <string>
 
 namespace ml {
 namespace api {
@@ -36,16 +40,31 @@ CDataFrameTrainBoostedTreeRegressionRunner::parameterReader() {
         auto theReader = CDataFrameTrainBoostedTreeRunner::parameterReader();
         theReader.addParameter(STRATIFIED_CROSS_VALIDATION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(LOSS_FUNCTION, CDataFrameAnalysisConfigReader::E_OptionalParameter,
+                               {{MSE, int{E_Mse}}, {MSLE, int{E_Msle}}});
         return theReader;
     }()};
     return PARAMETER_READER;
+}
+
+CDataFrameTrainBoostedTreeRegressionRunner::TLossFunctionUPtr
+CDataFrameTrainBoostedTreeRegressionRunner::lossFunction(const CDataFrameAnalysisParameters& parameters) {
+    ELossFunctionType lossFunctionType{parameters[LOSS_FUNCTION].fallback(E_Mse)};
+    switch (lossFunctionType) {
+    case E_Msle:
+        return std::make_unique<maths::boosted_tree::CMsle>();
+    case E_Mse:
+        return std::make_unique<maths::boosted_tree::CMse>();
+    }
+    return nullptr;
 }
 
 CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegressionRunner(
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters)
     : CDataFrameTrainBoostedTreeRunner{
-          spec, parameters, std::make_unique<maths::boosted_tree::CMse>()} {
+          spec, parameters,
+          CDataFrameTrainBoostedTreeRegressionRunner::lossFunction(parameters)} {
 
     this->boostedTreeFactory().stratifyRegressionCrossValidation(
         parameters[STRATIFIED_CROSS_VALIDATION].fallback(true));
@@ -53,45 +72,47 @@ CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegression
     const TStrVec& categoricalFieldNames{spec.categoricalFieldNames()};
     if (std::find(categoricalFieldNames.begin(), categoricalFieldNames.end(),
                   this->dependentVariableFieldName()) != categoricalFieldNames.end()) {
-        HANDLE_FATAL(<< "Input error: trying to perform regression with categorical target.");
+        HANDLE_FATAL(<< "Input error: trying to perform regression with categorical target.")
     }
     if (PREDICTION_FIELD_NAME_BLACKLIST.count(this->predictionFieldName()) > 0) {
         HANDLE_FATAL(<< "Input error: " << PREDICTION_FIELD_NAME << " must not be equal to any of "
-                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST)
-                     << ".");
+                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST) << ".")
     }
 }
 
 void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
-    const core::CDataFrame& frame,
+    const core::CDataFrame&,
     const TRowRef& row,
     core::CRapidJsonConcurrentLineWriter& writer) const {
 
     const auto& tree = this->boostedTree();
     const std::size_t columnHoldingDependentVariable{tree.columnHoldingDependentVariable()};
-    const std::size_t columnHoldingPrediction{tree.columnHoldingPrediction()};
 
     writer.StartObject();
     writer.Key(this->predictionFieldName());
-    writer.Double(row[columnHoldingPrediction]);
+    writer.Double(tree.readPrediction(row)[0]);
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
-    if (this->topShapValues() > 0) {
-        auto largestShapValues =
-            maths::CBasicStatistics::orderStatisticsAccumulator<std::size_t>(
-                this->topShapValues(), [&row](std::size_t lhs, std::size_t rhs) {
-                    return std::fabs(row[lhs]) > std::fabs(row[rhs]);
-                });
-        for (auto col : this->boostedTree().columnsHoldingShapValues()) {
-            largestShapValues.add(col);
-        }
-        largestShapValues.sort();
-        for (auto i : largestShapValues) {
-            if (row[i] != 0.0) {
-                writer.Key(frame.columnNames()[i]);
-                writer.Double(row[i]);
-            }
-        }
+    auto featureImportance = tree.shap();
+    if (featureImportance != nullptr) {
+        featureImportance->shap(
+            row, [&writer](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
+                           const TStrVec& featureNames,
+                           const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+                writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
+                writer.StartArray();
+                for (auto i : indices) {
+                    if (shap[i].norm() != 0.0) {
+                        writer.StartObject();
+                        writer.Key(FEATURE_NAME_FIELD_NAME);
+                        writer.String(featureNames[i]);
+                        writer.Key(IMPORTANCE_FIELD_NAME);
+                        writer.Double(shap[i](0));
+                        writer.EndObject();
+                    }
+                }
+                writer.EndArray();
+            });
     }
     writer.EndObject();
 }
@@ -113,6 +134,9 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition(
 
 // clang-format off
 const std::string CDataFrameTrainBoostedTreeRegressionRunner::STRATIFIED_CROSS_VALIDATION{"stratified_cross_validation"};
+const std::string CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION{"loss_function"};
+const std::string CDataFrameTrainBoostedTreeRegressionRunner::MSE{"mse"};
+const std::string CDataFrameTrainBoostedTreeRegressionRunner::MSLE{"msle"};
 // clang-format on
 
 const std::string& CDataFrameTrainBoostedTreeRegressionRunnerFactory::name() const {

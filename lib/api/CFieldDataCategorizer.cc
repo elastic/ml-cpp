@@ -47,13 +47,13 @@ CFieldDataCategorizer::CFieldDataCategorizer(const std::string& jobId,
                                              model::CLimits& limits,
                                              COutputHandler& outputHandler,
                                              CJsonOutputWriter& jsonOutputWriter,
-                                             CPersistenceManager* periodicPersister)
+                                             CPersistenceManager* persistenceManager)
     : m_JobId(jobId), m_Limits(limits), m_OutputHandler(outputHandler),
       m_ExtraFieldNames(1, MLCATEGORY_NAME), m_WriteFieldNames(true),
       m_NumRecordsHandled(0), m_OutputFieldCategory(m_Overrides[MLCATEGORY_NAME]),
       m_MaxMatchingLength(0), m_JsonOutputWriter(jsonOutputWriter),
       m_CategorizationFieldName(config.categorizationFieldName()),
-      m_CategorizationFilter(), m_PeriodicPersister(periodicPersister) {
+      m_CategorizationFilter(), m_PersistenceManager(persistenceManager) {
     this->createCategorizer(m_CategorizationFieldName);
 
     LOG_DEBUG(<< "Configuring categorization filtering");
@@ -89,10 +89,14 @@ bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields) {
     // Non-empty control fields take precedence over everything else
     TStrStrUMapCItr iter = dataRowFields.find(CONTROL_FIELD_NAME);
     if (iter != dataRowFields.end() && !iter->second.empty()) {
+        // Always handle control messages, but signal completion of handling ONLY if we are the last handler
+        // e.g. flush requests are acknowledged here if this is the last handler
+        bool msgHandled = this->handleControlMessage(
+            iter->second, !m_OutputHandler.consumesControlMessages());
         if (m_OutputHandler.consumesControlMessages()) {
             return m_OutputHandler.writeRow(dataRowFields, m_Overrides);
         }
-        return this->handleControlMessage(iter->second);
+        return msgHandled;
     }
 
     m_OutputFieldCategory =
@@ -112,15 +116,15 @@ void CFieldDataCategorizer::finalise() {
 
     // Make sure model size stats are up to date
     m_Limits.resourceMonitor().forceRefresh(*m_DataCategorizer);
-
+    writeOutChangedCategories();
     // Pass on the request in case we're chained
     m_OutputHandler.finalise();
 
     // Wait for any ongoing periodic persist to complete, so that the data adder
     // is not used by both a periodic periodic persist and final persist at the
     // same time
-    if (m_PeriodicPersister != nullptr) {
-        m_PeriodicPersister->waitForIdle();
+    if (m_PersistenceManager != nullptr) {
+        m_PersistenceManager->waitForIdle();
     }
 }
 
@@ -166,9 +170,13 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
     bool exampleAdded{m_DataCategorizer->addExample(categoryId, fieldValue)};
     bool searchTermsChanged{this->createReverseSearch(categoryId)};
     if (exampleAdded || searchTermsChanged) {
+        //! signal that we noticed the change and are persisting here
+        m_DataCategorizer->categoryChangedAndReset(categoryId);
         m_JsonOutputWriter.writeCategoryDefinition(
             categoryId, m_SearchTerms, m_SearchTermsRegex, m_MaxMatchingLength,
-            m_DataCategorizer->examplesCollector().examples(categoryId));
+            m_DataCategorizer->examplesCollector().examples(categoryId),
+            m_DataCategorizer->numMatches(categoryId),
+            m_DataCategorizer->usurpedCategories(categoryId));
         if (categoryId % 10 == 0) {
             // Even if memory limiting is disabled, force a refresh occasionally
             // so the user has some idea what's going on with memory.
@@ -179,8 +187,8 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
     }
 
     // Check if a periodic persist is due.
-    if (m_PeriodicPersister != nullptr) {
-        m_PeriodicPersister->startPersistIfAppropriate();
+    if (m_PersistenceManager != nullptr) {
+        m_PersistenceManager->startPersistIfAppropriate();
     }
 
     return categoryId;
@@ -322,9 +330,9 @@ bool CFieldDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTraverser&
 
 bool CFieldDataCategorizer::persistState(core::CDataAdder& persister,
                                          const std::string& descriptionPrefix) {
-    if (m_PeriodicPersister != nullptr) {
+    if (m_PersistenceManager != nullptr) {
         // This will not happen if finalise() was called before persisting state
-        if (m_PeriodicPersister->isBusy()) {
+        if (m_PersistenceManager->isBusy()) {
             LOG_ERROR(<< "Cannot do final persistence of state - periodic "
                          "persister still busy");
             return false;
@@ -423,12 +431,12 @@ bool CFieldDataCategorizer::periodicPersistStateInBackground() {
         return false;
     }
 
-    if (m_PeriodicPersister == nullptr) {
+    if (m_PersistenceManager == nullptr) {
         LOG_ERROR(<< "NULL persistence manager");
         return false;
     }
 
-    if (m_PeriodicPersister->addPersistFunc(std::bind(
+    if (m_PersistenceManager->addPersistFunc(std::bind(
             &CFieldDataCategorizer::doPersistState, this,
             // Do NOT add std::ref wrappers
             // around these arguments - they
@@ -439,7 +447,7 @@ bool CFieldDataCategorizer::periodicPersistStateInBackground() {
         return false;
     }
 
-    m_PeriodicPersister->useBackgroundPersistence();
+    m_PersistenceManager->useBackgroundPersistence();
 
     return true;
 }
@@ -447,19 +455,19 @@ bool CFieldDataCategorizer::periodicPersistStateInBackground() {
 bool CFieldDataCategorizer::periodicPersistStateInForeground() {
     LOG_DEBUG(<< "Periodic persist categorizer state");
 
-    if (m_PeriodicPersister == nullptr) {
+    if (m_PersistenceManager == nullptr) {
         return false;
     }
 
     // Do NOT pass this request on to the output chainer. That logic is already present in persistState.
-    if (m_PeriodicPersister->addPersistFunc([&](core::CDataAdder& persister) {
+    if (m_PersistenceManager->addPersistFunc([&](core::CDataAdder& persister) {
             return this->persistState(persister, "Periodic foreground persist at ");
         }) == false) {
         LOG_ERROR(<< "Failed to add categorizer foreground persistence function");
         return false;
     }
 
-    m_PeriodicPersister->useForegroundPersistence();
+    m_PersistenceManager->useForegroundPersistence();
 
     return true;
 }
@@ -472,7 +480,8 @@ void CFieldDataCategorizer::resetAfterCorruptRestore() {
     this->createCategorizer(m_CategorizationFieldName);
 }
 
-bool CFieldDataCategorizer::handleControlMessage(const std::string& controlMessage) {
+bool CFieldDataCategorizer::handleControlMessage(const std::string& controlMessage,
+                                                 bool lastHandler) {
     if (controlMessage.empty()) {
         LOG_ERROR(<< "Programmatic error - handleControlMessage should only be "
                      "called with non-empty control messages");
@@ -492,12 +501,14 @@ bool CFieldDataCategorizer::handleControlMessage(const std::string& controlMessa
         break;
     case 'f':
         // Flush ID comes after the initial f
-        this->acknowledgeFlush(controlMessage.substr(1));
+        this->acknowledgeFlush(controlMessage.substr(1), lastHandler);
         break;
     default:
-        LOG_WARN(<< "Ignoring unknown control message of length "
-                 << controlMessage.length() << " beginning with '"
-                 << controlMessage[0] << '\'');
+        if (lastHandler) {
+            LOG_WARN(<< "Ignoring unknown control message of length "
+                     << controlMessage.length() << " beginning with '"
+                     << controlMessage[0] << '\'');
+        }
         // Don't return false here (for the time being at least), as it
         // seems excessive to cause the entire job to fail
         break;
@@ -506,13 +517,43 @@ bool CFieldDataCategorizer::handleControlMessage(const std::string& controlMessa
     return true;
 }
 
-void CFieldDataCategorizer::acknowledgeFlush(const std::string& flushId) {
+void CFieldDataCategorizer::acknowledgeFlush(const std::string& flushId, bool lastHandler) {
     if (flushId.empty()) {
         LOG_ERROR(<< "Received flush control message with no ID");
     } else {
         LOG_TRACE(<< "Received flush control message with ID " << flushId);
     }
-    m_JsonOutputWriter.acknowledgeFlush(flushId, 0);
+    writeOutChangedCategories();
+    if (lastHandler) {
+        m_JsonOutputWriter.acknowledgeFlush(flushId, 0);
+    }
+}
+
+void CFieldDataCategorizer::writeOutChangedCategories() {
+    int numCategories = static_cast<int>(m_DataCategorizer->numCategories());
+    if (numCategories == 0) {
+        return;
+    }
+    std::string searchTerms;
+    std::string searchTermsRegex;
+    std::size_t maxLength;
+    bool wasCached{false};
+    for (int categoryId = 1; categoryId <= numCategories; categoryId++) {
+        if (m_DataCategorizer->categoryChangedAndReset(categoryId)) {
+            if (m_DataCategorizer->createReverseSearch(categoryId, searchTerms, searchTermsRegex,
+                                                       maxLength, wasCached) == false) {
+                LOG_WARN(<< "Unable to create or retrieve reverse search for storing for category: "
+                         << categoryId);
+                continue;
+            }
+            LOG_TRACE(<< "Writing out changed category: " << categoryId);
+            m_JsonOutputWriter.writeCategoryDefinition(
+                categoryId, searchTerms, searchTermsRegex, maxLength,
+                m_DataCategorizer->examplesCollector().examples(categoryId),
+                m_DataCategorizer->numMatches(categoryId),
+                m_DataCategorizer->usurpedCategories(categoryId));
+        }
+    }
 }
 }
 }

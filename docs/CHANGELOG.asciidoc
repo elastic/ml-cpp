@@ -37,12 +37,48 @@
 * The macOS build platform for the {ml} C++ code is now High Sierra running Xcode 10.1,
   or Ubuntu 18.04 running clang 6.0 for cross compilation. (See {ml-pull}867[#867].)
 
+== {es} version 7.8.0
+
+=== Enhancements
+
+* Speedup anomaly detection for the lat_long function. (See {ml-pull}1102[#1102].)
+* Reduce CPU scheduling priority of native analysis processes to favor the ES JVM
+  when CPU is constrained. (See {ml-pull}1109[#1109].)
+* Take `training_percent` into account when estimating memory usage for classification and regression. 
+  (See {ml-pull}1111[#1111].)
+* Support maximize minimum recall when assigning class labels for multiclass classification.
+  (See {ml-pull}1113[#1113].)
+* Improve robustness of anomaly detection to bad input data. (See {ml-pull}1114[#1114].)
+* Adds new `num_matches` and `preferred_to_categories` fields to category output.
+  (See {ml-pull}1062[#1062])
+* Adds mean squared logarithmic error (MSLE) for regression. (See {ml-pull}1101[#1101].)
+* Reduce peak memory usage and memory estimates for classification and regression.
+  (See {ml-pull}1125[#1125].)
+* Reduce variability of classification and regression results across our target operating systems.
+  (See {ml-pull}1127[#1127].)
+* Switched data frame analytics model memory estimates from kilobytes to megabytes.
+  (See {ml-pull}1126[#1126], issue: {issue}54506[#54506].)
+* Added a {ml} native code build for Linux on AArch64. (See {ml-pull}1132[#1132] and
+  {ml-pull}1135[#1135].)
+* Improve data frame analysis runtime by optimising memory alignment for intrinsic
+  operations. (See {ml-pull}1142[#1142].)
+
+== {es} version 7.7.1
+
+=== Bug Fixes
+
+* Fixed background persistence of categorizer state (See {ml-pull}1137[#1137],
+  issue: {ml-issue}1136[#1136].)
+* Fix classification job failures when number of classes in configuration differs from the number of classes present in the training data. (See {ml-pull}1144[#1144].)
+  identified one. (See {ml-pull}1144[#1144].)
+
 == {es} version 7.7.0
 
 === New Features
 
 * Add instrumentation to report statistics related to data frame analytics jobs, i.e.
 progress, memory usage, etc. (See {ml-pull}906[#906].)
+* Multiclass classification. (See {ml-pull}1037[#1037].)
 
 === Enhancements
 
@@ -58,6 +94,17 @@ necessary. This will improve the allocation of data frame analyses to cluster no
 (See {ml-pull}1003[#1003].)
 * Upgrade the compiler used on Linux from gcc 7.3 to gcc 7.5, and the binutils used in
 the build from version 2.20 to 2.34.  (See {ml-pull}1013[#1013].)
+* Add instrumentation of the peak memory consumption for data frame analytics jobs.
+(See {ml-pull}1022[#1022].)
+* Remove all memory overheads for computing tree SHAP values. (See {ml-pull}1023[#1023].)
+* Distinguish between empty and missing categorical fields in classification and regression
+model training. (See {ml-pull}1034[#1034].)
+* Add instrumentation information for supervised learning data frame analytics jobs.
+(See {ml-pull}1031[#1031].)
+* Add instrumentation information for outlier detection data frame analytics jobs.
+* Write out feature importance for multi-class models. (See {ml-pull}1071[#1071])
+* Enable system call filtering to the native process used with data frame analytics.
+(See {ml-pull}1098[#1098])
 
 === Bug Fixes
 
@@ -65,6 +112,15 @@ the build from version 2.20 to 2.34.  (See {ml-pull}1013[#1013].)
 (See {ml-pull}970[#970], issue: {ml-issue}949[#949].)
 * Account for the data frame's memory when estimating the peak memory used by classification
 and regression model training. (See {ml-pull}996[#996].)
+* Rename classification and regression parameter maximum_number_trees to max_trees.
+(See {ml-pull}1047[#1047].)
+
+== {es} version 7.6.2
+
+=== Bug Fixes
+
+* Fix a bug in the calculation of the minimum loss leaf values for classification.
+(See {ml-pull}1032[#1032].)
 
 == {es} version 7.6.0
 
@@ -261,4 +317,3 @@ The bug exhibited itself on MacOS builds with versions of clangd > 10.0.0. (See 
 === Bug Fixes
 
 * Fixes an issue where interim results would be calculated after advancing time into an empty bucket. {ml-pull}416[#416]
-

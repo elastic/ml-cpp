@@ -13,6 +13,7 @@
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CKMeansOnline.h>
 #include <maths/CLinearAlgebra.h>
+#include <maths/CLinearAlgebraShims.h>
 #include <maths/CRestoreParams.h>
 
 #include <test/BoostTestCloseAbsolute.h>
@@ -32,6 +33,7 @@ using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAc
 using TVector2 = maths::CVectorNx1<double, 2>;
 using TVector2Vec = std::vector<TVector2>;
 using TVector2VecVec = std::vector<TVector2Vec>;
+using TFloatVector2 = maths::CVectorNx1<maths::CFloatStorage, 2>;
 using TMean2Accumulator = maths::CBasicStatistics::SSampleMean<TVector2>::TAccumulator;
 using TMeanVar2Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector2>::TAccumulator;
 using TVector5 = maths::CVectorNx1<double, 5>;
@@ -39,22 +41,43 @@ using TVector5Vec = std::vector<TVector5>;
 using TMeanVar5Accumulator = maths::CBasicStatistics::SSampleMeanVar<TVector5>::TAccumulator;
 
 template<typename POINT>
-class CKMeansOnlineTestForTest : public maths::CKMeansOnline<POINT> {
+class CKMeansOnlineForTest : public maths::CKMeansOnline<POINT> {
 public:
     using TSphericalClusterVec = typename maths::CKMeansOnline<POINT>::TSphericalClusterVec;
-    using TDoubleMeanVarAccumulator = typename maths::CKMeansOnline<POINT>::TDoubleMeanVarAccumulator;
-    using TFloatMeanAccumulatorDoublePr =
-        typename maths::CKMeansOnline<POINT>::TFloatMeanAccumulatorDoublePr;
+    using TStorageCoordinate = typename maths::CKMeansOnline<POINT>::TStorageCoordinate;
+    using TStoragePoint = typename maths::CKMeansOnline<POINT>::TStoragePoint;
+    using TStoragePointMeanAccumulatorDoublePr =
+        typename maths::CKMeansOnline<POINT>::TStoragePointMeanAccumulatorDoublePr;
+    using TStoragePointMeanAccumulatorDoublePrVec =
+        typename maths::CKMeansOnline<POINT>::TStoragePointMeanAccumulatorDoublePrVec;
+    using TDoublePointMeanVarAccumulator =
+        typename maths::CKMeansOnline<POINT>::TDoublePointMeanVarAccumulator;
+    using TDoublePoint = typename maths::CKMeansOnline<POINT>::TDoublePoint;
 
 public:
-    CKMeansOnlineTestForTest(std::size_t k, double decayRate = 0.0)
+    CKMeansOnlineForTest(std::size_t k, double decayRate = 0.0)
         : maths::CKMeansOnline<POINT>(k, decayRate) {}
 
-    static void add(const POINT& x, double count, TFloatMeanAccumulatorDoublePr& cluster) {
-        maths::CKMeansOnline<POINT>::add(x, count, cluster);
+    static void deduplicate(TStoragePointMeanAccumulatorDoublePrVec& clusters) {
+        maths::CKMeansOnline<POINT>::deduplicate(clusters);
     }
 
-    static double variance(const TDoubleMeanVarAccumulator& moments) {
+    static void add(const POINT& mx, double count, TStoragePointMeanAccumulatorDoublePr& cluster) {
+        double nx{count};
+        TDoublePoint vx{maths::las::zero(mx)};
+        double nc{maths::CBasicStatistics::count(cluster.first)};
+        TDoublePoint mc{maths::CBasicStatistics::mean(cluster.first)};
+        TDoublePoint vc{cluster.second * maths::las::ones(mx)};
+        TDoublePointMeanVarAccumulator moments{
+            maths::CBasicStatistics::momentsAccumulator(nc, mc, vc) +
+            maths::CBasicStatistics::momentsAccumulator(nx, mx, vx)};
+        TStorageCoordinate ncx{maths::CBasicStatistics::count(moments)};
+        TStoragePoint mcx{maths::CBasicStatistics::mean(moments)};
+        cluster.first = maths::CBasicStatistics::momentsAccumulator(ncx, mcx);
+        cluster.second = variance(moments);
+    }
+
+    static double variance(const TDoublePointMeanVarAccumulator& moments) {
         return maths::CKMeansOnline<POINT>::variance(moments);
     }
 };
@@ -93,13 +116,13 @@ BOOST_AUTO_TEST_CASE(testVariance) {
             expected.add(coordinates[i] - maths::CBasicStatistics::mean(actual)(i % 5));
         }
 
-        LOG_DEBUG(<< "actual   = " << CKMeansOnlineTestForTest<TVector5>::variance(actual));
+        LOG_DEBUG(<< "actual   = " << CKMeansOnlineForTest<TVector5>::variance(actual));
         LOG_DEBUG(<< "expected = "
                   << maths::CBasicStatistics::maximumLikelihoodVariance(expected));
 
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             maths::CBasicStatistics::maximumLikelihoodVariance(expected),
-            CKMeansOnlineTestForTest<TVector5>::variance(actual),
+            CKMeansOnlineForTest<TVector5>::variance(actual),
             1e-10 * maths::CBasicStatistics::maximumLikelihoodVariance(expected));
     }
 }
@@ -128,7 +151,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
         TMean2AccumulatorDoublePr actual;
         TMeanVar2Accumulator expected;
         for (std::size_t i = 0u; i < points.size(); ++i) {
-            CKMeansOnlineTestForTest<TVector2>::add(points[i], counts[i], actual);
+            CKMeansOnlineForTest<TVector2>::add(points[i], counts[i], actual);
             expected.add(points[i], counts[i]);
         }
 
@@ -149,6 +172,93 @@ BOOST_AUTO_TEST_CASE(testAdd) {
             actual.second,
             1e-10 * maths::CBasicStatistics::maximumLikelihoodVariance(expected).inner(ones) /
                 static_cast<double>(ones.dimension()));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testDeduplicate) {
+    // Test we behaviour:
+    //   - If all points are duplicates
+    //   - If no points are duplicates
+    //   - For random permutation of duplicates
+
+    CKMeansOnlineForTest<TVector2>::TStoragePointMeanAccumulatorDoublePrVec points;
+
+    points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                            maths::CFloatStorage{1.0}, TFloatVector2{0.0}),
+                        0.0);
+    points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                            maths::CFloatStorage{2.0}, TFloatVector2{0.0}),
+                        0.0);
+    points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                            maths::CFloatStorage{1.0}, TFloatVector2{0.0}),
+                        0.0);
+    CKMeansOnlineForTest<TVector2>::deduplicate(points);
+    BOOST_REQUIRE_EQUAL(1, points.size());
+    BOOST_REQUIRE_EQUAL(TFloatVector2{0.0},
+                        maths::CBasicStatistics::mean(points[0].first));
+    BOOST_REQUIRE_EQUAL(4.0, maths::CBasicStatistics::count(points[0].first));
+    BOOST_REQUIRE_EQUAL(0.0, points[0].second);
+    points.clear();
+
+    points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                            maths::CFloatStorage{1.0}, TFloatVector2{0.0}),
+                        0.0);
+    points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                            maths::CFloatStorage{2.0}, TFloatVector2{1.0}),
+                        0.0);
+    points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                            maths::CFloatStorage{1.0}, TFloatVector2{2.0}),
+                        0.0);
+    CKMeansOnlineForTest<TVector2>::deduplicate(points);
+    BOOST_REQUIRE_EQUAL(3, points.size());
+    BOOST_REQUIRE_EQUAL(TFloatVector2{0.0},
+                        maths::CBasicStatistics::mean(points[0].first));
+    BOOST_REQUIRE_EQUAL(1.0, maths::CBasicStatistics::count(points[0].first));
+    BOOST_REQUIRE_EQUAL(0.0, points[0].second);
+    BOOST_REQUIRE_EQUAL(TFloatVector2{1.0},
+                        maths::CBasicStatistics::mean(points[1].first));
+    BOOST_REQUIRE_EQUAL(2.0, maths::CBasicStatistics::count(points[1].first));
+    BOOST_REQUIRE_EQUAL(0.0, points[1].second);
+    BOOST_REQUIRE_EQUAL(TFloatVector2{2.0},
+                        maths::CBasicStatistics::mean(points[2].first));
+    BOOST_REQUIRE_EQUAL(1.0, maths::CBasicStatistics::count(points[2].first));
+    BOOST_REQUIRE_EQUAL(0.0, points[2].second);
+    points.clear();
+
+    test::CRandomNumbers rng;
+    for (std::size_t t = 1; t <= 100; ++t) {
+        for (std::size_t i = 0; i < 5; ++i) {
+            points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                                    maths::CFloatStorage{static_cast<double>(i)},
+                                    TFloatVector2{0.0}),
+                                0.0);
+        }
+        for (std::size_t i = 0; i < 7; ++i) {
+            points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                                    maths::CFloatStorage{1.0}, TFloatVector2{1.0}),
+                                0.0);
+        }
+        for (std::size_t i = 0; i < 3; ++i) {
+            points.emplace_back(maths::CBasicStatistics::momentsAccumulator(
+                                    maths::CFloatStorage{2.0}, TFloatVector2{2.0}),
+                                0.0);
+        }
+        rng.random_shuffle(points.begin(), points.end());
+
+        CKMeansOnlineForTest<TVector2>::deduplicate(points);
+
+        BOOST_REQUIRE_EQUAL(3, points.size());
+        BOOST_REQUIRE_EQUAL(TFloatVector2{0.0},
+                            maths::CBasicStatistics::mean(points[0].first));
+        BOOST_REQUIRE_EQUAL(10.0, maths::CBasicStatistics::count(points[0].first));
+        BOOST_REQUIRE_EQUAL(TFloatVector2{1.0},
+                            maths::CBasicStatistics::mean(points[1].first));
+        BOOST_REQUIRE_EQUAL(7.0, maths::CBasicStatistics::count(points[1].first));
+        BOOST_REQUIRE_EQUAL(TFloatVector2{2.0},
+                            maths::CBasicStatistics::mean(points[2].first));
+        BOOST_REQUIRE_EQUAL(6.0, maths::CBasicStatistics::count(points[2].first));
+
+        points.clear();
     }
 }
 
@@ -186,8 +296,8 @@ BOOST_AUTO_TEST_CASE(testReduce) {
             kmeans.add(points[i], counts[i]);
             expected.add(points[i], counts[i]);
 
-            if ((i + 1) % 7 == 0) {
-                CKMeansOnlineTestForTest<TVector2>::TSphericalClusterVec clusters;
+            if (((i - 10) + 1) % 7 == 0) {
+                CKMeansOnlineForTest<TVector2>::TSphericalClusterVec clusters;
                 kmeans.clusters(clusters);
                 BOOST_TEST_REQUIRE(clusters.size() <= 10);
 
@@ -215,6 +325,12 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 BOOST_AUTO_TEST_CASE(testClustering) {
     // Test we are reliably able to find as approximately as good
     // clusterings as k-means working on the full data set.
+
+    using TKMeansPlusPlusInitialization =
+        maths::CKMeansPlusPlusInitialization<TVector2, maths::CPRNG::CXorOShiro128Plus>;
+    using TSphericalClusterBic =
+        maths::CSphericalGaussianInfoCriterion<maths::CKMeansOnline<TVector2>::TSphericalCluster, maths::E_BIC>;
+    using TVectorBic = maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_BIC>;
 
     test::CRandomNumbers rng;
 
@@ -244,28 +360,27 @@ BOOST_AUTO_TEST_CASE(testClustering) {
             TVector2VecVec clusters;
             maths::CPRNG::CXorOShiro128Plus rng_;
             for (std::size_t i = 0u; i < 10; ++i) {
-                maths::CKMeansPlusPlusInitialization<TVector2, maths::CPRNG::CXorOShiro128Plus> seedCentres(
-                    rng_);
+                TKMeansPlusPlusInitialization seedCentres(rng_);
                 seedCentres.run(points, 2, centres);
                 kmeans.setCentres(centres);
                 kmeans.run(10);
-                maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_BIC> criterion;
                 kmeans.clusters(clusters);
-                criterion.add(clusters);
-                cost_ = std::min(cost_, criterion.calculate());
+                TVectorBic bic;
+                bic.add(clusters);
+                cost_ = std::min(cost_, bic.calculate());
             }
 
             maths::CKMeansOnline<TVector2> kmeansOnline(24);
             double costOnline_ = std::numeric_limits<double>::max();
             {
-                for (std::size_t i = 0u; i < points.size(); ++i) {
-                    kmeansOnline.add(points[i]);
+                for (const auto& point : points) {
+                    kmeansOnline.add(point);
                 }
                 maths::CKMeansOnline<TVector2>::TSphericalClusterVecVec clustersOnline;
                 kmeansOnline.kmeans(2, clustersOnline);
-                maths::CSphericalGaussianInfoCriterion<maths::CKMeansOnline<TVector2>::TSphericalCluster, maths::E_BIC> criterion;
-                criterion.add(clustersOnline);
-                costOnline_ = criterion.calculate();
+                TSphericalClusterBic bic;
+                bic.add(clustersOnline);
+                costOnline_ = bic.calculate();
             }
             LOG_DEBUG(<< "cost = " << cost_ << ", cost online = " << costOnline_);
 
@@ -309,15 +424,14 @@ BOOST_AUTO_TEST_CASE(testClustering) {
             TVector2VecVec clusters;
             maths::CPRNG::CXorOShiro128Plus rng_;
             for (std::size_t i = 0u; i < 10; ++i) {
-                maths::CKMeansPlusPlusInitialization<TVector2, maths::CPRNG::CXorOShiro128Plus> seedCentres(
-                    rng_);
+                TKMeansPlusPlusInitialization seedCentres(rng_);
                 seedCentres.run(points, 3, centres);
                 kmeans.setCentres(centres);
                 kmeans.run(10);
-                maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_BIC> criterion;
                 kmeans.clusters(clusters);
-                criterion.add(clusters);
-                cost_ = std::min(cost_, criterion.calculate());
+                TVectorBic bic;
+                bic.add(clusters);
+                cost_ = std::min(cost_, bic.calculate());
             }
 
             double costOnline_ = std::numeric_limits<double>::max();
@@ -327,9 +441,9 @@ BOOST_AUTO_TEST_CASE(testClustering) {
                 }
                 maths::CKMeansOnline<TVector2>::TSphericalClusterVecVec clustersOnline;
                 kmeansOnline.kmeans(3, clustersOnline);
-                maths::CSphericalGaussianInfoCriterion<maths::CKMeansOnline<TVector2>::TSphericalCluster, maths::E_BIC> criterion;
-                criterion.add(clustersOnline);
-                costOnline_ = criterion.calculate();
+                TSphericalClusterBic bic;
+                bic.add(clustersOnline);
+                costOnline_ = bic.calculate();
             }
             LOG_DEBUG(<< "cost = " << cost_ << ", cost online = " << costOnline_);
 
@@ -362,7 +476,7 @@ BOOST_AUTO_TEST_CASE(testSplit) {
     TVector2Vec points;
     for (std::size_t i = 0u; i < 2; ++i) {
         TDoubleVec coordinates;
-        rng.generateNormalSamples(m[i], v[i], 350, coordinates);
+        rng.generateNormalSamples(m[i], v[i], 352, coordinates);
         for (std::size_t j = 0u; j < coordinates.size(); j += 2) {
             double c[]{coordinates[j + 0], coordinates[j + 1]};
             points.push_back(TVector2(c));
@@ -370,10 +484,18 @@ BOOST_AUTO_TEST_CASE(testSplit) {
     }
 
     maths::CKMeansOnline<TVector2> kmeansOnline(30);
-    for (std::size_t i = 0u; i < points.size(); ++i) {
+    const std::size_t BUFFERING{0};
+    const std::size_t NOT_BUFFERING{1};
+    std::size_t counts[2]{0, 0};
+    for (std::size_t i = 0; i < 30; ++i) {
         kmeansOnline.add(points[i]);
     }
-    BOOST_TEST_REQUIRE(!kmeansOnline.buffering());
+    for (std::size_t i = 30; i < points.size(); ++i) {
+        kmeansOnline.add(points[i]);
+        ++counts[kmeansOnline.buffering() ? BUFFERING : NOT_BUFFERING];
+    }
+    BOOST_REQUIRE_EQUAL(counts[BUFFERING], maths::CKMeansOnline<TVector2>::BUFFER_SIZE *
+                                               counts[NOT_BUFFERING]);
 
     std::size_t one[]{0, 2, 7, 18, 19, 22};
     std::size_t two[]{3, 4, 5, 6, 10, 11, 23, 24};
@@ -443,7 +565,7 @@ BOOST_AUTO_TEST_CASE(testMerge) {
 
     TMeanVar2Accumulator expected;
     for (std::size_t i = 0u; i < 2; ++i) {
-        CKMeansOnlineTestForTest<TVector2>::TSphericalClusterVec clusters;
+        CKMeansOnlineForTest<TVector2>::TSphericalClusterVec clusters;
         kmeans[i].clusters(clusters);
         for (std::size_t j = 0u; j < clusters.size(); ++j) {
             expected.add(clusters[j]);
@@ -453,7 +575,7 @@ BOOST_AUTO_TEST_CASE(testMerge) {
     kmeans[0].merge(kmeans[1]);
 
     TMeanVar2Accumulator actual;
-    CKMeansOnlineTestForTest<TVector2>::TSphericalClusterVec clusters;
+    CKMeansOnlineForTest<TVector2>::TSphericalClusterVec clusters;
     kmeans[0].clusters(clusters);
     for (std::size_t j = 0u; j < clusters.size(); ++j) {
         actual.add(clusters[j]);
@@ -498,7 +620,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
         kmeans.add(points[i]);
     }
 
-    CKMeansOnlineTestForTest<TVector2>::TSphericalClusterVec clusters;
+    CKMeansOnlineForTest<TVector2>::TSphericalClusterVec clusters;
     kmeans.clusters(clusters);
     LOG_DEBUG(<< "clusters before = " << core::CContainerPrinter::print(clusters));
 

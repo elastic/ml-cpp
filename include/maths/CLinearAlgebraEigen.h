@@ -9,6 +9,7 @@
 
 #include <core/CMemory.h>
 #include <core/CPersistUtils.h>
+#include <core/CSmallVector.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
@@ -25,7 +26,9 @@
 #include <Eigen/SVD>
 #include <Eigen/SparseCore>
 
+#include <algorithm>
 #include <iterator>
+#include <type_traits>
 
 namespace Eigen {
 #define LESS_OR_GREATER(l, r)                                                  \
@@ -43,7 +46,7 @@ bool operator<(const SparseMatrix<SCALAR, FLAGS, STORAGE_INDEX>& lhs,
     LESS_OR_GREATER(lhs.cols(), rhs.cols())
     for (STORAGE_INDEX i = 0; i < lhs.rows(); ++i) {
         for (STORAGE_INDEX j = 0; j < lhs.cols(); ++j) {
-            LESS_OR_GREATER(lhs.coeff(i, j), rhs.coeff(i, j))
+            LESS_OR_GREATER(lhs(i, j), rhs(i, j))
         }
     }
     return false;
@@ -55,7 +58,7 @@ bool operator<(const SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& lhs,
                const SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& rhs) {
     LESS_OR_GREATER(lhs.size(), rhs.size())
     for (STORAGE_INDEX i = 0; i < lhs.size(); ++i) {
-        LESS_OR_GREATER(lhs.coeff(i), rhs(i))
+        LESS_OR_GREATER(lhs(i), rhs(i))
     }
     return false;
 }
@@ -66,12 +69,8 @@ bool operator<(const Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& lh
                const Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& rhs) {
     LESS_OR_GREATER(lhs.rows(), rhs.rows())
     LESS_OR_GREATER(lhs.cols(), rhs.cols())
-    for (decltype(lhs.rows()) i = 0; i < lhs.rows(); ++i) {
-        for (decltype(lhs.cols()) j = 0; j < lhs.cols(); ++j) {
-            LESS_OR_GREATER(lhs.coeff(i, j), rhs.coeff(i, j))
-        }
-    }
-    return false;
+    return std::lexicographical_compare(lhs.data(), lhs.data() + lhs.size(),
+                                        rhs.data(), rhs.data() + rhs.size());
 }
 
 //! Less than on an Eigen memory mapped matrix.
@@ -80,12 +79,8 @@ bool operator<(const Map<PLAIN_OBJECT_TYPE, OPTIONS, STRIDE_TYPE>& lhs,
                const Map<PLAIN_OBJECT_TYPE, OPTIONS, STRIDE_TYPE>& rhs) {
     LESS_OR_GREATER(lhs.rows(), rhs.rows())
     LESS_OR_GREATER(lhs.cols(), rhs.cols())
-    for (decltype(lhs.rows()) i = 0; i < lhs.rows(); ++i) {
-        for (decltype(lhs.cols()) j = 0; j < lhs.cols(); ++j) {
-            LESS_OR_GREATER(lhs.coeff(i, j), rhs.coeff(i, j))
-        }
-    }
-    return false;
+    return std::lexicographical_compare(lhs.data(), lhs.data() + lhs.size(),
+                                        rhs.data(), rhs.data() + rhs.size());
 }
 
 #undef LESS_OR_GREATER
@@ -205,6 +200,11 @@ public:
     CDenseMatrix(CDenseMatrix&& other) = default;
     CDenseMatrix& operator=(const CDenseMatrix& other) = default;
     CDenseMatrix& operator=(CDenseMatrix&& other) = default;
+    template<typename EXPR>
+    CDenseMatrix& operator=(const EXPR& expr) {
+        static_cast<TBase&>(*this) = expr;
+        return *this;
+    }
     // @}
 
     //! Debug the memory usage of this object.
@@ -223,6 +223,12 @@ public:
         return seed;
     }
 };
+
+//! Free efficient efficient swap for ADLU.
+template<typename SCALAR>
+void swap(CDenseMatrix<SCALAR>& lhs, CDenseMatrix<SCALAR>& rhs) {
+    lhs.swap(rhs);
+}
 
 //! \brief Gets a constant dense square matrix with specified dimension or with
 //! specified numbers of rows and columns.
@@ -256,6 +262,11 @@ public:
     CDenseVector(CDenseVector&& other) = default;
     CDenseVector& operator=(const CDenseVector& other) = default;
     CDenseVector& operator=(CDenseVector&& other) = default;
+    template<typename EXPR>
+    CDenseVector& operator=(const EXPR& expr) {
+        static_cast<TBase&>(*this) = expr;
+        return *this;
+    }
     // @}
 
     //! Debug the memory usage of this object.
@@ -276,8 +287,8 @@ public:
 
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-        inserter.insertValue(DENSE_VECTOR_TAG,
-                             core::CPersistUtils::toString(this->toStdVector()));
+        inserter.insertValue(DENSE_VECTOR_TAG, core::CPersistUtils::toString(
+                                                   this->to<std::vector<SCALAR>>()));
     }
 
     //! Populate the object from serialized data.
@@ -292,16 +303,31 @@ public:
         return true;
     }
 
-private:
-    std::vector<SCALAR> toStdVector() const {
-        std::vector<SCALAR> result;
+    //! Convert to a std::vector.
+    //!
+    //! It is assumed that COLLECTION supports reserve and push_back.
+    template<typename COLLECTION>
+    COLLECTION to() const {
+        COLLECTION result;
         result.reserve(this->size());
         for (int i = 0; i < this->size(); ++i) {
             result.push_back(this->coeff(i));
         }
         return result;
     }
+
+    //! Convert from a std::vector.
     static CDenseVector<SCALAR> fromStdVector(const std::vector<SCALAR>& vector) {
+        CDenseVector<SCALAR> result(vector.size());
+        for (std::size_t i = 0; i < vector.size(); ++i) {
+            result(i) = vector[i];
+        }
+        return result;
+    }
+
+    //! Convert from a core::CSmallVector.
+    template<std::size_t N>
+    static CDenseVector<SCALAR> fromSmallVector(const core::CSmallVector<SCALAR, N>& vector) {
         CDenseVector<SCALAR> result(vector.size());
         for (std::size_t i = 0; i < vector.size(); ++i) {
             result(i) = vector[i];
@@ -312,6 +338,12 @@ private:
 
 template<typename SCALAR>
 const std::string CDenseVector<SCALAR>::DENSE_VECTOR_TAG{"dense_vector"};
+
+//! Free efficient efficient swap for ADLU.
+template<typename SCALAR>
+void swap(CDenseVector<SCALAR>& lhs, CDenseVector<SCALAR>& rhs) {
+    lhs.swap(rhs);
+}
 
 //! \brief Gets a constant dense vector with specified dimension.
 template<typename SCALAR>
@@ -331,11 +363,11 @@ struct SConstant<CDenseVector<SCALAR>> {
 //! of CMemoryMappedDenseVector.
 //!
 //! \sa CMemoryMappedDenseVector for more information.
-template<typename SCALAR>
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT = Eigen::Unaligned>
 class CMemoryMappedDenseMatrix
-    : public Eigen::Map<typename CDenseMatrix<SCALAR>::TBase> {
+    : public Eigen::Map<typename CDenseMatrix<SCALAR>::TBase, ALIGNMENT> {
 public:
-    using TBase = Eigen::Map<typename CDenseMatrix<SCALAR>::TBase>;
+    using TBase = Eigen::Map<typename CDenseMatrix<SCALAR>::TBase, ALIGNMENT>;
 
     //! See core::CMemory.
     static bool dynamicSizeAlwaysZero() { return true; }
@@ -352,7 +384,8 @@ public:
         : TBase{nullptr, 1, 1} {
         this->reseat(other);
     }
-    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix&& other)
+    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix&& other) noexcept(
+        std::is_nothrow_constructible<TBase>::value)
         : TBase{nullptr, 1, 1} {
         this->reseat(other);
     }
@@ -362,7 +395,8 @@ public:
         }
         return *this;
     }
-    CMemoryMappedDenseMatrix& operator=(CMemoryMappedDenseMatrix&& other) {
+    CMemoryMappedDenseMatrix& operator=(CMemoryMappedDenseMatrix&& other) noexcept(
+        std::is_nothrow_constructible<TBase>::value) {
         if (this != &other) {
             this->reseat(other);
         }
@@ -394,10 +428,17 @@ private:
     }
 };
 
+//! Free efficient efficient swap for ADLU.
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+void swap(CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>& lhs,
+          CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>& rhs) {
+    lhs.swap(rhs);
+}
+
 //! \brief Gets a constant square dense matrix with specified dimension or with
 //! specified numbers of rows and columns.
-template<typename SCALAR>
-struct SConstant<CMemoryMappedDenseMatrix<SCALAR>> {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+struct SConstant<CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>> {
     static auto get(std::ptrdiff_t dimension, SCALAR constant)
         -> decltype(SConstant<CDenseMatrix<SCALAR>>::get(dimension, 1)) {
         return SConstant<CDenseMatrix<SCALAR>>::get(dimension, constant);
@@ -439,12 +480,12 @@ struct SConstant<CMemoryMappedDenseMatrix<SCALAR>> {
 //! This better fits our needs with data frames where we want to reference the
 //! memory stored in the data frame rows, but never modify it directly through
 //! this vector type.
-template<typename SCALAR>
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT = Eigen::Unaligned>
 class CMemoryMappedDenseVector
-    : public Eigen::Map<typename CDenseVector<SCALAR>::TBase> {
+    : public Eigen::Map<typename CDenseVector<SCALAR>::TBase, ALIGNMENT> {
 public:
     using TDenseVector = CDenseVector<SCALAR>;
-    using TBase = Eigen::Map<typename TDenseVector::TBase>;
+    using TBase = Eigen::Map<typename TDenseVector::TBase, ALIGNMENT>;
 
     //! See core::CMemory.
     static bool dynamicSizeAlwaysZero() { return true; }
@@ -467,7 +508,8 @@ public:
         : TBase{nullptr, 1} {
         this->reseat(other);
     }
-    CMemoryMappedDenseVector(CMemoryMappedDenseVector&& other)
+    CMemoryMappedDenseVector(CMemoryMappedDenseVector&& other) noexcept(
+        std::is_nothrow_constructible<TBase>::value)
         : TBase{nullptr, 1} {
         this->reseat(other);
     }
@@ -477,7 +519,8 @@ public:
         }
         return *this;
     }
-    CMemoryMappedDenseVector& operator=(CMemoryMappedDenseVector&& other) {
+    CMemoryMappedDenseVector& operator=(CMemoryMappedDenseVector&& other) noexcept(
+        std::is_nothrow_constructible<TBase>::value) {
         if (this != &other) {
             this->reseat(other);
         }
@@ -507,9 +550,16 @@ private:
     }
 };
 
+//! Free efficient efficient swap for ADLU.
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+void swap(CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& lhs,
+          CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& rhs) {
+    lhs.swap(rhs);
+}
+
 //! \brief Gets a constant dense vector with specified dimension.
-template<typename SCALAR>
-struct SConstant<CMemoryMappedDenseVector<SCALAR>> {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+struct SConstant<CMemoryMappedDenseVector<SCALAR, ALIGNMENT>> {
     static auto get(std::ptrdiff_t dimension, SCALAR constant)
         -> decltype(SConstant<CDenseVector<SCALAR>>::get(dimension, constant)) {
         return SConstant<CDenseVector<SCALAR>>::get(dimension, constant);

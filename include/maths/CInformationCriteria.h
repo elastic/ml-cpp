@@ -95,21 +95,18 @@ class CSphericalGaussianInfoCriterion {
 public:
     using TPointVec = std::vector<POINT>;
     using TPointVecVec = std::vector<TPointVec>;
-    using TBarePoint = typename SStripped<POINT>::Type;
+    using TBarePoint = typename SUnannotated<POINT>::Type;
     using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
     using TCoordinate = typename SCoordinate<TBarePointPrecise>::Type;
     using TMeanVarAccumulator =
         typename CBasicStatistics::SSampleMeanVar<TBarePointPrecise>::TAccumulator;
 
 public:
-    CSphericalGaussianInfoCriterion()
-        : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {}
-    explicit CSphericalGaussianInfoCriterion(const TPointVecVec& x)
-        : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
+    CSphericalGaussianInfoCriterion() = default;
+    explicit CSphericalGaussianInfoCriterion(const TPointVecVec& x) {
         this->add(x);
     }
-    explicit CSphericalGaussianInfoCriterion(const TPointVec& x)
-        : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
+    explicit CSphericalGaussianInfoCriterion(const TPointVec& x) {
         this->add(x);
     }
 
@@ -132,10 +129,10 @@ public:
     //! Update the sufficient statistics for computing info content.
     void add(const TMeanVarAccumulator& moments) {
         double ni = CBasicStatistics::count(moments);
-        const TBarePointPrecise& m = CBasicStatistics::mean(moments);
-        const TBarePointPrecise& c = CBasicStatistics::maximumLikelihoodVariance(moments);
-        std::size_t d = las::dimension(c);
-        double vi = 0.0;
+        const TBarePointPrecise& m{CBasicStatistics::mean(moments)};
+        const TBarePointPrecise& c{CBasicStatistics::maximumLikelihoodVariance(moments)};
+        std::size_t d{las::dimension(c)};
+        double vi{0.0};
         for (std::size_t i = 0u; i < d; ++i) {
             vi += c(i);
         }
@@ -160,8 +157,8 @@ public:
     //! Calculate the information content of the clusters added so far.
     double calculate() const {
         if (m_N != 0.0) {
-            double logN = std::log(m_N);
-            double p = (m_D * m_K + 2.0 * m_K - 1.0);
+            double logN{std::log(m_N)};
+            double p{m_D * m_K + 2.0 * m_K - 1.0};
             switch (TYPE) {
             case E_BIC:
                 return -2.0 * (m_Likelihood - m_N * logN) + p * logN;
@@ -175,13 +172,13 @@ public:
 
 private:
     //! The point dimension.
-    double m_D;
+    double m_D = 0.0;
     //! The number of clusters.
-    double m_K;
+    double m_K = 0.0;
     //! The number of points.
-    double m_N;
+    double m_N = 0.0;
     //! The data likelihood for the k spherically symmetric Gaussians.
-    double m_Likelihood;
+    double m_Likelihood = 0.0;
 };
 
 //! \brief Computes the information content of a collection of point
@@ -197,22 +194,15 @@ class CGaussianInfoCriterion {
 public:
     using TPointVec = std::vector<POINT>;
     using TPointVecVec = std::vector<TPointVec>;
-    using TBarePoint = typename SStripped<POINT>::Type;
+    using TBarePoint = typename SUnannotated<POINT>::Type;
     using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
     using TCoordinate = typename SCoordinate<TBarePointPrecise>::Type;
     using TCovariances = CBasicStatistics::SSampleCovariances<TBarePointPrecise>;
 
 public:
-    CGaussianInfoCriterion()
-        : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {}
-    explicit CGaussianInfoCriterion(const TPointVecVec& x)
-        : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
-        this->add(x);
-    }
-    explicit CGaussianInfoCriterion(const TPointVec& x)
-        : m_D(0.0), m_K(0.0), m_N(0.0), m_Likelihood(0.0) {
-        this->add(x);
-    }
+    CGaussianInfoCriterion() = default;
+    explicit CGaussianInfoCriterion(const TPointVecVec& x) { this->add(x); }
+    explicit CGaussianInfoCriterion(const TPointVec& x) { this->add(x); }
 
     //! Update the sufficient statistics for computing info content.
     void add(const TPointVecVec& x) {
@@ -232,7 +222,7 @@ public:
 
     //! Update the sufficient statistics for computing info content.
     void add(const TCovariances& covariance) {
-        double ni = CBasicStatistics::count(covariance);
+        double ni{CBasicStatistics::count(covariance)};
         m_D = static_cast<double>(las::dimension(CBasicStatistics::mean(covariance)));
         m_K += 1.0;
         m_N += ni;
@@ -246,8 +236,8 @@ public:
     //! Calculate the information content of the clusters added so far.
     double calculate() const {
         if (m_N != 0.0) {
-            double logN = std::log(m_N);
-            double p = (m_D * (1.0 + 0.5 * (m_D + 1.0)) * m_K + m_K - 1.0);
+            double logN{std::log(m_N)};
+            double p{m_D * (1.0 + 0.5 * (m_D + 1.0)) * m_K + m_K - 1.0};
             switch (TYPE) {
             case E_BIC:
                 return -2.0 * (m_Likelihood - m_N * logN) + p * logN;
@@ -262,21 +252,21 @@ public:
 private:
     //! Compute the log of the determinant of \p covariance.
     double logDeterminant(const TCovariances& covariance) const {
-        double n = CBasicStatistics::count(covariance);
+        double n{CBasicStatistics::count(covariance)};
         const auto& c = CBasicStatistics::maximumLikelihoodCovariances(covariance);
-        double upper = information_criteria_detail::confidence(n - m_D - 1.0);
+        double upper{information_criteria_detail::confidence(n - m_D - 1.0)};
         return information_criteria_detail::logDeterminant(c, upper);
     }
 
 private:
     //! The point dimension.
-    double m_D;
+    double m_D = 0.0;
     //! The number of clusters.
-    double m_K;
+    double m_K = 0.0;
     //! The number of points.
-    double m_N;
+    double m_N = 0.0;
     //! The data likelihood for the k Gaussians.
-    double m_Likelihood;
+    double m_Likelihood = 0.0;
 };
 }
 }

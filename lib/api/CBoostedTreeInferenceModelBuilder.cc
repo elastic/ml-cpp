@@ -98,10 +98,9 @@ void CBoostedTreeInferenceModelBuilder::addNode(std::size_t splitFeature,
     if (tree == nullptr) {
         HANDLE_FATAL(<< "Internal error. Tree points to a nullptr.")
     }
-    // TODO fixme
     tree->treeStructure().emplace_back(tree->size(), splitValue, assignMissingToLeft,
-                                       nodeValue(0), splitFeature, numberSamples,
-                                       leftChild, rightChild, gain);
+                                       nodeValue.to<TDoubleVec>(), splitFeature,
+                                       numberSamples, leftChild, rightChild, gain);
 }
 
 CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder(TStrVec fieldNames,
@@ -143,7 +142,7 @@ CRegressionInferenceModelBuilder::CRegressionInferenceModelBuilder(const TStrVec
     : CBoostedTreeInferenceModelBuilder{fieldNames, dependentVariableColumnIndex, categoryNames} {
 }
 
-void CRegressionInferenceModelBuilder::addProbabilityAtWhichToAssignClassOne(double) {
+void CRegressionInferenceModelBuilder::addClassificationWeights(TDoubleVec /*weights*/) {
 }
 
 void CRegressionInferenceModelBuilder::setTargetType() {
@@ -163,9 +162,8 @@ CClassificationInferenceModelBuilder::CClassificationInferenceModelBuilder(
         categoryNames[dependentVariableColumnIndex]);
 }
 
-void CClassificationInferenceModelBuilder::addProbabilityAtWhichToAssignClassOne(double probability) {
-    this->definition().trainedModel()->classificationWeights(
-        {0.5 / (1.0 - probability), 0.5 / probability});
+void CClassificationInferenceModelBuilder::addClassificationWeights(TDoubleVec weights) {
+    this->definition().trainedModel()->classificationWeights(std::move(weights));
 }
 
 void CClassificationInferenceModelBuilder::setTargetType() {

@@ -103,9 +103,6 @@ public:
     //! \return The number of columns this analysis appends.
     virtual std::size_t numberExtraColumns() const = 0;
 
-    //! \return Indicator of columns for which empty value should be treated as missing.
-    virtual TBoolVec columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const;
-
     //! Write the extra columns of \p row added by the analysis to \p writer.
     //!
     //! This should create a new object of the form:

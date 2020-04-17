@@ -79,7 +79,7 @@ public:
                           model::CLimits& limits,
                           COutputHandler& outputHandler,
                           CJsonOutputWriter& jsonOutputWriter,
-                          CPersistenceManager* periodicPersister = nullptr);
+                          CPersistenceManager* persistenceManager);
 
     ~CFieldDataCategorizer() override;
 
@@ -141,10 +141,14 @@ private:
     //!        buffers
     //! 'f' => Echo a flush ID so that the attached process knows that data
     //!        sent previously has all been processed
-    bool handleControlMessage(const std::string& controlMessage);
+    bool handleControlMessage(const std::string& controlMessage, bool lastHandler);
 
     //! Acknowledge a flush request
-    void acknowledgeFlush(const std::string& flushId);
+    void acknowledgeFlush(const std::string& flushId, bool lastHandler);
+
+    //! Writes out to the JSON output writer any category that has changed
+    //! since the last time this method was called.
+    void writeOutChangedCategories();
 
 private:
     //! The job ID
@@ -193,10 +197,9 @@ private:
     //! The categorization filter
     core::CRegexFilter m_CategorizationFilter;
 
-    //! Pointer to periodic persister that works in the background.  May be
-    //! nullptr if this object is not responsible for starting periodic
-    //! persistence.
-    CPersistenceManager* m_PeriodicPersister;
+    //! Pointer to the persistence manager. May be nullptr if state persistence
+    //! is not required, for example in unit tests.
+    CPersistenceManager* m_PersistenceManager;
 };
 }
 }

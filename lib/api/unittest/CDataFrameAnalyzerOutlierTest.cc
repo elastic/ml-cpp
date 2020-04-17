@@ -84,7 +84,7 @@ void addOutlierTestData(TStrVec fieldNames,
     }
 
     frame->finishWritingRows();
-    maths::CDataFrameAnalysisInstrumentationStub instrumentation;
+    maths::CDataFrameOutliersInstrumentationStub instrumentation;
     maths::COutliers::compute(
         {1, 1, true, method, numberNeighbours, computeFeatureInfluence, 0.05},
         *frame, instrumentation);
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE(testWithoutControlMessages) {
     std::stringstream persistStream;
 
     api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
+        test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetection) {
     };
 
     api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
+        test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -223,8 +223,8 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory::outlierSpec(1000), outputWriterFactory};
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
+    api::CDataFrameAnalyzer analyzer{specFactory.rows(1000).outlierSpec(), outputWriterFactory};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -276,9 +276,9 @@ BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
-                                         110, 5, 100000, "", 0, true),
-                                     outputWriterFactory};
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
+    api::CDataFrameAnalyzer analyzer{
+        specFactory.outlierComputeInfluence(true).outlierSpec(), outputWriterFactory};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -331,9 +331,12 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionWithParams) {
                 return std::make_unique<core::CJsonOutputStreamWrapper>(output);
             };
 
+            test::CDataFrameAnalysisSpecificationFactory specFactory;
             api::CDataFrameAnalyzer analyzer{
-                test::CDataFrameAnalysisSpecificationFactory::outlierSpec(
-                    110, 5, 1000000, methods[method], k, false),
+                specFactory.outlierMethod(methods[method])
+                    .outlierNumberNeighbours(k)
+                    .outlierComputeInfluence(false)
+                    .outlierSpec(),
                 outputWriterFactory};
 
             TDoubleVec expectedScores;
@@ -376,7 +379,7 @@ BOOST_AUTO_TEST_CASE(testOutlierDetectionStateReport) {
     };
 
     api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
+        test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -411,7 +414,7 @@ BOOST_AUTO_TEST_CASE(testFlushMessage) {
     };
 
     api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
+        test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
     BOOST_REQUIRE_EQUAL(
         true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                                     {"", "", "", "", "", "", "           "}));
@@ -449,7 +452,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
     {
         errors.clear();
         api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
+            test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
         BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", ".", "c4", "c5", "."},
                                          {"10", "10", "10", "", "10", "10", ""}));
@@ -460,7 +463,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
     // Test missing special field
     {
         api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
+            test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
         errors.clear();
         BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", "."},
@@ -472,7 +475,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
     // Test bad control message
     {
         api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
+            test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
         errors.clear();
         BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -484,7 +487,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
     // Test bad input
     {
         api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(), outputWriterFactory};
+            test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
         errors.clear();
         BOOST_REQUIRE_EQUAL(
             false, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -496,8 +499,8 @@ BOOST_AUTO_TEST_CASE(testErrors) {
     // Test inconsistent number of rows
     {
         // Fewer rows than expected is ignored.
-        api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(2), outputWriterFactory};
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        api::CDataFrameAnalyzer analyzer{specFactory.rows(2).outlierSpec(), outputWriterFactory};
         errors.clear();
         BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -509,8 +512,8 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_TEST_REQUIRE(errors.empty());
     }
     {
-        api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(2), outputWriterFactory};
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        api::CDataFrameAnalyzer analyzer{specFactory.rows(2).outlierSpec(), outputWriterFactory};
         errors.clear();
         BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -530,8 +533,8 @@ BOOST_AUTO_TEST_CASE(testErrors) {
 
     // No data.
     {
-        api::CDataFrameAnalyzer analyzer{
-            test::CDataFrameAnalysisSpecificationFactory::outlierSpec(2), outputWriterFactory};
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        api::CDataFrameAnalyzer analyzer{specFactory.rows(2).outlierSpec(), outputWriterFactory};
         errors.clear();
         BOOST_REQUIRE_EQUAL(
             true, analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
@@ -549,8 +552,8 @@ BOOST_AUTO_TEST_CASE(testRoundTripDocHashes) {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
     };
 
-    api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory::outlierSpec(9), outputWriterFactory};
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
+    api::CDataFrameAnalyzer analyzer{specFactory.rows(9).outlierSpec(), outputWriterFactory};
     for (auto i : {"1", "2", "3", "4", "5", "6", "7", "8", "9"}) {
         analyzer.handleRecord({"c1", "c2", "c3", "c4", "c5", ".", "."},
                               {i, i, i, i, i, i, ""});

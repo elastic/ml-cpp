@@ -4,14 +4,18 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CContainerPrinter.h>
 #include <core/CPackedBitVector.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CDataFrameUtils.h>
+#include <maths/CLinearAlgebraEigen.h>
 #include <maths/CMic.h>
 #include <maths/COrderings.h>
 #include <maths/CQuantileSketch.h>
+#include <maths/CTools.h>
+#include <maths/CToolsDetail.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
@@ -604,6 +608,9 @@ BOOST_AUTO_TEST_CASE(testStratifiedCrossValidationRowMasks) {
 
 BOOST_AUTO_TEST_CASE(testMicWithColumn) {
 
+    // Test we get the exact MICe value when the number of rows is less than
+    // the target sample size.
+
     test::CRandomNumbers rng;
 
     std::size_t capacity{500};
@@ -618,9 +625,6 @@ BOOST_AUTO_TEST_CASE(testMicWithColumn) {
     TFactoryFunc makeMainMemory{[=] {
         return core::makeMainStorageDataFrame(numberCols, capacity).first;
     }};
-
-    // Test we get exactly the value we expect when the number of rows is less
-    // than the target sample size.
 
     for (const auto& factory : {makeOnDisk, makeMainMemory}) {
 
@@ -662,8 +666,27 @@ BOOST_AUTO_TEST_CASE(testMicWithColumn) {
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected),
                             core::CContainerPrinter::print(actual));
     }
+}
 
-    // Test missing values.
+BOOST_AUTO_TEST_CASE(testMicWithColumnWithMissing) {
+
+    // Test we get the exact MICe value with missing values when the number
+    // of rows is less than the target sample size.
+
+    test::CRandomNumbers rng;
+
+    std::size_t capacity{500};
+    std::size_t numberRows{2000};
+    std::size_t numberCols{4};
+
+    TFactoryFunc makeOnDisk{[=] {
+        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(),
+                                              numberCols, numberRows, capacity)
+            .first;
+    }};
+    TFactoryFunc makeMainMemory{[=] {
+        return core::makeMainStorageDataFrame(numberCols, capacity).first;
+    }};
 
     for (const auto& factory : {makeOnDisk, makeMainMemory}) {
         auto frame = factory();
@@ -677,9 +700,9 @@ BOOST_AUTO_TEST_CASE(testMicWithColumn) {
             rng.generateUniformSamples(-5.0, 5.0, 4, row);
             row[3] = 2.0 * row[0] - 1.5 * row[1] + 4.0 * row[2];
             for (std::size_t j = 0; j < row.size(); ++j) {
-                TDoubleVec p;
-                rng.generateUniformSamples(0.0, 1.0, 1, p);
-                if (p[0] < 0.01) {
+                TDoubleVec u01;
+                rng.generateUniformSamples(0.0, 1.0, 1, u01);
+                if (u01[0] < 0.01) {
                     row[j] = core::CDataFrame::valueOfMissing();
                     ++missing[j];
                 }
@@ -721,6 +744,8 @@ BOOST_AUTO_TEST_CASE(testMicWithColumn) {
 }
 
 BOOST_AUTO_TEST_CASE(testCategoryFrequencies) {
+
+    // Test we get the correct frequencies for each category.
 
     std::size_t rows{5000};
     std::size_t cols{4};
@@ -783,7 +808,72 @@ BOOST_AUTO_TEST_CASE(testCategoryFrequencies) {
     core::stopDefaultAsyncExecutor();
 }
 
+BOOST_AUTO_TEST_CASE(testCategoryFrequenciesWithMissing) {
+
+    // Test we get the correct frequencies for each category with missing values.
+
+    std::size_t rows{5000};
+    std::size_t cols{4};
+    std::size_t capacity{500};
+    double probabilityMissing{0.01};
+    double missingStandardDeviation{
+        std::sqrt(probabilityMissing * static_cast<double>(rows))};
+
+    test::CRandomNumbers rng;
+
+    TDoubleVecVec expectedFrequencies;
+    TDoubleVecVec values;
+    std::tie(expectedFrequencies, values) = generateCategoricalData(
+        rng, rows, cols, {10.0, 30.0, 1.0, 5.0, 15.0, 9.0, 20.0, 10.0});
+
+    TFactoryFunc makeOnDisk{[=] {
+        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows, capacity)
+            .first;
+    }};
+    TFactoryFunc makeMainMemory{
+        [=] { return core::makeMainStorageDataFrame(cols, capacity).first; }};
+
+    for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+
+        auto frame = factory();
+        frame->categoricalColumns(TBoolVec{true, false, true, false});
+
+        TDoubleVec u01;
+        for (std::size_t i = 0; i < rows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) mutable {
+                for (std::size_t j = 0; j < cols; ++j, ++column) {
+                    rng.generateUniformSamples(0.0, 1.0, 1, u01);
+                    if (u01[0] < probabilityMissing) {
+                        *column = core::CDataFrame::valueOfMissing();
+                    } else {
+                        *column = values[j][i];
+                    }
+                }
+            });
+        }
+        frame->finishWritingRows();
+
+        TDoubleVecVec actualFrequencies{maths::CDataFrameUtils::categoryFrequencies(
+            1, *frame, maskAll(rows), {0, 1, 2, 3})};
+
+        BOOST_REQUIRE_EQUAL(std::size_t{4}, actualFrequencies.size());
+        for (std::size_t i : {0, 2}) {
+            BOOST_REQUIRE_EQUAL(actualFrequencies.size(), expectedFrequencies.size());
+            for (std::size_t j = 0; j < actualFrequencies[i].size(); ++j) {
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                    expectedFrequencies[i][j], actualFrequencies[i][j],
+                    3.0 * missingStandardDeviation / static_cast<double>(rows));
+            }
+        }
+        for (std::size_t i : {1, 3}) {
+            BOOST_TEST_REQUIRE(actualFrequencies[i].empty());
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testMeanValueOfTargetForCategories) {
+
+    // Test we get the correct mean values for each category.
 
     std::size_t rows{2000};
     std::size_t cols{4};
@@ -876,23 +966,32 @@ BOOST_AUTO_TEST_CASE(testMeanValueOfTargetForCategoriesWithMissing) {
     std::tie(frequencies, values) = generateCategoricalData(
         rng, rows, cols - 1, {10.0, 30.0, 1.0, 5.0, 15.0, 9.0, 20.0, 10.0});
 
-    TDoubleVec uniform01;
-    rng.generateUniformSamples(0.0, 1.0, rows, uniform01);
-
     values.resize(cols);
     values[cols - 1].resize(rows, 0.0);
     TMeanAccumulatorVecVec expectedMeans(cols, TMeanAccumulatorVec(8));
+    TDoubleVec u01;
     for (std::size_t i = 0; i < rows; ++i) {
-        if (uniform01[i] < 0.9) {
+        for (std::size_t j = 0; j + 1 < cols; ++j) {
+            rng.generateUniformSamples(0.0, 1.0, 1, u01);
+            if (u01[0] < 0.01) {
+                values[j][i] = core::CDataFrame::valueOfMissing();
+            }
+        }
+        rng.generateUniformSamples(0.0, 1.0, 1, u01);
+        if (u01[0] < 0.9) {
             for (std::size_t j = 0; j + 1 < cols; ++j) {
-                values[cols - 1][i] += values[j][i];
+                if (maths::CDataFrameUtils::isMissing(values[j][i]) == false) {
+                    values[cols - 1][i] += values[j][i];
+                }
             }
             for (std::size_t j = 0; j + 1 < cols; ++j) {
-                expectedMeans[j][static_cast<std::size_t>(values[j][i])].add(
-                    values[cols - 1][i]);
+                if (maths::CDataFrameUtils::isMissing(values[j][i]) == false) {
+                    expectedMeans[j][static_cast<std::size_t>(values[j][i])].add(
+                        values[cols - 1][i]);
+                }
             }
         } else {
-            values[cols - 1][i] = std::numeric_limits<double>::quiet_NaN();
+            values[cols - 1][i] = core::CDataFrame::valueOfMissing();
         }
     }
 
@@ -923,6 +1022,8 @@ BOOST_AUTO_TEST_CASE(testMeanValueOfTargetForCategoriesWithMissing) {
 }
 
 BOOST_AUTO_TEST_CASE(testCategoryMicWithColumn) {
+
+    // Test one uncorrelated and one uncorrelated categorical field MICe.
 
     std::size_t rows{5000};
     std::size_t cols{4};
@@ -997,6 +1098,9 @@ BOOST_AUTO_TEST_CASE(testCategoryMicWithColumn) {
             BOOST_TEST_REQUIRE(mics[0][0].second < 0.05);
             BOOST_TEST_REQUIRE(mics[2][0].second > 0.50);
 
+            // The expected order is a function of both the category frequency
+            // and its order since the target value is order + noise so the
+            // larger the order the smaller the noise, relatively.
             TSizeVec categoryOrder;
             for (const auto& category : mics[2]) {
                 categoryOrder.push_back(category.first);
@@ -1010,4 +1114,206 @@ BOOST_AUTO_TEST_CASE(testCategoryMicWithColumn) {
 
     core::stopDefaultAsyncExecutor();
 }
+
+BOOST_AUTO_TEST_CASE(testCategoryMicWithColumnWithMissing) {
+
+    std::size_t rows{5000};
+    std::size_t cols{4};
+    std::size_t capacity{2000};
+
+    test::CRandomNumbers rng;
+
+    TDoubleVecVec frequencies;
+    TDoubleVecVec values;
+    std::tie(frequencies, values) =
+        generateCategoricalData(rng, rows, cols - 1, {20.0, 60.0, 5.0, 15.0, 1.0});
+
+    values.resize(cols);
+    rng.generateNormalSamples(0.0, 1.0, rows, values[cols - 1]);
+    TDoubleVec u01;
+    for (std::size_t i = 0; i < rows; ++i) {
+        values[cols - 1][i] += 2.0 * values[2][i];
+        for (std::size_t j = 0; j < cols - 1; ++j) {
+            rng.generateUniformSamples(0.0, 1.0, 1, u01);
+            if (u01[0] < 0.01) {
+                values[j][i] = core::CDataFrame::valueOfMissing();
+            }
+        }
+    }
+
+    TFactoryFunc makeOnDisk{[=] {
+        return core::makeDiskStorageDataFrame(test::CTestTmpDir::tmpDir(), cols, rows, capacity)
+            .first;
+    }};
+    TFactoryFunc makeMainMemory{
+        [=] { return core::makeMainStorageDataFrame(cols, capacity).first; }};
+
+    for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+
+        auto frame = factory();
+
+        frame->categoricalColumns(TBoolVec{true, false, true, false});
+        for (std::size_t i = 0; i < rows; ++i) {
+            frame->writeRow([&values, i, cols](core::CDataFrame::TFloatVecItr column,
+                                               std::int32_t&) {
+                for (std::size_t j = 0; j < cols; ++j, ++column) {
+                    *column = values[j][i];
+                }
+            });
+        }
+        frame->finishWritingRows();
+
+        auto mics = maths::CDataFrameUtils::categoricalMicWithColumn(
+            maths::CDataFrameUtils::CMetricColumnValue{3}, 1, *frame,
+            maskAll(rows), {0, 1, 2},
+            {{[](std::size_t, std::size_t sampleColumn, std::size_t category) {
+                  return std::make_unique<maths::CDataFrameUtils::COneHotCategoricalColumnValue>(
+                      sampleColumn, category);
+              },
+              0.01}})[0];
+
+        LOG_DEBUG(<< "mics[0] = " << core::CContainerPrinter::print(mics[0]));
+        LOG_DEBUG(<< "mics[2] = " << core::CContainerPrinter::print(mics[2]));
+
+        BOOST_REQUIRE_EQUAL(std::size_t{4}, mics.size());
+        for (const auto& mic : mics) {
+            BOOST_TEST_REQUIRE(std::is_sorted(
+                mic.begin(), mic.end(), [](const auto& lhs, const auto& rhs) {
+                    return maths::COrderings::lexicographical_compare(
+                        -lhs.second, lhs.first, -rhs.second, rhs.first);
+                }));
+        }
+        for (std::size_t i : {0, 2}) {
+            BOOST_REQUIRE_EQUAL(std::size_t{5}, mics[i].size());
+        }
+        for (std::size_t i : {1, 3}) {
+            BOOST_TEST_REQUIRE(mics[i].empty());
+        }
+
+        BOOST_TEST_REQUIRE(mics[0][0].second < 0.04);
+        BOOST_TEST_REQUIRE(mics[2][0].second > 0.49);
+
+        // The expected order is a function of both the category frequency
+        // and its order since the target value is order + noise so the
+        // larger the order the smaller the noise, relatively.
+        TSizeVec categoryOrder;
+        for (const auto& category : mics[2]) {
+            categoryOrder.push_back(category.first);
+        }
+        BOOST_REQUIRE_EQUAL(std::string{"[1, 3, 0, 4, 2]"},
+                            core::CContainerPrinter::print(categoryOrder));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testMaximumMinimumRecallClassWeights) {
+
+    // Test we reliably increase the minimum class recall for predictions with uneven accuracy.
+
+    using TDoubleVector = maths::CDenseVector<double>;
+    using TMemoryMappedFloatVector = maths::CMemoryMappedDenseVector<maths::CFloatStorage>;
+
+    std::size_t rows{5000};
+    std::size_t capacity{2000};
+
+    test::CRandomNumbers rng;
+
+    for (std::size_t numberClasses : {2, 3}) {
+
+        std::size_t cols{numberClasses + 1};
+
+        auto readPrediction = [&](const core::CDataFrame::TRowRef& row) {
+            return TMemoryMappedFloatVector{row.data(), static_cast<int>(numberClasses)};
+        };
+
+        TBoolVec categoricalColumns(cols, false);
+        categoricalColumns[numberClasses] = true;
+
+        for (std::size_t t = 0; t < 5; ++t) {
+            core::stopDefaultAsyncExecutor();
+
+            TDoubleVec predictions;
+            TSizeVec category;
+            auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+            frame->categoricalColumns(categoricalColumns);
+            for (std::size_t i = 0; i < rows; ++i) {
+                frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                    rng.generateUniformSamples(0, numberClasses, 1, category);
+                    rng.generateNormalSamples(0.0, 1.0, numberClasses, predictions);
+                    for (std::size_t j = 0; j < numberClasses; ++j) {
+                        column[j] += predictions[j];
+                    }
+                    column[category[0]] += static_cast<double>(category[0] + 1);
+                    column[numberClasses] = static_cast<double>(category[0]);
+                });
+            }
+            frame->finishWritingRows();
+
+            TDoubleVecVec minRecalls(2, TDoubleVec(2));
+            TDoubleVecVec maxRecalls(2, TDoubleVec(2));
+
+            std::size_t i{0};
+            for (auto numberThreads : {1, 4}) {
+
+                auto weights = maths::CDataFrameUtils::maximumMinimumRecallClassWeights(
+                    numberThreads, *frame, maskAll(rows), numberClasses,
+                    numberClasses, readPrediction);
+
+                TDoubleVector prediction;
+                TDoubleVector correct[2]{TDoubleVector::Zero(numberClasses),
+                                         TDoubleVector::Zero(numberClasses)};
+                TDoubleVector counts{TDoubleVector::Zero(numberClasses)};
+
+                frame->readRows(1, [&](core::CDataFrame::TRowItr beginRows,
+                                       core::CDataFrame::TRowItr endRows) {
+                    for (auto row = beginRows; row != endRows; ++row) {
+                        prediction = readPrediction(*row);
+                        maths::CTools::inplaceSoftmax(prediction);
+                        std::size_t weightedPredictedClass;
+                        weights.cwiseProduct(prediction).maxCoeff(&weightedPredictedClass);
+                        std::size_t actualClass{
+                            static_cast<std::size_t>((*row)[numberClasses])};
+                        if (weightedPredictedClass == actualClass) {
+                            correct[0](actualClass) += 1.0;
+                        }
+                        std::size_t unweightedPredictedClass;
+                        prediction.maxCoeff(&unweightedPredictedClass);
+                        if (unweightedPredictedClass == actualClass) {
+                            correct[1](actualClass) += 1.0;
+                        }
+                        counts(actualClass) += 1.0;
+                    }
+                });
+
+                LOG_TRACE(<< "weighted class recalls = "
+                          << correct[0].cwiseQuotient(counts).transpose());
+                LOG_TRACE(<< "unweighted class recalls = "
+                          << correct[1].cwiseQuotient(counts).transpose());
+
+                minRecalls[i][0] = correct[0].cwiseQuotient(counts).minCoeff();
+                maxRecalls[i][0] = correct[0].cwiseQuotient(counts).maxCoeff();
+                minRecalls[i][1] = correct[1].cwiseQuotient(counts).minCoeff();
+                maxRecalls[i][1] = correct[1].cwiseQuotient(counts).maxCoeff();
+
+                ++i;
+                core::startDefaultAsyncExecutor();
+            }
+
+            LOG_DEBUG(<< "min recalls = " << core::CContainerPrinter::print(minRecalls));
+            LOG_DEBUG(<< "max recalls = " << core::CContainerPrinter::print(maxRecalls));
+
+            // Threaded and non-threaded results are close.
+            BOOST_REQUIRE_CLOSE(minRecalls[0][0], minRecalls[1][0], 1.0); // 1 %
+
+            // We improved the minimum class recall by at least 10%.
+            BOOST_TEST_REQUIRE(minRecalls[0][0] > 1.1 * minRecalls[0][1]);
+
+            // The minimum and maximum class recalls are close: we're at the global maximum.
+            BOOST_TEST_REQUIRE(1.02 * minRecalls[0][0] > maxRecalls[0][0]);
+            BOOST_TEST_REQUIRE(1.02 * minRecalls[1][0] > maxRecalls[1][0]);
+        }
+    }
+
+    core::stopDefaultAsyncExecutor();
+}
+
 BOOST_AUTO_TEST_SUITE_END()

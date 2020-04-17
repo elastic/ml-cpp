@@ -17,6 +17,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeHyperparameters.h>
+#include <maths/CBoostedTreeLoss.h>
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CDataFrameCategoryEncoder.h>
@@ -42,12 +43,14 @@ class CImmutableRadixSet;
 }
 namespace maths {
 class CBayesianOptimisation;
+class CTreeShapFeatureImportance;
 
 //! \brief Implementation of CBoostedTree.
 class MATHS_EXPORT CBoostedTreeImpl final {
 public:
     using TDoubleVec = std::vector<double>;
     using TStrVec = std::vector<std::string>;
+    using TVector = CDenseVector<double>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMeanVarAccumulatorSizePr = std::pair<TMeanVarAccumulator, std::size_t>;
@@ -55,13 +58,14 @@ public:
     using TBayesinOptimizationUPtr = std::unique_ptr<maths::CBayesianOptimisation>;
     using TNodeVec = CBoostedTree::TNodeVec;
     using TNodeVecVec = CBoostedTree::TNodeVecVec;
+    using TLossFunction = boosted_tree::CLoss;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
     using TOptionalDouble = boost::optional<double>;
     using TRegularization = CBoostedTreeRegularization<double>;
     using TSizeVec = std::vector<std::size_t>;
     using TSizeRange = boost::integer_range<std::size_t>;
-    using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
+    using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
@@ -81,24 +85,34 @@ public:
 
     //! Write the predictions of the best trained model to \p frame.
     //!
-    //! \note Must be called only if a trained model is available.
+    //! \warning Must be called only if a trained model is available.
     void predict(core::CDataFrame& frame) const;
 
-    //! Compute SHAP values using the best trained model to \p frame.
+    //! Get the SHAP value calculator.
     //!
-    //! \note Must be called only if a trained model is available.
-    void computeShapValues(core::CDataFrame& frame);
+    //! \warning Will return a nullptr if a trained model isn't available.
+    CTreeShapFeatureImportance* shap();
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
 
+    //! Get the training loss function.
+    TLossFunction& loss() const;
+
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const;
+
+    //! Get start indices of the extra columns.
+    const TSizeVec& extraColumns() const;
+
+    //! Get the weights to apply to each class's predicted probability when
+    //! assigning classes.
+    TVector classificationWeights() const;
 
     //! Get the number of columns training the model will add to the data frame.
     static std::size_t numberExtraColumnsForTrain(std::size_t numberLossParameters) {
         // We store as follows:
-        //   1. The predicted values for the dependent variables
+        //   1. The predicted values for the dependent variable
         //   2. The gradient of the loss function
         //   3. The upper triangle of the hessian of the loss function
         //   4. The example's weight
@@ -124,18 +138,6 @@ public:
     //! \return The best hyperparameters for validation error found so far.
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
 
-    //! Get the probability threshold at which to classify a row as class one.
-    double probabilityAtWhichToAssignClassOne() const;
-
-    //! Get the indices of the columns containing SHAP values.
-    TSizeRange columnsHoldingShapValues() const;
-
-    //! Get the number of largest SHAP values that will be returned for every row.
-    std::size_t topShapValues() const;
-
-    //! Get the number of columns in the original data frame.
-    std::size_t numberInputColumns() const;
-
     //!\ name Test Only
     //@{
     //! The name of the object holding the best hyperaparameters in the state document.
@@ -159,13 +161,13 @@ private:
     using TOptionalDoubleVec = std::vector<TOptionalDouble>;
     using TOptionalDoubleVecVec = std::vector<TOptionalDoubleVec>;
     using TOptionalSize = boost::optional<std::size_t>;
-    using TVector = CDenseVector<double>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
-    using TNodeVecVecDoublePr = std::pair<TNodeVecVec, double>;
+    using TNodeVecVecDoubleDoubleVecTuple = std::tuple<TNodeVecVec, double, TDoubleVec>;
     using TDataFrameCategoryEncoderUPtr = std::unique_ptr<CDataFrameCategoryEncoder>;
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
+    using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
 
 private:
     CBoostedTreeImpl();
@@ -186,7 +188,10 @@ private:
     void initializePerFoldTestLosses();
 
     //! Compute the probability threshold at which to classify a row as class one.
-    void computeProbabilityAtWhichToAssignClassOne(const core::CDataFrame& frame);
+    void computeClassificationWeights(const core::CDataFrame& frame);
+
+    //! Prepare to calculate SHAP feature importances.
+    void initializeTreeShap(const core::CDataFrame& frame);
 
     //! Train the forest and compute loss moments on each fold.
     TMeanVarAccumulatorSizePr crossValidateForest(core::CDataFrame& frame);
@@ -198,10 +203,11 @@ private:
                                                      const core::CPackedBitVector& testingRowMask) const;
 
     //! Train one forest on the rows of \p frame in the mask \p trainingRowMask.
-    TNodeVecVecDoublePr trainForest(core::CDataFrame& frame,
-                                    const core::CPackedBitVector& trainingRowMask,
-                                    const core::CPackedBitVector& testingRowMask,
-                                    core::CLoopProgress& trainingProgress) const;
+    TNodeVecVecDoubleDoubleVecTuple
+    trainForest(core::CDataFrame& frame,
+                const core::CPackedBitVector& trainingRowMask,
+                const core::CPackedBitVector& testingRowMask,
+                core::CLoopProgress& trainingProgress) const;
 
     //! Randomly downsamples the training row mask by the downsample factor.
     core::CPackedBitVector downsample(const core::CPackedBitVector& trainingRowMask) const;
@@ -290,14 +296,14 @@ private:
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;
 
-    //! Populate numberSamples field in the m_BestForest
-    void computeNumberSamples(const core::CDataFrame& frame);
+    //! Record hyperparameters for instrumentation.
+    void recordHyperparameters();
 
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
-    std::size_t m_NumberInputColumns = 0;
+    TSizeVec m_ExtraColumns;
     TLossFunctionUPtr m_Loss;
     CBoostedTree::EClassAssignmentObjective m_ClassAssignmentObjective =
         CBoostedTree::E_MinimumRecall;
@@ -309,7 +315,7 @@ private:
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
     TRegularization m_Regularization;
-    double m_ProbabilityAtWhichToAssignClassOne = 0.5;
+    TVector m_ClassificationWeights;
     double m_DownsampleFactor = 0.5;
     double m_Eta = 0.1;
     double m_EtaGrowthRatePerTree = 1.05;
@@ -334,9 +340,8 @@ private:
     std::size_t m_NumberRounds = 1;
     std::size_t m_CurrentRound = 0;
     core::CLoopProgress m_TrainingProgress;
-    std::size_t m_TopShapValues = 0;
-    std::size_t m_FirstShapColumnIndex = 0;
-    std::size_t m_LastShapColumnIndex = 0;
+    std::size_t m_NumberTopShapValues = 0;
+    TTreeShapFeatureImportanceUPtr m_TreeShap;
     TAnalysisInstrumentationPtr m_Instrumentation; // no persist/restore
 
 private:

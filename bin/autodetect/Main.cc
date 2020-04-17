@@ -143,7 +143,8 @@ int main(int argc, char** argv) {
     // statically links its own version library.
     LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
 
-    ml::core::CProcessPriority::reducePriority();
+    // Reduce memory priority before installing system call filters.
+    ml::core::CProcessPriority::reduceMemoryPriority();
 
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
@@ -151,6 +152,11 @@ int main(int argc, char** argv) {
         LOG_FATAL(<< "Failed to initialise IO");
         return EXIT_FAILURE;
     }
+
+    // Reduce CPU priority after connecting named pipes so the JVM gets more
+    // time when CPU is constrained.  Named pipe connection is time-sensitive,
+    // hence is done before reducing CPU priority.
+    ml::core::CProcessPriority::reduceCpuPriority();
 
     if (jobId.empty()) {
         LOG_FATAL(<< "No job ID specified");
@@ -221,7 +227,7 @@ int main(int argc, char** argv) {
     }
 
     using TPersistenceManagerUPtr = std::unique_ptr<ml::api::CPersistenceManager>;
-    const TPersistenceManagerUPtr periodicPersister{
+    const TPersistenceManagerUPtr persistenceManager{
         [persistInterval, isPersistInForeground, &persister,
          &bucketPersistInterval]() -> TPersistenceManagerUPtr {
             if (persistInterval >= 0 || bucketPersistInterval > 0) {
@@ -251,7 +257,7 @@ int main(int argc, char** argv) {
     ml::api::CAnomalyJob job(jobId, limits, fieldConfig, modelConfig, wrappedOutputStream,
                              std::bind(&ml::api::CModelSnapshotJsonWriter::write,
                                        &modelSnapshotWriter, std::placeholders::_1),
-                             periodicPersister.get(), maxQuantileInterval,
+                             persistenceManager.get(), maxQuantileInterval,
                              timeField, timeFormat, maxAnomalyRecords);
 
     if (!quantilesStateFile.empty()) {
@@ -273,7 +279,8 @@ int main(int argc, char** argv) {
 
     // The categorizer knows how to assign categories to records
     ml::api::CFieldDataCategorizer categorizer(jobId, fieldConfig, limits, outputChainer,
-                                               fieldDataCategorizerOutputWriter);
+                                               fieldDataCategorizerOutputWriter,
+                                               persistenceManager.get());
 
     if (fieldConfig.fieldNameSuperset().count(
             ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
@@ -281,11 +288,11 @@ int main(int argc, char** argv) {
         firstProcessor = &categorizer;
     }
 
-    if (periodicPersister != nullptr) {
-        periodicPersister->firstProcessorBackgroundPeriodicPersistFunc(std::bind(
+    if (persistenceManager != nullptr) {
+        persistenceManager->firstProcessorBackgroundPeriodicPersistFunc(std::bind(
             &ml::api::CDataProcessor::periodicPersistStateInBackground, firstProcessor));
 
-        periodicPersister->firstProcessorForegroundPeriodicPersistFunc(std::bind(
+        persistenceManager->firstProcessorForegroundPeriodicPersistFunc(std::bind(
             &ml::api::CDataProcessor::periodicPersistStateInForeground, firstProcessor));
     }
 

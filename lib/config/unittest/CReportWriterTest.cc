@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(testPretty) {
     TDoubleVec weight;
     TSizeVec index;
     for (core_t::TTime time = startTime; time < endTime;
-         time += static_cast<double>(dt[0])) {
+         time += static_cast<core_t::TTime>(dt[0])) {
         double progress = static_cast<double>(time - startTime) /
                           static_cast<double>((endTime - startTime));
         if (progress > lastProgress + 0.05) {

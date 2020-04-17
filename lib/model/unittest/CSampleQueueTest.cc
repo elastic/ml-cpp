@@ -1019,7 +1019,7 @@ BOOST_AUTO_TEST_CASE(testQualityOfSamplesGivenConstantRate) {
             core_t::TTime measurementTime = static_cast<core_t::TTime>(testData[0]);
             queue.add(measurementTime, {1.0}, 1u, sampleCount);
         }
-        meanQueueSize.add(queue.size());
+        meanQueueSize.add(static_cast<double>(queue.size()));
         queue.sample(latestTime, sampleCount, model_t::E_IndividualMeanByPerson, samples);
 
         maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator varianceStat;

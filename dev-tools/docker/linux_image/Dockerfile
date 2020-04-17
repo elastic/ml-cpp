@@ -26,7 +26,7 @@ RUN \
   wget --quiet -O - http://ftpmirror.gnu.org/gcc/gcc-7.5.0/gcc-7.5.0.tar.gz | tar zxf - && \
   cd gcc-7.5.0 && \
   contrib/download_prerequisites && \
-  sed -i -e 's/$(SHLIB_LDFLAGS)/$(LDFLAGS) $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc && \
+  sed -i -e 's/$(SHLIB_LDFLAGS)/-Wl,-z,relro -Wl,-z,now $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc && \
   cd .. && \
   mkdir gcc-7.5.0-build && \
   cd gcc-7.5.0-build && \

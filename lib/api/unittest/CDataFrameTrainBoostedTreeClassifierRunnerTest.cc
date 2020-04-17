@@ -6,6 +6,9 @@
 
 #include <core/CDataFrame.h>
 #include <core/CRegex.h>
+#include <core/CSmallVector.h>
+
+#include <maths/CTools.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
@@ -21,7 +24,9 @@
 BOOST_AUTO_TEST_SUITE(CDataFrameTrainBoostedTreeClassifierRunnerTest)
 
 using namespace ml;
+using TDouble2Vec = core::CSmallVector<double, 2>;
 using TRowItr = core::CDataFrame::TRowItr;
+using TRowRef = core::CDataFrame::TRowRef;
 using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
 
@@ -30,17 +35,14 @@ BOOST_AUTO_TEST_CASE(testPredictionFieldNameClash) {
     auto errorHandler = [&errors](std::string error) { errors.push_back(error); };
     core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
 
-    const auto spec{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-        test::CDataFrameAnalysisSpecificationFactory::classification(),
-        "dep_var", 5, 6, 13000000, 0, 0, {"dep_var"})};
-    rapidjson::Document jsonParameters;
-    jsonParameters.Parse("{"
-                         "  \"dependent_variable\": \"dep_var\","
-                         "  \"prediction_field_name\": \"is_training\""
-                         "}");
-    const auto parameters{
-        api::CDataFrameTrainBoostedTreeClassifierRunner::parameterReader().read(jsonParameters)};
-    api::CDataFrameTrainBoostedTreeClassifierRunner runner(*spec, parameters);
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
+    auto spec = specFactory.rows(5)
+                    .columns(6)
+                    .memoryLimit(13000000)
+                    .predictionCategoricalFieldNames({"dep_var"})
+                    .predictionFieldName("is_training")
+                    .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
+                                    "dep_var");
 
     BOOST_TEST_REQUIRE(errors.size() == 1);
 
@@ -56,7 +58,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
                      T (rapidjson::Value::*extract)() const,
                      const std::vector<T>& expectedPredictions) {
     // Prepare input data frame
-    const std::string predictionField = dependentVariableField + "_prediction";
+    const std::string predictionField{dependentVariableField + "_prediction"};
     const TStrVec columnNames{"x1", "x2", "x3", "x4", "x5", predictionField};
     const TStrVec categoricalColumns{"x1", "x2", "x3", "x4", "x5"};
     const TStrVecVec rows{{"a", "b", "1.0", "1.0", "cat", "-1.0"},
@@ -64,8 +66,7 @@ void testWriteOneRow(const std::string& dependentVariableField,
                           {"a", "b", "5.0", "0.0", "dog", "-0.1"},
                           {"c", "d", "5.0", "0.0", "dog", "1.0"},
                           {"e", "f", "5.0", "0.0", "dog", "1.5"}};
-    std::unique_ptr<core::CDataFrame> frame{
-        core::makeMainStorageDataFrame(columnNames.size()).first};
+    auto frame = core::makeMainStorageDataFrame(columnNames.size()).first;
     frame->columnNames(columnNames);
     frame->categoricalColumns(categoricalColumns);
     for (std::size_t i = 0; i < rows.size(); ++i) {
@@ -76,24 +77,20 @@ void testWriteOneRow(const std::string& dependentVariableField,
     BOOST_TEST_REQUIRE(frame->numberRows() == rows.size());
 
     // Create classification analysis runner object
-    const auto spec{test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-        test::CDataFrameAnalysisSpecificationFactory::classification(), dependentVariableField,
-        rows.size(), columnNames.size(), 13000000, 0, 0, categoricalColumns)};
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
+    auto spec = specFactory.rows(rows.size())
+                    .columns(columnNames.size())
+                    .memoryLimit(13000000)
+                    .predictionCategoricalFieldNames(categoricalColumns)
+                    .predictionFieldType(predictionFieldType)
+                    .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
+                                    dependentVariableField);
+
     rapidjson::Document jsonParameters;
-    if (predictionFieldType.empty()) {
-        jsonParameters.Parse("{\"dependent_variable\": \"" + dependentVariableField + "\"}");
-    } else {
-        jsonParameters.Parse("{"
-                             "  \"dependent_variable\": \"" +
-                             dependentVariableField +
-                             "\","
-                             "  \"prediction_field_type\": \"" +
-                             predictionFieldType +
-                             "\""
-                             "}");
-    }
-    const auto parameters{
-        api::CDataFrameTrainBoostedTreeClassifierRunner::parameterReader().read(jsonParameters)};
+    jsonParameters.Parse(specFactory.predictionParams(
+        test::CDataFrameAnalysisSpecificationFactory::classification(), dependentVariableField));
+    auto parameters =
+        api::CDataFrameTrainBoostedTreeClassifierRunner::parameterReader().read(jsonParameters);
     api::CDataFrameTrainBoostedTreeClassifierRunner runner{*spec, parameters};
 
     // Write results to the output stream
@@ -103,15 +100,22 @@ void testWriteOneRow(const std::string& dependentVariableField,
         core::CRapidJsonConcurrentLineWriter writer(outputStreamWrapper);
 
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
-            const auto columnHoldingDependentVariable{
+            auto columnHoldingDependentVariable =
                 std::find(columnNames.begin(), columnNames.end(), dependentVariableField) -
-                columnNames.begin()};
-            const auto columnHoldingPrediction{
+                columnNames.begin();
+            auto columnHoldingPrediction =
                 std::find(columnNames.begin(), columnNames.end(), predictionField) -
-                columnNames.begin()};
+                columnNames.begin();
+            auto readProbability = [&](const TRowRef& row) {
+                TDouble2Vec result(2);
+                double p{maths::CTools::logisticFunction(row[columnHoldingPrediction])};
+                result[0] = 1 - p;
+                result[1] = p;
+                return result;
+            };
             for (auto row = beginRows; row != endRows; ++row) {
                 runner.writeOneRow(*frame, columnHoldingDependentVariable,
-                                   columnHoldingPrediction, 0.5, *row, writer);
+                                   readProbability, readProbability, *row, writer);
             }
         });
     }

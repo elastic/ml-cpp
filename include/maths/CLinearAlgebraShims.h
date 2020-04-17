@@ -7,8 +7,6 @@
 #ifndef INCLUDED_ml_maths_CLinearAlgebraShims_h
 #define INCLUDED_ml_maths_CLinearAlgebraShims_h
 
-#include <maths/CLinearAlgebra.h>
-#include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraFwd.h>
 #include <maths/CTypeTraits.h>
 
@@ -33,8 +31,8 @@ std::size_t dimension(const CDenseVector<SCALAR>& x) {
 }
 
 //! Get the dimension of an Eigen memory mapped vector.
-template<typename SCALAR>
-std::size_t dimension(const CMemoryMappedDenseVector<SCALAR>& x) {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+std::size_t dimension(const CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& x) {
     return static_cast<std::size_t>(x.size());
 }
 
@@ -48,6 +46,14 @@ std::size_t dimension(const CAnnotatedVector<VECTOR, ANNOTATION>& x) {
 template<typename VECTOR>
 auto zero(const VECTOR& x) -> decltype(SConstant<VECTOR>::get(dimension(x), 0)) {
     return SConstant<VECTOR>::get(dimension(x), 0);
+}
+
+//! Zero all the components of \p x.
+template<typename VECTOR>
+void setZero(VECTOR& x) {
+    for (std::size_t i = 0; i < dimension(x); ++i) {
+        x(i) = 0.0;
+    }
 }
 
 //! Get the conformable zero initialized matrix for our internal stack vector.
@@ -69,9 +75,10 @@ CDenseMatrix<SCALAR> conformableZeroMatrix(const CDenseVector<SCALAR>& x) {
 }
 
 //! Get the conformable zero initialized matrix for the Eigen memory mapped vector.
-template<typename SCALAR>
-CDenseMatrix<SCALAR> conformableZeroMatrix(const CMemoryMappedDenseVector<SCALAR>& x) {
-    return SConstant<CMemoryMappedDenseMatrix<SCALAR>>::get(dimension(x), 0);
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+CDenseMatrix<SCALAR>
+conformableZeroMatrix(const CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& x) {
+    return SConstant<CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>>::get(dimension(x), 0);
 }
 
 //! Get the conformable zero initialized matrix for the underlying vector.
@@ -123,41 +130,41 @@ void max(const VECTOR& x, VECTOR& y) {
 
 //! Expose componentwise operations for our internal vectors.
 template<typename VECTOR>
-typename SArrayView<VECTOR>::Type componentwise(VECTOR& x) {
+VECTOR& componentwise(VECTOR& x) {
     return x;
 }
 
 //! Expose componentwise operations for Eigen dense vectors.
 template<typename SCALAR>
-typename SArrayView<const CDenseVector<SCALAR>>::Type
-componentwise(const CDenseVector<SCALAR>& x) {
+auto componentwise(const CDenseVector<SCALAR>& x) -> decltype(x.array()) {
     return x.array();
 }
 template<typename SCALAR>
-typename SArrayView<CDenseVector<SCALAR>>::Type componentwise(CDenseVector<SCALAR>& x) {
+auto componentwise(CDenseVector<SCALAR>& x) -> decltype(x.array()) {
     return x.array();
 }
 
 //! Expose componentwise operations for Eigen memory mapped vectors.
-template<typename SCALAR>
-typename SArrayView<const CMemoryMappedDenseVector<SCALAR>>::Type
-componentwise(const CMemoryMappedDenseVector<SCALAR>& x) {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+auto componentwise(const CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& x)
+    -> decltype(x.array()) {
     return x.array();
 }
-template<typename SCALAR>
-typename SArrayView<CMemoryMappedDenseVector<SCALAR>>::Type
-componentwise(CMemoryMappedDenseVector<SCALAR>& x) {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+auto componentwise(CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& x)
+    -> decltype(x.array()) {
     return x.array();
 }
 
 //! Expose componentwise operations for our annotated vectors.
 template<typename VECTOR, typename ANNOTATION>
-typename SArrayView<const VECTOR>::Type
-componentwise(const CAnnotatedVector<VECTOR, ANNOTATION>& x) {
+auto componentwise(const CAnnotatedVector<VECTOR, ANNOTATION>& x)
+    -> decltype(componentwise(static_cast<const VECTOR&>(x))) {
     return componentwise(static_cast<const VECTOR&>(x));
 }
 template<typename VECTOR, typename ANNOTATION>
-typename SArrayView<VECTOR>::Type& componentwise(CAnnotatedVector<VECTOR, ANNOTATION>& x) {
+auto componentwise(CAnnotatedVector<VECTOR, ANNOTATION>& x)
+    -> decltype(componentwise(static_cast<VECTOR&>(x))) {
     return componentwise(static_cast<VECTOR&>(x));
 }
 
@@ -180,9 +187,9 @@ SCALAR distance(const CDenseVector<SCALAR>& x, const CDenseVector<SCALAR>& y) {
 }
 
 //! Euclidean distance implementation for an Eigen memory mapped vector.
-template<typename SCALAR>
-SCALAR distance(const CMemoryMappedDenseVector<SCALAR>& x,
-                const CMemoryMappedDenseVector<SCALAR>& y) {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+SCALAR distance(const CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& x,
+                const CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& y) {
     return (y - x).norm();
 }
 
@@ -207,8 +214,8 @@ SCALAR norm(const CDenseVector<SCALAR>& x) {
 }
 
 //! Get the Euclidean norm of an Eigen memory mapped vector.
-template<typename SCALAR>
-SCALAR norm(const CMemoryMappedDenseVector<SCALAR>& x) {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+SCALAR norm(const CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& x) {
     return x.norm();
 }
 
@@ -231,8 +238,8 @@ SCALAR L1(const CDenseVector<SCALAR>& x) {
 }
 
 //! Get the Manhattan norm of an Eigen memory mapped vector.
-template<typename SCALAR>
-SCALAR L1(const CMemoryMappedDenseVector<SCALAR>& x) {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+SCALAR L1(const CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& x) {
     return x.template lpNorm<1>();
 }
 
@@ -255,8 +262,8 @@ SCALAR frobenius(const CDenseMatrix<SCALAR>& x) {
 }
 
 //! Get the Euclidean norm of an Eigen memory mapped matrix.
-template<typename SCALAR>
-SCALAR frobenius(const CMemoryMappedDenseMatrix<SCALAR>& x) {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+SCALAR frobenius(const CMemoryMappedDenseMatrix<SCALAR, ALIGNMENT>& x) {
     return x.norm();
 }
 
@@ -273,19 +280,21 @@ SCALAR inner(const CDenseVector<SCALAR>& x, const CDenseVector<SCALAR>& y) {
 }
 
 //! Get the inner product of two Eigen memory mapped vectors.
-template<typename SCALAR>
-SCALAR inner(const CMemoryMappedDenseVector<SCALAR>& x,
-             const CMemoryMappedDenseVector<SCALAR>& y) {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+SCALAR inner(const CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& x,
+             const CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& y) {
     return x.dot(y);
 }
 //! Get the inner product of Eigen dense and memory mapped vectors.
-template<typename SCALAR>
-SCALAR inner(const CDenseVector<SCALAR>& x, const CMemoryMappedDenseVector<SCALAR>& y) {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+SCALAR inner(const CDenseVector<SCALAR>& x,
+             const CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& y) {
     return x.dot(y);
 }
 //! Get the inner product of Eigen dense and memory mapped vectors.
-template<typename SCALAR>
-SCALAR inner(const CMemoryMappedDenseVector<SCALAR>& x, const CDenseVector<SCALAR>& y) {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+SCALAR inner(const CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& x,
+             const CDenseVector<SCALAR>& y) {
     return x.dot(y);
 }
 
@@ -321,8 +330,8 @@ CDenseMatrix<SCALAR> outer(const CDenseVector<SCALAR>& x) {
 }
 
 //! Get the outer product of an Eigen memory mapped vector.
-template<typename SCALAR>
-CDenseMatrix<SCALAR> outer(const CMemoryMappedDenseVector<SCALAR>& x) {
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
+CDenseMatrix<SCALAR> outer(const CMemoryMappedDenseVector<SCALAR, ALIGNMENT>& x) {
     return outer(CDenseVector<SCALAR>(x));
 }
 

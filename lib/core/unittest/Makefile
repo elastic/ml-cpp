@@ -26,6 +26,7 @@ CProcessPriorityTest.cc \
 SRCS=\
 $(OS_SRCS) \
 Main.cc \
+CAlignmentTest.cc \
 CAllocationStrategyTest.cc \
 CBase64FilterTest.cc \
 CCompressedDictionaryTest.cc \

@@ -35,9 +35,10 @@ struct SRowTo {
     static_assert(sizeof(T) < 0, "Vector type not supported");
 };
 
-template<typename T>
-struct SRowTo<CMemoryMappedDenseVector<T>> {
-    static CMemoryMappedDenseVector<T> dispatch(const core::CDataFrame::TRowRef& row) {
+template<typename T, Eigen::AlignmentType ALIGNMENT>
+struct SRowTo<CMemoryMappedDenseVector<T, ALIGNMENT>> {
+    static CMemoryMappedDenseVector<T, ALIGNMENT>
+    dispatch(const core::CDataFrame::TRowRef& row) {
         return {row.data(), static_cast<long>(row.numberColumns())};
     }
 };
@@ -67,7 +68,10 @@ public:
     using TSizeDoublePrVecVec = std::vector<TSizeDoublePrVec>;
     using TSizeDoublePrVecVecVec = std::vector<TSizeDoublePrVecVec>;
     using TRowRef = core::CDataFrame::TRowRef;
-    using TWeightFunction = std::function<double(const TRowRef&)>;
+    using TWeightFunc = std::function<double(const TRowRef&)>;
+    using TDoubleVector = CDenseVector<double>;
+    using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
+    using TReadPredictionFunc = std::function<TMemoryMappedFloatVector(const TRowRef&)>;
     using TQuantileSketchVec = std::vector<CQuantileSketch>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
@@ -122,9 +126,15 @@ public:
         COneHotCategoricalColumnValue(std::size_t column, std::size_t category)
             : CColumnValue{column}, m_Category{category} {}
         double operator()(const TRowRef& row) const override {
+            if (isMissing(row[this->column()])) {
+                return core::CDataFrame::valueOfMissing();
+            }
             return static_cast<std::size_t>(row[this->column()]) == m_Category ? 1.0 : 0.0;
         }
         double operator()(const TFloatVec& row) const override {
+            if (isMissing(row[this->column()])) {
+                return core::CDataFrame::valueOfMissing();
+            }
             return static_cast<std::size_t>(row[this->column()]) == m_Category ? 1.0 : 0.0;
         }
         std::size_t hash() const override { return m_Category; }
@@ -140,10 +150,16 @@ public:
         CFrequencyCategoricalColumnValue(std::size_t column, const TDoubleVec& frequencies)
             : CColumnValue{column}, m_Frequencies{&frequencies} {}
         double operator()(const TRowRef& row) const override {
+            if (isMissing(row[this->column()])) {
+                return core::CDataFrame::valueOfMissing();
+            }
             std::size_t category{static_cast<std::size_t>(row[this->column()])};
             return (*m_Frequencies)[category];
         }
         double operator()(const TFloatVec& row) const override {
+            if (isMissing(row[this->column()])) {
+                return core::CDataFrame::valueOfMissing();
+            }
             std::size_t category{static_cast<std::size_t>(row[this->column()])};
             return (*m_Frequencies)[category];
         }
@@ -166,10 +182,16 @@ public:
             : CColumnValue{column}, m_RareCategories{&rareCategories}, m_TargetMeanValues{&targetMeanValues} {
         }
         double operator()(const TRowRef& row) const override {
+            if (isMissing(row[this->column()])) {
+                return core::CDataFrame::valueOfMissing();
+            }
             std::size_t category{static_cast<std::size_t>(row[this->column()])};
             return this->isRare(category) ? 0.0 : (*m_TargetMeanValues)[category];
         }
         double operator()(const TFloatVec& row) const override {
+            if (isMissing(row[this->column()])) {
+                return core::CDataFrame::valueOfMissing();
+            }
             std::size_t category{static_cast<std::size_t>(row[this->column()])};
             return this->isRare(category) ? 0.0 : (*m_TargetMeanValues)[category];
         }
@@ -235,7 +257,7 @@ public:
                     const TSizeVec& columnMask,
                     CQuantileSketch quantileEstimator,
                     const CDataFrameCategoryEncoder* encoder = nullptr,
-                    TWeightFunction weight = unitWeight);
+                    const TWeightFunc& weight = unitWeight);
 
     //! \brief Compute disjoint stratified random train/test row masks suitable
     //! for cross-validation.
@@ -338,20 +360,23 @@ public:
                                           const core::CPackedBitVector& rowMask,
                                           TSizeVec columnMask);
 
-    //! Compute the decision threshold to apply to the predicted probability a row
-    //! is class one which maximizes the minimum per class recall.
+    //! Compute the multiplicative weights to apply to each class probability such
+    //! that choosing the maximum "weighted" probability class for each example
+    //! maximizes the minimum per class recall.
     //!
     //! \param[in] numberThreads The number of threads available.
     //! \param[in] frame The data frame for which to compute the threshold.
     //! \param[in] rowMask A mask of the rows from which to compute the threshold.
+    //! \param[in] numberClasses The number of possible classes.
     //! \param[in] targetColumn The index of the column to predict.
-    //! \param[in] predictionColumn The index of the column containing the prediction.
-    static double
-    maximumMinimumRecallDecisionThreshold(std::size_t numberThreads,
-                                          const core::CDataFrame& frame,
-                                          const core::CPackedBitVector& rowMask,
-                                          std::size_t targetColumn,
-                                          std::size_t predictionColumn);
+    //! \param[in] readPrediction Callback to read the prediction from a row.
+    static TDoubleVector
+    maximumMinimumRecallClassWeights(std::size_t numberThreads,
+                                     const core::CDataFrame& frame,
+                                     const core::CPackedBitVector& rowMask,
+                                     std::size_t numberClasses,
+                                     std::size_t targetColumn,
+                                     const TReadPredictionFunc& readPrediction);
 
     //! Check if a data frame value is missing.
     static bool isMissing(double value);
@@ -385,6 +410,19 @@ private:
                                        const core::CPackedBitVector& rowMask,
                                        const TSizeVec& columnMask,
                                        std::size_t numberSamples);
+    static TDoubleVector
+    maximizeMinimumRecallForBinary(std::size_t numberThreads,
+                                   const core::CDataFrame& frame,
+                                   const core::CPackedBitVector& rowMask,
+                                   std::size_t targetColumn,
+                                   const TReadPredictionFunc& readPrediction);
+    static TDoubleVector
+    maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
+                                       const core::CDataFrame& frame,
+                                       const core::CPackedBitVector& rowMask,
+                                       std::size_t numberClasses,
+                                       std::size_t targetColumn,
+                                       const TReadPredictionFunc& readPrediction);
     static void removeMetricColumns(const core::CDataFrame& frame, TSizeVec& columnMask);
     static void removeCategoricalColumns(const core::CDataFrame& frame, TSizeVec& columnMask);
     static double unitWeight(const TRowRef&);

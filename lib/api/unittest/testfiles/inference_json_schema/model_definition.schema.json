@@ -92,7 +92,18 @@
           "type": "integer"
         },
         "leaf_value": {
-          "type": "number"
+          "oneOf":[
+            {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 1
+            },
+            {
+              "type": "number"
+            }
+          ]
         },
         "number_samples": {
           "description": "Number of training samples that were affected by the node.",

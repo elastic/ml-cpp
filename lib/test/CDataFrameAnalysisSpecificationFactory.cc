@@ -6,6 +6,7 @@
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 
+#include <core/CDataFrame.h>
 #include <core/CStringUtils.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -23,6 +24,10 @@ namespace ml {
 namespace test {
 using TRapidJsonLineWriter = core::CRapidJsonLineWriter<rapidjson::StringBuffer>;
 
+CDataFrameAnalysisSpecificationFactory::CDataFrameAnalysisSpecificationFactory()
+    : m_MissingString{core::CDataFrame::DEFAULT_MISSING_STRING} {
+}
+
 const std::string& CDataFrameAnalysisSpecificationFactory::classification() {
     return api::CDataFrameTrainBoostedTreeClassifierRunnerFactory::NAME;
 }
@@ -31,31 +36,187 @@ const std::string& CDataFrameAnalysisSpecificationFactory::regression() {
     return api::CDataFrameTrainBoostedTreeRegressionRunnerFactory::NAME;
 }
 
-CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
-CDataFrameAnalysisSpecificationFactory::outlierSpec(std::size_t rows,
-                                                    std::size_t cols,
-                                                    std::size_t memoryLimit,
-                                                    const std::string& method,
-                                                    std::size_t numberNeighbours,
-                                                    bool computeFeatureInfluence,
-                                                    bool diskUsageAllowed) {
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::rows(std::size_t rows) {
+    m_Rows = rows;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::columns(std::size_t columns) {
+    m_Columns = columns;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::memoryLimit(std::size_t memoryLimit) {
+    m_MemoryLimit = memoryLimit;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::missingString(const std::string& missing) {
+    m_MissingString = missing;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::diskUsageAllowed(bool disk) {
+    m_DiskUsageAllowed = disk;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::outlierMethod(std::string method) {
+    m_Method = method;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::outlierNumberNeighbours(std::size_t number) {
+    m_NumberNeighbours = number;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::outlierComputeInfluence(bool compute) {
+    m_ComputeFeatureInfluence = compute;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predicitionNumberRoundsPerHyperparameter(std::size_t rounds) {
+    m_NumberRoundsPerHyperparameter = rounds;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionBayesianOptimisationRestarts(std::size_t restarts) {
+    m_BayesianOptimisationRestarts = restarts;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionFieldName(const std::string& name) {
+    m_PredictionFieldName = name;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionCategoricalFieldNames(const TStrVec& categorical) {
+    m_CategoricalFieldNames = categorical;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionAlpha(double alpha) {
+    m_Alpha = alpha;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionLambda(double lambda) {
+    m_Lambda = lambda;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionGamma(double gamma) {
+    m_Gamma = gamma;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionSoftTreeDepthLimit(double limit) {
+    m_SoftTreeDepthLimit = limit;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionSoftTreeDepthTolerance(double tolerance) {
+    m_SoftTreeDepthTolerance = tolerance;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionEta(double eta) {
+    m_Eta = eta;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionMaximumNumberTrees(std::size_t number) {
+    m_MaximumNumberTrees = number;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionFeatureBagFraction(double fraction) {
+    m_FeatureBagFraction = fraction;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionNumberTopShapValues(std::size_t number) {
+    m_NumberTopShapValues = number;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionPersisterSupplier(TPersisterSupplier* persisterSupplier) {
+    m_PersisterSupplier = persisterSupplier;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionRestoreSearcherSupplier(
+    TRestoreSearcherSupplier* restoreSearcherSupplier) {
+    m_RestoreSearcherSupplier = restoreSearcherSupplier;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::numberClasses(std::size_t number) {
+    m_NumberClasses = number;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::numberTopClasses(std::size_t number) {
+    m_NumberTopClasses = number;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionFieldType(const std::string& type) {
+    m_PredictionFieldType = type;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::regressionLossFunction(TRegressionLossFunction lossFunction) {
+    m_RegressionLossFunction = lossFunction;
+    return *this;
+}
+
+std::string CDataFrameAnalysisSpecificationFactory::outlierParams() const {
 
     rapidjson::StringBuffer parameters;
     TRapidJsonLineWriter writer;
     writer.Reset(parameters);
 
     writer.StartObject();
-    if (method != "") {
+    if (m_Method != "") {
         writer.Key(api::CDataFrameOutliersRunner::METHOD);
-        writer.String(method);
+        writer.String(m_Method);
     }
-    if (numberNeighbours > 0) {
+    if (m_NumberNeighbours > 0) {
         writer.Key(api::CDataFrameOutliersRunner::N_NEIGHBORS);
-        writer.Uint64(numberNeighbours);
+        writer.Uint64(m_NumberNeighbours);
     }
-    if (computeFeatureInfluence == false) {
+    if (m_ComputeFeatureInfluence == false) {
         writer.Key(api::CDataFrameOutliersRunner::COMPUTE_FEATURE_INFLUENCE);
-        writer.Bool(computeFeatureInfluence);
+        writer.Bool(m_ComputeFeatureInfluence);
     } else {
         writer.Key(api::CDataFrameOutliersRunner::FEATURE_INFLUENCE_THRESHOLD);
         writer.Double(0.0);
@@ -63,36 +224,29 @@ CDataFrameAnalysisSpecificationFactory::outlierSpec(std::size_t rows,
     writer.EndObject();
     writer.Flush();
 
+    return parameters.GetString();
+}
+
+CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
+CDataFrameAnalysisSpecificationFactory::outlierSpec() const {
+
+    std::size_t rows{m_Rows ? *m_Rows : 110};
+    std::size_t columns{m_Columns ? *m_Columns : 5};
+    std::size_t memoryLimit{m_MemoryLimit ? *m_MemoryLimit : 100000};
+
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", rows, cols, memoryLimit, 1, {}, diskUsageAllowed, CTestTmpDir::tmpDir(),
-        "ml", api::CDataFrameOutliersRunnerFactory::NAME, parameters.GetString())};
+        "testJob", rows, columns, memoryLimit, 1, m_MissingString, {},
+        m_DiskUsageAllowed, CTestTmpDir::tmpDir(), "ml",
+        api::CDataFrameOutliersRunnerFactory::NAME, this->outlierParams())};
 
     LOG_TRACE(<< "spec =\n" << spec);
 
     return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
 }
 
-CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
-CDataFrameAnalysisSpecificationFactory::predictionSpec(
-    const std::string& analysis,
-    const std::string& dependentVariable,
-    std::size_t rows,
-    std::size_t cols,
-    std::size_t memoryLimit,
-    std::size_t numberRoundsPerHyperparameter,
-    std::size_t bayesianOptimisationRestarts,
-    const TStrVec& categoricalFieldNames,
-    double alpha,
-    double lambda,
-    double gamma,
-    double softTreeDepthLimit,
-    double softTreeDepthTolerance,
-    double eta,
-    std::size_t maximumNumberTrees,
-    double featureBagFraction,
-    size_t numTopFeatureImportanceValues,
-    TPersisterSupplier* persisterSupplier,
-    TRestoreSearcherSupplier* restoreSearcherSupplier) {
+std::string
+CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& analysis,
+                                                         const std::string& dependentVariable) const {
 
     rapidjson::StringBuffer parameters;
     TRapidJsonLineWriter writer;
@@ -101,67 +255,102 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(
     writer.StartObject();
     writer.Key(api::CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME);
     writer.String(dependentVariable);
-    if (alpha >= 0.0) {
+    if (m_Alpha >= 0.0) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::ALPHA);
-        writer.Double(alpha);
+        writer.Double(m_Alpha);
     }
-    if (lambda >= 0.0) {
+    if (m_Lambda >= 0.0) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::LAMBDA);
-        writer.Double(lambda);
+        writer.Double(m_Lambda);
     }
-    if (gamma >= 0.0) {
+    if (m_Gamma >= 0.0) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::GAMMA);
-        writer.Double(gamma);
+        writer.Double(m_Gamma);
     }
-    if (softTreeDepthLimit >= 0.0) {
+    if (m_SoftTreeDepthLimit >= 0.0) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT);
-        writer.Double(softTreeDepthLimit);
+        writer.Double(m_SoftTreeDepthLimit);
     }
-    if (softTreeDepthTolerance >= 0.0) {
+    if (m_SoftTreeDepthTolerance >= 0.0) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE);
-        writer.Double(softTreeDepthTolerance);
+        writer.Double(m_SoftTreeDepthTolerance);
     }
-    if (eta > 0.0) {
+    if (m_Eta > 0.0) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::ETA);
-        writer.Double(eta);
+        writer.Double(m_Eta);
     }
-    if (maximumNumberTrees > 0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::MAXIMUM_NUMBER_TREES);
-        writer.Uint64(maximumNumberTrees);
+    if (m_MaximumNumberTrees > 0) {
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::MAX_TREES);
+        writer.Uint64(m_MaximumNumberTrees);
     }
-    if (featureBagFraction > 0.0) {
+    if (m_FeatureBagFraction > 0.0) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION);
-        writer.Double(featureBagFraction);
+        writer.Double(m_FeatureBagFraction);
     }
-    if (numberRoundsPerHyperparameter > 0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::NUMBER_ROUNDS_PER_HYPERPARAMETER);
-        writer.Uint64(numberRoundsPerHyperparameter);
+    if (m_NumberRoundsPerHyperparameter > 0) {
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER);
+        writer.Uint64(m_NumberRoundsPerHyperparameter);
     }
-    if (bayesianOptimisationRestarts > 0) {
+    if (m_BayesianOptimisationRestarts > 0) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::BAYESIAN_OPTIMISATION_RESTARTS);
-        writer.Uint64(bayesianOptimisationRestarts);
+        writer.Uint64(m_BayesianOptimisationRestarts);
     }
-    if (numTopFeatureImportanceValues > 0) {
+    if (m_NumberTopShapValues > 0) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::NUM_TOP_FEATURE_IMPORTANCE_VALUES);
-        writer.Uint64(numTopFeatureImportanceValues);
+        writer.Uint64(m_NumberTopShapValues);
+    }
+    if (m_PredictionFieldName.empty() == false) {
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::PREDICTION_FIELD_NAME);
+        writer.String(m_PredictionFieldName);
+    }
+    if (m_PredictionFieldType.empty() == false) {
+        writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::PREDICTION_FIELD_TYPE);
+        writer.String(m_PredictionFieldType);
     }
     if (analysis == classification()) {
+        writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::NUM_CLASSES);
+        writer.Uint64(m_NumberClasses);
         writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES);
-        writer.Uint64(1);
+        writer.Uint64(m_NumberTopClasses);
     }
+
+    if (analysis == regression()) {
+        writer.Key(api::CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION);
+        switch (m_RegressionLossFunction) {
+        case TRegressionLossFunction::E_Msle:
+            writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSLE);
+            break;
+        case TRegressionLossFunction::E_Mse:
+            writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSE);
+            break;
+        }
+    }
+
     writer.EndObject();
 
+    return parameters.GetString();
+}
+
+CDataFrameAnalysisSpecificationFactory::TSpecificationUPtr
+CDataFrameAnalysisSpecificationFactory::predictionSpec(const std::string& analysis,
+                                                       const std::string& dependentVariable) const {
+
+    std::size_t rows{m_Rows ? *m_Rows : 100};
+    std::size_t columns{m_Columns ? *m_Columns : 5};
+    std::size_t memoryLimit{m_MemoryLimit ? *m_MemoryLimit : 7000000};
+
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
-        "testJob", rows, cols, memoryLimit, 1, categoricalFieldNames, true,
-        CTestTmpDir::tmpDir(), "ml", analysis, parameters.GetString())};
+        "testJob", rows, columns, memoryLimit, 1, m_MissingString,
+        m_CategoricalFieldNames, true, CTestTmpDir::tmpDir(), "ml", analysis,
+        this->predictionParams(analysis, dependentVariable))};
 
     LOG_TRACE(<< "spec =\n" << spec);
 
-    if (restoreSearcherSupplier != nullptr && persisterSupplier != nullptr) {
+    if (m_RestoreSearcherSupplier != nullptr && m_PersisterSupplier != nullptr) {
         return std::make_unique<api::CDataFrameAnalysisSpecification>(
-            spec, *persisterSupplier, *restoreSearcherSupplier);
-    } else if (restoreSearcherSupplier == nullptr && persisterSupplier != nullptr) {
-        return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, *persisterSupplier);
+            spec, *m_PersisterSupplier, *m_RestoreSearcherSupplier);
+    } else if (m_RestoreSearcherSupplier == nullptr && m_PersisterSupplier != nullptr) {
+        return std::make_unique<api::CDataFrameAnalysisSpecification>(spec, *m_PersisterSupplier);
     } else {
         return std::make_unique<api::CDataFrameAnalysisSpecification>(spec);
     }

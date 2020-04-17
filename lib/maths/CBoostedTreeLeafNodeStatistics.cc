@@ -14,6 +14,8 @@
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CTools.h>
 
+#include <limits>
+
 namespace ml {
 namespace maths {
 using namespace boosted_tree_detail;
@@ -26,7 +28,7 @@ const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     std::size_t id,
-    std::size_t numberInputColumns,
+    const TSizeVec& extraColumns,
     std::size_t numberLossParameters,
     std::size_t numberThreads,
     const core::CDataFrame& frame,
@@ -36,8 +38,8 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     const TSizeVec& featureBag,
     std::size_t depth,
     const core::CPackedBitVector& rowMask)
-    : m_Id{id}, m_Depth{depth}, m_NumberInputColumns{numberInputColumns},
-      m_NumberLossParameters{numberLossParameters}, m_CandidateSplits{candidateSplits}, m_RowMask{rowMask} {
+    : m_Id{id}, m_Depth{depth}, m_ExtraColumns{extraColumns}, m_NumberLossParameters{numberLossParameters},
+      m_CandidateSplits{candidateSplits}, m_RowMask{rowMask} {
 
     this->computeAggregateLossDerivatives(numberThreads, frame, encoder);
     m_BestSplit = this->computeBestSplitStatistics(regularization, featureBag);
@@ -45,7 +47,7 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     std::size_t id,
-    std::size_t numberInputColumns,
+    const TSizeVec& extraColumns,
     std::size_t numberLossParameters,
     std::size_t numberThreads,
     const core::CDataFrame& frame,
@@ -57,7 +59,7 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     std::size_t depth,
     const CBoostedTreeNode& split,
     const core::CPackedBitVector& parentRowMask)
-    : m_Id{id}, m_Depth{depth}, m_NumberInputColumns{numberInputColumns},
+    : m_Id{id}, m_Depth{depth}, m_ExtraColumns{extraColumns},
       m_NumberLossParameters{numberLossParameters}, m_CandidateSplits{candidateSplits} {
 
     this->computeRowMaskAndAggregateLossDerivatives(
@@ -72,7 +74,7 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     const TRegularization& regularization,
     const TSizeVec& featureBag,
     core::CPackedBitVector rowMask)
-    : m_Id{id}, m_Depth{sibling.m_Depth}, m_NumberInputColumns{sibling.m_NumberInputColumns},
+    : m_Id{id}, m_Depth{sibling.m_Depth}, m_ExtraColumns{sibling.m_ExtraColumns},
       m_NumberLossParameters{sibling.m_NumberLossParameters},
       m_CandidateSplits{sibling.m_CandidateSplits}, m_RowMask{std::move(rowMask)},
       m_Derivatives{std::move(parent.m_Derivatives)} {
@@ -94,9 +96,9 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
 
     if (this->leftChildHasFewerRows()) {
         auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-            leftChildId, m_NumberInputColumns, m_NumberLossParameters,
-            numberThreads, frame, encoder, regularization, candidateSplits,
-            featureBag, true /*is left child*/, m_Depth + 1, split, m_RowMask);
+            leftChildId, m_ExtraColumns, m_NumberLossParameters, numberThreads,
+            frame, encoder, regularization, candidateSplits, featureBag,
+            true /*is left child*/, m_Depth + 1, split, m_RowMask);
         core::CPackedBitVector rightChildRowMask{std::move(m_RowMask)};
         rightChildRowMask ^= leftChild->rowMask();
         auto rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
@@ -109,9 +111,9 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
     }
 
     auto rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-        rightChildId, m_NumberInputColumns, m_NumberLossParameters,
-        numberThreads, frame, encoder, regularization, candidateSplits,
-        featureBag, false /*is left child*/, m_Depth + 1, split, m_RowMask);
+        rightChildId, m_ExtraColumns, m_NumberLossParameters, numberThreads,
+        frame, encoder, regularization, candidateSplits, featureBag,
+        false /*is left child*/, m_Depth + 1, split, m_RowMask);
     core::CPackedBitVector leftChildRowMask{std::move(m_RowMask)};
     leftChildRowMask ^= rightChild->rowMask();
     auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
@@ -124,7 +126,7 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
 }
 
 bool CBoostedTreeLeafNodeStatistics::operator<(const CBoostedTreeLeafNodeStatistics& rhs) const {
-    return m_BestSplit < rhs.m_BestSplit;
+    return COrderings::lexicographical_compare(m_BestSplit, m_Id, rhs.m_BestSplit, rhs.m_Id);
 }
 
 double CBoostedTreeLeafNodeStatistics::gain() const {
@@ -169,15 +171,15 @@ CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(std::size_t numberRows,
     // case for memory usage. This is because the rows will be spread over many
     // rows so the masks will mainly contain 0 bits in this case.
     std::size_t rowMaskSize{numberRows / PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
-    std::size_t perSplitDerivativesSize{CPerSplitDerivatives::estimateMemoryUsage(
+    std::size_t splitsDerivativesSize{CSplitsDerivatives::estimateMemoryUsage(
         numberFeatures, numberSplitsPerFeature, numberLossParameters)};
-    return sizeof(CBoostedTreeLeafNodeStatistics) + rowMaskSize + perSplitDerivativesSize;
+    return sizeof(CBoostedTreeLeafNodeStatistics) + rowMaskSize + splitsDerivativesSize;
 }
 
 void CBoostedTreeLeafNodeStatistics::maybeRecoverMemory() {
     if (this->gain() <= 0.0) {
         m_RowMask = core::CPackedBitVector{};
-        m_Derivatives = CPerSplitDerivatives{};
+        m_Derivatives = CSplitsDerivatives{};
     }
 }
 
@@ -189,12 +191,12 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
     auto result = frame.readRows(
         numberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
-            [&](CPerSplitDerivatives& perSplitDerivatives, TRowItr beginRows, TRowItr endRows) {
+            [&](CSplitsDerivatives& splitsDerivatives, TRowItr beginRows, TRowItr endRows) {
                 for (auto row = beginRows; row != endRows; ++row) {
-                    this->addRowDerivatives(encoder.encode(*row), perSplitDerivatives);
+                    this->addRowDerivatives(encoder.encode(*row), splitsDerivatives);
                 }
             },
-            CPerSplitDerivatives{m_CandidateSplits, m_NumberLossParameters}),
+            CSplitsDerivatives{m_CandidateSplits, m_NumberLossParameters}),
         &m_RowMask);
 
     m_Derivatives = std::move(result.first[0].s_FunctionState);
@@ -215,22 +217,22 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
     auto result = frame.readRows(
         numberThreads, 0, frame.numberRows(),
         core::bindRetrievableState(
-            [&](std::pair<core::CPackedBitVector, CPerSplitDerivatives>& state,
+            [&](std::pair<core::CPackedBitVector, CSplitsDerivatives>& state,
                 TRowItr beginRows, TRowItr endRows) {
                 auto& mask = state.first;
-                auto& perSplitDerivatives = state.second;
+                auto& splitsDerivatives = state.second;
                 for (auto row = beginRows; row != endRows; ++row) {
                     auto encodedRow = encoder.encode(*row);
                     if (split.assignToLeft(encodedRow) == isLeftChild) {
                         std::size_t index{row->index()};
                         mask.extend(false, index - mask.size());
                         mask.extend(true);
-                        this->addRowDerivatives(encodedRow, perSplitDerivatives);
+                        this->addRowDerivatives(encodedRow, splitsDerivatives);
                     }
                 }
             },
             std::make_pair(core::CPackedBitVector{},
-                           CPerSplitDerivatives{m_CandidateSplits, m_NumberLossParameters})),
+                           CSplitsDerivatives{m_CandidateSplits, m_NumberLossParameters})),
         &parentRowMask);
 
     for (auto& mask_ : result.first) {
@@ -248,18 +250,17 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
 }
 
 void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRowRef& row,
-                                                       CPerSplitDerivatives& perSplitDerivatives) const {
+                                                       CSplitsDerivatives& splitsDerivatives) const {
 
     const TRowRef& unencodedRow{row.unencodedRow()};
-    auto gradient = readLossGradient(unencodedRow, m_NumberInputColumns, m_NumberLossParameters);
-    auto curvature = readLossCurvature(unencodedRow, m_NumberInputColumns, m_NumberLossParameters);
+    auto derivatives = readLossDerivatives(unencodedRow, m_ExtraColumns, m_NumberLossParameters);
     for (std::size_t feature = 0; feature < m_CandidateSplits.size(); ++feature) {
         double featureValue{row[feature]};
         if (CDataFrameUtils::isMissing(featureValue)) {
-            perSplitDerivatives.addMissingDerivatives(feature, gradient, curvature);
+            splitsDerivatives.addMissingDerivatives(feature, derivatives);
         } else {
             std::ptrdiff_t split{m_CandidateSplits[feature].upperBound(featureValue)};
-            perSplitDerivatives.addDerivatives(feature, split, gradient, curvature);
+            splitsDerivatives.addDerivatives(feature, split, derivatives);
         }
     }
 }
@@ -298,20 +299,35 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
     TMinimumLoss minimumLoss;
 
     double lambda{regularization.leafWeightPenaltyMultiplier()};
-    Eigen::MatrixXd placeholder{d, d};
+    Eigen::MatrixXd hessian{d, d};
+    Eigen::MatrixXd hessian_{d, d};
+    Eigen::VectorXd hessianInvg{d};
     if (m_NumberLossParameters == 1) {
-        // There is a large fixed overhead for using ldl^t even when g and h are
-        // scalar so we have special case handling.
+        // There is a significant overhead for using a matrix decomposition when g and h
+        // are scalar so we have special case handling.
         minimumLoss = [&](const TDoubleVector& g, const TDoubleMatrix& h) -> double {
             return CTools::pow2(g(0)) / (h(0, 0) + lambda);
         };
     } else {
-        // TODO use Cholesky (but need to handle positive semi-definite case).
         minimumLoss = [&](const TDoubleVector& g, const TDoubleMatrix& h) -> double {
-            placeholder =
+            hessian_ = hessian =
                 (h + lambda * TDoubleMatrix::Identity(d, d)).selfadjointView<Eigen::Lower>();
-            Eigen::LDLT<Eigen::Ref<Eigen::MatrixXd>> ldlt{placeholder};
-            return g.transpose() * ldlt.solve(g);
+            // Since the Hessian is positive semidefinite, the trace is larger than the
+            // largest eigenvalue. Therefore, H_eps = H + eps * trace(H) * I will have
+            // condition number at least eps. As long as eps >> double epsilon we should
+            // be able to invert it accurately.
+            double eps{std::max(1e-5 * hessian.trace(), 1e-10)};
+            for (std::size_t i = 0; i < 2; ++i) {
+                Eigen::LLT<Eigen::Ref<Eigen::MatrixXd>> llt{hessian};
+                hessianInvg = llt.solve(g);
+                if ((hessian_ * hessianInvg - g).norm() < 1e-2 * g.norm()) {
+                    return g.transpose() * hessianInvg;
+                } else {
+                    hessian_.diagonal().array() += eps;
+                    hessian = hessian_;
+                }
+            }
+            return -INF / 2.0; // We couldn't invert the Hessian: discard this split.
         };
     }
 
@@ -370,11 +386,16 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
             double gain[2];
             gain[ASSIGN_MISSING_TO_LEFT] =
-                minimumLoss(gl[ASSIGN_MISSING_TO_LEFT], hl[ASSIGN_MISSING_TO_LEFT]) +
-                minimumLoss(gr[ASSIGN_MISSING_TO_LEFT], hr[ASSIGN_MISSING_TO_LEFT]);
+                cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c
+                    ? -INF
+                    : minimumLoss(gl[ASSIGN_MISSING_TO_LEFT], hl[ASSIGN_MISSING_TO_LEFT]) +
+                          minimumLoss(gr[ASSIGN_MISSING_TO_LEFT], hr[ASSIGN_MISSING_TO_LEFT]);
             gain[ASSIGN_MISSING_TO_RIGHT] =
-                minimumLoss(gl[ASSIGN_MISSING_TO_RIGHT], hl[ASSIGN_MISSING_TO_RIGHT]) +
-                minimumLoss(gr[ASSIGN_MISSING_TO_RIGHT], hr[ASSIGN_MISSING_TO_RIGHT]);
+                cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c
+                    ? -INF
+                    : minimumLoss(gl[ASSIGN_MISSING_TO_RIGHT], hl[ASSIGN_MISSING_TO_RIGHT]) +
+                          minimumLoss(gr[ASSIGN_MISSING_TO_RIGHT],
+                                      hr[ASSIGN_MISSING_TO_RIGHT]);
 
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_LEFT];

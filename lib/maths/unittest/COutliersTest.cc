@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CAlignment.h>
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CLogger.h>
@@ -42,7 +43,7 @@ using TPoint = maths::CDenseVector<double>;
 using TPointVec = std::vector<TPoint>;
 using TFactoryFunc = std::function<std::unique_ptr<core::CDataFrame>(const TPointVec&)>;
 
-class CTestInstrumentation final : public maths::CDataFrameAnalysisInstrumentationInterface {
+class CTestInstrumentation final : public maths::CDataFrameOutliersInstrumentationStub {
 public:
     using TProgressCallbackOpt = boost::optional<TProgressCallback>;
     using TMemoryUsageCallbackOpt = boost::optional<TMemoryUsageCallback>;
@@ -68,7 +69,7 @@ public:
         m_MemoryUsageCallback = memoryUsageCallback;
     }
 
-    void nextStep(std::uint32_t /*uint32*/) override {}
+    void nextStep(const std::string& /*uint32*/) override {}
 
 private:
     TProgressCallbackOpt m_ProgressCallback;
@@ -595,7 +596,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
                                                     0.05}; // Outlier fraction
 
         std::int64_t estimatedMemoryUsage(
-            core::CDataFrame::estimateMemoryUsage(i == 0, 40500, 6) +
+            core::CDataFrame::estimateMemoryUsage(i == 0, 40500, 6, core::CAlignment::E_Aligned16) +
             maths::COutliers::estimateMemoryUsedByCompute(
                 params, numberPoints,
                 (numberPoints + numberPartitions[i] - 1) / numberPartitions[i],
@@ -624,7 +625,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByCompute) {
         LOG_DEBUG(<< "estimated peak memory = " << estimatedMemoryUsage);
         LOG_DEBUG(<< "high water mark = " << maxMemoryUsage);
         BOOST_TEST_REQUIRE(std::abs(maxMemoryUsage - estimatedMemoryUsage) <
-                           std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 10);
+                           std::max(maxMemoryUsage.load(), estimatedMemoryUsage) / 6);
     }
 }
 

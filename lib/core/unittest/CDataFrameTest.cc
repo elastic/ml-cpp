@@ -4,9 +4,11 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CAlignment.h>
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CDataFrameRowSlice.h>
+#include <core/CFloatStorage.h>
 #include <core/CPackedBitVector.h>
 #include <core/Concurrency.h>
 
@@ -28,7 +30,8 @@ using namespace ml;
 namespace {
 using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
-using TFloatVec = std::vector<core::CFloatStorage>;
+using TFloatVec =
+    std::vector<core::CFloatStorage, core::CAlignedAllocator<core::CFloatStorage>>;
 using TFloatVecItr = TFloatVec::iterator;
 using TFloatVecCItr = TFloatVec::const_iterator;
 using TSizeFloatVecUMap = boost::unordered_map<std::size_t, TFloatVec>;
@@ -828,6 +831,117 @@ BOOST_FIXTURE_TEST_CASE(testRowMask, CTestFixture) {
                                     core::CContainerPrinter::print(readRowsIndices));
             }
         }
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(testAlignment, CTestFixture) {
+
+    // Test all the rows have the requested alignment.
+
+    using TAlignedFactoryFunc =
+        std::function<std::unique_ptr<core::CDataFrame>(core::CAlignment::EType)>;
+
+    std::size_t rows{5000};
+    std::size_t cols{15};
+    std::size_t capacity{1000};
+    TFloatVec components{testData(rows, cols)};
+
+    test::CRandomNumbers rng;
+
+    TAlignedFactoryFunc makeOnDisk = [=](core::CAlignment::EType alignment) {
+        return core::makeDiskStorageDataFrame(
+                   boost::filesystem::current_path().string(), cols, rows, capacity,
+                   core::CDataFrame::EReadWriteToStorage::E_Async, alignment)
+            .first;
+    };
+    TAlignedFactoryFunc makeMainMemory = [=](core::CAlignment::EType alignment) {
+        return core::makeMainStorageDataFrame(
+                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync, alignment)
+            .first;
+    };
+
+    std::string type[]{"on disk", "main memory"};
+    std::size_t t{0};
+    for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+        for (auto alignment : {core::CAlignment::E_Aligned8, core::CAlignment::E_Aligned16,
+                               core::CAlignment::E_Aligned32}) {
+            LOG_DEBUG(<< "Test aligned " << alignment << " " << type[t]);
+
+            auto frame = factory(alignment);
+
+            for (std::size_t i = 0; i < components.size(); i += cols) {
+                frame->writeRow(makeWriter(components, cols, i));
+            }
+            frame->finishWritingRows();
+
+            frame->readRows(1, [alignment](TRowItr beginRows, TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    BOOST_TEST_REQUIRE(core::CAlignment::isAligned(row->data(), alignment));
+                }
+            });
+        }
+        ++t;
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(testAlignedExtraColumns, CTestFixture) {
+
+    // Test all the rows have the requested alignment.
+
+    using TAlignedFactoryFunc =
+        std::function<std::unique_ptr<core::CDataFrame>(core::CAlignment::EType)>;
+
+    std::size_t rows{5000};
+    std::size_t cols{15};
+    std::size_t capacity{1000};
+    TFloatVec components{testData(rows, cols)};
+    core::CDataFrame::TSizeAlignmentPrVec extraCols{{2, core::CAlignment::E_Unaligned},
+                                                    {3, core::CAlignment::E_Aligned16},
+                                                    {1, core::CAlignment::E_Unaligned}};
+    test::CRandomNumbers rng;
+
+    TAlignedFactoryFunc makeOnDisk = [=](core::CAlignment::EType alignment) {
+        return core::makeDiskStorageDataFrame(
+                   boost::filesystem::current_path().string(), cols, rows, capacity,
+                   core::CDataFrame::EReadWriteToStorage::E_Async, alignment)
+            .first;
+    };
+    TAlignedFactoryFunc makeMainMemory = [=](core::CAlignment::EType alignment) {
+        return core::makeMainStorageDataFrame(
+                   cols, capacity, core::CDataFrame::EReadWriteToStorage::E_Sync, alignment)
+            .first;
+    };
+
+    std::string type[]{"on disk", "main memory"};
+    std::size_t t{0};
+    for (const auto& factory : {makeOnDisk, makeMainMemory}) {
+        for (auto alignment : {core::CAlignment::E_Aligned16, core::CAlignment::E_Aligned32}) {
+            LOG_DEBUG(<< "Test aligned " << alignment << " " << type[t]);
+
+            auto frame = factory(alignment);
+
+            for (std::size_t i = 0; i < components.size(); i += cols) {
+                frame->writeRow(makeWriter(components, cols, i));
+            }
+            frame->finishWritingRows();
+
+            auto offsets = frame->resizeColumns(1, extraCols);
+            for (std::size_t i = 1; i < offsets.size(); ++i) {
+                BOOST_TEST_REQUIRE(offsets[i] - offsets[i - 1] >=
+                                   extraCols[i - 1].first);
+            }
+
+            BOOST_TEST_REQUIRE(extraCols.size() == offsets.size());
+            frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    for (std::size_t i = 0; i < extraCols.size(); ++i) {
+                        BOOST_TEST_REQUIRE(core::CAlignment::isAligned(
+                            row->data() + offsets[i], extraCols[i].second));
+                    }
+                }
+            });
+        }
+        ++t;
     }
 }
 

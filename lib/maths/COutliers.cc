@@ -6,10 +6,12 @@
 
 #include <maths/COutliers.h>
 
+#include <core/CAlignment.h>
 #include <core/CDataFrame.h>
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
 
+#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CDataFrameUtils.h>
 #include <maths/CIntegration.h>
 #include <maths/CLinearAlgebraEigen.h>
@@ -19,8 +21,10 @@
 
 #include <boost/math/distributions/lognormal.hpp>
 
+#include <cmath>
 #include <numeric>
 #include <sstream>
+#include <string>
 #include <tuple>
 
 namespace ml {
@@ -28,8 +32,14 @@ namespace maths {
 using namespace outliers_detail;
 
 namespace {
+
+const std::string COMPUTE_OUTLIER_SCORES{"compute_outlier_scores"};
+const std::string EMPTY_STRING;
+
 using TRowItr = core::CDataFrame::TRowItr;
-using TStepCallback = std::function<void(std::uint32_t)>;
+using TStepCallback = std::function<void(const std::string&)>;
+using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
+using TDenseFloatVector = CDenseVector<CFloatStorage>;
 
 double shift(double score) {
     return std::exp(-2.0) + score;
@@ -93,7 +103,7 @@ public:
         CModel make(const TMethodFactoryVec& methodFactories);
 
     private:
-        using TSampler = CSampling::CRandomStreamSampler<TRowRef>;
+        using TSampler = CSampling::CReservoirSampler<TRowRef>;
 
     private:
         TSampler makeSampler(CPRNG::CXorOShiro128Plus& rng, std::size_t sampleSize);
@@ -377,10 +387,8 @@ CEnsemble<POINT>::computeOutlierScores(const std::vector<POINT>& points) const {
     TScorerVec scores(points.size());
     m_RecordMemoryUsage(core::CMemory::dynamicSize(scores));
 
-    std::uint32_t step{0};
     for (const auto& model : m_Models) {
         model.addOutlierScores(points, scores, m_RecordMemoryUsage);
-        m_RecordStep(step++);
     }
     return scores;
 }
@@ -876,7 +884,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
                                  core::CDataFrame& frame,
                                  CDataFrameAnalysisInstrumentationInterface& instrumentation) {
 
-    using TPoint = CMemoryMappedDenseVector<CFloatStorage>;
+    using TPoint = TMemoryMappedFloatVector;
     using TPointVec = std::vector<TPoint>;
 
     std::int64_t frameMemory{signedMemoryUsage(frame)};
@@ -962,7 +970,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
                                 core::CDataFrame& frame,
                                 CDataFrameAnalysisInstrumentationInterface& instrumentation) {
 
-    using TPoint = CDenseVector<CFloatStorage>;
+    using TPoint = TDenseFloatVector;
     using TPointVec = std::vector<TPoint>;
 
     core::CStopWatch watch{true};
@@ -1050,7 +1058,11 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
 
 void COutliers::compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
-                        CDataFrameAnalysisInstrumentationInterface& instrumentation) {
+                        CDataFrameOutliersInstrumentationInterface& instrumentation) {
+    instrumentation.parameters(params);
+    core::CStopWatch stopWatch;
+    stopWatch.start();
+    std::uint64_t startTime{stopWatch.lap()};
 
     if (params.s_StandardizeColumns) {
         CDataFrameUtils::standardizeColumns(params.s_NumberThreads, frame);
@@ -1059,7 +1071,9 @@ void COutliers::compute(const SComputeParameters& params,
     bool successful{frame.inMainMemory() && params.s_NumberPartitions == 1
                         ? computeOutliersNoPartitions(params, frame, instrumentation)
                         : computeOutliersPartitioned(params, frame, instrumentation)};
-
+    std::uint64_t elapsedTime{stopWatch.lap() - startTime};
+    instrumentation.elapsedTime(elapsedTime);
+    instrumentation.nextStep(COMPUTE_OUTLIER_SCORES);
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: computing outliers for data frame. There "
                      << "may be more details in the logs. Please report this problem.");
@@ -1071,9 +1085,9 @@ std::size_t COutliers::estimateMemoryUsedByCompute(const SComputeParameters& par
                                                    std::size_t partitionNumberPoints,
                                                    std::size_t dimension) {
     return params.s_NumberPartitions == 1
-               ? COutliers::estimateMemoryUsedByCompute<CMemoryMappedDenseVector<CFloatStorage>>(
+               ? COutliers::estimateMemoryUsedByCompute<TMemoryMappedFloatVector>(
                      params, totalNumberPoints, partitionNumberPoints, dimension)
-               : COutliers::estimateMemoryUsedByCompute<CDenseVector<CFloatStorage>>(
+               : COutliers::estimateMemoryUsedByCompute<TDenseFloatVector>(
                      params, totalNumberPoints, partitionNumberPoints, dimension);
 }
 
@@ -1112,5 +1126,27 @@ void COutliers::noopRecordProgress(double) {
 
 void COutliers::noopRecordMemoryUsage(std::int64_t) {
 }
+
+const std::string& COutliers::print(EMethod method) {
+    switch (method) {
+    case E_Lof:
+        return LOF;
+    case E_Ldof:
+        return LDOF;
+    case E_DistancekNN:
+        return DISTANCE_KNN;
+    case E_TotalDistancekNN:
+        return TOTAL_DISTANCE_KNN;
+    case E_Ensemble:
+        return ENSEMBLE;
+    }
+    return EMPTY_STRING;
+}
+
+const std::string COutliers::LOF{"lof"};
+const std::string COutliers::LDOF{"ldof"};
+const std::string COutliers::DISTANCE_KNN{"distance_kth_nn"};
+const std::string COutliers::TOTAL_DISTANCE_KNN{"distance_knn"};
+const std::string COutliers::ENSEMBLE{"ensemble"};
 }
 }

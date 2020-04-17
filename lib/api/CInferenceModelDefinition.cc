@@ -110,26 +110,29 @@ void CTree::CTreeNode::addToDocument(rapidjson::Value& parentObject,
             JSON_RIGHT_CHILD_TAG,
             rapidjson::Value(static_cast<std::uint64_t>(m_RightChild.get())).Move(),
             parentObject);
+    } else if (m_LeafValue.size() > 1) {
+        // leaf node
+        addJsonArray(JSON_LEAF_VALUE_TAG, m_LeafValue, parentObject, writer);
     } else {
         // leaf node
         writer.addMember(JSON_LEAF_VALUE_TAG,
-                         rapidjson::Value(m_LeafValue).Move(), parentObject);
+                         rapidjson::Value(m_LeafValue[0]).Move(), parentObject);
     }
 }
 
 CTree::CTreeNode::CTreeNode(TNodeIndex nodeIndex,
                             double threshold,
                             bool defaultLeft,
-                            double leafValue,
+                            TDoubleVec leafValue,
                             std::size_t splitFeature,
                             std::size_t numberSamples,
                             const TOptionalNodeIndex& leftChild,
                             const TOptionalNodeIndex& rightChild,
                             const TOptionalDouble& splitGain)
-    : m_DefaultLeft(defaultLeft), m_NodeIndex(nodeIndex),
-      m_LeftChild(leftChild), m_RightChild(rightChild),
-      m_SplitFeature(splitFeature), m_NumberSamples(numberSamples),
-      m_Threshold(threshold), m_LeafValue(leafValue), m_SplitGain(splitGain) {
+    : m_DefaultLeft(defaultLeft), m_NodeIndex(nodeIndex), m_LeftChild(leftChild),
+      m_RightChild(rightChild), m_SplitFeature(splitFeature),
+      m_NumberSamples(numberSamples), m_Threshold(threshold),
+      m_LeafValue(std::move(leafValue)), m_SplitGain(splitGain) {
 }
 
 size_t CTree::CTreeNode::splitFeature() const {
@@ -217,11 +220,11 @@ void CEnsemble::classificationLabels(const TStringVec& classificationLabels) {
     }
 }
 
-void CEnsemble::classificationWeights(const TDoubleVec& classificationWeights) {
-    this->CTrainedModel::classificationWeights(classificationWeights);
+void CEnsemble::classificationWeights(TDoubleVec classificationWeights) {
     for (auto& trainedModel : m_TrainedModels) {
         trainedModel->classificationWeights(classificationWeights);
     }
+    this->CTrainedModel::classificationWeights(std::move(classificationWeights));
 }
 
 void CTree::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const {
@@ -365,8 +368,8 @@ const CTrainedModel::TOptionalDoubleVec& CTrainedModel::classificationWeights() 
     return m_ClassificationWeights;
 }
 
-void CTrainedModel::classificationWeights(const TDoubleVec& classificationWeights) {
-    m_ClassificationWeights = classificationWeights;
+void CTrainedModel::classificationWeights(TDoubleVec classificationWeights) {
+    m_ClassificationWeights = std::move(classificationWeights);
 }
 
 void CInferenceModelDefinition::fieldNames(TStringVec&& fieldNames) {

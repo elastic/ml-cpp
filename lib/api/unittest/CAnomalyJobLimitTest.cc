@@ -11,7 +11,6 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
-#include <api/CAnomalyJob.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
@@ -21,6 +20,7 @@
 #include <test/CRandomNumbers.h>
 
 #include "CMockDataProcessor.h"
+#include "CTestAnomalyJob.h"
 
 #include <rapidjson/document.h>
 #include <rapidjson/pointer.h>
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
 
         {
             LOG_TRACE(<< "Setting up job");
-            api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
             std::ifstream inputStrm("testfiles/resource_accuracy.csv");
             BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
 
             LOG_TRACE(<< "Reading file");
             BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::bind(
-                &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
+                &CTestAnomalyJob::handleRecord, &job, std::placeholders::_1)));
 
             LOG_TRACE(<< "Checking results");
 
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
                 limits.resourceMonitor().m_ByteLimitHigh - 1024;
 
             LOG_TRACE(<< "Setting up job");
-            api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
             std::ifstream inputStrm("testfiles/resource_accuracy.csv");
             BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
 
             LOG_TRACE(<< "Reading file");
             BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::bind(
-                &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
+                &CTestAnomalyJob::handleRecord, &job, std::placeholders::_1)));
 
             LOG_TRACE(<< "Checking results");
 
@@ -211,15 +211,15 @@ BOOST_AUTO_TEST_CASE(testLimit) {
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
 
         LOG_TRACE(<< "Setting up job");
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
         std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition.csv");
         BOOST_TEST_REQUIRE(inputStrm.is_open());
         api::CCsvInputParser parser(inputStrm);
 
         LOG_TRACE(<< "Reading file");
-        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::bind(
-            &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
+            std::bind(&CTestAnomalyJob::handleRecord, &job, std::placeholders::_1)));
         LOG_TRACE(<< "Checking results");
         BOOST_REQUIRE_EQUAL(uint64_t(1176), job.numRecordsHandled());
     }
@@ -257,15 +257,15 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
         LOG_TRACE(<< "Setting up job");
-        api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
         std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition_first8.csv");
         BOOST_TEST_REQUIRE(inputStrm.is_open());
         api::CCsvInputParser parser(inputStrm);
 
         LOG_TRACE(<< "Reading file");
-        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::bind(
-            &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
+            std::bind(&CTestAnomalyJob::handleRecord, &job, std::placeholders::_1)));
         // Now turn on the resource limiting
         limits.resourceMonitor().m_ByteLimitHigh = 0;
         limits.resourceMonitor().m_ByteLimitLow = 0;
@@ -276,8 +276,8 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         api::CCsvInputParser parser2(inputStrm2);
 
         LOG_TRACE(<< "Reading second file");
-        BOOST_TEST_REQUIRE(parser2.readStreamIntoMaps(std::bind(
-            &api::CAnomalyJob::handleRecord, &job, std::placeholders::_1)));
+        BOOST_TEST_REQUIRE(parser2.readStreamIntoMaps(
+            std::bind(&CTestAnomalyJob::handleRecord, &job, std::placeholders::_1)));
         LOG_TRACE(<< "Checking results");
         BOOST_REQUIRE_EQUAL(uint64_t(1180), job.numRecordsHandled());
     }
@@ -354,7 +354,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
         TGeneratorVec generators{periodic, tradingDays, level, ramp, sparse};
         std::stringstream outputStrm;
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        api::CAnomalyJob::TStrStrUMap dataRows;
+        CTestAnomalyJob::TStrStrUMap dataRows;
         TSizeVec generator;
 
         LOG_DEBUG(<< "**** Test by with bucketLength = " << testParam.s_BucketLength << " ****");
@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             fieldConfig.initFromClause(clauses);
             model::CAnomalyDetectorModelConfig modelConfig =
                 model::CAnomalyDetectorModelConfig::defaultConfig(testParam.s_BucketLength);
-            api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
             core_t::TTime startTime{1495110323};
             core_t::TTime endTime{1495260323};
@@ -418,7 +418,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             fieldConfig.initFromClause(clauses);
             model::CAnomalyDetectorModelConfig modelConfig =
                 model::CAnomalyDetectorModelConfig::defaultConfig(testParam.s_BucketLength);
-            api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
             core_t::TTime startTime{1495110323};
             core_t::TTime endTime{1495260323};
@@ -469,7 +469,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             fieldConfig.initFromClause(clauses);
             model::CAnomalyDetectorModelConfig modelConfig =
                 model::CAnomalyDetectorModelConfig::defaultConfig(testParam.s_BucketLength);
-            api::CAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
 
             core_t::TTime startTime{1495110323};
             core_t::TTime endTime{1495230323};

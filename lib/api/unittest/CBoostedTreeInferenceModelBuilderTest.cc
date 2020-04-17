@@ -94,14 +94,17 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
     api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            test::CDataFrameAnalysisSpecificationFactory::regression(), "target_col",
-            numberExamples, cols, 30000000, 0, 0, {"categorical_col"}),
+        specFactory.rows(numberExamples)
+            .columns(cols)
+            .memoryLimit(30000000)
+            .predictionCategoricalFieldNames({"categorical_col"})
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target_col"),
         outputWriterFactory};
 
-    TDataFrameUPtr frame =
-        core::makeMainStorageDataFrame(cols + 2, numberExamples).first;
+    TDataFrameUPtr frame{
+        core::makeMainStorageDataFrame(cols + 2, numberExamples).first};
     for (std::size_t i = 0; i < numberExamples; ++i) {
         for (std::size_t j = 0; j < cols; ++j) {
             fieldValues[j] = core::CStringUtils::typeToStringPrecise(
@@ -178,14 +181,17 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     values[1] = generateCategoricalData(rng, numberExamples, {100., 5.0, 5.0}).second;
     values[2] = generateCategoricalData(rng, numberExamples, {5.0, 5.0}).second;
 
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
     api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            test::CDataFrameAnalysisSpecificationFactory::classification(), "target_col",
-            numberExamples, cols, 30000000, 0, 0, {"categorical_col", "target_col"}),
+        specFactory.rows(numberExamples)
+            .columns(cols)
+            .memoryLimit(30000000)
+            .predictionCategoricalFieldNames({"categorical_col", "target_col"})
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(), "target_col"),
         outputWriterFactory};
 
-    TDataFrameUPtr frame =
-        core::makeMainStorageDataFrame(cols + 2, numberExamples).first;
+    TDataFrameUPtr frame{
+        core::makeMainStorageDataFrame(cols + 2, numberExamples).first};
     for (std::size_t i = 0; i < numberExamples; ++i) {
         for (std::size_t j = 0; j < cols; ++j) {
             fieldValues[j] = core::CStringUtils::typeToStringPrecise(
@@ -270,14 +276,17 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
     api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory::predictionSpec(
-            test::CDataFrameAnalysisSpecificationFactory::regression(), "target_col",
-            numberExamples, cols, 30000000, 0, 0, {"categorical_col"}),
+        specFactory.rows(numberExamples)
+            .columns(cols)
+            .memoryLimit(30000000)
+            .predictionCategoricalFieldNames({"categorical_col"})
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target_col"),
         outputWriterFactory};
 
-    TDataFrameUPtr frame =
-        core::makeMainStorageDataFrame(cols + 2, numberExamples).first;
+    TDataFrameUPtr frame{
+        core::makeMainStorageDataFrame(cols + 2, numberExamples).first};
     for (std::size_t i = 0; i < numberExamples; ++i) {
         for (std::size_t j = 0; j < cols; ++j) {
             fieldValues[j] = core::CStringUtils::typeToStringPrecise(
@@ -315,6 +324,8 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
         LOG_DEBUG(<< "Document: " << definition->jsonString());
         BOOST_FAIL("Schema validation failed");
     }
+
+    // TODO add multivalued leaf test.
 }
 
 BOOST_AUTO_TEST_CASE(testEncoders) {

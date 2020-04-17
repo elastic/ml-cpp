@@ -66,6 +66,7 @@ public:
     static const std::string THREADS;
     static const std::string TEMPORARY_DIRECTORY;
     static const std::string RESULTS_FIELD;
+    static const std::string MISSING_FIELD_VALUE;
     static const std::string CATEGORICAL_FIELD_NAMES;
     static const std::string DISK_USAGE_ALLOWED;
     static const std::string ANALYSIS;
@@ -160,34 +161,19 @@ public:
     //! appropriate.
     TDataFrameUPtrTemporaryDirectoryPtrPr makeDataFrame();
 
-    //! Run the analysis in a background thread.
-    //!
-    //! This returns a handle to the object responsible for running the analysis.
-    //! Destroying this object waits for the analysis to complete and joins the
-    //! thread. It is expected that the caller will mainly sleep and wake up
-    //! periodically to report progess, errors and see if it has finished.
-    //!
-    //! \return A handle to the analysis runner.
-    //! \note The commit of the results of the analysis is atomic per partition.
-    //! \warning This assumes that there is no access to the data frame in the
-    //! calling thread until the runner has finished.
-    CDataFrameAnalysisRunner* run(core::CDataFrame& frame) const;
+    //! \return A handle to the object responsible for running the analysis.
+    CDataFrameAnalysisRunner* runner();
 
     //! Estimates memory usage in two cases:
     //!   1. disk is not used (the whole data frame fits in main memory)
     //!   2. disk is used (only one partition needs to be loaded to main memory)
     void estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const;
 
-    //! \return Indicator of columns for which empty value should be treated as missing.
-    TBoolVec columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const;
-
-    //! \return shared pointer to the persistence stream.
+    //! \return The stream to which to persist state if there is one.
     TDataAdderUPtr persister() const;
 
+    //! \return The stream from which to retore state if there is one.
     TDataSearcherUPtr restoreSearcher() const;
-
-    //! Get pointer to the analysis runner.
-    CDataFrameAnalysisRunner* runner();
 
 private:
     void initializeRunner(const rapidjson::Value& jsonAnalysis);
@@ -203,6 +189,7 @@ private:
     std::string m_ResultsField;
     std::string m_JobId;
     std::string m_AnalysisName;
+    std::string m_MissingFieldValue;
     TStrVec m_CategoricalFieldNames;
     bool m_DiskUsageAllowed;
     // TODO Sparse table support

@@ -14,10 +14,16 @@
 # used for subsequent builds on this branch.  Then update the version to be
 # used for builds in docker/linux_builder/Dockerfile.
 
+if [ `uname -m` != x86_64 ] ; then
+    echo "Native build images must be built on the correct hardware architecture"
+    echo "Required: x86_64, Current:" `uname -m`
+    exit 1
+fi
+
 HOST=push.docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-linux-build
-VERSION=13
+VERSION=14
 
 set -e
 

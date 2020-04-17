@@ -1776,7 +1776,7 @@ BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture) {
     TDoubleVec spikeOrTroughSelector;
 
     core_t::TTime buckets{WEEK / TEN_MINS};
-    std::size_t numberOutliers{static_cast<std::size_t>(0.1 * buckets)};
+    std::size_t numberOutliers{static_cast<std::size_t>(0.1 * static_cast<double>(buckets))};
     rng.generateUniformSamples(0, buckets, numberOutliers, outliers);
     rng.generateUniformSamples(0, 1.0, numberOutliers, spikeOrTroughSelector);
     rng.generateNormalSamples(0.0, 9.0, buckets, noise);
@@ -1920,19 +1920,25 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
     test::CRandomNumbers rng;
 
     auto trend = [](core_t::TTime time) {
-        return 20.0 + 10.0 * std::sin(boost::math::double_constants::two_pi * time / DAY) +
+        return 20.0 +
+               10.0 * std::sin(boost::math::double_constants::two_pi *
+                               static_cast<double>(time) / static_cast<double>(DAY)) +
                3.0 * (time > 4 * WEEK
-                          ? std::sin(boost::math::double_constants::two_pi * time / HOUR)
+                          ? std::sin(boost::math::double_constants::two_pi *
+                                     static_cast<double>(time) / static_cast<double>(HOUR))
                           : 0.0) -
                3.0 * (time > 9 * WEEK
-                          ? std::sin(boost::math::double_constants::two_pi * time / HOUR)
+                          ? std::sin(boost::math::double_constants::two_pi *
+                                     static_cast<double>(time) / static_cast<double>(HOUR))
                           : 0.0) +
-               8.0 * (time > 16 * WEEK
-                          ? std::sin(boost::math::double_constants::two_pi * time / 4 / DAY)
-                          : 0.0) -
-               8.0 * (time > 21 * WEEK
-                          ? std::sin(boost::math::double_constants::two_pi * time / 4 / DAY)
-                          : 0.0);
+               8.0 * (time > 16 * WEEK ? std::sin(boost::math::double_constants::two_pi *
+                                                  static_cast<double>(time) /
+                                                  4.0 / static_cast<double>(DAY))
+                                       : 0.0) -
+               8.0 * (time > 21 * WEEK ? std::sin(boost::math::double_constants::two_pi *
+                                                  static_cast<double>(time) /
+                                                  4.0 / static_cast<double>(DAY))
+                                       : 0.0);
     };
 
     maths::CTimeSeriesDecomposition decomposition(0.012, FIVE_MINS);

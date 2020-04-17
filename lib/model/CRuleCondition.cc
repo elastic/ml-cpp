@@ -76,7 +76,7 @@ bool CRuleCondition::test(const CAnomalyDetectorModel& model,
         break;
     }
     case E_Time: {
-        value.push_back(time);
+        value.push_back(static_cast<double>(time));
         break;
     }
     }

@@ -32,6 +32,8 @@ std::size_t maximumNumberPartitions(const CDataFrameAnalysisSpecification& spec)
     // user to allocate more resources for the job in this case.
     return static_cast<std::size_t>(std::sqrt(static_cast<double>(spec.numberRows())) + 0.5);
 }
+
+const std::size_t BYTES_IN_MB{1024 * 1024};
 }
 
 CDataFrameAnalysisRunner::CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec)
@@ -40,10 +42,6 @@ CDataFrameAnalysisRunner::CDataFrameAnalysisRunner(const CDataFrameAnalysisSpeci
 
 CDataFrameAnalysisRunner::~CDataFrameAnalysisRunner() {
     this->waitToFinish();
-}
-
-TBoolVec CDataFrameAnalysisRunner::columnsForWhichEmptyIsMissing(const TStrVec& fieldNames) const {
-    return TBoolVec(fieldNames.size(), false);
 }
 
 void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {
@@ -58,11 +56,11 @@ void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJ
         this->estimateMemoryUsage(numberRows, numberRows, numberColumns)};
     std::size_t expectedMemoryWithDisk{this->estimateMemoryUsage(
         numberRows, numberRows / maxNumberPartitions, numberColumns)};
-    auto roundUpToNearestKilobyte = [](std::size_t bytes) {
-        return std::to_string((bytes + 1024 - 1) / 1024) + "kB";
+    auto roundUpToNearestMb = [](std::size_t bytes) {
+        return std::to_string((bytes + BYTES_IN_MB - 1) / BYTES_IN_MB) + "mb";
     };
-    writer.write(roundUpToNearestKilobyte(expectedMemoryWithoutDisk),
-                 roundUpToNearestKilobyte(expectedMemoryWithDisk));
+    writer.write(roundUpToNearestMb(expectedMemoryWithoutDisk),
+                 roundUpToNearestMb(expectedMemoryWithDisk));
 }
 
 void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
@@ -99,7 +97,7 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
 
     if (memoryUsage > memoryLimit) {
         auto roundMb = [](std::size_t memory) {
-            return 0.01 * static_cast<double>((100 * memory) / (1024 * 1024));
+            return 0.01 * static_cast<double>((100 * memory) / BYTES_IN_MB);
         };
 
         // Report rounded up to the nearest MB.
@@ -165,7 +163,7 @@ std::size_t CDataFrameAnalysisRunner::estimateMemoryUsage(std::size_t totalNumbe
                                                           std::size_t numberColumns) const {
     return core::CDataFrame::estimateMemoryUsage(
                this->storeDataFrameInMainMemory(), totalNumberRows,
-               numberColumns + this->numberExtraColumns()) +
+               numberColumns + this->numberExtraColumns(), core::CAlignment::E_Aligned16) +
            this->estimateBookkeepingMemoryUsage(m_NumberPartitions, totalNumberRows,
                                                 partitionNumberRows, numberColumns);
 }

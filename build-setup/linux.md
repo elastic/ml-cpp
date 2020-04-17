@@ -1,5 +1,6 @@
-
 # Machine Learning Build Machine Setup for Linux
+
+These same instructions should work for native compilation on both x86_64 and aarch64 architectures.
 
 To ensure everything is consistent for redistributable builds we build all redistributable components from source with a specific version of gcc.
 
@@ -26,12 +27,7 @@ export CPP_SRC_HOME=$HOME/ml-cpp
 You need the C++ compiler and the headers for the `zlib` library that comes with the OS.  You also need the archive utilities `unzip` and `bzip2`.  Finally, the unit tests for date/time parsing require the `tzdata` package that contains the Linux timezone database.  On RHEL/CentOS these can be installed using:
 
 ```
-sudo yum install bzip2
-sudo yum install gcc-c++
-sudo yum install texinfo
-sudo yum install tzdata
-sudo yum install unzip
-sudo yum install zlib-devel
+sudo yum install bzip2 gcc-c++ texinfo tzdata unzip zlib-devel
 ```
 
 On other Linux distributions the package names are generally the same and you just need to use the correct package manager to install these packages.
@@ -63,7 +59,7 @@ Unlike most automake-based tools, gcc must be built in a directory adjacent to t
 tar zxvf gcc-7.5.0.tar.gz
 cd gcc-7.5.0
 contrib/download_prerequisites
-sed -i -e 's/$(SHLIB_LDFLAGS)/$(LDFLAGS) $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc
+sed -i -e 's/$(SHLIB_LDFLAGS)/-Wl,-z,relro -Wl,-z,now $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc
 cd ..
 mkdir gcc-7.5.0-build
 cd gcc-7.5.0-build
@@ -241,6 +237,41 @@ In the resulting `patchelf-0.9` directory, run the:
 ```
 
 script. This should build an appropriate Makefile. Assuming it does, run:
+
+```
+make
+sudo make install
+```
+
+to complete the build.
+
+### valgrind
+
+`valgrind` is not required to build the code.  However, since we build `gcc` ourselves, if you want
+to debug with `valgrind` then you'll get better results if you build a version that's compatible
+with our `gcc` instead of using the version you can get via your package manager.
+
+If you find yourself needing to do this, download `valgrind` from <http://valgrind.org/downloads/> - the
+download file will be `valgrind-3.15.0.tar.bz2`.
+
+Extract it to a temporary directory using:
+
+```
+tar jxvf valgrind-3.15.0.tar.bz2
+```
+
+In the resulting `valgrind-3.15.0` directory, run:
+
+```
+unset CFLAGS
+unset CXXFLAGS
+./configure --prefix=/usr/local/gcc75 --disable-dependency-tracking --enable-only64bit
+```
+
+The reason for unsetting the compiler flags is that `valgrind` does not build correctly
+with the fortified options we have to use for libraries we ship.
+
+This should build an appropriate Makefile. Assuming it does, run:
 
 ```
 make

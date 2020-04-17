@@ -528,7 +528,7 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
                                     uniqueValues.begin(), uniqueValues.end(),
                                     std::bind(&core::CCompressUtil::addString,
                                               &compressor, std::placeholders::_1))));
-            size_t length(0);
+            std::size_t length(0);
             BOOST_TEST_REQUIRE(compressor.length(true, length));
             expectedBucketCompressedLengthPerPerson[key] = length;
         }
@@ -539,8 +539,9 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
         for (TSizeSizePrFeatureDataPrVec::const_iterator j =
                  bucketCompressedLengthPerPerson.begin();
              j != bucketCompressedLengthPerPerson.end(); ++j) {
-            double expectedLength = expectedBucketCompressedLengthPerPerson[j->first];
-            double actual = j->second.s_Count;
+            double expectedLength = static_cast<double>(
+                expectedBucketCompressedLengthPerPerson[j->first]);
+            double actual = static_cast<double>(j->second.s_Count);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedLength, actual, expectedLength * 0.1);
         }
 

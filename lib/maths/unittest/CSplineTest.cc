@@ -277,7 +277,8 @@ BOOST_AUTO_TEST_CASE(testMean) {
             LOG_DEBUG(<< "expectedMean = " << expectedMean
                       << ", mean = " << spline.mean());
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedMean, spline.mean(),
-                                         std::numeric_limits<double>::epsilon() * expectedMean);
+                                         std::numeric_limits<double>::epsilon() *
+                                             expectedMean * 1.5);
         }
     }
 

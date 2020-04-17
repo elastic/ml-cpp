@@ -131,7 +131,7 @@ bool persistCategorizerStateToFile(const std::string& outputFileName) {
     ml::core::CJsonOutputStreamWrapper wrappendOutStream(outStream);
     ml::api::CJsonOutputWriter writer("job", wrappendOutStream);
 
-    ml::api::CFieldDataCategorizer categorizer("job", config, limits, writer, writer);
+    ml::api::CFieldDataCategorizer categorizer("job", config, limits, writer, writer, nullptr);
 
     ml::api::CFieldDataCategorizer::TStrStrUMap dataRowFields;
     dataRowFields["_raw"] = "thing";
@@ -189,7 +189,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
 
     ml::api::CAnomalyJob origJob(jobId, limits, fieldConfig, modelConfig, wrappedOutputStream,
                                  std::bind(&reportPersistComplete, std::placeholders::_1),
-                                 nullptr, -1, "time", timeFormat);
+                                 nullptr, -1, "time", timeFormat, 0);
 
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
     const TInputParserUPtr parser{[&inputFilename, &inputStrm]() -> TInputParserUPtr {

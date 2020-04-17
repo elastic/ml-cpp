@@ -20,7 +20,7 @@
 #include <maths/CSampling.h>
 #include <maths/CTools.h>
 
-#include <boost/math/distributions/normal.hpp>
+#include <boost/math/constants/constants.hpp>
 #include <boost/optional/optional_io.hpp>
 
 #include <exception>
@@ -41,6 +41,16 @@ const std::string RANGE_SHIFT_TAG{"range_shift"};
 const std::string RANGE_SCALE_TAG{"range_scale"};
 const std::string RESTARTS_TAG{"restarts"};
 const std::string RNG_TAG{"rng"};
+
+//! A version of the normal c.d.f. which is stable across our target platforms.
+double stableNormCdf(double z) {
+    return (1.0 + CTools::stable(std::erf(z / boost::math::constants::root_two<double>()))) / 2.0;
+}
+
+//! A version of the normal p.d.f. which is stable across our target platforms.
+double stableNormPdf(double z) {
+    return CTools::stableExp(-z * z / 2.0) / boost::math::constants::root_two_pi<double>();
+}
 
 // The kernel we use is v * I + a(0)^2 * O(I). We fall back to random search when
 // a(0)^2 < eps * v since for small eps and a reasonable number of dimensions the
@@ -122,16 +132,17 @@ CBayesianOptimisation::maximumExpectedImprovement() {
 
     } else {
 
+        TVector x;
         for (std::size_t i = 0; i < interpolates.size(); /**/) {
 
             for (int j = 0; j < interpolate.size(); ++i, ++j) {
                 interpolate(j) = interpolates[i];
             }
-            TVector x{a + interpolate.cwiseProduct(b - a)};
+            x = a + interpolate.cwiseProduct(b - a);
             double fx{minusEI(x)};
             LOG_TRACE(<< "x = " << x.transpose() << " EI(x) = " << fx);
 
-            if (-fx > fmax) {
+            if (COrderings::lexicographical_compare(fmax, xmax, -fx, x)) {
                 xmax = x;
                 fmax = -fx;
             }
@@ -146,16 +157,15 @@ CBayesianOptimisation::maximumExpectedImprovement() {
 
         CLbfgs<TVector> lbfgs{10};
 
+        TVector xcand;
+        double fcand;
         for (auto& x0 : seeds) {
 
             LOG_TRACE(<< "x0 = " << x0.second.transpose());
-            TVector xcand;
-            double fcand;
             std::tie(xcand, fcand) = lbfgs.constrainedMinimize(
                 minusEI, minusEIGradient, a, b, std::move(x0.second), rho);
-            LOG_TRACE(<< " xcand = " << xcand.transpose() << " EI(cand) = " << fcand);
-
-            if (-fcand > fmax) {
+            LOG_TRACE(<< "xcand = " << xcand.transpose() << " EI(cand) = " << fcand);
+            if (COrderings::lexicographical_compare(fmax, xmax, -fcand, xcand)) {
                 std::tie(xmax, fmax) = std::make_pair(std::move(xcand), -fcand);
             }
         }
@@ -173,10 +183,10 @@ CBayesianOptimisation::maximumExpectedImprovement() {
         expectedImprovement = fmax / m_RangeScale;
     }
 
-    LOG_TRACE(<< "best = " << xmax.cwiseProduct(m_MaxBoundary - m_MinBoundary).transpose()
-              << " EI(best) = " << expectedImprovement);
+    xmax = xmax.cwiseProduct(m_MaxBoundary - m_MinBoundary);
+    LOG_TRACE(<< "best = " << xmax.transpose() << " EI(best) = " << expectedImprovement);
 
-    return {xmax.cwiseProduct(m_MaxBoundary - m_MinBoundary), expectedImprovement};
+    return {std::move(xmax), expectedImprovement};
 }
 
 std::pair<CBayesianOptimisation::TLikelihoodFunc, CBayesianOptimisation::TLikelihoodGradientFunc>
@@ -184,45 +194,48 @@ CBayesianOptimisation::minusLikelihoodAndGradient() const {
 
     TVector f{this->function()};
     double v{this->meanErrorVariance()};
+    TVector ones;
+    TVector gradient;
+    TMatrix K;
+    TVector Kinvf;
+    TMatrix Kinv;
+    TMatrix dKdai;
 
-    auto minusLogLikelihood = [f, v, this](const TVector& a) {
-        Eigen::LDLT<Eigen::MatrixXd> Kldl{this->kernel(a, v)};
-        TVector Kinvf{Kldl.solve(f)};
+    auto minusLogLikelihood = [=](const TVector& a) mutable {
+        K = this->kernel(a, v);
+        Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
+        Kinvf = Kldl.solve(f);
         // We can only determine values up to eps * "max diagonal". If the diagonal
         // has a zero it blows up the determinant term. In practice, we know the
         // kernel can't be singular by construction so we perturb the diagonal by
         // the numerical error in such a way as to recover a non-singular matrix.
         // (Note that the solve routine deals with the zero for us.)
         double eps{std::numeric_limits<double>::epsilon() * Kldl.vectorD().maxCoeff()};
-        return 0.5 *
-               (f.transpose() * Kinvf + (Kldl.vectorD().array() + eps).log().sum());
+        return 0.5 * (f.transpose() * Kinvf +
+                      Kldl.vectorD().cwiseMax(eps).array().log().sum());
     };
 
-    auto minusLogLikelihoodGradient = [f, v, this](const TVector& a) {
-        TMatrix K{this->kernel(a, v)};
+    auto minusLogLikelihoodGradient = [=](const TVector& a) mutable {
+        K = this->kernel(a, v);
         Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
 
-        TVector Kinvf{Kldl.solve(f)};
+        Kinvf = Kldl.solve(f);
 
-        TVector ones(f.size());
-        ones.setOnes();
-        TMatrix KInv{Kldl.solve(TMatrix{ones.asDiagonal()})};
+        ones = TVector::Ones(f.size());
+        Kinv = Kldl.solve(TMatrix::Identity(f.size(), f.size()));
 
         K.diagonal() -= v * ones;
 
-        TVector gradient{a.size()};
-        gradient.setZero();
-
+        gradient = TVector::Zero(a.size());
         for (int i = 0; i < Kinvf.size(); ++i) {
-            gradient(0) -=
-                1.0 / a(0) *
-                double{(Kinvf(i) * Kinvf.transpose() - KInv.row(i)) * K.col(i)};
+            double di{(Kinvf(i) * Kinvf.transpose() - Kinv.row(i)) * K.col(i)};
+            gradient(0) -= di / a(0);
         }
         for (int i = 1; i < a.size(); ++i) {
-            TMatrix dKdai{this->dKerneld(a, i)};
+            dKdai = this->dKerneld(a, i);
             for (int j = 0; j < Kinvf.size(); ++j) {
-                gradient(i) += 0.5 * double{(Kinvf(j) * Kinvf.transpose() - KInv.row(j)) *
-                                            dKdai.col(j)};
+                double di{(Kinvf(j) * Kinvf.transpose() - Kinv.row(j)) * dKdai.col(j)};
+                gradient(i) += 0.5 * di;
             }
         }
 
@@ -237,10 +250,15 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
 
     TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
     Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
-
     TVector Kinvf{Kldl.solve(this->function())};
-
     double vx{this->meanErrorVariance()};
+
+    TVector Kxn;
+    TVector KinvKxn;
+    TVector muGradient;
+    TVector sigmaGradient;
+    TVector dKxndx;
+    TVector zGradient;
 
     double fmin{
         std::min_element(m_FunctionMeanValues.begin(), m_FunctionMeanValues.end(),
@@ -249,9 +267,8 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
                          })
             ->second};
 
-    auto EI = [Kldl, Kinvf, vx, fmin, this](const TVector& x) {
+    auto EI = [=](const TVector& x) mutable {
         double Kxx;
-        TVector Kxn;
         std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, x, vx);
 
         double sigma{Kxx - Kxn.transpose() * Kldl.solve(Kxn)};
@@ -263,17 +280,17 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
         double mu{Kxn.transpose() * Kinvf};
         sigma = std::sqrt(sigma);
 
-        boost::math::normal normal{0.0, 1.0};
         double z{(fmin - mu) / sigma};
-        return -sigma * (z * CTools::safeCdf(normal, z) + CTools::safePdf(normal, z));
+        double cdfz{stableNormCdf(z)};
+        double pdfz{stableNormPdf(z)};
+        return -sigma * (z * cdfz + pdfz);
     };
 
-    auto EIGradient = [Kldl, Kinvf, vx, fmin, this](const TVector& x) {
+    auto EIGradient = [=](const TVector& x) mutable {
         double Kxx;
-        TVector Kxn;
         std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, x, vx);
 
-        TVector KinvKxn{Kldl.solve(Kxn)};
+        KinvKxn = Kldl.solve(Kxn);
         double sigma{Kxx - Kxn.transpose() * KinvKxn};
 
         if (sigma <= 0.0) {
@@ -283,15 +300,14 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
         double mu{Kxn.transpose() * Kinvf};
         sigma = std::sqrt(sigma);
 
-        boost::math::normal normal{0.0, 1.0};
         double z{(fmin - mu) / sigma};
-        double cdfz{CTools::safeCdf(normal, z)};
-        double pdfz{CTools::safePdf(normal, z)};
+        double cdfz{stableNormCdf(z)};
+        double pdfz{stableNormPdf(z)};
 
-        TVector muGradient{x.size()};
-        TVector sigmaGradient{x.size()};
+        muGradient.resize(x.size());
+        sigmaGradient.resize(x.size());
         for (int i = 0; i < x.size(); ++i) {
-            TVector dKxndx{Kxn.size()};
+            dKxndx.resize(Kxn.size());
             for (int j = 0; j < Kxn.size(); ++j) {
                 const TVector& xj{m_FunctionMeanValues[j].first};
                 dKxndx(j) = 2.0 *
@@ -304,8 +320,7 @@ CBayesianOptimisation::minusExpectedImprovementAndGradient() const {
         }
         sigmaGradient /= 2.0 * sigma;
 
-        TVector zGradient{((mu - fmin) / CTools::pow2(sigma)) * sigmaGradient -
-                          muGradient / sigma};
+        zGradient = ((mu - fmin) / CTools::pow2(sigma)) * sigmaGradient - muGradient / sigma;
 
         return TVector{-(z * cdfz + pdfz) * sigmaGradient - sigma * cdfz * zGradient};
     };
@@ -324,8 +339,8 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
     // We restart optimization with initial guess on different scales for global probing.
     TDoubleVec scales;
     scales.reserve((m_Restarts - 1) * n);
-    CSampling::uniformSample(m_Rng, std::log(0.1), std::log(4.0),
-                             (m_Restarts - 1) * n, scales);
+    CSampling::uniformSample(m_Rng, CTools::stableLog(0.2),
+                             CTools::stableLog(5.0), (m_Restarts - 1) * n, scales);
 
     TLikelihoodFunc l;
     TLikelihoodGradientFunc g;
@@ -344,12 +359,12 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
         for (std::size_t j = 0; j < n; ++j) {
             scale(j) = scales[(i - 1) * n + j];
         }
-        a = scale.array().exp() * a.array();
+        a.array() *= scale.array().exp();
 
         double la;
         std::tie(a, la) = lbfgs.minimize(l, g, std::move(a), 1e-8, 75);
 
-        if (la < lmax) {
+        if (COrderings::lexicographical_compare(la, a, lmax, amax)) {
             lmax = la;
             amax = std::move(a);
         }
@@ -359,6 +374,7 @@ const CBayesianOptimisation::TVector& CBayesianOptimisation::maximumLikelihoodKe
     // but improves traceability.
     m_KernelParameters = amax.cwiseAbs();
     LOG_TRACE(<< "kernel parameters = " << m_KernelParameters.transpose());
+    LOG_TRACE(<< "likelihood = " << -lmax);
 
     return m_KernelParameters;
 }
@@ -441,15 +457,14 @@ CBayesianOptimisation::kernelCovariates(const TVector& a, const TVector& x, doub
     for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
         Kxn(i) = this->kernel(a, x, m_FunctionMeanValues[i].first);
     }
-    return {Kxn, Kxx};
+    return {std::move(Kxn), Kxx};
 }
 
 double CBayesianOptimisation::kernel(const TVector& a, const TVector& x, const TVector& y) const {
-    return CTools::pow2(a(0)) * std::exp(-(x - y).transpose() *
-                                         (m_MinimumKernelCoordinateDistanceScale +
-                                          a.tail(a.size() - 1).cwiseAbs2().matrix())
-                                             .asDiagonal() *
-                                         (x - y));
+    return CTools::pow2(a(0)) *
+           CTools::stableExp(-(x - y).transpose() * (m_MinimumKernelCoordinateDistanceScale +
+                                                     a.tail(a.size() - 1).cwiseAbs2())
+                                                        .cwiseProduct(x - y));
 }
 
 void CBayesianOptimisation::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

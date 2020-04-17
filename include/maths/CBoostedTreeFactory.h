@@ -68,6 +68,8 @@ public:
     CBoostedTreeFactory& stopCrossValidationEarly(bool stopEarly);
     //! The number of rows per feature to sample in the initial downsample.
     CBoostedTreeFactory& initialDownsampleRowsPerFeature(double rowsPerFeature);
+    //! The amount by which to downsample the data for stochastic gradient estimates.
+    CBoostedTreeFactory& downsampleFactor(double factor);
     //! Set the sum of leaf depth penalties multiplier.
     CBoostedTreeFactory& depthPenaltyMultiplier(double depthPenaltyMultiplier);
     //! Set the tree size penalty multiplier.
@@ -95,11 +97,11 @@ public:
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
     //! Set the number of training examples we need per feature we'll include.
-    CBoostedTreeFactory& topShapValues(std::size_t topShapValues);
+    CBoostedTreeFactory& numberTopShapValues(std::size_t numberTopShapValues);
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&
-    analysisInstrumentation(CDataFrameAnalysisInstrumentationInterface& instrumentation);
+    analysisInstrumentation(CDataFrameTrainBoostedTreeInstrumentationInterface& instrumentation);
     //! Set the callback function for training state recording.
     CBoostedTreeFactory& trainingStateCallback(TTrainingStateCallback callback);
 
