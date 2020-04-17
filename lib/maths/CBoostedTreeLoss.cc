@@ -22,7 +22,8 @@ namespace maths {
 using namespace boosted_tree_detail;
 
 namespace {
-double LOG_EPSILON{std::log(100.0 * std::numeric_limits<double>::epsilon())};
+const double EPSILON{100.0 * std::numeric_limits<double>::epsilon()};
+const double LOG_EPSILON{CTools::stableLog(EPSILON)};
 
 // MSLE CONSTANTS
 const std::size_t MSLE_PREDICTION_INDEX{0};
@@ -35,7 +36,7 @@ double logOneMinusLogistic(double logOdds) {
     if (logOdds > -LOG_EPSILON) {
         return -logOdds;
     }
-    return std::log(1.0 - CTools::logisticFunction(logOdds));
+    return CTools::stableLog(1.0 - CTools::logisticFunction(logOdds));
 }
 
 double logLogistic(double logOdds) {
@@ -43,7 +44,7 @@ double logLogistic(double logOdds) {
     if (logOdds < LOG_EPSILON) {
         return logOdds;
     }
-    return std::log(CTools::logisticFunction(logOdds));
+    return CTools::stableLog(CTools::logisticFunction(logOdds));
 }
 }
 
@@ -176,8 +177,8 @@ CArgMinBinomialLogisticLossImpl::TDoubleVector CArgMinBinomialLogisticLossImpl::
         double c0{m_ClassCounts(0) + 1.0};
         double c1{m_ClassCounts(1) + 1.0};
         double empiricalProbabilityC1{c1 / (c0 + c1)};
-        double empiricalLogOddsC1{
-            std::log(empiricalProbabilityC1 / (1.0 - empiricalProbabilityC1))};
+        double empiricalLogOddsC1{CTools::stableLog(
+            empiricalProbabilityC1 / (1.0 - empiricalProbabilityC1))};
         minWeight = (empiricalProbabilityC1 < 0.5 ? empiricalLogOddsC1 : 0.0) - prediction;
         maxWeight = (empiricalProbabilityC1 < 0.5 ? 0.0 : empiricalLogOddsC1) - prediction;
 
@@ -695,7 +696,7 @@ void CBinomialLogisticLoss::gradient(const TMemoryMappedFloatVector& prediction,
                                      TWriter writer,
                                      double weight) const {
     if (prediction(0) > -LOG_EPSILON && actual == 1.0) {
-        writer(0, -weight * std::exp(-prediction(0)));
+        writer(0, -weight * CTools::stableExp(-prediction(0)));
     } else {
         writer(0, weight * (CTools::logisticFunction(prediction(0)) - actual));
     }
@@ -706,7 +707,7 @@ void CBinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& prediction
                                       TWriter writer,
                                       double weight) const {
     if (prediction(0) > -LOG_EPSILON) {
-        writer(0, weight * std::exp(-prediction(0)));
+        writer(0, weight * CTools::stableExp(-prediction(0)));
     } else {
         double probability{CTools::logisticFunction(prediction(0))};
         writer(0, weight * probability * (1.0 - probability));
@@ -765,7 +766,7 @@ double CMultinomialLogisticLoss::value(const TMemoryMappedFloatVector& predictio
     for (int i = 0; i < predictions.size(); ++i) {
         logZ += std::exp(predictions(i) - zmax);
     }
-    logZ = zmax + std::log(logZ);
+    logZ = zmax + CTools::stableLog(logZ);
 
     // i.e. -log(z(actual))
     return weight * (logZ - predictions(static_cast<std::size_t>(actual)));
@@ -791,11 +792,12 @@ void CMultinomialLogisticLoss::gradient(const TMemoryMappedFloatVector& predicti
             logZ += std::exp(predictions(i) - zmax);
         }
     }
-    logZ = zmax + std::log(logZ);
+    eps = CTools::stable(eps);
+    logZ = zmax + CTools::stableLog(logZ);
 
     for (int i = 0; i < predictions.size(); ++i) {
         if (i == static_cast<int>(actual)) {
-            double probability{std::exp(predictions(i) - logZ)};
+            double probability{CTools::stableExp(predictions(i) - logZ)};
             if (probability == 1.0) {
                 // We have that p = 1 / (1 + eps) and the gradient is p - 1.
                 // Use a Taylor expansion and drop terms of O(eps^2) to get:
@@ -804,7 +806,7 @@ void CMultinomialLogisticLoss::gradient(const TMemoryMappedFloatVector& predicti
                 writer(i, weight * (probability - 1.0));
             }
         } else {
-            writer(i, weight * std::exp(predictions(i) - logZ));
+            writer(i, weight * CTools::stableExp(predictions(i) - logZ));
         }
     }
 }
@@ -831,10 +833,11 @@ void CMultinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& predict
             logZ += std::exp(predictions(i) - zmax);
         }
     }
-    logZ = zmax + std::log(logZ);
+    eps = CTools::stable(eps);
+    logZ = zmax + CTools::stableLog(logZ);
 
     for (std::size_t i = 0, k = 0; i < m_NumberClasses; ++i) {
-        double probability{std::exp(predictions(i) - logZ)};
+        double probability{CTools::stableExp(predictions(i) - logZ)};
         if (probability == 1.0) {
             // We have that p = 1 / (1 + eps) and the curvature is p (1 - p).
             // Use a Taylor expansion and drop terms of O(eps^2) to get:
@@ -843,8 +846,8 @@ void CMultinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& predict
             writer(k++, weight * probability * (1.0 - probability));
         }
         for (std::size_t j = i + 1; j < m_NumberClasses; ++j) {
-            double probabilities[]{std::exp(predictions(i) - logZ),
-                                   std::exp(predictions(j) - logZ)};
+            double probabilities[]{CTools::stableExp(predictions(i) - logZ),
+                                   CTools::stableExp(predictions(j) - logZ)};
             writer(k++, -weight * probabilities[0] * probabilities[1]);
         }
     }

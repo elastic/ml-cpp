@@ -459,7 +459,8 @@ private:
 
         bool operator<(const SSplitStatistics& rhs) const {
             return COrderings::lexicographical_compare(
-                s_Gain, s_Curvature, s_Feature, rhs.s_Gain, rhs.s_Curvature, rhs.s_Feature);
+                s_Gain, s_Curvature, s_Feature, s_SplitAt, // <- lhs
+                rhs.s_Gain, rhs.s_Curvature, rhs.s_Feature, rhs.s_SplitAt);
         }
 
         std::string print() const {
