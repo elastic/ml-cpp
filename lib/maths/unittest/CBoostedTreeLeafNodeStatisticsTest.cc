@@ -22,7 +22,9 @@ using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
 using TSizeVecVec = std::vector<TSizeVec>;
-using TFloatVec = std::vector<maths::CFloatStorage>;
+using TAlignedFloatVec =
+    std::vector<maths::CFloatStorage, core::CAlignedAllocator<maths::CFloatStorage>>;
+using TAlignedDoubleVec = std::vector<double, core::CAlignedAllocator<double>>;
 using TVector = maths::CDenseVector<double>;
 using TVectorVec = std::vector<TVector>;
 using TVectorVecVec = std::vector<TVectorVec>;
@@ -32,22 +34,22 @@ using TMatrixVecVec = std::vector<TMatrixVec>;
 using TImmutableRadixSet = maths::CBoostedTreeLeafNodeStatistics::TImmutableRadixSet;
 using TImmutableRadixSetVec = maths::CBoostedTreeLeafNodeStatistics::TImmutableRadixSetVec;
 using TDerivatives = maths::CBoostedTreeLeafNodeStatistics::CDerivatives;
-using TPerSplitDerivatives = maths::CBoostedTreeLeafNodeStatistics::CPerSplitDerivatives;
+using TSplitsDerivatives = maths::CBoostedTreeLeafNodeStatistics::CSplitsDerivatives;
 
 namespace {
 
 template<typename T>
-maths::CMemoryMappedDenseVector<T> makeGradient(T* storage, std::size_t n) {
+maths::CMemoryMappedDenseVector<T> makeVector(T* storage, std::size_t n) {
     return maths::CMemoryMappedDenseVector<T>{storage, static_cast<int>(n)};
 }
 
-template<typename T>
-maths::CMemoryMappedDenseVector<T> makeCurvature(T* storage, std::size_t n) {
-    return maths::CMemoryMappedDenseVector<T>(storage, static_cast<int>(n));
+template<Eigen::AlignmentType ALIGNMENT, typename T>
+maths::CMemoryMappedDenseVector<T, ALIGNMENT> makeAlignedVector(T* storage, std::size_t n) {
+    return maths::CMemoryMappedDenseVector<T, ALIGNMENT>{storage, static_cast<int>(n)};
 }
 
 template<typename T>
-TMatrix rowMajorHessian(std::size_t n, const maths::CMemoryMappedDenseVector<T>& curvatures) {
+TMatrix columnMajorHessian(std::size_t n, const maths::CMemoryMappedDenseVector<T>& curvatures) {
     TMatrix result{n, n};
     for (std::size_t i = 0, k = 0; i < n; ++i) {
         for (std::size_t j = i; j < n; ++j, ++k) {
@@ -77,20 +79,24 @@ void testDerivativesFor(std::size_t numberParameters) {
 
     LOG_DEBUG(<< "Accumulate");
 
-    TDoubleVec storage1(numberGradients * (numberGradients + 1), 0.0);
-    TDerivatives derivatives1{numberParameters, &storage1[0]};
+    std::size_t paddedNumberGradients{core::CAlignment::roundup<double>(
+        core::CAlignment::E_Aligned16, numberGradients)};
+
+    TAlignedDoubleVec storage1(paddedNumberGradients + numberGradients * numberGradients, 0.0);
+    TDerivatives derivatives1{numberParameters, &storage1[0],
+                              &storage1[paddedNumberGradients]};
 
     for (std::size_t j = 0; j < 10; ++j) {
-        TFloatVec storage;
+        TAlignedFloatVec rowStorage;
         for (std::size_t i = 0; i < numberGradients; ++i) {
-            storage.push_back(gradients[i][j]);
+            rowStorage.push_back(gradients[i][j]);
         }
         for (std::size_t i = 0; i < numberCurvatures; ++i) {
-            storage.push_back(curvatures[i][j]);
+            rowStorage.push_back(curvatures[i][j]);
         }
-        auto gradient = makeGradient(&storage[0], numberGradients);
-        auto curvature = makeCurvature(&storage[numberGradients], numberCurvatures);
-        derivatives1.add(1, gradient, curvature);
+        auto derivatives_ = makeAlignedVector<Eigen::Aligned16>(
+            &rowStorage[0], numberGradients + numberCurvatures);
+        derivatives1.add(1, derivatives_);
     }
     derivatives1.remapCurvature();
 
@@ -110,20 +116,21 @@ void testDerivativesFor(std::size_t numberParameters) {
 
     LOG_DEBUG(<< "Merge");
 
-    TDoubleVec storage2(numberGradients * (numberGradients + 1), 0.0);
-    TDerivatives derivatives2{numberParameters, &storage2[0]};
+    TAlignedDoubleVec storage2(paddedNumberGradients + numberGradients * numberGradients, 0.0);
+    TDerivatives derivatives2{numberParameters, &storage2[0],
+                              &storage2[paddedNumberGradients]};
 
     for (std::size_t j = 10; j < 20; ++j) {
-        TFloatVec storage;
+        TAlignedFloatVec storage;
         for (std::size_t i = 0; i < numberGradients; ++i) {
             storage.push_back(gradients[i][j]);
         }
         for (std::size_t i = 0; i < numberCurvatures; ++i) {
             storage.push_back(curvatures[i][j]);
         }
-        auto gradient = makeGradient(&storage[0], numberGradients);
-        auto curvature = makeCurvature(&storage[numberGradients], numberCurvatures);
-        derivatives2.add(1, gradient, curvature);
+        auto derivatives = makeAlignedVector<Eigen::Aligned16>(
+            &storage[0], numberGradients + numberCurvatures);
+        derivatives2.add(1, derivatives);
     }
     derivatives2.remapCurvature();
 
@@ -204,36 +211,37 @@ void testPerSplitDerivativesFor(std::size_t numberParameters) {
                                          TMatrix::Zero(numberParameters, numberParameters));
         }
 
-        auto addDerivatives = [&](TPerSplitDerivatives& derivatives) {
+        auto addDerivatives = [&](TSplitsDerivatives& derivatives) {
             for (std::size_t i = 0, j = 0, k = 0; i < numberSamples;
                  ++i, j += numberGradients, k += numberCurvatures) {
 
-                TFloatVec storage;
+                TAlignedFloatVec storage;
                 storage.insert(storage.end(), &gradients[j], &gradients[j + numberGradients]);
                 storage.insert(storage.end(), &curvatures[j],
                                &curvatures[k + numberCurvatures]);
-                auto gradient = makeGradient(&storage[0], numberGradients);
-                auto curvature = makeCurvature(&storage[numberGradients], numberCurvatures);
+                auto derivatives_ = makeAlignedVector<Eigen::Aligned16>(
+                    &storage[0], numberGradients + numberCurvatures);
+                auto gradient = makeVector(&storage[0], numberGradients);
+                auto curvature = makeVector(&storage[numberGradients], numberCurvatures);
 
                 if (uniform01[i] < 0.1) {
-                    derivatives.addMissingDerivatives(features[i], gradient, curvature);
+                    derivatives.addMissingDerivatives(features[i], derivatives_);
                     ++expectedMissingCounts[features[i]];
                     expectedMissingGradients[features[i]] += gradient;
                     expectedMissingCurvatures[features[i]] +=
-                        rowMajorHessian(numberParameters, curvature);
+                        columnMajorHessian(numberParameters, curvature);
                 } else {
-                    derivatives.addDerivatives(features[i], splits[features[i]][i],
-                                               gradient, curvature);
+                    derivatives.addDerivatives(features[i], splits[features[i]][i], derivatives_);
                     ++expectedCounts[features[i]][splits[features[i]][i]];
                     expectedGradients[features[i]][splits[features[i]][i]] += gradient;
                     expectedCurvatures[features[i]][splits[features[i]][i]] +=
-                        rowMajorHessian(numberParameters, curvature);
+                        columnMajorHessian(numberParameters, curvature);
                 }
             }
             derivatives.remapCurvature();
         };
 
-        auto validate = [&](const TPerSplitDerivatives& derivatives) {
+        auto validate = [&](const TSplitsDerivatives& derivatives) {
             for (std::size_t i = 0; i < expectedCounts.size(); ++i) {
                 for (std::size_t j = 0; j < expectedGradients[i].size(); ++j) {
                     TMatrix curvature{
@@ -256,7 +264,7 @@ void testPerSplitDerivativesFor(std::size_t numberParameters) {
 
         LOG_TRACE(<< "Test accumulation");
 
-        TPerSplitDerivatives derivatives1{featureSplits, numberParameters};
+        TSplitsDerivatives derivatives1{featureSplits, numberParameters};
 
         addDerivatives(derivatives1);
         validate(derivatives1);
@@ -267,7 +275,7 @@ void testPerSplitDerivativesFor(std::size_t numberParameters) {
         rng.generateUniformSamples(-1.5, 1.0, numberSamples * numberGradients, gradients);
         rng.generateUniformSamples(0.1, 0.5, numberSamples * numberCurvatures, curvatures);
 
-        TPerSplitDerivatives derivatives2{featureSplits, numberParameters};
+        TSplitsDerivatives derivatives2{featureSplits, numberParameters};
 
         addDerivatives(derivatives2);
         derivatives1.add(derivatives2);
@@ -275,7 +283,7 @@ void testPerSplitDerivativesFor(std::size_t numberParameters) {
 
         LOG_TRACE(<< "Test copy");
 
-        TPerSplitDerivatives derivatives3{derivatives1};
+        TSplitsDerivatives derivatives3{derivatives1};
         BOOST_REQUIRE_EQUAL(derivatives1.checksum(), derivatives3.checksum());
     }
 }

@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_maths_CBoostedTreeLeafNodeStatistics_h
 #define INCLUDED_ml_maths_CBoostedTreeLeafNodeStatistics_h
 
+#include <core/CAlignment.h>
 #include <core/CImmutableRadixSet.h>
 #include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
@@ -26,6 +27,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <limits>
 #include <numeric>
 #include <vector>
@@ -56,9 +58,9 @@ public:
     using TImmutableRadixSetVec = std::vector<TImmutableRadixSet>;
     using TPtr = std::shared_ptr<CBoostedTreeLeafNodeStatistics>;
     using TPtrPtrPr = std::pair<TPtr, TPtr>;
-    using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
-    using TMemoryMappedDoubleVector = CMemoryMappedDenseVector<double>;
-    using TMemoryMappedDoubleMatrix = CMemoryMappedDenseMatrix<double>;
+    using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
+    using TMemoryMappedDoubleVector = CMemoryMappedDenseVector<double, Eigen::Aligned16>;
+    using TMemoryMappedDoubleMatrix = CMemoryMappedDenseMatrix<double, Eigen::Aligned16>;
 
     //! \brief Accumulates aggregate derivatives.
     class MATHS_EXPORT CDerivatives {
@@ -70,10 +72,9 @@ public:
         static bool dynamicSizeAlwaysZero() { return true; }
 
     public:
-        CDerivatives(std::size_t numberLossParameters, double* storage)
-            : m_Count{0}, m_Gradient{storage, static_cast<int>(numberLossParameters)},
-              m_Curvature{storage + numberLossParameters,
-                          static_cast<int>(numberLossParameters),
+        CDerivatives(std::size_t numberLossParameters, double* storageGradients, double* storageCurvatures)
+            : m_Gradient{storageGradients, static_cast<int>(numberLossParameters)},
+              m_Curvature{storageCurvatures, static_cast<int>(numberLossParameters),
                           static_cast<int>(numberLossParameters)} {}
 
         //! Get the accumulated count.
@@ -87,20 +88,16 @@ public:
             return m_Curvature;
         }
 
-        //! Add \p count, \p gradient and \p curvature to the accumulator.
-        void add(std::size_t count,
-                 const TMemoryMappedFloatVector& gradient,
-                 const TMemoryMappedFloatVector& curvature) {
+        //! Add \p count and \p derivatives to the accumulator.
+        void add(std::size_t count, const TMemoryMappedFloatVector& derivatives) {
             m_Count += count;
-            m_Gradient += gradient;
-            this->curvatureTriangleView() += curvature;
+            this->upperTriangularFlatView() += derivatives;
         }
 
         //! Compute the accumulation of both collections of derivatives.
         void add(const CDerivatives& other) {
             m_Count += other.m_Count;
-            m_Gradient += other.m_Gradient;
-            m_Curvature += other.m_Curvature;
+            this->flatView() += const_cast<CDerivatives*>(&other)->flatView();
         }
 
         //! Set to the difference of \p lhs and \p rhs.
@@ -134,15 +131,16 @@ public:
 
         //! Remap the accumulated curvature to lower triangle row major format.
         void remapCurvature() {
-            // For performance, we accumulate curvatures into the first n (n + 1) / 2
-            // elements of the array backing m_Curvature. However, the memory mapped
-            // matrix class expects them to be stored column major in the lower triangle
-            // of n x n matrix. This copies them backwards to their correct positions.
-            for (std::ptrdiff_t j = m_Curvature.cols() - 1,
-                                k = m_Curvature.rows() * (m_Curvature.rows() + 1) / 2 - 1;
+            // For performance, we accumulate curvatures into the first n + n (n + 1) / 2
+            // elements of the array backing upperTriangularFlatView. However, the memory
+            // mapped matrix class expects them to be stored column major in the lower
+            // triangle of an n x n matrix. This copies them backwards to their correct
+            // positions.
+            TMemoryMappedDoubleVector derivatives{this->upperTriangularFlatView()};
+            for (std::ptrdiff_t j = m_Curvature.cols() - 1, k = derivatives.rows() - 1;
                  j >= 0; --j) {
                 for (std::ptrdiff_t i = m_Curvature.rows() - 1; i >= j; --i, --k) {
-                    m_Curvature(i, j) = m_Curvature.array()(k);
+                    m_Curvature(i, j) = derivatives(k);
                 }
             }
         }
@@ -155,8 +153,17 @@ public:
         }
 
     private:
-        TMemoryMappedDoubleVector curvatureTriangleView() {
-            return {m_Curvature.data(), m_Curvature.rows() * (m_Curvature.rows() + 1) / 2};
+        TMemoryMappedDoubleVector upperTriangularFlatView() {
+            // Gradient + upper triangle of the Hessian.
+            auto n = m_Gradient.rows();
+            return {m_Gradient.data(), n * (n + 3) / 2};
+        }
+
+        TMemoryMappedDoubleVector flatView() {
+            // Gradient + pad + full Hessian.
+            auto n = m_Curvature.data() - m_Gradient.data() +
+                     m_Curvature.rows() * m_Curvature.cols();
+            return {m_Gradient.data(), n};
         }
 
     private:
@@ -166,27 +173,26 @@ public:
     };
 
     //! \brief A collection of aggregate derivatives for candidate feature splits.
-    class MATHS_EXPORT CPerSplitDerivatives {
+    class MATHS_EXPORT CSplitsDerivatives {
     public:
         using TDerivativesVec = std::vector<CDerivatives>;
 
     public:
-        explicit CPerSplitDerivatives(std::size_t numberLossParameters = 0)
+        explicit CSplitsDerivatives(std::size_t numberLossParameters = 0)
             : m_NumberLossParameters{numberLossParameters} {}
-        CPerSplitDerivatives(const TImmutableRadixSetVec& candidateSplits,
-                             std::size_t numberLossParameters)
+        CSplitsDerivatives(const TImmutableRadixSetVec& candidateSplits, std::size_t numberLossParameters)
             : m_NumberLossParameters{numberLossParameters} {
             this->map(candidateSplits);
         }
-        CPerSplitDerivatives(const CPerSplitDerivatives& other)
+        CSplitsDerivatives(const CSplitsDerivatives& other)
             : m_NumberLossParameters{other.m_NumberLossParameters} {
             this->map(other.m_Derivatives);
             this->add(other);
         }
-        CPerSplitDerivatives(CPerSplitDerivatives&&) = default;
+        CSplitsDerivatives(CSplitsDerivatives&&) = default;
 
-        CPerSplitDerivatives& operator=(const CPerSplitDerivatives& other) = delete;
-        CPerSplitDerivatives& operator=(CPerSplitDerivatives&&) = default;
+        CSplitsDerivatives& operator=(const CSplitsDerivatives& other) = delete;
+        CSplitsDerivatives& operator=(CSplitsDerivatives&&) = default;
 
         //! \return The aggregate count for \p feature and \p split.
         std::size_t count(std::size_t feature, std::size_t split) const {
@@ -227,21 +233,19 @@ public:
         //! the \p split of \p feature.
         void addDerivatives(std::size_t feature,
                             std::size_t split,
-                            const TMemoryMappedFloatVector& gradient,
-                            const TMemoryMappedFloatVector& curvature) {
-            m_Derivatives[feature][split].add(1, gradient, curvature);
+                            const TMemoryMappedFloatVector& derivatives) {
+            m_Derivatives[feature][split].add(1, derivatives);
         }
 
         //! Add \p gradient and \p curvature to the accumulated derivatives for
         //! missing values of \p feature.
         void addMissingDerivatives(std::size_t feature,
-                                   const TMemoryMappedFloatVector& gradient,
-                                   const TMemoryMappedFloatVector& curvature) {
-            m_MissingDerivatives[feature].add(1, gradient, curvature);
+                                   const TMemoryMappedFloatVector& derivatives) {
+            m_MissingDerivatives[feature].add(1, derivatives);
         }
 
         //! Compute the accumulation of both collections of per split derivatives.
-        void add(const CPerSplitDerivatives& other) {
+        void add(const CSplitsDerivatives& other) {
             for (std::size_t i = 0; i < other.m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < other.m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].add(other.m_Derivatives[i][j]);
@@ -251,7 +255,7 @@ public:
         }
 
         //! Subtract \p rhs.
-        void subtract(const CPerSplitDerivatives& rhs) {
+        void subtract(const CSplitsDerivatives& rhs) {
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].subtract(rhs.m_Derivatives[i][j]);
@@ -287,7 +291,7 @@ public:
                                         sizeof(CDerivatives)};
             std::size_t storageSize{numberFeatures * (numberSplitsPerFeature + 1) * numberLossParameters *
                                     (numberLossParameters + 1) * sizeof(double)};
-            return sizeof(CPerSplitDerivatives) + derivativesSize + storageSize;
+            return sizeof(CSplitsDerivatives) + derivativesSize + storageSize;
         }
 
         //! Get a checksum of this object.
@@ -300,6 +304,7 @@ public:
 
     private:
         using TDerivativesVecVec = std::vector<TDerivativesVec>;
+        using TAlignedDoubleVec = std::vector<double, core::CAlignedAllocator<double>>;
 
     private:
         static std::size_t number(const TDerivativesVec& derivatives) {
@@ -318,42 +323,62 @@ public:
             //       |            |                     |              |
             //       V            V                     V              V
             // |     n     |      n^2      | ... |      n       |      n^2       |
+            //
+            // Note we ensure 16 byte alignment because we're using aligned memory
+            // mapped vectors which have much better performance.
 
+            std::size_t numberFeatures{splits.size()};
             std::size_t totalNumberSplits{
                 std::accumulate(splits.begin(), splits.end(), std::size_t{0},
                                 [](std::size_t size, const auto& featureSplits) {
                                     return size + number(featureSplits);
                                 })};
 
-            int numberGradients{static_cast<int>(m_NumberLossParameters)};
-            int numberCurvatures{numberGradients * numberGradients};
-            int numberDerivatives{numberGradients + numberCurvatures};
+            std::size_t numberGradients{this->numberGradients()};
+            std::size_t numberDerivatives{this->numberDerivatives()};
 
-            m_Derivatives.resize(splits.size());
-            m_MissingDerivatives.reserve(splits.size());
-            m_Storage.resize((totalNumberSplits + splits.size()) * numberDerivatives, 0.0);
+            m_Derivatives.resize(numberFeatures);
+            m_MissingDerivatives.reserve(numberFeatures);
+
+            m_Storage.resize((totalNumberSplits + numberFeatures) * numberDerivatives, 0.0);
 
             double* storage{&m_Storage[0]};
-            for (std::size_t i = 0; i < splits.size(); ++i, storage += numberDerivatives) {
+            for (std::size_t i = 0; i < numberFeatures; ++i, storage += numberDerivatives) {
                 std::size_t size{number(splits[i])};
                 m_Derivatives[i].reserve(size);
                 for (std::size_t j = 0; j < size; ++j, storage += numberDerivatives) {
-                    m_Derivatives[i].emplace_back(m_NumberLossParameters, storage);
+                    m_Derivatives[i].emplace_back(m_NumberLossParameters, storage,
+                                                  storage + numberGradients);
                 }
-                m_MissingDerivatives.emplace_back(m_NumberLossParameters, storage);
+                m_MissingDerivatives.emplace_back(m_NumberLossParameters, storage,
+                                                  storage + numberGradients);
             }
+        }
+
+        std::size_t numberDerivatives() const {
+            return this->numberGradients() + this->numberCurvatures();
+        }
+
+        std::size_t numberGradients() const {
+            return core::CAlignment::roundup<double>(core::CAlignment::E_Aligned16,
+                                                     m_NumberLossParameters);
+        }
+
+        std::size_t numberCurvatures() const {
+            return core::CAlignment::roundup<double>(
+                core::CAlignment::E_Aligned16, m_NumberLossParameters * m_NumberLossParameters);
         }
 
     private:
         std::size_t m_NumberLossParameters = 0;
         TDerivativesVecVec m_Derivatives;
         TDerivativesVec m_MissingDerivatives;
-        TDoubleVec m_Storage;
+        TAlignedDoubleVec m_Storage;
     };
 
 public:
     CBoostedTreeLeafNodeStatistics(std::size_t id,
-                                   std::size_t numberInputColumns,
+                                   const TSizeVec& extraColumns,
                                    std::size_t numberLossParameters,
                                    std::size_t numberThreads,
                                    const core::CDataFrame& frame,
@@ -366,7 +391,7 @@ public:
 
     //! Only called by split but is public so it's accessible to std::make_shared.
     CBoostedTreeLeafNodeStatistics(std::size_t id,
-                                   std::size_t numberInputColumns,
+                                   const TSizeVec& extraColumns,
                                    std::size_t numberLossParameters,
                                    std::size_t numberThreads,
                                    const core::CDataFrame& frame,
@@ -442,6 +467,8 @@ public:
                                            std::size_t numberLossParameters);
 
 private:
+    using TSizeVecCRef = std::reference_wrapper<const TSizeVec>;
+
     //! \brief Statistics relating to a split of the node.
     struct MATHS_EXPORT SSplitStatistics
         : private boost::less_than_comparable<SSplitStatistics> {
@@ -490,18 +517,18 @@ private:
                                                    const CBoostedTreeNode& split,
                                                    const core::CPackedBitVector& parentRowMask);
     void addRowDerivatives(const CEncodedDataFrameRowRef& row,
-                           CPerSplitDerivatives& splitDerivatives) const;
+                           CSplitsDerivatives& splitsDerivatives) const;
     SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;
 
 private:
     std::size_t m_Id;
     std::size_t m_Depth;
-    std::size_t m_NumberInputColumns;
+    TSizeVecCRef m_ExtraColumns;
     std::size_t m_NumberLossParameters;
     const TImmutableRadixSetVec& m_CandidateSplits;
     core::CPackedBitVector m_RowMask;
-    CPerSplitDerivatives m_Derivatives;
+    CSplitsDerivatives m_Derivatives;
     SSplitStatistics m_BestSplit;
 };
 }

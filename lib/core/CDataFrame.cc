@@ -119,11 +119,13 @@ std::size_t computeSliceCapacity(std::size_t numberColumns) {
 
 CDataFrame::CDataFrame(bool inMainMemory,
                        std::size_t numberColumns,
+                       CAlignment::EType rowAlignment,
                        std::size_t sliceCapacityInRows,
                        EReadWriteToStorage readAndWriteToStoreSyncStrategy,
                        const TWriteSliceToStoreFunc& writeSliceToStore)
     : m_InMainMemory{inMainMemory}, m_NumberColumns{numberColumns},
-      m_RowCapacity{numberColumns}, m_SliceCapacityInRows{sliceCapacityInRows},
+      m_RowCapacity{CAlignment::roundup<CFloatStorage>(rowAlignment, numberColumns)},
+      m_SliceCapacityInRows{sliceCapacityInRows}, m_RowAlignment{rowAlignment},
       m_ReadAndWriteToStoreSyncStrategy{readAndWriteToStoreSyncStrategy},
       m_WriteSliceToStore{writeSliceToStore}, m_ColumnNames(numberColumns),
       m_CategoricalColumnValues(numberColumns), m_MissingString{DEFAULT_MISSING_STRING},
@@ -132,10 +134,15 @@ CDataFrame::CDataFrame(bool inMainMemory,
 
 CDataFrame::CDataFrame(bool inMainMemory,
                        std::size_t numberColumns,
+                       CAlignment::EType rowAlignment,
                        EReadWriteToStorage readAndWriteToStoreSyncStrategy,
                        const TWriteSliceToStoreFunc& writeSliceToStore)
-    : CDataFrame{inMainMemory, numberColumns, computeSliceCapacity(numberColumns),
-                 readAndWriteToStoreSyncStrategy, writeSliceToStore} {
+    : CDataFrame{inMainMemory,
+                 numberColumns,
+                 rowAlignment,
+                 computeSliceCapacity(numberColumns),
+                 readAndWriteToStoreSyncStrategy,
+                 writeSliceToStore} {
 }
 
 CDataFrame::~CDataFrame() = default;
@@ -153,15 +160,20 @@ std::size_t CDataFrame::numberColumns() const {
 }
 
 void CDataFrame::reserve(std::size_t numberThreads, std::size_t rowCapacity) {
+
+    rowCapacity = CAlignment::roundup<CFloatStorage>(m_RowAlignment, rowCapacity);
+
     if (m_RowCapacity >= rowCapacity) {
         return;
     }
 
+    std::size_t oldRowCapacity{m_RowCapacity};
     m_RowCapacity = rowCapacity;
 
-    parallel_for_each(numberThreads, m_Slices.begin(), m_Slices.end(), [this](TRowSlicePtr& slice) {
-        slice->reserve(m_NumberColumns, m_RowCapacity - m_NumberColumns);
-    });
+    parallel_for_each(numberThreads, m_Slices.begin(), m_Slices.end(),
+                      [oldRowCapacity, this](TRowSlicePtr& slice) {
+                          slice->reserve(oldRowCapacity, m_RowCapacity - oldRowCapacity);
+                      });
 }
 
 void CDataFrame::resizeColumns(std::size_t numberThreads, std::size_t numberColumns) {
@@ -170,6 +182,26 @@ void CDataFrame::resizeColumns(std::size_t numberThreads, std::size_t numberColu
     m_CategoricalColumnValues.resize(numberColumns);
     m_ColumnIsCategorical.resize(numberColumns, false);
     m_NumberColumns = numberColumns;
+}
+
+CDataFrame::TSizeVec CDataFrame::resizeColumns(std::size_t numberThreads,
+                                               const TSizeAlignmentPrVec& extraColumns) {
+    TSizeVec result;
+    result.reserve(extraColumns.size());
+    std::size_t index{m_NumberColumns};
+    for (const auto& columns : extraColumns) {
+        std::size_t count;
+        CAlignment::EType alignment;
+        std::tie(count, alignment) = columns;
+        if (CAlignment::less(m_RowAlignment, alignment)) {
+            HANDLE_FATAL(<< "Unsupported column alignment " << CAlignment::print(alignment));
+        }
+        index = CAlignment::roundup<CFloatStorage>(alignment, index);
+        result.push_back(index);
+        index += count;
+    }
+    this->resizeColumns(numberThreads, index);
+    return result;
 }
 
 CDataFrame::TRowFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
@@ -386,8 +418,11 @@ std::uint64_t CDataFrame::checksum() const {
 
 std::size_t CDataFrame::estimateMemoryUsage(bool inMainMemory,
                                             std::size_t numberRows,
-                                            std::size_t numberColumns) {
-    return inMainMemory ? numberRows * numberColumns * sizeof(float) : 0;
+                                            std::size_t numberColumns,
+                                            CAlignment::EType alignment) {
+    return inMainMemory
+               ? numberRows * CAlignment::roundupSizeof<CFloatStorage>(alignment, numberColumns)
+               : 0;
 }
 
 CDataFrame::TRowFuncVecBoolPr
@@ -450,13 +485,13 @@ CDataFrame::parallelApplyToAllRows(std::size_t numberThreads,
             },
             std::move(func)));
 
-    TRowFuncVec functions;
-    functions.reserve(results.size());
+    TRowFuncVec funcs;
+    funcs.reserve(results.size());
     for (auto& result : results) {
-        functions.emplace_back(std::move(result.s_FunctionState));
+        funcs.emplace_back(std::move(result.s_FunctionState));
     }
 
-    return {std::move(functions), successful.load()};
+    return {std::move(funcs), successful.load()};
 }
 
 CDataFrame::TRowFuncVecBoolPr
@@ -562,7 +597,14 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
         break;
     }
 
-    return {{std::move(func)}, true};
+    // TRowFuncVec funcs{std::move(func)}; moves func into an std::inializer_list
+    // but then *copies* from the list because the standard requires its elements
+    // are treated as constant, see 8.5.4/5.
+    TRowFuncVec funcs;
+    funcs.reserve(1);
+    funcs.emplace_back(std::move(func));
+
+    return TRowFuncVecBoolPr{std::move(funcs), true};
 }
 
 void CDataFrame::applyToRowsOfOneSlice(TRowFunc& func,
@@ -634,11 +676,10 @@ void CDataFrame::CDataFrameRowSliceWriter::operator()(const TWriteFunc& writeRow
     // Write the next row at the end of the current slice being written
     // and if the slice is full pass to the thread storing slices.
 
-    std::size_t end{m_RowsOfSliceBeingWritten.size()};
-
-    m_RowsOfSliceBeingWritten.resize(end + m_RowCapacity);
+    std::size_t start{m_RowsOfSliceBeingWritten.size()};
+    m_RowsOfSliceBeingWritten.resize(start + m_RowCapacity);
     m_DocHashesOfSliceBeingWritten.emplace_back();
-    writeRow(m_RowsOfSliceBeingWritten.begin() + end,
+    writeRow(m_RowsOfSliceBeingWritten.begin() + start,
              m_DocHashesOfSliceBeingWritten.back());
     ++m_NumberRows;
 
@@ -691,19 +732,20 @@ CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
 std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeMainStorageDataFrame(std::size_t numberColumns,
                          boost::optional<std::size_t> sliceCapacity,
-                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
+                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy,
+                         CAlignment::EType alignment) {
     auto writer = [](std::size_t firstRow, TFloatVec rows, TInt32Vec docHashes) {
         return std::make_unique<CMainMemoryDataFrameRowSlice>(
             firstRow, std::move(rows), std::move(docHashes));
     };
 
     if (sliceCapacity != boost::none) {
-        return {std::make_unique<CDataFrame>(true, numberColumns, *sliceCapacity,
+        return {std::make_unique<CDataFrame>(true, numberColumns, alignment, *sliceCapacity,
                                              readWriteToStoreSyncStrategy, writer),
                 nullptr};
     }
 
-    return {std::make_unique<CDataFrame>(true, numberColumns,
+    return {std::make_unique<CDataFrame>(true, numberColumns, alignment,
                                          readWriteToStoreSyncStrategy, writer),
             nullptr};
 }
@@ -713,7 +755,8 @@ makeDiskStorageDataFrame(const std::string& rootDirectory,
                          std::size_t numberColumns,
                          std::size_t numberRows,
                          boost::optional<std::size_t> sliceCapacity,
-                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy) {
+                         CDataFrame::EReadWriteToStorage readWriteToStoreSyncStrategy,
+                         CAlignment::EType alignment) {
     std::size_t minimumSpace{2 * numberRows * numberColumns * sizeof(CFloatStorage)};
 
     auto directory = std::make_shared<CTemporaryDirectory>(rootDirectory, minimumSpace);
@@ -728,11 +771,11 @@ makeDiskStorageDataFrame(const std::string& rootDirectory,
     };
 
     if (sliceCapacity != boost::none) {
-        return {std::make_unique<CDataFrame>(false, numberColumns, *sliceCapacity,
+        return {std::make_unique<CDataFrame>(false, numberColumns, alignment, *sliceCapacity,
                                              readWriteToStoreSyncStrategy, writer),
                 directory};
     }
-    return {std::make_unique<CDataFrame>(false, numberColumns,
+    return {std::make_unique<CDataFrame>(false, numberColumns, alignment,
                                          readWriteToStoreSyncStrategy, writer),
             directory};
 }

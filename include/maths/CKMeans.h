@@ -217,7 +217,7 @@ public:
 
 protected:
     using TCoordinate = typename SCoordinate<POINT>::Type;
-    using TBarePoint = typename SStripped<POINT>::Type;
+    using TBarePoint = typename SUnannotated<POINT>::Type;
     using TBarePointPrecise = typename SFloatingPoint<TBarePoint, double>::Type;
     using TMeanAccumulator =
         typename CBasicStatistics::SSampleMean<TBarePointPrecise>::TAccumulator;

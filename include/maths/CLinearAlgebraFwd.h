@@ -72,9 +72,9 @@ template<typename VECTOR>
 class CDenseVectorInitializer;
 template<typename MATRIX>
 class CDenseMatrixInitializer;
-template<typename SCALAR>
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
 class CMemoryMappedDenseVector;
-template<typename SCALAR>
+template<typename SCALAR, Eigen::AlignmentType ALIGNMENT>
 class CMemoryMappedDenseMatrix;
 }
 }

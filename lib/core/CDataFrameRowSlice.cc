@@ -20,7 +20,7 @@
 
 namespace ml {
 namespace core {
-using TFloatVec = std::vector<CFloatStorage>;
+using TFloatVec = std::vector<CFloatStorage, CAlignedAllocator<CFloatStorage>>;
 using TFloatVecItr = TFloatVec::iterator;
 using TInt32Vec = std::vector<std::int32_t>;
 using TInt32VecCItr = TInt32Vec::const_iterator;
@@ -104,8 +104,8 @@ private:
 };
 
 //! Checksum \p vec.
-template<typename T>
-std::uint64_t computeChecksum(const std::vector<T>& vec) {
+template<typename T, typename ALLOCATOR>
+std::uint64_t computeChecksum(const std::vector<T, ALLOCATOR>& vec) {
     return CHashing::murmurHash64(vec.data(), static_cast<int>(sizeof(T) * vec.size()), 0);
 }
 
