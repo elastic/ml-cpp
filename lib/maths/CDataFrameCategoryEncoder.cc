@@ -216,7 +216,8 @@ private:
 };
 }
 
-CEncodedDataFrameRowRef::CEncodedDataFrameRowRef(const TRowRef& row, const CDataFrameCategoryEncoder& encoder)
+CEncodedDataFrameRowRef::CEncodedDataFrameRowRef(const TRowRef& row,
+                                                 const CDataFrameCategoryEncoder& encoder)
     : m_Row{row}, m_Encoder{&encoder} {
 }
 

@@ -97,7 +97,7 @@ public:
     //@{
     CSmallVector() {}
     CSmallVector(const CSmallVector& other) : TBase(other) {}
-    CSmallVector(CSmallVector&& other) noexcept(std::is_nothrow_move_assignable<T>::value)
+    CSmallVector(CSmallVector&& other) noexcept(std::is_nothrow_move_assignable<TBase>::value)
         : TBase(std::move(other.baseRef())) {}
     explicit CSmallVector(size_type n, const value_type& val = value_type())
         : TBase(n, val) {}
@@ -117,7 +117,7 @@ public:
         : TBase(other.begin(), other.end()) {}
 
     CSmallVector&
-    operator=(CSmallVector&& rhs) noexcept(std::is_nothrow_move_assignable<T>::value) {
+    operator=(CSmallVector&& rhs) noexcept(std::is_nothrow_move_assignable<TBase>::value) {
         this->baseRef() = std::move(rhs.baseRef());
         return *this;
     }
