@@ -178,7 +178,8 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                             writer.Key(IMPORTANCE_FIELD_NAME);
                             writer.Double(shap[i](0));
                         } else {
-                            for (int j = 0; j < shap[i].size(); ++j) {
+                            for (int j = 0;
+                                 j < shap[i].size() && j < classValues.size(); ++j) {
                                 writer.Key(classValues[j]);
                                 writer.Double(shap[i](j));
                             }
