@@ -28,6 +28,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <type_traits>
 
 namespace Eigen {
 #define LESS_OR_GREATER(l, r)                                                  \
@@ -383,7 +384,8 @@ public:
         : TBase{nullptr, 1, 1} {
         this->reseat(other);
     }
-    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix&& other)
+    CMemoryMappedDenseMatrix(CMemoryMappedDenseMatrix&& other) noexcept(
+        std::is_nothrow_constructible<TBase>::value)
         : TBase{nullptr, 1, 1} {
         this->reseat(other);
     }
@@ -393,7 +395,8 @@ public:
         }
         return *this;
     }
-    CMemoryMappedDenseMatrix& operator=(CMemoryMappedDenseMatrix&& other) {
+    CMemoryMappedDenseMatrix& operator=(CMemoryMappedDenseMatrix&& other) noexcept(
+        std::is_nothrow_constructible<TBase>::value) {
         if (this != &other) {
             this->reseat(other);
         }
@@ -505,7 +508,8 @@ public:
         : TBase{nullptr, 1} {
         this->reseat(other);
     }
-    CMemoryMappedDenseVector(CMemoryMappedDenseVector&& other)
+    CMemoryMappedDenseVector(CMemoryMappedDenseVector&& other) noexcept(
+        std::is_nothrow_constructible<TBase>::value)
         : TBase{nullptr, 1} {
         this->reseat(other);
     }
@@ -515,7 +519,8 @@ public:
         }
         return *this;
     }
-    CMemoryMappedDenseVector& operator=(CMemoryMappedDenseVector&& other) {
+    CMemoryMappedDenseVector& operator=(CMemoryMappedDenseVector&& other) noexcept(
+        std::is_nothrow_constructible<TBase>::value) {
         if (this != &other) {
             this->reseat(other);
         }

@@ -216,8 +216,9 @@ private:
 };
 }
 
-CEncodedDataFrameRowRef::CEncodedDataFrameRowRef(TRowRef row, const CDataFrameCategoryEncoder& encoder)
-    : m_Row{std::move(row)}, m_Encoder{&encoder} {
+CEncodedDataFrameRowRef::CEncodedDataFrameRowRef(const TRowRef& row,
+                                                 const CDataFrameCategoryEncoder& encoder)
+    : m_Row{row}, m_Encoder{&encoder} {
 }
 
 CFloatStorage CEncodedDataFrameRowRef::operator[](std::size_t encodedColumnIndex) const {
@@ -247,8 +248,8 @@ CDataFrameCategoryEncoder::CDataFrameCategoryEncoder(core::CStateRestoreTraverse
     }
 }
 
-CEncodedDataFrameRowRef CDataFrameCategoryEncoder::encode(TRowRef row) const {
-    return {std::move(row), *this};
+CEncodedDataFrameRowRef CDataFrameCategoryEncoder::encode(const TRowRef& row) const {
+    return {row, *this};
 }
 
 CDataFrameCategoryEncoder::TDoubleVec CDataFrameCategoryEncoder::encodedColumnMics() const {

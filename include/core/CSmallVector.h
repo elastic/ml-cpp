@@ -16,6 +16,7 @@
 #include <algorithm>
 #include <initializer_list>
 #include <ostream>
+#include <type_traits>
 #include <vector>
 
 namespace ml {
@@ -96,7 +97,8 @@ public:
     //@{
     CSmallVector() {}
     CSmallVector(const CSmallVector& other) : TBase(other) {}
-    CSmallVector(CSmallVector&& other) : TBase(std::move(other.baseRef())) {}
+    CSmallVector(CSmallVector&& other) noexcept(std::is_nothrow_move_constructible<TBase>::value)
+        : TBase(std::move(other.baseRef())) {}
     explicit CSmallVector(size_type n, const value_type& val = value_type())
         : TBase(n, val) {}
     CSmallVector(std::initializer_list<value_type> list)
@@ -114,7 +116,8 @@ public:
     CSmallVector(const std::vector<U>& other)
         : TBase(other.begin(), other.end()) {}
 
-    CSmallVector& operator=(CSmallVector&& rhs) {
+    CSmallVector&
+    operator=(CSmallVector&& rhs) noexcept(std::is_nothrow_move_assignable<TBase>::value) {
         this->baseRef() = std::move(rhs.baseRef());
         return *this;
     }
