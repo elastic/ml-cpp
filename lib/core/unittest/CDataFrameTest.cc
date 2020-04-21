@@ -427,7 +427,8 @@ BOOST_FIXTURE_TEST_CASE(testMemoryUsage, CTestFixture) {
 
     // Memory usage should be less than:
     //   1) 1075 + 4 times the root directory length bytes for on disk, and
-    //   2) data size + doc ids size + 900 byte overhead in main memory.
+    //   2) data size + doc ids size + 900 byte overhead in main memory. Note that
+    //      we round up the number of columns to the next multiple of the alignment.
     std::size_t maximumMemory[]{1075 + 4 * rootDirectory.length(),
                                 rows * (4 * ((cols + 3) / 4) + 1) * 4 + 900};
 
