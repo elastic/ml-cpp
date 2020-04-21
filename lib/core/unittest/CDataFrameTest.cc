@@ -429,7 +429,7 @@ BOOST_FIXTURE_TEST_CASE(testMemoryUsage, CTestFixture) {
     //   1) 1075 + 4 times the root directory length bytes for on disk, and
     //   2) data size + doc ids size + 900 byte overhead in main memory.
     std::size_t maximumMemory[]{1075 + 4 * rootDirectory.length(),
-                                rows * (cols + 1) * 4 + 900};
+                                rows * (4 * ((cols + 3) / 4) + 1) * 4 + 900};
 
     std::string type[]{"on disk", "main memory"};
     std::size_t t{0};
