@@ -61,6 +61,11 @@
 * Improve data frame analysis runtime by optimising memory alignment for intrinsic
   operations. (See {ml-pull}1142[#1142].)
 
+=== Bug Fixes
+
+* Fix underlying cause for "Failed to calculate splitting significance" log errors.
+  (See {ml-pull}1157[#1157].)
+
 == {es} version 7.7.1
 
 === Bug Fixes
