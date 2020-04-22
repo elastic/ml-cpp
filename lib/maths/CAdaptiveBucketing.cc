@@ -58,7 +58,7 @@ public:
         double left{CBasicStatistics::mean(m_Centre)};
         double right{CBasicStatistics::mean(other.m_Centre)};
         return std::fabs(right - left) <
-               (1.0 + 1e-6) * (this->radius(separation) + other.radius(separation) + separation);
+               this->radius(separation) + other.radius(separation) + separation;
     }
 
     void merge(const CContinugousPoints& other, double a, double b, double separation) {
@@ -461,7 +461,9 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
                           << endpoints[j] << " -> " << ai + xj);
             }
         }
-        spread(a, b, m_MinimumBucketLength, m_Endpoints);
+
+        // Add a margin to guaranty we'll meet the separation constraint.
+        spread(a, b, (1.0 + 1e-6) * m_MinimumBucketLength, m_Endpoints);
 
         // By construction, the first and last end point should be
         // close "a" and "b", respectively, but we snap them to "a"

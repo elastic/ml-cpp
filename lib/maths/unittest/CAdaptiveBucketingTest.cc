@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(testSpread) {
     }
     dcdxMean /= 100.0;
     LOG_DEBUG(<< "mean d(cost)/dx = " << dcdxMean);
-    BOOST_TEST_REQUIRE(dcdxMean < 0.01);
+    BOOST_TEST_REQUIRE(dcdxMean < 0.02);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
