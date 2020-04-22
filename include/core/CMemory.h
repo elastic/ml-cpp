@@ -327,8 +327,8 @@ public:
     }
 
     //! Overload for std::vector.
-    template<typename T>
-    static std::size_t dynamicSize(const std::vector<T>& t) {
+    template<typename T, typename A>
+    static std::size_t dynamicSize(const std::vector<T, A>& t) {
         std::size_t mem = 0;
         if (!memory_detail::SDynamicSizeAlwaysZero<T>::value()) {
             for (auto i = t.begin(); i != t.end(); ++i) {
@@ -781,9 +781,9 @@ public:
     }
 
     //! Overload for std::vector.
-    template<typename T>
+    template<typename T, typename A>
     static void dynamicSize(const char* name,
-                            const std::vector<T>& t,
+                            const std::vector<T, A>& t,
                             const CMemoryUsage::TMemoryUsagePtr& mem) {
         std::string componentName(name);
 

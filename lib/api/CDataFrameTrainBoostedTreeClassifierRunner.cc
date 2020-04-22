@@ -162,9 +162,9 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     }
 
     if (featureImportance != nullptr) {
+        int numberClasses{static_cast<int>(classValues.size())};
         featureImportance->shap(
-            row, [&writer, &classValues](
-                     const maths::CTreeShapFeatureImportance::TSizeVec& indices,
+            row, [&](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
                      const TStrVec& featureNames,
                      const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
                 writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
@@ -178,8 +178,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                             writer.Key(IMPORTANCE_FIELD_NAME);
                             writer.Double(shap[i](0));
                         } else {
-                            for (int j = 0;
-                                 j < shap[i].size() && j < classValues.size(); ++j) {
+                            for (int j = 0; j < shap[i].size() && j < numberClasses; ++j) {
                                 writer.Key(classValues[j]);
                                 writer.Double(shap[i](j));
                             }
