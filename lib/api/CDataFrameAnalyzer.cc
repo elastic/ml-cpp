@@ -42,7 +42,7 @@ const std::string PHASE_PROGRESS{"phase_progress"};
 const std::string PHASE{"phase"};
 const std::string PROGRESS_PERCENT{"progress_percent"};
 
-// Temporarily the only progress phase
+// Progress phases
 const std::string ANALYZING{"analyzing"};
 
 // Row result fields
