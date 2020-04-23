@@ -311,12 +311,12 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingMse) {
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
-            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
-        } else if (result.HasMember("progress_percent")) {
-            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
-            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("phase_progress") == false);
+        } else if (result.HasMember("phase_progress")) {
+            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() <= 100);
             BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
-            progressCompleted = result["progress_percent"].GetInt() == 100;
+            progressCompleted = result["phase_progress"]["progress_percent"].GetInt() == 100;
         }
     }
     BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
@@ -440,12 +440,12 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
-            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
-        } else if (result.HasMember("progress_percent")) {
-            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
-            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("phase_progress") == false);
+        } else if (result.HasMember("phase_progress")) {
+            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() <= 100);
             BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
-            progressCompleted = result["progress_percent"].GetInt() == 100;
+            progressCompleted = result["phase_progress"]["progress_percent"].GetInt() == 100;
         }
     }
     BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
@@ -641,7 +641,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingMsle) {
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
-            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
+            BOOST_TEST_REQUIRE(result.HasMember("phase_progress") == false);
         }
     }
     BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
@@ -701,12 +701,12 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
                 result["row_results"]["results"]["ml"]["top_classes"][0]["class_score"]
                     .GetDouble());
             ++expectedPrediction;
-            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
-        } else if (result.HasMember("progress_percent")) {
-            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
-            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("phase_progress") == false);
+        } else if (result.HasMember("phase_progress")) {
+            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() <= 100);
             BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
-            progressCompleted = result["progress_percent"].GetInt() == 100;
+            progressCompleted = result["phase_progress"]["progress_percent"].GetInt() == 100;
         }
     }
     BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
