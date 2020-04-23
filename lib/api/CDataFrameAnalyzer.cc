@@ -35,8 +35,15 @@ const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
 
 // Result types
 const std::string ROW_RESULTS{"row_results"};
-const std::string PROGRESS_PERCENT{"progress_percent"};
 const std::string ANALYZER_STATE{"analyzer_state"};
+
+// Phase progress
+const std::string PHASE_PROGRESS{"phase_progress"};
+const std::string PHASE{"phase"};
+const std::string PROGRESS_PERCENT{"progress_percent"};
+
+// Progress phases
+const std::string ANALYZING{"analyzing"};
 
 // Row result fields
 const std::string CHECKSUM{"checksum"};
@@ -294,8 +301,13 @@ void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysi
 void CDataFrameAnalyzer::writeProgress(int progress,
                                        core::CRapidJsonConcurrentLineWriter& writer) const {
     writer.StartObject();
+    writer.Key(PHASE_PROGRESS);
+    writer.StartObject();
+    writer.Key(PHASE);
+    writer.String(ANALYZING);
     writer.Key(PROGRESS_PERCENT);
     writer.Int(progress);
+    writer.EndObject();
     writer.EndObject();
     writer.flush();
 }
