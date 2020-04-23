@@ -207,6 +207,35 @@ CDataFrameAnalysisSpecification::makeDataFrame() {
     return result;
 }
 
+bool CDataFrameAnalysisSpecification::validate(const core::CDataFrame& frame) const {
+
+    // The main condition to care about is if the analysis might use more memory
+    // than was budgeted for. There are circumstances in which rows are excluded
+    // after the search filter is applied so this can't trap the case that the row
+    // counts are not equal.
+    if (frame.numberRows() > this->numberRows()) {
+        HANDLE_FATAL(<< "Input error: expected no more than '" << this->numberRows()
+                     << "' rows but got '" << frame.numberRows() << "' rows"
+                     << ". Please report this problem.")
+        return false;
+    }
+    // As with rows, we only care if the analysis might use more memory than was
+    // budgeted for.
+    if (frame.numberColumns() > this->numberColumns()) {
+        HANDLE_FATAL(<< "Input error: expected '" << this->numberColumns()
+                     << "' columns but got '" << frame.numberRows() << "' columns"
+                     << ". Please report this problem.")
+        return false;
+    }
+
+    if (frame.numberRows() == 0) {
+        HANDLE_FATAL(<< "Input error: no data sent.")
+        return false;
+    }
+
+    return m_Runner == nullptr || m_Runner->validate(frame);
+}
+
 CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::runner() {
     return m_Runner.get();
 }

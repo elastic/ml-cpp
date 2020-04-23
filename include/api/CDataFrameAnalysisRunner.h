@@ -122,6 +122,9 @@ public:
                              const TRowRef& row,
                              core::CRapidJsonConcurrentLineWriter& writer) const = 0;
 
+    //! Validate if \p frame is suitable for running the analysis on.
+    virtual bool validate(const core::CDataFrame& frame) const = 0;
+
     //! Checks whether the analysis is already running and if not launches it
     //! in the background.
     //!

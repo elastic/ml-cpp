@@ -161,6 +161,9 @@ public:
     //! appropriate.
     TDataFrameUPtrTemporaryDirectoryPtrPr makeDataFrame();
 
+    //! Validate if \p frame is suitable for running the analysis on.
+    bool validate(const core::CDataFrame& frame) const;
+
     //! \return A handle to the object responsible for running the analysis.
     CDataFrameAnalysisRunner* runner();
 
