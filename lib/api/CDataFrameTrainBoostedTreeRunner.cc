@@ -195,6 +195,14 @@ const std::string& CDataFrameTrainBoostedTreeRunner::predictionFieldName() const
     return m_PredictionFieldName;
 }
 
+bool CDataFrameTrainBoostedTreeRunner::validate(const core::CDataFrame& frame) const {
+    if (frame.numberColumns() <= 1) {
+        HANDLE_FATAL(<< "Input error: analysis need at least one regressor.")
+        return false;
+    }
+    return true;
+}
+
 const maths::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
     if (m_BoostedTree == nullptr) {
         HANDLE_FATAL(<< "Internal error: boosted tree missing. Please report this problem.")

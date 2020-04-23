@@ -32,11 +32,6 @@ public:
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
                              const CDataFrameAnalysisParameters& parameters);
 
-    //! \return Reference to the analysis state.
-    const CDataFrameAnalysisInstrumentation& instrumentation() const override;
-    //! \return Reference to the analysis state.
-    CDataFrameAnalysisInstrumentation& instrumentation() override;
-
     //! This is not intended to be called directly: use CDataFrameOutliersRunnerFactory.
     CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec);
 
@@ -47,6 +42,14 @@ public:
     void writeOneRow(const core::CDataFrame& frame,
                      const TRowRef& row,
                      core::CRapidJsonConcurrentLineWriter& writer) const override;
+
+    //! Validate if \p frame is suitable for running the analysis on.
+    bool validate(const core::CDataFrame& frame) const override;
+
+    //! \return Reference to the analysis state.
+    const CDataFrameAnalysisInstrumentation& instrumentation() const override;
+    //! \return Reference to the analysis state.
+    CDataFrameAnalysisInstrumentation& instrumentation() override;
 
 private:
     void runImpl(core::CDataFrame& frame) override;
