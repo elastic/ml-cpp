@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CAlignment.h>
 #include <core/CContainerPrinter.h>
 #include <core/CHashing.h>
 #include <core/CLogger.h>
@@ -167,8 +168,10 @@ public:
 
     virtual std::size_t staticSize() const { return sizeof(*this); }
 
+    const std::uint64_t* fixed() const { return m_Fixed; } // suppress warning
+
 private:
-    uint64_t m_Fixed[5];
+    std::uint64_t m_Fixed[5];
     TIntVec m_Vec;
 };
 
@@ -193,8 +196,10 @@ public:
 
     virtual std::size_t staticSize() const { return sizeof(*this); }
 
+    const std::uint64_t* fixed() const { return m_Fixed; } // suppress warning
+
 private:
-    uint64_t m_Fixed[50];
+    std::uint64_t m_Fixed[50];
     TStrVec m_Strings;
 };
 
@@ -1202,6 +1207,29 @@ BOOST_AUTO_TEST_CASE(testSmallVector) {
     // Boost upgrade.  If that happens and changing it to assert extraMem is 0
     // fixes it then this means boost::small_vector has been improved.
     BOOST_TEST_REQUIRE(extraMem > 0);
+}
+
+BOOST_AUTO_TEST_CASE(testAlignedVector) {
+    using TDoubleVec = std::vector<double>;
+    using TAlignedDoubleVec = std::vector<double, core::CAlignedAllocator<double>>;
+
+    TDoubleVec vector{10.0, 11.0, 12.0, 13.0, 14.0,
+                      15.0, 16.0, 17.0, 18.0, 19.0};
+    TAlignedDoubleVec alignedVector{10.0, 11.0, 12.0, 13.0, 14.0,
+                                    15.0, 16.0, 17.0, 18.0, 19.0};
+
+    LOG_DEBUG(<< "TDoubleVec usage = " << core::CMemory::dynamicSize(vector));
+    LOG_DEBUG(<< "TAlignedDoubleVec usage = " << core::CMemory::dynamicSize(alignedVector));
+    BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(vector),
+                        core::CMemory::dynamicSize(alignedVector));
+
+    core::CMemoryUsage memoryUsage;
+    memoryUsage.setName("test", 0);
+    core::CMemoryDebug::dynamicSize("TAlignedDoubleVec", vector, memoryUsage.addChild());
+    std::ostringstream ss;
+    memoryUsage.print(ss);
+    LOG_DEBUG(<< "TAlignedDoubleVec usage debug = " << ss.str());
+    BOOST_REQUIRE_EQUAL(core::CMemory::dynamicSize(vector), memoryUsage.usage());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -35,8 +35,15 @@ const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
 
 // Result types
 const std::string ROW_RESULTS{"row_results"};
-const std::string PROGRESS_PERCENT{"progress_percent"};
 const std::string ANALYZER_STATE{"analyzer_state"};
+
+// Phase progress
+const std::string PHASE_PROGRESS{"phase_progress"};
+const std::string PHASE{"phase"};
+const std::string PROGRESS_PERCENT{"progress_percent"};
+
+// Progress phases
+const std::string ANALYZING{"analyzing"};
 
 // Row result fields
 const std::string CHECKSUM{"checksum"};
@@ -113,19 +120,7 @@ void CDataFrameAnalyzer::run() {
         return;
     }
 
-    // The main condition to care about is if the analysis is going to use more
-    // memory than was budgeted for. There are circumstances in which rows are
-    // excluded after the search filter is applied so this can't trap the case
-    // that the row counts are not equal.
-    if (m_DataFrame->numberRows() > m_AnalysisSpecification->numberRows()) {
-        HANDLE_FATAL(<< "Input error: expected no more than '"
-                     << m_AnalysisSpecification->numberRows() << "' rows "
-                     << "but got '" << m_DataFrame->numberRows() << "' rows"
-                     << ". Please report this problem.");
-        return;
-    }
-    if (m_DataFrame->numberRows() == 0) {
-        HANDLE_FATAL(<< "Input error: no data sent.");
+    if (m_AnalysisSpecification->validate(*m_DataFrame) == false) {
         return;
     }
 
@@ -245,7 +240,7 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
     }
     if (unrecognised || fieldValues[m_ControlFieldIndex].size() > 1) {
         HANDLE_FATAL(<< "Input error: invalid control message value '"
-                     << fieldValues[m_ControlFieldIndex] << "'. Please report this problem.");
+                     << fieldValues[m_ControlFieldIndex] << "'. Please report this problem.")
         return false;
     }
     return true;
@@ -294,8 +289,13 @@ void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysi
 void CDataFrameAnalyzer::writeProgress(int progress,
                                        core::CRapidJsonConcurrentLineWriter& writer) const {
     writer.StartObject();
+    writer.Key(PHASE_PROGRESS);
+    writer.StartObject();
+    writer.Key(PHASE);
+    writer.String(ANALYZING);
     writer.Key(PROGRESS_PERCENT);
     writer.Int(progress);
+    writer.EndObject();
     writer.EndObject();
     writer.flush();
 }

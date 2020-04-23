@@ -237,7 +237,8 @@ void CEventRateModel::sample(core_t::TTime startTime,
 
         // Declared outside the loop to minimize the number of times they are created.
         maths::CModel::TTimeDouble2VecSizeTrVec values;
-        maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec weights;
+        maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec trendWeights;
+        maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec priorWeights;
 
         for (auto& featureData : m_CurrentBucketStats.s_FeatureData) {
             model_t::EFeature feature = featureData.first;
@@ -269,7 +270,7 @@ void CEventRateModel::sample(core_t::TTime startTime,
                 std::size_t pid = data_.first;
 
                 maths::CModel* model = this->model(feature, pid);
-                if (!model) {
+                if (model == nullptr) {
                     LOG_ERROR(<< "Missing model for " << this->personName(pid));
                     continue;
                 }
@@ -281,6 +282,9 @@ void CEventRateModel::sample(core_t::TTime startTime,
                     continue;
                 }
 
+                // For sparse data we reduce the impact of samples from empty buckets.
+                // In effect, we smoothly transition to modeling only values from non-empty
+                // buckets as the data becomes sparse.
                 double emptyBucketWeight = this->emptyBucketWeight(feature, pid, time);
                 if (emptyBucketWeight == 0.0) {
                     continue;
@@ -288,31 +292,42 @@ void CEventRateModel::sample(core_t::TTime startTime,
 
                 double count = model_t::offsetCountToZero(
                     feature, static_cast<double>(data_.second.s_Count));
+                TDouble2Vec value{count};
                 double derate = this->derate(pid, sampleTime);
-                double interval =
+                // Note we need to scale the amount of data we'll "age out" of the residual
+                // model in one bucket by the empty bucket weight so the posterior doesn't
+                // end up too flat.
+                double deratedInterval =
                     (1.0 + (this->params().s_InitialDecayRateMultiplier - 1.0) * derate) *
                     emptyBucketWeight;
-                double ceff = emptyBucketWeight * this->learnRate(feature);
+                double countWeight = this->learnRate(feature);
+                double deratedCountWeight = emptyBucketWeight * countWeight;
+                auto winsorisationWeight =
+                    model->winsorisationWeight(derate, sampleTime, value);
 
                 LOG_TRACE(<< "Bucket = " << this->printCurrentBucket()
                           << ", feature = " << model_t::print(feature) << ", count = "
                           << count << ", person = " << this->personName(pid)
                           << ", empty bucket weight = " << emptyBucketWeight
-                          << ", derate = " << derate << ", interval = " << interval);
+                          << ", count weight = " << countWeight
+                          << ", derated count weight = " << deratedCountWeight
+                          << ", derated interval = " << deratedInterval);
 
-                TDouble2Vec value{count};
                 values.assign(1, core::make_triple(sampleTime, value, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID));
-                weights.resize(1, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
-                maths_t::setCount(TDouble2Vec(dimension, ceff), weights[0]);
-                maths_t::setWinsorisationWeight(
-                    model->winsorisationWeight(derate, sampleTime, value), weights[0]);
+                trendWeights.resize(1, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
+                priorWeights.resize(1, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
+                maths_t::setCount(TDouble2Vec(dimension, countWeight), trendWeights[0]);
+                maths_t::setWinsorisationWeight(winsorisationWeight, trendWeights[0]);
+                maths_t::setCount(TDouble2Vec(dimension, deratedCountWeight),
+                                  priorWeights[0]);
+                maths_t::setWinsorisationWeight(winsorisationWeight, priorWeights[0]);
 
                 maths::CModelAddSamplesParams params;
                 params.integer(true)
                     .nonNegative(true)
-                    .propagationInterval(interval)
-                    .trendWeights(weights)
-                    .priorWeights(weights);
+                    .propagationInterval(deratedInterval)
+                    .trendWeights(trendWeights)
+                    .priorWeights(priorWeights);
 
                 if (model->addSamples(params, values) == maths::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);
