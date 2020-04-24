@@ -545,7 +545,7 @@ double CIndividualModel::emptyBucketWeight(model_t::EFeature feature,
         if (count == boost::none || *count == 0) {
             // We smoothly transition to modelling non-zero count when the bucket
             // occupancy is less than 0.5.
-            weight = std::min(2.0 * this->personFrequency(pid), 1.0);
+            weight = maths::CTools::truncate(2.0 * this->personFrequency(pid), 1e-6, 1.0);
         }
     }
     return weight;
