@@ -91,6 +91,9 @@ protected:
     //! Name of prediction field.
     const std::string& predictionFieldName() const;
 
+    //! Validate if \p frame is suitable for running the analysis on.
+    bool validate(const core::CDataFrame& frame) const override;
+
     //! The boosted tree factory.
     maths::CBoostedTreeFactory& boostedTreeFactory();
 

@@ -22,6 +22,10 @@ void CDataFrameMockAnalysisRunner::writeOneRow(const ml::core::CDataFrame&,
                                                ml::core::CRapidJsonConcurrentLineWriter&) const {
 }
 
+bool CDataFrameMockAnalysisRunner::validate(const ml::core::CDataFrame&) const {
+    return true;
+}
+
 void CDataFrameMockAnalysisRunner::runImpl(ml::core::CDataFrame&) {
     ml::core::CLoopProgress progress{31, this->instrumentation().progressCallback()};
     for (std::size_t i = 0; i < 31; ++i, progress.increment()) {

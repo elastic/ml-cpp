@@ -57,6 +57,14 @@
 * Fix spurious anomalies for count and sum functions after no data are received for long
   periods of time. (See {ml-pull}1158[#1158].)
 
+== {es} version 7.8.0
+
+=== Bug Fixes
+
+* Trap and fail if insufficient features are supplied to data frame analyses. This
+  caused classification and regression getting stuck at zero progress analyzing.
+  (See {ml-pull}1160[#1160], issue: {issue}55593[#55593].)
+
 == {es} version 7.7.1
 
 === Bug Fixes

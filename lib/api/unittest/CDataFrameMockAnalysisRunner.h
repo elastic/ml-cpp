@@ -7,6 +7,8 @@
 #ifndef INCLUDED_CDataFrameMockAnalysisRunner_h
 #define INCLUDED_CDataFrameMockAnalysisRunner_h
 
+#include <core/CDataFrame.h>
+
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisRunner.h>
 #include <api/CDataFrameAnalysisSpecification.h>
@@ -34,7 +36,7 @@ public:
     void writeOneRow(const ml::core::CDataFrame&,
                      const TRowRef&,
                      ml::core::CRapidJsonConcurrentLineWriter&) const override;
-
+    bool validate(const ml::core::CDataFrame&) const override;
     const ml::api::CDataFrameAnalysisInstrumentation& instrumentation() const override;
     ml::api::CDataFrameAnalysisInstrumentation& instrumentation() override;
 
