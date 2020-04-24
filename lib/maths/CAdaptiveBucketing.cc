@@ -453,7 +453,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
                  ej += step, unassignedAveragingError -= step, ++j) {
                 double xj{hi * ej / ei};
                 m_Endpoints[j] = std::max(
-                    m_Endpoints[j - 1] + 1e-6 * std::fabs(m_Endpoints[j - 1]),
+                    m_Endpoints[j - 1] + 1e-8 * std::fabs(m_Endpoints[j - 1]),
                     endpoints[j] + alpha * (ai + xj - endpoints[j]));
                 displacement += (ai + xj) - endpoints[j];
                 LOG_TRACE(<< "interval = [" << ai << "," << bi << "]"
@@ -463,7 +463,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         }
 
         // Add a margin to guaranty we'll meet the separation constraint.
-        spread(a, b, (1.0 + 1e-6) * m_MinimumBucketLength, m_Endpoints);
+        spread(a, b, (1.0 + 1e-8) * m_MinimumBucketLength, m_Endpoints);
 
         // By construction, the first and last end point should be
         // close "a" and "b", respectively, but we snap them to "a"
@@ -670,7 +670,7 @@ void CAdaptiveBucketing::spread(double a, double b, double separation, TFloatVec
     double last{-std::numeric_limits<double>::max()};
     for (std::size_t i = 0, j = 0; i < contiguousPoints.size(); ++i) {
         for (std::size_t k = 0; k < contiguousPoints[i].size(); ++j, ++k) {
-            points[j] = std::max(last + 1e-6 * std::fabs(last),
+            points[j] = std::max(last + separation,
                                  contiguousPoints[i].location(k, separation));
             last = points[j];
         }
