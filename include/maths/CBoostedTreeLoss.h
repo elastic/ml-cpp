@@ -149,45 +149,27 @@ public:
 private:
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TVector = CVectorNx1<double, 3>;
-    using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
-    using TVectorMeanAccumulatorVec = std::vector<TVectorMeanAccumulator>;
-    using TVectorMeanAccumulatorVecVec = std::vector<TVectorMeanAccumulatorVec>;
-    using TDoubleDoublePr = std::pair<double, double>;
-    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+
 
 private:
-    TSizeSizePr bucket(double prediction, double actual) const {
+    std::size_t bucket(double error) const {
         auto bucketWidth{this->bucketWidth()};
-        double bucketPrediction{(prediction - m_PredictionMinMax.min()) /
-                                bucketWidth.first};
-        std::size_t predictionBucketIndex{std::min(
-            static_cast<std::size_t>(bucketPrediction), m_Buckets.size() - 1)};
-
-        double bucketActual{(actual - m_ActualMinMax.min()) / bucketWidth.second};
-        std::size_t actualBucketIndex{std::min(
-            static_cast<std::size_t>(bucketActual), m_Buckets[0].size() - 1)};
-
-        return std::make_pair(predictionBucketIndex, actualBucketIndex);
+        double bucket{(error - m_ErrorMinMax.min()) / bucketWidth};
+        std::size_t bucketIndex{
+            std::min(static_cast<std::size_t>(bucket), m_Buckets.size() - 1)};
+        return bucketIndex;
     }
 
-    TDoubleDoublePr bucketWidth() const {
-        double predictionBucketWidth{m_PredictionMinMax.range() /
-                                     static_cast<double>(m_Buckets.size())};
-        double actualBucketWidth{m_ActualMinMax.range() /
-                                 static_cast<double>(m_Buckets[0].size())};
-        return std::make_pair(predictionBucketWidth, actualBucketWidth);
+    double bucketWidth() const {
+        return m_ErrorMinMax.range() / static_cast<double>(m_Buckets.size());
     }
 
 private:
     double m_Delta2 = 1.0;
     std::size_t m_CurrentPass = 0;
-    TMinMaxAccumulator m_PredictionMinMax;
-    TMinMaxAccumulator m_ActualMinMax;
-    TVectorMeanAccumulatorVecVec m_Buckets;
-    TMeanVarAccumulator m_MeanActual;
-    TMeanAccumulator m_MeanError;
+    TMeanAccumulatorVec m_Buckets;
     TMinMaxAccumulator m_ErrorMinMax;
 };
 
