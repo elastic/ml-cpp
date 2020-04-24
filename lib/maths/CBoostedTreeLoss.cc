@@ -482,8 +482,6 @@ CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
     return [this](double logWeight) {
 
         double weight{std::exp(logWeight)};
-        double loss{0.0};
-        double totalCount{0.0};
         if (this->bucketWidth().first == 0.0) {
             // prediction is constant
             double expPrediction{m_ExpPredictionMinMax.max()};
@@ -495,6 +493,8 @@ CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
                         CTools::pow2(logPrediction)};
             return loss + this->lambda() * CTools::pow2(weight);
         } else {
+            double loss{0.0};
+            double totalCount{0.0};
             for (const auto& bucketPrediction : m_Buckets) {
                 for (const auto& bucketActual : bucketPrediction) {
                     double count{CBasicStatistics::count(bucketActual)};
