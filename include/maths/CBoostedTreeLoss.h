@@ -127,6 +127,70 @@ private:
     TMeanAccumulator m_MeanError;
 };
 
+//! \brief Finds the value to add to a set of predictions which approximately
+//! minimises the pseudo-Huber loss function.
+class MATHS_EXPORT CArgMinPseudoHuberImpl final : public CArgMinLossImpl {
+public:
+    using TObjective = std::function<double(double)>;
+
+public:
+    CArgMinPseudoHuberImpl(double lambda, double delta);
+    std::unique_ptr<CArgMinLossImpl> clone() const override;
+    bool nextPass() override;
+    void add(const TMemoryMappedFloatVector& predictionVector,
+             double actual,
+             double weight = 1.0) override;
+    void merge(const CArgMinLossImpl& other) override;
+    TDoubleVector value() const override;
+
+    // Exposed for unit testing.
+    TObjective objective() const;
+
+private:
+    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using TVector = CVectorNx1<double, 3>;
+    using TVectorMeanAccumulator = CBasicStatistics::SSampleMean<TVector>::TAccumulator;
+    using TVectorMeanAccumulatorVec = std::vector<TVectorMeanAccumulator>;
+    using TVectorMeanAccumulatorVecVec = std::vector<TVectorMeanAccumulatorVec>;
+    using TDoubleDoublePr = std::pair<double, double>;
+    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+
+private:
+    TSizeSizePr bucket(double prediction, double actual) const {
+        auto bucketWidth{this->bucketWidth()};
+        double bucketPrediction{(prediction - m_PredictionMinMax.min()) /
+                                bucketWidth.first};
+        std::size_t predictionBucketIndex{std::min(
+            static_cast<std::size_t>(bucketPrediction), m_Buckets.size() - 1)};
+
+        double bucketActual{(actual - m_ActualMinMax.min()) / bucketWidth.second};
+        std::size_t actualBucketIndex{std::min(
+            static_cast<std::size_t>(bucketActual), m_Buckets[0].size() - 1)};
+
+        return std::make_pair(predictionBucketIndex, actualBucketIndex);
+    }
+
+    TDoubleDoublePr bucketWidth() const {
+        double predictionBucketWidth{m_PredictionMinMax.range() /
+                                     static_cast<double>(m_Buckets.size())};
+        double actualBucketWidth{m_ActualMinMax.range() /
+                                 static_cast<double>(m_Buckets[0].size())};
+        return std::make_pair(predictionBucketWidth, actualBucketWidth);
+    }
+
+private:
+    double m_Delta2 = 1.0;
+    std::size_t m_CurrentPass = 0;
+    TMinMaxAccumulator m_PredictionMinMax;
+    TMinMaxAccumulator m_ActualMinMax;
+    TVectorMeanAccumulatorVecVec m_Buckets;
+    TMeanVarAccumulator m_MeanActual;
+    TMeanAccumulator m_MeanError;
+    TMinMaxAccumulator m_ErrorMinMax;
+};
+
 //! \brief Finds the value to add to a set of predicted log-odds which minimises
 //! regularised cross entropy loss w.r.t. the actual categories.
 //!
@@ -465,6 +529,35 @@ private:
 //! where \f$w_i = \frac{\log(1+p_i) - \log(1+a_i)}{(1+p_i)(p_i-a_i)}\f$ and \f$c_i\f$
 //! is chosen so \f$l_i(p_i) = (\log(1+p_i) - \log(1+a_i))^2\f$.
 class MATHS_EXPORT CMsle final : public CLoss {
+public:
+    static const std::string NAME;
+
+public:
+    EType type() const override;
+    std::unique_ptr<CLoss> clone() const override;
+    std::size_t numberParameters() const override;
+    double value(const TMemoryMappedFloatVector& prediction,
+                 double actual,
+                 double weight = 1.0) const override;
+    void gradient(const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  TWriter writer,
+                  double weight = 1.0) const override;
+    void curvature(const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   TWriter writer,
+                   double weight = 1.0) const override;
+    bool isCurvatureConstant() const override;
+    TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
+    CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
+    const std::string& name() const override;
+    bool isRegression() const override;
+};
+//! \brief The pseudo-Huber loss function.
+//!
+//! DESCRIPTION:\n
+//! \TODO
+class MATHS_EXPORT CPseudoHuber final : public CLoss {
 public:
     static const std::string NAME;
 

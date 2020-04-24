@@ -25,11 +25,19 @@ namespace {
 const double EPSILON{100.0 * std::numeric_limits<double>::epsilon()};
 const double LOG_EPSILON{CTools::stableLog(EPSILON)};
 
-// MSLE CONSTANTS
+// MSLE constants
 const std::size_t MSLE_PREDICTION_INDEX{0};
 const std::size_t MSLE_ACTUAL_INDEX{1};
 const std::size_t MSLE_ERROR_INDEX{2};
 const std::size_t MSLE_BUCKET_SIZE{32};
+const std::size_t MSLE_OPTIMIZATION_ITERATIONS{15};
+
+// Pseudo-Huber constants
+const std::size_t HUBER_PREDICTION_INDEX{0};
+const std::size_t HUBER_ACTUAL_INDEX{1};
+const std::size_t HUBER_ERROR_INDEX{2};
+const std::size_t HUBER_BUCKET_SIZE{128};
+const std::size_t HUBER_OPTIMIZATION_ITERATIONS{15};
 
 double logOneMinusLogistic(double logOdds) {
     // For large x logistic(x) = 1 - e^(-x) + O(e^(-2x))
@@ -509,6 +517,141 @@ CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
                 }
             }
             return loss / totalCount + this->lambda() * CTools::pow2(weight);
+        }
+    };
+}
+
+CArgMinPseudoHuberImpl::CArgMinPseudoHuberImpl(double lambda, double delta)
+    : CArgMinLossImpl{lambda}, m_Delta2{CTools::pow2(delta)},
+      m_Buckets(HUBER_BUCKET_SIZE) {
+    for (auto& bucket : m_Buckets) {
+        bucket.resize(1);
+    }
+}
+
+std::unique_ptr<CArgMinLossImpl> CArgMinPseudoHuberImpl::clone() const {
+    return std::make_unique<CArgMinPseudoHuberImpl>(*this);
+}
+
+bool CArgMinPseudoHuberImpl::nextPass() {
+    ++m_CurrentPass;
+    return this->bucketWidth().first > 0.0 && m_CurrentPass < 2;
+}
+
+void CArgMinPseudoHuberImpl::add(const TMemoryMappedFloatVector& predictionVector,
+                                 double actual,
+                                 double weight) {
+    double prediction{predictionVector[0]};
+    switch (m_CurrentPass) {
+    case 0: {
+        m_PredictionMinMax.add(prediction);
+        m_ActualMinMax.add(actual);
+        m_ErrorMinMax.add(actual - prediction);
+        m_MeanActual.add(actual, weight);
+        break;
+    }
+    case 1: {
+        double error{actual - prediction};
+
+        TVector example;
+        example(HUBER_PREDICTION_INDEX) = prediction;
+        example(HUBER_ACTUAL_INDEX) = actual;
+        example(HUBER_ERROR_INDEX) = error;
+        auto bucketIndex{this->bucket(prediction, actual)};
+        m_Buckets[bucketIndex.first][bucketIndex.second].add(example, weight);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void CArgMinPseudoHuberImpl::merge(const CArgMinLossImpl& other) {
+    const auto* huber = dynamic_cast<const CArgMinPseudoHuberImpl*>(&other);
+    if (huber != nullptr) {
+        switch (m_CurrentPass) {
+        case 0:
+            m_PredictionMinMax += huber->m_PredictionMinMax;
+            m_ActualMinMax += huber->m_ActualMinMax;
+            m_ErrorMinMax += huber->m_ErrorMinMax;
+            m_MeanActual += huber->m_MeanActual;
+            break;
+        case 1:
+            for (std::size_t i = 0; i < m_Buckets.size(); ++i) {
+                for (std::size_t j = 0; j < m_Buckets[i].size(); ++j) {
+                    m_Buckets[i][j] += huber->m_Buckets[i][j];
+                }
+            }
+            break;
+        default:
+            break;
+        }
+    }
+}
+
+CArgMinPseudoHuberImpl::TDoubleVector CArgMinPseudoHuberImpl::value() const {
+    TObjective objective;
+    double minWeight = m_ErrorMinMax.min();
+    double maxWeight = m_ErrorMinMax.max();
+    LOG_DEBUG(<< "Min weight " << minWeight << " max weight " << maxWeight);
+
+    objective = this->objective();
+    // if (this->bucketWidth().first == 0.0) {
+    //     minWeight = 1e-4; //TODO Reasonable?
+    //     maxWeight = CBasicStatistics::mean(m_MeanActual);
+    // } else {
+    //     // If the weight smaller than the minimum log error every prediction is low.
+    //     // Conversely, if it's larger than the maximum log error every prediction is
+    //     // high. In both cases, we can reduce the error by making the weight larger,
+    //     // respectively smaller. Therefore, the optimal weight must lie between these
+    //     // values.
+    //     minWeight = std::numeric_limits<double>::max();
+    //     maxWeight = -minWeight;
+    //     for (const auto& bucketsPrediction : m_Buckets) {
+    //         for (const auto& bucketActual : bucketsPrediction) {
+    //             minWeight = std::min(
+    //                 minWeight, CBasicStatistics::mean(bucketActual)(HUBER_ERROR_INDEX));
+    //             maxWeight = std::max(
+    //                 maxWeight, CBasicStatistics::mean(bucketActual)(HUBER_ERROR_INDEX));
+    //         }
+    //     }
+    // }
+
+    double minimizer;
+    double objectiveAtMinimum;
+    std::size_t maxIterations{HUBER_OPTIMIZATION_ITERATIONS};
+    CSolvers::minimize(minWeight, maxWeight, objective(minWeight), objective(maxWeight),
+                       objective, 1e-5, maxIterations, minimizer, objectiveAtMinimum);
+    LOG_TRACE(<< "minimum = " << minimizer << " objective(minimum) = " << objectiveAtMinimum);
+
+    TDoubleVector result(1);
+    result(0) = minimizer;
+    return result;
+}
+
+CArgMinPseudoHuberImpl::TObjective CArgMinPseudoHuberImpl::objective() const {
+    return [this](double weight) {
+        if (m_Delta2 > 0) {
+
+            double loss{0.0};
+            double totalCount{0.0};
+            for (const auto& bucketPrediction : m_Buckets) {
+                for (const auto& bucketActual : bucketPrediction) {
+                    double count{CBasicStatistics::count(bucketActual)};
+                    if (count > 0.0) {
+                        // double prediction{CBasicStatistics::mean(bucketActual)(HUBER_PREDICTION_INDEX)};
+                        // double actual{CBasicStatistics::mean(bucketActual)(HUBER_ACTUAL_INDEX)};
+                        double error{CBasicStatistics::mean(bucketActual)(HUBER_ERROR_INDEX)};
+                        loss += count * m_Delta2 *
+                                (std::sqrt(1.0 + CTools::pow2(error - weight) / m_Delta2) - 1.0);
+                        // loss += count * std::fabs(error - weight);
+                        totalCount += count;
+                    }
+                }
+            }
+            return loss / totalCount + this->lambda() * CTools::pow2(weight);
+        } else {
+            return 0.0;
         }
     };
 }
