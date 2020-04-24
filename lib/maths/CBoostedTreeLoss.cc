@@ -475,7 +475,7 @@ CArgMinMsleImpl::TDoubleVector CArgMinMsleImpl::value() const {
 
     double minimizer;
     double objectiveAtMinimum;
-    std::size_t maxIterations{15};
+    std::size_t maxIterations{MSLE_OPTIMIZATION_ITERATIONS};
     CSolvers::minimize(minLogWeight, maxLogWeight, objective(minLogWeight),
                        objective(maxLogWeight), objective, 1e-5, maxIterations,
                        minimizer, objectiveAtMinimum);
