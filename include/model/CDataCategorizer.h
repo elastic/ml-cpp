@@ -53,6 +53,16 @@ public:
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
     using TIntVec = std::vector<int>;
 
+    //! A soft categorization failure means downstream components can continue,
+    //! by considering the input record to be in some "uncategorizable"
+    //! category.
+    static const int SOFT_CATEGORIZATION_FAILURE_ERROR;
+
+    //! A hard categorization failure means processing of the input record must
+    //! cease.  (This is generally used to prevent excessive memory
+    //! accumulation.)
+    static const int HARD_CATEGORIZATION_FAILURE_ERROR;
+
 public:
     CDataCategorizer(CLimits& limits, const std::string& fieldName);
 
@@ -142,6 +152,10 @@ public:
     //! Once called, the category is marked as unchanged, until the category
     //! changes again.
     virtual bool categoryChangedAndReset(int categoryId) = 0;
+
+    //! Is it permissable to create new categories?  New categories are
+    //! not permitted when memory use has exceeded the limit.
+    bool areNewCategoriesAllowed();
 
 protected:
     //! Used if no fields are supplied to the computeCategory() method.

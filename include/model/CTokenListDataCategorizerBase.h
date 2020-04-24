@@ -293,6 +293,7 @@ private:
     //! Used by deferred persistence functions
     static void acceptPersistInserter(const TTokenMIndex& tokenIdLookup,
                                       const TTokenListCategoryVec& categories,
+                                      std::size_t memoryCategorizationFailures,
                                       core::CStatePersistInserter& inserter);
 
     //! Given a string containing comma separated pre-tokenised input, add
@@ -316,6 +317,9 @@ private:
     //! The upper threshold for comparison.  If another category matches this
     //! closely, we accept it immediately (i.e. don't look for a better one).
     double m_UpperThreshold;
+
+    //! How many messages have we failed to categorize due to lack of memory?
+    std::size_t m_MemoryCategorizationFailures;
 
     //! Has the data categorizer's state changed?
     bool m_HasChanged;
