@@ -12,15 +12,16 @@ LICENSE_DIR=$(CPP_PLATFORM_HOME)/..
 
 all: install licenses
 
-install: 3rd_party.sh
+install: 3rd_party.sh pull-eigen.sh
 	./3rd_party.sh --add $(INSTALL_DIR)
+	./pull-eigen.sh
 
 licenses:
 	$(MKDIR) $(LICENSE_DIR)
 	tar cf - licenses | (cd $(LICENSE_DIR) && tar xvf -)
 
 clean:
-	echo Nothing to clean at present
+	rm -rf eigen
 
 test:
 	echo No tests at present
