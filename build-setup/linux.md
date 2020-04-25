@@ -122,14 +122,14 @@ Modern versions of Linux will come with Git in their package repositories, and (
 sudo yum install git
 ```
 
-on RHEL clones. **However**, Jenkins requires at minimum version 1.7.9 of Git, so if the version that yum installs is older you'll still have to build it from scratch. In this case, you may need to uninstall the version that yum installed:
+on RHEL clones. **However**, shallow clones do not work correctly before version 1.8.3 of Git, so if the version that yum installs is older you'll still have to build it from scratch. In this case, you may need to uninstall the version that yum installed:
 
 ```
 git --version
 sudo yum remove git
 ```
 
-If you have to build Git from source in order to get version 1.7.9 or above, this is what to do:
+If you have to build Git from source in order to get version 1.8.3 or above, this is what to do:
 
 Make sure you install the packages `python-devel`, `curl-devel` and `openssl-devel` using yum or similar before you start this.
 
