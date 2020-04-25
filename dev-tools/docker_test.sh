@@ -61,6 +61,7 @@ cd "$TOOLS_DIR/.."
 # Update Eigen outside of Docker, as the Docker containers may not have the
 # necessary network access
 3rd_party/pull-eigen.sh
+ls -l 3rd_party/eigen/Eigen/src/Core/util/Macros.h
 
 for PLATFORM in `echo $PLATFORMS | tr ' ' '\n' | sort -u`
 do
