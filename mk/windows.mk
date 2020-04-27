@@ -84,6 +84,7 @@ RAPIDJSONINCLUDES=-I$(CPP_SRC_HOME)/3rd_party/rapidjson/include
 RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
 # Eigen automatically uses SSE and SSE2 on 64 bit Windows - only the higher
 # versions need to be explicitly enabled
+EIGENINCLUDES=-I$(CPP_SRC_HOME)/3rd_party/eigen
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY -DEIGEN_VECTORIZE_SSE3 -DEIGEN_VECTORIZE_SSE4_1 -DEIGEN_VECTORIZE_SSE4_2
 XMLINCLUDES=-I$(LOCAL_DRIVE):/usr/local/include/libxml
 XMLLIBLDFLAGS=-LIBPATH:$(LOCAL_DRIVE):/usr/local/lib

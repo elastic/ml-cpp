@@ -60,7 +60,7 @@ task compile(type: Exec) {
   environment 'CPP_CROSS_COMPILE', cppCrossCompile
   environment 'SNAPSHOT', snapshot ? 'yes' : 'no'
   commandLine bash
-  args '-c', 'source ./set_env.sh && ' + make + ' -j' + numCpus + ' objcompile'
+  args '-c', 'source ./set_env.sh && 3rd_party/pull-eigen.sh && ' + make + ' -j' + numCpus + ' objcompile'
   workingDir "${projectDir}"
 }
 

@@ -56,6 +56,10 @@ TOOLS_DIR=`cd "$MY_DIR" && pwd`
 # The Docker context here is the root directory of the outer repository.
 cd "$TOOLS_DIR/.."
 
+# Update Eigen outside of Docker, as the Docker containers may not have the
+# necessary network access
+3rd_party/pull-eigen.sh
+
 for PLATFORM in `echo $PLATFORMS | tr ' ' '\n' | sort -u`
 do
 

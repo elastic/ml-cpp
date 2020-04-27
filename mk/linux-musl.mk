@@ -46,6 +46,7 @@ BOOSTFILESYSTEMLIBS=-lboost_filesystem-gcc$(BOOSTGCCVER)-mt-$(BOOSTVER) -lboost_
 BOOSTDATETIMELIBS=-lboost_date_time-gcc$(BOOSTGCCVER)-mt-$(BOOSTVER)
 RAPIDJSONINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/rapidjson/include
 RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
+EIGENINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/eigen
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY
 XMLINCLUDES=`/usr/local/bin/xml2-config --cflags`
 XMLLIBS=`/usr/local/bin/xml2-config --libs`
