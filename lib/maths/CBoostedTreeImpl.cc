@@ -601,6 +601,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     } while (stoppingCondition.shouldStop(forest.size(), [&]() {
         // TODO store loss values here somewhere???
         double loss = this->meanLoss(frame, testingRowMask);
+        // LOG_DEBUG(<<"Loss " << loss);
         losses.push_back(loss);
         return loss;
     }) == false);

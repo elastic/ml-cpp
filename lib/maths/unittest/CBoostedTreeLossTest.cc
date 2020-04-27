@@ -1038,45 +1038,9 @@ BOOST_AUTO_TEST_CASE(testPseudoHuberArgminObjective) {
                     estimatedArgmin = weight;
                 }
             }
-            // LOG_DEBUG(<< "True weight " << trueWeight <<" Estimated argmin: "<< estimatedArgmin << " expected argmin: " << expectedArgmin);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(estimatedArgmin, expectedArgmin, 0.11);
         }
     }
-
-    // Constant prediction
-    // {
-    //     for (std::size_t t = 0; t < 3; ++t) {
-    //         double lambda{0.1 * static_cast<double>(t + 1)};
-    //         CArgMinMsleImpl argmin{lambda};
-    //         double constantPrediction{1000.0};
-
-    //         TDoubleVec targets;
-    //         testRng.generateUniformSamples(0.0, 10000.0, numberSamples, targets);
-    //         do {
-    //             for (std::size_t i = 0; i < targets.size(); ++i) {
-    //                 maths::CFloatStorage storage[]{std::log(constantPrediction)};
-    //                 TMemoryMappedFloatVector prediction{storage, 1};
-    //                 argmin.add(prediction, targets[i]);
-    //             }
-    //         } while (argmin.nextPass());
-    //         auto objective = argmin.objective();
-
-    //         for (double weight = -1.0; weight < 1.0; weight += 0.1) {
-    //             TMeanAccumulator expectedErrorAccumulator;
-    //             for (std::size_t i = 0; i < targets.size(); ++i) {
-    //                 double error{std::log(targets[i] + 1) -
-    //                              std::log(constantPrediction * std::exp(weight) + 1)};
-    //                 expectedErrorAccumulator.add(error * error);
-    //             }
-    //             double expectedObjectiveValue{
-    //                 maths::CBasicStatistics::mean(expectedErrorAccumulator) +
-    //                 lambda * maths::CTools::pow2(std::exp(weight))};
-    //             double estimatedObjectiveValue{objective(weight)};
-    //             BOOST_REQUIRE_CLOSE_ABSOLUTE(estimatedObjectiveValue,
-    //                                          expectedObjectiveValue, 1e-3);
-    //         }
-    //     }
-    // }
 }
 
 BOOST_AUTO_TEST_CASE(testPseudoHuberArgminValue) {

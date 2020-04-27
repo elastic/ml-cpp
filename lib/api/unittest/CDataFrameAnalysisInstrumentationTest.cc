@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(testTrainingRegression) {
             test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
         outputWriterFactory};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-        test::CDataFrameAnalyzerTrainingFactory::E_Regression, fieldNames,
+        test::CDataFrameAnalyzerTrainingFactory::E_MseRegression, fieldNames,
         fieldValues, analyzer, expectedPredictions);
 
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});

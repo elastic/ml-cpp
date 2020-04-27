@@ -30,7 +30,8 @@ class TEST_EXPORT CDataFrameAnalyzerTrainingFactory {
 public:
     enum EPredictionType {
         E_MsleRegression,
-        E_Regression,
+        E_MseRegression,
+        E_HuberRegression,
         E_BinaryClassification,
         E_MulticlassClassification
     };
@@ -55,7 +56,8 @@ public:
                                       double softTreeDepthTolerance = -1.0,
                                       double eta = 0.0,
                                       std::size_t maximumNumberTrees = 0,
-                                      double featureBagFraction = 0.0) {
+                                      double featureBagFraction = 0.0,
+                                      double lossFunctionParameter = 1.0) {
 
         test::CRandomNumbers rng;
 
@@ -67,7 +69,10 @@ public:
         TStrVec targets;
         auto frame = [&] {
             switch (type) {
-            case E_Regression:
+            case E_MseRegression:
+                return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
+                                                 weights, regressors, targets);
+            case E_HuberRegression:
                 return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
                                                  weights, regressors, targets);
             case E_MsleRegression:
@@ -86,11 +91,14 @@ public:
 
         TLossUPtr loss;
         switch (type) {
-        case E_Regression:
+        case E_MseRegression:
             loss = std::make_unique<maths::boosted_tree::CMse>();
             break;
         case E_MsleRegression:
-            loss = std::make_unique<maths::boosted_tree::CMsle>();
+            loss = std::make_unique<maths::boosted_tree::CMsle>(lossFunctionParameter);
+            break;
+        case E_HuberRegression:
+            loss = std::make_unique<maths::boosted_tree::CPseudoHuber>(lossFunctionParameter);
             break;
         case E_BinaryClassification:
             loss = std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>();

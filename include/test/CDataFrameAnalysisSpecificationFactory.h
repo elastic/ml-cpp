@@ -78,6 +78,8 @@ public:
     // Regression
     CDataFrameAnalysisSpecificationFactory&
     regressionLossFunction(TRegressionLossFunction lossFunction);
+    CDataFrameAnalysisSpecificationFactory&
+    regressionLossFunctionParameter(double lossFunctionParameter);
 
     // Classification
     CDataFrameAnalysisSpecificationFactory& numberClasses(std::size_t number);
@@ -94,6 +96,8 @@ public:
 
 private:
     using TOptionalSize = boost::optional<std::size_t>;
+    using TOptionalDouble = boost::optional<double>;
+    using TOptionalRegressionLossFunction = boost::optional<TRegressionLossFunction>;
 
 private:
     // Shared
@@ -123,7 +127,8 @@ private:
     TPersisterSupplier* m_PersisterSupplier = nullptr;
     TRestoreSearcherSupplier* m_RestoreSearcherSupplier = nullptr;
     // Regression
-    TRegressionLossFunction m_RegressionLossFunction = TRegressionLossFunction::E_Mse;
+    TOptionalRegressionLossFunction m_RegressionLossFunction;
+    TOptionalDouble m_RegressionLossFunctionParameter;
     // Classification
     std::size_t m_NumberClasses = 2;
     std::size_t m_NumberTopClasses = 0;

@@ -152,7 +152,6 @@ private:
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TVector = CVectorNx1<double, 3>;
 
-
 private:
     std::size_t bucket(double error) const {
         auto bucketWidth{this->bucketWidth()};
@@ -515,6 +514,7 @@ public:
     static const std::string NAME;
 
 public:
+    CMsle(double offset = 1.0);
     EType type() const override;
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
@@ -534,6 +534,9 @@ public:
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
     bool isRegression() const override;
+
+private:
+    double m_Offset;
 };
 //! \brief The pseudo-Huber loss function.
 //!
@@ -544,10 +547,11 @@ public:
     static const std::string NAME;
 
 public:
+    CPseudoHuber(double delta);
     EType type() const override;
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
-    double value(const TMemoryMappedFloatVector& prediction,
+    double value(const TMemoryMappedFloatVector& predictionVec,
                  double actual,
                  double weight = 1.0) const override;
     void gradient(const TMemoryMappedFloatVector& prediction,
@@ -563,6 +567,9 @@ public:
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
     bool isRegression() const override;
+
+private:
+    double m_Delta;
 };
 }
 }

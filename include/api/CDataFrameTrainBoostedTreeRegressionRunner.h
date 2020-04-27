@@ -21,13 +21,15 @@ class API_EXPORT CDataFrameTrainBoostedTreeRegressionRunner final
 
 public:
     using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
-    enum ELossFunctionType { E_Mse, E_Msle };
+    enum ELossFunctionType { E_Mse, E_Msle, E_PseudoHuber };
 
 public:
     static const std::string STRATIFIED_CROSS_VALIDATION;
     static const std::string LOSS_FUNCTION;
+    static const std::string LOSS_FUNCTION_PARAMETER;
     static const std::string MSE;
     static const std::string MSLE;
+    static const std::string PSEUDO_HUBER;
 
 public:
     static const CDataFrameAnalysisConfigReader& parameterReader();

@@ -576,7 +576,6 @@ CArgMinPseudoHuberImpl::TDoubleVector CArgMinPseudoHuberImpl::value() const {
     TObjective objective;
     double minWeight = m_ErrorMinMax.min();
     double maxWeight = m_ErrorMinMax.max();
-    LOG_DEBUG(<< "Min weight " << minWeight << " max weight " << maxWeight);
 
     objective = this->objective();
     double minimizer;
@@ -702,6 +701,9 @@ bool CMse::isRegression() const {
 
 const std::string CMse::NAME{"mse"};
 
+CMsle::CMsle(double offset) : m_Offset{1.0} {
+}
+
 CLoss::EType CMsle::type() const {
     return E_Regression;
 }
@@ -771,6 +773,76 @@ bool CMsle::isRegression() const {
 }
 
 const std::string CMsle::NAME{"msle"};
+
+CPseudoHuber::CPseudoHuber(double delta) : m_Delta{delta} {};
+
+CLoss::EType CPseudoHuber::type() const {
+    return E_Regression;
+}
+
+std::unique_ptr<CLoss> CPseudoHuber::clone() const {
+    return std::make_unique<CPseudoHuber>(*this);
+}
+
+std::size_t CPseudoHuber::numberParameters() const {
+    return 1;
+}
+
+double CPseudoHuber::value(const TMemoryMappedFloatVector& predictionVec,
+                           double actual,
+                           double weight) const {
+    double delta2{CTools::pow2(m_Delta)};
+    double prediction{predictionVec[0]};
+    return weight * delta2 *
+           (std::sqrt(1.0 + CTools::pow2(actual - prediction) / delta2) - 1.0);
+}
+
+void CPseudoHuber::gradient(const TMemoryMappedFloatVector& predictionVec,
+                            double actual,
+                            TWriter writer,
+                            double weight) const {
+    double prediction{predictionVec(0)};
+
+    writer(0, weight * (prediction - actual) /
+                  (std::sqrt(1.0 + CTools::pow2(actual - prediction) / CTools::pow2(m_Delta))));
+}
+
+void CPseudoHuber::curvature(const TMemoryMappedFloatVector& predictionVec,
+                             double actual,
+                             TWriter writer,
+                             double weight) const {
+    double prediction{predictionVec(0)};
+    double delta2{CTools::pow2(m_Delta)};
+    double error2{CTools::pow2(actual - prediction)};
+    double tmp{1.0 + error2 / delta2};
+    double result{error2 / (delta2 * std::sqrt(tmp) * tmp)};
+    writer(0, weight * result);
+}
+
+bool CPseudoHuber::isCurvatureConstant() const {
+    return false;
+}
+
+CMsle::TDoubleVector CPseudoHuber::transform(const TMemoryMappedFloatVector& prediction) const {
+    TDoubleVector result{1};
+    result(0) = prediction(0);
+    return result;
+}
+
+CArgMinLoss CPseudoHuber::minimizer(double lambda,
+                                    const CPRNG::CXorOShiro128Plus& /* rng */) const {
+    return this->makeMinimizer(CArgMinPseudoHuberImpl{lambda, m_Delta});
+}
+
+const std::string& CPseudoHuber::name() const {
+    return NAME;
+}
+
+bool CPseudoHuber::isRegression() const {
+    return true;
+}
+
+const std::string CPseudoHuber::NAME{"pseudo_huber"};
 
 std::unique_ptr<CLoss> CBinomialLogisticLoss::clone() const {
     return std::make_unique<CBinomialLogisticLoss>(*this);

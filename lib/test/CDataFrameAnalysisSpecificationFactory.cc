@@ -199,6 +199,12 @@ CDataFrameAnalysisSpecificationFactory::regressionLossFunction(TRegressionLossFu
     return *this;
 }
 
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::regressionLossFunctionParameter(double lossFunctionParameter) {
+    m_RegressionLossFunctionParameter = lossFunctionParameter;
+    return *this;
+}
+
 std::string CDataFrameAnalysisSpecificationFactory::outlierParams() const {
 
     rapidjson::StringBuffer parameters;
@@ -315,14 +321,24 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     }
 
     if (analysis == regression()) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION);
-        switch (m_RegressionLossFunction) {
-        case TRegressionLossFunction::E_Msle:
-            writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSLE);
-            break;
-        case TRegressionLossFunction::E_Mse:
-            writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSE);
-            break;
+
+        if (m_RegressionLossFunction) {
+            writer.Key(api::CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION);
+            switch (m_RegressionLossFunction.get()) {
+            case TRegressionLossFunction::E_Msle:
+                writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSLE);
+                break;
+            case TRegressionLossFunction::E_Mse:
+                writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSE);
+                break;
+            case TRegressionLossFunction::E_PseudoHuber:
+                writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::PSEUDO_HUBER);
+                break;
+            }
+        }
+        if (m_RegressionLossFunctionParameter) {
+            writer.Key(api::CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION_PARAMETER);
+            writer.Double(m_RegressionLossFunctionParameter.get());
         }
     }
 

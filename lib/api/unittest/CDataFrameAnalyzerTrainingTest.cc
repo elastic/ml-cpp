@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingMse) {
             test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
         outputWriterFactory};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-        test::CDataFrameAnalyzerTrainingFactory::E_Regression, fieldNames,
+        test::CDataFrameAnalyzerTrainingFactory::E_MseRegression, fieldNames,
         fieldValues, analyzer, expectedPredictions);
 
     core::CStopWatch watch{true};
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingStateReport) {
         test::CDataFrameAnalysisSpecificationFactory{}.predictionSpec("regression", "c5"),
         outputWriterFactory};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-        test::CDataFrameAnalyzerTrainingFactory::E_Regression, fieldNames,
+        test::CDataFrameAnalyzerTrainingFactory::E_MseRegression, fieldNames,
         fieldValues, analyzer, expectedPredictions);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
@@ -402,7 +402,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
     TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-        test::CDataFrameAnalyzerTrainingFactory::E_Regression, fieldNames, fieldValues,
+        test::CDataFrameAnalyzerTrainingFactory::E_MseRegression, fieldNames, fieldValues,
         analyzer, expectedPredictions, 100, alpha, lambda, gamma, softTreeDepthLimit,
         softTreeDepthTolerance, eta, maximumNumberTrees, featureBagFraction);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
@@ -549,7 +549,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
         LOG_DEBUG(<< "Number parameters to search = " << params.numberUnset());
 
         for (const auto& lossFunction :
-             {TRegressionLossFunction::E_Mse, TRegressionLossFunction::E_Msle}) {
+             {TRegressionLossFunction::E_Mse, TRegressionLossFunction::E_Msle,
+              TRegressionLossFunction::E_PseudoHuber}) {
             LOG_DEBUG(<< "Loss function type " << lossFunction);
 
             auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
@@ -605,7 +606,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingMsle) {
     };
 
     test::CDataFrameAnalysisSpecificationFactory specFactory;
-    api::CDataFrameAnalyzer analyzerMsle{
+    api::CDataFrameAnalyzer analyzer{
         specFactory.predictionAlpha(alpha)
             .predictionLambda(lambda)
             .predictionGamma(gamma)
@@ -624,9 +625,73 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingMsle) {
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
         test::CDataFrameAnalyzerTrainingFactory::E_MsleRegression, fieldNames, fieldValues,
-        analyzerMsle, expectedPredictions, 100, alpha, lambda, gamma, softTreeDepthLimit,
+        analyzer, expectedPredictions, 100, alpha, lambda, gamma, softTreeDepthLimit,
         softTreeDepthTolerance, eta, maximumNumberTrees, featureBagFraction);
-    analyzerMsle.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    auto expectedPrediction = expectedPredictions.begin();
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                *expectedPrediction,
+                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
+                1e-4 * std::fabs(*expectedPrediction));
+            ++expectedPrediction;
+            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
+        }
+    }
+    BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
+}
+
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingPseudoHuber) {
+
+    // Test running the analyser supplying the Pseudo-Huber objective produces similar results
+    // to running the regression directly.
+
+    double alpha{2.0};
+    double lambda{1.0};
+    double gamma{10.0};
+    double softTreeDepthLimit{3.0};
+    double softTreeDepthTolerance{0.1};
+    double eta{0.9};
+    std::size_t maximumNumberTrees{1};
+    double featureBagFraction{0.3};
+    double delta{1.0};
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
+    api::CDataFrameAnalyzer analyzer{
+        specFactory.predictionAlpha(alpha)
+            .predictionLambda(lambda)
+            .predictionGamma(gamma)
+            .predictionSoftTreeDepthLimit(softTreeDepthLimit)
+            .predictionSoftTreeDepthTolerance(softTreeDepthTolerance)
+            .predictionEta(eta)
+            .predictionMaximumNumberTrees(maximumNumberTrees)
+            .predictionFeatureBagFraction(featureBagFraction)
+            .regressionLossFunction(test::CDataFrameAnalysisSpecificationFactory::TRegressionLossFunction::E_PseudoHuber)
+            .regressionLossFunctionParameter(delta)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
+        outputWriterFactory};
+
+    TDoubleVec expectedPredictions;
+
+    TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
+        test::CDataFrameAnalyzerTrainingFactory::E_HuberRegression, fieldNames, fieldValues,
+        analyzer, expectedPredictions, 100, alpha, lambda, gamma, softTreeDepthLimit,
+        softTreeDepthTolerance, eta, maximumNumberTrees, featureBagFraction, delta);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
