@@ -65,6 +65,11 @@
   caused classification and regression getting stuck at zero progress analyzing.
   (See {ml-pull}1160[#1160], issue: {issue}55593[#55593].)
 
+=== Bug Fixes
+
+* Fix underlying cause for "Failed to calculate splitting significance" log errors.
+  (See {ml-pull}1157[#1157].)
+
 == {es} version 7.7.1
 
 === Bug Fixes
