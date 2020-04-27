@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo m 1 50000000
 ./move_copy_swap m 1 50000000
