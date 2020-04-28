@@ -30,22 +30,22 @@ RUN \
   cd .. && \
   mkdir gcc-9.3.0-build && \
   cd gcc-9.3.0-build && \
-  ../gcc-9.3.0/configure --prefix=/usr/local/gcc75 --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib && \
+  ../gcc-9.3.0/configure --prefix=/usr/local/gcc93 --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib && \
   make -j`nproc` && \
   make install && \
   cd .. && \
   rm -rf gcc-9.3.0 gcc-9.3.0-build
 
 # Update paths to use the newly built compiler in C++17 mode
-ENV LD_LIBRARY_PATH /usr/local/gcc75/lib64:/usr/local/gcc75/lib:/usr/lib:/lib
-ENV PATH /usr/local/gcc75/bin:/usr/bin:/bin:/usr/sbin:/sbin
+ENV LD_LIBRARY_PATH /usr/local/gcc93/lib64:/usr/local/gcc93/lib:/usr/lib:/lib
+ENV PATH /usr/local/gcc93/bin:/usr/bin:/bin:/usr/sbin:/sbin
 ENV CXX "g++ -std=gnu++17"
 
 # Build binutils
 RUN \
   wget --quiet -O - http://ftpmirror.gnu.org/binutils/binutils-2.34.tar.bz2 | tar jxf - && \
   cd binutils-2.34 && \
-  ./configure --prefix=/usr/local/gcc75 --enable-vtable-verify --with-system-zlib --disable-libstdcxx --with-gcc-major-version-only && \
+  ./configure --prefix=/usr/local/gcc93 --enable-vtable-verify --with-system-zlib --disable-libstdcxx --with-gcc-major-version-only && \
   make -j`nproc` && \
   make install && \
   cd .. && \
@@ -55,7 +55,7 @@ RUN \
 RUN \
   wget --quiet -O - ftp://anonymous@ftp.xmlsoft.org/libxml2/libxml2-2.9.7.tar.gz | tar zxf - && \
   cd libxml2-2.9.7 && \
-  ./configure --prefix=/usr/local/gcc75 --without-python --without-readline && \
+  ./configure --prefix=/usr/local/gcc93 --without-python --without-readline && \
   make -j`nproc` && \
   make install && \
   cd .. && \
@@ -68,7 +68,7 @@ RUN \
   ./bootstrap.sh --without-libraries=context --without-libraries=coroutine --without-libraries=graph_parallel --without-libraries=mpi --without-libraries=python --without-icu && \
   sed -i -e 's/(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/(3ul)(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \\/' boost/unordered/detail/implementation.hpp && \
   ./b2 -j`nproc` --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -march=armv8-a+crc+crypto' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now' && \
-  ./b2 install --prefix=/usr/local/gcc75 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -march=armv8-a+crc+crypto' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now' && \
+  ./b2 install --prefix=/usr/local/gcc93 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -march=armv8-a+crc+crypto' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now' && \
   cd .. && \
   rm -rf boost_1_71_0
 
@@ -76,7 +76,7 @@ RUN \
 RUN \
   wget --quiet -O - http://nixos.org/releases/patchelf/patchelf-0.10/patchelf-0.10.tar.gz | tar zxf - && \
   cd patchelf-0.10 && \
-  ./configure --prefix=/usr/local/gcc75 && \
+  ./configure --prefix=/usr/local/gcc93 && \
   make -j`nproc` && \
   make install && \
   cd .. && \
