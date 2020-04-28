@@ -424,8 +424,9 @@ BOOST_AUTO_TEST_CASE(testCentralMoments) {
                 BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::count(means[0]),
                                     maths::CBasicStatistics::count(vectorMean));
                 for (std::size_t j = 0u; j < 4; ++j) {
-                    BOOST_REQUIRE_EQUAL(maths::CBasicStatistics::mean(means[j]),
-                                        (maths::CBasicStatistics::mean(vectorMean))(j));
+                    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                        maths::CBasicStatistics::mean(means[j]),
+                        (maths::CBasicStatistics::mean(vectorMean))(j), 1e-14);
                 }
             }
         }
