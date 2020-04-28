@@ -291,7 +291,7 @@ private:
     std::size_t maximumTreeSize(std::size_t numberRows) const;
 
     //! Restore \p loss function pointer from the \p traverser.
-    static bool restoreLoss(TLossFunctionUPtr& loss, core::CStateRestoreTraverser& traverser);
+    bool restoreLoss(core::CStateRestoreTraverser& traverser);
 
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;

@@ -30,6 +30,7 @@
 #include <boost/circular_buffer.hpp>
 
 #include <algorithm>
+#include <memory>
 
 namespace ml {
 namespace maths {
@@ -1294,6 +1295,7 @@ const std::string FEATURE_DATA_TYPES_TAG{"feature_data_types"};
 const std::string FEATURE_SAMPLE_PROBABILITIES_TAG{"feature_sample_probabilities"};
 const std::string FOLD_ROUND_TEST_LOSSES_TAG{"fold_round_test_losses"};
 const std::string LOSS_TAG{"loss"};
+const std::string LOSS_NAME_TAG{"loss_name"};
 const std::string MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG{"maximum_attempts_to_add_tree"};
 const std::string MAXIMUM_NUMBER_TREES_OVERRIDE_TAG{"maximum_number_trees_override"};
 const std::string MAXIMUM_NUMBER_TREES_TAG{"maximum_number_trees"};
@@ -1382,7 +1384,17 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_FeatureBagFractionOverride, inserter);
     core::CPersistUtils::persist(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                                  m_MaximumNumberTreesOverride, inserter);
-    inserter.insertValue(LOSS_TAG, m_Loss->name());
+    auto persistLoss = [this](core::CStatePersistInserter& inserter_) {
+            auto foobar = [this](core::CStatePersistInserter& inserter2) {
+                m_Loss->acceptPersistInserter(inserter2);
+            };
+            // core::CPersistUtils::persist(m_Loss->name(), *m_Loss, inserter_);
+            // m_Loss->acceptPersistInserter(inserter_);
+            inserter_.insertLevel(m_Loss->name(), foobar);
+        };
+    inserter.insertLevel(LOSS_TAG, persistLoss);
+    // core::CPersistUtils::persist(LOSS_TAG, *m_Loss, inserter);
+    // inserter.insertValue(LOSS_TAG, m_Loss->name());
     core::CPersistUtils::persist(NUMBER_TOP_SHAP_VALUES_TAG, m_NumberTopShapValues, inserter);
 }
 
@@ -1479,7 +1491,13 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                 core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                                              m_MaximumNumberTreesOverride, traverser))
-        RESTORE(LOSS_TAG, restoreLoss(m_Loss, traverser))
+        auto foobar = [this](core::CStateRestoreTraverser& traverser_){
+            this->m_Loss = CLoss::restoreLoss(traverser_);
+            return true;
+        };
+        RESTORE_NO_ERROR(LOSS_TAG, traverser.traverseSubLevel(foobar))
+        // TODO handle error
+        // RESTORE_NO_ERROR(LOSS_TAG, m_Loss = CLoss::restoreLoss(traverser))
         RESTORE(NUMBER_TOP_SHAP_VALUES_TAG,
                 core::CPersistUtils::restore(NUMBER_TOP_SHAP_VALUES_TAG,
                                              m_NumberTopShapValues, traverser))
@@ -1488,19 +1506,33 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
     return true;
 }
 
-bool CBoostedTreeImpl::restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
-                                   core::CStateRestoreTraverser& traverser) {
-    const std::string& lossFunctionName{traverser.value()};
-    if (lossFunctionName == CMse::NAME) {
-        loss = std::make_unique<CMse>();
-        return true;
-    } else if (lossFunctionName == CMsle::NAME) {
-        loss = std::make_unique<CMsle>();
-        return true;
-    }
+bool CBoostedTreeImpl::restoreLoss(core::CStateRestoreTraverser& traverser) {
+    do {
+        const std::string& name = traverser.name();
+        if (name == LOSS_NAME_TAG) {
+            const std::string& lossFunctionName{traverser.value()};
+            if (lossFunctionName == CMse::NAME) {
+                m_Loss = std::make_unique<CMse>(traverser);
+                return true;
+            } else if (lossFunctionName == CMsle::NAME) {
+                m_Loss = std::make_unique<CMsle>(traverser);
+                return true;
+            } else if (lossFunctionName == CPseudoHuber::NAME) {
+                m_Loss = std::make_unique<CPseudoHuber>(traverser);
+                return true;
+            } else if (lossFunctionName == CBinomialLogisticLoss::NAME) {
+                m_Loss = std::make_unique<CBinomialLogisticLoss>(traverser);
+                return true;
+            } else if (lossFunctionName == CMultinomialLogisticLoss::NAME) {
+                m_Loss = std::make_unique<CMultinomialLogisticLoss>(traverser);
+                return true;
+            }
 
-    LOG_ERROR(<< "Error restoring loss function. Unknown loss function type '"
-              << lossFunctionName << "'.");
+            LOG_ERROR(<< "Error restoring loss function. Unknown loss function type '"
+                      << lossFunctionName << "'.");
+            return false;
+        }
+    } while (traverser.next());
     return false;
 }
 

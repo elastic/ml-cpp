@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_maths_CBoostedTreeLoss_h
 #define INCLUDED_ml_maths_CBoostedTreeLoss_h
 
+#include "core/CStateRestoreTraverser.h"
 #include <maths/CBasicStatistics.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraEigen.h>
@@ -345,6 +346,8 @@ public:
     using TDoubleVector = CDenseVector<double>;
     using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
     using TWriter = std::function<void(std::size_t, double)>;
+    using TLossUPtr = std::unique_ptr<CLoss>;
+    using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
 
     enum EType {
         E_BinaryClassification,
@@ -387,6 +390,15 @@ public:
     //! Returns true if the loss function is used for regression.
     virtual bool isRegression() const = 0;
 
+    //! Persist by passing information to \p inserter.
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
+    //! Populate the object from serialized data
+    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
+    // virtual TPersistFunc getAcceptPersistInserter() const =0;
+
+    static TLossUPtr restoreLoss(core::CStateRestoreTraverser& traverser);
+    void persistLoss(core::CStatePersistInserter& inserter);
+
 protected:
     CArgMinLoss makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& impl) const;
 };
@@ -397,6 +409,8 @@ public:
     static const std::string NAME;
 
 public:
+    CMse(core::CStateRestoreTraverser& traverser);
+    CMse() = default;
     std::unique_ptr<CLoss> clone() const override;
     EType type() const override;
     std::size_t numberParameters() const override;
@@ -417,6 +431,9 @@ public:
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
     bool isRegression() const override;
+
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 };
 
 //! \brief Implements loss for binomial logistic regression.
@@ -433,6 +450,8 @@ public:
     static const std::string NAME;
 
 public:
+    CBinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
+    CBinomialLogisticLoss() = default;
     std::unique_ptr<CLoss> clone() const override;
     EType type() const override;
     std::size_t numberParameters() const override;
@@ -453,6 +472,9 @@ public:
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
     bool isRegression() const override;
+
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 };
 
 //!  \brief Implements loss for multinomial logistic regression.
@@ -471,6 +493,7 @@ public:
     static const std::string NAME;
 
 public:
+    CMultinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     CMultinomialLogisticLoss(std::size_t numberClasses);
     EType type() const override;
     std::unique_ptr<CLoss> clone() const override;
@@ -493,6 +516,9 @@ public:
     const std::string& name() const override;
     bool isRegression() const override;
 
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+
 private:
     std::size_t m_NumberClasses;
 };
@@ -514,6 +540,7 @@ public:
     static const std::string NAME;
 
 public:
+    CMsle(core::CStateRestoreTraverser& traverser);
     CMsle(double offset = 1.0);
     EType type() const override;
     std::unique_ptr<CLoss> clone() const override;
@@ -535,6 +562,9 @@ public:
     const std::string& name() const override;
     bool isRegression() const override;
 
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+
 private:
     double m_Offset;
 };
@@ -547,6 +577,7 @@ public:
     static const std::string NAME;
 
 public:
+    CPseudoHuber(core::CStateRestoreTraverser& traverser);
     CPseudoHuber(double delta);
     EType type() const override;
     std::unique_ptr<CLoss> clone() const override;
@@ -567,6 +598,9 @@ public:
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
     bool isRegression() const override;
+
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 
 private:
     double m_Delta;

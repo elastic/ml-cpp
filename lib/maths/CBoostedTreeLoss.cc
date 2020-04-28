@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "core/CPersistUtils.h"
 #include <maths/CBoostedTreeLoss.h>
 
 #include <maths/CBasicStatistics.h>
@@ -36,6 +37,12 @@ const std::size_t MSLE_OPTIMIZATION_ITERATIONS{15};
 const std::size_t HUBER_ERROR_INDEX{0};
 const std::size_t HUBER_BUCKET_SIZE{128};
 const std::size_t HUBER_OPTIMIZATION_ITERATIONS{15};
+
+// Persistence and restoration
+const std::string NUMBER_CLASSES_TAG{"number_classes"};
+const std::string OFFSET_TAG{"offset"};
+const std::string DELTA_TAG{"delta"};
+const std::string NAME_TAG{"name"};
 
 double logOneMinusLogistic(double logOdds) {
     // For large x logistic(x) = 1 - e^(-x) + O(e^(-2x))
@@ -615,6 +622,34 @@ CArgMinPseudoHuberImpl::TObjective CArgMinPseudoHuberImpl::objective() const {
 
 namespace boosted_tree {
 
+CLoss::TLossUPtr CLoss::restoreLoss(core::CStateRestoreTraverser& traverser) {
+    do {
+        const std::string& lossFunctionName = traverser.name();
+        if (lossFunctionName == CMse::NAME) {
+            return std::make_unique<CMse>(traverser);
+        } else if (lossFunctionName == CMsle::NAME) {
+            return  std::make_unique<CMsle>(traverser);
+        } else if (lossFunctionName == CPseudoHuber::NAME) {
+            return std::make_unique<CPseudoHuber>(traverser);
+        } else if (lossFunctionName == CBinomialLogisticLoss::NAME) {
+            return std::make_unique<CBinomialLogisticLoss>(traverser);
+        } else if (lossFunctionName == CMultinomialLogisticLoss::NAME) {
+            return std::make_unique<CMultinomialLogisticLoss>(traverser);
+        }
+
+        LOG_ERROR(<< "Error restoring loss function. Unknown loss function type '"
+                    << lossFunctionName << "'.");
+        return nullptr;
+    } while (traverser.next());
+}
+
+void CLoss::persistLoss(core::CStatePersistInserter& inserter) {
+//     auto persLoss = [&m_Loss](core::CStatePersistInserter& inserter_) {
+//             m_Loss->acceptPersistInserter(inserter_);
+//         };
+// inserter.insertLevel(this->name(), std::bind())
+}
+
 CArgMinLoss::CArgMinLoss(const CArgMinLoss& other)
     : m_Impl{other.m_Impl->clone()} {
 }
@@ -647,6 +682,13 @@ CArgMinLoss::CArgMinLoss(const CArgMinLossImpl& impl) : m_Impl{impl.clone()} {
 
 CArgMinLoss CLoss::makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& impl) const {
     return {impl};
+}
+
+CMse::CMse(core::CStateRestoreTraverser& traverser) {
+    if (traverser.traverseSubLevel(std::bind(&CMse::acceptRestoreTraverser, this,
+                                             std::placeholders::_1)) == false) {
+        throw std::runtime_error{"failed to restore CMse"};
+    }
 }
 
 std::unique_ptr<CLoss> CMse::clone() const {
@@ -699,9 +741,22 @@ bool CMse::isRegression() const {
     return true;
 }
 
+void CMse::acceptPersistInserter(core::CStatePersistInserter& /* inserter */) const {
+}
+bool CMse::acceptRestoreTraverser(core::CStateRestoreTraverser& /* traverser */) {
+    return true;
+}
+
 const std::string CMse::NAME{"mse"};
 
-CMsle::CMsle(double offset) : m_Offset{1.0} {
+CMsle::CMsle(double offset) : m_Offset{offset} {
+}
+
+CMsle::CMsle(core::CStateRestoreTraverser& traverser) {
+    if (traverser.traverseSubLevel(std::bind(&CMsle::acceptRestoreTraverser, this,
+                                             std::placeholders::_1)) == false) {
+        throw std::runtime_error{"failed to restore CMsle"};
+    }
 }
 
 CLoss::EType CMsle::type() const {
@@ -772,9 +827,28 @@ bool CMsle::isRegression() const {
     return true;
 }
 
+void CMsle::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    core::CPersistUtils::persist(OFFSET_TAG, m_Offset, inserter);
+}
+
+bool CMsle::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    do {
+        const std::string& name = traverser.name();
+        RESTORE(OFFSET_TAG, core::CPersistUtils::restore(OFFSET_TAG, m_Offset, traverser))
+    } while (traverser.next());
+    return true;
+}
+
 const std::string CMsle::NAME{"msle"};
 
 CPseudoHuber::CPseudoHuber(double delta) : m_Delta{delta} {};
+
+CPseudoHuber::CPseudoHuber(core::CStateRestoreTraverser& traverser) {
+    if (traverser.traverseSubLevel(std::bind(&CPseudoHuber::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        throw std::runtime_error{"failed to restore CPseudoHuber"};
+    }
+}
 
 CLoss::EType CPseudoHuber::type() const {
     return E_Regression;
@@ -842,7 +916,26 @@ bool CPseudoHuber::isRegression() const {
     return true;
 }
 
+void CPseudoHuber::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    core::CPersistUtils::persist(DELTA_TAG, m_Delta, inserter);
+}
+
+bool CPseudoHuber::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    do {
+        const std::string& name = traverser.name();
+        RESTORE(DELTA_TAG, core::CPersistUtils::restore(DELTA_TAG, m_Delta, traverser))
+    } while (traverser.next());
+    return true;
+}
+
 const std::string CPseudoHuber::NAME{"pseudo_huber"};
+
+CBinomialLogisticLoss::CBinomialLogisticLoss(core::CStateRestoreTraverser& traverser) {
+    if (traverser.traverseSubLevel(std::bind(&CBinomialLogisticLoss::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        throw std::runtime_error{"failed to restore CBinomialLogisticLoss"};
+    }
+}
 
 std::unique_ptr<CLoss> CBinomialLogisticLoss::clone() const {
     return std::make_unique<CBinomialLogisticLoss>(*this);
@@ -912,10 +1005,23 @@ bool CBinomialLogisticLoss::isRegression() const {
     return false;
 }
 
+void CBinomialLogisticLoss::acceptPersistInserter(core::CStatePersistInserter& /* inserter */) const {
+}
+bool CBinomialLogisticLoss::acceptRestoreTraverser(core::CStateRestoreTraverser& /* traverser */) {
+    return true;
+}
+
 const std::string CBinomialLogisticLoss::NAME{"binomial_logistic"};
 
 CMultinomialLogisticLoss::CMultinomialLogisticLoss(std::size_t numberClasses)
     : m_NumberClasses{numberClasses} {
+}
+
+CMultinomialLogisticLoss::CMultinomialLogisticLoss(core::CStateRestoreTraverser& traverser) {
+    if (traverser.traverseSubLevel(std::bind(&CMultinomialLogisticLoss::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        throw std::runtime_error{"failed to restore CMultinomialLogisticLoss"};
+    }
 }
 
 std::unique_ptr<CLoss> CMultinomialLogisticLoss::clone() const {
@@ -1048,6 +1154,19 @@ const std::string& CMultinomialLogisticLoss::name() const {
 
 bool CMultinomialLogisticLoss::isRegression() const {
     return false;
+}
+
+void CMultinomialLogisticLoss::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    core::CPersistUtils::persist(NUMBER_CLASSES_TAG, m_NumberClasses, inserter);
+}
+
+bool CMultinomialLogisticLoss::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+    do {
+        const std::string& name = traverser.name();
+        RESTORE(NUMBER_CLASSES_TAG,
+                core::CPersistUtils::restore(NUMBER_CLASSES_TAG, m_NumberClasses, traverser))
+    } while (traverser.next());
+    return true;
 }
 
 const std::string CMultinomialLogisticLoss::NAME{"multinomial_logistic"};
