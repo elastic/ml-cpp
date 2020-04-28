@@ -54,6 +54,7 @@ public:
         std::size_t s_FrequentCategories = 0;
         std::size_t s_RareCategories = 0;
         std::size_t s_DeadCategories = 0;
+        std::size_t s_MemoryCategorizationFailures = 0;
         model_t::ECategorizationStatus s_CategorizationStatus = model_t::E_CategorizationStatusOk;
     };
 
