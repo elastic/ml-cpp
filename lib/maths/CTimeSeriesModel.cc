@@ -1667,7 +1667,6 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAc
                                  [](double weight, const TFloatMeanAccumulator& sample) {
                                      return weight + CBasicStatistics::count(sample);
                                  })};
-        LOG_INFO(<< 10.0 * std::max(this->params().learnRate(), 1.0) << " vs " << numberSamples);
         double weightScale{
             std::min(10.0 * std::max(this->params().learnRate(), 1.0), numberSamples) / Z};
         maths_t::TDoubleWeightsAry1Vec weights(1);
