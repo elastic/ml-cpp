@@ -2095,7 +2095,7 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
         return CBasicStatistics::mean(result);
     };
 
-    CSmoothCondition condition;
+    CSmoothCondition correlationCondition;
     double R{-1.0};
 
     TFloatMeanAccumulatorVec partitionValues;
@@ -2121,9 +2121,10 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
                                      MINIMUM_REPEATS_TO_TEST_VARIANCE};
         LOG_TRACE(<< "  mean repeats per segment = " << meanRepeatsPerSegment);
 
-        condition = std::max(
-            condition, softGreaterThan(R, stats.s_AutocorrelationThreshold, 0.1) &&
-                           softGreaterThan(meanRepeatsPerSegment, 1.0, 0.2));
+        correlationCondition =
+            std::max(correlationCondition,
+                     softGreaterThan(R, stats.s_AutocorrelationThreshold, 0.1) &&
+                         softGreaterThan(meanRepeatsPerSegment, 1.0, 0.2));
         R = std::max(R, RW);
     }
 
@@ -2131,7 +2132,7 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
         CTools::fastLog(CStatisticalTests::leftTailFTest(v1 / v0, df1, df0)) /
         LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
 
-    if (condition && softGreaterThan(logSignificance, 1.0, 0.1) &&
+    if (correlationCondition && softGreaterThan(logSignificance, 1.0, 0.1) &&
         (vt > v1 ? softGreaterThan(vt / v1, 1.0, 1.0) : softLessThan(v1 / vt, 1.0, 0.1))) {
         stats.s_StartOfPartition = startOfPartition;
         stats.s_R0 = R;
