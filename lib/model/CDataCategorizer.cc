@@ -58,7 +58,10 @@ std::size_t CDataCategorizer::memoryUsage() const {
 }
 
 bool CDataCategorizer::addExample(int categoryId, const std::string& example) {
-    // Don't add examples if we're memory-limited
+    // Don't add examples if we're in any way memory-constrained.
+    // We stop adding examples when the memory status is either
+    // E_MemoryStatusSoftLimit or E_MemoryStatusHardLimit, but only
+    // stop adding completely new categories in E_MemoryStatusHardLimit.
     if (m_Limits.resourceMonitor().getMemoryStatus() != model_t::E_MemoryStatusOk) {
         LOG_TRACE(<< "Not adding example as memory status is "
                   << m_Limits.resourceMonitor().getMemoryStatus());

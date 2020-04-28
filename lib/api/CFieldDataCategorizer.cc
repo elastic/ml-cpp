@@ -48,12 +48,9 @@ CFieldDataCategorizer::CFieldDataCategorizer(const std::string& jobId,
                                              COutputHandler& outputHandler,
                                              CJsonOutputWriter& jsonOutputWriter,
                                              CPersistenceManager* persistenceManager)
-    : m_JobId{jobId}, m_Limits{limits}, m_OutputHandler{outputHandler},
-      m_ExtraFieldNames{1, MLCATEGORY_NAME}, m_WriteFieldNames{true},
-      m_NumRecordsHandled{0}, m_OutputFieldCategory{m_Overrides[MLCATEGORY_NAME]},
-      m_MaxMatchingLength{0}, m_JsonOutputWriter{jsonOutputWriter},
-      m_CategorizationFieldName{config.categorizationFieldName()},
-      m_CategorizationFilter{}, m_PersistenceManager{persistenceManager} {
+    : m_JobId{jobId}, m_Limits{limits}, m_OutputHandler{outputHandler}, m_ExtraFieldNames{1, MLCATEGORY_NAME},
+      m_OutputFieldCategory{m_Overrides[MLCATEGORY_NAME]}, m_JsonOutputWriter{jsonOutputWriter},
+      m_CategorizationFieldName{config.categorizationFieldName()}, m_PersistenceManager{persistenceManager} {
     this->createCategorizer(m_CategorizationFieldName);
 
     LOG_DEBUG(<< "Configuring categorization filtering");
