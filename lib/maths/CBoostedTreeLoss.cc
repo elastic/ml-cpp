@@ -628,7 +628,7 @@ CLoss::TLossUPtr CLoss::restoreLoss(core::CStateRestoreTraverser& traverser) {
         if (lossFunctionName == CMse::NAME) {
             return std::make_unique<CMse>(traverser);
         } else if (lossFunctionName == CMsle::NAME) {
-            return  std::make_unique<CMsle>(traverser);
+            return std::make_unique<CMsle>(traverser);
         } else if (lossFunctionName == CPseudoHuber::NAME) {
             return std::make_unique<CPseudoHuber>(traverser);
         } else if (lossFunctionName == CBinomialLogisticLoss::NAME) {
@@ -638,16 +638,16 @@ CLoss::TLossUPtr CLoss::restoreLoss(core::CStateRestoreTraverser& traverser) {
         }
 
         LOG_ERROR(<< "Error restoring loss function. Unknown loss function type '"
-                    << lossFunctionName << "'.");
+                  << lossFunctionName << "'.");
         return nullptr;
     } while (traverser.next());
 }
 
 void CLoss::persistLoss(core::CStatePersistInserter& inserter) {
-//     auto persLoss = [&m_Loss](core::CStatePersistInserter& inserter_) {
-//             m_Loss->acceptPersistInserter(inserter_);
-//         };
-// inserter.insertLevel(this->name(), std::bind())
+    //     auto persLoss = [&m_Loss](core::CStatePersistInserter& inserter_) {
+    //             m_Loss->acceptPersistInserter(inserter_);
+    //         };
+    // inserter.insertLevel(this->name(), std::bind())
 }
 
 CArgMinLoss::CArgMinLoss(const CArgMinLoss& other)

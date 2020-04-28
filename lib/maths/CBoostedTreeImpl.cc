@@ -1385,13 +1385,13 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                                  m_MaximumNumberTreesOverride, inserter);
     auto persistLoss = [this](core::CStatePersistInserter& inserter_) {
-            auto foobar = [this](core::CStatePersistInserter& inserter2) {
-                m_Loss->acceptPersistInserter(inserter2);
-            };
-            // core::CPersistUtils::persist(m_Loss->name(), *m_Loss, inserter_);
-            // m_Loss->acceptPersistInserter(inserter_);
-            inserter_.insertLevel(m_Loss->name(), foobar);
+        auto foobar = [this](core::CStatePersistInserter& inserter2) {
+            m_Loss->acceptPersistInserter(inserter2);
         };
+        // core::CPersistUtils::persist(m_Loss->name(), *m_Loss, inserter_);
+        // m_Loss->acceptPersistInserter(inserter_);
+        inserter_.insertLevel(m_Loss->name(), foobar);
+    };
     inserter.insertLevel(LOSS_TAG, persistLoss);
     // core::CPersistUtils::persist(LOSS_TAG, *m_Loss, inserter);
     // inserter.insertValue(LOSS_TAG, m_Loss->name());
@@ -1491,7 +1491,7 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                 core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                                              m_MaximumNumberTreesOverride, traverser))
-        auto foobar = [this](core::CStateRestoreTraverser& traverser_){
+        auto foobar = [this](core::CStateRestoreTraverser& traverser_) {
             this->m_Loss = CLoss::restoreLoss(traverser_);
             return true;
         };
