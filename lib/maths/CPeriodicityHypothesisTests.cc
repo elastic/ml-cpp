@@ -69,6 +69,38 @@ const std::size_t MINIMUM_REPEATS_TO_TEST_AMPLITUDE{4};
 //! A high priority for components we want to take precendence.
 double HIGH_PRIORITY{2.0};
 
+//! \brief Used to compute conjunctions of smooth x < t or x > t
+//! conditions.
+class CSmoothCondition {
+public:
+    explicit CSmoothCondition(double value = 0.0) : m_Value{value} {}
+
+    operator bool() const { return m_Value > 1.0; }
+    bool operator<(const CSmoothCondition& rhs) const {
+        return m_Value < rhs.m_Value;
+    }
+
+    double p() const { return m_Value; }
+
+    friend CSmoothCondition operator&&(const CSmoothCondition& lhs,
+                                       const CSmoothCondition& rhs) {
+        return CSmoothCondition{lhs.m_Value * rhs.m_Value};
+    }
+
+private:
+    double m_Value;
+};
+
+//! Smoothly check if \p value is greater than \p threshold.
+CSmoothCondition softGreaterThan(double value, double threshold, double margin) {
+    return CSmoothCondition{2.0 * CTools::logisticFunction(value, margin, threshold, +1.0)};
+}
+
+//! Smoothly check if \p value is less than \p threshold.
+CSmoothCondition softLessThan(double value, double threshold, double margin) {
+    return CSmoothCondition{2.0 * CTools::logisticFunction(value, margin, threshold, -1.0)};
+}
+
 //! \brief Accumulates the minimum amplitude.
 class CMinAmplitude {
 public:
@@ -2062,7 +2094,7 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
         return CBasicStatistics::mean(result);
     };
 
-    double p{0.0};
+    CSmoothCondition condition;
     double R{-1.0};
 
     TFloatMeanAccumulatorVec partitionValues;
@@ -2084,27 +2116,22 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
         }
 
         double meanRepeats{calculateMeanRepeats(window, period_)};
-        double relativeMeanRepeats{meanRepeats / MINIMUM_REPEATS_TO_TEST_VARIANCE};
-        LOG_TRACE(<< "  relative mean repeats = " << relativeMeanRepeats);
+        double meanRepeatsPerSegment{meanRepeats / std::max(stats.s_TrendSegments, 1.0) /
+                                     MINIMUM_REPEATS_TO_TEST_VARIANCE};
+        LOG_TRACE(<< "  mean repeats per segment = " << meanRepeatsPerSegment);
 
-        p = std::max(
-            p, CTools::logisticFunction(RW / stats.s_AutocorrelationThreshold, 0.15, 1.0) *
-                   CTools::logisticFunction(relativeMeanRepeats, 0.25, 1.0));
+        condition = std::max(
+            condition, softGreaterThan(R, stats.s_AutocorrelationThreshold, 0.1) &&
+                           softGreaterThan(meanRepeatsPerSegment, 1.0, 0.2));
         R = std::max(R, RW);
     }
 
-    double relativeLogSignificance{
+    double logSignificance{
         CTools::fastLog(CStatisticalTests::leftTailFTest(v1 / v0, df1, df0)) /
         LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
-    double meanRepeats{calculateMeanRepeats({{0, windowLength}}, repeat)};
-    double segmentsPerRepeat{(stats.s_TrendSegments - 1.0) / meanRepeats};
-    p *= CTools::logisticFunction(relativeLogSignificance, 0.1, 1.0) *
-         (vt > v1 ? CTools::logisticFunction(vt / v1, 1.0, 1.0, +1.0)
-                  : CTools::logisticFunction(v1 / vt, 0.1, 1.0, -1.0)) *
-         CTools::logisticFunction(segmentsPerRepeat, 0.3, 0.0, -1.0) / 0.03125;
-    LOG_TRACE(<< "  p(partition) = " << p);
 
-    if (p >= 1.0) {
+    if (condition && softGreaterThan(logSignificance, 1.0, 0.1) &&
+        (vt > v1 ? softGreaterThan(vt / v1, 1.0, 1.0) : softLessThan(v1 / vt, 1.0, 0.1))) {
         stats.s_StartOfPartition = startOfPartition;
         stats.s_R0 = R;
         return true;
@@ -2145,7 +2172,6 @@ bool CPeriodicityHypothesisTests::testVariance(const TTimeTimePr2Vec& window,
         result.add(calculateRepeats(window, period_, m_BucketLength, buckets));
         return CBasicStatistics::mean(result);
     }();
-    LOG_TRACE(<< "  mean repeats = " << meanRepeats);
 
     // We're trading off:
     //   1) The significance of the variance reduction,
@@ -2159,22 +2185,24 @@ bool CPeriodicityHypothesisTests::testVariance(const TTimeTimePr2Vec& window,
     // is equal to the threshold, the variance reduction is equal to the
     // threshold and we've observed three periods on average.
 
-    double relativeLogSignificance{
+    double logSignificance{
         CTools::fastLog(CStatisticalTests::leftTailFTest(v1 / v0, df1, df0)) /
         LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
-    double relativeMeanRepeats{meanRepeats / MINIMUM_REPEATS_TO_TEST_VARIANCE};
-    double segmentsPerRepeat{(stats.s_TrendSegments +
-                              std::max(static_cast<double>(segmentation.size()), 1.0) - 2.0) /
-                             meanRepeats};
-    pVariance = CTools::logisticFunction(relativeLogSignificance, 0.1, 1.0) *
-                CTools::logisticFunction(R / stats.s_AutocorrelationThreshold, 0.15, 1.0) *
-                (vt > v1 ? CTools::logisticFunction(vt / v1, 1.0, 1.0, +1.0)
-                         : CTools::logisticFunction(v1 / vt, 0.1, 1.0, -1.0)) *
-                CTools::logisticFunction(relativeMeanRepeats, 0.25, 1.0) *
-                CTools::logisticFunction(segmentsPerRepeat, 0.3, 0.0, -1.0) / 0.03125;
+    double meanRepeatsPerSegment{
+        meanRepeats /
+        std::max(stats.s_TrendSegments + static_cast<double>(segmentation.size()), 1.0) /
+        MINIMUM_REPEATS_TO_TEST_VARIANCE};
+    LOG_TRACE(<< "  mean repeats per segment = " << meanRepeatsPerSegment);
+
+    auto condition = softGreaterThan(logSignificance, 1.0, 0.1) &&
+                     softGreaterThan(R, stats.s_AutocorrelationThreshold, 0.1) &&
+                     (vt > v1 ? softGreaterThan(vt / v1, 1.0, 1.0)
+                              : softLessThan(v1 / vt, 0.1, 1.0)) &&
+                     softGreaterThan(meanRepeatsPerSegment, 1.0, 0.2);
+    pVariance = condition.p();
     LOG_TRACE(<< "  p(variance) = " << pVariance);
 
-    if (pVariance >= 1.0) {
+    if (condition) {
         stats.s_R0 = R;
         stats.s_Segmentation = segmentation;
         return true;
@@ -2226,19 +2254,16 @@ bool CPeriodicityHypothesisTests::testAmplitude(const TTimeTimePr2Vec& window,
 
     // Trade off the test significance and the mean number of repeats
     // we've observed.
-    double relativeLogSignificance{CTools::fastLog(CTools::oneMinusPowOneMinusX(F1, b)) /
-                                   LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
-    double relativeMeanRepeats{
-        meanRepeats / static_cast<double>(MINIMUM_REPEATS_TO_TEST_AMPLITUDE)};
+    double logSignificance{CTools::fastLog(CTools::oneMinusPowOneMinusX(F1, b)) /
+                           LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
+    double meanRepeatsPerSegment{meanRepeats / std::max(stats.s_TrendSegments, 1.0) /
+                                 static_cast<double>(MINIMUM_REPEATS_TO_TEST_AMPLITUDE)};
     double minusLogPVariance{-CTools::fastLog(pVariance)};
-    double segmentsPerRepeat{(stats.s_TrendSegments - 1.0) / meanRepeats};
-    double pAmplitude{CTools::logisticFunction(relativeLogSignificance, 0.2, 1.0) *
-                      CTools::logisticFunction(relativeMeanRepeats, 0.5, 1.0) *
-                      CTools::logisticFunction(minusLogPVariance, 2.0, 0.0, -1.0) *
-                      CTools::logisticFunction(segmentsPerRepeat, 0.3, 0.0, -1.0) / 0.0625};
-    LOG_TRACE(<< "  p(amplitude) = " << pAmplitude);
+    LOG_TRACE(<< "  mean repeats per segment = " << meanRepeatsPerSegment);
 
-    if (pAmplitude >= 1.0) {
+    if (softGreaterThan(logSignificance, 1.0, 0.2) &&
+        softLessThan(minusLogPVariance, 0.0, 2.0) &&
+        softGreaterThan(meanRepeatsPerSegment, 1.0, 0.2)) {
         stats.s_R0 = R;
         return true;
     }
