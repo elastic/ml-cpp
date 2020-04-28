@@ -64,6 +64,8 @@
 * Trap and fail if insufficient features are supplied to data frame analyses. This
   caused classification and regression getting stuck at zero progress analyzing.
   (See {ml-pull}1160[#1160], issue: {issue}55593[#55593].)
+* Make categorization respect the `model_memory_limit`. (See {ml-pull}1167[#1167],
+  issue: {ml-issue}1130[#1130].)
 
 === Bug Fixes
 

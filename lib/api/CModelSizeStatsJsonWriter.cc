@@ -28,6 +28,7 @@ const std::string TOTAL_CATEGORY_COUNT{"total_category_count"};
 const std::string FREQUENT_CATEGORY_COUNT{"frequent_category_count"};
 const std::string RARE_CATEGORY_COUNT{"rare_category_count"};
 const std::string DEAD_CATEGORY_COUNT{"dead_category_count"};
+const std::string FAILED_CATEGORY_COUNT{"failed_category_count"};
 const std::string CATEGORIZATION_STATUS{"categorization_status"};
 const std::string TIMESTAMP{"timestamp"};
 const std::string LOG_TIME{"log_time"};
@@ -36,58 +37,61 @@ const std::string LOG_TIME{"log_time"};
 void CModelSizeStatsJsonWriter::write(const std::string& jobId,
                                       const model::CResourceMonitor::SModelSizeStats& results,
                                       core::CRapidJsonConcurrentLineWriter& writer) {
-    writer.String(MODEL_SIZE_STATS);
+    writer.Key(MODEL_SIZE_STATS);
     writer.StartObject();
 
-    writer.String(JOB_ID);
+    writer.Key(JOB_ID);
     writer.String(jobId);
 
-    writer.String(MODEL_BYTES);
+    writer.Key(MODEL_BYTES);
     writer.Uint64(results.s_AdjustedUsage);
 
-    writer.String(MODEL_BYTES_EXCEEDED);
+    writer.Key(MODEL_BYTES_EXCEEDED);
     writer.Uint64(results.s_BytesExceeded);
 
-    writer.String(MODEL_BYTES_MEMORY_LIMIT);
+    writer.Key(MODEL_BYTES_MEMORY_LIMIT);
     writer.Uint64(results.s_BytesMemoryLimit);
 
-    writer.String(TOTAL_BY_FIELD_COUNT);
+    writer.Key(TOTAL_BY_FIELD_COUNT);
     writer.Uint64(results.s_ByFields);
 
-    writer.String(TOTAL_OVER_FIELD_COUNT);
+    writer.Key(TOTAL_OVER_FIELD_COUNT);
     writer.Uint64(results.s_OverFields);
 
-    writer.String(TOTAL_PARTITION_FIELD_COUNT);
+    writer.Key(TOTAL_PARTITION_FIELD_COUNT);
     writer.Uint64(results.s_PartitionFields);
 
-    writer.String(BUCKET_ALLOCATION_FAILURES_COUNT);
+    writer.Key(BUCKET_ALLOCATION_FAILURES_COUNT);
     writer.Uint64(results.s_AllocationFailures);
 
-    writer.String(MEMORY_STATUS);
+    writer.Key(MEMORY_STATUS);
     writer.String(print(results.s_MemoryStatus));
 
-    writer.String(CATEGORIZED_DOC_COUNT);
+    writer.Key(CATEGORIZED_DOC_COUNT);
     writer.Uint64(results.s_CategorizedMessages);
 
-    writer.String(TOTAL_CATEGORY_COUNT);
+    writer.Key(TOTAL_CATEGORY_COUNT);
     writer.Uint64(results.s_TotalCategories);
 
-    writer.String(FREQUENT_CATEGORY_COUNT);
+    writer.Key(FREQUENT_CATEGORY_COUNT);
     writer.Uint64(results.s_FrequentCategories);
 
-    writer.String(RARE_CATEGORY_COUNT);
+    writer.Key(RARE_CATEGORY_COUNT);
     writer.Uint64(results.s_RareCategories);
 
-    writer.String(DEAD_CATEGORY_COUNT);
+    writer.Key(DEAD_CATEGORY_COUNT);
     writer.Uint64(results.s_DeadCategories);
 
-    writer.String(CATEGORIZATION_STATUS);
+    writer.Key(FAILED_CATEGORY_COUNT);
+    writer.Uint64(results.s_MemoryCategorizationFailures);
+
+    writer.Key(CATEGORIZATION_STATUS);
     writer.String(print(results.s_CategorizationStatus));
 
-    writer.String(TIMESTAMP);
+    writer.Key(TIMESTAMP);
     writer.Time(results.s_BucketStartTime);
 
-    writer.String(LOG_TIME);
+    writer.Key(LOG_TIME);
     writer.Time(core::CTimeUtils::now());
 
     writer.EndObject();
