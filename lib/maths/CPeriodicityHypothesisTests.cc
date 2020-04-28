@@ -1276,13 +1276,12 @@ CPeriodicityHypothesisTests::best(const TNestedHypothesesVec& hypotheses) const 
             v = v == summary.s_VarianceThreshold * vmin[0]
                     ? 1.0
                     : v / summary.s_VarianceThreshold / vmin[0];
-            double R{summary.s_R / summary.s_AutocorrelationThreshold};
-            double DF{summary.s_DF / DFmin[0]};
-            double p{CTools::logisticFunction(v, 0.2, 1.0, -1.0) *
-                     CTools::logisticFunction(R, 0.2, 1.0, +1.0) *
-                     CTools::logisticFunction(DF, 0.2, 1.0, +1.0) *
-                     CTools::logisticFunction(summary.s_TrendSegments, 0.3, 0.0, -1.0) *
-                     CTools::logisticFunction(summary.s_ScaleSegments, 0.3, 0.0, -1.0)};
+            double p{(softLessThan(v, 1.0, 0.2) &&
+                      softGreaterThan(summary.s_R, summary.s_AutocorrelationThreshold, 0.1) &&
+                      softGreaterThan(summary.s_DF / DFmin[0], 1.0, 0.2) &&
+                      softLessThan(summary.s_TrendSegments, 0.0, 0.3) &&
+                      softLessThan(summary.s_ScaleSegments, 0.0, 0.3))
+                         .p()};
             LOG_TRACE(<< "p = " << p);
             if (pmin.add(-p)) {
                 result = summary.s_H;
