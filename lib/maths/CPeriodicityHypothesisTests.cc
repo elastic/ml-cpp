@@ -1263,17 +1263,19 @@ CPeriodicityHypothesisTests::best(const TNestedHypothesesVec& hypotheses) const 
         TMinAccumulator vmin;
         TMinAccumulator DFmin;
         for (const auto& summary : summaries) {
-            vmin.add(varianceAtPercentile(summary.s_V, summary.s_DF,
-                                          50.0 + CONFIDENCE_INTERVAL / 2.0) /
-                     summary.s_VarianceThreshold);
+            double v{varianceAtPercentile(summary.s_V, summary.s_DF,
+                                          50.0 + CONFIDENCE_INTERVAL / 2.0)};
+            vmin.add(v == summary.s_VarianceThreshold ? 1.0 : v / summary.s_VarianceThreshold);
             DFmin.add(summary.s_DF);
         }
 
         TMinAccumulator pmin;
         for (const auto& summary : summaries) {
             double v{varianceAtPercentile(summary.s_V, summary.s_DF,
-                                          50.0 - CONFIDENCE_INTERVAL / 2.0) /
-                     summary.s_VarianceThreshold / vmin[0]};
+                                          50.0 - CONFIDENCE_INTERVAL / 2.0)};
+            v = v == summary.s_VarianceThreshold * vmin[0]
+                    ? 1.0
+                    : v / summary.s_VarianceThreshold / vmin[0];
             double R{summary.s_R / summary.s_AutocorrelationThreshold};
             double DF{summary.s_DF / DFmin[0]};
             double p{CTools::logisticFunction(v, 0.2, 1.0, -1.0) *

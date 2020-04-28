@@ -315,7 +315,7 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
 
     BOOST_TEST_REQUIRE(totalSumResidual < 0.20 * totalSumValue);
     BOOST_TEST_REQUIRE(totalMaxResidual < 0.28 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.1 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.11 * totalSumValue);
 }
 
 BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
