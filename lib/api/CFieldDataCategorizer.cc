@@ -30,17 +30,17 @@ namespace api {
 
 namespace {
 
-const std::string VERSION_TAG("a");
-const std::string CATEGORIZER_TAG("b");
-const std::string EXAMPLES_COLLECTOR_TAG("c");
+const std::string VERSION_TAG{"a"};
+const std::string CATEGORIZER_TAG{"b"};
+const std::string EXAMPLES_COLLECTOR_TAG{"c"};
 } // unnamed
 
 // Initialise statics
-const std::string CFieldDataCategorizer::ML_STATE_INDEX(".ml-state");
-const std::string CFieldDataCategorizer::MLCATEGORY_NAME("mlcategory");
-const double CFieldDataCategorizer::SIMILARITY_THRESHOLD(0.7);
-const std::string CFieldDataCategorizer::STATE_TYPE("categorizer_state");
-const std::string CFieldDataCategorizer::STATE_VERSION("1");
+const std::string CFieldDataCategorizer::ML_STATE_INDEX{".ml-state"};
+const std::string CFieldDataCategorizer::MLCATEGORY_NAME{"mlcategory"};
+const double CFieldDataCategorizer::SIMILARITY_THRESHOLD{0.7};
+const std::string CFieldDataCategorizer::STATE_TYPE{"categorizer_state"};
+const std::string CFieldDataCategorizer::STATE_VERSION{"1"};
 
 CFieldDataCategorizer::CFieldDataCategorizer(const std::string& jobId,
                                              const CFieldConfig& config,
@@ -48,12 +48,9 @@ CFieldDataCategorizer::CFieldDataCategorizer(const std::string& jobId,
                                              COutputHandler& outputHandler,
                                              CJsonOutputWriter& jsonOutputWriter,
                                              CPersistenceManager* persistenceManager)
-    : m_JobId(jobId), m_Limits(limits), m_OutputHandler(outputHandler),
-      m_ExtraFieldNames(1, MLCATEGORY_NAME), m_WriteFieldNames(true),
-      m_NumRecordsHandled(0), m_OutputFieldCategory(m_Overrides[MLCATEGORY_NAME]),
-      m_MaxMatchingLength(0), m_JsonOutputWriter(jsonOutputWriter),
-      m_CategorizationFieldName(config.categorizationFieldName()),
-      m_CategorizationFilter(), m_PersistenceManager(persistenceManager) {
+    : m_JobId{jobId}, m_Limits{limits}, m_OutputHandler{outputHandler}, m_ExtraFieldNames{1, MLCATEGORY_NAME},
+      m_OutputFieldCategory{m_Overrides[MLCATEGORY_NAME]}, m_JsonOutputWriter{jsonOutputWriter},
+      m_CategorizationFieldName{config.categorizationFieldName()}, m_PersistenceManager{persistenceManager} {
     this->createCategorizer(m_CategorizationFieldName);
 
     LOG_DEBUG(<< "Configuring categorization filtering");
@@ -99,9 +96,13 @@ bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields) {
         return msgHandled;
     }
 
-    m_OutputFieldCategory =
-        core::CStringUtils::typeToString(this->computeCategory(dataRowFields));
+    int categoryId{this->computeCategory(dataRowFields)};
+    if (categoryId == model::CDataCategorizer::HARD_CATEGORIZATION_FAILURE_ERROR) {
+        // Still return true here, because false would fail the entire job
+        return true;
+    }
 
+    m_OutputFieldCategory = core::CStringUtils::typeToString(categoryId);
     if (m_OutputHandler.writeRow(dataRowFields, m_Overrides) == false) {
         LOG_ERROR(<< "Unable to write output with type " << m_OutputFieldCategory
                   << " for input:" << core_t::LINE_ENDING
@@ -140,21 +141,21 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
     const std::string& categorizationFieldName{m_DataCategorizer->fieldName()};
     auto fieldIter = dataRowFields.find(categorizationFieldName);
     if (fieldIter == dataRowFields.end()) {
-        LOG_WARN(<< "Assigning ML category -1 to record with no "
-                 << categorizationFieldName << " field:" << core_t::LINE_ENDING
-                 << this->debugPrintRecord(dataRowFields));
-        return -1;
+        LOG_WARN(<< "Assigning ML category " << model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR
+                 << " to record with no " << categorizationFieldName << " field:"
+                 << core_t::LINE_ENDING << this->debugPrintRecord(dataRowFields));
+        return model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR;
     }
 
     const std::string& fieldValue{fieldIter->second};
     if (fieldValue.empty()) {
-        LOG_WARN(<< "Assigning ML category -1 to record with blank "
-                 << categorizationFieldName << " field:" << core_t::LINE_ENDING
-                 << this->debugPrintRecord(dataRowFields));
-        return -1;
+        LOG_WARN(<< "Assigning ML category " << model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR
+                 << " to record with blank " << categorizationFieldName << " field:"
+                 << core_t::LINE_ENDING << this->debugPrintRecord(dataRowFields));
+        return model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR;
     }
 
-    int categoryId{-1};
+    int categoryId{model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR};
     if (m_CategorizationFilter.empty()) {
         categoryId = m_DataCategorizer->computeCategory(
             false, dataRowFields, fieldValue, fieldValue.length());
@@ -164,7 +165,7 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
                                                         fieldValue.length());
     }
     if (categoryId < 1) {
-        return -1;
+        return categoryId;
     }
 
     bool exampleAdded{m_DataCategorizer->addExample(categoryId, fieldValue)};
