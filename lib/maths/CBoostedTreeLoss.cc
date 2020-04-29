@@ -643,11 +643,11 @@ CLoss::TLossUPtr CLoss::restoreLoss(core::CStateRestoreTraverser& traverser) {
     } while (traverser.next());
 }
 
-void CLoss::persistLoss(core::CStatePersistInserter& inserter) {
-    //     auto persLoss = [&m_Loss](core::CStatePersistInserter& inserter_) {
-    //             m_Loss->acceptPersistInserter(inserter_);
-    //         };
-    // inserter.insertLevel(this->name(), std::bind())
+void CLoss::persistLoss(core::CStatePersistInserter& inserter) const {
+    auto persist = [this](core::CStatePersistInserter& inserter_) {
+        this->acceptPersistInserter(inserter_);
+    };
+    inserter.insertLevel(this->name(), persist);
 }
 
 CArgMinLoss::CArgMinLoss(const CArgMinLoss& other)
@@ -1005,7 +1005,7 @@ bool CBinomialLogisticLoss::isRegression() const {
     return false;
 }
 
-void CBinomialLogisticLoss::acceptPersistInserter(core::CStatePersistInserter& /* inserter */) const {
+void CBinomialLogisticLoss::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
 }
 bool CBinomialLogisticLoss::acceptRestoreTraverser(core::CStateRestoreTraverser& /* traverser */) {
     return true;

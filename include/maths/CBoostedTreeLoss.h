@@ -397,7 +397,7 @@ public:
     // virtual TPersistFunc getAcceptPersistInserter() const =0;
 
     static TLossUPtr restoreLoss(core::CStateRestoreTraverser& traverser);
-    void persistLoss(core::CStatePersistInserter& inserter);
+    void persistLoss(core::CStatePersistInserter& inserter) const;
 
 protected:
     CArgMinLoss makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& impl) const;
