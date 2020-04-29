@@ -44,6 +44,7 @@ BOOST_AUTO_TEST_CASE(testWrite) {
             7,                         // frequent categories
             13,                        // rare categories
             2,                         // dead categories
+            8,                         // failed categories
             model_t::E_CategorizationStatusWarn};
 
         CModelSnapshotJsonWriter::SModelSnapshotReport report{
@@ -138,6 +139,9 @@ BOOST_AUTO_TEST_CASE(testWrite) {
                         modelSizeStats["rare_category_count"].GetUint64());
     BOOST_TEST_REQUIRE(modelSizeStats.HasMember("dead_category_count"));
     BOOST_REQUIRE_EQUAL(std::uint64_t(2), modelSizeStats["dead_category_count"].GetUint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("failed_category_count"));
+    BOOST_REQUIRE_EQUAL(std::uint64_t(8),
+                        modelSizeStats["failed_category_count"].GetUint64());
     BOOST_TEST_REQUIRE(modelSizeStats.HasMember("memory_status"));
     BOOST_REQUIRE_EQUAL(std::string("warn"),
                         std::string(modelSizeStats["categorization_status"].GetString()));

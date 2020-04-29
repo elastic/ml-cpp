@@ -164,10 +164,10 @@ private:
     TStrVec m_ExtraFieldNames;
 
     //! Should we write the field names before the next output?
-    bool m_WriteFieldNames;
+    bool m_WriteFieldNames = true;
 
     //! Keep count of how many records we've handled
-    std::uint64_t m_NumRecordsHandled;
+    std::uint64_t m_NumRecordsHandled = 0;
 
     //! Map holding fields to add/change in the output compared to the input
     TStrStrUMap m_Overrides;
@@ -183,7 +183,7 @@ private:
     std::string m_SearchTermsRegex;
 
     //! The max matching length of the current category
-    std::size_t m_MaxMatchingLength;
+    std::size_t m_MaxMatchingLength = 0;
 
     //! Pointer to the actual categorizer
     model::CDataCategorizer::TDataCategorizerP m_DataCategorizer;

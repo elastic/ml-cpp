@@ -8,6 +8,8 @@
 #include <core/CLogger.h>
 #include <core/CoreTypes.h>
 
+#include <model/CDataCategorizer.h>
+
 #include <algorithm>
 #include <fstream>
 #include <functional>
@@ -151,7 +153,7 @@ void CBenchMarker::dumpResults() const {
             // good (as long as it's not already used), and all other categories
             // are bad.
             size_t max{0};
-            int maxCategoryId{-1};
+            int maxCategoryId{model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR};
             for (TIntSizeStrPrMapCItr mapIter = counts.begin();
                  mapIter != counts.end(); ++mapIter) {
                 int categoryId{mapIter->first};
@@ -169,7 +171,7 @@ void CBenchMarker::dumpResults() const {
                 }
                 strm << '\t' << example << core_t::LINE_ENDING;
             }
-            if (maxCategoryId > -1) {
+            if (maxCategoryId != model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR) {
                 good += max;
                 usedCategories.insert(maxCategoryId);
             }
