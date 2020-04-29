@@ -61,6 +61,23 @@
   {ml-pull}1135[#1135].)
 * Improve data frame analysis runtime by optimising memory alignment for intrinsic
   operations. (See {ml-pull}1142[#1142].)
+* Fix spurious anomalies for count and sum functions after no data are received for long
+  periods of time. (See {ml-pull}1158[#1158].)
+
+== {es} version 7.8.0
+
+=== Bug Fixes
+
+* Trap and fail if insufficient features are supplied to data frame analyses. This
+  caused classification and regression getting stuck at zero progress analyzing.
+  (See {ml-pull}1160[#1160], issue: {issue}55593[#55593].)
+* Make categorization respect the `model_memory_limit`. (See {ml-pull}1167[#1167],
+  issue: {ml-issue}1130[#1130].)
+
+=== Bug Fixes
+
+* Fix underlying cause for "Failed to calculate splitting significance" log errors.
+  (See {ml-pull}1157[#1157].)
 
 == {es} version 7.7.1
 

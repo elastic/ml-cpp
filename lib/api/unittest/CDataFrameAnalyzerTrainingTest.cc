@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
 #include <core/CJsonStatePersistInserter.h>
@@ -399,12 +400,12 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble(),
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
-            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
-        } else if (result.HasMember("progress_percent")) {
-            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
-            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("phase_progress") == false);
+        } else if (result.HasMember("phase_progress")) {
+            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() <= 100);
             BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
-            progressCompleted = result["progress_percent"].GetInt() == 100;
+            progressCompleted = result["phase_progress"]["progress_percent"].GetInt() == 100;
         }
     }
     BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
@@ -661,12 +662,12 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierTraining) {
                 result["row_results"]["results"]["ml"]["top_classes"][0]["class_score"]
                     .GetDouble());
             ++expectedPrediction;
-            BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
-        } else if (result.HasMember("progress_percent")) {
-            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
-            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+            BOOST_TEST_REQUIRE(result.HasMember("phase_progress") == false);
+        } else if (result.HasMember("phase_progress")) {
+            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() <= 100);
             BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
-            progressCompleted = result["progress_percent"].GetInt() == 100;
+            progressCompleted = result["phase_progress"]["progress_percent"].GetInt() == 100;
         }
     }
     BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
@@ -908,6 +909,37 @@ BOOST_AUTO_TEST_CASE(testCategoricalFieldsEmptyAsMissing) {
         assertRow(8, {eq(3.0), eq(1.0), eq(8.0), eq(8.0), eq(0.0)}, rows[8]);
         assertRow(9, {eq(2.0), eq(2.0), eq(9.0), eq(9.0), eq(1.0)}, rows[9]);
     });
+}
+
+BOOST_AUTO_TEST_CASE(testNoRegressors) {
+
+    // Check we catch an exit immediately if there are too few columns to run the analysis.
+
+    TStrVec errors;
+    auto errorHandler = [&errors](std::string error) { errors.push_back(error); };
+
+    core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
+    api::CDataFrameAnalyzer analyzer{
+        specFactory.rows(1000).columns(1).memoryLimit(18000000).predictionSpec(
+            test::CDataFrameAnalysisSpecificationFactory::regression(), "x1"),
+        outputWriterFactory};
+
+    TStrVec fieldNames{"x1", ".", "."};
+    analyzer.handleRecord(fieldNames, {"0.0", "0", ""});
+    analyzer.handleRecord(fieldNames, {"1.0", "1", ""});
+    analyzer.handleRecord(fieldNames, {"2.0", "2", ""});
+    analyzer.handleRecord(fieldNames, {"", "", "$"});
+
+    LOG_DEBUG(<< "Errors = " << core::CContainerPrinter::print(errors));
+
+    BOOST_TEST_REQUIRE(errors.size() == 1);
+    BOOST_REQUIRE_EQUAL(errors[0], "Input error: analysis need at least one regressor.");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -97,6 +97,22 @@ void CDataFrameOutliersRunner::writeOneRow(const core::CDataFrame& frame,
     writer.EndObject();
 }
 
+bool CDataFrameOutliersRunner::validate(const core::CDataFrame& frame) const {
+    if (frame.numberColumns() < 1) {
+        HANDLE_FATAL(<< "Input error: analysis needs at least one feature")
+        return false;
+    }
+    return true;
+}
+
+const CDataFrameAnalysisInstrumentation& CDataFrameOutliersRunner::instrumentation() const {
+    return m_Instrumentation;
+}
+
+CDataFrameAnalysisInstrumentation& CDataFrameOutliersRunner::instrumentation() {
+    return m_Instrumentation;
+}
+
 void CDataFrameOutliersRunner::runImpl(core::CDataFrame& frame) {
 
     core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) =
@@ -138,14 +154,6 @@ const std::string CDataFrameOutliersRunner::METHOD{"method"};
 const std::string CDataFrameOutliersRunner::COMPUTE_FEATURE_INFLUENCE{"compute_feature_influence"};
 const std::string CDataFrameOutliersRunner::FEATURE_INFLUENCE_THRESHOLD{"feature_influence_threshold"};
 const std::string CDataFrameOutliersRunner::OUTLIER_FRACTION{"outlier_fraction"};
-
-const CDataFrameAnalysisInstrumentation& CDataFrameOutliersRunner::instrumentation() const {
-    return m_Instrumentation;
-}
-
-CDataFrameAnalysisInstrumentation& CDataFrameOutliersRunner::instrumentation() {
-    return m_Instrumentation;
-}
 
 const std::string& CDataFrameOutliersRunnerFactory::name() const {
     return NAME;
