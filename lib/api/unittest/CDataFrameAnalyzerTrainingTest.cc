@@ -544,7 +544,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
 
     for (const auto& params :
          {SHyperparameters{}, SHyperparameters{-1.0},
-          /* SHyperparameters{-1.0, -1.0}, SHyperparameters{-1.0, -1.0, -1.0} */}) {
+          SHyperparameters{-1.0, -1.0}, SHyperparameters{-1.0, -1.0, -1.0}}) {
 
         LOG_DEBUG(<< "Number parameters to search = " << params.numberUnset());
 

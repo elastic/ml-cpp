@@ -19,6 +19,7 @@
 #include <maths/CToolsDetail.h>
 
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
 
@@ -48,6 +49,8 @@ using TRowRef = core::CDataFrame::TRowRef;
 using TRowItr = core::CDataFrame::TRowItr;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TRegressionLossFunction = test::CDataFrameAnalysisSpecificationFactory::TRegressionLossFunction;
+using TLossFunctionUPtr = maths::CBoostedTreeFactory::TLossFunctionUPtr;
 
 namespace {
 
@@ -174,7 +177,9 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
                                         std::size_t testRows,
                                         std::size_t cols,
                                         std::size_t capacity,
-                                        double noiseVariance) {
+                                        double noiseVariance,
+                                        maths::CBoostedTreeFactory::TLossFunctionUPtr lossFunction =
+                                            std::make_unique<maths::boosted_tree::CMse>()) {
 
     std::size_t rows{trainRows + testRows};
 
@@ -210,7 +215,7 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
             fillDataFrame(trainRows, testRows, cols, x, noise, target, *frame);
 
             auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                                  1, std::make_unique<maths::boosted_tree::CMse>())
+                                  1, std::move(lossFunction))
                                   .buildFor(*frame, cols - 1);
 
             regression->train();
@@ -242,6 +247,18 @@ void readFileToStream(const std::string& filename, std::stringstream& stream) {
     stream << str;
     stream.flush();
 }
+
+TLossFunctionUPtr createLossFunction(TRegressionLossFunction lossFunctionType,
+                                     double parameter = 1.0) {
+    switch (lossFunctionType) {
+    case TRegressionLossFunction::E_Mse:
+        return std::make_unique<maths::boosted_tree::CMse>();
+    case TRegressionLossFunction::E_Msle:
+        return std::make_unique<maths::boosted_tree::CMsle>(parameter);
+    case TRegressionLossFunction::E_PseudoHuber:
+        return std::make_unique<maths::boosted_tree::CPseudoHuber>(parameter);
+    }
+}
 }
 
 BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
@@ -268,41 +285,43 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
         };
     };
 
-    TDoubleVecVec modelBias;
-    TDoubleVecVec modelRSquared;
-
     test::CRandomNumbers rng;
     double noiseVariance{0.2};
     std::size_t trainRows{1000};
     std::size_t testRows{200};
     std::size_t cols{6};
     std::size_t capacity{250};
+    for (auto lossFunctionType : {TRegressionLossFunction::E_Mse, TRegressionLossFunction::E_Msle,
+                                  TRegressionLossFunction::E_PseudoHuber}) {
+        TDoubleVecVec modelBias;
+        TDoubleVecVec modelRSquared;
+        std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
+            generatePiecewiseConstant, rng, trainRows, testRows, cols, capacity,
+            noiseVariance, std::move(createLossFunction(lossFunctionType)));
 
-    std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
-        generatePiecewiseConstant, rng, trainRows, testRows, cols, capacity, noiseVariance);
+        TMeanAccumulator meanModelRSquared;
 
-    TMeanAccumulator meanModelRSquared;
+        for (std::size_t i = 0; i < modelBias.size(); ++i) {
 
-    for (std::size_t i = 0; i < modelBias.size(); ++i) {
+            // In and out-of-core agree.
+            for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
+                BOOST_REQUIRE_EQUAL(modelBias[i][0], modelBias[i][j]);
+                BOOST_REQUIRE_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            }
 
-        // In and out-of-core agree.
-        for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
-            BOOST_REQUIRE_EQUAL(modelBias[i][0], modelBias[i][j]);
-            BOOST_REQUIRE_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            // Unbiased...
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                0.0, modelBias[i][0],
+                5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            // Good R^2...
+            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
+
+            meanModelRSquared.add(modelRSquared[i][0]);
         }
 
-        // Unbiased...
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            0.0, modelBias[i][0],
-            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
-        // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
-
-        meanModelRSquared.add(modelRSquared[i][0]);
+        LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
     }
-
-    LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
 }
 
 BOOST_AUTO_TEST_CASE(testLinear) {
@@ -324,9 +343,6 @@ BOOST_AUTO_TEST_CASE(testLinear) {
         };
     };
 
-    TDoubleVecVec modelBias;
-    TDoubleVecVec modelRSquared;
-
     test::CRandomNumbers rng;
     double noiseVariance{100.0};
     std::size_t trainRows{1000};
@@ -334,30 +350,36 @@ BOOST_AUTO_TEST_CASE(testLinear) {
     std::size_t cols{6};
     std::size_t capacity{500};
 
-    std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
-        generateLinear, rng, trainRows, testRows, cols, capacity, noiseVariance);
+    for (auto lossFunctionType : {TRegressionLossFunction::E_Mse, TRegressionLossFunction::E_Msle,
+                                  TRegressionLossFunction::E_PseudoHuber}) {
+        TDoubleVecVec modelBias;
+        TDoubleVecVec modelRSquared;
+        std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
+            generateLinear, rng, trainRows, testRows, cols, capacity,
+            noiseVariance, std::move(createLossFunction(lossFunctionType)));
 
-    TMeanAccumulator meanModelRSquared;
+        TMeanAccumulator meanModelRSquared;
 
-    for (std::size_t i = 0; i < modelBias.size(); ++i) {
+        for (std::size_t i = 0; i < modelBias.size(); ++i) {
 
-        // In and out-of-core agree.
-        for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
-            BOOST_REQUIRE_EQUAL(modelBias[i][0], modelBias[i][j]);
-            BOOST_REQUIRE_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            // In and out-of-core agree.
+            for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
+                BOOST_REQUIRE_EQUAL(modelBias[i][0], modelBias[i][j]);
+                BOOST_REQUIRE_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            }
+
+            // Unbiased...
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                0.0, modelBias[i][0],
+                4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            // Good R^2...
+            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
+
+            meanModelRSquared.add(modelRSquared[i][0]);
         }
-
-        // Unbiased...
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            0.0, modelBias[i][0],
-            4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
-        // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
-
-        meanModelRSquared.add(modelRSquared[i][0]);
+        LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
     }
-    LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
 }
 
 BOOST_AUTO_TEST_CASE(testNonLinear) {
@@ -391,9 +413,6 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
         };
     };
 
-    TDoubleVecVec modelBias;
-    TDoubleVecVec modelRSquared;
-
     test::CRandomNumbers rng;
     double noiseVariance{100.0};
     std::size_t trainRows{500};
@@ -401,30 +420,36 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
     std::size_t cols{6};
     std::size_t capacity{500};
 
-    std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
-        generateNonLinear, rng, trainRows, testRows, cols, capacity, noiseVariance);
+    for (auto lossFunctionType : {TRegressionLossFunction::E_Mse, TRegressionLossFunction::E_Msle,
+                                  TRegressionLossFunction::E_PseudoHuber}) {
+        TDoubleVecVec modelBias;
+        TDoubleVecVec modelRSquared;
+        std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
+            generateNonLinear, rng, trainRows, testRows, cols, capacity,
+            noiseVariance, std::move(createLossFunction(lossFunctionType)));
 
-    TMeanAccumulator meanModelRSquared;
+        TMeanAccumulator meanModelRSquared;
 
-    for (std::size_t i = 0; i < modelBias.size(); ++i) {
+        for (std::size_t i = 0; i < modelBias.size(); ++i) {
 
-        // In and out-of-core agree.
-        for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
-            BOOST_REQUIRE_EQUAL(modelBias[i][0], modelBias[i][j]);
-            BOOST_REQUIRE_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            // In and out-of-core agree.
+            for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
+                BOOST_REQUIRE_EQUAL(modelBias[i][0], modelBias[i][j]);
+                BOOST_REQUIRE_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            }
+
+            // Unbiased...
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                0.0, modelBias[i][0],
+                5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            // Good R^2...
+            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
+
+            meanModelRSquared.add(modelRSquared[i][0]);
         }
-
-        // Unbiased...
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            0.0, modelBias[i][0],
-            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
-        // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
-
-        meanModelRSquared.add(modelRSquared[i][0]);
+        LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
     }
-    LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
