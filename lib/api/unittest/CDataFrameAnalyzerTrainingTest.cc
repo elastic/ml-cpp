@@ -276,11 +276,11 @@ void testRunBoostedTreeRegressionTrainingWithParams(TLossFunctionType lossFuncti
                 1e-4 * std::fabs(*expectedPrediction));
             ++expectedPrediction;
             BOOST_TEST_REQUIRE(result.HasMember("progress_percent") == false);
-        } else if (result.HasMember("progress_percent")) {
-            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() >= 0);
-            BOOST_TEST_REQUIRE(result["progress_percent"].GetInt() <= 100);
+        }  else if (result.HasMember("phase_progress")) {
+            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() >= 0);
+            BOOST_TEST_REQUIRE(result["phase_progress"]["progress_percent"].GetInt() <= 100);
             BOOST_TEST_REQUIRE(result.HasMember("row_results") == false);
-            progressCompleted = result["progress_percent"].GetInt() == 100;
+            progressCompleted = result["phase_progress"]["progress_percent"].GetInt() == 100;
         }
     }
     BOOST_TEST_REQUIRE(expectedPrediction == expectedPredictions.end());
