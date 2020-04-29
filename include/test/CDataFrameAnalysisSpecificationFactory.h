@@ -10,6 +10,8 @@
 #include <core/CDataAdder.h>
 #include <core/CDataSearcher.h>
 
+#include <maths/CBoostedTreeLoss.h>
+
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 
@@ -33,7 +35,7 @@ public:
     using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
     using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
     using TSpecificationUPtr = std::unique_ptr<api::CDataFrameAnalysisSpecification>;
-    using TRegressionLossFunction = api::CDataFrameTrainBoostedTreeRegressionRunner::ELossFunctionType;
+    using TLossFunctionType = maths::boosted_tree::ELossType;
 
 public:
     CDataFrameAnalysisSpecificationFactory();
@@ -76,8 +78,7 @@ public:
     predictionRestoreSearcherSupplier(TRestoreSearcherSupplier* restoreSearcherSupplier);
 
     // Regression
-    CDataFrameAnalysisSpecificationFactory&
-    regressionLossFunction(TRegressionLossFunction lossFunction);
+    CDataFrameAnalysisSpecificationFactory& regressionLossFunction(TLossFunctionType lossFunction);
     CDataFrameAnalysisSpecificationFactory&
     regressionLossFunctionParameter(double lossFunctionParameter);
 
@@ -97,7 +98,7 @@ public:
 private:
     using TOptionalSize = boost::optional<std::size_t>;
     using TOptionalDouble = boost::optional<double>;
-    using TOptionalRegressionLossFunction = boost::optional<TRegressionLossFunction>;
+    using TOptionalLossFunctionType = boost::optional<TLossFunctionType>;
 
 private:
     // Shared
@@ -127,7 +128,7 @@ private:
     TPersisterSupplier* m_PersisterSupplier = nullptr;
     TRestoreSearcherSupplier* m_RestoreSearcherSupplier = nullptr;
     // Regression
-    TOptionalRegressionLossFunction m_RegressionLossFunction;
+    TOptionalLossFunctionType m_RegressionLossFunction;
     TOptionalDouble m_RegressionLossFunctionParameter;
     // Classification
     std::size_t m_NumberClasses = 2;

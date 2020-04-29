@@ -296,6 +296,14 @@ private:
 
 namespace boosted_tree {
 
+enum ELossType {
+    E_MsleRegression,
+    E_MseRegression,
+    E_HuberRegression,
+    E_BinaryClassification,
+    E_MulticlassClassification
+};
+
 //! \brief Computes the leaf value which minimizes the loss function.
 class MATHS_EXPORT CArgMinLoss {
 public:

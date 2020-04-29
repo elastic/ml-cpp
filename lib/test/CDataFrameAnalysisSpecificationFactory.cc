@@ -194,7 +194,7 @@ CDataFrameAnalysisSpecificationFactory::predictionFieldType(const std::string& t
 }
 
 CDataFrameAnalysisSpecificationFactory&
-CDataFrameAnalysisSpecificationFactory::regressionLossFunction(TRegressionLossFunction lossFunction) {
+CDataFrameAnalysisSpecificationFactory::regressionLossFunction(TLossFunctionType lossFunction) {
     m_RegressionLossFunction = lossFunction;
     return *this;
 }
@@ -325,14 +325,18 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
         if (m_RegressionLossFunction) {
             writer.Key(api::CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION);
             switch (m_RegressionLossFunction.get()) {
-            case TRegressionLossFunction::E_Msle:
+            case TLossFunctionType::E_MsleRegression:
                 writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSLE);
                 break;
-            case TRegressionLossFunction::E_Mse:
+            case TLossFunctionType::E_MseRegression:
                 writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSE);
                 break;
-            case TRegressionLossFunction::E_PseudoHuber:
+            case TLossFunctionType::E_HuberRegression:
                 writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::PSEUDO_HUBER);
+                break;
+            case TLossFunctionType::E_BinaryClassification:
+            case TLossFunctionType::E_MulticlassClassification:
+                LOG_ERROR(<< "Input error: classification loss is given, regression loss is expected.");
                 break;
             }
         }

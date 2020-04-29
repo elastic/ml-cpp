@@ -28,22 +28,16 @@ namespace test {
 //! \brief Collection of helping methods to create regression and classification data for tests.
 class TEST_EXPORT CDataFrameAnalyzerTrainingFactory {
 public:
-    enum EPredictionType {
-        E_MsleRegression,
-        E_MseRegression,
-        E_HuberRegression,
-        E_BinaryClassification,
-        E_MulticlassClassification
-    };
     using TStrVec = std::vector<std::string>;
     using TDoubleVec = std::vector<double>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
     using TLossUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
     using TTargetTransformer = std::function<double(double)>;
+    using TLossFunctionType = maths::boosted_tree::ELossType;
 
 public:
     template<typename T>
-    static void addPredictionTestData(EPredictionType type,
+    static void addPredictionTestData(TLossFunctionType type,
                                       const TStrVec& fieldNames,
                                       TStrVec fieldValues,
                                       api::CDataFrameAnalyzer& analyzer,
@@ -69,20 +63,20 @@ public:
         TStrVec targets;
         auto frame = [&] {
             switch (type) {
-            case E_MseRegression:
+            case TLossFunctionType::E_MseRegression:
                 return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
                                                  weights, regressors, targets);
-            case E_HuberRegression:
+            case TLossFunctionType::E_HuberRegression:
                 return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
                                                  weights, regressors, targets);
-            case E_MsleRegression:
+            case TLossFunctionType::E_MsleRegression:
                 return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
                                                  weights, regressors, targets,
                                                  [](double x) { return x * x; });
-            case E_BinaryClassification:
+            case TLossFunctionType::E_BinaryClassification:
                 return setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
                                                      weights, regressors, targets);
-            case E_MulticlassClassification:
+            case TLossFunctionType::E_MulticlassClassification:
                 // TODO
                 return TDataFrameUPtr{};
             }
@@ -91,19 +85,19 @@ public:
 
         TLossUPtr loss;
         switch (type) {
-        case E_MseRegression:
+        case TLossFunctionType::E_MseRegression:
             loss = std::make_unique<maths::boosted_tree::CMse>();
             break;
-        case E_MsleRegression:
+        case TLossFunctionType::E_MsleRegression:
             loss = std::make_unique<maths::boosted_tree::CMsle>(lossFunctionParameter);
             break;
-        case E_HuberRegression:
+        case TLossFunctionType::E_HuberRegression:
             loss = std::make_unique<maths::boosted_tree::CPseudoHuber>(lossFunctionParameter);
             break;
-        case E_BinaryClassification:
+        case TLossFunctionType::E_BinaryClassification:
             loss = std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>();
             break;
-        case E_MulticlassClassification:
+        case TLossFunctionType::E_MulticlassClassification:
             // TODO
             loss = TLossUPtr{};
             break;

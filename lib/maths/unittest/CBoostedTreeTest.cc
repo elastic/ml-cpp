@@ -49,7 +49,7 @@ using TRowRef = core::CDataFrame::TRowRef;
 using TRowItr = core::CDataFrame::TRowItr;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-using TRegressionLossFunction = test::CDataFrameAnalysisSpecificationFactory::TRegressionLossFunction;
+using TLossFunctionType = maths::boosted_tree::ELossType;
 using TLossFunctionUPtr = maths::CBoostedTreeFactory::TLossFunctionUPtr;
 
 namespace {
@@ -248,15 +248,19 @@ void readFileToStream(const std::string& filename, std::stringstream& stream) {
     stream.flush();
 }
 
-TLossFunctionUPtr createLossFunction(TRegressionLossFunction lossFunctionType,
+TLossFunctionUPtr createLossFunction(TLossFunctionType lossFunctionType,
                                      double parameter = 1.0) {
     switch (lossFunctionType) {
-    case TRegressionLossFunction::E_Mse:
+    case TLossFunctionType::E_MseRegression:
         return std::make_unique<maths::boosted_tree::CMse>();
-    case TRegressionLossFunction::E_Msle:
+    case TLossFunctionType::E_MsleRegression:
         return std::make_unique<maths::boosted_tree::CMsle>(parameter);
-    case TRegressionLossFunction::E_PseudoHuber:
+    case TLossFunctionType::E_HuberRegression:
         return std::make_unique<maths::boosted_tree::CPseudoHuber>(parameter);
+    case TLossFunctionType::E_BinaryClassification:
+    case TLossFunctionType::E_MulticlassClassification:
+        LOG_ERROR(<< "Input error: regression loss type is expected but classification type is provided.");
+        return nullptr;
     }
 }
 }
@@ -291,8 +295,9 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
     std::size_t testRows{200};
     std::size_t cols{6};
     std::size_t capacity{250};
-    for (auto lossFunctionType : {TRegressionLossFunction::E_Mse, TRegressionLossFunction::E_Msle,
-                                  TRegressionLossFunction::E_PseudoHuber}) {
+    for (auto lossFunctionType :
+         {TLossFunctionType::E_MseRegression, TLossFunctionType::E_MsleRegression,
+          TLossFunctionType::E_HuberRegression}) {
         TDoubleVecVec modelBias;
         TDoubleVecVec modelRSquared;
         std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
@@ -350,8 +355,9 @@ BOOST_AUTO_TEST_CASE(testLinear) {
     std::size_t cols{6};
     std::size_t capacity{500};
 
-    for (auto lossFunctionType : {TRegressionLossFunction::E_Mse, TRegressionLossFunction::E_Msle,
-                                  TRegressionLossFunction::E_PseudoHuber}) {
+    for (auto lossFunctionType :
+         {TLossFunctionType::E_MseRegression, TLossFunctionType::E_MsleRegression,
+          TLossFunctionType::E_HuberRegression}) {
         TDoubleVecVec modelBias;
         TDoubleVecVec modelRSquared;
         std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
@@ -420,8 +426,9 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
     std::size_t cols{6};
     std::size_t capacity{500};
 
-    for (auto lossFunctionType : {TRegressionLossFunction::E_Mse, TRegressionLossFunction::E_Msle,
-                                  TRegressionLossFunction::E_PseudoHuber}) {
+    for (auto lossFunctionType :
+         {TLossFunctionType::E_MseRegression, TLossFunctionType::E_MsleRegression,
+          TLossFunctionType::E_HuberRegression}) {
         TDoubleVecVec modelBias;
         TDoubleVecVec modelRSquared;
         std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
