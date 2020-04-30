@@ -17,6 +17,7 @@
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTree.h>
+#include <maths/CBoostedTreeFactory.h>
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CBoostedTreeUtils.h>
@@ -46,8 +47,8 @@ namespace {
 // quantiles anyway. So we amortise their compute cost w.r.t. training trees
 // by only refreshing once every MINIMUM_SPLIT_REFRESH_INTERVAL trees we add.
 const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
-const std::string HYPERPARAMETER_OPTIMIZATION_PHASE{"hyperparameter_optimization"};
-const std::string TRAINING_FINAL_TREE_PHASE{"training_final_tree"};
+const std::string HYPERPARAMETER_OPTIMIZATION_ROUND{"hyperparameter_optimization_round_"};
+const std::string TRAIN_FINAL_FOREST{"train_final_forest"};
 
 //! \brief Record the memory used by a supplied object using the RAII idiom.
 class CScopeRecordMemoryUsage {
@@ -188,6 +189,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     core::CPackedBitVector allTrainingRowsMask{this->allTrainingRowsMask()};
     core::CPackedBitVector noRowsMask{allTrainingRowsMask.size(), false};
 
+    this->startProgressMonitoringFineTuneHyperparameters();
+
     if (this->canTrain() == false) {
 
         // Fallback to using the constant predictor which minimises the loss.
@@ -241,17 +244,21 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
             timeAccumulator.add(static_cast<double>(delta));
             lastLap = currentLap;
-            m_Instrumentation->nextStep(HYPERPARAMETER_OPTIMIZATION_PHASE);
+            m_Instrumentation->flush(HYPERPARAMETER_OPTIMIZATION_ROUND +
+                                     std::to_string(m_CurrentRound));
         }
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
+        this->startProgressMonitoringFinalTrain();
+
         this->restoreBestHyperparameters();
         std::tie(m_BestForest, std::ignore, std::ignore) = this->trainForest(
             frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
+
         this->recordState(recordTrainStateCallback);
         m_Instrumentation->iteration(m_CurrentRound);
-        m_Instrumentation->nextStep(TRAINING_FINAL_TREE_PHASE);
+        m_Instrumentation->flush(TRAIN_FINAL_FOREST);
 
         timeAccumulator.add(static_cast<double>(stopWatch.stop()));
 
@@ -1272,6 +1279,32 @@ void CBoostedTreeImpl::recordHyperparameters() {
             m_Regularization.leafWeightPenaltyMultiplier()};
 }
 
+void CBoostedTreeImpl::startProgressMonitoringFineTuneHyperparameters() {
+
+    // The this costs "number folds" * "maximum number trees per forest" units
+    // per round.
+
+    m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::FINE_TUNE_PARAMETERS);
+
+    std::size_t totalNumberSteps{m_NumberRounds * m_MaximumNumberTrees * m_NumberFolds};
+    LOG_TRACE(<< "main loop total number steps = " << totalNumberSteps);
+    m_TrainingProgress = core::CLoopProgress{
+        totalNumberSteps, m_Instrumentation->progressCallback(), 1.0, 1024};
+
+    // Make sure progress starts where it left off.
+    m_TrainingProgress.increment(m_CurrentRound * m_MaximumNumberTrees * m_NumberFolds);
+}
+
+void CBoostedTreeImpl::startProgressMonitoringFinalTrain() {
+    // The final train potentially uses much more training data and so it's
+    // monitored separately.
+
+    m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::FINAL_TRAIN);
+    m_TrainingProgress = core::CLoopProgress{m_MaximumNumberTrees * m_NumberFolds,
+                                             m_Instrumentation->progressCallback(),
+                                             1.0, 1024};
+}
+
 namespace {
 const std::string VERSION_7_7_TAG{"7.7"};
 const TStrVec SUPPORTED_VERSIONS{VERSION_7_7_TAG};
@@ -1311,7 +1344,6 @@ const std::string ROWS_PER_FEATURE_TAG{"rows_per_feature"};
 const std::string STOP_CROSS_VALIDATION_EARLY_TAG{"stop_cross_validation_eraly"};
 const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
-const std::string TRAINING_PROGRESS_TAG{"training_progress"};
 const std::string NUMBER_TOP_SHAP_VALUES_TAG{"top_shap_values"};
 }
 
@@ -1373,7 +1405,6 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, inserter);
     core::CPersistUtils::persist(MAXIMUM_NUMBER_TREES_TAG, m_MaximumNumberTrees, inserter);
     core::CPersistUtils::persist(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, inserter);
-    core::CPersistUtils::persist(TRAINING_PROGRESS_TAG, m_TrainingProgress, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TAG, m_BestForest, inserter);
     core::CPersistUtils::persist(BEST_HYPERPARAMETERS_TAG, m_BestHyperparameters, inserter);
     core::CPersistUtils::persist(ETA_OVERRIDE_TAG, m_EtaOverride, inserter);
@@ -1463,8 +1494,6 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                                              m_MaximumNumberTrees, traverser))
         RESTORE(TRAINING_ROW_MASKS_TAG,
                 core::CPersistUtils::restore(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, traverser))
-        RESTORE(TRAINING_PROGRESS_TAG,
-                core::CPersistUtils::restore(TRAINING_PROGRESS_TAG, m_TrainingProgress, traverser))
         RESTORE(BEST_FOREST_TAG,
                 core::CPersistUtils::restore(BEST_FOREST_TAG, m_BestForest, traverser))
         RESTORE(BEST_HYPERPARAMETERS_TAG,
