@@ -17,10 +17,10 @@
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 
-#include <chrono>
 #include <cmath>
 #include <limits>
-#include <thread>
+#include <string>
+#include <vector>
 
 namespace ml {
 namespace api {

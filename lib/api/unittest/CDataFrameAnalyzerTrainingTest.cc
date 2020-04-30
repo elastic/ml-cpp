@@ -961,7 +961,7 @@ BOOST_AUTO_TEST_CASE(testNoRegressors) {
 
 BOOST_AUTO_TEST_CASE(testProgress) {
 
-    // Test the results the analyzer produces match running the regression directly.
+    // Test we get 100% progress reported for all stages of the analysis.
 
     std::stringstream output;
     auto outputWriterFactory = [&output]() {

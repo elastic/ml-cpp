@@ -15,9 +15,10 @@
 
 #include <rapidjson/document.h>
 
-#include <cstdint>
 #include <chrono>
+#include <cstdint>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace ml {
