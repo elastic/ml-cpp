@@ -113,7 +113,8 @@ private:
     int percentageProgress() const;
     virtual void writeAnalysisStats(std::int64_t timestamp) = 0;
     void writeMemoryAndAnalysisStats();
-    void writeProgress(int progress);
+    // Note this is thread safe.
+    void writeProgress(const std::string& task, int progress);
     void writeMemory(std::int64_t timestamp);
 
 private:

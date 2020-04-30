@@ -84,7 +84,7 @@ void CDataFrameAnalysisInstrumentation::updateMemoryUsage(std::int64_t delta) {
 
 void CDataFrameAnalysisInstrumentation::startNewProgressMonitoredTask(const std::string& task) {
     std::lock_guard<std::mutex> lock{ms_ProgressMutex};
-    this->writeProgress(100);
+    this->writeProgress(m_ProgressMonitoredTask, 100);
     m_ProgressMonitoredTask = task;
     m_FractionalProgress.store(0.0);
 }
@@ -125,18 +125,23 @@ void CDataFrameAnalysisInstrumentation::monitorProgress() {
 
     while (this->finished() == false) {
         std::this_thread::sleep_for(std::chrono::seconds(1));
-        std::lock_guard<std::mutex> lock{ms_ProgressMutex};
-        std::string latestTask{m_ProgressMonitoredTask};
-        int latestProgress{this->percentageProgress()};
+        std::string latestTask;
+        int latestProgress;
+        {
+            // Release the lock as soon as we've read the state.
+            std::lock_guard<std::mutex> lock{ms_ProgressMutex};
+            latestTask = m_ProgressMonitoredTask;
+            latestProgress = this->percentageProgress()
+        }
         if (m_ProgressMonitoredTask != task || latestProgress > progress) {
             task = latestTask;
             progress = latestProgress;
-            this->writeProgress(this->percentageProgress());
+            this->writeProgress(task, latestProgress);
         }
     }
 
     // No need to lock here since the analysis is done.
-    this->writeProgress(this->percentageProgress());
+    this->writeProgress(m_ProgressMonitoredTask, this->percentageProgress());
 }
 
 void CDataFrameAnalysisInstrumentation::flush(const std::string& /* tag */) {
@@ -170,13 +175,13 @@ void CDataFrameAnalysisInstrumentation::writeMemoryAndAnalysisStats() {
     }
 }
 
-void CDataFrameAnalysisInstrumentation::writeProgress(int progress) {
+void CDataFrameAnalysisInstrumentation::writeProgress(const std::string& task, int progress) {
     if (m_Writer != nullptr && m_ProgressMonitoredTask != NO_TASK) {
         m_Writer->StartObject();
         m_Writer->Key(PHASE_PROGRESS);
         m_Writer->StartObject();
         m_Writer->Key(PHASE);
-        m_Writer->String(m_ProgressMonitoredTask);
+        m_Writer->String(task);
         m_Writer->Key(PROGRESS_PERCENT);
         m_Writer->Int(progress);
         m_Writer->EndObject();
