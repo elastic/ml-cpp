@@ -891,7 +891,7 @@ void CPseudoHuber::curvature(const TMemoryMappedFloatVector& predictionVec,
     // double error2{CTools::pow2(actual - prediction)};
     // double tmp{1.0 + error2 / delta2};
     // double result{error2 / (delta2 * std::sqrt(tmp) * tmp)};
-    double result{1.0/(std::sqrt(1.0+CTools::pow2((actual - prediction)/(m_Delta)))};
+    double result{1.0/(std::sqrt(1.0+CTools::pow2((actual - prediction)/m_Delta)))};
     writer(0, weight * result);
 }
 
@@ -1007,7 +1007,7 @@ bool CBinomialLogisticLoss::isRegression() const {
     return false;
 }
 
-void CBinomialLogisticLoss::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+void CBinomialLogisticLoss::acceptPersistInserter(core::CStatePersistInserter& /* inserter */) const {
 }
 bool CBinomialLogisticLoss::acceptRestoreTraverser(core::CStateRestoreTraverser& /* traverser */) {
     return true;
