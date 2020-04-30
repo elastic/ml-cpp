@@ -580,7 +580,7 @@ private:
 //! \brief The pseudo-Huber loss function.
 //!
 //! DESCRIPTION:\n
-//! Formally, the pseudo-Huber loss definition we use is 
+//! Formally, the pseudo-Huber loss definition we use is
 //! \f$\delta^2 (\sqrt{1 + \frac{(a - p)^2}{\delta^2}} - 1)\f$.
 //! However, we approximate this by a quadratic form which has its minimum p = a and
 //! matches the value and derivative of the pseudo-Huber loss function. For example, if the
