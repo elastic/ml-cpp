@@ -131,7 +131,7 @@ void CDataFrameAnalysisInstrumentation::monitorProgress() {
             // Release the lock as soon as we've read the state.
             std::lock_guard<std::mutex> lock{ms_ProgressMutex};
             latestTask = m_ProgressMonitoredTask;
-            latestProgress = this->percentageProgress()
+            latestProgress = this->percentageProgress();
         }
         if (m_ProgressMonitoredTask != task || latestProgress > progress) {
             task = latestTask;
