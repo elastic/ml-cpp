@@ -493,7 +493,7 @@ public:
 //!   \f$\displaystyle l_i(p) = -\sum_i a_{ij} \log(\sigma(p))\f$
 //! </pre>
 //! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ denotes
-//! the vector valued prediction and \f$\sigma(p)\$ is the softmax function, i.e.
+//! the vector valued prediction and \f$\sigma(p)\f$ is the softmax function, i.e.
 //! \f$[\sigma(p)]_j = \frac{e^{p_i}}{\sum_k e^{p_k}}\f$.
 class MATHS_EXPORT CMultinomialLogisticLoss final : public CLoss {
 public:
@@ -529,10 +529,11 @@ public:
 private:
     std::size_t m_NumberClasses;
 };
+
 //! \brief The MSLE loss function.
 //!
 //! DESCRIPTION:\n
-//! Formally, the MSLE error definition we use is \f$(\log(1+p) - \log(1+a))^2\f$.
+//! Formally, the MSLE loss definition we use is \f$(\log(1+p) - \log(1+a))^2\f$.
 //! However, we approximate this by a quadratic form which has its minimum p = a and
 //! matches the value and derivative of MSLE loss function. For example, if the
 //! current prediction for the i'th training point is \f$p_i\f$, the loss is defined
@@ -575,10 +576,26 @@ public:
 private:
     double m_Offset;
 };
+
 //! \brief The pseudo-Huber loss function.
 //!
 //! DESCRIPTION:\n
-//! \TODO
+//! Formally, the pseudo-Huber loss definition we use is 
+//! \f$\delta^2 (\sqrt{1 + \frac{(a - p)^2}{\delta^2}} - 1)\f$.
+//! However, we approximate this by a quadratic form which has its minimum p = a and
+//! matches the value and derivative of the pseudo-Huber loss function. For example, if the
+//! current prediction for the i'th training point is \f$p_i\f$, the loss is defined
+//! as
+//!   \f[
+//!     l_i(p) =  \delta^{2} \left(\sqrt{1 + \frac{\left(a_i - p_i\right)^{2}}{\delta^{2}}} - 1\right)
+//! + \frac{- a_i + p_i}{\sqrt{\frac{\delta^{2} + \left(a_i - p_i\right)^{2}}{\delta^{2}}}}(p-p_i)
+//! + \frac{- a_i + p_i}{2\sqrt{\frac{\delta^{2} + \left(a_i - p_i\right)^{2}}{\delta^{2}}}\left(a_i-p_i\right)}(p-p_i)^2
+//! \f]
+//! For this approximation we compute first and second derivative (gradient and curvature) wrt p and then substitute p=p_i.
+//! As the result we obtain following formulas for the gradient:
+//!   \f[\frac{- a_{i} + p_{i}}{\sqrt{\frac{\delta^{2} + \left(a_{i} - p_{i}\right)^{2}}{\delta^{2}}}}\f]
+//! and for the curvature:
+//!   \f[\frac{1}{\sqrt{1 + \frac{\left(a_{i} - p_{i}\right)^{2}}{\delta^{2}}}}\f]
 class MATHS_EXPORT CPseudoHuber final : public CLoss {
 public:
     static const std::string NAME;

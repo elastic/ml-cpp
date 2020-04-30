@@ -875,21 +875,23 @@ void CPseudoHuber::gradient(const TMemoryMappedFloatVector& predictionVec,
                             double actual,
                             TWriter writer,
                             double weight) const {
+    //\frac{- a_i + p_i}{\sqrt{1 + \frac{(a_i - p_i)^2}{\delta^2}}}
     double prediction{predictionVec(0)};
-
     writer(0, weight * (prediction - actual) /
-                  (std::sqrt(1.0 + CTools::pow2(actual - prediction) / CTools::pow2(m_Delta))));
+                  (std::sqrt(1.0 + CTools::pow2((actual - prediction) / m_Delta))));
 }
 
 void CPseudoHuber::curvature(const TMemoryMappedFloatVector& predictionVec,
                              double actual,
                              TWriter writer,
                              double weight) const {
+    // \frac{1}{\sqrt{1 + \frac{\left(a_{i} - p_{i}\right)^{2}}{\delta^{2}}}}
     double prediction{predictionVec(0)};
-    double delta2{CTools::pow2(m_Delta)};
-    double error2{CTools::pow2(actual - prediction)};
-    double tmp{1.0 + error2 / delta2};
-    double result{error2 / (delta2 * std::sqrt(tmp) * tmp)};
+    // double delta2{CTools::pow2(m_Delta)};
+    // double error2{CTools::pow2(actual - prediction)};
+    // double tmp{1.0 + error2 / delta2};
+    // double result{error2 / (delta2 * std::sqrt(tmp) * tmp)};
+    double result{1.0/(std::sqrt(1.0+CTools::pow2((actual - prediction)/(m_Delta)))};
     writer(0, weight * result);
 }
 
