@@ -1284,7 +1284,7 @@ void CBoostedTreeImpl::startProgressMonitoringFineTuneHyperparameters() {
     // The this costs "number folds" * "maximum number trees per forest" units
     // per round.
 
-    m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::FINE_TUNE_PARAMETERS);
+    m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::FINE_TUNING_PARAMETERS);
 
     std::size_t totalNumberSteps{m_NumberRounds * m_MaximumNumberTrees * m_NumberFolds};
     LOG_TRACE(<< "main loop total number steps = " << totalNumberSteps);
@@ -1299,7 +1299,7 @@ void CBoostedTreeImpl::startProgressMonitoringFinalTrain() {
     // The final train potentially uses much more training data and so it's
     // monitored separately.
 
-    m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::FINAL_TRAIN);
+    m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::FINAL_TRAINING);
     m_TrainingProgress = core::CLoopProgress{m_MaximumNumberTrees * m_NumberFolds,
                                              m_Instrumentation->progressCallback(),
                                              1.0, 1024};

@@ -1009,12 +1009,12 @@ BOOST_AUTO_TEST_CASE(testProgress) {
                     std::max(coarseParameterSearchProgress,
                              result["phase_progress"]["progress_percent"].GetInt());
             } else if (result["phase_progress"]["phase"] ==
-                       maths::CBoostedTreeFactory::FINE_TUNE_PARAMETERS) {
+                       maths::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
                 fineTuneParametersProgress =
                     std::max(fineTuneParametersProgress,
                              result["phase_progress"]["progress_percent"].GetInt());
             } else if (result["phase_progress"]["phase"] ==
-                       maths::CBoostedTreeFactory::FINAL_TRAIN) {
+                       maths::CBoostedTreeFactory::FINAL_TRAINING) {
                 finalTrainParametersProgress =
                     std::max(finalTrainParametersProgress,
                              result["phase_progress"]["progress_percent"].GetInt());

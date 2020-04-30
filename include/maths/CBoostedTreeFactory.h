@@ -40,12 +40,12 @@ public:
     using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
 
 public:
-    //! \name Progress Monitored Tasks
+    //! \name Instrumentation Phases
     //@{
     static const std::string FEATURE_SELECTION;
     static const std::string COARSE_PARAMETER_SEARCH;
-    static const std::string FINE_TUNE_PARAMETERS;
-    static const std::string FINAL_TRAIN;
+    static const std::string FINE_TUNING_PARAMETERS;
+    static const std::string FINAL_TRAINING;
     //@}
 
 public:

@@ -1240,7 +1240,7 @@ void CBoostedTreeFactory::noopRecordTrainingState(CBoostedTree::TPersistFunc) {
 
 const std::string CBoostedTreeFactory::FEATURE_SELECTION{"feature_selection"};
 const std::string CBoostedTreeFactory::COARSE_PARAMETER_SEARCH{"coarse_parameter_search"};
-const std::string CBoostedTreeFactory::FINE_TUNE_PARAMETERS{"fine_tuning_parameters"};
-const std::string CBoostedTreeFactory::FINAL_TRAIN{"final_training"};
+const std::string CBoostedTreeFactory::FINE_TUNING_PARAMETERS{"fine_tuning_parameters"};
+const std::string CBoostedTreeFactory::FINAL_TRAINING{"final_training"};
 }
 }

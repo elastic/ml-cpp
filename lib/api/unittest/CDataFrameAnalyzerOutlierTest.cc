@@ -574,7 +574,7 @@ BOOST_AUTO_TEST_CASE(testProgress) {
             rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
             result["phase_progress"].Accept(writer);
             LOG_DEBUG(<< sb.GetString());
-            if (result["phase_progress"]["phase"] == "computing_outliers") {
+            if (result["phase_progress"]["phase"] == maths::COutliers::COMPUTING_OUTLIERS) {
                 computingOutliersProgress =
                     std::max(computingOutliersProgress,
                              result["phase_progress"]["progress_percent"].GetInt());

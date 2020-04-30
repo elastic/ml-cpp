@@ -33,7 +33,6 @@ using namespace outliers_detail;
 
 namespace {
 
-const std::string COMPUTE_OUTLIERS{"computing_outliers"};
 const std::string EMPTY_STRING;
 
 using TRowItr = core::CDataFrame::TRowItr;
@@ -1060,7 +1059,7 @@ void COutliers::compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
                         CDataFrameOutliersInstrumentationInterface& instrumentation) {
 
-    instrumentation.startNewProgressMonitoredTask(COMPUTE_OUTLIERS);
+    instrumentation.startNewProgressMonitoredTask(COMPUTING_OUTLIERS);
     instrumentation.parameters(params);
 
     core::CStopWatch stopWatch;
@@ -1077,7 +1076,7 @@ void COutliers::compute(const SComputeParameters& params,
 
     std::uint64_t elapsedTime{stopWatch.lap() - startTime};
     instrumentation.elapsedTime(elapsedTime);
-    instrumentation.flush(COMPUTE_OUTLIERS);
+    instrumentation.flush(COMPUTING_OUTLIERS);
 
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: computing outliers for data frame. There "
@@ -1153,5 +1152,6 @@ const std::string COutliers::LDOF{"ldof"};
 const std::string COutliers::DISTANCE_KNN{"distance_kth_nn"};
 const std::string COutliers::TOTAL_DISTANCE_KNN{"distance_knn"};
 const std::string COutliers::ENSEMBLE{"ensemble"};
+const std::string COutliers::COMPUTING_OUTLIERS{"computing_outliers"};
 }
 }
