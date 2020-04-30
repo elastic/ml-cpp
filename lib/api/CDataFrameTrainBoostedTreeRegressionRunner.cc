@@ -56,14 +56,15 @@ CDataFrameTrainBoostedTreeRegressionRunner::TLossFunctionUPtr
 CDataFrameTrainBoostedTreeRegressionRunner::lossFunction(const CDataFrameAnalysisParameters& parameters) {
     TLossFunctionType lossFunctionType{
         parameters[LOSS_FUNCTION].fallback(TLossFunctionType::E_MseRegression)};
-    double parameter{parameters[LOSS_FUNCTION_PARAMETER].fallback(1.0)};
     switch (lossFunctionType) {
     case TLossFunctionType::E_MsleRegression:
-        return std::make_unique<maths::boosted_tree::CMsle>(parameter);
+        return std::make_unique<maths::boosted_tree::CMsle>(
+            parameters[LOSS_FUNCTION_PARAMETER].fallback(1.0));
     case TLossFunctionType::E_MseRegression:
         return std::make_unique<maths::boosted_tree::CMse>();
     case TLossFunctionType::E_HuberRegression:
-        return std::make_unique<maths::boosted_tree::CPseudoHuber>(parameter);
+        return std::make_unique<maths::boosted_tree::CPseudoHuber>(
+            parameters[LOSS_FUNCTION_PARAMETER].fallback(1.0));
     case TLossFunctionType::E_BinaryClassification:
     case TLossFunctionType::E_MulticlassClassification:
         LOG_ERROR(<< "Input error: regression loss type is expected but classification type is provided. Defaulting to MSE instead.");

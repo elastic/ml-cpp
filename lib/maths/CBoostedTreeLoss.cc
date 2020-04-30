@@ -4,8 +4,10 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "core/CPersistUtils.h"
+#include <exception>
 #include <maths/CBoostedTreeLoss.h>
+
+#include <core/CPersistUtils.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CLbfgs.h>
@@ -34,7 +36,6 @@ const std::size_t MSLE_BUCKET_SIZE{32};
 const std::size_t MSLE_OPTIMIZATION_ITERATIONS{15};
 
 // Pseudo-Huber constants
-const std::size_t HUBER_ERROR_INDEX{0};
 const std::size_t HUBER_BUCKET_SIZE{128};
 const std::size_t HUBER_OPTIMIZATION_ITERATIONS{15};
 
@@ -527,7 +528,7 @@ CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
 }
 
 CArgMinPseudoHuberImpl::CArgMinPseudoHuberImpl(double lambda, double delta)
-    : CArgMinLossImpl{lambda}, m_Delta2{CTools::pow2(delta)},
+    : CArgMinLossImpl{lambda}, m_DeltaSquared{CTools::pow2(delta)},
       m_Buckets(HUBER_BUCKET_SIZE) {
 }
 
@@ -551,7 +552,6 @@ void CArgMinPseudoHuberImpl::add(const TMemoryMappedFloatVector& predictionVecto
     }
     case 1: {
         double error{actual - prediction};
-
         auto bucketIndex{this->bucket(error)};
         m_Buckets[bucketIndex].add(error, weight);
         break;
@@ -580,11 +580,10 @@ void CArgMinPseudoHuberImpl::merge(const CArgMinLossImpl& other) {
 }
 
 CArgMinPseudoHuberImpl::TDoubleVector CArgMinPseudoHuberImpl::value() const {
-    TObjective objective;
     double minWeight = m_ErrorMinMax.min();
     double maxWeight = m_ErrorMinMax.max();
 
-    objective = this->objective();
+    TObjective objective{this->objective()};
     double minimizer;
     double objectiveAtMinimum;
     std::size_t maxIterations{HUBER_OPTIMIZATION_ITERATIONS};
@@ -599,7 +598,7 @@ CArgMinPseudoHuberImpl::TDoubleVector CArgMinPseudoHuberImpl::value() const {
 
 CArgMinPseudoHuberImpl::TObjective CArgMinPseudoHuberImpl::objective() const {
     return [this](double weight) {
-        if (m_Delta2 > 0) {
+        if (m_DeltaSquared > 0) {
 
             double loss{0.0};
             double totalCount{0.0};
@@ -607,8 +606,8 @@ CArgMinPseudoHuberImpl::TObjective CArgMinPseudoHuberImpl::objective() const {
                 double count{CBasicStatistics::count(bucket)};
                 if (count > 0.0) {
                     double error{CBasicStatistics::mean(bucket)};
-                    loss += count * m_Delta2 *
-                            (std::sqrt(1.0 + CTools::pow2(error - weight) / m_Delta2) - 1.0);
+                    loss += count * m_DeltaSquared *
+                            (std::sqrt(1.0 + CTools::pow2(error - weight) / m_DeltaSquared) - 1.0);
                     totalCount += count;
                 }
             }
@@ -625,18 +624,23 @@ namespace boosted_tree {
 CLoss::TLossUPtr CLoss::restoreLoss(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& lossFunctionName = traverser.name();
-        if (lossFunctionName == CMse::NAME) {
-            return std::make_unique<CMse>(traverser);
-        } else if (lossFunctionName == CMsle::NAME) {
-            return std::make_unique<CMsle>(traverser);
-        } else if (lossFunctionName == CPseudoHuber::NAME) {
-            return std::make_unique<CPseudoHuber>(traverser);
-        } else if (lossFunctionName == CBinomialLogisticLoss::NAME) {
-            return std::make_unique<CBinomialLogisticLoss>(traverser);
-        } else if (lossFunctionName == CMultinomialLogisticLoss::NAME) {
-            return std::make_unique<CMultinomialLogisticLoss>(traverser);
+        try {
+            if (lossFunctionName == CMse::NAME) {
+                return std::make_unique<CMse>(traverser);
+            } else if (lossFunctionName == CMsle::NAME) {
+                return std::make_unique<CMsle>(traverser);
+            } else if (lossFunctionName == CPseudoHuber::NAME) {
+                return std::make_unique<CPseudoHuber>(traverser);
+            } else if (lossFunctionName == CBinomialLogisticLoss::NAME) {
+                return std::make_unique<CBinomialLogisticLoss>(traverser);
+            } else if (lossFunctionName == CMultinomialLogisticLoss::NAME) {
+                return std::make_unique<CMultinomialLogisticLoss>(traverser);
+            }
+        } catch (const std::exception& e) {
+            LOG_ERROR(<< "Error restoring loss function " << lossFunctionName
+                      << " " << e.what());
+            return nullptr;
         }
-
         LOG_ERROR(<< "Error restoring loss function. Unknown loss function type '"
                   << lossFunctionName << "'.");
         return nullptr;
@@ -875,7 +879,6 @@ void CPseudoHuber::gradient(const TMemoryMappedFloatVector& predictionVec,
                             double actual,
                             TWriter writer,
                             double weight) const {
-    //\frac{- a_i + p_i}{\sqrt{1 + \frac{(a_i - p_i)^2}{\delta^2}}}
     double prediction{predictionVec(0)};
     writer(0, weight * (prediction - actual) /
                   (std::sqrt(1.0 + CTools::pow2((actual - prediction) / m_Delta))));
@@ -885,7 +888,6 @@ void CPseudoHuber::curvature(const TMemoryMappedFloatVector& predictionVec,
                              double actual,
                              TWriter writer,
                              double weight) const {
-    // \frac{1}{\sqrt{1 + \frac{\left(a_{i} - p_{i}\right)^{2}}{\delta^{2}}}}
     double prediction{predictionVec(0)};
     // double delta2{CTools::pow2(m_Delta)};
     // double error2{CTools::pow2(actual - prediction)};

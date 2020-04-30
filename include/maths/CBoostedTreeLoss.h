@@ -152,7 +152,6 @@ private:
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
-    using TVector = CVectorNx1<double, 3>;
 
 private:
     std::size_t bucket(double error) const {
@@ -168,7 +167,7 @@ private:
     }
 
 private:
-    double m_Delta2 = 1.0;
+    double m_DeltaSquared = 1.0;
     std::size_t m_CurrentPass = 0;
     TMeanAccumulatorVec m_Buckets;
     TMinMaxAccumulator m_ErrorMinMax;
@@ -591,8 +590,9 @@ private:
 //! + \frac{- a_i + p_i}{\sqrt{\frac{\delta^{2} + \left(a_i - p_i\right)^{2}}{\delta^{2}}}}(p-p_i)
 //! + \frac{- a_i + p_i}{2\sqrt{\frac{\delta^{2} + \left(a_i - p_i\right)^{2}}{\delta^{2}}}\left(a_i-p_i\right)}(p-p_i)^2
 //! \f]
-//! For this approximation we compute first and second derivative (gradient and curvature) wrt p and then substitute p=p_i.
-//! As the result we obtain following formulas for the gradient:
+//! For this approximation we compute first and second derivative (gradient and curvature)
+//! with respect to p and then substitute p=p_i.
+//! As  result we obtain the following formulas for the gradient:
 //!   \f[\frac{- a_{i} + p_{i}}{\sqrt{\frac{\delta^{2} + \left(a_{i} - p_{i}\right)^{2}}{\delta^{2}}}}\f]
 //! and for the curvature:
 //!   \f[\frac{1}{\sqrt{1 + \frac{\left(a_{i} - p_{i}\right)^{2}}{\delta^{2}}}}\f]
