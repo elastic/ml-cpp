@@ -42,7 +42,9 @@ CDataFrameTrainBoostedTreeRegressionRunner::parameterReader() {
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(
             LOSS_FUNCTION, CDataFrameAnalysisConfigReader::E_OptionalParameter,
-            {{MSE, int{E_Mse}}, {MSLE, int{E_Msle}}, {PSEUDO_HUBER, int{E_PseudoHuber}}});
+            {{MSE, int{TLossFunctionType::E_MseRegression}},
+             {MSLE, int{TLossFunctionType::E_MsleRegression}},
+             {PSEUDO_HUBER, int{TLossFunctionType::E_HuberRegression}}});
         theReader.addParameter(LOSS_FUNCTION_PARAMETER,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
@@ -52,15 +54,20 @@ CDataFrameTrainBoostedTreeRegressionRunner::parameterReader() {
 
 CDataFrameTrainBoostedTreeRegressionRunner::TLossFunctionUPtr
 CDataFrameTrainBoostedTreeRegressionRunner::lossFunction(const CDataFrameAnalysisParameters& parameters) {
-    ELossFunctionType lossFunctionType{parameters[LOSS_FUNCTION].fallback(E_Mse)};
+    TLossFunctionType lossFunctionType{
+        parameters[LOSS_FUNCTION].fallback(TLossFunctionType::E_MseRegression)};
     double parameter{parameters[LOSS_FUNCTION_PARAMETER].fallback(1.0)};
     switch (lossFunctionType) {
-    case E_Msle:
+    case TLossFunctionType::E_MsleRegression:
         return std::make_unique<maths::boosted_tree::CMsle>(parameter);
-    case E_Mse:
+    case TLossFunctionType::E_MseRegression:
         return std::make_unique<maths::boosted_tree::CMse>();
-    case E_PseudoHuber:
+    case TLossFunctionType::E_HuberRegression:
         return std::make_unique<maths::boosted_tree::CPseudoHuber>(parameter);
+    case TLossFunctionType::E_BinaryClassification:
+    case TLossFunctionType::E_MulticlassClassification:
+        LOG_ERROR(<< "Input error: regression loss type is expected but classification type is provided. Defaulting to MSE instead.");
+        return std::make_unique<maths::boosted_tree::CMse>();
     }
     return nullptr;
 }

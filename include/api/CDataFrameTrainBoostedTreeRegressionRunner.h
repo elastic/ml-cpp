@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_api_CDataFrameTrainBoostedTreeRegressionRunner_h
 #define INCLUDED_ml_api_CDataFrameTrainBoostedTreeRegressionRunner_h
 
+#include "maths/CBoostedTreeLoss.h"
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 #include <api/ImportExport.h>
 
@@ -21,7 +22,7 @@ class API_EXPORT CDataFrameTrainBoostedTreeRegressionRunner final
 
 public:
     using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
-    enum ELossFunctionType { E_Mse, E_Msle, E_PseudoHuber };
+    using TLossFunctionType = maths::boosted_tree::ELossType;
 
 public:
     static const std::string STRATIFIED_CROSS_VALIDATION;

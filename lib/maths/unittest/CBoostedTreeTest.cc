@@ -215,7 +215,7 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
             fillDataFrame(trainRows, testRows, cols, x, noise, target, *frame);
 
             auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                                  1, std::move(lossFunction))
+                                  1, lossFunction->clone())
                                   .buildFor(*frame, cols - 1);
 
             regression->train();
@@ -293,11 +293,10 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
     double noiseVariance{0.2};
     std::size_t trainRows{1000};
     std::size_t testRows{200};
-    std::size_t cols{6};
+    std::size_t cols{3};
     std::size_t capacity{250};
-    for (auto lossFunctionType :
-         {TLossFunctionType::E_MseRegression, TLossFunctionType::E_MsleRegression,
-          TLossFunctionType::E_HuberRegression}) {
+    for (auto lossFunctionType : {TLossFunctionType::E_MseRegression /* , TLossFunctionType::E_MsleRegression,
+          TLossFunctionType::E_HuberRegression */}) {
         TDoubleVecVec modelBias;
         TDoubleVecVec modelRSquared;
         std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(

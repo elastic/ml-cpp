@@ -7,7 +7,8 @@
 #ifndef INCLUDED_ml_maths_CBoostedTreeLoss_h
 #define INCLUDED_ml_maths_CBoostedTreeLoss_h
 
-#include "core/CStateRestoreTraverser.h"
+#include <core/CStateRestoreTraverser.h>
+
 #include <maths/CBasicStatistics.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraEigen.h>
@@ -355,7 +356,6 @@ public:
     using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
     using TWriter = std::function<void(std::size_t, double)>;
     using TLossUPtr = std::unique_ptr<CLoss>;
-    using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
 
     enum EType {
         E_BinaryClassification,
@@ -402,7 +402,6 @@ public:
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
     //! Populate the object from serialized data
     virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
-    // virtual TPersistFunc getAcceptPersistInserter() const =0;
 
     static TLossUPtr restoreLoss(core::CStateRestoreTraverser& traverser);
     void persistLoss(core::CStatePersistInserter& inserter) const;
@@ -549,7 +548,7 @@ public:
 
 public:
     CMsle(core::CStateRestoreTraverser& traverser);
-    CMsle(double offset = 1.0);
+    explicit CMsle(double offset = 1.0);
     EType type() const override;
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
@@ -586,7 +585,7 @@ public:
 
 public:
     CPseudoHuber(core::CStateRestoreTraverser& traverser);
-    CPseudoHuber(double delta);
+    explicit CPseudoHuber(double delta);
     EType type() const override;
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;

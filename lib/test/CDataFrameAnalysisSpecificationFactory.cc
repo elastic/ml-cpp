@@ -336,7 +336,7 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
                 break;
             case TLossFunctionType::E_BinaryClassification:
             case TLossFunctionType::E_MulticlassClassification:
-                LOG_ERROR(<< "Input error: classification loss is given, regression loss is expected.");
+                LOG_ERROR(<< "Input error: regression loss type is expected but classification type is provided.");
                 break;
             }
         }
