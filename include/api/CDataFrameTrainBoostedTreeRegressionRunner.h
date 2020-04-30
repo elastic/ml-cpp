@@ -7,7 +7,8 @@
 #ifndef INCLUDED_ml_api_CDataFrameTrainBoostedTreeRegressionRunner_h
 #define INCLUDED_ml_api_CDataFrameTrainBoostedTreeRegressionRunner_h
 
-#include "maths/CBoostedTreeLoss.h"
+#include <maths/CBoostedTreeLoss.h>
+
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 #include <api/ImportExport.h>
 

@@ -3,8 +3,7 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <cmath>
-#include <complex>
+
 #include <core/CContainerPrinter.h>
 
 #include <maths/CBasicStatistics.h>
@@ -21,6 +20,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <limits>
 #include <utility>
@@ -989,15 +989,12 @@ BOOST_AUTO_TEST_CASE(testPseudoHuberArgminObjective) {
         for (std::size_t t = 0; t < 3; ++t) {
             double lambda{0.1 * static_cast<double>(t + 1)};
             double delta{lambda * 10}; // try different delta's without the second loop
-            // LOG_DEBUG(<<"lambda " << lambda << " delta " << delta);
             CArgMinPseudoHuberImpl argmin{lambda, delta};
 
             TDoubleVec targets;
             targets.resize(numberSamples, 0.0);
             testRng.generateUniformSamples(0.0, 10000.0, numberSamples, targets);
 
-            // TDoubleVec trueWeight;
-            // testRng.generateUniformSamples(-10.0, 10.0, 1, trueWeight);
             double trueWeight{20.0};
             TDoubleVec predictionErrors;
             predictionErrors.resize(targets.size(), 0.0);
@@ -1103,9 +1100,6 @@ BOOST_AUTO_TEST_CASE(testPseudoHuberArgminValue) {
         double optimalObjective{0.266123775};
         double estimatedWeight{argmin.value()[0]};
         double estimatedObjective{argmin.objective()(estimatedWeight)};
-        // LOG_DEBUG(<< "Estimated objective " << estimatedObjective
-        //           << " optimal objective " << optimalObjective);
-        // LOG_DEBUG(<< "Estimated weight " << estimatedWeight << " true weight " << optimalWeight);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(optimalObjective, estimatedObjective, 1e-5);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(optimalWeight, estimatedWeight, 1e-2);
     }
