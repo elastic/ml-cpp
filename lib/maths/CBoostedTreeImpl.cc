@@ -1281,7 +1281,7 @@ void CBoostedTreeImpl::recordHyperparameters() {
 
 void CBoostedTreeImpl::startProgressMonitoringFineTuneHyperparameters() {
 
-    // The this costs "number folds" * "maximum number trees per forest" units
+    // This costs "number folds" * "maximum number trees per forest" units
     // per round.
 
     m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::FINE_TUNING_PARAMETERS);
@@ -1296,8 +1296,7 @@ void CBoostedTreeImpl::startProgressMonitoringFineTuneHyperparameters() {
 }
 
 void CBoostedTreeImpl::startProgressMonitoringFinalTrain() {
-    // The final train potentially uses much more training data and so it's
-    // monitored separately.
+    // The final model training uses more data so it's monitored separately.
 
     m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::FINAL_TRAINING);
     m_TrainingProgress = core::CLoopProgress{m_MaximumNumberTrees * m_NumberFolds,
