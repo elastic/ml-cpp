@@ -16,6 +16,7 @@
 #include <rapidjson/document.h>
 
 #include <cstdint>
+#include <chrono>
 #include <string>
 #include <vector>
 
@@ -139,7 +140,7 @@ void CDataFrameAnalysisInstrumentation::monitorProgress() {
 
 void CDataFrameAnalysisInstrumentation::flush(const std::string& /* tag */) {
     // TODO use the tag.
-    this->writeState();
+    this->writeMemoryAndAnalysisStats();
 }
 
 std::int64_t CDataFrameAnalysisInstrumentation::memory() const {
