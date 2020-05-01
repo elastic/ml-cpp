@@ -239,7 +239,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             LOG_TRACE(<< "Round " << m_CurrentRound << " state recording finished");
 
             std::uint64_t currentLap{stopWatch.lap()};
-            std::uint64_t delta = currentLap - lastLap;
+            std::uint64_t delta{currentLap - lastLap};
             m_Instrumentation->iterationTime(delta);
 
             timeAccumulator.add(static_cast<double>(delta));
@@ -250,9 +250,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
-        this->startProgressMonitoringFinalTrain();
-
         this->restoreBestHyperparameters();
+        this->startProgressMonitoringFinalTrain();
         std::tie(m_BestForest, std::ignore, std::ignore) = this->trainForest(
             frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
 
@@ -606,8 +605,7 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
                 std::max(0.5 / eta, MINIMUM_SPLIT_REFRESH_INTERVAL));
         }
     } while (stoppingCondition.shouldStop(forest.size(), [&]() {
-        // TODO store loss values here somewhere???
-        double loss = this->meanLoss(frame, testingRowMask);
+        double loss{this->meanLoss(frame, testingRowMask)};
         losses.push_back(loss);
         return loss;
     }) == false);
@@ -1299,9 +1297,8 @@ void CBoostedTreeImpl::startProgressMonitoringFinalTrain() {
     // The final model training uses more data so it's monitored separately.
 
     m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::FINAL_TRAINING);
-    m_TrainingProgress = core::CLoopProgress{m_MaximumNumberTrees * m_NumberFolds,
-                                             m_Instrumentation->progressCallback(),
-                                             1.0, 1024};
+    m_TrainingProgress = core::CLoopProgress{
+        m_MaximumNumberTrees, m_Instrumentation->progressCallback(), 1.0, 1024};
 }
 
 namespace {
