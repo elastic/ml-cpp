@@ -68,6 +68,7 @@ public:
     CDataFrameAnalysisSpecificationFactory& predictionSoftTreeDepthTolerance(double tolerance);
     CDataFrameAnalysisSpecificationFactory& predictionEta(double eta);
     CDataFrameAnalysisSpecificationFactory& predictionMaximumNumberTrees(std::size_t number);
+    CDataFrameAnalysisSpecificationFactory& predictionDownsampleFactor(double downsampleFactor);
     CDataFrameAnalysisSpecificationFactory& predictionFeatureBagFraction(double fraction);
     CDataFrameAnalysisSpecificationFactory& predictionNumberTopShapValues(std::size_t number);
     CDataFrameAnalysisSpecificationFactory&
@@ -118,6 +119,7 @@ private:
     double m_SoftTreeDepthTolerance = -1.0;
     double m_Eta = -1.0;
     std::size_t m_MaximumNumberTrees = 0;
+    double m_DownsampleFactor = 0.0;
     double m_FeatureBagFraction = -1.0;
     std::size_t m_NumberTopShapValues = 0;
     TPersisterSupplier* m_PersisterSupplier = nullptr;

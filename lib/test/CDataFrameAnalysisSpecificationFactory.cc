@@ -151,6 +151,12 @@ CDataFrameAnalysisSpecificationFactory::predictionMaximumNumberTrees(std::size_t
 }
 
 CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionDownsampleFactor(double downsampleFactor) {
+    m_DownsampleFactor = downsampleFactor;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::predictionFeatureBagFraction(double fraction) {
     m_FeatureBagFraction = fraction;
     return *this;
@@ -278,6 +284,10 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     if (m_Eta > 0.0) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::ETA);
         writer.Double(m_Eta);
+    }
+    if (m_DownsampleFactor > 0.0) {
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR);
+        writer.Double(m_DownsampleFactor);
     }
     if (m_MaximumNumberTrees > 0) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::MAX_TREES);

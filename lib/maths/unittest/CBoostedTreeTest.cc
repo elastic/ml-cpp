@@ -1472,6 +1472,8 @@ BOOST_AUTO_TEST_CASE(testMissingFeatures) {
 
 BOOST_AUTO_TEST_CASE(testPersistRestore) {
 
+    // Check persist/restore is idempotent.
+
     std::size_t rows{50};
     std::size_t cols{3};
     std::size_t capacity{50};
@@ -1504,6 +1506,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
                                .maximumNumberTrees(2)
                                .maximumOptimisationRoundsPerHyperparameter(3)
                                .buildFor(*frame, cols - 1);
+        boostedTree->train();
         core::CJsonStatePersistInserter inserter(persistOnceSStream);
         boostedTree->acceptPersistInserter(inserter);
         persistOnceSStream.flush();
@@ -1516,15 +1519,9 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
         boostedTree->acceptPersistInserter(inserter);
         persistTwiceSStream.flush();
     }
+    LOG_DEBUG(<< "State " << persistOnceSStream.str());
+    LOG_DEBUG(<< "State after restore " << persistTwiceSStream.str());
     BOOST_REQUIRE_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
-    LOG_DEBUG(<< "First string " << persistOnceSStream.str());
-    LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
-
-    // and even run
-    BOOST_REQUIRE_NO_THROW(boostedTree->train());
-    BOOST_REQUIRE_NO_THROW(boostedTree->predict());
-
-    // TODO test persist and restore produces same train result.
 }
 
 BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {

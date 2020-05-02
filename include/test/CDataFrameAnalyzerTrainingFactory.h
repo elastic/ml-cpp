@@ -41,6 +41,39 @@ public:
     using TTargetTransformer = std::function<double(double)>;
 
 public:
+    static void addPredictionTestData(EPredictionType type,
+                                      const TStrVec& fieldNames,
+                                      TStrVec fieldValues,
+                                      api::CDataFrameAnalyzer& analyzer,
+                                      std::size_t numberExamples = 100) {
+
+        test::CRandomNumbers rng;
+
+        TDoubleVec weights;
+        rng.generateUniformSamples(-1.0, 1.0, fieldNames.size() - 3, weights);
+        TDoubleVec regressors;
+        rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, regressors);
+
+        TStrVec targets;
+        switch (type) {
+        case E_Regression:
+            setupLinearRegressionData(fieldNames, fieldValues, analyzer,
+                                      weights, regressors, targets);
+            break;
+        case E_MsleRegression:
+            setupLinearRegressionData(fieldNames, fieldValues, analyzer, weights, regressors,
+                                      targets, [](double x) { return x * x; });
+            break;
+        case E_BinaryClassification:
+            setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
+                                          weights, regressors, targets);
+            break;
+        case E_MulticlassClassification:
+            // TODO
+            break;
+        }
+    }
+
     template<typename T>
     static void addPredictionTestData(EPredictionType type,
                                       const TStrVec& fieldNames,
