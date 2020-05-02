@@ -40,6 +40,15 @@ public:
     using TAnalysisInstrumentationPtr = CDataFrameAnalysisInstrumentationInterface*;
 
 public:
+    //! \name Instrumentation Phases
+    //@{
+    static const std::string FEATURE_SELECTION;
+    static const std::string COARSE_PARAMETER_SEARCH;
+    static const std::string FINE_TUNING_PARAMETERS;
+    static const std::string FINAL_TRAINING;
+    //@}
+
+public:
     //! Construct a boosted tree object from parameters.
     static CBoostedTreeFactory constructFromParameters(std::size_t numberThreads,
                                                        TLossFunctionUPtr loss);
@@ -189,14 +198,23 @@ private:
     //! Get the number of hyperparameter tuning rounds to use.
     std::size_t numberHyperparameterTuningRounds() const;
 
-    //! Setup monitoring for training progress.
-    void initializeTrainingProgressMonitoring(const core::CDataFrame& frame);
+    //! Start progress monitoring feature selection.
+    void startProgressMonitoringFeatureSelection();
 
-    //! Refresh progress monitoring after restoring from saved training state.
-    void resumeRestoredTrainingProgressMonitoring();
+    //! Start progress monitoring initializeHyperparameters.
+    void startProgressMonitoringInitializeHyperparameters(const core::CDataFrame& frame);
 
-    //! The total number of progress steps used in the main loop.
-    std::size_t mainLoopNumberSteps(double eta) const;
+    //! Skip progress monitoring for feature selection if we've restarted part
+    //! way through training.
+    //!
+    //! \note This makes sure we output that this task is complete.
+    void skipProgressMonitoringFeatureSelection();
+
+    //! Skip progress monitoring for initializeHyperparameters if we've restarted
+    //! part way through training.
+    //!
+    //! \note This makes sure we output that this task is complete.
+    void skipProgressMonitoringInitializeHyperparameters();
 
     //! The maximum number of trees to use in the hyperparameter optimisation loop.
     std::size_t mainLoopMaximumNumberTrees(double eta) const;

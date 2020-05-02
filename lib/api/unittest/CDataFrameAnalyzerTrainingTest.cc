@@ -28,6 +28,8 @@
 #include <test/CDataFrameAnalyzerTrainingFactory.h>
 #include <test/CRandomNumbers.h>
 
+#include <rapidjson/prettywriter.h>
+
 #include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
 
@@ -340,32 +342,6 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingMse) {
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
 
-BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingStateReport) {
-
-    // Test the results the analyzer produces match running the regression directly.
-
-    std::stringstream output;
-    auto outputWriterFactory = [&output]() {
-        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
-    };
-
-    TDoubleVec expectedPredictions;
-
-    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
-    TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory{}.predictionSpec("regression", "c5"),
-        outputWriterFactory};
-    test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-        test::CDataFrameAnalyzerTrainingFactory::E_Regression, fieldNames,
-        fieldValues, analyzer, expectedPredictions);
-    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-}
-
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
 
     // Test the regression hyperparameter settings are correctly propagated to the
@@ -589,7 +565,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingMsle) {
 
-    // Test running the analyser supplying the MSLE objective produces similar results to running the regression directly.
+    // Test running the analyser supplying the MSLE objective produces similar results
+    // to running the regression directly.
 
     double alpha{2.0};
     double lambda{1.0};
@@ -980,6 +957,75 @@ BOOST_AUTO_TEST_CASE(testNoRegressors) {
 
     BOOST_TEST_REQUIRE(errors.size() == 1);
     BOOST_REQUIRE_EQUAL(errors[0], "Input error: analysis need at least one regressor.");
+}
+
+BOOST_AUTO_TEST_CASE(testProgress) {
+
+    // Test we get 100% progress reported for all stages of the analysis.
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    TDoubleVec expectedPredictions;
+
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", "target", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "", "0", ""};
+    api::CDataFrameAnalyzer analyzer{
+        test::CDataFrameAnalysisSpecificationFactory{}
+            .rows(300)
+            .columns(6)
+            .memoryLimit(18000000)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
+        outputWriterFactory};
+    test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
+        test::CDataFrameAnalyzerTrainingFactory::E_Regression, fieldNames,
+        fieldValues, analyzer, expectedPredictions, 200);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    int featureSelectionProgress{0};
+    int coarseParameterSearchProgress{0};
+    int fineTuneParametersProgress{0};
+    int finalTrainParametersProgress{0};
+
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("phase_progress")) {
+            rapidjson::StringBuffer sb;
+            rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
+            result["phase_progress"].Accept(writer);
+            LOG_DEBUG(<< sb.GetString());
+            if (result["phase_progress"]["phase"] == maths::CBoostedTreeFactory::FEATURE_SELECTION) {
+                featureSelectionProgress =
+                    std::max(featureSelectionProgress,
+                             result["phase_progress"]["progress_percent"].GetInt());
+            } else if (result["phase_progress"]["phase"] ==
+                       maths::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
+                coarseParameterSearchProgress =
+                    std::max(coarseParameterSearchProgress,
+                             result["phase_progress"]["progress_percent"].GetInt());
+            } else if (result["phase_progress"]["phase"] ==
+                       maths::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
+                fineTuneParametersProgress =
+                    std::max(fineTuneParametersProgress,
+                             result["phase_progress"]["progress_percent"].GetInt());
+            } else if (result["phase_progress"]["phase"] ==
+                       maths::CBoostedTreeFactory::FINAL_TRAINING) {
+                finalTrainParametersProgress =
+                    std::max(finalTrainParametersProgress,
+                             result["phase_progress"]["progress_percent"].GetInt());
+            }
+        }
+    }
+
+    BOOST_REQUIRE_EQUAL(100, featureSelectionProgress);
+    BOOST_REQUIRE_EQUAL(100, coarseParameterSearchProgress);
+    BOOST_REQUIRE_EQUAL(100, fineTuneParametersProgress);
+    BOOST_REQUIRE_EQUAL(100, finalTrainParametersProgress);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

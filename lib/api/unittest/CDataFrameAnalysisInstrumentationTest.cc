@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
         api::CDataFrameTrainBoostedTreeInstrumentation::CScopeSetOutputStream setStream{
             instrumentation, streamWrapper};
         instrumentation.updateMemoryUsage(memoryUsage);
-        instrumentation.nextStep();
+        instrumentation.flush();
         outputStream.flush();
     }
     std::int64_t timeAfter{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
