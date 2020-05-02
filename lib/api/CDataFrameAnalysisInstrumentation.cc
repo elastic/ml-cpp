@@ -67,8 +67,8 @@ const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
 }
 
 CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::string& jobId)
-    : m_JobId{jobId}, m_ProgressMonitoredTask{NO_TASK}, m_Finished{false},
-      m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
+    : m_JobId{jobId}, m_ProgressMonitoredTask{"analyzing" /*TODO hack for Java tests NO_TASK*/},
+      m_Finished{false}, m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
 }
 
 void CDataFrameAnalysisInstrumentation::updateMemoryUsage(std::int64_t delta) {
@@ -123,8 +123,9 @@ void CDataFrameAnalysisInstrumentation::monitorProgress() {
     std::string task{NO_TASK};
     int progress{0};
 
+    int wait{1};
     while (this->finished() == false) {
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(wait));
         std::string latestTask;
         int latestProgress;
         {
@@ -138,6 +139,7 @@ void CDataFrameAnalysisInstrumentation::monitorProgress() {
             progress = latestProgress;
             this->writeProgress(task, latestProgress);
         }
+        wait = std::min(2 * wait, 1024);
     }
 
     // No need to lock here since the analysis is done.
