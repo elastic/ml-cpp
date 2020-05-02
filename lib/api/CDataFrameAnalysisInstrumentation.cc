@@ -15,8 +15,10 @@
 
 #include <rapidjson/document.h>
 
+#include <chrono>
 #include <cstdint>
 #include <string>
+#include <thread>
 #include <vector>
 
 namespace ml {
@@ -53,10 +55,20 @@ const std::string VALIDATION_LOSS_VALUES_TAG{"values"};
 const std::string ETA_GROWTH_RATE_PER_TREE_TAG{"eta_growth_rate_per_tree"};
 const std::string MAX_ATTEMPTS_TO_ADD_TREE_TAG{"max_attempts_to_add_tree"};
 const std::string NUM_SPLITS_PER_FEATURE_TAG{"num_splits_per_feature"};
+
+// Phase progress
+const std::string PHASE_PROGRESS{"phase_progress"};
+const std::string PHASE{"phase"};
+const std::string PROGRESS_PERCENT{"progress_percent"};
 // clang-format on
 
 const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
                                               << ((sizeof(std::size_t) - 2) * 8)};
+}
+
+CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::string& jobId)
+    : m_JobId{jobId}, m_ProgressMonitoredTask{NO_TASK}, m_Finished{false},
+      m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
 }
 
 void CDataFrameAnalysisInstrumentation::updateMemoryUsage(std::int64_t delta) {
@@ -70,9 +82,24 @@ void CDataFrameAnalysisInstrumentation::updateMemoryUsage(std::int64_t delta) {
     }
 }
 
+void CDataFrameAnalysisInstrumentation::startNewProgressMonitoredTask(const std::string& task) {
+    std::lock_guard<std::mutex> lock{ms_ProgressMutex};
+    this->writeProgress(m_ProgressMonitoredTask, 100);
+    m_ProgressMonitoredTask = task;
+    m_FractionalProgress.store(0.0);
+}
+
 void CDataFrameAnalysisInstrumentation::updateProgress(double fractionalProgress) {
     m_FractionalProgress.fetch_add(static_cast<std::size_t>(std::max(
         static_cast<double>(MAXIMUM_FRACTIONAL_PROGRESS) * fractionalProgress + 0.5, 1.0)));
+}
+
+void CDataFrameAnalysisInstrumentation::resetProgress() {
+    std::lock_guard<std::mutex> lock{ms_ProgressMutex};
+    // FIXME Hack to get integration tests passing.
+    m_ProgressMonitoredTask = "analyzing"; // NO_TASK;
+    m_FractionalProgress.store(0);
+    m_Finished.store(false);
 }
 
 void CDataFrameAnalysisInstrumentation::setToFinished() {
@@ -92,37 +119,83 @@ double CDataFrameAnalysisInstrumentation::progress() const {
                      static_cast<double>(MAXIMUM_FRACTIONAL_PROGRESS);
 }
 
-CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::string& jobId)
-    : m_JobId{jobId}, m_Finished{false}, m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
-}
+void CDataFrameAnalysisInstrumentation::monitorProgress() {
 
-void CDataFrameAnalysisInstrumentation::resetProgress() {
-    m_FractionalProgress.store(0.0);
-    m_Finished.store(false);
-}
+    std::string task{NO_TASK};
+    int progress{0};
 
-void CDataFrameAnalysisInstrumentation::nextStep(const std::string& /* phase */) {
-    // reactivate once java side is ready
-    this->writeState();
-}
-
-void CDataFrameAnalysisInstrumentation::writeState() {
-    std::int64_t timestamp{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
-    if (m_Writer != nullptr) {
-        m_Writer->StartObject();
-        m_Writer->Key(MEMORY_TYPE_TAG);
-        this->writeMemory(timestamp);
-        this->writeAnalysisStats(timestamp);
-        m_Writer->EndObject();
+    int wait{1};
+    while (this->finished() == false) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(wait));
+        std::string latestTask;
+        int latestProgress;
+        {
+            // Release the lock as soon as we've read the state.
+            std::lock_guard<std::mutex> lock{ms_ProgressMutex};
+            latestTask = m_ProgressMonitoredTask;
+            latestProgress = this->percentageProgress();
+        }
+        if (m_ProgressMonitoredTask != task || latestProgress > progress) {
+            task = latestTask;
+            progress = latestProgress;
+            this->writeProgress(task, latestProgress);
+        }
+        wait = std::min(2 * wait, 1024);
     }
+
+    // No need to lock here since the analysis is done.
+    this->writeProgress(m_ProgressMonitoredTask, this->percentageProgress());
+}
+
+void CDataFrameAnalysisInstrumentation::flush(const std::string& /* tag */) {
+    // TODO use the tag.
+    this->writeMemoryAndAnalysisStats();
 }
 
 std::int64_t CDataFrameAnalysisInstrumentation::memory() const {
     return m_Memory.load();
 }
 
+const std::string& CDataFrameAnalysisInstrumentation::jobId() const {
+    return m_JobId;
+}
+
+int CDataFrameAnalysisInstrumentation::percentageProgress() const {
+    return static_cast<int>(std::floor(100.0 * this->progress()));
+}
+
+CDataFrameAnalysisInstrumentation::TWriter* CDataFrameAnalysisInstrumentation::writer() {
+    return m_Writer.get();
+}
+
+void CDataFrameAnalysisInstrumentation::writeMemoryAndAnalysisStats() {
+    std::int64_t timestamp{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
+    if (m_Writer != nullptr) {
+        m_Writer->StartObject();
+        this->writeMemory(timestamp);
+        this->writeAnalysisStats(timestamp);
+        m_Writer->EndObject();
+    }
+}
+
+void CDataFrameAnalysisInstrumentation::writeProgress(const std::string& task, int progress) {
+    if (m_Writer != nullptr && m_ProgressMonitoredTask != NO_TASK) {
+        m_Writer->StartObject();
+        m_Writer->Key(PHASE_PROGRESS);
+        m_Writer->StartObject();
+        m_Writer->Key(PHASE);
+        m_Writer->String(task);
+        m_Writer->Key(PROGRESS_PERCENT);
+        m_Writer->Int(progress);
+        m_Writer->EndObject();
+        m_Writer->EndObject();
+        m_Writer->flush();
+    }
+}
+
 void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
     if (m_Writer != nullptr) {
+        m_Writer->Key(MEMORY_TYPE_TAG);
         m_Writer->StartObject();
         m_Writer->Key(JOB_ID_TAG);
         m_Writer->String(m_JobId);
@@ -134,13 +207,8 @@ void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
     }
 }
 
-const std::string& CDataFrameAnalysisInstrumentation::jobId() const {
-    return m_JobId;
-}
-
-CDataFrameAnalysisInstrumentation::TWriter* CDataFrameAnalysisInstrumentation::writer() {
-    return m_Writer.get();
-}
+const std::string CDataFrameAnalysisInstrumentation::NO_TASK;
+std::mutex CDataFrameAnalysisInstrumentation::ms_ProgressMutex;
 
 counter_t::ECounterTypes CDataFrameOutliersInstrumentation::memoryCounterType() {
     return counter_t::E_DFOPeakMemoryUsage;

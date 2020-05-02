@@ -33,7 +33,6 @@ using namespace outliers_detail;
 
 namespace {
 
-const std::string COMPUTE_OUTLIER_SCORES{"compute_outlier_scores"};
 const std::string EMPTY_STRING;
 
 using TRowItr = core::CDataFrame::TRowItr;
@@ -897,7 +896,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
         core::CStopWatch watch{true};
         CEnsemble<TPoint> ensemble{buildEnsemble<TPoint>(
             params, frame, instrumentation.progressCallback(),
-            instrumentation.memoryUsageCallback(), instrumentation.stepCallback())};
+            instrumentation.memoryUsageCallback(), instrumentation.flushCallback())};
         LOG_TRACE(<< "Ensemble = " << ensemble.print());
         core::CProgramCounters::counter(counter_t::E_DFOTimeToCreateEnsemble) =
             watch.stop();
@@ -980,7 +979,7 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
             instrumentation.updateProgress(
                 progress / static_cast<double>(params.s_NumberPartitions));
         },
-        instrumentation.memoryUsageCallback(), instrumentation.stepCallback())};
+        instrumentation.memoryUsageCallback(), instrumentation.flushCallback())};
     core::CProgramCounters::counter(counter_t::E_DFOTimeToCreateEnsemble) =
         watch.stop();
     LOG_TRACE(<< "Ensemble = " << ensemble.print());
@@ -1059,7 +1058,10 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
 void COutliers::compute(const SComputeParameters& params,
                         core::CDataFrame& frame,
                         CDataFrameOutliersInstrumentationInterface& instrumentation) {
+
+    instrumentation.startNewProgressMonitoredTask(COMPUTING_OUTLIERS);
     instrumentation.parameters(params);
+
     core::CStopWatch stopWatch;
     stopWatch.start();
     std::uint64_t startTime{stopWatch.lap()};
@@ -1071,12 +1073,14 @@ void COutliers::compute(const SComputeParameters& params,
     bool successful{frame.inMainMemory() && params.s_NumberPartitions == 1
                         ? computeOutliersNoPartitions(params, frame, instrumentation)
                         : computeOutliersPartitioned(params, frame, instrumentation)};
+
     std::uint64_t elapsedTime{stopWatch.lap() - startTime};
     instrumentation.elapsedTime(elapsedTime);
-    instrumentation.nextStep(COMPUTE_OUTLIER_SCORES);
+    instrumentation.flush(COMPUTING_OUTLIERS);
+
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: computing outliers for data frame. There "
-                     << "may be more details in the logs. Please report this problem.");
+                     << "may be more details in the logs. Please report this problem.")
     }
 }
 
@@ -1148,5 +1152,6 @@ const std::string COutliers::LDOF{"ldof"};
 const std::string COutliers::DISTANCE_KNN{"distance_kth_nn"};
 const std::string COutliers::TOTAL_DISTANCE_KNN{"distance_knn"};
 const std::string COutliers::ENSEMBLE{"ensemble"};
+const std::string COutliers::COMPUTING_OUTLIERS{"computing_outliers"};
 }
 }

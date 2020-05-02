@@ -4,6 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <atomic>
+#include <boost/test/tools/interface.hpp>
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
@@ -54,22 +56,43 @@ namespace {
 class CTestInstrumentation : public maths::CDataFrameTrainBoostedTreeInstrumentationStub {
 public:
     using TIntVec = std::vector<int>;
+    struct STaskProgess {
+        STaskProgess(const std::string& name, bool monotonic, const TIntVec& tenPercentProgressPoints)
+            : s_Name{name}, s_Monotonic{monotonic}, s_TenPercentProgressPoints{
+                                                        tenPercentProgressPoints} {}
+
+        std::string s_Name;
+        bool s_Monotonic;
+        TIntVec s_TenPercentProgressPoints;
+    };
+    using TTaskProgressVec = std::vector<STaskProgess>;
 
 public:
     CTestInstrumentation()
-        : m_TotalFractionalProgress{0}, m_MemoryUsage{0}, m_MaxMemoryUsage{0} {}
+        : m_TotalFractionalProgress{0}, m_Monotonic{true}, m_MemoryUsage{0}, m_MaxMemoryUsage{0} {
+    }
 
     int progress() const {
         return (100 * m_TotalFractionalProgress.load()) / 65536;
     }
-    TIntVec tenPercentProgressPoints() const {
-        return m_TenPercentProgressPoints;
-    }
     std::int64_t maxMemoryUsage() const { return m_MaxMemoryUsage.load(); }
+
+    TTaskProgressVec taskProgress() const { return m_TaskProgress; }
+
+    void startNewProgressMonitoredTask(const std::string& task) override {
+        if (m_Task.empty() == false) {
+            m_TaskProgress.emplace_back(m_Task, m_Monotonic.load(), m_TenPercentProgressPoints);
+        }
+        m_Task = task;
+        m_TotalFractionalProgress.store(0);
+        m_TenPercentProgressPoints.clear();
+        m_Monotonic.store(true);
+    }
 
     void updateProgress(double fractionalProgress) override {
         int progress{m_TotalFractionalProgress.fetch_add(
             static_cast<int>(65536.0 * fractionalProgress + 0.5))};
+        m_Monotonic.store(m_Monotonic.load() && fractionalProgress > 0.0);
         // This needn't be protected because progress is only written from one thread and
         // the tests arrange that it is never read at the same time it is being written.
         if (m_TenPercentProgressPoints.empty() ||
@@ -89,8 +112,11 @@ public:
     }
 
 private:
+    std::string m_Task;
     std::atomic_int m_TotalFractionalProgress;
     TIntVec m_TenPercentProgressPoints;
+    std::atomic_bool m_Monotonic;
+    TTaskProgressVec m_TaskProgress;
     std::atomic<std::int64_t> m_MemoryUsage;
     std::atomic<std::int64_t> m_MaxMemoryUsage;
 };
@@ -1333,27 +1359,33 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
             regression->train();
             finished.store(true);
         }};
-
-        int lastProgressReport{0};
-
-        bool monotonic{true};
-        int percentage{0};
-        while (finished.load() == false) {
-            if (instrumentation.progress() > percentage) {
-                LOG_DEBUG(<< percentage << "% complete");
-                percentage += 10;
-            }
-            monotonic &= (instrumentation.progress() >= lastProgressReport);
-            lastProgressReport = instrumentation.progress();
-        }
         worker.join();
 
-        BOOST_TEST_REQUIRE(monotonic);
-        LOG_DEBUG(<< "progress points = "
-                  << core::CContainerPrinter::print(instrumentation.tenPercentProgressPoints()));
-        BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]",
-                            core::CContainerPrinter::print(
-                                instrumentation.tenPercentProgressPoints()));
+        // Flush the last task...
+        instrumentation.startNewProgressMonitoredTask("");
+
+        for (const auto& task : instrumentation.taskProgress()) {
+            LOG_DEBUG(<< "task = " << task.s_Name);
+            LOG_DEBUG(<< "monotonic = " << task.s_Monotonic);
+            LOG_DEBUG(<< "progress points = "
+                      << core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+            if (task.s_Name == maths::CBoostedTreeFactory::FEATURE_SELECTION) {
+                // We don't do feature selection (we have enough data to use all of them).
+            } else if (task.s_Name == maths::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
+                // We don't have accurate upfront estimate of the number of steps so we
+                // only get progress up to 80%. In non-test code we always pass 100% when
+                // the task is complete.
+                BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80]",
+                                    core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+            } else if (task.s_Name == maths::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
+                BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]",
+                                    core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+            } else if (task.s_Name == maths::CBoostedTreeFactory::FINAL_TRAINING) {
+                BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]",
+                                    core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+            }
+            BOOST_TEST_REQUIRE(task.s_Monotonic);
+        }
 
         core::startDefaultAsyncExecutor();
     }

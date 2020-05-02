@@ -290,6 +290,12 @@ private:
     //! a good idea.
     std::size_t maximumTreeSize(std::size_t numberRows) const;
 
+    //! Start monitoring fine tuning hyperparameters.
+    void startProgressMonitoringFineTuneHyperparameters();
+
+    //! Start monitoring the final model training.
+    void startProgressMonitoringFinalTrain();
+
     //! Restore \p loss function pointer from the \p traverser.
     static bool restoreLoss(TLossFunctionUPtr& loss, core::CStateRestoreTraverser& traverser);
 
