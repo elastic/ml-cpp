@@ -83,10 +83,14 @@ void CDataFrameAnalysisInstrumentation::updateMemoryUsage(std::int64_t delta) {
 }
 
 void CDataFrameAnalysisInstrumentation::startNewProgressMonitoredTask(const std::string& task) {
-    std::lock_guard<std::mutex> lock{ms_ProgressMutex};
-    this->writeProgress(m_ProgressMonitoredTask, 100);
-    m_ProgressMonitoredTask = task;
-    m_FractionalProgress.store(0.0);
+    std::string lastTask;
+    {
+        std::lock_guard<std::mutex> lock{ms_ProgressMutex};
+        lastTask = m_ProgressMonitoredTask;
+        m_ProgressMonitoredTask = task;
+        m_FractionalProgress.store(0.0);
+    }
+    this->writeProgress(lastTask, 100, m_Writer.get());
 }
 
 void CDataFrameAnalysisInstrumentation::updateProgress(double fractionalProgress) {
@@ -119,34 +123,6 @@ double CDataFrameAnalysisInstrumentation::progress() const {
                      static_cast<double>(MAXIMUM_FRACTIONAL_PROGRESS);
 }
 
-void CDataFrameAnalysisInstrumentation::monitorProgress() {
-
-    std::string task{NO_TASK};
-    int progress{0};
-
-    int wait{1};
-    while (this->finished() == false) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(wait));
-        std::string latestTask;
-        int latestProgress;
-        {
-            // Release the lock as soon as we've read the state.
-            std::lock_guard<std::mutex> lock{ms_ProgressMutex};
-            latestTask = m_ProgressMonitoredTask;
-            latestProgress = this->percentageProgress();
-        }
-        if (latestTask != task || latestProgress > progress) {
-            task = latestTask;
-            progress = latestProgress;
-            this->writeProgress(task, latestProgress);
-        }
-        wait = std::min(2 * wait, 1024);
-    }
-
-    std::lock_guard<std::mutex> lock{ms_ProgressMutex};
-    this->writeProgress(m_ProgressMonitoredTask, this->percentageProgress());
-}
-
 void CDataFrameAnalysisInstrumentation::flush(const std::string& /* tag */) {
     // TODO use the tag.
     this->writeMemoryAndAnalysisStats();
@@ -158,6 +134,40 @@ std::int64_t CDataFrameAnalysisInstrumentation::memory() const {
 
 const std::string& CDataFrameAnalysisInstrumentation::jobId() const {
     return m_JobId;
+}
+
+void CDataFrameAnalysisInstrumentation::monitorProgress(
+    const CDataFrameAnalysisInstrumentation& instrumentation,
+    core::CRapidJsonConcurrentLineWriter& writer) {
+
+    std::string lastTask{NO_TASK};
+    int lastProgress{0};
+
+    int wait{1};
+    while (instrumentation.finished() == false) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(wait));
+        std::string task;
+        int progress;
+        {
+            // Release the lock as soon as we've read the state.
+            std::lock_guard<std::mutex> lock{ms_ProgressMutex};
+            task = instrumentation.m_ProgressMonitoredTask;
+            progress = instrumentation.percentageProgress();
+        }
+        if (task != lastTask || progress > lastProgress) {
+            lastTask = task;
+            lastProgress = progress;
+            writeProgress(lastTask, lastProgress, &writer);
+        }
+        wait = std::min(2 * wait, 1024);
+    }
+
+    {
+        std::lock_guard<std::mutex> lock{ms_ProgressMutex};
+        lastTask = instrumentation.m_ProgressMonitoredTask;
+        lastProgress = instrumentation.percentageProgress();
+    }
+    writeProgress(lastTask, lastProgress, &writer);
 }
 
 int CDataFrameAnalysisInstrumentation::percentageProgress() const {
@@ -178,21 +188,6 @@ void CDataFrameAnalysisInstrumentation::writeMemoryAndAnalysisStats() {
     }
 }
 
-void CDataFrameAnalysisInstrumentation::writeProgress(const std::string& task, int progress) {
-    if (m_Writer != nullptr && task != NO_TASK) {
-        m_Writer->StartObject();
-        m_Writer->Key(PHASE_PROGRESS);
-        m_Writer->StartObject();
-        m_Writer->Key(PHASE);
-        m_Writer->String(task);
-        m_Writer->Key(PROGRESS_PERCENT);
-        m_Writer->Int(progress);
-        m_Writer->EndObject();
-        m_Writer->EndObject();
-        m_Writer->flush();
-    }
-}
-
 void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
     if (m_Writer != nullptr) {
         m_Writer->Key(MEMORY_TYPE_TAG);
@@ -204,6 +199,23 @@ void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
         m_Writer->Key(PEAK_MEMORY_USAGE_TAG);
         m_Writer->Int64(m_Memory.load());
         m_Writer->EndObject();
+    }
+}
+
+void CDataFrameAnalysisInstrumentation::writeProgress(const std::string& task,
+                                                      int progress,
+                                                      core::CRapidJsonConcurrentLineWriter* writer) {
+    if (writer != nullptr && task != NO_TASK) {
+        writer->StartObject();
+        writer->Key(PHASE_PROGRESS);
+        writer->StartObject();
+        writer->Key(PHASE);
+        writer->String(task);
+        writer->Key(PROGRESS_PERCENT);
+        writer->Int(progress);
+        writer->EndObject();
+        writer->EndObject();
+        writer->flush();
     }
 }
 

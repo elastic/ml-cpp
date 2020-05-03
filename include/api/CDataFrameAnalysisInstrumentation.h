@@ -58,6 +58,8 @@ public:
     //! Start progress monitoring for \p phase.
     //!
     //! \note This resets the current progress to zero.
+    //! \warning This and flush use the same concurrent line writer so must only
+    //! be called from a single thread.
     void startNewProgressMonitoredTask(const std::string& task) override;
 
     //! This adds \p fractionalProgress to the current progress.
@@ -83,13 +85,11 @@ public:
     //! of the proportion of total work complete for a single run.
     double progress() const;
 
-    //! Start polling and writing progress updates.
-    //!
-    //! \note This doesn't return until setToFinished is called.
-    void monitorProgress();
-
     //! Flush then reinitialize the instrumentation data. This will trigger
     //! writing them to the results pipe.
+    //!
+    //! \warning This and startNewProgressMonitoredTask use the same concurrent
+    //! line writer so must only be called from a single thread.
     void flush(const std::string& tag = "") override;
 
     //! \return The peak memory usage.
@@ -97,6 +97,12 @@ public:
 
     //! \return The id of the data frame analytics job.
     const std::string& jobId() const;
+
+    //! Start polling and writing progress updates.
+    //!
+    //! \note This doesn't return until instrumentation.setToFinished() is called.
+    static void monitorProgress(const CDataFrameAnalysisInstrumentation& instrumentation,
+                                core::CRapidJsonConcurrentLineWriter& writer);
 
 protected:
     using TWriter = core::CRapidJsonConcurrentLineWriter;
@@ -113,9 +119,10 @@ private:
     int percentageProgress() const;
     virtual void writeAnalysisStats(std::int64_t timestamp) = 0;
     void writeMemoryAndAnalysisStats();
-    // Note this is thread safe.
-    void writeProgress(const std::string& task, int progress);
     void writeMemory(std::int64_t timestamp);
+    static void writeProgress(const std::string& task,
+                              int progress,
+                              core::CRapidJsonConcurrentLineWriter* writer);
 
 private:
     std::string m_JobId;
