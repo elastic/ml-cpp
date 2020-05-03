@@ -135,7 +135,7 @@ void CDataFrameAnalysisInstrumentation::monitorProgress() {
             latestTask = m_ProgressMonitoredTask;
             latestProgress = this->percentageProgress();
         }
-        if (m_ProgressMonitoredTask != task || latestProgress > progress) {
+        if (latestTask != task || latestProgress > progress) {
             task = latestTask;
             progress = latestProgress;
             this->writeProgress(task, latestProgress);
@@ -143,7 +143,7 @@ void CDataFrameAnalysisInstrumentation::monitorProgress() {
         wait = std::min(2 * wait, 1024);
     }
 
-    // No need to lock here since the analysis is done.
+    std::lock_guard<std::mutex> lock{ms_ProgressMutex};
     this->writeProgress(m_ProgressMonitoredTask, this->percentageProgress());
 }
 
@@ -179,7 +179,7 @@ void CDataFrameAnalysisInstrumentation::writeMemoryAndAnalysisStats() {
 }
 
 void CDataFrameAnalysisInstrumentation::writeProgress(const std::string& task, int progress) {
-    if (m_Writer != nullptr && m_ProgressMonitoredTask != NO_TASK) {
+    if (m_Writer != nullptr && task != NO_TASK) {
         m_Writer->StartObject();
         m_Writer->Key(PHASE_PROGRESS);
         m_Writer->StartObject();
