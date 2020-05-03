@@ -128,13 +128,16 @@ void CDataFrameAnalyzer::run() {
         // point this would no longer be necessary.
         auto outStream = m_ResultsStreamSupplier();
 
+        auto& instrumentation = analysisRunner->instrumentation();
         CDataFrameAnalysisInstrumentation::CScopeSetOutputStream setStream{
-            analysisRunner->instrumentation(), *outStream};
+            instrumentation, *outStream};
 
         analysisRunner->run(*m_DataFrame);
 
         core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
-        analysisRunner->instrumentation().monitorProgress();
+
+        CDataFrameAnalysisInstrumentation::monitorProgress(instrumentation, outputWriter);
+
         analysisRunner->waitToFinish();
         this->writeResultsOf(*analysisRunner, outputWriter);
     }
