@@ -300,8 +300,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
     std::size_t cols{3};
     std::size_t capacity{250};
     for (auto lossFunctionType :
-         {TLossFunctionType::E_MseRegression, TLossFunctionType::E_MsleRegression,
-          TLossFunctionType::E_HuberRegression}) {
+         {TLossFunctionType::E_MseRegression, TLossFunctionType::E_HuberRegression}) {
         auto generatePiecewiseConstant = [lossFunctionType](test::CRandomNumbers& rng,
                                                             std::size_t cols) {
             TDoubleVec p;
@@ -342,11 +341,9 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
             }
 
             // Unbiased...
-            if (lossFunctionType != TLossFunctionType::E_MsleRegression) {
-                BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                    0.0, modelBias[i][0],
-                    7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
-            }
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                0.0, modelBias[i][0],
+                7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
             // Good R^2...
             BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.95);
 
