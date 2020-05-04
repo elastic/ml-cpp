@@ -69,36 +69,42 @@ const std::size_t MINIMUM_REPEATS_TO_TEST_AMPLITUDE{4};
 //! A high priority for components we want to take precendence.
 double HIGH_PRIORITY{2.0};
 
-//! \brief Used to compute conjunctions of smooth x < t or x > t
-//! conditions.
-class CSmoothCondition {
+//! \brief Fuzzy logical expression with multiplicative AND.
+//!
+//! DESCRIPTION:
+//! This isn't strictly a fuzzy logical expression since we don't ensure
+//! that the range of truth values is [0,1]. In fact, we arrange for TRUE
+//! to correspond to value > 1. We roll in an implicit threshold such that
+//! if individual conditions have values > 0.5 then the expression (just)
+//! maps to true.
+class CFuzzyExpression {
 public:
-    explicit CSmoothCondition(double value = 0.0) : m_Value{value} {}
+    explicit CFuzzyExpression(double value = 0.0) : m_Value{value} {}
 
     operator bool() const { return m_Value > 1.0; }
-    bool operator<(const CSmoothCondition& rhs) const {
+    bool operator<(const CFuzzyExpression& rhs) const {
         return m_Value < rhs.m_Value;
     }
 
-    double p() const { return m_Value; }
+    double truthValue() const { return m_Value; }
 
-    friend CSmoothCondition operator&&(const CSmoothCondition& lhs,
-                                       const CSmoothCondition& rhs) {
-        return CSmoothCondition{lhs.m_Value * rhs.m_Value};
+    friend CFuzzyExpression operator&&(const CFuzzyExpression& lhs,
+                                       const CFuzzyExpression& rhs) {
+        return CFuzzyExpression{lhs.m_Value * rhs.m_Value};
     }
 
 private:
     double m_Value;
 };
 
-//! Smoothly check if \p value is greater than \p threshold.
-CSmoothCondition softGreaterThan(double value, double threshold, double margin) {
-    return CSmoothCondition{2.0 * CTools::logisticFunction(value, margin, threshold, +1.0)};
+//! Fuzzy check if \p value is greater than \p threshold.
+CFuzzyExpression softGreaterThan(double value, double threshold, double margin) {
+    return CFuzzyExpression{2.0 * CTools::logisticFunction(value, margin, threshold, +1.0)};
 }
 
-//! Smoothly check if \p value is less than \p threshold.
-CSmoothCondition softLessThan(double value, double threshold, double margin) {
-    return CSmoothCondition{2.0 * CTools::logisticFunction(value, margin, threshold, -1.0)};
+//! Fuzzy check if \p value is less than \p threshold.
+CFuzzyExpression softLessThan(double value, double threshold, double margin) {
+    return CFuzzyExpression{2.0 * CTools::logisticFunction(value, margin, threshold, -1.0)};
 }
 
 //! \brief Accumulates the minimum amplitude.
@@ -1269,21 +1275,21 @@ CPeriodicityHypothesisTests::best(const TNestedHypothesesVec& hypotheses) const 
             DFmin.add(summary.s_DF);
         }
 
-        TMinAccumulator pmin;
+        TMinAccumulator minMinusTruth;
         for (const auto& summary : summaries) {
             double v{varianceAtPercentile(summary.s_V, summary.s_DF,
                                           50.0 - CONFIDENCE_INTERVAL / 2.0)};
             v = v == summary.s_VarianceThreshold * vmin[0]
                     ? 1.0
                     : v / summary.s_VarianceThreshold / vmin[0];
-            double p{(softLessThan(v, 1.0, 0.2) &&
-                      softGreaterThan(summary.s_R, summary.s_AutocorrelationThreshold, 0.1) &&
-                      softGreaterThan(summary.s_DF / DFmin[0], 1.0, 0.2) &&
-                      softLessThan(summary.s_TrendSegments, 0.0, 0.3) &&
-                      softLessThan(summary.s_ScaleSegments, 0.0, 0.3))
-                         .p()};
-            LOG_TRACE(<< "p = " << p);
-            if (pmin.add(-p)) {
+            double truth{(softLessThan(v, 1.0, 0.2) &&
+                          softGreaterThan(summary.s_R, summary.s_AutocorrelationThreshold, 0.1) &&
+                          softGreaterThan(summary.s_DF / DFmin[0], 1.0, 0.2) &&
+                          softLessThan(summary.s_TrendSegments, 0.0, 0.3) &&
+                          softLessThan(summary.s_ScaleSegments, 0.0, 0.3))
+                             .truthValue()};
+            LOG_TRACE(<< "truth(hypothesis) = " << truth);
+            if (minMinusTruth.add(-truth)) {
                 result = summary.s_H;
             }
         }
@@ -1751,11 +1757,11 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec& windows,
 
     double R;
     double meanRepeats;
-    double pVariance;
+    double truthVariance;
     return this->testVariance(window, values, period_, df1, v1, stats, R,
-                              meanRepeats, pVariance) ||
+                              meanRepeats, truthVariance) ||
            this->testAmplitude(window, values, period_, b, v, R, meanRepeats,
-                               pVariance, stats);
+                               truthVariance, stats);
 }
 
 bool CPeriodicityHypothesisTests::testPeriodWithScaling(const TTimeTimePr2Vec& windows,
@@ -1888,9 +1894,9 @@ bool CPeriodicityHypothesisTests::testPeriodWithScaling(const TTimeTimePr2Vec& w
 
     double R;
     double meanRepeats;
-    double pVariance;
+    double truthVariance;
     return this->testVariance({{0, length(windows)}}, values, period_, df1, v1,
-                              stats, R, meanRepeats, pVariance, segmentation);
+                              stats, R, meanRepeats, truthVariance, segmentation);
 }
 
 bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition,
@@ -2095,7 +2101,7 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
         return CBasicStatistics::mean(result);
     };
 
-    CSmoothCondition correlationCondition;
+    CFuzzyExpression correlationCondition;
     double R{-1.0};
 
     TFloatMeanAccumulatorVec partitionValues;
@@ -2150,7 +2156,7 @@ bool CPeriodicityHypothesisTests::testVariance(const TTimeTimePr2Vec& window,
                                                STestStats& stats,
                                                double& R,
                                                double& meanRepeats,
-                                               double& pVariance,
+                                               double& truthVariance,
                                                const TSizeVec& segmentation) const {
     std::size_t period{static_cast<std::size_t>(period_ / m_BucketLength)};
 
@@ -2201,8 +2207,8 @@ bool CPeriodicityHypothesisTests::testVariance(const TTimeTimePr2Vec& window,
                      (vt > v1 ? softGreaterThan(vt / v1, 1.0, 1.0)
                               : softLessThan(v1 / vt, 0.1, 1.0)) &&
                      softGreaterThan(meanRepeatsPerSegment, 1.0, 0.2);
-    pVariance = condition.p();
-    LOG_TRACE(<< "  p(variance) = " << pVariance);
+    truthVariance = condition.truthValue();
+    LOG_TRACE(<< "  truth(variance) = " << truthVariance);
 
     if (condition) {
         stats.s_R0 = R;
@@ -2219,7 +2225,7 @@ bool CPeriodicityHypothesisTests::testAmplitude(const TTimeTimePr2Vec& window,
                                                 double v,
                                                 double R,
                                                 double meanRepeats,
-                                                double pVariance,
+                                                double truthVariance,
                                                 STestStats& stats) const {
     core_t::TTime windowLength{length(window)};
     std::size_t period{static_cast<std::size_t>(period_ / m_BucketLength)};
@@ -2260,11 +2266,11 @@ bool CPeriodicityHypothesisTests::testAmplitude(const TTimeTimePr2Vec& window,
                            LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
     double meanRepeatsPerSegment{meanRepeats / std::max(stats.s_TrendSegments, 1.0) /
                                  static_cast<double>(MINIMUM_REPEATS_TO_TEST_AMPLITUDE)};
-    double minusLogPVariance{-CTools::fastLog(pVariance)};
+    double minusLogTruthVariance{-CTools::fastLog(truthVariance)};
     LOG_TRACE(<< "  mean repeats per segment = " << meanRepeatsPerSegment);
 
-    if (softGreaterThan(logSignificance, 1.0, 0.2) &&
-        softLessThan(minusLogPVariance, 0.0, 2.0) &&
+    if (softLessThan(minusLogTruthVariance, 0.0, 2.0) &&
+        softGreaterThan(logSignificance, 1.0, 0.2) &&
         softGreaterThan(meanRepeatsPerSegment, 1.0, 0.2)) {
         stats.s_R0 = R;
         return true;
