@@ -344,7 +344,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
             // Unbiased...
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 0.0, modelBias[i][0],
-                5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+                7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
             // Good R^2...
             BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.95);
 
@@ -476,12 +476,12 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
                 0.0, modelBias[i][0],
                 5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
             // Good R^2...
-            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
+            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.93);
 
             meanModelRSquared.add(modelRSquared[i][0]);
         }
         LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.93);
     }
 }
 
