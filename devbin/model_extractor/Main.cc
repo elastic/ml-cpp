@@ -3,12 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <api/CAnomalyJob.h>
-#include <api/CFieldConfig.h>
-#include <api/CIoManager.h>
-#include <api/CSingleStreamDataAdder.h>
-#include <api/CSingleStreamSearcher.h>
-#include <api/CStateRestoreStreamFilter.h>
 
 #include <core/CDataSearcher.h>
 #include <core/CJsonStateRestoreTraverser.h>
@@ -20,7 +14,17 @@
 
 #include <ver/CBuildInfo.h>
 
+#include <api/CAnomalyJob.h>
+#include <api/CFieldConfig.h>
+#include <api/CIoManager.h>
+#include <api/CSingleStreamDataAdder.h>
+#include <api/CSingleStreamSearcher.h>
+#include <api/CStateRestoreStreamFilter.h>
+
 #include "CCmdLineParser.h"
+
+#include <boost/filesystem.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
 
 #include <fstream>
 #include <ios>
@@ -29,11 +33,7 @@
 
 #include <stdlib.h>
 
-#include <boost/filesystem.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
-
 // We use short field names to reduce the state size
-namespace {}
 
 using namespace ml;
 
@@ -111,7 +111,12 @@ int main(int argc, char** argv) {
         fieldConfig,
         modelConfig,
         wrappedOutputStream,
-        [](ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport) {}};
+        [](ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport) {},
+        nullptr,
+        -1,
+        ml::api::CAnomalyJob::DEFAULT_TIME_FIELD_NAME,
+        ml::api::CAnomalyJob::EMPTY_STRING,
+        0};
 
     ml::core_t::TTime completeToTime{0};
     ml::core_t::TTime prevCompleteToTime{0};

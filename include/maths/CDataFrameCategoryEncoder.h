@@ -271,6 +271,7 @@ public:
     using TSizeVec = std::vector<std::size_t>;
     using TOptionalDouble = boost::optional<double>;
     using TEncodingUPtrVec = CDataFrameCategoryEncoder::TEncodingUPtrVec;
+    using TProgressCallback = std::function<void(double)>;
 
 public:
     //! The minimum number of training rows needed per feature used.
@@ -321,6 +322,9 @@ public:
 
     //! Set a mask of the columns to include.
     CMakeDataFrameCategoryEncoder& columnMask(TSizeVec columnMask);
+
+    //! Set a callback to monitor progress.
+    CMakeDataFrameCategoryEncoder& progressCallback(TProgressCallback callback);
 
     //! Make the encoding.
     virtual TEncodingUPtrVec makeEncodings();
@@ -386,6 +390,7 @@ private:
     TDoubleVec m_EncodedColumnMics;
     TSizeVec m_EncodedColumnInputColumnMap;
     TSizeVec m_EncodedColumnEncodingMap;
+    TProgressCallback m_RecordProgress;
 };
 }
 }

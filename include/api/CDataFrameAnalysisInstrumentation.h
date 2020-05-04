@@ -19,6 +19,7 @@
 #include <atomic>
 #include <cstdint>
 #include <memory>
+#include <mutex>
 #include <unordered_map>
 
 namespace ml {
@@ -54,6 +55,13 @@ public:
     //! Adds \p delta to the memory usage statistics.
     void updateMemoryUsage(std::int64_t delta) override;
 
+    //! Start progress monitoring for \p phase.
+    //!
+    //! \note This resets the current progress to zero.
+    //! \warning This and flush use the same concurrent line writer so must only
+    //! be called from a single thread.
+    void startNewProgressMonitoredTask(const std::string& task) override;
+
     //! This adds \p fractionalProgress to the current progress.
     //!
     //! \note The caller should try to ensure that the sum of the values added
@@ -63,6 +71,9 @@ public:
     //! than 0.001. In fact, it is unlikely that such high resolution is needed
     //! and typically this would be called significantly less frequently.
     void updateProgress(double fractionalProgress) override;
+
+    //! Reset variables related to the job progress.
+    void resetProgress();
 
     //! Record that the analysis is complete.
     void setToFinished();
@@ -74,19 +85,24 @@ public:
     //! of the proportion of total work complete for a single run.
     double progress() const;
 
-    //! Reset variables related to the job progress.
-    void resetProgress();
-
-    //! Trigger the next step of the job. This will initiate writing the job state
-    //! to the results pipe.
-    //! \todo use \p phase to tag different phases of the analysis job.
-    void nextStep(const std::string& phase = "") override;
+    //! Flush then reinitialize the instrumentation data. This will trigger
+    //! writing them to the results pipe.
+    //!
+    //! \warning This and startNewProgressMonitoredTask use the same concurrent
+    //! line writer so must only be called from a single thread.
+    void flush(const std::string& tag = "") override;
 
     //! \return The peak memory usage.
     std::int64_t memory() const;
 
     //! \return The id of the data frame analytics job.
     const std::string& jobId() const;
+
+    //! Start polling and writing progress updates.
+    //!
+    //! \note This doesn't return until instrumentation.setToFinished() is called.
+    static void monitorProgress(const CDataFrameAnalysisInstrumentation& instrumentation,
+                                core::CRapidJsonConcurrentLineWriter& writer);
 
 protected:
     using TWriter = core::CRapidJsonConcurrentLineWriter;
@@ -97,15 +113,24 @@ protected:
     TWriter* writer();
 
 private:
-    void writeMemory(std::int64_t timestamp);
+    static const std::string NO_TASK;
+
+private:
+    int percentageProgress() const;
     virtual void writeAnalysisStats(std::int64_t timestamp) = 0;
-    virtual void writeState();
+    void writeMemoryAndAnalysisStats();
+    void writeMemory(std::int64_t timestamp);
+    static void writeProgress(const std::string& task,
+                              int progress,
+                              core::CRapidJsonConcurrentLineWriter* writer);
 
 private:
     std::string m_JobId;
+    std::string m_ProgressMonitoredTask;
     std::atomic_bool m_Finished;
     std::atomic_size_t m_FractionalProgress;
     std::atomic<std::int64_t> m_Memory;
+    static std::mutex ms_ProgressMutex;
     TWriterUPtr m_Writer;
 };
 

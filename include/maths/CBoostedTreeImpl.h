@@ -290,6 +290,12 @@ private:
     //! a good idea.
     std::size_t maximumTreeSize(std::size_t numberRows) const;
 
+    //! Start monitoring fine tuning hyperparameters.
+    void startProgressMonitoringFineTuneHyperparameters();
+
+    //! Start monitoring the final model training.
+    void startProgressMonitoringFinalTrain();
+
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;
 
