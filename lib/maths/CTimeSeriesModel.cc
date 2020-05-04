@@ -1551,8 +1551,9 @@ CUnivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
         }
     }
 
-    // Time order is not reliable, for example if the data are polled
-    // or for count feature, the times of all samples will be the same.
+    // Time order is not a total order, for example if the data are polled
+    // the times of all samples will be the same. So break ties using the
+    // sample value.
     TSizeVec timeorder(samples.size());
     std::iota(timeorder.begin(), timeorder.end(), 0);
     std::stable_sort(timeorder.begin(), timeorder.end(),
@@ -1656,6 +1657,7 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAc
     // We can't properly handle periodicity in the variance of the rate if
     // using a Poisson process so remove it from model detectio if we detect
     // seasonality.
+    double numberSamples{m_ResidualModel->numberSamples()};
     m_ResidualModel->removeModels(
         maths::CPrior::CModelFilter().remove(maths::CPrior::E_Poisson));
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
@@ -1665,7 +1667,8 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAc
                                  [](double weight, const TFloatMeanAccumulator& sample) {
                                      return weight + CBasicStatistics::count(sample);
                                  })};
-        double weightScale{10.0 * std::max(this->params().learnRate(), 1.0) / Z};
+        double weightScale{
+            std::min(10.0 * std::max(this->params().learnRate(), 1.0), numberSamples) / Z};
         maths_t::TDoubleWeightsAry1Vec weights(1);
         for (const auto& residual : residuals) {
             double weight(CBasicStatistics::count(residual));
@@ -2862,8 +2865,9 @@ CMultivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& sample
         }
     }
 
-    // Time order is not reliable, for example if the data are polled
-    // or for count feature, the times of all samples will be the same.
+    // Time order is not a total order, for example if the data are polled
+    // the times of all samples will be the same. So break ties using the
+    // sample value.
     TSizeVec timeorder(samples.size());
     std::iota(timeorder.begin(), timeorder.end(), 0);
     std::stable_sort(timeorder.begin(), timeorder.end(),
@@ -2965,6 +2969,7 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMean
     // re-weight so that the total sample weight corresponds to the sample
     // weight the model receives from a fixed (shortish) time interval.
 
+    double numberSamples{m_ResidualModel->numberSamples()};
     m_ResidualModel->setToNonInformative(0.0, m_ResidualModel->decayRate());
 
     if (residuals.size() > 0) {
@@ -2988,7 +2993,8 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMean
         }
 
         double Z{std::accumulate(weights.begin(), weights.end(), 0.0)};
-        double weightScale{10.0 * std::max(this->params().learnRate(), 1.0) / Z};
+        double weightScale{
+            std::min(10.0 * std::max(this->params().learnRate(), 1.0), numberSamples) / Z};
         maths_t::TDouble10VecWeightsAry1Vec weight(1);
         for (std::size_t i = 0; i < samples.size(); ++i) {
             if (weights[i] > 0.0) {
