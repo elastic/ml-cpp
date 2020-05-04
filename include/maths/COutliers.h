@@ -659,11 +659,17 @@ public:
     template<typename POINT>
     using TAnnotatedPoint = CAnnotatedVector<POINT, std::size_t>;
 
+    //! \name Method Names
+    //@{
     static const std::string LOF;
     static const std::string LDOF;
     static const std::string DISTANCE_KNN;
     static const std::string TOTAL_DISTANCE_KNN;
     static const std::string ENSEMBLE;
+    //@}
+
+    //! Instrumentation phase.
+    static const std::string COMPUTING_OUTLIERS;
 
     //! The outlier detection methods which are available.
     enum EMethod {
