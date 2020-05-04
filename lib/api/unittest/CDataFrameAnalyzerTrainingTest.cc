@@ -430,7 +430,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFTPMTimeToTrain) <= duration);
 }
 
-BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithParams) {
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithMse) {
 
     // Test the regression hyperparameter settings are correctly propagated to the
     // analysis runner.
@@ -939,8 +939,8 @@ BOOST_AUTO_TEST_CASE(testProgress) {
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
         outputWriterFactory};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-        test::CDataFrameAnalyzerTrainingFactory::E_Regression, fieldNames,
-        fieldValues, analyzer, expectedPredictions, 200);
+        TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer,
+        expectedPredictions, 200);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
