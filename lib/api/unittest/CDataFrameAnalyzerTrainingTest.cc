@@ -1095,13 +1095,10 @@ BOOST_AUTO_TEST_CASE(testProgressFromRestart) {
     rapidjson::ParseResult ok(results.Parse(output.str()));
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
 
-    int featureSelectionFirstProgress{100};
     int featureSelectionLastProgress{0};
-    int coarseParameterSearchFirstProgress{100};
     int coarseParameterSearchLastProgress{0};
     int fineTuneParametersFirstProgress{100};
     int fineTuneParametersLastProgress{0};
-    int finalTrainFirstProgress{100};
     int finalTrainLastProgress{0};
 
     for (const auto& result : results.GetArray()) {
@@ -1114,27 +1111,22 @@ BOOST_AUTO_TEST_CASE(testProgressFromRestart) {
             std::string phase{result["phase_progress"]["phase"].GetString()};
             int progress{result["phase_progress"]["progress_percent"].GetInt()};
             if (phase == maths::CBoostedTreeFactory::FEATURE_SELECTION) {
-                featureSelectionFirstProgress =
-                    std::min(featureSelectionFirstProgress, progress);
                 featureSelectionLastProgress = progress;
             } else if (phase == maths::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
-                featureSelectionFirstProgress =
-                    std::min(featureSelectionFirstProgress, progress);
                 coarseParameterSearchLastProgress = progress;
             } else if (phase == maths::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
-                fineTuneParametersFirstProgress =
-                    std::min(fineTuneParametersFirstProgress, progress);
+                if (progress > 0) {
+                    fineTuneParametersFirstProgress =
+                        std::min(fineTuneParametersFirstProgress, progress);
+                }
                 fineTuneParametersLastProgress = progress;
             } else if (phase == maths::CBoostedTreeFactory::FINAL_TRAINING) {
-                finalTrainFirstProgress = std::min(finalTrainFirstProgress, progress);
                 finalTrainLastProgress = progress;
             }
         }
     }
 
-    BOOST_REQUIRE_EQUAL(100, featureSelectionFirstProgress);
     BOOST_REQUIRE_EQUAL(100, featureSelectionLastProgress);
-    BOOST_REQUIRE_EQUAL(100, coarseParameterSearchFirstProgress);
     BOOST_REQUIRE_EQUAL(100, coarseParameterSearchLastProgress);
     BOOST_TEST_REQUIRE(fineTuneParametersFirstProgress > 50);
     BOOST_REQUIRE_EQUAL(100, fineTuneParametersLastProgress);
