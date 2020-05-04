@@ -64,6 +64,7 @@
   periods of time. (See {ml-pull}1158[#1158].)
 * Improve false positive rates from periodicity test for time series anomaly detection.
   (See {ml-pull}1177[#1177].)
+* Break progress reporting of data frame analyses into multiple phases. (See {ml-pull}1179[#1179].)
 
 === Bug Fixes
 
