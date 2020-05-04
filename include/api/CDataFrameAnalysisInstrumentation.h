@@ -35,9 +35,9 @@ namespace api {
 //! IMPLEMENTATION:\n
 //! With the exception of reading and writing progress and memory usage this class is
 //! *NOT* thread safe. It is expected that calls to update and write instrumentation
-//! data all happen on the main thread responsible for running the analysis. It also
-//! performs thread safe writing to a shared output stream. For example, it's expected
-//! that writes for progress happen concurrently with writes of other instrumentation.
+//! data all happen on the thread running the analysis. It also performs thread safe
+//! writing to a shared output stream. For example, it is expected that writes for
+//! progress happen concurrently with writes of other instrumentation.
 class API_EXPORT CDataFrameAnalysisInstrumentation
     : virtual public maths::CDataFrameAnalysisInstrumentationInterface {
 public:
@@ -118,6 +118,7 @@ private:
     static const std::string NO_TASK;
 
 private:
+    std::string readProgressMonitoredTask() const;
     int percentageProgress() const;
     virtual void writeAnalysisStats(std::int64_t timestamp) = 0;
     void writeMemoryAndAnalysisStats();
@@ -132,7 +133,7 @@ private:
     std::atomic_bool m_Finished;
     std::atomic_size_t m_FractionalProgress;
     std::atomic<std::int64_t> m_Memory;
-    static std::mutex ms_ProgressMutex;
+    mutable std::mutex m_ProgressMutex;
     TWriterUPtr m_Writer;
 };
 
