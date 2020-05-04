@@ -592,7 +592,7 @@ private:
 //! \f]
 //! For this approximation we compute first and second derivative (gradient and curvature)
 //! with respect to p and then substitute p=p_i.
-//! As  result we obtain the following formulas for the gradient:
+//! As a result we obtain the following formulas for the gradient:
 //!   \f[\frac{- a_{i} + p_{i}}{\sqrt{\frac{\delta^{2} + \left(a_{i} - p_{i}\right)^{2}}{\delta^{2}}}}\f]
 //! and for the curvature:
 //!   \f[\frac{1}{\sqrt{1 + \frac{\left(a_{i} - p_{i}\right)^{2}}{\delta^{2}}}}\f]

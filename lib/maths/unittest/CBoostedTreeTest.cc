@@ -56,6 +56,8 @@ using TLossFunctionUPtr = maths::CBoostedTreeFactory::TLossFunctionUPtr;
 
 namespace {
 
+const double LARGE_POSITIVE_CONSTANT{1e5};
+
 class CTestInstrumentation : public maths::CDataFrameTrainBoostedTreeInstrumentationStub {
 public:
     using TIntVec = std::vector<int>;
@@ -292,37 +294,39 @@ TLossFunctionUPtr createLossFunction(TLossFunctionType lossFunctionType,
 }
 
 BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
-
     // Test regression quality on piecewise constant function.
-
-    auto generatePiecewiseConstant = [](test::CRandomNumbers& rng, std::size_t cols) {
-        TDoubleVec p;
-        TDoubleVec v;
-        rng.generateUniformSamples(0.0, 10.0, 2 * cols - 2, p);
-        rng.generateUniformSamples(-10.0, 10.0, cols - 1, v);
-        for (std::size_t i = 0; i < p.size(); i += 2) {
-            std::sort(p.begin() + i, p.begin() + i + 2);
-        }
-
-        return [p, v, cols](const TRowRef& row) {
-            double result{0.0};
-            for (std::size_t i = 0; i < cols - 1; ++i) {
-                if (row[i] >= p[2 * i] && row[i] < p[2 * i + 1]) {
-                    result += v[i];
-                }
-            }
-            return result;
-        };
-    };
-
     test::CRandomNumbers rng;
     double noiseVariance{0.2};
-    std::size_t trainRows{1000};
+    std::size_t trainRows{500};
     std::size_t testRows{200};
     std::size_t cols{3};
     std::size_t capacity{250};
-    for (auto lossFunctionType : {TLossFunctionType::E_MseRegression /* , TLossFunctionType::E_MsleRegression,
-          TLossFunctionType::E_HuberRegression */}) {
+    for (auto lossFunctionType :
+         {TLossFunctionType::E_MseRegression, TLossFunctionType::E_MsleRegression,
+          TLossFunctionType::E_HuberRegression}) {
+        auto generatePiecewiseConstant = [lossFunctionType](test::CRandomNumbers& rng,
+                                                            std::size_t cols) {
+            TDoubleVec p;
+            TDoubleVec v;
+            rng.generateUniformSamples(0.0, 10.0, 2 * cols - 2, p);
+            rng.generateUniformSamples(-10.0, 10.0, cols - 1, v);
+            for (std::size_t i = 0; i < p.size(); i += 2) {
+                std::sort(p.begin() + i, p.begin() + i + 2);
+            }
+
+            return [lossFunctionType, p, v, cols](const TRowRef& row) {
+                double result{0.0};
+                for (std::size_t i = 0; i < cols - 1; ++i) {
+                    if (row[i] >= p[2 * i] && row[i] < p[2 * i + 1]) {
+                        result += v[i];
+                    }
+                }
+                return (lossFunctionType == TLossFunctionType::E_MseRegression)
+                           ? result + LARGE_POSITIVE_CONSTANT
+                           : result;
+            };
+        };
+
         TDoubleVecVec modelBias;
         TDoubleVecVec modelRSquared;
         std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
@@ -355,34 +359,33 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
 }
 
 BOOST_AUTO_TEST_CASE(testLinear) {
-
     // Test regression quality on linear function.
-
-    auto generateLinear = [](test::CRandomNumbers& rng, std::size_t cols) {
-        TDoubleVec m;
-        TDoubleVec s;
-        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
-        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
-
-        return [m, s, cols](const TRowRef& row) {
-            double result{0.0};
-            for (std::size_t i = 0; i < cols - 1; ++i) {
-                result += m[i] + s[i] * row[i];
-            }
-            return result;
-        };
-    };
-
     test::CRandomNumbers rng;
     double noiseVariance{100.0};
-    std::size_t trainRows{1000};
+    std::size_t trainRows{500};
     std::size_t testRows{200};
     std::size_t cols{6};
-    std::size_t capacity{500};
+    std::size_t capacity{250};
 
     for (auto lossFunctionType :
          {TLossFunctionType::E_MseRegression, TLossFunctionType::E_MsleRegression,
           TLossFunctionType::E_HuberRegression}) {
+        auto generateLinear = [lossFunctionType](test::CRandomNumbers& rng, std::size_t cols) {
+            TDoubleVec m;
+            TDoubleVec s;
+            rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+            rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+
+            return [lossFunctionType, m, s, cols](const TRowRef& row) {
+                double result{0.0};
+                for (std::size_t i = 0; i < cols - 1; ++i) {
+                    result += m[i] + s[i] * row[i];
+                }
+                return (lossFunctionType == TLossFunctionType::E_MseRegression)
+                           ? result + LARGE_POSITIVE_CONSTANT
+                           : result;
+            };
+        };
         TDoubleVecVec modelBias;
         TDoubleVecVec modelRSquared;
         std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
@@ -414,36 +417,7 @@ BOOST_AUTO_TEST_CASE(testLinear) {
 }
 
 BOOST_AUTO_TEST_CASE(testNonLinear) {
-
     // Test regression quality on non-linear function.
-
-    auto generateNonLinear = [](test::CRandomNumbers& rng, std::size_t cols) {
-
-        cols = cols - 1;
-
-        TDoubleVec mean;
-        TDoubleVec slope;
-        TDoubleVec curve;
-        TDoubleVec cross;
-        rng.generateUniformSamples(0.0, 10.0, cols, mean);
-        rng.generateUniformSamples(-10.0, 10.0, cols, slope);
-        rng.generateUniformSamples(-1.0, 1.0, cols, curve);
-        rng.generateUniformSamples(-0.5, 0.5, cols * cols, cross);
-
-        return [=](const TRowRef& row) {
-            double result{0.0};
-            for (std::size_t i = 0; i < cols; ++i) {
-                result += mean[i] + (slope[i] + curve[i] * row[i]) * row[i];
-            }
-            for (std::size_t i = 0; i < cols; ++i) {
-                for (std::size_t j = 0; j < i; ++j) {
-                    result += cross[i * cols + j] * row[i] * row[j];
-                }
-            }
-            return result;
-        };
-    };
-
     test::CRandomNumbers rng;
     double noiseVariance{100.0};
     std::size_t trainRows{500};
@@ -454,6 +428,35 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
     for (auto lossFunctionType :
          {TLossFunctionType::E_MseRegression, TLossFunctionType::E_MsleRegression,
           TLossFunctionType::E_HuberRegression}) {
+        auto generateNonLinear = [lossFunctionType](test::CRandomNumbers& rng,
+                                                    std::size_t cols) {
+
+            cols = cols - 1;
+
+            TDoubleVec mean;
+            TDoubleVec slope;
+            TDoubleVec curve;
+            TDoubleVec cross;
+            rng.generateUniformSamples(0.0, 10.0, cols, mean);
+            rng.generateUniformSamples(-10.0, 10.0, cols, slope);
+            rng.generateUniformSamples(-1.0, 1.0, cols, curve);
+            rng.generateUniformSamples(-0.5, 0.5, cols * cols, cross);
+
+            return [=](const TRowRef& row) {
+                double result{0.0};
+                for (std::size_t i = 0; i < cols; ++i) {
+                    result += mean[i] + (slope[i] + curve[i] * row[i]) * row[i];
+                }
+                for (std::size_t i = 0; i < cols; ++i) {
+                    for (std::size_t j = 0; j < i; ++j) {
+                        result += cross[i * cols + j] * row[i] * row[j];
+                    }
+                }
+                return (lossFunctionType == TLossFunctionType::E_MseRegression)
+                           ? result + LARGE_POSITIVE_CONSTANT
+                           : result;
+            };
+        };
         TDoubleVecVec modelBias;
         TDoubleVecVec modelRSquared;
         std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
