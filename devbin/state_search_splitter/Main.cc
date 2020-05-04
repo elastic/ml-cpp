@@ -10,7 +10,7 @@
 //! Utility to take the output of a search of a .ml-state index that
 //! returns all state documents for a given model snapshot and reformat
 //! it as the multiple chunks that are streamed to the autodetect
-//! process (separated by \\0 characters).
+//! process (separated by \0 characters).
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Standalone dev program, not shipped with the product.
