@@ -580,6 +580,8 @@ void CArgMinPseudoHuberImpl::merge(const CArgMinLossImpl& other) {
 }
 
 CArgMinPseudoHuberImpl::TDoubleVector CArgMinPseudoHuberImpl::value() const {
+    // Set the lower (upper) bounds for minimisation such that every example will have the same sign
+    // error if the weight is smaller (larger) than this bound and so would only increase the loss.
     double minWeight = m_ErrorMinMax.min();
     double maxWeight = m_ErrorMinMax.max();
 
@@ -889,10 +891,6 @@ void CPseudoHuber::curvature(const TMemoryMappedFloatVector& predictionVec,
                              TWriter writer,
                              double weight) const {
     double prediction{predictionVec(0)};
-    // double delta2{CTools::pow2(m_Delta)};
-    // double error2{CTools::pow2(actual - prediction)};
-    // double tmp{1.0 + error2 / delta2};
-    // double result{error2 / (delta2 * std::sqrt(tmp) * tmp)};
     double result{1.0 / (std::sqrt(1.0 + CTools::pow2((actual - prediction) / m_Delta)))};
     writer(0, weight * result);
 }

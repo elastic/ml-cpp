@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <atomic>
-#include <boost/test/tools/interface.hpp>
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
@@ -56,7 +54,7 @@ using TLossFunctionUPtr = maths::CBoostedTreeFactory::TLossFunctionUPtr;
 
 namespace {
 
-const double LARGE_POSITIVE_CONSTANT{1e5};
+const double LARGE_POSITIVE_CONSTANT{300.0};
 
 class CTestInstrumentation : public maths::CDataFrameTrainBoostedTreeInstrumentationStub {
 public:
@@ -321,7 +319,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
                         result += v[i];
                     }
                 }
-                return (lossFunctionType == TLossFunctionType::E_MseRegression)
+                return (lossFunctionType == TLossFunctionType::E_MsleRegression)
                            ? result + LARGE_POSITIVE_CONSTANT
                            : result;
             };
@@ -381,7 +379,7 @@ BOOST_AUTO_TEST_CASE(testLinear) {
                 for (std::size_t i = 0; i < cols - 1; ++i) {
                     result += m[i] + s[i] * row[i];
                 }
-                return (lossFunctionType == TLossFunctionType::E_MseRegression)
+                return (lossFunctionType == TLossFunctionType::E_MsleRegression)
                            ? result + LARGE_POSITIVE_CONSTANT
                            : result;
             };
@@ -407,12 +405,12 @@ BOOST_AUTO_TEST_CASE(testLinear) {
                 0.0, modelBias[i][0],
                 4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
             // Good R^2...
-            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
+            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.95);
 
             meanModelRSquared.add(modelRSquared[i][0]);
         }
         LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.95);
     }
 }
 
@@ -452,7 +450,7 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
                         result += cross[i * cols + j] * row[i] * row[j];
                     }
                 }
-                return (lossFunctionType == TLossFunctionType::E_MseRegression)
+                return (lossFunctionType == TLossFunctionType::E_MsleRegression)
                            ? result + LARGE_POSITIVE_CONSTANT
                            : result;
             };
@@ -483,7 +481,7 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
             meanModelRSquared.add(modelRSquared[i][0]);
         }
         LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
     }
 }
 
