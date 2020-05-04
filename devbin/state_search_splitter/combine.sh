@@ -50,11 +50,11 @@ if [ $# -ne 3 ] ; then
 fi
 
 JOB_ID="$1"
+SNAPSHOT_ID=$2
 DOC_NUM=1
-HIGHEST_DOC_NUM=$2
+HIGHEST_DOC_NUM=$3
 OUTPUT_FILE="$JOB_ID.combined_state.bin"
 rm -f "$OUTPUT_FILE"
-
 
 while [ $DOC_NUM -le $HIGHEST_DOC_NUM ]
 do
