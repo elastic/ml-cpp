@@ -621,37 +621,36 @@ CArgMinPseudoHuberImpl::TObjective CArgMinPseudoHuberImpl::objective() const {
 
 namespace boosted_tree {
 
-CLoss::TLossUPtr CLoss::restoreLoss(core::CStateRestoreTraverser& traverser) {
-    do {
-        const std::string& lossFunctionName = traverser.name();
-        try {
-            if (lossFunctionName == CMse::NAME) {
-                return std::make_unique<CMse>(traverser);
-            } else if (lossFunctionName == CMsle::NAME) {
-                return std::make_unique<CMsle>(traverser);
-            } else if (lossFunctionName == CPseudoHuber::NAME) {
-                return std::make_unique<CPseudoHuber>(traverser);
-            } else if (lossFunctionName == CBinomialLogisticLoss::NAME) {
-                return std::make_unique<CBinomialLogisticLoss>(traverser);
-            } else if (lossFunctionName == CMultinomialLogisticLoss::NAME) {
-                return std::make_unique<CMultinomialLogisticLoss>(traverser);
-            }
-        } catch (const std::exception& e) {
-            LOG_ERROR(<< "Error restoring loss function " << lossFunctionName
-                      << " " << e.what());
-            return nullptr;
-        }
-        LOG_ERROR(<< "Error restoring loss function. Unknown loss function type '"
-                  << lossFunctionName << "'.");
-        return nullptr;
-    } while (traverser.next());
-}
-
 void CLoss::persistLoss(core::CStatePersistInserter& inserter) const {
     auto persist = [this](core::CStatePersistInserter& inserter_) {
         this->acceptPersistInserter(inserter_);
     };
     inserter.insertLevel(this->name(), persist);
+}
+
+CLoss::TLossUPtr CLoss::restoreLoss(core::CStateRestoreTraverser& traverser) {
+    const std::string& lossFunctionName{traverser.name()};
+    try {
+        if (lossFunctionName == CMse::NAME) {
+            return std::make_unique<CMse>(traverser);
+        } else if (lossFunctionName == CMsle::NAME) {
+            return std::make_unique<CMsle>(traverser);
+        } else if (lossFunctionName == CPseudoHuber::NAME) {
+            return std::make_unique<CPseudoHuber>(traverser);
+        } else if (lossFunctionName == CBinomialLogisticLoss::NAME) {
+            return std::make_unique<CBinomialLogisticLoss>(traverser);
+        } else if (lossFunctionName == CMultinomialLogisticLoss::NAME) {
+            return std::make_unique<CMultinomialLogisticLoss>(traverser);
+        }
+    } catch (const std::exception& e) {
+        LOG_ERROR(<< "Error restoring loss function " << lossFunctionName << " "
+                  << e.what());
+        return nullptr;
+    }
+
+    LOG_ERROR(<< "Error restoring loss function. Unknown loss function type '"
+              << lossFunctionName << "'.");
+    return nullptr;
 }
 
 CArgMinLoss::CArgMinLoss(const CArgMinLoss& other)

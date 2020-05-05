@@ -36,7 +36,7 @@ public:
     using TLossFunctionType = maths::boosted_tree::ELossType;
 
 public:
-    static void addPredictionTestData(EPredictionType type,
+    static void addPredictionTestData(TLossFunctionType type,
                                       const TStrVec& fieldNames,
                                       TStrVec fieldValues,
                                       api::CDataFrameAnalyzer& analyzer,
@@ -51,19 +51,20 @@ public:
 
         TStrVec targets;
         switch (type) {
-        case E_Regression:
+        case TLossFunctionType::E_MseRegression:
+        case TLossFunctionType::E_HuberRegression:
             setupLinearRegressionData(fieldNames, fieldValues, analyzer,
                                       weights, regressors, targets);
             break;
-        case E_MsleRegression:
+        case TLossFunctionType::E_MsleRegression:
             setupLinearRegressionData(fieldNames, fieldValues, analyzer, weights, regressors,
                                       targets, [](double x) { return x * x; });
             break;
-        case E_BinaryClassification:
+        case TLossFunctionType::E_BinaryClassification:
             setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
                                           weights, regressors, targets);
             break;
-        case E_MulticlassClassification:
+        case TLossFunctionType::E_MulticlassClassification:
             // TODO
             break;
         }
@@ -97,8 +98,6 @@ public:
         auto frame = [&] {
             switch (type) {
             case TLossFunctionType::E_MseRegression:
-                return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
-                                                 weights, regressors, targets);
             case TLossFunctionType::E_HuberRegression:
                 return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
                                                  weights, regressors, targets);

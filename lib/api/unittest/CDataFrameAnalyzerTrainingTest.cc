@@ -544,9 +544,9 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
 
     test::CRandomNumbers rng;
 
-    for (const auto& lossFunction : {TLossFunctionType::E_MseRegression,
-                                        TLossFunctionType::E_MsleRegression,
-                                        TLossFunctionType::E_HuberRegression}) {
+    for (const auto& lossFunction :
+         {TLossFunctionType::E_MseRegression, TLossFunctionType::E_MsleRegression,
+          TLossFunctionType::E_HuberRegression}) {
 
         LOG_DEBUG(<< "Loss function type " << lossFunction);
 
@@ -954,8 +954,7 @@ BOOST_AUTO_TEST_CASE(testProgress) {
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
         outputWriterFactory};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-        TLossFunctionType::E_MseRegression, fieldNames,
-        fieldValues, analyzer, 300);
+        TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer, 300);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
@@ -1024,8 +1023,7 @@ BOOST_AUTO_TEST_CASE(testProgressFromRestart) {
     TStrVec fieldValues{"", "", "", "", "", "", "0", ""};
     api::CDataFrameAnalyzer analyzer{makeSpec(&persisterSupplier, nullptr), outputWriterFactory};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-        TLossFunctionType::E_MseRegression, fieldNames,
-        fieldValues, analyzer, 400);
+        TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer, 400);
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "", "$"});
 
     TStrVec persistedStates{
