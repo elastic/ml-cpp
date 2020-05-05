@@ -134,6 +134,8 @@ private:
     TWriterUPtr m_Writer;
 };
 
+#pragma warning(push)
+#pragma warning(disable : 4250)
 //! \brief Instrumentation class for Outlier Detection jobs.
 class API_EXPORT CDataFrameOutliersInstrumentation final
     : public CDataFrameAnalysisInstrumentation,
@@ -205,6 +207,7 @@ private:
     TLossVec m_LossValues;
     SHyperparameters m_Hyperparameters;
 };
+#pragma warning(pop)
 }
 }
 
