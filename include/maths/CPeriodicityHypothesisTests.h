@@ -441,7 +441,7 @@ private:
                       STestStats& stats,
                       double& R,
                       double& meanRepeats,
-                      double& pVariance,
+                      double& truthVariance,
                       const TSizeVec& segmentation = TSizeVec{}) const;
 
     //! Run the component amplitude test on the alternative hypothesis.
@@ -452,7 +452,7 @@ private:
                        double v,
                        double R,
                        double meanRepeats,
-                       double pVariance,
+                       double truthVariance,
                        STestStats& stats) const;
 
 private:
