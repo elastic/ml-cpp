@@ -74,6 +74,8 @@
   (See {ml-pull}1157[#1157].)
 * Respect user overrides for `max_trees` for classification and regression. (See
   {ml-pull}1185[#1185].)
+* Reset memory status from `soft_limit` to `ok` when pruning is no longer required.
+  (See {ml-pull}1193[#1193], issue: {ml-issue}1131[#1131].)
 
 == {es} version 7.7.1
 
