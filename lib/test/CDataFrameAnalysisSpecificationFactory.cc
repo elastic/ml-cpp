@@ -194,8 +194,14 @@ CDataFrameAnalysisSpecificationFactory::predictionFieldType(const std::string& t
 }
 
 CDataFrameAnalysisSpecificationFactory&
-CDataFrameAnalysisSpecificationFactory::regressionLossFunction(TRegressionLossFunction lossFunction) {
+CDataFrameAnalysisSpecificationFactory::regressionLossFunction(TLossFunctionType lossFunction) {
     m_RegressionLossFunction = lossFunction;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::regressionLossFunctionParameter(double lossFunctionParameter) {
+    m_RegressionLossFunctionParameter = lossFunctionParameter;
     return *this;
 }
 
@@ -315,14 +321,28 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     }
 
     if (analysis == regression()) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION);
-        switch (m_RegressionLossFunction) {
-        case TRegressionLossFunction::E_Msle:
-            writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSLE);
-            break;
-        case TRegressionLossFunction::E_Mse:
-            writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSE);
-            break;
+
+        if (m_RegressionLossFunction) {
+            writer.Key(api::CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION);
+            switch (m_RegressionLossFunction.get()) {
+            case TLossFunctionType::E_MsleRegression:
+                writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSLE);
+                break;
+            case TLossFunctionType::E_MseRegression:
+                writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::MSE);
+                break;
+            case TLossFunctionType::E_HuberRegression:
+                writer.String(api::CDataFrameTrainBoostedTreeRegressionRunner::PSEUDO_HUBER);
+                break;
+            case TLossFunctionType::E_BinaryClassification:
+            case TLossFunctionType::E_MulticlassClassification:
+                LOG_ERROR(<< "Input error: regression loss type is expected but classification type is provided.");
+                break;
+            }
+        }
+        if (m_RegressionLossFunctionParameter) {
+            writer.Key(api::CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION_PARAMETER);
+            writer.Double(m_RegressionLossFunctionParameter.get());
         }
     }
 
