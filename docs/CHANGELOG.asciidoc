@@ -66,6 +66,9 @@
 * Improve false positive rates from periodicity test for time series anomaly detection.
   (See {ml-pull}1177[#1177].)
 * Break progress reporting of data frame analyses into multiple phases. (See {ml-pull}1179[#1179].)
+* Really centre the data before training for classification and regression begins. This
+  means we can choose more optimal smoothing bias and should reduce the number of trees.
+  (See {ml-pull}1192[#1192].)
 
 === Bug Fixes
 

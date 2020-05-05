@@ -247,6 +247,7 @@ private:
                                               const core::CPackedBitVector& trainingRowMask,
                                               const core::CPackedBitVector& testingRowMask,
                                               double eta,
+                                              double lambda,
                                               TNodeVec& tree) const;
 
     //! Compute the mean of the loss function on the masked rows of \p frame.
