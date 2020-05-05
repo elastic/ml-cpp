@@ -593,7 +593,7 @@ BOOST_FIXTURE_TEST_CASE(testSoftMemoryLimit, CTestFixture) {
     BOOST_REQUIRE_EQUAL(2, categorizer.examplesCollector().numberOfExamplesForCategory(1));
 
     // Create a soft memory limit
-    m_Limits.resourceMonitor().acceptPruningResult();
+    m_Limits.resourceMonitor().acceptPruningStartResult();
 
     message = baseMessage + makeUniqueToken();
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, message, message.length()));
@@ -605,8 +605,18 @@ BOOST_FIXTURE_TEST_CASE(testSoftMemoryLimit, CTestFixture) {
     BOOST_REQUIRE(categorizer.addExample(1, message) == false);
     BOOST_REQUIRE_EQUAL(2, categorizer.examplesCollector().numberOfExamplesForCategory(1));
 
-    // TODO: once it's possible to escape from soft limit without
-    // a restart, test that we start accumulating examples again
+    // Clear the soft memory limit
+    m_Limits.resourceMonitor().acceptPruningEndResult();
+
+    message = baseMessage + makeUniqueToken();
+    BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, message, message.length()));
+    BOOST_REQUIRE(categorizer.addExample(1, message));
+    // Out of soft limit we have started accumulating examples again
+    BOOST_REQUIRE_EQUAL(3, categorizer.examplesCollector().numberOfExamplesForCategory(1));
+    message = baseMessage + makeUniqueToken();
+    BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, message, message.length()));
+    BOOST_REQUIRE(categorizer.addExample(1, message));
+    BOOST_REQUIRE_EQUAL(4, categorizer.examplesCollector().numberOfExamplesForCategory(1));
 }
 
 BOOST_FIXTURE_TEST_CASE(testHardMemoryLimit, CTestFixture) {

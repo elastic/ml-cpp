@@ -127,12 +127,18 @@ public:
     //! We are being told that aggressive pruning has taken place
     //! to avoid hitting the resource limit, and we should report this
     //! to the user when we can
-    void acceptPruningResult();
+    void acceptPruningStartResult();
+
+    //! We are being told that aggressive pruning to avoid hitting the
+    //! resource limit is no longer necessary, and we should report this
+    //! to the user when we can
+    void acceptPruningEndResult();
 
     //! Accessor for no limit flag
     bool haveNoLimit() const;
 
     //! Prune models where necessary
+    //! \return Was pruning required?
     bool pruneIfRequired(core_t::TTime endTime);
 
     //! Accounts for any extra memory to the one
@@ -243,7 +249,7 @@ private:
     //! The largest that the prune window can grow to - determined from the models
     std::size_t m_PruneWindowMaximum;
 
-    //! The smallest that the prune window can shrink to - 4 weeks
+    //! The smallest that the prune window can shrink to - determined from the models
     std::size_t m_PruneWindowMinimum;
 
     //! Don't do any sort of memory checking if this is set
