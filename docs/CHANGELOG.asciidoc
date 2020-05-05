@@ -79,11 +79,12 @@
   issue: {ml-issue}1130[#1130].)
 * Fix underlying cause for "Failed to calculate splitting significance" log errors.
   (See {ml-pull}1157[#1157].)
-* Fix restore from training state for classification and regression. (See {ml-pull}1183[#1183].)
 * Respect user overrides for `max_trees` for classification and regression. (See
   {ml-pull}1185[#1185].)
 * Reset memory status from `soft_limit` to `ok` when pruning is no longer required.
   (See {ml-pull}1193[#1193], issue: {ml-issue}1131[#1131].)
+* Fix restore from training state for classification and regression. (See
+  {ml-pull}1197[#1197].)
 
 == {es} version 7.7.1
 
