@@ -294,43 +294,50 @@ TLossFunctionUPtr createLossFunction(TLossFunctionType lossFunctionType,
 
 BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
     // Test regression quality on piecewise constant function.
+
+    auto generatePiecewiseConstant = [](TLossFunctionType lossFunctionType,
+                                        test::CRandomNumbers& rng, std::size_t cols) {
+        TDoubleVec p;
+        TDoubleVec v;
+        rng.generateUniformSamples(0.0, 10.0, 2 * cols - 2, p);
+        rng.generateUniformSamples(-10.0, 10.0, cols - 1, v);
+        for (std::size_t i = 0; i < p.size(); i += 2) {
+            std::sort(p.begin() + i, p.begin() + i + 2);
+        }
+        double offset{0.0};
+        if (lossFunctionType == TLossFunctionType::E_MsleRegression) {
+            offset = LARGE_POSITIVE_CONSTANT;
+        }
+
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                if (row[i] >= p[2 * i] && row[i] < p[2 * i + 1]) {
+                    result += v[i];
+                }
+            }
+            return offset + result;
+        };
+    };
+
     test::CRandomNumbers rng;
     double noiseVariance{0.2};
     std::size_t trainRows{500};
     std::size_t testRows{200};
     std::size_t cols{3};
     std::size_t capacity{250};
+
     // TODO reactivate test for huber and MSLE
     for (auto lossFunctionType : {TLossFunctionType::E_MseRegression /*, TLossFunctionType::E_MsleRegression,
           TLossFunctionType::E_HuberRegression*/}) {
-        auto generatePiecewiseConstant = [lossFunctionType](test::CRandomNumbers& rng,
-                                                            std::size_t cols) {
-            TDoubleVec p;
-            TDoubleVec v;
-            rng.generateUniformSamples(0.0, 10.0, 2 * cols - 2, p);
-            rng.generateUniformSamples(-10.0, 10.0, cols - 1, v);
-            for (std::size_t i = 0; i < p.size(); i += 2) {
-                std::sort(p.begin() + i, p.begin() + i + 2);
-            }
-
-            return [lossFunctionType, p, v, cols](const TRowRef& row) {
-                double result{0.0};
-                for (std::size_t i = 0; i < cols - 1; ++i) {
-                    if (row[i] >= p[2 * i] && row[i] < p[2 * i + 1]) {
-                        result += v[i];
-                    }
-                }
-                return (lossFunctionType == TLossFunctionType::E_MsleRegression)
-                           ? result + LARGE_POSITIVE_CONSTANT
-                           : result;
-            };
-        };
 
         TDoubleVecVec modelBias;
         TDoubleVecVec modelRSquared;
         std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
-            generatePiecewiseConstant, rng, trainRows, testRows, cols, capacity,
-            noiseVariance, std::move(createLossFunction(lossFunctionType)));
+            std::bind(generatePiecewiseConstant, lossFunctionType,
+                      std::placeholders::_1, std::placeholders::_2),
+            rng, trainRows, testRows, cols, capacity, noiseVariance,
+            createLossFunction(lossFunctionType));
 
         TMeanAccumulator meanModelRSquared;
 
@@ -346,10 +353,10 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
             if (lossFunctionType != TLossFunctionType::E_MsleRegression) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     0.0, modelBias[i][0],
-                    7.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+                    4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
             }
             // Good R^2...
-            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.90);
+            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.95);
 
             meanModelRSquared.add(modelRSquared[i][0]);
         }
@@ -361,36 +368,44 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
 
 BOOST_AUTO_TEST_CASE(testLinear) {
     // Test regression quality on linear function.
+
+    auto generateLinear = [](TLossFunctionType lossFunctionType,
+                             test::CRandomNumbers& rng, std::size_t cols) {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+        double offset{0.0};
+        if (lossFunctionType == TLossFunctionType::E_MsleRegression) {
+            offset = LARGE_POSITIVE_CONSTANT;
+        }
+
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return offset + result;
+        };
+    };
+
     test::CRandomNumbers rng;
     double noiseVariance{100.0};
     std::size_t trainRows{500};
     std::size_t testRows{200};
     std::size_t cols{6};
     std::size_t capacity{250};
+
     // TODO reactivate test for huber and MSLE
     for (auto lossFunctionType : {TLossFunctionType::E_MseRegression /*, TLossFunctionType::E_MsleRegression,
           TLossFunctionType::E_HuberRegression*/}) {
-        auto generateLinear = [lossFunctionType](test::CRandomNumbers& rng, std::size_t cols) {
-            TDoubleVec m;
-            TDoubleVec s;
-            rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
-            rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
-
-            return [lossFunctionType, m, s, cols](const TRowRef& row) {
-                double result{0.0};
-                for (std::size_t i = 0; i < cols - 1; ++i) {
-                    result += m[i] + s[i] * row[i];
-                }
-                return (lossFunctionType == TLossFunctionType::E_MsleRegression)
-                           ? result + LARGE_POSITIVE_CONSTANT
-                           : result;
-            };
-        };
         TDoubleVecVec modelBias;
         TDoubleVecVec modelRSquared;
         std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
-            generateLinear, rng, trainRows, testRows, cols, capacity,
-            noiseVariance, std::move(createLossFunction(lossFunctionType)));
+            std::bind(generateLinear, lossFunctionType, std::placeholders::_1,
+                      std::placeholders::_2),
+            rng, trainRows, testRows, cols, capacity, noiseVariance,
+            createLossFunction(lossFunctionType));
 
         TMeanAccumulator meanModelRSquared;
 
@@ -403,64 +418,72 @@ BOOST_AUTO_TEST_CASE(testLinear) {
             }
 
             // Unbiased...
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                0.0, modelBias[i][0],
-                4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            if (lossFunctionType != TLossFunctionType::E_MsleRegression) {
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                    0.0, modelBias[i][0],
+                    4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            }
             // Good R^2...
-            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.95);
+            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
 
             meanModelRSquared.add(modelRSquared[i][0]);
         }
         LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.95);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
     }
 }
 
 BOOST_AUTO_TEST_CASE(testNonLinear) {
     // Test regression quality on non-linear function.
+
+    auto generateNonLinear = [](TLossFunctionType lossFunctionType,
+                                test::CRandomNumbers& rng, std::size_t cols) {
+        cols = cols - 1;
+
+        TDoubleVec mean;
+        TDoubleVec slope;
+        TDoubleVec curve;
+        TDoubleVec cross;
+        rng.generateUniformSamples(0.0, 10.0, cols, mean);
+        rng.generateUniformSamples(-10.0, 10.0, cols, slope);
+        rng.generateUniformSamples(-1.0, 1.0, cols, curve);
+        rng.generateUniformSamples(-0.5, 0.5, cols * cols, cross);
+        double offset{0.0};
+        if (lossFunctionType == TLossFunctionType::E_MsleRegression) {
+            offset = LARGE_POSITIVE_CONSTANT;
+        }
+
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols; ++i) {
+                result += mean[i] + (slope[i] + curve[i] * row[i]) * row[i];
+            }
+            for (std::size_t i = 0; i < cols; ++i) {
+                for (std::size_t j = 0; j < i; ++j) {
+                    result += cross[i * cols + j] * row[i] * row[j];
+                }
+            }
+            return offset + result;
+        };
+    };
+
     test::CRandomNumbers rng;
     double noiseVariance{100.0};
     std::size_t trainRows{500};
     std::size_t testRows{100};
     std::size_t cols{6};
     std::size_t capacity{500};
+
     // TODO reactivate test for huber and MSLE
     for (auto lossFunctionType : {TLossFunctionType::E_MseRegression /*, TLossFunctionType::E_MsleRegression,
           TLossFunctionType::E_HuberRegression*/}) {
-        auto generateNonLinear = [lossFunctionType](test::CRandomNumbers& rng,
-                                                    std::size_t cols) {
-
-            cols = cols - 1;
-
-            TDoubleVec mean;
-            TDoubleVec slope;
-            TDoubleVec curve;
-            TDoubleVec cross;
-            rng.generateUniformSamples(0.0, 10.0, cols, mean);
-            rng.generateUniformSamples(-10.0, 10.0, cols, slope);
-            rng.generateUniformSamples(-1.0, 1.0, cols, curve);
-            rng.generateUniformSamples(-0.5, 0.5, cols * cols, cross);
-
-            return [=](const TRowRef& row) {
-                double result{0.0};
-                for (std::size_t i = 0; i < cols; ++i) {
-                    result += mean[i] + (slope[i] + curve[i] * row[i]) * row[i];
-                }
-                for (std::size_t i = 0; i < cols; ++i) {
-                    for (std::size_t j = 0; j < i; ++j) {
-                        result += cross[i * cols + j] * row[i] * row[j];
-                    }
-                }
-                return (lossFunctionType == TLossFunctionType::E_MsleRegression)
-                           ? result + LARGE_POSITIVE_CONSTANT
-                           : result;
-            };
-        };
         TDoubleVecVec modelBias;
         TDoubleVecVec modelRSquared;
         std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
-            generateNonLinear, rng, trainRows, testRows, cols, capacity,
-            noiseVariance, std::move(createLossFunction(lossFunctionType)));
+            std::bind(generateNonLinear, lossFunctionType,
+                      std::placeholders::_1, std::placeholders::_2),
+            rng, trainRows, testRows, cols, capacity, noiseVariance,
+            createLossFunction(lossFunctionType));
 
         TMeanAccumulator meanModelRSquared;
 
@@ -473,16 +496,18 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
             }
 
             // Unbiased...
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                0.0, modelBias[i][0],
-                5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            if (lossFunctionType != TLossFunctionType::E_MsleRegression) {
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                    0.0, modelBias[i][0],
+                    4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            }
             // Good R^2...
-            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.93);
+            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
 
             meanModelRSquared.add(modelRSquared[i][0]);
         }
         LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.93);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
     }
 }
 
@@ -1033,7 +1058,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.71);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.65);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
@@ -1122,7 +1147,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
     LOG_DEBUG(<< "recalls    = " << core::CContainerPrinter::print(recalls));
 
     BOOST_TEST_REQUIRE(std::fabs(precisions[0] - precisions[1]) < 0.1);
-    BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.14);
+    BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.1);
 }
 
 BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
@@ -1216,7 +1241,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 2.1);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 2.0);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
@@ -1580,6 +1605,8 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
 
 BOOST_AUTO_TEST_CASE(testPersistRestore) {
 
+    // Check persist/restore is idempotent.
+
     std::size_t rows{50};
     std::size_t cols{3};
     std::size_t capacity{50};
@@ -1612,6 +1639,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
                                .maximumNumberTrees(2)
                                .maximumOptimisationRoundsPerHyperparameter(3)
                                .buildFor(*frame, cols - 1);
+        boostedTree->train();
         core::CJsonStatePersistInserter inserter(persistOnceSStream);
         boostedTree->acceptPersistInserter(inserter);
         persistOnceSStream.flush();
@@ -1624,15 +1652,9 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
         boostedTree->acceptPersistInserter(inserter);
         persistTwiceSStream.flush();
     }
+    LOG_DEBUG(<< "State " << persistOnceSStream.str());
+    LOG_DEBUG(<< "State after restore " << persistTwiceSStream.str());
     BOOST_REQUIRE_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
-    LOG_DEBUG(<< "First string " << persistOnceSStream.str());
-    LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
-
-    // and even run
-    BOOST_REQUIRE_NO_THROW(boostedTree->train());
-    BOOST_REQUIRE_NO_THROW(boostedTree->predict());
-
-    // TODO test persist and restore produces same train result.
 }
 
 BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
