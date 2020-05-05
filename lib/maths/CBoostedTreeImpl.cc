@@ -196,6 +196,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         // Fallback to using the constant predictor which minimises the loss.
 
+        this->startProgressMonitoringFinalTrain();
         m_BestForest.assign(1, this->initializePredictionsAndLossDerivatives(
                                    frame, allTrainingRowsMask, noRowsMask));
         m_BestForestTestLoss = this->meanLoss(frame, allTrainingRowsMask);

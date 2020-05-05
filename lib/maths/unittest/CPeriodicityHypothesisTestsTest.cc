@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(testDiurnal) {
         }
 
         LOG_DEBUG(<< "Recall = " << TP / (TP + FN));
-        BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.99);
+        BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.98);
     }
 
     LOG_DEBUG(<< "");
@@ -249,7 +249,8 @@ BOOST_AUTO_TEST_CASE(testDiurnal) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
                 LOG_DEBUG(<< "result = " << result.print());
                 BOOST_TEST_REQUIRE(
-                    (result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' }" ||
+                    (result.print() == "{ 'daily' 'weekly' }" ||
+                     result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' }" ||
                      result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }"));
                 hypotheses = maths::CPeriodicityHypothesisTests();
                 hypotheses.initialize(0 /*startTime*/, HOUR, window, DAY);
@@ -322,11 +323,9 @@ BOOST_AUTO_TEST_CASE(testDiurnal) {
             core_t::TTime time{timeseries[i].first};
             if (time > lastTest + window) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
-                const std::string& printedResult{result.print()};
-                LOG_DEBUG(<< "result = " << printedResult);
-                if (printedResult != "{ 'weekend daily' 'weekday daily' 'weekend weekly' }") {
-                    BOOST_TEST_REQUIRE(printedResult == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }");
-                }
+                LOG_DEBUG(<< "result = " << result.print());
+                BOOST_TEST_REQUIRE((result.print() == "{ 'daily' 'weekly' }" ||
+                                    result.print() == "{ 'weekend daily' 'weekday daily' 'weekend weekly' 'weekday weekly' }"));
                 hypotheses = maths::CPeriodicityHypothesisTests();
                 hypotheses.initialize(0 /*startTime*/, HOUR, window, DAY);
                 lastTest += window;
@@ -510,7 +509,9 @@ BOOST_AUTO_TEST_CASE(testWithSparseData) {
             if (t >= 2) {
                 maths::CPeriodicityHypothesisTestsResult result{hypotheses.test()};
                 LOG_DEBUG(<< "result = " << result.print());
-                BOOST_REQUIRE_EQUAL(std::string("{ 'daily' 'weekly' }"), result.print());
+                BOOST_TEST_REQUIRE(
+                    (result.print() == "{ 'daily' 'weekly' }" ||
+                     result.print() == std::string("{ 'weekend daily' 'weekday daily' }")));
             }
         }
     }
@@ -666,8 +667,9 @@ BOOST_AUTO_TEST_CASE(testWithOutliers) {
             maths::CPeriodicityHypothesisTestsResult result{
                 maths::testForPeriods(config, startTime, bucketLength, values)};
             LOG_DEBUG(<< "result = " << result.print());
-            BOOST_TEST_REQUIRE(result.print() ==
-                               std::string("{ 'weekend daily' 'weekday daily' 'weekend weekly' }"));
+            BOOST_TEST_REQUIRE(
+                (result.print() == std::string("{ 'daily' 'weekly' }") ||
+                 result.print() == std::string("{ 'weekend daily' 'weekday daily' 'weekend weekly' }")));
         }
     }
 }
@@ -947,7 +949,7 @@ BOOST_AUTO_TEST_CASE(testWithPiecewiseLinearTrend) {
     }
 
     LOG_DEBUG(<< "Recall = " << TP / (TP + FN));
-    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.8);
+    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.9);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

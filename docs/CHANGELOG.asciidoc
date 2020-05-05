@@ -63,9 +63,9 @@
   operations. (See {ml-pull}1142[#1142].)
 * Fix spurious anomalies for count and sum functions after no data are received for long
   periods of time. (See {ml-pull}1158[#1158].)
+* Improve false positive rates from periodicity test for time series anomaly detection.
+  (See {ml-pull}1177[#1177].)
 * Break progress reporting of data frame analyses into multiple phases. (See {ml-pull}1179[#1179].)
-
-== {es} version 7.8.0
 
 === Bug Fixes
 
@@ -74,11 +74,10 @@
   (See {ml-pull}1160[#1160], issue: {issue}55593[#55593].)
 * Make categorization respect the `model_memory_limit`. (See {ml-pull}1167[#1167],
   issue: {ml-issue}1130[#1130].)
-
-=== Bug Fixes
-
 * Fix underlying cause for "Failed to calculate splitting significance" log errors.
   (See {ml-pull}1157[#1157].)
+* Respect user overrides for `max_trees` for classification and regression. (See
+  {ml-pull}1185[#1185].)
 
 == {es} version 7.7.1
 

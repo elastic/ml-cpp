@@ -27,6 +27,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+#include <atomic>
 #include <fstream>
 #include <functional>
 #include <limits>
@@ -1499,6 +1500,81 @@ BOOST_AUTO_TEST_CASE(testMissingFeatures) {
     BOOST_REQUIRE_EQUAL(expectedPredictions.size(), actualPredictions.size());
     for (std::size_t i = 0; i < expectedPredictions.size(); ++i) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPredictions[i], actualPredictions[i], 0.8);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
+
+    // Test hyperparameter overrides are respected.
+
+    test::CRandomNumbers rng;
+
+    std::size_t rows{300};
+    std::size_t cols{6};
+    std::size_t capacity{600};
+
+    TDoubleVecVec x(cols);
+    for (std::size_t i = 0; i < cols; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    auto target = [](const TRowRef& row) { return row[0] + 3.0 * row[3]; };
+
+    auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+
+    fillDataFrame(rows, 0, cols, x, TDoubleVec(rows, 0.0), target, *frame);
+
+    CTestInstrumentation instrumentation;
+    {
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .analysisInstrumentation(instrumentation)
+                              .maximumNumberTrees(10)
+                              .treeSizePenaltyMultiplier(0.1)
+                              .leafWeightPenaltyMultiplier(0.01)
+                              .buildFor(*frame, cols - 1);
+
+        regression->train();
+
+        // We use a single leaf to centre the data so end up with limit + 1 trees.
+        BOOST_REQUIRE_EQUAL(11, regression->bestHyperparameters().maximumNumberTrees());
+        BOOST_REQUIRE_EQUAL(
+            0.1, regression->bestHyperparameters().regularization().treeSizePenaltyMultiplier());
+        BOOST_REQUIRE_EQUAL(
+            0.01, regression->bestHyperparameters().regularization().leafWeightPenaltyMultiplier());
+    }
+    {
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .analysisInstrumentation(instrumentation)
+                              .eta(0.2)
+                              .softTreeDepthLimit(2.0)
+                              .softTreeDepthTolerance(0.1)
+                              .buildFor(*frame, cols - 1);
+
+        regression->train();
+
+        BOOST_REQUIRE_EQUAL(0.2, regression->bestHyperparameters().eta());
+        BOOST_REQUIRE_EQUAL(
+            2.0, regression->bestHyperparameters().regularization().softTreeDepthLimit());
+        BOOST_REQUIRE_EQUAL(
+            0.1, regression->bestHyperparameters().regularization().softTreeDepthTolerance());
+    }
+    {
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .analysisInstrumentation(instrumentation)
+                              .depthPenaltyMultiplier(1.0)
+                              .featureBagFraction(0.4)
+                              .downsampleFactor(0.6)
+                              .buildFor(*frame, cols - 1);
+
+        regression->train();
+
+        BOOST_REQUIRE_EQUAL(
+            1.0, regression->bestHyperparameters().regularization().depthPenaltyMultiplier());
+        BOOST_REQUIRE_EQUAL(0.4, regression->bestHyperparameters().featureBagFraction());
+        BOOST_REQUIRE_EQUAL(0.6, regression->bestHyperparameters().downsampleFactor());
     }
 }
 

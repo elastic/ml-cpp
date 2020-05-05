@@ -717,7 +717,9 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
         auto applyEta = [](CBoostedTreeImpl& tree, double eta) {
             tree.m_Eta = CTools::stableExp(eta);
             tree.m_EtaGrowthRatePerTree = 1.0 + tree.m_Eta / 2.0;
-            tree.m_MaximumNumberTrees = computeMaximumNumberTrees(tree.m_Eta);
+            if (tree.m_MaximumNumberTreesOverride == boost::none) {
+                tree.m_MaximumNumberTrees = computeMaximumNumberTrees(tree.m_Eta);
+            }
             return true;
         };
 
@@ -738,7 +740,7 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
 
         if (intervalIsEmpty(m_LogEtaSearchInterval)) {
             m_TreeImpl->m_EtaOverride = m_TreeImpl->m_Eta;
-        } else {
+        } else if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
             m_TreeImpl->m_MaximumNumberTrees =
                 computeMaximumNumberTrees(MIN_ETA_SCALE * m_TreeImpl->m_Eta);
         }
