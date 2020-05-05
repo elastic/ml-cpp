@@ -50,6 +50,7 @@
 * Adds new `num_matches` and `preferred_to_categories` fields to category output.
   (See {ml-pull}1062[#1062])
 * Adds mean squared logarithmic error (MSLE) for regression. (See {ml-pull}1101[#1101].)
+* Adds pseudo-Huber loss for regression. (See {ml-pull}1168[#1168].)
 * Reduce peak memory usage and memory estimates for classification and regression.
   (See {ml-pull}1125[#1125].)
 * Reduce variability of classification and regression results across our target operating systems.

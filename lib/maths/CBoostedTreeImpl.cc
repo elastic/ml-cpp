@@ -31,6 +31,7 @@
 #include <boost/circular_buffer.hpp>
 
 #include <algorithm>
+#include <memory>
 
 namespace ml {
 namespace maths {
@@ -1323,6 +1324,7 @@ const std::string FEATURE_DATA_TYPES_TAG{"feature_data_types"};
 const std::string FEATURE_SAMPLE_PROBABILITIES_TAG{"feature_sample_probabilities"};
 const std::string FOLD_ROUND_TEST_LOSSES_TAG{"fold_round_test_losses"};
 const std::string LOSS_TAG{"loss"};
+const std::string LOSS_NAME_TAG{"loss_name"};
 const std::string MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG{"maximum_attempts_to_add_tree"};
 const std::string MAXIMUM_NUMBER_TREES_OVERRIDE_TAG{"maximum_number_trees_override"};
 const std::string MAXIMUM_NUMBER_TREES_TAG{"maximum_number_trees"};
@@ -1409,7 +1411,9 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_FeatureBagFractionOverride, inserter);
     core::CPersistUtils::persist(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                                  m_MaximumNumberTreesOverride, inserter);
-    inserter.insertValue(LOSS_TAG, m_Loss->name());
+    inserter.insertLevel(LOSS_TAG, [this](core::CStatePersistInserter& inserter_) {
+        m_Loss->persistLoss(inserter_);
+    });
     core::CPersistUtils::persist(NUMBER_TOP_SHAP_VALUES_TAG, m_NumberTopShapValues, inserter);
 }
 
@@ -1504,29 +1508,17 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                 core::CPersistUtils::restore(MAXIMUM_NUMBER_TREES_OVERRIDE_TAG,
                                              m_MaximumNumberTreesOverride, traverser))
-        RESTORE(LOSS_TAG, restoreLoss(m_Loss, traverser))
+        auto restoreLoss = [this](core::CStateRestoreTraverser& traverser_) {
+            m_Loss = CLoss::restoreLoss(traverser_);
+            return m_Loss != nullptr;
+        };
+        RESTORE(LOSS_TAG, traverser.traverseSubLevel(restoreLoss));
         RESTORE(NUMBER_TOP_SHAP_VALUES_TAG,
                 core::CPersistUtils::restore(NUMBER_TOP_SHAP_VALUES_TAG,
                                              m_NumberTopShapValues, traverser))
     } while (traverser.next());
 
     return true;
-}
-
-bool CBoostedTreeImpl::restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
-                                   core::CStateRestoreTraverser& traverser) {
-    const std::string& lossFunctionName{traverser.value()};
-    if (lossFunctionName == CMse::NAME) {
-        loss = std::make_unique<CMse>();
-        return true;
-    } else if (lossFunctionName == CMsle::NAME) {
-        loss = std::make_unique<CMsle>();
-        return true;
-    }
-
-    LOG_ERROR(<< "Error restoring loss function. Unknown loss function type '"
-              << lossFunctionName << "'.");
-    return false;
 }
 
 std::size_t CBoostedTreeImpl::memoryUsage() const {
