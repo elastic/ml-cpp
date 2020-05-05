@@ -524,8 +524,8 @@ CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivat
 
     // At the start we will centre the data w.r.t. the given loss function.
     TNodeVec tree{CBoostedTreeNode{m_Loss->numberParameters()}};
-    this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask,
-                                               testingRowMask, 1.0, tree);
+    this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask, testingRowMask,
+                                               1.0 /*eta*/, 0.0 /*lambda*/, tree);
 
     return tree;
 }
@@ -586,8 +586,9 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
         if (tree.size() > 1) {
             scopeMemoryUsage.add(tree);
-            this->refreshPredictionsAndLossDerivatives(frame, trainingRowMask,
-                                                       testingRowMask, eta, tree);
+            this->refreshPredictionsAndLossDerivatives(
+                frame, trainingRowMask, testingRowMask, eta,
+                m_Regularization.leafWeightPenaltyMultiplier(), tree);
             forest.push_back(std::move(tree));
             eta = std::min(1.0, m_EtaGrowthRatePerTree * eta);
             retries = 0;
@@ -991,13 +992,12 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                                                             const core::CPackedBitVector& trainingRowMask,
                                                             const core::CPackedBitVector& testingRowMask,
                                                             double eta,
+                                                            double lambda,
                                                             TNodeVec& tree) const {
 
     using TArgMinLossVec = std::vector<CArgMinLoss>;
 
-    TArgMinLossVec leafValues(
-        tree.size(),
-        m_Loss->minimizer(m_Regularization.leafWeightPenaltyMultiplier(), m_Rng));
+    TArgMinLossVec leafValues(tree.size(), m_Loss->minimizer(lambda, m_Rng));
     auto nextPass = [&] {
         bool done{true};
         for (const auto& value : leafValues) {
