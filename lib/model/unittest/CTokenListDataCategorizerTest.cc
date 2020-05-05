@@ -593,7 +593,7 @@ BOOST_FIXTURE_TEST_CASE(testSoftMemoryLimit, CTestFixture) {
     BOOST_REQUIRE_EQUAL(2, categorizer.examplesCollector().numberOfExamplesForCategory(1));
 
     // Create a soft memory limit
-    m_Limits.resourceMonitor().acceptPruningStartResult();
+    m_Limits.resourceMonitor().startPruning();
 
     message = baseMessage + makeUniqueToken();
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, message, message.length()));
@@ -606,7 +606,7 @@ BOOST_FIXTURE_TEST_CASE(testSoftMemoryLimit, CTestFixture) {
     BOOST_REQUIRE_EQUAL(2, categorizer.examplesCollector().numberOfExamplesForCategory(1));
 
     // Clear the soft memory limit
-    m_Limits.resourceMonitor().acceptPruningEndResult();
+    m_Limits.resourceMonitor().endPruning();
 
     message = baseMessage + makeUniqueToken();
     BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, message, message.length()));

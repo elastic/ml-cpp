@@ -275,7 +275,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(0), m_ReportedModelSizeStats.s_AllocationFailures);
 
         // Set a soft-limit degraded status
-        mon.acceptPruningStartResult();
+        mon.startPruning();
 
         // This refresh should trigger a report
         mon.refresh(categorizer);

@@ -127,12 +127,12 @@ public:
     //! We are being told that aggressive pruning has taken place
     //! to avoid hitting the resource limit, and we should report this
     //! to the user when we can
-    void acceptPruningStartResult();
+    void startPruning();
 
     //! We are being told that aggressive pruning to avoid hitting the
     //! resource limit is no longer necessary, and we should report this
     //! to the user when we can
-    void acceptPruningEndResult();
+    void endPruning();
 
     //! Accessor for no limit flag
     bool haveNoLimit() const;
