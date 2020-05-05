@@ -296,9 +296,6 @@ private:
     //! Start monitoring the final model training.
     void startProgressMonitoringFinalTrain();
 
-    //! Restore \p loss function pointer from the \p traverser.
-    static bool restoreLoss(TLossFunctionUPtr& loss, core::CStateRestoreTraverser& traverser);
-
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;
 

@@ -31,6 +31,7 @@
 #include <boost/circular_buffer.hpp>
 
 #include <algorithm>
+#include <memory>
 
 namespace ml {
 namespace maths {
@@ -1324,6 +1325,7 @@ const std::string FEATURE_DATA_TYPES_TAG{"feature_data_types"};
 const std::string FEATURE_SAMPLE_PROBABILITIES_TAG{"feature_sample_probabilities"};
 const std::string FOLD_ROUND_TEST_LOSSES_TAG{"fold_round_test_losses"};
 const std::string LOSS_TAG{"loss"};
+const std::string LOSS_NAME_TAG{"loss_name"};
 const std::string MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG{"maximum_attempts_to_add_tree"};
 const std::string MAXIMUM_NUMBER_TREES_OVERRIDE_TAG{"maximum_number_trees_override"};
 const std::string MAXIMUM_NUMBER_TREES_TAG{"maximum_number_trees"};
@@ -1388,7 +1390,9 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(FEATURE_SAMPLE_PROBABILITIES_TAG,
                                  m_FeatureSampleProbabilities, inserter);
     core::CPersistUtils::persist(FOLD_ROUND_TEST_LOSSES_TAG, m_FoldRoundTestLosses, inserter);
-    inserter.insertValue(LOSS_TAG, m_Loss->name());
+    inserter.insertLevel(LOSS_TAG, [this](core::CStatePersistInserter& inserter_) {
+        m_Loss->persistLoss(inserter_);
+    });
     core::CPersistUtils::persist(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                                  m_MaximumAttemptsToAddTree, inserter);
     core::CPersistUtils::persist(MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
@@ -1423,6 +1427,11 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                   << core::CContainerPrinter::print(SUPPORTED_VERSIONS) << ".");
         return false;
     }
+
+    auto restoreLoss = [this](core::CStateRestoreTraverser& traverser_) {
+        m_Loss = CLoss::restoreLoss(traverser_);
+        return m_Loss != nullptr;
+    };
 
     do {
         const std::string& name = traverser.name();
@@ -1470,7 +1479,7 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(FOLD_ROUND_TEST_LOSSES_TAG,
                 core::CPersistUtils::restore(FOLD_ROUND_TEST_LOSSES_TAG,
                                              m_FoldRoundTestLosses, traverser))
-        RESTORE(LOSS_TAG, restoreLoss(m_Loss, traverser))
+        RESTORE(LOSS_TAG, traverser.traverseSubLevel(restoreLoss))
         RESTORE(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                 core::CPersistUtils::restore(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                                              m_MaximumAttemptsToAddTree, traverser))
@@ -1520,22 +1529,6 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
     } while (traverser.next());
 
     return true;
-}
-
-bool CBoostedTreeImpl::restoreLoss(CBoostedTree::TLossFunctionUPtr& loss,
-                                   core::CStateRestoreTraverser& traverser) {
-    const std::string& lossFunctionName{traverser.value()};
-    if (lossFunctionName == CMse::NAME) {
-        loss = std::make_unique<CMse>();
-        return true;
-    } else if (lossFunctionName == CMsle::NAME) {
-        loss = std::make_unique<CMsle>();
-        return true;
-    }
-
-    LOG_ERROR(<< "Error restoring loss function. Unknown loss function type '"
-              << lossFunctionName << "'.");
-    return false;
 }
 
 std::size_t CBoostedTreeImpl::memoryUsage() const {
