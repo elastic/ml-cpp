@@ -16,7 +16,6 @@
 #include <limits>
 
 namespace ml {
-
 namespace model {
 
 // Only prune once per hour
@@ -153,15 +152,13 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
             if (resource.first->supportsPruning() &&
                 resource.first->initPruneWindow(m_PruneWindowMaximum, m_PruneWindowMinimum)) {
                 m_PruneWindow = m_PruneWindowMaximum;
-                m_HasPruningStarted = true;
+                this->startPruning();
                 break;
             }
         }
         if (m_HasPruningStarted == false) {
             return false;
         }
-        this->acceptPruningResult();
-        LOG_DEBUG(<< "Pruning started. Window (buckets): " << m_PruneWindow);
     }
 
     if (aboveThreshold) {
@@ -187,11 +184,19 @@ bool CResourceMonitor::pruneIfRequired(core_t::TTime endTime) {
         // Expand the window
         for (const auto& resource : m_Resources) {
             if (resource.first->supportsPruning()) {
-                m_PruneWindow = std::min(
-                    m_PruneWindow + std::size_t((endTime - m_LastPruneTime) /
-                                                resource.first->bucketLength()),
-                    m_PruneWindowMaximum);
-                LOG_TRACE(<< "Expanding window, to " << m_PruneWindow);
+                m_PruneWindow = m_PruneWindow +
+                                std::size_t((endTime - m_LastPruneTime) /
+                                            resource.first->bucketLength());
+                if (m_PruneWindow > m_PruneWindowMaximum) {
+                    // If we increase the prune window to a size that's bigger
+                    // than what we started with then we should stop pruning to
+                    // be consistent with what would happen if the job was
+                    // closed and reopened
+                    m_PruneWindow = m_PruneWindowMaximum;
+                    this->endPruning();
+                } else {
+                    LOG_TRACE(<< "Expanding window to " << m_PruneWindow);
+                }
                 break;
             }
         }
@@ -307,9 +312,19 @@ void CResourceMonitor::acceptAllocationFailureResult(core_t::TTime time) {
     ++m_AllocationFailures[time];
 }
 
-void CResourceMonitor::acceptPruningResult() {
+void CResourceMonitor::startPruning() {
+    LOG_DEBUG(<< "Pruning started. Window (buckets): " << m_PruneWindow);
+    m_HasPruningStarted = true;
     if (m_MemoryStatus == model_t::E_MemoryStatusOk) {
         m_MemoryStatus = model_t::E_MemoryStatusSoftLimit;
+    }
+}
+
+void CResourceMonitor::endPruning() {
+    LOG_DEBUG(<< "Pruning no longer necessary.");
+    m_HasPruningStarted = false;
+    if (m_MemoryStatus == model_t::E_MemoryStatusSoftLimit) {
+        m_MemoryStatus = model_t::E_MemoryStatusOk;
     }
 }
 
