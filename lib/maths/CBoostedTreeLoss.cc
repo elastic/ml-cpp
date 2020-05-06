@@ -388,8 +388,8 @@ CArgMinMultinomialLogisticLossImpl::objectiveGradient() const {
     };
 }
 
-CArgMinMsleImpl::CArgMinMsleImpl(double lambda)
-    : CArgMinLossImpl{lambda}, m_Buckets(MSLE_BUCKET_SIZE) {
+CArgMinMsleImpl::CArgMinMsleImpl(double lambda, double offset)
+    : CArgMinLossImpl{lambda}, m_Offset{offset}, m_Buckets(MSLE_BUCKET_SIZE) {
     for (auto& bucket : m_Buckets) {
         bucket.resize(MSLE_BUCKET_SIZE);
     }
@@ -406,7 +406,7 @@ bool CArgMinMsleImpl::nextPass() {
 
 void CArgMinMsleImpl::add(const TMemoryMappedFloatVector& prediction, double actual, double weight) {
     double expPrediction{std::exp(prediction[0])};
-    double logActual{CTools::fastLog(1.0 + actual)};
+    double logActual{CTools::fastLog(m_Offset + actual)};
     switch (m_CurrentPass) {
     case 0: {
         m_ExpPredictionMinMax.add(expPrediction);
@@ -415,7 +415,7 @@ void CArgMinMsleImpl::add(const TMemoryMappedFloatVector& prediction, double act
         break;
     }
     case 1: {
-        double logError{logActual - CTools::fastLog(1.0 + expPrediction)};
+        double logError{logActual - CTools::fastLog(m_Offset + expPrediction)};
 
         TVector example;
         example(MSLE_PREDICTION_INDEX) = expPrediction;
@@ -499,7 +499,7 @@ CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
         if (this->bucketWidth().first == 0.0) {
             // prediction is constant
             double expPrediction{m_ExpPredictionMinMax.max()};
-            double logPrediction{CTools::fastLog(1 + expPrediction * weight)};
+            double logPrediction{CTools::fastLog(m_Offset + expPrediction * weight)};
             double meanLogActual{CBasicStatistics::mean(m_MeanLogActual)};
             double meanLogActualSquared{CBasicStatistics::variance(m_MeanLogActual) +
                                         CTools::pow2(meanLogActual)};
@@ -516,7 +516,7 @@ CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
                         double expPrediction{CBasicStatistics::mean(
                             bucketActual)(MSLE_PREDICTION_INDEX)};
                         double logActual{CBasicStatistics::mean(bucketActual)(MSLE_ACTUAL_INDEX)};
-                        double logPrediction{CTools::fastLog(1 + expPrediction * weight)};
+                        double logPrediction{CTools::fastLog(m_Offset + expPrediction * weight)};
                         loss += count * (CTools::pow2(logActual - logPrediction));
                         totalCount += count;
                     }
@@ -779,13 +779,13 @@ std::size_t CMsle::numberParameters() const {
 
 double CMsle::value(const TMemoryMappedFloatVector& logPrediction, double actual, double weight) const {
     double prediction{std::exp(logPrediction(0))};
-    double log1PlusPrediction{CTools::fastLog(1.0 + prediction)};
+    double logOffsetPrediction{CTools::fastLog(m_Offset + prediction)};
     if (actual < 0.0) {
         HANDLE_FATAL(<< "Input error: target value needs to be non-negative to use with MSLE loss, received: "
                      << actual);
     }
-    double log1PlusActual{CTools::fastLog(1.0 + actual)};
-    return weight * CTools::pow2(log1PlusPrediction - log1PlusActual);
+    double logOffsetActual{CTools::fastLog(m_Offset + actual)};
+    return weight * CTools::pow2(logOffsetPrediction - logOffsetActual);
 }
 
 void CMsle::gradient(const TMemoryMappedFloatVector& logPrediction,
@@ -793,9 +793,9 @@ void CMsle::gradient(const TMemoryMappedFloatVector& logPrediction,
                      TWriter writer,
                      double weight) const {
     double prediction{std::exp(logPrediction(0))};
-    double log1PlusPrediction{CTools::fastLog(1.0 + prediction)};
-    double log1PlusActual{CTools::fastLog(1.0 + actual)};
-    writer(0, 2 * weight * (log1PlusPrediction - log1PlusActual) / (prediction + 1));
+    double logOffsetPrediction{CTools::fastLog(m_Offset + prediction)};
+    double logOffsetActual{CTools::fastLog(m_Offset + actual)};
+    writer(0, 2 * weight * (logOffsetPrediction - logOffsetActual) / (prediction + m_Offset));
 }
 
 void CMsle::curvature(const TMemoryMappedFloatVector& logPrediction,
@@ -803,12 +803,13 @@ void CMsle::curvature(const TMemoryMappedFloatVector& logPrediction,
                       TWriter writer,
                       double weight) const {
     double prediction{std::exp(logPrediction(0))};
-    double log1PlusPrediction{CTools::fastLog(1.0 + prediction)};
-    double log1PlusActual{CTools::fastLog(1.0 + actual)};
+    double logOffsetPrediction{CTools::fastLog(m_Offset + prediction)};
+    double logOffsetActual{CTools::fastLog(m_Offset + actual)};
     // Apply L'Hopital's rule in the limit prediction -> actual.
-    writer(0, prediction == actual ? 0.0
-                                   : 2.0 * weight * (log1PlusPrediction - log1PlusActual) /
-                                         ((prediction + 1) * (prediction - actual)));
+    writer(0, prediction == actual
+                  ? 0.0
+                  : 2.0 * weight * (logOffsetPrediction - logOffsetActual) /
+                        ((prediction + m_Offset) * (prediction - actual)));
 }
 
 bool CMsle::isCurvatureConstant() const {
