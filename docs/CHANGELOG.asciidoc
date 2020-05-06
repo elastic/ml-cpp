@@ -83,6 +83,8 @@
   {ml-pull}1185[#1185].)
 * Reset memory status from `soft_limit` to `ok` when pruning is no longer required.
   (See {ml-pull}1193[#1193], issue: {ml-issue}1131[#1131].)
+* Improve the initialization of seasonal components for anomaly detection. (See
+  {ml-pull}1201[#1201], issue: {ml-issue}#1178[#1178].)
 
 == {es} version 7.7.1
 
