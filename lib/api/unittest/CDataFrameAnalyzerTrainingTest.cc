@@ -189,7 +189,6 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
     const auto& actualRegularizationHyperparameters =
         actualHyperparameters[maths::CBoostedTree::bestRegularizationHyperparametersName()];
 
-    TMeanAccumulator parameterDifference;
     for (const auto& key : maths::CBoostedTree::bestHyperparameterNames()) {
         if (expectedHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedHyperparameters[key].GetString())};
@@ -203,7 +202,6 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
             BOOST_FAIL("Missing " + key);
         }
     }
-    return parameterDifference;
 }
 
 void testRunBoostedTreeRegressionTrainingWithParams(TLossFunctionType lossFunction) {
