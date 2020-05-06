@@ -56,7 +56,6 @@ using TPersisterSupplier = std::function<TDataAdderUPtr()>;
 using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
 using TRestoreSearcherSupplier = std::function<TDataSearcherUPtr()>;
 using TLossFunctionType = maths::boosted_tree::ELossType;
-using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 class CTestDataSearcher : public core::CDataSearcher {
 public:
@@ -110,7 +109,7 @@ auto restoreTree(std::string persistedState, TDataFrameUPtr& frame, std::size_t 
 }
 
 template<typename F>
-TMeanAccumulator testOneRunOfBoostedTreeTrainingWithStateRecovery(
+void testOneRunOfBoostedTreeTrainingWithStateRecovery(
     F makeSpec,
     std::size_t iterationToRestartFrom,
     TLossFunctionType lossFunction = TLossFunctionType::E_MseRegression) {
@@ -195,18 +194,15 @@ TMeanAccumulator testOneRunOfBoostedTreeTrainingWithStateRecovery(
         if (expectedHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedHyperparameters[key].GetString())};
             double actual{std::stod(actualHyperparameters[key].GetString())};
-            parameterDifference.add(std::fabs(expected - actual) / std::max(expected, actual));
+            BOOST_REQUIRE_CLOSE(expected, actual, 1 /*%*/);
         } else if (expectedRegularizationHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedRegularizationHyperparameters[key].GetString())};
             double actual{std::stod(actualRegularizationHyperparameters[key].GetString())};
-            parameterDifference.add(std::fabs(expected - actual) / std::max(expected, actual));
+            BOOST_REQUIRE_CLOSE(expected, actual, 1 /*%*/);
         } else {
             BOOST_FAIL("Missing " + key);
         }
     }
-
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(parameterDifference) < 0.2);
-
     return parameterDifference;
 }
 
@@ -550,8 +546,6 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
 
         LOG_DEBUG(<< "Loss function type " << lossFunction);
 
-        TMeanAccumulator parameterDifference;
-
         std::size_t numberRoundsPerHyperparameter{3};
 
         TSizeVec intermediateIterations{0, 0, 0};
@@ -589,15 +583,10 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
 
             for (auto intermediateIteration : intermediateIterations) {
                 LOG_DEBUG(<< "restart from " << intermediateIteration);
-                parameterDifference += testOneRunOfBoostedTreeTrainingWithStateRecovery(
+                testOneRunOfBoostedTreeTrainingWithStateRecovery(
                     makeSpec, intermediateIteration, lossFunction);
             }
         }
-
-        LOG_DEBUG(<< "Mean difference = "
-                  << maths::CBasicStatistics::mean(parameterDifference));
-
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(parameterDifference) < 0.02);
     }
 }
 
