@@ -7,6 +7,8 @@
 #ifndef INCLUDED_ml_maths_CBoostedTreeLoss_h
 #define INCLUDED_ml_maths_CBoostedTreeLoss_h
 
+#include <core/CStateRestoreTraverser.h>
+
 #include <maths/CBasicStatistics.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraEigen.h>
@@ -125,6 +127,50 @@ private:
     TVectorMeanAccumulatorVecVec m_Buckets;
     TMeanVarAccumulator m_MeanLogActual;
     TMeanAccumulator m_MeanError;
+};
+
+//! \brief Finds the value to add to a set of predictions which approximately
+//! minimises the pseudo-Huber loss function.
+class MATHS_EXPORT CArgMinPseudoHuberImpl final : public CArgMinLossImpl {
+public:
+    using TObjective = std::function<double(double)>;
+
+public:
+    CArgMinPseudoHuberImpl(double lambda, double delta);
+    std::unique_ptr<CArgMinLossImpl> clone() const override;
+    bool nextPass() override;
+    void add(const TMemoryMappedFloatVector& predictionVector,
+             double actual,
+             double weight = 1.0) override;
+    void merge(const CArgMinLossImpl& other) override;
+    TDoubleVector value() const override;
+
+    // Exposed for unit testing.
+    TObjective objective() const;
+
+private:
+    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
+
+private:
+    std::size_t bucket(double error) const {
+        auto bucketWidth{this->bucketWidth()};
+        double bucket{(error - m_ErrorMinMax.min()) / bucketWidth};
+        std::size_t bucketIndex{
+            std::min(static_cast<std::size_t>(bucket), m_Buckets.size() - 1)};
+        return bucketIndex;
+    }
+
+    double bucketWidth() const {
+        return m_ErrorMinMax.range() / static_cast<double>(m_Buckets.size());
+    }
+
+private:
+    double m_DeltaSquared = 1.0;
+    std::size_t m_CurrentPass = 0;
+    TMeanAccumulatorVec m_Buckets;
+    TMinMaxAccumulator m_ErrorMinMax;
 };
 
 //! \brief Finds the value to add to a set of predicted log-odds which minimises
@@ -250,6 +296,14 @@ private:
 
 namespace boosted_tree {
 
+enum ELossType {
+    E_MsleRegression,
+    E_MseRegression,
+    E_HuberRegression,
+    E_BinaryClassification,
+    E_MulticlassClassification
+};
+
 //! \brief Computes the leaf value which minimizes the loss function.
 class MATHS_EXPORT CArgMinLoss {
 public:
@@ -300,6 +354,7 @@ public:
     using TDoubleVector = CDenseVector<double>;
     using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
     using TWriter = std::function<void(std::size_t, double)>;
+    using TLossUPtr = std::unique_ptr<CLoss>;
 
     enum EType {
         E_BinaryClassification,
@@ -342,6 +397,14 @@ public:
     //! Returns true if the loss function is used for regression.
     virtual bool isRegression() const = 0;
 
+    //! Persist by passing information to \p inserter.
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
+    //! Populate the object from serialized data
+    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
+
+    static TLossUPtr restoreLoss(core::CStateRestoreTraverser& traverser);
+    void persistLoss(core::CStatePersistInserter& inserter) const;
+
 protected:
     CArgMinLoss makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& impl) const;
 };
@@ -352,6 +415,8 @@ public:
     static const std::string NAME;
 
 public:
+    CMse(core::CStateRestoreTraverser& traverser);
+    CMse() = default;
     std::unique_ptr<CLoss> clone() const override;
     EType type() const override;
     std::size_t numberParameters() const override;
@@ -372,6 +437,9 @@ public:
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
     bool isRegression() const override;
+
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 };
 
 //! \brief Implements loss for binomial logistic regression.
@@ -388,6 +456,8 @@ public:
     static const std::string NAME;
 
 public:
+    CBinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
+    CBinomialLogisticLoss() = default;
     std::unique_ptr<CLoss> clone() const override;
     EType type() const override;
     std::size_t numberParameters() const override;
@@ -408,6 +478,9 @@ public:
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
     bool isRegression() const override;
+
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 };
 
 //!  \brief Implements loss for multinomial logistic regression.
@@ -419,13 +492,14 @@ public:
 //!   \f$\displaystyle l_i(p) = -\sum_i a_{ij} \log(\sigma(p))\f$
 //! </pre>
 //! where \f$a_i\f$ denotes the actual class of the i'th example, \f$p\f$ denotes
-//! the vector valued prediction and \f$\sigma(p)\$ is the softmax function, i.e.
+//! the vector valued prediction and \f$\sigma(p)\f$ is the softmax function, i.e.
 //! \f$[\sigma(p)]_j = \frac{e^{p_i}}{\sum_k e^{p_k}}\f$.
 class MATHS_EXPORT CMultinomialLogisticLoss final : public CLoss {
 public:
     static const std::string NAME;
 
 public:
+    CMultinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     CMultinomialLogisticLoss(std::size_t numberClasses);
     EType type() const override;
     std::unique_ptr<CLoss> clone() const override;
@@ -448,13 +522,17 @@ public:
     const std::string& name() const override;
     bool isRegression() const override;
 
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+
 private:
     std::size_t m_NumberClasses;
 };
+
 //! \brief The MSLE loss function.
 //!
 //! DESCRIPTION:\n
-//! Formally, the MSLE error definition we use is \f$(\log(1+p) - \log(1+a))^2\f$.
+//! Formally, the MSLE loss definition we use is \f$(\log(1+p) - \log(1+a))^2\f$.
 //! However, we approximate this by a quadratic form which has its minimum p = a and
 //! matches the value and derivative of MSLE loss function. For example, if the
 //! current prediction for the i'th training point is \f$p_i\f$, the loss is defined
@@ -469,6 +547,8 @@ public:
     static const std::string NAME;
 
 public:
+    CMsle(core::CStateRestoreTraverser& traverser);
+    explicit CMsle(double offset = 1.0);
     EType type() const override;
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
@@ -488,6 +568,66 @@ public:
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
     bool isRegression() const override;
+
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+
+private:
+    double m_Offset;
+};
+
+//! \brief The pseudo-Huber loss function.
+//!
+//! DESCRIPTION:\n
+//! Formally, the pseudo-Huber loss definition we use is
+//! \f$\delta^2 (\sqrt{1 + \frac{(a - p)^2}{\delta^2}} - 1)\f$.
+//! However, we approximate this by a quadratic form which has its minimum p = a and
+//! matches the value and derivative of the pseudo-Huber loss function. For example, if the
+//! current prediction for the i'th training point is \f$p_i\f$, the loss is defined
+//! as
+//!   \f[
+//!     l_i(p) =  \delta^{2} \left(\sqrt{1 + \frac{\left(a_i - p_i\right)^{2}}{\delta^{2}}} - 1\right)
+//! + \frac{- a_i + p_i}{\sqrt{\frac{\delta^{2} + \left(a_i - p_i\right)^{2}}{\delta^{2}}}}(p-p_i)
+//! + \frac{- a_i + p_i}{2\sqrt{\frac{\delta^{2} + \left(a_i - p_i\right)^{2}}{\delta^{2}}}\left(a_i-p_i\right)}(p-p_i)^2
+//! \f]
+//! For this approximation we compute first and second derivative (gradient and curvature)
+//! with respect to p and then substitute p=p_i.
+//! As a result we obtain the following formulas for the gradient:
+//!   \f[\frac{- a_{i} + p_{i}}{\sqrt{\frac{\delta^{2} + \left(a_{i} - p_{i}\right)^{2}}{\delta^{2}}}}\f]
+//! and for the curvature:
+//!   \f[\frac{1}{\sqrt{1 + \frac{\left(a_{i} - p_{i}\right)^{2}}{\delta^{2}}}}\f]
+class MATHS_EXPORT CPseudoHuber final : public CLoss {
+public:
+    static const std::string NAME;
+
+public:
+    CPseudoHuber(core::CStateRestoreTraverser& traverser);
+    explicit CPseudoHuber(double delta);
+    EType type() const override;
+    std::unique_ptr<CLoss> clone() const override;
+    std::size_t numberParameters() const override;
+    double value(const TMemoryMappedFloatVector& predictionVec,
+                 double actual,
+                 double weight = 1.0) const override;
+    void gradient(const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  TWriter writer,
+                  double weight = 1.0) const override;
+    void curvature(const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   TWriter writer,
+                   double weight = 1.0) const override;
+    bool isCurvatureConstant() const override;
+    TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
+    CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
+    const std::string& name() const override;
+    bool isRegression() const override;
+
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
+
+private:
+    double m_Delta;
 };
 }
 }
