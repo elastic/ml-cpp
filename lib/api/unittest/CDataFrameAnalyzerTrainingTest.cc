@@ -1042,8 +1042,7 @@ BOOST_AUTO_TEST_CASE(testProgressFromRestart) {
     api::CDataFrameAnalyzer restoredAnalyzer{
         makeSpec(&persisterSupplier, &restoreSearcherSupplier), outputWriterFactory};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-        test::CDataFrameAnalyzerTrainingFactory::E_Regression, fieldNames,
-        fieldValues, restoredAnalyzer, 400);
+        TLossFunctionType::E_MseRegression, fieldNames, fieldValues, restoredAnalyzer, 400);
     restoredAnalyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "", "$"});
 
     rapidjson::Document results;
