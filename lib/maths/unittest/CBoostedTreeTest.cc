@@ -287,8 +287,9 @@ TLossFunctionUPtr createLossFunction(TLossFunctionType lossFunctionType,
     case TLossFunctionType::E_BinaryClassification:
     case TLossFunctionType::E_MulticlassClassification:
         LOG_ERROR(<< "Input error: regression loss type is expected but classification type is provided.");
-        return nullptr;
+        break;
     }
+    return nullptr;
 }
 }
 
@@ -353,7 +354,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
             if (lossFunctionType != TLossFunctionType::E_MsleRegression) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     0.0, modelBias[i][0],
-                    4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+                    8.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
             }
             // Good R^2...
             BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.95);
