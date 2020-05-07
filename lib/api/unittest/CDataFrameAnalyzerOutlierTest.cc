@@ -576,11 +576,12 @@ BOOST_AUTO_TEST_CASE(testProgress) {
             LOG_DEBUG(<< sb.GetString());
             if (result["phase_progress"]["phase"] == maths::COutliers::COMPUTING_OUTLIERS) {
                 computingOutliersProgress =
-                    std::max(computingOutliersProgress,
-                             result["phase_progress"]["progress_percent"].GetInt());
+                    result["phase_progress"]["progress_percent"].GetInt();
             }
         }
     }
+
+    BOOST_REQUIRE_EQUAL(100, computingOutliersProgress);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

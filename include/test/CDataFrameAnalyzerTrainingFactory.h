@@ -36,6 +36,40 @@ public:
     using TLossFunctionType = maths::boosted_tree::ELossType;
 
 public:
+    static void addPredictionTestData(TLossFunctionType type,
+                                      const TStrVec& fieldNames,
+                                      TStrVec fieldValues,
+                                      api::CDataFrameAnalyzer& analyzer,
+                                      std::size_t numberExamples = 100) {
+
+        test::CRandomNumbers rng;
+
+        TDoubleVec weights;
+        rng.generateUniformSamples(-1.0, 1.0, fieldNames.size() - 3, weights);
+        TDoubleVec regressors;
+        rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, regressors);
+
+        TStrVec targets;
+        switch (type) {
+        case TLossFunctionType::E_MseRegression:
+        case TLossFunctionType::E_HuberRegression:
+            setupLinearRegressionData(fieldNames, fieldValues, analyzer,
+                                      weights, regressors, targets);
+            break;
+        case TLossFunctionType::E_MsleRegression:
+            setupLinearRegressionData(fieldNames, fieldValues, analyzer, weights, regressors,
+                                      targets, [](double x) { return x * x; });
+            break;
+        case TLossFunctionType::E_BinaryClassification:
+            setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
+                                          weights, regressors, targets);
+            break;
+        case TLossFunctionType::E_MulticlassClassification:
+            // TODO
+            break;
+        }
+    }
+
     template<typename T>
     static void addPredictionTestData(TLossFunctionType type,
                                       const TStrVec& fieldNames,
@@ -64,8 +98,6 @@ public:
         auto frame = [&] {
             switch (type) {
             case TLossFunctionType::E_MseRegression:
-                return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
-                                                 weights, regressors, targets);
             case TLossFunctionType::E_HuberRegression:
                 return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
                                                  weights, regressors, targets);
