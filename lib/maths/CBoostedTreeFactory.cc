@@ -116,7 +116,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
 
     if (dependentVariable != m_TreeImpl->m_DependentVariable) {
         HANDLE_FATAL(<< "Internal error: expected dependent variable "
-                     << m_TreeImpl->m_DependentVariable << " got " << dependentVariable);
+                     << m_TreeImpl->m_DependentVariable << " got " << dependentVariable)
         return nullptr;
     }
 
@@ -273,10 +273,20 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
 }
 
 void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
+
     std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
     m_TreeImpl->m_ExtraColumns = frame.resizeColumns(
         m_TreeImpl->m_NumberThreads, extraColumns(numberLossParameters));
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(frame));
+
+    core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
+    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
+                       [&](TRowItr beginRows, TRowItr endRows) {
+                           for (auto row = beginRows; row != endRows; ++row) {
+                               writeExampleWeight(*row, m_TreeImpl->m_ExtraColumns, 1.0);
+                           }
+                       },
+                       &allTrainingRowsMask);
 }
 
 void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) const {
@@ -289,14 +299,6 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
         CDataFrameUtils::stratifiedCrossValidationRowMasks(
             m_TreeImpl->m_NumberThreads, frame, dependentVariable, m_TreeImpl->m_Rng,
             m_TreeImpl->m_NumberFolds, numberBuckets, allTrainingRowsMask);
-
-    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
-                       [&](TRowItr beginRows, TRowItr endRows) {
-                           for (auto row = beginRows; row != endRows; ++row) {
-                               writeExampleWeight(*row, m_TreeImpl->m_ExtraColumns, 1.0);
-                           }
-                       },
-                       &allTrainingRowsMask);
 }
 
 void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFrame& frame) const {
