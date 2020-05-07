@@ -85,7 +85,7 @@ void CDataFrameAnalysisInstrumentation::updateMemoryUsage(std::int64_t delta) {
 void CDataFrameAnalysisInstrumentation::startNewProgressMonitoredTask(const std::string& task) {
     std::string lastTask;
     {
-        std::lock_guard<std::mutex> lock{ms_ProgressMutex};
+        std::lock_guard<std::mutex> lock{m_ProgressMutex};
         lastTask = m_ProgressMonitoredTask;
         m_ProgressMonitoredTask = task;
         m_FractionalProgress.store(0.0);
@@ -99,7 +99,7 @@ void CDataFrameAnalysisInstrumentation::updateProgress(double fractionalProgress
 }
 
 void CDataFrameAnalysisInstrumentation::resetProgress() {
-    std::lock_guard<std::mutex> lock{ms_ProgressMutex};
+    std::lock_guard<std::mutex> lock{m_ProgressMutex};
     // FIXME Hack to get integration tests passing.
     m_ProgressMonitoredTask = "analyzing"; // NO_TASK;
     m_FractionalProgress.store(0);
@@ -146,14 +146,8 @@ void CDataFrameAnalysisInstrumentation::monitorProgress(
     int wait{1};
     while (instrumentation.finished() == false) {
         std::this_thread::sleep_for(std::chrono::milliseconds(wait));
-        std::string task;
-        int progress;
-        {
-            // Release the lock as soon as we've read the state.
-            std::lock_guard<std::mutex> lock{ms_ProgressMutex};
-            task = instrumentation.m_ProgressMonitoredTask;
-            progress = instrumentation.percentageProgress();
-        }
+        std::string task{instrumentation.readProgressMonitoredTask()};
+        int progress{instrumentation.percentageProgress()};
         if (task != lastTask || progress > lastProgress) {
             lastTask = task;
             lastProgress = progress;
@@ -162,12 +156,14 @@ void CDataFrameAnalysisInstrumentation::monitorProgress(
         wait = std::min(2 * wait, 1024);
     }
 
-    {
-        std::lock_guard<std::mutex> lock{ms_ProgressMutex};
-        lastTask = instrumentation.m_ProgressMonitoredTask;
-        lastProgress = instrumentation.percentageProgress();
-    }
+    lastTask = instrumentation.readProgressMonitoredTask();
+    lastProgress = instrumentation.percentageProgress();
     writeProgress(lastTask, lastProgress, &writer);
+}
+
+std::string CDataFrameAnalysisInstrumentation::readProgressMonitoredTask() const {
+    std::lock_guard<std::mutex> lock{m_ProgressMutex};
+    return m_ProgressMonitoredTask;
 }
 
 int CDataFrameAnalysisInstrumentation::percentageProgress() const {
@@ -220,7 +216,6 @@ void CDataFrameAnalysisInstrumentation::writeProgress(const std::string& task,
 }
 
 const std::string CDataFrameAnalysisInstrumentation::NO_TASK;
-std::mutex CDataFrameAnalysisInstrumentation::ms_ProgressMutex;
 
 counter_t::ECounterTypes CDataFrameOutliersInstrumentation::memoryCounterType() {
     return counter_t::E_DFOPeakMemoryUsage;
