@@ -40,6 +40,9 @@ void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInser
 bool CBoostedTreeHyperparameters::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name = traverser.name();
+        RESTORE(HYPERPARAM_DOWNSAMPLE_FACTOR_TAG,
+                core::CPersistUtils::restore(HYPERPARAM_DOWNSAMPLE_FACTOR_TAG,
+                                             m_DownsampleFactor, traverser))
         RESTORE(HYPERPARAM_ETA_TAG,
                 core::CPersistUtils::restore(HYPERPARAM_ETA_TAG, m_Eta, traverser))
         RESTORE(HYPERPARAM_ETA_GROWTH_RATE_PER_TREE_TAG,

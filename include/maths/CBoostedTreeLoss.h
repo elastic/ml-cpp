@@ -399,15 +399,17 @@ public:
     virtual bool isRegression() const = 0;
 
     //! Persist by passing information to \p inserter.
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
-    //! Populate the object from serialized data
-    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
-
-    static TLossUPtr restoreLoss(core::CStateRestoreTraverser& traverser);
     void persistLoss(core::CStatePersistInserter& inserter) const;
+
+    //! Initialize a loss object reading state from \p traverser.
+    static TLossUPtr restoreLoss(core::CStateRestoreTraverser& traverser);
 
 protected:
     CArgMinLoss makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& impl) const;
+
+private:
+    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const = 0;
+    virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
 };
 
 //! \brief The MSE loss function.
@@ -439,6 +441,7 @@ public:
     const std::string& name() const override;
     bool isRegression() const override;
 
+private:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 };
@@ -480,6 +483,7 @@ public:
     const std::string& name() const override;
     bool isRegression() const override;
 
+private:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 };
@@ -523,6 +527,7 @@ public:
     const std::string& name() const override;
     bool isRegression() const override;
 
+private:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 
@@ -570,6 +575,7 @@ public:
     const std::string& name() const override;
     bool isRegression() const override;
 
+private:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 
@@ -624,6 +630,7 @@ public:
     const std::string& name() const override;
     bool isRegression() const override;
 
+private:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
 
