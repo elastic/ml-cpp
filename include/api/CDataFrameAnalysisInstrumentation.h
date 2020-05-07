@@ -31,6 +31,13 @@ namespace api {
 //! Responsible for collecting data frame analysis job statistics, i.e. memory usage,
 //! progress, parameters, quality of results. This also implements the functionality
 //! to write the JSON statistics to a specified output stream in a thread safe manner.
+//!
+//! IMPLEMENTATION:\n
+//! With the exception of reading and writing progress and memory usage this class is
+//! *NOT* thread safe. It is expected that calls to update and write instrumentation
+//! data all happen on the thread running the analysis. It also performs thread safe
+//! writing to a shared output stream. For example, it is expected that writes for
+//! progress happen concurrently with writes of other instrumentation.
 class API_EXPORT CDataFrameAnalysisInstrumentation
     : virtual public maths::CDataFrameAnalysisInstrumentationInterface {
 public:
@@ -58,8 +65,6 @@ public:
     //! Start progress monitoring for \p phase.
     //!
     //! \note This resets the current progress to zero.
-    //! \warning This and flush use the same concurrent line writer so must only
-    //! be called from a single thread.
     void startNewProgressMonitoredTask(const std::string& task) override;
 
     //! This adds \p fractionalProgress to the current progress.
@@ -87,9 +92,6 @@ public:
 
     //! Flush then reinitialize the instrumentation data. This will trigger
     //! writing them to the results pipe.
-    //!
-    //! \warning This and startNewProgressMonitoredTask use the same concurrent
-    //! line writer so must only be called from a single thread.
     void flush(const std::string& tag = "") override;
 
     //! \return The peak memory usage.
@@ -116,6 +118,7 @@ private:
     static const std::string NO_TASK;
 
 private:
+    std::string readProgressMonitoredTask() const;
     int percentageProgress() const;
     virtual void writeAnalysisStats(std::int64_t timestamp) = 0;
     void writeMemoryAndAnalysisStats();
@@ -130,7 +133,7 @@ private:
     std::atomic_bool m_Finished;
     std::atomic_size_t m_FractionalProgress;
     std::atomic<std::int64_t> m_Memory;
-    static std::mutex ms_ProgressMutex;
+    mutable std::mutex m_ProgressMutex;
     TWriterUPtr m_Writer;
 };
 
