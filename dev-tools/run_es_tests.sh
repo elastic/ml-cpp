@@ -70,6 +70,11 @@ if [ -z "$ES_BUILD_JAVA" ]; then
     exit 1
 fi
 
+# On aarch64 adoptopenjdk is used in place of openjdk
+if [ `uname -m` = aarch64 ] ; then
+    export ES_BUILD_JAVA=adopt$ES_BUILD_JAVA
+fi
+
 echo "Setting JAVA_HOME=$HOME/.java/$ES_BUILD_JAVA"
 export JAVA_HOME="$HOME/.java/$ES_BUILD_JAVA"
 
