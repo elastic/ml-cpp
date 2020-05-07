@@ -571,9 +571,11 @@ void CPeriodicityHypothesisTestsResult::removeTrend(TFloatMeanAccumulatorVec& va
 }
 
 void CPeriodicityHypothesisTestsResult::removeDiscontinuities(TFloatMeanAccumulatorVec& values) const {
-    TSizeVec segmentation(CTimeSeriesSegmentation::piecewiseLinear(values));
-    values = CTimeSeriesSegmentation::removePiecewiseLinearDiscontinuities(
-        std::move(values), segmentation);
+    if (m_Trend.type() == CTrendHypothesis::E_PiecewiseLinear) {
+        TSizeVec segmentation(CTimeSeriesSegmentation::piecewiseLinear(values));
+        values = CTimeSeriesSegmentation::removePiecewiseLinearDiscontinuities(
+            std::move(values), segmentation);
+    }
 }
 
 bool CPeriodicityHypothesisTestsResult::periodic() const {

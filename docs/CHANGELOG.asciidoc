@@ -85,6 +85,8 @@
   (See {ml-pull}1193[#1193], issue: {ml-issue}1131[#1131].)
 * Fix restore from training state for classification and regression. (See
   {ml-pull}1197[#1197].)
+* Improve the initialization of seasonal components for anomaly detection. (See
+  {ml-pull}1201[#1201], issue: {ml-issue}#1178[#1178].)
 
 == {es} version 7.7.1
 
