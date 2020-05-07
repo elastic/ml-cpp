@@ -240,14 +240,14 @@ const CSeasonalTime& CSeasonalComponentAdaptiveBucketing::time() const {
     return *m_Time;
 }
 
-void CSeasonalComponentAdaptiveBucketing::propagateForwardsByTime(double time, bool meanRevert) {
+void CSeasonalComponentAdaptiveBucketing::propagateForwardsByTime(double time, double meanRevertFactor) {
     if (time < 0.0) {
         LOG_ERROR(<< "Can't propagate bucketing backwards in time");
     } else if (this->initialized()) {
         double factor{std::exp(-this->decayRate() * m_Time->fractionInWindow() * time)};
         this->age(factor);
         for (auto& bucket : m_Buckets) {
-            bucket.s_Regression.age(factor, meanRevert);
+            bucket.s_Regression.age(factor, meanRevertFactor);
         }
     }
 }

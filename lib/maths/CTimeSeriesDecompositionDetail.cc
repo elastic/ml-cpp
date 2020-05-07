@@ -200,22 +200,17 @@ void decompose(double trend,
 
 //! Propagate \p target forwards to account for \p end - \p start elapsed
 //! time in steps or size \p step.
-template<typename PTR>
-double stepwisePropagateForwards(const PTR& target,
-                                 core_t::TTime start,
-                                 core_t::TTime end,
-                                 core_t::TTime step,
-                                 double scale = 1.0) {
-    double time{0.0};
-    if (target) {
-        start = CIntegerTools::floor(start, step);
-        end = CIntegerTools::floor(end, step);
-        if (end > start) {
-            time = scale * static_cast<double>(end - start) / static_cast<double>(step);
-            target->propagateForwardsByTime(time);
-        }
+template<typename F>
+void stepwisePropagateForwards(core_t::TTime start,
+                               core_t::TTime end,
+                               core_t::TTime step,
+                               const F& propagateForwardsByTime) {
+    start = CIntegerTools::floor(start, step);
+    end = CIntegerTools::floor(end, step);
+    if (end > start) {
+        double time{static_cast<double>(end - start) / static_cast<double>(step)};
+        propagateForwardsByTime(time);
     }
-    return time;
 }
 
 // Periodicity Test State Machine
@@ -647,8 +642,16 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::shiftTime(core_t::TTime d
 
 void CTimeSeriesDecompositionDetail::CPeriodicityTest::propagateForwards(core_t::TTime start,
                                                                          core_t::TTime end) {
-    stepwisePropagateForwards(m_Windows[E_Short], start, end, DAY);
-    stepwisePropagateForwards(m_Windows[E_Long], start, end, WEEK);
+    if (m_Windows[E_Short] != nullptr) {
+        stepwisePropagateForwards(start, end, DAY, [this](double time) {
+            m_Windows[E_Short]->propagateForwardsByTime(time);
+        });
+    }
+    if (m_Windows[E_Long] != nullptr) {
+        stepwisePropagateForwards(start, end, WEEK, [this](double time) {
+            m_Windows[E_Long]->propagateForwardsByTime(time);
+        });
+    }
 }
 
 CTimeSeriesDecompositionDetail::TFloatMeanAccumulatorVec
@@ -979,7 +982,11 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::test(const SMessage& message
 
 void CTimeSeriesDecompositionDetail::CCalendarTest::propagateForwards(core_t::TTime start,
                                                                       core_t::TTime end) {
-    stepwisePropagateForwards(m_Test, start, end, DAY);
+    if (m_Test != nullptr) {
+        stepwisePropagateForwards(start, end, DAY, [this](double time) {
+            m_Test->propagateForwardsByTime(time);
+        });
+    }
 }
 
 uint64_t CTimeSeriesDecompositionDetail::CCalendarTest::checksum(uint64_t seed) const {
@@ -2173,13 +2180,12 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::removeComponentsWit
 
 void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::propagateForwards(core_t::TTime start,
                                                                                core_t::TTime end) {
-    for (std::size_t i = 0u; i < m_Components.size(); ++i) {
+    for (std::size_t i = 0; i < m_Components.size(); ++i) {
         core_t::TTime period{m_Components[i].time().period()};
-        double time{stepwisePropagateForwards(
-            &m_Components[i], start, end, CTools::truncate(period, DAY, WEEK), 1.0 / 3.0)};
-        if (time > 0.0) {
+        stepwisePropagateForwards(start, end, period, [&](double time) {
+            m_Components[i].propagateForwardsByTime(time / 4.0, 0.25);
             m_PredictionErrors[i].age(std::exp(-m_Components[i].decayRate() * time));
-        }
+        });
     }
 }
 
@@ -2476,11 +2482,11 @@ void CTimeSeriesDecompositionDetail::CComponents::CCalendar::decayRate(double de
 
 void CTimeSeriesDecompositionDetail::CComponents::CCalendar::propagateForwards(core_t::TTime start,
                                                                                core_t::TTime end) {
-    for (std::size_t i = 0u; i < m_Components.size(); ++i) {
-        double time{stepwisePropagateForwards(&m_Components[i], start, end, MONTH, 1.0 / 3.0)};
-        if (time > 0.0) {
+    for (std::size_t i = 0; i < m_Components.size(); ++i) {
+        stepwisePropagateForwards(start, end, MONTH, [&](double time) {
+            m_Components[i].propagateForwardsByTime(time / 4.0);
             m_PredictionErrors[i].age(std::exp(-m_Components[i].decayRate() * time));
-        }
+        });
     }
 }
 

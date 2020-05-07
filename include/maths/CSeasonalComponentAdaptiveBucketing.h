@@ -108,7 +108,11 @@ public:
     void add(core_t::TTime time, double value, double prediction, double weight = 1.0);
 
     //! Age the bucket values to account for \p time elapsed time.
-    void propagateForwardsByTime(double time, bool meanRevert = false);
+    //!
+    //! \param[in] meanRevertFactor Controls how quicly the components mean
+    //! revert as a multiplier of the rate at which data is aged out of the
+    //! component. By default components don't mean revert.
+    void propagateForwardsByTime(double time, double meanRevertFactor = 0.0);
 
     //! Get the time provider.
     const CSeasonalTime& time() const;

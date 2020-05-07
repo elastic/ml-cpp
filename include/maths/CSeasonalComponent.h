@@ -129,7 +129,11 @@ public:
     void decayRate(double decayRate);
 
     //! Age out old data to account for elapsed \p time.
-    void propagateForwardsByTime(double time, bool meanRevert = false);
+    //!
+    //! \param[in] meanRevertFactor Controls how quicly the components mean
+    //! revert as a multiplier of the rate at which data is aged out of the
+    //! component. By default components don't mean revert.
+    void propagateForwardsByTime(double time, double meanRevertFactor = 0.0);
 
     //! Get the time provider.
     const CSeasonalTime& time() const;
