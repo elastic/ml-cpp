@@ -47,6 +47,12 @@ if [ -z "$BUILD_SNAPSHOT" ] ; then
 fi
 
 VERSION=$(cat ../gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo)
+HARDWARE_ARCH=$(uname -m)
+
+if [ "$HARDWARE_ARCH" != x86_64 ] ; then
+    echo "$VERSION is not built on $HARDWARE_ARCH"
+    exit 0
+fi
 
 # Jenkins sets BUILD_SNAPSHOT, but our Docker scripts require SNAPSHOT
 if [ "$BUILD_SNAPSHOT" = false ] ; then
