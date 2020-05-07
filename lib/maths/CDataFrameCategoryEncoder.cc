@@ -564,7 +564,7 @@ CMakeDataFrameCategoryEncoder::CMakeDataFrameCategoryEncoder(std::size_t numberT
                                                              const core::CDataFrame& frame,
                                                              std::size_t targetColumn)
     : m_NumberThreads{numberThreads}, m_Frame{&frame}, m_RowMask{frame.numberRows(), true},
-      m_TargetColumn{targetColumn} {
+      m_TargetColumn{targetColumn}, m_RecordProgress{[](double) {}} {
 
     m_ColumnMask.resize(frame.numberColumns());
     std::iota(m_ColumnMask.begin(), m_ColumnMask.end(), 0);
@@ -609,6 +609,12 @@ CMakeDataFrameCategoryEncoder::rowMask(core::CPackedBitVector rowMask) {
 
 CMakeDataFrameCategoryEncoder& CMakeDataFrameCategoryEncoder::columnMask(TSizeVec columnMask) {
     m_ColumnMask = std::move(columnMask);
+    return *this;
+}
+
+CMakeDataFrameCategoryEncoder&
+CMakeDataFrameCategoryEncoder::progressCallback(TProgressCallback recordProgress) {
+    m_RecordProgress = recordProgress;
     return *this;
 }
 
@@ -889,6 +895,9 @@ CMakeDataFrameCategoryEncoder::selectFeatures(TSizeVec metricColumnMask,
 
     TSizeSizePrDoubleMap selectedFeatureMics;
 
+    // Preamble.
+    m_RecordProgress(0.01);
+
     if (maximumNumberFeatures >= numberAvailableFeatures) {
 
         selectedFeatureMics = this->selectAllFeatures(mics);
@@ -923,6 +932,9 @@ CMakeDataFrameCategoryEncoder::selectFeatures(TSizeVec metricColumnMask,
                 m_CategoryTargetMeanValues[feature]);
             mics = this->mics(*columnValue, metricColumnMask, categoricalColumnMask);
             search.update(mics);
+
+            m_RecordProgress(0.99 * static_cast<double>(i) /
+                             static_cast<double>(maximumNumberFeatures));
         }
     }
 

@@ -41,7 +41,7 @@
 
 === Enhancements
 
-* Speedup anomaly detection for the lat_long function. (See {ml-pull}1102[#1102].)
+* Speed up anomaly detection for the lat_long function. (See {ml-pull}1102[#1102].)
 * Reduce CPU scheduling priority of native analysis processes to favor the ES JVM
   when CPU is constrained. (See {ml-pull}1109[#1109].)
 * Take `training_percent` into account when estimating memory usage for classification and regression. 
@@ -52,6 +52,7 @@
 * Adds new `num_matches` and `preferred_to_categories` fields to category output.
   (See {ml-pull}1062[#1062])
 * Adds mean squared logarithmic error (MSLE) for regression. (See {ml-pull}1101[#1101].)
+* Adds pseudo-Huber loss for regression. (See {ml-pull}1168[#1168].)
 * Reduce peak memory usage and memory estimates for classification and regression.
   (See {ml-pull}1125[#1125].)
 * Reduce variability of classification and regression results across our target operating systems.
@@ -64,19 +65,30 @@
   operations. (See {ml-pull}1142[#1142].)
 * Fix spurious anomalies for count and sum functions after no data are received for long
   periods of time. (See {ml-pull}1158[#1158].)
-
-== {es} version 7.8.0
+* Improve false positive rates from periodicity test for time series anomaly detection.
+  (See {ml-pull}1177[#1177].)
+* Break progress reporting of data frame analyses into multiple phases. (See {ml-pull}1179[#1179].)
+* Really centre the data before training for classification and regression begins. This
+  means we can choose more optimal smoothing bias and should reduce the number of trees.
+  (See {ml-pull}1192[#1192].)
 
 === Bug Fixes
 
 * Trap and fail if insufficient features are supplied to data frame analyses. This
   caused classification and regression getting stuck at zero progress analyzing.
   (See {ml-pull}1160[#1160], issue: {issue}55593[#55593].)
-
-=== Bug Fixes
-
+* Make categorization respect the `model_memory_limit`. (See {ml-pull}1167[#1167],
+  issue: {ml-issue}1130[#1130].)
 * Fix underlying cause for "Failed to calculate splitting significance" log errors.
   (See {ml-pull}1157[#1157].)
+* Respect user overrides for `max_trees` for classification and regression. (See
+  {ml-pull}1185[#1185].)
+* Reset memory status from `soft_limit` to `ok` when pruning is no longer required.
+  (See {ml-pull}1193[#1193], issue: {ml-issue}1131[#1131].)
+* Fix restore from training state for classification and regression. (See
+  {ml-pull}1197[#1197].)
+* Improve the initialization of seasonal components for anomaly detection. (See
+  {ml-pull}1201[#1201], issue: {ml-issue}#1178[#1178].)
 
 == {es} version 7.7.1
 
@@ -84,8 +96,8 @@
 
 * Fixed background persistence of categorizer state (See {ml-pull}1137[#1137],
   issue: {ml-issue}1136[#1136].)
-* Fix classification job failures when number of classes in configuration differs from the number of classes present in the training data. (See {ml-pull}1144[#1144].)
-  identified one. (See {ml-pull}1144[#1144].)
+* Fix classification job failures when number of classes in configuration differs 
+  from the number of classes present in the training data. (See {ml-pull}1144[#1144].)
 
 == {es} version 7.7.0
 

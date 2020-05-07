@@ -3,16 +3,22 @@
 # or more contributor license agreements. Licensed under the Elastic License;
 # you may not use this file except in compliance with the Elastic License.
 #
-
 include $(CPP_SRC_HOME)/mk/defines.mk
 
-.PHONY: test
-.PHONY: build
+TARGET=state_search_splitter$(EXE_EXT)
 
-COMPONENTS= \
-            unixtime_to_string \
-            model_extractor \
-            state_search_splitter \
+ML_LIBS=$(LIB_ML_CORE)
 
-include $(CPP_SRC_HOME)/mk/toplevel.mk
+USE_BOOST=1
+
+LIBS=$(ML_LIBS)
+
+all: build
+
+SRCS= \
+    Main.cc \
+
+NO_TEST_CASES=1
+
+include $(CPP_SRC_HOME)/mk/stddevapp.mk
 

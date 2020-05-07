@@ -294,7 +294,7 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
             LOG_TRACE(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                BOOST_TEST_REQUIRE(sumResidual < 0.27 * sumValue);
+                BOOST_TEST_REQUIRE(sumResidual < 0.28 * sumValue);
                 BOOST_TEST_REQUIRE(maxResidual < 0.56 * maxValue);
                 BOOST_TEST_REQUIRE(percentileError < 0.22 * sumValue);
 
@@ -313,9 +313,9 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.18 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.20 * totalSumValue);
     BOOST_TEST_REQUIRE(totalMaxResidual < 0.28 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.1 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.11 * totalSumValue);
 }
 
 BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
@@ -412,9 +412,9 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.05 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.06 * totalSumValue);
     BOOST_TEST_REQUIRE(totalMaxResidual < 0.20 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.02 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.03 * totalSumValue);
 
     meanSlope /= refinements;
     LOG_DEBUG(<< "mean weekly |slope| = " << meanSlope);
@@ -744,12 +744,12 @@ BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
             totalPercentileError += percentileError;
 
             const TSeasonalComponentVec& components = decomposition.seasonalComponents();
-            if (time > 12 * WEEK) {
+            if (time > 13 * WEEK) {
                 // Check that there are at two least components.
                 BOOST_TEST_REQUIRE(components.size() >= 2);
                 BOOST_TEST_REQUIRE(components[0].initialized());
                 BOOST_TEST_REQUIRE(components[1].initialized());
-            } else if (time > 11 * WEEK) {
+            } else if (time > 12 * WEEK) {
                 // Check that there is at least one component.
                 BOOST_REQUIRE_EQUAL(std::size_t(1), components.size());
                 BOOST_TEST_REQUIRE(components[0].initialized());
@@ -764,9 +764,9 @@ BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
     LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.07 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.08 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.03 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.08 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.1 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.05 * totalSumValue);
 }
 
 BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {

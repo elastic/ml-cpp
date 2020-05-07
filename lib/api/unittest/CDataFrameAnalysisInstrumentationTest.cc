@@ -29,6 +29,7 @@ using TStrVec = std::vector<std::string>;
 using TRowItr = core::CDataFrame::TRowItr;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
+using TLossFunctionType = maths::boosted_tree::ELossType;
 
 void addOutlierTestData(TStrVec fieldNames,
                         TStrVec fieldValues,
@@ -108,7 +109,7 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
         api::CDataFrameTrainBoostedTreeInstrumentation::CScopeSetOutputStream setStream{
             instrumentation, streamWrapper};
         instrumentation.updateMemoryUsage(memoryUsage);
-        instrumentation.nextStep();
+        instrumentation.flush();
         outputStream.flush();
     }
     std::int64_t timeAfter{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
@@ -150,8 +151,8 @@ BOOST_AUTO_TEST_CASE(testTrainingRegression) {
             test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
         outputWriterFactory};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-        test::CDataFrameAnalyzerTrainingFactory::E_Regression, fieldNames,
-        fieldValues, analyzer, expectedPredictions);
+        TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer,
+        expectedPredictions);
 
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
@@ -240,8 +241,8 @@ BOOST_AUTO_TEST_CASE(testTrainingClassification) {
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(), "target"),
         outputWriterFactory};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
-        test::CDataFrameAnalyzerTrainingFactory::E_BinaryClassification,
-        fieldNames, fieldValues, analyzer, expectedPredictions);
+        TLossFunctionType::E_BinaryClassification, fieldNames, fieldValues,
+        analyzer, expectedPredictions);
 
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 

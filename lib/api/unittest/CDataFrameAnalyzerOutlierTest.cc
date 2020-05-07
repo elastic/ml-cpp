@@ -19,6 +19,8 @@
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CRandomNumbers.h>
 
+#include <rapidjson/prettywriter.h>
+
 #include <boost/test/unit_test.hpp>
 
 #include <memory>
@@ -368,42 +370,6 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionWithParams) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testOutlierDetectionStateReport) {
-
-    // Test the results the analyzer produces match running outlier detection
-    // directly.
-
-    std::stringstream output;
-    auto outputWriterFactory = [&output]() {
-        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
-    };
-
-    api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
-
-    TDoubleVec expectedScores;
-    TDoubleVecVec expectedFeatureInfluences;
-
-    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
-    TStrVec fieldValues{"", "", "", "", "", "0", ""};
-    addOutlierTestData(fieldNames, fieldValues, analyzer, expectedScores,
-                       expectedFeatureInfluences);
-    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-
-    std::ostringstream stream;
-    {
-        core::CJsonOutputStreamWrapper wrapper{stream};
-        core::CRapidJsonConcurrentLineWriter writer{wrapper};
-        writer.write(results);
-        stream.flush();
-    }
-    LOG_DEBUG(<< stream.str());
-}
-
 BOOST_AUTO_TEST_CASE(testFlushMessage) {
 
     // Test that white space is just ignored.
@@ -574,6 +540,48 @@ BOOST_AUTO_TEST_CASE(testRoundTripDocHashes) {
                                 result["row_results"]["checksum"].GetInt());
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE(testProgress) {
+
+    // Test we get 100% progress reported for all stages of the analysis.
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    api::CDataFrameAnalyzer analyzer{
+        test::CDataFrameAnalysisSpecificationFactory{}.outlierSpec(), outputWriterFactory};
+
+    TDoubleVec expectedScores;
+    TDoubleVecVec expectedFeatureInfluences;
+
+    TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    addOutlierTestData(fieldNames, fieldValues, analyzer, expectedScores,
+                       expectedFeatureInfluences);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    int computingOutliersProgress{0};
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("phase_progress")) {
+            rapidjson::StringBuffer sb;
+            rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
+            result["phase_progress"].Accept(writer);
+            LOG_DEBUG(<< sb.GetString());
+            if (result["phase_progress"]["phase"] == maths::COutliers::COMPUTING_OUTLIERS) {
+                computingOutliersProgress =
+                    result["phase_progress"]["progress_percent"].GetInt();
+            }
+        }
+    }
+
+    BOOST_REQUIRE_EQUAL(100, computingOutliersProgress);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

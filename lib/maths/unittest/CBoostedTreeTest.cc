@@ -19,6 +19,7 @@
 #include <maths/CToolsDetail.h>
 
 #include <test/BoostTestCloseAbsolute.h>
+#include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
 
@@ -26,6 +27,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+#include <atomic>
 #include <fstream>
 #include <functional>
 #include <limits>
@@ -48,28 +50,53 @@ using TRowRef = core::CDataFrame::TRowRef;
 using TRowItr = core::CDataFrame::TRowItr;
 using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+using TLossFunctionType = maths::boosted_tree::ELossType;
+using TLossFunctionUPtr = maths::CBoostedTreeFactory::TLossFunctionUPtr;
 
 namespace {
+
+const double LARGE_POSITIVE_CONSTANT{300.0};
 
 class CTestInstrumentation : public maths::CDataFrameTrainBoostedTreeInstrumentationStub {
 public:
     using TIntVec = std::vector<int>;
+    struct STaskProgess {
+        STaskProgess(const std::string& name, bool monotonic, const TIntVec& tenPercentProgressPoints)
+            : s_Name{name}, s_Monotonic{monotonic}, s_TenPercentProgressPoints{
+                                                        tenPercentProgressPoints} {}
+
+        std::string s_Name;
+        bool s_Monotonic;
+        TIntVec s_TenPercentProgressPoints;
+    };
+    using TTaskProgressVec = std::vector<STaskProgess>;
 
 public:
     CTestInstrumentation()
-        : m_TotalFractionalProgress{0}, m_MemoryUsage{0}, m_MaxMemoryUsage{0} {}
+        : m_TotalFractionalProgress{0}, m_Monotonic{true}, m_MemoryUsage{0}, m_MaxMemoryUsage{0} {
+    }
 
     int progress() const {
         return (100 * m_TotalFractionalProgress.load()) / 65536;
     }
-    TIntVec tenPercentProgressPoints() const {
-        return m_TenPercentProgressPoints;
-    }
     std::int64_t maxMemoryUsage() const { return m_MaxMemoryUsage.load(); }
+
+    TTaskProgressVec taskProgress() const { return m_TaskProgress; }
+
+    void startNewProgressMonitoredTask(const std::string& task) override {
+        if (m_Task.empty() == false) {
+            m_TaskProgress.emplace_back(m_Task, m_Monotonic.load(), m_TenPercentProgressPoints);
+        }
+        m_Task = task;
+        m_TotalFractionalProgress.store(0);
+        m_TenPercentProgressPoints.clear();
+        m_Monotonic.store(true);
+    }
 
     void updateProgress(double fractionalProgress) override {
         int progress{m_TotalFractionalProgress.fetch_add(
             static_cast<int>(65536.0 * fractionalProgress + 0.5))};
+        m_Monotonic.store(m_Monotonic.load() && fractionalProgress > 0.0);
         // This needn't be protected because progress is only written from one thread and
         // the tests arrange that it is never read at the same time it is being written.
         if (m_TenPercentProgressPoints.empty() ||
@@ -89,8 +116,11 @@ public:
     }
 
 private:
+    std::string m_Task;
     std::atomic_int m_TotalFractionalProgress;
     TIntVec m_TenPercentProgressPoints;
+    std::atomic_bool m_Monotonic;
+    TTaskProgressVec m_TaskProgress;
     std::atomic<std::int64_t> m_MemoryUsage;
     std::atomic<std::int64_t> m_MaxMemoryUsage;
 };
@@ -174,7 +204,9 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
                                         std::size_t testRows,
                                         std::size_t cols,
                                         std::size_t capacity,
-                                        double noiseVariance) {
+                                        double noiseVariance,
+                                        maths::CBoostedTreeFactory::TLossFunctionUPtr lossFunction =
+                                            std::make_unique<maths::boosted_tree::CMse>()) {
 
     std::size_t rows{trainRows + testRows};
 
@@ -210,7 +242,7 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
             fillDataFrame(trainRows, testRows, cols, x, noise, target, *frame);
 
             auto regression = maths::CBoostedTreeFactory::constructFromParameters(
-                                  1, std::make_unique<maths::boosted_tree::CMse>())
+                                  1, lossFunction->clone())
                                   .buildFor(*frame, cols - 1);
 
             regression->train();
@@ -242,13 +274,30 @@ void readFileToStream(const std::string& filename, std::stringstream& stream) {
     stream << str;
     stream.flush();
 }
+
+TLossFunctionUPtr createLossFunction(TLossFunctionType lossFunctionType,
+                                     double parameter = 1.0) {
+    switch (lossFunctionType) {
+    case TLossFunctionType::E_MseRegression:
+        return std::make_unique<maths::boosted_tree::CMse>();
+    case TLossFunctionType::E_MsleRegression:
+        return std::make_unique<maths::boosted_tree::CMsle>(parameter);
+    case TLossFunctionType::E_HuberRegression:
+        return std::make_unique<maths::boosted_tree::CPseudoHuber>(parameter);
+    case TLossFunctionType::E_BinaryClassification:
+    case TLossFunctionType::E_MulticlassClassification:
+        LOG_ERROR(<< "Input error: regression loss type is expected but classification type is provided.");
+        break;
+    }
+    return nullptr;
+}
 }
 
 BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
-
     // Test regression quality on piecewise constant function.
 
-    auto generatePiecewiseConstant = [](test::CRandomNumbers& rng, std::size_t cols) {
+    auto generatePiecewiseConstant = [](TLossFunctionType lossFunctionType,
+                                        test::CRandomNumbers& rng, std::size_t cols) {
         TDoubleVec p;
         TDoubleVec v;
         rng.generateUniformSamples(0.0, 10.0, 2 * cols - 2, p);
@@ -256,116 +305,140 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
         for (std::size_t i = 0; i < p.size(); i += 2) {
             std::sort(p.begin() + i, p.begin() + i + 2);
         }
+        double offset{0.0};
+        if (lossFunctionType == TLossFunctionType::E_MsleRegression) {
+            offset = LARGE_POSITIVE_CONSTANT;
+        }
 
-        return [p, v, cols](const TRowRef& row) {
+        return [=](const TRowRef& row) {
             double result{0.0};
             for (std::size_t i = 0; i < cols - 1; ++i) {
                 if (row[i] >= p[2 * i] && row[i] < p[2 * i + 1]) {
                     result += v[i];
                 }
             }
-            return result;
+            return offset + result;
         };
     };
 
-    TDoubleVecVec modelBias;
-    TDoubleVecVec modelRSquared;
-
     test::CRandomNumbers rng;
     double noiseVariance{0.2};
-    std::size_t trainRows{1000};
+    std::size_t trainRows{500};
     std::size_t testRows{200};
-    std::size_t cols{6};
+    std::size_t cols{3};
     std::size_t capacity{250};
 
-    std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
-        generatePiecewiseConstant, rng, trainRows, testRows, cols, capacity, noiseVariance);
+    // TODO reactivate test for huber and MSLE
+    for (auto lossFunctionType : {TLossFunctionType::E_MseRegression /*, TLossFunctionType::E_MsleRegression,
+          TLossFunctionType::E_HuberRegression*/}) {
 
-    TMeanAccumulator meanModelRSquared;
+        TDoubleVecVec modelBias;
+        TDoubleVecVec modelRSquared;
+        std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
+            std::bind(generatePiecewiseConstant, lossFunctionType,
+                      std::placeholders::_1, std::placeholders::_2),
+            rng, trainRows, testRows, cols, capacity, noiseVariance,
+            createLossFunction(lossFunctionType));
 
-    for (std::size_t i = 0; i < modelBias.size(); ++i) {
+        TMeanAccumulator meanModelRSquared;
 
-        // In and out-of-core agree.
-        for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
-            BOOST_REQUIRE_EQUAL(modelBias[i][0], modelBias[i][j]);
-            BOOST_REQUIRE_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+        for (std::size_t i = 0; i < modelBias.size(); ++i) {
+
+            // In and out-of-core agree.
+            for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
+                BOOST_REQUIRE_EQUAL(modelBias[i][0], modelBias[i][j]);
+                BOOST_REQUIRE_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            }
+
+            // Unbiased...
+            if (lossFunctionType != TLossFunctionType::E_MsleRegression) {
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                    0.0, modelBias[i][0],
+                    8.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            }
+            // Good R^2...
+            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.95);
+
+            meanModelRSquared.add(modelRSquared[i][0]);
         }
 
-        // Unbiased...
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            0.0, modelBias[i][0],
-            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
-        // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
-
-        meanModelRSquared.add(modelRSquared[i][0]);
+        LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.90);
     }
-
-    LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
 }
 
 BOOST_AUTO_TEST_CASE(testLinear) {
-
     // Test regression quality on linear function.
 
-    auto generateLinear = [](test::CRandomNumbers& rng, std::size_t cols) {
+    auto generateLinear = [](TLossFunctionType lossFunctionType,
+                             test::CRandomNumbers& rng, std::size_t cols) {
         TDoubleVec m;
         TDoubleVec s;
         rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
         rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+        double offset{0.0};
+        if (lossFunctionType == TLossFunctionType::E_MsleRegression) {
+            offset = LARGE_POSITIVE_CONSTANT;
+        }
 
-        return [m, s, cols](const TRowRef& row) {
+        return [=](const TRowRef& row) {
             double result{0.0};
             for (std::size_t i = 0; i < cols - 1; ++i) {
                 result += m[i] + s[i] * row[i];
             }
-            return result;
+            return offset + result;
         };
     };
 
-    TDoubleVecVec modelBias;
-    TDoubleVecVec modelRSquared;
-
     test::CRandomNumbers rng;
     double noiseVariance{100.0};
-    std::size_t trainRows{1000};
+    std::size_t trainRows{500};
     std::size_t testRows{200};
     std::size_t cols{6};
-    std::size_t capacity{500};
+    std::size_t capacity{250};
 
-    std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
-        generateLinear, rng, trainRows, testRows, cols, capacity, noiseVariance);
+    // TODO reactivate test for huber and MSLE
+    for (auto lossFunctionType : {TLossFunctionType::E_MseRegression /*, TLossFunctionType::E_MsleRegression,
+          TLossFunctionType::E_HuberRegression*/}) {
+        TDoubleVecVec modelBias;
+        TDoubleVecVec modelRSquared;
+        std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
+            std::bind(generateLinear, lossFunctionType, std::placeholders::_1,
+                      std::placeholders::_2),
+            rng, trainRows, testRows, cols, capacity, noiseVariance,
+            createLossFunction(lossFunctionType));
 
-    TMeanAccumulator meanModelRSquared;
+        TMeanAccumulator meanModelRSquared;
 
-    for (std::size_t i = 0; i < modelBias.size(); ++i) {
+        for (std::size_t i = 0; i < modelBias.size(); ++i) {
 
-        // In and out-of-core agree.
-        for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
-            BOOST_REQUIRE_EQUAL(modelBias[i][0], modelBias[i][j]);
-            BOOST_REQUIRE_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            // In and out-of-core agree.
+            for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
+                BOOST_REQUIRE_EQUAL(modelBias[i][0], modelBias[i][j]);
+                BOOST_REQUIRE_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            }
+
+            // Unbiased...
+            if (lossFunctionType != TLossFunctionType::E_MsleRegression) {
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                    0.0, modelBias[i][0],
+                    4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            }
+            // Good R^2...
+            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
+
+            meanModelRSquared.add(modelRSquared[i][0]);
         }
-
-        // Unbiased...
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            0.0, modelBias[i][0],
-            4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
-        // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
-
-        meanModelRSquared.add(modelRSquared[i][0]);
+        LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
     }
-    LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
 }
 
 BOOST_AUTO_TEST_CASE(testNonLinear) {
-
     // Test regression quality on non-linear function.
 
-    auto generateNonLinear = [](test::CRandomNumbers& rng, std::size_t cols) {
-
+    auto generateNonLinear = [](TLossFunctionType lossFunctionType,
+                                test::CRandomNumbers& rng, std::size_t cols) {
         cols = cols - 1;
 
         TDoubleVec mean;
@@ -376,6 +449,10 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
         rng.generateUniformSamples(-10.0, 10.0, cols, slope);
         rng.generateUniformSamples(-1.0, 1.0, cols, curve);
         rng.generateUniformSamples(-0.5, 0.5, cols * cols, cross);
+        double offset{0.0};
+        if (lossFunctionType == TLossFunctionType::E_MsleRegression) {
+            offset = LARGE_POSITIVE_CONSTANT;
+        }
 
         return [=](const TRowRef& row) {
             double result{0.0};
@@ -387,12 +464,9 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
                     result += cross[i * cols + j] * row[i] * row[j];
                 }
             }
-            return result;
+            return offset + result;
         };
     };
-
-    TDoubleVecVec modelBias;
-    TDoubleVecVec modelRSquared;
 
     test::CRandomNumbers rng;
     double noiseVariance{100.0};
@@ -401,30 +475,41 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
     std::size_t cols{6};
     std::size_t capacity{500};
 
-    std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
-        generateNonLinear, rng, trainRows, testRows, cols, capacity, noiseVariance);
+    // TODO reactivate test for huber and MSLE
+    for (auto lossFunctionType : {TLossFunctionType::E_MseRegression /*, TLossFunctionType::E_MsleRegression,
+          TLossFunctionType::E_HuberRegression*/}) {
+        TDoubleVecVec modelBias;
+        TDoubleVecVec modelRSquared;
+        std::tie(modelBias, modelRSquared) = predictAndComputeEvaluationMetrics(
+            std::bind(generateNonLinear, lossFunctionType,
+                      std::placeholders::_1, std::placeholders::_2),
+            rng, trainRows, testRows, cols, capacity, noiseVariance,
+            createLossFunction(lossFunctionType));
 
-    TMeanAccumulator meanModelRSquared;
+        TMeanAccumulator meanModelRSquared;
 
-    for (std::size_t i = 0; i < modelBias.size(); ++i) {
+        for (std::size_t i = 0; i < modelBias.size(); ++i) {
 
-        // In and out-of-core agree.
-        for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
-            BOOST_REQUIRE_EQUAL(modelBias[i][0], modelBias[i][j]);
-            BOOST_REQUIRE_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            // In and out-of-core agree.
+            for (std::size_t j = 1; j < modelBias[i].size(); ++j) {
+                BOOST_REQUIRE_EQUAL(modelBias[i][0], modelBias[i][j]);
+                BOOST_REQUIRE_EQUAL(modelRSquared[i][0], modelRSquared[i][j]);
+            }
+
+            // Unbiased...
+            if (lossFunctionType != TLossFunctionType::E_MsleRegression) {
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                    0.0, modelBias[i][0],
+                    4.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+            }
+            // Good R^2...
+            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
+
+            meanModelRSquared.add(modelRSquared[i][0]);
         }
-
-        // Unbiased...
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            0.0, modelBias[i][0],
-            5.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
-        // Good R^2...
-        BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.97);
-
-        meanModelRSquared.add(modelRSquared[i][0]);
+        LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
     }
-    LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
@@ -974,7 +1059,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.71);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.65);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
@@ -1063,7 +1148,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
     LOG_DEBUG(<< "recalls    = " << core::CContainerPrinter::print(recalls));
 
     BOOST_TEST_REQUIRE(std::fabs(precisions[0] - precisions[1]) < 0.1);
-    BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.14);
+    BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.1);
 }
 
 BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
@@ -1157,7 +1242,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 2.1);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 2.0);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
@@ -1333,27 +1418,39 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
             regression->train();
             finished.store(true);
         }};
-
-        int lastProgressReport{0};
-
-        bool monotonic{true};
-        int percentage{0};
-        while (finished.load() == false) {
-            if (instrumentation.progress() > percentage) {
-                LOG_DEBUG(<< percentage << "% complete");
-                percentage += 10;
-            }
-            monotonic &= (instrumentation.progress() >= lastProgressReport);
-            lastProgressReport = instrumentation.progress();
-        }
         worker.join();
 
-        BOOST_TEST_REQUIRE(monotonic);
-        LOG_DEBUG(<< "progress points = "
-                  << core::CContainerPrinter::print(instrumentation.tenPercentProgressPoints()));
-        BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]",
-                            core::CContainerPrinter::print(
-                                instrumentation.tenPercentProgressPoints()));
+        // Flush the last task...
+        instrumentation.startNewProgressMonitoredTask("");
+
+        for (const auto& task : instrumentation.taskProgress()) {
+            LOG_DEBUG(<< "task = " << task.s_Name);
+            LOG_DEBUG(<< "monotonic = " << task.s_Monotonic);
+            LOG_DEBUG(<< "progress points = "
+                      << core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+            if (task.s_Name == maths::CBoostedTreeFactory::FEATURE_SELECTION) {
+                // We don't do feature selection (we have enough data to use all of them).
+            } else if (task.s_Name == maths::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
+                // We don't have accurate upfront estimate of the number of steps so we
+                // only get progress up to 80%. In non-test code we always pass 100% when
+                // the task is complete.
+                BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80]",
+                                    core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+            } else if (task.s_Name == maths::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
+                BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]",
+                                    core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+            } else if (task.s_Name == maths::CBoostedTreeFactory::FINAL_TRAINING) {
+                // Progress might be 90% or 100% depending on whether the final
+                // progress update registered
+                if (task.s_TenPercentProgressPoints.size() != 11 ||
+                    task.s_TenPercentProgressPoints.front() != 0 ||
+                    task.s_TenPercentProgressPoints.back() != 100) {
+                    BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]",
+                                        core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+                }
+            }
+            BOOST_TEST_REQUIRE(task.s_Monotonic);
+        }
 
         core::startDefaultAsyncExecutor();
     }
@@ -1438,7 +1535,84 @@ BOOST_AUTO_TEST_CASE(testMissingFeatures) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
+
+    // Test hyperparameter overrides are respected.
+
+    test::CRandomNumbers rng;
+
+    std::size_t rows{300};
+    std::size_t cols{6};
+    std::size_t capacity{600};
+
+    TDoubleVecVec x(cols);
+    for (std::size_t i = 0; i < cols; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    auto target = [](const TRowRef& row) { return row[0] + 3.0 * row[3]; };
+
+    auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+
+    fillDataFrame(rows, 0, cols, x, TDoubleVec(rows, 0.0), target, *frame);
+
+    CTestInstrumentation instrumentation;
+    {
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .analysisInstrumentation(instrumentation)
+                              .maximumNumberTrees(10)
+                              .treeSizePenaltyMultiplier(0.1)
+                              .leafWeightPenaltyMultiplier(0.01)
+                              .buildFor(*frame, cols - 1);
+
+        regression->train();
+
+        // We use a single leaf to centre the data so end up with limit + 1 trees.
+        BOOST_REQUIRE_EQUAL(11, regression->bestHyperparameters().maximumNumberTrees());
+        BOOST_REQUIRE_EQUAL(
+            0.1, regression->bestHyperparameters().regularization().treeSizePenaltyMultiplier());
+        BOOST_REQUIRE_EQUAL(
+            0.01, regression->bestHyperparameters().regularization().leafWeightPenaltyMultiplier());
+    }
+    {
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .analysisInstrumentation(instrumentation)
+                              .eta(0.2)
+                              .softTreeDepthLimit(2.0)
+                              .softTreeDepthTolerance(0.1)
+                              .buildFor(*frame, cols - 1);
+
+        regression->train();
+
+        BOOST_REQUIRE_EQUAL(0.2, regression->bestHyperparameters().eta());
+        BOOST_REQUIRE_EQUAL(
+            2.0, regression->bestHyperparameters().regularization().softTreeDepthLimit());
+        BOOST_REQUIRE_EQUAL(
+            0.1, regression->bestHyperparameters().regularization().softTreeDepthTolerance());
+    }
+    {
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .analysisInstrumentation(instrumentation)
+                              .depthPenaltyMultiplier(1.0)
+                              .featureBagFraction(0.4)
+                              .downsampleFactor(0.6)
+                              .buildFor(*frame, cols - 1);
+
+        regression->train();
+
+        BOOST_REQUIRE_EQUAL(
+            1.0, regression->bestHyperparameters().regularization().depthPenaltyMultiplier());
+        BOOST_REQUIRE_EQUAL(0.4, regression->bestHyperparameters().featureBagFraction());
+        BOOST_REQUIRE_EQUAL(0.6, regression->bestHyperparameters().downsampleFactor());
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testPersistRestore) {
+
+    // Check persist/restore is idempotent.
 
     std::size_t rows{50};
     std::size_t cols{3};
@@ -1472,6 +1646,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
                                .maximumNumberTrees(2)
                                .maximumOptimisationRoundsPerHyperparameter(3)
                                .buildFor(*frame, cols - 1);
+        boostedTree->train();
         core::CJsonStatePersistInserter inserter(persistOnceSStream);
         boostedTree->acceptPersistInserter(inserter);
         persistOnceSStream.flush();
@@ -1484,15 +1659,9 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
         boostedTree->acceptPersistInserter(inserter);
         persistTwiceSStream.flush();
     }
+    LOG_DEBUG(<< "State " << persistOnceSStream.str());
+    LOG_DEBUG(<< "State after restore " << persistTwiceSStream.str());
     BOOST_REQUIRE_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
-    LOG_DEBUG(<< "First string " << persistOnceSStream.str());
-    LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
-
-    // and even run
-    BOOST_REQUIRE_NO_THROW(boostedTree->train());
-    BOOST_REQUIRE_NO_THROW(boostedTree->predict());
-
-    // TODO test persist and restore produces same train result.
 }
 
 BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {

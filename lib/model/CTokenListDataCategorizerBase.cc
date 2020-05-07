@@ -32,6 +32,7 @@ namespace {
 const std::string TOKEN_TAG{"a"};
 const std::string TOKEN_CATEGORY_COUNT_TAG{"b"};
 const std::string CATEGORY_TAG{"c"};
+const std::string MEMORY_CATEGORIZATION_FAILURES_TAG{"d"};
 }
 
 CTokenListDataCategorizerBase::CTokenListDataCategorizerBase(CLimits& limits,
@@ -41,7 +42,8 @@ CTokenListDataCategorizerBase::CTokenListDataCategorizerBase(CLimits& limits,
     : CDataCategorizer{limits, fieldName}, m_ReverseSearchCreator{reverseSearchCreator},
       m_LowerThreshold{std::min(0.99, std::max(0.01, threshold))},
       // Upper threshold is half way between the lower threshold and 1
-      m_UpperThreshold{(1.0 + m_LowerThreshold) / 2.0}, m_HasChanged{false} {
+      m_UpperThreshold{(1.0 + m_LowerThreshold) / 2.0},
+      m_MemoryCategorizationFailures{0}, m_HasChanged{false} {
 }
 
 void CTokenListDataCategorizerBase::dumpStats() const {
@@ -64,7 +66,7 @@ int CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
     if (preTokenisedIter != fields.end()) {
         if (this->addPretokenisedTokens(preTokenisedIter->second, m_WorkTokenIds,
                                         m_WorkTokenUniqueIds, workWeight) == false) {
-            return -1;
+            return SOFT_CATEGORIZATION_FAILURE_ERROR;
         }
     } else {
         this->tokeniseString(fields, str, m_WorkTokenIds, m_WorkTokenUniqueIds, workWeight);
@@ -157,11 +159,21 @@ int CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
         return categoryId;
     }
 
+    m_HasChanged = true;
+
+    if (this->areNewCategoriesAllowed() == false) {
+        // Only log once per job, as logging every time this happens could
+        // generate enormous log spam
+        if (++m_MemoryCategorizationFailures == 1) {
+            LOG_WARN(<< "Categories are not being created due to lack of memory");
+        }
+        return HARD_CATEGORIZATION_FAILURE_ERROR;
+    }
+
     // If we get here we haven't matched, so create a new category
     m_CategoriesByCount.emplace_back(1, m_Categories.size());
     m_Categories.emplace_back(isDryRun, str, rawStringLen, m_WorkTokenIds,
                               workWeight, m_WorkTokenUniqueIds);
-    m_HasChanged = true;
 
     // Increment the counts of categories that use a given token
     for (const auto& workTokenId : m_WorkTokenIds) {
@@ -197,8 +209,10 @@ bool CTokenListDataCategorizerBase::createReverseSearch(int categoryId,
         part1.clear();
         part2.clear();
 
-        // -1 is supposed to be the only special value used for the category ID.
-        if (categoryId != -1) {
+        // SOFT_CATEGORIZATION_FAILURE_ERROR is supposed to be the only special
+        // value used for the category ID that permits subsequent processing
+        // like asking for a reverse search.
+        if (categoryId != SOFT_CATEGORIZATION_FAILURE_ERROR) {
             LOG_ERROR(<< "Programmatic error - invalid ML category: " << categoryId);
             return false;
         }
@@ -333,6 +347,7 @@ bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTr
     m_TokenIdLookup.clear();
     m_WorkTokenIds.clear();
     m_WorkTokenUniqueIds.clear();
+    m_MemoryCategorizationFailures = 0;
     m_HasChanged = false;
 
     do {
@@ -360,6 +375,13 @@ bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTr
             CTokenListCategory category{traverser};
             m_CategoriesByCount.emplace_back(category.numMatches(), m_Categories.size());
             m_Categories.push_back(category);
+        } else if (name == MEMORY_CATEGORIZATION_FAILURES_TAG) {
+            if (core::CStringUtils::stringToType(
+                    traverser.value(), m_MemoryCategorizationFailures) == false) {
+                LOG_ERROR(<< "Invalid memory categorization failures count in "
+                          << traverser.value());
+                return false;
+            }
         }
     } while (traverser.next());
 
@@ -372,13 +394,15 @@ bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTr
 }
 
 void CTokenListDataCategorizerBase::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    CTokenListDataCategorizerBase::acceptPersistInserter(m_TokenIdLookup,
-                                                         m_Categories, inserter);
+    CTokenListDataCategorizerBase::acceptPersistInserter(
+        m_TokenIdLookup, m_Categories, m_MemoryCategorizationFailures, inserter);
 }
 
-void CTokenListDataCategorizerBase::acceptPersistInserter(const TTokenMIndex& tokenIdLookup,
-                                                          const TTokenListCategoryVec& categories,
-                                                          core::CStatePersistInserter& inserter) {
+void CTokenListDataCategorizerBase::acceptPersistInserter(
+    const TTokenMIndex& tokenIdLookup,
+    const TTokenListCategoryVec& categories,
+    std::size_t memoryCategorizationFailures,
+    core::CStatePersistInserter& inserter) {
     for (const CTokenInfoItem& item : tokenIdLookup) {
         inserter.insertValue(TOKEN_TAG, item.str());
         inserter.insertValue(TOKEN_CATEGORY_COUNT_TAG, item.categoryCount());
@@ -389,22 +413,26 @@ void CTokenListDataCategorizerBase::acceptPersistInserter(const TTokenMIndex& to
                              std::bind(&CTokenListCategory::acceptPersistInserter,
                                        &category, std::placeholders::_1));
     }
+
+    inserter.insertValue(MEMORY_CATEGORIZATION_FAILURES_TAG, memoryCategorizationFailures);
 }
 
 CDataCategorizer::TPersistFunc CTokenListDataCategorizerBase::makeForegroundPersistFunc() const {
     return std::bind(
-        static_cast<void (*)(const TTokenMIndex&, const TTokenListCategoryVec&, core::CStatePersistInserter&)>(
+        static_cast<void (*)(const TTokenMIndex&, const TTokenListCategoryVec&, std::size_t, core::CStatePersistInserter&)>(
             &CTokenListDataCategorizerBase::acceptPersistInserter),
-        std::cref(m_TokenIdLookup), std::cref(m_Categories), std::placeholders::_1);
+        std::cref(m_TokenIdLookup), std::cref(m_Categories),
+        m_MemoryCategorizationFailures, std::placeholders::_1);
 }
 
 CDataCategorizer::TPersistFunc CTokenListDataCategorizerBase::makeBackgroundPersistFunc() const {
     return std::bind(
-        static_cast<void (*)(const TTokenMIndex&, const TTokenListCategoryVec&, core::CStatePersistInserter&)>(
+        static_cast<void (*)(const TTokenMIndex&, const TTokenListCategoryVec&, std::size_t, core::CStatePersistInserter&)>(
             &CTokenListDataCategorizerBase::acceptPersistInserter),
         // Do NOT add std::ref wrappers around these arguments - they MUST be
         // copied for thread safety
-        m_TokenIdLookup, m_Categories, std::placeholders::_1);
+        m_TokenIdLookup, m_Categories, m_MemoryCategorizationFailures,
+        std::placeholders::_1);
 }
 
 void CTokenListDataCategorizerBase::addCategoryMatch(bool isDryRun,
@@ -540,6 +568,7 @@ void CTokenListDataCategorizerBase::updateModelSizeStats(CResourceMonitor::SMode
         categorizedMessagesThisCategorizer += categoryByCount.first;
     }
     modelSizeStats.s_CategorizedMessages += categorizedMessagesThisCategorizer;
+    modelSizeStats.s_MemoryCategorizationFailures += m_MemoryCategorizationFailures;
 
     for (std::size_t i = 0; i < m_CategoriesByCount.size(); ++i) {
         const CTokenListCategory& category{m_Categories[m_CategoriesByCount[i].second]};

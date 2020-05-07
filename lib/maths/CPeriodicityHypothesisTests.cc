@@ -69,6 +69,44 @@ const std::size_t MINIMUM_REPEATS_TO_TEST_AMPLITUDE{4};
 //! A high priority for components we want to take precendence.
 double HIGH_PRIORITY{2.0};
 
+//! \brief Fuzzy logical expression with multiplicative AND.
+//!
+//! DESCRIPTION:
+//! This isn't strictly a fuzzy logical expression since we don't ensure
+//! that the range of truth values is [0,1]. In fact, we arrange for TRUE
+//! to correspond to value > 1. We roll in an implicit threshold such that
+//! if individual conditions have values > 0.5 then the expression (just)
+//! maps to true.
+class CFuzzyExpression {
+public:
+    explicit CFuzzyExpression(double value = 0.0) : m_Value{value} {}
+
+    operator bool() const { return m_Value > 1.0; }
+    bool operator<(const CFuzzyExpression& rhs) const {
+        return m_Value < rhs.m_Value;
+    }
+
+    double truthValue() const { return m_Value; }
+
+    friend CFuzzyExpression operator&&(const CFuzzyExpression& lhs,
+                                       const CFuzzyExpression& rhs) {
+        return CFuzzyExpression{lhs.m_Value * rhs.m_Value};
+    }
+
+private:
+    double m_Value;
+};
+
+//! Fuzzy check if \p value is greater than \p threshold.
+CFuzzyExpression softGreaterThan(double value, double threshold, double margin) {
+    return CFuzzyExpression{2.0 * CTools::logisticFunction(value, margin, threshold, +1.0)};
+}
+
+//! Fuzzy check if \p value is less than \p threshold.
+CFuzzyExpression softLessThan(double value, double threshold, double margin) {
+    return CFuzzyExpression{2.0 * CTools::logisticFunction(value, margin, threshold, -1.0)};
+}
+
 //! \brief Accumulates the minimum amplitude.
 class CMinAmplitude {
 public:
@@ -533,9 +571,11 @@ void CPeriodicityHypothesisTestsResult::removeTrend(TFloatMeanAccumulatorVec& va
 }
 
 void CPeriodicityHypothesisTestsResult::removeDiscontinuities(TFloatMeanAccumulatorVec& values) const {
-    TSizeVec segmentation(CTimeSeriesSegmentation::piecewiseLinear(values));
-    values = CTimeSeriesSegmentation::removePiecewiseLinearDiscontinuities(
-        std::move(values), segmentation);
+    if (m_Trend.type() == CTrendHypothesis::E_PiecewiseLinear) {
+        TSizeVec segmentation(CTimeSeriesSegmentation::piecewiseLinear(values));
+        values = CTimeSeriesSegmentation::removePiecewiseLinearDiscontinuities(
+            std::move(values), segmentation);
+    }
 }
 
 bool CPeriodicityHypothesisTestsResult::periodic() const {
@@ -1231,26 +1271,27 @@ CPeriodicityHypothesisTests::best(const TNestedHypothesesVec& hypotheses) const 
         TMinAccumulator vmin;
         TMinAccumulator DFmin;
         for (const auto& summary : summaries) {
-            vmin.add(varianceAtPercentile(summary.s_V, summary.s_DF,
-                                          50.0 + CONFIDENCE_INTERVAL / 2.0) /
-                     summary.s_VarianceThreshold);
+            double v{varianceAtPercentile(summary.s_V, summary.s_DF,
+                                          50.0 + CONFIDENCE_INTERVAL / 2.0)};
+            vmin.add(v == summary.s_VarianceThreshold ? 1.0 : v / summary.s_VarianceThreshold);
             DFmin.add(summary.s_DF);
         }
 
-        TMinAccumulator pmin;
+        TMinAccumulator minMinusTruth;
         for (const auto& summary : summaries) {
             double v{varianceAtPercentile(summary.s_V, summary.s_DF,
-                                          50.0 - CONFIDENCE_INTERVAL / 2.0) /
-                     summary.s_VarianceThreshold / vmin[0]};
-            double R{summary.s_R / summary.s_AutocorrelationThreshold};
-            double DF{summary.s_DF / DFmin[0]};
-            double p{CTools::logisticFunction(v, 0.2, 1.0, -1.0) *
-                     CTools::logisticFunction(R, 0.2, 1.0, +1.0) *
-                     CTools::logisticFunction(DF, 0.2, 1.0, +1.0) *
-                     CTools::logisticFunction(summary.s_TrendSegments, 0.3, 0.0, -1.0) *
-                     CTools::logisticFunction(summary.s_ScaleSegments, 0.3, 0.0, -1.0)};
-            LOG_TRACE(<< "p = " << p);
-            if (pmin.add(-p)) {
+                                          50.0 - CONFIDENCE_INTERVAL / 2.0)};
+            v = v == summary.s_VarianceThreshold * vmin[0]
+                    ? 1.0
+                    : v / summary.s_VarianceThreshold / vmin[0];
+            double truth{(softLessThan(v, 1.0, 0.2) &&
+                          softGreaterThan(summary.s_R, summary.s_AutocorrelationThreshold, 0.1) &&
+                          softGreaterThan(summary.s_DF / DFmin[0], 1.0, 0.2) &&
+                          softLessThan(summary.s_TrendSegments, 0.0, 0.3) &&
+                          softLessThan(summary.s_ScaleSegments, 0.0, 0.3))
+                             .truthValue()};
+            LOG_TRACE(<< "truth(hypothesis) = " << truth);
+            if (minMinusTruth.add(-truth)) {
                 result = summary.s_H;
             }
         }
@@ -1718,11 +1759,11 @@ bool CPeriodicityHypothesisTests::testPeriod(const TTimeTimePr2Vec& windows,
 
     double R;
     double meanRepeats;
-    double pVariance;
+    double truthVariance;
     return this->testVariance(window, values, period_, df1, v1, stats, R,
-                              meanRepeats, pVariance) ||
+                              meanRepeats, truthVariance) ||
            this->testAmplitude(window, values, period_, b, v, R, meanRepeats,
-                               pVariance, stats);
+                               truthVariance, stats);
 }
 
 bool CPeriodicityHypothesisTests::testPeriodWithScaling(const TTimeTimePr2Vec& windows,
@@ -1855,9 +1896,9 @@ bool CPeriodicityHypothesisTests::testPeriodWithScaling(const TTimeTimePr2Vec& w
 
     double R;
     double meanRepeats;
-    double pVariance;
+    double truthVariance;
     return this->testVariance({{0, length(windows)}}, values, period_, df1, v1,
-                              stats, R, meanRepeats, pVariance, segmentation);
+                              stats, R, meanRepeats, truthVariance, segmentation);
 }
 
 bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition,
@@ -2062,7 +2103,7 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
         return CBasicStatistics::mean(result);
     };
 
-    double p{0.0};
+    CFuzzyExpression correlationCondition;
     double R{-1.0};
 
     TFloatMeanAccumulatorVec partitionValues;
@@ -2084,27 +2125,23 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
         }
 
         double meanRepeats{calculateMeanRepeats(window, period_)};
-        double relativeMeanRepeats{meanRepeats / MINIMUM_REPEATS_TO_TEST_VARIANCE};
-        LOG_TRACE(<< "  relative mean repeats = " << relativeMeanRepeats);
+        double meanRepeatsPerSegment{meanRepeats / std::max(stats.s_TrendSegments, 1.0) /
+                                     MINIMUM_REPEATS_TO_TEST_VARIANCE};
+        LOG_TRACE(<< "  mean repeats per segment = " << meanRepeatsPerSegment);
 
-        p = std::max(
-            p, CTools::logisticFunction(RW / stats.s_AutocorrelationThreshold, 0.15, 1.0) *
-                   CTools::logisticFunction(relativeMeanRepeats, 0.25, 1.0));
+        correlationCondition =
+            std::max(correlationCondition,
+                     softGreaterThan(R, stats.s_AutocorrelationThreshold, 0.1) &&
+                         softGreaterThan(meanRepeatsPerSegment, 1.0, 0.2));
         R = std::max(R, RW);
     }
 
-    double relativeLogSignificance{
+    double logSignificance{
         CTools::fastLog(CStatisticalTests::leftTailFTest(v1 / v0, df1, df0)) /
         LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
-    double meanRepeats{calculateMeanRepeats({{0, windowLength}}, repeat)};
-    double segmentsPerRepeat{(stats.s_TrendSegments - 1.0) / meanRepeats};
-    p *= CTools::logisticFunction(relativeLogSignificance, 0.1, 1.0) *
-         (vt > v1 ? CTools::logisticFunction(vt / v1, 1.0, 1.0, +1.0)
-                  : CTools::logisticFunction(v1 / vt, 0.1, 1.0, -1.0)) *
-         CTools::logisticFunction(segmentsPerRepeat, 0.3, 0.0, -1.0) / 0.03125;
-    LOG_TRACE(<< "  p(partition) = " << p);
 
-    if (p >= 1.0) {
+    if (correlationCondition && softGreaterThan(logSignificance, 1.0, 0.1) &&
+        (vt > v1 ? softGreaterThan(vt / v1, 1.0, 1.0) : softLessThan(v1 / vt, 1.0, 0.1))) {
         stats.s_StartOfPartition = startOfPartition;
         stats.s_R0 = R;
         return true;
@@ -2121,7 +2158,7 @@ bool CPeriodicityHypothesisTests::testVariance(const TTimeTimePr2Vec& window,
                                                STestStats& stats,
                                                double& R,
                                                double& meanRepeats,
-                                               double& pVariance,
+                                               double& truthVariance,
                                                const TSizeVec& segmentation) const {
     std::size_t period{static_cast<std::size_t>(period_ / m_BucketLength)};
 
@@ -2145,7 +2182,6 @@ bool CPeriodicityHypothesisTests::testVariance(const TTimeTimePr2Vec& window,
         result.add(calculateRepeats(window, period_, m_BucketLength, buckets));
         return CBasicStatistics::mean(result);
     }();
-    LOG_TRACE(<< "  mean repeats = " << meanRepeats);
 
     // We're trading off:
     //   1) The significance of the variance reduction,
@@ -2159,22 +2195,24 @@ bool CPeriodicityHypothesisTests::testVariance(const TTimeTimePr2Vec& window,
     // is equal to the threshold, the variance reduction is equal to the
     // threshold and we've observed three periods on average.
 
-    double relativeLogSignificance{
+    double logSignificance{
         CTools::fastLog(CStatisticalTests::leftTailFTest(v1 / v0, df1, df0)) /
         LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
-    double relativeMeanRepeats{meanRepeats / MINIMUM_REPEATS_TO_TEST_VARIANCE};
-    double segmentsPerRepeat{(stats.s_TrendSegments +
-                              std::max(static_cast<double>(segmentation.size()), 1.0) - 2.0) /
-                             meanRepeats};
-    pVariance = CTools::logisticFunction(relativeLogSignificance, 0.1, 1.0) *
-                CTools::logisticFunction(R / stats.s_AutocorrelationThreshold, 0.15, 1.0) *
-                (vt > v1 ? CTools::logisticFunction(vt / v1, 1.0, 1.0, +1.0)
-                         : CTools::logisticFunction(v1 / vt, 0.1, 1.0, -1.0)) *
-                CTools::logisticFunction(relativeMeanRepeats, 0.25, 1.0) *
-                CTools::logisticFunction(segmentsPerRepeat, 0.3, 0.0, -1.0) / 0.03125;
-    LOG_TRACE(<< "  p(variance) = " << pVariance);
+    double meanRepeatsPerSegment{
+        meanRepeats /
+        std::max(stats.s_TrendSegments + static_cast<double>(segmentation.size()), 1.0) /
+        MINIMUM_REPEATS_TO_TEST_VARIANCE};
+    LOG_TRACE(<< "  mean repeats per segment = " << meanRepeatsPerSegment);
 
-    if (pVariance >= 1.0) {
+    auto condition = softGreaterThan(logSignificance, 1.0, 0.1) &&
+                     softGreaterThan(R, stats.s_AutocorrelationThreshold, 0.1) &&
+                     (vt > v1 ? softGreaterThan(vt / v1, 1.0, 1.0)
+                              : softLessThan(v1 / vt, 0.1, 1.0)) &&
+                     softGreaterThan(meanRepeatsPerSegment, 1.0, 0.2);
+    truthVariance = condition.truthValue();
+    LOG_TRACE(<< "  truth(variance) = " << truthVariance);
+
+    if (condition) {
         stats.s_R0 = R;
         stats.s_Segmentation = segmentation;
         return true;
@@ -2189,7 +2227,7 @@ bool CPeriodicityHypothesisTests::testAmplitude(const TTimeTimePr2Vec& window,
                                                 double v,
                                                 double R,
                                                 double meanRepeats,
-                                                double pVariance,
+                                                double truthVariance,
                                                 STestStats& stats) const {
     core_t::TTime windowLength{length(window)};
     std::size_t period{static_cast<std::size_t>(period_ / m_BucketLength)};
@@ -2226,19 +2264,16 @@ bool CPeriodicityHypothesisTests::testAmplitude(const TTimeTimePr2Vec& window,
 
     // Trade off the test significance and the mean number of repeats
     // we've observed.
-    double relativeLogSignificance{CTools::fastLog(CTools::oneMinusPowOneMinusX(F1, b)) /
-                                   LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
-    double relativeMeanRepeats{
-        meanRepeats / static_cast<double>(MINIMUM_REPEATS_TO_TEST_AMPLITUDE)};
-    double minusLogPVariance{-CTools::fastLog(pVariance)};
-    double segmentsPerRepeat{(stats.s_TrendSegments - 1.0) / meanRepeats};
-    double pAmplitude{CTools::logisticFunction(relativeLogSignificance, 0.2, 1.0) *
-                      CTools::logisticFunction(relativeMeanRepeats, 0.5, 1.0) *
-                      CTools::logisticFunction(minusLogPVariance, 2.0, 0.0, -1.0) *
-                      CTools::logisticFunction(segmentsPerRepeat, 0.3, 0.0, -1.0) / 0.0625};
-    LOG_TRACE(<< "  p(amplitude) = " << pAmplitude);
+    double logSignificance{CTools::fastLog(CTools::oneMinusPowOneMinusX(F1, b)) /
+                           LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
+    double meanRepeatsPerSegment{meanRepeats / std::max(stats.s_TrendSegments, 1.0) /
+                                 static_cast<double>(MINIMUM_REPEATS_TO_TEST_AMPLITUDE)};
+    double minusLogTruthVariance{-CTools::fastLog(truthVariance)};
+    LOG_TRACE(<< "  mean repeats per segment = " << meanRepeatsPerSegment);
 
-    if (pAmplitude >= 1.0) {
+    if (softLessThan(minusLogTruthVariance, 0.0, 2.0) &&
+        softGreaterThan(logSignificance, 1.0, 0.2) &&
+        softGreaterThan(meanRepeatsPerSegment, 1.0, 0.2)) {
         stats.s_R0 = R;
         return true;
     }
