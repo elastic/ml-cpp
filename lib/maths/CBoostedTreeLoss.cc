@@ -405,7 +405,7 @@ bool CArgMinMsleImpl::nextPass() {
 }
 
 void CArgMinMsleImpl::add(const TMemoryMappedFloatVector& prediction, double actual, double weight) {
-    double expPrediction{std::exp(prediction[0])};
+    double expPrediction{CTools::stableExp(prediction[0])};
     double logActual{CTools::fastLog(1.0 + actual)};
     switch (m_CurrentPass) {
     case 0: {
@@ -416,7 +416,6 @@ void CArgMinMsleImpl::add(const TMemoryMappedFloatVector& prediction, double act
     }
     case 1: {
         double logError{logActual - CTools::fastLog(1.0 + expPrediction)};
-
         TVector example;
         example(MSLE_PREDICTION_INDEX) = expPrediction;
         example(MSLE_ACTUAL_INDEX) = logActual;
@@ -494,16 +493,15 @@ CArgMinMsleImpl::TDoubleVector CArgMinMsleImpl::value() const {
 
 CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
     return [this](double logWeight) {
-
-        double weight{std::exp(logWeight)};
+        double weight{CTools::stableExp(logWeight)};
         if (this->bucketWidth().first == 0.0) {
             // prediction is constant
             double expPrediction{m_ExpPredictionMinMax.max()};
-            double logPrediction{CTools::fastLog(1 + expPrediction * weight)};
+            double logPrediction{CTools::fastLog(1.0 + expPrediction * weight)};
             double meanLogActual{CBasicStatistics::mean(m_MeanLogActual)};
             double meanLogActualSquared{CBasicStatistics::variance(m_MeanLogActual) +
                                         CTools::pow2(meanLogActual)};
-            double loss{meanLogActualSquared - 2 * meanLogActual * logPrediction +
+            double loss{meanLogActualSquared - 2.0 * meanLogActual * logPrediction +
                         CTools::pow2(logPrediction)};
             return loss + this->lambda() * CTools::pow2(weight);
         } else {
@@ -513,11 +511,11 @@ CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
                 for (const auto& bucketActual : bucketPrediction) {
                     double count{CBasicStatistics::count(bucketActual)};
                     if (count > 0.0) {
-                        double expPrediction{CBasicStatistics::mean(
-                            bucketActual)(MSLE_PREDICTION_INDEX)};
-                        double logActual{CBasicStatistics::mean(bucketActual)(MSLE_ACTUAL_INDEX)};
-                        double logPrediction{CTools::fastLog(1 + expPrediction * weight)};
-                        loss += count * (CTools::pow2(logActual - logPrediction));
+                        const auto& bucketMean{CBasicStatistics::mean(bucketActual)};
+                        double expPrediction{bucketMean(MSLE_PREDICTION_INDEX)};
+                        double logActual{bucketMean(MSLE_ACTUAL_INDEX)};
+                        double logPrediction{CTools::fastLog(1.0 + expPrediction * weight)};
+                        loss += count * CTools::pow2(logActual - logPrediction);
                         totalCount += count;
                     }
                 }
@@ -623,37 +621,36 @@ CArgMinPseudoHuberImpl::TObjective CArgMinPseudoHuberImpl::objective() const {
 
 namespace boosted_tree {
 
-CLoss::TLossUPtr CLoss::restoreLoss(core::CStateRestoreTraverser& traverser) {
-    do {
-        const std::string& lossFunctionName = traverser.name();
-        try {
-            if (lossFunctionName == CMse::NAME) {
-                return std::make_unique<CMse>(traverser);
-            } else if (lossFunctionName == CMsle::NAME) {
-                return std::make_unique<CMsle>(traverser);
-            } else if (lossFunctionName == CPseudoHuber::NAME) {
-                return std::make_unique<CPseudoHuber>(traverser);
-            } else if (lossFunctionName == CBinomialLogisticLoss::NAME) {
-                return std::make_unique<CBinomialLogisticLoss>(traverser);
-            } else if (lossFunctionName == CMultinomialLogisticLoss::NAME) {
-                return std::make_unique<CMultinomialLogisticLoss>(traverser);
-            }
-        } catch (const std::exception& e) {
-            LOG_ERROR(<< "Error restoring loss function " << lossFunctionName
-                      << " " << e.what());
-            return nullptr;
-        }
-        LOG_ERROR(<< "Error restoring loss function. Unknown loss function type '"
-                  << lossFunctionName << "'.");
-        return nullptr;
-    } while (traverser.next());
-}
-
 void CLoss::persistLoss(core::CStatePersistInserter& inserter) const {
     auto persist = [this](core::CStatePersistInserter& inserter_) {
         this->acceptPersistInserter(inserter_);
     };
     inserter.insertLevel(this->name(), persist);
+}
+
+CLoss::TLossUPtr CLoss::restoreLoss(core::CStateRestoreTraverser& traverser) {
+    const std::string& lossFunctionName{traverser.name()};
+    try {
+        if (lossFunctionName == CMse::NAME) {
+            return std::make_unique<CMse>(traverser);
+        } else if (lossFunctionName == CMsle::NAME) {
+            return std::make_unique<CMsle>(traverser);
+        } else if (lossFunctionName == CPseudoHuber::NAME) {
+            return std::make_unique<CPseudoHuber>(traverser);
+        } else if (lossFunctionName == CBinomialLogisticLoss::NAME) {
+            return std::make_unique<CBinomialLogisticLoss>(traverser);
+        } else if (lossFunctionName == CMultinomialLogisticLoss::NAME) {
+            return std::make_unique<CMultinomialLogisticLoss>(traverser);
+        }
+    } catch (const std::exception& e) {
+        LOG_ERROR(<< "Error restoring loss function " << lossFunctionName << " "
+                  << e.what());
+        return nullptr;
+    }
+
+    LOG_ERROR(<< "Error restoring loss function. Unknown loss function type '"
+              << lossFunctionName << "'.");
+    return nullptr;
 }
 
 CArgMinLoss::CArgMinLoss(const CArgMinLoss& other)
@@ -778,11 +775,11 @@ std::size_t CMsle::numberParameters() const {
 }
 
 double CMsle::value(const TMemoryMappedFloatVector& logPrediction, double actual, double weight) const {
-    double prediction{std::exp(logPrediction(0))};
+    double prediction{CTools::stableExp(logPrediction(0))};
     double log1PlusPrediction{CTools::fastLog(1.0 + prediction)};
     if (actual < 0.0) {
-        HANDLE_FATAL(<< "Input error: target value needs to be non-negative to use with MSLE loss, received: "
-                     << actual);
+        HANDLE_FATAL(<< "Input error: target value needs to be non-negative to use "
+                     << "with MSLE loss, received: " << actual)
     }
     double log1PlusActual{CTools::fastLog(1.0 + actual)};
     return weight * CTools::pow2(log1PlusPrediction - log1PlusActual);
@@ -792,17 +789,17 @@ void CMsle::gradient(const TMemoryMappedFloatVector& logPrediction,
                      double actual,
                      TWriter writer,
                      double weight) const {
-    double prediction{std::exp(logPrediction(0))};
+    double prediction{CTools::stableExp(logPrediction(0))};
     double log1PlusPrediction{CTools::fastLog(1.0 + prediction)};
     double log1PlusActual{CTools::fastLog(1.0 + actual)};
-    writer(0, 2 * weight * (log1PlusPrediction - log1PlusActual) / (prediction + 1));
+    writer(0, 2.0 * weight * (log1PlusPrediction - log1PlusActual) / (prediction + 1.0));
 }
 
 void CMsle::curvature(const TMemoryMappedFloatVector& logPrediction,
                       double actual,
                       TWriter writer,
                       double weight) const {
-    double prediction{std::exp(logPrediction(0))};
+    double prediction{CTools::stableExp(logPrediction(0))};
     double log1PlusPrediction{CTools::fastLog(1.0 + prediction)};
     double log1PlusActual{CTools::fastLog(1.0 + actual)};
     // Apply L'Hopital's rule in the limit prediction -> actual.
