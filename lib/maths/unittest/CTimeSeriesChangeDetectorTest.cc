@@ -52,6 +52,7 @@ using TPriorPtr = std::shared_ptr<maths::CPrior>;
 
 core_t::TTime BUCKET_LENGTH{1800};
 const double DECAY_RATE{0.0002};
+const ml::maths::CModelAddSamplesParams::TModelChangeCallback NOOP;
 
 TPriorPtr makeResidualModel() {
     maths::CGammaRateConjugate gamma{maths::CGammaRateConjugate::nonInformativePrior(
@@ -115,7 +116,7 @@ void testChange(const TGeneratorVec& trends,
 
         auto addSampleToModel = [&trendModel, &residualModel](
                                     core_t::TTime time, double x, double weight) {
-            trendModel->addPoint(time, x, maths_t::countWeight(weight));
+            trendModel->addPoint(time, x, NOOP, maths_t::countWeight(weight));
             double detrended{trendModel->detrend(time, x, 0.0)};
             residualModel->addSamples({detrended}, {maths_t::countWeight(weight)});
             residualModel->propagateForwardsByTime(1.0);
@@ -137,7 +138,7 @@ void testChange(const TGeneratorVec& trends,
             double x{10.0 * applyChange(trends[t % trends.size()], time) + samples[i]};
 
             addSampleToModel(time, x, 0.5);
-            detector.addSamples({{time, x}}, maths_t::CUnitWeights::SINGLE_UNIT);
+            detector.addSamples({{time, x}}, maths_t::CUnitWeights::SINGLE_UNIT, NOOP);
 
             auto change = detector.change();
             if (change) {
@@ -201,7 +202,7 @@ BOOST_AUTO_TEST_CASE(testNoChange) {
         TPriorPtr residualModel(makeResidualModel());
 
         auto addSampleToModel = [&trendModel, &residualModel](core_t::TTime time, double x) {
-            trendModel->addPoint(time, x);
+            trendModel->addPoint(time, x, NOOP);
             double detrended{trendModel->detrend(time, x, 0.0)};
             residualModel->addSamples({detrended}, maths_t::CUnitWeights::SINGLE_UNIT);
             residualModel->propagateForwardsByTime(1.0);
@@ -218,7 +219,8 @@ BOOST_AUTO_TEST_CASE(testNoChange) {
             24 * core::constants::HOUR, 14.0};
         for (std::size_t i = 950u; i < samples.size(); ++i) {
             addSampleToModel(time, samples[i]);
-            detector.addSamples({{time, samples[i]}}, maths_t::CUnitWeights::SINGLE_UNIT);
+            detector.addSamples({{time, samples[i]}},
+                                maths_t::CUnitWeights::SINGLE_UNIT, NOOP);
             if (detector.stopTesting()) {
                 break;
             }
@@ -248,16 +250,18 @@ BOOST_AUTO_TEST_CASE(testLinearScale) {
 
 BOOST_AUTO_TEST_CASE(testTimeShift) {
     TGeneratorVec trends{smoothDaily, spikeyDaily};
-    testChange(trends, maths::SChangeDescription::E_TimeShift,
-               [](TGenerator trend, core_t::TTime time) {
-                   return trend(time - core::constants::HOUR);
-               },
-               -static_cast<double>(core::constants::HOUR), 0.04, 23.0);
-    testChange(trends, maths::SChangeDescription::E_TimeShift,
-               [](TGenerator trend, core_t::TTime time) {
-                   return trend(time + core::constants::HOUR);
-               },
-               +static_cast<double>(core::constants::HOUR), 0.04, 23.0);
+    testChange(
+        trends, maths::SChangeDescription::E_TimeShift,
+        [](TGenerator trend, core_t::TTime time) {
+            return trend(time - core::constants::HOUR);
+        },
+        -static_cast<double>(core::constants::HOUR), 0.04, 23.0);
+    testChange(
+        trends, maths::SChangeDescription::E_TimeShift,
+        [](TGenerator trend, core_t::TTime time) {
+            return trend(time + core::constants::HOUR);
+        },
+        +static_cast<double>(core::constants::HOUR), 0.04, 23.0);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -270,7 +274,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     TPriorPtr residualModel(makeResidualModel());
 
     auto addSampleToModel = [&trendModel, &residualModel](core_t::TTime time, double x) {
-        trendModel->addPoint(time, x);
+        trendModel->addPoint(time, x, NOOP);
         double detrended{trendModel->detrend(time, x, 0.0)};
         residualModel->addSamples({detrended}, maths_t::CUnitWeights::SINGLE_UNIT);
         residualModel->propagateForwardsByTime(1.0);

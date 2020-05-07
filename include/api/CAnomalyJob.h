@@ -111,6 +111,7 @@ public:
         std::pair<model::CSearchKey::TStrCRefKeyCRefPr, TAnomalyDetectorPtr>;
     using TKeyCRefAnomalyDetectorPtrPrVec = std::vector<TKeyCRefAnomalyDetectorPtrPr>;
     using TModelPlotDataVec = model::CAnomalyDetector::TModelPlotDataVec;
+    using TAnnotationVec = model::CAnomalyDetector::TAnnotationVec;
 
     struct API_EXPORT SRestoredStateDetail {
         ERestoreStateStatus s_RestoredStateStatus;
@@ -333,6 +334,9 @@ private:
     //! Write the pre-generated model plot to the output stream of the user's
     //! choosing: either file or streamed to the API
     void writeOutModelPlot(const TModelPlotDataVec& modelPlotData);
+
+    //! Write the annotations to the output stream.
+    void writeOutAnnotations(const TAnnotationVec& annotations);
 
     //! Persist one detector to a stream.
     //! This method is static so that there is no danger of it accessing

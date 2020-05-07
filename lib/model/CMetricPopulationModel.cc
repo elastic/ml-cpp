@@ -22,12 +22,14 @@
 #include <maths/ProbabilityAggregators.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnnotation.h>
 #include <model/CDataGatherer.h>
 #include <model/CGathererTools.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
 #include <model/CPopulationModelDetail.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
+#include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
 #include <boost/iterator/counting_iterator.hpp>
@@ -456,12 +458,24 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     latest = std::max(latest, value.first);
                 }
 
+                const auto createAndAddAnnotation =
+                    [&](core_t::TTime t, const std::string& annotation) {
+                        m_CurrentBucketStats.s_Annotations.emplace_back(
+                            t, annotation, gatherer.searchKey().detectorIndex(),
+                            gatherer.searchKey().partitionFieldName(),
+                            gatherer.partitionFieldValue(),
+                            gatherer.searchKey().overFieldName(),
+                            gatherer.attributeName(cid),
+                            gatherer.searchKey().byFieldName(), "");
+                    };
+
                 maths::CModelAddSamplesParams params;
                 params.integer(attribute.second.s_IsInteger)
                     .nonNegative(attribute.second.s_IsNonNegative)
                     .propagationInterval(this->propagationTime(cid, latest))
                     .trendWeights(attribute.second.s_TrendWeights)
-                    .priorWeights(attribute.second.s_PriorWeights);
+                    .priorWeights(attribute.second.s_PriorWeights)
+                    .onModelChange(createAndAddAnnotation);
 
                 maths::CModel* model{this->model(feature, cid)};
                 if (model == nullptr) {
@@ -751,6 +765,10 @@ std::size_t CMetricPopulationModel::computeMemoryUsage() const {
     mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
     mem += core::CMemory::dynamicSize(m_MemoryEstimator);
     return mem;
+}
+
+const CMetricPopulationModel::TAnnotationVec& CMetricPopulationModel::annotations() const {
+    return m_CurrentBucketStats.s_Annotations;
 }
 
 CMemoryUsageEstimator* CMetricPopulationModel::memoryUsageEstimator() const {

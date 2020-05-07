@@ -8,6 +8,7 @@
 #include <maths/CConstantPrior.h>
 #include <maths/CGammaRateConjugate.h>
 #include <maths/CLogNormalMeanPrecConjugate.h>
+#include <maths/CModel.h>
 #include <maths/CMultimodalPrior.h>
 #include <maths/CMultinomialConjugate.h>
 #include <maths/CNormalMeanPrecConjugate.h>
@@ -24,6 +25,8 @@ BOOST_AUTO_TEST_SUITE(CMathsMemoryTest)
 using namespace ml;
 using namespace maths;
 
+const ml::maths::CModelAddSamplesParams::TModelChangeCallback NOOP;
+
 BOOST_AUTO_TEST_CASE(testTimeSeriesDecompositions) {
     CTimeSeriesDecomposition decomp(0.95, 3600, 55);
 
@@ -31,7 +34,7 @@ BOOST_AUTO_TEST_CASE(testTimeSeriesDecompositions) {
     time = 140390672;
 
     for (unsigned i = 0; i < 600000; i += 600) {
-        decomp.addPoint(time + i, (0.55 * (0.2 + (i % 86400))));
+        decomp.addPoint(time + i, (0.55 * (0.2 + (i % 86400))), NOOP);
     }
 
     core::CMemoryUsage mem;

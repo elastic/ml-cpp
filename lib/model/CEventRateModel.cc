@@ -21,6 +21,7 @@
 #include <maths/ProbabilityAggregators.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnnotation.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
 #include <model/CIndividualModelDetail.h>
@@ -29,6 +30,7 @@
 #include <model/CModelTools.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/CResourceMonitor.h>
+#include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
 #include <algorithm>
@@ -322,12 +324,23 @@ void CEventRateModel::sample(core_t::TTime startTime,
                                   priorWeights[0]);
                 maths_t::setWinsorisationWeight(winsorisationWeight, priorWeights[0]);
 
+                const auto createAndAddAnnotation = [&](core_t::TTime t,
+                                                        const std::string& annotation) {
+                    m_CurrentBucketStats.s_Annotations.emplace_back(
+                        t, annotation, gatherer.searchKey().detectorIndex(),
+                        gatherer.searchKey().partitionFieldName(),
+                        gatherer.partitionFieldValue(),
+                        gatherer.searchKey().overFieldName(), "",
+                        gatherer.searchKey().byFieldName(), gatherer.personName(pid));
+                };
+
                 maths::CModelAddSamplesParams params;
                 params.integer(true)
                     .nonNegative(true)
                     .propagationInterval(deratedInterval)
                     .trendWeights(trendWeights)
-                    .priorWeights(priorWeights);
+                    .priorWeights(priorWeights)
+                    .onModelChange(createAndAddAnnotation);
 
                 if (model->addSamples(params, values) == maths::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);
@@ -518,6 +531,10 @@ const CEventRateModel::TFeatureData*
 CEventRateModel::featureData(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const {
     return this->CIndividualModel::featureData(feature, pid, time,
                                                m_CurrentBucketStats.s_FeatureData);
+}
+
+const CEventRateModel::TAnnotationVec& CEventRateModel::annotations() const {
+    return m_CurrentBucketStats.s_Annotations;
 }
 
 core_t::TTime CEventRateModel::currentBucketStartTime() const {

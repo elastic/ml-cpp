@@ -43,6 +43,7 @@ public:
     //! No-op returning false.
     virtual void addPoint(core_t::TTime time,
                           double value,
+                          const TModelChangeCallback& modelChangeCallback,
                           const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
                           const TComponentChangeCallback& componentChangeCallback = noop);
 

@@ -25,6 +25,7 @@
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraPersist.h>
+#include <maths/CModel.h>
 #include <maths/CPeriodicityHypothesisTests.h>
 #include <maths/CSampling.h>
 #include <maths/CSeasonalComponentAdaptiveBucketing.h>
@@ -387,16 +388,19 @@ CTimeSeriesDecompositionDetail::SMessage::SMessage(core_t::TTime time, core_t::T
 
 //////// SAddValue ////////
 
-CTimeSeriesDecompositionDetail::SAddValue::SAddValue(core_t::TTime time,
-                                                     core_t::TTime lastTime,
-                                                     double value,
-                                                     const maths_t::TDoubleWeightsAry& weights,
-                                                     double trend,
-                                                     double seasonal,
-                                                     double calendar,
-                                                     const TPredictor& predictor,
-                                                     const CPeriodicityHypothesisTestsConfig& periodicityTestConfig)
-    : SMessage{time, lastTime}, s_Value{value}, s_Weights{weights}, s_Trend{trend},
+CTimeSeriesDecompositionDetail::SAddValue::SAddValue(
+    core_t::TTime time,
+    core_t::TTime lastTime,
+    double value,
+    const TModelChangeCallback& modelChangeCallback,
+    const maths_t::TDoubleWeightsAry& weights,
+    double trend,
+    double seasonal,
+    double calendar,
+    const TPredictor& predictor,
+    const CPeriodicityHypothesisTestsConfig& periodicityTestConfig)
+    : SMessage{time, lastTime}, s_Value{value},
+      s_ModelChangeCallback(modelChangeCallback), s_Weights{weights}, s_Trend{trend},
       s_Seasonal{seasonal}, s_Calendar{calendar}, s_Predictor{predictor},
       s_PeriodicityTestConfig{periodicityTestConfig} {
 }
@@ -406,10 +410,12 @@ CTimeSeriesDecompositionDetail::SAddValue::SAddValue(core_t::TTime time,
 CTimeSeriesDecompositionDetail::SDetectedSeasonal::SDetectedSeasonal(
     core_t::TTime time,
     core_t::TTime lastTime,
+    const TModelChangeCallback& modelChangeCallback,
     const CPeriodicityHypothesisTestsResult& result,
     const CExpandingWindow& window,
     const TPredictor& predictor)
-    : SMessage{time, lastTime}, s_Result{result}, s_Window{window}, s_Predictor{predictor} {
+    : SMessage{time, lastTime}, s_ModelChangeCallback{modelChangeCallback},
+      s_Result{result}, s_Window{window}, s_Predictor{predictor} {
 }
 
 //////// SDetectedCalendar ////////
@@ -590,6 +596,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::handle(const SNewComponen
 void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& message) {
     core_t::TTime time{message.s_Time};
     core_t::TTime lastTime{message.s_LastTime};
+    const TModelChangeCallback& onModelChange{message.s_ModelChangeCallback};
     const TPredictor& predictor{message.s_Predictor};
     const CPeriodicityHypothesisTestsConfig& config{message.s_PeriodicityTestConfig};
 
@@ -615,7 +622,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
 
                 if (result.periodic()) {
                     this->mediator()->forward(SDetectedSeasonal{
-                        time, lastTime, result, *window, predictor});
+                        time, lastTime, onModelChange, result, *window, predictor});
                 }
             }
         }
@@ -1317,9 +1324,13 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
         const CPeriodicityHypothesisTestsResult& result{message.s_Result};
         const CExpandingWindow& window{message.s_Window};
         const TPredictor& predictor{message.s_Predictor};
+        const TModelChangeCallback& onModelChange{message.s_ModelChangeCallback};
 
         if (this->addSeasonalComponents(result, window, predictor)) {
-            LOG_DEBUG(<< "Detected seasonal components at " << time);
+            std::string annotation = "Detected seasonal components at " +
+                                     std::to_string(time);
+            LOG_DEBUG(<< annotation);
+            onModelChange(time, annotation);
             m_UsingTrendForPrediction = true;
             this->clearComponentErrors();
             this->apply(SC_ADDED_COMPONENTS, message);
@@ -1667,11 +1678,12 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
         result.removeDiscontinuities(values);
         CTrendComponent newTrend{m_Trend.defaultDecayRate()};
         this->fitTrend(startTime, dt, values, newTrend);
-        this->reweightOutliers(startTime, dt,
-                               [&newTrend](core_t::TTime time) {
-                                   return CBasicStatistics::mean(newTrend.value(time, 0.0));
-                               },
-                               values);
+        this->reweightOutliers(
+            startTime, dt,
+            [&newTrend](core_t::TTime time) {
+                return CBasicStatistics::mean(newTrend.value(time, 0.0));
+            },
+            values);
 
         // TODO Resetting the trend is bad from a forecast perspective so we
         // should avoid it if the difference is small.

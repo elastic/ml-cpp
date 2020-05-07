@@ -94,6 +94,7 @@ class MATHS_EXPORT CModelAddSamplesParams {
 public:
     using TDouble2Vec = core::CSmallVector<double, 2>;
     using TDouble2VecWeightsAryVec = std::vector<maths_t::TDouble2VecWeightsAry>;
+    using TModelChangeCallback = std::function<void(core_t::TTime, const std::string&)>;
 
 public:
     //! Set whether or not the data are integer valued.
@@ -121,6 +122,11 @@ public:
     //! Get the prior sample weights.
     const TDouble2VecWeightsAryVec& priorWeights() const;
 
+    //! Set the model change callback.
+    CModelAddSamplesParams& onModelChange(const TModelChangeCallback& addAnnotation);
+    //! Get the model change callback.
+    const TModelChangeCallback& onModelChange() const;
+
 private:
     //! The data type.
     maths_t::EDataType m_Type = maths_t::E_MixedData;
@@ -132,6 +138,8 @@ private:
     const TDouble2VecWeightsAryVec* m_TrendWeights = nullptr;
     //! The prior sample weights.
     const TDouble2VecWeightsAryVec* m_PriorWeights = nullptr;
+    //! The model change callback.
+    const TModelChangeCallback* m_ModelChangeCallback = nullptr;
 };
 
 //! \brief The extra parameters needed by CModel::probability.

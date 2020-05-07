@@ -38,6 +38,7 @@ void CTimeSeriesDecompositionStub::testingForChange(bool /*value*/) {
 
 void CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
                                             double /*value*/,
+                                            const TModelChangeCallback& /*modelChangeCallback*/,
                                             const maths_t::TDoubleWeightsAry& /*weights*/,
                                             const TComponentChangeCallback& /*componentChangeCallback*/) {
 }

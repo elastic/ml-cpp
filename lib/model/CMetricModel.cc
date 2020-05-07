@@ -21,6 +21,7 @@
 #include <maths/ProbabilityAggregators.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnnotation.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
 #include <model/CGathererTools.h>
@@ -31,6 +32,7 @@
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/CResourceMonitor.h>
 #include <model/CSampleGatherer.h>
+#include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
 #include <boost/iterator/counting_iterator.hpp>
@@ -305,12 +307,23 @@ void CMetricModel::sample(core_t::TTime startTime,
                                                    priorWeights[i]);
                 }
 
+                const auto createAndAddAnnotation = [&](core_t::TTime t,
+                                                        const std::string& annotation) {
+                    m_CurrentBucketStats.s_Annotations.emplace_back(
+                        t, annotation, gatherer.searchKey().detectorIndex(),
+                        gatherer.searchKey().partitionFieldName(),
+                        gatherer.partitionFieldValue(),
+                        gatherer.searchKey().overFieldName(), "",
+                        gatherer.searchKey().byFieldName(), gatherer.personName(pid));
+                };
+
                 maths::CModelAddSamplesParams params;
                 params.integer(data_.second.s_IsInteger)
                     .nonNegative(data_.second.s_IsNonNegative)
                     .propagationInterval(deratedInterval)
                     .trendWeights(trendWeights)
-                    .priorWeights(priorWeights);
+                    .priorWeights(priorWeights)
+                    .onModelChange(createAndAddAnnotation);
 
                 if (model->addSamples(params, values) == maths::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);
@@ -477,6 +490,10 @@ const CMetricModel::TFeatureData*
 CMetricModel::featureData(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const {
     return this->CIndividualModel::featureData(feature, pid, time,
                                                m_CurrentBucketStats.s_FeatureData);
+}
+
+const CMetricModel::TAnnotationVec& CMetricModel::annotations() const {
+    return m_CurrentBucketStats.s_Annotations;
 }
 
 core_t::TTime CMetricModel::currentBucketStartTime() const {

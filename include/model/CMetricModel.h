@@ -73,6 +73,8 @@ public:
         //! The key is <feature, pid, pid> for non-correlated corrections
         //! or <feature, pid, correlated_pid> for correlated corrections
         mutable TFeatureSizeSizeTripleDouble1VecUMap s_InterimCorrections;
+        //! Annotations produced by this model.
+        TAnnotationVec s_Annotations;
     };
 
 public:
@@ -264,6 +266,9 @@ public:
     //! by \p pid for the bucketing interval containing \p time.
     const TFeatureData*
     featureData(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const;
+
+    //! Get the annotations produced by this model.
+    const TAnnotationVec& annotations() const override;
 
 private:
     using TOptionalSample = boost::optional<CSample>;

@@ -219,6 +219,7 @@ void CTimeSeriesDecomposition::testingForChange(bool value) {
 
 void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
+                                        const TModelChangeCallback& modelChangeCallback,
                                         const maths_t::TDoubleWeightsAry& weights,
                                         const TComponentChangeCallback& componentChangeCallback) {
 
@@ -240,6 +241,7 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
     SAddValue message{time,
                       lastTime,
                       value,
+                      modelChangeCallback,
                       weights,
                       CBasicStatistics::mean(this->value(time, 0.0, E_TrendForced)),
                       CBasicStatistics::mean(this->value(time, 0.0, E_Seasonal)),

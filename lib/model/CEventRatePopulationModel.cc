@@ -23,11 +23,13 @@
 #include <maths/ProbabilityAggregators.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnnotation.h>
 #include <model/CEventRateBucketGatherer.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
 #include <model/CPopulationModelDetail.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
+#include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
 #include <algorithm>
@@ -459,12 +461,26 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
 
             for (auto& attribute : attributeValuesAndWeights) {
                 std::size_t cid = attribute.first;
+
+                const auto createAndAddAnnotation =
+                    [&](core_t::TTime t, const std::string& annotation) {
+                        m_CurrentBucketStats.s_Annotations.emplace_back(
+                            t, annotation, gatherer.searchKey().detectorIndex(),
+                            gatherer.searchKey().partitionFieldName(),
+                            gatherer.partitionFieldValue(),
+                            gatherer.searchKey().overFieldName(),
+                            gatherer.attributeName(cid),
+                            gatherer.searchKey().byFieldName(), "");
+                    };
+
                 maths::CModelAddSamplesParams params;
                 params.integer(true)
                     .nonNegative(true)
                     .propagationInterval(this->propagationTime(cid, sampleTime))
                     .trendWeights(attribute.second.s_Weights)
-                    .priorWeights(attribute.second.s_Weights);
+                    .priorWeights(attribute.second.s_Weights)
+                    .onModelChange(createAndAddAnnotation);
+
                 maths::CModel* model{this->model(feature, cid)};
                 if (model == nullptr) {
                     LOG_TRACE(<< "Model unexpectedly null");
@@ -842,6 +858,10 @@ std::size_t CEventRatePopulationModel::computeMemoryUsage() const {
     mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
     mem += core::CMemory::dynamicSize(m_MemoryEstimator);
     return mem;
+}
+
+const CEventRatePopulationModel::TAnnotationVec& CEventRatePopulationModel::annotations() const {
+    return m_CurrentBucketStats.s_Annotations;
 }
 
 CMemoryUsageEstimator* CEventRatePopulationModel::memoryUsageEstimator() const {

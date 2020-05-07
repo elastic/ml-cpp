@@ -130,6 +130,17 @@ CModelAddSamplesParams::priorWeights() const {
     return *m_PriorWeights;
 }
 
+CModelAddSamplesParams&
+CModelAddSamplesParams::onModelChange(const TModelChangeCallback& modelChangeCallback) {
+    m_ModelChangeCallback = &modelChangeCallback;
+    return *this;
+}
+
+const CModelAddSamplesParams::TModelChangeCallback&
+CModelAddSamplesParams::onModelChange() const {
+    return *m_ModelChangeCallback;
+}
+
 //////// CModelProbabilityParams ////////
 
 CModelProbabilityParams::CModelProbabilityParams()

@@ -14,6 +14,7 @@
 #include <maths/CCalendarComponent.h>
 #include <maths/CCalendarCyclicTest.h>
 #include <maths/CExpandingWindow.h>
+#include <maths/CModel.h>
 #include <maths/CPeriodicityHypothesisTests.h>
 #include <maths/CSeasonalComponent.h>
 #include <maths/CSeasonalTime.h>
@@ -57,6 +58,7 @@ public:
         SAddValue(core_t::TTime time,
                   core_t::TTime lastTime,
                   double value,
+                  const TModelChangeCallback& modelChangeCallback,
                   const maths_t::TDoubleWeightsAry& weights,
                   double trend,
                   double seasonal,
@@ -68,6 +70,8 @@ public:
 
         //! The value to add.
         double s_Value;
+        //! Called if the model changes.
+        const TModelChangeCallback& s_ModelChangeCallback;
         //! The weights of associated with the value.
         const maths_t::TDoubleWeightsAry& s_Weights;
         //! The trend component prediction at the value's time.
@@ -87,10 +91,13 @@ public:
     struct MATHS_EXPORT SDetectedSeasonal : public SMessage {
         SDetectedSeasonal(core_t::TTime time,
                           core_t::TTime lastTime,
+                          const TModelChangeCallback& modelChangeCallback,
                           const CPeriodicityHypothesisTestsResult& result,
                           const CExpandingWindow& window,
                           const TPredictor& predictor);
 
+        //! Called if the model changes.
+        const TModelChangeCallback& s_ModelChangeCallback;
         //! The components found.
         CPeriodicityHypothesisTestsResult s_Result;
         //! The window tested.
