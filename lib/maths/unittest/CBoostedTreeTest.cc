@@ -1440,8 +1440,14 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
                 BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]",
                                     core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
             } else if (task.s_Name == maths::CBoostedTreeFactory::FINAL_TRAINING) {
-                BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]",
-                                    core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+                // Progress might be 90% or 100% depending on whether the final
+                // progress update registered
+                if (task.s_TenPercentProgressPoints.size() != 11 ||
+                    task.s_TenPercentProgressPoints.front() != 0 ||
+                    task.s_TenPercentProgressPoints.back() != 100) {
+                    BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]",
+                                        core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+                }
             }
             BOOST_TEST_REQUIRE(task.s_Monotonic);
         }
