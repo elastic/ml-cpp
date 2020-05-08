@@ -61,6 +61,7 @@ function pickCloneTarget {
 pickCloneTarget
 
 cd "$1"
+rm -rf elasticsearch
 git clone -b "$SELECTED_BRANCH" "git@github.com:${SELECTED_FORK}/elasticsearch.git" --depth=1
 cd elasticsearch
 
