@@ -76,7 +76,7 @@ public:
     using TObjective = std::function<double(double)>;
 
 public:
-    CArgMinMsleImpl(double lambda);
+    CArgMinMsleImpl(double lambda, double offset = 1.0);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
     void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
@@ -122,6 +122,7 @@ private:
 
 private:
     std::size_t m_CurrentPass = 0;
+    double m_Offset = 1.0;
     TMinMaxAccumulator m_ExpPredictionMinMax;
     TMinMaxAccumulator m_LogActualMinMax;
     TVectorMeanAccumulatorVecVec m_Buckets;
