@@ -776,12 +776,12 @@ std::size_t CMsle::numberParameters() const {
 
 double CMsle::value(const TMemoryMappedFloatVector& logPrediction, double actual, double weight) const {
     double prediction{CTools::stableExp(logPrediction(0))};
-    double logOffsetPrediction{CTools::fastLog(m_Offset + prediction)};
+    double logOffsetPrediction{CTools::stableLog(m_Offset + prediction)};
     if (actual < 0.0) {
         HANDLE_FATAL(<< "Input error: target value needs to be non-negative to use "
                      << "with MSLE loss, received: " << actual)
     }
-    double logOffsetActual{CTools::fastLog(m_Offset + actual)};
+    double logOffsetActual{CTools::stableLogy(m_Offset + actual)};
     return weight * CTools::pow2(logOffsetPrediction - logOffsetActual);
 }
 
@@ -790,8 +790,8 @@ void CMsle::gradient(const TMemoryMappedFloatVector& logPrediction,
                      TWriter writer,
                      double weight) const {
     double prediction{CTools::stableExp(logPrediction(0))};
-    double log1PlusPrediction{CTools::fastLog(m_Offset + prediction)};
-    double log1PlusActual{CTools::fastLog(m_Offset + actual)};
+    double log1PlusPrediction{CTools::stableLog(m_Offset + prediction)};
+    double log1PlusActual{CTools::stableLog(m_Offset + actual)};
     writer(0, 2.0 * weight * (log1PlusPrediction - log1PlusActual) / (prediction + 1.0));
 }
 
@@ -800,8 +800,8 @@ void CMsle::curvature(const TMemoryMappedFloatVector& logPrediction,
                       TWriter writer,
                       double weight) const {
     double prediction{CTools::stableExp(logPrediction(0))};
-    double logOffsetPrediction{CTools::fastLog(m_Offset + prediction)};
-    double logOffsetActual{CTools::fastLog(m_Offset + actual)};
+    double logOffsetPrediction{CTools::stableLog(m_Offset + prediction)};
+    double logOffsetActual{CTools::stableLog(m_Offset + actual)};
     // Apply L'Hopital's rule in the limit prediction -> actual.
     writer(0, prediction == actual
                   ? 0.0
