@@ -12,14 +12,6 @@
 #include <array>
 #include <vector>
 
-// TODO: revert this when we upgrade to gcc 9.3
-#ifdef __GNUC__
-// gcc's alignas is unreliable prior to gcc 9.3, so use the old style attribute
-#define ALIGNAS(x) __attribute__((aligned(x)))
-#else
-#define ALIGNAS(x) alignas(x)
-#endif
-
 BOOST_AUTO_TEST_SUITE(CAlignmentTest)
 
 using namespace ml;
@@ -28,7 +20,7 @@ BOOST_AUTO_TEST_CASE(testMaxAlignment) {
 
     // Test some known alignments.
 
-    ALIGNAS(32) const char addresses[64]{};
+    alignas(32) const char addresses[64]{};
     for (std::size_t i = 0; i < 64; ++i) {
         if (i % 32 == 0) {
             BOOST_TEST_REQUIRE(core::CAlignment::maxAlignment(&addresses[i]) ==
@@ -50,7 +42,7 @@ BOOST_AUTO_TEST_CASE(testIsAligned) {
 
     // Test some known alignments.
 
-    ALIGNAS(32) const char addresses[64]{};
+    alignas(32) const char addresses[64]{};
     for (std::size_t i = 0; i < 64; ++i) {
         if (i % 32 == 0) {
             BOOST_TEST_REQUIRE(core::CAlignment::isAligned(
@@ -89,7 +81,7 @@ BOOST_AUTO_TEST_CASE(testNextAligned) {
     // Test that next aligned is the first position with the required alignment
     // after the current index.
 
-    ALIGNAS(32) std::array<double, 8> addresses;
+    alignas(32) std::array<double, 8> addresses;
 
     for (std::size_t i = 0; i < 8; ++i) {
         std::size_t i32{core::CAlignment::nextAligned(addresses, i, core::CAlignment::E_Aligned32)};
