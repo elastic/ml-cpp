@@ -2183,7 +2183,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::propagateForwards(c
     for (std::size_t i = 0; i < m_Components.size(); ++i) {
         core_t::TTime period{m_Components[i].time().period()};
         stepwisePropagateForwards(start, end, period, [&](double time) {
-            m_Components[i].propagateForwardsByTime(time / 4.0, 0.25);
+            m_Components[i].propagateForwardsByTime(time / 3.0, 0.3);
             m_PredictionErrors[i].age(std::exp(-m_Components[i].decayRate() * time));
         });
     }
@@ -2484,7 +2484,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CCalendar::propagateForwards(c
                                                                                core_t::TTime end) {
     for (std::size_t i = 0; i < m_Components.size(); ++i) {
         stepwisePropagateForwards(start, end, MONTH, [&](double time) {
-            m_Components[i].propagateForwardsByTime(time / 4.0);
+            m_Components[i].propagateForwardsByTime(time / 3.0);
             m_PredictionErrors[i].age(std::exp(-m_Components[i].decayRate() * time));
         });
     }
