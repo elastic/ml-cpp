@@ -173,13 +173,15 @@ std::string CNamedPipeFactory::defaultPath() {
     return path;
 }
 
-CNamedPipeFactory::TPipeHandle
-CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
-    if (!SIGPIPE_IGNORED) {
+void CNamedPipeFactory::logDeferredWarnings() {
+    if (SIGPIPE_IGNORED == false) {
         LOG_WARN(<< "Failed to ignore SIGPIPE - this process will not terminate "
                     "gracefully if a process it is writing to via a named pipe dies");
     }
+}
 
+CNamedPipeFactory::TPipeHandle
+CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
     bool madeFifo(false);
 
     // If the name already exists, ensure it refers directly (i.e. not via a
