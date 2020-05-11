@@ -246,7 +246,7 @@ bool CAdaptiveBucketing::initialize(double a, double b, std::size_t n) {
 void CAdaptiveBucketing::initialValues(core_t::TTime start,
                                        core_t::TTime end,
                                        const TFloatMeanAccumulatorVec& values) {
-    if (!this->initialized()) {
+    if (this->initialized() == false) {
         return;
     }
 
@@ -406,7 +406,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     LOG_TRACE(<< "totalAveragingError = " << totalAveragingError);
 
     double n_{static_cast<double>(n)};
-    double step{(1 - n_ * EPS) * totalAveragingError / n_};
+    double step{(1.0 - n_ * EPS) * totalAveragingError / n_};
     TFloatVec endpoints{m_Endpoints};
     LOG_TRACE(<< "step = " << step);
 
@@ -505,7 +505,7 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
             double a{m_Endpoints[i]};
             double b{m_Endpoints[i + 1]};
             double c{m_Centres[i]};
-            double c0{c};
+            double c0{c - m_Endpoints[0]};
             knots.push_back(m_Endpoints[0]);
             values.push_back(this->predict(i, time, c));
             variances.push_back(this->variance(i));
@@ -549,26 +549,37 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
                         double alpha{m_Endpoints[n] - m_Centres[j]};
                         double beta{c0};
                         double Z{alpha + beta};
+                        if (Z == 0.0) {
+                            alpha = beta = 0.5;
+                        } else {
+                            alpha /= Z;
+                            beta /= Z;
+                        }
                         double lastPeriodValue{
                             this->predict(j, time, m_Centres[j] - m_Endpoints[n])};
                         double lastPeriodVariance{this->variance(j)};
                         knots[0] = m_Endpoints[0];
-                        values[0] = (alpha * values[0] + beta * lastPeriodValue) / Z;
-                        variances[0] = (alpha * variances[0] + beta * lastPeriodVariance) / Z;
+                        values[0] = alpha * values[0] + beta * lastPeriodValue;
+                        variances[0] = alpha * variances[0] + beta * lastPeriodVariance;
                         break;
                     }
                 }
-                for (std::size_t j = 0u; j < n; ++j) {
+                for (std::size_t j = 0; j < n; ++j) {
                     if (this->bucketCount(j) > 0.0) {
                         double alpha{m_Centres[j]};
                         double beta{m_Endpoints[n] - knots.back()};
                         double Z{alpha + beta};
+                        if (Z == 0.0) {
+                            alpha = beta = 0.5;
+                        } else {
+                            alpha /= Z;
+                            beta /= Z;
+                        }
                         double nextPeriodValue{
                             this->predict(j, time, m_Endpoints[n] + m_Centres[j])};
                         double nextPeriodVariance{this->variance(j)};
-                        values.push_back((alpha * values.back() + beta * nextPeriodValue) / Z);
-                        variances.push_back(
-                            (alpha * variances.back() + beta * nextPeriodVariance) / Z);
+                        values.push_back(alpha * values.back() + beta * nextPeriodValue);
+                        variances.push_back(alpha * variances.back() + beta * nextPeriodVariance);
                         knots.push_back(m_Endpoints[n]);
                         break;
                     }
