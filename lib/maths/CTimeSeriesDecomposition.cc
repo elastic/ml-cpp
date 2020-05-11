@@ -417,7 +417,7 @@ TDoubleDoublePr CTimeSeriesDecomposition::scale(core_t::TTime time,
     }
 
     double mean{this->meanVariance()};
-    if (mean == 0.0) {
+    if (mean == 0.0 || variance == 0.0) {
         return {1.0, 1.0};
     }
 
