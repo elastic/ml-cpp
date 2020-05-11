@@ -276,7 +276,11 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
                 static_cast<double>(oldCentres[l - 1]));
             largeErrorCount += w * oldLargeErrorCounts[l - 1];
             count += w * w * CBasicStatistics::count(m_Values[l - 1]);
-            double scale{count / CBasicStatistics::count(value)};
+            // Defend against 0 / 0: if CBasicStatistics::count(value)
+            // is zero then count must be too.
+            double scale{count == CBasicStatistics::count(value)
+                             ? 1.0
+                             : count / CBasicStatistics::count(value)};
             newValues.push_back(CBasicStatistics::scaled(value, scale));
             newCentres.push_back(CTools::truncate(CBasicStatistics::mean(centre), yl, yr));
             newLargeErrorCounts.push_back(largeErrorCount);
