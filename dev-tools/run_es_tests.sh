@@ -61,6 +61,7 @@ function pickCloneTarget {
 pickCloneTarget
 
 cd "$1"
+rm -rf elasticsearch
 git clone -b "$SELECTED_BRANCH" "git@github.com:${SELECTED_FORK}/elasticsearch.git" --depth=1
 cd elasticsearch
 
@@ -68,6 +69,11 @@ export ES_BUILD_JAVA="$(grep "^ES_BUILD_JAVA" .ci/java-versions.properties | awk
 if [ -z "$ES_BUILD_JAVA" ]; then
     echo "Unable to set JAVA_HOME, ES_BUILD_JAVA not present in .ci/java-versions.properties"
     exit 1
+fi
+
+# On aarch64 adoptopenjdk is used in place of openjdk
+if [ `uname -m` = aarch64 ] ; then
+    export ES_BUILD_JAVA=adopt$ES_BUILD_JAVA
 fi
 
 echo "Setting JAVA_HOME=$HOME/.java/$ES_BUILD_JAVA"
