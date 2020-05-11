@@ -295,7 +295,7 @@ private:
     core_t::TTime m_LastLargeErrorPeriod = 0;
 
     //! The p-values of the most significant large error counts.
-    TFloatUInt32PrMinAccumulator m_LargeErrorCountSignificances;
+    TFloatUInt32PrMinAccumulator m_LargeErrorCountPValues;
 
     //! The mean weight of values added.
     TFloatMeanAccumulator m_MeanWeight;

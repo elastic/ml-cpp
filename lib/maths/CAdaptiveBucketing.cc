@@ -81,13 +81,13 @@ private:
 };
 
 //! Convert to a delimited string.
-std::string significanceToDelimited(const TFloatUInt32Pr& value) {
+std::string pValueToDelimited(const TFloatUInt32Pr& value) {
     return value.first.toString() + CBasicStatistics::EXTERNAL_DELIMITER +
            core::CStringUtils::typeToString(value.second);
 }
 
 //! Initialize from a delimited string.
-bool significanceFromDelimited(const std::string& delimited, TFloatUInt32Pr& value) {
+bool pValueFromDelimited(const std::string& delimited, TFloatUInt32Pr& value) {
     std::size_t pos{delimited.find(CBasicStatistics::EXTERNAL_DELIMITER)};
     if (pos == std::string::npos) {
         LOG_ERROR(<< "Failed to delimiter in '" << delimited << "'");
@@ -119,7 +119,7 @@ const core::TPersistenceTag LARGE_ERROR_COUNTS_TAG{"f", "large_error_counts"};
 const core::TPersistenceTag TARGET_SIZE_TAG{"g", "target size"};
 const core::TPersistenceTag LAST_LARGE_ERROR_BUCKET_TAG{"h", "last_large_error_bucket"};
 const core::TPersistenceTag LAST_LARGE_ERROR_PERIOD_TAG{"i", "last_large_error_period"};
-const core::TPersistenceTag LARGE_ERROR_COUNT_SIGNIFICANCES_TAG{"j", "large_error_counts_significance"};
+const core::TPersistenceTag LARGE_ERROR_COUNT_P_VALUES_TAG{"j", "large_error_counts_p_values"};
 const core::TPersistenceTag MEAN_WEIGHT_TAG{"k", "mean weight"};
 const std::string EMPTY_STRING;
 
@@ -157,8 +157,8 @@ bool CAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
         RESTORE_BUILT_IN(TARGET_SIZE_TAG, m_TargetSize)
         RESTORE_BUILT_IN(LAST_LARGE_ERROR_BUCKET_TAG, m_LastLargeErrorBucket)
         RESTORE_BUILT_IN(LAST_LARGE_ERROR_PERIOD_TAG, m_LastLargeErrorPeriod)
-        RESTORE(LARGE_ERROR_COUNT_SIGNIFICANCES_TAG,
-                m_LargeErrorCountSignificances.fromDelimited(traverser.value(), significanceFromDelimited))
+        RESTORE(LARGE_ERROR_COUNT_P_VALUES_TAG,
+                m_LargeErrorCountPValues.fromDelimited(traverser.value(), pValueFromDelimited))
         RESTORE(MEAN_WEIGHT_TAG, m_MeanWeight.fromDelimited(traverser.value()))
         RESTORE(ENDPOINT_TAG, core::CPersistUtils::fromString(traverser.value(), m_Endpoints))
         RESTORE(CENTRES_TAG, core::CPersistUtils::fromString(traverser.value(), m_Centres))
@@ -183,8 +183,8 @@ void CAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inse
     inserter.insertValue(TARGET_SIZE_TAG, m_TargetSize);
     inserter.insertValue(LAST_LARGE_ERROR_BUCKET_TAG, m_LastLargeErrorBucket);
     inserter.insertValue(LAST_LARGE_ERROR_PERIOD_TAG, m_LastLargeErrorPeriod);
-    inserter.insertValue(LARGE_ERROR_COUNT_SIGNIFICANCES_TAG,
-                         m_LargeErrorCountSignificances.toDelimited(significanceToDelimited));
+    inserter.insertValue(LARGE_ERROR_COUNT_P_VALUES_TAG,
+                         m_LargeErrorCountPValues.toDelimited(pValueToDelimited));
     inserter.insertValue(MEAN_WEIGHT_TAG, m_MeanWeight.toDelimited());
     inserter.insertValue(ENDPOINT_TAG, core::CPersistUtils::toString(m_Endpoints));
     inserter.insertValue(CENTRES_TAG, core::CPersistUtils::toString(m_Centres));
@@ -202,7 +202,7 @@ void CAdaptiveBucketing::swap(CAdaptiveBucketing& other) {
     std::swap(m_TargetSize, other.m_TargetSize);
     std::swap(m_LastLargeErrorBucket, other.m_LastLargeErrorBucket);
     std::swap(m_LastLargeErrorPeriod, other.m_LastLargeErrorPeriod);
-    std::swap(m_LargeErrorCountSignificances, other.m_LargeErrorCountSignificances);
+    std::swap(m_LargeErrorCountPValues, other.m_LargeErrorCountPValues);
     std::swap(m_MeanWeight, other.m_MeanWeight);
     m_Endpoints.swap(other.m_Endpoints);
     m_Centres.swap(other.m_Centres);
@@ -395,9 +395,9 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     }
     double maxAveragingError{
         *std::max_element(averagingErrors.begin(), averagingErrors.end())};
-    for (const auto& significance : m_LargeErrorCountSignificances) {
-        if (significance.first < MODERATE_SIGNIFICANCE) {
-            averagingErrors[significance.second] = maxAveragingError;
+    for (const auto& pValue : m_LargeErrorCountPValues) {
+        if (pValue.first < MODERATE_SIGNIFICANCE) {
+            averagingErrors[pValue.second] = maxAveragingError;
         }
     }
     double totalAveragingError{
@@ -698,12 +698,12 @@ CAdaptiveBucketing::TFloatVec& CAdaptiveBucketing::largeErrorCounts() {
 }
 
 double CAdaptiveBucketing::adjustedWeight(std::size_t bucket, double weight) const {
-    for (const auto& significance : m_LargeErrorCountSignificances) {
-        if (bucket == significance.second) {
+    for (const auto& pValue : m_LargeErrorCountPValues) {
+        if (bucket == pValue.second) {
             double largeWeight{2.0 * CBasicStatistics::mean(m_MeanWeight)};
-            double logSignificance{CTools::fastLog(significance.first)};
+            double logPValue{CTools::fastLog(pValue.first)};
             return CTools::linearlyInterpolate(LOG_HIGH_SIGNIFICANCE, LOG_MODERATE_SIGNIFICANCE,
-                                               largeWeight, weight, logSignificance);
+                                               largeWeight, weight, logPValue);
         }
     }
     return weight;
@@ -755,8 +755,7 @@ uint64_t CAdaptiveBucketing::checksum(uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_TargetSize);
     seed = CChecksum::calculate(seed, m_LastLargeErrorBucket);
     seed = CChecksum::calculate(seed, m_LastLargeErrorPeriod);
-    seed = CChecksum::calculate(
-        seed, m_LargeErrorCountSignificances.toDelimited(significanceToDelimited));
+    seed = CChecksum::calculate(seed, m_LargeErrorCountPValues.toDelimited(pValueToDelimited));
     seed = CChecksum::calculate(seed, m_MeanWeight);
     seed = CChecksum::calculate(seed, m_Endpoints);
     seed = CChecksum::calculate(seed, m_Centres);
@@ -776,7 +775,8 @@ double CAdaptiveBucketing::bucketLargeErrorCountPValue(double totalLargeErrorCou
                                                        std::size_t bucket) const {
     // We compute the right tail p-value of the count of large errors
     // in a bucket for the null hypothesis that they are uniformly
-    // distributed on the total bucketed period.
+    // distributed on the total bucketed period, i.e. that there is
+    // not some poorly modelled periodic pattern.
 
     if (m_LargeErrorCounts[bucket] > 2.0) { // Are there repeats?
         double interval{m_Endpoints[bucket + 1] - m_Endpoints[bucket]};
@@ -801,35 +801,35 @@ void CAdaptiveBucketing::maybeSplitBucket() {
 
     // We do this indepedent of whether we'll split because we also use the
     // significances to adjust the bucket update weight.
-    m_LargeErrorCountSignificances = TFloatUInt32PrMinAccumulator{};
+    m_LargeErrorCountPValues = TFloatUInt32PrMinAccumulator{};
     for (std::size_t i = 0; i + 1 < m_Endpoints.size(); ++i) {
-        m_LargeErrorCountSignificances.add(
+        m_LargeErrorCountPValues.add(
             {this->bucketLargeErrorCountPValue(totalLargeErrorCount, i), i});
     }
 
     // We're choosing the minimum p-value of number of buckets independent
     // statistics so the significance is one minus the chance that all of
     // them are greater than the observation.
-    for (auto& significance : m_LargeErrorCountSignificances) {
-        significance.first = CTools::oneMinusPowOneMinusX(
-            significance.first, static_cast<double>(this->size()));
-        LOG_TRACE(<< "bucket [" << m_Endpoints[significance.second] << ","
-                  << m_Endpoints[significance.second + 1]
-                  << ") split significance = " << significance.first);
+    for (auto& candidateSplit : m_LargeErrorCountPValues) {
+        candidateSplit.first = CTools::oneMinusPowOneMinusX(
+            candidateSplit.first, static_cast<double>(this->size()));
+        LOG_TRACE(<< "bucket [" << m_Endpoints[candidateSplit.second] << ","
+                  << m_Endpoints[candidateSplit.second + 1]
+                  << ") split p-value = " << candidateSplit.first);
     }
-    m_LargeErrorCountSignificances.sort();
+    m_LargeErrorCountPValues.sort();
 
     double period{m_Endpoints[m_Endpoints.size() - 1] - m_Endpoints[0]};
-    double highestSignificance;
+    double pValue;
     std::size_t bucketToSplit;
-    std::tie(highestSignificance, bucketToSplit) = m_LargeErrorCountSignificances[0];
+    std::tie(pValue, bucketToSplit) = m_LargeErrorCountPValues[0];
 
-    // Split if we have received enough data, can divide the interval,
-    // further and the significance is high.
+    // Split if we have received enough data, can divide the interval further
+    // and the significance is high.
     if (totalLargeErrorCount >= MINIMUM_LARGE_ERROR_COUNT_TO_SPLIT &&
-        m_LargeErrorCountSignificances.count() > 0 &&
+        m_LargeErrorCountPValues.count() > 0 &&
         static_cast<double>(this->size() + 1) * m_MinimumBucketLength < period &&
-        2 * this->size() < 3 * m_TargetSize && highestSignificance < HIGH_SIGNIFICANCE) {
+        2 * this->size() < 3 * m_TargetSize && pValue < HIGH_SIGNIFICANCE) {
         this->splitBucket(bucketToSplit);
     }
 }
