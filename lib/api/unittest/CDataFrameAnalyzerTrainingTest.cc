@@ -963,13 +963,15 @@ BOOST_AUTO_TEST_CASE(testProgress) {
             std::string phase{result["phase_progress"]["phase"].GetString()};
             int progress{result["phase_progress"]["progress_percent"].GetInt()};
             if (phase == maths::CBoostedTreeFactory::FEATURE_SELECTION) {
-                featureSelectionLastProgress = progress;
+                featureSelectionLastProgress = std::max(featureSelectionLastProgress, progress);
             } else if (phase == maths::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
-                coarseParameterSearchLastProgress = progress;
+                coarseParameterSearchLastProgress =
+                    std::max(coarseParameterSearchLastProgress, progress);
             } else if (phase == maths::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
-                fineTuneParametersLastProgress = progress;
+                fineTuneParametersLastProgress =
+                    std::max(fineTuneParametersLastProgress, progress);
             } else if (phase == maths::CBoostedTreeFactory::FINAL_TRAINING) {
-                finalTrainLastProgress = progress;
+                finalTrainLastProgress = std::max(finalTrainLastProgress, progress);
             }
         }
     }
@@ -1052,17 +1054,19 @@ BOOST_AUTO_TEST_CASE(testProgressFromRestart) {
             std::string phase{result["phase_progress"]["phase"].GetString()};
             int progress{result["phase_progress"]["progress_percent"].GetInt()};
             if (phase == maths::CBoostedTreeFactory::FEATURE_SELECTION) {
-                featureSelectionLastProgress = progress;
+                featureSelectionLastProgress = std::max(featureSelectionLastProgress, progress);
             } else if (phase == maths::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
-                coarseParameterSearchLastProgress = progress;
+                coarseParameterSearchLastProgress =
+                    std::max(coarseParameterSearchLastProgress, progress);
             } else if (phase == maths::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
                 if (progress > 0) {
                     fineTuneParametersFirstProgress =
                         std::min(fineTuneParametersFirstProgress, progress);
                 }
-                fineTuneParametersLastProgress = progress;
+                fineTuneParametersLastProgress =
+                    std::max(fineTuneParametersLastProgress, progress);
             } else if (phase == maths::CBoostedTreeFactory::FINAL_TRAINING) {
-                finalTrainLastProgress = progress;
+                finalTrainLastProgress = std::max(finalTrainLastProgress, progress);
             }
         }
     }
