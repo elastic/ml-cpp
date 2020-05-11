@@ -1544,8 +1544,8 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity, CTestFixture) {
                 totalSumValue += sumValue;
                 totalMaxValue += maxValue;
 
-                BOOST_TEST_REQUIRE(sumResidual / sumValue < 0.42);
-                BOOST_TEST_REQUIRE(maxResidual / maxValue < 0.46);
+                BOOST_TEST_REQUIRE(sumResidual / sumValue < 0.48);
+                BOOST_TEST_REQUIRE(maxResidual / maxValue < 0.50);
             }
             lastDay += DAY;
         }
@@ -1554,8 +1554,8 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity, CTestFixture) {
     LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.04);
-    BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.05);
+    BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.045);
+    BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.050);
 }
 
 BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
