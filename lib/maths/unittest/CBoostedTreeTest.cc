@@ -1432,10 +1432,14 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
                 // We don't do feature selection (we have enough data to use all of them).
             } else if (task.s_Name == maths::CBoostedTreeFactory::COARSE_PARAMETER_SEARCH) {
                 // We don't have accurate upfront estimate of the number of steps so we
-                // only get progress up to 80%. In non-test code we always pass 100% when
-                // the task is complete.
-                BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80]",
-                                    core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+                // only get progress up to 80% or 90% depending on the compiler and
+                // platform. In non-test code we always pass 100% when the task is complete.
+                if (task.s_TenPercentProgressPoints.size() != 10 ||
+                    task.s_TenPercentProgressPoints.front() != 0 ||
+                    task.s_TenPercentProgressPoints.back() != 90) {
+                    BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80]",
+                                        core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+                }
             } else if (task.s_Name == maths::CBoostedTreeFactory::FINE_TUNING_PARAMETERS) {
                 BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]",
                                     core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
