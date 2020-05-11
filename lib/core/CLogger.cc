@@ -314,6 +314,8 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
 
     LOG_DEBUG(<< "Logger is logging to named pipe " << pipeName);
 
+    CNamedPipeFactory::logDeferredWarnings();
+
     return true;
 }
 
