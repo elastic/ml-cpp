@@ -87,6 +87,7 @@
   {ml-pull}1197[#1197].)
 * Improve the initialization of seasonal components for anomaly detection. (See
   {ml-pull}1201[#1201], issue: {ml-issue}#1178[#1178].)
+* Fix possible root cause for "Bad variance scale nan" log errors. (See {ml-pull}1225[#1225].)
 
 == {es} version 7.7.1
 
