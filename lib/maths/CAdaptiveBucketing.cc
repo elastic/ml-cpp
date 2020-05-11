@@ -814,8 +814,8 @@ void CAdaptiveBucketing::maybeSplitBucket() {
         significance.first = CTools::oneMinusPowOneMinusX(
             significance.first, static_cast<double>(this->size()));
         LOG_TRACE(<< "bucket [" << m_Endpoints[significance.second] << ","
-                 << m_Endpoints[significance.second + 1]
-                 << ") split significance = " << significance.first);
+                  << m_Endpoints[significance.second + 1]
+                  << ") split significance = " << significance.first);
     }
     m_LargeErrorCountSignificances.sort();
 
