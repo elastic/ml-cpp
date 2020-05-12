@@ -83,6 +83,10 @@ std::string CNamedPipeFactory::defaultPath() {
     return PIPE_PREFIX;
 }
 
+void CNamedPipeFactory::logDeferredWarnings() {
+    // No-op
+}
+
 CNamedPipeFactory::TPipeHandle
 CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
     // Size of named pipe buffer
