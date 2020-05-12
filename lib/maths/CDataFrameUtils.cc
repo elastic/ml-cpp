@@ -1069,7 +1069,8 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
     using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
 
     CPRNG::CXorOShiro128Plus rng;
-    std::size_t numberSamples{std::min(std::size_t{1000}, rowMask.size())};
+    std::size_t numberSamples{
+        static_cast<std::size_t>(std::min(1000.0, rowMask.manhattan()))};
 
     TStratifiedSamplerPtr sampler;
     std::tie(sampler, std::ignore) = classifierStratifiedCrossValidationRowSampler(
@@ -1168,7 +1169,8 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
         };
 
         TDoubleVector objective_;
-        doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), computeObjective, &rowMask),
+        doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
+                                computeObjective, &sampleMask),
                  copyObjective, reduceObjective, objective_);
         return objective_.maxCoeff();
     };
@@ -1203,7 +1205,7 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
 
         TDoubleMatrix objectiveAndGradient;
         doReduce(frame.readRows(numberThreads, 0, frame.numberRows(),
-                                computeObjectiveAndGradient, &rowMask),
+                                computeObjectiveAndGradient, &sampleMask),
                  copyObjectiveAndGradient, reduceObjectiveAndGradient, objectiveAndGradient);
         std::size_t max;
         objectiveAndGradient.col(0).maxCoeff(&max);
