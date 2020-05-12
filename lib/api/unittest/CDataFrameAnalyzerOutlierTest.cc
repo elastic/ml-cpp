@@ -576,7 +576,8 @@ BOOST_AUTO_TEST_CASE(testProgress) {
             LOG_DEBUG(<< sb.GetString());
             if (result["phase_progress"]["phase"] == maths::COutliers::COMPUTING_OUTLIERS) {
                 computingOutliersProgress =
-                    result["phase_progress"]["progress_percent"].GetInt();
+                    std::max(computingOutliersProgress,
+                             result["phase_progress"]["progress_percent"].GetInt());
             }
         }
     }
