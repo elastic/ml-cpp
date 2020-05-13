@@ -37,6 +37,13 @@
 * The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 9.3. (See
   {ml-pull}1170[#1170].)
 
+== {es} version 7.9.0
+
+=== Enhancements
+
+* Add support for larger forecasts in memory via max_model_memory setting.
+  (See {ml-pull}1238[#1238].)
+  
 == {es} version 7.8.0
 
 === Enhancements
