@@ -103,7 +103,7 @@ private:
     static const std::string ERROR_NO_DATA_PROCESSED;
     static const std::string ERROR_NO_CREATE_TIME;
     static const std::string ERROR_BAD_MEMORY_STATUS;
-    static const std::string ERROR_MEMORY_LIMIT;
+    static const std::string ERROR_BAD_MODEL_MEMORY_LIMIT;
     static const std::string ERROR_MEMORY_LIMIT_DISK;
     static const std::string ERROR_MEMORY_LIMIT_DISKSPACE;
     static const std::string ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS;
@@ -210,6 +210,9 @@ private:
 
         //! total memory required for this forecasting job (only the models)
         size_t s_MemoryUsage;
+
+        //! maximum allowed memory (in bytes) that this forecast can use
+        size_t s_MaxForecastModelMemory;
 
         //! A collection storing important messages from forecasting
         TStrUSet s_Messages;

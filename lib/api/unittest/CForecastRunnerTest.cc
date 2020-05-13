@@ -333,4 +333,37 @@ BOOST_AUTO_TEST_CASE(testValidateMissingId) {
                            message, forecastJob, 1400000000) == false);
 }
 
+BOOST_AUTO_TEST_CASE(testValidateProvidedMaxMemoryLimit) {
+    ml::api::CForecastRunner::SForecast forecastJob;
+
+    std::string message(
+        "p{\"duration\":" + std::to_string(3 * ml::core::constants::WEEK) +
+        ",\"forecast_id\": \"42\",\"create_time\": \"1511370819\",\"max_model_memory\": 10000000}");
+
+    BOOST_TEST_REQUIRE(ml::api::CForecastRunner::parseAndValidateForecastRequest(
+        message, forecastJob, 1400000000));
+    BOOST_REQUIRE_EQUAL(forecastJob.s_MaxForecastModelMemory, static_cast<size_t>(10000000));
+
+    std::string message2("p{\"duration\":" + std::to_string(3 * ml::core::constants::WEEK) +
+                         ",\"forecast_id\": \"42\",\"create_time\": \"1511370819\"}");
+
+    BOOST_TEST_REQUIRE(ml::api::CForecastRunner::parseAndValidateForecastRequest(
+        message2, forecastJob, 1400000000));
+    BOOST_REQUIRE_EQUAL(forecastJob.s_MaxForecastModelMemory,
+                        ml::api::CForecastRunner::MAX_FORECAST_MODEL_MEMORY);
+}
+
+BOOST_AUTO_TEST_CASE(testValidateProvidedTooLargeMaxMemoryLimit) {
+    ml::api::CForecastRunner::SForecast forecastJob;
+
+    std::string message(
+        "p{\"duration\":" + std::to_string(3 * ml::core::constants::WEEK) +
+        ",\"forecast_id\": \"42\",\"create_time\": \"1511370819\",\"max_model_memory\":" +
+        std::to_string(ml::api::CForecastRunner::MAX_FORECAST_MODEL_PERSISTANCE_MEMORY + 10) +
+        "}");
+
+    BOOST_TEST_REQUIRE(ml::api::CForecastRunner::parseAndValidateForecastRequest(
+                           message, forecastJob, 1400000000) == false);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
