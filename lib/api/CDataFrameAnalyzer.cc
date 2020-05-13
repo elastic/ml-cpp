@@ -17,10 +17,10 @@
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 
-#include <chrono>
 #include <cmath>
 #include <limits>
-#include <thread>
+#include <string>
+#include <vector>
 
 namespace ml {
 namespace api {
@@ -35,8 +35,6 @@ const char FINISHED_DATA_CONTROL_MESSAGE_FIELD_VALUE{'$'};
 
 // Result types
 const std::string ROW_RESULTS{"row_results"};
-const std::string PROGRESS_PERCENT{"progress_percent"};
-const std::string ANALYZER_STATE{"analyzer_state"};
 
 // Row result fields
 const std::string CHECKSUM{"checksum"};
@@ -113,19 +111,7 @@ void CDataFrameAnalyzer::run() {
         return;
     }
 
-    // The main condition to care about is if the analysis is going to use more
-    // memory than was budgeted for. There are circumstances in which rows are
-    // excluded after the search filter is applied so this can't trap the case
-    // that the row counts are not equal.
-    if (m_DataFrame->numberRows() > m_AnalysisSpecification->numberRows()) {
-        HANDLE_FATAL(<< "Input error: expected no more than '"
-                     << m_AnalysisSpecification->numberRows() << "' rows "
-                     << "but got '" << m_DataFrame->numberRows() << "' rows"
-                     << ". Please report this problem.");
-        return;
-    }
-    if (m_DataFrame->numberRows() == 0) {
-        HANDLE_FATAL(<< "Input error: no data sent.");
+    if (m_AnalysisSpecification->validate(*m_DataFrame) == false) {
         return;
     }
 
@@ -142,13 +128,16 @@ void CDataFrameAnalyzer::run() {
         // point this would no longer be necessary.
         auto outStream = m_ResultsStreamSupplier();
 
+        auto& instrumentation = analysisRunner->instrumentation();
         CDataFrameAnalysisInstrumentation::CScopeSetOutputStream setStream{
-            analysisRunner->instrumentation(), *outStream};
+            instrumentation, *outStream};
 
         analysisRunner->run(*m_DataFrame);
 
         core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
-        this->monitorProgress(*analysisRunner, outputWriter);
+
+        CDataFrameAnalysisInstrumentation::monitorProgress(instrumentation, outputWriter);
+
         analysisRunner->waitToFinish();
         this->writeResultsOf(*analysisRunner, outputWriter);
     }
@@ -245,7 +234,7 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
     }
     if (unrecognised || fieldValues[m_ControlFieldIndex].size() > 1) {
         HANDLE_FATAL(<< "Input error: invalid control message value '"
-                     << fieldValues[m_ControlFieldIndex] << "'. Please report this problem.");
+                     << fieldValues[m_ControlFieldIndex] << "'. Please report this problem.")
         return false;
     }
     return true;
@@ -275,31 +264,6 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
                                                     : nullptr);
 }
 
-void CDataFrameAnalyzer::monitorProgress(const CDataFrameAnalysisRunner& analysis,
-                                         core::CRapidJsonConcurrentLineWriter& writer) const {
-    // Progress as percentage
-    int progress{0};
-    while (analysis.instrumentation().finished() == false) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        int latestProgress{static_cast<int>(
-            std::floor(100.0 * analysis.instrumentation().progress()))};
-        if (latestProgress > progress) {
-            progress = latestProgress;
-            this->writeProgress(progress, writer);
-        }
-    }
-    this->writeProgress(100, writer);
-}
-
-void CDataFrameAnalyzer::writeProgress(int progress,
-                                       core::CRapidJsonConcurrentLineWriter& writer) const {
-    writer.StartObject();
-    writer.Key(PROGRESS_PERCENT);
-    writer.Int(progress);
-    writer.EndObject();
-    writer.flush();
-}
-
 void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis,
                                         core::CRapidJsonConcurrentLineWriter& writer) const {
     // We write results single threaded because we need to write the rows to
@@ -307,17 +271,12 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     // can join the extra columns with the original data frame.
     std::size_t numberThreads{1};
 
-    // TODO consider having a separate analysis phase to monitor result output instead
-    LOG_INFO(<< "Start computing results. "
-             << "For regression and classification with feature importance this may take a while.");
-
     using TRowItr = core::CDataFrame::TRowItr;
     m_DataFrame->readRows(numberThreads, [&](TRowItr beginRows, TRowItr endRows) {
         TMeanVarAccumulator timeAccumulator;
         core::CStopWatch stopWatch;
         stopWatch.start();
         std::uint64_t lastLap{stopWatch.lap()};
-        std::size_t counter = 0;
 
         for (auto row = beginRows; row != endRows; ++row) {
             writer.StartObject();
@@ -326,36 +285,25 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
             writer.Key(CHECKSUM);
             writer.Int(row->docHash());
             writer.Key(RESULTS);
-
             writer.StartObject();
             writer.Key(m_AnalysisSpecification->resultsField());
             analysis.writeOneRow(*m_DataFrame, *row, writer);
             writer.EndObject();
-
             writer.EndObject();
             writer.EndObject();
 
             std::uint64_t currentLap{stopWatch.lap()};
-            std::uint64_t delta = currentLap - lastLap;
+            std::uint64_t delta{currentLap - lastLap};
 
             timeAccumulator.add(static_cast<double>(delta));
             lastLap = currentLap;
-            // Log timing every 20000 rows to avoid output polution.
-            if (++counter % 20000 == 0) {
-                LOG_DEBUG(<< "Results computation in progress: " << counter << "/"
-                          << m_DataFrame->numberRows() << ". Average time per row in ms: "
-                          << maths::CBasicStatistics::mean(timeAccumulator) << " std. dev:  "
-                          << std::sqrt(maths::CBasicStatistics::variance(timeAccumulator)));
-            }
         }
     });
 
-    LOG_INFO(<< "Finished computing results.");
-
-    // Write the resulting model for inference
-    const auto& modelDefinition = m_AnalysisSpecification->runner()->inferenceModelDefinition(
+    // Write the resulting model for inference.
+    auto modelDefinition = analysis.inferenceModelDefinition(
         m_DataFrame->columnNames(), m_DataFrame->categoricalColumnValues());
-    if (modelDefinition) {
+    if (modelDefinition != nullptr) {
         rapidjson::Value inferenceModelObject{writer.makeObject()};
         modelDefinition->addToDocument(inferenceModelObject, writer);
         writer.StartObject();

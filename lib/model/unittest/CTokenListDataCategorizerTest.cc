@@ -69,8 +69,31 @@ public:
         ml::core::CLogger::instance().setLoggingLevel(ml::core::CLogger::E_Debug);
     }
 
+    std::string makeUniqueToken() {
+        std::string token;
+        for (std::uint32_t workSeed = ++m_Seed; workSeed > 0; workSeed /= 20) {
+            // Use letters g-z only so that no tokens are valid hex numbers
+            token += static_cast<char>('g' + (workSeed - 1) % 20);
+        }
+        return token;
+    }
+
+    std::string makeUniqueMessage(std::size_t numTokens) {
+        std::string message;
+        for (std::size_t token = 0; token < numTokens; ++token) {
+            if (token > 0) {
+                message += ' ';
+            }
+            message += makeUniqueToken();
+        }
+        return message;
+    }
+
 protected:
     ml::model::CLimits m_Limits;
+
+private:
+    std::uint32_t m_Seed = 0;
 };
 
 BOOST_FIXTURE_TEST_CASE(testHexData, CTestFixture) {
@@ -551,6 +574,73 @@ BOOST_FIXTURE_TEST_CASE(testUsurpedCategories, CTestFixture) {
     BOOST_REQUIRE_EQUAL(ml::core::CContainerPrinter::print(expected),
                         ml::core::CContainerPrinter::print(actual));
     checkMemoryUsageInstrumentation(categorizer);
+}
+
+BOOST_FIXTURE_TEST_CASE(testSoftMemoryLimit, CTestFixture) {
+
+    TTokenListDataCategorizerKeepsFields categorizer(
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+
+    std::string baseMessage{"foo bar baz "};
+    std::string message{baseMessage + makeUniqueToken()};
+    BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, message, message.length()));
+    BOOST_REQUIRE(categorizer.addExample(1, message));
+    BOOST_REQUIRE_EQUAL(1, categorizer.examplesCollector().numberOfExamplesForCategory(1));
+    message = baseMessage + makeUniqueToken();
+    BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, message, message.length()));
+    BOOST_REQUIRE(categorizer.addExample(1, message));
+    // Since the messages are different, there should be two examples for the category now
+    BOOST_REQUIRE_EQUAL(2, categorizer.examplesCollector().numberOfExamplesForCategory(1));
+
+    // Create a soft memory limit
+    m_Limits.resourceMonitor().startPruning();
+
+    message = baseMessage + makeUniqueToken();
+    BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, message, message.length()));
+    BOOST_REQUIRE(categorizer.addExample(1, message) == false);
+    // In soft limit we should stop accumulating examples, hence 2 instead of 3
+    BOOST_REQUIRE_EQUAL(2, categorizer.examplesCollector().numberOfExamplesForCategory(1));
+    message = baseMessage + makeUniqueToken();
+    BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, message, message.length()));
+    BOOST_REQUIRE(categorizer.addExample(1, message) == false);
+    BOOST_REQUIRE_EQUAL(2, categorizer.examplesCollector().numberOfExamplesForCategory(1));
+
+    // Clear the soft memory limit
+    m_Limits.resourceMonitor().endPruning();
+
+    message = baseMessage + makeUniqueToken();
+    BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, message, message.length()));
+    BOOST_REQUIRE(categorizer.addExample(1, message));
+    // Out of soft limit we have started accumulating examples again
+    BOOST_REQUIRE_EQUAL(3, categorizer.examplesCollector().numberOfExamplesForCategory(1));
+    message = baseMessage + makeUniqueToken();
+    BOOST_REQUIRE_EQUAL(1, categorizer.computeCategory(false, message, message.length()));
+    BOOST_REQUIRE(categorizer.addExample(1, message));
+    BOOST_REQUIRE_EQUAL(4, categorizer.examplesCollector().numberOfExamplesForCategory(1));
+}
+
+BOOST_FIXTURE_TEST_CASE(testHardMemoryLimit, CTestFixture) {
+
+    // Set memory limit to 1MB so that it's quickly exhausted
+    m_Limits.resourceMonitor().memoryLimit(1);
+
+    TTokenListDataCategorizerKeepsFields categorizer(
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+
+    std::string nextMessage{makeUniqueMessage(10)};
+    int categoryId{0};
+    for (int nextExpectedCategoryId = 1; nextExpectedCategoryId < 100000;
+         ++nextExpectedCategoryId, nextMessage = makeUniqueMessage(10)) {
+        categoryId = categorizer.computeCategory(false, nextMessage, nextMessage.length());
+        if (categoryId == ml::model::CDataCategorizer::HARD_CATEGORIZATION_FAILURE_ERROR) {
+            LOG_INFO(<< "Hit hard limit after " << nextExpectedCategoryId << " messages");
+            break;
+        }
+        BOOST_REQUIRE_EQUAL(nextExpectedCategoryId, categoryId);
+        m_Limits.resourceMonitor().refresh(categorizer);
+    }
+    BOOST_REQUIRE_EQUAL(ml::model::CDataCategorizer::HARD_CATEGORIZATION_FAILURE_ERROR,
+                        categoryId);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -104,8 +104,6 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
         auto rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             rightChildId, std::move(*this), *leftChild, regularization,
             featureBag, std::move(rightChildRowMask));
-        leftChild->maybeRecoverMemory();
-        rightChild->maybeRecoverMemory();
 
         return std::make_pair(leftChild, rightChild);
     }
@@ -119,8 +117,6 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
     auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
         leftChildId, std::move(*this), *rightChild, regularization, featureBag,
         std::move(leftChildRowMask));
-    leftChild->maybeRecoverMemory();
-    rightChild->maybeRecoverMemory();
 
     return std::make_pair(leftChild, rightChild);
 }
@@ -174,13 +170,6 @@ CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(std::size_t numberRows,
     std::size_t splitsDerivativesSize{CSplitsDerivatives::estimateMemoryUsage(
         numberFeatures, numberSplitsPerFeature, numberLossParameters)};
     return sizeof(CBoostedTreeLeafNodeStatistics) + rowMaskSize + splitsDerivativesSize;
-}
-
-void CBoostedTreeLeafNodeStatistics::maybeRecoverMemory() {
-    if (this->gain() <= 0.0) {
-        m_RowMask = core::CPackedBitVector{};
-        m_Derivatives = CSplitsDerivatives{};
-    }
 }
 
 void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(

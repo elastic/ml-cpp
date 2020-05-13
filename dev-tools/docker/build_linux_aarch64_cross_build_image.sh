@@ -17,7 +17,7 @@
 HOST=push.docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-linux-aarch64-cross-build
-VERSION=1
+VERSION=2
 
 set -e
 

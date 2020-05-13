@@ -3,7 +3,7 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "seccomp/CSystemCallFilter.h"
+#include <seccomp/CSystemCallFilter.h>
 
 #include <core/CLogger.h>
 
@@ -13,6 +13,7 @@
 
 #include <linux/audit.h>
 #include <linux/filter.h>
+#include <linux/seccomp.h>
 #include <sys/prctl.h>
 #include <sys/syscall.h>
 
@@ -21,33 +22,18 @@ namespace seccomp {
 
 namespace {
 // The old x32 ABI always has bit 30 set in the sys call numbers.
-// The x64 architecture should fail these calls
+// The x64 ABI should fail these calls
 const std::uint32_t UPPER_NR_LIMIT = 0x3FFFFFFF;
 
 // Offset to the nr field in struct seccomp_data
 const std::uint32_t SECCOMP_DATA_NR_OFFSET = 0x00;
-
-// Copied from seccomp.h
-// seccomp.h cannot be included as it was added in Linux kernel 3.17
-// and this must build on older versions.
-// TODO: remove on the minumum build kernel version supports seccomp
-#define SECCOMP_MODE_FILTER 2
-#define SECCOMP_RET_ERRNO 0x00050000U
-#define SECCOMP_RET_ALLOW 0x7fff0000U
-#define SECCOMP_RET_DATA 0x0000ffffU
-#define SECCOMP_RET_KILL 0x00000000U
-
-// Added in Linux 3.5
-#ifndef PR_SET_NO_NEW_PRIVS
-#define PR_SET_NO_NEW_PRIVS 38
-#endif
 
 const struct sock_filter FILTER[] = {
     // Load the system call number into accumulator
     BPF_STMT(BPF_LD | BPF_W | BPF_ABS, SECCOMP_DATA_NR_OFFSET),
 
 #ifdef __x86_64__
-    // Only applies to x86_64 arch. Jump to disallow for calls using the i386 ABI
+    // Only applies to x86_64 arch. Jump to disallow for calls using the x32 ABI
     BPF_JUMP(BPF_JMP | BPF_JGT | BPF_K, UPPER_NR_LIMIT, 46, 0),
     // If any sys call filters are added or removed then the jump
     // destination for each statement including the one above must

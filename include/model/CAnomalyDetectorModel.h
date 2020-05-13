@@ -368,10 +368,12 @@ public:
     //! sufficiently long period, based on the prior decay rates.
     void prune();
 
-    //! Calculate the maximum permitted prune window for this model
+    //! Calculate the maximum permitted prune window (measured in buckets)
+    //! for this model
     std::size_t defaultPruneWindow() const;
 
-    //! Calculate the minimum permitted prune window for this model
+    //! Calculate the minimum permitted prune window (measured in buckets)
+    //! for this model
     std::size_t minimumPruneWindow() const;
     //@}
 

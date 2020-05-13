@@ -69,7 +69,7 @@ public:
         m_MemoryUsageCallback = memoryUsageCallback;
     }
 
-    void nextStep(const std::string& /*uint32*/) override {}
+    void flush(const std::string& /*tag*/) override {}
 
 private:
     TProgressCallbackOpt m_ProgressCallback;

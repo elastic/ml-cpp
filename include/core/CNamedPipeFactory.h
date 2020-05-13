@@ -90,6 +90,11 @@ public:
     //! Default path for named pipes.
     static std::string defaultPath();
 
+    //! Log warnings that have been stored because they were detected very
+    //! early in the program lifecycle.  Programs using named pipes should
+    //! call this method once, after setting up logging.
+    static void logDeferredWarnings();
+
 private:
 #ifdef Windows
     using TPipeHandle = HANDLE;

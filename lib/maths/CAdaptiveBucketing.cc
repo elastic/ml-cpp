@@ -35,6 +35,51 @@ namespace {
 using TSizeVec = std::vector<std::size_t>;
 using TFloatUInt32Pr = std::pair<CFloatStorage, std::uint32_t>;
 
+//! \brief Used to keep track of continguous points after spreading.
+class MATHS_EXPORT CContinugousPoints {
+public:
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+public:
+    explicit CContinugousPoints(double point) { m_Centre.add(point); }
+
+    std::size_t size() const {
+        return static_cast<std::size_t>(CBasicStatistics::count(m_Centre));
+    }
+
+    double centre() const { return CBasicStatistics::mean(m_Centre); }
+
+    double location(std::size_t j, double separation) const {
+        return CBasicStatistics::mean(m_Centre) +
+               static_cast<double>(j) * separation - this->radius(separation);
+    }
+
+    bool overlap(const CContinugousPoints& other, double separation) const {
+        double left{CBasicStatistics::mean(m_Centre)};
+        double right{CBasicStatistics::mean(other.m_Centre)};
+        return std::fabs(right - left) <
+               this->radius(separation) + other.radius(separation) + separation;
+    }
+
+    void merge(const CContinugousPoints& other, double a, double b, double separation) {
+        m_Centre += other.m_Centre;
+        CBasicStatistics::moment<0>(m_Centre) =
+            this->truncate(CBasicStatistics::mean(m_Centre), a, b, separation);
+    }
+
+private:
+    double truncate(double point, double a, double b, double separation) const {
+        return CTools::truncate(point, a + this->radius(separation),
+                                b - this->radius(separation));
+    }
+    double radius(double separation) const {
+        return (CBasicStatistics::count(m_Centre) - 1.0) * separation / 2.0;
+    }
+
+private:
+    TMeanAccumulator m_Centre;
+};
+
 //! Convert to a delimited string.
 std::string significanceToDelimited(const TFloatUInt32Pr& value) {
     return value.first.toString() + CBasicStatistics::EXTERNAL_DELIMITER +
@@ -201,7 +246,7 @@ bool CAdaptiveBucketing::initialize(double a, double b, std::size_t n) {
 void CAdaptiveBucketing::initialValues(core_t::TTime start,
                                        core_t::TTime end,
                                        const TFloatMeanAccumulatorVec& values) {
-    if (!this->initialized()) {
+    if (this->initialized() == false) {
         return;
     }
 
@@ -361,7 +406,7 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
     LOG_TRACE(<< "totalAveragingError = " << totalAveragingError);
 
     double n_{static_cast<double>(n)};
-    double step{(1 - n_ * EPS) * totalAveragingError / n_};
+    double step{(1.0 - n_ * EPS) * totalAveragingError / n_};
     TFloatVec endpoints{m_Endpoints};
     LOG_TRACE(<< "step = " << step);
 
@@ -392,32 +437,33 @@ void CAdaptiveBucketing::refine(core_t::TTime time) {
         LOG_TRACE(<< "alpha = " << alpha);
         double displacement{0.0};
 
-        // Linearly interpolate between the current end points
-        // and points separated by equal total averaging error.
-        // Interpolating is equivalent to adding a drag term in
-        // the differential equation governing the end point
-        // dynamics and damps any oscillatory behavior which
-        // might otherwise occur.
-        double error{0.0};
-        for (std::size_t i = 0u, j = 1u; i < n && j < n + 1; ++i) {
+        // Linearly interpolate between the current end points and points
+        // separated by equal total averaging error. Interpolating is
+        // equivalent to adding drag to the end point dynamics and damps
+        // any oscillations.
+        double unassignedAveragingError{0.0};
+        for (std::size_t i = 0, j = 1; i < n && j < n + 1; ++i) {
             double ai{endpoints[i]};
             double bi{endpoints[i + 1]};
-            double h{bi - ai};
-            double e{averagingErrors[i]};
-            error += e;
-            for (double e_ = step - (error - e); error >= step; e_ += step, error -= step) {
-                double x{h * e_ / averagingErrors[i]};
-                m_Endpoints[j] = endpoints[j] + alpha * (ai + x - endpoints[j]);
-                displacement += (ai + x) - endpoints[j];
-                LOG_TRACE(<< "interval averaging error = " << e
-                          << ", a(i) = " << ai << ", x = " << x << ", endpoint "
-                          << endpoints[j] << " -> " << ai + x);
-                ++j;
+            double hi{bi - ai};
+            double ei{averagingErrors[i]};
+            unassignedAveragingError += ei;
+            for (double ej = step - (unassignedAveragingError - ei);
+                 unassignedAveragingError >= step;
+                 ej += step, unassignedAveragingError -= step, ++j) {
+                double xj{hi * ej / ei};
+                m_Endpoints[j] = std::max(
+                    m_Endpoints[j - 1] + 1e-8 * std::fabs(m_Endpoints[j - 1]),
+                    endpoints[j] + alpha * (ai + xj - endpoints[j]));
+                displacement += (ai + xj) - endpoints[j];
+                LOG_TRACE(<< "interval = [" << ai << "," << bi << "]"
+                          << " averaging error / unit length = " << ei / hi << ", desired translation "
+                          << endpoints[j] << " -> " << ai + xj);
             }
         }
-        if (m_MinimumBucketLength > 0.0) {
-            CTools::spread(a, b, m_MinimumBucketLength, m_Endpoints);
-        }
+
+        // Add a margin to guaranty we'll meet the separation constraint.
+        spread(a, b, (1.0 + 1e-8) * m_MinimumBucketLength, m_Endpoints);
 
         // By construction, the first and last end point should be
         // close "a" and "b", respectively, but we snap them to "a"
@@ -459,7 +505,7 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
             double a{m_Endpoints[i]};
             double b{m_Endpoints[i + 1]};
             double c{m_Centres[i]};
-            double c0{c};
+            double c0{c - m_Endpoints[0]};
             knots.push_back(m_Endpoints[0]);
             values.push_back(this->predict(i, time, c));
             variances.push_back(this->variance(i));
@@ -503,26 +549,37 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
                         double alpha{m_Endpoints[n] - m_Centres[j]};
                         double beta{c0};
                         double Z{alpha + beta};
+                        if (Z == 0.0) {
+                            alpha = beta = 0.5;
+                        } else {
+                            alpha /= Z;
+                            beta /= Z;
+                        }
                         double lastPeriodValue{
                             this->predict(j, time, m_Centres[j] - m_Endpoints[n])};
                         double lastPeriodVariance{this->variance(j)};
                         knots[0] = m_Endpoints[0];
-                        values[0] = (alpha * values[0] + beta * lastPeriodValue) / Z;
-                        variances[0] = (alpha * variances[0] + beta * lastPeriodVariance) / Z;
+                        values[0] = alpha * values[0] + beta * lastPeriodValue;
+                        variances[0] = alpha * variances[0] + beta * lastPeriodVariance;
                         break;
                     }
                 }
-                for (std::size_t j = 0u; j < n; ++j) {
+                for (std::size_t j = 0; j < n; ++j) {
                     if (this->bucketCount(j) > 0.0) {
                         double alpha{m_Centres[j]};
                         double beta{m_Endpoints[n] - knots.back()};
                         double Z{alpha + beta};
+                        if (Z == 0.0) {
+                            alpha = beta = 0.5;
+                        } else {
+                            alpha /= Z;
+                            beta /= Z;
+                        }
                         double nextPeriodValue{
                             this->predict(j, time, m_Endpoints[n] + m_Centres[j])};
                         double nextPeriodVariance{this->variance(j)};
-                        values.push_back((alpha * values.back() + beta * nextPeriodValue) / Z);
-                        variances.push_back(
-                            (alpha * variances.back() + beta * nextPeriodVariance) / Z);
+                        values.push_back(alpha * values.back() + beta * nextPeriodValue);
+                        variances.push_back(alpha * variances.back() + beta * nextPeriodVariance);
                         knots.push_back(m_Endpoints[n]);
                         break;
                     }
@@ -557,6 +614,78 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
     }
 
     return knots.size() >= 2;
+}
+
+void CAdaptiveBucketing::spread(double a, double b, double separation, TFloatVec& points) {
+
+    if (separation <= 0.0 || points.size() < 2) {
+        return;
+    }
+    if (b <= a) {
+        LOG_ERROR(<< "Bad interval [" << a << "," << b << "]");
+        return;
+    }
+
+    // Check if we just need to space the points uniformly.
+    std::size_t n{points.size() - 1};
+    if (b - a <= separation * static_cast<double>(n + 1)) {
+        for (std::size_t i = 0; i <= n; ++i) {
+            points[i] = a + (b - a) * static_cast<double>(i) / static_cast<double>(n);
+        }
+        return;
+    }
+
+    // Check if there's nothing to do.
+    double minSeparation{points[1] - points[0]};
+    for (std::size_t i = 2; i < points.size(); ++i) {
+        minSeparation = std::min(minSeparation, points[i] - points[i - 1]);
+    }
+    if (minSeparation > separation) {
+        return;
+    }
+
+    // We can do this in n * log(n) complexity with at most log(n)
+    // passes through the points. Provided the minimum separation
+    // is at least "interval" / "# centres" the problem is feasible.
+    //
+    // We want to find the solution which minimizes the sum of the
+    // distances the points move. This is possible by repeatedly
+    // merging clusters of contiguous points and then placing them
+    // at the mean of the points they contain. The process repeats
+    // until no clusters merge.
+
+    std::sort(points.begin(), points.end(),
+              [](double lhs, double rhs) { return lhs < rhs; });
+
+    std::vector<CContinugousPoints> contiguousPoints;
+    contiguousPoints.reserve(points.size());
+    for (const auto& point : points) {
+        contiguousPoints.emplace_back(point);
+    }
+
+    for (std::size_t previousSize{0}; contiguousPoints.size() != previousSize;
+         /**/) {
+        previousSize = contiguousPoints.size();
+        std::size_t last{0};
+        for (std::size_t i = 1; i < contiguousPoints.size(); ++i) {
+            if (contiguousPoints[last].overlap(contiguousPoints[i], separation)) {
+                contiguousPoints[last].merge(contiguousPoints[i], a, b, separation);
+            } else {
+                std::swap(contiguousPoints[++last], contiguousPoints[i]);
+            }
+        }
+        contiguousPoints.erase(contiguousPoints.begin() + last + 1,
+                               contiguousPoints.end());
+    }
+
+    double last{-std::numeric_limits<double>::max()};
+    for (std::size_t i = 0, j = 0; i < contiguousPoints.size(); ++i) {
+        for (std::size_t k = 0; k < contiguousPoints[i].size(); ++j, ++k) {
+            points[j] = std::max(last + separation,
+                                 contiguousPoints[i].location(k, separation));
+            last = points[j];
+        }
+    }
 }
 
 const CAdaptiveBucketing::TFloatVec& CAdaptiveBucketing::endpoints() const {
@@ -668,7 +797,7 @@ void CAdaptiveBucketing::maybeSplitBucket() {
         // in a bucket for the null hypothesis that they are uniformly
         // distributed on the total bucketed period and split if this is
         // less than a specified threshold.
-        for (std::size_t i = 1u; i < m_Endpoints.size(); ++i) {
+        for (std::size_t i = 1; i < m_Endpoints.size(); ++i) {
             double interval{m_Endpoints[i] - m_Endpoints[i - 1]};
             try {
                 boost::math::binomial binomial{largeErrorCount, interval / period};
@@ -676,8 +805,9 @@ void CAdaptiveBucketing::maybeSplitBucket() {
                     CTools::safeCdfComplement(binomial, m_LargeErrorCounts[i - 1])};
                 m_LargeErrorCountSignificances.add({oneMinusCdf, i - 1});
             } catch (const std::exception& e) {
-                LOG_ERROR(<< "Failed to calculate splitting significance: " << e.what()
-                          << " interval = " << interval << " period = " << period
+                LOG_ERROR(<< "Failed to calculate splitting significance: '"
+                          << e.what() << "' interval = " << interval << " period = " << period
+                          << " buckets = " << core::CContainerPrinter::print(m_Endpoints)
                           << " type = " << this->name());
             }
         }

@@ -506,7 +506,6 @@ private:
     };
 
 private:
-    void maybeRecoverMemory();
     void computeAggregateLossDerivatives(std::size_t numberThreads,
                                          const core::CDataFrame& frame,
                                          const CDataFrameCategoryEncoder& encoder);

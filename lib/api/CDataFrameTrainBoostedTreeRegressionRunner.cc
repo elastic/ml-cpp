@@ -40,8 +40,13 @@ CDataFrameTrainBoostedTreeRegressionRunner::parameterReader() {
         auto theReader = CDataFrameTrainBoostedTreeRunner::parameterReader();
         theReader.addParameter(STRATIFIED_CROSS_VALIDATION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(LOSS_FUNCTION, CDataFrameAnalysisConfigReader::E_OptionalParameter,
-                               {{MSE, int{E_Mse}}, {MSLE, int{E_Msle}}});
+        theReader.addParameter(
+            LOSS_FUNCTION, CDataFrameAnalysisConfigReader::E_OptionalParameter,
+            {{MSE, int{TLossFunctionType::E_MseRegression}},
+             {MSLE, int{TLossFunctionType::E_MsleRegression}},
+             {PSEUDO_HUBER, int{TLossFunctionType::E_HuberRegression}}});
+        theReader.addParameter(LOSS_FUNCTION_PARAMETER,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -49,11 +54,20 @@ CDataFrameTrainBoostedTreeRegressionRunner::parameterReader() {
 
 CDataFrameTrainBoostedTreeRegressionRunner::TLossFunctionUPtr
 CDataFrameTrainBoostedTreeRegressionRunner::lossFunction(const CDataFrameAnalysisParameters& parameters) {
-    ELossFunctionType lossFunctionType{parameters[LOSS_FUNCTION].fallback(E_Mse)};
+    TLossFunctionType lossFunctionType{
+        parameters[LOSS_FUNCTION].fallback(TLossFunctionType::E_MseRegression)};
     switch (lossFunctionType) {
-    case E_Msle:
-        return std::make_unique<maths::boosted_tree::CMsle>();
-    case E_Mse:
+    case TLossFunctionType::E_MsleRegression:
+        return std::make_unique<maths::boosted_tree::CMsle>(
+            parameters[LOSS_FUNCTION_PARAMETER].fallback(1.0));
+    case TLossFunctionType::E_MseRegression:
+        return std::make_unique<maths::boosted_tree::CMse>();
+    case TLossFunctionType::E_HuberRegression:
+        return std::make_unique<maths::boosted_tree::CPseudoHuber>(
+            parameters[LOSS_FUNCTION_PARAMETER].fallback(1.0));
+    case TLossFunctionType::E_BinaryClassification:
+    case TLossFunctionType::E_MulticlassClassification:
+        LOG_ERROR(<< "Input error: regression loss type is expected but classification type is provided. Defaulting to MSE instead.");
         return std::make_unique<maths::boosted_tree::CMse>();
     }
     return nullptr;
@@ -135,8 +149,10 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition(
 // clang-format off
 const std::string CDataFrameTrainBoostedTreeRegressionRunner::STRATIFIED_CROSS_VALIDATION{"stratified_cross_validation"};
 const std::string CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION{"loss_function"};
+const std::string CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION_PARAMETER{"loss_function_parameter"};
 const std::string CDataFrameTrainBoostedTreeRegressionRunner::MSE{"mse"};
 const std::string CDataFrameTrainBoostedTreeRegressionRunner::MSLE{"msle"};
+const std::string CDataFrameTrainBoostedTreeRegressionRunner::PSEUDO_HUBER{"huber"};
 // clang-format on
 
 const std::string& CDataFrameTrainBoostedTreeRegressionRunnerFactory::name() const {

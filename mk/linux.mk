@@ -10,7 +10,7 @@ HARDWARE_ARCH:=$(shell uname -m)
 CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/linux-$(HARDWARE_ARCH)
 
 CC=gcc
-CXX=g++ -std=gnu++14
+CXX=g++ -std=gnu++17
 
 ifndef ML_DEBUG
 OPTCFLAGS=-O3 -Wdisabled-optimization
@@ -32,9 +32,9 @@ endif
 
 PLATPICFLAGS=-fPIC
 PLATPIEFLAGS=-fPIE
-CFLAGS=-g $(OPTCFLAGS) $(ARCHCFLAGS) -fstack-protector -fno-math-errno -fno-permissive -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wparentheses -Wpointer-arith -Wswitch-enum $(COVERAGE)
+CFLAGS=-g $(OPTCFLAGS) $(ARCHCFLAGS) -fstack-protector -fno-math-errno -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wparentheses -Wpointer-arith -Wswitch-enum $(COVERAGE)
 CXXFLAGS=$(CFLAGS) -Wno-ctor-dtor-privacy -Wno-deprecated-declarations -Wold-style-cast -fvisibility-inlines-hidden
-CPPFLAGS=-isystem $(CPP_SRC_HOME)/3rd_party/include -isystem /usr/local/gcc75/include -D$(OS) -D_REENTRANT $(OPTCPPFLAGS)
+CPPFLAGS=-isystem $(CPP_SRC_HOME)/3rd_party/include -isystem /usr/local/gcc93/include -D$(OS) -D_REENTRANT $(OPTCPPFLAGS)
 CDEPFLAGS=-MM
 COMP_OUT_FLAG=-o
 LINK_OUT_FLAG=-o
@@ -57,7 +57,7 @@ BOOSTARCH=x64
 endif
 BOOSTGCCVER:=$(shell $(CXX) -dumpversion | awk -F. '{ print $$1; }')
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
-BOOSTINCLUDES=-isystem /usr/local/gcc75/include/boost-$(BOOSTVER)
+BOOSTINCLUDES=-isystem /usr/local/gcc93/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 BOOSTLOGLIBS=-lboost_log-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
 BOOSTLOGSETUPLIBS=-lboost_log_setup-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
@@ -76,8 +76,8 @@ RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
 endif
 EIGENINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/eigen
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY -DEIGEN_MAX_ALIGN_BYTES=32
-XMLINCLUDES=`/usr/local/gcc75/bin/xml2-config --cflags`
-XMLLIBS=`/usr/local/gcc75/bin/xml2-config --libs`
+XMLINCLUDES=`/usr/local/gcc93/bin/xml2-config --cflags`
+XMLLIBS=`/usr/local/gcc93/bin/xml2-config --libs`
 DYNAMICLIBLDFLAGS=$(PLATPICFLAGS) -shared -Wl,--as-needed -L$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR) $(COVERAGE) -Wl,-z,relro -Wl,-z,now -Wl,-rpath,'$$ORIGIN/.'
 JAVANATIVEINCLUDES=-I$(JAVA_HOME)/include
 JAVANATIVELDFLAGS=-L$(JAVA_HOME)/jre/lib/server
@@ -96,7 +96,7 @@ LIB_ML_SECCOMP=-lMlSeccomp
 ML_SECCOMP_LDFLAGS=-L$(CPP_SRC_HOME)/lib/seccomp/.objs
 LIB_ML_TEST=-lMlTest
 
-LIB_PATH+=-L/usr/local/gcc75/lib
+LIB_PATH+=-L/usr/local/gcc93/lib
 
 # Using cp instead of install here, to avoid every file being given execute
 # permissions

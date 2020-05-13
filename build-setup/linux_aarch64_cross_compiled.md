@@ -5,16 +5,16 @@ You will need the following environment variables to be defined:
 - `JAVA_HOME` - Should point to the JDK you want to use to run Gradle.
 - `CPP_CROSS_COMPILE` - Should be set to "aarch64".
 - `CPP_SRC_HOME` - Only required if building the C++ code directly using `make`, as Gradle sets it automatically.
-- `PATH` - Must have `/usr/local/gcc75/bin` before `/usr/bin` and `/bin`.
-- `LD_LIBRARY_PATH` - Must have `/usr/local/gcc75/lib64` and `/usr/local/gcc75/lib` before `/usr/lib` and `/lib`.
+- `PATH` - Must have `/usr/local/gcc93/bin` before `/usr/bin` and `/bin`.
+- `LD_LIBRARY_PATH` - Must have `/usr/local/gcc93/lib64` and `/usr/local/gcc93/lib` before `/usr/lib` and `/lib`.
 
 For example, you might create a .bashrc file in your home directory containing this:
 
 ```
 umask 0002
 export JAVA_HOME=/usr/local/jdk1.8.0_121
-export LD_LIBRARY_PATH=/usr/local/gcc75/lib64:/usr/local/gcc75/lib:/usr/lib:/lib
-export PATH=$JAVA_HOME/bin:/usr/local/gcc75/bin:/usr/bin:/bin:/usr/sbin:/sbin
+export LD_LIBRARY_PATH=/usr/local/gcc93/lib64:/usr/local/gcc93/lib:/usr/lib:/lib
+export PATH=$JAVA_HOME/bin:/usr/local/gcc93/bin:/usr/bin:/bin:/usr/sbin:/sbin
 # Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
 export CPP_SRC_HOME=$HOME/ml-cpp
 export CPP_CROSS_COMPILE=aarch64
@@ -63,8 +63,8 @@ sudo ln -s usr/lib64 lib64
 Most of the tools are built via a GNU "configure" script. There are some environment variables that affect the behaviour of this. Therefore, when building ANY tool on Linux, set the following environment variables:
 
 ```
-export CFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
-export CXXFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
+export CFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse'
+export CXXFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse'
 export LDFLAGS='-Wl,-z,relro -Wl,-z,now'
 export LDFLAGS_FOR_TARGET='-Wl,-z,relro -Wl,-z,now'
 unset LIBRARY_PATH
@@ -99,21 +99,21 @@ to install.
 
 We have to build on old Linux versions to enable our software to run on the older versions of Linux that users have.  However, this means the default compiler on our Linux build servers is also very old.  To enable use of more modern C++ features, we use the default compiler to build a newer version of gcc and then use that to build all our other dependencies.
 
-Download `gcc-7.5.0.tar.gz` from <http://ftpmirror.gnu.org/gcc/gcc-7.5.0/gcc-7.5.0.tar.gz>.
+Download `gcc-9.3.0.tar.gz` from <http://ftpmirror.gnu.org/gcc/gcc-9.3.0/gcc-9.3.0.tar.gz>.
 
 Unlike most automake-based tools, gcc must be built in a directory adjacent to the directory containing its source code, so build and install it like this:
 
 ```
-tar zxvf gcc-7.5.0.tar.gz
-cd gcc-7.5.0
+tar zxvf gcc-9.3.0.tar.gz
+cd gcc-9.3.0
 contrib/download_prerequisites
 sed -i -e 's/$(SHLIB_LDFLAGS)/-Wl,-z,relro -Wl,-z,now $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc
 cd ..
-mkdir gcc-7.5.0-build
-cd gcc-7.5.0-build
+mkdir gcc-9.3.0-build
+cd gcc-9.3.0-build
 unset LD_LIBRARY_PATH
 export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
-../gcc-7.5.0/configure --prefix=/usr/local/gcc75 --with-sysroot=/usr/local/sysroot-aarch64-linux-gnu --target=aarch64-linux-gnu --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib
+../gcc-9.3.0/configure --prefix=/usr/local/gcc93 --with-sysroot=/usr/local/sysroot-aarch64-linux-gnu --target=aarch64-linux-gnu --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib
 make -j 6
 sudo env PATH="$PATH" make install
 ```
@@ -129,21 +129,21 @@ aarch64-linux-gnu-g++ --version
 It should print:
 
 ```
-aarch64-linux-gnu-g++ (GCC) 7.5.0
+aarch64-linux-gnu-g++ (GCC) 9.3.0
 ```
 
-in the first line of the output. If it doesn't then double check that `/usr/local/gcc75/bin` is near the beginning of your `PATH`.
+in the first line of the output. If it doesn't then double check that `/usr/local/gcc93/bin` is near the beginning of your `PATH`.
 
 ### binutils (final version)
 
-Also due to building on old Linux versions yet wanting to use modern libraries we have to install an up-to-date version of binutils.  This will be used in preference to the bootstrap version by ensuring that `/usr/local/gcc75/bin` is at the beginning of `PATH`.
+Also due to building on old Linux versions yet wanting to use modern libraries we have to install an up-to-date version of binutils.  This will be used in preference to the bootstrap version by ensuring that `/usr/local/gcc93/bin` is at the beginning of `PATH`.
 
 Download `binutils-2.34.tar.bz2` from <http://ftpmirror.gnu.org/binutils/binutils-2.34.tar.bz2>.
 
 Uncompress and untar the resulting file. Then run:
 
 ```
-./configure --prefix=/usr/local/gcc75 --with-sysroot=/usr/local/sysroot-aarch64-linux-gnu --target=aarch64-linux-gnu --enable-vtable-verify --with-system-zlib --disable-multilib --disable-libstdcxx --with-gcc-major-version-only
+./configure --prefix=/usr/local/gcc93 --with-sysroot=/usr/local/sysroot-aarch64-linux-gnu --target=aarch64-linux-gnu --enable-vtable-verify --with-system-zlib --disable-multilib --disable-libstdcxx --with-gcc-major-version-only
 ```
 
 This should build an appropriate Makefile. Assuming it does, type:
@@ -157,18 +157,18 @@ to install.
 
 ### patchelf
 
-Obtain patchelf from <http://nixos.org/releases/patchelf/patchelf-0.9/> - the download file will be `patchelf-0.9.tar.bz2`.
+Obtain patchelf from <http://nixos.org/releases/patchelf/patchelf-0.10/> - the download file will be `patchelf-0.10.tar.bz2`.
 
 Extract it to a temporary directory using:
 
 ```
-bzip2 -cd patchelf-0.9.tar.bz2 | tar xvf -
+bzip2 -cd patchelf-0.10.tar.bz2 | tar xvf -
 ```
 
-In the resulting `patchelf-0.9` directory, run the:
+In the resulting `patchelf-0.10` directory, run the:
 
 ```
-./configure --prefix=/usr/local/gcc75
+./configure --prefix=/usr/local/gcc93
 ```
 
 script. This should build an appropriate Makefile. Assuming it does, run:

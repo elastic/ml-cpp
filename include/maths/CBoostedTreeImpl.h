@@ -247,6 +247,7 @@ private:
                                               const core::CPackedBitVector& trainingRowMask,
                                               const core::CPackedBitVector& testingRowMask,
                                               double eta,
+                                              double lambda,
                                               TNodeVec& tree) const;
 
     //! Compute the mean of the loss function on the masked rows of \p frame.
@@ -290,8 +291,11 @@ private:
     //! a good idea.
     std::size_t maximumTreeSize(std::size_t numberRows) const;
 
-    //! Restore \p loss function pointer from the \p traverser.
-    static bool restoreLoss(TLossFunctionUPtr& loss, core::CStateRestoreTraverser& traverser);
+    //! Start monitoring fine tuning hyperparameters.
+    void startProgressMonitoringFineTuneHyperparameters();
+
+    //! Start monitoring the final model training.
+    void startProgressMonitoringFinalTrain();
 
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;

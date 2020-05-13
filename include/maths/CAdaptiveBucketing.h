@@ -136,6 +136,18 @@ public:
     //! Check that the state is valid.
     virtual bool isBad() const = 0;
 
+    //! \brief Ensure \p points are at least \p separation apart.
+    //!
+    //! This solves the problem of finding new positions for \p points
+    //! such that no pair of points is closer than \p separation and
+    //! the total square distance they move is minimized.
+    //!
+    //! \param[in] a The left end of the interval that must contain \p points.
+    //! \param[in] b The right end of the interval that must contain \p points.
+    //! \param[in] separation The minimum permitted distance between \p points.
+    //! \param[in,out] points The points to spread.
+    static void spread(double a, double b, double separation, TFloatVec& points);
+
 protected:
     using TRestoreFunc = std::function<bool(core::CStateRestoreTraverser&)>;
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;

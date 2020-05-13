@@ -52,11 +52,6 @@ const double MAX_DOWNSAMPLE_FACTOR_SCALE{3.0};
 const double MAX_DESIRED_INITIAL_DOWNSAMPLE_FRACTION{0.5};
 const double MAX_NUMBER_FOLDS{5.0};
 const std::size_t MAX_NUMBER_TREES{static_cast<std::size_t>(2.0 / MIN_ETA + 0.5)};
-// We scale eta in the upfront calculation of the total number of steps we expect
-// for progress monitoring because we don't know what value we'll choose in the
-// line search. Assuming it is less than one avoids a large pause in progress if
-// it is reduced in the line search.
-const double MAIN_LOOP_ETA_SCALE_FOR_PROGRESS{0.5};
 
 double computeEta(std::size_t numberRegressors) {
     // eta is the learning rate. There is a lot of empirical evidence that
@@ -90,16 +85,19 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
     this->initializeNumberFolds(frame);
-    this->initializeTrainingProgressMonitoring(frame);
     this->initializeMissingFeatureMasks(frame);
 
     this->resizeDataFrame(frame);
+
+    this->startProgressMonitoringFeatureSelection();
 
     this->initializeCrossValidation(frame);
     this->selectFeaturesAndEncodeCategories(frame);
     this->determineFeatureDataTypes(frame);
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
+
+    this->startProgressMonitoringInitializeHyperparameters(frame);
 
     if (this->initializeFeatureSampleDistribution()) {
         this->initializeHyperparameters(frame);
@@ -118,14 +116,16 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
 
     if (dependentVariable != m_TreeImpl->m_DependentVariable) {
         HANDLE_FATAL(<< "Internal error: expected dependent variable "
-                     << m_TreeImpl->m_DependentVariable << " got " << dependentVariable);
+                     << m_TreeImpl->m_DependentVariable << " got " << dependentVariable)
         return nullptr;
     }
 
-    this->resumeRestoredTrainingProgressMonitoring();
     this->resizeDataFrame(frame);
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
+
+    this->skipProgressMonitoringFeatureSelection();
+    this->skipProgressMonitoringInitializeHyperparameters();
 
     return TBoostedTreeUPtr{
         new CBoostedTree{frame, m_RecordTrainingState, std::move(m_TreeImpl)}};
@@ -273,10 +273,20 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
 }
 
 void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
+
     std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
     m_TreeImpl->m_ExtraColumns = frame.resizeColumns(
         m_TreeImpl->m_NumberThreads, extraColumns(numberLossParameters));
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(frame));
+
+    core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
+    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
+                       [&](TRowItr beginRows, TRowItr endRows) {
+                           for (auto row = beginRows; row != endRows; ++row) {
+                               writeExampleWeight(*row, m_TreeImpl->m_ExtraColumns, 1.0);
+                           }
+                       },
+                       &allTrainingRowsMask);
 }
 
 void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) const {
@@ -289,14 +299,6 @@ void CBoostedTreeFactory::initializeCrossValidation(core::CDataFrame& frame) con
         CDataFrameUtils::stratifiedCrossValidationRowMasks(
             m_TreeImpl->m_NumberThreads, frame, dependentVariable, m_TreeImpl->m_Rng,
             m_TreeImpl->m_NumberFolds, numberBuckets, allTrainingRowsMask);
-
-    frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
-                       [&](TRowItr beginRows, TRowItr endRows) {
-                           for (auto row = beginRows; row != endRows; ++row) {
-                               writeExampleWeight(*row, m_TreeImpl->m_ExtraColumns, 1.0);
-                           }
-                       },
-                       &allTrainingRowsMask);
 }
 
 void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFrame& frame) const {
@@ -314,8 +316,8 @@ void CBoostedTreeFactory::selectFeaturesAndEncodeCategories(const core::CDataFra
             .minimumRowsPerFeature(m_TreeImpl->m_RowsPerFeature)
             .minimumFrequencyToOneHotEncode(m_MinimumFrequencyToOneHotEncode)
             .rowMask(m_TreeImpl->allTrainingRowsMask())
-            .columnMask(std::move(regressors)));
-    m_TreeImpl->m_TrainingProgress.increment(100);
+            .columnMask(std::move(regressors))
+            .progressCallback(m_TreeImpl->m_Instrumentation->progressCallback()));
 }
 
 void CBoostedTreeFactory::determineFeatureDataTypes(const core::CDataFrame& frame) const {
@@ -717,11 +719,11 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
         auto applyEta = [](CBoostedTreeImpl& tree, double eta) {
             tree.m_Eta = CTools::stableExp(eta);
             tree.m_EtaGrowthRatePerTree = 1.0 + tree.m_Eta / 2.0;
-            tree.m_MaximumNumberTrees = computeMaximumNumberTrees(tree.m_Eta);
+            if (tree.m_MaximumNumberTreesOverride == boost::none) {
+                tree.m_MaximumNumberTrees = computeMaximumNumberTrees(tree.m_Eta);
+            }
             return true;
         };
-
-        double eta{m_TreeImpl->m_Eta};
 
         TVector fallback;
         fallback(MIN_REGULARIZER_INDEX) = logMinEta;
@@ -740,14 +742,10 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
 
         if (intervalIsEmpty(m_LogEtaSearchInterval)) {
             m_TreeImpl->m_EtaOverride = m_TreeImpl->m_Eta;
-        } else {
+        } else if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
             m_TreeImpl->m_MaximumNumberTrees =
                 computeMaximumNumberTrees(MIN_ETA_SCALE * m_TreeImpl->m_Eta);
         }
-
-        m_TreeImpl->m_TrainingProgress.incrementRange(
-            static_cast<int>(this->mainLoopNumberSteps(m_TreeImpl->m_Eta)) -
-            static_cast<int>(this->mainLoopNumberSteps(MAIN_LOOP_ETA_SCALE_FOR_PROGRESS * eta)));
     }
 }
 
@@ -1174,7 +1172,11 @@ std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
     return CBoostedTreeImpl::numberExtraColumnsForTrain(m_TreeImpl->m_Loss->numberParameters());
 }
 
-void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CDataFrame& frame) {
+void CBoostedTreeFactory::startProgressMonitoringFeatureSelection() {
+    m_TreeImpl->m_Instrumentation->startNewProgressMonitoredTask(FEATURE_SELECTION);
+}
+
+void CBoostedTreeFactory::startProgressMonitoringInitializeHyperparameters(const core::CDataFrame& frame) {
 
     // The base unit is the cost of training on one tree.
     //
@@ -1188,15 +1190,14 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CData
     //    the downsampling factor if it isn't user defined,
     //  - LINE_SEARCH_ITERATIONS * "maximum number trees" per forest for the learn
     //    learn rate if it isn't user defined,
-    //  - The main optimisation loop which costs number folds * maximum number
-    //    trees per forest units per iteration,
-    //  - The cost of the final train which we count as an extra loop.
+
+    m_TreeImpl->m_Instrumentation->startNewProgressMonitoredTask(COARSE_PARAMETER_SEARCH);
 
     double eta{m_TreeImpl->m_EtaOverride != boost::none
                    ? *m_TreeImpl->m_EtaOverride
                    : computeEta(frame.numberColumns())};
 
-    std::size_t totalNumberSteps{101};
+    std::size_t totalNumberSteps{0};
     std::size_t lineSearchMaximumNumberTrees{computeMaximumNumberTrees(eta)};
     if (m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
         totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
@@ -1215,23 +1216,20 @@ void CBoostedTreeFactory::initializeTrainingProgressMonitoring(const core::CData
     }
     if (m_TreeImpl->m_EtaOverride == boost::none) {
         totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS *
-                            computeMaximumNumberTrees(MAIN_LOOP_ETA_SCALE_FOR_PROGRESS * eta);
+                            computeMaximumNumberTrees(0.5 * eta);
     }
-    totalNumberSteps += this->mainLoopNumberSteps(MAIN_LOOP_ETA_SCALE_FOR_PROGRESS * eta);
-    LOG_TRACE(<< "total number steps = " << totalNumberSteps);
+
+    LOG_TRACE(<< "initial search total number steps = " << totalNumberSteps);
     m_TreeImpl->m_TrainingProgress = core::CLoopProgress{
         totalNumberSteps, m_TreeImpl->m_Instrumentation->progressCallback(), 1.0, 1024};
 }
 
-void CBoostedTreeFactory::resumeRestoredTrainingProgressMonitoring() {
-    m_TreeImpl->m_TrainingProgress.progressCallback(
-        m_TreeImpl->m_Instrumentation->progressCallback());
-    m_TreeImpl->m_TrainingProgress.resumeRestored();
+void CBoostedTreeFactory::skipProgressMonitoringFeatureSelection() {
+    m_TreeImpl->m_Instrumentation->startNewProgressMonitoredTask(FEATURE_SELECTION);
 }
 
-std::size_t CBoostedTreeFactory::mainLoopNumberSteps(double eta) const {
-    return (this->numberHyperparameterTuningRounds() + 1) *
-           this->mainLoopMaximumNumberTrees(eta) * m_TreeImpl->m_NumberFolds;
+void CBoostedTreeFactory::skipProgressMonitoringInitializeHyperparameters() {
+    m_TreeImpl->m_Instrumentation->startNewProgressMonitoredTask(COARSE_PARAMETER_SEARCH);
 }
 
 std::size_t CBoostedTreeFactory::mainLoopMaximumNumberTrees(double eta) const {
@@ -1243,5 +1241,10 @@ std::size_t CBoostedTreeFactory::mainLoopMaximumNumberTrees(double eta) const {
 
 void CBoostedTreeFactory::noopRecordTrainingState(CBoostedTree::TPersistFunc) {
 }
+
+const std::string CBoostedTreeFactory::FEATURE_SELECTION{"feature_selection"};
+const std::string CBoostedTreeFactory::COARSE_PARAMETER_SEARCH{"coarse_parameter_search"};
+const std::string CBoostedTreeFactory::FINE_TUNING_PARAMETERS{"fine_tuning_parameters"};
+const std::string CBoostedTreeFactory::FINAL_TRAINING{"final_training"};
 }
 }

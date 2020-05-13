@@ -49,7 +49,8 @@ The first major piece of development software to install is Apple's development 
 For C++17 Xcode 10 is required, and this requires macOS High Sierra or above. Therefore you must be running macOS High Sierra (10.13) or above to build the Machine Learning C++ code.
 
 - If you are using High Sierra, you must install Xcode 10.1.x
-- If you are using Mojave or Catalina, you must install Xcode 11.2.x
+- If you are using Mojave, you must install Xcode 11.3.x
+- If you are using Catalina, you must install Xcode 11.4.x or above
 
 Xcode is distributed as a `.xip` file; simply double click the `.xip` file to expand it, then drag `Xcode.app` to your `/Applications` directory.
 (Older versions of Xcode can be downloaded from [here](https://developer.apple.com/download/more/), provided you are signed in with your Apple ID.)

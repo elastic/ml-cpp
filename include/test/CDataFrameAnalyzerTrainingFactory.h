@@ -28,21 +28,50 @@ namespace test {
 //! \brief Collection of helping methods to create regression and classification data for tests.
 class TEST_EXPORT CDataFrameAnalyzerTrainingFactory {
 public:
-    enum EPredictionType {
-        E_MsleRegression,
-        E_Regression,
-        E_BinaryClassification,
-        E_MulticlassClassification
-    };
     using TStrVec = std::vector<std::string>;
     using TDoubleVec = std::vector<double>;
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
     using TLossUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
     using TTargetTransformer = std::function<double(double)>;
+    using TLossFunctionType = maths::boosted_tree::ELossType;
 
 public:
+    static void addPredictionTestData(TLossFunctionType type,
+                                      const TStrVec& fieldNames,
+                                      TStrVec fieldValues,
+                                      api::CDataFrameAnalyzer& analyzer,
+                                      std::size_t numberExamples = 100) {
+
+        test::CRandomNumbers rng;
+
+        TDoubleVec weights;
+        rng.generateUniformSamples(-1.0, 1.0, fieldNames.size() - 3, weights);
+        TDoubleVec regressors;
+        rng.generateUniformSamples(-10.0, 10.0, weights.size() * numberExamples, regressors);
+
+        TStrVec targets;
+        switch (type) {
+        case TLossFunctionType::E_MseRegression:
+        case TLossFunctionType::E_HuberRegression:
+            setupLinearRegressionData(fieldNames, fieldValues, analyzer,
+                                      weights, regressors, targets);
+            break;
+        case TLossFunctionType::E_MsleRegression:
+            setupLinearRegressionData(fieldNames, fieldValues, analyzer, weights, regressors,
+                                      targets, [](double x) { return x * x; });
+            break;
+        case TLossFunctionType::E_BinaryClassification:
+            setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
+                                          weights, regressors, targets);
+            break;
+        case TLossFunctionType::E_MulticlassClassification:
+            // TODO
+            break;
+        }
+    }
+
     template<typename T>
-    static void addPredictionTestData(EPredictionType type,
+    static void addPredictionTestData(TLossFunctionType type,
                                       const TStrVec& fieldNames,
                                       TStrVec fieldValues,
                                       api::CDataFrameAnalyzer& analyzer,
@@ -55,7 +84,8 @@ public:
                                       double softTreeDepthTolerance = -1.0,
                                       double eta = 0.0,
                                       std::size_t maximumNumberTrees = 0,
-                                      double featureBagFraction = 0.0) {
+                                      double featureBagFraction = 0.0,
+                                      double lossFunctionParameter = 1.0) {
 
         test::CRandomNumbers rng;
 
@@ -67,17 +97,18 @@ public:
         TStrVec targets;
         auto frame = [&] {
             switch (type) {
-            case E_Regression:
+            case TLossFunctionType::E_MseRegression:
+            case TLossFunctionType::E_HuberRegression:
                 return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
                                                  weights, regressors, targets);
-            case E_MsleRegression:
+            case TLossFunctionType::E_MsleRegression:
                 return setupLinearRegressionData(fieldNames, fieldValues, analyzer,
                                                  weights, regressors, targets,
                                                  [](double x) { return x * x; });
-            case E_BinaryClassification:
+            case TLossFunctionType::E_BinaryClassification:
                 return setupBinaryClassificationData(fieldNames, fieldValues, analyzer,
                                                      weights, regressors, targets);
-            case E_MulticlassClassification:
+            case TLossFunctionType::E_MulticlassClassification:
                 // TODO
                 return TDataFrameUPtr{};
             }
@@ -86,16 +117,19 @@ public:
 
         TLossUPtr loss;
         switch (type) {
-        case E_Regression:
+        case TLossFunctionType::E_MseRegression:
             loss = std::make_unique<maths::boosted_tree::CMse>();
             break;
-        case E_MsleRegression:
-            loss = std::make_unique<maths::boosted_tree::CMsle>();
+        case TLossFunctionType::E_MsleRegression:
+            loss = std::make_unique<maths::boosted_tree::CMsle>(lossFunctionParameter);
             break;
-        case E_BinaryClassification:
+        case TLossFunctionType::E_HuberRegression:
+            loss = std::make_unique<maths::boosted_tree::CPseudoHuber>(lossFunctionParameter);
+            break;
+        case TLossFunctionType::E_BinaryClassification:
             loss = std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>();
             break;
-        case E_MulticlassClassification:
+        case TLossFunctionType::E_MulticlassClassification:
             // TODO
             loss = TLossUPtr{};
             break;

@@ -229,7 +229,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                 const CGathererTools::TSampleVec& samples = data_.second.s_Samples;
 
                 maths::CModel* model = this->model(feature, pid);
-                if (!model) {
+                if (model == nullptr) {
                     LOG_ERROR(<< "Missing model for " << this->personName(pid));
                     continue;
                 }
@@ -242,36 +242,44 @@ void CMetricModel::sample(core_t::TTime startTime,
                 }
 
                 const TOptionalSample& bucket = data_.second.s_BucketValue;
-                if (model_t::isSampled(feature) && bucket) {
+                if (model_t::isSampled(feature) && bucket != boost::none) {
                     values.assign(1, core::make_triple(
                                          bucket->time(), TDouble2Vec(bucket->value(dimension)),
                                          model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID));
                     model->addBucketValue(values);
                 }
 
+                // For sparse data we reduce the impact of samples from empty buckets.
+                // In effect, we smoothly transition to modeling only values from non-empty
+                // buckets as the data becomes sparse.
                 double emptyBucketWeight = this->emptyBucketWeight(feature, pid, time);
                 if (emptyBucketWeight == 0.0) {
                     continue;
                 }
 
                 std::size_t n = samples.size();
+                double countWeight =
+                    (this->params().s_MaximumUpdatesPerBucket > 0.0 && n > 0
+                         ? this->params().s_MaximumUpdatesPerBucket / static_cast<double>(n)
+                         : 1.0) *
+                    this->learnRate(feature);
                 double derate = this->derate(pid, sampleTime);
-                double interval =
+                // Note we need to scale the amount of data we'll "age out" of the residual
+                // model in one bucket by the empty bucket weight so the posterior doesn't
+                // end up too flat.
+                double deratedInterval =
                     (1.0 + (this->params().s_InitialDecayRateMultiplier - 1.0) * derate) *
                     emptyBucketWeight;
-                double count = this->params().s_MaximumUpdatesPerBucket > 0.0 && n > 0
-                                   ? this->params().s_MaximumUpdatesPerBucket /
-                                         static_cast<double>(n)
-                                   : 1.0;
-                double ceff = emptyBucketWeight * count * this->learnRate(feature);
+                double deratedCountWeight = emptyBucketWeight * countWeight;
 
                 LOG_TRACE(<< "Bucket = " << gatherer.printCurrentBucket()
                           << ", feature = " << model_t::print(feature)
                           << ", samples = " << core::CContainerPrinter::print(samples)
                           << ", isInteger = " << data_.second.s_IsInteger
                           << ", person = " << this->personName(pid)
-                          << ", count weight = " << count << ", dimension = " << dimension
-                          << ", empty bucket weight = " << emptyBucketWeight);
+                          << ", dimension = " << dimension << ", count weight = " << countWeight
+                          << ", derated count weight = " << deratedCountWeight
+                          << ", derated interval = " << deratedInterval);
 
                 values.resize(n);
                 trendWeights.resize(n, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
@@ -283,12 +291,14 @@ void CMetricModel::sample(core_t::TTime startTime,
                     values[i] = core::make_triple(
                         model_t::sampleTime(feature, time, bucketLength, ti),
                         vi, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID);
-                    maths_t::setCount(TDouble2Vec(dimension, ceff / vs), trendWeights[i]);
+                    maths_t::setCount(TDouble2Vec(dimension, countWeight / vs),
+                                      trendWeights[i]);
                     maths_t::setWinsorisationWeight(
                         model->winsorisationWeight(derate, ti, vi), trendWeights[i]);
                     maths_t::setCountVarianceScale(TDouble2Vec(dimension, vs),
                                                    trendWeights[i]);
-                    maths_t::setCount(TDouble2Vec(dimension, ceff), priorWeights[i]);
+                    maths_t::setCount(TDouble2Vec(dimension, deratedCountWeight),
+                                      priorWeights[i]);
                     maths_t::setWinsorisationWeight(
                         maths_t::winsorisationWeight(trendWeights[i]), priorWeights[i]);
                     maths_t::setCountVarianceScale(TDouble2Vec(dimension, vs),
@@ -298,7 +308,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                 maths::CModelAddSamplesParams params;
                 params.integer(data_.second.s_IsInteger)
                     .nonNegative(data_.second.s_IsNonNegative)
-                    .propagationInterval(interval)
+                    .propagationInterval(deratedInterval)
                     .trendWeights(trendWeights)
                     .priorWeights(priorWeights);
 

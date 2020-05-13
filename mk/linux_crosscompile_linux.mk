@@ -13,7 +13,7 @@ CROSS_TARGET_PLATFORM=$(CPP_CROSS_COMPILE)-linux-gnu
 SYSROOT=/usr/local/sysroot-$(CROSS_TARGET_PLATFORM)
 CROSS_FLAGS=--sysroot=$(SYSROOT)
 CC=$(CROSS_TARGET_PLATFORM)-gcc $(CROSS_FLAGS)
-CXX=$(CROSS_TARGET_PLATFORM)-g++ $(CROSS_FLAGS) -std=gnu++14
+CXX=$(CROSS_TARGET_PLATFORM)-g++ $(CROSS_FLAGS) -std=gnu++17
 
 ifndef ML_DEBUG
 OPTCFLAGS=-O3 -Wdisabled-optimization
@@ -33,9 +33,9 @@ endif
 
 PLATPICFLAGS=-fPIC
 PLATPIEFLAGS=-fPIE
-CFLAGS=-g $(OPTCFLAGS) $(ARCHCFLAGS) -fstack-protector -fno-math-errno -fno-permissive -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wparentheses -Wpointer-arith -Wswitch-enum $(COVERAGE)
+CFLAGS=-g $(OPTCFLAGS) $(ARCHCFLAGS) -fstack-protector -fno-math-errno -Wall -Wcast-align -Wconversion -Wextra -Winit-self -Wparentheses -Wpointer-arith -Wswitch-enum $(COVERAGE)
 CXXFLAGS=$(CFLAGS) -Wno-ctor-dtor-privacy -Wno-deprecated-declarations -Wold-style-cast -fvisibility-inlines-hidden
-CPPFLAGS=-isystem $(CPP_SRC_HOME)/3rd_party/include -isystem $(SYSROOT)/usr/local/gcc75/include -D$(OS) -D_REENTRANT $(OPTCPPFLAGS)
+CPPFLAGS=-isystem $(CPP_SRC_HOME)/3rd_party/include -isystem $(SYSROOT)/usr/local/gcc93/include -D$(OS) -D_REENTRANT $(OPTCPPFLAGS)
 CDEPFLAGS=-MM
 COMP_OUT_FLAG=-o
 LINK_OUT_FLAG=-o
@@ -58,7 +58,7 @@ BOOSTARCH=not_supported
 endif
 BOOSTGCCVER:=$(shell $(CXX) -dumpversion | awk -F. '{ print $$1; }')
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
-BOOSTINCLUDES=-isystem $(SYSROOT)/usr/local/gcc75/include/boost-$(BOOSTVER)
+BOOSTINCLUDES=-isystem $(SYSROOT)/usr/local/gcc93/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 BOOSTLOGLIBS=-lboost_log-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
 BOOSTLOGSETUPLIBS=-lboost_log_setup-gcc$(BOOSTGCCVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
@@ -77,8 +77,8 @@ RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING
 endif
 EIGENINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/eigen
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY -DEIGEN_MAX_ALIGN_BYTES=32
-XMLINCLUDES=-I$(SYSROOT)/usr/local/gcc75/include/libxml2
-XMLLIBS=-L$(SYSROOT)/usr/local/gcc75/lib -lxml2 -lz -lm -ldl
+XMLINCLUDES=-I$(SYSROOT)/usr/local/gcc93/include/libxml2
+XMLLIBS=-L$(SYSROOT)/usr/local/gcc93/lib -lxml2 -lz -lm -ldl
 DYNAMICLIBLDFLAGS=$(PLATPICFLAGS) -shared -Wl,--as-needed -L$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR) $(COVERAGE) -Wl,-z,relro -Wl,-z,now -Wl,-rpath,'$$ORIGIN/.'
 ZLIBLIBS=-lz
 EXELDFLAGS=-pie $(PLATPIEFLAGS) -L$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR) $(COVERAGE) -Wl,-z,relro -Wl,-z,now -Wl,-rpath,'$$ORIGIN/../lib'
@@ -94,7 +94,7 @@ LIB_ML_SECCOMP=-lMlSeccomp
 ML_SECCOMP_LDFLAGS=-L$(CPP_SRC_HOME)/lib/seccomp/.objs
 LIB_ML_TEST=-lMlTest
 
-LIB_PATH+=-L$(SYSROOT)/usr/local/gcc75/lib
+LIB_PATH+=-L$(SYSROOT)/usr/local/gcc93/lib
 
 # Using cp instead of install here, to avoid every file being given execute
 # permissions
