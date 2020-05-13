@@ -47,13 +47,13 @@ CFieldDataCategorizer::CFieldDataCategorizer(const std::string& jobId,
                                              model::CLimits& limits,
                                              COutputHandler& outputHandler,
                                              CJsonOutputWriter& jsonOutputWriter,
-                                             CPersistenceManager* periodicPersister)
+                                             CPersistenceManager* persistenceManager)
     : m_JobId(jobId), m_Limits(limits), m_OutputHandler(outputHandler),
       m_ExtraFieldNames(1, MLCATEGORY_NAME), m_WriteFieldNames(true),
       m_NumRecordsHandled(0), m_OutputFieldCategory(m_Overrides[MLCATEGORY_NAME]),
       m_MaxMatchingLength(0), m_JsonOutputWriter(jsonOutputWriter),
       m_CategorizationFieldName(config.categorizationFieldName()),
-      m_CategorizationFilter(), m_PeriodicPersister(periodicPersister) {
+      m_CategorizationFilter(), m_PersistenceManager(persistenceManager) {
     this->createCategorizer(m_CategorizationFieldName);
 
     LOG_DEBUG(<< "Configuring categorization filtering");
@@ -119,8 +119,8 @@ void CFieldDataCategorizer::finalise() {
     // Wait for any ongoing periodic persist to complete, so that the data adder
     // is not used by both a periodic periodic persist and final persist at the
     // same time
-    if (m_PeriodicPersister != nullptr) {
-        m_PeriodicPersister->waitForIdle();
+    if (m_PersistenceManager != nullptr) {
+        m_PersistenceManager->waitForIdle();
     }
 }
 
@@ -179,8 +179,8 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
     }
 
     // Check if a periodic persist is due.
-    if (m_PeriodicPersister != nullptr) {
-        m_PeriodicPersister->startPersistIfAppropriate();
+    if (m_PersistenceManager != nullptr) {
+        m_PersistenceManager->startPersistIfAppropriate();
     }
 
     return categoryId;
@@ -322,9 +322,9 @@ bool CFieldDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTraverser&
 
 bool CFieldDataCategorizer::persistState(core::CDataAdder& persister,
                                          const std::string& descriptionPrefix) {
-    if (m_PeriodicPersister != nullptr) {
+    if (m_PersistenceManager != nullptr) {
         // This will not happen if finalise() was called before persisting state
-        if (m_PeriodicPersister->isBusy()) {
+        if (m_PersistenceManager->isBusy()) {
             LOG_ERROR(<< "Cannot do final persistence of state - periodic "
                          "persister still busy");
             return false;
@@ -423,12 +423,12 @@ bool CFieldDataCategorizer::periodicPersistStateInBackground() {
         return false;
     }
 
-    if (m_PeriodicPersister == nullptr) {
+    if (m_PersistenceManager == nullptr) {
         LOG_ERROR(<< "NULL persistence manager");
         return false;
     }
 
-    if (m_PeriodicPersister->addPersistFunc(std::bind(
+    if (m_PersistenceManager->addPersistFunc(std::bind(
             &CFieldDataCategorizer::doPersistState, this,
             // Do NOT add std::ref wrappers
             // around these arguments - they
@@ -439,7 +439,7 @@ bool CFieldDataCategorizer::periodicPersistStateInBackground() {
         return false;
     }
 
-    m_PeriodicPersister->useBackgroundPersistence();
+    m_PersistenceManager->useBackgroundPersistence();
 
     return true;
 }
@@ -447,19 +447,19 @@ bool CFieldDataCategorizer::periodicPersistStateInBackground() {
 bool CFieldDataCategorizer::periodicPersistStateInForeground() {
     LOG_DEBUG(<< "Periodic persist categorizer state");
 
-    if (m_PeriodicPersister == nullptr) {
+    if (m_PersistenceManager == nullptr) {
         return false;
     }
 
     // Do NOT pass this request on to the output chainer. That logic is already present in persistState.
-    if (m_PeriodicPersister->addPersistFunc([&](core::CDataAdder& persister) {
+    if (m_PersistenceManager->addPersistFunc([&](core::CDataAdder& persister) {
             return this->persistState(persister, "Periodic foreground persist at ");
         }) == false) {
         LOG_ERROR(<< "Failed to add categorizer foreground persistence function");
         return false;
     }
 
-    m_PeriodicPersister->useForegroundPersistence();
+    m_PersistenceManager->useForegroundPersistence();
 
     return true;
 }
