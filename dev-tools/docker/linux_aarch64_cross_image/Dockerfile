@@ -19,14 +19,14 @@ RUN \
 RUN \
   mkdir -p /usr/local/sysroot-aarch64-linux-gnu/usr && \
   cd /usr/local/sysroot-aarch64-linux-gnu/usr && \
-  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-aarch64-linux-gnu-1.tar.bz2 | tar jxf - && \
+  wget --quiet -O - https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/usr-aarch64-linux-gnu-2.tar.bz2 | tar jxf - && \
   cd .. && \
   ln -s usr/lib lib && \
   ln -s usr/lib64 lib64
 
 # For compiling with hardening and optimisation
-ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2"
-ENV CXXFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2"
+ENV CFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
+ENV CXXFLAGS "-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse"
 ENV LDFLAGS "-Wl,-z,relro -Wl,-z,now"
 ENV LDFLAGS_FOR_TARGET "-Wl,-z,relro -Wl,-z,now"
 
@@ -43,26 +43,26 @@ RUN \
 # Update the path so that the bootstrap cross tools are visible
 ENV PATH /usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
 
-# Build gcc 7.5 cross compiler
+# Build gcc 9.3 cross compiler
 RUN \
-  wget --quiet -O - http://ftpmirror.gnu.org/gcc/gcc-7.5.0/gcc-7.5.0.tar.gz | tar zxf - && \
-  cd gcc-7.5.0 && \
+  wget --quiet -O - http://ftpmirror.gnu.org/gcc/gcc-9.3.0/gcc-9.3.0.tar.gz | tar zxf - && \
+  cd gcc-9.3.0 && \
   contrib/download_prerequisites && \
   sed -i -e 's/$(SHLIB_LDFLAGS)/-Wl,-z,relro -Wl,-z,now $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc && \
   cd .. && \
-  mkdir gcc-7.5.0-build && \
-  cd gcc-7.5.0-build && \
-  ../gcc-7.5.0/configure --prefix=/usr/local/gcc75 --with-sysroot=/usr/local/sysroot-aarch64-linux-gnu --target=aarch64-linux-gnu --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib && \
+  mkdir gcc-9.3.0-build && \
+  cd gcc-9.3.0-build && \
+  ../gcc-9.3.0/configure --prefix=/usr/local/gcc93 --with-sysroot=/usr/local/sysroot-aarch64-linux-gnu --target=aarch64-linux-gnu --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib && \
   make -j`nproc` && \
   make install && \
   cd .. && \
-  rm -rf gcc-7.5.0 gcc-7.5.0-build
+  rm -rf gcc-9.3.0 gcc-9.3.0-build
 
 # Build binutils (final version)
 RUN \
   wget --quiet -O - http://ftpmirror.gnu.org/binutils/binutils-2.34.tar.bz2 | tar jxf - && \
   cd binutils-2.34 && \
-  ./configure --prefix=/usr/local/gcc75 --with-sysroot=/usr/local/sysroot-aarch64-linux-gnu --target=aarch64-linux-gnu --enable-vtable-verify --with-system-zlib --disable-multilib --disable-libstdcxx --with-gcc-major-version-only && \
+  ./configure --prefix=/usr/local/gcc93 --with-sysroot=/usr/local/sysroot-aarch64-linux-gnu --target=aarch64-linux-gnu --enable-vtable-verify --with-system-zlib --disable-multilib --disable-libstdcxx --with-gcc-major-version-only && \
   make -j`nproc` && \
   make install && \
   cd .. && \
@@ -70,11 +70,11 @@ RUN \
 
 # Build patchelf
 RUN \
-  wget --quiet -O - http://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.gz | tar zxf - && \
-  cd patchelf-0.9 && \
-  ./configure --prefix=/usr/local/gcc75 && \
+  wget --quiet -O - http://nixos.org/releases/patchelf/patchelf-0.10/patchelf-0.10.tar.gz | tar zxf - && \
+  cd patchelf-0.10 && \
+  ./configure --prefix=/usr/local/gcc93 && \
   make -j`nproc` && \
   make install && \
   cd .. && \
-  rm -rf patchelf-0.9
+  rm -rf patchelf-0.10
 

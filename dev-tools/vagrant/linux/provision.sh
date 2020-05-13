@@ -3,8 +3,8 @@
 # fail when any exit code != 0
 set -e
 
-NUMCPUS=`grep -c '^processor' /proc/cpuinfo`
-MEM=$(free -g|awk '/^Mem:/{print $2}')
+NUMCPUS=`nproc`
+MEM=$(free -g | awk '/^Mem:/{print $2}')
 echo "Using $NUMCPUS cores and $MEM gb memory"
 
 mkdir -p /home/vagrant/ml
@@ -33,20 +33,20 @@ fi
 
 # Env variables for hardening and optimisation
 echo "Setting env variables..."
-export CFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
-export CXXFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2'
+export CFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse'
+export CXXFLAGS='-g -O3 -fstack-protector -D_FORTIFY_SOURCE=2 -msse4.2 -mfpmath=sse'
 export LDFLAGS='-Wl,-z,relro -Wl,-z,now'
 export LDFLAGS_FOR_TARGET='-Wl,-z,relro -Wl,-z,now'
 unset LIBRARY_PATH
 
-# ----------------- Compile gcc 7.5 -------------------------
+# ----------------- Compile gcc 9.3 -------------------------
 if [ ! -f gcc.state ]; then
-  echo "Compiling GCC 7.5..."
+  echo "Compiling GCC 9.3..."
   echo "  Downloading..."
-  wget --quiet http://ftpmirror.gnu.org/gcc/gcc-7.5.0/gcc-7.5.0.tar.gz
+  wget --quiet http://ftpmirror.gnu.org/gcc/gcc-9.3.0/gcc-9.3.0.tar.gz
   # gcc needs different source and build directories
   mkdir gcc-source
-  tar xfz gcc-7.5.0.tar.gz -C gcc-source --strip-components=1
+  tar xfz gcc-9.3.0.tar.gz -C gcc-source --strip-components=1
   cd gcc-source
   contrib/download_prerequisites
   sed -i -e 's/$(SHLIB_LDFLAGS)/-Wl,-z,relro -Wl,-z,now $(SHLIB_LDFLAGS)/' libgcc/config/t-slibgcc
@@ -54,19 +54,19 @@ if [ ! -f gcc.state ]; then
   mkdir gcc-build
   cd gcc-build
   echo "  Configuring..."
-  ../gcc-source/configure --prefix=/usr/local/gcc75 --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib > configure.log 2>&1
+  ../gcc-source/configure --prefix=/usr/local/gcc93 --enable-languages=c,c++ --enable-vtable-verify --with-system-zlib --disable-multilib > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
   make install > make_install.log 2>&1
   cd ..
-  rm gcc-7.5.0.tar.gz
+  rm gcc-9.3.0.tar.gz
   touch gcc.state
 fi
 
-# Update paths to use the newly built compiler in C++14 mode
-export LD_LIBRARY_PATH=/usr/local/gcc75/lib64:/usr/local/gcc75/lib:/usr/lib:/lib
-export PATH=/usr/local/gcc75/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
-export CXX='g++ -std=gnu++14'
+# Update paths to use the newly built compiler in C++17 mode
+export LD_LIBRARY_PATH=/usr/local/gcc93/lib64:/usr/local/gcc93/lib:/usr/lib:/lib
+export PATH=/usr/local/gcc93/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
+export CXX='g++ -std=gnu++17'
 
 # ----------------- Compile binutils -------------------------
 if [ ! -f binutils.state ]; then
@@ -77,7 +77,7 @@ if [ ! -f binutils.state ]; then
   tar xfz binutils-2.34.tar.gz -C binutils --strip-components=1
   cd binutils
   echo "  Configuring..."
-  ./configure --prefix=/usr/local/gcc75 --enable-vtable-verify --with-system-zlib --disable-libstdcxx --with-gcc-major-version-only > configure.log 2>&1
+  ./configure --prefix=/usr/local/gcc93 --enable-vtable-verify --with-system-zlib --disable-libstdcxx --with-gcc-major-version-only > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
   make install > make_install.log 2>&1
@@ -90,17 +90,17 @@ fi
 if [ ! -f libxml2.state ]; then
   echo "Compiling libxml..."
   echo "  Downloading..."
-  wget --quiet -O LATEST_LIBXML2.tar.gz ftp://anonymous@ftp.xmlsoft.org/libxml2/LATEST_LIBXML2
+  wget --quiet -O libxml2-2.9.7.tar.gz ftp://anonymous@ftp.xmlsoft.org/libxml2/libxml2-2.9.7
   mkdir libxml
-  tar xfz LATEST_LIBXML2.tar.gz -C libxml --strip-components=1
+  tar xfz libxml2-2.9.7.tar.gz -C libxml --strip-components=1
   cd libxml
   echo "  Configuring..."
-  ./configure --prefix=/usr/local/gcc75 --without-python --without-readline > configure.log 2>&1
+  ./configure --prefix=/usr/local/gcc93 --without-python --without-readline > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
   make install > make_install.log 2>&1
   cd ..
-  rm LATEST_LIBXML2.tar.gz
+  rm libxml2-2.9.7.tar.gz
   touch libxml2.state
 fi
 
@@ -122,8 +122,8 @@ if [ ! -f boost.state ]; then
   sed -i -e 's%#if ((defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%#if ((!defined(BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS) \&\& defined(__linux__) \&\& !defined(__UCLIBC__) \&\& !defined(BOOST_MATH_HAVE_FIXED_GLIBC)) || defined(__QNX__) || defined(__IBMCPP__)) \&\& !defined(BOOST_NO_FENV_H)%g' boost/math/tools/config.hpp
 
   echo "  Building..."
-  ./b2 -j$NUMCPUS --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now > b2_make.log 2>&1
-  ./b2 install --prefix=/usr/local/gcc75 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags=-std=gnu++14 cxxflags=-fstack-protector linkflags=-Wl,-z,relro linkflags=-Wl,-z,now > b2_make_install.log 2>&1
+  ./b2 -j$NUMCPUS --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -msse4.2 -mfpmath=sse' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now' > b2_make.log 2>&1
+  ./b2 install --prefix=/usr/local/gcc93 --layout=versioned --disable-icu pch=off optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC define=_FORTIFY_SOURCE=2 cxxflags='-std=gnu++17 -fstack-protector -msse4.2 -mfpmath=sse' linkflags='-std=gnu++17 -Wl,-z,relro -Wl,-z,now' > b2_make_install.log 2>&1
 
   cd ..
   rm boost_1_71_0.tar.gz
@@ -134,32 +134,18 @@ fi
 if [ ! -f patchelf.state ]; then
   echo "Compiling patchelf..."
   echo "  Downloading..."
-  wget --quiet http://nixos.org/releases/patchelf/patchelf-0.9/patchelf-0.9.tar.gz
+  wget --quiet http://nixos.org/releases/patchelf/patchelf-0.10/patchelf-0.10.tar.gz
   mkdir patchelf
   tar xfz patchelf-0.9.tar.gz -C patchelf --strip-components=1
   cd patchelf
   echo "  Configuring..."
-  ./configure --prefix=/usr/local/gcc75 > configure.log 2>&1
+  ./configure --prefix=/usr/local/gcc93 > configure.log 2>&1
   echo "  Making..."
   make -j$NUMCPUS --load-average=$NUMCPUS > make.log 2>&1
   make install > make_install.log 2>&1
   cd ..
-  rm patchelf-0.9.tar.gz
+  rm patchelf-0.10.tar.gz
   touch patchelf.state
-fi
-
-# ----------------- Compile gcovr -------------------------
-if [ ! -f gcovr.state ]; then
-  echo "Compiling gcovr..."
-  echo "  Downloading..."
-  wget --quiet https://pypi.python.org/packages/bc/47/3123c7a85a7df81501fbcfa13b49c240d6d4aa68ccd69851e985019e217d/gcovr-2.4.tar.gz#md5=672db629469882b93c40016aebff50ac
-  mkdir gcovr
-  tar xfz gcovr-2.4.tar.gz -C gcovr --strip-components=1
-  cd gcovr
-  python setup.py install
-  cd ..
-  rm gcovr-2.4.tar.gz
-  touch gcovr.state
 fi
 
 # ------------------ bashrc -----------------------------
@@ -168,8 +154,8 @@ umask 0002
 export ML_SRC_HOME=/home/vagrant/ml/src
 export JAVA_HOME=/usr/lib/jvm/java-8-oracle
 unset JAVA_ROOT
-export LD_LIBRARY_PATH=/usr/local/gcc75/lib64:/usr/local/gcc75/lib:/usr/lib:/lib
-export PATH=$JAVA_HOME/bin:/bin:/usr/local/gcc75/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
+export LD_LIBRARY_PATH=/usr/local/gcc93/lib64:/usr/local/gcc93/lib:/usr/lib:/lib
+export PATH=$JAVA_HOME/bin:/bin:/usr/local/gcc93/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
 
 ulimit -c unlimited
 cd /home/vagrant/ml/src

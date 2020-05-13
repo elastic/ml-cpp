@@ -34,6 +34,8 @@
 
 * The macOS build platform for the {ml} C++ code is now High Sierra running Xcode 10.1,
   or Ubuntu 18.04 running clang 6.0 for cross compilation. (See {ml-pull}867[#867].)
+* The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 9.3. (See
+  {ml-pull}1170[#1170].)
 
 == {es} version 7.8.0
 
