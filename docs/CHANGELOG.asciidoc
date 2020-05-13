@@ -90,6 +90,7 @@
 * Improve the initialization of seasonal components for anomaly detection. (See
   {ml-pull}1201[#1201], issue: {ml-issue}#1178[#1178].)
 * Fix possible root cause for "Bad variance scale nan" log errors. (See {ml-pull}1225[#1225].)
+* Change instrumentation timestamp resolution to millisecionds. (See {ml-pull}1237[#1237].)
 
 == {es} version 7.7.1
 
@@ -99,6 +100,7 @@
   issue: {ml-issue}1136[#1136].)
 * Fix classification job failures when number of classes in configuration differs 
   from the number of classes present in the training data. (See {ml-pull}1144[#1144].)
+* Change instrumentation timestamp resolution to millisecionds. (See {ml-pull}1237[#1237].)
 
 == {es} version 7.7.0
 
