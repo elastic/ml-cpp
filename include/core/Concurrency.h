@@ -151,7 +151,7 @@ async(CExecutor& executor, FUNCTION&& f, ARGS&&... args) {
     // Schedule the task to compute the result.
     executor.schedule(std::move(task));
 
-    return std::move(result);
+    return result;
 }
 
 //! Wait for all \p futures to be available.
