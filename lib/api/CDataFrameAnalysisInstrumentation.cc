@@ -107,7 +107,9 @@ void CDataFrameAnalysisInstrumentation::nextStep(const std::string& /* phase */)
 }
 
 void CDataFrameAnalysisInstrumentation::writeState() {
-    std::int64_t timestamp{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
+    std::int64_t timestamp{std::chrono::duration_cast<std::chrono::milliseconds>(
+                               std::chrono::system_clock::now().time_since_epoch())
+                               .count()};
     if (m_Writer != nullptr) {
         m_Writer->StartObject();
         m_Writer->Key(MEMORY_TYPE_TAG);
