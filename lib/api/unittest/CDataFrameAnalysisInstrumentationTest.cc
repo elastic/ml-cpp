@@ -16,6 +16,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <chrono>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -100,7 +101,9 @@ void addOutlierTestData(TStrVec fieldNames,
 BOOST_AUTO_TEST_CASE(testMemoryState) {
     std::string jobId{"testJob"};
     std::int64_t memoryUsage{1000};
-    std::int64_t timeBefore{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
+    std::int64_t timeBefore{std::chrono::duration_cast<std::chrono::milliseconds>(
+                                std::chrono::system_clock::now().time_since_epoch())
+                                .count()};
     std::stringstream outputStream;
     {
         core::CJsonOutputStreamWrapper streamWrapper(outputStream);
@@ -111,7 +114,9 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
         instrumentation.nextStep();
         outputStream.flush();
     }
-    std::int64_t timeAfter{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
+    std::int64_t timeAfter{std::chrono::duration_cast<std::chrono::milliseconds>(
+                               std::chrono::system_clock::now().time_since_epoch())
+                               .count()};
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(outputStream.str()));
