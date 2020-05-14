@@ -227,6 +227,9 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
         return;
     }
 
+    // Make sure that we always attach this as the first thing we do.
+    CComponents::CScopeAttachComponentChangeCallback attach{m_Components, componentChangeCallback};
+
     time += m_TimeShift;
 
     core_t::TTime lastTime{std::max(m_LastValueTime, m_LastPropagationTime)};
@@ -245,8 +248,7 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                           return CBasicStatistics::mean(
                               this->value(time_, 0.0, E_Seasonal | E_Calendar));
                       },
-                      m_Components.periodicityTestConfig(),
-                      componentChangeCallback};
+                      m_Components.periodicityTestConfig()};
 
     m_Components.handle(message);
     m_PeriodicityTest.handle(message);
