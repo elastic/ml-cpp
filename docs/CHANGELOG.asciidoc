@@ -99,6 +99,8 @@
   issue: {ml-issue}1136[#1136].)
 * Fix classification job failures when number of classes in configuration differs 
   from the number of classes present in the training data. (See {ml-pull}1144[#1144].)
+* Change data frame analytics instrumentation timestamp resolution to milliseconds. (See 
+  {ml-pull}1237[#1237].)
 
 == {es} version 7.7.0
 
