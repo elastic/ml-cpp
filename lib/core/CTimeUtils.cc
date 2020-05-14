@@ -22,6 +22,7 @@ namespace core {
 const core_t::TTime CTimeUtils::MAX_CLOCK_DISCREPANCY(300);
 
 core_t::TTime CTimeUtils::now() {
+    // TODO use std::chrono functionality
     return ::time(nullptr);
 }
 
