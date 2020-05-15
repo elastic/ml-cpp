@@ -1,2 +1,2 @@
-name,version,revision,url,license,copyright
-Eigen,3.2.5,d9c80169e091a2c6e75ceb509f81764d22cf6a63,http://eigen.tuxfamily.org,MPL-2.0,
+name,version,revision,url,license,copyright,sourceURL
+Eigen,3.2.5,d9c80169e091a2c6e75ceb509f81764d22cf6a63,http://eigen.tuxfamily.org,MPL-2.0,,https://gitlab.com/libeigen/eigen/-/archive/3.2.5/eigen-3.2.5.zip
