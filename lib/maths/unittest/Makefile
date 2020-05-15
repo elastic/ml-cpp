@@ -19,6 +19,7 @@ all: build
 
 SRCS=\
 	Main.cc \
+	CAdaptiveBucketingTest.cc \
 	CAgglomerativeClustererTest.cc \
 	CAssignmentTest.cc \
 	CBasicStatisticsTest.cc \

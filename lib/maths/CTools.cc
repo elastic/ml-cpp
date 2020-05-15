@@ -1848,43 +1848,6 @@ double CTools::differentialEntropy(const gamma& gamma_) {
            (1 - shape) * boost::math::digamma(shape);
 }
 
-//////// CGroup Implementation ////////
-
-void CTools::CGroup::merge(const CGroup& other, double separation, double min, double max) {
-    m_A = std::min(m_A, other.m_A);
-    m_B = std::max(m_B, other.m_B);
-
-    // Update the centre and truncate so that the group
-    // centres are in range.
-    m_Centre += other.m_Centre;
-    double l{this->leftEndpoint(separation)};
-    double r{this->rightEndpoint(separation)};
-    m_Centre.s_Moments[0] += std::max(min - l, 0.0);
-    m_Centre.s_Moments[0] += std::min(max - r, 0.0);
-}
-
-bool CTools::CGroup::overlap(const CGroup& other, double separation) const {
-    const double TOL{1.0 + EPSILON};
-    double ll{this->leftEndpoint(separation)};
-    double lr{this->rightEndpoint(separation)};
-    double rl{other.leftEndpoint(separation)};
-    double rr{other.rightEndpoint(separation)};
-    return !(TOL * (lr + separation) <= rl || ll >= TOL * (rr + separation) ||
-             TOL * (rr + separation) <= ll || rl >= TOL * (lr + separation));
-}
-
-double CTools::CGroup::leftEndpoint(double separation) const {
-    return CBasicStatistics::mean(m_Centre) -
-           static_cast<double>(m_B - m_A) * separation / 2.0;
-}
-
-double CTools::CGroup::rightEndpoint(double separation) const {
-    return CBasicStatistics::mean(m_Centre) +
-           static_cast<double>(m_B - m_A) * separation / 2.0;
-}
-
-const CTools::CLookupTableForFastLog<CTools::FAST_LOG_PRECISION> CTools::FAST_LOG_TABLE;
-
 //////// Miscellaneous Implementations ////////
 
 namespace {
@@ -2019,5 +1982,7 @@ bool CTools::lgamma(double value, double& result, bool checkForFinite) {
     result = std::lgamma(value);
     return checkForFinite ? std::isfinite(result) : true;
 }
+
+const CTools::CLookupTableForFastLog<CTools::FAST_LOG_PRECISION> CTools::FAST_LOG_TABLE;
 }
 }
