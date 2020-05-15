@@ -267,7 +267,7 @@ public:
     //! \name Customization by a specific search
     //@{
     //! Set the identifier of the search for which this generates models.
-    virtual void identifier(int identifier) = 0;
+    virtual void detectorIndex(int detectorIndex) = 0;
 
     //! Set the record field names which will be modeled.
     virtual void fieldNames(const std::string& partitionFieldName,
