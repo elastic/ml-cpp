@@ -1567,7 +1567,9 @@ CUnivariateTimeSeriesModel::updateTrend(const TTimeDouble2VecSizeTrVec& samples,
     TFloatMeanAccumulatorVec window;
     EUpdateResult result{E_Success};
     auto componentChangeCallback = [&window, &result](TFloatMeanAccumulatorVec window_) {
-        window = std::move(window_);
+        if (window_.empty() == false) {
+            window = std::move(window_);
+        }
         result = E_Reset;
     };
     for (auto i : timeorder) {

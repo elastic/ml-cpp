@@ -514,47 +514,47 @@ BOOST_FIXTURE_TEST_CASE(testNanHandling, CTestFixture) {
     TTimeVec times;
     TDoubleVec trend;
     for (core_t::TTime time = 0; time < 10 * WEEK + 1; time += HALF_HOUR) {
-        double daily = 100.0 + 100.0 * std::sin(boost::math::double_constants::two_pi *
+        double daily = 120.0 + 100.0 * std::sin(boost::math::double_constants::two_pi *
                                                 static_cast<double>(time) /
                                                 static_cast<double>(DAY));
         times.push_back(time);
         trend.push_back(daily);
     }
-
-    const double noiseMean = 20.0;
-    const double noiseVariance = 16.0;
-    test::CRandomNumbers rng;
     TDoubleVec noise;
-    rng.generateNormalSamples(noiseMean, noiseVariance, times.size(), noise);
+    test::CRandomNumbers rng;
+    rng.generateNormalSamples(0.0, 16.0, times.size(), noise);
 
     maths::CTimeSeriesDecomposition decomposition(0.01, HALF_HOUR);
 
-    // run through half of the periodic data
+    int componentsModifiedBefore{0};
+
+    // Run through half of the periodic data.
     std::size_t i = 0u;
     for (; i < times.size() / 2; ++i) {
-        core_t::TTime time = times[i];
-        double value = trend[i] + noise[i];
-
-        decomposition.addPoint(time, value);
+        decomposition.addPoint(times[i], trend[i] + noise[i], maths_t::CUnitWeights::UNIT,
+                               [&componentsModifiedBefore](TFloatMeanAccumulatorVec) {
+                                   ++componentsModifiedBefore;
+                               });
     }
 
-    // inject a NaN into one of the seasonal components
+    BOOST_REQUIRE_EQUAL(2, componentsModifiedBefore);
+
+    // Inject a NaN into one of the seasonal components.
     CNanInjector nanInjector;
-    nanInjector.injectNan(decomposition, 0L);
+    nanInjector.injectNan(decomposition, 0);
 
-    int componentsModified{0};
+    int componentsModifiedAfter{0};
 
-    // run through the 2nd half of the periodic data set
+    // Run through the 2nd half of the periodic data set.
     for (++i; i < times.size(); ++i) {
-        core_t::TTime time = times[i];
+        core_t::TTime time{times[i]};
+        decomposition.addPoint(time, trend[i] + noise[i], maths_t::CUnitWeights::UNIT,
+                               [&componentsModifiedAfter](TFloatMeanAccumulatorVec) {
+                                   ++componentsModifiedAfter;
+                               });
         auto value = decomposition.value(time);
         BOOST_TEST_REQUIRE(maths::CMathsFuncs::isFinite(value.first));
         BOOST_TEST_REQUIRE(maths::CMathsFuncs::isFinite(value.second));
-
-        decomposition.addPoint(time, trend[i] + noise[i], maths_t::CUnitWeights::UNIT,
-                               [&componentsModified](TFloatMeanAccumulatorVec) {
-                                   ++componentsModified;
-                               });
     }
 
     // The call to 'addPoint' that results in the removal of the component
@@ -562,11 +562,11 @@ BOOST_FIXTURE_TEST_CASE(testNanHandling, CTestFixture) {
     // a daily seasonal component. Hence we only expect it to report that the
     // components have been modified just the once even though two modification
     // event have occurred.
-    BOOST_REQUIRE_EQUAL(1, componentsModified);
+    BOOST_REQUIRE_EQUAL(2, componentsModifiedAfter);
 
     // Check that only the daily component has been initialized.
     const TSeasonalComponentVec& components = decomposition.seasonalComponents();
-    BOOST_REQUIRE_EQUAL(std::size_t(1), components.size());
+    BOOST_REQUIRE_EQUAL(1, components.size());
     BOOST_REQUIRE_EQUAL(DAY, components[0].time().period());
     BOOST_TEST_REQUIRE(components[0].initialized());
 }
