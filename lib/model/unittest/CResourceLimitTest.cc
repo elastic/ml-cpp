@@ -281,7 +281,7 @@ TAddPersonDataFunc createModel(model_t::EModelType modelType,
         auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
 
         factory = std::make_shared<CEventRateModelFactory>(params, interimBucketCorrector);
-        factory->identifier(1);
+        factory->detectorIndex(1);
         factory->fieldNames(emptyString, emptyString, "pers", emptyString, TStrVec());
         CModelFactory::TFeatureVec features;
         features.push_back(model_t::E_IndividualCountByBucketAndPerson);
@@ -309,7 +309,7 @@ TAddPersonDataFunc createModel(model_t::EModelType modelType,
         params.s_DecayRate = 0.001;
         auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
         factory = std::make_shared<CMetricModelFactory>(params, interimBucketCorrector);
-        factory->identifier(1);
+        factory->detectorIndex(1);
         factory->fieldNames(emptyString, emptyString, "peep", "val", TStrVec());
         factory->useNull(true);
         CModelFactory::TFeatureVec features;
@@ -482,10 +482,10 @@ BOOST_FIXTURE_TEST_CASE(testLimitBy, CTestFixture) {
             CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
         modelConfig.useMultibucketFeatures(false);
         CLimits limits;
-        CSearchKey key(1, // identifier
+        CSearchKey key(1, // detectorIndex
                        function_t::E_IndividualMetric, false,
                        model_t::E_XF_None, "value", "colour");
-        CAnomalyDetector detector(1, // identifier
+        CAnomalyDetector detector(1, // detectorIndex
                                   limits, modelConfig, "", FIRST_TIME,
                                   modelConfig.factory(key));
         CResultWriter writer(modelConfig, limits);
@@ -509,10 +509,10 @@ BOOST_FIXTURE_TEST_CASE(testLimitBy, CTestFixture) {
         CAnomalyDetectorModelConfig modelConfig =
             CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
         CLimits limits;
-        CSearchKey key(1, // identifier
+        CSearchKey key(1, // detectorIndex
                        function_t::E_IndividualMetric, false,
                        model_t::E_XF_None, "value", "colour");
-        CAnomalyDetector detector(1, // identifier
+        CAnomalyDetector detector(1, // detectorIndex
                                   limits, modelConfig, "", FIRST_TIME,
                                   modelConfig.factory(key));
         CResultWriter writer(modelConfig, limits);
@@ -541,10 +541,10 @@ BOOST_FIXTURE_TEST_CASE(testLimitByOver, CTestFixture) {
         CAnomalyDetectorModelConfig modelConfig =
             CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
         CLimits limits;
-        CSearchKey key(1, // identifier
+        CSearchKey key(1, // detectorIndex
                        function_t::E_PopulationMetric, false,
                        model_t::E_XF_None, "value", "colour", "species");
-        CAnomalyDetector detector(1, // identifier
+        CAnomalyDetector detector(1, // detectorIndex
                                   limits, modelConfig, "", FIRST_TIME,
                                   modelConfig.factory(key));
         CResultWriter writer(modelConfig, limits);
@@ -566,10 +566,10 @@ BOOST_FIXTURE_TEST_CASE(testLimitByOver, CTestFixture) {
     CAnomalyDetectorModelConfig modelConfig =
         CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     CLimits limits;
-    CSearchKey key(1, // identifier
+    CSearchKey key(1, // detectorIndex
                    function_t::E_PopulationMetric, false, model_t::E_XF_None,
                    "value", "colour", "species");
-    CAnomalyDetector detector(1, // identifier
+    CAnomalyDetector detector(1, // detectorIndex
                               limits, modelConfig, "", FIRST_TIME,
                               modelConfig.factory(key));
     CResultWriter writer(modelConfig, limits);
