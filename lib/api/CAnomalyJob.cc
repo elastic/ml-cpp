@@ -1471,7 +1471,7 @@ CAnomalyJob::detectorForKey(bool isRestoring,
                   << partition << '\'' << ", time " << time);
         LOG_TRACE(<< "Detector count " << m_Detectors.size());
 
-        detector = this->makeDetector(key.identifier(), m_ModelConfig, m_Limits,
+        detector = this->makeDetector(key.detectorIndex(), m_ModelConfig, m_Limits,
                                       partition, time, m_ModelConfig.factory(key));
         if (detector == nullptr) {
             // This should never happen as CAnomalyDetectorUtils::makeDetector()

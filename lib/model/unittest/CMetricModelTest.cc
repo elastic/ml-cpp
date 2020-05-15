@@ -1505,14 +1505,14 @@ BOOST_FIXTURE_TEST_CASE(testKey, CTestFixture) {
 
     CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig();
 
-    int identifier = 0;
+    int detectorIndex = 0;
     for (std::size_t i = 0u; i < boost::size(countFunctions); ++i) {
         for (std::size_t j = 0u; j < boost::size(useNull); ++j) {
             for (std::size_t k = 0u; k < boost::size(byField); ++k) {
                 for (std::size_t l = 0u; l < boost::size(partitionField); ++l) {
-                    CSearchKey key(++identifier, countFunctions[i], useNull[j],
-                                   model_t::E_XF_None, "value", byField[k], "",
-                                   partitionField[l]);
+                    CSearchKey key(++detectorIndex, countFunctions[i],
+                                   useNull[j], model_t::E_XF_None, "value",
+                                   byField[k], "", partitionField[l]);
 
                     CAnomalyDetectorModelConfig::TModelFactoryCPtr factory =
                         config.factory(key);

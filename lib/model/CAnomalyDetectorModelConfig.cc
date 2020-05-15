@@ -445,11 +445,11 @@ CAnomalyDetectorModelConfig::factory(const CSearchKey& key) const {
     TModelFactoryCPtr result = m_FactoryCache[key];
     if (!result) {
         result = key.isSimpleCount()
-                     ? this->factory(key.identifier(), key.function(), true,
+                     ? this->factory(key.detectorIndex(), key.function(), true,
                                      key.excludeFrequent(), key.partitionFieldName(),
                                      key.overFieldName(), key.byFieldName(),
                                      key.fieldName(), key.influenceFieldNames())
-                     : this->factory(key.identifier(), key.function(), key.useNull(),
+                     : this->factory(key.detectorIndex(), key.function(), key.useNull(),
                                      key.excludeFrequent(), key.partitionFieldName(),
                                      key.overFieldName(), key.byFieldName(),
                                      key.fieldName(), key.influenceFieldNames());
@@ -458,7 +458,7 @@ CAnomalyDetectorModelConfig::factory(const CSearchKey& key) const {
 }
 
 CAnomalyDetectorModelConfig::TModelFactoryCPtr
-CAnomalyDetectorModelConfig::factory(int identifier,
+CAnomalyDetectorModelConfig::factory(int detectorIndex,
                                      function_t::EFunction function,
                                      bool useNull,
                                      model_t::EExcludeFrequent excludeFrequent,
@@ -604,7 +604,7 @@ CAnomalyDetectorModelConfig::factory(int identifier,
     }
 
     TModelFactoryPtr result(prototype->second->clone());
-    result->identifier(identifier);
+    result->detectorIndex(detectorIndex);
     TStrVec influences;
     influences.reserve(influenceFieldNames.size());
     for (const auto& influenceFieldName : influenceFieldNames) {
@@ -616,7 +616,7 @@ CAnomalyDetectorModelConfig::factory(int identifier,
     result->excludeFrequent(excludeFrequent);
     result->features(features);
     result->multivariateByFields(m_MultivariateByFields);
-    TIntDetectionRuleVecUMapCItr rulesItr = m_DetectionRules.get().find(identifier);
+    TIntDetectionRuleVecUMapCItr rulesItr = m_DetectionRules.get().find(detectorIndex);
     if (rulesItr != m_DetectionRules.get().end()) {
         result->detectionRules(TDetectionRuleVecCRef(rulesItr->second));
     }

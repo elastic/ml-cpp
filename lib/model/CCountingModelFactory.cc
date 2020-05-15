@@ -25,7 +25,7 @@ CCountingModelFactory::CCountingModelFactory(const SModelParams& params,
                                              const TInterimBucketCorrectorWPtr& interimBucketCorrector,
                                              model_t::ESummaryMode summaryMode,
                                              const std::string& summaryCountFieldName)
-    : CModelFactory(params, interimBucketCorrector), m_Identifier(),
+    : CModelFactory(params, interimBucketCorrector), m_DetectorIndex(),
       m_SummaryMode(summaryMode),
       m_SummaryCountFieldName(summaryCountFieldName), m_UseNull(false) {
 }
@@ -94,7 +94,7 @@ CCountingModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
 
 const CSearchKey& CCountingModelFactory::searchKey() const {
     if (!m_SearchKeyCache) {
-        m_SearchKeyCache.emplace(m_Identifier, function_t::function(m_Features),
+        m_SearchKeyCache.emplace(m_DetectorIndex, function_t::function(m_Features),
                                  m_UseNull, this->modelParams().s_ExcludeFrequent,
                                  "", m_PersonFieldName, "", m_PartitionFieldName);
     }
@@ -113,8 +113,8 @@ maths_t::EDataType CCountingModelFactory::dataType() const {
     return maths_t::E_IntegerData;
 }
 
-void CCountingModelFactory::identifier(int identifier) {
-    m_Identifier = identifier;
+void CCountingModelFactory::detectorIndex(int detectorIndex) {
+    m_DetectorIndex = detectorIndex;
     m_SearchKeyCache.reset();
 }
 
