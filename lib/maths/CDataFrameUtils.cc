@@ -1073,6 +1073,8 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
         static_cast<std::size_t>(std::min(1000.0, rowMask.manhattan()))};
 
     core::CPackedBitVector sampleMask;
+
+    // No need to sample if were going to use every row we've been given.
     if (numberSamples < static_cast<std::size_t>(rowMask.manhattan())) {
         TStratifiedSamplerPtr sampler;
         std::tie(sampler, std::ignore) = classifierStratifiedCrossValidationRowSampler(
@@ -1125,9 +1127,9 @@ CDataFrameUtils::maximizeMinimumRecallForMulticlass(std::size_t numberThreads,
     TDoubleVector classCounts{classCountsAndRecalls.topRows(numberClasses)};
     TDoubleVector classRecalls{classCountsAndRecalls.bottomRows(numberClasses)};
     // If a class count is zero the derivative of the loss functin w.r.t. that
-    // class is not well defined. In practice, the objective is independent of
-    // such a a class so the choice for its count and recall is not important,
-    // but the count must be non-zero so that we don't run into NaN cascade.
+    // class is not well defined. The objective is independent of such a class
+    // so the choice for its count and recall is not important. However, its
+    // count must be non-zero so that we don't run into a NaN cascade.
     classCounts = classCounts.cwiseMax(1.0);
     classRecalls.array() /= classCounts.array();
     LOG_TRACE(<< "class counts = " << classCounts.transpose());
