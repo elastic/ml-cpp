@@ -97,14 +97,14 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
 
     model::CTokenListDataCategorizer<> categorizer(limits, nullptr, 0.7, "whatever");
 
-    CSearchKey key1(1, // identifier
+    CSearchKey key1(1, // detectorIndex
                     function_t::E_IndividualMetric, false, model_t::E_XF_None,
                     "value", "colour");
 
     CAnomalyDetector detector1(limits, modelConfig, EMPTY_STRING, FIRST_TIME,
                                modelConfig.factory(key1));
 
-    CSearchKey key2(2, // identifier
+    CSearchKey key2(2, // detectorIndex
                     function_t::E_IndividualMetric, false, model_t::E_XF_None,
                     "value", "colour");
 
@@ -399,7 +399,7 @@ BOOST_FIXTURE_TEST_CASE(testPruning, CTestFixture) {
         CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     CLimits limits(false, 1.0);
 
-    CSearchKey key(1, // identifier
+    CSearchKey key(1, // detectorIndex
                    function_t::E_IndividualMetric, false, model_t::E_XF_None,
                    "value", "colour");
 
@@ -475,7 +475,7 @@ BOOST_FIXTURE_TEST_CASE(testExtraMemory, CTestFixture) {
         CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     CLimits limits;
 
-    CSearchKey key(1, // identifier
+    CSearchKey key(1, // detectorIndex
                    function_t::E_IndividualMetric, false, model_t::E_XF_None,
                    "value", "colour");
 

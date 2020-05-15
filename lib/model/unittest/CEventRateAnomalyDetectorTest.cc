@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     ml::model::CLimits limits;
 
-    ml::model::CSearchKey key(1, // identifier
+    ml::model::CSearchKey key(1, // detectorIndex
                               ml::model::function_t::E_IndividualRare, false,
                               ml::model_t::E_XF_None, EMPTY_STRING, "status");
     ml::model::CAnomalyDetector detector(limits, modelConfig, EMPTY_STRING,
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     ml::model::CLimits limits;
 
-    ml::model::CSearchKey key(1, // identifier
+    ml::model::CSearchKey key(1, // detectorIndex
                               ml::model::function_t::E_IndividualCount, false,
                               ml::model_t::E_XF_None, EMPTY_STRING, "status");
 

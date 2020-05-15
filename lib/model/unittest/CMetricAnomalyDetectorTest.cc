@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
             model::CAnomalyDetectorModelConfig::defaultConfig(bucketLength);
         modelConfig.useMultibucketFeatures(false);
         model::CLimits limits;
-        model::CSearchKey key(1, // identifier
+        model::CSearchKey key(1, // detectorIndex
                               model::function_t::E_IndividualMetric, false,
                               model_t::E_XF_None, "n/a", "n/a");
         model::CAnomalyDetector detector(limits, modelConfig, "", FIRST_TIME,
@@ -343,7 +343,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     model::CLimits limits;
-    model::CSearchKey key(1, // identifier
+    model::CSearchKey key(1, // detectorIndex
                           model::function_t::E_IndividualMetric, false,
                           model_t::E_XF_None, "responsetime", "Airline");
     model::CAnomalyDetector origDetector(limits, modelConfig, EMPTY_STRING,
@@ -393,7 +393,7 @@ BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
         modelConfig.useMultibucketFeatures(false);
         model::CLimits limits;
-        model::CSearchKey key(1, // identifier
+        model::CSearchKey key(1, // detectorIndex
                               model::function_t::E_IndividualMetric, false,
                               model_t::E_XF_None, "bytes", "host");
         model::CAnomalyDetector detector(limits, modelConfig, "", FIRST_TIME,
@@ -420,7 +420,7 @@ BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
         modelConfig.useMultibucketFeatures(false);
         model::CLimits limits;
-        model::CSearchKey key(1, // identifier
+        model::CSearchKey key(1, // detectorIndex
                               model::function_t::E_IndividualMetric, false,
                               model_t::E_XF_By, "bytes", "host");
         model::CAnomalyDetector detector(limits, modelConfig, "", FIRST_TIME,
