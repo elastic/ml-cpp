@@ -50,7 +50,7 @@ const std::string CSearchKey::COUNT_NAME("count");
 const char CSearchKey::CUE_DELIMITER('/');
 const std::string CSearchKey::EMPTY_STRING;
 
-CSearchKey::CSearchKey(int identifier,
+CSearchKey::CSearchKey(int detectorIndex,
                        function_t::EFunction function,
                        bool useNull,
                        model_t::EExcludeFrequent excludeFrequent,
@@ -59,7 +59,7 @@ CSearchKey::CSearchKey(int identifier,
                        std::string overFieldName,
                        std::string partitionFieldName,
                        const TStrVec& influenceFieldNames)
-    : m_DetectorIndex(identifier), m_Function(function), m_UseNull(useNull),
+    : m_DetectorIndex(detectorIndex), m_Function(function), m_UseNull(useNull),
       m_ExcludeFrequent(excludeFrequent), m_Hash(0) {
     m_FieldName = CStringStore::names().get(fieldName);
     m_ByFieldName = CStringStore::names().get(byFieldName);
@@ -236,7 +236,7 @@ namespace {
 
 // This is keyed on a 'by' field name of 'count', which isn't allowed
 // in a real field config, as it doesn't make sense.
-const CSearchKey SIMPLE_COUNT_KEY(0, // identifier
+const CSearchKey SIMPLE_COUNT_KEY(0, // detectorIndex
                                   function_t::E_IndividualCount,
                                   true,
                                   model_t::E_XF_None,

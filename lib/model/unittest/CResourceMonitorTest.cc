@@ -97,17 +97,19 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
 
     model::CTokenListDataCategorizer<> categorizer(limits, nullptr, 0.7, "whatever");
 
-    CSearchKey key(1, // identifier
-                   function_t::E_IndividualMetric, false, model_t::E_XF_None,
-                   "value", "colour");
+    CSearchKey key1(1, // identifier
+                    function_t::E_IndividualMetric, false, model_t::E_XF_None,
+                    "value", "colour");
 
-    CAnomalyDetector detector1(1, // identifier
-                               limits, modelConfig, EMPTY_STRING, FIRST_TIME,
-                               modelConfig.factory(key));
+    CAnomalyDetector detector1(limits, modelConfig, EMPTY_STRING, FIRST_TIME,
+                               modelConfig.factory(key1));
 
-    CAnomalyDetector detector2(2, // identifier
-                               limits, modelConfig, EMPTY_STRING, FIRST_TIME,
-                               modelConfig.factory(key));
+    CSearchKey key2(2, // identifier
+                    function_t::E_IndividualMetric, false, model_t::E_XF_None,
+                    "value", "colour");
+
+    CAnomalyDetector detector2(limits, modelConfig, EMPTY_STRING, FIRST_TIME,
+                               modelConfig.factory(key2));
 
     std::size_t mem = core::CMemory::dynamicSize(&categorizer) +
                       core::CMemory::dynamicSize(&detector1) +
@@ -404,8 +406,7 @@ BOOST_FIXTURE_TEST_CASE(testPruning, CTestFixture) {
     CResourceMonitor& monitor = limits.resourceMonitor();
     monitor.memoryLimit(140);
 
-    CAnomalyDetector detector(1, // identifier
-                              limits, modelConfig, EMPTY_STRING, FIRST_TIME,
+    CAnomalyDetector detector(limits, modelConfig, EMPTY_STRING, FIRST_TIME,
                               modelConfig.factory(key));
 
     core_t::TTime bucket = FIRST_TIME;
@@ -482,8 +483,7 @@ BOOST_FIXTURE_TEST_CASE(testExtraMemory, CTestFixture) {
     // set the limit to 1 MB
     monitor.memoryLimit(1);
 
-    CAnomalyDetector detector(1, // identifier
-                              limits, modelConfig, EMPTY_STRING, FIRST_TIME,
+    CAnomalyDetector detector(limits, modelConfig, EMPTY_STRING, FIRST_TIME,
                               modelConfig.factory(key));
 
     monitor.forceRefresh(detector);

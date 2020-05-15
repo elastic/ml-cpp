@@ -485,8 +485,7 @@ BOOST_FIXTURE_TEST_CASE(testLimitBy, CTestFixture) {
         CSearchKey key(1, // detectorIndex
                        function_t::E_IndividualMetric, false,
                        model_t::E_XF_None, "value", "colour");
-        CAnomalyDetector detector(1, // detectorIndex
-                                  limits, modelConfig, "", FIRST_TIME,
+        CAnomalyDetector detector(limits, modelConfig, "", FIRST_TIME,
                                   modelConfig.factory(key));
         CResultWriter writer(modelConfig, limits);
 
@@ -512,8 +511,7 @@ BOOST_FIXTURE_TEST_CASE(testLimitBy, CTestFixture) {
         CSearchKey key(1, // detectorIndex
                        function_t::E_IndividualMetric, false,
                        model_t::E_XF_None, "value", "colour");
-        CAnomalyDetector detector(1, // detectorIndex
-                                  limits, modelConfig, "", FIRST_TIME,
+        CAnomalyDetector detector(limits, modelConfig, "", FIRST_TIME,
                                   modelConfig.factory(key));
         CResultWriter writer(modelConfig, limits);
 
@@ -544,8 +542,7 @@ BOOST_FIXTURE_TEST_CASE(testLimitByOver, CTestFixture) {
         CSearchKey key(1, // detectorIndex
                        function_t::E_PopulationMetric, false,
                        model_t::E_XF_None, "value", "colour", "species");
-        CAnomalyDetector detector(1, // detectorIndex
-                                  limits, modelConfig, "", FIRST_TIME,
+        CAnomalyDetector detector(limits, modelConfig, "", FIRST_TIME,
                                   modelConfig.factory(key));
         CResultWriter writer(modelConfig, limits);
 
@@ -569,8 +566,7 @@ BOOST_FIXTURE_TEST_CASE(testLimitByOver, CTestFixture) {
     CSearchKey key(1, // detectorIndex
                    function_t::E_PopulationMetric, false, model_t::E_XF_None,
                    "value", "colour", "species");
-    CAnomalyDetector detector(1, // detectorIndex
-                              limits, modelConfig, "", FIRST_TIME,
+    CAnomalyDetector detector(limits, modelConfig, "", FIRST_TIME,
                               modelConfig.factory(key));
     CResultWriter writer(modelConfig, limits);
 

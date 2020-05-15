@@ -268,8 +268,7 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
         model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric, false,
                               model_t::E_XF_None, "n/a", "n/a");
-        model::CAnomalyDetector detector(1, // identifier
-                                         limits, modelConfig, "", FIRST_TIME,
+        model::CAnomalyDetector detector(limits, modelConfig, "", FIRST_TIME,
                                          modelConfig.factory(key));
         CResultWriter writer(modelConfig, limits, bucketLength);
 
@@ -347,8 +346,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     model::CSearchKey key(1, // identifier
                           model::function_t::E_IndividualMetric, false,
                           model_t::E_XF_None, "responsetime", "Airline");
-    model::CAnomalyDetector origDetector(1, // identifier
-                                         limits, modelConfig, EMPTY_STRING,
+    model::CAnomalyDetector origDetector(limits, modelConfig, EMPTY_STRING,
                                          FIRST_TIME, modelConfig.factory(key));
     CResultWriter writer(modelConfig, limits, BUCKET_LENGTH);
 
@@ -365,8 +363,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     LOG_TRACE(<< "Event rate detector XML representation:\n" << origXml);
 
     // Restore the XML into a new detector
-    model::CAnomalyDetector restoredDetector(1, // identifier
-                                             limits, modelConfig, EMPTY_STRING,
+    model::CAnomalyDetector restoredDetector(limits, modelConfig, EMPTY_STRING,
                                              0, modelConfig.factory(key));
     {
         core::CRapidXmlParser parser;
@@ -399,8 +396,7 @@ BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
         model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric, false,
                               model_t::E_XF_None, "bytes", "host");
-        model::CAnomalyDetector detector(1, // identifier
-                                         limits, modelConfig, "", FIRST_TIME,
+        model::CAnomalyDetector detector(limits, modelConfig, "", FIRST_TIME,
                                          modelConfig.factory(key));
         CResultWriter writer(modelConfig, limits, BUCKET_LENGTH);
 
@@ -427,8 +423,7 @@ BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
         model::CSearchKey key(1, // identifier
                               model::function_t::E_IndividualMetric, false,
                               model_t::E_XF_By, "bytes", "host");
-        model::CAnomalyDetector detector(1, // identifier
-                                         limits, modelConfig, "", FIRST_TIME,
+        model::CAnomalyDetector detector(limits, modelConfig, "", FIRST_TIME,
                                          modelConfig.factory(key));
         CResultWriter writer(modelConfig, limits, BUCKET_LENGTH);
 
