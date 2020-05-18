@@ -44,6 +44,8 @@ struct testValidateNoExpiry;
 struct testValidateInvalidExpiry;
 struct testValidateBrokenMessage;
 struct testValidateMissingId;
+struct testValidateProvidedMaxMemoryLimit;
+struct testValidateProvidedTooLargeMaxMemoryLimit;
 }
 
 namespace ml {
@@ -295,6 +297,8 @@ private:
     friend struct CForecastRunnerTest::testValidateInvalidExpiry;
     friend struct CForecastRunnerTest::testValidateBrokenMessage;
     friend struct CForecastRunnerTest::testValidateMissingId;
+    friend struct CForecastRunnerTest::testValidateProvidedMaxMemoryLimit;
+    friend struct CForecastRunnerTest::testValidateProvidedTooLargeMaxMemoryLimit;
 };
 }
 }

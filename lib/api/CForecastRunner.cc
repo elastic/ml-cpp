@@ -436,17 +436,17 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
         return false;
     }
 
-    if (forecastJob.s_MaxForecastModelMemory >= MAX_FORECAST_MODEL_PERSISTANCE_MEMORY) {
-        errorFunction(forecastJob, ERROR_BAD_MODEL_MEMORY_LIMIT);
-        return false;
-    }
-
     if (forecastJob.s_ForecastId.empty()) {
         LOG_ERROR(<< ERROR_NO_FORECAST_ID);
         return false;
     }
 
     // from now we have a forecast ID and can send error messages
+    if (forecastJob.s_MaxForecastModelMemory >= MAX_FORECAST_MODEL_PERSISTANCE_MEMORY) {
+        errorFunction(forecastJob, ERROR_BAD_MODEL_MEMORY_LIMIT);
+        return false;
+    }
+
     if (lastResultsTime == 0l) {
         errorFunction(forecastJob, ERROR_NO_DATA_PROCESSED);
         return false;

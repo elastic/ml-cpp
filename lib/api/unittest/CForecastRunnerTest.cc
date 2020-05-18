@@ -349,21 +349,20 @@ BOOST_AUTO_TEST_CASE(testValidateProvidedMaxMemoryLimit) {
 
     BOOST_TEST_REQUIRE(ml::api::CForecastRunner::parseAndValidateForecastRequest(
         message2, forecastJob, 1400000000));
-    BOOST_REQUIRE_EQUAL(forecastJob.s_MaxForecastModelMemory,
-                        ml::api::CForecastRunner::MAX_FORECAST_MODEL_MEMORY);
+    BOOST_REQUIRE_EQUAL(forecastJob.s_MaxForecastModelMemory, 20971520ull);
 }
 
 BOOST_AUTO_TEST_CASE(testValidateProvidedTooLargeMaxMemoryLimit) {
     ml::api::CForecastRunner::SForecast forecastJob;
 
-    std::string message(
-        "p{\"duration\":" + std::to_string(3 * ml::core::constants::WEEK) +
-        ",\"forecast_id\": \"42\",\"create_time\": \"1511370819\",\"max_model_memory\":" +
-        std::to_string(ml::api::CForecastRunner::MAX_FORECAST_MODEL_PERSISTANCE_MEMORY + 10) +
-        "}");
+    std::string message("p{\"duration\":" + std::to_string(3 * ml::core::constants::WEEK) +
+                        ",\"forecast_id\": \"42\",\"create_time\": \"1511370819\",\"max_model_memory\":" +
+                        std::to_string(524288000ull + 10ull) + "}");
 
     BOOST_TEST_REQUIRE(ml::api::CForecastRunner::parseAndValidateForecastRequest(
-                           message, forecastJob, 1400000000) == false);
+                           message, forecastJob, 1400000000,
+                           [](const ml::api::CForecastRunner::SForecast&,
+                              const std::string&) { return; }) == false);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
