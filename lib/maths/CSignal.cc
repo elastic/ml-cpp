@@ -13,8 +13,8 @@
 #include <boost/math/constants/constants.hpp>
 
 #include <algorithm>
-#include <cinttypes>
 #include <cmath>
+#include <cstdint>
 
 namespace ml {
 namespace maths {
