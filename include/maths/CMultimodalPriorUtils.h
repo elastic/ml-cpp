@@ -198,87 +198,58 @@ public:
             return modes[0].s_Prior->marginalLikelihoodConfidenceInterval(percentage, weights);
         }
 
-        percentage /= 100.0;
-        percentage = CTools::truncate(percentage, 0.0, 1.0);
-        if (percentage == 1.0) {
+        percentage = CTools::truncate(percentage, 0.0, 100.0);
+        if (percentage == 100.0) {
             return support;
         }
 
-        double p1 = maths_t::count(weights) * std::log((1.0 - percentage) / 2.0);
-        double p2 = maths_t::count(weights) * std::log((1.0 + percentage) / 2.0);
+        using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
+
+        // The multimodal distribution confidence interval must lie between the
+        // minimum and maximum of the corresponding modes' confidence intervals.
+        TMinMaxAccumulator lower;
+        TMinMaxAccumulator upper;
+        for (const auto& mode : modes) {
+            auto interval = mode.s_Prior->marginalLikelihoodConfidenceInterval(
+                percentage, weights);
+            lower.add(interval.first);
+            upper.add(interval.second);
+        }
+
+        percentage /= 100.0;
+        double p1{maths_t::count(weights) * std::log((1.0 - percentage) / 2.0)};
+        double p2{maths_t::count(weights) * std::log((1.0 + percentage) / 2.0)};
 
         CLogCdf<PRIOR> fl(CLogCdf<PRIOR>::E_Lower, prior, weights);
         CLogCdf<PRIOR> fu(CLogCdf<PRIOR>::E_Upper, prior, weights);
 
-        CCompositeFunctions::CMinusConstant<const CLogCdf<PRIOR>&> f1(fl, p1);
-        CCompositeFunctions::CMinusConstant<const CLogCdf<PRIOR>&> f2(fu, p2);
+        auto computePercentile = [](const CLogCdf<PRIOR>& f, double p,
+                                    const TMinMaxAccumulator& bounds) {
+            auto fMinusp = [&f, p](double x) { return f(x) - p; };
+            double a{bounds.min()};
+            double b{bounds.max()};
+            double fa{fMinusp(a)};
+            double fb{fMinusp(b)};
+            std::size_t maxIterations{20};
+            CEqualWithTolerance<double> equal(
+                CToleranceTypes::E_AbsoluteTolerance,
+                std::min(std::numeric_limits<double>::epsilon() * b,
+                         1e-3 * p / std::max(fa, fb)));
+            double percentile;
+            CSolvers::solve(a, b, fa, fb, fMinusp, maxIterations, equal, percentile);
+            LOG_TRACE(<< "p1 = " << p << ", x = " << percentile
+                      << ", f(x) = " << f(percentile));
+            return percentile;
+        };
 
-        static const std::size_t MAX_ITERATIONS = 30u;
-        static const double EPS = 1e-3;
-
-        TDoubleDoublePr result;
-
-        double x0 = marginalLikelihoodMode(modes, weights);
+        TDoubleDoublePr result{lower.min(), upper.max()};
 
         try {
-            double f10 = f1(x0);
-            double a = x0, b = x0, fa = f10, fb = f10;
-            LOG_TRACE(<< "(a,b) = (" << a << "," << b << ")"
-                      << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
-
-            std::size_t maxIterations = MAX_ITERATIONS;
-            if ((f10 < 0 && !CSolvers::rightBracket(a, b, fa, fb, f1, maxIterations)) ||
-                (f10 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, f1, maxIterations))) {
-                LOG_ERROR(<< "Unable to bracket left percentile = " << p1
-                          << ", (a,b) = (" << a << "," << b << ")"
-                          << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
-                result.first = support.first;
-            } else {
-                LOG_TRACE(<< "(a,b) = (" << a << "," << b << ")"
-                          << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
-                maxIterations = MAX_ITERATIONS - maxIterations;
-                CEqualWithTolerance<double> equal(
-                    CToleranceTypes::E_AbsoluteTolerance,
-                    std::min(std::numeric_limits<double>::epsilon() * b,
-                             EPS * p1 / std::max(fa, fb)));
-                CSolvers::solve(a, b, fa, fb, f1, maxIterations, equal, result.first);
-                LOG_TRACE(<< "p1 = " << p1 << ", x = " << result.first
-                          << ", f(x) = " << fl(result.first));
-            }
-
-            result.second = result.first;
-            double f20 = f2(x0);
-            a = x0;
-            b = x0;
-            fa = f20;
-            fb = f20;
-            maxIterations = MAX_ITERATIONS;
-            if (percentage == 0.0) {
-                // Fall: nothing to do.
-            } else if ((f20 < 0 && !CSolvers::rightBracket(a, b, fa, fb, f2, maxIterations)) ||
-                       (f20 >= 0 && !CSolvers::leftBracket(a, b, fa, fb, f2, maxIterations))) {
-                LOG_ERROR(<< "Unable to bracket right percentile = " << p2
-                          << ", (a,b) = (" << a << "," << b << ")"
-                          << ", (f(a),f(b)) = (" << fa << "," << fb << ")");
-                result.second = support.second;
-            } else {
-                LOG_TRACE(<< "(a,b) = [" << a << "," << b << "], "
-                          << ", (f(a),f(b)) = [" << fa << "," << fb << "]");
-
-                maxIterations = MAX_ITERATIONS - maxIterations;
-                CEqualWithTolerance<double> equal(
-                    CToleranceTypes::E_AbsoluteTolerance,
-                    std::min(std::numeric_limits<double>::epsilon() * b,
-                             EPS * p2 / std::max(fa, fb)));
-                CSolvers::solve(a, b, fa, fb, f2, maxIterations, equal, result.second);
-                LOG_TRACE(<< "p2 = " << p2 << ", x = " << result.second
-                          << ", f(x) = " << fu(result.second));
-            }
+            result.first = computePercentile(fl, p1, lower);
+            result.second = computePercentile(fu, p2, upper);
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Unable to find left percentile: " << e.what()
-                      << ", percentiles = [" << p1 << "," << p2 << "]"
-                      << ", x0 = " << x0);
-            return support;
+                      << ", percentiles = [" << p1 << "," << p2 << "]");
         }
 
         return result;
