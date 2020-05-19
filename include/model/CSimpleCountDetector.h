@@ -39,8 +39,7 @@ class CLimits;
 //!
 class MODEL_EXPORT CSimpleCountDetector : public CAnomalyDetector {
 public:
-    CSimpleCountDetector(int identifier,
-                         model_t::ESummaryMode summaryMode,
+    CSimpleCountDetector(model_t::ESummaryMode summaryMode,
                          const CAnomalyDetectorModelConfig& modelConfig,
                          CLimits& limits,
                          const std::string& partitionFieldValue,

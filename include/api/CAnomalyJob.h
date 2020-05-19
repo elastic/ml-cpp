@@ -350,8 +350,7 @@ private:
     void doForecast(const std::string& controlMessage);
 
     TAnomalyDetectorPtr
-    makeDetector(int identifier,
-                 const model::CAnomalyDetectorModelConfig& modelConfig,
+    makeDetector(const model::CAnomalyDetectorModelConfig& modelConfig,
                  model::CLimits& limits,
                  const std::string& partitionFieldValue,
                  core_t::TTime firstTime,

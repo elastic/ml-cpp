@@ -184,11 +184,10 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     ml::model::CLimits limits;
 
-    ml::model::CSearchKey key(1, // identifier
+    ml::model::CSearchKey key(1, // detectorIndex
                               ml::model::function_t::E_IndividualRare, false,
                               ml::model_t::E_XF_None, EMPTY_STRING, "status");
-    ml::model::CAnomalyDetector detector(1, // identifier
-                                         limits, modelConfig, EMPTY_STRING,
+    ml::model::CAnomalyDetector detector(limits, modelConfig, EMPTY_STRING,
                                          FIRST_TIME, modelConfig.factory(key));
     CResultWriter writer(modelConfig, limits);
     TStrVec files;
@@ -236,12 +235,11 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     ml::model::CLimits limits;
 
-    ml::model::CSearchKey key(1, // identifier
+    ml::model::CSearchKey key(1, // detectorIndex
                               ml::model::function_t::E_IndividualCount, false,
                               ml::model_t::E_XF_None, EMPTY_STRING, "status");
 
-    ml::model::CAnomalyDetector origDetector(1, // identifier
-                                             limits, modelConfig, EMPTY_STRING,
+    ml::model::CAnomalyDetector origDetector(limits, modelConfig, EMPTY_STRING,
                                              FIRST_TIME, modelConfig.factory(key));
     CResultWriter writer(modelConfig, limits);
     TStrVec files;
@@ -259,8 +257,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     LOG_TRACE(<< "Event rate detector XML representation:\n" << origXml);
 
     // Restore the XML into a new detector
-    ml::model::CAnomalyDetector restoredDetector(1, // identifier
-                                                 limits, modelConfig, "", 0,
+    ml::model::CAnomalyDetector restoredDetector(limits, modelConfig, "", 0,
                                                  modelConfig.factory(key));
     {
         ml::core::CRapidXmlParser parser;

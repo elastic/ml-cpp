@@ -12,14 +12,13 @@
 namespace ml {
 namespace model {
 
-CSimpleCountDetector::CSimpleCountDetector(int detectorIndex,
-                                           model_t::ESummaryMode summaryMode,
+CSimpleCountDetector::CSimpleCountDetector(model_t::ESummaryMode summaryMode,
                                            const CAnomalyDetectorModelConfig& modelConfig,
                                            CLimits& limits,
                                            const std::string& partitionFieldValue,
                                            core_t::TTime firstTime,
                                            const TModelFactoryCPtr& modelFactory)
-    : CAnomalyDetector(detectorIndex, limits, modelConfig, partitionFieldValue, firstTime, modelFactory),
+    : CAnomalyDetector(limits, modelConfig, partitionFieldValue, firstTime, modelFactory),
       m_FieldValues(summaryMode == model_t::E_None ? 1 : 2) {
     // We use a single event rate detector to maintain the counts, and for the
     // special case of the simple count detector, we'll create it before we've
