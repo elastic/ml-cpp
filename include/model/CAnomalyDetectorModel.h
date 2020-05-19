@@ -402,15 +402,12 @@ public:
 
     //! Update the results with this model's probability.
     //!
-    //! \param[in] detector An identifier of the detector generating this
-    //! result.
     //! \param[in] startTime The start of the time interval of interest.
     //! \param[in] endTime The end of the time interval of interest.
     //! \param[in] numberAttributeProbabilities The maximum number of
     //! attribute probabilities to retrieve.
     //! \param[in,out] results The model results are added.
-    bool addResults(int detector,
-                    core_t::TTime startTime,
+    bool addResults(core_t::TTime startTime,
                     core_t::TTime endTime,
                     std::size_t numberAttributeProbabilities,
                     CHierarchicalResults& results) const;
