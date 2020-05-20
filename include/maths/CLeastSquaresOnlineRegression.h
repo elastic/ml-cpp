@@ -108,10 +108,10 @@ public:
     static const T MAX_CONDITION;
 
 public:
-    CLeastSquaresOnlineRegression() : m_S() {}
+    CLeastSquaresOnlineRegression() = default;
     template<typename U>
     CLeastSquaresOnlineRegression(const CLeastSquaresOnlineRegression<N_, U>& other)
-        : m_S(other.statistic()) {}
+        : m_S{other.statistic()} {}
 
     //! Restore by traversing a state document.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -126,7 +126,7 @@ public:
     //! \param[in] weight The residual weight at the point.
     void add(double x, double y, double weight = 1.0) {
         TVector d;
-        double xi = 1.0;
+        double xi{1.0};
         for (std::size_t i = 0; i < N; ++i, xi *= x) {
             d(i) = xi;
             d(i + 2 * N - 1) = xi * y;
@@ -197,7 +197,7 @@ public:
     //! the ordinates.
     void shiftOrdinate(double dy) {
         if (CBasicStatistics::count(m_S) > 0.0) {
-            const TVector& s = CBasicStatistics::mean(m_S);
+            const TVector& s{CBasicStatistics::mean(m_S)};
             for (std::size_t i = 0; i < N; ++i) {
                 CBasicStatistics::moment<0>(m_S)(i + 2 * N - 1) += s(i) * dy;
             }
@@ -210,7 +210,7 @@ public:
     //! the derivative of the regression w.r.t. the abscissa.
     void shiftGradient(double dydx) {
         if (CBasicStatistics::count(m_S) > 0.0) {
-            const TVector& s = CBasicStatistics::mean(m_S);
+            const TVector& s{CBasicStatistics::mean(m_S)};
             for (std::size_t i = 0; i < N; ++i) {
                 CBasicStatistics::moment<0>(m_S)(i + 2 * N - 1) += s(i + 1) * dydx;
             }
@@ -246,8 +246,8 @@ public:
     //! Get the predicted value of the regression model with parameters
     //! \p params at \p x.
     static double predict(const TArray& params, double x) {
-        double result = params[0];
-        double xi = x;
+        double result{params[0]};
+        double xi{x};
         for (std::size_t i = 1; i < params.size(); ++i, xi *= x) {
             result += params[i] * xi;
         }
@@ -286,7 +286,7 @@ public:
         TArray result;
         TArray params;
         if (this->parameters(params, maxCondition)) {
-            std::ptrdiff_t n = static_cast<std::ptrdiff_t>(params.size());
+            std::ptrdiff_t n{static_cast<std::ptrdiff_t>(params.size())};
             for (std::ptrdiff_t i = n - 1; i >= 0; --i) {
                 result[i] = params[i];
                 for (std::ptrdiff_t j = i + 1; j < n; ++j) {
@@ -332,18 +332,19 @@ public:
         // a uniform variable on a range [a, b] we have that
         // E[(X - E(X))^2] = E[X^2] - E[X]^2 = (b - a)^2 / 12.
 
-        double x1 = CBasicStatistics::mean(m_S)(1);
-        double x2 = CBasicStatistics::mean(m_S)(2);
+        double x1{CBasicStatistics::mean(m_S)(1)};
+        double x2{CBasicStatistics::mean(m_S)(2)};
         return std::sqrt(12.0 * std::max(x2 - x1 * x1, 0.0));
     }
 
     //! Age out the old points.
-    void age(double factor, bool meanRevert = false) {
-        if (meanRevert) {
-            TVector& s = CBasicStatistics::moment<0>(m_S);
+    void age(double factor, double meanRevertFactor = 0.0) {
+        if (meanRevertFactor > 0.0) {
+            TVector& s{CBasicStatistics::moment<0>(m_S)};
+            double alpha{1.0 - meanRevertFactor * (1.0 - factor)};
+            double beta{1.0 - alpha};
             for (std::size_t i = 1; i < N; ++i) {
-                s(i + 2 * N - 1) = factor * s(i + 2 * N - 1) +
-                                   (1.0 - factor) * s(i) * s(2 * N - 1);
+                s(i + 2 * N - 1) = alpha * s(i + 2 * N - 1) + beta * s(i) * s(2 * N - 1);
             }
         }
         m_S.age(factor);
@@ -357,16 +358,16 @@ public:
 
     //! Get the mean in the interval [\p a, \p b].
     double mean(double a, double b) const {
-        double result = 0.0;
+        double result{0.0};
 
-        double interval = b - a;
+        double interval{b - a};
 
         TArray params;
         this->parameters(params);
 
         if (interval == 0.0) {
             result = params[0];
-            double xi = a;
+            double xi{a};
             for (std::size_t i = 1; i < params.size(); ++i, xi *= a) {
                 result += params[i] * xi;
             }

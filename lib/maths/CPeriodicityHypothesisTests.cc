@@ -98,12 +98,12 @@ private:
 };
 
 //! Fuzzy check if \p value is greater than \p threshold.
-CFuzzyExpression softGreaterThan(double value, double threshold, double margin) {
+CFuzzyExpression fuzzyGreaterThan(double value, double threshold, double margin) {
     return CFuzzyExpression{2.0 * CTools::logisticFunction(value, margin, threshold, +1.0)};
 }
 
 //! Fuzzy check if \p value is less than \p threshold.
-CFuzzyExpression softLessThan(double value, double threshold, double margin) {
+CFuzzyExpression fuzzyLessThan(double value, double threshold, double margin) {
     return CFuzzyExpression{2.0 * CTools::logisticFunction(value, margin, threshold, -1.0)};
 }
 
@@ -319,16 +319,16 @@ std::size_t calculateIndexWindows(const TTimeTimePr2Vec& windows,
 
 //! Compute the projection of \p values to \p windows.
 void project(const TFloatMeanAccumulatorVec& values,
-             const TTimeTimePr2Vec& windows_,
+             const TTimeTimePr2Vec& windows,
              core_t::TTime bucketLength,
              TFloatMeanAccumulatorVec& result) {
     result.clear();
     if (values.size() > 0) {
-        TSizeSizePr2Vec windows;
-        calculateIndexWindows(windows_, bucketLength, windows);
-        result.reserve(length(windows));
+        TSizeSizePr2Vec indexWindows;
+        calculateIndexWindows(windows, bucketLength, indexWindows);
+        result.reserve(length(indexWindows));
         std::size_t n{values.size()};
-        for (const auto& window : windows) {
+        for (const auto& window : indexWindows) {
             std::size_t a{window.first};
             std::size_t b{window.second};
             for (std::size_t j = a; j < b; ++j) {
@@ -340,13 +340,13 @@ void project(const TFloatMeanAccumulatorVec& values,
 }
 
 //! Calculate the number of non-empty buckets at each bucket offset in
-//! the period for the \p values in \p windows.
-TDoubleVec calculateRepeats(const TSizeSizePr2Vec& windows,
+//! the period for the \p values in \p indexWindows.
+TDoubleVec calculateRepeats(const TSizeSizePr2Vec& indexWindows,
                             std::size_t period,
                             const TFloatMeanAccumulatorVec& values) {
-    TDoubleVec result(std::min(period, length(windows[0])), 0);
+    TDoubleVec result(std::min(period, length(indexWindows[0])), 0);
     std::size_t n{values.size()};
-    for (const auto& window : windows) {
+    for (const auto& window : indexWindows) {
         std::size_t a{window.first};
         std::size_t b{window.second};
         for (std::size_t i = a; i < b; ++i) {
@@ -359,13 +359,13 @@ TDoubleVec calculateRepeats(const TSizeSizePr2Vec& windows,
 
 //! Calculate the number of non-empty buckets at each bucket offset in
 //! the period for the \p values in \p windows.
-TDoubleVec calculateRepeats(const TTimeTimePr2Vec& windows_,
+TDoubleVec calculateRepeats(const TTimeTimePr2Vec& windows,
                             core_t::TTime period,
                             core_t::TTime bucketLength,
                             const TFloatMeanAccumulatorVec& values) {
-    TSizeSizePr2Vec windows;
-    calculateIndexWindows(windows_, bucketLength, windows);
-    return calculateRepeats(windows, period / bucketLength, values);
+    TSizeSizePr2Vec indexWindows;
+    calculateIndexWindows(windows, bucketLength, indexWindows);
+    return calculateRepeats(indexWindows, period / bucketLength, values);
 }
 
 //! Reweight outliers from \p values.
@@ -374,7 +374,7 @@ TDoubleVec calculateRepeats(const TTimeTimePr2Vec& windows_,
 //! different from the periodic trend on the time windows \p windows_.
 template<typename T>
 void reweightOutliers(const std::vector<T>& trend,
-                      const TTimeTimePr2Vec& windows_,
+                      const TTimeTimePr2Vec& windows,
                       core_t::TTime bucketLength,
                       TFloatMeanAccumulatorVec& values) {
     using TDoubleSizePr = std::pair<double, std::size_t>;
@@ -393,13 +393,13 @@ void reweightOutliers(const std::vector<T>& trend,
     LOG_TRACE(<< "Number outliers = " << numberOutliers);
 
     if (numberOutliers > 0) {
-        TSizeSizePr2Vec windows;
-        calculateIndexWindows(windows_, bucketLength, windows);
+        TSizeSizePr2Vec indexWindows;
+        calculateIndexWindows(windows, bucketLength, indexWindows);
         std::size_t n{values.size()};
 
         TMaxAccumulator outliers{numberOutliers};
         TMeanAccumulator meanDifference;
-        for (const auto& window : windows) {
+        for (const auto& window : indexWindows) {
             std::size_t a{window.first};
             std::size_t b{window.second};
             for (std::size_t j = a; j < b; ++j) {
@@ -434,15 +434,15 @@ void reweightOutliers(const std::vector<T>& trend,
 //! Compute the periodic trend from \p values falling in \p windows.
 template<typename T, typename CONTAINER>
 void periodicTrend(const std::vector<T>& values,
-                   const TSizeSizePr2Vec& windows_,
+                   const TTimeTimePr2Vec& windows,
                    core_t::TTime bucketLength,
                    CONTAINER& trend) {
     if (trend.size() > 0) {
-        TSizeSizePr2Vec windows;
-        calculateIndexWindows(windows_, bucketLength, windows);
+        TSizeSizePr2Vec indexWindows;
+        calculateIndexWindows(windows, bucketLength, indexWindows);
         std::size_t period{trend.size()};
         std::size_t n{values.size()};
-        for (const auto& window : windows) {
+        for (const auto& window : indexWindows) {
             std::size_t a{window.first};
             std::size_t b{window.second};
             for (std::size_t j = a; j < b; ++j) {
@@ -457,7 +457,7 @@ void periodicTrend(const std::vector<T>& values,
 //! Compute the periodic trend on \p values minus outliers.
 template<typename T, typename CONTAINER>
 void periodicTrendMinusOutliers(std::vector<T>& values,
-                                const TSizeSizePr2Vec& windows,
+                                const TTimeTimePr2Vec& windows,
                                 core_t::TTime bucketLength,
                                 CONTAINER& trend) {
     periodicTrend(values, windows, bucketLength, trend);
@@ -1254,7 +1254,6 @@ CPeriodicityHypothesisTests::best(const TNestedHypothesesVec& hypotheses) const 
                     COMPONENT_SIGNIFICANT_VARIANCE_REDUCTION[E_HighThreshold],
                     SEASONAL_SIGNIFICANT_AMPLITUDE[E_HighThreshold],
                     SEASONAL_SIGNIFICANT_AUTOCORRELATION[E_HighThreshold]);
-                stats.s_R0 = stats.s_AutocorrelationThreshold;
             }
             LOG_TRACE(<< resultForHypothesis.print()
                       << (hypothesis.trendSegments() > 1 ? " piecewise linear trend" : ""));
@@ -1284,11 +1283,11 @@ CPeriodicityHypothesisTests::best(const TNestedHypothesesVec& hypotheses) const 
             v = v == summary.s_VarianceThreshold * vmin[0]
                     ? 1.0
                     : v / summary.s_VarianceThreshold / vmin[0];
-            double truth{(softLessThan(v, 1.0, 0.2) &&
-                          softGreaterThan(summary.s_R, summary.s_AutocorrelationThreshold, 0.1) &&
-                          softGreaterThan(summary.s_DF / DFmin[0], 1.0, 0.2) &&
-                          softLessThan(summary.s_TrendSegments, 0.0, 0.3) &&
-                          softLessThan(summary.s_ScaleSegments, 0.0, 0.3))
+            double truth{(fuzzyLessThan(v, 1.0, 0.2) &&
+                          fuzzyGreaterThan(summary.s_R, summary.s_AutocorrelationThreshold, 0.1) &&
+                          fuzzyGreaterThan(summary.s_DF / DFmin[0], 1.0, 0.2) &&
+                          fuzzyLessThan(summary.s_TrendSegments, 0.0, 0.3) &&
+                          fuzzyLessThan(summary.s_ScaleSegments, 0.0, 0.3))
                              .truthValue()};
             LOG_TRACE(<< "truth(hypothesis) = " << truth);
             if (minMinusTruth.add(-truth)) {
@@ -1645,15 +1644,15 @@ void CPeriodicityHypothesisTests::conditionOnHypothesis(const STestStats& stats,
             buckets, stats.s_Segmentation, stats.s_T0[0], stats.s_Scales);
     } else {
         for (std::size_t i = 0; i < stats.s_Partition.size(); ++i) {
-            TTimeTimePr2Vec windows_(
+            TTimeTimePr2Vec windows(
                 calculateWindows(stats.s_StartOfPartition, windowLength,
                                  length(stats.s_Partition), stats.s_Partition[i]));
             TSizeSizePr2Vec indexWindows;
-            calculateIndexWindows(windows_, m_BucketLength, indexWindows);
+            calculateIndexWindows(windows, m_BucketLength, indexWindows);
 
             std::size_t period{stats.s_T0[i].size()};
             LOG_TRACE(<< "Conditioning on period = " << period
-                      << " in windows = " << core::CContainerPrinter::print(windows_));
+                      << " in windows = " << core::CContainerPrinter::print(windows));
             for (const auto& window : indexWindows) {
                 std::size_t a{window.first};
                 std::size_t b{window.second};
@@ -2131,8 +2130,8 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
 
         correlationCondition =
             std::max(correlationCondition,
-                     softGreaterThan(R, stats.s_AutocorrelationThreshold, 0.1) &&
-                         softGreaterThan(meanRepeatsPerSegment, 1.0, 0.2));
+                     fuzzyGreaterThan(R, stats.s_AutocorrelationThreshold, 0.1) &&
+                         fuzzyGreaterThan(meanRepeatsPerSegment, 1.0, 0.2));
         R = std::max(R, RW);
     }
 
@@ -2140,8 +2139,8 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
         CTools::fastLog(CStatisticalTests::leftTailFTest(v1 / v0, df1, df0)) /
         LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
 
-    if (correlationCondition && softGreaterThan(logSignificance, 1.0, 0.1) &&
-        (vt > v1 ? softGreaterThan(vt / v1, 1.0, 1.0) : softLessThan(v1 / vt, 1.0, 0.1))) {
+    if (correlationCondition && fuzzyGreaterThan(logSignificance, 1.0, 0.1) &&
+        (vt > v1 ? fuzzyGreaterThan(vt / v1, 1.0, 1.0) : fuzzyLessThan(v1 / vt, 1.0, 0.1))) {
         stats.s_StartOfPartition = startOfPartition;
         stats.s_R0 = R;
         return true;
@@ -2204,11 +2203,11 @@ bool CPeriodicityHypothesisTests::testVariance(const TTimeTimePr2Vec& window,
         MINIMUM_REPEATS_TO_TEST_VARIANCE};
     LOG_TRACE(<< "  mean repeats per segment = " << meanRepeatsPerSegment);
 
-    auto condition = softGreaterThan(logSignificance, 1.0, 0.1) &&
-                     softGreaterThan(R, stats.s_AutocorrelationThreshold, 0.1) &&
-                     (vt > v1 ? softGreaterThan(vt / v1, 1.0, 1.0)
-                              : softLessThan(v1 / vt, 0.1, 1.0)) &&
-                     softGreaterThan(meanRepeatsPerSegment, 1.0, 0.2);
+    auto condition = fuzzyGreaterThan(logSignificance, 1.0, 0.1) &&
+                     fuzzyGreaterThan(R, stats.s_AutocorrelationThreshold, 0.1) &&
+                     (vt > v1 ? fuzzyGreaterThan(vt / v1, 1.0, 1.0)
+                              : fuzzyLessThan(v1 / vt, 0.1, 1.0)) &&
+                     fuzzyGreaterThan(meanRepeatsPerSegment, 1.0, 0.2);
     truthVariance = condition.truthValue();
     LOG_TRACE(<< "  truth(variance) = " << truthVariance);
 
@@ -2271,12 +2270,13 @@ bool CPeriodicityHypothesisTests::testAmplitude(const TTimeTimePr2Vec& window,
     double minusLogTruthVariance{-CTools::fastLog(truthVariance)};
     LOG_TRACE(<< "  mean repeats per segment = " << meanRepeatsPerSegment);
 
-    if (softLessThan(minusLogTruthVariance, 0.0, 2.0) &&
-        softGreaterThan(logSignificance, 1.0, 0.2) &&
-        softGreaterThan(meanRepeatsPerSegment, 1.0, 0.2)) {
+    if (fuzzyLessThan(minusLogTruthVariance, -2.0, 4.0) &&
+        fuzzyGreaterThan(logSignificance, 1.0, logSignificance < 1.0 ? 0.1 : 1.0) &&
+        fuzzyGreaterThan(meanRepeatsPerSegment, 1.0, 0.25)) {
         stats.s_R0 = R;
         return true;
     }
+
     return false;
 }
 
@@ -2434,7 +2434,7 @@ std::size_t mostSignificantPeriodicComponent(TFloatMeanAccumulatorVec values) {
     // signal it is possible by chance that n * p + eps for n > 1
     // ends up with higher autocorrelation due to additive noise.
     std::size_t result{candidates[0].second};
-    double cutoff{0.9 * candidates[0].first};
+    double cutoff{0.8 * candidates[0].first};
     for (auto i = candidates.begin() + 1; i != candidates.end() && i->first > cutoff; ++i) {
         if (i->second < result && candidates[0].second % i->second == 0) {
             result = i->second;

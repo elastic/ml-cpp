@@ -158,12 +158,12 @@ void test(TTrend trend,
 
     core_t::TTime time{0};
     TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
-    for (std::size_t d = 0u; d < daysToLearn; ++d) {
+    for (std::size_t d = 0; d < daysToLearn; ++d) {
         TDoubleVec noise;
         rng.generateNormalSamples(0.0, noiseVariance,
                                   core::constants::DAY / bucketLength, noise);
 
-        for (std::size_t i = 0u; i < noise.size(); ++i, time += bucketLength) {
+        for (std::size_t i = 0; i < noise.size(); ++i, time += bucketLength) {
             maths::CModelAddSamplesParams params;
             params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
             double yi{trend(time, noise[i])};
@@ -188,12 +188,12 @@ void test(TTrend trend,
     std::size_t count{0};
     TMeanAccumulator error;
 
-    for (std::size_t i = 0u; i < prediction.size(); /**/) {
+    for (std::size_t i = 0; i < prediction.size(); /**/) {
         TDoubleVec noise;
         rng.generateNormalSamples(0.0, noiseVariance,
                                   core::constants::DAY / bucketLength, noise);
         TDoubleVec day;
-        for (std::size_t j = 0u; i < prediction.size() && j < noise.size();
+        for (std::size_t j = 0; i < prediction.size() && j < noise.size();
              ++i, ++j, time += bucketLength) {
             double yj{trend(time, noise[j])};
             day.push_back(yj);
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(testDailyNoLongTermTrend) {
         return 40.0 + alpha * y[i / 6] + beta * y[(i / 6 + 1) % y.size()] + noise;
     };
 
-    test(trend, bucketLength, 63, 64.0, 4.5, 0.15);
+    test(trend, bucketLength, 63, 64.0, 6.0, 0.15);
 }
 
 BOOST_AUTO_TEST_CASE(testDailyConstantLongTermTrend) {
@@ -287,7 +287,7 @@ BOOST_AUTO_TEST_CASE(testComplexNoLongTermTrend) {
         return scale[d] * (20.0 + y[h] + noise);
     };
 
-    test(trend, bucketLength, 63, 24.0, 5.0, 0.14);
+    test(trend, bucketLength, 63, 24.0, 5.0, 0.13);
 }
 
 BOOST_AUTO_TEST_CASE(testComplexConstantLongTermTrend) {
@@ -334,7 +334,7 @@ BOOST_AUTO_TEST_CASE(testComplexVaryingLongTermTrend) {
         return trend_.value(time_) + scale[d] * (20.0 + y[h] + noise);
     };
 
-    test(trend, bucketLength, 63, 4.0, 19.0, 0.04);
+    test(trend, bucketLength, 63, 4.0, 5.0, 0.03);
 }
 
 BOOST_AUTO_TEST_CASE(testNonNegative) {
@@ -420,7 +420,7 @@ BOOST_AUTO_TEST_CASE(testFinancialIndex) {
     core_t::TTime endTime;
     BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(
         "testfiles/financial_index.csv", timeseries, startTime, endTime, "^([0-9]+),([0-9\\.]+)"));
-    BOOST_TEST_REQUIRE(!timeseries.empty());
+    BOOST_TEST_REQUIRE(timeseries.empty() == false);
 
     LOG_DEBUG(<< "timeseries = "
               << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10)
