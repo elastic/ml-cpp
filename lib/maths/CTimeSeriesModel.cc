@@ -1509,9 +1509,8 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
             m_ChangeDetector.reset();
             m_TrendModel->testingForChange(false);
         } else if (auto change = m_ChangeDetector->change()) {
-            std::string annotation = "Detected " + change->print() + " at " +
-                                     std::to_string(time);
-            LOG_DEBUG(<< annotation);
+            std::string annotation = "Detected " + change->print();
+            LOG_DEBUG(<< annotation << " at " << std::to_string(time));
             onModelChange(time, annotation);
             m_ChangeDetector.reset();
             m_TrendModel->testingForChange(false);

@@ -1327,9 +1327,8 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
         const TModelChangeCallback& onModelChange{message.s_ModelChangeCallback};
 
         if (this->addSeasonalComponents(result, window, predictor)) {
-            std::string annotation = "Detected seasonal components at " +
-                                     std::to_string(time);
-            LOG_DEBUG(<< annotation);
+            std::string annotation = "Detected seasonal components";
+            LOG_DEBUG(<< annotation << " at " << std::to_string(time));
             onModelChange(time, annotation);
             m_UsingTrendForPrediction = true;
             this->clearComponentErrors();
