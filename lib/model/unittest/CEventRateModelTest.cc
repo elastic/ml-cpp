@@ -2868,7 +2868,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
         LOG_DEBUG(<< "reference = "
                   << maths::CBasicStatistics::mean(meanReferencePredictionError));
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanPredictionError) <
-                           0.76 * maths::CBasicStatistics::mean(meanReferencePredictionError));
+                           0.82 * maths::CBasicStatistics::mean(meanReferencePredictionError));
     }
 }
 

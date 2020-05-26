@@ -984,12 +984,12 @@ BOOST_AUTO_TEST_CASE(testPredict) {
             LOG_DEBUG(<< "expected = " << expected << " predicted = " << predicted
                       << " (trend = " << trend_ << ")");
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, predicted, 1e-3 * expected);
-            BOOST_TEST_REQUIRE(std::fabs(trend_ - predicted) / trend_ < 0.2);
+            BOOST_TEST_REQUIRE(std::fabs(trend_ - predicted) / trend_ < 0.35);
             meanError.add(std::fabs(trend_ - predicted) / trend_);
         }
 
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.05);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.06);
     }
 
     LOG_DEBUG(<< "Univariate nearest mode");
@@ -1078,6 +1078,7 @@ BOOST_AUTO_TEST_CASE(testPredict) {
             time += bucketLength;
         }
 
+        TMeanAccumulator meanError;
         for (core_t::TTime time_ = time; time_ < time + 86400; time_ += 3600) {
             maths::CMultivariatePrior::TSize10Vec marginalize{1, 2};
             maths::CMultivariatePrior::TSizeDoublePr10Vec condition;
@@ -1095,9 +1096,13 @@ BOOST_AUTO_TEST_CASE(testPredict) {
                 LOG_DEBUG(<< "expected = " << expected << " predicted = " << predicted
                           << " (trend = " << trend_ << ")");
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, predicted, 1e-3 * expected);
-                BOOST_TEST_REQUIRE(std::fabs(trend_ - predicted) / trend_ < 0.25);
+                BOOST_TEST_REQUIRE(std::fabs(trend_ - predicted) / trend_ < 0.35);
+                meanError.add(std::fabs(trend_ - predicted) / trend_);
             }
         }
+
+        LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.06);
     }
 
     LOG_DEBUG(<< "Multivariate nearest mode");

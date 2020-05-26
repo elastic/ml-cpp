@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
         std::size_t s_ExpectedByMemoryUsageRelativeErrorDivisor;
         std::size_t s_ExpectedPartitionUsageRelativeErrorDivisor;
         std::size_t s_ExpectedOverUsageRelativeErrorDivisor;
-    } testParams[]{{600, 550, 6000, 300, 33, 40, 40},
+    } testParams[]{{600, 550, 6000, 300, 33, 37, 40},
                    {3600, 550, 5500, 300, 27, 25, 20},
                    {172800, 150, 850, 110, 6, 6, 3}};
 
@@ -449,6 +449,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
             LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
+            LOG_DEBUG(<< "Memory limit bytes = " << memoryLimit * 1024 * 1024);
             BOOST_TEST_REQUIRE(used.s_PartitionFields > testParam.s_ExpectedPartitionFields);
             BOOST_TEST_REQUIRE(used.s_PartitionFields < 450);
             BOOST_TEST_REQUIRE(static_cast<double>(used.s_ByFields) >
@@ -498,6 +499,7 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "# over = " << used.s_OverFields);
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
             LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
+            LOG_DEBUG(<< "Memory limit bytes = " << memoryLimit * 1024 * 1024);
             BOOST_TEST_REQUIRE(used.s_OverFields > testParam.s_ExpectedOverFields);
             BOOST_TEST_REQUIRE(used.s_OverFields < 7000);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
