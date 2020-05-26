@@ -21,7 +21,7 @@
 
 #include <algorithm>
 #include <array>
-#include <cinttypes>
+#include <cstdint>
 #include <string>
 #include <type_traits>
 #include <vector>
@@ -257,9 +257,7 @@ public:
     class CORE_EXPORT CBuiltinFromString {
     public:
         CBuiltinFromString(const char pairDelimiter)
-            : m_PairDelimiter(pairDelimiter) {
-            m_Token.reserve(17);
-        }
+            : m_PairDelimiter(pairDelimiter) {}
 
         template<typename T>
         bool operator()(const std::string& token, T& value) const {
@@ -503,8 +501,7 @@ public:
                            std::array<T, N>& collection,
                            const char delimiter = DELIMITER) {
         if (state.empty()) {
-            LOG_ERROR(<< "Unexpected number of elements 0"
-                      << ", expected " << N);
+            LOG_ERROR(<< "Unexpected number of elements 0, expected " << N);
             return false;
         }
 
@@ -612,11 +609,7 @@ private:
         }
 
         // Reuse this same string to avoid as many allocations as possible.
-        //
-        // Reserve 17 chars because for string implementations using the short
-        // string optimisation we don't want to cause an unnecessary allocation.
         std::string token;
-        token.reserve(17);
         token.assign(state, 0, delimPos);
         {
             T element;
