@@ -14,17 +14,16 @@
 #include <core/CStringUtils.h>
 #include <core/ImportExport.h>
 
-#include <boost/array.hpp>
 #include <boost/iterator/indirect_iterator.hpp>
 #include <boost/optional.hpp>
-#include <boost/type_traits/integral_constant.hpp>
-#include <boost/type_traits/is_arithmetic.hpp>
-#include <boost/type_traits/remove_const.hpp>
 #include <boost/unordered/unordered_map_fwd.hpp>
 #include <boost/unordered/unordered_set_fwd.hpp>
 
 #include <algorithm>
+#include <array>
+#include <cinttypes>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 namespace ml {
@@ -39,7 +38,7 @@ const TPersistenceTag SIZE_TAG("d", "size");
 
 template<typename T>
 struct remove_const {
-    using type = typename boost::remove_const<T>::type;
+    using type = typename std::remove_const<T>::type;
 };
 
 template<typename U, typename V>
@@ -47,8 +46,8 @@ struct remove_const<std::pair<U, V>> {
     using type = std::pair<typename remove_const<U>::type, typename remove_const<V>::type>;
 };
 
-//! Template specialisation utility classes for selecting various
-//! approaches for persisting and restoring objects.
+//! Template specialisation utility classes for selecting various approaches
+//! for persisting and restoring objects.
 class BasicPersist {};
 class ContainerPersist {};
 class MemberPersist {};
@@ -58,22 +57,19 @@ class ContainerRestore {};
 class MemberRestore {};
 class MemberFromDelimited {};
 
-//! Auxiliary type used by has_const_iterator to test for a nested
-//! typedef.
+//! Auxiliary type used by has_const_iterator to test for a nested typedef.
 template<typename T, typename R = void>
 struct enable_if {
     using type = R;
 };
 
-//! Auxiliary type used by has_persist_function to test for a nested
-//! member function.
+//! Auxiliary type used by has_persist_function to test for a nested member function.
 template<typename T, T, typename R = void>
 struct enable_if_is {
     using type = R;
 };
 
-//! \name Class used to select appropriate persist implementation
-//! for containers.
+//! \name Class used to select the appropriate persist implementation for containers.
 //@{
 template<typename T, typename ITR = void>
 struct persist_container_selector {
@@ -85,7 +81,7 @@ struct persist_container_selector<T, typename enable_if<typename T::const_iterat
 };
 //@}
 
-//! \name Class used to select appropriate persist implementation.
+//! \name Class used to select the appropriate persist implementation.
 //@{
 template<typename T, typename ENABLE = void>
 struct persist_selector {
@@ -105,15 +101,14 @@ struct persist_selector<T, typename enable_if_is<std::string (T::*)() const, &T:
 template<typename SELECTOR>
 class CPersisterImpl {};
 
-//! Convenience function to select implementation.
+//! Convenience function to call the appropriate persist implementation.
 template<typename T>
 bool persist(const std::string& tag, const T& target, CStatePersistInserter& inserter) {
     CPersisterImpl<typename persist_selector<T>::value>::dispatch(tag, target, inserter);
     return true;
 }
 
-//! \name Class used to select appropriate restore implementation
-//! for containers.
+//! \name Class used to select the appropriate restore implementation for containers.
 //@{
 template<typename T, typename ITR = void>
 struct restore_container_selector {
@@ -145,22 +140,16 @@ struct restore_selector<T, typename enable_if_is<bool (T::*)(const std::string&)
 template<typename SELECTOR>
 class CRestorerImpl {};
 
-//! Convenience function to select implementation.
+//! Convenience function to call the appropriate restore implementation.
 template<typename T>
 bool restore(const std::string& tag, T& target, CStateRestoreTraverser& traverser) {
     return CRestorerImpl<typename restore_selector<T>::value>::dispatch(tag, target, traverser);
 }
 
-//! Template specialisation utility classes for determining whether
-//! or not a collection has a void rehash(size_t) method and failing
-//! that a void reserve(size_t) method (boost unordered_* have both
-//! and we prefer rehashing in this case).
+//! Tag for classes which have a void reserve(std::size_t) method.
 class CanReserve {};
 
-//! \name Class used to select appropriate reserve implementation.
-//!
-//! Template and partial specialization which chooses between our
-//! various reserve implementations.
+//! \name Class used to check for the reserve function.
 //@{
 template<typename T, typename ENABLE = void>
 struct reserve_selector {
@@ -172,8 +161,8 @@ struct reserve_selector<T, typename enable_if_is<void (T::*)(std::size_t), &T::r
 };
 //@}
 
-//! \brief Implementation of the pre-allocation class for objects
-//! which don't support pre-allocation - i.e. do nothing.
+//! \brief Implementation of the pre-allocation class for objects which don't
+//! support pre-allocation - i.e. do nothing.
 template<typename SELECTOR>
 class CReserveImpl {
 public:
@@ -181,22 +170,21 @@ public:
     static void dispatch(const T&, std::size_t) {}
 };
 
-//! \brief Implementation of the pre-allocation class for objects
-//! which have a void reserve(size_t) method.
+//! \brief Implementation of the pre-allocation class for objects which have
+//! a void reserve(std::size_t) method.
 template<>
 class CReserveImpl<CanReserve> {
 public:
     template<typename T>
-    static void dispatch(T& t, std::size_t amount) {
-        t.reserve(amount);
+    static void dispatch(T& t, std::size_t size) {
+        t.reserve(size);
     }
 };
 
-//! Helper function to select the correct reserver class based
-//! on template specialisation selection
+//! Convenience function to call the appropriate reserve implementation.
 template<typename T>
-void reserve(T& t, std::size_t amount) {
-    CReserveImpl<typename reserve_selector<T>::value>::dispatch(t, amount);
+void reserve(T& t, std::size_t size) {
+    CReserveImpl<typename reserve_selector<T>::value>::dispatch(t, size);
 }
 
 } // persist_utils_detail::
@@ -204,27 +192,24 @@ void reserve(T& t, std::size_t amount) {
 //! \brief A class of persistence patterns.
 //!
 //! DESCRIPTION:\n
-//! Various patterns come up repeatedly in persistence. For example,
-//! it is much more efficient to persist containers of basic types
-//! to a single string rather than as separate elements in the state
-//! document. This also means that we can reserve vectors on restore.
-//!
-//! Any new patterns should be added here.
+//! Various patterns come up repeatedly in persistence. For example, it is much
+//! more efficient to persist containers of basic types to a single string rather
+//! than as separate elements in the state document. This also means that we can
+//! reserve vectors on restore.
 class CORE_EXPORT CPersistUtils {
 public:
     static const char DELIMITER;
     static const char PAIR_DELIMITER;
 
 public:
-    //! \brief Utility to convert a built in type to a string
-    //! using CStringUtils functions.
+    //! \brief Converts a built in type to a string using CStringUtils functions.
     class CORE_EXPORT CBuiltinToString {
     public:
         CBuiltinToString(const char pairDelimiter)
             : m_PairDelimiter(pairDelimiter) {}
 
         std::string operator()(double value) const {
-            return CStringUtils::typeToStringPrecise(value, CIEEE754::E_SinglePrecision);
+            return CStringUtils::typeToStringPrecise(value, CIEEE754::E_DoublePrecision);
         }
 
         template<typename T>
@@ -232,19 +217,19 @@ public:
             return CStringUtils::typeToString(value);
         }
 
-        std::string operator()(int8_t value) const {
+        std::string operator()(std::int8_t value) const {
             return CStringUtils::typeToString(static_cast<int>(value));
         }
 
-        std::string operator()(uint8_t value) const {
+        std::string operator()(std::uint8_t value) const {
             return CStringUtils::typeToString(static_cast<unsigned int>(value));
         }
 
-        std::string operator()(int16_t value) const {
+        std::string operator()(std::int16_t value) const {
             return CStringUtils::typeToString(static_cast<int>(value));
         }
 
-        std::string operator()(uint16_t value) const {
+        std::string operator()(std::uint16_t value) const {
             return CStringUtils::typeToString(static_cast<unsigned int>(value));
         }
 
@@ -252,13 +237,10 @@ public:
             return value.toString();
         }
 
-        template<typename OPTIONAL_TYPE>
-        std::string operator()(const boost::optional<OPTIONAL_TYPE>& state) const {
-            if (state) {
-                return this->operator()(std::make_pair(true, state.get()));
-            } else {
-                return this->operator()(std::make_pair(false, OPTIONAL_TYPE()));
-            }
+        template<typename T>
+        std::string operator()(const boost::optional<T>& value) const {
+            return value ? this->operator()(std::make_pair(true, value.get()))
+                         : this->operator()(std::make_pair(false, T{}));
         }
 
         template<typename U, typename V>
@@ -271,13 +253,12 @@ public:
         char m_PairDelimiter;
     };
 
-    //! \brief Utility to convert a string to a built in type
-    //! using CStringUtils functions.
+    //! \brief Converts a string to a built in type using CStringUtils functions.
     class CORE_EXPORT CBuiltinFromString {
     public:
         CBuiltinFromString(const char pairDelimiter)
             : m_PairDelimiter(pairDelimiter) {
-            m_Token.reserve(15);
+            m_Token.reserve(17);
         }
 
         template<typename T>
@@ -285,37 +266,37 @@ public:
             return CStringUtils::stringToType(token, value);
         }
 
-        bool operator()(const std::string& token, int8_t& value) const {
+        bool operator()(const std::string& token, std::int8_t& value) const {
             int value_;
             if (CStringUtils::stringToType(token, value_)) {
-                value = static_cast<int8_t>(value_);
+                value = static_cast<std::int8_t>(value_);
                 return true;
             }
             return false;
         }
 
-        bool operator()(const std::string& token, uint8_t& value) const {
+        bool operator()(const std::string& token, std::uint8_t& value) const {
             unsigned int value_;
             if (CStringUtils::stringToType(token, value_)) {
-                value = static_cast<uint8_t>(value_);
+                value = static_cast<std::uint8_t>(value_);
                 return true;
             }
             return false;
         }
 
-        bool operator()(const std::string& token, int16_t& value) const {
+        bool operator()(const std::string& token, std::int16_t& value) const {
             int value_;
             if (CStringUtils::stringToType(token, value_)) {
-                value = static_cast<int16_t>(value_);
+                value = static_cast<std::int16_t>(value_);
                 return true;
             }
             return false;
         }
 
-        bool operator()(const std::string& token, uint16_t& value) const {
+        bool operator()(const std::string& token, std::uint16_t& value) const {
             unsigned int value_;
             if (CStringUtils::stringToType(token, value_)) {
-                value = static_cast<uint16_t>(value_);
+                value = static_cast<std::uint16_t>(value_);
                 return true;
             }
             return false;
@@ -325,15 +306,12 @@ public:
             return value.fromString(token);
         }
 
-        template<typename OPTIONAL_TYPE>
-        bool operator()(const std::string& token, boost::optional<OPTIONAL_TYPE>& value) const {
-            std::pair<bool, OPTIONAL_TYPE> pairValue;
+        template<typename T>
+        bool operator()(const std::string& token, boost::optional<T>& value) const {
+            std::pair<bool, T> pairValue;
             if (this->operator()(token, pairValue)) {
-                if (pairValue.first) {
-                    value = boost::optional<OPTIONAL_TYPE>(pairValue.second);
-                } else {
-                    value = boost::optional<OPTIONAL_TYPE>();
-                }
+                value = pairValue.first ? boost::optional<T>{pairValue.second}
+                                        : boost::optional<T>{};
                 return true;
             }
             return false;
@@ -346,7 +324,7 @@ public:
                 return false;
             }
             m_Token.assign(token, 0, delimPos);
-            if (!this->operator()(m_Token, value.first)) {
+            if (this->operator()(m_Token, value.first) == false) {
                 return false;
             }
             m_Token.assign(token, delimPos + 1, token.length() - delimPos);
@@ -390,10 +368,8 @@ public:
     //! Convert a collection to a string.
     //!
     //! \param[in] collection The collection to persist.
-    //! \param[in] stringFunc The function used to persist
-    //! elements of the collection.
-    //! \param[in] delimiter The delimiter used to separate
-    //! elements.
+    //! \param[in] stringFunc The function used to persist elements.
+    //! \param[in] delimiter The delimiter used to separate elements.
     //! \note This should use RVO so just return the string.
     template<typename CONTAINER, typename F>
     static std::string toString(const CONTAINER& collection,
@@ -417,20 +393,18 @@ public:
         return toString(begin, end, f, delimiter);
     }
 
-    //! Convert the range between 2 iterators to a string.
+    //! Convert the range between two iterators to a string.
     //!
-    //! \param[in,out] begin The iterator at the start of the range.
-    //! This will be equal to end when the function returns
-    //! \param[in] end The iterator at the end of the range
-    //! \param[in] stringFunc The function used to persist
-    //! elements of the collection.
-    //! \param[in] delimiter The delimiter used to separate
-    //! elements.
+    //! \param[in,out] begin The iterator at the start of the range. This will
+    //! be equal to end when the function returns.
+    //! \param[in] end The iterator at the end of the range.
+    //! \param[in] stringFunc The function used to persist elements.
+    //! \param[in] delimiter The delimiter used to separate elements.
     //! \note This should use RVO so just return the string.
     template<typename ITR, typename F>
     static std::string
     toString(ITR& begin, ITR& end, const F& stringFunc, const char delimiter = DELIMITER) {
-        std::string result = stringFunc(*begin++);
+        std::string result{stringFunc(*begin++)};
         for (/**/; begin != end; ++begin) {
             result += delimiter;
             result += stringFunc(*begin);
@@ -472,22 +446,16 @@ public:
 
     //! Restore a vector from a string created by toString.
     //!
-    //! \param[in] state The string description of the
-    //! collection.
-    //! \param[in] stringFunc The function used to restore
-    //! elements of the collection.
-    //! \param[out] collection Filled in with the elements
-    //! extracted from \p state.
-    //! \param[in] delimiter The delimiter used to separate
-    //! elements.
-    //! \param[in] append If true append the results to the
-    //! collection otherwise it is cleared first
-    //! \return True if there was no error parsing \p state
-    //! and false otherwise. If the state cannot be parsed
-    //! then an empty collection is returned.
+    //! \param[in] state The string description of the collection.
+    //! \param[in] stringFunc The function used to restore elements.
+    //! \param[out] collection Filled in with elements extracted from \p state.
+    //! \param[in] delimiter The delimiter used to separate elements.
+    //! \param[in] append If true append the results to the collection otherwise
+    //! it is cleared first.
+    //! \return True if there was no error parsing \p state and false otherwise.
+    //! \note If the state cannot be parsed then \p collection is cleared.
     //! \note T must have a default constructor.
-    //! \note The delimiter must match the delimiter used
-    //! for persistence.
+    //! \note The delimiter must match the delimiter used for persistence.
     //! \tparam F Expected to have the signature:
     //! \code
     //! bool (const std::string &, T &)
@@ -498,7 +466,7 @@ public:
                            std::vector<T>& collection,
                            const char delimiter = DELIMITER,
                            const bool append = false) {
-        if (!append) {
+        if (append == false) {
             collection.clear();
         }
 
@@ -518,18 +486,13 @@ public:
 
     //! Restore a std::array from a string created by toString.
     //!
-    //! \param[in] state The string description of the
-    //! collection.
-    //! \param[in] stringFunc The function used to restore
-    //! elements of the collection.
-    //! \param[out] collection Filled in with the elements
-    //! extracted from \p state.
-    //! \param[in] delimiter The delimiter used to separate
-    //! elements.
-    //! \return True if there was no error parsing \p state
-    //! and it contained exactly N elements and false otherwise.
-    //! \note The delimiter must match the delimiter used
-    //! for persistence.
+    //! \param[in] state The string description of the collection.
+    //! \param[in] stringFunc The function used to restore elements.
+    //! \param[out] collection Filled in with elements extracted from \p state.
+    //! \param[in] delimiter The delimiter used to separate elements.
+    //! \return True if there was no error parsing \p state and it contained
+    //! exactly N elements and false otherwise.
+    //! \note The delimiter must match the delimiter used for persistence.
     //! \tparam F Expected to have the signature:
     //! \code
     //! bool (const std::string &, T &)
@@ -545,7 +508,8 @@ public:
             return false;
         }
 
-        std::size_t n = std::count(state.begin(), state.end(), delimiter) + 1;
+        std::size_t n{static_cast<std::size_t>(
+            std::count(state.begin(), state.end(), delimiter) + 1)};
         if (n != N) {
             LOG_ERROR(<< "Unexpected number of elements " << n << ", expected " << N);
             return false;
@@ -556,23 +520,16 @@ public:
 
     //! Restore a container from a string created by toString.
     //!
-    //! \param[in] state The string description of the
-    //! collection.
-    //! \param[in] stringFunc The function used to restore
-    //! elements of the collection.
-    //! \param[out] collection Filled in with the elements
-    //! extracted from \p state.
-    //! \param[in] delimiter The delimiter used to separate
-    //! elements.
-    //! \param[in] append If true append the results to the
-    //! collection otherwise it is cleared first
-    //! \return True if there was no error parsing \p state
-    //! and false otherwise. If the state cannot be parsed
-    //! then an empty collection is returned.
-    //! \note The container value type must have a default
-    //! constructor.
-    //! \note The delimiter must match the delimiter used
-    //! for persistence.
+    //! \param[in] state The string description of the collection.
+    //! \param[in] stringFunc The function used to restore elements.
+    //! \param[out] collection Filled in with elements extracted from \p state.
+    //! \param[in] delimiter The delimiter used to separate elements.
+    //! \param[in] append If true append the results to the collection otherwise
+    //! it is cleared first
+    //! \return True if there was no error parsing \p state and false otherwise.
+    //! \note If the state cannot be parsed then \p collection is cleared.
+    //! \note The container value type must have a default constructor.
+    //! \note The delimiter must match the delimiter used for persistence.
     //! \tparam F Expected to have the signature:
     //! \code{.cpp}
     //! bool (const std::string &, CONTAINER::value_type &)
@@ -585,7 +542,7 @@ public:
                            bool append = false) {
         using T = typename persist_utils_detail::remove_const<typename CONTAINER::value_type>::type;
 
-        if (!append) {
+        if (append == false) {
             collection.clear();
         }
 
@@ -604,20 +561,13 @@ public:
     //! Restore a range from a string created by toString.
     //!
     //! \param[in] state The string description of the range.
-    //! \param[in] stringFunc The function used to restore
-    //! elements of the range.
-    //! \param[out] begin Filled in with the elements
-    //! extracted from \p state.
-    //! \param[in] end The end of the range into which to
-    //! restore the elements.
-    //! \param[in] delimiter The delimiter used to separate
-    //! elements.
-    //! \return True if there was no error parsing \p state
-    //! and false otherwise.
-    //! \note The container value type must have a default
-    //! constructor.
-    //! \note The delimiter must match the delimiter used
-    //! for persistence.
+    //! \param[in] stringFunc The function used to restore elements.
+    //! \param[out] begin Filled in with elements extracted from \p state.
+    //! \param[in] end The end of the range into which to restore the elements.
+    //! \param[in] delimiter The delimiter used to separate elements.
+    //! \return True if there was no error parsing \p state and false otherwise.
+    //! \note The container value type must have a default constructor.
+    //! \note The delimiter must match the delimiter used for persistence.
     //! \tparam F Expected to have the signature:
     //! \code{.cpp}
     //! bool (const std::string &, CONTAINER::value_type &)
@@ -633,8 +583,8 @@ public:
             return true;
         }
 
-        std::size_t n = std::count(state.begin(), state.end(), delimiter) + 1;
-        std::size_t N = std::distance(begin, end);
+        auto n = std::count(state.begin(), state.end(), delimiter) + 1;
+        auto N = std::distance(begin, end);
         if (n != N) {
             LOG_ERROR(<< "Unexpected number of elements " << n << ", expected " << N);
             return false;
@@ -649,7 +599,7 @@ private:
     template<typename T, typename F, typename ITR>
     static bool
     fromString(const std::string& state, const char delimiter, const F& stringFunc, ITR inserter) {
-        std::size_t delimPos = state.find(delimiter);
+        std::size_t delimPos{state.find(delimiter)};
         if (delimPos == std::string::npos) {
             T element;
             if (stringFunc(state, element) == false) {
@@ -661,14 +611,12 @@ private:
             return true;
         }
 
-        // Reuse this same string to avoid as many allocations
-        // as possible.
+        // Reuse this same string to avoid as many allocations as possible.
         //
-        // The reservation is 15 because for string implementations
-        // using the short string optimisation we don't want to
-        // cause an unnecessary allocation.
+        // Reserve 17 chars because for string implementations using the short
+        // string optimisation we don't want to cause an unnecessary allocation.
         std::string token;
-        token.reserve(15);
+        token.reserve(17);
         token.assign(state, 0, delimPos);
         {
             T element;
@@ -680,8 +628,8 @@ private:
             ++inserter;
         }
 
-        std::size_t i = 1u;
-        std::size_t lastDelimPos(delimPos);
+        std::size_t i{1};
+        std::size_t lastDelimPos{delimPos};
         while (lastDelimPos != std::string::npos) {
             delimPos = state.find(delimiter, lastDelimPos + 1);
             if (delimPos == std::string::npos) {
@@ -735,9 +683,9 @@ private:
     }
 };
 
-//! Persister class for containers. If contained types are PODs
-//! they are written as a delimited string, or strings written
-//! as straight strings, else added as a new level and re-dispatched
+//! \brief Persister class for containers. If contained types are PODs they
+//! are written as a delimited string, or strings written as straight strings,
+//! else added as a new level and re-dispatched
 template<>
 class CPersisterImpl<ContainerPersist> {
 public:
@@ -745,8 +693,8 @@ public:
     static void
     dispatch(const std::string& tag, const T& container, CStatePersistInserter& inserter) {
         doInsert(tag, container, inserter,
-                 boost::integral_constant<bool, boost::is_arithmetic<typename T::value_type>::value>(),
-                 boost::false_type());
+                 std::integral_constant<bool, std::is_arithmetic<typename T::value_type>::value>{},
+                 std::false_type{});
     }
 
     //! Specialisation for boost::unordered_set which orders values.
@@ -758,21 +706,21 @@ public:
         using TCItr = typename boost::unordered_set<T, H, P, A>::const_iterator;
         using TCItrVec = typename std::vector<TCItr>;
 
-        if (boost::is_arithmetic<T>::value) {
+        if (std::is_arithmetic<T>::value) {
             TVec values(container.begin(), container.end());
             std::sort(values.begin(), values.end());
-            doInsert(tag, values, inserter, boost::true_type(), boost::false_type());
+            doInsert(tag, values, inserter, std::true_type{}, std::false_type{});
         } else {
             TCItrVec iterators;
             iterators.reserve(container.size());
-            for (TCItr i = container.begin(); i != container.end(); ++i) {
+            for (auto i = container.begin(); i != container.end(); ++i) {
                 iterators.push_back(i);
             }
 
             // Sort the values to ensure consistent persist state.
             std::sort(iterators.begin(), iterators.end(),
                       [](TCItr lhs, TCItr rhs) { return *lhs < *rhs; });
-            doInsert(tag, iterators, inserter, boost::false_type(), boost::true_type());
+            doInsert(tag, iterators, inserter, std::false_type{}, std::true_type{});
         }
     }
 
@@ -786,14 +734,14 @@ public:
 
         TCItrVec iterators;
         iterators.reserve(container.size());
-        for (TCItr i = container.begin(); i != container.end(); ++i) {
+        for (auto i = container.begin(); i != container.end(); ++i) {
             iterators.push_back(i);
         }
 
         // Sort the keys to ensure consistent persist state.
         std::sort(iterators.begin(), iterators.end(),
                   [](TCItr lhs, TCItr rhs) { return lhs->first < rhs->first; });
-        doInsert(tag, iterators, inserter, boost::false_type(), boost::true_type());
+        doInsert(tag, iterators, inserter, std::false_type{}, std::true_type{});
     }
 
     //! Specialisation for std::string, which has iterators but doesn't need
@@ -812,37 +760,35 @@ private:
     static void doInsert(const std::string& tag,
                          const T& container,
                          CStatePersistInserter& inserter,
-                         boost::true_type,
-                         boost::false_type) {
+                         std::true_type,
+                         std::false_type) {
         inserter.insertValue(tag, CPersistUtils::toString(container));
     }
 
-    //! Handle the case for a non-built-in type, which will be added
-    //! as a new level.
+    //! Handle the case for a non-built-in type, which will be added as a new level.
     //!
     //! \note Type T is not an iterator
     template<typename T>
     static void doInsert(const std::string& tag,
                          const T& container,
                          CStatePersistInserter& inserter,
-                         boost::false_type,
-                         boost::false_type) {
+                         std::false_type,
+                         std::false_type) {
         using TCItr = typename T::const_iterator;
         inserter.insertLevel(tag, std::bind(&newLevel<TCItr>, container.begin(),
                                             container.end(), container.size(),
                                             std::placeholders::_1));
     }
 
-    //! Handle the case for a non-built-in type, which will be added
-    //! as a new level.
+    //! Handle the case for a non-built-in type, which will be added as a new level.
     //!
     //! \note Type T is an iterator
     template<typename T>
     static void doInsert(const std::string& tag,
                          const T& t,
                          CStatePersistInserter& inserter,
-                         boost::false_type,
-                         boost::true_type) {
+                         std::false_type,
+                         std::true_type) {
         using TCItr = boost::indirect_iterator<typename T::const_iterator>;
         inserter.insertLevel(tag, std::bind(&newLevel<TCItr>, TCItr(t.begin()),
                                             TCItr(t.end()), t.size(),
@@ -851,8 +797,8 @@ private:
 
     //! Dispatch a collection of items
     //!
-    //! \note The container size is added to allow the restorer to
-    //! pre-size the new container if appropriate
+    //! \note The container size is added to allow the restorer to pre-size
+    //! the new container if appropriate
     template<typename ITR>
     static void newLevel(ITR begin, ITR end, std::size_t size, CStatePersistInserter& inserter) {
         inserter.insertValue(SIZE_TAG, size);
@@ -895,27 +841,25 @@ class CRestorerImpl<BasicRestore> {
 public:
     template<typename T>
     static bool dispatch(const std::string& tag, T& t, CStateRestoreTraverser& traverser) {
-        bool ret = true;
         if (traverser.name() == tag) {
-            CPersistUtils::CBuiltinFromString stringFunc(CPersistUtils::PAIR_DELIMITER);
-            ret = stringFunc(traverser.value(), t);
+            CPersistUtils::CBuiltinFromString stringFunc{CPersistUtils::PAIR_DELIMITER};
+            return stringFunc(traverser.value(), t);
         }
-        return ret;
+        return true;
     }
 
     template<typename A, typename B>
     static bool
     dispatch(const std::string& tag, std::pair<A, B>& t, CStateRestoreTraverser& traverser) {
-        bool ret = true;
         if (traverser.name() == tag) {
-            if (!traverser.hasSubLevel()) {
+            if (traverser.hasSubLevel() == false) {
                 LOG_ERROR(<< "SubLevel mismatch in restore, at " << traverser.name());
                 return false;
             }
-            ret = traverser.traverseSubLevel(
+            return traverser.traverseSubLevel(
                 std::bind(&newLevel<A, B>, std::ref(t), std::placeholders::_1));
         }
-        return ret;
+        return true;
     }
 
 private:
@@ -931,12 +875,12 @@ private:
                       << FIRST_TAG.name(false));
             return false;
         }
-        if (!restore(FIRST_TAG, t.first, traverser)) {
+        if (restore(FIRST_TAG, t.first, traverser) == false) {
             LOG_ERROR(<< "Restore error at " << traverser.name() << ": "
                       << traverser.value());
             return false;
         }
-        if (!traverser.next()) {
+        if (traverser.next() == false) {
             LOG_ERROR(<< "Restore error at " << traverser.name() << ": "
                       << traverser.value());
             return false;
@@ -951,7 +895,7 @@ private:
                       << SECOND_TAG.name(false));
             return false;
         }
-        if (!restore(SECOND_TAG, t.second, traverser)) {
+        if (restore(SECOND_TAG, t.second, traverser) == false) {
             LOG_ERROR(<< "Restore error at " << traverser.name() << ": "
                       << traverser.value());
             return false;
@@ -968,7 +912,7 @@ public:
     static bool dispatch(const std::string& tag, T& container, CStateRestoreTraverser& traverser) {
         return doTraverse(
             tag, container, traverser,
-            boost::integral_constant<bool, boost::is_arithmetic<typename T::value_type>::value>());
+            std::integral_constant<bool, std::is_arithmetic<typename T::value_type>::value>{});
     }
 
     //! Specialisation for std::string, which has iterators but doesn't
@@ -987,15 +931,15 @@ private:
             using TValueType = typename remove_const<typename T::value_type>::type;
             do {
                 if (traverser.name() == SIZE_TAG) {
-                    std::size_t size = 0;
-                    if (!core::CStringUtils::stringToType(traverser.value(), size)) {
+                    std::size_t size{0};
+                    if (core::CStringUtils::stringToType(traverser.value(), size) == false) {
                         LOG_WARN(<< "Failed to determine size: " << traverser.value());
                     } else {
                         reserve(container, size);
                     }
                 } else {
                     TValueType value;
-                    if (!restore(FIRST_TAG, value, traverser)) {
+                    if (restore(FIRST_TAG, value, traverser) == false) {
                         LOG_ERROR(<< "Restoration error at " << traverser.name());
                         return false;
                     }
@@ -1008,11 +952,11 @@ private:
         template<typename T, std::size_t N>
         bool operator()(std::array<T, N>& container, CStateRestoreTraverser& traverser) {
             using TValueType = typename remove_const<T>::type;
-            typename std::array<T, N>::iterator i = container.begin();
+            auto i = container.begin();
             do {
                 TValueType value;
                 if (traverser.name() == FIRST_TAG) {
-                    if (!restore(FIRST_TAG, value, traverser)) {
+                    if (restore(FIRST_TAG, value, traverser) == false) {
                         LOG_ERROR(<< "Restoration error at " << traverser.name());
                         return false;
                     }
@@ -1028,29 +972,27 @@ private:
     static bool doTraverse(const std::string& tag,
                            T& container,
                            CStateRestoreTraverser& traverser,
-                           boost::true_type) {
-        bool ret = true;
+                           std::true_type) {
         if (traverser.name() == tag) {
-            ret = CPersistUtils::fromString(traverser.value(), container);
+            return CPersistUtils::fromString(traverser.value(), container);
         }
-        return ret;
+        return true;
     }
 
     template<typename T>
     static bool doTraverse(const std::string& tag,
                            T& container,
                            CStateRestoreTraverser& traverser,
-                           boost::false_type) {
-        bool ret = true;
+                           std::false_type) {
         if (traverser.name() == tag) {
-            if (!traverser.hasSubLevel()) {
-                LOG_ERROR(<< "SubLevel mismatch in restore, at " << traverser.name());
+            if (traverser.hasSubLevel() == false) {
+                LOG_ERROR(<< "SubLevel mismatch in restore at " << traverser.name());
                 return false;
             }
-            ret = traverser.traverseSubLevel(std::bind<bool>(
-                SSubLevel(), std::ref(container), std::placeholders::_1));
+            return traverser.traverseSubLevel(std::bind<bool>(
+                SSubLevel{}, std::ref(container), std::placeholders::_1));
         }
-        return ret;
+        return true;
     }
 };
 
@@ -1060,16 +1002,15 @@ class CRestorerImpl<MemberRestore> {
 public:
     template<typename T>
     static bool dispatch(const std::string& tag, T& t, CStateRestoreTraverser& traverser) {
-        bool ret = true;
         if (traverser.name() == tag) {
-            if (!traverser.hasSubLevel()) {
-                LOG_ERROR(<< "SubLevel mismatch in restore, at " << traverser.name());
+            if (traverser.hasSubLevel() == false) {
+                LOG_ERROR(<< "SubLevel mismatch in restore at " << traverser.name());
                 return false;
             }
-            ret = traverser.traverseSubLevel(
+            return traverser.traverseSubLevel(
                 std::bind(&subLevel<T>, std::ref(t), std::placeholders::_1));
         }
-        return ret;
+        return true;
     }
 
 private:

@@ -119,7 +119,7 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
         return std::make_unique<core::CJsonOutputStreamWrapper>(outputStream);
     };
 
-    std::size_t numberExamples{200};
+    std::size_t numberExamples{100};
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "target", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     TDoubleVec weights{0.1, 2.0, 0.4, -0.5};
@@ -153,13 +153,12 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
         splitOnNull(std::stringstream{std::move(persistenceStream->str())})};
     auto expectedTree = restoreTree(std::move(persistedStates.back()), frame, dependentVariable);
 
-    // Compute actual tree.
-
     persistenceStream->str("");
+    persistenceStream->clear();
 
-    std::istringstream intermediateStateStream{persistedStates[iterationToRestartFrom]};
+    std::string intermediateStateStream{persistedStates[iterationToRestartFrom]};
     TRestoreSearcherSupplier restorerSupplier{[&intermediateStateStream]() {
-        return std::make_unique<CTestDataSearcher>(intermediateStateStream.str());
+        return std::make_unique<CTestDataSearcher>(intermediateStateStream);
     }};
 
     api::CDataFrameAnalyzer restoredAnalyzer{
@@ -193,11 +192,11 @@ void testOneRunOfBoostedTreeTrainingWithStateRecovery(
         if (expectedHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedHyperparameters[key].GetString())};
             double actual{std::stod(actualHyperparameters[key].GetString())};
-            BOOST_REQUIRE_CLOSE(expected, actual, 1 /*%*/);
+            BOOST_REQUIRE_CLOSE(expected, actual, 1e-3);
         } else if (expectedRegularizationHyperparameters.HasMember(key)) {
             double expected{std::stod(expectedRegularizationHyperparameters[key].GetString())};
             double actual{std::stod(actualRegularizationHyperparameters[key].GetString())};
-            BOOST_REQUIRE_CLOSE(expected, actual, 1 /*%*/);
+            BOOST_REQUIRE_CLOSE(expected, actual, 1e-3);
         } else {
             BOOST_FAIL("Missing " + key);
         }
@@ -217,6 +216,7 @@ void testRunBoostedTreeRegressionTrainingWithParams(TLossFunctionType lossFuncti
     double eta{0.9};
     std::size_t maximumNumberTrees{1};
     double featureBagFraction{0.3};
+    double downsampleFactor{0.7};
 
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
@@ -233,6 +233,7 @@ void testRunBoostedTreeRegressionTrainingWithParams(TLossFunctionType lossFuncti
             .predictionEta(eta)
             .predictionMaximumNumberTrees(maximumNumberTrees)
             .predictionFeatureBagFraction(featureBagFraction)
+            .predictionDownsampleFactor(downsampleFactor)
             .regressionLossFunction(lossFunction)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
         outputWriterFactory};
@@ -254,8 +255,8 @@ void testRunBoostedTreeRegressionTrainingWithParams(TLossFunctionType lossFuncti
     const auto& bestHyperparameters{boostedTree.bestHyperparameters()};
     BOOST_TEST_REQUIRE(bestHyperparameters.eta() == eta);
     BOOST_TEST_REQUIRE(bestHyperparameters.featureBagFraction() == featureBagFraction);
-    // TODO extend the test to add the checks for downsampleFactor and etaGrowthRatePerTree
-    //    BOOST_TEST_REQUIRE(bestHyperparameters.downsampleFactor() == downsampleFactor);
+    BOOST_TEST_REQUIRE(bestHyperparameters.downsampleFactor() == downsampleFactor);
+    // TODO extend to support setting etaGrowthRatePerTree
     //    BOOST_TEST_REQUIRE(bestHyperparameters.etaGrowthRatePerTree() == etaGrowthRatePerTree);
     BOOST_TEST_REQUIRE(bestHyperparameters.regularization().depthPenaltyMultiplier() == alpha);
     BOOST_TEST_REQUIRE(
@@ -516,26 +517,6 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithRowsMissingTargetVa
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
 
-    struct SHyperparameters {
-        SHyperparameters(double alpha = 2.0, double lambda = 1.0, double gamma = 10.0)
-            : s_Alpha{alpha}, s_Lambda{lambda}, s_Gamma{gamma} {}
-
-        std::size_t numberUnset() const {
-            return (s_Alpha < 0.0 ? 1 : 0) + (s_Lambda < 0.0 ? 1 : 0) +
-                   (s_Gamma < 0.0 ? 1 : 0);
-        }
-
-        double s_Alpha;
-        double s_Lambda;
-        double s_Gamma;
-        double s_SoftTreeDepthLimit = 3.0;
-        double s_SoftTreeDepthTolerance = 0.15;
-        double s_Eta = 0.9;
-        double s_DownsampleFactor = 0.5;
-        std::size_t s_MaximumNumberTrees = 2;
-        double s_FeatureBagFraction = 0.3;
-    };
-
     test::CRandomNumbers rng;
 
     for (const auto& lossFunction :
@@ -544,12 +525,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
 
         LOG_DEBUG(<< "Loss function type " << lossFunction);
 
-        std::size_t numberRoundsPerHyperparameter{3};
-
-        TSizeVec intermediateIterations{0, 0, 0};
-        for (const auto& params :
-             {SHyperparameters{}, SHyperparameters{-1.0},
-              SHyperparameters{-1.0, -1.0}, SHyperparameters{-1.0, -1.0, -1.0}}) {
+        for (std::size_t restart = 1; restart < 10; restart += 2) {
 
             auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
                                 TPersisterSupplier* persisterSupplier,
@@ -557,16 +533,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
                 test::CDataFrameAnalysisSpecificationFactory specFactory;
                 return specFactory.rows(numberExamples)
                     .memoryLimit(15000000)
-                    .predicitionNumberRoundsPerHyperparameter(numberRoundsPerHyperparameter)
-                    .predictionAlpha(params.s_Alpha)
-                    .predictionLambda(params.s_Lambda)
-                    .predictionGamma(params.s_Gamma)
-                    .predictionSoftTreeDepthLimit(params.s_SoftTreeDepthLimit)
-                    .predictionSoftTreeDepthTolerance(params.s_SoftTreeDepthTolerance)
-                    .predictionEta(params.s_Eta)
-                    .predictionMaximumNumberTrees(params.s_MaximumNumberTrees)
-                    .predictionDownsampleFactor(params.s_DownsampleFactor)
-                    .predictionFeatureBagFraction(params.s_FeatureBagFraction)
+                    .predictionMaximumNumberTrees(10)
                     .predictionPersisterSupplier(persisterSupplier)
                     .predictionRestoreSearcherSupplier(restorerSupplier)
                     .regressionLossFunction(lossFunction)
@@ -574,16 +541,8 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
                                     dependentVariable);
             };
 
-            std::size_t finalIteration{params.numberUnset() * numberRoundsPerHyperparameter};
-            if (finalIteration > 1) {
-                rng.generateUniformSamples(0, finalIteration - 1, 3, intermediateIterations);
-            }
-
-            for (auto intermediateIteration : intermediateIterations) {
-                LOG_DEBUG(<< "restart from " << intermediateIteration);
-                testOneRunOfBoostedTreeTrainingWithStateRecovery(
-                    makeSpec, intermediateIteration, lossFunction);
-            }
+            LOG_DEBUG(<< "restart from " << restart);
+            testOneRunOfBoostedTreeTrainingWithStateRecovery(makeSpec, restart, lossFunction);
         }
     }
 }
