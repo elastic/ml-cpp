@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 7.9.0
+
+=== Enhancements
+
+* Don't lose precision when saving model state. (See {ml-pull}1274[#1274].)
+
 == {es} version 7.8.0
 
 === Enhancements

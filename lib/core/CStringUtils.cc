@@ -349,38 +349,26 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     char buf[4 * sizeof(double)];
     ::memset(buf, 0, sizeof(buf));
 
-    // To retain the correct number of significant figures this uses
-    // scientific notation format when d < 1. Note that the number
-    // specifier in e format is number of points after the decimal
-    // place so number of significant figures + 1. Note also that
-    // when printing to limited precision we must correctly round
-    // the value before printing because printing just truncates;
-    // for example,
-    //   sprintf(buf, "%.6e", 0.49999998)
+    // Floats need higher precision to precisely round trip to decimal than
+    // considering their effective precision base 10. There's a good discussion
+    // at https://randomascii.wordpress.com/2012/03/08/float-precisionfrom-zero-to-100-digits-2/.
+    // We use g format since it is the most efficient. Note also that when
+    // printing to limited precision we must round the value before printing
+    // because printing just truncates, i.e. sprintf(buf, "%.6e", 0.49999998)
     // gives 4.999999e-1 rather than the correctly rounded value 0.5.
 
     int ret = 0;
     switch (precision) {
     case CIEEE754::E_HalfPrecision:
-        ret = std::fabs(d) < 1.0 && d != 0.0
-                  ? ::sprintf(buf, "%.2e",
-                              clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)))
-                  : ::sprintf(buf, "%.3g",
-                              clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
+        ret = ::sprintf(buf, "%.5g",
+                        clampToReadable(CIEEE754::round(d, CIEEE754::E_HalfPrecision)));
         break;
-
     case CIEEE754::E_SinglePrecision:
-        ret = std::fabs(d) < 1.0 && d != 0.0
-                  ? ::sprintf(buf, "%.6e",
-                              clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)))
-                  : ::sprintf(buf, "%.7g",
-                              clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
+        ret = ::sprintf(buf, "%.9g",
+                        clampToReadable(CIEEE754::round(d, CIEEE754::E_SinglePrecision)));
         break;
-
     case CIEEE754::E_DoublePrecision:
-        ret = std::fabs(d) < 1.0 && d != 0.0
-                  ? ::sprintf(buf, "%.14e", clampToReadable(d))
-                  : ::sprintf(buf, "%.15g", clampToReadable(d));
+        ret = ::sprintf(buf, "%.17g", clampToReadable(d));
         break;
     }
 

@@ -746,8 +746,9 @@ BOOST_AUTO_TEST_CASE(testJsonConversion) {
         partitionMaxScoreStr.erase(std::remove(partitionMaxScoreStr.begin(),
                                                partitionMaxScoreStr.end(), '\n'),
                                    partitionMaxScoreStr.end());
-        BOOST_REQUIRE_EQUAL("\"" + core::CStringUtils::typeToStringPretty(maxScore) + "\"",
-                            partitionMaxScoreStr);
+        BOOST_REQUIRE_EQUAL(
+            "\"" + core::CStringUtils::typeToStringPrecise(maxScore, core::CIEEE754::E_SinglePrecision) + "\"",
+            partitionMaxScoreStr);
     }
 
     rapidjson::StringBuffer buffer;

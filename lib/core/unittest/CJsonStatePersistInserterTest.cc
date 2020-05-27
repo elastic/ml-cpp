@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CIEEE754.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
@@ -53,7 +54,10 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         LOG_DEBUG(<< "JSON is: " << json);
 
-        BOOST_REQUIRE_EQUAL(std::string("{\"a\":\"a\",\"b\":\"25\",\"c\":{\"a\":\"3.14\",\"b\":\"z\"}}"),
+        BOOST_REQUIRE_EQUAL(std::string("{\"a\":\"a\",\"b\":\"25\",\"c\":{\"a\":\"" +
+                                        ml::core::CStringUtils::typeToStringPrecise(
+                                            3.14, ml::core::CIEEE754::E_SinglePrecision) +
+                                        "\",\"b\":\"z\"}}"),
                             json);
     }
 
@@ -74,7 +78,10 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         LOG_DEBUG(<< "JSON is: " << json);
 
-        BOOST_REQUIRE_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"3.14\",\"level2B\":\"z\"}}"),
+        BOOST_REQUIRE_EQUAL(std::string("{\"level1A\":\"a\",\"level1B\":\"25\",\"level1C\":{\"level2A\":\"" +
+                                        ml::core::CStringUtils::typeToStringPrecise(
+                                            3.14, ml::core::CIEEE754::E_SinglePrecision) +
+                                        "\",\"level2B\":\"z\"}}"),
                             json);
     }
 }
