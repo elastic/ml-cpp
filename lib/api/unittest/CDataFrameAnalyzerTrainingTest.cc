@@ -216,7 +216,6 @@ void testRunBoostedTreeRegressionTrainingWithParams(TLossFunctionType lossFuncti
     double eta{0.9};
     std::size_t maximumNumberTrees{1};
     double featureBagFraction{0.3};
-    double downsampleFactor{0.7};
 
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
@@ -233,7 +232,6 @@ void testRunBoostedTreeRegressionTrainingWithParams(TLossFunctionType lossFuncti
             .predictionEta(eta)
             .predictionMaximumNumberTrees(maximumNumberTrees)
             .predictionFeatureBagFraction(featureBagFraction)
-            .predictionDownsampleFactor(downsampleFactor)
             .regressionLossFunction(lossFunction)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
         outputWriterFactory};
@@ -255,8 +253,8 @@ void testRunBoostedTreeRegressionTrainingWithParams(TLossFunctionType lossFuncti
     const auto& bestHyperparameters{boostedTree.bestHyperparameters()};
     BOOST_TEST_REQUIRE(bestHyperparameters.eta() == eta);
     BOOST_TEST_REQUIRE(bestHyperparameters.featureBagFraction() == featureBagFraction);
-    BOOST_TEST_REQUIRE(bestHyperparameters.downsampleFactor() == downsampleFactor);
-    // TODO extend to support setting etaGrowthRatePerTree
+    // TODO extend to support setting downsampleFactor and etaGrowthRatePerTree
+    //    BOOST_TEST_REQUIRE(bestHyperparameters.downsampleFactor() == downsampleFactor);
     //    BOOST_TEST_REQUIRE(bestHyperparameters.etaGrowthRatePerTree() == etaGrowthRatePerTree);
     BOOST_TEST_REQUIRE(bestHyperparameters.regularization().depthPenaltyMultiplier() == alpha);
     BOOST_TEST_REQUIRE(

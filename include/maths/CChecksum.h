@@ -120,7 +120,8 @@ public:
     //! Checksum of double.
     static std::uint64_t dispatch(std::uint64_t seed, double target) {
         // A fuzzy checksum implementation is useful for floating point values
-        // so we know we're close to a reasonable precision.
+        // so we know we're close to a reasonable precision. This checksums the
+        // printed value so that it's stable over persist and restore.
         target = core::CIEEE754::round(target, core::CIEEE754::E_SinglePrecision);
         char buf[4 * sizeof(double)];
         std::memset(buf, 0, sizeof(buf));
@@ -164,22 +165,25 @@ public:
     //! Checksum of a optional.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const boost::optional<T>& target) {
-        return !target ? seed
-                       : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
+        return target != boost::none
+                   ? seed
+                   : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
     }
 
     //! Checksum a shared pointer.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const std::shared_ptr<T>& target) {
-        return !target ? seed
-                       : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
+        return target != nullptr
+                   ? seed
+                   : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
     }
 
     //! Checksum a unique pointer.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const std::unique_ptr<T>& target) {
-        return !target ? seed
-                       : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
+        return target != nullptr
+                   ? seed
+                   : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
     }
 
     //! Checksum a pair.
@@ -194,7 +198,7 @@ public:
     static std::uint64_t
     dispatch(std::uint64_t seed,
              const Eigen::Matrix<SCALAR, ROWS, COLS, OPTIONS, MAX_ROWS, MAX_COLS>& target) {
-        std::ptrdiff_t dimension = target.size();
+        std::ptrdiff_t dimension(target.size());
         if (dimension > 0) {
             for (std::ptrdiff_t i = 0; i + 1 < dimension; ++i) {
                 seed = dispatch(seed, target(i));
@@ -210,7 +214,7 @@ public:
     dispatch(std::uint64_t seed,
              const Eigen::SparseVector<SCALAR, FLAGS, STORAGE_INDEX>& target) {
         using TIterator = typename Eigen::SparseVector<SCALAR, FLAGS, STORAGE_INDEX>::InnerIterator;
-        std::uint64_t result = seed;
+        std::uint64_t result{seed};
         for (TIterator i(target, 0); i; ++i) {
             result = dispatch(seed, i.index());
             result = dispatch(result, i.value());
@@ -270,7 +274,7 @@ public:
     //! Call on elements.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const T& target) {
-        std::uint64_t result = seed;
+        std::uint64_t result{seed};
         for (const auto& element : target) {
             result = CChecksumImpl<typename selector<typename T::value_type>::value>::dispatch(
                 result, element);
@@ -316,7 +320,7 @@ public:
         TUCRefVCRefPrVec ordered;
         ordered.reserve(target.size());
         for (const auto& element : target) {
-            ordered.emplace_back(TUCRef(element.first), TVCRef(element.second));
+            ordered.emplace_back(TUCRef{element.first}, TVCRef{element.second});
         }
 
         std::sort(ordered.begin(), ordered.end(), maths::COrderings::SFirstLess());
@@ -355,7 +359,7 @@ public:
     //! Overload for arrays which chains checksums.
     template<typename T, std::size_t SIZE>
     static std::uint64_t calculate(std::uint64_t seed, const T (&target)[SIZE]) {
-        for (std::size_t i = 0u; i + 1 < SIZE; ++i) {
+        for (std::size_t i = 0; i + 1 < SIZE; ++i) {
             seed = checksum_detail::checksum(seed, target[i]);
         }
         return checksum_detail::checksum(seed, target[SIZE - 1]);
@@ -364,7 +368,7 @@ public:
     //! Overload for nested arrays which chains checksums.
     template<typename T, std::size_t SIZE1, std::size_t SIZE2>
     static std::uint64_t calculate(std::uint64_t seed, const T (&target)[SIZE1][SIZE2]) {
-        for (std::size_t i = 0u; i + 1 < SIZE1; ++i) {
+        for (std::size_t i = 0; i + 1 < SIZE1; ++i) {
             seed = calculate(seed, target[i]);
         }
         return calculate(seed, target[SIZE1 - 1]);
