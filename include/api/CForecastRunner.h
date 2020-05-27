@@ -80,7 +80,7 @@ public:
     static const size_t DEFAULT_EXPIRY_TIME = 14 * core::constants::DAY;
 
     //! max memory allowed to use for forecast models
-    static const size_t MAX_FORECAST_MODEL_MEMORY = 20971520ull; // 20MB
+    static const size_t DEFAULT_MAX_FORECAST_MODEL_MEMORY = 20971520ull; // 20MB
 
     //! Note: This value measures the size in memory, not the size of the persistence,
     //! which is likely higher and would be hard to calculate upfront
@@ -254,11 +254,12 @@ private:
     void sendMessage(WRITE write, const SForecast& forecastJob, const std::string& message) const;
 
     //! parse and validate a forecast request and turn it into a forecast job
-    static bool
-    parseAndValidateForecastRequest(const std::string& controlMessage,
-                                    SForecast& forecastJob,
-                                    const core_t::TTime lastResultsTime,
-                                    const TErrorFunc& errorFunction = TErrorFunc());
+    static bool parseAndValidateForecastRequest(
+        const std::string& controlMessage,
+        SForecast& forecastJob,
+        const core_t::TTime lastResultsTime,
+        std::size_t jobBytesSizeLimit = std::numeric_limits<std::size_t>::max() / 2,
+        const TErrorFunc& errorFunction = TErrorFunc());
 
 private:
     //! This job ID

@@ -35,7 +35,8 @@ const std::string CForecastRunner::ERROR_NO_DATA_PROCESSED(
     "Forecast cannot be executed as job requires data to have been processed and modeled");
 const std::string CForecastRunner::ERROR_NO_CREATE_TIME("Forecast create time must be specified and non zero");
 const std::string CForecastRunner::ERROR_BAD_MEMORY_STATUS("Forecast cannot be executed as model memory status is not OK");
-const std::string CForecastRunner::ERROR_BAD_MODEL_MEMORY_LIMIT("Forecast max_model_memory must not exceed 500MB");
+const std::string CForecastRunner::ERROR_BAD_MODEL_MEMORY_LIMIT(
+    "Forecast max_model_memory must be below 500MB and must not exceed 40% of the job's configured model memory limit.");
 const std::string CForecastRunner::ERROR_MEMORY_LIMIT_DISK(
     "Forecast cannot be executed as forecast memory usage is predicted to exceed 500MB");
 const std::string CForecastRunner::ERROR_MEMORY_LIMIT_DISKSPACE(
@@ -266,6 +267,7 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
     SForecast forecastJob;
     if (parseAndValidateForecastRequest(
             controlMessage, forecastJob, lastResultsTime,
+            m_ResourceMonitor.getBytesMemoryLimit(),
             std::bind(&CForecastRunner::sendErrorMessage, this,
                       std::placeholders::_1, std::placeholders::_2)) == false) {
         return false;
@@ -302,7 +304,6 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
 
         if (totalMemoryUsage >= forecastJob.s_MaxForecastModelMemory &&
             forecastJob.s_TemporaryFolder.empty()) {
-            // note: for now MAX_FORECAST_MODEL_MEMORY is a static limit, a user can not change it
             this->sendErrorMessage(
                 forecastJob, "Forecast cannot be executed as forecast memory usage is predicted to exceed " +
                                  std::to_string(forecastJob.s_MaxForecastModelMemory) +
@@ -407,6 +408,7 @@ bool CForecastRunner::push(SForecast& forecastJob) {
 bool CForecastRunner::parseAndValidateForecastRequest(const std::string& controlMessage,
                                                       SForecast& forecastJob,
                                                       const core_t::TTime lastResultsTime,
+                                                      std::size_t jobBytesSizeLimit,
                                                       const TErrorFunc& errorFunction) {
     std::istringstream stringStream(controlMessage.substr(1));
     forecastJob.s_StartTime = lastResultsTime;
@@ -421,8 +423,8 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
             properties.get<std::string>("forecast_alias", EMPTY_STRING);
         forecastJob.s_Duration = properties.get<core_t::TTime>("duration", 0);
         forecastJob.s_CreateTime = properties.get<core_t::TTime>("create_time", 0);
-        forecastJob.s_MaxForecastModelMemory =
-            properties.get<size_t>("max_model_memory", MAX_FORECAST_MODEL_MEMORY);
+        forecastJob.s_MaxForecastModelMemory = properties.get<size_t>(
+            "max_model_memory", DEFAULT_MAX_FORECAST_MODEL_MEMORY);
 
         // tmp storage if available
         forecastJob.s_TemporaryFolder = properties.get<std::string>("tmp_storage", EMPTY_STRING);
@@ -442,7 +444,10 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
     }
 
     // from now we have a forecast ID and can send error messages
-    if (forecastJob.s_MaxForecastModelMemory >= MAX_FORECAST_MODEL_PERSISTANCE_MEMORY) {
+    if (forecastJob.s_MaxForecastModelMemory != DEFAULT_MAX_FORECAST_MODEL_MEMORY &&
+        (forecastJob.s_MaxForecastModelMemory >= MAX_FORECAST_MODEL_PERSISTANCE_MEMORY ||
+         forecastJob.s_MaxForecastModelMemory >=
+             static_cast<std::size_t>(jobBytesSizeLimit * 0.40))) {
         errorFunction(forecastJob, ERROR_BAD_MODEL_MEMORY_LIMIT);
         return false;
     }
