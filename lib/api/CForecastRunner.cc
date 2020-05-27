@@ -350,9 +350,8 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
         }
 
         LOG_WARN(<< "Forecast [" << forecastJob.s_ForecastId << "] memory usage exceeds configured byte limit ["
-                 << std::to_string(forecastJob.s_MaxForecastModelMemory)
-                 << "] (requires " << std::to_string(1 + (totalMemoryUsage >> 20))
-                 << " MB), using disk.");
+                 << std::to_string(forecastJob.s_MaxForecastModelMemory) << "] (requires "
+                 << std::to_string(1 + (totalMemoryUsage >> 20)) << " MB), using disk.");
 
         // create a subdirectory using the unique forecast id
         temporaryFolder /= forecastJob.s_ForecastId;

@@ -378,10 +378,8 @@ BOOST_AUTO_TEST_CASE(testValidateProvidedTooLargeMaxMemoryLimit) {
 
     // Less than 40% of the configured job memory should NOT fail
     BOOST_TEST_REQUIRE(ml::api::CForecastRunner::parseAndValidateForecastRequest(
-        message2, forecastJob, 1400000000, static_cast<std::size_t>(31457280ull * 2.5) + 1,
-        [](const ml::api::CForecastRunner::SForecast& f, const std::string& val) {
-            LOG_ERROR(<< "message: [" << val << "]"
-                      << "forecast limit: " << f.s_MaxForecastModelMemory);
+        message2, forecastJob, 1400000000, static_cast<std::size_t>(31457280ull * 3),
+        [](const ml::api::CForecastRunner::SForecast&, const std::string&) {
             return;
         }));
 }
