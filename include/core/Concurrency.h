@@ -151,7 +151,7 @@ async(CExecutor& executor, FUNCTION&& f, ARGS&&... args) {
     // Schedule the task to compute the result.
     executor.schedule(std::move(task));
 
-    return std::move(result);
+    return result;
 }
 
 //! Wait for all \p futures to be available.
@@ -205,6 +205,54 @@ private:
 
 CORE_EXPORT
 void noop(double);
+}
+
+//! Run \p functions in parallel using async.
+//!
+//! This executes \p functions on a partition of the indices in the range
+//! [\p start, \p end) using the default async executor.
+template<typename FUNCTION>
+void parallel_for_each(std::size_t start,
+                       std::size_t end,
+                       std::vector<FUNCTION>& functions,
+                       const std::function<void(double)>& recordProgress = concurrency_detail::noop) {
+
+    // Threads access the indices in the following pattern:
+    //   [0, m,   2*m,   ...]
+    //   [1, m+1, 2*m+1, ...]
+    //   [2, m+2, 2*m+2, ...]
+    //   ...
+    // for m partitions. This is choosen because it is expected that the index
+    // will often be used to access elements in a contiguous block of memory.
+    // Provided the threads are doing roughly equal work per call this should
+    // ensure the best possible locality of reference for reads which occur
+    // at a similar time in the different threads.
+
+    std::vector<std::future<bool>> tasks;
+
+    for (std::size_t offset = 0, partitions = functions.size();
+         offset < partitions; ++offset, ++start) {
+
+        // Note there is one copy of g for each thread so capture by reference
+        // is thread safe provided f is thread safe.
+
+        CLoopProgress progress{end - offset, recordProgress,
+                               1.0 / static_cast<double>(partitions)};
+
+        auto& g = functions[offset];
+        tasks.emplace_back(
+            async(defaultAsyncExecutor(),
+                  [&g, partitions, progress](std::size_t start_, std::size_t end_) mutable {
+                      for (std::size_t i = start_; i < end_;
+                           i += partitions, progress.increment(partitions)) {
+                          g(i);
+                      }
+                      return true; // So we can check for exceptions via get.
+                  },
+                  start, end));
+    }
+
+    get_conjunction_of_all(tasks);
 }
 
 //! Run \p f in parallel using async.
@@ -268,43 +316,8 @@ parallel_for_each(std::size_t partitions,
         return functions;
     }
 
-    std::vector<FUNCTION> functions{partitions, std::forward<FUNCTION>(f)};
-
-    // Threads access the indices in the following pattern:
-    //   [0, m,   2*m,   ...]
-    //   [1, m+1, 2*m+1, ...]
-    //   [2, m+2, 2*m+2, ...]
-    //   ...
-    // for m partitions. This is choosen because it is expected that the index
-    // will often be used to access elements in a contiguous block of memory.
-    // Provided the threads are doing roughly equal work per call this should
-    // ensure the best possible locality of reference for reads which occur
-    // at a similar time in the different threads.
-
-    std::vector<std::future<bool>> tasks;
-
-    for (std::size_t offset = 0; offset < partitions; ++offset, ++start) {
-        // Note there is one copy of g for each thread so capture by reference
-        // is thread safe provided f is thread safe.
-
-        CLoopProgress progress{end - offset, recordProgress,
-                               1.0 / static_cast<double>(partitions)};
-
-        auto& g = functions[offset];
-        tasks.emplace_back(
-            async(defaultAsyncExecutor(),
-                  [&g, partitions, progress](std::size_t start_, std::size_t end_) mutable {
-                      for (std::size_t i = start_; i < end_;
-                           i += partitions, progress.increment(partitions)) {
-                          g(i);
-                      }
-                      return true; // So we can check for exceptions via get.
-                  },
-                  start, end));
-    }
-
-    get_conjunction_of_all(tasks);
-
+    std::vector<FUNCTION> functions(partitions, std::forward<FUNCTION>(f));
+    parallel_for_each(start, end, functions, recordProgress);
     return functions;
 }
 
@@ -317,6 +330,53 @@ parallel_for_each(std::size_t start,
                   const std::function<void(double)>& recordProgress = concurrency_detail::noop) {
     return parallel_for_each(defaultAsyncThreadPoolSize(), start, end,
                              std::forward<FUNCTION>(f), recordProgress);
+}
+
+//! Run \p functions in parallel using async.
+//!
+//! This executes \p functions on a partition of the dereferenced iterators in
+//! the range [\p start, \p start + size) using the default async executor.
+template<typename ITR, typename FUNCTION>
+void parallel_for_each(ITR start,
+                       std::size_t size,
+                       std::vector<FUNCTION>& functions,
+                       const std::function<void(double)>& recordProgress = concurrency_detail::noop) {
+
+    // See above for the rationale for this access pattern.
+
+    std::vector<std::future<bool>> tasks;
+
+    for (std::size_t offset = 0, partitions = functions.size();
+         offset < partitions; ++offset, ++start) {
+        // Note there is one copy of g for each thread so capture by reference
+        // is thread safe provided f is thread safe.
+
+        CLoopProgress progress{size - offset, recordProgress,
+                               1.0 / static_cast<double>(partitions)};
+
+        auto& g = functions[offset];
+        tasks.emplace_back(async(
+            defaultAsyncExecutor(),
+            [&g, partitions, offset, size, progress](ITR start_) mutable {
+
+                std::size_t i{offset};
+
+                auto incrementByPartitions = [&i, partitions, size](ITR& j) {
+                    if (i < size) {
+                        std::advance(j, partitions);
+                    }
+                };
+
+                for (ITR j = start_; i < size; i += partitions,
+                         incrementByPartitions(j), progress.increment(partitions)) {
+                    g(*j);
+                }
+                return true; // So we can check for exceptions via get.
+            },
+            start));
+    }
+
+    get_conjunction_of_all(tasks);
 }
 
 //! Run \p f in parallel using async.
@@ -367,42 +427,7 @@ parallel_for_each(std::size_t partitions,
     }
 
     std::vector<FUNCTION> functions{partitions, std::forward<FUNCTION>(f)};
-
-    // See above for the rationale for this access pattern.
-
-    std::vector<std::future<bool>> tasks;
-
-    for (std::size_t offset = 0; offset < partitions; ++offset, ++start) {
-        // Note there is one copy of g for each thread so capture by reference
-        // is thread safe provided f is thread safe.
-
-        CLoopProgress progress{size - offset, recordProgress,
-                               1.0 / static_cast<double>(partitions)};
-
-        auto& g = functions[offset];
-        tasks.emplace_back(async(
-            defaultAsyncExecutor(),
-            [&g, partitions, offset, size, progress](ITR start_) mutable {
-
-                std::size_t i{offset};
-
-                auto incrementByPartitions = [&i, partitions, size](ITR& j) {
-                    if (i < size) {
-                        std::advance(j, partitions);
-                    }
-                };
-
-                for (ITR j = start_; i < size; i += partitions,
-                         incrementByPartitions(j), progress.increment(partitions)) {
-                    g(*j);
-                }
-                return true; // So we can check for exceptions via get.
-            },
-            start));
-    }
-
-    get_conjunction_of_all(tasks);
-
+    parallel_for_each(start, size, functions, recordProgress);
     return functions;
 }
 
