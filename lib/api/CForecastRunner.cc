@@ -307,7 +307,7 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
             this->sendErrorMessage(
                 forecastJob, "Forecast cannot be executed as forecast memory usage is predicted to exceed " +
                                  std::to_string(forecastJob.s_MaxForecastModelMemory) +
-                                 " while disk space is exceeded");
+                                 " bytes while disk space is exceeded");
             return false;
         }
     }
