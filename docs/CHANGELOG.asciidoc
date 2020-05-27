@@ -41,16 +41,18 @@
 
 === Enhancements
 
+* Don't lose precision when saving model state. (See {ml-pull}1274[#1274].)
 * Add support for larger forecasts in memory via max_model_memory setting.
   (See {ml-pull}1238[#1238].)
-  
+
 == {es} version 7.8.0
 
 === Enhancements
 
 * Speed up anomaly detection for the lat_long function. (See {ml-pull}1102[#1102].)
 * Reduce CPU scheduling priority of native analysis processes to favor the ES JVM
-  when CPU is constrained. (See {ml-pull}1109[#1109].)
+  when CPU is constrained. This change is only implemented for Linux and macOS, not
+  for Windows. (See {ml-pull}1109[#1109].)
 * Take `training_percent` into account when estimating memory usage for classification and regression. 
   (See {ml-pull}1111[#1111].)
 * Support maximize minimum recall when assigning class labels for multiclass classification.
@@ -86,8 +88,6 @@
   (See {ml-pull}1160[#1160], issue: {issue}55593[#55593].)
 * Make categorization respect the `model_memory_limit`. (See {ml-pull}1167[#1167],
   issue: {ml-issue}1130[#1130].)
-* Fix underlying cause for "Failed to calculate splitting significance" log errors.
-  (See {ml-pull}1157[#1157].)
 * Respect user overrides for `max_trees` for classification and regression. (See
   {ml-pull}1185[#1185].)
 * Reset memory status from `soft_limit` to `ok` when pruning is no longer required.
@@ -96,7 +96,6 @@
   {ml-pull}1197[#1197].)
 * Improve the initialization of seasonal components for anomaly detection. (See
   {ml-pull}1201[#1201], issue: {ml-issue}#1178[#1178].)
-* Fix possible root cause for "Bad variance scale nan" log errors. (See {ml-pull}1225[#1225].)
 
 == {es} version 7.7.1
 
@@ -106,6 +105,14 @@
   issue: {ml-issue}1136[#1136].)
 * Fix classification job failures when number of classes in configuration differs 
   from the number of classes present in the training data. (See {ml-pull}1144[#1144].)
+* Fix underlying cause for "Failed to calculate splitting significance" log errors.
+  (See {ml-pull}1157[#1157].)
+* Fix possible root cause for "Bad variance scale nan" log errors. (See {ml-pull}1225[#1225].)
+* Change data frame analytics instrumentation timestamp resolution to milliseconds. (See 
+  {ml-pull}1237[#1237].)
+* Fix "autodetect process stopped unexpectedly: Fatal error: 'terminate called after
+  throwing an instance of 'std::bad_function_call'". (See {ml-pull}1246[#1246],
+  issue: {ml-issue}1245[#1245].)
 
 == {es} version 7.7.0
 

@@ -209,7 +209,7 @@ CEventRateModelFactory::defaultCorrelatePrior(model_t::EFeature /*feature*/,
 
 const CSearchKey& CEventRateModelFactory::searchKey() const {
     if (!m_SearchKeyCache) {
-        m_SearchKeyCache.emplace(m_Identifier, function_t::function(m_Features),
+        m_SearchKeyCache.emplace(m_DetectorIndex, function_t::function(m_Features),
                                  m_UseNull, this->modelParams().s_ExcludeFrequent,
                                  m_ValueFieldName, m_PersonFieldName, "",
                                  m_PartitionFieldName, m_InfluenceFieldNames);
@@ -229,8 +229,8 @@ maths_t::EDataType CEventRateModelFactory::dataType() const {
     return maths_t::E_IntegerData;
 }
 
-void CEventRateModelFactory::identifier(int identifier) {
-    m_Identifier = identifier;
+void CEventRateModelFactory::detectorIndex(int detectorIndex) {
+    m_DetectorIndex = detectorIndex;
     m_SearchKeyCache.reset();
 }
 

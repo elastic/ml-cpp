@@ -50,7 +50,7 @@ const std::string CSearchKey::COUNT_NAME("count");
 const char CSearchKey::CUE_DELIMITER('/');
 const std::string CSearchKey::EMPTY_STRING;
 
-CSearchKey::CSearchKey(int identifier,
+CSearchKey::CSearchKey(int detectorIndex,
                        function_t::EFunction function,
                        bool useNull,
                        model_t::EExcludeFrequent excludeFrequent,
@@ -59,7 +59,7 @@ CSearchKey::CSearchKey(int identifier,
                        std::string overFieldName,
                        std::string partitionFieldName,
                        const TStrVec& influenceFieldNames)
-    : m_Identifier(identifier), m_Function(function), m_UseNull(useNull),
+    : m_DetectorIndex(detectorIndex), m_Function(function), m_UseNull(useNull),
       m_ExcludeFrequent(excludeFrequent), m_Hash(0) {
     m_FieldName = CStringStore::names().get(fieldName);
     m_ByFieldName = CStringStore::names().get(byFieldName);
@@ -72,7 +72,7 @@ CSearchKey::CSearchKey(int identifier,
 }
 
 CSearchKey::CSearchKey(core::CStateRestoreTraverser& traverser, bool& successful)
-    : m_Identifier(0), m_Function(function_t::E_IndividualCount),
+    : m_DetectorIndex(0), m_Function(function_t::E_IndividualCount),
       m_UseNull(false), m_ExcludeFrequent(model_t::E_XF_None), m_Hash(0) {
     successful = traverser.traverseSubLevel(
         std::bind(&CSearchKey::acceptRestoreTraverser, this, std::placeholders::_1));
@@ -82,7 +82,7 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser)
     do {
         const std::string& name = traverser.name();
         if (name == IDENTIFIER_TAG) {
-            if (core::CStringUtils::stringToType(traverser.value(), m_Identifier) == false) {
+            if (core::CStringUtils::stringToType(traverser.value(), m_DetectorIndex) == false) {
                 LOG_ERROR(<< "Invalid identifier in " << traverser.value());
                 return false;
             }
@@ -127,7 +127,7 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser)
 }
 
 void CSearchKey::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(IDENTIFIER_TAG, m_Identifier);
+    inserter.insertValue(IDENTIFIER_TAG, m_DetectorIndex);
     inserter.insertValue(FUNCTION_NAME_TAG, static_cast<int>(m_Function));
     inserter.insertValue(USE_NULL_TAG, static_cast<int>(m_UseNull));
     inserter.insertValue(EXCLUDE_FREQUENT_TAG, static_cast<int>(m_ExcludeFrequent));
@@ -141,7 +141,7 @@ void CSearchKey::acceptPersistInserter(core::CStatePersistInserter& inserter) co
 }
 
 void CSearchKey::swap(CSearchKey& other) {
-    std::swap(m_Identifier, other.m_Identifier);
+    std::swap(m_DetectorIndex, other.m_DetectorIndex);
     std::swap(m_Function, other.m_Function);
     std::swap(m_UseNull, other.m_UseNull);
     std::swap(m_ExcludeFrequent, other.m_ExcludeFrequent);
@@ -156,7 +156,7 @@ void CSearchKey::swap(CSearchKey& other) {
 bool CSearchKey::operator==(const CSearchKey& rhs) const {
     using TStrEqualTo = std::equal_to<std::string>;
 
-    return this->hash() == rhs.hash() && m_Identifier == rhs.m_Identifier &&
+    return this->hash() == rhs.hash() && m_DetectorIndex == rhs.m_DetectorIndex &&
            m_Function == rhs.m_Function && m_UseNull == rhs.m_UseNull &&
            m_ExcludeFrequent == rhs.m_ExcludeFrequent &&
            m_FieldName == rhs.m_FieldName && m_ByFieldName == rhs.m_ByFieldName &&
@@ -178,7 +178,7 @@ bool CSearchKey::operator<(const CSearchKey& rhs) const {
     }
 
     if (this->hash() == rhs.hash()) {
-        if (m_Identifier == rhs.m_Identifier) {
+        if (m_DetectorIndex == rhs.m_DetectorIndex) {
             if (m_Function == rhs.m_Function) {
                 if (m_UseNull == rhs.m_UseNull) {
                     if (m_ExcludeFrequent == rhs.m_ExcludeFrequent) {
@@ -226,7 +226,7 @@ bool CSearchKey::operator<(const CSearchKey& rhs) const {
             return m_Function < rhs.m_Function;
         }
 
-        return m_Identifier < rhs.m_Identifier;
+        return m_DetectorIndex < rhs.m_DetectorIndex;
     }
 
     return this->hash() < rhs.hash();
@@ -236,7 +236,7 @@ namespace {
 
 // This is keyed on a 'by' field name of 'count', which isn't allowed
 // in a real field config, as it doesn't make sense.
-const CSearchKey SIMPLE_COUNT_KEY(0, // identifier
+const CSearchKey SIMPLE_COUNT_KEY(0, // detectorIndex
                                   function_t::E_IndividualCount,
                                   true,
                                   model_t::E_XF_None,
@@ -295,8 +295,8 @@ std::string CSearchKey::debug() const {
     return strm.str();
 }
 
-int CSearchKey::identifier() const {
-    return m_Identifier;
+int CSearchKey::detectorIndex() const {
+    return m_DetectorIndex;
 }
 
 function_t::EFunction CSearchKey::function() const {
@@ -342,7 +342,7 @@ uint64_t CSearchKey::hash() const {
     }
     m_Hash = m_UseNull ? 1 : 0;
     m_Hash = 4 * m_Hash + static_cast<uint64_t>(m_ExcludeFrequent);
-    m_Hash = core::CHashing::hashCombine(m_Hash, static_cast<uint64_t>(m_Identifier));
+    m_Hash = core::CHashing::hashCombine(m_Hash, static_cast<uint64_t>(m_DetectorIndex));
     m_Hash = core::CHashing::hashCombine(m_Hash, static_cast<uint64_t>(m_Function));
     m_Hash = maths::CChecksum::calculate(m_Hash, *m_FieldName);
     m_Hash = maths::CChecksum::calculate(m_Hash, *m_ByFieldName);
@@ -357,7 +357,7 @@ std::ostream& operator<<(std::ostream& strm, const CSearchKey& key) {
     // The format for this is very similar to the format used by toCue() at the
     // time of writing.  However, do NOT combine the code because the intention
     // is to simplify toCue() in the future.
-    strm << key.m_Identifier << "==" << function_t::print(key.m_Function) << '/'
+    strm << key.m_DetectorIndex << "==" << function_t::print(key.m_Function) << '/'
          << (key.m_UseNull ? '1' : '0') << '/' << static_cast<int>(key.m_ExcludeFrequent)
          << '/' << *key.m_FieldName << '/' << *key.m_ByFieldName << '/'
          << *key.m_OverFieldName << '/' << *key.m_PartitionFieldName << '/';
