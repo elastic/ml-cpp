@@ -165,7 +165,7 @@ public:
     //! Checksum of a optional.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const boost::optional<T>& target) {
-        return target != boost::none
+        return target == boost::none
                    ? seed
                    : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
     }
@@ -173,7 +173,7 @@ public:
     //! Checksum a shared pointer.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const std::shared_ptr<T>& target) {
-        return target != nullptr
+        return target == nullptr
                    ? seed
                    : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
     }
@@ -181,7 +181,7 @@ public:
     //! Checksum a unique pointer.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const std::unique_ptr<T>& target) {
-        return target != nullptr
+        return target == nullptr
                    ? seed
                    : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
     }
