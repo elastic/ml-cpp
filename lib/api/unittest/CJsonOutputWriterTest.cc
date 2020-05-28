@@ -1298,7 +1298,7 @@ BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
         ml::core::CJsonOutputStreamWrapper outputStream(sstream);
         ml::api::CJsonOutputWriter writer("job", outputStream);
 
-        writer.writeCategoryDefinition(categoryId, terms, regex,
+        writer.writeCategoryDefinition("", "", categoryId, terms, regex,
                                        maxMatchingLength, examples, 0, {});
     }
 
@@ -1321,6 +1321,72 @@ BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
     const rapidjson::Value& category = categoryWrapper["category_definition"];
     BOOST_TEST_REQUIRE(category.HasMember("job_id"));
     BOOST_REQUIRE_EQUAL(std::string("job"), std::string(category["job_id"].GetString()));
+    BOOST_TEST_REQUIRE(category.HasMember("partition_field_name") == false);
+    BOOST_TEST_REQUIRE(category.HasMember("partition_field_value") == false);
+    BOOST_TEST_REQUIRE(category.IsObject());
+    BOOST_TEST_REQUIRE(category.HasMember("category_id"));
+    BOOST_REQUIRE_EQUAL(categoryId, category["category_id"].GetInt());
+    BOOST_TEST_REQUIRE(category.HasMember("terms"));
+    BOOST_REQUIRE_EQUAL(terms, std::string(category["terms"].GetString()));
+    BOOST_TEST_REQUIRE(category.HasMember("regex"));
+    BOOST_REQUIRE_EQUAL(regex, std::string(category["regex"].GetString()));
+    BOOST_TEST_REQUIRE(category.HasMember("max_matching_length"));
+    BOOST_REQUIRE_EQUAL(maxMatchingLength,
+                        static_cast<std::size_t>(category["max_matching_length"].GetInt()));
+    BOOST_TEST_REQUIRE(category.HasMember("examples"));
+
+    ml::api::CJsonOutputWriter::TStrFSet writtenExamplesSet;
+    const rapidjson::Value& writtenExamples = category["examples"];
+    for (rapidjson::SizeType i = 0; i < writtenExamples.Size(); i++) {
+        writtenExamplesSet.insert(std::string(writtenExamples[i].GetString()));
+    }
+    BOOST_TEST_REQUIRE(writtenExamplesSet == examples);
+}
+
+BOOST_AUTO_TEST_CASE(testWritePerPartitionCategoryDefinition) {
+    int categoryId(42);
+    std::string terms("foo bar");
+    std::string regex(".*?foo.+?bar.*");
+    std::size_t maxMatchingLength(132);
+    ml::api::CJsonOutputWriter::TStrFSet examples;
+    examples.insert("User foo failed to log in");
+    examples.insert("User bar failed to log in");
+
+    std::ostringstream sstream;
+
+    {
+        ml::core::CJsonOutputStreamWrapper outputStream(sstream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
+
+        writer.writeCategoryDefinition("event.dataset", "elasticsearch", categoryId, terms,
+                                       regex, maxMatchingLength, examples, 0, {});
+    }
+
+    rapidjson::Document arrayDoc;
+    arrayDoc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+
+    BOOST_TEST_REQUIRE(arrayDoc.IsArray());
+    BOOST_REQUIRE_EQUAL(rapidjson::SizeType(1), arrayDoc.Size());
+
+    rapidjson::StringBuffer strbuf;
+    using TStringBufferPrettyWriter = rapidjson::PrettyWriter<rapidjson::StringBuffer>;
+    TStringBufferPrettyWriter writer(strbuf);
+    arrayDoc.Accept(writer);
+    LOG_DEBUG(<< "CategoryDefinition:\n" << strbuf.GetString());
+
+    const rapidjson::Value& categoryWrapper = arrayDoc[rapidjson::SizeType(0)];
+    BOOST_TEST_REQUIRE(categoryWrapper.IsObject());
+    BOOST_TEST_REQUIRE(categoryWrapper.HasMember("category_definition"));
+
+    const rapidjson::Value& category = categoryWrapper["category_definition"];
+    BOOST_TEST_REQUIRE(category.HasMember("job_id"));
+    BOOST_REQUIRE_EQUAL(std::string("job"), std::string(category["job_id"].GetString()));
+    BOOST_TEST_REQUIRE(category.HasMember("partition_field_name"));
+    BOOST_REQUIRE_EQUAL("event.dataset",
+                        std::string(category["partition_field_name"].GetString()));
+    BOOST_TEST_REQUIRE(category.HasMember("partition_field_value"));
+    BOOST_REQUIRE_EQUAL("elasticsearch",
+                        std::string(category["partition_field_value"].GetString()));
     BOOST_TEST_REQUIRE(category.IsObject());
     BOOST_TEST_REQUIRE(category.HasMember("category_id"));
     BOOST_REQUIRE_EQUAL(categoryId, category["category_id"].GetInt());

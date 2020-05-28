@@ -108,7 +108,7 @@ public:
     CTokenListDataCategorizerBase& operator=(const CTokenListDataCategorizerBase&) = delete;
 
     //! Dump stats
-    void dumpStats() const override;
+    void dumpStats(const TIdFormatterFunc& formatterFunc) const override;
 
     //! Compute a category from a string.  The raw string length may be longer
     //! than the length of the passed string, because the passed string may

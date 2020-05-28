@@ -13,7 +13,6 @@
 #include <core/CStringUtils.h>
 #include <core/CoreTypes.h>
 
-#include <model/CLimits.h>
 #include <model/FunctionTypes.h>
 
 #include <api/CDetectionRulesJsonParser.h>
@@ -43,21 +42,12 @@ const std::string CFieldConfig::RULES_SUFFIX(".rules");
 const std::string CFieldConfig::CATEGORIZATION_FIELD_OPTION("categorizationfield");
 const std::string CFieldConfig::SUMMARY_COUNT_FIELD_OPTION("summarycountfield");
 const char CFieldConfig::SUFFIX_SEPARATOR('.');
-const char CFieldConfig::FIELDNAME_SEPARATOR('-');
-const std::string CFieldConfig::IS_ENABLED_SUFFIX(".isEnabled");
-const std::string CFieldConfig::BY_SUFFIX(".by");
-const std::string CFieldConfig::OVER_SUFFIX(".over");
-const std::string CFieldConfig::PARTITION_SUFFIX(".partition");
 const std::string CFieldConfig::PARTITION_FIELD_OPTION("partitionfield");
-const std::string CFieldConfig::USE_NULL_SUFFIX(".useNull");
 const std::string CFieldConfig::USE_NULL_OPTION("usenull");
 const std::string CFieldConfig::BY_TOKEN("by");
 const std::string CFieldConfig::OVER_TOKEN("over");
 const std::string CFieldConfig::COUNT_NAME("count");
-const std::string CFieldConfig::INFLUENCER_FIELD_NAMES_OPTION("influencers");
 const std::string CFieldConfig::INFLUENCER_FIELD_OPTION("influencerfield");
-const std::string CFieldConfig::FALSE_VALUE(1, 'F');
-const std::string CFieldConfig::TRUE_VALUE(1, 'T');
 const std::string CFieldConfig::EMPTY_STRING;
 
 // Event rate functions
@@ -127,7 +117,8 @@ const std::string CFieldConfig::FUNCTION_MIN_VELOCITY("min_velocity");
 const std::string CFieldConfig::FUNCTION_MEAN_VELOCITY("mean_velocity");
 const std::string CFieldConfig::FUNCTION_SUM_VELOCITY("sum_velocity");
 
-const std::string CFieldConfig::EXCLUDE_FREQUENT_SUFFIX(".excludefrequent");
+const std::string CFieldConfig::PER_PARTITION_CATEGORIZATION_OPTION("perpartitioncategorization");
+
 const std::string CFieldConfig::EXCLUDE_FREQUENT_OPTION("excludefrequent");
 const std::string CFieldConfig::ALL_TOKEN("all");
 const std::string CFieldConfig::NONE_TOKEN("none");
@@ -138,7 +129,7 @@ CFieldConfig::CFieldConfig() {
 }
 
 CFieldConfig::CFieldConfig(const std::string& categorizationFieldName)
-    : m_CategorizationFieldName(categorizationFieldName) {
+    : m_CategorizationFieldName{categorizationFieldName} {
     this->seenField(categorizationFieldName);
 }
 
@@ -146,7 +137,7 @@ CFieldConfig::CFieldConfig(const std::string& fieldName,
                            const std::string& byFieldName,
                            bool useNull,
                            const std::string& summaryCountFieldName)
-    : m_SummaryCountFieldName(summaryCountFieldName) {
+    : m_SummaryCountFieldName{summaryCountFieldName} {
     CFieldOptions options(fieldName, 1, byFieldName, false, useNull);
 
     m_FieldOptions.insert(options);
@@ -201,8 +192,11 @@ bool CFieldConfig::initFromFile(const std::string& configFile) {
 
     m_FieldOptions.clear();
     m_FieldNameSuperset.clear();
+    m_CategorizationFieldName.clear();
+    m_CategorizationPartitionFieldName.clear();
     m_CategorizationFilters.clear();
     m_Influencers.clear();
+    m_SummaryCountFieldName.clear();
     m_DetectorRules.clear();
     m_RuleFilters.clear();
     m_ScheduledEvents.clear();
@@ -422,19 +416,22 @@ bool CFieldConfig::initFromClause(const TStrVec& tokens) {
     }
 
     std::string defaultCategorizationFieldName;
+    std::string defaultCategorizationPartitionFieldName;
     std::string summaryCountFieldName;
 
     if (this->parseClause(true, 0, EMPTY_STRING, copyTokens, m_FieldOptions,
-                          defaultCategorizationFieldName, summaryCountFieldName) == false) {
+                          defaultCategorizationFieldName, defaultCategorizationPartitionFieldName,
+                          summaryCountFieldName) == false) {
         // parseClause() will have logged the problem
         return false;
     }
 
     if (!defaultCategorizationFieldName.empty()) {
-        m_CategorizationFieldName.swap(defaultCategorizationFieldName);
+        m_CategorizationFieldName = std::move(defaultCategorizationFieldName);
+        m_CategorizationPartitionFieldName = std::move(defaultCategorizationPartitionFieldName);
     }
     if (!summaryCountFieldName.empty()) {
-        m_SummaryCountFieldName.swap(summaryCountFieldName);
+        m_SummaryCountFieldName = std::move(summaryCountFieldName);
     }
 
     this->sortInfluencers();
@@ -465,6 +462,7 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
                                TStrVec& copyTokens,
                                TFieldOptionsMIndex& optionsIndex,
                                std::string& categorizationFieldName,
+                               std::string& categorizationPartitionFieldName,
                                std::string& summaryCountFieldName) {
     std::string partitionFieldName = this->findParameter(PARTITION_FIELD_OPTION, copyTokens);
 
@@ -475,11 +473,32 @@ bool CFieldConfig::parseClause(bool allowMultipleFunctions,
         influencerFieldName = this->findParameter(INFLUENCER_FIELD_OPTION, copyTokens);
     }
 
-    categorizationFieldName = this->findParameter(CATEGORIZATION_FIELD_OPTION, copyTokens);
-
-    if (!categorizationFieldName.empty()) {
-        this->seenField(categorizationFieldName);
+    std::string perPartitionCategorizationString =
+        this->findParameter(PER_PARTITION_CATEGORIZATION_OPTION, copyTokens);
+    bool perPartitionCategorization(false);
+    if (!perPartitionCategorizationString.empty() &&
+        core::CStringUtils::stringToType(perPartitionCategorizationString,
+                                         perPartitionCategorization) == false) {
+        LOG_ERROR(<< "Cannot convert perPartitionCategorization value to boolean: "
+                  << perPartitionCategorizationString);
+        return false;
     }
+
+    categorizationFieldName = this->findParameter(CATEGORIZATION_FIELD_OPTION, copyTokens);
+    if (perPartitionCategorization) {
+        if (categorizationFieldName.empty()) {
+            LOG_ERROR(<< "perpartitioncategorization specified without a categorization field");
+            return false;
+        }
+        if (partitionFieldName.empty()) {
+            LOG_ERROR(<< "perpartitioncategorization specified without a partition field");
+            return false;
+        }
+        categorizationPartitionFieldName = partitionFieldName;
+    } else {
+        categorizationPartitionFieldName.clear();
+    }
+    this->seenField(categorizationFieldName);
 
     summaryCountFieldName = this->findParameter(SUMMARY_COUNT_FIELD_OPTION, copyTokens);
     this->seenField(summaryCountFieldName);
@@ -597,6 +616,10 @@ const std::string& CFieldConfig::categorizationFieldName() const {
     return m_CategorizationFieldName;
 }
 
+const std::string& CFieldConfig::categorizationPartitionFieldName() const {
+    return m_CategorizationPartitionFieldName;
+}
+
 const CFieldConfig::TStrPatternSetUMap& CFieldConfig::ruleFilters() const {
     return m_RuleFilters;
 }
@@ -615,7 +638,7 @@ bool CFieldConfig::havePartitionFields() const {
             return true;
         }
     }
-    return false;
+    return m_CategorizationPartitionFieldName.empty() == false;
 }
 
 const CFieldConfig::TStrSet& CFieldConfig::fieldNameSuperset() const {
@@ -682,19 +705,28 @@ bool CFieldConfig::addActiveDetector(int configKey,
                                      const std::string& rules,
                                      TStrVec& copyTokens) {
     std::string categorizationFieldName;
+    std::string categorizationPartitionFieldName;
     std::string summaryCountFieldName;
 
     if (this->parseClause(false, configKey, description, copyTokens, m_FieldOptions,
-                          categorizationFieldName, summaryCountFieldName) == false) {
+                          categorizationFieldName, categorizationPartitionFieldName,
+                          summaryCountFieldName) == false) {
         // parseClause() will have logged the error
         return false;
     }
 
     if (!categorizationFieldName.empty()) {
-        m_CategorizationFieldName.swap(categorizationFieldName);
+        m_CategorizationFieldName = std::move(categorizationFieldName);
+        if (m_CategorizationPartitionFieldName.empty() == false &&
+            categorizationPartitionFieldName != m_CategorizationPartitionFieldName) {
+            LOG_ERROR(<< "perpartitioncategorization specified when partition "
+                         "field varies between detectors");
+            return false;
+        }
+        m_CategorizationPartitionFieldName = std::move(categorizationPartitionFieldName);
     }
     if (!summaryCountFieldName.empty()) {
-        m_SummaryCountFieldName.swap(summaryCountFieldName);
+        m_SummaryCountFieldName = std::move(summaryCountFieldName);
     }
 
     TDetectionRuleVec& detectionRules = m_DetectorRules[configKey];
@@ -1089,7 +1121,7 @@ void CFieldConfig::influencerFieldNames(TStrVec influencers) {
     LOG_DEBUG(<< "Set influencers : " << core::CContainerPrinter::print(influencers));
     std::for_each(influencers.begin(), influencers.end(),
                   std::bind(&CFieldConfig::seenField, this, std::placeholders::_1));
-    m_Influencers.swap(influencers);
+    m_Influencers = std::move(influencers);
 }
 
 void CFieldConfig::addInfluencerFieldName(const std::string& influencer, bool quiet) {
@@ -1225,10 +1257,10 @@ bool CFieldConfig::updateScheduledEvents(const boost::property_tree::ptree& prop
 }
 
 CFieldConfig::CFieldOptions::CFieldOptions(const std::string& fieldName, int configKey)
-    : m_Function(fieldName == COUNT_NAME ? model::function_t::E_IndividualRareCount
-                                         : model::function_t::E_IndividualMetric),
-      m_FieldName(fieldName), m_ConfigKey(configKey), m_ByHasExcludeFrequent(false),
-      m_OverHasExcludeFrequent(false), m_UseNull(true) {
+    : m_Function{fieldName == COUNT_NAME ? model::function_t::E_IndividualRareCount
+                                         : model::function_t::E_IndividualMetric},
+      m_FieldName{fieldName}, m_ConfigKey{configKey}, m_ByHasExcludeFrequent{false},
+      m_OverHasExcludeFrequent{false}, m_UseNull{true} {
 }
 
 CFieldConfig::CFieldOptions::CFieldOptions(const std::string& fieldName,
@@ -1239,12 +1271,11 @@ CFieldConfig::CFieldOptions::CFieldOptions(const std::string& fieldName,
     // For historical reasons, the only function name we interpret in this
     // constructor is "count" - every other word is considered to be a metric
     // field name.
-    : m_Function(fieldName == COUNT_NAME ? model::function_t::E_IndividualRareCount
-                                         : model::function_t::E_IndividualMetric),
-      m_FieldName(fieldName == COUNT_NAME ? EMPTY_STRING : fieldName),
-      m_ConfigKey(configKey), m_ByFieldName(byFieldName),
-      m_ByHasExcludeFrequent(byHasExcludeFrequent),
-      m_OverHasExcludeFrequent(false), m_UseNull(useNull) {
+    : m_Function{fieldName == COUNT_NAME ? model::function_t::E_IndividualRareCount
+                                         : model::function_t::E_IndividualMetric},
+      m_FieldName{fieldName == COUNT_NAME ? EMPTY_STRING : fieldName}, m_ConfigKey{configKey},
+      m_ByFieldName{byFieldName}, m_ByHasExcludeFrequent{byHasExcludeFrequent},
+      m_OverHasExcludeFrequent{false}, m_UseNull{useNull} {
 }
 
 CFieldConfig::CFieldOptions::CFieldOptions(const std::string& fieldName,
@@ -1257,13 +1288,12 @@ CFieldConfig::CFieldOptions::CFieldOptions(const std::string& fieldName,
     // For historical reasons, the only function name we interpret in this
     // constructor is "count" - every other word is considered to be a metric
     // field name.
-    : m_Function(fieldName == COUNT_NAME ? model::function_t::E_IndividualRareCount
-                                         : model::function_t::E_IndividualMetric),
-      m_FieldName(fieldName == COUNT_NAME ? EMPTY_STRING : fieldName),
-      m_ConfigKey(configKey), m_ByFieldName(byFieldName),
-      m_PartitionFieldName(partitionFieldName),
-      m_ByHasExcludeFrequent(byHasExcludeFrequent),
-      m_OverHasExcludeFrequent(overHasExcludeFrequent), m_UseNull(useNull) {
+    : m_Function{fieldName == COUNT_NAME ? model::function_t::E_IndividualRareCount
+                                         : model::function_t::E_IndividualMetric},
+      m_FieldName{fieldName == COUNT_NAME ? EMPTY_STRING : fieldName},
+      m_ConfigKey{configKey}, m_ByFieldName{byFieldName},
+      m_PartitionFieldName{partitionFieldName}, m_ByHasExcludeFrequent{byHasExcludeFrequent},
+      m_OverHasExcludeFrequent{overHasExcludeFrequent}, m_UseNull{useNull} {
 }
 
 CFieldConfig::CFieldOptions::CFieldOptions(model::function_t::EFunction function,
@@ -1275,15 +1305,14 @@ CFieldConfig::CFieldOptions::CFieldOptions(model::function_t::EFunction function
                                            bool byHasExcludeFrequent,
                                            bool overHasExcludeFrequent,
                                            bool useNull)
-    : m_Function(function), m_FieldName(fieldName), m_ConfigKey(configKey),
-      m_ByFieldName(byFieldName), m_OverFieldName(overFieldName),
-      m_PartitionFieldName(partitionFieldName),
-      m_ByHasExcludeFrequent(byHasExcludeFrequent),
-      m_OverHasExcludeFrequent(overHasExcludeFrequent), m_UseNull(useNull) {
+    : m_Function{function}, m_FieldName{fieldName}, m_ConfigKey{configKey},
+      m_ByFieldName{byFieldName}, m_OverFieldName{overFieldName},
+      m_PartitionFieldName{partitionFieldName}, m_ByHasExcludeFrequent{byHasExcludeFrequent},
+      m_OverHasExcludeFrequent{overHasExcludeFrequent}, m_UseNull{useNull} {
 }
 
 void CFieldConfig::CFieldOptions::description(std::string description) {
-    m_Description.swap(description);
+    m_Description = std::move(description);
 }
 
 const std::string& CFieldConfig::CFieldOptions::description() const {

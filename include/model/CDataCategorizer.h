@@ -42,12 +42,15 @@ class CLimits;
 //!
 class MODEL_EXPORT CDataCategorizer : public CMonitoredResource {
 public:
+    //! Used for formatting category IDs in the debug dump
+    using TIdFormatterFunc = std::function<std::string(int)>;
+
     //! Used for storing distinct token IDs
     using TStrStrUMap = boost::unordered_map<std::string, std::string>;
     using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
     //! Shared pointer to an instance of this class
-    using TDataCategorizerP = std::shared_ptr<CDataCategorizer>;
+    using TDataCategorizerPtr = std::shared_ptr<CDataCategorizer>;
 
     //! Shared pointer to an instance of this class
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
@@ -73,7 +76,7 @@ public:
     ~CDataCategorizer() override;
 
     //! Dump stats
-    virtual void dumpStats() const = 0;
+    virtual void dumpStats(const TIdFormatterFunc& formatterFunc) const = 0;
 
     //! Compute a category from a string.  The raw string length may be longer
     //! than the length of the passed string, because the passed string may

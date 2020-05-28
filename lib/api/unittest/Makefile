@@ -51,7 +51,9 @@ SRCS=\
 	CMultiFileDataAdderTest.cc \
 	CNdJsonInputParserTest.cc \
 	CNdJsonOutputWriterTest.cc \
+	CNoopCategoryIdMapperTest.cc \
 	COutputChainerTest.cc \
+	CPerPartitionCategoryIdMapperTest.cc \
 	CPersistenceManagerTest.cc \
 	CRestorePreviousStateTest.cc \
 	CResultNormalizerTest.cc \

@@ -46,11 +46,12 @@ CTokenListDataCategorizerBase::CTokenListDataCategorizerBase(CLimits& limits,
       m_MemoryCategorizationFailures{0}, m_HasChanged{false} {
 }
 
-void CTokenListDataCategorizerBase::dumpStats() const {
-    // ML category number is vector index plus one
+void CTokenListDataCategorizerBase::dumpStats(const TIdFormatterFunc& idFormatter) const {
+    // ML local category ID is vector index plus one.  If global category IDs
+    // are different then the supplied formatter should print that too.
     int categoryId{1};
     for (const auto& category : m_Categories) {
-        LOG_DEBUG(<< "ML category=" << categoryId << '-'
+        LOG_DEBUG(<< "ML category=" << idFormatter(categoryId) << '-'
                   << category.numMatches() << ' ' << category.baseString());
         ++categoryId;
     }

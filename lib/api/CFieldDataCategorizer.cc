@@ -10,6 +10,7 @@
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
+#include <core/CPersistUtils.h>
 #include <core/CStateCompressor.h>
 #include <core/CStateDecompressor.h>
 #include <core/CStateRestoreTraverser.h>
@@ -19,7 +20,9 @@
 
 #include <api/CFieldConfig.h>
 #include <api/CJsonOutputWriter.h>
+#include <api/CNoopCategoryIdMapper.h>
 #include <api/COutputHandler.h>
+#include <api/CPerPartitionCategoryIdMapper.h>
 #include <api/CPersistenceManager.h>
 
 #include <memory>
@@ -33,6 +36,10 @@ namespace {
 const std::string VERSION_TAG{"a"};
 const std::string CATEGORIZER_TAG{"b"};
 const std::string EXAMPLES_COLLECTOR_TAG{"c"};
+const std::string PARTITION_FIELD_VALUE_TAG{"d"};
+const std::string CATEGORY_ID_MAPPER_TAG{"e"};
+const std::string CATEGORIZER_ALLOCATION_FAILURES{"f"};
+const std::string EMPTY_STRING;
 } // unnamed
 
 // Initialise statics
@@ -50,15 +57,27 @@ CFieldDataCategorizer::CFieldDataCategorizer(const std::string& jobId,
                                              CPersistenceManager* persistenceManager)
     : m_JobId{jobId}, m_Limits{limits}, m_OutputHandler{outputHandler}, m_ExtraFieldNames{1, MLCATEGORY_NAME},
       m_OutputFieldCategory{m_Overrides[MLCATEGORY_NAME]}, m_JsonOutputWriter{jsonOutputWriter},
+      m_PartitionFieldName{config.categorizationPartitionFieldName()},
       m_CategorizationFieldName{config.categorizationFieldName()}, m_PersistenceManager{persistenceManager} {
-    this->createCategorizer(m_CategorizationFieldName);
 
-    LOG_DEBUG(<< "Configuring categorization filtering");
-    m_CategorizationFilter.configure(config.categorizationFilters());
+    if (config.categorizationFilters().empty() == false) {
+        LOG_DEBUG(<< "Configuring categorization filtering");
+        m_CategorizationFilter.configure(config.categorizationFilters());
+    }
+
+    if (m_PartitionFieldName.empty()) {
+        m_CategoryIdMapper = std::make_unique<CNoopCategoryIdMapper>();
+    } else {
+        m_CategoryIdMapper = std::make_unique<CPerPartitionCategoryIdMapper>();
+    }
 }
 
 CFieldDataCategorizer::~CFieldDataCategorizer() {
-    m_DataCategorizer->dumpStats();
+    for (const auto& dataCategorizerEntry : m_DataCategorizers) {
+        dataCategorizerEntry.second->dumpStats([this, &dataCategorizerEntry](int localCategoryId) {
+            return m_CategoryIdMapper->printMapping(dataCategorizerEntry.first, localCategoryId);
+        });
+    }
 }
 
 void CFieldDataCategorizer::newOutputStream() {
@@ -84,7 +103,7 @@ bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields) {
     }
 
     // Non-empty control fields take precedence over everything else
-    TStrStrUMapCItr iter = dataRowFields.find(CONTROL_FIELD_NAME);
+    auto iter = dataRowFields.find(CONTROL_FIELD_NAME);
     if (iter != dataRowFields.end() && !iter->second.empty()) {
         // Always handle control messages, but signal completion of handling ONLY if we are the last handler
         // e.g. flush requests are acknowledged here if this is the last handler
@@ -96,13 +115,13 @@ bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields) {
         return msgHandled;
     }
 
-    int categoryId{this->computeCategory(dataRowFields)};
-    if (categoryId == model::CDataCategorizer::HARD_CATEGORIZATION_FAILURE_ERROR) {
+    int globalCategoryId{this->computeCategory(dataRowFields)};
+    if (globalCategoryId == model::CDataCategorizer::HARD_CATEGORIZATION_FAILURE_ERROR) {
         // Still return true here, because false would fail the entire job
         return true;
     }
 
-    m_OutputFieldCategory = core::CStringUtils::typeToString(categoryId);
+    m_OutputFieldCategory = core::CStringUtils::typeToString(globalCategoryId);
     if (m_OutputHandler.writeRow(dataRowFields, m_Overrides) == false) {
         LOG_ERROR(<< "Unable to write output with type " << m_OutputFieldCategory
                   << " for input:" << core_t::LINE_ENDING
@@ -116,7 +135,9 @@ bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields) {
 void CFieldDataCategorizer::finalise() {
 
     // Make sure model size stats are up to date
-    m_Limits.resourceMonitor().forceRefresh(*m_DataCategorizer);
+    for (const auto& dataCategorizerEntry : m_DataCategorizers) {
+        m_Limits.resourceMonitor().forceRefresh(*dataCategorizerEntry.second);
+    }
     writeOutChangedCategories();
     // Pass on the request in case we're chained
     m_OutputHandler.finalise();
@@ -138,52 +159,76 @@ COutputHandler& CFieldDataCategorizer::outputHandler() {
 }
 
 int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
-    const std::string& categorizationFieldName{m_DataCategorizer->fieldName()};
-    auto fieldIter = dataRowFields.find(categorizationFieldName);
+    int globalCategoryId{model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR};
+
+    auto fieldIter = dataRowFields.find(m_CategorizationFieldName);
     if (fieldIter == dataRowFields.end()) {
-        LOG_WARN(<< "Assigning ML category " << model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR
-                 << " to record with no " << categorizationFieldName << " field:"
-                 << core_t::LINE_ENDING << this->debugPrintRecord(dataRowFields));
-        return model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR;
+        LOG_WARN(<< "Assigning ML category " << globalCategoryId << " to record with no "
+                 << m_CategorizationFieldName << " field:" << core_t::LINE_ENDING
+                 << this->debugPrintRecord(dataRowFields));
+        return globalCategoryId;
     }
 
     const std::string& fieldValue{fieldIter->second};
     if (fieldValue.empty()) {
-        LOG_WARN(<< "Assigning ML category " << model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR
-                 << " to record with blank " << categorizationFieldName << " field:"
-                 << core_t::LINE_ENDING << this->debugPrintRecord(dataRowFields));
-        return model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR;
+        LOG_WARN(<< "Assigning ML category " << globalCategoryId << " to record with blank "
+                 << m_CategorizationFieldName << " field:" << core_t::LINE_ENDING
+                 << this->debugPrintRecord(dataRowFields));
+        return globalCategoryId;
     }
 
-    int categoryId{model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR};
+    const std::string& partitionFieldValue{this->categorizerKeyForRecord(dataRowFields)};
+    model::CDataCategorizer* dataCategorizer{this->categorizerPtrForKey(partitionFieldValue)};
+    if (dataCategorizer == nullptr) {
+        ++m_CategorizerAllocationFailures;
+        if (m_PartitionFieldName.empty()) {
+            if (m_Limits.resourceMonitor().categorizerAllocationFailures() == 0) {
+                LOG_WARN(<< "Categorization not possible due to lack of memory");
+            }
+        } else {
+            bool partitionNotFailedBefore{m_CategorizerAllocationFailedPartitions
+                                              .insert(partitionFieldValue)
+                                              .second};
+            if (partitionNotFailedBefore) {
+                LOG_WARN(<< "Categorization not possible for partition '"
+                         << partitionFieldValue << "' due to lack of memory");
+            }
+        }
+        m_Limits.resourceMonitor().categorizerAllocationFailures(m_CategorizerAllocationFailures);
+        return model::CDataCategorizer::HARD_CATEGORIZATION_FAILURE_ERROR;
+    }
+    int localCategoryId{model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR};
     if (m_CategorizationFilter.empty()) {
-        categoryId = m_DataCategorizer->computeCategory(
+        localCategoryId = dataCategorizer->computeCategory(
             false, dataRowFields, fieldValue, fieldValue.length());
     } else {
         std::string filtered = m_CategorizationFilter.apply(fieldValue);
-        categoryId = m_DataCategorizer->computeCategory(false, dataRowFields, filtered,
-                                                        fieldValue.length());
+        localCategoryId = dataCategorizer->computeCategory(
+            false, dataRowFields, filtered, fieldValue.length());
     }
-    if (categoryId < 1) {
-        return categoryId;
+    globalCategoryId = m_CategoryIdMapper->globalCategoryIdForLocalCategoryId(
+        partitionFieldValue, localCategoryId);
+    if (globalCategoryId < 1) {
+        return globalCategoryId;
     }
 
-    bool exampleAdded{m_DataCategorizer->addExample(categoryId, fieldValue)};
-    bool searchTermsChanged{this->createReverseSearch(categoryId)};
+    bool exampleAdded{dataCategorizer->addExample(localCategoryId, fieldValue)};
+    bool searchTermsChanged{this->createReverseSearch(*dataCategorizer, localCategoryId)};
     if (exampleAdded || searchTermsChanged) {
         //! signal that we noticed the change and are persisting here
-        m_DataCategorizer->categoryChangedAndReset(categoryId);
+        dataCategorizer->categoryChangedAndReset(localCategoryId);
         m_JsonOutputWriter.writeCategoryDefinition(
-            categoryId, m_SearchTerms, m_SearchTermsRegex, m_MaxMatchingLength,
-            m_DataCategorizer->examplesCollector().examples(categoryId),
-            m_DataCategorizer->numMatches(categoryId),
-            m_DataCategorizer->usurpedCategories(categoryId));
-        if (categoryId % 10 == 0) {
+            m_PartitionFieldName, partitionFieldValue, globalCategoryId,
+            m_SearchTerms, m_SearchTermsRegex, m_MaxMatchingLength,
+            dataCategorizer->examplesCollector().examples(localCategoryId),
+            dataCategorizer->numMatches(localCategoryId),
+            dataCategorizer->usurpedCategories(localCategoryId));
+        if (localCategoryId % 10 == 0) {
             // Even if memory limiting is disabled, force a refresh occasionally
             // so the user has some idea what's going on with memory.
-            m_Limits.resourceMonitor().forceRefresh(*m_DataCategorizer);
+            m_Limits.resourceMonitor().forceRefresh(*dataCategorizer);
         } else {
-            m_Limits.resourceMonitor().refresh(*m_DataCategorizer);
+            m_Limits.resourceMonitor().refresh(*dataCategorizer);
         }
     }
 
@@ -192,23 +237,45 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
         m_PersistenceManager->startPersistIfAppropriate();
     }
 
-    return categoryId;
+    return globalCategoryId;
 }
 
-void CFieldDataCategorizer::createCategorizer(const std::string& fieldName) {
-    // TODO - if we ever have more than one data categorizer class, this should
-    // be replaced with a factory
-    m_DataCategorizer = std::make_shared<TTokenListDataCategorizerKeepsFields>(
-        m_Limits, std::make_shared<model::CTokenListReverseSearchCreator>(fieldName),
-        SIMILARITY_THRESHOLD, fieldName);
-
-    LOG_TRACE(<< "Created new categorizer for field '" << fieldName << "'");
+const std::string& CFieldDataCategorizer::categorizerKeyForRecord(const TStrStrUMap& dataRowFields) {
+    if (m_PartitionFieldName.empty()) {
+        return EMPTY_STRING;
+    }
+    auto partitionFieldIter = dataRowFields.find(m_PartitionFieldName);
+    if (partitionFieldIter == dataRowFields.end()) {
+        return EMPTY_STRING;
+    }
+    return partitionFieldIter->second;
 }
 
-bool CFieldDataCategorizer::createReverseSearch(int categoryId) {
+model::CDataCategorizer*
+CFieldDataCategorizer::categorizerPtrForKey(const std::string& partitionFieldValue) {
+    model::CDataCategorizer::TDataCategorizerPtr& ptr{m_DataCategorizers[partitionFieldValue]};
+    if (ptr == nullptr && m_Limits.resourceMonitor().areAllocationsAllowed()) {
+        // TODO - if we ever have more than one data categorizer class, this
+        // should be replaced with a factory
+        ptr = std::make_shared<TTokenListDataCategorizerKeepsFields>(
+            m_Limits, std::make_shared<model::CTokenListReverseSearchCreator>(m_CategorizationFieldName),
+            SIMILARITY_THRESHOLD, m_CategorizationFieldName);
+        LOG_TRACE(<< "Created new categorizer for '" << partitionFieldValue
+                  << '/' << m_CategorizationFieldName << "'");
+    }
+    return ptr.get();
+}
+
+model::CDataCategorizer&
+CFieldDataCategorizer::categorizerForKey(const std::string& partitionFieldValue) {
+    return *this->categorizerPtrForKey(partitionFieldValue);
+}
+
+bool CFieldDataCategorizer::createReverseSearch(model::CDataCategorizer& dataCategorizer,
+                                                int localCategoryId) {
     bool wasCached(false);
-    if (m_DataCategorizer->createReverseSearch(categoryId, m_SearchTerms, m_SearchTermsRegex,
-                                               m_MaxMatchingLength, wasCached) == false) {
+    if (dataCategorizer.createReverseSearch(localCategoryId, m_SearchTerms, m_SearchTermsRegex,
+                                            m_MaxMatchingLength, wasCached) == false) {
         m_SearchTerms.clear();
         m_SearchTermsRegex.clear();
     }
@@ -290,40 +357,87 @@ bool CFieldDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTraverser&
         return false;
     }
 
-    if (traverser.next() == false) {
-        LOG_ERROR(<< "Cannot restore categorizer - end of object reached when "
-                  << CATEGORIZER_TAG << " was expected");
-        return false;
+    TStrVec categorizerKeys;
+    if (m_PartitionFieldName.empty()) {
+        // The sole categorizer key when per-partition categorization is
+        // disabled is the empty string
+        categorizerKeys.resize(1);
+    } else {
+        if (traverser.next() == false) {
+            LOG_ERROR(<< "Cannot restore categorizer - end of object reached when "
+                      << PARTITION_FIELD_VALUE_TAG << " was expected");
+            return false;
+        }
+
+        if (core::CPersistUtils::restore(PARTITION_FIELD_VALUE_TAG,
+                                         categorizerKeys, traverser) == false) {
+            LOG_ERROR(<< "Invalid partition values in " << traverser.value());
+            return false;
+        }
     }
 
-    if (traverser.name() == CATEGORIZER_TAG) {
-        if (traverser.traverseSubLevel(
-                std::bind(&model::CDataCategorizer::acceptRestoreTraverser,
-                          m_DataCategorizer, std::placeholders::_1)) == false) {
-            LOG_ERROR(<< "Cannot restore categorizer, unexpected element: "
+    for (const auto& categorizerKey : categorizerKeys) {
+        model::CDataCategorizer& dataCategorizer{this->categorizerForKey(categorizerKey)};
+        if (traverser.next() == false) {
+            LOG_ERROR(<< "Cannot restore categorizer - end of object reached when "
+                      << CATEGORIZER_TAG << " was expected");
+            return false;
+        }
+
+        if (traverser.name() == CATEGORIZER_TAG) {
+            if (traverser.traverseSubLevel([&dataCategorizer](core::CStateRestoreTraverser& traverser_) {
+                    return dataCategorizer.acceptRestoreTraverser(traverser_);
+                }) == false) {
+                LOG_ERROR(<< "Cannot restore categorizer, unexpected element: "
+                          << traverser.value());
+                return false;
+            }
+        } else {
+            LOG_ERROR(<< "Cannot restore categorizer - " << CATEGORIZER_TAG << " element expected but found "
+                      << traverser.name() << '=' << traverser.value());
+            return false;
+        }
+
+        if (traverser.next() == false) {
+            LOG_ERROR(<< "Cannot restore categorizer - end of object reached when "
+                      << EXAMPLES_COLLECTOR_TAG << " was expected");
+            return false;
+        }
+
+        if (traverser.name() == EXAMPLES_COLLECTOR_TAG) {
+            if (dataCategorizer.restoreExamplesCollector(traverser) == false) {
+                return false;
+            }
+        } else {
+            LOG_ERROR(<< "Cannot restore categorizer - " << EXAMPLES_COLLECTOR_TAG << " element expected but found "
+                      << traverser.name() << '=' << traverser.value());
+            return false;
+        }
+    }
+
+    // This won't be present in pre-7.9 state, but that's OK because pre-7.9
+    // jobs must be using the no-op category ID mapper, and that is stateless
+    // (restore is a no-op for that mapper)
+    if (traverser.next() && traverser.name() == CATEGORY_ID_MAPPER_TAG) {
+        if (traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
+                return m_CategoryIdMapper->acceptRestoreTraverser(traverser_);
+            }) == false) {
+            LOG_ERROR(<< "Cannot restore category ID mapper, unexpected element: "
                       << traverser.value());
             return false;
         }
-    } else {
-        LOG_ERROR(<< "Cannot restore categorizer - " << CATEGORIZER_TAG << " element expected but found "
-                  << traverser.name() << '=' << traverser.value());
-        return false;
     }
 
-    if (traverser.next() == false) {
-        LOG_ERROR(<< "Cannot restore categorizer - end of object reached when "
-                  << EXAMPLES_COLLECTOR_TAG << " was expected");
-        return false;
-    }
-
-    if (traverser.name() == EXAMPLES_COLLECTOR_TAG) {
-        if (m_DataCategorizer->restoreExamplesCollector(traverser) == false) {
+    // This won't be present in pre-7.9 state, but that's OK because the
+    // default value of 0 is correct for this case (there was no per-partition
+    // categorization and the single categorizer was allocated unconditionally)
+    if (traverser.next() && traverser.name() == CATEGORIZER_ALLOCATION_FAILURES) {
+        if (core::CStringUtils::stringToType(
+                traverser.value(), m_CategorizerAllocationFailures) == false) {
+            LOG_ERROR(<< "Invalid categorizer allocation failure count in "
+                      << traverser.value());
             return false;
         }
-    } else {
-        LOG_ERROR(<< "Cannot restore categorizer - " << EXAMPLES_COLLECTOR_TAG << " element expected but found "
-                  << traverser.name() << '=' << traverser.value());
-        return false;
     }
 
     return true;
@@ -347,8 +461,39 @@ bool CFieldDataCategorizer::persistState(core::CDataAdder& persister,
 
     LOG_DEBUG(<< "Persist categorizer state");
 
-    return this->doPersistState(m_DataCategorizer->makeForegroundPersistFunc(),
-                                m_DataCategorizer->examplesCollector(), persister);
+    TStrVec partitionFieldValues;
+    TPersistFuncVec dataCategorizerPersistFuncs;
+    TCategoryExamplesCollectorsCRefVec examplesCollectors;
+
+    if (m_PartitionFieldName.empty()) {
+        model::CDataCategorizer& dataCategorizer{categorizerForKey(EMPTY_STRING)};
+        dataCategorizerPersistFuncs.emplace_back(dataCategorizer.makeBackgroundPersistFunc());
+        examplesCollectors.push_back(dataCategorizer.examplesCollector());
+    } else {
+        if (m_DataCategorizers.empty()) {
+            LOG_WARN(<< "No partition-specific categorizers found");
+            return true;
+        }
+        partitionFieldValues.reserve(m_DataCategorizers.size());
+        for (auto& dataCategorizerEntry : m_DataCategorizers) {
+            partitionFieldValues.push_back(dataCategorizerEntry.first);
+        }
+
+        // Persist in sorted order to ensure consistency
+        std::sort(partitionFieldValues.begin(), partitionFieldValues.end());
+        dataCategorizerPersistFuncs.reserve(partitionFieldValues.size());
+        examplesCollectors.reserve(partitionFieldValues.size());
+        for (const auto& partitionFieldValue : partitionFieldValues) {
+            model::CDataCategorizer& dataCategorizer{categorizerForKey(partitionFieldValue)};
+            dataCategorizerPersistFuncs.emplace_back(
+                dataCategorizer.makeForegroundPersistFunc());
+            examplesCollectors.push_back(std::cref(dataCategorizer.examplesCollector()));
+        }
+    }
+
+    return this->doPersistState(partitionFieldValues, dataCategorizerPersistFuncs,
+                                examplesCollectors, *m_CategoryIdMapper,
+                                m_CategorizerAllocationFailures, persister);
 }
 
 bool CFieldDataCategorizer::isPersistenceNeeded(const std::string& description) const {
@@ -365,9 +510,29 @@ bool CFieldDataCategorizer::isPersistenceNeeded(const std::string& description) 
     return true;
 }
 
-bool CFieldDataCategorizer::doPersistState(const model::CDataCategorizer::TPersistFunc& dataCategorizerPersistFunc,
-                                           const model::CCategoryExamplesCollector& examplesCollector,
+template<typename EXAMPLES_COLLECTOR_VEC>
+bool CFieldDataCategorizer::doPersistState(const TStrVec& partitionFieldValues,
+                                           const TPersistFuncVec& dataCategorizerPersistFuncs,
+                                           const EXAMPLES_COLLECTOR_VEC& examplesCollectors,
+                                           const CCategoryIdMapper& categoryIdMapper,
+                                           std::size_t categorizerAllocationFailures,
                                            core::CDataAdder& persister) {
+    // All three input vectors should have the same size _unless_ we are not
+    // doing per-partition categorization, in which case partition field values
+    // should be empty and there should be exactly one categorizer
+    if (partitionFieldValues.size() != dataCategorizerPersistFuncs.size() &&
+        (dataCategorizerPersistFuncs.size() != 1 || partitionFieldValues.empty() == false)) {
+        LOG_ERROR(<< "Programmatic error - doPersistState called with "
+                  << dataCategorizerPersistFuncs.size() << " categorizer persistence functions and "
+                  << partitionFieldValues.size() << " partition field values");
+        return false;
+    }
+    if (examplesCollectors.size() != dataCategorizerPersistFuncs.size()) {
+        LOG_ERROR(<< "Programmatic error - doPersistState called with "
+                  << dataCategorizerPersistFuncs.size() << " categorizer persistence functions and "
+                  << examplesCollectors.size() << " examples collectors");
+        return false;
+    }
     try {
         core::CStateCompressor compressor{persister};
 
@@ -389,8 +554,26 @@ bool CFieldDataCategorizer::doPersistState(const model::CDataCategorizer::TPersi
             // Keep the JSON inserter scoped as it only finishes the stream
             // when it is destructed
             core::CJsonStatePersistInserter inserter{*strm};
-            this->acceptPersistInserter(dataCategorizerPersistFunc,
-                                        examplesCollector, inserter);
+            inserter.insertValue(VERSION_TAG, STATE_VERSION);
+            if (partitionFieldValues.empty() == false) {
+                core::CPersistUtils::persist(PARTITION_FIELD_VALUE_TAG,
+                                             partitionFieldValues, inserter);
+            }
+            for (std::size_t i = 0; i < dataCategorizerPersistFuncs.size(); ++i) {
+                CFieldDataCategorizer::persistSingleCategorizer(
+                    dataCategorizerPersistFuncs[i], examplesCollectors[i], inserter);
+            }
+            inserter.insertLevel(CATEGORY_ID_MAPPER_TAG,
+                                 [&categoryIdMapper](core::CStatePersistInserter& inserter_) {
+                                     categoryIdMapper.acceptPersistInserter(inserter_);
+                                 });
+            inserter.insertValue(CATEGORIZER_ALLOCATION_FAILURES, categorizerAllocationFailures);
+            // Note that m_CategorizerAllocationFailedPartitions is deliberately
+            // not persisted here.  This means that failures to categorize at
+            // all for a given partition will be logged once per invocation of
+            // the program.  Given that people may close and reopen the job
+            // in an attempt to fix the problem of categorization not being done
+            // at all for a partition, this is a good thing.
         }
 
         if (strm->bad()) {
@@ -410,22 +593,31 @@ bool CFieldDataCategorizer::doPersistState(const model::CDataCategorizer::TPersi
     return true;
 }
 
-void CFieldDataCategorizer::acceptPersistInserter(
+void CFieldDataCategorizer::persistSingleCategorizer(
     const model::CDataCategorizer::TPersistFunc& dataCategorizerPersistFunc,
     const model::CCategoryExamplesCollector& examplesCollector,
-    core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(VERSION_TAG, STATE_VERSION);
+    core::CStatePersistInserter& inserter) {
     inserter.insertLevel(CATEGORIZER_TAG, dataCategorizerPersistFunc);
     inserter.insertLevel(EXAMPLES_COLLECTOR_TAG,
-                         std::bind(&model::CCategoryExamplesCollector::acceptPersistInserter,
-                                   &examplesCollector, std::placeholders::_1));
+                         [&examplesCollector](core::CStatePersistInserter& inserter_) {
+                             examplesCollector.acceptPersistInserter(inserter_);
+                         });
 }
 
 bool CFieldDataCategorizer::periodicPersistStateInBackground() {
     LOG_DEBUG(<< "Periodic persist categorizer state");
 
     // Make sure that the model size stats are up to date
-    m_Limits.resourceMonitor().forceRefresh(*m_DataCategorizer);
+    TStrVec partitionFieldValues;
+    if (m_PartitionFieldName.empty() == false) {
+        partitionFieldValues.reserve(m_DataCategorizers.size());
+    }
+    for (auto& dataCategorizerEntry : m_DataCategorizers) {
+        m_Limits.resourceMonitor().forceRefresh(*dataCategorizerEntry.second);
+        if (m_PartitionFieldName.empty() == false) {
+            partitionFieldValues.push_back(dataCategorizerEntry.first);
+        }
+    }
 
     // Pass on the request in case we're chained
     if (m_OutputHandler.periodicPersistStateInBackground() == false) {
@@ -437,13 +629,47 @@ bool CFieldDataCategorizer::periodicPersistStateInBackground() {
         return false;
     }
 
-    if (m_PersistenceManager->addPersistFunc(std::bind(
-            &CFieldDataCategorizer::doPersistState, this,
-            // Do NOT add std::ref wrappers
-            // around these arguments - they
-            // MUST be copied for thread safety
-            m_DataCategorizer->makeBackgroundPersistFunc(),
-            m_DataCategorizer->examplesCollector(), std::placeholders::_1)) == false) {
+    TPersistFuncVec dataCategorizerPersistFuncs;
+    TCategoryExamplesCollectorsVec examplesCollectors;
+
+    if (m_PartitionFieldName.empty()) {
+        model::CDataCategorizer& dataCategorizer{categorizerForKey(EMPTY_STRING)};
+        dataCategorizerPersistFuncs.emplace_back(dataCategorizer.makeBackgroundPersistFunc());
+        examplesCollectors.push_back(dataCategorizer.examplesCollector());
+    } else {
+        if (partitionFieldValues.empty()) {
+            LOG_WARN(<< "No partition-specific categorizers found");
+            return true;
+        }
+        // Persist in sorted order to ensure consistency
+        std::sort(partitionFieldValues.begin(), partitionFieldValues.end());
+        dataCategorizerPersistFuncs.reserve(partitionFieldValues.size());
+        examplesCollectors.reserve(partitionFieldValues.size());
+        for (const auto& partitionFieldValue : partitionFieldValues) {
+            model::CDataCategorizer& dataCategorizer{categorizerForKey(partitionFieldValue)};
+            dataCategorizerPersistFuncs.emplace_back(
+                dataCategorizer.makeBackgroundPersistFunc());
+            examplesCollectors.push_back(dataCategorizer.examplesCollector());
+        }
+    }
+
+    // std::function is required to be copyable, so we need a shared pointer
+    // to the cloned category ID mapper rather than a unique pointer (which
+    // is only movable)
+    using TCategoryIdMapperPtr = std::shared_ptr<CCategoryIdMapper>;
+    TCategoryIdMapperPtr clonedCategoryIdMapper{m_CategoryIdMapper->clone()};
+    // Do NOT pass the captures by reference - they
+    // MUST be copied for thread safety
+    if (m_PersistenceManager->addPersistFunc([
+            this, partitionFieldValues = std::move(partitionFieldValues),
+            dataCategorizerPersistFuncs = std::move(dataCategorizerPersistFuncs),
+            examplesCollectors = std::move(examplesCollectors), clonedCategoryIdMapper,
+            categorizerAllocationFailures = m_CategorizerAllocationFailures
+        ](core::CDataAdder & persister) {
+            return this->doPersistState(partitionFieldValues, dataCategorizerPersistFuncs,
+                                        examplesCollectors, *clonedCategoryIdMapper,
+                                        categorizerAllocationFailures, persister);
+        }) == false) {
         LOG_ERROR(<< "Failed to add categorizer background persistence function");
         return false;
     }
@@ -478,7 +704,7 @@ void CFieldDataCategorizer::resetAfterCorruptRestore() {
 
     m_SearchTerms.clear();
     m_SearchTermsRegex.clear();
-    this->createCategorizer(m_CategorizationFieldName);
+    m_DataCategorizers.clear();
 }
 
 bool CFieldDataCategorizer::handleControlMessage(const std::string& controlMessage,
@@ -531,28 +757,38 @@ void CFieldDataCategorizer::acknowledgeFlush(const std::string& flushId, bool la
 }
 
 void CFieldDataCategorizer::writeOutChangedCategories() {
-    int numCategories = static_cast<int>(m_DataCategorizer->numCategories());
-    if (numCategories == 0) {
-        return;
-    }
-    std::string searchTerms;
-    std::string searchTermsRegex;
-    std::size_t maxLength;
-    bool wasCached{false};
-    for (int categoryId = 1; categoryId <= numCategories; categoryId++) {
-        if (m_DataCategorizer->categoryChangedAndReset(categoryId)) {
-            if (m_DataCategorizer->createReverseSearch(categoryId, searchTerms, searchTermsRegex,
-                                                       maxLength, wasCached) == false) {
-                LOG_WARN(<< "Unable to create or retrieve reverse search for storing for category: "
-                         << categoryId);
-                continue;
+    for (auto& dataCategorizerEntry : m_DataCategorizers) {
+        model::CDataCategorizer& dataCategorizer = *dataCategorizerEntry.second;
+        std::size_t numCategories{dataCategorizer.numCategories()};
+        if (numCategories == 0) {
+            continue;
+        }
+        std::string searchTerms;
+        std::string searchTermsRegex;
+        std::size_t maxLength;
+        bool wasCached{false};
+        for (int localCategoryId = 1;
+             localCategoryId <= static_cast<int>(numCategories); ++localCategoryId) {
+            if (dataCategorizer.categoryChangedAndReset(localCategoryId)) {
+                if (dataCategorizer.createReverseSearch(localCategoryId, searchTerms, searchTermsRegex,
+                                                        maxLength, wasCached) == false) {
+                    LOG_WARN(<< "Unable to create or retrieve reverse search for storing for category: "
+                             << m_CategoryIdMapper->printMapping(
+                                    dataCategorizerEntry.first, localCategoryId));
+                    continue;
+                }
+                LOG_TRACE(<< "Writing out changed category: "
+                          << m_CategoryIdMapper->printMapping(
+                                 dataCategorizerEntry.first, localCategoryId));
+                int globalCategoryId{m_CategoryIdMapper->globalCategoryIdForLocalCategoryId(
+                    dataCategorizerEntry.first, localCategoryId)};
+                m_JsonOutputWriter.writeCategoryDefinition(
+                    m_PartitionFieldName, dataCategorizerEntry.first,
+                    globalCategoryId, searchTerms, searchTermsRegex, maxLength,
+                    dataCategorizer.examplesCollector().examples(localCategoryId),
+                    dataCategorizer.numMatches(localCategoryId),
+                    dataCategorizer.usurpedCategories(localCategoryId));
             }
-            LOG_TRACE(<< "Writing out changed category: " << categoryId);
-            m_JsonOutputWriter.writeCategoryDefinition(
-                categoryId, searchTerms, searchTermsRegex, maxLength,
-                m_DataCategorizer->examplesCollector().examples(categoryId),
-                m_DataCategorizer->numMatches(categoryId),
-                m_DataCategorizer->usurpedCategories(categoryId));
         }
     }
 }

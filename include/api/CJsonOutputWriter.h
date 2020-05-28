@@ -240,7 +240,9 @@ public:
     void acknowledgeFlush(const std::string& flushId, core_t::TTime lastFinalizedBucketEnd);
 
     //! Write a category definition
-    void writeCategoryDefinition(int categoryId,
+    void writeCategoryDefinition(const std::string& partitionFieldName,
+                                 const std::string& partitionFieldValue,
+                                 int categoryId,
                                  const std::string& terms,
                                  const std::string& regex,
                                  std::size_t maxMatchingFieldLength,

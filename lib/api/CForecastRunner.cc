@@ -274,7 +274,7 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
         return false;
     }
 
-    if (m_ResourceMonitor.getMemoryStatus() != model_t::E_MemoryStatusOk) {
+    if (m_ResourceMonitor.memoryStatus() != model_t::E_MemoryStatusOk) {
         this->sendErrorMessage(forecastJob, ERROR_BAD_MEMORY_STATUS);
         return false;
     }

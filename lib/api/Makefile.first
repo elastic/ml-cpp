@@ -21,6 +21,7 @@ SRCS= \
 CAnomalyJob.cc \
 CBenchMarker.cc \
 CBoostedTreeInferenceModelBuilder.cc \
+CCategoryIdMapper.cc \
 CCmdSkeleton.cc \
 CConfigUpdater.cc \
 CCsvInputParser.cc \
@@ -53,9 +54,11 @@ CModelSnapshotJsonWriter.cc \
 CNdInputParser.cc \
 CNdJsonInputParser.cc \
 CNdJsonOutputWriter.cc \
+CNoopCategoryIdMapper.cc \
 CNullOutput.cc \
 COutputChainer.cc \
 COutputHandler.cc \
+CPerPartitionCategoryIdMapper.cc \
 CPersistenceManager.cc \
 CResultNormalizer.cc \
 CSingleStreamDataAdder.cc \
