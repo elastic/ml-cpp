@@ -233,19 +233,19 @@ void parallel_for_each(std::size_t start,
     for (std::size_t offset = 0, partitions = functions.size();
          offset < partitions; ++offset, ++start) {
 
-        // Note there is one copy of g for each thread so capture by reference
-        // is thread safe provided f is thread safe.
+        // Note there is one f for each thread so capture by reference is thread
+        // safe provided each f is thread safe.
 
         CLoopProgress progress{end - offset, recordProgress,
                                1.0 / static_cast<double>(partitions)};
 
-        auto& g = functions[offset];
+        auto& f = functions[offset];
         tasks.emplace_back(
             async(defaultAsyncExecutor(),
-                  [&g, partitions, progress](std::size_t start_, std::size_t end_) mutable {
+                  [&f, partitions, progress](std::size_t start_, std::size_t end_) mutable {
                       for (std::size_t i = start_; i < end_;
                            i += partitions, progress.increment(partitions)) {
-                          g(i);
+                          f(i);
                       }
                       return true; // So we can check for exceptions via get.
                   },
@@ -348,16 +348,17 @@ void parallel_for_each(ITR start,
 
     for (std::size_t offset = 0, partitions = functions.size();
          offset < partitions; ++offset, ++start) {
-        // Note there is one copy of g for each thread so capture by reference
-        // is thread safe provided f is thread safe.
+
+        // Note there is one f for each thread so capture by reference is thread
+        // safe provided each f is thread safe.
 
         CLoopProgress progress{size - offset, recordProgress,
                                1.0 / static_cast<double>(partitions)};
 
-        auto& g = functions[offset];
+        auto& f = functions[offset];
         tasks.emplace_back(async(
             defaultAsyncExecutor(),
-            [&g, partitions, offset, size, progress](ITR start_) mutable {
+            [&f, partitions, offset, size, progress](ITR start_) mutable {
 
                 std::size_t i{offset};
 
@@ -369,7 +370,7 @@ void parallel_for_each(ITR start,
 
                 for (ITR j = start_; i < size; i += partitions,
                          incrementByPartitions(j), progress.increment(partitions)) {
-                    g(*j);
+                    f(*j);
                 }
                 return true; // So we can check for exceptions via get.
             },
