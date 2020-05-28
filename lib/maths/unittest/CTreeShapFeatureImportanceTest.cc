@@ -4,10 +4,9 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "core/Concurrency.h"
-#include <boost/test/tools/old/interface.hpp>
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
+#include <core/Concurrency.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
