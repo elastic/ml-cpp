@@ -426,7 +426,7 @@ parallel_for_each(std::size_t partitions,
         return functions;
     }
 
-    std::vector<FUNCTION> functions{partitions, std::forward<FUNCTION>(f)};
+    std::vector<FUNCTION> functions(partitions, std::forward<FUNCTION>(f));
     parallel_for_each(start, size, functions, recordProgress);
     return functions;
 }
