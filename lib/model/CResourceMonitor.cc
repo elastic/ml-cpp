@@ -71,6 +71,10 @@ void CResourceMonitor::memoryLimit(std::size_t limitMBs) {
     }
 }
 
+std::size_t CResourceMonitor::getBytesMemoryLimit() const {
+    return m_ByteLimitHigh * this->persistenceMemoryIncreaseFactor();
+}
+
 void CResourceMonitor::updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs) {
     // The threshold for no limit is set such that any negative limit cast to
     // a size_t (which is unsigned) will be taken to mean no limit

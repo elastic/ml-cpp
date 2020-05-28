@@ -44,6 +44,8 @@ struct testValidateNoExpiry;
 struct testValidateInvalidExpiry;
 struct testValidateBrokenMessage;
 struct testValidateMissingId;
+struct testValidateProvidedMaxMemoryLimit;
+struct testValidateProvidedTooLargeMaxMemoryLimit;
 }
 
 namespace ml {
@@ -78,7 +80,7 @@ public:
     static const size_t DEFAULT_EXPIRY_TIME = 14 * core::constants::DAY;
 
     //! max memory allowed to use for forecast models
-    static const size_t MAX_FORECAST_MODEL_MEMORY = 20971520ull; // 20MB
+    static const size_t DEFAULT_MAX_FORECAST_MODEL_MEMORY = 20971520ull; // 20MB
 
     //! Note: This value measures the size in memory, not the size of the persistence,
     //! which is likely higher and would be hard to calculate upfront
@@ -103,7 +105,7 @@ private:
     static const std::string ERROR_NO_DATA_PROCESSED;
     static const std::string ERROR_NO_CREATE_TIME;
     static const std::string ERROR_BAD_MEMORY_STATUS;
-    static const std::string ERROR_MEMORY_LIMIT;
+    static const std::string ERROR_BAD_MODEL_MEMORY_LIMIT;
     static const std::string ERROR_MEMORY_LIMIT_DISK;
     static const std::string ERROR_MEMORY_LIMIT_DISKSPACE;
     static const std::string ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS;
@@ -211,6 +213,9 @@ private:
         //! total memory required for this forecasting job (only the models)
         size_t s_MemoryUsage;
 
+        //! maximum allowed memory (in bytes) that this forecast can use
+        size_t s_MaxForecastModelMemory;
+
         //! A collection storing important messages from forecasting
         TStrUSet s_Messages;
 
@@ -249,11 +254,12 @@ private:
     void sendMessage(WRITE write, const SForecast& forecastJob, const std::string& message) const;
 
     //! parse and validate a forecast request and turn it into a forecast job
-    static bool
-    parseAndValidateForecastRequest(const std::string& controlMessage,
-                                    SForecast& forecastJob,
-                                    const core_t::TTime lastResultsTime,
-                                    const TErrorFunc& errorFunction = TErrorFunc());
+    static bool parseAndValidateForecastRequest(
+        const std::string& controlMessage,
+        SForecast& forecastJob,
+        const core_t::TTime lastResultsTime,
+        std::size_t jobBytesSizeLimit = std::numeric_limits<std::size_t>::max() / 2,
+        const TErrorFunc& errorFunction = TErrorFunc());
 
 private:
     //! This job ID
@@ -292,6 +298,8 @@ private:
     friend struct CForecastRunnerTest::testValidateInvalidExpiry;
     friend struct CForecastRunnerTest::testValidateBrokenMessage;
     friend struct CForecastRunnerTest::testValidateMissingId;
+    friend struct CForecastRunnerTest::testValidateProvidedMaxMemoryLimit;
+    friend struct CForecastRunnerTest::testValidateProvidedTooLargeMaxMemoryLimit;
 };
 }
 }
