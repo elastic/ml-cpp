@@ -80,7 +80,7 @@ void CTreeShapFeatureImportance::shap(const TRowRef& row, TShapWriter writer) {
             });
         }
 
-        core::parallel_for_each(m_Forest->begin(), m_Forest->size(), computeTreeShap);
+        core::parallel_for_each(m_Forest->begin(), m_Forest->end(), computeTreeShap);
 
         m_ReducedShapValues = m_PerThreadShapValues[0];
         for (std::size_t i = 1; i < m_PerThreadShapValues.size(); ++i) {
