@@ -42,6 +42,8 @@
 === Enhancements
 
 * Don't lose precision when saving model state. (See {ml-pull}1274[#1274].)
+* Parallelize the feature importance calculation for classification and regression
+  over trees. (See {ml-pull}1277[#1277].)
 
 == {es} version 7.8.0
 
