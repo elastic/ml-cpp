@@ -79,6 +79,7 @@ public:
     static const std::size_t DEFAULT_EXPIRY_TIME = 14 * core::constants::DAY;
 
     //! max memory allowed to use for forecast models
+    //! (not defined inline because we need its address)
     static const std::size_t DEFAULT_MAX_FORECAST_MODEL_MEMORY;
 
     //! Note: This value measures the size in memory, not the size of the persistence,
