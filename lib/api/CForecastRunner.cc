@@ -17,7 +17,6 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/system/error_code.hpp>
 
-#include <memory>
 #include <sstream>
 
 namespace ml {
@@ -26,6 +25,8 @@ namespace api {
 namespace {
 const std::string EMPTY_STRING;
 }
+
+const std::size_t CForecastRunner::DEFAULT_MAX_FORECAST_MODEL_MEMORY{20971520}; // 20MB
 
 const std::string CForecastRunner::ERROR_FORECAST_REQUEST_FAILED_TO_PARSE("Failed to parse forecast request: ");
 const std::string CForecastRunner::ERROR_NO_FORECAST_ID("forecast ID must be specified and non empty");
@@ -123,7 +124,7 @@ void CForecastRunner::forecastWorker() {
                      << core::CTimeUtils::toIso8601(forecastJob.forecastEnd()));
 
             core::CStopWatch timer(true);
-            uint64_t lastStatsUpdate = 0;
+            std::uint64_t lastStatsUpdate = 0;
 
             LOG_TRACE(<< "about to create sink");
             model::CForecastDataSink sink(
@@ -139,7 +140,7 @@ void CForecastRunner::forecastWorker() {
             double processedModels = 0;
             double totalNumberOfForecastableModels =
                 static_cast<double>(forecastJob.s_NumberOfForecastableModels);
-            size_t failedForecasts = 0;
+            std::size_t failedForecasts = 0;
             sink.writeStats(0.0, 0, forecastJob.s_Messages);
 
             // while loops allow us to free up memory for every model right after each forecast is done
@@ -196,7 +197,7 @@ void CForecastRunner::forecastWorker() {
                     ++processedModels;
 
                     if (processedModels != totalNumberOfForecastableModels) {
-                        uint64_t elapsedTime = timer.lap();
+                        std::uint64_t elapsedTime = timer.lap();
                         if (elapsedTime - lastStatsUpdate > MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE) {
                             sink.writeStats(processedModels / totalNumberOfForecastableModels,
                                             elapsedTime, forecastJob.s_Messages);
@@ -278,11 +279,11 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
         return false;
     }
 
-    size_t totalNumberOfModels = 0;
-    size_t totalNumberOfForecastModels = 0;
+    std::size_t totalNumberOfModels = 0;
+    std::size_t totalNumberOfForecastModels = 0;
     bool atLeastOneNonPopulationModel = false;
     bool atLeastOneSupportedFunction = false;
-    size_t totalMemoryUsage = 0;
+    std::size_t totalMemoryUsage = 0;
 
     // 1st loop over the detectors to check prerequisites
     for (const auto& detector : detectors) {
@@ -424,7 +425,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
             properties.get<std::string>("forecast_alias", EMPTY_STRING);
         forecastJob.s_Duration = properties.get<core_t::TTime>("duration", 0);
         forecastJob.s_CreateTime = properties.get<core_t::TTime>("create_time", 0);
-        forecastJob.s_MaxForecastModelMemory = properties.get<size_t>(
+        forecastJob.s_MaxForecastModelMemory = properties.get<std::size_t>(
             "max_model_memory", DEFAULT_MAX_FORECAST_MODEL_MEMORY);
 
         // tmp storage if available
