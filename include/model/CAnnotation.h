@@ -11,10 +11,7 @@
 
 #include <model/ModelTypes.h>
 
-#include <boost/unordered_map.hpp>
-
 #include <string>
-#include <vector>
 
 namespace ml {
 namespace model {
@@ -22,7 +19,7 @@ namespace model {
 //! \brief Data necessary to create an annotation
 class MODEL_EXPORT CAnnotation {
 public:
-    CAnnotation();
+    CAnnotation() = default;
     CAnnotation(core_t::TTime time,
                 const std::string& annotation,
                 int detectorIndex,
@@ -43,9 +40,9 @@ public:
     const std::string& byFieldValue() const;
 
 private:
-    core_t::TTime m_Time;
+    core_t::TTime m_Time = 0;
     std::string m_Annotation;
-    int m_DetectorIndex;
+    int m_DetectorIndex = -1;
     std::string m_PartitionFieldName;
     std::string m_PartitionFieldValue;
     std::string m_OverFieldName;

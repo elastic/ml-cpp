@@ -57,7 +57,6 @@ using TCalculation2Vec = core::CSmallVector<maths_t::EProbabilityCalculation, 2>
 using TTail10Vec = core::CSmallVector<maths_t::ETail, 10>;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMultivariatePriorCPtrSizePr1Vec = CTimeSeriesCorrelations::TMultivariatePriorCPtrSizePr1Vec;
-using TModelChangeCallback = CModelAddSamplesParams::TModelChangeCallback;
 
 //! The decay rate controllers we maintain.
 enum EDecayRateController {
@@ -1502,15 +1501,15 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
     }
 
     if (m_ChangeDetector != nullptr) {
-        const TModelChangeCallback& onModelChange = params.onModelChange();
+        const maths_t::TModelChangeCallback& onModelChange = params.onModelChange();
         m_ChangeDetector->addSamples({{time, values[median].second[0]}},
                                      {weights}, onModelChange);
         if (m_ChangeDetector->stopTesting()) {
             m_ChangeDetector.reset();
             m_TrendModel->testingForChange(false);
         } else if (auto change = m_ChangeDetector->change()) {
-            std::string annotation = "Detected " + change->print();
-            LOG_DEBUG(<< annotation << " at " << std::to_string(time));
+            std::string annotation{"Detected " + change->print()};
+            LOG_DEBUG(<< annotation << " at " << time);
             onModelChange(time, annotation);
             m_ChangeDetector.reset();
             m_TrendModel->testingForChange(false);
@@ -1551,7 +1550,7 @@ CUnivariateTimeSeriesModel::updateTrend(const CModelAddSamplesParams& params,
                                         const TTimeDouble2VecSizeTrVec& samples) {
 
     const TDouble2VecWeightsAryVec& weights = params.trendWeights();
-    const TModelChangeCallback& modelChangeCallback = params.onModelChange();
+    const maths_t::TModelChangeCallback& modelChangeCallback = params.onModelChange();
 
     for (const auto& sample : samples) {
         if (sample.second.size() != 1) {
@@ -1586,7 +1585,7 @@ CUnivariateTimeSeriesModel::updateTrend(const CModelAddSamplesParams& params,
         core_t::TTime time{samples[i].first};
         double value{samples[i].second[0]};
         TDoubleWeightsAry weight{unpack(weights[i])};
-        m_TrendModel->addPoint(time, value, modelChangeCallback, weight, componentChangeCallback);
+        m_TrendModel->addPoint(time, value, weight, componentChangeCallback, modelChangeCallback);
     }
 
     if (result == E_Reset) {
@@ -2868,7 +2867,7 @@ CMultivariateTimeSeriesModel::updateTrend(const CModelAddSamplesParams& params,
                                           const TTimeDouble2VecSizeTrVec& samples) {
 
     const TDouble2VecWeightsAryVec& weights = params.trendWeights();
-    const TModelChangeCallback& modelChangeCallback = params.onModelChange();
+    const maths_t::TModelChangeCallback& modelChangeCallback = params.onModelChange();
 
     std::size_t dimension{this->dimension()};
 
@@ -2907,8 +2906,8 @@ CMultivariateTimeSeriesModel::updateTrend(const CModelAddSamplesParams& params,
             for (std::size_t j = 0; j < maths_t::NUMBER_WEIGHT_STYLES; ++j) {
                 weight[j] = weights[i][j][d];
             }
-            m_TrendModel[d]->addPoint(time, value[d], modelChangeCallback,
-                                      weight, componentChangeCallback);
+            m_TrendModel[d]->addPoint(time, value[d], weight,
+                                      componentChangeCallback, modelChangeCallback);
         }
     }
 

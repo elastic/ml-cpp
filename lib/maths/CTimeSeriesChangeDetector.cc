@@ -278,7 +278,7 @@ bool CUnivariateTimeSeriesChangeDetector::stopTesting() const {
 
 void CUnivariateTimeSeriesChangeDetector::addSamples(const TTimeDoublePr1Vec& samples,
                                                      const TDoubleWeightsAry1Vec& weights,
-                                                     const TModelChangeCallback& onModelChange) {
+                                                     const maths_t::TModelChangeCallback& onModelChange) {
     for (const auto& sample : samples) {
         m_TimeRange.add(sample.first);
     }
@@ -298,8 +298,8 @@ void CUnivariateTimeSeriesChangeDetector::addSamples(const TTimeDoublePr1Vec& sa
         core_t::TTime time{samples[i].first};
         weight = weights[i];
         maths_t::setWinsorisationWeight(winsorisation::MINIMUM_WEIGHT, weight);
-        m_TrendModel->addPoint(time, CBasicStatistics::mean(m_TrendModel->value(time, 0.0)),
-                               onModelChange, weight);
+        m_TrendModel->addPoint(
+            time, CBasicStatistics::mean(m_TrendModel->value(time, 0.0)), weight);
     }
 
     for (auto& model : m_ChangeModels) {

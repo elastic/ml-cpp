@@ -8,9 +8,6 @@
 namespace ml {
 namespace model {
 
-CAnnotation::CAnnotation() : m_Time(0) {
-}
-
 CAnnotation::CAnnotation(core_t::TTime time,
                          const std::string& annotation,
                          int detectorIndex,
@@ -20,11 +17,10 @@ CAnnotation::CAnnotation(core_t::TTime time,
                          const std::string& overFieldValue,
                          const std::string& byFieldName,
                          const std::string& byFieldValue)
-    : m_Time(time), m_Annotation(annotation), m_DetectorIndex(detectorIndex),
-      m_PartitionFieldName(partitionFieldName),
-      m_PartitionFieldValue(partitionFieldValue),
-      m_OverFieldName(overFieldName), m_OverFieldValue(overFieldValue),
-      m_ByFieldName(byFieldName), m_ByFieldValue(byFieldValue) {
+    : m_Time{time}, m_Annotation{annotation}, m_DetectorIndex{detectorIndex},
+      m_PartitionFieldName{partitionFieldName}, m_PartitionFieldValue{partitionFieldValue},
+      m_OverFieldName{overFieldName}, m_OverFieldValue{overFieldValue},
+      m_ByFieldName{byFieldName}, m_ByFieldValue{byFieldValue} {
 }
 
 core_t::TTime CAnnotation::time() const {

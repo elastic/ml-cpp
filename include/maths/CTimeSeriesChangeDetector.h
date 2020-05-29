@@ -15,7 +15,6 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CLeastSquaresOnlineRegression.h>
-#include <maths/CModel.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -80,7 +79,6 @@ public:
     using TDecompositionPtr = std::shared_ptr<CTimeSeriesDecompositionInterface>;
     using TPriorPtr = std::shared_ptr<CPrior>;
     using TOptionalChangeDescription = boost::optional<SChangeDescription>;
-    using TModelChangeCallback = CModelAddSamplesParams::TModelChangeCallback;
 
 public:
     CUnivariateTimeSeriesChangeDetector(const TDecompositionPtr& trendModel,
@@ -119,7 +117,7 @@ public:
     //! Add \p samples to the change detector.
     void addSamples(const TTimeDoublePr1Vec& samples,
                     const TDoubleWeightsAry1Vec& weights,
-                    const TModelChangeCallback& onModelChange);
+                    const maths_t::TModelChangeCallback& onModelChange);
 
     //! Check if we should stop testing.
     bool stopTesting() const;

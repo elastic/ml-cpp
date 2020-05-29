@@ -12,7 +12,6 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CBasicStatistics.h>
-#include <maths/CModel.h>
 #include <maths/ImportExport.h>
 #include <maths/MathsTypes.h>
 
@@ -39,7 +38,6 @@ public:
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
     using TComponentChangeCallback = std::function<void(TFloatMeanAccumulatorVec)>;
-    using TModelChangeCallback = CModelAddSamplesParams::TModelChangeCallback;
 };
 
 //! \brief The interface for decomposing times series into periodic,
@@ -97,9 +95,9 @@ public:
     virtual void
     addPoint(core_t::TTime time,
              double value,
-             const TModelChangeCallback& modelChangeCallback,
              const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
-             const TComponentChangeCallback& componentChangeCallback = noop) = 0;
+             const TComponentChangeCallback& componentChangeCallback = noop,
+             const maths_t::TModelChangeCallback& modelChangeCallback = noop2) = 0;
 
     //! Apply \p change at \p time.
     //!
@@ -197,6 +195,7 @@ public:
 
 protected:
     static void noop(TFloatMeanAccumulatorVec) {}
+    static void noop2(core_t::TTime, const std::string&) {}
 };
 }
 }

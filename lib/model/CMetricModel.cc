@@ -195,6 +195,7 @@ void CMetricModel::sample(core_t::TTime startTime,
 
     this->createUpdateNewModels(startTime, resourceMonitor);
     m_CurrentBucketStats.s_InterimCorrections.clear();
+    m_CurrentBucketStats.s_Annotations.clear();
 
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
         LOG_TRACE(<< "Sampling [" << time << "," << time + bucketLength << ")");
@@ -313,7 +314,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                         t, annotation, gatherer.searchKey().detectorIndex(),
                         gatherer.searchKey().partitionFieldName(),
                         gatherer.partitionFieldValue(),
-                        gatherer.searchKey().overFieldName(), "",
+                        gatherer.searchKey().overFieldName(), EMPTY_STRING,
                         gatherer.searchKey().byFieldName(), gatherer.personName(pid));
                 };
 

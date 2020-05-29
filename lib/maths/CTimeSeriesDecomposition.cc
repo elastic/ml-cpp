@@ -219,9 +219,9 @@ void CTimeSeriesDecomposition::testingForChange(bool value) {
 
 void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
-                                        const TModelChangeCallback& modelChangeCallback,
                                         const maths_t::TDoubleWeightsAry& weights,
-                                        const TComponentChangeCallback& componentChangeCallback) {
+                                        const TComponentChangeCallback& componentChangeCallback,
+                                        const maths_t::TModelChangeCallback& modelChangeCallback) {
 
     if (CMathsFuncs::isFinite(value) == false) {
         LOG_ERROR(<< "Discarding invalid value.");

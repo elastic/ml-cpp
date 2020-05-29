@@ -41,11 +41,12 @@ public:
     virtual void testingForChange(bool value);
 
     //! No-op returning false.
-    virtual void addPoint(core_t::TTime time,
-                          double value,
-                          const TModelChangeCallback& modelChangeCallback,
-                          const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
-                          const TComponentChangeCallback& componentChangeCallback = noop);
+    virtual void
+    addPoint(core_t::TTime time,
+             double value,
+             const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
+             const TComponentChangeCallback& componentChangeCallback = noop,
+             const maths_t::TModelChangeCallback& modelChangeCallback = noop2);
 
     //! No-op returning false.
     virtual bool applyChange(core_t::TTime time, double value, const SChangeDescription& change);

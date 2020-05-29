@@ -16,7 +16,6 @@
 #include <maths/CIntegerTools.h>
 #include <maths/CLinearAlgebraFwd.h>
 #include <maths/CMathsFuncs.h>
-#include <maths/CModel.h>
 #include <maths/CNormalMeanPrecConjugate.h>
 #include <maths/CRestoreParams.h>
 #include <maths/CSeasonalTime.h>
@@ -114,7 +113,6 @@ const core_t::TTime HOUR = core::constants::HOUR;
 const core_t::TTime DAY = core::constants::DAY;
 const core_t::TTime WEEK = core::constants::WEEK;
 const core_t::TTime YEAR = core::constants::YEAR;
-const ml::maths::CModelAddSamplesParams::TModelChangeCallback NOOP;
 }
 
 class CNanInjector {
@@ -181,7 +179,7 @@ BOOST_FIXTURE_TEST_CASE(testSuperpositionOfSines, CTestFixture) {
         core_t::TTime time = times[i];
         double value = trend[i] + noise[i];
 
-        decomposition.addPoint(time, value, NOOP);
+        decomposition.addPoint(time, value);
         debug.addValue(time, value);
 
         if (time >= lastWeek + WEEK) {
@@ -263,7 +261,7 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
         core_t::TTime time;
         double value;
         std::tie(time, value) = timeseries[i];
-        decomposition.addPoint(time, value, NOOP);
+        decomposition.addPoint(time, value);
         debug.addValue(time, value);
 
         if (time >= lastWeek + WEEK || i == timeseries.size() - 1) {
@@ -354,7 +352,7 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
         core_t::TTime time = times[i];
         double value = trend[i] + noise[i];
 
-        decomposition.addPoint(time, value, NOOP);
+        decomposition.addPoint(time, value);
         debug.addValue(time, value);
 
         if (time >= lastWeek + WEEK) {
@@ -456,7 +454,7 @@ BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
             core_t::TTime time = times[i];
             double value = trend[i] + noise[i];
 
-            decomposition.addPoint(time, value, NOOP);
+            decomposition.addPoint(time, value);
             debug.addValue(time, value);
 
             if (time >= lastWeek + WEEK) {
@@ -533,8 +531,7 @@ BOOST_FIXTURE_TEST_CASE(testNanHandling, CTestFixture) {
     // Run through half of the periodic data.
     std::size_t i = 0u;
     for (; i < times.size() / 2; ++i) {
-        decomposition.addPoint(times[i], trend[i] + noise[i], NOOP,
-                               maths_t::CUnitWeights::UNIT,
+        decomposition.addPoint(times[i], trend[i] + noise[i], maths_t::CUnitWeights::UNIT,
                                [&componentsModifiedBefore](TFloatMeanAccumulatorVec) {
                                    ++componentsModifiedBefore;
                                });
@@ -551,7 +548,7 @@ BOOST_FIXTURE_TEST_CASE(testNanHandling, CTestFixture) {
     // Run through the 2nd half of the periodic data set.
     for (++i; i < times.size(); ++i) {
         core_t::TTime time{times[i]};
-        decomposition.addPoint(time, trend[i] + noise[i], NOOP, maths_t::CUnitWeights::UNIT,
+        decomposition.addPoint(time, trend[i] + noise[i], maths_t::CUnitWeights::UNIT,
                                [&componentsModifiedAfter](TFloatMeanAccumulatorVec) {
                                    ++componentsModifiedAfter;
                                });
@@ -605,7 +602,7 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
         core_t::TTime time = times[i];
         double value = trend[i] + noise[i];
 
-        decomposition.addPoint(time, value, NOOP);
+        decomposition.addPoint(time, value);
         debug.addValue(time, value);
 
         if (time >= lastWeek + WEEK) {
@@ -708,7 +705,7 @@ BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
         core_t::TTime time = times[i];
         double value = trend[i] + noise[i];
 
-        decomposition.addPoint(time, value, NOOP);
+        decomposition.addPoint(time, value);
         debug.addValue(time, value);
 
         if (time >= lastWeek + WEEK) {
@@ -792,7 +789,7 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
                 }
                 TDoubleVec noise;
                 rng.generateNormalSamples(value, variance, 1, noise);
-                decomposition.addPoint(time + t, noise[0], NOOP);
+                decomposition.addPoint(time + t, noise[0]);
             }
             time += DAY;
         }
@@ -842,7 +839,7 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
                 }
                 TDoubleVec noise;
                 rng.generateNormalSamples(0.0, variance, 1, noise);
-                decomposition.addPoint(time + t, value + noise[0], NOOP);
+                decomposition.addPoint(time + t, value + noise[0]);
             }
             time += DAY;
         }
@@ -898,7 +895,7 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
 
         maths::CTimeSeriesDecomposition decomposition(0.024, HALF_HOUR);
         for (std::size_t i = 0u; i < times.size(); ++i) {
-            decomposition.addPoint(times[i], trend[i] + 0.3 * noise[i], NOOP);
+            decomposition.addPoint(times[i], trend[i] + 0.3 * noise[i]);
         }
 
         TMeanAccumulator meanScale;
@@ -992,7 +989,7 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
         }
 
         decomposition.addPoint(
-            time, value, NOOP, maths_t::CUnitWeights::UNIT,
+            time, value, maths_t::CUnitWeights::UNIT,
             [&model](TFloatMeanAccumulatorVec residuals) {
                 model.setToNonInformative(0.0, 0.01);
                 for (const auto& residual : residuals) {
@@ -1138,7 +1135,7 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
             lastWeekTimeseries.push_back(timeseries[i]);
         }
 
-        decomposition.addPoint(time, value, NOOP);
+        decomposition.addPoint(time, value);
         debug.addValue(time, value);
     }
 
@@ -1235,7 +1232,7 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
             lastWeekTimeseries.push_back(timeseries[i]);
         }
 
-        decomposition.addPoint(time, value, NOOP);
+        decomposition.addPoint(time, value);
         debug.addValue(time, value);
     }
 
@@ -1272,7 +1269,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
                     TDoubleVec noise;
                     rng.generateNormalSamples(10.0, 2.0, 1, noise);
                     value += noise[0];
-                    decomposition.addPoint(time, value, NOOP);
+                    decomposition.addPoint(time, value);
                     debug.addValue(time, value);
                     double prediction =
                         maths::CBasicStatistics::mean(decomposition.value(time, 0.0));
@@ -1319,7 +1316,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
                     TDoubleVec noise;
                     rng.generateNormalSamples(10.0, 2.0, 1, noise);
                     value += noise[0];
-                    decomposition.addPoint(time, value, NOOP);
+                    decomposition.addPoint(time, value);
                     debug.addValue(time, value);
                     double prediction =
                         maths::CBasicStatistics::mean(decomposition.value(time, 0.0));
@@ -1366,7 +1363,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
         core_t::TTime lastDay = times[0];
 
         for (std::size_t i = 0u; i < times.size(); ++i) {
-            decomposition.addPoint(times[i], trend[i] + noise[i], NOOP);
+            decomposition.addPoint(times[i], trend[i] + noise[i]);
             debug.addValue(times[i], trend[i] + noise[i]);
 
             if (times[i] > lastDay + DAY) {
@@ -1440,7 +1437,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
         core_t::TTime lastDay = times[0];
 
         for (std::size_t i = 0u; i < times.size(); ++i) {
-            decomposition.addPoint(times[i], trend[i] + 0.3 * noise[i], NOOP);
+            decomposition.addPoint(times[i], trend[i] + 0.3 * noise[i]);
             debug.addValue(times[i], trend[i] + 0.3 * noise[i]);
 
             if (times[i] > lastDay + DAY) {
@@ -1515,7 +1512,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity, CTestFixture) {
     core_t::TTime lastDay = times[0];
 
     for (std::size_t i = 0u; i < times.size(); ++i) {
-        decomposition.addPoint(times[i], trend[i] + 0.3 * noise[i], NOOP);
+        decomposition.addPoint(times[i], trend[i] + 0.3 * noise[i]);
         debug.addValue(times[i], trend[i] + 0.3 * noise[i]);
 
         if (times[i] > lastDay + DAY) {
@@ -1594,7 +1591,7 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
         core_t::TTime lastHour = times[0] + 3 * DAY;
 
         for (std::size_t i = 0u; i < times.size(); ++i) {
-            decomposition.addPoint(times[i], trend[i] + noise[i], NOOP);
+            decomposition.addPoint(times[i], trend[i] + noise[i]);
             debug.addValue(times[i], trend[i] + noise[i]);
 
             if (times[i] > lastHour + HOUR) {
@@ -1668,7 +1665,7 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
         core_t::TTime lastTwoDay = times[0] + 3 * DAY;
 
         for (std::size_t i = 0u; i < times.size(); ++i) {
-            decomposition.addPoint(times[i], trend[i] + noise[i], NOOP);
+            decomposition.addPoint(times[i], trend[i] + noise[i]);
             debug.addValue(times[i], trend[i] + noise[i]);
 
             if (times[i] > lastTwoDay + 2 * DAY) {
@@ -1735,7 +1732,7 @@ BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
             7.5 * std::sin(boost::math::double_constants::two_pi *
                            static_cast<double>(time) / static_cast<double>(DAY));
         rng.generateNormalSamples(0.0, 1.0, 1, noise);
-        decomposition.addPoint(time, trend + noise[0], NOOP);
+        decomposition.addPoint(time, trend + noise[0]);
         if (decomposition.initialized()) {
             TDouble1Vec prediction{decomposition.meanValue(time)};
             TDouble1Vec predictionError{decomposition.detrend(time, trend, 0.0)};
@@ -1804,7 +1801,7 @@ BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture) {
 
         bool newComponents{false};
         decomposition.addPoint(
-            time, value, NOOP, maths_t::CUnitWeights::UNIT,
+            time, value, maths_t::CUnitWeights::UNIT,
             [&newComponents](TFloatMeanAccumulatorVec) { newComponents = true; });
 
         if (newComponents) {
@@ -1862,7 +1859,7 @@ BOOST_FIXTURE_TEST_CASE(testCalendar, CTestFixture) {
     for (core_t::TTime time = 0; time < end; time += HALF_HOUR) {
         rng.generateNormalSamples(0.0, 4.0, 1, noise);
 
-        decomposition.addPoint(time, trend(time) + noise[0], NOOP);
+        decomposition.addPoint(time, trend(time) + noise[0]);
         debug.addValue(time, trend(time) + noise[0]);
 
         if (time - DAY == *std::lower_bound(months.begin(), months.end(), time - DAY)) {
@@ -1909,7 +1906,7 @@ BOOST_FIXTURE_TEST_CASE(testConditionOfTrend, CTestFixture) {
     TDoubleVec noise;
     for (core_t::TTime time = 0; time < 9 * YEAR; time += 6 * HOUR) {
         rng.generateNormalSamples(0.0, 4.0, 1, noise);
-        decomposition.addPoint(time, trend(time) + noise[0], NOOP);
+        decomposition.addPoint(time, trend(time) + noise[0]);
         if (time > 10 * WEEK) {
             BOOST_TEST_REQUIRE(std::fabs(decomposition.detrend(time, trend(time), 0.0)) < 3.0);
         }
@@ -1954,7 +1951,7 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
     TDoubleVec noise;
     for (core_t::TTime time = 0; time < 35 * WEEK; time += FIVE_MINS) {
         rng.generateNormalSamples(0.0, 1.0, 1, noise);
-        decomposition.addPoint(time, trend(time) + noise[0], NOOP);
+        decomposition.addPoint(time, trend(time) + noise[0]);
         debug.addValue(time, trend(time) + noise[0]);
 
         if (decomposition.initialized()) {
@@ -2012,8 +2009,8 @@ BOOST_FIXTURE_TEST_CASE(testSwap, CTestFixture) {
     maths::CTimeSeriesDecomposition decomposition2(2.0 * decayRate, 2 * bucketLength);
 
     for (std::size_t i = 0u; i < times.size(); i += 2) {
-        decomposition1.addPoint(times[i], trend1[i] + noise[i], NOOP);
-        decomposition2.addPoint(times[i], trend2[i] + noise[i + 1], NOOP);
+        decomposition1.addPoint(times[i], trend1[i] + noise[i]);
+        decomposition2.addPoint(times[i], trend2[i] + noise[i + 1]);
     }
 
     uint64_t checksum1 = decomposition1.checksum();
@@ -2049,7 +2046,7 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     maths::CTimeSeriesDecomposition origDecomposition(decayRate, bucketLength);
 
     for (std::size_t i = 0u; i < times.size(); ++i) {
-        origDecomposition.addPoint(times[i], trend[i] + noise[i], NOOP);
+        origDecomposition.addPoint(times[i], trend[i] + noise[i]);
     }
 
     std::string origXml;
@@ -2167,7 +2164,7 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
         decomposition.forecast(60480000, 60480000 + WEEK, HALF_HOUR, 90.0, 1.0,
                                [](core_t::TTime, const TDouble3Vec&) {});
         for (core_t::TTime time = 60480000; time < 60480000 + WEEK; time += HALF_HOUR) {
-            decomposition.addPoint(time, 10.0, NOOP);
+            decomposition.addPoint(time, 10.0);
         }
     }
 
@@ -2249,7 +2246,7 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
         decomposition.forecast(10366200, 10366200 + WEEK, HALF_HOUR, 90.0, 1.0,
                                [](core_t::TTime, const TDouble3Vec&) {});
         for (core_t::TTime time = 60480000; time < 60480000 + WEEK; time += HALF_HOUR) {
-            decomposition.addPoint(time, 10.0, NOOP);
+            decomposition.addPoint(time, 10.0);
         }
     }
 
@@ -2282,7 +2279,7 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
         decomposition.forecast(60480000, 60480000 + WEEK, HALF_HOUR, 90.0, 1.0,
                                [](core_t::TTime, const TDouble3Vec&) {});
         for (core_t::TTime time = 60480000; time < 60480000 + WEEK; time += HALF_HOUR) {
-            decomposition.addPoint(time, 10.0, NOOP);
+            decomposition.addPoint(time, 10.0);
         }
     }
 
@@ -2316,7 +2313,7 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
         decomposition.forecast(10366200, 10366200 + WEEK, HALF_HOUR, 90.0, 1.0,
                                [](core_t::TTime, const TDouble3Vec&) {});
         for (core_t::TTime time = 60480000; time < 60480000 + WEEK; time += HALF_HOUR) {
-            decomposition.addPoint(time, 10.0, NOOP);
+            decomposition.addPoint(time, 10.0);
         }
     }
 }

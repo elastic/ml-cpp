@@ -10,7 +10,6 @@
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CIntegerTools.h>
-#include <maths/CModel.h>
 #include <maths/CRestoreParams.h>
 #include <maths/CTools.h>
 
@@ -26,7 +25,6 @@ const std::size_t COMPONENT_SIZE(24);
 const std::string COMPLETENESS_TAG{"a"};
 const std::string FINAL_COUNT_TREND_TAG{"b"};
 const std::string FINAL_COUNT_MEAN_TAG{"c"};
-const maths::CModelAddSamplesParams::TModelChangeCallback NOOP;
 
 double decayRate(core_t::TTime bucketLength) {
     return CAnomalyDetectorModelConfig::DEFAULT_DECAY_RATE *
@@ -50,7 +48,7 @@ void CInterimBucketCorrector::currentBucketCount(core_t::TTime time, uint64_t co
 void CInterimBucketCorrector::finalBucketCount(core_t::TTime time, uint64_t count) {
     core_t::TTime bucketMidPoint{this->calcBucketMidPoint(time)};
     m_Completeness = 1.0;
-    m_FinalCountTrend.addPoint(bucketMidPoint, static_cast<double>(count), NOOP);
+    m_FinalCountTrend.addPoint(bucketMidPoint, static_cast<double>(count));
     m_FinalCountMean.age(std::exp(-decayRate(m_BucketLength)));
     m_FinalCountMean.add(static_cast<double>(count));
 }

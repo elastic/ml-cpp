@@ -74,7 +74,6 @@ const double MINIMUM_SEASONAL_SCALE{0.25};
 const double MINIMUM_SIGNIFICANT_CORRELATION{0.4};
 const double DECAY_RATE{0.0005};
 const std::size_t TAG{0u};
-const ml::maths::CModelAddSamplesParams::TModelChangeCallback NOOP;
 
 //! \brief Implements the allocator for new correlate priors.
 class CTimeSeriesCorrelateModelAllocator : public maths::CTimeSeriesCorrelateModelAllocator {
@@ -179,6 +178,7 @@ auto makeComponentDetectedCallback(maths::CPrior& prior,
                                    TDecayRateController2Ary* controllers = nullptr) {
 
     return [&prior, controllers](TFloatMeanAccumulatorVec residuals) {
+
         prior.setToNonInformative(0.0, prior.decayRate());
 
         if (residuals.size() > 0) {
@@ -400,7 +400,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         core_t::TTime time{0};
         for (auto sample : samples) {
-            trend.addPoint(time, sample, NOOP);
+            trend.addPoint(time, sample);
             TDouble1Vec sample_{trend.detrend(time, sample, 0.0)};
             prior.addSamples(sample_, maths_t::CUnitWeights::SINGLE_UNIT);
             prior.propagateForwardsByTime(1.0);
@@ -448,7 +448,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
             model.addSamples(addSampleParams(unit),
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
 
-            trend.addPoint(time, sample, NOOP, maths_t::CUnitWeights::UNIT,
+            trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
                            makeComponentDetectedCallback(prior));
 
             prior.addSamples({trend.detrend(time, sample, 0.0)},
@@ -486,7 +486,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
         for (const auto& sample : samples) {
             TDouble10Vec1Vec detrended{TDouble10Vec(3)};
             for (std::size_t i = 0u; i < sample.size(); ++i) {
-                trends[i]->addPoint(time, sample[i], NOOP);
+                trends[i]->addPoint(time, sample[i]);
                 detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0);
             }
             prior.addSamples(detrended,
@@ -553,7 +553,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
             TDouble10Vec1Vec detrended{TDouble10Vec(3)};
             for (std::size_t i = 0; i < sample.size(); ++i) {
-                trends[i]->addPoint(time, sample[i], NOOP, maths_t::CUnitWeights::UNIT,
+                trends[i]->addPoint(time, sample[i], maths_t::CUnitWeights::UNIT,
                                     [&reinitialize](TFloatMeanAccumulatorVec) {
                                         reinitialize = true;
                                     });
@@ -645,11 +645,11 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
 
         model.addSamples(addSampleParams(modelWeights), samples);
 
-        trend.addPoint(samples[1].first, samples[1].second[0], NOOP,
+        trend.addPoint(samples[1].first, samples[1].second[0],
                        maths_t::countWeight(weights[1]));
-        trend.addPoint(samples[2].first, samples[2].second[0], NOOP,
+        trend.addPoint(samples[2].first, samples[2].second[0],
                        maths_t::countWeight(weights[2]));
-        trend.addPoint(samples[0].first, samples[0].second[0], NOOP,
+        trend.addPoint(samples[0].first, samples[0].second[0],
                        maths_t::countWeight(weights[0]));
         prior.addSamples(
             {samples[2].second[0], samples[0].second[0], samples[1].second[0]},
@@ -690,11 +690,11 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
         model.addSamples(addSampleParams(modelWeights), samples);
 
         for (std::size_t i = 0u; i < trends.size(); ++i) {
-            trends[i]->addPoint(samples[1].first, samples[1].second[i], NOOP,
+            trends[i]->addPoint(samples[1].first, samples[1].second[i],
                                 maths_t::countWeight(weights[0][i]));
-            trends[i]->addPoint(samples[2].first, samples[2].second[i], NOOP,
+            trends[i]->addPoint(samples[2].first, samples[2].second[i],
                                 maths_t::countWeight(weights[1][i]));
-            trends[i]->addPoint(samples[0].first, samples[0].second[i], NOOP,
+            trends[i]->addPoint(samples[0].first, samples[0].second[i],
                                 maths_t::countWeight(weights[2][i]));
         }
         TDouble10Vec1Vec samples_{samples[2].second, samples[0].second,
@@ -814,7 +814,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
 
             model.addSamples(addSampleParams(weights), sample_);
 
-            trend.addPoint(time, sample, NOOP, maths_t::CUnitWeights::UNIT,
+            trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
                            makeComponentDetectedCallback(prior, &controllers));
 
             double detrended{trend.detrend(time, sample, 0.0)};
@@ -887,7 +887,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             bool reinitialize{false};
 
             for (std::size_t i = 0u; i < sample.size(); ++i) {
-                trends[i]->addPoint(time, sample[i], NOOP, maths_t::CUnitWeights::UNIT,
+                trends[i]->addPoint(time, sample[i], maths_t::CUnitWeights::UNIT,
                                     [&reinitialize](TFloatMeanAccumulatorVec) {
                                         reinitialize = true;
                                     });
@@ -963,7 +963,7 @@ BOOST_AUTO_TEST_CASE(testPredict) {
             model.addSamples(addSampleParams(weights),
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
 
-            trend.addPoint(time, sample, NOOP, maths_t::CUnitWeights::UNIT,
+            trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
                            makeComponentDetectedCallback(prior));
 
             prior.addSamples({trend.detrend(time, sample, 0.0)},
@@ -1061,7 +1061,7 @@ BOOST_AUTO_TEST_CASE(testPredict) {
 
             TDouble10Vec detrended;
             for (std::size_t i = 0; i < sample.size(); ++i) {
-                trends[i]->addPoint(time, sample[i], NOOP, maths_t::CUnitWeights::UNIT,
+                trends[i]->addPoint(time, sample[i], maths_t::CUnitWeights::UNIT,
                                     [&reinitialize](TFloatMeanAccumulatorVec) {
                                         reinitialize = true;
                                     });
@@ -1554,7 +1554,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
         for (auto sample : samples) {
             sample += 10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
                                             static_cast<double>(time) / 86400.0);
-            trend.addPoint(time, sample, NOOP);
+            trend.addPoint(time, sample);
             model->addSamples(addSampleParams(weights),
                               {core::make_triple(time, TDouble2Vec{sample}, TAG)});
             time += bucketLength;
@@ -1590,7 +1590,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
                 coordinate += 10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
                                                     static_cast<double>(time) / 86400.0);
             }
-            trend.addPoint(time, sample[0], NOOP);
+            trend.addPoint(time, sample[0]);
             model->addSamples(addSampleParams(weights),
                               {core::make_triple(time, TDouble2Vec(sample), TAG)});
             time += bucketLength;

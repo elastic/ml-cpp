@@ -101,17 +101,18 @@ public:
     //!
     //! \param[in] time The time of the data point.
     //! \param[in] value The value of the data point.
-    //! \param[in] modelChangeCallback Called if the model changes as a result of adding the data point.
     //! \param[in] weights The weights of \p value. The smaller
     //! the count weight the less influence \p value has on the trend
     //! and it's local variance.
     //! \param[in] componentChangeCallback Called if the components
     //! change as a result of adding the data point.
-    virtual void addPoint(core_t::TTime time,
-                          double value,
-                          const TModelChangeCallback& modelChangeCallback,
-                          const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
-                          const TComponentChangeCallback& componentChangeCallback = noop);
+    //! \param[in] modelChangeCallback Called if the model changes as a result of adding the data point.
+    virtual void
+    addPoint(core_t::TTime time,
+             double value,
+             const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
+             const TComponentChangeCallback& componentChangeCallback = noop,
+             const maths_t::TModelChangeCallback& modelChangeCallback = noop2);
 
     //! Apply \p change at \p time.
     //!

@@ -340,6 +340,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
 
     this->createUpdateNewModels(startTime, resourceMonitor);
     this->currentBucketInterimCorrections().clear();
+    m_CurrentBucketStats.s_Annotations.clear();
 
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
         LOG_TRACE(<< "Sampling [" << time << "," << time + bucketLength << ")");
@@ -470,7 +471,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                             gatherer.partitionFieldValue(),
                             gatherer.searchKey().overFieldName(),
                             gatherer.attributeName(cid),
-                            gatherer.searchKey().byFieldName(), "");
+                            gatherer.searchKey().byFieldName(), EMPTY_STRING);
                     };
 
                 maths::CModelAddSamplesParams params;

@@ -25,7 +25,6 @@
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraPersist.h>
-#include <maths/CModel.h>
 #include <maths/CPeriodicityHypothesisTests.h>
 #include <maths/CSampling.h>
 #include <maths/CSeasonalComponentAdaptiveBucketing.h>
@@ -392,17 +391,16 @@ CTimeSeriesDecompositionDetail::SAddValue::SAddValue(
     core_t::TTime time,
     core_t::TTime lastTime,
     double value,
-    const TModelChangeCallback& modelChangeCallback,
+    const maths_t::TModelChangeCallback& modelChangeCallback,
     const maths_t::TDoubleWeightsAry& weights,
     double trend,
     double seasonal,
     double calendar,
     const TPredictor& predictor,
     const CPeriodicityHypothesisTestsConfig& periodicityTestConfig)
-    : SMessage{time, lastTime}, s_Value{value},
-      s_ModelChangeCallback(modelChangeCallback), s_Weights{weights}, s_Trend{trend},
-      s_Seasonal{seasonal}, s_Calendar{calendar}, s_Predictor{predictor},
-      s_PeriodicityTestConfig{periodicityTestConfig} {
+    : SMessage{time, lastTime}, s_Value{value}, s_ModelChangeCallback{modelChangeCallback},
+      s_Weights{weights}, s_Trend{trend}, s_Seasonal{seasonal}, s_Calendar{calendar},
+      s_Predictor{predictor}, s_PeriodicityTestConfig{periodicityTestConfig} {
 }
 
 //////// SDetectedSeasonal ////////
@@ -410,7 +408,7 @@ CTimeSeriesDecompositionDetail::SAddValue::SAddValue(
 CTimeSeriesDecompositionDetail::SDetectedSeasonal::SDetectedSeasonal(
     core_t::TTime time,
     core_t::TTime lastTime,
-    const TModelChangeCallback& modelChangeCallback,
+    const maths_t::TModelChangeCallback& modelChangeCallback,
     const CPeriodicityHypothesisTestsResult& result,
     const CExpandingWindow& window,
     const TPredictor& predictor)
@@ -596,7 +594,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::handle(const SNewComponen
 void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& message) {
     core_t::TTime time{message.s_Time};
     core_t::TTime lastTime{message.s_LastTime};
-    const TModelChangeCallback& onModelChange{message.s_ModelChangeCallback};
+    const maths_t::TModelChangeCallback& onModelChange{message.s_ModelChangeCallback};
     const TPredictor& predictor{message.s_Predictor};
     const CPeriodicityHypothesisTestsConfig& config{message.s_PeriodicityTestConfig};
 
@@ -1324,11 +1322,11 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
         const CPeriodicityHypothesisTestsResult& result{message.s_Result};
         const CExpandingWindow& window{message.s_Window};
         const TPredictor& predictor{message.s_Predictor};
-        const TModelChangeCallback& onModelChange{message.s_ModelChangeCallback};
+        const maths_t::TModelChangeCallback& onModelChange{message.s_ModelChangeCallback};
 
         if (this->addSeasonalComponents(result, window, predictor)) {
-            std::string annotation = "Detected seasonal components";
-            LOG_DEBUG(<< annotation << " at " << std::to_string(time));
+            std::string annotation{"Detected seasonal components"};
+            LOG_DEBUG(<< annotation << " at " << time);
             onModelChange(time, annotation);
             m_UsingTrendForPrediction = true;
             this->clearComponentErrors();
