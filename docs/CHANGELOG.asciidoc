@@ -32,6 +32,8 @@
 
 === Enhancements
 
+* Add support for larger forecasts in memory via max_model_memory setting.
+  (See {ml-pull}1238[#1238] and {pull}57254[#57254].)
 * Don't lose precision when saving model state. (See {ml-pull}1274[#1274].)
 
 == {es} version 7.8.0
