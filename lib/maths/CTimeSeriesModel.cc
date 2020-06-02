@@ -1502,8 +1502,7 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
 
     if (m_ChangeDetector != nullptr) {
         const maths_t::TModelChangeCallback& onModelChange = params.onModelChange();
-        m_ChangeDetector->addSamples({{time, values[median].second[0]}},
-                                     {weights});
+        m_ChangeDetector->addSamples({{time, values[median].second[0]}}, {weights});
         if (m_ChangeDetector->stopTesting()) {
             m_ChangeDetector.reset();
             m_TrendModel->testingForChange(false);

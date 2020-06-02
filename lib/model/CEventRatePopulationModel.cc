@@ -63,7 +63,6 @@ const std::string ATTRIBUTE_PROBABILITY_PRIOR_TAG("c");
 const std::string FEATURE_MODELS_TAG("d");
 const std::string FEATURE_CORRELATE_MODELS_TAG("e");
 const std::string MEMORY_ESTIMATOR_TAG("f");
-const std::string EMPTY_STRING("");
 }
 
 CEventRatePopulationModel::CEventRatePopulationModel(

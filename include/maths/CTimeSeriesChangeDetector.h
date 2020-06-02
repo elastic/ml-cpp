@@ -115,8 +115,7 @@ public:
     double decisionFunction(std::size_t& change) const;
 
     //! Add \p samples to the change detector.
-    void addSamples(const TTimeDoublePr1Vec& samples,
-                    const TDoubleWeightsAry1Vec& weights);
+    void addSamples(const TTimeDoublePr1Vec& samples, const TDoubleWeightsAry1Vec& weights);
 
     //! Check if we should stop testing.
     bool stopTesting() const;
