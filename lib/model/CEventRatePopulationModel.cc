@@ -823,6 +823,8 @@ void CEventRatePopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemo
                                     m_CurrentBucketStats.s_FeatureData, mem);
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
                                     m_CurrentBucketStats.s_InterimCorrections, mem);
+    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_Annotations",
+                                    m_CurrentBucketStats.s_Annotations, mem);
     core::CMemoryDebug::dynamicSize("m_AttributeProbabilities",
                                     m_AttributeProbabilities, mem);
     core::CMemoryDebug::dynamicSize("m_NewPersonAttributePrior",
@@ -850,6 +852,7 @@ std::size_t CEventRatePopulationModel::computeMemoryUsage() const {
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
+    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_Annotations);
     mem += core::CMemory::dynamicSize(m_AttributeProbabilities);
     mem += core::CMemory::dynamicSize(m_NewAttributeProbabilityPrior);
     mem += core::CMemory::dynamicSize(m_AttributeProbabilityPrior);

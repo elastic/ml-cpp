@@ -740,6 +740,8 @@ void CMetricPopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryU
                                     m_CurrentBucketStats.s_FeatureData, mem);
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
                                     m_CurrentBucketStats.s_InterimCorrections, mem);
+    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_Annotations",
+                                    m_CurrentBucketStats.s_Annotations, mem);
     core::CMemoryDebug::dynamicSize("m_FeatureModels", m_FeatureModels, mem);
     core::CMemoryDebug::dynamicSize("m_FeatureCorrelatesModels",
                                     m_FeatureCorrelatesModels, mem);
@@ -761,6 +763,7 @@ std::size_t CMetricPopulationModel::computeMemoryUsage() const {
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
+    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_Annotations);
     mem += core::CMemory::dynamicSize(m_FeatureModels);
     mem += core::CMemory::dynamicSize(m_FeatureCorrelatesModels);
     mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);

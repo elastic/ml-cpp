@@ -499,6 +499,8 @@ void CEventRateModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr
                                     m_CurrentBucketStats.s_FeatureData, mem);
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
                                     m_CurrentBucketStats.s_InterimCorrections, mem);
+    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_Annotations",
+                                    m_CurrentBucketStats.s_Annotations, mem);
     core::CMemoryDebug::dynamicSize("s_Probabilities", m_Probabilities, mem);
     core::CMemoryDebug::dynamicSize("m_ProbabilityPrior", m_ProbabilityPrior, mem);
     core::CMemoryDebug::dynamicSize("m_InterimBucketCorrector",
@@ -518,6 +520,7 @@ std::size_t CEventRateModel::computeMemoryUsage() const {
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
+    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_Annotations);
     mem += core::CMemory::dynamicSize(m_Probabilities);
     mem += core::CMemory::dynamicSize(m_ProbabilityPrior);
     mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
