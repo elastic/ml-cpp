@@ -20,6 +20,7 @@ const std::string CREATE_USERNAME{"create_username"};
 const std::string MODIFIED_TIME{"modified_time"};
 const std::string MODIFIED_USERNAME{"modified_username"};
 const std::string TYPE{"type"};
+const std::string EVENT{"event"};
 const std::string JOB_ID{"job_id"};
 const std::string DETECTOR_INDEX{"detector_index"};
 const std::string PARTITION_FIELD_NAME{"partition_field_name"};
@@ -62,6 +63,7 @@ void CAnnotationJsonWriter::write(const std::string& jobId,
     m_Writer.addStringFieldCopyToObj(CREATE_USERNAME, "_xpack", doc);
     m_Writer.addStringFieldCopyToObj(MODIFIED_USERNAME, "_xpack", doc);
     m_Writer.addStringFieldCopyToObj(TYPE, "annotation", doc);
+    m_Writer.addStringFieldCopyToObj(EVENT, annotation.event(), doc);
 
     m_Writer.addIntFieldToObj(DETECTOR_INDEX, annotation.detectorIndex(), doc);
     if (annotation.partitionFieldName().empty() == false) {

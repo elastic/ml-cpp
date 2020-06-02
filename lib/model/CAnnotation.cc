@@ -7,6 +7,9 @@
 
 namespace ml {
 namespace model {
+namespace {
+const std::string EVENT_MODEL_CHANGE{"model_change"};
+}
 
 CAnnotation::CAnnotation(core_t::TTime time,
                          const std::string& annotation,
@@ -29,6 +32,11 @@ core_t::TTime CAnnotation::time() const {
 
 const std::string& CAnnotation::annotation() const {
     return m_Annotation;
+}
+
+const std::string& CAnnotation::event() const {
+    // If we start reporting some other event type, we should return m_Event instead of a constant here.
+    return EVENT_MODEL_CHANGE;
 }
 
 int CAnnotation::detectorIndex() const {

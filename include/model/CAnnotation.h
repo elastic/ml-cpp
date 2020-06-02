@@ -31,6 +31,7 @@ public:
                 const std::string& byFieldValue);
     core_t::TTime time() const;
     const std::string& annotation() const;
+    const std::string& event() const;
     int detectorIndex() const;
     const std::string& partitionFieldName() const;
     const std::string& partitionFieldValue() const;

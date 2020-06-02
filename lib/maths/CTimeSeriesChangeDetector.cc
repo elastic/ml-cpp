@@ -277,8 +277,7 @@ bool CUnivariateTimeSeriesChangeDetector::stopTesting() const {
 }
 
 void CUnivariateTimeSeriesChangeDetector::addSamples(const TTimeDoublePr1Vec& samples,
-                                                     const TDoubleWeightsAry1Vec& weights,
-                                                     const maths_t::TModelChangeCallback& onModelChange) {
+                                                     const TDoubleWeightsAry1Vec& weights) {
     for (const auto& sample : samples) {
         m_TimeRange.add(sample.first);
     }
