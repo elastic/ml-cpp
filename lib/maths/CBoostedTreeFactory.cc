@@ -96,6 +96,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
     this->determineFeatureDataTypes(frame);
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
+    m_TreeImpl->m_Instrumentation->flush();
 
     this->startProgressMonitoringInitializeHyperparameters(frame);
 
@@ -123,6 +124,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     this->resizeDataFrame(frame);
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
+    m_TreeImpl->m_Instrumentation->flush();
 
     this->skipProgressMonitoringFeatureSelection();
     this->skipProgressMonitoringInitializeHyperparameters();
@@ -278,6 +280,7 @@ void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
     m_TreeImpl->m_ExtraColumns = frame.resizeColumns(
         m_TreeImpl->m_NumberThreads, extraColumns(numberLossParameters));
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(frame));
+    m_TreeImpl->m_Instrumentation->flush();
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
     frame.writeColumns(m_NumberThreads, 0, frame.numberRows(),
