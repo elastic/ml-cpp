@@ -83,6 +83,5 @@ void CAnnotationJsonWriter::populateAnnotationObject(const std::string& jobId,
                                          annotation.byFieldValue(), obj, true);
     }
 }
-
 }
 }

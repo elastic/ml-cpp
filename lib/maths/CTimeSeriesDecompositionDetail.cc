@@ -1675,12 +1675,11 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
         result.removeDiscontinuities(values);
         CTrendComponent newTrend{m_Trend.defaultDecayRate()};
         this->fitTrend(startTime, dt, values, newTrend);
-        this->reweightOutliers(
-            startTime, dt,
-            [&newTrend](core_t::TTime time) {
-                return CBasicStatistics::mean(newTrend.value(time, 0.0));
-            },
-            values);
+        this->reweightOutliers(startTime, dt,
+                               [&newTrend](core_t::TTime time) {
+                                   return CBasicStatistics::mean(newTrend.value(time, 0.0));
+                               },
+                               values);
 
         // TODO Resetting the trend is bad from a forecast perspective so we
         // should avoid it if the difference is small.
