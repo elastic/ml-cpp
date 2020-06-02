@@ -66,8 +66,8 @@ const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
                                               << ((sizeof(std::size_t) - 2) * 8)};
 }
 
-CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::string& jobId)
-    : m_JobId{jobId}, m_ProgressMonitoredTask{NO_TASK}, m_Finished{false},
+CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::string& jobId, std::int64_t memoryLimit)
+    : m_JobId{jobId}, m_ProgressMonitoredTask{NO_TASK}, m_MemoryLimit{memoryLimit}, m_Finished{false},
       m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
 }
 
@@ -299,8 +299,8 @@ void CDataFrameOutliersInstrumentation::writeParameters(rapidjson::Value& parent
     }
 }
 
-CDataFrameTrainBoostedTreeInstrumentation::CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId)
-    : CDataFrameAnalysisInstrumentation(jobId) {
+CDataFrameTrainBoostedTreeInstrumentation::CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId, std::int64_t memoryLimit)
+    : CDataFrameAnalysisInstrumentation(jobId, memoryLimit) {
 }
 
 void CDataFrameTrainBoostedTreeInstrumentation::type(EStatsType type) {

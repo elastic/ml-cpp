@@ -57,7 +57,7 @@ public:
 
 public:
     //! Constructs an instrumentation object an analytics job with a given \p jobId.
-    explicit CDataFrameAnalysisInstrumentation(const std::string& jobId);
+    explicit CDataFrameAnalysisInstrumentation(const std::string& jobId, std::int64_t memoryLimit);
 
     //! Adds \p delta to the memory usage statistics.
     void updateMemoryUsage(std::int64_t delta) override;
@@ -130,6 +130,7 @@ private:
 private:
     std::string m_JobId;
     std::string m_ProgressMonitoredTask;
+    std::int64_t m_MemoryLimit;
     std::atomic_bool m_Finished;
     std::atomic_size_t m_FractionalProgress;
     std::atomic<std::int64_t> m_Memory;
@@ -142,8 +143,8 @@ class API_EXPORT CDataFrameOutliersInstrumentation final
     : public CDataFrameAnalysisInstrumentation,
       public maths::CDataFrameOutliersInstrumentationInterface {
 public:
-    explicit CDataFrameOutliersInstrumentation(const std::string& jobId)
-        : CDataFrameAnalysisInstrumentation(jobId) {}
+    explicit CDataFrameOutliersInstrumentation(const std::string& jobId, std::int64_t memoryLimit)
+        : CDataFrameAnalysisInstrumentation(jobId, memoryLimit) {}
     void parameters(const maths::COutliers::SComputeParameters& parameters) override;
     void elapsedTime(std::uint64_t time) override;
     void featureInfluenceThreshold(double featureInfluenceThreshold) override;
@@ -171,7 +172,7 @@ class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation final
     : public CDataFrameAnalysisInstrumentation,
       public maths::CDataFrameTrainBoostedTreeInstrumentationInterface {
 public:
-    explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId);
+    explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId, std::int64_t memoryLimit);
 
     //! Supervised learning job \p type, can be E_Regression or E_Classification.
     void type(EStatsType type) override;
