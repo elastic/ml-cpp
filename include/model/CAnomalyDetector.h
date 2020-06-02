@@ -105,8 +105,7 @@ public:
     static const std::string EMPTY_STRING;
 
 public:
-    CAnomalyDetector(int detectorIndex,
-                     CLimits& limits,
+    CAnomalyDetector(CLimits& limits,
                      const CAnomalyDetectorModelConfig& modelConfig,
                      const std::string& partitionFieldValue,
                      core_t::TTime firstTime,
@@ -350,9 +349,6 @@ private:
     void legacyModelsAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
 private:
-    //! An identifier for the search for which this is detecting anomalies.
-    int m_DetectorIndex;
-
     //! Configurable limits
     CLimits& m_Limits;
 

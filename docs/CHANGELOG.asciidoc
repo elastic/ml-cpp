@@ -41,7 +41,12 @@
 
 === Enhancements
 
+* Add support for larger forecasts in memory via max_model_memory setting.
+  (See {ml-pull}1238[#1238] and {pull}57254[#57254].)
 * Fix numerical issues leading to blow up of the model plot bounds. (See {ml-pull}1268[#1268].)
+* Don't lose precision when saving model state. (See {ml-pull}1274[#1274].)
+* Parallelize the feature importance calculation for classification and regression
+  over trees. (See {ml-pull}1277[#1277].)
 
 == {es} version 7.8.0
 
@@ -49,7 +54,8 @@
 
 * Speed up anomaly detection for the lat_long function. (See {ml-pull}1102[#1102].)
 * Reduce CPU scheduling priority of native analysis processes to favor the ES JVM
-  when CPU is constrained. (See {ml-pull}1109[#1109].)
+  when CPU is constrained. This change is only implemented for Linux and macOS, not
+  for Windows. (See {ml-pull}1109[#1109].)
 * Take `training_percent` into account when estimating memory usage for classification and regression. 
   (See {ml-pull}1111[#1111].)
 * Support maximize minimum recall when assigning class labels for multiclass classification.

@@ -89,13 +89,12 @@ const std::string CAnomalyDetector::SUM_NAME("sum");
 const std::string CAnomalyDetector::LAT_LONG_NAME("lat_long");
 const std::string CAnomalyDetector::EMPTY_STRING;
 
-CAnomalyDetector::CAnomalyDetector(int detectorIndex,
-                                   CLimits& limits,
+CAnomalyDetector::CAnomalyDetector(CLimits& limits,
                                    const CAnomalyDetectorModelConfig& modelConfig,
                                    const std::string& partitionFieldValue,
                                    core_t::TTime firstTime,
                                    const TModelFactoryCPtr& modelFactory)
-    : m_DetectorIndex(detectorIndex), m_Limits(limits), m_ModelConfig(modelConfig),
+    : m_Limits(limits), m_ModelConfig(modelConfig),
       m_LastBucketEndTime(maths::CIntegerTools::ceil(firstTime, modelConfig.bucketLength())),
       m_DataGatherer(makeDataGatherer(modelFactory, m_LastBucketEndTime, partitionFieldValue)),
       m_ModelFactory(modelFactory),
@@ -116,8 +115,7 @@ CAnomalyDetector::CAnomalyDetector(int detectorIndex,
 }
 
 CAnomalyDetector::CAnomalyDetector(bool isForPersistence, const CAnomalyDetector& other)
-    : m_DetectorIndex(other.m_DetectorIndex), m_Limits(other.m_Limits),
-      m_ModelConfig(other.m_ModelConfig),
+    : m_Limits(other.m_Limits), m_ModelConfig(other.m_ModelConfig),
       // Empty result function is fine in this case
       // Empty result count function is fine in this case
       m_LastBucketEndTime(other.m_LastBucketEndTime),
@@ -438,7 +436,7 @@ void CAnomalyDetector::generateModelPlot(core_t::TTime bucketStartTime,
                 modelPlots.emplace_back(time, key.partitionFieldName(),
                                         m_DataGatherer->partitionFieldValue(),
                                         key.overFieldName(), key.byFieldName(),
-                                        bucketLength, m_DetectorIndex);
+                                        bucketLength, key.detectorIndex());
                 view->modelPlot(time, boundsPercentile, terms, modelPlots.back());
             }
         }
@@ -508,7 +506,7 @@ CAnomalyDetector::getForecastModels(bool persistOnDisk,
 
     const CSearchKey& key = m_DataGatherer->searchKey();
     series.s_ByFieldName = key.byFieldName();
-    series.s_DetectorIndex = m_DetectorIndex;
+    series.s_DetectorIndex = key.detectorIndex();
     series.s_PartitionFieldName = key.partitionFieldName();
     series.s_PartitionFieldValue = m_DataGatherer->partitionFieldValue();
     series.s_MinimumSeasonalVarianceScale = m_ModelFactory->minimumSeasonalVarianceScale();
@@ -685,7 +683,7 @@ void CAnomalyDetector::buildResultsHelper(core_t::TTime bucketStartTime,
     CSearchKey key = m_DataGatherer->searchKey();
     LOG_TRACE(<< "OutputResults, for " << key.toCue());
 
-    if (m_Model->addResults(m_DetectorIndex, bucketStartTime, bucketEndTime,
+    if (m_Model->addResults(bucketStartTime, bucketEndTime,
                             10, // TODO max number of attributes
                             results)) {
         if (bucketEndTime % bucketLength == 0) {

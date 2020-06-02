@@ -7,8 +7,6 @@
 #ifndef INCLUDED_ml_api_CForecastRunner_h
 #define INCLUDED_ml_api_CForecastRunner_h
 
-#include <api/ImportExport.h>
-
 #include <core/CConcurrentWrapper.h>
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CNonCopyable.h>
@@ -21,10 +19,13 @@
 #include <model/CForecastDataSink.h>
 #include <model/CResourceMonitor.h>
 
+#include <api/ImportExport.h>
+
 #include <boost/filesystem.hpp>
 #include <boost/unordered_set.hpp>
 
 #include <condition_variable>
+#include <cstdint>
 #include <functional>
 #include <list>
 #include <memory>
@@ -32,8 +33,6 @@
 #include <string>
 #include <thread>
 #include <vector>
-
-#include <stdint.h>
 
 namespace CForecastRunnerTest {
 struct testPopulation;
@@ -44,6 +43,8 @@ struct testValidateNoExpiry;
 struct testValidateInvalidExpiry;
 struct testValidateBrokenMessage;
 struct testValidateMissingId;
+struct testValidateProvidedMaxMemoryLimit;
+struct testValidateProvidedTooLargeMaxMemoryLimit;
 }
 
 namespace ml {
@@ -72,28 +73,29 @@ class API_EXPORT CForecastRunner final : private core::CNonCopyable {
 public:
     //! max open forecast requests
     //! if you change this, also change the ERROR_TOO_MANY_JOBS message accordingly
-    static const size_t MAX_FORECAST_JOBS_IN_QUEUE = 3;
+    static const std::size_t MAX_FORECAST_JOBS_IN_QUEUE = 3;
 
     //! default expiry time
-    static const size_t DEFAULT_EXPIRY_TIME = 14 * core::constants::DAY;
+    static const std::size_t DEFAULT_EXPIRY_TIME = 14 * core::constants::DAY;
 
     //! max memory allowed to use for forecast models
-    static const size_t MAX_FORECAST_MODEL_MEMORY = 20971520ull; // 20MB
+    //! (not defined inline because we need its address)
+    static const std::size_t DEFAULT_MAX_FORECAST_MODEL_MEMORY;
 
     //! Note: This value measures the size in memory, not the size of the persistence,
     //! which is likely higher and would be hard to calculate upfront
     //! max memory allowed to use for forecast models persisting to disk
-    static const size_t MAX_FORECAST_MODEL_PERSISTANCE_MEMORY = 524288000ull; // 500MB
+    static const std::size_t MAX_FORECAST_MODEL_PERSISTANCE_MEMORY = 524288000ull; // 500MB
 
     //! Note: This value is lower than in the ML Java code to prevent side-effects.
     //! If you change this value also change the limit in the ML Java code.
     //! The purpose of this value is to guard the rest of the system against
     //! running out of disk space.
     //! minimum disk space required for disk persistence
-    static const size_t MIN_FORECAST_AVAILABLE_DISK_SPACE = 4294967296ull; // 4GB
+    static const std::size_t MIN_FORECAST_AVAILABLE_DISK_SPACE = 4294967296ull; // 4GB
 
     //! minimum time between stat updates to prevent to many updates in a short time
-    static const uint64_t MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE = 3000ul; // 3s
+    static const std::uint64_t MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE = 3000ul; // 3s
 
 private:
     static const std::string ERROR_FORECAST_REQUEST_FAILED_TO_PARSE;
@@ -103,7 +105,7 @@ private:
     static const std::string ERROR_NO_DATA_PROCESSED;
     static const std::string ERROR_NO_CREATE_TIME;
     static const std::string ERROR_BAD_MEMORY_STATUS;
-    static const std::string ERROR_MEMORY_LIMIT;
+    static const std::string ERROR_BAD_MODEL_MEMORY_LIMIT;
     static const std::string ERROR_MEMORY_LIMIT_DISK;
     static const std::string ERROR_MEMORY_LIMIT_DISKSPACE;
     static const std::string ERROR_NOT_SUPPORTED_FOR_POPULATION_MODELS;
@@ -203,13 +205,16 @@ private:
         double s_BoundsPercentile;
 
         //! total number of models
-        size_t s_NumberOfModels;
+        std::size_t s_NumberOfModels;
 
         //! total number of models able to forecast
-        size_t s_NumberOfForecastableModels;
+        std::size_t s_NumberOfForecastableModels;
 
         //! total memory required for this forecasting job (only the models)
-        size_t s_MemoryUsage;
+        std::size_t s_MemoryUsage;
+
+        //! maximum allowed memory (in bytes) that this forecast can use
+        std::size_t s_MaxForecastModelMemory;
 
         //! A collection storing important messages from forecasting
         TStrUSet s_Messages;
@@ -249,11 +254,12 @@ private:
     void sendMessage(WRITE write, const SForecast& forecastJob, const std::string& message) const;
 
     //! parse and validate a forecast request and turn it into a forecast job
-    static bool
-    parseAndValidateForecastRequest(const std::string& controlMessage,
-                                    SForecast& forecastJob,
-                                    const core_t::TTime lastResultsTime,
-                                    const TErrorFunc& errorFunction = TErrorFunc());
+    static bool parseAndValidateForecastRequest(
+        const std::string& controlMessage,
+        SForecast& forecastJob,
+        const core_t::TTime lastResultsTime,
+        std::size_t jobBytesSizeLimit = std::numeric_limits<std::size_t>::max() / 2,
+        const TErrorFunc& errorFunction = TErrorFunc());
 
 private:
     //! This job ID
@@ -292,6 +298,8 @@ private:
     friend struct CForecastRunnerTest::testValidateInvalidExpiry;
     friend struct CForecastRunnerTest::testValidateBrokenMessage;
     friend struct CForecastRunnerTest::testValidateMissingId;
+    friend struct CForecastRunnerTest::testValidateProvidedMaxMemoryLimit;
+    friend struct CForecastRunnerTest::testValidateProvidedTooLargeMaxMemoryLimit;
 };
 }
 }

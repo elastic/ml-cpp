@@ -200,99 +200,111 @@ BOOST_AUTO_TEST_CASE(testTypeToStringPrecise) {
     }
     {
         double i(0.123456);
-        std::string expected("1.23456e-1");
-
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
-            i, ml::core::CIEEE754::E_SinglePrecision);
-        BOOST_REQUIRE_EQUAL(expected, actual);
+        double o;
+        std::string string{ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_SinglePrecision)};
+        ml::core::CStringUtils::stringToType(string, o);
+        BOOST_REQUIRE_EQUAL(
+            ml::core::CIEEE754::round(i, ml::core::CIEEE754::E_SinglePrecision),
+            ml::core::CIEEE754::round(o, ml::core::CIEEE754::E_SinglePrecision));
     }
     {
         double i(0.123456);
-        std::string expected("1.23456e-1");
-
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
-            i, ml::core::CIEEE754::E_DoublePrecision);
-        BOOST_REQUIRE_EQUAL(expected, actual);
+        double o;
+        std::string string{ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_DoublePrecision)};
+        ml::core::CStringUtils::stringToType(string, o);
+        BOOST_REQUIRE_EQUAL(i, o);
     }
     {
         double i(0.123456e10);
-        std::string expected("1.23456e9");
-
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
-            i, ml::core::CIEEE754::E_SinglePrecision);
-        BOOST_REQUIRE_EQUAL(expected, actual);
+        double o;
+        std::string string{ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_SinglePrecision)};
+        ml::core::CStringUtils::stringToType(string, o);
+        BOOST_REQUIRE_EQUAL(
+            ml::core::CIEEE754::round(i, ml::core::CIEEE754::E_SinglePrecision),
+            ml::core::CIEEE754::round(o, ml::core::CIEEE754::E_SinglePrecision));
     }
     {
         double i(0.123456e10);
-        std::string expected("1234560000");
-
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
-            i, ml::core::CIEEE754::E_DoublePrecision);
-        BOOST_REQUIRE_EQUAL(expected, actual);
+        double o;
+        std::string string{ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_DoublePrecision)};
+        ml::core::CStringUtils::stringToType(string, o);
+        BOOST_REQUIRE_EQUAL(i, o);
     }
     {
         double i(0.123456e-10);
-        std::string expected("1.23456e-11");
-
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
-            i, ml::core::CIEEE754::E_SinglePrecision);
-        BOOST_REQUIRE_EQUAL(expected, actual);
+        double o;
+        std::string string{ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_SinglePrecision)};
+        ml::core::CStringUtils::stringToType(string, o);
+        BOOST_REQUIRE_EQUAL(
+            ml::core::CIEEE754::round(i, ml::core::CIEEE754::E_SinglePrecision),
+            ml::core::CIEEE754::round(o, ml::core::CIEEE754::E_SinglePrecision));
     }
     {
         double i(0.123456e-10);
-        std::string expected("1.23456e-11");
-
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
-            i, ml::core::CIEEE754::E_DoublePrecision);
-        BOOST_REQUIRE_EQUAL(expected, actual);
+        double o;
+        std::string string{ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_DoublePrecision)};
+        ml::core::CStringUtils::stringToType(string, o);
+        BOOST_REQUIRE_EQUAL(i, o);
     }
     {
         double i(0.123456787654321e-10);
-        std::string expected("1.234568e-11");
-
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
-            i, ml::core::CIEEE754::E_SinglePrecision);
-        BOOST_REQUIRE_EQUAL(expected, actual);
+        double o;
+        std::string string{ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_SinglePrecision)};
+        ml::core::CStringUtils::stringToType(string, o);
+        BOOST_REQUIRE_EQUAL(
+            ml::core::CIEEE754::round(i, ml::core::CIEEE754::E_SinglePrecision),
+            ml::core::CIEEE754::round(o, ml::core::CIEEE754::E_SinglePrecision));
     }
     {
         double i(0.123456787654321e-10);
-        std::string expected("1.23456787654321e-11");
-
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
-            i, ml::core::CIEEE754::E_DoublePrecision);
-        BOOST_REQUIRE_EQUAL(expected, actual);
+        double o;
+        std::string string{ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_DoublePrecision)};
+        ml::core::CStringUtils::stringToType(string, o);
+        BOOST_REQUIRE_EQUAL(i, o);
     }
     {
         double i(0.00000000012345678765432123456);
-        std::string expected("1.234568e-10");
-
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
-            i, ml::core::CIEEE754::E_SinglePrecision);
-        BOOST_REQUIRE_EQUAL(expected, actual);
+        double o;
+        std::string string{ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_SinglePrecision)};
+        ml::core::CStringUtils::stringToType(string, o);
+        BOOST_REQUIRE_EQUAL(
+            ml::core::CIEEE754::round(i, ml::core::CIEEE754::E_SinglePrecision),
+            ml::core::CIEEE754::round(o, ml::core::CIEEE754::E_SinglePrecision));
     }
     {
         double i(0.00000000012345678765432123456);
-        std::string expected("1.23456787654321e-10");
-
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
-            i, ml::core::CIEEE754::E_DoublePrecision);
-        BOOST_REQUIRE_EQUAL(expected, actual);
+        double o;
+        std::string string{ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_DoublePrecision)};
+        ml::core::CStringUtils::stringToType(string, o);
+        BOOST_REQUIRE_EQUAL(i, o);
     }
     {
         double i(123456787654321.23456);
-        std::string expected("1.234568e14");
-
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
-            i, ml::core::CIEEE754::E_SinglePrecision);
-        BOOST_REQUIRE_EQUAL(expected, actual);
+        double o;
+        std::string string{ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_SinglePrecision)};
+        ml::core::CStringUtils::stringToType(string, o);
+        BOOST_REQUIRE_EQUAL(
+            ml::core::CIEEE754::round(i, ml::core::CIEEE754::E_SinglePrecision),
+            ml::core::CIEEE754::round(o, ml::core::CIEEE754::E_SinglePrecision));
     }
     {
         double i(123456787654321.23456);
-        std::string expected("123456787654321");
-
-        std::string actual = ml::core::CStringUtils::typeToStringPrecise(
-            i, ml::core::CIEEE754::E_DoublePrecision);
-        BOOST_REQUIRE_EQUAL(expected, actual);
+        double o;
+        std::string string{ml::core::CStringUtils::typeToStringPrecise(
+            i, ml::core::CIEEE754::E_DoublePrecision)};
+        ml::core::CStringUtils::stringToType(string, o);
+        BOOST_REQUIRE_EQUAL(i, o);
     }
 }
 

@@ -6,6 +6,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
+#include <core/Concurrency.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
@@ -118,9 +119,9 @@ struct SFixtureSingleTree {
         tree[6].numberSamples(1);
 
         s_TreeFeatureImportance = std::make_unique<maths::CTreeShapFeatureImportance>(
-            *s_Frame, *s_Encoder, s_Trees, s_NumberFeatures);
+            1, *s_Frame, *s_Encoder, s_Trees, s_NumberFeatures);
         s_TopTreeFeatureImportance = std::make_unique<maths::CTreeShapFeatureImportance>(
-            *s_Frame, *s_Encoder, s_Trees, 1);
+            1, *s_Frame, *s_Encoder, s_Trees, 1);
     }
 
     TDataFrameUPtr s_Frame;
@@ -130,112 +131,6 @@ struct SFixtureSingleTree {
     TTreeShapFeatureImportanceUPtr s_TopTreeFeatureImportance;
     TEncoderUPtr s_Encoder;
     mutable TTreeVec s_Trees;
-};
-
-struct SFixtureSingleTreeRandom {
-    SFixtureSingleTreeRandom() {
-        test::CRandomNumbers rng;
-        this->initFrame(rng);
-        CStubMakeDataFrameCategoryEncoder stubParameters{1, *s_Frame, 0, s_NumberFeatures};
-        s_Encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(stubParameters);
-        this->initTree(rng);
-        s_TreeFeatureImportance = std::make_unique<maths::CTreeShapFeatureImportance>(
-            *s_Frame, *s_Encoder, s_Trees, s_NumberFeatures);
-        s_TopTwoTreeFeatureImportance = std::make_unique<maths::CTreeShapFeatureImportance>(
-            *s_Frame, *s_Encoder, s_Trees, 2);
-    }
-
-    void initFrame(test::CRandomNumbers& rng) {
-        TDoubleVec values;
-        rng.generateUniformSamples(-10.0, 10.0, s_NumberRows * s_NumberFeatures, values);
-
-        s_Frame = core::makeMainStorageDataFrame(s_NumberFeatures, s_NumberRows).first;
-        s_Frame->columnNames(columnNames(s_NumberFeatures));
-        for (std::size_t i = 0; i < s_NumberRows; ++i) {
-            s_Frame->writeRow([&](core::CDataFrame::TFloatVecItr column, int32_t&) {
-                for (std::size_t j = 0; j < s_NumberFeatures; ++j, ++column) {
-                    *column = values[i * s_NumberFeatures + j];
-                }
-            });
-        }
-        s_Frame->finishWritingRows();
-    }
-
-    void initTree(test::CRandomNumbers& rng) {
-        s_Trees.resize(1);
-        auto& tree = s_Trees[0];
-
-        tree.reserve(s_NumberInnerNodes * 2 + 1);
-        TDoubleVecVec bottom;
-        bottom.reserve(s_NumberInnerNodes);
-        TDoubleVecVec top;
-        top.reserve(s_NumberInnerNodes);
-        TSizeVec splitFeature(1);
-        TDoubleVec splitThreshold(1);
-
-        tree.emplace_back();
-        bottom.emplace_back(s_NumberFeatures, -10);
-        top.emplace_back(s_NumberFeatures, 10);
-        for (std::size_t nodeIndex = 0; nodeIndex < s_NumberInnerNodes; ++nodeIndex) {
-            rng.generateUniformSamples(0, s_NumberFeatures, 1, splitFeature);
-            rng.generateUniformSamples(bottom[nodeIndex][splitFeature[0]],
-                                       top[nodeIndex][splitFeature[0]], 1, splitThreshold);
-            tree[nodeIndex].split(splitFeature[0], splitThreshold[0], true, 0.0, 0.0, tree);
-            // keep the management of the boundaries, to make sure the generated thresholds are realistic
-            TDoubleVec leftChildBottom{bottom[nodeIndex]};
-            TDoubleVec rightChildBottom{bottom[nodeIndex]};
-            TDoubleVec leftChildTop{top[nodeIndex]};
-            TDoubleVec rightChildTop{top[nodeIndex]};
-            leftChildTop[splitFeature[0]] = splitThreshold[0];
-            rightChildBottom[splitFeature[0]] = splitThreshold[0];
-            bottom.push_back(std::move(leftChildBottom));
-            bottom.push_back(std::move(rightChildBottom));
-            top.push_back(std::move(leftChildTop));
-            top.push_back(std::move(rightChildTop));
-        }
-
-        std::size_t numberLeafs{s_NumberInnerNodes + 1};
-        TDoubleVec leafValues(numberLeafs);
-        rng.generateUniformSamples(-5, 5, numberLeafs, leafValues);
-        for (std::size_t i = 0; i < numberLeafs; ++i) {
-            tree[s_NumberInnerNodes + i].value(toVector(leafValues[i]));
-        }
-
-        // set correct number samples
-        auto result = s_Frame->readRows(
-            1, core::bindRetrievableState(
-                   [&](TSizeVec& numberSamples, const TRowItr& beginRows, const TRowItr& endRows) {
-                       for (auto row = beginRows; row != endRows; ++row) {
-                           auto node{&(tree[0])};
-                           auto encodedRow{s_Encoder->encode(*row)};
-                           numberSamples[0] += 1;
-                           std::size_t nextIndex;
-                           while (node->isLeaf() == false) {
-                               if (node->assignToLeft(encodedRow)) {
-                                   nextIndex = node->leftChildIndex();
-                               } else {
-                                   nextIndex = node->rightChildIndex();
-                               }
-                               numberSamples[nextIndex] += 1;
-                               node = &(tree[nextIndex]);
-                           }
-                       }
-                   },
-                   TSizeVec(tree.size())));
-        TSizeVec numberSamples{std::move(result.first[0].s_FunctionState)};
-        for (std::size_t i = 0; i < numberSamples.size(); ++i) {
-            tree[i].numberSamples(numberSamples[i]);
-        }
-    }
-
-    TDataFrameUPtr s_Frame;
-    std::size_t s_NumberFeatures{5};
-    std::size_t s_NumberRows{1000};
-    std::size_t s_NumberInnerNodes{15};
-    TTreeShapFeatureImportanceUPtr s_TreeFeatureImportance;
-    TTreeShapFeatureImportanceUPtr s_TopTwoTreeFeatureImportance;
-    TEncoderUPtr s_Encoder;
-    TTreeVec s_Trees;
 };
 
 struct SFixtureMultipleTrees {
@@ -295,9 +190,9 @@ struct SFixtureMultipleTrees {
         tree2[6].numberSamples(4);
 
         s_TreeFeatureImportance = std::make_unique<maths::CTreeShapFeatureImportance>(
-            *s_Frame, *s_Encoder, s_Trees, s_NumberFeatures);
+            1, *s_Frame, *s_Encoder, s_Trees, s_NumberFeatures);
         s_TopTreeFeatureImportance = std::make_unique<maths::CTreeShapFeatureImportance>(
-            *s_Frame, *s_Encoder, s_Trees, 1);
+            1, *s_Frame, *s_Encoder, s_Trees, 1);
     }
 
     TDataFrameUPtr s_Frame;
@@ -307,6 +202,125 @@ struct SFixtureMultipleTrees {
     TTreeShapFeatureImportanceUPtr s_TopTreeFeatureImportance;
     TEncoderUPtr s_Encoder;
     TTreeVec s_Trees;
+};
+
+struct SFixtureRandomTrees {
+    SFixtureRandomTrees() {
+        test::CRandomNumbers rng;
+        this->initFrame(rng);
+        CStubMakeDataFrameCategoryEncoder stubParameters{1, *s_Frame, 0, s_NumberFeatures};
+        s_Encoder = std::make_unique<maths::CDataFrameCategoryEncoder>(stubParameters);
+        this->initTrees(rng);
+        s_TreeFeatureImportance = std::make_unique<maths::CTreeShapFeatureImportance>(
+            1, *s_Frame, *s_Encoder, s_SingleTree, s_NumberFeatures);
+        s_TopTwoTreeFeatureImportance = std::make_unique<maths::CTreeShapFeatureImportance>(
+            1, *s_Frame, *s_Encoder, s_SingleTree, 2);
+        s_ForestFeatureImportance = std::make_unique<maths::CTreeShapFeatureImportance>(
+            1, *s_Frame, *s_Encoder, s_MultipleTrees, s_NumberFeatures);
+        s_ThreadedForestFeatureImportance = std::make_unique<maths::CTreeShapFeatureImportance>(
+            2, *s_Frame, *s_Encoder, s_MultipleTrees, s_NumberFeatures);
+    }
+
+    void initFrame(test::CRandomNumbers& rng) {
+        TDoubleVec values;
+        rng.generateUniformSamples(-10.0, 10.0, s_NumberRows * s_NumberFeatures, values);
+
+        s_Frame = core::makeMainStorageDataFrame(s_NumberFeatures, s_NumberRows).first;
+        s_Frame->columnNames(columnNames(s_NumberFeatures));
+        for (std::size_t i = 0; i < s_NumberRows; ++i) {
+            s_Frame->writeRow([&](core::CDataFrame::TFloatVecItr column, int32_t&) {
+                for (std::size_t j = 0; j < s_NumberFeatures; ++j, ++column) {
+                    *column = values[i * s_NumberFeatures + j];
+                }
+            });
+        }
+        s_Frame->finishWritingRows();
+    }
+
+    void initTrees(test::CRandomNumbers& rng) {
+        s_SingleTree.resize(1);
+        s_MultipleTrees.resize(2);
+        initTree(rng, s_SingleTree[0]);
+        for (auto& tree : s_MultipleTrees) {
+            initTree(rng, tree);
+        }
+    }
+
+    void initTree(test::CRandomNumbers& rng, TTree& tree) {
+        tree.reserve(2 * s_NumberInnerNodes + 1);
+        TDoubleVecVec bottom;
+        bottom.reserve(s_NumberInnerNodes);
+        TDoubleVecVec top;
+        top.reserve(s_NumberInnerNodes);
+        TSizeVec splitFeature(1);
+        TDoubleVec splitThreshold(1);
+
+        tree.emplace_back();
+        bottom.emplace_back(s_NumberFeatures, -10);
+        top.emplace_back(s_NumberFeatures, 10);
+        for (std::size_t nodeIndex = 0; nodeIndex < s_NumberInnerNodes; ++nodeIndex) {
+            rng.generateUniformSamples(0, s_NumberFeatures, 1, splitFeature);
+            rng.generateUniformSamples(bottom[nodeIndex][splitFeature[0]],
+                                       top[nodeIndex][splitFeature[0]], 1, splitThreshold);
+            tree[nodeIndex].split(splitFeature[0], splitThreshold[0], true, 0.0, 0.0, tree);
+            // keep the management of the boundaries, to make sure the generated thresholds are realistic
+            TDoubleVec leftChildBottom{bottom[nodeIndex]};
+            TDoubleVec rightChildBottom{bottom[nodeIndex]};
+            TDoubleVec leftChildTop{top[nodeIndex]};
+            TDoubleVec rightChildTop{top[nodeIndex]};
+            leftChildTop[splitFeature[0]] = splitThreshold[0];
+            rightChildBottom[splitFeature[0]] = splitThreshold[0];
+            bottom.push_back(std::move(leftChildBottom));
+            bottom.push_back(std::move(rightChildBottom));
+            top.push_back(std::move(leftChildTop));
+            top.push_back(std::move(rightChildTop));
+        }
+
+        std::size_t numberLeafs{s_NumberInnerNodes + 1};
+        TDoubleVec leafValues(numberLeafs);
+        rng.generateUniformSamples(-5, 5, numberLeafs, leafValues);
+        for (std::size_t i = 0; i < numberLeafs; ++i) {
+            tree[s_NumberInnerNodes + i].value(toVector(leafValues[i]));
+        }
+
+        // set correct number samples
+        auto result = s_Frame->readRows(
+            1, core::bindRetrievableState(
+                   [&](TSizeVec& numberSamples, const TRowItr& beginRows, const TRowItr& endRows) {
+                       for (auto row = beginRows; row != endRows; ++row) {
+                           auto node{&(tree[0])};
+                           auto encodedRow{s_Encoder->encode(*row)};
+                           numberSamples[0] += 1;
+                           std::size_t nextIndex;
+                           while (node->isLeaf() == false) {
+                               if (node->assignToLeft(encodedRow)) {
+                                   nextIndex = node->leftChildIndex();
+                               } else {
+                                   nextIndex = node->rightChildIndex();
+                               }
+                               numberSamples[nextIndex] += 1;
+                               node = &(tree[nextIndex]);
+                           }
+                       }
+                   },
+                   TSizeVec(tree.size())));
+        TSizeVec numberSamples{std::move(result.first[0].s_FunctionState)};
+        for (std::size_t i = 0; i < numberSamples.size(); ++i) {
+            tree[i].numberSamples(std::max(numberSamples[i], std::size_t{1}));
+        }
+    }
+
+    TDataFrameUPtr s_Frame;
+    std::size_t s_NumberFeatures{5};
+    std::size_t s_NumberRows{1000};
+    std::size_t s_NumberInnerNodes{15};
+    TTreeShapFeatureImportanceUPtr s_TreeFeatureImportance;
+    TTreeShapFeatureImportanceUPtr s_TopTwoTreeFeatureImportance;
+    TTreeShapFeatureImportanceUPtr s_ForestFeatureImportance;
+    TTreeShapFeatureImportanceUPtr s_ThreadedForestFeatureImportance;
+    TEncoderUPtr s_Encoder;
+    TTreeVec s_SingleTree;
+    TTreeVec s_MultipleTrees;
 };
 
 class CBruteForceTreeShap {
@@ -499,14 +513,14 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeBruteForceShap, SFixtureSingleTree) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testSingleTreeShapRandomDataFrame, SFixtureSingleTreeRandom) {
+BOOST_FIXTURE_TEST_CASE(testSingleRandomTreeShap, SFixtureRandomTrees) {
 
     // Compare tree shap algorithm with the brute force approach (Algorithm
     // 1 in paper by Lundberg et al.) on a random data set with a random tree.
 
     TStrVec expectedNames{s_Frame->columnNames()};
 
-    CBruteForceTreeShap bfShap(s_Trees[0], s_NumberFeatures);
+    CBruteForceTreeShap bfShap(s_SingleTree[0], s_NumberFeatures);
     auto expectedPhi = bfShap.shap(*s_Frame, *s_Encoder, 1);
 
     TSizeVecVec expectedIndices(expectedPhi.size());
@@ -543,6 +557,40 @@ BOOST_FIXTURE_TEST_CASE(testSingleTreeShapRandomDataFrame, SFixtureSingleTreeRan
                 });
         }
     });
+}
+
+BOOST_FIXTURE_TEST_CASE(testThreadedRandomTreeShap, SFixtureRandomTrees) {
+
+    // Test that threaded and non-threaded implementations agree.
+
+    core::startDefaultAsyncExecutor();
+
+    s_Frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        TSizeVec expectedIndices;
+        TStrVec expectedNames;
+        TVectorVec expectedShap;
+        for (auto row = beginRows; row != endRows; ++row) {
+            s_ForestFeatureImportance->shap(*row, [&](const TSizeVec& indices,
+                                                      const TStrVec& names,
+                                                      const TVectorVec& shap) {
+                expectedIndices = indices;
+                expectedNames = names;
+                expectedShap = shap;
+            });
+            s_ThreadedForestFeatureImportance->shap(*row, [&](const TSizeVec& indices,
+                                                              const TStrVec& names,
+                                                              const TVectorVec& shap) {
+                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedIndices),
+                                    core::CContainerPrinter::print(indices));
+                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedNames),
+                                    core::CContainerPrinter::print(names));
+                BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedShap),
+                                    core::CContainerPrinter::print(shap));
+            });
+        }
+    });
+
+    core::stopDefaultAsyncExecutor();
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -10,6 +10,8 @@
 #include <core/CLogger.h>
 #include <core/CPersistUtils.h>
 
+#include <test/CRandomNumbers.h>
+
 #include <boost/circular_buffer.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/unordered_map.hpp>
@@ -577,6 +579,22 @@ BOOST_AUTO_TEST_CASE(testAppend) {
         core::CPersistUtils::fromString(state, restored, core::CPersistUtils::DELIMITER,
                                         core::CPersistUtils::PAIR_DELIMITER, true);
         BOOST_TEST_REQUIRE(equal(collection, restored));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testFloatingPoint) {
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec doubles;
+    TDoubleVec restoredDoubles;
+    for (std::size_t i = 0; i < 100; ++i) {
+        rng.generateUniformSamples(-1000.0, 1000.0, 10, doubles);
+        std::string serialized{core::CPersistUtils::toString(doubles)};
+        core::CPersistUtils::fromString(serialized, restoredDoubles);
+        for (std::size_t j = 0; j < doubles.size(); ++j) {
+            BOOST_REQUIRE_EQUAL(doubles[j], restoredDoubles[j]);
+        }
     }
 }
 
