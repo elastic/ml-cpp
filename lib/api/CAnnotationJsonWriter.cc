@@ -38,49 +38,49 @@ CAnnotationJsonWriter::CAnnotationJsonWriter(core::CJsonOutputStreamWrapper& out
 void CAnnotationJsonWriter::writeResult(const std::string& jobId,
                                         const model::CAnnotation& annotation) {
 
-    rapidjson::Value doc = m_Writer.makeObject();
-    write(jobId, annotation, doc);
+    rapidjson::Value obj = m_Writer.makeObject();
+    populateAnnotationObject(jobId, annotation, obj);
 
     rapidjson::Value wrapper = m_Writer.makeObject();
-    m_Writer.addMember(ANNOTATION_RESULT_TYPE, doc, wrapper);
+    m_Writer.addMember(ANNOTATION_RESULT_TYPE, obj, wrapper);
     m_Writer.write(wrapper);
     m_Writer.Flush();
 }
 
-void CAnnotationJsonWriter::write(const std::string& jobId,
-                                  const model::CAnnotation& annotation,
-                                  rapidjson::Value& doc) {
+void CAnnotationJsonWriter::populateAnnotationObject(const std::string& jobId,
+                                                     const model::CAnnotation& annotation,
+                                                     rapidjson::Value& obj) {
 
-    m_Writer.addStringFieldCopyToObj(JOB_ID, jobId, doc, true);
-    m_Writer.addStringFieldCopyToObj(ANNOTATION, annotation.annotation(), doc);
+    m_Writer.addStringFieldCopyToObj(JOB_ID, jobId, obj, true);
+    m_Writer.addStringFieldCopyToObj(ANNOTATION, annotation.annotation(), obj);
     // time is in Java format - milliseconds since the epoch
-    m_Writer.addTimeFieldToObj(TIMESTAMP, annotation.time(), doc);
-    m_Writer.addTimeFieldToObj(END_TIMESTAMP, annotation.time(), doc);
+    m_Writer.addTimeFieldToObj(TIMESTAMP, annotation.time(), obj);
+    m_Writer.addTimeFieldToObj(END_TIMESTAMP, annotation.time(), obj);
 
     core_t::TTime currentTime(core::CTimeUtils::now());
-    m_Writer.addTimeFieldToObj(CREATE_TIME, currentTime, doc);
-    m_Writer.addTimeFieldToObj(MODIFIED_TIME, currentTime, doc);
-    m_Writer.addStringFieldCopyToObj(CREATE_USERNAME, "_xpack", doc);
-    m_Writer.addStringFieldCopyToObj(MODIFIED_USERNAME, "_xpack", doc);
-    m_Writer.addStringFieldCopyToObj(TYPE, "annotation", doc);
-    m_Writer.addStringFieldCopyToObj(EVENT, annotation.event(), doc);
+    m_Writer.addTimeFieldToObj(CREATE_TIME, currentTime, obj);
+    m_Writer.addTimeFieldToObj(MODIFIED_TIME, currentTime, obj);
+    m_Writer.addStringFieldCopyToObj(CREATE_USERNAME, "_xpack", obj);
+    m_Writer.addStringFieldCopyToObj(MODIFIED_USERNAME, "_xpack", obj);
+    m_Writer.addStringFieldCopyToObj(TYPE, "annotation", obj);
+    m_Writer.addStringFieldCopyToObj(EVENT, annotation.event(), obj);
 
-    m_Writer.addIntFieldToObj(DETECTOR_INDEX, annotation.detectorIndex(), doc);
+    m_Writer.addIntFieldToObj(DETECTOR_INDEX, annotation.detectorIndex(), obj);
     if (annotation.partitionFieldName().empty() == false) {
         m_Writer.addStringFieldCopyToObj(PARTITION_FIELD_NAME,
-                                         annotation.partitionFieldName(), doc);
+                                         annotation.partitionFieldName(), obj);
         m_Writer.addStringFieldCopyToObj(
-            PARTITION_FIELD_VALUE, annotation.partitionFieldValue(), doc, true);
+            PARTITION_FIELD_VALUE, annotation.partitionFieldValue(), obj, true);
     }
     if (annotation.overFieldName().empty() == false) {
-        m_Writer.addStringFieldCopyToObj(OVER_FIELD_NAME, annotation.overFieldName(), doc);
+        m_Writer.addStringFieldCopyToObj(OVER_FIELD_NAME, annotation.overFieldName(), obj);
         m_Writer.addStringFieldCopyToObj(OVER_FIELD_VALUE,
-                                         annotation.overFieldValue(), doc, true);
+                                         annotation.overFieldValue(), obj, true);
     }
     if (annotation.byFieldName().empty() == false) {
-        m_Writer.addStringFieldCopyToObj(BY_FIELD_NAME, annotation.byFieldName(), doc);
+        m_Writer.addStringFieldCopyToObj(BY_FIELD_NAME, annotation.byFieldName(), obj);
         m_Writer.addStringFieldCopyToObj(BY_FIELD_VALUE,
-                                         annotation.byFieldValue(), doc, true);
+                                         annotation.byFieldValue(), obj, true);
     }
 }
 

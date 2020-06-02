@@ -36,9 +36,9 @@ public:
     void writeResult(const std::string& jobId, const model::CAnnotation& annotation);
 
 private:
-    void write(const std::string& jobId,
-               const model::CAnnotation& annotation,
-               rapidjson::Value& doc);
+    void populateAnnotationObject(const std::string& jobId,
+                                  const model::CAnnotation& annotation,
+                                  rapidjson::Value& doc);
 
 private:
     //! JSON line writer

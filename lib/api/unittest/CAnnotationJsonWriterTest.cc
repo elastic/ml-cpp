@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     BOOST_REQUIRE_EQUAL(std::string("job-id"),
                         std::string(annotation["job_id"].GetString()));
     BOOST_TEST_REQUIRE(annotation.HasMember("timestamp"));
-    BOOST_REQUIRE_EQUAL(int64_t(1000), annotation["timestamp"].GetInt64());
+    BOOST_REQUIRE_EQUAL(1000, annotation["timestamp"].GetInt64());
     BOOST_TEST_REQUIRE(annotation.HasMember("detector_index"));
     BOOST_REQUIRE_EQUAL(2, annotation["detector_index"].GetInt());
     BOOST_TEST_REQUIRE(annotation.HasMember("partition_field_name"));
