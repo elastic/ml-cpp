@@ -46,6 +46,7 @@
   (See {ml-pull}1238[#1238] and {pull}57254[#57254].)
 * Parallelize the feature importance calculation for classification and regression
   over trees. (See {ml-pull}1277[#1277].)
+* Memory usage is reported during job initialization. (See {ml-pull}1294[#1294].)
 
 == {es} version 7.8.0
 
