@@ -76,9 +76,10 @@ std::int64_t bytesToMb(std::int64_t bytes) {
 }
 
 CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::string& jobId,
-                                                                     std::int64_t memoryLimit)
-    : m_JobId{jobId}, m_ProgressMonitoredTask{NO_TASK}, m_MemoryLimit{memoryLimit},
-      m_Finished{false}, m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
+                                                                     std::size_t memoryLimit)
+    : m_JobId{jobId}, m_ProgressMonitoredTask{NO_TASK},
+      m_MemoryLimit{static_cast<std::int64_t>(memoryLimit)}, m_Finished{false},
+      m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
 }
 
 void CDataFrameAnalysisInstrumentation::updateMemoryUsage(std::int64_t delta) {
@@ -167,7 +168,8 @@ void CDataFrameAnalysisInstrumentation::monitor(const CDataFrameAnalysisInstrume
             HANDLE_FATAL(<< "Environment error: required memory "
                          << instrumentation.memory() << " exceeds the memory limit "
                          << bytesToMb(instrumentation.m_MemoryLimit) << "mb. Please increase the limit to at least "
-                         << bytesToMb(instrumentation.m_MemoryLimit * MEMORY_LIMIT_INCREMENT)
+                         << bytesToMb(static_cast<std::int64_t>(
+                                static_cast<double>(instrumentation.m_MemoryLimit) * MEMORY_LIMIT_INCREMENT))
                          << "mb and restart.");
         }
 
@@ -315,12 +317,6 @@ void CDataFrameOutliersInstrumentation::writeParameters(rapidjson::Value& parent
         writer->addMember(CDataFrameOutliersRunner::METHOD,
                           maths::COutliers::print(this->m_Parameters.s_Method), parentObject);
     }
-}
-
-CDataFrameTrainBoostedTreeInstrumentation::CDataFrameTrainBoostedTreeInstrumentation(
-    const std::string& jobId,
-    std::int64_t memoryLimit)
-    : CDataFrameAnalysisInstrumentation(jobId, memoryLimit) {
 }
 
 void CDataFrameTrainBoostedTreeInstrumentation::type(EStatsType type) {
