@@ -50,6 +50,7 @@ namespace {
 const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
 const std::string HYPERPARAMETER_OPTIMIZATION_ROUND{"hyperparameter_optimization_round_"};
 const std::string TRAIN_FINAL_FOREST{"train_final_forest"};
+const std::size_t MEMORY_USAGE_WORST_CASE_TO_AVERAGE{15};
 
 //! \brief Record the memory used by a supplied object using the RAII idiom.
 class CScopeRecordMemoryUsage {
@@ -338,10 +339,12 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
                                          PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
     std::size_t bayesianOptimisationMemoryUsage{CBayesianOptimisation::estimateMemoryUsage(
         this->numberHyperparametersToTune(), m_NumberRounds)};
-    return sizeof(*this) + forestMemoryUsage + foldRoundLossMemoryUsage +
-           hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage +
-           dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
-           trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage;
+    std::size_t worstCaseMemoryUsage{
+        sizeof(*this) + forestMemoryUsage + foldRoundLossMemoryUsage +
+        hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage +
+        dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
+        trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage};
+    return worstCaseMemoryUsage / MEMORY_USAGE_WORST_CASE_TO_AVERAGE;
 }
 
 bool CBoostedTreeImpl::canTrain() const {
