@@ -57,7 +57,8 @@ public:
 
 public:
     //! Constructs an instrumentation object an analytics job with a given \p jobId.
-    explicit CDataFrameAnalysisInstrumentation(const std::string& jobId, std::int64_t memoryLimit);
+    explicit CDataFrameAnalysisInstrumentation(const std::string& jobId,
+                                               std::int64_t memoryLimit);
 
     //! Adds \p delta to the memory usage statistics.
     void updateMemoryUsage(std::int64_t delta) override;
@@ -103,8 +104,8 @@ public:
     //! Start polling and writing progress updates.
     //!
     //! \note This doesn't return until instrumentation.setToFinished() is called.
-    static void monitorProgress(const CDataFrameAnalysisInstrumentation& instrumentation,
-                                core::CRapidJsonConcurrentLineWriter& writer);
+    static void monitor(const CDataFrameAnalysisInstrumentation& instrumentation,
+                        core::CRapidJsonConcurrentLineWriter& writer);
 
 protected:
     using TWriter = core::CRapidJsonConcurrentLineWriter;
@@ -172,7 +173,8 @@ class API_EXPORT CDataFrameTrainBoostedTreeInstrumentation final
     : public CDataFrameAnalysisInstrumentation,
       public maths::CDataFrameTrainBoostedTreeInstrumentationInterface {
 public:
-    explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId, std::int64_t memoryLimit);
+    explicit CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId,
+                                                       std::int64_t memoryLimit);
 
     //! Supervised learning job \p type, can be E_Regression or E_Classification.
     void type(EStatsType type) override;

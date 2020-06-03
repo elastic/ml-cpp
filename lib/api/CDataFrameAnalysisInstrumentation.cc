@@ -5,6 +5,7 @@
  */
 #include <api/CDataFrameAnalysisInstrumentation.h>
 
+#include <bits/c++config.h>
 #include <core/CTimeUtils.h>
 
 #include <maths/CBoostedTree.h>
@@ -16,6 +17,7 @@
 #include <rapidjson/document.h>
 
 #include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <string>
 #include <thread>
@@ -28,6 +30,8 @@ namespace {
 using TStrVec = std::vector<std::string>;
 
 // clang-format off
+const double MEMORY_LIMIT_INCREMENT{1.1};
+
 const std::string CLASSIFICATION_STATS_TAG{"classification_stats"};
 const std::string HYPERPARAMETERS_TAG{"hyperparameters"};
 const std::string ITERATION_TAG{"iteration"};
@@ -64,11 +68,17 @@ const std::string PROGRESS_PERCENT{"progress_percent"};
 
 const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
                                               << ((sizeof(std::size_t) - 2) * 8)};
+
+std::int64_t bytesToMb(std::int64_t bytes) {
+    std::int64_t mb{static_cast<std::int64_t>(std::ceil(static_cast<double>(bytes) / 1048576))};
+    return mb;
+}
 }
 
-CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::string& jobId, std::int64_t memoryLimit)
-    : m_JobId{jobId}, m_ProgressMonitoredTask{NO_TASK}, m_MemoryLimit{memoryLimit}, m_Finished{false},
-      m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
+CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::string& jobId,
+                                                                     std::int64_t memoryLimit)
+    : m_JobId{jobId}, m_ProgressMonitoredTask{NO_TASK}, m_MemoryLimit{memoryLimit},
+      m_Finished{false}, m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
 }
 
 void CDataFrameAnalysisInstrumentation::updateMemoryUsage(std::int64_t delta) {
@@ -136,9 +146,8 @@ const std::string& CDataFrameAnalysisInstrumentation::jobId() const {
     return m_JobId;
 }
 
-void CDataFrameAnalysisInstrumentation::monitorProgress(
-    const CDataFrameAnalysisInstrumentation& instrumentation,
-    core::CRapidJsonConcurrentLineWriter& writer) {
+void CDataFrameAnalysisInstrumentation::monitor(const CDataFrameAnalysisInstrumentation& instrumentation,
+                                                core::CRapidJsonConcurrentLineWriter& writer) {
 
     std::string lastTask{NO_TASK};
     int lastProgress{0};
@@ -153,6 +162,15 @@ void CDataFrameAnalysisInstrumentation::monitorProgress(
             lastProgress = progress;
             writeProgress(lastTask, lastProgress, &writer);
         }
+
+        if (instrumentation.memory() > instrumentation.m_MemoryLimit) {
+            HANDLE_FATAL(<< "Environment error: required memory "
+                         << instrumentation.memory() << " exceeds the memory limit "
+                         << bytesToMb(instrumentation.m_MemoryLimit) << "mb. Please increase the limit to at least "
+                         << bytesToMb(instrumentation.m_MemoryLimit * MEMORY_LIMIT_INCREMENT)
+                         << "mb and restart.");
+        }
+
         wait = std::min(2 * wait, 1024);
     }
 
@@ -299,7 +317,9 @@ void CDataFrameOutliersInstrumentation::writeParameters(rapidjson::Value& parent
     }
 }
 
-CDataFrameTrainBoostedTreeInstrumentation::CDataFrameTrainBoostedTreeInstrumentation(const std::string& jobId, std::int64_t memoryLimit)
+CDataFrameTrainBoostedTreeInstrumentation::CDataFrameTrainBoostedTreeInstrumentation(
+    const std::string& jobId,
+    std::int64_t memoryLimit)
     : CDataFrameAnalysisInstrumentation(jobId, memoryLimit) {
 }
 
