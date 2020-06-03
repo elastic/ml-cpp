@@ -1047,8 +1047,16 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodConfidenceInterval) {
 
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(median) > i90.first);
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(median) < i90.second);
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(-111.0, i90.first, 0.5);
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(158952.0, i90.second, 0.5);
+        double lowerBound[2];
+        double upperBound[2];
+        prior->minusLogJointCdf({i90.first}, maths_t::CUnitWeights::SINGLE_UNIT,
+                                lowerBound[0], upperBound[0]);
+        prior->minusLogJointCdf({i90.second}, maths_t::CUnitWeights::SINGLE_UNIT,
+                                lowerBound[1], upperBound[1]);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            0.05, std::exp(-(lowerBound[0] + upperBound[0]) / 2.0), 1e-3);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            0.95, std::exp(-(lowerBound[1] + upperBound[1]) / 2.0), 1e-3);
     }
 
     LOG_DEBUG(<< "Non-unit count weight");

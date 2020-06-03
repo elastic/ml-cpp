@@ -38,6 +38,10 @@
 * Parallelize the feature importance calculation for classification and regression
   over trees. (See {ml-pull}1277[#1277].)
 
+=== Bug Fixes
+
+* Fix numerical issues leading to blow up of the model plot bounds. (See {ml-pull}1268[#1268].)
+
 == {es} version 7.8.0
 
 === Enhancements
