@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(testWrite) {
 
     rapidjson::Document doc;
     doc.Parse<rapidjson::kParseDefaultFlags>(sstream.str());
-    BOOST_TEST_REQUIRE(!doc.HasParseError());
+    BOOST_TEST_REQUIRE(doc.HasParseError() == false);
     const rapidjson::Value& firstElement = doc[0];
     BOOST_TEST_REQUIRE(firstElement.HasMember("annotation"));
     const rapidjson::Value& annotation = firstElement["annotation"];

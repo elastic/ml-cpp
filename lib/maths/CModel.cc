@@ -131,13 +131,13 @@ CModelAddSamplesParams::priorWeights() const {
 }
 
 CModelAddSamplesParams&
-CModelAddSamplesParams::onModelChange(const maths_t::TModelChangeCallback& modelChangeCallback) {
-    m_ModelChangeCallback = modelChangeCallback;
+CModelAddSamplesParams::annotationCallback(const maths_t::TModelAnnotationCallback& modelAnnotationCallback) {
+    m_ModelAnnotationCallback = modelAnnotationCallback;
     return *this;
 }
 
-const maths_t::TModelChangeCallback& CModelAddSamplesParams::onModelChange() const {
-    return m_ModelChangeCallback;
+const maths_t::TModelAnnotationCallback& CModelAddSamplesParams::annotationCallback() const {
+    return m_ModelAnnotationCallback;
 }
 
 //////// CModelProbabilityParams ////////

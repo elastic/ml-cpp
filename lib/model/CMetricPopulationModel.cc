@@ -476,7 +476,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     .propagationInterval(this->propagationTime(cid, latest))
                     .trendWeights(attribute.second.s_TrendWeights)
                     .priorWeights(attribute.second.s_PriorWeights)
-                    .onModelChange(createAndAddAnnotation);
+                    .annotationCallback(createAndAddAnnotation);
 
                 maths::CModel* model{this->model(feature, cid)};
                 if (model == nullptr) {

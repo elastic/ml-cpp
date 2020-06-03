@@ -96,8 +96,8 @@ public:
     addPoint(core_t::TTime time,
              double value,
              const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
-             const TComponentChangeCallback& componentChangeCallback = noop,
-             const maths_t::TModelChangeCallback& modelChangeCallback = noop2) = 0;
+             const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
+             const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) = 0;
 
     //! Apply \p change at \p time.
     //!
@@ -194,8 +194,8 @@ public:
     virtual core_t::TTime lastValueTime() const = 0;
 
 protected:
-    static void noop(TFloatMeanAccumulatorVec) {}
-    static void noop2(core_t::TTime, const std::string&) {}
+    static void noopComponentChange(TFloatMeanAccumulatorVec) {}
+    static void noopModelAnnotation(core_t::TTime, const std::string&) {}
 };
 }
 }

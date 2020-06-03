@@ -479,7 +479,7 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                     .propagationInterval(this->propagationTime(cid, sampleTime))
                     .trendWeights(attribute.second.s_Weights)
                     .priorWeights(attribute.second.s_Weights)
-                    .onModelChange(createAndAddAnnotation);
+                    .annotationCallback(createAndAddAnnotation);
 
                 maths::CModel* model{this->model(feature, cid)};
                 if (model == nullptr) {

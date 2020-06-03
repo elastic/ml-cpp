@@ -324,7 +324,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                     .propagationInterval(deratedInterval)
                     .trendWeights(trendWeights)
                     .priorWeights(priorWeights)
-                    .onModelChange(createAndAddAnnotation);
+                    .annotationCallback(createAndAddAnnotation);
 
                 if (model->addSamples(params, values) == maths::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);

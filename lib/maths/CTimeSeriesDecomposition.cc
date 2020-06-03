@@ -221,7 +221,7 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
                                         const maths_t::TDoubleWeightsAry& weights,
                                         const TComponentChangeCallback& componentChangeCallback,
-                                        const maths_t::TModelChangeCallback& modelChangeCallback) {
+                                        const maths_t::TModelAnnotationCallback& modelAnnotationCallback) {
 
     if (CMathsFuncs::isFinite(value) == false) {
         LOG_ERROR(<< "Discarding invalid value.");
@@ -241,7 +241,7 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
     SAddValue message{time,
                       lastTime,
                       value,
-                      modelChangeCallback,
+                      modelAnnotationCallback,
                       weights,
                       CBasicStatistics::mean(this->value(time, 0.0, E_TrendForced)),
                       CBasicStatistics::mean(this->value(time, 0.0, E_Seasonal)),

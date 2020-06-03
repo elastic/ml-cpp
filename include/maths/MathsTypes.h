@@ -80,8 +80,8 @@ using TDouble2VecWeightsAry1Vec = core::CSmallVector<TDouble2VecWeightsAry, 1>;
 using TDouble10VecWeightsAry = TWeightsAry<TDouble10Vec>;
 using TDouble10VecWeightsAry1Vec = core::CSmallVector<TDouble10VecWeightsAry, 1>;
 
-// Functional type used for reporting model changes to higher-level layers.
-using TModelChangeCallback = std::function<void(core_t::TTime, const std::string&)>;
+// Functional type used for reporting model change annotations to higher-level layers.
+using TModelAnnotationCallback = std::function<void(core_t::TTime, const std::string&)>;
 
 namespace maths_types_detail {
 

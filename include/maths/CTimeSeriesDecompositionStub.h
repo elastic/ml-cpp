@@ -45,8 +45,8 @@ public:
     addPoint(core_t::TTime time,
              double value,
              const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
-             const TComponentChangeCallback& componentChangeCallback = noop,
-             const maths_t::TModelChangeCallback& modelChangeCallback = noop2);
+             const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
+             const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation);
 
     //! No-op returning false.
     virtual bool applyChange(core_t::TTime time, double value, const SChangeDescription& change);

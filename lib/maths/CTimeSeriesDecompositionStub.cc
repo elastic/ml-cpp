@@ -36,11 +36,12 @@ bool CTimeSeriesDecompositionStub::initialized() const {
 void CTimeSeriesDecompositionStub::testingForChange(bool /*value*/) {
 }
 
-void CTimeSeriesDecompositionStub::addPoint(core_t::TTime /*time*/,
-                                            double /*value*/,
-                                            const maths_t::TDoubleWeightsAry& /*weights*/,
-                                            const TComponentChangeCallback& /*componentChangeCallback*/,
-                                            const maths_t::TModelChangeCallback& /*modelChangeCallback*/) {
+void CTimeSeriesDecompositionStub::addPoint(
+    core_t::TTime /*time*/,
+    double /*value*/,
+    const maths_t::TDoubleWeightsAry& /*weights*/,
+    const TComponentChangeCallback& /*componentChangeCallback*/,
+    const maths_t::TModelAnnotationCallback& /*modelAnnotationCallback*/) {
 }
 
 bool CTimeSeriesDecompositionStub::applyChange(core_t::TTime /*time*/,
