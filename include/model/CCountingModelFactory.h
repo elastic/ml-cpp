@@ -103,7 +103,7 @@ public:
     //! \name Customization by a specific search
     //@{
     //! Set the identifier of the search for which this generates models.
-    virtual void identifier(int identifier);
+    virtual void detectorIndex(int detectorIndex);
 
     //! Set the name of the field whose values will be counted.
     virtual void fieldNames(const std::string& partitionFieldName,
@@ -128,7 +128,7 @@ private:
 
 private:
     //! The identifier of the search for which this generates models.
-    int m_Identifier;
+    int m_DetectorIndex;
 
     //! Indicates whether the data being gathered are already summarized
     //! by an external aggregation process.

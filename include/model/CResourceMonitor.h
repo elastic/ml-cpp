@@ -107,6 +107,8 @@ public:
     //! Set the internal memory limit, as specified in a limits config file
     void memoryLimit(std::size_t limitMBs);
 
+    std::size_t getBytesMemoryLimit() const;
+
     //! Get the memory status
     model_t::EMemoryStatus getMemoryStatus();
 

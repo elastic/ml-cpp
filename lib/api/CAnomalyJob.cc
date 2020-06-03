@@ -1471,8 +1471,8 @@ CAnomalyJob::detectorForKey(bool isRestoring,
                   << partition << '\'' << ", time " << time);
         LOG_TRACE(<< "Detector count " << m_Detectors.size());
 
-        detector = this->makeDetector(key.identifier(), m_ModelConfig, m_Limits,
-                                      partition, time, m_ModelConfig.factory(key));
+        detector = this->makeDetector(m_ModelConfig, m_Limits, partition, time,
+                                      m_ModelConfig.factory(key));
         if (detector == nullptr) {
             // This should never happen as CAnomalyDetectorUtils::makeDetector()
             // contracts to never return NULL
@@ -1510,19 +1510,18 @@ void CAnomalyJob::pruneAllModels() {
 }
 
 CAnomalyJob::TAnomalyDetectorPtr
-CAnomalyJob::makeDetector(int identifier,
-                          const model::CAnomalyDetectorModelConfig& modelConfig,
+CAnomalyJob::makeDetector(const model::CAnomalyDetectorModelConfig& modelConfig,
                           model::CLimits& limits,
                           const std::string& partitionFieldValue,
                           core_t::TTime firstTime,
                           const model::CAnomalyDetector::TModelFactoryCPtr& modelFactory) {
     return modelFactory->isSimpleCount()
                ? std::make_shared<model::CSimpleCountDetector>(
-                     identifier, modelFactory->summaryMode(), modelConfig,
-                     std::ref(limits), partitionFieldValue, firstTime, modelFactory)
-               : std::make_shared<model::CAnomalyDetector>(
-                     identifier, std::ref(limits), modelConfig,
-                     partitionFieldValue, firstTime, modelFactory);
+                     modelFactory->summaryMode(), modelConfig, std::ref(limits),
+                     partitionFieldValue, firstTime, modelFactory)
+               : std::make_shared<model::CAnomalyDetector>(std::ref(limits), modelConfig,
+                                                           partitionFieldValue,
+                                                           firstTime, modelFactory);
 }
 
 void CAnomalyJob::populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec& keys) {

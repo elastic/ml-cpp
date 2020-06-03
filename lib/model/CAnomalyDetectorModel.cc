@@ -212,8 +212,7 @@ void CAnomalyDetectorModel::skipSampling(core_t::TTime endTime) {
     this->currentBucketStartTime(endTime - gatherer.bucketLength());
 }
 
-bool CAnomalyDetectorModel::addResults(int detector,
-                                       core_t::TTime startTime,
+bool CAnomalyDetectorModel::addResults(core_t::TTime startTime,
                                        core_t::TTime endTime,
                                        std::size_t numberAttributeProbabilities,
                                        CHierarchicalResults& results) const {
@@ -249,8 +248,9 @@ bool CAnomalyDetectorModel::addResults(int detector,
                                          numberAttributeProbabilities, annotatedProbability)) {
                 function_t::EFunction function{m_DataGatherer->function()};
                 results.addModelResult(
-                    detector, this->isPopulation(), function_t::name(function),
-                    function, m_DataGatherer->partitionFieldName(),
+                    m_DataGatherer->searchKey().detectorIndex(),
+                    this->isPopulation(), function_t::name(function), function,
+                    m_DataGatherer->partitionFieldName(),
                     m_DataGatherer->partitionFieldValue(),
                     m_DataGatherer->personFieldName(), this->personName(pid),
                     m_DataGatherer->valueFieldName(), annotatedProbability, this, startTime);

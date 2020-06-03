@@ -436,7 +436,7 @@ void CBoostedTreeImpl::initializeTreeShap(const core::CDataFrame& frame) {
     if (m_NumberTopShapValues > 0) {
         // Create the SHAP calculator.
         m_TreeShap = std::make_unique<CTreeShapFeatureImportance>(
-            frame, *m_Encoder, m_BestForest, m_NumberTopShapValues);
+            m_NumberThreads, frame, *m_Encoder, m_BestForest, m_NumberTopShapValues);
     } else {
         // TODO these are not currently written into the inference model
         // but they would be nice to expose since they provide good insight
