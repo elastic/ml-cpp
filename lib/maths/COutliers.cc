@@ -985,10 +985,10 @@ bool computeOutliersPartitioned(const COutliers::SComputeParameters& params,
     LOG_TRACE(<< "Ensemble = " << ensemble.print());
 
     std::size_t dimension{frame.numberColumns()};
-
+    std::int64_t frameMemory{signedMemoryUsage(frame)};
     frame.resizeColumns(params.s_NumberThreads,
                         (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
-    instrumentation.updateMemoryUsage(signedMemoryUsage(frame));
+    instrumentation.updateMemoryUsage(signedMemoryUsage(frame) - frameMemory);
 
     std::size_t rowsPerPartition{(frame.numberRows() + params.s_NumberPartitions - 1) /
                                  params.s_NumberPartitions};

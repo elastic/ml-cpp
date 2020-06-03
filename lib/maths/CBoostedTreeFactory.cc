@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <bits/c++config.h>
 #include <maths/CBoostedTreeFactory.h>
 
 #include <core/CJsonStateRestoreTraverser.h>
@@ -277,9 +278,11 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
 void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
 
     std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
+    std::size_t frameMemory{core::CMemory::dynamicSize(frame)};
     m_TreeImpl->m_ExtraColumns = frame.resizeColumns(
         m_TreeImpl->m_NumberThreads, extraColumns(numberLossParameters));
-    m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(frame));
+    m_TreeImpl->m_Instrumentation->updateMemoryUsage(
+        core::CMemory::dynamicSize(frame) - frameMemory);
     m_TreeImpl->m_Instrumentation->flush();
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
