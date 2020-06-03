@@ -1717,15 +1717,15 @@ BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
 
     test::CRandomNumbers rng;
 
-    maths::CTimeSeriesDecomposition decomposition(0.012, 4 * HOUR);
+    maths::CTimeSeriesDecomposition decomposition(0.012, 6 * HOUR);
     maths::CDecayRateController controller(maths::CDecayRateController::E_PredictionBias |
                                                maths::CDecayRateController::E_PredictionErrorIncrease,
                                            1);
     CDebugGenerator debug;
 
     TDoubleVec noise;
-    core_t::TTime time = 2 * HOUR;
-    for (/**/; time < 4 * YEAR; time += 4 * HOUR) {
+    core_t::TTime time = 3 * HOUR;
+    for (/**/; time < 5 * YEAR; time += 6 * HOUR) {
         double trend =
             15.0 * (2.0 + std::sin(boost::math::double_constants::two_pi *
                                    static_cast<double>(time) / static_cast<double>(YEAR))) +
@@ -1743,8 +1743,9 @@ BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
     }
 
     // Predict over one year and check we get reasonable accuracy.
+    double maxError{0.0};
     TMeanAccumulator meanError;
-    for (/**/; time < 5 * YEAR; time += 4 * HOUR) {
+    for (/**/; time < 6 * YEAR; time += 6 * HOUR) {
         double trend =
             15.0 * (2.0 + std::sin(boost::math::double_constants::two_pi *
                                    static_cast<double>(time) / static_cast<double>(YEAR))) +
@@ -1752,16 +1753,18 @@ BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
                            static_cast<double>(time) / static_cast<double>(DAY));
         double prediction = maths::CBasicStatistics::mean(decomposition.value(time, 0.0));
         double error = std::fabs((prediction - trend) / trend);
+        LOG_TRACE(<< "error = " << error);
+        maxError = std::max(maxError, error);
         meanError.add(error);
         debug.addValue(time, trend);
         debug.addPrediction(time, prediction, trend - prediction);
-        LOG_TRACE(<< "error = " << error);
-        BOOST_TEST_REQUIRE(error < 0.19);
     }
 
+    LOG_DEBUG(<< "max error = " << maxError);
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
 
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.025);
+    BOOST_TEST_REQUIRE(maxError < 0.16);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.06);
 }
 
 BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture) {
