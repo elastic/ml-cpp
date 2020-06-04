@@ -73,8 +73,8 @@ public:
 
 public:
     CTestInstrumentation()
-        : m_TotalFractionalProgress{0}, m_Monotonic{true}, m_MemoryUsage{0}, m_MaxMemoryUsage{0} {
-    }
+        : m_TotalFractionalProgress{0}, m_Monotonic{true}, m_MemoryUsage{0},
+          m_MaxMemoryUsage{0} {}
 
     int progress() const {
         return (100 * m_TotalFractionalProgress.load()) / 65536;
@@ -1306,7 +1306,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
         BOOST_TEST_REQUIRE(instrumentation.maxMemoryUsage() < estimatedMemory);
     }
 }
-
+// TODO: test for handle fatal (memory-limit-circuit-breaker)
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
 
     // Test estimation of the memory used training a model.

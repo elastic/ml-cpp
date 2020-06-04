@@ -50,7 +50,7 @@ namespace {
 const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
 const std::string HYPERPARAMETER_OPTIMIZATION_ROUND{"hyperparameter_optimization_round_"};
 const std::string TRAIN_FINAL_FOREST{"train_final_forest"};
-const std::size_t MEMORY_USAGE_WORST_CASE_TO_AVERAGE{15};
+const double MEMORY_USAGE_WORST_CASE_TO_AVERAGE{4.75};
 
 //! \brief Record the memory used by a supplied object using the RAII idiom.
 class CScopeRecordMemoryUsage {
@@ -344,7 +344,14 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
         hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage +
         dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
         trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage};
-    return worstCaseMemoryUsage / MEMORY_USAGE_WORST_CASE_TO_AVERAGE;
+    // we compute the correction coefficient as a sigmoid function: ca. 4.0 until 100mb, 16.0 after 1000mb
+    // to this end we need to shift and scale using the magic numbers below
+    double correctionCoefficient{
+        CTools::logisticFunction(
+            static_cast<double>(worstCaseMemoryUsage) / (1024 * 1024), 100, 550) *
+            12 +
+        4};
+    return static_cast<std::size_t>(static_cast<double>(worstCaseMemoryUsage) / correctionCoefficient);
 }
 
 bool CBoostedTreeImpl::canTrain() const {

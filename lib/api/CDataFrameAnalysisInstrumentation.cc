@@ -163,8 +163,9 @@ void CDataFrameAnalysisInstrumentation::monitor(const CDataFrameAnalysisInstrume
             lastProgress = progress;
             writeProgress(lastTask, lastProgress, &writer);
         }
-
+        LOG_DEBUG(<< "Memory usage " << instrumentation.memory());
         if (instrumentation.memory() > instrumentation.m_MemoryLimit) {
+            LOG_DEBUG(<< "Memory limit triggered");
             HANDLE_FATAL(<< "Environment error: required memory "
                          << instrumentation.memory() << " exceeds the memory limit "
                          << bytesToMb(instrumentation.m_MemoryLimit) << "mb. Please increase the limit to at least "
