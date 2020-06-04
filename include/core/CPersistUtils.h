@@ -334,19 +334,20 @@ public:
         mutable std::string m_Token;
     };
 
-    //! Entry method for objects being restored
+    //! Restore \p collection reading state from \p inserter expecting \p tag for elements.
     template<typename T>
     static bool restore(const std::string& tag, T& collection, CStateRestoreTraverser& traverser) {
         return persist_utils_detail::restore(tag, collection, traverser);
     }
 
-    //! Entry method for objects being persisted
+    //! Persist \p collection passing state to \p inserter using \p tag for elements.
     template<typename T>
     static bool
     persist(const std::string& tag, const T& collection, CStatePersistInserter& inserter) {
         return persist_utils_detail::persist(tag, collection, inserter);
     }
 
+    //! Persist \p collection passing state to \p inserter using \p tag for elements.
     template<typename T>
     static bool
     persist(const TPersistenceTag& tag, const T& collection, CStatePersistInserter& inserter) {
@@ -603,7 +604,7 @@ private:
                 LOG_ERROR(<< "Invalid state " << state);
                 return false;
             }
-            *inserter = element;
+            *inserter = std::move(element);
             ++inserter;
             return true;
         }
@@ -617,7 +618,7 @@ private:
                 LOG_ERROR(<< "Invalid element 0 : element " << token << " in " << state);
                 return false;
             }
-            *inserter = element;
+            *inserter = std::move(element);
             ++inserter;
         }
 
@@ -637,7 +638,7 @@ private:
                           << " in " << state);
                 return false;
             }
-            *inserter = element;
+            *inserter = std::move(element);
 
             ++i;
             lastDelimPos = delimPos;
@@ -936,7 +937,7 @@ private:
                         LOG_ERROR(<< "Restoration error at " << traverser.name());
                         return false;
                     }
-                    container.insert(container.end(), value);
+                    container.insert(container.end(), std::move(value));
                 }
             } while (traverser.next());
             return true;
@@ -953,7 +954,7 @@ private:
                         LOG_ERROR(<< "Restoration error at " << traverser.name());
                         return false;
                     }
-                    *(i++) = value;
+                    *(i++) = std::move(value);
                 }
             } while (traverser.next());
             return true;

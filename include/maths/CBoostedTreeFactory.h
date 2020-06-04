@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_maths_CBoostedTreeFactory_h
 #define INCLUDED_ml_maths_CBoostedTreeFactory_h
 
+#include "core/CStateMachine.h"
 #include <core/CDataFrame.h>
 
 #include <maths/CBoostedTree.h>
@@ -136,8 +137,24 @@ private:
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
     using TApplyRegularizer = std::function<bool(CBoostedTreeImpl&, double)>;
 
+    //! \brief Attach callbacks to the tree implementation for persisting factory state.
+    class CScopeAttachPersistFactoryState {
+    public:
+        CScopeAttachPersistFactoryState(CBoostedTreeFactory& factory);
+        ~CScopeAttachPersistFactoryState();
+        CScopeAttachPersistFactoryState(const CScopeAttachPersistFactoryState&) = delete;
+        CScopeAttachPersistFactoryState&
+        operator=(const CScopeAttachPersistFactoryState&) = delete;
+
+    private:
+        CBoostedTreeFactory& m_Factory;
+    };
+
 private:
     CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss);
+
+    //! Persist state writing to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Compute the row masks for the missing values for each feature.
     void initializeMissingFeatureMasks(const core::CDataFrame& frame) const;
@@ -163,6 +180,9 @@ private:
 
     //! Set the initial values for the various hyperparameters.
     void initializeHyperparameters(core::CDataFrame& frame);
+
+    //! Setup before initializing unset hyperparameters.
+    void initializeHyperparametersSetup(core::CDataFrame& frame);
 
     //! Estimate a good central value for the regularisation hyperparameters
     //! search bounding box.
@@ -203,6 +223,22 @@ private:
 
     //! Start progress monitoring initializeHyperparameters.
     void startProgressMonitoringInitializeHyperparameters(const core::CDataFrame& frame);
+
+    //! Check if we can skip \p f because initialization has passed \p stage.
+    //!
+    //! \return true if \p f was skipped.
+    //! \note F must be a callable taking no arguments. Its return value is ignored.
+    template<typename F>
+    bool skipIfAfter(int stage, const F& f);
+
+    //! Check if it is possible to skip \p f because initialization is at or after
+    //! \p stage.
+    //!
+    //! \return True if \p f was skipped.
+    //! \note If \p f is run then the state is checkpoint.
+    //! \note F must be a callable taking no arguments. Its return value is ignored.
+    template<typename F>
+    bool skipCheckpointIfAtOrAfter(int stage, const F& f);
 
     //! Skip progress monitoring for feature selection if we've restarted part
     //! way through training.

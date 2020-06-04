@@ -168,6 +168,20 @@ private:
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
+    using TPersistFactoryStateCallback = std::function<void(core::CStatePersistInserter&)>;
+    using TRestoreFactoryStateCallback = std::function<bool(core::CStateRestoreTraverser&)>;
+
+    //! Tag progress through initialization.
+    enum EInitializationStage {
+        E_NotInitialized = 0,
+        E_SoftTreeDepthLimitInitialized = 1,
+        E_DepthPenaltyMultiplierInitialized = 2,
+        E_TreeSizePenaltyMultiplierInitialized = 3,
+        E_LeafWeightPenaltyMultiplierInitialized = 4,
+        E_DownsampleFactorInitialized = 5,
+        E_EtaInitialized = 6,
+        E_FullyInitialized = 7
+    };
 
 private:
     CBoostedTreeImpl();
@@ -305,6 +319,7 @@ private:
 
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
+    EInitializationStage m_InitializationStage = E_NotInitialized;
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
     TSizeVec m_ExtraColumns;
@@ -346,7 +361,10 @@ private:
     core::CLoopProgress m_TrainingProgress;
     std::size_t m_NumberTopShapValues = 0;
     TTreeShapFeatureImportanceUPtr m_TreeShap;
-    TAnalysisInstrumentationPtr m_Instrumentation; // no persist/restore
+    TAnalysisInstrumentationPtr m_Instrumentation;
+    TPersistFactoryStateCallback m_PersistFactoryState = [](core::CStatePersistInserter&) {};
+    TRestoreFactoryStateCallback m_RestoreFactoryState =
+        [](core::CStateRestoreTraverser&) { return true; };
 
 private:
     friend class CBoostedTreeFactory;
