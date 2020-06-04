@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(testTrainingRegression) {
         expectedPredictions);
 
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
-    LOG_DEBUG(<< output.str());
+
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(output.str()));
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
