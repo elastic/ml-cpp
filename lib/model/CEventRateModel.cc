@@ -325,23 +325,25 @@ void CEventRateModel::sample(core_t::TTime startTime,
                                   priorWeights[0]);
                 maths_t::setWinsorisationWeight(winsorisationWeight, priorWeights[0]);
 
-                const auto createAndAddAnnotation = [&](core_t::TTime t,
-                                                        const std::string& annotation) {
-                    m_CurrentBucketStats.s_Annotations.emplace_back(
-                        t, annotation, gatherer.searchKey().detectorIndex(),
-                        gatherer.searchKey().partitionFieldName(),
-                        gatherer.partitionFieldValue(),
-                        gatherer.searchKey().overFieldName(), EMPTY_STRING,
-                        gatherer.searchKey().byFieldName(), gatherer.personName(pid));
-                };
-
                 maths::CModelAddSamplesParams params;
                 params.integer(true)
                     .nonNegative(true)
                     .propagationInterval(deratedInterval)
                     .trendWeights(trendWeights)
-                    .priorWeights(priorWeights)
-                    .annotationCallback(createAndAddAnnotation);
+                    .priorWeights(priorWeights);
+                if (this->params().s_AnnotationsEnabled) {
+                    const auto modelAnnotationCallback =
+                        [&](core_t::TTime t, const std::string& annotation) {
+                            m_CurrentBucketStats.s_Annotations.emplace_back(
+                                t, annotation, gatherer.searchKey().detectorIndex(),
+                                gatherer.searchKey().partitionFieldName(),
+                                gatherer.partitionFieldValue(),
+                                gatherer.searchKey().overFieldName(),
+                                EMPTY_STRING, gatherer.searchKey().byFieldName(),
+                                gatherer.personName(pid));
+                        };
+                    params.annotationCallback(modelAnnotationCallback);
+                }
 
                 if (model->addSamples(params, values) == maths::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);

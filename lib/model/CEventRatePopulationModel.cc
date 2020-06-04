@@ -462,24 +462,25 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
             for (auto& attribute : attributeValuesAndWeights) {
                 std::size_t cid = attribute.first;
 
-                const auto createAndAddAnnotation =
-                    [&](core_t::TTime t, const std::string& annotation) {
-                        m_CurrentBucketStats.s_Annotations.emplace_back(
-                            t, annotation, gatherer.searchKey().detectorIndex(),
-                            gatherer.searchKey().partitionFieldName(),
-                            gatherer.partitionFieldValue(),
-                            gatherer.searchKey().overFieldName(),
-                            gatherer.attributeName(cid),
-                            gatherer.searchKey().byFieldName(), EMPTY_STRING);
-                    };
-
                 maths::CModelAddSamplesParams params;
                 params.integer(true)
                     .nonNegative(true)
                     .propagationInterval(this->propagationTime(cid, sampleTime))
                     .trendWeights(attribute.second.s_Weights)
-                    .priorWeights(attribute.second.s_Weights)
-                    .annotationCallback(createAndAddAnnotation);
+                    .priorWeights(attribute.second.s_Weights);
+                if (this->params().s_AnnotationsEnabled) {
+                    const auto modelAnnotationCallback =
+                        [&](core_t::TTime t, const std::string& annotation) {
+                            m_CurrentBucketStats.s_Annotations.emplace_back(
+                                t, annotation, gatherer.searchKey().detectorIndex(),
+                                gatherer.searchKey().partitionFieldName(),
+                                gatherer.partitionFieldValue(),
+                                gatherer.searchKey().overFieldName(),
+                                gatherer.attributeName(cid),
+                                gatherer.searchKey().byFieldName(), EMPTY_STRING);
+                        };
+                    params.annotationCallback(modelAnnotationCallback);
+                }
 
                 maths::CModel* model{this->model(feature, cid)};
                 if (model == nullptr) {

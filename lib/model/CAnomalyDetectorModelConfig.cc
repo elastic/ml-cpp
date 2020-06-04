@@ -403,6 +403,7 @@ namespace {
 // Model debug config properties
 const std::string BOUNDS_PERCENTILE_PROPERTY("boundspercentile");
 const std::string TERMS_PROPERTY("terms");
+const std::string ANNOTATIONS_ENABLED_PROPERTY("annotations_enabled");
 }
 
 bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree::ptree& propTree) {
@@ -434,6 +435,22 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree:
     } catch (boost::property_tree::ptree_error&) {
         LOG_ERROR(<< "Error reading model debug config. Property '"
                   << TERMS_PROPERTY << "' is missing");
+        return false;
+    }
+
+    try {
+        std::string valueStr(propTree.get<std::string>(ANNOTATIONS_ENABLED_PROPERTY));
+        bool annotationsEnabled = false;
+        if (core::CStringUtils::stringToType(valueStr, annotationsEnabled) == false) {
+            LOG_ERROR(<< "Cannot parse as bool: " << valueStr);
+            return false;
+        }
+        for (auto& factory : m_Factories) {
+            factory.second->annotationsEnabled(annotationsEnabled);
+        }
+    } catch (boost::property_tree::ptree_error&) {
+        LOG_ERROR(<< "Error reading model debug config. Property '"
+                  << ANNOTATIONS_ENABLED_PROPERTY << "' is missing");
         return false;
     }
 
