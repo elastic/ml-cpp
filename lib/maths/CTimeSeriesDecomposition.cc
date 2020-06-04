@@ -229,7 +229,8 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
     }
 
     // Make sure that we always attach this as the first thing we do.
-    CComponents::CScopeAttachComponentChangeCallback attach{m_Components, componentChangeCallback};
+    CComponents::CScopeAttachComponentChangeCallback attach{
+        m_Components, componentChangeCallback, modelAnnotationCallback};
 
     time += m_TimeShift;
 
@@ -241,7 +242,6 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
     SAddValue message{time,
                       lastTime,
                       value,
-                      modelAnnotationCallback,
                       weights,
                       CBasicStatistics::mean(this->value(time, 0.0, E_TrendForced)),
                       CBasicStatistics::mean(this->value(time, 0.0, E_Seasonal)),

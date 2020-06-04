@@ -387,20 +387,18 @@ CTimeSeriesDecompositionDetail::SMessage::SMessage(core_t::TTime time, core_t::T
 
 //////// SAddValue ////////
 
-CTimeSeriesDecompositionDetail::SAddValue::SAddValue(
-    core_t::TTime time,
-    core_t::TTime lastTime,
-    double value,
-    const maths_t::TModelAnnotationCallback& modelAnnotationCallback,
-    const maths_t::TDoubleWeightsAry& weights,
-    double trend,
-    double seasonal,
-    double calendar,
-    const TPredictor& predictor,
-    const CPeriodicityHypothesisTestsConfig& periodicityTestConfig)
-    : SMessage{time, lastTime}, s_Value{value}, s_ModelAnnotationCallback{modelAnnotationCallback},
-      s_Weights{weights}, s_Trend{trend}, s_Seasonal{seasonal}, s_Calendar{calendar},
-      s_Predictor{predictor}, s_PeriodicityTestConfig{periodicityTestConfig} {
+CTimeSeriesDecompositionDetail::SAddValue::SAddValue(core_t::TTime time,
+                                                     core_t::TTime lastTime,
+                                                     double value,
+                                                     const maths_t::TDoubleWeightsAry& weights,
+                                                     double trend,
+                                                     double seasonal,
+                                                     double calendar,
+                                                     const TPredictor& predictor,
+                                                     const CPeriodicityHypothesisTestsConfig& periodicityTestConfig)
+    : SMessage{time, lastTime}, s_Value{value}, s_Weights{weights}, s_Trend{trend},
+      s_Seasonal{seasonal}, s_Calendar{calendar}, s_Predictor{predictor},
+      s_PeriodicityTestConfig{periodicityTestConfig} {
 }
 
 //////// SDetectedSeasonal ////////
@@ -408,12 +406,10 @@ CTimeSeriesDecompositionDetail::SAddValue::SAddValue(
 CTimeSeriesDecompositionDetail::SDetectedSeasonal::SDetectedSeasonal(
     core_t::TTime time,
     core_t::TTime lastTime,
-    const maths_t::TModelAnnotationCallback& modelAnnotationCallback,
     const CPeriodicityHypothesisTestsResult& result,
     const CExpandingWindow& window,
     const TPredictor& predictor)
-    : SMessage{time, lastTime}, s_ModelAnnotationCallback{modelAnnotationCallback},
-      s_Result{result}, s_Window{window}, s_Predictor{predictor} {
+    : SMessage{time, lastTime}, s_Result{result}, s_Window{window}, s_Predictor{predictor} {
 }
 
 //////// SDetectedCalendar ////////
@@ -594,7 +590,6 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::handle(const SNewComponen
 void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& message) {
     core_t::TTime time{message.s_Time};
     core_t::TTime lastTime{message.s_LastTime};
-    const maths_t::TModelAnnotationCallback& modelAnnotationCallback{message.s_ModelAnnotationCallback};
     const TPredictor& predictor{message.s_Predictor};
     const CPeriodicityHypothesisTestsConfig& config{message.s_PeriodicityTestConfig};
 
@@ -620,7 +615,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
 
                 if (result.periodic()) {
                     this->mediator()->forward(SDetectedSeasonal{
-                        time, lastTime, modelAnnotationCallback, result, *window, predictor});
+                        time, lastTime, result, *window, predictor});
                 }
             }
         }
@@ -1322,13 +1317,9 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
         const CPeriodicityHypothesisTestsResult& result{message.s_Result};
         const CExpandingWindow& window{message.s_Window};
         const TPredictor& predictor{message.s_Predictor};
-        const maths_t::TModelAnnotationCallback& modelAnnotationCallback{
-            message.s_ModelAnnotationCallback};
 
-        if (this->addSeasonalComponents(result, window, predictor)) {
-            std::string annotation{"Detected seasonal components"};
-            LOG_DEBUG(<< annotation << " at " << time);
-            modelAnnotationCallback(time, annotation);
+        if (this->addSeasonalComponents(time, result, window, predictor)) {
+            LOG_DEBUG(<< "Detected seasonal components at " << time);
             m_UsingTrendForPrediction = true;
             this->clearComponentErrors();
             this->apply(SC_ADDED_COMPONENTS, message);
@@ -1553,6 +1544,7 @@ std::size_t CTimeSeriesDecompositionDetail::CComponents::maxSize() const {
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
+    core_t::TTime time,
     const CPeriodicityHypothesisTestsResult& result,
     const CExpandingWindow& window,
     const TPredictor& predictor) {
@@ -1571,6 +1563,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
                              return component.time().excludes(*seasonalTime);
                          }) == components.end()) {
             LOG_DEBUG(<< "Detected '" << candidate.s_Description << "'");
+            m_ModelAnnotationCallback(time, "Detected periodicity with period " +
+                                                std::to_string(candidate.s_Period));
             newComponents.emplace_back(std::move(seasonalTime), candidate.s_PiecewiseScaled);
         }
     }
@@ -1708,6 +1702,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(const CCa
     double bucketLength{static_cast<double>(m_BucketLength)};
     m_Calendar->add(feature, m_CalendarComponentSize, m_DecayRate, bucketLength);
     LOG_DEBUG(<< "Detected feature '" << feature.print() << "' at " << time);
+    m_ModelAnnotationCallback(time, "Detected calendar feature: " + feature.print());
     return true;
 }
 
@@ -1963,13 +1958,16 @@ void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime tim
 
 CTimeSeriesDecompositionDetail::CComponents::CScopeAttachComponentChangeCallback::CScopeAttachComponentChangeCallback(
     CComponents& components,
-    TComponentChangeCallback callback)
+    TComponentChangeCallback componentChangeCallback,
+    maths_t::TModelAnnotationCallback modelAnnotationCallback)
     : m_Components{components} {
-    components.m_ComponentChangeCallback = std::move(callback);
+    components.m_ComponentChangeCallback = std::move(componentChangeCallback);
+    components.m_ModelAnnotationCallback = std::move(modelAnnotationCallback);
 }
 
 CTimeSeriesDecompositionDetail::CComponents::CScopeAttachComponentChangeCallback::~CScopeAttachComponentChangeCallback() {
     m_Components.m_ComponentChangeCallback = [](TFloatMeanAccumulatorVec) {};
+    m_Components.m_ModelAnnotationCallback = {};
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::CGainController::acceptRestoreTraverser(

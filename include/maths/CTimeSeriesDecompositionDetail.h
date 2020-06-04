@@ -57,7 +57,6 @@ public:
         SAddValue(core_t::TTime time,
                   core_t::TTime lastTime,
                   double value,
-                  const maths_t::TModelAnnotationCallback& modelAnnotationCallback,
                   const maths_t::TDoubleWeightsAry& weights,
                   double trend,
                   double seasonal,
@@ -69,8 +68,6 @@ public:
 
         //! The value to add.
         double s_Value;
-        //! Called if the model changes.
-        const maths_t::TModelAnnotationCallback& s_ModelAnnotationCallback;
         //! The weights of associated with the value.
         const maths_t::TDoubleWeightsAry& s_Weights;
         //! The trend component prediction at the value's time.
@@ -90,13 +87,10 @@ public:
     struct MATHS_EXPORT SDetectedSeasonal : public SMessage {
         SDetectedSeasonal(core_t::TTime time,
                           core_t::TTime lastTime,
-                          const maths_t::TModelAnnotationCallback& modelAnnotationCallback,
                           const CPeriodicityHypothesisTestsResult& result,
                           const CExpandingWindow& window,
                           const TPredictor& predictor);
 
-        //! Called if the model changes.
-        const maths_t::TModelAnnotationCallback& s_ModelAnnotationCallback;
         //! The components found.
         CPeriodicityHypothesisTestsResult s_Result;
         //! The window tested.
@@ -365,7 +359,8 @@ public:
         class CScopeAttachComponentChangeCallback {
         public:
             CScopeAttachComponentChangeCallback(CComponents& components,
-                                                TComponentChangeCallback callback);
+                                                TComponentChangeCallback componentChangeCallback,
+                                                maths_t::TModelAnnotationCallback modelAnnotationCallback);
             ~CScopeAttachComponentChangeCallback();
             CScopeAttachComponentChangeCallback(const CScopeAttachComponentChangeCallback&) = delete;
             CScopeAttachComponentChangeCallback&
@@ -774,7 +769,8 @@ public:
         std::size_t maxSize() const;
 
         //! Add new seasonal components to \p components.
-        bool addSeasonalComponents(const CPeriodicityHypothesisTestsResult& result,
+        bool addSeasonalComponents(core_t::TTime time,
+                                   const CPeriodicityHypothesisTestsResult& result,
                                    const CExpandingWindow& window,
                                    const TPredictor& predictor);
 
@@ -870,6 +866,9 @@ public:
 
         //! Called if the components change.
         TComponentChangeCallback m_ComponentChangeCallback;
+
+        //! Called if the model change annotation is reported.
+        maths_t::TModelAnnotationCallback m_ModelAnnotationCallback;
 
         //! Set to true when testing for a change.
         bool m_TestingForChange = false;
