@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(testUpperBound) {
         for (auto probe : probes) {
             BOOST_REQUIRE_EQUAL(std::upper_bound(values.begin(), values.end(), probe) -
                                     values.begin(),
-                                set.upperBound(probe));
+                                set.upperBound(static_cast<double>(probe)));
         }
     }
 
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(testUpperBound) {
         for (auto probe : probes) {
             BOOST_REQUIRE_EQUAL(std::upper_bound(values.begin(), values.end(), probe) -
                                     values.begin(),
-                                set.upperBound(probe));
+                                set.upperBound(static_cast<double>(probe)));
         }
     }
 }
