@@ -886,9 +886,6 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
     using TPoint = TMemoryMappedFloatVector;
     using TPointVec = std::vector<TPoint>;
 
-    std::int64_t frameMemory{signedMemoryUsage(frame)};
-    instrumentation.updateMemoryUsage(frameMemory);
-
     CEnsemble<TPoint>::TScorerVec scores;
 
     // Use scoping to recover memory before resizing the data frame.
@@ -952,6 +949,7 @@ bool computeOutliersNoPartitions(const COutliers::SComputeParameters& params,
         }
     };
 
+    std::int64_t frameMemory{signedMemoryUsage(frame)};
     frame.resizeColumns(params.s_NumberThreads,
                         (params.s_ComputeFeatureInfluence ? 2 : 1) * dimension + 1);
     instrumentation.updateMemoryUsage(signedMemoryUsage(frame) - frameMemory);
