@@ -168,10 +168,10 @@ void CDataFrameAnalysisInstrumentation::monitor(const CDataFrameAnalysisInstrume
             LOG_DEBUG(<< "Memory limit triggered");
             HANDLE_FATAL(<< "Environment error: required memory "
                          << instrumentation.memory() << " exceeds the memory limit "
-                         << bytesToMb(instrumentation.m_MemoryLimit) << "mb. Please increase the limit to at least "
-                         << bytesToMb(static_cast<std::int64_t>(
-                                static_cast<double>(instrumentation.m_MemoryLimit) * MEMORY_LIMIT_INCREMENT))
-                         << "mb and restart.");
+                         << instrumentation.m_MemoryLimit << ". Please increase the limit to at least "
+                         << static_cast<std::int64_t>(
+                                static_cast<double>(instrumentation.m_MemoryLimit) * MEMORY_LIMIT_INCREMENT)
+                         << " and restart.");
         }
 
         wait = std::min(2 * wait, 1024);

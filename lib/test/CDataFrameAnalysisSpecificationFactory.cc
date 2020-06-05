@@ -38,6 +38,8 @@ const std::string& CDataFrameAnalysisSpecificationFactory::regression() {
 
 CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::rows(std::size_t rows) {
+    LOG_INFO(<< "Setting new rows " << rows);
+
     m_Rows = rows;
     return *this;
 }
@@ -50,6 +52,7 @@ CDataFrameAnalysisSpecificationFactory::columns(std::size_t columns) {
 
 CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::memoryLimit(std::size_t memoryLimit) {
+    LOG_INFO(<< "Setting new memory limit " << memoryLimit);
     m_MemoryLimit = memoryLimit;
     return *this;
 }
@@ -244,6 +247,8 @@ CDataFrameAnalysisSpecificationFactory::outlierSpec() const {
 
     std::size_t rows{m_Rows ? *m_Rows : 110};
     std::size_t columns{m_Columns ? *m_Columns : 5};
+    LOG_INFO(<< "Is memory limit set? " << m_MemoryLimit.is_initialized()
+             << " value " << *m_MemoryLimit);
     std::size_t memoryLimit{m_MemoryLimit ? *m_MemoryLimit : 100000};
 
     std::string spec{api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
