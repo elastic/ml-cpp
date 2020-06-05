@@ -46,6 +46,8 @@
 * Don't lose precision when saving model state. (See {ml-pull}1274[#1274].)
 * Parallelize the feature importance calculation for classification and regression
   over trees. (See {ml-pull}1277[#1277].)
+* Checkpoint state to allow efficient failover during coarse parameter search
+  for classification and regression. (See {ml-pull}1300[#1300].)
 
 === Bug Fixes
 
