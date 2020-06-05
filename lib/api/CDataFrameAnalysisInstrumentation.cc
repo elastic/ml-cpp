@@ -171,6 +171,7 @@ void CDataFrameAnalysisInstrumentation::monitor(const CDataFrameAnalysisInstrume
                          << static_cast<std::int64_t>(
                                 static_cast<double>(instrumentation.m_MemoryLimit) * MEMORY_LIMIT_INCREMENT)
                          << " and restart.");
+            // TODO clean up this message and output the information in mb instead of bytes
         }
 
         wait = std::min(2 * wait, 1024);
