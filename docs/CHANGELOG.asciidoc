@@ -46,6 +46,8 @@
   (See {ml-pull}1238[#1238] and {pull}57254[#57254].)
 * Parallelize the feature importance calculation for classification and regression
   over trees. (See {ml-pull}1277[#1277].)
+* More realistic memory estimation requires lower memory limits than before
+  (See {ml-pull}1298[#1298].)
 
 == {es} version 7.8.0
 
