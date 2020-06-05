@@ -6,6 +6,7 @@
 
 #include <maths/CBoostedTreeFactory.h>
 
+#include <core/CIEEE754.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
@@ -85,7 +86,7 @@ bool intervalIsEmpty(const CBoostedTreeFactory::TVector& interval) {
 CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVariable) {
 
-    CScopeAttachPersistFactoryState attach{*this};
+    CScopeAttachPersistState attach{*this};
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
@@ -454,44 +455,42 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     double log2MaxTreeSize{std::log2(static_cast<double>(m_TreeImpl->maximumTreeSize(
                                m_TreeImpl->m_TrainingRowMasks[0]))) +
                            1.0};
-    m_TreeImpl->m_Regularization.softTreeDepthLimit(
-        m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit().value_or(log2MaxTreeSize));
-    m_TreeImpl->m_Regularization.softTreeDepthTolerance(
-        m_TreeImpl->m_RegularizationOverride.softTreeDepthTolerance().value_or(
-            0.5 * (MIN_SOFT_DEPTH_LIMIT_TOLERANCE + MAX_SOFT_DEPTH_LIMIT_TOLERANCE)));
-    LOG_TRACE(<< "max depth = " << m_TreeImpl->m_Regularization.softTreeDepthLimit()
-              << ", tolerance = " << m_TreeImpl->m_Regularization.softTreeDepthTolerance());
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+        m_TreeImpl->m_Regularization.softTreeDepthLimit(
+            m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit().value_or(log2MaxTreeSize));
+        m_TreeImpl->m_Regularization.softTreeDepthTolerance(
+            m_TreeImpl->m_RegularizationOverride.softTreeDepthTolerance().value_or(
+                0.5 * (MIN_SOFT_DEPTH_LIMIT_TOLERANCE + MAX_SOFT_DEPTH_LIMIT_TOLERANCE)));
 
-    auto gainAndTotalCurvaturePerNode =
-        this->estimateTreeGainAndCurvature(frame, {1.0, 50.0, 90.0});
-    LOG_TRACE(<< "gains and total curvatures per node = "
-              << core::CContainerPrinter::print(gainAndTotalCurvaturePerNode));
+        auto gainAndTotalCurvaturePerNode =
+            this->estimateTreeGainAndCurvature(frame, {1.0, 50.0, 90.0});
 
-    double gainPerNode1stPercentile{gainAndTotalCurvaturePerNode[0].first};
-    double gainPerNode50thPercentile{gainAndTotalCurvaturePerNode[1].first};
-    double gainPerNode90thPercentile{gainAndTotalCurvaturePerNode[2].first};
-    double totalCurvaturePerNode1stPercentile{gainAndTotalCurvaturePerNode[0].second};
-    double totalCurvaturePerNode90thPercentile{gainAndTotalCurvaturePerNode[2].second};
+        m_GainPerNode1stPercentile = gainAndTotalCurvaturePerNode[0].first;
+        m_GainPerNode50thPercentile = gainAndTotalCurvaturePerNode[1].first;
+        m_GainPerNode90thPercentile = gainAndTotalCurvaturePerNode[2].first;
+        m_TotalCurvaturePerNode1stPercentile = gainAndTotalCurvaturePerNode[0].second;
+        m_TotalCurvaturePerNode90thPercentile = gainAndTotalCurvaturePerNode[2].second;
 
-    // Make sure all line search intervals are not empty.
-    gainPerNode1stPercentile = std::min(gainPerNode1stPercentile, 0.1 * gainPerNode90thPercentile);
-    totalCurvaturePerNode1stPercentile = std::min(
-        totalCurvaturePerNode1stPercentile, 0.1 * totalCurvaturePerNode90thPercentile);
+        // Make sure all line search intervals are not empty.
+        m_GainPerNode1stPercentile = std::min(m_GainPerNode1stPercentile,
+                                              0.1 * m_GainPerNode90thPercentile);
+        m_TotalCurvaturePerNode1stPercentile =
+            std::min(m_TotalCurvaturePerNode1stPercentile,
+                     0.1 * m_TotalCurvaturePerNode90thPercentile);
 
-    std::size_t lineSearchMaximumNumberTrees{[&] {
-        double eta{m_TreeImpl->m_EtaOverride != boost::none
-                       ? *m_TreeImpl->m_EtaOverride
-                       : computeEta(frame.numberColumns())};
-        return computeMaximumNumberTrees(eta);
-    }()};
+        LOG_TRACE(<< "max depth = " << m_TreeImpl->m_Regularization.softTreeDepthLimit()
+                  << ", tolerance = " << m_TreeImpl->m_Regularization.softTreeDepthTolerance()
+                  << ", gains and total curvatures per node = "
+                  << core::CContainerPrinter::print(gainAndTotalCurvaturePerNode));
+    });
 
     // Search for depth limit at which the tree starts to overfit.
     if (m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
         if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_SoftTreeDepthLimitInitialized, [&] {
-                if (gainPerNode90thPercentile > 0.0) {
+                if (m_GainPerNode90thPercentile > 0.0) {
                     if (m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier() ==
                         boost::none) {
-                        m_TreeImpl->m_Regularization.depthPenaltyMultiplier(gainPerNode50thPercentile);
+                        m_TreeImpl->m_Regularization.depthPenaltyMultiplier(m_GainPerNode50thPercentile);
                     }
                     double minSoftDepthLimit{MIN_SOFT_DEPTH_LIMIT};
                     double maxSoftDepthLimit{MIN_SOFT_DEPTH_LIMIT + log2MaxTreeSize};
@@ -518,26 +517,25 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                     m_TreeImpl->m_Regularization.softTreeDepthLimit(
                         m_SoftDepthLimitSearchInterval(BEST_REGULARIZER_INDEX));
                 }
-                if (gainPerNode90thPercentile <= 0.0 ||
+                if (m_GainPerNode90thPercentile <= 0.0 ||
                     intervalIsEmpty(m_SoftDepthLimitSearchInterval)) {
                     m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit(
                         m_TreeImpl->m_Regularization.softTreeDepthLimit());
                 }
             })) {
-            m_TreeImpl->m_TrainingProgress.increment(
-                MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees);
+            m_TreeImpl->m_TrainingProgress.increment(lineSearchMaximumNumberIterations(frame));
         }
     }
 
     // Set the depth limit to its smallest value and search for the value of the
     // penalty multiplier at which the tree starts to overfit.
     if (m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-        if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_SoftTreeDepthLimitInitialized, [&] {
-                if (gainPerNode90thPercentile > 0.0) {
-                    double searchIntervalSize{2.0 * gainPerNode90thPercentile /
-                                              gainPerNode1stPercentile};
+        if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_DepthPenaltyMultiplierInitialized, [&] {
+                if (m_GainPerNode90thPercentile > 0.0) {
+                    double searchIntervalSize{2.0 * m_GainPerNode90thPercentile /
+                                              m_GainPerNode1stPercentile};
                     double logMaxDepthPenaltyMultiplier{
-                        CTools::stableLog(gainPerNode90thPercentile)};
+                        CTools::stableLog(m_GainPerNode90thPercentile)};
                     double logMinDepthPenaltyMultiplier{
                         logMaxDepthPenaltyMultiplier - CTools::stableLog(searchIntervalSize)};
                     double meanLogDepthPenaltyMultiplier{
@@ -572,14 +570,13 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                     m_TreeImpl->m_Regularization.depthPenaltyMultiplier(CTools::stableExp(
                         m_LogDepthPenaltyMultiplierSearchInterval(BEST_REGULARIZER_INDEX)));
                 }
-                if (gainPerNode90thPercentile <= 0.0 ||
+                if (m_GainPerNode90thPercentile <= 0.0 ||
                     intervalIsEmpty(m_LogDepthPenaltyMultiplierSearchInterval)) {
                     m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier(
                         m_TreeImpl->m_Regularization.depthPenaltyMultiplier());
                 }
             })) {
-            m_TreeImpl->m_TrainingProgress.increment(
-                MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees);
+            m_TreeImpl->m_TrainingProgress.increment(lineSearchMaximumNumberIterations(frame));
         }
     }
 
@@ -587,11 +584,11 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     // starts to overfit.
     if (m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
         if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_TreeSizePenaltyMultiplierInitialized, [&] {
-                if (gainPerNode90thPercentile > 0.0) {
-                    double searchIntervalSize{2.0 * gainPerNode90thPercentile /
-                                              gainPerNode1stPercentile};
+                if (m_GainPerNode90thPercentile > 0.0) {
+                    double searchIntervalSize{2.0 * m_GainPerNode90thPercentile /
+                                              m_GainPerNode1stPercentile};
                     double logMaxTreeSizePenaltyMultiplier{
-                        CTools::stableLog(gainPerNode90thPercentile)};
+                        CTools::stableLog(m_GainPerNode90thPercentile)};
                     double logMinTreeSizePenaltyMultiplier{
                         logMaxTreeSizePenaltyMultiplier - CTools::stableLog(searchIntervalSize)};
                     double meanLogTreeSizePenaltyMultiplier{
@@ -626,14 +623,13 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                     m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier(CTools::stableExp(
                         m_LogTreeSizePenaltyMultiplierSearchInterval(BEST_REGULARIZER_INDEX)));
                 }
-                if (gainPerNode90thPercentile <= 0.0 ||
+                if (m_GainPerNode90thPercentile <= 0.0 ||
                     intervalIsEmpty(m_LogTreeSizePenaltyMultiplierSearchInterval)) {
                     m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier(
                         m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier());
                 }
             })) {
-            m_TreeImpl->m_TrainingProgress.increment(
-                MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees);
+            m_TreeImpl->m_TrainingProgress.increment(lineSearchMaximumNumberIterations(frame));
         }
     }
 
@@ -641,11 +637,11 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     // tree starts to overfit.
     if (m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
         if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_LeafWeightPenaltyMultiplierInitialized, [&] {
-                if (totalCurvaturePerNode90thPercentile > 0.0) {
-                    double searchIntervalSize{2.0 * totalCurvaturePerNode90thPercentile /
-                                              totalCurvaturePerNode1stPercentile};
+                if (m_TotalCurvaturePerNode90thPercentile > 0.0) {
+                    double searchIntervalSize{2.0 * m_TotalCurvaturePerNode90thPercentile /
+                                              m_TotalCurvaturePerNode1stPercentile};
                     double logMaxLeafWeightPenaltyMultiplier{
-                        CTools::stableLog(totalCurvaturePerNode90thPercentile)};
+                        CTools::stableLog(m_TotalCurvaturePerNode90thPercentile)};
                     double logMinLeafWeightPenaltyMultiplier{
                         logMaxLeafWeightPenaltyMultiplier -
                         CTools::stableLog(searchIntervalSize)};
@@ -681,14 +677,13 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                         CTools::stableExp(m_LogLeafWeightPenaltyMultiplierSearchInterval(
                             BEST_REGULARIZER_INDEX)));
                 }
-                if (totalCurvaturePerNode90thPercentile <= 0.0 ||
+                if (m_TotalCurvaturePerNode90thPercentile <= 0.0 ||
                     intervalIsEmpty(m_LogLeafWeightPenaltyMultiplierSearchInterval)) {
                     m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier(
                         m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier());
                 }
             })) {
-            m_TreeImpl->m_TrainingProgress.increment(
-                MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees);
+            m_TreeImpl->m_TrainingProgress.increment(lineSearchMaximumNumberIterations(frame));
         }
     }
 
@@ -703,13 +698,6 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
 void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& frame) {
 
     if (m_TreeImpl->m_DownsampleFactorOverride == boost::none) {
-        std::size_t lineSearchMaximumNumberTrees{[&] {
-            double eta{m_TreeImpl->m_EtaOverride != boost::none
-                           ? *m_TreeImpl->m_EtaOverride
-                           : computeEta(frame.numberColumns())};
-            return computeMaximumNumberTrees(eta);
-        }()};
-
         if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_DownsampleFactorInitialized, [&] {
                 double searchIntervalSize{CTools::truncate(
                     m_TreeImpl->m_TrainingRowMasks[0].manhattan() / 100.0,
@@ -792,8 +780,7 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                     m_TreeImpl->m_DownsampleFactorOverride = m_TreeImpl->m_DownsampleFactor;
                 }
             })) {
-            m_TreeImpl->m_TrainingProgress.increment(
-                MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees);
+            m_TreeImpl->m_TrainingProgress.increment(lineSearchMaximumNumberIterations(frame));
         }
     }
 }
@@ -801,13 +788,6 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
 void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
 
     if (m_TreeImpl->m_EtaOverride == boost::none) {
-        std::size_t lineSearchMaximumNumberTrees{[&] {
-            double eta{m_TreeImpl->m_EtaOverride != boost::none
-                           ? *m_TreeImpl->m_EtaOverride
-                           : computeEta(frame.numberColumns())};
-            return computeMaximumNumberTrees(0.5 * eta);
-        }()};
-
         if (skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_EtaInitialized, [&] {
                 double searchIntervalSize{5.0 * MAX_ETA_SCALE / MIN_ETA_SCALE};
                 double logMaxEta{CTools::stableLog(std::sqrt(searchIntervalSize) *
@@ -849,7 +829,7 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
                 }
             })) {
             m_TreeImpl->m_TrainingProgress.increment(
-                MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees);
+                lineSearchMaximumNumberIterations(frame, 0.5));
         }
     }
 }
@@ -1067,6 +1047,7 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromParameters(std::size_t num
 
 CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonStream) {
     CBoostedTreeFactory result{1, nullptr};
+    CScopeAttachRestoreState attach{result};
     try {
         core::CJsonStateRestoreTraverser traverser(jsonStream);
         if (result.m_TreeImpl->acceptRestoreTraverser(traverser) == false ||
@@ -1298,35 +1279,45 @@ void CBoostedTreeFactory::startProgressMonitoringInitializeHyperparameters(const
 
     m_TreeImpl->m_Instrumentation->startNewProgressMonitoredTask(COARSE_PARAMETER_SEARCH);
 
-    double eta{m_TreeImpl->m_EtaOverride != boost::none
-                   ? *m_TreeImpl->m_EtaOverride
-                   : computeEta(frame.numberColumns())};
-
     std::size_t totalNumberSteps{0};
-    std::size_t lineSearchMaximumNumberTrees{computeMaximumNumberTrees(eta)};
     if (m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
-        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
+        totalNumberSteps += lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
+        totalNumberSteps += lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
-        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
+        totalNumberSteps += lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
-        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
+        totalNumberSteps += lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_DownsampleFactorOverride == boost::none) {
-        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
+        totalNumberSteps += lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_EtaOverride == boost::none) {
-        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS *
-                            computeMaximumNumberTrees(0.5 * eta);
+        totalNumberSteps += lineSearchMaximumNumberIterations(frame, 0.5);
     }
 
     LOG_TRACE(<< "initial search total number steps = " << totalNumberSteps);
     m_TreeImpl->m_TrainingProgress = core::CLoopProgress{
         totalNumberSteps, m_TreeImpl->m_Instrumentation->progressCallback(), 1.0, 1024};
+}
+
+std::size_t
+CBoostedTreeFactory::lineSearchMaximumNumberIterations(const core::CDataFrame& frame,
+                                                       double etaScale) const {
+    double eta{m_TreeImpl->m_EtaOverride != boost::none
+                   ? *m_TreeImpl->m_EtaOverride
+                   : computeEta(frame.numberColumns() - this->numberExtraColumnsForTrain())};
+    return MAX_LINE_SEARCH_ITERATIONS * computeMaximumNumberTrees(etaScale * eta);
+}
+
+std::size_t CBoostedTreeFactory::mainLoopMaximumNumberTrees(double eta) const {
+    if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
+        return computeMaximumNumberTrees(MIN_ETA_SCALE * eta);
+    }
+    return *m_TreeImpl->m_MaximumNumberTreesOverride;
 }
 
 template<typename F>
@@ -1360,18 +1351,16 @@ void CBoostedTreeFactory::skipProgressMonitoringInitializeHyperparameters() {
     m_TreeImpl->m_Instrumentation->startNewProgressMonitoredTask(COARSE_PARAMETER_SEARCH);
 }
 
-std::size_t CBoostedTreeFactory::mainLoopMaximumNumberTrees(double eta) const {
-    if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
-        return computeMaximumNumberTrees(MIN_ETA_SCALE * eta);
-    }
-    return *m_TreeImpl->m_MaximumNumberTreesOverride;
-}
-
 void CBoostedTreeFactory::noopRecordTrainingState(CBoostedTree::TPersistFunc) {
 }
 
 namespace {
 // clang-format off
+const std::string GAIN_PER_NODE_1ST_PERCENTILE_TAG{"gain_per_node_1st_percentile"};
+const std::string GAIN_PER_NODE_50TH_PERCENTILE_TAG{"gain_per_node_50th_percentile"};
+const std::string GAIN_PER_NODE_90TH_PERCENTILE_TAG{"gain_per_node_90th_percentile"};
+const std::string TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG{"total_curvature_per_node_1st_percentile"};
+const std::string TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG{"total_curvature_per_node_90th_percentile"};
 const std::string LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG{"log_downsample_factor_search_interval"};
 const std::string LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_depth_penalty_multiplier_search_interval"};
 const std::string LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_tree_size_penalty_multiplier_search_interval"};
@@ -1381,59 +1370,106 @@ const std::string LOG_ETA_SEARCH_INTERVAL_TAG{"log_eta_search_interval"};
 // clang-format on
 }
 
-CBoostedTreeFactory::CScopeAttachPersistFactoryState::CScopeAttachPersistFactoryState(CBoostedTreeFactory& factory)
-    : m_Factory{factory} {
-    factory.m_TreeImpl->m_PersistFactoryState = [&](core::CStatePersistInserter& inserter) {
-        core::CPersistUtils::persist(LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
-                                     factory.m_LogDownsampleFactorSearchInterval, inserter);
-        core::CPersistUtils::persist(LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                                     factory.m_LogDepthPenaltyMultiplierSearchInterval,
-                                     inserter);
-        core::CPersistUtils::persist(
-            LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-            factory.m_LogTreeSizePenaltyMultiplierSearchInterval, inserter);
-        core::CPersistUtils::persist(
-            LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-            factory.m_LogLeafWeightPenaltyMultiplierSearchInterval, inserter);
-        core::CPersistUtils::persist(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
-                                     factory.m_SoftDepthLimitSearchInterval, inserter);
-        core::CPersistUtils::persist(LOG_ETA_SEARCH_INTERVAL_TAG,
-                                     factory.m_LogEtaSearchInterval, inserter);
-    };
-    factory.m_TreeImpl->m_RestoreFactoryState = [&](core::CStateRestoreTraverser& traverser) {
-        do {
-            const std::string& name{traverser.name()};
-            RESTORE(LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
-                    core::CPersistUtils::restore(
-                        LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
-                        factory.m_LogDownsampleFactorSearchInterval, traverser))
-            RESTORE(LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                    core::CPersistUtils::restore(
-                        LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                        factory.m_LogDepthPenaltyMultiplierSearchInterval, traverser))
-            RESTORE(LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                    core::CPersistUtils::restore(
-                        LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                        factory.m_LogTreeSizePenaltyMultiplierSearchInterval, traverser))
-            RESTORE(LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                    core::CPersistUtils::restore(
-                        LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                        factory.m_LogLeafWeightPenaltyMultiplierSearchInterval, traverser))
-            RESTORE(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
-                    core::CPersistUtils::restore(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
-                                                 factory.m_SoftDepthLimitSearchInterval, traverser))
-            RESTORE(LOG_ETA_SEARCH_INTERVAL_TAG,
-                    core::CPersistUtils::restore(LOG_ETA_SEARCH_INTERVAL_TAG,
-                                                 factory.m_LogEtaSearchInterval, traverser))
-        } while (traverser.next());
-        return true;
-    };
+CBoostedTreeFactory::CScopeAttachPersistState::CScopeAttachPersistState(CBoostedTreeFactory& factory)
+    : m_TreeImpl{factory.m_TreeImpl.get()} {
+    if (m_TreeImpl != nullptr) {
+        m_TreeImpl->m_PersistFactoryState = [&](core::CStatePersistInserter& inserter) {
+            core::CPersistUtils::persist(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
+                                         factory.m_GainPerNode1stPercentile, inserter);
+            core::CPersistUtils::persist(GAIN_PER_NODE_50TH_PERCENTILE_TAG,
+                                         factory.m_GainPerNode50thPercentile, inserter);
+            core::CPersistUtils::persist(GAIN_PER_NODE_90TH_PERCENTILE_TAG,
+                                         factory.m_GainPerNode90thPercentile, inserter);
+            core::CPersistUtils::persist(
+                LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                factory.m_LogDepthPenaltyMultiplierSearchInterval, inserter);
+            core::CPersistUtils::persist(LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
+                                         factory.m_LogDownsampleFactorSearchInterval,
+                                         inserter);
+            core::CPersistUtils::persist(LOG_ETA_SEARCH_INTERVAL_TAG,
+                                         factory.m_LogEtaSearchInterval, inserter);
+            core::CPersistUtils::persist(
+                LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                factory.m_LogLeafWeightPenaltyMultiplierSearchInterval, inserter);
+            core::CPersistUtils::persist(
+                LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                factory.m_LogTreeSizePenaltyMultiplierSearchInterval, inserter);
+            core::CPersistUtils::persist(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
+                                         factory.m_SoftDepthLimitSearchInterval, inserter);
+            core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
+                                         factory.m_TotalCurvaturePerNode1stPercentile,
+                                         inserter);
+            core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG,
+                                         factory.m_TotalCurvaturePerNode90thPercentile,
+                                         inserter);
+        };
+    }
 }
 
-CBoostedTreeFactory::CScopeAttachPersistFactoryState::~CScopeAttachPersistFactoryState() {
-    m_Factory.m_TreeImpl->m_PersistFactoryState = [&](core::CStatePersistInserter&) {};
-    m_Factory.m_TreeImpl->m_RestoreFactoryState =
-        [&](core::CStateRestoreTraverser&) { return true; };
+CBoostedTreeFactory::CScopeAttachPersistState::~CScopeAttachPersistState() {
+    if (m_TreeImpl != nullptr) {
+        m_TreeImpl->m_PersistFactoryState = [](core::CStatePersistInserter&) {};
+    }
+}
+
+CBoostedTreeFactory::CScopeAttachRestoreState::CScopeAttachRestoreState(CBoostedTreeFactory& factory)
+    : m_TreeImpl{factory.m_TreeImpl.get()} {
+    if (m_TreeImpl != nullptr) {
+        m_TreeImpl->m_RestoreFactoryState = [&](core::CStateRestoreTraverser& traverser) {
+            do {
+                const std::string& name{traverser.name()};
+                RESTORE(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
+                        core::CPersistUtils::restore(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
+                                                     factory.m_GainPerNode1stPercentile, traverser))
+                RESTORE(GAIN_PER_NODE_50TH_PERCENTILE_TAG,
+                        core::CPersistUtils::restore(GAIN_PER_NODE_50TH_PERCENTILE_TAG,
+                                                     factory.m_GainPerNode50thPercentile, traverser))
+                RESTORE(GAIN_PER_NODE_90TH_PERCENTILE_TAG,
+                        core::CPersistUtils::restore(GAIN_PER_NODE_90TH_PERCENTILE_TAG,
+                                                     factory.m_GainPerNode90thPercentile, traverser))
+                RESTORE(LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                        core::CPersistUtils::restore(
+                            LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                            factory.m_LogDepthPenaltyMultiplierSearchInterval, traverser))
+                RESTORE(LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
+                        core::CPersistUtils::restore(
+                            LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
+                            factory.m_LogDownsampleFactorSearchInterval, traverser))
+                RESTORE(LOG_ETA_SEARCH_INTERVAL_TAG,
+                        core::CPersistUtils::restore(LOG_ETA_SEARCH_INTERVAL_TAG,
+                                                     factory.m_LogEtaSearchInterval, traverser))
+                RESTORE(LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                        core::CPersistUtils::restore(
+                            LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                            factory.m_LogLeafWeightPenaltyMultiplierSearchInterval, traverser))
+                RESTORE(LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                        core::CPersistUtils::restore(
+                            LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                            factory.m_LogTreeSizePenaltyMultiplierSearchInterval, traverser))
+                RESTORE(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
+                        core::CPersistUtils::restore(
+                            SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
+                            factory.m_SoftDepthLimitSearchInterval, traverser))
+                RESTORE(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
+                        core::CPersistUtils::restore(
+                            TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
+                            factory.m_TotalCurvaturePerNode1stPercentile, traverser))
+                RESTORE(TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG,
+                        core::CPersistUtils::restore(
+                            TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG,
+                            factory.m_TotalCurvaturePerNode90thPercentile, traverser))
+            } while (traverser.next());
+            return true;
+        };
+    }
+}
+
+CBoostedTreeFactory::CScopeAttachRestoreState::~CScopeAttachRestoreState() {
+    if (m_TreeImpl != nullptr) {
+        m_TreeImpl->m_RestoreFactoryState = [](core::CStateRestoreTraverser&) {
+            return true;
+        };
+    }
 }
 
 const std::string CBoostedTreeFactory::FEATURE_SELECTION{"feature_selection"};

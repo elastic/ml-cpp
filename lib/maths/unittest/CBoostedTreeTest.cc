@@ -1698,7 +1698,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestoreDuringInitialization) {
 
     TSStreamVec checkpoints;
 
-    auto writeTrainingState = [&checkpoints](maths::CBoostedTree::TPersistFunc persist) {
+    auto writeCheckpoint = [&checkpoints](maths::CBoostedTree::TPersistFunc persist) {
         std::stringstream state;
         {
             // We need to call the inserter destructor to finish writing the state.
@@ -1717,7 +1717,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestoreDuringInitialization) {
                                .numberFolds(2)
                                .maximumNumberTrees(2)
                                .maximumOptimisationRoundsPerHyperparameter(3)
-                               .trainingStateCallback(writeTrainingState)
+                               .trainingStateCallback(writeCheckpoint)
                                .buildFor(*frame, cols - 1);
         core::CJsonStatePersistInserter inserter(expectedState);
         boostedTree->acceptPersistInserter(inserter);
@@ -1728,12 +1728,13 @@ BOOST_AUTO_TEST_CASE(testPersistRestoreDuringInitialization) {
         auto frame = makeFrame();
         auto boostedTree =
             maths::CBoostedTreeFactory::constructFromString(checkpoint).restoreFor(*frame, cols - 1);
-
         std::ostringstream actualState;
-        core::CJsonStatePersistInserter inserter(actualState);
-        boostedTree->acceptPersistInserter(inserter);
-        actualState.flush();
-
+        {
+            // We need to call the inserter destructor to finish writing the state.
+            core::CJsonStatePersistInserter inserter(actualState);
+            boostedTree->acceptPersistInserter(inserter);
+            actualState.flush();
+        }
         BOOST_REQUIRE_EQUAL(expectedState.str(), actualState.str());
     }
 }

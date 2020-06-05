@@ -8,6 +8,7 @@
 #define INCLUDED_ml_maths_CBoostedTreeFactory_h
 
 #include <core/CDataFrame.h>
+#include <core/CNonCopyable.h>
 
 #include <maths/CBoostedTree.h>
 #include <maths/CDataFrameAnalysisInstrumentationInterface.h>
@@ -136,17 +137,24 @@ private:
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
     using TApplyRegularizer = std::function<bool(CBoostedTreeImpl&, double)>;
 
-    //! \brief Attach callbacks to the tree implementation for persisting factory state.
-    class CScopeAttachPersistFactoryState {
+    //! \brief Attach a callback to the tree implementation for persisting factory state.
+    class CScopeAttachPersistState : core::CNonCopyable {
     public:
-        CScopeAttachPersistFactoryState(CBoostedTreeFactory& factory);
-        ~CScopeAttachPersistFactoryState();
-        CScopeAttachPersistFactoryState(const CScopeAttachPersistFactoryState&) = delete;
-        CScopeAttachPersistFactoryState&
-        operator=(const CScopeAttachPersistFactoryState&) = delete;
+        CScopeAttachPersistState(CBoostedTreeFactory& factory);
+        ~CScopeAttachPersistState();
 
     private:
-        CBoostedTreeFactory& m_Factory;
+        CBoostedTreeImpl* m_TreeImpl;
+    };
+
+    //! \brief Attach a callback to the tree implementation for restoring factory state.
+    class CScopeAttachRestoreState : core::CNonCopyable {
+    public:
+        CScopeAttachRestoreState(CBoostedTreeFactory& factory);
+        ~CScopeAttachRestoreState();
+
+    private:
+        CBoostedTreeImpl* m_TreeImpl;
     };
 
 private:
@@ -223,6 +231,13 @@ private:
     //! Start progress monitoring initializeHyperparameters.
     void startProgressMonitoringInitializeHyperparameters(const core::CDataFrame& frame);
 
+    //! Get the number of progress iterations used for a line search.
+    std::size_t lineSearchMaximumNumberIterations(const core::CDataFrame& frame,
+                                                  double etaScale = 1.0) const;
+
+    //! The maximum number of trees to use in the hyperparameter optimisation loop.
+    std::size_t mainLoopMaximumNumberTrees(double eta) const;
+
     //! Check if we can skip \p f because initialization has passed \p stage.
     //!
     //! \return true if \p f was skipped.
@@ -251,9 +266,6 @@ private:
     //! \note This makes sure we output that this task is complete.
     void skipProgressMonitoringInitializeHyperparameters();
 
-    //! The maximum number of trees to use in the hyperparameter optimisation loop.
-    std::size_t mainLoopMaximumNumberTrees(double eta) const;
-
     //! Stubs out persistence.
     static void noopRecordTrainingState(CBoostedTree::TPersistFunc);
 
@@ -262,6 +274,11 @@ private:
     TOptionalSize m_BayesianOptimisationRestarts;
     bool m_StratifyRegressionCrossValidation = true;
     double m_InitialDownsampleRowsPerFeature = 200.0;
+    double m_GainPerNode1stPercentile = 0.0;
+    double m_GainPerNode50thPercentile = 0.0;
+    double m_GainPerNode90thPercentile = 0.0;
+    double m_TotalCurvaturePerNode1stPercentile = 0.0;
+    double m_TotalCurvaturePerNode90thPercentile = 0.0;
     std::size_t m_NumberThreads;
     TBoostedTreeImplUPtr m_TreeImpl;
     TVector m_LogDownsampleFactorSearchInterval;
