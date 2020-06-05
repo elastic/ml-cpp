@@ -73,8 +73,8 @@ public:
 
 public:
     CTestInstrumentation()
-        : m_TotalFractionalProgress{0}, m_Monotonic{true}, m_MemoryUsage{0},
-          m_MaxMemoryUsage{0} {}
+        : m_TotalFractionalProgress{0}, m_Monotonic{true}, m_MemoryUsage{0}, m_MaxMemoryUsage{0} {
+    }
 
     int progress() const {
         return (100 * m_TotalFractionalProgress.load()) / 65536;
