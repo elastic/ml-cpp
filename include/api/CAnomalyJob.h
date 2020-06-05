@@ -170,7 +170,8 @@ public:
                       core_t::TTime& completeToTime) override;
 
     //! Persist current state
-    bool persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) override;
+    bool persistStateInForeground(core::CDataAdder& persister,
+                                  const std::string& descriptionPrefix) override;
 
     //! Persist state of the residual models only
     bool persistModelsState(core::CDataAdder& persister,

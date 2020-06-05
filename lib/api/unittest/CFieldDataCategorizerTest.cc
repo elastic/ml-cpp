@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE(testWithoutPerPartitionCategorization) {
     std::string origJson;
     {
         CTestDataAdder adder;
-        categorizer.persistState(adder, "");
+        categorizer.persistStateInForeground(adder, "");
         std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
         origJson = ss.str();
     }
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE(testWithoutPerPartitionCategorization) {
         newCategorizer.restoreState(restorer, time);
 
         CTestDataAdder adder;
-        newCategorizer.persistState(adder, "");
+        newCategorizer.persistStateInForeground(adder, "");
         std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
         newJson = ss.str();
     }
@@ -308,7 +308,7 @@ BOOST_AUTO_TEST_CASE(testWithPerPartitionCategorization) {
     std::string origJson;
     {
         CTestDataAdder adder;
-        categorizer.persistState(adder, "");
+        categorizer.persistStateInForeground(adder, "");
         std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
         origJson = ss.str();
     }
@@ -328,7 +328,7 @@ BOOST_AUTO_TEST_CASE(testWithPerPartitionCategorization) {
         newCategorizer.restoreState(restorer, time);
 
         CTestDataAdder adder;
-        newCategorizer.persistState(adder, "");
+        newCategorizer.persistStateInForeground(adder, "");
         std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
         newJson = ss.str();
     }

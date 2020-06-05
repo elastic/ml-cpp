@@ -102,7 +102,7 @@ void detectorPersistHelper(const std::string& configFileName,
         BOOST_REQUIRE_NO_THROW(boost::filesystem::remove_all(origDir));
 
         ml::test::CMultiFileDataAdder persister(baseOrigOutputFilename);
-        BOOST_TEST_REQUIRE(origJob.persistState(persister, ""));
+        BOOST_TEST_REQUIRE(origJob.persistStateInForeground(persister, ""));
     }
 
     std::string origBaseDocId(JOB_ID + '_' + CTestAnomalyJob::STATE_TYPE + '_' + origSnapshotId);
@@ -156,7 +156,7 @@ void detectorPersistHelper(const std::string& configFileName,
         BOOST_REQUIRE_NO_THROW(boost::filesystem::remove_all(restoredDir));
 
         ml::test::CMultiFileDataAdder persister(baseRestoredOutputFilename);
-        BOOST_TEST_REQUIRE(restoredJob.persistState(persister, ""));
+        BOOST_TEST_REQUIRE(restoredJob.persistStateInForeground(persister, ""));
     }
 
     std::string restoredBaseDocId(JOB_ID + '_' + CTestAnomalyJob::STATE_TYPE +

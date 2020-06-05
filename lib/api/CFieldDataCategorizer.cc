@@ -253,16 +253,24 @@ const std::string& CFieldDataCategorizer::categorizerKeyForRecord(const TStrStrU
 
 model::CDataCategorizer*
 CFieldDataCategorizer::categorizerPtrForKey(const std::string& partitionFieldValue) {
-    model::CDataCategorizer::TDataCategorizerPtr& ptr{m_DataCategorizers[partitionFieldValue]};
-    if (ptr == nullptr && m_Limits.resourceMonitor().areAllocationsAllowed()) {
-        // TODO - if we ever have more than one data categorizer class, this
-        // should be replaced with a factory
-        ptr = std::make_shared<TTokenListDataCategorizerKeepsFields>(
-            m_Limits, std::make_shared<model::CTokenListReverseSearchCreator>(m_CategorizationFieldName),
-            SIMILARITY_THRESHOLD, m_CategorizationFieldName);
-        LOG_TRACE(<< "Created new categorizer for '" << partitionFieldValue
-                  << '/' << m_CategorizationFieldName << "'");
+    auto iter = m_DataCategorizers.find(partitionFieldValue);
+    if (iter != m_DataCategorizers.end()) {
+        return iter->second.get();
     }
+
+    if (m_Limits.resourceMonitor().areAllocationsAllowed() == false) {
+        // The categorizer doesn't exist, but we are not allowed to create it
+        return nullptr;
+    }
+
+    // TODO - if we ever have more than one data categorizer class, this
+    // should be replaced with a factory
+    auto ptr = std::make_shared<TTokenListDataCategorizerKeepsFields>(
+        m_Limits, std::make_shared<model::CTokenListReverseSearchCreator>(m_CategorizationFieldName),
+        SIMILARITY_THRESHOLD, m_CategorizationFieldName);
+    m_DataCategorizers.emplace(partitionFieldValue, ptr);
+    LOG_TRACE(<< "Created new categorizer for '" << partitionFieldValue << '/'
+              << m_CategorizationFieldName << "'");
     return ptr.get();
 }
 
@@ -443,8 +451,8 @@ bool CFieldDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTraverser&
     return true;
 }
 
-bool CFieldDataCategorizer::persistState(core::CDataAdder& persister,
-                                         const std::string& descriptionPrefix) {
+bool CFieldDataCategorizer::persistStateInForeground(core::CDataAdder& persister,
+                                                     const std::string& descriptionPrefix) {
     if (m_PersistenceManager != nullptr) {
         // This will not happen if finalise() was called before persisting state
         if (m_PersistenceManager->isBusy()) {
@@ -455,7 +463,7 @@ bool CFieldDataCategorizer::persistState(core::CDataAdder& persister,
     }
 
     // Pass on the request in case we're chained
-    if (m_OutputHandler.persistState(persister, descriptionPrefix) == false) {
+    if (m_OutputHandler.persistStateInForeground(persister, descriptionPrefix) == false) {
         return false;
     }
 
@@ -467,7 +475,7 @@ bool CFieldDataCategorizer::persistState(core::CDataAdder& persister,
 
     if (m_PartitionFieldName.empty()) {
         model::CDataCategorizer& dataCategorizer{categorizerForKey(EMPTY_STRING)};
-        dataCategorizerPersistFuncs.emplace_back(dataCategorizer.makeBackgroundPersistFunc());
+        dataCategorizerPersistFuncs.emplace_back(dataCategorizer.makeForegroundPersistFunc());
         examplesCollectors.push_back(dataCategorizer.examplesCollector());
     } else {
         if (m_DataCategorizers.empty()) {
@@ -686,9 +694,10 @@ bool CFieldDataCategorizer::periodicPersistStateInForeground() {
         return false;
     }
 
-    // Do NOT pass this request on to the output chainer. That logic is already present in persistState.
+    // Do NOT pass this request on to the output chainer.
+    // That logic is already present in persistStateInForeground.
     if (m_PersistenceManager->addPersistFunc([&](core::CDataAdder& persister) {
-            return this->persistState(persister, "Periodic foreground persist at ");
+            return this->persistStateInForeground(persister, "Periodic foreground persist at ");
         }) == false) {
         LOG_ERROR(<< "Failed to add categorizer foreground persistence function");
         return false;

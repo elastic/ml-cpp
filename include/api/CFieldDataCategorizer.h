@@ -118,7 +118,8 @@ public:
     bool isPersistenceNeeded(const std::string& description) const override;
 
     //! Persist current state
-    bool persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) override;
+    bool persistStateInForeground(core::CDataAdder& persister,
+                                  const std::string& descriptionPrefix) override;
 
     //! Persist current state due to the periodic persistence being triggered.
     bool periodicPersistStateInBackground() override;
@@ -129,6 +130,13 @@ public:
 
     //! Access the output handler
     COutputHandler& outputHandler() override;
+
+private:
+    using TPersistFuncVec = std::vector<model::CDataCategorizer::TPersistFunc>;
+    using TCategoryExamplesCollectorsVec = std::vector<model::CCategoryExamplesCollector>;
+    using TCategoryExamplesCollectorsCRef =
+        std::reference_wrapper<const model::CCategoryExamplesCollector>;
+    using TCategoryExamplesCollectorsCRefVec = std::vector<TCategoryExamplesCollectorsCRef>;
 
 private:
     //! Get the appropriate categorizer key from the given input record
@@ -149,12 +157,6 @@ private:
 
     //! Create the reverse search and return true if it has changed or false otherwise
     bool createReverseSearch(model::CDataCategorizer& dataCategorizer, int categoryId);
-
-    using TPersistFuncVec = std::vector<model::CDataCategorizer::TPersistFunc>;
-    using TCategoryExamplesCollectorsVec = std::vector<model::CCategoryExamplesCollector>;
-    using TCategoryExamplesCollectorsCRef =
-        std::reference_wrapper<const model::CCategoryExamplesCollector>;
-    using TCategoryExamplesCollectorsCRefVec = std::vector<TCategoryExamplesCollectorsCRef>;
 
     template<typename EXAMPLES_COLLECTOR_VEC>
     bool doPersistState(const TStrVec& partitionFieldValues,
