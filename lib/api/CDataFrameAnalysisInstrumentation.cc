@@ -5,7 +5,6 @@
  */
 #include <api/CDataFrameAnalysisInstrumentation.h>
 
-#include <bits/c++config.h>
 #include <core/CTimeUtils.h>
 
 #include <maths/CBoostedTree.h>
