@@ -7,7 +7,6 @@
 #ifndef INCLUDED_ml_maths_CBoostedTreeFactory_h
 #define INCLUDED_ml_maths_CBoostedTreeFactory_h
 
-#include "core/CStateMachine.h"
 #include <core/CDataFrame.h>
 
 #include <maths/CBoostedTree.h>

@@ -4,12 +4,12 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "core/CPersistUtils.h"
-#include "core/CStatePersistInserter.h"
-#include "core/CStateRestoreTraverser.h"
 #include <maths/CBoostedTreeFactory.h>
 
 #include <core/CJsonStateRestoreTraverser.h>
+#include <core/CPersistUtils.h>
+#include <core/CStatePersistInserter.h>
+#include <core/CStateRestoreTraverser.h>
 
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTreeImpl.h>
@@ -94,8 +94,7 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeMissingFeatureMasks(frame); });
 
-    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
-                [&] { this->resizeDataFrame(frame); });
+    this->resizeDataFrame(frame);
 
     m_TreeImpl->m_InitializationStage != CBoostedTreeImpl::E_NotInitialized
         ? this->skipProgressMonitoringFeatureSelection()
@@ -1334,9 +1333,6 @@ template<typename F>
 bool CBoostedTreeFactory::skipIfAfter(int stage, const F& f) {
     if (m_TreeImpl->m_InitializationStage <= stage) {
         f();
-        m_RecordTrainingState([this](core::CStatePersistInserter& inserter) {
-            m_TreeImpl->acceptPersistInserter(inserter);
-        });
         return false;
     }
     return true;
@@ -1407,10 +1403,6 @@ CBoostedTreeFactory::CScopeAttachPersistFactoryState::CScopeAttachPersistFactory
     factory.m_TreeImpl->m_RestoreFactoryState = [&](core::CStateRestoreTraverser& traverser) {
         do {
             const std::string& name{traverser.name()};
-            RESTORE(LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
-                    core::CPersistUtils::restore(
-                        LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
-                        factory.m_LogDownsampleFactorSearchInterval, traverser))
             RESTORE(LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
                     core::CPersistUtils::restore(
                         LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,

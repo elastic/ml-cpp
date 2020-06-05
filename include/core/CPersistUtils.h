@@ -97,7 +97,7 @@ struct persist_selector<T, typename enable_if_is<std::string (T::*)() const, &T:
 };
 //@}
 
-//! Detail of the persist class selected by the object features
+//! \brief Specialisations of this class implement persist methods based on object features.
 template<typename SELECTOR>
 class CPersisterImpl {};
 
@@ -136,7 +136,7 @@ struct restore_selector<T, typename enable_if_is<bool (T::*)(const std::string&)
 };
 //@}
 
-//! Detail of the restorer implementation based on object features
+//! \brief Specialisations of this class implement restore methods based on object features.
 template<typename SELECTOR>
 class CRestorerImpl {};
 
@@ -342,17 +342,40 @@ public:
 
     //! Persist \p collection passing state to \p inserter using \p tag for elements.
     template<typename T>
-    static bool
+    static void
     persist(const std::string& tag, const T& collection, CStatePersistInserter& inserter) {
-        return persist_utils_detail::persist(tag, collection, inserter);
+        persist_utils_detail::persist(tag, collection, inserter);
     }
 
     //! Persist \p collection passing state to \p inserter using \p tag for elements.
     template<typename T>
-    static bool
+    static void
     persist(const TPersistenceTag& tag, const T& collection, CStatePersistInserter& inserter) {
-        return persist_utils_detail::persist(tag.name(inserter.readableTags()),
-                                             collection, inserter);
+        persist_utils_detail::persist(tag.name(inserter.readableTags()), collection, inserter);
+    }
+
+    //! A convenience function for optionally persisting types which convert to null.
+    //!
+    //! \tparam DEREFERENCEABLE Must support conversion to bool and operator*.
+    template<typename DEREFERENCEABLE>
+    static void persistIfNotNull(const std::string& tag,
+                                 const DEREFERENCEABLE& target,
+                                 CStatePersistInserter& inserter) {
+        if (target) {
+            persist_utils_detail::persist(tag, *target, inserter);
+        }
+    }
+
+    //! A convenience function for optionally persisting types which convert to null.
+    //!
+    //! \tparam DEREFERENCEABLE Must support conversion to bool and operator*.
+    template<typename DEREFERENCEABLE>
+    static void persistIfNotNull(const TPersistenceTag& tag,
+                                 const DEREFERENCEABLE& target,
+                                 CStatePersistInserter& inserter) {
+        if (target) {
+            persist_utils_detail::persist(tag.name(inserter.readableTags()), *target, inserter);
+        }
     }
 
     //! Wrapper for containers of built in types.
