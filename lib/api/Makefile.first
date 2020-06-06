@@ -41,6 +41,7 @@ CDetectionRulesJsonParser.cc \
 CFieldConfig.cc \
 CFieldDataCategorizer.cc \
 CForecastRunner.cc \
+CGlobalCategoryId.cc \
 CHierarchicalResultsWriter.cc \
 CInferenceModelDefinition.cc \
 CInputParser.cc \

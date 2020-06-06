@@ -108,16 +108,16 @@ public:
     CTokenListDataCategorizerBase& operator=(const CTokenListDataCategorizerBase&) = delete;
 
     //! Dump stats
-    void dumpStats(const TIdFormatterFunc& formatterFunc) const override;
+    void dumpStats(const TLocalCategoryIdFormatterFunc& formatterFunc) const override;
 
     //! Compute a category from a string.  The raw string length may be longer
     //! than the length of the passed string, because the passed string may
     //! have the date stripped out of it.  Field names/values are available
     //! to the category computation.
-    int computeCategory(bool dryRun,
-                        const TStrStrUMap& fields,
-                        const std::string& str,
-                        std::size_t rawStringLen) override;
+    CLocalCategoryId computeCategory(bool dryRun,
+                                     const TStrStrUMap& fields,
+                                     const std::string& str,
+                                     std::size_t rawStringLen) override;
 
     // Bring the other overload of computeCategory() into scope
     using CDataCategorizer::computeCategory;
@@ -126,7 +126,7 @@ public:
     //! that are classified as the given category.  Note that the reverse search
     //! is only approximate - it may select more records than have actually
     //! been classified as the returned category.
-    bool createReverseSearch(int categoryId,
+    bool createReverseSearch(CLocalCategoryId categoryId,
                              std::string& part1,
                              std::string& part2,
                              std::size_t& maxMatchingLength,
@@ -176,13 +176,13 @@ public:
                                   std::size_t rareCategories,
                                   std::size_t deadCategories);
 
-    std::size_t numMatches(int categoryId) override;
+    std::size_t numMatches(CLocalCategoryId categoryId) override;
 
-    CDataCategorizer::TIntVec usurpedCategories(int categoryId) override;
+    CDataCategorizer::TLocalCategoryIdVec usurpedCategories(CLocalCategoryId categoryId) override;
 
     std::size_t numCategories() const override;
 
-    bool categoryChangedAndReset(int categoryId) override;
+    bool categoryChangedAndReset(CLocalCategoryId categoryId) override;
 
 protected:
     //! Split the string into a list of tokens.  The result of the

@@ -51,6 +51,7 @@ CHierarchicalResultsProbabilityFinalizer.cc \
 CIndividualModel.cc \
 CInterimBucketCorrector.cc \
 CLimits.cc \
+CLocalCategoryId.cc \
 CMemoryUsageEstimator.cc \
 CMetricBucketGatherer.cc \
 CMetricModel.cc \

@@ -888,13 +888,13 @@ void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId,
 
 void CJsonOutputWriter::writeCategoryDefinition(const std::string& partitionFieldName,
                                                 const std::string& partitionFieldValue,
-                                                int categoryId,
+                                                const CGlobalCategoryId& categoryId,
                                                 const std::string& terms,
                                                 const std::string& regex,
                                                 std::size_t maxMatchingFieldLength,
                                                 const TStrFSet& examples,
                                                 std::size_t numMatches,
-                                                const TIntVec& usurpedCategories) {
+                                                const TGlobalCategoryIdVec& usurpedCategories) {
     m_Writer.StartObject();
     m_Writer.Key(CATEGORY_DEFINITION);
     m_Writer.StartObject();
@@ -907,7 +907,7 @@ void CJsonOutputWriter::writeCategoryDefinition(const std::string& partitionFiel
         m_Writer.String(partitionFieldValue);
     }
     m_Writer.Key(CATEGORY_ID);
-    m_Writer.Int(categoryId);
+    m_Writer.Int(categoryId.globalId());
     m_Writer.Key(TERMS);
     m_Writer.String(terms);
     m_Writer.Key(REGEX);
@@ -925,8 +925,8 @@ void CJsonOutputWriter::writeCategoryDefinition(const std::string& partitionFiel
     m_Writer.Uint64(numMatches);
     m_Writer.Key(PREFERRED_TO_CATEGORIES);
     m_Writer.StartArray();
-    for (int id : usurpedCategories) {
-        m_Writer.Int(id);
+    for (const auto& globalCategoryId : usurpedCategories) {
+        m_Writer.Int(globalCategoryId.globalId());
     }
     m_Writer.EndArray();
     m_Writer.EndObject();

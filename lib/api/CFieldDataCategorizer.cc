@@ -74,9 +74,12 @@ CFieldDataCategorizer::CFieldDataCategorizer(const std::string& jobId,
 
 CFieldDataCategorizer::~CFieldDataCategorizer() {
     for (const auto& dataCategorizerEntry : m_DataCategorizers) {
-        dataCategorizerEntry.second->dumpStats([this, &dataCategorizerEntry](int localCategoryId) {
-            return m_CategoryIdMapper->printMapping(dataCategorizerEntry.first, localCategoryId);
-        });
+        dataCategorizerEntry.second->dumpStats(
+            [this, &dataCategorizerEntry](model::CLocalCategoryId localCategoryId) {
+                return m_CategoryIdMapper
+                    ->map(dataCategorizerEntry.first, localCategoryId)
+                    .print();
+            });
     }
 }
 
@@ -115,13 +118,13 @@ bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields) {
         return msgHandled;
     }
 
-    int globalCategoryId{this->computeCategory(dataRowFields)};
-    if (globalCategoryId == model::CDataCategorizer::HARD_CATEGORIZATION_FAILURE_ERROR) {
+    CGlobalCategoryId globalCategoryId{this->computeCategory(dataRowFields)};
+    if (globalCategoryId.isHardFailure()) {
         // Still return true here, because false would fail the entire job
         return true;
     }
 
-    m_OutputFieldCategory = core::CStringUtils::typeToString(globalCategoryId);
+    m_OutputFieldCategory = core::CStringUtils::typeToString(globalCategoryId.globalId());
     if (m_OutputHandler.writeRow(dataRowFields, m_Overrides) == false) {
         LOG_ERROR(<< "Unable to write output with type " << m_OutputFieldCategory
                   << " for input:" << core_t::LINE_ENDING
@@ -158,8 +161,8 @@ COutputHandler& CFieldDataCategorizer::outputHandler() {
     return m_OutputHandler;
 }
 
-int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
-    int globalCategoryId{model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR};
+CGlobalCategoryId CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
+    CGlobalCategoryId globalCategoryId;
 
     auto fieldIter = dataRowFields.find(m_CategorizationFieldName);
     if (fieldIter == dataRowFields.end()) {
@@ -195,9 +198,9 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
             }
         }
         m_Limits.resourceMonitor().categorizerAllocationFailures(m_CategorizerAllocationFailures);
-        return model::CDataCategorizer::HARD_CATEGORIZATION_FAILURE_ERROR;
+        return CGlobalCategoryId::hardFailure();
     }
-    int localCategoryId{model::CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR};
+    model::CLocalCategoryId localCategoryId;
     if (m_CategorizationFilter.empty()) {
         localCategoryId = dataCategorizer->computeCategory(
             false, dataRowFields, fieldValue, fieldValue.length());
@@ -206,9 +209,8 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
         localCategoryId = dataCategorizer->computeCategory(
             false, dataRowFields, filtered, fieldValue.length());
     }
-    globalCategoryId = m_CategoryIdMapper->globalCategoryIdForLocalCategoryId(
-        partitionFieldValue, localCategoryId);
-    if (globalCategoryId < 1) {
+    globalCategoryId = m_CategoryIdMapper->map(partitionFieldValue, localCategoryId);
+    if (globalCategoryId.isValid() == false) {
         return globalCategoryId;
     }
 
@@ -222,8 +224,9 @@ int CFieldDataCategorizer::computeCategory(const TStrStrUMap& dataRowFields) {
             m_SearchTerms, m_SearchTermsRegex, m_MaxMatchingLength,
             dataCategorizer->examplesCollector().examples(localCategoryId),
             dataCategorizer->numMatches(localCategoryId),
-            dataCategorizer->usurpedCategories(localCategoryId));
-        if (localCategoryId % 10 == 0) {
+            m_CategoryIdMapper->mapVec(partitionFieldValue,
+                                       dataCategorizer->usurpedCategories(localCategoryId)));
+        if (localCategoryId.id() % 10 == 0) {
             // Even if memory limiting is disabled, force a refresh occasionally
             // so the user has some idea what's going on with memory.
             m_Limits.resourceMonitor().forceRefresh(*dataCategorizer);
@@ -280,7 +283,7 @@ CFieldDataCategorizer::categorizerForKey(const std::string& partitionFieldValue)
 }
 
 bool CFieldDataCategorizer::createReverseSearch(model::CDataCategorizer& dataCategorizer,
-                                                int localCategoryId) {
+                                                model::CLocalCategoryId localCategoryId) {
     bool wasCached(false);
     if (dataCategorizer.createReverseSearch(localCategoryId, m_SearchTerms, m_SearchTermsRegex,
                                             m_MaxMatchingLength, wasCached) == false) {
@@ -776,27 +779,31 @@ void CFieldDataCategorizer::writeOutChangedCategories() {
         std::string searchTermsRegex;
         std::size_t maxLength;
         bool wasCached{false};
-        for (int localCategoryId = 1;
-             localCategoryId <= static_cast<int>(numCategories); ++localCategoryId) {
+        for (std::size_t index = 0; index < numCategories; ++index) {
+            model::CLocalCategoryId localCategoryId{index};
             if (dataCategorizer.categoryChangedAndReset(localCategoryId)) {
                 if (dataCategorizer.createReverseSearch(localCategoryId, searchTerms, searchTermsRegex,
                                                         maxLength, wasCached) == false) {
                     LOG_WARN(<< "Unable to create or retrieve reverse search for storing for category: "
-                             << m_CategoryIdMapper->printMapping(
-                                    dataCategorizerEntry.first, localCategoryId));
+                             << m_CategoryIdMapper
+                                    ->map(dataCategorizerEntry.first, localCategoryId)
+                                    .print());
                     continue;
                 }
                 LOG_TRACE(<< "Writing out changed category: "
-                          << m_CategoryIdMapper->printMapping(
-                                 dataCategorizerEntry.first, localCategoryId));
-                int globalCategoryId{m_CategoryIdMapper->globalCategoryIdForLocalCategoryId(
+                          << m_CategoryIdMapper
+                                 ->map(dataCategorizerEntry.first, localCategoryId)
+                                 .print());
+                CGlobalCategoryId globalCategoryId{m_CategoryIdMapper->map(
                     dataCategorizerEntry.first, localCategoryId)};
                 m_JsonOutputWriter.writeCategoryDefinition(
                     m_PartitionFieldName, dataCategorizerEntry.first,
                     globalCategoryId, searchTerms, searchTermsRegex, maxLength,
                     dataCategorizer.examplesCollector().examples(localCategoryId),
                     dataCategorizer.numMatches(localCategoryId),
-                    dataCategorizer.usurpedCategories(localCategoryId));
+                    m_CategoryIdMapper->mapVec(
+                        dataCategorizerEntry.first,
+                        dataCategorizer.usurpedCategories(localCategoryId)));
             }
         }
     }

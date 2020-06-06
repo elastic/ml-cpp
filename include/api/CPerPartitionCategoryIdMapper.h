@@ -6,11 +6,11 @@
 #ifndef INCLUDED_ml_api_CPerPartitionCategoryIdMapper_h
 #define INCLUDED_ml_api_CPerPartitionCategoryIdMapper_h
 
-#include <core/BoostMultiIndex.h>
-#include <core/CTriple.h>
-
 #include <api/CCategoryIdMapper.h>
 #include <api/ImportExport.h>
+
+#include <map>
+#include <vector>
 
 namespace ml {
 namespace api {
@@ -47,24 +47,11 @@ public:
     //! Map from a categorizer key and category ID local to that categorizer to
     //! a global category ID.  This method is not const, as it will create a
     //! new global ID if one does not exist.
-    int globalCategoryIdForLocalCategoryId(const std::string& categorizerKey,
-                                           int localCategoryId) override;
-
-    //! Map from a global category ID to the key of the appropriate categorizer.
-    //! Returns the empty string if the global category ID is unknown.
-    const std::string& categorizerKeyForGlobalCategoryId(int globalCategoryId) const override;
-
-    //! Map from a global category ID to the local category ID of the
-    //! appropriate categorizer.  Returns the hard failure code if the
-    //! global category ID is unknown.
-    int localCategoryIdForGlobalCategoryId(int globalCategoryId) const override;
+    CGlobalCategoryId map(const std::string& categorizerKey,
+                          model::CLocalCategoryId localCategoryId) override;
 
     //! Create a clone.
     TCategoryIdMapperUPtr clone() const override;
-
-    //! Print enough information to fully describe the mapping in log messages.
-    std::string printMapping(const std::string& categorizerKey, int localCategoryId) const override;
-    std::string printMapping(int globalCategoryId) const override;
 
     //! Persist the mapper passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
@@ -74,30 +61,18 @@ public:
 
 private:
     //! Key specifiers for the multi-index
-    struct SGlobalKey {};
-    struct SLocalKey {};
-
-    //! The triples stored in the index are of the form
-    //! (global category ID, partition field value, local category ID).
-    using TIntStrIntTriple = core::CTriple<int, std::string, int>;
-
-    using TMIndex = boost::multi_index::multi_index_container<
-        TIntStrIntTriple,
-        boost::multi_index::indexed_by<
-            boost::multi_index::ordered_unique<boost::multi_index::tag<SGlobalKey>, BOOST_MULTI_INDEX_MEMBER(TIntStrIntTriple, int, first)>,
-            boost::multi_index::hashed_unique<boost::multi_index::tag<SLocalKey>,
-                                              boost::multi_index::composite_key<TIntStrIntTriple, BOOST_MULTI_INDEX_MEMBER(TIntStrIntTriple, std::string, second), BOOST_MULTI_INDEX_MEMBER(TIntStrIntTriple, int, third)>>>>;
-
-private:
-    //! Print enough information to fully describe the mapping in debug.
-    static std::string printMapping(const TIntStrIntTriple& mapping);
+    using TGlobalCategoryIdVec = std::vector<CGlobalCategoryId>;
+    using TStrGlobalCategoryIdVecMap = std::map<std::string, TGlobalCategoryIdVec>;
 
 private:
     //! Highest previously used global ID.
     int m_HighestGlobalId = 0;
 
-    //! Index of global to local category IDs.
-    TMIndex m_Mapper;
+    //! Index of global to local category IDs.  The outer map is keyed on the
+    //! partition field value, then the local category IDs are indices into the
+    //! vector.  The string pointers inside the global category IDs point to
+    //! the strings in the map keys.
+    TStrGlobalCategoryIdVecMap m_Mapper;
 };
 }
 }

@@ -40,6 +40,7 @@ SRCS=\
 	CHierarchicalResultsLevelSetTest.cc \
 	CInterimBucketCorrectorTest.cc \
 	CLimitsTest.cc \
+	CLocalCategoryIdTest.cc \
 	CMemoryUsageEstimatorTest.cc \
 	CMetricAnomalyDetectorTest.cc \
 	CMetricDataGathererTest.cc \

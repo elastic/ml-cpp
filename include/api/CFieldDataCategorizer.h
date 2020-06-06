@@ -15,6 +15,7 @@
 
 #include <api/CCategoryIdMapper.h>
 #include <api/CDataProcessor.h>
+#include <api/CGlobalCategoryId.h>
 #include <api/ImportExport.h>
 
 #include <cstdint>
@@ -153,10 +154,11 @@ private:
     model::CDataCategorizer& categorizerForKey(const std::string& partitionFieldValue);
 
     //! Compute the category for a given record.
-    int computeCategory(const TStrStrUMap& dataRowFields);
+    CGlobalCategoryId computeCategory(const TStrStrUMap& dataRowFields);
 
     //! Create the reverse search and return true if it has changed or false otherwise
-    bool createReverseSearch(model::CDataCategorizer& dataCategorizer, int categoryId);
+    bool createReverseSearch(model::CDataCategorizer& dataCategorizer,
+                             model::CLocalCategoryId categoryId);
 
     template<typename EXAMPLES_COLLECTOR_VEC>
     bool doPersistState(const TStrVec& partitionFieldValues,

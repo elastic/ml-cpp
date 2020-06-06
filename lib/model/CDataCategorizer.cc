@@ -14,8 +14,6 @@ namespace ml {
 namespace model {
 
 // Initialise statics
-const int CDataCategorizer::SOFT_CATEGORIZATION_FAILURE_ERROR{-1};
-const int CDataCategorizer::HARD_CATEGORIZATION_FAILURE_ERROR{-2};
 const CDataCategorizer::TStrStrUMap CDataCategorizer::EMPTY_FIELDS;
 
 CDataCategorizer::CDataCategorizer(CLimits& limits, const std::string& fieldName)
@@ -28,7 +26,9 @@ CDataCategorizer::~CDataCategorizer() {
     m_Limits.resourceMonitor().unRegisterComponent(*this);
 }
 
-int CDataCategorizer::computeCategory(bool isDryRun, const std::string& str, std::size_t rawStringLen) {
+CLocalCategoryId CDataCategorizer::computeCategory(bool isDryRun,
+                                                   const std::string& str,
+                                                   std::size_t rawStringLen) {
     return this->computeCategory(isDryRun, EMPTY_FIELDS, str, rawStringLen);
 }
 
@@ -57,7 +57,7 @@ std::size_t CDataCategorizer::memoryUsage() const {
     return mem;
 }
 
-bool CDataCategorizer::addExample(int categoryId, const std::string& example) {
+bool CDataCategorizer::addExample(CLocalCategoryId categoryId, const std::string& example) {
     // Don't add examples if we're in any way memory-constrained.
     // We stop adding examples when the memory status is either
     // E_MemoryStatusSoftLimit or E_MemoryStatusHardLimit, but only

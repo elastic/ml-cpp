@@ -6,10 +6,14 @@
 #ifndef INCLUDED_ml_api_CCategoryIdMapper_h
 #define INCLUDED_ml_api_CCategoryIdMapper_h
 
+#include <model/CLocalCategoryId.h>
+
+#include <api/CGlobalCategoryId.h>
 #include <api/ImportExport.h>
 
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace ml {
 namespace core {
@@ -33,30 +37,27 @@ class API_EXPORT CCategoryIdMapper {
 public:
     using TCategoryIdMapperUPtr = std::unique_ptr<CCategoryIdMapper>;
 
+    using TLocalCategoryIdVec = std::vector<model::CLocalCategoryId>;
+    using TGlobalCategoryIdVec = std::vector<CGlobalCategoryId>;
+
 public:
     virtual ~CCategoryIdMapper() = default;
 
     //! Map from a categorizer key and category ID local to that categorizer to
     //! a global category ID.  This method is not const, as it will create a
     //! new global ID if one does not exist.
-    virtual int globalCategoryIdForLocalCategoryId(const std::string& categorizerKey,
-                                                   int localCategoryId) = 0;
+    virtual CGlobalCategoryId map(const std::string& categorizerKey,
+                                  model::CLocalCategoryId localCategoryId) = 0;
 
-    //! Map from a global category ID to the key of the appropriate categorizer.
-    virtual const std::string&
-    categorizerKeyForGlobalCategoryId(int globalCategoryId) const = 0;
-
-    //! Map from a global category ID to the local category ID of the
-    //! appropriate categorizer.
-    virtual int localCategoryIdForGlobalCategoryId(int globalCategoryId) const = 0;
+    //! Map from a categorizer key and vector of category IDs local to that
+    //! categorizer to a vector of global category IDs.  This method is not
+    //! const, as it will create new global IDs if any that are required do not
+    //! already exist.
+    TGlobalCategoryIdVec mapVec(const std::string& categorizerKey,
+                                const TLocalCategoryIdVec& localCategoryIds);
 
     //! Create a clone.
     virtual TCategoryIdMapperUPtr clone() const = 0;
-
-    //! Print enough information to fully describe the mapping in log messages.
-    virtual std::string printMapping(const std::string& categorizerKey,
-                                     int localCategoryId) const = 0;
-    virtual std::string printMapping(int globalCategoryId) const = 0;
 
     //! Persist the mapper passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;

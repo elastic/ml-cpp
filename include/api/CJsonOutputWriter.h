@@ -15,6 +15,7 @@
 #include <model/CHierarchicalResults.h>
 #include <model/CResourceMonitor.h>
 
+#include <api/CGlobalCategoryId.h>
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/COutputHandler.h>
 #include <api/ImportExport.h>
@@ -111,8 +112,7 @@ public:
     using TStrVec = std::vector<std::string>;
     using TStr1Vec = core::CSmallVector<std::string, 1>;
     using TTimeVec = std::vector<core_t::TTime>;
-    using TIntVec = std::vector<int>;
-    using TIntVecCIter = std::vector<int>::const_iterator;
+    using TGlobalCategoryIdVec = std::vector<CGlobalCategoryId>;
     using TDoubleVec = std::vector<double>;
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
@@ -242,13 +242,13 @@ public:
     //! Write a category definition
     void writeCategoryDefinition(const std::string& partitionFieldName,
                                  const std::string& partitionFieldValue,
-                                 int categoryId,
+                                 const CGlobalCategoryId& categoryId,
                                  const std::string& terms,
                                  const std::string& regex,
                                  std::size_t maxMatchingFieldLength,
                                  const TStrFSet& examples,
                                  std::size_t numMatches,
-                                 const TIntVec& usurpedCategories);
+                                 const TGlobalCategoryIdVec& usurpedCategories);
 
     //! Persist a normalizer by writing its state to the output
     void persistNormalizer(const model::CHierarchicalResultsNormalizer& normalizer,

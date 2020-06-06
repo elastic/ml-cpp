@@ -19,6 +19,7 @@
 #include <model/CStringStore.h>
 #include <model/ModelTypes.h>
 
+#include <api/CGlobalCategoryId.h>
 #include <api/CJsonOutputWriter.h>
 
 #include <test/BoostTestCloseAbsolute.h>
@@ -1284,7 +1285,7 @@ BOOST_AUTO_TEST_CASE(testFlush) {
 }
 
 BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
-    int categoryId(42);
+    ml::api::CGlobalCategoryId categoryId{42};
     std::string terms("foo bar");
     std::string regex(".*?foo.+?bar.*");
     std::size_t maxMatchingLength(132);
@@ -1325,7 +1326,7 @@ BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
     BOOST_TEST_REQUIRE(category.HasMember("partition_field_value") == false);
     BOOST_TEST_REQUIRE(category.IsObject());
     BOOST_TEST_REQUIRE(category.HasMember("category_id"));
-    BOOST_REQUIRE_EQUAL(categoryId, category["category_id"].GetInt());
+    BOOST_REQUIRE_EQUAL(categoryId.globalId(), category["category_id"].GetInt());
     BOOST_TEST_REQUIRE(category.HasMember("terms"));
     BOOST_REQUIRE_EQUAL(terms, std::string(category["terms"].GetString()));
     BOOST_TEST_REQUIRE(category.HasMember("regex"));
@@ -1344,7 +1345,7 @@ BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
 }
 
 BOOST_AUTO_TEST_CASE(testWritePerPartitionCategoryDefinition) {
-    int categoryId(42);
+    ml::api::CGlobalCategoryId categoryId{42};
     std::string terms("foo bar");
     std::string regex(".*?foo.+?bar.*");
     std::size_t maxMatchingLength(132);
@@ -1389,7 +1390,7 @@ BOOST_AUTO_TEST_CASE(testWritePerPartitionCategoryDefinition) {
                         std::string(category["partition_field_value"].GetString()));
     BOOST_TEST_REQUIRE(category.IsObject());
     BOOST_TEST_REQUIRE(category.HasMember("category_id"));
-    BOOST_REQUIRE_EQUAL(categoryId, category["category_id"].GetInt());
+    BOOST_REQUIRE_EQUAL(categoryId.globalId(), category["category_id"].GetInt());
     BOOST_TEST_REQUIRE(category.HasMember("terms"));
     BOOST_REQUIRE_EQUAL(terms, std::string(category["terms"].GetString()));
     BOOST_TEST_REQUIRE(category.HasMember("regex"));
