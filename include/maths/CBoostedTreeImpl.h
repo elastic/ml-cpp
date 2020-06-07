@@ -168,8 +168,6 @@ private:
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
-    using TPersistFactoryStateCallback = std::function<void(core::CStatePersistInserter&)>;
-    using TRestoreFactoryStateCallback = std::function<bool(core::CStateRestoreTraverser&)>;
 
     //! Tag progress through initialization.
     enum EInitializationStage {
@@ -362,9 +360,6 @@ private:
     std::size_t m_NumberTopShapValues = 0;
     TTreeShapFeatureImportanceUPtr m_TreeShap;
     TAnalysisInstrumentationPtr m_Instrumentation;
-    TPersistFactoryStateCallback m_PersistFactoryState = [](core::CStatePersistInserter&) {};
-    TRestoreFactoryStateCallback m_RestoreFactoryState =
-        [](core::CStateRestoreTraverser&) { return true; };
 
 private:
     friend class CBoostedTreeFactory;

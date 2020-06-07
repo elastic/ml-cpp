@@ -24,6 +24,8 @@
 namespace ml {
 namespace core {
 class CPackedBitVector;
+class CStatePersistInserter;
+class CStateRestoreTraverser;
 }
 namespace maths {
 
@@ -137,31 +139,14 @@ private:
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
     using TApplyRegularizer = std::function<bool(CBoostedTreeImpl&, double)>;
 
-    //! \brief Attach a callback to the tree implementation for persisting factory state.
-    class CScopeAttachPersistState : core::CNonCopyable {
-    public:
-        CScopeAttachPersistState(CBoostedTreeFactory& factory);
-        ~CScopeAttachPersistState();
-
-    private:
-        CBoostedTreeImpl* m_TreeImpl;
-    };
-
-    //! \brief Attach a callback to the tree implementation for restoring factory state.
-    class CScopeAttachRestoreState : core::CNonCopyable {
-    public:
-        CScopeAttachRestoreState(CBoostedTreeFactory& factory);
-        ~CScopeAttachRestoreState();
-
-    private:
-        CBoostedTreeImpl* m_TreeImpl;
-    };
-
 private:
     CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss);
 
     //! Persist state writing to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Restore readining state from \p traverser.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Compute the row masks for the missing values for each feature.
     void initializeMissingFeatureMasks(const core::CDataFrame& frame) const;

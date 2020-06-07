@@ -11,6 +11,7 @@
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/RestoreMacros.h>
 
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTreeImpl.h>
@@ -85,8 +86,6 @@ bool intervalIsEmpty(const CBoostedTreeFactory::TVector& interval) {
 
 CBoostedTreeFactory::TBoostedTreeUPtr
 CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVariable) {
-
-    CScopeAttachPersistState attach{*this};
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
@@ -1047,11 +1046,9 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromParameters(std::size_t num
 
 CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonStream) {
     CBoostedTreeFactory result{1, nullptr};
-    CScopeAttachRestoreState attach{result};
     try {
-        core::CJsonStateRestoreTraverser traverser(jsonStream);
-        if (result.m_TreeImpl->acceptRestoreTraverser(traverser) == false ||
-            traverser.haveBadState()) {
+        core::CJsonStateRestoreTraverser traverser{jsonStream};
+        if (result.acceptRestoreTraverser(traverser) == false || traverser.haveBadState()) {
             throw std::runtime_error{"failed to restore boosted tree"};
         }
     } catch (const std::exception& e) {
@@ -1336,7 +1333,7 @@ bool CBoostedTreeFactory::skipCheckpointIfAtOrAfter(int stage, const F& f) {
         m_TreeImpl->m_InitializationStage =
             static_cast<CBoostedTreeImpl::EInitializationStage>(stage);
         m_RecordTrainingState([this](core::CStatePersistInserter& inserter) {
-            m_TreeImpl->acceptPersistInserter(inserter);
+            this->acceptPersistInserter(inserter);
         });
         return false;
     }
@@ -1355,121 +1352,132 @@ void CBoostedTreeFactory::noopRecordTrainingState(CBoostedTree::TPersistFunc) {
 }
 
 namespace {
+const std::string VERSION_7_9_TAG{"7.9"};
+
 // clang-format off
+const std::string FACTORY_TAG{"factory"};
 const std::string GAIN_PER_NODE_1ST_PERCENTILE_TAG{"gain_per_node_1st_percentile"};
 const std::string GAIN_PER_NODE_50TH_PERCENTILE_TAG{"gain_per_node_50th_percentile"};
 const std::string GAIN_PER_NODE_90TH_PERCENTILE_TAG{"gain_per_node_90th_percentile"};
+const std::string INITIALIZATION_CHECKPOINT_TAG{"initialization_checkpoint"};
+const std::string LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_depth_penalty_multiplier_search_interval"};
+const std::string LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG{"log_downsample_factor_search_interval"};
+const std::string LOG_ETA_SEARCH_INTERVAL_TAG{"log_eta_search_interval"};
+const std::string LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_leaf_weight_penalty_multiplier_search_interval"};
+const std::string LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_tree_size_penalty_multiplier_search_interval"};
+const std::string SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG{"soft_depth_limit_search_interval"};
 const std::string TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG{"total_curvature_per_node_1st_percentile"};
 const std::string TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG{"total_curvature_per_node_90th_percentile"};
-const std::string LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG{"log_downsample_factor_search_interval"};
-const std::string LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_depth_penalty_multiplier_search_interval"};
-const std::string LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_tree_size_penalty_multiplier_search_interval"};
-const std::string LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_leaf_weight_penalty_multiplier_search_interval"};
-const std::string SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG{"soft_depth_limit_search_interval"};
-const std::string LOG_ETA_SEARCH_INTERVAL_TAG{"log_eta_search_interval"};
+const std::string TREE_TAG{"tree"};
 // clang-format on
 }
 
-CBoostedTreeFactory::CScopeAttachPersistState::CScopeAttachPersistState(CBoostedTreeFactory& factory)
-    : m_TreeImpl{factory.m_TreeImpl.get()} {
-    if (m_TreeImpl != nullptr) {
-        m_TreeImpl->m_PersistFactoryState = [&](core::CStatePersistInserter& inserter) {
-            core::CPersistUtils::persist(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
-                                         factory.m_GainPerNode1stPercentile, inserter);
-            core::CPersistUtils::persist(GAIN_PER_NODE_50TH_PERCENTILE_TAG,
-                                         factory.m_GainPerNode50thPercentile, inserter);
-            core::CPersistUtils::persist(GAIN_PER_NODE_90TH_PERCENTILE_TAG,
-                                         factory.m_GainPerNode90thPercentile, inserter);
-            core::CPersistUtils::persist(
-                LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                factory.m_LogDepthPenaltyMultiplierSearchInterval, inserter);
-            core::CPersistUtils::persist(LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
-                                         factory.m_LogDownsampleFactorSearchInterval,
-                                         inserter);
-            core::CPersistUtils::persist(LOG_ETA_SEARCH_INTERVAL_TAG,
-                                         factory.m_LogEtaSearchInterval, inserter);
-            core::CPersistUtils::persist(
-                LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                factory.m_LogLeafWeightPenaltyMultiplierSearchInterval, inserter);
-            core::CPersistUtils::persist(
-                LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                factory.m_LogTreeSizePenaltyMultiplierSearchInterval, inserter);
-            core::CPersistUtils::persist(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
-                                         factory.m_SoftDepthLimitSearchInterval, inserter);
-            core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
-                                         factory.m_TotalCurvaturePerNode1stPercentile,
-                                         inserter);
-            core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG,
-                                         factory.m_TotalCurvaturePerNode90thPercentile,
-                                         inserter);
-        };
-    }
+void CBoostedTreeFactory::acceptPersistInserter(core::CStatePersistInserter& inserter_) const {
+    inserter_.insertValue(INITIALIZATION_CHECKPOINT_TAG, "");
+    inserter_.insertLevel(FACTORY_TAG, [this](core::CStatePersistInserter& inserter) {
+        inserter.insertValue(VERSION_7_9_TAG, "");
+        core::CPersistUtils::persist(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
+                                     m_GainPerNode1stPercentile, inserter);
+        core::CPersistUtils::persist(GAIN_PER_NODE_50TH_PERCENTILE_TAG,
+                                     m_GainPerNode50thPercentile, inserter);
+        core::CPersistUtils::persist(GAIN_PER_NODE_90TH_PERCENTILE_TAG,
+                                     m_GainPerNode90thPercentile, inserter);
+        core::CPersistUtils::persist(LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                     m_LogDepthPenaltyMultiplierSearchInterval, inserter);
+        core::CPersistUtils::persist(LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
+                                     m_LogDownsampleFactorSearchInterval, inserter);
+        core::CPersistUtils::persist(LOG_ETA_SEARCH_INTERVAL_TAG,
+                                     m_LogEtaSearchInterval, inserter);
+        core::CPersistUtils::persist(
+            LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+            m_LogLeafWeightPenaltyMultiplierSearchInterval, inserter);
+        core::CPersistUtils::persist(LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                     m_LogTreeSizePenaltyMultiplierSearchInterval, inserter);
+        core::CPersistUtils::persist(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
+                                     m_SoftDepthLimitSearchInterval, inserter);
+        core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
+                                     m_TotalCurvaturePerNode1stPercentile, inserter);
+        core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG,
+                                     m_TotalCurvaturePerNode90thPercentile, inserter);
+    });
+    inserter_.insertLevel(TREE_TAG, [this](core::CStatePersistInserter& inserter) {
+        m_TreeImpl->acceptPersistInserter(inserter);
+    });
 }
 
-CBoostedTreeFactory::CScopeAttachPersistState::~CScopeAttachPersistState() {
-    if (m_TreeImpl != nullptr) {
-        m_TreeImpl->m_PersistFactoryState = [](core::CStatePersistInserter&) {};
+bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser_) {
+    if (traverser_.name() != INITIALIZATION_CHECKPOINT_TAG) {
+        return m_TreeImpl->acceptRestoreTraverser(traverser_);
     }
-}
 
-CBoostedTreeFactory::CScopeAttachRestoreState::CScopeAttachRestoreState(CBoostedTreeFactory& factory)
-    : m_TreeImpl{factory.m_TreeImpl.get()} {
-    if (m_TreeImpl != nullptr) {
-        m_TreeImpl->m_RestoreFactoryState = [&](core::CStateRestoreTraverser& traverser) {
-            do {
-                const std::string& name{traverser.name()};
-                RESTORE(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
-                        core::CPersistUtils::restore(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
-                                                     factory.m_GainPerNode1stPercentile, traverser))
-                RESTORE(GAIN_PER_NODE_50TH_PERCENTILE_TAG,
-                        core::CPersistUtils::restore(GAIN_PER_NODE_50TH_PERCENTILE_TAG,
-                                                     factory.m_GainPerNode50thPercentile, traverser))
-                RESTORE(GAIN_PER_NODE_90TH_PERCENTILE_TAG,
-                        core::CPersistUtils::restore(GAIN_PER_NODE_90TH_PERCENTILE_TAG,
-                                                     factory.m_GainPerNode90thPercentile, traverser))
-                RESTORE(LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                        core::CPersistUtils::restore(
-                            LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                            factory.m_LogDepthPenaltyMultiplierSearchInterval, traverser))
-                RESTORE(LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
-                        core::CPersistUtils::restore(
-                            LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
-                            factory.m_LogDownsampleFactorSearchInterval, traverser))
-                RESTORE(LOG_ETA_SEARCH_INTERVAL_TAG,
-                        core::CPersistUtils::restore(LOG_ETA_SEARCH_INTERVAL_TAG,
-                                                     factory.m_LogEtaSearchInterval, traverser))
-                RESTORE(LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                        core::CPersistUtils::restore(
-                            LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                            factory.m_LogLeafWeightPenaltyMultiplierSearchInterval, traverser))
-                RESTORE(LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                        core::CPersistUtils::restore(
-                            LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
-                            factory.m_LogTreeSizePenaltyMultiplierSearchInterval, traverser))
-                RESTORE(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
-                        core::CPersistUtils::restore(
-                            SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
-                            factory.m_SoftDepthLimitSearchInterval, traverser))
-                RESTORE(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
-                        core::CPersistUtils::restore(
-                            TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
-                            factory.m_TotalCurvaturePerNode1stPercentile, traverser))
-                RESTORE(TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG,
-                        core::CPersistUtils::restore(
-                            TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG,
-                            factory.m_TotalCurvaturePerNode90thPercentile, traverser))
-            } while (traverser.next());
-            return true;
-        };
+    while (traverser_.next()) {
+        const std::string& name_{traverser_.name()};
+        if (name_ == FACTORY_TAG) {
+            if (traverser_.traverseSubLevel([this](core::CStateRestoreTraverser& traverser) {
+                    do {
+                        const std::string& name{traverser.name()};
+                        RESTORE(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
+                                core::CPersistUtils::restore(
+                                    GAIN_PER_NODE_1ST_PERCENTILE_TAG,
+                                    m_GainPerNode1stPercentile, traverser))
+                        RESTORE(GAIN_PER_NODE_50TH_PERCENTILE_TAG,
+                                core::CPersistUtils::restore(
+                                    GAIN_PER_NODE_50TH_PERCENTILE_TAG,
+                                    m_GainPerNode50thPercentile, traverser))
+                        RESTORE(GAIN_PER_NODE_90TH_PERCENTILE_TAG,
+                                core::CPersistUtils::restore(
+                                    GAIN_PER_NODE_90TH_PERCENTILE_TAG,
+                                    m_GainPerNode90thPercentile, traverser))
+                        RESTORE(LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                core::CPersistUtils::restore(
+                                    LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                    m_LogDepthPenaltyMultiplierSearchInterval, traverser))
+                        RESTORE(LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
+                                core::CPersistUtils::restore(
+                                    LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
+                                    m_LogDownsampleFactorSearchInterval, traverser))
+                        RESTORE(LOG_ETA_SEARCH_INTERVAL_TAG,
+                                core::CPersistUtils::restore(LOG_ETA_SEARCH_INTERVAL_TAG,
+                                                             m_LogEtaSearchInterval, traverser))
+                        RESTORE(LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                core::CPersistUtils::restore(
+                                    LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                    m_LogLeafWeightPenaltyMultiplierSearchInterval, traverser))
+                        RESTORE(LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                core::CPersistUtils::restore(
+                                    LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                    m_LogTreeSizePenaltyMultiplierSearchInterval, traverser))
+                        RESTORE(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
+                                core::CPersistUtils::restore(
+                                    SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
+                                    m_SoftDepthLimitSearchInterval, traverser))
+                        RESTORE(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
+                                core::CPersistUtils::restore(
+                                    TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
+                                    m_TotalCurvaturePerNode1stPercentile, traverser))
+                        RESTORE(TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG,
+                                core::CPersistUtils::restore(
+                                    TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG,
+                                    m_TotalCurvaturePerNode90thPercentile, traverser))
+                    } while (traverser.next());
+                    return true;
+                }) == false) {
+                LOG_ERROR(<< "Failed to restore " << FACTORY_TAG);
+                return false;
+            }
+            continue;
+        }
+        if (name_ == TREE_TAG) {
+            if (traverser_.traverseSubLevel([this](core::CStateRestoreTraverser& traverser) {
+                    return m_TreeImpl->acceptRestoreTraverser(traverser);
+                }) == false) {
+                LOG_ERROR(<< "Failed to restore " << TREE_TAG);
+                return false;
+            }
+            continue;
+        }
     }
-}
-
-CBoostedTreeFactory::CScopeAttachRestoreState::~CScopeAttachRestoreState() {
-    if (m_TreeImpl != nullptr) {
-        m_TreeImpl->m_RestoreFactoryState = [](core::CStateRestoreTraverser&) {
-            return true;
-        };
-    }
+    return true;
 }
 
 const std::string CBoostedTreeFactory::FEATURE_SELECTION{"feature_selection"};

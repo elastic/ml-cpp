@@ -1325,7 +1325,6 @@ const std::string FEATURE_DATA_TYPES_TAG{"feature_data_types"};
 const std::string FEATURE_SAMPLE_PROBABILITIES_TAG{"feature_sample_probabilities"};
 const std::string FOLD_ROUND_TEST_LOSSES_TAG{"fold_round_test_losses"};
 const std::string INITIALIZATION_STAGE_TAG{"initialization_progress"};
-const std::string INITIALIZATION_STATE_TAG{"initialization_state"};
 const std::string LOSS_TAG{"loss"};
 const std::string LOSS_NAME_TAG{"loss_name"};
 const std::string MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG{"maximum_attempts_to_add_tree"};
@@ -1395,7 +1394,6 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(FOLD_ROUND_TEST_LOSSES_TAG, m_FoldRoundTestLosses, inserter);
     core::CPersistUtils::persist(INITIALIZATION_STAGE_TAG,
                                  static_cast<int>(m_InitializationStage), inserter);
-    inserter.insertLevel(INITIALIZATION_STATE_TAG, m_PersistFactoryState);
     if (m_Loss != nullptr) {
         inserter.insertLevel(LOSS_TAG, [this](core::CStatePersistInserter& inserter_) {
             m_Loss->persistLoss(inserter_);
@@ -1492,7 +1490,6 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(INITIALIZATION_STAGE_TAG,
                 core::CPersistUtils::restore(INITIALIZATION_STAGE_TAG,
                                              initializationStage, traverser))
-        RESTORE(INITIALIZATION_STATE_TAG, traverser.traverseSubLevel(m_RestoreFactoryState))
         RESTORE(LOSS_TAG, traverser.traverseSubLevel(restoreLoss))
         RESTORE(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                 core::CPersistUtils::restore(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
