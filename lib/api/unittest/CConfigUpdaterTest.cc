@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenModelPlotConfig) {
     terms.insert(std::string("b"));
     modelConfig.modelPlotTerms(terms);
 
-    std::string configUpdate("[modelPlotConfig]\nboundspercentile = 83.5\nterms = c,d\n");
+    std::string configUpdate("[modelPlotConfig]\nboundspercentile = 83.5\nterms = c,d\nannotations_enabled = false\n");
 
     CConfigUpdater configUpdater(fieldConfig, modelConfig);
 
