@@ -339,6 +339,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionWithParams) {
                 specFactory.outlierMethod(methods[method])
                     .outlierNumberNeighbours(k)
                     .outlierComputeInfluence(false)
+                    .memoryLimit(150000)
                     .outlierSpec(),
                 outputWriterFactory};
 
