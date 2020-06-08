@@ -8,6 +8,7 @@
 #define INCLUDED_ml_maths_CBoostedTreeFactory_h
 
 #include <core/CDataFrame.h>
+#include <core/CNonCopyable.h>
 
 #include <maths/CBoostedTree.h>
 #include <maths/CDataFrameAnalysisInstrumentationInterface.h>
@@ -23,6 +24,8 @@
 namespace ml {
 namespace core {
 class CPackedBitVector;
+class CStatePersistInserter;
+class CStateRestoreTraverser;
 }
 namespace maths {
 
@@ -139,6 +142,12 @@ private:
 private:
     CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss);
 
+    //! Persist state writing to \p inserter.
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+    //! Restore readining state from \p traverser.
+    bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
     //! Compute the row masks for the missing values for each feature.
     void initializeMissingFeatureMasks(const core::CDataFrame& frame) const;
 
@@ -163,6 +172,9 @@ private:
 
     //! Set the initial values for the various hyperparameters.
     void initializeHyperparameters(core::CDataFrame& frame);
+
+    //! Setup before initializing unset hyperparameters.
+    void initializeHyperparametersSetup(core::CDataFrame& frame);
 
     //! Estimate a good central value for the regularisation hyperparameters
     //! search bounding box.
@@ -204,6 +216,29 @@ private:
     //! Start progress monitoring initializeHyperparameters.
     void startProgressMonitoringInitializeHyperparameters(const core::CDataFrame& frame);
 
+    //! Get the number of progress iterations used for a line search.
+    std::size_t lineSearchMaximumNumberIterations(const core::CDataFrame& frame,
+                                                  double etaScale = 1.0) const;
+
+    //! The maximum number of trees to use in the hyperparameter optimisation loop.
+    std::size_t mainLoopMaximumNumberTrees(double eta) const;
+
+    //! Check if we can skip \p f because initialization has passed \p stage.
+    //!
+    //! \return true if \p f was skipped.
+    //! \note F must be a callable taking no arguments. Its return value is ignored.
+    template<typename F>
+    bool skipIfAfter(int stage, const F& f);
+
+    //! Check if it is possible to skip \p f because initialization is at or after
+    //! \p stage.
+    //!
+    //! \return True if \p f was skipped.
+    //! \note If \p f is run then the state is checkpoint.
+    //! \note F must be a callable taking no arguments. Its return value is ignored.
+    template<typename F>
+    bool skipCheckpointIfAtOrAfter(int stage, const F& f);
+
     //! Skip progress monitoring for feature selection if we've restarted part
     //! way through training.
     //!
@@ -216,9 +251,6 @@ private:
     //! \note This makes sure we output that this task is complete.
     void skipProgressMonitoringInitializeHyperparameters();
 
-    //! The maximum number of trees to use in the hyperparameter optimisation loop.
-    std::size_t mainLoopMaximumNumberTrees(double eta) const;
-
     //! Stubs out persistence.
     static void noopRecordTrainingState(CBoostedTree::TPersistFunc);
 
@@ -227,6 +259,11 @@ private:
     TOptionalSize m_BayesianOptimisationRestarts;
     bool m_StratifyRegressionCrossValidation = true;
     double m_InitialDownsampleRowsPerFeature = 200.0;
+    double m_GainPerNode1stPercentile = 0.0;
+    double m_GainPerNode50thPercentile = 0.0;
+    double m_GainPerNode90thPercentile = 0.0;
+    double m_TotalCurvaturePerNode1stPercentile = 0.0;
+    double m_TotalCurvaturePerNode90thPercentile = 0.0;
     std::size_t m_NumberThreads;
     TBoostedTreeImplUPtr m_TreeImpl;
     TVector m_LogDownsampleFactorSearchInterval;
