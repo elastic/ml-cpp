@@ -38,7 +38,7 @@ public:
 private:
     void populateAnnotationObject(const std::string& jobId,
                                   const model::CAnnotation& annotation,
-                                  rapidjson::Value& doc);
+                                  rapidjson::Value& obj);
 
 private:
     //! JSON line writer

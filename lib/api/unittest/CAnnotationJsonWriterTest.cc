@@ -68,6 +68,8 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     BOOST_TEST_REQUIRE(annotation.HasMember("annotation"));
     BOOST_REQUIRE_EQUAL(std::string("annotation text"),
                         std::string(annotation["annotation"].GetString()));
+    BOOST_REQUIRE_EQUAL(std::string("model_change"),
+                        std::string(annotation["event"].GetString()));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
