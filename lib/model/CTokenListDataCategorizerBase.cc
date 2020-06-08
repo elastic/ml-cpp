@@ -213,7 +213,7 @@ bool CTokenListDataCategorizerBase::createReverseSearch(CLocalCategoryId categor
         // category ID that permits subsequent processing like asking for a
         // reverse search.
         if (categoryId.isSoftFailure() == false) {
-            LOG_ERROR(<< "Programmatic error - unexpected ML category: " << categoryId);
+            LOG_ERROR(<< "Programmatic error - unexpected ML local category: " << categoryId);
             return false;
         }
 
@@ -652,7 +652,7 @@ CTokenListDataCategorizerBase::calculateCategorizationStatus(std::size_t categor
 
 std::size_t CTokenListDataCategorizerBase::numMatches(CLocalCategoryId categoryId) {
     if (categoryId.isValid() == false || categoryId.index() >= m_Categories.size()) {
-        LOG_ERROR(<< "Programmatic error - unexpected ML category: " << categoryId);
+        LOG_ERROR(<< "Programmatic error - unexpected ML local category: " << categoryId);
         return 0;
     }
     return m_Categories[categoryId.index()].numMatches();
@@ -662,7 +662,7 @@ CDataCategorizer::TLocalCategoryIdVec
 CTokenListDataCategorizerBase::usurpedCategories(CLocalCategoryId categoryId) {
     CDataCategorizer::TLocalCategoryIdVec usurped;
     if (categoryId.isValid() == false || categoryId.index() >= m_Categories.size()) {
-        LOG_ERROR(<< "Programmatic error - unexpected ML category: " << categoryId);
+        LOG_ERROR(<< "Programmatic error - unexpected ML local category: " << categoryId);
         return usurped;
     }
     auto iter = std::find_if(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
@@ -697,7 +697,7 @@ std::size_t CTokenListDataCategorizerBase::numCategories() const {
 
 bool CTokenListDataCategorizerBase::categoryChangedAndReset(CLocalCategoryId categoryId) {
     if (categoryId.isValid() == false || categoryId.index() >= m_Categories.size()) {
-        LOG_ERROR(<< "Programmatic error - unexpected ML category: " << categoryId);
+        LOG_ERROR(<< "Programmatic error - unexpected ML local category: " << categoryId);
         return false;
     }
     return m_Categories[categoryId.index()].isChangedAndReset();

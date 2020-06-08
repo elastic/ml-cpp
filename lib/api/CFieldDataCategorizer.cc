@@ -205,7 +205,7 @@ CGlobalCategoryId CFieldDataCategorizer::computeCategory(const TStrStrUMap& data
         localCategoryId = dataCategorizer->computeCategory(
             false, dataRowFields, fieldValue, fieldValue.length());
     } else {
-        std::string filtered = m_CategorizationFilter.apply(fieldValue);
+        std::string filtered{m_CategorizationFilter.apply(fieldValue)};
         localCategoryId = dataCategorizer->computeCategory(
             false, dataRowFields, filtered, fieldValue.length());
     }
@@ -770,39 +770,34 @@ void CFieldDataCategorizer::acknowledgeFlush(const std::string& flushId, bool la
 
 void CFieldDataCategorizer::writeOutChangedCategories() {
     for (auto& dataCategorizerEntry : m_DataCategorizers) {
-        model::CDataCategorizer& dataCategorizer = *dataCategorizerEntry.second;
+        model::CDataCategorizer& dataCategorizer{*dataCategorizerEntry.second};
         std::size_t numCategories{dataCategorizer.numCategories()};
         if (numCategories == 0) {
             continue;
         }
-        std::string searchTerms;
-        std::string searchTermsRegex;
-        std::size_t maxLength;
+        const std::string& partitionFieldValue{dataCategorizerEntry.first};
+
         bool wasCached{false};
         for (std::size_t index = 0; index < numCategories; ++index) {
             model::CLocalCategoryId localCategoryId{index};
             if (dataCategorizer.categoryChangedAndReset(localCategoryId)) {
-                if (dataCategorizer.createReverseSearch(localCategoryId, searchTerms, searchTermsRegex,
-                                                        maxLength, wasCached) == false) {
-                    LOG_WARN(<< "Unable to create or retrieve reverse search for storing for category: "
-                             << m_CategoryIdMapper
-                                    ->map(dataCategorizerEntry.first, localCategoryId)
-                                    .print());
+                CGlobalCategoryId globalCategoryId{
+                    m_CategoryIdMapper->map(partitionFieldValue, localCategoryId)};
+                if (dataCategorizer.createReverseSearch(
+                        localCategoryId, m_SearchTerms, m_SearchTermsRegex,
+                        m_MaxMatchingLength, wasCached) == false) {
+                    LOG_WARN(<< "Unable to create or retrieve reverse search to store for category: "
+                             << globalCategoryId);
                     continue;
                 }
-                LOG_TRACE(<< "Writing out changed category: "
-                          << m_CategoryIdMapper
-                                 ->map(dataCategorizerEntry.first, localCategoryId)
-                                 .print());
-                CGlobalCategoryId globalCategoryId{m_CategoryIdMapper->map(
-                    dataCategorizerEntry.first, localCategoryId)};
+                LOG_TRACE(<< "Writing out changed category: " << globalCategoryId);
                 m_JsonOutputWriter.writeCategoryDefinition(
-                    m_PartitionFieldName, dataCategorizerEntry.first,
-                    globalCategoryId, searchTerms, searchTermsRegex, maxLength,
+                    m_PartitionFieldName, partitionFieldValue, globalCategoryId,
+                    m_SearchTerms, m_SearchTermsRegex, m_MaxMatchingLength,
                     dataCategorizer.examplesCollector().examples(localCategoryId),
                     dataCategorizer.numMatches(localCategoryId),
                     m_CategoryIdMapper->mapVec(
-                        dataCategorizerEntry.first,
+                        partitionFieldValue,
                         dataCategorizer.usurpedCategories(localCategoryId)));
             }
         }

@@ -39,21 +39,24 @@ class COutputHandler;
 class CPersistenceManager;
 
 //! \brief
-//! Assign categorization fields to input records.
+//! Categorize input records and add categorization fields
+//! before passing down the chain.
 //!
 //! DESCRIPTION:\n
-//! Adds a new field called mlcategory and assigns to it an
-//! integer that corresponds to the chosen cateogory.
+//! Uses the lower level categorizer in the model library to
+//! categorize input records and writes any new or changed
+//! categories to the process output.
+//!
+//! Also adds a new field called mlcategory and assigns to it
+//! an integer that corresponds to the chosen global category
+//! ID.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! When per-partition categorization is used, each lower
 //! level model library categorizer will produce category IDs
-//! starting from 1.  This class maps these such that category
-//! IDs are globally unique with the job.  The category IDs
-//! produced by the lower level model library categorizers are
-//! referred to as local category IDs, and the category IDs
-//! that are globally unique within the job are referred to as
-//! global category IDs.
+//! starting from 1, known as local category IDs.  This class
+//! maps these to category IDs thatare globally unique within
+//! the job: global category IDs.
 //!
 //! When per-partition categorization is not used, local and
 //! global category IDs are identical, as there is only one
@@ -138,6 +141,11 @@ private:
     using TCategoryExamplesCollectorsCRef =
         std::reference_wrapper<const model::CCategoryExamplesCollector>;
     using TCategoryExamplesCollectorsCRefVec = std::vector<TCategoryExamplesCollectorsCRef>;
+
+    using TStrUSet = boost::unordered_set<std::string>;
+
+    using TStrDataCategorizerPtrUMap =
+        boost::unordered_map<std::string, model::CDataCategorizer::TDataCategorizerPtr>;
 
 private:
     //! Get the appropriate categorizer key from the given input record
@@ -226,9 +234,6 @@ private:
     //! The max matching length of the current category
     std::size_t m_MaxMatchingLength = 0;
 
-    using TStrDataCategorizerPtrUMap =
-        boost::unordered_map<std::string, model::CDataCategorizer::TDataCategorizerPtr>;
-
     //! Map of categorizer by partition field value.  If per-partition
     //! categorization is disabled this map will have one entry, keyed on
     //! the empty string.
@@ -255,8 +260,6 @@ private:
     //! Number of times we have failed to allocate a lower level categorizer
     //! due to lack of memory.
     std::size_t m_CategorizerAllocationFailures = 0;
-
-    using TStrUSet = boost::unordered_set<std::string>;
 
     //! Partition field values for which categorization is completely impossible
     //! due to lack of memory.  This is used to avoid excessive logging of

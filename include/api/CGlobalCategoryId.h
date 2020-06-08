@@ -55,14 +55,6 @@ public:
                       const std::string& categorizerKey,
                       model::CLocalCategoryId localCategoryId);
 
-    //! Overload that aborts to prevent string literals being passed as the
-    //! categorizer key (since we store a pointer to the string object, which
-    //! would be a temporary if converted from const char*).  This is mainly an
-    //! aid to unit test writers.
-    [[noreturn]] CGlobalCategoryId(int globalId,
-                                   const char* categorizerKey,
-                                   model::CLocalCategoryId localCategoryId);
-
     //! Get an object representing a soft failure.
     static CGlobalCategoryId softFailure();
 
@@ -101,6 +93,15 @@ public:
     std::string print() const;
 
     friend API_EXPORT std::ostream& operator<<(std::ostream&, const CGlobalCategoryId&);
+
+private:
+    //! Overload that aborts to prevent string literals being passed as the
+    //! categorizer key (since we store a pointer to the string object, which
+    //! would be a temporary if converted from const char*).  This is mainly an
+    //! aid to unit test writers.
+    [[noreturn]] CGlobalCategoryId(int globalId,
+                                   const char* categorizerKey,
+                                   model::CLocalCategoryId localCategoryId);
 
 private:
     //! The numeric global ID.
