@@ -561,7 +561,7 @@ void CPeriodicityHypothesisTestsResult::trend(CTrendHypothesis value) {
     m_Trend = value;
 }
 
-void CPeriodicityHypothesisTestsResult::removeTrend(TFloatMeanAccumulatorVec& values) const {
+void CPeriodicityHypothesisTestsResult::removeTrendFrom(TFloatMeanAccumulatorVec& values) const {
     if (m_Trend.type() == CTrendHypothesis::E_Linear) {
         removeLinearTrend(values);
     } else if (m_Trend.type() == CTrendHypothesis::E_PiecewiseLinear) {
@@ -570,7 +570,7 @@ void CPeriodicityHypothesisTestsResult::removeTrend(TFloatMeanAccumulatorVec& va
     }
 }
 
-void CPeriodicityHypothesisTestsResult::removeDiscontinuities(TFloatMeanAccumulatorVec& values) const {
+void CPeriodicityHypothesisTestsResult::removeDiscontinuitiesFrom(TFloatMeanAccumulatorVec& values) const {
     if (m_Trend.type() == CTrendHypothesis::E_PiecewiseLinear) {
         TSizeVec segmentation(CTimeSeriesSegmentation::piecewiseLinear(values));
         values = CTimeSeriesSegmentation::removePiecewiseLinearDiscontinuities(
@@ -2369,6 +2369,32 @@ CPeriodicityHypothesisTests::CNestedHypotheses::CBuilder::finishedNested() {
 
 namespace {
 
+//! Apply selection bias for known common periods.
+//!
+//! The estimated repeat can be in error. The larger the error the less effective
+//! the modelling will be, since the pattern will precess over time. We therefore
+//! bias towards selecting known common periods by applying a multiplier > 1 to
+//! their correlation.
+double applySelectionBias(std::size_t periodBuckets, core_t::TTime bucketLength, double correlation) {
+    // Daily and weekly periods are explicitly handled when testing for periodicity
+    // and we add calendar predictive features to deal with cyclic monthly effects.
+    // This therefore only biases for annual periodicity.
+    core_t::TTime period{static_cast<core_t::TTime>(periodBuckets) * bucketLength};
+    if (std::abs(period - core::constants::YEAR) <= bucketLength) {
+        return 1.1 * correlation;
+    }
+    return correlation;
+}
+
+//! If the period is close snap it to a common period.
+core_t::TTime selectPeriod(std::size_t periodBuckets, core_t::TTime bucketLength) {
+    core_t::TTime period{static_cast<core_t::TTime>(periodBuckets) * bucketLength};
+    if (std::abs(period - core::constants::YEAR) <= bucketLength) {
+        return core::constants::YEAR;
+    }
+    return period;
+}
+
 //! Compute the mean of the autocorrelation for \f${P, 2P, ...}\f$
 //! where \f$P\f$ is \p period.
 double meanAutocorrelationForPeriodicOffsets(const TDoubleVec& correlations,
@@ -2387,7 +2413,8 @@ double meanAutocorrelationForPeriodicOffsets(const TDoubleVec& correlations,
 
 //! Find the single periodic component which explains the most
 //! cyclic autocorrelation.
-std::size_t mostSignificantPeriodicComponent(TFloatMeanAccumulatorVec values) {
+std::size_t mostSignificantPeriodicComponent(core_t::TTime bucketLength,
+                                             TFloatMeanAccumulatorVec values) {
     using TDoubleSizePr = std::pair<double, std::size_t>;
     using TMaxAccumulator =
         CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr, std::greater<TDoubleSizePr>>;
@@ -2410,10 +2437,12 @@ std::size_t mostSignificantPeriodicComponent(TFloatMeanAccumulatorVec values) {
     // periodic.
     TMaxAccumulator candidates(15);
     correlations.resize(pad);
-    for (std::size_t p = 4u; p < correlations.size(); ++p) {
-        double correlation{meanAutocorrelationForPeriodicOffsets(correlations, n, p)};
-        LOG_TRACE(<< "correlation(" << p << ") = " << correlation);
-        candidates.add({correlation, p});
+    for (std::size_t period = 4; period < correlations.size(); ++period) {
+        double correlation{applySelectionBias(
+            period, bucketLength,
+            meanAutocorrelationForPeriodicOffsets(correlations, n, period))};
+        LOG_TRACE(<< "correlation(" << period << ") = " << correlation);
+        candidates.add({correlation, period});
     }
 
     // Sort by decreasing cyclic autocorrelation.
@@ -2422,9 +2451,11 @@ std::size_t mostSignificantPeriodicComponent(TFloatMeanAccumulatorVec values) {
         candidates.begin(), candidates.end(), candidatePeriods.begin(),
         [](const TDoubleSizePr& candidate_) { return candidate_.second; });
     candidates.clear();
-    for (const auto period : candidatePeriods) {
+    for (const auto& period : candidatePeriods) {
         TFloatMeanAccumulatorCRng window(values, 0, period * (n / period));
-        candidates.add({CSignal::autocorrelation(period, window), period});
+        candidates.add({applySelectionBias(period, bucketLength,
+                                           CSignal::autocorrelation(period, window)),
+                        period});
     }
     candidates.sort();
     LOG_TRACE(<< "candidate periods = " << candidates.print());
@@ -2453,9 +2484,9 @@ testForPeriods(const CPeriodicityHypothesisTestsConfig& config,
 
     // Find the single periodic component which explains the
     // most cyclic autocorrelation.
-    std::size_t period_{mostSignificantPeriodicComponent(values)};
+    std::size_t periodBuckets{mostSignificantPeriodicComponent(bucketLength, values)};
     core_t::TTime windowLength{static_cast<core_t::TTime>(values.size()) * bucketLength};
-    core_t::TTime period{static_cast<core_t::TTime>(period_) * bucketLength};
+    core_t::TTime period{selectPeriod(periodBuckets, bucketLength)};
     LOG_TRACE(<< "bucket length = " << bucketLength << ", windowLength = " << windowLength
               << ", periods to test = " << period << ", # values = " << values.size());
 

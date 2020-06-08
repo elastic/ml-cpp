@@ -109,10 +109,10 @@ public:
     void trend(CTrendHypothesis value);
 
     //! Fit and remove the appropriate trend from \p values.
-    void removeTrend(TFloatMeanAccumulatorVec& values) const;
+    void removeTrendFrom(TFloatMeanAccumulatorVec& values) const;
 
     //! Remove any discontinuities in \p values.
-    void removeDiscontinuities(TFloatMeanAccumulatorVec& values) const;
+    void removeDiscontinuitiesFrom(TFloatMeanAccumulatorVec& values) const;
 
     //! Check if there are any periodic components.
     bool periodic() const;

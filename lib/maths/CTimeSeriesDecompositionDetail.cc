@@ -270,6 +270,10 @@ const std::string VERSION_6_3_TAG("6.3");
 const std::string VERSION_6_4_TAG("6.4");
 
 // Periodicity Test Tags
+// Version 7.9
+const core::TPersistenceTag SHORT_WINDOW_7_9_TAG{"e", "short_window_7_9"};
+const core::TPersistenceTag LONG_WINDOW_7_9_TAG{"f", "long_window_7_9"};
+// Version 7.2
 const core::TPersistenceTag LINEAR_SCALES_7_2_TAG{"d", "linear_scales"};
 // Version 6.3
 const core::TPersistenceTag PERIODICITY_TEST_MACHINE_6_3_TAG{"a", "periodicity_test_machine"};
@@ -472,13 +476,130 @@ std::size_t CTimeSeriesDecompositionDetail::CMediator::memoryUsage() const {
 
 //////// CPeriodicityTest ////////
 
+namespace {
+
+using TTimeTimeVecPrVec = std::vector<std::pair<core_t::TTime, TTimeVec>>;
+
+//! \brief Manages the choice of the tests' window parameters as a function
+//! of the job's bucket length.
+//!
+//! DESCRIPTION:\n
+//! The exact choice of window parameters is a tradeoff between the number
+//! of points used in the test and how quickly it finds periodic components.
+//! The fewer points the higher the chance of the false positives, but for
+//! long bucket lengths using many buckets means it takes a long time to
+//! find significant periodic components.
+class CPeriodicityTestWindowParameters {
+public:
+    static core_t::TTime maxBucketLength() { return 604800; }
+
+    static std::size_t numberBuckets(int window, core_t::TTime bucketLength) {
+        auto result = windowParameters(window, bucketLength);
+        return result != nullptr ? result->s_NumberBuckets : 0;
+    }
+
+    static const TTimeVec* bucketLengths(int window, core_t::TTime bucketLength) {
+        auto result = windowParameters(window, bucketLength);
+        return result != nullptr ? &result->s_BucketLengths : nullptr;
+    }
+
+    static const TTimeVec& testSchedule(int window, core_t::TTime bucketLength) {
+        return windowParameters(window, bucketLength)->s_TestSchedule;
+    }
+
+    static core_t::TTime shortestComponent(int window, core_t::TTime bucketLength) {
+        return windowParameters(window, bucketLength)->s_ShortestComponent;
+    }
+
+private:
+    struct SParameters {
+        SParameters() = default;
+        SParameters(core_t::TTime bucketLength,
+                    core_t::TTime shortestComponent,
+                    std::size_t numberBuckets,
+                    const std::initializer_list<core_t::TTime>& bucketLengths,
+                    const std::initializer_list<core_t::TTime>& testSchedule)
+            : s_BucketLength{bucketLength}, s_ShortestComponent{shortestComponent},
+              s_NumberBuckets{numberBuckets}, s_BucketLengths{bucketLengths}, s_TestSchedule{testSchedule} {
+        }
+        bool operator<(core_t::TTime rhs) const { return s_BucketLength < rhs; }
+
+        core_t::TTime s_BucketLength = 0;
+        core_t::TTime s_ShortestComponent = 0;
+        std::size_t s_NumberBuckets = 0;
+        TTimeVec s_BucketLengths;
+        TTimeVec s_TestSchedule;
+    };
+    using TParametersVecVec = std::vector<std::vector<SParameters>>;
+    using TTimeParametersUMap = boost::unordered_map<core_t::TTime, SParameters>;
+
+private:
+    static const SParameters* windowParameters(int window, core_t::TTime bucketLength) {
+        auto result = std::lower_bound(WINDOW_PARAMETERS[window].begin(),
+                                       WINDOW_PARAMETERS[window].end(), bucketLength);
+        return result != WINDOW_PARAMETERS[window].end() ? &(*result) : nullptr;
+    }
+
+private:
+    static const TParametersVecVec WINDOW_PARAMETERS;
+};
+
+// These parameterise the windows used to test for periodic components. From
+// left to right the parameters are:
+//   1. The job bucket length,
+//   2. The minimum period seasonal component we'll accept testing on the window,
+//   3. The number buckets in the window,
+//   4. The bucket lengths we'll cycle through as we test progressively longer
+//      windows,
+//   5. The times, in addition to "number buckets" * "window bucket lengths",
+//      when we'll test for seasonal components.
+const CPeriodicityTestWindowParameters::TParametersVecVec CPeriodicityTestWindowParameters::WINDOW_PARAMETERS{
+    {/*  SHORT WINDOW  */
+     {1, 1, 336, {1, 5, 10, 30, 60}, {}},
+     {5, 1, 336, {5, 10, 30, 60, 300}, {}},
+     {10, 1, 336, {10, 30, 60, 300, 600}, {}},
+     {30, 1, 336, {30, 60, 300, 600, 1800}, {3 * 86400}},
+     {60, 1, 336, {60, 300, 600, 1800, 3600}, {3 * 86400}},
+     {300, 1, 336, {300, 600, 1800, 3600}, {3 * 86400}},
+     {600, 1, 336, {600, 1800, 3600}, {3 * 86400}},
+     {900, 1, 336, {900, 1800, 3600, 7200}, {3 * 86400}},
+     {1200, 1, 336, {1200, 3600, 7200}, {3 * 86400}},
+     {1800, 1, 336, {1800, 3600, 7200}, {3 * 86400}},
+     {3600, 1, 336, {3600, 7200}, {3 * 86400, 7 * 86400}},
+     {7200, 1, 336, {7200}, {3 * 86400, 7 * 86400}},
+     {14400, 1, 168, {14400}, {7 * 86400, 21 * 86400}},
+     {21600, 1, 112, {21600}, {7 * 86400, 21 * 86400}},
+     {28800, 1, 84, {28800}, {21 * 86400}},
+     {43200, 1, 56, {43200}, {28 * 86400}},
+     {86400, 1, 56, {86400}, {}}},
+    /*  LONG WINDOW  */
+    {{1, 86401, 336, {600, 1800, 3600, 7200}, {3 * 86400}},
+     {5, 86401, 336, {1800, 3600, 7200}, {3 * 86400}},
+     {10, 86401, 336, {3600, 7200}, {3 * 86400, 7 * 86400}},
+     {30, 86401, 336, {3600, 7200}, {3 * 86400, 7 * 86400}},
+     {60, 86401, 336, {7200}, {21 * 86400}},
+     {300, 86401, 336, {7200, 14400}, {21 * 86400}},
+     {600, 86401, 336, {7200, 14400}, {21 * 86400}},
+     {900, 604801, 365, {7200, 14400, 28800, 86400, 259200}, {}},
+     {1200, 604801, 365, {7200, 14400, 28800, 86400, 259200}, {}},
+     {1800, 604801, 365, {14400, 28800, 86400, 259200}, {}},
+     {3600, 604801, 365, {14400, 28800, 86400, 259200}, {}},
+     {7200, 604801, 365, {14400, 28800, 86400, 259200}, {}},
+     {14400, 604801, 365, {28800, 86400, 259200}, {}},
+     {28800, 604801, 365, {86400, 259200}, {}},
+     {43200, 604801, 365, {86400, 259200}, {}},
+     {86400, 604801, 365, {86400, 259200}, {}},
+     {604800, 604801, 365, {604800}, {168 * 604800}}}};
+}
+
 CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(double decayRate,
                                                                    core_t::TTime bucketLength)
     : m_Machine{core::CStateMachine::create(
           PT_ALPHABET,
           PT_STATES,
           PT_TRANSITION_FUNCTION,
-          bucketLength > LONGEST_BUCKET_LENGTH ? PT_NOT_TESTING : PT_INITIAL)},
+          bucketLength > CPeriodicityTestWindowParameters::maxBucketLength() ? PT_NOT_TESTING
+                                                                             : PT_INITIAL)},
       m_DecayRate{decayRate}, m_BucketLength{bucketLength} {
 }
 
@@ -502,14 +623,19 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::acceptRestoreTraverser(
                 traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
                     return m_Machine.acceptRestoreTraverser(traverser_);
                 }))
+        // The intention is to discard the short and long windows after reloading
+        // state saved before 7.9. Although their format hasn't changed, they use
+        // old parameters which aren't compatible with the changes to this class.
+        RESTORE_NO_ERROR(SHORT_WINDOW_6_3_TAG, m_Windows[E_Short] = this->newWindow(E_Short))
+        RESTORE_NO_ERROR(LONG_WINDOW_6_3_TAG, m_Windows[E_Long] = this->newWindow(E_Long))
         RESTORE_SETUP_TEARDOWN(
-            SHORT_WINDOW_6_3_TAG, m_Windows[E_Short].reset(this->newWindow(E_Short)),
+            SHORT_WINDOW_7_9_TAG, m_Windows[E_Short] = this->newWindow(E_Short),
             m_Windows[E_Short] && traverser.traverseSubLevel(std::bind(
                                       &CExpandingWindow::acceptRestoreTraverser,
                                       m_Windows[E_Short].get(), std::placeholders::_1)),
             /**/)
         RESTORE_SETUP_TEARDOWN(
-            LONG_WINDOW_6_3_TAG, m_Windows[E_Long].reset(this->newWindow(E_Long)),
+            LONG_WINDOW_7_9_TAG, m_Windows[E_Long] = this->newWindow(E_Long),
             m_Windows[E_Long] && traverser.traverseSubLevel(std::bind(
                                      &CExpandingWindow::acceptRestoreTraverser,
                                      m_Windows[E_Long].get(), std::placeholders::_1)),
@@ -526,12 +652,12 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::acceptPersistInserter(
                          std::bind(&core::CStateMachine::acceptPersistInserter,
                                    &m_Machine, std::placeholders::_1));
     if (m_Windows[E_Short] != nullptr) {
-        inserter.insertLevel(SHORT_WINDOW_6_3_TAG,
+        inserter.insertLevel(SHORT_WINDOW_7_9_TAG,
                              std::bind(&CExpandingWindow::acceptPersistInserter,
                                        m_Windows[E_Short].get(), std::placeholders::_1));
     }
     if (m_Windows[E_Long] != nullptr) {
-        inserter.insertLevel(LONG_WINDOW_6_3_TAG,
+        inserter.insertLevel(LONG_WINDOW_7_9_TAG,
                              std::bind(&CExpandingWindow::acceptPersistInserter,
                                        m_Windows[E_Long].get(), std::placeholders::_1));
     }
@@ -606,8 +732,9 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
                 core_t::TTime bucketLength{window->bucketLength()};
                 CPeriodicityHypothesisTestsResult result{
                     testForPeriods(config, start, bucketLength, values)};
-                result.remove([i](const CPeriodicityHypothesisTestsResult::SComponent& component) {
-                    return i == E_Long && component.s_Period <= WEEK;
+                result.remove([&](const CPeriodicityHypothesisTestsResult::SComponent& component) {
+                    return component.s_Period <
+                           CPeriodicityTestWindowParameters::shortestComponent(i, m_BucketLength);
                 });
 
                 if (result.periodic()) {
@@ -693,7 +820,7 @@ std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::extraMemoryOnIniti
     static std::size_t result{0};
     if (result == 0) {
         for (auto i : {E_Short, E_Long}) {
-            TExpandingWindowPtr window(this->newWindow(i, false));
+            auto window = this->newWindow(i, false);
             // The 0.3 is a rule-of-thumb estimate of the worst case
             // compression ratio we achieve on the test state.
             result += static_cast<std::size_t>(
@@ -717,7 +844,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
 
         auto initialize = [this](core_t::TTime time_) {
             for (auto i : {E_Short, E_Long}) {
-                m_Windows[i].reset(this->newWindow(i));
+                m_Windows[i] = this->newWindow(i);
                 if (m_Windows[i] != nullptr) {
                     // Since all permitted bucket lengths are divisors
                     // of longer ones, this finds the unique rightmost
@@ -738,9 +865,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
         switch (state) {
         case PT_TEST:
             if (std::all_of(m_Windows.begin(), m_Windows.end(),
-                            [](const TExpandingWindowPtr& window) {
-                                return window == nullptr;
-                            })) {
+                            [](const auto& window) { return window == nullptr; })) {
                 initialize(time);
             }
             break;
@@ -759,55 +884,23 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
     }
 }
 
-CExpandingWindow*
+CTimeSeriesDecompositionDetail::CPeriodicityTest::TExpandingWindowUPtr
 CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test, bool deflate) const {
 
     using TTimeCRng = CExpandingWindow::TTimeCRng;
 
-    // The choice of 336 is somewhat arbitrary since we scan over a
-    // range of bucket lengths so consider multiple window durations.
-    // However, this is divisible by 6 and is the number of hours in
-    // two weeks. Together with the bucket lengths we use this means
-    // we will typically get window lengths which are a whole number
-    // of hours and are usually a multiple of one weeks. The testing
-    // makes the best use of data when the true period is a divisor
-    // of the window length and this improves the odds for the most
-    // common seasonalities we observe.
-    static const core_t::TTime TARGET_SIZE{336};
-    static const TTimeVec SHORT{1,    5,    10,   30,    60,    300,  600,
-                                1800, 3600, 7200, 21600, 43200, 86400};
-    static const TTimeVec LONG{7200,  21600,  43200,
-                               86400, 172800, LONGEST_BUCKET_LENGTH};
+    std::size_t numberBuckets{
+        CPeriodicityTestWindowParameters::numberBuckets(test, m_BucketLength)};
+    const TTimeVec* bucketLengths{
+        CPeriodicityTestWindowParameters::bucketLengths(test, m_BucketLength)};
 
-    auto newWindow = [&](const TTimeVec& buckets, core_t::TTime maxLength) {
-        if (m_BucketLength <= buckets.back()) {
-            // Find the next longer permitted bucket length.
-            auto a = std::lower_bound(buckets.begin(), buckets.end(), m_BucketLength);
-            // Compute the window length in buckets which doesn't exceed
-            // the maximum length and is great than the minimum number of
-            // buckets to test.
-            core_t::TTime size{
-                std::min(TARGET_SIZE, maxLength / buckets[a - buckets.begin()])};
-            // Find the longest bucket length such that the window length
-            // doesn't exceed the maximum length.
-            auto b = std::find_if(a + 1, buckets.end(), [&](core_t::TTime l) {
-                return size * l > maxLength;
-            });
-            return new CExpandingWindow(
-                m_BucketLength,
-                TTimeCRng(buckets, a - buckets.begin(), b - buckets.begin()),
-                size, m_DecayRate, deflate);
-        }
-        return static_cast<CExpandingWindow*>(nullptr);
-    };
-
-    switch (test) {
-    case E_Short:
-        return newWindow(SHORT, 7200 * TARGET_SIZE);
-    case E_Long:
-        return newWindow(LONG, LONGEST_BUCKET_LENGTH * TARGET_SIZE);
+    if (bucketLengths != nullptr) {
+        return std::make_unique<CExpandingWindow>(
+            m_BucketLength, TTimeCRng{*bucketLengths, 0, bucketLengths->size()},
+            numberBuckets, m_DecayRate, deflate);
     }
-    return nullptr;
+
+    return {};
 }
 
 bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
@@ -816,12 +909,11 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
     // would significantly delay when we first detect short periodic
     // components for longer bucket lengths otherwise.
     auto scheduledTest = [&]() {
-        if (test == E_Short) {
-            core_t::TTime length{time - m_Windows[test]->startTime()};
-            for (auto schedule : {3 * DAY, 1 * WEEK, 2 * WEEK}) {
-                if (length >= schedule && length < schedule + m_BucketLength) {
-                    return true;
-                }
+        core_t::TTime length{time - m_Windows[test]->startTime()};
+        for (auto schedule :
+             CPeriodicityTestWindowParameters::testSchedule(test, m_BucketLength)) {
+            if (length >= schedule && length < schedule + m_BucketLength) {
+                return true;
             }
         }
         return false;
@@ -858,8 +950,6 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::pruneLinearScales() {
                                         }),
                          m_LinearScales.end());
 }
-
-const core_t::TTime CTimeSeriesDecompositionDetail::CPeriodicityTest::LONGEST_BUCKET_LENGTH{345600};
 
 //////// CCalendarCyclic ////////
 
@@ -1593,7 +1683,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
                        [](const TFloatMeanAccumulator& value) {
                            return CBasicStatistics::mean(value);
                        });
-        result.removeTrend(values);
+        result.removeTrendFrom(values);
         TFloatMeanAccumulator level{std::accumulate(values.begin(), values.end(),
                                                     TFloatMeanAccumulator{})};
         for (std::size_t i = 0; i < shifts.size(); ++i) {
@@ -1673,7 +1763,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
         }
 
         values = window.valuesMinusPrediction(predictor);
-        result.removeDiscontinuities(values);
+        result.removeDiscontinuitiesFrom(values);
         CTrendComponent newTrend{m_Trend.defaultDecayRate()};
         this->fitTrend(startTime, dt, values, newTrend);
         this->reweightOutliers(startTime, dt,

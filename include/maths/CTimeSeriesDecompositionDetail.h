@@ -239,13 +239,8 @@ public:
     private:
         using TTimeDoublePr = std::pair<core_t::TTime, double>;
         using TTimeDoublePrVec = std::vector<std::pair<core_t::TTime, double>>;
-        using TExpandingWindowPtr = std::unique_ptr<CExpandingWindow>;
-        using TExpandingWindowPtrAry = std::array<TExpandingWindowPtr, 2>;
-
-    private:
-        //! The longest bucket length at which we'll test for periodic
-        //! components.
-        static const core_t::TTime LONGEST_BUCKET_LENGTH;
+        using TExpandingWindowUPtr = std::unique_ptr<CExpandingWindow>;
+        using TExpandingWindowPtrAry = std::array<TExpandingWindowUPtr, 2>;
 
     private:
         //! Handle \p symbol.
@@ -255,7 +250,7 @@ public:
         bool shouldTest(ETest test, core_t::TTime time) const;
 
         //! Get a new \p test. (Warning: this is owned by the caller.)
-        CExpandingWindow* newWindow(ETest test, bool deflate = true) const;
+        TExpandingWindowUPtr newWindow(ETest test, bool deflate = true) const;
 
         //! Account for memory that is not allocated by initialisation.
         std::size_t extraMemoryOnInitialization() const;

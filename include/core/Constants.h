@@ -25,17 +25,21 @@ const core_t::TTime HOUR{3600};
 //! A day in seconds.
 const core_t::TTime DAY{86400};
 
-//! A (two day) weekend in seconds.
+//! Two days in seconds.
 const core_t::TTime WEEKEND{172800};
 
-//! Five weekdays in seconds.
+//! Five days in seconds.
 const core_t::TTime WEEKDAYS{432000};
 
 //! A week in seconds.
 const core_t::TTime WEEK{604800};
 
-//! A (364 day) year in seconds.
-const core_t::TTime YEAR{31449600};
+//! 365 days in seconds.
+//!
+//! Note that this doesn't use the more standard 365.2425 days average length
+//! of a Gregorian year because things work out slightly better if it is a
+//! multiple time series bucket length.
+const core_t::TTime YEAR{31536000};
 
 //! Log of min double.
 const double LOG_MIN_DOUBLE{std::log(std::numeric_limits<double>::min())};
