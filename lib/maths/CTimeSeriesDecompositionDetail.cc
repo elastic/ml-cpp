@@ -1289,6 +1289,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
         if (testForTrend && this->shouldUseTrendForPrediction()) {
             LOG_DEBUG(<< "Detected trend at " << time);
             m_ComponentChangeCallback({});
+            m_ModelAnnotationCallback(time, "Detected trend");
         }
     } break;
     case SC_DISABLED:
