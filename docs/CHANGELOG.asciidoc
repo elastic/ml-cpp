@@ -39,6 +39,11 @@
 
 == {es} version 7.9.0
 
+=== New Features
+
+* Add an option to do categorization independently for each partition.
+  (See {ml-pull}1293[#1293] and {pull}57683[#57683].)
+
 === Enhancements
 
 * Add support for larger forecasts in memory via max_model_memory setting.
