@@ -248,7 +248,7 @@ counter_t::ECounterTypes CDataFrameTrainBoostedTreeInstrumentation::memoryCounte
 
 void CDataFrameOutliersInstrumentation::writeAnalysisStats(std::int64_t timestamp) {
     auto writer = this->writer();
-    if (writer != nullptr) {
+    if (writer != nullptr && m_AnalysisStatsInitialized == true) {
         writer->Key(OUTLIER_DETECTION_STATS);
         writer->StartObject();
         writer->Key(JOB_ID_TAG);
@@ -271,6 +271,9 @@ void CDataFrameOutliersInstrumentation::writeAnalysisStats(std::int64_t timestam
 }
 
 void CDataFrameOutliersInstrumentation::parameters(const maths::COutliers::SComputeParameters& parameters) {
+    if (m_AnalysisStatsInitialized == false) {
+        m_AnalysisStatsInitialized = true;
+    }
     m_Parameters = parameters;
 }
 
@@ -323,6 +326,9 @@ void CDataFrameTrainBoostedTreeInstrumentation::type(EStatsType type) {
 }
 
 void CDataFrameTrainBoostedTreeInstrumentation::iteration(std::size_t iteration) {
+    if (m_AnalysisStatsInitialized == false) {
+        m_AnalysisStatsInitialized = true;
+    }
     m_Iteration = iteration;
 }
 
@@ -342,7 +348,7 @@ void CDataFrameTrainBoostedTreeInstrumentation::lossValues(std::size_t fold,
 
 void CDataFrameTrainBoostedTreeInstrumentation::writeAnalysisStats(std::int64_t timestamp) {
     auto* writer = this->writer();
-    if (writer != nullptr) {
+    if (writer != nullptr && m_AnalysisStatsInitialized == true) {
         switch (m_Type) {
         case E_Regression:
             writer->Key(REGRESSION_STATS_TAG);

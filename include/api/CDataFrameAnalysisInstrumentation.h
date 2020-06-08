@@ -161,6 +161,7 @@ private:
     maths::COutliers::SComputeParameters m_Parameters;
     std::uint64_t m_ElapsedTime;
     double m_FeatureInfluenceThreshold = -1.0;
+    bool m_AnalysisStatsInitialized = false;
 };
 
 //! \brief Instrumentation class for Supervised Learning jobs.
@@ -206,6 +207,7 @@ private:
     std::size_t m_Iteration = 0;
     std::uint64_t m_IterationTime = 0;
     std::uint64_t m_ElapsedTime = 0;
+    bool m_AnalysisStatsInitialized = false;
     std::string m_LossType;
     TLossVec m_LossValues;
     SHyperparameters m_Hyperparameters;
