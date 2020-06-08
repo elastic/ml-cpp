@@ -26,18 +26,17 @@ namespace api {
 //! This mapper is designed for jobs that do per-partition
 //! categorization.
 //!
-//! A multi-index stores the mapping so that it can work
-//! both ways without data duplication.
+//! The mappings are stored in the form of a map from
+//! partition field value to a vector of global IDs that is
+//! stored ordered by local ID.  Since local ID is vector
+//! index plus one in vectors of all local IDs this means
+//! that the ID part of the lookup just involves getting the
+//! element at the desired index from the vector.
 //!
-//! Although we expect global IDs to run continuously from
-//! 1 to the maximum category ID, the multi-index uses an
-//! ordered tree rather than random access for the global
-//! ID index.  This means that if we decide to completely
-//! discard partitions in the future then the data structure
-//! and persistence mechanism will support this.  For the
-//! same reason the highest ever global ID is stored
-//! separately instead of being obtained from the end of
-//! the global ID index.
+//! The highest ever global ID is stored separately to the
+//! main mapping data structure so that if we decide to
+//! completely discard partitions in the future then the
+//! data structure and persistence mechanism will support this.
 //!
 //! This class is not thread-safe.  Each object should only
 //! be used within a single thread.
