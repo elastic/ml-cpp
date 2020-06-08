@@ -70,17 +70,24 @@ const std::string PROGRESS_PERCENT{"progress_percent"};
 const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
                                               << ((sizeof(std::size_t) - 2) * 8)};
 
-std::string bytesToMbString(double bytes) {
+std::string bytesToString(double value) {
     std::ostringstream stream;
     stream << std::fixed;
     stream << std::setprecision(3);
-    stream << (bytes / 1048576);
+    value /= 1024;
+    if (value < 1000) {
+        stream << value;
+        stream << " kb";
+        return stream.str();
+    }
+    value /= 1024;
+    stream << value;
     stream << " mb";
     return stream.str();
 }
 
-std::string bytesToMbString(std::int64_t bytes) {
-    return bytesToMbString(static_cast<double>(bytes));
+std::string bytesToString(std::int64_t bytes) {
+    return bytesToString(static_cast<double>(bytes));
 }
 }
 
@@ -174,9 +181,9 @@ void CDataFrameAnalysisInstrumentation::monitor(const CDataFrameAnalysisInstrume
         }
         if (instrumentation.memory() > instrumentation.m_MemoryLimit) {
             HANDLE_FATAL(<< "Input error: required memory "
-                         << bytesToMbString(instrumentation.memory()) << " exceeds the memory limit "
-                         << bytesToMbString(instrumentation.m_MemoryLimit) << ". Please increase the limit to at least "
-                         << bytesToMbString(static_cast<double>(instrumentation.m_MemoryLimit) * MEMORY_LIMIT_INCREMENT)
+                         << bytesToString(instrumentation.memory()) << " exceeds the memory limit "
+                         << bytesToString(instrumentation.m_MemoryLimit) << ". Please increase the limit to at least "
+                         << bytesToString(static_cast<double>(instrumentation.memory()) * MEMORY_LIMIT_INCREMENT)
                          << " and restart.");
         }
 

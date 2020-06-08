@@ -365,6 +365,44 @@ BOOST_AUTO_TEST_CASE(testMissingString) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testMemoryLimitHandling) {
+    TStrVec errors;
+    auto errorHandler = [&errors](std::string error) { errors.push_back(error); };
+    core::CLogger::CScopeSetFatalErrorHandler scope{errorHandler};
+
+    // Test the results the analyzer produces match running the regression directly.
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    TDoubleVec expectedPredictions;
+
+    TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "", "0", ""};
+    api::CDataFrameAnalyzer analyzer{
+        test::CDataFrameAnalysisSpecificationFactory{}.memoryLimit(1000).predictionSpec(
+            test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
+        outputWriterFactory};
+    test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
+        TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer,
+        expectedPredictions);
+
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+
+    LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+    BOOST_TEST_REQUIRE(errors.size() > 0);
+    bool memoryLimitExceed{false};
+    for (const auto& error : errors) {
+        if (error.find("Input error: required memory") != std::string::npos) {
+            memoryLimitExceed = true;
+            break;
+        }
+    }
+    BOOST_TEST_REQUIRE(memoryLimitExceed);
+}
+
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
 
     // Test the results the analyzer produces match running the regression directly.

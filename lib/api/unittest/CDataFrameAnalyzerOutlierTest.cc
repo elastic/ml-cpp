@@ -511,6 +511,31 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_TEST_REQUIRE(errors.size() > 0);
         BOOST_REQUIRE_EQUAL(std::string{"Input error: no data sent."}, errors[0]);
     }
+
+    // Memory limit exceeded.
+    {
+        errors.clear();
+        api::CDataFrameAnalyzer analyzer{
+            test::CDataFrameAnalysisSpecificationFactory{}.memoryLimit(10000).outlierSpec(),
+            outputWriterFactory};
+        TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+        TStrVec fieldValues{"", "", "", "", "", "0", ""};
+        TDoubleVec expectedScores;
+        TDoubleVecVec expectedFeatureInfluences;
+        addOutlierTestData(fieldNames, fieldValues, analyzer, expectedScores,
+                           expectedFeatureInfluences, 100, 10);
+        analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        BOOST_TEST_REQUIRE(errors.size() > 0);
+        bool memoryLimitExceed{false};
+        for (const auto& error : errors) {
+            if (error.find("Input error: required memory") != std::string::npos) {
+                memoryLimitExceed = true;
+                break;
+            }
+        }
+        BOOST_TEST_REQUIRE(memoryLimitExceed);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testRoundTripDocHashes) {
