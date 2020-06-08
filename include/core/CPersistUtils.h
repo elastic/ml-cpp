@@ -334,7 +334,7 @@ public:
         mutable std::string m_Token;
     };
 
-    //! Restore \p collection reading state from \p inserter expecting \p tag for elements.
+    //! Restore \p collection reading state from \p traverser expecting \p tag for elements.
     template<typename T>
     static bool restore(const std::string& tag, T& collection, CStateRestoreTraverser& traverser) {
         return persist_utils_detail::restore(tag, collection, traverser);
