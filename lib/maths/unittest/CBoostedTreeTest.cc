@@ -1668,7 +1668,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
 BOOST_AUTO_TEST_CASE(testPersistRestoreDuringInitialization) {
 
     // Grab checkpoints during initialization and check they all produce the
-    // same result after restoring.
+    // same initialized tree after restoring.
 
     using TSStreamVec = std::vector<std::stringstream>;
 
@@ -1723,6 +1723,9 @@ BOOST_AUTO_TEST_CASE(testPersistRestoreDuringInitialization) {
         boostedTree->acceptPersistInserter(inserter);
         expectedState.flush();
     }
+
+    // Make sure this test fails if there aren't any checkpoints.
+    BOOST_TEST_REQUIRE(checkpoints.size() > 0);
 
     for (auto& checkpoint : checkpoints) {
         auto frame = makeFrame();
