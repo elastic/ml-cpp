@@ -327,7 +327,7 @@ bool parallel_for_each(std::size_t start,
     // in order of increasing complexity and decreasing pessimism are:
     //   1) Execute sequentially if there are any tasks in the thread pool, we then
     //      won't wait here and nothing will block in the queue,
-    //   2) Assign tasks a priority and ensure in the queue that tasks are execute
+    //   2) Assign tasks a priority and ensure in the queue that tasks are executed
     //      in priority order. Then we can assign these tasks "highest priority in
     //      queue" + 1.
     //

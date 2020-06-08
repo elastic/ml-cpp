@@ -239,7 +239,8 @@ private:
 //! minimises regularised cross entropy loss w.r.t. the actual classes.
 //!
 //! DESCRIPTION:\n
-//! We want to find the weight which minimizes the log-loss, i.e. which satisfies
+//! We want to find the weight which minimizes the cross entropy, i.e. which
+//! satisfies:
 //! <pre class="fragment">
 //!   \f$\displaystyle arg\min_w{ \lambda \|w\|^2 -\sum_i{ \log([softmax(p_i + w)]_{a_i}) } }\f$
 //! </pre>
@@ -254,7 +255,7 @@ private:
 //!
 //! Here, \f$P\f$ ranges over the subsets of the partition, \f$\bar{p}_P\f$ denotes
 //! the mean of the predictions in the P'th subset and \f$c_{a_i, P}\f$ denote the
-//! counts of each classes \f$\{a_i\}\f$ in the subset \f$P\f$. We compute this
+//! counts of each classes \f$\{a_i\}\f$ in the P'th subset. We compute this
 //! partition via a weighted random sample where the weights are proportional to
 //! the mean distance between each point and the rest of the sample set.
 class MATHS_EXPORT CArgMinMultinomialLogisticLossImpl final : public CArgMinLossImpl {
