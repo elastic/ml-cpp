@@ -2370,7 +2370,15 @@ CPeriodicityHypothesisTests::CNestedHypotheses::CBuilder::finishedNested() {
 namespace {
 
 //! Apply selection bias for known common periods.
+//!
+//! The estimated repeat can be in error. The larger the error the less effective
+//! the modelling will be, since the pattern will precess over time. We therefore
+//! bias towards selecting known common periods by applying a multiplier > 1 to
+//! their correlation.
 double applySelectionBias(std::size_t periodBuckets, core_t::TTime bucketLength, double correlation) {
+    // Daily and weekly periods are explicitly handled when testing for periodicity
+    // and we add calendar predictive features to deal with cyclic monthly effects.
+    // This therefore only biases for annual periodicity.
     core_t::TTime period{static_cast<core_t::TTime>(periodBuckets) * bucketLength};
     if (std::abs(period - core::constants::YEAR) <= bucketLength) {
         return 1.1 * correlation;
@@ -2378,7 +2386,7 @@ double applySelectionBias(std::size_t periodBuckets, core_t::TTime bucketLength,
     return correlation;
 }
 
-//! Compute the period snapping close periods to the selection bias.
+//! If the period is close snap it to a common period.
 core_t::TTime selectPeriod(std::size_t periodBuckets, core_t::TTime bucketLength) {
     core_t::TTime period{static_cast<core_t::TTime>(periodBuckets) * bucketLength};
     if (std::abs(period - core::constants::YEAR) <= bucketLength) {

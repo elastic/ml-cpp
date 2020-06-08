@@ -271,8 +271,8 @@ const std::string VERSION_6_4_TAG("6.4");
 
 // Periodicity Test Tags
 // Version 7.9
-const core::TPersistenceTag SHORT_WINDOW_7_9_TAG{"e", "short_window"};
-const core::TPersistenceTag LONG_WINDOW_7_9_TAG{"f", "long_window"};
+const core::TPersistenceTag SHORT_WINDOW_7_9_TAG{"e", "short_window_7_9"};
+const core::TPersistenceTag LONG_WINDOW_7_9_TAG{"f", "long_window_7_9"};
 // Version 7.2
 const core::TPersistenceTag LINEAR_SCALES_7_2_TAG{"d", "linear_scales"};
 // Version 6.3
@@ -512,9 +512,9 @@ public:
     }
 
 private:
-    struct CParameters {
-        CParameters() = default;
-        CParameters(core_t::TTime bucketLength,
+    struct SParameters {
+        SParameters() = default;
+        SParameters(core_t::TTime bucketLength,
                     core_t::TTime shortestComponent,
                     std::size_t numberBuckets,
                     const std::initializer_list<core_t::TTime>& bucketLengths,
@@ -530,11 +530,11 @@ private:
         TTimeVec s_BucketLengths;
         TTimeVec s_TestSchedule;
     };
-    using TParametersVecVec = std::vector<std::vector<CParameters>>;
-    using TTimeParametersUMap = boost::unordered_map<core_t::TTime, CParameters>;
+    using TParametersVecVec = std::vector<std::vector<SParameters>>;
+    using TTimeParametersUMap = boost::unordered_map<core_t::TTime, SParameters>;
 
 private:
-    static const CParameters* windowParameters(int window, core_t::TTime bucketLength) {
+    static const SParameters* windowParameters(int window, core_t::TTime bucketLength) {
         auto result = std::lower_bound(WINDOW_PARAMETERS[window].begin(),
                                        WINDOW_PARAMETERS[window].end(), bucketLength);
         return result != WINDOW_PARAMETERS[window].end() ? &(*result) : nullptr;
@@ -623,14 +623,17 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::acceptRestoreTraverser(
                 traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
                     return m_Machine.acceptRestoreTraverser(traverser_);
                 }))
+        // The intention is to discard the short and long windows after reloading
+        // state saved before 7.9. Although their format hasn't changed, they use
+        // old parameters which aren't compatible with the changes to this class.
         RESTORE_NO_ERROR(SHORT_WINDOW_6_3_TAG, m_Windows[E_Short] = this->newWindow(E_Short))
+        RESTORE_NO_ERROR(LONG_WINDOW_6_3_TAG, m_Windows[E_Long] = this->newWindow(E_Long))
         RESTORE_SETUP_TEARDOWN(
             SHORT_WINDOW_7_9_TAG, m_Windows[E_Short] = this->newWindow(E_Short),
             m_Windows[E_Short] && traverser.traverseSubLevel(std::bind(
                                       &CExpandingWindow::acceptRestoreTraverser,
                                       m_Windows[E_Short].get(), std::placeholders::_1)),
             /**/)
-        RESTORE_NO_ERROR(LONG_WINDOW_6_3_TAG, m_Windows[E_Long] = this->newWindow(E_Long))
         RESTORE_SETUP_TEARDOWN(
             LONG_WINDOW_7_9_TAG, m_Windows[E_Long] = this->newWindow(E_Long),
             m_Windows[E_Long] && traverser.traverseSubLevel(std::bind(
