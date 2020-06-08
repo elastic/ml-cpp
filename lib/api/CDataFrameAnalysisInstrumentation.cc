@@ -7,6 +7,7 @@
 
 #include <core/CTimeUtils.h>
 
+#include <iomanip>
 #include <maths/CBoostedTree.h>
 
 #include <api/CDataFrameOutliersRunner.h>
@@ -18,6 +19,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <sstream>
 #include <string>
 #include <thread>
 #include <vector>
@@ -68,9 +70,17 @@ const std::string PROGRESS_PERCENT{"progress_percent"};
 const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
                                               << ((sizeof(std::size_t) - 2) * 8)};
 
-std::int64_t bytesToMb(std::int64_t bytes) {
-    std::int64_t mb{static_cast<std::int64_t>(std::ceil(static_cast<double>(bytes) / 1048576))};
-    return mb;
+std::string bytesToMbString(double bytes) {
+    std::ostringstream stream;
+    stream << std::fixed;
+    stream << std::setprecision(3);
+    stream << (bytes / 1048576);
+    stream << " mb";
+    return stream.str();
+}
+
+std::string bytesToMbString(std::int64_t bytes) {
+    return bytesToMbString(static_cast<double>(bytes));
 }
 }
 
@@ -163,13 +173,11 @@ void CDataFrameAnalysisInstrumentation::monitor(const CDataFrameAnalysisInstrume
             writeProgress(lastTask, lastProgress, &writer);
         }
         if (instrumentation.memory() > instrumentation.m_MemoryLimit) {
-            HANDLE_FATAL(<< "Environment error: required memory "
-                         << instrumentation.memory() << " exceeds the memory limit "
-                         << instrumentation.m_MemoryLimit << ". Please increase the limit to at least "
-                         << static_cast<std::int64_t>(
-                                static_cast<double>(instrumentation.m_MemoryLimit) * MEMORY_LIMIT_INCREMENT)
+            HANDLE_FATAL(<< "Input error: required memory "
+                         << bytesToMbString(instrumentation.memory()) << " exceeds the memory limit "
+                         << bytesToMbString(instrumentation.m_MemoryLimit) << ". Please increase the limit to at least "
+                         << bytesToMbString(static_cast<double>(instrumentation.m_MemoryLimit) * MEMORY_LIMIT_INCREMENT)
                          << " and restart.");
-            // TODO clean up this message and output the information in mb instead of bytes
         }
 
         wait = std::min(2 * wait, 1024);
