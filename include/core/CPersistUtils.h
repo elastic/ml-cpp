@@ -97,7 +97,7 @@ struct persist_selector<T, typename enable_if_is<std::string (T::*)() const, &T:
 };
 //@}
 
-//! Detail of the persist class selected by the object features
+//! \brief Specialisations of this class implement persist methods based on object features.
 template<typename SELECTOR>
 class CPersisterImpl {};
 
@@ -136,7 +136,7 @@ struct restore_selector<T, typename enable_if_is<bool (T::*)(const std::string&)
 };
 //@}
 
-//! Detail of the restorer implementation based on object features
+//! \brief Specialisations of this class implement restore methods based on object features.
 template<typename SELECTOR>
 class CRestorerImpl {};
 
@@ -334,24 +334,48 @@ public:
         mutable std::string m_Token;
     };
 
-    //! Entry method for objects being restored
+    //! Restore \p collection reading state from \p traverser expecting \p tag for elements.
     template<typename T>
     static bool restore(const std::string& tag, T& collection, CStateRestoreTraverser& traverser) {
         return persist_utils_detail::restore(tag, collection, traverser);
     }
 
-    //! Entry method for objects being persisted
+    //! Persist \p collection passing state to \p inserter using \p tag for elements.
     template<typename T>
-    static bool
+    static void
     persist(const std::string& tag, const T& collection, CStatePersistInserter& inserter) {
-        return persist_utils_detail::persist(tag, collection, inserter);
+        persist_utils_detail::persist(tag, collection, inserter);
     }
 
+    //! Persist \p collection passing state to \p inserter using \p tag for elements.
     template<typename T>
-    static bool
+    static void
     persist(const TPersistenceTag& tag, const T& collection, CStatePersistInserter& inserter) {
-        return persist_utils_detail::persist(tag.name(inserter.readableTags()),
-                                             collection, inserter);
+        persist_utils_detail::persist(tag.name(inserter.readableTags()), collection, inserter);
+    }
+
+    //! A convenience function for optionally persisting types which convert to null.
+    //!
+    //! \tparam DEREFERENCEABLE Must support conversion to bool and operator*.
+    template<typename DEREFERENCEABLE>
+    static void persistIfNotNull(const std::string& tag,
+                                 const DEREFERENCEABLE& target,
+                                 CStatePersistInserter& inserter) {
+        if (target) {
+            persist_utils_detail::persist(tag, *target, inserter);
+        }
+    }
+
+    //! A convenience function for optionally persisting types which convert to null.
+    //!
+    //! \tparam DEREFERENCEABLE Must support conversion to bool and operator*.
+    template<typename DEREFERENCEABLE>
+    static void persistIfNotNull(const TPersistenceTag& tag,
+                                 const DEREFERENCEABLE& target,
+                                 CStatePersistInserter& inserter) {
+        if (target) {
+            persist_utils_detail::persist(tag.name(inserter.readableTags()), *target, inserter);
+        }
     }
 
     //! Wrapper for containers of built in types.
@@ -603,7 +627,7 @@ private:
                 LOG_ERROR(<< "Invalid state " << state);
                 return false;
             }
-            *inserter = element;
+            *inserter = std::move(element);
             ++inserter;
             return true;
         }
@@ -617,7 +641,7 @@ private:
                 LOG_ERROR(<< "Invalid element 0 : element " << token << " in " << state);
                 return false;
             }
-            *inserter = element;
+            *inserter = std::move(element);
             ++inserter;
         }
 
@@ -637,7 +661,7 @@ private:
                           << " in " << state);
                 return false;
             }
-            *inserter = element;
+            *inserter = std::move(element);
 
             ++i;
             lastDelimPos = delimPos;
@@ -936,7 +960,7 @@ private:
                         LOG_ERROR(<< "Restoration error at " << traverser.name());
                         return false;
                     }
-                    container.insert(container.end(), value);
+                    container.insert(container.end(), std::move(value));
                 }
             } while (traverser.next());
             return true;
@@ -953,7 +977,7 @@ private:
                         LOG_ERROR(<< "Restoration error at " << traverser.name());
                         return false;
                     }
-                    *(i++) = value;
+                    *(i++) = std::move(value);
                 }
             } while (traverser.next());
             return true;

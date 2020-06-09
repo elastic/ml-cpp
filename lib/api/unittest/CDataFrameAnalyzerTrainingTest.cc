@@ -558,7 +558,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
 
         LOG_DEBUG(<< "Loss function type " << lossFunction);
 
-        for (std::size_t restart = 1; restart < 10; restart += 2) {
+        for (std::size_t restart = 6; restart < 16; restart += 2) {
 
             auto makeSpec = [&](const std::string& dependentVariable, std::size_t numberExamples,
                                 TPersisterSupplier* persisterSupplier,
@@ -1012,7 +1012,8 @@ BOOST_AUTO_TEST_CASE(testProgressFromRestart) {
     output.str("");
     persistenceStream->str("");
 
-    std::istringstream intermediateStateStream{persistedStates[persistedStates.size() / 2]};
+    std::istringstream intermediateStateStream{
+        persistedStates[2 * persistedStates.size() / 3]};
     TRestoreSearcherSupplier restoreSearcherSupplier{[&intermediateStateStream]() {
         return std::make_unique<CTestDataSearcher>(intermediateStateStream.str());
     }};
