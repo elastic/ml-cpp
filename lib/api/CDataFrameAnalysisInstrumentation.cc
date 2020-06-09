@@ -73,14 +73,8 @@ const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
 std::string bytesToString(double value) {
     std::ostringstream stream;
     stream << std::fixed;
-    stream << std::setprecision(3);
-    value /= 1024;
-    if (value < 1000) {
-        stream << value;
-        stream << " kb";
-        return stream.str();
-    }
-    value /= 1024;
+    stream << std::setprecision(0);
+    value = std::ceil(value / (1024 * 1024));
     stream << value;
     stream << " mb";
     return stream.str();
