@@ -1324,6 +1324,7 @@ const std::string FEATURE_BAG_FRACTION_TAG{"feature_bag_fraction"};
 const std::string FEATURE_DATA_TYPES_TAG{"feature_data_types"};
 const std::string FEATURE_SAMPLE_PROBABILITIES_TAG{"feature_sample_probabilities"};
 const std::string FOLD_ROUND_TEST_LOSSES_TAG{"fold_round_test_losses"};
+const std::string INITIALIZATION_STAGE_TAG{"initialization_progress"};
 const std::string LOSS_TAG{"loss"};
 const std::string LOSS_NAME_TAG{"loss_name"};
 const std::string MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG{"maximum_attempts_to_add_tree"};
@@ -1369,7 +1370,8 @@ CBoostedTreeImpl::TStrVec CBoostedTreeImpl::bestHyperparameterNames() {
 
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(VERSION_7_8_TAG, "", inserter);
-    core::CPersistUtils::persist(BAYESIAN_OPTIMIZATION_TAG, *m_BayesianOptimization, inserter);
+    core::CPersistUtils::persistIfNotNull(BAYESIAN_OPTIMIZATION_TAG,
+                                          m_BayesianOptimization, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TAG, m_BestForest, inserter);
     core::CPersistUtils::persist(BEST_HYPERPARAMETERS_TAG, m_BestHyperparameters, inserter);
@@ -1378,7 +1380,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(DOWNSAMPLE_FACTOR_OVERRIDE_TAG,
                                  m_DownsampleFactorOverride, inserter);
     core::CPersistUtils::persist(DOWNSAMPLE_FACTOR_TAG, m_DownsampleFactor, inserter);
-    core::CPersistUtils::persist(ENCODER_TAG, *m_Encoder, inserter);
+    core::CPersistUtils::persistIfNotNull(ENCODER_TAG, m_Encoder, inserter);
     core::CPersistUtils::persist(ETA_GROWTH_RATE_PER_TREE_TAG,
                                  m_EtaGrowthRatePerTree, inserter);
     core::CPersistUtils::persist(ETA_TAG, m_Eta, inserter);
@@ -1390,9 +1392,13 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(FEATURE_SAMPLE_PROBABILITIES_TAG,
                                  m_FeatureSampleProbabilities, inserter);
     core::CPersistUtils::persist(FOLD_ROUND_TEST_LOSSES_TAG, m_FoldRoundTestLosses, inserter);
-    inserter.insertLevel(LOSS_TAG, [this](core::CStatePersistInserter& inserter_) {
-        m_Loss->persistLoss(inserter_);
-    });
+    core::CPersistUtils::persist(INITIALIZATION_STAGE_TAG,
+                                 static_cast<int>(m_InitializationStage), inserter);
+    if (m_Loss != nullptr) {
+        inserter.insertLevel(LOSS_TAG, [this](core::CStatePersistInserter& inserter_) {
+            m_Loss->persistLoss(inserter_);
+        });
+    }
     core::CPersistUtils::persist(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                                  m_MaximumAttemptsToAddTree, inserter);
     core::CPersistUtils::persist(MAXIMUM_OPTIMISATION_ROUNDS_PER_HYPERPARAMETER_TAG,
@@ -1432,6 +1438,8 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         m_Loss = CLoss::restoreLoss(traverser_);
         return m_Loss != nullptr;
     };
+
+    int initializationStage{static_cast<int>(E_FullyInitialized)};
 
     do {
         const std::string& name = traverser.name();
@@ -1479,6 +1487,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(FOLD_ROUND_TEST_LOSSES_TAG,
                 core::CPersistUtils::restore(FOLD_ROUND_TEST_LOSSES_TAG,
                                              m_FoldRoundTestLosses, traverser))
+        RESTORE(INITIALIZATION_STAGE_TAG,
+                core::CPersistUtils::restore(INITIALIZATION_STAGE_TAG,
+                                             initializationStage, traverser))
         RESTORE(LOSS_TAG, traverser.traverseSubLevel(restoreLoss))
         RESTORE(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
                 core::CPersistUtils::restore(MAXIMUM_ATTEMPTS_TO_ADD_TREE_TAG,
@@ -1527,6 +1538,8 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(TRAINING_ROW_MASKS_TAG,
                 core::CPersistUtils::restore(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, traverser))
     } while (traverser.next());
+
+    m_InitializationStage = static_cast<EInitializationStage>(initializationStage);
 
     return true;
 }

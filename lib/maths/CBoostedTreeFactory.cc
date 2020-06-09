@@ -6,7 +6,12 @@
 
 #include <maths/CBoostedTreeFactory.h>
 
+#include <core/CIEEE754.h>
 #include <core/CJsonStateRestoreTraverser.h>
+#include <core/CPersistUtils.h>
+#include <core/CStatePersistInserter.h>
+#include <core/CStateRestoreTraverser.h>
+#include <core/RestoreMacros.h>
 
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTreeImpl.h>
@@ -84,16 +89,24 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
 
     m_TreeImpl->m_DependentVariable = dependentVariable;
 
-    this->initializeNumberFolds(frame);
-    this->initializeMissingFeatureMasks(frame);
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initializeNumberFolds(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initializeMissingFeatureMasks(frame); });
 
     this->resizeDataFrame(frame);
 
-    this->startProgressMonitoringFeatureSelection();
+    m_TreeImpl->m_InitializationStage != CBoostedTreeImpl::E_NotInitialized
+        ? this->skipProgressMonitoringFeatureSelection()
+        : this->startProgressMonitoringFeatureSelection();
 
-    this->initializeCrossValidation(frame);
-    this->selectFeaturesAndEncodeCategories(frame);
-    this->determineFeatureDataTypes(frame);
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initializeCrossValidation(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->selectFeaturesAndEncodeCategories(frame); });
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->determineFeatureDataTypes(frame); });
+
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(m_TreeImpl));
     m_TreeImpl->m_Instrumentation->lossType(m_TreeImpl->m_Loss->name());
     m_TreeImpl->m_Instrumentation->flush();
@@ -108,6 +121,8 @@ CBoostedTreeFactory::buildFor(core::CDataFrame& frame, std::size_t dependentVari
     auto treeImpl = std::make_unique<CBoostedTreeImpl>(m_NumberThreads,
                                                        m_TreeImpl->m_Loss->clone());
     std::swap(m_TreeImpl, treeImpl);
+    treeImpl->m_InitializationStage = CBoostedTreeImpl::E_FullyInitialized;
+
     return TBoostedTreeUPtr{
         new CBoostedTree{frame, m_RecordTrainingState, std::move(treeImpl)}};
 }
@@ -119,6 +134,19 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
         HANDLE_FATAL(<< "Internal error: expected dependent variable "
                      << m_TreeImpl->m_DependentVariable << " got " << dependentVariable)
         return nullptr;
+    }
+
+    switch (m_TreeImpl->m_InitializationStage) {
+    case CBoostedTreeImpl::E_FullyInitialized:
+        break;
+    case CBoostedTreeImpl::E_NotInitialized:
+    case CBoostedTreeImpl::E_SoftTreeDepthLimitInitialized:
+    case CBoostedTreeImpl::E_DepthPenaltyMultiplierInitialized:
+    case CBoostedTreeImpl::E_TreeSizePenaltyMultiplierInitialized:
+    case CBoostedTreeImpl::E_LeafWeightPenaltyMultiplierInitialized:
+    case CBoostedTreeImpl::E_DownsampleFactorInitialized:
+    case CBoostedTreeImpl::E_EtaInitialized:
+        return this->buildFor(frame, dependentVariable);
     }
 
     this->resizeDataFrame(frame);
@@ -223,6 +251,7 @@ void CBoostedTreeFactory::initializeMissingFeatureMasks(const core::CDataFrame& 
 }
 
 void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
+
     if (m_TreeImpl->m_NumberFoldsOverride == boost::none) {
         auto result = frame.readRows(
             m_NumberThreads,
@@ -364,6 +393,18 @@ bool CBoostedTreeFactory::initializeFeatureSampleDistribution() const {
 
 void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
 
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
+                [&] { this->initializeHyperparametersSetup(frame); });
+
+    if (m_TreeImpl->m_RegularizationOverride.countNotSet() > 0) {
+        this->initializeUnsetRegularizationHyperparameters(frame);
+    }
+
+    this->initializeUnsetDownsampleFactor(frame);
+    this->initializeUnsetEta(frame);
+}
+
+void CBoostedTreeFactory::initializeHyperparametersSetup(core::CDataFrame& frame) {
     if (m_TreeImpl->m_EtaOverride != boost::none) {
         m_TreeImpl->m_Eta = *(m_TreeImpl->m_EtaOverride);
     } else {
@@ -400,13 +441,6 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
             m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit().value_or(0.0))
         .softTreeDepthTolerance(
             m_TreeImpl->m_RegularizationOverride.softTreeDepthTolerance().value_or(0.0));
-
-    if (m_TreeImpl->m_RegularizationOverride.countNotSet() > 0) {
-        this->initializeUnsetRegularizationHyperparameters(frame);
-    }
-
-    this->initializeUnsetDownsampleFactor(frame);
-    this->initializeUnsetEta(frame);
 }
 
 void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame) {
@@ -426,200 +460,235 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
     double log2MaxTreeSize{std::log2(static_cast<double>(m_TreeImpl->maximumTreeSize(
                                m_TreeImpl->m_TrainingRowMasks[0]))) +
                            1.0};
-    m_TreeImpl->m_Regularization.softTreeDepthLimit(
-        m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit().value_or(log2MaxTreeSize));
-    m_TreeImpl->m_Regularization.softTreeDepthTolerance(
-        m_TreeImpl->m_RegularizationOverride.softTreeDepthTolerance().value_or(
-            0.5 * (MIN_SOFT_DEPTH_LIMIT_TOLERANCE + MAX_SOFT_DEPTH_LIMIT_TOLERANCE)));
-    LOG_TRACE(<< "max depth = " << m_TreeImpl->m_Regularization.softTreeDepthLimit()
-              << ", tolerance = " << m_TreeImpl->m_Regularization.softTreeDepthTolerance());
+    skipIfAfter(CBoostedTreeImpl::E_NotInitialized, [&] {
+        m_TreeImpl->m_Regularization.softTreeDepthLimit(
+            m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit().value_or(log2MaxTreeSize));
+        m_TreeImpl->m_Regularization.softTreeDepthTolerance(
+            m_TreeImpl->m_RegularizationOverride.softTreeDepthTolerance().value_or(
+                0.5 * (MIN_SOFT_DEPTH_LIMIT_TOLERANCE + MAX_SOFT_DEPTH_LIMIT_TOLERANCE)));
 
-    auto gainAndTotalCurvaturePerNode =
-        this->estimateTreeGainAndCurvature(frame, {1.0, 50.0, 90.0});
-    LOG_TRACE(<< "gains and total curvatures per node = "
-              << core::CContainerPrinter::print(gainAndTotalCurvaturePerNode));
+        auto gainAndTotalCurvaturePerNode =
+            this->estimateTreeGainAndCurvature(frame, {1.0, 50.0, 90.0});
 
-    double gainPerNode1stPercentile{gainAndTotalCurvaturePerNode[0].first};
-    double gainPerNode50thPercentile{gainAndTotalCurvaturePerNode[1].first};
-    double gainPerNode90thPercentile{gainAndTotalCurvaturePerNode[2].first};
-    double totalCurvaturePerNode1stPercentile{gainAndTotalCurvaturePerNode[0].second};
-    double totalCurvaturePerNode90thPercentile{gainAndTotalCurvaturePerNode[2].second};
+        m_GainPerNode1stPercentile = gainAndTotalCurvaturePerNode[0].first;
+        m_GainPerNode50thPercentile = gainAndTotalCurvaturePerNode[1].first;
+        m_GainPerNode90thPercentile = gainAndTotalCurvaturePerNode[2].first;
+        m_TotalCurvaturePerNode1stPercentile = gainAndTotalCurvaturePerNode[0].second;
+        m_TotalCurvaturePerNode90thPercentile = gainAndTotalCurvaturePerNode[2].second;
 
-    // Make sure all line search intervals are not empty.
-    gainPerNode1stPercentile = std::min(gainPerNode1stPercentile, 0.1 * gainPerNode90thPercentile);
-    totalCurvaturePerNode1stPercentile = std::min(
-        totalCurvaturePerNode1stPercentile, 0.1 * totalCurvaturePerNode90thPercentile);
+        // Make sure all line search intervals are not empty.
+        m_GainPerNode1stPercentile = std::min(m_GainPerNode1stPercentile,
+                                              0.1 * m_GainPerNode90thPercentile);
+        m_TotalCurvaturePerNode1stPercentile =
+            std::min(m_TotalCurvaturePerNode1stPercentile,
+                     0.1 * m_TotalCurvaturePerNode90thPercentile);
+
+        LOG_TRACE(<< "max depth = " << m_TreeImpl->m_Regularization.softTreeDepthLimit()
+                  << ", tolerance = " << m_TreeImpl->m_Regularization.softTreeDepthTolerance()
+                  << ", gains and total curvatures per node = "
+                  << core::CContainerPrinter::print(gainAndTotalCurvaturePerNode));
+    });
 
     // Search for depth limit at which the tree starts to overfit.
     if (m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
-        if (gainPerNode90thPercentile > 0.0) {
-            if (m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-                m_TreeImpl->m_Regularization.depthPenaltyMultiplier(gainPerNode50thPercentile);
-            }
-            double minSoftDepthLimit{MIN_SOFT_DEPTH_LIMIT};
-            double maxSoftDepthLimit{MIN_SOFT_DEPTH_LIMIT + log2MaxTreeSize};
-            double meanSoftDepthLimit{(minSoftDepthLimit + maxSoftDepthLimit) / 2.0};
-            double mainLoopSearchInterval{log2MaxTreeSize / 2.0};
-            LOG_TRACE(<< "mean soft depth limit = " << meanSoftDepthLimit);
+        if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_SoftTreeDepthLimitInitialized, [&] {
+                if (m_GainPerNode90thPercentile > 0.0) {
+                    if (m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier() ==
+                        boost::none) {
+                        m_TreeImpl->m_Regularization.depthPenaltyMultiplier(m_GainPerNode50thPercentile);
+                    }
+                    double minSoftDepthLimit{MIN_SOFT_DEPTH_LIMIT};
+                    double maxSoftDepthLimit{MIN_SOFT_DEPTH_LIMIT + log2MaxTreeSize};
+                    double meanSoftDepthLimit{(minSoftDepthLimit + maxSoftDepthLimit) / 2.0};
+                    double mainLoopSearchInterval{log2MaxTreeSize / 2.0};
+                    LOG_TRACE(<< "mean soft depth limit = " << meanSoftDepthLimit);
 
-            auto applySoftDepthLimit = [](CBoostedTreeImpl& tree, double softDepthLimit) {
-                tree.m_Regularization.softTreeDepthLimit(softDepthLimit);
-                return true;
-            };
+                    auto applySoftDepthLimit = [](CBoostedTreeImpl& tree, double softDepthLimit) {
+                        tree.m_Regularization.softTreeDepthLimit(softDepthLimit);
+                        return true;
+                    };
 
-            TVector fallback{{minSoftDepthLimit, meanSoftDepthLimit, maxSoftDepthLimit}};
-            m_SoftDepthLimitSearchInterval =
-                this->testLossLineSearch(frame, applySoftDepthLimit, minSoftDepthLimit,
-                                         maxSoftDepthLimit, -mainLoopSearchInterval / 2.0,
-                                         mainLoopSearchInterval / 2.0)
-                    .value_or(fallback);
-            m_SoftDepthLimitSearchInterval =
-                max(m_SoftDepthLimitSearchInterval, TVector{1.0});
-            LOG_TRACE(<< "soft depth limit search interval = ["
-                      << m_SoftDepthLimitSearchInterval.toDelimited() << "]");
-            m_TreeImpl->m_Regularization.softTreeDepthLimit(
-                m_SoftDepthLimitSearchInterval(BEST_REGULARIZER_INDEX));
-        }
-        if (gainPerNode90thPercentile <= 0.0 ||
-            intervalIsEmpty(m_SoftDepthLimitSearchInterval)) {
-            m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit(
-                m_TreeImpl->m_Regularization.softTreeDepthLimit());
+                    TVector fallback{{minSoftDepthLimit, meanSoftDepthLimit, maxSoftDepthLimit}};
+                    m_SoftDepthLimitSearchInterval =
+                        this->testLossLineSearch(frame, applySoftDepthLimit,
+                                                 minSoftDepthLimit, maxSoftDepthLimit,
+                                                 -mainLoopSearchInterval / 2.0,
+                                                 mainLoopSearchInterval / 2.0)
+                            .value_or(fallback);
+                    m_SoftDepthLimitSearchInterval =
+                        max(m_SoftDepthLimitSearchInterval, TVector{1.0});
+                    LOG_TRACE(<< "soft depth limit search interval = ["
+                              << m_SoftDepthLimitSearchInterval.toDelimited() << "]");
+                    m_TreeImpl->m_Regularization.softTreeDepthLimit(
+                        m_SoftDepthLimitSearchInterval(BEST_REGULARIZER_INDEX));
+                }
+                if (m_GainPerNode90thPercentile <= 0.0 ||
+                    intervalIsEmpty(m_SoftDepthLimitSearchInterval)) {
+                    m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit(
+                        m_TreeImpl->m_Regularization.softTreeDepthLimit());
+                }
+            })) {
+            m_TreeImpl->m_TrainingProgress.increment(lineSearchMaximumNumberIterations(frame));
         }
     }
 
     // Set the depth limit to its smallest value and search for the value of the
     // penalty multiplier at which the tree starts to overfit.
     if (m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-        if (gainPerNode90thPercentile > 0.0) {
-            double searchIntervalSize{2.0 * gainPerNode90thPercentile / gainPerNode1stPercentile};
-            double logMaxDepthPenaltyMultiplier{CTools::stableLog(gainPerNode90thPercentile)};
-            double logMinDepthPenaltyMultiplier{logMaxDepthPenaltyMultiplier -
-                                                CTools::stableLog(searchIntervalSize)};
-            double meanLogDepthPenaltyMultiplier{
-                (logMinDepthPenaltyMultiplier + logMaxDepthPenaltyMultiplier) / 2.0};
-            double mainLoopSearchInterval{CTools::stableLog(searchIntervalSize) / 2.0};
-            LOG_TRACE(<< "mean log depth penalty multiplier = " << meanLogDepthPenaltyMultiplier);
+        if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_DepthPenaltyMultiplierInitialized, [&] {
+                if (m_GainPerNode90thPercentile > 0.0) {
+                    double searchIntervalSize{2.0 * m_GainPerNode90thPercentile /
+                                              m_GainPerNode1stPercentile};
+                    double logMaxDepthPenaltyMultiplier{
+                        CTools::stableLog(m_GainPerNode90thPercentile)};
+                    double logMinDepthPenaltyMultiplier{
+                        logMaxDepthPenaltyMultiplier - CTools::stableLog(searchIntervalSize)};
+                    double meanLogDepthPenaltyMultiplier{
+                        (logMinDepthPenaltyMultiplier + logMaxDepthPenaltyMultiplier) / 2.0};
+                    double mainLoopSearchInterval{CTools::stableLog(searchIntervalSize) / 2.0};
+                    LOG_TRACE(<< "mean log depth penalty multiplier = "
+                              << meanLogDepthPenaltyMultiplier);
 
-            auto applyDepthPenaltyMultiplier = [](CBoostedTreeImpl& tree, double logDepthPenalty) {
-                tree.m_Regularization.depthPenaltyMultiplier(CTools::stableExp(logDepthPenalty));
-                return true;
-            };
+                    auto applyDepthPenaltyMultiplier = [](CBoostedTreeImpl& tree,
+                                                          double logDepthPenalty) {
+                        tree.m_Regularization.depthPenaltyMultiplier(
+                            CTools::stableExp(logDepthPenalty));
+                        return true;
+                    };
 
-            TVector fallback;
-            fallback(MIN_REGULARIZER_INDEX) = logMinDepthPenaltyMultiplier;
-            fallback(BEST_REGULARIZER_INDEX) = meanLogDepthPenaltyMultiplier;
-            fallback(MAX_REGULARIZER_INDEX) = logMaxDepthPenaltyMultiplier;
+                    TVector fallback;
+                    fallback(MIN_REGULARIZER_INDEX) = logMinDepthPenaltyMultiplier;
+                    fallback(BEST_REGULARIZER_INDEX) = meanLogDepthPenaltyMultiplier;
+                    fallback(MAX_REGULARIZER_INDEX) = logMaxDepthPenaltyMultiplier;
 
-            m_LogDepthPenaltyMultiplierSearchInterval =
-                this->testLossLineSearch(frame, applyDepthPenaltyMultiplier,
-                                         logMinDepthPenaltyMultiplier, logMaxDepthPenaltyMultiplier,
-                                         -mainLoopSearchInterval / 2.0,
-                                         mainLoopSearchInterval / 2.0)
-                    .value_or(fallback);
-            LOG_TRACE(<< "log depth penalty multiplier search interval = ["
-                      << m_LogDepthPenaltyMultiplierSearchInterval.toDelimited() << "]");
+                    m_LogDepthPenaltyMultiplierSearchInterval =
+                        this->testLossLineSearch(frame, applyDepthPenaltyMultiplier,
+                                                 logMinDepthPenaltyMultiplier,
+                                                 logMaxDepthPenaltyMultiplier,
+                                                 -mainLoopSearchInterval / 2.0,
+                                                 mainLoopSearchInterval / 2.0)
+                            .value_or(fallback);
+                    LOG_TRACE(<< "log depth penalty multiplier search interval = ["
+                              << m_LogDepthPenaltyMultiplierSearchInterval.toDelimited()
+                              << "]");
 
-            m_TreeImpl->m_Regularization.depthPenaltyMultiplier(CTools::stableExp(
-                m_LogDepthPenaltyMultiplierSearchInterval(BEST_REGULARIZER_INDEX)));
-        }
-        if (gainPerNode90thPercentile <= 0.0 ||
-            intervalIsEmpty(m_LogDepthPenaltyMultiplierSearchInterval)) {
-            m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier(
-                m_TreeImpl->m_Regularization.depthPenaltyMultiplier());
+                    m_TreeImpl->m_Regularization.depthPenaltyMultiplier(CTools::stableExp(
+                        m_LogDepthPenaltyMultiplierSearchInterval(BEST_REGULARIZER_INDEX)));
+                }
+                if (m_GainPerNode90thPercentile <= 0.0 ||
+                    intervalIsEmpty(m_LogDepthPenaltyMultiplierSearchInterval)) {
+                    m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier(
+                        m_TreeImpl->m_Regularization.depthPenaltyMultiplier());
+                }
+            })) {
+            m_TreeImpl->m_TrainingProgress.increment(lineSearchMaximumNumberIterations(frame));
         }
     }
 
     // Search for the value of the tree size penalty multiplier at which the tree
     // starts to overfit.
     if (m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
-        if (gainPerNode90thPercentile > 0.0) {
-            double searchIntervalSize{2.0 * gainPerNode90thPercentile / gainPerNode1stPercentile};
-            double logMaxTreeSizePenaltyMultiplier{CTools::stableLog(gainPerNode90thPercentile)};
-            double logMinTreeSizePenaltyMultiplier{
-                logMaxTreeSizePenaltyMultiplier - CTools::stableLog(searchIntervalSize)};
-            double meanLogTreeSizePenaltyMultiplier{
-                (logMinTreeSizePenaltyMultiplier + logMaxTreeSizePenaltyMultiplier) / 2.0};
-            double mainLoopSearchInterval{0.5 * CTools::stableLog(searchIntervalSize)};
-            LOG_TRACE(<< "mean log tree size penalty multiplier = "
-                      << meanLogTreeSizePenaltyMultiplier);
+        if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_TreeSizePenaltyMultiplierInitialized, [&] {
+                if (m_GainPerNode90thPercentile > 0.0) {
+                    double searchIntervalSize{2.0 * m_GainPerNode90thPercentile /
+                                              m_GainPerNode1stPercentile};
+                    double logMaxTreeSizePenaltyMultiplier{
+                        CTools::stableLog(m_GainPerNode90thPercentile)};
+                    double logMinTreeSizePenaltyMultiplier{
+                        logMaxTreeSizePenaltyMultiplier - CTools::stableLog(searchIntervalSize)};
+                    double meanLogTreeSizePenaltyMultiplier{
+                        (logMinTreeSizePenaltyMultiplier + logMaxTreeSizePenaltyMultiplier) / 2.0};
+                    double mainLoopSearchInterval{0.5 * CTools::stableLog(searchIntervalSize)};
+                    LOG_TRACE(<< "mean log tree size penalty multiplier = "
+                              << meanLogTreeSizePenaltyMultiplier);
 
-            auto applyTreeSizePenaltyMultiplier = [](CBoostedTreeImpl& tree,
-                                                     double logTreeSizePenalty) {
-                tree.m_Regularization.treeSizePenaltyMultiplier(
-                    CTools::stableExp(logTreeSizePenalty));
-                return true;
-            };
+                    auto applyTreeSizePenaltyMultiplier =
+                        [](CBoostedTreeImpl& tree, double logTreeSizePenalty) {
+                            tree.m_Regularization.treeSizePenaltyMultiplier(
+                                CTools::stableExp(logTreeSizePenalty));
+                            return true;
+                        };
 
-            TVector fallback;
-            fallback(MIN_REGULARIZER_INDEX) = logMinTreeSizePenaltyMultiplier;
-            fallback(BEST_REGULARIZER_INDEX) = meanLogTreeSizePenaltyMultiplier;
-            fallback(MAX_REGULARIZER_INDEX) = logMaxTreeSizePenaltyMultiplier;
+                    TVector fallback;
+                    fallback(MIN_REGULARIZER_INDEX) = logMinTreeSizePenaltyMultiplier;
+                    fallback(BEST_REGULARIZER_INDEX) = meanLogTreeSizePenaltyMultiplier;
+                    fallback(MAX_REGULARIZER_INDEX) = logMaxTreeSizePenaltyMultiplier;
 
-            m_LogTreeSizePenaltyMultiplierSearchInterval =
-                this->testLossLineSearch(frame, applyTreeSizePenaltyMultiplier,
-                                         logMinTreeSizePenaltyMultiplier,
-                                         logMaxTreeSizePenaltyMultiplier,
-                                         -mainLoopSearchInterval / 2.0,
-                                         mainLoopSearchInterval / 2.0)
-                    .value_or(fallback);
-            LOG_TRACE(<< "log tree size penalty multiplier search interval = ["
-                      << m_LogTreeSizePenaltyMultiplierSearchInterval.toDelimited() << "]");
+                    m_LogTreeSizePenaltyMultiplierSearchInterval =
+                        this->testLossLineSearch(frame, applyTreeSizePenaltyMultiplier,
+                                                 logMinTreeSizePenaltyMultiplier,
+                                                 logMaxTreeSizePenaltyMultiplier,
+                                                 -mainLoopSearchInterval / 2.0,
+                                                 mainLoopSearchInterval / 2.0)
+                            .value_or(fallback);
+                    LOG_TRACE(<< "log tree size penalty multiplier search interval = ["
+                              << m_LogTreeSizePenaltyMultiplierSearchInterval.toDelimited()
+                              << "]");
 
-            m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier(CTools::stableExp(
-                m_LogTreeSizePenaltyMultiplierSearchInterval(BEST_REGULARIZER_INDEX)));
-        }
-        if (gainPerNode90thPercentile <= 0.0 ||
-            intervalIsEmpty(m_LogTreeSizePenaltyMultiplierSearchInterval)) {
-            m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier(
-                m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier());
+                    m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier(CTools::stableExp(
+                        m_LogTreeSizePenaltyMultiplierSearchInterval(BEST_REGULARIZER_INDEX)));
+                }
+                if (m_GainPerNode90thPercentile <= 0.0 ||
+                    intervalIsEmpty(m_LogTreeSizePenaltyMultiplierSearchInterval)) {
+                    m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier(
+                        m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier());
+                }
+            })) {
+            m_TreeImpl->m_TrainingProgress.increment(lineSearchMaximumNumberIterations(frame));
         }
     }
 
     // Search for the value of the leaf weight penalty multiplier at which the
     // tree starts to overfit.
     if (m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
-        if (totalCurvaturePerNode90thPercentile > 0.0) {
-            double searchIntervalSize{2.0 * totalCurvaturePerNode90thPercentile /
-                                      totalCurvaturePerNode1stPercentile};
-            double logMaxLeafWeightPenaltyMultiplier{
-                CTools::stableLog(totalCurvaturePerNode90thPercentile)};
-            double logMinLeafWeightPenaltyMultiplier{
-                logMaxLeafWeightPenaltyMultiplier - CTools::stableLog(searchIntervalSize)};
-            double meanLogLeafWeightPenaltyMultiplier{
-                (logMinLeafWeightPenaltyMultiplier + logMaxLeafWeightPenaltyMultiplier) / 2.0};
-            double mainLoopSearchInterval{0.5 * CTools::stableLog(searchIntervalSize)};
-            LOG_TRACE(<< "mean log leaf weight penalty multiplier = "
-                      << meanLogLeafWeightPenaltyMultiplier);
+        if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_LeafWeightPenaltyMultiplierInitialized, [&] {
+                if (m_TotalCurvaturePerNode90thPercentile > 0.0) {
+                    double searchIntervalSize{2.0 * m_TotalCurvaturePerNode90thPercentile /
+                                              m_TotalCurvaturePerNode1stPercentile};
+                    double logMaxLeafWeightPenaltyMultiplier{
+                        CTools::stableLog(m_TotalCurvaturePerNode90thPercentile)};
+                    double logMinLeafWeightPenaltyMultiplier{
+                        logMaxLeafWeightPenaltyMultiplier -
+                        CTools::stableLog(searchIntervalSize)};
+                    double meanLogLeafWeightPenaltyMultiplier{
+                        (logMinLeafWeightPenaltyMultiplier + logMaxLeafWeightPenaltyMultiplier) / 2.0};
+                    double mainLoopSearchInterval{0.5 * CTools::stableLog(searchIntervalSize)};
+                    LOG_TRACE(<< "mean log leaf weight penalty multiplier = "
+                              << meanLogLeafWeightPenaltyMultiplier);
 
-            auto applyLeafWeightPenaltyMultiplier = [](CBoostedTreeImpl& tree,
-                                                       double logLeafWeightPenalty) {
-                tree.m_Regularization.leafWeightPenaltyMultiplier(
-                    CTools::stableExp(logLeafWeightPenalty));
-                return true;
-            };
+                    auto applyLeafWeightPenaltyMultiplier =
+                        [](CBoostedTreeImpl& tree, double logLeafWeightPenalty) {
+                            tree.m_Regularization.leafWeightPenaltyMultiplier(
+                                CTools::stableExp(logLeafWeightPenalty));
+                            return true;
+                        };
 
-            TVector fallback;
-            fallback(MIN_REGULARIZER_INDEX) = logMinLeafWeightPenaltyMultiplier;
-            fallback(BEST_REGULARIZER_INDEX) = meanLogLeafWeightPenaltyMultiplier;
-            fallback(MAX_REGULARIZER_INDEX) = logMaxLeafWeightPenaltyMultiplier;
+                    TVector fallback;
+                    fallback(MIN_REGULARIZER_INDEX) = logMinLeafWeightPenaltyMultiplier;
+                    fallback(BEST_REGULARIZER_INDEX) = meanLogLeafWeightPenaltyMultiplier;
+                    fallback(MAX_REGULARIZER_INDEX) = logMaxLeafWeightPenaltyMultiplier;
 
-            m_LogLeafWeightPenaltyMultiplierSearchInterval =
-                this->testLossLineSearch(frame, applyLeafWeightPenaltyMultiplier,
-                                         logMinLeafWeightPenaltyMultiplier,
-                                         logMaxLeafWeightPenaltyMultiplier,
-                                         -mainLoopSearchInterval / 2.0,
-                                         mainLoopSearchInterval / 2.0)
-                    .value_or(fallback);
-            LOG_TRACE(<< "log leaf weight penalty multiplier search interval = ["
-                      << m_LogLeafWeightPenaltyMultiplierSearchInterval.toDelimited()
-                      << "]");
-            m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier(CTools::stableExp(
-                m_LogLeafWeightPenaltyMultiplierSearchInterval(BEST_REGULARIZER_INDEX)));
-        }
-        if (totalCurvaturePerNode90thPercentile <= 0.0 ||
-            intervalIsEmpty(m_LogLeafWeightPenaltyMultiplierSearchInterval)) {
-            m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier(
-                m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier());
+                    m_LogLeafWeightPenaltyMultiplierSearchInterval =
+                        this->testLossLineSearch(frame, applyLeafWeightPenaltyMultiplier,
+                                                 logMinLeafWeightPenaltyMultiplier,
+                                                 logMaxLeafWeightPenaltyMultiplier,
+                                                 -mainLoopSearchInterval / 2.0,
+                                                 mainLoopSearchInterval / 2.0)
+                            .value_or(fallback);
+                    LOG_TRACE(<< "log leaf weight penalty multiplier search interval = ["
+                              << m_LogLeafWeightPenaltyMultiplierSearchInterval.toDelimited()
+                              << "]");
+                    m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier(
+                        CTools::stableExp(m_LogLeafWeightPenaltyMultiplierSearchInterval(
+                            BEST_REGULARIZER_INDEX)));
+                }
+                if (m_TotalCurvaturePerNode90thPercentile <= 0.0 ||
+                    intervalIsEmpty(m_LogLeafWeightPenaltyMultiplierSearchInterval)) {
+                    m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier(
+                        m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier());
+                }
+            })) {
+            m_TreeImpl->m_TrainingProgress.increment(lineSearchMaximumNumberIterations(frame));
         }
     }
 
@@ -634,78 +703,89 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
 void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& frame) {
 
     if (m_TreeImpl->m_DownsampleFactorOverride == boost::none) {
-        double searchIntervalSize{CTools::truncate(
-            m_TreeImpl->m_TrainingRowMasks[0].manhattan() / 100.0,
-            MIN_DOWNSAMPLE_LINE_SEARCH_RANGE, MAX_DOWNSAMPLE_LINE_SEARCH_RANGE)};
-        double logMaxDownsampleFactor{CTools::stableLog(std::min(
-            std::sqrt(searchIntervalSize) * m_TreeImpl->m_DownsampleFactor, 1.0))};
-        double logMinDownsampleFactor{logMaxDownsampleFactor -
-                                      CTools::stableLog(searchIntervalSize)};
-        double meanLogDownSampleFactor{(logMinDownsampleFactor + logMaxDownsampleFactor) / 2.0};
-        LOG_TRACE(<< "mean log down sample factor = " << meanLogDownSampleFactor);
+        if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_DownsampleFactorInitialized, [&] {
+                double searchIntervalSize{CTools::truncate(
+                    m_TreeImpl->m_TrainingRowMasks[0].manhattan() / 100.0,
+                    MIN_DOWNSAMPLE_LINE_SEARCH_RANGE, MAX_DOWNSAMPLE_LINE_SEARCH_RANGE)};
+                double logMaxDownsampleFactor{CTools::stableLog(std::min(
+                    std::sqrt(searchIntervalSize) * m_TreeImpl->m_DownsampleFactor, 1.0))};
+                double logMinDownsampleFactor{logMaxDownsampleFactor -
+                                              CTools::stableLog(searchIntervalSize)};
+                double meanLogDownSampleFactor{
+                    (logMinDownsampleFactor + logMaxDownsampleFactor) / 2.0};
+                LOG_TRACE(<< "mean log down sample factor = " << meanLogDownSampleFactor);
 
-        double previousDownsampleFactor{m_TreeImpl->m_DownsampleFactor};
-        double previousDepthPenaltyMultiplier{
-            m_TreeImpl->m_Regularization.depthPenaltyMultiplier()};
-        double previousTreeSizePenaltyMultiplier{
-            m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier()};
-        double previousLeafWeightPenaltyMultiplier{
-            m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier()};
+                double previousDownsampleFactor{m_TreeImpl->m_DownsampleFactor};
+                double previousDepthPenaltyMultiplier{
+                    m_TreeImpl->m_Regularization.depthPenaltyMultiplier()};
+                double previousTreeSizePenaltyMultiplier{
+                    m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier()};
+                double previousLeafWeightPenaltyMultiplier{
+                    m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier()};
 
-        // We need to scale the regularisation terms to account for the difference
-        // in the down sample factor compared to the value used in the line search.
-        auto scaleRegularizers = [&](CBoostedTreeImpl& tree, double downsampleFactor) {
-            double scale{previousDownsampleFactor / downsampleFactor};
-            if (tree.m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-                tree.m_Regularization.depthPenaltyMultiplier(scale * previousDepthPenaltyMultiplier);
-            }
-            if (tree.m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
-                tree.m_Regularization.treeSizePenaltyMultiplier(
-                    scale * previousTreeSizePenaltyMultiplier);
-            }
-            if (tree.m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
-                tree.m_Regularization.leafWeightPenaltyMultiplier(
-                    scale * previousLeafWeightPenaltyMultiplier);
-            }
-            return scale;
-        };
+                // We need to scale the regularisation terms to account for the difference
+                // in the down sample factor compared to the value used in the line search.
+                auto scaleRegularizers = [&](CBoostedTreeImpl& tree, double downsampleFactor) {
+                    double scale{previousDownsampleFactor / downsampleFactor};
+                    if (tree.m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
+                        tree.m_Regularization.depthPenaltyMultiplier(
+                            scale * previousDepthPenaltyMultiplier);
+                    }
+                    if (tree.m_RegularizationOverride.treeSizePenaltyMultiplier() ==
+                        boost::none) {
+                        tree.m_Regularization.treeSizePenaltyMultiplier(
+                            scale * previousTreeSizePenaltyMultiplier);
+                    }
+                    if (tree.m_RegularizationOverride.leafWeightPenaltyMultiplier() ==
+                        boost::none) {
+                        tree.m_Regularization.leafWeightPenaltyMultiplier(
+                            scale * previousLeafWeightPenaltyMultiplier);
+                    }
+                    return scale;
+                };
 
-        double numberTrainingRows{m_TreeImpl->m_TrainingRowMasks[0].manhattan()};
+                double numberTrainingRows{m_TreeImpl->m_TrainingRowMasks[0].manhattan()};
 
-        auto applyDownsampleFactor = [&](CBoostedTreeImpl& tree, double logDownsampleFactor) {
-            double downsampleFactor{CTools::stableExp(logDownsampleFactor)};
-            tree.m_DownsampleFactor = downsampleFactor;
-            scaleRegularizers(tree, downsampleFactor);
-            return tree.m_DownsampleFactor * numberTrainingRows > 10.0;
-        };
+                auto applyDownsampleFactor = [&](CBoostedTreeImpl& tree,
+                                                 double logDownsampleFactor) {
+                    double downsampleFactor{CTools::stableExp(logDownsampleFactor)};
+                    tree.m_DownsampleFactor = downsampleFactor;
+                    scaleRegularizers(tree, downsampleFactor);
+                    return tree.m_DownsampleFactor * numberTrainingRows > 10.0;
+                };
 
-        TVector fallback{{logMinDownsampleFactor, meanLogDownSampleFactor, logMaxDownsampleFactor}};
-        m_LogDownsampleFactorSearchInterval =
-            this->testLossLineSearch(frame, applyDownsampleFactor,
-                                     logMinDownsampleFactor, logMaxDownsampleFactor,
-                                     CTools::stableLog(MIN_DOWNSAMPLE_FACTOR_SCALE),
-                                     CTools::stableLog(MAX_DOWNSAMPLE_FACTOR_SCALE))
-                .value_or(fallback);
+                TVector fallback{{logMinDownsampleFactor, meanLogDownSampleFactor,
+                                  logMaxDownsampleFactor}};
+                m_LogDownsampleFactorSearchInterval =
+                    this->testLossLineSearch(
+                            frame, applyDownsampleFactor,
+                            logMinDownsampleFactor, logMaxDownsampleFactor,
+                            CTools::stableLog(MIN_DOWNSAMPLE_FACTOR_SCALE),
+                            CTools::stableLog(MAX_DOWNSAMPLE_FACTOR_SCALE))
+                        .value_or(fallback);
 
-        // Truncate the log(scale) to be less than or equal to log(1.0) and the down
-        // sampled set contains at least ten examples on average.
-        m_LogDownsampleFactorSearchInterval =
-            min(max(m_LogDownsampleFactorSearchInterval,
-                    TVector{CTools::stableLog(10.0 / numberTrainingRows)}),
-                TVector{0.0});
-        LOG_TRACE(<< "log down sample factor search interval = ["
-                  << m_LogDownsampleFactorSearchInterval.toDelimited() << "]");
+                // Truncate the log(scale) to be less than or equal to log(1.0) and the down
+                // sampled set contains at least ten examples on average.
+                m_LogDownsampleFactorSearchInterval =
+                    min(max(m_LogDownsampleFactorSearchInterval,
+                            TVector{CTools::stableLog(10.0 / numberTrainingRows)}),
+                        TVector{0.0});
+                LOG_TRACE(<< "log down sample factor search interval = ["
+                          << m_LogDownsampleFactorSearchInterval.toDelimited() << "]");
 
-        m_TreeImpl->m_DownsampleFactor = CTools::stableExp(
-            m_LogDownsampleFactorSearchInterval(BEST_REGULARIZER_INDEX));
+                m_TreeImpl->m_DownsampleFactor = CTools::stableExp(
+                    m_LogDownsampleFactorSearchInterval(BEST_REGULARIZER_INDEX));
 
-        TVector logScale{CTools::stableLog(
-            scaleRegularizers(*m_TreeImpl, m_TreeImpl->m_DownsampleFactor))};
-        m_LogTreeSizePenaltyMultiplierSearchInterval += logScale;
-        m_LogLeafWeightPenaltyMultiplierSearchInterval += logScale;
+                TVector logScale{CTools::stableLog(
+                    scaleRegularizers(*m_TreeImpl, m_TreeImpl->m_DownsampleFactor))};
+                m_LogTreeSizePenaltyMultiplierSearchInterval += logScale;
+                m_LogLeafWeightPenaltyMultiplierSearchInterval += logScale;
 
-        if (intervalIsEmpty(m_LogDownsampleFactorSearchInterval)) {
-            m_TreeImpl->m_DownsampleFactorOverride = m_TreeImpl->m_DownsampleFactor;
+                if (intervalIsEmpty(m_LogDownsampleFactorSearchInterval)) {
+                    m_TreeImpl->m_DownsampleFactorOverride = m_TreeImpl->m_DownsampleFactor;
+                }
+            })) {
+            m_TreeImpl->m_TrainingProgress.increment(lineSearchMaximumNumberIterations(frame));
         }
     }
 }
@@ -713,43 +793,48 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
 void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
 
     if (m_TreeImpl->m_EtaOverride == boost::none) {
-        double searchIntervalSize{5.0 * MAX_ETA_SCALE / MIN_ETA_SCALE};
-        double logMaxEta{
-            CTools::stableLog(std::sqrt(searchIntervalSize) * m_TreeImpl->m_Eta)};
-        double logMinEta{logMaxEta - CTools::stableLog(searchIntervalSize)};
-        double meanLogEta{(logMaxEta + logMinEta) / 2.0};
-        double mainLoopSearchInterval{CTools::stableLog(0.2 * searchIntervalSize)};
-        LOG_TRACE(<< "mean log eta = " << meanLogEta);
+        if (skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_EtaInitialized, [&] {
+                double searchIntervalSize{5.0 * MAX_ETA_SCALE / MIN_ETA_SCALE};
+                double logMaxEta{CTools::stableLog(std::sqrt(searchIntervalSize) *
+                                                   m_TreeImpl->m_Eta)};
+                double logMinEta{logMaxEta - CTools::stableLog(searchIntervalSize)};
+                double meanLogEta{(logMaxEta + logMinEta) / 2.0};
+                double mainLoopSearchInterval{CTools::stableLog(0.2 * searchIntervalSize)};
+                LOG_TRACE(<< "mean log eta = " << meanLogEta);
 
-        auto applyEta = [](CBoostedTreeImpl& tree, double eta) {
-            tree.m_Eta = CTools::stableExp(eta);
-            tree.m_EtaGrowthRatePerTree = 1.0 + tree.m_Eta / 2.0;
-            if (tree.m_MaximumNumberTreesOverride == boost::none) {
-                tree.m_MaximumNumberTrees = computeMaximumNumberTrees(tree.m_Eta);
-            }
-            return true;
-        };
+                auto applyEta = [](CBoostedTreeImpl& tree, double eta) {
+                    tree.m_Eta = CTools::stableExp(eta);
+                    tree.m_EtaGrowthRatePerTree = 1.0 + tree.m_Eta / 2.0;
+                    if (tree.m_MaximumNumberTreesOverride == boost::none) {
+                        tree.m_MaximumNumberTrees = computeMaximumNumberTrees(tree.m_Eta);
+                    }
+                    return true;
+                };
 
-        TVector fallback;
-        fallback(MIN_REGULARIZER_INDEX) = logMinEta;
-        fallback(BEST_REGULARIZER_INDEX) = meanLogEta;
-        fallback(MAX_REGULARIZER_INDEX) = logMaxEta;
+                TVector fallback;
+                fallback(MIN_REGULARIZER_INDEX) = logMinEta;
+                fallback(BEST_REGULARIZER_INDEX) = meanLogEta;
+                fallback(MAX_REGULARIZER_INDEX) = logMaxEta;
 
-        m_LogEtaSearchInterval =
-            this->testLossLineSearch(frame, applyEta, logMinEta, logMaxEta,
-                                     -mainLoopSearchInterval / 2.0,
-                                     mainLoopSearchInterval / 2.0)
-                .value_or(fallback);
-        m_LogEtaSearchInterval = min(m_LogEtaSearchInterval, TVector{0.0});
-        LOG_TRACE(<< "log eta search interval = ["
-                  << m_LogEtaSearchInterval.toDelimited() << "]");
-        applyEta(*m_TreeImpl, m_LogEtaSearchInterval(BEST_REGULARIZER_INDEX));
+                m_LogEtaSearchInterval =
+                    this->testLossLineSearch(frame, applyEta, logMinEta, logMaxEta,
+                                             -mainLoopSearchInterval / 2.0,
+                                             mainLoopSearchInterval / 2.0)
+                        .value_or(fallback);
+                m_LogEtaSearchInterval = min(m_LogEtaSearchInterval, TVector{0.0});
+                LOG_TRACE(<< "log eta search interval = ["
+                          << m_LogEtaSearchInterval.toDelimited() << "]");
+                applyEta(*m_TreeImpl, m_LogEtaSearchInterval(BEST_REGULARIZER_INDEX));
 
-        if (intervalIsEmpty(m_LogEtaSearchInterval)) {
-            m_TreeImpl->m_EtaOverride = m_TreeImpl->m_Eta;
-        } else if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
-            m_TreeImpl->m_MaximumNumberTrees =
-                computeMaximumNumberTrees(MIN_ETA_SCALE * m_TreeImpl->m_Eta);
+                if (intervalIsEmpty(m_LogEtaSearchInterval)) {
+                    m_TreeImpl->m_EtaOverride = m_TreeImpl->m_Eta;
+                } else if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
+                    m_TreeImpl->m_MaximumNumberTrees =
+                        computeMaximumNumberTrees(MIN_ETA_SCALE * m_TreeImpl->m_Eta);
+                }
+            })) {
+            m_TreeImpl->m_TrainingProgress.increment(
+                lineSearchMaximumNumberIterations(frame, 0.5));
         }
     }
 }
@@ -968,9 +1053,8 @@ CBoostedTreeFactory CBoostedTreeFactory::constructFromParameters(std::size_t num
 CBoostedTreeFactory CBoostedTreeFactory::constructFromString(std::istream& jsonStream) {
     CBoostedTreeFactory result{1, nullptr};
     try {
-        core::CJsonStateRestoreTraverser traverser(jsonStream);
-        if (result.m_TreeImpl->acceptRestoreTraverser(traverser) == false ||
-            traverser.haveBadState()) {
+        core::CJsonStateRestoreTraverser traverser{jsonStream};
+        if (result.acceptRestoreTraverser(traverser) == false || traverser.haveBadState()) {
             throw std::runtime_error{"failed to restore boosted tree"};
         }
     } catch (const std::exception& e) {
@@ -1198,35 +1282,68 @@ void CBoostedTreeFactory::startProgressMonitoringInitializeHyperparameters(const
 
     m_TreeImpl->m_Instrumentation->startNewProgressMonitoredTask(COARSE_PARAMETER_SEARCH);
 
-    double eta{m_TreeImpl->m_EtaOverride != boost::none
-                   ? *m_TreeImpl->m_EtaOverride
-                   : computeEta(frame.numberColumns())};
-
     std::size_t totalNumberSteps{0};
-    std::size_t lineSearchMaximumNumberTrees{computeMaximumNumberTrees(eta)};
     if (m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
-        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
+        totalNumberSteps += lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
+        totalNumberSteps += lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
-        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
+        totalNumberSteps += lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
-        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
+        totalNumberSteps += lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_DownsampleFactorOverride == boost::none) {
-        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS * lineSearchMaximumNumberTrees;
+        totalNumberSteps += lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_EtaOverride == boost::none) {
-        totalNumberSteps += MAX_LINE_SEARCH_ITERATIONS *
-                            computeMaximumNumberTrees(0.5 * eta);
+        totalNumberSteps += lineSearchMaximumNumberIterations(frame, 0.5);
     }
 
     LOG_TRACE(<< "initial search total number steps = " << totalNumberSteps);
     m_TreeImpl->m_TrainingProgress = core::CLoopProgress{
         totalNumberSteps, m_TreeImpl->m_Instrumentation->progressCallback(), 1.0, 1024};
+}
+
+std::size_t
+CBoostedTreeFactory::lineSearchMaximumNumberIterations(const core::CDataFrame& frame,
+                                                       double etaScale) const {
+    double eta{m_TreeImpl->m_EtaOverride != boost::none
+                   ? *m_TreeImpl->m_EtaOverride
+                   : computeEta(frame.numberColumns() - this->numberExtraColumnsForTrain())};
+    return MAX_LINE_SEARCH_ITERATIONS * computeMaximumNumberTrees(etaScale * eta);
+}
+
+std::size_t CBoostedTreeFactory::mainLoopMaximumNumberTrees(double eta) const {
+    if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
+        return computeMaximumNumberTrees(MIN_ETA_SCALE * eta);
+    }
+    return *m_TreeImpl->m_MaximumNumberTreesOverride;
+}
+
+template<typename F>
+bool CBoostedTreeFactory::skipIfAfter(int stage, const F& f) {
+    if (m_TreeImpl->m_InitializationStage <= stage) {
+        f();
+        return false;
+    }
+    return true;
+}
+
+template<typename F>
+bool CBoostedTreeFactory::skipCheckpointIfAtOrAfter(int stage, const F& f) {
+    if (m_TreeImpl->m_InitializationStage < stage) {
+        f();
+        m_TreeImpl->m_InitializationStage =
+            static_cast<CBoostedTreeImpl::EInitializationStage>(stage);
+        m_RecordTrainingState([this](core::CStatePersistInserter& inserter) {
+            this->acceptPersistInserter(inserter);
+        });
+        return false;
+    }
+    return true;
 }
 
 void CBoostedTreeFactory::skipProgressMonitoringFeatureSelection() {
@@ -1237,14 +1354,136 @@ void CBoostedTreeFactory::skipProgressMonitoringInitializeHyperparameters() {
     m_TreeImpl->m_Instrumentation->startNewProgressMonitoredTask(COARSE_PARAMETER_SEARCH);
 }
 
-std::size_t CBoostedTreeFactory::mainLoopMaximumNumberTrees(double eta) const {
-    if (m_TreeImpl->m_MaximumNumberTreesOverride == boost::none) {
-        return computeMaximumNumberTrees(MIN_ETA_SCALE * eta);
-    }
-    return *m_TreeImpl->m_MaximumNumberTreesOverride;
+void CBoostedTreeFactory::noopRecordTrainingState(CBoostedTree::TPersistFunc) {
 }
 
-void CBoostedTreeFactory::noopRecordTrainingState(CBoostedTree::TPersistFunc) {
+namespace {
+const std::string VERSION_7_9_TAG{"7.9"};
+
+// clang-format off
+const std::string FACTORY_TAG{"factory"};
+const std::string GAIN_PER_NODE_1ST_PERCENTILE_TAG{"gain_per_node_1st_percentile"};
+const std::string GAIN_PER_NODE_50TH_PERCENTILE_TAG{"gain_per_node_50th_percentile"};
+const std::string GAIN_PER_NODE_90TH_PERCENTILE_TAG{"gain_per_node_90th_percentile"};
+const std::string INITIALIZATION_CHECKPOINT_TAG{"initialization_checkpoint"};
+const std::string LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_depth_penalty_multiplier_search_interval"};
+const std::string LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG{"log_downsample_factor_search_interval"};
+const std::string LOG_ETA_SEARCH_INTERVAL_TAG{"log_eta_search_interval"};
+const std::string LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_leaf_weight_penalty_multiplier_search_interval"};
+const std::string LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_tree_size_penalty_multiplier_search_interval"};
+const std::string SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG{"soft_depth_limit_search_interval"};
+const std::string TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG{"total_curvature_per_node_1st_percentile"};
+const std::string TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG{"total_curvature_per_node_90th_percentile"};
+const std::string TREE_TAG{"tree"};
+// clang-format on
+}
+
+void CBoostedTreeFactory::acceptPersistInserter(core::CStatePersistInserter& inserter_) const {
+    inserter_.insertValue(INITIALIZATION_CHECKPOINT_TAG, "");
+    inserter_.insertLevel(FACTORY_TAG, [this](core::CStatePersistInserter& inserter) {
+        inserter.insertValue(VERSION_7_9_TAG, "");
+        core::CPersistUtils::persist(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
+                                     m_GainPerNode1stPercentile, inserter);
+        core::CPersistUtils::persist(GAIN_PER_NODE_50TH_PERCENTILE_TAG,
+                                     m_GainPerNode50thPercentile, inserter);
+        core::CPersistUtils::persist(GAIN_PER_NODE_90TH_PERCENTILE_TAG,
+                                     m_GainPerNode90thPercentile, inserter);
+        core::CPersistUtils::persist(LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                     m_LogDepthPenaltyMultiplierSearchInterval, inserter);
+        core::CPersistUtils::persist(LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
+                                     m_LogDownsampleFactorSearchInterval, inserter);
+        core::CPersistUtils::persist(LOG_ETA_SEARCH_INTERVAL_TAG,
+                                     m_LogEtaSearchInterval, inserter);
+        core::CPersistUtils::persist(
+            LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+            m_LogLeafWeightPenaltyMultiplierSearchInterval, inserter);
+        core::CPersistUtils::persist(LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                     m_LogTreeSizePenaltyMultiplierSearchInterval, inserter);
+        core::CPersistUtils::persist(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
+                                     m_SoftDepthLimitSearchInterval, inserter);
+        core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
+                                     m_TotalCurvaturePerNode1stPercentile, inserter);
+        core::CPersistUtils::persist(TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG,
+                                     m_TotalCurvaturePerNode90thPercentile, inserter);
+    });
+    inserter_.insertLevel(TREE_TAG, [this](core::CStatePersistInserter& inserter) {
+        m_TreeImpl->acceptPersistInserter(inserter);
+    });
+}
+
+bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser_) {
+    if (traverser_.name() != INITIALIZATION_CHECKPOINT_TAG) {
+        return m_TreeImpl->acceptRestoreTraverser(traverser_);
+    }
+
+    while (traverser_.next()) {
+        const std::string& name_{traverser_.name()};
+        if (name_ == FACTORY_TAG) {
+            if (traverser_.traverseSubLevel([this](core::CStateRestoreTraverser& traverser) {
+                    do {
+                        const std::string& name{traverser.name()};
+                        RESTORE(GAIN_PER_NODE_1ST_PERCENTILE_TAG,
+                                core::CPersistUtils::restore(
+                                    GAIN_PER_NODE_1ST_PERCENTILE_TAG,
+                                    m_GainPerNode1stPercentile, traverser))
+                        RESTORE(GAIN_PER_NODE_50TH_PERCENTILE_TAG,
+                                core::CPersistUtils::restore(
+                                    GAIN_PER_NODE_50TH_PERCENTILE_TAG,
+                                    m_GainPerNode50thPercentile, traverser))
+                        RESTORE(GAIN_PER_NODE_90TH_PERCENTILE_TAG,
+                                core::CPersistUtils::restore(
+                                    GAIN_PER_NODE_90TH_PERCENTILE_TAG,
+                                    m_GainPerNode90thPercentile, traverser))
+                        RESTORE(LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                core::CPersistUtils::restore(
+                                    LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                    m_LogDepthPenaltyMultiplierSearchInterval, traverser))
+                        RESTORE(LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
+                                core::CPersistUtils::restore(
+                                    LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG,
+                                    m_LogDownsampleFactorSearchInterval, traverser))
+                        RESTORE(LOG_ETA_SEARCH_INTERVAL_TAG,
+                                core::CPersistUtils::restore(LOG_ETA_SEARCH_INTERVAL_TAG,
+                                                             m_LogEtaSearchInterval, traverser))
+                        RESTORE(LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                core::CPersistUtils::restore(
+                                    LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                    m_LogLeafWeightPenaltyMultiplierSearchInterval, traverser))
+                        RESTORE(LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                core::CPersistUtils::restore(
+                                    LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
+                                    m_LogTreeSizePenaltyMultiplierSearchInterval, traverser))
+                        RESTORE(SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
+                                core::CPersistUtils::restore(
+                                    SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG,
+                                    m_SoftDepthLimitSearchInterval, traverser))
+                        RESTORE(TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
+                                core::CPersistUtils::restore(
+                                    TOTAL_CURVATURE_PER_NODE_1ST_PERCENTILE_TAG,
+                                    m_TotalCurvaturePerNode1stPercentile, traverser))
+                        RESTORE(TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG,
+                                core::CPersistUtils::restore(
+                                    TOTAL_CURVATURE_PER_NODE_90TH_PERCENTILE_TAG,
+                                    m_TotalCurvaturePerNode90thPercentile, traverser))
+                    } while (traverser.next());
+                    return true;
+                }) == false) {
+                LOG_ERROR(<< "Failed to restore " << FACTORY_TAG);
+                return false;
+            }
+            continue;
+        }
+        if (name_ == TREE_TAG) {
+            if (traverser_.traverseSubLevel([this](core::CStateRestoreTraverser& traverser) {
+                    return m_TreeImpl->acceptRestoreTraverser(traverser);
+                }) == false) {
+                LOG_ERROR(<< "Failed to restore " << TREE_TAG);
+                return false;
+            }
+            continue;
+        }
+    }
+    return true;
 }
 
 const std::string CBoostedTreeFactory::FEATURE_SELECTION{"feature_selection"};
