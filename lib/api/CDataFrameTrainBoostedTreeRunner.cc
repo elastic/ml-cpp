@@ -192,10 +192,16 @@ std::size_t CDataFrameTrainBoostedTreeRunner::dataFrameSliceCapacity() const {
         this->spec().numberColumns() + this->numberExtraColumns())};
     std::size_t numberThreads{this->spec().numberThreads()};
     if (numberThreads > 1) {
+        std::size_t numberRows{this->spec().numberRows()};
+
         // Use at least one slice per thread because we parallelize work over slices.
-        std::size_t capacityForTwoSlicesPerThread{
-            (this->spec().numberRows() + numberThreads - 1) / numberThreads};
-        sliceCapacity = std::min(sliceCapacity, capacityForTwoSlicesPerThread);
+        std::size_t capacityForOneSlicePerThread{(numberRows + numberThreads - 1) / numberThreads};
+        sliceCapacity = std::min(sliceCapacity, capacityForOneSlicePerThread);
+
+        // Round the slice size so number threads is a divisor of the number of slices.
+        std::size_t numberSlices{numberRows / sliceCapacity};
+        sliceCapacity = numberRows /
+                        (numberThreads * ((numberSlices + numberThreads / 2) / numberThreads));
     }
     return std::max(sliceCapacity, std::size_t{128});
 }
