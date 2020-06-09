@@ -9,7 +9,7 @@
 #include <api/CCategoryIdMapper.h>
 #include <api/ImportExport.h>
 
-#include <map>
+#include <functional>
 #include <vector>
 
 namespace ml {
@@ -19,38 +19,45 @@ namespace api {
 //! Category ID mapper for use with per-partition categorization.
 //!
 //! DESCRIPTION:\n
-//! Maps between global category ID and the tuple
-//! (partition field value, local category ID).
+//! Maps between local category ID and global category ID.
+//!
+//! Each partition will have a separate instance of this class.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! This mapper is designed for jobs that do per-partition
 //! categorization.
 //!
-//! The mappings are stored in the form of a map from
-//! partition field value to a vector of global IDs that is
+//! The mappings are stored in a vector of global IDs that is
 //! stored ordered by local ID.  Since local ID is vector
-//! index plus one in vectors of all local IDs this means
-//! that the ID part of the lookup just involves getting the
-//! element at the desired index from the vector.
+//! index plus one in vectors of all local IDs this means that
+//! the lookup just involves getting the element at the
+//! desired index from the vector.
 //!
-//! The highest ever global ID is stored separately to the
-//! main mapping data structure so that if we decide to
-//! completely discard partitions in the future then the
-//! data structure and persistence mechanism will support this.
+//! The highest ever global ID is obtained from a supplied
+//! function, as it needs to increment across all partitions,
+//! not just for the partition one object of this class is
+//! mapping for.
 //!
 //! This class is not thread-safe.  Each object should only
 //! be used within a single thread.
 //!
 class API_EXPORT CPerPartitionCategoryIdMapper : public CCategoryIdMapper {
 public:
-    //! Map from a categorizer key and category ID local to that categorizer to
-    //! a global category ID.  This method is not const, as it will create a
-    //! new global ID if one does not exist.
-    CGlobalCategoryId map(const std::string& categorizerKey,
-                          model::CLocalCategoryId localCategoryId) override;
+    using TNextGlobalIdSupplier = std::function<int()>;
+
+public:
+    CPerPartitionCategoryIdMapper(std::string categorizerKey,
+                                  TNextGlobalIdSupplier nextGlobalIdSupplier);
+
+    //! Map from a local category ID local to a global category ID.  This method
+    //! is not const, as it will create a new global ID if one does not exist.
+    CGlobalCategoryId map(model::CLocalCategoryId localCategoryId) override;
+
+    //! Get the categorizer key for this mapper.
+    const std::string& categorizerKey() const override;
 
     //! Create a clone.
-    TCategoryIdMapperUPtr clone() const override;
+    TCategoryIdMapperPtr clone() const override;
 
     //! Persist the mapper passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const override;
@@ -61,17 +68,18 @@ public:
 private:
     //! Key specifiers for the multi-index
     using TGlobalCategoryIdVec = std::vector<CGlobalCategoryId>;
-    using TStrGlobalCategoryIdVecMap = std::map<std::string, TGlobalCategoryIdVec>;
 
 private:
     //! Highest previously used global ID.
-    int m_HighestGlobalId = 0;
+    const std::string m_CategorizerKey;
 
-    //! Index of global to local category IDs.  The outer map is keyed on the
-    //! partition field value, then the local category IDs are indices into the
-    //! vector.  The string pointers inside the global category IDs point to
-    //! the strings in the map keys.
-    TStrGlobalCategoryIdVecMap m_Mapper;
+    //! Supplier for next global ID.
+    TNextGlobalIdSupplier m_NextGlobalIdSupplier;
+
+    //! Index of local to global category IDs.  Each global ID is at the index
+    //! of the index() method of the corresponding local ID.  The string
+    //! pointers inside the global category IDs point to m_CategorizerKey.
+    TGlobalCategoryIdVec m_Mappings;
 };
 }
 }

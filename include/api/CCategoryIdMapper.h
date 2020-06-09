@@ -35,7 +35,7 @@ namespace api {
 //!
 class API_EXPORT CCategoryIdMapper {
 public:
-    using TCategoryIdMapperUPtr = std::unique_ptr<CCategoryIdMapper>;
+    using TCategoryIdMapperPtr = std::shared_ptr<CCategoryIdMapper>;
 
     using TLocalCategoryIdVec = std::vector<model::CLocalCategoryId>;
     using TGlobalCategoryIdVec = std::vector<CGlobalCategoryId>;
@@ -43,21 +43,20 @@ public:
 public:
     virtual ~CCategoryIdMapper() = default;
 
-    //! Map from a categorizer key and category ID local to that categorizer to
-    //! a global category ID.  This method is not const, as it will create a
-    //! new global ID if one does not exist.
-    virtual CGlobalCategoryId map(const std::string& categorizerKey,
-                                  model::CLocalCategoryId localCategoryId) = 0;
+    //! Map from a local category ID local to a global category ID.  This method
+    //! is not const, as it will create a new global ID if one does not exist.
+    virtual CGlobalCategoryId map(model::CLocalCategoryId localCategoryId) = 0;
 
-    //! Map from a categorizer key and vector of category IDs local to that
-    //! categorizer to a vector of global category IDs.  This method is not
-    //! const, as it will create new global IDs if any that are required do not
-    //! already exist.
-    TGlobalCategoryIdVec mapVec(const std::string& categorizerKey,
-                                const TLocalCategoryIdVec& localCategoryIds);
+    //! Map from a vector of local category IDs to a vector of global category
+    //! IDs.  This method is not const, as it will create new global IDs if any
+    //! that are required do not already exist.
+    TGlobalCategoryIdVec mapVec(const TLocalCategoryIdVec& localCategoryIds);
+
+    //! Get the categorizer key for this mapper.
+    virtual const std::string& categorizerKey() const = 0;
 
     //! Create a clone.
-    virtual TCategoryIdMapperUPtr clone() const = 0;
+    virtual TCategoryIdMapperPtr clone() const = 0;
 
     //! Persist the mapper passing information to \p inserter.
     virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const;

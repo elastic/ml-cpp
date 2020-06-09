@@ -10,13 +10,12 @@ namespace ml {
 namespace api {
 
 CCategoryIdMapper::TGlobalCategoryIdVec
-CCategoryIdMapper::mapVec(const std::string& categorizerKey,
-                          const TLocalCategoryIdVec& localCategoryIds) {
+CCategoryIdMapper::mapVec(const TLocalCategoryIdVec& localCategoryIds) {
     TGlobalCategoryIdVec mapped;
     mapped.reserve(localCategoryIds.size());
 
     for (const auto& localCategoryId : localCategoryIds) {
-        mapped.emplace_back(this->map(categorizerKey, localCategoryId));
+        mapped.emplace_back(this->map(localCategoryId));
     }
 
     return mapped;

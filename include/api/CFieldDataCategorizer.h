@@ -16,11 +16,16 @@
 #include <api/CCategoryIdMapper.h>
 #include <api/CDataProcessor.h>
 #include <api/CGlobalCategoryId.h>
+#include <api/CGlobalIdDataCategorizer.h>
 #include <api/ImportExport.h>
 
+#include <boost/unordered_set.hpp>
+
 #include <cstdint>
+#include <map>
 #include <memory>
 #include <string>
+#include <vector>
 
 namespace ml {
 namespace core {
@@ -104,6 +109,8 @@ public:
 
     ~CFieldDataCategorizer() override;
 
+    CGlobalCategoryId computeAndUpdateCategory(const TStrStrUMap& dataRowFields);
+
     //! We're going to be writing to a new output stream
     void newOutputStream() override;
 
@@ -136,16 +143,12 @@ public:
     COutputHandler& outputHandler() override;
 
 private:
-    using TPersistFuncVec = std::vector<model::CDataCategorizer::TPersistFunc>;
-    using TCategoryExamplesCollectorsVec = std::vector<model::CCategoryExamplesCollector>;
-    using TCategoryExamplesCollectorsCRef =
-        std::reference_wrapper<const model::CCategoryExamplesCollector>;
-    using TCategoryExamplesCollectorsCRefVec = std::vector<TCategoryExamplesCollectorsCRef>;
+    using TPersistFuncVec = std::vector<CGlobalIdDataCategorizer::TPersistFunc>;
 
     using TStrUSet = boost::unordered_set<std::string>;
 
-    using TStrDataCategorizerPtrUMap =
-        boost::unordered_map<std::string, model::CDataCategorizer::TDataCategorizerPtr>;
+    using TGlobalIdDataCategorizerPtr = std::shared_ptr<CGlobalIdDataCategorizer>;
+    using TStrGlobalIdDataCategorizerPtrMap = std::map<std::string, TGlobalIdDataCategorizerPtr>;
 
 private:
     //! Get the appropriate categorizer key from the given input record
@@ -155,29 +158,16 @@ private:
     //! field value.  If the categorizer does not already exist then this method
     //! will create it if the memory status is not hard_limit, and will return
     //! nullptr if hard_limit has been hit.
-    model::CDataCategorizer* categorizerPtrForKey(const std::string& partitionFieldValue);
+    CGlobalIdDataCategorizer* categorizerPtrForKey(const std::string& partitionFieldValue);
 
     //! Get (creating if necessary) the categorizer to operate on the given
     //! partition field value
-    model::CDataCategorizer& categorizerForKey(const std::string& partitionFieldValue);
+    CGlobalIdDataCategorizer& categorizerForKey(const std::string& partitionFieldValue);
 
-    //! Compute the category for a given record.
-    CGlobalCategoryId computeCategory(const TStrStrUMap& dataRowFields);
-
-    //! Create the reverse search and return true if it has changed or false otherwise
-    bool createReverseSearch(model::CDataCategorizer& dataCategorizer,
-                             model::CLocalCategoryId categoryId);
-
-    template<typename EXAMPLES_COLLECTOR_VEC>
     bool doPersistState(const TStrVec& partitionFieldValues,
                         const TPersistFuncVec& dataCategorizerPersistFuncs,
-                        const EXAMPLES_COLLECTOR_VEC& examplesCollectors,
-                        const CCategoryIdMapper& categoryIdMapper,
                         std::size_t categorizerAllocationFailures,
                         core::CDataAdder& persister);
-    static void persistSingleCategorizer(const model::CDataCategorizer::TPersistFunc& dataCategorizerPersistFunc,
-                                         const model::CCategoryExamplesCollector& examplesCollector,
-                                         core::CStatePersistInserter& inserter);
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Respond to an attempt to restore corrupt categorizer state by
@@ -199,6 +189,12 @@ private:
     //! since the last time this method was called.
     void writeOutChangedCategories();
 
+    //! Get the next global ID to use.  This method only returns a useful
+    //! result when per-partition categorization is being used.  When
+    //! per-partition categorization is not used, there is no need for this
+    //! value to be tracked.
+    int nextGlobalId();
+
 private:
     //! The job ID
     const std::string m_JobId;
@@ -215,6 +211,9 @@ private:
     //! Should we write the field names before the next output?
     bool m_WriteFieldNames = true;
 
+    //! Highest previously used global ID.
+    int m_HighestGlobalId = 0;
+
     //! Keep count of how many records we've handled
     std::uint64_t m_NumRecordsHandled = 0;
 
@@ -225,19 +224,10 @@ private:
     //! repeatedly searching for them
     std::string& m_OutputFieldCategory;
 
-    //! Space separated list of search terms for the current category
-    std::string m_SearchTerms;
-
-    //! Regex to match values of the current category
-    std::string m_SearchTermsRegex;
-
-    //! The max matching length of the current category
-    std::size_t m_MaxMatchingLength = 0;
-
     //! Map of categorizer by partition field value.  If per-partition
     //! categorization is disabled this map will have one entry, keyed on
     //! the empty string.
-    TStrDataCategorizerPtrUMap m_DataCategorizers;
+    TStrGlobalIdDataCategorizerPtrMap m_DataCategorizers;
 
     //! Reference to the json output writer so that examples can be written
     CJsonOutputWriter& m_JsonOutputWriter;
@@ -267,9 +257,6 @@ private:
     //! on each invocation of the program if the same partition values are seen
     //! again.
     TStrUSet m_CategorizerAllocationFailedPartitions;
-
-    //! Used to map between local and global category IDs.
-    CCategoryIdMapper::TCategoryIdMapperUPtr m_CategoryIdMapper;
 };
 }
 }

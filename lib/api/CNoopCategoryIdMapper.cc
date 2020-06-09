@@ -6,16 +6,23 @@
 
 #include <api/CNoopCategoryIdMapper.h>
 
+namespace {
+std::string EMPTY_STRING;
+}
+
 namespace ml {
 namespace api {
 
-CGlobalCategoryId CNoopCategoryIdMapper::map(const std::string& /*categorizerKey*/,
-                                             model::CLocalCategoryId localCategoryId) {
+CGlobalCategoryId CNoopCategoryIdMapper::map(model::CLocalCategoryId localCategoryId) {
     return CGlobalCategoryId{localCategoryId.id()};
 }
 
-CCategoryIdMapper::TCategoryIdMapperUPtr CNoopCategoryIdMapper::clone() const {
-    return std::make_unique<CNoopCategoryIdMapper>(*this);
+const std::string& CNoopCategoryIdMapper::categorizerKey() const {
+    return EMPTY_STRING;
+}
+
+CCategoryIdMapper::TCategoryIdMapperPtr CNoopCategoryIdMapper::clone() const {
+    return std::make_shared<CNoopCategoryIdMapper>(*this);
 }
 }
 }

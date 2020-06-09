@@ -14,13 +14,13 @@ BOOST_AUTO_TEST_CASE(testLocalToGlobal) {
     ml::api::CNoopCategoryIdMapper categoryIdMapper;
 
     BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId{-2},
-                        categoryIdMapper.map("", ml::model::CLocalCategoryId{-2}));
+                        categoryIdMapper.map(ml::model::CLocalCategoryId{-2}));
     BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId{-1},
-                        categoryIdMapper.map("", ml::model::CLocalCategoryId{-1}));
+                        categoryIdMapper.map(ml::model::CLocalCategoryId{-1}));
     BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId{1},
-                        categoryIdMapper.map("", ml::model::CLocalCategoryId{1}));
+                        categoryIdMapper.map(ml::model::CLocalCategoryId{1}));
     BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId{2},
-                        categoryIdMapper.map("", ml::model::CLocalCategoryId{2}));
+                        categoryIdMapper.map(ml::model::CLocalCategoryId{2}));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

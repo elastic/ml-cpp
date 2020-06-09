@@ -17,8 +17,8 @@ namespace api {
 //! are the same.
 //!
 //! DESCRIPTION:\n
-//! All mappings are no-ops and the categorizer key for every global
-//! category ID is the empty string.
+//! All mappings are no-ops and the categorizer key is the empty
+//! string.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! This mapper is designed for the case where there is a single
@@ -26,14 +26,15 @@ namespace api {
 //!
 class API_EXPORT CNoopCategoryIdMapper : public CCategoryIdMapper {
 public:
-    //! Map from a categorizer key and category ID local to that categorizer to
-    //! a global category ID.  This method is not const, as it will create a
-    //! new global ID if one does not exist.
-    CGlobalCategoryId map(const std::string& categorizerKey,
-                          model::CLocalCategoryId localCategoryId) override;
+    //! Map from a local category ID local to a global category ID.  This method
+    //! is not const, as it will create a new global ID if one does not exist.
+    CGlobalCategoryId map(model::CLocalCategoryId localCategoryId) override;
+
+    //! Get the categorizer key for this mapper.
+    const std::string& categorizerKey() const override;
 
     //! Create a clone.
-    TCategoryIdMapperUPtr clone() const override;
+    TCategoryIdMapperPtr clone() const override;
 };
 }
 }

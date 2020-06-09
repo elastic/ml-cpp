@@ -34,58 +34,74 @@ void persistAndRestore(const ml::api::CPerPartitionCategoryIdMapper& persistFrom
 }
 
 BOOST_AUTO_TEST_CASE(testLocalToGlobal) {
-    std::string p1{"p1"};
-    std::string p2{"p2"};
 
-    auto assertions = [&p1, &p2](ml::api::CPerPartitionCategoryIdMapper& categoryIdMapper) {
+    const std::string partitionFieldValue1{"p1"};
+    const std::string partitionFieldValue2{"p1"};
+
+    int highestGlobalId{0};
+    ml::api::CPerPartitionCategoryIdMapper::TNextGlobalIdSupplier nextGlobalIdSupplier{
+        [&highestGlobalId]() { return ++highestGlobalId; }};
+
+    auto assertions = [&partitionFieldValue1, &partitionFieldValue2](
+                          ml::api::CPerPartitionCategoryIdMapper& categoryIdMapper1,
+                          ml::api::CPerPartitionCategoryIdMapper& categoryIdMapper2) {
         BOOST_REQUIRE_EQUAL(
-            ml::api::CGlobalCategoryId(-2, p1, ml::model::CLocalCategoryId{-2}),
-            categoryIdMapper.map("p1", ml::model::CLocalCategoryId{-2}));
+            ml::api::CGlobalCategoryId::hardFailure(),
+            categoryIdMapper1.map(ml::model::CLocalCategoryId::hardFailure()));
         BOOST_REQUIRE_EQUAL(
-            ml::api::CGlobalCategoryId(-2, p2, ml::model::CLocalCategoryId{-2}),
-            categoryIdMapper.map("p2", ml::model::CLocalCategoryId{-2}));
+            ml::api::CGlobalCategoryId::hardFailure(),
+            categoryIdMapper2.map(ml::model::CLocalCategoryId::hardFailure()));
+        BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId(1, partitionFieldValue1,
+                                                       ml::model::CLocalCategoryId{1}),
+                            categoryIdMapper1.map(ml::model::CLocalCategoryId{1}));
+        BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId(2, partitionFieldValue1,
+                                                       ml::model::CLocalCategoryId{2}),
+                            categoryIdMapper1.map(ml::model::CLocalCategoryId{2}));
+        BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId(3, partitionFieldValue2,
+                                                       ml::model::CLocalCategoryId{1}),
+                            categoryIdMapper2.map(ml::model::CLocalCategoryId{1}));
+        BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId(2, partitionFieldValue1,
+                                                       ml::model::CLocalCategoryId{2}),
+                            categoryIdMapper1.map(ml::model::CLocalCategoryId{2}));
+        BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId(3, partitionFieldValue2,
+                                                       ml::model::CLocalCategoryId{1}),
+                            categoryIdMapper2.map(ml::model::CLocalCategoryId{1}));
+        BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId(4, partitionFieldValue1,
+                                                       ml::model::CLocalCategoryId{3}),
+                            categoryIdMapper1.map(ml::model::CLocalCategoryId{3}));
+        BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId(5, partitionFieldValue2,
+                                                       ml::model::CLocalCategoryId{2}),
+                            categoryIdMapper2.map(ml::model::CLocalCategoryId{2}));
         BOOST_REQUIRE_EQUAL(
-            ml::api::CGlobalCategoryId(-1, p1, ml::model::CLocalCategoryId{-1}),
-            categoryIdMapper.map("p1", ml::model::CLocalCategoryId{-1}));
+            ml::api::CGlobalCategoryId::softFailure(),
+            categoryIdMapper2.map(ml::model::CLocalCategoryId::softFailure()));
         BOOST_REQUIRE_EQUAL(
-            ml::api::CGlobalCategoryId(-1, p2, ml::model::CLocalCategoryId{-1}),
-            categoryIdMapper.map("p2", ml::model::CLocalCategoryId{-1}));
-        BOOST_REQUIRE_EQUAL(
-            ml::api::CGlobalCategoryId(1, p1, ml::model::CLocalCategoryId{1}),
-            categoryIdMapper.map("p1", ml::model::CLocalCategoryId{1}));
-        BOOST_REQUIRE_EQUAL(
-            ml::api::CGlobalCategoryId(2, p1, ml::model::CLocalCategoryId{2}),
-            categoryIdMapper.map("p1", ml::model::CLocalCategoryId{2}));
-        BOOST_REQUIRE_EQUAL(
-            ml::api::CGlobalCategoryId(3, p2, ml::model::CLocalCategoryId{1}),
-            categoryIdMapper.map("p2", ml::model::CLocalCategoryId{1}));
-        BOOST_REQUIRE_EQUAL(
-            ml::api::CGlobalCategoryId(4, p2, ml::model::CLocalCategoryId{2}),
-            categoryIdMapper.map("p2", ml::model::CLocalCategoryId{2}));
-        BOOST_REQUIRE_EQUAL(
-            ml::api::CGlobalCategoryId(5, p1, ml::model::CLocalCategoryId{3}),
-            categoryIdMapper.map("p1", ml::model::CLocalCategoryId{3}));
-        BOOST_REQUIRE_EQUAL(
-            ml::api::CGlobalCategoryId(2, p1, ml::model::CLocalCategoryId{2}),
-            categoryIdMapper.map("p1", ml::model::CLocalCategoryId{2}));
-        BOOST_REQUIRE_EQUAL(
-            ml::api::CGlobalCategoryId(3, p2, ml::model::CLocalCategoryId{1}),
-            categoryIdMapper.map("p2", ml::model::CLocalCategoryId{1}));
+            ml::api::CGlobalCategoryId::softFailure(),
+            categoryIdMapper1.map(ml::model::CLocalCategoryId::softFailure()));
     };
 
-    ml::api::CPerPartitionCategoryIdMapper origCategoryIdMapper;
+    ml::api::CPerPartitionCategoryIdMapper origCategoryIdMapper1{
+        partitionFieldValue1, nextGlobalIdSupplier};
+    ml::api::CPerPartitionCategoryIdMapper origCategoryIdMapper2{
+        partitionFieldValue2, nextGlobalIdSupplier};
 
-    assertions(origCategoryIdMapper);
+    assertions(origCategoryIdMapper1, origCategoryIdMapper2);
 
-    ml::api::CPerPartitionCategoryIdMapper restoredCategoryIdMapper;
-    persistAndRestore(origCategoryIdMapper, restoredCategoryIdMapper);
+    ml::api::CPerPartitionCategoryIdMapper restoredCategoryIdMapper1{
+        partitionFieldValue1, nextGlobalIdSupplier};
+    persistAndRestore(origCategoryIdMapper1, restoredCategoryIdMapper1);
+    ml::api::CPerPartitionCategoryIdMapper restoredCategoryIdMapper2{
+        partitionFieldValue2, nextGlobalIdSupplier};
+    persistAndRestore(origCategoryIdMapper2, restoredCategoryIdMapper2);
 
-    assertions(restoredCategoryIdMapper);
+    assertions(restoredCategoryIdMapper1, restoredCategoryIdMapper2);
 
-    // Restore should have remembered the highest ever global ID so the next one is 6
-    BOOST_REQUIRE_EQUAL(
-        ml::api::CGlobalCategoryId(6, p2, ml::model::CLocalCategoryId{3}),
-        restoredCategoryIdMapper.map("p2", ml::model::CLocalCategoryId{3}));
+    BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId(6, partitionFieldValue2,
+                                                   ml::model::CLocalCategoryId{3}),
+                        restoredCategoryIdMapper2.map(ml::model::CLocalCategoryId{3}));
+    BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId(7, partitionFieldValue1,
+                                                   ml::model::CLocalCategoryId{4}),
+                        restoredCategoryIdMapper1.map(ml::model::CLocalCategoryId{4}));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

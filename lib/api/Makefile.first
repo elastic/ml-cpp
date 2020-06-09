@@ -42,6 +42,7 @@ CFieldConfig.cc \
 CFieldDataCategorizer.cc \
 CForecastRunner.cc \
 CGlobalCategoryId.cc \
+CGlobalIdDataCategorizer.cc \
 CHierarchicalResultsWriter.cc \
 CInferenceModelDefinition.cc \
 CInputParser.cc \

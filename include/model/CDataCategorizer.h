@@ -53,8 +53,10 @@ public:
     //! Shared pointer to an instance of this class
     using TDataCategorizerPtr = std::shared_ptr<CDataCategorizer>;
 
-    //! Shared pointer to an instance of this class
+    //! Function used for persisting objects of this class
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
+
+    //! Vector of local category IDs
     using TLocalCategoryIdVec = std::vector<CLocalCategoryId>;
 
 public:
@@ -136,13 +138,17 @@ public:
     //! Restore the examples collector
     bool restoreExamplesCollector(core::CStateRestoreTraverser& traverser);
 
+    //! Number of matches for the specified category.
     virtual std::size_t numMatches(CLocalCategoryId categoryId) = 0;
 
+    //! Get the categories that will never be detected again because the
+    //! specified category will always be returned instead.
     virtual TLocalCategoryIdVec usurpedCategories(CLocalCategoryId categoryId) = 0;
 
+    //! Number of categories this categorizer has detected.
     virtual std::size_t numCategories() const = 0;
 
-    //! Has the passed category changed since this method was called last?
+    //! Has the specified category changed since this method was called last?
     //! Once called, the category is marked as unchanged, until the category
     //! changes again.
     virtual bool categoryChangedAndReset(CLocalCategoryId categoryId) = 0;
