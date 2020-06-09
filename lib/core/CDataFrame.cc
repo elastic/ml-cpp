@@ -108,15 +108,6 @@ CRowIterator CRowIterator::operator++(int) {
 
 using namespace data_frame_detail;
 
-namespace {
-//! Compute the default slice capacity in rows.
-std::size_t computeSliceCapacity(std::size_t numberColumns) {
-    // TODO This probably needs some careful tuning, which I haven't performed
-    // yet, and probably needs to be different for different storage strategies.
-    return std::max(1048576 / sizeof(CFloatStorage) / numberColumns, std::size_t(100));
-}
-}
-
 CDataFrame::CDataFrame(bool inMainMemory,
                        std::size_t numberColumns,
                        CAlignment::EType rowAlignment,
@@ -130,19 +121,6 @@ CDataFrame::CDataFrame(bool inMainMemory,
       m_WriteSliceToStore{writeSliceToStore}, m_ColumnNames(numberColumns),
       m_CategoricalColumnValues(numberColumns), m_MissingString{DEFAULT_MISSING_STRING},
       m_ColumnIsCategorical(numberColumns, false) {
-}
-
-CDataFrame::CDataFrame(bool inMainMemory,
-                       std::size_t numberColumns,
-                       CAlignment::EType rowAlignment,
-                       EReadWriteToStorage readAndWriteToStoreSyncStrategy,
-                       const TWriteSliceToStoreFunc& writeSliceToStore)
-    : CDataFrame{inMainMemory,
-                 numberColumns,
-                 rowAlignment,
-                 computeSliceCapacity(numberColumns),
-                 readAndWriteToStoreSyncStrategy,
-                 writeSliceToStore} {
 }
 
 CDataFrame::~CDataFrame() = default;
@@ -729,6 +707,11 @@ CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
     return {m_NumberRows, std::move(m_SlicesWrittenToStore)};
 }
 
+std::size_t dataFrameDefaultSliceCapacity(std::size_t numberColumns) {
+    std::size_t oneMbChunkSize{1024 * 1024 / sizeof(CFloatStorage) / numberColumns};
+    return std::max(oneMbChunkSize, std::size_t{128});
+}
+
 std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeMainStorageDataFrame(std::size_t numberColumns,
                          boost::optional<std::size_t> sliceCapacity,
@@ -739,13 +722,11 @@ makeMainStorageDataFrame(std::size_t numberColumns,
             firstRow, std::move(rows), std::move(docHashes));
     };
 
-    if (sliceCapacity != boost::none) {
-        return {std::make_unique<CDataFrame>(true, numberColumns, alignment, *sliceCapacity,
-                                             readWriteToStoreSyncStrategy, writer),
-                nullptr};
+    if (sliceCapacity == boost::none) {
+        sliceCapacity = dataFrameDefaultSliceCapacity(numberColumns);
     }
 
-    return {std::make_unique<CDataFrame>(true, numberColumns, alignment,
+    return {std::make_unique<CDataFrame>(true, numberColumns, alignment, *sliceCapacity,
                                          readWriteToStoreSyncStrategy, writer),
             nullptr};
 }
@@ -770,12 +751,11 @@ makeDiskStorageDataFrame(const std::string& rootDirectory,
             directory, firstRow, std::move(rows), std::move(docHashes));
     };
 
-    if (sliceCapacity != boost::none) {
-        return {std::make_unique<CDataFrame>(false, numberColumns, alignment, *sliceCapacity,
-                                             readWriteToStoreSyncStrategy, writer),
-                directory};
+    if (sliceCapacity == boost::none) {
+        sliceCapacity = dataFrameDefaultSliceCapacity(numberColumns);
     }
-    return {std::make_unique<CDataFrame>(false, numberColumns, alignment,
+
+    return {std::make_unique<CDataFrame>(false, numberColumns, alignment, *sliceCapacity,
                                          readWriteToStoreSyncStrategy, writer),
             directory};
 }

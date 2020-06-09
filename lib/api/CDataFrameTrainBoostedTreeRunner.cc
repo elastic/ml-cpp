@@ -187,6 +187,19 @@ std::size_t CDataFrameTrainBoostedTreeRunner::numberExtraColumns() const {
     return m_BoostedTreeFactory->numberExtraColumnsForTrain();
 }
 
+std::size_t CDataFrameTrainBoostedTreeRunner::dataFrameSliceCapacity() const {
+    std::size_t sliceCapacity{core::dataFrameDefaultSliceCapacity(
+        this->spec().numberColumns() + this->numberExtraColumns())};
+    std::size_t numberThreads{this->spec().numberThreads()};
+    if (numberThreads > 1) {
+        // Use at least one slice per thread because we parallelize work over slices.
+        std::size_t capacityForTwoSlicesPerThread{
+            (this->spec().numberRows() + numberThreads - 1) / numberThreads};
+        sliceCapacity = std::min(sliceCapacity, capacityForTwoSlicesPerThread);
+    }
+    return std::max(sliceCapacity, std::size_t{128});
+}
+
 const std::string& CDataFrameTrainBoostedTreeRunner::dependentVariableFieldName() const {
     return m_DependentVariableFieldName;
 }

@@ -393,12 +393,10 @@ void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& fram
 
     using TFloatStorageVec = std::vector<CFloatStorage>;
 
-    if (m_Loss->type() == CLoss::E_BinaryClassification ||
-        m_Loss->type() == CLoss::E_MulticlassClassification) {
+    if (m_Loss->type() == E_BinaryClassification || m_Loss->type() == E_MulticlassClassification) {
 
-        std::size_t numberClasses{m_Loss->type() == CLoss::E_BinaryClassification
-                                      ? 2
-                                      : m_Loss->numberParameters()};
+        std::size_t numberClasses{
+            m_Loss->type() == E_BinaryClassification ? 2 : m_Loss->numberParameters()};
         TFloatStorageVec storage(2);
 
         switch (m_ClassAssignmentObjective) {
@@ -410,7 +408,7 @@ void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& fram
                 m_NumberThreads, frame, this->allTrainingRowsMask(),
                 numberClasses, m_DependentVariable,
                 [storage, numberClasses, this](const TRowRef& row) mutable {
-                    if (m_Loss->type() == CLoss::E_BinaryClassification) {
+                    if (m_Loss->type() == E_BinaryClassification) {
                         // We predict the log-odds but this is expected to return
                         // the log of the predicted class probabilities.
                         TMemoryMappedFloatVector result{&storage[0], 2};
@@ -1012,13 +1010,14 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
             core::bindRetrievableState(
                 [&](TArgMinLossVec& leafValues_, TRowItr beginRows, TRowItr endRows) {
                     std::size_t numberLossParameters{m_Loss->numberParameters()};
+                    const auto& rootNode = root(tree);
                     for (auto row_ = beginRows; row_ != endRows; ++row_) {
                         auto row = *row_;
                         auto prediction = readPrediction(row, m_ExtraColumns,
                                                          numberLossParameters);
                         double actual{readActual(row, m_DependentVariable)};
                         double weight{readExampleWeight(row, m_ExtraColumns)};
-                        leafValues_[root(tree).leafIndex(m_Encoder->encode(row), tree)]
+                        leafValues_[rootNode.leafIndex(m_Encoder->encode(row), tree)]
                             .add(prediction, actual, weight);
                     }
                 },
@@ -1042,16 +1041,17 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
     LOG_TRACE(<< "tree =\n" << root(tree).print(tree));
 
     core::CPackedBitVector updateRowMask{trainingRowMask | testingRowMask};
-    auto results = frame.writeColumns(
+    frame.writeColumns(
         m_NumberThreads, 0, frame.numberRows(),
         [&](TRowItr beginRows, TRowItr endRows) {
             std::size_t numberLossParameters{m_Loss->numberParameters()};
+            const auto& rootNode = root(tree);
             for (auto row_ = beginRows; row_ != endRows; ++row_) {
                 auto row = *row_;
                 auto prediction = readPrediction(row, m_ExtraColumns, numberLossParameters);
                 double actual{readActual(row, m_DependentVariable)};
                 double weight{readExampleWeight(row, m_ExtraColumns)};
-                prediction += root(tree).value(m_Encoder->encode(row), tree);
+                prediction += rootNode.value(m_Encoder->encode(row), tree);
                 writeLossGradient(row, m_ExtraColumns, *m_Loss, prediction, actual, weight);
                 writeLossCurvature(row, m_ExtraColumns, *m_Loss, prediction, actual, weight);
             }

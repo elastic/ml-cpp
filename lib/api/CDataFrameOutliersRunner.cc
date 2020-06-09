@@ -79,6 +79,11 @@ std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
     return m_ComputeFeatureInfluence ? this->spec().numberColumns() + 1 : 1;
 }
 
+std::size_t CDataFrameOutliersRunner::dataFrameSliceCapacity() const {
+    return core::dataFrameDefaultSliceCapacity(this->spec().numberColumns() +
+                                               this->numberExtraColumns());
+}
+
 void CDataFrameOutliersRunner::writeOneRow(const core::CDataFrame& frame,
                                            const TRowRef& row,
                                            core::CRapidJsonConcurrentLineWriter& writer) const {

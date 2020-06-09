@@ -64,6 +64,9 @@ public:
     //! \return The number of columns this adds to the data frame.
     std::size_t numberExtraColumns() const override;
 
+    //! \return The capacity of the data frame slice to use.
+    std::size_t dataFrameSliceCapacity() const override;
+
     //! The boosted tree.
     const maths::CBoostedTree& boostedTree() const;
 

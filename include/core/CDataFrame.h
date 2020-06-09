@@ -270,13 +270,6 @@ public:
                EReadWriteToStorage readAndWriteToStoreSyncStrategy,
                const TWriteSliceToStoreFunc& writeSliceToStore);
 
-    //! Overload which manages the setting of slice capacity to a sensible default.
-    CDataFrame(bool inMainMemory,
-               std::size_t numberColumns,
-               CAlignment::EType rowAlignment,
-               EReadWriteToStorage readAndWriteToStoreSyncStrategy,
-               const TWriteSliceToStoreFunc& writeSliceToStore);
-
     ~CDataFrame();
 
     CDataFrame(const CDataFrame&) = delete;
@@ -628,6 +621,12 @@ private:
     //! The slice writer which is currently active.
     TRowSliceWriterPtr m_Writer;
 };
+
+//! Compute the default data frame slice capacity in rows.
+//!
+//! \param[in] numberColumns The number of columns in the data frame created.
+CORE_EXPORT
+std::size_t dataFrameDefaultSliceCapacity(std::size_t numberColumns);
 
 //! Make a data frame which uses main memory storage for its slices.
 //!
