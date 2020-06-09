@@ -624,7 +624,7 @@ private:
 
 //! Compute the default data frame slice capacity in rows.
 //!
-//! \param[in] numberColumns The number of columns in the data frame created.
+//! \param[in] numberColumns The number of columns in the data frame.
 CORE_EXPORT
 std::size_t dataFrameDefaultSliceCapacity(std::size_t numberColumns);
 
