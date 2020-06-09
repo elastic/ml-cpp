@@ -632,12 +632,22 @@ CMultimodalPrior::marginalLikelihoodConfidenceInterval(double percentage,
 
     auto computePercentile = [&](const CLogCdf& f, double p, const TMinMaxAccumulator& bounds) {
         auto fMinusp = [&f, p](double x) { return f(x) - p; };
-        double a{bounds.min() < mean ? mean - std::max(vs, 1.0) * (mean - bounds.min())
-                                     : bounds.min()};
-        double b{bounds.max() > mean ? mean + std::max(vs, 1.0) * (bounds.max() - mean)
-                                     : bounds.max()};
+        double a{bounds.min() < mean
+                     ? mean - std::max(std::sqrt(vs), 1.0) * (mean - bounds.min())
+                     : bounds.min()};
+        double b{bounds.max() > mean
+                     ? mean + std::max(std::sqrt(vs), 1.0) * (bounds.max() - mean)
+                     : bounds.max()};
         double fa{fMinusp(a)};
         double fb{fMinusp(b)};
+        for (std::size_t i = 0; fa > 0.0 && i < 10; ++i) {
+            a = b - 1.25 * (b - a);
+            fa = fMinusp(a);
+        }
+        for (std::size_t i = 0; fb < 0.0 && i < 10; ++i) {
+            b = a + 1.25 * (b - a);
+            fb = fMinusp(b);
+        }
         std::size_t maxIterations{25};
         CEqualWithTolerance<double> equal{CToleranceTypes::E_AbsoluteTolerance,
                                           std::min(std::numeric_limits<double>::epsilon() * b,
@@ -649,14 +659,15 @@ CMultimodalPrior::marginalLikelihoodConfidenceInterval(double percentage,
         return percentile;
     };
 
-    TDoubleDoublePr result{mean - vs * (mean - lower.min()),
-                           mean + vs * (upper.max() - mean)};
+    TDoubleDoublePr result{mean - std::sqrt(vs) * (mean - lower.min()),
+                           mean + std::sqrt(vs) * (upper.max() - mean)};
     try {
         result.first = computePercentile(fl, p1, lower);
         result.second = computePercentile(fu, p2, upper);
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Unable to find left percentile: " << e.what()
-                  << ", percentiles = [" << p1 << "," << p2 << "]");
+        LOG_ERROR(<< "Unable to compute percentiles: " << e.what()
+                  << ", percentiles = [" << p1 << "," << p2 << "] "
+                  << ", vs = " << vs);
     }
     return result;
 }
