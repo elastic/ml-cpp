@@ -74,9 +74,16 @@ std::string bytesToString(double value) {
     std::ostringstream stream;
     stream << std::fixed;
     stream << std::setprecision(0);
-    value = std::ceil(value / (1024 * 1024));
-    stream << value;
-    stream << " mb";
+    value = std::ceil(value / 1024);
+    if (value < 1024) {
+        stream << value;
+        stream << " kb";
+    } else {
+        value = std::ceil(value / 1024);
+        stream << value;
+        stream << " mb";
+    }
+
     return stream.str();
 }
 
