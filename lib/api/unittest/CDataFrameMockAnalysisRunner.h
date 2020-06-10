@@ -21,7 +21,7 @@
 class CDataFrameMockAnalysisState final : public ml::api::CDataFrameAnalysisInstrumentation {
 public:
     CDataFrameMockAnalysisState(const std::string& jobId)
-        : ml::api::CDataFrameAnalysisInstrumentation(jobId) {}
+        : ml::api::CDataFrameAnalysisInstrumentation(jobId, 0ul) {}
     void writeAnalysisStats(std::int64_t /* timestamp */) override {}
 
 protected:

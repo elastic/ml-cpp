@@ -45,6 +45,8 @@
 * Add an option to do categorization independently for each partition.
   (See {ml-pull}1293[#1293] and {pull}57683[#57683].)
 * Memory usage is reported during job initialization. (See {ml-pull}1294[#1294].)
+* More realistic memory estimation for classification and regression means that these
+  analyses will require lower memory limits than before (See {ml-pull}1298[#1298].)
 * Checkpoint state to allow efficient failover during coarse parameter search
   for classification and regression. (See {ml-pull}1300[#1300].)
 
