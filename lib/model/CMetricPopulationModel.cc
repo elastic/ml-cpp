@@ -22,12 +22,14 @@
 #include <maths/ProbabilityAggregators.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnnotation.h>
 #include <model/CDataGatherer.h>
 #include <model/CGathererTools.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
 #include <model/CPopulationModelDetail.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
+#include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
 #include <boost/iterator/counting_iterator.hpp>
@@ -303,6 +305,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
 
     this->createUpdateNewModels(startTime, resourceMonitor);
     this->currentBucketInterimCorrections().clear();
+    m_CurrentBucketStats.s_Annotations.clear();
 
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
         LOG_TRACE(<< "Sampling [" << time << "," << time + bucketLength << ")");
@@ -462,6 +465,19 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     .propagationInterval(this->propagationTime(cid, latest))
                     .trendWeights(attribute.second.s_TrendWeights)
                     .priorWeights(attribute.second.s_PriorWeights);
+                if (this->params().s_AnnotationsEnabled) {
+                    const auto modelAnnotationCallback =
+                        [&](core_t::TTime t, const std::string& annotation) {
+                            m_CurrentBucketStats.s_Annotations.emplace_back(
+                                t, annotation, gatherer.searchKey().detectorIndex(),
+                                gatherer.searchKey().partitionFieldName(),
+                                gatherer.partitionFieldValue(),
+                                gatherer.searchKey().overFieldName(),
+                                gatherer.attributeName(cid),
+                                gatherer.searchKey().byFieldName(), EMPTY_STRING);
+                        };
+                    params.annotationCallback(modelAnnotationCallback);
+                }
 
                 maths::CModel* model{this->model(feature, cid)};
                 if (model == nullptr) {
@@ -725,6 +741,8 @@ void CMetricPopulationModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryU
                                     m_CurrentBucketStats.s_FeatureData, mem);
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
                                     m_CurrentBucketStats.s_InterimCorrections, mem);
+    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_Annotations",
+                                    m_CurrentBucketStats.s_Annotations, mem);
     core::CMemoryDebug::dynamicSize("m_FeatureModels", m_FeatureModels, mem);
     core::CMemoryDebug::dynamicSize("m_FeatureCorrelatesModels",
                                     m_FeatureCorrelatesModels, mem);
@@ -746,11 +764,16 @@ std::size_t CMetricPopulationModel::computeMemoryUsage() const {
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
+    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_Annotations);
     mem += core::CMemory::dynamicSize(m_FeatureModels);
     mem += core::CMemory::dynamicSize(m_FeatureCorrelatesModels);
     mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
     mem += core::CMemory::dynamicSize(m_MemoryEstimator);
     return mem;
+}
+
+const CMetricPopulationModel::TAnnotationVec& CMetricPopulationModel::annotations() const {
+    return m_CurrentBucketStats.s_Annotations;
 }
 
 CMemoryUsageEstimator* CMetricPopulationModel::memoryUsageEstimator() const {

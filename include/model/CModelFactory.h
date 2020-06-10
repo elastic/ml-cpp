@@ -349,6 +349,9 @@ public:
     //! Update the bucket length, for ModelAutoConfig's benefit
     void updateBucketLength(core_t::TTime length);
 
+    //! Set whether model annotations should be reported.
+    void annotationsEnabled(bool enabled);
+
     //! Get global model configuration parameters.
     const SModelParams& modelParams() const;
 

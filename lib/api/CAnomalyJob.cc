@@ -36,6 +36,7 @@
 #include <model/CSimpleCountDetector.h>
 #include <model/CStringStore.h>
 
+#include <api/CAnnotationJsonWriter.h>
 #include <api/CConfigUpdater.h>
 #include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
@@ -587,6 +588,7 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
 
     model::CHierarchicalResults results;
     TModelPlotDataVec modelPlotData;
+    TAnnotationVec annotations;
 
     TKeyCRefAnomalyDetectorPtrPrVec detectors;
     this->sortedDetectors(detectors);
@@ -603,6 +605,8 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
 
         this->generateModelPlot(bucketStartTime, bucketStartTime + bucketLength,
                                 *detector, modelPlotData);
+        detector->generateAnnotations(bucketStartTime,
+                                      bucketStartTime + bucketLength, annotations);
     }
 
     if (!results.empty()) {
@@ -626,6 +630,7 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
     // Model plots must be written first so the Java persists them
     // once the bucket result is processed
     this->writeOutModelPlot(modelPlotData);
+    this->writeOutAnnotations(annotations);
     this->writeOutResults(false, results, bucketStartTime, processingTime);
 
     m_Limits.resourceMonitor().pruneIfRequired(bucketStartTime);
@@ -1388,6 +1393,13 @@ void CAnomalyJob::writeOutModelPlot(const TModelPlotDataVec& modelPlotData) {
     CModelPlotDataJsonWriter modelPlotWriter(m_OutputStream);
     for (const auto& plot : modelPlotData) {
         modelPlotWriter.writeFlat(m_JobId, plot);
+    }
+}
+
+void CAnomalyJob::writeOutAnnotations(const TAnnotationVec& annotations) {
+    CAnnotationJsonWriter annotationWriter(m_OutputStream);
+    for (const auto& annotation : annotations) {
+        annotationWriter.writeResult(m_JobId, annotation);
     }
 }
 

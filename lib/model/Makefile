@@ -58,6 +58,7 @@ CMetricModel.cc \
 CMetricModelFactory.cc \
 CMetricPopulationModel.cc \
 CMetricPopulationModelFactory.cc \
+CAnnotation.cc \
 CModelDetailsView.cc \
 CModelFactory.cc \
 CModelParams.cc \
