@@ -114,32 +114,9 @@ public:
     //! Character to look for to distinguish setting names
     static const char SUFFIX_SEPARATOR;
 
-    //! Character to look for to split field names out of complete config keys
-    static const char FIELDNAME_SEPARATOR;
-
-    //! Suffix applied to field names for the setting that indicates whether
-    //! they're enabled
-    static const std::string IS_ENABLED_SUFFIX;
-
-    //! Suffix applied to field names for the setting that indicates whether
-    //! they're metrics
-    static const std::string BY_SUFFIX;
-
-    //! Suffix applied to field names for the setting that indicates whether
-    //! they're metrics
-    static const std::string OVER_SUFFIX;
-
-    //! Suffix applied to field names for the setting that indicates whether
-    //! they're metrics
-    static const std::string PARTITION_SUFFIX;
-
     //! Option to look for in the command line clause to indicate that the
     //! "partitionfield" parameter is specified (case-insensitive)
     static const std::string PARTITION_FIELD_OPTION;
-
-    //! Suffix applied to field names for the setting that indicates whether
-    //! empty/missing values of the "by" field should be ignored
-    static const std::string USE_NULL_SUFFIX;
 
     //! Option to look for in the command line clause to indicate that the
     //! "usenull" parameter is specified (case-insensitive)
@@ -156,18 +133,6 @@ public:
     //! Magic field name used to indicate that event rate should be
     //! analysed rather than a field value
     static const std::string COUNT_NAME;
-
-    //! A default string value that our string utilities will convert to
-    //! boolean false
-    static const std::string FALSE_VALUE;
-
-    //! A default string value that our string utilities will convert to
-    //! boolean true
-    static const std::string TRUE_VALUE;
-
-    //! Token to look in the config file to indicate a list of field
-    //! names that are used to indicate an influence pivot relationship
-    static const std::string INFLUENCER_FIELD_NAMES_OPTION;
 
     //! Option to specify an influencer field
     static const std::string INFLUENCER_FIELD_OPTION;
@@ -234,8 +199,10 @@ public:
     static const std::string FUNCTION_MEAN_VELOCITY;
     static const std::string FUNCTION_SUM_VELOCITY;
 
+    //! String that defines whether to do per-partition categorization
+    static const std::string PER_PARTITION_CATEGORIZATION_OPTION;
+
     //! String that defines whether to exclude frequent results
-    static const std::string EXCLUDE_FREQUENT_SUFFIX;
     static const std::string EXCLUDE_FREQUENT_OPTION;
     static const std::string ALL_TOKEN;
     static const std::string NONE_TOKEN;
@@ -458,6 +425,7 @@ public:
     const TFieldOptionsMIndex& fieldOptions() const;
 
     const std::string& categorizationFieldName() const;
+    const std::string& categorizationPartitionFieldName() const;
 
     const TStrPatternSetUMap& ruleFilters() const;
 
@@ -475,6 +443,7 @@ private:
                      TStrVec& copyTokens,
                      TFieldOptionsMIndex& optionsIndex,
                      std::string& categorizationFieldName,
+                     std::string& categorizationPartitionFieldName,
                      std::string& summaryCountFieldName);
 
     //! Helper method for initFromFile().  Because multiple config
@@ -570,6 +539,9 @@ private:
 
     //! The categorization field name.
     std::string m_CategorizationFieldName;
+
+    //! The partition field name to use with categorization.
+    std::string m_CategorizationPartitionFieldName;
 
     //! The filters to be applied to values of the categorization field.
     TStrVec m_CategorizationFilters;

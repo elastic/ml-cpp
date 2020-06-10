@@ -1018,7 +1018,8 @@ bool CAnomalyJob::persistModelsState(core::CDataAdder& persister,
     return this->persistModelsState(detectors, persister, timestamp, outputFormat);
 }
 
-bool CAnomalyJob::persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) {
+bool CAnomalyJob::persistStateInForeground(core::CDataAdder& persister,
+                                           const std::string& descriptionPrefix) {
     if (m_PersistenceManager != nullptr) {
         // This will not happen if finalise() was called before persisting state
         if (m_PersistenceManager->isBusy()) {
@@ -1029,7 +1030,7 @@ bool CAnomalyJob::persistState(core::CDataAdder& persister, const std::string& d
     }
 
     // Pass on the request in case we're chained
-    if (this->outputHandler().persistState(persister, descriptionPrefix) == false) {
+    if (this->outputHandler().persistStateInForeground(persister, descriptionPrefix) == false) {
         return false;
     }
 
@@ -1118,7 +1119,7 @@ bool CAnomalyJob::runForegroundPersist(core::CDataAdder& persister) {
     // Prune the models so that the persisted state is as neat as possible
     this->pruneAllModels();
 
-    return this->persistState(persister, "Periodic foreground persist at ");
+    return this->persistStateInForeground(persister, "Periodic foreground persist at ");
 }
 
 bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
@@ -1290,7 +1291,8 @@ bool CAnomalyJob::periodicPersistStateInBackground() {
 }
 
 bool CAnomalyJob::periodicPersistStateInForeground() {
-    // Do NOT pass this request on to the output chainer. That logic is already present in persistState.
+    // Do NOT pass this request on to the output chainer.
+    // That logic is already present in persistStateInForeground.
 
     if (m_PersistenceManager == nullptr) {
         return false;

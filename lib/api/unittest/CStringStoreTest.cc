@@ -183,7 +183,7 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         time += BUCKET_SPAN * 100;
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
 
-        BOOST_TEST_REQUIRE(job.persistState(adder, ""));
+        BOOST_TEST_REQUIRE(job.persistStateInForeground(adder, ""));
         wrappedOutputStream.syncFlush();
 
         BOOST_REQUIRE_EQUAL(std::size_t(1),
@@ -229,7 +229,7 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         time = playData(time, BUCKET_SPAN, 100, 3, 1, 101, job);
 
         job.finalise();
-        BOOST_TEST_REQUIRE(job.persistState(adder, ""));
+        BOOST_TEST_REQUIRE(job.persistStateInForeground(adder, ""));
     }
     LOG_DEBUG(<< "Restoring job again");
     {
@@ -271,7 +271,7 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         time = playData(time, BUCKET_SPAN, 100, 2, 2, 101, job);
 
         job.finalise();
-        BOOST_TEST_REQUIRE(job.persistState(adder, ""));
+        BOOST_TEST_REQUIRE(job.persistStateInForeground(adder, ""));
     }
     LOG_DEBUG(<< "Restoring yet again");
     {
@@ -373,7 +373,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         time += BUCKET_SPAN * 100;
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
 
-        BOOST_TEST_REQUIRE(job.persistState(adder, ""));
+        BOOST_TEST_REQUIRE(job.persistStateInForeground(adder, ""));
         wrappedOutputStream.syncFlush();
         BOOST_REQUIRE_EQUAL(std::size_t(1),
                             countBuckets("records", outputStrm.str() + "]"));
@@ -418,7 +418,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         time = playData(time, BUCKET_SPAN, 100, 3, 1, 101, job);
 
         job.finalise();
-        BOOST_TEST_REQUIRE(job.persistState(adder, ""));
+        BOOST_TEST_REQUIRE(job.persistStateInForeground(adder, ""));
     }
     LOG_DEBUG(<< "Restoring job again");
     {
@@ -461,7 +461,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         time = playData(time, BUCKET_SPAN, 100, 2, 2, 101, job);
 
         job.finalise();
-        BOOST_TEST_REQUIRE(job.persistState(adder, ""));
+        BOOST_TEST_REQUIRE(job.persistStateInForeground(adder, ""));
     }
     LOG_DEBUG(<< "Restoring yet again");
     {
