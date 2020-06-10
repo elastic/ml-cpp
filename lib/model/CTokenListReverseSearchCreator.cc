@@ -31,7 +31,7 @@ std::size_t CTokenListReverseSearchCreator::costOfToken(const std::string& token
            numOccurrences;
 }
 
-bool CTokenListReverseSearchCreator::createNoUniqueTokenSearch(int /*categoryId*/,
+bool CTokenListReverseSearchCreator::createNoUniqueTokenSearch(CLocalCategoryId /*categoryId*/,
                                                                const std::string& /*example*/,
                                                                std::size_t /*maxMatchingStringLen*/,
                                                                std::string& terms,
@@ -41,7 +41,7 @@ bool CTokenListReverseSearchCreator::createNoUniqueTokenSearch(int /*categoryId*
     return true;
 }
 
-void CTokenListReverseSearchCreator::initStandardSearch(int /*categoryId*/,
+void CTokenListReverseSearchCreator::initStandardSearch(CLocalCategoryId /*categoryId*/,
                                                         const std::string& /*example*/,
                                                         std::size_t /*maxMatchingStringLen*/,
                                                         std::string& terms,

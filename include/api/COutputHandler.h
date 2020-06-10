@@ -85,7 +85,8 @@ public:
                               core_t::TTime& completeToTime);
 
     //! Persist current state
-    virtual bool persistState(core::CDataAdder& persister, const std::string& descriptionPrefix);
+    virtual bool persistStateInForeground(core::CDataAdder& persister,
+                                          const std::string& descriptionPrefix);
 
     //! Persist current state due to the periodic persistence being triggered.
     virtual bool periodicPersistStateInBackground();

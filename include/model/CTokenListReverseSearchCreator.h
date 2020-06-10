@@ -8,6 +8,7 @@
 
 #include <core/CMemoryUsage.h>
 
+#include <model/CLocalCategoryId.h>
 #include <model/ImportExport.h>
 
 #include <string>
@@ -47,7 +48,7 @@ public:
     //! If possible, create a reverse search for the case where there are no
     //! unique tokens identifying the category.  (If this is not possible return
     //! false.)
-    bool createNoUniqueTokenSearch(int categoryId,
+    bool createNoUniqueTokenSearch(CLocalCategoryId categoryId,
                                    const std::string& example,
                                    std::size_t maxMatchingStringLen,
                                    std::string& terms,
@@ -56,7 +57,7 @@ public:
     //! Initialise the two strings that form a reverse search.  For example,
     //! this could be as simple as clearing the strings or setting them to
     //! some sort of one-off preamble.
-    void initStandardSearch(int categoryId,
+    void initStandardSearch(CLocalCategoryId categoryId,
                             const std::string& example,
                             std::size_t maxMatchingStringLen,
                             std::string& terms,

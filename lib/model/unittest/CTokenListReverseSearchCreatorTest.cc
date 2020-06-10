@@ -24,8 +24,8 @@ BOOST_AUTO_TEST_CASE(testCreateNoUniqueTokenSearch) {
     std::string terms;
     std::string regex;
 
-    BOOST_TEST_REQUIRE(
-        reverseSearchCreator.createNoUniqueTokenSearch(1, "404", 4, terms, regex));
+    BOOST_TEST_REQUIRE(reverseSearchCreator.createNoUniqueTokenSearch(
+        CLocalCategoryId{1}, "404", 4, terms, regex));
 
     BOOST_REQUIRE_EQUAL(std::string(), terms);
     BOOST_REQUIRE_EQUAL(std::string(".*"), regex);
@@ -37,8 +37,8 @@ BOOST_AUTO_TEST_CASE(testInitStandardSearch) {
     std::string terms;
     std::string regex;
 
-    reverseSearchCreator.initStandardSearch(1, "User 'foo' logged in host '0.0.0.0'",
-                                            1, terms, regex);
+    reverseSearchCreator.initStandardSearch(
+        CLocalCategoryId{1}, "User 'foo' logged in host '0.0.0.0'", 1, terms, regex);
 
     BOOST_REQUIRE_EQUAL(std::string(), terms);
     BOOST_REQUIRE_EQUAL(std::string(), regex);

@@ -43,7 +43,7 @@ CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples,
                                          this, std::placeholders::_1));
 }
 
-bool CCategoryExamplesCollector::add(int categoryId, const std::string& example) {
+bool CCategoryExamplesCollector::add(CLocalCategoryId categoryId, const std::string& example) {
     if (m_MaxExamples == 0) {
         return false;
     }
@@ -54,13 +54,13 @@ bool CCategoryExamplesCollector::add(int categoryId, const std::string& example)
     return examplesForCategory.insert(truncateExample(example)).second;
 }
 
-std::size_t CCategoryExamplesCollector::numberOfExamplesForCategory(int categoryId) const {
+std::size_t CCategoryExamplesCollector::numberOfExamplesForCategory(CLocalCategoryId categoryId) const {
     auto iterator = m_ExamplesByCategory.find(categoryId);
     return (iterator == m_ExamplesByCategory.end()) ? 0 : iterator->second.size();
 }
 
 const CCategoryExamplesCollector::TStrFSet&
-CCategoryExamplesCollector::examples(int categoryId) const {
+CCategoryExamplesCollector::examples(CLocalCategoryId categoryId) const {
     auto iterator = m_ExamplesByCategory.find(categoryId);
     if (iterator == m_ExamplesByCategory.end()) {
         return EMPTY_EXAMPLES;
@@ -72,10 +72,10 @@ void CCategoryExamplesCollector::acceptPersistInserter(core::CStatePersistInsert
     // Persist the examples sorted by category ID to make it easier to compare
     // persisted state
 
-    using TIntStrFSetCPtrPr = std::pair<int, const TStrFSet*>;
-    using TIntStrFSetCPtrPrVec = std::vector<TIntStrFSetCPtrPr>;
+    using TLocalCategoryIdStrFSetCPtrPr = std::pair<CLocalCategoryId, const TStrFSet*>;
+    using TLocalCategoryIdStrFSetCPtrPrVec = std::vector<TLocalCategoryIdStrFSetCPtrPr>;
 
-    TIntStrFSetCPtrPrVec orderedData;
+    TLocalCategoryIdStrFSetCPtrPrVec orderedData;
     orderedData.reserve(m_ExamplesByCategory.size());
 
     for (const auto& exampleByCategory : m_ExamplesByCategory) {
@@ -93,10 +93,10 @@ void CCategoryExamplesCollector::acceptPersistInserter(core::CStatePersistInsert
     }
 }
 
-void CCategoryExamplesCollector::persistExamples(int categoryId,
+void CCategoryExamplesCollector::persistExamples(CLocalCategoryId categoryId,
                                                  const TStrFSet& examples,
                                                  core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(CATEGORY_TAG, categoryId);
+    inserter.insertValue(CATEGORY_TAG, categoryId.id());
     for (TStrFSetCItr itr = examples.begin(); itr != examples.end(); ++itr) {
         inserter.insertValue(EXAMPLE_TAG, *itr);
     }
@@ -119,12 +119,12 @@ bool CCategoryExamplesCollector::acceptRestoreTraverser(core::CStateRestoreTrave
 }
 
 bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser& traverser) {
-    int categoryId = 0;
+    CLocalCategoryId categoryId;
     TStrFSet examples;
     do {
         const std::string& name = traverser.name();
         if (name == CATEGORY_TAG) {
-            if (core::CStringUtils::stringToType(traverser.value(), categoryId) == false) {
+            if (categoryId.fromString(traverser.value()) == false) {
                 LOG_ERROR(<< "Error restoring category: " << traverser.value());
                 return false;
             }
@@ -133,9 +133,11 @@ bool CCategoryExamplesCollector::restoreExamples(core::CStateRestoreTraverser& t
         }
     } while (traverser.next());
 
-    LOG_TRACE(<< "Restoring examples for category " << categoryId << ": "
-              << core::CContainerPrinter::print(examples));
-    m_ExamplesByCategory[categoryId].swap(examples);
+    if (categoryId.isValid()) {
+        LOG_TRACE(<< "Restoring examples for category " << categoryId << ": "
+                  << core::CContainerPrinter::print(examples));
+        m_ExamplesByCategory[categoryId].swap(examples);
+    }
 
     return true;
 }

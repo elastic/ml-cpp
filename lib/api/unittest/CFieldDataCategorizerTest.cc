@@ -4,9 +4,11 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CContainerPrinter.h>
 #include <core/CDataAdder.h>
 #include <core/CDataSearcher.h>
 #include <core/CJsonOutputStreamWrapper.h>
+#include <core/CStringUtils.h>
 
 #include <model/CLimits.h>
 
@@ -21,6 +23,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <set>
 #include <sstream>
 
 BOOST_AUTO_TEST_SUITE(CFieldDataCategorizerTest)
@@ -46,6 +49,9 @@ public:
 
 class CTestOutputHandler : public COutputHandler {
 public:
+    using TIntSet = std::set<int>;
+
+public:
     virtual void finalise() { m_Finalised = true; }
 
     bool hasFinalised() const { return m_Finalised; }
@@ -58,20 +64,40 @@ public:
         return true;
     }
 
-    virtual bool writeRow(const TStrStrUMap& /*dataRowFields*/,
-                          const TStrStrUMap& /*overrideDataRowFields*/) {
-        ++m_Records;
+    virtual bool writeRow(const TStrStrUMap& dataRowFields,
+                          const TStrStrUMap& overrideDataRowFields) {
+        ++m_NumRows;
+        std::string categoryIdStr;
+        auto iter = overrideDataRowFields.find("mlcategory");
+        if (iter != overrideDataRowFields.end()) {
+            categoryIdStr = iter->second;
+        } else {
+            iter = dataRowFields.find("mlcategory");
+            if (iter != dataRowFields.end()) {
+                categoryIdStr = iter->second;
+            }
+        }
+        int categoryId{0};
+        if (categoryIdStr.empty() == false &&
+            core::CStringUtils::stringToType(categoryIdStr, categoryId) != false &&
+            categoryId > 0) {
+            m_CategoryIdsHandled.insert(categoryId);
+        }
         return true;
     }
 
-    uint64_t getNumRows() const { return m_Records; }
+    uint64_t numRows() const { return m_NumRows; }
+
+    const TIntSet& categoryIdsHandled() const { return m_CategoryIdsHandled; }
 
 private:
     bool m_NewStream = false;
 
     bool m_Finalised = false;
 
-    uint64_t m_Records = 0;
+    uint64_t m_NumRows = 0;
+
+    TIntSet m_CategoryIdsHandled;
 };
 
 class CTestDataSearcher : public core::CDataSearcher {
@@ -106,7 +132,7 @@ private:
 };
 }
 
-BOOST_AUTO_TEST_CASE(testAll) {
+BOOST_AUTO_TEST_CASE(testWithoutPerPartitionCategorization) {
     model::CLimits limits;
     CFieldConfig config;
     BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
@@ -131,7 +157,8 @@ BOOST_AUTO_TEST_CASE(testAll) {
     BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     BOOST_REQUIRE_EQUAL(uint64_t(1), categorizer.numRecordsHandled());
-    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.getNumRows());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
+    BOOST_REQUIRE_EQUAL("[1]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
 
     // try a couple of erroneous cases
     dataRowFields.clear();
@@ -142,11 +169,20 @@ BOOST_AUTO_TEST_CASE(testAll) {
     BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     dataRowFields["message"] = "";
-    dataRowFields["thang"] = "wing";
     BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     BOOST_REQUIRE_EQUAL(uint64_t(4), categorizer.numRecordsHandled());
-    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.getNumRows());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
+    // Still only 1, as all the other input was invalid
+    BOOST_REQUIRE_EQUAL("[1]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
+
+    dataRowFields["message"] = "and another thing";
+    BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+    BOOST_REQUIRE_EQUAL(uint64_t(5), categorizer.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
+    BOOST_REQUIRE_EQUAL(
+        "[1, 2]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
 
     categorizer.finalise();
     BOOST_TEST_REQUIRE(handler.hasFinalised());
@@ -155,7 +191,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
     std::string origJson;
     {
         CTestDataAdder adder;
-        categorizer.persistState(adder, "");
+        categorizer.persistStateInForeground(adder, "");
         std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
         origJson = ss.str();
     }
@@ -164,19 +200,135 @@ BOOST_AUTO_TEST_CASE(testAll) {
     LOG_DEBUG(<< "origJson = " << origJson);
     {
         model::CLimits limits2;
-        CFieldConfig config2("x", "y");
         CTestOutputHandler handler2;
         std::ostringstream outputStrm2;
         core::CJsonOutputStreamWrapper wrappedOutputStream2(outputStrm2);
         CJsonOutputWriter writer2("job", wrappedOutputStream2);
 
-        CTestFieldDataCategorizer newCategorizer("job", config2, limits2, handler2, writer2);
+        CTestFieldDataCategorizer newCategorizer("job", config, limits2, handler2, writer2);
         CTestDataSearcher restorer(origJson);
         core_t::TTime time = 0;
         newCategorizer.restoreState(restorer, time);
 
         CTestDataAdder adder;
-        newCategorizer.persistState(adder, "");
+        newCategorizer.persistStateInForeground(adder, "");
+        std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
+        newJson = ss.str();
+    }
+    BOOST_REQUIRE_EQUAL(origJson, newJson);
+}
+
+BOOST_AUTO_TEST_CASE(testWithPerPartitionCategorization) {
+    model::CLimits limits;
+    CFieldConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_per_partition_categorization.conf"));
+    CTestOutputHandler handler;
+
+    std::ostringstream outputStrm;
+    core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+    CJsonOutputWriter writer("job", wrappedOutputStream);
+
+    CTestFieldDataCategorizer categorizer("job", config, limits, handler, writer);
+    BOOST_REQUIRE_EQUAL(false, handler.isNewStream());
+    categorizer.newOutputStream();
+    BOOST_REQUIRE_EQUAL(true, handler.isNewStream());
+
+    BOOST_REQUIRE_EQUAL(false, handler.hasFinalised());
+    BOOST_REQUIRE_EQUAL(uint64_t(0), categorizer.numRecordsHandled());
+
+    CFieldDataCategorizer::TStrStrUMap dataRowFields;
+    dataRowFields["message"] = "thing";
+    dataRowFields["event.dataset"] = "elasticsearch";
+    dataRowFields["two"] = "other";
+
+    BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+    BOOST_REQUIRE_EQUAL(uint64_t(1), categorizer.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
+    BOOST_REQUIRE_EQUAL("[1]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
+
+    dataRowFields["event.dataset"] = "kibana";
+    BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+    BOOST_REQUIRE_EQUAL(uint64_t(2), categorizer.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
+    // Now two categories, because even though message was identical, the
+    // partition was different
+    BOOST_REQUIRE_EQUAL(
+        "[1, 2]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
+
+    // try a couple of erroneous cases
+    dataRowFields.clear();
+    BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+    dataRowFields["thing"] = "bling";
+    dataRowFields["thang"] = "wing";
+    BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+    dataRowFields["message"] = "";
+    BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+    BOOST_REQUIRE_EQUAL(uint64_t(5), categorizer.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
+    // Still only 2, as all the other input was invalid
+    BOOST_REQUIRE_EQUAL(
+        "[1, 2]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
+
+    dataRowFields["message"] = "and another thing";
+    dataRowFields["event.dataset"] = "elasticsearch";
+    BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+    BOOST_REQUIRE_EQUAL(uint64_t(6), categorizer.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
+    BOOST_REQUIRE_EQUAL(
+        "[1, 2, 3]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
+
+    BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+    BOOST_REQUIRE_EQUAL(uint64_t(7), categorizer.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
+    // Still 3, as the message and partition were identical so won't have
+    // created a new category
+    BOOST_REQUIRE_EQUAL(
+        "[1, 2, 3]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
+
+    dataRowFields["event.dataset"] = "kibana";
+    BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
+
+    BOOST_REQUIRE_EQUAL(uint64_t(8), categorizer.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
+    // Now 4, as the message was the same but the partition changed
+    BOOST_REQUIRE_EQUAL("[1, 2, 3, 4]",
+                        core::CContainerPrinter::print(handler.categoryIdsHandled()));
+
+    categorizer.finalise();
+    BOOST_TEST_REQUIRE(handler.hasFinalised());
+
+    // do a persist / restore
+    std::string origJson;
+    {
+        CTestDataAdder adder;
+        categorizer.persistStateInForeground(adder, "");
+        std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
+        origJson = ss.str();
+    }
+
+    std::string newJson;
+    LOG_DEBUG(<< "origJson = " << origJson);
+    {
+        model::CLimits limits2;
+        CTestOutputHandler handler2;
+        std::ostringstream outputStrm2;
+        core::CJsonOutputStreamWrapper wrappedOutputStream2(outputStrm2);
+        CJsonOutputWriter writer2("job", wrappedOutputStream2);
+
+        CTestFieldDataCategorizer newCategorizer("job", config, limits2, handler2, writer2);
+        CTestDataSearcher restorer(origJson);
+        core_t::TTime time = 0;
+        newCategorizer.restoreState(restorer, time);
+
+        CTestDataAdder adder;
+        newCategorizer.persistStateInForeground(adder, "");
         std::ostringstream& ss = dynamic_cast<std::ostringstream&>(*adder.getStream());
         newJson = ss.str();
     }

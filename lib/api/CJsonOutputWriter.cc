@@ -886,39 +886,47 @@ void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId,
     LOG_TRACE(<< "Wrote flush with ID " << flushId);
 }
 
-void CJsonOutputWriter::writeCategoryDefinition(int categoryId,
+void CJsonOutputWriter::writeCategoryDefinition(const std::string& partitionFieldName,
+                                                const std::string& partitionFieldValue,
+                                                const CGlobalCategoryId& categoryId,
                                                 const std::string& terms,
                                                 const std::string& regex,
                                                 std::size_t maxMatchingFieldLength,
                                                 const TStrFSet& examples,
                                                 std::size_t numMatches,
-                                                const TIntVec& usurpedCategories) {
+                                                const TGlobalCategoryIdVec& usurpedCategories) {
     m_Writer.StartObject();
-    m_Writer.String(CATEGORY_DEFINITION);
+    m_Writer.Key(CATEGORY_DEFINITION);
     m_Writer.StartObject();
-    m_Writer.String(JOB_ID);
+    m_Writer.Key(JOB_ID);
     m_Writer.String(m_JobId);
-    m_Writer.String(CATEGORY_ID);
-    m_Writer.Int(categoryId);
-    m_Writer.String(TERMS);
+    if (partitionFieldName.empty() == false) {
+        m_Writer.Key(PARTITION_FIELD_NAME);
+        m_Writer.String(partitionFieldName);
+        m_Writer.Key(PARTITION_FIELD_VALUE);
+        m_Writer.String(partitionFieldValue);
+    }
+    m_Writer.Key(CATEGORY_ID);
+    m_Writer.Int(categoryId.globalId());
+    m_Writer.Key(TERMS);
     m_Writer.String(terms);
-    m_Writer.String(REGEX);
+    m_Writer.Key(REGEX);
     m_Writer.String(regex);
-    m_Writer.String(MAX_MATCHING_LENGTH);
+    m_Writer.Key(MAX_MATCHING_LENGTH);
     m_Writer.Uint64(maxMatchingFieldLength);
-    m_Writer.String(EXAMPLES);
+    m_Writer.Key(EXAMPLES);
     m_Writer.StartArray();
     for (TStrFSetCItr itr = examples.begin(); itr != examples.end(); ++itr) {
         const std::string& example = *itr;
         m_Writer.String(example);
     }
     m_Writer.EndArray();
-    m_Writer.String(NUM_MATCHES);
+    m_Writer.Key(NUM_MATCHES);
     m_Writer.Uint64(numMatches);
-    m_Writer.String(PREFERRED_TO_CATEGORIES);
+    m_Writer.Key(PREFERRED_TO_CATEGORIES);
     m_Writer.StartArray();
-    for (int id : usurpedCategories) {
-        m_Writer.Int(id);
+    for (const auto& globalCategoryId : usurpedCategories) {
+        m_Writer.Int(globalCategoryId.globalId());
     }
     m_Writer.EndArray();
     m_Writer.EndObject();
