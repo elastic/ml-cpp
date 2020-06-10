@@ -17,26 +17,27 @@
 #include <api/CJsonOutputWriter.h>
 #include <api/CNoopCategoryIdMapper.h>
 #include <api/CPerPartitionCategoryIdMapper.h>
+#include <api/CSingleFieldDataCategorizer.h>
 
 #include <boost/test/unit_test.hpp>
 
 #include <memory>
 #include <sstream>
 
-BOOST_AUTO_TEST_SUITE(CGlobalIdDataCategorizerTest)
+BOOST_AUTO_TEST_SUITE(CSingleFieldDataCategorizerTest)
 
 namespace {
 
 void checkPersistAndRestore(bool inBackgroundFirst,
-                            const ml::api::CGlobalIdDataCategorizer& persistFrom,
-                            ml::api::CGlobalIdDataCategorizer& restoreTo) {
+                            const ml::api::CSingleFieldDataCategorizer& persistFrom,
+                            ml::api::CSingleFieldDataCategorizer& restoreTo) {
     std::stringstream origJsonStrm;
     {
         ml::core::CJsonStatePersistInserter inserter{origJsonStrm};
         auto persistFunc = inBackgroundFirst
                                ? persistFrom.makeBackgroundPersistFunc()
                                : persistFrom.makeForegroundPersistFunc();
-        // This is a quirk of the fact that the CGlobalIdDataCategorizer
+        // This is a quirk of the fact that the CSingleFieldDataCategorizer
         // is persisted at the same level as other tags - it cannot be
         // first in the object it's part of.
         inserter.insertValue("a", "1");
@@ -73,11 +74,11 @@ BOOST_AUTO_TEST_CASE(testPersistNotPerPartition) {
 
     ml::api::CCategoryIdMapper::TCategoryIdMapperPtr idMapper{
         std::make_shared<ml::api::CNoopCategoryIdMapper>()};
-    auto localCategorizer = std::make_shared<ml::api::CFieldDataCategorizer::TTokenListDataCategorizerKeepsFields>(
+    auto localCategorizer = std::make_unique<ml::api::CFieldDataCategorizer::TTokenListDataCategorizerKeepsFields>(
         limits, std::make_shared<ml::model::CTokenListReverseSearchCreator>("message"),
         0.7, "message");
 
-    ml::api::CGlobalIdDataCategorizer origGlobalCategorizer{
+    ml::api::CSingleFieldDataCategorizer origGlobalCategorizer{
         "", std::move(localCategorizer), std::move(idMapper)};
 
     ml::model::CDataCategorizer::TStrStrUMap fields;
@@ -94,20 +95,20 @@ BOOST_AUTO_TEST_CASE(testPersistNotPerPartition) {
                             limits.resourceMonitor(), jsonOutputWriter));
 
     idMapper = std::make_shared<ml::api::CNoopCategoryIdMapper>();
-    localCategorizer = std::make_shared<ml::api::CFieldDataCategorizer::TTokenListDataCategorizerKeepsFields>(
+    localCategorizer = std::make_unique<ml::api::CFieldDataCategorizer::TTokenListDataCategorizerKeepsFields>(
         limits, std::make_shared<ml::model::CTokenListReverseSearchCreator>("message"),
         0.7, "message");
-    ml::api::CGlobalIdDataCategorizer restoredFromBackgroundStateGlobalCategorizer{
+    ml::api::CSingleFieldDataCategorizer restoredFromBackgroundStateGlobalCategorizer{
         "", std::move(localCategorizer), std::move(idMapper)};
 
     checkPersistAndRestore(true, origGlobalCategorizer,
                            restoredFromBackgroundStateGlobalCategorizer);
 
     idMapper = std::make_shared<ml::api::CNoopCategoryIdMapper>();
-    localCategorizer = std::make_shared<ml::api::CFieldDataCategorizer::TTokenListDataCategorizerKeepsFields>(
+    localCategorizer = std::make_unique<ml::api::CFieldDataCategorizer::TTokenListDataCategorizerKeepsFields>(
         limits, std::make_shared<ml::model::CTokenListReverseSearchCreator>("message"),
         0.7, "message");
-    ml::api::CGlobalIdDataCategorizer restoredFromForegroundStateGlobalCategorizer{
+    ml::api::CSingleFieldDataCategorizer restoredFromForegroundStateGlobalCategorizer{
         "", std::move(localCategorizer), std::move(idMapper)};
 
     checkPersistAndRestore(false, origGlobalCategorizer,
@@ -126,11 +127,11 @@ BOOST_AUTO_TEST_CASE(testPersistPerPartition) {
     ml::api::CCategoryIdMapper::TCategoryIdMapperPtr idMapper{
         std::make_shared<ml::api::CPerPartitionCategoryIdMapper>(
             "vmware", [&highestGlobalId]() { return ++highestGlobalId; })};
-    auto localCategorizer = std::make_shared<ml::api::CFieldDataCategorizer::TTokenListDataCategorizerKeepsFields>(
+    auto localCategorizer = std::make_unique<ml::api::CFieldDataCategorizer::TTokenListDataCategorizerKeepsFields>(
         limits, std::make_shared<ml::model::CTokenListReverseSearchCreator>("message"),
         0.7, "message");
 
-    ml::api::CGlobalIdDataCategorizer origGlobalCategorizer{
+    ml::api::CSingleFieldDataCategorizer origGlobalCategorizer{
         "event.dataset", std::move(localCategorizer), std::move(idMapper)};
 
     ml::model::CDataCategorizer::TStrStrUMap fields;
@@ -151,10 +152,10 @@ BOOST_AUTO_TEST_CASE(testPersistPerPartition) {
 
     idMapper = std::make_shared<ml::api::CPerPartitionCategoryIdMapper>(
         "event.dataset", [&highestGlobalId]() { return ++highestGlobalId; });
-    localCategorizer = std::make_shared<ml::api::CFieldDataCategorizer::TTokenListDataCategorizerKeepsFields>(
+    localCategorizer = std::make_unique<ml::api::CFieldDataCategorizer::TTokenListDataCategorizerKeepsFields>(
         limits, std::make_shared<ml::model::CTokenListReverseSearchCreator>("message"),
         0.7, "message");
-    ml::api::CGlobalIdDataCategorizer restoredFromBackgroundStateGlobalCategorizer{
+    ml::api::CSingleFieldDataCategorizer restoredFromBackgroundStateGlobalCategorizer{
         "event.dataset", std::move(localCategorizer), std::move(idMapper)};
 
     checkPersistAndRestore(true, origGlobalCategorizer,
@@ -162,10 +163,10 @@ BOOST_AUTO_TEST_CASE(testPersistPerPartition) {
 
     idMapper = std::make_shared<ml::api::CPerPartitionCategoryIdMapper>(
         "event.dataset", [&highestGlobalId]() { return ++highestGlobalId; });
-    localCategorizer = std::make_shared<ml::api::CFieldDataCategorizer::TTokenListDataCategorizerKeepsFields>(
+    localCategorizer = std::make_unique<ml::api::CFieldDataCategorizer::TTokenListDataCategorizerKeepsFields>(
         limits, std::make_shared<ml::model::CTokenListReverseSearchCreator>("message"),
         0.7, "message");
-    ml::api::CGlobalIdDataCategorizer restoredFromForegroundStateGlobalCategorizer{
+    ml::api::CSingleFieldDataCategorizer restoredFromForegroundStateGlobalCategorizer{
         "event.dataset", std::move(localCategorizer), std::move(idMapper)};
 
     checkPersistAndRestore(false, origGlobalCategorizer,

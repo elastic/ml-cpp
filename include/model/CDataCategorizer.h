@@ -50,8 +50,8 @@ public:
     using TStrStrUMap = boost::unordered_map<std::string, std::string>;
     using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
-    //! Shared pointer to an instance of this class
-    using TDataCategorizerPtr = std::shared_ptr<CDataCategorizer>;
+    //! Unique pointer to an instance of this class
+    using TDataCategorizerUPtr = std::unique_ptr<CDataCategorizer>;
 
     //! Function used for persisting objects of this class
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;

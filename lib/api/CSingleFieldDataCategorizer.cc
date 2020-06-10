@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <api/CGlobalIdDataCategorizer.h>
+#include <api/CSingleFieldDataCategorizer.h>
 
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -26,20 +26,21 @@ const std::string CATEGORY_ID_MAPPER_TAG{"d"};
 namespace ml {
 namespace api {
 
-CGlobalIdDataCategorizer::CGlobalIdDataCategorizer(std::string partitionFieldName,
-                                                   model::CDataCategorizer::TDataCategorizerPtr dataCategorizer,
-                                                   CCategoryIdMapper::TCategoryIdMapperPtr categoryIdMapper)
+CSingleFieldDataCategorizer::CSingleFieldDataCategorizer(
+    std::string partitionFieldName,
+    model::CDataCategorizer::TDataCategorizerUPtr dataCategorizer,
+    CCategoryIdMapper::TCategoryIdMapperPtr categoryIdMapper)
     : m_PartitionFieldName{std::move(partitionFieldName)},
       m_DataCategorizer{std::move(dataCategorizer)}, m_CategoryIdMapper{std::move(categoryIdMapper)} {
 }
 
-void CGlobalIdDataCategorizer::dumpStats() const {
+void CSingleFieldDataCategorizer::dumpStats() const {
     m_DataCategorizer->dumpStats([this](model::CLocalCategoryId localCategoryId) {
         return m_CategoryIdMapper->map(localCategoryId).print();
     });
 }
 
-CGlobalCategoryId CGlobalIdDataCategorizer::computeAndUpdateCategory(
+CGlobalCategoryId CSingleFieldDataCategorizer::computeAndUpdateCategory(
     bool isDryRun,
     const model::CDataCategorizer::TStrStrUMap& fields,
     const std::string& messageToCategorize,
@@ -82,21 +83,21 @@ CGlobalCategoryId CGlobalIdDataCategorizer::computeAndUpdateCategory(
     return globalCategoryId;
 }
 
-CGlobalIdDataCategorizer::TPersistFunc
-CGlobalIdDataCategorizer::makeForegroundPersistFunc() const {
+CSingleFieldDataCategorizer::TPersistFunc
+CSingleFieldDataCategorizer::makeForegroundPersistFunc() const {
     model::CDataCategorizer::TPersistFunc categorizerPersistFunc{
         m_DataCategorizer->makeForegroundPersistFunc()};
 
     return [ categorizerPersistFunc = std::move(categorizerPersistFunc),
              this ](core::CStatePersistInserter & inserter) {
-        CGlobalIdDataCategorizer::acceptPersistInserter(
+        CSingleFieldDataCategorizer::acceptPersistInserter(
             categorizerPersistFunc, m_DataCategorizer->examplesCollector(),
             *m_CategoryIdMapper, inserter);
     };
 }
 
-CGlobalIdDataCategorizer::TPersistFunc
-CGlobalIdDataCategorizer::makeBackgroundPersistFunc() const {
+CSingleFieldDataCategorizer::TPersistFunc
+CSingleFieldDataCategorizer::makeBackgroundPersistFunc() const {
     model::CDataCategorizer::TPersistFunc categorizerPersistFunc{
         m_DataCategorizer->makeBackgroundPersistFunc()};
     model::CCategoryExamplesCollector examplesCollector{m_DataCategorizer->examplesCollector()};
@@ -113,12 +114,12 @@ CGlobalIdDataCategorizer::makeBackgroundPersistFunc() const {
         examplesCollector = std::move(examplesCollector),
         categoryIdMapperClone = std::move(categoryIdMapperClone)
     ](core::CStatePersistInserter & inserter) {
-        CGlobalIdDataCategorizer::acceptPersistInserter(
+        CSingleFieldDataCategorizer::acceptPersistInserter(
             categorizerPersistFunc, examplesCollector, *categoryIdMapperClone, inserter);
     };
 }
 
-bool CGlobalIdDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
+bool CSingleFieldDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     if (traverser.next() == false) {
         LOG_ERROR(<< "Cannot restore categorizer - end of object reached when "
                   << CATEGORIZER_TAG << " was expected");
@@ -183,7 +184,7 @@ bool CGlobalIdDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTravers
     return true;
 }
 
-void CGlobalIdDataCategorizer::writeOutChangedCategories(CJsonOutputWriter& jsonOutputWriter) {
+void CSingleFieldDataCategorizer::writeOutChangedCategories(CJsonOutputWriter& jsonOutputWriter) {
     std::size_t numCategories{m_DataCategorizer->numCategories()};
     if (numCategories == 0) {
         return;
@@ -214,11 +215,11 @@ void CGlobalIdDataCategorizer::writeOutChangedCategories(CJsonOutputWriter& json
     }
 }
 
-void CGlobalIdDataCategorizer::forceResourceRefresh(model::CResourceMonitor& resourceMonitor) {
+void CSingleFieldDataCategorizer::forceResourceRefresh(model::CResourceMonitor& resourceMonitor) {
     resourceMonitor.forceRefresh(*m_DataCategorizer);
 }
 
-void CGlobalIdDataCategorizer::acceptPersistInserter(
+void CSingleFieldDataCategorizer::acceptPersistInserter(
     const model::CDataCategorizer::TPersistFunc& dataCategorizerPersistFunc,
     const model::CCategoryExamplesCollector& examplesCollector,
     const CCategoryIdMapper& categoryIdMapper,

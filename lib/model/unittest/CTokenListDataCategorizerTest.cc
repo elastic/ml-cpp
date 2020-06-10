@@ -42,7 +42,7 @@ const TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorCPtr N
 void checkMemoryUsageInstrumentation(const TTokenListDataCategorizerKeepsFields& categorizer) {
 
     std::size_t memoryUsage{categorizer.memoryUsage()};
-    auto mem{std::make_shared<ml::core::CMemoryUsage>()};
+    auto mem = std::make_shared<ml::core::CMemoryUsage>();
     categorizer.debugMemoryUsage(mem);
 
     std::ostringstream strm;

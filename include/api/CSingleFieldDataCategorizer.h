@@ -3,8 +3,8 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_api_CGlobalIdDataCategorizer_h
-#define INCLUDED_ml_api_CGlobalIdDataCategorizer_h
+#ifndef INCLUDED_ml_api_CSingleFieldDataCategorizer_h
+#define INCLUDED_ml_api_CSingleFieldDataCategorizer_h
 
 #include <model/CDataCategorizer.h>
 
@@ -42,15 +42,15 @@ class CJsonOutputWriter;
 //! categorizer.  An extra level cannot be introduced now, as that
 //! would break backwards compatibility of the state.
 //!
-class API_EXPORT CGlobalIdDataCategorizer {
+class API_EXPORT CSingleFieldDataCategorizer {
 public:
     //! Function used for persisting objects of this class
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
 
 public:
-    CGlobalIdDataCategorizer(std::string partitionFieldName,
-                             model::CDataCategorizer::TDataCategorizerPtr dataCategorizer,
-                             CCategoryIdMapper::TCategoryIdMapperPtr categoryIdMapper);
+    CSingleFieldDataCategorizer(std::string partitionFieldName,
+                                model::CDataCategorizer::TDataCategorizerUPtr dataCategorizer,
+                                CCategoryIdMapper::TCategoryIdMapperPtr categoryIdMapper);
 
     //! Dump stats
     void dumpStats() const;
@@ -107,7 +107,7 @@ private:
     std::string m_PartitionFieldName;
 
     //! Pointer to the wrapped data categorizer.
-    model::CDataCategorizer::TDataCategorizerPtr m_DataCategorizer;
+    model::CDataCategorizer::TDataCategorizerUPtr m_DataCategorizer;
 
     //! Pointer to the category ID mapper.
     CCategoryIdMapper::TCategoryIdMapperPtr m_CategoryIdMapper;
@@ -126,4 +126,4 @@ private:
 }
 }
 
-#endif // INCLUDED_ml_api_CGlobalIdDataCategorizer_h
+#endif // INCLUDED_ml_api_CSingleFieldDataCategorizer_h

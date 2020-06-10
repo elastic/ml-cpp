@@ -16,7 +16,7 @@
 #include <api/CCategoryIdMapper.h>
 #include <api/CDataProcessor.h>
 #include <api/CGlobalCategoryId.h>
-#include <api/CGlobalIdDataCategorizer.h>
+#include <api/CSingleFieldDataCategorizer.h>
 #include <api/ImportExport.h>
 
 #include <boost/unordered_set.hpp>
@@ -143,12 +143,13 @@ public:
     COutputHandler& outputHandler() override;
 
 private:
-    using TPersistFuncVec = std::vector<CGlobalIdDataCategorizer::TPersistFunc>;
+    using TPersistFuncVec = std::vector<CSingleFieldDataCategorizer::TPersistFunc>;
 
     using TStrUSet = boost::unordered_set<std::string>;
 
-    using TGlobalIdDataCategorizerPtr = std::shared_ptr<CGlobalIdDataCategorizer>;
-    using TStrGlobalIdDataCategorizerPtrMap = std::map<std::string, TGlobalIdDataCategorizerPtr>;
+    using TSingleFieldDataCategorizerUPtr = std::unique_ptr<CSingleFieldDataCategorizer>;
+    using TStrSingleFieldDataCategorizerUPtrMap =
+        std::map<std::string, TSingleFieldDataCategorizerUPtr>;
 
 private:
     //! Get the appropriate categorizer key from the given input record
@@ -158,11 +159,11 @@ private:
     //! field value.  If the categorizer does not already exist then this method
     //! will create it if the memory status is not hard_limit, and will return
     //! nullptr if hard_limit has been hit.
-    CGlobalIdDataCategorizer* categorizerPtrForKey(const std::string& partitionFieldValue);
+    CSingleFieldDataCategorizer* categorizerPtrForKey(const std::string& partitionFieldValue);
 
     //! Get (creating if necessary) the categorizer to operate on the given
     //! partition field value
-    CGlobalIdDataCategorizer& categorizerForKey(const std::string& partitionFieldValue);
+    CSingleFieldDataCategorizer& categorizerForKey(const std::string& partitionFieldValue);
 
     bool doPersistState(const TStrVec& partitionFieldValues,
                         const TPersistFuncVec& dataCategorizerPersistFuncs,
@@ -227,7 +228,7 @@ private:
     //! Map of categorizer by partition field value.  If per-partition
     //! categorization is disabled this map will have one entry, keyed on
     //! the empty string.
-    TStrGlobalIdDataCategorizerPtrMap m_DataCategorizers;
+    TStrSingleFieldDataCategorizerUPtrMap m_DataCategorizers;
 
     //! Reference to the json output writer so that examples can be written
     CJsonOutputWriter& m_JsonOutputWriter;

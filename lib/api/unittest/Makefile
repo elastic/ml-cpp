@@ -40,7 +40,6 @@ SRCS=\
 	CFieldDataCategorizerTest.cc \
 	CForecastRunnerTest.cc \
 	CGlobalCategoryIdTest.cc \
-	CGlobalIdDataCategorizerTest.cc \
 	CIoManagerTest.cc \
 	CJsonOutputWriterTest.cc \
 	CLengthEncodedInputParserTest.cc \
@@ -59,6 +58,7 @@ SRCS=\
 	CPersistenceManagerTest.cc \
 	CRestorePreviousStateTest.cc \
 	CResultNormalizerTest.cc \
+	CSingleFieldDataCategorizerTest.cc \
 	CSingleStreamDataAdderTest.cc \
 	CStateRestoreStreamFilterTest.cc \
 	CStringStoreTest.cc \

@@ -33,9 +33,9 @@ namespace api {
 
 namespace {
 // For historical reasons, these tags must not duplicate those used in
-// CGlobalIdDataCategorizer.cc
+// CSingleFieldDataCategorizer.cc
 const std::string VERSION_TAG{"a"};
-// b, c, d used in CGlobalIdDataCategorizer.cc
+// b, c, d used in CSingleFieldDataCategorizer.cc
 const std::string PARTITION_FIELD_VALUE_TAG{"e"};
 const std::string HIGHEST_GLOBAL_ID_TAG{"f"};
 const std::string CATEGORIZER_ALLOCATION_FAILURES{"g"};
@@ -170,7 +170,7 @@ CGlobalCategoryId CFieldDataCategorizer::computeAndUpdateCategory(const TStrStrU
     }
 
     const std::string& partitionFieldValue{this->categorizerKeyForRecord(dataRowFields)};
-    CGlobalIdDataCategorizer* dataCategorizer{this->categorizerPtrForKey(partitionFieldValue)};
+    CSingleFieldDataCategorizer* dataCategorizer{this->categorizerPtrForKey(partitionFieldValue)};
     if (dataCategorizer == nullptr) {
         ++m_CategorizerAllocationFailures;
         if (m_PartitionFieldName.empty()) {
@@ -218,7 +218,7 @@ const std::string& CFieldDataCategorizer::categorizerKeyForRecord(const TStrStrU
     return partitionFieldIter->second;
 }
 
-CGlobalIdDataCategorizer*
+CSingleFieldDataCategorizer*
 CFieldDataCategorizer::categorizerPtrForKey(const std::string& partitionFieldValue) {
     auto iter = m_DataCategorizers.find(partitionFieldValue);
     if (iter != m_DataCategorizers.end()) {
@@ -240,19 +240,21 @@ CFieldDataCategorizer::categorizerPtrForKey(const std::string& partitionFieldVal
 
     // TODO - if we ever have more than one data categorizer class, this
     // should be replaced with a factory
-    auto localCategorizer = std::make_shared<TTokenListDataCategorizerKeepsFields>(
+    auto localCategorizer = std::make_unique<TTokenListDataCategorizerKeepsFields>(
         m_Limits, std::make_shared<model::CTokenListReverseSearchCreator>(m_CategorizationFieldName),
         SIMILARITY_THRESHOLD, m_CategorizationFieldName);
 
-    auto globalCategorizer = std::make_shared<CGlobalIdDataCategorizer>(
+    auto globalCategorizer = std::make_unique<CSingleFieldDataCategorizer>(
         m_PartitionFieldName, std::move(localCategorizer), std::move(idMapper));
-    m_DataCategorizers.emplace(partitionFieldValue, globalCategorizer);
+    iter = m_DataCategorizers
+               .emplace(partitionFieldValue, std::move(globalCategorizer))
+               .first;
     LOG_TRACE(<< "Created new categorizer for '" << partitionFieldValue << '/'
               << m_CategorizationFieldName << "'");
-    return globalCategorizer.get();
+    return iter->second.get();
 }
 
-CGlobalIdDataCategorizer&
+CSingleFieldDataCategorizer&
 CFieldDataCategorizer::categorizerForKey(const std::string& partitionFieldValue) {
     return *this->categorizerPtrForKey(partitionFieldValue);
 }
@@ -365,11 +367,20 @@ bool CFieldDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTraverser&
     }
 
     for (const auto& categorizerKey : categorizerKeys) {
-        CGlobalIdDataCategorizer& dataCategorizer{this->categorizerForKey(categorizerKey)};
+        CSingleFieldDataCategorizer* dataCategorizer{this->categorizerPtrForKey(categorizerKey)};
+        if (dataCategorizer == nullptr) {
+            // This is extremely unlikely to happen.  It implies the model
+            // memory limit was reduced since the job was last run, or else the
+            // anomaly detector state was reverted to a model snapshot that
+            // requires more memory than the one in use at the time the
+            // categorizer state was generated.
+            LOG_ERROR(<< "Memory limit hit while restoring categorizer state");
+            return false;
+        }
         // Unlike most nested objects this doesn't traverse a sub-level.
         // This dates back to the time when there was only one categorizer.
         // To do otherwise now would break state compatibility.
-        if (dataCategorizer.acceptRestoreTraverser(traverser) == false) {
+        if (dataCategorizer->acceptRestoreTraverser(traverser) == false) {
             LOG_ERROR(<< "Cannot restore categorizer from " << traverser.value());
             return false;
         }
@@ -412,7 +423,7 @@ bool CFieldDataCategorizer::persistStateInForeground(core::CDataAdder& persister
     TPersistFuncVec dataCategorizerPersistFuncs;
 
     if (m_PartitionFieldName.empty()) {
-        CGlobalIdDataCategorizer& dataCategorizer{categorizerForKey(EMPTY_STRING)};
+        CSingleFieldDataCategorizer& dataCategorizer{categorizerForKey(EMPTY_STRING)};
         dataCategorizerPersistFuncs.emplace_back(dataCategorizer.makeForegroundPersistFunc());
     } else {
         if (m_DataCategorizers.empty()) {
@@ -540,7 +551,7 @@ bool CFieldDataCategorizer::periodicPersistStateInBackground() {
     TPersistFuncVec dataCategorizerPersistFuncs;
 
     if (m_PartitionFieldName.empty()) {
-        CGlobalIdDataCategorizer& dataCategorizer{categorizerForKey(EMPTY_STRING)};
+        CSingleFieldDataCategorizer& dataCategorizer{categorizerForKey(EMPTY_STRING)};
         dataCategorizerPersistFuncs.emplace_back(dataCategorizer.makeBackgroundPersistFunc());
     } else {
         if (m_DataCategorizers.empty()) {
@@ -552,7 +563,7 @@ bool CFieldDataCategorizer::periodicPersistStateInBackground() {
         dataCategorizerPersistFuncs.reserve(m_DataCategorizers.size());
         for (auto& dataCategorizerEntry : m_DataCategorizers) {
             partitionFieldValues.push_back(dataCategorizerEntry.first);
-            CGlobalIdDataCategorizer& dataCategorizer{*dataCategorizerEntry.second};
+            CSingleFieldDataCategorizer& dataCategorizer{*dataCategorizerEntry.second};
             dataCategorizer.forceResourceRefresh(m_Limits.resourceMonitor());
             dataCategorizerPersistFuncs.emplace_back(
                 dataCategorizer.makeBackgroundPersistFunc());
