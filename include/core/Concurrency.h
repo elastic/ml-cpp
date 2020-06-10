@@ -336,7 +336,7 @@ bool parallel_for_each(std::size_t start,
     // in guarding against accidental deadlock in the case someone inadvertantly calls
     // parallelised code in the function to execute.
 
-    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope{};
+    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope;
 
     functions.resize(std::min(functions.size(), end - start));
 
@@ -381,7 +381,7 @@ parallel_for_each(std::size_t partitions,
 
     // See above for details.
 
-    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope{};
+    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope;
 
     partitions = std::min(partitions, end - start);
 
@@ -437,7 +437,7 @@ bool parallel_for_each(ITR start,
 
     // See above for details.
 
-    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope{};
+    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope;
 
     functions.resize(std::min(functions.size(), size));
 
@@ -482,7 +482,7 @@ parallel_for_each(std::size_t partitions,
 
     // See above for details.
 
-    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope{};
+    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope;
 
     partitions = std::min(partitions, size);
 
