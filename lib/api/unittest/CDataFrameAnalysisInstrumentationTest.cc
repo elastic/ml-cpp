@@ -101,6 +101,7 @@ void addOutlierTestData(TStrVec fieldNames,
 
 BOOST_AUTO_TEST_CASE(testMemoryState) {
     std::string jobId{"testJob"};
+    std::int64_t memoryLimit{1024 * 1024 * 1024}; //1gb default value
     std::int64_t memoryUsage{1000};
     std::int64_t timeBefore{std::chrono::duration_cast<std::chrono::milliseconds>(
                                 std::chrono::system_clock::now().time_since_epoch())
@@ -108,7 +109,8 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
     std::stringstream outputStream;
     {
         core::CJsonOutputStreamWrapper streamWrapper(outputStream);
-        api::CDataFrameTrainBoostedTreeInstrumentation instrumentation{jobId};
+        api::CDataFrameTrainBoostedTreeInstrumentation instrumentation{
+            jobId, static_cast<std::size_t>(memoryLimit)};
         api::CDataFrameTrainBoostedTreeInstrumentation::CScopeSetOutputStream setStream{
             instrumentation, streamWrapper};
         instrumentation.updateMemoryUsage(memoryUsage);

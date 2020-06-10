@@ -139,7 +139,7 @@ void CDataFrameAnalyzer::run() {
 
         core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
 
-        CDataFrameAnalysisInstrumentation::monitorProgress(instrumentation, outputWriter);
+        CDataFrameAnalysisInstrumentation::monitor(instrumentation, outputWriter);
 
         analysisRunner->waitToFinish();
         this->writeResultsOf(*analysisRunner, outputWriter);
