@@ -13,11 +13,19 @@
 #include <model/CDataCategorizer.h>
 #include <model/CTokenListDataCategorizer.h>
 
+#include <api/CCategoryIdMapper.h>
 #include <api/CDataProcessor.h>
+#include <api/CGlobalCategoryId.h>
+#include <api/CSingleFieldDataCategorizer.h>
 #include <api/ImportExport.h>
 
+#include <boost/unordered_set.hpp>
+
 #include <cstdint>
+#include <map>
+#include <memory>
 #include <string>
+#include <vector>
 
 namespace ml {
 namespace core {
@@ -36,11 +44,29 @@ class COutputHandler;
 class CPersistenceManager;
 
 //! \brief
-//! Assign categorisation fields to input records
+//! Categorize input records and add categorization fields
+//! before passing down the chain.
 //!
 //! DESCRIPTION:\n
-//! Adds a new field called mlcategory and assigns to it
-//! integers that correspond to the various cateogories
+//! Uses the lower level categorizer in the model library to
+//! categorize input records and writes any new or changed
+//! categories to the process output.
+//!
+//! Also adds a new field called mlcategory and assigns to it
+//! an integer that corresponds to the chosen global category
+//! ID.
+//!
+//! IMPLEMENTATION DECISIONS:\n
+//! When per-partition categorization is used, each lower
+//! level model library categorizer will produce category IDs
+//! starting from 1, known as local category IDs.  This class
+//! maps these to category IDs thatare globally unique within
+//! the job: global category IDs.
+//!
+//! When per-partition categorization is not used, local and
+//! global category IDs are identical, as there is only one
+//! lower level model library categorizer.  This is keyed on
+//! the empty string in the map of lower level categorizers.
 //!
 class API_EXPORT CFieldDataCategorizer : public CDataProcessor {
 public:
@@ -83,6 +109,8 @@ public:
 
     ~CFieldDataCategorizer() override;
 
+    CGlobalCategoryId computeAndUpdateCategory(const TStrStrUMap& dataRowFields);
+
     //! We're going to be writing to a new output stream
     void newOutputStream() override;
 
@@ -101,7 +129,8 @@ public:
     bool isPersistenceNeeded(const std::string& description) const override;
 
     //! Persist current state
-    bool persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) override;
+    bool persistStateInForeground(core::CDataAdder& persister,
+                                  const std::string& descriptionPrefix) override;
 
     //! Persist current state due to the periodic persistence being triggered.
     bool periodicPersistStateInBackground() override;
@@ -114,21 +143,32 @@ public:
     COutputHandler& outputHandler() override;
 
 private:
-    //! Create the categorizer to operate on the categorization field
-    void createCategorizer(const std::string& fieldName);
+    using TPersistFuncVec = std::vector<CSingleFieldDataCategorizer::TPersistFunc>;
 
-    //! Compute the category for a given record.
-    int computeCategory(const TStrStrUMap& dataRowFields);
+    using TStrUSet = boost::unordered_set<std::string>;
 
-    //! Create the reverse search and return true if it has changed or false otherwise
-    bool createReverseSearch(int categoryId);
+    using TSingleFieldDataCategorizerUPtr = std::unique_ptr<CSingleFieldDataCategorizer>;
+    using TStrSingleFieldDataCategorizerUPtrMap =
+        std::map<std::string, TSingleFieldDataCategorizerUPtr>;
 
-    bool doPersistState(const model::CDataCategorizer::TPersistFunc& dataCategorizerPersistFunc,
-                        const model::CCategoryExamplesCollector& examplesCollector,
+private:
+    //! Get the appropriate categorizer key from the given input record
+    const std::string& categorizerKeyForRecord(const TStrStrUMap& dataRowFields);
+
+    //! Get a pointer to the categorizer to operate on the given partition
+    //! field value.  If the categorizer does not already exist then this method
+    //! will create it if the memory status is not hard_limit, and will return
+    //! nullptr if hard_limit has been hit.
+    CSingleFieldDataCategorizer* categorizerPtrForKey(const std::string& partitionFieldValue);
+
+    //! Get (creating if necessary) the categorizer to operate on the given
+    //! partition field value
+    CSingleFieldDataCategorizer& categorizerForKey(const std::string& partitionFieldValue);
+
+    bool doPersistState(const TStrVec& partitionFieldValues,
+                        const TPersistFuncVec& dataCategorizerPersistFuncs,
+                        std::size_t categorizerAllocationFailures,
                         core::CDataAdder& persister);
-    void acceptPersistInserter(const model::CDataCategorizer::TPersistFunc& dataCategorizerPersistFunc,
-                               const model::CCategoryExamplesCollector& examplesCollector,
-                               core::CStatePersistInserter& inserter) const;
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     //! Respond to an attempt to restore corrupt categorizer state by
@@ -150,9 +190,15 @@ private:
     //! since the last time this method was called.
     void writeOutChangedCategories();
 
+    //! Get the next global ID to use.  This method only returns a useful
+    //! result when per-partition categorization is being used.  When
+    //! per-partition categorization is not used, there is no need for this
+    //! value to be tracked.
+    int nextGlobalId();
+
 private:
     //! The job ID
-    std::string m_JobId;
+    const std::string m_JobId;
 
     //! Configurable limits
     model::CLimits& m_Limits;
@@ -166,6 +212,9 @@ private:
     //! Should we write the field names before the next output?
     bool m_WriteFieldNames = true;
 
+    //! Highest previously used global ID.
+    int m_HighestGlobalId = 0;
+
     //! Keep count of how many records we've handled
     std::uint64_t m_NumRecordsHandled = 0;
 
@@ -176,20 +225,18 @@ private:
     //! repeatedly searching for them
     std::string& m_OutputFieldCategory;
 
-    //! Space separated list of search terms for the current category
-    std::string m_SearchTerms;
-
-    //! Regex to match values of the current category
-    std::string m_SearchTermsRegex;
-
-    //! The max matching length of the current category
-    std::size_t m_MaxMatchingLength = 0;
-
-    //! Pointer to the actual categorizer
-    model::CDataCategorizer::TDataCategorizerP m_DataCategorizer;
+    //! Map of categorizer by partition field value.  If per-partition
+    //! categorization is disabled this map will have one entry, keyed on
+    //! the empty string.
+    TStrSingleFieldDataCategorizerUPtrMap m_DataCategorizers;
 
     //! Reference to the json output writer so that examples can be written
     CJsonOutputWriter& m_JsonOutputWriter;
+
+    //! Which field name are we partitioning on?  If empty, this means
+    //! per-partition categorization is disabled and categories are
+    //! determined across the entire data set.
+    std::string m_PartitionFieldName;
 
     //! Which field name are we categorizing?
     std::string m_CategorizationFieldName;
@@ -200,6 +247,17 @@ private:
     //! Pointer to the persistence manager. May be nullptr if state persistence
     //! is not required, for example in unit tests.
     CPersistenceManager* m_PersistenceManager;
+
+    //! Number of times we have failed to allocate a lower level categorizer
+    //! due to lack of memory.
+    std::size_t m_CategorizerAllocationFailures = 0;
+
+    //! Partition field values for which categorization is completely impossible
+    //! due to lack of memory.  This is used to avoid excessive logging of
+    //! warnings.  The set is not persisted, so warnings will be logged again
+    //! on each invocation of the program if the same partition values are seen
+    //! again.
+    TStrUSet m_CategorizerAllocationFailedPartitions;
 };
 }
 }

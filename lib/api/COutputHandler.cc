@@ -36,8 +36,8 @@ bool COutputHandler::restoreState(core::CDataSearcher& /* restoreSearcher */,
     return true;
 }
 
-bool COutputHandler::persistState(core::CDataAdder& /* persister */,
-                                  const std::string& /*descriptionPrefix*/) {
+bool COutputHandler::persistStateInForeground(core::CDataAdder& /* persister */,
+                                              const std::string& /*descriptionPrefix*/) {
     // NOOP unless overridden
     return true;
 }

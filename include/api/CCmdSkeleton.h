@@ -44,7 +44,7 @@ public:
 
 private:
     //! Persists the state of the models
-    bool persistState();
+    bool persistStateInForeground();
 
 private:
     //! NULL if state restoration is not required.

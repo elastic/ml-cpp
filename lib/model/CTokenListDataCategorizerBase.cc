@@ -46,27 +46,28 @@ CTokenListDataCategorizerBase::CTokenListDataCategorizerBase(CLimits& limits,
       m_MemoryCategorizationFailures{0}, m_HasChanged{false} {
 }
 
-void CTokenListDataCategorizerBase::dumpStats() const {
-    // ML category number is vector index plus one
-    int categoryId{1};
-    for (const auto& category : m_Categories) {
-        LOG_DEBUG(<< "ML category=" << categoryId << '-'
+void CTokenListDataCategorizerBase::dumpStats(const TLocalCategoryIdFormatterFunc& idFormatter) const {
+    // ML local category ID is vector index plus one.  If global category IDs
+    // are different then the supplied formatter should print that too.
+    for (std::size_t index = 0; index < m_Categories.size(); ++index) {
+        const CTokenListCategory& category{m_Categories[index]};
+        LOG_DEBUG(<< "ML category=" << idFormatter(CLocalCategoryId{index}) << '-'
                   << category.numMatches() << ' ' << category.baseString());
-        ++categoryId;
     }
 }
 
-int CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
-                                                   const TStrStrUMap& fields,
-                                                   const std::string& str,
-                                                   std::size_t rawStringLen) {
+CLocalCategoryId
+CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
+                                               const TStrStrUMap& fields,
+                                               const std::string& str,
+                                               std::size_t rawStringLen) {
     // First tokenise string
     std::size_t workWeight{0};
     auto preTokenisedIter = fields.find(PRETOKENISED_TOKEN_FIELD);
     if (preTokenisedIter != fields.end()) {
         if (this->addPretokenisedTokens(preTokenisedIter->second, m_WorkTokenIds,
                                         m_WorkTokenUniqueIds, workWeight) == false) {
-            return SOFT_CATEGORIZATION_FAILURE_ERROR;
+            return CLocalCategoryId::softFailure();
         }
     } else {
         this->tokeniseString(fields, str, m_WorkTokenIds, m_WorkTokenUniqueIds, workWeight);
@@ -131,8 +132,8 @@ int CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
             }
 
             // This is a strong match, so accept it immediately and stop
-            // looking for better matches - use vector index plus one as category
-            int categoryId(1 + int(iter->second));
+            // looking for better matches
+            CLocalCategoryId categoryId{iter->second};
             this->addCategoryMatch(isDryRun, str, rawStringLen, m_WorkTokenIds,
                                    m_WorkTokenUniqueIds, iter);
             return categoryId;
@@ -153,7 +154,7 @@ int CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
 
     if (bestSoFarIter != m_CategoriesByCount.end()) {
         // Return the best match - use vector index plus one as ML category
-        int categoryId{1 + static_cast<int>(bestSoFarIter->second)};
+        CLocalCategoryId categoryId{bestSoFarIter->second};
         this->addCategoryMatch(isDryRun, str, rawStringLen, m_WorkTokenIds,
                                m_WorkTokenUniqueIds, bestSoFarIter);
         return categoryId;
@@ -167,7 +168,7 @@ int CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
         if (++m_MemoryCategorizationFailures == 1) {
             LOG_WARN(<< "Categories are not being created due to lack of memory");
         }
-        return HARD_CATEGORIZATION_FAILURE_ERROR;
+        return CLocalCategoryId::hardFailure();
     }
 
     // If we get here we haven't matched, so create a new category
@@ -182,11 +183,10 @@ int CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
         const_cast<CTokenInfoItem&>(m_TokenIdLookup[workTokenId.first]).incCategoryCount();
     }
 
-    // ML category is vector index plus one
-    return static_cast<int>(m_Categories.size());
+    return CLocalCategoryId{m_Categories.size() - 1};
 }
 
-bool CTokenListDataCategorizerBase::createReverseSearch(int categoryId,
+bool CTokenListDataCategorizerBase::createReverseSearch(CLocalCategoryId categoryId,
                                                         std::string& part1,
                                                         std::string& part2,
                                                         std::size_t& maxMatchingLength,
@@ -203,24 +203,24 @@ bool CTokenListDataCategorizerBase::createReverseSearch(int categoryId,
         return false;
     }
 
-    // Find the correct category object - ML category is vector index plus one
-    if (categoryId < 1 || static_cast<std::size_t>(categoryId) > m_Categories.size()) {
+    // Find the correct category object
+    if (categoryId.isValid() == false || categoryId.index() >= m_Categories.size()) {
 
         part1.clear();
         part2.clear();
 
-        // SOFT_CATEGORIZATION_FAILURE_ERROR is supposed to be the only special
-        // value used for the category ID that permits subsequent processing
-        // like asking for a reverse search.
-        if (categoryId != SOFT_CATEGORIZATION_FAILURE_ERROR) {
-            LOG_ERROR(<< "Programmatic error - invalid ML category: " << categoryId);
+        // Soft failure is supposed to be the only special value used for the
+        // category ID that permits subsequent processing like asking for a
+        // reverse search.
+        if (categoryId.isSoftFailure() == false) {
+            LOG_ERROR(<< "Programmatic error - unexpected ML local category: " << categoryId);
             return false;
         }
 
         return true;
     }
 
-    CTokenListCategory& category{m_Categories[categoryId - 1]};
+    CTokenListCategory& category{m_Categories[categoryId.index()]};
     maxMatchingLength = category.maxMatchingStringLen();
 
     // If we can retrieve cached reverse search terms we'll save a lot of time
@@ -650,31 +650,31 @@ CTokenListDataCategorizerBase::calculateCategorizationStatus(std::size_t categor
     return model_t::E_CategorizationStatusOk;
 }
 
-std::size_t CTokenListDataCategorizerBase::numMatches(int categoryId) {
-    if (categoryId < 1 || static_cast<std::size_t>(categoryId) > m_Categories.size()) {
-        LOG_ERROR(<< "Programmatic error - invalid ML category: " << categoryId);
+std::size_t CTokenListDataCategorizerBase::numMatches(CLocalCategoryId categoryId) {
+    if (categoryId.isValid() == false || categoryId.index() >= m_Categories.size()) {
+        LOG_ERROR(<< "Programmatic error - unexpected ML local category: " << categoryId);
         return 0;
     }
-    return m_Categories[categoryId - 1].numMatches();
+    return m_Categories[categoryId.index()].numMatches();
 }
 
-CDataCategorizer::TIntVec CTokenListDataCategorizerBase::usurpedCategories(int categoryId) {
-    CDataCategorizer::TIntVec usurped;
-    if (categoryId < 1 || static_cast<std::size_t>(categoryId) > m_Categories.size()) {
-        LOG_ERROR(<< "Programmatic error - invalid ML category: " << categoryId);
+CDataCategorizer::TLocalCategoryIdVec
+CTokenListDataCategorizerBase::usurpedCategories(CLocalCategoryId categoryId) {
+    CDataCategorizer::TLocalCategoryIdVec usurped;
+    if (categoryId.isValid() == false || categoryId.index() >= m_Categories.size()) {
+        LOG_ERROR(<< "Programmatic error - unexpected ML local category: " << categoryId);
         return usurped;
     }
     auto iter = std::find_if(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
                              [categoryId](const TSizeSizePr& pr) {
-                                 return pr.second ==
-                                        static_cast<std::size_t>(categoryId - 1);
+                                 return pr.second == categoryId.index();
                              });
     if (iter == m_CategoriesByCount.end()) {
         LOG_WARN(<< "Could not find category definition for category: " << categoryId);
         return usurped;
     }
 
-    const CTokenListCategory& category{m_Categories[categoryId - 1]};
+    const CTokenListCategory& category{m_Categories[categoryId.index()]};
     for (++iter; iter != m_CategoriesByCount.end(); ++iter) {
         const CTokenListCategory& lessFrequentCategory{m_Categories[iter->second]};
         bool matchesSearch{category.maxMatchingStringLen() >=
@@ -695,12 +695,12 @@ std::size_t CTokenListDataCategorizerBase::numCategories() const {
     return m_Categories.size();
 }
 
-bool CTokenListDataCategorizerBase::categoryChangedAndReset(int categoryId) {
-    if (categoryId < 1 || static_cast<std::size_t>(categoryId) > m_Categories.size()) {
-        LOG_ERROR(<< "Programmatic error - invalid ML category: " << categoryId);
+bool CTokenListDataCategorizerBase::categoryChangedAndReset(CLocalCategoryId categoryId) {
+    if (categoryId.isValid() == false || categoryId.index() >= m_Categories.size()) {
+        LOG_ERROR(<< "Programmatic error - unexpected ML local category: " << categoryId);
         return false;
     }
-    return m_Categories[categoryId - 1].isChangedAndReset();
+    return m_Categories[categoryId.index()].isChangedAndReset();
 }
 
 CTokenListDataCategorizerBase::CTokenInfoItem::CTokenInfoItem(const std::string& str,

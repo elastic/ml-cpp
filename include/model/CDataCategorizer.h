@@ -10,6 +10,7 @@
 #include <core/CoreTypes.h>
 
 #include <model/CCategoryExamplesCollector.h>
+#include <model/CLocalCategoryId.h>
 #include <model/CMonitoredResource.h>
 #include <model/ImportExport.h>
 
@@ -42,26 +43,21 @@ class CLimits;
 //!
 class MODEL_EXPORT CDataCategorizer : public CMonitoredResource {
 public:
+    //! Used for formatting category IDs in the debug dump
+    using TLocalCategoryIdFormatterFunc = std::function<std::string(CLocalCategoryId)>;
+
     //! Used for storing distinct token IDs
     using TStrStrUMap = boost::unordered_map<std::string, std::string>;
     using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
-    //! Shared pointer to an instance of this class
-    using TDataCategorizerP = std::shared_ptr<CDataCategorizer>;
+    //! Unique pointer to an instance of this class
+    using TDataCategorizerUPtr = std::unique_ptr<CDataCategorizer>;
 
-    //! Shared pointer to an instance of this class
+    //! Function used for persisting objects of this class
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
-    using TIntVec = std::vector<int>;
 
-    //! A soft categorization failure means downstream components can continue,
-    //! by considering the input record to be in some "uncategorizable"
-    //! category.
-    static const int SOFT_CATEGORIZATION_FAILURE_ERROR;
-
-    //! A hard categorization failure means processing of the input record must
-    //! cease.  (This is generally used to prevent excessive memory
-    //! accumulation.)
-    static const int HARD_CATEGORIZATION_FAILURE_ERROR;
+    //! Vector of local category IDs
+    using TLocalCategoryIdVec = std::vector<CLocalCategoryId>;
 
 public:
     CDataCategorizer(CLimits& limits, const std::string& fieldName);
@@ -73,25 +69,25 @@ public:
     ~CDataCategorizer() override;
 
     //! Dump stats
-    virtual void dumpStats() const = 0;
+    virtual void dumpStats(const TLocalCategoryIdFormatterFunc& formatterFunc) const = 0;
 
     //! Compute a category from a string.  The raw string length may be longer
     //! than the length of the passed string, because the passed string may
     //! have the date stripped out of it.
-    int computeCategory(bool isDryRun, const std::string& str, std::size_t rawStringLen);
+    CLocalCategoryId computeCategory(bool isDryRun, const std::string& str, std::size_t rawStringLen);
 
     //! As above, but also take into account field names/values.
-    virtual int computeCategory(bool isDryRun,
-                                const TStrStrUMap& fields,
-                                const std::string& str,
-                                std::size_t rawStringLen) = 0;
+    virtual CLocalCategoryId computeCategory(bool isDryRun,
+                                             const TStrStrUMap& fields,
+                                             const std::string& str,
+                                             std::size_t rawStringLen) = 0;
 
     //! Create reverse search commands that will (more or less) just
     //! select the records that are classified as the given category when
     //! combined with the original search.  Note that the reverse search is
     //! only approximate - it may select more records than have actually
     //! been classified as the returned category.
-    virtual bool createReverseSearch(int categoryId,
+    virtual bool createReverseSearch(CLocalCategoryId categoryId,
                                      std::string& part1,
                                      std::string& part2,
                                      std::size_t& maxMatchingLength,
@@ -134,7 +130,7 @@ public:
 
     //! Add an example if the limit for the category has not be reached.
     //! \return true if the example was added, false if not.
-    bool addExample(int categoryId, const std::string& example);
+    bool addExample(CLocalCategoryId categoryId, const std::string& example);
 
     //! Access to the examples collector
     const CCategoryExamplesCollector& examplesCollector() const;
@@ -142,16 +138,20 @@ public:
     //! Restore the examples collector
     bool restoreExamplesCollector(core::CStateRestoreTraverser& traverser);
 
-    virtual std::size_t numMatches(int categoryId) = 0;
+    //! Number of matches for the specified category.
+    virtual std::size_t numMatches(CLocalCategoryId categoryId) = 0;
 
-    virtual TIntVec usurpedCategories(int categoryId) = 0;
+    //! Get the categories that will never be detected again because the
+    //! specified category will always be returned instead.
+    virtual TLocalCategoryIdVec usurpedCategories(CLocalCategoryId categoryId) = 0;
 
+    //! Number of categories this categorizer has detected.
     virtual std::size_t numCategories() const = 0;
 
-    //! Has the passed category changed since this method was called last?
+    //! Has the specified category changed since this method was called last?
     //! Once called, the category is marked as unchanged, until the category
     //! changes again.
-    virtual bool categoryChangedAndReset(int categoryId) = 0;
+    virtual bool categoryChangedAndReset(CLocalCategoryId categoryId) = 0;
 
     //! Is it permissable to create new categories?  New categories are
     //! not permitted when memory use has exceeded the limit.

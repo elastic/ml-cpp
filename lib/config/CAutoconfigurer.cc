@@ -174,7 +174,7 @@ bool CAutoconfigurer::restoreState(core::CDataSearcher& /*restoreSearcher*/,
     return true;
 }
 
-bool CAutoconfigurer::persistState(core::CDataAdder&, const std::string&) {
+bool CAutoconfigurer::persistStateInForeground(core::CDataAdder&, const std::string&) {
     return true;
 }
 
