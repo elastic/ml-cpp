@@ -98,6 +98,8 @@ public:
         TFeatureSizeSizePrFeatureDataPrVecMap s_FeatureData;
         //! A cache of the corrections applied to interim results.
         mutable TCorrectionKeyDouble1VecUMap s_InterimCorrections;
+        //! Annotations produced by this model.
+        TAnnotationVec s_Annotations;
     };
 
     //! Lift the overloads of currentBucketValue into the class scope.
@@ -307,6 +309,9 @@ public:
     //! Get the feature data corresponding to \p feature at \p time.
     const TSizeSizePrFeatureDataPrVec& featureData(model_t::EFeature feature,
                                                    core_t::TTime time) const;
+
+    //! Get the annotations produced by this model.
+    const TAnnotationVec& annotations() const override;
 
 private:
     //! Initialize the feature models.

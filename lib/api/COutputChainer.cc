@@ -107,9 +107,9 @@ bool COutputChainer::restoreState(core::CDataSearcher& restoreSearcher,
     return m_DataProcessor.restoreState(restoreSearcher, completeToTime);
 }
 
-bool COutputChainer::persistState(core::CDataAdder& persister,
-                                  const std::string& descriptionPrefix) {
-    return m_DataProcessor.persistState(persister, descriptionPrefix);
+bool COutputChainer::persistStateInForeground(core::CDataAdder& persister,
+                                              const std::string& descriptionPrefix) {
+    return m_DataProcessor.persistStateInForeground(persister, descriptionPrefix);
 }
 
 bool COutputChainer::periodicPersistStateInBackground() {

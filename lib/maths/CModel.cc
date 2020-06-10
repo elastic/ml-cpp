@@ -130,6 +130,16 @@ CModelAddSamplesParams::priorWeights() const {
     return *m_PriorWeights;
 }
 
+CModelAddSamplesParams&
+CModelAddSamplesParams::annotationCallback(const maths_t::TModelAnnotationCallback& modelAnnotationCallback) {
+    m_ModelAnnotationCallback = modelAnnotationCallback;
+    return *this;
+}
+
+const maths_t::TModelAnnotationCallback& CModelAddSamplesParams::annotationCallback() const {
+    return m_ModelAnnotationCallback;
+}
+
 //////// CModelProbabilityParams ////////
 
 CModelProbabilityParams::CModelProbabilityParams()

@@ -234,8 +234,8 @@ private:
     EUpdateResult applyChange(const SChangeDescription& change);
 
     //! Update the trend with \p samples.
-    EUpdateResult updateTrend(const TTimeDouble2VecSizeTrVec& samples,
-                              const TDouble2VecWeightsAryVec& trendWeights);
+    EUpdateResult updateTrend(const CModelAddSamplesParams& params,
+                              const TTimeDouble2VecSizeTrVec& samples);
 
     //! Update the various model decay rates based on the prediction errors
     //! for \p samples.
@@ -689,8 +689,8 @@ private:
 
 private:
     //! Update the trend with \p samples.
-    EUpdateResult updateTrend(const TTimeDouble2VecSizeTrVec& samples,
-                              const TDouble2VecWeightsAryVec& trendWeights);
+    EUpdateResult updateTrend(const CModelAddSamplesParams& params,
+                              const TTimeDouble2VecSizeTrVec& samples);
 
     //! Update the various model decay rates based on the prediction errors
     //! for \p samples.

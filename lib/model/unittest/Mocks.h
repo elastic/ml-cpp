@@ -92,6 +92,8 @@ public:
 
     std::size_t computeMemoryUsage() const override;
 
+    const TAnnotationVec& annotations() const override;
+
     std::size_t staticSize() const override;
 
     TModelDetailsViewUPtr details() const override;
@@ -141,6 +143,7 @@ private:
     TFeatureSizeSizeTimeTriplePrDouble1VecUMap m_BucketBaselineMeans;
     TMathsModelUPtrVec m_Models;
     model::CInterimBucketCorrector m_InterimBucketCorrector;
+    TAnnotationVec m_Annotations;
 };
 
 //! \brief A details view for a mock model.

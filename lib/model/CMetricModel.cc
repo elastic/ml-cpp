@@ -21,6 +21,7 @@
 #include <maths/ProbabilityAggregators.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnnotation.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
 #include <model/CGathererTools.h>
@@ -31,6 +32,7 @@
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/CResourceMonitor.h>
 #include <model/CSampleGatherer.h>
+#include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
 #include <boost/iterator/counting_iterator.hpp>
@@ -193,6 +195,7 @@ void CMetricModel::sample(core_t::TTime startTime,
 
     this->createUpdateNewModels(startTime, resourceMonitor);
     m_CurrentBucketStats.s_InterimCorrections.clear();
+    m_CurrentBucketStats.s_Annotations.clear();
 
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
         LOG_TRACE(<< "Sampling [" << time << "," << time + bucketLength << ")");
@@ -311,6 +314,19 @@ void CMetricModel::sample(core_t::TTime startTime,
                     .propagationInterval(deratedInterval)
                     .trendWeights(trendWeights)
                     .priorWeights(priorWeights);
+                if (this->params().s_AnnotationsEnabled) {
+                    const auto modelAnnotationCallback =
+                        [&](core_t::TTime t, const std::string& annotation) {
+                            m_CurrentBucketStats.s_Annotations.emplace_back(
+                                t, annotation, gatherer.searchKey().detectorIndex(),
+                                gatherer.searchKey().partitionFieldName(),
+                                gatherer.partitionFieldValue(),
+                                gatherer.searchKey().overFieldName(),
+                                EMPTY_STRING, gatherer.searchKey().byFieldName(),
+                                gatherer.personName(pid));
+                        };
+                    params.annotationCallback(modelAnnotationCallback);
+                }
 
                 if (model->addSamples(params, values) == maths::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);
@@ -448,6 +464,8 @@ void CMetricModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& m
                                     m_CurrentBucketStats.s_FeatureData, mem);
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
                                     m_CurrentBucketStats.s_InterimCorrections, mem);
+    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_Annotations",
+                                    m_CurrentBucketStats.s_Annotations, mem);
     core::CMemoryDebug::dynamicSize("m_InterimBucketCorrector",
                                     m_InterimBucketCorrector, mem);
 }
@@ -461,6 +479,7 @@ std::size_t CMetricModel::computeMemoryUsage() const {
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
+    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_Annotations);
     mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
     return mem;
 }
@@ -477,6 +496,10 @@ const CMetricModel::TFeatureData*
 CMetricModel::featureData(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const {
     return this->CIndividualModel::featureData(feature, pid, time,
                                                m_CurrentBucketStats.s_FeatureData);
+}
+
+const CMetricModel::TAnnotationVec& CMetricModel::annotations() const {
+    return m_CurrentBucketStats.s_Annotations;
 }
 
 core_t::TTime CMetricModel::currentBucketStartTime() const {

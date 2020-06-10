@@ -119,13 +119,13 @@ void testValidFile(TInitFromFileFunc initFunc, const std::string& fileName) {
     BOOST_REQUIRE_EQUAL(size_t(1), superset.count("response"));
 }
 
-void testInvalidFile(TInitFromFileFunc initFunc, const std::string& fileName) {
+void testInvalidFile(const TInitFromFileFunc& initFunc, const std::string& fileName) {
     ml::api::CFieldConfig config;
 
     BOOST_TEST_REQUIRE(!initFunc(&config, fileName));
 }
 
-void testValidSummaryCountFieldNameFile(TInitFromFileFunc initFunc,
+void testValidSummaryCountFieldNameFile(const TInitFromFileFunc& initFunc,
                                         const std::string& fileName) {
     ml::api::CFieldConfig config;
 
@@ -134,7 +134,7 @@ void testValidSummaryCountFieldNameFile(TInitFromFileFunc initFunc,
     BOOST_REQUIRE_EQUAL(std::string("count"), config.summaryCountFieldName());
 }
 
-void testValidPopulationFile(TInitFromFileFunc initFunc, const std::string& fileName) {
+void testValidPopulationFile(const TInitFromFileFunc& initFunc, const std::string& fileName) {
     {
         ml::api::CFieldConfig config;
         BOOST_TEST_REQUIRE(initFunc(&config, fileName));
@@ -166,7 +166,7 @@ void testValidPopulationFile(TInitFromFileFunc initFunc, const std::string& file
     }
 }
 
-void testDefaultCategorizationFieldFile(TInitFromFileFunc initFunc,
+void testDefaultCategorizationFieldFile(const TInitFromFileFunc& initFunc,
                                         const std::string& fileName) {
     ml::api::CFieldConfig config;
 
@@ -193,7 +193,7 @@ void testDefaultCategorizationFieldFile(TInitFromFileFunc initFunc,
     BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
 }
 
-void testExcludeFrequentFile(TInitFromFileFunc initFunc, const std::string& fileName) {
+void testExcludeFrequentFile(const TInitFromFileFunc& initFunc, const std::string& fileName) {
     ml::api::CFieldConfig config;
 
     BOOST_TEST_REQUIRE(initFunc(&config, fileName));
@@ -286,7 +286,7 @@ void testExcludeFrequentFile(TInitFromFileFunc initFunc, const std::string& file
     }
 }
 
-void testSlashesFile(TInitFromFileFunc initFunc, const std::string& fileName) {
+void testSlashesFile(const TInitFromFileFunc& initFunc, const std::string& fileName) {
     ml::api::CFieldConfig config;
 
     BOOST_TEST_REQUIRE(initFunc(&config, fileName));
@@ -301,7 +301,7 @@ void testSlashesFile(TInitFromFileFunc initFunc, const std::string& fileName) {
     }
 }
 
-void testBracketPercentFile(TInitFromFileFunc initFunc, const std::string& fileName) {
+void testBracketPercentFile(const TInitFromFileFunc& initFunc, const std::string& fileName) {
     ml::api::CFieldConfig config;
 
     BOOST_TEST_REQUIRE(initFunc(&config, fileName));
@@ -1366,6 +1366,58 @@ BOOST_AUTO_TEST_CASE(testCategorizationFieldWithFilters) {
     BOOST_REQUIRE_EQUAL(std::size_t(2), filters.size());
     BOOST_REQUIRE_EQUAL(std::string("foo"), config.categorizationFilters()[0]);
     BOOST_REQUIRE_EQUAL(std::string(" "), config.categorizationFilters()[1]);
+}
+
+BOOST_AUTO_TEST_CASE(testPerPartitionCategorizationClauses) {
+    {
+        ml::api::CFieldConfig config;
+        ml::api::CFieldConfig::TStrVec clause{"partitionfield=event.dataset",
+                                              "categorizationfield=message",
+                                              "count",
+                                              "by",
+                                              "mlcategory",
+                                              "perpartitioncategorization=true"};
+
+        BOOST_TEST_REQUIRE(config.initFromClause(clause));
+        LOG_TRACE(<< config.debug());
+
+        BOOST_TEST_REQUIRE(config.havePartitionFields());
+        BOOST_REQUIRE_EQUAL("message", config.categorizationFieldName());
+        BOOST_REQUIRE_EQUAL("event.dataset", config.categorizationPartitionFieldName());
+        BOOST_TEST_REQUIRE(config.summaryCountFieldName().empty());
+
+        const ml::api::CFieldConfig::TFieldOptionsMIndex& fields = config.fieldOptions();
+        BOOST_REQUIRE_EQUAL(1, fields.size());
+        auto iter = fields.begin();
+        BOOST_TEST_REQUIRE(iter != fields.end());
+        BOOST_REQUIRE_EQUAL(false, iter->useNull());
+        BOOST_TEST_REQUIRE(iter->fieldName().empty());
+        BOOST_REQUIRE_EQUAL("mlcategory", iter->byFieldName());
+        BOOST_TEST_REQUIRE(iter->overFieldName().empty());
+        BOOST_REQUIRE_EQUAL("event.dataset", iter->partitionFieldName());
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isMetric(iter->function()));
+        BOOST_REQUIRE_EQUAL(false, ml::model::function_t::isPopulation(iter->function()));
+        BOOST_REQUIRE_EQUAL("count", iter->verboseFunctionName());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, iter->excludeFrequent());
+    }
+    {
+        ml::api::CFieldConfig config;
+        ml::api::CFieldConfig::TStrVec clause{"categorizationfield=message",
+                                              "count", "by", "mlcategory",
+                                              "perpartitioncategorization=true"};
+
+        // Should fail because there is no partition field
+        BOOST_TEST_REQUIRE(config.initFromClause(clause) == false);
+    }
+    {
+        ml::api::CFieldConfig config;
+        ml::api::CFieldConfig::TStrVec clause{"partitionfield=event.dataset",
+                                              "count", "by", "mlcategory",
+                                              "perpartitioncategorization=true"};
+
+        // Should fail because there is no categorization field
+        BOOST_TEST_REQUIRE(config.initFromClause(clause) == false);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testExcludeFrequentClauses) {

@@ -175,6 +175,9 @@ struct MODEL_EXPORT SModelParams {
     //! If true then cache the results of the probability calculation.
     bool s_CacheProbabilities;
     //@}
+
+    //! If true then model change annotations should be reported.
+    bool s_AnnotationsEnabled;
 };
 }
 }

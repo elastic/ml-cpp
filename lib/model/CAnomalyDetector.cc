@@ -17,6 +17,7 @@
 #include <maths/COrderings.h>
 #include <maths/CSampling.h>
 
+#include <model/CAnnotation.h>
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CDataGatherer.h>
 #include <model/CForecastModelPersist.h>
@@ -439,6 +440,19 @@ void CAnomalyDetector::generateModelPlot(core_t::TTime bucketStartTime,
                                         bucketLength, key.detectorIndex());
                 view->modelPlot(time, boundsPercentile, terms, modelPlots.back());
             }
+        }
+    }
+}
+
+void CAnomalyDetector::generateAnnotations(core_t::TTime bucketStartTime,
+                                           core_t::TTime bucketEndTime,
+                                           TAnnotationVec& annotations) const {
+    if (bucketEndTime <= bucketStartTime) {
+        return;
+    }
+    for (const auto& annotation : m_Model->annotations()) {
+        if (annotation.time() >= bucketStartTime && annotation.time() < bucketEndTime) {
+            annotations.push_back(annotation);
         }
     }
 }

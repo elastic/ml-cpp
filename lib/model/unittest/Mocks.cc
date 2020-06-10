@@ -128,6 +128,10 @@ std::size_t CMockModel::computeMemoryUsage() const {
     return 0;
 }
 
+const CMockModel::TAnnotationVec& CMockModel::annotations() const {
+    return m_Annotations;
+}
+
 std::size_t CMockModel::staticSize() const {
     return 0;
 }

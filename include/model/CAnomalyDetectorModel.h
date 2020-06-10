@@ -15,6 +15,7 @@
 #include <maths/CTimeSeriesModel.h>
 #include <maths/MathsTypes.h>
 
+#include <model/CAnnotation.h>
 #include <model/CMemoryUsageEstimator.h>
 #include <model/CModelParams.h>
 #include <model/CPartitioningFields.h>
@@ -50,6 +51,7 @@ class CAttributeFrequencyGreaterThan;
 class CInterimBucketCorrector;
 class CDataGatherer;
 class CHierarchicalResults;
+class CAnnotation;
 class CModelDetailsView;
 class CPersonFrequencyGreaterThan;
 class CResourceMonitor;
@@ -164,6 +166,7 @@ public:
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
     using TModelDetailsViewUPtr = std::unique_ptr<CModelDetailsView>;
     using TModelPtr = std::unique_ptr<CAnomalyDetectorModel>;
+    using TAnnotationVec = std::vector<CAnnotation>;
 
 public:
     //! A value used to indicate a time variable is unset
@@ -482,6 +485,9 @@ public:
 
     //! Get the descriptions of any occurring scheduled event descriptions for the bucket time
     virtual const TStr1Vec& scheduledEventDescriptions(core_t::TTime time) const;
+
+    //! Get the annotations produced by this model.
+    virtual const TAnnotationVec& annotations() const = 0;
 
 protected:
     using TStrCRef = std::reference_wrapper<const std::string>;

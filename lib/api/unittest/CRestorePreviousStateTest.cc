@@ -111,7 +111,7 @@ void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric) {
             std::ostringstream* strm(nullptr);
             ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
             ml::api::CSingleStreamDataAdder persister(ptr);
-            BOOST_TEST_REQUIRE(restoredCategorizer.persistState(persister, ""));
+            BOOST_TEST_REQUIRE(restoredCategorizer.persistStateInForeground(persister, ""));
             newPersistedState = strm->str();
         }
         BOOST_REQUIRE_EQUAL(stripDocIds(origPersistedState), stripDocIds(newPersistedState));
@@ -180,7 +180,7 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
             std::ostringstream* strm(nullptr);
             ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
             ml::api::CSingleStreamDataAdder persister(ptr);
-            BOOST_TEST_REQUIRE(restoredJob.persistState(persister, ""));
+            BOOST_TEST_REQUIRE(restoredJob.persistStateInForeground(persister, ""));
             newPersistedState = strm->str();
         }
 

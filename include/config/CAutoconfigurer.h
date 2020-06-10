@@ -38,29 +38,30 @@ public:
     CAutoconfigurer(const CAutoconfigurerParams& params, CReportWriter& reportWriter);
 
     //! We're going to be writing to a new output stream.
-    virtual void newOutputStream();
+    void newOutputStream() override;
 
     //! Receive a single record to be processed.
-    virtual bool handleRecord(const TStrStrUMap& fieldValues);
+    bool handleRecord(const TStrStrUMap& fieldValues) override;
 
     //! Generate the report.
-    virtual void finalise();
+    void finalise() override;
 
     //! Is persistence needed?
-    virtual bool isPersistenceNeeded(const std::string& description) const;
+    bool isPersistenceNeeded(const std::string& description) const override;
 
     //! No-op.
-    virtual bool restoreState(core::CDataSearcher& restoreSearcher,
-                              core_t::TTime& completeToTime);
+    bool restoreState(core::CDataSearcher& restoreSearcher,
+                      core_t::TTime& completeToTime) override;
 
     //! No-op.
-    virtual bool persistState(core::CDataAdder& persister, const std::string& descriptionPrefix);
+    virtual bool persistStateInForeground(core::CDataAdder& persister,
+                                          const std::string& descriptionPrefix) override;
 
     //! How many records did we handle?
-    virtual uint64_t numRecordsHandled() const;
+    uint64_t numRecordsHandled() const override;
 
     //! Access the output handler.
-    virtual api::COutputHandler& outputHandler();
+    api::COutputHandler& outputHandler() override;
 
 private:
     using TImplPtr = std::shared_ptr<CAutoconfigurerImpl>;

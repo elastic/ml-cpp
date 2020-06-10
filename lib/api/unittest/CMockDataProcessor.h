@@ -34,27 +34,27 @@ public:
     CMockDataProcessor(ml::api::COutputHandler& outputHandler);
 
     //! We're going to be writing to a new output stream
-    virtual void newOutputStream();
+    void newOutputStream() override;
 
-    virtual bool handleRecord(const TStrStrUMap& dataRowFields);
+    bool handleRecord(const TStrStrUMap& dataRowFields) override;
 
-    virtual void finalise();
+    void finalise() override;
 
-    virtual bool isPersistenceNeeded(const std::string& description) const;
+    bool isPersistenceNeeded(const std::string& description) const override;
 
     //! Restore previously saved state
-    virtual bool restoreState(ml::core::CDataSearcher& restoreSearcher,
-                              ml::core_t::TTime& completeToTime);
+    bool restoreState(ml::core::CDataSearcher& restoreSearcher,
+                      ml::core_t::TTime& completeToTime) override;
 
     //! Persist current state
-    virtual bool persistState(ml::core::CDataAdder& persister,
-                              const std::string& descriptionPrefix);
+    bool persistStateInForeground(ml::core::CDataAdder& persister,
+                                  const std::string& descriptionPrefix) override;
 
     //! How many records did we handle?
-    virtual uint64_t numRecordsHandled() const;
+    uint64_t numRecordsHandled() const override;
 
     //! Access the output handler
-    virtual ml::api::COutputHandler& outputHandler();
+    ml::api::COutputHandler& outputHandler() override;
 
 private:
     ml::api::COutputHandler& m_OutputHandler;

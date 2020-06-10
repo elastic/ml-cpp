@@ -8,6 +8,7 @@
 
 #include <core/CMemoryUsage.h>
 
+#include <model/CLocalCategoryId.h>
 #include <model/ImportExport.h>
 
 #include <boost/container/flat_set.hpp>
@@ -48,12 +49,12 @@ public:
     //! distinct example and if there are less than the maximum
     //! number of examples for the given category.
     //! Returns true if the example was added or false otherwise.
-    bool add(int categoryId, const std::string& example);
+    bool add(CLocalCategoryId categoryId, const std::string& example);
 
     //! Returns the number of examples currently stored for a given category.
-    std::size_t numberOfExamplesForCategory(int categoryId) const;
+    std::size_t numberOfExamplesForCategory(CLocalCategoryId categoryId) const;
 
-    const TStrFSet& examples(int categoryId) const;
+    const TStrFSet& examples(CLocalCategoryId categoryId) const;
 
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
@@ -71,10 +72,10 @@ public:
     std::size_t memoryUsage() const;
 
 private:
-    using TIntStrFSetUMap = boost::unordered_map<int, TStrFSet>;
+    using TLocalCategoryIdStrFSetUMap = boost::unordered_map<CLocalCategoryId, TStrFSet>;
 
 private:
-    void persistExamples(int categoryId,
+    void persistExamples(CLocalCategoryId categoryId,
                          const TStrFSet& examples,
                          core::CStatePersistInserter& inserter) const;
     bool restoreExamples(core::CStateRestoreTraverser& traverser);
@@ -88,7 +89,7 @@ private:
     std::size_t m_MaxExamples;
 
     //! A map from categories to the set that contains the examples
-    TIntStrFSetUMap m_ExamplesByCategory;
+    TLocalCategoryIdStrFSetUMap m_ExamplesByCategory;
 };
 }
 }
