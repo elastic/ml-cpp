@@ -63,6 +63,7 @@ public:
     using TStrVec = std::vector<std::string>;
     using TStrCPtrVec = std::vector<const std::string*>;
     using TModelPlotDataVec = std::vector<CModelPlotData>;
+    using TAnnotationVec = CAnomalyDetectorModel::TAnnotationVec;
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
     using TModelFactoryCPtr = std::shared_ptr<const CModelFactory>;
     using TModelPtr = std::unique_ptr<CAnomalyDetectorModel>;
@@ -223,6 +224,11 @@ public:
                            double boundsPercentile,
                            const TStrSet& terms,
                            TModelPlotDataVec& modelPlots) const;
+
+    //! Generate the annotations.
+    void generateAnnotations(core_t::TTime bucketStartTime,
+                             core_t::TTime bucketEndTime,
+                             TAnnotationVec& annotations) const;
 
     //! Generate ForecastPrerequistes, e.g. memory requirements
     CForecastDataSink::SForecastModelPrerequisites getForecastPrerequisites() const;
