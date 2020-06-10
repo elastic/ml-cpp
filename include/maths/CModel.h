@@ -121,6 +121,12 @@ public:
     //! Get the prior sample weights.
     const TDouble2VecWeightsAryVec& priorWeights() const;
 
+    //! Set the model annotation callback.
+    CModelAddSamplesParams&
+    annotationCallback(const maths_t::TModelAnnotationCallback& modelAnnotationCallback);
+    //! Get the model annotation callback.
+    const maths_t::TModelAnnotationCallback& annotationCallback() const;
+
 private:
     //! The data type.
     maths_t::EDataType m_Type = maths_t::E_MixedData;
@@ -132,6 +138,9 @@ private:
     const TDouble2VecWeightsAryVec* m_TrendWeights = nullptr;
     //! The prior sample weights.
     const TDouble2VecWeightsAryVec* m_PriorWeights = nullptr;
+    //! The model change callback.
+    maths_t::TModelAnnotationCallback m_ModelAnnotationCallback =
+        [](core_t::TTime, const std::string&) {};
 };
 
 //! \brief The extra parameters needed by CModel::probability.
