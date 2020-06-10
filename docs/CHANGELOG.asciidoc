@@ -30,6 +30,11 @@
 
 == {es} version 7.9.0
 
+=== New Features
+
+* Report significant changes to anomaly detection models in annotations of the results.
+  (See {ml-pull}1247[#1247], {pull}56342[#56342], {pull}56417[#56417], {pull}57144[#57144], {pull}57278[#57278], {pull}57539[#57539].)
+
 === Enhancements
 
 * Add support for larger forecasts in memory via max_model_memory setting.
