@@ -72,7 +72,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     const CDataFrameAnalysisSpecification& spec,
     const CDataFrameAnalysisParameters& parameters,
     TLossFunctionUPtr loss)
-    : CDataFrameAnalysisRunner{spec}, m_Instrumentation{spec.jobId()} {
+    : CDataFrameAnalysisRunner{spec}, m_Instrumentation{spec.jobId(), spec.memoryLimit()} {
 
     m_DependentVariableFieldName = parameters[DEPENDENT_VARIABLE_NAME].as<std::string>();
 

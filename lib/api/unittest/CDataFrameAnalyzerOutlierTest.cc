@@ -226,7 +226,8 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
     };
 
     test::CDataFrameAnalysisSpecificationFactory specFactory;
-    api::CDataFrameAnalyzer analyzer{specFactory.rows(1000).outlierSpec(), outputWriterFactory};
+    api::CDataFrameAnalyzer analyzer{
+        specFactory.memoryLimit(150000).rows(1000).outlierSpec(), outputWriterFactory};
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
@@ -263,7 +264,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionPartitioned) {
 
     BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFONumberPartitions) > 1);
     // Allow a 20% margin
-    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 120000);
+    BOOST_TEST_REQUIRE(core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) < 150000);
     BOOST_TEST_REQUIRE(
         core::CProgramCounters::counter(counter_t::E_DFOPeakMemoryUsage) <
         (120 * core::CProgramCounters::counter(counter_t::E_DFOEstimatedPeakMemoryUsage)) / 100);
@@ -338,6 +339,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierDetectionWithParams) {
                 specFactory.outlierMethod(methods[method])
                     .outlierNumberNeighbours(k)
                     .outlierComputeInfluence(false)
+                    .memoryLimit(150000)
                     .outlierSpec(),
                 outputWriterFactory};
 
@@ -508,6 +510,31 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         BOOST_TEST_REQUIRE(errors.size() > 0);
         BOOST_REQUIRE_EQUAL(std::string{"Input error: no data sent."}, errors[0]);
+    }
+
+    // Memory limit exceeded.
+    {
+        errors.clear();
+        api::CDataFrameAnalyzer analyzer{
+            test::CDataFrameAnalysisSpecificationFactory{}.memoryLimit(10000).outlierSpec(),
+            outputWriterFactory};
+        TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
+        TStrVec fieldValues{"", "", "", "", "", "0", ""};
+        TDoubleVec expectedScores;
+        TDoubleVecVec expectedFeatureInfluences;
+        addOutlierTestData(fieldNames, fieldValues, analyzer, expectedScores,
+                           expectedFeatureInfluences, 100, 10);
+        analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        BOOST_TEST_REQUIRE(errors.size() > 0);
+        bool memoryLimitExceed{false};
+        for (const auto& error : errors) {
+            if (error.find("Input error: required memory") != std::string::npos) {
+                memoryLimitExceed = true;
+                break;
+            }
+        }
+        BOOST_TEST_REQUIRE(memoryLimitExceed);
     }
 }
 
