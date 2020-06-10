@@ -31,7 +31,7 @@ namespace {
 using TStrVec = std::vector<std::string>;
 
 // clang-format off
-const double MEMORY_LIMIT_INCREMENT{1.25}; // request 25% more memory
+const double MEMORY_LIMIT_INCREMENT{2.0}; // request 100% more memory
 
 const std::string CLASSIFICATION_STATS_TAG{"classification_stats"};
 const std::string HYPERPARAMETERS_TAG{"hyperparameters"};
