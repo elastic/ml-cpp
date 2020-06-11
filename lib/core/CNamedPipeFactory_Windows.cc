@@ -63,7 +63,7 @@ CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName,
 CNamedPipeFactory::TFileP
 CNamedPipeFactory::openPipeFileRead(const std::string& fileName,
                                     const volatile std::atomic_bool& isCancelled) {
-    TPipeHandle handle{CNamedPipeFactory::initPipeHandle(fileName, false)};
+    TPipeHandle handle{CNamedPipeFactory::initPipeHandle(fileName, false, isCancelled)};
     if (handle == INVALID_HANDLE_VALUE) {
         return TFileP{};
     }

@@ -20,6 +20,7 @@
 #include <boost/system/error_code.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <atomic>
 #include <cstdlib>
 #include <string>
 
@@ -27,10 +28,10 @@ BOOST_AUTO_TEST_SUITE(CSystemCallFilterTest)
 
 namespace {
 
-const uint32_t SLEEP_TIME_MS = 100;
-const size_t TEST_SIZE = 10000;
-const size_t MAX_ATTEMPTS = 20;
-const char TEST_CHAR = 'a';
+const std::uint32_t SLEEP_TIME_MS{100};
+const std::size_t TEST_SIZE{10000};
+const std::size_t MAX_ATTEMPTS{20};
+const char TEST_CHAR{'a'};
 // CTestTmpDir::tmpDir() fails to get the current user after the system call
 // filter is installed, so cache the value early
 const std::string TMP_DIR{ml::test::CTestTmpDir::tmpDir()};
@@ -48,14 +49,15 @@ bool systemCall() {
 
 void openPipeAndRead(const std::string& filename) {
 
-    ml::test::CThreadDataWriter threadWriter(SLEEP_TIME_MS, filename, TEST_CHAR, TEST_SIZE);
+    ml::test::CThreadDataWriter threadWriter{SLEEP_TIME_MS, filename, TEST_CHAR, TEST_SIZE};
     BOOST_TEST_REQUIRE(threadWriter.start());
 
-    ml::core::CNamedPipeFactory::TIStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamRead(filename);
+    std::atomic_bool dummy{false};
+    ml::core::CNamedPipeFactory::TIStreamP strm{
+        ml::core::CNamedPipeFactory::openPipeStreamRead(filename, dummy)};
     BOOST_TEST_REQUIRE(strm);
 
-    static const std::streamsize BUF_SIZE = 512;
+    static const std::streamsize BUF_SIZE{512};
     std::string readData;
     readData.reserve(TEST_SIZE);
     char buffer[BUF_SIZE];
@@ -76,15 +78,16 @@ void openPipeAndRead(const std::string& filename) {
 }
 
 void openPipeAndWrite(const std::string& filename) {
-    ml::test::CThreadDataReader threadReader(SLEEP_TIME_MS, MAX_ATTEMPTS, filename);
+    ml::test::CThreadDataReader threadReader{SLEEP_TIME_MS, MAX_ATTEMPTS, filename};
     BOOST_TEST_REQUIRE(threadReader.start());
 
-    ml::core::CNamedPipeFactory::TOStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamWrite(filename);
+    std::atomic_bool dummy{false};
+    ml::core::CNamedPipeFactory::TOStreamP strm{
+        ml::core::CNamedPipeFactory::openPipeStreamWrite(filename, dummy)};
     BOOST_TEST_REQUIRE(strm);
 
-    size_t charsLeft(TEST_SIZE);
-    size_t blockSize(7);
+    std::size_t charsLeft{TEST_SIZE};
+    std::size_t blockSize{7};
     while (charsLeft > 0) {
         if (blockSize > charsLeft) {
             blockSize = charsLeft;
@@ -106,7 +109,7 @@ void openPipeAndWrite(const std::string& filename) {
 
 void makeAndRemoveDirectory(const std::string& dirname) {
 
-    boost::filesystem::path temporaryFolder(dirname);
+    boost::filesystem::path temporaryFolder{dirname};
     temporaryFolder /= "test-directory";
 
     boost::system::error_code errorCode;
