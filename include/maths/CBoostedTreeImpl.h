@@ -251,7 +251,10 @@ private:
     std::size_t featureBagSize() const;
 
     //! Sample the features according to their categorical distribution.
-    TSizeVec featureBag() const;
+    void featureBag(TSizeVec& features) const;
+
+    //! Get a column mask of the suitable regressor features.
+    void candidateRegressorFeatures(TSizeVec& features) const;
 
     //! Refresh the predictions and loss function derivatives for the masked
     //! rows in \p frame with predictions of \p tree.
@@ -264,9 +267,6 @@ private:
 
     //! Compute the mean of the loss function on the masked rows of \p frame.
     double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;
-
-    //! Get a column mask of the suitable regressor features.
-    TSizeVec candidateRegressorFeatures() const;
 
     //! Get the root node of \p tree.
     static const CBoostedTreeNode& root(const TNodeVec& tree);
