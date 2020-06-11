@@ -14,25 +14,30 @@ namespace controller {
 
 CBlockingCallCancellerThread::CBlockingCallCancellerThread(core::CThread::TThreadId potentiallyBlockedThreadId,
                                                            std::istream& monitorStream)
-    : m_PotentiallyBlockedThreadId(potentiallyBlockedThreadId),
-      m_MonitorStream(monitorStream), m_Shutdown(false) {
+    : m_PotentiallyBlockedThreadId{potentiallyBlockedThreadId},
+      m_MonitorStream{monitorStream}, m_Shutdown{false}, m_HasCancelledBlockingCall{false} {
+}
+
+const volatile std::atomic_bool& CBlockingCallCancellerThread::hasCancelledBlockingCall() const {
+    return m_HasCancelledBlockingCall;
 }
 
 void CBlockingCallCancellerThread::run() {
     char c;
     while (m_MonitorStream >> c) {
-        if (m_Shutdown) {
+        if (m_Shutdown.load()) {
             return;
         }
     }
 
+    m_HasCancelledBlockingCall.store(true);
     if (core::CThread::cancelBlockedIo(m_PotentiallyBlockedThreadId) == false) {
         LOG_WARN(<< "Failed to cancel blocked IO in thread " << m_PotentiallyBlockedThreadId);
     }
 }
 
 void CBlockingCallCancellerThread::shutdown() {
-    m_Shutdown = true;
+    m_Shutdown.store(true);
 
     // This is to wake up the stream reading in the run() method of this object.
     // If this has an effect then the assumption is that the program is exiting
