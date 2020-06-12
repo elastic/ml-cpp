@@ -49,6 +49,8 @@
   analyses will require lower memory limits than before (See {ml-pull}1298[#1298].)
 * Checkpoint state to allow efficient failover during coarse parameter search
   for classification and regression. (See {ml-pull}1300[#1300].)
+* Improve data access patterns to speed up classification and regression.
+  (See {ml-pull}1312[#1312].) 
 
 === Bug Fixes
 
