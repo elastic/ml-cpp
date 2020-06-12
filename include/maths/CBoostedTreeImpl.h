@@ -251,10 +251,10 @@ private:
     std::size_t featureBagSize() const;
 
     //! Sample the features according to their categorical distribution.
-    void featureBag(TSizeVec& features) const;
+    void featureBag(TDoubleVec& probabilities, TSizeVec& features) const;
 
     //! Get a column mask of the suitable regressor features.
-    void candidateRegressorFeatures(TSizeVec& features) const;
+    void candidateRegressorFeatures(const TDoubleVec& probabilities, TSizeVec& features) const;
 
     //! Refresh the predictions and loss function derivatives for the masked
     //! rows in \p frame with predictions of \p tree.
