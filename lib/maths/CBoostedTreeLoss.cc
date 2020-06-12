@@ -698,8 +698,8 @@ std::unique_ptr<CLoss> CMse::clone() const {
     return std::make_unique<CMse>(*this);
 }
 
-CMse::EType CMse::type() const {
-    return E_Regression;
+ELossType CMse::type() const {
+    return E_MseRegression;
 }
 
 std::size_t CMse::numberParameters() const {
@@ -762,8 +762,8 @@ CMsle::CMsle(core::CStateRestoreTraverser& traverser) {
     }
 }
 
-CLoss::EType CMsle::type() const {
-    return E_Regression;
+ELossType CMsle::type() const {
+    return E_MsleRegression;
 }
 
 std::unique_ptr<CLoss> CMsle::clone() const {
@@ -854,8 +854,8 @@ CPseudoHuber::CPseudoHuber(core::CStateRestoreTraverser& traverser) {
     }
 }
 
-CLoss::EType CPseudoHuber::type() const {
-    return E_Regression;
+ELossType CPseudoHuber::type() const {
+    return E_HuberRegression;
 }
 
 std::unique_ptr<CLoss> CPseudoHuber::clone() const {
@@ -941,7 +941,7 @@ std::unique_ptr<CLoss> CBinomialLogisticLoss::clone() const {
     return std::make_unique<CBinomialLogisticLoss>(*this);
 }
 
-CBinomialLogisticLoss::EType CBinomialLogisticLoss::type() const {
+ELossType CBinomialLogisticLoss::type() const {
     return E_BinaryClassification;
 }
 
@@ -1028,7 +1028,7 @@ std::unique_ptr<CLoss> CMultinomialLogisticLoss::clone() const {
     return std::make_unique<CMultinomialLogisticLoss>(m_NumberClasses);
 }
 
-CMultinomialLogisticLoss::EType CMultinomialLogisticLoss::type() const {
+ELossType CMultinomialLogisticLoss::type() const {
     return E_MulticlassClassification;
 }
 
