@@ -50,7 +50,6 @@ namespace {
 const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
 const std::string HYPERPARAMETER_OPTIMIZATION_ROUND{"hyperparameter_optimization_round_"};
 const std::string TRAIN_FINAL_FOREST{"train_final_forest"};
-const double MEMORY_USAGE_WORST_CASE_TO_AVERAGE{4.75};
 
 //! \brief Record the memory used by a supplied object using the RAII idiom.
 class CScopeRecordMemoryUsage {
@@ -658,7 +657,8 @@ CBoostedTreeImpl::TImmutableRadixSetVec
 CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
                                   const core::CPackedBitVector& trainingRowMask) const {
 
-    TSizeVec features{this->candidateRegressorFeatures()};
+    TSizeVec features;
+    this->candidateRegressorFeatures(m_FeatureSampleProbabilities, features);
     LOG_TRACE(<< "candidate features = " << core::CContainerPrinter::print(features));
 
     TSizeVec binaryFeatures(features);
@@ -750,11 +750,17 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     TNodeVec tree(1);
     tree.reserve(2 * maximumTreeSize + 1);
 
+    // Sampling transforms the probabilities. We use a placeholder outside
+    // the loop adding nodes so we only allocate the vector once.
+    TDoubleVec featureSampleProbabilities{m_FeatureSampleProbabilities};
+    TSizeVec featureBag;
+    this->featureBag(featureSampleProbabilities, featureBag);
+
     TLeafNodeStatisticsPtrQueue leaves(maximumTreeSize / 2 + 3);
     leaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatistics>(
         0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
-        frame, *m_Encoder, m_Regularization, candidateSplits,
-        this->featureBag(), 0 /*depth*/, trainingRowMask));
+        frame, *m_Encoder, m_Regularization, candidateSplits, featureBag,
+        0 /*depth*/, trainingRowMask));
 
     // We update local variables because the callback can be expensive if it
     // requires accessing atomics.
@@ -807,11 +813,14 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
             tree[leaf->id()].split(splitFeature, splitValue, assignMissingToLeft,
                                    leaf->gain(), leaf->curvature(), tree);
 
+        featureSampleProbabilities = m_FeatureSampleProbabilities;
+        this->featureBag(featureSampleProbabilities, featureBag);
+
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
         std::tie(leftChild, rightChild) = leaf->split(
             leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder,
-            m_Regularization, candidateSplits, this->featureBag(), tree[leaf->id()]);
+            m_Regularization, candidateSplits, featureBag, tree[leaf->id()]);
 
         if (less(rightChild, leftChild)) {
             std::swap(leftChild, rightChild);
@@ -980,20 +989,32 @@ std::size_t CBoostedTreeImpl::featureBagSize() const {
         std::ceil(m_FeatureBagFraction * static_cast<double>(this->numberFeatures())), 1.0));
 }
 
-CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::featureBag() const {
+void CBoostedTreeImpl::featureBag(TDoubleVec& probabilities, TSizeVec& bag) const {
 
     std::size_t size{this->featureBagSize()};
 
-    TSizeVec features{this->candidateRegressorFeatures()};
-    if (size >= features.size()) {
-        return features;
+    this->candidateRegressorFeatures(probabilities, bag);
+    if (size >= bag.size()) {
+        return;
     }
 
-    TSizeVec sample;
-    TDoubleVec probabilities(m_FeatureSampleProbabilities);
-    CSampling::categoricalSampleWithoutReplacement(m_Rng, probabilities, size, sample);
+    CSampling::categoricalSampleWithoutReplacement(m_Rng, probabilities, size, bag);
+    std::sort(bag.begin(), bag.end());
+}
 
-    return sample;
+void CBoostedTreeImpl::candidateRegressorFeatures(const TDoubleVec& probabilities,
+                                                  TSizeVec& features) const {
+    features.clear();
+    features.reserve(probabilities.size());
+    for (std::size_t i = 0; i < probabilities.size(); ++i) {
+        if (probabilities[i] > 0.0) {
+            features.push_back(i);
+        }
+    }
+}
+
+const CBoostedTreeNode& CBoostedTreeImpl::root(const TNodeVec& tree) {
+    return tree[0];
 }
 
 void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& frame,
@@ -1094,21 +1115,6 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
     LOG_TRACE(<< "mean loss = " << CBasicStatistics::mean(loss));
 
     return CBasicStatistics::mean(loss);
-}
-
-CBoostedTreeImpl::TSizeVec CBoostedTreeImpl::candidateRegressorFeatures() const {
-    TSizeVec result;
-    result.reserve(m_FeatureSampleProbabilities.size());
-    for (std::size_t i = 0; i < m_FeatureSampleProbabilities.size(); ++i) {
-        if (m_FeatureSampleProbabilities[i] > 0.0) {
-            result.push_back(i);
-        }
-    }
-    return result;
-}
-
-const CBoostedTreeNode& CBoostedTreeImpl::root(const TNodeVec& tree) {
-    return tree[0];
 }
 
 CBoostedTreeNode& CBoostedTreeImpl::root(TNodeVec& tree) {

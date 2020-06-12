@@ -153,25 +153,25 @@ void doCategoricalSampleWithReplacement(RNG& rng,
         return;
     }
 
-    std::size_t p = probabilities.size();
+    std::size_t m{probabilities.size()};
 
     // Construct the transform function.
-    for (std::size_t i = 1u; i < p; ++i) {
+    for (std::size_t i = 1; i < m; ++i) {
         probabilities[i] += probabilities[i - 1];
     }
 
-    if (probabilities[p - 1] == 0.0) {
-        doUniformSample(rng, std::size_t(0), p, n, result);
+    if (probabilities[m - 1] == 0.0) {
+        doUniformSample(rng, std::size_t(0), m, n, result);
     } else {
         result.reserve(n);
-        boost::random::uniform_real_distribution<> uniform(0.0, probabilities[p - 1]);
+        boost::random::uniform_real_distribution<> uniform(0.0, probabilities[m - 1]);
         for (std::size_t i = 0u; i < n; ++i) {
-            double uniform0X = uniform(rng);
+            double u0X{uniform(rng)};
             result.push_back(std::min(
                 static_cast<std::size_t>(std::lower_bound(probabilities.begin(),
-                                                          probabilities.end(), uniform0X) -
+                                                          probabilities.end(), u0X) -
                                          probabilities.begin()),
-                probabilities.size() - 1));
+                m - 1));
         }
     }
 }
@@ -191,45 +191,43 @@ void doCategoricalSampleWithoutReplacement(RNG& rng,
         return;
     }
 
-    std::size_t p = probabilities.size();
-    if (n >= p) {
-        result.assign(boost::counting_iterator<std::size_t>(0),
-                      boost::counting_iterator<std::size_t>(p));
+    std::size_t m{probabilities.size()};
+    result.assign(boost::counting_iterator<std::size_t>(0),
+                  boost::counting_iterator<std::size_t>(m));
+
+    if (n >= m) {
+        return;
     }
 
     // Construct the transform function.
-    for (std::size_t i = 1u; i < p; ++i) {
+    for (std::size_t i = 1; i < m; ++i) {
         probabilities[i] += probabilities[i - 1];
     }
 
-    result.reserve(n);
-    TSizeVec indices(boost::counting_iterator<std::size_t>(0),
-                     boost::counting_iterator<std::size_t>(p));
-    TSizeVec s(1);
-
-    for (std::size_t i = 0u; i < n; ++i, --p) {
-        if (probabilities[p - 1] <= 0.0) {
-            doUniformSample(rng, std::size_t(0), indices.size(), 1, s);
-            result.push_back(indices[s[0]]);
+    for (std::size_t i = 0; i < n; ++i, --m) {
+        std::size_t s{0};
+        double x{probabilities[m - 1]};
+        if (x <= 0.0) {
+            s = doUniformSample(rng, std::size_t{0}, m);
         } else {
-            boost::random::uniform_real_distribution<> uniform(0.0, probabilities[p - 1]);
-            double uniform0X = uniform(rng);
-            s[0] = std::min(static_cast<std::size_t>(
-                                std::lower_bound(probabilities.begin(),
-                                                 probabilities.end(), uniform0X) -
-                                probabilities.begin()),
-                            probabilities.size() - 1);
-
-            result.push_back(indices[s[0]]);
-
-            double ps = probabilities[s[0]] - (s[0] == 0 ? 0.0 : probabilities[s[0] - 1]);
-            for (std::size_t j = s[0] + 1; j < p; ++j) {
-                probabilities[j - 1] = probabilities[j] - ps;
-            }
-            probabilities.pop_back();
+            boost::random::uniform_real_distribution<> uniform{0.0, x};
+            double u0X{uniform(rng)};
+            s = std::min(static_cast<std::size_t>(
+                             std::lower_bound(probabilities.begin(),
+                                              probabilities.begin() + m, u0X) -
+                             probabilities.begin()),
+                         m - 1);
         }
-        indices.erase(indices.begin() + s[0]);
+
+        double ps{probabilities[s] - (s == 0 ? 0.0 : probabilities[s - 1])};
+        for (std::size_t j = s + 1; j < m; ++j) {
+            probabilities[j - 1] = probabilities[j] - ps;
+            std::swap(result[j - 1], result[j]);
+        }
     }
+
+    // The sampled values are at the end of the vector.
+    result.erase(result.begin(), result.begin() + m);
 }
 
 //! Implementation of multivariate normal sampling.
