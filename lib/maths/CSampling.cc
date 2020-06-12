@@ -200,7 +200,7 @@ void doCategoricalSampleWithoutReplacement(RNG& rng,
     }
 
     // Construct the transform function.
-    for (std::size_t i = 1; i < probabilities.size(); ++i) {
+    for (std::size_t i = 1; i < m; ++i) {
         probabilities[i] += probabilities[i - 1];
     }
 
@@ -226,9 +226,8 @@ void doCategoricalSampleWithoutReplacement(RNG& rng,
         }
     }
 
-    // The sampled values are at the end of the vector so copy into place.
-    std::copy(result.begin() + m, result.end(), result.begin());
-    result.resize(n);
+    // The sampled values are at the end of the vector.
+    result.erase(result.begin(), result.begin() + m);
 }
 
 //! Implementation of multivariate normal sampling.
