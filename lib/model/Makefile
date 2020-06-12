@@ -51,12 +51,14 @@ CHierarchicalResultsProbabilityFinalizer.cc \
 CIndividualModel.cc \
 CInterimBucketCorrector.cc \
 CLimits.cc \
+CLocalCategoryId.cc \
 CMemoryUsageEstimator.cc \
 CMetricBucketGatherer.cc \
 CMetricModel.cc \
 CMetricModelFactory.cc \
 CMetricPopulationModel.cc \
 CMetricPopulationModelFactory.cc \
+CAnnotation.cc \
 CModelDetailsView.cc \
 CModelFactory.cc \
 CModelParams.cc \

@@ -47,10 +47,10 @@ bool CCmdSkeleton::ioLoop() {
     // Finalise the processor so it gets a chance to write any remaining results
     m_Processor.finalise();
 
-    return this->persistState();
+    return this->persistStateInForeground();
 }
 
-bool CCmdSkeleton::persistState() {
+bool CCmdSkeleton::persistStateInForeground() {
     if (m_Persister == nullptr) {
         LOG_DEBUG(<< "No persistence sink specified - will not attempt to persist state");
         return true;
@@ -61,7 +61,8 @@ bool CCmdSkeleton::persistState() {
     }
 
     // Attempt to persist state
-    if (m_Processor.persistState(*m_Persister, "State persisted due to job close at ") == false) {
+    if (m_Processor.persistStateInForeground(
+            *m_Persister, "State persisted due to job close at ") == false) {
         LOG_FATAL(<< "Failed to persist state");
         return false;
     }

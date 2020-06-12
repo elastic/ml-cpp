@@ -17,6 +17,10 @@ std::size_t CDataFrameMockAnalysisRunner::numberExtraColumns() const {
     return 2;
 }
 
+std::size_t CDataFrameMockAnalysisRunner::dataFrameSliceCapacity() const {
+    return 10000;
+}
+
 void CDataFrameMockAnalysisRunner::writeOneRow(const ml::core::CDataFrame&,
                                                const TRowRef&,
                                                ml::core::CRapidJsonConcurrentLineWriter&) const {

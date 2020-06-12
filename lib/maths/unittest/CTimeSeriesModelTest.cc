@@ -1570,9 +1570,9 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
             3 * sizeof(maths::CNormalMeanPrecConjugate) +
             sizeof(maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary) +
             2 * controllers[0].memoryUsage() + 16 * 12 /*Recent samples*/};
-        std::size_t size = model->memoryUsage();
+        std::size_t size{model->memoryUsage()};
         LOG_DEBUG(<< "size " << size << " expected " << expectedSize);
-        BOOST_TEST_REQUIRE(size < 1.1 * expectedSize);
+        BOOST_TEST_REQUIRE(static_cast<double>(size) < 1.1 * static_cast<double>(expectedSize));
     }
 
     LOG_DEBUG(<< "Multivariate");
@@ -1606,9 +1606,9 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
             2 * sizeof(maths::CMultivariateNormalConjugate<3>) +
             sizeof(maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary) +
             2 * controllers[0].memoryUsage() + 32 * 12 /*Recent samples*/};
-        std::size_t size = model->memoryUsage();
+        std::size_t size{model->memoryUsage()};
         LOG_DEBUG(<< "size " << size << " expected " << expectedSize);
-        BOOST_TEST_REQUIRE(size < 1.1 * expectedSize);
+        BOOST_TEST_REQUIRE(static_cast<double>(size) < 1.1 * static_cast<double>(expectedSize));
     }
 
     // TODO LOG_DEBUG(<< "Correlates");

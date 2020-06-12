@@ -106,10 +106,13 @@ public:
     //! and it's local variance.
     //! \param[in] componentChangeCallback Called if the components
     //! change as a result of adding the data point.
-    virtual void addPoint(core_t::TTime time,
-                          double value,
-                          const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
-                          const TComponentChangeCallback& componentChangeCallback = noop);
+    //! \param[in] modelAnnotationCallback Called if the model changes as a result of adding the data point.
+    virtual void
+    addPoint(core_t::TTime time,
+             double value,
+             const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
+             const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
+             const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation);
 
     //! Apply \p change at \p time.
     //!

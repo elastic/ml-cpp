@@ -284,6 +284,10 @@ void CModelFactory::updateBucketLength(core_t::TTime length) {
     m_ModelParams.s_BucketLength = length;
 }
 
+void CModelFactory::annotationsEnabled(bool enabled) {
+    m_ModelParams.s_AnnotationsEnabled = enabled;
+}
+
 CModelFactory::TInterimBucketCorrectorPtr CModelFactory::interimBucketCorrector() const {
     TInterimBucketCorrectorPtr result{m_InterimBucketCorrector.lock()};
     if (result == nullptr) {

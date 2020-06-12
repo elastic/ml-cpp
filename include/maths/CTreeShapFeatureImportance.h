@@ -40,11 +40,13 @@ public:
     using TTreeVec = std::vector<TTree>;
     using TVector = CDenseVector<double>;
     using TVectorVec = std::vector<TVector>;
+    using TVectorVecVec = std::vector<TVectorVec>;
     using TShapWriter =
         std::function<void(const TSizeVec&, const TStrVec&, const TVectorVec&)>;
 
 public:
-    CTreeShapFeatureImportance(const core::CDataFrame& frame,
+    CTreeShapFeatureImportance(std::size_t numberThreads,
+                               const core::CDataFrame& frame,
                                const CDataFrameCategoryEncoder& encoder,
                                TTreeVec& trees,
                                std::size_t numberTopShapValues);
@@ -80,6 +82,7 @@ private:
     };
 
     using TElementVec = std::vector<SPathElement>;
+    using TElementVecVec = std::vector<TElementVec>;
     using TElementItr = TElementVec::iterator;
     using TDoubleVecItr = TDoubleVec::iterator;
 
@@ -186,9 +189,10 @@ private:
     const CDataFrameCategoryEncoder* m_Encoder;
     const TTreeVec* m_Forest;
     TStrVec m_ColumnNames;
-    TElementVec m_PathStorage;
-    TDoubleVec m_ScaleStorage;
-    TVectorVec m_ShapValues;
+    TElementVecVec m_PathStorage;
+    TDoubleVecVec m_ScaleStorage;
+    TVectorVecVec m_PerThreadShapValues;
+    TVectorVec m_ReducedShapValues;
     TSizeVec m_TopShapValues;
 };
 }

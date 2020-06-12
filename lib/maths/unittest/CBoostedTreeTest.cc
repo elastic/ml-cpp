@@ -1306,7 +1306,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
         BOOST_TEST_REQUIRE(instrumentation.maxMemoryUsage() < estimatedMemory);
     }
 }
-
+// TODO: test for handle fatal (memory-limit-circuit-breaker)
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
 
     // Test estimation of the memory used training a model.
@@ -1612,15 +1612,15 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
 
 BOOST_AUTO_TEST_CASE(testPersistRestore) {
 
-    // Check persist/restore is idempotent.
+    // Check persist + restore is idempotent.
 
     std::size_t rows{50};
     std::size_t cols{3};
     std::size_t capacity{50};
     test::CRandomNumbers rng;
 
-    std::stringstream persistOnceSStream;
-    std::stringstream persistTwiceSStream;
+    std::stringstream persistOnceState;
+    std::stringstream persistTwiceState;
 
     // Generate completely random data.
     TDoubleVecVec x(cols);
@@ -1638,7 +1638,7 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
     }
     frame->finishWritingRows();
 
-    // persist
+    // Persist.
     {
         auto boostedTree = maths::CBoostedTreeFactory::constructFromParameters(
                                1, std::make_unique<maths::boosted_tree::CMse>())
@@ -1647,21 +1647,99 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
                                .maximumOptimisationRoundsPerHyperparameter(3)
                                .buildFor(*frame, cols - 1);
         boostedTree->train();
-        core::CJsonStatePersistInserter inserter(persistOnceSStream);
+        core::CJsonStatePersistInserter inserter(persistOnceState);
         boostedTree->acceptPersistInserter(inserter);
-        persistOnceSStream.flush();
+        persistOnceState.flush();
     }
-    // restore
-    auto boostedTree = maths::CBoostedTreeFactory::constructFromString(persistOnceSStream)
-                           .restoreFor(*frame, cols - 1);
+    // Restore.
+    auto boostedTree =
+        maths::CBoostedTreeFactory::constructFromString(persistOnceState).restoreFor(*frame, cols - 1);
     {
-        core::CJsonStatePersistInserter inserter(persistTwiceSStream);
+        // We need to call the inserter destructor to finish writing the state.
+        core::CJsonStatePersistInserter inserter(persistTwiceState);
         boostedTree->acceptPersistInserter(inserter);
-        persistTwiceSStream.flush();
+        persistTwiceState.flush();
     }
-    LOG_DEBUG(<< "State " << persistOnceSStream.str());
-    LOG_DEBUG(<< "State after restore " << persistTwiceSStream.str());
-    BOOST_REQUIRE_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
+    LOG_DEBUG(<< "State " << persistOnceState.str());
+    LOG_DEBUG(<< "State after restore " << persistTwiceState.str());
+    BOOST_REQUIRE_EQUAL(persistOnceState.str(), persistTwiceState.str());
+}
+
+BOOST_AUTO_TEST_CASE(testPersistRestoreDuringInitialization) {
+
+    // Grab checkpoints during initialization and check they all produce the
+    // same initialized tree after restoring.
+
+    using TSStreamVec = std::vector<std::stringstream>;
+
+    std::size_t rows{50};
+    std::size_t cols{3};
+    std::size_t capacity{50};
+    test::CRandomNumbers rng;
+
+    // Generate completely random data.
+    TDoubleVecVec x(cols);
+    for (std::size_t i = 0; i < cols; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    auto makeFrame = [&] {
+        auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
+        for (std::size_t i = 0; i < rows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                for (std::size_t j = 0; j < cols; ++j, ++column) {
+                    *column = x[j][i];
+                }
+            });
+        }
+        frame->finishWritingRows();
+        return frame;
+    };
+
+    TSStreamVec checkpoints;
+
+    auto writeCheckpoint = [&checkpoints](maths::CBoostedTree::TPersistFunc persist) {
+        std::stringstream state;
+        {
+            // We need to call the inserter destructor to finish writing the state.
+            core::CJsonStatePersistInserter inserter(state);
+            persist(inserter);
+            state.flush();
+        }
+        checkpoints.push_back(std::move(state));
+    };
+
+    std::ostringstream expectedState;
+    {
+        auto frame = makeFrame();
+        auto boostedTree = maths::CBoostedTreeFactory::constructFromParameters(
+                               1, std::make_unique<maths::boosted_tree::CMse>())
+                               .numberFolds(2)
+                               .maximumNumberTrees(2)
+                               .maximumOptimisationRoundsPerHyperparameter(3)
+                               .trainingStateCallback(writeCheckpoint)
+                               .buildFor(*frame, cols - 1);
+        core::CJsonStatePersistInserter inserter(expectedState);
+        boostedTree->acceptPersistInserter(inserter);
+        expectedState.flush();
+    }
+
+    // Make sure this test fails if there aren't any checkpoints.
+    BOOST_TEST_REQUIRE(checkpoints.size() > 0);
+
+    for (auto& checkpoint : checkpoints) {
+        auto frame = makeFrame();
+        auto boostedTree =
+            maths::CBoostedTreeFactory::constructFromString(checkpoint).restoreFor(*frame, cols - 1);
+        std::ostringstream actualState;
+        {
+            // We need to call the inserter destructor to finish writing the state.
+            core::CJsonStatePersistInserter inserter(actualState);
+            boostedTree->acceptPersistInserter(inserter);
+            actualState.flush();
+        }
+        BOOST_REQUIRE_EQUAL(expectedState.str(), actualState.str());
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {

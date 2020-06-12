@@ -39,6 +39,7 @@ SRCS=\
 	CFieldConfigTest.cc \
 	CFieldDataCategorizerTest.cc \
 	CForecastRunnerTest.cc \
+	CGlobalCategoryIdTest.cc \
 	CIoManagerTest.cc \
 	CJsonOutputWriterTest.cc \
 	CLengthEncodedInputParserTest.cc \
@@ -46,15 +47,19 @@ SRCS=\
 	CMockDataAdder.cc \
 	CMockDataProcessor.cc \
 	CMockSearcher.cc \
+	CAnnotationJsonWriterTest.cc \
 	CModelPlotDataJsonWriterTest.cc \
 	CModelSnapshotJsonWriterTest.cc \
 	CMultiFileDataAdderTest.cc \
 	CNdJsonInputParserTest.cc \
 	CNdJsonOutputWriterTest.cc \
+	CNoopCategoryIdMapperTest.cc \
 	COutputChainerTest.cc \
+	CPerPartitionCategoryIdMapperTest.cc \
 	CPersistenceManagerTest.cc \
 	CRestorePreviousStateTest.cc \
 	CResultNormalizerTest.cc \
+	CSingleFieldDataCategorizerTest.cc \
 	CSingleStreamDataAdderTest.cc \
 	CStateRestoreStreamFilterTest.cc \
 	CStringStoreTest.cc \

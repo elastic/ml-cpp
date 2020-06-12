@@ -38,6 +38,9 @@ public:
     //! \return The number of columns this adds to the data frame.
     std::size_t numberExtraColumns() const override;
 
+    //! \return The capacity of the data frame slice to use.
+    std::size_t dataFrameSliceCapacity() const override;
+
     //! Write the extra columns of \p row added by outlier analysis to \p writer.
     void writeOneRow(const core::CDataFrame& frame,
                      const TRowRef& row,

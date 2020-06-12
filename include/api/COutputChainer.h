@@ -72,7 +72,8 @@ public:
                       core_t::TTime& completeToTime) override;
 
     //! Persist current state
-    bool persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) override;
+    bool persistStateInForeground(core::CDataAdder& persister,
+                                  const std::string& descriptionPrefix) override;
 
     //! Persist current state due to the periodic persistence being triggered.
     bool periodicPersistStateInBackground() override;

@@ -149,7 +149,7 @@ bool persistCategorizerStateToFile(const std::string& outputFileName) {
         }
 
         ml::api::CSingleStreamDataAdder persister(ptr);
-        if (!categorizer.persistState(persister, "State persisted due to job close at ")) {
+        if (!categorizer.persistStateInForeground(persister, "State persisted due to job close at ")) {
             LOG_ERROR(<< "Error persisting state to " << outputFileName);
             return false;
         }
@@ -215,7 +215,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
         }
 
         ml::api::CSingleStreamDataAdder persister(ptr);
-        if (!origJob.persistState(persister, "State persisted due to job close at ")) {
+        if (!origJob.persistStateInForeground(persister, "State persisted due to job close at ")) {
             LOG_ERROR(<< "Error persisting state to " << outputFileName);
             return false;
         }

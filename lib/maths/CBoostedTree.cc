@@ -183,11 +183,13 @@ CBoostedTree::TDouble2Vec CBoostedTree::readAndAdjustPrediction(const TRowRef& r
         row, m_Impl->extraColumns(), loss.numberParameters()));
 
     switch (loss.type()) {
-    case CLoss::E_BinaryClassification:
-    case CLoss::E_MulticlassClassification:
+    case E_BinaryClassification:
+    case E_MulticlassClassification:
         prediction = m_Impl->classificationWeights().array() * prediction.array();
         break;
-    case CLoss::E_Regression:
+    case E_MseRegression:
+    case E_MsleRegression:
+    case E_HuberRegression:
         break;
     }
 

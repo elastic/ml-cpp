@@ -107,8 +107,16 @@ public:
     //! Set the internal memory limit, as specified in a limits config file
     void memoryLimit(std::size_t limitMBs);
 
+    std::size_t getBytesMemoryLimit() const;
+
     //! Get the memory status
-    model_t::EMemoryStatus getMemoryStatus();
+    model_t::EMemoryStatus memoryStatus() const;
+
+    //! Get categorizer allocation failures
+    std::size_t categorizerAllocationFailures() const;
+
+    //! Set categorizer allocation failures
+    void categorizerAllocationFailures(std::size_t categorizerAllocationFailures);
 
     //! Send a memory usage report if it's changed by more than a certain percentage
     void sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime bucketStartTime);
@@ -224,7 +232,7 @@ private:
     //! Callback function to fire when memory usage increases by 1%
     TMemoryUsageReporterFunc m_MemoryUsageReporter;
 
-    //! Keep track of classes telling us about allocation failures
+    //! Keep track of times of anomaly detector allocation failures
     TTimeSizeMap m_AllocationFailures;
 
     //! The time at which the last allocation failure was reported
@@ -260,6 +268,9 @@ private:
 
     //! Is persistence occurring in the foreground?
     bool m_PersistenceInForeground;
+
+    //! Number of categorizer allocation failures to date
+    std::size_t m_CategorizerAllocationFailures = 0;
 
     //! Test friends
     friend struct CResourceMonitorTest::testMonitor;

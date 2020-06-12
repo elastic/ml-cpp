@@ -21,6 +21,7 @@
 #include <maths/ProbabilityAggregators.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
+#include <model/CAnnotation.h>
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CDataGatherer.h>
 #include <model/CIndividualModelDetail.h>
@@ -29,6 +30,7 @@
 #include <model/CModelTools.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
 #include <model/CResourceMonitor.h>
+#include <model/CSearchKey.h>
 #include <model/FrequencyPredicates.h>
 
 #include <algorithm>
@@ -217,6 +219,7 @@ void CEventRateModel::sample(core_t::TTime startTime,
 
     this->createUpdateNewModels(startTime, resourceMonitor);
     this->currentBucketInterimCorrections().clear();
+    m_CurrentBucketStats.s_Annotations.clear();
 
     for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
         LOG_TRACE(<< "Sampling [" << time << "," << time + bucketLength << ")");
@@ -328,6 +331,19 @@ void CEventRateModel::sample(core_t::TTime startTime,
                     .propagationInterval(deratedInterval)
                     .trendWeights(trendWeights)
                     .priorWeights(priorWeights);
+                if (this->params().s_AnnotationsEnabled) {
+                    const auto modelAnnotationCallback =
+                        [&](core_t::TTime t, const std::string& annotation) {
+                            m_CurrentBucketStats.s_Annotations.emplace_back(
+                                t, annotation, gatherer.searchKey().detectorIndex(),
+                                gatherer.searchKey().partitionFieldName(),
+                                gatherer.partitionFieldValue(),
+                                gatherer.searchKey().overFieldName(),
+                                EMPTY_STRING, gatherer.searchKey().byFieldName(),
+                                gatherer.personName(pid));
+                        };
+                    params.annotationCallback(modelAnnotationCallback);
+                }
 
                 if (model->addSamples(params, values) == maths::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);
@@ -485,6 +501,8 @@ void CEventRateModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr
                                     m_CurrentBucketStats.s_FeatureData, mem);
     core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_InterimCorrections",
                                     m_CurrentBucketStats.s_InterimCorrections, mem);
+    core::CMemoryDebug::dynamicSize("m_CurrentBucketStats.s_Annotations",
+                                    m_CurrentBucketStats.s_Annotations, mem);
     core::CMemoryDebug::dynamicSize("s_Probabilities", m_Probabilities, mem);
     core::CMemoryDebug::dynamicSize("m_ProbabilityPrior", m_ProbabilityPrior, mem);
     core::CMemoryDebug::dynamicSize("m_InterimBucketCorrector",
@@ -504,6 +522,7 @@ std::size_t CEventRateModel::computeMemoryUsage() const {
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_PersonCounts);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_FeatureData);
     mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_InterimCorrections);
+    mem += core::CMemory::dynamicSize(m_CurrentBucketStats.s_Annotations);
     mem += core::CMemory::dynamicSize(m_Probabilities);
     mem += core::CMemory::dynamicSize(m_ProbabilityPrior);
     mem += core::CMemory::dynamicSize(m_InterimBucketCorrector);
@@ -518,6 +537,10 @@ const CEventRateModel::TFeatureData*
 CEventRateModel::featureData(model_t::EFeature feature, std::size_t pid, core_t::TTime time) const {
     return this->CIndividualModel::featureData(feature, pid, time,
                                                m_CurrentBucketStats.s_FeatureData);
+}
+
+const CEventRateModel::TAnnotationVec& CEventRateModel::annotations() const {
+    return m_CurrentBucketStats.s_Annotations;
 }
 
 core_t::TTime CEventRateModel::currentBucketStartTime() const {

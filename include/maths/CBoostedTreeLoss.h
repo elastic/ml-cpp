@@ -239,7 +239,8 @@ private:
 //! minimises regularised cross entropy loss w.r.t. the actual classes.
 //!
 //! DESCRIPTION:\n
-//! We want to find the weight which minimizes the log-loss, i.e. which satisfies
+//! We want to find the weight which minimizes the cross entropy, i.e. which
+//! satisfies:
 //! <pre class="fragment">
 //!   \f$\displaystyle arg\min_w{ \lambda \|w\|^2 -\sum_i{ \log([softmax(p_i + w)]_{a_i}) } }\f$
 //! </pre>
@@ -254,7 +255,7 @@ private:
 //!
 //! Here, \f$P\f$ ranges over the subsets of the partition, \f$\bar{p}_P\f$ denotes
 //! the mean of the predictions in the P'th subset and \f$c_{a_i, P}\f$ denote the
-//! counts of each classes \f$\{a_i\}\f$ in the subset \f$P\f$. We compute this
+//! counts of each classes \f$\{a_i\}\f$ in the P'th subset. We compute this
 //! partition via a weighted random sample where the weights are proportional to
 //! the mean distance between each point and the rest of the sample set.
 class MATHS_EXPORT CArgMinMultinomialLogisticLossImpl final : public CArgMinLossImpl {
@@ -357,20 +358,16 @@ public:
     using TWriter = std::function<void(std::size_t, double)>;
     using TLossUPtr = std::unique_ptr<CLoss>;
 
-    enum EType {
-        E_BinaryClassification,
-        E_MulticlassClassification,
-        E_Regression
-    };
-
 public:
     virtual ~CLoss() = default;
     //! Clone the loss.
     virtual std::unique_ptr<CLoss> clone() const = 0;
+
     //! Get the type of prediction problem to which this loss applies.
-    virtual EType type() const = 0;
+    virtual ELossType type() const = 0;
     //! The number of parameters to the loss function.
     virtual std::size_t numberParameters() const = 0;
+
     //! The value of the loss function.
     virtual double value(const TMemoryMappedFloatVector& prediction,
                          double actual,
@@ -387,11 +384,14 @@ public:
                            double weight = 1.0) const = 0;
     //! Returns true if the loss curvature is constant.
     virtual bool isCurvatureConstant() const = 0;
+
     //! Transforms a prediction from the forest to the target space.
     virtual TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const = 0;
+
     //! Get an object which computes the leaf value that minimises loss.
     virtual CArgMinLoss minimizer(double lambda,
                                   const CPRNG::CXorOShiro128Plus& rng) const = 0;
+
     //! Get the name of the loss function
     virtual const std::string& name() const = 0;
 
@@ -421,7 +421,7 @@ public:
     CMse(core::CStateRestoreTraverser& traverser);
     CMse() = default;
     std::unique_ptr<CLoss> clone() const override;
-    EType type() const override;
+    ELossType type() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
@@ -463,7 +463,7 @@ public:
     CBinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     CBinomialLogisticLoss() = default;
     std::unique_ptr<CLoss> clone() const override;
-    EType type() const override;
+    ELossType type() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
@@ -506,7 +506,7 @@ public:
 public:
     CMultinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     CMultinomialLogisticLoss(std::size_t numberClasses);
-    EType type() const override;
+    ELossType type() const override;
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
@@ -555,7 +555,7 @@ public:
 public:
     CMsle(core::CStateRestoreTraverser& traverser);
     explicit CMsle(double offset = 1.0);
-    EType type() const override;
+    ELossType type() const override;
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
@@ -570,6 +570,7 @@ public:
                    TWriter writer,
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
+    //! \return exp(\p prediction).
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;
@@ -589,20 +590,22 @@ private:
 //! Formally, the pseudo-Huber loss definition we use is
 //! \f$\delta^2 (\sqrt{1 + \frac{(a - p)^2}{\delta^2}} - 1)\f$.
 //! However, we approximate this by a quadratic form which has its minimum p = a and
-//! matches the value and derivative of the pseudo-Huber loss function. For example, if the
-//! current prediction for the i'th training point is \f$p_i\f$, the loss is defined
-//! as
-//!   \f[
-//!     l_i(p) =  \delta^{2} \left(\sqrt{1 + \frac{\left(a_i - p_i\right)^{2}}{\delta^{2}}} - 1\right)
-//! + \frac{- a_i + p_i}{\sqrt{\frac{\delta^{2} + \left(a_i - p_i\right)^{2}}{\delta^{2}}}}(p-p_i)
-//! + \frac{- a_i + p_i}{2\sqrt{\frac{\delta^{2} + \left(a_i - p_i\right)^{2}}{\delta^{2}}}\left(a_i-p_i\right)}(p-p_i)^2
+//! matches the value and derivative of the pseudo-Huber loss function. For example,
+//! if the current prediction for the i'th training point is \f$p_i\f$, the loss is
+//! defined as
+//! <pre class="fragment">
+//! \f[
+//!     l_i(p) = \delta^2 \left(\sqrt{1 + \frac{(a_i - p_i)^{2}}{\delta^2}} - 1\right) +
+//!              \frac{-a_i+p_i}{\sqrt{\frac{\delta^2 + (a_i-p_i)^{2}}{\delta^2}}} (p - p_i) +
+//!              \frac{-a_i+p_i}{2\sqrt{\frac{\delta^2 + (a_i-p_i)^{2}}{\delta^2}}(a_i-p_i)} (p - p_i)^2
 //! \f]
+//! </pre>
 //! For this approximation we compute first and second derivative (gradient and curvature)
 //! with respect to p and then substitute p=p_i.
 //! As a result we obtain the following formulas for the gradient:
-//!   \f[\frac{- a_{i} + p_{i}}{\sqrt{\frac{\delta^{2} + \left(a_{i} - p_{i}\right)^{2}}{\delta^{2}}}}\f]
+//!   \f[\frac{-a_i + p_i}{\sqrt{\frac{\delta^2 + (a_i - p_i)^2}{\delta^2}}}\f]
 //! and for the curvature:
-//!   \f[\frac{1}{\sqrt{1 + \frac{\left(a_{i} - p_{i}\right)^{2}}{\delta^{2}}}}\f]
+//!   \f[\frac{1}{\sqrt{1 + \frac{(a_i - p_i)^2}{\delta^2}}}\f]
 class MATHS_EXPORT CPseudoHuber final : public CLoss {
 public:
     static const std::string NAME;
@@ -610,7 +613,7 @@ public:
 public:
     CPseudoHuber(core::CStateRestoreTraverser& traverser);
     explicit CPseudoHuber(double delta);
-    EType type() const override;
+    ELossType type() const override;
     std::unique_ptr<CLoss> clone() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& predictionVec,
@@ -625,6 +628,7 @@ public:
                    TWriter writer,
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
+    //! \return \p prediction.
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
     CArgMinLoss minimizer(double lambda, const CPRNG::CXorOShiro128Plus& rng) const override;
     const std::string& name() const override;

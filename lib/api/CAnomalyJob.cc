@@ -36,6 +36,7 @@
 #include <model/CSimpleCountDetector.h>
 #include <model/CStringStore.h>
 
+#include <api/CAnnotationJsonWriter.h>
 #include <api/CConfigUpdater.h>
 #include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
@@ -587,6 +588,7 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
 
     model::CHierarchicalResults results;
     TModelPlotDataVec modelPlotData;
+    TAnnotationVec annotations;
 
     TKeyCRefAnomalyDetectorPtrPrVec detectors;
     this->sortedDetectors(detectors);
@@ -603,6 +605,8 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
 
         this->generateModelPlot(bucketStartTime, bucketStartTime + bucketLength,
                                 *detector, modelPlotData);
+        detector->generateAnnotations(bucketStartTime,
+                                      bucketStartTime + bucketLength, annotations);
     }
 
     if (!results.empty()) {
@@ -626,6 +630,7 @@ void CAnomalyJob::outputResults(core_t::TTime bucketStartTime) {
     // Model plots must be written first so the Java persists them
     // once the bucket result is processed
     this->writeOutModelPlot(modelPlotData);
+    this->writeOutAnnotations(annotations);
     this->writeOutResults(false, results, bucketStartTime, processingTime);
 
     m_Limits.resourceMonitor().pruneIfRequired(bucketStartTime);
@@ -1013,7 +1018,8 @@ bool CAnomalyJob::persistModelsState(core::CDataAdder& persister,
     return this->persistModelsState(detectors, persister, timestamp, outputFormat);
 }
 
-bool CAnomalyJob::persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) {
+bool CAnomalyJob::persistStateInForeground(core::CDataAdder& persister,
+                                           const std::string& descriptionPrefix) {
     if (m_PersistenceManager != nullptr) {
         // This will not happen if finalise() was called before persisting state
         if (m_PersistenceManager->isBusy()) {
@@ -1024,7 +1030,7 @@ bool CAnomalyJob::persistState(core::CDataAdder& persister, const std::string& d
     }
 
     // Pass on the request in case we're chained
-    if (this->outputHandler().persistState(persister, descriptionPrefix) == false) {
+    if (this->outputHandler().persistStateInForeground(persister, descriptionPrefix) == false) {
         return false;
     }
 
@@ -1113,7 +1119,7 @@ bool CAnomalyJob::runForegroundPersist(core::CDataAdder& persister) {
     // Prune the models so that the persisted state is as neat as possible
     this->pruneAllModels();
 
-    return this->persistState(persister, "Periodic foreground persist at ");
+    return this->persistStateInForeground(persister, "Periodic foreground persist at ");
 }
 
 bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
@@ -1285,7 +1291,8 @@ bool CAnomalyJob::periodicPersistStateInBackground() {
 }
 
 bool CAnomalyJob::periodicPersistStateInForeground() {
-    // Do NOT pass this request on to the output chainer. That logic is already present in persistState.
+    // Do NOT pass this request on to the output chainer.
+    // That logic is already present in persistStateInForeground.
 
     if (m_PersistenceManager == nullptr) {
         return false;
@@ -1389,6 +1396,13 @@ void CAnomalyJob::writeOutModelPlot(const TModelPlotDataVec& modelPlotData) {
     }
 }
 
+void CAnomalyJob::writeOutAnnotations(const TAnnotationVec& annotations) {
+    CAnnotationJsonWriter annotationWriter(m_OutputStream);
+    for (const auto& annotation : annotations) {
+        annotationWriter.writeResult(m_JobId, annotation);
+    }
+}
+
 void CAnomalyJob::refreshMemoryAndReport() {
     if (m_LastFinalisedBucketEndTime < m_ModelConfig.bucketLength()) {
         LOG_ERROR(<< "Cannot report memory usage because last finalized bucket end time ("
@@ -1471,8 +1485,8 @@ CAnomalyJob::detectorForKey(bool isRestoring,
                   << partition << '\'' << ", time " << time);
         LOG_TRACE(<< "Detector count " << m_Detectors.size());
 
-        detector = this->makeDetector(key.detectorIndex(), m_ModelConfig, m_Limits,
-                                      partition, time, m_ModelConfig.factory(key));
+        detector = this->makeDetector(m_ModelConfig, m_Limits, partition, time,
+                                      m_ModelConfig.factory(key));
         if (detector == nullptr) {
             // This should never happen as CAnomalyDetectorUtils::makeDetector()
             // contracts to never return NULL
@@ -1510,19 +1524,18 @@ void CAnomalyJob::pruneAllModels() {
 }
 
 CAnomalyJob::TAnomalyDetectorPtr
-CAnomalyJob::makeDetector(int identifier,
-                          const model::CAnomalyDetectorModelConfig& modelConfig,
+CAnomalyJob::makeDetector(const model::CAnomalyDetectorModelConfig& modelConfig,
                           model::CLimits& limits,
                           const std::string& partitionFieldValue,
                           core_t::TTime firstTime,
                           const model::CAnomalyDetector::TModelFactoryCPtr& modelFactory) {
     return modelFactory->isSimpleCount()
                ? std::make_shared<model::CSimpleCountDetector>(
-                     identifier, modelFactory->summaryMode(), modelConfig,
-                     std::ref(limits), partitionFieldValue, firstTime, modelFactory)
-               : std::make_shared<model::CAnomalyDetector>(
-                     identifier, std::ref(limits), modelConfig,
-                     partitionFieldValue, firstTime, modelFactory);
+                     modelFactory->summaryMode(), modelConfig, std::ref(limits),
+                     partitionFieldValue, firstTime, modelFactory)
+               : std::make_shared<model::CAnomalyDetector>(std::ref(limits), modelConfig,
+                                                           partitionFieldValue,
+                                                           firstTime, modelFactory);
 }
 
 void CAnomalyJob::populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec& keys) {

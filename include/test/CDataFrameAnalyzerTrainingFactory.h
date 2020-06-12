@@ -162,7 +162,8 @@ public:
             treeFactory.featureBagFraction(featureBagFraction);
         }
 
-        ml::api::CDataFrameTrainBoostedTreeInstrumentation instrumentation("testJob");
+        const std::int64_t memoryLimit{1024 * 1024 * 1024}; // 1gb default value
+        ml::api::CDataFrameTrainBoostedTreeInstrumentation instrumentation("testJob", memoryLimit);
         treeFactory.analysisInstrumentation(instrumentation);
 
         auto tree = treeFactory.buildFor(*frame, weights.size());

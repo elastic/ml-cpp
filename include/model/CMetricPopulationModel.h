@@ -26,6 +26,7 @@ class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
 namespace model {
+
 //! \brief The model for computing the anomalousness of the values
 //! each person in a population generates in a data stream.
 //!
@@ -74,6 +75,8 @@ public:
         TFeatureSizeSizePrFeatureDataPrVecMap s_FeatureData;
         //! A cache of the corrections applied to interim results.
         mutable TCorrectionKeyDouble1VecUMap s_InterimCorrections;
+        //! Annotations produced by this model.
+        TAnnotationVec s_Annotations;
     };
 
     //! Lift the overloads of currentBucketValue into the class scope.
@@ -283,6 +286,9 @@ public:
 
     //! Get the non-estimated memory used by this model.
     std::size_t computeMemoryUsage() const override;
+
+    //! Get the annotations produced by this model.
+    const TAnnotationVec& annotations() const override;
 
 private:
     //! Initialize the feature models.

@@ -72,11 +72,16 @@ CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpeci
 CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec)
     : CDataFrameAnalysisRunner{spec}, m_Method{static_cast<std::size_t>(
                                           maths::COutliers::E_Ensemble)},
-      m_Instrumentation{spec.jobId()} {
+      m_Instrumentation{spec.jobId(), spec.memoryLimit()} {
 }
 
 std::size_t CDataFrameOutliersRunner::numberExtraColumns() const {
     return m_ComputeFeatureInfluence ? this->spec().numberColumns() + 1 : 1;
+}
+
+std::size_t CDataFrameOutliersRunner::dataFrameSliceCapacity() const {
+    return core::dataFrameDefaultSliceCapacity(this->spec().numberColumns() +
+                                               this->numberExtraColumns());
 }
 
 void CDataFrameOutliersRunner::writeOneRow(const core::CDataFrame& frame,

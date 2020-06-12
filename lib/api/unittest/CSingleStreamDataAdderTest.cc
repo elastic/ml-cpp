@@ -113,7 +113,7 @@ void detectorPersistHelper(const std::string& configFileName,
         std::ostringstream* strm(nullptr);
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
         ml::api::CSingleStreamDataAdder persister(ptr);
-        BOOST_TEST_REQUIRE(firstProcessor->persistState(persister, ""));
+        BOOST_TEST_REQUIRE(firstProcessor->persistStateInForeground(persister, ""));
         origPersistedState = strm->str();
     }
 
@@ -168,7 +168,7 @@ void detectorPersistHelper(const std::string& configFileName,
         std::ostringstream* strm(nullptr);
         ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
         ml::api::CSingleStreamDataAdder persister(ptr);
-        BOOST_TEST_REQUIRE(restoredFirstProcessor->persistState(persister, ""));
+        BOOST_TEST_REQUIRE(restoredFirstProcessor->persistStateInForeground(persister, ""));
         newPersistedState = strm->str();
     }
 
