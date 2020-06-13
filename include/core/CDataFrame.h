@@ -345,6 +345,17 @@ public:
         return this->readRows(numberThreads, 0, this->numberRows(), std::move(reader));
     }
 
+    //! Overload taking a collection of functions to run, using one thread to
+    //! run each function.
+    //!
+    //! \note This is intented for stateful readers whose state is large and
+    //! provides a mechanism for reading multi-threaded without having to copy
+    //! that state.
+    bool readRows(std::size_t beginRows,
+                  std::size_t endRows,
+                  TRowFuncVec& readers,
+                  const CPackedBitVector* rowMask) const;
+
     //! Convenience overload for typed readers.
     //!
     //! The reason for this is to wrap up the code to extract the typed readers
@@ -546,17 +557,16 @@ private:
     using TRowSliceWriterPtr = std::unique_ptr<CDataFrameRowSliceWriter>;
 
 private:
-    TRowFuncVecBoolPr parallelApplyToAllRows(std::size_t numberThreads,
-                                             std::size_t beginRows,
-                                             std::size_t endRows,
-                                             TRowFunc&& func,
-                                             const CPackedBitVector* rowMask,
-                                             bool commitResult) const;
-    TRowFuncVecBoolPr sequentialApplyToAllRows(std::size_t beginRows,
-                                               std::size_t endRows,
-                                               TRowFunc& func,
-                                               const CPackedBitVector* rowMask,
-                                               bool commitResult) const;
+    bool parallelApplyToAllRows(std::size_t beginRows,
+                                std::size_t endRows,
+                                TRowFuncVec& funcs,
+                                const CPackedBitVector* rowMask,
+                                bool commitResult) const;
+    bool sequentialApplyToAllRows(std::size_t beginRows,
+                                  std::size_t endRows,
+                                  TRowFuncVec& func,
+                                  const CPackedBitVector* rowMask,
+                                  bool commitResult) const;
 
     void applyToRowsOfOneSlice(TRowFunc& func,
                                std::size_t firstRowToRead,

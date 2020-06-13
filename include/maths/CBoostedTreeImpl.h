@@ -17,6 +17,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeHyperparameters.h>
+#include <maths/CBoostedTreeLeafNodeStatistics.h>
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameAnalysisInstrumentationInterface.h>
@@ -168,6 +169,7 @@ private:
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
+    using TWorkspace = CBoostedTreeLeafNodeStatistics::CWorkspace;
 
     //! Tag progress through initialization.
     enum EInitializationStage {
