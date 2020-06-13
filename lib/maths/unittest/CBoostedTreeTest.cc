@@ -523,9 +523,9 @@ BOOST_AUTO_TEST_CASE(testThreading) {
     // with and without starting the thread pool.
 
     test::CRandomNumbers rng;
-    std::size_t rows{4000};
-    std::size_t cols{12};
-    std::size_t capacity{400};
+    std::size_t rows{500};
+    std::size_t cols{6};
+    std::size_t capacity{100};
 
     auto target = [&] {
         TDoubleVec m;
@@ -556,11 +556,9 @@ BOOST_AUTO_TEST_CASE(testThreading) {
 
     std::string tests[]{"serial", "parallel"};
 
-    for (std::size_t test = 0; test < 1; ++test) {
+    for (std::size_t test = 0; test < 2; ++test) {
 
         LOG_DEBUG(<< tests[test]);
-
-        core::startDefaultAsyncExecutor(2);
 
         auto frame = core::makeMainStorageDataFrame(cols, capacity).first;
 
@@ -586,6 +584,8 @@ BOOST_AUTO_TEST_CASE(testThreading) {
 
         modelBias.push_back(maths::CBasicStatistics::mean(modelPredictionErrorMoments));
         modelMse.push_back(maths::CBasicStatistics::variance(modelPredictionErrorMoments));
+
+        core::startDefaultAsyncExecutor(2);
     }
 
     BOOST_REQUIRE_EQUAL(modelBias[0], modelBias[1]);

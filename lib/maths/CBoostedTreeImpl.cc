@@ -582,8 +582,11 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     TDoubleVec losses;
     losses.reserve(m_MaximumNumberTrees);
     CTrainForestStoppingCondition stoppingCondition{m_MaximumNumberTrees};
+    TWorkspace workspace;
+
     do {
-        auto tree = this->trainTree(frame, downsampledRowMask, candidateSplits, maximumTreeSize);
+        auto tree = this->trainTree(frame, downsampledRowMask, candidateSplits,
+                                    maximumTreeSize, workspace);
 
         retries = tree.size() == 1 ? retries + 1 : 0;
 
@@ -740,12 +743,15 @@ CBoostedTreeImpl::TNodeVec
 CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
                             const TImmutableRadixSetVec& candidateSplits,
-                            const std::size_t maximumTreeSize) const {
+                            const std::size_t maximumTreeSize,
+                            TWorkspace& workspace) const {
 
     LOG_TRACE(<< "Training one tree...");
 
     using TLeafNodeStatisticsPtr = CBoostedTreeLeafNodeStatistics::TPtr;
     using TLeafNodeStatisticsPtrQueue = boost::circular_buffer<TLeafNodeStatisticsPtr>;
+
+    workspace.reinitialize(m_NumberThreads, candidateSplits, m_Loss->numberParameters());
 
     TNodeVec tree(1);
     tree.reserve(2 * maximumTreeSize + 1);
@@ -756,13 +762,11 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     TSizeVec featureBag;
     this->featureBag(featureSampleProbabilities, featureBag);
 
-    TWorkspace workspace{m_NumberThreads, candidateSplits, m_Loss->numberParameters()};
-
     TLeafNodeStatisticsPtrQueue leaves(maximumTreeSize / 2 + 3);
     leaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatistics>(
         0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
-        frame, *m_Encoder, m_Regularization, candidateSplits,
-        featureBag, 0 /*depth*/, trainingRowMask, workspace));
+        frame, *m_Encoder, m_Regularization, candidateSplits, featureBag,
+        0 /*depth*/, trainingRowMask, workspace));
 
     // We update local variables because the callback can be expensive if it
     // requires accessing atomics.

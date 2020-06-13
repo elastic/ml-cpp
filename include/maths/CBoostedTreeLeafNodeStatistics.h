@@ -425,22 +425,16 @@ public:
         using TSplitsDerivativesVec = std::vector<CSplitsDerivatives>;
 
     public:
-        CWorkspace(std::size_t numberThreads,
-                   const TImmutableRadixSetVec& candidateSplits,
-                   std::size_t numberLossParameters) {
-            m_Masks.resize(numberThreads);
-            m_Derivatives.reserve(numberThreads);
-            for (std::size_t i = 0; i < numberThreads; ++i) {
-                m_Derivatives.emplace_back(candidateSplits, numberLossParameters);
-            }
-        }
-
         //! Re-initialize the masks and derivatives.
         void reinitialize(std::size_t numberThreads,
                           const TImmutableRadixSetVec& candidateSplits,
                           std::size_t numberLossParameters) {
+            m_MinimumGain = 0.0;
             m_Masks.resize(numberThreads);
             m_Derivatives.reserve(numberThreads);
+            for (auto& mask : m_Masks) {
+                mask.clear();
+            }
             for (auto& derivatives : m_Derivatives) {
                 derivatives.reinitialize(candidateSplits, numberLossParameters);
             }

@@ -234,7 +234,8 @@ private:
     TNodeVec trainTree(core::CDataFrame& frame,
                        const core::CPackedBitVector& trainingRowMask,
                        const TImmutableRadixSetVec& candidateSplits,
-                       const std::size_t maximumTreeSize) const;
+                       const std::size_t maximumTreeSize,
+                       TWorkspace& workspace) const;
 
     //! Compute the minimum mean test loss per fold for any round.
     double minimumTestLoss() const;
