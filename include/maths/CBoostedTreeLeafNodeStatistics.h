@@ -503,7 +503,6 @@ public:
                                    CBoostedTreeLeafNodeStatistics&& parent,
                                    const TRegularization& regularization,
                                    const TSizeVec& featureBag,
-                                   core::CPackedBitVector rowMask,
                                    CWorkspace& workspace);
 
     CBoostedTreeLeafNodeStatistics(const CBoostedTreeLeafNodeStatistics&) = delete;
