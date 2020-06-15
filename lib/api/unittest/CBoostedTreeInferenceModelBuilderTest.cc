@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "api/CModelSizeDefinition.h"
 #include <core/CDataAdder.h>
 #include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
@@ -18,6 +19,7 @@
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CInferenceModelDefinition.h>
+#include <api/CModelSizeDefinition.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
@@ -116,6 +118,10 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     auto analysisRunner = analyzer.runner();
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
+
+    LOG_DEBUG(<< definition->jsonString());
+    api::CModelSizeDefinition modelSizeDefinition{*definition};
+    LOG_DEBUG(<< modelSizeDefinition.jsonString());
 
     // test pre-processing
     BOOST_REQUIRE_EQUAL(std::size_t(3), definition->preprocessors().size());

@@ -230,6 +230,19 @@ private:
 
 class API_EXPORT CEncoding : public CSerializableToJson {
 public:
+    class CSizeInfo : public CSerializableToJson {
+    public:
+        ~CSizeInfo() override = default;
+        explicit CSizeInfo(const CEncoding* encoding);
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        virtual const std::string& typeString() const = 0;
+
+    private:
+        std::size_t m_FieldLength;
+    };
+    using TSizeInfoUPtr = std::unique_ptr<CSizeInfo>;
+
+public:
     ~CEncoding() override = default;
     explicit CEncoding(std::string field);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
@@ -238,6 +251,7 @@ public:
     const std::string& field() const;
     //! Encoding type as string.
     virtual const std::string& typeString() const = 0;
+    virtual TSizeInfoUPtr sizeInfo() const = 0;
 
 private:
     //! Input field name. Must be defined in the input section.
@@ -247,6 +261,19 @@ private:
 //! \brief Mapping from categorical columns to numerical values related to categorical value distribution.
 class API_EXPORT CFrequencyEncoding final : public CEncoding {
 public:
+    class CSizeInfo : public CEncoding::CSizeInfo {
+    public:
+        explicit CSizeInfo(const CFrequencyEncoding* encoding);
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        const std::string& typeString() const override;
+
+    private:
+        using TSizeVec = std::vector<std::size_t>;
+
+    private:
+        TSizeVec m_FieldValueLengths;
+        std::size_t m_FeatureNameLength;
+    };
     using TStringDoubleUMap = const std::unordered_map<std::string, double>;
 
 public:
@@ -259,6 +286,7 @@ public:
     //! Map from the category names to the frequency values.
     const TStringDoubleUMap& frequencyMap() const;
     const std::string& typeString() const override;
+    TSizeInfoUPtr sizeInfo() const override;
 
 private:
     std::string m_FeatureName;
@@ -268,6 +296,19 @@ private:
 //! \brief Application of the one-hot encoding function on a single column.
 class API_EXPORT COneHotEncoding final : public CEncoding {
 public:
+    class CSizeInfo : public CEncoding::CSizeInfo {
+    public:
+        explicit CSizeInfo(const COneHotEncoding* encoding);
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        const std::string& typeString() const override;
+
+    private:
+        using TSizeVec = std::vector<std::size_t>;
+
+    private:
+        TSizeVec m_FieldValueLengths;
+        TSizeVec m_FeatureNameLengths;
+    };
     using TStringStringUMap = std::map<std::string, std::string>;
 
 public:
@@ -275,8 +316,10 @@ public:
     COneHotEncoding(const std::string& field, TStringStringUMap hotMap);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     //! Map from the category names of the original field to the new field names.
+    const TStringStringUMap& hotMap() const;
     TStringStringUMap& hotMap();
     const std::string& typeString() const override;
+    TSizeInfoUPtr sizeInfo() const override;
 
 private:
     TStringStringUMap m_HotMap;
@@ -285,6 +328,19 @@ private:
 //! \brief Mapping from categorical columns to numerical values related to the target value.
 class API_EXPORT CTargetMeanEncoding final : public CEncoding {
 public:
+    class CSizeInfo : public CEncoding::CSizeInfo {
+    public:
+        explicit CSizeInfo(const CTargetMeanEncoding* encoding);
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        const std::string& typeString() const override;
+
+    private:
+        using TSizeVec = std::vector<std::size_t>;
+
+    private:
+        TSizeVec m_FieldValueLengths;
+        std::size_t m_FeatureNameLength;
+    };
     using TStringDoubleUMap = std::unordered_map<std::string, double>;
 
 public:
@@ -302,6 +358,7 @@ public:
     //! Map from the category names to the target values.
     const TStringDoubleUMap& targetMap() const;
     const std::string& typeString() const override;
+    TSizeInfoUPtr sizeInfo() const override;
 
 private:
     double m_DefaultValue;
@@ -322,6 +379,9 @@ public:
 
 public:
     TApiEncodingUPtrVec& preprocessors();
+    const TApiEncodingUPtrVec& preprocessors() const {
+        return m_Preprocessors;
+    };
     void trainedModel(std::unique_ptr<CTrainedModel>&& trainedModel);
     std::unique_ptr<CTrainedModel>& trainedModel();
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;

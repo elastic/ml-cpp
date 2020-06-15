@@ -7,6 +7,7 @@
 
 #include <core/CPersistUtils.h>
 
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -23,9 +24,13 @@ const std::string JSON_DEFAULT_LEFT_TAG{"default_left"};
 const std::string JSON_DEFAULT_VALUE_TAG{"default_value"};
 const std::string JSON_ENSEMBLE_TAG{"ensemble"};
 const std::string JSON_FEATURE_NAME_TAG{"feature_name"};
+const std::string JSON_FEATURE_NAME_LENGTH_TAG{"feature_name_length"};
+const std::string JSON_FEATURE_NAME_LENGTHS_TAG{"feature_name_lengths"};
 const std::string JSON_FEATURE_NAMES_TAG{"feature_names"};
 const std::string JSON_FIELD_NAMES_TAG{"field_names"};
+const std::string JSON_FIELD_LENGTH_TAG{"field_length"};
 const std::string JSON_FIELD_TAG{"field"};
+const std::string JSON_FIELD_VALUE_LENGTHS_TAG{"field_value_lengths"};
 const std::string JSON_FREQUENCY_ENCODING_TAG{"frequency_encoding"};
 const std::string JSON_FREQUENCY_MAP_TAG{"frequency_map"};
 const std::string JSON_HOT_MAP_TAG{"hot_map"};
@@ -446,6 +451,30 @@ const CTargetMeanEncoding::TStringDoubleUMap& CTargetMeanEncoding::targetMap() c
     return m_TargetMap;
 }
 
+CTargetMeanEncoding::CSizeInfo::CSizeInfo(const CTargetMeanEncoding* encoding)
+    : CEncoding::CSizeInfo::CSizeInfo(encoding) {
+    m_FeatureNameLength = encoding->featureName().size();
+    for (const auto& item : encoding->targetMap()) {
+        m_FieldValueLengths.push_back(item.first.size());
+    }
+}
+
+void CTargetMeanEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
+                                                   TRapidJsonWriter& writer) const {
+    this->CEncoding::CSizeInfo::addToDocument(parentObject, writer);
+    writer.addMember(JSON_FEATURE_NAME_LENGTH_TAG,
+                     rapidjson::Value(m_FeatureNameLength).Move(), parentObject);
+    addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, m_FieldValueLengths, parentObject, writer);
+}
+
+CEncoding::TSizeInfoUPtr CTargetMeanEncoding::sizeInfo() const {
+    return std::unique_ptr<CEncoding::CSizeInfo>(new CTargetMeanEncoding::CSizeInfo(this));
+}
+
+const std::string& CTargetMeanEncoding::CSizeInfo::typeString() const {
+    return JSON_TARGET_MEAN_ENCODING_TAG;
+}
+
 CFrequencyEncoding::CFrequencyEncoding(const std::string& field,
                                        std::string featureName,
                                        TStringDoubleUMap frequencyMap)
@@ -468,6 +497,16 @@ const std::string& CEncoding::field() const {
     return m_Field;
 }
 
+CEncoding::CSizeInfo::CSizeInfo(const CEncoding* encoding) {
+    m_FieldLength = encoding->field().size();
+}
+
+void CEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
+                                         TRapidJsonWriter& writer) const {
+    writer.addMember(JSON_FIELD_LENGTH_TAG,
+                     rapidjson::Value(m_FieldLength).Move(), parentObject);
+}
+
 void CFrequencyEncoding::addToDocument(rapidjson::Value& parentObject,
                                        CSerializableToJson::TRapidJsonWriter& writer) const {
     this->CEncoding::addToDocument(parentObject, writer);
@@ -479,7 +518,7 @@ void CFrequencyEncoding::addToDocument(rapidjson::Value& parentObject,
     writer.addMember(JSON_FREQUENCY_MAP_TAG, frequencyMap, parentObject);
 }
 
-const std::string& CFrequencyEncoding::typeString() const {
+const std::string& CFrequencyEncoding::CSizeInfo::typeString() const {
     return JSON_FREQUENCY_ENCODING_TAG;
 }
 
@@ -491,7 +530,35 @@ const CFrequencyEncoding::TStringDoubleUMap& CFrequencyEncoding::frequencyMap() 
     return m_FrequencyMap;
 }
 
+CFrequencyEncoding::CSizeInfo::CSizeInfo(const CFrequencyEncoding* encoding)
+    : CEncoding::CSizeInfo::CSizeInfo(encoding) {
+    m_FeatureNameLength = encoding->featureName().size();
+    for (const auto& item : encoding->frequencyMap()) {
+        m_FieldValueLengths.push_back(item.first.size());
+    }
+}
+
+void CFrequencyEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
+                                                  TRapidJsonWriter& writer) const {
+    this->CEncoding::CSizeInfo::addToDocument(parentObject, writer);
+    writer.addMember(JSON_FEATURE_NAME_LENGTH_TAG,
+                     rapidjson::Value(m_FeatureNameLength).Move(), parentObject);
+    addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, m_FieldValueLengths, parentObject, writer);
+}
+
+const std::string& CFrequencyEncoding::typeString() const {
+    return JSON_FREQUENCY_ENCODING_TAG;
+}
+
+CEncoding::TSizeInfoUPtr CFrequencyEncoding::sizeInfo() const {
+    return std::unique_ptr<CEncoding::CSizeInfo>(new CFrequencyEncoding::CSizeInfo(this));
+}
+
 COneHotEncoding::TStringStringUMap& COneHotEncoding::hotMap() {
+    return m_HotMap;
+}
+
+const COneHotEncoding::TStringStringUMap& COneHotEncoding::hotMap() const {
     return m_HotMap;
 }
 
@@ -511,6 +578,30 @@ void COneHotEncoding::addToDocument(rapidjson::Value& parentObject,
 
 COneHotEncoding::COneHotEncoding(const std::string& field, TStringStringUMap hotMap)
     : CEncoding(field), m_HotMap(std::move(hotMap)) {
+}
+
+COneHotEncoding::CSizeInfo::CSizeInfo(const COneHotEncoding* encoding)
+    : CEncoding::CSizeInfo::CSizeInfo(encoding) {
+    for (const auto& item : encoding->hotMap()) {
+        // TODO check if this is correct
+        m_FieldValueLengths.push_back(item.first.size());
+        m_FeatureNameLengths.push_back(item.second.size());
+    }
+}
+
+void COneHotEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
+                                               TRapidJsonWriter& writer) const {
+    this->CEncoding::CSizeInfo::addToDocument(parentObject, writer);
+    addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, m_FieldValueLengths, parentObject, writer);
+    addJsonArray(JSON_FEATURE_NAME_LENGTHS_TAG, m_FeatureNameLengths, parentObject, writer);
+}
+
+const std::string& COneHotEncoding::CSizeInfo::typeString() const {
+    return JSON_ONE_HOT_ENCODING_TAG;
+}
+
+CEncoding::TSizeInfoUPtr COneHotEncoding::sizeInfo() const {
+    return std::unique_ptr<CEncoding::CSizeInfo>(new COneHotEncoding::CSizeInfo(this));
 }
 
 CWeightedSum::CWeightedSum(TDoubleVec&& weights)
