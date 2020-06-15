@@ -75,6 +75,19 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
       m_NumberLossParameters{parent.m_NumberLossParameters}, m_CandidateSplits{
                                                                  parent.m_CandidateSplits} {
 
+    // The number of threads we'll use breaks down as follows:
+    //   - We need a minimum number of rows per thread to ensure reasonable
+    //     load balancing.
+    //   - We need a minimum amount of work per thread to make the overheads
+    //     of distributing worthwhile.
+    std::size_t features{featureBag.size()};
+    std::size_t rows{parent.minimumChildRowCount()};
+    std::size_t rowsPerThreadConstraint{rows / 64};
+    std::size_t workPerThreadConstraint{(features * rows) / (8 * 128)};
+    std::size_t maximumNumberThreads{std::max(
+        std::min(rowsPerThreadConstraint, workPerThreadConstraint), std::size_t{1})};
+    numberThreads = std::min(numberThreads, maximumNumberThreads);
+
     this->computeRowMaskAndAggregateLossDerivatives(
         numberThreads, frame, encoder, isLeftChild, split, parent.m_RowMask, workspace);
 
@@ -154,6 +167,10 @@ double CBoostedTreeLeafNodeStatistics::curvature() const {
 
 CBoostedTreeLeafNodeStatistics::TSizeDoublePr CBoostedTreeLeafNodeStatistics::bestSplit() const {
     return {m_BestSplit.s_Feature, m_BestSplit.s_SplitAt};
+}
+
+std::size_t CBoostedTreeLeafNodeStatistics::minimumChildRowCount() const {
+    return m_BestSplit.s_MinimumChildRowCount;
 }
 
 bool CBoostedTreeLeafNodeStatistics::leftChildHasFewerRows() const {
@@ -372,7 +389,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
         double maximumGain{-INF};
         double splitAt{-INF};
-        bool leftChildHasFewerRows{true};
+        std::size_t leftChildRowCount{0};
         bool assignMissingToLeft{true};
         std::size_t size{m_Derivatives.derivatives(feature).size()};
 
@@ -413,13 +430,13 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
                 splitAt = m_CandidateSplits[feature][split];
-                leftChildHasFewerRows = (2 * cl[ASSIGN_MISSING_TO_LEFT] < c);
+                leftChildRowCount = cl[ASSIGN_MISSING_TO_LEFT];
                 assignMissingToLeft = true;
             }
             if (gain[ASSIGN_MISSING_TO_RIGHT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_RIGHT];
                 splitAt = m_CandidateSplits[feature][split];
-                leftChildHasFewerRows = (2 * cl[ASSIGN_MISSING_TO_RIGHT] < c);
+                leftChildRowCount = cl[ASSIGN_MISSING_TO_RIGHT];
                 assignMissingToLeft = false;
             }
         }
@@ -438,7 +455,8 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
                                    h.trace() / static_cast<double>(m_NumberLossParameters),
                                    feature,
                                    splitAt,
-                                   leftChildHasFewerRows,
+                                   std::min(leftChildRowCount, c - leftChildRowCount),
+                                   2 * leftChildRowCount < c,
                                    assignMissingToLeft};
         LOG_TRACE(<< "candidate split: " << candidate.print());
 

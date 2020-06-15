@@ -535,6 +535,9 @@ public:
     //! Get the best (feature, feature value) split.
     TSizeDoublePr bestSplit() const;
 
+    //! Get the row count of the child node with the fewest rows.
+    std::size_t minimumChildRowCount() const;
+
     //! Check if the left child has fewer rows than the right child.
     bool leftChildHasFewerRows() const;
 
@@ -570,10 +573,12 @@ private:
                          double curvature,
                          std::size_t feature,
                          double splitAt,
+                         std::size_t minimumChildRowCount,
                          bool leftChildHasFewerRows,
                          bool assignMissingToLeft)
             : s_Gain{CMathsFuncs::isNan(gain) ? -boosted_tree_detail::INF : gain},
               s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
+              s_MinimumChildRowCount{static_cast<std::uint32_t>(minimumChildRowCount)},
               s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft} {
         }
 
@@ -594,6 +599,7 @@ private:
         double s_Curvature = 0.0;
         std::size_t s_Feature = -1;
         double s_SplitAt = boosted_tree_detail::INF;
+        std::uint32_t s_MinimumChildRowCount = 0;
         bool s_LeftChildHasFewerRows = true;
         bool s_AssignMissingToLeft = true;
     };
