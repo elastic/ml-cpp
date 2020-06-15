@@ -81,7 +81,9 @@ public:
     CRowRef(std::size_t index, TFloatVecItr beginColumns, TFloatVecItr endColumns, std::int32_t docHash);
 
     //! Get column \p i value.
-    CFloatStorage operator[](std::size_t i) const;
+    CFloatStorage operator[](std::size_t i) const {
+        return m_BeginColumns[i];
+    }
 
     //! Get the row's index.
     std::size_t index() const;

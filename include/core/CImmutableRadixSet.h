@@ -12,6 +12,8 @@
 #include <algorithm>
 #include <limits>
 #include <numeric>
+#include <string>
+#include <type_traits>
 #include <vector>
 
 namespace ml {
@@ -66,8 +68,8 @@ public:
 
     //! \name Lookup
     //@{
-    const T& operator[](std::size_t i) const { return m_Values[i]; }
-    std::ptrdiff_t upperBound(const T& value) const {
+    T operator[](std::size_t i) const { return m_Values[i]; }
+    std::ptrdiff_t upperBound(T value) const {
         // This branch is predictable so essentially free.
         if (m_Values.size() < 2) {
             return std::distance(m_Values.begin(),
@@ -81,11 +83,9 @@ public:
         if (bucket >= static_cast<std::ptrdiff_t>(m_Buckets.size())) {
             return static_cast<std::ptrdiff_t>(m_Values.size());
         }
-        TCItr beginBucket;
-        TCItr endBucket;
-        std::tie(beginBucket, endBucket) = m_Buckets[bucket];
+        TCItrCItrPr bucket_{m_Buckets[bucket]};
         return std::distance(m_Values.begin(),
-                             std::upper_bound(beginBucket, endBucket, value));
+                             std::upper_bound(bucket_.first, bucket_.second, value));
     }
     //@}
 

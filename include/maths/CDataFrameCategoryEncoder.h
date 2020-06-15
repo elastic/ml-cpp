@@ -106,19 +106,27 @@ public:
     public:
         CEncoding(std::size_t inputColumnIndex, double mic);
         virtual ~CEncoding() = default;
+        //! Get the encoding type.
         virtual EEncoding type() const = 0;
+        //! Encode \p value.
         virtual double encode(double value) const = 0;
-        virtual std::uint64_t checksum() const = 0;
+        //! \return True if this is a binary feature.
         virtual bool isBinary() const = 0;
         //! \return The encoding type as string.
         virtual const std::string& typeString() const = 0;
+        //! \return A checksum for this object.
+        virtual std::uint64_t checksum() const = 0;
 
+        //! \return The data frame column index this encodes.
         std::size_t inputColumnIndex() const;
+        //! \return Encode \p row.
         double encode(const TRowRef& row) const;
+        //! \return The MICe of this feature with the target variable.
         double mic() const;
+
         //! Persist by passing information to \p inserter.
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
-        //! Populate the object from serialized data.
+        //! Initialize the object reading state from \p traverser.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
     private:
@@ -142,8 +150,8 @@ public:
         EEncoding type() const override;
         double encode(double value) const override;
         bool isBinary() const override;
-        std::uint64_t checksum() const override;
         const std::string& typeString() const override;
+        std::uint64_t checksum() const override;
 
     private:
         void acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const override;
@@ -157,9 +165,9 @@ public:
         EEncoding type() const override;
         double encode(double value) const override;
         bool isBinary() const override;
-        std::uint64_t checksum() const override;
         const std::string& typeString() const override;
-        size_t hotCategory() const;
+        std::uint64_t checksum() const override;
+        std::size_t hotCategory() const;
 
     private:
         void acceptPersistInserterForDerivedTypeState(core::CStatePersistInserter& inserter) const override;
@@ -180,8 +188,8 @@ public:
         EEncoding type() const override;
         double encode(double value) const override;
         bool isBinary() const override;
-        std::uint64_t checksum() const override;
         const std::string& typeString() const override;
+        std::uint64_t checksum() const override;
         const TDoubleVec& map() const;
         double fallback() const;
 

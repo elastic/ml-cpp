@@ -35,10 +35,6 @@ CRowRef::CRowRef(std::size_t index, TFloatVecItr beginColumns, TFloatVecItr endC
     : m_Index{index}, m_BeginColumns{beginColumns}, m_EndColumns{endColumns}, m_DocHash{docHash} {
 }
 
-CFloatStorage CRowRef::operator[](std::size_t i) const {
-    return *(m_BeginColumns + i);
-}
-
 std::size_t CRowRef::index() const {
     return m_Index;
 }
@@ -70,11 +66,11 @@ CRowIterator::CRowIterator(std::size_t numberColumns,
 }
 
 bool CRowIterator::operator==(const CRowIterator& rhs) const {
-    return m_RowItr == rhs.m_RowItr && m_DocHashItr == rhs.m_DocHashItr;
+    return m_RowItr == rhs.m_RowItr;
 }
 
 bool CRowIterator::operator!=(const CRowIterator& rhs) const {
-    return m_RowItr != rhs.m_RowItr || m_DocHashItr != rhs.m_DocHashItr;
+    return m_RowItr != rhs.m_RowItr;
 }
 
 CRowRef CRowIterator::operator*() const {

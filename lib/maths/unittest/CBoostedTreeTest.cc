@@ -8,6 +8,7 @@
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
 #include <core/CRegex.h>
+#include <core/CStopWatch.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
@@ -564,12 +565,16 @@ BOOST_AUTO_TEST_CASE(testThreading) {
 
         fillDataFrame(rows, 0, cols, x, noise, target, *frame);
 
+        core::CStopWatch watch{true};
+
         auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                               2, std::make_unique<maths::boosted_tree::CMse>())
                               .buildFor(*frame, cols - 1);
 
         regression->train();
         regression->predict();
+
+        LOG_DEBUG(<< "took " << watch.lap() << "ms");
 
         TMeanVarAccumulator modelPredictionErrorMoments;
 
