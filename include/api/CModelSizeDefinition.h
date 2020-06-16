@@ -134,9 +134,11 @@ public:
 private:
     using TEncodingSizeUPtr = std::unique_ptr<CEncoding::CSizeInfo>;
     using TEncodingSizeUPtrVec = std::vector<TEncodingSizeUPtr>;
+    using TTrainedModelSizeUPtr = std::unique_ptr<CTrainedModel::CSizeInfo>;
 
 private:
     TEncodingSizeUPtrVec m_EncodingSizeItems;
+    TTrainedModelSizeUPtr m_TrainedModelSize;
 };
 }
 }

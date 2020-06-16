@@ -113,6 +113,18 @@ public:
 
     enum ETargetType { E_Classification, E_Regression };
 
+    class CSizeInfo : public CSerializableToJson {
+    public:
+        ~CSizeInfo() override = default;
+        explicit CSizeInfo(const CTrainedModel* trainedModel);
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        virtual std::size_t numOperations() const = 0;
+
+    private:
+        const CTrainedModel* m_TrainedModel;
+    };
+    using TSizeInfoUPtr = std::unique_ptr<CSizeInfo>;
+
 public:
     ~CTrainedModel() override = default;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
@@ -136,6 +148,7 @@ public:
     virtual void classificationWeights(TDoubleVec classificationWeights);
     //! Get weights by which to multiply classes when doing label assignment.
     virtual const TOptionalDoubleVec& classificationWeights() const;
+    virtual TSizeInfoUPtr sizeInfo() const = 0;
 
 private:
     TStringVec m_FeatureNames;
@@ -182,6 +195,19 @@ public:
         TDoubleVec m_LeafValue;
         TOptionalDouble m_SplitGain;
     };
+
+    class CSizeInfo : public CTrainedModel::CSizeInfo {
+    public:
+        ~CSizeInfo() override = default;
+        explicit CSizeInfo(const CTree* tree);
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        std::size_t numOperations() const override;
+
+    private:
+        std::size_t m_numNodes;
+        std::size_t m_numLeaves;
+    };
+
     using TTreeNodeVec = std::vector<CTreeNode>;
 
 public:
@@ -190,6 +216,7 @@ public:
     std::size_t size() const;
     TStringVec removeUnusedFeatures() override;
     TTreeNodeVec& treeStructure();
+    TSizeInfoUPtr sizeInfo() const override;
 
 private:
     TTreeNodeVec m_TreeStructure;
@@ -201,6 +228,17 @@ public:
     using TAggregateOutputUPtr = std::unique_ptr<CAggregateOutput>;
     using TTrainedModelUPtr = std::unique_ptr<CTrainedModel>;
     using TTrainedModelUPtrVec = std::vector<TTrainedModelUPtr>;
+
+    class CSizeInfo : public CTrainedModel::CSizeInfo {
+    public:
+        ~CSizeInfo() override = default;
+        explicit CSizeInfo(const CEnsemble* ensemble);
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        std::size_t numOperations() const override;
+
+    private:
+        const CEnsemble* m_Ensemble;
+    };
 
 public:
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
@@ -219,6 +257,7 @@ public:
     void classificationLabels(const TStringVec& classificationLabels) override;
     //! Set weights by which to multiply classes when doing label assignment.
     void classificationWeights(TDoubleVec classificationWeights) override;
+    TSizeInfoUPtr sizeInfo() const override;
     using CTrainedModel::classificationLabels;
     using CTrainedModel::classificationWeights;
     using CTrainedModel::targetType;
@@ -376,14 +415,16 @@ public:
     using TStringSizeUMapVec = std::vector<TStringSizeUMap>;
     using TSizeStringUMap = std::unordered_map<std::size_t, std::string>;
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
+    using TTrainedModelUPtr = CEnsemble::TTrainedModelUPtr;
 
 public:
     TApiEncodingUPtrVec& preprocessors();
     const TApiEncodingUPtrVec& preprocessors() const {
         return m_Preprocessors;
     };
-    void trainedModel(std::unique_ptr<CTrainedModel>&& trainedModel);
-    std::unique_ptr<CTrainedModel>& trainedModel();
+    void trainedModel(TTrainedModelUPtr&& trainedModel);
+    TTrainedModelUPtr& trainedModel();
+    const TTrainedModelUPtr& trainedModel() const;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     std::string jsonString();
     void fieldNames(TStringVec&& fieldNames);
@@ -397,7 +438,7 @@ private:
     //! Optional step for pre-processing data, e.g. vector embedding, one-hot-encoding, etc.
     TApiEncodingUPtrVec m_Preprocessors;
     //! Details of the model evaluation step with a trained_model.
-    std::unique_ptr<CTrainedModel> m_TrainedModel;
+    TTrainedModelUPtr m_TrainedModel;
     TStringVec m_FieldNames;
     std::string m_TypeString;
     std::size_t m_DependentVariableColumnIndex;

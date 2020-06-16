@@ -212,6 +212,8 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
     LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
+    api::CModelSizeDefinition modelSizeDefinition{*definition};
+    LOG_DEBUG(<< "Model size definition: " << modelSizeDefinition.jsonString());
 
     // assert trained model
     auto trainedModel = dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());

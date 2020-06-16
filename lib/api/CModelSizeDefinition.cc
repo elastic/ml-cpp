@@ -9,15 +9,24 @@ namespace ml {
 namespace api {
 
 namespace {
+// clang-format off
+const std::string JSON_ENSEMBLE_MODEL_SIZE_TAG{"ensemble_model_size"};
 const std::string JSON_PREPROCESSORS_TAG{"preprocessors"};
+const std::string JSON_TRAINED_MODEL_SIZE_TAG{"trained_model_size"};
+// clang-format on
 }
 
-CModelSizeDefinition::CModelSizeDefinition(const CInferenceModelDefinition& inferenceModel) {
+CModelSizeDefinition::CModelSizeDefinition(const CInferenceModelDefinition& inferenceModel)
+    : m_TrainedModelSize{nullptr} {
     // parse preprocessing
+    m_EncodingSizeItems.reserve(inferenceModel.preprocessors().size());
     for (const auto& preprocessor : inferenceModel.preprocessors()) {
         m_EncodingSizeItems.push_back(preprocessor->sizeInfo());
     }
     // parse trained models
+    if (inferenceModel.trainedModel()) {
+        inferenceModel.trainedModel()->sizeInfo().swap(m_TrainedModelSize);
+    }
 }
 
 std::string CModelSizeDefinition::jsonString() {
@@ -48,6 +57,11 @@ void CModelSizeDefinition::addToDocument(rapidjson::Value& parentObject,
         preprocessingArray.PushBack(encodingEnclosingObject, writer.getRawAllocator());
     }
     writer.addMember(JSON_PREPROCESSORS_TAG, preprocessingArray, parentObject);
+    rapidjson::Value trainedModelSizeObject = writer.makeObject();
+    rapidjson::Value ensembleModelSizeObject = writer.makeObject();
+    m_TrainedModelSize->addToDocument(ensembleModelSizeObject, writer);
+    writer.addMember(JSON_ENSEMBLE_MODEL_SIZE_TAG, ensembleModelSizeObject, trainedModelSizeObject);
+    writer.addMember(JSON_TRAINED_MODEL_SIZE_TAG, trainedModelSizeObject, parentObject);
 }
 }
 }

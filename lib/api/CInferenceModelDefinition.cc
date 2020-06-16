@@ -5,6 +5,7 @@
  */
 #include <api/CInferenceModelDefinition.h>
 
+#include <cmath>
 #include <core/CPersistUtils.h>
 
 #include <memory>
@@ -15,7 +16,7 @@ namespace ml {
 namespace api {
 
 namespace {
-
+// clang-format off
 const std::string JSON_AGGREGATE_OUTPUT_TAG{"aggregate_output"};
 const std::string JSON_CLASSIFICATION_LABELS_TAG{"classification_labels"};
 const std::string JSON_CLASSIFICATION_WEIGHTS_TAG{"classification_weights"};
@@ -34,11 +35,18 @@ const std::string JSON_FIELD_VALUE_LENGTHS_TAG{"field_value_lengths"};
 const std::string JSON_FREQUENCY_ENCODING_TAG{"frequency_encoding"};
 const std::string JSON_FREQUENCY_MAP_TAG{"frequency_map"};
 const std::string JSON_HOT_MAP_TAG{"hot_map"};
+const std::string JSON_INPUT_FIELD_NAME_LENGTHS_TAG{"input_field_name_lengths"};
 const std::string JSON_LEAF_VALUE_TAG{"leaf_value"};
 const std::string JSON_LEFT_CHILD_TAG{"left_child"};
 const std::string JSON_LOGISTIC_REGRESSION_TAG{"logistic_regression"};
 const std::string JSON_LT{"lt"};
 const std::string JSON_NODE_INDEX_TAG{"node_index"};
+const std::string JSON_NUM_CLASSES_TAG{"num_classes"};
+const std::string JSON_NUM_CLASSIFICATION_WEIGHTS_TAG{"num_classification_weights"};
+const std::string JSON_NUM_LEAVES_TAG{"num_leaves"};
+const std::string JSON_NUM_NODES_TAG{"num_nodes"};
+const std::string JSON_NUM_OPERATIONS_TAG{"num_operations"};
+const std::string JSON_NUM_OUTPUT_PROCESSOR_WEIGHTS_TAG{"num_output_processor_weights"};
 const std::string JSON_NUMBER_SAMPLES_TAG{"number_samples"};
 const std::string JSON_ONE_HOT_ENCODING_TAG{"one_hot_encoding"};
 const std::string JSON_PREPROCESSORS_TAG{"preprocessors"};
@@ -58,6 +66,7 @@ const std::string JSON_TREE_TAG{"tree"};
 const std::string JSON_WEIGHTED_MODE_TAG{"weighted_mode"};
 const std::string JSON_WEIGHTED_SUM_TAG{"weighted_sum"};
 const std::string JSON_WEIGHTS_TAG{"weights"};
+// clang-format on
 
 auto toJson(const std::string& value, CSerializableToJson::TRapidJsonWriter& writer) {
     rapidjson::Value result;
@@ -67,6 +76,10 @@ auto toJson(const std::string& value, CSerializableToJson::TRapidJsonWriter& wri
 
 auto toJson(double value, CSerializableToJson::TRapidJsonWriter&) {
     return rapidjson::Value{value};
+}
+
+auto toJson(std::size_t value, CSerializableToJson::TRapidJsonWriter&) {
+    return rapidjson::Value{static_cast<std::uint64_t>(value)};
 }
 
 template<typename T>
@@ -152,6 +165,33 @@ bool CTree::CTreeNode::leaf() const {
     return m_LeftChild.is_initialized() == false;
 }
 
+CTrainedModel::TSizeInfoUPtr CTree::sizeInfo() const {
+    return std::unique_ptr<CSizeInfo>(new CSizeInfo(this));
+}
+
+CTree::CSizeInfo::CSizeInfo(const CTree* tree)
+    : CTrainedModel::CSizeInfo(tree) {
+    for (const auto& node : tree->m_TreeStructure) {
+        if (node.leaf()) {
+            ++m_numLeaves;
+        } else {
+            ++m_numNodes;
+        }
+    }
+}
+
+void CTree::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
+                                     TRapidJsonWriter& writer) const {
+    writer.addMember(JSON_NUM_NODES_TAG, toJson(m_numNodes, writer).Move(), parentObject);
+    writer.addMember(JSON_NUM_LEAVES_TAG, toJson(m_numLeaves, writer).Move(), parentObject);
+}
+
+std::size_t CTree::CSizeInfo::numOperations() const {
+    // Strictly speaking, this formula is correct only for balanced trees, but it will
+    // give a good average estimate for other binary trees as well.
+    return static_cast<std::size_t>(std::ceil(std::log2(m_numNodes + m_numLeaves + 1)));
+}
+
 void CEnsemble::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const {
     rapidjson::Value ensembleObject = writer.makeObject();
     this->CTrainedModel::addToDocument(ensembleObject, writer);
@@ -230,6 +270,40 @@ void CEnsemble::classificationWeights(TDoubleVec classificationWeights) {
         trainedModel->classificationWeights(classificationWeights);
     }
     this->CTrainedModel::classificationWeights(std::move(classificationWeights));
+}
+
+CTrainedModel::TSizeInfoUPtr CEnsemble::sizeInfo() const {
+    return std::unique_ptr<CSizeInfo>(new CSizeInfo(this));
+}
+
+CEnsemble::CSizeInfo::CSizeInfo(const CEnsemble* ensemble)
+    : CTrainedModel::CSizeInfo(ensemble), m_Ensemble{ensemble} {
+}
+
+std::size_t CEnsemble::CSizeInfo::numOperations() const {
+    std::size_t numOperations{0};
+    for (const auto& model : m_Ensemble->m_TrainedModels) {
+        numOperations += model->sizeInfo()->numOperations();
+    }
+    return numOperations;
+}
+
+void CEnsemble::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
+                                         TRapidJsonWriter& writer) const {
+    this->CTrainedModel::CSizeInfo::addToDocument(parentObject, writer);
+    rapidjson::Value inputFieldNameLengthsArray =
+        writer.makeArray(m_Ensemble->featureNames().size());
+    for (const auto& featureName : m_Ensemble->featureNames()) {
+        inputFieldNameLengthsArray.PushBack(
+            toJson(featureName.size(), writer).Move(), writer.getRawAllocator());
+    }
+    writer.addMember(JSON_INPUT_FIELD_NAME_LENGTHS_TAG, inputFieldNameLengthsArray, parentObject);
+    std::size_t numOutputProcessorWeights{m_Ensemble->m_TrainedModels.size()};
+    writer.addMember(JSON_NUM_OUTPUT_PROCESSOR_WEIGHTS_TAG,
+                     toJson(numOutputProcessorWeights, writer).Move(), parentObject);
+    std::size_t numOperations{this->numOperations()};
+    writer.addMember(JSON_NUM_OPERATIONS_TAG,
+                     toJson(numOperations, writer).Move(), parentObject);
 }
 
 void CTree::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const {
@@ -377,15 +451,37 @@ void CTrainedModel::classificationWeights(TDoubleVec classificationWeights) {
     m_ClassificationWeights = std::move(classificationWeights);
 }
 
+CTrainedModel::CSizeInfo::CSizeInfo(const CTrainedModel* trainedModel)
+    : m_TrainedModel{trainedModel} {
+}
+
+void CTrainedModel::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
+                                             TRapidJsonWriter& writer) const {
+    if (m_TrainedModel->targetType() == E_Classification) {
+        writer.addMember(
+            JSON_NUM_CLASSIFICATION_WEIGHTS_TAG,
+            toJson(m_TrainedModel->classificationWeights()->size(), writer).Move(),
+            parentObject);
+        writer.addMember(
+            JSON_NUM_CLASSES_TAG,
+            toJson(m_TrainedModel->classificationLabels()->size(), writer).Move(),
+            parentObject);
+    }
+}
+
 void CInferenceModelDefinition::fieldNames(TStringVec&& fieldNames) {
     m_FieldNames = std::move(fieldNames);
 }
 
-void CInferenceModelDefinition::trainedModel(CEnsemble::TTrainedModelUPtr&& trainedModel) {
+void CInferenceModelDefinition::trainedModel(TTrainedModelUPtr&& trainedModel) {
     m_TrainedModel = std::move(trainedModel);
 }
 
-CEnsemble::TTrainedModelUPtr& CInferenceModelDefinition::trainedModel() {
+CInferenceModelDefinition::TTrainedModelUPtr& CInferenceModelDefinition::trainedModel() {
+    return m_TrainedModel;
+}
+
+const CInferenceModelDefinition::TTrainedModelUPtr& CInferenceModelDefinition::trainedModel() const {
     return m_TrainedModel;
 }
 
@@ -462,8 +558,10 @@ CTargetMeanEncoding::CSizeInfo::CSizeInfo(const CTargetMeanEncoding* encoding)
 void CTargetMeanEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
                                                    TRapidJsonWriter& writer) const {
     this->CEncoding::CSizeInfo::addToDocument(parentObject, writer);
-    writer.addMember(JSON_FEATURE_NAME_LENGTH_TAG,
-                     rapidjson::Value(m_FeatureNameLength).Move(), parentObject);
+    writer.addMember(
+        JSON_FEATURE_NAME_LENGTH_TAG,
+        rapidjson::Value(static_cast<std::uint64_t>(m_FeatureNameLength)).Move(),
+        parentObject);
     addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, m_FieldValueLengths, parentObject, writer);
 }
 
@@ -504,7 +602,8 @@ CEncoding::CSizeInfo::CSizeInfo(const CEncoding* encoding) {
 void CEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
                                          TRapidJsonWriter& writer) const {
     writer.addMember(JSON_FIELD_LENGTH_TAG,
-                     rapidjson::Value(m_FieldLength).Move(), parentObject);
+                     rapidjson::Value(static_cast<std::uint64_t>(m_FieldLength)).Move(),
+                     parentObject);
 }
 
 void CFrequencyEncoding::addToDocument(rapidjson::Value& parentObject,
@@ -541,8 +640,10 @@ CFrequencyEncoding::CSizeInfo::CSizeInfo(const CFrequencyEncoding* encoding)
 void CFrequencyEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
                                                   TRapidJsonWriter& writer) const {
     this->CEncoding::CSizeInfo::addToDocument(parentObject, writer);
-    writer.addMember(JSON_FEATURE_NAME_LENGTH_TAG,
-                     rapidjson::Value(m_FeatureNameLength).Move(), parentObject);
+    writer.addMember(
+        JSON_FEATURE_NAME_LENGTH_TAG,
+        rapidjson::Value(static_cast<std::uint64_t>(m_FeatureNameLength)).Move(),
+        parentObject);
     addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, m_FieldValueLengths, parentObject, writer);
 }
 
