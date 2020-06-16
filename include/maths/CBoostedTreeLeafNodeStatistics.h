@@ -425,6 +425,11 @@ public:
         using TSplitsDerivativesVec = std::vector<CSplitsDerivatives>;
 
     public:
+        CWorkspace() = default;
+        CWorkspace(CWorkspace&&) = default;
+        CWorkspace& operator=(const CWorkspace& other) = delete;
+        CWorkspace& operator=(CWorkspace&&) = default;
+
         //! Re-initialize the masks and derivatives.
         void reinitialize(std::size_t numberThreads,
                           const TImmutableRadixSetVec& candidateSplits,
