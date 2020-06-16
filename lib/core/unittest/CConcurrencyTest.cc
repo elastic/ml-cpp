@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE(testParallelForEachFunctionVector) {
     core::startDefaultAsyncExecutor(4);
 
     {
-        using TFuncVec = std::vector<std::function<void (std::size_t)>>;
+        using TFuncVec = std::vector<std::function<void(std::size_t)>>;
 
         for (auto size : {1, 4}) {
             std::atomic_size_t counter{0};
@@ -280,11 +280,12 @@ BOOST_AUTO_TEST_CASE(testParallelForEachFunctionVector) {
         }
 
         TFuncVec empty;
-        BOOST_TEST_REQUIRE(core::parallel_for_each(std::size_t{0}, std::size_t{100}, empty) == false);
+        BOOST_TEST_REQUIRE(core::parallel_for_each(std::size_t{0}, std::size_t{100},
+                                                   empty) == false);
     }
 
     {
-        using TFuncVec = std::vector<std::function<void (int)>>;
+        using TFuncVec = std::vector<std::function<void(int)>>;
 
         for (auto size : {1, 4}) {
             TIntVec ints(100);
@@ -302,8 +303,8 @@ BOOST_AUTO_TEST_CASE(testParallelForEachFunctionVector) {
 
         TIntVec ints(100);
         std::iota(ints.begin(), ints.end(), 0);
-        TFuncVec funcs;
-        BOOST_TEST_REQUIRE(core::parallel_for_each(ints.begin(), ints.end(), funcs) == false);
+        TFuncVec empty;
+        BOOST_TEST_REQUIRE(core::parallel_for_each(ints.begin(), ints.end(), empty) == false);
     }
 
     core::stopDefaultAsyncExecutor();
