@@ -182,8 +182,9 @@ int main(int argc, char** argv) {
     ml::api::CJsonOutputWriter outputWriter(jobId, wrappedOutputStream);
 
     // The categorizer knows how to assign categories to records
-    ml::api::CFieldDataCategorizer categorizer(jobId, fieldConfig, limits, nullOutput,
-                                               outputWriter, persistenceManager.get());
+    ml::api::CFieldDataCategorizer categorizer{
+        jobId,         fieldConfig, limits,       std::string(),
+        std::string(), nullOutput,  outputWriter, persistenceManager.get()};
 
     if (persistenceManager != nullptr) {
         persistenceManager->firstProcessorBackgroundPeriodicPersistFunc(std::bind(

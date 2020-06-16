@@ -100,23 +100,26 @@ public:
 
 public:
     //! Construct without persistence capability
-    CFieldDataCategorizer(const std::string& jobId,
+    CFieldDataCategorizer(std::string jobId,
                           const CFieldConfig& config,
                           model::CLimits& limits,
+                          const std::string& timeFieldName,
+                          const std::string& timeFieldFormat,
                           COutputHandler& outputHandler,
                           CJsonOutputWriter& jsonOutputWriter,
                           CPersistenceManager* persistenceManager);
 
     ~CFieldDataCategorizer() override;
 
-    CGlobalCategoryId computeAndUpdateCategory(const TStrStrUMap& dataRowFields);
+    CGlobalCategoryId computeAndUpdateCategory(const TStrStrUMap& dataRowFields,
+                                               core_t::TTime time);
 
     //! We're going to be writing to a new output stream
     void newOutputStream() override;
 
     //! Receive a single record to be categorized, and output that record
     //! with its ML category field added
-    bool handleRecord(const TStrStrUMap& dataRowFields) override;
+    bool handleRecord(const TStrStrUMap& dataRowFields, core_t::TTime time) override;
 
     //! Perform any final processing once all input data has been seen.
     void finalise() override;
@@ -186,9 +189,9 @@ private:
     //! Acknowledge a flush request
     void acknowledgeFlush(const std::string& flushId, bool lastHandler);
 
-    //! Writes out to the JSON output writer any category that has changed
-    //! since the last time this method was called.
-    void writeOutChangedCategories();
+    //! Writes out to the JSON output writer any category definitions and stats
+    //! that have changed since they were last written.
+    void writeChanges();
 
     //! Get the next global ID to use.  This method only returns a useful
     //! result when per-partition categorization is being used.  When

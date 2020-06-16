@@ -17,11 +17,11 @@
 #include <model/CDataGatherer.h>
 #include <model/CEventData.h>
 #include <model/CEventRateBucketGatherer.h>
-#include <model/CModelParams.h>
 #include <model/CResourceMonitor.h>
 #include <model/CSearchKey.h>
 #include <model/CStringStore.h>
 #include <model/ModelTypes.h>
+#include <model/SModelParams.h>
 
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>

@@ -124,6 +124,23 @@ public:
         return true;
     }
 
+    //! Does the reverse search of this category match the reverse search find
+    //! everything that the reverse search for another category would find?
+    bool matchesSearchForCategory(const CTokenListCategory& other) const;
+
+    //! Does the reverse search of this category match the reverse search that
+    //! a category created from the supplied arguments would find?
+    template<typename PAIR_CONTAINER>
+    bool matchesSearchForCategory(std::size_t otherBaseWeight,
+                                  std::size_t otherStringLen,
+                                  const PAIR_CONTAINER& otherUniqueTokenIds,
+                                  const TSizeSizePrVec& otherBaseTokenIds) const {
+        return (m_BaseWeight == 0) == (otherBaseWeight == 0) &&
+               this->maxMatchingStringLen() >= otherStringLen &&
+               this->isMissingCommonTokenWeightZero(otherUniqueTokenIds) &&
+               this->containsCommonInOrderTokensInOrder(otherBaseTokenIds);
+    }
+
     //! Does the supplied token vector contain all our common tokens in the
     //! same order as our base token vector?
     bool containsCommonInOrderTokensInOrder(const TSizeSizePrVec& tokenIds) const;
@@ -137,11 +154,15 @@ public:
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-    //! Attempt to get cached reverse search
-    bool cachedReverseSearch(std::string& part1, std::string& part2) const;
-
     //! Set the cached reverse search
-    void cacheReverseSearch(const std::string& part1, const std::string& part2);
+    void cacheReverseSearch(std::string part1, std::string part2);
+
+    //! Have we got a cached reverse search?
+    bool hasCachedReverseSearch() const;
+
+    //! Access the cached reverse search
+    const std::string& reverseSearchPart1() const;
+    const std::string& reverseSearchPart2() const;
 
     //! Debug the memory used by this category.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;

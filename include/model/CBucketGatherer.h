@@ -16,10 +16,10 @@
 
 #include <model/CBucketQueue.h>
 #include <model/CEventData.h>
-#include <model/CModelParams.h>
 #include <model/FunctionTypes.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
+#include <model/SModelParams.h>
 
 #include <boost/any.hpp>
 #include <boost/functional/hash.hpp>

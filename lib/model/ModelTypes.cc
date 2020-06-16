@@ -8,14 +8,12 @@
 
 #include <core/Constants.h>
 
-#include <maths/CMultivariatePrior.h>
-#include <maths/CPrior.h>
 #include <maths/CTimeSeriesDecomposition.h>
 #include <maths/CTimeSeriesMultibucketFeatures.h>
 
 #include <model/CAnomalyDetector.h>
-#include <model/CModelParams.h>
 #include <model/CProbabilityAndInfluenceCalculator.h>
+#include <model/SModelParams.h>
 
 namespace ml {
 namespace model_t {

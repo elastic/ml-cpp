@@ -17,7 +17,8 @@ const COutputHandler::TStrVec& CNullOutput::fieldNames() const {
 }
 
 bool CNullOutput::writeRow(const TStrStrUMap& /*dataRowFields*/,
-                           const TStrStrUMap& /*overrideDataRowFields*/) {
+                           const TStrStrUMap& /*overrideDataRowFields*/,
+                           core_t::TTime /*time*/) {
     return true;
 }
 }

@@ -89,12 +89,13 @@ public:
     //! No-op.
     virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
-    // Bring the other overload of writeRow() into scope.
+    // Bring the other overloads of writeRow() into scope.
     using api::COutputHandler::writeRow;
 
     //! No-op.
     virtual bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields);
+                          const TStrStrUMap& overrideDataRowFields,
+                          core_t::TTime time);
 
     //! Add the total number of records processed.
     void addTotalRecords(uint64_t n);

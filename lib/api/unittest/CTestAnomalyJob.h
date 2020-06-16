@@ -34,6 +34,13 @@ public:
                     const std::string& timeFieldName = DEFAULT_TIME_FIELD_NAME,
                     const std::string& timeFieldFormat = EMPTY_STRING,
                     std::size_t maxAnomalyRecords = 0u);
+
+    //! Bring base class overload of handleRecord() into scope
+    using CAnomalyJob::handleRecord;
+
+    bool handleRecord(const TStrStrUMap& dataRowFields) {
+        return this->handleRecord(dataRowFields, -1);
+    }
 };
 
 #endif // INCLUDED_CTestAnomalyJob_h

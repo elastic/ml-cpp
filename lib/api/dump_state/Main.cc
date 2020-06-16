@@ -123,7 +123,8 @@ bool writeNormalizerState(const std::string& outputFileName) {
     return true;
 }
 
-bool persistCategorizerStateToFile(const std::string& outputFileName) {
+bool persistCategorizerStateToFile(const std::string& outputFileName,
+                                   const std::string& timeFormat = std::string()) {
     ml::model::CLimits limits(true);
     ml::api::CFieldConfig config("count", "mlcategory");
 
@@ -131,13 +132,14 @@ bool persistCategorizerStateToFile(const std::string& outputFileName) {
     ml::core::CJsonOutputStreamWrapper wrappendOutStream(outStream);
     ml::api::CJsonOutputWriter writer("job", wrappendOutStream);
 
-    ml::api::CFieldDataCategorizer categorizer("job", config, limits, writer, writer, nullptr);
+    ml::api::CFieldDataCategorizer categorizer("job", config, limits, "time",
+                                               timeFormat, writer, writer, nullptr);
 
     ml::api::CFieldDataCategorizer::TStrStrUMap dataRowFields;
     dataRowFields["_raw"] = "thing";
     dataRowFields["two"] = "other";
 
-    categorizer.handleRecord(dataRowFields);
+    categorizer.handleRecord(dataRowFields, -1);
 
     // Persist the categorizer state to file
     {
@@ -200,7 +202,7 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
     }()};
 
     if (!parser->readStreamIntoMaps(std::bind(&ml::api::CAnomalyJob::handleRecord,
-                                              &origJob, std::placeholders::_1))) {
+                                              &origJob, std::placeholders::_1, -1))) {
         LOG_ERROR(<< "Failed to processs input");
         return false;
     }

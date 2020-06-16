@@ -161,7 +161,7 @@ public:
 
     //! Receive a single record to be processed, and produce output
     //! with any required modifications
-    bool handleRecord(const TStrStrUMap& dataRowFields) override;
+    bool handleRecord(const TStrStrUMap& dataRowFields, core_t::TTime time) override;
 
     //! Perform any final processing once all input data has been seen.
     void finalise() override;
@@ -429,14 +429,6 @@ private:
 
     //! Optional function to be called when persistence is complete
     TPersistCompleteFunc m_PersistCompleteFunc;
-
-    //! Name of field holding the time
-    std::string m_TimeFieldName;
-
-    //! Time field format.  Blank means seconds since the epoch, i.e. the
-    //! time field can be converted to a time_t by simply converting the
-    //! string to a number.
-    std::string m_TimeFieldFormat;
 
     //! License restriction on the number of detectors allowed
     std::size_t m_MaxDetectors;

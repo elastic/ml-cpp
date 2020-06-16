@@ -17,7 +17,8 @@ void CMockDataProcessor::newOutputStream() {
     m_OutputHandler.newOutputStream();
 }
 
-bool CMockDataProcessor::handleRecord(const TStrStrUMap& dataRowFields) {
+bool CMockDataProcessor::handleRecord(const TStrStrUMap& dataRowFields,
+                                      ml::core_t::TTime time) {
     // First time through we output the field names
     if (m_WriteFieldNames) {
         TStrVec fieldNames;
@@ -34,7 +35,7 @@ bool CMockDataProcessor::handleRecord(const TStrStrUMap& dataRowFields) {
         m_WriteFieldNames = false;
     }
 
-    if (m_OutputHandler.writeRow(dataRowFields, m_FieldOverrides) == false) {
+    if (m_OutputHandler.writeRow(dataRowFields, m_FieldOverrides, time) == false) {
         LOG_ERROR(<< "Unable to write output");
         return false;
     }

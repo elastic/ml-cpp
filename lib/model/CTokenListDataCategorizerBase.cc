@@ -42,8 +42,7 @@ CTokenListDataCategorizerBase::CTokenListDataCategorizerBase(CLimits& limits,
     : CDataCategorizer{limits, fieldName}, m_ReverseSearchCreator{reverseSearchCreator},
       m_LowerThreshold{std::min(0.99, std::max(0.01, threshold))},
       // Upper threshold is half way between the lower threshold and 1
-      m_UpperThreshold{(1.0 + m_LowerThreshold) / 2.0},
-      m_MemoryCategorizationFailures{0}, m_HasChanged{false} {
+      m_UpperThreshold{(1.0 + m_LowerThreshold) / 2.0}, m_MemoryCategorizationFailures{0} {
 }
 
 void CTokenListDataCategorizerBase::dumpStats(const TLocalCategoryIdFormatterFunc& idFormatter) const {
@@ -85,21 +84,18 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
     auto bestSoFarIter = m_CategoriesByCount.end();
     double bestSoFarSimilarity(m_LowerThreshold);
     for (auto iter = m_CategoriesByCount.begin(); iter != m_CategoriesByCount.end(); ++iter) {
-        const CTokenListCategory& compCategory = m_Categories[iter->second];
-        const TSizeSizePrVec& baseTokenIds = compCategory.baseTokenIds();
-        std::size_t baseWeight(compCategory.baseWeight());
+        const CTokenListCategory& compCategory{m_Categories[iter->second]};
+        const TSizeSizePrVec& baseTokenIds{compCategory.baseTokenIds()};
+        std::size_t baseWeight{compCategory.baseWeight()};
 
         // Check whether the current record matches the search for the existing
         // category - if it does then we'll put it in the existing category without any
         // further checks.  The first condition here ensures that we never say
         // a string with tokens matches the reverse search of a string with no
         // tokens (which the other criteria alone might say matched).
-        bool matchesSearch{
-            (baseWeight == 0) == (workWeight == 0) &&
-            compCategory.maxMatchingStringLen() >= rawStringLen &&
-            compCategory.isMissingCommonTokenWeightZero(m_WorkTokenUniqueIds) &&
-            compCategory.containsCommonInOrderTokensInOrder(m_WorkTokenIds)};
-        if (!matchesSearch) {
+        bool matchesSearch{compCategory.matchesSearchForCategory(
+            workWeight, rawStringLen, m_WorkTokenUniqueIds, m_WorkTokenIds)};
+        if (matchesSearch == false) {
             // Quickly rule out wildly different token weights prior to doing
             // the expensive similarity calculations
             if (baseWeight < minWeight || baseWeight > maxWeight) {
@@ -108,10 +104,10 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
 
             // Rule out categories where adding the current string would unacceptably
             // reduce the number of unique common tokens
-            std::size_t origUniqueTokenWeight(compCategory.origUniqueTokenWeight());
-            std::size_t commonUniqueTokenWeight(compCategory.commonUniqueTokenWeight());
-            std::size_t missingCommonTokenWeight(
-                compCategory.missingCommonTokenWeight(m_WorkTokenUniqueIds));
+            std::size_t origUniqueTokenWeight{compCategory.origUniqueTokenWeight()};
+            std::size_t commonUniqueTokenWeight{compCategory.commonUniqueTokenWeight()};
+            std::size_t missingCommonTokenWeight{
+                compCategory.missingCommonTokenWeight(m_WorkTokenUniqueIds)};
             double proportionOfOrig(double(commonUniqueTokenWeight - missingCommonTokenWeight) /
                                     double(origUniqueTokenWeight));
             if (proportionOfOrig < m_LowerThreshold) {
@@ -160,8 +156,6 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
         return categoryId;
     }
 
-    m_HasChanged = true;
-
     if (this->areNewCategoriesAllowed() == false) {
         // Only log once per job, as logging every time this happens could
         // generate enormous log spam
@@ -186,48 +180,34 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
     return CLocalCategoryId{m_Categories.size() - 1};
 }
 
-bool CTokenListDataCategorizerBase::createReverseSearch(CLocalCategoryId categoryId,
-                                                        std::string& part1,
-                                                        std::string& part2,
-                                                        std::size_t& maxMatchingLength,
-                                                        bool& wasCached) {
-    wasCached = false;
-    maxMatchingLength = 0;
+bool CTokenListDataCategorizerBase::cacheReverseSearch(CLocalCategoryId categoryId) {
 
     if (m_ReverseSearchCreator == nullptr) {
         LOG_ERROR(<< "Cannot create reverse search - no reverse search creator");
-
-        part1.clear();
-        part2.clear();
-
         return false;
     }
 
     // Find the correct category object
     if (categoryId.isValid() == false || categoryId.index() >= m_Categories.size()) {
-
-        part1.clear();
-        part2.clear();
-
         // Soft failure is supposed to be the only special value used for the
         // category ID that permits subsequent processing like asking for a
         // reverse search.
         if (categoryId.isSoftFailure() == false) {
             LOG_ERROR(<< "Programmatic error - unexpected ML local category: " << categoryId);
-            return false;
         }
 
-        return true;
+        return false;
     }
 
     CTokenListCategory& category{m_Categories[categoryId.index()]};
-    maxMatchingLength = category.maxMatchingStringLen();
 
     // If we can retrieve cached reverse search terms we'll save a lot of time
-    wasCached = category.cachedReverseSearch(part1, part2);
-    if (wasCached) {
-        return true;
+    if (category.hasCachedReverseSearch()) {
+        return false;
     }
+
+    std::string part1;
+    std::string part2;
 
     const TSizeSizePrVec& baseTokenIds{category.baseTokenIds()};
     const TSizeSizePrVec& commonUniqueTokenIds{category.commonUniqueTokenIds()};
@@ -238,14 +218,10 @@ bool CTokenListDataCategorizerBase::createReverseSearch(CLocalCategoryId categor
                 category.maxMatchingStringLen(), part1, part2) == false) {
             // More detail should have been logged by the failed call
             LOG_ERROR(<< "Could not create reverse search");
-
-            part1.clear();
-            part2.clear();
-
             return false;
         }
 
-        category.cacheReverseSearch(part1, part2);
+        category.cacheReverseSearch(std::move(part1), std::move(part2));
 
         return true;
     }
@@ -300,10 +276,6 @@ bool CTokenListDataCategorizerBase::createReverseSearch(CLocalCategoryId categor
                       << categoryId << " - cheapest token was "
                       << cheapestIter->second.first << " with cost " << cheapestCost);
         }
-
-        part1.clear();
-        part2.clear();
-
         return false;
     }
 
@@ -332,13 +304,9 @@ bool CTokenListDataCategorizerBase::createReverseSearch(CLocalCategoryId categor
 
     m_ReverseSearchCreator->closeStandardSearch(part1, part2);
 
-    category.cacheReverseSearch(part1, part2);
+    category.cacheReverseSearch(std::move(part1), std::move(part2));
 
     return true;
-}
-
-bool CTokenListDataCategorizerBase::hasChanged() const {
-    return m_HasChanged;
 }
 
 bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -348,12 +316,11 @@ bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTr
     m_WorkTokenIds.clear();
     m_WorkTokenUniqueIds.clear();
     m_MemoryCategorizationFailures = 0;
-    m_HasChanged = false;
 
     do {
         const std::string& name{traverser.name()};
         if (name == TOKEN_TAG) {
-            std::size_t nextIndex(m_TokenIdLookup.size());
+            std::size_t nextIndex{m_TokenIdLookup.size()};
             m_TokenIdLookup.push_back(CTokenInfoItem(traverser.value(), nextIndex));
         } else if (name == TOKEN_CATEGORY_COUNT_TAG) {
             if (m_TokenIdLookup.empty()) {
@@ -374,7 +341,7 @@ bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTr
         } else if (name == CATEGORY_TAG) {
             CTokenListCategory category{traverser};
             m_CategoriesByCount.emplace_back(category.numMatches(), m_Categories.size());
-            m_Categories.push_back(category);
+            m_Categories.emplace_back(std::move(category));
         } else if (name == MEMORY_CATEGORIZATION_FAILURES_TAG) {
             if (core::CStringUtils::stringToType(
                     traverser.value(), m_MemoryCategorizationFailures) == false) {
@@ -441,10 +408,7 @@ void CTokenListDataCategorizerBase::addCategoryMatch(bool isDryRun,
                                                      const TSizeSizePrVec& tokenIds,
                                                      const TSizeSizeMap& tokenUniqueIds,
                                                      TSizeSizePrVecItr& iter) {
-    if (m_Categories[iter->second].addString(isDryRun, str, rawStringLen,
-                                             tokenIds, tokenUniqueIds) == true) {
-        m_HasChanged = true;
-    }
+    m_Categories[iter->second].addString(isDryRun, str, rawStringLen, tokenIds, tokenUniqueIds);
 
     std::size_t& count{iter->first};
     ++count;
@@ -482,7 +446,9 @@ std::size_t CTokenListDataCategorizerBase::minMatchingWeight(std::size_t weight,
     // enforce this.  Using floor + 1 due to threshold check being exclusive.
     // If threshold check is changed to inclusive, change formula to ceil
     // (without the + 1).
-    return static_cast<std::size_t>(std::floor(double(weight) * threshold + EPSILON)) + 1;
+    return static_cast<std::size_t>(
+               std::floor(static_cast<double>(weight) * threshold + EPSILON)) +
+           1;
 }
 
 std::size_t CTokenListDataCategorizerBase::maxMatchingWeight(std::size_t weight,
@@ -500,7 +466,9 @@ std::size_t CTokenListDataCategorizerBase::maxMatchingWeight(std::size_t weight,
     // enforce this.  Using ceil - 1 due to threshold check being exclusive.
     // If threshold check is changed to inclusive, change formula to floor
     // (without the - 1).
-    return static_cast<std::size_t>(std::ceil(double(weight) / threshold - EPSILON)) - 1;
+    return static_cast<std::size_t>(
+               std::ceil(static_cast<double>(weight) / threshold - EPSILON)) -
+           1;
 }
 
 std::size_t CTokenListDataCategorizerBase::idForToken(const std::string& token) {
@@ -559,51 +527,54 @@ std::size_t CTokenListDataCategorizerBase::memoryUsage() const {
     return mem;
 }
 
-void CTokenListDataCategorizerBase::updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const {
+void CTokenListDataCategorizerBase::updateCategorizerStats(SCategorizerStats& categorizerStats) const {
 
-    modelSizeStats.s_TotalCategories = m_Categories.size();
+    categorizerStats.s_TotalCategories += m_Categories.size();
 
     std::size_t categorizedMessagesThisCategorizer{0};
     for (auto categoryByCount : m_CategoriesByCount) {
         categorizedMessagesThisCategorizer += categoryByCount.first;
     }
-    modelSizeStats.s_CategorizedMessages += categorizedMessagesThisCategorizer;
-    modelSizeStats.s_MemoryCategorizationFailures += m_MemoryCategorizationFailures;
+    categorizerStats.s_CategorizedMessages += categorizedMessagesThisCategorizer;
+    categorizerStats.s_MemoryCategorizationFailures += m_MemoryCategorizationFailures;
 
+    std::size_t rareCategoriesThisCategorizer{0};
+    std::size_t frequentCategoriesThisCategorizer{0};
+    std::size_t deadCategoriesThisCategorizer{0};
     for (std::size_t i = 0; i < m_CategoriesByCount.size(); ++i) {
         const CTokenListCategory& category{m_Categories[m_CategoriesByCount[i].second]};
         // Definitions for frequent/rare categories are:
         // - rare = single match
         // - frequent = matches more than 1% of messages
         if (category.numMatches() == 1) {
-            ++modelSizeStats.s_RareCategories;
+            ++rareCategoriesThisCategorizer;
         } else if (category.numMatches() * 100 > categorizedMessagesThisCategorizer) {
-            ++modelSizeStats.s_FrequentCategories;
+            ++frequentCategoriesThisCategorizer;
         }
         for (std::size_t j = 0; j < i; ++j) {
             const CTokenListCategory& moreFrequentCategory{
                 m_Categories[m_CategoriesByCount[j].second]};
-            bool matchesSearch{moreFrequentCategory.maxMatchingStringLen() >=
-                                   category.maxMatchingStringLen() &&
-                               moreFrequentCategory.isMissingCommonTokenWeightZero(
-                                   category.commonUniqueTokenIds()) &&
-                               moreFrequentCategory.containsCommonInOrderTokensInOrder(
-                                   category.baseTokenIds())};
-            if (matchesSearch) {
-                ++modelSizeStats.s_DeadCategories;
-                LOG_DEBUG(<< "Category " << (m_CategoriesByCount[i].second + 1)
-                          << " (" << category.baseString() << ") is killed by category "
-                          << (m_CategoriesByCount[j].second + 1) << " ("
-                          << moreFrequentCategory.baseString() << ")");
+            if (moreFrequentCategory.matchesSearchForCategory(category)) {
+                ++deadCategoriesThisCategorizer;
                 break;
             }
         }
     }
+    categorizerStats.s_FrequentCategories += frequentCategoriesThisCategorizer;
+    categorizerStats.s_RareCategories += rareCategoriesThisCategorizer;
+    categorizerStats.s_DeadCategories += deadCategoriesThisCategorizer;
 
-    modelSizeStats.s_CategorizationStatus = CTokenListDataCategorizerBase::calculateCategorizationStatus(
-        modelSizeStats.s_CategorizedMessages, modelSizeStats.s_TotalCategories,
-        modelSizeStats.s_FrequentCategories, modelSizeStats.s_RareCategories,
-        modelSizeStats.s_DeadCategories);
+    if (categorizerStats.s_CategorizationStatus != model_t::E_CategorizationStatusOk) {
+        categorizerStats.s_CategorizationStatus =
+            CTokenListDataCategorizerBase::calculateCategorizationStatus(
+                categorizedMessagesThisCategorizer, m_Categories.size(),
+                frequentCategoriesThisCategorizer,
+                rareCategoriesThisCategorizer, deadCategoriesThisCategorizer);
+    }
+}
+
+void CTokenListDataCategorizerBase::updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const {
+    this->updateCategorizerStats(modelSizeStats.s_OverallCategorizerStats);
 }
 
 model_t::ECategorizationStatus
@@ -659,48 +630,99 @@ std::size_t CTokenListDataCategorizerBase::numMatches(CLocalCategoryId categoryI
 }
 
 CDataCategorizer::TLocalCategoryIdVec
-CTokenListDataCategorizerBase::usurpedCategories(CLocalCategoryId categoryId) {
-    CDataCategorizer::TLocalCategoryIdVec usurped;
+CTokenListDataCategorizerBase::usurpedCategories(CLocalCategoryId categoryId) const {
     if (categoryId.isValid() == false || categoryId.index() >= m_Categories.size()) {
         LOG_ERROR(<< "Programmatic error - unexpected ML local category: " << categoryId);
-        return usurped;
+        return {};
     }
     auto iter = std::find_if(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
                              [categoryId](const TSizeSizePr& pr) {
                                  return pr.second == categoryId.index();
                              });
     if (iter == m_CategoriesByCount.end()) {
-        LOG_WARN(<< "Could not find category definition for category: " << categoryId);
+        // If we get here it indicates a bug, as it means m_Categories and
+        // m_CategoriesByCount are inconsistent
+        LOG_ERROR(<< "Programmatic error - ML local category " << categoryId
+                  << " not in categories by count vector");
+        return {};
+    }
+    return this->usurpedCategories(iter);
+}
+
+CDataCategorizer::TLocalCategoryIdVec
+CTokenListDataCategorizerBase::usurpedCategories(TSizeSizePrVecCItr iter) const {
+    CDataCategorizer::TLocalCategoryIdVec usurped;
+    if (iter == m_CategoriesByCount.end()) {
         return usurped;
     }
-
-    const CTokenListCategory& category{m_Categories[categoryId.index()]};
+    const CTokenListCategory& category{m_Categories[iter->second]};
     for (++iter; iter != m_CategoriesByCount.end(); ++iter) {
         const CTokenListCategory& lessFrequentCategory{m_Categories[iter->second]};
-        bool matchesSearch{category.maxMatchingStringLen() >=
-                               lessFrequentCategory.maxMatchingStringLen() &&
-                           category.isMissingCommonTokenWeightZero(
-                               lessFrequentCategory.commonUniqueTokenIds()) &&
-                           category.containsCommonInOrderTokensInOrder(
-                               lessFrequentCategory.baseTokenIds())};
-        if (matchesSearch) {
-            usurped.emplace_back(1 + static_cast<int>(iter->second));
+        if (category.matchesSearchForCategory(lessFrequentCategory)) {
+            usurped.emplace_back(CLocalCategoryId{iter->second});
         }
     }
     std::sort(usurped.begin(), usurped.end());
     return usurped;
 }
 
-std::size_t CTokenListDataCategorizerBase::numCategories() const {
-    return m_Categories.size();
-}
+bool CTokenListDataCategorizerBase::writeCategoryIfChanged(CLocalCategoryId categoryId,
+                                                           const TCategoryOutputFunc& outputFunc) {
 
-bool CTokenListDataCategorizerBase::categoryChangedAndReset(CLocalCategoryId categoryId) {
     if (categoryId.isValid() == false || categoryId.index() >= m_Categories.size()) {
         LOG_ERROR(<< "Programmatic error - unexpected ML local category: " << categoryId);
         return false;
     }
-    return m_Categories[categoryId.index()].isChangedAndReset();
+
+    CTokenListCategory& category{m_Categories[categoryId.index()]};
+    if (category.isChangedAndReset() == false) {
+        return false;
+    }
+
+    this->cacheReverseSearch(categoryId);
+    outputFunc(categoryId, category.reverseSearchPart1(),
+               category.reverseSearchPart2(), category.maxMatchingStringLen(),
+               this->examplesCollector().examples(categoryId),
+               category.numMatches(), this->usurpedCategories(categoryId));
+
+    return true;
+}
+
+std::size_t CTokenListDataCategorizerBase::writeChangedCategories(const TCategoryOutputFunc& outputFunc) {
+
+    std::size_t numWritten{0};
+
+    // Iterating m_CategoriesByCount rather than m_Categories means we can call
+    // the O(N) version of usurpedCategories() rather than the O(N^2) version
+    for (auto iter = m_CategoriesByCount.begin(); iter != m_CategoriesByCount.end(); ++iter) {
+        CTokenListCategory& category{m_Categories[iter->second]};
+        if (category.isChangedAndReset()) {
+            CLocalCategoryId categoryId{iter->second};
+            this->cacheReverseSearch(categoryId);
+            outputFunc(categoryId, category.reverseSearchPart1(),
+                       category.reverseSearchPart2(), category.maxMatchingStringLen(),
+                       this->examplesCollector().examples(categoryId),
+                       category.numMatches(), this->usurpedCategories(iter));
+        }
+    }
+
+    return numWritten;
+}
+
+bool CTokenListDataCategorizerBase::writeCategorizerStatsIfChanged(const TCategorizerStatsOutputFunc& outputFunc) {
+
+    SCategorizerStats newCategorizerStats;
+    this->updateCategorizerStats(newCategorizerStats);
+    if (newCategorizerStats == m_LastCategorizerStats) {
+        return false;
+    }
+    outputFunc(newCategorizerStats);
+    m_LastCategorizerStats = std::move(newCategorizerStats);
+    return true;
+}
+
+std::size_t CTokenListDataCategorizerBase::numCategories() const {
+    return m_Categories.size();
 }
 
 CTokenListDataCategorizerBase::CTokenInfoItem::CTokenInfoItem(const std::string& str,

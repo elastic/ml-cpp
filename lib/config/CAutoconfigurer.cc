@@ -157,7 +157,7 @@ void CAutoconfigurer::newOutputStream() {
     m_Impl->reportWriter().newOutputStream();
 }
 
-bool CAutoconfigurer::handleRecord(const TStrStrUMap& fieldValues) {
+bool CAutoconfigurer::handleRecord(const TStrStrUMap& fieldValues, core_t::TTime /*time*/) {
     return m_Impl->handleRecord(fieldValues);
 }
 

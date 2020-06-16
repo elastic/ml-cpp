@@ -65,7 +65,8 @@ public:
     }
 
     virtual bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields) {
+                          const TStrStrUMap& overrideDataRowFields,
+                          core_t::TTime /*time*/) {
         ++m_NumRows;
         std::string categoryIdStr;
         auto iter = overrideDataRowFields.find("mlcategory");

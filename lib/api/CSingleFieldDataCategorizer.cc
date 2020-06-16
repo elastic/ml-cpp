@@ -43,6 +43,7 @@ void CSingleFieldDataCategorizer::dumpStats() const {
 CGlobalCategoryId CSingleFieldDataCategorizer::computeAndUpdateCategory(
     bool isDryRun,
     const model::CDataCategorizer::TStrStrUMap& fields,
+    core_t::TTime messageTime,
     const std::string& messageToCategorize,
     const std::string& rawMessage,
     model::CResourceMonitor& resourceMonitor,
@@ -54,25 +55,28 @@ CGlobalCategoryId CSingleFieldDataCategorizer::computeAndUpdateCategory(
         return globalCategoryId;
     }
 
-    bool exampleAdded{m_DataCategorizer->addExample(globalCategoryId.localId(), rawMessage)};
-    std::size_t maxMatchingLength{0};
-    bool searchTermsChanged{false};
-    if (m_DataCategorizer->createReverseSearch(
-            localCategoryId, m_SearchTermsScratchSpace, m_SearchTermsRegexScratchSpace,
-            maxMatchingLength, searchTermsChanged) == false) {
-        m_SearchTermsScratchSpace.clear();
-        m_SearchTermsRegexScratchSpace.clear();
+    if (messageTime >= 0) {
+        m_LastMessageTime = messageTime;
     }
+    bool exampleAdded{m_DataCategorizer->addExample(localCategoryId, rawMessage)};
+    bool searchTermsChanged{m_DataCategorizer->cacheReverseSearch(localCategoryId)};
     if (exampleAdded || searchTermsChanged) {
-        //! signal that we noticed the change and are persisting here
-        m_DataCategorizer->categoryChangedAndReset(localCategoryId);
-        jsonOutputWriter.writeCategoryDefinition(
-            m_PartitionFieldName, m_CategoryIdMapper->categorizerKey(), globalCategoryId,
-            m_SearchTermsScratchSpace, m_SearchTermsRegexScratchSpace, maxMatchingLength,
-            m_DataCategorizer->examplesCollector().examples(localCategoryId),
-            m_DataCategorizer->numMatches(localCategoryId),
-            m_CategoryIdMapper->mapVec(m_DataCategorizer->usurpedCategories(localCategoryId)));
-        if (globalCategoryId.globalId() % 10 == 0) {
+        //! In this case we are certain that there will have been a change, as
+        //! the count of the chosen category will have been incremented
+        m_DataCategorizer->writeCategoryIfChanged(
+            localCategoryId,
+            [this, &jsonOutputWriter](
+                model::CLocalCategoryId localCategoryId_, const std::string& terms,
+                const std::string& regex, std::size_t maxMatchingFieldLength,
+                const model::CCategoryExamplesCollector::TStrFSet& examples, std::size_t numMatches,
+                const model::CDataCategorizer::TLocalCategoryIdVec& usurpedCategories) {
+                jsonOutputWriter.writeCategoryDefinition(
+                    m_PartitionFieldName, m_CategoryIdMapper->categorizerKey(),
+                    m_CategoryIdMapper->map(localCategoryId_), terms, regex,
+                    maxMatchingFieldLength, examples, numMatches,
+                    m_CategoryIdMapper->mapVec(usurpedCategories));
+            });
+        if (localCategoryId.id() % 10 == 0) {
             // Even if memory limiting is disabled, force a refresh occasionally
             // so the user has some idea what's going on with memory.
             resourceMonitor.forceRefresh(*m_DataCategorizer);
@@ -184,34 +188,29 @@ bool CSingleFieldDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTrav
     return true;
 }
 
-void CSingleFieldDataCategorizer::writeOutChangedCategories(CJsonOutputWriter& jsonOutputWriter) {
-    std::size_t numCategories{m_DataCategorizer->numCategories()};
-    if (numCategories == 0) {
-        return;
-    }
-
-    std::size_t maxMatchingLength{0};
-    bool wasCached{false};
-    for (std::size_t index = 0; index < numCategories; ++index) {
-        model::CLocalCategoryId localCategoryId{index};
-        if (m_DataCategorizer->categoryChangedAndReset(localCategoryId)) {
-            CGlobalCategoryId globalCategoryId{m_CategoryIdMapper->map(localCategoryId)};
-            if (m_DataCategorizer->createReverseSearch(
-                    localCategoryId, m_SearchTermsScratchSpace, m_SearchTermsRegexScratchSpace,
-                    maxMatchingLength, wasCached) == false) {
-                LOG_WARN(<< "Unable to create or retrieve reverse search to store for category: "
-                         << globalCategoryId);
-                continue;
-            }
-            LOG_TRACE(<< "Writing out changed category: " << globalCategoryId);
+void CSingleFieldDataCategorizer::writeChanges(CJsonOutputWriter& jsonOutputWriter) {
+    std::size_t numWritten{m_DataCategorizer->writeChangedCategories(
+        [this, &jsonOutputWriter](
+            model::CLocalCategoryId localCategoryId, const std::string& terms,
+            const std::string& regex, std::size_t maxMatchingFieldLength,
+            const model::CCategoryExamplesCollector::TStrFSet& examples, std::size_t numMatches,
+            const model::CDataCategorizer::TLocalCategoryIdVec& usurpedCategories) {
             jsonOutputWriter.writeCategoryDefinition(
                 m_PartitionFieldName, m_CategoryIdMapper->categorizerKey(),
-                globalCategoryId, m_SearchTermsScratchSpace,
-                m_SearchTermsRegexScratchSpace, maxMatchingLength,
-                m_DataCategorizer->examplesCollector().examples(localCategoryId),
-                m_DataCategorizer->numMatches(localCategoryId),
-                m_CategoryIdMapper->mapVec(m_DataCategorizer->usurpedCategories(localCategoryId)));
-        }
+                m_CategoryIdMapper->map(localCategoryId), terms, regex,
+                maxMatchingFieldLength, examples, numMatches,
+                m_CategoryIdMapper->mapVec(usurpedCategories));
+        })};
+    LOG_TRACE(<< numWritten << " changed categories written for categorizer "
+              << m_CategoryIdMapper->categorizerKey());
+    if (m_DataCategorizer->writeCategorizerStatsIfChanged(
+            [this, &jsonOutputWriter](const model::SCategorizerStats& categorizerStats) {
+                jsonOutputWriter.writeCategorizerStats(
+                    m_PartitionFieldName, m_CategoryIdMapper->categorizerKey(),
+                    categorizerStats, m_LastMessageTime);
+            })) {
+        LOG_TRACE(<< "Wrote categorizer stats for categorizer "
+                  << m_CategoryIdMapper->categorizerKey());
     }
 }
 

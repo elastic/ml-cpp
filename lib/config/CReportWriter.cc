@@ -142,7 +142,8 @@ bool CReportWriter::fieldNames(const TStrVec& /*fieldNames*/, const TStrVec& /*e
 }
 
 bool CReportWriter::writeRow(const TStrStrUMap& /*dataRowFields*/,
-                             const TStrStrUMap& /*overrideDataRowFields*/) {
+                             const TStrStrUMap& /*overrideDataRowFields*/,
+                             core_t::TTime /*time*/) {
     return true;
 }
 

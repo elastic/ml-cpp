@@ -36,7 +36,7 @@ public:
     //! We're going to be writing to a new output stream
     void newOutputStream() override;
 
-    bool handleRecord(const TStrStrUMap& dataRowFields) override;
+    bool handleRecord(const TStrStrUMap& dataRowFields, ml::core_t::TTime time) override;
 
     void finalise() override;
 

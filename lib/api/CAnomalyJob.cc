@@ -132,17 +132,16 @@ CAnomalyJob::CAnomalyJob(const std::string& jobId,
                          const std::string& timeFieldName,
                          const std::string& timeFieldFormat,
                          size_t maxAnomalyRecords)
-    : m_JobId(jobId), m_Limits(limits), m_OutputStream(outputStream),
-      m_ForecastRunner(m_JobId, m_OutputStream, limits.resourceMonitor()),
-      m_JsonOutputWriter(m_JobId, m_OutputStream), m_FieldConfig(fieldConfig),
-      m_ModelConfig(modelConfig), m_NumRecordsHandled(0),
-      m_LastFinalisedBucketEndTime(0), m_PersistCompleteFunc(persistCompleteFunc),
-      m_TimeFieldName(timeFieldName), m_TimeFieldFormat(timeFieldFormat),
-      m_MaxDetectors(std::numeric_limits<size_t>::max()),
-      m_PersistenceManager(persistenceManager),
-      m_MaxQuantileInterval(maxQuantileInterval),
-      m_LastNormalizerPersistTime(core::CTimeUtils::now()), m_LatestRecordTime(0),
-      m_LastResultsTime(0), m_Aggregator(modelConfig), m_Normalizer(modelConfig) {
+    : CDataProcessor{timeFieldName, timeFieldFormat}, m_JobId{jobId}, m_Limits{limits},
+      m_OutputStream{outputStream}, m_ForecastRunner{m_JobId, m_OutputStream,
+                                                     limits.resourceMonitor()},
+      m_JsonOutputWriter{m_JobId, m_OutputStream}, m_FieldConfig{fieldConfig},
+      m_ModelConfig{modelConfig}, m_NumRecordsHandled{0},
+      m_LastFinalisedBucketEndTime{0}, m_PersistCompleteFunc{persistCompleteFunc},
+      m_MaxDetectors{std::numeric_limits<size_t>::max()},
+      m_PersistenceManager{persistenceManager}, m_MaxQuantileInterval{maxQuantileInterval},
+      m_LastNormalizerPersistTime{core::CTimeUtils::now()}, m_LatestRecordTime{0},
+      m_LastResultsTime{0}, m_Aggregator{modelConfig}, m_Normalizer{modelConfig} {
     m_JsonOutputWriter.limitNumberRecords(maxAnomalyRecords);
 
     m_Limits.resourceMonitor().memoryUsageReporter(std::bind(
@@ -161,37 +160,19 @@ COutputHandler& CAnomalyJob::outputHandler() {
     return m_JsonOutputWriter;
 }
 
-bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields) {
+bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, core_t::TTime time) {
     // Non-empty control fields take precedence over everything else
     TStrStrUMapCItr iter = dataRowFields.find(CONTROL_FIELD_NAME);
     if (iter != dataRowFields.end() && !iter->second.empty()) {
         return this->handleControlMessage(iter->second);
     }
 
-    core_t::TTime time(0);
-    iter = dataRowFields.find(m_TimeFieldName);
-    if (iter == dataRowFields.end()) {
-        ++core::CProgramCounters::counter(counter_t::E_TSADNumberRecordsNoTimeField);
-        LOG_ERROR(<< "Found record with no " << m_TimeFieldName << " field:"
-                  << core_t::LINE_ENDING << this->debugPrintRecord(dataRowFields));
-        return true;
-    }
-    if (m_TimeFieldFormat.empty()) {
-        if (core::CStringUtils::stringToType(iter->second, time) == false) {
-            ++core::CProgramCounters::counter(counter_t::E_TSADNumberTimeFieldConversionErrors);
-            LOG_ERROR(<< "Cannot interpret " << m_TimeFieldName
-                      << " field in record:" << core_t::LINE_ENDING
-                      << this->debugPrintRecord(dataRowFields));
-            return true;
-        }
-    } else {
-        // Use this library function instead of raw strptime() as it works
-        // around many operating system specific issues.
-        if (core::CTimeUtils::strptime(m_TimeFieldFormat, iter->second, time) == false) {
-            ++core::CProgramCounters::counter(counter_t::E_TSADNumberTimeFieldConversionErrors);
-            LOG_ERROR(<< "Cannot interpret " << m_TimeFieldName << " field using format "
-                      << m_TimeFieldFormat << " in record:" << core_t::LINE_ENDING
-                      << this->debugPrintRecord(dataRowFields));
+    // Time may have been parsed already further back along the chain
+    if (time < 0) {
+        time = this->parseTime(dataRowFields);
+        if (time < 0) {
+            // Time is compulsory for anomaly detection - the base class will
+            // have logged the parse error
             return true;
         }
     }

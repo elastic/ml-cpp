@@ -50,7 +50,7 @@ public:
     //! present - this is only allowed once
     bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) override;
 
-    // Bring the other overload of writeRow() into scope
+    // Bring the other overloads of writeRow() into scope
     using COutputHandler::writeRow;
 
     //! Call the next data processor's input function with some output
@@ -58,7 +58,8 @@ public:
     //! Where the same field is present in both overrideDataRowFields and
     //! dataRowFields, the value in overrideDataRowFields will be written.
     bool writeRow(const TStrStrUMap& dataRowFields,
-                  const TStrStrUMap& overrideDataRowFields) override;
+                  const TStrStrUMap& overrideDataRowFields,
+                  core_t::TTime time) override;
 
     //! Perform any final processing once all data for the current search
     //! has been seen.  Chained classes should NOT rely on this method being

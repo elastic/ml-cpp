@@ -40,9 +40,10 @@ public:
 
     //! Does nothing with the row provided.
     virtual bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields);
+                          const TStrStrUMap& overrideDataRowFields,
+                          core_t::TTime time);
 
-    // Bring the other overload of writeRow() into scope
+    // Bring the other overloads of writeRow() into scope
     using COutputHandler::writeRow;
 };
 }

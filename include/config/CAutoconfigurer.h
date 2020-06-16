@@ -41,7 +41,7 @@ public:
     void newOutputStream() override;
 
     //! Receive a single record to be processed.
-    bool handleRecord(const TStrStrUMap& fieldValues) override;
+    bool handleRecord(const TStrStrUMap& fieldValues, core_t::TTime time) override;
 
     //! Generate the report.
     void finalise() override;

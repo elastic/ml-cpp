@@ -62,6 +62,7 @@ public:
     CGlobalCategoryId
     computeAndUpdateCategory(bool isDryRun,
                              const model::CDataCategorizer::TStrStrUMap& fields,
+                             core_t::TTime messageTime,
                              const std::string& messageToCategorize,
                              const std::string& rawMessage,
                              model::CResourceMonitor& resourceMonitor,
@@ -86,9 +87,9 @@ public:
         return m_CategoryIdMapper->categorizerKey();
     }
 
-    //! Writes out to the JSON output writer any category that has changed
-    //! since the last time this method was called.
-    void writeOutChangedCategories(CJsonOutputWriter& jsonOutputWriter);
+    //! Writes out to the JSON output writer any category definitions and stats
+    //! that have changed since they were last written.
+    void writeChanges(CJsonOutputWriter& jsonOutputWriter);
 
     //! Force an update of the resource monitor.
     void forceResourceRefresh(model::CResourceMonitor& resourceMonitor);
@@ -112,16 +113,8 @@ private:
     //! Pointer to the category ID mapper.
     CCategoryIdMapper::TCategoryIdMapperPtr m_CategoryIdMapper;
 
-    //! String to store search terms.  By keeping this as a member variable
-    //! instead of repeatedly creating local strings the buffer can learn the
-    //! appropriate size and won't need to be reallocated repeatedly, this
-    //! saving memory allocations.
-    std::string m_SearchTermsScratchSpace;
-
-    //! Regex to match values of the current category.  As with
-    //! m_SearchTermsScratchSpace, this is a member to avoid repeated memory
-    //! allocations.
-    std::string m_SearchTermsRegexScratchSpace;
+    //! Last timestamp observed in input.
+    core_t::TTime m_LastMessageTime = -1;
 };
 }
 }

@@ -10,11 +10,11 @@
 #include <model/CAnomalyDetectorModel.h>
 #include <model/CDataGatherer.h>
 #include <model/CDetectionRule.h>
-#include <model/CModelParams.h>
 #include <model/CResourceMonitor.h>
 #include <model/CRuleCondition.h>
 #include <model/CSearchKey.h>
 #include <model/ModelTypes.h>
+#include <model/SModelParams.h>
 
 #include "Mocks.h"
 

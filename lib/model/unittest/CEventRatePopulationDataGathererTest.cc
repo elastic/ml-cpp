@@ -15,8 +15,8 @@
 #include <model/CEventData.h>
 #include <model/CEventRateBucketGatherer.h>
 #include <model/CEventRatePopulationModelFactory.h>
-#include <model/CModelParams.h>
 #include <model/CResourceMonitor.h>
+#include <model/SModelParams.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>

@@ -58,8 +58,10 @@ BOOST_AUTO_TEST_CASE(testChaining) {
 
         ml::api::CNdJsonInputParser parser(inputStrm);
 
-        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::bind(
-            &CMockDataProcessor::handleRecord, &mockProcessor, std::placeholders::_1)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
+            [&mockProcessor](const CMockDataProcessor::TStrStrUMap& dataRowFields) {
+                return mockProcessor.handleRecord(dataRowFields, -1);
+            }));
     }
 
     // Check the results by re-reading the output file
