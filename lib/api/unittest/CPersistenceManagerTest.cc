@@ -141,9 +141,9 @@ protected:
             persistenceManager.startPersist();
             foregroundSnapshotId = snapshotId;
 
-            // ... persist in foreground again by directly calling persistState
+            // ... persist in foreground again by directly calling persistStateInForeground
             ml::api::CSingleStreamDataAdder foregroundDataAdder2(foregroundStreamPtr2);
-            BOOST_TEST_REQUIRE(firstProcessor->persistState(
+            BOOST_TEST_REQUIRE(firstProcessor->persistStateInForeground(
                 foregroundDataAdder2, "Periodic foreground persistence at "));
             foregroundSnapshotId2 = snapshotId;
         }

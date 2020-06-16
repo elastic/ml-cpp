@@ -8,6 +8,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
+#include <core/Concurrency.h>
 
 #include <maths/CLinearAlgebraShims.h>
 #include <maths/COrderings.h>
@@ -19,12 +20,18 @@
 namespace ml {
 namespace maths {
 
-CTreeShapFeatureImportance::CTreeShapFeatureImportance(const core::CDataFrame& frame,
+CTreeShapFeatureImportance::CTreeShapFeatureImportance(std::size_t numberThreads,
+                                                       const core::CDataFrame& frame,
                                                        const CDataFrameCategoryEncoder& encoder,
                                                        TTreeVec& forest,
                                                        std::size_t numberTopShapValues)
     : m_NumberTopShapValues{numberTopShapValues}, m_Encoder{&encoder}, m_Forest{&forest},
       m_ColumnNames{frame.columnNames()} {
+
+    std::size_t concurrency{std::min(numberThreads, forest.size())};
+    m_PathStorage.resize(concurrency);
+    m_ScaleStorage.resize(concurrency);
+    m_PerThreadShapValues.resize(concurrency);
 
     // When traversing a tree, we successively copy the parent path and add one
     // new element to it. This means that if a tree has maxDepth depth, we store
@@ -32,8 +39,10 @@ CTreeShapFeatureImportance::CTreeShapFeatureImportance(const core::CDataFrame& f
     // the initial element in the path has split feature -1. Altogether it results
     // in ((maxDepth + 1) * (maxDepth + 2)) / 2 elements to be stored.
     std::size_t maxDepth{depth(forest)};
-    m_PathStorage.resize((maxDepth + 1) * (maxDepth + 2) / 2);
-    m_ScaleStorage.resize((maxDepth + 1) * (maxDepth + 2) / 2);
+    for (std::size_t i = 0; i < concurrency; ++i) {
+        m_PathStorage[i].resize((maxDepth + 1) * (maxDepth + 2) / 2);
+        m_ScaleStorage[i].resize((maxDepth + 1) * (maxDepth + 2) / 2);
+    }
 
     computeInternalNodeValues(forest);
 }
@@ -44,29 +53,57 @@ void CTreeShapFeatureImportance::shap(const TRowRef& row, TShapWriter writer) {
         return;
     }
 
+    using TTreeShapVec = std::vector<std::function<void(const TTree&)>>;
+
     auto encodedRow{m_Encoder->encode(row)};
-    m_ShapValues.assign(m_Encoder->numberInputColumns(),
-                        las::zero((*m_Forest)[0][0].value()));
-    for (const auto& tree : *m_Forest) {
-        this->shapRecursive(tree, encodedRow, 0, 1.0, 1.0, -1,
-                            CSplitPath{m_PathStorage.begin(), m_ScaleStorage.begin()},
-                            0, m_ShapValues);
+
+    if (m_PerThreadShapValues.size() == 1) {
+        m_ReducedShapValues.assign(m_Encoder->numberInputColumns(),
+                                   las::zero((*m_Forest)[0][0].value()));
+        for (const auto& tree : *m_Forest) {
+            this->shapRecursive(
+                tree, encodedRow, 0, 1.0, 1.0, -1,
+                CSplitPath{m_PathStorage[0].begin(), m_ScaleStorage[0].begin()},
+                0, m_ReducedShapValues);
+        }
+    } else {
+        TTreeShapVec computeTreeShap;
+        computeTreeShap.reserve(m_PerThreadShapValues.size());
+        for (std::size_t i = 0; i < m_PerThreadShapValues.size(); ++i) {
+            m_PerThreadShapValues[i].assign(m_Encoder->numberInputColumns(),
+                                            las::zero((*m_Forest)[0][0].value()));
+            computeTreeShap.push_back([&encodedRow, i, this](const TTree& tree) {
+                this->shapRecursive(tree, encodedRow, 0, 1.0, 1.0, -1,
+                                    CSplitPath{m_PathStorage[i].begin(),
+                                               m_ScaleStorage[i].begin()},
+                                    0, m_PerThreadShapValues[i]);
+            });
+        }
+
+        core::parallel_for_each(m_Forest->begin(), m_Forest->end(), computeTreeShap);
+
+        m_ReducedShapValues = m_PerThreadShapValues[0];
+        for (std::size_t i = 1; i < m_PerThreadShapValues.size(); ++i) {
+            for (std::size_t j = 0; j < m_ReducedShapValues.size(); ++j) {
+                m_ReducedShapValues[j] += m_PerThreadShapValues[i][j];
+            }
+        }
     }
 
-    m_TopShapValues.resize(m_ShapValues.size());
+    m_TopShapValues.resize(m_ReducedShapValues.size());
     std::iota(m_TopShapValues.begin(), m_TopShapValues.end(), 0);
     if (m_NumberTopShapValues < m_TopShapValues.size()) {
-        std::nth_element(
-            m_TopShapValues.begin(), m_TopShapValues.begin() + m_NumberTopShapValues,
-            m_TopShapValues.end(), [this](std::size_t lhs, std::size_t rhs) {
-                return COrderings::lexicographical_compare(
-                    -las::L1(m_ShapValues[lhs]), lhs, -las::L1(m_ShapValues[rhs]), rhs);
-            });
+        std::nth_element(m_TopShapValues.begin(), m_TopShapValues.begin() + m_NumberTopShapValues,
+                         m_TopShapValues.end(), [this](std::size_t lhs, std::size_t rhs) {
+                             return COrderings::lexicographical_compare(
+                                 -las::L1(m_ReducedShapValues[lhs]), lhs,
+                                 -las::L1(m_ReducedShapValues[rhs]), rhs);
+                         });
         m_TopShapValues.resize(m_NumberTopShapValues);
         std::sort(m_TopShapValues.begin(), m_TopShapValues.end());
     }
 
-    writer(m_TopShapValues, m_ColumnNames, m_ShapValues);
+    writer(m_TopShapValues, m_ColumnNames, m_ReducedShapValues);
 }
 
 void CTreeShapFeatureImportance::computeNumberSamples(std::size_t numberThreads,
@@ -159,24 +196,31 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
                                                TVectorVec& shap) const {
     CSplitPath splitPath{parentSplitPath, nextIndex};
 
-    CTreeShapFeatureImportance::extendPath(splitPath, parentFractionZero, parentFractionOne,
-                                           parentFeatureIndex, nextIndex);
+    extendPath(splitPath, parentFractionZero, parentFractionOne, parentFeatureIndex, nextIndex);
     if (tree[nodeIndex].isLeaf()) {
         const TVector& leafValue{tree[nodeIndex].value()};
         for (int i = 1; i < nextIndex; ++i) {
-            double scale{CTreeShapFeatureImportance::sumUnwoundPath(splitPath, i, nextIndex)};
+            double scale{sumUnwoundPath(splitPath, i, nextIndex)};
             std::size_t inputColumnIndex{
                 m_Encoder->encoding(splitPath.featureIndex(i)).inputColumnIndex()};
-            // inputColumnIndex is read by seeing what the feature at position i is on the path to this leaf.
-            // fractionOnes(i) is an indicator variable which tells us if we condition on this variable
-            // do we visit this path from that node or not, fractionZeros(i) tells us what proportion of
-            // all training data which reaches that node visits this path, i.e. the case we're averaging
-            // over that feature. So this is telling us exactly about the difference in E[f | S U {i}] -
-            // E[f | S] given we're examining only that part of the sample space concerned with this leaf.
+
+            // Consider that:
+            //   1. inputColumnIndex is read by seeing what the split feature at position
+            //      i is on the path to this leaf,
+            //   2. fractionOnes(i) is an indicator variable which tells us if we condition
+            //      on this feature do we visit this path from that node or not,
+            //   3. fractionZeros(i) tells us what proportion of all training data which
+            //      reaches that node visits this path.
+            //
+            // So for the feature g identified by inputColumnIndex, fractionOnes(i) minus
+            // fractionZeros(i) is proportional to E[f | S U {g}] - E[f | S], where f is the
+            // model prediction, restricted to that part of the sample space concerned with
+            // this leaf.
             //
             // The key observation is that the leaves form a disjoint partition of the
-            // sample space (set of all training data) so we can compute the full
-            // expectation as a simple sum over the contributions of the individual leaves.
+            // sample space (set of all training data) so we can compute the full expectation
+            // as a simple sum over the contributions of the individual leaves.
+
             shap[inputColumnIndex] +=
                 scale * (splitPath.fractionOnes(i) - splitPath.fractionZeros(i)) * leafValue;
         }
@@ -197,7 +241,7 @@ void CTreeShapFeatureImportance::shapRecursive(const TTree& tree,
         if (pathIndex >= 0) {
             incomingFractionZero = splitPath.fractionZeros(pathIndex);
             incomingFractionOne = splitPath.fractionOnes(pathIndex);
-            CTreeShapFeatureImportance::unwindPath(splitPath, pathIndex, nextIndex);
+            unwindPath(splitPath, pathIndex, nextIndex);
         }
 
         double hotFractionZero{incomingFractionZero *
@@ -218,14 +262,26 @@ void CTreeShapFeatureImportance::extendPath(CSplitPath& splitPath,
                                             double fractionOne,
                                             int featureIndex,
                                             int& nextIndex) {
-    // Update binomial coefficients to be able to compute Equation (2) from the paper.  In particular,
-    // we have in the line path.s_Scale[i + 1] += fractionOne * path.s_Scale[i] * (i + 1.0) / (pathDepth +
-    // 1.0) that if we're on the "one" path, i.e. if the last feature selects this path if we include that
-    // feature in S (then fractionOne is 1), and we need to consider all the additional ways we now have of
-    // constructing each S of each given cardinality i + 1. Each of these come by adding the last feature
-    // to sets of size i and we **also** need to scale by the difference in binomial coefficients as both M
-    // increases by one and i increases by one. So we get additive term 1{last feature selects path if in S}
-    // * scale(i) * (i+1)! (M+1-(i+1)-1)!/(M+1)! / (i! (M-i-1)!/ M!), whence += scale(i) * (i+1) / (M+1).
+
+    // Update binomial coefficients to be able to compute Equation (2) from the paper.
+    // In particular, in the for loop we effectively have:
+    //
+    //   path.s_Scale[i + 1] += fractionOne * path.s_Scale[i] * (i + 1.0) / (pathDepth + 1.0)
+    //
+    // To understand this consider the following. If we're on the "one" path - i.e. if
+    // we include the node's split feature in S then the example's feature value selects
+    // this path and fractionOne is 1 - we need to consider all the additional ways we
+    // now have of constructing S for each cardinality i + 1. These come from adding
+    // the feature to sets of cardinality i. We also need to scale by the difference in
+    // binomial coefficients as both M increases by one and i increases by one. Putting
+    // this together, we need to add the term
+    //
+    //   1{last feature selects path if in S} * scale(i) * ((i+1)!(M+1-(i+1)-1)! / (M+1)!) /
+    //                                                     (i!(M-i-1)! / M!)
+    //   = fractionOne * scale(i) * (i+1) / (M+1)
+    //
+    // to the path scale for each i + 1.
+
     splitPath.setValues(nextIndex, fractionOne, fractionZero, featureIndex);
     auto scalePath{splitPath.scale()};
     if (nextIndex == 0) {
@@ -246,7 +302,7 @@ void CTreeShapFeatureImportance::extendPath(CSplitPath& splitPath,
 }
 
 double CTreeShapFeatureImportance::sumUnwoundPath(const CSplitPath& path, int pathIndex, int nextIndex) {
-    const auto& scalePath{path.scale()};
+    const auto& scalePath = path.scale();
     double total{0.0};
     int pathDepth{nextIndex - 1};
     double nextFractionOne{scalePath[pathDepth]};
@@ -276,7 +332,7 @@ double CTreeShapFeatureImportance::sumUnwoundPath(const CSplitPath& path, int pa
 }
 
 void CTreeShapFeatureImportance::unwindPath(CSplitPath& path, int pathIndex, int& nextIndex) {
-    auto& scalePath{path.scale()};
+    auto& scalePath = path.scale();
     int pathDepth{nextIndex - 1};
     double nextFractionOne{scalePath[pathDepth]};
     double fractionOne{path.fractionOnes(pathIndex)};

@@ -16,6 +16,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <chrono>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -100,19 +101,25 @@ void addOutlierTestData(TStrVec fieldNames,
 
 BOOST_AUTO_TEST_CASE(testMemoryState) {
     std::string jobId{"testJob"};
+    std::int64_t memoryLimit{1024 * 1024 * 1024}; //1gb default value
     std::int64_t memoryUsage{1000};
-    std::int64_t timeBefore{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
+    std::int64_t timeBefore{std::chrono::duration_cast<std::chrono::milliseconds>(
+                                std::chrono::system_clock::now().time_since_epoch())
+                                .count()};
     std::stringstream outputStream;
     {
         core::CJsonOutputStreamWrapper streamWrapper(outputStream);
-        api::CDataFrameTrainBoostedTreeInstrumentation instrumentation{jobId};
+        api::CDataFrameTrainBoostedTreeInstrumentation instrumentation{
+            jobId, static_cast<std::size_t>(memoryLimit)};
         api::CDataFrameTrainBoostedTreeInstrumentation::CScopeSetOutputStream setStream{
             instrumentation, streamWrapper};
         instrumentation.updateMemoryUsage(memoryUsage);
         instrumentation.flush();
         outputStream.flush();
     }
-    std::int64_t timeAfter{core::CTimeUtils::toEpochMs(core::CTimeUtils::now())};
+    std::int64_t timeAfter{std::chrono::duration_cast<std::chrono::milliseconds>(
+                               std::chrono::system_clock::now().time_since_epoch())
+                               .count()};
 
     rapidjson::Document results;
     rapidjson::ParseResult ok(results.Parse(outputStream.str()));
@@ -172,7 +179,12 @@ BOOST_AUTO_TEST_CASE(testTrainingRegression) {
     rapidjson::SchemaValidator regressionValidator(regressionSchema);
 
     bool hasRegressionStats{false};
+    bool initialMemoryReport{false};
     for (const auto& result : results.GetArray()) {
+        if (result.HasMember("analytics_memory_usage") == true &&
+            result.HasMember("regression_stats") == false) {
+            initialMemoryReport = true;
+        }
         if (result.HasMember("regression_stats")) {
             hasRegressionStats = true;
             BOOST_TEST_REQUIRE(result["regression_stats"].IsObject() == true);
@@ -190,6 +202,7 @@ BOOST_AUTO_TEST_CASE(testTrainingRegression) {
         }
     }
     BOOST_TEST_REQUIRE(hasRegressionStats);
+    BOOST_TEST_REQUIRE(initialMemoryReport);
 
     std::ifstream memorySchemaFileStream("testfiles/instrumentation/memory_usage.schema.json");
     BOOST_REQUIRE_MESSAGE(memorySchemaFileStream.is_open(), "Cannot open test file!");
@@ -261,7 +274,12 @@ BOOST_AUTO_TEST_CASE(testTrainingClassification) {
     rapidjson::SchemaValidator validator(schema);
 
     bool hasClassificationStats{false};
+    bool initialMemoryReport{false};
     for (const auto& result : results.GetArray()) {
+        if (result.HasMember("analytics_memory_usage") == true &&
+            result.HasMember("classification_stats") == false) {
+            initialMemoryReport = true;
+        }
         if (result.HasMember("classification_stats")) {
             hasClassificationStats = true;
             BOOST_TEST_REQUIRE(result["classification_stats"].IsObject() == true);
@@ -278,6 +296,7 @@ BOOST_AUTO_TEST_CASE(testTrainingClassification) {
         }
     }
     BOOST_TEST_REQUIRE(hasClassificationStats);
+    BOOST_TEST_REQUIRE(initialMemoryReport);
 }
 
 BOOST_AUTO_TEST_CASE(testOutlierDetection) {
@@ -313,7 +332,12 @@ BOOST_AUTO_TEST_CASE(testOutlierDetection) {
     rapidjson::SchemaValidator validator(schema);
 
     bool hasOutlierDetectionStats{false};
+    bool initialMemoryReport{false};
     for (const auto& result : results.GetArray()) {
+        if (result.HasMember("analytics_memory_usage") == true &&
+            result.HasMember("outlier_detection_stats") == false) {
+            initialMemoryReport = true;
+        }
         if (result.HasMember("outlier_detection_stats")) {
             hasOutlierDetectionStats = true;
             BOOST_TEST_REQUIRE(result["outlier_detection_stats"].IsObject() == true);
@@ -330,6 +354,7 @@ BOOST_AUTO_TEST_CASE(testOutlierDetection) {
         }
     }
     BOOST_TEST_REQUIRE(hasOutlierDetectionStats);
+    BOOST_TEST_REQUIRE(initialMemoryReport);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

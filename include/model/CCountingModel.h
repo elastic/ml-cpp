@@ -219,6 +219,9 @@ public:
     //! Get the descriptions of any occurring scheduled event descriptions for the bucket time
     const TStr1Vec& scheduledEventDescriptions(core_t::TTime time) const override;
 
+    //! Get the annotations produced by this model.
+    const TAnnotationVec& annotations() const override;
+
 protected:
     //! Get the start time of the current bucket.
     core_t::TTime currentBucketStartTime() const override;
@@ -292,6 +295,9 @@ private:
 
     //! Calculates corrections for interim buckets.
     TInterimBucketCorrectorPtr m_InterimBucketCorrector;
+
+    //! Annotations produced by this model.
+    TAnnotationVec m_Annotations;
 
     friend struct CCountingModelTest::testCheckScheduledEvents;
 };

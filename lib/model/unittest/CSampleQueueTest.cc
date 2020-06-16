@@ -38,7 +38,7 @@ using TTestSampleQueue = CSampleQueue<TMeanAccumulator>;
 BOOST_AUTO_TEST_CASE(testSampleToString) {
     CSample sample(10, {3.0}, 0.8, 1.0);
 
-    BOOST_REQUIRE_EQUAL(std::string("10;8e-1;1;3"), CSample::SToString()(sample));
+    BOOST_REQUIRE_EQUAL(std::string("10;0.800000012;1;3"), CSample::SToString()(sample));
 }
 
 BOOST_AUTO_TEST_CASE(testSampleFromString) {

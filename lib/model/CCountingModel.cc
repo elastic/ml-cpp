@@ -350,6 +350,10 @@ CCountingModel::scheduledEventDescriptions(core_t::TTime time) const {
     return it->second;
 }
 
+const CCountingModel::TAnnotationVec& CCountingModel::annotations() const {
+    return m_Annotations;
+}
+
 double CCountingModel::attributeFrequency(std::size_t /*cid*/) const {
     return 1.0;
 }

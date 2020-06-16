@@ -267,7 +267,7 @@ public:
     //! \name Customization by a specific search
     //@{
     //! Set the identifier of the search for which this generates models.
-    virtual void identifier(int identifier) = 0;
+    virtual void detectorIndex(int detectorIndex) = 0;
 
     //! Set the record field names which will be modeled.
     virtual void fieldNames(const std::string& partitionFieldName,
@@ -348,6 +348,9 @@ public:
 
     //! Update the bucket length, for ModelAutoConfig's benefit
     void updateBucketLength(core_t::TTime length);
+
+    //! Set whether model annotations should be reported.
+    void annotationsEnabled(bool enabled);
 
     //! Get global model configuration parameters.
     const SModelParams& modelParams() const;

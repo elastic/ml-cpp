@@ -63,6 +63,7 @@ public:
     using TStrVec = std::vector<std::string>;
     using TStrCPtrVec = std::vector<const std::string*>;
     using TModelPlotDataVec = std::vector<CModelPlotData>;
+    using TAnnotationVec = CAnomalyDetectorModel::TAnnotationVec;
     using TDataGathererPtr = std::shared_ptr<CDataGatherer>;
     using TModelFactoryCPtr = std::shared_ptr<const CModelFactory>;
     using TModelPtr = std::unique_ptr<CAnomalyDetectorModel>;
@@ -105,8 +106,7 @@ public:
     static const std::string EMPTY_STRING;
 
 public:
-    CAnomalyDetector(int detectorIndex,
-                     CLimits& limits,
+    CAnomalyDetector(CLimits& limits,
                      const CAnomalyDetectorModelConfig& modelConfig,
                      const std::string& partitionFieldValue,
                      core_t::TTime firstTime,
@@ -224,6 +224,11 @@ public:
                            double boundsPercentile,
                            const TStrSet& terms,
                            TModelPlotDataVec& modelPlots) const;
+
+    //! Generate the annotations.
+    void generateAnnotations(core_t::TTime bucketStartTime,
+                             core_t::TTime bucketEndTime,
+                             TAnnotationVec& annotations) const;
 
     //! Generate ForecastPrerequistes, e.g. memory requirements
     CForecastDataSink::SForecastModelPrerequisites getForecastPrerequisites() const;
@@ -350,9 +355,6 @@ private:
     void legacyModelsAcceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
 private:
-    //! An identifier for the search for which this is detecting anomalies.
-    int m_DetectorIndex;
-
     //! Configurable limits
     CLimits& m_Limits;
 

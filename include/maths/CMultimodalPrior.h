@@ -275,7 +275,7 @@ public:
     virtual std::string printJointDensityFunction() const;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Debug the memory used by this component.
     virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -336,6 +336,14 @@ private:
     //!
     //! This is just number modes - 1 due to the normalization constraint.
     virtual double unmarginalizedParameters() const;
+
+    //! Implementation of log of the joint c.d.f. of the marginal likelihood.
+    template<typename CDF>
+    bool minusLogJointCdfImpl(CDF minusLogCdf,
+                              const TDouble1Vec& samples,
+                              const TDoubleWeightsAry1Vec& weights,
+                              double& lowerBound,
+                              double& upperBound) const;
 
     //! Full debug dump of the mode weights.
     std::string debugWeights() const;

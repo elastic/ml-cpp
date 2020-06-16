@@ -62,8 +62,7 @@ public:
                   double seasonal,
                   double calendar,
                   const TPredictor& predictor,
-                  const CPeriodicityHypothesisTestsConfig& periodicityTestConfig,
-                  TComponentChangeCallback componentChangeCallback);
+                  const CPeriodicityHypothesisTestsConfig& periodicityTestConfig);
         SAddValue(const SAddValue&) = delete;
         SAddValue& operator=(const SAddValue&) = delete;
 
@@ -81,8 +80,6 @@ public:
         TPredictor s_Predictor;
         //! The periodicity test configuration.
         CPeriodicityHypothesisTestsConfig s_PeriodicityTestConfig;
-        //! Called if the components change.
-        TComponentChangeCallback s_ComponentChangeCallback;
     };
 
     //! \brief The message passed to indicate periodic components have
@@ -358,6 +355,21 @@ public:
 
     //! \brief Holds and updates the components of the decomposition.
     class MATHS_EXPORT CComponents : public CHandler {
+    public:
+        class CScopeAttachComponentChangeCallback {
+        public:
+            CScopeAttachComponentChangeCallback(CComponents& components,
+                                                TComponentChangeCallback componentChangeCallback,
+                                                maths_t::TModelAnnotationCallback modelAnnotationCallback);
+            ~CScopeAttachComponentChangeCallback();
+            CScopeAttachComponentChangeCallback(const CScopeAttachComponentChangeCallback&) = delete;
+            CScopeAttachComponentChangeCallback&
+            operator=(const CScopeAttachComponentChangeCallback&) = delete;
+
+        private:
+            CComponents& m_Components;
+        };
+
     public:
         CComponents(double decayRate, core_t::TTime bucketLength, std::size_t seasonalComponentSize);
         CComponents(const CComponents& other);
@@ -757,7 +769,8 @@ public:
         std::size_t maxSize() const;
 
         //! Add new seasonal components to \p components.
-        bool addSeasonalComponents(const CPeriodicityHypothesisTestsResult& result,
+        bool addSeasonalComponents(core_t::TTime time,
+                                   const CPeriodicityHypothesisTestsResult& result,
                                    const CExpandingWindow& window,
                                    const TPredictor& predictor);
 
@@ -853,6 +866,9 @@ public:
 
         //! Called if the components change.
         TComponentChangeCallback m_ComponentChangeCallback;
+
+        //! Called if the model change annotation is reported.
+        maths_t::TModelAnnotationCallback m_ModelAnnotationCallback;
 
         //! Set to true when testing for a change.
         bool m_TestingForChange = false;

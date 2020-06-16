@@ -169,6 +169,18 @@ private:
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
 
+    //! Tag progress through initialization.
+    enum EInitializationStage {
+        E_NotInitialized = 0,
+        E_SoftTreeDepthLimitInitialized = 1,
+        E_DepthPenaltyMultiplierInitialized = 2,
+        E_TreeSizePenaltyMultiplierInitialized = 3,
+        E_LeafWeightPenaltyMultiplierInitialized = 4,
+        E_DownsampleFactorInitialized = 5,
+        E_EtaInitialized = 6,
+        E_FullyInitialized = 7
+    };
+
 private:
     CBoostedTreeImpl();
 
@@ -239,7 +251,10 @@ private:
     std::size_t featureBagSize() const;
 
     //! Sample the features according to their categorical distribution.
-    TSizeVec featureBag() const;
+    void featureBag(TDoubleVec& probabilities, TSizeVec& features) const;
+
+    //! Get a column mask of the suitable regressor features.
+    void candidateRegressorFeatures(const TDoubleVec& probabilities, TSizeVec& features) const;
 
     //! Refresh the predictions and loss function derivatives for the masked
     //! rows in \p frame with predictions of \p tree.
@@ -252,9 +267,6 @@ private:
 
     //! Compute the mean of the loss function on the masked rows of \p frame.
     double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;
-
-    //! Get a column mask of the suitable regressor features.
-    TSizeVec candidateRegressorFeatures() const;
 
     //! Get the root node of \p tree.
     static const CBoostedTreeNode& root(const TNodeVec& tree);
@@ -305,6 +317,7 @@ private:
 
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
+    EInitializationStage m_InitializationStage = E_NotInitialized;
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
     TSizeVec m_ExtraColumns;
@@ -346,7 +359,7 @@ private:
     core::CLoopProgress m_TrainingProgress;
     std::size_t m_NumberTopShapValues = 0;
     TTreeShapFeatureImportanceUPtr m_TreeShap;
-    TAnalysisInstrumentationPtr m_Instrumentation; // no persist/restore
+    TAnalysisInstrumentationPtr m_Instrumentation;
 
 private:
     friend class CBoostedTreeFactory;

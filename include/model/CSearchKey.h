@@ -99,7 +99,7 @@ public:
     //!
     //! \note Use the pass-by-value-and-swap trick to improve performance
     //! when the arguments are temporaries.
-    explicit CSearchKey(int identifier = 0,
+    explicit CSearchKey(int detectorIndex = 0,
                         function_t::EFunction function = function_t::E_IndividualCount,
                         bool useNull = false,
                         model_t::EExcludeFrequent excludeFrequent = model_t::E_XF_None,
@@ -134,7 +134,7 @@ public:
     bool operator<(const CSearchKey& rhs) const;
 
     //! Get an identifier for this search.
-    int identifier() const;
+    int detectorIndex() const;
 
     //! Get the unique simple counting search key.
     //!
@@ -194,7 +194,7 @@ public:
     uint64_t hash() const;
 
 private:
-    int m_Identifier;
+    int m_DetectorIndex;
     function_t::EFunction m_Function;
     bool m_UseNull;
     model_t::EExcludeFrequent m_ExcludeFrequent;

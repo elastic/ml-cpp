@@ -387,20 +387,18 @@ CTimeSeriesDecompositionDetail::SMessage::SMessage(core_t::TTime time, core_t::T
 
 //////// SAddValue ////////
 
-CTimeSeriesDecompositionDetail::SAddValue::SAddValue(
-    core_t::TTime time,
-    core_t::TTime lastTime,
-    double value,
-    const maths_t::TDoubleWeightsAry& weights,
-    double trend,
-    double seasonal,
-    double calendar,
-    const TPredictor& predictor,
-    const CPeriodicityHypothesisTestsConfig& periodicityTestConfig,
-    TComponentChangeCallback componentChangeCallback)
+CTimeSeriesDecompositionDetail::SAddValue::SAddValue(core_t::TTime time,
+                                                     core_t::TTime lastTime,
+                                                     double value,
+                                                     const maths_t::TDoubleWeightsAry& weights,
+                                                     double trend,
+                                                     double seasonal,
+                                                     double calendar,
+                                                     const TPredictor& predictor,
+                                                     const CPeriodicityHypothesisTestsConfig& periodicityTestConfig)
     : SMessage{time, lastTime}, s_Value{value}, s_Weights{weights}, s_Trend{trend},
       s_Seasonal{seasonal}, s_Calendar{calendar}, s_Predictor{predictor},
-      s_PeriodicityTestConfig{periodicityTestConfig}, s_ComponentChangeCallback{componentChangeCallback} {
+      s_PeriodicityTestConfig{periodicityTestConfig} {
 }
 
 //////// SDetectedSeasonal ////////
@@ -1067,11 +1065,12 @@ CTimeSeriesDecompositionDetail::CComponents::CComponents(double decayRate,
                                                          std::size_t seasonalComponentSize)
     : m_Machine{core::CStateMachine::create(SC_ALPHABET, SC_STATES, SC_TRANSITION_FUNCTION, SC_NORMAL)},
       m_DecayRate{decayRate}, m_BucketLength{bucketLength}, m_SeasonalComponentSize{seasonalComponentSize},
-      m_CalendarComponentSize{seasonalComponentSize / 3}, m_Trend{decayRate} {
+      m_CalendarComponentSize{seasonalComponentSize / 3}, m_Trend{decayRate},
+      m_ComponentChangeCallback{[](TFloatMeanAccumulatorVec) {}} {
 }
 
 CTimeSeriesDecompositionDetail::CComponents::CComponents(const CComponents& other)
-    : CHandler(), m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate},
+    : CHandler{}, m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate},
       m_BucketLength{other.m_BucketLength}, m_GainController{other.m_GainController},
       m_SeasonalComponentSize{other.m_SeasonalComponentSize},
       m_CalendarComponentSize{other.m_CalendarComponentSize}, m_Trend{other.m_Trend},
@@ -1080,6 +1079,7 @@ CTimeSeriesDecompositionDetail::CComponents::CComponents(const CComponents& othe
       m_MeanVarianceScale{other.m_MeanVarianceScale},
       m_PredictionErrorWithoutTrend{other.m_PredictionErrorWithoutTrend},
       m_PredictionErrorWithTrend{other.m_PredictionErrorWithTrend},
+      m_ComponentChangeCallback{[](TFloatMeanAccumulatorVec) {}},
       m_UsingTrendForPrediction{other.m_UsingTrendForPrediction} {
 }
 
@@ -1217,7 +1217,6 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
         double value{message.s_Value};
         double trend{message.s_Trend};
         const maths_t::TDoubleWeightsAry& weights{message.s_Weights};
-        m_ComponentChangeCallback = message.s_ComponentChangeCallback;
 
         TSeasonalComponentPtrVec seasonalComponents;
         TCalendarComponentPtrVec calendarComponents;
@@ -1290,6 +1289,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
         if (testForTrend && this->shouldUseTrendForPrediction()) {
             LOG_DEBUG(<< "Detected trend at " << time);
             m_ComponentChangeCallback({});
+            m_ModelAnnotationCallback(time, "Detected trend");
         }
     } break;
     case SC_DISABLED:
@@ -1319,7 +1319,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
         const CExpandingWindow& window{message.s_Window};
         const TPredictor& predictor{message.s_Predictor};
 
-        if (this->addSeasonalComponents(result, window, predictor)) {
+        if (this->addSeasonalComponents(time, result, window, predictor)) {
             LOG_DEBUG(<< "Detected seasonal components at " << time);
             m_UsingTrendForPrediction = true;
             this->clearComponentErrors();
@@ -1545,6 +1545,7 @@ std::size_t CTimeSeriesDecompositionDetail::CComponents::maxSize() const {
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
+    core_t::TTime time,
     const CPeriodicityHypothesisTestsResult& result,
     const CExpandingWindow& window,
     const TPredictor& predictor) {
@@ -1563,6 +1564,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
                              return component.time().excludes(*seasonalTime);
                          }) == components.end()) {
             LOG_DEBUG(<< "Detected '" << candidate.s_Description << "'");
+            m_ModelAnnotationCallback(time, "Detected periodicity with period " +
+                                                std::to_string(candidate.s_Period));
             newComponents.emplace_back(std::move(seasonalTime), candidate.s_PiecewiseScaled);
         }
     }
@@ -1700,6 +1703,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(const CCa
     double bucketLength{static_cast<double>(m_BucketLength)};
     m_Calendar->add(feature, m_CalendarComponentSize, m_DecayRate, bucketLength);
     LOG_DEBUG(<< "Detected feature '" << feature.print() << "' at " << time);
+    m_ModelAnnotationCallback(time, "Detected calendar feature: " + feature.print());
     return true;
 }
 
@@ -1951,6 +1955,20 @@ void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime tim
             m_Trend.shiftSlope(time, slope);
         }
     }
+}
+
+CTimeSeriesDecompositionDetail::CComponents::CScopeAttachComponentChangeCallback::CScopeAttachComponentChangeCallback(
+    CComponents& components,
+    TComponentChangeCallback componentChangeCallback,
+    maths_t::TModelAnnotationCallback modelAnnotationCallback)
+    : m_Components{components} {
+    components.m_ComponentChangeCallback = std::move(componentChangeCallback);
+    components.m_ModelAnnotationCallback = std::move(modelAnnotationCallback);
+}
+
+CTimeSeriesDecompositionDetail::CComponents::CScopeAttachComponentChangeCallback::~CScopeAttachComponentChangeCallback() {
+    m_Components.m_ComponentChangeCallback = [](TFloatMeanAccumulatorVec) {};
+    m_Components.m_ModelAnnotationCallback = {};
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::CGainController::acceptRestoreTraverser(

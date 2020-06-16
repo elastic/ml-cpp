@@ -71,6 +71,10 @@ void CResourceMonitor::memoryLimit(std::size_t limitMBs) {
     }
 }
 
+std::size_t CResourceMonitor::getBytesMemoryLimit() const {
+    return m_ByteLimitHigh * this->persistenceMemoryIncreaseFactor();
+}
+
 void CResourceMonitor::updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs) {
     // The threshold for no limit is set such that any negative limit cast to
     // a size_t (which is unsigned) will be taken to mean no limit
@@ -89,8 +93,16 @@ void CResourceMonitor::updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs)
     m_PruneThreshold = (m_ByteLimitHigh * 3) / 5;
 }
 
-model_t::EMemoryStatus CResourceMonitor::getMemoryStatus() {
+model_t::EMemoryStatus CResourceMonitor::memoryStatus() const {
     return m_MemoryStatus;
+}
+
+std::size_t CResourceMonitor::categorizerAllocationFailures() const {
+    return m_CategorizerAllocationFailures;
+}
+
+void CResourceMonitor::categorizerAllocationFailures(std::size_t categorizerAllocationFailures) {
+    m_CategorizerAllocationFailures = categorizerAllocationFailures;
 }
 
 void CResourceMonitor::refresh(CMonitoredResource& resource) {
@@ -270,7 +282,7 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     SModelSizeStats res;
     res.s_Usage = this->totalMemory();
     res.s_AdjustedUsage = this->adjustedUsage(res.s_Usage);
-    res.s_BytesMemoryLimit = 2 * m_ByteLimitHigh;
+    res.s_BytesMemoryLimit = this->persistenceMemoryIncreaseFactor() * m_ByteLimitHigh;
     res.s_BytesExceeded = m_CurrentBytesExceeded;
     res.s_MemoryStatus = m_MemoryStatus;
     res.s_BucketStartTime = bucketStartTime;
@@ -278,6 +290,7 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
         resource.first->updateModelSizeStats(res);
     }
     res.s_AllocationFailures += m_AllocationFailures.size();
+    res.s_MemoryCategorizationFailures += m_CategorizerAllocationFailures;
     return res;
 }
 

@@ -21,7 +21,7 @@
 class CDataFrameMockAnalysisState final : public ml::api::CDataFrameAnalysisInstrumentation {
 public:
     CDataFrameMockAnalysisState(const std::string& jobId)
-        : ml::api::CDataFrameAnalysisInstrumentation(jobId) {}
+        : ml::api::CDataFrameAnalysisInstrumentation(jobId, 0ul) {}
     void writeAnalysisStats(std::int64_t /* timestamp */) override {}
 
 protected:
@@ -33,6 +33,7 @@ public:
     CDataFrameMockAnalysisRunner(const ml::api::CDataFrameAnalysisSpecification& spec);
 
     std::size_t numberExtraColumns() const override;
+    std::size_t dataFrameSliceCapacity() const override;
     void writeOneRow(const ml::core::CDataFrame&,
                      const TRowRef&,
                      ml::core::CRapidJsonConcurrentLineWriter&) const override;

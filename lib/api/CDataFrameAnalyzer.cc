@@ -131,12 +131,15 @@ void CDataFrameAnalyzer::run() {
         auto& instrumentation = analysisRunner->instrumentation();
         CDataFrameAnalysisInstrumentation::CScopeSetOutputStream setStream{
             instrumentation, *outStream};
+        instrumentation.updateMemoryUsage(
+            static_cast<std::int64_t>(m_DataFrame->memoryUsage()));
+        instrumentation.flush();
 
         analysisRunner->run(*m_DataFrame);
 
         core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
 
-        CDataFrameAnalysisInstrumentation::monitorProgress(instrumentation, outputWriter);
+        CDataFrameAnalysisInstrumentation::monitor(instrumentation, outputWriter);
 
         analysisRunner->waitToFinish();
         this->writeResultsOf(*analysisRunner, outputWriter);

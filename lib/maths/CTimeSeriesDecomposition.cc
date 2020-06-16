@@ -220,12 +220,17 @@ void CTimeSeriesDecomposition::testingForChange(bool value) {
 void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                                         double value,
                                         const maths_t::TDoubleWeightsAry& weights,
-                                        const TComponentChangeCallback& componentChangeCallback) {
+                                        const TComponentChangeCallback& componentChangeCallback,
+                                        const maths_t::TModelAnnotationCallback& modelAnnotationCallback) {
 
     if (CMathsFuncs::isFinite(value) == false) {
         LOG_ERROR(<< "Discarding invalid value.");
         return;
     }
+
+    // Make sure that we always attach this as the first thing we do.
+    CComponents::CScopeAttachComponentChangeCallback attach{
+        m_Components, componentChangeCallback, modelAnnotationCallback};
 
     time += m_TimeShift;
 
@@ -245,8 +250,7 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                           return CBasicStatistics::mean(
                               this->value(time_, 0.0, E_Seasonal | E_Calendar));
                       },
-                      m_Components.periodicityTestConfig(),
-                      componentChangeCallback};
+                      m_Components.periodicityTestConfig()};
 
     m_Components.handle(message);
     m_PeriodicityTest.handle(message);

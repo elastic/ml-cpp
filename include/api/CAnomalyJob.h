@@ -111,6 +111,7 @@ public:
         std::pair<model::CSearchKey::TStrCRefKeyCRefPr, TAnomalyDetectorPtr>;
     using TKeyCRefAnomalyDetectorPtrPrVec = std::vector<TKeyCRefAnomalyDetectorPtrPr>;
     using TModelPlotDataVec = model::CAnomalyDetector::TModelPlotDataVec;
+    using TAnnotationVec = model::CAnomalyDetector::TAnnotationVec;
 
     struct API_EXPORT SRestoredStateDetail {
         ERestoreStateStatus s_RestoredStateStatus;
@@ -170,7 +171,8 @@ public:
                       core_t::TTime& completeToTime) override;
 
     //! Persist current state
-    bool persistState(core::CDataAdder& persister, const std::string& descriptionPrefix) override;
+    bool persistStateInForeground(core::CDataAdder& persister,
+                                  const std::string& descriptionPrefix) override;
 
     //! Persist state of the residual models only
     bool persistModelsState(core::CDataAdder& persister,
@@ -334,6 +336,9 @@ private:
     //! choosing: either file or streamed to the API
     void writeOutModelPlot(const TModelPlotDataVec& modelPlotData);
 
+    //! Write the annotations to the output stream.
+    void writeOutAnnotations(const TAnnotationVec& annotations);
+
     //! Persist one detector to a stream.
     //! This method is static so that there is no danger of it accessing
     //! the member variables of an object.  This makes it safer to call
@@ -350,8 +355,7 @@ private:
     void doForecast(const std::string& controlMessage);
 
     TAnomalyDetectorPtr
-    makeDetector(int identifier,
-                 const model::CAnomalyDetectorModelConfig& modelConfig,
+    makeDetector(const model::CAnomalyDetectorModelConfig& modelConfig,
                  model::CLimits& limits,
                  const std::string& partitionFieldValue,
                  core_t::TTime firstTime,
