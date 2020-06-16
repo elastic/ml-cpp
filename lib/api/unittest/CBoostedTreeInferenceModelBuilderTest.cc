@@ -19,7 +19,6 @@
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameAnalyzer.h>
 #include <api/CInferenceModelDefinition.h>
-#include <api/CModelSizeDefinition.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
@@ -120,8 +119,8 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
     LOG_DEBUG(<< definition->jsonString());
-    api::CModelSizeDefinition modelSizeDefinition{*definition};
-    LOG_DEBUG(<< modelSizeDefinition.jsonString());
+    auto modelSizeDefinition{definition->sizeInfo()};
+    LOG_DEBUG(<< modelSizeDefinition->jsonString());
 
     // test pre-processing
     BOOST_REQUIRE_EQUAL(std::size_t(3), definition->preprocessors().size());
@@ -212,8 +211,8 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
     LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
-    api::CModelSizeDefinition modelSizeDefinition{*definition};
-    LOG_DEBUG(<< "Model size definition: " << modelSizeDefinition.jsonString());
+    auto modelSizeDefinition{definition->sizeInfo()};
+    LOG_DEBUG(<< "Model size definition: " << modelSizeDefinition->jsonString());
 
     // assert trained model
     auto trainedModel = dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());

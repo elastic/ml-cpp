@@ -23,13 +23,14 @@ const std::string JSON_CLASSIFICATION_WEIGHTS_TAG{"classification_weights"};
 const std::string JSON_DECISION_TYPE_TAG{"decision_type"};
 const std::string JSON_DEFAULT_LEFT_TAG{"default_left"};
 const std::string JSON_DEFAULT_VALUE_TAG{"default_value"};
+const std::string JSON_ENSEMBLE_MODEL_SIZE_TAG{"ensemble_model_size"};
 const std::string JSON_ENSEMBLE_TAG{"ensemble"};
-const std::string JSON_FEATURE_NAME_TAG{"feature_name"};
 const std::string JSON_FEATURE_NAME_LENGTH_TAG{"feature_name_length"};
 const std::string JSON_FEATURE_NAME_LENGTHS_TAG{"feature_name_lengths"};
+const std::string JSON_FEATURE_NAME_TAG{"feature_name"};
 const std::string JSON_FEATURE_NAMES_TAG{"feature_names"};
-const std::string JSON_FIELD_NAMES_TAG{"field_names"};
 const std::string JSON_FIELD_LENGTH_TAG{"field_length"};
+const std::string JSON_FIELD_NAMES_TAG{"field_names"};
 const std::string JSON_FIELD_TAG{"field"};
 const std::string JSON_FIELD_VALUE_LENGTHS_TAG{"field_value_lengths"};
 const std::string JSON_FREQUENCY_ENCODING_TAG{"frequency_encoding"};
@@ -59,6 +60,7 @@ const std::string JSON_TARGET_TYPE_CLASSIFICATION{"classification"};
 const std::string JSON_TARGET_TYPE_REGRESSION{"regression"};
 const std::string JSON_TARGET_TYPE_TAG{"target_type"};
 const std::string JSON_THRESHOLD_TAG{"threshold"};
+const std::string JSON_TRAINED_MODEL_SIZE_TAG{"trained_model_size"};
 const std::string JSON_TRAINED_MODEL_TAG{"trained_model"};
 const std::string JSON_TRAINED_MODELS_TAG{"trained_models"};
 const std::string JSON_TREE_STRUCTURE_TAG{"tree_structure"};
@@ -481,7 +483,8 @@ CInferenceModelDefinition::TTrainedModelUPtr& CInferenceModelDefinition::trained
     return m_TrainedModel;
 }
 
-const CInferenceModelDefinition::TTrainedModelUPtr& CInferenceModelDefinition::trainedModel() const {
+const CInferenceModelDefinition::TTrainedModelUPtr&
+CInferenceModelDefinition::trainedModel() const {
     return m_TrainedModel;
 }
 
@@ -507,6 +510,59 @@ size_t CInferenceModelDefinition::dependentVariableColumnIndex() const {
 
 void CInferenceModelDefinition::dependentVariableColumnIndex(std::size_t dependentVariableColumnIndex) {
     m_DependentVariableColumnIndex = dependentVariableColumnIndex;
+}
+
+CInferenceModelDefinition::TSizeInfoUPtr CInferenceModelDefinition::sizeInfo() const {
+    return std::make_unique<CSizeInfo>(*this);
+}
+
+CInferenceModelDefinition::CSizeInfo::CSizeInfo(const CInferenceModelDefinition& inferenceModel)
+    : m_TrainedModelSize{nullptr} {
+    // parse preprocessing
+    m_EncodingSizeItems.reserve(inferenceModel.preprocessors().size());
+    for (const auto& preprocessor : inferenceModel.preprocessors()) {
+        m_EncodingSizeItems.push_back(preprocessor->sizeInfo());
+    }
+    // parse trained models
+    if (inferenceModel.trainedModel()) {
+        inferenceModel.trainedModel()->sizeInfo().swap(m_TrainedModelSize);
+    }
+}
+
+std::string CInferenceModelDefinition::CSizeInfo::jsonString() {
+    std::ostringstream stream;
+    {
+        core::CJsonOutputStreamWrapper wrapper{stream};
+        CSerializableToJson::TRapidJsonWriter writer{wrapper};
+        rapidjson::Value doc = writer.makeObject();
+        this->addToDocument(doc, writer);
+        writer.write(doc);
+        stream.flush();
+    }
+    // string writer puts the json object in an array, so we strip the external brackets
+    std::string jsonStr{stream.str()};
+    std::string resultString(jsonStr, 1, jsonStr.size() - 2);
+    return resultString;
+}
+
+void CInferenceModelDefinition::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
+                                                         TRapidJsonWriter& writer) const {
+    // preprocessors
+    rapidjson::Value preprocessingArray = writer.makeArray();
+    for (const auto& encoding : m_EncodingSizeItems) {
+        rapidjson::Value encodingValue = writer.makeObject();
+        encoding->addToDocument(encodingValue, writer);
+        rapidjson::Value encodingEnclosingObject = writer.makeObject();
+        writer.addMember(encoding->typeString(), encodingValue, encodingEnclosingObject);
+        preprocessingArray.PushBack(encodingEnclosingObject, writer.getRawAllocator());
+    }
+    writer.addMember(JSON_PREPROCESSORS_TAG, preprocessingArray, parentObject);
+    rapidjson::Value trainedModelSizeObject = writer.makeObject();
+    rapidjson::Value ensembleModelSizeObject = writer.makeObject();
+    m_TrainedModelSize->addToDocument(ensembleModelSizeObject, writer);
+    writer.addMember(JSON_ENSEMBLE_MODEL_SIZE_TAG, ensembleModelSizeObject,
+                     trainedModelSizeObject);
+    writer.addMember(JSON_TRAINED_MODEL_SIZE_TAG, trainedModelSizeObject, parentObject);
 }
 
 const std::string& CTargetMeanEncoding::typeString() const {

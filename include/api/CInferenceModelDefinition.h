@@ -417,6 +417,25 @@ public:
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
     using TTrainedModelUPtr = CEnsemble::TTrainedModelUPtr;
 
+    class CSizeInfo : public CSerializableToJson {
+    public:
+        explicit CSizeInfo(const CInferenceModelDefinition& encoding);
+        ~CSizeInfo() override = default;
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        std::string jsonString();
+
+    private:
+        using TEncodingSizeUPtr = std::unique_ptr<CEncoding::CSizeInfo>;
+        using TEncodingSizeUPtrVec = std::vector<TEncodingSizeUPtr>;
+        using TTrainedModelSizeUPtr = std::unique_ptr<CTrainedModel::CSizeInfo>;
+
+    private:
+        TEncodingSizeUPtrVec m_EncodingSizeItems;
+        TTrainedModelSizeUPtr m_TrainedModelSize;
+    };
+
+    using TSizeInfoUPtr = std::unique_ptr<CSizeInfo>;
+
 public:
     TApiEncodingUPtrVec& preprocessors();
     const TApiEncodingUPtrVec& preprocessors() const {
@@ -433,6 +452,7 @@ public:
     void typeString(const std::string& typeString);
     std::size_t dependentVariableColumnIndex() const;
     void dependentVariableColumnIndex(size_t dependentVariableColumnIndex);
+    TSizeInfoUPtr sizeInfo() const;
 
 private:
     //! Optional step for pre-processing data, e.g. vector embedding, one-hot-encoding, etc.

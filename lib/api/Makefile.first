@@ -51,7 +51,6 @@ CLengthEncodedInputParser.cc \
 CMemoryUsageEstimationResultJsonWriter.cc \
 CAnnotationJsonWriter.cc \
 CModelPlotDataJsonWriter.cc \
-CModelSizeDefinition.cc \
 CModelSizeStatsJsonWriter.cc \
 CModelSnapshotJsonWriter.cc \
 CNdInputParser.cc \
