@@ -11,7 +11,6 @@ include $(CPP_SRC_HOME)/mk/defines.mk
 .PHONY: install
 
 COMPONENTS= \
-            autoconfig \
             autodetect \
             categorize \
             controller \
