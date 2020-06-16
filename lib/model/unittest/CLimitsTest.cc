@@ -13,8 +13,6 @@ BOOST_AUTO_TEST_SUITE(CLimitsTest)
 BOOST_AUTO_TEST_CASE(testTrivial) {
     ml::model::CLimits config;
 
-    BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_AUTOCONFIG_EVENTS,
-                        config.autoConfigEvents());
     BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
                         config.anomalyMaxTimeBuckets());
     BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_MAX_EXAMPLES,
