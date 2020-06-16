@@ -215,20 +215,20 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
     const core::CPackedBitVector& rowMask,
     CWorkspace& workspace) const {
 
-    core::CDataFrame::TRowFuncVec computers;
-    computers.reserve(numberThreads);
+    core::CDataFrame::TRowFuncVec aggregators;
+    aggregators.reserve(numberThreads);
 
     for (std::size_t i = 0; i < numberThreads; ++i) {
         auto& splitsDerivatives = workspace.derivatives()[i];
         splitsDerivatives.zero();
-        computers.push_back([&](TRowItr beginRows, TRowItr endRows) {
+        aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 this->addRowDerivatives(encoder.encode(*row), splitsDerivatives);
             }
         });
     }
 
-    frame.readRows(0, frame.numberRows(), computers, &rowMask);
+    frame.readRows(0, frame.numberRows(), aggregators, &rowMask);
 
     for (std::size_t i = 1; i < numberThreads; ++i) {
         read(workspace.derivatives()).add(workspace.derivatives()[i]);
@@ -245,15 +245,15 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
     const core::CPackedBitVector& parentRowMask,
     CWorkspace& workspace) const {
 
-    core::CDataFrame::TRowFuncVec computers;
-    computers.reserve(numberThreads);
+    core::CDataFrame::TRowFuncVec aggregators;
+    aggregators.reserve(numberThreads);
 
     for (std::size_t i = 0; i < numberThreads; ++i) {
         auto& mask = workspace.masks()[i];
         auto& splitsDerivatives = workspace.derivatives()[i];
         mask.clear();
         splitsDerivatives.zero();
-        computers.push_back([&](TRowItr beginRows, TRowItr endRows) {
+        aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
                 auto encodedRow = encoder.encode(*row);
                 if (split.assignToLeft(encodedRow) == isLeftChild) {
@@ -266,7 +266,7 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
         });
     }
 
-    frame.readRows(0, frame.numberRows(), computers, &parentRowMask);
+    frame.readRows(0, frame.numberRows(), aggregators, &parentRowMask);
 
     for (auto& mask : workspace.masks()) {
         mask.extend(false, parentRowMask.size() - mask.size());
