@@ -6,9 +6,9 @@
 #ifndef INCLUDED_ml_controller_CBlockingCallCancellerThread_h
 #define INCLUDED_ml_controller_CBlockingCallCancellerThread_h
 
+#include <core/AtomicTypes.h>
 #include <core/CThread.h>
 
-#include <atomic>
 #include <iosfwd>
 
 namespace ml {
@@ -40,7 +40,7 @@ public:
     CBlockingCallCancellerThread(core::CThread::TThreadId potentiallyBlockedThreadId,
                                  std::istream& monitorStream);
 
-    const std::atomic_bool& hasCancelledBlockingCall() const;
+    const atomic_t::atomic_bool& hasCancelledBlockingCall() const;
 
 protected:
     //! Called when the thread is started.
@@ -58,11 +58,11 @@ private:
     std::istream& m_MonitorStream;
 
     //! Flag to indicate the monitoring thread should shut down
-    std::atomic_bool m_Shutdown;
+    atomic_t::atomic_bool m_Shutdown;
 
     //! Flag to indicate that an attempt to cancel blocking calls in the
     //! monitored thread has been made
-    std::atomic_bool m_HasCancelledBlockingCall;
+    atomic_t::atomic_bool m_HasCancelledBlockingCall;
 };
 }
 }

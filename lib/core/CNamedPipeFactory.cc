@@ -109,7 +109,7 @@ const char CNamedPipeFactory::TEST_CHAR('\n');
 
 CNamedPipeFactory::TIStreamP
 CNamedPipeFactory::openPipeStreamRead(const std::string& fileName,
-                                      const std::atomic_bool& isCancelled) {
+                                      const atomic_t::atomic_bool& isCancelled) {
     TPipeHandle fd{CNamedPipeFactory::initPipeHandle(fileName, false, isCancelled)};
     if (fd == -1) {
         return TIStreamP{};
@@ -122,7 +122,7 @@ CNamedPipeFactory::openPipeStreamRead(const std::string& fileName,
 
 CNamedPipeFactory::TOStreamP
 CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName,
-                                       const std::atomic_bool& isCancelled) {
+                                       const atomic_t::atomic_bool& isCancelled) {
     TPipeHandle fd{CNamedPipeFactory::initPipeHandle(fileName, true, isCancelled)};
     if (fd == -1) {
         return TOStreamP{};
@@ -135,7 +135,7 @@ CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName,
 
 CNamedPipeFactory::TFileP
 CNamedPipeFactory::openPipeFileRead(const std::string& fileName,
-                                    const std::atomic_bool& isCancelled) {
+                                    const atomic_t::atomic_bool& isCancelled) {
     TPipeHandle fd{CNamedPipeFactory::initPipeHandle(fileName, false, isCancelled)};
     if (fd == -1) {
         return TFileP{};
@@ -145,7 +145,7 @@ CNamedPipeFactory::openPipeFileRead(const std::string& fileName,
 
 CNamedPipeFactory::TFileP
 CNamedPipeFactory::openPipeFileWrite(const std::string& fileName,
-                                     const std::atomic_bool& isCancelled) {
+                                     const atomic_t::atomic_bool& isCancelled) {
     TPipeHandle fd{CNamedPipeFactory::initPipeHandle(fileName, true, isCancelled)};
     if (fd == -1) {
         return TFileP{};
@@ -184,7 +184,7 @@ std::string CNamedPipeFactory::defaultPath() {
 CNamedPipeFactory::TPipeHandle
 CNamedPipeFactory::initPipeHandle(const std::string& fileName,
                                   bool forWrite,
-                                  const std::atomic_bool& isCancelled) {
+                                  const atomic_t::atomic_bool& isCancelled) {
     if (!SIGPIPE_IGNORED) {
         LOG_WARN(<< "Failed to ignore SIGPIPE - this process will not terminate "
                     "gracefully if a process it is writing to via a named pipe dies");

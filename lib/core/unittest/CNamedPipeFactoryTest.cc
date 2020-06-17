@@ -5,6 +5,7 @@
  */
 #include "CNamedPipeFactoryTest.h"
 
+#include <core/AtomicTypes.h>
 #include <core/CLogger.h>
 #include <core/CNamedPipeFactory.h>
 #include <core/COsFileFuncs.h>
@@ -13,7 +14,6 @@
 
 #include <fstream>
 
-#include <atomic>
 #include <cstdio>
 
 #ifndef Windows
@@ -110,7 +110,7 @@ public:
     CThreadBlockCanceller(ml::core::CThread::TThreadId threadId)
         : m_ThreadId{threadId}, m_HasCancelledBlockingCall{false} {}
 
-    const std::atomic_bool& hasCancelledBlockingCall() {
+    const atomic_t::atomic_bool& hasCancelledBlockingCall() {
         return m_HasCancelledBlockingCall;
     }
 
@@ -128,7 +128,7 @@ protected:
 
 private:
     ml::core::CThread::TThreadId m_ThreadId;
-    std::atomic_bool m_HasCancelledBlockingCall;
+    atomic_t::atomic_bool m_HasCancelledBlockingCall;
 };
 }
 
@@ -160,7 +160,7 @@ void CNamedPipeFactoryTest::testServerIsCppReader() {
     CThreadDataWriter threadWriter{TEST_PIPE_NAME, TEST_SIZE};
     CPPUNIT_ASSERT(threadWriter.start());
 
-    std::atomic_bool dummy{false};
+    atomic_t::atomic_bool dummy{false};
     ml::core::CNamedPipeFactory::TIStreamP strm{
         ml::core::CNamedPipeFactory::openPipeStreamRead(TEST_PIPE_NAME, dummy)};
     CPPUNIT_ASSERT(strm);
@@ -188,7 +188,7 @@ void CNamedPipeFactoryTest::testServerIsCReader() {
     CThreadDataWriter threadWriter{TEST_PIPE_NAME, TEST_SIZE};
     CPPUNIT_ASSERT(threadWriter.start());
 
-    std::atomic_bool dummy{false};
+    atomic_t::atomic_bool dummy{false};
     ml::core::CNamedPipeFactory::TFileP file{
         ml::core::CNamedPipeFactory::openPipeFileRead(TEST_PIPE_NAME, dummy)};
     CPPUNIT_ASSERT(file);
@@ -216,7 +216,7 @@ void CNamedPipeFactoryTest::testServerIsCppWriter() {
     CThreadDataReader threadReader{TEST_PIPE_NAME};
     CPPUNIT_ASSERT(threadReader.start());
 
-    std::atomic_bool dummy{false};
+    atomic_t::atomic_bool dummy{false};
     ml::core::CNamedPipeFactory::TOStreamP strm{
         ml::core::CNamedPipeFactory::openPipeStreamWrite(TEST_PIPE_NAME, dummy)};
     CPPUNIT_ASSERT(strm);
@@ -244,7 +244,7 @@ void CNamedPipeFactoryTest::testServerIsCWriter() {
     CThreadDataReader threadReader{TEST_PIPE_NAME};
     CPPUNIT_ASSERT(threadReader.start());
 
-    std::atomic_bool dummy{false};
+    atomic_t::atomic_bool dummy{false};
     ml::core::CNamedPipeFactory::TFileP file{
         ml::core::CNamedPipeFactory::openPipeFileWrite(TEST_PIPE_NAME, dummy)};
     CPPUNIT_ASSERT(file);
@@ -280,7 +280,7 @@ void CNamedPipeFactoryTest::testCancelBlock() {
 }
 
 void CNamedPipeFactoryTest::testErrorIfRegularFile() {
-    std::atomic_bool dummy{false};
+    atomic_t::atomic_bool dummy{false};
     ml::core::CNamedPipeFactory::TIStreamP strm{
         ml::core::CNamedPipeFactory::openPipeStreamRead("Main.cc", dummy)};
     CPPUNIT_ASSERT(strm == nullptr);
@@ -303,7 +303,7 @@ void CNamedPipeFactoryTest::testErrorIfSymlink() {
     CPPUNIT_ASSERT_EQUAL(0, ::mkfifo(TEST_PIPE_NAME, S_IRUSR | S_IWUSR));
     CPPUNIT_ASSERT_EQUAL(0, ::symlink(TEST_PIPE_NAME, TEST_SYMLINK_NAME));
 
-    std::atomic_bool dummy{false};
+    atomic_t::atomic_bool dummy{false};
     ml::core::CNamedPipeFactory::TIStreamP strm{
         ml::core::CNamedPipeFactory::openPipeStreamRead(TEST_SYMLINK_NAME, dummy)};
     CPPUNIT_ASSERT(strm == nullptr);

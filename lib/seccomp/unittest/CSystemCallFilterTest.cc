@@ -5,6 +5,7 @@
  */
 #include "CSystemCallFilterTest.h"
 
+#include <core/AtomicTypes.h>
 #include <core/CLogger.h>
 #include <core/COsFileFuncs.h>
 #include <core/CSleep.h>
@@ -21,7 +22,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/system/error_code.hpp>
 
-#include <atomic>
 #include <cstdlib>
 #include <string>
 
@@ -180,7 +180,7 @@ void CSystemCallFilterTest::openPipeAndRead(const std::string& filename) {
     CNamedPipeWriter threadWriter{filename, TEST_SIZE};
     CPPUNIT_ASSERT(threadWriter.start());
 
-    std::atomic_bool dummy{false};
+    atomic_t::atomic_bool dummy{false};
     ml::core::CNamedPipeFactory::TIStreamP strm{
         ml::core::CNamedPipeFactory::openPipeStreamRead(filename, dummy)};
     CPPUNIT_ASSERT(strm);
@@ -209,7 +209,7 @@ void CSystemCallFilterTest::openPipeAndWrite(const std::string& filename) {
     CNamedPipeReader threadReader{filename};
     CPPUNIT_ASSERT(threadReader.start());
 
-    std::atomic_bool dummy{false};
+    atomic_t::atomic_bool dummy{false};
     ml::core::CNamedPipeFactory::TOStreamP strm{
         ml::core::CNamedPipeFactory::openPipeStreamWrite(filename, dummy)};
     CPPUNIT_ASSERT(strm);

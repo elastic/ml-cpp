@@ -228,13 +228,13 @@ bool CLogger::setLoggingLevel(ELevel level) {
 }
 
 bool CLogger::reconfigure(const std::string& pipeName, const std::string& propertiesFile) {
-    std::atomic_bool dummy{false};
+    atomic_t::atomic_bool dummy{false};
     return this->reconfigure(pipeName, propertiesFile, dummy);
 }
 
 bool CLogger::reconfigure(const std::string& pipeName,
                           const std::string& propertiesFile,
-                          const std::atomic_bool& isCancelled) {
+                          const atomic_t::atomic_bool& isCancelled) {
     if (pipeName.empty()) {
         if (propertiesFile.empty()) {
             // Both empty is OK - it just means we keep logging to stderr
@@ -246,12 +246,12 @@ bool CLogger::reconfigure(const std::string& pipeName,
 }
 
 bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
-    std::atomic_bool dummy{false};
+    atomic_t::atomic_bool dummy{false};
     return this->reconfigureLogToNamedPipe(pipeName, dummy);
 }
 
 bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName,
-                                        const std::atomic_bool& isCancelled) {
+                                        const atomic_t::atomic_bool& isCancelled) {
     if (m_Reconfigured) {
         LOG_ERROR(<< "Cannot log to a named pipe after logger reconfiguration");
         return false;

@@ -5,9 +5,9 @@
  */
 #include <api/CIoManager.h>
 
+#include <core/AtomicTypes.h>
 #include <core/CLogger.h>
 
-#include <atomic>
 #include <fstream>
 #include <ios>
 #include <iostream>
@@ -25,7 +25,7 @@ bool setUpIStream(const std::string& fileName,
         return true;
     }
     if (isFileNamedPipe) {
-        std::atomic_bool dummy{false};
+        atomic_t::atomic_bool dummy{false};
         stream = core::CNamedPipeFactory::openPipeStreamRead(fileName, dummy);
         return stream != nullptr && !stream->bad();
     }
@@ -42,7 +42,7 @@ bool setUpOStream(const std::string& fileName,
         return true;
     }
     if (isFileNamedPipe) {
-        std::atomic_bool dummy{false};
+        atomic_t::atomic_bool dummy{false};
         stream = core::CNamedPipeFactory::openPipeStreamWrite(fileName, dummy);
         return stream != nullptr && !stream->bad();
     }
