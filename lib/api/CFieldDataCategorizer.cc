@@ -49,13 +49,16 @@ const double CFieldDataCategorizer::SIMILARITY_THRESHOLD{0.7};
 const std::string CFieldDataCategorizer::STATE_TYPE{"categorizer_state"};
 const std::string CFieldDataCategorizer::STATE_VERSION{"1"};
 
-CFieldDataCategorizer::CFieldDataCategorizer(const std::string& jobId,
+CFieldDataCategorizer::CFieldDataCategorizer(std::string jobId,
                                              const CFieldConfig& config,
                                              model::CLimits& limits,
+                                             const std::string& timeFieldName,
+                                             const std::string& timeFieldFormat,
                                              COutputHandler& outputHandler,
                                              CJsonOutputWriter& jsonOutputWriter,
                                              CPersistenceManager* persistenceManager)
-    : m_JobId{jobId}, m_Limits{limits}, m_OutputHandler{outputHandler}, m_ExtraFieldNames{1, MLCATEGORY_NAME},
+    : CDataProcessor{timeFieldName, timeFieldFormat}, m_JobId{std::move(jobId)}, m_Limits{limits},
+      m_OutputHandler{outputHandler}, m_ExtraFieldNames{1, MLCATEGORY_NAME},
       m_OutputFieldCategory{m_Overrides[MLCATEGORY_NAME]}, m_JsonOutputWriter{jsonOutputWriter},
       m_PartitionFieldName{config.categorizationPartitionFieldName()},
       m_CategorizationFieldName{config.categorizationFieldName()}, m_PersistenceManager{persistenceManager} {
@@ -77,7 +80,7 @@ void CFieldDataCategorizer::newOutputStream() {
     m_OutputHandler.newOutputStream();
 }
 
-bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields) {
+bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) {
     // First time through we output the field names
     if (m_WriteFieldNames) {
         TStrVec fieldNames;
@@ -107,7 +110,11 @@ bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields) {
         return msgHandled;
     }
 
-    CGlobalCategoryId globalCategoryId{this->computeAndUpdateCategory(dataRowFields)};
+    if (time == boost::none) {
+        time = this->parseTime(dataRowFields);
+    }
+
+    CGlobalCategoryId globalCategoryId{this->computeAndUpdateCategory(dataRowFields, time)};
     if (globalCategoryId.isHardFailure()) {
         // Still return true here, because false would fail the entire job
         return true;
@@ -130,7 +137,7 @@ void CFieldDataCategorizer::finalise() {
     for (const auto& dataCategorizerEntry : m_DataCategorizers) {
         dataCategorizerEntry.second->forceResourceRefresh(m_Limits.resourceMonitor());
     }
-    writeOutChangedCategories();
+    writeChanges();
     // Pass on the request in case we're chained
     m_OutputHandler.finalise();
 
@@ -150,7 +157,9 @@ COutputHandler& CFieldDataCategorizer::outputHandler() {
     return m_OutputHandler;
 }
 
-CGlobalCategoryId CFieldDataCategorizer::computeAndUpdateCategory(const TStrStrUMap& dataRowFields) {
+CGlobalCategoryId
+CFieldDataCategorizer::computeAndUpdateCategory(const TStrStrUMap& dataRowFields,
+                                                const TOptionalTime& time) {
     CGlobalCategoryId globalCategoryId;
 
     auto fieldIter = dataRowFields.find(m_CategorizationFieldName);
@@ -191,12 +200,12 @@ CGlobalCategoryId CFieldDataCategorizer::computeAndUpdateCategory(const TStrStrU
     }
     if (m_CategorizationFilter.empty()) {
         globalCategoryId = dataCategorizer->computeAndUpdateCategory(
-            false, dataRowFields, fieldValue, fieldValue,
+            false, dataRowFields, time, fieldValue, fieldValue,
             m_Limits.resourceMonitor(), m_JsonOutputWriter);
     } else {
         std::string filtered{m_CategorizationFilter.apply(fieldValue)};
         globalCategoryId = dataCategorizer->computeAndUpdateCategory(
-            false, dataRowFields, filtered, fieldValue,
+            false, dataRowFields, time, filtered, fieldValue,
             m_Limits.resourceMonitor(), m_JsonOutputWriter);
     }
 
@@ -662,15 +671,15 @@ void CFieldDataCategorizer::acknowledgeFlush(const std::string& flushId, bool la
     } else {
         LOG_TRACE(<< "Received flush control message with ID " << flushId);
     }
-    writeOutChangedCategories();
+    writeChanges();
     if (lastHandler) {
         m_JsonOutputWriter.acknowledgeFlush(flushId, 0);
     }
 }
 
-void CFieldDataCategorizer::writeOutChangedCategories() {
+void CFieldDataCategorizer::writeChanges() {
     for (auto& dataCategorizerEntry : m_DataCategorizers) {
-        dataCategorizerEntry.second->writeOutChangedCategories(m_JsonOutputWriter);
+        dataCategorizerEntry.second->writeChanges(m_JsonOutputWriter);
     }
 }
 

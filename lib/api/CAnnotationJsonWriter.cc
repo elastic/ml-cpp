@@ -57,9 +57,9 @@ void CAnnotationJsonWriter::populateAnnotationObject(const std::string& jobId,
     m_Writer.addTimeFieldToObj(TIMESTAMP, annotation.time(), obj);
     m_Writer.addTimeFieldToObj(END_TIMESTAMP, annotation.time(), obj);
 
-    core_t::TTime currentTime(core::CTimeUtils::now());
-    m_Writer.addTimeFieldToObj(CREATE_TIME, currentTime, obj);
-    m_Writer.addTimeFieldToObj(MODIFIED_TIME, currentTime, obj);
+    std::int64_t currentTime(core::CTimeUtils::nowMs());
+    m_Writer.addIntFieldToObj(CREATE_TIME, currentTime, obj);
+    m_Writer.addIntFieldToObj(MODIFIED_TIME, currentTime, obj);
     m_Writer.addStringFieldCopyToObj(CREATE_USERNAME, "_xpack", obj);
     m_Writer.addStringFieldCopyToObj(MODIFIED_USERNAME, "_xpack", obj);
     m_Writer.addStringFieldCopyToObj(TYPE, "annotation", obj);

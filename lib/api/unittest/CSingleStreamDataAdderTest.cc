@@ -106,8 +106,11 @@ void detectorPersistHelper(const std::string& configFileName,
             return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
         }()};
 
-        BOOST_TEST_REQUIRE(parser->readStreamIntoMaps(std::bind(
-            &ml::api::CDataProcessor::handleRecord, firstProcessor, std::placeholders::_1)));
+        BOOST_TEST_REQUIRE(parser->readStreamIntoMaps(
+            [firstProcessor](const ml::api::CDataProcessor::TStrStrUMap& dataRowFields) {
+                return firstProcessor->handleRecord(
+                    dataRowFields, ml::api::CDataProcessor::TOptionalTime{});
+            }));
 
         // Persist the detector state to a stringstream
         std::ostringstream* strm(nullptr);

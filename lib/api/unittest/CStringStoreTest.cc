@@ -85,7 +85,9 @@ core_t::TTime playData(core_t::TTime start,
     api::CCsvInputParser parser(ss);
 
     BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
-        std::bind(&CTestAnomalyJob::handleRecord, &job, std::placeholders::_1)));
+        [&job](const CTestAnomalyJob::TStrStrUMap& dataRowFields) {
+            return job.handleRecord(dataRowFields);
+        }));
 
     return t;
 }

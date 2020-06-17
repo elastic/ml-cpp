@@ -12,9 +12,9 @@
 
 #include <maths/CModel.h>
 
-#include <model/CModelParams.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
+#include <model/SModelParams.h>
 
 #include <boost/filesystem.hpp>
 

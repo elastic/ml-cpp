@@ -17,8 +17,7 @@ namespace model {
 const CDataCategorizer::TStrStrUMap CDataCategorizer::EMPTY_FIELDS;
 
 CDataCategorizer::CDataCategorizer(CLimits& limits, const std::string& fieldName)
-    : m_Limits{limits}, m_FieldName{fieldName},
-      m_ExamplesCollector{limits.maxExamples()}, m_LastPersistTime{0} {
+    : m_Limits{limits}, m_FieldName{fieldName}, m_ExamplesCollector{limits.maxExamples()} {
     m_Limits.resourceMonitor().registerComponent(*this);
 }
 
@@ -34,14 +33,6 @@ CLocalCategoryId CDataCategorizer::computeCategory(bool isDryRun,
 
 const std::string& CDataCategorizer::fieldName() const {
     return m_FieldName;
-}
-
-core_t::TTime CDataCategorizer::lastPersistTime() const {
-    return m_LastPersistTime;
-}
-
-void CDataCategorizer::lastPersistTime(core_t::TTime lastPersistTime) {
-    m_LastPersistTime = lastPersistTime;
 }
 
 void CDataCategorizer::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
