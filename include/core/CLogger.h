@@ -13,6 +13,7 @@
 
 #include <boost/log/sources/severity_logger.hpp>
 
+#include <atomic>
 #include <functional>
 #include <iosfwd>
 
@@ -163,11 +164,8 @@ private:
 private:
     TLevelSeverityLogger m_Logger;
 
-    //! Has the logger ever been reconfigured?  This is not protected by a
-    //! lock despite the fact that it may be accessed from different
-    //! threads.  It is declared volatile to prevent the compiler optimising
-    //! away reads of it.
-    volatile bool m_Reconfigured;
+    //! Has the logger ever been reconfigured?
+    std::atomic_bool m_Reconfigured;
 
     //! Custom Boost.Log attribute names
     boost::log::attribute_name m_FileAttributeName;

@@ -90,14 +90,14 @@ CForecastRunner::SForecast& CForecastRunner::SForecast::operator=(SForecast&& ot
 CForecastRunner::CForecastRunner(const std::string& jobId,
                                  core::CJsonOutputStreamWrapper& strmOut,
                                  model::CResourceMonitor& resourceMonitor)
-    : m_JobId(jobId), m_ConcurrentOutputStream(strmOut),
-      m_ResourceMonitor(resourceMonitor), m_Shutdown(false) {
+    : m_JobId{jobId}, m_ConcurrentOutputStream{strmOut},
+      m_ResourceMonitor{resourceMonitor}, m_Shutdown{false} {
     m_Worker = std::thread([this] { this->forecastWorker(); });
 }
 
 CForecastRunner::~CForecastRunner() {
     // shutdown
-    m_Shutdown = true;
+    m_Shutdown.store(true);
     // signal the worker
     {
         std::unique_lock<std::mutex> lock(m_Mutex);
@@ -109,7 +109,7 @@ CForecastRunner::~CForecastRunner() {
 void CForecastRunner::finishForecasts() {
     std::unique_lock<std::mutex> lock(m_Mutex);
     // note: forecast could still be active
-    while (!m_Shutdown && !m_ForecastJobs.empty()) {
+    while (m_Shutdown.load() == false && m_ForecastJobs.empty() == false) {
         // items in the queue, wait
         m_WorkCompleteCondition.wait(lock);
     }
@@ -117,7 +117,7 @@ void CForecastRunner::finishForecasts() {
 
 void CForecastRunner::forecastWorker() {
     SForecast forecastJob;
-    while (!m_Shutdown) {
+    while (m_Shutdown.load() == false) {
         if (this->tryGetJob(forecastJob)) {
             LOG_INFO(<< "Start forecasting from "
                      << core::CTimeUtils::toIso8601(forecastJob.s_StartTime) << " to "
@@ -254,7 +254,7 @@ bool CForecastRunner::tryGetJob(SForecast& forecastJob) {
     }
 
     // m_Shutdown might have been set meanwhile
-    if (m_Shutdown) {
+    if (m_Shutdown.load()) {
         return false;
     }
 
