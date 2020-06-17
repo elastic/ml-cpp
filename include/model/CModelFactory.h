@@ -346,7 +346,7 @@ public:
     void componentSize(std::size_t componentSize);
     //@}
 
-    //! Update the bucket length, for ModelAutoConfig's benefit
+    //! Update the bucket length
     void updateBucketLength(core_t::TTime length);
 
     //! Set whether model annotations should be reported.
