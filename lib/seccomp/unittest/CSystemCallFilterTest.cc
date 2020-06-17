@@ -21,15 +21,16 @@
 #include <boost/filesystem.hpp>
 #include <boost/system/error_code.hpp>
 
+#include <atomic>
 #include <cstdlib>
 #include <string>
 
 namespace {
 
-const uint32_t SLEEP_TIME_MS = 100;
-const size_t TEST_SIZE = 10000;
-const size_t MAX_ATTEMPTS = 20;
-const char TEST_CHAR = 'a';
+const std::uint32_t SLEEP_TIME_MS{100};
+const std::size_t TEST_SIZE{10000};
+const std::size_t MAX_ATTEMPTS{20};
+const char TEST_CHAR{'a'};
 // CTestTmpDir::tmpDir() fails to get the current user after the system call
 // filter is installed, so cache the value early
 const std::string TMP_DIR{ml::test::CTestTmpDir::tmpDir()};
@@ -176,14 +177,15 @@ void CSystemCallFilterTest::testSystemCallFilter() {
 
 void CSystemCallFilterTest::openPipeAndRead(const std::string& filename) {
 
-    CNamedPipeWriter threadWriter(filename, TEST_SIZE);
+    CNamedPipeWriter threadWriter{filename, TEST_SIZE};
     CPPUNIT_ASSERT(threadWriter.start());
 
-    ml::core::CNamedPipeFactory::TIStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamRead(filename);
+    std::atomic_bool dummy{false};
+    ml::core::CNamedPipeFactory::TIStreamP strm{
+        ml::core::CNamedPipeFactory::openPipeStreamRead(filename, dummy)};
     CPPUNIT_ASSERT(strm);
 
-    static const std::streamsize BUF_SIZE = 512;
+    static const std::streamsize BUF_SIZE{512};
     std::string readData;
     readData.reserve(TEST_SIZE);
     char buffer[BUF_SIZE];
@@ -204,15 +206,16 @@ void CSystemCallFilterTest::openPipeAndRead(const std::string& filename) {
 }
 
 void CSystemCallFilterTest::openPipeAndWrite(const std::string& filename) {
-    CNamedPipeReader threadReader(filename);
+    CNamedPipeReader threadReader{filename};
     CPPUNIT_ASSERT(threadReader.start());
 
-    ml::core::CNamedPipeFactory::TOStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamWrite(filename);
+    std::atomic_bool dummy{false};
+    ml::core::CNamedPipeFactory::TOStreamP strm{
+        ml::core::CNamedPipeFactory::openPipeStreamWrite(filename, dummy)};
     CPPUNIT_ASSERT(strm);
 
-    size_t charsLeft(TEST_SIZE);
-    size_t blockSize(7);
+    std::size_t charsLeft{TEST_SIZE};
+    std::size_t blockSize{7};
     while (charsLeft > 0) {
         if (blockSize > charsLeft) {
             blockSize = charsLeft;
@@ -232,7 +235,7 @@ void CSystemCallFilterTest::openPipeAndWrite(const std::string& filename) {
 
 void CSystemCallFilterTest::makeAndRemoveDirectory(const std::string& dirname) {
 
-    boost::filesystem::path temporaryFolder(dirname);
+    boost::filesystem::path temporaryFolder{dirname};
     temporaryFolder /= "test-directory";
 
     boost::system::error_code errorCode;
