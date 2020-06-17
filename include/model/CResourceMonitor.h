@@ -10,6 +10,7 @@
 
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
+#include <model/SCategorizerStats.h>
 
 #include <boost/unordered_map.hpp>
 
@@ -49,13 +50,7 @@ public:
         core_t::TTime s_BucketStartTime = 0;
         std::size_t s_BytesExceeded = 0;
         std::size_t s_BytesMemoryLimit = 0;
-        std::size_t s_CategorizedMessages = 0;
-        std::size_t s_TotalCategories = 0;
-        std::size_t s_FrequentCategories = 0;
-        std::size_t s_RareCategories = 0;
-        std::size_t s_DeadCategories = 0;
-        std::size_t s_MemoryCategorizationFailures = 0;
-        model_t::ECategorizationStatus s_CategorizationStatus = model_t::E_CategorizationStatusOk;
+        SCategorizerStats s_OverallCategorizerStats;
     };
 
 public:

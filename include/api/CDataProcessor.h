@@ -6,24 +6,22 @@
 #ifndef INCLUDED_ml_api_CDataProcessor_h
 #define INCLUDED_ml_api_CDataProcessor_h
 
-#include <core/CNonCopyable.h>
 #include <core/CoreTypes.h>
 
 #include <api/ImportExport.h>
 
+#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
+#include <cstdint>
 #include <string>
 #include <vector>
-
-#include <stdint.h>
 
 namespace ml {
 namespace core {
 class CDataAdder;
 class CDataSearcher;
 }
-
 namespace api {
 class CPersistenceManager;
 class COutputHandler;
@@ -38,7 +36,7 @@ class COutputHandler;
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //!
-class API_EXPORT CDataProcessor : private core::CNonCopyable {
+class API_EXPORT CDataProcessor {
 public:
     static const char CONTROL_FIELD_NAME_CHAR = '.';
     static const std::string CONTROL_FIELD_NAME;
@@ -52,16 +50,23 @@ public:
     using TStrStrUMapItr = TStrStrUMap::iterator;
     using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
+    using TOptionalTime = boost::optional<core_t::TTime>;
+
 public:
-    CDataProcessor();
-    virtual ~CDataProcessor();
+    CDataProcessor() = default;
+    CDataProcessor(const std::string& timeFieldName, const std::string& timeFieldFormat);
+    virtual ~CDataProcessor() = default;
+
+    //! No copying
+    CDataProcessor(const CDataProcessor&) = delete;
+    CDataProcessor& operator=(const CDataProcessor&) = delete;
 
     //! We're going to be writing to a new output stream
     virtual void newOutputStream() = 0;
 
     //! Receive a single record to be processed, and produce output
     //! with any required modifications
-    virtual bool handleRecord(const TStrStrUMap& dataRowFields) = 0;
+    virtual bool handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) = 0;
 
     //! Perform any final processing once all input data has been seen.
     virtual void finalise() = 0;
@@ -81,7 +86,7 @@ public:
     virtual bool periodicPersistStateInForeground();
 
     //! How many records did we handle?
-    virtual uint64_t numRecordsHandled() const = 0;
+    virtual std::uint64_t numRecordsHandled() const = 0;
 
     //! Access the output handler
     virtual COutputHandler& outputHandler() = 0;
@@ -92,6 +97,21 @@ public:
     //! Create debug for a record.  This is expensive so should NOT be
     //! called for every record as a matter of course.
     static std::string debugPrintRecord(const TStrStrUMap& dataRowFields);
+
+    //! Parse the time from an input record.
+    //! \return An empty optional on failure.
+    TOptionalTime parseTime(const TStrStrUMap& dataRowFields) const;
+
+private:
+    //! Name of field holding the time.  An empty string, indicates the input
+    //! contains no timestamp.  This may not be valid for some data processors,
+    //! in which case the derived class must validate this field.
+    std::string m_TimeFieldName;
+
+    //! Time field format.  Blank means seconds since the epoch, i.e. the
+    //! time field can be converted to a time_t by simply converting the
+    //! string to a number.
+    std::string m_TimeFieldFormat;
 };
 }
 }

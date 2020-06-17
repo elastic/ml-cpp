@@ -63,12 +63,13 @@ public:
     //! returns true
     virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
-    // Bring the other overload of writeRow() into scope
+    // Bring the other overloads of writeRow() into scope
     using COutputHandler::writeRow;
 
     //! Write the data row fields as a JSON object
     virtual bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields);
+                          const TStrStrUMap& overrideDataRowFields,
+                          TOptionalTime time);
 
     //! Get the contents of the internal string stream - for use with the
     //! zero argument constructor

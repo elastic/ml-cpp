@@ -61,7 +61,6 @@ CMetricPopulationModelFactory.cc \
 CAnnotation.cc \
 CModelDetailsView.cc \
 CModelFactory.cc \
-CModelParams.cc \
 CModelPlotData.cc \
 CModelTools.cc \
 CMonitoredResource.cc \
@@ -81,6 +80,7 @@ CTokenListDataCategorizerBase.cc \
 CTokenListReverseSearchCreator.cc \
 FrequencyPredicates.cc \
 FunctionTypes.cc \
-ModelTypes.cc
+ModelTypes.cc \
+SModelParams.cc \
 
 include $(CPP_SRC_HOME)/mk/dynamiclib.mk
