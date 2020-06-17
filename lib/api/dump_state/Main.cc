@@ -139,7 +139,7 @@ bool persistCategorizerStateToFile(const std::string& outputFileName,
     dataRowFields["_raw"] = "thing";
     dataRowFields["two"] = "other";
 
-    categorizer.handleRecord(dataRowFields, -1);
+    categorizer.handleRecord(dataRowFields, ml::api::CFieldDataCategorizer::TOptionalTime{});
 
     // Persist the categorizer state to file
     {
@@ -201,8 +201,10 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
         return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
     }()};
 
-    if (!parser->readStreamIntoMaps(std::bind(&ml::api::CAnomalyJob::handleRecord,
-                                              &origJob, std::placeholders::_1, -1))) {
+    if (parser->readStreamIntoMaps([&origJob](const ml::api::CAnomalyJob::TStrStrUMap& dataRowFields) {
+            return origJob.handleRecord(dataRowFields,
+                                        ml::api::CAnomalyJob::TOptionalTime{});
+        }) == false) {
         LOG_ERROR(<< "Failed to processs input");
         return false;
     }
