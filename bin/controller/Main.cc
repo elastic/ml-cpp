@@ -4,10 +4,10 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 //! \brief
-//! Controller to start other Ml processes.
+//! Controller to start other ML processes.
 //!
 //! DESCRIPTION:\n
-//! Starts other Ml processes based on commands sent to it
+//! Starts other ML processes based on commands sent to it
 //! through a named pipe.
 //!
 //! Each command has the following format:
@@ -59,12 +59,12 @@
 #include <string.h>
 
 int main(int argc, char** argv) {
-    const std::string& defaultNamedPipePath = ml::core::CNamedPipeFactory::defaultPath();
-    const std::string& progName = ml::core::CProgName::progName();
+    const std::string& defaultNamedPipePath{ml::core::CNamedPipeFactory::defaultPath()};
+    const std::string& progName{ml::core::CProgName::progName()};
 
     // Read command line options
-    std::string jvmPidStr = ml::core::CStringUtils::typeToString(
-        ml::core::CProcess::instance().parentId());
+    std::string jvmPidStr{ml::core::CStringUtils::typeToString(
+        ml::core::CProcess::instance().parentId())};
     std::string logPipe;
     std::string commandPipe;
     if (ml::controller::CCmdLineParser::parse(argc, argv, jvmPidStr, logPipe,
@@ -88,8 +88,8 @@ int main(int argc, char** argv) {
     // 4) No plugin code ever runs
     // This thread will detect the death of the parent process because this
     // process's STDIN will be closed.
-    ml::controller::CBlockingCallCancellerThread cancellerThread(
-        ml::core::CThread::currentThreadId(), std::cin);
+    ml::controller::CBlockingCallCancellerThread cancellerThread{
+        ml::core::CThread::currentThreadId(), std::cin};
     if (cancellerThread.start() == false) {
         // This log message will probably never been seen as it will go to the
         // real stderr of this process rather than the log pipe...
@@ -97,8 +97,13 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    if (ml::core::CLogger::instance().reconfigureLogToNamedPipe(logPipe) == false) {
-        LOG_FATAL(<< "Could not reconfigure logging");
+    if (ml::core::CLogger::instance().reconfigureLogToNamedPipe(
+            logPipe, cancellerThread.hasCancelledBlockingCall()) == false) {
+        if (cancellerThread.hasCancelledBlockingCall().load()) {
+            LOG_INFO(<< "Parent process died - ML controller exiting");
+        } else {
+            LOG_FATAL(<< "Could not reconfigure logging");
+        }
         cancellerThread.stop();
         return EXIT_FAILURE;
     }
@@ -112,10 +117,14 @@ int main(int argc, char** argv) {
     // the controller is critical to the overall system.  Also its resource
     // requirements should always be very low.
 
-    ml::core::CNamedPipeFactory::TIStreamP commandStream =
-        ml::core::CNamedPipeFactory::openPipeStreamRead(commandPipe);
+    ml::core::CNamedPipeFactory::TIStreamP commandStream{ml::core::CNamedPipeFactory::openPipeStreamRead(
+        commandPipe, cancellerThread.hasCancelledBlockingCall())};
     if (commandStream == nullptr) {
-        LOG_FATAL(<< "Could not open command pipe");
+        if (cancellerThread.hasCancelledBlockingCall().load()) {
+            LOG_INFO(<< "Parent process died - ML controller exiting");
+        } else {
+            LOG_FATAL(<< "Could not open command pipe");
+        }
         cancellerThread.stop();
         return EXIT_FAILURE;
     }
@@ -123,7 +132,7 @@ int main(int argc, char** argv) {
     // Change directory to the directory containing this program, because the
     // permitted paths all assume the current working directory contains the
     // permitted programs
-    const std::string& progDir = ml::core::CProgName::progDir();
+    const std::string& progDir{ml::core::CProgName::progDir()};
     if (ml::core::COsFileFuncs::chdir(progDir.c_str()) == -1) {
         LOG_FATAL(<< "Could not change directory to '" << progDir
                   << "': " << ::strerror(errno));
@@ -131,13 +140,10 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    ml::controller::CCommandProcessor::TStrVec permittedProcessPaths;
-    permittedProcessPaths.push_back("./autodetect");
-    permittedProcessPaths.push_back("./categorize");
-    permittedProcessPaths.push_back("./data_frame_analyzer");
-    permittedProcessPaths.push_back("./normalize");
+    ml::controller::CCommandProcessor::TStrVec permittedProcessPaths{
+        "./autodetect", "./categorize", "./data_frame_analyzer", "./normalize"};
 
-    ml::controller::CCommandProcessor processor(permittedProcessPaths);
+    ml::controller::CCommandProcessor processor{permittedProcessPaths};
     processor.processCommands(*commandStream);
 
     cancellerThread.stop();
@@ -145,7 +151,7 @@ int main(int argc, char** argv) {
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
-    LOG_INFO(<< "Ml controller exiting");
+    LOG_INFO(<< "ML controller exiting");
 
     return EXIT_SUCCESS;
 }

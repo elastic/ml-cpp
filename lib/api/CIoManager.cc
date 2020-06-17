@@ -7,6 +7,7 @@
 
 #include <core/CLogger.h>
 
+#include <atomic>
 #include <fstream>
 #include <ios>
 #include <iostream>
@@ -24,7 +25,8 @@ bool setUpIStream(const std::string& fileName,
         return true;
     }
     if (isFileNamedPipe) {
-        stream = core::CNamedPipeFactory::openPipeStreamRead(fileName);
+        std::atomic_bool dummy{false};
+        stream = core::CNamedPipeFactory::openPipeStreamRead(fileName, dummy);
         return stream != nullptr && !stream->bad();
     }
     std::ifstream* fileStream(nullptr);
@@ -40,7 +42,8 @@ bool setUpOStream(const std::string& fileName,
         return true;
     }
     if (isFileNamedPipe) {
-        stream = core::CNamedPipeFactory::openPipeStreamWrite(fileName);
+        std::atomic_bool dummy{false};
+        stream = core::CNamedPipeFactory::openPipeStreamWrite(fileName, dummy);
         return stream != nullptr && !stream->bad();
     }
     std::ofstream* fileStream(nullptr);

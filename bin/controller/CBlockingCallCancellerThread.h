@@ -8,6 +8,7 @@
 
 #include <core/CThread.h>
 
+#include <atomic>
 #include <iosfwd>
 
 namespace ml {
@@ -39,12 +40,14 @@ public:
     CBlockingCallCancellerThread(core::CThread::TThreadId potentiallyBlockedThreadId,
                                  std::istream& monitorStream);
 
+    const std::atomic_bool& hasCancelledBlockingCall() const;
+
 protected:
     //! Called when the thread is started.
-    virtual void run();
+    void run() override;
 
     //! Called when the thread is stopped.
-    virtual void shutdown();
+    void shutdown() override;
 
 private:
     //! Thread ID of the thread that this object will cancel blocking IO in
@@ -54,8 +57,12 @@ private:
     //! Stream to monitor for end-of-file.
     std::istream& m_MonitorStream;
 
-    //! Flag to indicate the thread should shut down
-    volatile bool m_Shutdown;
+    //! Flag to indicate the monitoring thread should shut down
+    std::atomic_bool m_Shutdown;
+
+    //! Flag to indicate that an attempt to cancel blocking calls in the
+    //! monitored thread has been made
+    std::atomic_bool m_HasCancelledBlockingCall;
 };
 }
 }
