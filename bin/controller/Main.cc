@@ -21,11 +21,10 @@
 //! Standalone program.
 //!
 //! Only accepts requests to start the following processes:
-//! 1) ./autoconfig
-//! 2) ./autodetect
-//! 3) ./categorize
-//! 4) ./data_frame_analyzer
-//! 5) ./normalize
+//! 1) ./autodetect
+//! 2) ./categorize
+//! 3) ./data_frame_analyzer
+//! 4) ./normalize
 //!
 //! The assumption here is that the working directory of this
 //! process will be the directory containing these other
@@ -142,7 +141,7 @@ int main(int argc, char** argv) {
     }
 
     ml::controller::CCommandProcessor::TStrVec permittedProcessPaths{
-        "./autoconfig", "./autodetect", "./categorize", "./data_frame_analyzer", "./normalize"};
+        "./autodetect", "./categorize", "./data_frame_analyzer", "./normalize"};
 
     ml::controller::CCommandProcessor processor{permittedProcessPaths};
     processor.processCommands(*commandStream);
