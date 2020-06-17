@@ -27,7 +27,7 @@ void noOpHandler(int /*sig*/) {
 //! Use SIGIO for waking up blocking calls.  The same handler will be used in
 //! all threads, so there's an assumption here that having some other sort of
 //! handling for SIGIO is not important to any other thread in the process.
-//! That will be true of Ml code.  If a 3rd party library relied on SIGIO
+//! That will be true of ML code.  If a 3rd party library relied on SIGIO
 //! handling then we could change the signal we use in this class to another
 //! (maybe SIGURG).  However, it's bad practice for reusable libraries to
 //! unconditionally install signal handlers, so unlikely to be a problem.
