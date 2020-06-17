@@ -168,12 +168,12 @@ bool CTree::CTreeNode::leaf() const {
 }
 
 CTrainedModel::TSizeInfoUPtr CTree::sizeInfo() const {
-    return std::unique_ptr<CSizeInfo>(new CSizeInfo(this));
+    return std::make_unique<CSizeInfo>(*this);
 }
 
-CTree::CSizeInfo::CSizeInfo(const CTree* tree)
+CTree::CSizeInfo::CSizeInfo(const CTree& tree)
     : CTrainedModel::CSizeInfo(tree) {
-    for (const auto& node : tree->m_TreeStructure) {
+    for (const auto& node : tree.m_TreeStructure) {
         if (node.leaf()) {
             ++m_numLeaves;
         } else {
@@ -275,11 +275,11 @@ void CEnsemble::classificationWeights(TDoubleVec classificationWeights) {
 }
 
 CTrainedModel::TSizeInfoUPtr CEnsemble::sizeInfo() const {
-    return std::unique_ptr<CSizeInfo>(new CSizeInfo(this));
+    return std::make_unique<CSizeInfo>(*this);
 }
 
-CEnsemble::CSizeInfo::CSizeInfo(const CEnsemble* ensemble)
-    : CTrainedModel::CSizeInfo(ensemble), m_Ensemble{ensemble} {
+CEnsemble::CSizeInfo::CSizeInfo(const CEnsemble& ensemble)
+    : CTrainedModel::CSizeInfo(ensemble), m_Ensemble{&ensemble} {
 }
 
 std::size_t CEnsemble::CSizeInfo::numOperations() const {
@@ -453,8 +453,8 @@ void CTrainedModel::classificationWeights(TDoubleVec classificationWeights) {
     m_ClassificationWeights = std::move(classificationWeights);
 }
 
-CTrainedModel::CSizeInfo::CSizeInfo(const CTrainedModel* trainedModel)
-    : m_TrainedModel{trainedModel} {
+CTrainedModel::CSizeInfo::CSizeInfo(const CTrainedModel& trainedModel)
+    : m_TrainedModel{&trainedModel} {
 }
 
 void CTrainedModel::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
@@ -603,6 +603,10 @@ const CTargetMeanEncoding::TStringDoubleUMap& CTargetMeanEncoding::targetMap() c
     return m_TargetMap;
 }
 
+CTargetMeanEncoding::CSizeInfo::CSizeInfo(const CTargetMeanEncoding& encoding)
+    : CSizeInfo(&encoding) {
+}
+
 CTargetMeanEncoding::CSizeInfo::CSizeInfo(const CTargetMeanEncoding* encoding)
     : CEncoding::CSizeInfo::CSizeInfo(encoding) {
     m_FeatureNameLength = encoding->featureName().size();
@@ -622,7 +626,7 @@ void CTargetMeanEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObjec
 }
 
 CEncoding::TSizeInfoUPtr CTargetMeanEncoding::sizeInfo() const {
-    return std::unique_ptr<CEncoding::CSizeInfo>(new CTargetMeanEncoding::CSizeInfo(this));
+    return std::make_unique<CTargetMeanEncoding::CSizeInfo>(*this);
 }
 
 const std::string& CTargetMeanEncoding::CSizeInfo::typeString() const {
@@ -685,6 +689,10 @@ const CFrequencyEncoding::TStringDoubleUMap& CFrequencyEncoding::frequencyMap() 
     return m_FrequencyMap;
 }
 
+CFrequencyEncoding::CSizeInfo::CSizeInfo(const CFrequencyEncoding& encoding)
+    : CSizeInfo(&encoding) {
+}
+
 CFrequencyEncoding::CSizeInfo::CSizeInfo(const CFrequencyEncoding* encoding)
     : CEncoding::CSizeInfo::CSizeInfo(encoding) {
     m_FeatureNameLength = encoding->featureName().size();
@@ -708,7 +716,7 @@ const std::string& CFrequencyEncoding::typeString() const {
 }
 
 CEncoding::TSizeInfoUPtr CFrequencyEncoding::sizeInfo() const {
-    return std::unique_ptr<CEncoding::CSizeInfo>(new CFrequencyEncoding::CSizeInfo(this));
+    return std::make_unique<CFrequencyEncoding::CSizeInfo>(*this);
 }
 
 COneHotEncoding::TStringStringUMap& COneHotEncoding::hotMap() {
@@ -733,6 +741,10 @@ void COneHotEncoding::addToDocument(rapidjson::Value& parentObject,
     writer.addMember(JSON_HOT_MAP_TAG, hotMap, parentObject);
 }
 
+COneHotEncoding::CSizeInfo::CSizeInfo(const COneHotEncoding& encoding)
+    : CSizeInfo(&encoding) {
+}
+
 COneHotEncoding::COneHotEncoding(const std::string& field, TStringStringUMap hotMap)
     : CEncoding(field), m_HotMap(std::move(hotMap)) {
 }
@@ -740,7 +752,6 @@ COneHotEncoding::COneHotEncoding(const std::string& field, TStringStringUMap hot
 COneHotEncoding::CSizeInfo::CSizeInfo(const COneHotEncoding* encoding)
     : CEncoding::CSizeInfo::CSizeInfo(encoding) {
     for (const auto& item : encoding->hotMap()) {
-        // TODO check if this is correct
         m_FieldValueLengths.push_back(item.first.size());
         m_FeatureNameLengths.push_back(item.second.size());
     }
@@ -758,7 +769,7 @@ const std::string& COneHotEncoding::CSizeInfo::typeString() const {
 }
 
 CEncoding::TSizeInfoUPtr COneHotEncoding::sizeInfo() const {
-    return std::unique_ptr<CEncoding::CSizeInfo>(new COneHotEncoding::CSizeInfo(this));
+    return std::make_unique<COneHotEncoding::CSizeInfo>(*this);
 }
 
 CWeightedSum::CWeightedSum(TDoubleVec&& weights)

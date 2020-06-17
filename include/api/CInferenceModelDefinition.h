@@ -116,7 +116,7 @@ public:
     class CSizeInfo : public CSerializableToJson {
     public:
         ~CSizeInfo() override = default;
-        explicit CSizeInfo(const CTrainedModel* trainedModel);
+        explicit CSizeInfo(const CTrainedModel& trainedModel);
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
         virtual std::size_t numOperations() const = 0;
 
@@ -199,7 +199,7 @@ public:
     class CSizeInfo : public CTrainedModel::CSizeInfo {
     public:
         ~CSizeInfo() override = default;
-        explicit CSizeInfo(const CTree* tree);
+        explicit CSizeInfo(const CTree& tree);
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
         std::size_t numOperations() const override;
 
@@ -232,7 +232,7 @@ public:
     class CSizeInfo : public CTrainedModel::CSizeInfo {
     public:
         ~CSizeInfo() override = default;
-        explicit CSizeInfo(const CEnsemble* ensemble);
+        explicit CSizeInfo(const CEnsemble& ensemble);
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
         std::size_t numOperations() const override;
 
@@ -272,9 +272,12 @@ public:
     class CSizeInfo : public CSerializableToJson {
     public:
         ~CSizeInfo() override = default;
-        explicit CSizeInfo(const CEncoding* encoding);
+
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
         virtual const std::string& typeString() const = 0;
+
+    protected:
+        explicit CSizeInfo(const CEncoding* encoding);
 
     private:
         std::size_t m_FieldLength;
@@ -300,14 +303,17 @@ private:
 //! \brief Mapping from categorical columns to numerical values related to categorical value distribution.
 class API_EXPORT CFrequencyEncoding final : public CEncoding {
 public:
-    class CSizeInfo : public CEncoding::CSizeInfo {
+    class CSizeInfo final : public CEncoding::CSizeInfo {
     public:
-        explicit CSizeInfo(const CFrequencyEncoding* encoding);
+        explicit CSizeInfo(const CFrequencyEncoding& encoding);
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
         const std::string& typeString() const override;
 
     private:
         using TSizeVec = std::vector<std::size_t>;
+
+    private:
+        explicit CSizeInfo(const CFrequencyEncoding* encoding);
 
     private:
         TSizeVec m_FieldValueLengths;
@@ -335,14 +341,17 @@ private:
 //! \brief Application of the one-hot encoding function on a single column.
 class API_EXPORT COneHotEncoding final : public CEncoding {
 public:
-    class CSizeInfo : public CEncoding::CSizeInfo {
+    class CSizeInfo final : public CEncoding::CSizeInfo {
     public:
-        explicit CSizeInfo(const COneHotEncoding* encoding);
+        explicit CSizeInfo(const COneHotEncoding& encoding);
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
         const std::string& typeString() const override;
 
     private:
         using TSizeVec = std::vector<std::size_t>;
+
+    private:
+        explicit CSizeInfo(const COneHotEncoding* encoding);
 
     private:
         TSizeVec m_FieldValueLengths;
@@ -367,14 +376,17 @@ private:
 //! \brief Mapping from categorical columns to numerical values related to the target value.
 class API_EXPORT CTargetMeanEncoding final : public CEncoding {
 public:
-    class CSizeInfo : public CEncoding::CSizeInfo {
+    class CSizeInfo final : public CEncoding::CSizeInfo {
     public:
-        explicit CSizeInfo(const CTargetMeanEncoding* encoding);
+        explicit CSizeInfo(const CTargetMeanEncoding& encoding);
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
         const std::string& typeString() const override;
 
     private:
         using TSizeVec = std::vector<std::size_t>;
+
+    private:
+        explicit CSizeInfo(const CTargetMeanEncoding* encoding);
 
     private:
         TSizeVec m_FieldValueLengths;
