@@ -16,7 +16,6 @@ COMPONENTS= \
             maths \
             model \
             api \
-            config \
             seccomp \
             test \
 

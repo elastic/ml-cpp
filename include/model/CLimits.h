@@ -44,9 +44,6 @@ namespace model {
 //!
 class MODEL_EXPORT CLimits {
 public:
-    //! Default number of events to consume during auto-config
-    static const size_t DEFAULT_AUTOCONFIG_EVENTS;
-
     //! Default maximum number of distinct values of a single field before
     //! analysis of that field will be halted
     static const size_t DEFAULT_ANOMALY_MAX_FIELD_VALUES;
@@ -73,7 +70,6 @@ public:
     bool init(const std::string& configFile);
 
     //! Access to settings
-    size_t autoConfigEvents() const;
     size_t anomalyMaxTimeBuckets() const;
     size_t maxExamples() const;
     double unusualProbabilityThreshold() const;
@@ -109,9 +105,6 @@ private:
     }
 
 private:
-    //! Number of events to consume during auto-config
-    size_t m_AutoConfigEvents;
-
     //! Maximum number of time buckets to process during anomaly detection
     //! before ceasing to output results
     size_t m_AnomalyMaxTimeBuckets;
