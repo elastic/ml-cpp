@@ -23,12 +23,12 @@ bool COutputHandler::fieldNames(const TStrVec& fieldNames) {
 bool COutputHandler::writeRow(const TStrStrUMap& dataRowFields) {
     // Since the overrides are checked first, but we know there aren't any, it's
     // most efficient to pretend everything's an override
-    return this->writeRow(EMPTY_FIELD_OVERRIDES, dataRowFields, -1);
+    return this->writeRow(EMPTY_FIELD_OVERRIDES, dataRowFields, TOptionalTime{});
 }
 
 bool COutputHandler::writeRow(const TStrStrUMap& dataRowFields,
                               const TStrStrUMap& overrideDataRowFields) {
-    return this->writeRow(dataRowFields, overrideDataRowFields, -1);
+    return this->writeRow(dataRowFields, overrideDataRowFields, TOptionalTime{});
 }
 
 void COutputHandler::finalise() {

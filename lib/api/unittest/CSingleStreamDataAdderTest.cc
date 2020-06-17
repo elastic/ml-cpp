@@ -108,7 +108,8 @@ void detectorPersistHelper(const std::string& configFileName,
 
         BOOST_TEST_REQUIRE(parser->readStreamIntoMaps(
             [firstProcessor](const ml::api::CDataProcessor::TStrStrUMap& dataRowFields) {
-                return firstProcessor->handleRecord(dataRowFields, -1);
+                return firstProcessor->handleRecord(
+                    dataRowFields, ml::api::CDataProcessor::TOptionalTime{});
             }));
 
         // Persist the detector state to a stringstream

@@ -43,7 +43,7 @@ public:
     using CFieldDataCategorizer::handleRecord;
 
     bool handleRecord(const TStrStrUMap& dataRowFields) {
-        return this->handleRecord(dataRowFields, -1);
+        return this->handleRecord(dataRowFields, TOptionalTime{});
     }
 };
 

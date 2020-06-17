@@ -86,7 +86,7 @@ public:
     //! overrideDataRowFields will be written.
     bool writeRow(const TStrStrUMap& dataRowFields,
                   const TStrStrUMap& overrideDataRowFields,
-                  core_t::TTime time) override;
+                  TOptionalTime time) override;
 
     //! Get the contents of the internal string stream - for use with the
     //! zero argument constructor

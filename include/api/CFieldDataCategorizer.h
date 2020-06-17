@@ -112,14 +112,14 @@ public:
     ~CFieldDataCategorizer() override;
 
     CGlobalCategoryId computeAndUpdateCategory(const TStrStrUMap& dataRowFields,
-                                               core_t::TTime time);
+                                               const TOptionalTime& time);
 
     //! We're going to be writing to a new output stream
     void newOutputStream() override;
 
     //! Receive a single record to be categorized, and output that record
     //! with its ML category field added
-    bool handleRecord(const TStrStrUMap& dataRowFields, core_t::TTime time) override;
+    bool handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) override;
 
     //! Perform any final processing once all input data has been seen.
     void finalise() override;

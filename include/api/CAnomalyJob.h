@@ -161,7 +161,7 @@ public:
 
     //! Receive a single record to be processed, and produce output
     //! with any required modifications
-    bool handleRecord(const TStrStrUMap& dataRowFields, core_t::TTime time) override;
+    bool handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) override;
 
     //! Perform any final processing once all input data has been seen.
     void finalise() override;

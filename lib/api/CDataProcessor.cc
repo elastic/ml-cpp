@@ -47,26 +47,26 @@ std::string CDataProcessor::debugPrintRecord(const TStrStrUMap& dataRowFields) {
     return result.str();
 }
 
-core_t::TTime CDataProcessor::parseTime(const TStrStrUMap& dataRowFields) const {
+CDataProcessor::TOptionalTime CDataProcessor::parseTime(const TStrStrUMap& dataRowFields) const {
     if (m_TimeFieldName.empty()) {
         // No error message here - it's intentional there's no time
-        return -1;
+        return TOptionalTime{};
     }
     auto iter = dataRowFields.find(m_TimeFieldName);
     if (iter == dataRowFields.end()) {
         ++core::CProgramCounters::counter(counter_t::E_TSADNumberRecordsNoTimeField);
         LOG_ERROR(<< "Found record with no " << m_TimeFieldName << " field:"
                   << core_t::LINE_ENDING << this->debugPrintRecord(dataRowFields));
-        return -1;
+        return TOptionalTime{};
     }
-    core_t::TTime time{-1};
+    core_t::TTime time{0};
     if (m_TimeFieldFormat.empty()) {
         if (core::CStringUtils::stringToType(iter->second, time) == false) {
             ++core::CProgramCounters::counter(counter_t::E_TSADNumberTimeFieldConversionErrors);
             LOG_ERROR(<< "Cannot interpret " << m_TimeFieldName
                       << " field in record:" << core_t::LINE_ENDING
                       << this->debugPrintRecord(dataRowFields));
-            return -1;
+            return TOptionalTime{};
         }
     } else {
         // Use this library function instead of raw strptime() as it works
@@ -76,7 +76,7 @@ core_t::TTime CDataProcessor::parseTime(const TStrStrUMap& dataRowFields) const 
             LOG_ERROR(<< "Cannot interpret " << m_TimeFieldName << " field using format "
                       << m_TimeFieldFormat << " in record:" << core_t::LINE_ENDING
                       << this->debugPrintRecord(dataRowFields));
-            return -1;
+            return TOptionalTime{};
         }
     }
     return time;

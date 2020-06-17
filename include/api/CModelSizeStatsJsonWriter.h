@@ -24,6 +24,9 @@ namespace api {
 //! A static utility for writing the model_size_stats document in JSON.
 class API_EXPORT CModelSizeStatsJsonWriter {
 public:
+    using TOptionalTime = boost::optional<core_t::TTime>;
+
+public:
     //! Disallow instantiation.
     CModelSizeStatsJsonWriter() = delete;
     CModelSizeStatsJsonWriter(const CModelSizeStatsJsonWriter&) = delete;
@@ -38,7 +41,7 @@ public:
                                       const std::string& partitionFieldName,
                                       const std::string& partitionFieldValue,
                                       const model::SCategorizerStats& categorizerStats,
-                                      core_t::TTime timestamp,
+                                      const TOptionalTime& timestamp,
                                       core::CRapidJsonConcurrentLineWriter& writer);
 
 private:
@@ -46,7 +49,7 @@ private:
     //! JSON format.
     static void writeCommonFields(const std::string& jobId,
                                   const model::SCategorizerStats& categorizerStats,
-                                  core_t::TTime timestamp,
+                                  const TOptionalTime& timestamp,
                                   core::CRapidJsonConcurrentLineWriter& writer);
 };
 }

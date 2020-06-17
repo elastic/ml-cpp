@@ -124,7 +124,8 @@ protected:
 
             BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
                 [firstProcessor](const ml::api::CDataProcessor::TStrStrUMap& dataRowFields) {
-                    return firstProcessor->handleRecord(dataRowFields, -1);
+                    return firstProcessor->handleRecord(
+                        dataRowFields, ml::api::CDataProcessor::TOptionalTime{});
                 }));
 
             // Persist the processors' state in the background
@@ -234,7 +235,8 @@ protected:
 
             BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
                 [firstProcessor](const ml::api::CDataProcessor::TStrStrUMap& dataRowFields) {
-                    return firstProcessor->handleRecord(dataRowFields, -1);
+                    return firstProcessor->handleRecord(
+                        dataRowFields, ml::api::CDataProcessor::TOptionalTime{});
                 }));
 
             // Ensure the model size stats are up to date

@@ -194,7 +194,7 @@ public:
     //! Write the data row fields as a JSON object
     bool writeRow(const TStrStrUMap& dataRowFields,
                   const TStrStrUMap& overrideDataRowFields,
-                  core_t::TTime time) override;
+                  TOptionalTime time) override;
 
     //! Limit the output to the top count anomalous records and influencers.
     //! Each detector will write no more than count records and influencers
@@ -244,7 +244,7 @@ public:
     void writeCategorizerStats(const std::string& partitionFieldName,
                                const std::string& partitionFieldValue,
                                const model::SCategorizerStats& categorizerStats,
-                               core_t::TTime timestamp);
+                               const TOptionalTime& timestamp);
 
     //! Acknowledge a flush request by echoing back the flush ID
     void acknowledgeFlush(const std::string& flushId, core_t::TTime lastFinalizedBucketEnd);

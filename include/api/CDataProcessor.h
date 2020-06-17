@@ -10,6 +10,7 @@
 
 #include <api/ImportExport.h>
 
+#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <cstdint>
@@ -49,6 +50,8 @@ public:
     using TStrStrUMapItr = TStrStrUMap::iterator;
     using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
+    using TOptionalTime = boost::optional<core_t::TTime>;
+
 public:
     CDataProcessor() = default;
     CDataProcessor(const std::string& timeFieldName, const std::string& timeFieldFormat);
@@ -63,7 +66,7 @@ public:
 
     //! Receive a single record to be processed, and produce output
     //! with any required modifications
-    virtual bool handleRecord(const TStrStrUMap& dataRowFields, core_t::TTime time) = 0;
+    virtual bool handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) = 0;
 
     //! Perform any final processing once all input data has been seen.
     virtual void finalise() = 0;
@@ -96,8 +99,8 @@ public:
     static std::string debugPrintRecord(const TStrStrUMap& dataRowFields);
 
     //! Parse the time from an input record.
-    //! \return -1 on failure.
-    core_t::TTime parseTime(const TStrStrUMap& dataRowFields) const;
+    //! \return An empty optional on failure.
+    TOptionalTime parseTime(const TStrStrUMap& dataRowFields) const;
 
 private:
     //! Name of field holding the time.  An empty string, indicates the input

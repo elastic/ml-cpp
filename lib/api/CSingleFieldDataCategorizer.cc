@@ -43,7 +43,7 @@ void CSingleFieldDataCategorizer::dumpStats() const {
 CGlobalCategoryId CSingleFieldDataCategorizer::computeAndUpdateCategory(
     bool isDryRun,
     const model::CDataCategorizer::TStrStrUMap& fields,
-    core_t::TTime messageTime,
+    const TOptionalTime& messageTime,
     const std::string& messageToCategorize,
     const std::string& rawMessage,
     model::CResourceMonitor& resourceMonitor,
@@ -55,14 +55,14 @@ CGlobalCategoryId CSingleFieldDataCategorizer::computeAndUpdateCategory(
         return globalCategoryId;
     }
 
-    if (messageTime >= 0) {
+    if (messageTime.has_value()) {
         m_LastMessageTime = messageTime;
     }
     bool exampleAdded{m_DataCategorizer->addExample(localCategoryId, rawMessage)};
     bool searchTermsChanged{m_DataCategorizer->cacheReverseSearch(localCategoryId)};
     if (exampleAdded || searchTermsChanged) {
-        //! In this case we are certain that there will have been a change, as
-        //! the count of the chosen category will have been incremented
+        // In this case we are certain that there will have been a change, as
+        // the count of the chosen category will have been incremented
         m_DataCategorizer->writeCategoryIfChanged(
             localCategoryId,
             [this, &jsonOutputWriter](

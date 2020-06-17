@@ -58,7 +58,7 @@ bool COutputChainer::fieldNames(const TStrVec& fieldNames, const TStrVec& extraF
 
 bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields,
                               const TStrStrUMap& overrideDataRowFields,
-                              core_t::TTime time) {
+                              TOptionalTime time) {
     if (m_FieldNames.empty()) {
         LOG_ERROR(<< "Attempt to output data before field names");
         return false;
@@ -90,7 +90,7 @@ bool COutputChainer::writeRow(const TStrStrUMap& dataRowFields,
                                    fieldValueIter->second.length());
     }
 
-    if (m_DataProcessor.handleRecord(m_WorkRecordFields, time) == false) {
+    if (m_DataProcessor.handleRecord(m_WorkRecordFields, std::move(time)) == false) {
         LOG_ERROR(<< "Chained data processor function returned false for record:" << core_t::LINE_ENDING
                   << CDataProcessor::debugPrintRecord(m_WorkRecordFields));
         return false;

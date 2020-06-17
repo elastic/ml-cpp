@@ -59,7 +59,7 @@ public:
     //! dataRowFields, the value in overrideDataRowFields will be written.
     bool writeRow(const TStrStrUMap& dataRowFields,
                   const TStrStrUMap& overrideDataRowFields,
-                  core_t::TTime time) override;
+                  TOptionalTime time) override;
 
     //! Perform any final processing once all data for the current search
     //! has been seen.  Chained classes should NOT rely on this method being

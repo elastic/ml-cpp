@@ -12,6 +12,8 @@
 #include <api/CGlobalCategoryId.h>
 #include <api/ImportExport.h>
 
+#include <boost/optional.hpp>
+
 #include <functional>
 #include <string>
 
@@ -47,6 +49,8 @@ public:
     //! Function used for persisting objects of this class
     using TPersistFunc = std::function<void(core::CStatePersistInserter&)>;
 
+    using TOptionalTime = boost::optional<core_t::TTime>;
+
 public:
     CSingleFieldDataCategorizer(std::string partitionFieldName,
                                 model::CDataCategorizer::TDataCategorizerUPtr dataCategorizer,
@@ -62,7 +66,7 @@ public:
     CGlobalCategoryId
     computeAndUpdateCategory(bool isDryRun,
                              const model::CDataCategorizer::TStrStrUMap& fields,
-                             core_t::TTime messageTime,
+                             const TOptionalTime& messageTime,
                              const std::string& messageToCategorize,
                              const std::string& rawMessage,
                              model::CResourceMonitor& resourceMonitor,
@@ -114,7 +118,7 @@ private:
     CCategoryIdMapper::TCategoryIdMapperPtr m_CategoryIdMapper;
 
     //! Last timestamp observed in input.
-    core_t::TTime m_LastMessageTime = -1;
+    TOptionalTime m_LastMessageTime;
 };
 }
 }

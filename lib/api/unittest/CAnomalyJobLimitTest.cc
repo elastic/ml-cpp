@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
             LOG_TRACE(<< "Reading file");
             BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
                 [&job](const CTestAnomalyJob::TStrStrUMap& dataRowFields) {
-                    return job.handleRecord(dataRowFields, -1);
+                    return job.handleRecord(dataRowFields);
                 }));
 
             LOG_TRACE(<< "Checking results");
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
             LOG_TRACE(<< "Reading file");
             BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
                 [&job](const CTestAnomalyJob::TStrStrUMap& dataRowFields) {
-                    return job.handleRecord(dataRowFields, -1);
+                    return job.handleRecord(dataRowFields);
                 }));
 
             LOG_TRACE(<< "Checking results");
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         LOG_TRACE(<< "Reading file");
         BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
             [&job](const CTestAnomalyJob::TStrStrUMap& dataRowFields) {
-                return job.handleRecord(dataRowFields, -1);
+                return job.handleRecord(dataRowFields);
             }));
         LOG_TRACE(<< "Checking results");
         BOOST_REQUIRE_EQUAL(uint64_t(1176), job.numRecordsHandled());
@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         LOG_TRACE(<< "Reading file");
         BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
             [&job](const CTestAnomalyJob::TStrStrUMap& dataRowFields) {
-                return job.handleRecord(dataRowFields, -1);
+                return job.handleRecord(dataRowFields);
             }));
         // Now turn on the resource limiting
         limits.resourceMonitor().m_ByteLimitHigh = 0;
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         LOG_TRACE(<< "Reading second file");
         BOOST_TEST_REQUIRE(parser2.readStreamIntoMaps(
             [&job](const CTestAnomalyJob::TStrStrUMap& dataRowFields) {
-                return job.handleRecord(dataRowFields, -1);
+                return job.handleRecord(dataRowFields);
             }));
         LOG_TRACE(<< "Checking results");
         BOOST_REQUIRE_EQUAL(uint64_t(1180), job.numRecordsHandled());

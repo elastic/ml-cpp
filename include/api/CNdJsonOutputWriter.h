@@ -69,7 +69,7 @@ public:
     //! Write the data row fields as a JSON object
     virtual bool writeRow(const TStrStrUMap& dataRowFields,
                           const TStrStrUMap& overrideDataRowFields,
-                          core_t::TTime time);
+                          TOptionalTime time);
 
     //! Get the contents of the internal string stream - for use with the
     //! zero argument constructor

@@ -54,18 +54,22 @@ int main(int argc, char** argv) {
     std::string jobId;
     std::string logProperties;
     std::string logPipe;
-    char delimiter('\t');
-    bool lengthEncodedInput(false);
-    ml::core_t::TTime persistInterval(-1);
+    char delimiter{'\t'};
+    bool lengthEncodedInput{false};
+    // Currently there aren't command line options for the time field/format
+    // TODO: add options to set these if this program is used in the future
+    std::string timeField;
+    std::string timeFormat;
+    ml::core_t::TTime persistInterval{-1};
     std::string inputFileName;
-    bool isInputFileNamedPipe(false);
+    bool isInputFileNamedPipe{false};
     std::string outputFileName;
-    bool isOutputFileNamedPipe(false);
+    bool isOutputFileNamedPipe{false};
     std::string restoreFileName;
-    bool isRestoreFileNamedPipe(false);
+    bool isRestoreFileNamedPipe{false};
     std::string persistFileName;
-    bool isPersistFileNamedPipe(false);
-    bool isPersistInForeground(false);
+    bool isPersistFileNamedPipe{false};
+    bool isPersistInForeground{false};
     std::string categorizationFieldName;
     if (ml::categorize::CCmdLineParser::parse(
             argc, argv, limitConfigFile, jobId, logProperties, logPipe, delimiter,
@@ -183,8 +187,8 @@ int main(int argc, char** argv) {
 
     // The categorizer knows how to assign categories to records
     ml::api::CFieldDataCategorizer categorizer{
-        jobId,         fieldConfig, limits,       std::string(),
-        std::string(), nullOutput,  outputWriter, persistenceManager.get()};
+        jobId,      fieldConfig, limits,       timeField,
+        timeFormat, nullOutput,  outputWriter, persistenceManager.get()};
 
     if (persistenceManager != nullptr) {
         persistenceManager->firstProcessorBackgroundPeriodicPersistFunc(std::bind(

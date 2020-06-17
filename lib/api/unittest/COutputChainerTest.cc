@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(testChaining) {
 
         BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
             [&mockProcessor](const CMockDataProcessor::TStrStrUMap& dataRowFields) {
-                return mockProcessor.handleRecord(dataRowFields, -1);
+                return mockProcessor.handleRecord(dataRowFields);
             }));
     }
 

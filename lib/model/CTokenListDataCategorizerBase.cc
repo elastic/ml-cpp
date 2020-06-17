@@ -635,31 +635,29 @@ CTokenListDataCategorizerBase::usurpedCategories(CLocalCategoryId categoryId) co
         LOG_ERROR(<< "Programmatic error - unexpected ML local category: " << categoryId);
         return {};
     }
-    auto iter = std::find_if(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
-                             [categoryId](const TSizeSizePr& pr) {
-                                 return pr.second == categoryId.index();
-                             });
-    if (iter == m_CategoriesByCount.end()) {
-        // If we get here it indicates a bug, as it means m_Categories and
-        // m_CategoriesByCount are inconsistent
-        LOG_ERROR(<< "Programmatic error - ML local category " << categoryId
-                  << " not in categories by count vector");
-        return {};
-    }
-    return this->usurpedCategories(iter);
+    // If the category is not found it indicates a bug in other code in this
+    // class, as it means m_Categories and m_CategoriesByCount are inconsistent,
+    // so a class invariant is violated.  The next method will log this case.
+    return this->usurpedCategories(
+        std::find_if(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
+                     [categoryId](const TSizeSizePr& pr) {
+                         return pr.second == categoryId.index();
+                     }));
 }
 
 CDataCategorizer::TLocalCategoryIdVec
 CTokenListDataCategorizerBase::usurpedCategories(TSizeSizePrVecCItr iter) const {
     CDataCategorizer::TLocalCategoryIdVec usurped;
     if (iter == m_CategoriesByCount.end()) {
+        LOG_ERROR(<< "Programmatic error - categories and "
+                     "categories by count are inconsistent");
         return usurped;
     }
     const CTokenListCategory& category{m_Categories[iter->second]};
     for (++iter; iter != m_CategoriesByCount.end(); ++iter) {
         const CTokenListCategory& lessFrequentCategory{m_Categories[iter->second]};
         if (category.matchesSearchForCategory(lessFrequentCategory)) {
-            usurped.emplace_back(CLocalCategoryId{iter->second});
+            usurped.emplace_back(iter->second);
         }
     }
     std::sort(usurped.begin(), usurped.end());

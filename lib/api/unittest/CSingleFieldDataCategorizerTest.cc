@@ -85,13 +85,15 @@ BOOST_AUTO_TEST_CASE(testPersistNotPerPartition) {
     fields["message"] = "2015-10-18 18:01:51,963 INFO [main] org.mortbay.log: jetty-6.1.26\r";
     BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId{1},
                         origGlobalCategorizer.computeAndUpdateCategory(
-                            false, fields, -1, fields["message"], fields["message"],
+                            false, fields, ml::api::CSingleFieldDataCategorizer::TOptionalTime{},
+                            fields["message"], fields["message"],
                             limits.resourceMonitor(), jsonOutputWriter));
 
     fields["message"] = "2015-10-18 18:01:52,728 INFO [main] org.mortbay.log: Started HttpServer2$SelectChannelConnectorWithSafeStartup@0.0.0.0:62267\r";
     BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId{2},
                         origGlobalCategorizer.computeAndUpdateCategory(
-                            false, fields, -1, fields["message"], fields["message"],
+                            false, fields, ml::api::CSingleFieldDataCategorizer::TOptionalTime{},
+                            fields["message"], fields["message"],
                             limits.resourceMonitor(), jsonOutputWriter));
 
     idMapper = std::make_shared<ml::api::CNoopCategoryIdMapper>();
@@ -137,18 +139,18 @@ BOOST_AUTO_TEST_CASE(testPersistPerPartition) {
     ml::model::CDataCategorizer::TStrStrUMap fields;
     fields["event.dataset"] = "vmware";
     fields["message"] = "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback";
-    BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId(1, fields["event.dataset"],
-                                                   ml::model::CLocalCategoryId{1}),
-                        origGlobalCategorizer.computeAndUpdateCategory(
-                            false, fields, -1, fields["message"], fields["message"],
-                            limits.resourceMonitor(), jsonOutputWriter));
+    BOOST_REQUIRE_EQUAL(
+        ml::api::CGlobalCategoryId(1, fields["event.dataset"], ml::model::CLocalCategoryId{1}),
+        origGlobalCategorizer.computeAndUpdateCategory(
+            false, fields, ml::api::CSingleFieldDataCategorizer::TOptionalTime{},
+            fields["message"], fields["message"], limits.resourceMonitor(), jsonOutputWriter));
 
     fields["message"] = "Vpxa: [49EC0B90 verbose 'Default' opID=WFU-ddeadb59] [VpxaHalVmHostagent] 11: GuestInfo changed 'guest.disk";
-    BOOST_REQUIRE_EQUAL(ml::api::CGlobalCategoryId(2, fields["event.dataset"],
-                                                   ml::model::CLocalCategoryId{2}),
-                        origGlobalCategorizer.computeAndUpdateCategory(
-                            false, fields, -1, fields["message"], fields["message"],
-                            limits.resourceMonitor(), jsonOutputWriter));
+    BOOST_REQUIRE_EQUAL(
+        ml::api::CGlobalCategoryId(2, fields["event.dataset"], ml::model::CLocalCategoryId{2}),
+        origGlobalCategorizer.computeAndUpdateCategory(
+            false, fields, ml::api::CSingleFieldDataCategorizer::TOptionalTime{},
+            fields["message"], fields["message"], limits.resourceMonitor(), jsonOutputWriter));
 
     idMapper = std::make_shared<ml::api::CPerPartitionCategoryIdMapper>(
         "event.dataset", [&highestGlobalId]() { return ++highestGlobalId; });

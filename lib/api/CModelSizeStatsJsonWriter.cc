@@ -80,7 +80,7 @@ void CModelSizeStatsJsonWriter::writeCategorizerStats(
     const std::string& partitionFieldName,
     const std::string& partitionFieldValue,
     const model::SCategorizerStats& categorizerStats,
-    core_t::TTime timestamp,
+    const TOptionalTime& timestamp,
     core::CRapidJsonConcurrentLineWriter& writer) {
 
     writer.Key(CATEGORIZER_STATS);
@@ -101,7 +101,7 @@ void CModelSizeStatsJsonWriter::writeCategorizerStats(
 
 void CModelSizeStatsJsonWriter::writeCommonFields(const std::string& jobId,
                                                   const model::SCategorizerStats& categorizerStats,
-                                                  core_t::TTime timestamp,
+                                                  const TOptionalTime& timestamp,
                                                   core::CRapidJsonConcurrentLineWriter& writer) {
 
     writer.Key(JOB_ID);
@@ -130,10 +130,10 @@ void CModelSizeStatsJsonWriter::writeCommonFields(const std::string& jobId,
 
     std::int64_t nowMs{core::CTimeUtils::nowMs()};
     writer.Key(TIMESTAMP);
-    if (timestamp < 0) {
-        writer.Int64(nowMs);
+    if (timestamp.has_value()) {
+        writer.Time(*timestamp);
     } else {
-        writer.Time(timestamp);
+        writer.Int64(nowMs);
     }
 
     writer.Key(LOG_TIME);

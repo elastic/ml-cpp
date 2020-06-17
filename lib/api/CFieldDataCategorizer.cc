@@ -80,7 +80,7 @@ void CFieldDataCategorizer::newOutputStream() {
     m_OutputHandler.newOutputStream();
 }
 
-bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields, core_t::TTime time) {
+bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) {
     // First time through we output the field names
     if (m_WriteFieldNames) {
         TStrVec fieldNames;
@@ -110,7 +110,7 @@ bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields, core_
         return msgHandled;
     }
 
-    if (time < 0) {
+    if (time == boost::none) {
         time = this->parseTime(dataRowFields);
     }
 
@@ -157,8 +157,9 @@ COutputHandler& CFieldDataCategorizer::outputHandler() {
     return m_OutputHandler;
 }
 
-CGlobalCategoryId CFieldDataCategorizer::computeAndUpdateCategory(const TStrStrUMap& dataRowFields,
-                                                                  core_t::TTime time) {
+CGlobalCategoryId
+CFieldDataCategorizer::computeAndUpdateCategory(const TStrStrUMap& dataRowFields,
+                                                const TOptionalTime& time) {
     CGlobalCategoryId globalCategoryId;
 
     auto fieldIter = dataRowFields.find(m_CategorizationFieldName);

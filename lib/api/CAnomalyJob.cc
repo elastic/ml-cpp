@@ -160,7 +160,7 @@ COutputHandler& CAnomalyJob::outputHandler() {
     return m_JsonOutputWriter;
 }
 
-bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, core_t::TTime time) {
+bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) {
     // Non-empty control fields take precedence over everything else
     TStrStrUMapCItr iter = dataRowFields.find(CONTROL_FIELD_NAME);
     if (iter != dataRowFields.end() && !iter->second.empty()) {
@@ -168,9 +168,9 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, core_t::TTime t
     }
 
     // Time may have been parsed already further back along the chain
-    if (time < 0) {
+    if (time == boost::none) {
         time = this->parseTime(dataRowFields);
-        if (time < 0) {
+        if (time == boost::none) {
             // Time is compulsory for anomaly detection - the base class will
             // have logged the parse error
             return true;
@@ -181,7 +181,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, core_t::TTime t
     // is zero, then it should be after the current bucket end. If
     // latency is non-zero, then it should be after the current bucket
     // end minus the latency.
-    if (time < m_LastFinalisedBucketEndTime) {
+    if (*time < m_LastFinalisedBucketEndTime) {
         ++core::CProgramCounters::counter(counter_t::E_TSADNumberTimeOrderErrors);
         std::ostringstream ss;
         ss << "Records must be in ascending time order. "
@@ -191,7 +191,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, core_t::TTime t
         return true;
     }
 
-    this->outputBucketResultsUntil(time);
+    this->outputBucketResultsUntil(*time);
 
     if (m_DetectorKeys.empty()) {
         this->populateDetectorKeys(m_FieldConfig, m_DetectorKeys);
@@ -211,19 +211,19 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, core_t::TTime t
 
         const TAnomalyDetectorPtr& detector = this->detectorForKey(
             false, // not restoring
-            time, m_DetectorKeys[i], partitionFieldValue, m_Limits.resourceMonitor());
+            *time, m_DetectorKeys[i], partitionFieldValue, m_Limits.resourceMonitor());
         if (detector == nullptr) {
             // There wasn't enough memory to create the detector
             continue;
         }
 
-        this->addRecord(detector, time, dataRowFields);
+        this->addRecord(detector, *time, dataRowFields);
     }
 
     ++core::CProgramCounters::counter(counter_t::E_TSADNumberApiRecordsHandled);
 
     ++m_NumRecordsHandled;
-    m_LatestRecordTime = std::max(m_LatestRecordTime, time);
+    m_LatestRecordTime = std::max(m_LatestRecordTime, *time);
 
     return true;
 }

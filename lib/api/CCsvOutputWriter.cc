@@ -119,7 +119,7 @@ bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extr
 
 bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
                                 const TStrStrUMap& overrideDataRowFields,
-                                core_t::TTime /*time*/) {
+                                TOptionalTime /*time*/) {
     if (m_FieldNames.empty()) {
         LOG_ERROR(<< "Attempt to write data before field names");
         return false;
