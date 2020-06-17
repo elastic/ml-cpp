@@ -14,8 +14,8 @@ namespace controller {
 
 CBlockingCallCancellerThread::CBlockingCallCancellerThread(core::CThread::TThreadId potentiallyBlockedThreadId,
                                                            std::istream& monitorStream)
-    : m_PotentiallyBlockedThreadId(potentiallyBlockedThreadId),
-      m_MonitorStream(monitorStream), m_Shutdown(false), m_HasCancelledBlockingCall(false) {
+    : m_PotentiallyBlockedThreadId{potentiallyBlockedThreadId},
+      m_MonitorStream{monitorStream}, m_Shutdown{false}, m_HasCancelledBlockingCall{false} {
 }
 
 const std::atomic_bool& CBlockingCallCancellerThread::hasCancelledBlockingCall() const {
