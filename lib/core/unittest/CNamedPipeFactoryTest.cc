@@ -42,7 +42,7 @@ public:
     CThreadBlockCanceller(ml::core::CThread::TThreadId threadId)
         : m_ThreadId{threadId}, m_HasCancelledBlockingCall{false} {}
 
-    const volatile std::atomic_bool& hasCancelledBlockingCall() {
+    const std::atomic_bool& hasCancelledBlockingCall() {
         return m_HasCancelledBlockingCall;
     }
 

@@ -36,7 +36,7 @@ const char CNamedPipeFactory::TEST_CHAR{'\n'};
 
 CNamedPipeFactory::TIStreamP
 CNamedPipeFactory::openPipeStreamRead(const std::string& fileName,
-                                      const volatile std::atomic_bool& isCancelled) {
+                                      const std::atomic_bool& isCancelled) {
     TPipeHandle handle{CNamedPipeFactory::initPipeHandle(fileName, false, isCancelled)};
     if (handle == INVALID_HANDLE_VALUE) {
         return TIStreamP{};
@@ -49,7 +49,7 @@ CNamedPipeFactory::openPipeStreamRead(const std::string& fileName,
 
 CNamedPipeFactory::TOStreamP
 CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName,
-                                       const volatile std::atomic_bool& isCancelled) {
+                                       const std::atomic_bool& isCancelled) {
     TPipeHandle handle{CNamedPipeFactory::initPipeHandle(fileName, true, isCancelled)};
     if (handle == INVALID_HANDLE_VALUE) {
         return TOStreamP{};
@@ -62,7 +62,7 @@ CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName,
 
 CNamedPipeFactory::TFileP
 CNamedPipeFactory::openPipeFileRead(const std::string& fileName,
-                                    const volatile std::atomic_bool& isCancelled) {
+                                    const std::atomic_bool& isCancelled) {
     TPipeHandle handle{CNamedPipeFactory::initPipeHandle(fileName, false, isCancelled)};
     if (handle == INVALID_HANDLE_VALUE) {
         return TFileP{};
@@ -73,7 +73,7 @@ CNamedPipeFactory::openPipeFileRead(const std::string& fileName,
 
 CNamedPipeFactory::TFileP
 CNamedPipeFactory::openPipeFileWrite(const std::string& fileName,
-                                     const volatile std::atomic_bool& isCancelled) {
+                                     const std::atomic_bool& isCancelled) {
     TPipeHandle handle{CNamedPipeFactory::initPipeHandle(fileName, true, isCancelled)};
     if (handle == INVALID_HANDLE_VALUE) {
         return TFileP{};
@@ -98,7 +98,7 @@ void CNamedPipeFactory::logDeferredWarnings() {
 CNamedPipeFactory::TPipeHandle
 CNamedPipeFactory::initPipeHandle(const std::string& fileName,
                                   bool forWrite,
-                                  const volatile std::atomic_bool& isCancelled) {
+                                  const std::atomic_bool& isCancelled) {
     // Size of named pipe buffer
     static const DWORD BUFFER_SIZE{4096};
 

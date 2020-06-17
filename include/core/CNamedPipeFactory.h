@@ -71,23 +71,23 @@ public:
     //! that can be used to read from it.  Returns a NULL pointer on
     //! failure.
     static TIStreamP openPipeStreamRead(const std::string& fileName,
-                                        const volatile std::atomic_bool& isCancelled);
+                                        const std::atomic_bool& isCancelled);
 
     //! Initialise and open a named pipe for writing, returning a C++ stream
     //! that can be used to write to it.  Returns a NULL pointer on failure.
     static TOStreamP openPipeStreamWrite(const std::string& fileName,
-                                         const volatile std::atomic_bool& isCancelled);
+                                         const std::atomic_bool& isCancelled);
 
     //! Initialise and open a named pipe for writing, returning a C FILE
     //! that can be used to read from it.  Returns a NULL pointer on
     //! failure.
     static TFileP openPipeFileRead(const std::string& fileName,
-                                   const volatile std::atomic_bool& isCancelled);
+                                   const std::atomic_bool& isCancelled);
 
     //! Initialise and open a named pipe for writing, returning a C FILE
     //! that can be used to write to it.  Returns a NULL pointer on failure.
     static TFileP openPipeFileWrite(const std::string& fileName,
-                                    const volatile std::atomic_bool& isCancelled);
+                                    const std::atomic_bool& isCancelled);
 
     //! Does the supplied file name refer to a named pipe?
     static bool isNamedPipe(const std::string& fileName);
@@ -114,7 +114,7 @@ private:
     //! interface provides.
     static TPipeHandle initPipeHandle(const std::string& fileName,
                                       bool forWrite,
-                                      const volatile std::atomic_bool& isCancelled);
+                                      const std::atomic_bool& isCancelled);
 };
 }
 }

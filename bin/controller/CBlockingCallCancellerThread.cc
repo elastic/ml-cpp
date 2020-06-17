@@ -18,7 +18,7 @@ CBlockingCallCancellerThread::CBlockingCallCancellerThread(core::CThread::TThrea
       m_MonitorStream{monitorStream}, m_Shutdown{false}, m_HasCancelledBlockingCall{false} {
 }
 
-const volatile std::atomic_bool& CBlockingCallCancellerThread::hasCancelledBlockingCall() const {
+const std::atomic_bool& CBlockingCallCancellerThread::hasCancelledBlockingCall() const {
     return m_HasCancelledBlockingCall;
 }
 

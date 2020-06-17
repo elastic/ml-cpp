@@ -109,7 +109,7 @@ const char CNamedPipeFactory::TEST_CHAR('\n');
 
 CNamedPipeFactory::TIStreamP
 CNamedPipeFactory::openPipeStreamRead(const std::string& fileName,
-                                      const volatile std::atomic_bool& isCancelled) {
+                                      const std::atomic_bool& isCancelled) {
     TPipeHandle fd{CNamedPipeFactory::initPipeHandle(fileName, false, isCancelled)};
     if (fd == -1) {
         return TIStreamP{};
@@ -122,7 +122,7 @@ CNamedPipeFactory::openPipeStreamRead(const std::string& fileName,
 
 CNamedPipeFactory::TOStreamP
 CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName,
-                                       const volatile std::atomic_bool& isCancelled) {
+                                       const std::atomic_bool& isCancelled) {
     TPipeHandle fd{CNamedPipeFactory::initPipeHandle(fileName, true, isCancelled)};
     if (fd == -1) {
         return TOStreamP{};
@@ -135,7 +135,7 @@ CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName,
 
 CNamedPipeFactory::TFileP
 CNamedPipeFactory::openPipeFileRead(const std::string& fileName,
-                                    const volatile std::atomic_bool& isCancelled) {
+                                    const std::atomic_bool& isCancelled) {
     TPipeHandle fd{CNamedPipeFactory::initPipeHandle(fileName, false, isCancelled)};
     if (fd == -1) {
         return TFileP{};
@@ -145,7 +145,7 @@ CNamedPipeFactory::openPipeFileRead(const std::string& fileName,
 
 CNamedPipeFactory::TFileP
 CNamedPipeFactory::openPipeFileWrite(const std::string& fileName,
-                                     const volatile std::atomic_bool& isCancelled) {
+                                     const std::atomic_bool& isCancelled) {
     TPipeHandle fd{CNamedPipeFactory::initPipeHandle(fileName, true, isCancelled)};
     if (fd == -1) {
         return TFileP{};
@@ -191,7 +191,7 @@ void CNamedPipeFactory::logDeferredWarnings() {
 CNamedPipeFactory::TPipeHandle
 CNamedPipeFactory::initPipeHandle(const std::string& fileName,
                                   bool forWrite,
-                                  const volatile std::atomic_bool& isCancelled) {
+                                  const std::atomic_bool& isCancelled) {
     bool madeFifo{false};
 
     auto retrySyscallOnInterruptUnlessCancelled = [&isCancelled](std::function<int()> fn) {

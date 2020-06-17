@@ -95,7 +95,7 @@ public:
     //! should be cancelled.
     bool reconfigure(const std::string& pipeName,
                      const std::string& propertiesFile,
-                     const volatile std::atomic_bool& isCancelled);
+                     const std::atomic_bool& isCancelled);
 
     //! Reconfigure to use provided stream.
     bool reconfigure(boost::shared_ptr<std::ostream> streamPtr);
@@ -106,7 +106,7 @@ public:
     //! As above, but with a flag to indicate named pipe connection attempts
     //! should be cancelled.
     bool reconfigureLogToNamedPipe(const std::string& pipeName,
-                                   const volatile std::atomic_bool& isCancelled);
+                                   const std::atomic_bool& isCancelled);
 
     //! Tell the logger to reconfigure itself by reading a specified
     //! properties file, if the file exists.

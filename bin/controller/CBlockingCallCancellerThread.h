@@ -40,7 +40,7 @@ public:
     CBlockingCallCancellerThread(core::CThread::TThreadId potentiallyBlockedThreadId,
                                  std::istream& monitorStream);
 
-    const volatile std::atomic_bool& hasCancelledBlockingCall() const;
+    const std::atomic_bool& hasCancelledBlockingCall() const;
 
 protected:
     //! Called when the thread is started.

@@ -272,7 +272,7 @@ bool CLogger::reconfigure(const std::string& pipeName, const std::string& proper
 
 bool CLogger::reconfigure(const std::string& pipeName,
                           const std::string& propertiesFile,
-                          const volatile std::atomic_bool& isCancelled) {
+                          const std::atomic_bool& isCancelled) {
     if (pipeName.empty()) {
         if (propertiesFile.empty()) {
             // Both empty is OK - it just means we keep logging to stderr
@@ -299,7 +299,7 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
 }
 
 bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName,
-                                        const volatile std::atomic_bool& isCancelled) {
+                                        const std::atomic_bool& isCancelled) {
     if (m_Reconfigured) {
         LOG_ERROR(<< "Cannot log to a named pipe after logger reconfiguration");
         return false;
