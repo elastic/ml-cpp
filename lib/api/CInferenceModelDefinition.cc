@@ -36,7 +36,6 @@ const std::string JSON_FIELD_VALUE_LENGTHS_TAG{"field_value_lengths"};
 const std::string JSON_FREQUENCY_ENCODING_TAG{"frequency_encoding"};
 const std::string JSON_FREQUENCY_MAP_TAG{"frequency_map"};
 const std::string JSON_HOT_MAP_TAG{"hot_map"};
-const std::string JSON_INPUT_FIELD_NAME_LENGTHS_TAG{"input_field_name_lengths"};
 const std::string JSON_LEAF_VALUE_TAG{"leaf_value"};
 const std::string JSON_LEFT_CHILD_TAG{"left_child"};
 const std::string JSON_LOGISTIC_REGRESSION_TAG{"logistic_regression"};
@@ -65,6 +64,7 @@ const std::string JSON_TRAINED_MODEL_TAG{"trained_model"};
 const std::string JSON_TRAINED_MODELS_TAG{"trained_models"};
 const std::string JSON_TREE_STRUCTURE_TAG{"tree_structure"};
 const std::string JSON_TREE_TAG{"tree"};
+const std::string JSON_TREE_SIZES_TAG{"tree_sizes"};
 const std::string JSON_WEIGHTED_MODE_TAG{"weighted_mode"};
 const std::string JSON_WEIGHTED_SUM_TAG{"weighted_sum"};
 const std::string JSON_WEIGHTS_TAG{"weights"};
@@ -293,13 +293,23 @@ std::size_t CEnsemble::CSizeInfo::numOperations() const {
 void CEnsemble::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
                                          TRapidJsonWriter& writer) const {
     this->CTrainedModel::CSizeInfo::addToDocument(parentObject, writer);
-    rapidjson::Value inputFieldNameLengthsArray =
+    rapidjson::Value featureNameLengthsArray =
         writer.makeArray(m_Ensemble->featureNames().size());
     for (const auto& featureName : m_Ensemble->featureNames()) {
-        inputFieldNameLengthsArray.PushBack(
-            toJson(featureName.size(), writer).Move(), writer.getRawAllocator());
+        featureNameLengthsArray.PushBack(toJson(featureName.size(), writer).Move(),
+                                         writer.getRawAllocator());
     }
-    writer.addMember(JSON_INPUT_FIELD_NAME_LENGTHS_TAG, inputFieldNameLengthsArray, parentObject);
+    writer.addMember(JSON_FEATURE_NAME_LENGTHS_TAG, featureNameLengthsArray, parentObject);
+
+    rapidjson::Value treeSizesArray =
+        writer.makeArray(m_Ensemble->m_TrainedModels.size());
+    for (const auto& trainedModel : m_Ensemble->m_TrainedModels) {
+        rapidjson::Value item = writer.makeObject();
+        trainedModel->sizeInfo()->addToDocument(item, writer);
+        treeSizesArray.PushBack(item, writer.getRawAllocator());
+    }
+    writer.addMember(JSON_TREE_SIZES_TAG, treeSizesArray, parentObject);
+
     std::size_t numOutputProcessorWeights{m_Ensemble->m_TrainedModels.size()};
     writer.addMember(JSON_NUM_OUTPUT_PROCESSOR_WEIGHTS_TAG,
                      toJson(numOutputProcessorWeights, writer).Move(), parentObject);

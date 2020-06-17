@@ -305,30 +305,63 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
-    std::ifstream schemaFileStream("testfiles/inference_json_schema/model_definition.schema.json");
-    BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
-    std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
-                           std::istreambuf_iterator<char>());
-    rapidjson::Document schemaDocument;
-    BOOST_REQUIRE_MESSAGE(schemaDocument.Parse(schemaJson).HasParseError() == false,
-                          "Cannot parse JSON schema!");
-    rapidjson::SchemaDocument schema(schemaDocument);
+    // validating inference model definition
+    {
+        std::ifstream schemaFileStream("testfiles/inference_json_schema/model_definition.schema.json");
+        BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
+        std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
+                               std::istreambuf_iterator<char>());
+        rapidjson::Document schemaDocument;
+        BOOST_REQUIRE_MESSAGE(schemaDocument.Parse(schemaJson).HasParseError() == false,
+                              "Cannot parse JSON schema!");
+        rapidjson::SchemaDocument schema(schemaDocument);
 
-    rapidjson::Document doc;
-    BOOST_REQUIRE_MESSAGE(doc.Parse(definition->jsonString()).HasParseError() == false,
-                          "Error parsing JSON definition!");
+        rapidjson::Document doc;
+        BOOST_REQUIRE_MESSAGE(doc.Parse(definition->jsonString()).HasParseError() == false,
+                              "Error parsing JSON definition!");
 
-    rapidjson::SchemaValidator validator(schema);
-    if (doc.Accept(validator) == false) {
-        rapidjson::StringBuffer sb;
-        validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-        LOG_ERROR(<< "Invalid schema: " << sb.GetString());
-        LOG_ERROR(<< "Invalid keyword: " << validator.GetInvalidSchemaKeyword());
-        sb.Clear();
-        validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-        LOG_ERROR(<< "Invalid document: " << sb.GetString());
-        LOG_DEBUG(<< "Document: " << definition->jsonString());
-        BOOST_FAIL("Schema validation failed");
+        rapidjson::SchemaValidator validator(schema);
+        if (doc.Accept(validator) == false) {
+            rapidjson::StringBuffer sb;
+            validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
+            LOG_ERROR(<< "Invalid schema: " << sb.GetString());
+            LOG_ERROR(<< "Invalid keyword: " << validator.GetInvalidSchemaKeyword());
+            sb.Clear();
+            validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
+            LOG_ERROR(<< "Invalid document: " << sb.GetString());
+            LOG_DEBUG(<< "Document: " << definition->jsonString());
+            BOOST_FAIL("Schema validation failed");
+        }
+    }
+
+    // validating model size info
+    {
+        std::ifstream schemaFileStream("testfiles/model_size_info/model_size_info.schema.json");
+        BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
+        std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
+                               std::istreambuf_iterator<char>());
+        rapidjson::Document schemaDocument;
+        BOOST_REQUIRE_MESSAGE(schemaDocument.Parse(schemaJson).HasParseError() == false,
+                              "Cannot parse JSON schema!");
+        rapidjson::SchemaDocument schema(schemaDocument);
+
+        rapidjson::Document doc;
+        BOOST_REQUIRE_MESSAGE(
+            doc.Parse(definition->sizeInfo()->jsonString()).HasParseError() == false,
+            "Error parsing JSON definition!");
+
+        rapidjson::SchemaValidator validator(schema);
+        if (doc.Accept(validator) == false) {
+            rapidjson::StringBuffer sb;
+            validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
+            LOG_ERROR(<< "Invalid schema: " << sb.GetString());
+            LOG_ERROR(<< "Invalid keyword: " << validator.GetInvalidSchemaKeyword());
+            sb.Clear();
+            validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
+            LOG_ERROR(<< "Invalid document: " << sb.GetString());
+            LOG_DEBUG(<< "Document: " << definition->sizeInfo()->jsonString());
+            BOOST_FAIL("Schema validation failed");
+        }
     }
 
     // TODO add multivalued leaf test.
