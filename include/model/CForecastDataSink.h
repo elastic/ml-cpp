@@ -14,9 +14,9 @@
 
 #include <maths/CModel.h>
 
-#include <model/CModelParams.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
+#include <model/SModelParams.h>
 
 #include <rapidjson/allocators.h>
 #include <rapidjson/fwd.h>

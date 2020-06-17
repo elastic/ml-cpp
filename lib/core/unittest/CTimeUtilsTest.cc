@@ -10,18 +10,21 @@
 #include <core/CTimeUtils.h>
 #include <core/CTimezone.h>
 
-#include <time.h>
-
 #include <boost/test/unit_test.hpp>
+
+#include <time.h>
 
 BOOST_AUTO_TEST_SUITE(CTimeUtilsTest)
 
 BOOST_AUTO_TEST_CASE(testNow) {
     ml::core_t::TTime t1(ml::core::CTimeUtils::now());
+    std::int64_t t1Ms(ml::core::CTimeUtils::nowMs());
     ml::core::CSleep::sleep(1001);
     ml::core_t::TTime t2(ml::core::CTimeUtils::now());
+    std::int64_t t2Ms(ml::core::CTimeUtils::nowMs());
 
     BOOST_TEST_REQUIRE(t2 > t1);
+    BOOST_TEST_REQUIRE(t2Ms > t1Ms);
 }
 
 BOOST_AUTO_TEST_CASE(testToIso8601) {

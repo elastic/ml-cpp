@@ -91,7 +91,9 @@ void detectorPersistHelper(const std::string& configFileName,
     }()};
 
     BOOST_TEST_REQUIRE(parser->readStreamIntoMaps(
-        std::bind(&CTestAnomalyJob::handleRecord, &origJob, std::placeholders::_1)));
+        [&origJob](const CTestAnomalyJob::TStrStrUMap& dataRowFields) {
+            return origJob.handleRecord(dataRowFields);
+        }));
 
     // Persist the detector state to file(s)
 

@@ -13,6 +13,7 @@
 
 #include <api/ImportExport.h>
 
+#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <string>
@@ -52,6 +53,8 @@ public:
     using TStrStrUMapItr = TStrStrUMap::iterator;
     using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
+    using TOptionalTime = boost::optional<core_t::TTime>;
+
 public:
     //! Virtual destructor for abstract base class
     virtual ~COutputHandler() = default;
@@ -66,16 +69,21 @@ public:
     //! present - this is only allowed once
     virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) = 0;
 
-    //! Write a row to the stream.  The supplied map must contain every
-    //! field value.
-    virtual bool writeRow(const TStrStrUMap& dataRowFields);
+    //! Write a row to the stream.  The supplied map must contain every field
+    //! value.  The time will be passed as an empty optional, i.e. unknown.
+    bool writeRow(const TStrStrUMap& dataRowFields);
 
     //! Write a row to the stream, optionally overriding some of the
     //! original field values.  Where the same field is present in both
     //! overrideDataRowFields and dataRowFields, the value in
-    //! overrideDataRowFields will be written.
+    //! overrideDataRowFields will be written.  The time will be passed
+    //! as an empty optional, i.e. unknown.
+    bool writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields);
+
+    //! As above, but with a pre-parsed time.
     virtual bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields) = 0;
+                          const TStrStrUMap& overrideDataRowFields,
+                          TOptionalTime time) = 0;
 
     //! Perform any final processing once all input data has been seen.
     virtual void finalise();

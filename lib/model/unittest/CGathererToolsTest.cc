@@ -5,7 +5,7 @@
  */
 
 #include <model/CGathererTools.h>
-#include <model/CModelParams.h>
+#include <model/SModelParams.h>
 
 #include <boost/test/unit_test.hpp>
 
