@@ -172,26 +172,37 @@ CTrainedModel::TSizeInfoUPtr CTree::sizeInfo() const {
 }
 
 CTree::CSizeInfo::CSizeInfo(const CTree& tree)
-    : CTrainedModel::CSizeInfo(tree) {
-    for (const auto& node : tree.m_TreeStructure) {
-        if (node.leaf()) {
-            ++m_numLeaves;
-        } else {
-            ++m_numNodes;
-        }
-    }
+    : CTrainedModel::CSizeInfo(tree), m_Tree{tree} {
 }
 
 void CTree::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
                                      TRapidJsonWriter& writer) const {
-    writer.addMember(JSON_NUM_NODES_TAG, toJson(m_numNodes, writer).Move(), parentObject);
-    writer.addMember(JSON_NUM_LEAVES_TAG, toJson(m_numLeaves, writer).Move(), parentObject);
+    std::size_t numLeaves{0};
+    std::size_t numNodes{0};
+    for (const auto& node : m_Tree.m_TreeStructure) {
+        if (node.leaf()) {
+            ++numLeaves;
+        } else {
+            ++numNodes;
+        }
+    }
+    writer.addMember(JSON_NUM_NODES_TAG, toJson(numNodes, writer).Move(), parentObject);
+    writer.addMember(JSON_NUM_LEAVES_TAG, toJson(numLeaves, writer).Move(), parentObject);
 }
 
 std::size_t CTree::CSizeInfo::numOperations() const {
+    std::size_t numLeaves{0};
+    std::size_t numNodes{0};
+    for (const auto& node : m_Tree.m_TreeStructure) {
+        if (node.leaf()) {
+            ++numLeaves;
+        } else {
+            ++numNodes;
+        }
+    }
     // Strictly speaking, this formula is correct only for balanced trees, but it will
     // give a good average estimate for other binary trees as well.
-    return static_cast<std::size_t>(std::ceil(std::log2(m_numNodes + m_numLeaves + 1)));
+    return static_cast<std::size_t>(std::ceil(std::log2(numNodes + numLeaves + 1)));
 }
 
 void CEnsemble::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const {
@@ -618,21 +629,22 @@ CTargetMeanEncoding::CSizeInfo::CSizeInfo(const CTargetMeanEncoding& encoding)
 }
 
 CTargetMeanEncoding::CSizeInfo::CSizeInfo(const CTargetMeanEncoding* encoding)
-    : CEncoding::CSizeInfo::CSizeInfo(encoding) {
-    m_FeatureNameLength = encoding->featureName().size();
-    for (const auto& item : encoding->targetMap()) {
-        m_FieldValueLengths.push_back(item.first.size());
-    }
+    : CEncoding::CSizeInfo::CSizeInfo(encoding), m_Encoding{*encoding} {
 }
 
 void CTargetMeanEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
                                                    TRapidJsonWriter& writer) const {
     this->CEncoding::CSizeInfo::addToDocument(parentObject, writer);
+    std::size_t featureNameLength{m_Encoding.featureName().size()};
+    TSizeVec fieldValueLengths;
+    fieldValueLengths.reserve(m_Encoding.targetMap().size());
+    for (const auto& item : m_Encoding.targetMap()) {
+        fieldValueLengths.push_back(item.first.size());
+    }
     writer.addMember(
         JSON_FEATURE_NAME_LENGTH_TAG,
-        rapidjson::Value(static_cast<std::uint64_t>(m_FeatureNameLength)).Move(),
-        parentObject);
-    addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, m_FieldValueLengths, parentObject, writer);
+        rapidjson::Value(static_cast<std::uint64_t>(featureNameLength)).Move(), parentObject);
+    addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, fieldValueLengths, parentObject, writer);
 }
 
 CEncoding::TSizeInfoUPtr CTargetMeanEncoding::sizeInfo() const {
@@ -665,15 +677,20 @@ const std::string& CEncoding::field() const {
     return m_Field;
 }
 
-CEncoding::CSizeInfo::CSizeInfo(const CEncoding* encoding) {
-    m_FieldLength = encoding->field().size();
+CEncoding::CSizeInfo::CSizeInfo(const CEncoding* encoding)
+    : m_Encoding(encoding) {
 }
 
 void CEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
                                          TRapidJsonWriter& writer) const {
-    writer.addMember(JSON_FIELD_LENGTH_TAG,
-                     rapidjson::Value(static_cast<std::uint64_t>(m_FieldLength)).Move(),
-                     parentObject);
+    writer.addMember(
+        JSON_FIELD_LENGTH_TAG,
+        rapidjson::Value(static_cast<std::uint64_t>(m_Encoding->field().size())).Move(),
+        parentObject);
+}
+
+const CEncoding* CEncoding::CSizeInfo::encoding() const {
+    return m_Encoding;
 }
 
 void CFrequencyEncoding::addToDocument(rapidjson::Value& parentObject,
@@ -704,21 +721,22 @@ CFrequencyEncoding::CSizeInfo::CSizeInfo(const CFrequencyEncoding& encoding)
 }
 
 CFrequencyEncoding::CSizeInfo::CSizeInfo(const CFrequencyEncoding* encoding)
-    : CEncoding::CSizeInfo::CSizeInfo(encoding) {
-    m_FeatureNameLength = encoding->featureName().size();
-    for (const auto& item : encoding->frequencyMap()) {
-        m_FieldValueLengths.push_back(item.first.size());
-    }
+    : CEncoding::CSizeInfo::CSizeInfo(encoding), m_Encoding{*encoding} {
 }
 
 void CFrequencyEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
                                                   TRapidJsonWriter& writer) const {
     this->CEncoding::CSizeInfo::addToDocument(parentObject, writer);
+    std::size_t featureNameLength{m_Encoding.featureName().size()};
+    TSizeVec fieldValueLengths;
+    fieldValueLengths.reserve(m_Encoding.frequencyMap().size());
+    for (const auto& item : m_Encoding.frequencyMap()) {
+        fieldValueLengths.push_back(item.first.size());
+    }
     writer.addMember(
         JSON_FEATURE_NAME_LENGTH_TAG,
-        rapidjson::Value(static_cast<std::uint64_t>(m_FeatureNameLength)).Move(),
-        parentObject);
-    addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, m_FieldValueLengths, parentObject, writer);
+        rapidjson::Value(static_cast<std::uint64_t>(featureNameLength)).Move(), parentObject);
+    addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, fieldValueLengths, parentObject, writer);
 }
 
 const std::string& CFrequencyEncoding::typeString() const {
@@ -760,18 +778,22 @@ COneHotEncoding::COneHotEncoding(const std::string& field, TStringStringUMap hot
 }
 
 COneHotEncoding::CSizeInfo::CSizeInfo(const COneHotEncoding* encoding)
-    : CEncoding::CSizeInfo::CSizeInfo(encoding) {
-    for (const auto& item : encoding->hotMap()) {
-        m_FieldValueLengths.push_back(item.first.size());
-        m_FeatureNameLengths.push_back(item.second.size());
-    }
+    : CEncoding::CSizeInfo::CSizeInfo(encoding), m_Encoding{*encoding} {
 }
 
 void COneHotEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
                                                TRapidJsonWriter& writer) const {
     this->CEncoding::CSizeInfo::addToDocument(parentObject, writer);
-    addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, m_FieldValueLengths, parentObject, writer);
-    addJsonArray(JSON_FEATURE_NAME_LENGTHS_TAG, m_FeatureNameLengths, parentObject, writer);
+    TSizeVec fieldValueLengths;
+    fieldValueLengths.reserve(m_Encoding.hotMap().size());
+    TSizeVec featureNameLengths;
+    featureNameLengths.reserve(m_Encoding.hotMap().size());
+    for (const auto& item : m_Encoding.hotMap()) {
+        fieldValueLengths.push_back(item.first.size());
+        featureNameLengths.push_back(item.second.size());
+    }
+    addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, fieldValueLengths, parentObject, writer);
+    addJsonArray(JSON_FEATURE_NAME_LENGTHS_TAG, featureNameLengths, parentObject, writer);
 }
 
 const std::string& COneHotEncoding::CSizeInfo::typeString() const {

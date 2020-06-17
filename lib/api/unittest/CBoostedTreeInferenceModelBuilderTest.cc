@@ -117,50 +117,56 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
-    LOG_DEBUG(<< definition->jsonString());
+    LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
     auto modelSizeDefinition{definition->sizeInfo()};
-    LOG_DEBUG(<< modelSizeDefinition->jsonString());
+    LOG_DEBUG(<< "Model size definition: " << modelSizeDefinition->jsonString());
 
-    // test pre-processing
-    BOOST_REQUIRE_EQUAL(std::size_t(3), definition->preprocessors().size());
-    bool frequency = false;
-    bool target = false;
-    bool oneHot = false;
+    // verify model definition
+    {
+        // test pre-processing
+        BOOST_REQUIRE_EQUAL(std::size_t(3), definition->preprocessors().size());
+        bool frequency = false;
+        bool target = false;
+        bool oneHot = false;
 
-    for (const auto& encoding : definition->preprocessors()) {
-        if (encoding->typeString() == "frequency_encoding") {
-            auto enc = static_cast<ml::api::CFrequencyEncoding*>(encoding.get());
-            BOOST_REQUIRE_EQUAL(std::size_t(3), enc->frequencyMap().size());
-            BOOST_TEST_REQUIRE("categorical_col_frequency" == enc->featureName());
-            frequency = true;
-        } else if (encoding->typeString() == "target_mean_encoding") {
-            auto enc = static_cast<ml::api::CTargetMeanEncoding*>(encoding.get());
-            BOOST_REQUIRE_EQUAL(std::size_t(3), enc->targetMap().size());
-            BOOST_TEST_REQUIRE("categorical_col_targetmean" == enc->featureName());
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0177288, enc->defaultValue(), 1e-6);
-            target = true;
-        } else if (encoding->typeString() == "one_hot_encoding") {
-            auto enc = static_cast<ml::api::COneHotEncoding*>(encoding.get());
-            BOOST_REQUIRE_EQUAL(std::size_t(3), enc->hotMap().size());
-            BOOST_TEST_REQUIRE("categorical_col_cat1" == enc->hotMap()["cat1"]);
-            BOOST_TEST_REQUIRE("categorical_col_cat2" == enc->hotMap()["cat2"]);
-            BOOST_TEST_REQUIRE("categorical_col_cat3" == enc->hotMap()["cat3"]);
-            oneHot = true;
+        for (const auto& encoding : definition->preprocessors()) {
+            if (encoding->typeString() == "frequency_encoding") {
+                auto enc = static_cast<ml::api::CFrequencyEncoding*>(encoding.get());
+                BOOST_REQUIRE_EQUAL(std::size_t(3), enc->frequencyMap().size());
+                BOOST_TEST_REQUIRE("categorical_col_frequency" == enc->featureName());
+                frequency = true;
+            } else if (encoding->typeString() == "target_mean_encoding") {
+                auto enc = static_cast<ml::api::CTargetMeanEncoding*>(encoding.get());
+                BOOST_REQUIRE_EQUAL(std::size_t(3), enc->targetMap().size());
+                BOOST_TEST_REQUIRE("categorical_col_targetmean" == enc->featureName());
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0177288, enc->defaultValue(), 1e-6);
+                target = true;
+            } else if (encoding->typeString() == "one_hot_encoding") {
+                auto enc = static_cast<ml::api::COneHotEncoding*>(encoding.get());
+                BOOST_REQUIRE_EQUAL(std::size_t(3), enc->hotMap().size());
+                BOOST_TEST_REQUIRE("categorical_col_cat1" == enc->hotMap()["cat1"]);
+                BOOST_TEST_REQUIRE("categorical_col_cat2" == enc->hotMap()["cat2"]);
+                BOOST_TEST_REQUIRE("categorical_col_cat3" == enc->hotMap()["cat3"]);
+                oneHot = true;
+            }
         }
+
+        BOOST_TEST_REQUIRE(oneHot);
+        BOOST_TEST_REQUIRE(target);
+        BOOST_TEST_REQUIRE(frequency);
+
+        // assert trained model
+        auto* trainedModel =
+            dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
+        BOOST_REQUIRE_EQUAL(api::CTrainedModel::E_Regression, trainedModel->targetType());
+        std::size_t expectedSize{core::CProgramCounters::counter(
+            ml::counter_t::E_DFTPMTrainedForestNumberTrees)};
+        BOOST_REQUIRE_EQUAL(expectedSize, trainedModel->size());
+        BOOST_TEST_REQUIRE("weighted_sum" == trainedModel->aggregateOutput()->stringType());
     }
 
-    BOOST_TEST_REQUIRE(oneHot);
-    BOOST_TEST_REQUIRE(target);
-    BOOST_TEST_REQUIRE(frequency);
-
-    // assert trained model
-    auto* trainedModel =
-        dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
-    BOOST_REQUIRE_EQUAL(api::CTrainedModel::E_Regression, trainedModel->targetType());
-    std::size_t expectedSize{core::CProgramCounters::counter(
-        ml::counter_t::E_DFTPMTrainedForestNumberTrees)};
-    BOOST_REQUIRE_EQUAL(expectedSize, trainedModel->size());
-    BOOST_TEST_REQUIRE("weighted_sum" == trainedModel->aggregateOutput()->stringType());
+    // verify model size info
+    {}
 }
 
 BOOST_AUTO_TEST_CASE(testIntegrationClassification) {

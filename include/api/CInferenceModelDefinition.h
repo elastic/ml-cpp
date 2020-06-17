@@ -204,8 +204,7 @@ public:
         std::size_t numOperations() const override;
 
     private:
-        std::size_t m_numNodes;
-        std::size_t m_numLeaves;
+        const CTree& m_Tree;
     };
 
     using TTreeNodeVec = std::vector<CTreeNode>;
@@ -275,12 +274,13 @@ public:
 
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
         virtual const std::string& typeString() const = 0;
+        const CEncoding* encoding() const;
 
     protected:
         explicit CSizeInfo(const CEncoding* encoding);
 
     private:
-        std::size_t m_FieldLength;
+        const CEncoding* m_Encoding;
     };
     using TSizeInfoUPtr = std::unique_ptr<CSizeInfo>;
 
@@ -316,8 +316,7 @@ public:
         explicit CSizeInfo(const CFrequencyEncoding* encoding);
 
     private:
-        TSizeVec m_FieldValueLengths;
-        std::size_t m_FeatureNameLength;
+        const CFrequencyEncoding& m_Encoding;
     };
     using TStringDoubleUMap = const std::unordered_map<std::string, double>;
 
@@ -354,8 +353,7 @@ public:
         explicit CSizeInfo(const COneHotEncoding* encoding);
 
     private:
-        TSizeVec m_FieldValueLengths;
-        TSizeVec m_FeatureNameLengths;
+        const COneHotEncoding& m_Encoding;
     };
     using TStringStringUMap = std::map<std::string, std::string>;
 
@@ -389,8 +387,7 @@ public:
         explicit CSizeInfo(const CTargetMeanEncoding* encoding);
 
     private:
-        TSizeVec m_FieldValueLengths;
-        std::size_t m_FeatureNameLength;
+        const CTargetMeanEncoding& m_Encoding;
     };
     using TStringDoubleUMap = std::unordered_map<std::string, double>;
 
