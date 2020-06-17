@@ -5,9 +5,9 @@
  */
 #include <api/CInferenceModelDefinition.h>
 
-#include <cmath>
 #include <core/CPersistUtils.h>
 
+#include <cmath>
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
@@ -475,19 +475,19 @@ void CTrainedModel::classificationWeights(TDoubleVec classificationWeights) {
 }
 
 CTrainedModel::CSizeInfo::CSizeInfo(const CTrainedModel& trainedModel)
-    : m_TrainedModel{&trainedModel} {
+    : m_TrainedModel{trainedModel} {
 }
 
 void CTrainedModel::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
                                              TRapidJsonWriter& writer) const {
-    if (m_TrainedModel->targetType() == E_Classification) {
+    if (m_TrainedModel.targetType() == E_Classification) {
         writer.addMember(
             JSON_NUM_CLASSIFICATION_WEIGHTS_TAG,
-            toJson(m_TrainedModel->classificationWeights()->size(), writer).Move(),
+            toJson(m_TrainedModel.classificationWeights()->size(), writer).Move(),
             parentObject);
         writer.addMember(
             JSON_NUM_CLASSES_TAG,
-            toJson(m_TrainedModel->classificationLabels()->size(), writer).Move(),
+            toJson(m_TrainedModel.classificationLabels()->size(), writer).Move(),
             parentObject);
     }
 }
@@ -537,17 +537,8 @@ CInferenceModelDefinition::TSizeInfoUPtr CInferenceModelDefinition::sizeInfo() c
     return std::make_unique<CSizeInfo>(*this);
 }
 
-CInferenceModelDefinition::CSizeInfo::CSizeInfo(const CInferenceModelDefinition& inferenceModel)
-    : m_TrainedModelSize{nullptr} {
-    // parse preprocessing
-    m_EncodingSizeItems.reserve(inferenceModel.preprocessors().size());
-    for (const auto& preprocessor : inferenceModel.preprocessors()) {
-        m_EncodingSizeItems.push_back(preprocessor->sizeInfo());
-    }
-    // parse trained models
-    if (inferenceModel.trainedModel()) {
-        inferenceModel.trainedModel()->sizeInfo().swap(m_TrainedModelSize);
-    }
+CInferenceModelDefinition::CSizeInfo::CSizeInfo(const CInferenceModelDefinition& definition)
+    : m_Definition{definition} {
 }
 
 std::string CInferenceModelDefinition::CSizeInfo::jsonString() {
@@ -568,9 +559,21 @@ std::string CInferenceModelDefinition::CSizeInfo::jsonString() {
 
 void CInferenceModelDefinition::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
                                                          TRapidJsonWriter& writer) const {
+    // parse preprocessing
+    TEncodingSizeUPtrVec encodingSizeItems;
+    encodingSizeItems.reserve(m_Definition.preprocessors().size());
+    for (const auto& preprocessor : m_Definition.preprocessors()) {
+        encodingSizeItems.push_back(preprocessor->sizeInfo());
+    }
+    // parse trained models
+    TTrainedModelSizeUPtr trainedModelSize;
+    if (m_Definition.trainedModel()) {
+        m_Definition.trainedModel()->sizeInfo().swap(trainedModelSize);
+    }
+
     // preprocessors
     rapidjson::Value preprocessingArray = writer.makeArray();
-    for (const auto& encoding : m_EncodingSizeItems) {
+    for (const auto& encoding : encodingSizeItems) {
         rapidjson::Value encodingValue = writer.makeObject();
         encoding->addToDocument(encodingValue, writer);
         rapidjson::Value encodingEnclosingObject = writer.makeObject();
@@ -580,7 +583,7 @@ void CInferenceModelDefinition::CSizeInfo::addToDocument(rapidjson::Value& paren
     writer.addMember(JSON_PREPROCESSORS_TAG, preprocessingArray, parentObject);
     rapidjson::Value trainedModelSizeObject = writer.makeObject();
     rapidjson::Value ensembleModelSizeObject = writer.makeObject();
-    m_TrainedModelSize->addToDocument(ensembleModelSizeObject, writer);
+    trainedModelSize->addToDocument(ensembleModelSizeObject, writer);
     writer.addMember(JSON_ENSEMBLE_MODEL_SIZE_TAG, ensembleModelSizeObject,
                      trainedModelSizeObject);
     writer.addMember(JSON_TRAINED_MODEL_SIZE_TAG, trainedModelSizeObject, parentObject);

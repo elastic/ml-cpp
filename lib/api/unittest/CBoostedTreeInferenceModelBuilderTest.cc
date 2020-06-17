@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <boost/test/tools/interface.hpp>
-#include <boost/test/tools/old/interface.hpp>
 #include <core/CDataAdder.h>
 #include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
