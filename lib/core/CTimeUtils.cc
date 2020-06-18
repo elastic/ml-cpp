@@ -149,24 +149,19 @@ bool CTimeUtils::isDateWord(const std::string& word) {
 }
 
 // Initialise statics for the inner class CDateWordCache
-CFastMutex CTimeUtils::CDateWordCache::ms_InitMutex;
-volatile CTimeUtils::CDateWordCache* CTimeUtils::CDateWordCache::ms_Instance(nullptr);
+CTimeUtils::CDateWordCache* CTimeUtils::CDateWordCache::ms_Instance{nullptr};
 
 const CTimeUtils::CDateWordCache& CTimeUtils::CDateWordCache::instance() {
     if (ms_Instance == nullptr) {
-        CScopedFastLock lock(ms_InitMutex);
-
-        // Even if we get into this code block in more than one thread, whatever
-        // measures the compiler is taking to ensure this variable is only
-        // constructed once should be fine given that the block is protected by
-        // a mutex.
-        static volatile CDateWordCache instance;
+        // This initialisation is thread safe due to the "magic statics" feature
+        // introduced in C++11.  This is implemented in Visual Studio 2015 and
+        // above.
+        static CDateWordCache instance;
 
         ms_Instance = &instance;
     }
 
-    // Need to explicitly cast away volatility
-    return *const_cast<const CDateWordCache*>(ms_Instance);
+    return *ms_Instance;
 }
 
 bool CTimeUtils::CDateWordCache::isDateWord(const std::string& word) const {
