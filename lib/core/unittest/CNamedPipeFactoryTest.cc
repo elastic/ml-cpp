@@ -14,6 +14,7 @@
 
 #include <fstream>
 
+#include <cstdint>
 #include <cstdio>
 
 #ifndef Windows

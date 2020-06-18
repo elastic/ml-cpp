@@ -22,6 +22,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/system/error_code.hpp>
 
+#include <cstdint>
 #include <cstdlib>
 #include <string>
 

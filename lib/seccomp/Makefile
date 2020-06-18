@@ -7,6 +7,7 @@ include $(CPP_SRC_HOME)/mk/defines.mk
 
 TARGET=$(OBJS_DIR)/libMlSeccomp$(STATIC_LIB_EXT)
 
+USE_BOOST=1
 
 all: build
 
