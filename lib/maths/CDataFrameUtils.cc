@@ -15,7 +15,6 @@
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CLbfgs.h>
 #include <maths/CLinearAlgebraEigen.h>
-#include <maths/CMathsFuncs.h>
 #include <maths/CMic.h>
 #include <maths/COrderings.h>
 #include <maths/CPRNG.h>
@@ -27,6 +26,7 @@
 
 #include <boost/unordered_map.hpp>
 
+#include <cmath>
 #include <limits>
 #include <memory>
 #include <numeric>
@@ -743,8 +743,8 @@ CDataFrameUtils::maximumMinimumRecallClassWeights(std::size_t numberThreads,
                                                     targetColumn, readPrediction);
 }
 
-bool CDataFrameUtils::isMissing(double x) {
-    return CMathsFuncs::isFinite(x) == false;
+bool CDataFrameUtils::isMissing(double value) {
+    return std::isfinite(value) == false;
 }
 
 CDataFrameUtils::TSizeDoublePrVecVecVec CDataFrameUtils::categoricalMicWithColumnDataFrameInMemory(

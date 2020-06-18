@@ -528,7 +528,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                         m_TreeImpl->m_Regularization.softTreeDepthLimit());
                 }
             })) {
-            m_TreeImpl->m_TrainingProgress.increment(lineSearchMaximumNumberIterations(frame));
+            m_TreeImpl->m_TrainingProgress.increment(
+                this->lineSearchMaximumNumberIterations(frame));
         }
     }
 
@@ -581,7 +582,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                         m_TreeImpl->m_Regularization.depthPenaltyMultiplier());
                 }
             })) {
-            m_TreeImpl->m_TrainingProgress.increment(lineSearchMaximumNumberIterations(frame));
+            m_TreeImpl->m_TrainingProgress.increment(
+                this->lineSearchMaximumNumberIterations(frame));
         }
     }
 
@@ -634,7 +636,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                         m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier());
                 }
             })) {
-            m_TreeImpl->m_TrainingProgress.increment(lineSearchMaximumNumberIterations(frame));
+            m_TreeImpl->m_TrainingProgress.increment(
+                this->lineSearchMaximumNumberIterations(frame));
         }
     }
 
@@ -688,7 +691,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                         m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier());
                 }
             })) {
-            m_TreeImpl->m_TrainingProgress.increment(lineSearchMaximumNumberIterations(frame));
+            m_TreeImpl->m_TrainingProgress.increment(
+                this->lineSearchMaximumNumberIterations(frame));
         }
     }
 
@@ -785,7 +789,8 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                     m_TreeImpl->m_DownsampleFactorOverride = m_TreeImpl->m_DownsampleFactor;
                 }
             })) {
-            m_TreeImpl->m_TrainingProgress.increment(lineSearchMaximumNumberIterations(frame));
+            m_TreeImpl->m_TrainingProgress.increment(
+                this->lineSearchMaximumNumberIterations(frame));
         }
     }
 }
@@ -834,7 +839,7 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
                 }
             })) {
             m_TreeImpl->m_TrainingProgress.increment(
-                lineSearchMaximumNumberIterations(frame, 0.5));
+                this->lineSearchMaximumNumberIterations(frame, 0.5));
         }
     }
 }
@@ -1284,22 +1289,22 @@ void CBoostedTreeFactory::startProgressMonitoringInitializeHyperparameters(const
 
     std::size_t totalNumberSteps{0};
     if (m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
-        totalNumberSteps += lineSearchMaximumNumberIterations(frame);
+        totalNumberSteps += this->lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-        totalNumberSteps += lineSearchMaximumNumberIterations(frame);
+        totalNumberSteps += this->lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
-        totalNumberSteps += lineSearchMaximumNumberIterations(frame);
+        totalNumberSteps += this->lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
-        totalNumberSteps += lineSearchMaximumNumberIterations(frame);
+        totalNumberSteps += this->lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_DownsampleFactorOverride == boost::none) {
-        totalNumberSteps += lineSearchMaximumNumberIterations(frame);
+        totalNumberSteps += this->lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_EtaOverride == boost::none) {
-        totalNumberSteps += lineSearchMaximumNumberIterations(frame, 0.5);
+        totalNumberSteps += this->lineSearchMaximumNumberIterations(frame, 0.5);
     }
 
     LOG_TRACE(<< "initial search total number steps = " << totalNumberSteps);

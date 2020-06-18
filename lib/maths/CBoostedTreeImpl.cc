@@ -582,8 +582,11 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     TDoubleVec losses;
     losses.reserve(m_MaximumNumberTrees);
     CTrainForestStoppingCondition stoppingCondition{m_MaximumNumberTrees};
+    TWorkspace workspace;
+
     do {
-        auto tree = this->trainTree(frame, downsampledRowMask, candidateSplits, maximumTreeSize);
+        auto tree = this->trainTree(frame, downsampledRowMask, candidateSplits,
+                                    maximumTreeSize, workspace);
 
         retries = tree.size() == 1 ? retries + 1 : 0;
 
@@ -740,12 +743,15 @@ CBoostedTreeImpl::TNodeVec
 CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
                             const TImmutableRadixSetVec& candidateSplits,
-                            const std::size_t maximumTreeSize) const {
+                            const std::size_t maximumTreeSize,
+                            TWorkspace& workspace) const {
 
     LOG_TRACE(<< "Training one tree...");
 
     using TLeafNodeStatisticsPtr = CBoostedTreeLeafNodeStatistics::TPtr;
     using TLeafNodeStatisticsPtrQueue = boost::circular_buffer<TLeafNodeStatisticsPtr>;
+
+    workspace.reinitialize(m_NumberThreads, candidateSplits, m_Loss->numberParameters());
 
     TNodeVec tree(1);
     tree.reserve(2 * maximumTreeSize + 1);
@@ -760,7 +766,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     leaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatistics>(
         0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
         frame, *m_Encoder, m_Regularization, candidateSplits, featureBag,
-        0 /*depth*/, trainingRowMask));
+        0 /*depth*/, trainingRowMask, workspace));
 
     // We update local variables because the callback can be expensive if it
     // requires accessing atomics.
@@ -773,6 +779,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         memory.s_Max = std::max(memory.s_Max, memory.s_Current);
     }};
     CScopeRecordMemoryUsage scopeMemoryUsage{leaves, std::move(localRecordMemoryUsage)};
+    scopeMemoryUsage.add(workspace);
 
     // For each iteration we:
     //   1. Find the leaf with the greatest decrease in loss
@@ -799,6 +806,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         }
 
         totalGain += leaf->gain();
+        workspace.minimumGain(MINIMUM_RELATIVE_GAIN_PER_SPLIT * totalGain);
         LOG_TRACE(<< "splitting " << leaf->id() << " leaf gain = " << leaf->gain()
                   << " total gain = " << totalGain);
 
@@ -820,7 +828,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         TLeafNodeStatisticsPtr rightChild;
         std::tie(leftChild, rightChild) = leaf->split(
             leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder,
-            m_Regularization, candidateSplits, featureBag, tree[leaf->id()]);
+            m_Regularization, featureBag, tree[leaf->id()], workspace);
 
         if (less(rightChild, leftChild)) {
             std::swap(leftChild, rightChild);
@@ -840,6 +848,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         // Drop any leaves which can't possibly be split.
         while (leaves.size() + i + 1 > maximumTreeSize) {
             scopeMemoryUsage.remove(leaves.front());
+            workspace.minimumGain(leaves.front()->gain());
             leaves.pop_front();
         }
     }
