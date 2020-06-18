@@ -640,6 +640,14 @@ CMultimodalPrior::marginalLikelihoodConfidenceInterval(double percentage,
                      : bounds.max()};
         double fa{fMinusp(a)};
         double fb{fMinusp(b)};
+        // If we enter either of the following loops, since the c.d.f. is
+        // monotonic, we know that the interval is either right or left of
+        // the required root. We can therefore shift the original interval
+        // since a and b are, respectively, upper and lower bounds for the
+        // root. Each iteration also doubles the original interval width.
+        // Note, we can only enter one or other of these loops so provided
+        // we supply a few more than 10 iterations to the solver it'll have
+        // enough iterations to comfortably converge.
         for (std::size_t i = 0; fa > 0.0 && i < 10; ++i) {
             std::tie(a, b) = std::make_pair(b - 3.0 * (b - a), a);
             std::tie(fa, fb) = std::make_pair(fMinusp(a), fa);
