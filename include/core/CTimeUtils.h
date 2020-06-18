@@ -6,7 +6,6 @@
 #ifndef INCLUDED_ml_core_CTimeUtils_h
 #define INCLUDED_ml_core_CTimeUtils_h
 
-#include <core/CFastMutex.h>
 #include <core/CNonInstantiatable.h>
 #include <core/CoreTypes.h>
 #include <core/ImportExport.h>
@@ -93,15 +92,11 @@ private:
         ~CDateWordCache();
 
     private:
-        //! Protect the singleton's initialisation, preventing it from
-        //! being constructed simultaneously in different threads.
-        static CFastMutex ms_InitMutex;
-
-        //! This pointer is set after the singleton object has been
-        //! constructed, and avoids the need to lock the mutex on
-        //! subsequent calls of the instance() method (once the updated
-        //! value of this variable has made its way into every thread).
-        static volatile CDateWordCache* ms_Instance;
+        //! This pointer is set after the singleton object has been constructed,
+        //! and avoids the need to lock the magic static initialisation mutex on
+        //! subsequent calls of the instance() method (once the updated value of
+        //! this variable is visible in every thread).
+        static CDateWordCache* ms_Instance;
 
         using TStrUSet = boost::unordered_set<std::string>;
 
