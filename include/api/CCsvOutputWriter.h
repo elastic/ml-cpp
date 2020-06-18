@@ -77,7 +77,7 @@ public:
     //! present - this is only allowed once
     bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) override;
 
-    // Bring the other overload of writeRow() into scope
+    // Bring the other overloads of writeRow() into scope
     using COutputHandler::writeRow;
 
     //! Write a row to the stream, optionally overriding some of the
@@ -85,7 +85,8 @@ public:
     //! overrideDataRowFields and dataRowFields, the value in
     //! overrideDataRowFields will be written.
     bool writeRow(const TStrStrUMap& dataRowFields,
-                  const TStrStrUMap& overrideDataRowFields) override;
+                  const TStrStrUMap& overrideDataRowFields,
+                  TOptionalTime time) override;
 
     //! Get the contents of the internal string stream - for use with the
     //! zero argument constructor

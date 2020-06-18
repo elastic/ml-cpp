@@ -24,11 +24,11 @@
 #include <model/CDataClassifier.h>
 #include <model/CMetricPartialStatistic.h>
 #include <model/CMetricStatisticWrappers.h>
-#include <model/CModelParams.h>
 #include <model/CSampleQueue.h>
 #include <model/CStringStore.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
+#include <model/SModelParams.h>
 
 #include <functional>
 #include <vector>

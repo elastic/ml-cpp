@@ -10,11 +10,12 @@
 #include <core/ImportExport.h>
 #include <core/WindowsSafe.h>
 
+#include <atomic>
 #include <iosfwd>
 #include <memory>
 #include <string>
 
-#include <stdio.h>
+#include <stdio.h> // fdopen() is not C++ so need the C header
 
 namespace ml {
 namespace core {
@@ -69,20 +70,24 @@ public:
     //! Initialise and open a named pipe for reading, returning a C++ stream
     //! that can be used to read from it.  Returns a NULL pointer on
     //! failure.
-    static TIStreamP openPipeStreamRead(const std::string& fileName);
+    static TIStreamP openPipeStreamRead(const std::string& fileName,
+                                        const std::atomic_bool& isCancelled);
 
     //! Initialise and open a named pipe for writing, returning a C++ stream
     //! that can be used to write to it.  Returns a NULL pointer on failure.
-    static TOStreamP openPipeStreamWrite(const std::string& fileName);
+    static TOStreamP openPipeStreamWrite(const std::string& fileName,
+                                         const std::atomic_bool& isCancelled);
 
     //! Initialise and open a named pipe for writing, returning a C FILE
     //! that can be used to read from it.  Returns a NULL pointer on
     //! failure.
-    static TFileP openPipeFileRead(const std::string& fileName);
+    static TFileP openPipeFileRead(const std::string& fileName,
+                                   const std::atomic_bool& isCancelled);
 
     //! Initialise and open a named pipe for writing, returning a C FILE
     //! that can be used to write to it.  Returns a NULL pointer on failure.
-    static TFileP openPipeFileWrite(const std::string& fileName);
+    static TFileP openPipeFileWrite(const std::string& fileName,
+                                    const std::atomic_bool& isCancelled);
 
     //! Does the supplied file name refer to a named pipe?
     static bool isNamedPipe(const std::string& fileName);
@@ -107,7 +112,9 @@ private:
     //! file descriptor that can be used to access it.  This is the core
     //! implementation of the higher level encapsulations that the public
     //! interface provides.
-    static TPipeHandle initPipeHandle(const std::string& fileName, bool forWrite);
+    static TPipeHandle initPipeHandle(const std::string& fileName,
+                                      bool forWrite,
+                                      const std::atomic_bool& isCancelled);
 };
 }
 }

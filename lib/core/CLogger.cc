@@ -265,6 +265,13 @@ const std::string& CLogger::levelToString(ELevel level) {
 }
 
 bool CLogger::reconfigure(const std::string& pipeName, const std::string& propertiesFile) {
+    std::atomic_bool dummy{false};
+    return this->reconfigure(pipeName, propertiesFile, dummy);
+}
+
+bool CLogger::reconfigure(const std::string& pipeName,
+                          const std::string& propertiesFile,
+                          const std::atomic_bool& isCancelled) {
     if (pipeName.empty()) {
         if (propertiesFile.empty()) {
             // Both empty is OK - it just means we keep logging to stderr
@@ -272,7 +279,7 @@ bool CLogger::reconfigure(const std::string& pipeName, const std::string& proper
         }
         return this->reconfigureFromFile(propertiesFile);
     }
-    return this->reconfigureLogToNamedPipe(pipeName);
+    return this->reconfigureLogToNamedPipe(pipeName, isCancelled);
 }
 
 bool CLogger::reconfigure(boost::shared_ptr<std::ostream> streamPtr) {
@@ -286,12 +293,18 @@ bool CLogger::reconfigure(boost::shared_ptr<std::ostream> streamPtr) {
 }
 
 bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
+    std::atomic_bool dummy{false};
+    return this->reconfigureLogToNamedPipe(pipeName, dummy);
+}
+
+bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName,
+                                        const std::atomic_bool& isCancelled) {
     if (m_Reconfigured.load()) {
         LOG_ERROR(<< "Cannot log to a named pipe after logger reconfiguration");
         return false;
     }
 
-    m_PipeFile = CNamedPipeFactory::openPipeFileWrite(pipeName);
+    m_PipeFile = CNamedPipeFactory::openPipeFileWrite(pipeName, isCancelled);
     if (m_PipeFile == nullptr) {
         LOG_ERROR(<< "Cannot log to named pipe " << pipeName
                   << " as it could not be opened for writing");

@@ -278,9 +278,14 @@ int main(int argc, char** argv) {
     ml::api::CJsonOutputWriter fieldDataCategorizerOutputWriter(jobId, wrappedOutputStream);
 
     // The categorizer knows how to assign categories to records
-    ml::api::CFieldDataCategorizer categorizer(jobId, fieldConfig, limits, outputChainer,
+    ml::api::CFieldDataCategorizer categorizer{jobId,
+                                               fieldConfig,
+                                               limits,
+                                               timeField,
+                                               timeFormat,
+                                               outputChainer,
                                                fieldDataCategorizerOutputWriter,
-                                               persistenceManager.get());
+                                               persistenceManager.get()};
 
     if (fieldConfig.fieldNameSuperset().count(
             ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0) {

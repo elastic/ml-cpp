@@ -4,8 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#ifndef INCLUDED_ml_model_CModelParams_h
-#define INCLUDED_ml_model_CModelParams_h
+#ifndef INCLUDED_ml_model_SModelParams_h
+#define INCLUDED_ml_model_SModelParams_h
 
 #include <core/CLogger.h>
 #include <core/CMemoryUsage.h>
@@ -33,7 +33,7 @@ namespace model {
 //! parameters to avoid the need of updating the constructor signatures
 //! of all the classes in the CModel hierarchy when new parameters added.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! This is purposely not implemented as a nested class so that it can
 //! be forward declared.
 struct MODEL_EXPORT SModelParams {
@@ -182,4 +182,4 @@ struct MODEL_EXPORT SModelParams {
 }
 }
 
-#endif // INCLUDED_ml_model_CModelParams_h
+#endif // INCLUDED_ml_model_SModelParams_h

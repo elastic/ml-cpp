@@ -29,14 +29,18 @@ class COutputHandler;
 //! IMPLEMENTATION DECISIONS:\n
 //! Only the minimal set of required functions are implemented.
 //!
-class CMockDataProcessor : public ml::api::CDataProcessor {
+class CMockDataProcessor final : public ml::api::CDataProcessor {
 public:
     CMockDataProcessor(ml::api::COutputHandler& outputHandler);
 
     //! We're going to be writing to a new output stream
     void newOutputStream() override;
 
-    bool handleRecord(const TStrStrUMap& dataRowFields) override;
+    bool handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) override;
+
+    bool handleRecord(const TStrStrUMap& dataRowFields) {
+        return this->handleRecord(dataRowFields, TOptionalTime{});
+    }
 
     void finalise() override;
 

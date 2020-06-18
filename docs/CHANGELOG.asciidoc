@@ -52,7 +52,7 @@
 * Parallelize the feature importance calculation for classification and regression
   over trees. (See {ml-pull}1277[#1277].)
 * Add an option to do categorization independently for each partition.
-  (See {ml-pull}1293[#1293] and {pull}57683[#57683].)
+  (See {ml-pull}1293[#1293], {ml-pull}1318[#1318] and {pull}57683[#57683].)
 * Memory usage is reported during job initialization. (See {ml-pull}1294[#1294].)
 * More realistic memory estimation for classification and regression means that these
   analyses will require lower memory limits than before (See {ml-pull}1298[#1298].)
@@ -64,6 +64,12 @@
 === Bug Fixes
 
 * Fix numerical issues leading to blow up of the model plot bounds. (See {ml-pull}1268[#1268].)
+
+== {es} version 7.8.1
+
+=== Bug Fixes
+
+* Better interrupt handling during named pipe connection. (See {ml-pull}1311[#1311].)
 
 == {es} version 7.8.0
 

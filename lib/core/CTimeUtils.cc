@@ -12,6 +12,8 @@
 #include <core/CTimezone.h>
 #include <core/CoreTypes.h>
 
+#include <chrono>
+
 #include <errno.h>
 #include <string.h>
 
@@ -22,8 +24,13 @@ namespace core {
 const core_t::TTime CTimeUtils::MAX_CLOCK_DISCREPANCY(300);
 
 core_t::TTime CTimeUtils::now() {
-    // TODO use std::chrono functionality
     return ::time(nullptr);
+}
+
+std::int64_t CTimeUtils::nowMs() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+               std::chrono::system_clock::now().time_since_epoch())
+        .count();
 }
 
 std::string CTimeUtils::toIso8601(core_t::TTime t) {

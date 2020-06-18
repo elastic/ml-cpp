@@ -12,6 +12,7 @@
 
 #include <boost/unordered_set.hpp>
 
+#include <cstdint>
 #include <string>
 
 namespace ml {
@@ -35,8 +36,11 @@ public:
     static const core_t::TTime MAX_CLOCK_DISCREPANCY;
 
 public:
-    //! Current time
+    //! Current time in seconds since the epoch
     static core_t::TTime now();
+
+    //! Current time in milliseconds since the epoch
+    static std::int64_t nowMs();
 
     //! Date and time to string according to http://www.w3.org/TR/NOTE-datetime
     //! E.g. 1997-07-16T19:20:30+01:00

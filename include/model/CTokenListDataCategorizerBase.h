@@ -78,6 +78,7 @@ public:
     //! Used for storing token ID sequences and categories with counts
     using TSizeSizePrVec = std::vector<TSizeSizePr>;
     using TSizeSizePrVecItr = TSizeSizePrVec::iterator;
+    using TSizeSizePrVecCItr = TSizeSizePrVec::const_iterator;
 
     //! Used for storing distinct token IDs
     using TSizeSizeMap = std::map<std::size_t, std::size_t>;
@@ -122,18 +123,12 @@ public:
     // Bring the other overload of computeCategory() into scope
     using CDataCategorizer::computeCategory;
 
-    //! Create a search that will (more or less) just select the records
-    //! that are classified as the given category.  Note that the reverse search
-    //! is only approximate - it may select more records than have actually
-    //! been classified as the returned category.
-    bool createReverseSearch(CLocalCategoryId categoryId,
-                             std::string& part1,
-                             std::string& part2,
-                             std::size_t& maxMatchingLength,
-                             bool& wasCached) override;
-
-    //! Has the data categorizer's state changed?
-    bool hasChanged() const override;
+    //! Ensure the reverse search information is up-to-date for the specified
+    //! category.  Note that the reverse search is only approximate - it may
+    //! select more records than have actually been classified as the specified
+    //! category.
+    //! \return Was the reverse search changed as a result of the call?
+    bool cacheReverseSearch(CLocalCategoryId categoryId) override;
 
     //! Populate the object from part of a state document
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) override;
@@ -158,6 +153,9 @@ public:
     //! Get the memory used by this categorizer.
     std::size_t memoryUsage() const override;
 
+    //! Update categorizer stats with information from this categorizer.
+    void updateCategorizerStats(SCategorizerStats& categorizerStats) const;
+
     //! Update the model size stats with information from this categorizer.
     void updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const override;
 
@@ -178,11 +176,28 @@ public:
 
     std::size_t numMatches(CLocalCategoryId categoryId) override;
 
-    CDataCategorizer::TLocalCategoryIdVec usurpedCategories(CLocalCategoryId categoryId) override;
+    //! Get the categories that will never be detected again because the
+    //! specified category will always be returned instead.
+    TLocalCategoryIdVec usurpedCategories(CLocalCategoryId categoryId) const override;
 
+    //! Writes information about a category using the supplied output function,
+    //! if the category has changed since the last time it was written.
+    //! \return Was the category written?
+    bool writeCategoryIfChanged(CLocalCategoryId categoryId,
+                                const TCategoryOutputFunc& outputFunc) override;
+
+    //! Writes information about all categories that have changed since the last
+    //! time they were written using the supplied output function.
+    //! \return Number of categories written.
+    std::size_t writeChangedCategories(const TCategoryOutputFunc& outputFunc) override;
+
+    //! Write the latest categorizer stats using the supplied output function if
+    //! they have changed since the last time they were written.
+    //! \return Were the stats written?
+    bool writeCategorizerStatsIfChanged(const TCategorizerStatsOutputFunc& outputFunc) override;
+
+    //! Number of categories this categorizer has detected.
     std::size_t numCategories() const override;
-
-    bool categoryChangedAndReset(CLocalCategoryId categoryId) override;
 
 protected:
     //! Split the string into a list of tokens.  The result of the
@@ -306,6 +321,13 @@ private:
                                TSizeSizeMap& tokenUniqueIds,
                                std::size_t& totalWeight);
 
+    //! Get the categories that will never be detected again because the
+    //! specified category will always be returned instead.  This overload
+    //! is only O(N), whereas the public usurpedCategories method is O(N^2).
+    //! \param iter An iterator pointing at the element of m_CategoriesByCount
+    //!             for which usurped categories are to be found.
+    TLocalCategoryIdVec usurpedCategories(TSizeSizePrVecCItr iter) const;
+
 private:
     //! Reference to the object we'll use to create reverse searches
     const TTokenListReverseSearchCreatorCPtr m_ReverseSearchCreator;
@@ -320,9 +342,6 @@ private:
 
     //! How many messages have we failed to categorize due to lack of memory?
     std::size_t m_MemoryCategorizationFailures;
-
-    //! Has the data categorizer's state changed?
-    bool m_HasChanged;
 
     //! The categories
     TTokenListCategoryVec m_Categories;
@@ -345,6 +364,9 @@ private:
 
     //! Used to parse pre-tokenised input supplied as CSV.
     core::CCsvLineParser m_CsvLineParser;
+
+    //! Last categorizer stats that were written.
+    SCategorizerStats m_LastCategorizerStats;
 
     // For unit testing
     friend struct CTokenListDataCategorizerBaseTest::testMaxMatchingWeights;

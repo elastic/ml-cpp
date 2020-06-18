@@ -17,9 +17,9 @@
 #include <model/CEventData.h>
 #include <model/CGathererTools.h>
 #include <model/CMetricBucketGatherer.h>
-#include <model/CModelParams.h>
 #include <model/CResourceMonitor.h>
 #include <model/CSearchKey.h>
+#include <model/SModelParams.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>

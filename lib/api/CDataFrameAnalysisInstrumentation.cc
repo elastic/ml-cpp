@@ -7,7 +7,6 @@
 
 #include <core/CTimeUtils.h>
 
-#include <iomanip>
 #include <maths/CBoostedTree.h>
 
 #include <api/CDataFrameOutliersRunner.h>
@@ -19,6 +18,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <iomanip>
 #include <sstream>
 #include <string>
 #include <thread>
@@ -30,7 +30,6 @@ namespace api {
 namespace {
 using TStrVec = std::vector<std::string>;
 
-// clang-format off
 const double MEMORY_LIMIT_INCREMENT{2.0}; // request 100% more memory
 
 const std::string CLASSIFICATION_STATS_TAG{"classification_stats"};
@@ -65,7 +64,6 @@ const std::string NUM_SPLITS_PER_FEATURE_TAG{"num_splits_per_feature"};
 const std::string PHASE_PROGRESS{"phase_progress"};
 const std::string PHASE{"phase"};
 const std::string PROGRESS_PERCENT{"progress_percent"};
-// clang-format on
 
 const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
                                               << ((sizeof(std::size_t) - 2) * 8)};
@@ -210,10 +208,8 @@ CDataFrameAnalysisInstrumentation::TWriter* CDataFrameAnalysisInstrumentation::w
 }
 
 void CDataFrameAnalysisInstrumentation::writeMemoryAndAnalysisStats() {
-    std::int64_t timestamp{std::chrono::duration_cast<std::chrono::milliseconds>(
-                               std::chrono::system_clock::now().time_since_epoch())
-                               .count()};
     if (m_Writer != nullptr) {
+        std::int64_t timestamp{core::CTimeUtils::nowMs()};
         m_Writer->StartObject();
         this->writeMemory(timestamp);
         this->writeAnalysisStats(timestamp);
