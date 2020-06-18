@@ -12,6 +12,7 @@
 
 #include <boost/scoped_array.hpp>
 
+#include <atomic>
 #include <streambuf>
 
 namespace ml {
@@ -175,11 +176,11 @@ private:
     //! Flag to indicate end-of-file.  When this is set, the reader will
     //! receive end-of-file notification once all the buffers are empty.
     //! The writer will not be allowed to add any more data.
-    volatile bool m_Eof;
+    std::atomic_bool m_Eof;
 
     //! A call to signalFatalError() chucks away all currently buffered data
     //! and prevents future data being added.
-    volatile bool m_FatalError;
+    std::atomic_bool m_FatalError;
 };
 }
 }
