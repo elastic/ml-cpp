@@ -7,6 +7,8 @@
 
 #include <core/CPersistUtils.h>
 
+#include <boost/locale/encoding.hpp>
+
 #include <cmath>
 #include <memory>
 #include <unordered_map>
@@ -98,6 +100,10 @@ void addJsonArray(const std::string& tag,
         array.PushBack(toJson(value, writer), writer.getRawAllocator());
     }
     writer.addMember(tag, array, parentObject);
+}
+
+std::size_t strlenUTF16(const std::string& str) {
+    return boost::locale::conv::between(str, "UTF-8", "UTF-16").size();
 }
 }
 
@@ -300,7 +306,7 @@ void CEnsemble::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
     rapidjson::Value featureNameLengthsArray{
         writer.makeArray(m_Ensemble->featureNames().size())};
     for (const auto& featureName : m_Ensemble->featureNames()) {
-        featureNameLengthsArray.PushBack(toJson(featureName.size()).Move(),
+        featureNameLengthsArray.PushBack(toJson(strlenUTF16(featureName)).Move(),
                                          writer.getRawAllocator());
     }
     writer.addMember(JSON_FEATURE_NAME_LENGTHS_TAG, featureNameLengthsArray, parentObject);
@@ -619,11 +625,11 @@ CTargetMeanEncoding::CSizeInfo::CSizeInfo(const CTargetMeanEncoding& encoding)
 void CTargetMeanEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
                                                    TRapidJsonWriter& writer) const {
     this->CEncoding::CSizeInfo::addToDocument(parentObject, writer);
-    std::size_t featureNameLength{m_Encoding.featureName().size()};
+    std::size_t featureNameLength{strlenUTF16(m_Encoding.featureName())};
     TSizeVec fieldValueLengths;
     fieldValueLengths.reserve(m_Encoding.targetMap().size());
     for (const auto& item : m_Encoding.targetMap()) {
-        fieldValueLengths.push_back(item.first.size());
+        fieldValueLengths.push_back(strlenUTF16(item.first));
     }
     writer.addMember(JSON_FEATURE_NAME_LENGTH_TAG,
                      toJson(featureNameLength).Move(), parentObject);
@@ -667,7 +673,7 @@ CEncoding::CSizeInfo::CSizeInfo(const CEncoding* encoding)
 void CEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
                                          TRapidJsonWriter& writer) const {
     writer.addMember(JSON_FIELD_LENGTH_TAG,
-                     toJson(m_Encoding->field().size()).Move(), parentObject);
+                     toJson(strlenUTF16(m_Encoding->field())).Move(), parentObject);
 }
 
 const CEncoding* CEncoding::CSizeInfo::encoding() const {
@@ -704,11 +710,11 @@ CFrequencyEncoding::CSizeInfo::CSizeInfo(const CFrequencyEncoding& encoding)
 void CFrequencyEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
                                                   TRapidJsonWriter& writer) const {
     this->CEncoding::CSizeInfo::addToDocument(parentObject, writer);
-    std::size_t featureNameLength{m_Encoding.featureName().size()};
+    std::size_t featureNameLength{strlenUTF16(m_Encoding.featureName())};
     TSizeVec fieldValueLengths;
     fieldValueLengths.reserve(m_Encoding.frequencyMap().size());
     for (const auto& item : m_Encoding.frequencyMap()) {
-        fieldValueLengths.push_back(item.first.size());
+        fieldValueLengths.push_back(strlenUTF16(item.first));
     }
     writer.addMember(JSON_FEATURE_NAME_LENGTH_TAG,
                      toJson(featureNameLength).Move(), parentObject);
@@ -761,8 +767,8 @@ void COneHotEncoding::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
     TSizeVec featureNameLengths;
     featureNameLengths.reserve(m_Encoding.hotMap().size());
     for (const auto& item : m_Encoding.hotMap()) {
-        fieldValueLengths.push_back(item.first.size());
-        featureNameLengths.push_back(item.second.size());
+        fieldValueLengths.push_back(strlenUTF16(item.first));
+        featureNameLengths.push_back(strlenUTF16(item.second));
     }
     addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, fieldValueLengths, parentObject, writer);
     addJsonArray(JSON_FEATURE_NAME_LENGTHS_TAG, featureNameLengths, parentObject, writer);

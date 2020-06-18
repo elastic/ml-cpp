@@ -28,6 +28,7 @@
 
 #include <rapidjson/schema.h>
 
+#include <boost/locale/encoding.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
@@ -67,6 +68,10 @@ auto generateCategoricalData(test::CRandomNumbers& rng,
     rng.discard(1000000); // Make sure the categories are not correlated
 
     return std::make_pair(frequencies[0], values);
+}
+
+std::size_t strlenUTF16(const std::string& str) {
+    return boost::locale::conv::between(str, "UTF-8", "UTF-16").size();
 }
 }
 
@@ -174,7 +179,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
         bool hasFrequencyEncoding{false};
         bool hasTargetMeanEncoding{false};
         bool hasOneHotEncoding{false};
-        std::size_t expectedFieldLength{std::strlen("categorical_col")};
+        std::size_t expectedFieldLength{strlenUTF16("categorical_col")};
 
         if (result.HasMember("preprocessors")) {
             for (const auto& preprocessor : result["preprocessors"].GetArray()) {
@@ -186,7 +191,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
                     std::size_t featureNameLength{preprocessor["frequency_encoding"]["feature_name_length"]
                                                       .GetUint64()};
                     BOOST_REQUIRE_EQUAL(featureNameLength,
-                                        std::strlen("categorical_col_frequency"));
+                                        strlenUTF16("categorical_col_frequency"));
                 }
                 if (preprocessor.HasMember("target_mean_encoding")) {
                     hasTargetMeanEncoding = true;
@@ -196,7 +201,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
                     std::size_t featureNameLength{preprocessor["target_mean_encoding"]["feature_name_length"]
                                                       .GetUint64()};
                     BOOST_REQUIRE_EQUAL(featureNameLength,
-                                        std::strlen("categorical_col_targetmean"));
+                                        strlenUTF16("categorical_col_targetmean"));
                 }
                 if (preprocessor.HasMember("one_hot_encoding")) {
                     hasOneHotEncoding = true;
@@ -339,7 +344,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
         bool hasFrequencyEncoding{false};
         bool hasOneHotEncoding{false};
-        std::size_t expectedFieldLength{std::strlen("categorical_col")};
+        std::size_t expectedFieldLength{strlenUTF16("categorical_col")};
         if (result.HasMember("preprocessors")) {
             for (const auto& preprocessor : result["preprocessors"].GetArray()) {
                 if (preprocessor.HasMember("frequency_encoding")) {
@@ -350,7 +355,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
                     std::size_t featureNameLength{preprocessor["frequency_encoding"]["feature_name_length"]
                                                       .GetUint64()};
                     BOOST_REQUIRE_EQUAL(featureNameLength,
-                                        std::strlen("categorical_col_frequency"));
+                                        strlenUTF16("categorical_col_frequency"));
                 }
                 if (preprocessor.HasMember("one_hot_encoding")) {
                     hasOneHotEncoding = true;
