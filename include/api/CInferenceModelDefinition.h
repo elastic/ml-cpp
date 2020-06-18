@@ -421,11 +421,6 @@ public:
         std::string jsonString();
 
     private:
-        using TEncodingSizeUPtr = std::unique_ptr<CEncoding::CSizeInfo>;
-        using TEncodingSizeUPtrVec = std::vector<TEncodingSizeUPtr>;
-        using TTrainedModelSizeUPtr = std::unique_ptr<CTrainedModel::CSizeInfo>;
-
-    private:
         const CInferenceModelDefinition& m_Definition;
     };
 

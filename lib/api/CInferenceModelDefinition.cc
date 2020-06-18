@@ -555,6 +555,8 @@ std::string CInferenceModelDefinition::CSizeInfo::jsonString() {
 
 void CInferenceModelDefinition::CSizeInfo::addToDocument(rapidjson::Value& parentObject,
                                                          TRapidJsonWriter& writer) const {
+    using TTrainedModelSizeUPtr = std::unique_ptr<CTrainedModel::CSizeInfo>;
+
     // parse trained models
     TTrainedModelSizeUPtr trainedModelSize;
     if (m_Definition.trainedModel()) {
