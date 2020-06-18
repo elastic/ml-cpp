@@ -116,7 +116,6 @@ public:
     class CSizeInfo : public CSerializableToJson {
     public:
         explicit CSizeInfo(const CTrainedModel& trainedModel);
-        virtual ~CSizeInfo() override = default;
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
         //! \return Expected number of operation for the model evaluation.
         virtual std::size_t numOperations() const = 0;
@@ -272,11 +271,12 @@ class API_EXPORT CEncoding : public CSerializableToJson {
 public:
     class CSizeInfo : public CSerializableToJson {
     public:
-        ~CSizeInfo() override = default;
-
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
         virtual const std::string& typeString() const = 0;
         const CEncoding* encoding() const;
+
+    protected:
+        using TSizeVec = std::vector<std::size_t>;
 
     protected:
         explicit CSizeInfo(const CEncoding* encoding);
@@ -313,12 +313,6 @@ public:
         const std::string& typeString() const override;
 
     private:
-        using TSizeVec = std::vector<std::size_t>;
-
-    private:
-        explicit CSizeInfo(const CFrequencyEncoding* encoding);
-
-    private:
         const CFrequencyEncoding& m_Encoding;
     };
     using TStringDoubleUMap = const std::unordered_map<std::string, double>;
@@ -351,12 +345,6 @@ public:
         const std::string& typeString() const override;
 
     private:
-        using TSizeVec = std::vector<std::size_t>;
-
-    private:
-        explicit CSizeInfo(const COneHotEncoding* encoding);
-
-    private:
         const COneHotEncoding& m_Encoding;
     };
     using TStringStringUMap = std::map<std::string, std::string>;
@@ -384,12 +372,6 @@ public:
         explicit CSizeInfo(const CTargetMeanEncoding& encoding);
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
         const std::string& typeString() const override;
-
-    private:
-        using TSizeVec = std::vector<std::size_t>;
-
-    private:
-        explicit CSizeInfo(const CTargetMeanEncoding* encoding);
 
     private:
         const CTargetMeanEncoding& m_Encoding;
@@ -432,7 +414,7 @@ public:
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
     using TTrainedModelUPtr = CEnsemble::TTrainedModelUPtr;
 
-    class CSizeInfo final : public CSerializableToJson {
+    class API_EXPORT CSizeInfo final : public CSerializableToJson {
     public:
         explicit CSizeInfo(const CInferenceModelDefinition& definition);
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
