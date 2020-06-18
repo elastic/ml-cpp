@@ -18,16 +18,16 @@ namespace {
 
 class CEofThread : public ml::core::CThread {
 public:
-    CEofThread(ml::core::CDualThreadStreamBuf& buf) : m_Buf(buf) {}
+    CEofThread(ml::core::CDualThreadStreamBuf& buf) : m_Buf{buf} {}
 
 protected:
-    virtual void run() {
+    void run() override {
         ml::core::CSleep::sleep(200);
 
         m_Buf.signalEndOfFile();
     }
 
-    virtual void shutdown() {}
+    void shutdown() override {}
 
 private:
     ml::core::CDualThreadStreamBuf& m_Buf;
@@ -46,10 +46,10 @@ CppUnit::Test* CBlockingCallCancellerThreadTest::suite() {
 
 void CBlockingCallCancellerThreadTest::testCancelBlock() {
     ml::core::CDualThreadStreamBuf buf;
-    std::istream monStrm(&buf);
+    std::istream monStrm{&buf};
 
-    ml::controller::CBlockingCallCancellerThread cancellerThread(
-        ml::core::CThread::currentThreadId(), monStrm);
+    ml::controller::CBlockingCallCancellerThread cancellerThread{
+        ml::core::CThread::currentThreadId(), monStrm};
     CPPUNIT_ASSERT(cancellerThread.start());
 
     // The CBlockingCallCancellerThread should wake up the blocking open of the
@@ -59,11 +59,12 @@ void CBlockingCallCancellerThreadTest::testCancelBlock() {
     // real program this would be STDIN, but in this test another thread is the
     // source, and it runs out of data after 0.2 seconds.
 
-    CEofThread eofThread(buf);
+    CEofThread eofThread{buf};
     CPPUNIT_ASSERT(eofThread.start());
 
-    ml::core::CNamedPipeFactory::TIStreamP pipeStrm = ml::core::CNamedPipeFactory::openPipeStreamRead(
-        ml::core::CNamedPipeFactory::defaultPath() + "test_pipe");
+    ml::core::CNamedPipeFactory::TIStreamP pipeStrm{ml::core::CNamedPipeFactory::openPipeStreamRead(
+        ml::core::CNamedPipeFactory::defaultPath() + "test_pipe",
+        cancellerThread.hasCancelledBlockingCall())};
     CPPUNIT_ASSERT(pipeStrm == nullptr);
 
     CPPUNIT_ASSERT(cancellerThread.stop());

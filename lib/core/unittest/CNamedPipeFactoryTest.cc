@@ -5,6 +5,7 @@
  */
 #include "CNamedPipeFactoryTest.h"
 
+#include <core/AtomicTypes.h>
 #include <core/CLogger.h>
 #include <core/CNamedPipeFactory.h>
 #include <core/COsFileFuncs.h>
@@ -13,22 +14,24 @@
 
 #include <fstream>
 
-#include <stdio.h>
+#include <cstdint>
+#include <cstdio>
+
 #ifndef Windows
 #include <unistd.h>
 #endif
 
 namespace {
 
-const uint32_t SLEEP_TIME_MS = 100;
-const uint32_t PAUSE_TIME_MS = 10;
-const size_t MAX_ATTEMPTS = 100;
-const size_t TEST_SIZE = 10000;
-const char TEST_CHAR = 'a';
+const std::uint32_t SLEEP_TIME_MS{100};
+const std::uint32_t PAUSE_TIME_MS{10};
+const std::size_t MAX_ATTEMPTS{100};
+const std::size_t TEST_SIZE{10000};
+const char TEST_CHAR{'a'};
 #ifdef Windows
-const char* const TEST_PIPE_NAME = "\\\\.\\pipe\\testpipe";
+const char* const TEST_PIPE_NAME{"\\\\.\\pipe\\testpipe"};
 #else
-const char* const TEST_PIPE_NAME = "testfiles/testpipe";
+const char* const TEST_PIPE_NAME{"testfiles/testpipe"};
 #endif
 
 class CThreadDataWriter : public ml::core::CThread {
@@ -106,21 +109,27 @@ private:
 class CThreadBlockCanceller : public ml::core::CThread {
 public:
     CThreadBlockCanceller(ml::core::CThread::TThreadId threadId)
-        : m_ThreadId(threadId) {}
+        : m_ThreadId{threadId}, m_HasCancelledBlockingCall{false} {}
+
+    const atomic_t::atomic_bool& hasCancelledBlockingCall() {
+        return m_HasCancelledBlockingCall;
+    }
 
 protected:
-    virtual void run() {
+    void run() override {
         // Wait for the file to exist
         ml::core::CSleep::sleep(SLEEP_TIME_MS);
 
         // Cancel the open() or read() operation on the file
+        m_HasCancelledBlockingCall.store(true);
         CPPUNIT_ASSERT(ml::core::CThread::cancelBlockedIo(m_ThreadId));
     }
 
-    virtual void shutdown() {}
+    void shutdown() override {}
 
 private:
     ml::core::CThread::TThreadId m_ThreadId;
+    atomic_t::atomic_bool m_HasCancelledBlockingCall;
 };
 }
 
@@ -149,14 +158,15 @@ CppUnit::Test* CNamedPipeFactoryTest::suite() {
 }
 
 void CNamedPipeFactoryTest::testServerIsCppReader() {
-    CThreadDataWriter threadWriter(TEST_PIPE_NAME, TEST_SIZE);
+    CThreadDataWriter threadWriter{TEST_PIPE_NAME, TEST_SIZE};
     CPPUNIT_ASSERT(threadWriter.start());
 
-    ml::core::CNamedPipeFactory::TIStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamRead(TEST_PIPE_NAME);
+    atomic_t::atomic_bool dummy{false};
+    ml::core::CNamedPipeFactory::TIStreamP strm{
+        ml::core::CNamedPipeFactory::openPipeStreamRead(TEST_PIPE_NAME, dummy)};
     CPPUNIT_ASSERT(strm);
 
-    static const std::streamsize BUF_SIZE = 512;
+    static const std::streamsize BUF_SIZE{512};
     std::string readData;
     char buffer[BUF_SIZE];
     do {
@@ -176,23 +186,24 @@ void CNamedPipeFactoryTest::testServerIsCppReader() {
 }
 
 void CNamedPipeFactoryTest::testServerIsCReader() {
-    CThreadDataWriter threadWriter(TEST_PIPE_NAME, TEST_SIZE);
+    CThreadDataWriter threadWriter{TEST_PIPE_NAME, TEST_SIZE};
     CPPUNIT_ASSERT(threadWriter.start());
 
-    ml::core::CNamedPipeFactory::TFileP file =
-        ml::core::CNamedPipeFactory::openPipeFileRead(TEST_PIPE_NAME);
+    atomic_t::atomic_bool dummy{false};
+    ml::core::CNamedPipeFactory::TFileP file{
+        ml::core::CNamedPipeFactory::openPipeFileRead(TEST_PIPE_NAME, dummy)};
     CPPUNIT_ASSERT(file);
 
-    static const size_t BUF_SIZE = 512;
+    static const std::size_t BUF_SIZE{512};
     std::string readData;
     char buffer[BUF_SIZE];
     do {
-        size_t charsRead = ::fread(buffer, sizeof(char), BUF_SIZE, file.get());
-        CPPUNIT_ASSERT(!::ferror(file.get()));
+        std::size_t charsRead{std::fread(buffer, sizeof(char), BUF_SIZE, file.get())};
+        CPPUNIT_ASSERT(!std::ferror(file.get()));
         if (charsRead > 0) {
             readData.append(buffer, charsRead);
         }
-    } while (!::feof(file.get()));
+    } while (!std::feof(file.get()));
 
     CPPUNIT_ASSERT_EQUAL(TEST_SIZE, readData.length());
     CPPUNIT_ASSERT_EQUAL(std::string(TEST_SIZE, TEST_CHAR), readData);
@@ -203,15 +214,16 @@ void CNamedPipeFactoryTest::testServerIsCReader() {
 }
 
 void CNamedPipeFactoryTest::testServerIsCppWriter() {
-    CThreadDataReader threadReader(TEST_PIPE_NAME);
+    CThreadDataReader threadReader{TEST_PIPE_NAME};
     CPPUNIT_ASSERT(threadReader.start());
 
-    ml::core::CNamedPipeFactory::TOStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamWrite(TEST_PIPE_NAME);
+    atomic_t::atomic_bool dummy{false};
+    ml::core::CNamedPipeFactory::TOStreamP strm{
+        ml::core::CNamedPipeFactory::openPipeStreamWrite(TEST_PIPE_NAME, dummy)};
     CPPUNIT_ASSERT(strm);
 
-    size_t charsLeft(TEST_SIZE);
-    size_t blockSize(7);
+    std::size_t charsLeft{TEST_SIZE};
+    std::size_t blockSize{7};
     while (charsLeft > 0) {
         if (blockSize > charsLeft) {
             blockSize = charsLeft;
@@ -230,20 +242,22 @@ void CNamedPipeFactoryTest::testServerIsCppWriter() {
 }
 
 void CNamedPipeFactoryTest::testServerIsCWriter() {
-    CThreadDataReader threadReader(TEST_PIPE_NAME);
+    CThreadDataReader threadReader{TEST_PIPE_NAME};
     CPPUNIT_ASSERT(threadReader.start());
 
-    ml::core::CNamedPipeFactory::TFileP file =
-        ml::core::CNamedPipeFactory::openPipeFileWrite(TEST_PIPE_NAME);
+    atomic_t::atomic_bool dummy{false};
+    ml::core::CNamedPipeFactory::TFileP file{
+        ml::core::CNamedPipeFactory::openPipeFileWrite(TEST_PIPE_NAME, dummy)};
     CPPUNIT_ASSERT(file);
 
-    size_t charsLeft(TEST_SIZE);
-    size_t blockSize(7);
+    std::size_t charsLeft{TEST_SIZE};
+    std::size_t blockSize{7};
     while (charsLeft > 0) {
         if (blockSize > charsLeft) {
             blockSize = charsLeft;
         }
-        CPPUNIT_ASSERT(::fputs(std::string(blockSize, TEST_CHAR).c_str(), file.get()) >= 0);
+        CPPUNIT_ASSERT(std::fputs(std::string(blockSize, TEST_CHAR).c_str(),
+                                  file.get()) >= 0);
         charsLeft -= blockSize;
     }
 
@@ -256,19 +270,20 @@ void CNamedPipeFactoryTest::testServerIsCWriter() {
 }
 
 void CNamedPipeFactoryTest::testCancelBlock() {
-    CThreadBlockCanceller cancellerThread(ml::core::CThread::currentThreadId());
+    CThreadBlockCanceller cancellerThread{ml::core::CThread::currentThreadId()};
     CPPUNIT_ASSERT(cancellerThread.start());
 
-    ml::core::CNamedPipeFactory::TOStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamWrite(TEST_PIPE_NAME);
+    ml::core::CNamedPipeFactory::TOStreamP strm{ml::core::CNamedPipeFactory::openPipeStreamWrite(
+        TEST_PIPE_NAME, cancellerThread.hasCancelledBlockingCall())};
     CPPUNIT_ASSERT(strm == nullptr);
 
     CPPUNIT_ASSERT(cancellerThread.stop());
 }
 
 void CNamedPipeFactoryTest::testErrorIfRegularFile() {
-    ml::core::CNamedPipeFactory::TIStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamRead("Main.cc");
+    atomic_t::atomic_bool dummy{false};
+    ml::core::CNamedPipeFactory::TIStreamP strm{
+        ml::core::CNamedPipeFactory::openPipeStreamRead("Main.cc", dummy)};
     CPPUNIT_ASSERT(strm == nullptr);
 }
 
@@ -279,7 +294,7 @@ void CNamedPipeFactoryTest::testErrorIfSymlink() {
     // the file system
     LOG_DEBUG(<< "symlink test not relevant to Windows");
 #else
-    static const char* const TEST_SYMLINK_NAME = "test_symlink";
+    static const char* const TEST_SYMLINK_NAME{"test_symlink"};
 
     // Remove any files left behind by a previous failed test, but don't check
     // the return codes as these calls will usually fail
@@ -289,8 +304,9 @@ void CNamedPipeFactoryTest::testErrorIfSymlink() {
     CPPUNIT_ASSERT_EQUAL(0, ::mkfifo(TEST_PIPE_NAME, S_IRUSR | S_IWUSR));
     CPPUNIT_ASSERT_EQUAL(0, ::symlink(TEST_PIPE_NAME, TEST_SYMLINK_NAME));
 
-    ml::core::CNamedPipeFactory::TIStreamP strm =
-        ml::core::CNamedPipeFactory::openPipeStreamRead(TEST_SYMLINK_NAME);
+    atomic_t::atomic_bool dummy{false};
+    ml::core::CNamedPipeFactory::TIStreamP strm{
+        ml::core::CNamedPipeFactory::openPipeStreamRead(TEST_SYMLINK_NAME, dummy)};
     CPPUNIT_ASSERT(strm == nullptr);
 
     CPPUNIT_ASSERT_EQUAL(0, ::unlink(TEST_SYMLINK_NAME));

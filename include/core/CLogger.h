@@ -6,6 +6,7 @@
 #ifndef INCLUDED_ml_core_CLogger_h
 #define INCLUDED_ml_core_CLogger_h
 
+#include <core/AtomicTypes.h>
 #include <core/CNamedPipeFactory.h>
 #include <core/CNonCopyable.h>
 #include <core/ImportExport.h>
@@ -76,8 +77,19 @@ public:
     //! If both are supplied the named pipe takes precedence.
     bool reconfigure(const std::string& pipeName, const std::string& propertiesFile);
 
+    //! As above, but with a flag to indicate named pipe connection attempts
+    //! should be cancelled.
+    bool reconfigure(const std::string& pipeName,
+                     const std::string& propertiesFile,
+                     const atomic_t::atomic_bool& isCancelled);
+
     //! Tell the logger to log to a named pipe rather than a file.
     bool reconfigureLogToNamedPipe(const std::string& pipeName);
+
+    //! As above, but with a flag to indicate named pipe connection attempts
+    //! should be cancelled.
+    bool reconfigureLogToNamedPipe(const std::string& pipeName,
+                                   const atomic_t::atomic_bool& isCancelled);
 
     //! Tell the logger to reconfigure itself by reading a specified
     //! properties file, if the file exists.

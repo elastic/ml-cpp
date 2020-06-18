@@ -44,7 +44,7 @@ bool ignoreSigPipe() {
     return ::sigaction(SIGPIPE, &sa, nullptr) == 0;
 }
 
-const bool SIGPIPE_IGNORED(ignoreSigPipe());
+const bool SIGPIPE_IGNORED{ignoreSigPipe()};
 
 //! \brief
 //! Replacement for boost::iostreams::file_descriptor_sink that retries on EINTR.
@@ -78,12 +78,12 @@ public:
     //! in the event of an interrupted system call.  The method signature is
     //! defined by Boost's Sink concept.
     std::streamsize write(const char* s, std::streamsize n) {
-        std::streamsize totalBytesWritten = 0;
+        std::streamsize totalBytesWritten{0};
         while (n > 0) {
-            ssize_t ret = ::write(this->handle(), s, static_cast<size_t>(n));
+            ssize_t ret{::write(this->handle(), s, static_cast<size_t>(n))};
             if (ret == -1) {
                 if (errno != EINTR) {
-                    std::string reason("Failed writing to named pipe: ");
+                    std::string reason{"Failed writing to named pipe: "};
                     reason += ::strerror(errno);
                     LOG_ERROR(<< reason);
                     // We don't usually throw exceptions, but Boost.Iostreams
@@ -107,42 +107,50 @@ namespace core {
 // Initialise static
 const char CNamedPipeFactory::TEST_CHAR('\n');
 
-CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::string& fileName) {
-    TPipeHandle fd = CNamedPipeFactory::initPipeHandle(fileName, false);
+CNamedPipeFactory::TIStreamP
+CNamedPipeFactory::openPipeStreamRead(const std::string& fileName,
+                                      const atomic_t::atomic_bool& isCancelled) {
+    TPipeHandle fd{CNamedPipeFactory::initPipeHandle(fileName, false, isCancelled)};
     if (fd == -1) {
-        return TIStreamP();
+        return TIStreamP{};
     }
     using TFileDescriptorSourceStream =
         boost::iostreams::stream<boost::iostreams::file_descriptor_source>;
-    return TIStreamP(new TFileDescriptorSourceStream(
-        boost::iostreams::file_descriptor_source(fd, boost::iostreams::close_handle)));
+    return TIStreamP{new TFileDescriptorSourceStream(
+        boost::iostreams::file_descriptor_source(fd, boost::iostreams::close_handle))};
 }
 
-CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName) {
-    TPipeHandle fd = CNamedPipeFactory::initPipeHandle(fileName, true);
+CNamedPipeFactory::TOStreamP
+CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName,
+                                       const atomic_t::atomic_bool& isCancelled) {
+    TPipeHandle fd{CNamedPipeFactory::initPipeHandle(fileName, true, isCancelled)};
     if (fd == -1) {
-        return TOStreamP();
+        return TOStreamP{};
     }
     using TRetryingFileDescriptorSinkStream =
         boost::iostreams::stream<CRetryingFileDescriptorSink>;
-    return TOStreamP(new TRetryingFileDescriptorSinkStream(
-        CRetryingFileDescriptorSink(fd, boost::iostreams::close_handle)));
+    return TOStreamP{new TRetryingFileDescriptorSinkStream(
+        CRetryingFileDescriptorSink(fd, boost::iostreams::close_handle))};
 }
 
-CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string& fileName) {
-    TPipeHandle fd = CNamedPipeFactory::initPipeHandle(fileName, false);
+CNamedPipeFactory::TFileP
+CNamedPipeFactory::openPipeFileRead(const std::string& fileName,
+                                    const atomic_t::atomic_bool& isCancelled) {
+    TPipeHandle fd{CNamedPipeFactory::initPipeHandle(fileName, false, isCancelled)};
     if (fd == -1) {
-        return TFileP();
+        return TFileP{};
     }
-    return TFileP(::fdopen(fd, "r"), safeFClose);
+    return TFileP{::fdopen(fd, "r"), safeFClose};
 }
 
-CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileWrite(const std::string& fileName) {
-    TPipeHandle fd = CNamedPipeFactory::initPipeHandle(fileName, true);
+CNamedPipeFactory::TFileP
+CNamedPipeFactory::openPipeFileWrite(const std::string& fileName,
+                                     const atomic_t::atomic_bool& isCancelled) {
+    TPipeHandle fd{CNamedPipeFactory::initPipeHandle(fileName, true, isCancelled)};
     if (fd == -1) {
-        return TFileP();
+        return TFileP{};
     }
-    return TFileP(::fdopen(fd, "w"), safeFClose);
+    return TFileP{::fdopen(fd, "w"), safeFClose};
 }
 
 bool CNamedPipeFactory::isNamedPipe(const std::string& fileName) {
@@ -161,12 +169,12 @@ std::string CNamedPipeFactory::defaultPath() {
     // $TMPDIR is generally set on Mac OS X (to something like
     // /var/folders/k5/5sqcdlps5sg3cvlp783gcz740000h0/T/) and not set on other
     // platforms.
-    const char* tmpDir(::getenv("TMPDIR"));
+    const char* tmpDir{::getenv("TMPDIR")};
 
     // Make sure path ends with a slash so it's ready to have a file name
     // appended.  (_PATH_VARTMP already has this on all platforms I've seen,
     // but a user-defined $TMPDIR might not.)
-    std::string path((tmpDir == nullptr) ? _PATH_VARTMP : tmpDir);
+    std::string path{(tmpDir == nullptr) ? _PATH_VARTMP : tmpDir};
     if (path[path.length() - 1] != '/') {
         path += '/';
     }
@@ -174,18 +182,32 @@ std::string CNamedPipeFactory::defaultPath() {
 }
 
 CNamedPipeFactory::TPipeHandle
-CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
+CNamedPipeFactory::initPipeHandle(const std::string& fileName,
+                                  bool forWrite,
+                                  const atomic_t::atomic_bool& isCancelled) {
     if (!SIGPIPE_IGNORED) {
         LOG_WARN(<< "Failed to ignore SIGPIPE - this process will not terminate "
                     "gracefully if a process it is writing to via a named pipe dies");
     }
 
-    bool madeFifo(false);
+    bool madeFifo{false};
+
+    auto retrySyscallOnInterruptUnlessCancelled = [&isCancelled](std::function<int()> fn) {
+        int ret{-1};
+        if (isCancelled.load() == false) {
+            do {
+                ret = fn();
+            } while (ret == -1 && errno == EINTR && isCancelled.load() == false);
+        }
+        return ret;
+    };
 
     // If the name already exists, ensure it refers directly (i.e. not via a
     // symlink) to a named pipe
     COsFileFuncs::TStat statbuf;
-    if (COsFileFuncs::lstat(fileName.c_str(), &statbuf) == 0) {
+    if (retrySyscallOnInterruptUnlessCancelled([&fileName, &statbuf]() {
+            return COsFileFuncs::lstat(fileName.c_str(), &statbuf);
+        }) == 0) {
         if ((statbuf.st_mode & S_IFMT) != S_IFIFO) {
             LOG_ERROR(<< "Unable to create named pipe " << fileName
                       << " - a file "
@@ -199,36 +221,52 @@ CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
             return -1;
         }
     } else {
-        if (errno != ENOENT) {
+        if (errno != ENOENT && isCancelled.load() == false) {
             LOG_WARN(<< "lstat of named pipe " << fileName
                      << " failed with unexpected error " << ::strerror(errno));
         }
 
         // The file didn't exist, so create a new FIFO for it, with permissions
         // for the current user only
-        if (::mkfifo(fileName.c_str(), S_IRUSR | S_IWUSR) == -1) {
-            LOG_ERROR(<< "Unable to create named pipe " << fileName << ": "
-                      << ::strerror(errno));
+        if (retrySyscallOnInterruptUnlessCancelled([&fileName]() {
+                return ::mkfifo(fileName.c_str(), S_IRUSR | S_IWUSR);
+            }) == -1) {
+            if (isCancelled.load() == false) {
+                LOG_ERROR(<< "Unable to create named pipe " << fileName << ": "
+                          << ::strerror(errno));
+            }
             return -1;
         }
         madeFifo = true;
     }
 
+    if (isCancelled.load()) {
+        return -1;
+    }
+
     // The open call here will block if there is no other connection to the
     // named pipe
-    int fd = COsFileFuncs::open(fileName.c_str(), forWrite ? COsFileFuncs::WRONLY
-                                                           : COsFileFuncs::RDONLY);
+    int fd{retrySyscallOnInterruptUnlessCancelled([&fileName, forWrite]() {
+        return COsFileFuncs::open(fileName.c_str(), forWrite ? COsFileFuncs::WRONLY
+                                                             : COsFileFuncs::RDONLY);
+    })};
     if (fd == -1) {
-        LOG_ERROR(<< "Unable to open named pipe " << fileName
-                  << (forWrite ? " for writing: " : " for reading: ")
-                  << ::strerror(errno));
+        if (isCancelled.load() == false) {
+            LOG_ERROR(<< "Unable to open named pipe " << fileName
+                      << (forWrite ? " for writing: " : " for reading: ")
+                      << ::strerror(errno));
+        }
     } else {
         // Write a test character to the pipe - this is really only necessary on
         // Windows, but doing it on *nix too will mean the inability of the Java
         // code to tolerate the test character will be discovered sooner.
-        if (forWrite && COsFileFuncs::write(fd, &TEST_CHAR, sizeof(TEST_CHAR)) <= 0) {
-            LOG_ERROR(<< "Unable to test named pipe " << fileName << ": "
-                      << ::strerror(errno));
+        if (forWrite && retrySyscallOnInterruptUnlessCancelled([fd]() {
+                            return COsFileFuncs::write(fd, &TEST_CHAR, sizeof(TEST_CHAR));
+                        }) <= 0) {
+            if (isCancelled.load() == false) {
+                LOG_ERROR(<< "Unable to test named pipe " << fileName << ": "
+                          << ::strerror(errno));
+            }
             COsFileFuncs::close(fd);
             fd = -1;
         }
