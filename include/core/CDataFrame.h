@@ -348,7 +348,7 @@ public:
     //! Overload taking a collection of functions to run, using one thread to
     //! run each function.
     //!
-    //! \note This is intented for stateful readers whose state is large and
+    //! \note This is intended for stateful readers whose state is large and
     //! provides a mechanism for reading multi-threaded without having to copy
     //! that state.
     bool readRows(std::size_t beginRows,
