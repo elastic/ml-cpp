@@ -640,13 +640,21 @@ CMultimodalPrior::marginalLikelihoodConfidenceInterval(double percentage,
                      : bounds.max()};
         double fa{fMinusp(a)};
         double fb{fMinusp(b)};
+        // If we enter either of the following loops, since the c.d.f. is
+        // monotonic, we know that the interval is either right or left of
+        // the required root. We can therefore shift the original interval
+        // since a and b are, respectively, upper and lower bounds for the
+        // root. Each iteration also doubles the original interval width.
+        // Note, we can only enter one or other of these loops so provided
+        // we supply a few more than 10 iterations to the solver it'll have
+        // enough iterations to comfortably converge.
         for (std::size_t i = 0; fa > 0.0 && i < 10; ++i) {
-            a = b - 1.25 * (b - a);
-            fa = fMinusp(a);
+            std::tie(a, b) = std::make_pair(b - 3.0 * (b - a), a);
+            std::tie(fa, fb) = std::make_pair(fMinusp(a), fa);
         }
         for (std::size_t i = 0; fb < 0.0 && i < 10; ++i) {
-            b = a + 1.25 * (b - a);
-            fb = fMinusp(b);
+            std::tie(a, b) = std::make_pair(b, a + 3.0 * (b - a));
+            std::tie(fa, fb) = std::make_pair(fb, fMinusp(b));
         }
         std::size_t maxIterations{25};
         CEqualWithTolerance<double> equal{CToleranceTypes::E_AbsoluteTolerance,
@@ -665,9 +673,9 @@ CMultimodalPrior::marginalLikelihoodConfidenceInterval(double percentage,
         result.first = computePercentile(fl, p1, lower);
         result.second = computePercentile(fu, p2, upper);
     } catch (const std::exception& e) {
-        LOG_ERROR(<< "Unable to compute percentiles: " << e.what()
-                  << ", percentiles = [" << p1 << "," << p2 << "] "
-                  << ", vs = " << vs);
+        LOG_WARN(<< "Unable to compute percentiles: " << e.what()
+                 << ", percentiles = [" << p1 << "," << p2 << "] "
+                 << ", vs = " << vs);
     }
     return result;
 }
