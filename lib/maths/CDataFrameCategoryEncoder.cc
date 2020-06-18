@@ -425,12 +425,12 @@ bool CDataFrameCategoryEncoder::CIdentityEncoding::isBinary() const {
     return false;
 }
 
-std::uint64_t CDataFrameCategoryEncoder::CIdentityEncoding::checksum() const {
-    return CChecksum::calculate(this->inputColumnIndex(), this->mic());
-}
-
 const std::string& CDataFrameCategoryEncoder::CIdentityEncoding::typeString() const {
     return IDENTITY_ENCODING_TAG;
+}
+
+std::uint64_t CDataFrameCategoryEncoder::CIdentityEncoding::checksum() const {
+    return CChecksum::calculate(this->inputColumnIndex(), this->mic());
 }
 
 void CDataFrameCategoryEncoder::CIdentityEncoding::acceptPersistInserterForDerivedTypeState(
@@ -455,7 +455,7 @@ EEncoding CDataFrameCategoryEncoder::COneHotEncoding::type() const {
 
 double CDataFrameCategoryEncoder::COneHotEncoding::encode(double value) const {
     return CDataFrameUtils::isMissing(value)
-               ? core::CDataFrame::valueOfMissing()
+               ? value
                : static_cast<std::size_t>(value) == m_HotCategory;
 }
 
@@ -463,9 +463,17 @@ bool CDataFrameCategoryEncoder::COneHotEncoding::isBinary() const {
     return true;
 }
 
+const std::string& CDataFrameCategoryEncoder::COneHotEncoding::typeString() const {
+    return ONE_HOT_ENCODING_TAG;
+}
+
 std::uint64_t CDataFrameCategoryEncoder::COneHotEncoding::checksum() const {
     std::size_t seed{CChecksum::calculate(this->inputColumnIndex(), this->mic())};
     return CChecksum::calculate(seed, m_HotCategory);
+}
+
+std::size_t CDataFrameCategoryEncoder::COneHotEncoding::hotCategory() const {
+    return m_HotCategory;
 }
 
 void CDataFrameCategoryEncoder::COneHotEncoding::acceptPersistInserterForDerivedTypeState(
@@ -481,14 +489,6 @@ bool CDataFrameCategoryEncoder::COneHotEncoding::acceptRestoreTraverserForDerive
                     core::CPersistUtils::restore(ONE_HOT_ENCODING_CATEGORY_TAG,
                                                  m_HotCategory, traverser))
     return true;
-}
-
-const std::string& CDataFrameCategoryEncoder::COneHotEncoding::typeString() const {
-    return ONE_HOT_ENCODING_TAG;
-}
-
-size_t CDataFrameCategoryEncoder::COneHotEncoding::hotCategory() const {
-    return m_HotCategory;
 }
 
 CDataFrameCategoryEncoder::CMappedEncoding::CMappedEncoding(std::size_t inputColumnIndex,
@@ -508,7 +508,7 @@ EEncoding CDataFrameCategoryEncoder::CMappedEncoding::type() const {
 
 double CDataFrameCategoryEncoder::CMappedEncoding::encode(double value) const {
     if (CDataFrameUtils::isMissing(value)) {
-        return core::CDataFrame::valueOfMissing();
+        return value;
     }
     std::size_t category{static_cast<std::size_t>(value)};
     return category < m_Map.size() ? m_Map[category] : m_Fallback;
@@ -516,6 +516,19 @@ double CDataFrameCategoryEncoder::CMappedEncoding::encode(double value) const {
 
 bool CDataFrameCategoryEncoder::CMappedEncoding::isBinary() const {
     return m_Binary;
+}
+
+const std::string& CDataFrameCategoryEncoder::CMappedEncoding::typeString() const {
+    return (m_Encoding == EEncoding::E_Frequency) ? FREQUENCY_ENCODING_TAG
+                                                  : TARGET_MEAN_ENCODING_TAG;
+}
+
+const TDoubleVec& CDataFrameCategoryEncoder::CMappedEncoding::map() const {
+    return m_Map;
+}
+
+double CDataFrameCategoryEncoder::CMappedEncoding::fallback() const {
+    return m_Fallback;
 }
 
 std::uint64_t CDataFrameCategoryEncoder::CMappedEncoding::checksum() const {
@@ -545,19 +558,6 @@ bool CDataFrameCategoryEncoder::CMappedEncoding::acceptRestoreTraverserForDerive
                     core::CPersistUtils::restore(MAPPED_ENCODING_BINARY_TAG, m_Binary, traverser))
 
     return true;
-}
-
-const std::string& CDataFrameCategoryEncoder::CMappedEncoding::typeString() const {
-    return (m_Encoding == EEncoding::E_Frequency) ? FREQUENCY_ENCODING_TAG
-                                                  : TARGET_MEAN_ENCODING_TAG;
-}
-
-const TDoubleVec& CDataFrameCategoryEncoder::CMappedEncoding::map() const {
-    return m_Map;
-}
-
-double CDataFrameCategoryEncoder::CMappedEncoding::fallback() const {
-    return m_Fallback;
 }
 
 CMakeDataFrameCategoryEncoder::CMakeDataFrameCategoryEncoder(std::size_t numberThreads,

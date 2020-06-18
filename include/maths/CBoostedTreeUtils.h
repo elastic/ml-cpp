@@ -29,36 +29,39 @@ using TSizeAlignmentPrVec = std::vector<std::pair<std::size_t, core::CAlignment:
 using TAlignedMemoryMappedFloatVector =
     CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
 
+enum EExtraColumn { E_Prediction = 0, E_Gradient, E_Curvature, E_Weight };
+
 //! Get the size of upper triangle of the loss Hessain.
 inline std::size_t lossHessianUpperTriangleSize(std::size_t numberLossParameters) {
     return numberLossParameters * (numberLossParameters + 1) / 2;
 }
 
 //! Get the extra columns needed by training.
-MATHS_EXPORT
-TSizeAlignmentPrVec extraColumns(std::size_t numberLossParameters);
+inline TSizeAlignmentPrVec extraColumns(std::size_t numberLossParameters) {
+    return {{numberLossParameters, core::CAlignment::E_Unaligned},
+            {numberLossParameters, core::CAlignment::E_Aligned16},
+            {numberLossParameters * numberLossParameters, core::CAlignment::E_Unaligned},
+            {1, core::CAlignment::E_Unaligned}};
+}
 
 //! Read the prediction from \p row.
-MATHS_EXPORT
-TMemoryMappedFloatVector readPrediction(const TRowRef& row,
-                                        const TSizeVec& extraColumns,
-                                        std::size_t numberLossParameters);
+inline TMemoryMappedFloatVector readPrediction(const TRowRef& row,
+                                               const TSizeVec& extraColumns,
+                                               std::size_t numberLossParameters) {
+    return {row.data() + extraColumns[E_Prediction], static_cast<int>(numberLossParameters)};
+}
 
 //! Zero the prediction of \p row.
 MATHS_EXPORT
 void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters);
 
 //! Read all the loss derivatives from \p row into an aligned vector.
-MATHS_EXPORT
-TAlignedMemoryMappedFloatVector readLossDerivatives(const TRowRef& row,
-                                                    const TSizeVec& extraColumns,
-                                                    std::size_t numberLossParameters);
-
-//! Read the loss gradient from \p row.
-MATHS_EXPORT
-TMemoryMappedFloatVector readLossGradient(const TRowRef& row,
-                                          const TSizeVec& extraColumns,
-                                          std::size_t numberLossParameters);
+inline TAlignedMemoryMappedFloatVector
+readLossDerivatives(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters) {
+    return {row.data() + extraColumns[E_Gradient],
+            static_cast<int>(numberLossParameters +
+                             lossHessianUpperTriangleSize(numberLossParameters))};
+}
 
 //! Zero the loss gradient of \p row.
 MATHS_EXPORT
@@ -74,10 +77,12 @@ void writeLossGradient(const TRowRef& row,
                        double weight = 1.0);
 
 //! Read the loss flat column major Hessian from \p row.
-MATHS_EXPORT
-TMemoryMappedFloatVector readLossCurvature(const TRowRef& row,
-                                           const TSizeVec& extraColumns,
-                                           std::size_t numberLossParameters);
+inline TMemoryMappedFloatVector readLossCurvature(const TRowRef& row,
+                                                  const TSizeVec& extraColumns,
+                                                  std::size_t numberLossParameters) {
+    return {row.data() + extraColumns[E_Curvature],
+            static_cast<int>(lossHessianUpperTriangleSize(numberLossParameters))};
+}
 
 //! Zero the loss Hessian of \p row.
 MATHS_EXPORT
@@ -93,16 +98,19 @@ void writeLossCurvature(const TRowRef& row,
                         double weight = 1.0);
 
 //! Read the example weight from \p row.
-MATHS_EXPORT
-double readExampleWeight(const TRowRef& row, const TSizeVec& extraColumns);
+inline double readExampleWeight(const TRowRef& row, const TSizeVec& extraColumns) {
+    return row[extraColumns[E_Weight]];
+}
 
 //! Write the example weight to \p row .
-MATHS_EXPORT
-void writeExampleWeight(const TRowRef& row, const TSizeVec& extraColumns, double weight);
+inline void writeExampleWeight(const TRowRef& row, const TSizeVec& extraColumns, double weight) {
+    row.writeColumn(extraColumns[E_Weight], weight);
+}
 
 //! Read the actual value for the target from \p row.
-MATHS_EXPORT
-double readActual(const TRowRef& row, std::size_t dependentVariable);
+inline double readActual(const TRowRef& row, std::size_t dependentVariable) {
+    return row[dependentVariable];
+}
 
 // The maximum number of rows encoded by a single byte in the packed bit vector
 // assuming best compression.

@@ -150,6 +150,13 @@ std::string CPackedBitVector::toDelimited() const {
     return result;
 }
 
+void CPackedBitVector::clear() {
+    m_Dimension = 0;
+    m_First = false;
+    m_Parity = true;
+    m_RunLengths.clear();
+}
+
 bool CPackedBitVector::operator==(const CPackedBitVector& other) const {
     return m_Dimension == other.m_Dimension && m_First == other.m_First &&
            m_Parity == other.m_Parity && m_RunLengths == other.m_RunLengths;

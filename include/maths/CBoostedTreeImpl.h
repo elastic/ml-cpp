@@ -17,6 +17,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeHyperparameters.h>
+#include <maths/CBoostedTreeLeafNodeStatistics.h>
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameAnalysisInstrumentationInterface.h>
@@ -168,6 +169,7 @@ private:
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
+    using TWorkspace = CBoostedTreeLeafNodeStatistics::CWorkspace;
 
     //! Tag progress through initialization.
     enum EInitializationStage {
@@ -232,7 +234,8 @@ private:
     TNodeVec trainTree(core::CDataFrame& frame,
                        const core::CPackedBitVector& trainingRowMask,
                        const TImmutableRadixSetVec& candidateSplits,
-                       const std::size_t maximumTreeSize) const;
+                       const std::size_t maximumTreeSize,
+                       TWorkspace& workspace) const;
 
     //! Compute the minimum mean test loss per fold for any round.
     double minimumTestLoss() const;

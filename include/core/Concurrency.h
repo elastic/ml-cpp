@@ -341,7 +341,7 @@ bool parallel_for_each(std::size_t start,
     functions.resize(std::min(functions.size(), end - start));
 
     if (functions.size() < 2 || scope.wasBusy()) {
-        functions.resize(1);
+        functions.resize(1); // For the case scope was busy.
         CLoopProgress progress{end - start, recordProgress};
         for (std::size_t i = start; i < end; ++i, progress.increment()) {
             functions[0](i);
@@ -442,11 +442,12 @@ bool parallel_for_each(ITR start,
     functions.resize(std::min(functions.size(), size));
 
     if (functions.size() < 2 || scope.wasBusy()) {
-        functions.resize(1);
+        functions.resize(1); // For the case scope was busy.
         CLoopProgress progress{size, recordProgress};
         for (ITR i = start; i != end; ++i, progress.increment()) {
             functions[0](*i);
         }
+        return true;
     }
 
     concurrency_detail::parallel_for_each(start, size, functions, recordProgress);
