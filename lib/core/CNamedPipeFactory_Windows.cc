@@ -19,59 +19,67 @@ namespace {
 //! fclose() doesn't check for NULL pointers, so wrap it for use as a shared_ptr
 //! deleter
 void safeFClose(FILE* file) {
-    if (file != 0) {
+    if (file != nullptr) {
         ::fclose(file);
     }
 }
 
 //! On Windows ALL named pipes are under this path
-const std::string PIPE_PREFIX("\\\\.\\pipe\\");
+const std::string PIPE_PREFIX{"\\\\.\\pipe\\"};
 }
 
 namespace ml {
 namespace core {
 
 // Initialise static
-const char CNamedPipeFactory::TEST_CHAR('\n');
+const char CNamedPipeFactory::TEST_CHAR{'\n'};
 
-CNamedPipeFactory::TIStreamP CNamedPipeFactory::openPipeStreamRead(const std::string& fileName) {
-    TPipeHandle handle = CNamedPipeFactory::initPipeHandle(fileName, false);
+CNamedPipeFactory::TIStreamP
+CNamedPipeFactory::openPipeStreamRead(const std::string& fileName,
+                                      const std::atomic_bool& isCancelled) {
+    TPipeHandle handle{CNamedPipeFactory::initPipeHandle(fileName, false, isCancelled)};
     if (handle == INVALID_HANDLE_VALUE) {
-        return TIStreamP();
+        return TIStreamP{};
     }
     using TFileDescriptorSourceStream =
         boost::iostreams::stream<boost::iostreams::file_descriptor_source>;
-    return TIStreamP(new TFileDescriptorSourceStream(boost::iostreams::file_descriptor_source(
-        handle, boost::iostreams::close_handle)));
+    return TIStreamP{new TFileDescriptorSourceStream(boost::iostreams::file_descriptor_source(
+        handle, boost::iostreams::close_handle))};
 }
 
-CNamedPipeFactory::TOStreamP CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName) {
-    TPipeHandle handle = CNamedPipeFactory::initPipeHandle(fileName, true);
+CNamedPipeFactory::TOStreamP
+CNamedPipeFactory::openPipeStreamWrite(const std::string& fileName,
+                                       const std::atomic_bool& isCancelled) {
+    TPipeHandle handle{CNamedPipeFactory::initPipeHandle(fileName, true, isCancelled)};
     if (handle == INVALID_HANDLE_VALUE) {
-        return TOStreamP();
+        return TOStreamP{};
     }
     using TFileDescriptorSinkStream =
         boost::iostreams::stream<boost::iostreams::file_descriptor_sink>;
-    return TOStreamP(new TFileDescriptorSinkStream(
-        boost::iostreams::file_descriptor_sink(handle, boost::iostreams::close_handle)));
+    return TOStreamP{new TFileDescriptorSinkStream(
+        boost::iostreams::file_descriptor_sink(handle, boost::iostreams::close_handle))};
 }
 
-CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileRead(const std::string& fileName) {
-    TPipeHandle handle = CNamedPipeFactory::initPipeHandle(fileName, false);
+CNamedPipeFactory::TFileP
+CNamedPipeFactory::openPipeFileRead(const std::string& fileName,
+                                    const std::atomic_bool& isCancelled) {
+    TPipeHandle handle{CNamedPipeFactory::initPipeHandle(fileName, false, isCancelled)};
     if (handle == INVALID_HANDLE_VALUE) {
-        return TFileP();
+        return TFileP{};
     }
-    return TFileP(::fdopen(::_open_osfhandle(reinterpret_cast<intptr_t>(handle), _O_RDONLY), "rb"),
-                  safeFClose);
+    return TFileP{::fdopen(::_open_osfhandle(reinterpret_cast<intptr_t>(handle), _O_RDONLY), "rb"),
+                  safeFClose};
 }
 
-CNamedPipeFactory::TFileP CNamedPipeFactory::openPipeFileWrite(const std::string& fileName) {
-    TPipeHandle handle = CNamedPipeFactory::initPipeHandle(fileName, true);
+CNamedPipeFactory::TFileP
+CNamedPipeFactory::openPipeFileWrite(const std::string& fileName,
+                                     const std::atomic_bool& isCancelled) {
+    TPipeHandle handle{CNamedPipeFactory::initPipeHandle(fileName, true, isCancelled)};
     if (handle == INVALID_HANDLE_VALUE) {
-        return TFileP();
+        return TFileP{};
     }
-    return TFileP(::fdopen(::_open_osfhandle(reinterpret_cast<intptr_t>(handle), 0), "wb"),
-                  safeFClose);
+    return TFileP{::fdopen(::_open_osfhandle(reinterpret_cast<intptr_t>(handle), 0), "wb"),
+                  safeFClose};
 }
 
 bool CNamedPipeFactory::isNamedPipe(const std::string& fileName) {
@@ -88,21 +96,26 @@ void CNamedPipeFactory::logDeferredWarnings() {
 }
 
 CNamedPipeFactory::TPipeHandle
-CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
+CNamedPipeFactory::initPipeHandle(const std::string& fileName,
+                                  bool forWrite,
+                                  const std::atomic_bool& isCancelled) {
     // Size of named pipe buffer
-    static const DWORD BUFFER_SIZE(4096);
+    static const DWORD BUFFER_SIZE{4096};
 
     // If the name already exists, ensure it refers to a named pipe
-    HANDLE handle(CreateNamedPipe(fileName.c_str(),
+    HANDLE handle{CreateNamedPipe(fileName.c_str(),
                                   // Input pipes are opened as duplex so we can
                                   // write a test byte to them to work around
                                   // the Java security manager problem
                                   forWrite ? PIPE_ACCESS_OUTBOUND : PIPE_ACCESS_DUPLEX,
                                   PIPE_TYPE_BYTE | PIPE_WAIT | PIPE_REJECT_REMOTE_CLIENTS,
                                   1, forWrite ? BUFFER_SIZE : 1, forWrite ? 1 : BUFFER_SIZE,
-                                  NMPWAIT_USE_DEFAULT_WAIT, 0));
+                                  NMPWAIT_USE_DEFAULT_WAIT, 0)};
     if (handle == INVALID_HANDLE_VALUE) {
-        LOG_ERROR(<< "Unable to create named pipe " << fileName << ": " << CWindowsError());
+        if (isCancelled.load() == false) {
+            LOG_ERROR(<< "Unable to create named pipe " << fileName << ": "
+                      << CWindowsError());
+        }
         return INVALID_HANDLE_VALUE;
     }
 
@@ -128,8 +141,8 @@ CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
     // tolerate a test character appearing at the beginning of the data it
     // receives.  We use a newline character, as the named pipes carry ND-JSON
     // and it's easy to make them tolerate blank lines.
-    bool sufferedShortLivedConnection(false);
-    DWORD attempt(0);
+    bool sufferedShortLivedConnection{false};
+    DWORD attempt{0};
     do {
         ++attempt;
         // This call will block if there is no other connection to the named
@@ -137,10 +150,12 @@ CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
         if (ConnectNamedPipe(handle, 0) == FALSE) {
             // ERROR_PIPE_CONNECTED means the pipe was already connected so
             // there was no need to connect it again - not a problem
-            DWORD errCode(GetLastError());
+            DWORD errCode{GetLastError()};
             if (errCode != ERROR_PIPE_CONNECTED) {
-                LOG_ERROR(<< "Unable to connect named pipe " << fileName << ": "
-                          << CWindowsError(errCode));
+                if (isCancelled.load() == false) {
+                    LOG_ERROR(<< "Unable to connect named pipe " << fileName
+                              << ": " << CWindowsError(errCode));
+                }
                 // Close the pipe (even though it was successfully opened) so
                 // that the net effect of this failed call is nothing
                 CloseHandle(handle);
@@ -154,10 +169,16 @@ CNamedPipeFactory::initPipeHandle(const std::string& fileName, bool forWrite) {
         // Check that the other end of the pipe has not disconnected (which
         // relies on the Java side of all connections tolerating an initial
         // blank line)
-        DWORD bytesWritten(0);
+        DWORD bytesWritten{0};
         if (WriteFile(handle, &TEST_CHAR, sizeof(TEST_CHAR), &bytesWritten, 0) == FALSE ||
             bytesWritten == 0) {
             DisconnectNamedPipe(handle);
+            if (isCancelled.load()) {
+                // Close the pipe (even though it was successfully opened) so
+                // that the net effect of this failed call is nothing
+                CloseHandle(handle);
+                return INVALID_HANDLE_VALUE;
+            }
             sufferedShortLivedConnection = true;
         } else {
             sufferedShortLivedConnection = false;

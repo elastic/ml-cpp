@@ -13,6 +13,7 @@
 
 #include <boost/log/sources/severity_logger.hpp>
 
+#include <atomic>
 #include <functional>
 #include <iosfwd>
 
@@ -90,11 +91,22 @@ public:
     //! If both are supplied the named pipe takes precedence.
     bool reconfigure(const std::string& pipeName, const std::string& propertiesFile);
 
+    //! As above, but with a flag to indicate named pipe connection attempts
+    //! should be cancelled.
+    bool reconfigure(const std::string& pipeName,
+                     const std::string& propertiesFile,
+                     const std::atomic_bool& isCancelled);
+
     //! Reconfigure to use provided stream.
     bool reconfigure(boost::shared_ptr<std::ostream> streamPtr);
 
     //! Tell the logger to log to a named pipe rather than a file.
     bool reconfigureLogToNamedPipe(const std::string& pipeName);
+
+    //! As above, but with a flag to indicate named pipe connection attempts
+    //! should be cancelled.
+    bool reconfigureLogToNamedPipe(const std::string& pipeName,
+                                   const std::atomic_bool& isCancelled);
 
     //! Tell the logger to reconfigure itself by reading a specified
     //! properties file, if the file exists.
