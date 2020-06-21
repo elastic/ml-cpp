@@ -12,6 +12,9 @@
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 
+#include <algorithm>
+#include <string>
+
 namespace ml {
 namespace core {
 
@@ -184,17 +187,17 @@ CPackedBitVector CPackedBitVector::operator~() const {
 }
 
 const CPackedBitVector& CPackedBitVector::operator&=(const CPackedBitVector& other) {
-    this->bitwise(E_AND, other);
+    this->bitwise([](int lhs, int rhs) { return lhs & rhs; }, other);
     return *this;
 }
 
 const CPackedBitVector& CPackedBitVector::operator|=(const CPackedBitVector& other) {
-    this->bitwise(E_OR, other);
+    this->bitwise([](int lhs, int rhs) { return lhs | rhs; }, other);
     return *this;
 }
 
 const CPackedBitVector& CPackedBitVector::operator^=(const CPackedBitVector& other) {
-    this->bitwise(E_XOR, other);
+    this->bitwise([](int lhs, int rhs) { return lhs ^ rhs; }, other);
     return *this;
 }
 
@@ -222,9 +225,23 @@ bool CPackedBitVector::operator()(std::size_t i) const {
 
 double CPackedBitVector::inner(const CPackedBitVector& covector, EOperation op) const {
     std::size_t result{0};
-    this->lineScan(covector, [op, &result](int value, int covalue, std::size_t run) {
-        result += static_cast<std::size_t>(bit(op, value, covalue)) * run;
-    });
+    switch (op) {
+    case E_AND:
+        this->lineScan(covector, [&result](int value, int covalue, std::size_t run) {
+            result += static_cast<std::size_t>(value & covalue) * run;
+        });
+        break;
+    case E_OR:
+        this->lineScan(covector, [&result](int value, int covalue, std::size_t run) {
+            result += static_cast<std::size_t>(value | covalue) * run;
+        });
+        break;
+    case E_XOR:
+        this->lineScan(covector, [&result](int value, int covalue, std::size_t run) {
+            result += static_cast<std::size_t>(value ^ covalue) * run;
+        });
+        break;
+    }
     return static_cast<double>(result);
 }
 
@@ -265,9 +282,10 @@ std::size_t CPackedBitVector::memoryUsage() const {
     return CMemory::dynamicSize(m_RunLengthBytes);
 }
 
-void CPackedBitVector::bitwise(EOperation op, const CPackedBitVector& other) {
+template<typename RUN_OP>
+void CPackedBitVector::bitwise(RUN_OP op, const CPackedBitVector& other) {
 
-    bool first{bit(op, m_First, other.m_First)};
+    bool first(op(m_First, other.m_First));
     bool parity{true};
     std::uint8_t lastRunBytes{0};
     TUInt8Vec runLengthBytes;
@@ -276,8 +294,8 @@ void CPackedBitVector::bitwise(EOperation op, const CPackedBitVector& other) {
     int last{static_cast<int>(first)};
     std::size_t cumulativeRun{0};
 
-    auto bitwiseOp = [&](int value, int covalue, std::size_t run) mutable {
-        value = bit(op, value, covalue);
+    auto runOp = [&](int value, int covalue, std::size_t run) {
+        value = op(value, covalue);
         if (last != value) {
             parity = !parity;
             appendRun(cumulativeRun, lastRunBytes, runLengthBytes);
@@ -288,24 +306,13 @@ void CPackedBitVector::bitwise(EOperation op, const CPackedBitVector& other) {
         }
     };
 
-    if (this->lineScan(other, bitwiseOp)) {
-
+    if (this->lineScan(other, runOp)) {
+        // Flush the last run.
+        if (cumulativeRun > 0) {
+            appendRun(cumulativeRun, lastRunBytes, runLengthBytes);
+        }
         m_First = first;
         m_Parity = parity;
-
-        // Flush the last value.
-        switch (op) {
-        case E_AND:
-            last == 0 ? bitwiseOp(1, 1, 0) : bitwiseOp(0, 0, 0);
-            break;
-        case E_OR:
-            last == 0 ? bitwiseOp(1, 1, 0) : bitwiseOp(0, 0, 0);
-            break;
-        case E_XOR:
-            last == 0 ? bitwiseOp(1, 0, 0) : bitwiseOp(0, 0, 0);
-            break;
-        }
-
         m_LastRunBytes = lastRunBytes;
         m_RunLengthBytes = std::move(runLengthBytes);
     }
@@ -353,8 +360,7 @@ bool CPackedBitVector::lineScan(const CPackedBitVector& covector, RUN_OP op) con
         }
     }
 
-    std::size_t step{static_cast<std::size_t>(std::min(run, corun))};
-    op(value, covalue, step);
+    op(value, covalue, std::min(run, corun));
 
     return true;
 }
@@ -415,23 +421,6 @@ void CPackedBitVector::writeRunLength(std::size_t runLength, TUInt8VecItr runLen
         *runLengthBytes = static_cast<std::uint8_t>(runLength & 0xFF);
         ++runLengthBytes;
     }
-}
-
-template<typename T>
-T CPackedBitVector::bit(EOperation op, T lhs, T rhs) {
-    T result{lhs};
-    switch (op) {
-    case E_AND:
-        result &= rhs;
-        break;
-    case E_OR:
-        result |= rhs;
-        break;
-    case E_XOR:
-        result ^= rhs;
-        break;
-    }
-    return result;
 }
 
 CPackedBitVector::COneBitIndexConstIterator::COneBitIndexConstIterator(bool first,

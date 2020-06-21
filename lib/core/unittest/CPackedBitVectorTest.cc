@@ -4,6 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "core/CStopWatch.h"
+#include <boost/test/tools/old/interface.hpp>
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CPackedBitVector.h>
@@ -24,6 +26,7 @@ using namespace ml;
 
 using TBoolVec = std::vector<bool>;
 using TBoolVecVec = std::vector<TBoolVec>;
+using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
 
@@ -799,8 +802,6 @@ BOOST_AUTO_TEST_CASE(testCompression) {
 
     // Check the number of bytes we use per bit for a range of different one-bit
     // densities.
-
-    using TDoubleVec = std::vector<double>;
 
     test::CRandomNumbers rng;
 

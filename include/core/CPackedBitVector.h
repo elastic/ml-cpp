@@ -206,7 +206,8 @@ protected:
     static constexpr std::size_t MAXIMUM_FOUR_BYTE_RUN_LENGTH = 0x3FFFFFFF;
 
 protected:
-    void bitwise(EOperation op, const CPackedBitVector& other);
+    template<typename RUN_OP>
+    void bitwise(RUN_OP op, const CPackedBitVector& other);
     template<typename RUN_OP>
     bool lineScan(const CPackedBitVector& covector, RUN_OP op) const;
     static void appendRun(std::size_t runLength, std::uint8_t& lastRunBytes, TUInt8Vec& runLengthBytes);
@@ -221,8 +222,6 @@ protected:
     }
     static std::size_t popRunLength(TUInt8VecCItr& runLengthBytes);
     static void writeRunLength(std::size_t runLength, TUInt8VecItr runLengthBytes);
-    template<typename T>
-    static T bit(EOperation op, T lhs, T rhs);
 
 private:
     //! The dimension of the vector.
