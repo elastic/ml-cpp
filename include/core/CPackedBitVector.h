@@ -107,7 +107,7 @@ public:
     };
 
 public:
-    CPackedBitVector();
+    CPackedBitVector() = default;
     explicit CPackedBitVector(bool bit);
     CPackedBitVector(std::size_t dimension, bool bit);
     CPackedBitVector(const TBoolVec& bits);
@@ -225,18 +225,18 @@ protected:
 
 private:
     //! The dimension of the vector.
-    std::size_t m_Dimension;
+    std::size_t m_Dimension = 0;
 
     //! The value of the first component in the vector.
-    bool m_First;
+    bool m_First = false;
 
     //! The parity of the vector: true indicates that there are an even number runs
     //! and false that there are an odd. Together with m_First this determines the
     //! value of the last component.
-    bool m_Parity;
+    bool m_Parity = true;
 
     //! The number of needed to encode the last run length.
-    std::uint8_t m_LastRunBytes;
+    std::uint8_t m_LastRunBytes = 0;
 
     //! The length of each run. Note that if the length of a run exceeds 255 then
     //! this is encoded in multiple run lengths.

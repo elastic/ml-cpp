@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "core/CStopWatch.h"
-#include <boost/test/tools/old/interface.hpp>
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CPackedBitVector.h>
@@ -844,20 +842,46 @@ BOOST_AUTO_TEST_CASE(testCompression) {
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
+
+    // Test persist + restore is idempotent.
+
     TBoolVec bits{true,  true,  false, false, true,
                   false, false, false, true,  true};
 
     for (std::size_t t = 0; t < bits.size(); ++t) {
-        core::CPackedBitVector origVector(bits);
+        core::CPackedBitVector originalVector(bits);
 
-        std::string origXml = origVector.toDelimited();
-        LOG_DEBUG(<< "xml = " << origXml);
+        std::string originalDelimited{originalVector.toDelimited()};
+        LOG_DEBUG(<< "delimited = " << originalDelimited);
 
         core::CPackedBitVector restoredVector;
-        restoredVector.fromDelimited(origXml);
+        restoredVector.fromDelimited(originalDelimited);
 
-        BOOST_REQUIRE_EQUAL(origVector.checksum(), restoredVector.checksum());
+        BOOST_REQUIRE_EQUAL(originalVector.checksum(), restoredVector.checksum());
     }
+}
+
+BOOST_AUTO_TEST_CASE(testUpgrade) {
+
+    // Test restoring old state produces the correct vector.
+
+    std::string state{"1310:1:1:0:255:1:5:19:7:52:255:255:206"};
+
+    core::CPackedBitVector expected;
+    expected.extend(true, 255);
+    expected.extend(false, 256);
+    expected.extend(true, 5);
+    expected.extend(false, 19);
+    expected.extend(true, 7);
+    expected.extend(false, 52);
+    expected.extend(true, 716);
+
+    core::CPackedBitVector actual;
+    actual.fromDelimited(state);
+
+    LOG_DEBUG(<< "upgraded = " << actual.toDelimited());
+
+    BOOST_REQUIRE_EQUAL(expected.checksum(), actual.checksum());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
