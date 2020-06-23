@@ -62,6 +62,8 @@
   (See {ml-pull}1312[#1312].)
 * Performance improvements for classification and regression, particularly running
   multithreaded. (See {ml-pull}1317[#1317].)
+* Memory usage reports for data frame analytics contain status and the new memory limit 
+  recommendation if necessary. (See {ml-pull}1345[#1345].)
 
 === Bug Fixes
 
