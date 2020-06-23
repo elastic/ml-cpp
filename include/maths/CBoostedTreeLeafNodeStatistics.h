@@ -481,10 +481,9 @@ public:
         //! Get the reduction of the per thread masks.
         const core::CPackedBitVector& reducedMask(std::size_t size) {
             if (m_ReducedMasks == false) {
-                for (auto& mask : m_Masks) {
-                    mask.extend(false, size - mask.size());
-                }
+                m_Masks[0].extend(false, size - m_Masks[0].size());
                 for (std::size_t i = 1; i < m_NumberThreads; ++i) {
+                    m_Masks[i].extend(false, size - m_Masks[i].size());
                     m_Masks[0] |= m_Masks[i];
                 }
                 m_ReducedMasks = true;
