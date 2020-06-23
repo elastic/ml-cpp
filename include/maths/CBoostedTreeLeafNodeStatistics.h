@@ -560,10 +560,9 @@ public:
     std::size_t memoryUsage() const;
 
     //! Estimate the maximum leaf statistics' memory usage training on a data frame
-    //! with \p numberRows rows and \p numberCols columns using \p numberSplitsPerFeature
-    //! for a loss function with \p numberLossParameters parameters.
-    static std::size_t estimateMemoryUsage(std::size_t numberRows,
-                                           std::size_t numberCols,
+    //! with \p numberCols columns using \p numberSplitsPerFeature for a loss function
+    //! with \p numberLossParameters parameters.
+    static std::size_t estimateMemoryUsage(std::size_t numberCols,
                                            std::size_t numberSplitsPerFeature,
                                            std::size_t numberLossParameters);
 
