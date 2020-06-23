@@ -42,9 +42,7 @@ bool read(const std::string& str, std::size_t& last, std::size_t& pos, T& value)
 }
 }
 
-CPackedBitVector::CPackedBitVector(bool bit)
-    : m_Dimension{1}, m_First{bit}, m_Parity{true}, m_LastRunBytes{1},
-      m_RunLengthBytes(1, 1) {
+CPackedBitVector::CPackedBitVector(bool bit) : CPackedBitVector{1, bit} {
 }
 
 CPackedBitVector::CPackedBitVector(std::size_t dimension, bool bit)
@@ -64,7 +62,9 @@ CPackedBitVector::CPackedBitVector(const TBoolVec& bits)
             run = 0;
         }
     }
-    appendRun(run, m_LastRunBytes, m_RunLengthBytes);
+    if (run > 0) {
+        appendRun(run, m_LastRunBytes, m_RunLengthBytes);
+    }
 }
 
 void CPackedBitVector::contract() {
