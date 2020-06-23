@@ -75,6 +75,23 @@ int CStringUtils::utf8ByteType(char c) {
     return 6;
 }
 
+std::size_t CStringUtils::utf16LengthOfUtf8String(const std::string& str) {
+    std::size_t result{0};
+    for (const auto& c : str) {
+        int byteType{utf8ByteType(c)};
+        if (byteType >= 1 && byteType <= 3) {
+            result += 1;
+        } else if (byteType >= 4 && byteType <= 6) {
+            result += 2;
+        } else if (byteType == -1) {
+            result += 0; // I guess this will optimized out
+        } else {
+            LOG_ERROR(<< "Input error: unexpected utf8ByteType " << byteType);
+        }
+    }
+    return result;
+}
+
 std::string CStringUtils::toLower(std::string str) {
     std::transform(str.begin(), str.end(), str.begin(), &::tolower);
     return str;
