@@ -24,6 +24,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/unordered_set.hpp>
 
+#include <atomic>
 #include <condition_variable>
 #include <cstdint>
 #include <functional>
@@ -276,7 +277,7 @@ private:
     std::thread m_Worker;
 
     //! indicator for worker
-    volatile bool m_Shutdown;
+    std::atomic_bool m_Shutdown;
 
     //! The 'queue' of forecast jobs to be executed
     std::list<SForecast> m_ForecastJobs;

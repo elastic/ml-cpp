@@ -354,7 +354,8 @@ bool CJsonOutputWriter::fieldNames(const TStrVec& /*fieldNames*/,
 }
 
 bool CJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
-                                 const TStrStrUMap& overrideDataRowFields) {
+                                 const TStrStrUMap& overrideDataRowFields,
+                                 TOptionalTime /*time*/) {
     using TScopedAllocator =
         core::CScopedRapidJsonPoolAllocator<core::CRapidJsonConcurrentLineWriter>;
 
@@ -865,6 +866,17 @@ void CJsonOutputWriter::reportMemoryUsage(const model::CResourceMonitor::SModelS
     m_Writer.EndObject();
 
     LOG_TRACE(<< "Wrote memory usage results");
+}
+
+void CJsonOutputWriter::writeCategorizerStats(const std::string& partitionFieldName,
+                                              const std::string& partitionFieldValue,
+                                              const model::SCategorizerStats& categorizerStats,
+                                              const TOptionalTime& timestamp) {
+    m_Writer.StartObject();
+    CModelSizeStatsJsonWriter::writeCategorizerStats(m_JobId, partitionFieldName,
+                                                     partitionFieldValue, categorizerStats,
+                                                     timestamp, m_Writer);
+    m_Writer.EndObject();
 }
 
 void CJsonOutputWriter::acknowledgeFlush(const std::string& flushId,

@@ -188,9 +188,13 @@ public:
     //! always returns true
     bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) override;
 
+    // Bring the other overloads of writeRow() into scope
+    using COutputHandler::writeRow;
+
     //! Write the data row fields as a JSON object
     bool writeRow(const TStrStrUMap& dataRowFields,
-                  const TStrStrUMap& overrideDataRowFields) override;
+                  const TStrStrUMap& overrideDataRowFields,
+                  TOptionalTime time) override;
 
     //! Limit the output to the top count anomalous records and influencers.
     //! Each detector will write no more than count records and influencers
@@ -235,6 +239,12 @@ public:
     //! Report the current levels of resource usage, as given to us
     //! from the CResourceMonitor via a callback
     void reportMemoryUsage(const model::CResourceMonitor::SModelSizeStats& modelSizeStats);
+
+    //! Write categorizer stats
+    void writeCategorizerStats(const std::string& partitionFieldName,
+                               const std::string& partitionFieldValue,
+                               const model::SCategorizerStats& categorizerStats,
+                               const TOptionalTime& timestamp);
 
     //! Acknowledge a flush request by echoing back the flush ID
     void acknowledgeFlush(const std::string& flushId, core_t::TTime lastFinalizedBucketEnd);

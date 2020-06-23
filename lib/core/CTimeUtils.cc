@@ -12,6 +12,8 @@
 #include <core/CTimezone.h>
 #include <core/CoreTypes.h>
 
+#include <chrono>
+
 #include <errno.h>
 #include <string.h>
 
@@ -22,8 +24,13 @@ namespace core {
 const core_t::TTime CTimeUtils::MAX_CLOCK_DISCREPANCY(300);
 
 core_t::TTime CTimeUtils::now() {
-    // TODO use std::chrono functionality
     return ::time(nullptr);
+}
+
+std::int64_t CTimeUtils::nowMs() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+               std::chrono::system_clock::now().time_since_epoch())
+        .count();
 }
 
 std::string CTimeUtils::toIso8601(core_t::TTime t) {
@@ -142,24 +149,19 @@ bool CTimeUtils::isDateWord(const std::string& word) {
 }
 
 // Initialise statics for the inner class CDateWordCache
-CFastMutex CTimeUtils::CDateWordCache::ms_InitMutex;
-volatile CTimeUtils::CDateWordCache* CTimeUtils::CDateWordCache::ms_Instance(nullptr);
+CTimeUtils::CDateWordCache* CTimeUtils::CDateWordCache::ms_Instance{nullptr};
 
 const CTimeUtils::CDateWordCache& CTimeUtils::CDateWordCache::instance() {
     if (ms_Instance == nullptr) {
-        CScopedFastLock lock(ms_InitMutex);
-
-        // Even if we get into this code block in more than one thread, whatever
-        // measures the compiler is taking to ensure this variable is only
-        // constructed once should be fine given that the block is protected by
-        // a mutex.
-        static volatile CDateWordCache instance;
+        // This initialisation is thread safe due to the "magic statics" feature
+        // introduced in C++11.  This is implemented in Visual Studio 2015 and
+        // above.
+        static CDateWordCache instance;
 
         ms_Instance = &instance;
     }
 
-    // Need to explicitly cast away volatility
-    return *const_cast<const CDateWordCache*>(ms_Instance);
+    return *ms_Instance;
 }
 
 bool CTimeUtils::CDateWordCache::isDateWord(const std::string& word) const {

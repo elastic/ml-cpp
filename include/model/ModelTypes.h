@@ -20,17 +20,8 @@
 #include <string>
 #include <utility>
 
-#include <stdint.h>
-
 namespace ml {
-namespace core {
-class CStatePersistInserter;
-class CStateRestoreTraverser;
-}
 namespace maths {
-class CMultivariatePrior;
-class CPrior;
-class CTimeSeriesDecompositionInterface;
 template<typename>
 class CTimeSeriesMultibucketFeature;
 }
@@ -75,7 +66,7 @@ std::string print(EModelType type);
 //!   -# Conditional: if a result corresponds to a feature value which
 //!      is unusual only after conditioning on some other.
 //!
-//! IMPLEMENTATION:\n
+//! IMPLEMENTATION DECISIONS:\n
 //! Uses 1-of-n bitwise encoding of the different result binary descriptors
 //! so the size is just that of an unsigned int.
 class MODEL_EXPORT CResultType {

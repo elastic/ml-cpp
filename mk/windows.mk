@@ -111,7 +111,6 @@ LIB_ML_VER=libMlVer.lib
 ML_VER_LDFLAGS=-LIBPATH:$(CPP_SRC_HOME)/lib/ver/.objs
 LIB_ML_API=libMlApi.lib
 LIB_ML_MATHS=libMlMaths.lib
-LIB_ML_CONFIG=libMlConfig.lib
 LIB_ML_MODEL=libMlModel.lib
 LIB_ML_SECCOMP=libMlSeccomp.lib
 ML_SECCOMP_LDFLAGS=-LIBPATH:$(CPP_SRC_HOME)/lib/seccomp/.objs

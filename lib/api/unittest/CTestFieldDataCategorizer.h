@@ -29,6 +29,22 @@ public:
                               ml::api::COutputHandler& outputHandler,
                               ml::api::CJsonOutputWriter& jsonOutputWriter,
                               ml::api::CPersistenceManager* persistenceManager = nullptr);
+
+    CTestFieldDataCategorizer(const std::string& jobId,
+                              const ml::api::CFieldConfig& config,
+                              ml::model::CLimits& limits,
+                              const std::string& timeFieldName,
+                              const std::string& timeFieldFormat,
+                              ml::api::COutputHandler& outputHandler,
+                              ml::api::CJsonOutputWriter& jsonOutputWriter,
+                              ml::api::CPersistenceManager* persistenceManager = nullptr);
+
+    //! Bring base class overload of handleRecord() into scope
+    using CFieldDataCategorizer::handleRecord;
+
+    bool handleRecord(const TStrStrUMap& dataRowFields) {
+        return this->handleRecord(dataRowFields, TOptionalTime{});
+    }
 };
 
 #endif // INCLUDED_CTestFieldDataCategorizer_h

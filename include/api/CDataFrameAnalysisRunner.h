@@ -7,7 +7,6 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisRunner_h
 #define INCLUDED_ml_api_CDataFrameAnalysisRunner_h
 
-#include <core/CFastMutex.h>
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 

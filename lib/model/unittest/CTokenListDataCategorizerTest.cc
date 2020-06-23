@@ -465,15 +465,22 @@ BOOST_FIXTURE_TEST_CASE(testLongReverseSearch, CTestFixture) {
 
     std::string terms;
     std::string regex;
-    size_t maxMatchingLength(0);
-    bool wasCached(false);
+    std::size_t maxMatchingLength{0};
+
+    BOOST_TEST_REQUIRE(categorizer.writeCategoryIfChanged(
+        categoryId,
+        [&terms, &regex, &maxMatchingLength](
+            ml::model::CLocalCategoryId /*localCategoryId*/, const std::string& terms_,
+            const std::string& regex_, std::size_t maxMatchingLength_,
+            const ml::model::CCategoryExamplesCollector::TStrFSet& /*examples*/, std::size_t /*numMatches*/,
+            const ml::model::CDataCategorizer::TLocalCategoryIdVec& /*usurpedCategories*/) {
+            terms = terms_;
+            regex = regex_;
+            maxMatchingLength = maxMatchingLength_;
+        }));
 
     // Only 1 message so the reverse search COULD include all the tokens, but
     // shouldn't because such a reverse search would be ridiculously long
-    BOOST_TEST_REQUIRE(categorizer.createReverseSearch(
-        categoryId, terms, regex, maxMatchingLength, wasCached));
-
-    BOOST_TEST_REQUIRE(!wasCached);
     LOG_DEBUG(<< "Terms length: " << terms.length());
     LOG_TRACE(<< "Terms: " << terms);
     LOG_DEBUG(<< "Regex length: " << regex.length());

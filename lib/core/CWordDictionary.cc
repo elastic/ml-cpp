@@ -67,24 +67,19 @@ CWordDictionary::EPartOfSpeech partOfSpeechFromCode(char partOfSpeechCode) {
 
 const char* const CWordDictionary::DICTIONARY_FILE("ml-en.dict");
 
-CFastMutex CWordDictionary::ms_LoadMutex;
-volatile CWordDictionary* CWordDictionary::ms_Instance(nullptr);
+CWordDictionary* CWordDictionary::ms_Instance{nullptr};
 
 const CWordDictionary& CWordDictionary::instance() {
     if (ms_Instance == nullptr) {
-        CScopedFastLock lock(ms_LoadMutex);
-
-        // Even if we get into this code block in more than one thread, whatever
-        // measures the compiler is taking to ensure this variable is only
-        // constructed once should be fine given that the block is protected by
-        // a mutex.
-        static volatile CWordDictionary instance;
+        // This initialisation is thread safe due to the "magic statics" feature
+        // introduced in C++11.  This is implemented in Visual Studio 2015 and
+        // above.
+        static CWordDictionary instance;
 
         ms_Instance = &instance;
     }
 
-    // Need to explicitly cast away volatility
-    return *const_cast<const CWordDictionary*>(ms_Instance);
+    return *ms_Instance;
 }
 
 bool CWordDictionary::isInDictionary(const std::string& str) const {

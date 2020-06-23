@@ -132,6 +132,9 @@ public:
 
     //! \name Container Semantics
     //@{
+    //! Reset to zero length vector.
+    void clear();
+
     //! Wraps dimension.
     std::size_t size() const { return this->dimension(); }
 

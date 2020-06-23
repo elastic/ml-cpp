@@ -39,13 +39,13 @@ BOOST_AUTO_TEST_CASE(testWrite) {
             core_t::TTime(1521046309), // bucket start time
             0,                         // model bytes exceeded
             50000,                     // model bytes memory limit
-            1000,                      // categorized messages
-            100,                       // total categories
-            7,                         // frequent categories
-            13,                        // rare categories
-            2,                         // dead categories
-            8,                         // failed categories
-            model_t::E_CategorizationStatusWarn};
+            {1000,                     // categorized messages
+             100,                      // total categories
+             7,                        // frequent categories
+             13,                       // rare categories
+             2,                        // dead categories
+             8,                        // failed categories
+             model_t::E_CategorizationStatusWarn}};
 
         CModelSnapshotJsonWriter::SModelSnapshotReport report{
             "6.3.0",

@@ -8,6 +8,8 @@
 
 #include <core/CTimeUtils.h>
 
+#include <model/SCategorizerStats.h>
+
 namespace ml {
 namespace api {
 namespace {
@@ -32,6 +34,9 @@ const std::string FAILED_CATEGORY_COUNT{"failed_category_count"};
 const std::string CATEGORIZATION_STATUS{"categorization_status"};
 const std::string TIMESTAMP{"timestamp"};
 const std::string LOG_TIME{"log_time"};
+const std::string CATEGORIZER_STATS{"categorizer_stats"};
+const std::string PARTITION_FIELD_NAME{"partition_field_name"};
+const std::string PARTITION_FIELD_VALUE{"partition_field_value"};
 }
 
 void CModelSizeStatsJsonWriter::write(const std::string& jobId,
@@ -39,9 +44,6 @@ void CModelSizeStatsJsonWriter::write(const std::string& jobId,
                                       core::CRapidJsonConcurrentLineWriter& writer) {
     writer.Key(MODEL_SIZE_STATS);
     writer.StartObject();
-
-    writer.Key(JOB_ID);
-    writer.String(jobId);
 
     writer.Key(MODEL_BYTES);
     writer.Uint64(results.s_AdjustedUsage);
@@ -65,36 +67,77 @@ void CModelSizeStatsJsonWriter::write(const std::string& jobId,
     writer.Uint64(results.s_AllocationFailures);
 
     writer.Key(MEMORY_STATUS);
-    writer.String(print(results.s_MemoryStatus));
+    writer.String(model_t::print(results.s_MemoryStatus));
 
-    writer.Key(CATEGORIZED_DOC_COUNT);
-    writer.Uint64(results.s_CategorizedMessages);
-
-    writer.Key(TOTAL_CATEGORY_COUNT);
-    writer.Uint64(results.s_TotalCategories);
-
-    writer.Key(FREQUENT_CATEGORY_COUNT);
-    writer.Uint64(results.s_FrequentCategories);
-
-    writer.Key(RARE_CATEGORY_COUNT);
-    writer.Uint64(results.s_RareCategories);
-
-    writer.Key(DEAD_CATEGORY_COUNT);
-    writer.Uint64(results.s_DeadCategories);
-
-    writer.Key(FAILED_CATEGORY_COUNT);
-    writer.Uint64(results.s_MemoryCategorizationFailures);
-
-    writer.Key(CATEGORIZATION_STATUS);
-    writer.String(print(results.s_CategorizationStatus));
-
-    writer.Key(TIMESTAMP);
-    writer.Time(results.s_BucketStartTime);
-
-    writer.Key(LOG_TIME);
-    writer.Time(core::CTimeUtils::now());
+    CModelSizeStatsJsonWriter::writeCommonFields(
+        jobId, results.s_OverallCategorizerStats, results.s_BucketStartTime, writer);
 
     writer.EndObject();
+}
+
+void CModelSizeStatsJsonWriter::writeCategorizerStats(
+    const std::string& jobId,
+    const std::string& partitionFieldName,
+    const std::string& partitionFieldValue,
+    const model::SCategorizerStats& categorizerStats,
+    const TOptionalTime& timestamp,
+    core::CRapidJsonConcurrentLineWriter& writer) {
+
+    writer.Key(CATEGORIZER_STATS);
+    writer.StartObject();
+
+    CModelSizeStatsJsonWriter::writeCommonFields(jobId, categorizerStats, timestamp, writer);
+
+    if (partitionFieldName.empty() == false) {
+        writer.Key(PARTITION_FIELD_NAME);
+        writer.String(partitionFieldName);
+
+        writer.Key(PARTITION_FIELD_VALUE);
+        writer.String(partitionFieldValue);
+    }
+
+    writer.EndObject();
+}
+
+void CModelSizeStatsJsonWriter::writeCommonFields(const std::string& jobId,
+                                                  const model::SCategorizerStats& categorizerStats,
+                                                  const TOptionalTime& timestamp,
+                                                  core::CRapidJsonConcurrentLineWriter& writer) {
+
+    writer.Key(JOB_ID);
+    writer.String(jobId);
+
+    writer.Key(CATEGORIZED_DOC_COUNT);
+    writer.Uint64(categorizerStats.s_CategorizedMessages);
+
+    writer.Key(TOTAL_CATEGORY_COUNT);
+    writer.Uint64(categorizerStats.s_TotalCategories);
+
+    writer.Key(FREQUENT_CATEGORY_COUNT);
+    writer.Uint64(categorizerStats.s_FrequentCategories);
+
+    writer.Key(RARE_CATEGORY_COUNT);
+    writer.Uint64(categorizerStats.s_RareCategories);
+
+    writer.Key(DEAD_CATEGORY_COUNT);
+    writer.Uint64(categorizerStats.s_DeadCategories);
+
+    writer.Key(FAILED_CATEGORY_COUNT);
+    writer.Uint64(categorizerStats.s_MemoryCategorizationFailures);
+
+    writer.Key(CATEGORIZATION_STATUS);
+    writer.String(model_t::print(categorizerStats.s_CategorizationStatus));
+
+    std::int64_t nowMs{core::CTimeUtils::nowMs()};
+    writer.Key(TIMESTAMP);
+    if (timestamp.has_value()) {
+        writer.Time(*timestamp);
+    } else {
+        writer.Int64(nowMs);
+    }
+
+    writer.Key(LOG_TIME);
+    writer.Int64(nowMs);
 }
 }
 }

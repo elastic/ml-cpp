@@ -95,9 +95,8 @@ namespace ml {
 namespace core {
 
 CLogger::CLogger()
-    : m_Reconfigured(false), m_FileAttributeName("File"),
-      m_LineAttributeName("Line"), m_FunctionAttributeName("Function"),
-      m_OrigStderrFd(-1), m_FatalErrorHandler(defaultFatalErrorHandler) {
+    : m_Reconfigured{false}, m_FileAttributeName{"File"}, m_LineAttributeName{"Line"},
+      m_FunctionAttributeName{"Function"}, m_OrigStderrFd{-1}, m_FatalErrorHandler{defaultFatalErrorHandler} {
     CCrashHandler::installCrashHandler();
     // These formatter factories are not needed for programmatic configuration
     // of the format, but without them formats defined in settings files don't
@@ -175,7 +174,7 @@ void CLogger::reset() {
         boost::log::expressions::attr<ELevel>(
             boost::log::aux::default_attribute_names::severity()) >= E_Debug);
 
-    m_Reconfigured = false;
+    m_Reconfigured.store(false);
 }
 
 CLogger& CLogger::instance() {
@@ -184,7 +183,7 @@ CLogger& CLogger::instance() {
 }
 
 bool CLogger::hasBeenReconfigured() const {
-    return m_Reconfigured;
+    return m_Reconfigured.load();
 }
 
 void CLogger::logEnvironment() const {
@@ -266,6 +265,13 @@ const std::string& CLogger::levelToString(ELevel level) {
 }
 
 bool CLogger::reconfigure(const std::string& pipeName, const std::string& propertiesFile) {
+    std::atomic_bool dummy{false};
+    return this->reconfigure(pipeName, propertiesFile, dummy);
+}
+
+bool CLogger::reconfigure(const std::string& pipeName,
+                          const std::string& propertiesFile,
+                          const std::atomic_bool& isCancelled) {
     if (pipeName.empty()) {
         if (propertiesFile.empty()) {
             // Both empty is OK - it just means we keep logging to stderr
@@ -273,7 +279,7 @@ bool CLogger::reconfigure(const std::string& pipeName, const std::string& proper
         }
         return this->reconfigureFromFile(propertiesFile);
     }
-    return this->reconfigureLogToNamedPipe(pipeName);
+    return this->reconfigureLogToNamedPipe(pipeName, isCancelled);
 }
 
 bool CLogger::reconfigure(boost::shared_ptr<std::ostream> streamPtr) {
@@ -287,12 +293,18 @@ bool CLogger::reconfigure(boost::shared_ptr<std::ostream> streamPtr) {
 }
 
 bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName) {
-    if (m_Reconfigured) {
+    std::atomic_bool dummy{false};
+    return this->reconfigureLogToNamedPipe(pipeName, dummy);
+}
+
+bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName,
+                                        const std::atomic_bool& isCancelled) {
+    if (m_Reconfigured.load()) {
         LOG_ERROR(<< "Cannot log to a named pipe after logger reconfiguration");
         return false;
     }
 
-    m_PipeFile = CNamedPipeFactory::openPipeFileWrite(pipeName);
+    m_PipeFile = CNamedPipeFactory::openPipeFileWrite(pipeName, isCancelled);
     if (m_PipeFile == nullptr) {
         LOG_ERROR(<< "Cannot log to named pipe " << pipeName
                   << " as it could not be opened for writing");
@@ -374,7 +386,7 @@ bool CLogger::reconfigureFromSettings(std::istream& settingsStrm) {
         return false;
     }
 
-    m_Reconfigured = true;
+    m_Reconfigured.store(true);
 
     // Start the new log off with "uname -a" information so we know what
     // hardware any subsequent problems occurred on
