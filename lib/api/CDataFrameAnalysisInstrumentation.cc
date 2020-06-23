@@ -31,12 +31,19 @@ namespace {
 using TStrVec = std::vector<std::string>;
 
 const double MEMORY_LIMIT_INCREMENT{2.0}; // request 100% more memory
+const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
+                                              << ((sizeof(std::size_t) - 2) * 8)};
 
+// clang-format off
 const std::string CLASSIFICATION_STATS_TAG{"classification_stats"};
 const std::string HYPERPARAMETERS_TAG{"hyperparameters"};
 const std::string ITERATION_TAG{"iteration"};
 const std::string JOB_ID_TAG{"job_id"};
 const std::string MEMORY_TYPE_TAG{"analytics_memory_usage"};
+const std::string MEMORY_STATUS_TAG{"status"};
+const std::string MEMORY_STATUS_OK_TAG{"ok"};
+const std::string MEMORY_STATUS_HARD_LIMIT_TAG{"hard-limit"};
+const std::string ADVISED_MEMORY_LIMIT_TAG{"advised_limit_bytes"};
 const std::string OUTLIER_DETECTION_STATS{"outlier_detection_stats"};
 const std::string PARAMETERS_TAG{"parameters"};
 const std::string PEAK_MEMORY_USAGE_TAG{"peak_usage_bytes"};
@@ -64,9 +71,7 @@ const std::string NUM_SPLITS_PER_FEATURE_TAG{"num_splits_per_feature"};
 const std::string PHASE_PROGRESS{"phase_progress"};
 const std::string PHASE{"phase"};
 const std::string PROGRESS_PERCENT{"progress_percent"};
-
-const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
-                                              << ((sizeof(std::size_t) - 2) * 8)};
+// clang-format on
 
 std::string bytesToString(double value) {
     std::ostringstream stream;
@@ -94,7 +99,7 @@ CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::
                                                                      std::size_t memoryLimit)
     : m_JobId{jobId}, m_ProgressMonitoredTask{NO_TASK},
       m_MemoryLimit{static_cast<std::int64_t>(memoryLimit)}, m_Finished{false},
-      m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr} {
+      m_FractionalProgress{0}, m_Memory{0}, m_Writer{nullptr}, m_MemoryStatus(E_Ok) {
 }
 
 void CDataFrameAnalysisInstrumentation::updateMemoryUsage(std::int64_t delta) {
@@ -162,7 +167,7 @@ const std::string& CDataFrameAnalysisInstrumentation::jobId() const {
     return m_JobId;
 }
 
-void CDataFrameAnalysisInstrumentation::monitor(const CDataFrameAnalysisInstrumentation& instrumentation,
+void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentation& instrumentation,
                                                 core::CRapidJsonConcurrentLineWriter& writer) {
 
     std::string lastTask{NO_TASK};
@@ -179,11 +184,15 @@ void CDataFrameAnalysisInstrumentation::monitor(const CDataFrameAnalysisInstrume
             writeProgress(lastTask, lastProgress, &writer);
         }
         if (instrumentation.memory() > instrumentation.m_MemoryLimit) {
+            double advisedLimitBytes{static_cast<double>(instrumentation.memory()) *
+                                     MEMORY_LIMIT_INCREMENT};
+            instrumentation.advisedMemoryLimit(static_cast<std::int64_t>(advisedLimitBytes));
+            instrumentation.memoryStatus(E_HardLimit);
+            instrumentation.flush();
             HANDLE_FATAL(<< "Input error: required memory "
                          << bytesToString(instrumentation.memory()) << " exceeds the memory limit "
                          << bytesToString(instrumentation.m_MemoryLimit) << ". Please increase the limit to at least "
-                         << bytesToString(static_cast<double>(instrumentation.memory()) * MEMORY_LIMIT_INCREMENT)
-                         << " and restart.");
+                         << bytesToString(advisedLimitBytes) << " and restart.");
         }
 
         wait = std::min(2 * wait, 1024);
@@ -192,6 +201,23 @@ void CDataFrameAnalysisInstrumentation::monitor(const CDataFrameAnalysisInstrume
     lastTask = instrumentation.readProgressMonitoredTask();
     lastProgress = instrumentation.percentageProgress();
     writeProgress(lastTask, lastProgress, &writer);
+}
+
+std::int64_t CDataFrameAnalysisInstrumentation::advisedMemoryLimit() const {
+    return m_AdvisedMemoryLimit.get();
+}
+
+CDataFrameAnalysisInstrumentation::EMemoryStatus
+CDataFrameAnalysisInstrumentation::memoryStatus() const {
+    return m_MemoryStatus;
+}
+
+void CDataFrameAnalysisInstrumentation::advisedMemoryLimit(std::int64_t advisedMemoryLimit) {
+    m_AdvisedMemoryLimit = advisedMemoryLimit;
+}
+
+void CDataFrameAnalysisInstrumentation::memoryStatus(EMemoryStatus status) {
+    m_MemoryStatus = status;
 }
 
 std::string CDataFrameAnalysisInstrumentation::readProgressMonitoredTask() const {
@@ -227,6 +253,19 @@ void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
         m_Writer->Int64(timestamp);
         m_Writer->Key(PEAK_MEMORY_USAGE_TAG);
         m_Writer->Int64(m_Memory.load());
+        m_Writer->Key(MEMORY_STATUS_TAG);
+        switch (m_MemoryStatus) {
+        case E_Ok:
+            m_Writer->String(MEMORY_STATUS_OK_TAG);
+            break;
+        case E_HardLimit:
+            m_Writer->String(MEMORY_STATUS_HARD_LIMIT_TAG);
+            break;
+        }
+        if (m_AdvisedMemoryLimit) {
+            m_Writer->Key(ADVISED_MEMORY_LIMIT_TAG);
+            m_Writer->Int64(m_AdvisedMemoryLimit.get());
+        }
         m_Writer->EndObject();
     }
 }

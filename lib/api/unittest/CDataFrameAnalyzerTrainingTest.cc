@@ -391,7 +391,6 @@ BOOST_AUTO_TEST_CASE(testMemoryLimitHandling) {
 
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 
-    LOG_DEBUG(<< core::CContainerPrinter::print(errors));
     BOOST_TEST_REQUIRE(errors.size() > 0);
     bool memoryLimitExceed{false};
     for (const auto& error : errors) {
@@ -401,6 +400,31 @@ BOOST_AUTO_TEST_CASE(testMemoryLimitHandling) {
         }
     }
     BOOST_TEST_REQUIRE(memoryLimitExceed);
+
+    // verify memory status change
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+    bool memoryStatusOk{false};
+    bool memoryStatusHardLimit{false};
+    bool advisedMemoryLimitAvailable{false};
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("analytics_memory_usage")) {
+            std::string status{result["analytics_memory_usage"]["status"].GetString()};
+            if (status == "ok") {
+                memoryStatusOk = true;
+            } else if (status == "hard-limit") {
+                memoryStatusHardLimit = true;
+                if (result["analytics_memory_usage"].HasMember("advised_limit_bytes") &&
+                    result["analytics_memory_usage"]["advised_limit_bytes"].GetInt() > 0) {
+                    advisedMemoryLimitAvailable = true;
+                }
+            }
+        }
+    }
+    BOOST_TEST_REQUIRE(memoryStatusOk);
+    BOOST_TEST_REQUIRE(memoryStatusHardLimit);
+    BOOST_TEST_REQUIRE(advisedMemoryLimitAvailable);
 }
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
