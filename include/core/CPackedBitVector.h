@@ -133,6 +133,9 @@ public:
     //! Reset to zero length vector.
     void clear();
 
+    //! Get the maximum supported vector size.
+    static std::size_t maximumSize() { return MAXIMUM_FOUR_BYTE_RUN_LENGTH; }
+
     //! Wraps dimension.
     std::size_t size() const { return this->dimension(); }
 
