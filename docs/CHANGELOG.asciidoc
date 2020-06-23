@@ -50,7 +50,9 @@
 * Checkpoint state to allow efficient failover during coarse parameter search
   for classification and regression. (See {ml-pull}1300[#1300].)
 * Improve data access patterns to speed up classification and regression.
-  (See {ml-pull}1312[#1312].) 
+  (See {ml-pull}1312[#1312].)
+* Performance improvements for classification and regression, particularly running
+  multithreaded. (See {ml-pull}1317[#1317].)
 
 === Bug Fixes
 

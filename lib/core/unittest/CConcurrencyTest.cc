@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(testAsyncWithExecutorsAndExceptions) {
 
 BOOST_AUTO_TEST_CASE(testParallelForEachWithEmpty) {
 
-    core::stopDefaultAsyncExecutor();
+    core::startDefaultAsyncExecutor();
 
     TIntVec values;
     auto result = core::parallel_for_each(0, values.size(),
@@ -107,6 +107,8 @@ BOOST_AUTO_TEST_CASE(testParallelForEachWithEmpty) {
                                               0.0));
     BOOST_REQUIRE_EQUAL(std::size_t{1}, result.size());
     BOOST_REQUIRE_EQUAL(0.0, result[0].s_FunctionState);
+
+    core::stopDefaultAsyncExecutor();
 }
 
 BOOST_AUTO_TEST_CASE(testParallelForEach) {
@@ -253,6 +255,59 @@ BOOST_AUTO_TEST_CASE(testParallelForEachReentry) {
         }
         BOOST_REQUIRE_EQUAL(expected, actual);
     }
+
+    core::stopDefaultAsyncExecutor();
+}
+
+BOOST_AUTO_TEST_CASE(testParallelForEachFunctionVector) {
+
+    // Test we get identical results if we supply a number of threads and single
+    // function or a vector of functions.
+
+    core::startDefaultAsyncExecutor(4);
+
+    {
+        using TFuncVec = std::vector<std::function<void(std::size_t)>>;
+
+        for (auto size : {1, 4}) {
+            std::atomic_size_t counter{0};
+            TFuncVec funcs(size, [&](std::size_t i) { counter.fetch_add(i); });
+            core::parallel_for_each(std::size_t{0}, std::size_t{100}, funcs);
+            BOOST_REQUIRE_EQUAL(4950, counter.load());
+
+            BOOST_TEST_REQUIRE(core::parallel_for_each(std::size_t{0}, std::size_t{0}, funcs));
+            BOOST_REQUIRE_EQUAL(4950, counter.load());
+        }
+
+        TFuncVec empty;
+        BOOST_TEST_REQUIRE(core::parallel_for_each(std::size_t{0}, std::size_t{100},
+                                                   empty) == false);
+    }
+
+    {
+        using TFuncVec = std::vector<std::function<void(int)>>;
+
+        for (auto size : {1, 4}) {
+            TIntVec ints(100);
+            std::iota(ints.begin(), ints.end(), 0);
+
+            std::atomic_size_t counter{0};
+            TFuncVec funcs(size, [&](int i) { counter.fetch_add(i); });
+            core::parallel_for_each(ints.begin(), ints.end(), funcs);
+            BOOST_REQUIRE_EQUAL(4950, counter.load());
+
+            ints.clear();
+            BOOST_TEST_REQUIRE(core::parallel_for_each(ints.begin(), ints.end(), funcs));
+            BOOST_REQUIRE_EQUAL(4950, counter.load());
+        }
+
+        TIntVec ints(100);
+        std::iota(ints.begin(), ints.end(), 0);
+        TFuncVec empty;
+        BOOST_TEST_REQUIRE(core::parallel_for_each(ints.begin(), ints.end(), empty) == false);
+    }
+
+    core::stopDefaultAsyncExecutor();
 }
 
 BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
