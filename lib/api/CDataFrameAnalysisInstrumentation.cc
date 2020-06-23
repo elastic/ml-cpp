@@ -203,15 +203,6 @@ void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentatio
     writeProgress(lastTask, lastProgress, &writer);
 }
 
-std::int64_t CDataFrameAnalysisInstrumentation::advisedMemoryLimit() const {
-    return m_AdvisedMemoryLimit.get();
-}
-
-CDataFrameAnalysisInstrumentation::EMemoryStatus
-CDataFrameAnalysisInstrumentation::memoryStatus() const {
-    return m_MemoryStatus;
-}
-
 void CDataFrameAnalysisInstrumentation::advisedMemoryLimit(std::int64_t advisedMemoryLimit) {
     m_AdvisedMemoryLimit = advisedMemoryLimit;
 }

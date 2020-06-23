@@ -109,9 +109,6 @@ public:
     static void monitor(CDataFrameAnalysisInstrumentation& instrumentation,
                         core::CRapidJsonConcurrentLineWriter& writer);
 
-    std::int64_t advisedMemoryLimit() const;
-    EMemoryStatus memoryStatus() const;
-
 protected:
     using TWriter = core::CRapidJsonConcurrentLineWriter;
     using TWriterUPtr = std::unique_ptr<TWriter>;
