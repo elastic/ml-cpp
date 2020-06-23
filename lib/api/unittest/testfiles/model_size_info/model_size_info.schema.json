@@ -1,0 +1,214 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://raw.githubusercontent.com/elastic/ml-json-schemas-private/master/schemas/model_size/model_size_info.schema.json",
+    "description": "Model size info for calculating an JVM heap size estimate",
+    "title": "model_size_info",
+    "type": "object",
+    "definitions": {
+        "ensemble_model_size": {
+            "$id": "#ensemble_model_size",
+            "description": "Size information for a model",
+            "properties": {
+                "tree_sizes": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "num_nodes": {
+                                "description": "number of non-leaf nodes in the tree",
+                                "type": "integer"
+                            },
+                            "num_leaves": {
+                                "description": "number of leaf nodes in the tree",
+                                "type": "integer"
+                            }
+                        },
+                        "required": [
+                            "num_leaves"
+                        ]
+                    },
+                    "minItems": 1,
+                    "uniqueItems": false
+                },
+                "feature_name_lengths": {
+                    "description": "UTF-16 length of each feature name for the model",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": false
+                },
+                "num_output_processor_weights": {
+                    "type": "integer"
+                },
+                "num_classification_weights": {
+                    "type": "integer"
+                },
+                "num_operations": {
+                    "type": "integer"
+                },
+                "num_classes": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "tree_sizes",
+                "num_operations",
+                "feature_name_lengths"
+            ]
+        },
+        "one_hot_encoding": {
+            "description": "one hot encoding size information",
+            "type": "object",
+            "properties": {
+                "field_length": {
+                    "description": "UTF-16 length of input field",
+                    "type": "integer"
+                },
+                "feature_name_lengths": {
+                    "description": "UTF-16 length of each destination feature name used in the one hot map",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "minItems": 1
+                },
+                "field_value_lengths": {
+                    "description": "UTF-16 length of each field value used in the one hot map",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "minItems": 1
+                }
+            },
+            "required": [
+                "field_length",
+                "feature_name_lengths",
+                "field_value_lengths"
+            ]
+        },
+        "target_mean_encoding": {
+            "description": "target mean encoding size information",
+            "type": "object",
+            "properties": {
+                "field_length": {
+                    "description": "UTF-16 length of input field",
+                    "type": "integer"
+                },
+                "feature_name_length": {
+                    "description": "UTF-16 length of feature_name field",
+                    "type": "integer"
+                },
+                "field_value_lengths": {
+                    "description": "UTF-16 length of field values used in the target mean map",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "minItems": 1
+                }
+            },
+            "required": [
+                "field_length",
+                "feature_name_length",
+                "field_value_lengths"
+            ]
+        },
+        "frequency_encoding": {
+            "description": "frequency encoding size information",
+            "type": "object",
+            "properties": {
+                "field_length": {
+                    "description": "Character length of input field",
+                    "type": "integer"
+                },
+                "feature_name_length": {
+                    "description": "Character length of feature_name field",
+                    "type": "integer"
+                },
+                "field_value_lengths": {
+                    "description": "UTF-16 length of field values used in the frequency encoding map",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "minItems": 1
+                }
+            },
+            "required": [
+                "field_length",
+                "feature_name_length",
+                "field_value_lengths"
+            ]
+        }
+    },
+    "properties": {
+        "preprocessors": {
+            "description": "Optional step for pre-processing data, e.g. vector embedding, one-hot-encoding, etc.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "oneOf": [
+                    {
+                        "properties": {
+                            "one_hot_encoding": {
+                                "$ref": "#/definitions/one_hot_encoding"
+                            }
+                        },
+                        "required": [
+                            "one_hot_encoding"
+                        ],
+                        "additionalProperties": false
+                    },
+                    {
+                        "properties": {
+                            "target_mean_encoding": {
+                                "$ref": "#/definitions/target_mean_encoding"
+                            }
+                        },
+                        "required": [
+                            "target_mean_encoding"
+                        ],
+                        "additionalProperties": false
+                    },
+                    {
+                        "properties": {
+                            "frequency_encoding": {
+                                "$ref": "#/definitions/frequency_encoding"
+                            }
+                        },
+                        "required": [
+                            "frequency_encoding"
+                        ],
+                        "additionalProperties": false
+                    }
+                ]
+            },
+            "minItems": 0,
+            "uniqueItems": true
+        },
+        "trained_model_size": {
+            "description": "Details of the model evaluation step with a trained_model.",
+            "type": "object",
+            "oneOf": [
+                {
+                    "properties": {
+                        "ensemble_model_size": {
+                            "$ref": "#/definitions/ensemble_model_size"
+                        }
+                    },
+                    "required": [
+                        "ensemble_model_size"
+                    ],
+                    "additionalProperties": false
+                }
+            ]
+        }
+    },
+    "required": [
+        "trained_model_size"
+    ],
+    "additionalProperties": false
+}
