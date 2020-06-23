@@ -143,7 +143,7 @@ struct MODEL_EXPORT SNode {
     std::string print() const;
 
     //! Efficient swap
-    void swap(SNode& other);
+    void swap(SNode& other) noexcept;
 
     //! \name Connectivity
     //@{
@@ -194,7 +194,7 @@ struct MODEL_EXPORT SNode {
 
 //! Non-member node swap to work with standard algorithms
 MODEL_EXPORT
-void swap(SNode& node1, SNode& node2);
+void swap(SNode& node1, SNode& node2) noexcept;
 
 } // hierarchical_results_detail::
 

@@ -54,7 +54,7 @@ public:
     CCountMinSketch(core::CStateRestoreTraverser& traverser);
 
     //! Efficient swap the contents of two sketches.
-    void swap(CCountMinSketch& sketch);
+    void swap(CCountMinSketch& sketch) noexcept;
 
 private:
     //! Create by traversing a state document.

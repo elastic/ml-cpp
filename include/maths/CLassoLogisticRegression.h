@@ -40,7 +40,7 @@ public:
     CLrDenseMatrix(TDoubleVecVec& elements);
 
     //! Efficiently swap the contents of two matrices.
-    void swap(CLrDenseMatrix& other);
+    void swap(CLrDenseMatrix& other) noexcept;
 
     //! Get the number of rows.
     std::size_t rows() const {
@@ -77,7 +77,7 @@ public:
     CLrSparseMatrix(std::size_t rows, std::size_t columns, TSizeSizePrDoublePrVec& elements);
 
     //! Efficiently swap the contents of two matrices.
-    void swap(CLrSparseMatrix& other);
+    void swap(CLrSparseMatrix& other) noexcept;
 
     //! Get the number of rows.
     std::size_t rows() const { return m_Rows; }
@@ -250,7 +250,7 @@ public:
     CLogisticRegressionModel(double beta0, TSizeDoublePrVec& beta);
 
     //! Efficiently swap the contents of two models.
-    void swap(CLogisticRegressionModel& other);
+    void swap(CLogisticRegressionModel& other) noexcept;
 
     //! Get the probability of the dense feature vector \p x.
     bool operator()(const TDoubleVec& x, double& probability) const;
