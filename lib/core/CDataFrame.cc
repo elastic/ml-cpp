@@ -35,10 +35,6 @@ CRowRef::CRowRef(std::size_t index, TFloatVecItr beginColumns, TFloatVecItr endC
     : m_Index{index}, m_BeginColumns{beginColumns}, m_EndColumns{endColumns}, m_DocHash{docHash} {
 }
 
-CFloatStorage CRowRef::operator[](std::size_t i) const {
-    return *(m_BeginColumns + i);
-}
-
 std::size_t CRowRef::index() const {
     return m_Index;
 }
@@ -70,11 +66,11 @@ CRowIterator::CRowIterator(std::size_t numberColumns,
 }
 
 bool CRowIterator::operator==(const CRowIterator& rhs) const {
-    return m_RowItr == rhs.m_RowItr && m_DocHashItr == rhs.m_DocHashItr;
+    return m_RowItr == rhs.m_RowItr;
 }
 
 bool CRowIterator::operator!=(const CRowIterator& rhs) const {
-    return m_RowItr != rhs.m_RowItr || m_DocHashItr != rhs.m_DocHashItr;
+    return m_RowItr != rhs.m_RowItr;
 }
 
 CRowRef CRowIterator::operator*() const {
@@ -108,15 +104,6 @@ CRowIterator CRowIterator::operator++(int) {
 
 using namespace data_frame_detail;
 
-namespace {
-//! Compute the default slice capacity in rows.
-std::size_t computeSliceCapacity(std::size_t numberColumns) {
-    // TODO This probably needs some careful tuning, which I haven't performed
-    // yet, and probably needs to be different for different storage strategies.
-    return std::max(1048576 / sizeof(CFloatStorage) / numberColumns, std::size_t(100));
-}
-}
-
 CDataFrame::CDataFrame(bool inMainMemory,
                        std::size_t numberColumns,
                        CAlignment::EType rowAlignment,
@@ -130,19 +117,6 @@ CDataFrame::CDataFrame(bool inMainMemory,
       m_WriteSliceToStore{writeSliceToStore}, m_ColumnNames(numberColumns),
       m_CategoricalColumnValues(numberColumns), m_MissingString{DEFAULT_MISSING_STRING},
       m_ColumnIsCategorical(numberColumns, false) {
-}
-
-CDataFrame::CDataFrame(bool inMainMemory,
-                       std::size_t numberColumns,
-                       CAlignment::EType rowAlignment,
-                       EReadWriteToStorage readAndWriteToStoreSyncStrategy,
-                       const TWriteSliceToStoreFunc& writeSliceToStore)
-    : CDataFrame{inMainMemory,
-                 numberColumns,
-                 rowAlignment,
-                 computeSliceCapacity(numberColumns),
-                 readAndWriteToStoreSyncStrategy,
-                 writeSliceToStore} {
 }
 
 CDataFrame::~CDataFrame() = default;
@@ -217,10 +191,30 @@ CDataFrame::TRowFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,
         return {{std::move(reader)}, true};
     }
 
-    return numberThreads > 1
-               ? this->parallelApplyToAllRows(numberThreads, beginRows, endRows,
-                                              std::move(reader), rowMask, false)
-               : this->sequentialApplyToAllRows(beginRows, endRows, reader, rowMask, false);
+    TRowFuncVec readers(numberThreads, std::move(reader));
+    bool successful{
+        numberThreads > 1
+            ? this->parallelApplyToAllRows(beginRows, endRows, readers, rowMask, false)
+            : this->sequentialApplyToAllRows(beginRows, endRows, readers, rowMask, false)};
+
+    return {std::move(readers), successful};
+}
+
+bool CDataFrame::readRows(std::size_t beginRows,
+                          std::size_t endRows,
+                          TRowFuncVec& readers,
+                          const CPackedBitVector* rowMask) const {
+
+    beginRows = std::min(beginRows, m_NumberRows);
+    endRows = std::min(endRows, m_NumberRows);
+
+    if (beginRows >= endRows) {
+        return true;
+    }
+
+    return readers.size() > 1
+               ? this->parallelApplyToAllRows(beginRows, endRows, readers, rowMask, false)
+               : this->sequentialApplyToAllRows(beginRows, endRows, readers, rowMask, false);
 }
 
 CDataFrame::TRowFuncVecBoolPr CDataFrame::writeColumns(std::size_t numberThreads,
@@ -236,10 +230,12 @@ CDataFrame::TRowFuncVecBoolPr CDataFrame::writeColumns(std::size_t numberThreads
         return {{std::move(writer)}, true};
     }
 
-    return numberThreads > 1
-               ? this->parallelApplyToAllRows(numberThreads, beginRows, endRows,
-                                              std::move(writer), rowMask, true)
-               : this->sequentialApplyToAllRows(beginRows, endRows, writer, rowMask, true);
+    TRowFuncVec writers(numberThreads, std::move(writer));
+    bool successful{
+        numberThreads > 1
+            ? this->parallelApplyToAllRows(beginRows, endRows, writers, rowMask, true)
+            : this->sequentialApplyToAllRows(beginRows, endRows, writers, rowMask, true)};
+    return {std::move(writers), successful};
 }
 
 void CDataFrame::parseAndWriteRow(const TStrCRng& columnValues, const std::string* hash) {
@@ -425,21 +421,21 @@ std::size_t CDataFrame::estimateMemoryUsage(bool inMainMemory,
                : 0;
 }
 
-CDataFrame::TRowFuncVecBoolPr
-CDataFrame::parallelApplyToAllRows(std::size_t numberThreads,
-                                   std::size_t beginRows,
-                                   std::size_t endRows,
-                                   TRowFunc&& func,
-                                   const CPackedBitVector* rowMask,
-                                   bool commitResult) const {
+bool CDataFrame::parallelApplyToAllRows(std::size_t beginRows,
+                                        std::size_t endRows,
+                                        TRowFuncVec& funcs,
+                                        const CPackedBitVector* rowMask,
+                                        bool commitResult) const {
 
-    // If we're reading in parallel then we don't want to interleave
-    // reads from storage and applying the function because we're
-    // already fully balancing our work across the slices.
+    // If we're reading in parallel then we don't want to interleave reads
+    // from storage and applying the function because we're already fully
+    // balancing our work across the slices.
+
+    using TSliceFuncVec = std::vector<std::function<void(const TRowSlicePtr&)>>;
 
     CPackedBitVector::COneBitIndexConstIterator maskedRow;
     CPackedBitVector::COneBitIndexConstIterator endMaskedRows;
-    if (rowMask) {
+    if (rowMask != nullptr) {
         maskedRow = rowMask->beginOneBits();
         endMaskedRows = rowMask->endOneBits();
     }
@@ -447,59 +443,55 @@ CDataFrame::parallelApplyToAllRows(std::size_t numberThreads,
     std::atomic_bool successful{true};
     CDataFrameRowSliceHandle readSlice;
 
-    auto results = parallel_for_each(
-        numberThreads, this->beginSlices(beginRows), this->endSlices(endRows),
-        bindRetrievableState(
-            [=, &successful](TRowFunc& func_, const TRowSlicePtr& slice) mutable {
-                if (successful.load() == false) {
-                    return;
-                }
+    TSliceFuncVec sliceFuncs;
+    sliceFuncs.reserve(funcs.size());
 
-                std::size_t beginSliceRows{std::max(slice->indexOfFirstRow(), beginRows)};
-                std::size_t endSliceRows{
-                    std::min(slice->indexOfLastRow(m_RowCapacity) + 1, endRows)};
+    for (auto& func : funcs) {
+        sliceFuncs.push_back([=, &func, &successful](const TRowSlicePtr& slice) mutable {
+            if (successful.load() == false) {
+                return;
+            }
 
-                if (rowMask != nullptr &&
-                    this->maskedRowsInSlice(maskedRow, endMaskedRows, beginSliceRows,
-                                            endSliceRows) == false) {
-                    return;
-                }
+            std::size_t beginSliceRows{std::max(slice->indexOfFirstRow(), beginRows)};
+            std::size_t endSliceRows{
+                std::min(slice->indexOfLastRow(m_RowCapacity) + 1, endRows)};
 
-                readSlice = slice->read();
-                if (readSlice.bad()) {
-                    successful.store(false);
-                    return;
-                }
+            if (rowMask != nullptr &&
+                this->maskedRowsInSlice(maskedRow, endMaskedRows,
+                                        beginSliceRows, endSliceRows) == false) {
+                return;
+            }
 
-                TOptionalPopMaskedRow popMaskedRow;
-                if (rowMask != nullptr) {
-                    beginSliceRows = *maskedRow;
-                    popMaskedRow = CPopMaskedRow{endSliceRows, maskedRow, endMaskedRows};
-                }
+            readSlice = slice->read();
+            if (readSlice.bad()) {
+                successful.store(false);
+                return;
+            }
 
-                this->applyToRowsOfOneSlice(func_, beginSliceRows, endSliceRows,
-                                            popMaskedRow, readSlice);
-                if (commitResult) {
-                    slice->write(readSlice.rows(), readSlice.docHashes());
-                }
-            },
-            std::move(func)));
+            TOptionalPopMaskedRow popMaskedRow;
+            if (rowMask != nullptr) {
+                beginSliceRows = *maskedRow;
+                popMaskedRow = CPopMaskedRow{endSliceRows, maskedRow, endMaskedRows};
+            }
 
-    TRowFuncVec funcs;
-    funcs.reserve(results.size());
-    for (auto& result : results) {
-        funcs.emplace_back(std::move(result.s_FunctionState));
+            this->applyToRowsOfOneSlice(func, beginSliceRows, endSliceRows,
+                                        popMaskedRow, readSlice);
+            if (commitResult) {
+                slice->write(readSlice.rows(), readSlice.docHashes());
+            }
+        });
     }
 
-    return {std::move(funcs), successful.load()};
+    parallel_for_each(this->beginSlices(beginRows), this->endSlices(endRows), sliceFuncs);
+
+    return successful.load();
 }
 
-CDataFrame::TRowFuncVecBoolPr
-CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
-                                     std::size_t endRows,
-                                     TRowFunc& func,
-                                     const CPackedBitVector* rowMask,
-                                     bool commitResult) const {
+bool CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
+                                          std::size_t endRows,
+                                          TRowFuncVec& func,
+                                          const CPackedBitVector* rowMask,
+                                          bool commitResult) const {
 
     CPackedBitVector::COneBitIndexConstIterator maskedRow;
     CPackedBitVector::COneBitIndexConstIterator endMaskedRows;
@@ -536,7 +528,7 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
 
             readSlice = (*slice)->read();
             if (readSlice.bad()) {
-                return {{std::move(func)}, false};
+                return false;
             }
 
             // We wait here so at most one slice is copied into memory.
@@ -552,7 +544,7 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
                         popMaskedRow = CPopMaskedRow{endSliceRows, maskedRow, endMaskedRows};
                     }
 
-                    this->applyToRowsOfOneSlice(func, beginSliceRows, endSliceRows,
+                    this->applyToRowsOfOneSlice(func[0], beginSliceRows, endSliceRows,
                                                 popMaskedRow, readSlice_);
 
                     if (commitResult) {
@@ -578,7 +570,7 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
 
             readSlice = (*slice)->read();
             if (readSlice.bad()) {
-                return {{std::move(func)}, false};
+                return false;
             }
 
             TOptionalPopMaskedRow popMaskedRow;
@@ -587,7 +579,7 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
                 popMaskedRow = CPopMaskedRow{endSliceRows, maskedRow, endMaskedRows};
             }
 
-            this->applyToRowsOfOneSlice(func, beginSliceRows, endSliceRows,
+            this->applyToRowsOfOneSlice(func[0], beginSliceRows, endSliceRows,
                                         popMaskedRow, readSlice);
 
             if (commitResult) {
@@ -597,14 +589,7 @@ CDataFrame::sequentialApplyToAllRows(std::size_t beginRows,
         break;
     }
 
-    // TRowFuncVec funcs{std::move(func)}; moves func into an std::inializer_list
-    // but then *copies* from the list because the standard requires its elements
-    // are treated as constant, see 8.5.4/5.
-    TRowFuncVec funcs;
-    funcs.reserve(1);
-    funcs.emplace_back(std::move(func));
-
-    return TRowFuncVecBoolPr{std::move(funcs), true};
+    return true;
 }
 
 void CDataFrame::applyToRowsOfOneSlice(TRowFunc& func,
@@ -729,6 +714,11 @@ CDataFrame::CDataFrameRowSliceWriter::finishWritingRows() {
     return {m_NumberRows, std::move(m_SlicesWrittenToStore)};
 }
 
+std::size_t dataFrameDefaultSliceCapacity(std::size_t numberColumns) {
+    std::size_t oneMbChunkSize{1024 * 1024 / sizeof(CFloatStorage) / numberColumns};
+    return std::max(oneMbChunkSize, std::size_t{128});
+}
+
 std::pair<std::unique_ptr<CDataFrame>, std::shared_ptr<CTemporaryDirectory>>
 makeMainStorageDataFrame(std::size_t numberColumns,
                          boost::optional<std::size_t> sliceCapacity,
@@ -739,13 +729,11 @@ makeMainStorageDataFrame(std::size_t numberColumns,
             firstRow, std::move(rows), std::move(docHashes));
     };
 
-    if (sliceCapacity != boost::none) {
-        return {std::make_unique<CDataFrame>(true, numberColumns, alignment, *sliceCapacity,
-                                             readWriteToStoreSyncStrategy, writer),
-                nullptr};
+    if (sliceCapacity == boost::none) {
+        sliceCapacity = dataFrameDefaultSliceCapacity(numberColumns);
     }
 
-    return {std::make_unique<CDataFrame>(true, numberColumns, alignment,
+    return {std::make_unique<CDataFrame>(true, numberColumns, alignment, *sliceCapacity,
                                          readWriteToStoreSyncStrategy, writer),
             nullptr};
 }
@@ -770,12 +758,11 @@ makeDiskStorageDataFrame(const std::string& rootDirectory,
             directory, firstRow, std::move(rows), std::move(docHashes));
     };
 
-    if (sliceCapacity != boost::none) {
-        return {std::make_unique<CDataFrame>(false, numberColumns, alignment, *sliceCapacity,
-                                             readWriteToStoreSyncStrategy, writer),
-                directory};
+    if (sliceCapacity == boost::none) {
+        sliceCapacity = dataFrameDefaultSliceCapacity(numberColumns);
     }
-    return {std::make_unique<CDataFrame>(false, numberColumns, alignment,
+
+    return {std::make_unique<CDataFrame>(false, numberColumns, alignment, *sliceCapacity,
                                          readWriteToStoreSyncStrategy, writer),
             directory};
 }

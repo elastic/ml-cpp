@@ -7,7 +7,6 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisRunner_h
 #define INCLUDED_ml_api_CDataFrameAnalysisRunner_h
 
-#include <core/CFastMutex.h>
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 
@@ -102,6 +101,9 @@ public:
 
     //! \return The number of columns this analysis appends.
     virtual std::size_t numberExtraColumns() const = 0;
+
+    //! \return The capacity of the data frame slice to use.
+    virtual std::size_t dataFrameSliceCapacity() const = 0;
 
     //! Write the extra columns of \p row added by the analysis to \p writer.
     //!

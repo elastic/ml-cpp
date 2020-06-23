@@ -59,6 +59,13 @@ public:
     //! Vector of local category IDs
     using TLocalCategoryIdVec = std::vector<CLocalCategoryId>;
 
+    //! Callback for category definition output
+    using TCategoryOutputFunc =
+        std::function<void(CLocalCategoryId, const std::string&, const std::string&, std::size_t, const CCategoryExamplesCollector::TStrFSet&, std::size_t, TLocalCategoryIdVec)>;
+
+    //! Callback for categorizer stats output
+    using TCategorizerStatsOutputFunc = std::function<void(const SCategorizerStats&)>;
+
 public:
     CDataCategorizer(CLimits& limits, const std::string& fieldName);
 
@@ -82,19 +89,12 @@ public:
                                              const std::string& str,
                                              std::size_t rawStringLen) = 0;
 
-    //! Create reverse search commands that will (more or less) just
-    //! select the records that are classified as the given category when
-    //! combined with the original search.  Note that the reverse search is
-    //! only approximate - it may select more records than have actually
-    //! been classified as the returned category.
-    virtual bool createReverseSearch(CLocalCategoryId categoryId,
-                                     std::string& part1,
-                                     std::string& part2,
-                                     std::size_t& maxMatchingLength,
-                                     bool& wasCached) = 0;
-
-    //! Has the data categorizer's state changed?
-    virtual bool hasChanged() const = 0;
+    //! Ensure the reverse search information is up-to-date for the specified
+    //! category.  Note that the reverse search is only approximate - it may
+    //! select more records than have actually been classified as the specified
+    //! category.
+    //! \return Was the reverse search changed as a result of the call?
+    virtual bool cacheReverseSearch(CLocalCategoryId categoryId) = 0;
 
     //! Populate the object from part of a state document
     virtual bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) = 0;
@@ -115,12 +115,6 @@ public:
 
     //! Access to the field name
     const std::string& fieldName() const;
-
-    //! Access to last persistence time
-    core_t::TTime lastPersistTime() const;
-
-    //! Set last persistence time
-    void lastPersistTime(core_t::TTime lastPersistTime);
 
     //! Debug the memory used by this categorizer.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
@@ -143,15 +137,27 @@ public:
 
     //! Get the categories that will never be detected again because the
     //! specified category will always be returned instead.
-    virtual TLocalCategoryIdVec usurpedCategories(CLocalCategoryId categoryId) = 0;
+    virtual TLocalCategoryIdVec usurpedCategories(CLocalCategoryId categoryId) const = 0;
+
+    //! Writes information about a category using the supplied output function,
+    //! if the category has changed since the last time it was written.
+    //! \return Was the category written?
+    virtual bool writeCategoryIfChanged(CLocalCategoryId categoryId,
+                                        const TCategoryOutputFunc& outputFunc) = 0;
+
+    //! Writes information about all categories that have changed since the last
+    //! time they were written using the supplied output function.
+    //! \return Number of categories written.
+    virtual std::size_t writeChangedCategories(const TCategoryOutputFunc& outputFunc) = 0;
+
+    //! Write the latest categorizer stats using the supplied output function if
+    //! they have changed since the last time they were written.
+    //! \return Were the stats written?
+    virtual bool
+    writeCategorizerStatsIfChanged(const TCategorizerStatsOutputFunc& outputFunc) = 0;
 
     //! Number of categories this categorizer has detected.
     virtual std::size_t numCategories() const = 0;
-
-    //! Has the specified category changed since this method was called last?
-    //! Once called, the category is marked as unchanged, until the category
-    //! changes again.
-    virtual bool categoryChangedAndReset(CLocalCategoryId categoryId) = 0;
 
     //! Is it permissable to create new categories?  New categories are
     //! not permitted when memory use has exceeded the limit.
@@ -170,9 +176,6 @@ private:
 
     //! Collects up to a configurable number of examples per category
     CCategoryExamplesCollector m_ExamplesCollector;
-
-    //! When was data last persisted for this categorizer?  (0 means never.)
-    core_t::TTime m_LastPersistTime;
 };
 }
 }

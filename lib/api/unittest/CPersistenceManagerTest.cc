@@ -123,8 +123,10 @@ protected:
             ml::api::CNdJsonInputParser parser(inputStrm);
 
             BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
-                std::bind(&ml::api::CDataProcessor::handleRecord,
-                          firstProcessor, std::placeholders::_1)));
+                [firstProcessor](const ml::api::CDataProcessor::TStrStrUMap& dataRowFields) {
+                    return firstProcessor->handleRecord(
+                        dataRowFields, ml::api::CDataProcessor::TOptionalTime{});
+                }));
 
             // Persist the processors' state in the background
             BOOST_TEST_REQUIRE(firstProcessor->periodicPersistStateInBackground());
@@ -232,8 +234,10 @@ protected:
             ml::api::CNdJsonInputParser parser(inputStrm);
 
             BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
-                std::bind(&ml::api::CDataProcessor::handleRecord,
-                          firstProcessor, std::placeholders::_1)));
+                [firstProcessor](const ml::api::CDataProcessor::TStrStrUMap& dataRowFields) {
+                    return firstProcessor->handleRecord(
+                        dataRowFields, ml::api::CDataProcessor::TOptionalTime{});
+                }));
 
             // Ensure the model size stats are up to date
             job.finalise();
@@ -328,8 +332,10 @@ BOOST_FIXTURE_TEST_CASE(testBackgroundPersistCategorizationConsistency, CTestFix
         std::istringstream inputStrm1{FIRST_INPUT};
         ml::api::CNdJsonInputParser parser1{inputStrm1};
 
-        BOOST_TEST_REQUIRE(parser1.readStreamIntoMaps(std::bind(
-            &ml::api::CDataProcessor::handleRecord, &categorizer, std::placeholders::_1)));
+        BOOST_TEST_REQUIRE(parser1.readStreamIntoMaps(
+            [&categorizer](const CTestFieldDataCategorizer::TStrStrUMap& dataRowFields) {
+                return categorizer.handleRecord(dataRowFields);
+            }));
 
         // Now persist the categorizer's state in the background
         BOOST_TEST_REQUIRE(categorizer.periodicPersistStateInBackground());
@@ -349,8 +355,10 @@ BOOST_FIXTURE_TEST_CASE(testBackgroundPersistCategorizationConsistency, CTestFix
         // persistence is complete.  This shouldn't be a problem if the
         // background persistence copied the state, but if it didn't then
         // it should fail the test.
-        BOOST_TEST_REQUIRE(parser2.readStreamIntoMaps(std::bind(
-            &ml::api::CDataProcessor::handleRecord, &categorizer, std::placeholders::_1)));
+        BOOST_TEST_REQUIRE(parser2.readStreamIntoMaps(
+            [&categorizer](const CTestFieldDataCategorizer::TStrStrUMap& dataRowFields) {
+                return categorizer.handleRecord(dataRowFields);
+            }));
 
         BOOST_TEST_REQUIRE(persistenceManager.waitForIdle());
 
@@ -413,8 +421,10 @@ BOOST_FIXTURE_TEST_CASE(testCategorizationOnlyPersist, CTestFixture) {
 
         ml::api::CNdJsonInputParser parser(inputStrm);
 
-        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::bind(
-            &ml::api::CDataProcessor::handleRecord, &categorizer, std::placeholders::_1)));
+        BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
+            [&categorizer](const CTestFieldDataCategorizer::TStrStrUMap& dataRowFields) {
+                return categorizer.handleRecord(dataRowFields);
+            }));
 
         // Persist the processors' state in the background
         BOOST_TEST_REQUIRE(categorizer.periodicPersistStateInBackground());

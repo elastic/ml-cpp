@@ -17,6 +17,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeHyperparameters.h>
+#include <maths/CBoostedTreeLeafNodeStatistics.h>
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameAnalysisInstrumentationInterface.h>
@@ -168,6 +169,7 @@ private:
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
+    using TWorkspace = CBoostedTreeLeafNodeStatistics::CWorkspace;
 
     //! Tag progress through initialization.
     enum EInitializationStage {
@@ -232,7 +234,8 @@ private:
     TNodeVec trainTree(core::CDataFrame& frame,
                        const core::CPackedBitVector& trainingRowMask,
                        const TImmutableRadixSetVec& candidateSplits,
-                       const std::size_t maximumTreeSize) const;
+                       const std::size_t maximumTreeSize,
+                       TWorkspace& workspace) const;
 
     //! Compute the minimum mean test loss per fold for any round.
     double minimumTestLoss() const;
@@ -251,7 +254,10 @@ private:
     std::size_t featureBagSize() const;
 
     //! Sample the features according to their categorical distribution.
-    TSizeVec featureBag() const;
+    void featureBag(TDoubleVec& probabilities, TSizeVec& features) const;
+
+    //! Get a column mask of the suitable regressor features.
+    void candidateRegressorFeatures(const TDoubleVec& probabilities, TSizeVec& features) const;
 
     //! Refresh the predictions and loss function derivatives for the masked
     //! rows in \p frame with predictions of \p tree.
@@ -264,9 +270,6 @@ private:
 
     //! Compute the mean of the loss function on the masked rows of \p frame.
     double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;
-
-    //! Get a column mask of the suitable regressor features.
-    TSizeVec candidateRegressorFeatures() const;
 
     //! Get the root node of \p tree.
     static const CBoostedTreeNode& root(const TNodeVec& tree);

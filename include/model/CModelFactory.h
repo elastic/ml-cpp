@@ -13,10 +13,10 @@
 #include <maths/COrderings.h>
 #include <maths/MathsTypes.h>
 
-#include <model/CModelParams.h>
 #include <model/CSearchKey.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
+#include <model/SModelParams.h>
 
 #include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
@@ -346,7 +346,7 @@ public:
     void componentSize(std::size_t componentSize);
     //@}
 
-    //! Update the bucket length, for ModelAutoConfig's benefit
+    //! Update the bucket length
     void updateBucketLength(core_t::TTime length);
 
     //! Set whether model annotations should be reported.

@@ -290,7 +290,7 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
         resource.first->updateModelSizeStats(res);
     }
     res.s_AllocationFailures += m_AllocationFailures.size();
-    res.s_MemoryCategorizationFailures += m_CategorizerAllocationFailures;
+    res.s_OverallCategorizerStats.s_MemoryCategorizationFailures += m_CategorizerAllocationFailures;
     return res;
 }
 

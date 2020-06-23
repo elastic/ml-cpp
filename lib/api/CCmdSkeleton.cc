@@ -36,8 +36,9 @@ bool CCmdSkeleton::ioLoop() {
         }
     }
 
-    if (m_InputParser.readStreamIntoMaps(std::bind(&CDataProcessor::handleRecord, &m_Processor,
-                                                   std::placeholders::_1)) == false) {
+    if (m_InputParser.readStreamIntoMaps([this](const CDataProcessor::TStrStrUMap& dataRowFields) {
+            return m_Processor.handleRecord(dataRowFields, CDataProcessor::TOptionalTime{});
+        }) == false) {
         LOG_FATAL(<< "Failed to handle all input data");
         return false;
     }

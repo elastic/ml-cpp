@@ -82,7 +82,6 @@ LIB_ML_CORE=-lMlCore
 LIB_ML_VER=-lMlVer
 ML_VER_LDFLAGS=-L$(CPP_SRC_HOME)/lib/ver/.objs
 LIB_ML_MATHS=-lMlMaths
-LIB_ML_CONFIG=-lMlConfig
 LIB_ML_MODEL=-lMlModel
 LIB_ML_SECCOMP=-lMlSeccomp
 ML_SECCOMP_LDFLAGS=-L$(CPP_SRC_HOME)/lib/seccomp/.objs

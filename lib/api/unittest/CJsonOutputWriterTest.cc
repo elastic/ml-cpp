@@ -1825,6 +1825,14 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
         resourceUsage.s_BucketStartTime = 7;
         resourceUsage.s_BytesExceeded = 8;
         resourceUsage.s_BytesMemoryLimit = 9;
+        resourceUsage.s_OverallCategorizerStats.s_CategorizedMessages = 10;
+        resourceUsage.s_OverallCategorizerStats.s_TotalCategories = 11;
+        resourceUsage.s_OverallCategorizerStats.s_FrequentCategories = 12;
+        resourceUsage.s_OverallCategorizerStats.s_RareCategories = 13;
+        resourceUsage.s_OverallCategorizerStats.s_DeadCategories = 14;
+        resourceUsage.s_OverallCategorizerStats.s_MemoryCategorizationFailures = 15;
+        resourceUsage.s_OverallCategorizerStats.s_CategorizationStatus =
+            ml::model_t::E_CategorizationStatusWarn;
 
         writer.reportMemoryUsage(resourceUsage);
         writer.endOutputBatch(false, 1ul);
@@ -1840,7 +1848,7 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
     const rapidjson::Value& sizeStats = resourceWrapper["model_size_stats"];
 
     BOOST_TEST_REQUIRE(sizeStats.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL(std::string("job"), std::string(sizeStats["job_id"].GetString()));
+    BOOST_REQUIRE_EQUAL(std::string{"job"}, sizeStats["job_id"].GetString());
     BOOST_TEST_REQUIRE(sizeStats.HasMember("model_bytes"));
     BOOST_REQUIRE_EQUAL(2, sizeStats["model_bytes"].GetInt());
     BOOST_TEST_REQUIRE(sizeStats.HasMember("total_by_field_count"));
@@ -1854,16 +1862,88 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
     BOOST_TEST_REQUIRE(sizeStats.HasMember("timestamp"));
     BOOST_REQUIRE_EQUAL(7000, sizeStats["timestamp"].GetInt());
     BOOST_TEST_REQUIRE(sizeStats.HasMember("memory_status"));
-    BOOST_REQUIRE_EQUAL(std::string("hard_limit"),
-                        std::string(sizeStats["memory_status"].GetString()));
+    BOOST_REQUIRE_EQUAL(std::string{"hard_limit"}, sizeStats["memory_status"].GetString());
     BOOST_TEST_REQUIRE(sizeStats.HasMember("log_time"));
-    int64_t nowMs = ml::core::CTimeUtils::now() * 1000ll;
+    std::int64_t nowMs{ml::core::CTimeUtils::nowMs()};
     BOOST_TEST_REQUIRE(nowMs >= sizeStats["log_time"].GetInt64());
-    BOOST_TEST_REQUIRE(nowMs + 1000ll >= sizeStats["log_time"].GetInt64());
     BOOST_TEST_REQUIRE(sizeStats.HasMember("model_bytes_exceeded"));
     BOOST_REQUIRE_EQUAL(8, sizeStats["model_bytes_exceeded"].GetInt());
     BOOST_TEST_REQUIRE(sizeStats.HasMember("model_bytes_memory_limit"));
     BOOST_REQUIRE_EQUAL(9, sizeStats["model_bytes_memory_limit"].GetInt());
+    BOOST_TEST_REQUIRE(sizeStats.HasMember("categorized_doc_count"));
+    BOOST_REQUIRE_EQUAL(10, sizeStats["categorized_doc_count"].GetInt());
+    BOOST_TEST_REQUIRE(sizeStats.HasMember("total_category_count"));
+    BOOST_REQUIRE_EQUAL(11, sizeStats["total_category_count"].GetInt());
+    BOOST_TEST_REQUIRE(sizeStats.HasMember("frequent_category_count"));
+    BOOST_REQUIRE_EQUAL(12, sizeStats["frequent_category_count"].GetInt());
+    BOOST_TEST_REQUIRE(sizeStats.HasMember("rare_category_count"));
+    BOOST_REQUIRE_EQUAL(13, sizeStats["rare_category_count"].GetInt());
+    BOOST_TEST_REQUIRE(sizeStats.HasMember("dead_category_count"));
+    BOOST_REQUIRE_EQUAL(14, sizeStats["dead_category_count"].GetInt());
+    BOOST_TEST_REQUIRE(sizeStats.HasMember("failed_category_count"));
+    BOOST_REQUIRE_EQUAL(15, sizeStats["failed_category_count"].GetInt());
+    BOOST_TEST_REQUIRE(sizeStats.HasMember("categorization_status"));
+    BOOST_REQUIRE_EQUAL(std::string{"warn"}, sizeStats["categorization_status"].GetString());
+}
+
+BOOST_AUTO_TEST_CASE(testWriteCategorizerStats) {
+    std::ostringstream sstream;
+    {
+        ml::core::CJsonOutputStreamWrapper outputStream(sstream);
+        ml::api::CJsonOutputWriter writer("job", outputStream);
+
+        ml::model::SCategorizerStats categorizerStats;
+        categorizerStats.s_CategorizedMessages = 1;
+        categorizerStats.s_TotalCategories = 2;
+        categorizerStats.s_FrequentCategories = 3;
+        categorizerStats.s_RareCategories = 4;
+        categorizerStats.s_DeadCategories = 5;
+        categorizerStats.s_MemoryCategorizationFailures = 6;
+        categorizerStats.s_CategorizationStatus = ml::model_t::E_CategorizationStatusOk;
+
+        writer.writeCategorizerStats("foo", "bar", categorizerStats, 7);
+        writer.endOutputBatch(false, 1ul);
+    }
+
+    LOG_DEBUG(<< sstream.str());
+
+    rapidjson::Document doc;
+    doc.Parse<rapidjson::kParseDefaultFlags>(sstream.str().c_str());
+
+    const rapidjson::Value& resourceWrapper = doc[rapidjson::SizeType(0)];
+    BOOST_TEST_REQUIRE(resourceWrapper.HasMember("categorizer_stats"));
+    const rapidjson::Value& categorizerStats = resourceWrapper["categorizer_stats"];
+
+    BOOST_TEST_REQUIRE(categorizerStats.HasMember("job_id"));
+    BOOST_REQUIRE_EQUAL(std::string{"job"}, categorizerStats["job_id"].GetString());
+    BOOST_TEST_REQUIRE(categorizerStats.HasMember("partition_field_name"));
+    BOOST_REQUIRE_EQUAL(std::string{"foo"},
+                        categorizerStats["partition_field_name"].GetString());
+    BOOST_TEST_REQUIRE(categorizerStats.HasMember("partition_field_value"));
+    BOOST_REQUIRE_EQUAL(std::string{"bar"},
+                        categorizerStats["partition_field_value"].GetString());
+    BOOST_TEST_REQUIRE(categorizerStats.HasMember("categorized_doc_count"));
+    BOOST_REQUIRE_EQUAL(1, categorizerStats["categorized_doc_count"].GetInt());
+    BOOST_TEST_REQUIRE(categorizerStats.HasMember("total_category_count"));
+    BOOST_REQUIRE_EQUAL(2, categorizerStats["total_category_count"].GetInt());
+    BOOST_TEST_REQUIRE(categorizerStats.HasMember("frequent_category_count"));
+    BOOST_REQUIRE_EQUAL(3, categorizerStats["frequent_category_count"].GetInt());
+    BOOST_TEST_REQUIRE(categorizerStats.HasMember("rare_category_count"));
+    BOOST_REQUIRE_EQUAL(4, categorizerStats["rare_category_count"].GetInt());
+    BOOST_TEST_REQUIRE(categorizerStats.HasMember("dead_category_count"));
+    BOOST_REQUIRE_EQUAL(5, categorizerStats["dead_category_count"].GetInt());
+    BOOST_TEST_REQUIRE(categorizerStats.HasMember("failed_category_count"));
+    BOOST_REQUIRE_EQUAL(6, categorizerStats["failed_category_count"].GetInt());
+    BOOST_TEST_REQUIRE(categorizerStats.HasMember("categorization_status"));
+    BOOST_REQUIRE_EQUAL(std::string{"ok"},
+                        categorizerStats["categorization_status"].GetString());
+    BOOST_TEST_REQUIRE(categorizerStats.HasMember("categorization_status"));
+    BOOST_REQUIRE_EQUAL("ok", categorizerStats["categorization_status"].GetString());
+    BOOST_TEST_REQUIRE(categorizerStats.HasMember("timestamp"));
+    BOOST_REQUIRE_EQUAL(7000, categorizerStats["timestamp"].GetInt());
+    BOOST_TEST_REQUIRE(categorizerStats.HasMember("log_time"));
+    std::int64_t nowMs{ml::core::CTimeUtils::nowMs()};
+    BOOST_TEST_REQUIRE(nowMs >= categorizerStats["log_time"].GetInt64());
 }
 
 BOOST_AUTO_TEST_CASE(testWriteScheduledEvent) {

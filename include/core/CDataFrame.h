@@ -81,7 +81,7 @@ public:
     CRowRef(std::size_t index, TFloatVecItr beginColumns, TFloatVecItr endColumns, std::int32_t docHash);
 
     //! Get column \p i value.
-    CFloatStorage operator[](std::size_t i) const;
+    CFloatStorage operator[](std::size_t i) const { return m_BeginColumns[i]; }
 
     //! Get the row's index.
     std::size_t index() const;
@@ -270,13 +270,6 @@ public:
                EReadWriteToStorage readAndWriteToStoreSyncStrategy,
                const TWriteSliceToStoreFunc& writeSliceToStore);
 
-    //! Overload which manages the setting of slice capacity to a sensible default.
-    CDataFrame(bool inMainMemory,
-               std::size_t numberColumns,
-               CAlignment::EType rowAlignment,
-               EReadWriteToStorage readAndWriteToStoreSyncStrategy,
-               const TWriteSliceToStoreFunc& writeSliceToStore);
-
     ~CDataFrame();
 
     CDataFrame(const CDataFrame&) = delete;
@@ -351,6 +344,17 @@ public:
     TRowFuncVecBoolPr readRows(std::size_t numberThreads, TRowFunc reader) const {
         return this->readRows(numberThreads, 0, this->numberRows(), std::move(reader));
     }
+
+    //! Overload taking a collection of functions to run, using one thread to
+    //! run each function.
+    //!
+    //! \note This is intended for stateful readers whose state is large and
+    //! provides a mechanism for reading multi-threaded without having to copy
+    //! that state.
+    bool readRows(std::size_t beginRows,
+                  std::size_t endRows,
+                  TRowFuncVec& readers,
+                  const CPackedBitVector* rowMask) const;
 
     //! Convenience overload for typed readers.
     //!
@@ -553,17 +557,16 @@ private:
     using TRowSliceWriterPtr = std::unique_ptr<CDataFrameRowSliceWriter>;
 
 private:
-    TRowFuncVecBoolPr parallelApplyToAllRows(std::size_t numberThreads,
-                                             std::size_t beginRows,
-                                             std::size_t endRows,
-                                             TRowFunc&& func,
-                                             const CPackedBitVector* rowMask,
-                                             bool commitResult) const;
-    TRowFuncVecBoolPr sequentialApplyToAllRows(std::size_t beginRows,
-                                               std::size_t endRows,
-                                               TRowFunc& func,
-                                               const CPackedBitVector* rowMask,
-                                               bool commitResult) const;
+    bool parallelApplyToAllRows(std::size_t beginRows,
+                                std::size_t endRows,
+                                TRowFuncVec& funcs,
+                                const CPackedBitVector* rowMask,
+                                bool commitResult) const;
+    bool sequentialApplyToAllRows(std::size_t beginRows,
+                                  std::size_t endRows,
+                                  TRowFuncVec& func,
+                                  const CPackedBitVector* rowMask,
+                                  bool commitResult) const;
 
     void applyToRowsOfOneSlice(TRowFunc& func,
                                std::size_t firstRowToRead,
@@ -628,6 +631,12 @@ private:
     //! The slice writer which is currently active.
     TRowSliceWriterPtr m_Writer;
 };
+
+//! Compute the default data frame slice capacity in rows.
+//!
+//! \param[in] numberColumns The number of columns in the data frame.
+CORE_EXPORT
+std::size_t dataFrameDefaultSliceCapacity(std::size_t numberColumns);
 
 //! Make a data frame which uses main memory storage for its slices.
 //!

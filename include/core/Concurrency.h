@@ -336,12 +336,12 @@ bool parallel_for_each(std::size_t start,
     // in guarding against accidental deadlock in the case someone inadvertantly calls
     // parallelised code in the function to execute.
 
-    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope{};
+    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope;
 
     functions.resize(std::min(functions.size(), end - start));
 
     if (functions.size() < 2 || scope.wasBusy()) {
-        functions.resize(1);
+        functions.resize(1); // For the case scope was busy.
         CLoopProgress progress{end - start, recordProgress};
         for (std::size_t i = start; i < end; ++i, progress.increment()) {
             functions[0](i);
@@ -381,7 +381,7 @@ parallel_for_each(std::size_t partitions,
 
     // See above for details.
 
-    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope{};
+    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope;
 
     partitions = std::min(partitions, end - start);
 
@@ -437,16 +437,17 @@ bool parallel_for_each(ITR start,
 
     // See above for details.
 
-    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope{};
+    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope;
 
     functions.resize(std::min(functions.size(), size));
 
     if (functions.size() < 2 || scope.wasBusy()) {
-        functions.resize(1);
+        functions.resize(1); // For the case scope was busy.
         CLoopProgress progress{size, recordProgress};
         for (ITR i = start; i != end; ++i, progress.increment()) {
             functions[0](*i);
         }
+        return true;
     }
 
     concurrency_detail::parallel_for_each(start, size, functions, recordProgress);
@@ -482,7 +483,7 @@ parallel_for_each(std::size_t partitions,
 
     // See above for details.
 
-    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope{};
+    concurrency_detail::CDefaultAsyncExecutorBusyForScope scope;
 
     partitions = std::min(partitions, size);
 

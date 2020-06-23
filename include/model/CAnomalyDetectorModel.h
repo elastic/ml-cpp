@@ -17,10 +17,10 @@
 
 #include <model/CAnnotation.h>
 #include <model/CMemoryUsageEstimator.h>
-#include <model/CModelParams.h>
 #include <model/CPartitioningFields.h>
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
+#include <model/SModelParams.h>
 
 #include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>

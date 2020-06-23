@@ -50,7 +50,8 @@ bool CNdJsonOutputWriter::fieldNames(const TStrVec& /*fieldNames*/,
 }
 
 bool CNdJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
-                                   const TStrStrUMap& overrideDataRowFields) {
+                                   const TStrStrUMap& overrideDataRowFields,
+                                   TOptionalTime /*time*/) {
     using TScopedAllocator = core::CScopedRapidJsonPoolAllocator<TGenericLineWriter>;
     TScopedAllocator scopedAllocator("CNdJsonOutputWriter::writeRow", m_Writer);
 

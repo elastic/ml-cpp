@@ -22,6 +22,10 @@ using namespace boosted_tree_detail;
 using TRowItr = core::CDataFrame::TRowItr;
 
 namespace {
+template<typename T>
+T& read(std::vector<T>& workspace) {
+    return workspace[0];
+}
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
 }
@@ -37,50 +41,86 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     const TImmutableRadixSetVec& candidateSplits,
     const TSizeVec& featureBag,
     std::size_t depth,
-    const core::CPackedBitVector& rowMask)
-    : m_Id{id}, m_Depth{depth}, m_ExtraColumns{extraColumns}, m_NumberLossParameters{numberLossParameters},
-      m_CandidateSplits{candidateSplits}, m_RowMask{rowMask} {
+    const core::CPackedBitVector& rowMask,
+    CWorkspace& workspace)
+    : m_Id{id}, m_Depth{depth}, m_ExtraColumns{extraColumns},
+      m_NumberLossParameters{numberLossParameters}, m_CandidateSplits{candidateSplits} {
 
-    this->computeAggregateLossDerivatives(numberThreads, frame, encoder);
+    this->computeAggregateLossDerivatives(numberThreads, frame, encoder, rowMask, workspace);
+
+    // Lazily copy the mask and derivatives to avoid unnecessary allocations.
+
+    m_Derivatives.swap(read(workspace.derivatives()));
     m_BestSplit = this->computeBestSplitStatistics(regularization, featureBag);
+    read(workspace.derivatives()).swap(m_Derivatives);
+    if (this->gain() > workspace.minimumGain()) {
+        m_RowMask = rowMask;
+        CSplitsDerivatives tmp{workspace.derivatives()[0]};
+        m_Derivatives = std::move(tmp);
+    }
 }
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     std::size_t id,
-    const TSizeVec& extraColumns,
-    std::size_t numberLossParameters,
+    const CBoostedTreeLeafNodeStatistics& parent,
     std::size_t numberThreads,
     const core::CDataFrame& frame,
     const CDataFrameCategoryEncoder& encoder,
     const TRegularization& regularization,
-    const TImmutableRadixSetVec& candidateSplits,
     const TSizeVec& featureBag,
     bool isLeftChild,
-    std::size_t depth,
     const CBoostedTreeNode& split,
-    const core::CPackedBitVector& parentRowMask)
-    : m_Id{id}, m_Depth{depth}, m_ExtraColumns{extraColumns},
-      m_NumberLossParameters{numberLossParameters}, m_CandidateSplits{candidateSplits} {
+    CWorkspace& workspace)
+    : m_Id{id}, m_Depth{parent.m_Depth + 1}, m_ExtraColumns{parent.m_ExtraColumns},
+      m_NumberLossParameters{parent.m_NumberLossParameters}, m_CandidateSplits{
+                                                                 parent.m_CandidateSplits} {
+
+    // The number of threads we'll use breaks down as follows:
+    //   - We need a minimum number of rows per thread to ensure reasonable
+    //     load balancing.
+    //   - We need a minimum amount of work per thread to make the overheads
+    //     of distributing worthwhile.
+    std::size_t features{featureBag.size()};
+    std::size_t rows{parent.minimumChildRowCount()};
+    std::size_t rowsPerThreadConstraint{rows / 64};
+    std::size_t workPerThreadConstraint{(features * rows) / (8 * 128)};
+    std::size_t maximumNumberThreads{std::max(
+        std::min(rowsPerThreadConstraint, workPerThreadConstraint), std::size_t{1})};
+    numberThreads = std::min(numberThreads, maximumNumberThreads);
 
     this->computeRowMaskAndAggregateLossDerivatives(
-        numberThreads, frame, encoder, isLeftChild, split, parentRowMask);
+        numberThreads, frame, encoder, isLeftChild, split, parent.m_RowMask, workspace);
+
+    // Lazily copy the mask and derivatives to avoid unnecessary allocations.
+
+    m_Derivatives.swap(read(workspace.derivatives()));
     m_BestSplit = this->computeBestSplitStatistics(regularization, featureBag);
+    read(workspace.derivatives()).swap(m_Derivatives);
+    if (this->gain() >= workspace.minimumGain()) {
+        CSplitsDerivatives tmp{read(workspace.derivatives())};
+        m_RowMask = read(workspace.masks());
+        m_Derivatives = std::move(tmp);
+    }
 }
 
-CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
-    std::size_t id,
-    CBoostedTreeLeafNodeStatistics&& parent,
-    const CBoostedTreeLeafNodeStatistics& sibling,
-    const TRegularization& regularization,
-    const TSizeVec& featureBag,
-    core::CPackedBitVector rowMask)
-    : m_Id{id}, m_Depth{sibling.m_Depth}, m_ExtraColumns{sibling.m_ExtraColumns},
-      m_NumberLossParameters{sibling.m_NumberLossParameters},
-      m_CandidateSplits{sibling.m_CandidateSplits}, m_RowMask{std::move(rowMask)},
-      m_Derivatives{std::move(parent.m_Derivatives)} {
+CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(std::size_t id,
+                                                               CBoostedTreeLeafNodeStatistics&& parent,
+                                                               const TRegularization& regularization,
+                                                               const TSizeVec& featureBag,
+                                                               CWorkspace& workspace)
+    : m_Id{id}, m_Depth{parent.m_Depth + 1}, m_ExtraColumns{parent.m_ExtraColumns},
+      m_NumberLossParameters{parent.m_NumberLossParameters},
+      m_CandidateSplits{parent.m_CandidateSplits}, m_Derivatives{std::move(
+                                                       parent.m_Derivatives)} {
 
-    m_Derivatives.subtract(sibling.m_Derivatives);
+    // Lazily compute the row mask to avoid unnecessary work.
+
+    m_Derivatives.subtract(read(workspace.derivatives()));
     m_BestSplit = this->computeBestSplitStatistics(regularization, featureBag);
+    if (this->gain() >= workspace.minimumGain()) {
+        m_RowMask = std::move(parent.m_RowMask);
+        m_RowMask ^= read(workspace.masks());
+    }
 }
 
 CBoostedTreeLeafNodeStatistics::TPtrPtrPr
@@ -90,35 +130,27 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                                       const core::CDataFrame& frame,
                                       const CDataFrameCategoryEncoder& encoder,
                                       const TRegularization& regularization,
-                                      const TImmutableRadixSetVec& candidateSplits,
                                       const TSizeVec& featureBag,
-                                      const CBoostedTreeNode& split) {
+                                      const CBoostedTreeNode& split,
+                                      CWorkspace& workspace) {
 
     if (this->leftChildHasFewerRows()) {
         auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-            leftChildId, m_ExtraColumns, m_NumberLossParameters, numberThreads,
-            frame, encoder, regularization, candidateSplits, featureBag,
-            true /*is left child*/, m_Depth + 1, split, m_RowMask);
-        core::CPackedBitVector rightChildRowMask{std::move(m_RowMask)};
-        rightChildRowMask ^= leftChild->rowMask();
+            leftChildId, *this, numberThreads, frame, encoder, regularization,
+            featureBag, true /*is left child*/, split, workspace);
         auto rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-            rightChildId, std::move(*this), *leftChild, regularization,
-            featureBag, std::move(rightChildRowMask));
+            rightChildId, std::move(*this), regularization, featureBag, workspace);
 
-        return std::make_pair(leftChild, rightChild);
+        return {std::move(leftChild), std::move(rightChild)};
     }
 
     auto rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-        rightChildId, m_ExtraColumns, m_NumberLossParameters, numberThreads,
-        frame, encoder, regularization, candidateSplits, featureBag,
-        false /*is left child*/, m_Depth + 1, split, m_RowMask);
-    core::CPackedBitVector leftChildRowMask{std::move(m_RowMask)};
-    leftChildRowMask ^= rightChild->rowMask();
+        rightChildId, *this, numberThreads, frame, encoder, regularization,
+        featureBag, false /*is left child*/, split, workspace);
     auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-        leftChildId, std::move(*this), *rightChild, regularization, featureBag,
-        std::move(leftChildRowMask));
+        leftChildId, std::move(*this), regularization, featureBag, workspace);
 
-    return std::make_pair(leftChild, rightChild);
+    return {std::move(leftChild), std::move(rightChild)};
 }
 
 bool CBoostedTreeLeafNodeStatistics::operator<(const CBoostedTreeLeafNodeStatistics& rhs) const {
@@ -135,6 +167,10 @@ double CBoostedTreeLeafNodeStatistics::curvature() const {
 
 CBoostedTreeLeafNodeStatistics::TSizeDoublePr CBoostedTreeLeafNodeStatistics::bestSplit() const {
     return {m_BestSplit.s_Feature, m_BestSplit.s_SplitAt};
+}
+
+std::size_t CBoostedTreeLeafNodeStatistics::minimumChildRowCount() const {
+    return m_BestSplit.s_MinimumChildRowCount;
 }
 
 bool CBoostedTreeLeafNodeStatistics::leftChildHasFewerRows() const {
@@ -175,24 +211,29 @@ CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(std::size_t numberRows,
 void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
     std::size_t numberThreads,
     const core::CDataFrame& frame,
-    const CDataFrameCategoryEncoder& encoder) {
+    const CDataFrameCategoryEncoder& encoder,
+    const core::CPackedBitVector& rowMask,
+    CWorkspace& workspace) const {
 
-    auto result = frame.readRows(
-        numberThreads, 0, frame.numberRows(),
-        core::bindRetrievableState(
-            [&](CSplitsDerivatives& splitsDerivatives, TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    this->addRowDerivatives(encoder.encode(*row), splitsDerivatives);
-                }
-            },
-            CSplitsDerivatives{m_CandidateSplits, m_NumberLossParameters}),
-        &m_RowMask);
+    core::CDataFrame::TRowFuncVec aggregators;
+    aggregators.reserve(numberThreads);
 
-    m_Derivatives = std::move(result.first[0].s_FunctionState);
-    for (std::size_t i = 1; i < result.first.size(); ++i) {
-        m_Derivatives.add(result.first[i].s_FunctionState);
+    for (std::size_t i = 0; i < numberThreads; ++i) {
+        auto& splitsDerivatives = workspace.derivatives()[i];
+        splitsDerivatives.zero();
+        aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                this->addRowDerivatives(encoder.encode(*row), splitsDerivatives);
+            }
+        });
     }
-    m_Derivatives.remapCurvature();
+
+    frame.readRows(0, frame.numberRows(), aggregators, &rowMask);
+
+    for (std::size_t i = 1; i < numberThreads; ++i) {
+        read(workspace.derivatives()).add(workspace.derivatives()[i]);
+    }
+    read(workspace.derivatives()).remapCurvature();
 }
 
 void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
@@ -201,49 +242,49 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
     const CDataFrameCategoryEncoder& encoder,
     bool isLeftChild,
     const CBoostedTreeNode& split,
-    const core::CPackedBitVector& parentRowMask) {
+    const core::CPackedBitVector& parentRowMask,
+    CWorkspace& workspace) const {
 
-    auto result = frame.readRows(
-        numberThreads, 0, frame.numberRows(),
-        core::bindRetrievableState(
-            [&](std::pair<core::CPackedBitVector, CSplitsDerivatives>& state,
-                TRowItr beginRows, TRowItr endRows) {
-                auto& mask = state.first;
-                auto& splitsDerivatives = state.second;
-                for (auto row = beginRows; row != endRows; ++row) {
-                    auto encodedRow = encoder.encode(*row);
-                    if (split.assignToLeft(encodedRow) == isLeftChild) {
-                        std::size_t index{row->index()};
-                        mask.extend(false, index - mask.size());
-                        mask.extend(true);
-                        this->addRowDerivatives(encodedRow, splitsDerivatives);
-                    }
+    core::CDataFrame::TRowFuncVec aggregators;
+    aggregators.reserve(numberThreads);
+
+    for (std::size_t i = 0; i < numberThreads; ++i) {
+        auto& mask = workspace.masks()[i];
+        auto& splitsDerivatives = workspace.derivatives()[i];
+        mask.clear();
+        splitsDerivatives.zero();
+        aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                auto encodedRow = encoder.encode(*row);
+                if (split.assignToLeft(encodedRow) == isLeftChild) {
+                    std::size_t index{row->index()};
+                    mask.extend(false, index - mask.size());
+                    mask.extend(true);
+                    this->addRowDerivatives(encodedRow, splitsDerivatives);
                 }
-            },
-            std::make_pair(core::CPackedBitVector{},
-                           CSplitsDerivatives{m_CandidateSplits, m_NumberLossParameters})),
-        &parentRowMask);
+            }
+        });
+    }
 
-    for (auto& mask_ : result.first) {
-        auto& mask = mask_.s_FunctionState.first;
+    frame.readRows(0, frame.numberRows(), aggregators, &parentRowMask);
+
+    for (auto& mask : workspace.masks()) {
         mask.extend(false, parentRowMask.size() - mask.size());
     }
-
-    m_RowMask = std::move(result.first[0].s_FunctionState.first);
-    m_Derivatives = std::move(result.first[0].s_FunctionState.second);
-    for (std::size_t i = 1; i < result.first.size(); ++i) {
-        m_RowMask |= result.first[i].s_FunctionState.first;
-        m_Derivatives.add(result.first[i].s_FunctionState.second);
+    for (std::size_t i = 1; i < numberThreads; ++i) {
+        read(workspace.masks()) |= workspace.masks()[i];
+        read(workspace.derivatives()).add(workspace.derivatives()[i]);
     }
-    m_Derivatives.remapCurvature();
+    read(workspace.derivatives()).remapCurvature();
 }
 
 void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRowRef& row,
                                                        CSplitsDerivatives& splitsDerivatives) const {
 
-    const TRowRef& unencodedRow{row.unencodedRow()};
-    auto derivatives = readLossDerivatives(unencodedRow, m_ExtraColumns, m_NumberLossParameters);
-    for (std::size_t feature = 0; feature < m_CandidateSplits.size(); ++feature) {
+    auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
+                                           m_NumberLossParameters);
+    std::size_t numberFeatures{m_CandidateSplits.size()};
+    for (std::size_t feature = 0; feature < numberFeatures; ++feature) {
         double featureValue{row[feature]};
         if (CDataFrameUtils::isMissing(featureValue)) {
             splitsDerivatives.addMissingDerivatives(feature, derivatives);
@@ -348,7 +389,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
         double maximumGain{-INF};
         double splitAt{-INF};
-        bool leftChildHasFewerRows{true};
+        std::size_t leftChildRowCount{0};
         bool assignMissingToLeft{true};
         std::size_t size{m_Derivatives.derivatives(feature).size()};
 
@@ -389,13 +430,13 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
                 splitAt = m_CandidateSplits[feature][split];
-                leftChildHasFewerRows = (2 * cl[ASSIGN_MISSING_TO_LEFT] < c);
+                leftChildRowCount = cl[ASSIGN_MISSING_TO_LEFT];
                 assignMissingToLeft = true;
             }
             if (gain[ASSIGN_MISSING_TO_RIGHT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_RIGHT];
                 splitAt = m_CandidateSplits[feature][split];
-                leftChildHasFewerRows = (2 * cl[ASSIGN_MISSING_TO_RIGHT] < c);
+                leftChildRowCount = cl[ASSIGN_MISSING_TO_RIGHT];
                 assignMissingToLeft = false;
             }
         }
@@ -414,7 +455,8 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
                                    h.trace() / static_cast<double>(m_NumberLossParameters),
                                    feature,
                                    splitAt,
-                                   leftChildHasFewerRows,
+                                   std::min(leftChildRowCount, c - leftChildRowCount),
+                                   2 * leftChildRowCount < c,
                                    assignMissingToLeft};
         LOG_TRACE(<< "candidate split: " << candidate.print());
 

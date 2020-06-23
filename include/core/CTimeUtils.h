@@ -6,13 +6,13 @@
 #ifndef INCLUDED_ml_core_CTimeUtils_h
 #define INCLUDED_ml_core_CTimeUtils_h
 
-#include <core/CFastMutex.h>
 #include <core/CNonInstantiatable.h>
 #include <core/CoreTypes.h>
 #include <core/ImportExport.h>
 
 #include <boost/unordered_set.hpp>
 
+#include <cstdint>
 #include <string>
 
 namespace ml {
@@ -36,8 +36,11 @@ public:
     static const core_t::TTime MAX_CLOCK_DISCREPANCY;
 
 public:
-    //! Current time
+    //! Current time in seconds since the epoch
     static core_t::TTime now();
+
+    //! Current time in milliseconds since the epoch
+    static std::int64_t nowMs();
 
     //! Date and time to string according to http://www.w3.org/TR/NOTE-datetime
     //! E.g. 1997-07-16T19:20:30+01:00
@@ -89,15 +92,11 @@ private:
         ~CDateWordCache();
 
     private:
-        //! Protect the singleton's initialisation, preventing it from
-        //! being constructed simultaneously in different threads.
-        static CFastMutex ms_InitMutex;
-
-        //! This pointer is set after the singleton object has been
-        //! constructed, and avoids the need to lock the mutex on
-        //! subsequent calls of the instance() method (once the updated
-        //! value of this variable has made its way into every thread).
-        static volatile CDateWordCache* ms_Instance;
+        //! This pointer is set after the singleton object has been constructed,
+        //! and avoids the need to lock the magic static initialisation mutex on
+        //! subsequent calls of the instance() method (once the updated value of
+        //! this variable is visible in every thread).
+        static CDateWordCache* ms_Instance;
 
         using TStrUSet = boost::unordered_set<std::string>;
 

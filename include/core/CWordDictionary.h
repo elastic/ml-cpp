@@ -6,7 +6,6 @@
 #ifndef INCLUDED_ml_core_CWordDictionary_h
 #define INCLUDED_ml_core_CWordDictionary_h
 
-#include <core/CFastMutex.h>
 #include <core/CNonCopyable.h>
 #include <core/ImportExport.h>
 
@@ -150,16 +149,11 @@ private:
     //! Name of the file to load that contains the dictionary words.
     static const char* const DICTIONARY_FILE;
 
-    //! The constructor loads a file, and hence may take a while.  This
-    //! mutex prevents the singleton object being constructed simultaneously
-    //! in different threads.
-    static CFastMutex ms_LoadMutex;
-
     //! This pointer is set after the singleton object has been constructed,
-    //! and avoids the need to lock the mutex on subsequent calls of the
-    //! instance() method (once the updated value of this variable has made
-    //! its way into every thread).
-    static volatile CWordDictionary* ms_Instance;
+    //! and avoids the need to lock the magic static initialisation mutex on
+    //! subsequent calls of the instance() method (once the updated value of
+    //! this variable is visible in every thread).
+    static CWordDictionary* ms_Instance;
 
     //! Stores the dictionary words - using a multi-index even though
     //! there's only one index, because of its flexible key extractors.

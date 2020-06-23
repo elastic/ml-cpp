@@ -413,6 +413,12 @@ std::size_t CTokenListCategory::missingCommonTokenWeight(const TSizeSizeMap& uni
     return m_CommonUniqueTokenWeight - presentWeight;
 }
 
+bool CTokenListCategory::matchesSearchForCategory(const CTokenListCategory& other) const {
+    return this->matchesSearchForCategory(
+        other.m_BaseWeight, other.maxMatchingStringLen(),
+        other.commonUniqueTokenIds(), other.baseTokenIds());
+}
+
 bool CTokenListCategory::containsCommonInOrderTokensInOrder(const TSizeSizePrVec& tokenIds) const {
 
     auto testIter = tokenIds.begin();
@@ -469,26 +475,26 @@ void CTokenListCategory::acceptPersistInserter(core::CStatePersistInserter& inse
     inserter.insertValue(NUM_MATCHES, m_NumMatches);
 }
 
-bool CTokenListCategory::cachedReverseSearch(std::string& part1, std::string& part2) const {
-    part1 = m_ReverseSearchPart1;
-    part2 = m_ReverseSearchPart2;
+void CTokenListCategory::cacheReverseSearch(std::string part1, std::string part2) {
+    m_ReverseSearchPart1 = std::move(part1);
+    m_ReverseSearchPart2 = std::move(part2);
+}
 
+bool CTokenListCategory::hasCachedReverseSearch() const {
     // There's an assumption here that a valid reverse search will not have both
     // parts 1 and 2 being empty strings. If this assumption ceases to be true
     // for any type of reverse search in the future then an extra boolean member
     // should be added to indicate where the cached parts 1 and 2 represent
     // a valid reverse search.
-    bool missed(part1.empty() && part2.empty());
-
-    LOG_TRACE(<< "Reverse search cache " << (missed ? "miss" : "hit"));
-
-    return !missed;
+    return m_ReverseSearchPart1.empty() == false || m_ReverseSearchPart2.empty() == false;
 }
 
-void CTokenListCategory::cacheReverseSearch(const std::string& part1,
-                                            const std::string& part2) {
-    m_ReverseSearchPart1 = part1;
-    m_ReverseSearchPart2 = part2;
+const std::string& CTokenListCategory::reverseSearchPart1() const {
+    return m_ReverseSearchPart1;
+}
+
+const std::string& CTokenListCategory::reverseSearchPart2() const {
+    return m_ReverseSearchPart2;
 }
 
 void CTokenListCategory::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
