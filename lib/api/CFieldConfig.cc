@@ -1774,7 +1774,7 @@ std::ostream& CFieldConfig::CFieldOptions::debugPrintClause(std::ostream& strm) 
     return strm;
 }
 
-void CFieldConfig::CFieldOptions::swap(CFieldOptions& other) {
+void CFieldConfig::CFieldOptions::swap(CFieldOptions& other) noexcept {
     m_Description.swap(other.m_Description);
     std::swap(m_Function, other.m_Function);
     m_FieldName.swap(other.m_FieldName);

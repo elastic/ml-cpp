@@ -274,7 +274,7 @@ public:
         std::ostream& debugPrintClause(std::ostream& strm) const;
 
         //! Efficient swap
-        void swap(CFieldOptions& other);
+        void swap(CFieldOptions& other) noexcept;
 
     private:
         std::string m_Description;
