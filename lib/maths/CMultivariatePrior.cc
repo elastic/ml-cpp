@@ -44,7 +44,7 @@ CMultivariatePrior::CMultivariatePrior(maths_t::EDataType dataType, double decay
     setDecayRate(decayRate, FALLBACK_DECAY_RATE, m_DecayRate);
 }
 
-void CMultivariatePrior::swap(CMultivariatePrior& other) {
+void CMultivariatePrior::swap(CMultivariatePrior& other) noexcept {
     std::swap(m_Forecasting, other.m_Forecasting);
     std::swap(m_DataType, other.m_DataType);
     std::swap(m_DecayRate, other.m_DecayRate);

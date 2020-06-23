@@ -55,7 +55,7 @@ CPrior::CPrior(maths_t::EDataType dataType, double decayRate)
     detail::setDecayRate(decayRate, FALLBACK_DECAY_RATE, m_DecayRate);
 }
 
-void CPrior::swap(CPrior& other) {
+void CPrior::swap(CPrior& other) noexcept {
     std::swap(m_DataType, other.m_DataType);
     std::swap(m_DecayRate, other.m_DecayRate);
     std::swap(m_NumberSamples, other.m_NumberSamples);

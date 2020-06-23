@@ -318,7 +318,7 @@ bool CMultinomialConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser&
     return true;
 }
 
-void CMultinomialConjugate::swap(CMultinomialConjugate& other) {
+void CMultinomialConjugate::swap(CMultinomialConjugate& other) noexcept {
     this->CPrior::swap(other);
     std::swap(m_NumberAvailableCategories, other.m_NumberAvailableCategories);
     m_Categories.swap(other.m_Categories);

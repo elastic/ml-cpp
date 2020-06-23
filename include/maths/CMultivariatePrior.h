@@ -82,7 +82,7 @@ public:
     virtual ~CMultivariatePrior() = default;
 
     //! Swap the contents of this prior and \p other.
-    void swap(CMultivariatePrior& other);
+    void swap(CMultivariatePrior& other) noexcept;
     //@}
 
     //! Mark the prior as being used for forecasting.

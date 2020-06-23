@@ -257,7 +257,7 @@ CBjkstUniqueValues::CBjkstUniqueValues(core::CStateRestoreTraverser& traverser)
                                          this, std::placeholders::_1));
 }
 
-void CBjkstUniqueValues::swap(CBjkstUniqueValues& other) {
+void CBjkstUniqueValues::swap(CBjkstUniqueValues& other) noexcept {
     if (this == &other) {
         return;
     }
@@ -502,7 +502,7 @@ CBjkstUniqueValues::SSketch::SSketch(std::size_t numberHashes) {
     s_B.resize(numberHashes, TUInt8Vec());
 }
 
-void CBjkstUniqueValues::SSketch::swap(SSketch& other) {
+void CBjkstUniqueValues::SSketch::swap(SSketch& other) noexcept {
     s_G.swap(other.s_G);
     s_H.swap(other.s_H);
     s_Z.swap(other.s_Z);

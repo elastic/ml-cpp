@@ -213,7 +213,7 @@ CLrDenseMatrix::CLrDenseMatrix(TDoubleVecVec& elements) {
     m_Elements.swap(elements);
 }
 
-void CLrDenseMatrix::swap(CLrDenseMatrix& other) {
+void CLrDenseMatrix::swap(CLrDenseMatrix& other) noexcept {
     m_Elements.swap(other.m_Elements);
 }
 
@@ -228,7 +228,7 @@ CLrSparseMatrix::CLrSparseMatrix(std::size_t rows, std::size_t columns, TSizeSiz
     std::sort(m_Elements.begin(), m_Elements.end(), COrderings::SFirstLess());
 }
 
-void CLrSparseMatrix::swap(CLrSparseMatrix& other) {
+void CLrSparseMatrix::swap(CLrSparseMatrix& other) noexcept {
     std::swap(m_Rows, other.m_Rows);
     std::swap(m_Columns, other.m_Columns);
     m_Elements.swap(other.m_Elements);
@@ -361,7 +361,7 @@ CLogisticRegressionModel::CLogisticRegressionModel(double beta0, TSizeDoublePrVe
     m_Beta.swap(beta);
 }
 
-void CLogisticRegressionModel::swap(CLogisticRegressionModel& other) {
+void CLogisticRegressionModel::swap(CLogisticRegressionModel& other) noexcept {
     std::swap(m_Beta0, other.m_Beta0);
     m_Beta.swap(other.m_Beta);
 }
