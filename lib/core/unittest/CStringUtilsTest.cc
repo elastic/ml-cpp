@@ -925,6 +925,30 @@ BOOST_AUTO_TEST_CASE(testUtf8ByteType) {
     BOOST_REQUIRE_EQUAL(-1, ml::core::CStringUtils::utf8ByteType(testStr[9]));
 }
 
+BOOST_AUTO_TEST_CASE(testUtf16LengthOfUtf8String) {
+    // Every character in the UTF-8 string is pure ASCII - in this case UTF-8 byte count = UTF-16 length
+    {
+        std::string testStr{"qwerty"};
+        BOOST_REQUIRE_EQUAL(6, testStr.size());
+        BOOST_REQUIRE_EQUAL(6, ml::core::CStringUtils::utf16LengthOfUtf8String(testStr));
+    }
+    // The UTF-8 string contains some characters that need two bytes to represent in UTF-8, but only one UTF-16 character
+    {
+        std::string testChar{"é"};
+        BOOST_REQUIRE_EQUAL(2, testChar.size());
+        BOOST_REQUIRE_EQUAL(1, ml::core::CStringUtils::utf16LengthOfUtf8String(testChar));
+        std::string testStr{"café"};
+        BOOST_REQUIRE_EQUAL(5, testStr.size());
+        BOOST_REQUIRE_EQUAL(4, ml::core::CStringUtils::utf16LengthOfUtf8String(testStr));
+    }
+    // The UTF-8 string contains some characters that need two UTF-16 characters to represent, i.e. Unicode code points > 65535
+    {
+        std::string testChar{"𩸽"};
+        BOOST_REQUIRE_EQUAL(4, testChar.size());
+        BOOST_REQUIRE_EQUAL(2, ml::core::CStringUtils::utf16LengthOfUtf8String(testChar));
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testRoundtripMaxDouble) {
     ml::core::CIEEE754::EPrecision precisions[] = {
         ml::core::CIEEE754::E_SinglePrecision, ml::core::CIEEE754::E_DoublePrecision};
