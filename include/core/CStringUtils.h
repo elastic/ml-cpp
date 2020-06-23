@@ -43,6 +43,10 @@ public:
     //! character) return -1.
     static int utf8ByteType(char c);
 
+    //! Compute the length of a UTF-16 encoded string for a given UTF-8 encoded
+    //! \p str.
+    static std::size_t utf16LengthOfUtf8String(const std::string& str);
+
     //! Convert a type to a string
     template<typename T>
     static std::string typeToString(const T& type) {
