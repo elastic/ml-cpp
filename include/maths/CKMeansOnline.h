@@ -181,7 +181,7 @@ public:
     }
 
     //! Efficiently swap the contents of this and \p other.
-    void swap(CKMeansOnline& other) {
+    void swap(CKMeansOnline& other) noexcept {
         std::swap(m_Rng, other.m_Rng);
         std::swap(m_K, other.m_K);
         std::swap(m_BufferSize, other.m_BufferSize);

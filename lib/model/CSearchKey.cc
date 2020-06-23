@@ -140,7 +140,7 @@ void CSearchKey::acceptPersistInserter(core::CStatePersistInserter& inserter) co
     }
 }
 
-void CSearchKey::swap(CSearchKey& other) {
+void CSearchKey::swap(CSearchKey& other) noexcept {
     std::swap(m_DetectorIndex, other.m_DetectorIndex);
     std::swap(m_Function, other.m_Function);
     std::swap(m_UseNull, other.m_UseNull);

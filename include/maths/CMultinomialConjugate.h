@@ -69,7 +69,7 @@ public:
     // Default copy constructor and assignment operator work.
 
     //! Efficient swap of the contents of this prior and \p other.
-    void swap(CMultinomialConjugate& other);
+    void swap(CMultinomialConjugate& other) noexcept;
 
     //! Create an instance of a non-informative prior.
     //!

@@ -125,7 +125,7 @@ public:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Efficiently swap the contents of two objects of this class.
-    void swap(CSearchKey& other);
+    void swap(CSearchKey& other) noexcept;
 
     //! Check if this and \p rhs are equal.
     bool operator==(const CSearchKey& rhs) const;

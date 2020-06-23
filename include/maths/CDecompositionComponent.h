@@ -69,7 +69,7 @@ protected:
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! An efficient swap of the contents of two packed splines.
-        void swap(CPackedSplines& other);
+        void swap(CPackedSplines& other) noexcept;
 
         //! Check if the splines have been initialized.
         bool initialized() const;

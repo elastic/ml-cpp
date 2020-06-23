@@ -53,10 +53,10 @@ public:
     CDataFrameRowSliceHandle() = default;
     CDataFrameRowSliceHandle(TImplPtr impl);
     CDataFrameRowSliceHandle(const CDataFrameRowSliceHandle& other);
-    CDataFrameRowSliceHandle(CDataFrameRowSliceHandle&& other);
+    CDataFrameRowSliceHandle(CDataFrameRowSliceHandle&& other) noexcept;
 
     CDataFrameRowSliceHandle& operator=(const CDataFrameRowSliceHandle& other);
-    CDataFrameRowSliceHandle& operator=(CDataFrameRowSliceHandle&& other);
+    CDataFrameRowSliceHandle& operator=(CDataFrameRowSliceHandle&& other) noexcept;
 
     //! The size of the slice in floats.
     std::size_t size() const;
