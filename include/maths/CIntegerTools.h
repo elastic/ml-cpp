@@ -40,9 +40,8 @@ public:
     //! Check if \p value is \p alignment aligned.
     template<typename INT_TYPE>
     static inline bool aligned(INT_TYPE value, INT_TYPE alignment) {
-        return alignment == static_cast<INT_TYPE>(0)
-                   ? true
-                   : (value % alignment) == static_cast<INT_TYPE>(0);
+        return alignment == static_cast<INT_TYPE>(0) ||
+               (value % alignment) == static_cast<INT_TYPE>(0);
     }
 
     //! Align \p value to \p alignment rounding up.
