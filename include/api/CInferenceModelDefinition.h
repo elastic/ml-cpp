@@ -436,6 +436,7 @@ public:
     const TTrainedModelUPtr& trainedModel() const;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     std::string jsonString();
+    std::string jsonStringCompressedFormat();
     void fieldNames(TStringVec&& fieldNames);
     const TStringVec& fieldNames() const;
     const std::string& typeString() const;

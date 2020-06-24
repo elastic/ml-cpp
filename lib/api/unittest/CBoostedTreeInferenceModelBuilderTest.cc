@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CBase64Filter.h>
 #include <core/CDataAdder.h>
 #include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
@@ -28,6 +29,9 @@
 #include <rapidjson/document.h>
 #include <rapidjson/schema.h>
 
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
@@ -164,6 +168,32 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
             ml::counter_t::E_DFTPMTrainedForestNumberTrees)};
         BOOST_REQUIRE_EQUAL(expectedSize, trainedModel->size());
         BOOST_TEST_REQUIRE("weighted_sum" == trainedModel->aggregateOutput()->stringType());
+    }
+
+    // verify compressed definition
+    {
+        std::string modelDefinitionStr{definition->jsonString()};
+        std::string compressedModelDefinitionStr{definition->jsonStringCompressedFormat()};
+        LOG_DEBUG(<< "Compressed model definition " << compressedModelDefinitionStr);
+        rapidjson::Document result;
+        rapidjson::ParseResult ok(result.Parse(compressedModelDefinitionStr));
+        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        BOOST_TEST_REQUIRE(result.HasMember("definition"));
+        std::stringstream compressedStream;
+        compressedStream << result["definition"].GetString();
+
+        using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
+        std::stringstream decompressedStream;
+        {
+            TFilteredInput inFilter;
+            inFilter.push(core::CBase64Decoder());
+            inFilter.push(boost::iostreams::gzip_decompressor());
+            inFilter.push(compressedStream);
+            boost::iostreams::copy(inFilter, decompressedStream);
+        }
+        LOG_DEBUG(<< "Decompressed string " << decompressedStream.str());
+
+        BOOST_TEST_REQUIRE(decompressedStream.str() == modelDefinitionStr);
     }
 
     // verify model size info
@@ -335,6 +365,33 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
             }
         }
     }
+
+    // verify compressed definition
+    {
+        std::string modelDefinitionStr{definition->jsonString()};
+        std::string compressedModelDefinitionStr{definition->jsonStringCompressedFormat()};
+        LOG_DEBUG(<< "Compressed model definition " << compressedModelDefinitionStr);
+        rapidjson::Document result;
+        rapidjson::ParseResult ok(result.Parse(compressedModelDefinitionStr));
+        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        BOOST_TEST_REQUIRE(result.HasMember("definition"));
+        std::stringstream compressedStream;
+        compressedStream << result["definition"].GetString();
+
+        using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
+        std::stringstream decompressedStream;
+        {
+            TFilteredInput inFilter;
+            inFilter.push(boost::iostreams::gzip_decompressor());
+            inFilter.push(core::CBase64Decoder());
+            inFilter.push(compressedStream);
+            boost::iostreams::copy(inFilter, decompressedStream);
+        }
+        LOG_DEBUG(<< "Decompressed string " << decompressedStream.str());
+
+        BOOST_TEST_REQUIRE(decompressedStream.str() == modelDefinitionStr);
+    }
+
     // verify model size info
     {
         rapidjson::Document result;

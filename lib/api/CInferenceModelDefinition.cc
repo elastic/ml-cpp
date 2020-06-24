@@ -5,8 +5,12 @@
  */
 #include <api/CInferenceModelDefinition.h>
 
+#include <core/CBase64Filter.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
+
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
 
 #include <cmath>
 #include <memory>
@@ -24,6 +28,7 @@ const std::string JSON_CLASSIFICATION_WEIGHTS_TAG{"classification_weights"};
 const std::string JSON_DECISION_TYPE_TAG{"decision_type"};
 const std::string JSON_DEFAULT_LEFT_TAG{"default_left"};
 const std::string JSON_DEFAULT_VALUE_TAG{"default_value"};
+const std::string JSON_DEFINITION_TAG{"definition"};
 const std::string JSON_ENSEMBLE_MODEL_SIZE_TAG{"ensemble_model_size"};
 const std::string JSON_ENSEMBLE_TAG{"ensemble"};
 const std::string JSON_FEATURE_NAME_LENGTH_TAG{"feature_name_length"};
@@ -60,12 +65,13 @@ const std::string JSON_TARGET_TYPE_CLASSIFICATION{"classification"};
 const std::string JSON_TARGET_TYPE_REGRESSION{"regression"};
 const std::string JSON_TARGET_TYPE_TAG{"target_type"};
 const std::string JSON_THRESHOLD_TAG{"threshold"};
+const std::string JSON_TOTAL_DEFINITION_LENGTH_TAG{"total_definition_length"};
 const std::string JSON_TRAINED_MODEL_SIZE_TAG{"trained_model_size"};
 const std::string JSON_TRAINED_MODEL_TAG{"trained_model"};
 const std::string JSON_TRAINED_MODELS_TAG{"trained_models"};
+const std::string JSON_TREE_SIZES_TAG{"tree_sizes"};
 const std::string JSON_TREE_STRUCTURE_TAG{"tree_structure"};
 const std::string JSON_TREE_TAG{"tree"};
-const std::string JSON_TREE_SIZES_TAG{"tree_sizes"};
 const std::string JSON_WEIGHTED_MODE_TAG{"weighted_mode"};
 const std::string JSON_WEIGHTED_SUM_TAG{"weighted_sum"};
 const std::string JSON_WEIGHTS_TAG{"weights"};
@@ -372,6 +378,41 @@ std::string CInferenceModelDefinition::jsonString() {
         rapidjson::Value doc{writer.makeObject()};
         this->addToDocument(doc, writer);
         writer.write(doc);
+        stream.flush();
+    }
+    // string writer puts the json object in an array, so we strip the external brackets
+    std::string jsonStr{stream.str()};
+    std::string resultString(jsonStr, 1, jsonStr.size() - 2);
+    return resultString;
+}
+
+std::string CInferenceModelDefinition::jsonStringCompressedFormat() {
+    using TFilteredOutput = boost::iostreams::filtering_stream<boost::iostreams::output>;
+    std::string str{jsonString()};
+    std::ostringstream compressedStream;
+    {
+        TFilteredOutput outFilter;
+        outFilter.push(boost::iostreams::gzip_compressor());
+        outFilter.push(core::CBase64Encoder());
+        outFilter.push(compressedStream);
+        outFilter << str;
+        outFilter.flush();
+    }
+
+    LOG_DEBUG(<< "Compressed stream " << compressedStream.str());
+
+    std::ostringstream stream;
+    {
+        core::CJsonOutputStreamWrapper wrapper{stream};
+        CSerializableToJson::TRapidJsonWriter writer{wrapper};
+        writer.StartObject();
+        writer.Key(JSON_DEFINITION_TAG);
+        writer.String(compressedStream.str());
+        std::size_t length{core::CStringUtils::utf16LengthOfUtf8String(str)};
+        writer.Key(JSON_TOTAL_DEFINITION_LENGTH_TAG);
+        LOG_DEBUG(<< "UTF16 length " << length);
+        writer.Uint64(length);
+        writer.EndObject();
         stream.flush();
     }
     // string writer puts the json object in an array, so we strip the external brackets
