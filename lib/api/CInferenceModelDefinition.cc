@@ -6,8 +6,12 @@
 #include <api/CInferenceModelDefinition.h>
 
 #include <core/CBase64Filter.h>
+#include <core/CCompressOStream.h>
 #include <core/CPersistUtils.h>
+#include <core/CStateCompressor.h>
 #include <core/CStringUtils.h>
+
+#include <api/CSingleStreamDataAdder.h>
 
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
@@ -388,29 +392,38 @@ std::string CInferenceModelDefinition::jsonString() {
 
 std::string CInferenceModelDefinition::jsonStringCompressedFormat() {
     using TFilteredOutput = boost::iostreams::filtering_stream<boost::iostreams::output>;
-    std::string str{jsonString()};
+    std::string modelDefinitionStr{jsonString()};
     std::ostringstream compressedStream;
     {
         TFilteredOutput outFilter;
         outFilter.push(boost::iostreams::gzip_compressor());
         outFilter.push(core::CBase64Encoder());
         outFilter.push(compressedStream);
-        outFilter << str;
+        outFilter << modelDefinitionStr;
         outFilter.flush();
     }
 
-    LOG_DEBUG(<< "Compressed stream " << compressedStream.str());
+    // LOG_DEBUG(<< "Compressed stream " << compressedStream.str());
 
+    
+    auto streamPtr = std::make_shared<std::ostringstream>();
+    {
+        CSingleStreamDataAdder dataAdder{streamPtr};
+        core::CStateCompressor::CChunkFilter chunkFilter{dataAdder};
+        core::CCompressOStream compressOStream{chunkFilter};
+        compressOStream << modelDefinitionStr;
+    }
+    LOG_DEBUG(<< "New compressed string " << streamPtr->str());
     std::ostringstream stream;
     {
+        const std::string& compressedStr{compressedStream.str()};
         core::CJsonOutputStreamWrapper wrapper{stream};
         CSerializableToJson::TRapidJsonWriter writer{wrapper};
         writer.StartObject();
         writer.Key(JSON_DEFINITION_TAG);
-        writer.String(compressedStream.str());
-        std::size_t length{core::CStringUtils::utf16LengthOfUtf8String(str)};
+        writer.String(compressedStr);
+        std::size_t length{core::CStringUtils::utf16LengthOfUtf8String(compressedStr)};
         writer.Key(JSON_TOTAL_DEFINITION_LENGTH_TAG);
-        LOG_DEBUG(<< "UTF16 length " << length);
         writer.Uint64(length);
         writer.EndObject();
         stream.flush();

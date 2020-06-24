@@ -174,7 +174,6 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     {
         std::string modelDefinitionStr{definition->jsonString()};
         std::string compressedModelDefinitionStr{definition->jsonStringCompressedFormat()};
-        LOG_DEBUG(<< "Compressed model definition " << compressedModelDefinitionStr);
         rapidjson::Document result;
         rapidjson::ParseResult ok(result.Parse(compressedModelDefinitionStr));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
@@ -191,8 +190,6 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
             inFilter.push(compressedStream);
             boost::iostreams::copy(inFilter, decompressedStream);
         }
-        LOG_DEBUG(<< "Decompressed string " << decompressedStream.str());
-
         BOOST_TEST_REQUIRE(decompressedStream.str() == modelDefinitionStr);
     }
 
@@ -370,7 +367,6 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     {
         std::string modelDefinitionStr{definition->jsonString()};
         std::string compressedModelDefinitionStr{definition->jsonStringCompressedFormat()};
-        LOG_DEBUG(<< "Compressed model definition " << compressedModelDefinitionStr);
         rapidjson::Document result;
         rapidjson::ParseResult ok(result.Parse(compressedModelDefinitionStr));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
@@ -387,7 +383,6 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
             inFilter.push(compressedStream);
             boost::iostreams::copy(inFilter, decompressedStream);
         }
-        LOG_DEBUG(<< "Decompressed string " << decompressedStream.str());
 
         BOOST_TEST_REQUIRE(decompressedStream.str() == modelDefinitionStr);
     }
