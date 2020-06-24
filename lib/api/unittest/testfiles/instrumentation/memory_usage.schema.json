@@ -16,10 +16,20 @@
     "peak_usage_bytes": {
       "description": "Peak memory usage for the data frame analytics job in bytes",
       "type": "integer"
+    },
+    "status": {
+      "type":"string",
+      "enum": ["ok", "hard-limit"],
+      "description": "Describes how current memory usage relates to the configured memory limit. If the limit is exceeded, 'status' is 'hard-limit'."
+    },
+    "advised_limit_bytes": {
+      "type": "integer",
+      "description": "If 'status' is set to 'hard-limit', this optional field provides the new advised memory limit."
     }
   },
   "required": [
-    "peak_usage_bytes"
+    "peak_usage_bytes",
+    "status"
   ],
   "additionalProperties": false
 }
