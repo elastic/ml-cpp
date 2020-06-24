@@ -16,7 +16,7 @@ Follow the instructions (**only!**) for Windows 8 SDK and Git for Windows from [
 
 ### Microsoft C++ build tools
 
-Download "Build Tools for Visual Studio 2017" from https://www.visualstudio.com/downloads/#build-tools-for-visual-studio-2017 and run it.
+Download "Build Tools for Visual Studio 2019" from <https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2019> and run it.
 
 ### Clone ml-cpp
 
@@ -27,7 +27,7 @@ The github repository contains a script to download the remaining dependencies, 
 Create a `.bashrc` similar to that recommended in [windows.md](windows.md), but with a couple of extra environment variables.  The build system lets you define `VCBASE` and `WINSDKBASE` to point it to the right compiler and SDK. In addition you have to put the directories into PATH as well. This is how it could look:
 
 ```
-export VCBASE=PROGRA~2/MICROS~2/2017/BUILDT~1
+export VCBASE=PROGRA~2/MICROS~2/2019/BUILDT~1
 export WINSDKBASE=PROGRA~2/WI3CF2~1
 
 export CPP_SRC_HOME=$HOME/ml-cpp
