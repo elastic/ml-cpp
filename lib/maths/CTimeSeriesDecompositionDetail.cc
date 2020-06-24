@@ -1289,7 +1289,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
         if (testForTrend && this->shouldUseTrendForPrediction()) {
             LOG_DEBUG(<< "Detected trend at " << time);
             m_ComponentChangeCallback({});
-            m_ModelAnnotationCallback(time, "Detected trend");
+            m_ModelAnnotationCallback("Detected trend");
         }
     } break;
     case SC_DISABLED:
@@ -1319,7 +1319,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
         const CExpandingWindow& window{message.s_Window};
         const TPredictor& predictor{message.s_Predictor};
 
-        if (this->addSeasonalComponents(time, result, window, predictor)) {
+        if (this->addSeasonalComponents(result, window, predictor)) {
             LOG_DEBUG(<< "Detected seasonal components at " << time);
             m_UsingTrendForPrediction = true;
             this->clearComponentErrors();
@@ -1358,7 +1358,8 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedCalendar
             break;
         }
 
-        this->addCalendarComponent(feature, time);
+        LOG_DEBUG(<< "Detected feature '" << feature.print() << "' at " << time);
+        this->addCalendarComponent(feature);
         this->apply(SC_ADDED_COMPONENTS, message);
         this->mediator()->forward(
             SNewComponents(time, lastTime, SNewComponents::E_CalendarCyclic));
@@ -1545,7 +1546,6 @@ std::size_t CTimeSeriesDecompositionDetail::CComponents::maxSize() const {
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
-    core_t::TTime time,
     const CPeriodicityHypothesisTestsResult& result,
     const CExpandingWindow& window,
     const TPredictor& predictor) {
@@ -1564,8 +1564,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
                              return component.time().excludes(*seasonalTime);
                          }) == components.end()) {
             LOG_DEBUG(<< "Detected '" << candidate.s_Description << "'");
-            m_ModelAnnotationCallback(time, "Detected periodicity with period " +
-                                                std::to_string(candidate.s_Period));
+            m_ModelAnnotationCallback("Detected periodicity with period " +
+                                      std::to_string(candidate.s_Period));
             newComponents.emplace_back(std::move(seasonalTime), candidate.s_PiecewiseScaled);
         }
     }
@@ -1698,12 +1698,10 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
     return newComponents.size() > 0;
 }
 
-bool CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(const CCalendarFeature& feature,
-                                                                       core_t::TTime time) {
+bool CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(const CCalendarFeature& feature) {
     double bucketLength{static_cast<double>(m_BucketLength)};
     m_Calendar->add(feature, m_CalendarComponentSize, m_DecayRate, bucketLength);
-    LOG_DEBUG(<< "Detected feature '" << feature.print() << "' at " << time);
-    m_ModelAnnotationCallback(time, "Detected calendar feature: " + feature.print());
+    m_ModelAnnotationCallback("Detected calendar feature: " + feature.print());
     return true;
 }
 

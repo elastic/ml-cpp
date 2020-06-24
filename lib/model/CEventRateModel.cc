@@ -332,16 +332,14 @@ void CEventRateModel::sample(core_t::TTime startTime,
                     .trendWeights(trendWeights)
                     .priorWeights(priorWeights);
                 if (this->params().s_AnnotationsEnabled) {
-                    const auto modelAnnotationCallback =
-                        [&](core_t::TTime t, const std::string& annotation) {
-                            m_CurrentBucketStats.s_Annotations.emplace_back(
-                                t, annotation, gatherer.searchKey().detectorIndex(),
-                                gatherer.searchKey().partitionFieldName(),
-                                gatherer.partitionFieldValue(),
-                                gatherer.searchKey().overFieldName(),
-                                EMPTY_STRING, gatherer.searchKey().byFieldName(),
-                                gatherer.personName(pid));
-                        };
+                    const auto modelAnnotationCallback = [&](const std::string& annotation) {
+                        m_CurrentBucketStats.s_Annotations.emplace_back(
+                            time, annotation, gatherer.searchKey().detectorIndex(),
+                            gatherer.searchKey().partitionFieldName(),
+                            gatherer.partitionFieldValue(),
+                            gatherer.searchKey().overFieldName(), EMPTY_STRING,
+                            gatherer.searchKey().byFieldName(), gatherer.personName(pid));
+                    };
                     params.annotationCallback(modelAnnotationCallback);
                 }
 

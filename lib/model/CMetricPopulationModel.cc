@@ -466,16 +466,15 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     .trendWeights(attribute.second.s_TrendWeights)
                     .priorWeights(attribute.second.s_PriorWeights);
                 if (this->params().s_AnnotationsEnabled) {
-                    const auto modelAnnotationCallback =
-                        [&](core_t::TTime t, const std::string& annotation) {
-                            m_CurrentBucketStats.s_Annotations.emplace_back(
-                                t, annotation, gatherer.searchKey().detectorIndex(),
-                                gatherer.searchKey().partitionFieldName(),
-                                gatherer.partitionFieldValue(),
-                                gatherer.searchKey().overFieldName(),
-                                gatherer.attributeName(cid),
-                                gatherer.searchKey().byFieldName(), EMPTY_STRING);
-                        };
+                    const auto modelAnnotationCallback = [&](const std::string& annotation) {
+                        m_CurrentBucketStats.s_Annotations.emplace_back(
+                            time, annotation, gatherer.searchKey().detectorIndex(),
+                            gatherer.searchKey().partitionFieldName(),
+                            gatherer.partitionFieldValue(),
+                            gatherer.searchKey().overFieldName(),
+                            gatherer.attributeName(cid),
+                            gatherer.searchKey().byFieldName(), EMPTY_STRING);
+                    };
                     params.annotationCallback(modelAnnotationCallback);
                 }
 
