@@ -35,12 +35,12 @@ public:
 
     //! Computes the integer with the reverse of the bits of the binary
     //! representation of \p x.
-    static uint64_t reverseBits(std::uint64_t x);
+    static std::uint64_t reverseBits(std::uint64_t x);
 
     //! Check if \p value is \p alignment aligned.
     template<typename INT_TYPE>
     static inline bool aligned(INT_TYPE value, INT_TYPE alignment) {
-        return (value % alignment) == static_cast<INT_TYPE>(0);
+        return alignment == 0 ? true : (value % alignment) == static_cast<INT_TYPE>(0);
     }
 
     //! Align \p value to \p alignment rounding up.
