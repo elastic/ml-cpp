@@ -65,6 +65,8 @@ gcovr-unit-report.xml
 junit_results.xml
 cppunit_results.xml
 boost_test_results.xml
+**/.objs
 **/.objs/*.*
 !**/.objs/.gitignore
+
 
