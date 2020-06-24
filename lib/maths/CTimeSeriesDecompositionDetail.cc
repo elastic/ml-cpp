@@ -589,7 +589,7 @@ const CPeriodicityTestWindowParameters::TParametersVecVec CPeriodicityTestWindow
      {28800, 604801, 365, {86400, 259200}, {}},
      {43200, 604801, 365, {86400, 259200}, {}},
      {86400, 604801, 365, {86400, 259200}, {}},
-     {604800, 604801, 365, {604800}, {168 * 604800}}}};
+     {604800, 604801, 156, {604800}, {}}}};
 }
 
 CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(double decayRate,
@@ -1677,8 +1677,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
 
         std::sort(newComponents.begin(), newComponents.end(), maths::COrderings::SLess());
 
-        core_t::TTime startTime{window.startTime()};
-        core_t::TTime endTime{window.endTime()};
+        core_t::TTime startTime{window.startTime() + window.offset()};
+        core_t::TTime endTime{window.endTime() + window.offset()};
         core_t::TTime dt{window.bucketLength()};
 
         TFloatMeanAccumulatorVec values(window.valuesMinusPrediction(predictor));
@@ -1707,7 +1707,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
             // to add.
             values = window.valuesMinusPrediction(predictor);
             if (seasonalTime->windowed()) {
-                core_t::TTime time{startTime + dt / 2};
+                core_t::TTime time{startTime};
                 for (auto& value : values) {
                     if (seasonalTime->inWindow(time) == false) {
                         value = TFloatMeanAccumulator{};
@@ -1782,8 +1782,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
         this->fitTrend(startTime, dt, values, newTrend);
         m_Trend.swap(newTrend);
 
-        // Callback passing the residuals.
-        core_t::TTime time{startTime + dt / 2};
+        // Pass the residuals to the component changed callback.
+        core_t::TTime time{startTime};
         for (auto& value : values) {
             if (CBasicStatistics::count(value) > 0.0) {
                 CBasicStatistics::moment<0>(value) -=
@@ -1864,7 +1864,7 @@ void CTimeSeriesDecompositionDetail::CComponents::reweightOutliers(
 
         TMinAccumulator outliers{static_cast<std::size_t>(2.0 * numberOutliers)};
         TMeanAccumulator meanDifference;
-        core_t::TTime time{startTime + dt / 2};
+        core_t::TTime time{startTime};
         for (std::size_t i = 0; i < values.size(); ++i, time += dt) {
             if (CBasicStatistics::count(values[i]) > 0.0) {
                 double difference{
@@ -1875,7 +1875,7 @@ void CTimeSeriesDecompositionDetail::CComponents::reweightOutliers(
         }
         outliers.sort();
         TMeanAccumulator meanDifferenceOfOutliers;
-        for (std::size_t i = 0u; i < static_cast<std::size_t>(numberOutliers); ++i) {
+        for (std::size_t i = 0; i < static_cast<std::size_t>(numberOutliers); ++i) {
             meanDifferenceOfOutliers.add(-outliers[i].first);
         }
         meanDifference -= meanDifferenceOfOutliers;
@@ -1896,7 +1896,7 @@ void CTimeSeriesDecompositionDetail::CComponents::fitTrend(core_t::TTime startTi
                                                            core_t::TTime dt,
                                                            const TFloatMeanAccumulatorVec& values,
                                                            CTrendComponent& trend) const {
-    core_t::TTime time{startTime + dt / 2};
+    core_t::TTime time{startTime};
     for (const auto& value : values) {
         // Because we test before the window is fully compressed we can
         // get a run of unset values at the end of the window, we should

@@ -232,7 +232,7 @@ bool CAdaptiveBucketing::initialize(double a, double b, std::size_t n) {
     m_Endpoints.clear();
     m_Endpoints.reserve(n + 1);
     double width{(b - a) / static_cast<double>(n)};
-    for (std::size_t i = 0u; i < n + 1; ++i) {
+    for (std::size_t i = 0; i < n + 1; ++i) {
         m_Endpoints.push_back(a + static_cast<double>(i) * width);
     }
     m_Centres.clear();
@@ -259,8 +259,8 @@ void CAdaptiveBucketing::initialValues(core_t::TTime start,
 
     double scale{std::pow(static_cast<double>(dt) / static_cast<double>(dT), 2.0)};
 
-    core_t::TTime lastRefined{start + dt / 2};
-    for (core_t::TTime time = start + dt / 2; time < end; time += dt) {
+    core_t::TTime lastRefined{start};
+    for (core_t::TTime time = start; time < end; time += dt) {
         if (this->inWindow(time)) {
             core_t::TTime i{(time - start) / dT};
             double value{CBasicStatistics::mean(values[i])};
