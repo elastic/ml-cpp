@@ -113,8 +113,20 @@ public:
 
     enum ETargetType { E_Classification, E_Regression };
 
+    class CSizeInfo : public CSerializableToJson {
+    public:
+        explicit CSizeInfo(const CTrainedModel& trainedModel);
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        //! \return Expected number of operation for the model evaluation.
+        virtual std::size_t numOperations() const = 0;
+
+    private:
+        const CTrainedModel& m_TrainedModel;
+    };
+    using TSizeInfoUPtr = std::unique_ptr<CSizeInfo>;
+
 public:
-    ~CTrainedModel() override = default;
+    virtual ~CTrainedModel() override = default;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     //! Names of the features used by the model.
     virtual const TStringVec& featureNames() const;
@@ -136,6 +148,8 @@ public:
     virtual void classificationWeights(TDoubleVec classificationWeights);
     //! Get weights by which to multiply classes when doing label assignment.
     virtual const TOptionalDoubleVec& classificationWeights() const;
+    //! Get the object for model size with information for estimation.
+    virtual TSizeInfoUPtr sizeInfo() const = 0;
 
 private:
     TStringVec m_FeatureNames;
@@ -182,6 +196,17 @@ public:
         TDoubleVec m_LeafValue;
         TOptionalDouble m_SplitGain;
     };
+
+    class CSizeInfo : public CTrainedModel::CSizeInfo {
+    public:
+        explicit CSizeInfo(const CTree& tree);
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        std::size_t numOperations() const override;
+
+    private:
+        const CTree& m_Tree;
+    };
+
     using TTreeNodeVec = std::vector<CTreeNode>;
 
 public:
@@ -190,6 +215,8 @@ public:
     std::size_t size() const;
     TStringVec removeUnusedFeatures() override;
     TTreeNodeVec& treeStructure();
+    //! Get the object for model size with information for estimation.
+    TSizeInfoUPtr sizeInfo() const override;
 
 private:
     TTreeNodeVec m_TreeStructure;
@@ -201,6 +228,16 @@ public:
     using TAggregateOutputUPtr = std::unique_ptr<CAggregateOutput>;
     using TTrainedModelUPtr = std::unique_ptr<CTrainedModel>;
     using TTrainedModelUPtrVec = std::vector<TTrainedModelUPtr>;
+
+    class CSizeInfo : public CTrainedModel::CSizeInfo {
+    public:
+        explicit CSizeInfo(const CEnsemble& ensemble);
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        std::size_t numOperations() const override;
+
+    private:
+        const CEnsemble* m_Ensemble;
+    };
 
 public:
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
@@ -219,6 +256,8 @@ public:
     void classificationLabels(const TStringVec& classificationLabels) override;
     //! Set weights by which to multiply classes when doing label assignment.
     void classificationWeights(TDoubleVec classificationWeights) override;
+    //! Get the object for model size with information for estimation.
+    TSizeInfoUPtr sizeInfo() const override;
     using CTrainedModel::classificationLabels;
     using CTrainedModel::classificationWeights;
     using CTrainedModel::targetType;
@@ -230,6 +269,24 @@ private:
 
 class API_EXPORT CEncoding : public CSerializableToJson {
 public:
+    class CSizeInfo : public CSerializableToJson {
+    public:
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        virtual const std::string& typeString() const = 0;
+        const CEncoding* encoding() const;
+
+    protected:
+        using TSizeVec = std::vector<std::size_t>;
+
+    protected:
+        explicit CSizeInfo(const CEncoding* encoding);
+
+    private:
+        const CEncoding* m_Encoding;
+    };
+    using TSizeInfoUPtr = std::unique_ptr<CSizeInfo>;
+
+public:
     ~CEncoding() override = default;
     explicit CEncoding(std::string field);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
@@ -238,6 +295,8 @@ public:
     const std::string& field() const;
     //! Encoding type as string.
     virtual const std::string& typeString() const = 0;
+    //! Get the object for model size with information for estimation.
+    virtual TSizeInfoUPtr sizeInfo() const = 0;
 
 private:
     //! Input field name. Must be defined in the input section.
@@ -247,6 +306,15 @@ private:
 //! \brief Mapping from categorical columns to numerical values related to categorical value distribution.
 class API_EXPORT CFrequencyEncoding final : public CEncoding {
 public:
+    class CSizeInfo final : public CEncoding::CSizeInfo {
+    public:
+        explicit CSizeInfo(const CFrequencyEncoding& encoding);
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        const std::string& typeString() const override;
+
+    private:
+        const CFrequencyEncoding& m_Encoding;
+    };
     using TStringDoubleUMap = const std::unordered_map<std::string, double>;
 
 public:
@@ -259,6 +327,8 @@ public:
     //! Map from the category names to the frequency values.
     const TStringDoubleUMap& frequencyMap() const;
     const std::string& typeString() const override;
+    //! Get the object for model size with information for estimation.
+    TSizeInfoUPtr sizeInfo() const override;
 
 private:
     std::string m_FeatureName;
@@ -268,6 +338,15 @@ private:
 //! \brief Application of the one-hot encoding function on a single column.
 class API_EXPORT COneHotEncoding final : public CEncoding {
 public:
+    class CSizeInfo final : public CEncoding::CSizeInfo {
+    public:
+        explicit CSizeInfo(const COneHotEncoding& encoding);
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        const std::string& typeString() const override;
+
+    private:
+        const COneHotEncoding& m_Encoding;
+    };
     using TStringStringUMap = std::map<std::string, std::string>;
 
 public:
@@ -275,8 +354,11 @@ public:
     COneHotEncoding(const std::string& field, TStringStringUMap hotMap);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     //! Map from the category names of the original field to the new field names.
+    const TStringStringUMap& hotMap() const;
     TStringStringUMap& hotMap();
     const std::string& typeString() const override;
+    //! Get the object for model size with information for estimation.
+    TSizeInfoUPtr sizeInfo() const override;
 
 private:
     TStringStringUMap m_HotMap;
@@ -285,6 +367,15 @@ private:
 //! \brief Mapping from categorical columns to numerical values related to the target value.
 class API_EXPORT CTargetMeanEncoding final : public CEncoding {
 public:
+    class CSizeInfo final : public CEncoding::CSizeInfo {
+    public:
+        explicit CSizeInfo(const CTargetMeanEncoding& encoding);
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        const std::string& typeString() const override;
+
+    private:
+        const CTargetMeanEncoding& m_Encoding;
+    };
     using TStringDoubleUMap = std::unordered_map<std::string, double>;
 
 public:
@@ -302,6 +393,8 @@ public:
     //! Map from the category names to the target values.
     const TStringDoubleUMap& targetMap() const;
     const std::string& typeString() const override;
+    //! Get the object for model size with information for estimation.
+    TSizeInfoUPtr sizeInfo() const override;
 
 private:
     double m_DefaultValue;
@@ -319,11 +412,28 @@ public:
     using TStringSizeUMapVec = std::vector<TStringSizeUMap>;
     using TSizeStringUMap = std::unordered_map<std::size_t, std::string>;
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
+    using TTrainedModelUPtr = CEnsemble::TTrainedModelUPtr;
+
+    class API_EXPORT CSizeInfo final : public CSerializableToJson {
+    public:
+        explicit CSizeInfo(const CInferenceModelDefinition& definition);
+        void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        std::string jsonString();
+
+    private:
+        const CInferenceModelDefinition& m_Definition;
+    };
+
+    using TSizeInfoUPtr = std::unique_ptr<CSizeInfo>;
 
 public:
     TApiEncodingUPtrVec& preprocessors();
-    void trainedModel(std::unique_ptr<CTrainedModel>&& trainedModel);
-    std::unique_ptr<CTrainedModel>& trainedModel();
+    const TApiEncodingUPtrVec& preprocessors() const {
+        return m_Preprocessors;
+    };
+    void trainedModel(TTrainedModelUPtr&& trainedModel);
+    TTrainedModelUPtr& trainedModel();
+    const TTrainedModelUPtr& trainedModel() const;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     std::string jsonString();
     void fieldNames(TStringVec&& fieldNames);
@@ -332,12 +442,14 @@ public:
     void typeString(const std::string& typeString);
     std::size_t dependentVariableColumnIndex() const;
     void dependentVariableColumnIndex(size_t dependentVariableColumnIndex);
+    //! Get the object for model size with information for estimation.
+    TSizeInfoUPtr sizeInfo() const;
 
 private:
     //! Optional step for pre-processing data, e.g. vector embedding, one-hot-encoding, etc.
     TApiEncodingUPtrVec m_Preprocessors;
     //! Details of the model evaluation step with a trained_model.
-    std::unique_ptr<CTrainedModel> m_TrainedModel;
+    TTrainedModelUPtr m_TrainedModel;
     TStringVec m_FieldNames;
     std::string m_TypeString;
     std::size_t m_DependentVariableColumnIndex;
