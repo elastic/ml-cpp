@@ -313,9 +313,9 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.20 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.28 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.11 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.17 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.25 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.10 * totalSumValue);
 }
 
 BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
@@ -383,8 +383,8 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
             LOG_TRACE(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                BOOST_TEST_REQUIRE(sumResidual < 0.15 * sumValue);
-                BOOST_TEST_REQUIRE(maxResidual < 0.33 * maxValue);
+                BOOST_TEST_REQUIRE(sumResidual < 0.16 * sumValue);
+                BOOST_TEST_REQUIRE(maxResidual < 0.35 * maxValue);
                 BOOST_TEST_REQUIRE(percentileError < 0.08 * sumValue);
 
                 totalSumResidual += sumResidual;
@@ -503,8 +503,8 @@ BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
         LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
         LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-        BOOST_TEST_REQUIRE(totalSumResidual < 0.022 * totalSumValue);
-        BOOST_TEST_REQUIRE(totalMaxResidual < 0.055 * totalMaxValue);
+        BOOST_TEST_REQUIRE(totalSumResidual < 0.025 * totalSumValue);
+        BOOST_TEST_REQUIRE(totalMaxResidual < 0.059 * totalMaxValue);
         BOOST_TEST_REQUIRE(totalPercentileError < 0.01 * totalSumValue);
     }
 }
@@ -819,8 +819,8 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
         LOG_DEBUG(<< "mean 70% error = " << maths::CBasicStatistics::mean(percentileError));
         LOG_DEBUG(<< "mean scale = " << maths::CBasicStatistics::mean(meanScale));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.38);
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentileError) < 0.05);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.41);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentileError) < 0.08);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, maths::CBasicStatistics::mean(meanScale), 0.04);
     }
     LOG_DEBUG(<< "Smoothly Varying Variance");
@@ -1240,8 +1240,8 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.21 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.44 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.20 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.43 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.06 * totalSumValue);
 }
 
@@ -1544,8 +1544,8 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity, CTestFixture) {
                 totalSumValue += sumValue;
                 totalMaxValue += maxValue;
 
-                BOOST_TEST_REQUIRE(sumResidual / sumValue < 0.42);
-                BOOST_TEST_REQUIRE(maxResidual / maxValue < 0.46);
+                BOOST_TEST_REQUIRE(sumResidual / sumValue < 0.45);
+                BOOST_TEST_REQUIRE(maxResidual / maxValue < 0.48);
             }
             lastDay += DAY;
         }
@@ -1633,7 +1633,7 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
         LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
         LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
 
-        BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.17);
+        BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.15);
         BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.15);
     }
 
@@ -1707,8 +1707,8 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
         LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
         LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
 
-        BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.11);
-        BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.20);
+        BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.10);
+        BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.18);
     }
 }
 
