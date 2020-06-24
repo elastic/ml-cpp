@@ -30,12 +30,9 @@
 
 #include <algorithm>
 #include <atomic>
-#include <functional>
 #include <limits>
 #include <map>
 #include <string>
-#include <tuple>
-#include <utility>
 
 namespace ml {
 namespace model {
