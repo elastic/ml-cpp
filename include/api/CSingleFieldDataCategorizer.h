@@ -120,8 +120,8 @@ private:
 
     //! Write the latest categorizer stats, plus an annotation if the
     //! categorization status has changed.
-    void writeStats(CJsonOutputWriter& jsonOutputWriter,
-                    CAnnotationJsonWriter& annotationJsonWriter);
+    void writeStatsIfChanged(CJsonOutputWriter& jsonOutputWriter,
+                             CAnnotationJsonWriter& annotationJsonWriter);
 
 private:
     //! Which field name are we partitioning on?  If empty, this means

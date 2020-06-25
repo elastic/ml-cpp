@@ -211,18 +211,18 @@ void CSingleFieldDataCategorizer::writeChanges(CJsonOutputWriter& jsonOutputWrit
         })};
     LOG_TRACE(<< numWritten << " changed categories written for categorizer "
               << m_CategoryIdMapper->categorizerKey());
-    this->writeStats(jsonOutputWriter, annotationJsonWriter);
+    this->writeStatsIfChanged(jsonOutputWriter, annotationJsonWriter);
 }
 
 void CSingleFieldDataCategorizer::writeStatsIfUrgent(CJsonOutputWriter& jsonOutputWriter,
                                                      CAnnotationJsonWriter& annotationJsonWriter) {
     if (m_DataCategorizer->isStatsWriteUrgent()) {
-        this->writeStats(jsonOutputWriter, annotationJsonWriter);
+        this->writeStatsIfChanged(jsonOutputWriter, annotationJsonWriter);
     }
 }
 
-void CSingleFieldDataCategorizer::writeStats(CJsonOutputWriter& jsonOutputWriter,
-                                             CAnnotationJsonWriter& annotationJsonWriter) {
+void CSingleFieldDataCategorizer::writeStatsIfChanged(CJsonOutputWriter& jsonOutputWriter,
+                                                      CAnnotationJsonWriter& annotationJsonWriter) {
     if (m_DataCategorizer->writeCategorizerStatsIfChanged(
             [this, &jsonOutputWriter, &annotationJsonWriter](
                 const model::SCategorizerStats& categorizerStats, bool statusChanged) {

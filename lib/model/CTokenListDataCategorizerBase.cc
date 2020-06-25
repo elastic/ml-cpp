@@ -429,23 +429,31 @@ void CTokenListDataCategorizerBase::addCategoryMatch(bool isDryRun,
     bool wasCountRare{this->isCategoryCountRare(count)};
     ++count;
     ++m_TotalCount;
-    if (wasCountRare && this->isCategoryCountRare(count) == false) {
-        --m_NumRareCategories;
+    bool isCountRare{this->isCategoryCountRare(count)};
+    if (isCountRare != wasCountRare) {
+        if (isCountRare) {
+            ++m_NumRareCategories;
+        } else {
+            --m_NumRareCategories;
+        }
     }
 
     // Search backwards for the point where the incremented count belongs
-    auto swapIter = m_CategoriesByCount.end();
-    while (iter != m_CategoriesByCount.begin()) {
-        --iter;
-        if (count <= iter->first) {
+    auto swapIter = iter;
+    while (swapIter != m_CategoriesByCount.begin()) {
+        --swapIter;
+        if (count <= swapIter->first) {
+            // Move the changed category as little as possible - if its
+            // incremented count is equal to another category's count then
+            // leave that other category nearer the beginning of the vector
+            ++swapIter;
             break;
         }
-        swapIter = iter;
     }
 
     // Move the iterator we've matched nearer the front of the list if it
     // deserves this
-    if (swapIter != m_CategoriesByCount.end()) {
+    if (swapIter != iter) {
         std::iter_swap(swapIter, iter);
     }
 }

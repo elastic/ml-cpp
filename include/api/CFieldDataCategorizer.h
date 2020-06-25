@@ -226,7 +226,7 @@ private:
 
     //! Should we stop categorizing when a model library categorizer's
     //! categorization status is "warn"?
-    bool m_StopCategorizationOnWarnStatus;
+    bool m_StopCategorizationOnWarnStatus = false;
 
     //! Highest previously used global ID.
     int m_HighestGlobalId = 0;

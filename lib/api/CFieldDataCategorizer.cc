@@ -59,7 +59,7 @@ CFieldDataCategorizer::CFieldDataCategorizer(std::string jobId,
                                              bool stopCategorizationOnWarnStatus)
     : CDataProcessor{timeFieldName, timeFieldFormat}, m_JobId{std::move(jobId)},
       m_Limits{limits}, m_OutputHandler{outputHandler}, m_OutputStream{outputStream},
-      m_ExtraFieldNames{1, MLCATEGORY_NAME}, m_StopCategorizationOnWarnStatus{stopCategorizationOnWarnStatus},
+      m_ExtraFieldNames{MLCATEGORY_NAME}, m_StopCategorizationOnWarnStatus{stopCategorizationOnWarnStatus},
       m_OutputFieldCategory{m_Overrides[MLCATEGORY_NAME]},
       m_JsonOutputWriter{m_JobId, m_OutputStream}, m_AnnotationJsonWriter{m_OutputStream},
       m_PartitionFieldName{config.categorizationPartitionFieldName()},
@@ -700,7 +700,7 @@ void CFieldDataCategorizer::parseStopOnWarnControlMessage(const std::string& ena
         return;
     }
     if (m_StopCategorizationOnWarnStatus != enabled) {
-        LOG_INFO(<< "Stop-on-warn now: " << std::boolalpha << enabled);
+        LOG_INFO(<< "Categorization stop-on-warn now: " << std::boolalpha << enabled);
         m_StopCategorizationOnWarnStatus = enabled;
     }
 }
