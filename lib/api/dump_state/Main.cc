@@ -37,6 +37,7 @@
 #include <api/CJsonOutputWriter.h>
 #include <api/CModelSnapshotJsonWriter.h>
 #include <api/CNdJsonInputParser.h>
+#include <api/CNullOutput.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 
@@ -129,11 +130,12 @@ bool persistCategorizerStateToFile(const std::string& outputFileName,
     ml::api::CFieldConfig config("count", "mlcategory");
 
     std::ofstream outStream(ml::core::COsFileFuncs::NULL_FILENAME);
-    ml::core::CJsonOutputStreamWrapper wrappendOutStream(outStream);
-    ml::api::CJsonOutputWriter writer("job", wrappendOutStream);
+    ml::core::CJsonOutputStreamWrapper wrappedOutStream(outStream);
+    ml::api::CNullOutput nullOutput;
 
-    ml::api::CFieldDataCategorizer categorizer("job", config, limits, "time",
-                                               timeFormat, writer, writer, nullptr);
+    ml::api::CFieldDataCategorizer categorizer{
+        "job",      config,           limits,  "time", timeFormat,
+        nullOutput, wrappedOutStream, nullptr, false};
 
     ml::api::CFieldDataCategorizer::TStrStrUMap dataRowFields;
     dataRowFields["_raw"] = "thing";

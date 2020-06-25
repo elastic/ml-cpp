@@ -19,7 +19,6 @@
 #include <model/CTokenListReverseSearchCreator.h>
 
 #include <api/CFieldConfig.h>
-#include <api/CJsonOutputWriter.h>
 #include <api/CNoopCategoryIdMapper.h>
 #include <api/COutputHandler.h>
 #include <api/CPerPartitionCategoryIdMapper.h>
@@ -55,11 +54,14 @@ CFieldDataCategorizer::CFieldDataCategorizer(std::string jobId,
                                              const std::string& timeFieldName,
                                              const std::string& timeFieldFormat,
                                              COutputHandler& outputHandler,
-                                             CJsonOutputWriter& jsonOutputWriter,
-                                             CPersistenceManager* persistenceManager)
-    : CDataProcessor{timeFieldName, timeFieldFormat}, m_JobId{std::move(jobId)}, m_Limits{limits},
-      m_OutputHandler{outputHandler}, m_ExtraFieldNames{1, MLCATEGORY_NAME},
-      m_OutputFieldCategory{m_Overrides[MLCATEGORY_NAME]}, m_JsonOutputWriter{jsonOutputWriter},
+                                             core::CJsonOutputStreamWrapper& outputStream,
+                                             CPersistenceManager* persistenceManager,
+                                             bool stopCategorizationOnWarnStatus)
+    : CDataProcessor{timeFieldName, timeFieldFormat}, m_JobId{std::move(jobId)},
+      m_Limits{limits}, m_OutputHandler{outputHandler}, m_OutputStream{outputStream},
+      m_ExtraFieldNames{1, MLCATEGORY_NAME}, m_StopCategorizationOnWarnStatus{stopCategorizationOnWarnStatus},
+      m_OutputFieldCategory{m_Overrides[MLCATEGORY_NAME]},
+      m_JsonOutputWriter{m_JobId, m_OutputStream}, m_AnnotationJsonWriter{m_OutputStream},
       m_PartitionFieldName{config.categorizationPartitionFieldName()},
       m_CategorizationFieldName{config.categorizationFieldName()}, m_PersistenceManager{persistenceManager} {
 
@@ -115,19 +117,24 @@ bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields, TOpti
     }
 
     CGlobalCategoryId globalCategoryId{this->computeAndUpdateCategory(dataRowFields, time)};
-    if (globalCategoryId.isHardFailure()) {
-        // Still return true here, because false would fail the entire job
-        return true;
+    if (globalCategoryId.isHardFailure() == false) {
+        m_OutputFieldCategory =
+            core::CStringUtils::typeToString(globalCategoryId.globalId());
+        if (m_OutputHandler.writeRow(dataRowFields, m_Overrides) == false) {
+            LOG_ERROR(<< "Unable to write output with type " << m_OutputFieldCategory
+                      << " for input:" << core_t::LINE_ENDING
+                      << this->debugPrintRecord(dataRowFields));
+            return false;
+        }
+        ++m_NumRecordsHandled;
     }
 
-    m_OutputFieldCategory = core::CStringUtils::typeToString(globalCategoryId.globalId());
-    if (m_OutputHandler.writeRow(dataRowFields, m_Overrides) == false) {
-        LOG_ERROR(<< "Unable to write output with type " << m_OutputFieldCategory
-                  << " for input:" << core_t::LINE_ENDING
-                  << this->debugPrintRecord(dataRowFields));
-        return false;
+    if (m_PersistenceManager != nullptr) {
+        m_PersistenceManager->startPersistIfAppropriate();
     }
-    ++m_NumRecordsHandled;
+
+    // We return true even if we had a hard failure for the current input,
+    // because to return false would fail the whole job
     return true;
 }
 
@@ -147,6 +154,8 @@ void CFieldDataCategorizer::finalise() {
     if (m_PersistenceManager != nullptr) {
         m_PersistenceManager->waitForIdle();
     }
+
+    m_JsonOutputWriter.finalise();
 }
 
 std::uint64_t CFieldDataCategorizer::numRecordsHandled() const {
@@ -198,6 +207,12 @@ CFieldDataCategorizer::computeAndUpdateCategory(const TStrStrUMap& dataRowFields
         m_Limits.resourceMonitor().categorizerAllocationFailures(m_CategorizerAllocationFailures);
         return CGlobalCategoryId::hardFailure();
     }
+    if (m_StopCategorizationOnWarnStatus &&
+        dataCategorizer->categorizationStatus() == model_t::E_CategorizationStatusWarn) {
+        LOG_TRACE(<< "Ignoring input record as its categorizer has a 'warn' status:"
+                  << core_t::LINE_ENDING << this->debugPrintRecord(dataRowFields));
+        return CGlobalCategoryId::hardFailure();
+    }
     if (m_CategorizationFilter.empty()) {
         globalCategoryId = dataCategorizer->computeAndUpdateCategory(
             false, dataRowFields, time, fieldValue, fieldValue,
@@ -208,11 +223,9 @@ CFieldDataCategorizer::computeAndUpdateCategory(const TStrStrUMap& dataRowFields
             false, dataRowFields, time, filtered, fieldValue,
             m_Limits.resourceMonitor(), m_JsonOutputWriter);
     }
-
-    if (m_PersistenceManager != nullptr) {
-        m_PersistenceManager->startPersistIfAppropriate();
+    if (globalCategoryId.isValid()) {
+        dataCategorizer->writeStatsIfUrgent(m_JsonOutputWriter, m_AnnotationJsonWriter);
     }
-
     return globalCategoryId;
 }
 
@@ -647,6 +660,9 @@ bool CFieldDataCategorizer::handleControlMessage(const std::string& controlMessa
         // Silent no-op.  This is a simple way to ignore repeated header
         // rows in input.
         break;
+    case 'c':
+        this->parseStopOnWarnControlMessage(controlMessage.substr(1));
+        break;
     case 'f':
         // Flush ID comes after the initial f
         this->acknowledgeFlush(controlMessage.substr(1), lastHandler);
@@ -677,9 +693,21 @@ void CFieldDataCategorizer::acknowledgeFlush(const std::string& flushId, bool la
     }
 }
 
+void CFieldDataCategorizer::parseStopOnWarnControlMessage(const std::string& enabledStr) {
+    bool enabled{false};
+    if (core::CStringUtils::stringToType(enabledStr, enabled) == false) {
+        LOG_ERROR(<< "Failed to parse stop-on-warn control message: " << enabledStr);
+        return;
+    }
+    if (m_StopCategorizationOnWarnStatus != enabled) {
+        LOG_INFO(<< "Stop-on-warn now: " << std::boolalpha << enabled);
+        m_StopCategorizationOnWarnStatus = enabled;
+    }
+}
+
 void CFieldDataCategorizer::writeChanges() {
     for (auto& dataCategorizerEntry : m_DataCategorizers) {
-        dataCategorizerEntry.second->writeChanges(m_JsonOutputWriter);
+        dataCategorizerEntry.second->writeChanges(m_JsonOutputWriter, m_AnnotationJsonWriter);
     }
 }
 

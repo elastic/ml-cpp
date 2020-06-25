@@ -26,6 +26,7 @@ namespace model {
 class CCategoryExamplesCollector;
 }
 namespace api {
+class CAnnotationJsonWriter;
 class CJsonOutputWriter;
 
 //! \brief
@@ -91,9 +92,21 @@ public:
         return m_CategoryIdMapper->categorizerKey();
     }
 
+    //! Get the most recent categorization status.
+    model_t::ECategorizationStatus categorizationStatus() const {
+        return m_DataCategorizer->categorizationStatus();
+    }
+
     //! Writes out to the JSON output writer any category definitions and stats
     //! that have changed since they were last written.
-    void writeChanges(CJsonOutputWriter& jsonOutputWriter);
+    void writeChanges(CJsonOutputWriter& jsonOutputWriter,
+                      CAnnotationJsonWriter& annotationJsonWriter);
+
+    //! If the lower level categorizer thinks it urgent, write the latest
+    //! categorizer stats, plus an annotation if the categorization status has
+    //! changed.
+    void writeStatsIfUrgent(CJsonOutputWriter& jsonOutputWriter,
+                            CAnnotationJsonWriter& annotationJsonWriter);
 
     //! Force an update of the resource monitor.
     void forceResourceRefresh(model::CResourceMonitor& resourceMonitor);
@@ -104,6 +117,11 @@ private:
                                       const model::CCategoryExamplesCollector& examplesCollector,
                                       const CCategoryIdMapper& categoryIdMapper,
                                       core::CStatePersistInserter& inserter);
+
+    //! Write the latest categorizer stats, plus an annotation if the
+    //! categorization status has changed.
+    void writeStats(CJsonOutputWriter& jsonOutputWriter,
+                    CAnnotationJsonWriter& annotationJsonWriter);
 
 private:
     //! Which field name are we partitioning on?  If empty, this means

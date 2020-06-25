@@ -42,7 +42,7 @@ CTokenListDataCategorizerBase::CTokenListDataCategorizerBase(CLimits& limits,
     : CDataCategorizer{limits, fieldName}, m_ReverseSearchCreator{reverseSearchCreator},
       m_LowerThreshold{std::min(0.99, std::max(0.01, threshold))},
       // Upper threshold is half way between the lower threshold and 1
-      m_UpperThreshold{(1.0 + m_LowerThreshold) / 2.0}, m_MemoryCategorizationFailures{0} {
+      m_UpperThreshold{(1.0 + m_LowerThreshold) / 2.0} {
 }
 
 void CTokenListDataCategorizerBase::dumpStats(const TLocalCategoryIdFormatterFunc& idFormatter) const {
@@ -82,7 +82,7 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
     // We search previous categories in descending order of the number of matches
     // we've seen for them
     auto bestSoFarIter = m_CategoriesByCount.end();
-    double bestSoFarSimilarity(m_LowerThreshold);
+    double bestSoFarSimilarity{m_LowerThreshold};
     for (auto iter = m_CategoriesByCount.begin(); iter != m_CategoriesByCount.end(); ++iter) {
         const CTokenListCategory& compCategory{m_Categories[iter->second]};
         const TSizeSizePrVec& baseTokenIds{compCategory.baseTokenIds()};
@@ -167,6 +167,10 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
 
     // If we get here we haven't matched, so create a new category
     m_CategoriesByCount.emplace_back(1, m_Categories.size());
+    ++m_TotalCount;
+    if (this->isCategoryCountRare(1)) {
+        ++m_NumRareCategories;
+    }
     m_Categories.emplace_back(isDryRun, str, rawStringLen, m_WorkTokenIds,
                               workWeight, m_WorkTokenUniqueIds);
 
@@ -312,10 +316,13 @@ bool CTokenListDataCategorizerBase::cacheReverseSearch(CLocalCategoryId category
 bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
     m_Categories.clear();
     m_CategoriesByCount.clear();
+    m_TotalCount = 0;
+    m_NumRareCategories = 0;
     m_TokenIdLookup.clear();
     m_WorkTokenIds.clear();
     m_WorkTokenUniqueIds.clear();
     m_MemoryCategorizationFailures = 0;
+    m_LastCategorizerStats = SCategorizerStats{};
 
     do {
         const std::string& name{traverser.name()};
@@ -340,7 +347,12 @@ bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTr
             const_cast<CTokenInfoItem&>(m_TokenIdLookup.back()).categoryCount(categoryCount);
         } else if (name == CATEGORY_TAG) {
             CTokenListCategory category{traverser};
-            m_CategoriesByCount.emplace_back(category.numMatches(), m_Categories.size());
+            std::size_t count{category.numMatches()};
+            m_CategoriesByCount.emplace_back(count, m_Categories.size());
+            m_TotalCount += count;
+            if (this->isCategoryCountRare(count)) {
+                ++m_NumRareCategories;
+            }
             m_Categories.emplace_back(std::move(category));
         } else if (name == MEMORY_CATEGORIZATION_FAILURES_TAG) {
             if (core::CStringUtils::stringToType(
@@ -353,9 +365,11 @@ bool CTokenListDataCategorizerBase::acceptRestoreTraverser(core::CStateRestoreTr
     } while (traverser.next());
 
     // Categories are persisted in order of creation, but this list needs to be
-    // sorted by count instead
-    std::sort(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
-              maths::COrderings::SFirstGreater());
+    // sorted by descending count instead
+    std::stable_sort(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
+                     maths::COrderings::SFirstGreater{});
+
+    this->updateCategorizerStats(m_LastCategorizerStats);
 
     return true;
 }
@@ -385,21 +399,22 @@ void CTokenListDataCategorizerBase::acceptPersistInserter(
 }
 
 CDataCategorizer::TPersistFunc CTokenListDataCategorizerBase::makeForegroundPersistFunc() const {
-    return std::bind(
-        static_cast<void (*)(const TTokenMIndex&, const TTokenListCategoryVec&, std::size_t, core::CStatePersistInserter&)>(
-            &CTokenListDataCategorizerBase::acceptPersistInserter),
-        std::cref(m_TokenIdLookup), std::cref(m_Categories),
-        m_MemoryCategorizationFailures, std::placeholders::_1);
+    return [this](core::CStatePersistInserter& inserter) {
+        return CTokenListDataCategorizerBase::acceptPersistInserter(
+            m_TokenIdLookup, m_Categories, m_MemoryCategorizationFailures, inserter);
+    };
 }
 
 CDataCategorizer::TPersistFunc CTokenListDataCategorizerBase::makeBackgroundPersistFunc() const {
-    return std::bind(
-        static_cast<void (*)(const TTokenMIndex&, const TTokenListCategoryVec&, std::size_t, core::CStatePersistInserter&)>(
-            &CTokenListDataCategorizerBase::acceptPersistInserter),
-        // Do NOT add std::ref wrappers around these arguments - they MUST be
-        // copied for thread safety
-        m_TokenIdLookup, m_Categories, m_MemoryCategorizationFailures,
-        std::placeholders::_1);
+    // Do NOT change this to capture the member variables by
+    // reference - they MUST be copied for thread safety
+    return [
+        tokenIdLookup = m_TokenIdLookup, categories = m_Categories,
+        memoryCategorizationFailures = m_MemoryCategorizationFailures
+    ](core::CStatePersistInserter & inserter) {
+        return CTokenListDataCategorizerBase::acceptPersistInserter(
+            tokenIdLookup, categories, memoryCategorizationFailures, inserter);
+    };
 }
 
 void CTokenListDataCategorizerBase::addCategoryMatch(bool isDryRun,
@@ -407,21 +422,25 @@ void CTokenListDataCategorizerBase::addCategoryMatch(bool isDryRun,
                                                      std::size_t rawStringLen,
                                                      const TSizeSizePrVec& tokenIds,
                                                      const TSizeSizeMap& tokenUniqueIds,
-                                                     TSizeSizePrVecItr& iter) {
+                                                     TSizeSizePrVecItr iter) {
     m_Categories[iter->second].addString(isDryRun, str, rawStringLen, tokenIds, tokenUniqueIds);
 
     std::size_t& count{iter->first};
+    bool wasCountRare{this->isCategoryCountRare(count)};
     ++count;
+    ++m_TotalCount;
+    if (wasCountRare && this->isCategoryCountRare(count) == false) {
+        --m_NumRareCategories;
+    }
 
     // Search backwards for the point where the incremented count belongs
     auto swapIter = m_CategoriesByCount.end();
-    auto checkIter = iter;
-    while (checkIter != m_CategoriesByCount.begin()) {
-        --checkIter;
-        if (count <= checkIter->first) {
+    while (iter != m_CategoriesByCount.begin()) {
+        --iter;
+        if (count <= iter->first) {
             break;
         }
-        swapIter = checkIter;
+        swapIter = iter;
     }
 
     // Move the iterator we've matched nearer the front of the list if it
@@ -503,6 +522,10 @@ bool CTokenListDataCategorizerBase::addPretokenisedTokens(const std::string& tok
     return true;
 }
 
+model_t::ECategorizationStatus CTokenListDataCategorizerBase::categorizationStatus() const {
+    return m_LastCategorizerStats.s_CategorizationStatus;
+}
+
 void CTokenListDataCategorizerBase::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTokenListDataCategorizerBase");
     this->CDataCategorizer::debugMemoryUsage(mem->addChild());
@@ -531,24 +554,14 @@ void CTokenListDataCategorizerBase::updateCategorizerStats(SCategorizerStats& ca
 
     categorizerStats.s_TotalCategories += m_Categories.size();
 
-    std::size_t categorizedMessagesThisCategorizer{0};
-    for (auto categoryByCount : m_CategoriesByCount) {
-        categorizedMessagesThisCategorizer += categoryByCount.first;
-    }
-    categorizerStats.s_CategorizedMessages += categorizedMessagesThisCategorizer;
+    categorizerStats.s_CategorizedMessages += m_TotalCount;
     categorizerStats.s_MemoryCategorizationFailures += m_MemoryCategorizationFailures;
 
-    std::size_t rareCategoriesThisCategorizer{0};
     std::size_t frequentCategoriesThisCategorizer{0};
     std::size_t deadCategoriesThisCategorizer{0};
     for (std::size_t i = 0; i < m_CategoriesByCount.size(); ++i) {
         const CTokenListCategory& category{m_Categories[m_CategoriesByCount[i].second]};
-        // Definitions for frequent/rare categories are:
-        // - rare = single match
-        // - frequent = matches more than 1% of messages
-        if (category.numMatches() == 1) {
-            ++rareCategoriesThisCategorizer;
-        } else if (category.numMatches() * 100 > categorizedMessagesThisCategorizer) {
+        if (this->isCategoryCountFrequent(category.numMatches())) {
             ++frequentCategoriesThisCategorizer;
         }
         for (std::size_t j = 0; j < i; ++j) {
@@ -561,16 +574,24 @@ void CTokenListDataCategorizerBase::updateCategorizerStats(SCategorizerStats& ca
         }
     }
     categorizerStats.s_FrequentCategories += frequentCategoriesThisCategorizer;
-    categorizerStats.s_RareCategories += rareCategoriesThisCategorizer;
+    categorizerStats.s_RareCategories += m_NumRareCategories;
     categorizerStats.s_DeadCategories += deadCategoriesThisCategorizer;
 
-    if (categorizerStats.s_CategorizationStatus != model_t::E_CategorizationStatusOk) {
-        categorizerStats.s_CategorizationStatus =
-            CTokenListDataCategorizerBase::calculateCategorizationStatus(
-                categorizedMessagesThisCategorizer, m_Categories.size(),
-                frequentCategoriesThisCategorizer,
-                rareCategoriesThisCategorizer, deadCategoriesThisCategorizer);
-    }
+    categorizerStats.s_CategorizationStatus = std::max(
+        categorizerStats.s_CategorizationStatus,
+        CTokenListDataCategorizerBase::calculateCategorizationStatus(
+            m_TotalCount, m_Categories.size(), frequentCategoriesThisCategorizer,
+            m_NumRareCategories, deadCategoriesThisCategorizer));
+}
+
+bool CTokenListDataCategorizerBase::isCategoryCountRare(std::size_t count) const {
+    // Definition of rare is a single match
+    return count == 1;
+}
+
+bool CTokenListDataCategorizerBase::isCategoryCountFrequent(std::size_t count) const {
+    // Definition of frequent is matching more than 1% of messages, and not one
+    return count * 100 > m_TotalCount && count != 1;
 }
 
 void CTokenListDataCategorizerBase::updateModelSizeStats(CResourceMonitor::SModelSizeStats& modelSizeStats) const {
@@ -583,11 +604,10 @@ CTokenListDataCategorizerBase::calculateCategorizationStatus(std::size_t categor
                                                              std::size_t frequentCategories,
                                                              std::size_t rareCategories,
                                                              std::size_t deadCategories) {
-
     // Categorization status is "warn" if:
 
     // - At least 100 messages have been categorized
-    if (categorizedMessages <= 100) {
+    if (categorizedMessages < 100) {
         return model_t::E_CategorizationStatusOk;
     }
 
@@ -714,9 +734,45 @@ bool CTokenListDataCategorizerBase::writeCategorizerStatsIfChanged(const TCatego
     if (newCategorizerStats == m_LastCategorizerStats) {
         return false;
     }
-    outputFunc(newCategorizerStats);
+    outputFunc(newCategorizerStats, newCategorizerStats.s_CategorizationStatus !=
+                                        m_LastCategorizerStats.s_CategorizationStatus);
     m_LastCategorizerStats = std::move(newCategorizerStats);
     return true;
+}
+
+bool CTokenListDataCategorizerBase::isStatsWriteUrgent() const {
+
+    // Ensure we write the stats after seeing many messages regardless of
+    // status or numbers of rare/frequent categories
+    if (m_TotalCount >= m_LastCategorizerStats.s_CategorizedMessages + 100000) {
+        return true;
+    }
+
+    // Otherwise, the main reason for this check is to detect that we've entered
+    // the "warn" status - if we're already in it then skip the work
+    if (m_LastCategorizerStats.s_CategorizationStatus == model_t::E_CategorizationStatusWarn) {
+        return false;
+    }
+
+    // m_CategoriesByCount is sorted by descending count, so all the
+    // frequent categories must be at the beginning
+    auto firstNonFrequentIter =
+        std::find_if_not(m_CategoriesByCount.begin(), m_CategoriesByCount.end(),
+                         [this](const TSizeSizePr& entry) {
+                             return this->isCategoryCountFrequent(entry.first);
+                         });
+
+    // Dead categories is passed as 0.  This may cause a warning status to be
+    // missed.  However, dead categories are quite unusual and quite expensive
+    // to calculate, so the cost/benefit does not make it worthwhile for a check
+    // that needs to be performed for every successfully categorized message.
+    // The warning status will eventually be detected when the dead category
+    // count is calculated in a memory usage check (which is done far less
+    // frequently).
+    return this->calculateCategorizationStatus(
+               m_TotalCount, m_Categories.size(),
+               firstNonFrequentIter - m_CategoriesByCount.begin(),
+               m_NumRareCategories, 0) == model_t::E_CategorizationStatusWarn;
 }
 
 std::size_t CTokenListDataCategorizerBase::numCategories() const {

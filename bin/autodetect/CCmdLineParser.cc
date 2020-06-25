@@ -50,9 +50,10 @@ bool CCmdLineParser::parse(int argc,
                            std::string& persistFileName,
                            bool& isPersistFileNamedPipe,
                            bool& isPersistInForeground,
-                           size_t& maxAnomalyRecords,
+                           std::size_t& maxAnomalyRecords,
                            bool& memoryUsage,
                            bool& multivariateByFields,
+                           bool& stopCategorizationOnWarnStatus,
                            TStrVec& clauseTokens) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
@@ -111,12 +112,14 @@ bool CCmdLineParser::parse(int argc,
                         "Optional number of buckets after which to periodically persist model state (Mutually exclusive with persistInterval)")
             ("maxQuantileInterval", boost::program_options::value<core_t::TTime>(),
                         "Optional interval at which to periodically output quantiles if they have not been output due to an anomaly - if not specified then quantiles will only be output following a big anomaly")
-            ("maxAnomalyRecords", boost::program_options::value<size_t>(),
+            ("maxAnomalyRecords", boost::program_options::value<std::size_t>(),
                         "The maximum number of records to be outputted for each bucket. Defaults to 100, a value 0 removes the limit.")
             ("memoryUsage",
                         "Log the model memory usage at the end of the job")
             ("multivariateByFields",
                         "Optional flag to enable multi-variate analysis of correlated by fields")
+            ("stopCategorizationOnWarnStatus",
+                        "Optional flag to stop categorization for partitions where the status is 'warn'.")
         ;
         // clang-format on
 
@@ -234,13 +237,16 @@ bool CCmdLineParser::parse(int argc,
             isPersistInForeground = true;
         }
         if (vm.count("maxAnomalyRecords") > 0) {
-            maxAnomalyRecords = vm["maxAnomalyRecords"].as<size_t>();
+            maxAnomalyRecords = vm["maxAnomalyRecords"].as<std::size_t>();
         }
         if (vm.count("memoryUsage") > 0) {
             memoryUsage = true;
         }
         if (vm.count("multivariateByFields") > 0) {
             multivariateByFields = true;
+        }
+        if (vm.count("stopCategorizationOnWarnStatus") > 0) {
+            stopCategorizationOnWarnStatus = true;
         }
 
         boost::program_options::collect_unrecognized(

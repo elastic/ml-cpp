@@ -16,7 +16,6 @@
 
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
-#include <api/CJsonOutputWriter.h>
 #include <api/CNdJsonInputParser.h>
 #include <api/COutputChainer.h>
 #include <api/CSingleStreamDataAdder.h>
@@ -70,7 +69,6 @@ void detectorPersistHelper(const std::string& configFileName,
             BUCKET_SIZE, ml::model_t::E_None, "", BUCKET_SIZE * latencyBuckets, false);
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-    ml::api::CJsonOutputWriter outputWriter(JOB_ID, wrappedOutputStream);
 
     std::string origSnapshotId;
     std::size_t numOrigDocs(0);
@@ -90,7 +88,7 @@ void detectorPersistHelper(const std::string& configFileName,
 
         // The categorizer knows how to assign categories to records
         CTestFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits,
-                                              outputChainer, outputWriter);
+                                              outputChainer, wrappedOutputStream);
 
         if (fieldConfig.fieldNameSuperset().count(
                 CTestFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
@@ -139,7 +137,7 @@ void detectorPersistHelper(const std::string& configFileName,
 
         // The categorizer knows how to assign categories to records
         CTestFieldDataCategorizer restoredCategorizer(
-            JOB_ID, fieldConfig, limits, restoredOutputChainer, outputWriter);
+            JOB_ID, fieldConfig, limits, restoredOutputChainer, wrappedOutputStream);
 
         size_t numCategorizerDocs(0);
 

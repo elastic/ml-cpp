@@ -472,7 +472,8 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                     const auto modelAnnotationCallback =
                         [&](core_t::TTime t, const std::string& annotation) {
                             m_CurrentBucketStats.s_Annotations.emplace_back(
-                                t, annotation, gatherer.searchKey().detectorIndex(),
+                                t, CAnnotation::E_ModelChange, annotation,
+                                gatherer.searchKey().detectorIndex(),
                                 gatherer.searchKey().partitionFieldName(),
                                 gatherer.partitionFieldValue(),
                                 gatherer.searchKey().overFieldName(),
