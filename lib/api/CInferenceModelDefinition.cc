@@ -5,6 +5,7 @@
  */
 #include <api/CInferenceModelDefinition.h>
 
+#include <c++/7/bits/c++config.h>
 #include <core/CBase64Filter.h>
 #include <core/CCompressOStream.h>
 #include <core/CPersistUtils.h>
@@ -17,7 +18,10 @@
 #include <boost/iostreams/filtering_stream.hpp>
 
 #include <cmath>
+#include <ios>
+#include <iterator>
 #include <memory>
+#include <rapidjson/document.h>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -50,6 +54,7 @@ const std::string JSON_LEAF_VALUE_TAG{"leaf_value"};
 const std::string JSON_LEFT_CHILD_TAG{"left_child"};
 const std::string JSON_LOGISTIC_REGRESSION_TAG{"logistic_regression"};
 const std::string JSON_LT{"lt"};
+const std::string JSON_MODEL_SIZE_INFO_TAG{"model_size_info"};
 const std::string JSON_NODE_INDEX_TAG{"node_index"};
 const std::string JSON_NUM_CLASSES_TAG{"num_classes"};
 const std::string JSON_NUM_CLASSIFICATION_WEIGHTS_TAG{"num_classification_weights"};
@@ -80,6 +85,8 @@ const std::string JSON_WEIGHTED_MODE_TAG{"weighted_mode"};
 const std::string JSON_WEIGHTED_SUM_TAG{"weighted_sum"};
 const std::string JSON_WEIGHTS_TAG{"weights"};
 // clang-format on
+
+const std::size_t MAX_DOCUMENT_SIZE(16 * 1024 * 1024); // 16MB
 
 auto toJson(const std::string& value, CSerializableToJson::TRapidJsonWriter& writer) {
     rapidjson::Value result;
@@ -373,7 +380,7 @@ CTrainedModel::TStringVec CTree::removeUnusedFeatures() {
     return this->featureNames();
 }
 
-std::string CInferenceModelDefinition::jsonString() {
+std::string CInferenceModelDefinition::jsonString() const {
 
     std::ostringstream stream;
     {
@@ -390,10 +397,10 @@ std::string CInferenceModelDefinition::jsonString() {
     return resultString;
 }
 
-std::string CInferenceModelDefinition::jsonStringCompressedFormat() {
+std::stringstream CInferenceModelDefinition::jsonStringCompressedFormat() const {
+    std::stringstream compressedStream;
     using TFilteredOutput = boost::iostreams::filtering_stream<boost::iostreams::output>;
     std::string modelDefinitionStr{jsonString()};
-    std::ostringstream compressedStream;
     {
         TFilteredOutput outFilter;
         outFilter.push(boost::iostreams::gzip_compressor());
@@ -402,36 +409,60 @@ std::string CInferenceModelDefinition::jsonStringCompressedFormat() {
         outFilter << modelDefinitionStr;
         outFilter.flush();
     }
-
+    return compressedStream;
     // LOG_DEBUG(<< "Compressed stream " << compressedStream.str());
+    // auto streamPtr = std::make_shared<std::ostringstream>();
+    // {
+    //     CSingleStreamDataAdder dataAdder{streamPtr};
+    //     core::CStateCompressor::CChunkFilter chunkFilter{dataAdder};
+    //     core::CCompressOStream compressOStream{chunkFilter};
+    //     compressOStream << modelDefinitionStr;
+    // }
 
-    
-    auto streamPtr = std::make_shared<std::ostringstream>();
-    {
-        CSingleStreamDataAdder dataAdder{streamPtr};
-        core::CStateCompressor::CChunkFilter chunkFilter{dataAdder};
-        core::CCompressOStream compressOStream{chunkFilter};
-        compressOStream << modelDefinitionStr;
+    // LOG_DEBUG(<< "New compressed string " << streamPtr->str());
+    // std::ostringstream stream;
+    // {
+    //     const std::string& compressedStr{compressedStream.str()};
+    //     core::CJsonOutputStreamWrapper wrapper{stream};
+    //     CSerializableToJson::TRapidJsonWriter writer{wrapper};
+    //     writer.StartObject();
+    //     writer.Key(JSON_DEFINITION_TAG);
+    //     writer.String(compressedStr);
+    //     std::size_t length{core::CStringUtils::utf16LengthOfUtf8String(compressedStr)};
+    //     writer.Key(JSON_TOTAL_DEFINITION_LENGTH_TAG);
+    //     writer.Uint64(length);
+    //     writer.EndObject();
+    //     stream.flush();
+    // }
+    // // string writer puts the json object in an array, so we strip the external brackets
+    // std::string jsonStr{stream.str()};
+    // std::string resultString(jsonStr, 1, jsonStr.size() - 2);
+    // return resultString;
+}
+
+void CInferenceModelDefinition::addToDocumentCompressed(rapidjson::Value& parentObject,
+                                                        TRapidJsonWriter& writer) const {
+    std::stringstream compressedString{jsonStringCompressedFormat()};
+    rapidjson::Value definitionChunksArray{writer.makeArray()};
+    std::streamsize processed{0};
+    compressedString.seekg(0, compressedString.end);
+    std::streamsize remained{compressedString.tellg()};
+    compressedString.seekg(0, compressedString.beg);
+    std::size_t utf16Length{static_cast<std::size_t>(remained)}; // since we use base64 encoding
+    while (remained > 0) {
+        std::size_t bytesToProcess{std::min(MAX_DOCUMENT_SIZE, static_cast<size_t>(remained))};
+        std::string buffer;
+        std::copy_n(std::istreambuf_iterator<char>(compressedString.seekg(processed)),
+                    bytesToProcess, std::back_inserter(buffer));
+        remained -= bytesToProcess;
+        // utf16Length += core::CStringUtils::utf16LengthOfUtf8String(buffer);
+        processed += bytesToProcess;
+        rapidjson::Value chunk;
+        chunk.SetString(buffer, writer.getRawAllocator());
+        definitionChunksArray.PushBack(chunk, writer.getRawAllocator());
     }
-    LOG_DEBUG(<< "New compressed string " << streamPtr->str());
-    std::ostringstream stream;
-    {
-        const std::string& compressedStr{compressedStream.str()};
-        core::CJsonOutputStreamWrapper wrapper{stream};
-        CSerializableToJson::TRapidJsonWriter writer{wrapper};
-        writer.StartObject();
-        writer.Key(JSON_DEFINITION_TAG);
-        writer.String(compressedStr);
-        std::size_t length{core::CStringUtils::utf16LengthOfUtf8String(compressedStr)};
-        writer.Key(JSON_TOTAL_DEFINITION_LENGTH_TAG);
-        writer.Uint64(length);
-        writer.EndObject();
-        stream.flush();
-    }
-    // string writer puts the json object in an array, so we strip the external brackets
-    std::string jsonStr{stream.str()};
-    std::string resultString(jsonStr, 1, jsonStr.size() - 2);
-    return resultString;
+    writer.addMember(JSON_DEFINITION_TAG, definitionChunksArray, parentObject);
+    writer.addMember(JSON_TOTAL_DEFINITION_LENGTH_TAG, toJson(utf16Length).Move(), parentObject);
 }
 
 void CInferenceModelDefinition::addToDocument(rapidjson::Value& parentObject,
@@ -601,6 +632,10 @@ std::string CInferenceModelDefinition::CSizeInfo::jsonString() {
     std::string jsonStr{stream.str()};
     std::string resultString(jsonStr, 1, jsonStr.size() - 2);
     return resultString;
+}
+
+const std::string& CInferenceModelDefinition::CSizeInfo::typeString() const {
+    return JSON_MODEL_SIZE_INFO_TAG;
 }
 
 void CInferenceModelDefinition::CSizeInfo::addToDocument(rapidjson::Value& parentObject,

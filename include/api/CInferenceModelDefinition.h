@@ -418,6 +418,7 @@ public:
     public:
         explicit CSizeInfo(const CInferenceModelDefinition& definition);
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        const std::string& typeString() const;
         std::string jsonString();
 
     private:
@@ -435,8 +436,9 @@ public:
     TTrainedModelUPtr& trainedModel();
     const TTrainedModelUPtr& trainedModel() const;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
-    std::string jsonString();
-    std::string jsonStringCompressedFormat();
+    void addToDocumentCompressed(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const;
+    std::string jsonString() const;
+    std::stringstream jsonStringCompressedFormat() const;
     void fieldNames(TStringVec&& fieldNames);
     const TStringVec& fieldNames() const;
     const std::string& typeString() const;

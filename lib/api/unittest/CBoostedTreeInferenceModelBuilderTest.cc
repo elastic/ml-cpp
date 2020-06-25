@@ -173,7 +173,8 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     // verify compressed definition
     {
         std::string modelDefinitionStr{definition->jsonString()};
-        std::string compressedModelDefinitionStr{definition->jsonStringCompressedFormat()};
+        std::string compressedModelDefinitionStr{
+            definition->jsonStringCompressedFormat().str()};
         rapidjson::Document result;
         rapidjson::ParseResult ok(result.Parse(compressedModelDefinitionStr));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
@@ -309,7 +310,8 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     TStrVec expectedClassificationLabels{"true", "false"};
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, expectedClassificationLabels};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
-
+    LOG_DEBUG(<< output.str());
+    return;
     LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
     auto modelSizeDefinition{definition->sizeInfo()->jsonString()};
     LOG_DEBUG(<< "Model size definition: " << modelSizeDefinition);
@@ -366,7 +368,8 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     // verify compressed definition
     {
         std::string modelDefinitionStr{definition->jsonString()};
-        std::string compressedModelDefinitionStr{definition->jsonStringCompressedFormat()};
+        std::string compressedModelDefinitionStr{
+            definition->jsonStringCompressedFormat().str()};
         rapidjson::Document result;
         rapidjson::ParseResult ok(result.Parse(compressedModelDefinitionStr));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);

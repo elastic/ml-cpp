@@ -18,7 +18,7 @@ namespace ml {
 namespace api {
 
 namespace {
-const std::string INFERENCE_MODEL{"inference_model"};
+const std::string INFERENCE_MODEL{"compressed_inference_model"};
 }
 
 void CBoostedTreeInferenceModelBuilder::addTree() {
