@@ -495,16 +495,15 @@ BOOST_AUTO_TEST_CASE(testDurationToString) {
     ml::core_t::TTime d = 24 * h;
     BOOST_REQUIRE_EQUAL("0s", ml::core::CTimeUtils::durationToString(0));
     BOOST_REQUIRE_EQUAL("1s", ml::core::CTimeUtils::durationToString(s));
-    BOOST_REQUIRE_EQUAL("1m0s", ml::core::CTimeUtils::durationToString(m));
-    BOOST_REQUIRE_EQUAL("1h0m0s", ml::core::CTimeUtils::durationToString(h));
-    BOOST_REQUIRE_EQUAL("1d0h0m0s", ml::core::CTimeUtils::durationToString(d));
+    BOOST_REQUIRE_EQUAL("1m", ml::core::CTimeUtils::durationToString(m));
+    BOOST_REQUIRE_EQUAL("1h", ml::core::CTimeUtils::durationToString(h));
+    BOOST_REQUIRE_EQUAL("1d", ml::core::CTimeUtils::durationToString(d));
     BOOST_REQUIRE_EQUAL("1m1s", ml::core::CTimeUtils::durationToString(m + s));
-    BOOST_REQUIRE_EQUAL("1h1m0s", ml::core::CTimeUtils::durationToString(h + m));
-    BOOST_REQUIRE_EQUAL("1h0m1s", ml::core::CTimeUtils::durationToString(h + s));
+    BOOST_REQUIRE_EQUAL("1h1m", ml::core::CTimeUtils::durationToString(h + m));
+    BOOST_REQUIRE_EQUAL("1h1s", ml::core::CTimeUtils::durationToString(h + s));
     BOOST_REQUIRE_EQUAL("1h1m1s", ml::core::CTimeUtils::durationToString(h + m + s));
     BOOST_REQUIRE_EQUAL("1d1h1m1s", ml::core::CTimeUtils::durationToString(d + h + m + s));
-    BOOST_REQUIRE_EQUAL("7d12h0m0s",
-                        ml::core::CTimeUtils::durationToString(7 * d + 12 * h));
+    BOOST_REQUIRE_EQUAL("7d12h", ml::core::CTimeUtils::durationToString(7 * d + 12 * h));
     BOOST_REQUIRE_EQUAL("365d5h48m46s", ml::core::CTimeUtils::durationToString(
                                             365 * d + 5 * h + 48 * m + 46 * s));
 }

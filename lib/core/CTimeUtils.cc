@@ -156,21 +156,19 @@ std::string CTimeUtils::durationToString(core_t::TTime duration) {
     duration -= hours * constants::HOUR;
     core_t::TTime minutes = duration / constants::MINUTE;
     duration -= minutes * constants::MINUTE;
-    bool seenNonZero = false;
     std::string res;
-    if (seenNonZero || days > 0) {
+    if (days > 0) {
         res += std::to_string(days) + "d";
-        seenNonZero = true;
     }
-    if (seenNonZero || hours > 0) {
+    if (hours > 0) {
         res += std::to_string(hours) + "h";
-        seenNonZero = true;
     }
-    if (seenNonZero || minutes > 0) {
+    if (minutes > 0) {
         res += std::to_string(minutes) + "m";
-        seenNonZero = true;
     }
-    res += std::to_string(duration) + "s";
+    if ((duration > 0) || res.empty()) {
+        res += std::to_string(duration) + "s";
+    }
     return res;
 }
 
