@@ -10,6 +10,7 @@
 #include <core/CStrFTime.h>
 #include <core/CStrPTime.h>
 #include <core/CTimezone.h>
+#include <core/Constants.h>
 #include <core/CoreTypes.h>
 
 #include <chrono>
@@ -146,6 +147,29 @@ void CTimeUtils::toStringCommon(core_t::TTime t, const std::string& format, std:
 
 bool CTimeUtils::isDateWord(const std::string& word) {
     return CDateWordCache::instance().isDateWord(word);
+}
+
+std::string CTimeUtils::durationToString(core_t::TTime duration) {
+    core_t::TTime days = duration / constants::DAY;
+    duration -= days * constants::DAY;
+    core_t::TTime hours = duration / constants::HOUR;
+    duration -= hours * constants::HOUR;
+    core_t::TTime minutes = duration / constants::MINUTE;
+    duration -= minutes * constants::MINUTE;
+    std::string res;
+    if (days > 0) {
+        res += std::to_string(days) + "d";
+    }
+    if (hours > 0) {
+        res += std::to_string(hours) + "h";
+    }
+    if (minutes > 0) {
+        res += std::to_string(minutes) + "m";
+    }
+    if ((duration > 0) || res.empty()) {
+        res += std::to_string(duration) + "s";
+    }
+    return res;
 }
 
 // Initialise statics for the inner class CDateWordCache
