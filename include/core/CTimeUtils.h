@@ -71,6 +71,7 @@ public:
     //! whitespace before calling this function.
     static bool isDateWord(const std::string& word);
 
+    //! Formats the given duration as human-readable string.
     static std::string durationToString(core_t::TTime duration);
 
 private:
