@@ -728,7 +728,8 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
                 TFloatMeanAccumulatorVec values(
                     window->valuesMinusPrediction(this->scaledPredictor(predictor)));
 
-                core_t::TTime start{CIntegerTools::floor(window->startTime(), m_BucketLength)};
+                core_t::TTime start{CIntegerTools::floor(window->startValuesTime(),
+                                                         m_BucketLength)};
                 core_t::TTime bucketLength{window->bucketLength()};
                 CPeriodicityHypothesisTestsResult result{
                     testForPeriods(config, start, bucketLength, values)};
@@ -909,7 +910,7 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
     // would significantly delay when we first detect short periodic
     // components for longer bucket lengths otherwise.
     auto scheduledTest = [&]() {
-        core_t::TTime length{time - m_Windows[test]->startTime()};
+        core_t::TTime length{time - m_Windows[test]->startValuesTime()};
         for (auto schedule :
              CPeriodicityTestWindowParameters::testSchedule(test, m_BucketLength)) {
             if (length >= schedule && length < schedule + m_BucketLength) {
@@ -941,7 +942,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::pruneLinearScales() {
     core_t::TTime cutoff{std::numeric_limits<core_t::TTime>::max()};
     for (const auto& window : m_Windows) {
         if (window != nullptr) {
-            cutoff = std::min(cutoff, window->startTime());
+            cutoff = std::min(cutoff, window->startValuesTime());
         }
     }
     m_LinearScales.erase(std::remove_if(m_LinearScales.begin(), m_LinearScales.end(),
@@ -1677,8 +1678,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
 
         std::sort(newComponents.begin(), newComponents.end(), maths::COrderings::SLess());
 
-        core_t::TTime startTime{window.startTime() + window.offset()};
-        core_t::TTime endTime{window.endTime() + window.offset()};
+        core_t::TTime startTime{window.startValuesTime()};
+        core_t::TTime endTime{window.endValuesTime()};
         core_t::TTime dt{window.bucketLength()};
 
         TFloatMeanAccumulatorVec values(window.valuesMinusPrediction(predictor));

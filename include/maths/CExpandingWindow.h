@@ -29,28 +29,26 @@ namespace maths {
 //! \brief Implements a fixed memory expanding time window.
 //!
 //! DESCRIPTION:\n
-//! As the window expands it compresses by merging adjacent values
-//! and maintaining means of merged values. It cycles through a
-//! sequence of increasing compression factors, which are determined
-//! by a sequence of increasing bucketing lengths supplied to the
-//! constructor. At the point it overflows, i.e. time since the
-//! beginning of the window exceeds "size" x "maximum bucket length",
-//! it will re-initialize the bucketing and update the start time.
+//! As the window expands it merges adjacent values and maintaining means of
+//! merged values. It cycles through a sequence of increasing bucket lengths
+//! supplied to the constructor. At the point it overflows, i.e. time since
+//! the beginning of the window exceeds "size" x "maximum bucket length", it
+//! re-initializes the bucketing and updates the start time.
 //!
 //! IMPLEMENTATION:\n
-//! It is expected that the full window of values only needs to be
-//! accessed infrequently. For example, this class is currently used
-//! by the test for seasonal components and as such the full window
-//! of values is only accessed when doing a test at the point the
-//! bucketing interval expands.
+//! It is expected that the full window of values only needs to be accessed
+//! infrequently. For example, this class is currently used by the test for
+//! seasonal components and as such the full window of values is only accessed
+//! when doing a test at the point the bucket length increases.
 //!
-//! Since the bucket values can constitute a significant amount of
-//! memory, one can choose to store them in deflated format. Empirically,
-//! this saves between 60% and 95% of the memory of this class depending
-//! primarily on the number of populated buckets.
+//! Since the bucket values can constitute a significant amount of memory, they
+//! are stored in deflated format. Empirically, this saves between 60% and 95%
+//! of the memory of this class depending primarily on the number of populated
+//! buckets.
 //!
-//! The CPU cost of deflation is amortised by maintaining a small buffer
-//! which is update with new values and only flushed when full.
+//! The CPU cost of in/deflating to update the current bucket is amortised by
+//! maintaining a small buffer which is updated with new data points and only
+//! flushed when full.
 class MATHS_EXPORT CExpandingWindow {
 public:
     using TDoubleVec = std::vector<double>;
@@ -73,20 +71,21 @@ public:
     //! Persist state by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-    //! Get the start time of the sketch.
-    core_t::TTime startTime() const;
-
-    //! Get the end time of the sketch.
-    core_t::TTime endTime() const;
-
-    //! Get the mean offset of values in the bucket.
-    core_t::TTime offset() const;
-
     //! Get the current bucket length.
     core_t::TTime bucketLength() const;
 
     //! Get the number of bucket values.
     std::size_t size() const;
+
+    //! Get the mean time offset of the data points added with respect to the start
+    //! of the *data* bucket.
+    core_t::TTime dataPointsTimeOffsetInBucket() const;
+
+    //! Get the time of the first window value.
+    core_t::TTime startValuesTime() const;
+
+    //! Get the end time of the windows' values.
+    core_t::TTime endValuesTime() const;
 
     //! Get the bucket values.
     TFloatMeanAccumulatorVec values() const;
@@ -138,6 +137,9 @@ private:
     };
 
 private:
+    //! Get the end time of the window.
+    core_t::TTime endTime() const;
+
     //! Convert to a compressed representation.
     void deflate(bool commit) const;
 
@@ -160,13 +162,13 @@ private:
     //! The number of buckets.
     std::size_t m_Size;
 
-    //! The data bucketing length.
-    core_t::TTime m_BucketLength;
+    //! The data bucket length.
+    core_t::TTime m_DataBucketLength;
 
-    //! The bucket lengths to test.
+    //! The set of possible expanded window bucket lengths.
     TTimeCRng m_BucketLengths;
 
-    //! The index in m_BucketLengths of the current bucketing interval.
+    //! The index in m_BucketLengths of the current window bucketing interval.
     std::size_t m_BucketLengthIndex;
 
     //! The time of the first data point.
@@ -175,7 +177,7 @@ private:
     //! A buffer used to amortize the cost of compression.
     TSizeFloatMeanAccumulatorPrVec m_BufferedValues;
 
-    //! Get the total time to propagate the values forward on decompression.
+    //! The total time to propagate the values forward on decompression.
     double m_BufferedTimeToPropagate;
 
     //! The bucket values.
@@ -184,7 +186,7 @@ private:
     //! The deflated bucket values.
     TByteVec m_DeflatedBucketValues;
 
-    //! The mean value time modulo the data bucketing length.
+    //! The mean offset of the window bucket values' in the bucket time interval.
     TFloatMeanAccumulator m_MeanOffset;
 };
 }

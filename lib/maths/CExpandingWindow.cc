@@ -35,9 +35,9 @@ CExpandingWindow::CExpandingWindow(core_t::TTime bucketLength,
                                    std::size_t size,
                                    double decayRate,
                                    bool deflate)
-    : m_Deflate{deflate}, m_DecayRate{decayRate}, m_Size{size}, m_BucketLength{bucketLength},
-      m_BucketLengths{bucketLengths}, m_BucketLengthIndex{0},
-      m_StartTime{boost::numeric::bounds<core_t::TTime>::lowest()},
+    : m_Deflate{deflate}, m_DecayRate{decayRate}, m_Size{size},
+      m_DataBucketLength{bucketLength}, m_BucketLengths{bucketLengths},
+      m_BucketLengthIndex{0}, m_StartTime{boost::numeric::bounds<core_t::TTime>::lowest()},
       m_BufferedTimeToPropagate(0.0), m_BucketValues(size % 2 == 0 ? size : size + 1) {
     m_BufferedValues.reserve(MAX_BUFFER_SIZE);
     this->deflate(true);
@@ -65,25 +65,28 @@ void CExpandingWindow::acceptPersistInserter(core::CStatePersistInserter& insert
     inserter.insertValue(MEAN_OFFSET_TAG, m_MeanOffset.toDelimited());
 }
 
-core_t::TTime CExpandingWindow::startTime() const {
-    return m_StartTime;
-}
-
-core_t::TTime CExpandingWindow::endTime() const {
-    return m_StartTime + (static_cast<core_t::TTime>(m_Size) *
-                          m_BucketLengths[m_BucketLengthIndex]);
-}
-
-core_t::TTime CExpandingWindow::offset() const {
-    return static_cast<core_t::TTime>(CBasicStatistics::mean(m_MeanOffset) + 0.5);
-}
-
 core_t::TTime CExpandingWindow::bucketLength() const {
     return m_BucketLengths[m_BucketLengthIndex];
 }
 
 std::size_t CExpandingWindow::size() const {
     return m_Size;
+}
+
+core_t::TTime CExpandingWindow::dataPointsTimeOffsetInBucket() const {
+    return static_cast<core_t::TTime>(CBasicStatistics::mean(m_MeanOffset) + 0.5);
+}
+
+core_t::TTime CExpandingWindow::startValuesTime() const {
+    return this->dataPointsTimeOffsetInBucket() +
+           (CIntegerTools::ceil(m_StartTime, m_DataBucketLength) +
+            CIntegerTools::floor(m_StartTime + this->bucketLength() - 1, m_DataBucketLength)) /
+               2;
+}
+
+core_t::TTime CExpandingWindow::endValuesTime() const {
+    return this->startValuesTime() +
+           static_cast<core_t::TTime>(m_Size) * this->bucketLength();
 }
 
 CExpandingWindow::TFloatMeanAccumulatorVec CExpandingWindow::values() const {
@@ -95,14 +98,14 @@ CExpandingWindow::TFloatMeanAccumulatorVec
 CExpandingWindow::valuesMinusPrediction(const TPredictor& predictor) const {
     CScopeInflate inflate(*this, false);
 
-    core_t::TTime start{CIntegerTools::floor(this->startTime(), m_BucketLength)};
-    core_t::TTime end{CIntegerTools::ceil(this->endTime(), m_BucketLength)};
+    core_t::TTime start{CIntegerTools::ceil(m_StartTime, m_DataBucketLength)};
+    core_t::TTime end{CIntegerTools::ceil(this->endTime(), m_DataBucketLength)};
     core_t::TTime size{static_cast<core_t::TTime>(m_BucketValues.size())};
-    core_t::TTime offset{this->offset()};
+    core_t::TTime offset{this->dataPointsTimeOffsetInBucket()};
 
     TFloatMeanAccumulatorVec predictions(size);
-    for (core_t::TTime time = start + offset; time < end; time += m_BucketLength) {
-        core_t::TTime bucket{(time - start) / m_BucketLengths[m_BucketLengthIndex]};
+    for (core_t::TTime time = start + offset; time < end; time += m_DataBucketLength) {
+        core_t::TTime bucket{(time - start) / this->bucketLength()};
         if (bucket >= 0 && bucket < size) {
             predictions[bucket].add(predictor(time));
         }
@@ -128,7 +131,7 @@ void CExpandingWindow::shiftTime(core_t::TTime dt) {
 }
 
 void CExpandingWindow::propagateForwardsByTime(double time) {
-    if (!CMathsFuncs::isFinite(time) || time < 0.0) {
+    if (CMathsFuncs::isFinite(time) == false || time < 0.0) {
         LOG_ERROR(<< "Bad propagation time " << time);
         return;
     }
@@ -149,7 +152,7 @@ void CExpandingWindow::add(core_t::TTime time, double value, double weight) {
                 auto end = m_BucketValues.begin();
 
                 if (m_BucketLengthIndex == 0) {
-                    m_StartTime = CIntegerTools::floor(time, m_BucketLengths[0]);
+                    this->initialize(time);
                 } else {
                     std::size_t compression(m_BucketLengths[m_BucketLengthIndex] /
                                             m_BucketLengths[m_BucketLengthIndex - 1]);
@@ -178,7 +181,7 @@ void CExpandingWindow::add(core_t::TTime time, double value, double weight) {
             }
             m_BufferedValues.back().second.add(value, weight);
         }
-        m_MeanOffset.add(static_cast<double>(time % m_BucketLength));
+        m_MeanOffset.add(static_cast<double>(time % m_DataBucketLength));
     }
 }
 
@@ -204,6 +207,10 @@ std::size_t CExpandingWindow::memoryUsage() const {
     std::size_t mem{core::CMemory::dynamicSize(m_BucketValues)};
     mem += core::CMemory::dynamicSize(m_DeflatedBucketValues);
     return mem;
+}
+
+core_t::TTime CExpandingWindow::endTime() const {
+    return m_StartTime + static_cast<core_t::TTime>(m_Size) * this->bucketLength();
 }
 
 void CExpandingWindow::deflate(bool commit) const {
