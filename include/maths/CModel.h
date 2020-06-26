@@ -138,9 +138,8 @@ private:
     const TDouble2VecWeightsAryVec* m_TrendWeights = nullptr;
     //! The prior sample weights.
     const TDouble2VecWeightsAryVec* m_PriorWeights = nullptr;
-    //! The model change callback.
-    maths_t::TModelAnnotationCallback m_ModelAnnotationCallback =
-        [](core_t::TTime, const std::string&) {};
+    //! The add annotation callback.
+    maths_t::TModelAnnotationCallback m_ModelAnnotationCallback = [](const std::string&) {};
 };
 
 //! \brief The extra parameters needed by CModel::probability.
