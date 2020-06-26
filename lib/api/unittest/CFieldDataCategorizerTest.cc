@@ -763,7 +763,8 @@ BOOST_AUTO_TEST_CASE(testStopCategorizingOnWarnStatusPerPartition) {
     // All these combinations of initial state and control message changes
     // should result in the same behaviour
     using TBoolBoolBoolTuple = std::tuple<bool, bool, bool>;
-    auto combinations = {TBoolBoolBoolTuple{true, false, false}, TBoolBoolBoolTuple{true, true, true},
+    auto combinations = {TBoolBoolBoolTuple{true, false, false},
+                         TBoolBoolBoolTuple{true, true, true},
                          TBoolBoolBoolTuple{false, true, true}};
     for (const auto& args : combinations) {
         const std::string& output{setupPerPartitionStopOnWarnTest(
