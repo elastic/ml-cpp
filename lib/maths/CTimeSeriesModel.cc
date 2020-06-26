@@ -1501,16 +1501,14 @@ CUnivariateTimeSeriesModel::testAndApplyChange(const CModelAddSamplesParams& par
     }
 
     if (m_ChangeDetector != nullptr) {
-        const maths_t::TModelAnnotationCallback& modelAnnotationCallback =
-            params.annotationCallback();
+        const auto& modelAnnotationCallback = params.annotationCallback();
         m_ChangeDetector->addSamples({{time, values[median].second[0]}}, {weights});
         if (m_ChangeDetector->stopTesting()) {
             m_ChangeDetector.reset();
             m_TrendModel->testingForChange(false);
         } else if (auto change = m_ChangeDetector->change()) {
-            std::string annotation{"Detected " + change->print()};
-            LOG_DEBUG(<< annotation << " at " << time);
-            modelAnnotationCallback(time, annotation);
+            LOG_DEBUG(<< "Detected " << change->print() << " at " << time);
+            modelAnnotationCallback("Detected " + change->print());
             m_ChangeDetector.reset();
             m_TrendModel->testingForChange(false);
             return this->applyChange(*change);
@@ -1550,8 +1548,7 @@ CUnivariateTimeSeriesModel::updateTrend(const CModelAddSamplesParams& params,
                                         const TTimeDouble2VecSizeTrVec& samples) {
 
     const TDouble2VecWeightsAryVec& weights = params.trendWeights();
-    const maths_t::TModelAnnotationCallback& modelAnnotationCallback =
-        params.annotationCallback();
+    const auto& modelAnnotationCallback = params.annotationCallback();
 
     for (const auto& sample : samples) {
         if (sample.second.size() != 1) {
@@ -2869,8 +2866,7 @@ CMultivariateTimeSeriesModel::updateTrend(const CModelAddSamplesParams& params,
                                           const TTimeDouble2VecSizeTrVec& samples) {
 
     const TDouble2VecWeightsAryVec& weights = params.trendWeights();
-    const maths_t::TModelAnnotationCallback& modelAnnotationCallback =
-        params.annotationCallback();
+    const auto& modelAnnotationCallback = params.annotationCallback();
 
     std::size_t dimension{this->dimension()};
 
