@@ -274,7 +274,7 @@ std::string SNode::print() const {
                 : ", " + core::CContainerPrinter::print(s_AnnotatedProbability.s_Influences));
 }
 
-void SNode::swap(SNode& other) {
+void SNode::swap(SNode& other) noexcept {
     std::swap(s_Parent, other.s_Parent);
     s_Children.swap(other.s_Children);
     std::swap(s_Spec, other.s_Spec);
@@ -290,7 +290,7 @@ void SNode::swap(SNode& other) {
     std::swap(s_BucketLength, other.s_BucketLength);
 }
 
-void swap(SNode& node1, SNode& node2) {
+void swap(SNode& node1, SNode& node2) noexcept {
     node1.swap(node2);
 }
 

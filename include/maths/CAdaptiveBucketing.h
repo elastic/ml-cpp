@@ -174,7 +174,7 @@ protected:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Efficiently swap the contents of two bucketing objects.
-    void swap(CAdaptiveBucketing& other);
+    void swap(CAdaptiveBucketing& other) noexcept;
 
     //! Create a new uniform bucketing with \p n buckets on the
     //! interval [\p a, \p b].

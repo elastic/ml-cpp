@@ -72,6 +72,7 @@
 === Bug Fixes
 
 * Better interrupt handling during named pipe connection. (See {ml-pull}1311[#1311].)
+* Trap potential cause of SIGFPE. (See {ml-pull}1351[#1351], issue: {ml-issue}1348[#1348].)
 
 == {es} version 7.8.0
 

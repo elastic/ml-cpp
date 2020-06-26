@@ -127,7 +127,7 @@ public:
     virtual ~CPrior() = default;
 
     //! Swap the contents of this prior and \p other.
-    void swap(CPrior& other);
+    void swap(CPrior& other) noexcept;
     //@}
 
     //! Check if the prior is being used to model discrete data.

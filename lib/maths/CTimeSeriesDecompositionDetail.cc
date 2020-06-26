@@ -12,6 +12,7 @@
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/CTimeUtils.h>
 #include <core/CTimezone.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
@@ -1564,8 +1565,9 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
                              return component.time().excludes(*seasonalTime);
                          }) == components.end()) {
             LOG_DEBUG(<< "Detected '" << candidate.s_Description << "'");
-            m_ModelAnnotationCallback("Detected periodicity with period " +
-                                      std::to_string(candidate.s_Period));
+            m_ModelAnnotationCallback(
+                "Detected periodicity with period " +
+                core::CTimeUtils::durationToString(candidate.s_Period));
             newComponents.emplace_back(std::move(seasonalTime), candidate.s_PiecewiseScaled);
         }
     }

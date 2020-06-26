@@ -257,7 +257,7 @@ void CDecompositionComponent::CPackedSplines::acceptPersistInserter(core::CState
     }
 }
 
-void CDecompositionComponent::CPackedSplines::swap(CPackedSplines& other) {
+void CDecompositionComponent::CPackedSplines::swap(CPackedSplines& other) noexcept {
     std::swap(m_Types, other.m_Types);
     m_Knots.swap(other.m_Knots);
     m_Values[0].swap(other.m_Values[0]);
