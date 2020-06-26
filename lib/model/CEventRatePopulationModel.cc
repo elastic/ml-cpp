@@ -461,27 +461,28 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
 
             for (auto& attribute : attributeValuesAndWeights) {
                 std::size_t cid = attribute.first;
+                auto annotationCallback = [&](const std::string& annotation) {
+                    if (this->params().s_AnnotationsEnabled) {
+                        m_CurrentBucketStats.s_Annotations.emplace_back(
+                            time, CAnnotation::E_ModelChange, annotation,
+                            gatherer.searchKey().detectorIndex(),
+                            gatherer.searchKey().partitionFieldName(),
+                            gatherer.partitionFieldValue(),
+                            gatherer.searchKey().overFieldName(),
+                            gatherer.attributeName(cid),
+                            gatherer.searchKey().byFieldName(), EMPTY_STRING);
+                    }
+                };
 
                 maths::CModelAddSamplesParams params;
                 params.integer(true)
                     .nonNegative(true)
                     .propagationInterval(this->propagationTime(cid, sampleTime))
                     .trendWeights(attribute.second.s_Weights)
-                    .priorWeights(attribute.second.s_Weights);
-                if (this->params().s_AnnotationsEnabled) {
-                    const auto modelAnnotationCallback =
-                        [&](core_t::TTime t, const std::string& annotation) {
-                            m_CurrentBucketStats.s_Annotations.emplace_back(
-                                t, CAnnotation::E_ModelChange, annotation,
-                                gatherer.searchKey().detectorIndex(),
-                                gatherer.searchKey().partitionFieldName(),
-                                gatherer.partitionFieldValue(),
-                                gatherer.searchKey().overFieldName(),
-                                gatherer.attributeName(cid),
-                                gatherer.searchKey().byFieldName(), EMPTY_STRING);
-                        };
-                    params.annotationCallback(modelAnnotationCallback);
-                }
+                    .priorWeights(attribute.second.s_Weights)
+                    .annotationCallback([&](const std::string& annotation) {
+                        annotationCallback(annotation);
+                    });
 
                 maths::CModel* model{this->model(feature, cid)};
                 if (model == nullptr) {

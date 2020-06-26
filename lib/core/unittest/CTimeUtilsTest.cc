@@ -488,4 +488,24 @@ BOOST_AUTO_TEST_CASE(testDateWords) {
     BOOST_TEST_REQUIRE(!ml::core::CTimeUtils::isDateWord(" \t"));
 }
 
+BOOST_AUTO_TEST_CASE(testDurationToString) {
+    ml::core_t::TTime s = 1;
+    ml::core_t::TTime m = 60 * s;
+    ml::core_t::TTime h = 60 * m;
+    ml::core_t::TTime d = 24 * h;
+    BOOST_REQUIRE_EQUAL("0s", ml::core::CTimeUtils::durationToString(0));
+    BOOST_REQUIRE_EQUAL("1s", ml::core::CTimeUtils::durationToString(s));
+    BOOST_REQUIRE_EQUAL("1m", ml::core::CTimeUtils::durationToString(m));
+    BOOST_REQUIRE_EQUAL("1h", ml::core::CTimeUtils::durationToString(h));
+    BOOST_REQUIRE_EQUAL("1d", ml::core::CTimeUtils::durationToString(d));
+    BOOST_REQUIRE_EQUAL("1m1s", ml::core::CTimeUtils::durationToString(m + s));
+    BOOST_REQUIRE_EQUAL("1h1m", ml::core::CTimeUtils::durationToString(h + m));
+    BOOST_REQUIRE_EQUAL("1h1s", ml::core::CTimeUtils::durationToString(h + s));
+    BOOST_REQUIRE_EQUAL("1h1m1s", ml::core::CTimeUtils::durationToString(h + m + s));
+    BOOST_REQUIRE_EQUAL("1d1h1m1s", ml::core::CTimeUtils::durationToString(d + h + m + s));
+    BOOST_REQUIRE_EQUAL("7d12h", ml::core::CTimeUtils::durationToString(7 * d + 12 * h));
+    BOOST_REQUIRE_EQUAL("365d5h48m46s", ml::core::CTimeUtils::durationToString(
+                                            365 * d + 5 * h + 48 * m + 46 * s));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
