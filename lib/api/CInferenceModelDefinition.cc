@@ -32,8 +32,10 @@ const std::string JSON_DECISION_TYPE_TAG{"decision_type"};
 const std::string JSON_DEFAULT_LEFT_TAG{"default_left"};
 const std::string JSON_DEFAULT_VALUE_TAG{"default_value"};
 const std::string JSON_DEFINITION_TAG{"definition"};
+const std::string JSON_DOC_NUM_TAG{"doc_num"};
 const std::string JSON_ENSEMBLE_MODEL_SIZE_TAG{"ensemble_model_size"};
 const std::string JSON_ENSEMBLE_TAG{"ensemble"};
+const std::string JSON_EOS_TAG{"eos"};
 const std::string JSON_FEATURE_NAME_LENGTH_TAG{"feature_name_length"};
 const std::string JSON_FEATURE_NAME_LENGTHS_TAG{"feature_name_lengths"};
 const std::string JSON_FEATURE_NAME_TAG{"feature_name"};
@@ -81,7 +83,8 @@ const std::string JSON_WEIGHTED_SUM_TAG{"weighted_sum"};
 const std::string JSON_WEIGHTS_TAG{"weights"};
 // clang-format on
 
-const std::size_t MAX_DOCUMENT_SIZE(16 * 1024 * 1024); // 16MB
+// const std::size_t MAX_DOCUMENT_SIZE(16 * 1024 * 1024); // 16MB
+const std::size_t MAX_DOCUMENT_SIZE(1024); // 16MB
 
 auto toJson(const std::string& value, CSerializableToJson::TRapidJsonWriter& writer) {
     rapidjson::Value result;
@@ -409,12 +412,11 @@ std::stringstream CInferenceModelDefinition::jsonStringCompressedFormat() const 
 
 void CInferenceModelDefinition::addToDocumentCompressed(TRapidJsonWriter& writer) const {
     std::stringstream compressedString{jsonStringCompressedFormat()};
-    rapidjson::Value definitionChunksArray{writer.makeArray()};
     std::streamsize processed{0};
     compressedString.seekg(0, compressedString.end);
     std::streamsize remained{compressedString.tellg()};
     compressedString.seekg(0, compressedString.beg);
-    std::size_t utf16Length{static_cast<std::size_t>(remained)}; // since we use base64 encoding
+    std::size_t docNum{0};
     while (remained > 0) {
         std::size_t bytesToProcess{std::min(MAX_DOCUMENT_SIZE, static_cast<size_t>(remained))};
         std::string buffer;
@@ -425,12 +427,17 @@ void CInferenceModelDefinition::addToDocumentCompressed(TRapidJsonWriter& writer
         writer.StartObject();
         writer.Key(JSON_COMPRESSED_INFERENCE_MODEL_TAG);
         writer.StartObject();
+        writer.Key(JSON_DOC_NUM_TAG);
+        writer.Uint64(docNum);
         writer.Key(JSON_DEFINITION_TAG);
         writer.String(buffer);
-        writer.Key(JSON_TOTAL_DEFINITION_LENGTH_TAG);
-        writer.Uint64(utf16Length);
+        if (remained == 0) {
+            writer.Key(JSON_EOS_TAG);
+            writer.Bool(true);
+        }
         writer.EndObject();
         writer.EndObject();
+        ++docNum;
     }
 }
 
