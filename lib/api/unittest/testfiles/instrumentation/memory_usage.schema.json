@@ -22,7 +22,7 @@
       "enum": ["ok", "hard-limit"],
       "description": "Describes how current memory usage relates to the configured memory limit. If the limit is exceeded, 'status' is 'hard-limit'."
     },
-    "advised_limit_bytes": {
+    "increased_memory_estimate_bytes": {
       "type": "integer",
       "description": "If 'status' is set to 'hard-limit', this optional field provides the new advised memory limit."
     }

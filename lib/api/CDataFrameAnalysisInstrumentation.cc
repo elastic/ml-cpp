@@ -37,13 +37,13 @@ const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
 // clang-format off
 const std::string CLASSIFICATION_STATS_TAG{"classification_stats"};
 const std::string HYPERPARAMETERS_TAG{"hyperparameters"};
+const std::string INCREASED_MEMORY_ESTIMATE_TAG{"increased_memory_estimate_bytes"};
 const std::string ITERATION_TAG{"iteration"};
 const std::string JOB_ID_TAG{"job_id"};
-const std::string MEMORY_TYPE_TAG{"analytics_memory_usage"};
-const std::string MEMORY_STATUS_TAG{"status"};
-const std::string MEMORY_STATUS_OK_TAG{"ok"};
 const std::string MEMORY_STATUS_HARD_LIMIT_TAG{"hard-limit"};
-const std::string ADVISED_MEMORY_LIMIT_TAG{"advised_limit_bytes"};
+const std::string MEMORY_STATUS_OK_TAG{"ok"};
+const std::string MEMORY_STATUS_TAG{"status"};
+const std::string MEMORY_TYPE_TAG{"analytics_memory_usage"};
 const std::string OUTLIER_DETECTION_STATS{"outlier_detection_stats"};
 const std::string PARAMETERS_TAG{"parameters"};
 const std::string PEAK_MEMORY_USAGE_TAG{"peak_usage_bytes"};
@@ -184,15 +184,16 @@ void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentatio
             writeProgress(lastTask, lastProgress, &writer);
         }
         if (instrumentation.memory() > instrumentation.m_MemoryLimit) {
-            double advisedLimitBytes{static_cast<double>(instrumentation.memory()) *
-                                     MEMORY_LIMIT_INCREMENT};
-            instrumentation.advisedMemoryLimit(static_cast<std::int64_t>(advisedLimitBytes));
+            double increasedMemoryEstimateBytes{
+                static_cast<double>(instrumentation.memory()) * MEMORY_LIMIT_INCREMENT};
+            instrumentation.increasedMemoryEstimate(
+                static_cast<std::int64_t>(increasedMemoryEstimateBytes));
             instrumentation.memoryStatus(E_HardLimit);
             instrumentation.flush();
             HANDLE_FATAL(<< "Input error: required memory "
                          << bytesToString(instrumentation.memory()) << " exceeds the memory limit "
                          << bytesToString(instrumentation.m_MemoryLimit) << ". Please increase the limit to at least "
-                         << bytesToString(advisedLimitBytes) << " and restart.");
+                         << bytesToString(increasedMemoryEstimateBytes) << " and restart.");
         }
 
         wait = std::min(2 * wait, 1024);
@@ -203,8 +204,8 @@ void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentatio
     writeProgress(lastTask, lastProgress, &writer);
 }
 
-void CDataFrameAnalysisInstrumentation::advisedMemoryLimit(std::int64_t advisedMemoryLimit) {
-    m_AdvisedMemoryLimit = advisedMemoryLimit;
+void CDataFrameAnalysisInstrumentation::increasedMemoryEstimate(std::int64_t increasedMemoryEstimate) {
+    m_IncreasedMemoryEstimate = increasedMemoryEstimate;
 }
 
 void CDataFrameAnalysisInstrumentation::memoryStatus(EMemoryStatus status) {
@@ -253,9 +254,9 @@ void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
             m_Writer->String(MEMORY_STATUS_HARD_LIMIT_TAG);
             break;
         }
-        if (m_AdvisedMemoryLimit) {
-            m_Writer->Key(ADVISED_MEMORY_LIMIT_TAG);
-            m_Writer->Int64(m_AdvisedMemoryLimit.get());
+        if (m_IncreasedMemoryEstimate) {
+            m_Writer->Key(INCREASED_MEMORY_ESTIMATE_TAG);
+            m_Writer->Int64(m_IncreasedMemoryEstimate.get());
         }
         m_Writer->EndObject();
     }
