@@ -565,11 +565,7 @@ CInferenceModelDefinition::TApiEncodingUPtrVec& CInferenceModelDefinition::prepr
 }
 
 const std::string& CInferenceModelDefinition::typeString() const {
-    return m_TypeString;
-}
-
-void CInferenceModelDefinition::typeString(const std::string& typeString) {
-    CInferenceModelDefinition::m_TypeString = typeString;
+    return JSON_COMPRESSED_INFERENCE_MODEL_TAG;
 }
 
 const CInferenceModelDefinition::TStringVec& CInferenceModelDefinition::fieldNames() const {

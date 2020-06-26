@@ -62,6 +62,7 @@
   (See {ml-pull}1312[#1312].)
 * Performance improvements for classification and regression, particularly running
   multithreaded. (See {ml-pull}1317[#1317].)
+* Improvement in handling large inference model definitions. (See {ml-pull}1349[#1349].)
 
 === Bug Fixes
 

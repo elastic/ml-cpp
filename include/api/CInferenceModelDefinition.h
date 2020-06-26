@@ -442,7 +442,6 @@ public:
     void fieldNames(TStringVec&& fieldNames);
     const TStringVec& fieldNames() const;
     const std::string& typeString() const;
-    void typeString(const std::string& typeString);
     std::size_t dependentVariableColumnIndex() const;
     void dependentVariableColumnIndex(size_t dependentVariableColumnIndex);
     //! Get the object for model size with information for estimation.
