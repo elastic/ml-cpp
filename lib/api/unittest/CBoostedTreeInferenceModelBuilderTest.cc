@@ -52,6 +52,7 @@ using TDoubleVecVec = std::vector<TDoubleVec>;
 using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
 using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
+using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
 
 auto generateCategoricalData(test::CRandomNumbers& rng,
                              std::size_t rows,
@@ -173,22 +174,14 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     // verify compressed definition
     {
         std::string modelDefinitionStr{definition->jsonString()};
-        std::string compressedModelDefinitionStr{
-            definition->jsonStringCompressedFormat().str()};
-        rapidjson::Document result;
-        rapidjson::ParseResult ok(result.Parse(compressedModelDefinitionStr));
-        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-        BOOST_TEST_REQUIRE(result.HasMember("definition"));
-        std::stringstream compressedStream;
-        compressedStream << result["definition"].GetString();
-
-        using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
+        std::stringstream compressedModelDefinitionStream{
+            definition->jsonStringCompressedFormat()};
         std::stringstream decompressedStream;
         {
             TFilteredInput inFilter;
-            inFilter.push(core::CBase64Decoder());
             inFilter.push(boost::iostreams::gzip_decompressor());
-            inFilter.push(compressedStream);
+            inFilter.push(core::CBase64Decoder());
+            inFilter.push(compressedModelDefinitionStream);
             boost::iostreams::copy(inFilter, decompressedStream);
         }
         BOOST_TEST_REQUIRE(decompressedStream.str() == modelDefinitionStr);
@@ -310,8 +303,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     TStrVec expectedClassificationLabels{"true", "false"};
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, expectedClassificationLabels};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
-    LOG_DEBUG(<< output.str());
-    return;
+
     LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
     auto modelSizeDefinition{definition->sizeInfo()->jsonString()};
     LOG_DEBUG(<< "Model size definition: " << modelSizeDefinition);
@@ -368,22 +360,15 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     // verify compressed definition
     {
         std::string modelDefinitionStr{definition->jsonString()};
-        std::string compressedModelDefinitionStr{
-            definition->jsonStringCompressedFormat().str()};
-        rapidjson::Document result;
-        rapidjson::ParseResult ok(result.Parse(compressedModelDefinitionStr));
-        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-        BOOST_TEST_REQUIRE(result.HasMember("definition"));
-        std::stringstream compressedStream;
-        compressedStream << result["definition"].GetString();
+        std::stringstream compressedModelDefinitionStream{
+            definition->jsonStringCompressedFormat()};
 
-        using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
         std::stringstream decompressedStream;
         {
             TFilteredInput inFilter;
             inFilter.push(boost::iostreams::gzip_decompressor());
             inFilter.push(core::CBase64Decoder());
-            inFilter.push(compressedStream);
+            inFilter.push(compressedModelDefinitionStream);
             boost::iostreams::copy(inFilter, decompressedStream);
         }
 

@@ -314,12 +314,7 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
         writer.Key(modelDefinitionSizeInfo->typeString());
         writer.write(sizeInfoObject);
         writer.EndObject();
-        rapidjson::Value inferenceModelObject{writer.makeObject()};
-        modelDefinition->addToDocumentCompressed(inferenceModelObject, writer);
-        writer.StartObject();
-        writer.Key(modelDefinition->typeString());
-        writer.write(inferenceModelObject);
-        writer.EndObject();
+        modelDefinition->addToDocumentCompressed(writer);
     }
 
     writer.flush();
