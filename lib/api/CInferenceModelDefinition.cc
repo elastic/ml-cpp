@@ -5,14 +5,9 @@
  */
 #include <api/CInferenceModelDefinition.h>
 
-#include <c++/7/bits/c++config.h>
 #include <core/CBase64Filter.h>
-#include <core/CCompressOStream.h>
 #include <core/CPersistUtils.h>
-#include <core/CStateCompressor.h>
 #include <core/CStringUtils.h>
-
-#include <api/CSingleStreamDataAdder.h>
 
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
@@ -21,7 +16,6 @@
 #include <ios>
 #include <iterator>
 #include <memory>
-#include <rapidjson/document.h>
 #include <unordered_map>
 #include <unordered_set>
 

@@ -73,6 +73,18 @@ auto generateCategoricalData(test::CRandomNumbers& rng,
 
     return std::make_pair(frequencies[0], values);
 }
+
+std::stringstream decompressStream(std::stringstream&& compressedStream) {
+    std::stringstream decompressedStream;
+    {
+        TFilteredInput inFilter;
+        inFilter.push(boost::iostreams::gzip_decompressor());
+        inFilter.push(core::CBase64Decoder());
+        inFilter.push(compressedStream);
+        boost::iostreams::copy(inFilter, decompressedStream);
+    }
+    return decompressedStream;
+}
 }
 
 BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
@@ -174,16 +186,8 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     // verify compressed definition
     {
         std::string modelDefinitionStr{definition->jsonString()};
-        std::stringstream compressedModelDefinitionStream{
-            definition->jsonStringCompressedFormat()};
-        std::stringstream decompressedStream;
-        {
-            TFilteredInput inFilter;
-            inFilter.push(boost::iostreams::gzip_decompressor());
-            inFilter.push(core::CBase64Decoder());
-            inFilter.push(compressedModelDefinitionStream);
-            boost::iostreams::copy(inFilter, decompressedStream);
-        }
+        std::stringstream decompressedStream{
+            decompressStream(definition->jsonStringCompressedFormat())};
         BOOST_TEST_REQUIRE(decompressedStream.str() == modelDefinitionStr);
     }
 
@@ -360,18 +364,8 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     // verify compressed definition
     {
         std::string modelDefinitionStr{definition->jsonString()};
-        std::stringstream compressedModelDefinitionStream{
-            definition->jsonStringCompressedFormat()};
-
-        std::stringstream decompressedStream;
-        {
-            TFilteredInput inFilter;
-            inFilter.push(boost::iostreams::gzip_decompressor());
-            inFilter.push(core::CBase64Decoder());
-            inFilter.push(compressedModelDefinitionStream);
-            boost::iostreams::copy(inFilter, decompressedStream);
-        }
-
+        std::stringstream decompressedStream{
+            decompressStream(definition->jsonStringCompressedFormat())};
         BOOST_TEST_REQUIRE(decompressedStream.str() == modelDefinitionStr);
     }
 
