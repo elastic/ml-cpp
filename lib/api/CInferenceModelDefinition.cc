@@ -83,8 +83,7 @@ const std::string JSON_WEIGHTED_SUM_TAG{"weighted_sum"};
 const std::string JSON_WEIGHTS_TAG{"weights"};
 // clang-format on
 
-// const std::size_t MAX_DOCUMENT_SIZE(16 * 1024 * 1024); // 16MB
-const std::size_t MAX_DOCUMENT_SIZE(1024); // 16MB
+const std::size_t MAX_DOCUMENT_SIZE(16 * 1024 * 1024); // 16MB
 
 auto toJson(const std::string& value, CSerializableToJson::TRapidJsonWriter& writer) {
     rapidjson::Value result;
