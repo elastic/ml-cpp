@@ -459,14 +459,8 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     latest = std::max(latest, value.first);
                 }
 
-                maths::CModelAddSamplesParams params;
-                params.integer(attribute.second.s_IsInteger)
-                    .nonNegative(attribute.second.s_IsNonNegative)
-                    .propagationInterval(this->propagationTime(cid, latest))
-                    .trendWeights(attribute.second.s_TrendWeights)
-                    .priorWeights(attribute.second.s_PriorWeights);
-                if (this->params().s_AnnotationsEnabled) {
-                    const auto modelAnnotationCallback = [&](const std::string& annotation) {
+                auto annotationCallback = [&](const std::string& annotation) {
+                    if (this->params().s_AnnotationsEnabled) {
                         m_CurrentBucketStats.s_Annotations.emplace_back(
                             time, annotation, gatherer.searchKey().detectorIndex(),
                             gatherer.searchKey().partitionFieldName(),
@@ -474,9 +468,18 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                             gatherer.searchKey().overFieldName(),
                             gatherer.attributeName(cid),
                             gatherer.searchKey().byFieldName(), EMPTY_STRING);
-                    };
-                    params.annotationCallback(modelAnnotationCallback);
-                }
+                    }
+                };
+
+                maths::CModelAddSamplesParams params;
+                params.integer(attribute.second.s_IsInteger)
+                    .nonNegative(attribute.second.s_IsNonNegative)
+                    .propagationInterval(this->propagationTime(cid, latest))
+                    .trendWeights(attribute.second.s_TrendWeights)
+                    .priorWeights(attribute.second.s_PriorWeights)
+                    .annotationCallback([&](const std::string& annotation) {
+                        annotationCallback(annotation);
+                    });
 
                 maths::CModel* model{this->model(feature, cid)};
                 if (model == nullptr) {

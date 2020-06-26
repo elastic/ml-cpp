@@ -308,23 +308,26 @@ void CMetricModel::sample(core_t::TTime startTime,
                                                    priorWeights[i]);
                 }
 
-                maths::CModelAddSamplesParams params;
-                params.integer(data_.second.s_IsInteger)
-                    .nonNegative(data_.second.s_IsNonNegative)
-                    .propagationInterval(deratedInterval)
-                    .trendWeights(trendWeights)
-                    .priorWeights(priorWeights);
-                if (this->params().s_AnnotationsEnabled) {
-                    const auto modelAnnotationCallback = [&](const std::string& annotation) {
+                auto annotationCallback = [&](const std::string& annotation) {
+                    if (this->params().s_AnnotationsEnabled) {
                         m_CurrentBucketStats.s_Annotations.emplace_back(
                             time, annotation, gatherer.searchKey().detectorIndex(),
                             gatherer.searchKey().partitionFieldName(),
                             gatherer.partitionFieldValue(),
                             gatherer.searchKey().overFieldName(), EMPTY_STRING,
                             gatherer.searchKey().byFieldName(), gatherer.personName(pid));
-                    };
-                    params.annotationCallback(modelAnnotationCallback);
-                }
+                    }
+                };
+
+                maths::CModelAddSamplesParams params;
+                params.integer(data_.second.s_IsInteger)
+                    .nonNegative(data_.second.s_IsNonNegative)
+                    .propagationInterval(deratedInterval)
+                    .trendWeights(trendWeights)
+                    .priorWeights(priorWeights)
+                    .annotationCallback([&](const std::string& annotation) {
+                        annotationCallback(annotation);
+                    });
 
                 if (model->addSamples(params, values) == maths::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);
