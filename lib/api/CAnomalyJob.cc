@@ -245,6 +245,8 @@ void CAnomalyJob::finalise() {
     if (m_PersistenceManager != nullptr) {
         m_PersistenceManager->waitForIdle();
     }
+
+    m_JsonOutputWriter.finalise();
 }
 
 bool CAnomalyJob::initNormalizer(const std::string& quantilesStateFile) {

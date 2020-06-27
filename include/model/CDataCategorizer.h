@@ -64,7 +64,7 @@ public:
         std::function<void(CLocalCategoryId, const std::string&, const std::string&, std::size_t, const CCategoryExamplesCollector::TStrFSet&, std::size_t, TLocalCategoryIdVec)>;
 
     //! Callback for categorizer stats output
-    using TCategorizerStatsOutputFunc = std::function<void(const SCategorizerStats&)>;
+    using TCategorizerStatsOutputFunc = std::function<void(const SCategorizerStats&, bool)>;
 
 public:
     CDataCategorizer(CLimits& limits, const std::string& fieldName);
@@ -116,6 +116,9 @@ public:
     //! Access to the field name
     const std::string& fieldName() const;
 
+    //! Get the most recent categorization status.
+    virtual model_t::ECategorizationStatus categorizationStatus() const = 0;
+
     //! Debug the memory used by this categorizer.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
@@ -155,6 +158,10 @@ public:
     //! \return Were the stats written?
     virtual bool
     writeCategorizerStatsIfChanged(const TCategorizerStatsOutputFunc& outputFunc) = 0;
+
+    //! Quickly check if a stats write is important at this time.  This method
+    //! is called frequently, so should not do costly processing.
+    virtual bool isStatsWriteUrgent() const = 0;
 
     //! Number of categories this categorizer has detected.
     virtual std::size_t numCategories() const = 0;
