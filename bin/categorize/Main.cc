@@ -57,9 +57,11 @@ int main(int argc, char** argv) {
     char delimiter{'\t'};
     bool lengthEncodedInput{false};
     // Currently there aren't command line options for the time field/format
+    // and whether stop-on-warn is enabled.
     // TODO: add options to set these if this program is used in the future
     std::string timeField;
     std::string timeFormat;
+    bool stopCategorizationOnWarnStatus{false};
     ml::core_t::TTime persistInterval{-1};
     std::string inputFileName;
     bool isInputFileNamedPipe{false};
@@ -118,7 +120,7 @@ int main(int argc, char** argv) {
 
     ml::model::CLimits limits(isPersistInForeground);
     if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false) {
-        LOG_FATAL(<< "Ml limit config file '" << limitConfigFile << "' could not be loaded");
+        LOG_FATAL(<< "ML limit config file '" << limitConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
 
@@ -182,13 +184,16 @@ int main(int argc, char** argv) {
     // of the categorised input data can be dropped
     ml::api::CNullOutput nullOutput;
 
-    // output writer for CFieldDataCategorizer and persistence callback
-    ml::api::CJsonOutputWriter outputWriter(jobId, wrappedOutputStream);
-
     // The categorizer knows how to assign categories to records
-    ml::api::CFieldDataCategorizer categorizer{
-        jobId,      fieldConfig, limits,       timeField,
-        timeFormat, nullOutput,  outputWriter, persistenceManager.get()};
+    ml::api::CFieldDataCategorizer categorizer{jobId,
+                                               fieldConfig,
+                                               limits,
+                                               timeField,
+                                               timeFormat,
+                                               nullOutput,
+                                               wrappedOutputStream,
+                                               persistenceManager.get(),
+                                               stopCategorizationOnWarnStatus};
 
     if (persistenceManager != nullptr) {
         persistenceManager->firstProcessorBackgroundPeriodicPersistFunc(std::bind(
@@ -201,23 +206,15 @@ int main(int argc, char** argv) {
     // The skeleton avoids the need to duplicate a lot of boilerplate code
     ml::api::CCmdSkeleton skeleton(restoreSearcher.get(), persister.get(),
                                    *inputParser, categorizer);
-    bool ioLoopSucceeded(skeleton.ioLoop());
-
-    // Unfortunately we cannot rely on destruction to finalise the output writer
-    // as it must be finalised before the skeleton is destroyed, and C++
-    // destruction order means the skeleton will be destroyed before the output
-    // writer as it was constructed last.
-    outputWriter.finalise();
-
-    if (!ioLoopSucceeded) {
-        LOG_FATAL(<< "Ml categorization job failed");
+    if (skeleton.ioLoop() == false) {
+        LOG_FATAL(<< "ML categorization job failed");
         return EXIT_FAILURE;
     }
 
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
-    LOG_DEBUG(<< "Ml categorization job exiting");
+    LOG_DEBUG(<< "ML categorization job exiting");
 
     return EXIT_SUCCESS;
 }

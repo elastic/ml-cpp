@@ -462,7 +462,8 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                 auto annotationCallback = [&](const std::string& annotation) {
                     if (this->params().s_AnnotationsEnabled) {
                         m_CurrentBucketStats.s_Annotations.emplace_back(
-                            time, annotation, gatherer.searchKey().detectorIndex(),
+                            time, CAnnotation::E_ModelChange, annotation,
+                            gatherer.searchKey().detectorIndex(),
                             gatherer.searchKey().partitionFieldName(),
                             gatherer.partitionFieldValue(),
                             gatherer.searchKey().overFieldName(),

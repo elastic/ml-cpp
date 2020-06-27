@@ -13,9 +13,11 @@
 #include <model/CDataCategorizer.h>
 #include <model/CTokenListDataCategorizer.h>
 
+#include <api/CAnnotationJsonWriter.h>
 #include <api/CCategoryIdMapper.h>
 #include <api/CDataProcessor.h>
 #include <api/CGlobalCategoryId.h>
+#include <api/CJsonOutputWriter.h>
 #include <api/CSingleFieldDataCategorizer.h>
 #include <api/ImportExport.h>
 
@@ -31,6 +33,7 @@ namespace ml {
 namespace core {
 class CDataAdder;
 class CDataSearcher;
+class CJsonOutputStreamWrapper;
 class CStatePersistInserter;
 class CStateRestoreTraverser;
 }
@@ -39,7 +42,6 @@ class CLimits;
 }
 namespace api {
 class CFieldConfig;
-class CJsonOutputWriter;
 class COutputHandler;
 class CPersistenceManager;
 
@@ -106,8 +108,9 @@ public:
                           const std::string& timeFieldName,
                           const std::string& timeFieldFormat,
                           COutputHandler& outputHandler,
-                          CJsonOutputWriter& jsonOutputWriter,
-                          CPersistenceManager* persistenceManager);
+                          core::CJsonOutputStreamWrapper& outputStream,
+                          CPersistenceManager* persistenceManager,
+                          bool stopCategorizationOnWarnStatus);
 
     ~CFieldDataCategorizer() override;
 
@@ -189,6 +192,9 @@ private:
     //! Acknowledge a flush request
     void acknowledgeFlush(const std::string& flushId, bool lastHandler);
 
+    //! Parse a stop-on-warn control message
+    void parseStopOnWarnControlMessage(const std::string& enabledStr);
+
     //! Writes out to the JSON output writer any category definitions and stats
     //! that have changed since they were last written.
     void writeChanges();
@@ -206,14 +212,21 @@ private:
     //! Configurable limits
     model::CLimits& m_Limits;
 
-    //! Object to which the output is passed
+    //! Object to which the processed input is passed
     COutputHandler& m_OutputHandler;
+
+    //! Stream used by the output writer
+    core::CJsonOutputStreamWrapper& m_OutputStream;
 
     //! Cache extra field names to be added
     TStrVec m_ExtraFieldNames;
 
     //! Should we write the field names before the next output?
     bool m_WriteFieldNames = true;
+
+    //! Should we stop categorizing when a model library categorizer's
+    //! categorization status is "warn"?
+    bool m_StopCategorizationOnWarnStatus = false;
 
     //! Highest previously used global ID.
     int m_HighestGlobalId = 0;
@@ -233,8 +246,11 @@ private:
     //! the empty string.
     TStrSingleFieldDataCategorizerUPtrMap m_DataCategorizers;
 
-    //! Reference to the json output writer so that examples can be written
-    CJsonOutputWriter& m_JsonOutputWriter;
+    //! Object to which the overall process output is passed
+    CJsonOutputWriter m_JsonOutputWriter;
+
+    //! Writer for annotations
+    CAnnotationJsonWriter m_AnnotationJsonWriter;
 
     //! Which field name are we partitioning on?  If empty, this means
     //! per-partition categorization is disabled and categories are
