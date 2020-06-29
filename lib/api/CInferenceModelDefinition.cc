@@ -13,7 +13,6 @@
 #include <boost/iostreams/filtering_stream.hpp>
 
 #include <cmath>
-#include <ios>
 #include <iterator>
 #include <memory>
 #include <unordered_map>
