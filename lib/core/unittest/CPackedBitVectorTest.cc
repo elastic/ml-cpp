@@ -90,21 +90,21 @@ BOOST_AUTO_TEST_CASE(testInternals) {
 
     LOG_DEBUG(<< "bytes");
 
-    BOOST_TEST_REQUIRE(1, CPackedBitVectorInternals::bytes(1));
-    BOOST_TEST_REQUIRE(1, CPackedBitVectorInternals::bytes(
-                              CPackedBitVectorInternals::maximumOneByteRunLength()));
-    BOOST_TEST_REQUIRE(2, CPackedBitVectorInternals::bytes(
-                              CPackedBitVectorInternals::maximumOneByteRunLength() + 1));
-    BOOST_TEST_REQUIRE(2, CPackedBitVectorInternals::bytes(
-                              CPackedBitVectorInternals::maximumTwoByteRunLength()));
-    BOOST_TEST_REQUIRE(3, CPackedBitVectorInternals::bytes(
-                              CPackedBitVectorInternals::maximumTwoByteRunLength() + 1));
-    BOOST_TEST_REQUIRE(2, CPackedBitVectorInternals::bytes(
-                              CPackedBitVectorInternals::maximumThreeByteRunLength()));
-    BOOST_TEST_REQUIRE(3, CPackedBitVectorInternals::bytes(
-                              CPackedBitVectorInternals::maximumThreeByteRunLength() + 1));
-    BOOST_TEST_REQUIRE(4, CPackedBitVectorInternals::bytes(
-                              CPackedBitVectorInternals::maximumFourByteRunLength()));
+    BOOST_REQUIRE_EQUAL(1, CPackedBitVectorInternals::bytes(1));
+    BOOST_REQUIRE_EQUAL(1, CPackedBitVectorInternals::bytes(
+                               CPackedBitVectorInternals::maximumOneByteRunLength()));
+    BOOST_REQUIRE_EQUAL(2, CPackedBitVectorInternals::bytes(
+                               CPackedBitVectorInternals::maximumOneByteRunLength() + 1));
+    BOOST_REQUIRE_EQUAL(2, CPackedBitVectorInternals::bytes(
+                               CPackedBitVectorInternals::maximumTwoByteRunLength()));
+    BOOST_REQUIRE_EQUAL(3, CPackedBitVectorInternals::bytes(
+                               CPackedBitVectorInternals::maximumTwoByteRunLength() + 1));
+    BOOST_REQUIRE_EQUAL(3, CPackedBitVectorInternals::bytes(
+                               CPackedBitVectorInternals::maximumThreeByteRunLength()));
+    BOOST_REQUIRE_EQUAL(4, CPackedBitVectorInternals::bytes(
+                               CPackedBitVectorInternals::maximumThreeByteRunLength() + 1));
+    BOOST_REQUIRE_EQUAL(4, CPackedBitVectorInternals::bytes(
+                               CPackedBitVectorInternals::maximumFourByteRunLength()));
 
     test::CRandomNumbers rng;
     TSizeVec ranges{1, 1 << 8, 1 << 16, 1 << 24, 1 << 30};
