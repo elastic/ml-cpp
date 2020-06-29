@@ -41,6 +41,9 @@ namespace api {
 class API_EXPORT CDataFrameAnalysisInstrumentation
     : virtual public maths::CDataFrameAnalysisInstrumentationInterface {
 public:
+    //!\brief Memory status
+    enum EMemoryStatus { E_Ok, E_HardLimit };
+
     //! \brief Set the output stream for the lifetime of this object.
     class API_EXPORT CScopeSetOutputStream {
     public:
@@ -103,16 +106,19 @@ public:
     //! Start polling and writing progress updates.
     //!
     //! \note This doesn't return until instrumentation.setToFinished() is called.
-    static void monitor(const CDataFrameAnalysisInstrumentation& instrumentation,
+    static void monitor(CDataFrameAnalysisInstrumentation& instrumentation,
                         core::CRapidJsonConcurrentLineWriter& writer);
 
 protected:
     using TWriter = core::CRapidJsonConcurrentLineWriter;
     using TWriterUPtr = std::unique_ptr<TWriter>;
+    using TOptionalInt64 = boost::optional<std::int64_t>;
 
 protected:
     virtual counter_t::ECounterTypes memoryCounterType() = 0;
     TWriter* writer();
+    void memoryReestimate(std::int64_t memoryReestimate);
+    void memoryStatus(EMemoryStatus status);
 
 private:
     static const std::string NO_TASK;
@@ -136,6 +142,8 @@ private:
     std::atomic<std::int64_t> m_Memory;
     mutable std::mutex m_ProgressMutex;
     TWriterUPtr m_Writer;
+    EMemoryStatus m_MemoryStatus;
+    TOptionalInt64 m_MemoryReestimate;
 };
 
 //! \brief Instrumentation class for Outlier Detection jobs.
