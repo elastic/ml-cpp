@@ -1311,6 +1311,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
         BOOST_TEST_REQUIRE(instrumentation.maxMemoryUsage() < estimatedMemory);
     }
 }
+
 // TODO: test for handle fatal (memory-limit-circuit-breaker)
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
 

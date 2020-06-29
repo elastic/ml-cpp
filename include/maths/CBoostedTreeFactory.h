@@ -61,6 +61,9 @@ public:
     //! \warning Throws runtime error on fail to restore.
     static CBoostedTreeFactory constructFromString(std::istream& jsonStream);
 
+    //! Get the maximum number of rows we'll train on.
+    static std::size_t maximumNumberRows();
+
     ~CBoostedTreeFactory();
     CBoostedTreeFactory(CBoostedTreeFactory&) = delete;
     CBoostedTreeFactory& operator=(CBoostedTreeFactory&) = delete;
