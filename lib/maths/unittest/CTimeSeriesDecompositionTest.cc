@@ -233,8 +233,8 @@ BOOST_FIXTURE_TEST_CASE(testSuperpositionOfSines, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.016 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.021 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.015 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.019 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.01 * totalSumValue);
 }
 
@@ -324,7 +324,7 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
-    double weights[] = {1.0, 0.1, 1.0, 1.0, 0.1, 1.0, 1.0};
+    double weights[]{1.0, 0.1, 1.0, 1.0, 0.1, 1.0, 1.0};
 
     TTimeVec times;
     TDoubleVec trend;
@@ -388,8 +388,8 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
             LOG_TRACE(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                BOOST_TEST_REQUIRE(sumResidual < 0.17 * sumValue);
-                BOOST_TEST_REQUIRE(maxResidual < 0.36 * maxValue);
+                BOOST_TEST_REQUIRE(sumResidual < 0.15 * sumValue);
+                BOOST_TEST_REQUIRE(maxResidual < 0.33 * maxValue);
                 BOOST_TEST_REQUIRE(percentileError < 0.08 * sumValue);
 
                 totalSumResidual += sumResidual;
@@ -418,7 +418,7 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     BOOST_TEST_REQUIRE(totalSumResidual < 0.06 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.19 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.18 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.03 * totalSumValue);
 
     meanSlope /= refinements;
@@ -427,7 +427,7 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
-    double weights[] = {0.1, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0};
+    double weights[]{0.1, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0};
 
     for (auto offset : {0 * DAY, 5 * DAY}) {
         TTimeVec times;
@@ -509,7 +509,7 @@ BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
         LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
         BOOST_TEST_REQUIRE(totalSumResidual < 0.025 * totalSumValue);
-        BOOST_TEST_REQUIRE(totalMaxResidual < 0.055 * totalMaxValue);
+        BOOST_TEST_REQUIRE(totalMaxResidual < 0.060 * totalMaxValue);
         BOOST_TEST_REQUIRE(totalPercentileError < 0.01 * totalSumValue);
     }
 }
@@ -664,7 +664,7 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
     BOOST_TEST_REQUIRE(totalSumResidual < 0.012 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.019 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.020 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.01 * totalSumValue);
 
     // Check that only the daily component has been initialized.
@@ -675,10 +675,10 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
-    const double daily[] = {0.0,  0.0,  0.0,  0.0,  5.0,  5.0,  5.0,  40.0,
-                            40.0, 40.0, 30.0, 30.0, 35.0, 35.0, 40.0, 50.0,
-                            60.0, 80.0, 80.0, 10.0, 5.0,  0.0,  0.0,  0.0};
-    const double weekly[] = {0.1, 0.1, 1.2, 1.0, 1.0, 0.9, 1.5};
+    const double daily[]{0.0,  0.0,  0.0,  0.0,  5.0,  5.0,  5.0,  40.0,
+                         40.0, 40.0, 30.0, 30.0, 35.0, 35.0, 40.0, 50.0,
+                         60.0, 80.0, 80.0, 10.0, 5.0,  0.0,  0.0,  0.0};
+    const double weekly[]{0.1, 0.1, 1.2, 1.0, 1.0, 0.9, 1.5};
 
     TTimeVec times;
     TDoubleVec trend;
@@ -769,7 +769,7 @@ BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
     LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.09 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.10 * totalSumValue);
     BOOST_TEST_REQUIRE(totalMaxResidual < 0.11 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.06 * totalSumValue);
 }
@@ -874,7 +874,7 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
         LOG_DEBUG(<< "mean 70% error = " << maths::CBasicStatistics::mean(percentileError));
         LOG_DEBUG(<< "mean scale = " << maths::CBasicStatistics::mean(meanScale));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.22);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.23);
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentileError) < 0.1);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, maths::CBasicStatistics::mean(meanScale), 0.01);
     }
@@ -1014,7 +1014,7 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     BOOST_TEST_REQUIRE(totalSumResidual < 0.20 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.41 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.35 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.16 * totalSumValue);
 
     double pMinScaled = 1.0;
@@ -1125,7 +1125,7 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     BOOST_TEST_REQUIRE(totalSumResidual < 0.34 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.73 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.70 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.15 * totalSumValue);
 
     TMeanAccumulator scale;
@@ -1221,9 +1221,9 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.20 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.45 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.06 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.22 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.46 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.07 * totalSumValue);
 }
 
 BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
@@ -1392,8 +1392,8 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
 
     LOG_DEBUG(<< "Saw Tooth Not Periodic");
     {
-        core_t::TTime drops[] = {0,        30 * DAY,  50 * DAY,  60 * DAY,
-                                 85 * DAY, 100 * DAY, 115 * DAY, 120 * DAY};
+        core_t::TTime drops[]{0,        30 * DAY,  50 * DAY,  60 * DAY,
+                              85 * DAY, 100 * DAY, 115 * DAY, 120 * DAY};
 
         times.clear();
         trend.clear();
@@ -1615,15 +1615,15 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
         LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
 
         BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.15);
-        BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.15);
+        BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.12);
     }
 
     LOG_DEBUG(<< "Two daily");
     {
         const core_t::TTime length = 20 * DAY;
 
-        double periodic[] = {10.0, 8.0, 5.5, 2.5, 2.0, 5.0,
-                             2.0,  1.0, 1.5, 3.5, 4.0, 7.0};
+        double periodic[]{10.0, 8.0, 5.5, 2.5, 2.0, 5.0,
+                          2.0,  1.0, 1.5, 3.5, 4.0, 7.0};
 
         TTimeVec times;
         TDoubleVec trend;
@@ -1741,15 +1741,15 @@ BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
         debug.addPrediction(time, prediction, trend - prediction);
     }
 
-    LOG_DEBUG(<< "max error = " << maxError);
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
+    LOG_DEBUG(<< "max error = " << maxError);
 
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.03);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.02);
     BOOST_TEST_REQUIRE(maxError < 0.06);
 }
 
 BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture) {
-    // Test smooth periodic signal polluted with outliers.
+    // Test smooth periodic signal polluted with pepper and salt outliers.
 
     using TSizeVec = std::vector<std::size_t>;
 
@@ -1799,7 +1799,7 @@ BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture) {
             }
 
             LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.05);
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.06);
             break;
         }
         debug.addValue(time, value);

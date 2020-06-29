@@ -67,6 +67,7 @@ using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
 using TTimeTimePrVec = std::vector<TTimeTimePr>;
 using TTimeTimePrDoubleFMap = boost::container::flat_map<TTimeTimePr, double>;
 using TTimeTimePrSizeFMap = boost::container::flat_map<TTimeTimePr, std::size_t>;
+using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
 using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 using TComponent5Vec = CPeriodicityHypothesisTestsResult::TComponent5Vec;
@@ -98,8 +99,6 @@ double meanOf(MEAN_FUNCTION mean, const TSeasonalComponentVec& components) {
     // additive decomposition of the trend. However, if we have
     // detected a partition we want to average the models for
     // the different windows.
-
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     double unwindowed{0.0};
     TTimeTimePrDoubleFMap windows;
@@ -728,7 +727,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
                 TFloatMeanAccumulatorVec values(
                     window->valuesMinusPrediction(this->scaledPredictor(predictor)));
 
-                core_t::TTime start{CIntegerTools::floor(window->startValuesTime(),
+                core_t::TTime start{CIntegerTools::floor(window->beginValuesTime(),
                                                          m_BucketLength)};
                 core_t::TTime bucketLength{window->bucketLength()};
                 CPeriodicityHypothesisTestsResult result{
@@ -910,7 +909,7 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
     // would significantly delay when we first detect short periodic
     // components for longer bucket lengths otherwise.
     auto scheduledTest = [&]() {
-        core_t::TTime length{time - m_Windows[test]->startValuesTime()};
+        core_t::TTime length{time - m_Windows[test]->beginValuesTime()};
         for (auto schedule :
              CPeriodicityTestWindowParameters::testSchedule(test, m_BucketLength)) {
             if (length >= schedule && length < schedule + m_BucketLength) {
@@ -942,7 +941,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::pruneLinearScales() {
     core_t::TTime cutoff{std::numeric_limits<core_t::TTime>::max()};
     for (const auto& window : m_Windows) {
         if (window != nullptr) {
-            cutoff = std::min(cutoff, window->startValuesTime());
+            cutoff = std::min(cutoff, window->beginValuesTime());
         }
     }
     m_LinearScales.erase(std::remove_if(m_LinearScales.begin(), m_LinearScales.end(),
@@ -1676,13 +1675,13 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
             m_Seasonal->removeExcludedComponents(*component.first);
         }
 
-        std::sort(newComponents.begin(), newComponents.end(), maths::COrderings::SLess());
+        std::sort(newComponents.begin(), newComponents.end(), COrderings::SLess{});
 
-        core_t::TTime startTime{window.startValuesTime()};
+        core_t::TTime startTime{window.beginValuesTime()};
         core_t::TTime endTime{window.endValuesTime()};
         core_t::TTime dt{window.bucketLength()};
 
-        TFloatMeanAccumulatorVec values(window.valuesMinusPrediction(predictor));
+        TFloatMeanAccumulatorVec values{window.valuesMinusPrediction(predictor)};
         TDoubleVec shifts(values.size());
         std::transform(values.begin(), values.end(), shifts.begin(),
                        [](const TFloatMeanAccumulator& value) {
@@ -1709,9 +1708,11 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
             values = window.valuesMinusPrediction(predictor);
             if (seasonalTime->windowed()) {
                 core_t::TTime time{startTime};
-                for (auto& value : values) {
+                for (std::size_t i = 0; i < values.size(); ++i) {
                     if (seasonalTime->inWindow(time) == false) {
-                        value = TFloatMeanAccumulator{};
+                        values[i] = TFloatMeanAccumulator{};
+                    } else {
+                        CBasicStatistics::moment<0>(values[i]) += shifts[i];
                     }
                     time += dt;
                 }
@@ -1719,11 +1720,27 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
             if (piecewiseConstantLinearScaling) {
                 this->adjustValuesForPiecewiseConstantScaling(period / dt, values);
             }
-            for (std::size_t i = 0; i < values.size(); ++i) {
-                if (CBasicStatistics::count(values[i]) > 0.0) {
-                    CBasicStatistics::moment<0>(values[i]) += shifts[i];
-                }
-            }
+
+            // Re-weight outlier values with respect to the predictions of the
+            // new seasonal component.
+            this->reweightOutliers(
+                startTime, dt,
+                [&](core_t::TTime time) {
+                    TMeanAccumulator prediction;
+                    std::size_t begin{static_cast<std::size_t>((time - startTime) / dt)};
+                    std::size_t step{static_cast<std::size_t>(seasonalTime->period() / dt)};
+                    std::size_t wrap{step * ((values.size() + step - 1) / step)};
+                    for (std::size_t i = begin; i < begin + values.size(); i += step) {
+                        std::size_t j{i % wrap};
+                        if (j < values.size()) {
+                            const auto& value = values[j];
+                            prediction.add(CBasicStatistics::mean(value),
+                                           CBasicStatistics::count(value));
+                        }
+                    }
+                    return CBasicStatistics::mean(prediction);
+                },
+                values);
 
             // If we see multiple repeats of the component in the window we use
             // a periodic boundary condition, which ensures that the prediction
@@ -1731,20 +1748,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
             auto boundaryCondition = period > seasonalTime->windowLength()
                                          ? CSplineTypes::E_Natural
                                          : CSplineTypes::E_Periodic;
-
-            // Re-weight outlier values with respect to the predictions of the
-            // new seasonal component.
             double bucketLength{static_cast<double>(m_BucketLength)};
-            CSeasonalComponent newComponent{*seasonalTime, m_SeasonalComponentSize,
-                                            m_DecayRate, bucketLength, boundaryCondition};
-            newComponent.initialize(startTime, endTime, values);
-            newComponent.interpolate(CIntegerTools::floor(endTime, period));
-            this->reweightOutliers(
-                startTime, dt,
-                [&newComponent](core_t::TTime time) {
-                    return CBasicStatistics::mean(newComponent.value(time, 0.0));
-                },
-                values);
 
             // Add the new seasonal component.
             m_Seasonal->add(*seasonalTime, m_SeasonalComponentSize, m_DecayRate,
@@ -1816,8 +1820,6 @@ void CTimeSeriesDecompositionDetail::CComponents::adjustValuesForPiecewiseConsta
     // so the scaling is constant and equal to the average scaling for
     // the last populated period.
 
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
-
     TDoubleVec trend;
     TDoubleVec scales;
     TSizeVec segmentation(
@@ -1853,7 +1855,6 @@ void CTimeSeriesDecompositionDetail::CComponents::reweightOutliers(
     TFloatMeanAccumulatorVec& values) const {
     using TMinAccumulator =
         CBasicStatistics::COrderStatisticsHeap<std::pair<double, std::size_t>>;
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     double numberValues{std::accumulate(
         values.begin(), values.end(), 0.0, [](double n, const TFloatMeanAccumulator& value) {
@@ -1881,14 +1882,11 @@ void CTimeSeriesDecompositionDetail::CComponents::reweightOutliers(
         }
         meanDifference -= meanDifferenceOfOutliers;
         for (std::size_t i = 0; i < outliers.count(); ++i) {
-            if (-outliers[i].first > SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD *
-                                         CBasicStatistics::mean(meanDifference)) {
-                double weight{SEASONAL_OUTLIER_WEIGHT +
-                              (1.0 - SEASONAL_OUTLIER_WEIGHT) *
-                                  CTools::logisticFunction(static_cast<double>(i) / numberOutliers,
-                                                           0.1, 1.0)};
-                CBasicStatistics::count(values[outliers[i].second]) *= weight;
-            }
+            CBasicStatistics::count(values[outliers[i].second]) *= CTools::logLinearlyInterpolate(
+                SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD / 2.0, SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
+                1.0, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD / 2
+                SEASONAL_OUTLIER_WEIGHT, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD
+                -outliers[i].first / CBasicStatistics::mean(meanDifference));
         }
     }
 }

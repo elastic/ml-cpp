@@ -82,7 +82,7 @@ public:
     core_t::TTime dataPointsTimeOffsetInBucket() const;
 
     //! Get the time of the first window value.
-    core_t::TTime startValuesTime() const;
+    core_t::TTime beginValuesTime() const;
 
     //! Get the end time of the windows' values.
     core_t::TTime endValuesTime() const;

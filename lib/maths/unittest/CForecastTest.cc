@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(testDailyNoLongTermTrend) {
         return 40.0 + alpha * y[i / 6] + beta * y[(i / 6 + 1) % y.size()] + noise;
     };
 
-    test(trend, bucketLength, 63, 64.0, 5.0, 0.13);
+    test(trend, bucketLength, 63, 64.0, 5.0, 0.14);
 }
 
 BOOST_AUTO_TEST_CASE(testDailyConstantLongTermTrend) {
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE(testComplexNoLongTermTrend) {
         return scale[d] * (20.0 + y[h] + noise);
     };
 
-    test(trend, bucketLength, 63, 24.0, 6.0, 0.14);
+    test(trend, bucketLength, 63, 24.0, 7.0, 0.14);
 }
 
 BOOST_AUTO_TEST_CASE(testComplexConstantLongTermTrend) {
@@ -335,7 +335,7 @@ BOOST_AUTO_TEST_CASE(testComplexVaryingLongTermTrend) {
         return trend_.value(time_) + scale[d] * (20.0 + y[h] + noise);
     };
 
-    test(trend, bucketLength, 65, 4.0, 21.0, 0.03);
+    test(trend, bucketLength, 65, 4.0, 35.0, 0.031);
 }
 
 BOOST_AUTO_TEST_CASE(testNonNegative) {

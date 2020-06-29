@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(testBasicUsage) {
     window.add(static_cast<core_t::TTime>(size * 3600 + 1), 0.1);
     BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(size * 3600) +
                             window.dataPointsTimeOffsetInBucket(),
-                        window.startValuesTime());
+                        window.beginValuesTime());
     BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(size * 3900) +
                             window.dataPointsTimeOffsetInBucket(),
                         window.endValuesTime());
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(testValuesStartAndEndTimes) {
                 for (/**/; time < windowLength; time += dataBucketLength) {
                     window.add(time, 10.0);
                     BOOST_REQUIRE_EQUAL(bucketLengthExpectedStartTimes[i] + offset,
-                                        window.startValuesTime());
+                                        window.beginValuesTime());
                     BOOST_REQUIRE_EQUAL(bucketLengthExpectedStartTimes[i] + offset + windowLength,
                                         window.endValuesTime());
                 }
