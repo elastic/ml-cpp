@@ -322,20 +322,34 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     std::size_t foldRoundLossMemoryUsage{m_NumberFolds * m_NumberRounds *
                                          sizeof(TOptionalDouble)};
     std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
+    // The leaves' row masks memory is accounted for here because it's proportional
+    // to the log2(number of nodes). The compressed bit vector representation uses
+    // roughly log2(E[run length]) / E[run length] bytes per bit. As we grow the
+    // tree we partition the data and so the average run length (sequential unmasked
+    // values) is just equal to the number of leaves. Putting this together, if there
+    // are n rows and m leaves each leaf will use n * log2(m) / m and so their total
+    // memory will be n * log2(m). In practice, we don't get the optimal compression,
+    // a reasonable margin is a factor of 4.
+    std::size_t rowMaskMemoryUsage{4 * numberRows *
+                                   static_cast<std::size_t>(std::ceil(std::log2(
+                                       static_cast<double>(maximumNumberLeaves))))};
     // We only maintain statistics for leaves we know we may possibly split this
     // halves the peak number of statistics we maintain.
     std::size_t leafNodeStatisticsMemoryUsage{
-        maximumNumberLeaves *
-        CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(
-            numberRows, maximumNumberFeatures, m_NumberSplitsPerFeature,
-            m_Loss->numberParameters()) /
-        2};
+        rowMaskMemoryUsage + maximumNumberLeaves *
+                                 CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(
+                                     maximumNumberFeatures, m_NumberSplitsPerFeature,
+                                     m_Loss->numberParameters()) /
+                                 2};
     std::size_t dataTypeMemoryUsage{maximumNumberFeatures * sizeof(CDataFrameUtils::SDataType)};
     std::size_t featureSampleProbabilities{maximumNumberFeatures * sizeof(double)};
-    std::size_t missingFeatureMaskMemoryUsage{
-        numberColumns * numberRows / PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
-    std::size_t trainTestMaskMemoryUsage{2 * m_NumberFolds * numberRows /
-                                         PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
+    // Assuming either many or few missing rows, we get good compression of the bit
+    // vector. Specifically, we'll assume the average run length is 256 for which
+    // we get a constant 4 * 8 / 256.
+    std::size_t missingFeatureMaskMemoryUsage{32 * numberColumns * numberRows / 256};
+    std::size_t trainTestMaskMemoryUsage{
+        2 * static_cast<std::size_t>(std::ceil(std::log2(static_cast<double>(m_NumberFolds)))) *
+        numberRows};
     std::size_t bayesianOptimisationMemoryUsage{CBayesianOptimisation::estimateMemoryUsage(
         this->numberHyperparametersToTune(), m_NumberRounds)};
     std::size_t worstCaseMemoryUsage{
@@ -343,8 +357,9 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
         hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage +
         dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
         trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage};
-    // we compute the correction coefficient as a sigmoid function: ca. 1.0 until 10mb, 16.0 after 1000mb
-    // to this end we need to shift and scale using the magic numbers below
+    // We compute the correction coefficient as a sigmoid function: ca. 1.0 until
+    // 10mb, 16.0 after 1000mb to this end we need to shift and scale using the
+    // magic numbers below.
     double correctionCoefficient{
         CTools::logisticFunction(
             static_cast<double>(worstCaseMemoryUsage) / (1024 * 1024), 10, 550) *
