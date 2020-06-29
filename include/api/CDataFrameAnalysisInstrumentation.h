@@ -117,7 +117,7 @@ protected:
 protected:
     virtual counter_t::ECounterTypes memoryCounterType() = 0;
     TWriter* writer();
-    void increasedMemoryEstimate(std::int64_t increasedMemoryEstimate);
+    void memoryReestimate(std::int64_t memoryReestimate);
     void memoryStatus(EMemoryStatus status);
 
 private:
@@ -143,7 +143,7 @@ private:
     mutable std::mutex m_ProgressMutex;
     TWriterUPtr m_Writer;
     EMemoryStatus m_MemoryStatus;
-    TOptionalInt64 m_IncreasedMemoryEstimate;
+    TOptionalInt64 m_MemoryReestimate;
 };
 
 //! \brief Instrumentation class for Outlier Detection jobs.

@@ -37,7 +37,7 @@ const std::size_t MAXIMUM_FRACTIONAL_PROGRESS{std::size_t{1}
 // clang-format off
 const std::string CLASSIFICATION_STATS_TAG{"classification_stats"};
 const std::string HYPERPARAMETERS_TAG{"hyperparameters"};
-const std::string INCREASED_MEMORY_ESTIMATE_TAG{"increased_memory_estimate_bytes"};
+const std::string MEMORY_REESTIMATE_TAG{"memory_reestimate_bytes"};
 const std::string ITERATION_TAG{"iteration"};
 const std::string JOB_ID_TAG{"job_id"};
 const std::string MEMORY_STATUS_HARD_LIMIT_TAG{"hard-limit"};
@@ -184,16 +184,15 @@ void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentatio
             writeProgress(lastTask, lastProgress, &writer);
         }
         if (instrumentation.memory() > instrumentation.m_MemoryLimit) {
-            double increasedMemoryEstimateBytes{
-                static_cast<double>(instrumentation.memory()) * MEMORY_LIMIT_INCREMENT};
-            instrumentation.increasedMemoryEstimate(
-                static_cast<std::int64_t>(increasedMemoryEstimateBytes));
+            double memoryReestimateBytes{static_cast<double>(instrumentation.memory()) *
+                                         MEMORY_LIMIT_INCREMENT};
+            instrumentation.memoryReestimate(static_cast<std::int64_t>(memoryReestimateBytes));
             instrumentation.memoryStatus(E_HardLimit);
             instrumentation.flush();
             HANDLE_FATAL(<< "Input error: required memory "
                          << bytesToString(instrumentation.memory()) << " exceeds the memory limit "
                          << bytesToString(instrumentation.m_MemoryLimit) << ". Please increase the limit to at least "
-                         << bytesToString(increasedMemoryEstimateBytes) << " and restart.");
+                         << bytesToString(memoryReestimateBytes) << " and restart.");
         }
 
         wait = std::min(2 * wait, 1024);
@@ -204,8 +203,8 @@ void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentatio
     writeProgress(lastTask, lastProgress, &writer);
 }
 
-void CDataFrameAnalysisInstrumentation::increasedMemoryEstimate(std::int64_t increasedMemoryEstimate) {
-    m_IncreasedMemoryEstimate = increasedMemoryEstimate;
+void CDataFrameAnalysisInstrumentation::memoryReestimate(std::int64_t memoryReestimate) {
+    m_MemoryReestimate = memoryReestimate;
 }
 
 void CDataFrameAnalysisInstrumentation::memoryStatus(EMemoryStatus status) {
@@ -254,9 +253,9 @@ void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
             m_Writer->String(MEMORY_STATUS_HARD_LIMIT_TAG);
             break;
         }
-        if (m_IncreasedMemoryEstimate) {
-            m_Writer->Key(INCREASED_MEMORY_ESTIMATE_TAG);
-            m_Writer->Int64(m_IncreasedMemoryEstimate.get());
+        if (m_MemoryReestimate) {
+            m_Writer->Key(MEMORY_REESTIMATE_TAG);
+            m_Writer->Int64(m_MemoryReestimate.get());
         }
         m_Writer->EndObject();
     }

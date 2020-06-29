@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE(testMemoryLimitHandling) {
     BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
     bool memoryStatusOk{false};
     bool memoryStatusHardLimit{false};
-    bool advisedMemoryLimitAvailable{false};
+    bool memoryReestimateAvailable{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("analytics_memory_usage")) {
             std::string status{result["analytics_memory_usage"]["status"].GetString()};
@@ -415,16 +415,16 @@ BOOST_AUTO_TEST_CASE(testMemoryLimitHandling) {
                 memoryStatusOk = true;
             } else if (status == "hard-limit") {
                 memoryStatusHardLimit = true;
-                if (result["analytics_memory_usage"].HasMember("advised_limit_bytes") &&
-                    result["analytics_memory_usage"]["advised_limit_bytes"].GetInt() > 0) {
-                    advisedMemoryLimitAvailable = true;
+                if (result["analytics_memory_usage"].HasMember("memory_reestimate_bytes") &&
+                    result["analytics_memory_usage"]["memory_reestimate_bytes"].GetInt() > 0) {
+                    memoryReestimateAvailable = true;
                 }
             }
         }
     }
     BOOST_TEST_REQUIRE(memoryStatusOk);
     BOOST_TEST_REQUIRE(memoryStatusHardLimit);
-    BOOST_TEST_REQUIRE(advisedMemoryLimitAvailable);
+    BOOST_TEST_REQUIRE(memoryReestimateAvailable);
 }
 
 BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTraining) {
