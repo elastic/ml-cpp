@@ -307,12 +307,14 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
     auto modelDefinition = analysis.inferenceModelDefinition(
         m_DataFrame->columnNames(), m_DataFrame->categoricalColumnValues());
     if (modelDefinition != nullptr) {
-        rapidjson::Value inferenceModelObject{writer.makeObject()};
-        modelDefinition->addToDocument(inferenceModelObject, writer);
+        auto modelDefinitionSizeInfo = modelDefinition->sizeInfo();
+        rapidjson::Value sizeInfoObject{writer.makeObject()};
+        modelDefinitionSizeInfo->addToDocument(sizeInfoObject, writer);
         writer.StartObject();
-        writer.Key(modelDefinition->typeString());
-        writer.write(inferenceModelObject);
+        writer.Key(modelDefinitionSizeInfo->typeString());
+        writer.write(sizeInfoObject);
         writer.EndObject();
+        modelDefinition->addToDocumentCompressed(writer);
     }
 
     writer.flush();
