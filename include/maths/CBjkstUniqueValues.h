@@ -85,7 +85,7 @@ public:
     CBjkstUniqueValues(core::CStateRestoreTraverser& traverser);
 
     //! Efficiently swap the contents of two sketches.
-    void swap(CBjkstUniqueValues& other);
+    void swap(CBjkstUniqueValues& other) noexcept;
 
 private:
     //! Create by traversing a state document.
@@ -126,7 +126,7 @@ private:
         SSketch(std::size_t numberHashes);
 
         //! Efficiently swap the contents of two sketches.
-        void swap(SSketch& other);
+        void swap(SSketch& other) noexcept;
 
         //! Create by traversing a state document.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser,

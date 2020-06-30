@@ -459,6 +459,38 @@ public:
         //! Reset the minimum gain to its initial value.
         void resetMinimumGain() { m_MinimumGain = 0.0; }
 
+        //! Start working on a new leaf.
+        void newLeaf(std::size_t numberThreads) {
+            m_NumberThreads = numberThreads;
+            m_ReducedMasks = false;
+            m_ReducedDerivatives = false;
+        }
+
+        //! Get the reduction of the per thread aggregate derivatives.
+        CSplitsDerivatives& reducedDerivatives() {
+            if (m_ReducedDerivatives == false) {
+                for (std::size_t i = 1; i < m_NumberThreads; ++i) {
+                    m_Derivatives[0].add(m_Derivatives[i]);
+                }
+                m_Derivatives[0].remapCurvature();
+                m_ReducedDerivatives = true;
+            }
+            return m_Derivatives[0];
+        }
+
+        //! Get the reduction of the per thread masks.
+        const core::CPackedBitVector& reducedMask(std::size_t size) {
+            if (m_ReducedMasks == false) {
+                m_Masks[0].extend(false, size - m_Masks[0].size());
+                for (std::size_t i = 1; i < m_NumberThreads; ++i) {
+                    m_Masks[i].extend(false, size - m_Masks[i].size());
+                    m_Masks[0] |= m_Masks[i];
+                }
+                m_ReducedMasks = true;
+            }
+            return m_Masks[0];
+        }
+
         //! Get the workspace row masks.
         TPackedBitVectorVec& masks() { return m_Masks; }
 
@@ -472,7 +504,10 @@ public:
         }
 
     private:
+        std::size_t m_NumberThreads = 0;
         double m_MinimumGain = 0.0;
+        bool m_ReducedMasks = false;
+        bool m_ReducedDerivatives = false;
         TPackedBitVectorVec m_Masks;
         TSplitsDerivativesVec m_Derivatives;
     };
@@ -560,10 +595,9 @@ public:
     std::size_t memoryUsage() const;
 
     //! Estimate the maximum leaf statistics' memory usage training on a data frame
-    //! with \p numberRows rows and \p numberCols columns using \p numberSplitsPerFeature
-    //! for a loss function with \p numberLossParameters parameters.
-    static std::size_t estimateMemoryUsage(std::size_t numberRows,
-                                           std::size_t numberCols,
+    //! with \p numberCols columns using \p numberSplitsPerFeature for a loss function
+    //! with \p numberLossParameters parameters.
+    static std::size_t estimateMemoryUsage(std::size_t numberCols,
                                            std::size_t numberSplitsPerFeature,
                                            std::size_t numberLossParameters);
 

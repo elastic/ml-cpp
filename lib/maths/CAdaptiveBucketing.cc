@@ -196,7 +196,7 @@ void CAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inse
                          m_MeanAbsDesiredDisplacement.toDelimited());
 }
 
-void CAdaptiveBucketing::swap(CAdaptiveBucketing& other) {
+void CAdaptiveBucketing::swap(CAdaptiveBucketing& other) noexcept {
     std::swap(m_DecayRate, other.m_DecayRate);
     std::swap(m_MinimumBucketLength, other.m_MinimumBucketLength);
     std::swap(m_TargetSize, other.m_TargetSize);

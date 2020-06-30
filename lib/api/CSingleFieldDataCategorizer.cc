@@ -8,10 +8,15 @@
 
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/CTimeUtils.h>
 
 #include <model/CCategoryExamplesCollector.h>
+#include <model/ModelTypes.h>
 
+#include <api/CAnnotationJsonWriter.h>
 #include <api/CJsonOutputWriter.h>
+
+#include <sstream>
 
 namespace {
 // For historical reasons, these tags must not duplicate those used in
@@ -21,6 +26,8 @@ const std::string CATEGORIZER_TAG{"b"};
 const std::string EXAMPLES_COLLECTOR_TAG{"c"};
 const std::string CATEGORY_ID_MAPPER_TAG{"d"};
 // e, f, g used in CFieldDataCategorizer.cc
+
+const std::string EMPTY_STRING;
 }
 
 namespace ml {
@@ -188,7 +195,8 @@ bool CSingleFieldDataCategorizer::acceptRestoreTraverser(core::CStateRestoreTrav
     return true;
 }
 
-void CSingleFieldDataCategorizer::writeChanges(CJsonOutputWriter& jsonOutputWriter) {
+void CSingleFieldDataCategorizer::writeChanges(CJsonOutputWriter& jsonOutputWriter,
+                                               CAnnotationJsonWriter& annotationJsonWriter) {
     std::size_t numWritten{m_DataCategorizer->writeChangedCategories(
         [this, &jsonOutputWriter](
             model::CLocalCategoryId localCategoryId, const std::string& terms,
@@ -203,11 +211,47 @@ void CSingleFieldDataCategorizer::writeChanges(CJsonOutputWriter& jsonOutputWrit
         })};
     LOG_TRACE(<< numWritten << " changed categories written for categorizer "
               << m_CategoryIdMapper->categorizerKey());
+    this->writeStatsIfChanged(jsonOutputWriter, annotationJsonWriter);
+}
+
+void CSingleFieldDataCategorizer::writeStatsIfUrgent(CJsonOutputWriter& jsonOutputWriter,
+                                                     CAnnotationJsonWriter& annotationJsonWriter) {
+    if (m_DataCategorizer->isStatsWriteUrgent()) {
+        this->writeStatsIfChanged(jsonOutputWriter, annotationJsonWriter);
+    }
+}
+
+void CSingleFieldDataCategorizer::writeStatsIfChanged(CJsonOutputWriter& jsonOutputWriter,
+                                                      CAnnotationJsonWriter& annotationJsonWriter) {
     if (m_DataCategorizer->writeCategorizerStatsIfChanged(
-            [this, &jsonOutputWriter](const model::SCategorizerStats& categorizerStats) {
+            [this, &jsonOutputWriter, &annotationJsonWriter](
+                const model::SCategorizerStats& categorizerStats, bool statusChanged) {
                 jsonOutputWriter.writeCategorizerStats(
                     m_PartitionFieldName, m_CategoryIdMapper->categorizerKey(),
                     categorizerStats, m_LastMessageTime);
+                if (statusChanged) {
+                    std::ostringstream text;
+                    text << "Categorization status changed to '"
+                         << model_t::print(categorizerStats.s_CategorizationStatus)
+                         << '\'';
+                    if (m_PartitionFieldName.empty() == false) {
+                        text << " for '" << m_PartitionFieldName << "' '"
+                             << m_CategoryIdMapper->categorizerKey() << '\'';
+                    }
+                    model::CAnnotation annotation{
+                        m_LastMessageTime.has_value() ? *m_LastMessageTime
+                                                      : core::CTimeUtils::now(),
+                        model::CAnnotation::E_CategorizationStatusChange,
+                        text.str(),
+                        model::CAnnotation::DETECTOR_INDEX_NOT_APPLICABLE,
+                        m_PartitionFieldName,
+                        m_CategoryIdMapper->categorizerKey(),
+                        EMPTY_STRING,
+                        EMPTY_STRING,
+                        EMPTY_STRING,
+                        EMPTY_STRING};
+                    annotationJsonWriter.writeResult(jsonOutputWriter.jobId(), annotation);
+                }
             })) {
         LOG_TRACE(<< "Wrote categorizer stats for categorizer "
                   << m_CategoryIdMapper->categorizerKey());

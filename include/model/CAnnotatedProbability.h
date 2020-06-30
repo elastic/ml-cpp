@@ -122,7 +122,7 @@ struct MODEL_EXPORT SAnnotatedProbability {
     void addDescriptiveData(annotated_probability::EDescriptiveData key, double value);
 
     //! Efficiently swap the contents of this and \p other.
-    void swap(SAnnotatedProbability& other);
+    void swap(SAnnotatedProbability& other) noexcept;
 
     //! Is the result type interim?
     bool isInterim() const;

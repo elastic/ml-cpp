@@ -18,8 +18,10 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <algorithm>
 #include <memory>
 #include <sstream>
+#include <vector>
 
 BOOST_AUTO_TEST_SUITE(CTokenListDataCategorizerTest)
 
@@ -97,8 +99,8 @@ private:
 };
 
 BOOST_FIXTURE_TEST_CASE(testHexData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(
-        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                         categorizer.computeCategory(false, "[0x0000000800000000 ", 500));
@@ -115,8 +117,8 @@ BOOST_FIXTURE_TEST_CASE(testHexData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testRmdsData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(
-        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                         categorizer.computeCategory(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.",
@@ -153,8 +155,8 @@ BOOST_FIXTURE_TEST_CASE(testRmdsData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testProxyData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(
-        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                         categorizer.computeCategory(false,
@@ -192,8 +194,8 @@ BOOST_FIXTURE_TEST_CASE(testProxyData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testFxData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(
-        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                         categorizer.computeCategory(false,
@@ -212,8 +214,8 @@ BOOST_FIXTURE_TEST_CASE(testFxData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testApacheData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(
-        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                         categorizer.computeCategory(false, " org.apache.coyote.http11.Http11BaseProtocol destroy",
@@ -232,8 +234,8 @@ BOOST_FIXTURE_TEST_CASE(testApacheData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testBrokerageData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(
-        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                         categorizer.computeCategory(
@@ -262,8 +264,8 @@ BOOST_FIXTURE_TEST_CASE(testBrokerageData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testVmwareData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(
-        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                         categorizer.computeCategory(false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback",
@@ -288,8 +290,8 @@ BOOST_FIXTURE_TEST_CASE(testVmwareData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testBankData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(
-        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                         categorizer.computeCategory(false,
@@ -314,8 +316,8 @@ BOOST_FIXTURE_TEST_CASE(testBankData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testJavaGcData, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(
-        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                         categorizer.computeCategory(
@@ -383,8 +385,8 @@ BOOST_FIXTURE_TEST_CASE(testJavaGcData, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields origCategorizer(
-        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields origCategorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
     origCategorizer.computeCategory(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.",
                                     500);
@@ -409,7 +411,7 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
 
     std::string origXml;
     {
-        ml::core::CRapidXmlStatePersistInserter inserter("root");
+        ml::core::CRapidXmlStatePersistInserter inserter{"root"};
         origCategorizer.acceptPersistInserter(inserter);
         inserter.toXml(origXml);
     }
@@ -417,12 +419,12 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     LOG_DEBUG(<< "Categorizer XML representation:\n" << origXml);
 
     // Restore the XML into a new categorizer
-    TTokenListDataCategorizerKeepsFields restoredCategorizer(
-        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields restoredCategorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
     {
         ml::core::CRapidXmlParser parser;
         BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
-        ml::core::CRapidXmlStateRestoreTraverser traverser(parser);
+        ml::core::CRapidXmlStateRestoreTraverser traverser{parser};
         BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
             std::bind(&TTokenListDataCategorizerKeepsFields::acceptRestoreTraverser,
                       &restoredCategorizer, std::placeholders::_1)));
@@ -442,16 +444,16 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testLongReverseSearch, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorCPtr reverseSearchCreator(
-        new ml::model::CTokenListReverseSearchCreator("_raw"));
-    TTokenListDataCategorizerKeepsFields categorizer(m_Limits, reverseSearchCreator,
-                                                     0.7, "_raw");
+    TTokenListDataCategorizerKeepsFields::TTokenListReverseSearchCreatorCPtr reverseSearchCreator{
+        new ml::model::CTokenListReverseSearchCreator{"_raw"}};
+    TTokenListDataCategorizerKeepsFields categorizer{m_Limits, reverseSearchCreator,
+                                                     0.7, "_raw"};
 
     // Create a long message with lots of junk that will create a ridiculous
     // reverse search if not constrained
     std::string longMessage("a few dictionary words to start off");
-    for (size_t i = 1; i < 26; ++i) {
-        for (size_t j = 0; j <= i; ++j) {
+    for (std::size_t i = 1; i < 26; ++i) {
+        for (std::size_t j = 0; j <= i; ++j) {
             longMessage += ' ';
             longMessage.append(20, char('a' + j));
         }
@@ -501,8 +503,8 @@ BOOST_FIXTURE_TEST_CASE(testLongReverseSearch, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testPreTokenised, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(
-        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                         categorizer.computeCategory(false, "<ml13-4608.1.p2ps: Info: > Source ML_SERVICE2 on 13122:867 has shut down.",
@@ -569,18 +571,18 @@ BOOST_FIXTURE_TEST_CASE(testPreTokenised, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testPreTokenisedPerformance, CTestFixture) {
-    static const size_t TEST_SIZE(100000);
+    static const std::size_t TEST_SIZE{100000};
     ml::core::CStopWatch stopWatch;
 
-    uint64_t inlineTokenisationTime(0);
+    std::uint64_t inlineTokenisationTime{0};
     {
-        TTokenListDataCategorizerKeepsFields categorizer(
-            m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+        TTokenListDataCategorizerKeepsFields categorizer{
+            m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
         LOG_DEBUG(<< "Before test with inline tokenisation");
 
         stopWatch.start();
-        for (size_t count = 0; count < TEST_SIZE; ++count) {
+        for (std::size_t count = 0; count < TEST_SIZE; ++count) {
             BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                                 categorizer.computeCategory(false, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback",
                                                             103));
@@ -597,15 +599,15 @@ BOOST_FIXTURE_TEST_CASE(testPreTokenisedPerformance, CTestFixture) {
     fields[TTokenListDataCategorizerKeepsFields::PRETOKENISED_TOKEN_FIELD] =
         "Vpxa,verbose,VpxaHalCnxHostagent,opID,WFU-ddeadb59,WaitForUpdatesDone,Received,callback";
 
-    uint64_t preTokenisationTime(0);
+    std::uint64_t preTokenisationTime{0};
     {
-        TTokenListDataCategorizerKeepsFields categorizer(
-            m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+        TTokenListDataCategorizerKeepsFields categorizer{
+            m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
         LOG_DEBUG(<< "Before test with pre-tokenisation");
 
         stopWatch.start();
-        for (size_t count = 0; count < TEST_SIZE; ++count) {
+        for (std::size_t count = 0; count < TEST_SIZE; ++count) {
             BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                                 categorizer.computeCategory(false, fields, "Vpxa: [49EC0B90 verbose 'VpxaHalCnxHostagent' opID=WFU-ddeadb59] [WaitForUpdatesDone] Received callback",
                                                             103));
@@ -617,7 +619,7 @@ BOOST_FIXTURE_TEST_CASE(testPreTokenisedPerformance, CTestFixture) {
     }
 
     const char* keepGoingEnvVar{std::getenv("ML_KEEP_GOING")};
-    bool likelyInCi = (keepGoingEnvVar != nullptr && *keepGoingEnvVar != '\0');
+    bool likelyInCi{keepGoingEnvVar != nullptr && *keepGoingEnvVar != '\0'};
     if (likelyInCi) {
         // CI is most likely running on a VM, and this test can fail quite often
         // due to the VM stalling or being slowed down by noisy neighbours
@@ -628,8 +630,8 @@ BOOST_FIXTURE_TEST_CASE(testPreTokenisedPerformance, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testUsurpedCategories, CTestFixture) {
-    TTokenListDataCategorizerKeepsFields categorizer(
-        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
     BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
                         categorizer.computeCategory(false, "2015-10-18 18:01:51,963 INFO [main] org.mortbay.log: jetty-6.1.26\r",
@@ -673,8 +675,8 @@ BOOST_FIXTURE_TEST_CASE(testUsurpedCategories, CTestFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testSoftMemoryLimit, CTestFixture) {
 
-    TTokenListDataCategorizerKeepsFields categorizer(
-        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
     std::string baseMessage{"foo bar baz "};
     std::string message{baseMessage + makeUniqueToken()};
@@ -731,8 +733,8 @@ BOOST_FIXTURE_TEST_CASE(testHardMemoryLimit, CTestFixture) {
     // Set memory limit to 1MB so that it's quickly exhausted
     m_Limits.resourceMonitor().memoryLimit(1);
 
-    TTokenListDataCategorizerKeepsFields categorizer(
-        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever");
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
 
     std::string nextMessage{makeUniqueMessage(10)};
     ml::model::CLocalCategoryId categoryId;
@@ -747,6 +749,127 @@ BOOST_FIXTURE_TEST_CASE(testHardMemoryLimit, CTestFixture) {
         m_Limits.resourceMonitor().refresh(categorizer);
     }
     BOOST_TEST_REQUIRE(categoryId.isHardFailure());
+}
+
+BOOST_FIXTURE_TEST_CASE(testStatsWriteUrgentDueToRareCategories, CTestFixture) {
+
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
+
+    // If more than 90% of categories are found to be rare after we have
+    // categorized 100 messages then that should trigger categorization status
+    // "warn" and an urgent stats write.  (We must be careful not to cause the
+    // categorization status to flip to "warn" earlier due to only having one
+    // category in the build up.)
+
+    std::string baseMessage{makeUniqueToken() + ' '};
+    std::string frequentMessage1{baseMessage + makeUniqueToken()};
+    std::string frequentMessage2{baseMessage + makeUniqueToken()};
+    for (std::size_t i = 0; i < 50; ++i) {
+        BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                            categorizer.computeCategory(false, frequentMessage1,
+                                                        frequentMessage1.length()));
+        BOOST_REQUIRE_EQUAL(false, categorizer.isStatsWriteUrgent());
+        BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{2},
+                            categorizer.computeCategory(false, frequentMessage2,
+                                                        frequentMessage2.length()));
+    }
+
+    // 2 frequent categories and 19 rare categories makes for more than 90% rare
+    for (std::size_t i = 0; i < 19; ++i) {
+        BOOST_REQUIRE_EQUAL(false, categorizer.isStatsWriteUrgent());
+        std::string rareMessage{baseMessage + makeUniqueToken()};
+        BOOST_REQUIRE_EQUAL(
+            ml::model::CLocalCategoryId{3 + static_cast<int>(i)},
+            categorizer.computeCategory(false, rareMessage, rareMessage.length()));
+    }
+
+    BOOST_REQUIRE_EQUAL(true, categorizer.isStatsWriteUrgent());
+
+    ml::model::SCategorizerStats categorizerStats;
+    categorizer.updateCategorizerStats(categorizerStats);
+    BOOST_REQUIRE_EQUAL(119, categorizerStats.s_CategorizedMessages);
+    BOOST_REQUIRE_EQUAL(21, categorizerStats.s_TotalCategories);
+    BOOST_REQUIRE_EQUAL(2, categorizerStats.s_FrequentCategories);
+    BOOST_REQUIRE_EQUAL(19, categorizerStats.s_RareCategories);
+    BOOST_REQUIRE_EQUAL(0, categorizerStats.s_DeadCategories);
+    BOOST_REQUIRE_EQUAL(0, categorizerStats.s_MemoryCategorizationFailures);
+    BOOST_REQUIRE_EQUAL(ml::model_t::E_CategorizationStatusWarn,
+                        categorizerStats.s_CategorizationStatus);
+}
+
+BOOST_FIXTURE_TEST_CASE(testStatsWriteUrgentDueToSingleCategory, CTestFixture) {
+
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
+
+    // If there is only 1 category after we have categorized 100 messages then
+    // that should trigger categorization status "warn" and an urgent stats
+    // write.
+
+    std::string singleMessage{makeUniqueMessage(3)};
+    for (std::size_t i = 0; i < 100; ++i) {
+        BOOST_REQUIRE_EQUAL(false, categorizer.isStatsWriteUrgent());
+        BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                            categorizer.computeCategory(false, singleMessage,
+                                                        singleMessage.length()));
+    }
+
+    // This is the first time we have 100 messages for the check
+    BOOST_REQUIRE_EQUAL(true, categorizer.isStatsWriteUrgent());
+
+    ml::model::SCategorizerStats categorizerStats;
+    categorizer.updateCategorizerStats(categorizerStats);
+    BOOST_REQUIRE_EQUAL(100, categorizerStats.s_CategorizedMessages);
+    BOOST_REQUIRE_EQUAL(1, categorizerStats.s_TotalCategories);
+    BOOST_REQUIRE_EQUAL(1, categorizerStats.s_FrequentCategories);
+    BOOST_REQUIRE_EQUAL(0, categorizerStats.s_RareCategories);
+    BOOST_REQUIRE_EQUAL(0, categorizerStats.s_DeadCategories);
+    BOOST_REQUIRE_EQUAL(0, categorizerStats.s_MemoryCategorizationFailures);
+    BOOST_REQUIRE_EQUAL(ml::model_t::E_CategorizationStatusWarn,
+                        categorizerStats.s_CategorizationStatus);
+}
+
+BOOST_FIXTURE_TEST_CASE(testStatsWriteUrgentDueToManyCategories, CTestFixture) {
+
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
+
+    // If the number of categories is more than half the number of messages
+    // after we have categorized 100 messages then that should trigger
+    // categorization status "warn" and an urgent stats write.
+
+    using TStrVec = std::vector<std::string>;
+    TStrVec messages{51};
+    std::generate(messages.begin(), messages.end(),
+                  [this]() { return makeUniqueMessage(3); });
+
+    for (std::size_t i = 0; i < 2; ++i) {
+        for (std::size_t j = 0; j < 50; ++j) {
+            BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{j},
+                                categorizer.computeCategory(false, messages[j],
+                                                            messages[j].length()));
+            BOOST_REQUIRE_EQUAL(false, categorizer.isStatsWriteUrgent());
+        }
+    }
+
+    // After this we'll have 51 categories from 101 messages, so the number of
+    // categories is more than 50% of the number of messages
+    BOOST_REQUIRE_EQUAL(
+        ml::model::CLocalCategoryId{51},
+        categorizer.computeCategory(false, messages[50], messages[50].length()));
+    BOOST_REQUIRE_EQUAL(true, categorizer.isStatsWriteUrgent());
+
+    ml::model::SCategorizerStats categorizerStats;
+    categorizer.updateCategorizerStats(categorizerStats);
+    BOOST_REQUIRE_EQUAL(101, categorizerStats.s_CategorizedMessages);
+    BOOST_REQUIRE_EQUAL(51, categorizerStats.s_TotalCategories);
+    BOOST_REQUIRE_EQUAL(50, categorizerStats.s_FrequentCategories);
+    BOOST_REQUIRE_EQUAL(1, categorizerStats.s_RareCategories);
+    BOOST_REQUIRE_EQUAL(0, categorizerStats.s_DeadCategories);
+    BOOST_REQUIRE_EQUAL(0, categorizerStats.s_MemoryCategorizationFailures);
+    BOOST_REQUIRE_EQUAL(ml::model_t::E_CategorizationStatusWarn,
+                        categorizerStats.s_CategorizationStatus);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

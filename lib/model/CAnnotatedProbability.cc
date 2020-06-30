@@ -153,7 +153,7 @@ void SAnnotatedProbability::addDescriptiveData(annotated_probability::EDescripti
     s_DescriptiveData.emplace_back(key, value);
 }
 
-void SAnnotatedProbability::swap(SAnnotatedProbability& other) {
+void SAnnotatedProbability::swap(SAnnotatedProbability& other) noexcept {
     std::swap(s_Probability, other.s_Probability);
     std::swap(s_MultiBucketImpact, other.s_MultiBucketImpact);
     s_AttributeProbabilities.swap(other.s_AttributeProbabilities);

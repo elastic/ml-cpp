@@ -47,7 +47,7 @@ CCountMinSketch::CCountMinSketch(core::CStateRestoreTraverser& traverser)
                                          this, std::placeholders::_1));
 }
 
-void CCountMinSketch::swap(CCountMinSketch& other) {
+void CCountMinSketch::swap(CCountMinSketch& other) noexcept {
     if (this == &other) {
         return;
     }
