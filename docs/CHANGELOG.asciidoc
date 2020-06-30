@@ -53,6 +53,8 @@
   (See {ml-pull}1312[#1312].)
 * Performance improvements for classification and regression, particularly running
   multithreaded. (See {ml-pull}1317[#1317].)
+* Improve runtime and memory usage training deep trees for classification and
+  regression. (See {ml-pull}1340[#1340].)
 
 === Bug Fixes
 
