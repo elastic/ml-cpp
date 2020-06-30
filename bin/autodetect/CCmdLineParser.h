@@ -62,9 +62,10 @@ public:
                       std::string& persistFileName,
                       bool& isPersistFileNamedPipe,
                       bool& isPersistInForeground,
-                      size_t& maxAnomalyRecords,
+                      std::size_t& maxAnomalyRecords,
                       bool& memoryUsage,
                       bool& multivariateByFields,
+                      bool& stopCategorizationOnWarnStatus,
                       TStrVec& clauseTokens);
 
 private:

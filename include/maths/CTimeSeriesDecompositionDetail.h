@@ -764,13 +764,12 @@ public:
         std::size_t maxSize() const;
 
         //! Add new seasonal components to \p components.
-        bool addSeasonalComponents(core_t::TTime time,
-                                   const CPeriodicityHypothesisTestsResult& result,
+        bool addSeasonalComponents(const CPeriodicityHypothesisTestsResult& result,
                                    const CExpandingWindow& window,
                                    const TPredictor& predictor);
 
         //! Add a new calendar component to \p components.
-        bool addCalendarComponent(const CCalendarFeature& feature, core_t::TTime time);
+        bool addCalendarComponent(const CCalendarFeature& feature);
 
         //! Adjust the values to remove any piecewise constant linear scales
         //! of the component with period \p period.
@@ -859,10 +858,10 @@ public:
         //! The moments of the error in the predictions including the trend.
         TMeanVarAccumulator m_PredictionErrorWithTrend;
 
-        //! Called if the components change.
+        //! Supplied with the prediction residuals if a component is added.
         TComponentChangeCallback m_ComponentChangeCallback;
 
-        //! Called if the model change annotation is reported.
+        //! Supplied with an annotation if a component is added.
         maths_t::TModelAnnotationCallback m_ModelAnnotationCallback;
 
         //! Set to true when testing for a change.

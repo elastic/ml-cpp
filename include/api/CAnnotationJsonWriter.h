@@ -6,32 +6,33 @@
 #ifndef INCLUDED_ml_api_CAnnotationJsonWriter_h
 #define INCLUDED_ml_api_CAnnotationJsonWriter_h
 
-#include <core/CJsonOutputStreamWrapper.h>
-#include <core/CNonCopyable.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
-#include <core/CoreTypes.h>
 
 #include <api/ImportExport.h>
 
-#include <model/CAnnotation.h>
-
 #include <rapidjson/document.h>
 
-#include <iosfwd>
-#include <sstream>
 #include <string>
 
-#include <stdint.h>
-
 namespace ml {
+namespace core {
+class CJsonOutputStreamWrapper;
+}
+namespace model {
+class CAnnotation;
+}
 namespace api {
 
 //! \brief
 //! Write annotation result as a JSON document
-class API_EXPORT CAnnotationJsonWriter final : private core::CNonCopyable {
+class API_EXPORT CAnnotationJsonWriter final {
 public:
     //! Constructor that causes to be written to the specified stream
     explicit CAnnotationJsonWriter(core::CJsonOutputStreamWrapper& outStream);
+
+    //! No copying
+    CAnnotationJsonWriter(const CAnnotationJsonWriter&) = delete;
+    CAnnotationJsonWriter& operator=(const CAnnotationJsonWriter&) = delete;
 
     void writeResult(const std::string& jobId, const model::CAnnotation& annotation);
 

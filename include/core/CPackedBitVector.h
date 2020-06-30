@@ -38,14 +38,19 @@ namespace core {
 //!
 //! IMPLEMENTATION:\n
 //! The space optimal vector depends on the average run length. In particular, it
-//! is optimum to use around log2(E[run length]) bits to encode each run. We expect
-//! relative short runs in our target applications so stick with std::uint8_t to
-//! encode the run length.
+//! is optimum to use around log2(E[run length]) bits to encode each run. This
+//! approach uses run length encoding of the run lengths for efficiency over a
+//! broad range of average run lengths. This scheme also handles long tail runs
+//! of equal bits effectively. We use 2 bits to encode the number of bytes in the
+//! run and the remaining up to 30 bits to encode the run length.
 //!
 //! Because there are only two values we need only store the value of the first bit
 //! in the vector and can deduce all other values by the number of runs in between.
 //! In practice we store one extra bit, the vector parity to allow us to extend the
 //! vector efficiently.
+//!
+//! \warning Since it allows a more efficient implementation and covers our use cases
+//! this only supports vectors up to length 2^30.
 // clang-format off
 class CORE_EXPORT CPackedBitVector : private boost::equality_comparable<CPackedBitVector,
                                              boost::partially_ordered<CPackedBitVector,
@@ -54,6 +59,8 @@ class CORE_EXPORT CPackedBitVector : private boost::equality_comparable<CPackedB
 public:
     using TBoolVec = std::vector<bool>;
     using TUInt8Vec = std::vector<std::uint8_t>;
+    using TUInt8VecItr = TUInt8Vec::iterator;
+    using TUInt8VecCItr = TUInt8Vec::const_iterator;
 
     //! Operations which can be performed in the inner product.
     enum EOperation { E_AND, E_OR, E_XOR };
@@ -61,9 +68,6 @@ public:
     //! \brief A forward iterator over the indices of the one bits in bit vector.
     class CORE_EXPORT COneBitIndexConstIterator
         : public std::iterator<std::input_iterator_tag, std::size_t, std::ptrdiff_t> {
-    public:
-        using TUInt8VecCItr = TUInt8Vec::const_iterator;
-
     public:
         COneBitIndexConstIterator() = default;
         COneBitIndexConstIterator(bool first, TUInt8VecCItr runLengthsItr, TUInt8VecCItr endRunLengthsItr);
@@ -94,7 +98,6 @@ public:
 
     private:
         void skipRun();
-        std::size_t advanceToEndOfRun();
 
     private:
         std::size_t m_Current = 0;
@@ -104,12 +107,7 @@ public:
     };
 
 public:
-    //! The maximum permitted run length. Longer runs are encoded by stringing
-    //! together a number of maximum length runs.
-    static const std::uint8_t MAX_RUN_LENGTH;
-
-public:
-    CPackedBitVector();
+    CPackedBitVector() = default;
     explicit CPackedBitVector(bool bit);
     CPackedBitVector(std::size_t dimension, bool bit);
     CPackedBitVector(const TBoolVec& bits);
@@ -134,6 +132,9 @@ public:
     //@{
     //! Reset to zero length vector.
     void clear();
+
+    //! Get the maximum supported vector size.
+    static std::size_t maximumSize() { return MAXIMUM_FOUR_BYTE_RUN_LENGTH; }
 
     //! Wraps dimension.
     std::size_t size() const { return this->dimension(); }
@@ -198,33 +199,51 @@ public:
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
 
-private:
-    void bitwise(EOperation op, const CPackedBitVector& other);
-    template<typename RUN_ACTION>
-    bool lineScan(const CPackedBitVector& covector, RUN_ACTION action) const;
-    static void appendRun(std::size_t run, TUInt8Vec& runLengths);
-    static void extendRun(std::size_t run, TUInt8Vec& runLengths);
-    template<typename T>
-    static T bit(EOperation op, T lhs, T rhs);
+protected:
+    //! This is a mask of the bits which encode how many bytes the run length uses.
+    static constexpr int NUMBER_BYTES_MASK_BITS = 2;
+    static constexpr std::uint8_t NUMBER_BYTES_MASK = 0x3;
+    static constexpr std::size_t MAXIMUM_ONE_BYTE_RUN_LENGTH = 0x3F;
+    static constexpr std::size_t MAXIMUM_TWO_BYTE_RUN_LENGTH = 0x3FFF;
+    static constexpr std::size_t MAXIMUM_THREE_BYTE_RUN_LENGTH = 0x3FFFFF;
+    static constexpr std::size_t MAXIMUM_FOUR_BYTE_RUN_LENGTH = 0x3FFFFFFF;
+
+protected:
+    template<typename RUN_OP>
+    void bitwise(RUN_OP op, const CPackedBitVector& other);
+    template<typename RUN_OP>
+    bool lineScan(const CPackedBitVector& covector, RUN_OP op) const;
+    static void appendRun(std::size_t runLength, std::uint8_t& lastRunBytes, TUInt8Vec& runLengthBytes);
+    static void extendLastRun(std::size_t runLength,
+                              std::uint8_t& lastRunBytes,
+                              TUInt8Vec& runLengthBytes);
+    static std::uint8_t bytes(std::size_t runLength);
+    static std::size_t readLastRunLength(std::uint8_t lastRunBytes,
+                                         const TUInt8Vec& runLengthBytes);
+    static std::size_t readRunLength(TUInt8VecCItr runLengthBytes) {
+        return popRunLength(runLengthBytes);
+    }
+    static std::size_t popRunLength(TUInt8VecCItr& runLengthBytes);
+    static void writeRunLength(std::size_t runLength, TUInt8VecItr runLengthBytes);
 
 private:
-    // Note that the bools are 1 byte aligned so the following three variables will
-    // be packed into the 64 bits.
-
     //! The dimension of the vector.
-    std::uint32_t m_Dimension;
+    std::size_t m_Dimension = 0;
 
     //! The value of the first component in the vector.
-    bool m_First;
+    bool m_First = false;
 
     //! The parity of the vector: true indicates that there are an even number runs
     //! and false that there are an odd. Together with m_First this determines the
     //! value of the last component.
-    bool m_Parity;
+    bool m_Parity = true;
+
+    //! The number of needed to encode the last run length.
+    std::uint8_t m_LastRunBytes = 0;
 
     //! The length of each run. Note that if the length of a run exceeds 255 then
     //! this is encoded in multiple run lengths.
-    TUInt8Vec m_RunLengths;
+    TUInt8Vec m_RunLengthBytes;
 };
 
 //! Output for debug.

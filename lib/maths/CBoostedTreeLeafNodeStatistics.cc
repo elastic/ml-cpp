@@ -22,10 +22,6 @@ using namespace boosted_tree_detail;
 using TRowItr = core::CDataFrame::TRowItr;
 
 namespace {
-template<typename T>
-T& read(std::vector<T>& workspace) {
-    return workspace[0];
-}
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
 }
@@ -50,9 +46,10 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 
-    m_Derivatives.swap(read(workspace.derivatives()));
+    m_Derivatives.swap(workspace.reducedDerivatives());
     m_BestSplit = this->computeBestSplitStatistics(regularization, featureBag);
-    read(workspace.derivatives()).swap(m_Derivatives);
+    workspace.reducedDerivatives().swap(m_Derivatives);
+
     if (this->gain() > workspace.minimumGain()) {
         m_RowMask = rowMask;
         CSplitsDerivatives tmp{workspace.derivatives()[0]};
@@ -93,12 +90,13 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 
-    m_Derivatives.swap(read(workspace.derivatives()));
+    m_Derivatives.swap(workspace.reducedDerivatives());
     m_BestSplit = this->computeBestSplitStatistics(regularization, featureBag);
-    read(workspace.derivatives()).swap(m_Derivatives);
+    workspace.reducedDerivatives().swap(m_Derivatives);
+
     if (this->gain() >= workspace.minimumGain()) {
-        CSplitsDerivatives tmp{read(workspace.derivatives())};
-        m_RowMask = read(workspace.masks());
+        CSplitsDerivatives tmp{workspace.reducedDerivatives()};
+        m_RowMask = workspace.reducedMask(parent.m_RowMask.size());
         m_Derivatives = std::move(tmp);
     }
 }
@@ -115,11 +113,11 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(std::size_t id,
 
     // Lazily compute the row mask to avoid unnecessary work.
 
-    m_Derivatives.subtract(read(workspace.derivatives()));
+    m_Derivatives.subtract(workspace.reducedDerivatives());
     m_BestSplit = this->computeBestSplitStatistics(regularization, featureBag);
     if (this->gain() >= workspace.minimumGain()) {
         m_RowMask = std::move(parent.m_RowMask);
-        m_RowMask ^= read(workspace.masks());
+        m_RowMask ^= workspace.reducedMask(m_RowMask.size());
     }
 }
 
@@ -194,18 +192,14 @@ std::size_t CBoostedTreeLeafNodeStatistics::memoryUsage() const {
 }
 
 std::size_t
-CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(std::size_t numberRows,
-                                                    std::size_t numberFeatures,
+CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(std::size_t numberFeatures,
                                                     std::size_t numberSplitsPerFeature,
                                                     std::size_t numberLossParameters) {
-    // We will typically get the close to the best compression for most of the
-    // leaves when the set of splits becomes large, corresponding to the worst
-    // case for memory usage. This is because the rows will be spread over many
-    // rows so the masks will mainly contain 0 bits in this case.
-    std::size_t rowMaskSize{numberRows / PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
+    // See CBoostedTreeImpl::estimateMemoryUsage for a discussion of the cost
+    // of the row mask.
     std::size_t splitsDerivativesSize{CSplitsDerivatives::estimateMemoryUsage(
         numberFeatures, numberSplitsPerFeature, numberLossParameters)};
-    return sizeof(CBoostedTreeLeafNodeStatistics) + rowMaskSize + splitsDerivativesSize;
+    return sizeof(CBoostedTreeLeafNodeStatistics) + splitsDerivativesSize;
 }
 
 void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
@@ -214,6 +208,8 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
     const CDataFrameCategoryEncoder& encoder,
     const core::CPackedBitVector& rowMask,
     CWorkspace& workspace) const {
+
+    workspace.newLeaf(numberThreads);
 
     core::CDataFrame::TRowFuncVec aggregators;
     aggregators.reserve(numberThreads);
@@ -229,11 +225,6 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
     }
 
     frame.readRows(0, frame.numberRows(), aggregators, &rowMask);
-
-    for (std::size_t i = 1; i < numberThreads; ++i) {
-        read(workspace.derivatives()).add(workspace.derivatives()[i]);
-    }
-    read(workspace.derivatives()).remapCurvature();
 }
 
 void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
@@ -244,6 +235,8 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
     const CBoostedTreeNode& split,
     const core::CPackedBitVector& parentRowMask,
     CWorkspace& workspace) const {
+
+    workspace.newLeaf(numberThreads);
 
     core::CDataFrame::TRowFuncVec aggregators;
     aggregators.reserve(numberThreads);
@@ -267,15 +260,6 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
     }
 
     frame.readRows(0, frame.numberRows(), aggregators, &parentRowMask);
-
-    for (auto& mask : workspace.masks()) {
-        mask.extend(false, parentRowMask.size() - mask.size());
-    }
-    for (std::size_t i = 1; i < numberThreads; ++i) {
-        read(workspace.masks()) |= workspace.masks()[i];
-        read(workspace.derivatives()).add(workspace.derivatives()[i]);
-    }
-    read(workspace.derivatives()).remapCurvature();
 }
 
 void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRowRef& row,

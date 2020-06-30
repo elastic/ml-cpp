@@ -8,10 +8,14 @@
 namespace ml {
 namespace model {
 namespace {
+// These strings must correspond exactly to lowercased values of the Event enum
+// of org.elasticsearch.xpack.core.ml.annotations.Annotation in the Java code.
 const std::string EVENT_MODEL_CHANGE{"model_change"};
+const std::string EVENT_CATEGORIZATION_STATUS_CHANGE{"categorization_status_change"};
 }
 
 CAnnotation::CAnnotation(core_t::TTime time,
+                         EEvent event,
                          const std::string& annotation,
                          int detectorIndex,
                          const std::string& partitionFieldName,
@@ -20,10 +24,10 @@ CAnnotation::CAnnotation(core_t::TTime time,
                          const std::string& overFieldValue,
                          const std::string& byFieldName,
                          const std::string& byFieldValue)
-    : m_Time{time}, m_Annotation{annotation}, m_DetectorIndex{detectorIndex},
-      m_PartitionFieldName{partitionFieldName}, m_PartitionFieldValue{partitionFieldValue},
-      m_OverFieldName{overFieldName}, m_OverFieldValue{overFieldValue},
-      m_ByFieldName{byFieldName}, m_ByFieldValue{byFieldValue} {
+    : m_Time{time}, m_Event{event}, m_Annotation{annotation},
+      m_DetectorIndex{detectorIndex}, m_PartitionFieldName{partitionFieldName},
+      m_PartitionFieldValue{partitionFieldValue}, m_OverFieldName{overFieldName},
+      m_OverFieldValue{overFieldValue}, m_ByFieldName{byFieldName}, m_ByFieldValue{byFieldValue} {
 }
 
 core_t::TTime CAnnotation::time() const {
@@ -35,7 +39,12 @@ const std::string& CAnnotation::annotation() const {
 }
 
 const std::string& CAnnotation::event() const {
-    // If we start reporting some other event type, we should return m_Event instead of a constant here.
+    switch (m_Event) {
+    case E_ModelChange:
+        return EVENT_MODEL_CHANGE;
+    case E_CategorizationStatusChange:
+        return EVENT_CATEGORIZATION_STATUS_CHANGE;
+    }
     return EVENT_MODEL_CHANGE;
 }
 

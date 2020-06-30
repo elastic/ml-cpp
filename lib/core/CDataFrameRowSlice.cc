@@ -125,7 +125,7 @@ CDataFrameRowSliceHandle::CDataFrameRowSliceHandle(const CDataFrameRowSliceHandl
     : m_Impl{other.m_Impl != nullptr ? other.m_Impl->clone() : nullptr} {
 }
 
-CDataFrameRowSliceHandle::CDataFrameRowSliceHandle(CDataFrameRowSliceHandle&& other)
+CDataFrameRowSliceHandle::CDataFrameRowSliceHandle(CDataFrameRowSliceHandle&& other) noexcept
     : m_Impl{std::move(other.m_Impl)} {
 }
 
@@ -138,7 +138,7 @@ operator=(const CDataFrameRowSliceHandle& other) {
 }
 
 CDataFrameRowSliceHandle& CDataFrameRowSliceHandle::
-operator=(CDataFrameRowSliceHandle&& other) = default;
+operator=(CDataFrameRowSliceHandle&& other) noexcept = default;
 
 std::size_t CDataFrameRowSliceHandle::size() const {
     return m_Impl->rows().size();

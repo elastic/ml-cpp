@@ -219,6 +219,12 @@ bool CDataFrameTrainBoostedTreeRunner::validate(const core::CDataFrame& frame) c
         HANDLE_FATAL(<< "Input error: analysis need at least one regressor.")
         return false;
     }
+    if (frame.numberRows() > maths::CBoostedTreeFactory::maximumNumberRows()) {
+        HANDLE_FATAL(<< "Input error: no more than "
+                     << maths::CBoostedTreeFactory::maximumNumberRows()
+                     << " are supported. You need to downsample your data.")
+        return false;
+    }
     return true;
 }
 

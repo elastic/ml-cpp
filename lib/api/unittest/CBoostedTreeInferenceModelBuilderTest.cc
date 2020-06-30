@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CBase64Filter.h>
 #include <core/CDataAdder.h>
 #include <core/CDataFrame.h>
 #include <core/CDataSearcher.h>
@@ -25,8 +26,12 @@
 #include <test/CRandomNumbers.h>
 #include <test/CTestTmpDir.h>
 
+#include <rapidjson/document.h>
 #include <rapidjson/schema.h>
 
+#include <boost/iostreams/copy.hpp>
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
@@ -47,6 +52,7 @@ using TDoubleVecVec = std::vector<TDoubleVec>;
 using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
 using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
+using TFilteredInput = boost::iostreams::filtering_stream<boost::iostreams::input>;
 
 auto generateCategoricalData(test::CRandomNumbers& rng,
                              std::size_t rows,
@@ -66,6 +72,18 @@ auto generateCategoricalData(test::CRandomNumbers& rng,
     rng.discard(1000000); // Make sure the categories are not correlated
 
     return std::make_pair(frequencies[0], values);
+}
+
+std::stringstream decompressStream(std::stringstream&& compressedStream) {
+    std::stringstream decompressedStream;
+    {
+        TFilteredInput inFilter;
+        inFilter.push(boost::iostreams::gzip_decompressor());
+        inFilter.push(core::CBase64Decoder());
+        inFilter.push(compressedStream);
+        boost::iostreams::copy(inFilter, decompressedStream);
+    }
+    return decompressedStream;
 }
 }
 
@@ -117,46 +135,131 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
-    // test pre-processing
-    BOOST_REQUIRE_EQUAL(std::size_t(3), definition->preprocessors().size());
-    bool frequency = false;
-    bool target = false;
-    bool oneHot = false;
+    LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
+    std::string modelSizeDefinition{definition->sizeInfo()->jsonString()};
+    LOG_DEBUG(<< "Model size definition: " << modelSizeDefinition);
 
-    for (const auto& encoding : definition->preprocessors()) {
-        if (encoding->typeString() == "frequency_encoding") {
-            auto enc = static_cast<ml::api::CFrequencyEncoding*>(encoding.get());
-            BOOST_REQUIRE_EQUAL(std::size_t(3), enc->frequencyMap().size());
-            BOOST_TEST_REQUIRE("categorical_col_frequency" == enc->featureName());
-            frequency = true;
-        } else if (encoding->typeString() == "target_mean_encoding") {
-            auto enc = static_cast<ml::api::CTargetMeanEncoding*>(encoding.get());
-            BOOST_REQUIRE_EQUAL(std::size_t(3), enc->targetMap().size());
-            BOOST_TEST_REQUIRE("categorical_col_targetmean" == enc->featureName());
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0177288, enc->defaultValue(), 1e-6);
-            target = true;
-        } else if (encoding->typeString() == "one_hot_encoding") {
-            auto enc = static_cast<ml::api::COneHotEncoding*>(encoding.get());
-            BOOST_REQUIRE_EQUAL(std::size_t(3), enc->hotMap().size());
-            BOOST_TEST_REQUIRE("categorical_col_cat1" == enc->hotMap()["cat1"]);
-            BOOST_TEST_REQUIRE("categorical_col_cat2" == enc->hotMap()["cat2"]);
-            BOOST_TEST_REQUIRE("categorical_col_cat3" == enc->hotMap()["cat3"]);
-            oneHot = true;
+    // verify model definition
+    {
+        // test pre-processing
+        BOOST_REQUIRE_EQUAL(std::size_t(3), definition->preprocessors().size());
+        bool frequency = false;
+        bool target = false;
+        bool oneHot = false;
+
+        for (const auto& encoding : definition->preprocessors()) {
+            if (encoding->typeString() == "frequency_encoding") {
+                auto enc = static_cast<ml::api::CFrequencyEncoding*>(encoding.get());
+                BOOST_REQUIRE_EQUAL(std::size_t(3), enc->frequencyMap().size());
+                BOOST_TEST_REQUIRE("categorical_col_frequency" == enc->featureName());
+                frequency = true;
+            } else if (encoding->typeString() == "target_mean_encoding") {
+                auto enc = static_cast<ml::api::CTargetMeanEncoding*>(encoding.get());
+                BOOST_REQUIRE_EQUAL(std::size_t(3), enc->targetMap().size());
+                BOOST_TEST_REQUIRE("categorical_col_targetmean" == enc->featureName());
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0177288, enc->defaultValue(), 1e-6);
+                target = true;
+            } else if (encoding->typeString() == "one_hot_encoding") {
+                auto enc = static_cast<ml::api::COneHotEncoding*>(encoding.get());
+                BOOST_REQUIRE_EQUAL(std::size_t(3), enc->hotMap().size());
+                BOOST_TEST_REQUIRE("categorical_col_cat1" == enc->hotMap()["cat1"]);
+                BOOST_TEST_REQUIRE("categorical_col_cat2" == enc->hotMap()["cat2"]);
+                BOOST_TEST_REQUIRE("categorical_col_cat3" == enc->hotMap()["cat3"]);
+                oneHot = true;
+            }
         }
+
+        BOOST_TEST_REQUIRE(oneHot);
+        BOOST_TEST_REQUIRE(target);
+        BOOST_TEST_REQUIRE(frequency);
+
+        // assert trained model
+        auto* trainedModel =
+            dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
+        BOOST_REQUIRE_EQUAL(api::CTrainedModel::E_Regression, trainedModel->targetType());
+        std::size_t expectedSize{core::CProgramCounters::counter(
+            ml::counter_t::E_DFTPMTrainedForestNumberTrees)};
+        BOOST_REQUIRE_EQUAL(expectedSize, trainedModel->size());
+        BOOST_TEST_REQUIRE("weighted_sum" == trainedModel->aggregateOutput()->stringType());
     }
 
-    BOOST_TEST_REQUIRE(oneHot);
-    BOOST_TEST_REQUIRE(target);
-    BOOST_TEST_REQUIRE(frequency);
+    // verify compressed definition
+    {
+        std::string modelDefinitionStr{definition->jsonString()};
+        std::stringstream decompressedStream{
+            decompressStream(definition->jsonStringCompressedFormat())};
+        BOOST_TEST_REQUIRE(decompressedStream.str() == modelDefinitionStr);
+    }
 
-    // assert trained model
-    auto* trainedModel =
-        dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
-    BOOST_REQUIRE_EQUAL(api::CTrainedModel::E_Regression, trainedModel->targetType());
-    std::size_t expectedSize{core::CProgramCounters::counter(
-        ml::counter_t::E_DFTPMTrainedForestNumberTrees)};
-    BOOST_REQUIRE_EQUAL(expectedSize, trainedModel->size());
-    BOOST_TEST_REQUIRE("weighted_sum" == trainedModel->aggregateOutput()->stringType());
+    // verify model size info
+    {
+        rapidjson::Document result;
+        rapidjson::ParseResult ok(result.Parse(modelSizeDefinition));
+        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        bool hasFrequencyEncoding{false};
+        bool hasTargetMeanEncoding{false};
+        bool hasOneHotEncoding{false};
+        std::size_t expectedFieldLength{
+            core::CStringUtils::utf16LengthOfUtf8String("categorical_col")};
+
+        if (result.HasMember("preprocessors")) {
+            for (const auto& preprocessor : result["preprocessors"].GetArray()) {
+                if (preprocessor.HasMember("frequency_encoding")) {
+                    hasFrequencyEncoding = true;
+                    std::size_t fieldLength{
+                        preprocessor["frequency_encoding"]["field_length"].GetUint64()};
+                    BOOST_REQUIRE_EQUAL(fieldLength, expectedFieldLength);
+                    std::size_t featureNameLength{preprocessor["frequency_encoding"]["feature_name_length"]
+                                                      .GetUint64()};
+                    BOOST_REQUIRE_EQUAL(featureNameLength,
+                                        core::CStringUtils::utf16LengthOfUtf8String(
+                                            "categorical_col_frequency"));
+                }
+                if (preprocessor.HasMember("target_mean_encoding")) {
+                    hasTargetMeanEncoding = true;
+                    std::size_t fieldLength{
+                        preprocessor["target_mean_encoding"]["field_length"].GetUint64()};
+                    BOOST_REQUIRE_EQUAL(fieldLength, expectedFieldLength);
+                    std::size_t featureNameLength{preprocessor["target_mean_encoding"]["feature_name_length"]
+                                                      .GetUint64()};
+                    BOOST_REQUIRE_EQUAL(featureNameLength,
+                                        core::CStringUtils::utf16LengthOfUtf8String(
+                                            "categorical_col_targetmean"));
+                }
+                if (preprocessor.HasMember("one_hot_encoding")) {
+                    hasOneHotEncoding = true;
+                    std::size_t fieldLength{
+                        preprocessor["one_hot_encoding"]["field_length"].GetUint64()};
+                    BOOST_REQUIRE_EQUAL(fieldLength, expectedFieldLength);
+                    BOOST_REQUIRE_EQUAL(preprocessor["one_hot_encoding"]["field_value_lengths"]
+                                            .GetArray()
+                                            .Size(),
+                                        3);
+                    BOOST_REQUIRE_EQUAL(preprocessor["one_hot_encoding"]["feature_name_lengths"]
+                                            .GetArray()
+                                            .Size(),
+                                        3);
+                }
+            }
+        }
+        BOOST_TEST_REQUIRE(hasFrequencyEncoding);
+        BOOST_TEST_REQUIRE(hasTargetMeanEncoding);
+        BOOST_TEST_REQUIRE(hasOneHotEncoding);
+
+        bool hasTreeSizes{false};
+        if (result.HasMember("trained_model_size") &&
+            result["trained_model_size"].HasMember("ensemble_model_size") &&
+            result["trained_model_size"]["ensemble_model_size"].HasMember("tree_sizes")) {
+            hasTreeSizes = true;
+            std::size_t numTrees{result["trained_model_size"]["ensemble_model_size"]["tree_sizes"]
+                                     .GetArray()
+                                     .Size()};
+            auto* trainedModel =
+                dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
+            BOOST_TEST_REQUIRE(numTrees, trainedModel->size());
+        }
+        BOOST_TEST_REQUIRE(hasTreeSizes);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
@@ -206,49 +309,121 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
     LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
+    auto modelSizeDefinition{definition->sizeInfo()->jsonString()};
+    LOG_DEBUG(<< "Model size definition: " << modelSizeDefinition);
 
-    // assert trained model
-    auto trainedModel = dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
-    BOOST_REQUIRE_EQUAL(api::CTrainedModel::E_Classification, trainedModel->targetType());
-    std::size_t expectedSize{
-        core::CProgramCounters::counter(counter_t::E_DFTPMTrainedForestNumberTrees)};
-    BOOST_REQUIRE_EQUAL(expectedSize, trainedModel->size());
-    BOOST_TEST_REQUIRE("logistic_regression" ==
-                       trainedModel->aggregateOutput()->stringType());
-    const auto& classificationLabels = trainedModel->classificationLabels();
-    BOOST_TEST_REQUIRE(classificationLabels.is_initialized());
-    BOOST_REQUIRE_EQUAL_COLLECTIONS(
-        classificationLabels->begin(), classificationLabels->end(),
-        expectedClassificationLabels.begin(), expectedClassificationLabels.end());
+    {
+        // assert trained model
+        auto trainedModel =
+            dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
+        BOOST_REQUIRE_EQUAL(api::CTrainedModel::E_Classification,
+                            trainedModel->targetType());
+        std::size_t expectedSize{core::CProgramCounters::counter(
+            counter_t::E_DFTPMTrainedForestNumberTrees)};
+        BOOST_REQUIRE_EQUAL(expectedSize, trainedModel->size());
+        BOOST_TEST_REQUIRE("logistic_regression" ==
+                           trainedModel->aggregateOutput()->stringType());
+        const auto& classificationLabels = trainedModel->classificationLabels();
+        BOOST_TEST_REQUIRE(classificationLabels.is_initialized());
+        BOOST_REQUIRE_EQUAL_COLLECTIONS(classificationLabels->begin(),
+                                        classificationLabels->end(),
+                                        expectedClassificationLabels.begin(),
+                                        expectedClassificationLabels.end());
 
-    const auto& classificationWeights = trainedModel->classificationWeights();
-    BOOST_TEST_REQUIRE(classificationWeights.is_initialized());
+        const auto& classificationWeights = trainedModel->classificationWeights();
+        BOOST_TEST_REQUIRE(classificationWeights.is_initialized());
 
-    // Check that predicted score matches the value calculated from the inference
-    // classification weights.
-    std::map<bool, std::size_t> classLookup;
-    for (std::size_t i = 0; i < classificationLabels->size(); ++i) {
-        bool labelAsBool;
-        core::CStringUtils::stringToType((*classificationLabels)[i], labelAsBool);
-        classLookup[labelAsBool] = i;
-    }
-    rapidjson::Document results;
-    rapidjson::ParseResult ok(results.Parse(output.str()));
-    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
-            std::string prediction{
-                result["row_results"]["results"]["ml"]["target_col_prediction"].GetString()};
-            double probability{
-                result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble()};
-            double score{
-                result["row_results"]["results"]["ml"]["prediction_score"].GetDouble()};
-            bool predictionAsBool;
-            core::CStringUtils::stringToType(prediction, predictionAsBool);
-            std::size_t weight{classLookup[predictionAsBool]};
-            BOOST_REQUIRE_CLOSE((*classificationWeights)[weight] * probability,
-                                score, 1e-3); // 0.001%
+        // Check that predicted score matches the value calculated from the inference
+        // classification weights.
+        std::map<bool, std::size_t> classLookup;
+        for (std::size_t i = 0; i < classificationLabels->size(); ++i) {
+            bool labelAsBool;
+            core::CStringUtils::stringToType((*classificationLabels)[i], labelAsBool);
+            classLookup[labelAsBool] = i;
         }
+        rapidjson::Document results;
+        rapidjson::ParseResult ok(results.Parse(output.str()));
+        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        for (const auto& result : results.GetArray()) {
+            if (result.HasMember("row_results")) {
+                std::string prediction{result["row_results"]["results"]["ml"]["target_col_prediction"]
+                                           .GetString()};
+                double probability{result["row_results"]["results"]["ml"]["prediction_probability"]
+                                       .GetDouble()};
+                double score{
+                    result["row_results"]["results"]["ml"]["prediction_score"].GetDouble()};
+                bool predictionAsBool;
+                core::CStringUtils::stringToType(prediction, predictionAsBool);
+                std::size_t weight{classLookup[predictionAsBool]};
+                BOOST_REQUIRE_CLOSE((*classificationWeights)[weight] * probability,
+                                    score, 1e-3); // 0.001%
+            }
+        }
+    }
+
+    // verify compressed definition
+    {
+        std::string modelDefinitionStr{definition->jsonString()};
+        std::stringstream decompressedStream{
+            decompressStream(definition->jsonStringCompressedFormat())};
+        BOOST_TEST_REQUIRE(decompressedStream.str() == modelDefinitionStr);
+    }
+
+    // verify model size info
+    {
+        rapidjson::Document result;
+        rapidjson::ParseResult ok(result.Parse(modelSizeDefinition));
+        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        bool hasFrequencyEncoding{false};
+        bool hasOneHotEncoding{false};
+        std::size_t expectedFieldLength{
+            core::CStringUtils::utf16LengthOfUtf8String("categorical_col")};
+        if (result.HasMember("preprocessors")) {
+            for (const auto& preprocessor : result["preprocessors"].GetArray()) {
+                if (preprocessor.HasMember("frequency_encoding")) {
+                    hasFrequencyEncoding = true;
+                    std::size_t fieldLength{
+                        preprocessor["frequency_encoding"]["field_length"].GetUint64()};
+                    BOOST_REQUIRE_EQUAL(fieldLength, expectedFieldLength);
+                    std::size_t featureNameLength{preprocessor["frequency_encoding"]["feature_name_length"]
+                                                      .GetUint64()};
+                    BOOST_REQUIRE_EQUAL(featureNameLength,
+                                        core::CStringUtils::utf16LengthOfUtf8String(
+                                            "categorical_col_frequency"));
+                }
+                if (preprocessor.HasMember("one_hot_encoding")) {
+                    hasOneHotEncoding = true;
+                    std::size_t fieldLength{
+                        preprocessor["one_hot_encoding"]["field_length"].GetUint64()};
+                    BOOST_REQUIRE_EQUAL(fieldLength, expectedFieldLength);
+                    BOOST_REQUIRE_EQUAL(preprocessor["one_hot_encoding"]["field_value_lengths"]
+                                            .GetArray()
+                                            .Size(),
+                                        2);
+                    BOOST_REQUIRE_EQUAL(preprocessor["one_hot_encoding"]["feature_name_lengths"]
+                                            .GetArray()
+                                            .Size(),
+                                        2);
+                }
+            }
+        }
+
+        BOOST_TEST_REQUIRE(hasFrequencyEncoding);
+        BOOST_TEST_REQUIRE(hasOneHotEncoding);
+
+        bool hasTreeSizes{false};
+        if (result.HasMember("trained_model_size") &&
+            result["trained_model_size"].HasMember("ensemble_model_size") &&
+            result["trained_model_size"]["ensemble_model_size"].HasMember("tree_sizes")) {
+            hasTreeSizes = true;
+            std::size_t numTrees{result["trained_model_size"]["ensemble_model_size"]["tree_sizes"]
+                                     .GetArray()
+                                     .Size()};
+            auto* trainedModel =
+                dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
+            BOOST_TEST_REQUIRE(numTrees, trainedModel->size());
+        }
+        BOOST_TEST_REQUIRE(hasTreeSizes);
     }
 }
 
@@ -299,30 +474,63 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
-    std::ifstream schemaFileStream("testfiles/inference_json_schema/model_definition.schema.json");
-    BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
-    std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
-                           std::istreambuf_iterator<char>());
-    rapidjson::Document schemaDocument;
-    BOOST_REQUIRE_MESSAGE(schemaDocument.Parse(schemaJson).HasParseError() == false,
-                          "Cannot parse JSON schema!");
-    rapidjson::SchemaDocument schema(schemaDocument);
+    // validating inference model definition
+    {
+        std::ifstream schemaFileStream("testfiles/inference_json_schema/model_definition.schema.json");
+        BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
+        std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
+                               std::istreambuf_iterator<char>());
+        rapidjson::Document schemaDocument;
+        BOOST_REQUIRE_MESSAGE(schemaDocument.Parse(schemaJson).HasParseError() == false,
+                              "Cannot parse JSON schema!");
+        rapidjson::SchemaDocument schema(schemaDocument);
 
-    rapidjson::Document doc;
-    BOOST_REQUIRE_MESSAGE(doc.Parse(definition->jsonString()).HasParseError() == false,
-                          "Error parsing JSON definition!");
+        rapidjson::Document doc;
+        BOOST_REQUIRE_MESSAGE(doc.Parse(definition->jsonString()).HasParseError() == false,
+                              "Error parsing JSON definition!");
 
-    rapidjson::SchemaValidator validator(schema);
-    if (doc.Accept(validator) == false) {
-        rapidjson::StringBuffer sb;
-        validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
-        LOG_ERROR(<< "Invalid schema: " << sb.GetString());
-        LOG_ERROR(<< "Invalid keyword: " << validator.GetInvalidSchemaKeyword());
-        sb.Clear();
-        validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
-        LOG_ERROR(<< "Invalid document: " << sb.GetString());
-        LOG_DEBUG(<< "Document: " << definition->jsonString());
-        BOOST_FAIL("Schema validation failed");
+        rapidjson::SchemaValidator validator(schema);
+        if (doc.Accept(validator) == false) {
+            rapidjson::StringBuffer sb;
+            validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
+            LOG_ERROR(<< "Invalid schema: " << sb.GetString());
+            LOG_ERROR(<< "Invalid keyword: " << validator.GetInvalidSchemaKeyword());
+            sb.Clear();
+            validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
+            LOG_ERROR(<< "Invalid document: " << sb.GetString());
+            LOG_DEBUG(<< "Document: " << definition->jsonString());
+            BOOST_FAIL("Schema validation failed");
+        }
+    }
+
+    // validating model size info
+    {
+        std::ifstream schemaFileStream("testfiles/model_size_info/model_size_info.schema.json");
+        BOOST_REQUIRE_MESSAGE(schemaFileStream.is_open(), "Cannot open test file!");
+        std::string schemaJson((std::istreambuf_iterator<char>(schemaFileStream)),
+                               std::istreambuf_iterator<char>());
+        rapidjson::Document schemaDocument;
+        BOOST_REQUIRE_MESSAGE(schemaDocument.Parse(schemaJson).HasParseError() == false,
+                              "Cannot parse JSON schema!");
+        rapidjson::SchemaDocument schema(schemaDocument);
+
+        rapidjson::Document doc;
+        BOOST_REQUIRE_MESSAGE(
+            doc.Parse(definition->sizeInfo()->jsonString()).HasParseError() == false,
+            "Error parsing JSON definition!");
+
+        rapidjson::SchemaValidator validator(schema);
+        if (doc.Accept(validator) == false) {
+            rapidjson::StringBuffer sb;
+            validator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
+            LOG_ERROR(<< "Invalid schema: " << sb.GetString());
+            LOG_ERROR(<< "Invalid keyword: " << validator.GetInvalidSchemaKeyword());
+            sb.Clear();
+            validator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
+            LOG_ERROR(<< "Invalid document: " << sb.GetString());
+            LOG_DEBUG(<< "Document: " << definition->sizeInfo()->jsonString());
+            BOOST_FAIL("Schema validation failed");
+        }
     }
 
     // TODO add multivalued leaf test.
