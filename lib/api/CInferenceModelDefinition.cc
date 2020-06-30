@@ -5,10 +5,15 @@
  */
 #include <api/CInferenceModelDefinition.h>
 
+#include <core/CBase64Filter.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
 
+#include <boost/iostreams/filter/gzip.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+
 #include <cmath>
+#include <iterator>
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
@@ -21,11 +26,15 @@ namespace {
 const std::string JSON_AGGREGATE_OUTPUT_TAG{"aggregate_output"};
 const std::string JSON_CLASSIFICATION_LABELS_TAG{"classification_labels"};
 const std::string JSON_CLASSIFICATION_WEIGHTS_TAG{"classification_weights"};
+const std::string JSON_COMPRESSED_INFERENCE_MODEL_TAG{"compressed_inference_model"};
 const std::string JSON_DECISION_TYPE_TAG{"decision_type"};
 const std::string JSON_DEFAULT_LEFT_TAG{"default_left"};
 const std::string JSON_DEFAULT_VALUE_TAG{"default_value"};
+const std::string JSON_DEFINITION_TAG{"definition"};
+const std::string JSON_DOC_NUM_TAG{"doc_num"};
 const std::string JSON_ENSEMBLE_MODEL_SIZE_TAG{"ensemble_model_size"};
 const std::string JSON_ENSEMBLE_TAG{"ensemble"};
+const std::string JSON_EOS_TAG{"eos"};
 const std::string JSON_FEATURE_NAME_LENGTH_TAG{"feature_name_length"};
 const std::string JSON_FEATURE_NAME_LENGTHS_TAG{"feature_name_lengths"};
 const std::string JSON_FEATURE_NAME_TAG{"feature_name"};
@@ -41,6 +50,7 @@ const std::string JSON_LEAF_VALUE_TAG{"leaf_value"};
 const std::string JSON_LEFT_CHILD_TAG{"left_child"};
 const std::string JSON_LOGISTIC_REGRESSION_TAG{"logistic_regression"};
 const std::string JSON_LT{"lt"};
+const std::string JSON_MODEL_SIZE_INFO_TAG{"model_size_info"};
 const std::string JSON_NODE_INDEX_TAG{"node_index"};
 const std::string JSON_NUM_CLASSES_TAG{"num_classes"};
 const std::string JSON_NUM_CLASSIFICATION_WEIGHTS_TAG{"num_classification_weights"};
@@ -60,16 +70,19 @@ const std::string JSON_TARGET_TYPE_CLASSIFICATION{"classification"};
 const std::string JSON_TARGET_TYPE_REGRESSION{"regression"};
 const std::string JSON_TARGET_TYPE_TAG{"target_type"};
 const std::string JSON_THRESHOLD_TAG{"threshold"};
+const std::string JSON_TOTAL_DEFINITION_LENGTH_TAG{"total_definition_length"};
 const std::string JSON_TRAINED_MODEL_SIZE_TAG{"trained_model_size"};
 const std::string JSON_TRAINED_MODEL_TAG{"trained_model"};
 const std::string JSON_TRAINED_MODELS_TAG{"trained_models"};
+const std::string JSON_TREE_SIZES_TAG{"tree_sizes"};
 const std::string JSON_TREE_STRUCTURE_TAG{"tree_structure"};
 const std::string JSON_TREE_TAG{"tree"};
-const std::string JSON_TREE_SIZES_TAG{"tree_sizes"};
 const std::string JSON_WEIGHTED_MODE_TAG{"weighted_mode"};
 const std::string JSON_WEIGHTED_SUM_TAG{"weighted_sum"};
 const std::string JSON_WEIGHTS_TAG{"weights"};
 // clang-format on
+
+const std::size_t MAX_DOCUMENT_SIZE(16 * 1024 * 1024); // 16MB
 
 auto toJson(const std::string& value, CSerializableToJson::TRapidJsonWriter& writer) {
     rapidjson::Value result;
@@ -363,7 +376,7 @@ CTrainedModel::TStringVec CTree::removeUnusedFeatures() {
     return this->featureNames();
 }
 
-std::string CInferenceModelDefinition::jsonString() {
+std::string CInferenceModelDefinition::jsonString() const {
 
     std::ostringstream stream;
     {
@@ -378,6 +391,52 @@ std::string CInferenceModelDefinition::jsonString() {
     std::string jsonStr{stream.str()};
     std::string resultString(jsonStr, 1, jsonStr.size() - 2);
     return resultString;
+}
+
+std::stringstream CInferenceModelDefinition::jsonStringCompressedFormat() const {
+    std::stringstream compressedStream;
+    using TFilteredOutput = boost::iostreams::filtering_stream<boost::iostreams::output>;
+    std::string modelDefinitionStr{jsonString()};
+    {
+        TFilteredOutput outFilter;
+        outFilter.push(boost::iostreams::gzip_compressor());
+        outFilter.push(core::CBase64Encoder());
+        outFilter.push(compressedStream);
+        outFilter << modelDefinitionStr;
+        outFilter.flush();
+    }
+    return compressedStream;
+}
+
+void CInferenceModelDefinition::addToDocumentCompressed(TRapidJsonWriter& writer) const {
+    std::stringstream compressedString{jsonStringCompressedFormat()};
+    std::streamsize processed{0};
+    compressedString.seekg(0, compressedString.end);
+    std::streamsize remained{compressedString.tellg()};
+    compressedString.seekg(0, compressedString.beg);
+    std::size_t docNum{0};
+    while (remained > 0) {
+        std::size_t bytesToProcess{std::min(MAX_DOCUMENT_SIZE, static_cast<size_t>(remained))};
+        std::string buffer;
+        std::copy_n(std::istreambuf_iterator<char>(compressedString.seekg(processed)),
+                    bytesToProcess, std::back_inserter(buffer));
+        remained -= bytesToProcess;
+        processed += bytesToProcess;
+        writer.StartObject();
+        writer.Key(JSON_COMPRESSED_INFERENCE_MODEL_TAG);
+        writer.StartObject();
+        writer.Key(JSON_DOC_NUM_TAG);
+        writer.Uint64(docNum);
+        writer.Key(JSON_DEFINITION_TAG);
+        writer.String(buffer);
+        if (remained == 0) {
+            writer.Key(JSON_EOS_TAG);
+            writer.Bool(true);
+        }
+        writer.EndObject();
+        writer.EndObject();
+        ++docNum;
+    }
 }
 
 void CInferenceModelDefinition::addToDocument(rapidjson::Value& parentObject,
@@ -505,11 +564,7 @@ CInferenceModelDefinition::TApiEncodingUPtrVec& CInferenceModelDefinition::prepr
 }
 
 const std::string& CInferenceModelDefinition::typeString() const {
-    return m_TypeString;
-}
-
-void CInferenceModelDefinition::typeString(const std::string& typeString) {
-    CInferenceModelDefinition::m_TypeString = typeString;
+    return JSON_COMPRESSED_INFERENCE_MODEL_TAG;
 }
 
 const CInferenceModelDefinition::TStringVec& CInferenceModelDefinition::fieldNames() const {
@@ -547,6 +602,10 @@ std::string CInferenceModelDefinition::CSizeInfo::jsonString() {
     std::string jsonStr{stream.str()};
     std::string resultString(jsonStr, 1, jsonStr.size() - 2);
     return resultString;
+}
+
+const std::string& CInferenceModelDefinition::CSizeInfo::typeString() const {
+    return JSON_MODEL_SIZE_INFO_TAG;
 }
 
 void CInferenceModelDefinition::CSizeInfo::addToDocument(rapidjson::Value& parentObject,

@@ -16,6 +16,7 @@
 
 #include <boost/optional.hpp>
 
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -418,6 +419,7 @@ public:
     public:
         explicit CSizeInfo(const CInferenceModelDefinition& definition);
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        const std::string& typeString() const;
         std::string jsonString();
 
     private:
@@ -433,11 +435,12 @@ public:
     TTrainedModelUPtr& trainedModel();
     const TTrainedModelUPtr& trainedModel() const;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
-    std::string jsonString();
+    void addToDocumentCompressed(TRapidJsonWriter& writer) const;
+    std::string jsonString() const;
+    std::stringstream jsonStringCompressedFormat() const;
     void fieldNames(TStringVec&& fieldNames);
     const TStringVec& fieldNames() const;
     const std::string& typeString() const;
-    void typeString(const std::string& typeString);
     std::size_t dependentVariableColumnIndex() const;
     void dependentVariableColumnIndex(size_t dependentVariableColumnIndex);
     //! Get the object for model size with information for estimation.
