@@ -85,6 +85,8 @@ private:
     void addRowToDataFrame(const TStrVec& fieldValues);
     void writeResultsOf(const CDataFrameAnalysisRunner& analysis,
                         core::CRapidJsonConcurrentLineWriter& writer) const;
+    void writeInferenceModel(const CDataFrameAnalysisRunner& analysis,
+                             core::CRapidJsonConcurrentLineWriter& writer) const;
 
 private:
     // This has values: -2 (unset), -1 (missing), >= 0 (control field index).
