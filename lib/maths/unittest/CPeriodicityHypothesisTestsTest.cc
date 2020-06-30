@@ -949,7 +949,7 @@ BOOST_AUTO_TEST_CASE(testWithPiecewiseLinearTrend) {
     }
 
     LOG_DEBUG(<< "Recall = " << TP / (TP + FN));
-    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.89);
+    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.87);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
