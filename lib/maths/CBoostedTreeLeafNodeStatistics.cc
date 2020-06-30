@@ -192,18 +192,14 @@ std::size_t CBoostedTreeLeafNodeStatistics::memoryUsage() const {
 }
 
 std::size_t
-CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(std::size_t numberRows,
-                                                    std::size_t numberFeatures,
+CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(std::size_t numberFeatures,
                                                     std::size_t numberSplitsPerFeature,
                                                     std::size_t numberLossParameters) {
-    // We will typically get the close to the best compression for most of the
-    // leaves when the set of splits becomes large, corresponding to the worst
-    // case for memory usage. This is because the rows will be spread over many
-    // rows so the masks will mainly contain 0 bits in this case.
-    std::size_t rowMaskSize{numberRows / PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE};
+    // See CBoostedTreeImpl::estimateMemoryUsage for a discussion of the cost
+    // of the row mask.
     std::size_t splitsDerivativesSize{CSplitsDerivatives::estimateMemoryUsage(
         numberFeatures, numberSplitsPerFeature, numberLossParameters)};
-    return sizeof(CBoostedTreeLeafNodeStatistics) + rowMaskSize + splitsDerivativesSize;
+    return sizeof(CBoostedTreeLeafNodeStatistics) + splitsDerivativesSize;
 }
 
 void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
