@@ -325,25 +325,27 @@ void CEventRateModel::sample(core_t::TTime startTime,
                                   priorWeights[0]);
                 maths_t::setWinsorisationWeight(winsorisationWeight, priorWeights[0]);
 
+                auto annotationCallback = [&](const std::string& annotation) {
+                    if (this->params().s_AnnotationsEnabled) {
+                        m_CurrentBucketStats.s_Annotations.emplace_back(
+                            time, CAnnotation::E_ModelChange, annotation,
+                            gatherer.searchKey().detectorIndex(),
+                            gatherer.searchKey().partitionFieldName(),
+                            gatherer.partitionFieldValue(),
+                            gatherer.searchKey().overFieldName(), EMPTY_STRING,
+                            gatherer.searchKey().byFieldName(), gatherer.personName(pid));
+                    }
+                };
+
                 maths::CModelAddSamplesParams params;
                 params.integer(true)
                     .nonNegative(true)
                     .propagationInterval(deratedInterval)
                     .trendWeights(trendWeights)
-                    .priorWeights(priorWeights);
-                if (this->params().s_AnnotationsEnabled) {
-                    const auto modelAnnotationCallback =
-                        [&](core_t::TTime t, const std::string& annotation) {
-                            m_CurrentBucketStats.s_Annotations.emplace_back(
-                                t, annotation, gatherer.searchKey().detectorIndex(),
-                                gatherer.searchKey().partitionFieldName(),
-                                gatherer.partitionFieldValue(),
-                                gatherer.searchKey().overFieldName(),
-                                EMPTY_STRING, gatherer.searchKey().byFieldName(),
-                                gatherer.personName(pid));
-                        };
-                    params.annotationCallback(modelAnnotationCallback);
-                }
+                    .priorWeights(priorWeights)
+                    .annotationCallback([&](const std::string& annotation) {
+                        annotationCallback(annotation);
+                    });
 
                 if (model->addSamples(params, values) == maths::CModel::E_Reset) {
                     gatherer.resetSampleCount(pid);

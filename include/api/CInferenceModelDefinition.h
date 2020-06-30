@@ -430,9 +430,7 @@ public:
 
 public:
     TApiEncodingUPtrVec& preprocessors();
-    const TApiEncodingUPtrVec& preprocessors() const {
-        return m_Preprocessors;
-    };
+    const TApiEncodingUPtrVec& preprocessors() const { return m_Preprocessors; }
     void trainedModel(TTrainedModelUPtr&& trainedModel);
     TTrainedModelUPtr& trainedModel();
     const TTrainedModelUPtr& trainedModel() const;

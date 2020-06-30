@@ -52,7 +52,7 @@
 * Parallelize the feature importance calculation for classification and regression
   over trees. (See {ml-pull}1277[#1277].)
 * Add an option to do categorization independently for each partition.
-  (See {ml-pull}1293[#1293], {ml-pull}1318[#1318] and {pull}57683[#57683].)
+  (See {ml-pull}1293[#1293], {ml-pull}1318[#1318], {ml-pull}1356[#1356] and {pull}57683[#57683].)
 * Memory usage is reported during job initialization. (See {ml-pull}1294[#1294].)
 * More realistic memory estimation for classification and regression means that these
   analyses will require lower memory limits than before (See {ml-pull}1298[#1298].)
@@ -62,7 +62,10 @@
   (See {ml-pull}1312[#1312].)
 * Performance improvements for classification and regression, particularly running
   multithreaded. (See {ml-pull}1317[#1317].)
+* Improve runtime and memory usage training deep trees for classification and
+  regression. (See {ml-pull}1340[#1340].)
 * Improvement in handling large inference model definitions. (See {ml-pull}1349[#1349].)
+
 
 === Bug Fixes
 
@@ -73,6 +76,7 @@
 === Bug Fixes
 
 * Better interrupt handling during named pipe connection. (See {ml-pull}1311[#1311].)
+* Trap potential cause of SIGFPE. (See {ml-pull}1351[#1351], issue: {ml-issue}1348[#1348].)
 
 == {es} version 7.8.0
 

@@ -112,9 +112,6 @@ inline double readActual(const TRowRef& row, std::size_t dependentVariable) {
     return row[dependentVariable];
 }
 
-// The maximum number of rows encoded by a single byte in the packed bit vector
-// assuming best compression.
-constexpr std::size_t PACKED_BIT_VECTOR_MAXIMUM_ROWS_PER_BYTE{256};
 constexpr double INF{std::numeric_limits<double>::max()};
 }
 }

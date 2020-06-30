@@ -104,9 +104,11 @@ public:
     //! \param[in] weights The weights of \p value. The smaller
     //! the count weight the less influence \p value has on the trend
     //! and it's local variance.
-    //! \param[in] componentChangeCallback Called if the components
-    //! change as a result of adding the data point.
-    //! \param[in] modelAnnotationCallback Called if the model changes as a result of adding the data point.
+    //! \param[in] componentChangeCallback Supplied with prediction
+    //! residuals if a new component is added as a result of adding the
+    //! data point.
+    //! \param[in] modelAnnotationCallback Supplied with an annotation
+    //! if a new component is added as a result of adding the data point.
     virtual void
     addPoint(core_t::TTime time,
              double value,

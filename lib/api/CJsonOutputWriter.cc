@@ -162,6 +162,10 @@ CJsonOutputWriter::~CJsonOutputWriter() {
     finalise();
 }
 
+const std::string& CJsonOutputWriter::jobId() const {
+    return m_JobId;
+}
+
 void CJsonOutputWriter::finalise() {
     if (m_Finalised) {
         return;

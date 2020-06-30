@@ -181,6 +181,9 @@ public:
     //! Destructor flushes the stream
     ~CJsonOutputWriter() override;
 
+    //! Access to job ID
+    const std::string& jobId() const;
+
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
 
