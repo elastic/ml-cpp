@@ -514,6 +514,7 @@ BOOST_AUTO_TEST_CASE(testErrors) {
 
     // Memory limit exceeded.
     {
+        output.str("");
         errors.clear();
         api::CDataFrameAnalyzer analyzer{
             test::CDataFrameAnalysisSpecificationFactory{}.memoryLimit(10000).outlierSpec(),
@@ -535,6 +536,32 @@ BOOST_AUTO_TEST_CASE(testErrors) {
             }
         }
         BOOST_TEST_REQUIRE(memoryLimitExceed);
+
+        // verify memory status change
+        rapidjson::Document results;
+        rapidjson::ParseResult ok(results.Parse(output.str()));
+        BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        bool memoryStatusOk{false};
+        bool memoryStatusHardLimit{false};
+        bool memoryReestimateAvailable{false};
+        for (const auto& result : results.GetArray()) {
+            if (result.HasMember("analytics_memory_usage")) {
+                std::string status{result["analytics_memory_usage"]["status"].GetString()};
+                if (status == "ok") {
+                    memoryStatusOk = true;
+                } else if (status == "hard-limit") {
+                    memoryStatusHardLimit = true;
+                    if (result["analytics_memory_usage"].HasMember("memory_reestimate_bytes") &&
+                        result["analytics_memory_usage"]["memory_reestimate_bytes"]
+                                .GetInt() > 0) {
+                        memoryReestimateAvailable = true;
+                    }
+                }
+            }
+        }
+        BOOST_TEST_REQUIRE(memoryStatusOk);
+        BOOST_TEST_REQUIRE(memoryStatusHardLimit);
+        BOOST_TEST_REQUIRE(memoryReestimateAvailable);
     }
 }
 
