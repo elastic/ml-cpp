@@ -147,6 +147,9 @@ public:
     //! place.
     TPersistFunc makeBackgroundPersistFunc() const override;
 
+    //! Get the most recent categorization status.
+    model_t::ECategorizationStatus categorizationStatus() const override;
+
     //! Debug the memory used by this categorizer.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
@@ -196,6 +199,10 @@ public:
     //! \return Were the stats written?
     bool writeCategorizerStatsIfChanged(const TCategorizerStatsOutputFunc& outputFunc) override;
 
+    //! Quickly check if a stats write is important at this time.  This method
+    //! is called regularly, so should not do complex processing.
+    bool isStatsWriteUrgent() const override;
+
     //! Number of categories this categorizer has detected.
     std::size_t numCategories() const override;
 
@@ -228,7 +235,7 @@ protected:
                           std::size_t rawStringLen,
                           const TSizeSizePrVec& tokenIds,
                           const TSizeSizeMap& tokenUniqueIds,
-                          TSizeSizePrVecItr& iter);
+                          TSizeSizePrVecItr iter);
 
     //! Given the total token weight in a vector and a threshold, what is
     //! the minimum possible token weight in a different vector that could
@@ -243,6 +250,12 @@ protected:
     //! Get the unique token ID for a given token (assigning one if it's
     //! being seen for the first time)
     std::size_t idForToken(const std::string& token);
+
+    //! Is the category considered rare?
+    bool isCategoryCountRare(std::size_t count) const;
+
+    //! Is the category considered frequent?
+    bool isCategoryCountFrequent(std::size_t count) const;
 
 private:
     //! Value category for the TTokenMIndex below
@@ -341,7 +354,7 @@ private:
     double m_UpperThreshold;
 
     //! How many messages have we failed to categorize due to lack of memory?
-    std::size_t m_MemoryCategorizationFailures;
+    std::size_t m_MemoryCategorizationFailures = 0;
 
     //! The categories
     TTokenListCategoryVec m_Categories;
@@ -350,6 +363,14 @@ private:
     //! match count.  Note that the second element is an index into m_Categories,
     //! not a category ID.
     TSizeSizePrVec m_CategoriesByCount;
+
+    //! Sum of all category counts.  Equal to the sum of .first for all elements
+    //! of m_CategoriesByCount.
+    std::size_t m_TotalCount = 0;
+
+    //! Number of rare categories, as defined by the isCategoryCountRare()
+    //! method.
+    std::size_t m_NumRareCategories = 0;
 
     //! Used for looking up tokens to a unique ID
     TTokenMIndex m_TokenIdLookup;
