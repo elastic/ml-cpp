@@ -17,10 +17,6 @@
 namespace ml {
 namespace api {
 
-namespace {
-const std::string INFERENCE_MODEL{"inference_model"};
-}
-
 void CBoostedTreeInferenceModelBuilder::addTree() {
     auto ensemble = static_cast<CEnsemble*>(m_Definition.trainedModel().get());
     ensemble->trainedModels().emplace_back(std::make_unique<CTree>());
@@ -118,7 +114,6 @@ CBoostedTreeInferenceModelBuilder::CBoostedTreeInferenceModelBuilder(TStrVec fie
     m_Definition.dependentVariableColumnIndex(dependentVariableColumnIndex);
     m_Definition.fieldNames(std::move(fieldNames));
     m_Definition.trainedModel(std::make_unique<CEnsemble>());
-    m_Definition.typeString(INFERENCE_MODEL);
 }
 
 CBoostedTreeInferenceModelBuilder::TStringDoubleUMap
