@@ -27,7 +27,7 @@ namespace core {
 //!     core::CRapidJsonConcurrentLineWriter writer{streamWrapper};
 //!     writer.StartObject();
 //!     writer.Key("foo");
-//!     writer.Int(1)
+//!     writer.Int(1);
 //!     writer.EndObject();
 //! }};
 //! ...
