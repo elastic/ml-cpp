@@ -142,6 +142,7 @@ void CDataFrameAnalyzer::run() {
         CDataFrameAnalysisInstrumentation::monitor(instrumentation, outputWriter);
 
         analysisRunner->waitToFinish();
+        this->writeInferenceModel(*analysisRunner, outputWriter);
         this->writeResultsOf(*analysisRunner, outputWriter);
     }
 }
@@ -267,8 +268,27 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
                                                     : nullptr);
 }
 
+void CDataFrameAnalyzer::writeInferenceModel(const CDataFrameAnalysisRunner& analysis,
+                                             core::CRapidJsonConcurrentLineWriter& writer) const {
+    // Write the resulting model for inference.
+    auto modelDefinition = analysis.inferenceModelDefinition(
+        m_DataFrame->columnNames(), m_DataFrame->categoricalColumnValues());
+    if (modelDefinition != nullptr) {
+        auto modelDefinitionSizeInfo = modelDefinition->sizeInfo();
+        rapidjson::Value sizeInfoObject{writer.makeObject()};
+        modelDefinitionSizeInfo->addToDocument(sizeInfoObject, writer);
+        writer.StartObject();
+        writer.Key(modelDefinitionSizeInfo->typeString());
+        writer.write(sizeInfoObject);
+        writer.EndObject();
+        modelDefinition->addToDocumentCompressed(writer);
+    }
+    writer.flush();
+}
+
 void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis,
                                         core::CRapidJsonConcurrentLineWriter& writer) const {
+
     // We write results single threaded because we need to write the rows to
     // Java in the order they were written to the data_frame_analyzer so it
     // can join the extra columns with the original data frame.
@@ -302,20 +322,6 @@ void CDataFrameAnalyzer::writeResultsOf(const CDataFrameAnalysisRunner& analysis
             lastLap = currentLap;
         }
     });
-
-    // Write the resulting model for inference.
-    auto modelDefinition = analysis.inferenceModelDefinition(
-        m_DataFrame->columnNames(), m_DataFrame->categoricalColumnValues());
-    if (modelDefinition != nullptr) {
-        auto modelDefinitionSizeInfo = modelDefinition->sizeInfo();
-        rapidjson::Value sizeInfoObject{writer.makeObject()};
-        modelDefinitionSizeInfo->addToDocument(sizeInfoObject, writer);
-        writer.StartObject();
-        writer.Key(modelDefinitionSizeInfo->typeString());
-        writer.write(sizeInfoObject);
-        writer.EndObject();
-        modelDefinition->addToDocumentCompressed(writer);
-    }
 
     writer.flush();
 }
