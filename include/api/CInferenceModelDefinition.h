@@ -13,6 +13,7 @@
 #include <api/ImportExport.h>
 
 #include <rapidjson/document.h>
+#include <rapidjson/ostreamwrapper.h>
 
 #include <boost/optional.hpp>
 
@@ -29,12 +30,14 @@ namespace api {
 class API_EXPORT CSerializableToJson {
 public:
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
+    using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
 
 public:
     virtual ~CSerializableToJson() = default;
     //! Serialize the object as JSON items under the \p parentObject using the specified \p writer.
     virtual void addToDocument(rapidjson::Value& parentObject,
                                TRapidJsonWriter& writer) const = 0;
+    virtual void addToJsonStream(TGenericLineWriter& /*writer*/) const {};
 };
 
 //! Abstract class for output aggregation.
@@ -57,6 +60,7 @@ public:
     //! Construct with a weight vector of \p size with all entries equal to \p weight.
     CWeightedMode(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+    void addToJsonStream(TGenericLineWriter& writer) const override;
     const std::string& stringType() const override;
 
 private:
@@ -75,6 +79,7 @@ public:
     //! Construct with a weight vector of \p size with all entries equal to \p weight.
     CWeightedSum(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+    void addToJsonStream(TGenericLineWriter& writer) const override;
     const std::string& stringType() const override;
 
 private:
@@ -96,6 +101,7 @@ public:
     //! Construct with a weight vector of \p size with all entries equal to \p weight.
     CLogisticRegression(std::size_t size, double weight);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+    void addToJsonStream(TGenericLineWriter& writer) const override;
     const std::string& stringType() const override;
 
 private:
@@ -129,6 +135,7 @@ public:
 public:
     virtual ~CTrainedModel() override = default;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+    void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Names of the features used by the model.
     virtual const TStringVec& featureNames() const;
     virtual TStringVec& featureNames();
@@ -181,6 +188,7 @@ public:
                   const TOptionalDouble& splitGain);
 
         void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+        void addToJsonStream(TGenericLineWriter& writer) const override;
         size_t splitFeature() const;
         void splitFeature(size_t splitFeature);
         bool leaf() const;
@@ -212,6 +220,7 @@ public:
 
 public:
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+    void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Total number of tree nodes.
     std::size_t size() const;
     TStringVec removeUnusedFeatures() override;
@@ -242,6 +251,7 @@ public:
 
 public:
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+    void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Aggregation mechanism for the output from individual models.
     void aggregateOutput(TAggregateOutputUPtr&& aggregateOutput);
     const TAggregateOutputUPtr& aggregateOutput() const;
@@ -291,6 +301,7 @@ public:
     ~CEncoding() override = default;
     explicit CEncoding(std::string field);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+    void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Input field name. Must be defined in the input section.
     void field(const std::string& field);
     const std::string& field() const;
@@ -323,6 +334,7 @@ public:
     CFrequencyEncoding(const std::string& field, std::string featureName, TStringDoubleUMap frequencyMap);
 
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+    void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Feature name after pre-processing.
     const std::string& featureName() const;
     //! Map from the category names to the frequency values.
@@ -354,6 +366,7 @@ public:
     ~COneHotEncoding() override = default;
     COneHotEncoding(const std::string& field, TStringStringUMap hotMap);
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+    void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Map from the category names of the original field to the new field names.
     const TStringStringUMap& hotMap() const;
     TStringStringUMap& hotMap();
@@ -387,6 +400,7 @@ public:
                         TStringDoubleUMap&& targetMap);
 
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+    void addToJsonStream(TGenericLineWriter& writer) const override;
     //! Value for categories that have not been seen before.
     double defaultValue() const;
     //! Feature name after pre-processing.
@@ -435,6 +449,7 @@ public:
     TTrainedModelUPtr& trainedModel();
     const TTrainedModelUPtr& trainedModel() const;
     void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
+    void addToJsonStream(TGenericLineWriter& writer) const override;
     void addToDocumentCompressed(TRapidJsonWriter& writer) const;
     std::string jsonString() const;
     std::stringstream jsonStringCompressedFormat() const;
