@@ -13,6 +13,7 @@
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CChecksum.h>
 #include <maths/CIntegerTools.h>
 #include <maths/CLeastSquaresOnlineRegression.h>
@@ -33,7 +34,7 @@
 namespace ml {
 namespace maths {
 namespace {
-using TOptionalDoubleDoublePr = boost::optional<std::pair<double, double>>;
+using TDoubleDoublePr = std::pair<double, double>;
 
 const double TIME_SCALES[]{144.0, 72.0, 36.0, 12.0, 4.0, 1.0, 0.25, 0.05};
 const std::size_t NUMBER_MODELS{boost::size(TIME_SCALES)};
@@ -59,21 +60,20 @@ double scaleTime(core_t::TTime time, core_t::TTime origin) {
 }
 
 //! Get the \p confidence interval for \p prediction and \p variance.
-TOptionalDoubleDoublePr confidenceInterval(double prediction, double variance, double confidence) {
-    if (variance == 0.0) {
-        return std::make_pair(prediction, prediction);
+TDoubleDoublePr confidenceInterval(double prediction, double variance, double confidence) {
+    if (variance > 0.0) {
+        try {
+            boost::math::normal normal{prediction, std::sqrt(variance)};
+            double ql{boost::math::quantile(normal, (100.0 - confidence) / 200.0)};
+            double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
+            return {ql, qu};
+        } catch (const std::exception& e) {
+            LOG_ERROR(<< "Failed calculating confidence interval: " << e.what()
+                      << ", prediction = " << prediction << ", variance = " << variance
+                      << ", confidence = " << confidence);
+        }
     }
-    try {
-        boost::math::normal normal{prediction, std::sqrt(variance)};
-        double ql{boost::math::quantile(normal, (100.0 - confidence) / 200.0)};
-        double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
-        return std::make_pair(ql, qu);
-    } catch (const std::exception& e) {
-        LOG_ERROR(<< "Failed calculating confidence interval: " << e.what()
-                  << ", prediction = " << prediction << ", variance = " << variance
-                  << ", confidence = " << confidence);
-    }
-    return TOptionalDoubleDoublePr{};
+    return {prediction, prediction};
 }
 
 CNaiveBayesFeatureDensityFromPrior naiveBayesExemplar(double decayRate) {
@@ -356,9 +356,7 @@ CTrendComponent::TDoubleDoublePr CTrendComponent::value(core_t::TTime time,
         double variance{a * m_PredictionErrorVariance / std::max(this->count(), 1.0) +
                         b * CBasicStatistics::variance(m_ValueMoments) /
                             std::max(CBasicStatistics::count(m_ValueMoments), 1.0)};
-        if (auto interval = confidenceInterval(prediction, variance, confidence)) {
-            return *interval;
-        }
+        return confidenceInterval(prediction, variance, confidence);
     }
 
     return {prediction, prediction};
@@ -424,7 +422,7 @@ void CTrendComponent::forecast(core_t::TTime startTime,
     TRegressionArrayVec models(NUMBER_MODELS);
     TMatrixVec modelCovariances(NUMBER_MODELS);
     TDoubleVec mse(NUMBER_MODELS);
-    for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
+    for (std::size_t i = 0; i < NUMBER_MODELS; ++i) {
         // Note in the following we multiply the bias by the sample count
         // when estimating the regression coefficients' covariance matrix.
         // This is because, unlike the noise like component of the residual,
@@ -457,12 +455,12 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         double a{this->weightOfPrediction(time)};
         double b{1.0 - a};
 
-        for (std::size_t j = 0u; j < NUMBER_MODELS; ++j) {
+        for (std::size_t j = 0; j < NUMBER_MODELS; ++j) {
             modelWeights[j] *= factors[j];
             errorWeights[j] *= CTools::pow2(factors[j]);
         }
 
-        for (std::size_t j = 0u; j < NUMBER_MODELS; ++j) {
+        for (std::size_t j = 0; j < NUMBER_MODELS; ++j) {
             variances[j] = times.inner(modelCovariances[j] * times) + mse[j];
         }
         variances[NUMBER_MODELS] = CBasicStatistics::variance(m_ValueMoments);
@@ -471,7 +469,7 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         }
 
         TMeanAccumulator variance_;
-        for (std::size_t j = 0u; j < NUMBER_MODELS; ++j) {
+        for (std::size_t j = 0; j < NUMBER_MODELS; ++j) {
             variance_.add(variances[j], errorWeights[j]);
         }
 
@@ -480,13 +478,11 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         TDouble3Vec seasonal_(seasonal(time));
         TDouble3Vec level_(level.forecast(time, seasonal_[1] + prediction, confidence));
 
-        double ql{0.0};
-        double qu{0.0};
+        double ql;
+        double qu;
         double variance{a * CBasicStatistics::mean(variance_) +
                         b * CBasicStatistics::variance(m_ValueMoments)};
-        if (auto interval = confidenceInterval(0.0, variance, confidence)) {
-            boost::tie(ql, qu) = *interval;
-        }
+        boost::tie(ql, qu) = confidenceInterval(0.0, variance, confidence);
 
         writer(time, {level_[0] + seasonal_[0] + prediction + ql,
                       level_[1] + seasonal_[1] + prediction,
@@ -688,8 +684,8 @@ CTrendComponent::CForecastLevel::CForecastLevel(const CNaiveBayes& probability,
                                                 const CNormalMeanPrecConjugate& magnitude,
                                                 core_t::TTime timeOfLastChange,
                                                 std::size_t numberPaths)
-    : m_Probability(probability), m_Magnitude(magnitude), m_Levels(numberPaths),
-      m_TimesOfLastChange(numberPaths, timeOfLastChange),
+    : m_Probability{probability}, m_Magnitude{magnitude},
+      m_Levels(numberPaths, 0.0), m_TimesOfLastChange(numberPaths, timeOfLastChange),
       m_ProbabilitiesOfChange(numberPaths, 0.0) {
     m_Uniform01.reserve(numberPaths);
 }
@@ -701,9 +697,9 @@ CTrendComponent::CForecastLevel::forecast(core_t::TTime time, double prediction,
     if (m_Probability.initialized()) {
         CSampling::uniformSample(0.0, 1.0, m_Levels.size(), m_Uniform01);
         bool reorder{false};
-        for (std::size_t i = 0u; i < m_Levels.size(); ++i) {
+        for (std::size_t i = 0; i < m_Levels.size(); ++i) {
             double dt{static_cast<double>(time - m_TimesOfLastChange[i])};
-            double x = m_Levels[i] + prediction;
+            double x{m_Levels[i] + prediction};
             double p{m_Probability.classProbability(LEVEL_CHANGE_LABEL, {{dt}, {x}})};
             m_ProbabilitiesOfChange[i] = std::max(m_ProbabilitiesOfChange[i], p);
             if (m_Uniform01[i] < m_ProbabilitiesOfChange[i]) {
@@ -730,6 +726,10 @@ CTrendComponent::CForecastLevel::forecast(core_t::TTime time, double prediction,
         result[0] = m_Levels[lower];
         result[1] = CBasicStatistics::median(m_Levels);
         result[2] = m_Levels[upper];
+
+        // This should never happen, but trap the case that the bounds are out-of-order.
+        result[0] = CBasicStatistics::min(result[0], result[1], result[2]);
+        result[2] = CBasicStatistics::max(result[0], result[1], result[2]);
     }
 
     return result;

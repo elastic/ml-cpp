@@ -137,7 +137,7 @@ TDoubleDoublePr CDecompositionComponent::value(double offset, double n, double c
         }
 
         try {
-            boost::math::normal_distribution<> normal{m, sd};
+            boost::math::normal normal{m, sd};
             double ql{boost::math::quantile(normal, (100.0 - confidence) / 200.0)};
             double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
             return {ql, qu};
@@ -170,7 +170,7 @@ TDoubleDoublePr CDecompositionComponent::variance(double offset, double n, doubl
             return {v, v};
         }
         try {
-            boost::math::chi_squared_distribution<> chi{n - 1.0};
+            boost::math::chi_squared chi{n - 1.0};
             double ql{boost::math::quantile(chi, (100.0 - confidence) / 200.0)};
             double qu{boost::math::quantile(chi, (100.0 + confidence) / 200.0)};
             return std::make_pair(ql * v / (n - 1.0), qu * v / (n - 1.0));

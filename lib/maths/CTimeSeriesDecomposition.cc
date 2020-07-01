@@ -50,22 +50,6 @@ TDoubleDoublePr pair(const TVector2x1& v) {
     return {v(0), v(1)};
 }
 
-//! Get the normal confidence interval.
-TDoubleDoublePr confidenceInterval(double confidence, double variance) {
-    if (variance > 0.0) {
-        try {
-            boost::math::normal normal(0.0, std::sqrt(variance));
-            double ql{boost::math::quantile(normal, (100.0 - confidence) / 200.0)};
-            double qu{boost::math::quantile(normal, (100.0 + confidence) / 200.0)};
-            return {ql, qu};
-        } catch (const std::exception& e) {
-            LOG_ERROR(<< "Failed calculating confidence interval: " << e.what()
-                      << ", variance = " << variance << ", confidence = " << confidence);
-        }
-    }
-    return {0.0, 0.0};
-}
-
 // Version 6.3
 const std::string VERSION_6_3_TAG("6.3");
 const core::TPersistenceTag LAST_VALUE_TIME_6_3_TAG{"a", "last_value_time"};
@@ -357,7 +341,7 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
     }
 
     auto seasonal = [this, confidence](core_t::TTime time) {
-        TVector2x1 prediction(0.0);
+        TVector2x1 prediction{0.0};
         for (const auto& component : m_Components.seasonal()) {
             if (component.initialized() && component.time().inWindow(time)) {
                 prediction += vector2x1(component.value(time, confidence));
@@ -375,22 +359,26 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
     endTime += m_TimeShift;
     endTime = startTime + CIntegerTools::ceil(endTime - startTime, step);
 
-    double trendVariance{CBasicStatistics::mean(m_Components.trend().variance(0.0))};
-    double seasonalVariance{m_Components.meanVariance() - trendVariance};
-    double variance{this->meanVariance()};
-    double scale0{std::sqrt(std::max(
-        CBasicStatistics::mean(this->scale(startTime, variance, 0.0)), minimumScale))};
-    TVector2x1 i0{vector2x1(confidenceInterval(confidence, seasonalVariance))};
-
     auto forecastSeasonal = [&](core_t::TTime time) {
         m_Components.interpolateForForecast(time);
+
+        TVector2x1 bounds{vector2x1(seasonal(time))};
+
+        // Decompose the smoothing into shift plus stretch and ensure that the
+        // smoothed interval between the prediction bounds remains positive length.
+        TDoubleDoublePr smoothing{this->smooth(seasonal, time, E_Seasonal)};
+        double shift{CBasicStatistics::mean(smoothing)};
+        double stretch{std::max(smoothing.second - smoothing.first, bounds(0) - bounds(1))};
+        bounds += TVector2x1{{shift - stretch / 2.0, shift + stretch / 2.0}};
+
+        double variance{this->meanVariance()};
         double scale{std::sqrt(std::max(
-            CBasicStatistics::mean(this->scale(time, variance, 0.0)), minimumScale))};
-        TVector2x1 prediction{vector2x1(seasonal(time)) +
-                              vector2x1(this->smooth(seasonal, time, E_Seasonal)) +
-                              (scale - scale0) * i0};
-        return TDouble3Vec{prediction(0), (prediction(0) + prediction(1)) / 2.0,
-                           prediction(1)};
+            minimumScale, CBasicStatistics::mean(this->scale(time, variance, 0.0))))};
+        double prediction{(bounds(0) + bounds(1)) / 2.0};
+        double interval{scale * (bounds(1) - bounds(0))};
+
+        return TDouble3Vec{prediction - interval / 2.0, prediction,
+                           prediction + interval / 2.0};
     };
 
     m_Components.trend().forecast(startTime, endTime, step, confidence,
@@ -524,8 +512,9 @@ CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components)
         TVector2x1 baselineMinusEps{vector2x1(f(discontinuity - 1))};
         TVector2x1 baselinePlusEps{vector2x1(f(discontinuity + 1))};
         return 0.5 *
-               (1.0 - static_cast<double>(std::abs(time - discontinuity)) /
-                          static_cast<double>(SMOOTHING_INTERVAL)) *
+               std::max((1.0 - static_cast<double>(std::abs(time - discontinuity)) /
+                                   static_cast<double>(SMOOTHING_INTERVAL)),
+                        0.0) *
                (baselinePlusEps - baselineMinusEps);
     };
 
