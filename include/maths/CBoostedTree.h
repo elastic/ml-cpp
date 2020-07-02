@@ -207,6 +207,7 @@ public:
         virtual ~CVisitor() = default;
         virtual void addTree() = 0;
         virtual void addClassificationWeights(TDoubleVec weights) = 0;
+        virtual void addLossFunction(const TLossFunctionUPtr& lossFunction) = 0;
     };
 
 public:
