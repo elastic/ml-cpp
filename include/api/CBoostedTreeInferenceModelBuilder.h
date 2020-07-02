@@ -78,7 +78,7 @@ public:
                                      std::size_t dependentVariableColumnIndex,
                                      const TStrVecVec& categoryNames);
     void addClassificationWeights(TDoubleVec weights) override;
-    void addLossFunction(const maths::CBoostedTree::TLossFunctionUPtr& lossFunction) override;
+    void addLossFunction(const maths::CBoostedTree::TLossFunction& lossFunction) override;
 
 private:
     using TLossType = maths::boosted_tree::ELossType;
@@ -99,7 +99,7 @@ public:
                                          const TStrVecVec& categoryNames);
     ~CClassificationInferenceModelBuilder() override = default;
     void addClassificationWeights(TDoubleVec weights) override;
-    void addLossFunction(const maths::CBoostedTree::TLossFunctionUPtr& lossFunction) override;
+    void addLossFunction(const maths::CBoostedTree::TLossFunction& lossFunction) override;
 
 private:
     void setTargetType() override;

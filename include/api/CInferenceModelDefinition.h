@@ -112,10 +112,10 @@ private:
     TDoubleVec m_Weights;
 };
 
-//! Allows to use logistic regression aggregation.
+//! Allows to use exponent aggregation.
 //!
 //! Given a weights vector $\vec{w}$ as a parameter and an output vector from the ensemble $\vec{x}$,
-//! it computes the logistic regression function \f$1/(1 + \exp(-\vec{w}^T \vec{x}))\f$.
+//! it computes the exponent function \f$\exp(\vec{w}^T \vec{x})\f$.
 class API_EXPORT CExponent final : public CAggregateOutput {
 public:
     using TDoubleVec = std::vector<double>;
