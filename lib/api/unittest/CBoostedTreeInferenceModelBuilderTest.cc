@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     {
         std::string modelDefinitionStr{definition->jsonString()};
         std::stringstream decompressedStream{
-            decompressStream(definition->jsonStringCompressedFormat())};
+            decompressStream(definition->jsonCompressedStream())};
         BOOST_TEST_REQUIRE(decompressedStream.str() == modelDefinitionStr);
     }
 
@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     {
         std::string modelDefinitionStr{definition->jsonString()};
         std::stringstream decompressedStream{
-            decompressStream(definition->jsonStringCompressedFormat())};
+            decompressStream(definition->jsonCompressedStream())};
         BOOST_TEST_REQUIRE(decompressedStream.str() == modelDefinitionStr);
     }
 
