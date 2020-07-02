@@ -16,7 +16,6 @@ COMPONENTS= \
             controller \
             data_frame_analyzer \
             normalize \
-            poc \
 
 include $(CPP_SRC_HOME)/mk/toplevel.mk
 
