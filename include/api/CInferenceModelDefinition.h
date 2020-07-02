@@ -452,7 +452,8 @@ public:
     void addToJsonStream(TGenericLineWriter& writer) const override;
     void addToDocumentCompressed(TRapidJsonWriter& writer) const;
     std::string jsonString() const;
-    std::stringstream jsonStringCompressedFormat() const;
+    void jsonStream(std::ostream& jsonStrm) const;
+    std::stringstream jsonCompressedStream() const;
     void fieldNames(TStringVec&& fieldNames);
     const TStringVec& fieldNames() const;
     const std::string& typeString() const;

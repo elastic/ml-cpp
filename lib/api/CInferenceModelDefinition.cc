@@ -15,6 +15,7 @@
 #include <cmath>
 #include <iterator>
 #include <memory>
+#include <ostream>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -306,7 +307,7 @@ void CEnsemble::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& 
 }
 
 void CEnsemble::addToJsonStream(TGenericLineWriter& writer) const {
-    writer.Key(JSON_TRAINED_MODELS_TAG);
+    writer.Key(JSON_ENSEMBLE_TAG);
     writer.StartObject();
     this->CTrainedModel::addToJsonStream(writer);
     writer.Key(JSON_TRAINED_MODELS_TAG);
@@ -486,48 +487,43 @@ CTrainedModel::TStringVec CTree::removeUnusedFeatures() {
 }
 
 std::string CInferenceModelDefinition::jsonString() const {
-
-    std::ostringstream stream;
-    {
-        rapidjson::OStreamWrapper wrapper{stream};
-        CSerializableToJson::TGenericLineWriter writer{wrapper};
-        // rapidjson::Value doc{writer.makeObject()};
-        this->addToJsonStream(writer);
-        // writer.write(doc);
-        stream.flush();
-    }
-    // string writer puts the json object in an array, so we strip the external brackets
-    std::string jsonStr{stream.str()};
-    std::string resultString(jsonStr /*, 1, jsonStr.size() - 2*/);
-    return resultString;
+    std::ostringstream jsonStrm;
+    this->jsonStream(jsonStrm);
+    return jsonStrm.str();
 }
 
-std::stringstream CInferenceModelDefinition::jsonStringCompressedFormat() const {
+void CInferenceModelDefinition::jsonStream(std::ostream& jsonStrm) const {
+    rapidjson::OStreamWrapper wrapper{jsonStrm};
+    CSerializableToJson::TGenericLineWriter writer{wrapper};
+    this->addToJsonStream(writer);
+    jsonStrm.flush();
+}
+
+std::stringstream CInferenceModelDefinition::jsonCompressedStream() const {
     std::stringstream compressedStream;
     using TFilteredOutput = boost::iostreams::filtering_stream<boost::iostreams::output>;
-    std::string modelDefinitionStr{jsonString()};
     {
         TFilteredOutput outFilter;
         outFilter.push(boost::iostreams::gzip_compressor());
         outFilter.push(core::CBase64Encoder());
         outFilter.push(compressedStream);
-        outFilter << modelDefinitionStr;
+        this->jsonStream(outFilter);
         outFilter.flush();
     }
     return compressedStream;
 }
 
 void CInferenceModelDefinition::addToDocumentCompressed(TRapidJsonWriter& writer) const {
-    std::stringstream compressedString{jsonStringCompressedFormat()};
+    std::stringstream compressedStream{this->jsonCompressedStream()};
     std::streamsize processed{0};
-    compressedString.seekg(0, compressedString.end);
-    std::streamsize remained{compressedString.tellg()};
-    compressedString.seekg(0, compressedString.beg);
+    compressedStream.seekg(0, compressedStream.end);
+    std::streamsize remained{compressedStream.tellg()};
+    compressedStream.seekg(0, compressedStream.beg);
     std::size_t docNum{0};
     while (remained > 0) {
         std::size_t bytesToProcess{std::min(MAX_DOCUMENT_SIZE, static_cast<size_t>(remained))};
         std::string buffer;
-        std::copy_n(std::istreambuf_iterator<char>(compressedString.seekg(processed)),
+        std::copy_n(std::istreambuf_iterator<char>(compressedStream.seekg(processed)),
                     bytesToProcess, std::back_inserter(buffer));
         remained -= bytesToProcess;
         processed += bytesToProcess;
