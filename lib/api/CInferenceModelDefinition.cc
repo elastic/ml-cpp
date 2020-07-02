@@ -85,71 +85,43 @@ const std::string JSON_WEIGHTS_TAG{"weights"};
 
 const std::size_t MAX_DOCUMENT_SIZE(16 * 1024 * 1024); // 16MB
 
-auto toJson(const std::string& value, CSerializableToJsonDocument::TRapidJsonWriter& writer) {
-    rapidjson::Value result;
-    result.SetString(value, writer.getRawAllocator());
-    return result;
-}
-
-auto toJson(const std::string& value, CSerializableToJsonStream::TGenericLineWriter& writer) {
-    rapidjson::Value result;
-    result.SetString(value, writer.getRawAllocator());
-    return result;
-}
-
-auto toJson(double value) {
-    return rapidjson::Value{value};
-}
-
-auto toJson(double value, CSerializableToJsonDocument::TRapidJsonWriter&) {
-    return toJson(value);
-}
-
-auto toJson(std::size_t value) {
+auto toRapidjsonValue(std::size_t value) {
     return rapidjson::Value{static_cast<std::uint64_t>(value)};
 }
 
-auto toJson(std::size_t value, CSerializableToJsonDocument::TRapidJsonWriter&) {
-    return toJson(value);
-}
-
-auto toJson(const unsigned int& value) {
-    return rapidjson::Value{value};
-}
-
-template<typename T>
 void addJsonArray(const std::string& tag,
-                  const std::vector<T>& vector,
+                  const std::vector<std::size_t>& vector,
                   rapidjson::Value& parentObject,
                   CSerializableToJsonDocument::TRapidJsonWriter& writer) {
     rapidjson::Value array{writer.makeArray(vector.size())};
     for (const auto& value : vector) {
-        array.PushBack(toJson(value, writer), writer.getRawAllocator());
+        array.PushBack(static_cast<std::uint64_t>(value), writer.getRawAllocator());
     }
     writer.addMember(tag, array, parentObject);
 }
 
-template<typename T>
 void addJsonArray(const std::string& tag,
-                  const std::vector<T>& vector,
+                  const std::vector<double>& vector,
                   CSerializableToJsonStream::TGenericLineWriter& writer) {
     writer.Key(tag);
+    writer.StartArray();
     rapidjson::Value array{writer.makeArray(vector.size())};
     for (const auto& value : vector) {
-        array.PushBack(toJson(value), writer.getRawAllocator());
+        writer.Double(value);
     }
-    writer.write(array);
+    writer.EndArray();
 }
 
 void addJsonArray(const std::string& tag,
                   const std::vector<std::string>& vector,
                   CSerializableToJsonStream::TGenericLineWriter& writer) {
     writer.Key(tag);
+    writer.StartArray();
     rapidjson::Value array{writer.makeArray(vector.size())};
     for (const auto& value : vector) {
-        array.PushBack(toJson(value, writer), writer.getRawAllocator());
+        writer.String(value);
     }
-    writer.write(array);
+    writer.EndArray();
 }
 }
 
@@ -237,8 +209,8 @@ void CTree::CSizeInfo::addToJsonDocument(rapidjson::Value& parentObject,
             ++numNodes;
         }
     }
-    writer.addMember(JSON_NUM_NODES_TAG, toJson(numNodes).Move(), parentObject);
-    writer.addMember(JSON_NUM_LEAVES_TAG, toJson(numLeaves).Move(), parentObject);
+    writer.addMember(JSON_NUM_NODES_TAG, toRapidjsonValue(numNodes).Move(), parentObject);
+    writer.addMember(JSON_NUM_LEAVES_TAG, toRapidjsonValue(numLeaves).Move(), parentObject);
 }
 
 std::size_t CTree::CSizeInfo::numOperations() const {
@@ -360,7 +332,8 @@ void CEnsemble::CSizeInfo::addToJsonDocument(rapidjson::Value& parentObject,
         writer.makeArray(m_Ensemble->featureNames().size())};
     for (const auto& featureName : m_Ensemble->featureNames()) {
         featureNameLengthsArray.PushBack(
-            toJson(core::CStringUtils::utf16LengthOfUtf8String(featureName)).Move(),
+            toRapidjsonValue(core::CStringUtils::utf16LengthOfUtf8String(featureName))
+                .Move(),
             writer.getRawAllocator());
     }
     writer.addMember(JSON_FEATURE_NAME_LENGTHS_TAG, featureNameLengthsArray, parentObject);
@@ -375,9 +348,10 @@ void CEnsemble::CSizeInfo::addToJsonDocument(rapidjson::Value& parentObject,
 
     std::size_t numOutputProcessorWeights{m_Ensemble->m_TrainedModels.size()};
     writer.addMember(JSON_NUM_OUTPUT_PROCESSOR_WEIGHTS_TAG,
-                     toJson(numOutputProcessorWeights).Move(), parentObject);
+                     toRapidjsonValue(numOutputProcessorWeights).Move(), parentObject);
     std::size_t numOperations{this->numOperations()};
-    writer.addMember(JSON_NUM_OPERATIONS_TAG, toJson(numOperations).Move(), parentObject);
+    writer.addMember(JSON_NUM_OPERATIONS_TAG,
+                     toRapidjsonValue(numOperations).Move(), parentObject);
 }
 
 void CTree::addToJsonStream(TGenericLineWriter& writer) const {
@@ -445,7 +419,6 @@ std::stringstream CInferenceModelDefinition::jsonCompressedStream() const {
         outFilter.push(core::CBase64Encoder());
         outFilter.push(compressedStream);
         this->jsonStream(outFilter);
-        outFilter.flush();
     }
     return compressedStream;
 }
@@ -578,12 +551,14 @@ CTrainedModel::CSizeInfo::CSizeInfo(const CTrainedModel& trainedModel)
 void CTrainedModel::CSizeInfo::addToJsonDocument(rapidjson::Value& parentObject,
                                                  TRapidJsonWriter& writer) const {
     if (m_TrainedModel.targetType() == E_Classification) {
-        writer.addMember(JSON_NUM_CLASSIFICATION_WEIGHTS_TAG,
-                         toJson(m_TrainedModel.classificationWeights()->size()).Move(),
-                         parentObject);
-        writer.addMember(JSON_NUM_CLASSES_TAG,
-                         toJson(m_TrainedModel.classificationLabels()->size()).Move(),
-                         parentObject);
+        writer.addMember(
+            JSON_NUM_CLASSIFICATION_WEIGHTS_TAG,
+            toRapidjsonValue(m_TrainedModel.classificationWeights()->size()).Move(),
+            parentObject);
+        writer.addMember(
+            JSON_NUM_CLASSES_TAG,
+            toRapidjsonValue(m_TrainedModel.classificationLabels()->size()).Move(),
+            parentObject);
     }
 }
 
@@ -737,7 +712,7 @@ void CTargetMeanEncoding::CSizeInfo::addToJsonDocument(rapidjson::Value& parentO
         fieldValueLengths.push_back(core::CStringUtils::utf16LengthOfUtf8String(item.first));
     }
     writer.addMember(JSON_FEATURE_NAME_LENGTH_TAG,
-                     toJson(featureNameLength).Move(), parentObject);
+                     toRapidjsonValue(featureNameLength).Move(), parentObject);
     addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, fieldValueLengths, parentObject, writer);
 }
 
@@ -780,7 +755,8 @@ void CEncoding::CSizeInfo::addToJsonDocument(rapidjson::Value& parentObject,
                                              TRapidJsonWriter& writer) const {
     writer.addMember(
         JSON_FIELD_LENGTH_TAG,
-        toJson(core::CStringUtils::utf16LengthOfUtf8String(m_Encoding->field())).Move(),
+        toRapidjsonValue(core::CStringUtils::utf16LengthOfUtf8String(m_Encoding->field()))
+            .Move(),
         parentObject);
 }
 
@@ -828,7 +804,7 @@ void CFrequencyEncoding::CSizeInfo::addToJsonDocument(rapidjson::Value& parentOb
         fieldValueLengths.push_back(core::CStringUtils::utf16LengthOfUtf8String(item.first));
     }
     writer.addMember(JSON_FEATURE_NAME_LENGTH_TAG,
-                     toJson(featureNameLength).Move(), parentObject);
+                     toRapidjsonValue(featureNameLength).Move(), parentObject);
     addJsonArray(JSON_FIELD_VALUE_LENGTHS_TAG, fieldValueLengths, parentObject, writer);
 }
 
@@ -905,12 +881,7 @@ void CWeightedSum::addToJsonStream(TGenericLineWriter& writer) const {
     writer.StartObject();
     writer.Key(this->stringType());
     writer.StartObject();
-    writer.Key(JSON_WEIGHTS_TAG);
-    rapidjson::Value array{writer.makeArray(m_Weights.size())};
-    for (const auto& weight : m_Weights) {
-        array.PushBack(weight, writer.getRawAllocator());
-    }
-    writer.write(array);
+    addJsonArray(JSON_WEIGHTS_TAG, m_Weights, writer);
     writer.EndObject();
     writer.EndObject();
 }
@@ -950,12 +921,7 @@ void CLogisticRegression::addToJsonStream(TGenericLineWriter& writer) const {
     writer.StartObject();
     writer.Key(this->stringType());
     writer.StartObject();
-    writer.Key(JSON_WEIGHTS_TAG);
-    rapidjson::Value array{writer.makeArray(m_Weights.size())};
-    for (const auto& weight : m_Weights) {
-        array.PushBack(weight, writer.getRawAllocator());
-    }
-    writer.write(array);
+    addJsonArray(JSON_WEIGHTS_TAG, m_Weights, writer);
     writer.EndObject();
     writer.EndObject();
 }
