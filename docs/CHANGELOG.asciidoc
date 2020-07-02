@@ -71,6 +71,12 @@
 
 * Fix numerical issues leading to blow up of the model plot bounds. (See {ml-pull}1268[#1268].)
 
+== {es} version 7.8.2
+
+=== Bug Fixes
+
+* Correct inference model definition for MSLE regression models. (See {ml-pull}1375[#1375].)
+
 == {es} version 7.8.1
 
 === Bug Fixes
