@@ -357,15 +357,17 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
         hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage +
         dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
         trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage};
+
+    return CBoostedTreeImpl::correctedMemoryUsage(static_cast<double>(worstCaseMemoryUsage));
+}
+
+std::size_t CBoostedTreeImpl::correctedMemoryUsage(double memoryUsageBytes) {
     // We compute the correction coefficient as a sigmoid function: ca. 1.0 until
-    // 10mb, 16.0 after 1000mb to this end we need to shift and scale using the
+    // 10mb, ca 16.0 after 1000mb to this end we need to shift and scale using the
     // magic numbers below.
     double correctionCoefficient{
-        CTools::logisticFunction(
-            static_cast<double>(worstCaseMemoryUsage) / (1024 * 1024), 10, 550) *
-            15 +
-        1};
-    return static_cast<std::size_t>(static_cast<double>(worstCaseMemoryUsage) / correctionCoefficient);
+        CTools::logisticFunction(memoryUsageBytes / (1024 * 1024), 100, 550) * 15 + 1};
+    return static_cast<std::size_t>(memoryUsageBytes / correctionCoefficient);
 }
 
 bool CBoostedTreeImpl::canTrain() const {
