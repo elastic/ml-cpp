@@ -68,6 +68,9 @@ public:
         //! \warning The caller owns the returned object.
         CSeasonalTime* seasonalTime() const;
 
+        //! Get an annotation text appropriate for this component.
+        std::string annotationText() const;
+
         //! An identifier for the component used by the test.
         std::string s_Description;
         //! True if this is a diurnal component false otherwise.
