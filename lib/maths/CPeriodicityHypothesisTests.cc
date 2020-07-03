@@ -11,6 +11,7 @@
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/CTimeUtils.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
@@ -618,6 +619,11 @@ CSeasonalTime* CPeriodicityHypothesisTestsResult::SComponent::seasonalTime() con
                                 s_Window.second, s_Period, s_Precedence);
     }
     return new CGeneralPeriodTime(s_Period, s_Precedence);
+}
+
+std::string CPeriodicityHypothesisTestsResult::SComponent::annotationText() const {
+    return "Detected periodicity with period " +
+           core::CTimeUtils::durationToString(s_Period) + " (" + s_Description + ")";
 }
 
 void CPeriodicityHypothesisTestsConfig::disableDiurnal() {
