@@ -76,7 +76,7 @@ constexpr double SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD{3.0};
 
 //! The weight to assign outliers when testing for and initializing
 //! a seasonal component.
-constexpr double SEASONAL_OUTLIER_WEIGHT{0.1};
+constexpr double SEASONAL_OUTLIER_WEIGHT{0.05};
 
 //! The significance of a test statistic to choose to model
 //! a trend decomposition component.
@@ -88,7 +88,7 @@ const double LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE{
 
 //! The default number of regression models used in periodic and
 //! calendar cyclic components of the trend decomposition.
-constexpr std::size_t COMPONENT_SIZE{36u};
+constexpr std::size_t COMPONENT_SIZE{36};
 
 //! The minimum variance scale for which the likelihood function
 //! can be accurately adjusted. For smaller scales errors are

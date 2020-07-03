@@ -1680,7 +1680,7 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAc
             std::min(10.0 * std::max(this->params().learnRate(), 1.0), numberSamples) / Z};
         maths_t::TDoubleWeightsAry1Vec weights(1);
         for (const auto& residual : residuals) {
-            double weight(CBasicStatistics::count(residual));
+            double weight{CBasicStatistics::count(residual)};
             if (weight > 0.0) {
                 weights[0] = maths_t::countWeight(weightScale * weight);
                 m_ResidualModel->addSamples({CBasicStatistics::mean(residual)}, weights);

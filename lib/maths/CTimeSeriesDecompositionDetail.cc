@@ -1882,11 +1882,14 @@ void CTimeSeriesDecompositionDetail::CComponents::reweightOutliers(
         }
         meanDifference -= meanDifferenceOfOutliers;
         for (std::size_t i = 0; i < outliers.count(); ++i) {
-            CBasicStatistics::count(values[outliers[i].second]) *= CTools::logLinearlyInterpolate(
-                SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD / 2.0, SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
-                1.0, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD / 2
-                SEASONAL_OUTLIER_WEIGHT, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD
-                -outliers[i].first / CBasicStatistics::mean(meanDifference));
+            if (-outliers[i].first > CBasicStatistics::mean(meanDifference)) {
+                CBasicStatistics::count(values[outliers[i].second]) *= CTools::logLinearlyInterpolate(
+                    SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD / 2.0,
+                    SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
+                    1.0, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD / 2
+                    SEASONAL_OUTLIER_WEIGHT, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD
+                    -outliers[i].first / CBasicStatistics::mean(meanDifference));
+            }
         }
     }
 }

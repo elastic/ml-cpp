@@ -335,7 +335,7 @@ BOOST_AUTO_TEST_CASE(testComplexVaryingLongTermTrend) {
         return trend_.value(time_) + scale[d] * (20.0 + y[h] + noise);
     };
 
-    test(trend, bucketLength, 65, 4.0, 35.0, 0.031);
+    test(trend, bucketLength, 65, 4.0, 37.0, 0.031);
 }
 
 BOOST_AUTO_TEST_CASE(testNonNegative) {
