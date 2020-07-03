@@ -28,7 +28,7 @@ const core_t::TTime
 CResourceMonitor::CResourceMonitor(bool persistenceInForeground, double byteLimitMargin)
     : m_AllowAllocations(true), m_ByteLimitMargin{byteLimitMargin},
       m_ByteLimitHigh(0), m_ByteLimitLow(0), m_MonitoredResourceCurrentMemory(0),
-      m_ExtraMemory(0), m_PreviousTotal(this->totalMemory()), m_Peak(m_PreviousTotal),
+      m_ExtraMemory(0), m_PreviousTotal(this->totalMemory()),
       m_LastAllocationFailureReport(0), m_MemoryStatus(model_t::E_MemoryStatusOk),
       m_HasPruningStarted(false), m_PruneThreshold(0), m_LastPruneTime(0),
       m_PruneWindow(std::numeric_limits<std::size_t>::max()),
@@ -58,7 +58,13 @@ void CResourceMonitor::unRegisterComponent(CMonitoredResource& resource) {
 
     m_MonitoredResourceCurrentMemory -= itr->second;
     m_Resources.erase(itr);
-    core::CProgramCounters::counter(counter_t::E_TSADMemoryUsage) = this->totalMemory();
+    std::size_t total{this->totalMemory()};
+    core::CProgramCounters::counter(counter_t::E_TSADMemoryUsage) = total;
+    core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage) = total;
+    std::size_t previousPeak = static_cast<std::size_t>(
+        core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage));
+    core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage) =
+        std::max(previousPeak, total);
 }
 
 void CResourceMonitor::memoryLimit(std::size_t limitMBs) {
@@ -267,7 +273,10 @@ bool CResourceMonitor::needToSendReport() {
 
 void CResourceMonitor::sendMemoryUsageReport(core_t::TTime bucketStartTime) {
     std::size_t total{this->totalMemory()};
-    m_Peak = std::max(m_Peak, total);
+    std::size_t previousPeak = static_cast<std::size_t>(
+        core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage));
+    core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage) =
+        std::max(previousPeak, total);
     if (m_MemoryUsageReporter) {
         m_MemoryUsageReporter(this->createMemoryUsageReport(bucketStartTime));
         if (!m_AllocationFailures.empty()) {
@@ -282,6 +291,8 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     SModelSizeStats res;
     res.s_Usage = this->totalMemory();
     res.s_AdjustedUsage = this->adjustedUsage(res.s_Usage);
+    res.s_PeakUsage = static_cast<std::size_t>(
+        core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage));
     res.s_BytesMemoryLimit = this->persistenceMemoryIncreaseFactor() * m_ByteLimitHigh;
     res.s_BytesExceeded = m_CurrentBytesExceeded;
     res.s_MemoryStatus = m_MemoryStatus;

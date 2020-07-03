@@ -18,6 +18,7 @@ namespace {
 const std::string JOB_ID{"job_id"};
 const std::string MODEL_SIZE_STATS{"model_size_stats"};
 const std::string MODEL_BYTES{"model_bytes"};
+const std::string PEAK_MODEL_BYTES{"peak_model_bytes"};
 const std::string MODEL_BYTES_EXCEEDED{"model_bytes_exceeded"};
 const std::string MODEL_BYTES_MEMORY_LIMIT{"model_bytes_memory_limit"};
 const std::string TOTAL_BY_FIELD_COUNT{"total_by_field_count"};
@@ -47,6 +48,9 @@ void CModelSizeStatsJsonWriter::write(const std::string& jobId,
 
     writer.Key(MODEL_BYTES);
     writer.Uint64(results.s_AdjustedUsage);
+
+    writer.Key(PEAK_MODEL_BYTES);
+    writer.Uint64(results.s_PeakUsage);
 
     writer.Key(MODEL_BYTES_EXCEEDED);
     writer.Uint64(results.s_BytesExceeded);
