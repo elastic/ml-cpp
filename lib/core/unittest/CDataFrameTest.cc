@@ -931,7 +931,7 @@ BOOST_FIXTURE_TEST_CASE(testAlignedExtraColumns, CTestFixture) {
             std::size_t extraColumns;
             std::tie(offsets, extraColumns) = frame->resizeColumns(1, extraCols);
 
-            BOOST_REQUIRE_EQUAL(frame->numberColumns() - frame->numberColumns(), extraColumns);
+            BOOST_REQUIRE_EQUAL(frame->numberColumns() - numberColumns, extraColumns);
             for (std::size_t i = 1; i < offsets.size(); ++i) {
                 BOOST_TEST_REQUIRE(offsets[i] - offsets[i - 1] >=
                                    extraCols[i - 1].first);
