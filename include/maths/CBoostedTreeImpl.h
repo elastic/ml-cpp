@@ -127,6 +127,9 @@ public:
     //! frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
 
+    //! Correct from worst case memory usage to a more realistic estimate.
+    static std::size_t correctedMemoryUsage(double memoryUsageBytes);
+
     //! Persist by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
