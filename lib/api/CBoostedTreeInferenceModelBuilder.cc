@@ -178,7 +178,7 @@ void CClassificationInferenceModelBuilder::addClassificationWeights(TDoubleVec w
 }
 
 void CClassificationInferenceModelBuilder::addLossFunction(
-    const maths::CBoostedTree::TLossFunctionUPtr& /*lossFunction*/) {
+    const maths::CBoostedTree::TLossFunction& /*lossFunction*/) {
 }
 
 void CClassificationInferenceModelBuilder::setTargetType() {
