@@ -495,7 +495,13 @@ bool CForecastRunner::sufficientAvailableDiskSpace(const boost::filesystem::path
         return false;
     }
 
-    return spaceInfo.available > MIN_FORECAST_AVAILABLE_DISK_SPACE;
+    if (spaceInfo.available < MIN_FORECAST_AVAILABLE_DISK_SPACE) {
+        LOG_WARN(<< "Checked disk space for " << path << " - required: " << MIN_FORECAST_AVAILABLE_DISK_SPACE
+                 << ", available: " << spaceInfo.available);
+        return false;
+    }
+
+    return true;
 }
 
 void CForecastRunner::sendScheduledMessage(const SForecast& forecastJob) const {
