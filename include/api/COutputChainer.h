@@ -40,9 +40,6 @@ public:
     //! Construct with a reference to the next data processor in the chain
     COutputChainer(CDataProcessor& dataProcessor);
 
-    //! We're going to be writing to a new output stream
-    void newOutputStream() override;
-
     // Bring the other overload of fieldNames() into scope
     using COutputHandler::fieldNames;
 
