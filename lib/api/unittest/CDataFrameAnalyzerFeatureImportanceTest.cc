@@ -457,9 +457,9 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
             c4Sum += std::fabs(c4);
             // assert that no SHAP value for the dependent variable is returned
             BOOST_REQUIRE_EQUAL(readShapValue(result, "target"), 0.0);
-        }
-        if (result.HasMember("total_feature_importance")) {
-            hasTotalFeatureImportance = true;
+            if (result["row_results"]["results"]["ml"].HasMember("total_feature_importance")) {
+                hasTotalFeatureImportance = true;
+            }
         }
     }
 
@@ -542,10 +542,10 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
             c2Sum += std::fabs(c2);
             c3Sum += std::fabs(c3);
             c4Sum += std::fabs(c4);
-        }
 
-        if (result.HasMember("total_feature_importance")) {
-            hasTotalFeatureImportance = true;
+            if (result["row_results"]["results"]["ml"].HasMember("total_feature_importance")) {
+                hasTotalFeatureImportance = true;
+            }
         }
     }
 
@@ -595,9 +595,10 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
             double c4bar{readShapValue(result, "c4", "bar")};
             double c4baz{readShapValue(result, "c4", "baz")};
             BOOST_REQUIRE_CLOSE(c4, std::abs(c4f) + std::abs(c4bar) + std::abs(c4baz), 1e-6);
-        }
-        if (result.HasMember("total_feature_importance")) {
-            hasTotalFeatureImportance = true;
+
+            if (result["row_results"]["results"]["ml"].HasMember("total_feature_importance")) {
+                hasTotalFeatureImportance = true;
+            }
         }
     }
     BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
