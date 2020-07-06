@@ -30,6 +30,7 @@ using namespace ml;
 namespace {
 using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
+using TSizeVec = std::vector<std::size_t>;
 using TFloatVec =
     std::vector<core::CFloatStorage, core::CAlignedAllocator<core::CFloatStorage>>;
 using TFloatVecItr = TFloatVec::iterator;
@@ -703,8 +704,6 @@ BOOST_FIXTURE_TEST_CASE(testRowMask, CTestFixture) {
 
     // Test we read only the rows in a mask.
 
-    using TSizeVec = std::vector<std::size_t>;
-
     TSizeVec rowsRead;
 
     std::size_t rows{5000};
@@ -926,7 +925,13 @@ BOOST_FIXTURE_TEST_CASE(testAlignedExtraColumns, CTestFixture) {
             }
             frame->finishWritingRows();
 
-            auto offsets = frame->resizeColumns(1, extraCols);
+            std::size_t numberColumns{frame->numberColumns()};
+
+            TSizeVec offsets;
+            std::size_t extraColumns;
+            std::tie(offsets, extraColumns) = frame->resizeColumns(1, extraCols);
+
+            BOOST_REQUIRE_EQUAL(frame->numberColumns() - numberColumns, extraColumns);
             for (std::size_t i = 1; i < offsets.size(); ++i) {
                 BOOST_TEST_REQUIRE(offsets[i] - offsets[i - 1] >=
                                    extraCols[i - 1].first);
