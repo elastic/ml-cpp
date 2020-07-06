@@ -184,8 +184,8 @@ void CDataFrame::resizeColumns(std::size_t numberThreads, std::size_t numberColu
     m_NumberColumns = numberColumns;
 }
 
-CDataFrame::TSizeVec CDataFrame::resizeColumns(std::size_t numberThreads,
-                                               const TSizeAlignmentPrVec& extraColumns) {
+CDataFrame::TSizeVecSizePr CDataFrame::resizeColumns(std::size_t numberThreads,
+                                                     const TSizeAlignmentPrVec& extraColumns) {
     TSizeVec result;
     result.reserve(extraColumns.size());
     std::size_t index{m_NumberColumns};
@@ -200,8 +200,9 @@ CDataFrame::TSizeVec CDataFrame::resizeColumns(std::size_t numberThreads,
         result.push_back(index);
         index += count;
     }
+    std::size_t numberExtraColumns{index - m_NumberColumns};
     this->resizeColumns(numberThreads, index);
-    return result;
+    return {result, numberExtraColumns};
 }
 
 CDataFrame::TRowFuncVecBoolPr CDataFrame::readRows(std::size_t numberThreads,

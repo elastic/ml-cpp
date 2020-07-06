@@ -28,6 +28,10 @@
 
 //=== Regressions
 
+== {es} version 7.8.2
+
+* Fix cause of SIGSEGV of classification and regression. (See {ml-pull}1379[#1379].)
+
 == {es} version 7.8.1
 
 === Bug Fixes
