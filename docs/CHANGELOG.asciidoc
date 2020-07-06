@@ -66,7 +66,6 @@
   regression. (See {ml-pull}1340[#1340].)
 * Improvement in handling large inference model definitions. (See {ml-pull}1349[#1349].)
 
-
 === Bug Fixes
 
 * Fix numerical issues leading to blow up of the model plot bounds. (See {ml-pull}1268[#1268].)
@@ -76,6 +75,14 @@
 === Bug Fixes
 
 * Correct inference model definition for MSLE regression models. (See {ml-pull}1375[#1375].)
+
+== {es} version 7.8.1
+
+=== Bug Fixes
+
+== {es} version 7.8.2
+
+* Fix cause of SIGSEGV of classification and regression. (See {ml-pull}1379[#1379].)
 
 == {es} version 7.8.1
 
