@@ -1610,6 +1610,7 @@ void CBoostedTreeImpl::accept(CBoostedTree::CVisitor& visitor) {
         }
     }
     visitor.addClassificationWeights(m_ClassificationWeights.to<TDoubleVec>());
+    visitor.addLossFunction(this->loss());
 }
 
 const CBoostedTreeHyperparameters& CBoostedTreeImpl::bestHyperparameters() const {
