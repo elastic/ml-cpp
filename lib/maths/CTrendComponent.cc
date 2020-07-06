@@ -726,10 +726,6 @@ CTrendComponent::CForecastLevel::forecast(core_t::TTime time, double prediction,
         result[0] = m_Levels[lower];
         result[1] = CBasicStatistics::median(m_Levels);
         result[2] = m_Levels[upper];
-
-        // This should never happen, but trap the case that the bounds are out-of-order.
-        result[0] = CBasicStatistics::min(result[0], result[1], result[2]);
-        result[2] = CBasicStatistics::max(result[0], result[1], result[2]);
     }
 
     return result;
