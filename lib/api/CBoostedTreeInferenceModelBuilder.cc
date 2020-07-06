@@ -145,12 +145,28 @@ CRegressionInferenceModelBuilder::CRegressionInferenceModelBuilder(const TStrVec
 void CRegressionInferenceModelBuilder::addClassificationWeights(TDoubleVec /*weights*/) {
 }
 
+void CRegressionInferenceModelBuilder::addLossFunction(const maths::CBoostedTree::TLossFunction& lossFunction) {
+    m_LossType = lossFunction.type();
+}
+
 void CRegressionInferenceModelBuilder::setTargetType() {
     this->definition().trainedModel()->targetType(CTrainedModel::ETargetType::E_Regression);
 }
 
 void CRegressionInferenceModelBuilder::setAggregateOutput(CEnsemble* ensemble) const {
-    ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
+    switch (m_LossType) {
+    case TLossType::E_MsleRegression:
+        ensemble->aggregateOutput(std::make_unique<CExponent>(ensemble->size(), 1.0));
+        break;
+    case TLossType::E_MseRegression:
+    case TLossType::E_HuberRegression:
+        ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
+        break;
+    case TLossType::E_BinaryClassification:
+    case TLossType::E_MulticlassClassification:
+        LOG_ERROR(<< "Input error: classification objective function received where regression objective expected.");
+        break;
+    }
 }
 
 CClassificationInferenceModelBuilder::CClassificationInferenceModelBuilder(
@@ -164,6 +180,10 @@ CClassificationInferenceModelBuilder::CClassificationInferenceModelBuilder(
 
 void CClassificationInferenceModelBuilder::addClassificationWeights(TDoubleVec weights) {
     this->definition().trainedModel()->classificationWeights(std::move(weights));
+}
+
+void CClassificationInferenceModelBuilder::addLossFunction(
+    const maths::CBoostedTree::TLossFunction& /*lossFunction*/) {
 }
 
 void CClassificationInferenceModelBuilder::setTargetType() {

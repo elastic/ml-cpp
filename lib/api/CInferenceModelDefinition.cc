@@ -22,6 +22,10 @@ const std::string JSON_DECISION_TYPE_TAG{"decision_type"};
 const std::string JSON_DEFAULT_LEFT_TAG{"default_left"};
 const std::string JSON_DEFAULT_VALUE_TAG{"default_value"};
 const std::string JSON_ENSEMBLE_TAG{"ensemble"};
+const std::string JSON_EOS_TAG{"eos"};
+const std::string JSON_EXPONENT_TAG{"exponent"};
+const std::string JSON_FEATURE_NAME_LENGTH_TAG{"feature_name_length"};
+const std::string JSON_FEATURE_NAME_LENGTHS_TAG{"feature_name_lengths"};
 const std::string JSON_FEATURE_NAME_TAG{"feature_name"};
 const std::string JSON_FEATURE_NAMES_TAG{"feature_names"};
 const std::string JSON_FIELD_NAMES_TAG{"field_names"};
@@ -567,6 +571,26 @@ void CLogisticRegression::addToDocument(rapidjson::Value& parentObject,
 
 const std::string& CLogisticRegression::stringType() const {
     return JSON_LOGISTIC_REGRESSION_TAG;
+}
+
+CExponent::CExponent(TDoubleVec&& weights) : m_Weights(std::move(weights)) {
+}
+
+CExponent::CExponent(std::size_t size, double weight)
+    : m_Weights(size, weight) {
+}
+
+void CExponent::addToJsonStream(TGenericLineWriter& writer) const {
+    writer.StartObject();
+    writer.Key(this->stringType());
+    writer.StartObject();
+    addJsonArray(JSON_WEIGHTS_TAG, m_Weights, writer);
+    writer.EndObject();
+    writer.EndObject();
+}
+
+const std::string& CExponent::stringType() const {
+    return JSON_EXPONENT_TAG;
 }
 }
 }

@@ -159,6 +159,66 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     BOOST_TEST_REQUIRE("weighted_sum" == trainedModel->aggregateOutput()->stringType());
 }
 
+BOOST_AUTO_TEST_CASE(testIntegrationMsleRegression) {
+    std::size_t numberExamples = 100;
+    std::size_t cols = 2;
+    test::CRandomNumbers rng;
+    TDoubleVec weights{0.1, 100.0};
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    TStrVec fieldNames{"numeric_col", "target_col", ".", "."};
+
+    TStrVec fieldValues{"", "0", "", ""};
+
+    TDoubleVecVec frequencies;
+    TDoubleVecVec values(cols);
+    rng.generateUniformSamples(0.0, 3.0, numberExamples, values[0]);
+
+    for (std::size_t i = 0; i < numberExamples; ++i) {
+        values[1].push_back(std::exp(values[0][i] * weights[0]));
+    }
+
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
+    api::CDataFrameAnalyzer analyzer{
+        specFactory.rows(numberExamples)
+            .columns(cols)
+            .memoryLimit(30000000)
+            .regressionLossFunction(maths::boosted_tree::E_MsleRegression)
+            .predictionMaximumNumberTrees(1)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target_col"),
+        outputWriterFactory};
+
+    TDataFrameUPtr frame{
+        core::makeMainStorageDataFrame(cols + 2, numberExamples).first};
+    for (std::size_t i = 0; i < numberExamples; ++i) {
+        for (std::size_t j = 0; j < cols; ++j) {
+            fieldValues[j] = core::CStringUtils::typeToStringPrecise(
+                values[j][i], core::CIEEE754::E_DoublePrecision);
+        }
+        analyzer.handleRecord(fieldNames, fieldValues);
+    }
+    analyzer.handleRecord(fieldNames, {"", "", "", "$"});
+    auto analysisRunner = analyzer.runner();
+    TStrVecVec categoryMappingVector{{}, {}};
+    auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
+
+    LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
+    std::string modelSizeDefinition{definition->sizeInfo()->jsonString()};
+    LOG_DEBUG(<< "Model size definition: " << modelSizeDefinition);
+
+    // verify model definition
+    {
+        // assert trained model
+        auto* trainedModel =
+            dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
+        BOOST_TEST_REQUIRE("exponent" == trainedModel->aggregateOutput()->stringType());
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     std::size_t numberExamples = 200;
     std::size_t cols = 3;
