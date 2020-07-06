@@ -363,6 +363,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::IS_TRAINING_FIELD_NAME{"is_t
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME{"feature_name"};
 const std::string CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME{"importance"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME{"feature_importance"};
+const std::string CDataFrameTrainBoostedTreeRunner::TOTAL_FEATURE_IMPORTANCE_FIELD_NAME{"total_feature_importance"};
 // clang-format on
 }
 }

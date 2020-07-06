@@ -57,6 +57,7 @@ public:
     static const std::string FEATURE_NAME_FIELD_NAME;
     static const std::string IMPORTANCE_FIELD_NAME;
     static const std::string FEATURE_IMPORTANCE_FIELD_NAME;
+    static const std::string TOTAL_FEATURE_IMPORTANCE_FIELD_NAME;
 
 public:
     ~CDataFrameTrainBoostedTreeRunner() override;

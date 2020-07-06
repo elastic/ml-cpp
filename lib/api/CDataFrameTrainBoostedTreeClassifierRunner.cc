@@ -15,6 +15,7 @@
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CDataFramePredictiveModel.h>
 #include <maths/CDataFrameUtils.h>
+#include <maths/CLinearAlgebraEigen.h>
 #include <maths/COrderings.h>
 #include <maths/CTools.h>
 #include <maths/CTreeShapFeatureImportance.h>
@@ -27,6 +28,7 @@
 #include <memory>
 #include <numeric>
 #include <set>
+#include <unordered_map>
 
 namespace ml {
 namespace api {
@@ -162,6 +164,9 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     }
 
     if (featureImportance != nullptr) {
+        using TVector = maths::CDenseVector<double>;
+        using TTotalShapValues = std::unordered_map<std::size_t, TVector>;
+        TTotalShapValues totalShapValues;
         int numberClasses{static_cast<int>(classValues.size())};
         featureImportance->shap(
             row, [&](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
@@ -182,14 +187,44 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                                 writer.Key(classValues[j]);
                                 writer.Double(shap[i](j));
                             }
-                            writer.Key(CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
+                            writer.Key(IMPORTANCE_FIELD_NAME);
                             writer.Double(shap[i].lpNorm<1>());
                         }
                         writer.EndObject();
                     }
                 }
                 writer.EndArray();
+
+                for (std::size_t i = 0; i < shap.size(); ++i) {
+                    if (shap[i].lpNorm<1>() != 0) {
+                        if (totalShapValues.find(i) != totalShapValues.end()) {
+                            totalShapValues[i] += shap[i].cwiseAbs();
+                        } else {
+                            totalShapValues[i] = shap[i].cwiseAbs();
+                        }
+                    }
+                }
             });
+        writer.Key(TOTAL_FEATURE_IMPORTANCE_FIELD_NAME);
+        writer.StartArray();
+        for (const auto& item : totalShapValues) {
+            writer.StartObject();
+            writer.Key(FEATURE_NAME_FIELD_NAME);
+            writer.String(featureImportance->columnNames()[item.first]);
+            if (item.second.size() == 1) {
+                writer.Key(IMPORTANCE_FIELD_NAME);
+                writer.Double(item.second(0));
+            } else {
+                for (int j = 0; j < item.second.size() && j < numberClasses; ++j) {
+                    writer.Key(classValues[j]);
+                    writer.Double(item.second(j));
+                }
+                writer.Key(IMPORTANCE_FIELD_NAME);
+                writer.Double(item.second.lpNorm<1>());
+            }
+            writer.EndObject();
+        }
+        writer.EndArray();
     }
     writer.EndObject();
 }

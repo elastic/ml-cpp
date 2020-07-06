@@ -13,6 +13,7 @@
 #include <maths/CBoostedTreeFactory.h>
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CDataFrameUtils.h>
+#include <maths/CLinearAlgebraEigen.h>
 #include <maths/CTreeShapFeatureImportance.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
@@ -24,6 +25,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <unordered_map>
 
 namespace ml {
 namespace api {
@@ -109,10 +111,14 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
     auto featureImportance = tree.shap();
     if (featureImportance != nullptr) {
+        using TVector = maths::CDenseVector<double>;
+        using TTotalShapValues = std::unordered_map<std::size_t, TVector>;
+        TTotalShapValues totalShapValues;
         featureImportance->shap(
-            row, [&writer](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
-                           const TStrVec& featureNames,
-                           const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+            row, [&writer, &totalShapValues](
+                     const maths::CTreeShapFeatureImportance::TSizeVec& indices,
+                     const TStrVec& featureNames,
+                     const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
                 writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
                 writer.StartArray();
                 for (auto i : indices) {
@@ -126,7 +132,28 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
                     }
                 }
                 writer.EndArray();
+
+                for (int i = 0; i < shap.size(); ++i) {
+                    if (shap[i].lpNorm<1>() != 0) {
+                        if (totalShapValues.find(i) != totalShapValues.end()) {
+                            totalShapValues[i] += shap[i].cwiseAbs();
+                        } else {
+                            totalShapValues[i] = shap[i].cwiseAbs();
+                        }
+                    }
+                }
             });
+        writer.Key(TOTAL_FEATURE_IMPORTANCE_FIELD_NAME);
+        writer.StartArray();
+        for (const auto& item : totalShapValues) {
+            writer.StartObject();
+            writer.Key(FEATURE_NAME_FIELD_NAME);
+            writer.String(featureImportance->columnNames()[item.first]);
+            writer.Key(IMPORTANCE_FIELD_NAME);
+            writer.Double(item.second[0]);
+            writer.EndObject();
+        }
+        writer.EndArray();
     }
     writer.EndObject();
 }
