@@ -440,6 +440,7 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
 
     TMeanVarAccumulator bias;
     double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
+    bool hasTotalFeatureImportance{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             double c1{readShapValue(result, "c1")};
@@ -457,6 +458,9 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
             // assert that no SHAP value for the dependent variable is returned
             BOOST_REQUIRE_EQUAL(readShapValue(result, "target"), 0.0);
         }
+        if (result.HasMember("total_feature_importance")) {
+            hasTotalFeatureImportance = true;
+        }
     }
 
     // since target is generated using the linear model
@@ -471,6 +475,7 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
     BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 5.0); // c3 and c4 within 5% of each other
     // make sure the local approximation differs from the prediction always by the same bias (up to a numeric error)
     BOOST_REQUIRE_SMALL(maths::CBasicStatistics::variance(bias), 1e-6);
+    BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
 }
 
 BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
@@ -510,6 +515,7 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     auto results{runBinaryClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
 
     double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
+    bool hasTotalFeatureImportance{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             double c1{readShapValue(result, "c1")};
@@ -537,6 +543,10 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
             c3Sum += std::fabs(c3);
             c4Sum += std::fabs(c4);
         }
+
+        if (result.HasMember("total_feature_importance")) {
+            hasTotalFeatureImportance = true;
+        }
     }
 
     // since the target using a linear model
@@ -548,13 +558,14 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 40.0); // c3 and c4 within 40% of each other
     // make sure the local approximation differs from the prediction always by the same bias (up to a numeric error)
     BOOST_REQUIRE_SMALL(maths::CBasicStatistics::variance(bias), 1e-6);
+    BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
 }
 
 BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SFixture) {
 
     std::size_t topShapValues{4};
     auto results{runMultiClassClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
-
+    bool hasTotalFeatureImportance{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             double c1{readShapValue(result, "c1")};
@@ -585,7 +596,11 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
             double c4baz{readShapValue(result, "c4", "baz")};
             BOOST_REQUIRE_CLOSE(c4, std::abs(c4f) + std::abs(c4bar) + std::abs(c4baz), 1e-6);
         }
+        if (result.HasMember("total_feature_importance")) {
+            hasTotalFeatureImportance = true;
+        }
     }
+    BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
 }
 
 BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoShap, SFixture) {
