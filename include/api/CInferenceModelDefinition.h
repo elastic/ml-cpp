@@ -112,6 +112,27 @@ private:
     TDoubleVec m_Weights;
 };
 
+//! Allows to use exponent aggregation.
+//!
+//! Given a weights vector $\vec{w}$ as a parameter and an output vector from the ensemble $\vec{x}$,
+//! it computes the exponent function \f$\exp(\vec{w}^T \vec{x})\f$.
+class API_EXPORT CExponent final : public CAggregateOutput {
+public:
+    using TDoubleVec = std::vector<double>;
+
+public:
+    ~CExponent() override = default;
+    //! Construct with the \p weights vector.
+    explicit CExponent(TDoubleVec&& weights);
+    //! Construct with a weight vector of \p size with all entries equal to \p weight.
+    CExponent(std::size_t size, double weight);
+    void addToJsonStream(TGenericLineWriter& writer) const override;
+    const std::string& stringType() const override;
+
+private:
+    TDoubleVec m_Weights;
+};
+
 //! List of support numeric relationships. It's only "<" at the moment.
 enum ENumericRelationship { E_LT };
 
