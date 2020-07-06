@@ -62,7 +62,7 @@ TPriorPtr makeResidualModel() {
         maths_t::E_ContinuousData, DECAY_RATE)};
 
     maths::COneOfNPrior::TPriorPtrVec mode;
-    mode.reserve(3u);
+    mode.reserve(3);
     mode.emplace_back(gamma.clone());
     mode.emplace_back(lognormal.clone());
     mode.emplace_back(normal.clone());
@@ -95,6 +95,7 @@ void testChange(const TGeneratorVec& trends,
                 double maximumMeanBucketsToDetectChange) {
     using TOptionalSize = boost::optional<std::size_t>;
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TFloatMeanAccumulatorVec = maths::CTimeSeriesDecomposition::TFloatMeanAccumulatorVec;
 
     test::CRandomNumbers rng;
 
@@ -102,28 +103,39 @@ void testChange(const TGeneratorVec& trends,
     TMeanAccumulator meanBucketsToDetect;
 
     TDoubleVec samples;
-    for (std::size_t t = 0u; t < 100; ++t) {
+    for (std::size_t t = 0; t < 100; ++t) {
         if (t % 10 == 0) {
             LOG_DEBUG(<< t << "%");
         }
 
+        const auto& trend = trends[t % trends.size()];
+
         rng.generateNormalSamples(0.0, 1.0, 1000, samples);
 
-        TDecompositionPtr trendModel(
-            new maths::CTimeSeriesDecomposition{DECAY_RATE, BUCKET_LENGTH});
+        TDecompositionPtr trendModel{
+            std::make_shared<maths::CTimeSeriesDecomposition>(DECAY_RATE, BUCKET_LENGTH)};
         TPriorPtr residualModel(makeResidualModel());
 
         auto addSampleToModel = [&trendModel, &residualModel](
                                     core_t::TTime time, double x, double weight) {
-            trendModel->addPoint(time, x, maths_t::countWeight(weight));
+            trendModel->addPoint(
+                time, x, maths_t::countWeight(weight),
+                [&](const TFloatMeanAccumulatorVec& residuals) {
+                    residualModel = makeResidualModel();
+                    for (const auto& residual : residuals) {
+                        double count{maths::CBasicStatistics::count(residual)};
+                        residualModel->addSamples({maths::CBasicStatistics::mean(residual)},
+                                                  {maths_t::countWeight(count)});
+                    }
+                });
             double detrended{trendModel->detrend(time, x, 0.0)};
             residualModel->addSamples({detrended}, {maths_t::countWeight(weight)});
             residualModel->propagateForwardsByTime(1.0);
         };
 
         core_t::TTime time{0};
-        for (std::size_t i = 0u; i < 950; ++i) {
-            double x{10.0 * trends[t % trends.size()](time) + samples[i]};
+        for (std::size_t i = 0; i < 950; ++i) {
+            double x{10.0 * trend(time) + samples[i]};
             addSampleToModel(time, x, 1.0);
             time += BUCKET_LENGTH;
         }
@@ -133,8 +145,8 @@ void testChange(const TGeneratorVec& trends,
             24 * core::constants::HOUR, 14.0};
 
         TOptionalSize bucketsToDetect;
-        for (std::size_t i = 950u; i < samples.size(); ++i) {
-            double x{10.0 * applyChange(trends[t % trends.size()], time) + samples[i]};
+        for (std::size_t i = 950; i < samples.size(); ++i) {
+            double x{10.0 * applyChange(trend, time) + samples[i]};
 
             addSampleToModel(time, x, 0.5);
             detector.addSamples({{time, x}}, maths_t::CUnitWeights::SINGLE_UNIT);
@@ -216,7 +228,7 @@ BOOST_AUTO_TEST_CASE(testNoChange) {
         maths::CUnivariateTimeSeriesChangeDetector detector{
             trendModel, residualModel, 6 * core::constants::HOUR,
             24 * core::constants::HOUR, 14.0};
-        for (std::size_t i = 950u; i < samples.size(); ++i) {
+        for (std::size_t i = 950; i < samples.size(); ++i) {
             addSampleToModel(time, samples[i]);
             detector.addSamples({{time, samples[i]}}, maths_t::CUnitWeights::SINGLE_UNIT);
             if (detector.stopTesting()) {
@@ -235,7 +247,7 @@ BOOST_AUTO_TEST_CASE(testLevelShift) {
     testChange(
         trends, maths::SChangeDescription::E_LevelShift,
         [](TGenerator trend, core_t::TTime time) { return trend(time) + 0.7; },
-        7.0, 0.0, 16.0);
+        7.0, 0.02, 15.0);
 }
 
 BOOST_AUTO_TEST_CASE(testLinearScale) {
@@ -243,7 +255,7 @@ BOOST_AUTO_TEST_CASE(testLinearScale) {
     testChange(
         trends, maths::SChangeDescription::E_LinearScale,
         [](TGenerator trend, core_t::TTime time) { return 3.0 * trend(time); },
-        3.0, 0.0, 15.0);
+        3.0, 0.04, 15.0);
 }
 
 BOOST_AUTO_TEST_CASE(testTimeShift) {
@@ -252,12 +264,12 @@ BOOST_AUTO_TEST_CASE(testTimeShift) {
                [](TGenerator trend, core_t::TTime time) {
                    return trend(time - core::constants::HOUR);
                },
-               -static_cast<double>(core::constants::HOUR), 0.04, 23.0);
+               -static_cast<double>(core::constants::HOUR), 0.06, 16.0);
     testChange(trends, maths::SChangeDescription::E_TimeShift,
                [](TGenerator trend, core_t::TTime time) {
                    return trend(time + core::constants::HOUR);
                },
-               +static_cast<double>(core::constants::HOUR), 0.04, 23.0);
+               +static_cast<double>(core::constants::HOUR), 0.06, 16.0);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -277,7 +289,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     };
 
     core_t::TTime time{0};
-    for (std::size_t i = 0u; i < 990; ++i) {
+    for (std::size_t i = 0; i < 990; ++i) {
         addSampleToModel(time, samples[i]);
         time += BUCKET_LENGTH;
     }

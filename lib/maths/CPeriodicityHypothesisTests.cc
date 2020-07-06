@@ -180,7 +180,7 @@ struct SHypothesisSummary {
 
 using THypothesisSummaryVec = std::vector<SHypothesisSummary>;
 
-enum EDiurnalComponents {
+enum EDiurnalComponent {
     E_WeekendDay,
     E_WeekendWeek,
     E_WeekdayDay,
@@ -189,7 +189,7 @@ enum EDiurnalComponents {
     E_Week,
 };
 
-using TComponent4Vec = core::CSmallVector<EDiurnalComponents, 4>;
+using TComponent4Vec = core::CSmallVector<EDiurnalComponent, 4>;
 
 enum EThreshold { E_LowThreshold, E_HighThreshold };
 
@@ -422,9 +422,13 @@ void reweightOutliers(const std::vector<T>& trend,
         LOG_TRACE(<< "outliers = " << core::CContainerPrinter::print(outliers));
 
         for (const auto& outlier : outliers) {
-            if (outlier.first > SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD *
-                                    CBasicStatistics::mean(meanDifference)) {
-                CBasicStatistics::count(values[outlier.second % n]) *= SEASONAL_OUTLIER_WEIGHT;
+            if (outlier.first > CBasicStatistics::mean(meanDifference)) {
+                CBasicStatistics::count(values[outlier.second % n]) *= CTools::logLinearlyInterpolate(
+                    0.5 * SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
+                    SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
+                    1.0, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD / 2
+                    SEASONAL_OUTLIER_WEIGHT, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD
+                    outlier.first / CBasicStatistics::mean(meanDifference));
             }
         }
         LOG_TRACE(<< "Values - outliers = " << core::CContainerPrinter::print(values));

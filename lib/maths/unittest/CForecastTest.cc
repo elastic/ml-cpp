@@ -57,7 +57,8 @@ public:
     ~CDebugGenerator() {
         if (ENABLED) {
             std::ofstream file;
-            file.open("results.m");
+            file.open("results.py");
+            file << "import matplotlib.pyplot as plt;\n";
             file << "t = " << core::CContainerPrinter::print(m_ValueTimes) << ";\n";
             file << "f = " << core::CContainerPrinter::print(m_Values) << ";\n";
             file << "tp = " << core::CContainerPrinter::print(m_PredictionTimes) << ";\n";
@@ -66,12 +67,12 @@ public:
             file << "fl = " << core::CContainerPrinter::print(m_ForecastLower) << ";\n";
             file << "fm = " << core::CContainerPrinter::print(m_ForecastMean) << ";\n";
             file << "fu = " << core::CContainerPrinter::print(m_ForecastUpper) << ";\n";
-            file << "hold on;\n";
-            file << "plot(t, f);\n";
-            file << "plot(tp, fp, 'k');\n";
-            file << "plot(tf, fl, 'r');\n";
-            file << "plot(tf, fm, 'k');\n";
-            file << "plot(tf, fu, 'r');\n";
+            file << "plt.plot(t, f);\n";
+            file << "plt.plot(tp, fp, 'k');\n";
+            file << "plt.plot(tf, fl, 'r');\n";
+            file << "plt.plot(tf, fm, 'k');\n";
+            file << "plt.plot(tf, fu, 'r');\n";
+            file << "plt.show();\n";
         }
     }
     void addValue(core_t::TTime time, double value) {
@@ -107,7 +108,7 @@ private:
 };
 
 const double DECAY_RATE{0.0005};
-const std::size_t TAG{0u};
+const std::size_t TAG{0};
 const TDouble2Vec MINIMUM_VALUE{boost::numeric::bounds<double>::lowest()};
 const TDouble2Vec MAXIMUM_VALUE{boost::numeric::bounds<double>::highest()};
 
@@ -231,7 +232,7 @@ BOOST_AUTO_TEST_CASE(testDailyNoLongTermTrend) {
         return 40.0 + alpha * y[i / 6] + beta * y[(i / 6 + 1) % y.size()] + noise;
     };
 
-    test(trend, bucketLength, 63, 64.0, 6.0, 0.15);
+    test(trend, bucketLength, 63, 64.0, 5.0, 0.14);
 }
 
 BOOST_AUTO_TEST_CASE(testDailyConstantLongTermTrend) {
@@ -271,7 +272,7 @@ BOOST_AUTO_TEST_CASE(testDailyVaryingLongTermTrend) {
                8.0 * std::sin(boost::math::double_constants::two_pi * time_ / 43200.0) + noise;
     };
 
-    test(trend, bucketLength, 98, 9.0, 7.0, 0.043);
+    test(trend, bucketLength, 98, 9.0, 7.0, 0.044);
 }
 
 BOOST_AUTO_TEST_CASE(testComplexNoLongTermTrend) {
@@ -287,7 +288,7 @@ BOOST_AUTO_TEST_CASE(testComplexNoLongTermTrend) {
         return scale[d] * (20.0 + y[h] + noise);
     };
 
-    test(trend, bucketLength, 63, 24.0, 5.0, 0.13);
+    test(trend, bucketLength, 63, 24.0, 7.0, 0.14);
 }
 
 BOOST_AUTO_TEST_CASE(testComplexConstantLongTermTrend) {
@@ -304,7 +305,7 @@ BOOST_AUTO_TEST_CASE(testComplexConstantLongTermTrend) {
                scale[d] * (20.0 + y[h] + noise);
     };
 
-    test(trend, bucketLength, 63, 24.0, 5.0, 0.01);
+    test(trend, bucketLength, 63, 24.0, 6.0, 0.01);
 }
 
 BOOST_AUTO_TEST_CASE(testComplexVaryingLongTermTrend) {
@@ -334,7 +335,7 @@ BOOST_AUTO_TEST_CASE(testComplexVaryingLongTermTrend) {
         return trend_.value(time_) + scale[d] * (20.0 + y[h] + noise);
     };
 
-    test(trend, bucketLength, 63, 4.0, 5.0, 0.03);
+    test(trend, bucketLength, 65, 4.0, 37.0, 0.031);
 }
 
 BOOST_AUTO_TEST_CASE(testNonNegative) {

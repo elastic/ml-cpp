@@ -1464,7 +1464,7 @@ BOOST_AUTO_TEST_CASE(testWeights) {
             error.add(std::fabs(scale - dataScale) / dataScale);
         }
         LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.18);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.26);
 
         LOG_DEBUG(<< "Winsorisation");
         TDouble2Vec prediction(model.predict(time));
