@@ -326,6 +326,7 @@ private:
     EInitializationStage m_InitializationStage = E_NotInitialized;
     std::size_t m_NumberThreads;
     std::size_t m_DependentVariable = std::numeric_limits<std::size_t>::max();
+    TOptionalSize m_PaddedExtraColumns;
     TSizeVec m_ExtraColumns;
     TLossFunctionUPtr m_Loss;
     CBoostedTree::EClassAssignmentObjective m_ClassAssignmentObjective =
