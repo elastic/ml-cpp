@@ -276,7 +276,7 @@ void CDataFrameAnalyzer::writeInferenceModel(const CDataFrameAnalysisRunner& ana
     if (modelDefinition != nullptr) {
         auto modelDefinitionSizeInfo = modelDefinition->sizeInfo();
         rapidjson::Value sizeInfoObject{writer.makeObject()};
-        modelDefinitionSizeInfo->addToDocument(sizeInfoObject, writer);
+        modelDefinitionSizeInfo->addToJsonDocument(sizeInfoObject, writer);
         writer.StartObject();
         writer.Key(modelDefinitionSizeInfo->typeString());
         writer.write(sizeInfoObject);

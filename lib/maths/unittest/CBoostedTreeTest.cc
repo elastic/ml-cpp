@@ -13,6 +13,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
+#include <maths/CBoostedTreeImpl.h>
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CPRNG.h>
 #include <maths/CSampling.h>
@@ -1825,6 +1826,32 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
     }
     BOOST_TEST_REQUIRE(throwsExceptions);
     ml::core::CLogger::instance().reset();
+}
+
+BOOST_AUTO_TEST_CASE(testWorstCaseMemoryCorrection) {
+    // We compute the correction coefficient as a sigmoid function: ca. 1.0 until
+    // 10mb, ca 16.0 after 1000mb to this end we need to shift and scale using the
+    // magic numbers below.
+    // test for 10mb
+    BOOST_REQUIRE_CLOSE(static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(
+                            10.0 * 1024 * 1024)) /
+                            (1024 * 1024),
+                        10 / 1.07, 2.0);
+    // test for 300mb
+    BOOST_REQUIRE_CLOSE(static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(
+                            300.0 * 1024 * 1024)) /
+                            (1024 * 1024),
+                        300.0 / 2.14, 2.0);
+    // test for 550mb
+    BOOST_REQUIRE_CLOSE(static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(
+                            550.0 * 1024 * 1024)) /
+                            (1024 * 1024),
+                        550.0 / 8.50, 2.0);
+    // test for 1000mb
+    BOOST_REQUIRE_CLOSE(static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(
+                            1000.0 * 1024 * 1024)) /
+                            (1024 * 1024),
+                        1000.0 / 15.84, 2.0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
