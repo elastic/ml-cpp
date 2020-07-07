@@ -115,7 +115,7 @@ public:
     explicit CExponent(TDoubleVec&& weights);
     //! Construct with a weight vector of \p size with all entries equal to \p weight.
     CExponent(std::size_t size, double weight);
-    void addToJsonStream(TGenericLineWriter& writer) const override;
+    void addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
     const std::string& stringType() const override;
 
 private:

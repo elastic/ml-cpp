@@ -580,13 +580,10 @@ CExponent::CExponent(std::size_t size, double weight)
     : m_Weights(size, weight) {
 }
 
-void CExponent::addToJsonStream(TGenericLineWriter& writer) const {
-    writer.StartObject();
-    writer.Key(this->stringType());
-    writer.StartObject();
-    addJsonArray(JSON_WEIGHTS_TAG, m_Weights, writer);
-    writer.EndObject();
-    writer.EndObject();
+void CExponent::addToDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const {
+    rapidjson::Value object = writer.makeObject();
+    addJsonArray(JSON_WEIGHTS_TAG, m_Weights, object, writer);
+    writer.addMember(this->stringType(), object, parentObject);
 }
 
 const std::string& CExponent::stringType() const {
