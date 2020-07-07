@@ -57,10 +57,6 @@ public:
 
     bool hasFinalised() const { return m_Finalised; }
 
-    void newOutputStream() override { m_NewStream = true; }
-
-    bool isNewStream() const { return m_NewStream; }
-
     bool fieldNames(const TStrVec& /*fieldNames*/, const TStrVec& /*extraFieldNames*/) override {
         return true;
     }
@@ -93,8 +89,6 @@ public:
     const TIntSet& categoryIdsHandled() const { return m_CategoryIdsHandled; }
 
 private:
-    bool m_NewStream = false;
-
     bool m_Finalised = false;
 
     std::uint64_t m_NumRows = 0;
@@ -206,9 +200,6 @@ BOOST_AUTO_TEST_CASE(testWithoutPerPartitionCategorization) {
     core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
     CTestFieldDataCategorizer categorizer{"job", config, limits, handler, wrappedOutputStream};
-    BOOST_REQUIRE_EQUAL(false, handler.isNewStream());
-    categorizer.newOutputStream();
-    BOOST_REQUIRE_EQUAL(true, handler.isNewStream());
 
     BOOST_REQUIRE_EQUAL(false, handler.hasFinalised());
     BOOST_REQUIRE_EQUAL(0, categorizer.numRecordsHandled());
@@ -291,9 +282,6 @@ BOOST_AUTO_TEST_CASE(testWithPerPartitionCategorization) {
     core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
     CTestFieldDataCategorizer categorizer{"job", config, limits, handler, wrappedOutputStream};
-    BOOST_REQUIRE_EQUAL(false, handler.isNewStream());
-    categorizer.newOutputStream();
-    BOOST_REQUIRE_EQUAL(true, handler.isNewStream());
 
     BOOST_REQUIRE_EQUAL(false, handler.hasFinalised());
     BOOST_REQUIRE_EQUAL(0, categorizer.numRecordsHandled());

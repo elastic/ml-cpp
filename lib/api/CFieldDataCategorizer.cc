@@ -77,11 +77,6 @@ CFieldDataCategorizer::~CFieldDataCategorizer() {
     }
 }
 
-void CFieldDataCategorizer::newOutputStream() {
-    m_WriteFieldNames = true;
-    m_OutputHandler.newOutputStream();
-}
-
 bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) {
     // First time through we output the field names
     if (m_WriteFieldNames) {
@@ -160,10 +155,6 @@ void CFieldDataCategorizer::finalise() {
 
 std::uint64_t CFieldDataCategorizer::numRecordsHandled() const {
     return m_NumRecordsHandled;
-}
-
-COutputHandler& CFieldDataCategorizer::outputHandler() {
-    return m_OutputHandler;
 }
 
 CGlobalCategoryId

@@ -117,9 +117,6 @@ public:
     CGlobalCategoryId computeAndUpdateCategory(const TStrStrUMap& dataRowFields,
                                                const TOptionalTime& time);
 
-    //! We're going to be writing to a new output stream
-    void newOutputStream() override;
-
     //! Receive a single record to be categorized, and output that record
     //! with its ML category field added
     bool handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) override;
@@ -144,9 +141,6 @@ public:
 
     //! How many records did we handle?
     std::uint64_t numRecordsHandled() const override;
-
-    //! Access the output handler
-    COutputHandler& outputHandler() override;
 
 private:
     using TPersistFuncVec = std::vector<CSingleFieldDataCategorizer::TPersistFunc>;
