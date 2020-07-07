@@ -156,8 +156,7 @@ void CRegressionInferenceModelBuilder::setTargetType() {
 void CRegressionInferenceModelBuilder::setAggregateOutput(CEnsemble* ensemble) const {
     if (m_LossName == "msle") {
         ensemble->aggregateOutput(std::make_unique<CExponent>(ensemble->size(), 1.0));
-    }
-    else {
+    } else {
         ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
     }
 }
