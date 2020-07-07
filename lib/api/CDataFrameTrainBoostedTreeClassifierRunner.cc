@@ -197,11 +197,9 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
 
                 for (std::size_t i = 0; i < shap.size(); ++i) {
                     if (shap[i].lpNorm<1>() != 0) {
-                        if (totalShapValues.find(i) != totalShapValues.end()) {
-                            totalShapValues[i] += shap[i].cwiseAbs();
-                        } else {
-                            totalShapValues[i] = shap[i].cwiseAbs();
-                        }
+                        totalShapValues
+                            .emplace(std::make_pair(i, TVector::Zero(shap[i].size())))
+                            .first->second += shap[i].cwiseAbs();
                     }
                 }
             });

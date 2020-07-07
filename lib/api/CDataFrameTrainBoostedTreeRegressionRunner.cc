@@ -9,6 +9,7 @@
 #include <core/CLogger.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
 #include <maths/CBoostedTreeLoss.h>
@@ -112,7 +113,8 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     auto featureImportance = tree.shap();
     if (featureImportance != nullptr) {
         using TVector = maths::CDenseVector<double>;
-        using TTotalShapValues = std::unordered_map<std::size_t, TVector>;
+        using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<TVector>::TAccumulator;
+        using TTotalShapValues = std::unordered_map<std::size_t, TMeanAccumulator>;
         TTotalShapValues totalShapValues;
         featureImportance->shap(
             row, [&writer, &totalShapValues](
@@ -135,14 +137,13 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
 
                 for (int i = 0; i < shap.size(); ++i) {
                     if (shap[i].lpNorm<1>() != 0) {
-                        if (totalShapValues.find(i) != totalShapValues.end()) {
-                            totalShapValues[i] += shap[i].cwiseAbs();
-                        } else {
-                            totalShapValues[i] = shap[i].cwiseAbs();
-                        }
+                        totalShapValues
+                            .emplace(std::make_pair(i, TVector::Zero(shap[i].size())))
+                            .first->second.add(shap[i].cwiseAbs());
                     }
                 }
             });
+        LOG_DEBUG(<< "Total shap size: " << totalShapValues.size());
         writer.Key(TOTAL_FEATURE_IMPORTANCE_FIELD_NAME);
         writer.StartArray();
         for (const auto& item : totalShapValues) {
@@ -150,8 +151,9 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
             writer.Key(FEATURE_NAME_FIELD_NAME);
             writer.String(featureImportance->columnNames()[item.first]);
             writer.Key(IMPORTANCE_FIELD_NAME);
-            writer.Double(item.second[0]);
+            writer.Double(maths::CBasicStatistics::mean(item.second)[0]);
             writer.EndObject();
+            LOG_DEBUG(<< "Count: " << maths::CBasicStatistics::count(item.second));
         }
         writer.EndArray();
     }
@@ -188,7 +190,7 @@ const std::string& CDataFrameTrainBoostedTreeRegressionRunnerFactory::name() con
 
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&) const {
-    HANDLE_FATAL(<< "Input error: classification has a non-optional parameter '"
+    HANDLE_FATAL(<< "Input error: regression has a non-optional parameter '"
                  << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.")
     return nullptr;
 }

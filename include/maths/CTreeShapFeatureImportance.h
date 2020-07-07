@@ -75,6 +75,8 @@ public:
 
     const TStrVec& columnNames() const;
 
+    std::size_t numberTopShapValues() const;
+
 private:
     //! Collects the elements of the path through decision tree that are updated together
     struct SPathElement {
