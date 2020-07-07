@@ -152,14 +152,6 @@ CAnomalyJob::~CAnomalyJob() {
     m_ForecastRunner.finishForecasts();
 }
 
-void CAnomalyJob::newOutputStream() {
-    m_JsonOutputWriter.newOutputStream();
-}
-
-COutputHandler& CAnomalyJob::outputHandler() {
-    return m_JsonOutputWriter;
-}
-
 bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) {
     // Non-empty control fields take precedence over everything else
     TStrStrUMapCItr iter = dataRowFields.find(CONTROL_FIELD_NAME);
@@ -725,11 +717,6 @@ void CAnomalyJob::resetBuckets(const std::string& controlMessage) {
 
 bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher,
                                core_t::TTime& completeToTime) {
-    // Pass on the request in case we're chained
-    if (this->outputHandler().restoreState(restoreSearcher, completeToTime) == false) {
-        return false;
-    }
-
     size_t numDetectors(0);
     try {
         // Restore from Elasticsearch compressed data
@@ -1012,11 +999,6 @@ bool CAnomalyJob::persistStateInForeground(core::CDataAdder& persister,
         }
     }
 
-    // Pass on the request in case we're chained
-    if (this->outputHandler().persistStateInForeground(persister, descriptionPrefix) == false) {
-        return false;
-    }
-
     if (m_LastFinalisedBucketEndTime == 0) {
         LOG_INFO(<< "Will not persist detectors as no results have been output");
         return true;
@@ -1251,10 +1233,6 @@ bool CAnomalyJob::persistCopiedState(const std::string& descriptionPrefix,
 }
 
 bool CAnomalyJob::periodicPersistStateInBackground() {
-    // Pass on the request in case we're chained
-    if (this->outputHandler().periodicPersistStateInBackground() == false) {
-        return false;
-    }
 
     // Prune the models so that the persisted state is as neat as possible
     this->pruneAllModels();

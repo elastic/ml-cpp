@@ -10,9 +10,8 @@
 
 #include <api/CDataProcessor.h>
 
+#include <cstdint>
 #include <string>
-
-#include <stdint.h>
 
 namespace ml {
 namespace api {
@@ -33,9 +32,6 @@ class CMockDataProcessor final : public ml::api::CDataProcessor {
 public:
     CMockDataProcessor(ml::api::COutputHandler& outputHandler);
 
-    //! We're going to be writing to a new output stream
-    void newOutputStream() override;
-
     bool handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) override;
 
     bool handleRecord(const TStrStrUMap& dataRowFields) {
@@ -55,10 +51,7 @@ public:
                                   const std::string& descriptionPrefix) override;
 
     //! How many records did we handle?
-    uint64_t numRecordsHandled() const override;
-
-    //! Access the output handler
-    ml::api::COutputHandler& outputHandler() override;
+    std::uint64_t numRecordsHandled() const override;
 
 private:
     ml::api::COutputHandler& m_OutputHandler;
