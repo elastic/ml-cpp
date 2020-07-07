@@ -207,8 +207,6 @@ BOOST_AUTO_TEST_CASE(testIntegrationMsleRegression) {
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
     LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
-    std::string modelSizeDefinition{definition->sizeInfo()->jsonString()};
-    LOG_DEBUG(<< "Model size definition: " << modelSizeDefinition);
 
     // verify model definition
     {

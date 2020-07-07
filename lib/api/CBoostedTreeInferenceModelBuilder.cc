@@ -146,7 +146,7 @@ void CRegressionInferenceModelBuilder::addClassificationWeights(TDoubleVec /*wei
 }
 
 void CRegressionInferenceModelBuilder::addLossFunction(const maths::CBoostedTree::TLossFunction& lossFunction) {
-    m_LossType = lossFunction.type();
+    m_LossName = lossFunction.name();
 }
 
 void CRegressionInferenceModelBuilder::setTargetType() {
@@ -154,18 +154,11 @@ void CRegressionInferenceModelBuilder::setTargetType() {
 }
 
 void CRegressionInferenceModelBuilder::setAggregateOutput(CEnsemble* ensemble) const {
-    switch (m_LossType) {
-    case TLossType::E_MsleRegression:
+    if (m_LossName == "msle") {
         ensemble->aggregateOutput(std::make_unique<CExponent>(ensemble->size(), 1.0));
-        break;
-    case TLossType::E_MseRegression:
-    case TLossType::E_HuberRegression:
+    }
+    else {
         ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
-        break;
-    case TLossType::E_BinaryClassification:
-    case TLossType::E_MulticlassClassification:
-        LOG_ERROR(<< "Input error: classification objective function received where regression objective expected.");
-        break;
     }
 }
 

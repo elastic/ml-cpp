@@ -81,14 +81,11 @@ public:
     void addLossFunction(const maths::CBoostedTree::TLossFunction& lossFunction) override;
 
 private:
-    using TLossType = maths::boosted_tree::ELossType;
-
-private:
     void setTargetType() override;
     void setAggregateOutput(CEnsemble* ensemble) const override;
 
 private:
-    TLossType m_LossType;
+    std::string m_LossName;
 };
 
 class API_EXPORT CClassificationInferenceModelBuilder final
