@@ -153,12 +153,6 @@ public:
 
     ~CAnomalyJob() override;
 
-    //! We're going to be writing to a new output stream
-    void newOutputStream() override;
-
-    //! Access the output handler
-    COutputHandler& outputHandler() override;
-
     //! Receive a single record to be processed, and produce output
     //! with any required modifications
     bool handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) override;

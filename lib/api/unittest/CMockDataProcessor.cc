@@ -13,10 +13,6 @@ CMockDataProcessor::CMockDataProcessor(ml::api::COutputHandler& outputHandler)
     : m_OutputHandler(outputHandler), m_NumRecordsHandled(0), m_WriteFieldNames(true) {
 }
 
-void CMockDataProcessor::newOutputStream() {
-    m_OutputHandler.newOutputStream();
-}
-
 bool CMockDataProcessor::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) {
     // First time through we output the field names
     if (m_WriteFieldNames) {
@@ -76,10 +72,6 @@ bool CMockDataProcessor::persistStateInForeground(ml::core::CDataAdder& persiste
     return true;
 }
 
-uint64_t CMockDataProcessor::numRecordsHandled() const {
+std::uint64_t CMockDataProcessor::numRecordsHandled() const {
     return m_NumRecordsHandled;
-}
-
-ml::api::COutputHandler& CMockDataProcessor::outputHandler() {
-    return m_OutputHandler;
 }
