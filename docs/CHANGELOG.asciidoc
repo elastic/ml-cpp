@@ -33,6 +33,7 @@
 === Bug Fixes
 
 * Correct inference model definition for MSLE regression models. (See {ml-pull}1375[#1375].)
+* Fix cause of SIGSEGV of classification and regression. (See {ml-pull}1379[#1379].)
 
 == {es} version 7.8.1
 

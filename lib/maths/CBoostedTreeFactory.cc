@@ -275,8 +275,8 @@ void CBoostedTreeFactory::initializeNumberFolds(core::CDataFrame& frame) const {
 void CBoostedTreeFactory::resizeDataFrame(core::CDataFrame& frame) const {
 
     std::size_t numberLossParameters{m_TreeImpl->m_Loss->numberParameters()};
-    m_TreeImpl->m_ExtraColumns = frame.resizeColumns(
-        m_TreeImpl->m_NumberThreads, extraColumns(numberLossParameters));
+    std::tie(m_TreeImpl->m_ExtraColumns, m_TreeImpl->m_PaddedExtraColumns) =
+        frame.resizeColumns(m_TreeImpl->m_NumberThreads, extraColumns(numberLossParameters));
     m_TreeImpl->m_Instrumentation->updateMemoryUsage(core::CMemory::dynamicSize(frame));
 
     core::CPackedBitVector allTrainingRowsMask{m_TreeImpl->allTrainingRowsMask()};
@@ -1169,7 +1169,10 @@ std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
 }
 
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {
-    return CBoostedTreeImpl::numberExtraColumnsForTrain(m_TreeImpl->m_Loss->numberParameters());
+    return m_TreeImpl->m_PaddedExtraColumns == boost::none
+               ? CBoostedTreeImpl::numberExtraColumnsForTrain(
+                     m_TreeImpl->m_Loss->numberParameters())
+               : *m_TreeImpl->m_PaddedExtraColumns;
 }
 
 void CBoostedTreeFactory::startProgressMonitoringFeatureSelection() {

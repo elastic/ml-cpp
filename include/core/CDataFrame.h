@@ -220,6 +220,7 @@ class CORE_EXPORT CDataFrame final {
 public:
     using TBoolVec = std::vector<bool>;
     using TSizeVec = std::vector<std::size_t>;
+    using TSizeVecSizePr = std::pair<TSizeVec, std::size_t>;
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
     using TStrCRng = CVectorRange<const TStrVec>;
@@ -316,9 +317,11 @@ public:
     //!
     //! \param[in] numberThreads The target number of threads to use.
     //! \param[in] extraColumns The desired additional columns.
-    //! \return The index of each (block of) columns in \p extraColumns.
+    //! \return The index of each (block of) columns in \p extraColumns and the
+    //! number of columns added to the data frame.
     //! \warning This only supports alignments less than or equal the row alignment.
-    TSizeVec resizeColumns(std::size_t numberThreads, const TSizeAlignmentPrVec& extraColumns);
+    TSizeVecSizePr resizeColumns(std::size_t numberThreads,
+                                 const TSizeAlignmentPrVec& extraColumns);
 
     //! This reads rows using one or more readers.
     //!
