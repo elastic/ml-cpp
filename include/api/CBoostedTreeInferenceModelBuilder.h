@@ -7,6 +7,7 @@
 #define INCLUDED_ml_api_CBoostedTreeInferenceModelBuilder_h
 
 #include <maths/CBoostedTree.h>
+#include <maths/CBoostedTreeLoss.h>
 
 #include <api/CInferenceModelDefinition.h>
 #include <api/ImportExport.h>
@@ -77,10 +78,14 @@ public:
                                      std::size_t dependentVariableColumnIndex,
                                      const TStrVecVec& categoryNames);
     void addClassificationWeights(TDoubleVec weights) override;
+    void addLossFunction(const maths::CBoostedTree::TLossFunction& lossFunction) override;
 
 private:
     void setTargetType() override;
     void setAggregateOutput(CEnsemble* ensemble) const override;
+
+private:
+    std::string m_LossName;
 };
 
 class API_EXPORT CClassificationInferenceModelBuilder final
@@ -91,6 +96,7 @@ public:
                                          const TStrVecVec& categoryNames);
     ~CClassificationInferenceModelBuilder() override = default;
     void addClassificationWeights(TDoubleVec weights) override;
+    void addLossFunction(const maths::CBoostedTree::TLossFunction& lossFunction) override;
 
 private:
     void setTargetType() override;

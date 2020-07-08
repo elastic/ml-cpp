@@ -145,12 +145,20 @@ CRegressionInferenceModelBuilder::CRegressionInferenceModelBuilder(const TStrVec
 void CRegressionInferenceModelBuilder::addClassificationWeights(TDoubleVec /*weights*/) {
 }
 
+void CRegressionInferenceModelBuilder::addLossFunction(const maths::CBoostedTree::TLossFunction& lossFunction) {
+    m_LossName = lossFunction.name();
+}
+
 void CRegressionInferenceModelBuilder::setTargetType() {
     this->definition().trainedModel()->targetType(CTrainedModel::ETargetType::E_Regression);
 }
 
 void CRegressionInferenceModelBuilder::setAggregateOutput(CEnsemble* ensemble) const {
-    ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
+    if (m_LossName == "msle") {
+        ensemble->aggregateOutput(std::make_unique<CExponent>(ensemble->size(), 1.0));
+    } else {
+        ensemble->aggregateOutput(std::make_unique<CWeightedSum>(ensemble->size(), 1.0));
+    }
 }
 
 CClassificationInferenceModelBuilder::CClassificationInferenceModelBuilder(
@@ -164,6 +172,10 @@ CClassificationInferenceModelBuilder::CClassificationInferenceModelBuilder(
 
 void CClassificationInferenceModelBuilder::addClassificationWeights(TDoubleVec weights) {
     this->definition().trainedModel()->classificationWeights(std::move(weights));
+}
+
+void CClassificationInferenceModelBuilder::addLossFunction(
+    const maths::CBoostedTree::TLossFunction& /*lossFunction*/) {
 }
 
 void CClassificationInferenceModelBuilder::setTargetType() {

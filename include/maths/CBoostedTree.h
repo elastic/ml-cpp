@@ -196,7 +196,8 @@ private:
 class MATHS_EXPORT CBoostedTree final : public CDataFramePredictiveModel {
 public:
     using TStrVec = std::vector<std::string>;
-    using TLossFunctionUPtr = std::unique_ptr<boosted_tree::CLoss>;
+    using TLossFunction = boosted_tree::CLoss;
+    using TLossFunctionUPtr = std::unique_ptr<TLossFunction>;
     using TDataFramePtr = core::CDataFrame*;
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
@@ -207,6 +208,7 @@ public:
         virtual ~CVisitor() = default;
         virtual void addTree() = 0;
         virtual void addClassificationWeights(TDoubleVec weights) = 0;
+        virtual void addLossFunction(const TLossFunction& lossFunction) = 0;
     };
 
 public:
