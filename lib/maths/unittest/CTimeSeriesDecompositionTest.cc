@@ -233,7 +233,7 @@ BOOST_FIXTURE_TEST_CASE(testSuperpositionOfSines, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.015 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.017 * totalSumValue);
     BOOST_TEST_REQUIRE(totalMaxResidual < 0.019 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.01 * totalSumValue);
 }
@@ -319,7 +319,7 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     BOOST_TEST_REQUIRE(totalSumResidual < 0.18 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.26 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.24 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.11 * totalSumValue);
 }
 
@@ -664,7 +664,7 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
     BOOST_TEST_REQUIRE(totalSumResidual < 0.012 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.020 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.021 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.01 * totalSumValue);
 
     // Check that only the daily component has been initialized.
@@ -824,7 +824,7 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
         LOG_DEBUG(<< "mean 70% error = " << maths::CBasicStatistics::mean(percentileError));
         LOG_DEBUG(<< "mean scale = " << maths::CBasicStatistics::mean(meanScale));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.33);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.34);
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentileError) < 0.08);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, maths::CBasicStatistics::mean(meanScale), 0.04);
     }
@@ -1222,7 +1222,7 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     BOOST_TEST_REQUIRE(totalSumResidual < 0.22 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.46 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.47 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.07 * totalSumValue);
 }
 
@@ -1799,7 +1799,7 @@ BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture) {
             }
 
             LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.06);
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.04);
             break;
         }
         debug.addValue(time, value);
@@ -1961,7 +1961,7 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
     }
 
-    double bounds[]{0.01, 0.016, 0.012, 0.07};
+    double bounds[]{0.01, 0.016, 0.012, 0.14};
     for (std::size_t i = 0; i < 4; ++i) {
         double error{maths::CBasicStatistics::mean(errors[i])};
         LOG_DEBUG(<< "error = " << error);

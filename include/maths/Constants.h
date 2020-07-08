@@ -76,7 +76,7 @@ constexpr double SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD{3.0};
 
 //! The weight to assign outliers when testing for and initializing
 //! a seasonal component.
-constexpr double SEASONAL_OUTLIER_WEIGHT{0.05};
+constexpr double SEASONAL_OUTLIER_WEIGHT{0.1};
 
 //! The significance of a test statistic to choose to model
 //! a trend decomposition component.

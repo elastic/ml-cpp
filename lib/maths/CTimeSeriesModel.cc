@@ -177,7 +177,7 @@ const std::string ERROR_MULTIVARIATE{"Forecast not supported for multivariate fe
 namespace winsorisation {
 namespace {
 const double MAXIMUM_P_VALUE{1e-3};
-const double MINIMUM_P_VALUE{1e-6};
+const double MINIMUM_P_VALUE{1e-5};
 const double LOG_MAXIMUM_P_VALUE{std::log(MAXIMUM_P_VALUE)};
 const double LOG_MINIMUM_P_VALUE{std::log(MINIMUM_P_VALUE)};
 const double LOG_MINIMUM_WEIGHT{std::log(MINIMUM_WEIGHT)};
@@ -202,32 +202,36 @@ double pValueFromWeight(double weight) {
                                      4.0 * logw / LOG_MINIMUM_WEIGHT * LOG_MINIMUM_P_VALUE *
                                          (LOG_MINIMUM_P_VALUE - LOG_MAXIMUM_P_VALUE))));
 }
+
+//! Compute the one tail p-value of \p value.
+double computePValue(const CPrior& prior, double scale, double value) {
+    double lowerBound;
+    double upperBound;
+    if (prior.minusLogJointCdf({value}, {maths_t::seasonalVarianceScaleWeight(scale)},
+                               lowerBound, upperBound) == false) {
+        return 1.0;
+    }
+    if (upperBound >= MINUS_LOG_TOLERANCE) {
+        double f{std::exp(-(lowerBound + upperBound) / 2.0)};
+        return std::min(f, 1.0 - f);
+    }
+    if (prior.minusLogJointCdfComplement({value}, {maths_t::seasonalVarianceScaleWeight(scale)},
+                                         lowerBound, upperBound) == false) {
+        return 1.0;
+    }
+    return std::exp(-(lowerBound + upperBound) / 2.0);
+}
 }
 
 double weight(const CPrior& prior, double derate, double scale, double value) {
+
+    double pValue{computePValue(prior, scale, value)};
+    if (pValue >= MAXIMUM_P_VALUE) {
+        return 1.0;
+    }
+
     double minimumWeight{deratedMinimumWeight(derate)};
-
-    double f{};
-    double lowerBound;
-    double upperBound;
-    if (!prior.minusLogJointCdf({value}, {maths_t::seasonalVarianceScaleWeight(scale)},
-                                lowerBound, upperBound)) {
-        return 1.0;
-    } else if (upperBound >= MINUS_LOG_TOLERANCE) {
-        f = std::exp(-(lowerBound + upperBound) / 2.0);
-        f = std::min(f, 1.0 - f);
-    } else if (!prior.minusLogJointCdfComplement(
-                   {value}, {maths_t::seasonalVarianceScaleWeight(scale)},
-                   lowerBound, upperBound)) {
-        return 1.0;
-    } else {
-        f = std::exp(-(lowerBound + upperBound) / 2.0);
-    }
-
-    if (f >= MAXIMUM_P_VALUE) {
-        return 1.0;
-    }
-    if (f <= MINIMUM_P_VALUE) {
+    if (pValue <= MINIMUM_P_VALUE) {
         return minimumWeight;
     }
 
@@ -236,16 +240,11 @@ double weight(const CPrior& prior, double derate, double scale, double value) {
 
     double maximumExponent{-std::log(minimumWeight) / LOG_MINIMUM_P_VALUE /
                            (LOG_MINIMUM_P_VALUE - LOG_MAXIMUM_P_VALUE)};
-    double logf{std::log(f)};
-    double result{std::exp(-maximumExponent * logf * (logf - LOG_MAXIMUM_P_VALUE))};
+    double logPValue{std::log(pValue)};
+    double weight{std::exp(-maximumExponent * logPValue * (logPValue - LOG_MAXIMUM_P_VALUE))};
+    LOG_TRACE(<< "sample = " << value << " p-value = " << pValue << ", weight = " << weight);
 
-    if (CMathsFuncs::isNan(result)) {
-        return 1.0;
-    }
-
-    LOG_TRACE(<< "sample = " << value << " min(F, 1-F) = " << f << ", weight = " << result);
-
-    return result;
+    return CMathsFuncs::isNan(weight) ? 1.0 : weight;
 }
 
 double weight(const CMultivariatePrior& prior,

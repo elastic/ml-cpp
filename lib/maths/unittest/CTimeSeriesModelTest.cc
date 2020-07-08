@@ -2069,7 +2069,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
         core_t::TTime time{0};
         TDoubleVec samples;
         for (auto level : {20.0, 40.0}) {
-            for (std::size_t i = 0; i < 100; ++i) {
+            for (std::size_t i = 0; i < 200; ++i) {
                 updateModel(time, level, model);
                 debug.addValueAndPrediction(time, level, model);
                 time += bucketLength;

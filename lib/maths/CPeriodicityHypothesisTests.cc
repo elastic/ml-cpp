@@ -397,7 +397,7 @@ void reweightOutliers(const std::vector<T>& trend,
         calculateIndexWindows(windows, bucketLength, indexWindows);
         std::size_t n{values.size()};
 
-        TMaxAccumulator outliers{numberOutliers};
+        TMaxAccumulator outliers{2 * numberOutliers};
         TMeanAccumulator meanDifference;
         for (const auto& window : indexWindows) {
             std::size_t a{window.first};
@@ -413,22 +413,31 @@ void reweightOutliers(const std::vector<T>& trend,
                 }
             }
         }
+        outliers.sort();
         TMeanAccumulator meanDifferenceOfOutliers;
-        for (const auto& outlier : outliers) {
-            meanDifferenceOfOutliers.add(outlier.first);
+        for (std::size_t i = 0; 4 * i < outliers.count(); ++i) {
+            meanDifferenceOfOutliers.add(outliers[i].first);
         }
         meanDifference -= meanDifferenceOfOutliers;
         LOG_TRACE(<< "mean difference = " << CBasicStatistics::mean(meanDifference));
         LOG_TRACE(<< "outliers = " << core::CContainerPrinter::print(outliers));
 
         for (const auto& outlier : outliers) {
-            if (outlier.first > CBasicStatistics::mean(meanDifference)) {
-                CBasicStatistics::count(values[outlier.second % n]) *= CTools::logLinearlyInterpolate(
-                    0.5 * SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
-                    SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
-                    1.0, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD / 2
-                    SEASONAL_OUTLIER_WEIGHT, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD
-                    outlier.first / CBasicStatistics::mean(meanDifference));
+            if (outlier.first > 0.5 * SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD *
+                                    CBasicStatistics::mean(meanDifference)) {
+                CBasicStatistics::count(values[outlier.second % n]) *=
+                    CTools::logLinearlyInterpolate(
+                        0.5 * SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
+                        SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
+                        1.0, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD / 2
+                        SEASONAL_OUTLIER_WEIGHT, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD
+                        outlier.first / CBasicStatistics::mean(meanDifference)) *
+                    CTools::logLinearlyInterpolate(
+                        SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
+                        16.0 * SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
+                        1.0, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD
+                        SEASONAL_OUTLIER_WEIGHT, // weight for 16 * SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD
+                        outlier.first / CBasicStatistics::mean(meanDifference));
             }
         }
         LOG_TRACE(<< "Values - outliers = " << core::CContainerPrinter::print(values));

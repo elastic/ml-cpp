@@ -979,7 +979,7 @@ bool CTimeSeriesDecompositionDetail::CCalendarTest::acceptRestoreTraverser(core:
                 traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
                     return m_Machine.acceptRestoreTraverser(traverser_);
                 }))
-        RESTORE_BUILT_IN(LAST_MONTH_6_3_TAG, m_LastMonth);
+        RESTORE_BUILT_IN(LAST_MONTH_6_3_TAG, m_LastMonth)
         RESTORE_SETUP_TEARDOWN(
             CALENDAR_TEST_6_3_TAG,
             m_Test = std::make_unique<CCalendarCyclicTest>(m_DecayRate),
@@ -1860,11 +1860,11 @@ void CTimeSeriesDecompositionDetail::CComponents::reweightOutliers(
         values.begin(), values.end(), 0.0, [](double n, const TFloatMeanAccumulator& value) {
             return n + (CBasicStatistics::count(value) > 0.0 ? 1.0 : 0.0);
         })};
-    double numberOutliers{SEASONAL_OUTLIER_FRACTION * numberValues};
+    std::size_t numberOutliers{static_cast<std::size_t>(SEASONAL_OUTLIER_FRACTION * numberValues)};
 
-    if (numberOutliers > 1.0) {
+    if (numberOutliers > 0) {
 
-        TMinAccumulator outliers{static_cast<std::size_t>(2.0 * numberOutliers)};
+        TMinAccumulator outliers{2 * numberOutliers};
         TMeanAccumulator meanDifference;
         core_t::TTime time{startTime};
         for (std::size_t i = 0; i < values.size(); ++i, time += dt) {
@@ -1877,18 +1877,26 @@ void CTimeSeriesDecompositionDetail::CComponents::reweightOutliers(
         }
         outliers.sort();
         TMeanAccumulator meanDifferenceOfOutliers;
-        for (std::size_t i = 0; i < static_cast<std::size_t>(numberOutliers); ++i) {
+        for (std::size_t i = 0; 4 * i < static_cast<std::size_t>(numberOutliers); ++i) {
             meanDifferenceOfOutliers.add(-outliers[i].first);
         }
         meanDifference -= meanDifferenceOfOutliers;
         for (std::size_t i = 0; i < outliers.count(); ++i) {
-            if (-outliers[i].first > CBasicStatistics::mean(meanDifference)) {
-                CBasicStatistics::count(values[outliers[i].second]) *= CTools::logLinearlyInterpolate(
-                    SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD / 2.0,
-                    SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
-                    1.0, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD / 2
-                    SEASONAL_OUTLIER_WEIGHT, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD
-                    -outliers[i].first / CBasicStatistics::mean(meanDifference));
+            if (-outliers[i].first > 0.5 * SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD *
+                                         CBasicStatistics::mean(meanDifference)) {
+                CBasicStatistics::count(values[outliers[i].second]) *=
+                    CTools::logLinearlyInterpolate(
+                        0.5 * SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
+                        SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
+                        1.0, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD / 2
+                        SEASONAL_OUTLIER_WEIGHT, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD
+                        -outliers[i].first / CBasicStatistics::mean(meanDifference)) *
+                    CTools::logLinearlyInterpolate(
+                        SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
+                        16.0 * SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
+                        1.0, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD
+                        SEASONAL_OUTLIER_WEIGHT, // weight for 16 * SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD
+                        -outliers[i].first / CBasicStatistics::mean(meanDifference));
             }
         }
     }
