@@ -60,11 +60,9 @@ void CResourceMonitor::unRegisterComponent(CMonitoredResource& resource) {
     m_Resources.erase(itr);
     std::size_t total{this->totalMemory()};
     core::CProgramCounters::counter(counter_t::E_TSADMemoryUsage) = total;
-    core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage) = total;
-    std::size_t previousPeak = static_cast<std::size_t>(
-        core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage));
-    core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage) =
-        std::max(previousPeak, total);
+    core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage) = std::max(
+        static_cast<std::size_t>(core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage)),
+        total);
 }
 
 void CResourceMonitor::memoryLimit(std::size_t limitMBs) {
@@ -273,10 +271,9 @@ bool CResourceMonitor::needToSendReport() {
 
 void CResourceMonitor::sendMemoryUsageReport(core_t::TTime bucketStartTime) {
     std::size_t total{this->totalMemory()};
-    std::size_t previousPeak = static_cast<std::size_t>(
-        core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage));
-    core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage) =
-        std::max(previousPeak, total);
+    core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage) = std::max(
+        static_cast<std::size_t>(core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage)),
+        total);
     if (m_MemoryUsageReporter) {
         m_MemoryUsageReporter(this->createMemoryUsageReport(bucketStartTime));
         if (!m_AllocationFailures.empty()) {
