@@ -98,11 +98,16 @@ CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(
     : m_MinimumTimeToDetect{minimumTimeToDetect}, m_MaximumTimeToDetect{maximumTimeToDetect},
       m_MinimumDeltaBicToDetect{minimumDeltaBicToDetect}, m_SampleCount{0},
       m_DecisionFunction{0.0}, m_TrendModel{trendModel->clone()} {
+    this->initChangeModels(residualModel);
+}
+
+void CUnivariateTimeSeriesChangeDetector::initChangeModels(TPriorPtr residualModel) {
+    m_ChangeModels.clear();
     m_ChangeModels.push_back(
-        std::make_unique<CUnivariateNoChangeModel>(trendModel, residualModel));
+        std::make_unique<CUnivariateNoChangeModel>(m_TrendModel, residualModel));
     m_ChangeModels.push_back(
         std::make_unique<CUnivariateLevelShiftModel>(m_TrendModel, residualModel));
-    if (trendModel->seasonalComponents().size() > 0) {
+    if (m_TrendModel->seasonalComponents().size() > 0) {
         m_ChangeModels.push_back(std::make_unique<CUnivariateTimeShiftModel>(
             m_TrendModel, residualModel, -core::constants::HOUR));
         m_ChangeModels.push_back(std::make_unique<CUnivariateTimeShiftModel>(
@@ -146,10 +151,13 @@ bool CUnivariateTimeSeriesChangeDetector::acceptRestoreTraverser(
         RESTORE_SETUP_TEARDOWN(MAX_TIME_TAG, core_t::TTime time,
                                core::CStringUtils::stringToType(traverser.value(), time),
                                m_TimeRange.add(time))
-        RESTORE(TREND_MODEL_TAG, traverser.traverseSubLevel(std::bind<bool>(
-                                     CTimeSeriesDecompositionStateSerialiser(),
-                                     std::cref(params.s_DecompositionParams),
-                                     std::ref(m_TrendModel), std::placeholders::_1)))
+        RESTORE_SETUP_TEARDOWN(TREND_MODEL_TAG, /**/,
+                               traverser.traverseSubLevel(std::bind<bool>(
+                                   CTimeSeriesDecompositionStateSerialiser(),
+                                   std::cref(params.s_DecompositionParams),
+                                   std::ref(m_TrendModel), std::placeholders::_1)),
+                               this->initChangeModels((*model)->residualModelPtr());
+                               model = m_ChangeModels.begin())
         RESTORE_SETUP_TEARDOWN(
             CHANGE_MODEL_TAG, TChangeModelPtr restoredModel{(*model)->clone(m_TrendModel)},
             traverser.traverseSubLevel(std::bind(
