@@ -79,6 +79,7 @@
 === Bug Fixes
 
 * Correct inference model definition for MSLE regression models. (See {ml-pull}1375[#1375].)
+* Fix restoration of change detectors after seasonality change. (See {ml-pull}1391[#1391].)
 
 == {es} version 7.8.1
 
