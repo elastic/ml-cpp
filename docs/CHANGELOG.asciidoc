@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 6.8.12
+
+=== Bug Fixes
+
+* Fix restoration of change detectors after seasonality change. (See {ml-pull}1391[#1391].)
+
 == {es} version 6.8.11
 
 === Bug Fixes
