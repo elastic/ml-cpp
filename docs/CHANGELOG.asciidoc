@@ -65,16 +65,7 @@
 
 === Bug Fixes
 
-* Correct inference model definition for MSLE regression models. (See {ml-pull}1375[#1375].)
 * Fix restoration of change detectors after seasonality change. (See {ml-pull}1391[#1391].)
-
-== {es} version 7.8.1
-
-=== Bug Fixes
-
-== {es} version 7.8.2
-
-* Fix cause of SIGSEGV of classification and regression. (See {ml-pull}1379[#1379].)
 
 == {es} version 7.8.1
 
@@ -82,6 +73,8 @@
 
 * Better interrupt handling during named pipe connection. (See {ml-pull}1311[#1311].)
 * Trap potential cause of SIGFPE. (See {ml-pull}1351[#1351], issue: {ml-issue}1348[#1348].)
+* Correct inference model definition for MSLE regression models. (See {ml-pull}1375[#1375].)
+* Fix cause of SIGSEGV of classification and regression. (See {ml-pull}1379[#1379].)
 
 == {es} version 7.8.0
 
