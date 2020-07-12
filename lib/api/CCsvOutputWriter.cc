@@ -62,10 +62,10 @@ bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extr
     m_FieldNames = fieldNames;
 
     // Only add extra field names if they're not already present
-    for (TStrVecCItr iter = extraFieldNames.begin(); iter != extraFieldNames.end(); ++iter) {
-        if (std::find(m_FieldNames.begin(), m_FieldNames.end(), *iter) ==
+    for (const auto& extraFieldName : extraFieldNames) {
+        if (std::find(m_FieldNames.begin(), m_FieldNames.end(), extraFieldName) ==
             m_FieldNames.end()) {
-            m_FieldNames.push_back(*iter);
+            m_FieldNames.push_back(extraFieldName);
         }
     }
 
@@ -84,7 +84,7 @@ bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extr
     // name as we go (assuming the hash function is the same for our empty
     // overrides map as it is for the ones provided by callers)
     m_Hashes.reserve(m_FieldNames.size());
-    TStrVecCItr iter = m_FieldNames.begin();
+    auto iter = m_FieldNames.begin();
     this->appendField(*iter);
     m_Hashes.push_back(EMPTY_FIELD_OVERRIDES.hash_function()(*iter));
 
@@ -98,8 +98,7 @@ bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extr
 
     // Messages are output in arrears - this is not ideal - TODO
     if (m_OutputMessages) {
-        for (TStrStrPrSetCItr msgIter = m_Messages.begin();
-             msgIter != m_Messages.end(); ++msgIter) {
+        for (auto msgIter = m_Messages.begin(); msgIter != m_Messages.end(); ++msgIter) {
             m_StrmOut << msgIter->first << '=' << msgIter->second << RECORD_END;
             LOG_DEBUG(<< "Forwarded " << msgIter->first << '=' << msgIter->second);
         }
@@ -132,9 +131,9 @@ bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
     using TStrEqualTo = std::equal_to<std::string>;
     TStrEqualTo pred;
 
-    TStrVecCItr fieldNameIter = m_FieldNames.begin();
-    TPreComputedHashVecCItr preComputedHashIter = m_Hashes.begin();
-    TStrStrUMapCItr fieldValueIter =
+    auto fieldNameIter = m_FieldNames.begin();
+    auto preComputedHashIter = m_Hashes.begin();
+    auto fieldValueIter =
         overrideDataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);
     if (fieldValueIter == overrideDataRowFields.end()) {
         fieldValueIter = dataRowFields.find(*fieldNameIter, *preComputedHashIter, pred);

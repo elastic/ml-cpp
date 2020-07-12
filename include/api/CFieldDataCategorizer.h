@@ -42,7 +42,6 @@ class CLimits;
 }
 namespace api {
 class CFieldConfig;
-class COutputHandler;
 class CPersistenceManager;
 
 //! \brief
@@ -107,7 +106,7 @@ public:
                           model::CLimits& limits,
                           const std::string& timeFieldName,
                           const std::string& timeFieldFormat,
-                          COutputHandler& outputHandler,
+                          CDataProcessor* chainedProcessor,
                           core::CJsonOutputStreamWrapper& outputStream,
                           CPersistenceManager* persistenceManager,
                           bool stopCategorizationOnWarnStatus);
@@ -116,6 +115,11 @@ public:
 
     CGlobalCategoryId computeAndUpdateCategory(const TStrStrUMap& dataRowFields,
                                                const TOptionalTime& time);
+
+    //! The class that calls handleRecord() may call this method before
+    //! supplying any data to inform this class of any fields in the data row
+    //! that may be modified before chaining.  No-op by default.
+    void registerMutableField(const std::string& fieldName, std::string& fieldValue) override;
 
     //! Receive a single record to be categorized, and output that record
     //! with its ML category field added
@@ -206,17 +210,12 @@ private:
     //! Configurable limits
     model::CLimits& m_Limits;
 
-    //! Object to which the processed input is passed
-    COutputHandler& m_OutputHandler;
+    //! Another processor to which the input is passed on.
+    //! May be NULL if there is no further processing required.
+    CDataProcessor* m_ChainedProcessor = nullptr;
 
     //! Stream used by the output writer
     core::CJsonOutputStreamWrapper& m_OutputStream;
-
-    //! Cache extra field names to be added
-    TStrVec m_ExtraFieldNames;
-
-    //! Should we write the field names before the next output?
-    bool m_WriteFieldNames = true;
 
     //! Should we stop categorizing when a model library categorizer's
     //! categorization status is "warn"?
@@ -228,12 +227,10 @@ private:
     //! Keep count of how many records we've handled
     std::uint64_t m_NumRecordsHandled = 0;
 
-    //! Map holding fields to add/change in the output compared to the input
-    TStrStrUMap m_Overrides;
-
-    //! References to specific entries in the overrides map to save
-    //! repeatedly searching for them
-    std::string& m_OutputFieldCategory;
+    //! Pointer to the mutable entry in the data row fields map that
+    //! needs to be updated with the computed global category ID before
+    //! chaining to the next processor.
+    std::string* m_OutputFieldCategory = nullptr;
 
     //! Map of categorizer by partition field value.  If per-partition
     //! categorization is disabled this map will have one entry, keyed on
