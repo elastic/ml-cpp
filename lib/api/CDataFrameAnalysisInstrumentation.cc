@@ -191,7 +191,8 @@ void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentatio
             instrumentation.flush();
             HANDLE_FATAL(<< "Input error: required memory "
                          << bytesToString(instrumentation.memory()) << " exceeds the memory limit "
-                         << bytesToString(instrumentation.m_MemoryLimit) << ". Please increase the limit to at least "
+                         << bytesToString(instrumentation.m_MemoryLimit)
+                         << ". Please force-stop the analysis job, increase the limit to at least "
                          << bytesToString(memoryReestimateBytes) << " and restart.");
         }
 
