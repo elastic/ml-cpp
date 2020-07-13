@@ -192,8 +192,8 @@ void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentatio
             instrumentation.flush();
             HANDLE_FATAL(<< "Input error: required memory " << bytesToString(memory)
                          << " exceeds the memory limit " << bytesToString(memoryLimit)
-                         << ". Please increase the limit to at least "
-                         << bytesToString(memoryReestimateBytes) << " and restart.");
+                         << ". Please force-stop the analysis job, increase the limit to at least "
+                         << bytesToString(memoryReestimateBytes) << " and restart.")
         }
 
         wait = std::min(2 * wait, 1024);
