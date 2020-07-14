@@ -33,6 +33,7 @@
 === Bug Fixes
 
 * Fix restoration of change detectors after seasonality change. (See {ml-pull}1391[#1391].)
+* Fix potential SIGSEGV when forecasting. (See {ml-pull}1402[#1402], issue: {ml-issue}1401[#1401].)
 
 == {es} version 7.8.1
 
