@@ -407,7 +407,9 @@ std::size_t CTokenListCategory::maxMatchingStringLen() const {
     // if no cap is applied.
     std::size_t extendedLength{std::min(
         (m_MaxStringLen * 11) / 10,
-        m_BaseRawStringLen * std::max(m_CommonUniqueTokenIds.size() / 2, std::size_t{2}))};
+        static_cast<std::size_t>(
+            static_cast<double>(m_BaseRawStringLen) *
+            std::max(static_cast<double>(m_CommonUniqueTokenIds.size()) / 1.5, 2.0)))};
     return std::max(m_MaxStringLen, extendedLength);
 }
 
