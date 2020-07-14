@@ -443,9 +443,8 @@ std::size_t CTokenListCategory::missingCommonTokenWeight(const TSizeSizeMap& uni
 }
 
 bool CTokenListCategory::matchesSearchForCategory(const CTokenListCategory& other) const {
-    return this->matchesSearchForCategory(
-        other.m_BaseWeight, other.maxMatchingStringLen(),
-        other.commonUniqueTokenIds(), other.baseTokenIds());
+    return this->matchesSearchForCategory(other.m_BaseWeight, other.m_MaxStringLen,
+                                          other.m_CommonUniqueTokenIds, other.m_BaseTokenIds);
 }
 
 bool CTokenListCategory::containsCommonInOrderTokensInOrder(const TSizeSizePrVec& tokenIds) const {
