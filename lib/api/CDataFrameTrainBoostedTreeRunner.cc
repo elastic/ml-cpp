@@ -63,6 +63,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(TRAINING_PERCENT_FIELD_NAME,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(FEATURE_PROCESSORS,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -101,6 +103,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double softTreeDepthLimit{parameters[SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
     double softTreeDepthTolerance{parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
     double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
+    m_CustomProcessors = parameters[FEATURE_PROCESSORS].objectArray(std::vector<rapidjson::Value>{});
     if (alpha != -1.0 && alpha < 0.0) {
         HANDLE_FATAL(<< "Input error: '" << ALPHA << "' should be non-negative.")
     }
@@ -363,6 +366,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::IS_TRAINING_FIELD_NAME{"is_t
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME{"feature_name"};
 const std::string CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME{"importance"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME{"feature_importance"};
+const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS{"feature_processors"};
 // clang-format on
 }
 }

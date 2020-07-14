@@ -339,6 +339,11 @@ private:
     std::string m_Field;
 };
 
+class API_EXPORT CCustomEncoding : public CSerializableToJsonStream {
+public:
+    ~CCustomEncoding() override = default;
+};
+
 //! \brief Mapping from categorical columns to numerical values related to categorical value distribution.
 class API_EXPORT CFrequencyEncoding final : public CEncoding {
 public:
@@ -441,11 +446,24 @@ private:
     TStringDoubleUMap m_TargetMap;
 };
 
+class API_EXPORT COpaqueEncoding final : public CCustomEncoding {
+public:
+    ~COpaqueEncoding() override = default;
+    COpaqueEncoding(const rapidjson::Value& object);
+
+    void addToJsonStream(TGenericLineWriter& writer) const override;
+
+private:
+    rapidjson::Value m_Object;
+};
+
 //! \brief Technical details required for model evaluation.
 class API_EXPORT CInferenceModelDefinition : public CSerializableToJsonStream {
 public:
     using TApiEncodingUPtr = std::unique_ptr<api::CEncoding>;
     using TApiEncodingUPtrVec = std::vector<TApiEncodingUPtr>;
+    using TApiCustomEncodingUPtr = std::unique_ptr<api::CCustomEncoding>;
+    using TApiCustomEncodingUPtrVec = std::vector<TApiCustomEncodingUPtr>;
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
     using TSizeStringUMap = std::unordered_map<std::size_t, std::string>;
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
@@ -471,6 +489,8 @@ public:
 public:
     TApiEncodingUPtrVec& preprocessors();
     const TApiEncodingUPtrVec& preprocessors() const { return m_Preprocessors; }
+    TApiCustomEncodingUPtrVec& customPreprocessors();
+    const TApiCustomEncodingUPtrVec& customPreprocessors() const { return m_CustomPreprocessors; }
     void trainedModel(TTrainedModelUPtr&& trainedModel);
     TTrainedModelUPtr& trainedModel();
     const TTrainedModelUPtr& trainedModel() const;
@@ -490,6 +510,8 @@ public:
 private:
     //! Optional step for pre-processing data, e.g. vector embedding, one-hot-encoding, etc.
     TApiEncodingUPtrVec m_Preprocessors;
+    //! Optional step for custom pre-processing data, supplied from analytics config
+    TApiCustomEncodingUPtrVec m_CustomPreprocessors;
     //! Details of the model evaluation step with a trained_model.
     TTrainedModelUPtr m_TrainedModel;
     TStringVec m_FieldNames;

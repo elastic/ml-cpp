@@ -28,6 +28,8 @@ public:
     using TSizeStringUMap = std::unordered_map<std::size_t, std::string>;
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
     using TVector = maths::CBoostedTreeNode::TVector;
+    using TApiCustomEncodingUPtr = std::unique_ptr<api::CCustomEncoding>;
+    using TApiCustomEncodingUPtrVec = std::vector<TApiCustomEncodingUPtr>;
 
 public:
     CBoostedTreeInferenceModelBuilder(TStrVec fieldNames,
@@ -49,6 +51,7 @@ public:
                                const TDoubleVec& map,
                                double fallback) override;
     void addFrequencyEncoding(std::size_t inputColumnIndex, const TDoubleVec& map) override;
+    void addCustomProcessor(const rapidjson::Value& value);
     virtual CInferenceModelDefinition&& build();
 
 protected:
@@ -70,6 +73,7 @@ private:
     TOneHotEncodingUMap m_OneHotEncodingMaps;
     TStrVec m_FieldNames;
     TStrVec m_FeatureNames;
+    TApiCustomEncodingUPtrVec m_CustomProcessors;
 };
 
 class API_EXPORT CRegressionInferenceModelBuilder final : public CBoostedTreeInferenceModelBuilder {

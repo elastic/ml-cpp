@@ -126,6 +126,23 @@ public:
             return result;
         }
 
+        const std::vector<rapidjson::Value>& objectArray(const std::vector<rapidjson::Value>& fallback) const {
+            if (m_Value == nullptr) {
+                return fallback;
+            }
+            if (m_Value->IsArray() == false) {
+                this->handleFatal();
+                return fallback;
+            }
+            std::vector<rapidjson::Value> result;
+            result.reserve(m_Value->Size());
+            CParameter element{m_Name, SArrayElementTag{}};
+            for (std::size_t i = 0; i < m_Value->Size(); ++i) {
+                result.push_back(((*m_Value)[static_cast<int>(i)]));
+            }
+            return std::move(result);
+        }
+
     private:
         struct SArrayElementTag {};
 

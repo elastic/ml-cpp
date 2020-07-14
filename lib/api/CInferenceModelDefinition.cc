@@ -460,6 +460,9 @@ void CInferenceModelDefinition::addToJsonStream(TGenericLineWriter& writer) cons
     // preprocessors
     writer.Key(JSON_PREPROCESSORS_TAG);
     writer.StartArray();
+    for (const auto& customEncoding : m_CustomPreprocessors) {
+        customEncoding->addToJsonStream(writer);
+    }
     for (const auto& encoding : m_Preprocessors) {
         writer.StartObject();
         writer.Key(encoding->typeString());
@@ -582,6 +585,10 @@ CInferenceModelDefinition::trainedModel() const {
 
 CInferenceModelDefinition::TApiEncodingUPtrVec& CInferenceModelDefinition::preprocessors() {
     return m_Preprocessors;
+}
+
+CInferenceModelDefinition::TApiCustomEncodingUPtrVec& CInferenceModelDefinition::customPreprocessors() {
+    return m_CustomPreprocessors;
 }
 
 const std::string& CInferenceModelDefinition::typeString() const {
@@ -869,6 +876,13 @@ const std::string& COneHotEncoding::CSizeInfo::typeString() const {
 
 CEncoding::TSizeInfoUPtr COneHotEncoding::sizeInfo() const {
     return std::make_unique<COneHotEncoding::CSizeInfo>(*this);
+}
+
+COpaqueEncoding::COpaqueEncoding(const rapidjson::Value& object) : m_Object{std::move(object)} {
+}
+
+void COpaqueEncoding::addToJsonStream(TGenericLineWriter& writer) const {
+    writer.write(m_Object);
 }
 
 CWeightedSum::CWeightedSum(TDoubleVec&& weights)

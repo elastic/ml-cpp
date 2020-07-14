@@ -51,6 +51,7 @@ public:
     static const std::string BAYESIAN_OPTIMISATION_RESTARTS;
     static const std::string NUM_TOP_FEATURE_IMPORTANCE_VALUES;
     static const std::string TRAINING_PERCENT_FIELD_NAME;
+    static const std::string FEATURE_PROCESSORS;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;
@@ -100,6 +101,8 @@ protected:
     //! The boosted tree factory.
     maths::CBoostedTreeFactory& boostedTreeFactory();
 
+    std::vector<rapidjson::Value> customProcessors() const { return m_CustomProcessors; }
+
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
     using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
@@ -126,6 +129,7 @@ private:
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     CDataFrameTrainBoostedTreeInstrumentation m_Instrumentation;
+    std::vector<rapidjson::Value> m_CustomProcessors;
 };
 }
 }
