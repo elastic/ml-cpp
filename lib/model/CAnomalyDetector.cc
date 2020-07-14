@@ -511,14 +511,14 @@ CAnomalyDetector::getForecastModels(bool persistOnDisk,
         return series;
     }
 
-    TModelDetailsViewUPtr view = m_Model.get()->details();
+    TModelDetailsViewUPtr view{m_Model.get()->details()};
 
     // The view can be empty, e.g. for the counting model.
     if (view.get() == nullptr) {
         return series;
     }
 
-    const CSearchKey& key = m_DataGatherer->searchKey();
+    const CSearchKey& key{m_DataGatherer->searchKey()};
     series.s_ByFieldName = key.byFieldName();
     series.s_DetectorIndex = key.detectorIndex();
     series.s_PartitionFieldName = key.partitionFieldName();
@@ -528,16 +528,15 @@ CAnomalyDetector::getForecastModels(bool persistOnDisk,
     if (persistOnDisk) {
         CForecastModelPersist::CPersist persister(persistenceFolder);
 
-        for (std::size_t pid = 0u, maxPid = m_DataGatherer->numberPeople();
-             pid < maxPid; ++pid) {
+        for (std::size_t pid = 0; pid < m_DataGatherer->numberPeople(); ++pid) {
             // todo: Add terms filtering here
             if (m_DataGatherer->isPersonActive(pid)) {
                 for (auto feature : view->features()) {
-                    const maths::CModel* model = view->model(feature, pid);
-                    core_t::TTime firstDataTime;
-                    core_t::TTime lastDataTime;
-                    std::tie(firstDataTime, lastDataTime) = view->dataTimeInterval(pid);
+                    const maths::CModel* model{view->model(feature, pid)};
                     if (model != nullptr && model->isForecastPossible()) {
+                        core_t::TTime firstDataTime;
+                        core_t::TTime lastDataTime;
+                        std::tie(firstDataTime, lastDataTime) = view->dataTimeInterval(pid);
                         persister.addModel(model, firstDataTime, lastDataTime, feature,
                                            m_DataGatherer->personName(pid));
                     }
@@ -547,16 +546,16 @@ CAnomalyDetector::getForecastModels(bool persistOnDisk,
 
         series.s_ToForecastPersisted = persister.finalizePersistAndGetFile();
     } else {
-        for (std::size_t pid = 0u, maxPid = m_DataGatherer->numberPeople();
-             pid < maxPid; ++pid) {
+
+        for (std::size_t pid = 0; pid < m_DataGatherer->numberPeople(); ++pid) {
             // todo: Add terms filtering here
             if (m_DataGatherer->isPersonActive(pid)) {
                 for (auto feature : view->features()) {
-                    const maths::CModel* model = view->model(feature, pid);
-                    core_t::TTime firstDataTime;
-                    core_t::TTime lastDataTime;
-                    std::tie(firstDataTime, lastDataTime) = view->dataTimeInterval(pid);
+                    const maths::CModel* model{view->model(feature, pid)};
                     if (model != nullptr && model->isForecastPossible()) {
+                        core_t::TTime firstDataTime;
+                        core_t::TTime lastDataTime;
+                        std::tie(firstDataTime, lastDataTime) = view->dataTimeInterval(pid);
                         series.s_ToForecast.emplace_back(
                             feature, m_DataGatherer->personName(pid),
                             CForecastDataSink::TMathsModelPtr(model->cloneForForecast()),
