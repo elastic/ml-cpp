@@ -67,6 +67,7 @@
 * Improve runtime and memory usage training deep trees for classification and
   regression. (See {ml-pull}1340[#1340].)
 * Improvement in handling large inference model definitions. (See {ml-pull}1349[#1349].)
+* Add a peak_model_bytes field to model_size_stats. (See {ml-pull}1389[#1389].)
 
 === Bug Fixes
 
