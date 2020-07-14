@@ -500,6 +500,7 @@ void CTokenListCategory::acceptPersistInserter(core::CStatePersistInserter& inse
 
     inserter.insertValue(ORIG_UNIQUE_TOKEN_WEIGHT, m_OrigUniqueTokenWeight);
     inserter.insertValue(NUM_MATCHES, m_NumMatches);
+    inserter.insertValue(BASE_RAW_STRING_LENGTH, m_BaseRawStringLen);
 }
 
 void CTokenListCategory::cacheReverseSearch(std::string part1, std::string part2) {
