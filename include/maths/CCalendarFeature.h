@@ -15,6 +15,7 @@
 
 #include <array>
 #include <iosfwd>
+#include <string>
 
 #include <stdint.h>
 

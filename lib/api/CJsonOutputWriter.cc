@@ -7,7 +7,6 @@
 #include <api/CJsonOutputWriter.h>
 
 #include <core/CScopedRapidJsonPoolAllocator.h>
-#include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
 
 #include <model/CHierarchicalResultsNormalizer.h>
@@ -18,7 +17,7 @@
 #include <api/CModelSnapshotJsonWriter.h>
 
 #include <algorithm>
-#include <ostream>
+#include <sstream>
 
 namespace ml {
 namespace api {
@@ -335,7 +334,7 @@ void CJsonOutputWriter::acceptBucketTimeInfluencer(core_t::TTime time,
     bucketData.s_BucketInfluencerDocuments.push_back(doc);
 }
 
-bool CJsonOutputWriter::endOutputBatch(bool isInterim, uint64_t bucketProcessingTime) {
+bool CJsonOutputWriter::endOutputBatch(bool isInterim, std::uint64_t bucketProcessingTime) {
     for (TTimeBucketDataMapItr iter = m_BucketDataByTime.begin();
          iter != m_BucketDataByTime.end(); ++iter) {
         this->writeBucket(isInterim, iter->first, iter->second, bucketProcessingTime);
@@ -352,51 +351,10 @@ bool CJsonOutputWriter::endOutputBatch(bool isInterim, uint64_t bucketProcessing
     return true;
 }
 
-bool CJsonOutputWriter::fieldNames(const TStrVec& /*fieldNames*/,
-                                   const TStrVec& /*extraFieldNames*/) {
-    return true;
-}
-
-bool CJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
-                                 const TStrStrUMap& overrideDataRowFields,
-                                 TOptionalTime /*time*/) {
-    using TScopedAllocator =
-        core::CScopedRapidJsonPoolAllocator<core::CRapidJsonConcurrentLineWriter>;
-
-    TScopedAllocator scopedAllocator("CJsonOutputWriter::writeRow", m_Writer);
-
-    rapidjson::Document doc = m_Writer.makeDoc();
-
-    // Write all the fields to the document as strings
-    // No need to copy the strings as the doc is written straight away
-    for (TStrStrUMapCItr fieldValueIter = dataRowFields.begin();
-         fieldValueIter != dataRowFields.end(); ++fieldValueIter) {
-        const std::string& name = fieldValueIter->first;
-        const std::string& value = fieldValueIter->second;
-
-        // Only output fields that aren't overridden
-        if (overrideDataRowFields.find(name) == overrideDataRowFields.end()) {
-            m_Writer.addMemberRef(name, value, doc);
-        }
-    }
-
-    for (TStrStrUMapCItr fieldValueIter = overrideDataRowFields.begin();
-         fieldValueIter != overrideDataRowFields.end(); ++fieldValueIter) {
-        const std::string& name = fieldValueIter->first;
-        const std::string& value = fieldValueIter->second;
-
-        m_Writer.addMemberRef(name, value, doc);
-    }
-
-    m_Writer.write(doc);
-
-    return true;
-}
-
 void CJsonOutputWriter::writeBucket(bool isInterim,
                                     core_t::TTime bucketTime,
                                     SBucketData& bucketData,
-                                    uint64_t bucketProcessingTime) {
+                                    std::uint64_t bucketProcessingTime) {
     // Write records
     if (!bucketData.s_DocumentsToWrite.empty()) {
         // Sort the results so they are grouped by detector and
@@ -623,7 +581,7 @@ void CJsonOutputWriter::addPopulationFields(const CHierarchicalResultsWriter::TR
     // Add nested causes
     if (m_NestedDocs.size() > 0) {
         rapidjson::Value causeArray = m_Writer.makeArray(m_NestedDocs.size());
-        for (size_t index = 0; index < m_NestedDocs.size(); ++index) {
+        for (std::size_t index = 0; index < m_NestedDocs.size(); ++index) {
             TDocumentWeakPtr nwDocPtr = m_NestedDocs[index];
             TDocumentPtr nDocPtr = nwDocPtr.lock();
             if (!nDocPtr) {
@@ -832,11 +790,11 @@ void CJsonOutputWriter::addInfluencerFields(bool isBucketInfluencer,
     }
 }
 
-void CJsonOutputWriter::limitNumberRecords(size_t count) {
+void CJsonOutputWriter::limitNumberRecords(std::size_t count) {
     m_RecordOutputLimit = count;
 }
 
-size_t CJsonOutputWriter::limitNumberRecords() const {
+std::size_t CJsonOutputWriter::limitNumberRecords() const {
     return m_RecordOutputLimit;
 }
 

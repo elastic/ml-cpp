@@ -61,9 +61,6 @@ public:
     CDataProcessor(const CDataProcessor&) = delete;
     CDataProcessor& operator=(const CDataProcessor&) = delete;
 
-    //! We're going to be writing to a new output stream
-    virtual void newOutputStream() = 0;
-
     //! Receive a single record to be processed, and produce output
     //! with any required modifications
     virtual bool handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) = 0;
@@ -87,9 +84,6 @@ public:
 
     //! How many records did we handle?
     virtual std::uint64_t numRecordsHandled() const = 0;
-
-    //! Access the output handler
-    virtual COutputHandler& outputHandler() = 0;
 
     //! Is persistence needed?
     virtual bool isPersistenceNeeded(const std::string& description) const = 0;

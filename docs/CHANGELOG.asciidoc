@@ -32,6 +32,8 @@
 
 === Enhancements
 
+* The Windows build platform for the {ml} C++ code now uses Visual Studio 2019. (See
+  {ml-pull}1352[#1352].)
 * The macOS build platform for the {ml} C++ code is now High Sierra running Xcode 10.1,
   or Ubuntu 18.04 running clang 6.0 for cross compilation. (See {ml-pull}867[#867].)
 * The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 9.3. (See
@@ -66,10 +68,17 @@
   regression. (See {ml-pull}1340[#1340].)
 * Improvement in handling large inference model definitions. (See {ml-pull}1349[#1349].)
 
-
 === Bug Fixes
 
 * Fix numerical issues leading to blow up of the model plot bounds. (See {ml-pull}1268[#1268].)
+* Fix causes for inverted forecast confidence interval bounds. (See {ml-pull}1369[#1369],
+  issue: {ml-issue}1357[#1357].)
+
+== {es} version 7.8.2
+
+=== Bug Fixes
+
+* Fix restoration of change detectors after seasonality change. (See {ml-pull}1391[#1391].)
 
 == {es} version 7.8.1
 
@@ -77,6 +86,8 @@
 
 * Better interrupt handling during named pipe connection. (See {ml-pull}1311[#1311].)
 * Trap potential cause of SIGFPE. (See {ml-pull}1351[#1351], issue: {ml-issue}1348[#1348].)
+* Correct inference model definition for MSLE regression models. (See {ml-pull}1375[#1375].)
+* Fix cause of SIGSEGV of classification and regression. (See {ml-pull}1379[#1379].)
 
 == {es} version 7.8.0
 

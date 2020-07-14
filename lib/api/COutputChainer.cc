@@ -18,10 +18,6 @@ COutputChainer::COutputChainer(CDataProcessor& dataProcessor)
     : m_DataProcessor(dataProcessor) {
 }
 
-void COutputChainer::newOutputStream() {
-    m_DataProcessor.newOutputStream();
-}
-
 bool COutputChainer::fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) {
     m_FieldNames = fieldNames;
 

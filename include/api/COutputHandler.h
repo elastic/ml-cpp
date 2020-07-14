@@ -59,9 +59,6 @@ public:
     //! Virtual destructor for abstract base class
     virtual ~COutputHandler() = default;
 
-    //! We're going to be writing to a new output stream
-    virtual void newOutputStream();
-
     //! Set field names - this must only be called once per output file
     bool fieldNames(const TStrVec& fieldNames);
 
