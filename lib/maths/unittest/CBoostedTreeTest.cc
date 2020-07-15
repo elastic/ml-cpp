@@ -4,6 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "core/CContainerPrinter.h"
+#include "maths/CSpline.h"
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
@@ -17,6 +19,7 @@
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CPRNG.h>
 #include <maths/CSampling.h>
+#include <maths/CSpline.h>
 #include <maths/CTools.h>
 #include <maths/CToolsDetail.h>
 
@@ -58,6 +61,7 @@ using TLossFunctionUPtr = maths::CBoostedTreeFactory::TLossFunctionUPtr;
 namespace {
 
 const double LARGE_POSITIVE_CONSTANT{300.0};
+const int BYTES_IN_MB{1024 * 1024};
 
 class CTestInstrumentation : public maths::CDataFrameTrainBoostedTreeInstrumentationStub {
 public:
@@ -1829,29 +1833,23 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
 }
 
 BOOST_AUTO_TEST_CASE(testWorstCaseMemoryCorrection) {
-    // We compute the correction coefficient as a sigmoid function: ca. 1.0 until
-    // 10mb, ca 16.0 after 1000mb to this end we need to shift and scale using the
-    // magic numbers below.
-    // test for 10mb
-    BOOST_REQUIRE_CLOSE(static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(
-                            10.0 * 1024 * 1024)) /
-                            (1024 * 1024),
-                        10 / 1.07, 2.0);
+    // test for 50mb
+    BOOST_REQUIRE_CLOSE(
+        static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(50.0 * BYTES_IN_MB)) / BYTES_IN_MB,
+        8.75, 1.0);
     // test for 300mb
-    BOOST_REQUIRE_CLOSE(static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(
-                            300.0 * 1024 * 1024)) /
-                            (1024 * 1024),
-                        300.0 / 2.14, 2.0);
+    BOOST_REQUIRE_CLOSE(
+        static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(300.0 * BYTES_IN_MB)) / BYTES_IN_MB,
+        52.5, 1.0);
     // test for 550mb
-    BOOST_REQUIRE_CLOSE(static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(
-                            550.0 * 1024 * 1024)) /
-                            (1024 * 1024),
-                        550.0 / 8.50, 2.0);
+    BOOST_REQUIRE_CLOSE(
+        static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(550.0 * BYTES_IN_MB)) /
+            (BYTES_IN_MB),
+        96.25, 2.0);
     // test for 1000mb
-    BOOST_REQUIRE_CLOSE(static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(
-                            1000.0 * 1024 * 1024)) /
-                            (1024 * 1024),
-                        1000.0 / 15.84, 2.0);
+    BOOST_REQUIRE_CLOSE(
+        static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(1024.0 * BYTES_IN_MB)) / BYTES_IN_MB,
+        179.2, 2.0);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
