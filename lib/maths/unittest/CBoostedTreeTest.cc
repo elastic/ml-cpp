@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "core/CContainerPrinter.h"
-#include "maths/CSpline.h"
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
