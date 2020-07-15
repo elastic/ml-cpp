@@ -132,7 +132,7 @@ private:
     std::size_t m_NumberTopShapValues = 0;
     TPersisterSupplier* m_PersisterSupplier = nullptr;
     TRestoreSearcherSupplier* m_RestoreSearcherSupplier = nullptr;
-    std::vector<rapidjson::Value> m_CustomProcessors;
+    rapidjson::Value m_CustomProcessors;
     // Regression
     TOptionalLossFunctionType m_RegressionLossFunction;
     TOptionalDouble m_RegressionLossFunctionParameter;

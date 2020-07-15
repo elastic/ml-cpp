@@ -449,12 +449,12 @@ private:
 class API_EXPORT COpaqueEncoding final : public CCustomEncoding {
 public:
     ~COpaqueEncoding() override = default;
-    COpaqueEncoding(rapidjson::Value&& object);
+    COpaqueEncoding(const std::string& jsonString);
 
     void addToJsonStream(TGenericLineWriter& writer) const override;
 
 private:
-    rapidjson::Value m_Object;
+    std::unique_ptr<rapidjson::Document> m_Object;
 };
 
 //! \brief Technical details required for model evaluation.

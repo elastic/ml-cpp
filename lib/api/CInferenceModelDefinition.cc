@@ -12,6 +12,7 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 
+#include <rapidjson/prettywriter.h>
 #include <cmath>
 #include <iterator>
 #include <memory>
@@ -879,12 +880,23 @@ CEncoding::TSizeInfoUPtr COneHotEncoding::sizeInfo() const {
     return std::make_unique<COneHotEncoding::CSizeInfo>(*this);
 }
 
-COpaqueEncoding::COpaqueEncoding(rapidjson::Value&& object)
-    : m_Object{std::move(object)} {
+COpaqueEncoding::COpaqueEncoding(const std::string& jsonObject) {
+    m_Object = std::make_unique<rapidjson::Document>();
+    m_Object->Parse(jsonObject);
 }
 
 void COpaqueEncoding::addToJsonStream(TGenericLineWriter& writer) const {
-    writer.write(m_Object);
+
+    if (m_Object->Empty()) {
+        return;
+    }
+    if (m_Object->IsArray()) {
+        for (const auto& val : m_Object->GetArray()) {
+            writer.write(val);
+        }
+    } else {
+        writer.write(*m_Object);
+    }
 }
 
 CWeightedSum::CWeightedSum(TDoubleVec&& weights)

@@ -19,6 +19,7 @@
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ElasticsearchStateIndex.h>
+#include <rapidjson/prettywriter.h>
 
 #include <cmath>
 #include <memory>
@@ -142,14 +143,7 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition(
     CRegressionInferenceModelBuilder builder(
         fieldNames, this->boostedTree().columnHoldingDependentVariable(), categoryNames);
     this->boostedTree().accept(builder);
-    std::vector<rapidjson::Value> customProcessors;
-    customProcessors.reserve(this->m_CustomProcessors.size());
-    for (const auto& value : this->m_CustomProcessors) {
-        rapidjson::Document json;
-        json.CopyFrom(value, json.GetAllocator());
-        builder.addCustomProcessor(std::make_unique<COpaqueEncoding>(json.GetObject()));
-    }
-
+    builder.addCustomProcessor(std::make_unique<COpaqueEncoding>(this->m_CustomProcessors));
     return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
 

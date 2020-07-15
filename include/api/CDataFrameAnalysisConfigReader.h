@@ -12,6 +12,7 @@
 #include <api/ImportExport.h>
 
 #include <rapidjson/document.h>
+#include <rapidjson/prettywriter.h>
 
 #include <map>
 #include <string>
@@ -126,22 +127,15 @@ public:
             return result;
         }
 
-        std::vector<rapidjson::Value> objectArray(std::vector<rapidjson::Value> fallback) const {
+        std::string rawObject() const {
             if (m_Value == nullptr) {
-                return fallback;
+                return "[]";
             }
-            if (m_Value->IsArray() == false) {
-                this->handleFatal();
-                return fallback;
-            }
-            std::vector<rapidjson::Value> result;
-            result.reserve(m_Value->Size());
-            for (std::size_t i = 0; i < m_Value->Size(); ++i) {
-                rapidjson::Document json;
-                json.CopyFrom((*m_Value)[static_cast<int>(i)], json.GetAllocator());
-                result.emplace_back(json.GetObject());
-            }
-            return result;
+            using namespace rapidjson;
+            StringBuffer buffer;
+            Writer<StringBuffer> localWriter(buffer);
+            m_Value->Accept(localWriter);
+            return buffer.GetString();
         }
 
     private:

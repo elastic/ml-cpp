@@ -112,18 +112,15 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
-    rapidjson::Document customProcessor1;
-    customProcessor1.Parse("{\"special_processor\":{\"foo\": 42}}");
-    rapidjson::Document customProcessor2;
-    customProcessor2.Parse("{\"one_hot\":{\"foo\": \"Column_foo\", \"field\": \"bar\"}}");
+    rapidjson::Document customProcessors;
+    customProcessors.Parse("[{\"special_processor\":{\"foo\": 42}}, {\"another_special_processor\":{\"foo\": \"Column_foo\", \"field\": \"bar\"}}]");
     test::CDataFrameAnalysisSpecificationFactory specFactory;
     api::CDataFrameAnalyzer analyzer{
         specFactory.rows(numberExamples)
             .columns(cols)
             .memoryLimit(30000000)
             .predictionCategoricalFieldNames({"categorical_col"})
-            .predictionCustomProcessor(customProcessor1.GetObject())
-            .predictionCustomProcessor(customProcessor2.GetObject())
+            .predictionCustomProcessor(customProcessors.GetObject())
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target_col"),
         outputWriterFactory};
 
@@ -141,8 +138,12 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
-    LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
-    std::string modelSizeDefinition{definition->sizeInfo()->jsonString()};
+    auto modelSizeDefinition{definition->sizeInfo()->jsonString()};
+    auto definitionJsonString{definition->jsonString()};
+    LOG_DEBUG(<< "Inference model definition: " << definitionJsonString);
+    // verify custom processors are there
+    BOOST_TEST_REQUIRE(definitionJsonString.find("special_processor") != std::string::npos);
+    BOOST_TEST_REQUIRE(definitionJsonString.find("another_special_processor") != std::string::npos);
     LOG_DEBUG(<< "Model size definition: " << modelSizeDefinition);
 
     // verify model definition
@@ -179,8 +180,6 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
         BOOST_TEST_REQUIRE(target);
         BOOST_TEST_REQUIRE(frequency);
 
-        // test custom pre-processors
-        BOOST_REQUIRE_EQUAL(std::size_t(2), definition->customPreprocessors().size());
         // assert trained model
         auto* trainedModel =
             dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
@@ -352,10 +351,8 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     values[1] = generateCategoricalData(rng, numberExamples, {100., 5.0, 5.0}).second;
     values[2] = generateCategoricalData(rng, numberExamples, {5.0, 5.0}).second;
 
-    rapidjson::Document customProcessor1;
-    customProcessor1.Parse("{\"special_processor\":{\"foo\": 42}}");
-    rapidjson::Document customProcessor2;
-    customProcessor2.Parse("{\"one_hot\":{\"foo\": \"Column_foo\", \"field\": \"bar\"}}");
+    rapidjson::Document customProcessors;
+    customProcessors.Parse("[{\"special_processor\":{\"foo\": 43}}, {\"another_special\":{\"foo\": \"Column_foo\", \"field\": \"bar\"}}]");
 
     test::CDataFrameAnalysisSpecificationFactory specFactory;
     api::CDataFrameAnalyzer analyzer{
@@ -363,8 +360,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
             .columns(cols)
             .memoryLimit(30000000)
             .predictionCategoricalFieldNames({"categorical_col", "target_col"})
-            .predictionCustomProcessor(customProcessor1.GetObject())
-            .predictionCustomProcessor(customProcessor2.GetObject())
+            .predictionCustomProcessor(customProcessors.GetObject())
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(), "target_col"),
         outputWriterFactory};
 
@@ -383,8 +379,12 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, expectedClassificationLabels};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
-    LOG_DEBUG(<< "Inference model definition: " << definition->jsonString());
     auto modelSizeDefinition{definition->sizeInfo()->jsonString()};
+    auto definitionJsonString{definition->jsonString()};
+    LOG_DEBUG(<< "Inference model definition: " << definitionJsonString);
+    // verify custom processors are there
+    BOOST_TEST_REQUIRE(definitionJsonString.find("special_processor") != std::string::npos);
+    BOOST_TEST_REQUIRE(definitionJsonString.find("another_special") != std::string::npos);
     LOG_DEBUG(<< "Model size definition: " << modelSizeDefinition);
 
     {
@@ -407,9 +407,6 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
 
         const auto& classificationWeights = trainedModel->classificationWeights();
         BOOST_TEST_REQUIRE(classificationWeights.is_initialized());
-
-        // test custom pre-processors
-        BOOST_REQUIRE_EQUAL(std::size_t(2), definition->customPreprocessors().size());
 
         // Check that predicted score matches the value calculated from the inference
         // classification weights.

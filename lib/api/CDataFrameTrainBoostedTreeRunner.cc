@@ -26,6 +26,7 @@
 #include <api/CBoostedTreeInferenceModelBuilder.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <rapidjson/document.h>
+#include <rapidjson/prettywriter.h>
 
 namespace ml {
 namespace api {
@@ -103,8 +104,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double softTreeDepthLimit{parameters[SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
     double softTreeDepthTolerance{parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
     double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
-    m_CustomProcessors =
-        parameters[FEATURE_PROCESSORS].objectArray(std::vector<rapidjson::Value>{});
+    m_CustomProcessors = parameters[FEATURE_PROCESSORS].rawObject();
     if (alpha != -1.0 && alpha < 0.0) {
         HANDLE_FATAL(<< "Input error: '" << ALPHA << "' should be non-negative.")
     }

@@ -208,7 +208,7 @@ CDataFrameAnalysisSpecificationFactory::regressionLossFunction(TLossFunctionType
 
 CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::predictionCustomProcessor(rapidjson::Value value) {
-    m_CustomProcessors.emplace_back(std::move(value));
+    m_CustomProcessors = std::move(value);
     return *this;
 }
 
@@ -336,13 +336,9 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
         writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES);
         writer.Uint64(m_NumberTopClasses);
     }
-    if (m_CustomProcessors.empty() == false) {
+    if (m_CustomProcessors.Empty() == false) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS);
-        writer.StartArray();
-        for (const auto& value : m_CustomProcessors) {
-            writer.write(value);
-        }
-        writer.EndArray();
+        writer.write(m_CustomProcessors);
     }
 
     if (analysis == regression()) {
@@ -389,7 +385,7 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(const std::string& analys
         m_CategoricalFieldNames, true, CTestTmpDir::tmpDir(), "ml", analysis,
         this->predictionParams(analysis, dependentVariable))};
 
-    LOG_TRACE(<< "spec =\n" << spec);
+    LOG_DEBUG(<< "spec =\n" << spec);
 
     if (m_RestoreSearcherSupplier != nullptr && m_PersisterSupplier != nullptr) {
         return std::make_unique<api::CDataFrameAnalysisSpecification>(
