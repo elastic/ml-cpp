@@ -28,6 +28,7 @@ const std::string COMMON_UNIQUE_TOKEN_WEIGHT{"g"};
 const std::string ORIG_UNIQUE_TOKEN_WEIGHT{"h"};
 const std::string NUM_MATCHES{"i"};
 const std::string ORDERED_COMMON_TOKEN_BEGIN_INDEX{"j"};
+const std::string BASE_RAW_STRING_LENGTH{"k"};
 
 //! Functor for comparing token IDs that works for both simple token IDs and
 //! token ID/weight pairs.
@@ -50,27 +51,25 @@ public:
 }
 
 CTokenListCategory::CTokenListCategory(bool isDryRun,
-                                       const std::string& baseString,
+                                       std::string baseString,
                                        std::size_t rawStringLen,
                                        const TSizeSizePrVec& baseTokenIds,
                                        std::size_t baseWeight,
                                        const TSizeSizeMap& uniqueTokenIds)
-    : m_BaseString{baseString}, m_BaseTokenIds{baseTokenIds}, m_BaseWeight{baseWeight},
-      m_MaxStringLen{rawStringLen}, m_OrderedCommonTokenBeginIndex{0},
-      m_OrderedCommonTokenEndIndex{baseTokenIds.size()},
+    : m_BaseString{std::move(baseString)}, m_BaseTokenIds{baseTokenIds},
+      m_BaseWeight{baseWeight}, m_BaseRawStringLen{rawStringLen},
+      m_MaxStringLen{rawStringLen}, m_OrderedCommonTokenEndIndex{baseTokenIds.size()},
       // Note: m_CommonUniqueTokenIds is required to be in sorted order, and
       // this relies on uniqueTokenIds being in sorted order
-      m_CommonUniqueTokenIds{uniqueTokenIds.begin(), uniqueTokenIds.end()}, m_CommonUniqueTokenWeight{0},
-      m_OrigUniqueTokenWeight{0}, m_NumMatches{isDryRun ? 0u : 1u}, m_Changed{!isDryRun} {
+      m_CommonUniqueTokenIds{uniqueTokenIds.begin(), uniqueTokenIds.end()},
+      m_NumMatches{isDryRun ? 0u : 1u}, m_Changed{!isDryRun} {
     for (auto uniqueTokenId : uniqueTokenIds) {
         m_CommonUniqueTokenWeight += uniqueTokenId.second;
     }
     m_OrigUniqueTokenWeight = m_CommonUniqueTokenWeight;
 }
 
-CTokenListCategory::CTokenListCategory(core::CStateRestoreTraverser& traverser)
-    : m_BaseWeight{0}, m_MaxStringLen{0}, m_OrderedCommonTokenBeginIndex{0}, m_OrderedCommonTokenEndIndex{0},
-      m_CommonUniqueTokenWeight{0}, m_OrigUniqueTokenWeight{0}, m_NumMatches{0} {
+CTokenListCategory::CTokenListCategory(core::CStateRestoreTraverser& traverser) {
     traverser.traverseSubLevel(std::bind(&CTokenListCategory::acceptRestoreTraverser,
                                          this, std::placeholders::_1));
 }
@@ -81,6 +80,10 @@ bool CTokenListCategory::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
     // This won't be present in pre-7.7 state,
     // and for such versions it was always 0
     m_OrderedCommonTokenBeginIndex = 0;
+
+    // This won't be present in pre-7.9 state.
+    // This value means we guess at the end.
+    m_BaseRawStringLen = m_BaseString.max_size();
 
     do {
         const std::string& name{traverser.name()};
@@ -167,14 +170,25 @@ bool CTokenListCategory::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
                 LOG_ERROR(<< "Invalid maximum string length in " << traverser.value());
                 return false;
             }
+        } else if (name == BASE_RAW_STRING_LENGTH) {
+            if (core::CStringUtils::stringToType(traverser.value(), m_BaseRawStringLen) == false) {
+                LOG_ERROR(<< "Invalid base raw string length in " << traverser.value());
+                return false;
+            }
         }
     } while (traverser.next());
+
+    // m_BaseRawStringLen will only have been persisted by 7.9 and above.
+    // In this case the absolute maximum set at the beginning of the method
+    // will still be set.  A reasonable compromise that will result in
+    // behaviour no worse than 7.8 is to set it to m_MaxStringLen.
+    m_BaseRawStringLen = std::min(m_BaseRawStringLen, m_MaxStringLen);
 
     return true;
 }
 
 bool CTokenListCategory::addString(bool isDryRun,
-                                   const std::string& /* str */,
+                                   const std::string& str,
                                    std::size_t rawStringLen,
                                    const TSizeSizePrVec& tokenIds,
                                    const TSizeSizeMap& uniqueTokenIds) {
@@ -191,6 +205,8 @@ bool CTokenListCategory::addString(bool isDryRun,
 
     // Adjust the maximum observed string length for this category.
     if (rawStringLen > m_MaxStringLen) {
+        LOG_TRACE(<< "Growing max string length from " << m_MaxStringLen
+                  << " to " << rawStringLen << " due to '" << str << '\'');
         m_MaxStringLen = rawStringLen;
         changed = true;
     }
@@ -380,8 +396,21 @@ CTokenListCategory::TSizeSizePr CTokenListCategory::orderedCommonTokenBounds() c
 }
 
 std::size_t CTokenListCategory::maxMatchingStringLen() const {
-    // Add a 10% margin of error
-    return (m_MaxStringLen * 11) / 10;
+    // Add a 10% margin of error if this wouldn't result in a length much
+    // longer than the base string.  The broader the category (i.e. fewer
+    // tokens that must match) the lower the tolerance of length increases.
+    // The risk is that we end up with a category with just one or two tokens
+    // that matches every message.  The max matching length is designed to
+    // prevent categories that just require a few tokens to match from
+    // matching much longer messages, but the 10% growth here can cause
+    // progressively longer messages to be included in the category over time
+    // if no cap is applied.
+    std::size_t extendedLength{std::min(
+        (m_MaxStringLen * 11) / 10,
+        static_cast<std::size_t>(
+            static_cast<double>(m_BaseRawStringLen) *
+            std::max(static_cast<double>(m_CommonUniqueTokenIds.size()) / 1.5, 2.0)))};
+    return std::max(m_MaxStringLen, extendedLength);
 }
 
 std::size_t CTokenListCategory::missingCommonTokenWeight(const TSizeSizeMap& uniqueTokenIds) const {
@@ -414,9 +443,8 @@ std::size_t CTokenListCategory::missingCommonTokenWeight(const TSizeSizeMap& uni
 }
 
 bool CTokenListCategory::matchesSearchForCategory(const CTokenListCategory& other) const {
-    return this->matchesSearchForCategory(
-        other.m_BaseWeight, other.maxMatchingStringLen(),
-        other.commonUniqueTokenIds(), other.baseTokenIds());
+    return this->matchesSearchForCategory(other.m_BaseWeight, other.m_MaxStringLen,
+                                          other.m_CommonUniqueTokenIds, other.m_BaseTokenIds);
 }
 
 bool CTokenListCategory::containsCommonInOrderTokensInOrder(const TSizeSizePrVec& tokenIds) const {
@@ -473,6 +501,7 @@ void CTokenListCategory::acceptPersistInserter(core::CStatePersistInserter& inse
 
     inserter.insertValue(ORIG_UNIQUE_TOKEN_WEIGHT, m_OrigUniqueTokenWeight);
     inserter.insertValue(NUM_MATCHES, m_NumMatches);
+    inserter.insertValue(BASE_RAW_STRING_LENGTH, m_BaseRawStringLen);
 }
 
 void CTokenListCategory::cacheReverseSearch(std::string part1, std::string part2) {
