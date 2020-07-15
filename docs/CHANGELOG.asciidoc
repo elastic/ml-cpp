@@ -63,6 +63,7 @@
 * Fix numerical issues leading to blow up of the model plot bounds. (See {ml-pull}1268[#1268].)
 * Fix causes for inverted forecast confidence interval bounds. (See {ml-pull}1369[#1369],
   issue: {ml-issue}1357[#1357].)
+* Restrict growth of max matching string length for categories. (See {ml-pull}1406[#1406].)
 
 == {es} version 7.8.2
 
