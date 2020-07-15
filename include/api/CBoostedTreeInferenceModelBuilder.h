@@ -51,7 +51,7 @@ public:
                                const TDoubleVec& map,
                                double fallback) override;
     void addFrequencyEncoding(std::size_t inputColumnIndex, const TDoubleVec& map) override;
-    void addCustomProcessor(const rapidjson::Value& value);
+    void addCustomProcessor(TApiCustomEncodingUPtr value);
     virtual CInferenceModelDefinition&& build();
 
 protected:

@@ -126,7 +126,7 @@ public:
             return result;
         }
 
-        const std::vector<rapidjson::Value>& objectArray(const std::vector<rapidjson::Value>& fallback) const {
+        std::vector<rapidjson::Value> objectArray(std::vector<rapidjson::Value> fallback) const {
             if (m_Value == nullptr) {
                 return fallback;
             }
@@ -136,11 +136,12 @@ public:
             }
             std::vector<rapidjson::Value> result;
             result.reserve(m_Value->Size());
-            CParameter element{m_Name, SArrayElementTag{}};
             for (std::size_t i = 0; i < m_Value->Size(); ++i) {
-                result.push_back(((*m_Value)[static_cast<int>(i)]));
+                rapidjson::Document json;
+                json.CopyFrom((*m_Value)[static_cast<int>(i)], json.GetAllocator());
+                result.emplace_back(json.GetObject());
             }
-            return std::move(result);
+            return result;
         }
 
     private:

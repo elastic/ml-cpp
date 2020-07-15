@@ -101,7 +101,7 @@ protected:
     //! The boosted tree factory.
     maths::CBoostedTreeFactory& boostedTreeFactory();
 
-    std::vector<rapidjson::Value> customProcessors() const { return m_CustomProcessors; }
+    std::vector<rapidjson::Value> m_CustomProcessors;
 
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
@@ -129,7 +129,6 @@ private:
     TBoostedTreeFactoryUPtr m_BoostedTreeFactory;
     TBoostedTreeUPtr m_BoostedTree;
     CDataFrameTrainBoostedTreeInstrumentation m_Instrumentation;
-    std::vector<rapidjson::Value> m_CustomProcessors;
 };
 }
 }

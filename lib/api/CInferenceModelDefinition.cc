@@ -587,7 +587,8 @@ CInferenceModelDefinition::TApiEncodingUPtrVec& CInferenceModelDefinition::prepr
     return m_Preprocessors;
 }
 
-CInferenceModelDefinition::TApiCustomEncodingUPtrVec& CInferenceModelDefinition::customPreprocessors() {
+CInferenceModelDefinition::TApiCustomEncodingUPtrVec&
+CInferenceModelDefinition::customPreprocessors() {
     return m_CustomPreprocessors;
 }
 
@@ -878,7 +879,8 @@ CEncoding::TSizeInfoUPtr COneHotEncoding::sizeInfo() const {
     return std::make_unique<COneHotEncoding::CSizeInfo>(*this);
 }
 
-COpaqueEncoding::COpaqueEncoding(const rapidjson::Value& object) : m_Object{std::move(object)} {
+COpaqueEncoding::COpaqueEncoding(rapidjson::Value&& object)
+    : m_Object{std::move(object)} {
 }
 
 void COpaqueEncoding::addToJsonStream(TGenericLineWriter& writer) const {

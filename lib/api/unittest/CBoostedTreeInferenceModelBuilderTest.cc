@@ -112,12 +112,18 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
         values[2].push_back(values[0][i] * weights[0] + values[1][i] * weights[1]);
     }
 
+    rapidjson::Document customProcessor1;
+    customProcessor1.Parse("{\"special_processor\":{\"foo\": 42}}");
+    rapidjson::Document customProcessor2;
+    customProcessor2.Parse("{\"one_hot\":{\"foo\": \"Column_foo\", \"field\": \"bar\"}}");
     test::CDataFrameAnalysisSpecificationFactory specFactory;
     api::CDataFrameAnalyzer analyzer{
         specFactory.rows(numberExamples)
             .columns(cols)
             .memoryLimit(30000000)
             .predictionCategoricalFieldNames({"categorical_col"})
+            .predictionCustomProcessor(customProcessor1.GetObject())
+            .predictionCustomProcessor(customProcessor2.GetObject())
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target_col"),
         outputWriterFactory};
 
@@ -173,6 +179,8 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
         BOOST_TEST_REQUIRE(target);
         BOOST_TEST_REQUIRE(frequency);
 
+        // test custom pre-processors
+        BOOST_REQUIRE_EQUAL(std::size_t(2), definition->customPreprocessors().size());
         // assert trained model
         auto* trainedModel =
             dynamic_cast<api::CEnsemble*>(definition->trainedModel().get());
@@ -344,12 +352,19 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     values[1] = generateCategoricalData(rng, numberExamples, {100., 5.0, 5.0}).second;
     values[2] = generateCategoricalData(rng, numberExamples, {5.0, 5.0}).second;
 
+    rapidjson::Document customProcessor1;
+    customProcessor1.Parse("{\"special_processor\":{\"foo\": 42}}");
+    rapidjson::Document customProcessor2;
+    customProcessor2.Parse("{\"one_hot\":{\"foo\": \"Column_foo\", \"field\": \"bar\"}}");
+
     test::CDataFrameAnalysisSpecificationFactory specFactory;
     api::CDataFrameAnalyzer analyzer{
         specFactory.rows(numberExamples)
             .columns(cols)
             .memoryLimit(30000000)
             .predictionCategoricalFieldNames({"categorical_col", "target_col"})
+            .predictionCustomProcessor(customProcessor1.GetObject())
+            .predictionCustomProcessor(customProcessor2.GetObject())
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(), "target_col"),
         outputWriterFactory};
 
@@ -392,6 +407,9 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
 
         const auto& classificationWeights = trainedModel->classificationWeights();
         BOOST_TEST_REQUIRE(classificationWeights.is_initialized());
+
+        // test custom pre-processors
+        BOOST_REQUIRE_EQUAL(std::size_t(2), definition->customPreprocessors().size());
 
         // Check that predicted score matches the value calculated from the inference
         // classification weights.

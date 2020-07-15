@@ -449,7 +449,7 @@ private:
 class API_EXPORT COpaqueEncoding final : public CCustomEncoding {
 public:
     ~COpaqueEncoding() override = default;
-    COpaqueEncoding(const rapidjson::Value& object);
+    COpaqueEncoding(rapidjson::Value&& object);
 
     void addToJsonStream(TGenericLineWriter& writer) const override;
 
@@ -490,7 +490,9 @@ public:
     TApiEncodingUPtrVec& preprocessors();
     const TApiEncodingUPtrVec& preprocessors() const { return m_Preprocessors; }
     TApiCustomEncodingUPtrVec& customPreprocessors();
-    const TApiCustomEncodingUPtrVec& customPreprocessors() const { return m_CustomPreprocessors; }
+    const TApiCustomEncodingUPtrVec& customPreprocessors() const {
+        return m_CustomPreprocessors;
+    }
     void trainedModel(TTrainedModelUPtr&& trainedModel);
     TTrainedModelUPtr& trainedModel();
     const TTrainedModelUPtr& trainedModel() const;

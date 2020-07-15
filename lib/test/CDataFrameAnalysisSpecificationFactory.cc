@@ -205,6 +205,13 @@ CDataFrameAnalysisSpecificationFactory::regressionLossFunction(TLossFunctionType
     return *this;
 }
 
+
+CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::predictionCustomProcessor(rapidjson::Value value) {
+    m_CustomProcessors.emplace_back(std::move(value));
+    return *this;
+}
+
 CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::regressionLossFunctionParameter(double lossFunctionParameter) {
     m_RegressionLossFunctionParameter = lossFunctionParameter;
@@ -328,6 +335,14 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
         writer.Uint64(m_NumberClasses);
         writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES);
         writer.Uint64(m_NumberTopClasses);
+    }
+    if (m_CustomProcessors.empty() == false) {
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS);
+        writer.StartArray();
+        for (const auto& value : m_CustomProcessors) {
+            writer.write(value);
+        }
+        writer.EndArray();
     }
 
     if (analysis == regression()) {

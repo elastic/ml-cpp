@@ -61,8 +61,8 @@ void CBoostedTreeInferenceModelBuilder::addFrequencyEncoding(std::size_t inputCo
     m_FeatureNames.push_back(featureName);
 }
 
-void CBoostedTreeInferenceModelBuilder::addCustomProcessor(const rapidjson::Value& value) {
-    m_CustomProcessors.push_back(std::make_unique<COpaqueEncoding>(std::move(value)));
+void CBoostedTreeInferenceModelBuilder::addCustomProcessor(TApiCustomEncodingUPtr value) {
+    m_CustomProcessors.emplace_back(std::move(value));
 }
 
 CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
@@ -73,7 +73,7 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
             std::move(oneHotEncodingMapping.second));
     }
 
-    for (auto& customProcessor : m_CustomProcessors) {
+    for (auto&& customProcessor : m_CustomProcessors) {
         m_Definition.customPreprocessors().emplace_back(std::move(customProcessor));
     };
 
