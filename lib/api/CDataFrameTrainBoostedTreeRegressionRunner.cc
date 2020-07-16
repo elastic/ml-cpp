@@ -19,7 +19,6 @@
 #include <api/CDataFrameAnalysisConfigReader.h>
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ElasticsearchStateIndex.h>
-#include <rapidjson/prettywriter.h>
 
 #include <cmath>
 #include <memory>

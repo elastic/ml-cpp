@@ -16,7 +16,6 @@
 #include <iterator>
 #include <memory>
 #include <ostream>
-#include <rapidjson/prettywriter.h>
 #include <unordered_map>
 #include <unordered_set>
 

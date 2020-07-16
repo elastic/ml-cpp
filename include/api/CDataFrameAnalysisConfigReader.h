@@ -12,7 +12,6 @@
 #include <api/ImportExport.h>
 
 #include <rapidjson/document.h>
-#include <rapidjson/prettywriter.h>
 
 #include <map>
 #include <string>

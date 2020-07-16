@@ -7,6 +7,7 @@
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 
 #include <core/CDataFrame.h>
+#include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
 #include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
@@ -24,9 +25,7 @@
 #include <api/ElasticsearchStateIndex.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
-#include <core/CJsonStatePersistInserter.h>
 #include <rapidjson/document.h>
-#include <rapidjson/prettywriter.h>
 
 namespace ml {
 namespace api {

@@ -138,12 +138,13 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, {}};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
-    auto modelSizeDefinition{definition->sizeInfo()->jsonString()};
-    auto definitionJsonString{definition->jsonString()};
+    std::string modelSizeDefinition{definition->sizeInfo()->jsonString()};
+    std::string definitionJsonString{definition->jsonString()};
     LOG_DEBUG(<< "Inference model definition: " << definitionJsonString);
     // verify custom processors are there
     BOOST_TEST_REQUIRE(definitionJsonString.find("special_processor") != std::string::npos);
-    BOOST_TEST_REQUIRE(definitionJsonString.find("another_special_processor") != std::string::npos);
+    BOOST_TEST_REQUIRE(definitionJsonString.find("another_special_processor") !=
+                       std::string::npos);
     LOG_DEBUG(<< "Model size definition: " << modelSizeDefinition);
 
     // verify model definition
@@ -379,8 +380,8 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
     TStrVecVec categoryMappingVector{{}, {"cat1", "cat2", "cat3"}, expectedClassificationLabels};
     auto definition = analysisRunner->inferenceModelDefinition(fieldNames, categoryMappingVector);
 
-    auto modelSizeDefinition{definition->sizeInfo()->jsonString()};
-    auto definitionJsonString{definition->jsonString()};
+    std::string modelSizeDefinition{definition->sizeInfo()->jsonString()};
+    std::string definitionJsonString{definition->jsonString()};
     LOG_DEBUG(<< "Inference model definition: " << definitionJsonString);
     // verify custom processors are there
     BOOST_TEST_REQUIRE(definitionJsonString.find("special_processor") != std::string::npos);

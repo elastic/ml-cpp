@@ -341,7 +341,6 @@ private:
 
 class API_EXPORT CCustomEncoding : public CSerializableToJsonStream {
 public:
-    ~CCustomEncoding() override = default;
 };
 
 //! \brief Mapping from categorical columns to numerical values related to categorical value distribution.

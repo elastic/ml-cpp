@@ -384,7 +384,7 @@ CDataFrameAnalysisSpecificationFactory::predictionSpec(const std::string& analys
         m_CategoricalFieldNames, true, CTestTmpDir::tmpDir(), "ml", analysis,
         this->predictionParams(analysis, dependentVariable))};
 
-    LOG_DEBUG(<< "spec =\n" << spec);
+    LOG_TRACE(<< "spec =\n" << spec);
 
     if (m_RestoreSearcherSupplier != nullptr && m_PersisterSupplier != nullptr) {
         return std::make_unique<api::CDataFrameAnalysisSpecification>(
