@@ -183,16 +183,17 @@ void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentatio
             lastProgress = progress;
             writeProgress(lastTask, lastProgress, &writer);
         }
-        if (instrumentation.memory() > instrumentation.m_MemoryLimit) {
-            double memoryReestimateBytes{static_cast<double>(instrumentation.memory()) *
-                                         MEMORY_LIMIT_INCREMENT};
+        std::int64_t memory{instrumentation.memory()};
+        std::int64_t memoryLimit{instrumentation.m_MemoryLimit};
+        if (memory > memoryLimit) {
+            double memoryReestimateBytes{static_cast<double>(memory) * MEMORY_LIMIT_INCREMENT};
             instrumentation.memoryReestimate(static_cast<std::int64_t>(memoryReestimateBytes));
             instrumentation.memoryStatus(E_HardLimit);
             instrumentation.flush();
-            HANDLE_FATAL(<< "Input error: required memory "
-                         << bytesToString(instrumentation.memory()) << " exceeds the memory limit "
-                         << bytesToString(instrumentation.m_MemoryLimit) << ". Please increase the limit to at least "
-                         << bytesToString(memoryReestimateBytes) << " and restart.");
+            HANDLE_FATAL(<< "Input error: required memory " << bytesToString(memory)
+                         << " exceeds the memory limit " << bytesToString(memoryLimit)
+                         << ". Please force-stop the analysis job, increase the limit to at least "
+                         << bytesToString(memoryReestimateBytes) << " and restart.")
         }
 
         wait = std::min(2 * wait, 1024);

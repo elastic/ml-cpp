@@ -136,6 +136,9 @@ private:
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<core_t::TTime>;
     using TRegression = CLeastSquaresOnlineRegression<1, double>;
 
+    //! Initialise the m_ChangeModels vector
+    void initChangeModels(TPriorPtr residualModel);
+
 private:
     //! The minimum amount of time we need to observe before
     //! selecting a change model.
@@ -227,6 +230,9 @@ public:
     //! Get a checksum for this object.
     virtual uint64_t checksum(uint64_t seed) const = 0;
 
+    //! Get the time series residual model member variable.
+    const TPriorPtr& residualModelPtr() const;
+
 protected:
     CUnivariateChangeModel(const CUnivariateChangeModel& other,
                            const TDecompositionPtr& trendModel,
@@ -257,8 +263,6 @@ protected:
     const CPrior& residualModel() const;
     //! Get the time series residual model.
     CPrior& residualModel();
-    //! Get the time series residual model member variable.
-    const TPriorPtr& residualModelPtr() const;
 
 private:
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
