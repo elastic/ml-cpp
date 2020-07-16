@@ -19,7 +19,7 @@
 namespace ml {
 namespace api {
 
-//! \brief Builds a a serialisable trained model object by visiting a maths::CBoostedTree object.
+//! \brief Builds a serialisable trained model object by visiting a maths::CBoostedTree object.
 class API_EXPORT CBoostedTreeInferenceModelBuilder : public maths::CBoostedTree::CVisitor {
 public:
     using TDoubleVec = std::vector<double>;

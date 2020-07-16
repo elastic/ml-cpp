@@ -446,15 +446,15 @@ private:
     TStringDoubleUMap m_TargetMap;
 };
 
+//! \brief A JSON blob defining a custom encoding or an array of custom encodings.
 class API_EXPORT COpaqueEncoding final : public CCustomEncoding {
 public:
-    ~COpaqueEncoding() override = default;
-    COpaqueEncoding(const std::string& jsonString);
+    COpaqueEncoding(const rapidjson::Document& object);
 
     void addToJsonStream(TGenericLineWriter& writer) const override;
 
 private:
-    std::unique_ptr<rapidjson::Document> m_Object;
+    rapidjson::Document m_Object;
 };
 
 //! \brief Technical details required for model evaluation.

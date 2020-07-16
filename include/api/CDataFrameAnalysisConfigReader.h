@@ -127,17 +127,6 @@ public:
             return result;
         }
 
-        std::string rawObject() const {
-            if (m_Value == nullptr) {
-                return "[]";
-            }
-            using namespace rapidjson;
-            StringBuffer buffer;
-            Writer<StringBuffer> localWriter(buffer);
-            m_Value->Accept(localWriter);
-            return buffer.GetString();
-        }
-
     private:
         struct SArrayElementTag {};
 

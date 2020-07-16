@@ -12,11 +12,11 @@
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 
-#include <rapidjson/prettywriter.h>
 #include <cmath>
 #include <iterator>
 #include <memory>
 #include <ostream>
+#include <rapidjson/prettywriter.h>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -880,22 +880,23 @@ CEncoding::TSizeInfoUPtr COneHotEncoding::sizeInfo() const {
     return std::make_unique<COneHotEncoding::CSizeInfo>(*this);
 }
 
-COpaqueEncoding::COpaqueEncoding(const std::string& jsonObject) {
-    m_Object = std::make_unique<rapidjson::Document>();
-    m_Object->Parse(jsonObject);
+COpaqueEncoding::COpaqueEncoding(const rapidjson::Document& object) {
+    m_Object.CopyFrom(object, m_Object.GetAllocator());
 }
 
 void COpaqueEncoding::addToJsonStream(TGenericLineWriter& writer) const {
 
-    if (m_Object->Empty()) {
+    if (m_Object.Empty()) {
         return;
     }
-    if (m_Object->IsArray()) {
-        for (const auto& val : m_Object->GetArray()) {
+    if (m_Object.IsArray()) {
+        // These are added to the prepended to the array of other encoders so we
+        // don't wrap in a StartArray and EndArray.
+        for (const auto& val : m_Object.GetArray()) {
             writer.write(val);
         }
     } else {
-        writer.write(*m_Object);
+        writer.write(m_Object);
     }
 }
 

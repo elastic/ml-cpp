@@ -205,10 +205,9 @@ CDataFrameAnalysisSpecificationFactory::regressionLossFunction(TLossFunctionType
     return *this;
 }
 
-
 CDataFrameAnalysisSpecificationFactory&
-CDataFrameAnalysisSpecificationFactory::predictionCustomProcessor(rapidjson::Value value) {
-    m_CustomProcessors = std::move(value);
+CDataFrameAnalysisSpecificationFactory::predictionCustomProcessor(const rapidjson::Value& value) {
+    m_CustomProcessors.CopyFrom(value, m_CustomProcessors.GetAllocator());
     return *this;
 }
 

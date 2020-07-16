@@ -104,7 +104,11 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double softTreeDepthLimit{parameters[SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
     double softTreeDepthTolerance{parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
     double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
-    m_CustomProcessors = parameters[FEATURE_PROCESSORS].rawObject();
+    if (parameters[FEATURE_PROCESSORS].jsonObject() != nullptr) {
+        m_CustomProcessors = rapidjson::Document{};
+        m_CustomProcessors->CopyFrom(*parameters[FEATURE_PROCESSORS].jsonObject(),
+                                     m_CustomProcessors->GetAllocator());
+    }
     if (alpha != -1.0 && alpha < 0.0) {
         HANDLE_FATAL(<< "Input error: '" << ALPHA << "' should be non-negative.")
     }
@@ -230,6 +234,13 @@ bool CDataFrameTrainBoostedTreeRunner::validate(const core::CDataFrame& frame) c
         return false;
     }
     return true;
+}
+
+void CDataFrameTrainBoostedTreeRunner::accept(CBoostedTreeInferenceModelBuilder& builder) const {
+    if (m_CustomProcessors != boost::none) {
+        builder.addCustomProcessor(std::make_unique<COpaqueEncoding>(*m_CustomProcessors));
+    }
+    this->boostedTree().accept(builder);
 }
 
 const maths::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
