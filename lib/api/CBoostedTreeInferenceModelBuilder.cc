@@ -73,9 +73,9 @@ CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
             std::move(oneHotEncodingMapping.second));
     }
 
-    for (auto&& customProcessor : m_CustomProcessors) {
+    for (auto& customProcessor : m_CustomProcessors) {
         m_Definition.customPreprocessors().emplace_back(std::move(customProcessor));
-    };
+    }
 
     // Add aggregated output after the number of trees is known
     auto ensemble{static_cast<CEnsemble*>(m_Definition.trainedModel().get())};
