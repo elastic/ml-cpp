@@ -289,6 +289,54 @@ BOOST_FIXTURE_TEST_CASE(testVmwareData, CTestFixture) {
     checkMemoryUsageInstrumentation(categorizer);
 }
 
+BOOST_FIXTURE_TEST_CASE(testVmwareDataLengthGrowth, CTestFixture) {
+    TTokenListDataCategorizerKeepsFields categorizer{
+        m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
+
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                        categorizer.computeCategory(false, "Jul 10 11:10:54 prelert-esxi1.prelert.com Hostd: --> }",
+                                                    54));
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                        categorizer.computeCategory(false, "Jul 10 11:10:54 prelert-esxi1.prelert.com Hostd: --> \"5331582\"",
+                                                    62));
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                        categorizer.computeCategory(false, "Jul 10 11:10:54 prelert-esxi1.prelert.com Hostd: -->    msg = \"\",",
+                                                    65));
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                        categorizer.computeCategory(false, "Jul 10 13:04:39 prelert-esxi1.prelert.com Hostd: -->    userName = \"\"",
+                                                    70));
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                        categorizer.computeCategory(false, "Jul 10 13:04:39 prelert-esxi1.prelert.com Hostd: -->    changeTag = <unset>",
+                                                    76));
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                        categorizer.computeCategory(false, "Jul 10 13:04:39 prelert-esxi1.prelert.com Hostd: -->       (vmodl.KeyAnyValue) {",
+                                                    80));
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                        categorizer.computeCategory(false, "Jul 10 13:04:39 prelert-esxi1.prelert.com Hostd: -->          dynamicType = <unset>,",
+                                                    84));
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                        categorizer.computeCategory(false, "Jul 10 13:04:39 prelert-esxi1.prelert.com Hostd: -->    objectType = \"vim.HostSystem\",",
+                                                    86));
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                        categorizer.computeCategory(false, "Jul 10 13:04:39 prelert-esxi1.prelert.com Hostd: -->    fault = (vmodl.MethodFault) null,",
+                                                    89));
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                        categorizer.computeCategory(false, "Jul 10 13:04:45 prelert-esxi1.prelert.com Hostd: -->    createdTime = \"1970-01-01T00:00:00Z\",",
+                                                    93));
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                        categorizer.computeCategory(false, "Jul 10 13:04:45 prelert-esxi1.prelert.com Hostd: -->    host = (vim.event.HostEventArgument) {",
+                                                    94));
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{1},
+                        categorizer.computeCategory(false, "Jul 10 13:04:45 prelert-esxi1.prelert.com Hostd: -->    ds = (vim.event.DatastoreEventArgument) null,",
+                                                    101));
+    // This one would match the reverse search for category 1 if
+    BOOST_REQUIRE_EQUAL(ml::model::CLocalCategoryId{2},
+                        categorizer.computeCategory(false, "Jul 10 13:04:45 prelert-esxi1.prelert.com Hostd: -->          value = \"naa.644a84202f3712001d0c56a3304f87cf\",",
+                                                    109));
+
+    checkMemoryUsageInstrumentation(categorizer);
+}
+
 BOOST_FIXTURE_TEST_CASE(testBankData, CTestFixture) {
     TTokenListDataCategorizerKeepsFields categorizer{
         m_Limits, NO_REVERSE_SEARCH_CREATOR, 0.7, "whatever"};
