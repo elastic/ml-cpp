@@ -366,9 +366,13 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
 std::size_t CBoostedTreeImpl::correctedMemoryUsage(double memoryUsageBytes) {
     // We use a piecewise linear function of the estimated memory usage to compute
     // the corrected value. The values are selected in a way to reduce over-estimation
-    // on small jobs to improve the behaviour on the trial nodes in the cloud.
-    TDoubleVec estimatedMemoryUsageMB{0., 1024., 4096., 8192., 12288., 16384.};
-    TDoubleVec correctedMemoryUsageMB{0., 179.2, 512., 819.2, 1088., 1280.};
+    // and to improve the behaviour on the trial nodes in the cloud. The high level strategy
+    // also ensures that corrected memory usage is a monotonic function of estimated memory
+    // usage and any change to the approach should preserve this property.
+    TDoubleVec estimatedMemoryUsageMB{0.0,    20.0,    1024.0, 4096.0,
+                                      8192.0, 12288.0, 16384.0};
+    TDoubleVec correctedMemoryUsageMB{0.0,   20.0,   179.2, 512.0,
+                                      819.2, 1088.0, 1280.0};
     maths::CSpline<> spline(maths::CSplineTypes::E_Linear);
     spline.interpolate(estimatedMemoryUsageMB, correctedMemoryUsageMB,
                        maths::CSplineTypes::E_ParabolicRunout);

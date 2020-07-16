@@ -3,7 +3,7 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-
+ 
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
@@ -1831,23 +1831,39 @@ BOOST_AUTO_TEST_CASE(testRestoreErrorHandling) {
 }
 
 BOOST_AUTO_TEST_CASE(testWorstCaseMemoryCorrection) {
+    // test for 15mb
+    BOOST_REQUIRE_CLOSE(
+        static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(15.0 * BYTES_IN_MB)) / BYTES_IN_MB,
+        15.0, 1.0);
     // test for 50mb
     BOOST_REQUIRE_CLOSE(
         static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(50.0 * BYTES_IN_MB)) / BYTES_IN_MB,
-        8.75, 1.0);
+        24.76, 1.0);
     // test for 300mb
     BOOST_REQUIRE_CLOSE(
         static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(300.0 * BYTES_IN_MB)) / BYTES_IN_MB,
-        52.5, 1.0);
-    // test for 550mb
-    BOOST_REQUIRE_CLOSE(
-        static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(550.0 * BYTES_IN_MB)) /
-            (BYTES_IN_MB),
-        96.25, 2.0);
-    // test for 1000mb
+        64.4, 1.0);
+    // test for 1024mb
     BOOST_REQUIRE_CLOSE(
         static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(1024.0 * BYTES_IN_MB)) / BYTES_IN_MB,
-        179.2, 2.0);
+        179.2, 1.0);
+    // test for 18000mb
+    BOOST_REQUIRE_CLOSE(static_cast<double>(maths::CBoostedTreeImpl::correctedMemoryUsage(
+                            18000.0 * BYTES_IN_MB)) / BYTES_IN_MB, 1355.75, 1.0);
+
+    // test for monotonicity
+    std::size_t numberSamples{1000};
+    TDoubleVec lhs;
+    lhs.reserve(numberSamples);
+    TDoubleVec rhs;
+    rhs.reserve(numberSamples);
+    test::CRandomNumbers rng;
+    rng.generateUniformSamples(0, 20000, numberSamples, lhs);
+    for (int i = 0; i < numberSamples; ++i) {
+        BOOST_TEST_REQUIRE((lhs[i] <= rhs[i]) ==
+                           (maths::CBoostedTreeImpl::correctedMemoryUsage(lhs[i]) <=
+                            maths::CBoostedTreeImpl::correctedMemoryUsage(rhs[i])));
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
