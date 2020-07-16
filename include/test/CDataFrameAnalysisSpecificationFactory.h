@@ -15,9 +15,9 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 
-#include <rapidjson/document.h>
 #include <test/ImportExport.h>
 
+#include <rapidjson/document.h>
 #include <boost/optional.hpp>
 
 #include <cstddef>
