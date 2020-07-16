@@ -17,8 +17,8 @@
 
 #include <test/ImportExport.h>
 
-#include <rapidjson/document.h>
 #include <boost/optional.hpp>
+#include <rapidjson/document.h>
 
 #include <cstddef>
 #include <memory>
