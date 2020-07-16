@@ -7,10 +7,12 @@
 #ifndef INCLUDED_ml_maths_CTreeShapFeatureImportance_h
 #define INCLUDED_ml_maths_CTreeShapFeatureImportance_h
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/ImportExport.h>
 
+#include <unordered_map>
 #include <vector>
 
 namespace ml {
@@ -162,6 +164,9 @@ private:
         TDoubleVecItr m_ScaleIterator;
     };
 
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<TVector>::TAccumulator;
+    using TTotalShapValues = std::unordered_map<std::size_t, TMeanAccumulator>;
+
 private:
     static void computeInternalNodeValues(TTree& tree, std::size_t nodeIndex);
     static std::size_t depth(const TTree& tree, std::size_t nodeIndex);
@@ -198,6 +203,7 @@ private:
     TVectorVecVec m_PerThreadShapValues;
     TVectorVec m_ReducedShapValues;
     TSizeVec m_TopShapValues;
+    TTotalShapValues m_TotalShapValues;
 };
 }
 }

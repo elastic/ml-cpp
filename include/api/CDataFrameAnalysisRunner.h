@@ -7,11 +7,13 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisRunner_h
 #define INCLUDED_ml_api_CDataFrameAnalysisRunner_h
 
+#include "api/CInferenceModelMetadata.h"
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CInferenceModelDefinition.h>
+#include <api/CInferenceModelMetadata.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -66,6 +68,8 @@ public:
     using TProgressRecorder = std::function<void(double)>;
     using TStrVecVec = std::vector<TStrVec>;
     using TInferenceModelDefinitionUPtr = std::unique_ptr<CInferenceModelDefinition>;
+    using TOptionalInferenceModelMetadata = boost::optional<const CInferenceModelMetadata&>;
+    using TInferenceModelMetadataUPtr = std::unique_ptr<CInferenceModelMetadata>;
 
 public:
     //! The intention is that concrete objects of this hierarchy are constructed
@@ -140,6 +144,9 @@ public:
     //! \return A serialisable definition of the trained model.
     virtual TInferenceModelDefinitionUPtr
     inferenceModelDefinition(const TStrVec& fieldNames, const TStrVecVec& categoryNames) const;
+
+    //! \return A serialisable metadata of the trained model.
+    virtual TOptionalInferenceModelMetadata inferenceModelMetadata() const;
 
     //! \return Reference to the analysis instrumentation.
     virtual const CDataFrameAnalysisInstrumentation& instrumentation() const = 0;

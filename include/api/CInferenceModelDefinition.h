@@ -8,7 +8,9 @@
 
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CDataFrameCategoryEncoder.h>
+#include <maths/CLinearAlgebraEigen.h>
 
 #include <api/ImportExport.h>
 

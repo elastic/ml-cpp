@@ -144,6 +144,7 @@ void CDataFrameAnalyzer::run() {
         analysisRunner->waitToFinish();
         this->writeInferenceModel(*analysisRunner, outputWriter);
         this->writeResultsOf(*analysisRunner, outputWriter);
+        this->writeInferenceModelMetadata(*analysisRunner, outputWriter);
     }
 }
 
@@ -270,6 +271,8 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
 
 void CDataFrameAnalyzer::writeInferenceModel(const CDataFrameAnalysisRunner& analysis,
                                              core::CRapidJsonConcurrentLineWriter& writer) const {
+    // Write model meta information
+
     // Write the resulting model for inference.
     auto modelDefinition = analysis.inferenceModelDefinition(
         m_DataFrame->columnNames(), m_DataFrame->categoricalColumnValues());
@@ -282,6 +285,23 @@ void CDataFrameAnalyzer::writeInferenceModel(const CDataFrameAnalysisRunner& ana
         writer.write(sizeInfoObject);
         writer.EndObject();
         modelDefinition->addToDocumentCompressed(writer);
+    }
+    writer.flush();
+}
+
+void CDataFrameAnalyzer::writeInferenceModelMetadata(const CDataFrameAnalysisRunner& analysis,
+                                                     core::CRapidJsonConcurrentLineWriter& writer) const {
+    // Write model meta information
+
+    // Write the resulting model for inference.
+    auto modelMetadata = analysis.inferenceModelMetadata();
+    if (modelMetadata) {
+        rapidjson::Value metadataObject{writer.makeObject()};
+        modelMetadata->addToJsonDocument(metadataObject, writer);
+        writer.StartObject();
+        writer.Key(modelMetadata->typeString());
+        writer.write(metadataObject);
+        writer.EndObject();
     }
     writer.flush();
 }

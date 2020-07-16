@@ -4,6 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "api/CDataFrameTrainBoostedTreeRunner.h"
+#include "api/CInferenceModelMetadata.h"
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 
 #include <core/CLogger.h>
@@ -112,15 +114,11 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
     auto featureImportance = tree.shap();
     if (featureImportance != nullptr) {
-        using TVector = maths::CDenseVector<double>;
-        using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<TVector>::TAccumulator;
-        using TTotalShapValues = std::unordered_map<std::size_t, TMeanAccumulator>;
-        TTotalShapValues totalShapValues;
+        const_cast<CDataFrameTrainBoostedTreeRegressionRunner*>(this)->m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
         featureImportance->shap(
-            row, [&writer, &totalShapValues](
-                     const maths::CTreeShapFeatureImportance::TSizeVec& indices,
-                     const TStrVec& featureNames,
-                     const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+            row, [&writer, this](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
+                                 const TStrVec& featureNames,
+                                 const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
                 writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
                 writer.StartArray();
                 for (auto i : indices) {
@@ -134,28 +132,27 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
                     }
                 }
                 writer.EndArray();
-
+                
                 for (int i = 0; i < shap.size(); ++i) {
                     if (shap[i].lpNorm<1>() != 0) {
-                        totalShapValues
-                            .emplace(std::make_pair(i, TVector::Zero(shap[i].size())))
-                            .first->second.add(shap[i].cwiseAbs());
+                        const_cast<CDataFrameTrainBoostedTreeRegressionRunner*>(this)->m_InferenceModelMetadata.addToFeatureImportance(i, shap[i]);
                     }
                 }
             });
-        LOG_DEBUG(<< "Total shap size: " << totalShapValues.size());
-        writer.Key(TOTAL_FEATURE_IMPORTANCE_FIELD_NAME);
-        writer.StartArray();
-        for (const auto& item : totalShapValues) {
-            writer.StartObject();
-            writer.Key(FEATURE_NAME_FIELD_NAME);
-            writer.String(featureImportance->columnNames()[item.first]);
-            writer.Key(IMPORTANCE_FIELD_NAME);
-            writer.Double(maths::CBasicStatistics::mean(item.second)[0]);
-            writer.EndObject();
-            LOG_DEBUG(<< "Count: " << maths::CBasicStatistics::count(item.second));
-        }
-        writer.EndArray();
+
+        // LOG_DEBUG(<< "Total shap size: " << totalShapValues.size());
+        // writer.Key(TOTAL_FEATURE_IMPORTANCE_FIELD_NAME);
+        // writer.StartArray();
+        // for (const auto& item : totalShapValues) {
+        //     writer.StartObject();
+        //     writer.Key(FEATURE_NAME_FIELD_NAME);
+        //     writer.String(featureImportance->columnNames()[item.first]);
+        //     writer.Key(IMPORTANCE_FIELD_NAME);
+        //     writer.Double(maths::CBasicStatistics::mean(item.second)[0]);
+        //     writer.EndObject();
+        //     LOG_DEBUG(<< "Count: " << maths::CBasicStatistics::count(item.second));
+        // }
+        // writer.EndArray();
     }
     writer.EndObject();
 }
@@ -173,6 +170,11 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition(
     this->boostedTree().accept(builder);
 
     return std::make_unique<CInferenceModelDefinition>(builder.build());
+}
+
+CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
+CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
+    return TOptionalInferenceModelMetadata(m_InferenceModelMetadata);
 }
 
 // clang-format off
