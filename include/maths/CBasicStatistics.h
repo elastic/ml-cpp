@@ -1047,6 +1047,11 @@ private:
                        : *this->begin();
         }
 
+        //! Get the maximum number of statistics.
+        inline std::size_t capacity() const {
+            return m_Statistics.size();
+        }
+
         //! Get the number of statistics.
         inline std::size_t count() const {
             return m_Statistics.size() - m_UnusedCount;

@@ -73,19 +73,19 @@ public:
                                          double outlierFraction = SEASONAL_OUTLIER_FRACTION,
                                          double outlierWeight = SEASONAL_OUTLIER_WEIGHT);
 
-    //! Perform top-down recursive segmentation with a scaled periodic model.
+    //! Perform top-down recursive segmentation with a scaled seasonal model.
     //!
-    //! The time series is segmented using piecewise constant linear scaled periodic
+    //! The time series is segmented using piecewise constant linear scaled seasonal
     //! model in a top down fashion with break points being chosen to maximize r-squared
     //! and model selection happening for each candidate segmentation. Model selection
     //! is achieved by thresholding the significance of the unexplained variance ratio
-    //! for the segmented versus non-segmented models. A scaled periodic model is
+    //! for the segmented versus non-segmented models. A scaled seasonal model is
     //! defined here as follows:
     //! <pre class="fragment">
     //!   \f$ \sum_i 1\{t_i \leq t < t_{i+1}\} s_i f_p(t) \f$
     //! </pre>
-    //! where \f$\{s_i\} are a collection of scales and \f$f_p(\cdot)\f$ denotes a
-    //! function with period \p period.
+    //! where \f$\{s_i\}\f$ are a collection of scales and \f$f_p(\cdot)\f$ denotes
+    //! a function with period \p period.
     //!
     //! \param[in] values The time series values to segment. These are assumed to
     //! be equally spaced in time order.
@@ -100,48 +100,61 @@ public:
     //! \return The sorted segmentation indices. This includes the start and end
     //! indices of \p values, i.e. 0 and values.size().
     static TSizeVec
-    piecewiseLinearScaledPeriodic(const TFloatMeanAccumulatorVec& values,
+    piecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
                                   std::size_t period,
                                   double significanceToSegment = COMPONENT_STATISTICALLY_SIGNIFICANT,
                                   double outlierFraction = SEASONAL_OUTLIER_FRACTION,
                                   double outlierWeight = SEASONAL_OUTLIER_WEIGHT);
 
-    //! Compute the underlying periodic model with period \p period and piecewise
+    //! Compute the underlying seasonal model with period \p period and piecewise
     //! constant linear scales on the segments defined by \p segmentation.
     //!
     //! \param[in] segmentation The segmentation of \p values into intervals
     //! with constant scale.
-    //! \return A pair comprising (periodic model, scales).
+    //! \return A pair comprising (seasonal model, scales).
     static TDoubleVecDoubleVecPr
-    piecewiseLinearScaledPeriodic(const TFloatMeanAccumulatorVec& values,
+    piecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
                                   std::size_t period,
                                   const TSizeVec& segmentation,
                                   double outlierFraction = SEASONAL_OUTLIER_FRACTION,
                                   double outlierWeight = SEASONAL_OUTLIER_WEIGHT);
 
-    //! Remove the predictions of a periodic model with period \p period and
-    //! piecewise constant linear scales on the segments defined by \p segmentation.
+    //! Remove the predictions of a piecewise linear scaled seasonal component
+    //! with period \p period from \p values.
     //!
     //! \param[in] segmentation The segmentation of \p values into intervals with
     //! constant scale.
     //! \return The values minus the model predictions.
     static TFloatMeanAccumulatorVec
-    removePiecewiseLinearScaledPeriodic(const TFloatMeanAccumulatorVec& values,
+    removePiecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
                                         std::size_t period,
                                         const TSizeVec& segmentation,
                                         double outlierFraction = 0.0,
                                         double outlierWeight = 0.1);
 
-    //! Remove the predictions of a periodic \p model with piecewise constant
+    //! Rescale the piecewise linear scaled seasonal component of \p values with
+    //! period \p period to its mean scale.
+    //!
+    //! \param[in] segmentation The segmentation of \p values into intervals with
+    //! constant scale.
+    //! \return The values with the mean scaled seasonal component.
+    static TFloatMeanAccumulatorVec
+    meanScalePiecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
+                                           std::size_t period,
+                                           const TSizeVec& segmentation,
+                                           double outlierFraction = 0.0,
+                                           double outlierWeight = 0.1);
+
+    //! Remove the predictions of a seasonal \p model with piecewise constant
     //! linear scales \p scales.
     //!
     //! \param[in] segmentation The segmentation of \p values into intervals with
     //! constant scale.
-    //! \param[in] model The underlying periodic model.
+    //! \param[in] model The underlying seasonal model.
     //! \param[in] scales The piecewise constant linear scales to apply to \p model.
     //! \return The values minus the scaled model predictions.
     static TFloatMeanAccumulatorVec
-    removePiecewiseLinearScaledPeriodic(TFloatMeanAccumulatorVec values,
+    removePiecewiseLinearScaledSeasonal(TFloatMeanAccumulatorVec values,
                                         const TSizeVec& segmentation,
                                         const TDoubleVec& model,
                                         const TDoubleVec& scales);
@@ -170,19 +183,19 @@ private:
                                          double outlierFraction,
                                          double outlierWeight);
 
-    //! Implements top-down recursive segmentation with a periodic model
+    //! Implements top-down recursive segmentation with a seasonal model
     //! with piecewise constant linear scaling.
     template<typename ITR>
-    static void fitTopDownPiecewiseLinearScaledPeriodic(ITR begin,
+    static void fitTopDownPiecewiseLinearScaledSeasonal(ITR begin,
                                                         ITR end,
                                                         std::size_t offset,
                                                         const TDoubleVec& model,
                                                         double significanceToSegment,
                                                         TSizeVec& segmentation);
 
-    //! Fit a periodic model with piecewise constant linear scaling to
+    //! Fit a seasonal model with piecewise constant linear scaling to
     //! \p values for the segmentation \p segmentation.
-    static void fitPiecewiseLinearScaledPeriodic(const TFloatMeanAccumulatorVec& values,
+    static void fitPiecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
                                                  std::size_t period,
                                                  const TSizeVec& segmentation,
                                                  double outlierFraction,

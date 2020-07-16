@@ -109,6 +109,7 @@ CTimeSeriesDecompositionStub.cc \
 CTimeSeriesModel.cc \
 CTimeSeriesMultibucketFeatureSerialiser.cc \
 CTimeSeriesSegmentation.cc \
+CTimeSeriesTestForSeasonality.cc \
 CTools.cc \
 CTreeShapFeatureImportance.cc \
 CTrendComponent.cc \

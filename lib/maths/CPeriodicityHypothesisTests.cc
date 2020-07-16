@@ -1607,9 +1607,9 @@ void CPeriodicityHypothesisTests::hypothesis(const TTime2Vec& periods,
             std::size_t period{static_cast<std::size_t>(periods[0] / m_BucketLength)};
             TFloatMeanAccumulatorVec values(buckets.begin(), buckets.end());
             std::tie(stats.s_T0[0], stats.s_Scales) =
-                CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
+                CTimeSeriesSegmentation::piecewiseLinearScaledSeasonal(
                     values, period, stats.s_Segmentation);
-            values = CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(
+            values = CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(
                 values, stats.s_Segmentation, stats.s_T0[0], stats.s_Scales);
 
             TMeanVarAccumulator moments;
@@ -1659,7 +1659,7 @@ void CPeriodicityHypothesisTests::conditionOnHypothesis(const STestStats& stats,
     core_t::TTime windowLength{static_cast<core_t::TTime>(n) * m_BucketLength};
 
     if (stats.s_Segmentation.size() > 0) {
-        buckets = CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(
+        buckets = CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(
             buckets, stats.s_Segmentation, stats.s_T0[0], stats.s_Scales);
     } else {
         for (std::size_t i = 0; i < stats.s_Partition.size(); ++i) {
@@ -1801,7 +1801,7 @@ bool CPeriodicityHypothesisTests::testPeriodWithScaling(const TTimeTimePr2Vec& w
         // If we've already chosen a segmentation then use that otherwise
         // fit a piecewise linear scaled periodic trend.
         return stats.s_Segmentation.empty()
-                   ? CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(values, period)
+                   ? CTimeSeriesSegmentation::piecewiseLinearScaledSeasonal(values, period)
                    : stats.s_Segmentation;
     };
     auto variance = [](const TFloatMeanAccumulatorVec& values) {
@@ -1863,7 +1863,7 @@ bool CPeriodicityHypothesisTests::testPeriodWithScaling(const TTimeTimePr2Vec& w
     // periodic component.
     TDoubleVec trend;
     TDoubleVec scales;
-    std::tie(trend, scales) = CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
+    std::tie(trend, scales) = CTimeSeriesSegmentation::piecewiseLinearScaledSeasonal(
         values, period, segmentation);
     LOG_TRACE(<< "  trend = " << core::CContainerPrinter::print(trend));
     LOG_TRACE(<< "  scales = " << core::CContainerPrinter::print(scales));
@@ -1874,7 +1874,7 @@ bool CPeriodicityHypothesisTests::testPeriodWithScaling(const TTimeTimePr2Vec& w
     }
     double scale{CBasicStatistics::mean(scale_)};
     LOG_TRACE(<< "  scale = " << scale);
-    values = CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(
+    values = CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(
         values, segmentation, trend, scales);
     double v1{variance(values)};
     double noise{std::sqrt(v1) / amplitude(trend)};
@@ -2135,8 +2135,8 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
                 return n + (CBasicStatistics::count(value) > 0.0 ? 1.0 : 0.0);
             })};
         if (BW > 1.0) {
-            RW = CSignal::autocorrelation(length(window[0]) / m_BucketLength + period,
-                                          partitionValues);
+            RW = CSignal::cyclicAutocorrelation(
+                length(window[0]) / m_BucketLength + period, partitionValues);
             RW = autocorrelationAtPercentile(RW, BW, 50.0 - CONFIDENCE_INTERVAL / 2.0);
             LOG_TRACE(<< "  autocorrelation          = " << RW);
             LOG_TRACE(<< "  autocorrelationThreshold = " << stats.s_AutocorrelationThreshold);
@@ -2189,7 +2189,7 @@ bool CPeriodicityHypothesisTests::testVariance(const TTimeTimePr2Vec& window,
     LOG_TRACE(<< "  significance      = "
               << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
 
-    R = CSignal::autocorrelation(period, buckets);
+    R = CSignal::cyclicAutocorrelation(period, buckets);
     R = autocorrelationAtPercentile(R, stats.s_NonEmptyBuckets,
                                     50.0 - CONFIDENCE_INTERVAL / 2.0);
     LOG_TRACE(<< "  autocorrelation          = " << R);
@@ -2473,7 +2473,7 @@ std::size_t mostSignificantPeriodicComponent(core_t::TTime bucketLength,
     for (const auto& period : candidatePeriods) {
         TFloatMeanAccumulatorCRng window(values, 0, period * (n / period));
         candidates.add({applySelectionBias(period, bucketLength,
-                                           CSignal::autocorrelation(period, window)),
+                                           CSignal::cyclicAutocorrelation(period, window)),
                         period});
     }
     candidates.sort();

@@ -1821,13 +1821,13 @@ void CTimeSeriesDecompositionDetail::CComponents::adjustValuesForPiecewiseConsta
     TDoubleVec trend;
     TDoubleVec scales;
     TSizeVec segmentation(
-        CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(values, period));
-    std::tie(trend, scales) = CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
+        CTimeSeriesSegmentation::piecewiseLinearScaledSeasonal(values, period));
+    std::tie(trend, scales) = CTimeSeriesSegmentation::piecewiseLinearScaledSeasonal(
         values, period, segmentation);
     LOG_TRACE(<< "trend = " << core::CContainerPrinter::print(trend));
     LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
     LOG_TRACE(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
-    values = CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(
+    values = CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(
         values, segmentation, trend, scales);
     TMeanAccumulator scale;
     for (std::size_t i = scales.size(), j = period + 1; i > 0 && j > 0; --i) {
