@@ -889,8 +889,8 @@ void COpaqueEncoding::addToJsonStream(TGenericLineWriter& writer) const {
         return;
     }
     if (m_Object.IsArray()) {
-        // These are added to the prepended to the array of other encoders so we
-        // don't wrap in a StartArray and EndArray.
+        // These are prepended to the array of other encoders so we don't wrap in
+        // a StartArray and EndArray.
         for (const auto& val : m_Object.GetArray()) {
             writer.write(val);
         }
