@@ -1860,7 +1860,8 @@ BOOST_AUTO_TEST_CASE(testWorstCaseMemoryCorrection) {
     TDoubleVec rhs;
     rhs.reserve(numberSamples);
     test::CRandomNumbers rng;
-    rng.generateUniformSamples(0, 20000, numberSamples, lhs);
+    rng.generateUniformSamples(0.0, 20000.0, numberSamples, lhs);
+    rng.generateUniformSamples(0.0, 20000.0, numberSamples, rhs);
     for (int i = 0; i < numberSamples; ++i) {
         BOOST_TEST_REQUIRE((lhs[i] <= rhs[i]) ==
                            (maths::CBoostedTreeImpl::correctedMemoryUsage(lhs[i]) <=
