@@ -12,7 +12,7 @@
 #include <model/CHierarchicalResultsNormalizer.h>
 
 #include <api/CDataProcessor.h>
-#include <api/COutputHandler.h>
+#include <api/CSimpleOutputWriter.h>
 #include <api/ImportExport.h>
 
 #include <boost/unordered_map.hpp>
@@ -77,7 +77,7 @@ public:
 
 public:
     CResultNormalizer(const model::CAnomalyDetectorModelConfig& modelConfig,
-                      COutputHandler& outputHandler);
+                      CSimpleOutputWriter& outputWriter);
 
     //! Initialise the system change normalizer
     bool initNormalizer(const std::string& stateFileName);
@@ -115,7 +115,7 @@ private:
     const model::CAnomalyDetectorModelConfig& m_ModelConfig;
 
     //! Object to which the output is passed
-    COutputHandler& m_OutputHandler;
+    CSimpleOutputWriter& m_OutputWriter;
 
     //! Do we need to tell the output handler what our fieldnames are?
     bool m_WriteFieldNames;

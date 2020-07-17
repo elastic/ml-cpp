@@ -19,7 +19,6 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
-#include "CMockDataProcessor.h"
 #include "CTestAnomalyJob.h"
 
 #include <rapidjson/document.h>

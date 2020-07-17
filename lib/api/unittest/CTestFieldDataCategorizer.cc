@@ -9,7 +9,7 @@ CTestFieldDataCategorizer::CTestFieldDataCategorizer(
     const std::string& jobId,
     const ml::api::CFieldConfig& config,
     ml::model::CLimits& limits,
-    ml::api::COutputHandler& outputHandler,
+    ml::api::CDataProcessor* chainedProcessor,
     ml::core::CJsonOutputStreamWrapper& outputStream,
     ml::api::CPersistenceManager* persistenceManager,
     bool stopCategorizationOnWarnStatus)
@@ -18,7 +18,7 @@ CTestFieldDataCategorizer::CTestFieldDataCategorizer(
                                      limits,
                                      std::string(),
                                      std::string(),
-                                     outputHandler,
+                                     chainedProcessor,
                                      outputStream,
                                      persistenceManager,
                                      stopCategorizationOnWarnStatus} {
@@ -30,7 +30,7 @@ CTestFieldDataCategorizer::CTestFieldDataCategorizer(
     ml::model::CLimits& limits,
     const std::string& timeFieldName,
     const std::string& timeFieldFormat,
-    ml::api::COutputHandler& outputHandler,
+    ml::api::CDataProcessor* chainedProcessor,
     ml::core::CJsonOutputStreamWrapper& outputStream,
     ml::api::CPersistenceManager* persistenceManager,
     bool stopCategorizationOnWarnStatus)
@@ -39,7 +39,7 @@ CTestFieldDataCategorizer::CTestFieldDataCategorizer(
                                      limits,
                                      timeFieldName,
                                      timeFieldFormat,
-                                     outputHandler,
+                                     chainedProcessor,
                                      outputStream,
                                      persistenceManager,
                                      stopCategorizationOnWarnStatus} {

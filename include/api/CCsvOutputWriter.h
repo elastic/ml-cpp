@@ -6,7 +6,7 @@
 #ifndef INCLUDED_ml_api_CCsvOutputWriter_h
 #define INCLUDED_ml_api_CCsvOutputWriter_h
 
-#include <api/COutputHandler.h>
+#include <api/CSimpleOutputWriter.h>
 #include <api/ImportExport.h>
 
 #include <iosfwd>
@@ -41,7 +41,7 @@ namespace api {
 //! It is not acceptable to have the separator character be the same as the
 //! escape character, the quote character or the record end character.
 //!
-class API_EXPORT CCsvOutputWriter : public COutputHandler {
+class API_EXPORT CCsvOutputWriter : public CSimpleOutputWriter {
 public:
     //! CSV separator
     static const char COMMA;
@@ -71,14 +71,14 @@ public:
     ~CCsvOutputWriter() override;
 
     // Bring the other overload of fieldNames() into scope
-    using COutputHandler::fieldNames;
+    using CSimpleOutputWriter::fieldNames;
 
     //! Set field names, adding extra field names if they're not already
     //! present - this is only allowed once
     bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) override;
 
     // Bring the other overloads of writeRow() into scope
-    using COutputHandler::writeRow;
+    using CSimpleOutputWriter::writeRow;
 
     //! Write a row to the stream, optionally overriding some of the
     //! original field values.  Where the same field is present in both
