@@ -116,9 +116,13 @@ public:
     CGlobalCategoryId computeAndUpdateCategory(const TStrStrUMap& dataRowFields,
                                                const TOptionalTime& time);
 
-    //! The class that calls handleRecord() may call this method before
-    //! supplying any data to inform this class of any fields in the data row
-    //! that may be modified before chaining.  No-op by default.
+    //! If any chained processor requires the computed "mlcategory" field be
+    //! added to each record then this method must be called before
+    //! handleRecord() to register "mlcategory" as a mutable field.  If there
+    //! are no chained processors, or they are not interested in "mlcategory"
+    //! then calling this method is not optional.  It is not harmful to register
+    //! mutable fields other than "mlcategory" although this class will not do
+    //! anything differently as a result.
     void registerMutableField(const std::string& fieldName, std::string& fieldValue) override;
 
     //! Receive a single record to be categorized, and output that record

@@ -98,9 +98,9 @@ bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extr
 
     // Messages are output in arrears - this is not ideal - TODO
     if (m_OutputMessages) {
-        for (auto msgIter = m_Messages.begin(); msgIter != m_Messages.end(); ++msgIter) {
-            m_StrmOut << msgIter->first << '=' << msgIter->second << RECORD_END;
-            LOG_DEBUG(<< "Forwarded " << msgIter->first << '=' << msgIter->second);
+        for (const auto& message : m_Messages) {
+            m_StrmOut << message.first << '=' << message.second << RECORD_END;
+            LOG_DEBUG(<< "Forwarded " << message.first << '=' << message.second);
         }
 
         // Only output each message once

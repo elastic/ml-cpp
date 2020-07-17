@@ -92,7 +92,7 @@ bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields, TOpti
     if (iter != dataRowFields.end() && !iter->second.empty()) {
         // Always handle control messages, but signal completion of handling ONLY if we are the last handler
         // e.g. flush requests are acknowledged here if this is the last handler
-        bool msgHandled = this->handleControlMessage(iter->second, m_ChainedProcessor == nullptr);
+        bool msgHandled{this->handleControlMessage(iter->second, m_ChainedProcessor == nullptr)};
         if (m_ChainedProcessor != nullptr) {
             return m_ChainedProcessor->handleRecord(dataRowFields, time);
         }
