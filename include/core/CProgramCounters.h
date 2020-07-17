@@ -53,6 +53,9 @@ enum ECounterTypes {
     //! The latest value of the model memory check
     E_TSADMemoryUsage = 4,
 
+    //! The maximum value of the model memory check
+    E_TSADPeakMemoryUsage = 28,
+
     //! The number of times memory checks have been carried out
     E_TSADNumberMemoryUsageChecks = 5,
 
@@ -130,7 +133,7 @@ enum ECounterTypes {
     // Add any new values here
 
     //! This MUST be last, increment the value for every new enum added
-    E_LastEnumCounter = 28
+    E_LastEnumCounter = 29
 };
 
 static constexpr size_t NUM_COUNTERS = static_cast<size_t>(E_LastEnumCounter);
@@ -296,6 +299,8 @@ private:
           "Number of records successfully ingested into the engine API"},
          {counter_t::E_TSADMemoryUsage, "E_TSADMemoryUsage",
           "The estimated memory currently used by the engine and models"},
+         {counter_t::E_TSADPeakMemoryUsage, "E_TSADPeakMemoryUsage",
+          "The maximum memory used by the engine and models"},
          {counter_t::E_TSADNumberMemoryUsageChecks, "E_TSADNumberMemoryUsageChecks",
           "Number of times a model memory usage check has been carried out"},
          {counter_t::E_TSADNumberMemoryUsageEstimates, "E_TSADNumberMemoryUsageEstimates",

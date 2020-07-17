@@ -108,8 +108,8 @@ CTokenListDataCategorizerBase::computeCategory(bool isDryRun,
             std::size_t commonUniqueTokenWeight{compCategory.commonUniqueTokenWeight()};
             std::size_t missingCommonTokenWeight{
                 compCategory.missingCommonTokenWeight(m_WorkTokenUniqueIds)};
-            double proportionOfOrig(double(commonUniqueTokenWeight - missingCommonTokenWeight) /
-                                    double(origUniqueTokenWeight));
+            double proportionOfOrig{static_cast<double>(commonUniqueTokenWeight - missingCommonTokenWeight) /
+                                    static_cast<double>(origUniqueTokenWeight)};
             if (proportionOfOrig < m_LowerThreshold) {
                 continue;
             }

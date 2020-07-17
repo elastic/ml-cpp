@@ -19,7 +19,7 @@
 namespace ml {
 namespace api {
 
-//! \brief Builds a a serialisable trained model object by visiting a maths::CBoostedTree object.
+//! \brief Builds a serialisable trained model object by visiting a maths::CBoostedTree object.
 class API_EXPORT CBoostedTreeInferenceModelBuilder : public maths::CBoostedTree::CVisitor {
 public:
     using TDoubleVec = std::vector<double>;
@@ -28,6 +28,8 @@ public:
     using TSizeStringUMap = std::unordered_map<std::size_t, std::string>;
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
     using TVector = maths::CBoostedTreeNode::TVector;
+    using TApiCustomEncodingUPtr = std::unique_ptr<api::CCustomEncoding>;
+    using TApiCustomEncodingUPtrVec = std::vector<TApiCustomEncodingUPtr>;
 
 public:
     CBoostedTreeInferenceModelBuilder(TStrVec fieldNames,
@@ -49,6 +51,7 @@ public:
                                const TDoubleVec& map,
                                double fallback) override;
     void addFrequencyEncoding(std::size_t inputColumnIndex, const TDoubleVec& map) override;
+    void addCustomProcessor(TApiCustomEncodingUPtr value);
     virtual CInferenceModelDefinition&& build();
 
 protected:
@@ -70,6 +73,7 @@ private:
     TOneHotEncodingUMap m_OneHotEncodingMaps;
     TStrVec m_FieldNames;
     TStrVec m_FeatureNames;
+    TApiCustomEncodingUPtrVec m_CustomProcessors;
 };
 
 class API_EXPORT CRegressionInferenceModelBuilder final : public CBoostedTreeInferenceModelBuilder {

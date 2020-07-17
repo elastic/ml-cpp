@@ -53,7 +53,7 @@ public:
 public:
     //! Create a new category
     CTokenListCategory(bool isDryRun,
-                       const std::string& baseString,
+                       std::string baseString,
                        std::size_t rawStringLen,
                        const TSizeSizePrVec& baseTokenIds,
                        std::size_t baseWeight,
@@ -195,44 +195,48 @@ private:
     TSizeSizePrVec m_BaseTokenIds;
 
     //! Cache the total weight of the base tokens
-    std::size_t m_BaseWeight;
+    std::size_t m_BaseWeight = 0;
+
+    //! The original length (i.e. before filtering) of the string this category
+    //! was originally based on
+    std::size_t m_BaseRawStringLen = 0;
 
     //! The maximum original length of all the strings that have been
     //! classified as this category.  The original length may be longer than the
     //! length of the strings in passed to the addString() method, because
     //! it will include the date.
-    std::size_t m_MaxStringLen;
+    std::size_t m_MaxStringLen = 0;
 
     //! The index into the base token IDs where the subsequence of tokens that
     //! are in the same order for all strings of this category begins.
-    std::size_t m_OrderedCommonTokenBeginIndex;
+    std::size_t m_OrderedCommonTokenBeginIndex = 0;
 
     //! One past the index into the base token IDs where the subsequence of
     //! tokens that are in the same order for all strings of this category ends.
-    std::size_t m_OrderedCommonTokenEndIndex;
+    std::size_t m_OrderedCommonTokenEndIndex = 0;
 
     //! The unique token IDs that all strings classified to be this category
     //! contain.  This vector must always be sorted into ascending order.
     TSizeSizePrVec m_CommonUniqueTokenIds;
 
     //! Cache the weight of the common unique tokens
-    std::size_t m_CommonUniqueTokenWeight;
+    std::size_t m_CommonUniqueTokenWeight = 0;
 
     //! What was the weight of the original unique tokens (i.e. when the category
     //! only represented one string)?  Remembering this means we can ensure
     //! that the degree of commonality doesn't fall below a certain level as
     //! the number of strings classified as this category grows.
-    std::size_t m_OrigUniqueTokenWeight;
+    std::size_t m_OrigUniqueTokenWeight = 0;
 
     //! Number of matched strings
-    std::size_t m_NumMatches;
+    std::size_t m_NumMatches = 0;
 
     //! Cache reverse searches to save repeated recalculations
     std::string m_ReverseSearchPart1;
     std::string m_ReverseSearchPart2;
 
     //! Has the category changed recently
-    bool m_Changed;
+    bool m_Changed = false;
 };
 }
 }
