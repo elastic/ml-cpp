@@ -20,6 +20,11 @@ CDataProcessor::CDataProcessor(const std::string& timeFieldName, const std::stri
     : m_TimeFieldName{timeFieldName}, m_TimeFieldFormat{timeFieldFormat} {
 }
 
+void CDataProcessor::registerMutableField(const std::string& /*fieldName*/,
+                                          std::string& /*fieldValue*/) {
+    // No-op
+}
+
 std::string CDataProcessor::debugPrintRecord(const TStrStrUMap& dataRowFields) {
     if (dataRowFields.empty()) {
         return "<EMPTY RECORD>";

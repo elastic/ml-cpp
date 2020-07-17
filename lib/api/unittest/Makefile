@@ -46,7 +46,6 @@ SRCS=\
 	CLengthEncodedInputParserTest.cc \
 	CMemoryUsageEstimationResultJsonWriterTest.cc \
 	CMockDataAdder.cc \
-	CMockDataProcessor.cc \
 	CMockSearcher.cc \
 	CAnnotationJsonWriterTest.cc \
 	CModelPlotDataJsonWriterTest.cc \
@@ -55,7 +54,6 @@ SRCS=\
 	CNdJsonInputParserTest.cc \
 	CNdJsonOutputWriterTest.cc \
 	CNoopCategoryIdMapperTest.cc \
-	COutputChainerTest.cc \
 	CPerPartitionCategoryIdMapperTest.cc \
 	CPersistenceManagerTest.cc \
 	CRestorePreviousStateTest.cc \

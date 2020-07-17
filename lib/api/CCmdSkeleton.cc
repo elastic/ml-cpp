@@ -36,9 +36,14 @@ bool CCmdSkeleton::ioLoop() {
         }
     }
 
-    if (m_InputParser.readStreamIntoMaps([this](const CDataProcessor::TStrStrUMap& dataRowFields) {
-            return m_Processor.handleRecord(dataRowFields, CDataProcessor::TOptionalTime{});
-        }) == false) {
+    if (m_InputParser.readStreamIntoMaps(
+            [this](const CDataProcessor::TStrStrUMap& dataRowFields) {
+                return m_Processor.handleRecord(dataRowFields,
+                                                CDataProcessor::TOptionalTime{});
+            },
+            [this](const std::string& fieldName, std::string& fieldValue) {
+                m_Processor.registerMutableField(fieldName, fieldValue);
+            }) == false) {
         LOG_FATAL(<< "Failed to handle all input data");
         return false;
     }

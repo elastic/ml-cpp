@@ -26,7 +26,7 @@ public:
     CTestFieldDataCategorizer(const std::string& jobId,
                               const ml::api::CFieldConfig& config,
                               ml::model::CLimits& limits,
-                              ml::api::COutputHandler& outputHandler,
+                              ml::api::CDataProcessor* chainedProcessor,
                               ml::core::CJsonOutputStreamWrapper& outputStream,
                               ml::api::CPersistenceManager* persistenceManager = nullptr,
                               bool stopCategorizationOnWarnStatus = false);
@@ -36,7 +36,7 @@ public:
                               ml::model::CLimits& limits,
                               const std::string& timeFieldName,
                               const std::string& timeFieldFormat,
-                              ml::api::COutputHandler& outputHandler,
+                              ml::api::CDataProcessor* chainedProcessor,
                               ml::core::CJsonOutputStreamWrapper& outputStream,
                               ml::api::CPersistenceManager* persistenceManager = nullptr,
                               bool stopCategorizationOnWarnStatus = false);

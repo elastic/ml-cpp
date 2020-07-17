@@ -26,9 +26,9 @@
 #include <netinet/in.h>
 #endif
 
-BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrVecItr)
-BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrVecCItr)
-BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrStrUMapCItr)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrVec::iterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrVec::const_iterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrStrUMap::const_iterator)
 
 BOOST_AUTO_TEST_SUITE(CLengthEncodedInputParserTest)
 
@@ -117,8 +117,7 @@ public:
 
         // Check the field names
         BOOST_REQUIRE_EQUAL(m_ExpectedFieldNames.size(), dataRowFields.size());
-        for (ml::api::CCsvInputParser::TStrStrUMapCItr iter = dataRowFields.begin();
-             iter != dataRowFields.end(); ++iter) {
+        for (auto iter = dataRowFields.begin(); iter != dataRowFields.end(); ++iter) {
             LOG_DEBUG(<< "Field " << iter->first << " is " << iter->second);
             BOOST_TEST_REQUIRE(std::find(m_ExpectedFieldNames.begin(),
                                          m_ExpectedFieldNames.end(), iter->first) !=
@@ -126,10 +125,9 @@ public:
         }
 
         // Check the line count is consistent with the _raw field
-        ml::api::CCsvInputParser::TStrStrUMapCItr rawIter = dataRowFields.find("_raw");
+        auto rawIter = dataRowFields.find("_raw");
         BOOST_TEST_REQUIRE(rawIter != dataRowFields.end());
-        ml::api::CCsvInputParser::TStrStrUMapCItr lineCountIter =
-            dataRowFields.find("linecount");
+        auto lineCountIter = dataRowFields.find("linecount");
         BOOST_TEST_REQUIRE(lineCountIter != dataRowFields.end());
 
         size_t expectedLineCount(1 + std::count(rawIter->second.begin(),

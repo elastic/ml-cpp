@@ -8,7 +8,7 @@
 
 #include <core/CRapidJsonLineWriter.h>
 
-#include <api/COutputHandler.h>
+#include <api/CSimpleOutputWriter.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/document.h>
@@ -34,7 +34,7 @@ namespace api {
 //! IMPLEMENTATION:\n
 //! Using RapidJson to do the heavy lifting.
 //!
-class API_EXPORT CNdJsonOutputWriter : public COutputHandler {
+class API_EXPORT CNdJsonOutputWriter : public CSimpleOutputWriter {
 public:
     using TStrSet = std::set<std::string>;
 
@@ -57,14 +57,14 @@ public:
     virtual ~CNdJsonOutputWriter();
 
     // Bring the other overload of fieldNames() into scope
-    using COutputHandler::fieldNames;
+    using CSimpleOutputWriter::fieldNames;
 
     //! Set field names - this function has no affect it always
     //! returns true
     virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
 
     // Bring the other overloads of writeRow() into scope
-    using COutputHandler::writeRow;
+    using CSimpleOutputWriter::writeRow;
 
     //! Write the data row fields as a JSON object
     virtual bool writeRow(const TStrStrUMap& dataRowFields,

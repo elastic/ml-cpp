@@ -58,12 +58,10 @@ CNdInputParser.cc \
 CNdJsonInputParser.cc \
 CNdJsonOutputWriter.cc \
 CNoopCategoryIdMapper.cc \
-CNullOutput.cc \
-COutputChainer.cc \
-COutputHandler.cc \
 CPerPartitionCategoryIdMapper.cc \
 CPersistenceManager.cc \
 CResultNormalizer.cc \
+CSimpleOutputWriter.cc \
 CSingleFieldDataCategorizer.cc \
 CSingleStreamDataAdder.cc \
 CSingleStreamSearcher.cc \

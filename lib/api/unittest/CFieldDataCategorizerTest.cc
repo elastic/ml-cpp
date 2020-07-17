@@ -13,11 +13,8 @@
 #include <model/CLimits.h>
 
 #include <api/CFieldConfig.h>
-#include <api/CNullOutput.h>
-#include <api/COutputChainer.h>
-#include <api/COutputHandler.h>
+#include <api/CSimpleOutputWriter.h>
 
-#include "CMockDataProcessor.h"
 #include "CTestFieldDataCategorizer.h"
 
 #include <boost/test/unit_test.hpp>
@@ -48,7 +45,7 @@ public:
     }
 };
 
-class CTestOutputHandler : public COutputHandler {
+class CTestChainedProcessor : public CDataProcessor {
 public:
     using TIntSet = std::set<int>;
 
@@ -57,23 +54,16 @@ public:
 
     bool hasFinalised() const { return m_Finalised; }
 
-    bool fieldNames(const TStrVec& /*fieldNames*/, const TStrVec& /*extraFieldNames*/) override {
-        return true;
-    }
-
-    bool writeRow(const TStrStrUMap& dataRowFields,
-                  const TStrStrUMap& overrideDataRowFields,
-                  TOptionalTime /*time*/) override {
-        ++m_NumRows;
+    bool handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime /*time*/) override {
+        auto iter = dataRowFields.find(".");
+        if (iter != dataRowFields.end() && iter->second.empty() == false) {
+            ++m_NumControlMessages;
+            return true;
+        }
         std::string categoryIdStr;
-        auto iter = overrideDataRowFields.find("mlcategory");
-        if (iter != overrideDataRowFields.end()) {
+        iter = dataRowFields.find("mlcategory");
+        if (iter != dataRowFields.end()) {
             categoryIdStr = iter->second;
-        } else {
-            iter = dataRowFields.find("mlcategory");
-            if (iter != dataRowFields.end()) {
-                categoryIdStr = iter->second;
-            }
         }
         int categoryId{0};
         if (categoryIdStr.empty() == false &&
@@ -81,17 +71,39 @@ public:
             categoryId > 0) {
             m_CategoryIdsHandled.insert(categoryId);
         }
+        ++m_NumRecordsHandled;
         return true;
     }
 
-    std::uint64_t numRows() const { return m_NumRows; }
+    bool restoreState(core::CDataSearcher& /*restoreSearcher*/,
+                      core_t::TTime& /*completeToTime*/) override {
+        return true;
+    }
+
+    bool persistStateInForeground(core::CDataAdder& /*persister*/,
+                                  const std::string& /*descriptionPrefix*/) override {
+        return true;
+    }
+
+    std::uint64_t numRecordsHandled() const override {
+        return m_NumRecordsHandled;
+    }
+
+    std::uint64_t numControlMessagesHandled() const {
+        return m_NumControlMessages;
+    }
+
+    bool isPersistenceNeeded(const std::string& /*description*/) const override {
+        return false;
+    }
 
     const TIntSet& categoryIdsHandled() const { return m_CategoryIdsHandled; }
 
 private:
     bool m_Finalised = false;
 
-    std::uint64_t m_NumRows = 0;
+    std::uint64_t m_NumRecordsHandled = 0;
+    std::uint64_t m_NumControlMessages = 0;
 
     TIntSet m_CategoryIdsHandled;
 };
@@ -145,14 +157,16 @@ std::string setupPerPartitionStopOnWarnTest(bool stopOnWarnAtInit,
 
     std::ostringstream outputStrm;
     {
-        CNullOutput nullOutput;
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
         CTestFieldDataCategorizer categorizer{
-            "job",   config,          limits, nullOutput, wrappedOutputStream,
+            "job",   config,          limits, nullptr, wrappedOutputStream,
             nullptr, stopOnWarnAtInit};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFieldsPartition1;
+        categorizer.registerMutableField(
+            CFieldDataCategorizer::MLCATEGORY_NAME,
+            dataRowFieldsPartition1[CFieldDataCategorizer::MLCATEGORY_NAME]);
         dataRowFieldsPartition1["event.dataset"] = "nodes";
         dataRowFieldsPartition1["message"] = "Node 1 started";
 
@@ -194,28 +208,35 @@ BOOST_AUTO_TEST_CASE(testWithoutPerPartitionCategorization) {
     model::CLimits limits;
     CFieldConfig config;
     BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
-    CTestOutputHandler handler;
+    CTestChainedProcessor testChainedProcessor;
 
     std::ostringstream outputStrm;
     core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-    CTestFieldDataCategorizer categorizer{"job", config, limits, handler, wrappedOutputStream};
+    CTestFieldDataCategorizer categorizer{"job", config, limits, &testChainedProcessor,
+                                          wrappedOutputStream};
 
-    BOOST_REQUIRE_EQUAL(false, handler.hasFinalised());
+    BOOST_REQUIRE_EQUAL(false, testChainedProcessor.hasFinalised());
     BOOST_REQUIRE_EQUAL(0, categorizer.numRecordsHandled());
 
     CFieldDataCategorizer::TStrStrUMap dataRowFields;
+    categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
+                                     dataRowFields[CFieldDataCategorizer::MLCATEGORY_NAME]);
     dataRowFields["message"] = "thing";
     dataRowFields["two"] = "other";
 
     BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     BOOST_REQUIRE_EQUAL(1, categorizer.numRecordsHandled());
-    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
-    BOOST_REQUIRE_EQUAL("[1]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(),
+                        testChainedProcessor.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL("[1]", core::CContainerPrinter::print(
+                                   testChainedProcessor.categoryIdsHandled()));
 
     // try a couple of erroneous cases
     dataRowFields.clear();
+    categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
+                                     dataRowFields[CFieldDataCategorizer::MLCATEGORY_NAME]);
     BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     dataRowFields["thing"] = "bling";
@@ -226,20 +247,23 @@ BOOST_AUTO_TEST_CASE(testWithoutPerPartitionCategorization) {
     BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     BOOST_REQUIRE_EQUAL(4, categorizer.numRecordsHandled());
-    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(),
+                        testChainedProcessor.numRecordsHandled());
     // Still only 1, as all the other input was invalid
-    BOOST_REQUIRE_EQUAL("[1]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
+    BOOST_REQUIRE_EQUAL("[1]", core::CContainerPrinter::print(
+                                   testChainedProcessor.categoryIdsHandled()));
 
     dataRowFields["message"] = "and another thing";
     BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     BOOST_REQUIRE_EQUAL(5, categorizer.numRecordsHandled());
-    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
-    BOOST_REQUIRE_EQUAL(
-        "[1, 2]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(),
+                        testChainedProcessor.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL("[1, 2]", core::CContainerPrinter::print(
+                                      testChainedProcessor.categoryIdsHandled()));
 
     categorizer.finalise();
-    BOOST_TEST_REQUIRE(handler.hasFinalised());
+    BOOST_TEST_REQUIRE(testChainedProcessor.hasFinalised());
 
     // do a persist / restore
     std::string origJson;
@@ -254,12 +278,11 @@ BOOST_AUTO_TEST_CASE(testWithoutPerPartitionCategorization) {
     LOG_DEBUG(<< "origJson = " << origJson);
     {
         model::CLimits limits2;
-        CTestOutputHandler handler2;
         std::ostringstream outputStrm2;
         core::CJsonOutputStreamWrapper wrappedOutputStream2{outputStrm2};
 
         CTestFieldDataCategorizer newCategorizer{"job", config, limits2,
-                                                 handler2, wrappedOutputStream2};
+                                                 nullptr, wrappedOutputStream2};
         CTestDataSearcher restorer{origJson};
         core_t::TTime time{0};
         newCategorizer.restoreState(restorer, time);
@@ -276,39 +299,49 @@ BOOST_AUTO_TEST_CASE(testWithPerPartitionCategorization) {
     model::CLimits limits;
     CFieldConfig config;
     BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_per_partition_categorization.conf"));
-    CTestOutputHandler handler;
+    CTestChainedProcessor testChainedProcessor;
 
     std::ostringstream outputStrm;
     core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-    CTestFieldDataCategorizer categorizer{"job", config, limits, handler, wrappedOutputStream};
+    CTestFieldDataCategorizer categorizer{"job", config, limits, &testChainedProcessor,
+                                          wrappedOutputStream};
 
-    BOOST_REQUIRE_EQUAL(false, handler.hasFinalised());
+    BOOST_REQUIRE_EQUAL(false, testChainedProcessor.hasFinalised());
     BOOST_REQUIRE_EQUAL(0, categorizer.numRecordsHandled());
 
     CFieldDataCategorizer::TStrStrUMap dataRowFields;
+    categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
+                                     dataRowFields[CFieldDataCategorizer::MLCATEGORY_NAME]);
     dataRowFields["message"] = "thing";
     dataRowFields["event.dataset"] = "elasticsearch";
     dataRowFields["two"] = "other";
+    categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
+                                     dataRowFields[CFieldDataCategorizer::MLCATEGORY_NAME]);
 
     BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     BOOST_REQUIRE_EQUAL(1, categorizer.numRecordsHandled());
-    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
-    BOOST_REQUIRE_EQUAL("[1]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(),
+                        testChainedProcessor.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL("[1]", core::CContainerPrinter::print(
+                                   testChainedProcessor.categoryIdsHandled()));
 
     dataRowFields["event.dataset"] = "kibana";
     BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     BOOST_REQUIRE_EQUAL(2, categorizer.numRecordsHandled());
-    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(),
+                        testChainedProcessor.numRecordsHandled());
     // Now two categories, because even though message was identical, the
     // partition was different
-    BOOST_REQUIRE_EQUAL(
-        "[1, 2]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
+    BOOST_REQUIRE_EQUAL("[1, 2]", core::CContainerPrinter::print(
+                                      testChainedProcessor.categoryIdsHandled()));
 
     // try a couple of erroneous cases
     dataRowFields.clear();
+    categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
+                                     dataRowFields[CFieldDataCategorizer::MLCATEGORY_NAME]);
     BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     dataRowFields["thing"] = "bling";
@@ -319,40 +352,44 @@ BOOST_AUTO_TEST_CASE(testWithPerPartitionCategorization) {
     BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     BOOST_REQUIRE_EQUAL(5, categorizer.numRecordsHandled());
-    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(),
+                        testChainedProcessor.numRecordsHandled());
     // Still only 2, as all the other input was invalid
-    BOOST_REQUIRE_EQUAL(
-        "[1, 2]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
+    BOOST_REQUIRE_EQUAL("[1, 2]", core::CContainerPrinter::print(
+                                      testChainedProcessor.categoryIdsHandled()));
 
     dataRowFields["message"] = "and another thing";
     dataRowFields["event.dataset"] = "elasticsearch";
     BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     BOOST_REQUIRE_EQUAL(6, categorizer.numRecordsHandled());
-    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
-    BOOST_REQUIRE_EQUAL(
-        "[1, 2, 3]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(),
+                        testChainedProcessor.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL("[1, 2, 3]", core::CContainerPrinter::print(
+                                         testChainedProcessor.categoryIdsHandled()));
 
     BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     BOOST_REQUIRE_EQUAL(7, categorizer.numRecordsHandled());
-    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(),
+                        testChainedProcessor.numRecordsHandled());
     // Still 3, as the message and partition were identical so won't have
     // created a new category
-    BOOST_REQUIRE_EQUAL(
-        "[1, 2, 3]", core::CContainerPrinter::print(handler.categoryIdsHandled()));
+    BOOST_REQUIRE_EQUAL("[1, 2, 3]", core::CContainerPrinter::print(
+                                         testChainedProcessor.categoryIdsHandled()));
 
     dataRowFields["event.dataset"] = "kibana";
     BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
 
     BOOST_REQUIRE_EQUAL(8, categorizer.numRecordsHandled());
-    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(), handler.numRows());
+    BOOST_REQUIRE_EQUAL(categorizer.numRecordsHandled(),
+                        testChainedProcessor.numRecordsHandled());
     // Now 4, as the message was the same but the partition changed
-    BOOST_REQUIRE_EQUAL("[1, 2, 3, 4]",
-                        core::CContainerPrinter::print(handler.categoryIdsHandled()));
+    BOOST_REQUIRE_EQUAL("[1, 2, 3, 4]", core::CContainerPrinter::print(
+                                            testChainedProcessor.categoryIdsHandled()));
 
     categorizer.finalise();
-    BOOST_TEST_REQUIRE(handler.hasFinalised());
+    BOOST_TEST_REQUIRE(testChainedProcessor.hasFinalised());
 
     // do a persist / restore
     std::string origJson;
@@ -367,12 +404,11 @@ BOOST_AUTO_TEST_CASE(testWithPerPartitionCategorization) {
     LOG_DEBUG(<< "origJson = " << origJson);
     {
         model::CLimits limits2;
-        CTestOutputHandler handler2;
         std::ostringstream outputStrm2;
         core::CJsonOutputStreamWrapper wrappedOutputStream2{outputStrm2};
 
         CTestFieldDataCategorizer newCategorizer{"job", config, limits2,
-                                                 handler2, wrappedOutputStream2};
+                                                 nullptr, wrappedOutputStream2};
         CTestDataSearcher restorer{origJson};
         core_t::TTime time{0};
         newCategorizer.restoreState(restorer, time);
@@ -392,13 +428,13 @@ BOOST_AUTO_TEST_CASE(testNodeReverseSearch) {
 
     std::ostringstream outputStrm;
     {
-        CNullOutput nullOutput;
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-        CTestFieldDataCategorizer categorizer{"job", config, limits, nullOutput,
-                                              wrappedOutputStream};
+        CTestFieldDataCategorizer categorizer{"job", config, limits, nullptr, wrappedOutputStream};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
+        categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
+                                         dataRowFields[CFieldDataCategorizer::MLCATEGORY_NAME]);
         dataRowFields["message"] = "Node 1 started";
 
         BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
@@ -431,13 +467,13 @@ BOOST_AUTO_TEST_CASE(testJobKilledReverseSearch) {
 
     std::ostringstream outputStrm;
     {
-        CNullOutput nullOutput;
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-        CTestFieldDataCategorizer categorizer{"job", config, limits, nullOutput,
-                                              wrappedOutputStream};
+        CTestFieldDataCategorizer categorizer{"job", config, limits, nullptr, wrappedOutputStream};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
+        categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
+                                         dataRowFields[CFieldDataCategorizer::MLCATEGORY_NAME]);
         dataRowFields["message"] = "[count_tweets] Killing job";
 
         BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
@@ -476,17 +512,18 @@ BOOST_AUTO_TEST_CASE(testPassOnControlMessages) {
     CFieldConfig config;
     BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
+    CTestChainedProcessor testChainedProcessor;
+
     std::ostringstream outputStrm;
     {
-        CNullOutput nullOutput;
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-        CMockDataProcessor mockProcessor{nullOutput};
-        COutputChainer outputChainer{mockProcessor};
-        CTestFieldDataCategorizer categorizer{"job", config, limits,
-                                              outputChainer, wrappedOutputStream};
+        CTestFieldDataCategorizer categorizer{
+            "job", config, limits, &testChainedProcessor, wrappedOutputStream};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
+        categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
+                                         dataRowFields[CFieldDataCategorizer::MLCATEGORY_NAME]);
         dataRowFields["."] = "f7";
 
         BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
@@ -497,6 +534,11 @@ BOOST_AUTO_TEST_CASE(testPassOnControlMessages) {
     const std::string& output{outputStrm.str()};
     LOG_DEBUG(<< "Output is: " << output);
     BOOST_REQUIRE_EQUAL("[]", output);
+
+    BOOST_REQUIRE_EQUAL(0, testChainedProcessor.categoryIdsHandled().size());
+    BOOST_REQUIRE_EQUAL(0, testChainedProcessor.numRecordsHandled());
+    BOOST_REQUIRE_EQUAL(1, testChainedProcessor.numControlMessagesHandled());
+    BOOST_REQUIRE_EQUAL(true, testChainedProcessor.hasFinalised());
 }
 
 BOOST_AUTO_TEST_CASE(testHandleControlMessages) {
@@ -506,13 +548,13 @@ BOOST_AUTO_TEST_CASE(testHandleControlMessages) {
 
     std::ostringstream outputStrm;
     {
-        CNullOutput nullOutput;
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-        CTestFieldDataCategorizer categorizer{"job", config, limits, nullOutput,
-                                              wrappedOutputStream};
+        CTestFieldDataCategorizer categorizer{"job", config, limits, nullptr, wrappedOutputStream};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
+        categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
+                                         dataRowFields[CFieldDataCategorizer::MLCATEGORY_NAME]);
         dataRowFields["."] = "f7";
 
         BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
@@ -531,9 +573,8 @@ BOOST_AUTO_TEST_CASE(testRestoreStateFailsWithEmptyState) {
     BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
 
     std::ostringstream outputStrm;
-    CNullOutput nullOutput;
     core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
-    CTestFieldDataCategorizer categorizer{"job", config, limits, nullOutput, wrappedOutputStream};
+    CTestFieldDataCategorizer categorizer{"job", config, limits, nullptr, wrappedOutputStream};
 
     core_t::TTime completeToTime{0};
     CEmptySearcher restoreSearcher;
@@ -547,13 +588,13 @@ BOOST_AUTO_TEST_CASE(testFlushWritesOnlyChangedCategories) {
 
     std::ostringstream outputStrm;
     {
-        CNullOutput nullOutput;
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-        CTestFieldDataCategorizer categorizer{"job", config, limits, nullOutput,
-                                              wrappedOutputStream};
+        CTestFieldDataCategorizer categorizer{"job", config, limits, nullptr, wrappedOutputStream};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
+        categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
+                                         dataRowFields[CFieldDataCategorizer::MLCATEGORY_NAME]);
         dataRowFields["message"] = "Node 1 started";
 
         BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
@@ -612,13 +653,13 @@ BOOST_AUTO_TEST_CASE(testFinalizeWritesOnlyChangedCategories) {
 
     std::ostringstream outputStrm;
     {
-        CNullOutput nullOutput;
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-        CTestFieldDataCategorizer categorizer{"job", config, limits, nullOutput,
-                                              wrappedOutputStream};
+        CTestFieldDataCategorizer categorizer{"job", config, limits, nullptr, wrappedOutputStream};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
+        categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
+                                         dataRowFields[CFieldDataCategorizer::MLCATEGORY_NAME]);
         dataRowFields["message"] = "Node 1 started";
 
         BOOST_TEST_REQUIRE(categorizer.handleRecord(dataRowFields));
@@ -660,13 +701,13 @@ BOOST_AUTO_TEST_CASE(testWarnStatusCausesUrgentStatsWrite) {
 
     std::ostringstream outputStrm;
     {
-        CNullOutput nullOutput;
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-        CTestFieldDataCategorizer categorizer{"job", config, limits, nullOutput,
-                                              wrappedOutputStream};
+        CTestFieldDataCategorizer categorizer{"job", config, limits, nullptr, wrappedOutputStream};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
+        categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
+                                         dataRowFields[CFieldDataCategorizer::MLCATEGORY_NAME]);
         dataRowFields["message"] = "Node 1 started";
 
         // The 100th message should cause an urgent stats write with a
@@ -706,14 +747,14 @@ BOOST_AUTO_TEST_CASE(testStopCategorizingOnWarnStatusSingleCategorizer) {
 
     std::ostringstream outputStrm;
     {
-        CNullOutput nullOutput;
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
         CTestFieldDataCategorizer categorizer{
-            "job",   config, limits, nullOutput, wrappedOutputStream,
-            nullptr, true};
+            "job", config, limits, nullptr, wrappedOutputStream, nullptr, true};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
+        categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
+                                         dataRowFields[CFieldDataCategorizer::MLCATEGORY_NAME]);
         dataRowFields["message"] = "Node 1 started";
 
         // The 100th message should cause the categorization status to change to

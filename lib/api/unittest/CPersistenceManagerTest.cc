@@ -17,8 +17,6 @@
 #include <api/CFieldConfig.h>
 #include <api/CModelSnapshotJsonWriter.h>
 #include <api/CNdJsonInputParser.h>
-#include <api/CNullOutput.h>
-#include <api/COutputChainer.h>
 #include <api/CPersistenceManager.h>
 #include <api/CSingleStreamDataAdder.h>
 
@@ -38,7 +36,7 @@ namespace {
 
 void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport,
                            std::string& snapshotIdOut,
-                           size_t& numDocsOut) {
+                           std::size_t& numDocsOut) {
     LOG_DEBUG(<< "Persist complete with description: " << modelSnapshotReport.s_Description);
     snapshotIdOut = modelSnapshotReport.s_SnapshotId;
     numDocsOut = modelSnapshotReport.s_NumDocs;
@@ -50,76 +48,82 @@ protected:
     void foregroundBackgroundCompCategorizationAndAnomalyDetection(const std::string& configFileName) {
         // Start by creating processors with non-trivial state
 
-        static const ml::core_t::TTime BUCKET_SIZE(3600);
-        static const std::string JOB_ID("job");
+        static const ml::core_t::TTime BUCKET_SIZE{3600};
+        static const std::string JOB_ID{"job"};
 
-        std::string inputFilename("testfiles/big_ascending.txt");
+        std::string inputFilename{"testfiles/big_ascending.txt"};
 
         // Open the input and output files
-        std::ifstream inputStrm(inputFilename.c_str());
+        std::ifstream inputStrm{inputFilename};
         BOOST_TEST_REQUIRE(inputStrm.is_open());
 
-        std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
+        std::ofstream outputStrm{ml::core::COsFileFuncs::NULL_FILENAME};
         BOOST_TEST_REQUIRE(outputStrm.is_open());
 
         ml::model::CLimits limits;
         ml::api::CFieldConfig fieldConfig;
         BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
 
-        ml::model::CAnomalyDetectorModelConfig modelConfig =
-            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+        ml::model::CAnomalyDetectorModelConfig modelConfig{
+            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE)};
 
-        std::ostringstream* backgroundStream(nullptr);
-        ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr(
-            backgroundStream = new std::ostringstream());
-        ml::api::CSingleStreamDataAdder backgroundDataAdder(backgroundStreamPtr);
-        std::ostringstream* foregroundStream(nullptr);
-        ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr(
-            foregroundStream = new std::ostringstream());
+        std::ostringstream* backgroundStream{nullptr};
+        ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr{
+            backgroundStream = new std::ostringstream()};
+        ml::api::CSingleStreamDataAdder backgroundDataAdder{backgroundStreamPtr};
+        std::ostringstream* foregroundStream{nullptr};
+        ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr{
+            foregroundStream = new std::ostringstream()};
 
-        ml::api::CSingleStreamDataAdder foregroundDataAdder(foregroundStreamPtr);
+        ml::api::CSingleStreamDataAdder foregroundDataAdder{foregroundStreamPtr};
 
         // The 30000 second persist interval is set large enough that the timer will
         // will not trigger during the test - we bypass the timer in this test
         // and kick off the background persistence chain explicitly
-        ml::api::CPersistenceManager persistenceManager(
-            30000, false, backgroundDataAdder, foregroundDataAdder);
+        ml::api::CPersistenceManager persistenceManager{
+            30000, false, backgroundDataAdder, foregroundDataAdder};
 
         std::string snapshotId;
-        std::size_t numDocs(0);
+        std::size_t numDocs{0};
 
         std::string backgroundSnapshotId;
         std::string foregroundSnapshotId;
         std::string foregroundSnapshotId2;
 
-        std::ostringstream* foregroundStream2(nullptr);
-        ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr2(
-            foregroundStream2 = new std::ostringstream());
+        std::ostringstream* foregroundStream2{nullptr};
+        ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr2{
+            foregroundStream2 = new std::ostringstream()};
         {
             ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-            CTestAnomalyJob job(JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+            CTestAnomalyJob job{JOB_ID,
+                                limits,
+                                fieldConfig,
+                                modelConfig,
+                                wrappedOutputStream,
                                 std::bind(&reportPersistComplete, std::placeholders::_1,
                                           std::ref(snapshotId), std::ref(numDocs)),
-                                &persistenceManager, -1, "time", "%d/%b/%Y:%T %z");
-
-            ml::api::CDataProcessor* firstProcessor(&job);
-
-            // Chain the detector's input
-            ml::api::COutputChainer outputChainer(job);
+                                &persistenceManager,
+                                -1,
+                                "time",
+                                "%d/%b/%Y:%T %z"};
 
             // The categorizer knows how to assign categories to records
-            CTestFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits,
-                                                  outputChainer, wrappedOutputStream,
-                                                  &persistenceManager);
+            CTestFieldDataCategorizer categorizer{
+                JOB_ID, fieldConfig,         limits,
+                &job,   wrappedOutputStream, &persistenceManager};
 
+            ml::api::CDataProcessor* firstProcessor{nullptr};
             if (fieldConfig.fieldNameSuperset().count(
                     CTestFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
                 LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
                 firstProcessor = &categorizer;
+            } else {
+                firstProcessor = &job;
             }
 
-            ml::api::CNdJsonInputParser parser(inputStrm);
+            ml::api::CNdJsonInputParser parser{
+                {CTestFieldDataCategorizer::MLCATEGORY_NAME}, inputStrm};
 
             BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
                 [firstProcessor](const ml::api::CDataProcessor::TStrStrUMap& dataRowFields) {
@@ -149,18 +153,18 @@ protected:
             foregroundSnapshotId2 = snapshotId;
         }
 
-        std::string backgroundState = backgroundStream->str();
-        std::string foregroundState = foregroundStream->str();
-        std::string foregroundState2 = foregroundStream2->str();
+        std::string backgroundState{backgroundStream->str()};
+        std::string foregroundState{foregroundStream->str()};
+        std::string foregroundState2{foregroundStream2->str()};
 
         // The snapshot ID can be different between the two persists, so replace the
         // first occurrence of it (which is in the bulk metadata)
-        BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                           backgroundSnapshotId, "snap", backgroundState));
-        BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                           foregroundSnapshotId, "snap", foregroundState));
-        BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                           foregroundSnapshotId2, "snap", foregroundState2));
+        BOOST_REQUIRE_EQUAL(1, ml::core::CStringUtils::replaceFirst(
+                                   backgroundSnapshotId, "snap", backgroundState));
+        BOOST_REQUIRE_EQUAL(1, ml::core::CStringUtils::replaceFirst(
+                                   foregroundSnapshotId, "snap", foregroundState));
+        BOOST_REQUIRE_EQUAL(1, ml::core::CStringUtils::replaceFirst(
+                                   foregroundSnapshotId2, "snap", foregroundState2));
 
         // Replace the zero byte separators to avoid '\0's in the output if the
         // test fails
@@ -176,60 +180,68 @@ protected:
     void foregroundBackgroundCompAnomalyDetectionAfterStaticsUpdate(const std::string& configFileName) {
         // Start by creating processors with non-trivial state
 
-        static const ml::core_t::TTime BUCKET_SIZE(3600);
-        static const std::string JOB_ID("job");
+        static const ml::core_t::TTime BUCKET_SIZE{3600};
+        static const std::string JOB_ID{"job"};
 
-        std::string inputFilename("testfiles/big_ascending.txt");
+        std::string inputFilename{"testfiles/big_ascending.txt"};
 
         // Open the input and output files
-        std::ifstream inputStrm(inputFilename.c_str());
+        std::ifstream inputStrm{inputFilename};
         BOOST_TEST_REQUIRE(inputStrm.is_open());
 
-        std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
+        std::ofstream outputStrm{ml::core::COsFileFuncs::NULL_FILENAME};
         BOOST_TEST_REQUIRE(outputStrm.is_open());
 
         ml::model::CLimits limits;
         ml::api::CFieldConfig fieldConfig;
         BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
 
-        ml::model::CAnomalyDetectorModelConfig modelConfig =
-            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
+        ml::model::CAnomalyDetectorModelConfig modelConfig{
+            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE)};
 
-        std::ostringstream* backgroundStream(nullptr);
-        ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr(
-            backgroundStream = new std::ostringstream());
+        std::ostringstream* backgroundStream{nullptr};
+        ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr{
+            backgroundStream = new std::ostringstream()};
         ml::api::CSingleStreamDataAdder backgroundDataAdder(backgroundStreamPtr);
 
-        std::ostringstream* foregroundStream(nullptr);
-        ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr(
-            foregroundStream = new std::ostringstream());
+        std::ostringstream* foregroundStream{nullptr};
+        ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr{
+            foregroundStream = new std::ostringstream()};
 
         // Persist the processors' state in the foreground
-        ml::api::CSingleStreamDataAdder foregroundDataAdder(foregroundStreamPtr);
+        ml::api::CSingleStreamDataAdder foregroundDataAdder{foregroundStreamPtr};
 
         // The 30000 second persist interval is set large enough that the timer
         // will not trigger during the test - we bypass the timer in this test
         // and kick off the background persistence chain explicitly
-        ml::api::CPersistenceManager persistenceManager(
-            30000, false, backgroundDataAdder, foregroundDataAdder);
+        ml::api::CPersistenceManager persistenceManager{
+            30000, false, backgroundDataAdder, foregroundDataAdder};
 
         std::string snapshotId;
-        std::size_t numDocs(0);
+        std::size_t numDocs{0};
 
         std::string backgroundSnapshotId;
         std::string foregroundSnapshotId;
 
         {
-            ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+            ml::core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-            CTestAnomalyJob job(JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+            CTestAnomalyJob job{JOB_ID,
+                                limits,
+                                fieldConfig,
+                                modelConfig,
+                                wrappedOutputStream,
                                 std::bind(&reportPersistComplete, std::placeholders::_1,
                                           std::ref(snapshotId), std::ref(numDocs)),
-                                &persistenceManager, -1, "time", "%d/%b/%Y:%T %z");
+                                &persistenceManager,
+                                -1,
+                                "time",
+                                "%d/%b/%Y:%T %z"};
 
-            ml::api::CDataProcessor* firstProcessor(&job);
+            ml::api::CDataProcessor* firstProcessor{&job};
 
-            ml::api::CNdJsonInputParser parser(inputStrm);
+            ml::api::CNdJsonInputParser parser{
+                {CTestFieldDataCategorizer::MLCATEGORY_NAME}, inputStrm};
 
             BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
                 [firstProcessor](const ml::api::CDataProcessor::TStrStrUMap& dataRowFields) {
@@ -258,15 +270,15 @@ protected:
             backgroundSnapshotId = snapshotId;
         }
 
-        std::string backgroundState = backgroundStream->str();
-        std::string foregroundState = foregroundStream->str();
+        std::string backgroundState{backgroundStream->str()};
+        std::string foregroundState{foregroundStream->str()};
 
         // The snapshot ID can be different between the two persists, so replace the
         // first occurrence of it (which is in the bulk metadata)
-        BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                           backgroundSnapshotId, "snap", backgroundState));
-        BOOST_REQUIRE_EQUAL(size_t(1), ml::core::CStringUtils::replaceFirst(
-                                           foregroundSnapshotId, "snap", foregroundState));
+        BOOST_REQUIRE_EQUAL(1, ml::core::CStringUtils::replaceFirst(
+                                   backgroundSnapshotId, "snap", backgroundState));
+        BOOST_REQUIRE_EQUAL(1, ml::core::CStringUtils::replaceFirst(
+                                   foregroundSnapshotId, "snap", foregroundState));
 
         // Replace the zero byte separators to avoid '\0's in the output if the
         // test fails
@@ -321,17 +333,15 @@ BOOST_FIXTURE_TEST_CASE(testBackgroundPersistCategorizationConsistency, CTestFix
     std::string backgroundState2;
 
     {
-        ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
+        ml::core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-        // All output we're interested in goes via the JSON output writer, so
-        // output of the categorised input data can be dropped
-        ml::api::CNullOutput nullOutput;
-
-        CTestFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits, nullOutput,
-                                              wrappedOutputStream, &persistenceManager);
+        CTestFieldDataCategorizer categorizer{
+            JOB_ID,  fieldConfig,         limits,
+            nullptr, wrappedOutputStream, &persistenceManager};
 
         std::istringstream inputStrm1{FIRST_INPUT};
-        ml::api::CNdJsonInputParser parser1{inputStrm1};
+        ml::api::CNdJsonInputParser parser1{
+            {CTestFieldDataCategorizer::MLCATEGORY_NAME}, inputStrm1};
 
         BOOST_TEST_REQUIRE(parser1.readStreamIntoMaps(
             [&categorizer](const CTestFieldDataCategorizer::TStrStrUMap& dataRowFields) {
@@ -346,7 +356,8 @@ BOOST_FIXTURE_TEST_CASE(testBackgroundPersistCategorizationConsistency, CTestFix
         backgroundState1 = backgroundStream->str();
 
         std::istringstream inputStrm2{SECOND_INPUT};
-        ml::api::CNdJsonInputParser parser2{inputStrm2};
+        ml::api::CNdJsonInputParser parser2{
+            {CTestFieldDataCategorizer::MLCATEGORY_NAME}, inputStrm2};
 
         BOOST_TEST_REQUIRE(categorizer.periodicPersistStateInBackground());
         BOOST_TEST_REQUIRE(persistenceManager.startPersistInBackground());
@@ -378,48 +389,46 @@ BOOST_FIXTURE_TEST_CASE(testBackgroundPersistCategorizationConsistency, CTestFix
 BOOST_FIXTURE_TEST_CASE(testCategorizationOnlyPersist, CTestFixture) {
     // Start by creating a categorizer with non-trivial state
 
-    static const std::string JOB_ID("job");
+    static const std::string JOB_ID{"job"};
 
-    std::string inputFilename("testfiles/big_ascending.txt");
+    std::string inputFilename{"testfiles/big_ascending.txt"};
 
     // Open the input and output files
-    std::ifstream inputStrm(inputFilename);
+    std::ifstream inputStrm{inputFilename};
     BOOST_TEST_REQUIRE(inputStrm.is_open());
 
-    std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
+    std::ofstream outputStrm{ml::core::COsFileFuncs::NULL_FILENAME};
     BOOST_TEST_REQUIRE(outputStrm.is_open());
 
     ml::model::CLimits limits;
-    ml::api::CFieldConfig fieldConfig("agent");
+    ml::api::CFieldConfig fieldConfig{"agent"};
 
-    std::ostringstream* backgroundStream(nullptr);
-    ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr(
-        backgroundStream = new std::ostringstream());
-    ml::api::CSingleStreamDataAdder backgroundDataAdder(backgroundStreamPtr);
+    std::ostringstream* backgroundStream{nullptr};
+    ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr{
+        backgroundStream = new std::ostringstream()};
+    ml::api::CSingleStreamDataAdder backgroundDataAdder{backgroundStreamPtr};
 
-    std::ostringstream* foregroundStream(nullptr);
-    ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr(
-        foregroundStream = new std::ostringstream());
-    ml::api::CSingleStreamDataAdder foregroundDataAdder(foregroundStreamPtr);
+    std::ostringstream* foregroundStream{nullptr};
+    ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr{
+        foregroundStream = new std::ostringstream()};
+    ml::api::CSingleStreamDataAdder foregroundDataAdder{foregroundStreamPtr};
 
     // The 30000 second persist interval is set large enough that the timer will
     // not trigger during the test - we bypass the timer in this test and kick
     // off the background persistence chain explicitly
-    ml::api::CPersistenceManager persistenceManager(30000, false, backgroundDataAdder,
-                                                    foregroundDataAdder);
+    ml::api::CPersistenceManager persistenceManager{30000, false, backgroundDataAdder,
+                                                    foregroundDataAdder};
 
     {
-        ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-
-        // All output we're interested in goes via the JSON output writer, so
-        // output of the categorised input data can be dropped
-        ml::api::CNullOutput nullOutput;
+        ml::core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
         // The categorizer knows how to assign categories to records
-        CTestFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits, nullOutput,
-                                              wrappedOutputStream, &persistenceManager);
+        CTestFieldDataCategorizer categorizer{
+            JOB_ID,  fieldConfig,         limits,
+            nullptr, wrappedOutputStream, &persistenceManager};
 
-        ml::api::CNdJsonInputParser parser(inputStrm);
+        ml::api::CNdJsonInputParser parser{
+            {CTestFieldDataCategorizer::MLCATEGORY_NAME}, inputStrm};
 
         BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
             [&categorizer](const CTestFieldDataCategorizer::TStrStrUMap& dataRowFields) {
@@ -439,8 +448,8 @@ BOOST_FIXTURE_TEST_CASE(testCategorizationOnlyPersist, CTestFixture) {
         persistenceManager.startPersist();
     }
 
-    std::string backgroundState = backgroundStream->str();
-    std::string foregroundState = foregroundStream->str();
+    std::string backgroundState{backgroundStream->str()};
+    std::string foregroundState{foregroundStream->str()};
 
     // Replace the zero byte separators to avoid '\0's in the output if the test
     // fails

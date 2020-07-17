@@ -18,11 +18,12 @@
 #include <algorithm>
 #include <fstream>
 #include <functional>
+#include <sstream>
 #include <vector>
 
-BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrVecItr)
-BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrVecCItr)
-BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrStrUMapCItr)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrVec::iterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrVec::const_iterator)
+BOOST_TEST_DONT_PRINT_LOG_VALUE(ml::api::CCsvInputParser::TStrStrUMap::const_iterator)
 
 BOOST_AUTO_TEST_SUITE(CCsvInputParserTest)
 
@@ -30,10 +31,11 @@ namespace {
 
 class CVisitor {
 public:
-    CVisitor() : m_Fast(true), m_RecordCount(0) {}
+    CVisitor() : m_Fast{true}, m_RecordCount{0} {}
 
-    CVisitor(const ml::api::CCsvInputParser::TStrVec& expectedFieldNames)
-        : m_Fast(false), m_RecordCount(0), m_ExpectedFieldNames(expectedFieldNames) {}
+    CVisitor(ml::api::CCsvInputParser::TStrVec expectedFieldNames)
+        : m_Fast{false}, m_RecordCount{0}, m_ExpectedFieldNames{std::move(expectedFieldNames)} {
+    }
 
     //! Reset the record count ready for another run
     void reset() { m_RecordCount = 0; }
@@ -58,15 +60,15 @@ public:
         BOOST_REQUIRE_EQUAL(m_ExpectedFieldNames.size(), dataRowFields.size());
 
         // Check the line count is consistent with the _raw field
-        ml::api::CCsvInputParser::TStrStrUMapCItr rawIter = dataRowFields.find("_raw");
+        auto rawIter = dataRowFields.find("_raw");
         BOOST_TEST_REQUIRE(rawIter != dataRowFields.end());
-        ml::api::CCsvInputParser::TStrStrUMapCItr lineCountIter =
-            dataRowFields.find("linecount");
+        auto lineCountIter = dataRowFields.find("linecount");
         BOOST_TEST_REQUIRE(lineCountIter != dataRowFields.end());
 
-        size_t expectedLineCount(1 + std::count(rawIter->second.begin(),
-                                                rawIter->second.end(), '\n'));
-        size_t lineCount(0);
+        std::size_t expectedLineCount{
+            1 + static_cast<std::size_t>(std::count(rawIter->second.begin(),
+                                                    rawIter->second.end(), '\n'))};
+        std::size_t lineCount{0};
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(lineCountIter->second, lineCount));
         BOOST_REQUIRE_EQUAL(expectedLineCount, lineCount);
 
@@ -96,21 +98,22 @@ public:
         auto lineCountIter = std::find(fieldNames.begin(), fieldNames.end(), "linecount");
         BOOST_TEST_REQUIRE(lineCountIter != fieldNames.end());
 
-        const std::string& rawStr = fieldValues[rawIter - fieldNames.begin()];
-        std::size_t expectedLineCount(1 + std::count(rawStr.begin(), rawStr.end(), '\n'));
-        std::size_t lineCount(0);
-        const std::string& lineCountStr = fieldValues[lineCountIter - fieldNames.begin()];
+        const std::string& rawStr{fieldValues[rawIter - fieldNames.begin()]};
+        std::size_t expectedLineCount{
+            1 + static_cast<std::size_t>(std::count(rawStr.begin(), rawStr.end(), '\n'))};
+        std::size_t lineCount{0};
+        const std::string& lineCountStr{fieldValues[lineCountIter - fieldNames.begin()]};
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(lineCountStr, lineCount));
         BOOST_REQUIRE_EQUAL(expectedLineCount, lineCount);
 
         return true;
     }
 
-    size_t recordCount() const { return m_RecordCount; }
+    std::size_t recordCount() const { return m_RecordCount; }
 
 private:
     bool m_Fast;
-    size_t m_RecordCount;
+    std::size_t m_RecordCount;
     ml::api::CCsvInputParser::TStrVec m_ExpectedFieldNames;
 };
 
@@ -122,8 +125,8 @@ public:
     CTimeCheckingVisitor(const std::string& timeField,
                          const std::string& timeFormat,
                          const TTimeVec& expectedTimes)
-        : m_RecordCount(0), m_TimeField(timeField), m_TimeFormat(timeFormat),
-          m_ExpectedTimes(expectedTimes) {}
+        : m_RecordCount{0}, m_TimeField{timeField}, m_TimeFormat{timeFormat}, m_ExpectedTimes{expectedTimes} {
+    }
 
     //! Handle a record
     bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
@@ -134,9 +137,9 @@ public:
         BOOST_TEST_REQUIRE(iter != dataRowFields.end());
 
         // Now check the actual time
-        ml::api::CCsvInputParser::TStrStrUMapCItr fieldIter = dataRowFields.find(m_TimeField);
+        auto fieldIter = dataRowFields.find(m_TimeField);
         BOOST_TEST_REQUIRE(fieldIter != dataRowFields.end());
-        ml::core_t::TTime timeVal(0);
+        ml::core_t::TTime timeVal{0};
         if (m_TimeFormat.empty()) {
             BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(fieldIter->second, timeVal));
         } else {
@@ -152,10 +155,10 @@ public:
         return true;
     }
 
-    size_t recordCount() const { return m_RecordCount; }
+    std::size_t recordCount() const { return m_RecordCount; }
 
 private:
-    size_t m_RecordCount;
+    std::size_t m_RecordCount;
     std::string m_TimeField;
     std::string m_TimeFormat;
     TTimeVec m_ExpectedTimes;
@@ -163,12 +166,12 @@ private:
 
 class CQuoteCheckingVisitor {
 public:
-    CQuoteCheckingVisitor() : m_RecordCount(0) {}
+    CQuoteCheckingVisitor() : m_RecordCount{0} {}
 
     //! Handle a record
     bool operator()(const ml::api::CCsvInputParser::TStrStrUMap& dataRowFields) {
         // Now check quoted fields
-        ml::api::CCsvInputParser::TStrStrUMapCItr fieldIter = dataRowFields.find("q1");
+        auto fieldIter = dataRowFields.find("q1");
         BOOST_TEST_REQUIRE(fieldIter != dataRowFields.end());
         BOOST_REQUIRE_EQUAL(std::string(""), fieldIter->second);
 
@@ -189,98 +192,58 @@ public:
         return true;
     }
 
-    size_t recordCount() const { return m_RecordCount; }
+    std::size_t recordCount() const { return m_RecordCount; }
 
 private:
-    size_t m_RecordCount;
+    std::size_t m_RecordCount;
 };
 }
 
 BOOST_AUTO_TEST_CASE(testSimpleDelims) {
-    std::ifstream simpleStrm("testfiles/simple.txt");
+    std::ifstream simpleStrm{"testfiles/simple.txt"};
     BOOST_TEST_REQUIRE(simpleStrm.is_open());
 
-    ml::api::CCsvInputParser::TStrVec expectedFieldNames;
-    expectedFieldNames.emplace_back("_cd");
-    expectedFieldNames.emplace_back("_indextime");
-    expectedFieldNames.emplace_back("_kv");
-    expectedFieldNames.emplace_back("_raw");
-    expectedFieldNames.emplace_back("_serial");
-    expectedFieldNames.emplace_back("_si");
-    expectedFieldNames.emplace_back("_sourcetype");
-    expectedFieldNames.emplace_back("_time");
-    expectedFieldNames.emplace_back("date_hour");
-    expectedFieldNames.emplace_back("date_mday");
-    expectedFieldNames.emplace_back("date_minute");
-    expectedFieldNames.emplace_back("date_month");
-    expectedFieldNames.emplace_back("date_second");
-    expectedFieldNames.emplace_back("date_wday");
-    expectedFieldNames.emplace_back("date_year");
-    expectedFieldNames.emplace_back("date_zone");
-    expectedFieldNames.emplace_back("eventtype");
-    expectedFieldNames.emplace_back("host");
-    expectedFieldNames.emplace_back("index");
-    expectedFieldNames.emplace_back("linecount");
-    expectedFieldNames.emplace_back("punct");
-    expectedFieldNames.emplace_back("source");
-    expectedFieldNames.emplace_back("sourcetype");
-    expectedFieldNames.emplace_back("server");
-    expectedFieldNames.emplace_back("timeendpos");
-    expectedFieldNames.emplace_back("timestartpos");
+    ml::api::CCsvInputParser::TStrVec expectedFieldNames{
+        "_cd",         "_indextime",  "_kv",         "_raw",      "_serial",
+        "_si",         "_sourcetype", "_time",       "date_hour", "date_mday",
+        "date_minute", "date_month",  "date_second", "date_wday", "date_year",
+        "date_zone",   "eventtype",   "host",        "index",     "linecount",
+        "punct",       "source",      "sourcetype",  "server",    "timeendpos",
+        "timestartpos"};
 
-    CVisitor visitor(expectedFieldNames);
+    CVisitor visitor{expectedFieldNames};
 
     // First read to a map
-    ml::api::CCsvInputParser parser1(simpleStrm);
+    ml::api::CCsvInputParser parser1{simpleStrm};
     BOOST_TEST_REQUIRE(parser1.readStreamIntoMaps(std::ref(visitor)));
-    BOOST_REQUIRE_EQUAL(size_t(15), visitor.recordCount());
+    BOOST_REQUIRE_EQUAL(15, visitor.recordCount());
 
     // Now re-read to vectors
     simpleStrm.clear();
     simpleStrm.seekg(0);
     visitor.reset();
 
-    ml::api::CCsvInputParser parser2(simpleStrm);
+    ml::api::CCsvInputParser parser2{simpleStrm};
     BOOST_TEST_REQUIRE(parser2.readStreamIntoVecs(std::ref(visitor)));
-    BOOST_REQUIRE_EQUAL(size_t(15), visitor.recordCount());
+    BOOST_REQUIRE_EQUAL(15, visitor.recordCount());
 }
 
 BOOST_AUTO_TEST_CASE(testComplexDelims) {
-    std::ifstream complexStrm("testfiles/complex.txt");
+    std::ifstream complexStrm{"testfiles/complex.txt"};
     BOOST_TEST_REQUIRE(complexStrm.is_open());
 
-    ml::api::CCsvInputParser::TStrVec expectedFieldNames;
-    expectedFieldNames.emplace_back("_cd");
-    expectedFieldNames.emplace_back("_indextime");
-    expectedFieldNames.emplace_back("_kv");
-    expectedFieldNames.emplace_back("_raw");
-    expectedFieldNames.emplace_back("_serial");
-    expectedFieldNames.emplace_back("_si");
-    expectedFieldNames.emplace_back("_sourcetype");
-    expectedFieldNames.emplace_back("_time");
-    expectedFieldNames.emplace_back("date_hour");
-    expectedFieldNames.emplace_back("date_mday");
-    expectedFieldNames.emplace_back("date_minute");
-    expectedFieldNames.emplace_back("date_month");
-    expectedFieldNames.emplace_back("date_second");
-    expectedFieldNames.emplace_back("date_wday");
-    expectedFieldNames.emplace_back("date_year");
-    expectedFieldNames.emplace_back("date_zone");
-    expectedFieldNames.emplace_back("eventtype");
-    expectedFieldNames.emplace_back("host");
-    expectedFieldNames.emplace_back("index");
-    expectedFieldNames.emplace_back("linecount");
-    expectedFieldNames.emplace_back("punct");
-    expectedFieldNames.emplace_back("source");
-    expectedFieldNames.emplace_back("sourcetype");
-    expectedFieldNames.emplace_back("server");
-    expectedFieldNames.emplace_back("timeendpos");
-    expectedFieldNames.emplace_back("timestartpos");
+    ml::api::CCsvInputParser::TStrVec expectedFieldNames{
+        "_cd",         "_indextime",  "_kv",         "_raw",      "_serial",
+        "_si",         "_sourcetype", "_time",       "date_hour", "date_mday",
+        "date_minute", "date_month",  "date_second", "date_wday", "date_year",
+        "date_zone",   "eventtype",   "host",        "index",     "linecount",
+        "punct",       "source",      "sourcetype",  "server",    "timeendpos",
+        "timestartpos"};
 
-    CVisitor visitor(expectedFieldNames);
+    CVisitor visitor{expectedFieldNames};
 
     // First read to a map
-    ml::api::CCsvInputParser parser1(complexStrm);
+    ml::api::CCsvInputParser parser1{complexStrm};
     BOOST_TEST_REQUIRE(parser1.readStreamIntoMaps(std::ref(visitor)));
 
     // Now re-read to vectors
@@ -288,12 +251,12 @@ BOOST_AUTO_TEST_CASE(testComplexDelims) {
     complexStrm.seekg(0);
     visitor.reset();
 
-    ml::api::CCsvInputParser parser2(complexStrm);
+    ml::api::CCsvInputParser parser2{complexStrm};
     BOOST_TEST_REQUIRE(parser2.readStreamIntoVecs(std::ref(visitor)));
 }
 
 BOOST_AUTO_TEST_CASE(testThroughput) {
-    std::ifstream ifs("testfiles/simple.txt");
+    std::ifstream ifs{"testfiles/simple.txt"};
     BOOST_TEST_REQUIRE(ifs.is_open());
 
     std::string line;
@@ -305,7 +268,7 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
     }
 
     std::string restOfFile;
-    size_t nonHeaderLines(0);
+    std::size_t nonHeaderLines{0};
     while (std::getline(ifs, line).good()) {
         if (line.empty()) {
             break;
@@ -317,26 +280,27 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
 
     // Assume there are two lines per record in the input file
     BOOST_TEST_REQUIRE((nonHeaderLines % 2) == 0);
-    size_t recordsPerBlock(nonHeaderLines / 2);
+    std::size_t recordsPerBlock{nonHeaderLines / 2};
 
     // Construct a large test input
-    static const size_t TEST_SIZE(10000);
-    std::string input(header);
-    for (size_t count = 0; count < TEST_SIZE; ++count) {
-        input += restOfFile;
+    static const std::size_t TEST_SIZE{10000};
+    std::stringstream input;
+    input << header;
+    for (std::size_t count = 0; count < TEST_SIZE; ++count) {
+        input << restOfFile;
     }
-    LOG_DEBUG(<< "Input size is " << input.length());
+    LOG_DEBUG(<< "Input size is " << input.tellp());
 
-    ml::api::CCsvInputParser parser(input);
+    ml::api::CCsvInputParser parser{input};
 
     CVisitor visitor;
 
-    ml::core_t::TTime start(ml::core::CTimeUtils::now());
+    ml::core_t::TTime start{ml::core::CTimeUtils::now()};
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
     BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
 
-    ml::core_t::TTime end(ml::core::CTimeUtils::now());
+    ml::core_t::TTime end{ml::core::CTimeUtils::now()};
     LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
     BOOST_REQUIRE_EQUAL(recordsPerBlock * TEST_SIZE, visitor.recordCount());
@@ -346,56 +310,55 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
 }
 
 BOOST_AUTO_TEST_CASE(testDateParse) {
-    static const ml::core_t::TTime EXPECTED_TIMES[] = {
-        1359331200, 1359331200, 1359331207, 1359331220, 1359331259, 1359331262,
-        1359331269, 1359331270, 1359331272, 1359331296, 1359331301, 1359331311,
-        1359331314, 1359331315, 1359331316, 1359331321, 1359331328, 1359331333,
-        1359331349, 1359331352, 1359331370, 1359331382, 1359331385, 1359331386,
-        1359331395, 1359331404, 1359331416, 1359331416, 1359331424, 1359331429};
 
-    CTimeCheckingVisitor::TTimeVec expectedTimes(std::begin(EXPECTED_TIMES),
-                                                 std::end(EXPECTED_TIMES));
+    CTimeCheckingVisitor::TTimeVec expectedTimes(
+        {1359331200, 1359331200, 1359331207, 1359331220, 1359331259,
+         1359331262, 1359331269, 1359331270, 1359331272, 1359331296,
+         1359331301, 1359331311, 1359331314, 1359331315, 1359331316,
+         1359331321, 1359331328, 1359331333, 1359331349, 1359331352,
+         1359331370, 1359331382, 1359331385, 1359331386, 1359331395,
+         1359331404, 1359331416, 1359331416, 1359331424, 1359331429});
 
     // Ensure we are in UK timewise
     BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone("Europe/London"));
 
     {
-        std::ifstream csvStrm("testfiles/s.csv");
+        std::ifstream csvStrm{"testfiles/s.csv"};
         BOOST_TEST_REQUIRE(csvStrm.is_open());
 
-        CTimeCheckingVisitor visitor("time", "", expectedTimes);
+        CTimeCheckingVisitor visitor{"time", "", expectedTimes};
 
-        ml::api::CCsvInputParser parser(csvStrm);
+        ml::api::CCsvInputParser parser{csvStrm};
 
         BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
     {
-        std::ifstream csvStrm("testfiles/bdYIMSp.csv");
+        std::ifstream csvStrm{"testfiles/bdYIMSp.csv"};
         BOOST_TEST_REQUIRE(csvStrm.is_open());
 
-        CTimeCheckingVisitor visitor("date", "%b %d %Y %I:%M:%S %p", expectedTimes);
+        CTimeCheckingVisitor visitor{"date", "%b %d %Y %I:%M:%S %p", expectedTimes};
 
-        ml::api::CCsvInputParser parser(csvStrm);
+        ml::api::CCsvInputParser parser{csvStrm};
 
         BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
     {
-        std::ifstream csvStrm("testfiles/YmdHMS.csv");
+        std::ifstream csvStrm{"testfiles/YmdHMS.csv"};
         BOOST_TEST_REQUIRE(csvStrm.is_open());
 
-        CTimeCheckingVisitor visitor("time", "%Y-%m-%d %H:%M:%S", expectedTimes);
+        CTimeCheckingVisitor visitor{"time", "%Y-%m-%d %H:%M:%S", expectedTimes};
 
-        ml::api::CCsvInputParser parser(csvStrm);
+        ml::api::CCsvInputParser parser{csvStrm};
 
         BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
     {
-        std::ifstream csvStrm("testfiles/YmdHMSZ_GMT.csv");
+        std::ifstream csvStrm{"testfiles/YmdHMSZ_GMT.csv"};
         BOOST_TEST_REQUIRE(csvStrm.is_open());
 
-        CTimeCheckingVisitor visitor("mytime", "%Y-%m-%d %H:%M:%S %Z", expectedTimes);
+        CTimeCheckingVisitor visitor{"mytime", "%Y-%m-%d %H:%M:%S %Z", expectedTimes};
 
-        ml::api::CCsvInputParser parser(csvStrm);
+        ml::api::CCsvInputParser parser{csvStrm};
 
         BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
@@ -404,12 +367,12 @@ BOOST_AUTO_TEST_CASE(testDateParse) {
     BOOST_TEST_REQUIRE(ml::core::CTimezone::setTimezone("America/New_York"));
 
     {
-        std::ifstream csvStrm("testfiles/YmdHMSZ_EST.csv");
+        std::ifstream csvStrm{"testfiles/YmdHMSZ_EST.csv"};
         BOOST_TEST_REQUIRE(csvStrm.is_open());
 
-        CTimeCheckingVisitor visitor("datetime", "%Y-%m-%d %H:%M:%S %Z", expectedTimes);
+        CTimeCheckingVisitor visitor{"datetime", "%Y-%m-%d %H:%M:%S %Z", expectedTimes};
 
-        ml::api::CCsvInputParser parser(csvStrm);
+        ml::api::CCsvInputParser parser{csvStrm};
 
         BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
     }
@@ -425,16 +388,17 @@ BOOST_AUTO_TEST_CASE(testQuoteParsing) {
     // q2 =
     // q3 = "
     // q4 = ""
-    std::string input("b,q1,q2,q3,q4,e\n"
-                      "x,,\"\",\"\"\"\",\"\"\"\"\"\",x\n");
+    std::stringstream input;
+    input << "b,q1,q2,q3,q4,e\n"
+             "x,,\"\",\"\"\"\",\"\"\"\"\"\",x\n";
 
-    ml::api::CCsvInputParser parser(input);
+    ml::api::CCsvInputParser parser{input};
 
     CQuoteCheckingVisitor visitor;
 
     BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(std::ref(visitor)));
 
-    BOOST_REQUIRE_EQUAL(size_t(1), visitor.recordCount());
+    BOOST_REQUIRE_EQUAL(1, visitor.recordCount());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
