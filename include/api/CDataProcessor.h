@@ -23,8 +23,6 @@ class CDataAdder;
 class CDataSearcher;
 }
 namespace api {
-class CPersistenceManager;
-class COutputHandler;
 
 //! \brief
 //! Abstract interface for classes that process data records
@@ -60,6 +58,11 @@ public:
     //! No copying
     CDataProcessor(const CDataProcessor&) = delete;
     CDataProcessor& operator=(const CDataProcessor&) = delete;
+
+    //! The class that calls handleRecord() may call this method before
+    //! supplying any data to inform this class of any fields in the data row
+    //! that may be modified before chaining.  No-op by default.
+    virtual void registerMutableField(const std::string& fieldName, std::string& fieldValue);
 
     //! Receive a single record to be processed, and produce output
     //! with any required modifications

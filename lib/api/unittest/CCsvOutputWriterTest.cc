@@ -94,26 +94,22 @@ BOOST_AUTO_TEST_CASE(testAdd) {
 
     LOG_DEBUG(<< "Output is:\n" << output);
 
-    for (ml::api::CCsvOutputWriter::TStrVecCItr iter = fieldNames.begin();
-         iter != fieldNames.end(); ++iter) {
+    for (auto iter = fieldNames.begin(); iter != fieldNames.end(); ++iter) {
         LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
         BOOST_TEST_REQUIRE(output.find(*iter) != std::string::npos);
     }
 
-    for (ml::api::CCsvOutputWriter::TStrVecCItr iter = mlFieldNames.begin();
-         iter != mlFieldNames.end(); ++iter) {
+    for (auto iter = mlFieldNames.begin(); iter != mlFieldNames.end(); ++iter) {
         LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
         BOOST_TEST_REQUIRE(output.find(*iter) != std::string::npos);
     }
 
-    for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = originalFields.begin();
-         iter != originalFields.end(); ++iter) {
+    for (auto iter = originalFields.begin(); iter != originalFields.end(); ++iter) {
         LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
         BOOST_TEST_REQUIRE(output.find(iter->second) != std::string::npos);
     }
 
-    for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = mlFields.begin();
-         iter != mlFields.end(); ++iter) {
+    for (auto iter = mlFields.begin(); iter != mlFields.end(); ++iter) {
         LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
         BOOST_TEST_REQUIRE(output.find(iter->second) != std::string::npos);
     }
@@ -197,20 +193,17 @@ BOOST_AUTO_TEST_CASE(testOverwrite) {
 
     LOG_DEBUG(<< "Output is:\n" << output);
 
-    for (ml::api::CCsvOutputWriter::TStrVecCItr iter = fieldNames.begin();
-         iter != fieldNames.end(); ++iter) {
+    for (auto iter = fieldNames.begin(); iter != fieldNames.end(); ++iter) {
         LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
         BOOST_TEST_REQUIRE(output.find(*iter) != std::string::npos);
     }
 
-    for (ml::api::CCsvOutputWriter::TStrVecCItr iter = mlFieldNames.begin();
-         iter != mlFieldNames.end(); ++iter) {
+    for (auto iter = mlFieldNames.begin(); iter != mlFieldNames.end(); ++iter) {
         LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
         BOOST_TEST_REQUIRE(output.find(*iter) != std::string::npos);
     }
 
-    for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = originalFields.begin();
-         iter != originalFields.end(); ++iter) {
+    for (auto iter = originalFields.begin(); iter != originalFields.end(); ++iter) {
         // The Ml fields should override the originals
         if (mlFields.find(iter->first) == mlFields.end()) {
             LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
@@ -221,8 +214,7 @@ BOOST_AUTO_TEST_CASE(testOverwrite) {
         }
     }
 
-    for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = mlFields.begin();
-         iter != mlFields.end(); ++iter) {
+    for (auto iter = mlFields.begin(); iter != mlFields.end(); ++iter) {
         LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
         BOOST_TEST_REQUIRE(output.find(iter->second) != std::string::npos);
     }

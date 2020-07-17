@@ -59,7 +59,7 @@ bool CNdJsonOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
 
     // Write all the fields to the document as strings
     // No need to copy the strings as the doc is written straight away
-    TStrStrUMapCItr fieldValueIter = dataRowFields.begin();
+    auto fieldValueIter = dataRowFields.begin();
     for (; fieldValueIter != dataRowFields.end(); ++fieldValueIter) {
         const std::string& name = fieldValueIter->first;
         const std::string& value = fieldValueIter->second;

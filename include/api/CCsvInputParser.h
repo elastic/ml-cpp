@@ -14,7 +14,6 @@
 #include <boost/scoped_array.hpp>
 
 #include <iosfwd>
-#include <sstream>
 #include <string>
 
 namespace ml {
@@ -55,9 +54,6 @@ public:
     static const char STRIP_BEFORE_END;
 
 public:
-    //! Construct with a string to be parsed
-    CCsvInputParser(const std::string& input, char separator = core::CCsvLineParser::COMMA);
-
     //! Construct with an input stream to be parsed.  Once a stream is
     //! passed to this constructor, no other object should read from it.
     //! For example, if std::cin is passed, no other object should read from
@@ -65,22 +61,30 @@ public:
     //! generated.
     CCsvInputParser(std::istream& strmIn, char separator = core::CCsvLineParser::COMMA);
 
-    //! Get field name row exactly as it was in the input
-    const std::string& fieldNameStr() const;
+    //! As above but also provide some mutable field names
+    CCsvInputParser(TStrVec mutableFieldNames,
+                    std::istream& strmIn,
+                    char separator = core::CCsvLineParser::COMMA);
 
     //! Read records from the stream.  The supplied reader function is called
     //! once per record.  If the supplied reader function returns false, reading
     //! will stop.  This method keeps reading until it reaches the end of the
     //! stream or an error occurs.  If it successfully reaches the end of
     //! the stream it returns true, otherwise it returns false.
-    bool readStreamIntoMaps(const TMapReaderFunc& readerFunc) override;
+    bool readStreamIntoMaps(const TMapReaderFunc& readerFunc,
+                            const TRegisterMutableFieldFunc& registerFunc) override;
 
     //! Read records from the stream.  The supplied reader function is called
     //! once per record.  If the supplied reader function returns false, reading
     //! will stop.  This method keeps reading until it reaches the end of the
     //! stream or an error occurs.  If it successfully reaches the end of
     //! the stream it returns true, otherwise it returns false.
-    bool readStreamIntoVecs(const TVecReaderFunc& readerFunc) override;
+    bool readStreamIntoVecs(const TVecReaderFunc& readerFunc,
+                            const TRegisterMutableFieldFunc& registerFunc) override;
+
+    // Bring the other overloads into scope
+    using CInputParser::readStreamIntoMaps;
+    using CInputParser::readStreamIntoVecs;
 
 private:
     using TScopedCharArray = boost::scoped_array<char>;
@@ -93,8 +97,8 @@ private:
     //! Read records from the stream.  Relies on the field names having been
     //! previously read successfully.  The same working vector is populated
     //! for every record.
-    template<typename READER_FUNC, typename STR_VEC>
-    bool parseRecordLoop(const READER_FUNC& readerFunc, STR_VEC& workSpace);
+    template<typename READER_FUNC>
+    bool parseRecordLoop(const READER_FUNC& readerFunc, TStrRefVec& workSpace);
 
     //! Attempt to parse a single CSV record from the stream into the
     //! working record.  The CSV is assumed to be in the Excel style.
@@ -104,22 +108,11 @@ private:
     bool parseFieldNames();
 
     //! Attempt to parse the current working record into data fields.
-    template<typename STR_VEC>
-    bool parseDataRecord(STR_VEC& values);
-
-    //! Wrapper around std::getline() that removes carriage returns
-    //! preceding the linefeed that breaks the line.  This means that we
-    //! never get confused by carriage returns in field values, whether
-    //! we're running on Unix or Windows.
-    std::istream& getline(std::string& str);
+    bool parseDataRecord(TStrRefVec& values);
 
 private:
     //! Allocate this much memory for the working buffer
-    static const size_t WORK_BUFFER_SIZE;
-
-    //! If we've been initialised with a string, this object is used to read
-    //! the string
-    std::istringstream m_StringInputBuf;
+    static const std::size_t WORK_BUFFER_SIZE;
 
     //! Reference to the stream we're going to read from
     std::istream& m_StrmIn;
@@ -143,9 +136,9 @@ private:
     //! characters is NOT zero terminated, which is something to be aware of
     //! when accessing it.
     TScopedCharArray m_WorkBuffer;
-    const char* m_WorkBufferPtr;
-    const char* m_WorkBufferEnd;
-    bool m_NoMoreRecords;
+    const char* m_WorkBufferPtr = nullptr;
+    const char* m_WorkBufferEnd = nullptr;
+    bool m_NoMoreRecords = false;
 
     //! Field name row exactly as it appears in the input
     std::string m_FieldNameStr;

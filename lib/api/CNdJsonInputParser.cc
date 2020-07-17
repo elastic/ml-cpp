@@ -8,16 +8,19 @@
 #include <core/CLogger.h>
 #include <core/CStringUtils.h>
 
-#include <sstream>
-
 namespace ml {
 namespace api {
 
 CNdJsonInputParser::CNdJsonInputParser(std::istream& strmIn, bool allDocsSameStructure)
-    : CNdInputParser(strmIn), m_AllDocsSameStructure(allDocsSameStructure) {
+    : CNdInputParser{TStrVec{}, strmIn}, m_AllDocsSameStructure{allDocsSameStructure} {
 }
 
-bool CNdJsonInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc) {
+CNdJsonInputParser::CNdJsonInputParser(TStrVec mutableFieldNames, std::istream& strmIn, bool allDocsSameStructure)
+    : CNdInputParser{std::move(mutableFieldNames), strmIn}, m_AllDocsSameStructure{allDocsSameStructure} {
+}
+
+bool CNdJsonInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc,
+                                            const TRegisterMutableFieldFunc& registerFunc) {
     TStrVec& fieldNames = this->fieldNames();
     TStrRefVec fieldValRefs;
 
@@ -36,14 +39,14 @@ bool CNdJsonInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc) {
         }
 
         if (m_AllDocsSameStructure) {
-            if (this->decodeDocumentWithCommonFields(
-                    document, fieldNames, fieldValRefs, recordFields) == false) {
+            if (this->decodeDocumentWithCommonFields(registerFunc, document, fieldNames,
+                                                     fieldValRefs, recordFields) == false) {
                 LOG_ERROR(<< "Failed to decode JSON document");
                 return false;
             }
         } else {
-            if (this->decodeDocumentWithArbitraryFields(document, fieldNames,
-                                                        recordFields) == false) {
+            if (this->decodeDocumentWithArbitraryFields(
+                    registerFunc, document, fieldNames, recordFields) == false) {
                 LOG_ERROR(<< "Failed to decode JSON document");
                 return false;
             }
@@ -60,8 +63,9 @@ bool CNdJsonInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc) {
     return true;
 }
 
-bool CNdJsonInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc) {
-    TStrVec& fieldNames = this->fieldNames();
+bool CNdJsonInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc,
+                                            const TRegisterMutableFieldFunc& registerFunc) {
+    TStrVec& fieldNames{this->fieldNames()};
 
     // Reset the record buffer pointers in case we're reading a new stream
     this->resetBuffer();
@@ -69,7 +73,7 @@ bool CNdJsonInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc) {
     // We reuse the same field vector for every record
     TStrVec fieldValues;
 
-    char* begin(this->parseLine().first);
+    char* begin{this->parseLine().first};
     while (begin != nullptr) {
         rapidjson::Document document;
         if (this->parseDocument(begin, document) == false) {
@@ -78,13 +82,14 @@ bool CNdJsonInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc) {
         }
 
         if (m_AllDocsSameStructure) {
-            if (this->decodeDocumentWithCommonFields(document, fieldNames, fieldValues) == false) {
+            if (this->decodeDocumentWithCommonFields(
+                    registerFunc, document, fieldNames, fieldValues) == false) {
                 LOG_ERROR(<< "Failed to decode JSON document");
                 return false;
             }
         } else {
-            if (this->decodeDocumentWithArbitraryFields(document, fieldNames,
-                                                        fieldValues) == false) {
+            if (this->decodeDocumentWithArbitraryFields(
+                    registerFunc, document, fieldNames, fieldValues) == false) {
                 LOG_ERROR(<< "Failed to decode JSON document");
                 return false;
             }
@@ -117,13 +122,15 @@ bool CNdJsonInputParser::parseDocument(char* begin, rapidjson::Document& documen
     return true;
 }
 
-bool CNdJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::Document& document,
+bool CNdJsonInputParser::decodeDocumentWithCommonFields(const TRegisterMutableFieldFunc& registerFunc,
+                                                        const rapidjson::Document& document,
                                                         TStrVec& fieldNames,
                                                         TStrRefVec& fieldValRefs,
                                                         TStrStrUMap& recordFields) {
     if (fieldValRefs.empty()) {
         // We haven't yet decoded any documents, so decode the first one long-hand
-        if (this->decodeDocumentWithArbitraryFields(document, fieldNames, recordFields) == false) {
+        if (this->decodeDocumentWithArbitraryFields(registerFunc, document, fieldNames,
+                                                    recordFields) == false) {
             return false;
         }
 
@@ -153,12 +160,15 @@ bool CNdJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::Documen
     return true;
 }
 
-bool CNdJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::Document& document,
+bool CNdJsonInputParser::decodeDocumentWithCommonFields(const TRegisterMutableFieldFunc& registerFunc,
+                                                        const rapidjson::Document& document,
+
                                                         TStrVec& fieldNames,
                                                         TStrVec& fieldValues) {
     if (fieldValues.empty()) {
         // We haven't yet decoded any documents, so decode the first one long-hand
-        return this->decodeDocumentWithArbitraryFields(document, fieldNames, fieldValues);
+        return this->decodeDocumentWithArbitraryFields(registerFunc, document,
+                                                       fieldNames, fieldValues);
     }
 
     auto nameIter = fieldNames.begin();
@@ -166,7 +176,7 @@ bool CNdJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::Documen
     for (auto iter = document.MemberBegin(); iter != document.MemberEnd();
          ++iter, ++nameIter, ++valueIter) {
         if (nameIter == fieldNames.end() || valueIter == fieldValues.end()) {
-            LOG_ERROR(<< "More fields than fields");
+            LOG_ERROR(<< "More fields in document than common fields");
             return false;
         }
 
@@ -178,7 +188,8 @@ bool CNdJsonInputParser::decodeDocumentWithCommonFields(const rapidjson::Documen
     return true;
 }
 
-bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const rapidjson::Document& document,
+bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const TRegisterMutableFieldFunc& registerFunc,
+                                                           const rapidjson::Document& document,
                                                            TStrVec& fieldNames,
                                                            TStrStrUMap& recordFields) {
     // The major drawback of having self-describing messages is that we can't
@@ -194,13 +205,13 @@ bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const rapidjson::Docu
         }
     }
 
-    this->gotFieldNames(true);
-    this->gotData(true);
+    this->registerMutableFields(registerFunc, recordFields);
 
     return true;
 }
 
-bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const rapidjson::Document& document,
+bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const TRegisterMutableFieldFunc& registerFunc,
+                                                           const rapidjson::Document& document,
                                                            TStrVec& fieldNames,
                                                            TStrVec& fieldValues) {
     // The major drawback of having self-describing messages is that we can't
@@ -218,8 +229,7 @@ bool CNdJsonInputParser::decodeDocumentWithArbitraryFields(const rapidjson::Docu
         }
     }
 
-    this->gotFieldNames(true);
-    this->gotData(true);
+    this->registerMutableFields(registerFunc, fieldNames, fieldValues);
 
     return true;
 }
