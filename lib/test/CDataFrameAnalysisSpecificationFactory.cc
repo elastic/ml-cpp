@@ -335,7 +335,7 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
         writer.Key(api::CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES);
         writer.Uint64(m_NumberTopClasses);
     }
-    if (m_CustomProcessors.Empty() == false) {
+    if (m_CustomProcessors.IsNull() == false) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS);
         writer.write(m_CustomProcessors);
     }
