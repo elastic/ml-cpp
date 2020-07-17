@@ -14,7 +14,7 @@
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/ImportExport.h>
 
-#include <rapidjson/fwd.h>
+#include <rapidjson/document.h>
 
 #include <memory>
 
@@ -81,8 +81,6 @@ public:
     CDataFrameAnalysisInstrumentation& instrumentation() override;
 
 protected:
-    using TOptionalRapidJsonDocument = boost::optional<rapidjson::Document>;
-    using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
 
 protected:
@@ -107,6 +105,7 @@ protected:
 
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
+    using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TDataSearcherUPtr = CDataFrameAnalysisSpecification::TDataSearcherUPtr;
 
 private:
@@ -125,7 +124,7 @@ private:
 private:
     // Note custom config is written directly to the factory object.
 
-    TOptionalRapidJsonDocument m_CustomProcessors;
+    rapidjson::Document m_CustomProcessors;
     std::string m_DependentVariableFieldName;
     std::string m_PredictionFieldName;
     double m_TrainingPercent;

@@ -17,8 +17,9 @@
 
 #include <test/ImportExport.h>
 
-#include <boost/optional.hpp>
 #include <rapidjson/document.h>
+
+#include <boost/optional.hpp>
 
 #include <cstddef>
 #include <memory>
@@ -40,6 +41,10 @@ public:
 
 public:
     CDataFrameAnalysisSpecificationFactory();
+
+    CDataFrameAnalysisSpecificationFactory(const CDataFrameAnalysisSpecificationFactory&) = delete;
+    CDataFrameAnalysisSpecificationFactory&
+    operator=(const CDataFrameAnalysisSpecificationFactory&) = delete;
 
     static const std::string& classification();
     static const std::string& regression();
