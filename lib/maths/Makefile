@@ -48,6 +48,7 @@ CDecayRateController.cc \
 CDecompositionComponent.cc \
 CEntropySketch.cc \
 CExpandingWindow.cc \
+CFuzzyLogic.cc \
 CGammaRateConjugate.cc \
 CGradientDescent.cc \
 CInformationCriteria.cc \

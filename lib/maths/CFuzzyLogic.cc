@@ -11,6 +11,5 @@ namespace maths {
 
 const CFuzzyTruthValue CFuzzyTruthValue::TRUE{1.0};
 const CFuzzyTruthValue CFuzzyTruthValue::FALSE{0.0};
-
 }
 }

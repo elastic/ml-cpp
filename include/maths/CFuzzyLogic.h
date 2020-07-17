@@ -4,6 +4,9 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#ifndef INCLUDED_ml_maths_CFuzzyLogic_h
+#define INCLUDED_ml_maths_CFuzzyLogic_h
+
 #include <maths/ImportExport.h>
 
 #include <maths/CTools.h>
@@ -38,8 +41,7 @@ public:
     //! Get the fuzzy AND of two expressions.
     friend inline CFuzzyTruthValue operator&&(const CFuzzyTruthValue& lhs,
                                               const CFuzzyTruthValue& rhs) {
-        return {lhs.m_Value * rhs.m_Value,
-                lhs.m_IsTrueThreshold * rhs.m_IsTrueThreshold};
+        return {lhs.m_Value * rhs.m_Value, lhs.m_IsTrueThreshold * rhs.m_IsTrueThreshold};
     }
 
     //! Get the fuzzy OR of two expressions.
@@ -57,15 +59,19 @@ private:
 //! Fuzzy check if \p value is greater than \p threshold.
 //!
 //! Computes the truth value using the logistic function.
-inline CFuzzyTruthValue fuzzyGreaterThan(double value, double threshold, double margin) {
-    return {CTools::logisticFunction(value, margin, threshold, +1.0)};
+inline CFuzzyTruthValue
+fuzzyGreaterThan(double value, double threshold, double margin, double isTrueThreshold = 0.5) {
+    return {CTools::logisticFunction(value, margin, threshold, +1.0), isTrueThreshold};
 }
 
 //! Fuzzy check if \p value is less than \p threshold.
 //!
 //! Computes the truth value using the logistic function.
-inline CFuzzyTruthValue fuzzyLessThan(double value, double threshold, double margin) {
-    return {CTools::logisticFunction(value, margin, threshold, -1.0)};
+inline CFuzzyTruthValue
+fuzzyLessThan(double value, double threshold, double margin, double isTrueThreshold = 0.5) {
+    return {CTools::logisticFunction(value, margin, threshold, -1.0), isTrueThreshold};
 }
 }
 }
+
+#endif // INCLUDED_ml_maths_CFuzzyLogic_h

@@ -88,9 +88,9 @@ public:
                    core::CContainerPrinter::print(s_Window);
         }
 
-        std::size_t s_Period;
-        std::size_t s_StartOfWeek;
-        std::size_t s_WindowRepeat;
+        std::size_t s_Period = 0;
+        std::size_t s_StartOfWeek = 0;
+        std::size_t s_WindowRepeat = 0;
         TSizeSizePr s_Window;
     };
 

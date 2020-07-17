@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "maths/CPeriodicityHypothesisTests.h"
 #include <maths/CTimeSeriesTestForSeasonality.h>
 
 #include <core/Constants.h>
@@ -23,6 +24,7 @@
 #include <boost/math/distributions/normal.hpp>
 
 #include <algorithm>
+#include <numeric>
 
 namespace ml {
 namespace maths {
@@ -93,24 +95,78 @@ private:
 using TAmplitudeVec = std::vector<CMinAmplitude>;
 }
 
-SSeasonalComponentSummary::SSeasonalComponentSummary(const std::string& description,
-                                                     bool diurnal,
-                                                     bool piecewiseScaled,
-                                                     std::size_t startOfWeek,
-                                                     std::size_t period,
-                                                     const TSizeSizePr& window)
-    : s_Description{description}, s_Diurnal{diurnal}, s_PiecewiseScaled{piecewiseScaled},
-      s_StartOfWeek{startOfWeek}, s_Period{period}, s_Window{window} {
+CNewTrendSummary::CNewTrendSummary(core_t::TTime startOfInitialValues,
+                                   core_t::TTime initialValuesInterval,
+                                   TFloatMeanAccumulatorVec initialValues)
+    : m_StartOfInitialValues{startOfInitialValues}, m_InitialValuesInterval{initialValuesInterval},
+      m_InitialValues{std::move(initialValues)} {
 }
 
-bool SSeasonalComponentSummary::operator==(const SSeasonalComponentSummary& other) const {
-    // TODO
-    return true;
+CNewTrendSummary::CInitialValueConstIterator CNewTrendSummary::beginInitialValues() const {
+    return {0, *this};
 }
 
-CSeasonalTime* SSeasonalComponentSummary::seasonalTime() const {
+CNewTrendSummary::CInitialValueConstIterator CNewTrendSummary::endInitialValues() const {
+    return {m_InitialValues.size(), *this};
+}
+
+CNewSeasonalComponentSummary::CNewSeasonalComponentSummary(const std::string& description,
+                                                           std::size_t size,
+                                                           bool diurnal,
+                                                           const TTimeTimePr& window,
+                                                           core_t::TTime windowRepeat,
+                                                           core_t::TTime period,
+                                                           core_t::TTime startOfWeek,
+                                                           core_t::TTime startOfInitialValues,
+                                                           core_t::TTime initialValuesInterval,
+                                                           TFloatMeanAccumulatorVec initialValues)
+    : m_Description{description}, m_Size{size}, m_Diurnal{diurnal}, m_Window{window},
+      m_WindowRepeat{windowRepeat}, m_Period{period}, m_StartOfWeek{startOfWeek},
+      m_StartOfInitialValues{startOfInitialValues}, m_InitialValuesInterval{initialValuesInterval},
+      m_InitialValues{std::move(initialValues)} {
+}
+
+const std::string& CNewSeasonalComponentSummary::description() const {
+    return m_Description;
+}
+
+CNewSeasonalComponentSummary::TSeasonalTimeUPtr
+CNewSeasonalComponentSummary::seasonalTime() const {
     // TODO
     return nullptr;
+}
+
+CNewSeasonalComponentSummary::CInitialValueConstIterator
+CNewSeasonalComponentSummary::beginInitialValues() const {
+    return {0, *this};
+}
+
+CNewSeasonalComponentSummary::CInitialValueConstIterator
+CNewSeasonalComponentSummary::endInitialValues() const {
+    return {m_InitialValues.size(), *this};
+}
+
+void CSeasonalHypotheses::trend(CNewTrendSummary trend) {
+    m_Trend = std::move(trend);
+}
+
+void CSeasonalHypotheses::add(const std::string& description,
+                              std::size_t size,
+                              bool diurnal,
+                              const TTimeTimePr& window,
+                              core_t::TTime windowRepeat,
+                              core_t::TTime period,
+                              core_t::TTime startOfWeek,
+                              core_t::TTime startOfInitialValues,
+                              core_t::TTime initialValuesInterval,
+                              TFloatMeanAccumulatorVec initialValues) {
+    m_Components.emplace_back(description, size, diurnal, window, windowRepeat,
+                              period, startOfWeek, startOfInitialValues,
+                              initialValuesInterval, std::move(initialValues));
+}
+
+const CSeasonalHypotheses::TNewSeasonalComponentVec& CSeasonalHypotheses::components() const {
+    return m_Components;
 }
 
 CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime startTime,
@@ -131,7 +187,7 @@ CSeasonalHypotheses CTimeSeriesTestForSeasonality::test() {
     std::size_t numberTrendSegments{1};
 
     TRemoveTrend trendModels[]{[&](TFloatMeanAccumulatorVec&) {
-                                   hypothesisTrendSegments.assign(0, m_Values.size());
+                                   hypothesisTrendSegments.clear();
                                    numberTrendSegments = 1;
                                    return true;
                                },
@@ -175,27 +231,76 @@ CSeasonalHypotheses CTimeSeriesTestForSeasonality::test() {
                                          }),
                           periods.end());
 
-            hypotheses.emplace_back(hypothesisTrendSegments,
-                                    this->testDecomposition(valuesToTest, numberTrendSegments, periods));
+            hypotheses.emplace_back(
+                hypothesisTrendSegments,
+                this->testDecomposition(valuesToTest, numberTrendSegments, periods));
         }
     }
 
     return this->select(hypotheses);
 }
 
-CSeasonalHypotheses CTimeSeriesTestForSeasonality::select(const THypothesisStatsVecVec& hypotheses) const {
-    // Choose the trend hypothesis with the highest mean truth value.
+CSeasonalHypotheses
+CTimeSeriesTestForSeasonality::select(TSizeVecHypothesisStatsVecPrVec& hypotheses) const {
 
-    for (const auto& hypothesis: hypotheses) {
-        dou
-        if (hypotheses.size() > 0) {
+    // Choose the trend hypothesis which is most true.
 
+    std::size_t selected{hypotheses.size()};
+    CFuzzyTruthValue mostTrue{CFuzzyTruthValue::FALSE};
+
+    for (std::size_t i = 0; i < hypotheses.size(); ++i) {
+        CFuzzyTruthValue truth{CFuzzyTruthValue::FALSE};
+        if (hypotheses[i].second.size() > 0) {
+            truth = std::accumulate(
+                hypotheses[i].second.begin(), hypotheses[i].second.end(),
+                CFuzzyTruthValue::TRUE,
+                [](CFuzzyTruthValue partialTruth, const SHypothesisStats& hypothesis) {
+                    return partialTruth && hypothesis.s_Truth;
+                });
+        }
+        if (mostTrue < truth) {
+            std::tie(selected, mostTrue) = std::make_pair(i, truth);
+        }
+    }
+
+    CSeasonalHypotheses result;
+    if (selected < hypotheses.size()) {
+        TSizeVec selectedTrendSegments;
+        THypothesisStatsVec selectedHypotheses;
+        std::tie(selectedTrendSegments, selectedHypotheses) = std::move(hypotheses[selected]);
+
+        // Only use a trading day/weekend split if there's at least one daily component.
+        auto dailyWindowed = std::find_if(
+            selectedHypotheses.begin(), selectedHypotheses.end(),
+            [this](const SHypothesisStats& hypothesis) {
+                if (hypothesis.s_Component.windowed()) {
+                    return hypothesis.s_Component.period() == this->day();
+                }
+                return false;
+            });
+        if (dailyWindowed == selectedHypotheses.end()) {
+            auto end = std::remove_if(selectedHypotheses.begin(),
+                                      selectedHypotheses.end(),
+                                      [](const SHypothesisStats& hypothesis) {
+                                          return hypothesis.s_Component.windowed();
+                                      });
+            if (end != selectedHypotheses.end()) {
+                selectedHypotheses.erase(end, selectedHypotheses.end());
+                selectedHypotheses.emplace_back(
+                    CSignal::seasonalComponentSummary(this->week()));
+            }
+        }
+
+        result.trend(CTrendHypothesis{std::move(selectedTrendSegments)});
+
+        for (const auto& hypothesis : selectedHypotheses) {
+            result.add(this->describe(hypothesis), );
         }
     }
 }
 
-void CTimeSeriesTestForSeasonality::truth(const SHypothesisStats& hypothesis) const {
-    hypothesis.s_TruthValue =
+void CTimeSeriesTestForSeasonality::truth(SHypothesisStats& hypothesis) const {
+    hypothesis.s_Truth =
         fuzzyGreaterThan(hypothesis.s_MeanNumberRepeats /
                              static_cast<double>(hypothesis.s_NumberTrendSegments +
                                                  hypothesis.s_ScaleSegments.size()) /
@@ -271,10 +376,8 @@ CTimeSeriesTestForSeasonality::testDecomposition(TFloatMeanAccumulatorVec& value
 
         for (const auto& scale : scalings) {
             if (scale(valuesToTestComponent, period)) {
-                SHypothesisStats hypothesis;
+                SHypothesisStats hypothesis{periods[i]};
                 hypothesis.s_NumberTrendSegments = numberTrendSegments;
-                hypothesis.s_HasWeekend = periods[i].windowed();
-                hypothesis.s_StartOfWeek = periods[i].s_StartOfWeek;
                 hypothesis.s_ScaleSegments = scaleSegments;
                 hypothesis.s_MeanNumberRepeats =
                     CSignal::meanNumberRepeatedValues(valuesToTestComponent, period);
@@ -284,7 +387,7 @@ CTimeSeriesTestForSeasonality::testDecomposition(TFloatMeanAccumulatorVec& value
                 this->testAmplitude(valuesToTestComponent, period, hypothesis);
                 this->truth(hypothesis);
 
-                if (hypothesis.s_TruthValue.boolean()) {
+                if (hypothesis.s_Truth.boolean()) {
                     result.push_back(hypothesis);
                 }
             }

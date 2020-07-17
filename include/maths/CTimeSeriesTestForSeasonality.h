@@ -28,100 +28,204 @@ namespace maths {
 
 class CSeasonalTime;
 
-//! \brief Represents an accepted trend hypothesis.
-class MATHS_EXPORT CTrendHypothesis final {
+//! \brief A summary of the trend on the test window.
+class MATHS_EXPORT CNewTrendSummary final {
 public:
-    enum EType { E_None, E_Linear, E_PiecewiseLinear };
+    using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+    using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
+    using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
+
+    //! \brief Iterate over the (time, value) to use to initialize the component.
+    class MATHS_EXPORT CInitialValueConstIterator
+        : std::iterator<std::forward_iterator_tag, const TTimeFloatMeanAccumulatorPr, std::ptrdiff_t> {
+    public:
+        CInitialValueConstIterator() = default;
+        CInitialValueConstIterator(std::size_t index, const CNewTrendSummary& summary)
+            : m_Index{index}, m_Summary{&summary} {
+            m_Value.first = summary.m_StartOfInitialValues +
+                            static_cast<core_t::TTime>(index) * summary.m_InitialValuesInterval;
+            m_Value.second = summary.m_InitialValues[index];
+        }
+
+        //! \name Forward Iterator Contract
+        //@{
+        bool operator==(const CInitialValueConstIterator& rhs) const {
+            return m_Index == rhs.m_Index && m_Summary == rhs.m_Summary;
+        }
+        bool operator!=(const CInitialValueConstIterator& rhs) const {
+            return m_Index != rhs.m_Index || m_Summary != rhs.m_Summary;
+        }
+        const TTimeFloatMeanAccumulatorPr& operator*() const { return m_Value; }
+        const TTimeFloatMeanAccumulatorPr* operator->() const {
+            return &m_Value;
+        }
+        CInitialValueConstIterator& operator++() {
+            m_Value.first += m_Summary->m_InitialValuesInterval;
+            m_Value.second = m_Summary->m_InitialValues[++m_Index];
+            return *this;
+        }
+        CInitialValueConstIterator operator++(int) {
+            CInitialValueConstIterator result{*this};
+            this->operator++();
+            return result;
+        }
+        //@}
+
+    private:
+        std::size_t m_Index = 0;
+        const CNewTrendSummary* m_Summary = nullptr;
+        TTimeFloatMeanAccumulatorPr m_Value;
+    };
 
 public:
-    explicit CTrendHypothesis(std::size_t segments = 0);
-    EType type() const;
-    std::size_t segments() const;
+    CNewTrendSummary(core_t::TTime startOfInitialValues,
+                     core_t::TTime initialValuesInterval,
+                     TFloatMeanAccumulatorVec initialValues);
+
+    //! Get an iterator over the values with which to initialize the new trend.
+    CInitialValueConstIterator beginInitialValues() const;
+
+    //! Get an iterator to the end of the values with which to initialize the new trend.
+    CInitialValueConstIterator endInitialValues() const;
 
 private:
-    std::size_t m_Segments;
+    core_t::TTime m_StartOfInitialValues = 0;
+    core_t::TTime m_InitialValuesInterval = 0;
+    TFloatMeanAccumulatorVec m_InitialValues;
 };
 
-//! \brief Component data.
-struct MATHS_EXPORT SSeasonalComponentSummary {
-    using TSizeSizePr = std::pair<std::size_t, std::size_t>;
+//! \brief A summary of a new seasonal component.
+class MATHS_EXPORT CNewSeasonalComponentSummary {
+public:
+    using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
+    using TTimeTimePrVec = std::vector<TTimeTimePr>;
+    using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+    using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
+    using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
+    using TSeasonalTimeUPtr = std::unique_ptr<CSeasonalTime>;
 
-    SSeasonalComponentSummary() = default;
-    SSeasonalComponentSummary(const std::string& description,
-                              bool diurnal,
-                              bool piecewiseScaled,
-                              std::size_t startOfWeek,
-                              std::size_t period,
-                              const TSizeSizePr& window);
+    //! \brief Iterate over the (time, value) to use to initialize the component.
+    class MATHS_EXPORT CInitialValueConstIterator
+        : std::iterator<std::forward_iterator_tag, const TTimeFloatMeanAccumulatorPr, std::ptrdiff_t> {
+    public:
+        CInitialValueConstIterator() = default;
+        CInitialValueConstIterator(std::size_t index, const CNewSeasonalComponentSummary& summary)
+            : m_Index{index}, m_Summary{&summary} {
+            // TODO
+        }
 
-    //! Check if this is equal to \p other.
-    bool operator==(const SSeasonalComponentSummary& other) const;
+        //! \name Forward Iterator Contract
+        //@{
+        bool operator==(const CInitialValueConstIterator& rhs) const {
+            return m_Index == rhs.m_Index && m_Summary == rhs.m_Summary;
+        }
+        bool operator!=(const CInitialValueConstIterator& rhs) const {
+            return m_Index != rhs.m_Index || m_Summary != rhs.m_Summary;
+        }
+        const TTimeFloatMeanAccumulatorPr& operator*() const { return m_Value; }
+        const TTimeFloatMeanAccumulatorPr* operator->() const {
+            return &m_Value;
+        }
+        CInitialValueConstIterator& operator++() {
+            do {
+                m_Value.first += m_Summary->m_InitialValuesInterval;
+            } while (this->inWindow(m_Value.first) == false);
+            m_Value.second = m_Summary->m_InitialValues[++m_Index];
+            return *this;
+        }
+        CInitialValueConstIterator operator++(int) {
+            CInitialValueConstIterator result{*this};
+            this->operator++();
+            return result;
+        }
+        //@}
+
+    private:
+        core_t::TTime inWindow(core_t::TTime time) const {
+            time = (time - m_Summary->m_InitialValuesInterval) % m_Summary->m_WindowRepeat;
+            return time >= m_Summary->m_Window.first &&
+                   time < m_Summary->m_Window.second;
+        }
+
+    private:
+        std::size_t m_Index = 0;
+        const CNewSeasonalComponentSummary* m_Summary = nullptr;
+        TTimeFloatMeanAccumulatorPr m_Value;
+    };
+
+public:
+    CNewSeasonalComponentSummary(const std::string& description,
+                                 std::size_t size,
+                                 bool diurnal,
+                                 const TTimeTimePr& window,
+                                 core_t::TTime windowRepeat,
+                                 core_t::TTime period,
+                                 core_t::TTime startOfWeek,
+                                 core_t::TTime startOfInitialValues,
+                                 core_t::TTime initialValuesInterval,
+                                 TFloatMeanAccumulatorVec initialValues);
+
+    //! Get a description of this component.
+    const std::string& description() const;
 
     //! Get a seasonal time for the specified results.
     //!
     //! \warning The caller owns the returned object.
-    CSeasonalTime* seasonalTime() const;
+    TSeasonalTimeUPtr seasonalTime() const;
 
-    //! An identifier for the component used by the test.
-    std::string s_Description;
-    //! True if this is a diurnal component false otherwise.
-    bool s_Diurnal = false;
-    //! The segmentation of the window into intervals of constant scaling.
-    bool s_PiecewiseScaled = false;
-    //! The start of the week if decomposing into trading days and weekend.
-    std::size_t s_StartOfWeek = 0;
-    //! The period of the component.
-    std::size_t s_Period = 0;
-    //! The window offset relative to the start of the repeat.
-    TSizeSizePr s_Window;
+    //! Get an iterator over the values with which to initialize the new component.
+    CInitialValueConstIterator beginInitialValues() const;
+
+    //! Get an iterator to the end of the values with which to initialize the new component.
+    CInitialValueConstIterator endInitialValues() const;
+
+private:
+    std::string m_Description;
+    std::size_t m_Size = 0;
+    bool m_Diurnal = false;
+    TTimeTimePr m_Window;
+    core_t::TTime m_WindowRepeat = 0;
+    core_t::TTime m_Period = 0;
+    core_t::TTime m_StartOfWeek = 0;
+    core_t::TTime m_StartOfInitialValues = 0;
+    core_t::TTime m_InitialValuesInterval = 0;
+    TFloatMeanAccumulatorVec m_InitialValues;
 };
 
 //! \brief Represents a collection of accepted seasonal hypotheses.
-class MATHS_EXPORT CSeasonalHypotheses final
-    : boost::equality_comparable<CSeasonalHypotheses> {
+class MATHS_EXPORT CSeasonalHypotheses {
 public:
-    using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
     using TSizeVec = std::vector<std::size_t>;
+    using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
-    using TSeasonalComponentVec = std::vector<SSeasonalComponentSummary>;
+    using TNewSeasonalComponentVec = std::vector<CNewSeasonalComponentSummary>;
 
 public:
-    //! Check if this is equal to \p other.
-    bool operator==(const CSeasonalHypotheses& other) const;
+    //! Set the new trend.
+    void trend(CNewTrendSummary value);
 
-    //! Add a component.
+    //! Add a new seasonal component.
     void add(const std::string& description,
+             std::size_t size,
              bool diurnal,
-             bool piecewiseScaled,
-             core_t::TTime startOfWeek,
+             const TTimeTimePr& window,
+             core_t::TTime windowRepeat,
              core_t::TTime period,
-             const TTimeTimePr& window);
-
-    //! Set the type of trend the hypothesis assumes.
-    void trend(CTrendHypothesis value);
-
-    //! Fit and remove the appropriate trend from \p values.
-    void removeTrendFrom(TFloatMeanAccumulatorVec& values) const;
-
-    //! Remove any discontinuities in \p values.
-    void removeDiscontinuitiesFrom(TFloatMeanAccumulatorVec& values) const;
-
-    //! Check if there are any periodic components.
-    bool isSeasonal() const;
+             core_t::TTime startOfWeek,
+             core_t::TTime startOfInitialValues,
+             core_t::TTime initialValuesInterval,
+             TFloatMeanAccumulatorVec initialValues);
 
     //! Get the binary representation of the periodic components.
-    const TSeasonalComponentVec& components() const;
-
-    //! Get a human readable description of the result.
-    std::string print() const;
+    const TNewSeasonalComponentVec& components() const;
 
 private:
-    //! The selected trend hypothesis.
-    CTrendHypothesis m_Trend;
+    //! The selected trend summary.
+    CNewTrendSummary m_Trend;
 
     //! The selected seasonal components if any.
-    TSeasonalComponentVec m_Components;
+    TNewSeasonalComponentVec m_Components;
 };
 
 class MATHS_EXPORT CTimeSeriesTestForSeasonality {
@@ -141,9 +245,6 @@ public:
                                   core_t::TTime bucketLength,
                                   TFloatMeanAccumulatorVec values,
                                   double outlierFraction = OUTLIER_FRACTION);
-
-    //! Run the test and return the 
-    CSeasonalHypotheses test();
 
     CTimeSeriesTestForSeasonality& startOfWeek(core_t::TTime value) {
         m_StartOfWeek = value;
@@ -170,6 +271,9 @@ public:
         return *this;
     }
 
+    //! Run the test and return the new components found if any.
+    CSeasonalHypotheses test();
+
 private:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeVec = std::vector<std::size_t>;
@@ -177,16 +281,16 @@ private:
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TSeasonalComponentVec = CSignal::TSeasonalComponentVec;
 
+    //! \brief A summary of a test statistics related to a component.
     struct SHypothesisStats {
+        explicit SHypothesisStats(const TSeasonalComponent& component)
+            : s_Component{component} {}
+        //! A summary of the seasonal component.
+        TSeasonalComponent s_Component;
         //! The number of segments in the trend.
         std::size_t s_NumberTrendSegments = 0;
-        //! True if a known repeating partition is tested.
-        bool s_HasWeekend = false;
-        //! The start of the repeating week if partitioned into trading days
-        //! and weekeds.
-        std::size_t s_StartOfWeek = 0;
-        //! The segmentation of the interval if any.
-        TSizeVec s_ScaleSegments;
+        //! The number of scale segments in the component.
+        std::size_t s_NumberScaleSegments;
         //! The mean number of repeats of buckets with at least one measurement.
         double s_MeanNumberRepeats = 0.0;
         //! The autocorrelation estimate of the hypothesis.
@@ -199,16 +303,19 @@ private:
         double s_ExplainedVariancePValue = 0.0;
         //! The amplitude significance.
         double s_AmplitudePValue = 0.0;
-        //! The truth value for hypothesis.
-        CFuzzyTruthValue s_TruthValue = CFuzzyTruthValue::FALSE;
+        //! The truth value for the hypothesis.
+        CFuzzyTruthValue s_Truth = CFuzzyTruthValue::FALSE;
+        //! The values to use to initialize the component.
+        TFloatMeanAccumulatorVec s_InitialValues;
     };
 
     using THypothesisStatsVec = std::vector<SHypothesisStats>;
-    using TSizeVecHypothesisStatsVecPrVec = std::vector<std::pair<TSizeVec, THypothesisStatsVec>>;
+    using TSizeVecHypothesisStatsVecPrVec =
+        std::vector<std::pair<TSizeVec, THypothesisStatsVec>>;
 
 private:
-    CSeasonalHypotheses select(const TSizeVecHypothesisStatsVecPrVec& hypotheses) const;
-    void truth(const SHypothesisStats& hypothesis) const;
+    CSeasonalHypotheses select(TSizeVecHypothesisStatsVecPrVec& hypotheses) const;
+    void truth(SHypothesisStats& hypothesis) const;
     THypothesisStatsVec testDecomposition(TFloatMeanAccumulatorVec& valueToTest,
                                           std::size_t numberTrendSegments,
                                           const TSeasonalComponentVec& periods) const;
