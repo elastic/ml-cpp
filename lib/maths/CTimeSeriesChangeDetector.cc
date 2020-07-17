@@ -103,7 +103,7 @@ CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(
       m_MinimumDeltaBicToDetect{minimumDeltaBicToDetect}, m_SampleCount{0},
       m_DecisionFunction{0.0}, m_TrendModel{trendModel->clone()} {
     m_ChangeModels.push_back(
-        std::make_unique<CUnivariateNoChangeModel>(trendModel, residualModel));
+        boost::make_unique<CUnivariateNoChangeModel>(trendModel, residualModel));
     this->initChangeModels(residualModel);
 }
 
