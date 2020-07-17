@@ -17,8 +17,9 @@
 
 #include <test/ImportExport.h>
 
-#include <boost/optional.hpp>
 #include <rapidjson/document.h>
+
+#include <boost/optional.hpp>
 
 #include <cstddef>
 #include <memory>
@@ -40,6 +41,10 @@ public:
 
 public:
     CDataFrameAnalysisSpecificationFactory();
+
+    CDataFrameAnalysisSpecificationFactory(const CDataFrameAnalysisSpecificationFactory&) = delete;
+    CDataFrameAnalysisSpecificationFactory&
+    operator=(const CDataFrameAnalysisSpecificationFactory&) = delete;
 
     static const std::string& classification();
     static const std::string& regression();
@@ -103,7 +108,6 @@ private:
     using TOptionalSize = boost::optional<std::size_t>;
     using TOptionalDouble = boost::optional<double>;
     using TOptionalLossFunctionType = boost::optional<TLossFunctionType>;
-    using TOptionalRapidjsonDocument = boost::optional<rapidjson::Document>;
 
 private:
     // Shared
@@ -133,7 +137,7 @@ private:
     std::size_t m_NumberTopShapValues = 0;
     TPersisterSupplier* m_PersisterSupplier = nullptr;
     TRestoreSearcherSupplier* m_RestoreSearcherSupplier = nullptr;
-    TOptionalRapidjsonDocument m_CustomProcessors;
+    rapidjson::Document m_CustomProcessors;
     // Regression
     TOptionalLossFunctionType m_RegressionLossFunction;
     TOptionalDouble m_RegressionLossFunctionParameter;
