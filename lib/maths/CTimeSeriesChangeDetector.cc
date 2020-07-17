@@ -98,13 +98,13 @@ CUnivariateTimeSeriesChangeDetector::CUnivariateTimeSeriesChangeDetector(
     : m_MinimumTimeToDetect{minimumTimeToDetect}, m_MaximumTimeToDetect{maximumTimeToDetect},
       m_MinimumDeltaBicToDetect{minimumDeltaBicToDetect}, m_SampleCount{0},
       m_DecisionFunction{0.0}, m_TrendModel{trendModel->clone()} {
+    m_ChangeModels.push_back(
+        std::make_unique<CUnivariateNoChangeModel>(trendModel, residualModel));
     this->initChangeModels(residualModel);
 }
 
 void CUnivariateTimeSeriesChangeDetector::initChangeModels(TPriorPtr residualModel) {
-    m_ChangeModels.clear();
-    m_ChangeModels.push_back(
-        std::make_unique<CUnivariateNoChangeModel>(m_TrendModel, residualModel));
+    m_ChangeModels.resize(1);
     m_ChangeModels.push_back(
         std::make_unique<CUnivariateLevelShiftModel>(m_TrendModel, residualModel));
     if (m_TrendModel->seasonalComponents().size() > 0) {
