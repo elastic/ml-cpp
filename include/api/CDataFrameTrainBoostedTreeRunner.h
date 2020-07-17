@@ -29,6 +29,7 @@ class CBoostedTreeFactory;
 namespace api {
 class CDataFrameAnalysisConfigReader;
 class CDataFrameAnalysisParameters;
+class CBoostedTreeInferenceModelBuilder;
 
 //! \brief Runs boosted tree regression on a core::CDataFrame.
 class API_EXPORT CDataFrameTrainBoostedTreeRunner : public CDataFrameAnalysisRunner {
@@ -51,6 +52,7 @@ public:
     static const std::string BAYESIAN_OPTIMISATION_RESTARTS;
     static const std::string NUM_TOP_FEATURE_IMPORTANCE_VALUES;
     static const std::string TRAINING_PERCENT_FIELD_NAME;
+    static const std::string FEATURE_PROCESSORS;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;
@@ -79,6 +81,7 @@ public:
     CDataFrameAnalysisInstrumentation& instrumentation() override;
 
 protected:
+    using TOptionalRapidJsonDocument = boost::optional<rapidjson::Document>;
     using TBoostedTreeUPtr = std::unique_ptr<maths::CBoostedTree>;
     using TLossFunctionUPtr = std::unique_ptr<maths::boosted_tree::CLoss>;
 
@@ -93,12 +96,14 @@ protected:
     const std::string& dependentVariableFieldName() const;
     //! Name of prediction field.
     const std::string& predictionFieldName() const;
+    //! The boosted tree factory.
+    maths::CBoostedTreeFactory& boostedTreeFactory();
 
     //! Validate if \p frame is suitable for running the analysis on.
     bool validate(const core::CDataFrame& frame) const override;
 
-    //! The boosted tree factory.
-    maths::CBoostedTreeFactory& boostedTreeFactory();
+    //! Write the boosted tree and custom processors to \p builder.
+    void accept(CBoostedTreeInferenceModelBuilder& builder) const;
 
 private:
     using TBoostedTreeFactoryUPtr = std::unique_ptr<maths::CBoostedTreeFactory>;
@@ -120,6 +125,7 @@ private:
 private:
     // Note custom config is written directly to the factory object.
 
+    TOptionalRapidJsonDocument m_CustomProcessors;
     std::string m_DependentVariableFieldName;
     std::string m_PredictionFieldName;
     double m_TrainingPercent;
