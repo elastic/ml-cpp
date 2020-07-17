@@ -509,4 +509,37 @@ BOOST_FIXTURE_TEST_CASE(testExtraMemory, CTestFixture) {
     BOOST_REQUIRE_EQUAL(allocationLimit, monitor.allocationLimit());
 }
 
+BOOST_FIXTURE_TEST_CASE(testPeakUsage, CTestFixture) {
+    // Clear the counter so that other test cases do not interfere.
+    core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage) = 0;
+
+    CLimits limits;
+    CResourceMonitor& monitor = limits.resourceMonitor();
+    monitor.memoryUsageReporter(
+        std::bind(&CTestFixture::reportCallback, this, std::placeholders::_1));
+    std::size_t baseTotalMemory = monitor.totalMemory();
+
+    monitor.sendMemoryUsageReport(0);
+    BOOST_REQUIRE_EQUAL(baseTotalMemory, m_ReportedModelSizeStats.s_Usage);
+    BOOST_REQUIRE_EQUAL(baseTotalMemory, m_ReportedModelSizeStats.s_PeakUsage);
+
+    monitor.addExtraMemory(100);
+
+    monitor.sendMemoryUsageReport(0);
+    BOOST_REQUIRE_EQUAL(baseTotalMemory + 100, m_ReportedModelSizeStats.s_Usage);
+    BOOST_REQUIRE_EQUAL(baseTotalMemory + 100, m_ReportedModelSizeStats.s_PeakUsage);
+
+    monitor.addExtraMemory(-50);
+
+    monitor.sendMemoryUsageReport(0);
+    BOOST_REQUIRE_EQUAL(baseTotalMemory + 50, m_ReportedModelSizeStats.s_Usage);
+    BOOST_REQUIRE_EQUAL(baseTotalMemory + 100, m_ReportedModelSizeStats.s_PeakUsage);
+
+    monitor.addExtraMemory(100);
+
+    monitor.sendMemoryUsageReport(0);
+    BOOST_REQUIRE_EQUAL(baseTotalMemory + 150, m_ReportedModelSizeStats.s_Usage);
+    BOOST_REQUIRE_EQUAL(baseTotalMemory + 150, m_ReportedModelSizeStats.s_PeakUsage);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

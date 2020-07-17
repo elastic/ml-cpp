@@ -141,8 +141,7 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition(
     const CDataFrameAnalysisRunner::TStrVecVec& categoryNames) const {
     CRegressionInferenceModelBuilder builder(
         fieldNames, this->boostedTree().columnHoldingDependentVariable(), categoryNames);
-    this->boostedTree().accept(builder);
-
+    this->accept(builder);
     return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
 

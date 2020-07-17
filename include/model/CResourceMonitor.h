@@ -18,6 +18,7 @@
 
 namespace CResourceMonitorTest {
 struct testMonitor;
+struct testPeakUsage;
 struct testPruning;
 }
 namespace CResourceLimitTest {
@@ -42,6 +43,7 @@ public:
     struct MODEL_EXPORT SModelSizeStats {
         std::size_t s_Usage = 0;
         std::size_t s_AdjustedUsage = 0;
+        std::size_t s_PeakUsage = 0;
         std::size_t s_ByFields = 0;
         std::size_t s_PartitionFields = 0;
         std::size_t s_OverFields = 0;
@@ -221,9 +223,6 @@ private:
     //! The total memory usage on the previous usage report
     std::size_t m_PreviousTotal;
 
-    //! The highest known value for total memory usage
-    std::size_t m_Peak;
-
     //! Callback function to fire when memory usage increases by 1%
     TMemoryUsageReporterFunc m_MemoryUsageReporter;
 
@@ -269,6 +268,7 @@ private:
 
     //! Test friends
     friend struct CResourceMonitorTest::testMonitor;
+    friend struct CResourceMonitorTest::testPeakUsage;
     friend struct CResourceMonitorTest::testPruning;
     friend class CResourceLimitTest::CTestFixture;
     friend struct CAnomalyJobLimitTest::testAccuracy;

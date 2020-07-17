@@ -61,12 +61,20 @@ void CBoostedTreeInferenceModelBuilder::addFrequencyEncoding(std::size_t inputCo
     m_FeatureNames.push_back(featureName);
 }
 
+void CBoostedTreeInferenceModelBuilder::addCustomProcessor(TApiCustomEncodingUPtr value) {
+    m_CustomProcessors.emplace_back(std::move(value));
+}
+
 CInferenceModelDefinition&& CBoostedTreeInferenceModelBuilder::build() {
 
     // Finalize OneHotEncoding Mappings
     for (auto& oneHotEncodingMapping : m_OneHotEncodingMaps) {
         m_Definition.preprocessors().emplace_back(
             std::move(oneHotEncodingMapping.second));
+    }
+
+    for (auto& customProcessor : m_CustomProcessors) {
+        m_Definition.customPreprocessors().emplace_back(std::move(customProcessor));
     }
 
     // Add aggregated output after the number of trees is known
