@@ -90,14 +90,6 @@ void CTreeShapFeatureImportance::shap(const TRowRef& row, TShapWriter writer) {
         }
     }
 
-    for (std::size_t i = 0; i < m_ReducedShapValues.size(); ++i) {
-        if (m_ReducedShapValues[i].lpNorm<1>() != 0) {
-            m_TotalShapValues
-                .emplace(std::make_pair(i, TVector::Zero(m_ReducedShapValues[i].size())))
-                .first->second.add(m_ReducedShapValues[i].cwiseAbs());
-        }
-    }
-
     m_TopShapValues.resize(m_ReducedShapValues.size());
     std::iota(m_TopShapValues.begin(), m_TopShapValues.end(), 0);
     if (m_NumberTopShapValues < m_TopShapValues.size()) {

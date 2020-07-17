@@ -15,8 +15,6 @@
 
 #include <rapidjson/fwd.h>
 
-#include <boost/optional.hpp>
-
 namespace ml {
 namespace api {
 

@@ -15,7 +15,6 @@ const std::string JSON_FIELD_NAME_TAG{"field_name"};
 const std::string JSON_IMPORTANCE_TAG{"importance"};
 const std::string JSON_TOTAL_FEATURE_IMPORTANCE_TAG{"total_feature_importance"};
 const std::string JSON_FOOBAR_TAG{"foobar"};
-
 }
 
 void CInferenceModelMetadata::addToJsonDocument(rapidjson::Value& parentObject,
@@ -24,7 +23,8 @@ void CInferenceModelMetadata::addToJsonDocument(rapidjson::Value& parentObject,
     for (const auto& item : m_TotalShapValues) {
         auto jsonItem = writer.makeObject();
         rapidjson::Value s;
-        s = rapidjson::StringRef(m_ColumnNames[item.first].c_str(), m_ColumnNames[item.first].size());
+        s = rapidjson::StringRef(m_ColumnNames[item.first].c_str(),
+                                 m_ColumnNames[item.first].size());
         writer.addMember(JSON_FIELD_NAME_TAG, s, jsonItem);
         writer.addMember(
             JSON_IMPORTANCE_TAG,
@@ -49,7 +49,6 @@ const std::string& CInferenceModelMetadata::typeString() const {
 void CInferenceModelMetadata::columnNames(const std::vector<std::string>& columnNames) {
     m_ColumnNames = columnNames;
 }
-
 
 void CInferenceModelMetadata::addToFeatureImportance(std::size_t i, const TVector& values) {
     m_TotalShapValues.emplace(std::make_pair(i, TVector::Zero(values.size())))

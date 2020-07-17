@@ -114,7 +114,8 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
     auto featureImportance = tree.shap();
     if (featureImportance != nullptr) {
-        const_cast<CDataFrameTrainBoostedTreeRegressionRunner*>(this)->m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
+        const_cast<CDataFrameTrainBoostedTreeRegressionRunner*>(this)
+            ->m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
         featureImportance->shap(
             row, [&writer, this](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
                                  const TStrVec& featureNames,
@@ -132,10 +133,11 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
                     }
                 }
                 writer.EndArray();
-                
+
                 for (int i = 0; i < shap.size(); ++i) {
                     if (shap[i].lpNorm<1>() != 0) {
-                        const_cast<CDataFrameTrainBoostedTreeRegressionRunner*>(this)->m_InferenceModelMetadata.addToFeatureImportance(i, shap[i]);
+                        const_cast<CDataFrameTrainBoostedTreeRegressionRunner*>(this)
+                            ->m_InferenceModelMetadata.addToFeatureImportance(i, shap[i]);
                     }
                 }
             });

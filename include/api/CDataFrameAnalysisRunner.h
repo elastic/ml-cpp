@@ -7,7 +7,6 @@
 #ifndef INCLUDED_ml_api_CDataFrameAnalysisRunner_h
 #define INCLUDED_ml_api_CDataFrameAnalysisRunner_h
 
-#include "api/CInferenceModelMetadata.h"
 #include <core/CProgramCounters.h>
 #include <core/CStatePersistInserter.h>
 
@@ -17,6 +16,8 @@
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
+
+#include <boost/optional.hpp>
 
 #include <cstddef>
 #include <functional>
@@ -69,7 +70,6 @@ public:
     using TStrVecVec = std::vector<TStrVec>;
     using TInferenceModelDefinitionUPtr = std::unique_ptr<CInferenceModelDefinition>;
     using TOptionalInferenceModelMetadata = boost::optional<const CInferenceModelMetadata&>;
-    using TInferenceModelMetadataUPtr = std::unique_ptr<CInferenceModelMetadata>;
 
 public:
     //! The intention is that concrete objects of this hierarchy are constructed
