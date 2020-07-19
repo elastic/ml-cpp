@@ -82,6 +82,20 @@ public:
             return s_Window.second - s_Window.first < s_WindowRepeat;
         }
 
+        TSizeSizePr2Vec windows(std::size_t numberValues) const {
+            TSizeSizePr2Vec result;
+            if (this->windowed()) {
+                result.reserve((numberValues + s_WindowRepeat - 1) / s_WindowRepeat);
+                for (std::size_t i = 0; i < numberValues; i += s_WindowRepeat) {
+                    result.emplace_back(s_StartOfWeek + s_Window.first + i,
+                                        s_StartOfWeek + s_Window.second + i);
+                }
+            } else {
+                result.emplace_back(0, numberValues);
+            }
+            return result;
+        }
+
         std::string print() const {
             return std::to_string(s_Period) + "/" + std::to_string(s_StartOfWeek) +
                    "/" + std::to_string(s_WindowRepeat) + "/" +
@@ -260,10 +274,13 @@ public:
     //! \param[in] degreesFreedom The number of values used to compute \p variance.
     static double varianceAtPercentile(double percentage, double variance, double degreesFreedom);
 
-    //! Choose the number of buckets to use for \p component for which there is
-    //! the strongest supporting evidence in \p values.
-    static std::size_t selectComponentSize(TFloatMeanAccumulatorVec values,
-                                           double outlierFraction,
+    //! Choose the number of buckets to use for a component model with \p period
+    //! for which there is the strongest supporting evidence in \p values.
+    //!
+    //! \param[in] values The values to which to fit the component.
+    //! \param[in] period The component's period.
+    //! \return The number of buckets.
+    static std::size_t selectComponentSize(const TFloatMeanAccumulatorVec& values,
                                            std::size_t period);
 
     //! Restrict to the windows defined by \p period.

@@ -8,8 +8,9 @@
 
 namespace ml {
 namespace maths {
-
-const CFuzzyTruthValue CFuzzyTruthValue::TRUE{1.0};
-const CFuzzyTruthValue CFuzzyTruthValue::FALSE{0.0};
+//! This is choosen so TRUE && expression is true iff expression is true.
+const CFuzzyTruthValue CFuzzyTruthValue::TRUE{1.0, 1.0};
+//! This is choosen so FALSE || expression is true iff expression is true.
+const CFuzzyTruthValue CFuzzyTruthValue::FALSE{0.0, 0.0};
 }
 }

@@ -58,18 +58,22 @@ private:
 
 //! Fuzzy check if \p value is greater than \p threshold.
 //!
-//! Computes the truth value using the logistic function.
-inline CFuzzyTruthValue
-fuzzyGreaterThan(double value, double threshold, double margin, double isTrueThreshold = 0.5) {
-    return {CTools::logisticFunction(value, margin, threshold, +1.0), isTrueThreshold};
+//! \param[in] value The value to compare to \p threshold.
+//! \param[in] threshold The smallest true \p value.
+//! \param[in] margin The fuzzyness expressed as the width of the logistic
+//! function which defines the truth value of this expression.
+inline CFuzzyTruthValue fuzzyGreaterThan(double value, double threshold, double margin) {
+    return {CTools::logisticFunction(value, margin, threshold, +1.0)};
 }
 
 //! Fuzzy check if \p value is less than \p threshold.
 //!
-//! Computes the truth value using the logistic function.
-inline CFuzzyTruthValue
-fuzzyLessThan(double value, double threshold, double margin, double isTrueThreshold = 0.5) {
-    return {CTools::logisticFunction(value, margin, threshold, -1.0), isTrueThreshold};
+//! \param[in] value The value to compare to \p threshold.
+//! \param[in] threshold The smallest true \p value.
+//! \param[in] margin The fuzzyness expressed as the width of the logistic
+//! function which defines the truth value of this expression.
+inline CFuzzyTruthValue fuzzyLessThan(double value, double threshold, double margin) {
+    return {CTools::logisticFunction(value, margin, threshold, -1.0)};
 }
 }
 }

@@ -750,8 +750,7 @@ double CSignal::varianceAtPercentile(double percentage, double variance, double 
     return variance;
 }
 
-std::size_t CSignal::selectComponentSize(TFloatMeanAccumulatorVec values,
-                                         double outlierFraction,
+std::size_t CSignal::selectComponentSize(const TFloatMeanAccumulatorVec& values,
                                          std::size_t period) {
 
     auto interpolate = [&](std::size_t i, const std::size_t* adjacent,
@@ -797,8 +796,7 @@ std::size_t CSignal::selectComponentSize(TFloatMeanAccumulatorVec values,
     }
 
     TMeanAccumulatorVec1Vec component;
-    fitSeasonalComponentsRobust({{period, 0, period, {0, period}}},
-                                outlierFraction, values, component);
+    fitSeasonalComponents({seasonalComponentSummary(period)}, values, component);
     TMeanAccumulatorVec compressedComponent{std::move(component[0])};
 
     std::size_t size{period};
@@ -852,12 +850,8 @@ std::size_t CSignal::selectComponentSize(TFloatMeanAccumulatorVec values,
 void CSignal::restrictTo(const SSeasonalComponentSummary& period,
                          TFloatMeanAccumulatorVec& values) {
     if (period.windowed()) {
-        TSizeSizePr2Vec windows;
-        for (std::size_t i = 0; i < values.size(); i += period.s_WindowRepeat) {
-            windows.emplace_back(period.s_StartOfWeek + period.s_Window.first + i,
-                                 period.s_StartOfWeek + period.s_Window.second + i);
-        }
-        restrictTo(windows, values);
+        values.resize(CIntegerTools::floor(values.size(), period.s_WindowRepeat));
+        restrictTo(period.windows(values.size()), values);
     }
 }
 

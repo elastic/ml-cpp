@@ -325,13 +325,12 @@ CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(const TFloatMeanAcc
     return reweighted;
 }
 
-CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
-CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
+CTimeSeriesSegmentation::TFloatMeanAccumulatorVecDoubleVecPr
+CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(TFloatMeanAccumulatorVec values,
                                                                 std::size_t period,
                                                                 const TSizeVec& segmentation,
                                                                 double outlierFraction,
                                                                 double outlierWeight) {
-
     using TDoubleCItr = TDoubleVec::const_iterator;
 
     TDoubleVec model;
@@ -347,12 +346,12 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(const TFloatMean
     double scale{CBasicStatistics::mean(meanScale)};
     LOG_TRACE(<< "  scale = " << scale);
 
-    TFloatMeanAccumulatorVec result{CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(
-        values, segmentation, model, scales)};
+    TFloatMeanAccumulatorVec scaledValues{
+        removePiecewiseLinearScaledSeasonal(values, segmentation, model, scales)};
 
     double noise{std::sqrt([&] {
         auto moments = std::accumulate(
-            result.begin(), result.end(), TMeanVarAccumulator{},
+            scaledValues.begin(), scaledValues.end(), TMeanVarAccumulator{},
             [](TMeanVarAccumulator partialMoments, TFloatMeanAccumulator value) {
                 partialMoments.add(CBasicStatistics::mean(value),
                                    CBasicStatistics::count(value));
@@ -373,14 +372,26 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(const TFloatMean
         double weight{std::min(
             2.0 * scales[(index - segmentation.begin()) - 1] * amplitude - noise, 1.0)};
         if (weight <= 0.0) {
-            result[i] = TFloatMeanAccumulator{};
+            scaledValues[i] = TFloatMeanAccumulator{};
         } else {
-            CBasicStatistics::count(result[i]) *= weight;
-            CBasicStatistics::moment<0>(result[i]) -= scale * model[i % period];
+            CBasicStatistics::count(scaledValues[i]) *= weight;
+            CBasicStatistics::moment<0>(scaledValues[i]) -= scale * model[i % period];
         }
     }
 
-    return result;
+    return {std::move(scaledValues), std::move(scales)};
+}
+
+double CTimeSeriesSegmentation::meanScale(const TSizeVec& segmentation,
+                                          const TDoubleVec& scales,
+                                          const TWeightFunc& weight) {
+    TMeanAccumulator result;
+    for (std::size_t i = 1; i < segmentation.size(); ++i) {
+        for (std::size_t j = segmentation[i - 1]; j < segmentation[i]; ++j) {
+            result.add(scales[i - 1], weight(i));
+        }
+    }
+    return CBasicStatistics::mean(result);
 }
 
 CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
