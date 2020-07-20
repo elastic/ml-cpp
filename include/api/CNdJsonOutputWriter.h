@@ -45,31 +45,30 @@ public:
 
     //! Constructor that causes output to be written to the internal string
     //! stream, with some numeric fields
-    CNdJsonOutputWriter(const TStrSet& numericFields);
+    CNdJsonOutputWriter(TStrSet numericFields);
 
     //! Constructor that causes output to be written to the specified stream
     CNdJsonOutputWriter(std::ostream& strmOut);
 
     //! Constructor that causes output to be written to the specified stream
-    CNdJsonOutputWriter(const TStrSet& numericFields, std::ostream& strmOut);
+    CNdJsonOutputWriter(TStrSet numericFields, std::ostream& strmOut);
 
     //! Destructor flushes the stream
-    virtual ~CNdJsonOutputWriter();
+    ~CNdJsonOutputWriter() override;
 
     // Bring the other overload of fieldNames() into scope
     using CSimpleOutputWriter::fieldNames;
 
     //! Set field names - this function has no affect it always
     //! returns true
-    virtual bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames);
+    bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) override;
 
     // Bring the other overloads of writeRow() into scope
     using CSimpleOutputWriter::writeRow;
 
     //! Write the data row fields as a JSON object
-    virtual bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields,
-                          TOptionalTime time);
+    bool writeRow(const TStrStrUMap& dataRowFields,
+                  const TStrStrUMap& overrideDataRowFields) override;
 
     //! Get the contents of the internal string stream - for use with the
     //! zero argument constructor

@@ -6,11 +6,8 @@
 #ifndef INCLUDED_ml_api_CSimpleOutputWriter_h
 #define INCLUDED_ml_api_CSimpleOutputWriter_h
 
-#include <core/CoreTypes.h>
-
 #include <api/ImportExport.h>
 
-#include <boost/optional.hpp>
 #include <boost/unordered_map.hpp>
 
 #include <string>
@@ -38,8 +35,6 @@ public:
     using TStrVec = std::vector<std::string>;
     using TStrStrUMap = boost::unordered_map<std::string, std::string>;
 
-    using TOptionalTime = boost::optional<core_t::TTime>;
-
 public:
     CSimpleOutputWriter() = default;
 
@@ -66,12 +61,8 @@ public:
     //! overrideDataRowFields and dataRowFields, the value in
     //! overrideDataRowFields will be written.  The time will be passed
     //! as an empty optional, i.e. unknown.
-    bool writeRow(const TStrStrUMap& dataRowFields, const TStrStrUMap& overrideDataRowFields);
-
-    //! As above, but with a pre-parsed time.
     virtual bool writeRow(const TStrStrUMap& dataRowFields,
-                          const TStrStrUMap& overrideDataRowFields,
-                          TOptionalTime time) = 0;
+                          const TStrStrUMap& overrideDataRowFields) = 0;
 
 protected:
     //! Class to cache a hash value so that it doesn't have to be repeatedly
