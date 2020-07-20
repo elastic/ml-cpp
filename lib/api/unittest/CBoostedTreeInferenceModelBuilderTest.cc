@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
             .columns(cols)
             .memoryLimit(30000000)
             .predictionCategoricalFieldNames({"categorical_col"})
-            .predictionCustomProcessor(customProcessors.GetObject())
+            .predictionCustomProcessor(customProcessors)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target_col"),
         outputWriterFactory};
 
@@ -361,7 +361,7 @@ BOOST_AUTO_TEST_CASE(testIntegrationClassification) {
             .columns(cols)
             .memoryLimit(30000000)
             .predictionCategoricalFieldNames({"categorical_col", "target_col"})
-            .predictionCustomProcessor(customProcessors.GetObject())
+            .predictionCustomProcessor(customProcessors)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(), "target_col"),
         outputWriterFactory};
 
