@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinear) {
                        1.4 * maths::CBasicStatistics::variance(noiseMoments));
 }
 
-BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledPeriodic) {
+BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledSeasonal) {
 
     core_t::TTime halfHour{core::constants::HOUR / 2};
     core_t::TTime week{core::constants::WEEK};
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledPeriodic) {
     LOG_DEBUG(<< "Basic");
     for (auto outlierFraction : {0.0, 0.1}) {
         std::size_t j{0};
-        for (auto periodic : {smoothDaily, spikeyDaily}) {
+        for (auto seasonal : {smoothDaily, spikeyDaily}) {
             LOG_DEBUG(<< periods[j]);
             CDebugGenerator debug("results.m." +
                                   core::CStringUtils::typeToStringPretty(outlierFraction) +
@@ -243,11 +243,11 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledPeriodic) {
                 rng.generateNormalSamples(0.0, 3.0, 1, noise);
                 noiseMoments.add(noise[0]);
                 if (time < 3 * week / 2) {
-                    values[time / halfHour].add(100.0 * periodic(time) + noise[0]);
+                    values[time / halfHour].add(100.0 * seasonal(time) + noise[0]);
                 } else if (time < 2 * week) {
-                    values[time / halfHour].add(50.0 * periodic(time) + noise[0]);
+                    values[time / halfHour].add(50.0 * seasonal(time) + noise[0]);
                 } else {
-                    values[time / halfHour].add(300.0 * periodic(time) + noise[0]);
+                    values[time / halfHour].add(300.0 * seasonal(time) + noise[0]);
                 }
                 debug.addValue(maths::CBasicStatistics::mean(values[time / halfHour]));
             }
@@ -255,14 +255,14 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledPeriodic) {
                 0, static_cast<std::size_t>(3 * week / halfHour / 2),
                 static_cast<std::size_t>(2 * week / halfHour), values.size()};
 
-            TSizeVec segmentation(TSegmentation::piecewiseLinearScaledPeriodic(
-                values, period, 0.01, outlierFraction, 0.1));
+            TSizeVec segmentation{TSegmentation::piecewiseLinearScaledSeasonal(
+                values, period, 0.01, outlierFraction, 0.1)};
             LOG_DEBUG(<< "true segmentation = "
                       << core::CContainerPrinter::print(trueSegmentation));
             LOG_DEBUG(<< "segmentation      = "
                       << core::CContainerPrinter::print(segmentation));
 
-            TFloatMeanAccumulatorVec residuals{TSegmentation::removePiecewiseLinearScaledPeriodic(
+            TFloatMeanAccumulatorVec residuals{TSegmentation::removePiecewiseLinearScaledSeasonal(
                 values, period, segmentation, outlierFraction, 0.1)};
             TMeanVarAccumulator residualMoments;
             for (const auto& residual : residuals) {
@@ -296,7 +296,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledPeriodic) {
     // Same again but with 5% salt-and-pepper outliers.
 
     std::size_t j{0};
-    for (auto periodic : {smoothDaily, spikeyDaily}) {
+    for (auto seasonal : {smoothDaily, spikeyDaily}) {
         LOG_DEBUG(<< periods[j]);
         CDebugGenerator debug("results.m.outliers." + periods[j++]);
         values.assign(range / halfHour, TFloatMeanAccumulator{});
@@ -311,11 +311,11 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledPeriodic) {
                 rng.generateNormalSamples(0.0, 3.0, 1, noise);
                 noiseMoments.add(noise[0]);
                 if (time < 3 * week / 2) {
-                    values[time / halfHour].add(100.0 * periodic(time) + noise[0]);
+                    values[time / halfHour].add(100.0 * seasonal(time) + noise[0]);
                 } else if (time < 2 * week) {
-                    values[time / halfHour].add(50.0 * periodic(time) + noise[0]);
+                    values[time / halfHour].add(50.0 * seasonal(time) + noise[0]);
                 } else {
-                    values[time / halfHour].add(300.0 * periodic(time) + noise[0]);
+                    values[time / halfHour].add(300.0 * seasonal(time) + noise[0]);
                 }
                 inliers.push_back(time / halfHour);
             }
@@ -325,13 +325,13 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledPeriodic) {
                                   static_cast<std::size_t>(2 * week / halfHour),
                                   values.size()};
 
-        TSizeVec segmentation(TSegmentation::piecewiseLinearScaledPeriodic(
+        TSizeVec segmentation(TSegmentation::piecewiseLinearScaledSeasonal(
             values, period, 0.01, 0.05, 0.01));
         LOG_DEBUG(<< "true segmentation = "
                   << core::CContainerPrinter::print(trueSegmentation));
         LOG_DEBUG(<< "segmentation      = " << core::CContainerPrinter::print(segmentation));
 
-        TFloatMeanAccumulatorVec residuals{TSegmentation::removePiecewiseLinearScaledPeriodic(
+        TFloatMeanAccumulatorVec residuals{TSegmentation::removePiecewiseLinearScaledSeasonal(
             values, period, trueSegmentation, 0.05, 0.01)};
 
         // Project onto inliers.

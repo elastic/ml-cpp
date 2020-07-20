@@ -286,7 +286,8 @@ CSignal::TSeasonalComponentVec
 CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values_,
                                double outlierFraction,
                                std::size_t week,
-                               const TWeightFunction& weight) {
+                               const TWeightFunction& weight,
+                               TOptionalSize startOfWeekOverride) {
 
     std::size_t n{values_.size()};
     if (n < 15) {
@@ -364,7 +365,8 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values_,
 
         decomposition.clear();
         if (selectedPeriod == week) {
-            decomposition = tradingDayDecomposition(values, outlierFraction, week);
+            decomposition = tradingDayDecomposition(values, outlierFraction,
+                                                    week, startOfWeekOverride);
         }
         if (decomposition.empty()) {
             appendSeasonalComponentSummary(selectedPeriod, result);
@@ -404,9 +406,11 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values_,
     return result;
 }
 
-CSignal::TSeasonalComponentVec CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec values_,
-                                                                double outlierFraction,
-                                                                std::size_t week) {
+CSignal::TSeasonalComponentVec
+CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec values_,
+                                 double outlierFraction,
+                                 std::size_t week,
+                                 TOptionalSize startOfWeekOverride) {
 
     using TSizeAry = std::array<std::size_t, 4>;
     using TSizeSizePr2VecAry = std::array<TSizeSizePr2Vec, 4>;
@@ -432,6 +436,8 @@ CSignal::TSeasonalComponentVec CSignal::tradingDayDecomposition(TFloatMeanAccumu
     TFloatMeanAccumulatorCRng values{values_, 0, values_.size() - remainder};
     std::size_t n{values.size()};
     LOG_TRACE(<< "number values = " << n);
+
+    std::size_t startOfWeek{startOfWeekOverride == boost::none ? *startOfWeekOverride : 0};
 
     double variance{[&] {
         TMeanAccumulatorVec1Vec daily;
@@ -475,10 +481,10 @@ CSignal::TSeasonalComponentVec CSignal::tradingDayDecomposition(TFloatMeanAccumu
     // Initialize the components.
     TMeanVarAccumulatorBuffer1Vec component(1);
     auto initialize = [&](const TSizeSizePr& window, TMeanVarAccumulatorBuffer& component_) {
-        component.back().swap(component_);
-        doFitSeasonalComponents({{component.back().size(), 0, week, window}},
-                                values, component);
-        component.back().swap(component_);
+        component[0].swap(component_);
+        std::size_t period{component[0].size()};
+        doFitSeasonalComponents({{period, startOfWeek, week, window}}, values, component);
+        component[0].swap(component_);
     };
     initialize({0, weekend}, components[WEEKEND_DAILY]);
     initialize({0, weekend}, components[WEEKEND_WEEKLY]);
@@ -517,57 +523,62 @@ CSignal::TSeasonalComponentVec CSignal::tradingDayDecomposition(TFloatMeanAccumu
             variances[WEEKEND_DAILY] + variances[WEEKDAY_WEEKLY]);
     };
 
-    // Compute the variances for each candidate partition.
-    captureVarianceAtStartOfWeek(0);
-    for (std::size_t i = 0; i < week; ++i) {
-        for (std::size_t j = 0; j < components.size(); ++j) {
-            TMeanVarAccumulator next;
-            for (const auto& subset : partitions[j]) {
-                for (std::size_t k = i + subset.first + strides[j];
-                     k <= i + subset.second; k += strides[j]) {
-                    next.add(CBasicStatistics::mean(values[k % n]),
-                             CBasicStatistics::count(values[k % n]));
+    if (startOfWeekOverride != boost::none) {
+        startOfWeek = 3 * startOfWeek;
+        captureVarianceAtStartOfWeek(startOfWeek);
+    } else {
+        // Compute the variances for each candidate partition.
+        captureVarianceAtStartOfWeek(0);
+        for (std::size_t i = 0; i < week; ++i) {
+            for (std::size_t j = 0; j < components.size(); ++j) {
+                TMeanVarAccumulator next;
+                for (const auto& subset : partitions[j]) {
+                    for (std::size_t k = i + subset.first + strides[j];
+                         k <= i + subset.second; k += strides[j]) {
+                        next.add(CBasicStatistics::mean(values[k % n]),
+                                 CBasicStatistics::count(values[k % n]));
+                    }
                 }
+                auto last = components[j].front();
+                components[j].push_back(next);
+                variances[j] += CBasicStatistics::momentsAccumulator(
+                    CBasicStatistics::count(next), CBasicStatistics::variance(next));
+                variances[j] -= CBasicStatistics::momentsAccumulator(
+                    CBasicStatistics::count(last), CBasicStatistics::variance(last));
             }
-            auto last = components[j].front();
-            components[j].push_back(next);
-            variances[j] += CBasicStatistics::momentsAccumulator(
-                CBasicStatistics::count(next), CBasicStatistics::variance(next));
-            variances[j] -= CBasicStatistics::momentsAccumulator(
-                CBasicStatistics::count(last), CBasicStatistics::variance(last));
+            captureVarianceAtStartOfWeek(i + 1);
         }
-        captureVarianceAtStartOfWeek(i + 1);
-    }
 
-    double minCost{std::numeric_limits<double>::max()};
-    std::size_t startOfWeek{week + 1};
+        double minCost{std::numeric_limits<double>::max()};
+        startOfWeek = 3 * week + 3;
 
-    // For each possibility extract the best explanation. We seek to partition
-    // where the time series value is absolutely small and the total difference
-    // between values either side of the partition times is small.
-    double threshold{candidates[0]};
-    for (std::size_t i = 0; i < candidates.size(); i += 3) {
-        threshold = std::min(threshold, candidates[i]);
-    }
-    threshold *= 1.05;
-    for (std::size_t i = 0; i < candidates.size(); i += 3) {
-        for (std::size_t j = 0; j < 3; ++j) {
-            if (candidates[i] < threshold) {
-                double cost{0.0};
-                for (std::size_t k = i / 3; k < i / 3 + n; k += week) {
-                    double knots[]{
-                        CBasicStatistics::mean(values[(k + n - 1) % n]),
-                        CBasicStatistics::mean(values[(k + n + 0) % n]),
-                        CBasicStatistics::mean(values[(k + n + weekend - 1) % n]),
-                        CBasicStatistics::mean(values[(k + n + weekend + 0) % n])};
-                    cost += std::fabs(knots[0]) + std::fabs(knots[1]) +
-                            std::fabs(knots[2]) + std::fabs(knots[3]) +
-                            std::fabs(knots[1] - knots[0]) +
-                            std::fabs(knots[3] - knots[2]);
+        // For each possibility extract the best explanation. We seek to partition
+        // where the time series value is absolutely small and the total difference
+        // between values either side of the partition times is small.
+        double threshold{candidates[0]};
+        for (std::size_t i = 0; i < candidates.size(); i += 3) {
+            threshold = std::min(threshold, candidates[i]);
+        }
+        threshold *= 1.05;
+        for (std::size_t i = 0; i < candidates.size(); i += 3) {
+            for (std::size_t j = 0; j < 3; ++j) {
+                if (candidates[i] < threshold) {
+                    double cost{0.0};
+                    for (std::size_t k = i / 3; k < i / 3 + n; k += week) {
+                        double knots[]{
+                            CBasicStatistics::mean(values[(k + n - 1) % n]),
+                            CBasicStatistics::mean(values[(k + n + 0) % n]),
+                            CBasicStatistics::mean(values[(k + n + weekend - 1) % n]),
+                            CBasicStatistics::mean(values[(k + n + weekend + 0) % n])};
+                        cost += std::fabs(knots[0]) + std::fabs(knots[1]) +
+                                std::fabs(knots[2]) + std::fabs(knots[3]) +
+                                std::fabs(knots[1] - knots[0]) +
+                                std::fabs(knots[3] - knots[2]);
+                    }
+                    LOG_TRACE(<< "cost(" << i / 3 << "," << j << ") = " << cost);
+                    std::tie(minCost, startOfWeek) = std::min(
+                        std::make_pair(minCost, startOfWeek), std::make_pair(cost, i));
                 }
-                LOG_TRACE(<< "cost(" << i / 3 << "," << j << ") = " << cost);
-                std::tie(minCost, startOfWeek) = std::min(
-                    std::make_pair(minCost, startOfWeek), std::make_pair(cost, i));
             }
         }
     }

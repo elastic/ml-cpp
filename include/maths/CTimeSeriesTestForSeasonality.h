@@ -8,6 +8,7 @@
 #define INCLUDED_ml_maths_CTimeSeriesTestForSeasonality_h
 
 #include <core/CSmallVector.h>
+#include <core/Constants.h>
 #include <core/CoreTypes.h>
 
 #include <maths/CBasicStatistics.h>
@@ -284,7 +285,10 @@ public:
                                   double outlierFraction = OUTLIER_FRACTION);
 
     CTimeSeriesTestForSeasonality& startOfWeek(core_t::TTime value) {
-        m_StartOfWeek = value;
+        m_StartOfWeek = static_cast<std::size_t>(
+            ((core::constants::WEEK + value - (m_StartTime % core::constants::WEEK)) %
+             core::constants::WEEK) /
+            m_BucketLength);
         return *this;
     }
     CTimeSeriesTestForSeasonality& minimumRepeatsPerSegmentForVariance(double value) {
@@ -318,7 +322,7 @@ public:
 private:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeVec = std::vector<std::size_t>;
-    using TOptionalTime = boost::optional<core_t::TTime>;
+    using TOptionalSize = boost::optional<std::size_t>;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TSeasonalComponentVec = CSignal::TSeasonalComponentVec;
 
@@ -401,7 +405,7 @@ private:
     double m_MinimumExplainedVariance = MINIMUM_EXPLAINED_VARIANCE;
     double m_MaximumExplainedVariancePValue = MAXIMUM_EXPLAINED_VARIANCE_PVALUE;
     double m_MaximumAmplitudePValue = MAXIMUM_AMPLITUDE_PVALUE;
-    TOptionalTime m_StartOfWeek;
+    TOptionalSize m_StartOfWeek;
     core_t::TTime m_StartTime = 0;
     core_t::TTime m_BucketLength = 0;
     double m_OutlierFraction = OUTLIER_FRACTION;

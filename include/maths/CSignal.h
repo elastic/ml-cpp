@@ -34,6 +34,7 @@ public:
     using TComplexVec = std::vector<TComplex>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeSizePr2Vec = std::vector<TSizeSizePr>;
+    using TOptionalSize = boost::optional<std::size_t>;
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
     using TFloatMeanAccumulatorVecVec = std::vector<TFloatMeanAccumulatorVec>;
@@ -46,6 +47,7 @@ public:
 
     //! \brief A description of a seasonal component.
     struct SSeasonalComponentSummary {
+        SSeasonalComponentSummary() = default;
         SSeasonalComponentSummary(std::size_t period,
                                   std::size_t startOfWeek,
                                   std::size_t windowRepeat,
@@ -60,8 +62,8 @@ public:
 
         bool operator<(const SSeasonalComponentSummary& rhs) const {
             return COrderings::lexicographical_compare(
-                s_Period, s_StartOfWeek, s_WindowRepeat, s_Window, rhs.s_Period,
-                rhs.s_StartOfWeek, rhs.s_WindowRepeat, rhs.s_Window);
+                s_Period, s_StartOfWeek, s_WindowRepeat, s_Window, // this
+                rhs.s_Period, rhs.s_StartOfWeek, rhs.s_WindowRepeat, rhs.s_Window);
         }
 
         bool contains(std::size_t index) const {
@@ -192,11 +194,14 @@ public:
     //! \param[in] weight Controls the chance of selecting a specified period: the
     //! higher the weight the more likely it will be select in preference to one
     //! which is close.
+    //! \param[in] startOfWeekOverride The start of the week to use if one is known.
     //! \return A summary of the seasonal components found.
-    static TSeasonalComponentVec seasonalDecomposition(const TFloatMeanAccumulatorVec& values,
-                                                       double outlierFraction,
-                                                       std::size_t week,
-                                                       const TWeightFunction& weight);
+    static TSeasonalComponentVec
+    seasonalDecomposition(const TFloatMeanAccumulatorVec& values,
+                          double outlierFraction,
+                          std::size_t week,
+                          const TWeightFunction& weight,
+                          TOptionalSize startOfWeekOverride = TOptionalSize{});
 
     //! Decompose the time series \p values into a weekday and weekend.
     //!
@@ -207,10 +212,13 @@ public:
     //! \param[in] values The time series to decompose.
     //! \param[in] outlierFraction The fraction of values treated as outliers.
     //! \param[in] week One week as a multiple of interval between \p values.
+    //! \param[in] startOfWeekOverride The start of the week to use if one is known.
     //! \return A summary of the best decomposition.
-    static TSeasonalComponentVec tradingDayDecomposition(TFloatMeanAccumulatorVec values,
-                                                         double outlierFraction,
-                                                         std::size_t week);
+    static TSeasonalComponentVec
+    tradingDayDecomposition(TFloatMeanAccumulatorVec values,
+                            double outlierFraction,
+                            std::size_t week,
+                            TOptionalSize startOfWeekOverride = TOptionalSize{});
 
     //! Fit the minimum MSE seasonal components with periods \p periods to \p values.
     //!

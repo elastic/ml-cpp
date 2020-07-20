@@ -230,9 +230,11 @@ CSeasonalHypotheses CTimeSeriesTestForSeasonality::test() {
 
         if (removeTrend(valuesToTest)) {
             periods = CSignal::seasonalDecomposition(
-                valuesToTest, m_OutlierFraction, this->week(), [this](std::size_t period) {
+                valuesToTest, m_OutlierFraction, this->week(),
+                [this](std::size_t period) {
                     return this->isDiurnal(period) ? 1.1 : 1.0;
-                });
+                },
+                m_StartOfWeek);
             this->appendDiurnalComponents(valuesToTest, periods);
             periods.erase(std::remove_if(periods.begin(), periods.end(),
                                          [this](const auto& period) {
@@ -533,7 +535,7 @@ void CTimeSeriesTestForSeasonality::appendDiurnalComponents(const TFloatMeanAccu
     if (periodsInclude(this->week()) == false &&
         periodsIncludeTradingDayDecomposition() == false) {
         auto decomposition = CSignal::tradingDayDecomposition(
-            valuesToTest, m_OutlierFraction, this->week());
+            valuesToTest, m_OutlierFraction, this->week(), m_StartOfWeek);
         if (decomposition.empty()) {
             CSignal::appendSeasonalComponentSummary(this->week(), periods);
         } else {

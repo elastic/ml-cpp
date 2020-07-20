@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <boost/test/tools/interface.hpp>
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CoreTypes.h>
@@ -17,6 +16,8 @@
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/test/unit_test.hpp>
+
+#include <string>
 
 BOOST_AUTO_TEST_SUITE(CSignalTest)
 
@@ -495,9 +496,9 @@ BOOST_AUTO_TEST_CASE(testReweightOutliers) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testFitSinglePeriodicComponent) {
+BOOST_AUTO_TEST_CASE(testFitSingleSeasonalComponent) {
 
-    // Test the accuracy with which we estimate one periodic component.
+    // Test the accuracy with which we estimate one seasonal component.
 
     TSizeVec periods{5, 20, 10};
     TPredictorVec expectedComponents{
@@ -528,7 +529,7 @@ BOOST_AUTO_TEST_CASE(testFitSinglePeriodicComponent) {
             values[i].add(expected(i) + noise[i]);
         }
 
-        maths::CSignal::fitPeriodicComponents(seasonalComponentSummary({period}),
+        maths::CSignal::fitSeasonalComponents(seasonalComponentSummary({period}),
                                               values, actuals);
 
         BOOST_REQUIRE_EQUAL(1, actuals.size());
@@ -545,9 +546,9 @@ BOOST_AUTO_TEST_CASE(testFitSinglePeriodicComponent) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testFitMultiplePeriodicComponents) {
+BOOST_AUTO_TEST_CASE(testFitMultipleSeasonalComponents) {
 
-    // Test the accuracy with which we estimate a mixture of two periodic components.
+    // Test the accuracy with which we estimate a mixture of two seasonal components.
 
     TPredictorVecVec expectedComponents{
         {[](std::size_t i) {
@@ -595,7 +596,7 @@ BOOST_AUTO_TEST_CASE(testFitMultiplePeriodicComponents) {
             values[i].add(sum + noise[i]);
         }
 
-        maths::CSignal::fitPeriodicComponents(seasonalComponentSummary(period),
+        maths::CSignal::fitSeasonalComponents(seasonalComponentSummary(period),
                                               values, actuals);
 
         BOOST_REQUIRE_EQUAL(period.size(), actuals.size());
@@ -637,10 +638,10 @@ BOOST_AUTO_TEST_CASE(testFitMultiplePeriodicComponents) {
     BOOST_REQUIRE(maths::CBasicStatistics::mean(overallMeanError) < 1.25);
 }
 
-BOOST_AUTO_TEST_CASE(testFitSinglePeriodicComponentRobust) {
+BOOST_AUTO_TEST_CASE(testFitSingleSeasonalComponentRobust) {
 
     // Test the improvement we get using the robust approach with pepper and salt
-    // outliers for a single periodic component.
+    // outliers for a single seasonal component.
 
     std::size_t period{10};
     auto expected = [](std::size_t i) {
@@ -674,9 +675,9 @@ BOOST_AUTO_TEST_CASE(testFitSinglePeriodicComponentRobust) {
             }
         }
 
-        maths::CSignal::fitPeriodicComponents(seasonalComponentSummary({period}),
+        maths::CSignal::fitSeasonalComponents(seasonalComponentSummary({period}),
                                               values, actuals);
-        maths::CSignal::fitPeriodicComponentsRobust(
+        maths::CSignal::fitSeasonalComponentsRobust(
             seasonalComponentSummary({period}), 0.1, values, actualsRobust);
 
         BOOST_REQUIRE_EQUAL(1, actuals.size());
@@ -704,10 +705,10 @@ BOOST_AUTO_TEST_CASE(testFitSinglePeriodicComponentRobust) {
     BOOST_REQUIRE(maths::CBasicStatistics::mean(overallImprovement) > 1.75);
 }
 
-BOOST_AUTO_TEST_CASE(testFitMultiplePeriodicComponentsRobust) {
+BOOST_AUTO_TEST_CASE(testFitMultipleSeasonalComponentsRobust) {
 
     // Test the improvement we get using the robust approach with pepper and salt
-    // outliers for a mixture of two periodic components.
+    // outliers for a mixture of two seasonal components.
 
     TSizeVec period{10, 15};
     TPredictorVec expected{
@@ -750,8 +751,10 @@ BOOST_AUTO_TEST_CASE(testFitMultiplePeriodicComponentsRobust) {
             }
         }
 
-        maths::CSignal::fitPeriodicComponents(period, values, actuals);
-        maths::CSignal::fitPeriodicComponentsRobust(period, 0.1, values, actualsRobust);
+        maths::CSignal::fitSeasonalComponents(seasonalComponentSummary(period),
+                                              values, actuals);
+        maths::CSignal::fitSeasonalComponentsRobust(seasonalComponentSummary(period),
+                                                    0.1, values, actualsRobust);
 
         BOOST_REQUIRE_EQUAL(period.size(), actuals.size());
         BOOST_REQUIRE_EQUAL(period.size(), actualsRobust.size());
@@ -832,9 +835,9 @@ BOOST_AUTO_TEST_CASE(testRemoveLinearTrend) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testSingleComponentPeriodicDecomposition) {
+BOOST_AUTO_TEST_CASE(testSingleComponentSeasonalDecomposition) {
 
-    // Test that we reliably find a single periodic component.
+    // Test that we reliably find a single seasonal component.
 
     TSizeVec periods{7, 20, 10};
     TPredictorVec expectedComponents{
@@ -865,21 +868,22 @@ BOOST_AUTO_TEST_CASE(testSingleComponentPeriodicDecomposition) {
             values[i].add(expected(i) + noise[i]);
         }
 
-        auto detectedPeriods = maths::CSignal::periodicDecomposition(values, 0.1);
+        auto decomposition = maths::CSignal::seasonalDecomposition(
+            values, 0.1, 168, [](std::size_t) { return 1.0; });
 
         // We can detect additional components but must detect the real
         // component first.
-        BOOST_REQUIRE(detectedPeriods.size() >= 1);
+        BOOST_REQUIRE(decomposition.size() >= 1);
 
-        detectedPeriods.resize(1);
+        decomposition.resize(1);
 
-        BOOST_REQUIRE_EQUAL(period, detectedPeriods[0]);
+        BOOST_REQUIRE_EQUAL(period, decomposition[0].period());
     }
 }
 
-BOOST_AUTO_TEST_CASE(testMultipleComponentsPeriodicDecomposition) {
+BOOST_AUTO_TEST_CASE(testMultipleComponentsSeasonalDecomposition) {
 
-    // Test that we reliably find a mixture of two periodic component.
+    // Test that we reliably find a mixture of two seasonal component.
 
     TSizeVecVec periods{{7, 12}, {20, 13}, {7, 10}};
     TPredictorVecVec expectedComponents{
@@ -928,7 +932,8 @@ BOOST_AUTO_TEST_CASE(testMultipleComponentsPeriodicDecomposition) {
             values[i].add(sum + noise[i]);
         }
 
-        auto detectedPeriods = maths::CSignal::periodicDecomposition(values, 0.1);
+        auto detectedPeriods = maths::CSignal::seasonalDecomposition(
+            values, 0.1, 168, [](std::size_t) { return 1.0; });
 
         // We can detect additional components but must detect the two real
         // components first.
@@ -938,7 +943,8 @@ BOOST_AUTO_TEST_CASE(testMultipleComponentsPeriodicDecomposition) {
         std::sort(period.begin(), period.end());
         std::sort(detectedPeriods.begin(), detectedPeriods.end());
         for (std::size_t i = 0; i < 2; ++i) {
-            meanError.add(std::fabs(static_cast<double>(detectedPeriods[i] - period[i])));
+            meanError.add(std::fabs(
+                static_cast<double>(detectedPeriods[i].period() - period[i])));
         }
     }
 
@@ -957,16 +963,34 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
     TDoubleVec noise;
     TSizeVec offset;
 
-    TSizeVecVec periods{{0, 0}, {24, 24}, {24, 168}, {168, 24}};
     TDoubleVecVec amplitudes{{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
                              {0.3, 0.3, 1.0, 1.0, 1.0, 1.0, 1.0},
                              {0.3, 0.3, 1.3, 1.0, 1.0, 1.3, 1.2},
                              {0.3, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0}};
-
     for (std::size_t test = 0; test < 100; ++test) {
 
-        const auto& period = periods[test % periods.size()];
         const auto& amplitude = amplitudes[test % amplitudes.size()];
+
+        std::string expectedDecomposition[]{
+            "[]",
+            "[24/" + std::to_string(offset[0]) +
+                "/168/[0, 48],"
+                " 24/" +
+                std::to_string(offset[0]) + "/168/[48, 168]]",
+            "[24/" + std::to_string(offset[0]) +
+                "/168/[0, 48],"
+                " 24/" +
+                std::to_string(offset[0]) +
+                "/168/[48, 168],"
+                " 168/" +
+                std::to_string(offset[0]) + "/168/[48, 168]]",
+            "[24/" + std::to_string(offset[0]) +
+                "/168/[0, 48],"
+                " 24/" +
+                std::to_string(offset[0]) +
+                "/168/[48, 168],"
+                " 168/" +
+                std::to_string(offset[0]) + "/168/[0, 48]]"};
 
         rng.generateUniformSamples(0, 168, 1, offset);
         auto component = [&](std::size_t i) {
@@ -982,16 +1006,10 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
             values[i].add(component(i) + noise[i]);
         }
 
-        auto decomposition = maths::CSignal::tradingDayDecomposition(values, 168);
+        auto decomposition = maths::CSignal::tradingDayDecomposition(values, 0.1, 168);
 
-        if (test % 4 == 0) {
-            BOOST_REQUIRE(decomposition == boost::none);
-        } else {
-            BOOST_REQUIRE(decomposition);
-            BOOST_REQUIRE_EQUAL(offset[0], decomposition->s_StartOfWeek);
-            BOOST_REQUIRE_EQUAL(period[0], decomposition->s_WeekendPeriod);
-            BOOST_REQUIRE_EQUAL(period[1], decomposition->s_WeekdayPeriod);
-        }
+        BOOST_REQUIRE_EQUAL(expectedDecomposition[test % 4],
+                            core::CContainerPrinter::print(decomposition));
     }
 }
 
@@ -1019,7 +1037,7 @@ BOOST_AUTO_TEST_CASE(testSelectComponentSize) {
                 values[j].add(component(j) + noise[j]);
             }
 
-            std::size_t size{maths::CSignal::selectComponentSize(values, 0.1, 24)};
+            std::size_t size{maths::CSignal::selectComponentSize(values, 24)};
             sizes[i].add(size);
         }
     }
