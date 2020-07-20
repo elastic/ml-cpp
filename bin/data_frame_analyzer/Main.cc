@@ -59,20 +59,29 @@ std::pair<std::string, bool> readFileToString(const std::string& fileName) {
 class CCleanUpOnExit : private ml::core::CNonInstantiatable {
 public:
     using TTemporaryDirectoryPtr = std::shared_ptr<ml::core::CTemporaryDirectory>;
+    using TDataFrameAnalyzerPtr = std::shared_ptr<ml::api::CDataFrameAnalyzer>;
 
 public:
     static void add(TTemporaryDirectoryPtr directory) {
         m_DataFrameDirectory = directory;
     }
 
+    static void add(TDataFrameAnalyzerPtr analyzer) {
+        m_DataFrameAnalyzer = analyzer;
+    }
+
     static void run() {
         if (m_DataFrameDirectory != nullptr) {
             m_DataFrameDirectory->removeAll();
+        }
+        if (m_DataFrameAnalyzer != nullptr) {
+            m_DataFrameAnalyzer->~CDataFrameAnalyzer();
         }
     }
 
 private:
     static TTemporaryDirectoryPtr m_DataFrameDirectory;
+    static TDataFrameAnalyzerPtr m_DataFrameAnalyzer;
 };
 CCleanUpOnExit::TTemporaryDirectoryPtr CCleanUpOnExit::m_DataFrameDirectory{};
 }
@@ -208,6 +217,7 @@ int main(int argc, char** argv) {
         std::move(analysisSpecification), std::move(resultsStreamSupplier)};
 
     CCleanUpOnExit::add(dataFrameAnalyzer.dataFrameDirectory());
+    CCleanUpOnExit::add(std::shared_ptr<ml::api::CDataFrameAnalyzer>(&dataFrameAnalyzer));
 
     auto inputParser{[lengthEncodedInput, &ioMgr]() -> TInputParserUPtr {
         if (lengthEncodedInput) {
