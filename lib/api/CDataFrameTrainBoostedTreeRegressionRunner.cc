@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "api/CDataFrameTrainBoostedTreeRunner.h"
-#include "api/CInferenceModelMetadata.h"
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 
 #include <core/CLogger.h>
@@ -141,20 +139,6 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
                     }
                 }
             });
-
-        // LOG_DEBUG(<< "Total shap size: " << totalShapValues.size());
-        // writer.Key(TOTAL_FEATURE_IMPORTANCE_FIELD_NAME);
-        // writer.StartArray();
-        // for (const auto& item : totalShapValues) {
-        //     writer.StartObject();
-        //     writer.Key(FEATURE_NAME_FIELD_NAME);
-        //     writer.String(featureImportance->columnNames()[item.first]);
-        //     writer.Key(IMPORTANCE_FIELD_NAME);
-        //     writer.Double(maths::CBasicStatistics::mean(item.second)[0]);
-        //     writer.EndObject();
-        //     LOG_DEBUG(<< "Count: " << maths::CBasicStatistics::count(item.second));
-        // }
-        // writer.EndArray();
     }
     writer.EndObject();
 }
