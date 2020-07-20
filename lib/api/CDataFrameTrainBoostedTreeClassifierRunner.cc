@@ -168,6 +168,10 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         using TTotalShapValues = std::unordered_map<std::size_t, TVector>;
         TTotalShapValues totalShapValues;
         int numberClasses{static_cast<int>(classValues.size())};
+        const_cast<CDataFrameTrainBoostedTreeClassifierRunner*>(this)
+            ->m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
+        const_cast<CDataFrameTrainBoostedTreeClassifierRunner*>(this)
+            ->m_InferenceModelMetadata.classValues(classValues);
         featureImportance->shap(
             row, [&](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
                      const TStrVec& featureNames,
@@ -197,32 +201,11 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
 
                 for (std::size_t i = 0; i < shap.size(); ++i) {
                     if (shap[i].lpNorm<1>() != 0) {
-                        totalShapValues
-                            .emplace(std::make_pair(i, TVector::Zero(shap[i].size())))
-                            .first->second += shap[i].cwiseAbs();
+                        const_cast<CDataFrameTrainBoostedTreeClassifierRunner*>(this)
+                            ->m_InferenceModelMetadata.addToFeatureImportance(i, shap[i]);
                     }
                 }
             });
-        writer.Key(TOTAL_FEATURE_IMPORTANCE_FIELD_NAME);
-        writer.StartArray();
-        for (const auto& item : totalShapValues) {
-            writer.StartObject();
-            writer.Key(FEATURE_NAME_FIELD_NAME);
-            writer.String(featureImportance->columnNames()[item.first]);
-            if (item.second.size() == 1) {
-                writer.Key(IMPORTANCE_FIELD_NAME);
-                writer.Double(item.second(0));
-            } else {
-                for (int j = 0; j < item.second.size() && j < numberClasses; ++j) {
-                    writer.Key(classValues[j]);
-                    writer.Double(item.second(j));
-                }
-                writer.Key(IMPORTANCE_FIELD_NAME);
-                writer.Double(item.second.lpNorm<1>());
-            }
-            writer.EndObject();
-        }
-        writer.EndArray();
     }
     writer.EndObject();
 }
@@ -288,6 +271,11 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelDefinition(
         fieldNames, this->boostedTree().columnHoldingDependentVariable(), categoryNames);
     this->boostedTree().accept(builder);
     return std::make_unique<CInferenceModelDefinition>(builder.build());
+}
+
+CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
+CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
+    return TOptionalInferenceModelMetadata(m_InferenceModelMetadata);
 }
 
 // clang-format off

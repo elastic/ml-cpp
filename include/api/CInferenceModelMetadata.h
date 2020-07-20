@@ -17,24 +17,34 @@
 namespace ml {
 namespace api {
 
-class API_EXPORT CInferenceModelMetadata : public CSerializableToJsonDocument {
+class API_EXPORT CInferenceModelMetadata {
 public:
     using TVector = maths::CDenseVector<double>;
+    using TStrVec = std::vector<std::string>;
+    using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
 
 public:
-    CInferenceModelMetadata() : m_TotalShapValues(){};
-    void addToJsonDocument(rapidjson::Value& parentObject, TRapidJsonWriter& writer) const override;
-    void columnNames(const std::vector<std::string>& columnNames);
+    void write(TRapidJsonWriter& writer) const;
+    void columnNames(const TStrVec& columnNames);
+    void classValues(const TStrVec& classValues);
+
     const std::string& typeString() const;
     void addToFeatureImportance(std::size_t i, const TVector& values);
 
 private:
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<TVector>::TAccumulator;
-    using TTotalShapValues = std::unordered_map<std::size_t, TMeanAccumulator>;
+    using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<TVector>::TAccumulator;
+    using TMinMaxAccumulator = maths::CBasicStatistics::CMinMax<TVector>;
+    using TTotalShapValuesMeanVar = std::unordered_map<std::size_t, TMeanVarAccumulator>;
+    using TTotalShapValuesMinMax = std::unordered_map<std::size_t, TMinMaxAccumulator>;
 
 private:
-    TTotalShapValues m_TotalShapValues;
-    std::vector<std::string> m_ColumnNames;
+    void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
+
+private:
+    TTotalShapValuesMeanVar m_TotalShapValuesMeanVar;
+    TTotalShapValuesMinMax m_TotalShapValuesMinMax;
+    TStrVec m_ColumnNames;
+    TStrVec m_ClassValues;
 };
 }
 }

@@ -4,55 +4,90 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 #include <api/CInferenceModelMetadata.h>
+
+#include <maths/CLinearAlgebraShims.h>
+
 #include <rapidjson/document.h>
 
 namespace ml {
 namespace api {
 
 namespace {
+// clang-format off
 const std::string JSON_MODEL_METADATA_TAG{"model_metadata"};
-const std::string JSON_FIELD_NAME_TAG{"field_name"};
+const std::string JSON_FEATURE_NAME_TAG{"feature_name"};
 const std::string JSON_IMPORTANCE_TAG{"importance"};
+const std::string JSON_MEAN_TAG{"mean"};
+const std::string JSON_VARIANCE_TAG{"variance"};
+const std::string JSON_CLASS_NAME_TAG{"class_name"};
+const std::string JSON_MIN_TAG{"min"};
+const std::string JSON_MAX_TAG{"max"};
 const std::string JSON_TOTAL_FEATURE_IMPORTANCE_TAG{"total_feature_importance"};
-const std::string JSON_FOOBAR_TAG{"foobar"};
+const std::string JSON_SUM_TAG{"sum"};
+// clang-format on
 }
 
-void CInferenceModelMetadata::addToJsonDocument(rapidjson::Value& parentObject,
-                                                TRapidJsonWriter& writer) const {
-    auto array = writer.makeArray();
-    for (const auto& item : m_TotalShapValues) {
-        auto jsonItem = writer.makeObject();
-        rapidjson::Value s;
-        s = rapidjson::StringRef(m_ColumnNames[item.first].c_str(),
-                                 m_ColumnNames[item.first].size());
-        writer.addMember(JSON_FIELD_NAME_TAG, s, jsonItem);
-        writer.addMember(
-            JSON_IMPORTANCE_TAG,
-            rapidjson::Value(maths::CBasicStatistics::mean(item.second)[0]).Move(), jsonItem),
-            array.PushBack(jsonItem, writer.getRawAllocator());
+void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
+    this->writeTotalFeatureImportance(writer);
+}
 
-        // writer.StartObject();
-        // writer.Key(FEATURE_NAME_FIELD_NAME);
-        // writer.String(featureImportance->columnNames()[item.first]);
-        // writer.Key(IMPORTANCE_FIELD_NAME);
-        // writer.Double(maths::CBasicStatistics::mean(item.second)[0]);
-        // writer.EndObject();
+void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writer) const {
+    writer.Key(JSON_TOTAL_FEATURE_IMPORTANCE_TAG);
+    writer.StartArray();
+    for (const auto& item : m_TotalShapValuesMeanVar) {
+        writer.StartObject();
+        writer.Key(JSON_FEATURE_NAME_TAG);
+        writer.String(m_ColumnNames[item.first]);
+        auto meanFeatureImportance = maths::CBasicStatistics::mean(item.second);
+        auto varFeatureImportance = maths::CBasicStatistics::variance(item.second);
+        if (meanFeatureImportance.size() == 1) {
+            writer.Key(JSON_IMPORTANCE_TAG);
+            writer.StartObject();
+            writer.Key(JSON_MEAN_TAG);
+            writer.Double(meanFeatureImportance[0]);
+            writer.Key(JSON_VARIANCE_TAG);
+            writer.Double(varFeatureImportance[0]);
+            writer.EndObject();
+        } else {
+            writer.Key(JSON_IMPORTANCE_TAG);
+            writer.StartArray();
+            for (int j = 0;
+                 j < meanFeatureImportance.size() && j < m_ClassValues.size(); ++j) {
+                writer.StartObject();
+                writer.Key(JSON_CLASS_NAME_TAG);
+                writer.String(m_ClassValues[j]);
+                writer.Key(JSON_MEAN_TAG);
+                writer.Double(meanFeatureImportance[j]);
+                writer.Key(JSON_VARIANCE_TAG);
+                writer.Double(varFeatureImportance[j]);
+                writer.EndObject();
+            }
+            writer.EndArray();
+        }
+        writer.EndObject();
         LOG_DEBUG(<< "Count: " << maths::CBasicStatistics::count(item.second));
     }
-    writer.addMember(JSON_TOTAL_FEATURE_IMPORTANCE_TAG, array, parentObject);
+    writer.EndArray();
 }
 
 const std::string& CInferenceModelMetadata::typeString() const {
     return JSON_MODEL_METADATA_TAG;
 }
 
-void CInferenceModelMetadata::columnNames(const std::vector<std::string>& columnNames) {
+void CInferenceModelMetadata::columnNames(const TStrVec& columnNames) {
     m_ColumnNames = columnNames;
 }
 
+void CInferenceModelMetadata::classValues(const TStrVec& classValues) {
+    m_ClassValues = classValues;
+}
+
 void CInferenceModelMetadata::addToFeatureImportance(std::size_t i, const TVector& values) {
-    m_TotalShapValues.emplace(std::make_pair(i, TVector::Zero(values.size())))
+    m_TotalShapValuesMeanVar
+        .emplace(std::make_pair(i, TVector::Zero(values.size())))
         .first->second.add(values.cwiseAbs());
+    // m_TotalShapValuesMinMax.emplace(std::make_pair(i, TVector::Zero(values.size())))
+    //     .first->second.add(maths::las::componentwise(values.cwiseAbs()));
 }
 }
 }

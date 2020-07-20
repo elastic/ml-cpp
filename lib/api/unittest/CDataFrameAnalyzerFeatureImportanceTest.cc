@@ -279,6 +279,7 @@ struct SFixture {
             core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
             core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
 
+        LOG_DEBUG(<< s_Output.str());
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
@@ -330,6 +331,7 @@ struct SFixture {
             core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
             core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
 
+        LOG_DEBUG(<< s_Output.str());
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);

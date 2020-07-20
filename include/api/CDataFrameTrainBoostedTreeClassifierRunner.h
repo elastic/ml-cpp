@@ -10,6 +10,7 @@
 #include <core/CSmallVector.h>
 
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
+#include <api/CInferenceModelMetadata.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -70,6 +71,9 @@ public:
     inferenceModelDefinition(const TStrVec& fieldNames,
                              const TStrVecVec& categoryNames) const override;
 
+    //! \return A serialisable metadata of the trained regression model.
+    TOptionalInferenceModelMetadata inferenceModelMetadata() const override;
+
 private:
     static TLossFunctionUPtr loss(std::size_t numberClasses);
 
@@ -82,6 +86,7 @@ private:
 private:
     std::size_t m_NumTopClasses;
     EPredictionFieldType m_PredictionFieldType;
+    CInferenceModelMetadata m_InferenceModelMetadata;
 };
 
 //! \brief Makes a core::CDataFrame boosted tree classification runner.

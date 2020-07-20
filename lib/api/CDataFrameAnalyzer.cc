@@ -271,8 +271,6 @@ void CDataFrameAnalyzer::addRowToDataFrame(const TStrVec& fieldValues) {
 
 void CDataFrameAnalyzer::writeInferenceModel(const CDataFrameAnalysisRunner& analysis,
                                              core::CRapidJsonConcurrentLineWriter& writer) const {
-    // Write model meta information
-
     // Write the resulting model for inference.
     auto modelDefinition = analysis.inferenceModelDefinition(
         m_DataFrame->columnNames(), m_DataFrame->categoricalColumnValues());
@@ -296,11 +294,11 @@ void CDataFrameAnalyzer::writeInferenceModelMetadata(const CDataFrameAnalysisRun
     // Write the resulting model for inference.
     auto modelMetadata = analysis.inferenceModelMetadata();
     if (modelMetadata) {
-        rapidjson::Value metadataObject{writer.makeObject()};
-        modelMetadata->addToJsonDocument(metadataObject, writer);
         writer.StartObject();
         writer.Key(modelMetadata->typeString());
-        writer.write(metadataObject);
+        writer.StartObject();
+        modelMetadata->write(writer);
+        writer.EndObject();
         writer.EndObject();
     }
     writer.flush();
