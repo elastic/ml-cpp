@@ -6,7 +6,6 @@
 #include <api/CCsvOutputWriter.h>
 
 #include <core/CLogger.h>
-#include <core/CSleep.h>
 
 #include <algorithm>
 #include <ostream>
@@ -15,35 +14,27 @@ namespace ml {
 namespace api {
 
 // Initialise statics
-const char CCsvOutputWriter::COMMA(',');
-const char CCsvOutputWriter::QUOTE('"');
-const char CCsvOutputWriter::RECORD_END('\n');
+const char CCsvOutputWriter::COMMA{','};
+const char CCsvOutputWriter::QUOTE{'"'};
+const char CCsvOutputWriter::RECORD_END{'\n'};
 
-CCsvOutputWriter::CCsvOutputWriter(bool outputMessages, bool outputHeader, char escape, char separator)
-    : m_StrmOut(m_StringOutputBuf), m_OutputMessages(outputMessages),
-      m_OutputHeader(outputHeader), m_Escape(escape), m_Separator(separator) {
+CCsvOutputWriter::CCsvOutputWriter(bool outputHeader, char escape, char separator)
+    : m_StrmOut{m_StringOutputBuf}, m_OutputHeader{outputHeader}, m_Escape{escape}, m_Separator{separator} {
     if (m_Separator == QUOTE || m_Separator == m_Escape || m_Separator == RECORD_END) {
         LOG_ERROR(<< "CSV output writer will not generate parsable output because "
                      "separator character ("
                   << m_Separator
-                  << ") is the same as "
-                     "the quote, escape and/or record end characters");
+                  << ") is the same as the quote, escape and/or record end characters");
     }
 }
 
-CCsvOutputWriter::CCsvOutputWriter(std::ostream& strmOut,
-                                   bool outputMessages,
-                                   bool outputHeader,
-                                   char escape,
-                                   char separator)
-    : m_StrmOut(strmOut), m_OutputMessages(outputMessages),
-      m_OutputHeader(outputHeader), m_Escape(escape), m_Separator(separator) {
+CCsvOutputWriter::CCsvOutputWriter(std::ostream& strmOut, bool outputHeader, char escape, char separator)
+    : m_StrmOut{strmOut}, m_OutputHeader{outputHeader}, m_Escape{escape}, m_Separator{separator} {
     if (m_Separator == QUOTE || m_Separator == m_Escape || m_Separator == RECORD_END) {
         LOG_ERROR(<< "CSV output writer will not generate parsable output because "
                      "separator character ("
                   << m_Separator
-                  << ") is the same as "
-                     "the quote, escape and/or record end characters");
+                  << ") is the same as the quote, escape and/or record end characters");
     }
 }
 
@@ -51,11 +42,6 @@ CCsvOutputWriter::~CCsvOutputWriter() {
     // Since we didn't flush the stream whilst working, we flush it on
     // destruction
     m_StrmOut.flush();
-
-    // We don't want the program to die before the remote end of the link has
-    // had a chance to read from any pipe to which our output stream might be
-    // connected, so sleep briefly here
-    core::CSleep::sleep(20);
 }
 
 bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) {
@@ -96,19 +82,6 @@ bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extr
 
     m_WorkRecord += RECORD_END;
 
-    // Messages are output in arrears - this is not ideal - TODO
-    if (m_OutputMessages) {
-        for (const auto& message : m_Messages) {
-            m_StrmOut << message.first << '=' << message.second << RECORD_END;
-            LOG_DEBUG(<< "Forwarded " << message.first << '=' << message.second);
-        }
-
-        // Only output each message once
-        m_Messages.clear();
-
-        m_StrmOut << RECORD_END;
-    }
-
     if (m_OutputHeader) {
         m_StrmOut << m_WorkRecord;
     }
@@ -117,8 +90,7 @@ bool CCsvOutputWriter::fieldNames(const TStrVec& fieldNames, const TStrVec& extr
 }
 
 bool CCsvOutputWriter::writeRow(const TStrStrUMap& dataRowFields,
-                                const TStrStrUMap& overrideDataRowFields,
-                                TOptionalTime /*time*/) {
+                                const TStrStrUMap& overrideDataRowFields) {
     if (m_FieldNames.empty()) {
         LOG_ERROR(<< "Attempt to write data before field names");
         return false;
@@ -187,9 +159,8 @@ void CCsvOutputWriter::appendField(const std::string& field) {
     // per character of the string on which the find_first_of() method is
     // called.  This is not sensible when we're only checking for a small number
     // of possible characters.
-    bool needOuterQuotes(false);
-    for (std::string::const_iterator iter = field.begin(); iter != field.end(); ++iter) {
-        char curChar(*iter);
+    bool needOuterQuotes{false};
+    for (const char curChar : field) {
         if (curChar == m_Separator || curChar == QUOTE ||
             curChar == RECORD_END || curChar == m_Escape) {
             needOuterQuotes = true;
@@ -200,8 +171,7 @@ void CCsvOutputWriter::appendField(const std::string& field) {
     if (needOuterQuotes) {
         m_WorkRecord += QUOTE;
 
-        for (std::string::const_iterator iter = field.begin(); iter != field.end(); ++iter) {
-            char curChar(*iter);
+        for (const char curChar : field) {
             if (curChar == QUOTE || curChar == m_Escape) {
                 m_WorkRecord += m_Escape;
             }

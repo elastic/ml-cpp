@@ -10,10 +10,8 @@
 #include <api/ImportExport.h>
 
 #include <iosfwd>
-#include <set>
 #include <sstream>
 #include <string>
-#include <utility>
 
 namespace ml {
 namespace api {
@@ -55,14 +53,10 @@ public:
 public:
     //! Constructor that causes output to be written to the internal string
     //! stream
-    CCsvOutputWriter(bool outputMessages = false,
-                     bool outputHeader = true,
-                     char escape = QUOTE,
-                     char separator = COMMA);
+    CCsvOutputWriter(bool outputHeader = true, char escape = QUOTE, char separator = COMMA);
 
     //! Constructor that causes output to be written to the specified stream
     CCsvOutputWriter(std::ostream& strmOut,
-                     bool outputMessages = false,
                      bool outputHeader = true,
                      char escape = QUOTE,
                      char separator = COMMA);
@@ -85,8 +79,7 @@ public:
     //! overrideDataRowFields and dataRowFields, the value in
     //! overrideDataRowFields will be written.
     bool writeRow(const TStrStrUMap& dataRowFields,
-                  const TStrStrUMap& overrideDataRowFields,
-                  TOptionalTime time) override;
+                  const TStrStrUMap& overrideDataRowFields) override;
 
     //! Get the contents of the internal string stream - for use with the
     //! zero argument constructor
@@ -109,9 +102,6 @@ private:
     //! Reference to the stream we're going to write to
     std::ostream& m_StrmOut;
 
-    //! Should we output a messages section before the CSV?
-    bool m_OutputMessages;
-
     //! Should we output a row containing the CSV column names?
     bool m_OutputHeader;
 
@@ -128,13 +118,6 @@ private:
     //! output stream.  Held as a member so that the capacity adjusts to
     //! an appropriate level, avoiding regular memory allocations.
     std::string m_WorkRecord;
-
-    using TStrStrPr = std::pair<std::string, std::string>;
-    using TStrStrPrSet = std::set<TStrStrPr>;
-    using TStrStrPrSetCItr = TStrStrPrSet::const_iterator;
-
-    //! Messages to be printed before the next lot of output
-    TStrStrPrSet m_Messages;
 
     //! Character to use for escaping quotes (const to allow compiler
     //! optimisations, since the value can't be changed after construction)
