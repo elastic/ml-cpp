@@ -7,6 +7,8 @@
 
 #include <core/CLogger.h>
 
+#include <boost/math/distributions/chi_squared.hpp>
+
 #include <algorithm>
 #include <cmath>
 #include <numeric>
@@ -72,6 +74,17 @@ double CBasicStatistics::mad(const TDoubleVec& data_) {
         datum = std::fabs(datum - median);
     }
     return medianInPlace(data);
+}
+
+double CBasicStatistics::varianceAtPercentile(double percentage, double variance, double degreesFreedom) {
+    try {
+        boost::math::chi_squared chi{degreesFreedom};
+        return boost::math::quantile(chi, percentage / 100.0) / degreesFreedom * variance;
+    } catch (const std::exception& e) {
+        LOG_ERROR(<< "Bad input: " << e.what() << ", degrees of freedom = " << degreesFreedom
+                  << ", percentage = " << percentage);
+    }
+    return variance;
 }
 
 const char CBasicStatistics::INTERNAL_DELIMITER(':');

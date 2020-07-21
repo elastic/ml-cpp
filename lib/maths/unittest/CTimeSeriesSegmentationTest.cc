@@ -8,6 +8,7 @@
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CTimeSeriesSegmentation.h>
 
 #include <test/BoostTestCloseAbsolute.h>
@@ -431,6 +432,101 @@ BOOST_AUTO_TEST_CASE(testRemovePiecewiseLinearDiscontinuities) {
                 static_cast<double>(maths::CBasicStatistics::mean(values[i])), 1e-4);
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
+
+    // Test that mean scaling a component produces the expected values.
+
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
+
+    test::CRandomNumbers rng;
+
+    std::size_t period{20};
+
+    auto seasonal = [=](std::size_t i) {
+        return 10.0 * std::sin(boost::math::double_constants::pi *
+                               static_cast<double>(i % period) /
+                               static_cast<double>(period));
+    };
+
+    TSizeVec segmentation{0, 40, 100, 160};
+    TDoubleVec expectedScales{0.2, 1.3, 0.5};
+    double expectedMeanScale{(4.0 * 0.2 + 6.0 * 1.3 + 6.0 * 0.5) / 16.0};
+    TDoubleVec noise;
+    TFloatMeanAccumulatorVec values;
+    TDoubleVec actualScales;
+    TMeanAccumulatorVec actualMeanScaled;
+    TMeanVarAccumulator overallErrorMoments;
+
+    for (std::size_t test = 0; test < 10; ++test) {
+
+        rng.generateNormalSamples(0.0, 1.0, segmentation.back(), noise);
+
+        values.assign(segmentation.back(), TFloatMeanAccumulator{});
+        for (std::size_t i = 1; i < segmentation.size(); ++i) {
+            for (std::size_t j = segmentation[i - 1]; j < segmentation[i]; ++j) {
+                values[j].add(expectedScales[i - 1] * seasonal(j) + noise[j]);
+            }
+        }
+
+        std::tie(values, actualScales) = TSegmentation::meanScalePiecewiseLinearScaledSeasonal(
+            std::move(values), period, segmentation);
+
+        actualMeanScaled.assign(period, TMeanAccumulator{});
+        for (std::size_t i = 0; i < values.size(); ++i) {
+            actualMeanScaled[i % period].add(maths::CBasicStatistics::mean(values[i]));
+        }
+
+        TMeanVarAccumulator errorMoments;
+        for (std::size_t i = 0; i < period; ++i) {
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                expectedMeanScale * seasonal(i),
+                maths::CBasicStatistics::mean(actualMeanScaled[i]),
+                3.0 / std::sqrt(static_cast<double>(values.size()) /
+                                static_cast<double>(period)));
+            errorMoments.add(expectedMeanScale * seasonal(i) -
+                             maths::CBasicStatistics::mean(actualMeanScaled[i]));
+        }
+        BOOST_REQUIRE_CLOSE(
+            1.0 / (static_cast<double>(values.size()) / static_cast<double>(period)),
+            maths::CBasicStatistics::variance(errorMoments), 60.0); // 60%
+
+        overallErrorMoments += errorMoments;
+    }
+
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, maths::CBasicStatistics::mean(overallErrorMoments),
+                                 std::sqrt(static_cast<double>(values.size()) /
+                                           static_cast<double>(period) / 10.0));
+    BOOST_REQUIRE_CLOSE(
+        1.0 / (static_cast<double>(values.size()) / static_cast<double>(period)),
+        maths::CBasicStatistics::variance(overallErrorMoments),
+        10.0); // 5%
+}
+
+BOOST_AUTO_TEST_CASE(testMeanScale) {
+
+    // Test the mean scales matches what we would expect.
+
+    BOOST_REQUIRE_CLOSE((2.0 + 2.0) / 3.0,
+                        TSegmentation::meanScale({0, 20, 30}, {1.0, 2.0},
+                                                 [](double) { return 1.0; }),
+                        1e-4);
+    BOOST_REQUIRE_CLOSE((4.0 + 1.0) / 3.0,
+                        TSegmentation::meanScale({0, 20, 30}, {2.0, 1.0},
+                                                 [](double) { return 1.0; }),
+                        1e-4);
+    BOOST_REQUIRE_CLOSE(
+        1.5,
+        TSegmentation::meanScale({0, 20, 30}, {1.0, 2.0},
+                                 [](double i) { return i < 20 ? 0.5 : 1.0; }),
+        1e-4);
+    BOOST_REQUIRE_CLOSE(
+        1.5,
+        TSegmentation::meanScale({0, 20, 30}, {2.0, 1.0},
+                                 [](double i) { return i >= 20 ? 2.0 : 1.0; }),
+        1e-4);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

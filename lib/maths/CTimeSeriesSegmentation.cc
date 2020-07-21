@@ -6,6 +6,7 @@
 
 #include <maths/CTimeSeriesSegmentation.h>
 
+#include <core/CContainerPrinter.h>
 #include <core/CTriple.h>
 
 #include <maths/CBasicStatistics.h>
@@ -344,7 +345,7 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(TFloatMeanAccumu
                       static_cast<double>(segmentation[i] - segmentation[i - 1]));
     }
     double scale{CBasicStatistics::mean(meanScale)};
-    LOG_TRACE(<< "  scale = " << scale);
+    LOG_TRACE(<< "mean scale = " << scale);
 
     TFloatMeanAccumulatorVec scaledValues{
         removePiecewiseLinearScaledSeasonal(values, segmentation, model, scales)};
@@ -364,6 +365,7 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(TFloatMeanAccumu
         std::tie(min, max) = std::minmax_element(model.begin(), model.end());
         return *max - *min;
     }()};
+    LOG_TRACE(<< "amplitude = " << amplitude << ", noise = " << noise);
 
     for (std::size_t i = 0; i < values.size(); ++i) {
         // If the component is "scaled away" in a segment we treat that
@@ -375,7 +377,7 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(TFloatMeanAccumu
             scaledValues[i] = TFloatMeanAccumulator{};
         } else {
             CBasicStatistics::count(scaledValues[i]) *= weight;
-            CBasicStatistics::moment<0>(scaledValues[i]) -= scale * model[i % period];
+            CBasicStatistics::moment<0>(scaledValues[i]) += scale * model[i % period];
         }
     }
 
@@ -388,7 +390,7 @@ double CTimeSeriesSegmentation::meanScale(const TSizeVec& segmentation,
     TMeanAccumulator result;
     for (std::size_t i = 1; i < segmentation.size(); ++i) {
         for (std::size_t j = segmentation[i - 1]; j < segmentation[i]; ++j) {
-            result.add(scales[i - 1], weight(i));
+            result.add(scales[i - 1], weight(j));
         }
     }
     return CBasicStatistics::mean(result);

@@ -274,14 +274,6 @@ public:
                                             const TSeasonalComponentVec& periods,
                                             const TMeanAccumulatorVec1Vec& components);
 
-    //! Compute the \p percentage percentile variance assuming it's calculated
-    //! from \p degreesFreedom normal random variables.
-    //!
-    //! \param[in] percentage The required percentile in the range (0, 100).
-    //! \param[in] variance The variance statistic value.
-    //! \param[in] degreesFreedom The number of values used to compute \p variance.
-    static double varianceAtPercentile(double percentage, double variance, double degreesFreedom);
-
     //! Choose the number of buckets to use for a component model with \p period
     //! for which there is the strongest supporting evidence in \p values.
     //!

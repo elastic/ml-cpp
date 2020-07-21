@@ -81,7 +81,7 @@ private:
 
 private:
     std::size_t targetCount(double meanRepeats) const {
-        return std::max(static_cast<std::size_t>(std::ceil(0.5 * meanRepeats)),
+        return std::max(static_cast<std::size_t>(std::ceil(meanRepeats / 3.0)),
                         std::size_t{5});
     }
 
@@ -282,29 +282,6 @@ CSeasonalHypotheses CTimeSeriesTestForSeasonality::select(
         std::tie(trendInitialValues, selectedHypotheses) = std::move(hypotheses[selected]);
 
         result.add(CNewTrendSummary{m_StartTime, m_BucketLength, std::move(trendInitialValues)});
-
-        // Only use a trading day/weekend split if there's at least one daily component.
-        auto dailyWindowed =
-            std::find_if(selectedHypotheses.begin(), selectedHypotheses.end(),
-                         [this](const SHypothesisStats& hypothesis) {
-                             if (hypothesis.s_Period.windowed()) {
-                                 return hypothesis.s_Period.period() == this->day();
-                             }
-                             return false;
-                         });
-        if (dailyWindowed == selectedHypotheses.end()) {
-            auto end = std::remove_if(selectedHypotheses.begin(),
-                                      selectedHypotheses.end(),
-                                      [](const SHypothesisStats& hypothesis) {
-                                          return hypothesis.s_Period.windowed();
-                                      });
-            if (end != selectedHypotheses.end()) {
-                selectedHypotheses.erase(end, selectedHypotheses.end());
-                selectedHypotheses.emplace_back(
-                    CSignal::seasonalComponentSummary(this->week()));
-            }
-        }
-
         for (const auto& hypothesis : selectedHypotheses) {
             result.add(this->annotationText(hypothesis.s_Period),
                        hypothesis.s_Period, hypothesis.s_ComponentSize,
@@ -465,8 +442,8 @@ void CTimeSeriesTestForSeasonality::testExplainedVariance(const TFloatMeanAccumu
 
     hypothesis.s_ResidualVariance = variances[1];
     hypothesis.s_ExplainedVariance =
-        CSignal::varianceAtPercentile(10.0, variances[0], degreesFreedom[0]) /
-        CSignal::varianceAtPercentile(90.0, variances[1], degreesFreedom[1]);
+        CBasicStatistics::varianceAtPercentile(10.0, variances[0], degreesFreedom[0]) /
+        CBasicStatistics::varianceAtPercentile(90.0, variances[1], degreesFreedom[1]);
     hypothesis.s_ExplainedVariancePValue = CStatisticalTests::rightTailFTest(
         variances[0] / variances[1], degreesFreedom[0], degreesFreedom[1]);
 }

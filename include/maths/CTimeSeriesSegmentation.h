@@ -147,6 +147,13 @@ public:
                                            double outlierFraction = 0.0,
                                            double outlierWeight = 0.1);
 
+    //! Compute the weighted mean scale for the piecewise linear \p scales on
+    //! \p segmentation.
+    //!
+    //! \param[in] segmentation The segmentation into intervals with constant
+    //! scale.
+    //! \param[in] scales The piecewise constant linear scales.
+    //! \param[in] weight A function used to weight indices of \p segmentation.
     static double meanScale(const TSizeVec& segmentation,
                             const TDoubleVec& scales,
                             const TWeightFunc& weight);

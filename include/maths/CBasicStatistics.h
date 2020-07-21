@@ -79,6 +79,14 @@ public:
                                : (third <= second ? third : second);
     }
 
+    //! Compute the \p percentage percentile variance assuming it's calculated
+    //! from \p degreesFreedom normal random variables.
+    //!
+    //! \param[in] percentage The required percentile in the range (0, 100).
+    //! \param[in] variance The variance statistic value.
+    //! \param[in] degreesFreedom The number of values used to compute \p variance.
+    static double varianceAtPercentile(double percentage, double variance, double degreesFreedom);
+
     /////////////////////////// ACCUMULATORS ///////////////////////////
 
     ////////////////////////// Central Moments /////////////////////////
@@ -1048,9 +1056,7 @@ private:
         }
 
         //! Get the maximum number of statistics.
-        inline std::size_t capacity() const {
-            return m_Statistics.size();
-        }
+        inline std::size_t capacity() const { return m_Statistics.size(); }
 
         //! Get the number of statistics.
         inline std::size_t count() const {

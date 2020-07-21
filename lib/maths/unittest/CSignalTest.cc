@@ -374,6 +374,9 @@ BOOST_AUTO_TEST_CASE(testAutocorrelations) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testAutocorrelationAtPercentile) {
+}
+
 BOOST_AUTO_TEST_CASE(testCountNotMissing) {
 
     maths::CSignal::TFloatMeanAccumulatorVec values;
@@ -638,6 +641,11 @@ BOOST_AUTO_TEST_CASE(testFitMultipleSeasonalComponents) {
     BOOST_REQUIRE(maths::CBasicStatistics::mean(overallMeanError) < 1.25);
 }
 
+BOOST_AUTO_TEST_CASE(testFitTradingDaySeasonalComponents) {
+
+    // Test fitting weekdays/weekend seasonal components.
+}
+
 BOOST_AUTO_TEST_CASE(testFitSingleSeasonalComponentRobust) {
 
     // Test the improvement we get using the robust approach with pepper and salt
@@ -787,6 +795,12 @@ BOOST_AUTO_TEST_CASE(testFitMultipleSeasonalComponentsRobust) {
     LOG_DEBUG(<< "Overall improvement = "
               << maths::CBasicStatistics::mean(overallImprovement));
     BOOST_REQUIRE(maths::CBasicStatistics::mean(overallImprovement) > 4.0);
+}
+
+BOOST_AUTO_TEST_CASE(testFitTradingDaySeasonalComponentsRobust) {
+
+    // Test fitting weekdays/weekend seasonal components with pepper and salt
+    // outliers.
 }
 
 BOOST_AUTO_TEST_CASE(testRemoveLinearTrend) {
@@ -954,7 +968,7 @@ BOOST_AUTO_TEST_CASE(testMultipleComponentsSeasonalDecomposition) {
 
 BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
 
-    // Test we break the signal down into its correct constituent components.
+    // Test decomposing into weekdays/weekend.
 
     test::CRandomNumbers rng;
 
@@ -971,26 +985,18 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
 
         const auto& amplitude = amplitudes[test % amplitudes.size()];
 
+        // clang-format off
         std::string expectedDecomposition[]{
             "[]",
-            "[24/" + std::to_string(offset[0]) +
-                "/168/[0, 48],"
-                " 24/" +
-                std::to_string(offset[0]) + "/168/[48, 168]]",
-            "[24/" + std::to_string(offset[0]) +
-                "/168/[0, 48],"
-                " 24/" +
-                std::to_string(offset[0]) +
-                "/168/[48, 168],"
-                " 168/" +
-                std::to_string(offset[0]) + "/168/[48, 168]]",
-            "[24/" + std::to_string(offset[0]) +
-                "/168/[0, 48],"
-                " 24/" +
-                std::to_string(offset[0]) +
-                "/168/[48, 168],"
-                " 168/" +
-                std::to_string(offset[0]) + "/168/[0, 48]]"};
+            "[24/" + std::to_string(offset[0]) + "/168/[0, 48]," +
+            " 24/" + std::to_string(offset[0]) + "/168/[48, 168]]",
+            "[24/" + std::to_string(offset[0]) + "/168/[0, 48]," +
+            " 24/" + std::to_string(offset[0]) + "/168/[48, 168]," +
+            " 168/" + std::to_string(offset[0]) + "/168/[48, 168]]", +
+            "[24/" + std::to_string(offset[0]) + "/168/[0, 48]," +
+            " 24/" + std::to_string(offset[0]) + "/168/[48, 168]," +
+            " 168/" + std::to_string(offset[0]) + "/168/[0, 48]]"};
+        // clang-format on
 
         rng.generateUniformSamples(0, 168, 1, offset);
         auto component = [&](std::size_t i) {
@@ -1013,7 +1019,21 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testTradingDayDecompositionWithOverride) {
+
+    // Test decomposing into weekdays/weekend overriding the start of the week.
+}
+
+BOOST_AUTO_TEST_CASE(testMeanNumberRepeatedValues) {
+}
+
+BOOST_AUTO_TEST_CASE(testResidualVariance) {
+}
+
 BOOST_AUTO_TEST_CASE(testSelectComponentSize) {
+
+    // Test that the selected component decreases monotonically with increasing
+    // noise. This is a straight variance/bias tradeoff.
 
     auto component = [](std::size_t i) {
         return 10.0 * std::sin(boost::math::double_constants::two_pi *

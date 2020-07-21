@@ -19,7 +19,6 @@
 
 #include <boost/circular_buffer.hpp>
 #include <boost/math/constants/constants.hpp>
-#include <boost/math/distributions/chi_squared.hpp>
 #include <boost/math/distributions/fisher_f.hpp>
 
 #include <algorithm>
@@ -748,17 +747,6 @@ CSignal::residualVariance(const TFloatMeanAccumulatorVec& values,
     }
     return {CBasicStatistics::variance(moments[0]),
             CBasicStatistics::variance(moments[1])};
-}
-
-double CSignal::varianceAtPercentile(double percentage, double variance, double degreesFreedom) {
-    try {
-        boost::math::chi_squared chi{degreesFreedom};
-        return boost::math::quantile(chi, percentage / 100.0) / degreesFreedom * variance;
-    } catch (const std::exception& e) {
-        LOG_ERROR(<< "Bad input: " << e.what() << ", degrees of freedom = " << degreesFreedom
-                  << ", percentage = " << percentage);
-    }
-    return variance;
 }
 
 std::size_t CSignal::selectComponentSize(const TFloatMeanAccumulatorVec& values,
