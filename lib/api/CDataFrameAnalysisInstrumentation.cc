@@ -190,7 +190,6 @@ void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentatio
             instrumentation.memoryReestimate(static_cast<std::int64_t>(memoryReestimateBytes));
             instrumentation.memoryStatus(E_HardLimit);
             instrumentation.flush();
-            LOG_DEBUG(<<"Killing json writer");
             writer.~CRapidJsonConcurrentLineWriter();
             HANDLE_FATAL(<< "Input error: required memory " << bytesToString(memory)
                          << " exceeds the memory limit " << bytesToString(memoryLimit)
