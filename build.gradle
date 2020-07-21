@@ -126,11 +126,11 @@ def zipSpec = copySpec {
 
 task buildZip(type: Zip) {
   dependsOn strip
-  baseName = artifactName
+  archiveBaseName = artifactName
   with zipSpec
-  destinationDir = file("${buildDir}/distributions")
-  version = project.version
-  classifier = artifactClassifier
+  destinationDirectory = file("${buildDir}/distributions")
+  archiveVersion = project.version
+  archiveClassifier = artifactClassifier
 }
 
 def zipSpecSymbols = copySpec {
@@ -145,11 +145,11 @@ def zipSpecSymbols = copySpec {
 
 task buildZipSymbols(type: Zip) {
   dependsOn strip
-  baseName = "$artifactName-debug"
+  archiveBaseName = "$artifactName-debug"
   with zipSpecSymbols
-  destinationDir = file("${buildDir}/distributions")
-  version = project.version
-  classifier = artifactClassifier
+  destinationDirectory = file("${buildDir}/distributions")
+  archiveVersion = project.version
+  archiveClassifier = artifactClassifier
 }
 
 // The uber zip contains C++ binaries for as many platforms as possible
@@ -171,10 +171,10 @@ def uberZipSpec = copySpec {
 
 task buildUberZip(type: Zip) {
   dependsOn buildZip
-  baseName = "$artifactName"
+  archiveBaseName = "$artifactName"
   with uberZipSpec
-  destinationDir = file("${buildDir}/distributions")
-  version = project.version
+  destinationDirectory = file("${buildDir}/distributions")
+  archiveVersion = project.version
 }
 
 configurations.create('default')
