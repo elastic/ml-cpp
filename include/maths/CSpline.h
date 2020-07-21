@@ -29,15 +29,16 @@ namespace maths {
 namespace spline_detail {
 
 using TDoubleVec = std::vector<double>;
+using TFloatVec = std::vector<CFloatStorage>;
 
-//! Solves \f$Ax = y\f$ where \f$A\f$ is a tridiagonal matrix consisting of vectors
-//! \f$a\f$, \f$b\f$ and \f$c\f$.
+//! Solves \f$Ax = y\f$ where \f$A\f$ is a tridiagonal matrix
+//! consisting of vectors \f$a\f$, \f$b\f$ and \f$c\f$.
 //!
 //! \param[in] a The subdiagonal indexed from [0, ..., n - 2].
 //! \param[in] b The main diagonal, indexed from [0, ..., n - 1].
 //! \param[in] c The superdiagonal, indexed from [0, ..., N - 2].
-//! \param[in,out] x Initially contains the input vector \f$y\f$, and returns the
-//! solution \f$x\f$, indexed from [0, ..., n - 1].
+//! \param[in,out] x Initially contains the input vector \f$y\f$,
+//! and returns the solution \f$x\f$, indexed from [0, ..., n - 1].
 //! \note The contents of input vector c will be modified.
 bool MATHS_EXPORT solveTridiagonal(const TDoubleVec& a,
                                    const TDoubleVec& b,
@@ -49,13 +50,14 @@ bool MATHS_EXPORT solveTridiagonal(const TDoubleVec& a,
 //!   \f$\displaystyle \left(A + \begin{bmatrix} 1\\ 0\\ 0\\ \cdot\\u \end{bmatrix} \begin{bmatrix} 1 & 0 & 0 & \cdot & v \end{bmatrix}\right)x=y\f$
 //! </pre>
 //!
-//! Here, \f$A\f$ is a tridiagonal matrix consisting of vectors \f$a\f$, \f$b\f$ and \f$c\f$.
+//! Here, \f$A\f$ is a tridiagonal matrix consisting of vectors
+//! \f$a\f$, \f$b\f$ and \f$c\f$.
 //!
 //! \param[in] a The subdiagonal indexed from [0, ..., n - 2].
 //! \param[in] b The main diagonal, indexed from [0, ..., n - 1].
 //! \param[in] c The superdiagonal, indexed from [0, ..., N - 2].
-//! \param[in,out] x Initially contains the input vector \f$y\f$, and returns the 
-//! solution \f$x\f$, indexed from [0, ..., n - 1].
+//! \param[in,out] x Initially contains the input vector \f$y\f$,
+//! and returns the solution \f$x\f$, indexed from [0, ..., n - 1].
 //! \note The contents of input vector c will be modified.
 bool MATHS_EXPORT solvePeturbedTridiagonal(const TDoubleVec& a,
                                            const TDoubleVec& b,
@@ -74,47 +76,51 @@ public:
     //! Types of spline interpolation that this will perform.
     //!
     //! -# Linear interpolation of the knot points.
-    //! -# Standard cubic spline. The boundary conditions are chosen by a separate
-    //!    enumeration.
+    //! -# Standard cubic spline. The boundary conditions are
+    //!    chosen by a separate enumeration.
     enum EType { E_Linear, E_Cubic };
 
     //! Types of boundary condition for the spline.
     //!
-    //! -# The natural boundary condition sets curvature to zero at the start and
-    //!    end of the interpolated interval.
-    //! -# The parabolic run out sets curvature at the start and end of the interval
-    //!    to the curvature at the second and penultimate knot point, respectively.
-    //! -# For the periodic boundary condition we identify the start and end of the
-    //!    interval and apply the usual spline condition that the first derivative
-    //!    is equal across the knot point.
+    //! -# The natural boundary condition sets curvature to zero
+    //!    at the start and end of the interpolated interval.
+    //! -# The parabolic run out sets curvature at the start and
+    //!    end of the interval to the curvature at the second and
+    //!    penultimate knot point, respectively.
+    //! -# For the periodic boundary condition we identify the
+    //!    start and end of the interval and apply the usual
+    //!    spline condition that the first derivative is equal
+    //!    across the knot point.
     enum EBoundaryCondition { E_Natural, E_ParabolicRunout, E_Periodic };
 };
 
 //! \brief Implements a standard cubic spline.
 //!
 //! DESCRIPTION:\n
-//! The standard cubic spline is an interpolation of a set of function points,
-//! \f$(x, y(x))\f$. A set of knot points \f$x_i\f$ are defined and the function
-//! is interpolated between these points using piecewise cubic function, i.e.
+//! The standard cubic spline is an interpolation of a set of function
+//! points, \f$(x, y(x))\f$. A set of knot points \f$x_i\f$ are defined
+//! and the function is interpolated between these points using piecewise
+//! cubic function, i.e.
 //! <pre class="fragment">
 //!   \f$y_i(x) = a_i(x-x_i)^3 + b_i(x-x_i)^2 + c_i(x-x_i) + d_i\f$
 //! </pre>
 //!
-//! The spline conditions require that the function is continuous and conditionally
-//! differentiable to order 2. In addition, the user must specify some boundary
-//! conditions at the first and last knot points. We support some standard types.
-//! However, for our particular use cases it is also desirable to support a slightly
-//! non-standard boundary condition, namely periodic. This corresponds to a function
-//! which is periodic with period equal to the interpolation interval.
+//! The spline conditions require that the function is continuous and
+//! conditionally differentiable to order 2. In addition, the user must
+//! specify some boundary conditions at the first and last knot points.
+//! We support some standard types. However, for our particular use
+//! cases it is also desirable to support a slightly non-standard boundary
+//! condition, namely periodic. This corresponds to a function which is
+//! periodic with period equal to the interpolation interval.
 //!
 //! \see http://en.wikipedia.org/wiki/Spline_(mathematics) for details.
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! The types of the knot, value and curvatures collections are templated principally
-//! so that splines can be defined on top of different precision floating point numbers
-//! and also so that reference splines can be created. Reference splines work on
-//! collections that are stored elsewhere, so that, for example knot points can be
-//! shared between several splines.
+//! The types of the knot, value and curvatures collections are templated
+//! principally so that splines can be defined on top of different precision
+//! floating point numbers and also so that reference splines can be created.
+//! Reference splines work on collections that are stored elsewhere, so that,
+//! for example knot points can be shared between several splines.
 template<typename KNOTS = std::vector<CFloatStorage>,
          typename VALUES = std::vector<CFloatStorage>,
          typename CURVATURES = std::vector<double>>
@@ -145,7 +151,8 @@ public:
     //! Check if the spline has been initialized.
     bool initialized() const { return this->knots().size() > 0; }
 
-    //! Clear the contents of this spline and recover any allocated memory.
+    //! Clear the contents of this spline and recover any
+    //! allocated memory.
     void clear() {
         TNonConstKnots noKnots;
         this->knotsRef().swap(noKnots);
@@ -157,8 +164,9 @@ public:
 
     //! Evaluate the value of the spline at the point \p x.
     //!
-    //! \warning \p x should be in the interpolation interval as defined by the
-    //! last set of knot points supplied to the interpolate function.
+    //! \warning \p x should be in the interpolation interval as
+    //! defined by the last set of knot points supplied to the
+    //! interpolate function.
     double value(double x) const {
         if (this->knots().empty()) {
             return 0.0;
@@ -208,7 +216,7 @@ public:
         TMeanAccumulator result;
         switch (m_Type) {
         case E_Linear:
-            for (std::size_t i = 1; i < this->knots().size(); ++i) {
+            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
                 double h = this->knots()[i] - this->knots()[i - 1];
                 double c = (this->values()[i] - this->values()[i - 1]) / h;
                 double d = this->values()[i - 1];
@@ -217,7 +225,7 @@ public:
             break;
 
         case E_Cubic:
-            for (std::size_t i = 1; i < this->knots().size(); ++i) {
+            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
                 double h = this->knots()[i] - this->knots()[i - 1];
                 double a = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
                 double b = this->curvatures()[i - 1] / 2.0;
@@ -234,8 +242,9 @@ public:
 
     //! Evaluate the slope of the spline at the point \p x.
     //!
-    //! \warning \p x should be in the interpolation interval as defined by the 
-    //! last set of knot points supplied to the interpolate function.
+    //! \warning \p x should be in the interpolation interval as
+    //! defined by the last set of knot points supplied to the
+    //! interpolate function.
     double slope(double x) const {
         if (this->knots().empty()) {
             return 0.0;
@@ -278,13 +287,13 @@ public:
 
         switch (m_Type) {
         case E_Linear:
-            for (std::size_t i = 1; i < n; ++i) {
+            for (std::size_t i = 1u; i < n; ++i) {
                 result += std::fabs((this->values()[i] - this->values()[i - 1]));
             }
             break;
 
         case E_Cubic:
-            for (std::size_t i = 1; i < n; ++i) {
+            for (std::size_t i = 1u; i < n; ++i) {
                 double a = this->knots()[i - 1];
                 double b = this->knots()[i];
                 double h = b - a;
@@ -325,22 +334,18 @@ public:
                       TDoubleVec* b = nullptr,
                       TDoubleVec* c = nullptr,
                       TDoubleVec* d = nullptr) const {
-        if (a) {
+        if (a)
             a->reserve(this->values().size());
-        }
-        if (b) {
+        if (b)
             b->reserve(this->values().size());
-        }
-        if (c) {
+        if (c)
             c->reserve(this->values().size());
-        }
-        if (d) {
+        if (d)
             d->reserve(this->values().size());
-        }
 
         switch (m_Type) {
         case E_Linear:
-            for (std::size_t i = 1; i < this->knots().size(); ++i) {
+            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
                 double h = this->knots()[i] - this->knots()[i - 1];
                 if (a)
                     a->push_back(0.0);
@@ -354,40 +359,39 @@ public:
             break;
 
         case E_Cubic:
-            for (std::size_t i = 1; i < this->knots().size(); ++i) {
+            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
                 double h = this->knots()[i] - this->knots()[i - 1];
-                if (a) {
+                if (a)
                     a->push_back((this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h);
-                }
-                if (b) {
+                if (b)
                     b->push_back(this->curvatures()[i - 1] / 2.0);
-                }
-                if (c) {
+                if (c)
                     c->push_back(
                         (this->values()[i] - this->values()[i - 1]) / h -
                         (this->curvatures()[i] / 6.0 + this->curvatures()[i - 1] / 3.0) * h);
-                }
-                if (d) {
+                if (d)
                     d->push_back(this->values()[i - 1]);
-                }
             }
             break;
         }
     }
 
-    //! Interpolate the function, using the selected spline style, on the knot points
-    //! \p knots, with the values \p values, and applying the boundary conditions
-    //! \p boundary.
+    //! Interpolate the function, using the selected spline style,
+    //! on the knot points \p knots, with the values \p values,
+    //! and applying the boundary conditions \p boundary.
     //!
     //! \param[in] knots The knot points for the spline.
     //! \param[in] values The values of the function at \p knots.
-    //! \param[in] boundary Selects the boundary condition to use for the interpolation.
-    //! See EBoundaryCondition for more details on this argument.
+    //! \param[in] boundary Selects the boundary condition to use
+    //! for the interpolation. See EBoundaryCondition for more
+    //! details on this argument.
     //! \warning \p knots must be ordered increasing.
-    //! \warning There must be a one-to-one correspondence between \p knots and \p values.
-    //! \note If \p knots contain duplicates the standard spline is ill posed. This
-    //! implementation removes duplicates and sets the function value to the mean of
-    //! function values over the duplicates.
+    //! \warning There must be a one-to-one correspondence between
+    //! \p knots and \p values.
+    //! \note If \p knots contain duplicates the standard spline
+    //! is ill posed. This implementation removes duplicates and
+    //! sets the function value to the mean of function values
+    //! over the duplicates.
     bool interpolate(const TDoubleVec& knots, const TDoubleVec& values, EBoundaryCondition boundary) {
         if (knots.size() < 2) {
             LOG_ERROR(<< "Insufficient knot points supplied");
@@ -407,13 +411,14 @@ public:
         this->knotsRef().assign(knots.begin(), knots.end());
         this->valuesRef().assign(values.begin(), values.end());
 
-        // If two knots are equal to working precision then we de-duplicate and use
-        // the average of the values at the duplicate knots. The exit condition from
-        // this loop is rather subtle and ensures that "last" always points to the
-        // last element in the reduced knot set.
+        // If two knots are equal to working precision then we
+        // de-duplicate and use the average of the values at the
+        // duplicate knots. The exit condition from this loop is
+        // rather subtle and ensures that "last" always points
+        // to the last element in the reduced knot set.
         std::size_t last = std::numeric_limits<std::size_t>::max();
         std::size_t n = this->knots().size();
-        for (std::size_t i = 1; i <= n; ++i) {
+        for (std::size_t i = 1u; i <= n; ++i) {
             std::size_t i_ = i - 1;
             double knot = this->knots()[i_];
             for (/**/; i < n && this->knots()[i] == knot; ++i) {
@@ -454,8 +459,8 @@ public:
             this->curvaturesRef().clear();
             this->curvaturesRef().reserve(n);
 
-            // Construct the diagonals: a is the subdiagonal, b is the main diagonal
-            // and c is the superdiagonal.
+            // Construct the diagonals: a is the subdiagonal, b is the
+            // main diagonal and c is the superdiagonal.
 
             TDoubleVec a;
             TDoubleVec b;
@@ -489,7 +494,7 @@ public:
                 break;
             }
 
-            for (std::size_t i = 1; i + 1 < n; ++i) {
+            for (std::size_t i = 1u; i + 1 < n; ++i) {
                 h_ = h;
                 h = this->knots()[i + 1] - this->knots()[i];
                 a.push_back(h_);
@@ -508,7 +513,7 @@ public:
                 a.push_back(0.0);
                 b.push_back(1.0);
                 this->curvaturesRef().push_back(0.0);
-                if (spline_detail::solveTridiagonal(a, b, c, this->curvaturesRef()) == false) {
+                if (!spline_detail::solveTridiagonal(a, b, c, this->curvaturesRef())) {
                     LOG_ERROR(<< "Failed to calculate curvatures");
                     return false;
                 }
@@ -518,7 +523,7 @@ public:
                 a.push_back(-1.0);
                 b.push_back(1.0);
                 this->curvaturesRef().push_back(0.0);
-                if (spline_detail::solveTridiagonal(a, b, c, this->curvaturesRef()) == false) {
+                if (!spline_detail::solveTridiagonal(a, b, c, this->curvaturesRef())) {
                     LOG_ERROR(<< "Failed to calculate curvatures");
                     return false;
                 }
@@ -536,8 +541,8 @@ public:
                 this->curvaturesRef().push_back(
                     6.0 * ((this->values()[1] - this->values()[n - 1]) / h -
                            (this->values()[n - 1] - this->values()[n - 2]) / h_));
-                if (spline_detail::solvePeturbedTridiagonal(
-                        a, b, c, u, v, this->curvaturesRef()) == false) {
+                if (!spline_detail::solvePeturbedTridiagonal(
+                        a, b, c, u, v, this->curvaturesRef())) {
                     LOG_ERROR(<< "Failed to calculate curvatures");
                     return false;
                 }
@@ -556,7 +561,7 @@ public:
     //! \param[in,out] result Filled in with the description.
     void describe(const std::string& indent, std::string& result) const {
         result += "\n" + indent + "cubic spline";
-        if (this->initialized() == false) {
+        if (!this->initialized()) {
             result += " zero everywhere";
             return;
         }
@@ -564,7 +569,7 @@ public:
         result += ":";
         switch (m_Type) {
         case E_Linear:
-            for (std::size_t i = 1; i < this->knots().size(); ++i) {
+            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
                 double h = this->knots()[i] - this->knots()[i - 1];
                 double c = (this->values()[i] - this->values()[i - 1]) / h;
                 double d = this->values()[i - 1];
@@ -579,7 +584,7 @@ public:
             break;
 
         case E_Cubic:
-            for (std::size_t i = 1; i < this->knots().size(); ++i) {
+            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
                 double h = this->knots()[i] - this->knots()[i - 1];
                 double a = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
                 double b = this->curvatures()[i - 1] / 2.0;
@@ -601,7 +606,7 @@ public:
     }
 
     //! Get a checksum for this object.
-    std::uint64_t checksum(std::uint64_t seed = 0) const {
+    uint64_t checksum(uint64_t seed = 0) const {
         seed = CChecksum::calculate(seed, m_Type);
         seed = CChecksum::calculate(seed, m_Knots);
         seed = CChecksum::calculate(seed, m_Values);
