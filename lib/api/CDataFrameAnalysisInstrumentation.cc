@@ -186,11 +186,19 @@ void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentatio
         std::int64_t memory{instrumentation.memory()};
         std::int64_t memoryLimit{instrumentation.m_MemoryLimit};
         if (memory > 10000) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+            
             double memoryReestimateBytes{static_cast<double>(memory) * MEMORY_LIMIT_INCREMENT};
             instrumentation.memoryReestimate(static_cast<std::int64_t>(memoryReestimateBytes));
             instrumentation.memoryStatus(E_HardLimit);
             instrumentation.flush();
             writer.~CRapidJsonConcurrentLineWriter();
+            LOG_INFO(<< "Input error: required memory " << memory
+                         << " exceeds the memory limit " << memoryLimit
+                         << ". Please force-stop the analysis job, increase the limit to at least "
+                         << memoryReestimateBytes << " and restart.");
+            std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+
             HANDLE_FATAL(<< "Input error: required memory " << bytesToString(memory)
                          << " exceeds the memory limit " << bytesToString(memoryLimit)
                          << ". Please force-stop the analysis job, increase the limit to at least "
