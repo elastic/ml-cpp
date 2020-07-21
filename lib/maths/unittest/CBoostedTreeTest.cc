@@ -1862,7 +1862,7 @@ BOOST_AUTO_TEST_CASE(testWorstCaseMemoryCorrection) {
     test::CRandomNumbers rng;
     rng.generateUniformSamples(0.0, 20000.0, numberSamples, lhs);
     rng.generateUniformSamples(0.0, 20000.0, numberSamples, rhs);
-    for (int i = 0; i < numberSamples; ++i) {
+    for (std::size_t i = 0; i < numberSamples; ++i) {
         BOOST_TEST_REQUIRE((lhs[i] <= rhs[i]) ==
                            (maths::CBoostedTreeImpl::correctedMemoryUsage(lhs[i]) <=
                             maths::CBoostedTreeImpl::correctedMemoryUsage(rhs[i])));
