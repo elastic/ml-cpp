@@ -185,11 +185,13 @@ void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentatio
         }
         std::int64_t memory{instrumentation.memory()};
         std::int64_t memoryLimit{instrumentation.m_MemoryLimit};
-        if (memory > memoryLimit) {
+        if (memory > 10000) {
             double memoryReestimateBytes{static_cast<double>(memory) * MEMORY_LIMIT_INCREMENT};
             instrumentation.memoryReestimate(static_cast<std::int64_t>(memoryReestimateBytes));
             instrumentation.memoryStatus(E_HardLimit);
             instrumentation.flush();
+            LOG_DEBUG(<<"Killing json writer");
+            writer.~CRapidJsonConcurrentLineWriter();
             HANDLE_FATAL(<< "Input error: required memory " << bytesToString(memory)
                          << " exceeds the memory limit " << bytesToString(memoryLimit)
                          << ". Please force-stop the analysis job, increase the limit to at least "
