@@ -57,8 +57,8 @@ class DownloadPlatformSpecific extends DefaultTask {
   /**
    * Directory to download platform specific zip files into
    */
-  @InputDirectory
-  File downloadDirectory
+  @Input
+  String downloadDirectory
 
   /**
    * Directory to extract downloaded zip files into
@@ -120,7 +120,7 @@ task upload(type: UploadS3Task) {
 
 task downloadPlatformSpecific(type: DownloadPlatformSpecific) {
   baseName = artifactName
-  downloadDirectory = file("${buildDir}/distributions")
+  downloadDirectory = "${buildDir}/distributions"
   extractDirectory = file("${buildDir}/temp")
   description = 'Download and extract previously created platform-specific C++ zips'
 }
