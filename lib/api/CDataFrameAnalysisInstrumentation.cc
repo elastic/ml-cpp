@@ -190,9 +190,11 @@ void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentatio
             instrumentation.memoryReestimate(static_cast<std::int64_t>(memoryReestimateBytes));
             instrumentation.memoryStatus(E_HardLimit);
             instrumentation.flush();
-            HANDLE_FATAL(<< "Input error: required memory " << bytesToString(memory)
-                         << " exceeds the memory limit " << bytesToString(memoryLimit)
-                         << ". Please force-stop the analysis job, increase the limit to at least "
+            LOG_ERROR(<< "Input error: required memory " << bytesToString(memory) << " exceeds the memory limit "
+                      << bytesToString(memoryLimit) << ". New estimated limit is "
+                      << bytesToString(memoryReestimateBytes) << ".");
+            HANDLE_FATAL(<< "Input error: Memory limit " << bytesToString(memoryLimit)
+                         << " has been exceeded. Please force stop the job, increase to new estimated limit "
                          << bytesToString(memoryReestimateBytes) << " and restart.")
         }
 
