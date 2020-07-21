@@ -42,17 +42,22 @@ if (envMlAwsSecretKey != null) {
  */
 class DownloadPlatformSpecific extends DefaultTask {
 
+  @Input
   String version = project.version
+
+  @Input
   String artifactGroupPath = project.group.replaceAll("\\.", "/")
 
   /**
    * Base name for the artifacts
    */
+  @Input
   String baseName
 
   /**
    * Directory to download platform specific zip files into
    */
+  @InputDirectory
   File downloadDirectory
 
   /**
@@ -61,6 +66,7 @@ class DownloadPlatformSpecific extends DefaultTask {
   @OutputDirectory
   File extractDirectory
 
+  @Input
   List<String> platforms = [ 'darwin-x86_64', 'linux-aarch64', 'linux-x86_64', 'windows-x86_64' ]
 
   DownloadPlatformSpecific() {
@@ -120,8 +126,8 @@ task downloadPlatformSpecific(type: DownloadPlatformSpecific) {
 }
 
 task buildUberZip(type: Zip, dependsOn: downloadPlatformSpecific) {
-  baseName = artifactName
-  version = project.version
+  archiveBaseName = artifactName
+  archiveVersion = project.version
   destinationDirectory = file("${buildDir}/distributions")
   from(fileTree(downloadPlatformSpecific.outputs.files.singleFile))
   description = 'Create an uber zip from combined platform-specific C++ distributions'
