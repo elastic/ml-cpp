@@ -197,7 +197,8 @@ public:
                                  bool diurnal,
                                  core_t::TTime startTime,
                                  core_t::TTime bucketLength,
-                                 TFloatMeanAccumulatorVec initialValues);
+                                 TFloatMeanAccumulatorVec initialValues,
+                                 double precedence);
 
     //! Get the annotation for this component.
     const std::string& annotationText() const;
@@ -224,6 +225,7 @@ private:
     core_t::TTime m_StartTime = 0;
     core_t::TTime m_BucketLength = 0;
     TFloatMeanAccumulatorVec m_InitialValues;
+    double m_Precedence = 0.0;
 };
 
 //! \brief Represents a collection of accepted seasonal hypotheses.
@@ -245,7 +247,8 @@ public:
              bool diurnal,
              core_t::TTime startTime,
              core_t::TTime bucketLength,
-             TFloatMeanAccumulatorVec initialValues);
+             TFloatMeanAccumulatorVec initialValues,
+             double precedence);
 
     //! Get the summary of any trend component.
     const CNewTrendSummary* trend() const;
@@ -390,13 +393,15 @@ private:
     bool isWeekend(const TSeasonalComponent& period) const;
     bool isWeekday(const TSeasonalComponent& period) const;
     bool seenSufficientData(const TSeasonalComponent& period) const;
+    bool seenSufficientDataToTestForTradingDayDecomposition() const;
+    double precedence(const TSeasonalComponent& period) const;
+    std::string annotationText(const TSeasonalComponent& period) const;
     std::size_t day() const;
     std::size_t week() const;
     std::size_t year() const;
     TSizeSizePr weekdayWindow() const;
     TSizeSizePr weekendWindow() const;
     std::size_t observedRange() const;
-    std::string annotationText(const TSeasonalComponent& period) const;
 
 private:
     double m_MinimumRepeatsPerSegmentForVariance = MINIMUM_REPEATS_PER_SEGMENT_FOR_VARIANCE;

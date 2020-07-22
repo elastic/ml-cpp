@@ -119,9 +119,11 @@ CNewSeasonalComponentSummary::CNewSeasonalComponentSummary(std::string annotatio
                                                            bool diurnal,
                                                            core_t::TTime startTime,
                                                            core_t::TTime bucketLength,
-                                                           TFloatMeanAccumulatorVec initialValues)
-    : m_AnnotationText{std::move(annotationText)}, m_Period{period}, m_Size{size}, m_Diurnal{diurnal},
-      m_StartTime{startTime}, m_BucketLength{bucketLength}, m_InitialValues{std::move(initialValues)} {
+                                                           TFloatMeanAccumulatorVec initialValues,
+                                                           double precedence)
+    : m_AnnotationText{std::move(annotationText)}, m_Period{period}, m_Size{size},
+      m_Diurnal{diurnal}, m_StartTime{startTime}, m_BucketLength{bucketLength},
+      m_InitialValues{std::move(initialValues)}, m_Precedence{precedence} {
 }
 
 const std::string& CNewSeasonalComponentSummary::annotationText() const {
@@ -142,11 +144,10 @@ CNewSeasonalComponentSummary::seasonalTime() const {
                 : 0,
             static_cast<core_t::TTime>(m_Period.s_Window.first) * m_BucketLength,
             static_cast<core_t::TTime>(m_Period.s_Window.first) * m_BucketLength,
-            static_cast<core_t::TTime>(m_Period.s_Period) * m_BucketLength,
-            2.0 /*precedence*/);
+            static_cast<core_t::TTime>(m_Period.s_Period) * m_BucketLength, m_Precedence);
     }
     return std::make_unique<CGeneralPeriodTime>(
-        static_cast<core_t::TTime>(m_Period.s_Period) * m_BucketLength, 2.0 /*precedence*/);
+        static_cast<core_t::TTime>(m_Period.s_Period) * m_BucketLength, m_Precedence);
 }
 
 CNewSeasonalComponentSummary::CInitialValueConstIterator
@@ -170,9 +171,10 @@ void CSeasonalHypotheses::add(std::string annotationText,
                               bool diurnal,
                               core_t::TTime startTime,
                               core_t::TTime bucketLength,
-                              TFloatMeanAccumulatorVec initialValues) {
-    m_Components.emplace_back(std::move(annotationText), period, size, diurnal,
-                              startTime, bucketLength, std::move(initialValues));
+                              TFloatMeanAccumulatorVec initialValues,
+                              double precedence) {
+    m_Components.emplace_back(std::move(annotationText), period, size, diurnal, startTime,
+                              bucketLength, std::move(initialValues), precedence);
 }
 
 const CNewTrendSummary* CSeasonalHypotheses::trend() const {
@@ -286,7 +288,8 @@ CSeasonalHypotheses CTimeSeriesTestForSeasonality::select(
             result.add(this->annotationText(hypothesis.s_Period),
                        hypothesis.s_Period, hypothesis.s_ComponentSize,
                        this->isDiurnal(hypothesis.s_Period.s_Period), m_StartTime,
-                       m_BucketLength, std::move(hypothesis.s_InitialValues));
+                       m_BucketLength, std::move(hypothesis.s_InitialValues),
+                       this->precedence(hypothesis.s_Period));
         }
     }
 
@@ -545,6 +548,24 @@ bool CTimeSeriesTestForSeasonality::seenSufficientData(const TSeasonalComponent&
     return 2 * period.s_WindowRepeat >= this->observedRange();
 }
 
+bool CTimeSeriesTestForSeasonality::seenSufficientDataToTestForTradingDayDecomposition() const {
+    return 2 * this->week() >= this->observedRange();
+}
+
+double CTimeSeriesTestForSeasonality::precedence(const TSeasonalComponent& period) const {
+    return this->seenSufficientDataToTestForTradingDayDecomposition() &&
+                   period.period() != this->day()
+               ? 2.0
+               : 1.0;
+}
+
+std::string CTimeSeriesTestForSeasonality::annotationText(const TSeasonalComponent& period) const {
+    return "Detected periodicity with period " +
+           core::CTimeUtils::durationToString(period.s_Period) +
+           (this->isWeekend(period) ? " (weekend)"
+                                    : (this->isWeekday(period) ? " (weekdays)" : ""));
+}
+
 std::size_t CTimeSeriesTestForSeasonality::day() const {
     return (core::constants::DAY + m_BucketLength / 2) / m_BucketLength;
 }
@@ -574,13 +595,6 @@ std::size_t CTimeSeriesTestForSeasonality::observedRange() const {
     for (/**/; end > begin && CBasicStatistics::count(m_Values[end - 1]) == 0.0; --end) {
     }
     return static_cast<std::size_t>(end - begin);
-}
-
-std::string CTimeSeriesTestForSeasonality::annotationText(const TSeasonalComponent& period) const {
-    return "Detected periodicity with period " +
-           core::CTimeUtils::durationToString(period.s_Period) +
-           (this->isWeekend(period) ? " (weekend)"
-                                    : (this->isWeekday(period) ? " (weekdays)" : ""));
 }
 }
 }
