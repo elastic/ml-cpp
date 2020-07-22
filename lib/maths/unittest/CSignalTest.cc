@@ -374,7 +374,112 @@ BOOST_AUTO_TEST_CASE(testAutocorrelations) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testSeasonalComponentSummary) {
+
+    using TSizeSizePrVec = std::vector<std::pair<std::size_t, std::size_t>>;
+
+    TSizeSizePrVec expectedWindows;
+    {
+        maths::CSignal::SSeasonalComponentSummary period{10, 0, 10, {0, 10}};
+        BOOST_REQUIRE_EQUAL(10, period.period());
+        BOOST_REQUIRE_EQUAL(false, period.windowed());
+        BOOST_REQUIRE(period == period);
+        BOOST_REQUIRE((period < period) == false);
+        for (std::size_t i = 0; i < 100; ++i) {
+            BOOST_REQUIRE_EQUAL(true, period.contains(i));
+            BOOST_REQUIRE_EQUAL(i % 10, period.offset(i));
+            expectedWindows.assign(1, {0, i});
+            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expectedWindows),
+                                core::CContainerPrinter::print(period.windows(i)));
+        }
+    }
+    {
+        maths::CSignal::SSeasonalComponentSummary period{10, 5, 15, {0, 5}};
+        BOOST_REQUIRE_EQUAL(5, period.period());
+        BOOST_REQUIRE_EQUAL(true, period.windowed());
+        BOOST_REQUIRE(period == period);
+        BOOST_REQUIRE((period < period) == false);
+        TSizeSizePrVec windows{{5, 10}, {20, 25}, {35, 40}, {50, 55}};
+        for (std::size_t i = 0; i < 50; ++i) {
+            std::size_t expectedOffset{[&] {
+                for (const auto& window : windows) {
+                    if (i >= window.first && i < window.second) {
+                        return i - window.first;
+                    }
+                }
+                return std::size_t{5};
+            }()};
+            BOOST_REQUIRE_EQUAL(expectedOffset < 5, period.contains(i));
+            if (expectedOffset < 5) {
+                BOOST_REQUIRE_EQUAL(expectedOffset, period.offset(i));
+            }
+            BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(
+                                    windows.begin(), windows.begin() + (i + 14) / 15),
+                                core::CContainerPrinter::print(period.windows(i)));
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testAutocorrelationAtPercentile) {
+
+    // Test that the autocorrelation at a percentile is correctly calibrated.
+
+    test::CRandomNumbers rng;
+
+    maths::CSignal::TFloatMeanAccumulatorVec samples;
+    TDoubleVec noise;
+    TMeanVarAccumulator meanError;
+
+    for (std::size_t period : {5, 10, 20}) {
+
+        for (double amplitude : {3.0, 5.0, 10.0}) {
+
+            auto component = [&](std::size_t i) {
+                return amplitude * std::sin(boost::math::double_constants::pi *
+                                            static_cast<double>(i % period) /
+                                            static_cast<double>(period));
+            };
+
+            for (std::size_t repeats : {2, 4, 6}) {
+
+                std::size_t n{period * repeats};
+
+                for (auto percentile :
+                     {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0}) {
+
+                    auto generateAutocorrelation = [&]() {
+                        samples.assign(n, maths::CSignal::TFloatMeanAccumulator{});
+                        rng.generateNormalSamples(0.0, 1.0, n, noise);
+                        for (std::size_t i = 0; i < n; ++i) {
+                            samples[i].add(component(i) + noise[i]);
+                        }
+                        return maths::CSignal::cyclicAutocorrelation(period, samples);
+                    };
+
+                    TMeanVarAccumulator meanAutocorrelation;
+                    for (std::size_t i = 0; i < 500; ++i) {
+                        meanAutocorrelation.add(generateAutocorrelation());
+                    }
+
+                    double autocorrelationAtPercentile{maths::CSignal::autocorrelationAtPercentile(
+                        percentile, maths::CBasicStatistics::mean(meanAutocorrelation),
+                        static_cast<double>(n))};
+
+                    double percentageLessThan{0.0};
+                    for (std::size_t i = 0; i < 1000; ++i) {
+                        if (generateAutocorrelation() < autocorrelationAtPercentile) {
+                            percentageLessThan += 0.1;
+                        }
+                    }
+
+                    meanError.add(std::fabs(percentile - percentageLessThan));
+                }
+            }
+        }
+    }
+
+    LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
+    BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 3.6); // 3.6 %
 }
 
 BOOST_AUTO_TEST_CASE(testCountNotMissing) {
@@ -1025,9 +1130,103 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecompositionWithOverride) {
 }
 
 BOOST_AUTO_TEST_CASE(testMeanNumberRepeatedValues) {
+
+    // Test we correctly count the mean number of repeated values.
+
+    test::CRandomNumbers rng;
+
+    std::size_t period{20};
+
+    maths::CSignal::TFloatMeanAccumulatorVec values;
+
+    // Edge cases: all missing and no missing.
+    values.assign(100, maths::CSignal::TFloatMeanAccumulator{});
+    BOOST_REQUIRE_EQUAL(0.0, maths::CSignal::meanNumberRepeatedValues(
+                                 values, maths::CSignal::seasonalComponentSummary(period)));
+    for (auto& value : values) {
+        value.add(1.0);
+    }
+    BOOST_REQUIRE_CLOSE(100.0 / static_cast<double>(period),
+                        maths::CSignal::meanNumberRepeatedValues(
+                            values, maths::CSignal::seasonalComponentSummary(period)),
+                        1e-4);
+
+    TDoubleVec repeats;
+    TDoubleVec u01;
+
+    for (double fraction : {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}) {
+
+        for (const auto& time :
+             {maths::CSignal::SSeasonalComponentSummary{period, 0, period, {0, period}},
+              maths::CSignal::SSeasonalComponentSummary{period, 5, 2 * period, {0, period}}}) {
+            values.assign(100, maths::CSignal::TFloatMeanAccumulator{});
+            repeats.assign(period, 0.0);
+
+            rng.generateUniformSamples(0.0, 1.0, values.size(), u01);
+
+            for (std::size_t i = 0; i < values.size(); ++i) {
+                if (u01[i] < fraction) {
+                    if (time.contains(i)) {
+                        repeats[i % period] += 1.0;
+                    }
+                    values[i].add(1.0);
+                }
+            }
+            TMeanVarAccumulator expectedMeanRepeats;
+            for (auto repeat : repeats) {
+                if (repeat > 0.0) {
+                    expectedMeanRepeats.add(repeat);
+                }
+            }
+
+            BOOST_REQUIRE_CLOSE(maths::CBasicStatistics::mean(expectedMeanRepeats),
+                                maths::CSignal::meanNumberRepeatedValues(values, time), 1e-4);
+        }
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testResidualVariance) {
+
+    // Test we get the residual variance we expect.
+
+    test::CRandomNumbers rng;
+
+    std::size_t period{20};
+
+    auto component = [=](std::size_t index) {
+        return 10.0 * std::sin(boost::math::double_constants::pi *
+                               static_cast<double>(index % period) /
+                               static_cast<double>(period));
+    };
+
+    maths::CSignal::TFloatMeanAccumulatorVec values;
+    TDoubleVec noise;
+    maths::CSignal::TMeanAccumulatorVec1Vec actualComponent(1);
+
+    for (std::size_t test = 0; test < 10; ++test) {
+
+        values.assign(100, maths::CSignal::TFloatMeanAccumulator{});
+        actualComponent[0].assign(20, maths::CSignal::TMeanAccumulator{});
+        TMeanVarAccumulator moments[2];
+
+        rng.generateNormalSamples(0.0, 1.0, values.size(), noise);
+        for (std::size_t i = 0; i < values.size(); ++i) {
+            values[i].add(component(i) + noise[i]);
+            actualComponent[0][i % period].add(component(i));
+            moments[0].add(component(i) + noise[i]);
+            moments[1].add(noise[i]);
+        }
+
+        double overallVariance;
+        double residualVariance;
+        std::tie(overallVariance, residualVariance) = maths::CSignal::residualVariance(
+            values, {maths::CSignal::seasonalComponentSummary(20)}, actualComponent);
+
+        BOOST_REQUIRE_CLOSE(maths::CBasicStatistics::variance(moments[0]),
+                            overallVariance, 1e-4);
+        BOOST_REQUIRE_CLOSE(maths::CBasicStatistics::variance(moments[1]),
+                            residualVariance, 1e-4);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testSelectComponentSize) {

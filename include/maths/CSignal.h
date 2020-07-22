@@ -67,12 +67,12 @@ public:
         }
 
         bool contains(std::size_t index) const {
-            index = (index - s_StartOfWeek) % s_WindowRepeat;
+            index = (s_WindowRepeat + index - s_StartOfWeek) % s_WindowRepeat;
             return index >= s_Window.first && index < s_Window.second;
         }
 
         std::size_t offset(std::size_t index) const {
-            index = (index - s_StartOfWeek) % s_WindowRepeat;
+            index = (s_WindowRepeat + index - s_StartOfWeek) % s_WindowRepeat;
             return (index - s_Window.first) % this->period();
         }
 
@@ -157,7 +157,7 @@ public:
     //! offsets 1, 2, ..., length \p values - 1.
     static void autocorrelations(const TFloatMeanAccumulatorVec& values, TDoubleVec& result);
 
-    //! Compute the \p percentage percentile autocorrelation for a \p n normally
+    //! Compute the \p percentage percentile autocorrelation for \p n normally
     //! distributed values.
     //!
     //! \param[in] percentage The required percentile in the range (0, 100).

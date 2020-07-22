@@ -19,7 +19,7 @@
 
 #include <boost/circular_buffer.hpp>
 #include <boost/math/constants/constants.hpp>
-#include <boost/math/distributions/fisher_f.hpp>
+#include <boost/math/distributions/normal.hpp>
 
 #include <algorithm>
 #include <array>
@@ -244,12 +244,21 @@ void CSignal::autocorrelations(const TFloatMeanAccumulatorVec& values, TDoubleVe
 }
 
 double CSignal::autocorrelationAtPercentile(double percentage, double autocorrelation, double n) {
-    try {
-        boost::math::fisher_f f{n - 1.0, n - 1.0};
-        return boost::math::quantile(f, percentage / 100.0) * autocorrelation;
-    } catch (const std::exception& e) {
-        LOG_ERROR(<< "Bad input: " << e.what() << ", n = " << n
-                  << ", percentage = " << percentage);
+    // The autocorrelation does not have a simple closed form distribution.
+    // Asymptotically, its variance is proportional to (1 - |R|)^2 / n for
+    // autocorrelation R and number of values n. The extra parameters were
+    // found by a grid search based on minimizing calibration errors given
+    // the basic functional form.
+    double scale{2.0 * (1.0 - std::fabs(autocorrelation)) / std::sqrt(n + 7.5)};
+    if (scale > 0.0) {
+        try {
+            boost::math::normal normal{autocorrelation, scale};
+            return CTools::truncate(
+                boost::math::quantile(normal, percentage / 100.0), 0.0, 1.0);
+        } catch (const std::exception& e) {
+            LOG_ERROR(<< "Bad input: " << e.what() << ", n = " << n
+                      << ", percentage = " << percentage);
+        }
     }
     return autocorrelation;
 }
@@ -710,7 +719,7 @@ double CSignal::meanNumberRepeatedValues(const TFloatMeanAccumulatorVec& values,
                                          const SSeasonalComponentSummary& period) {
     TDoubleVec counts(period.period(), 0.0);
     for (std::size_t i = 0; i < values.size(); ++i) {
-        if (period.contains(i)) {
+        if (CBasicStatistics::count(values[i]) > 0.0 && period.contains(i)) {
             counts[period.offset(i)] += 1.0;
         }
     }
