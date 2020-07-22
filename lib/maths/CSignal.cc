@@ -445,7 +445,7 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec values_,
     std::size_t n{values.size()};
     LOG_TRACE(<< "number values = " << n);
 
-    std::size_t startOfWeek{startOfWeekOverride == boost::none ? *startOfWeekOverride : 0};
+    std::size_t startOfWeek{startOfWeekOverride != boost::none ? *startOfWeekOverride : 0};
 
     double variance{[&] {
         TMeanAccumulatorVec1Vec daily;
@@ -520,7 +520,7 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec values_,
     constexpr std::size_t WEEKEND_WEEKLY_WEEKDAY_DAILY{1};
     constexpr std::size_t WEEKEND_DAILY_WEEKDAY_WEEKLY{2};
     constexpr std::size_t NO_TRADING_DAY{3};
-    TDoubleVec candidates(3 * week);
+    TDoubleVec candidates(3 * week, 0.0);
 
     auto captureVarianceAtStartOfWeek = [&](std::size_t i) {
         candidates[3 * i + WEEKEND_DAILY_WEEKDAY_DAILY] = CBasicStatistics::mean(
@@ -532,8 +532,8 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec values_,
     };
 
     if (startOfWeekOverride != boost::none) {
-        startOfWeek = 3 * startOfWeek;
         captureVarianceAtStartOfWeek(startOfWeek);
+        startOfWeek *= 3;
     } else {
         // Compute the variances for each candidate partition.
         captureVarianceAtStartOfWeek(0);
@@ -564,7 +564,7 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec values_,
         // where the time series value is absolutely small and the total difference
         // between values either side of the partition times is small.
         double threshold{candidates[0]};
-        for (std::size_t i = 0; i < candidates.size(); i += 3) {
+        for (std::size_t i = 3; i < candidates.size(); i += 3) {
             threshold = std::min(threshold, candidates[i]);
         }
         threshold *= 1.05;
@@ -605,8 +605,10 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec values_,
     std::size_t h0{NO_TRADING_DAY};
     auto test = [&](std::size_t h1) {
         if (CStatisticalTests::rightTailFTest(
-                minimumVariances[h0] / minimumVariances[h1], degreesFreedom[h0],
-                degreesFreedom[h1]) < 0.05) {
+                minimumVariances[h0] == minimumVariances[h1]
+                    ? 1.0
+                    : minimumVariances[h0] / minimumVariances[h1],
+                degreesFreedom[h0], degreesFreedom[h1]) < 0.05) {
             h0 = h1;
             return true;
         }
@@ -619,18 +621,18 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec values_,
         if (test(alternative)) {
             switch (alternative) {
             case WEEKEND_DAILY_WEEKDAY_DAILY:
-                result.emplace_back(startOfWeek / 3, day, week, TSizeSizePr{0, 2 * day});
-                result.emplace_back(startOfWeek / 3, day, week,
+                result.emplace_back(day, startOfWeek / 3, week, TSizeSizePr{0, 2 * day});
+                result.emplace_back(day, startOfWeek / 3, week,
                                     TSizeSizePr{2 * day, 7 * day});
                 break;
             case WEEKEND_WEEKLY_WEEKDAY_DAILY:
-                result.emplace_back(startOfWeek / 3, week, week, TSizeSizePr{0, 2 * day});
-                result.emplace_back(startOfWeek / 3, day, week,
+                result.emplace_back(week, startOfWeek / 3, week, TSizeSizePr{0, 2 * day});
+                result.emplace_back(day, startOfWeek / 3, week,
                                     TSizeSizePr{2 * day, 7 * day});
                 break;
             case WEEKEND_DAILY_WEEKDAY_WEEKLY:
-                result.emplace_back(startOfWeek / 3, day, week, TSizeSizePr{0, 2 * day});
-                result.emplace_back(startOfWeek / 3, week, week,
+                result.emplace_back(day, startOfWeek / 3, week, TSizeSizePr{0, 2 * day});
+                result.emplace_back(week, startOfWeek / 3, week,
                                     TSizeSizePr{2 * day, 7 * day});
                 break;
             default:
@@ -939,20 +941,23 @@ void CSignal::doFitSeasonalComponents(const TSeasonalComponentVec& periods,
             return value;
         };
 
-        fitSeasonalComponentsMinusPrediction(predictor, values, components[i]);
+        fitSeasonalComponentsMinusPrediction(periods[i], predictor, values, components[i]);
     }
 }
 
 template<typename PREDICTOR, typename VALUES, typename COMPONENT>
-void CSignal::fitSeasonalComponentsMinusPrediction(const PREDICTOR& predictor,
+void CSignal::fitSeasonalComponentsMinusPrediction(const SSeasonalComponentSummary& period,
+                                                   const PREDICTOR& predictor,
                                                    const VALUES& values,
                                                    COMPONENT& component) {
-    std::size_t period{component.size()};
-    if (period > 0) {
-        component.assign(period, typename COMPONENT::value_type{});
+    if (period.period() > 0) {
+        component.assign(period.period(), typename COMPONENT::value_type{});
         for (std::size_t i = 0; i < values.size(); ++i) {
-            component[i % period].add(CBasicStatistics::mean(values[i]) - predictor(i),
-                                      CBasicStatistics::count(values[i]));
+            if (period.contains(i)) {
+                component[period.offset(i)].add(
+                    CBasicStatistics::mean(values[i]) - predictor(i),
+                    CBasicStatistics::count(values[i]));
+            }
         }
     }
 }

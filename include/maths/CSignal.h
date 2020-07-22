@@ -313,7 +313,8 @@ private:
                                         const VALUES& values,
                                         core::CSmallVector<COMPONENT, 1>& components);
     template<typename PREDICTOR, typename VALUES, typename COMPONENT>
-    static void fitSeasonalComponentsMinusPrediction(const PREDICTOR& predictor,
+    static void fitSeasonalComponentsMinusPrediction(const SSeasonalComponentSummary& period,
+                                                     const PREDICTOR& predictor,
                                                      const VALUES& values,
                                                      COMPONENT& component);
 };

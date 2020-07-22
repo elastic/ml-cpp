@@ -749,6 +749,54 @@ BOOST_AUTO_TEST_CASE(testFitMultipleSeasonalComponents) {
 BOOST_AUTO_TEST_CASE(testFitTradingDaySeasonalComponents) {
 
     // Test fitting weekdays/weekend seasonal components.
+
+    test::CRandomNumbers rng;
+
+    TDoubleVecVec amplitude{{0.2, 0.2, 1.0, 1.0, 1.0, 1.0, 1.0},
+                            {0.2, 0.4, 1.3, 1.2, 1.0, 1.0, 1.4}};
+    maths::CSignal::TSeasonalComponentVec periods;
+
+    maths::CSignal::TFloatMeanAccumulatorVec values;
+    maths::CSignal::TMeanAccumulatorVec1Vec actuals;
+    TSizeVec offset;
+
+    for (std::size_t test = 0; test < 10; ++test) {
+        rng.generateUniformSamples(0, 168, 1, offset);
+
+        auto expectedComponent = [&](std::size_t i) {
+            i = (168 + i - offset[0]) % 168;
+            return 10.0 * amplitude[test % 2][(i % 168) / 24] *
+                   std::sin(boost::math::double_constants::pi *
+                            static_cast<double>(i % 24) / 24.0);
+        };
+
+        if (test % 2 == 0) {
+            periods.assign({{24, offset[0], 168, {0, 48}}, {24, offset[0], 168, {48, 168}}});
+        } else {
+            periods.assign({{24, offset[0], 168, {0, 48}},
+                            {24, offset[0], 168, {48, 168}},
+                            {168, offset[0], 168, {0, 48}},
+                            {168, offset[0], 168, {48, 168}}});
+        }
+
+        values.assign(336, maths::CSignal::TFloatMeanAccumulator{});
+        for (std::size_t i = 0; i < values.size(); ++i) {
+            values[i].add(expectedComponent(i));
+        }
+
+        maths::CSignal::fitSeasonalComponents(periods, values, actuals);
+
+        for (std::size_t i = 0; i < values.size(); ++i) {
+            double prediction{0.0};
+            for (std::size_t j = 0; j < periods.size(); ++j) {
+                if (periods[j].contains(i)) {
+                    prediction += maths::CBasicStatistics::mean(
+                        actuals[j][periods[j].offset(i)]);
+                }
+            }
+            BOOST_REQUIRE_CLOSE(maths::CBasicStatistics::mean(values[i]), prediction, 1e-4);
+        }
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testFitSingleSeasonalComponentRobust) {
@@ -900,12 +948,6 @@ BOOST_AUTO_TEST_CASE(testFitMultipleSeasonalComponentsRobust) {
     LOG_DEBUG(<< "Overall improvement = "
               << maths::CBasicStatistics::mean(overallImprovement));
     BOOST_REQUIRE(maths::CBasicStatistics::mean(overallImprovement) > 4.0);
-}
-
-BOOST_AUTO_TEST_CASE(testFitTradingDaySeasonalComponentsRobust) {
-
-    // Test fitting weekdays/weekend seasonal components with pepper and salt
-    // outliers.
 }
 
 BOOST_AUTO_TEST_CASE(testRemoveLinearTrend) {
@@ -1073,7 +1115,7 @@ BOOST_AUTO_TEST_CASE(testMultipleComponentsSeasonalDecomposition) {
 
 BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
 
-    // Test decomposing into weekdays/weekend.
+    // Test decomposing into weekdays/weekend with and without and override.
 
     test::CRandomNumbers rng;
 
@@ -1081,29 +1123,29 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
     maths::CSignal::TMeanAccumulatorVec1Vec actuals;
     TDoubleVec noise;
     TSizeVec offset;
-
     TDoubleVecVec amplitudes{{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
                              {0.3, 0.3, 1.0, 1.0, 1.0, 1.0, 1.0},
                              {0.3, 0.3, 1.3, 1.0, 1.0, 1.3, 1.2},
                              {0.3, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0}};
+
     for (std::size_t test = 0; test < 100; ++test) {
 
+        rng.generateUniformSamples(0, 168, 1, offset);
         const auto& amplitude = amplitudes[test % amplitudes.size()];
 
         // clang-format off
         std::string expectedDecomposition[]{
             "[]",
-            "[24/" + std::to_string(offset[0]) + "/168/[0, 48]," +
-            " 24/" + std::to_string(offset[0]) + "/168/[48, 168]]",
-            "[24/" + std::to_string(offset[0]) + "/168/[0, 48]," +
-            " 24/" + std::to_string(offset[0]) + "/168/[48, 168]," +
-            " 168/" + std::to_string(offset[0]) + "/168/[48, 168]]", +
-            "[24/" + std::to_string(offset[0]) + "/168/[0, 48]," +
-            " 24/" + std::to_string(offset[0]) + "/168/[48, 168]," +
-            " 168/" + std::to_string(offset[0]) + "/168/[0, 48]]"};
+            "[24/" + std::to_string(offset[0]) + "/168/(0, 48)," +
+            " 24/" + std::to_string(offset[0]) + "/168/(48, 168)]",
+            "[24/" + std::to_string(offset[0]) + "/168/(0, 48)," +
+            " 24/" + std::to_string(offset[0]) + "/168/(48, 168)," +
+            " 168/" + std::to_string(offset[0]) + "/168/(48, 168)]",
+            "[24/" + std::to_string(offset[0]) + "/168/(0, 48)," +
+            " 24/" + std::to_string(offset[0]) + "/168/(48, 168)," +
+            " 168/" + std::to_string(offset[0]) + "/168/(0, 48)]"};
         // clang-format on
 
-        rng.generateUniformSamples(0, 168, 1, offset);
         auto component = [&](std::size_t i) {
             i = (168 + i - offset[0]) % 168;
             return 10.0 * amplitude[i / 24] *
@@ -1111,22 +1153,22 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
                                    static_cast<double>(i) / 24.0));
         };
 
-        values.assign(336, maths::CSignal::TFloatMeanAccumulator{});
         rng.generateNormalSamples(0.0, 1.0, values.size(), noise);
-        for (std::size_t i = 0; i < noise.size(); ++i) {
-            values[i].add(component(i) + noise[i]);
+
+        for (auto startOfWeekOverride : {maths::CSignal::TOptionalSize{},
+                                         maths::CSignal::TOptionalSize{offset[0]}}) {
+            values.assign(336, maths::CSignal::TFloatMeanAccumulator{});
+            for (std::size_t i = 0; i < noise.size(); ++i) {
+                values[i].add(component(i) + noise[i]);
+            }
+
+            auto decomposition = maths::CSignal::tradingDayDecomposition(
+                values, 0.0, 168, startOfWeekOverride);
+
+            BOOST_REQUIRE_EQUAL(expectedDecomposition[test % 4],
+                                core::CContainerPrinter::print(decomposition));
         }
-
-        auto decomposition = maths::CSignal::tradingDayDecomposition(values, 0.1, 168);
-
-        BOOST_REQUIRE_EQUAL(expectedDecomposition[test % 4],
-                            core::CContainerPrinter::print(decomposition));
     }
-}
-
-BOOST_AUTO_TEST_CASE(testTradingDayDecompositionWithOverride) {
-
-    // Test decomposing into weekdays/weekend overriding the start of the week.
 }
 
 BOOST_AUTO_TEST_CASE(testMeanNumberRepeatedValues) {
