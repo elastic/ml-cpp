@@ -8,8 +8,10 @@
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CIntegerTools.h>
-#include <maths/CPeriodicityHypothesisTests.h>
+#include <maths/CTimeSeriesTestForSeasonality.h>
+#include <maths/MathsTypes.h>
 
 #include <test/CRandomNumbers.h>
 #include <test/CTimeSeriesTestData.h>
@@ -22,13 +24,12 @@
 #include <cmath>
 #include <vector>
 
-BOOST_AUTO_TEST_SUITE(CPeriodicityHypothesisTestsTest)
+BOOST_AUTO_TEST_SUITE(CTimeSeriesTestForSeasonalityTest)
 
 using namespace ml;
 using namespace handy_typedefs;
 
 namespace {
-using TDoubleDoublePr = std::pair<double, double>;
 using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TTimeVec = std::vector<core_t::TTime>;
