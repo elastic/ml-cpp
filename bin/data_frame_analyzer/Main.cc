@@ -59,7 +59,6 @@ std::pair<std::string, bool> readFileToString(const std::string& fileName) {
 class CCleanUpOnExit : private ml::core::CNonInstantiatable {
 public:
     using TTemporaryDirectoryPtr = std::shared_ptr<ml::core::CTemporaryDirectory>;
-    using TDataFrameAnalyzerPtr = std::shared_ptr<ml::api::CDataFrameAnalyzer>;
 
 public:
     static void add(TTemporaryDirectoryPtr directory) {
