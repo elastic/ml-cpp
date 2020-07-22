@@ -70,6 +70,8 @@ public:
 
 private:
     using TDataFrameUPtr = std::unique_ptr<core::CDataFrame>;
+    using TRapidJsonConcurrentLineWriterPtr =
+        std::unique_ptr<core::CRapidJsonConcurrentLineWriter>;
 
 private:
     static const std::ptrdiff_t FIELD_UNSET{-2};
@@ -99,6 +101,7 @@ private:
     TDataFrameUPtr m_DataFrame;
     TTemporaryDirectoryPtr m_DataFrameDirectory;
     TJsonOutputStreamWrapperUPtrSupplier m_ResultsStreamSupplier;
+    TRapidJsonConcurrentLineWriterPtr m_ResultsWriter;
 };
 }
 }

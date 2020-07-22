@@ -19,6 +19,7 @@
 
 #include <cmath>
 #include <limits>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -137,13 +138,14 @@ void CDataFrameAnalyzer::run() {
 
         analysisRunner->run(*m_DataFrame);
 
-        core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
+        // core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
+        m_ResultsWriter = std::make_unique<core::CRapidJsonConcurrentLineWriter>(*outStream);
 
-        CDataFrameAnalysisInstrumentation::monitor(instrumentation, outputWriter);
+        CDataFrameAnalysisInstrumentation::monitor(instrumentation, *m_ResultsWriter);
 
         analysisRunner->waitToFinish();
-        this->writeInferenceModel(*analysisRunner, outputWriter);
-        this->writeResultsOf(*analysisRunner, outputWriter);
+        this->writeInferenceModel(*analysisRunner, *m_ResultsWriter);
+        this->writeResultsOf(*analysisRunner, *m_ResultsWriter);
     }
 }
 
