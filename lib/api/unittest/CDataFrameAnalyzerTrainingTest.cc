@@ -394,7 +394,7 @@ BOOST_AUTO_TEST_CASE(testMemoryLimitHandling) {
     BOOST_TEST_REQUIRE(errors.size() > 0);
     bool memoryLimitExceed{false};
     for (const auto& error : errors) {
-        if (error.find("Input error: required memory") != std::string::npos) {
+        if (error.find("Input error: memory limit") != std::string::npos) {
             memoryLimitExceed = true;
             break;
         }
@@ -413,7 +413,7 @@ BOOST_AUTO_TEST_CASE(testMemoryLimitHandling) {
             std::string status{result["analytics_memory_usage"]["status"].GetString()};
             if (status == "ok") {
                 memoryStatusOk = true;
-            } else if (status == "hard-limit") {
+            } else if (status == "hard_limit") {
                 memoryStatusHardLimit = true;
                 if (result["analytics_memory_usage"].HasMember("memory_reestimate_bytes") &&
                     result["analytics_memory_usage"]["memory_reestimate_bytes"].GetInt() > 0) {

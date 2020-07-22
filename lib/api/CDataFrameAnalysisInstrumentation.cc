@@ -40,7 +40,7 @@ const std::string HYPERPARAMETERS_TAG{"hyperparameters"};
 const std::string MEMORY_REESTIMATE_TAG{"memory_reestimate_bytes"};
 const std::string ITERATION_TAG{"iteration"};
 const std::string JOB_ID_TAG{"job_id"};
-const std::string MEMORY_STATUS_HARD_LIMIT_TAG{"hard-limit"};
+const std::string MEMORY_STATUS_HARD_LIMIT_TAG{"hard_limit"};
 const std::string MEMORY_STATUS_OK_TAG{"ok"};
 const std::string MEMORY_STATUS_TAG{"status"};
 const std::string MEMORY_TYPE_TAG{"analytics_memory_usage"};
@@ -193,7 +193,7 @@ void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentatio
             writer.~CRapidJsonConcurrentLineWriter();
             LOG_INFO(<< "Required memory " << memory << " exceeds the memory limit " << memoryLimit
                      << ".  New estimated limit is " << memoryReestimateBytes << ".");
-            HANDLE_FATAL(<< "Input error: Memory limit [" << bytesToString(memoryLimit)
+            HANDLE_FATAL(<< "Input error: memory limit [" << bytesToString(memoryLimit)
                          << "] has been exceeded. Please force stop the job, increase to new estimated limit ["
                          << bytesToString(memoryReestimateBytes) << "] and restart.")
         }
