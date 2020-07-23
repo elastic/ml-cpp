@@ -298,7 +298,7 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values_,
                                TOptionalSize startOfWeekOverride) {
 
     std::size_t n{values_.size()};
-    if (n < 15) {
+    if (CSignal::countNotMissing(values_) < 15) {
         return {};
     }
 
@@ -310,10 +310,10 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values_,
     TSizeVec indices(pad - 4);
     TFloatMeanAccumulatorVec values{values_};
     TMeanAccumulatorVec1Vec components;
-    TMeanVarAccumulator momentsWithoutComponent;
-    TMeanVarAccumulator momentsWithComponent;
-    double points{static_cast<double>(countNotMissing(values))};
+    double varianceWithComponent{0.0};
+    double varianceWithoutComponent{0.0};
     double params{0.0};
+    double points{static_cast<double>(countNotMissing(values))};
     TSeasonalComponentVec decomposition;
 
     do {
@@ -369,6 +369,7 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values_,
                 selectedPeriod = period;
             }
         }
+        LOG_TRACE(<< "selected period = " << selectedPeriod);
 
         values.assign(values_.begin(), values_.end());
 
@@ -377,6 +378,9 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values_,
             decomposition = tradingDayDecomposition(values, outlierFraction,
                                                     week, startOfWeekOverride);
         }
+        
+        std::size_t withoutComponent{result.size()};
+
         if (decomposition.empty()) {
             appendSeasonalComponentSummary(selectedPeriod, result);
         } else {
@@ -385,30 +389,42 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values_,
 
         fitSeasonalComponentsRobust(result, outlierFraction, values, components);
 
-        params = static_cast<double>(countNotMissing(components.back()));
-        momentsWithoutComponent = TMeanVarAccumulator{};
-        momentsWithComponent = TMeanVarAccumulator{};
+        params = 0.0;
+        for (std::size_t j = withoutComponent; j < components.size(); ++j) {
+            params += static_cast<double>(countNotMissing(components[j]));
+        }
+
+        TMeanVarAccumulator momentsWithoutComponent;
+        TMeanVarAccumulator momentsWithComponent;
         for (std::size_t i = 0; i < values.size(); ++i) {
             if (CBasicStatistics::count(values[i]) > 0.0) {
-                std::size_t j{1};
-                for (/**/; j < components.size(); ++j) {
-                    CBasicStatistics::moment<0>(values[i]) -= CBasicStatistics::mean(
-                        components[j - 1][i % components[j - 1].size()]);
+                for (std::size_t j = 0; j < withoutComponent; ++j) {
+                    if (result[j].contains(i)) {
+                        CBasicStatistics::moment<0>(values[i]) -=
+                            CBasicStatistics::mean(components[j][result[j].offset(i)]);
+                    }
                 }
                 momentsWithoutComponent.add(CBasicStatistics::mean(values[i]));
-                CBasicStatistics::moment<0>(values[i]) -= CBasicStatistics::mean(
-                    components[j - 1][i % components[j - 1].size()]);
+                for (std::size_t j = withoutComponent; j < components.size(); ++j) {
+                    if (result[j].contains(i)) {
+                        CBasicStatistics::moment<0>(values[i]) -=
+                            CBasicStatistics::mean(components[j][result[j].offset(i)]);
+                    }
+                }
                 momentsWithComponent.add(CBasicStatistics::mean(values[i]));
             }
         }
+        varianceWithComponent = CBasicStatistics::variance(momentsWithComponent);
+        varianceWithoutComponent = CBasicStatistics::variance(momentsWithoutComponent);
+
         LOG_TRACE(<< "variance without component = " << CBasicStatistics::variance(momentsWithoutComponent)
                   << ", variance with component = " << CBasicStatistics::variance(momentsWithComponent)
                   << ", number points = " << points << ", number parameters = " << params);
 
-    } while (CStatisticalTests::rightTailFTest(
-                 CBasicStatistics::variance(momentsWithoutComponent) /
-                     CBasicStatistics::variance(momentsWithComponent),
-                 points - 1.0, points - params) < 0.05);
+    } while (CStatisticalTests::rightTailFTest(varianceWithoutComponent == varianceWithComponent
+                                                   ? 1.0
+                                                   : varianceWithoutComponent / varianceWithComponent,
+                                               points - 1.0, points - params) < 0.05);
 
     result.pop_back();
 
@@ -695,6 +711,10 @@ void CSignal::reweightOutliers(const TPredictor& predictor,
             meanDifference.add(difference);
         }
     }
+    if (CBasicStatistics::mean(meanDifference) == 0.0) {
+        return;
+    }
+
     outliers.sort();
     LOG_TRACE(<< "outliers = " << core::CContainerPrinter::print(outliers));
 
@@ -703,7 +723,8 @@ void CSignal::reweightOutliers(const TPredictor& predictor,
         meanDifferenceOfOutliers.add(outliers[i].first);
     }
     meanDifference -= meanDifferenceOfOutliers;
-    double threshold{3.0 * CBasicStatistics::mean(meanDifference)};
+    double threshold{std::max(3.0 * CBasicStatistics::mean(meanDifference),
+                              std::numeric_limits<double>::min())};
     LOG_TRACE(<< "threshold = " << CBasicStatistics::mean(meanDifference));
 
     double logThreshold{std::log(threshold)};

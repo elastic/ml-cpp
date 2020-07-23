@@ -1113,6 +1113,62 @@ BOOST_AUTO_TEST_CASE(testMultipleComponentsSeasonalDecomposition) {
     BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.01);
 }
 
+BOOST_AUTO_TEST_CASE(testMultipleDiurnalDecomposition) {
+
+    // Test seasonal decomposition with weekdays/weekend.
+
+    test::CRandomNumbers rng;
+
+    maths::CSignal::TFloatMeanAccumulatorVec values;
+    maths::CSignal::TMeanAccumulatorVec1Vec actuals;
+    TDoubleVec noise;
+    TSizeVec offset;
+    TDoubleVecVec amplitudes{{0.3, 0.3, 1.0, 1.0, 1.0, 1.0, 1.0},
+                             {0.3, 0.3, 1.3, 1.0, 1.0, 1.3, 1.2},
+                             {0.3, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0}};
+
+    for (std::size_t test = 0; test < 100; ++test) {
+
+        LOG_DEBUG(<< "**** test = " << test << " ****");
+
+        rng.generateUniformSamples(0, 168, 1, offset);
+        const auto& amplitude = amplitudes[test % amplitudes.size()];
+
+        // clang-format off
+        std::string expectedDecomposition[]{
+            "[24/" + std::to_string(offset[0]) + "/168/(0, 48)," +
+            " 24/" + std::to_string(offset[0]) + "/168/(48, 168)]",
+            "[24/" + std::to_string(offset[0]) + "/168/(0, 48)," +
+            " 24/" + std::to_string(offset[0]) + "/168/(48, 168)," +
+            " 168/" + std::to_string(offset[0]) + "/168/(48, 168)]",
+            "[24/" + std::to_string(offset[0]) + "/168/(0, 48)," +
+            " 24/" + std::to_string(offset[0]) + "/168/(48, 168)," +
+            " 168/" + std::to_string(offset[0]) + "/168/(0, 48)]"};
+        // clang-format on
+
+        auto component = [&](std::size_t i) {
+            i = (168 + i - offset[0]) % 168;
+            return 10.0 * amplitude[i / 24] *
+                   (1.0 + std::sin(boost::math::double_constants::two_pi *
+                                   static_cast<double>(i) / 24.0));
+        };
+
+        values.assign(336, maths::CSignal::TFloatMeanAccumulator{});
+        rng.generateNormalSamples(0.0, 1.0, values.size(), noise);
+        for (std::size_t i = 0; i < noise.size(); ++i) {
+            values[i].add(component(i) + noise[i]);
+        }
+
+        auto decomposition = maths::CSignal::seasonalDecomposition(
+            values, 0.0, 168, [](std::size_t period) {
+                return period == 24 || period == 168 ? 1.1 : 1.0;
+            });
+
+        BOOST_REQUIRE_EQUAL(expectedDecomposition[test % std::size(expectedDecomposition)],
+                            core::CContainerPrinter::print(decomposition));
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
 
     // Test decomposing into weekdays/weekend with and without and override.
@@ -1165,7 +1221,7 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
             auto decomposition = maths::CSignal::tradingDayDecomposition(
                 values, 0.0, 168, startOfWeekOverride);
 
-            BOOST_REQUIRE_EQUAL(expectedDecomposition[test % 4],
+            BOOST_REQUIRE_EQUAL(expectedDecomposition[test % std::size(expectedDecomposition)],
                                 core::CContainerPrinter::print(decomposition));
         }
     }
