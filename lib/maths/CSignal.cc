@@ -304,6 +304,7 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values_,
 
     TSeasonalComponentVec result;
 
+    std::size_t day{week / 7};
     std::size_t pad{n / 3};
     TDoubleVec correlations;
     TSizeVec indices(pad - 4);
@@ -372,7 +373,7 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values_,
         values.assign(values_.begin(), values_.end());
 
         decomposition.clear();
-        if (selectedPeriod == week) {
+        if (selectedPeriod == day || selectedPeriod == week) {
             decomposition = tradingDayDecomposition(values, outlierFraction,
                                                     week, startOfWeekOverride);
         }

@@ -217,6 +217,9 @@ public:
     //! Get an iterator to the end of the values with which to initialize the new component.
     CInitialValueConstIterator endInitialValues() const;
 
+    //! Get a description of the seasonal.
+    std::string print() const;
+
 private:
     std::string m_AnnotationText;
     TSeasonalComponent m_Period;
@@ -255,6 +258,9 @@ public:
 
     //! Get the summaries of any periodic components.
     const TNewSeasonalComponentVec& components() const;
+
+    //! Get a description of the seasonal components.
+    std::string print() const;
 
 private:
     using TOptionalNewTrendSummary = boost::optional<CNewTrendSummary>;
@@ -319,8 +325,11 @@ public:
         return *this;
     }
 
+    //! Register a seasonal component which is already being modelled.
+    void addModelledSeasonality(const CSeasonalTime& period);
+
     //! Run the test and return the new components found if any.
-    CSeasonalHypotheses test();
+    CSeasonalHypotheses decompose();
 
 private:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
@@ -415,6 +424,7 @@ private:
     core_t::TTime m_BucketLength = 0;
     double m_OutlierFraction = OUTLIER_FRACTION;
     TFloatMeanAccumulatorVec m_Values;
+    TSizeVec m_ModelledPeriods;
 };
 }
 }

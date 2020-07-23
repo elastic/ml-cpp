@@ -6,6 +6,7 @@
 
 #include <maths/CTimeSeriesTestForSeasonality.h>
 
+#include <core/CContainerPrinter.h>
 #include <core/CTimeUtils.h>
 #include <core/Constants.h>
 
@@ -161,6 +162,16 @@ CNewSeasonalComponentSummary::endInitialValues() const {
     return {*this, CInitialValueConstIterator::END, m_InitialValues.end(), {}};
 }
 
+std::string CNewSeasonalComponentSummary::print() const {
+    std::ostringstream result;
+    result << m_BucketLength * m_Period.s_Period;
+    if (m_Period.windowed()) {
+        result << "/(" << m_BucketLength * m_Period.s_Window.first << ","
+               << m_BucketLength * m_Period.s_Window.second << ")";
+    }
+    return result.str();
+}
+
 void CSeasonalHypotheses::add(CNewTrendSummary trend) {
     m_Trend = std::move(trend);
 }
@@ -185,6 +196,10 @@ const CSeasonalHypotheses::TNewSeasonalComponentVec& CSeasonalHypotheses::compon
     return m_Components;
 }
 
+std::string CSeasonalHypotheses::print() const {
+    return core::CContainerPrinter::print(m_Components);
+}
+
 CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime startTime,
                                                              core_t::TTime bucketLength,
                                                              TFloatMeanAccumulatorVec values,
@@ -193,7 +208,12 @@ CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime start
       m_OutlierFraction{outlierFraction}, m_Values{std::move(values)} {
 }
 
-CSeasonalHypotheses CTimeSeriesTestForSeasonality::test() {
+void CTimeSeriesTestForSeasonality::addModelledSeasonality(const CSeasonalTime& period) {
+    m_ModelledPeriods.push_back(static_cast<std::size_t>(
+        (period.period() + m_BucketLength / 2) / m_BucketLength));
+}
+
+CSeasonalHypotheses CTimeSeriesTestForSeasonality::decompose() {
 
     using TRemoveTrend = std::function<bool(TFloatMeanAccumulatorVec&)>;
 
@@ -220,6 +240,16 @@ CSeasonalHypotheses CTimeSeriesTestForSeasonality::test() {
                                    return false;
                                }};
 
+    // Increase the weight of diurnal and already modelled seasonal components.
+    std::sort(m_ModelledPeriods.begin(), m_ModelledPeriods.end());
+    CSignal::TWeightFunction weight = [this](std::size_t period) {
+        if (this->isDiurnal(period) ||
+            std::binary_search(m_ModelledPeriods.begin(), m_ModelledPeriods.end(), period)) {
+            return 1.1;
+        }
+        return 1.0;
+    };
+
     TFloatMeanAccumulatorVec valuesToTest;
     TSeasonalComponentVec periods;
 
@@ -232,11 +262,7 @@ CSeasonalHypotheses CTimeSeriesTestForSeasonality::test() {
 
         if (removeTrend(valuesToTest)) {
             periods = CSignal::seasonalDecomposition(
-                valuesToTest, m_OutlierFraction, this->week(),
-                [this](std::size_t period) {
-                    return this->isDiurnal(period) ? 1.1 : 1.0;
-                },
-                m_StartOfWeek);
+                valuesToTest, m_OutlierFraction, this->week(), weight, m_StartOfWeek);
             this->appendDiurnalComponents(valuesToTest, periods);
             periods.erase(std::remove_if(periods.begin(), periods.end(),
                                          [this](const auto& period) {
