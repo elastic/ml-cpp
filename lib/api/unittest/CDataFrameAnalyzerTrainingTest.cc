@@ -378,16 +378,21 @@ BOOST_AUTO_TEST_CASE(testMemoryLimitHandling) {
     };
 
     TDoubleVec expectedPredictions;
+    std::size_t numberSamples{50};
 
     TStrVec fieldNames{"f1", "f2", "f3", "f4", "target", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     api::CDataFrameAnalyzer analyzer{
-        test::CDataFrameAnalysisSpecificationFactory{}.memoryLimit(1000).predictionSpec(
-            test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
+        test::CDataFrameAnalysisSpecificationFactory{}
+            .rows(numberSamples)
+            .predictionMaximumNumberTrees(2)
+            .memoryLimit(10)
+            .predicitionNumberRoundsPerHyperparameter(1)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
         outputWriterFactory};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
         TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer,
-        expectedPredictions);
+        expectedPredictions, numberSamples);
 
     analyzer.handleRecord(fieldNames, {"", "", "", "", "", "", "$"});
 

@@ -138,14 +138,13 @@ void CDataFrameAnalyzer::run() {
 
         analysisRunner->run(*m_DataFrame);
 
-        // core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
-        m_ResultsWriter = std::make_unique<core::CRapidJsonConcurrentLineWriter>(*outStream);
+        core::CRapidJsonConcurrentLineWriter outputWriter{*outStream};
 
-        CDataFrameAnalysisInstrumentation::monitor(instrumentation, *m_ResultsWriter);
+        CDataFrameAnalysisInstrumentation::monitor(instrumentation, outputWriter);
 
         analysisRunner->waitToFinish();
-        this->writeInferenceModel(*analysisRunner, *m_ResultsWriter);
-        this->writeResultsOf(*analysisRunner, *m_ResultsWriter);
+        this->writeInferenceModel(*analysisRunner, outputWriter);
+        this->writeResultsOf(*analysisRunner, outputWriter);
     }
 }
 

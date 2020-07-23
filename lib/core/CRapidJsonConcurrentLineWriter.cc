@@ -15,7 +15,7 @@ CRapidJsonConcurrentLineWriter::CRapidJsonConcurrentLineWriter(CJsonOutputStream
 }
 
 CRapidJsonConcurrentLineWriter::~CRapidJsonConcurrentLineWriter() {
-    m_OutputStreamWrapper.flush();
+    this->flush();
     m_OutputStreamWrapper.releaseBuffer(*this, m_StringBuffer);
 }
 
