@@ -98,6 +98,13 @@ public:
             return result;
         }
 
+        template<typename MODEL>
+        double value(const MODEL& model, std::size_t index) const {
+            return this->contains(index) == false
+                       ? 0.0
+                       : CBasicStatistics::mean(model[this->offset(index)]);
+        }
+
         std::string print() const {
             return std::to_string(s_Period) + "/" + std::to_string(s_StartOfWeek) +
                    "/" + std::to_string(s_WindowRepeat) + "/" +
@@ -188,7 +195,8 @@ public:
     //! This uses an F-test for the variance each component explains to see if there
     //! is strong statistical evidence for it.
     //!
-    //! \param[in] values The time series to decompose.
+    //! \param[in,out] values The time series to decompose. Outliers are reweighted
+    //! if \p outlierFraction is greater than zero.
     //! \param[in] outlierFraction The fraction of values treated as outliers.
     //! \param[in] week One week as a multiple of interval between \p values.
     //! \param[in] weight Controls the chance of selecting a specified period: the
@@ -197,7 +205,7 @@ public:
     //! \param[in] startOfWeekOverride The start of the week to use if one is known.
     //! \return A summary of the seasonal components found.
     static TSeasonalComponentVec
-    seasonalDecomposition(const TFloatMeanAccumulatorVec& values,
+    seasonalDecomposition(TFloatMeanAccumulatorVec& values,
                           double outlierFraction,
                           std::size_t week,
                           const TWeightFunction& weight,
@@ -209,13 +217,14 @@ public:
     //! decomposition and returns the decomposition for which there is the strongest
     //! evidence.
     //!
-    //! \param[in] values The time series to decompose.
+    //! \param[in,out] values The time series to decompose. Outliers are reweighted
+    //! if \p outlierFraction is greater than zero.
     //! \param[in] outlierFraction The fraction of values treated as outliers.
     //! \param[in] week One week as a multiple of interval between \p values.
     //! \param[in] startOfWeekOverride The start of the week to use if one is known.
     //! \return A summary of the best decomposition.
     static TSeasonalComponentVec
-    tradingDayDecomposition(TFloatMeanAccumulatorVec values,
+    tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
                             double outlierFraction,
                             std::size_t week,
                             TOptionalSize startOfWeekOverride = TOptionalSize{});

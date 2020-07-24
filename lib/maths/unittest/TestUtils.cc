@@ -283,9 +283,10 @@ double ramp(core_t::TTime time) {
 
 double markov(core_t::TTime time) {
     static double state{0.2};
-    if (time % WEEK == 0) {
-        core::CHashing::CMurmurHash2BT<core_t::TTime> hasher;
-        state = 2.0 * static_cast<double>(hasher(time)) /
+    core::CHashing::CMurmurHash2BT<core_t::TTime> hasher(time);
+    if (static_cast<double>(hasher(time)) <
+        0.005 * static_cast<double>(std::numeric_limits<std::size_t>::max())) {
+        state = 2.0 * static_cast<double>(hasher(time + 1000000)) /
                 static_cast<double>(std::numeric_limits<std::size_t>::max());
     }
     return state;

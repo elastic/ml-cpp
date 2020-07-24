@@ -52,10 +52,8 @@ BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
 
     // Test FP % for a variety of synthetic time series with not seasonality.
 
-    TTimeVec windows{WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK};
-    TTimeVec bucketLengths{TEN_MINS, HALF_HOUR};
     TGeneratorVec generators{constant, ramp, markov};
-    core_t::TTime startTime{10000};
+    core_t::TTime startTime{604800};
 
     test::CRandomNumbers rng;
 
@@ -67,13 +65,13 @@ BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
     double FP{0.0};
     double TN{0.0};
 
-    for (std::size_t test = 0; test < 50; ++test) {
+    for (std::size_t test = 0; test < 1; ++test) {
         if (test % 10 == 0) {
             LOG_DEBUG(<< "test " << test << " / 50");
         }
 
-        for (auto window : windows) {
-            for (auto bucketLength : bucketLengths) {
+        for (auto window : {WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK}) {
+            for (auto bucketLength : {HALF_HOUR, HOUR}) {
                 switch (test % 3) {
                 case 0:
                     rng.generateNormalSamples(0.0, 0.4, window / bucketLength, noise);
@@ -90,10 +88,9 @@ BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
                 const auto& generator = generators[index[0]];
 
                 values.assign(window / bucketLength, TFloatMeanAccumulator{});
-                for (core_t::TTime time = startTime; time < startTime + window;
-                     time += bucketLength) {
-                    std::size_t bucket((time - startTime) / bucketLength);
-                    values[bucket].add(generator(time) + noise[bucket]);
+                for (core_t::TTime bucket = 0; bucket < window / bucketLength; ++bucket) {
+                    values[bucket].add(5.0 * generator(startTime + bucket * bucketLength) +
+                                       noise[bucket]);
                 }
 
                 maths::CTimeSeriesTestForSeasonality seasonality{startTime, bucketLength, values};
@@ -102,8 +99,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
                 bool isSeasonal{result.components().size() > 0};
 
                 if (isSeasonal) {
-                    LOG_DEBUG(<< "result = "
-                              << core::CContainerPrinter::print(result.components()));
+                    LOG_DEBUG(<< "result = " << result.print());
                 }
                 FP += isSeasonal ? 1.0 : 0.0;
                 TN += isSeasonal ? 0.0 : 1.0;
@@ -549,7 +545,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
             if (window < 2 * period) {
                 continue;
             }
-            LOG_DEBUG(<< "window = " << core::CContainerPrinter::print(window));
+            LOG_DEBUG(<< "window length = " << window);
 
             for (auto bucketLength : {TEN_MINS, HALF_HOUR}) {
                 core_t::TTime buckets{window / bucketLength};
@@ -588,7 +584,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
     LOG_DEBUG(<< "Weekdays/weekend");
 
     for (auto window : {2 * WEEK, 16 * DAY, 4 * WEEK}) {
-        LOG_DEBUG(<< "window = " << core::CContainerPrinter::print(window));
+        LOG_DEBUG(<< "window length = " << window);
 
         for (auto bucketLength : {TEN_MINS, HALF_HOUR}) {
             core_t::TTime buckets{window / bucketLength};

@@ -395,7 +395,7 @@ private:
     void testAmplitude(const TFloatMeanAccumulatorVec& valueToTest,
                        const TSeasonalComponent& period,
                        SHypothesisStats& hypothesis) const;
-    void appendDiurnalComponents(const TFloatMeanAccumulatorVec& valuesToTest,
+    void appendDiurnalComponents(TFloatMeanAccumulatorVec& valuesToTest,
                                  TSeasonalComponentVec& periods) const;
     bool isDiurnal(std::size_t period) const;
     bool isDiurnal(const TSeasonalComponent& period) const;
