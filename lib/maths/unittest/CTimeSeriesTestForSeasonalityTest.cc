@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
     double FP{0.0};
     double TN{0.0};
 
-    for (std::size_t test = 0; test < 1; ++test) {
+    for (std::size_t test = 0; test < 100; ++test) {
         if (test % 10 == 0) {
             LOG_DEBUG(<< "test " << test << " / 50");
         }

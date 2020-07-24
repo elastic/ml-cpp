@@ -335,7 +335,7 @@ void CTimeSeriesTestForSeasonality::truth(SHypothesisStats& hypothesis) const {
     hypothesis.s_Truth =
         (fuzzyGreaterThan(repeatsPerSegment / m_MinimumRepeatsPerSegmentForVariance, 1.0, 0.2) &&
          fuzzyGreaterThan(hypothesis.s_Autocorrelation / m_MinimumAutocorrelation, 1.0, 0.1) &&
-         fuzzyGreaterThan(hypothesis.s_ExplainedVariance / m_MinimumExplainedVariance, 1.0, 0.1) &&
+         fuzzyLessThan(hypothesis.s_ExplainedVariance / m_MaximumExplainedVariance, 1.0, 0.1) &&
          fuzzyLessThan(std::log(hypothesis.s_ExplainedVariancePValue / m_MaximumExplainedVariancePValue),
                        0.0, 0.1)) ||
         (fuzzyGreaterThan(repeatsPerSegment / m_MinimumRepeatsPerSegmentForAmplitude, 1.0, 0.2) &&
@@ -373,7 +373,7 @@ CTimeSeriesTestForSeasonality::testDecomposition(TFloatMeanAccumulatorVec& value
             componentInitialValuesScale = 1.0;
             if (scaleSegments.size() > 2) {
                 std::tie(values, scales) = TSegmentation::meanScalePiecewiseLinearScaledSeasonal(
-                    std::move(values), period.period(), scaleSegments);
+                    values, period.period(), scaleSegments);
                 auto decay = [&](std::size_t i) {
                     return std::pow(0.9, static_cast<double>(values.size() - i));
                 };
@@ -416,8 +416,11 @@ CTimeSeriesTestForSeasonality::testDecomposition(TFloatMeanAccumulatorVec& value
         SHypothesisStats bestHypothesis{periods[i]};
 
         for (const auto& scale : scalings) {
-            if (scale(valuesToTestComponent, period)) {
-                LOG_TRACE(<< "scale segments = " << core::CContainerPrinter::print(scaleSegments));
+            if (scale(valuesToTestComponent, period) &&
+                CSignal::countNotMissing(valuesToTestComponent) > 0) {
+
+                LOG_TRACE(<< "scale segments = "
+                          << core::CContainerPrinter::print(scaleSegments));
 
                 SHypothesisStats hypothesis{periods[i]};
                 hypothesis.s_ComponentInitialValuesScale = componentInitialValuesScale;
@@ -483,18 +486,23 @@ void CTimeSeriesTestForSeasonality::testExplainedVariance(const TFloatMeanAccumu
     std::size_t numberValues{CSignal::countNotMissing(valuesToTest)};
     std::size_t parameters{CSignal::countNotMissing(component[0])};
 
-    double degreesFreedom[]{static_cast<double>(numberValues - 1),
-                            static_cast<double>(numberValues - parameters)};
     double variances[2];
     std::tie(variances[0], variances[1]) =
         CSignal::residualVariance(valuesToTest, {period}, component);
+    double degreesFreedom[]{static_cast<double>(numberValues - 1),
+                            static_cast<double>(numberValues - parameters)};
 
     hypothesis.s_ResidualVariance = variances[1];
-    hypothesis.s_ExplainedVariance =
-        CBasicStatistics::varianceAtPercentile(10.0, variances[0], degreesFreedom[0]) /
-        CBasicStatistics::varianceAtPercentile(90.0, variances[1], degreesFreedom[1]);
-    hypothesis.s_ExplainedVariancePValue = CStatisticalTests::rightTailFTest(
-        variances[0] / variances[1], degreesFreedom[0], degreesFreedom[1]);
+    if (numberValues <= parameters) {
+        hypothesis.s_ExplainedVariance = 1.0;
+        hypothesis.s_ExplainedVariancePValue = 1.0;
+    } else {
+        hypothesis.s_ExplainedVariance =
+            CBasicStatistics::varianceAtPercentile(90.0, variances[1], degreesFreedom[1]) /
+            CBasicStatistics::varianceAtPercentile(10.0, variances[0], degreesFreedom[0]);
+        hypothesis.s_ExplainedVariancePValue = CStatisticalTests::rightTailFTest(
+            variances[0] / variances[1], degreesFreedom[1], degreesFreedom[0]);
+    }
     LOG_TRACE(<< "variances = " << core::CContainerPrinter::print(variances)
               << ", p-value = " << hypothesis.s_ExplainedVariancePValue);
 }
@@ -502,12 +510,11 @@ void CTimeSeriesTestForSeasonality::testExplainedVariance(const TFloatMeanAccumu
 void CTimeSeriesTestForSeasonality::testAutocorrelation(const TFloatMeanAccumulatorVec& valuesToTest,
                                                         const TSeasonalComponent& period,
                                                         SHypothesisStats& hypothesis) const {
-    std::size_t m{CIntegerTools::floor(valuesToTest.size(), period.period())};
-    CSignal::TFloatMeanAccumulatorCRng valuesToTestAutocorrelation{valuesToTest, 0, m};
-    std::size_t n{CSignal::countNotMissing(valuesToTestAutocorrelation)};
+    CSignal::TFloatMeanAccumulatorCRng valuesToTestAutocorrelation{
+        valuesToTest, 0, CIntegerTools::floor(valuesToTest.size(), period.period())};
     hypothesis.s_Autocorrelation = CSignal::autocorrelationAtPercentile(
         10.0, CSignal::cyclicAutocorrelation(period.period(), valuesToTestAutocorrelation),
-        static_cast<double>(n));
+        static_cast<double>(CSignal::countNotMissing(valuesToTestAutocorrelation)));
     LOG_TRACE(<< "autocorrelation = " << hypothesis.s_Autocorrelation);
 }
 

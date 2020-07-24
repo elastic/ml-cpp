@@ -282,7 +282,7 @@ public:
     static constexpr double MINIMUM_REPEATS_PER_SEGMENT_FOR_VARIANCE{3.0};
     static constexpr double MINIMUM_REPEATS_PER_SEGMENT_FOR_AMPLITUDE{5.0};
     static constexpr double MINIMUM_AUTOCORRELATION{0.1};
-    static constexpr double MINIMUM_EXPLAINED_VARIANCE{0.1};
+    static constexpr double MAXIMUM_EXPLAINED_VARIANCE{0.8};
     static constexpr double MAXIMUM_EXPLAINED_VARIANCE_PVALUE{1e-3};
     static constexpr double MAXIMUM_AMPLITUDE_PVALUE{1e-4};
     static constexpr double OUTLIER_FRACTION{0.1};
@@ -313,7 +313,7 @@ public:
         return *this;
     }
     CTimeSeriesTestForSeasonality& minimumExplainedVariance(double value) {
-        m_MinimumExplainedVariance = value;
+        m_MaximumExplainedVariance = value;
         return *this;
     }
     CTimeSeriesTestForSeasonality& maximumExplainedVariancePValue(double value) {
@@ -416,7 +416,7 @@ private:
     double m_MinimumRepeatsPerSegmentForVariance = MINIMUM_REPEATS_PER_SEGMENT_FOR_VARIANCE;
     double m_MinimumRepeatsPerSegmentForAmplitude = MINIMUM_REPEATS_PER_SEGMENT_FOR_AMPLITUDE;
     double m_MinimumAutocorrelation = MINIMUM_AUTOCORRELATION;
-    double m_MinimumExplainedVariance = MINIMUM_EXPLAINED_VARIANCE;
+    double m_MaximumExplainedVariance = MAXIMUM_EXPLAINED_VARIANCE;
     double m_MaximumExplainedVariancePValue = MAXIMUM_EXPLAINED_VARIANCE_PVALUE;
     double m_MaximumAmplitudePValue = MAXIMUM_AMPLITUDE_PVALUE;
     TOptionalSize m_StartOfWeek;

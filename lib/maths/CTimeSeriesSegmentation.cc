@@ -12,6 +12,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>
+#include <maths/CSignal.h>
 #include <maths/CStatisticalTests.h>
 #include <maths/CTools.h>
 
@@ -327,7 +328,7 @@ CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(const TFloatMeanAcc
 }
 
 CTimeSeriesSegmentation::TFloatMeanAccumulatorVecDoubleVecPr
-CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(TFloatMeanAccumulatorVec values,
+CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
                                                                 std::size_t period,
                                                                 const TSizeVec& segmentation,
                                                                 double outlierFraction,

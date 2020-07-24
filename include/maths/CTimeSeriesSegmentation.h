@@ -141,7 +141,7 @@ public:
     //! constant scale.
     //! \return The values with the mean scaled seasonal component.
     static TFloatMeanAccumulatorVecDoubleVecPr
-    meanScalePiecewiseLinearScaledSeasonal(TFloatMeanAccumulatorVec values,
+    meanScalePiecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
                                            std::size_t period,
                                            const TSizeVec& segmentation,
                                            double outlierFraction = 0.0,
