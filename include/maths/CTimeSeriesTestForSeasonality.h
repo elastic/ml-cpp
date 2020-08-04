@@ -14,14 +14,17 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CFuzzyLogic.h>
 #include <maths/CSignal.h>
+#include <maths/CTimeSeriesSegmentation.h>
 #include <maths/ImportExport.h>
 
-#include <boost/operators.hpp>
+#include <boost/math/distributions/binomial.hpp>
+#include <boost/math/distributions/normal.hpp>
 #include <boost/optional.hpp>
 
 #include <algorithm>
 #include <functional>
 #include <limits>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -273,6 +276,8 @@ private:
     TNewSeasonalComponentVec m_Components;
 };
 
+//! \brief Discovers the seasonal components present in the values in a time window
+//! of a discrete time series.
 class MATHS_EXPORT CTimeSeriesTestForSeasonality {
 public:
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
@@ -281,7 +286,7 @@ public:
 public:
     static constexpr double MINIMUM_REPEATS_PER_SEGMENT_FOR_VARIANCE{3.0};
     static constexpr double MINIMUM_REPEATS_PER_SEGMENT_FOR_AMPLITUDE{5.0};
-    static constexpr double MINIMUM_AUTOCORRELATION{0.1};
+    static constexpr double MINIMUM_AUTOCORRELATION{0.5};
     static constexpr double MAXIMUM_EXPLAINED_VARIANCE{0.8};
     static constexpr double MAXIMUM_EXPLAINED_VARIANCE_PVALUE{1e-3};
     static constexpr double MAXIMUM_AMPLITUDE_PVALUE{1e-4};
@@ -332,11 +337,104 @@ public:
     CSeasonalHypotheses decompose();
 
 private:
+    using TDoubleVec = std::vector<double>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeVec = std::vector<std::size_t>;
     using TOptionalSize = boost::optional<std::size_t>;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TSeasonalComponentVec = CSignal::TSeasonalComponentVec;
+    using TMeanAccumulatorVec1Vec = CSignal::TMeanAccumulatorVec1Vec;
+    using TSegmentation = CTimeSeriesSegmentation;
+    using TWeightFunc = TSegmentation::TWeightFunc;
+
+    //! \brief Accumulates the minimum amplitude.
+    class CMinAmplitude {
+    public:
+        static constexpr double INF = std::numeric_limits<double>::max();
+
+    public:
+        CMinAmplitude(std::size_t numberValues, double meanRepeats, double level)
+            : m_Level{level}, m_BucketLength{numberValues / this->targetCount(meanRepeats)},
+              m_BucketAmplitudes(numberValues / m_BucketLength) {}
+
+        void add(std::size_t index, const TFloatMeanAccumulator& value) {
+            if (CBasicStatistics::count(value) > 0.0) {
+                std::size_t bucket{index / m_BucketLength};
+                if (bucket < m_BucketAmplitudes.size()) {
+                    ++m_Count;
+                    m_BucketAmplitudes[bucket].add(CBasicStatistics::mean(value) - m_Level);
+                }
+            }
+        }
+
+        double amplitude() const {
+            double amplitudes[]{INF, INF};
+            for (const auto& bucket : m_BucketAmplitudes) {
+                if (bucket.initialized()) {
+                    amplitudes[0] = std::min(amplitudes[0], std::max(-bucket.min(), 0.0));
+                    amplitudes[1] = std::min(amplitudes[1], std::max(bucket.max(), 0.0));
+                } else {
+                    amplitudes[0] = amplitudes[1] = 0.0;
+                    break;
+                }
+            }
+            return std::max(amplitudes[0], amplitudes[1]);
+        }
+
+        double significance(const boost::math::normal& normal) const {
+            double amplitude{this->amplitude()};
+            if (amplitude == 0.0) {
+                return 1.0;
+            }
+            double twoTailPValue{2.0 * CTools::safeCdf(normal, -amplitude)};
+            if (twoTailPValue == 0.0) {
+                return 0.0;
+            }
+            boost::math::binomial binomial(static_cast<double>(m_Count), twoTailPValue);
+            return CTools::safeCdfComplement(
+                binomial, static_cast<double>(m_BucketAmplitudes.size()) - 1.0);
+        }
+
+        std::string print() const {
+            auto appendBucket = [](const TMinMaxAccumulator& bucket,
+                                   std::ostringstream& result) {
+                if (bucket.initialized()) {
+                    result << "(" << bucket.min() << "," << bucket.max() << ")";
+                } else {
+                    result << "-";
+                }
+            };
+            std::ostringstream result;
+            result << "count = " << m_Count << " [";
+            appendBucket(m_BucketAmplitudes[0], result);
+            for (std::size_t i = 1; i < m_BucketAmplitudes.size(); ++i) {
+                result << ", ";
+                appendBucket(m_BucketAmplitudes[i], result);
+            }
+            result << "]";
+            return result.str();
+        }
+
+    private:
+        using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
+        using TMinMaxAccumulatorVec = std::vector<TMinMaxAccumulator>;
+
+    private:
+        std::size_t targetCount(double meanRepeats) const {
+            return std::max(static_cast<std::size_t>(std::ceil(meanRepeats / 3.0)),
+                            std::size_t{5});
+        }
+
+    private:
+        //! The mean of the trend.
+        double m_Level = 0.0;
+        //! The total count of values added.
+        std::size_t m_Count = 0;
+        //! The size of the index buckets we divide the values into.
+        std::size_t m_BucketLength;
+        //! The smallest values.
+        TMinMaxAccumulatorVec m_BucketAmplitudes;
+    };
 
     //! \brief A summary of a test statistics related to a component.
     struct SHypothesisStats {
@@ -346,8 +444,6 @@ private:
         TSeasonalComponent s_Period;
         //! The desired component size.
         std::size_t s_ComponentSize = 0;
-        //! The scale to apply to the component's initial values.
-        double s_ComponentInitialValuesScale;
         //! The number of segments in the trend.
         std::size_t s_NumberTrendSegments = 0;
         //! The number of scale segments in the component.
@@ -356,6 +452,8 @@ private:
         double s_MeanNumberRepeats = 0.0;
         //! The autocorrelation estimate of the hypothesis.
         double s_Autocorrelation = 0.0;
+        //! The autocorrelation estimate of absolute values for the hypothesis.
+        double s_AbsAutocorrelation = 0.0;
         //! The residual variance after removing this component.
         double s_ResidualVariance = 0.0;
         //! The variance estimate of hypothesis.
@@ -366,10 +464,13 @@ private:
         double s_AmplitudePValue = 0.0;
         //! The truth value for the hypothesis.
         CFuzzyTruthValue s_Truth = CFuzzyTruthValue::FALSE;
+        //! The segmentation into constant linear scales.
+        TSizeVec s_ScaleSegments;
         //! The values to use to initialize the component.
         TFloatMeanAccumulatorVec s_InitialValues;
     };
 
+    using TAmplitudeVec = std::vector<CMinAmplitude>;
     using THypothesisStatsVec = std::vector<SHypothesisStats>;
     using TFloatMeanAccumulatorVecHypothesisStatsVecPr =
         std::pair<TFloatMeanAccumulatorVec, THypothesisStatsVec>;
@@ -383,9 +484,17 @@ private:
     testDecomposition(TFloatMeanAccumulatorVec& valueToTest,
                       std::size_t numberTrendSegments,
                       const TSeasonalComponentVec& periods) const;
-    void updateInitialValues(const TSeasonalComponent& period,
-                             SHypothesisStats& hypothesis,
-                             TFloatMeanAccumulatorVec& trendInitialValues) const;
+    void updateResiduals(const TSeasonalComponent& period,
+                         const SHypothesisStats& hypothesis,
+                         TFloatMeanAccumulatorVec& trendInitialValues) const;
+    void finalizeHypotheses(THypothesisStatsVec& hypotheses) const;
+    bool meanScale(TFloatMeanAccumulatorVec& values,
+                   const SHypothesisStats& hypothesis,
+                   const TWeightFunc& weight) const;
+    void removeComponentPredictions(std::size_t numberOfPeriodsToRemove,
+                                    const TSeasonalComponentVec& periodsToRemove,
+                                    const TMeanAccumulatorVec1Vec& componentsToRemove,
+                                    TFloatMeanAccumulatorVec& values) const;
     void testExplainedVariance(const TFloatMeanAccumulatorVec& valueToTest,
                                const TSeasonalComponent& period,
                                SHypothesisStats& hypothesis) const;
@@ -425,6 +534,12 @@ private:
     double m_OutlierFraction = OUTLIER_FRACTION;
     TFloatMeanAccumulatorVec m_Values;
     TSizeVec m_ModelledPeriods;
+    // This is member data to avoid repeatedly reinitialising.
+    mutable TSizeVec m_WindowIndices;
+    mutable TSeasonalComponentVec m_Periods;
+    mutable TAmplitudeVec m_Amplitudes;
+    mutable TMeanAccumulatorVec1Vec m_Components;
+    mutable TFloatMeanAccumulatorVec m_ValuesToTestComponent;
 };
 }
 }

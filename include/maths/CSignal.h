@@ -12,6 +12,7 @@
 #include <core/CVectorRange.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CIntegerTools.h>
 #include <maths/COrderings.h>
 #include <maths/ImportExport.h>
 
@@ -19,6 +20,7 @@
 
 #include <algorithm>
 #include <complex>
+#include <numeric>
 #include <string>
 #include <vector>
 
@@ -42,7 +44,8 @@ public:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TMeanAccumulatorVec1Vec = core::CSmallVector<TMeanAccumulatorVec, 1>;
-    using TWeightFunction = std::function<double(std::size_t)>;
+    using TTransformFunc = std::function<double(const TFloatMeanAccumulator&)>;
+    using TWeightFunc = std::function<double(std::size_t)>;
     using TPredictor = std::function<double(std::size_t)>;
 
     //! \brief A description of a seasonal component.
@@ -148,14 +151,18 @@ public:
     //!
     //! \param[in] offset The offset as a distance in \p values.
     //! \param[in] values The values for which to compute the autocorrelation.
+    //! \param[in] func Used to transform \p values before computing the autocorrelation.
     static double cyclicAutocorrelation(std::size_t offset,
-                                        const TFloatMeanAccumulatorVec& values);
+                                        const TFloatMeanAccumulatorVec& values,
+                                        const TTransformFunc& func = identity);
 
     //! Compute the discrete cyclic autocorrelation of \p values for the offset
     //! \p offset.
     //!
     //! \note Implementation for vector ranges.
-    static double cyclicAutocorrelation(std::size_t offset, TFloatMeanAccumulatorCRng values);
+    static double cyclicAutocorrelation(std::size_t offset,
+                                        const TFloatMeanAccumulatorCRng& values,
+                                        const TTransformFunc& func = identity);
 
     //! Get linear autocorrelations for all offsets up to the length of \p values.
     //!
@@ -208,7 +215,7 @@ public:
     seasonalDecomposition(TFloatMeanAccumulatorVec& values,
                           double outlierFraction,
                           std::size_t week,
-                          const TWeightFunction& weight,
+                          const TWeightFunc& weight,
                           TOptionalSize startOfWeekOverride = TOptionalSize{});
 
     //! Decompose the time series \p values into a weekday and weekend.
@@ -296,8 +303,14 @@ public:
     //!
     //! \param[in] period Defines the window to restrict to if any.
     //! \param[in,out] values The values to restrict.
-    static void restrictTo(const SSeasonalComponentSummary& period,
-                           TFloatMeanAccumulatorVec& values);
+    //! \tparam CONTAINER  A std compliant random access container.
+    template<typename CONTAINER>
+    static void restrictTo(const SSeasonalComponentSummary& period, CONTAINER& values) {
+        if (period.windowed()) {
+            values.resize(CIntegerTools::floor(values.size(), period.s_WindowRepeat));
+            restrictTo(period.windows(values.size()), values);
+        }
+    }
 
     //! Erase \p values outside \p windows wrapping window indices which are out
     //! of bounds.
@@ -306,7 +319,35 @@ public:
     //! \param[in,out] values The values to restrict.
     //! \warning It's assumed that the restriction is one-to-one, i.e. the windows
     //! can't reference the same element of \p values twice or more.
-    static void restrictTo(const TSizeSizePr2Vec& windows, TFloatMeanAccumulatorVec& values);
+    //! \tparam CONTAINER  A std compliant random access container.
+    template<typename CONTAINER>
+    static void restrictTo(const TSizeSizePr2Vec& windows, CONTAINER& values) {
+        if (values.size() == 0) {
+            return;
+        }
+        if (windows.empty()) {
+            values.clear();
+            return;
+        }
+
+        std::size_t m{std::accumulate(windows.begin(), windows.end(), std::size_t{0},
+                                      [](std::size_t m_, const auto& window) {
+                                          return m_ + window.second - window.first;
+                                      })};
+        std::size_t n{values.size()};
+
+        std::size_t last{windows[0].first};
+        for (const auto& window : windows) {
+            for (std::size_t j = window.first; j < window.second; ++j, ++last) {
+                values[last % n] = values[j % n];
+            }
+        }
+        for (std::size_t i = 0, j = windows[0].first % n; i < m;
+             ++i, j = (j + 1 == n ? windows[0].first % n : j + 1)) {
+            std::swap(values[i], values[j]);
+        }
+        values.resize(m);
+    }
 
     //! Count the number of \p values which have non-zero count.
     template<typename CONTAINER>
@@ -326,6 +367,9 @@ private:
                                                      const PREDICTOR& predictor,
                                                      const VALUES& values,
                                                      COMPONENT& component);
+    static double identity(const TFloatMeanAccumulator& value) {
+        return CBasicStatistics::mean(value);
+    }
 };
 }
 }

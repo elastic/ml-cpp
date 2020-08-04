@@ -327,12 +327,14 @@ CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(const TFloatMeanAcc
     return reweighted;
 }
 
-CTimeSeriesSegmentation::TFloatMeanAccumulatorVecDoubleVecPr
-CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
-                                                                std::size_t period,
-                                                                const TSizeVec& segmentation,
-                                                                double outlierFraction,
-                                                                double outlierWeight) {
+CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
+CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(
+    const TFloatMeanAccumulatorVec& values,
+    std::size_t period,
+    const TSizeVec& segmentation,
+    const TWeightFunc& indexWeight,
+    double outlierFraction,
+    double outlierWeight) {
     using TDoubleCItr = TDoubleVec::const_iterator;
 
     TDoubleVec model;
@@ -340,12 +342,7 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(const TFloatMean
     std::tie(model, scales) = piecewiseLinearScaledSeasonal(
         values, period, segmentation, outlierFraction, outlierWeight);
 
-    TMeanAccumulator meanScale;
-    for (std::size_t i = 1; i < segmentation.size(); ++i) {
-        meanScale.add(scales[i - 1],
-                      static_cast<double>(segmentation[i] - segmentation[i - 1]));
-    }
-    double scale{CBasicStatistics::mean(meanScale)};
+    double scale{meanScale(segmentation, scales, indexWeight)};
     LOG_TRACE(<< "mean scale = " << scale);
 
     TFloatMeanAccumulatorVec scaledValues{
@@ -382,16 +379,16 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(const TFloatMean
         }
     }
 
-    return {std::move(scaledValues), std::move(scales)};
+    return scaledValues;
 }
 
 double CTimeSeriesSegmentation::meanScale(const TSizeVec& segmentation,
                                           const TDoubleVec& scales,
-                                          const TWeightFunc& weight) {
+                                          const TWeightFunc& indexWeight) {
     TMeanAccumulator result;
     for (std::size_t i = 1; i < segmentation.size(); ++i) {
         for (std::size_t j = segmentation[i - 1]; j < segmentation[i]; ++j) {
-            result.add(scales[i - 1], weight(j));
+            result.add(scales[i - 1], indexWeight(j));
         }
     }
     return CBasicStatistics::mean(result);

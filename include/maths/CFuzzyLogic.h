@@ -11,6 +11,8 @@
 
 #include <maths/CTools.h>
 
+#include <string>
+
 namespace ml {
 namespace maths {
 
@@ -49,6 +51,11 @@ public:
                                               const CFuzzyTruthValue& rhs) {
         return {1.0 - (1.0 - lhs.m_Value) * (1.0 - rhs.m_Value),
                 1.0 - (1.0 - lhs.m_IsTrueThreshold) * (1.0 - rhs.m_IsTrueThreshold)};
+    }
+
+    //! Print the value.
+    std::string print() const {
+        return std::to_string(m_Value) + "/" + std::to_string(m_IsTrueThreshold);
     }
 
 private:

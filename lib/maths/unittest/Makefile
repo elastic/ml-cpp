@@ -77,7 +77,6 @@ SRCS=\
 	COrdinalTest.cc \
 	COrthogonaliserTest.cc \
 	COutliersTest.cc \
-	CPeriodicityHypothesisTestsTest.cc \
 	CPoissonMeanConjugateTest.cc \
 	CPriorTest.cc \
 	CPRNGTest.cc \

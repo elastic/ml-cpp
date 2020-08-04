@@ -456,7 +456,6 @@ BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
     double expectedMeanScale{(4.0 * 0.2 + 6.0 * 1.3 + 6.0 * 0.5) / 16.0};
     TDoubleVec noise;
     TFloatMeanAccumulatorVec values;
-    TDoubleVec actualScales;
     TMeanAccumulatorVec actualMeanScaled;
     TMeanVarAccumulator overallErrorMoments;
 
@@ -471,8 +470,9 @@ BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
             }
         }
 
-        std::tie(values, actualScales) = TSegmentation::meanScalePiecewiseLinearScaledSeasonal(
-            std::move(values), period, segmentation);
+        values = TSegmentation::meanScalePiecewiseLinearScaledSeasonal(
+            std::move(values), period, segmentation,
+            [](std::size_t) { return 1.0; });
 
         actualMeanScaled.assign(period, TMeanAccumulator{});
         for (std::size_t i = 0; i < values.size(); ++i) {

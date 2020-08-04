@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
 
     for (std::size_t test = 0; test < 100; ++test) {
         if (test % 10 == 0) {
-            LOG_DEBUG(<< "test " << test << " / 50");
+            LOG_DEBUG(<< "test " << test << " / 100");
         }
 
         for (auto window : {WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK}) {

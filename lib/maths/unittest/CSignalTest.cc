@@ -1361,7 +1361,7 @@ BOOST_AUTO_TEST_CASE(testSelectComponentSize) {
 
     LOG_DEBUG(<< "sizes = " << core::CContainerPrinter::print(sizes));
     for (std::size_t i = 1; i < sizes.size(); ++i) {
-        BOOST_TEST_REQUIRE(sizes[i - 1] < sizes[i]);
+        BOOST_TEST_REQUIRE(sizes[i] < sizes[i - 1]);
     }
 }
 
