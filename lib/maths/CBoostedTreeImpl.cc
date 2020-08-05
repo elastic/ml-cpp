@@ -272,6 +272,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         core::CProgramCounters::counter(counter_t::E_DFTPMTrainedForestNumberTrees) =
             m_BestForest.size();
+    } else {
+        this->skipProgressMonitoringFinalTrain();
     }
 
     this->computeClassificationWeights(frame);
@@ -346,9 +348,9 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     std::size_t dataTypeMemoryUsage{maximumNumberFeatures * sizeof(CDataFrameUtils::SDataType)};
     std::size_t featureSampleProbabilities{maximumNumberFeatures * sizeof(double)};
     // Assuming either many or few missing rows, we get good compression of the bit
-    // vector. Specifically, we'll assume the average run length is 256 for which
-    // we get a constant 4 * 8 / 256.
-    std::size_t missingFeatureMaskMemoryUsage{32 * numberColumns * numberRows / 256};
+    // vector. Specifically, we'll assume the average run length is 64 for which
+    // we get a constant 8 / 64.
+    std::size_t missingFeatureMaskMemoryUsage{8 * numberColumns * numberRows / 32};
     std::size_t trainTestMaskMemoryUsage{
         2 * static_cast<std::size_t>(std::ceil(std::log2(static_cast<double>(m_NumberFolds)))) *
         numberRows};
@@ -1347,11 +1349,16 @@ void CBoostedTreeImpl::startProgressMonitoringFineTuneHyperparameters() {
 }
 
 void CBoostedTreeImpl::startProgressMonitoringFinalTrain() {
+
     // The final model training uses more data so it's monitored separately.
 
     m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::FINAL_TRAINING);
     m_TrainingProgress = core::CLoopProgress{
         m_MaximumNumberTrees, m_Instrumentation->progressCallback(), 1.0, 1024};
+}
+
+void CBoostedTreeImpl::skipProgressMonitoringFinalTrain() {
+    m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::FINAL_TRAINING);
 }
 
 namespace {
