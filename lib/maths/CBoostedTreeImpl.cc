@@ -350,7 +350,7 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     // Assuming either many or few missing rows, we get good compression of the bit
     // vector. Specifically, we'll assume the average run length is 64 for which
     // we get a constant 8 / 64.
-    std::size_t missingFeatureMaskMemoryUsage{8 * numberColumns * numberRows / 32};
+    std::size_t missingFeatureMaskMemoryUsage{8 * numberColumns * numberRows / 64};
     std::size_t trainTestMaskMemoryUsage{
         2 * static_cast<std::size_t>(std::ceil(std::log2(static_cast<double>(m_NumberFolds)))) *
         numberRows};
