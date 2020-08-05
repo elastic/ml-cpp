@@ -284,13 +284,15 @@ public:
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
 public:
-    static constexpr double MINIMUM_REPEATS_PER_SEGMENT_FOR_VARIANCE{3.0};
-    static constexpr double MINIMUM_REPEATS_PER_SEGMENT_FOR_AMPLITUDE{5.0};
-    static constexpr double MINIMUM_AUTOCORRELATION{0.5};
-    static constexpr double MAXIMUM_EXPLAINED_VARIANCE{0.8};
-    static constexpr double MAXIMUM_EXPLAINED_VARIANCE_PVALUE{1e-3};
-    static constexpr double MAXIMUM_AMPLITUDE_PVALUE{1e-4};
-    static constexpr double OUTLIER_FRACTION{0.1};
+    static constexpr double MINIMUM_REPEATS_PER_SEGMENT_TO_TEST_VARIANCE = 3.0;
+    static constexpr double MINIMUM_REPEATS_PER_SEGMENT_TO_TEST_VARIANCE_DIURNAL = 2.0;
+    static constexpr double MINIMUM_REPEATS_PER_SEGMENT_TO_TEST_AMPLITUDE = 5.0;
+    static constexpr double MINIMUM_REPEATS_PER_SEGMENT_TO_TEST_AMPLITUDE_DIURNAL = 5.0;
+    static constexpr double MINIMUM_AUTOCORRELATION = 0.5;
+    static constexpr double MAXIMUM_UNEXPLAINED_VARIANCE = 0.8;
+    static constexpr double SIGNIFICANT_PVALUE = 1e-3;
+    static constexpr double VERY_SIGNIFICANT_PVALUE = 1e-8;
+    static constexpr double OUTLIER_FRACTION = 0.1;
 
 public:
     CTimeSeriesTestForSeasonality(core_t::TTime startTime,
@@ -305,28 +307,12 @@ public:
             m_BucketLength);
         return *this;
     }
-    CTimeSeriesTestForSeasonality& minimumRepeatsPerSegmentForVariance(double value) {
-        m_MinimumRepeatsPerSegmentForVariance = value;
-        return *this;
-    }
-    CTimeSeriesTestForSeasonality& minimumRepeatsPerSegmentForAmplitude(double value) {
-        m_MinimumRepeatsPerSegmentForAmplitude = value;
-        return *this;
-    }
     CTimeSeriesTestForSeasonality& minimumAutocorrelation(double value) {
         m_MinimumAutocorrelation = value;
         return *this;
     }
-    CTimeSeriesTestForSeasonality& minimumExplainedVariance(double value) {
-        m_MaximumExplainedVariance = value;
-        return *this;
-    }
-    CTimeSeriesTestForSeasonality& maximumExplainedVariancePValue(double value) {
-        m_MaximumExplainedVariancePValue = value;
-        return *this;
-    }
-    CTimeSeriesTestForSeasonality& maximumAmplitudePValue(double value) {
-        m_MaximumAmplitudePValue = value;
+    CTimeSeriesTestForSeasonality& significantPValue(double value) {
+        m_SignificantPValue = value;
         return *this;
     }
 
@@ -351,11 +337,17 @@ private:
     class CMinAmplitude {
     public:
         static constexpr double INF = std::numeric_limits<double>::max();
+        static constexpr std::size_t MINIMUM_REPEATS{5};
 
     public:
         CMinAmplitude(std::size_t numberValues, double meanRepeats, double level)
             : m_Level{level}, m_BucketLength{numberValues / this->targetCount(meanRepeats)},
               m_BucketAmplitudes(numberValues / m_BucketLength) {}
+
+        static std::size_t seenSufficientDataToTestAmplitude(std::size_t range,
+                                                             std::size_t period) {
+            return range >= MINIMUM_REPEATS * period;
+        }
 
         void add(std::size_t index, const TFloatMeanAccumulator& value) {
             if (CBasicStatistics::count(value) > 0.0) {
@@ -422,7 +414,7 @@ private:
     private:
         std::size_t targetCount(double meanRepeats) const {
             return std::max(static_cast<std::size_t>(std::ceil(meanRepeats / 3.0)),
-                            std::size_t{5});
+                            MINIMUM_REPEATS);
         }
 
     private:
@@ -440,6 +432,12 @@ private:
     struct SHypothesisStats {
         explicit SHypothesisStats(const TSeasonalComponent& period)
             : s_Period{period} {}
+
+        //! Test the variance reduction of this hypothesis.
+        CFuzzyTruthValue testVariance(const CTimeSeriesTestForSeasonality& params) const;
+        //! Test the amplitude of this hypothesis.
+        CFuzzyTruthValue testAmplitude(const CTimeSeriesTestForSeasonality& params) const;
+
         //! A summary of the seasonal component period.
         TSeasonalComponent s_Period;
         //! The desired component size.
@@ -456,12 +454,12 @@ private:
         double s_AbsAutocorrelation = 0.0;
         //! The residual variance after removing this component.
         double s_ResidualVariance = 0.0;
-        //! The variance estimate of hypothesis.
-        double s_ExplainedVariance = 0.0;
         //! The explained variance significance.
-        double s_ExplainedVariancePValue = 0.0;
+        double s_ExplainedVariancePValue = 1.0;
         //! The amplitude significance.
-        double s_AmplitudePValue = 0.0;
+        double s_AmplitudePValue = 1.0;
+        //! Have we seen enough values to test this hypothesis's amplitude.
+        bool s_SeenSufficientDataToTestAmplitude = false;
         //! The truth value for the hypothesis.
         CFuzzyTruthValue s_Truth = CFuzzyTruthValue::FALSE;
         //! The segmentation into constant linear scales.
@@ -479,7 +477,6 @@ private:
 
 private:
     CSeasonalHypotheses select(TFloatMeanAccumulatorVecHypothesisStatsVecPrVec& hypotheses) const;
-    void truth(SHypothesisStats& hypothesis) const;
     TFloatMeanAccumulatorVecHypothesisStatsVecPr
     testDecomposition(TFloatMeanAccumulatorVec& valueToTest,
                       std::size_t numberTrendSegments,
@@ -522,12 +519,10 @@ private:
     std::size_t observedRange() const;
 
 private:
-    double m_MinimumRepeatsPerSegmentForVariance = MINIMUM_REPEATS_PER_SEGMENT_FOR_VARIANCE;
-    double m_MinimumRepeatsPerSegmentForAmplitude = MINIMUM_REPEATS_PER_SEGMENT_FOR_AMPLITUDE;
+    double m_MinimumRepeatsPerSegmentToTestVariance[2];
+    double m_MinimumRepeatsPerSegmentToTestAmplitude[2];
     double m_MinimumAutocorrelation = MINIMUM_AUTOCORRELATION;
-    double m_MaximumExplainedVariance = MAXIMUM_EXPLAINED_VARIANCE;
-    double m_MaximumExplainedVariancePValue = MAXIMUM_EXPLAINED_VARIANCE_PVALUE;
-    double m_MaximumAmplitudePValue = MAXIMUM_AMPLITUDE_PVALUE;
+    double m_SignificantPValue = SIGNIFICANT_PVALUE;
     TOptionalSize m_StartOfWeek;
     core_t::TTime m_StartTime = 0;
     core_t::TTime m_BucketLength = 0;

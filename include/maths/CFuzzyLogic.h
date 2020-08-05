@@ -22,16 +22,22 @@ namespace maths {
 //! For more information see https://en.wikipedia.org/wiki/Fuzzy_logic#Fuzzy_logic_operators.
 class MATHS_EXPORT CFuzzyTruthValue {
 public:
+    //! A value which satisfies (value || expression).boolean() == true.
     static const CFuzzyTruthValue TRUE;
+    //! A value which satisfies (value && expression).boolean() == false.
     static const CFuzzyTruthValue FALSE;
+    //! A value which satisfies value || expression == expression.
+    static const CFuzzyTruthValue OR_UNDETERMINED;
+    //! A value which satisfies value && expression == expression.
+    static const CFuzzyTruthValue AND_UNDETERMINED;
 
 public:
-    CFuzzyTruthValue(double value = 0.0, double isTrueThreshold = 0.5)
+    CFuzzyTruthValue(double value = 0.5, double isTrueThreshold = 0.5)
         : m_Value{value}, m_IsTrueThreshold{isTrueThreshold} {}
 
     //! Check if this is less true than \p rhs.
-    bool operator<(const CFuzzyTruthValue& rhs) const {
-        return rhs.m_IsTrueThreshold * m_Value < m_IsTrueThreshold * rhs.m_Value;
+    bool operator<=(const CFuzzyTruthValue& rhs) const {
+        return rhs.m_IsTrueThreshold * m_Value <= m_IsTrueThreshold * rhs.m_Value;
     }
 
     //! Get the decision.
