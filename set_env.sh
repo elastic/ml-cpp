@@ -88,7 +88,7 @@ fi
 case $SIMPLE_PLATFORM in
 
     linux)
-        PATH=/usr/local/gcc75/bin:/usr/bin:/bin:/usr/local/gcc75/sbin:/usr/sbin:/sbin
+        PATH=/usr/local/gcc75/bin:/usr/bin:/bin:/usr/local/gcc75/sbin:/usr/sbin:/sbin:/usr/local/bin
         ;;
 
     linux-musl)
