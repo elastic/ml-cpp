@@ -301,7 +301,7 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
                                TOptionalSize startOfWeekOverride) {
 
     std::size_t n{values.size()};
-    if (CSignal::countNotMissing(values) < 15) {
+    if (CSignal::countNotMissing(values) < 10) {
         return {};
     }
 
@@ -332,6 +332,13 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
     std::size_t day, week, year;
     std::tie(day, week, year) = diurnal;
 
+    std::size_t missingAtEnd(std::find_if(values.rbegin(), values.rend(),
+                                          [](const auto& value) {
+                                              return CBasicStatistics::count(value) > 0.0;
+                                          }) -
+                             values.rbegin());
+    n -= missingAtEnd;
+
     std::size_t pad{n / 4};
     TSizeVec periods;
     periods.reserve(pad + 2);
@@ -344,9 +351,10 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
     }
 
     TDoubleVec correlations;
-    TFloatMeanAccumulatorVec valuesToTest{values};
+    TFloatMeanAccumulatorVec valuesToTest{values.begin(), values.begin() + n};
     TSeasonalComponentVec decomposition;
     TMeanAccumulatorVec1Vec components;
+    TSizeVec selected;
     std::size_t withoutComponent{0};
     double varianceWithComponent{0.0};
     double varianceWithoutComponent{0.0};
@@ -355,6 +363,7 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
     double points{static_cast<double>(countNotMissing(valuesToTest))};
     double pValueThreshold{0.05};
     double pValue{0.005};
+    double eps{static_cast<double>(std::numeric_limits<float>::epsilon())};
 
     result.push_back(seasonalComponentSummary(1));
     fitSeasonalComponentsRobust(result, outlierFraction, valuesToTest, components);
@@ -412,16 +421,23 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
         }
         LOG_TRACE(<< "selected period = " << selectedPeriod);
 
-        valuesToTest = values;
+        withoutComponent = result.size();
+
+        if (std::find(selected.begin(), selected.end(), selectedPeriod) !=
+                selected.end() ||
+            varianceWithComponent < eps * varianceWithoutComponent) {
+            break;
+        }
+        selected.push_back(selectedPeriod);
+
+        valuesToTest.assign(values.begin(), values.begin() + n);
 
         decomposition.clear();
         if (selectedPeriod == day || selectedPeriod == week) {
             decomposition = tradingDayDecomposition(valuesToTest, outlierFraction,
                                                     week, startOfWeekOverride);
-            valuesToTest = values;
+            valuesToTest.assign(values.begin(), values.begin() + n);
         }
-
-        withoutComponent = result.size();
 
         if (decomposition.empty()) {
             appendSeasonalComponentSummary(selectedPeriod, result);
@@ -453,7 +469,7 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
         pValue = CTools::oneMinusPowOneMinusX(
             CStatisticalTests::rightTailFTest(F, scale * points - 1.0, scale * points - params),
             static_cast<double>(pad - 4));
-        LOG_DEBUG(<< "variance without component = " << varianceWithoutComponent
+        LOG_TRACE(<< "variance without component = " << varianceWithoutComponent
                   << ", variance with component = " << varianceWithComponent
                   << ", correlation = " << correlations[selectedPeriod - 1]
                   << ", number points = " << scale * points << ", scale = " << scale

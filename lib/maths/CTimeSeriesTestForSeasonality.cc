@@ -146,10 +146,10 @@ CSeasonalHypotheses CTimeSeriesTestForSeasonality::decompose() {
 
     using TRemoveTrend = std::function<bool(TFloatMeanAccumulatorVec&)>;
 
-    LOG_DEBUG(<< "decompose into seasonal components");
+    LOG_TRACE(<< "decompose into seasonal components");
 
     TSizeVec trendSegments{TSegmentation::piecewiseLinear(m_Values)};
-    LOG_DEBUG(<< "trend segments = " << core::CContainerPrinter::print(trendSegments));
+    LOG_TRACE(<< "trend segments = " << core::CContainerPrinter::print(trendSegments));
 
     std::size_t numberTrendSegments{1};
 
@@ -267,7 +267,7 @@ CTimeSeriesTestForSeasonality::testDecomposition(TFloatMeanAccumulatorVec& value
     using TComputeScaling =
         std::function<bool(TFloatMeanAccumulatorVec&, SHypothesisStats&)>;
 
-    LOG_DEBUG(<< "testing " << core::CContainerPrinter::print(periods));
+    LOG_TRACE(<< "testing " << core::CContainerPrinter::print(periods));
 
     TComputeScaling scalings[]{
         [&](TFloatMeanAccumulatorVec& values, SHypothesisStats& stats) {
