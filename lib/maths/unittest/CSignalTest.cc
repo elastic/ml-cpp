@@ -1030,7 +1030,7 @@ BOOST_AUTO_TEST_CASE(testSingleComponentSeasonalDecomposition) {
         }
 
         auto decomposition = maths::CSignal::seasonalDecomposition(
-            values, 0.1, 168, [](std::size_t) { return 1.0; });
+            values, 0.1, {24, 7 * 24, 365 * 24}, [](std::size_t) { return 1.0; });
 
         // We can detect additional components but must detect the real
         // component first.
@@ -1094,7 +1094,7 @@ BOOST_AUTO_TEST_CASE(testMultipleComponentsSeasonalDecomposition) {
         }
 
         auto detectedPeriods = maths::CSignal::seasonalDecomposition(
-            values, 0.1, 168, [](std::size_t) { return 1.0; });
+            values, 0.1, {24, 7 * 24, 365 * 24}, [](std::size_t) { return 1.0; });
 
         // We can detect additional components but must detect the two real
         // components first.
@@ -1160,7 +1160,7 @@ BOOST_AUTO_TEST_CASE(testMultipleDiurnalDecomposition) {
         }
 
         auto decomposition = maths::CSignal::seasonalDecomposition(
-            values, 0.0, 168, [](std::size_t period) {
+            values, 0.0, {24, 7 * 24, 365 * 24}, [](std::size_t period) {
                 return period == 24 || period == 168 ? 1.1 : 1.0;
             });
 

@@ -296,7 +296,7 @@ void CSignal::appendSeasonalComponentSummary(std::size_t period,
 CSignal::TSeasonalComponentVec
 CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
                                double outlierFraction,
-                               std::size_t week,
+                               const TSizeSizeSizeTr& diurnal,
                                const TIndexWeightFunc& weight,
                                TOptionalSize startOfWeekOverride) {
 
@@ -329,10 +329,21 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
 
     TSeasonalComponentVec result;
 
-    std::size_t day{week / 7};
+    std::size_t day, week, year;
+    std::tie(day, week, year) = diurnal;
+
     std::size_t pad{n / 4};
+    TSizeVec periods;
+    periods.reserve(pad + 2);
+    periods.resize(pad - 1);
+    std::iota(periods.begin(), periods.end(), 2);
+    for (auto period : {day, week, year}) {
+        if (periods.back() < period && n >= 2 * period) {
+            periods.push_back(period);
+        }
+    }
+
     TDoubleVec correlations;
-    TSizeVec indices(pad - 4);
     TFloatMeanAccumulatorVec valuesToTest{values};
     TSeasonalComponentVec decomposition;
     TMeanAccumulatorVec1Vec components;
@@ -362,31 +373,24 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
         // Average the serial correlations of each component over offets P, 2P,
         // ..., mP for mP < n. Note that we need to correct the correlation for
         // longer offsets for the zero pad we append.
-        for (std::size_t period = 4; period < pad; ++period) {
+        for (std::size_t i = 0; i < periods.size(); ++i) {
+            std::size_t period{periods[i]};
             TMeanAccumulator meanCorrelation;
             for (std::size_t offset = period; offset < 3 * pad; offset += period) {
                 meanCorrelation.add(correlations[offset - 1] * static_cast<double>(n) /
                                     static_cast<double>(n - offset));
             }
-            std::size_t i{period - 1};
-            correlations[i] = weight(period) * CBasicStatistics::mean(meanCorrelation);
-            LOG_TRACE(<< "correlation(" << period << ") = " << correlations[i]);
+            correlations[period - 1] = weight(period) * CBasicStatistics::mean(meanCorrelation);
+            LOG_TRACE(<< "correlation(" << period << ") = " << correlations[period - 1]);
         }
 
-        auto correlationGreater = [&](std::size_t lhs, std::size_t rhs) {
-            return correlations[lhs] > correlations[rhs];
+        auto correlationLess = [&](std::size_t lhs, std::size_t rhs) {
+            return correlations[lhs - 1] < correlations[rhs - 1];
         };
 
-        indices.resize(pad - 4);
-        std::iota(indices.begin(), indices.end(), 3);
-        std::size_t m{std::min(std::size_t{15}, indices.size())};
-        std::nth_element(indices.begin(), indices.begin() + m, indices.end(), correlationGreater);
-        indices.resize(m);
-        LOG_TRACE(<< "candidates = " << core::CContainerPrinter::print(indices));
-
-        std::size_t maxCorrelationIndex{
-            *std::min_element(indices.begin(), indices.end(), correlationGreater)};
-        std::size_t maxCorrelationPeriod{maxCorrelationIndex + 1};
+        std::size_t maxCorrelationPeriod{
+            *std::max_element(periods.begin(), periods.end(), correlationLess)};
+        std::size_t maxCorrelationIndex{maxCorrelationPeriod - 1};
         LOG_TRACE(<< "max correlation(" << maxCorrelationPeriod
                   << ") = " << correlations[maxCorrelationIndex]);
 
@@ -397,11 +401,13 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
         // period whose autocorrelation is within epsilon we'll select that one.
         double cutoff{0.8 * correlations[maxCorrelationIndex]};
         LOG_TRACE(<< "cutoff = " << cutoff);
-        for (auto i : indices) {
-            std::size_t period{i + 1};
-            if (period < selectedPeriod && maxCorrelationPeriod % period == 0 &&
-                correlations[i] > cutoff) {
-                selectedPeriod = period;
+        for (auto period : periods) {
+            if (period <= selectedPeriod / 2) {
+                if (maxCorrelationPeriod % period == 0 && correlations[period - 1] > cutoff) {
+                    selectedPeriod = period;
+                }
+            } else {
+                break;
             }
         }
         LOG_TRACE(<< "selected period = " << selectedPeriod);
@@ -440,16 +446,16 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
         momentsWithoutComponent = momentsWithComponent;
 
         pValueThreshold = std::pow(
-            0.05, std::max((0.2 - correlations[selectedPeriod]) / 0.02, 1.0));
+            0.05, std::max((0.2 - correlations[selectedPeriod - 1]) / 0.02, 1.0));
         double F{varianceWithoutComponent == varianceWithComponent
                      ? 1.0
                      : varianceWithoutComponent / varianceWithComponent};
         pValue = CTools::oneMinusPowOneMinusX(
             CStatisticalTests::rightTailFTest(F, scale * points - 1.0, scale * points - params),
             static_cast<double>(pad - 4));
-        LOG_TRACE(<< "variance without component = " << varianceWithoutComponent
+        LOG_DEBUG(<< "variance without component = " << varianceWithoutComponent
                   << ", variance with component = " << varianceWithComponent
-                  << ", correlation = " << correlations[selectedPeriod]
+                  << ", correlation = " << correlations[selectedPeriod - 1]
                   << ", number points = " << scale * points << ", scale = " << scale
                   << ", number parameters = " << params << " p-value = " << pValue
                   << ", threshold to accept = " << pValueThreshold);

@@ -22,6 +22,7 @@
 #include <complex>
 #include <numeric>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace ml {
@@ -31,6 +32,7 @@ namespace maths {
 class MATHS_EXPORT CSignal {
 public:
     using TDoubleDoublePr = std::pair<double, double>;
+    using TSizeSizeSizeTr = std::tuple<std::size_t, std::size_t, std::size_t>;
     using TDoubleVec = std::vector<double>;
     using TComplex = std::complex<double>;
     using TComplexVec = std::vector<TComplex>;
@@ -209,7 +211,8 @@ public:
     //! \param[in,out] values The time series to decompose. Outliers are reweighted
     //! if \p outlierFraction is greater than zero.
     //! \param[in] outlierFraction The fraction of values treated as outliers.
-    //! \param[in] week One week as a multiple of interval between \p values.
+    //! \param[in] diurnal (day, week, year) as multiples of the time interval
+    //! between \p values.
     //! \param[in] weight Controls the chance of selecting a specified period: the
     //! higher the weight the more likely it will be select in preference to one
     //! which is close.
@@ -218,7 +221,7 @@ public:
     static TSeasonalComponentVec
     seasonalDecomposition(TFloatMeanAccumulatorVec& values,
                           double outlierFraction,
-                          std::size_t week,
+                          const TSizeSizeSizeTr& diurnal,
                           const TIndexWeightFunc& weight,
                           TOptionalSize startOfWeekOverride = TOptionalSize{});
 

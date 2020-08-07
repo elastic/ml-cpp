@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <boost/test/tools/interface.hpp>
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/Constants.h>
@@ -122,15 +123,16 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
     // Test accuracy for a variety of synthetic time series with daily and
     // weekly seasonalities.
 
-    TTimeVec windows{4 * DAY, WEEK, 2 * WEEK, 5 * WEEK};
-    TSizeVec permittedGenerators{2, 2, 4, 5};
-    TGeneratorVec generators{smoothDaily, spikeyDaily, smoothWeekly, weekends, spikeyDailyWeekly};
+    TTimeVec windows{4 * DAY, WEEK, 2 * WEEK, 4 * WEEK};
+    TSizeVec permittedGenerators{2, 2, 3, 5};
+    TGeneratorVec generators{smoothDaily, spikeyDaily, smoothWeekly,
+                             spikeyDailyWeekly, weekends};
     TStrVecVec expected{{"86400"},
                         {"86400"},
                         {"604800"},
+                        {"86400", "604800"},
                         {"86400/(0,172800)", "86400/(172800,604800)",
-                         "604800/(0,172800)", "604800/(172800,604800)"},
-                        {"86400", "604800"}};
+                         "604800/(0,172800)", "604800/(172800,604800)"}};
     core_t::TTime startTime{10000};
 
     test::CRandomNumbers rng;
@@ -154,13 +156,13 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
             for (auto bucketLength : {HALF_HOUR, HOUR}) {
                 switch (test % 3) {
                 case 0:
-                    rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
+                    rng.generateNormalSamples(0.0, 1.0, window / HALF_HOUR, noise);
                     break;
                 case 1:
-                    rng.generateGammaSamples(1.0, 1.0, window / bucketLength, noise);
+                    rng.generateGammaSamples(1.0, 1.0, window / HALF_HOUR, noise);
                     break;
                 case 2:
-                    rng.generateLogNormalSamples(0.2, 0.3, window / bucketLength, noise);
+                    rng.generateLogNormalSamples(0.2, 0.3, window / HALF_HOUR, noise);
                     break;
                 }
                 rng.generateUniformSamples(0, permittedGenerators[i], 1, index);
@@ -168,10 +170,10 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
                 const auto& generator = generators[index[0]];
 
                 values.assign(window / bucketLength, TFloatMeanAccumulator{});
-                for (core_t::TTime time = startTime; time < startTime + window;
-                     time += FIVE_MINS) {
-                    std::size_t bucket((time - startTime) / bucketLength);
-                    values[bucket].add(20.0 * generator(time) + noise[bucket]);
+                for (core_t::TTime time = 0; time < window; time += HALF_HOUR) {
+                    std::size_t bucket(time / bucketLength);
+                    values[bucket].add(20.0 * generator(startTime + time) +
+                                       noise[time / HALF_HOUR]);
                 }
 
                 maths::CTimeSeriesTestForSeasonality seasonality{startTime, bucketLength, values};
@@ -198,7 +200,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
 
     LOG_DEBUG(<< "recall = " << TP / (TP + FN));
     LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
-    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.92);
+    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.99);
     BOOST_TEST_REQUIRE(TP / (TP + FP) > 0.99);
 }
 
@@ -410,13 +412,13 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
 
                 switch (test % 3) {
                 case 0:
-                    rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
+                    rng.generateNormalSamples(0.0, 1.0, window / FIVE_MINS, noise);
                     break;
                 case 1:
-                    rng.generateGammaSamples(1.0, 1.0, window / bucketLength, noise);
+                    rng.generateGammaSamples(1.0, 1.0, window / FIVE_MINS, noise);
                     break;
                 case 2:
-                    rng.generateLogNormalSamples(0.2, 0.3, window / bucketLength, noise);
+                    rng.generateLogNormalSamples(0.2, 0.3, window / FIVE_MINS, noise);
                     break;
                 }
                 rng.generateUniformSamples(0, 2, 1, index);
@@ -424,11 +426,10 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
                 auto generator = generators[index[0]];
 
                 values.assign(window / bucketLength, TFloatMeanAccumulator{});
-                for (core_t::TTime time = startTime; time < startTime + window;
-                     time += HALF_HOUR) {
-                    std::size_t bucket((time - startTime) / bucketLength);
-                    values[bucket].add(20.0 * scale(periodScale, time, generator) +
-                                       noise[bucket]);
+                for (core_t::TTime time = 0; time < window; time += FIVE_MINS) {
+                    std::size_t bucket(time / bucketLength);
+                    values[bucket].add(20.0 * scale(periodScale, startTime + time, generator) +
+                                       noise[time / FIVE_MINS]);
                 }
 
                 maths::CTimeSeriesTestForSeasonality seasonality{startTime, bucketLength, values};
@@ -471,7 +472,12 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
     LOG_DEBUG(<< "accuracy @ 0% error = " << TP[0] / (TP[0] + FP));
     LOG_DEBUG(<< "accuracy @ 1% error = " << TP[1] / (TP[1] + FP));
     LOG_DEBUG(<< "accuracy @ 5% error = " << TP[2] / (TP[2] + FP));
-    //BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.99);
+    BOOST_TEST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.93);
+    BOOST_TEST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.97);
+    BOOST_TEST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.98);
+    BOOST_TEST_REQUIRE(TP[0] / (TP[0] + FP) > 0.9);
+    BOOST_TEST_REQUIRE(TP[1] / (TP[1] + FP) > 0.9);
+    BOOST_TEST_REQUIRE(TP[2] / (TP[2] + FP) > 0.9);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticSparseDaily) {
@@ -480,19 +486,18 @@ BOOST_AUTO_TEST_CASE(testSyntheticSparseDaily) {
     // missing values.
 
     TStrVec type{"Daily", "No seasonality"};
-    core_t::TTime bucketLength{HALF_HOUR};
 
     test::CRandomNumbers rng;
 
     TFloatMeanAccumulatorVec values;
     TDoubleVec noise;
 
-    for (std::size_t i = 0; i < 2; ++i) {
-        LOG_DEBUG(<< type[i]);
+    for (std::size_t test = 0; test < 2; ++test) {
+
+        LOG_DEBUG(<< type[test]);
 
         values.assign(7 * 48, TFloatMeanAccumulator{});
-
-        for (std::size_t day = 0, j = 0; day < 7; ++day, ++j) {
+        for (std::size_t day = 0, i = 0, j = 0; day < 7; ++day, ++j) {
             for (auto value :
                  {0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0,
                   0.0, 0.0, 20.0, 18.0, 10.0, 4.0,  4.0, 4.0, 4.0, 5.0,
@@ -501,12 +506,12 @@ BOOST_AUTO_TEST_CASE(testSyntheticSparseDaily) {
                   0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  3.0, 1.0}) {
                 if (value > 0.0) {
                     rng.generateUniformSamples(-1.0, 1.0, 1, noise);
-                    values[j].add(i == 0 ? value : noise[0]);
+                    values[i++].add(test == 0 ? value : noise[0]);
                 }
             }
 
             if (day > 3) {
-                maths::CTimeSeriesTestForSeasonality seasonality{0, bucketLength, values};
+                maths::CTimeSeriesTestForSeasonality seasonality{0, HALF_HOUR, values};
                 auto result = seasonality.decompose();
                 LOG_DEBUG(<< "result = " << result.print());
                 // TODO
@@ -668,7 +673,15 @@ BOOST_AUTO_TEST_CASE(testSyntheticMixtureOfSeasonalities) {
     // Test the accuracy with which we decompose a synthetic time series into
     // its multiple constitute components.
 
-    TGeneratorVec generators{smoothDaily, spikeyDaily};
+    TGeneratorVec generators[]{
+        {spikeyDaily,
+         [](core_t::TTime time) { return scale(0.25, time, spikeyDaily); }},
+        {smoothDaily,
+         [](core_t::TTime time) { return scale(3.0, time, spikeyDaily); }},
+        {smoothDaily,
+         [](core_t::TTime time) { return scale(0.5, time, smoothDaily); }}};
+    TTimeVec periods[]{{86400, 4 * 86400}, {86400, 86400 / 3}, {86400, 2 * 86400}};
+
     core_t::TTime startTime{10000};
 
     test::CRandomNumbers rng;
@@ -684,13 +697,13 @@ BOOST_AUTO_TEST_CASE(testSyntheticMixtureOfSeasonalities) {
         if (test % 10 == 0) {
             LOG_DEBUG(<< "test " << test << " / 100");
         }
-        for (auto window : {WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK}) {
+        for (auto window : {16 * DAY, 4 * WEEK}) {
 
             TDoubleVec periodScales;
             rng.generateUniformSamples(1.0, 5.0, 2, periodScales);
             periodScales[0] = 1.0 / periodScales[0];
 
-            for (auto bucketLength : {TEN_MINS, HALF_HOUR}) {
+            for (auto bucketLength : {HALF_HOUR, HOUR}) {
 
                 for (auto periodScale : periodScales) {
                     core_t::TTime period{maths::CIntegerTools::floor(
@@ -698,57 +711,34 @@ BOOST_AUTO_TEST_CASE(testSyntheticMixtureOfSeasonalities) {
                         bucketLength)};
                     periodScale = static_cast<double>(DAY) / static_cast<double>(period);
                 }
-                if (static_cast<double>(window) < 3.0 * periodScales[1]) {
-                    continue;
-                }
 
                 switch (test % 3) {
                 case 0:
-                    rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
+                    rng.generateNormalSamples(0.0, 1.0, window / FIVE_MINS, noise);
                     break;
                 case 1:
-                    rng.generateGammaSamples(1.0, 1.0, window / bucketLength, noise);
+                    rng.generateGammaSamples(1.0, 1.0, window / FIVE_MINS, noise);
                     break;
                 case 2:
-                    rng.generateLogNormalSamples(0.2, 0.3, window / bucketLength, noise);
+                    rng.generateLogNormalSamples(0.2, 0.3, window / FIVE_MINS, noise);
                     break;
                 }
 
                 TFloatMeanAccumulatorVec values(window / bucketLength);
-                for (core_t::TTime time = startTime; time < startTime + window;
-                     time += bucketLength) {
-                    std::size_t bucket((time - startTime) / bucketLength);
+                for (core_t::TTime time = 0; time < window; time += FIVE_MINS) {
+                    std::size_t bucket(time / bucketLength);
                     double value{0.0};
                     for (std::size_t i = 0; i < 2; ++i) {
-                        value += 10.0 * static_cast<double>(i + 1) *
-                                 scale(periodScales[i], time, generators[i]);
+                        value += 10.0 * static_cast<double>(2 - i) *
+                                 generators[test % 3][i](startTime + time);
                     }
-                    values[bucket].add(value + noise[bucket]);
+                    values[bucket].add(value + noise[time / FIVE_MINS]);
                 }
 
                 maths::CTimeSeriesTestForSeasonality seasonality{
                     startTime, bucketLength, std::move(values)};
                 auto result = seasonality.decompose();
                 LOG_DEBUG(<< "result = " << result.print());
-
-                // TODO
-                /*
-                TP[0] += result.print() == expected.print() ? 1.0 : 0.0;
-                FN[0] += result.print() == expected.print() ? 0.0 : 1.0;
-                if (result.components().size() == 1) {
-                    core_t::TTime modp{result.components()[0].s_Period % period};
-                    double error{static_cast<double>(std::min(modp, std::abs(period - modp))) /
-                                 static_cast<double>(period)};
-                    TP[1] += error < 0.01 ? 1.0 : 0.0;
-                    FN[1] += error < 0.01 ? 0.0 : 1.0;
-                    TP[2] += error < 0.05 ? 1.0 : 0.0;
-                    FN[2] += error < 0.05 ? 0.0 : 1.0;
-                } else {
-                    FN[0] += 1.0;
-                    FN[1] += 1.0;
-                    FN[2] += 1.0;
-                }
-                */
             }
         }
     }
