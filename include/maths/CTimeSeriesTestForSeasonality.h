@@ -284,14 +284,6 @@ public:
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
 public:
-    static constexpr double MINIMUM_REPEATS_PER_SEGMENT_TO_TEST_VARIANCE = 3.0;
-    static constexpr double MINIMUM_REPEATS_PER_SEGMENT_TO_TEST_VARIANCE_DIURNAL = 2.0;
-    static constexpr double MINIMUM_REPEATS_PER_SEGMENT_TO_TEST_AMPLITUDE = 5.0;
-    static constexpr double MINIMUM_REPEATS_PER_SEGMENT_TO_TEST_AMPLITUDE_DIURNAL = 5.0;
-    static constexpr double MINIMUM_AUTOCORRELATION = 0.5;
-    static constexpr double MAXIMUM_UNEXPLAINED_VARIANCE = 0.8;
-    static constexpr double SIGNIFICANT_PVALUE = 1e-3;
-    static constexpr double VERY_SIGNIFICANT_PVALUE = 1e-8;
     static constexpr double OUTLIER_FRACTION = 0.1;
 
 public:
@@ -307,12 +299,24 @@ public:
             m_BucketLength);
         return *this;
     }
-    CTimeSeriesTestForSeasonality& minimumAutocorrelation(double value) {
-        m_MinimumAutocorrelation = value;
+    CTimeSeriesTestForSeasonality& lowAutocorrelation(double value) {
+        m_LowAutocorrelation = value;
+        return *this;
+    }
+    CTimeSeriesTestForSeasonality& mediumAutocorrelation(double value) {
+        m_MediumAutocorrelation = value;
+        return *this;
+    }
+    CTimeSeriesTestForSeasonality& highAutocorrelation(double value) {
+        m_HighAutocorrelation = value;
         return *this;
     }
     CTimeSeriesTestForSeasonality& significantPValue(double value) {
         m_SignificantPValue = value;
+        return *this;
+    }
+    CTimeSeriesTestForSeasonality& verySignificantPValue(double value) {
+        m_VerySignificantPValue = value;
         return *this;
     }
 
@@ -451,7 +455,7 @@ private:
         //! The autocorrelation estimate of the hypothesis.
         double s_Autocorrelation = 0.0;
         //! The autocorrelation estimate of absolute values for the hypothesis.
-        double s_AbsAutocorrelation = 0.0;
+        double s_AutocorrelationUpperBound = 0.0;
         //! The residual variance after removing this component.
         double s_ResidualVariance = 0.0;
         //! The explained variance significance.
@@ -519,10 +523,13 @@ private:
     std::size_t observedRange() const;
 
 private:
-    double m_MinimumRepeatsPerSegmentToTestVariance[2];
-    double m_MinimumRepeatsPerSegmentToTestAmplitude[2];
-    double m_MinimumAutocorrelation = MINIMUM_AUTOCORRELATION;
-    double m_SignificantPValue = SIGNIFICANT_PVALUE;
+    double m_MinimumRepeatsPerSegmentToTestVariance = 3.0;
+    double m_MinimumRepeatsPerSegmentToTestAmplitude = 5.0;
+    double m_LowAutocorrelation = 0.3;
+    double m_MediumAutocorrelation = 0.5;
+    double m_HighAutocorrelation = 0.7;
+    double m_SignificantPValue = 1e-3;
+    double m_VerySignificantPValue = 1e-10;
     TOptionalSize m_StartOfWeek;
     core_t::TTime m_StartTime = 0;
     core_t::TTime m_BucketLength = 0;

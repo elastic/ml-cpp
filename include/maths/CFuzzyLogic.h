@@ -36,6 +36,11 @@ public:
         : m_Value{value}, m_IsTrueThreshold{isTrueThreshold} {}
 
     //! Check if this is less true than \p rhs.
+    bool operator<(const CFuzzyTruthValue& rhs) const {
+        return rhs.m_IsTrueThreshold * m_Value < m_IsTrueThreshold * rhs.m_Value;
+    }
+
+    //! Check if this is less true than or equal to \p rhs.
     bool operator<=(const CFuzzyTruthValue& rhs) const {
         return rhs.m_IsTrueThreshold * m_Value <= m_IsTrueThreshold * rhs.m_Value;
     }

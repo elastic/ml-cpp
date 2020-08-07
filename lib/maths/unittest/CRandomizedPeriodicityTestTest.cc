@@ -63,16 +63,16 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         maths::CRandomizedPeriodicityTest::reset();
 
         maths::CRandomizedPeriodicityTest rtests[8];
-        double falsePositives[3] = {0.0, 0.0, 0.0};
-        double trueNegatives[3] = {0.0, 0.0, 0.0};
-        double truePositives[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
-        double falseNegatives[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+        double falsePositives[3]{0.0, 0.0, 0.0};
+        double trueNegatives[3]{0.0, 0.0, 0.0};
+        double truePositives[5]{0.0, 0.0, 0.0, 0.0, 0.0};
+        double falseNegatives[5]{0.0, 0.0, 0.0, 0.0, 0.0};
         TMeanVarAccumulator timeToDetectionMoments[5];
         TMaxAccumulator timeToDetectionMax[5];
-        core_t::TTime lastTruePositive[5] = {time, time, time, time, time};
-        TFunction functions[] = {&constant,     &ramp,         &markov,
-                                 &smoothDaily,  &smoothWeekly, &spikeyDaily,
-                                 &spikeyWeekly, &weekends};
+        core_t::TTime lastTruePositive[5]{time, time, time, time, time};
+        TFunction functions[]{constant,          ramp,         markov,
+                              smoothDaily,       smoothWeekly, spikeyDaily,
+                              spikeyDailyWeekly, weekends};
 
         for (std::size_t i = 0u; i < samples.size(); ++i) {
             for (std::size_t j = 0u; j < boost::size(functions); ++j) {

@@ -311,7 +311,7 @@ double spikeyDaily(core_t::TTime time) {
     return pattern[(time % DAY) / HALF_HOUR];
 }
 
-double spikeyWeekly(core_t::TTime time) {
+double spikeyDailyWeekly(core_t::TTime time) {
     double pattern[]{
         1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
         0.1, 0.1, 0.1, 0.1, 1.0, 0.1, 0.1, 0.1, 0.1, 0.2, 0.1, 0.1, 0.1, 0.1,

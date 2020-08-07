@@ -44,8 +44,9 @@ public:
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TMeanAccumulatorVec1Vec = core::CSmallVector<TMeanAccumulatorVec, 1>;
-    using TTransformFunc = std::function<double(const TFloatMeanAccumulator&)>;
-    using TWeightFunc = std::function<double(std::size_t)>;
+    using TMomentTransformFunc = std::function<double(const TFloatMeanAccumulator&)>;
+    using TMomentWeightFunc = std::function<double(const TFloatMeanAccumulator&)>;
+    using TIndexWeightFunc = std::function<double(std::size_t)>;
     using TPredictor = std::function<double(std::size_t)>;
 
     //! \brief A description of a seasonal component.
@@ -151,10 +152,12 @@ public:
     //!
     //! \param[in] offset The offset as a distance in \p values.
     //! \param[in] values The values for which to compute the autocorrelation.
-    //! \param[in] func Used to transform \p values before computing the autocorrelation.
+    //! \param[in] transform Transforms \p values before computing the autocorrelation.
+    //! \param[in] weight Weights \p values for computing the autocorrelation.
     static double cyclicAutocorrelation(std::size_t offset,
                                         const TFloatMeanAccumulatorVec& values,
-                                        const TTransformFunc& func = identity);
+                                        const TMomentTransformFunc& transform = mean,
+                                        const TMomentWeightFunc& weight = count);
 
     //! Compute the discrete cyclic autocorrelation of \p values for the offset
     //! \p offset.
@@ -162,7 +165,8 @@ public:
     //! \note Implementation for vector ranges.
     static double cyclicAutocorrelation(std::size_t offset,
                                         const TFloatMeanAccumulatorCRng& values,
-                                        const TTransformFunc& func = identity);
+                                        const TMomentTransformFunc& transform = mean,
+                                        const TMomentWeightFunc& weight = count);
 
     //! Get linear autocorrelations for all offsets up to the length of \p values.
     //!
@@ -215,7 +219,7 @@ public:
     seasonalDecomposition(TFloatMeanAccumulatorVec& values,
                           double outlierFraction,
                           std::size_t week,
-                          const TWeightFunc& weight,
+                          const TIndexWeightFunc& weight,
                           TOptionalSize startOfWeekOverride = TOptionalSize{});
 
     //! Decompose the time series \p values into a weekday and weekend.
@@ -259,6 +263,17 @@ public:
                                             double outlierFraction,
                                             TFloatMeanAccumulatorVec& values,
                                             TMeanAccumulatorVec1Vec& components);
+
+    //! Reweight outliers in \p values w.r.t. \p components.
+    //!
+    //! \param[in] periods The seasonal components in \p values.
+    //! \param[in] components The seasonal component models in \p values.
+    //! \param[in] fraction The fraction of values treated as outliers.
+    //! \param[in,out] values The values to reweight.
+    static void reweightOutliers(const TSeasonalComponentVec& periods,
+                                 const TMeanAccumulatorVec1Vec& components,
+                                 double fraction,
+                                 TFloatMeanAccumulatorVec& values);
 
     //! Reweight outliers in \p values w.r.t. \p predictor.
     //!
@@ -367,8 +382,11 @@ private:
                                                      const PREDICTOR& predictor,
                                                      const VALUES& values,
                                                      COMPONENT& component);
-    static double identity(const TFloatMeanAccumulator& value) {
+    static double mean(const TFloatMeanAccumulator& value) {
         return CBasicStatistics::mean(value);
+    }
+    static double count(const TFloatMeanAccumulator& value) {
+        return CBasicStatistics::count(value);
     }
 };
 }

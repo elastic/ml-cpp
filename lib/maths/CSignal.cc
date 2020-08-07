@@ -148,20 +148,22 @@ void CSignal::ifft(TComplexVec& f) {
 
 double CSignal::cyclicAutocorrelation(std::size_t offset,
                                       const TFloatMeanAccumulatorVec& values,
-                                      const TTransformFunc& func) {
+                                      const TMomentTransformFunc& tranform,
+                                      const TMomentWeightFunc& weight) {
     return cyclicAutocorrelation(
-        offset, TFloatMeanAccumulatorCRng(values, 0, values.size()), func);
+        offset, TFloatMeanAccumulatorCRng(values, 0, values.size()), tranform, weight);
 }
 
 double CSignal::cyclicAutocorrelation(std::size_t offset,
                                       const TFloatMeanAccumulatorCRng& values,
-                                      const TTransformFunc& func) {
+                                      const TMomentTransformFunc& transform,
+                                      const TMomentWeightFunc& weight) {
     std::size_t n{values.size()};
 
     TMeanVarAccumulator moments;
     for (const auto& value : values) {
         if (CBasicStatistics::count(value) > 0.0) {
-            moments.add(func(value), CBasicStatistics::count(value));
+            moments.add(transform(value), weight(value));
         }
     }
 
@@ -170,11 +172,11 @@ double CSignal::cyclicAutocorrelation(std::size_t offset,
     TMeanAccumulator autocorrelation;
     for (std::size_t i = 0; i < values.size(); ++i) {
         std::size_t j{(i + offset) % n};
-        double ni{CBasicStatistics::count(values[i])};
-        double nj{CBasicStatistics::count(values[j])};
-        if (ni > 0.0 && nj > 0.0) {
-            double weight{std::sqrt(ni * nj)};
-            autocorrelation.add((func(values[i]) - mean) * (func(values[j]) - mean), weight);
+        if (CBasicStatistics::count(values[i]) > 0.0 &&
+            CBasicStatistics::count(values[j]) > 0.0) {
+            double avgWeight{std::sqrt(weight(values[i]) * weight(values[j]))};
+            autocorrelation.add(
+                (transform(values[i]) - mean) * (transform(values[j]) - mean), avgWeight);
         }
     }
 
@@ -295,7 +297,7 @@ CSignal::TSeasonalComponentVec
 CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
                                double outlierFraction,
                                std::size_t week,
-                               const TWeightFunc& weight,
+                               const TIndexWeightFunc& weight,
                                TOptionalSize startOfWeekOverride) {
 
     std::size_t n{values.size()};
@@ -303,6 +305,12 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
         return {};
     }
 
+    auto count = [](const TFloatMeanAccumulatorVec& valuesToTest) {
+        return std::accumulate(valuesToTest.begin(), valuesToTest.end(), 0.0,
+                               [](double partialCount, const TFloatMeanAccumulator& value) {
+                                   return partialCount + CBasicStatistics::count(value);
+                               });
+    };
     auto residualMoments = [&](TFloatMeanAccumulatorVec& valuesToTest,
                                const TSeasonalComponentVec& periods,
                                const TMeanAccumulatorVec1Vec& components) {
@@ -322,17 +330,20 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
     TSeasonalComponentVec result;
 
     std::size_t day{week / 7};
-    std::size_t pad{n / 3};
+    std::size_t pad{n / 4};
     TDoubleVec correlations;
     TSizeVec indices(pad - 4);
     TFloatMeanAccumulatorVec valuesToTest{values};
+    TSeasonalComponentVec decomposition;
     TMeanAccumulatorVec1Vec components;
     std::size_t withoutComponent{0};
     double varianceWithComponent{0.0};
     double varianceWithoutComponent{0.0};
     double params{0.0};
+    double scale{1.0};
     double points{static_cast<double>(countNotMissing(valuesToTest))};
-    TSeasonalComponentVec decomposition;
+    double pValueThreshold{0.05};
+    double pValue{0.005};
 
     result.push_back(seasonalComponentSummary(1));
     fitSeasonalComponentsRobust(result, outlierFraction, valuesToTest, components);
@@ -343,18 +354,17 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
     do {
         // Compute the serial autocorrelations padding to the maximum offset
         // to avoid windowing effects.
-        valuesToTest.resize(n + 2 * pad);
+        valuesToTest.resize(n + 3 * pad);
         autocorrelations(valuesToTest, correlations);
         valuesToTest.resize(n);
-        correlations.resize(2 * pad);
+        correlations.resize(3 * pad);
 
         // Average the serial correlations of each component over offets P, 2P,
         // ..., mP for mP < n. Note that we need to correct the correlation for
         // longer offsets for the zero pad we append.
-        std::iota(indices.begin(), indices.end(), 3);
         for (std::size_t period = 4; period < pad; ++period) {
             TMeanAccumulator meanCorrelation;
-            for (std::size_t offset = period; offset < 2 * pad; offset += period) {
+            for (std::size_t offset = period; offset < 3 * pad; offset += period) {
                 meanCorrelation.add(correlations[offset - 1] * static_cast<double>(n) /
                                     static_cast<double>(n - offset));
             }
@@ -367,8 +377,9 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
             return correlations[lhs] > correlations[rhs];
         };
 
+        indices.resize(pad - 4);
+        std::iota(indices.begin(), indices.end(), 3);
         std::size_t m{std::min(std::size_t{15}, indices.size())};
-
         std::nth_element(indices.begin(), indices.begin() + m, indices.end(), correlationGreater);
         indices.resize(m);
         LOG_TRACE(<< "candidates = " << core::CContainerPrinter::print(indices));
@@ -412,7 +423,10 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
             result.insert(result.end(), decomposition.begin(), decomposition.end());
         }
 
-        fitSeasonalComponentsRobust(result, outlierFraction, valuesToTest, components);
+        fitSeasonalComponents(result, valuesToTest, components);
+        scale = 1.0 / count(valuesToTest);
+        reweightOutliers(result, components, outlierFraction, valuesToTest);
+        scale *= count(valuesToTest);
 
         params = 0.0;
         for (std::size_t j = withoutComponent; j < components.size(); ++j) {
@@ -425,26 +439,26 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
         varianceWithoutComponent = CBasicStatistics::variance(momentsWithoutComponent);
         momentsWithoutComponent = momentsWithComponent;
 
+        pValueThreshold = std::pow(
+            0.05, std::max((0.2 - correlations[selectedPeriod]) / 0.02, 1.0));
+        double F{varianceWithoutComponent == varianceWithComponent
+                     ? 1.0
+                     : varianceWithoutComponent / varianceWithComponent};
+        pValue = CTools::oneMinusPowOneMinusX(
+            CStatisticalTests::rightTailFTest(F, scale * points - 1.0, scale * points - params),
+            static_cast<double>(pad - 4));
         LOG_TRACE(<< "variance without component = " << varianceWithoutComponent
                   << ", variance with component = " << varianceWithComponent
-                  << ", number points = " << points << ", number parameters = " << params);
+                  << ", correlation = " << correlations[selectedPeriod]
+                  << ", number points = " << scale * points << ", scale = " << scale
+                  << ", number parameters = " << params << " p-value = " << pValue
+                  << ", threshold to accept = " << pValueThreshold);
 
-    } while (CStatisticalTests::rightTailFTest(varianceWithoutComponent == varianceWithComponent
-                                                   ? 1.0
-                                                   : varianceWithoutComponent / varianceWithComponent,
-                                               points - 1.0, points - params) < 0.05);
+    } while (pValue < pValueThreshold);
 
     result.resize(withoutComponent);
-
     fitSeasonalComponents(result, values, components);
-    auto predictor = [&](std::size_t index) {
-        double value{0.0};
-        for (std::size_t i = 0; i < components.size(); ++i) {
-            value += result[i].value(components[i], index);
-        }
-        return value;
-    };
-    reweightOutliers(predictor, outlierFraction, values);
+    reweightOutliers(result, components, outlierFraction, values);
 
     return result;
 }
@@ -478,27 +492,22 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
 
     std::size_t startOfWeek{startOfWeekOverride != boost::none ? *startOfWeekOverride : 0};
 
-    double dailyVariance{[&] {
-        TMeanAccumulatorVec1Vec daily;
-        doFitSeasonalComponents({seasonalComponentSummary(day)}, valuesToTest, daily);
-        TMeanVarAccumulator residualMoments;
-        for (std::size_t i = 0; i < valuesToTest.size(); ++i) {
-            residualMoments.add(CBasicStatistics::mean(valuesToTest[i]) -
-                                    CBasicStatistics::mean(daily[0][i % day]),
-                                CBasicStatistics::count(valuesToTest[i]));
-        }
-        return CBasicStatistics::variance(residualMoments);
+    double weeklyVariance{[&] {
+        TSeasonalComponentVec weeklyPeriod{seasonalComponentSummary(week)};
+        TMeanAccumulatorVec1Vec weeklyComponent;
+        fitSeasonalComponentsRobust(weeklyPeriod, outlierFraction, values, weeklyComponent);
+        return residualVariance(values, weeklyPeriod, weeklyComponent).second;
     }()};
+    double dailyVariance{[&] {
+        TSeasonalComponentVec dailyPeriod{seasonalComponentSummary(day)};
+        TMeanAccumulatorVec1Vec dailyComponent;
+        doFitSeasonalComponents(dailyPeriod, valuesToTest, dailyComponent);
+        return residualVariance(values, dailyPeriod, dailyComponent).second;
+    }()};
+
     if (dailyVariance == 0.0) {
         return {};
     }
-
-    double weeklyVariance;
-    TSeasonalComponentVec weeklyPeriod{seasonalComponentSummary(week)};
-    TMeanAccumulatorVec1Vec weeklyComponent;
-    fitSeasonalComponentsRobust(weeklyPeriod, outlierFraction, values, weeklyComponent);
-    std::tie(std::ignore, weeklyVariance) =
-        residualVariance(values, weeklyPeriod, weeklyComponent);
 
     TSizeSizePr2Vec weekends;
     TSizeSizePr2Vec weekdays;
@@ -644,27 +653,33 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
 
     std::size_t h0{NO_TRADING_DAY};
     auto test = [&](std::size_t h1, double significantPValue = 0.05) {
-        if (CStatisticalTests::rightTailFTest(
-                minimumVariances[h0] == minimumVariances[h1]
-                    ? 1.0
-                    : minimumVariances[h0] / minimumVariances[h1],
-                degreesFreedom[h0], degreesFreedom[h1]) < significantPValue) {
+        double pValue{CStatisticalTests::rightTailFTest(
+            minimumVariances[h0] == minimumVariances[h1]
+                ? 1.0
+                : minimumVariances[h0] / minimumVariances[h1],
+            degreesFreedom[h0], degreesFreedom[h1])};
+        if (pValue < significantPValue) {
             h0 = h1;
-            return true;
+            return std::make_pair(true, pValue);
         }
-        return false;
+        return std::make_pair(false, pValue);
     };
 
     TSeasonalComponentVec result;
+    double referencePValue{1.0};
     for (auto alternative : {WEEKEND_DAILY_WEEKDAY_DAILY, WEEKEND_WEEKLY_WEEKDAY_DAILY,
                              WEEKEND_DAILY_WEEKDAY_WEEKLY}) {
-        if (test(alternative)) {
+        bool accept;
+        double pValue;
+        std::tie(accept, pValue) = test(alternative);
+        if (accept) {
             switch (alternative) {
             case WEEKEND_DAILY_WEEKDAY_DAILY:
                 result.emplace_back(day, startOfWeek / 3, week,
                                     TSizeSizePr{0 * day, 2 * day});
                 result.emplace_back(day, startOfWeek / 3, week,
                                     TSizeSizePr{2 * day, 7 * day});
+                referencePValue = pValue;
                 break;
             case WEEKEND_WEEKLY_WEEKDAY_DAILY:
                 result.emplace_back(week, startOfWeek / 3, week,
@@ -683,9 +698,14 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
             }
         }
     }
-    if (test(WEEKLY, 1e-3)) {
+
+    // Check if the evidence for weekly is stronger than for weekday/weekend split.
+    LOG_TRACE(<< "reference p-value = " << referencePValue);
+    h0 = WEEKEND_DAILY_WEEKDAY_DAILY;
+    if (result.size() > 0 && test(WEEKLY, 10.0 * referencePValue).first) {
         result.clear();
     }
+
     std::sort(result.begin(), result.end());
     result.erase(std::unique(result.begin(), result.end()), result.end());
 
@@ -704,16 +724,23 @@ void CSignal::fitSeasonalComponentsRobust(const TSeasonalComponentVec& periods,
                                           TMeanAccumulatorVec1Vec& components) {
     fitSeasonalComponents(periods, values, components);
     if (outlierFraction > 0.0) {
-        auto predictor = [&](std::size_t index) {
-            double value{0.0};
-            for (std::size_t i = 0; i < components.size(); ++i) {
-                value += periods[i].value(components[i], index);
-            }
-            return value;
-        };
-        reweightOutliers(predictor, outlierFraction, values);
+        reweightOutliers(periods, components, outlierFraction, values);
         fitSeasonalComponents(periods, values, components);
     }
+}
+
+void CSignal::reweightOutliers(const TSeasonalComponentVec& periods,
+                               const TMeanAccumulatorVec1Vec& components,
+                               double fraction,
+                               TFloatMeanAccumulatorVec& values) {
+    auto predictor = [&](std::size_t index) {
+        double value{0.0};
+        for (std::size_t i = 0; i < components.size(); ++i) {
+            value += periods[i].value(components[i], index);
+        }
+        return value;
+    };
+    reweightOutliers(predictor, fraction, values);
 }
 
 void CSignal::reweightOutliers(const TPredictor& predictor,
