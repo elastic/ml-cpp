@@ -577,7 +577,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
 
     // Test synthetic timeseries data with pepper and salt outliers.
 
-    TDoubleVec modulation{0.1, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0};
+    TDoubleVec modulation{0.2, 0.2, 1.0, 1.0, 1.0, 1.0, 1.0};
     core_t::TTime startTime{10000};
 
     test::CRandomNumbers rng;
@@ -585,6 +585,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
     TDoubleVec noise;
     TSizeVec outliers;
     TDoubleVec spikeOrTroughSelector;
+    TFloatMeanAccumulatorVec values;
 
     for (auto period : {DAY, WEEK}) {
 
@@ -605,7 +606,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
                 rng.generateNormalSamples(0.0, 9.0, buckets, noise);
                 std::sort(outliers.begin(), outliers.end());
 
-                TFloatMeanAccumulatorVec values(buckets);
+                values.assign(buckets, TFloatMeanAccumulator{});
                 for (core_t::TTime time = startTime; time < startTime + window;
                      time += bucketLength) {
                     std::size_t bucket((time - startTime) / bucketLength);
@@ -621,11 +622,9 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
                     }
                 }
 
-                maths::CTimeSeriesTestForSeasonality seasonality{
-                    startTime, bucketLength, std::move(values)};
+                maths::CTimeSeriesTestForSeasonality seasonality{startTime, bucketLength, values};
                 auto result = seasonality.decompose();
-                LOG_DEBUG(<< "result = " << result.print());
-                // TODO
+                BOOST_TEST_REQUIRE(result.print() == "[" + std::to_string(period) + "]");
             }
         }
     }
@@ -639,13 +638,13 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
         for (auto bucketLength : {HALF_HOUR, HOUR}) {
             core_t::TTime buckets{window / bucketLength};
             std::size_t numberOutliers{
-                static_cast<std::size_t>(0.1 * static_cast<double>(buckets))};
+                static_cast<std::size_t>(0.05 * static_cast<double>(buckets))};
             rng.generateUniformSamples(0, buckets, numberOutliers, outliers);
             rng.generateUniformSamples(0, 1.0, numberOutliers, spikeOrTroughSelector);
             rng.generateNormalSamples(0.0, 9.0, buckets, noise);
             std::sort(outliers.begin(), outliers.end());
 
-            TFloatMeanAccumulatorVec values(buckets);
+            values.assign(buckets, TFloatMeanAccumulator{});
             for (core_t::TTime time = startTime; time < startTime + window; time += bucketLength) {
                 std::size_t bucket((time - startTime) / bucketLength);
                 auto outlier = std::lower_bound(outliers.begin(), outliers.end(), bucket);
@@ -664,8 +663,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
             maths::CTimeSeriesTestForSeasonality seasonality{startTime, bucketLength,
                                                              std::move(values)};
             auto result = seasonality.decompose();
-            LOG_DEBUG(<< "result = " << result.print());
-            // TODO
+            BOOST_TEST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800)]");
         }
     }
 }

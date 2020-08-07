@@ -186,7 +186,9 @@ double CSignal::cyclicAutocorrelation(std::size_t offset,
     return a == v ? 1.0 : a / v;
 }
 
-void CSignal::autocorrelations(const TFloatMeanAccumulatorVec& values, TDoubleVec& result) {
+void CSignal::autocorrelations(const TFloatMeanAccumulatorVec& values,
+                               TComplexVec& f,
+                               TDoubleVec& result) {
 
     result.clear();
 
@@ -211,7 +213,7 @@ void CSignal::autocorrelations(const TFloatMeanAccumulatorVec& values, TDoubleVe
         return;
     }
 
-    TComplexVec f(n, TComplex{0.0, 0.0});
+    f.assign(n, TComplex{0.0, 0.0});
     for (std::size_t i = 0; i < n; ++i) {
         std::size_t j{i};
         while (j < n && CBasicStatistics::count(values[j]) == 0.0) {
@@ -297,7 +299,7 @@ CSignal::TSeasonalComponentVec
 CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
                                double outlierFraction,
                                const TSizeSizeSizeTr& diurnal,
-                               const TIndexWeightFunc& weight,
+                               const TPeriodWeightFunc& weight,
                                TOptionalSize startOfWeekOverride) {
 
     std::size_t n{values.size()};
@@ -307,24 +309,24 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
 
     auto count = [](const TFloatMeanAccumulatorVec& valuesToTest) {
         return std::accumulate(valuesToTest.begin(), valuesToTest.end(), 0.0,
-                               [](double partialCount, const TFloatMeanAccumulator& value) {
-                                   return partialCount + CBasicStatistics::count(value);
+                               [](double result, const TFloatMeanAccumulator& value) {
+                                   return result + CBasicStatistics::count(value);
                                });
     };
     auto residualMoments = [&](TFloatMeanAccumulatorVec& valuesToTest,
                                const TSeasonalComponentVec& periods,
                                const TMeanAccumulatorVec1Vec& components) {
-        TMeanVarAccumulator moments;
+        TMeanVarAccumulator result;
         for (std::size_t i = 0; i < valuesToTest.size(); ++i) {
             if (CBasicStatistics::count(valuesToTest[i]) > 0.0) {
                 for (std::size_t j = 0; j < components.size(); ++j) {
                     CBasicStatistics::moment<0>(valuesToTest[i]) -=
                         periods[j].value(components[j], i);
                 }
-                moments.add(CBasicStatistics::mean(valuesToTest[i]));
+                result.add(CBasicStatistics::mean(valuesToTest[i]));
             }
         }
-        return moments;
+        return result;
     };
 
     TSeasonalComponentVec result;
@@ -351,6 +353,7 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
     }
 
     TDoubleVec correlations;
+    TComplexVec placeholder;
     TFloatMeanAccumulatorVec valuesToTest{values.begin(), values.begin() + n};
     TSeasonalComponentVec decomposition;
     TMeanAccumulatorVec1Vec components;
@@ -375,7 +378,7 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
         // Compute the serial autocorrelations padding to the maximum offset
         // to avoid windowing effects.
         valuesToTest.resize(n + 3 * pad);
-        autocorrelations(valuesToTest, correlations);
+        autocorrelations(valuesToTest, placeholder, correlations);
         valuesToTest.resize(n);
         correlations.resize(3 * pad);
 
@@ -783,11 +786,13 @@ void CSignal::reweightOutliers(const TPredictor& predictor,
     }
 
     TMaxAccumulator outliers{2 * numberOutliers};
+    TMeanAccumulator meanAbs;
     TMeanAccumulator meanDifference;
     for (std::size_t i = 0; i < values.size(); ++i) {
         if (CBasicStatistics::count(values[i]) > 0.0) {
             double difference{std::fabs(CBasicStatistics::mean(values[i]) - predictor(i))};
             outliers.add({difference, i});
+            meanAbs.add(std::fabs(CBasicStatistics::mean(values[i])));
             meanDifference.add(difference);
         }
     }
@@ -804,7 +809,8 @@ void CSignal::reweightOutliers(const TPredictor& predictor,
     }
     meanDifference -= meanDifferenceOfOutliers;
     double threshold{std::max(3.0 * CBasicStatistics::mean(meanDifference),
-                              std::numeric_limits<double>::min())};
+                              std::numeric_limits<double>::epsilon() *
+                                  CBasicStatistics::mean(meanAbs))};
     LOG_TRACE(<< "threshold = " << CBasicStatistics::mean(meanDifference));
 
     double logThreshold{std::log(threshold)};

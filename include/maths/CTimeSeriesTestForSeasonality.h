@@ -334,6 +334,7 @@ private:
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TSeasonalComponentVec = CSignal::TSeasonalComponentVec;
     using TMeanAccumulatorVec1Vec = CSignal::TMeanAccumulatorVec1Vec;
+    using TPeriodWeightFunc = CSignal::TPeriodWeightFunc;
     using TSegmentation = CTimeSeriesSegmentation;
     using TWeightFunc = TSegmentation::TWeightFunc;
 
@@ -480,7 +481,10 @@ private:
         std::vector<TFloatMeanAccumulatorVecHypothesisStatsVecPr>;
 
 private:
+    TPeriodWeightFunc periodWeight();
     CSeasonalHypotheses select(TFloatMeanAccumulatorVecHypothesisStatsVecPrVec& hypotheses) const;
+    bool noSeasonality(const THypothesisStatsVec& hypotheses) const;
+    SHypothesisStats noSeasonalityHypothesis(std::size_t numberTrendSegments) const;
     TFloatMeanAccumulatorVecHypothesisStatsVecPr
     testDecomposition(TFloatMeanAccumulatorVec& valueToTest,
                       std::size_t numberTrendSegments,

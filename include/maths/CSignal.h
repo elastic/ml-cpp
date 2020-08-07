@@ -48,6 +48,7 @@ public:
     using TMeanAccumulatorVec1Vec = core::CSmallVector<TMeanAccumulatorVec, 1>;
     using TMomentTransformFunc = std::function<double(const TFloatMeanAccumulator&)>;
     using TMomentWeightFunc = std::function<double(const TFloatMeanAccumulator&)>;
+    using TPeriodWeightFunc = std::function<double(std::size_t)>;
     using TIndexWeightFunc = std::function<double(std::size_t)>;
     using TPredictor = std::function<double(std::size_t)>;
 
@@ -173,9 +174,20 @@ public:
     //! Get linear autocorrelations for all offsets up to the length of \p values.
     //!
     //! \param[in] values The values for which to compute autocorrelation.
-    //! \param[in] result Filled in with the autocorrelations of \p values for
+    //! \param[in,out] f Placeholder for the function for which to compute
+    //! autocorrelations to avoid repeatedly allocating the vector if this
+    //! is called in a loop.
+    //! \param[out] result Filled in with the autocorrelations of \p values for
     //! offsets 1, 2, ..., length \p values - 1.
-    static void autocorrelations(const TFloatMeanAccumulatorVec& values, TDoubleVec& result);
+    static void autocorrelations(const TFloatMeanAccumulatorVec& values,
+                                 TComplexVec& f,
+                                 TDoubleVec& result);
+
+    //! Overload which creates a temporary function.
+    static void autocorrelations(const TFloatMeanAccumulatorVec& values, TDoubleVec& result) {
+        TComplexVec f;
+        autocorrelations(values, f, result);
+    }
 
     //! Compute the \p percentage percentile autocorrelation for \p n normally
     //! distributed values.
@@ -222,7 +234,7 @@ public:
     seasonalDecomposition(TFloatMeanAccumulatorVec& values,
                           double outlierFraction,
                           const TSizeSizeSizeTr& diurnal,
-                          const TIndexWeightFunc& weight,
+                          const TPeriodWeightFunc& weight,
                           TOptionalSize startOfWeekOverride = TOptionalSize{});
 
     //! Decompose the time series \p values into a weekday and weekend.
