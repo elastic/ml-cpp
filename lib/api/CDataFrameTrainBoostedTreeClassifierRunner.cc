@@ -43,6 +43,7 @@ const std::string IS_TRAINING_FIELD_NAME{"is_training"};
 const std::string PREDICTION_PROBABILITY_FIELD_NAME{"prediction_probability"};
 const std::string PREDICTION_SCORE_FIELD_NAME{"prediction_score"};
 const std::string TOP_CLASSES_FIELD_NAME{"top_classes"};
+const std::string CLASSES_FIELD_NAME{"classes"};
 const std::string CLASS_NAME_FIELD_NAME{"class_name"};
 const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
 const std::string CLASS_SCORE_FIELD_NAME{"class_score"};
@@ -184,15 +185,22 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                         writer.Key(FEATURE_NAME_FIELD_NAME);
                         writer.String(featureNames[i]);
                         if (shap[i].size() == 1) {
+                            // output feature importance for individual classes in binary case
                             writer.Key(IMPORTANCE_FIELD_NAME);
                             writer.Double(shap[i](0));
                         } else {
+                            // output feature importance for individual classes in multiclass case
+                            writer.Key(CLASSES_FIELD_NAME);
+                            writer.StartArray();
                             for (int j = 0; j < shap[i].size() && j < numberClasses; ++j) {
-                                writer.Key(classValues[j]);
+                                writer.StartObject();
+                                writer.Key(CLASS_NAME_FIELD_NAME);
+                                writer.String(classValues[j]);
+                                writer.Key(IMPORTANCE_FIELD_NAME);
                                 writer.Double(shap[i](j));
+                                writer.EndObject();
                             }
-                            writer.Key(IMPORTANCE_FIELD_NAME);
-                            writer.Double(shap[i].lpNorm<1>());
+                            writer.EndArray();
                         }
                         writer.EndObject();
                     }

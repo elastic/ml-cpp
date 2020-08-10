@@ -5,6 +5,7 @@
  */
 #include <api/CInferenceModelMetadata.h>
 
+#include <cmath>
 #include <maths/CLinearAlgebraShims.h>
 
 #include <rapidjson/document.h>
@@ -18,7 +19,7 @@ const std::string JSON_MODEL_METADATA_TAG{"model_metadata"};
 const std::string JSON_FEATURE_NAME_TAG{"feature_name"};
 const std::string JSON_IMPORTANCE_TAG{"importance"};
 const std::string JSON_MEAN_TAG{"mean"};
-const std::string JSON_VARIANCE_TAG{"variance"};
+const std::string JSON_CLASSES_TAG{"classes"};
 const std::string JSON_CLASS_NAME_TAG{"class_name"};
 const std::string JSON_MIN_TAG{"min"};
 const std::string JSON_MAX_TAG{"max"};
@@ -39,32 +40,27 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
         writer.Key(JSON_FEATURE_NAME_TAG);
         writer.String(m_ColumnNames[item.first]);
         auto meanFeatureImportance = maths::CBasicStatistics::mean(item.second);
-        auto varFeatureImportance = maths::CBasicStatistics::variance(item.second);
         const auto& minMaxFeatureImportance = m_TotalShapValuesMinMax.at(item.first);
         if (meanFeatureImportance.size() == 1) {
             writer.Key(JSON_IMPORTANCE_TAG);
             writer.StartObject();
             writer.Key(JSON_MEAN_TAG);
             writer.Double(meanFeatureImportance[0]);
-            writer.Key(JSON_VARIANCE_TAG);
-            writer.Double(varFeatureImportance[0]);
             writer.Key(JSON_MIN_TAG);
             writer.Double(minMaxFeatureImportance[0].min());
             writer.Key(JSON_MAX_TAG);
             writer.Double(minMaxFeatureImportance[0].max());
             writer.EndObject();
         } else {
-            writer.Key(JSON_IMPORTANCE_TAG);
+            writer.Key(JSON_CLASSES_TAG);
             writer.StartArray();
-            for (int j = 0;
+            for (std::size_t j = 0;
                  j < meanFeatureImportance.size() && j < m_ClassValues.size(); ++j) {
                 writer.StartObject();
                 writer.Key(JSON_CLASS_NAME_TAG);
                 writer.String(m_ClassValues[j]);
                 writer.Key(JSON_MEAN_TAG);
                 writer.Double(meanFeatureImportance[j]);
-                writer.Key(JSON_VARIANCE_TAG);
-                writer.Double(varFeatureImportance[j]);
                 writer.Key(JSON_MIN_TAG);
                 writer.Double(minMaxFeatureImportance[j].min());
                 writer.Key(JSON_MAX_TAG);
@@ -74,7 +70,6 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
             writer.EndArray();
         }
         writer.EndObject();
-        LOG_DEBUG(<< "Count: " << maths::CBasicStatistics::count(item.second));
     }
     writer.EndArray();
 }
@@ -99,8 +94,8 @@ void CInferenceModelMetadata::addToFeatureImportance(std::size_t i, const TVecto
         m_TotalShapValuesMinMax
             .emplace(std::make_pair(i, TMinMaxAccumulator(values.size())))
             .first->second;
-    for (int j = 0; j < minMaxVector.size(); ++j) {
-        minMaxVector[j].add(values.cwiseAbs()[j]);
+    for (std::size_t j = 0; j < minMaxVector.size(); ++j) {
+        minMaxVector[j].add(values[j]);
     }
 }
 }
