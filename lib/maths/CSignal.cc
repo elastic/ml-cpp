@@ -248,26 +248,6 @@ void CSignal::autocorrelations(const TFloatMeanAccumulatorVec& values,
     }
 }
 
-double CSignal::autocorrelationAtPercentile(double percentage, double autocorrelation, double n) {
-    // The autocorrelation does not have a simple closed form distribution.
-    // Asymptotically, its variance is proportional to (1 - |R|)^2 / n for
-    // autocorrelation R and number of values n. The extra parameters were
-    // found by a grid search based on minimizing calibration errors given
-    // the basic functional form.
-    double scale{2.0 * (1.0 - std::fabs(autocorrelation)) / std::sqrt(n + 7.5)};
-    if (scale > 0.0) {
-        try {
-            boost::math::normal normal{autocorrelation, scale};
-            return CTools::truncate(
-                boost::math::quantile(normal, percentage / 100.0), -1.0, 1.0);
-        } catch (const std::exception& e) {
-            LOG_ERROR(<< "Bad input: " << e.what() << ", n = " << n
-                      << ", percentage = " << percentage);
-        }
-    }
-    return autocorrelation;
-}
-
 void CSignal::removeLinearTrend(TFloatMeanAccumulatorVec& values) {
     using TRegression = CLeastSquaresOnlineRegression<1, double>;
     TRegression trend;
@@ -943,9 +923,6 @@ std::size_t CSignal::selectComponentSize(const TFloatMeanAccumulatorVec& values,
             LOG_TRACE(<< "degrees freedom = "
                       << core::CContainerPrinter::print(degreesFreedom));
             LOG_TRACE(<< "variances = " << core::CContainerPrinter::print(variances));
-            LOG_TRACE(<< CStatisticalTests::rightTailFTest(
-                          variances[h0] / variances[1 - h0], degreesFreedom[h0],
-                          degreesFreedom[1 - h0]));
 
             if (variances[h0] != variances[1 - h0] &&
                 CStatisticalTests::rightTailFTest(variances[h0] / variances[1 - h0],

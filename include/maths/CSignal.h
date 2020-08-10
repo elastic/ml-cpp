@@ -189,15 +189,6 @@ public:
         autocorrelations(values, f, result);
     }
 
-    //! Compute the \p percentage percentile autocorrelation for \p n normally
-    //! distributed values.
-    //!
-    //! \param[in] percentage The required percentile in the range (0, 100).
-    //! \param[in] autocorrelation The autocorrelation statistic.
-    //! \param[in] n The number of values used to compute \p autocorrelation.
-    static double
-    autocorrelationAtPercentile(double percentage, double autocorrelation, double n);
-
     //! Remove the minimum MSE linear trend from \p values.
     //!
     //! \param[in] values The values from which to remove the linear trend.

@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <functional>
 #include <limits>
+#include <numeric>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -331,10 +332,11 @@ private:
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeVec = std::vector<std::size_t>;
     using TOptionalSize = boost::optional<std::size_t>;
+    using TMaxAccumulator =
+        CBasicStatistics::COrderStatisticsHeap<double, std::greater<double>>;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TSeasonalComponentVec = CSignal::TSeasonalComponentVec;
     using TMeanAccumulatorVec1Vec = CSignal::TMeanAccumulatorVec1Vec;
-    using TPeriodWeightFunc = CSignal::TPeriodWeightFunc;
     using TSegmentation = CTimeSeriesSegmentation;
     using TWeightFunc = TSegmentation::TWeightFunc;
 
@@ -433,6 +435,8 @@ private:
         TMinMaxAccumulatorVec m_BucketAmplitudes;
     };
 
+    using TAmplitudeVec = std::vector<CMinAmplitude>;
+
     //! \brief A summary of a test statistics related to a component.
     struct SHypothesisStats {
         explicit SHypothesisStats(const TSeasonalComponent& period)
@@ -473,22 +477,75 @@ private:
         TFloatMeanAccumulatorVec s_InitialValues;
     };
 
-    using TAmplitudeVec = std::vector<CMinAmplitude>;
     using THypothesisStatsVec = std::vector<SHypothesisStats>;
-    using TFloatMeanAccumulatorVecHypothesisStatsVecPr =
-        std::pair<TFloatMeanAccumulatorVec, THypothesisStatsVec>;
-    using TFloatMeanAccumulatorVecHypothesisStatsVecPrVec =
-        std::vector<TFloatMeanAccumulatorVecHypothesisStatsVecPr>;
+
+    //! \brief A candidate model for the values being decomposed.
+    struct SModel {
+        SModel() = default;
+        SModel(double residualVariance,
+               std::size_t numberTrendParameters,
+               TFloatMeanAccumulatorVec trendInitialValues,
+               THypothesisStatsVec hypotheses)
+            : s_ResidualVariance{residualVariance}, s_NumberTrendParameters{numberTrendParameters},
+              s_TrendInitialValues{std::move(trendInitialValues)}, s_Hypotheses{std::move(hypotheses)} {
+        }
+
+        bool seasonal() const { return s_Hypotheses.size() > 0; }
+
+        bool isNull(std::size_t numberValues) const {
+            return (s_Hypotheses.empty() || s_AlreadyModelled) &&
+                   this->degreesFreedom(numberValues) > 0.0;
+        }
+
+        bool isAlternative(std::size_t numberValues) const {
+            return s_Hypotheses.size() > 0 && s_AlreadyModelled == false &&
+                   this->degreesFreedom(numberValues) > 0.0;
+        }
+
+        double degreesFreedom(std::size_t numberValues) const {
+            return static_cast<double>(numberValues) -
+                   static_cast<double>(this->numberParameters() + 1);
+        }
+
+        std::size_t numberParameters() const {
+            return std::accumulate(
+                s_Hypotheses.begin(), s_Hypotheses.end(), s_NumberTrendParameters + 1,
+                [](std::size_t partialParameters, const auto& component) {
+                    return partialParameters + component.s_ComponentSize;
+                });
+        }
+
+        bool s_AlreadyModelled = false;
+        double s_ResidualVariance = std::numeric_limits<double>::max();
+        std::size_t s_NumberTrendParameters = 1;
+        TFloatMeanAccumulatorVec s_TrendInitialValues;
+        THypothesisStatsVec s_Hypotheses;
+    };
+
+    using TModelVec = std::vector<SModel>;
 
 private:
-    TPeriodWeightFunc periodWeight();
-    CSeasonalHypotheses select(TFloatMeanAccumulatorVecHypothesisStatsVecPrVec& hypotheses) const;
-    bool noSeasonality(const THypothesisStatsVec& hypotheses) const;
-    SHypothesisStats noSeasonalityHypothesis(std::size_t numberTrendSegments) const;
-    TFloatMeanAccumulatorVecHypothesisStatsVecPr
-    testDecomposition(TFloatMeanAccumulatorVec& valueToTest,
-                      std::size_t numberTrendSegments,
-                      const TSeasonalComponentVec& periods) const;
+    CSeasonalHypotheses select(TModelVec& hypotheses) const;
+    void addNotSeasonal(const TFloatMeanAccumulatorVec& valuesMinusTrend,
+                        std::size_t numberTrendSegments,
+                        TModelVec& decompositions) const;
+    void addModelled(const TFloatMeanAccumulatorVec& valuesMinusTrend,
+                     std::size_t numberTrendSegments,
+                     TSeasonalComponentVec& periods,
+                     TModelVec& decompositions) const;
+    void addDiurnal(const TFloatMeanAccumulatorVec& valuesMinusTrend,
+                    TFloatMeanAccumulatorVec& valuesToDecompose,
+                    std::size_t numberTrendSegments,
+                    TSeasonalComponentVec& periods,
+                    TModelVec& decompositions) const;
+    void addDecomposition(const TFloatMeanAccumulatorVec& valuesMinusTrend,
+                          TFloatMeanAccumulatorVec& valuesToDecompose,
+                          std::size_t numberTrendSegments,
+                          TSeasonalComponentVec& periods,
+                          TModelVec& decompositions) const;
+    SModel testDecomposition(const TFloatMeanAccumulatorVec& valueToTest,
+                             std::size_t numberTrendSegments,
+                             const TSeasonalComponentVec& periods) const;
     void updateResiduals(const TSeasonalComponent& period,
                          const SHypothesisStats& hypothesis,
                          TFloatMeanAccumulatorVec& trendInitialValues) const;
@@ -509,6 +566,10 @@ private:
     void testAmplitude(const TFloatMeanAccumulatorVec& valueToTest,
                        const TSeasonalComponent& period,
                        SHypothesisStats& hypothesis) const;
+    double winzorisedVariance(const TFloatMeanAccumulatorVec& valuesToTest) const;
+    bool alreadyModelled(const TSeasonalComponentVec& periods) const;
+    bool onlyDiurnal(const TSeasonalComponentVec& periods) const;
+    void removeIfInsufficientData(TSeasonalComponentVec& periods) const;
     bool isDiurnal(std::size_t period) const;
     bool isDiurnal(const TSeasonalComponent& period) const;
     bool isWeekend(const TSeasonalComponent& period) const;
@@ -537,13 +598,15 @@ private:
     core_t::TTime m_BucketLength = 0;
     double m_OutlierFraction = OUTLIER_FRACTION;
     TFloatMeanAccumulatorVec m_Values;
-    TSizeVec m_ModelledPeriods;
+    TSeasonalComponentVec m_ModelledPeriods;
     // This is member data to avoid repeatedly reinitialising.
     mutable TSizeVec m_WindowIndices;
     mutable TSeasonalComponentVec m_Periods;
     mutable TAmplitudeVec m_Amplitudes;
     mutable TMeanAccumulatorVec1Vec m_Components;
     mutable TFloatMeanAccumulatorVec m_ValuesToTestComponent;
+    mutable TFloatMeanAccumulatorVec m_ValuesToDecompose;
+    mutable TMaxAccumulator m_Outliers;
 };
 }
 }

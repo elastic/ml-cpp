@@ -420,68 +420,6 @@ BOOST_AUTO_TEST_CASE(testSeasonalComponentSummary) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testAutocorrelationAtPercentile) {
-
-    // Test that the autocorrelation at a percentile is correctly calibrated.
-
-    test::CRandomNumbers rng;
-
-    maths::CSignal::TFloatMeanAccumulatorVec samples;
-    TDoubleVec noise;
-    TMeanVarAccumulator meanError;
-
-    for (std::size_t period : {5, 10, 20}) {
-
-        for (double amplitude : {3.0, 5.0, 10.0}) {
-
-            auto component = [&](std::size_t i) {
-                return amplitude * std::sin(boost::math::double_constants::pi *
-                                            static_cast<double>(i % period) /
-                                            static_cast<double>(period));
-            };
-
-            for (std::size_t repeats : {2, 4, 6}) {
-
-                std::size_t n{period * repeats};
-
-                for (auto percentile :
-                     {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0}) {
-
-                    auto generateAutocorrelation = [&]() {
-                        samples.assign(n, maths::CSignal::TFloatMeanAccumulator{});
-                        rng.generateNormalSamples(0.0, 1.0, n, noise);
-                        for (std::size_t i = 0; i < n; ++i) {
-                            samples[i].add(component(i) + noise[i]);
-                        }
-                        return maths::CSignal::cyclicAutocorrelation(period, samples);
-                    };
-
-                    TMeanVarAccumulator meanAutocorrelation;
-                    for (std::size_t i = 0; i < 500; ++i) {
-                        meanAutocorrelation.add(generateAutocorrelation());
-                    }
-
-                    double autocorrelationAtPercentile{maths::CSignal::autocorrelationAtPercentile(
-                        percentile, maths::CBasicStatistics::mean(meanAutocorrelation),
-                        static_cast<double>(n))};
-
-                    double percentageLessThan{0.0};
-                    for (std::size_t i = 0; i < 1000; ++i) {
-                        if (generateAutocorrelation() < autocorrelationAtPercentile) {
-                            percentageLessThan += 0.1;
-                        }
-                    }
-
-                    meanError.add(std::fabs(percentile - percentageLessThan));
-                }
-            }
-        }
-    }
-
-    LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-    BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 3.6); // 3.6 %
-}
-
 BOOST_AUTO_TEST_CASE(testCountNotMissing) {
 
     maths::CSignal::TFloatMeanAccumulatorVec values;

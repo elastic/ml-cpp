@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <boost/test/tools/interface.hpp>
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/Constants.h>
@@ -200,7 +199,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
 
     LOG_DEBUG(<< "recall = " << TP / (TP + FN));
     LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
-    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.99);
+    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.98);
     BOOST_TEST_REQUIRE(TP / (TP + FP) > 0.99);
 }
 
@@ -388,8 +387,8 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
     double FP{0.0};
 
     for (std::size_t test = 0; test < 100; ++test) {
-        if (test % 10 == 0) {
-            LOG_DEBUG(<< "test " << test << " / 100");
+        if ((test + 1) % 10 == 0) {
+            LOG_DEBUG(<< "test " << test + 1 << " / 100");
         }
         for (auto window : {WEEK, 2 * WEEK, 25 * DAY}) {
             LOG_TRACE(<< "window = " << window);
@@ -474,10 +473,10 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
     LOG_DEBUG(<< "accuracy @ 5% error = " << TP[2] / (TP[2] + FP));
     BOOST_TEST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.93);
     BOOST_TEST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.97);
-    BOOST_TEST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.98);
-    BOOST_TEST_REQUIRE(TP[0] / (TP[0] + FP) > 0.9);
-    BOOST_TEST_REQUIRE(TP[1] / (TP[1] + FP) > 0.9);
-    BOOST_TEST_REQUIRE(TP[2] / (TP[2] + FP) > 0.9);
+    BOOST_TEST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.97);
+    BOOST_TEST_REQUIRE(TP[0] / (TP[0] + FP) > 0.95);
+    BOOST_TEST_REQUIRE(TP[1] / (TP[1] + FP) > 0.95);
+    BOOST_TEST_REQUIRE(TP[2] / (TP[2] + FP) > 0.95);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticSparseDaily) {
@@ -687,8 +686,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticMixtureOfSeasonalities) {
     test::CRandomNumbers rng;
 
     TDoubleVec noise;
-    TSizeVec index;
-    TSizeVec repeats;
+    TFloatMeanAccumulatorVec values;
 
     TDoubleVec TP{0.0, 0.0, 0.0};
     TDoubleVec FN{0.0, 0.0, 0.0};
@@ -724,7 +722,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticMixtureOfSeasonalities) {
                     break;
                 }
 
-                TFloatMeanAccumulatorVec values(window / bucketLength);
+                values.assign(window / bucketLength, TFloatMeanAccumulator{});
                 for (core_t::TTime time = 0; time < window; time += FIVE_MINS) {
                     std::size_t bucket(time / bucketLength);
                     double value{0.0};
@@ -757,16 +755,16 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithLinearScaling) {
     // seasonal components in the presence of piecewise constant random
     // linear scaling events.
 
-    core_t::TTime bucketLength{HALF_HOUR};
     std::size_t segmentSupport[][2]{{100, 200}, {600, 900}};
     double scaleSupport[][2]{{4.0, 6.0}, {0.2, 0.4}};
-    TGeneratorVec generators{smoothDaily, spikeyDaily, smoothWeekly};
+    TGeneratorVec generators{smoothDaily, spikeyDaily};
     core_t::TTime startTime{0};
 
     test::CRandomNumbers rng;
 
     TDoubleVec noise;
     TSizeVec index;
+    TFloatMeanAccumulatorVec values;
 
     double TP{0.0};
     double FN{0.0};
@@ -777,6 +775,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithLinearScaling) {
         }
 
         for (auto window : {3 * WEEK, 4 * WEEK}) {
+
             core_t::TTime endTime{startTime + window};
 
             TTimeVec segments;
@@ -787,7 +786,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithLinearScaling) {
                 rng.generateUniformSamples(segmentSupport[i][0],
                                            segmentSupport[i][1], 1, segment);
                 rng.generateUniformSamples(scaleSupport[i][0], scaleSupport[i][1], 1, scale);
-                segments.push_back(startTime + segment[0] * bucketLength);
+                segments.push_back(startTime + segment[0] * HALF_HOUR);
                 scales.push_back(scale[0]);
             }
             segments.push_back(endTime);
@@ -797,18 +796,17 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithLinearScaling) {
                 return 20.0 * scales[i - segments.begin()] * generators[index[0]](time);
             };
 
-            rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
+            rng.generateNormalSamples(0.0, 1.0, window / HALF_HOUR, noise);
             rng.generateUniformSamples(0, 2, 1, index);
 
-            TFloatMeanAccumulatorVec values(window / bucketLength);
-            for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
-                std::size_t bucket((time - startTime) / bucketLength);
+            values.assign(window / HALF_HOUR, TFloatMeanAccumulator{});
+            for (core_t::TTime time = startTime; time < endTime; time += HALF_HOUR) {
+                std::size_t bucket((time - startTime) / HALF_HOUR);
                 double value{trend(time) + noise[bucket]};
                 values[bucket].add(value);
             }
 
-            maths::CTimeSeriesTestForSeasonality seasonality{startTime, bucketLength,
-                                                             std::move(values)};
+            maths::CTimeSeriesTestForSeasonality seasonality{startTime, HALF_HOUR, values};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< "result = " << result.print());
 
@@ -826,16 +824,15 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithLinearScaling) {
     // as a segmented pure periodic component.
     {
         double scale[]{0.3, 0.3, 1.0, 1.0, 1.0, 1.0, 1.0};
-        TFloatMeanAccumulatorVec values(2 * WEEK / bucketLength);
-        for (core_t::TTime time = 0; time < 2 * WEEK; time += bucketLength) {
-            values[time / bucketLength].add(
+        values.assign(2 * WEEK / HALF_HOUR, TFloatMeanAccumulator{});
+        for (core_t::TTime time = 0; time < 2 * WEEK; time += HALF_HOUR) {
+            values[time / HALF_HOUR].add(
                 scale[(time % WEEK) / DAY] *
                 std::sin(boost::math::double_constants::two_pi *
                          static_cast<double>(time) / static_cast<double>(DAY)));
         }
 
-        maths::CTimeSeriesTestForSeasonality seasonality{startTime, bucketLength,
-                                                         std::move(values)};
+        maths::CTimeSeriesTestForSeasonality seasonality{startTime, HALF_HOUR, values};
         auto result = seasonality.decompose();
         LOG_DEBUG(<< "result = " << result.print());
     }
