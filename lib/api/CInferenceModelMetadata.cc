@@ -5,7 +5,6 @@
  */
 #include <api/CInferenceModelMetadata.h>
 
-#include <cmath>
 #include <maths/CLinearAlgebraShims.h>
 
 #include <rapidjson/document.h>
