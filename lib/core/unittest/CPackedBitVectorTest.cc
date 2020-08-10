@@ -234,8 +234,8 @@ BOOST_AUTO_TEST_CASE(testInternals) {
 
         auto byteItr = runLengthBytes.cbegin();
         for (std::size_t j = 0; j < allRunLengths.size(); ++j) {
-            BOOST_TEST_REQUIRE(allRunLengths[j],
-                               CPackedBitVectorInternals::popRunLength(byteItr));
+            std::size_t readLength{CPackedBitVectorInternals::popRunLength(byteItr)};
+            BOOST_REQUIRE_EQUAL(allRunLengths[j], readLength);
         }
     }
 }

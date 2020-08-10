@@ -143,8 +143,9 @@ bool CPackedBitVector::fromDelimited(const std::string& str) {
             CPersistUtils::fromString(str.substr(pos + 1), runLengthBytes)) {
             m_First = (first != 0);
             m_Parity = (parity != 0);
+            runLengthBytes.push_back(0);
             for (std::size_t j = 0, runLength = read(runLengthBytes[j]);
-                 j < runLengthBytes.size(); runLength += read(runLengthBytes[++j])) {
+                 j + 1 < runLengthBytes.size(); runLength += read(runLengthBytes[++j])) {
                 if (complete(runLengthBytes[j])) {
                     appendRun(runLength, m_LastRunBytes, m_RunLengthBytes);
                     runLength = 0;
