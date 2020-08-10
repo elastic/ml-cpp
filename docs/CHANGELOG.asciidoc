@@ -39,6 +39,13 @@
 * The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 9.3. (See
   {ml-pull}1170[#1170].)
 
+== {es} version 7.10.0
+
+=== Bug Fixes
+
+* Fix progress on resume after final training has completed for classification and regression.
+  We previously showed progress stuck at zero for final training. (See {ml-pull}1443[#1443].)
+
 == {es} version 7.9.0
 
 === New Features
