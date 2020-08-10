@@ -7,20 +7,19 @@
 
 #include <core/CLogger.h>
 
+#include <cstring>
 #include <istream>
-
-#include <string.h>
 
 namespace ml {
 namespace api {
 
 // Initialise statics
-const char CNdInputParser::LINE_END('\n');
-const size_t CNdInputParser::WORK_BUFFER_SIZE(131072); // 128kB
+const char CNdInputParser::LINE_END{'\n'};
+const std::size_t CNdInputParser::WORK_BUFFER_SIZE{131072}; // 128kB
 
-CNdInputParser::CNdInputParser(std::istream& strmIn)
-    : CInputParser(), m_StrmIn(strmIn), m_WorkBuffer(nullptr),
-      m_WorkBufferCapacity(0), m_WorkBufferPtr(nullptr), m_WorkBufferEnd(nullptr) {
+CNdInputParser::CNdInputParser(TStrVec mutableFieldNames, std::istream& strmIn)
+    : CInputParser{std::move(mutableFieldNames)}, m_StrmIn{strmIn}, m_WorkBuffer{nullptr},
+      m_WorkBufferCapacity{0}, m_WorkBufferPtr{nullptr}, m_WorkBufferEnd{nullptr} {
 }
 
 CNdInputParser::TCharPSizePr CNdInputParser::parseLine() {
@@ -39,12 +38,13 @@ CNdInputParser::TCharPSizePr CNdInputParser::parseLine() {
     }
 
     for (;;) {
-        size_t avail(m_WorkBufferEnd - m_WorkBufferPtr);
+        std::size_t avail(m_WorkBufferEnd - m_WorkBufferPtr);
         if (avail > 0) {
-            char* delimPtr(reinterpret_cast<char*>(::memchr(m_WorkBufferPtr, LINE_END, avail)));
+            char* delimPtr{reinterpret_cast<char*>(
+                std::memchr(m_WorkBufferPtr, LINE_END, avail))};
             if (delimPtr) {
                 *delimPtr = '\0';
-                TCharPSizePr result(m_WorkBufferPtr, delimPtr - m_WorkBufferPtr);
+                TCharPSizePr result{m_WorkBufferPtr, delimPtr - m_WorkBufferPtr};
                 m_WorkBufferPtr = delimPtr + 1;
                 return result;
             }
@@ -52,13 +52,13 @@ CNdInputParser::TCharPSizePr CNdInputParser::parseLine() {
             if (m_WorkBufferPtr > m_WorkBuffer.get()) {
                 // We didn't find a line ending, but we started part way through the
                 // the buffer, so shuffle it up and refill it
-                ::memmove(m_WorkBuffer.get(), m_WorkBufferPtr, avail);
+                std::memmove(m_WorkBuffer.get(), m_WorkBufferPtr, avail);
             } else {
                 // We didn't find a line ending and started at the beginning of a
                 // full buffer so expand it
                 m_WorkBufferCapacity += WORK_BUFFER_SIZE;
-                TScopedCharArray newBuffer(new char[m_WorkBufferCapacity]);
-                ::memcpy(newBuffer.get(), m_WorkBufferPtr, avail);
+                TScopedCharArray newBuffer{new char[m_WorkBufferCapacity]};
+                std::memcpy(newBuffer.get(), m_WorkBufferPtr, avail);
                 m_WorkBuffer.swap(newBuffer);
             }
             m_WorkBufferPtr = m_WorkBuffer.get();
@@ -73,7 +73,7 @@ CNdInputParser::TCharPSizePr CNdInputParser::parseLine() {
 
         m_StrmIn.read(m_WorkBufferEnd,
                       static_cast<std::streamsize>(m_WorkBufferCapacity - avail));
-        std::streamsize bytesRead(m_StrmIn.gcount());
+        std::streamsize bytesRead{m_StrmIn.gcount()};
         if (bytesRead == 0) {
             if (m_StrmIn.bad()) {
                 LOG_ERROR(<< "Input stream is bad");
@@ -84,7 +84,7 @@ CNdInputParser::TCharPSizePr CNdInputParser::parseLine() {
         m_WorkBufferEnd += bytesRead;
     }
 
-    return TCharPSizePr(static_cast<char*>(nullptr), 0);
+    return TCharPSizePr{nullptr, 0};
 }
 
 void CNdInputParser::resetBuffer() {

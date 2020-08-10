@@ -31,8 +31,6 @@
 #include <api/CIoManager.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CLengthEncodedInputParser.h>
-#include <api/CNullOutput.h>
-#include <api/COutputChainer.h>
 #include <api/CPersistenceManager.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
@@ -180,17 +178,13 @@ int main(int argc, char** argv) {
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(ioMgr.outputStream());
 
-    // All output we're interested in goes via the JSON output writer, so output
-    // of the categorised input data can be dropped
-    ml::api::CNullOutput nullOutput;
-
     // The categorizer knows how to assign categories to records
     ml::api::CFieldDataCategorizer categorizer{jobId,
                                                fieldConfig,
                                                limits,
                                                timeField,
                                                timeFormat,
-                                               nullOutput,
+                                               nullptr,
                                                wrappedOutputStream,
                                                persistenceManager.get(),
                                                stopCategorizationOnWarnStatus};

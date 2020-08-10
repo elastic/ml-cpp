@@ -26,6 +26,7 @@
 #include <maths/CQuantileSketch.h>
 #include <maths/CSampling.h>
 #include <maths/CSetTools.h>
+#include <maths/CSpline.h>
 #include <maths/CTreeShapFeatureImportance.h>
 
 #include <boost/circular_buffer.hpp>
@@ -50,6 +51,7 @@ namespace {
 const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
 const std::string HYPERPARAMETER_OPTIMIZATION_ROUND{"hyperparameter_optimization_round_"};
 const std::string TRAIN_FINAL_FOREST{"train_final_forest"};
+const int BYTES_IN_MB{1024 * 1024};
 
 //! \brief Record the memory used by a supplied object using the RAII idiom.
 class CScopeRecordMemoryUsage {
@@ -270,6 +272,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         core::CProgramCounters::counter(counter_t::E_DFTPMTrainedForestNumberTrees) =
             m_BestForest.size();
+    } else {
+        this->skipProgressMonitoringFinalTrain();
     }
 
     this->computeClassificationWeights(frame);
@@ -344,9 +348,9 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     std::size_t dataTypeMemoryUsage{maximumNumberFeatures * sizeof(CDataFrameUtils::SDataType)};
     std::size_t featureSampleProbabilities{maximumNumberFeatures * sizeof(double)};
     // Assuming either many or few missing rows, we get good compression of the bit
-    // vector. Specifically, we'll assume the average run length is 256 for which
-    // we get a constant 4 * 8 / 256.
-    std::size_t missingFeatureMaskMemoryUsage{32 * numberColumns * numberRows / 256};
+    // vector. Specifically, we'll assume the average run length is 64 for which
+    // we get a constant 8 / 64.
+    std::size_t missingFeatureMaskMemoryUsage{8 * numberColumns * numberRows / 64};
     std::size_t trainTestMaskMemoryUsage{
         2 * static_cast<std::size_t>(std::ceil(std::log2(static_cast<double>(m_NumberFolds)))) *
         numberRows};
@@ -362,12 +366,19 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
 }
 
 std::size_t CBoostedTreeImpl::correctedMemoryUsage(double memoryUsageBytes) {
-    // We compute the correction coefficient as a sigmoid function: ca. 1.0 until
-    // 10mb, ca 16.0 after 1000mb to this end we need to shift and scale using the
-    // magic numbers below.
-    double correctionCoefficient{
-        CTools::logisticFunction(memoryUsageBytes / (1024 * 1024), 100, 550) * 15 + 1};
-    return static_cast<std::size_t>(memoryUsageBytes / correctionCoefficient);
+    // We use a piecewise linear function of the estimated memory usage to compute
+    // the corrected value. The values are selected in a way to reduce over-estimation
+    // and to improve the behaviour on the trial nodes in the cloud. The high level strategy
+    // also ensures that corrected memory usage is a monotonic function of estimated memory
+    // usage and any change to the approach should preserve this property.
+    TDoubleVec estimatedMemoryUsageMB{0.0,    20.0,    1024.0, 4096.0,
+                                      8192.0, 12288.0, 16384.0};
+    TDoubleVec correctedMemoryUsageMB{0.0,   20.0,   179.2, 512.0,
+                                      819.2, 1088.0, 1280.0};
+    maths::CSpline<> spline(maths::CSplineTypes::E_Linear);
+    spline.interpolate(estimatedMemoryUsageMB, correctedMemoryUsageMB,
+                       maths::CSplineTypes::E_ParabolicRunout);
+    return static_cast<std::size_t>(spline.value(memoryUsageBytes / BYTES_IN_MB) * BYTES_IN_MB);
 }
 
 bool CBoostedTreeImpl::canTrain() const {
@@ -1338,11 +1349,16 @@ void CBoostedTreeImpl::startProgressMonitoringFineTuneHyperparameters() {
 }
 
 void CBoostedTreeImpl::startProgressMonitoringFinalTrain() {
+
     // The final model training uses more data so it's monitored separately.
 
     m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::FINAL_TRAINING);
     m_TrainingProgress = core::CLoopProgress{
         m_MaximumNumberTrees, m_Instrumentation->progressCallback(), 1.0, 1024};
+}
+
+void CBoostedTreeImpl::skipProgressMonitoringFinalTrain() {
+    m_Instrumentation->startNewProgressMonitoredTask(CBoostedTreeFactory::FINAL_TRAINING);
 }
 
 namespace {

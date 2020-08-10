@@ -340,6 +340,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     static const core_t::TTime LAST_TIME(FIRST_TIME + 86400);
     static const core_t::TTime BUCKET_LENGTH(300);
 
+    core::CProgramCounters& counters = core::CProgramCounters::instance();
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
     model::CLimits limits;
@@ -360,7 +361,20 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         inserter.toXml(origXml);
     }
 
+    std::string origStaticsXml;
+    {
+        core::CRapidXmlStatePersistInserter inserter("root");
+        core::CProgramCounters::staticsAcceptPersistInserter(inserter);
+        inserter.toXml(origStaticsXml);
+    }
+
     LOG_TRACE(<< "Event rate detector XML representation:\n" << origXml);
+
+    uint64_t peakMemoryUsageBeforeRestoring = counters.counter(counter_t::E_TSADPeakMemoryUsage);
+
+    // Clear the counter to verify that restoring detector also restores counter's value.
+    counters.counter(counter_t::E_TSADPeakMemoryUsage) = 0;
+    BOOST_REQUIRE_EQUAL(0, counters.counter(counter_t::E_TSADPeakMemoryUsage));
 
     // Restore the XML into a new detector
     model::CAnomalyDetector restoredDetector(limits, modelConfig, EMPTY_STRING,
@@ -373,6 +387,17 @@ BOOST_AUTO_TEST_CASE(testPersist) {
             std::bind(&model::CAnomalyDetector::acceptRestoreTraverser,
                       &restoredDetector, EMPTY_STRING, std::placeholders::_1)));
     }
+
+    {
+        core::CRapidXmlParser parser;
+        BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origStaticsXml));
+        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        BOOST_TEST_REQUIRE(traverser.traverseSubLevel(
+            &core::CProgramCounters::staticsAcceptRestoreTraverser));
+    }
+
+    uint64_t peakMemoryUsageAfterRestoring = counters.counter(counter_t::E_TSADPeakMemoryUsage);
+    BOOST_REQUIRE_EQUAL(peakMemoryUsageBeforeRestoring, peakMemoryUsageAfterRestoring);
 
     // The XML representation of the new detector should be the same as the original
     std::string newXml;

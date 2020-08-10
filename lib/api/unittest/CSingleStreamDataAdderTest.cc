@@ -17,7 +17,6 @@
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
 #include <api/CNdJsonInputParser.h>
-#include <api/COutputChainer.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
@@ -81,27 +80,28 @@ void detectorPersistHelper(const std::string& configFileName,
                       std::ref(origSnapshotId), std::ref(numOrigDocs)),
             nullptr, -1, "time", timeFormat);
 
-        ml::api::CDataProcessor* firstProcessor(&origJob);
-
-        // Chain the detector's input
-        ml::api::COutputChainer outputChainer(origJob);
-
         // The categorizer knows how to assign categories to records
         CTestFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits,
-                                              outputChainer, wrappedOutputStream);
+                                              &origJob, wrappedOutputStream);
 
+        ml::api::CDataProcessor* firstProcessor{nullptr};
         if (fieldConfig.fieldNameSuperset().count(
                 CTestFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
             LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
             firstProcessor = &categorizer;
+        } else {
+            firstProcessor = &origJob;
         }
 
         using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
         const TInputParserUPtr parser{[&inputFilename, &inputStrm]() -> TInputParserUPtr {
+            ml::api::CInputParser::TStrVec mutableFields{CTestFieldDataCategorizer::MLCATEGORY_NAME};
             if (inputFilename.rfind(".csv") == inputFilename.length() - 4) {
-                return std::make_unique<ml::api::CCsvInputParser>(inputStrm);
+                return std::make_unique<ml::api::CCsvInputParser>(
+                    std::move(mutableFields), inputStrm);
             }
-            return std::make_unique<ml::api::CNdJsonInputParser>(inputStrm);
+            return std::make_unique<ml::api::CNdJsonInputParser>(
+                std::move(mutableFields), inputStrm);
         }()};
 
         BOOST_TEST_REQUIRE(parser->readStreamIntoMaps(
@@ -130,22 +130,20 @@ void detectorPersistHelper(const std::string& configFileName,
             std::bind(&reportPersistComplete, std::placeholders::_1,
                       std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 
-        ml::api::CDataProcessor* restoredFirstProcessor(&restoredJob);
-
-        // Chain the detector's input
-        ml::api::COutputChainer restoredOutputChainer(restoredJob);
-
         // The categorizer knows how to assign categories to records
         CTestFieldDataCategorizer restoredCategorizer(
-            JOB_ID, fieldConfig, limits, restoredOutputChainer, wrappedOutputStream);
+            JOB_ID, fieldConfig, limits, &restoredJob, wrappedOutputStream);
 
         size_t numCategorizerDocs(0);
 
+        ml::api::CDataProcessor* restoredFirstProcessor{nullptr};
         if (fieldConfig.fieldNameSuperset().count(
                 CTestFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
             LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
             numCategorizerDocs = 1;
             restoredFirstProcessor = &restoredCategorizer;
+        } else {
+            restoredFirstProcessor = &restoredJob;
         }
 
         {

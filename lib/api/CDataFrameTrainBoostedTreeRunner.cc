@@ -7,6 +7,7 @@
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 
 #include <core/CDataFrame.h>
+#include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
 #include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
@@ -24,7 +25,6 @@
 #include <api/ElasticsearchStateIndex.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
-#include <core/CJsonStatePersistInserter.h>
 #include <rapidjson/document.h>
 
 namespace ml {
@@ -62,6 +62,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(NUM_TOP_FEATURE_IMPORTANCE_VALUES,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(TRAINING_PERCENT_FIELD_NAME,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(FEATURE_PROCESSORS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
@@ -101,6 +103,10 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double softTreeDepthLimit{parameters[SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
     double softTreeDepthTolerance{parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
     double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
+    if (parameters[FEATURE_PROCESSORS].jsonObject() != nullptr) {
+        m_CustomProcessors.CopyFrom(*parameters[FEATURE_PROCESSORS].jsonObject(),
+                                    m_CustomProcessors.GetAllocator());
+    }
     if (alpha != -1.0 && alpha < 0.0) {
         HANDLE_FATAL(<< "Input error: '" << ALPHA << "' should be non-negative.")
     }
@@ -226,6 +232,13 @@ bool CDataFrameTrainBoostedTreeRunner::validate(const core::CDataFrame& frame) c
         return false;
     }
     return true;
+}
+
+void CDataFrameTrainBoostedTreeRunner::accept(CBoostedTreeInferenceModelBuilder& builder) const {
+    if (m_CustomProcessors.IsNull() == false) {
+        builder.addCustomProcessor(std::make_unique<COpaqueEncoding>(m_CustomProcessors));
+    }
+    this->boostedTree().accept(builder);
 }
 
 const maths::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
@@ -363,6 +376,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::IS_TRAINING_FIELD_NAME{"is_t
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME{"feature_name"};
 const std::string CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME{"importance"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME{"feature_importance"};
+const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS{"feature_processors"};
 const std::string CDataFrameTrainBoostedTreeRunner::TOTAL_FEATURE_IMPORTANCE_FIELD_NAME{"total_feature_importance"};
 // clang-format on
 }

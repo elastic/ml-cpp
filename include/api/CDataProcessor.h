@@ -23,8 +23,6 @@ class CDataAdder;
 class CDataSearcher;
 }
 namespace api {
-class CPersistenceManager;
-class COutputHandler;
 
 //! \brief
 //! Abstract interface for classes that process data records
@@ -61,8 +59,10 @@ public:
     CDataProcessor(const CDataProcessor&) = delete;
     CDataProcessor& operator=(const CDataProcessor&) = delete;
 
-    //! We're going to be writing to a new output stream
-    virtual void newOutputStream() = 0;
+    //! The class that calls handleRecord() may call this method before
+    //! supplying any data to inform this class of any fields in the data row
+    //! that may be modified before chaining.  No-op by default.
+    virtual void registerMutableField(const std::string& fieldName, std::string& fieldValue);
 
     //! Receive a single record to be processed, and produce output
     //! with any required modifications
@@ -87,9 +87,6 @@ public:
 
     //! How many records did we handle?
     virtual std::uint64_t numRecordsHandled() const = 0;
-
-    //! Access the output handler
-    virtual COutputHandler& outputHandler() = 0;
 
     //! Is persistence needed?
     virtual bool isPersistenceNeeded(const std::string& description) const = 0;

@@ -32,10 +32,19 @@
 
 === Enhancements
 
-* The macOS build platform for the {ml} C++ code is now High Sierra running Xcode 10.1,
-  or Ubuntu 18.04 running clang 6.0 for cross compilation. (See {ml-pull}867[#867].)
+* The Windows build platform for the {ml} C++ code now uses Visual Studio 2019. (See
+  {ml-pull}1352[#1352].)
+* The macOS build platform for the {ml} C++ code is now Mojave running Xcode 11.3.1,
+  or Ubuntu 20.04 running clang 8 for cross compilation. (See {ml-pull}1429[#1429].)
 * The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 9.3. (See
   {ml-pull}1170[#1170].)
+
+== {es} version 7.10.0
+
+=== Bug Fixes
+
+* Fix progress on resume after final training has completed for classification and regression.
+  We previously showed progress stuck at zero for final training. (See {ml-pull}1443[#1443].)
 
 == {es} version 7.9.0
 
@@ -65,25 +74,15 @@
 * Improve runtime and memory usage training deep trees for classification and
   regression. (See {ml-pull}1340[#1340].)
 * Improvement in handling large inference model definitions. (See {ml-pull}1349[#1349].)
+* Add a peak_model_bytes field to model_size_stats. (See {ml-pull}1389[#1389].)
 * Calculate total feature importance as a new result type. (See {ml-pull}1387[#1387].)
 
 === Bug Fixes
 
 * Fix numerical issues leading to blow up of the model plot bounds. (See {ml-pull}1268[#1268].)
-
-== {es} version 7.8.2
-
-=== Bug Fixes
-
-* Correct inference model definition for MSLE regression models. (See {ml-pull}1375[#1375].)
-
-== {es} version 7.8.1
-
-=== Bug Fixes
-
-== {es} version 7.8.2
-
-* Fix cause of SIGSEGV of classification and regression. (See {ml-pull}1379[#1379].)
+* Fix causes for inverted forecast confidence interval bounds. (See {ml-pull}1369[#1369],
+  issue: {ml-issue}1357[#1357].)
+* Restrict growth of max matching string length for categories. (See {ml-pull}1406[#1406].)
 
 == {es} version 7.8.1
 
@@ -91,6 +90,10 @@
 
 * Better interrupt handling during named pipe connection. (See {ml-pull}1311[#1311].)
 * Trap potential cause of SIGFPE. (See {ml-pull}1351[#1351], issue: {ml-issue}1348[#1348].)
+* Correct inference model definition for MSLE regression models. (See {ml-pull}1375[#1375].)
+* Fix cause of SIGSEGV of classification and regression. (See {ml-pull}1379[#1379].)
+* Fix restoration of change detectors after seasonality change. (See {ml-pull}1391[#1391].)
+* Fix potential SIGSEGV when forecasting. (See {ml-pull}1402[#1402], issue: {ml-issue}1401[#1401].)
 
 == {es} version 7.8.0
 

@@ -31,6 +31,7 @@ BOOST_AUTO_TEST_CASE(testWrite) {
         model::CResourceMonitor::SModelSizeStats modelSizeStats{
             10000,                     // bytes used
             20000,                     // bytes used (adjusted)
+            30000,                     // peak bytes used
             3,                         // # by fields
             1,                         // # partition fields
             150,                       // # over fields
@@ -104,6 +105,9 @@ BOOST_AUTO_TEST_CASE(testWrite) {
                         std::string(modelSizeStats["job_id"].GetString()));
     BOOST_TEST_REQUIRE(modelSizeStats.HasMember("model_bytes"));
     BOOST_REQUIRE_EQUAL(std::uint64_t(20000), modelSizeStats["model_bytes"].GetUint64());
+    BOOST_TEST_REQUIRE(modelSizeStats.HasMember("peak_model_bytes"));
+    BOOST_REQUIRE_EQUAL(std::uint64_t(30000),
+                        modelSizeStats["peak_model_bytes"].GetUint64());
     BOOST_TEST_REQUIRE(modelSizeStats.HasMember("total_by_field_count"));
     BOOST_REQUIRE_EQUAL(std::uint64_t(3),
                         modelSizeStats["total_by_field_count"].GetUint64());

@@ -17,6 +17,8 @@
 
 #include <test/ImportExport.h>
 
+#include <rapidjson/document.h>
+
 #include <boost/optional.hpp>
 
 #include <cstddef>
@@ -39,6 +41,10 @@ public:
 
 public:
     CDataFrameAnalysisSpecificationFactory();
+
+    CDataFrameAnalysisSpecificationFactory(const CDataFrameAnalysisSpecificationFactory&) = delete;
+    CDataFrameAnalysisSpecificationFactory&
+    operator=(const CDataFrameAnalysisSpecificationFactory&) = delete;
 
     static const std::string& classification();
     static const std::string& regression();
@@ -73,6 +79,8 @@ public:
     CDataFrameAnalysisSpecificationFactory& predictionDownsampleFactor(double downsampleFactor);
     CDataFrameAnalysisSpecificationFactory& predictionFeatureBagFraction(double fraction);
     CDataFrameAnalysisSpecificationFactory& predictionNumberTopShapValues(std::size_t number);
+    CDataFrameAnalysisSpecificationFactory&
+    predictionCustomProcessor(const rapidjson::Value& value);
     CDataFrameAnalysisSpecificationFactory&
     predictionPersisterSupplier(TPersisterSupplier* persisterSupplier);
     CDataFrameAnalysisSpecificationFactory&
@@ -129,6 +137,7 @@ private:
     std::size_t m_NumberTopShapValues = 0;
     TPersisterSupplier* m_PersisterSupplier = nullptr;
     TRestoreSearcherSupplier* m_RestoreSearcherSupplier = nullptr;
+    rapidjson::Document m_CustomProcessors;
     // Regression
     TOptionalLossFunctionType m_RegressionLossFunction;
     TOptionalDouble m_RegressionLossFunctionParameter;

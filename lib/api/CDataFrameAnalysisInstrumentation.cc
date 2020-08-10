@@ -40,7 +40,7 @@ const std::string HYPERPARAMETERS_TAG{"hyperparameters"};
 const std::string MEMORY_REESTIMATE_TAG{"memory_reestimate_bytes"};
 const std::string ITERATION_TAG{"iteration"};
 const std::string JOB_ID_TAG{"job_id"};
-const std::string MEMORY_STATUS_HARD_LIMIT_TAG{"hard-limit"};
+const std::string MEMORY_STATUS_HARD_LIMIT_TAG{"hard_limit"};
 const std::string MEMORY_STATUS_OK_TAG{"ok"};
 const std::string MEMORY_STATUS_TAG{"status"};
 const std::string MEMORY_TYPE_TAG{"analytics_memory_usage"};
@@ -183,16 +183,19 @@ void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentatio
             lastProgress = progress;
             writeProgress(lastTask, lastProgress, &writer);
         }
-        if (instrumentation.memory() > instrumentation.m_MemoryLimit) {
-            double memoryReestimateBytes{static_cast<double>(instrumentation.memory()) *
-                                         MEMORY_LIMIT_INCREMENT};
+        std::int64_t memory{instrumentation.memory()};
+        std::int64_t memoryLimit{instrumentation.m_MemoryLimit};
+        if (memory > memoryLimit) {
+            double memoryReestimateBytes{static_cast<double>(memory) * MEMORY_LIMIT_INCREMENT};
             instrumentation.memoryReestimate(static_cast<std::int64_t>(memoryReestimateBytes));
             instrumentation.memoryStatus(E_HardLimit);
             instrumentation.flush();
-            HANDLE_FATAL(<< "Input error: required memory "
-                         << bytesToString(instrumentation.memory()) << " exceeds the memory limit "
-                         << bytesToString(instrumentation.m_MemoryLimit) << ". Please increase the limit to at least "
-                         << bytesToString(memoryReestimateBytes) << " and restart.");
+            writer.flush();
+            LOG_INFO(<< "Required memory " << memory << " exceeds the memory limit " << memoryLimit
+                     << ".  New estimated limit is " << memoryReestimateBytes << ".");
+            HANDLE_FATAL(<< "Input error: memory limit [" << bytesToString(memoryLimit)
+                         << "] has been exceeded. Please force stop the job, increase to new estimated limit ["
+                         << bytesToString(memoryReestimateBytes) << "] and restart.")
         }
 
         wait = std::min(2 * wait, 1024);

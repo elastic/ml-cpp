@@ -61,11 +61,11 @@ case `uname` in
             GCC_RT_LOCATION=/usr/local/gcc93/lib64
             GCC_RT_EXTENSION=.so.1
             STL_LOCATION=/usr/local/gcc93/lib64
-            STL_PREFIX=libstdc++
+            STL_PATTERN=libstdc++
             STL_EXTENSION=.so.6
             ZLIB_LOCATION=
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
-            SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.13
+            SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.14
             BOOST_LOCATION=$SYSROOT/usr/local/lib
             BOOST_COMPILER=clang
             BOOST_EXTENSION=mt-x64-1_71.dylib
@@ -101,7 +101,7 @@ case `uname` in
         if [ -z "$LOCAL_DRIVE" ] ; then
             LOCAL_DRIVE=C
         fi
-        # These directories are correct for the way our Windows 2012r2 build
+        # These directories are correct for the way our Windows 2016 build
         # server is currently set up
         BOOST_LOCATION=/$LOCAL_DRIVE/usr/local/lib
         BOOST_COMPILER=vc
@@ -110,13 +110,13 @@ case `uname` in
         XML_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         XML_EXTENSION=.dll
         GCC_RT_LOCATION=
-        # Read VCBASE from environment if defined, otherwise default to VS Professional 2017
-        DEFAULTVCBASE=`cd /$LOCAL_DRIVE && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio/2017/Professional"`
+        # Read VCBASE from environment if defined, otherwise default to VS Professional 2019
+        DEFAULTVCBASE=`cd /$LOCAL_DRIVE && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio/2019/Professional"`
         VCBASE=${VCBASE:-$DEFAULTVCBASE}
-        VCVER=`ls -1 /$LOCAL_DRIVE/$VCBASE/VC/Redist/MSVC | tail -1`
-        STL_LOCATION=/$LOCAL_DRIVE/$VCBASE/VC/Redist/MSVC/$VCVER/x64/Microsoft.VC141.CRT
-        STL_PREFIX=
-        STL_EXTENSION=140.dll
+        VCVER=`ls -1 /$LOCAL_DRIVE/$VCBASE/VC/Redist/MSVC | grep -v v14 | tail -1`
+        STL_LOCATION=/$LOCAL_DRIVE/$VCBASE/VC/Redist/MSVC/$VCVER/x64/Microsoft.VC142.CRT
+        STL_PATTERN=140
+        STL_EXTENSION=.dll
         ZLIB_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         ZLIB_EXTENSION=1.dll
         ;;
@@ -172,11 +172,11 @@ if [ ! -z "$GCC_RT_LOCATION" ] ; then
     fi
 fi
 if [ ! -z "$STL_LOCATION" ] ; then
-    if ls $STL_LOCATION/$STL_PREFIX*$STL_EXTENSION >/dev/null ; then
+    if ls $STL_LOCATION/*$STL_PATTERN*$STL_EXTENSION >/dev/null ; then
         if [ -n "$INSTALL_DIR" ] ; then
-            rm -f $INSTALL_DIR/$STL_PREFIX*$STL_EXTENSION
-            cp $STL_LOCATION/$STL_PREFIX*$STL_EXTENSION $INSTALL_DIR
-            chmod u+wx $INSTALL_DIR/$STL_PREFIX*$STL_EXTENSION
+            rm -f $INSTALL_DIR/*$STL_PATTERN*$STL_EXTENSION
+            cp $STL_LOCATION/*$STL_PATTERN*$STL_EXTENSION $INSTALL_DIR
+            chmod u+wx $INSTALL_DIR/*$STL_PATTERN*$STL_EXTENSION
         fi
     else
         echo "C++ standard library not found"

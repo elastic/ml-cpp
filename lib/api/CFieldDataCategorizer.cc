@@ -20,7 +20,6 @@
 
 #include <api/CFieldConfig.h>
 #include <api/CNoopCategoryIdMapper.h>
-#include <api/COutputHandler.h>
 #include <api/CPerPartitionCategoryIdMapper.h>
 #include <api/CPersistenceManager.h>
 
@@ -53,14 +52,13 @@ CFieldDataCategorizer::CFieldDataCategorizer(std::string jobId,
                                              model::CLimits& limits,
                                              const std::string& timeFieldName,
                                              const std::string& timeFieldFormat,
-                                             COutputHandler& outputHandler,
+                                             CDataProcessor* chainedProcessor,
                                              core::CJsonOutputStreamWrapper& outputStream,
                                              CPersistenceManager* persistenceManager,
                                              bool stopCategorizationOnWarnStatus)
-    : CDataProcessor{timeFieldName, timeFieldFormat}, m_JobId{std::move(jobId)},
-      m_Limits{limits}, m_OutputHandler{outputHandler}, m_OutputStream{outputStream},
-      m_ExtraFieldNames{MLCATEGORY_NAME}, m_StopCategorizationOnWarnStatus{stopCategorizationOnWarnStatus},
-      m_OutputFieldCategory{m_Overrides[MLCATEGORY_NAME]},
+    : CDataProcessor{timeFieldName, timeFieldFormat}, m_JobId{std::move(jobId)}, m_Limits{limits},
+      m_ChainedProcessor{chainedProcessor}, m_OutputStream{outputStream},
+      m_StopCategorizationOnWarnStatus{stopCategorizationOnWarnStatus},
       m_JsonOutputWriter{m_JobId, m_OutputStream}, m_AnnotationJsonWriter{m_OutputStream},
       m_PartitionFieldName{config.categorizationPartitionFieldName()},
       m_CategorizationFieldName{config.categorizationFieldName()}, m_PersistenceManager{persistenceManager} {
@@ -77,37 +75,26 @@ CFieldDataCategorizer::~CFieldDataCategorizer() {
     }
 }
 
-void CFieldDataCategorizer::newOutputStream() {
-    m_WriteFieldNames = true;
-    m_OutputHandler.newOutputStream();
+void CFieldDataCategorizer::registerMutableField(const std::string& fieldName,
+                                                 std::string& fieldValue) {
+    if (fieldName == MLCATEGORY_NAME) {
+        m_OutputFieldCategory = &fieldValue;
+    }
+    if (m_ChainedProcessor != nullptr) {
+        m_ChainedProcessor->registerMutableField(fieldName, fieldValue);
+    }
 }
 
 bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime time) {
-    // First time through we output the field names
-    if (m_WriteFieldNames) {
-        TStrVec fieldNames;
-        fieldNames.reserve(dataRowFields.size() + 1);
-        for (const auto& entry : dataRowFields) {
-            fieldNames.push_back(entry.first);
-        }
-
-        if (m_OutputHandler.fieldNames(fieldNames, m_ExtraFieldNames) == false) {
-            LOG_ERROR(<< "Unable to set field names for output:" << core_t::LINE_ENDING
-                      << this->debugPrintRecord(dataRowFields));
-            return false;
-        }
-        m_WriteFieldNames = false;
-    }
 
     // Non-empty control fields take precedence over everything else
     auto iter = dataRowFields.find(CONTROL_FIELD_NAME);
     if (iter != dataRowFields.end() && !iter->second.empty()) {
         // Always handle control messages, but signal completion of handling ONLY if we are the last handler
         // e.g. flush requests are acknowledged here if this is the last handler
-        bool msgHandled = this->handleControlMessage(
-            iter->second, !m_OutputHandler.consumesControlMessages());
-        if (m_OutputHandler.consumesControlMessages()) {
-            return m_OutputHandler.writeRow(dataRowFields, m_Overrides);
+        bool msgHandled{this->handleControlMessage(iter->second, m_ChainedProcessor == nullptr)};
+        if (m_ChainedProcessor != nullptr) {
+            return m_ChainedProcessor->handleRecord(dataRowFields, time);
         }
         return msgHandled;
     }
@@ -118,12 +105,12 @@ bool CFieldDataCategorizer::handleRecord(const TStrStrUMap& dataRowFields, TOpti
 
     CGlobalCategoryId globalCategoryId{this->computeAndUpdateCategory(dataRowFields, time)};
     if (globalCategoryId.isHardFailure() == false) {
-        m_OutputFieldCategory =
-            core::CStringUtils::typeToString(globalCategoryId.globalId());
-        if (m_OutputHandler.writeRow(dataRowFields, m_Overrides) == false) {
-            LOG_ERROR(<< "Unable to write output with type " << m_OutputFieldCategory
-                      << " for input:" << core_t::LINE_ENDING
-                      << this->debugPrintRecord(dataRowFields));
+        if (m_OutputFieldCategory != nullptr) {
+            *m_OutputFieldCategory =
+                core::CStringUtils::typeToString(globalCategoryId.globalId());
+        }
+        if (m_ChainedProcessor != nullptr &&
+            m_ChainedProcessor->handleRecord(dataRowFields, time) == false) {
             return false;
         }
         ++m_NumRecordsHandled;
@@ -145,8 +132,11 @@ void CFieldDataCategorizer::finalise() {
         dataCategorizerEntry.second->forceResourceRefresh(m_Limits.resourceMonitor());
     }
     writeChanges();
+
     // Pass on the request in case we're chained
-    m_OutputHandler.finalise();
+    if (m_ChainedProcessor != nullptr) {
+        m_ChainedProcessor->finalise();
+    }
 
     // Wait for any ongoing periodic persist to complete, so that the data adder
     // is not used by both a periodic periodic persist and final persist at the
@@ -160,10 +150,6 @@ void CFieldDataCategorizer::finalise() {
 
 std::uint64_t CFieldDataCategorizer::numRecordsHandled() const {
     return m_NumRecordsHandled;
-}
-
-COutputHandler& CFieldDataCategorizer::outputHandler() {
-    return m_OutputHandler;
 }
 
 CGlobalCategoryId
@@ -284,7 +270,8 @@ CFieldDataCategorizer::categorizerForKey(const std::string& partitionFieldValue)
 bool CFieldDataCategorizer::restoreState(core::CDataSearcher& restoreSearcher,
                                          core_t::TTime& completeToTime) {
     // Pass on the request in case we're chained
-    if (m_OutputHandler.restoreState(restoreSearcher, completeToTime) == false) {
+    if (m_ChainedProcessor != nullptr &&
+        m_ChainedProcessor->restoreState(restoreSearcher, completeToTime) == false) {
         return false;
     }
 
@@ -435,7 +422,8 @@ bool CFieldDataCategorizer::persistStateInForeground(core::CDataAdder& persister
     }
 
     // Pass on the request in case we're chained
-    if (m_OutputHandler.persistStateInForeground(persister, descriptionPrefix) == false) {
+    if (m_ChainedProcessor != nullptr &&
+        m_ChainedProcessor->persistStateInForeground(persister, descriptionPrefix) == false) {
         return false;
     }
 
@@ -467,7 +455,7 @@ bool CFieldDataCategorizer::persistStateInForeground(core::CDataAdder& persister
 
 bool CFieldDataCategorizer::isPersistenceNeeded(const std::string& description) const {
     // Pass on the request in case we're chained
-    if (m_OutputHandler.isPersistenceNeeded(description)) {
+    if (m_ChainedProcessor != nullptr && m_ChainedProcessor->isPersistenceNeeded(description)) {
         return true;
     }
 
@@ -560,7 +548,8 @@ bool CFieldDataCategorizer::periodicPersistStateInBackground() {
     }
 
     // Pass on the request in case we're chained
-    if (m_OutputHandler.periodicPersistStateInBackground() == false) {
+    if (m_ChainedProcessor != nullptr &&
+        m_ChainedProcessor->periodicPersistStateInBackground() == false) {
         return false;
     }
 
