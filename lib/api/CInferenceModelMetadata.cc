@@ -53,12 +53,15 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
                 writer.StartObject();
                 writer.Key(JSON_CLASS_NAME_TAG);
                 writer.String(m_ClassValues[j]);
+                writer.Key(JSON_IMPORTANCE_TAG);
+                writer.StartObject();
                 writer.Key(JSON_MEAN_MAGNITUDE_TAG);
                 writer.Double(meanFeatureImportance[j]);
                 writer.Key(JSON_MIN_TAG);
                 writer.Double(minMaxFeatureImportance[j].min());
                 writer.Key(JSON_MAX_TAG);
                 writer.Double(minMaxFeatureImportance[j].max());
+                writer.EndObject();
                 writer.EndObject();
             }
             writer.EndArray();
