@@ -34,6 +34,7 @@ public:
     using TDoubleDoublePr = std::pair<double, double>;
     using TSizeSizeSizeTr = std::tuple<std::size_t, std::size_t, std::size_t>;
     using TDoubleVec = std::vector<double>;
+    using TSizeVec = std::vector<std::size_t>;
     using TComplex = std::complex<double>;
     using TComplexVec = std::vector<TComplex>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
@@ -66,31 +67,37 @@ public:
             return s_Period == rhs.s_Period && s_StartOfWeek == rhs.s_StartOfWeek &&
                    s_WindowRepeat == rhs.s_WindowRepeat && s_Window == rhs.s_Window;
         }
-
         bool operator<(const SSeasonalComponentSummary& rhs) const {
             return COrderings::lexicographical_compare(
                 s_Period, s_StartOfWeek, s_WindowRepeat, s_Window, // this
                 rhs.s_Period, rhs.s_StartOfWeek, rhs.s_WindowRepeat, rhs.s_Window);
         }
 
+        //! If this is windowed check whether the window contains \p index.
         bool contains(std::size_t index) const {
             index = (s_WindowRepeat + index - s_StartOfWeek) % s_WindowRepeat;
             return index >= s_Window.first && index < s_Window.second;
         }
-
+        //! The offset of \p index in the period.
         std::size_t offset(std::size_t index) const {
             index = (s_WindowRepeat + index - s_StartOfWeek) % s_WindowRepeat;
             return (index - s_Window.first) % this->period();
         }
-
+        //! The next repeat of the value at \p index.
+        std::size_t nextRepeat(std::size_t index) const {
+            for (index += s_Period; this->contains(index) == false; index += s_Period) {
+            }
+            return index;
+        }
+        //! The windowed length of the repeat.
         std::size_t period() const {
             return std::min(s_Period, s_Window.second - s_Window.first);
         }
-
+        //! True if this component is restricted to time windows.
         bool windowed() const {
             return s_Window.second - s_Window.first < s_WindowRepeat;
         }
-
+        //! The indices of the start and end of the values in the time windows.
         TSizeSizePr2Vec windows(std::size_t numberValues) const {
             TSizeSizePr2Vec result;
             if (this->windowed()) {
@@ -104,14 +111,14 @@ public:
             }
             return result;
         }
-
+        //! The value of the \p model of this component at \p index.
         template<typename MODEL>
         double value(const MODEL& model, std::size_t index) const {
             return this->contains(index) == false
                        ? 0.0
                        : CBasicStatistics::mean(model[this->offset(index)]);
         }
-
+        //! Get a description of the component.
         std::string print() const {
             return std::to_string(s_Period) + "/" + std::to_string(s_StartOfWeek) +
                    "/" + std::to_string(s_WindowRepeat) + "/" +
@@ -125,6 +132,22 @@ public:
     };
 
     using TSeasonalComponentVec = std::vector<SSeasonalComponentSummary>;
+
+    //! \brief The variance statistics associated with collection of one or more
+    //! seasonal components.
+    struct SVarianceStats {
+        //! Get a description of the variance stats.
+        std::string print() const {
+            return "v = " + std::to_string(s_ResidualVariance) +
+                   ", <v> = " + std::to_string(s_TruncatedResidualVariance) +
+                   ", f = " + std::to_string(s_DegreesFreedom);
+        }
+
+        double s_ResidualVariance;
+        double s_TruncatedResidualVariance;
+        double s_DegreesFreedom;
+        std::size_t s_NumberParameters;
+    };
 
 public:
     //! Compute the conjugate of \p f.
@@ -153,11 +176,11 @@ public:
     //!   \f$\(\frac{1}{(n-k)\sigma^2}\sum_{k=1}^{n-k}{(f(k) - \mu)(f(k+p) - \mu)}\)\f$
     //! </pre>
     //!
-    //! \param[in] offset The offset as a distance in \p values.
+    //! \param[in] period The seasonal component for which to compute autocorrelation.
     //! \param[in] values The values for which to compute the autocorrelation.
     //! \param[in] transform Transforms \p values before computing the autocorrelation.
     //! \param[in] weight Weights \p values for computing the autocorrelation.
-    static double cyclicAutocorrelation(std::size_t offset,
+    static double cyclicAutocorrelation(const SSeasonalComponentSummary& period,
                                         const TFloatMeanAccumulatorVec& values,
                                         const TMomentTransformFunc& transform = mean,
                                         const TMomentWeightFunc& weight = count);
@@ -166,7 +189,7 @@ public:
     //! \p offset.
     //!
     //! \note Implementation for vector ranges.
-    static double cyclicAutocorrelation(std::size_t offset,
+    static double cyclicAutocorrelation(const SSeasonalComponentSummary& period,
                                         const TFloatMeanAccumulatorCRng& values,
                                         const TMomentTransformFunc& transform = mean,
                                         const TMomentWeightFunc& weight = count);
@@ -220,13 +243,17 @@ public:
     //! higher the weight the more likely it will be select in preference to one
     //! which is close.
     //! \param[in] startOfWeekOverride The start of the week to use if one is known.
+    //! \param[in] significantPValue The p-value at which to return a component.
+    //! \param[in] maxComponents The maximum number of modelled components.
     //! \return A summary of the seasonal components found.
     static TSeasonalComponentVec
     seasonalDecomposition(TFloatMeanAccumulatorVec& values,
                           double outlierFraction,
                           const TSizeSizeSizeTr& diurnal,
                           const TPeriodWeightFunc& weight,
-                          TOptionalSize startOfWeekOverride = TOptionalSize{});
+                          TOptionalSize startOfWeekOverride = TOptionalSize{},
+                          double significantPValue = 0.05,
+                          std::size_t maxComponents = 10);
 
     //! Decompose the time series \p values into a weekday and weekend.
     //!
@@ -239,12 +266,14 @@ public:
     //! \param[in] outlierFraction The fraction of values treated as outliers.
     //! \param[in] week One week as a multiple of interval between \p values.
     //! \param[in] startOfWeekOverride The start of the week to use if one is known.
+    //! \param[in] significantPValue The p-value at which to return a component.
     //! \return A summary of the best decomposition.
     static TSeasonalComponentVec
     tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
                             double outlierFraction,
                             std::size_t week,
-                            TOptionalSize startOfWeekOverride = TOptionalSize{});
+                            TOptionalSize startOfWeekOverride = TOptionalSize{},
+                            double significantPValue = 0.05);
 
     //! Fit the minimum MSE seasonal components with periods \p periods to \p values.
     //!
@@ -300,16 +329,36 @@ public:
     static double meanNumberRepeatedValues(const TFloatMeanAccumulatorVec& values,
                                            const SSeasonalComponentSummary& period);
 
-    //! Compute the variance of \p values and the variance of \p values minus
-    //! the predictions of \p components.
+    //! Compute statistics related to the variance of \p values minus the predictions
+    //! of \p components
     //!
     //! \param[in] values The values from which to compute variances.
-    //! \param[in] components The components for which to compute the residual
-    //! variance.
-    //! \return (total variance, residual variance).
-    static TDoubleDoublePr residualVariance(const TFloatMeanAccumulatorVec& values,
-                                            const TSeasonalComponentVec& periods,
-                                            const TMeanAccumulatorVec1Vec& components);
+    //! \param[in] periods The seasonal components being modelled.
+    //! \param[in] components The models of \p periods to use.
+    //! \return The variance, the variance weighted by value counts and the degrees of
+    //! freedom in the variance estimate.
+    static SVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values,
+                                                const TSeasonalComponentVec& periods,
+                                                const TMeanAccumulatorVec1Vec& components);
+
+    //! Compute the variance of \p values minus the predictions of \p components.
+    //!
+    //! \param[in] values The values from which to compute variances.
+    //! \param[in] periods The seasonal components being modelled.
+    //! \param[in] components The models of \p periods to use.
+    //! \param[in] weight The function which weights values when computing variances.
+    //! \return The residual variance.
+    static double residualVariance(const TFloatMeanAccumulatorVec& values,
+                                   const TSeasonalComponentVec& periods,
+                                   const TMeanAccumulatorVec1Vec& components,
+                                   const TMomentWeightFunc& weight = count);
+
+    //! Get the p-value of the variance statistics \p H1 given the null \p H0.
+    //!
+    //! \param[in] H0 The variance statistics of the null hypothesis.
+    //! \param[in] H1 The variance statistics of the alternative hypothesis.
+    //! \return The p-value of \p H1.
+    static double rightTailFTest(const SVarianceStats& H0, const SVarianceStats& H1);
 
     //! Choose the number of buckets to use for a component model with \p period
     //! for which there is the strongest supporting evidence in \p values.
@@ -379,6 +428,24 @@ public:
     }
 
 private:
+    static void removeComponents(const TSeasonalComponentVec& periods,
+                                 const TMeanAccumulatorVec1Vec& components,
+                                 TFloatMeanAccumulatorVec& values);
+    static void checkForSeasonalDecomposition(const TDoubleVec& correlations,
+                                              std::size_t maxCorrelationPeriod,
+                                              double cutoff,
+                                              std::size_t maxComponents,
+                                              TSizeVec& candidatePeriods);
+    static bool checkForTradingDayDecomposition(TFloatMeanAccumulatorVec& values,
+                                                double outlierFraction,
+                                                std::size_t day,
+                                                std::size_t week,
+                                                TSeasonalComponentVec& periods,
+                                                TMeanAccumulatorVec1Vec& components,
+                                                TSizeVec& candidatePeriods,
+                                                TSeasonalComponentVec& result,
+                                                TOptionalSize startOfWeekOverride,
+                                                double significantPValue);
     template<typename VALUES, typename COMPONENT>
     static void doFitSeasonalComponents(const TSeasonalComponentVec& periods,
                                         const VALUES& values,

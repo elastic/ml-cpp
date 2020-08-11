@@ -43,8 +43,7 @@ using TFloatMeanAccumulator =
     maths::CBasicStatistics::SSampleMean<maths::CFloatStorage>::TAccumulator;
 using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
-const core_t::TTime FIVE_MINS{300};
-const core_t::TTime TEN_MINS{600};
+const core_t::TTime FIVE_MINS{core::constants::HOUR / 12};
 const core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
 const core_t::TTime HOUR{core::constants::HOUR};
 const core_t::TTime DAY{core::constants::DAY};
@@ -77,6 +76,8 @@ BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
             LOG_TRACE(<< "window = " << window);
 
             for (auto bucketLength : {HALF_HOUR, HOUR}) {
+                LOG_TRACE(<< "bucket length = " << bucketLength);
+
                 switch (test % 3) {
                 case 0:
                     rng.generateNormalSamples(0.0, 0.4, window / bucketLength, noise);
@@ -114,7 +115,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
     }
 
     LOG_DEBUG(<< "True negative rate = " << TN / (FP + TN));
-    BOOST_TEST_REQUIRE(TN / (FP + TN) > 0.99);
+    BOOST_REQUIRE(TN / (FP + TN) > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
@@ -129,7 +130,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
     TStrVecVec expected{{"86400"},
                         {"86400"},
                         {"604800"},
-                        {"86400", "604800"},
+                        {"86400/(0,172800)", "86400/(172800,604800)", "604800/(0,172800)"},
                         {"86400/(0,172800)", "86400/(172800,604800)",
                          "604800/(0,172800)", "604800/(172800,604800)"}};
     core_t::TTime startTime{10000};
@@ -148,11 +149,14 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
         if ((test + 1) % 10 == 0) {
             LOG_DEBUG(<< "test " << test + 1 << " / 100");
         }
+
         for (std::size_t i = 0; i < windows.size(); ++i) {
             core_t::TTime window{windows[i]};
             LOG_TRACE(<< "window = " << window);
 
             for (auto bucketLength : {HALF_HOUR, HOUR}) {
+                LOG_TRACE(<< "bucket length = " << bucketLength);
+
                 switch (test % 3) {
                 case 0:
                     rng.generateNormalSamples(0.0, 1.0, window / HALF_HOUR, noise);
@@ -184,23 +188,23 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
                               << core::CContainerPrinter::print(expected[index[0]]));
                 }
 
-                double found[]{0.0, 0.0};
+                std::size_t found[]{0, 0};
                 for (const auto& component : result.components()) {
-                    found[std::find(expected[index[0]].begin(),
-                                    expected[index[0]].end(), component.print()) ==
-                          expected[index[0]].end()] += 1.0;
+                    ++found[std::find(expected[index[0]].begin(),
+                                      expected[index[0]].end(), component.print()) ==
+                            expected[index[0]].end()];
                 }
-                TP += found[0];
-                FN += static_cast<double>(expected[index[0]].size()) - found[0];
-                FP += found[1];
+                TP += static_cast<double>(found[0]);
+                FN += static_cast<double>(expected[index[0]].size() - found[0]);
+                FP += static_cast<double>(found[1]);
             }
         }
     }
 
     LOG_DEBUG(<< "recall = " << TP / (TP + FN));
     LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
-    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.98);
-    BOOST_TEST_REQUIRE(TP / (TP + FP) > 0.99);
+    BOOST_REQUIRE(TP / (TP + FN) > 0.95);
+    BOOST_REQUIRE(TP / (TP + FP) > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testRealSpikeyDaily) {
@@ -210,10 +214,10 @@ BOOST_AUTO_TEST_CASE(testRealSpikeyDaily) {
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
-    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(
+    BOOST_REQUIRE(test::CTimeSeriesTestData::parse(
         "testfiles/spikey_data.csv", timeseries, startTime, endTime,
         test::CTimeSeriesTestData::CSV_UNIX_REGEX));
-    BOOST_TEST_REQUIRE(timeseries.size() > 0);
+    BOOST_REQUIRE(timeseries.size() > 0);
 
     LOG_DEBUG(<< "timeseries = "
               << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10)
@@ -254,11 +258,11 @@ BOOST_AUTO_TEST_CASE(testRealTradingDays) {
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
-    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(
+    BOOST_REQUIRE(test::CTimeSeriesTestData::parse(
         "testfiles/thirty_minute_samples.csv", timeseries, startTime, endTime,
         test::CTimeSeriesTestData::CSV_ISO8601_REGEX,
         test::CTimeSeriesTestData::CSV_ISO8601_DATE_FORMAT));
-    BOOST_TEST_REQUIRE(timeseries.size() > 0);
+    BOOST_REQUIRE(timeseries.size() > 0);
 
     LOG_DEBUG(<< "timeseries = "
               << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10)
@@ -280,7 +284,9 @@ BOOST_AUTO_TEST_CASE(testRealTradingDays) {
         if (time > lastTest + window) {
             maths::CTimeSeriesTestForSeasonality seasonality{lastTest, bucketLength, values};
             auto result = seasonality.decompose();
-            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(172800,604800)]");
+            LOG_DEBUG(<< result.print());
+            BOOST_REQUIRE(result.print() == "[86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]" ||
+                          result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]");
             values.assign(window / bucketLength, TFloatMeanAccumulator{});
             lastTest = time;
         }
@@ -294,10 +300,10 @@ BOOST_AUTO_TEST_CASE(testRealTradingDaysPlusOutliers) {
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
-    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(
+    BOOST_REQUIRE(test::CTimeSeriesTestData::parse(
         "testfiles/diurnal.csv", timeseries, startTime, endTime,
         test::CTimeSeriesTestData::CSV_UNIX_REGEX));
-    BOOST_TEST_REQUIRE(timeseries.size() > 0);
+    BOOST_REQUIRE(timeseries.size() > 0);
 
     LOG_DEBUG(<< "timeseries = "
               << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10)
@@ -319,6 +325,7 @@ BOOST_AUTO_TEST_CASE(testRealTradingDaysPlusOutliers) {
         if (time > lastTest + window) {
             maths::CTimeSeriesTestForSeasonality seasonality{lastTest, bucketLength, values};
             auto result = seasonality.decompose();
+            LOG_DEBUG(<< result.print());
             BOOST_REQUIRE(result.print() == "[86400/(172800,604800), 604800/(0,172800)]" ||
                           result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800)]");
             values.assign(window / bucketLength, TFloatMeanAccumulator{});
@@ -327,18 +334,18 @@ BOOST_AUTO_TEST_CASE(testRealTradingDaysPlusOutliers) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRealSwitchingNotPeriodic) {
+BOOST_AUTO_TEST_CASE(testRealSwitchingNoSeasonality) {
 
     // Test on real non-periodic switching data.
 
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
-    BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(
+    BOOST_REQUIRE(test::CTimeSeriesTestData::parse(
         "testfiles/no_periods.csv", timeseries, startTime, endTime,
         test::CTimeSeriesTestData::CSV_ISO8601_REGEX,
         test::CTimeSeriesTestData::CSV_ISO8601_DATE_FORMAT));
-    BOOST_TEST_REQUIRE(timeseries.size() > 0);
+    BOOST_REQUIRE(timeseries.size() > 0);
 
     LOG_DEBUG(<< "timeseries = "
               << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10)
@@ -390,6 +397,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
         if ((test + 1) % 10 == 0) {
             LOG_DEBUG(<< "test " << test + 1 << " / 100");
         }
+
         for (auto window : {WEEK, 2 * WEEK, 25 * DAY}) {
             LOG_TRACE(<< "window = " << window);
 
@@ -400,6 +408,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
             }()};
 
             for (auto bucketLength : {HALF_HOUR, HOUR}) {
+                LOG_TRACE(<< "bucket length = " << bucketLength);
 
                 core_t::TTime period{maths::CIntegerTools::floor(
                     static_cast<core_t::TTime>(static_cast<double>(DAY) / periodScale),
@@ -471,12 +480,12 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
     LOG_DEBUG(<< "accuracy @ 0% error = " << TP[0] / (TP[0] + FP));
     LOG_DEBUG(<< "accuracy @ 1% error = " << TP[1] / (TP[1] + FP));
     LOG_DEBUG(<< "accuracy @ 5% error = " << TP[2] / (TP[2] + FP));
-    BOOST_TEST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.93);
-    BOOST_TEST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.97);
-    BOOST_TEST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.97);
-    BOOST_TEST_REQUIRE(TP[0] / (TP[0] + FP) > 0.95);
-    BOOST_TEST_REQUIRE(TP[1] / (TP[1] + FP) > 0.95);
-    BOOST_TEST_REQUIRE(TP[2] / (TP[2] + FP) > 0.95);
+    BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.93);
+    BOOST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.98);
+    BOOST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.98);
+    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.93);
+    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.93);
+    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.93);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticSparseDaily) {
@@ -492,7 +501,6 @@ BOOST_AUTO_TEST_CASE(testSyntheticSparseDaily) {
     TDoubleVec noise;
 
     for (std::size_t test = 0; test < 2; ++test) {
-
         LOG_DEBUG(<< type[test]);
 
         values.assign(7 * 48, TFloatMeanAccumulator{});
@@ -513,7 +521,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticSparseDaily) {
             if (day > 3) {
                 maths::CTimeSeriesTestForSeasonality seasonality{0, HALF_HOUR, values};
                 auto result = seasonality.decompose();
-                BOOST_TEST_REQUIRE(result.print() == (test == 0 ? "[86400]" : "[]"));
+                BOOST_REQUIRE(result.print() == (test == 0 ? "[86400]" : "[]"));
             }
         }
     }
@@ -532,12 +540,11 @@ BOOST_AUTO_TEST_CASE(testSyntheticSparseWeekly) {
     TDoubleVec noise;
 
     for (std::size_t test = 0; test < 2; ++test) {
-
         LOG_DEBUG(<< type[test]);
 
-        values.assign(4 * 168, TFloatMeanAccumulator{});
+        values.assign(5 * 168, TFloatMeanAccumulator{});
 
-        for (std::size_t week = 0, i = 0, j = 0; week < 4; ++week, ++j) {
+        for (std::size_t week = 0, i = 0, j = 0; week < 5; ++week, ++j) {
             for (auto value :
                  {0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
                   0.0,  0.0,  10.0, 10.0, 8.0,  4.0,  3.0,  1.0,  1.0,  3.0,
@@ -563,10 +570,11 @@ BOOST_AUTO_TEST_CASE(testSyntheticSparseWeekly) {
                 ++i;
             }
 
-            if (week >= 2) {
+            if (week >= 3) {
                 maths::CTimeSeriesTestForSeasonality seasonality{0, HOUR, values};
                 auto result = seasonality.decompose();
-                BOOST_TEST_REQUIRE(result.print() == (test == 0 ? "[604800]" : "[]"));
+                LOG_DEBUG(<< result.print());
+                BOOST_REQUIRE(result.print() == (test == 0 ? "[86400, 604800]" : "[]"));
             }
         }
     }
@@ -576,7 +584,6 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
 
     // Test synthetic timeseries data with pepper and salt outliers.
 
-    TDoubleVec modulation{0.2, 0.2, 1.0, 1.0, 1.0, 1.0, 1.0};
     core_t::TTime startTime{10000};
 
     test::CRandomNumbers rng;
@@ -587,19 +594,18 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
     TFloatMeanAccumulatorVec values;
 
     for (auto period : {DAY, WEEK}) {
-
         LOG_DEBUG(<< "period = " << period);
 
         for (auto window : {WEEK, 2 * WEEK, 4 * WEEK}) {
             if (window < 2 * period) {
                 continue;
             }
-            LOG_DEBUG(<< "window length = " << window);
+            LOG_TRACE(<< "window = " << window);
 
             for (auto bucketLength : {HALF_HOUR, HOUR}) {
                 core_t::TTime buckets{window / bucketLength};
                 std::size_t numberOutliers{
-                    static_cast<std::size_t>(0.1 * static_cast<double>(buckets))};
+                    static_cast<std::size_t>(0.05 * static_cast<double>(buckets))};
                 rng.generateUniformSamples(0, buckets, numberOutliers, outliers);
                 rng.generateUniformSamples(0, 1.0, numberOutliers, spikeOrTroughSelector);
                 rng.generateNormalSamples(0.0, 9.0, buckets, noise);
@@ -623,15 +629,17 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
 
                 maths::CTimeSeriesTestForSeasonality seasonality{startTime, bucketLength, values};
                 auto result = seasonality.decompose();
-                BOOST_TEST_REQUIRE(result.print() == "[" + std::to_string(period) + "]");
+                LOG_DEBUG(<< result.print());
+                BOOST_REQUIRE(result.print() == "[" + std::to_string(period) + "]");
             }
         }
     }
 
     LOG_DEBUG(<< "Weekdays/weekend");
 
-    for (auto window : {2 * WEEK, 4 * WEEK}) {
+    TDoubleVec modulation{0.2, 0.2, 1.0, 1.0, 1.0, 1.0, 1.0};
 
+    for (auto window : {2 * WEEK, 4 * WEEK}) {
         LOG_DEBUG(<< "window length = " << window);
 
         for (auto bucketLength : {HALF_HOUR, HOUR}) {
@@ -662,7 +670,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
             maths::CTimeSeriesTestForSeasonality seasonality{startTime, bucketLength,
                                                              std::move(values)};
             auto result = seasonality.decompose();
-            BOOST_TEST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800)]");
+            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800)]");
         }
     }
 }
@@ -674,12 +682,14 @@ BOOST_AUTO_TEST_CASE(testSyntheticMixtureOfSeasonalities) {
 
     TGeneratorVec generators[]{
         {spikeyDaily,
-         [](core_t::TTime time) { return scale(0.25, time, spikeyDaily); }},
+         [](core_t::TTime time) { return scale(16.0 / 24.0, time, spikeyDaily); }},
         {smoothDaily,
-         [](core_t::TTime time) { return scale(3.0, time, spikeyDaily); }},
+         [](core_t::TTime time) {
+             return 2.0 * scale(36.0 / 24.0, time, spikeyDaily);
+         }},
         {smoothDaily,
-         [](core_t::TTime time) { return scale(0.5, time, smoothDaily); }}};
-    TTimeVec periods[]{{86400, 4 * 86400}, {86400, 86400 / 3}, {86400, 2 * 86400}};
+         [](core_t::TTime time) { return scale(18.0 / 24.0, time, smoothDaily); }}};
+    TStrVecVec expected{{"86400", "129600"}, {"86400", "57600"}, {"86400", "115200"}};
 
     core_t::TTime startTime{10000};
 
@@ -687,21 +697,26 @@ BOOST_AUTO_TEST_CASE(testSyntheticMixtureOfSeasonalities) {
 
     TDoubleVec noise;
     TFloatMeanAccumulatorVec values;
+    TSizeVec index;
 
-    TDoubleVec TP{0.0, 0.0, 0.0};
-    TDoubleVec FN{0.0, 0.0, 0.0};
+    double TP{0.0};
+    double FN{0.0};
+    double FP{0.0};
 
-    for (std::size_t test = 0; test < 1; ++test) {
-        if (test % 10 == 0) {
-            LOG_DEBUG(<< "test " << test << " / 100");
+    for (std::size_t test = 0; test < 100; ++test) {
+        if ((test + 1) % 10 == 0) {
+            LOG_DEBUG(<< "test " << test + 1 << " / 100");
         }
+
         for (auto window : {16 * DAY, 4 * WEEK}) {
+            LOG_TRACE(<< "window = " << window);
 
             TDoubleVec periodScales;
             rng.generateUniformSamples(1.0, 5.0, 2, periodScales);
             periodScales[0] = 1.0 / periodScales[0];
 
             for (auto bucketLength : {HALF_HOUR, HOUR}) {
+                LOG_TRACE(<< "bucket length = " << bucketLength);
 
                 for (auto periodScale : periodScales) {
                     core_t::TTime period{maths::CIntegerTools::floor(
@@ -721,35 +736,47 @@ BOOST_AUTO_TEST_CASE(testSyntheticMixtureOfSeasonalities) {
                     rng.generateLogNormalSamples(0.2, 0.3, window / FIVE_MINS, noise);
                     break;
                 }
+                rng.generateUniformSamples(0, 3, 1, index);
+                LOG_TRACE(<< "generator = " << index[0]);
+                const auto& generator = generators[index[0]];
 
                 values.assign(window / bucketLength, TFloatMeanAccumulator{});
                 for (core_t::TTime time = 0; time < window; time += FIVE_MINS) {
                     std::size_t bucket(time / bucketLength);
                     double value{0.0};
                     for (std::size_t i = 0; i < 2; ++i) {
-                        value += 20.0 * generators[test % 3][i](startTime + time);
+                        value += 20.0 * generator[i](startTime + time);
                     }
                     values[bucket].add(value + noise[time / FIVE_MINS]);
                 }
 
-                maths::CTimeSeriesTestForSeasonality seasonality{
-                    startTime, bucketLength, std::move(values)};
+                maths::CTimeSeriesTestForSeasonality seasonality{startTime, bucketLength, values};
                 auto result = seasonality.decompose();
-                LOG_DEBUG(<< "got " << result.print() << " expected "
-                          << core::CContainerPrinter::print(periods[test % 3]));
+
+                std::size_t found[]{0, 0};
+                for (const auto& component : result.components()) {
+                    ++found[std::find(expected[index[0]].begin(),
+                                      expected[index[0]].end(), component.print()) ==
+                            expected[index[0]].end()];
+                }
+                TP += static_cast<double>(found[0]);
+                FN += static_cast<double>(2 - found[0]);
+                FP += static_cast<double>(found[1]);
+                if (found[0] < 2 || found[1] > 0) {
+                    LOG_DEBUG(<< "got " << result.print() << ", expected "
+                              << core::CContainerPrinter::print(expected[index[0]]));
+                }
             }
         }
     }
 
-    LOG_DEBUG(<< "Recall at 0% error = " << TP[0] / (TP[0] + FN[0]));
-    LOG_DEBUG(<< "Recall at 1% error = " << TP[1] / (TP[1] + FN[1]));
-    LOG_DEBUG(<< "Recall at 5% error = " << TP[2] / (TP[2] + FN[2]));
-    BOOST_TEST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.91);
-    BOOST_TEST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.99);
-    BOOST_TEST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.99);
+    LOG_DEBUG(<< "recall = " << TP / (TP + FN));
+    LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
+    BOOST_REQUIRE(TP / (TP + FN) > 0.99);
+    BOOST_REQUIRE(TP / (TP + FP) > 0.99);
 }
 
-BOOST_AUTO_TEST_CASE(testSyntheticWithLinearScaling) {
+BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithLinearScaling) {
 
     // Test the ability to correctly decompose a time series with diurnal
     // seasonal components in the presence of piecewise constant random
@@ -770,11 +797,12 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithLinearScaling) {
     double FN{0.0};
 
     for (std::size_t test = 0; test < 100; ++test) {
-        if (test % 10 == 0) {
-            LOG_DEBUG(<< "test " << test << " / 100");
+        if ((test + 1) % 10 == 0) {
+            LOG_DEBUG(<< "test " << test + 1 << " / 100");
         }
 
         for (auto window : {3 * WEEK, 4 * WEEK}) {
+            LOG_TRACE(<< "window = " << window);
 
             core_t::TTime endTime{startTime + window};
 
@@ -808,37 +836,20 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithLinearScaling) {
 
             maths::CTimeSeriesTestForSeasonality seasonality{startTime, HALF_HOUR, values};
             auto result = seasonality.decompose();
-            LOG_DEBUG(<< "result = " << result.print());
 
-            /*
-            TP += result.print() == expected[index[0]] ? 1.0 : 0.0;
-            FN += result.print() == expected[index[0]] ? 0.0 : 1.0;
-            */
+            if (result.print() != "[86400]") {
+                LOG_DEBUG(<< "got " << result.print() << ", expected [86400]");
+            }
+            TP += result.print() == "[86400]" ? 1.0 : 0.0;
+            FN += result.print() == "[86400]" ? 0.0 : 1.0;
         }
     }
 
     LOG_DEBUG(<< "Recall = " << TP / (TP + FN));
-    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.99);
-
-    // Test we don't interpret a weekend (which is a scaled weekday)
-    // as a segmented pure periodic component.
-    {
-        double scale[]{0.3, 0.3, 1.0, 1.0, 1.0, 1.0, 1.0};
-        values.assign(2 * WEEK / HALF_HOUR, TFloatMeanAccumulator{});
-        for (core_t::TTime time = 0; time < 2 * WEEK; time += HALF_HOUR) {
-            values[time / HALF_HOUR].add(
-                scale[(time % WEEK) / DAY] *
-                std::sin(boost::math::double_constants::two_pi *
-                         static_cast<double>(time) / static_cast<double>(DAY)));
-        }
-
-        maths::CTimeSeriesTestForSeasonality seasonality{startTime, HALF_HOUR, values};
-        auto result = seasonality.decompose();
-        LOG_DEBUG(<< "result = " << result.print());
-    }
+    BOOST_REQUIRE(TP / (TP + FN) > 0.99);
 }
 
-BOOST_AUTO_TEST_CASE(testSyntheticWithLinearTrend) {
+BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnalWithLinearTrend) {
 
     // Test the ability to correctly decompose a time series with seasonal
     // components and a linear trend.
@@ -851,17 +862,18 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithLinearTrend) {
     TFloatMeanAccumulatorVec values;
     TDoubleVec noise;
     TSizeVec index;
-    TSizeVec repeats;
 
-    double TP{0.0};
-    double FN{0.0};
+    double TP[3]{0.0};
+    double FN[3]{0.0};
+    double FP{0.0};
 
     for (std::size_t test = 0; test < 100; ++test) {
-        if (test % 10 == 0) {
-            LOG_DEBUG(<< "test " << test << " / 100");
+        if ((test + 1) % 10 == 0) {
+            LOG_DEBUG(<< "test " << test + 1 << " / 100");
         }
-        for (auto window : {WEEK, 2 * WEEK, 16 * DAY, 4 * WEEK}) {
-            core_t::TTime endTime{startTime + window};
+
+        for (auto window : {WEEK, 2 * WEEK, 25 * DAY}) {
+            LOG_TRACE(<< "window = " << window);
 
             double periodScale{[&] {
                 TDoubleVec result;
@@ -869,58 +881,88 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithLinearTrend) {
                 return test % 2 == 0 ? result[0] : 1.0 / result[0];
             }()};
 
-            for (auto bucketLength : {TEN_MINS, HALF_HOUR}) {
+            for (auto bucketLength : {HALF_HOUR, HOUR}) {
+                LOG_TRACE(<< "bucket length = " << bucketLength);
 
                 core_t::TTime period{maths::CIntegerTools::floor(
                     static_cast<core_t::TTime>(static_cast<double>(DAY) / periodScale),
                     bucketLength)};
                 periodScale = static_cast<double>(DAY) / static_cast<double>(period);
-                if (periodScale == 1.0 || window < 3 * period) {
+                if (periodScale == 1.0 || window < 5 * period) {
                     continue;
                 }
 
                 switch (test % 3) {
                 case 0:
-                    rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
+                    rng.generateNormalSamples(0.0, 1.0, window / FIVE_MINS, noise);
                     break;
                 case 1:
-                    rng.generateGammaSamples(1.0, 1.0, window / bucketLength, noise);
+                    rng.generateGammaSamples(1.0, 1.0, window / FIVE_MINS, noise);
                     break;
                 case 2:
-                    rng.generateLogNormalSamples(0.2, 0.3, window / bucketLength, noise);
+                    rng.generateLogNormalSamples(0.2, 0.3, window / FIVE_MINS, noise);
                     break;
                 }
                 rng.generateUniformSamples(0, 2, 1, index);
-                rng.generateUniformSamples(3, 20, 1, repeats);
                 auto generator = generators[index[0]];
 
                 values.assign(window / bucketLength, TFloatMeanAccumulator{});
-                for (core_t::TTime time = startTime; time < endTime + window;
-                     time += bucketLength) {
-                    std::size_t bucket((time - startTime) / bucketLength);
+                for (core_t::TTime time = 0; time < window; time += FIVE_MINS) {
+                    std::size_t bucket(time / bucketLength);
                     values[bucket].add(0.5 * static_cast<double>(bucket) +
-                                       20.0 * scale(periodScale, time, generator) +
-                                       noise[bucket]);
+                                       20.0 * scale(periodScale, startTime + time, generator) +
+                                       noise[time / FIVE_MINS]);
                 }
 
                 maths::CTimeSeriesTestForSeasonality seasonality{startTime, bucketLength, values};
-
                 auto result = seasonality.decompose();
-                LOG_DEBUG(<< "result = " << result.print());
-                // TODO
-                /*
-                TP += result.print() == expected[index[0]] ? 1.0 : 0.0;
-                FN += result.print() == expected[index[0]] ? 0.0 : 1.0;
-                */
+
+                double found[]{0.0, 0.0, 0.0, 0.0};
+                if (result.print() != "[" + std::to_string(period) + "]") {
+                    LOG_DEBUG(<< "got " << result.print() << ", expected [" << period << "]");
+                } else {
+                    found[0] = 1.0;
+                }
+
+                for (const auto& component : result.components()) {
+                    core_t::TTime componentPeriod{component.seasonalTime()->period()};
+                    double error{static_cast<double>(std::min(componentPeriod % period,
+                                                              period - componentPeriod % period)) /
+                                 static_cast<double>(period)};
+                    if (error < 0.01) {
+                        found[1] = std::max(found[1], 1.0);
+                    }
+                    if (error < 0.05) {
+                        found[2] = std::max(found[2], 1.0);
+                    }
+                    if (error >= 0.05) {
+                        found[3] += 1.0;
+                    }
+                }
+                for (std::size_t i = 0; i < 3; ++i) {
+                    TP[i] += found[i];
+                    FN[i] += 1.0 - found[i];
+                }
+                FP += found[3];
             }
         }
     }
 
-    LOG_DEBUG(<< "Recall = " << TP / (TP + FN));
-    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.99);
+    LOG_DEBUG(<< "recall @ 0% error = " << TP[0] / (TP[0] + FN[0]));
+    LOG_DEBUG(<< "recall @ 1% error = " << TP[1] / (TP[1] + FN[1]));
+    LOG_DEBUG(<< "recall @ 5% error = " << TP[2] / (TP[2] + FN[2]));
+    LOG_DEBUG(<< "accuracy @ 0% error = " << TP[0] / (TP[0] + FP));
+    LOG_DEBUG(<< "accuracy @ 1% error = " << TP[1] / (TP[1] + FP));
+    LOG_DEBUG(<< "accuracy @ 5% error = " << TP[2] / (TP[2] + FP));
+    BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.93);
+    BOOST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.98);
+    BOOST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.98);
+    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.93);
+    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.93);
+    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.93);
 }
 
-BOOST_AUTO_TEST_CASE(testSyntheticWithPiecewiseLinearTrend) {
+BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend) {
 
     // Test the ability to correctly decompose a time series with diurnal
     // seasonal components and a piecewise linear trend.
@@ -928,7 +970,6 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithPiecewiseLinearTrend) {
     using TLinearModel = std::function<double(core_t::TTime)>;
     using TLinearModelVec = std::vector<TLinearModel>;
 
-    core_t::TTime bucketLength{HALF_HOUR};
     std::size_t segmentSupport[][2]{{100, 200}, {600, 900}};
     double slopeSupport[][2]{{0.5, 1.0}, {-1.0, -0.5}};
     double interceptSupport[][2]{{-10.0, 5.0}, {10.0, 20.0}};
@@ -937,6 +978,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithPiecewiseLinearTrend) {
 
     test::CRandomNumbers rng;
 
+    TFloatMeanAccumulatorVec values;
     TDoubleVec noise;
     TSizeVec index;
 
@@ -944,11 +986,13 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithPiecewiseLinearTrend) {
     double FN{0.0};
 
     for (std::size_t test = 0; test < 100; ++test) {
-        if (test % 10 == 0) {
-            LOG_DEBUG(<< "test " << test << " / 100");
+        if ((test + 1) % 10 == 0) {
+            LOG_DEBUG(<< "test " << test + 1 << " / 100");
         }
 
-        for (const auto& window : {3 * WEEK, 4 * WEEK}) {
+        for (auto window : {3 * WEEK, 4 * WEEK}) {
+            LOG_TRACE(<< "window = " << window);
+
             core_t::TTime endTime{startTime + window};
 
             TTimeVec segments;
@@ -962,7 +1006,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithPiecewiseLinearTrend) {
                 rng.generateUniformSamples(slopeSupport[i][0], slopeSupport[i][1], 1, slope);
                 rng.generateUniformSamples(interceptSupport[i][0],
                                            interceptSupport[i][1], 1, intercept);
-                segments.push_back(startTime + segment[0] * bucketLength);
+                segments.push_back(startTime + segment[0] * HALF_HOUR);
                 models.push_back([startTime, slope, intercept](core_t::TTime time) {
                     return slope[0] * static_cast<double>(time - startTime) /
                                static_cast<double>(DAY) +
@@ -977,30 +1021,29 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithPiecewiseLinearTrend) {
                               5.0 * generators[index[0]](time));
             };
 
-            rng.generateNormalSamples(0.0, 1.0, window / bucketLength, noise);
+            rng.generateNormalSamples(0.0, 1.0, window / HALF_HOUR, noise);
             rng.generateUniformSamples(0, 2, 1, index);
 
-            TFloatMeanAccumulatorVec values(window / bucketLength);
-            for (core_t::TTime time = startTime; time < endTime; time += bucketLength) {
-                std::size_t bucket((time - startTime) / bucketLength);
-                double value{trend(time) + noise[bucket]};
+            values.assign(window / HALF_HOUR, TFloatMeanAccumulator{});
+            for (core_t::TTime time = 0; time < window; time += HALF_HOUR) {
+                std::size_t bucket(time / HALF_HOUR);
+                double value{trend(startTime + time) + noise[bucket]};
                 values[bucket].add(value);
             }
 
-            maths::CTimeSeriesTestForSeasonality seasonality{startTime, bucketLength,
-                                                             std::move(values)};
+            maths::CTimeSeriesTestForSeasonality seasonality{startTime, HALF_HOUR, values};
             auto result = seasonality.decompose();
-            LOG_DEBUG(<< "result = " << result.print());
 
-            /*
-            TP += result.print() == expected[index[0]] ? 1.0 : 0.0;
-            FN += result.print() == expected[index[0]] ? 0.0 : 1.0;
-            */
+            if (result.print() != "[86400]") {
+                LOG_DEBUG(<< "got " << result.print() << ", expected [86400]");
+            }
+            TP += result.print() == "[86400]" ? 1.0 : 0.0;
+            FN += result.print() == "[86400]" ? 0.0 : 1.0;
         }
     }
 
     LOG_DEBUG(<< "Recall = " << TP / (TP + FN));
-    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.87);
+    BOOST_REQUIRE(TP / (TP + FN) > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testComponentInitialValues) {

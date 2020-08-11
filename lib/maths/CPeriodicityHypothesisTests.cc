@@ -2136,7 +2136,8 @@ bool CPeriodicityHypothesisTests::testPartition(const TTimeTimePr2Vec& partition
             })};
         if (BW > 1.0) {
             RW = CSignal::cyclicAutocorrelation(
-                length(window[0]) / m_BucketLength + period, partitionValues);
+                CSignal::seasonalComponentSummary(length(window[0]) / m_BucketLength + period),
+                partitionValues);
             RW = autocorrelationAtPercentile(RW, BW, 50.0 - CONFIDENCE_INTERVAL / 2.0);
             LOG_TRACE(<< "  autocorrelation          = " << RW);
             LOG_TRACE(<< "  autocorrelationThreshold = " << stats.s_AutocorrelationThreshold);
@@ -2189,7 +2190,7 @@ bool CPeriodicityHypothesisTests::testVariance(const TTimeTimePr2Vec& window,
     LOG_TRACE(<< "  significance      = "
               << CStatisticalTests::leftTailFTest(v1 / v0, df1, df0));
 
-    R = CSignal::cyclicAutocorrelation(period, buckets);
+    R = CSignal::cyclicAutocorrelation(CSignal::seasonalComponentSummary(period), buckets);
     R = autocorrelationAtPercentile(R, stats.s_NonEmptyBuckets,
                                     50.0 - CONFIDENCE_INTERVAL / 2.0);
     LOG_TRACE(<< "  autocorrelation          = " << R);
@@ -2473,7 +2474,8 @@ std::size_t mostSignificantPeriodicComponent(core_t::TTime bucketLength,
     for (const auto& period : candidatePeriods) {
         TFloatMeanAccumulatorCRng window(values, 0, period * (n / period));
         candidates.add({applySelectionBias(period, bucketLength,
-                                           CSignal::cyclicAutocorrelation(period, window)),
+                                           CSignal::cyclicAutocorrelation(
+                                               CSignal::seasonalComponentSummary(period), window)),
                         period});
     }
     candidates.sort();

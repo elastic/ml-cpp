@@ -359,7 +359,8 @@ BOOST_AUTO_TEST_CASE(testAutocorrelations) {
 
         TDoubleVec expected;
         for (std::size_t offset = 1; offset < values.size(); ++offset) {
-            expected.push_back(maths::CSignal::cyclicAutocorrelation(offset, values));
+            expected.push_back(maths::CSignal::cyclicAutocorrelation(
+                maths::CSignal::seasonalComponentSummary(offset), values));
         }
 
         TDoubleVec actual;
@@ -980,7 +981,7 @@ BOOST_AUTO_TEST_CASE(testSingleComponentSeasonalDecomposition) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testMultipleComponentsSeasonalDecomposition) {
+BOOST_AUTO_TEST_CASE(testMultipleSeasonalDecomposition) {
 
     // Test that we reliably find a mixture of two seasonal component.
 
@@ -1031,19 +1032,19 @@ BOOST_AUTO_TEST_CASE(testMultipleComponentsSeasonalDecomposition) {
             values[i].add(sum + noise[i]);
         }
 
-        auto detectedPeriods = maths::CSignal::seasonalDecomposition(
+        auto decomposition = maths::CSignal::seasonalDecomposition(
             values, 0.1, {24, 7 * 24, 365 * 24}, [](std::size_t) { return 1.0; });
 
         // We can detect additional components but must detect the two real
         // components first.
-        BOOST_REQUIRE(detectedPeriods.size() >= 2);
+        BOOST_REQUIRE(decomposition.size() >= 2);
 
-        detectedPeriods.resize(2);
+        decomposition.resize(2);
         std::sort(period.begin(), period.end());
-        std::sort(detectedPeriods.begin(), detectedPeriods.end());
+        std::sort(decomposition.begin(), decomposition.end());
         for (std::size_t i = 0; i < 2; ++i) {
             meanError.add(std::fabs(
-                static_cast<double>(detectedPeriods[i].period() - period[i])));
+                static_cast<double>(decomposition[i].period() - period[i])));
         }
     }
 
@@ -1051,7 +1052,7 @@ BOOST_AUTO_TEST_CASE(testMultipleComponentsSeasonalDecomposition) {
     BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.01);
 }
 
-BOOST_AUTO_TEST_CASE(testMultipleDiurnalDecomposition) {
+BOOST_AUTO_TEST_CASE(testMultipleDiurnalSeasonalDecomposition) {
 
     // Test seasonal decomposition with weekdays/weekend.
 
@@ -1066,8 +1067,6 @@ BOOST_AUTO_TEST_CASE(testMultipleDiurnalDecomposition) {
                              {0.3, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0}};
 
     for (std::size_t test = 0; test < 100; ++test) {
-
-        LOG_DEBUG(<< "**** test = " << test << " ****");
 
         rng.generateUniformSamples(0, 168, 1, offset);
         const auto& amplitude = amplitudes[test % amplitudes.size()];
@@ -1086,7 +1085,7 @@ BOOST_AUTO_TEST_CASE(testMultipleDiurnalDecomposition) {
 
         auto component = [&](std::size_t i) {
             i = (168 + i - offset[0]) % 168;
-            return 10.0 * amplitude[i / 24] *
+            return 20.0 * amplitude[i / 24] *
                    (1.0 + std::sin(boost::math::double_constants::two_pi *
                                    static_cast<double>(i) / 24.0));
         };
@@ -1098,9 +1097,11 @@ BOOST_AUTO_TEST_CASE(testMultipleDiurnalDecomposition) {
         }
 
         auto decomposition = maths::CSignal::seasonalDecomposition(
-            values, 0.0, {24, 7 * 24, 365 * 24}, [](std::size_t period) {
+            values, 0.0, {24, 7 * 24, 365 * 24},
+            [](std::size_t period) {
                 return period == 24 || period == 168 ? 1.1 : 1.0;
-            });
+            },
+            {}, 1e-6);
 
         BOOST_REQUIRE_EQUAL(expectedDecomposition[test % std::size(expectedDecomposition)],
                             core::CContainerPrinter::print(decomposition));
@@ -1117,15 +1118,15 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
     maths::CSignal::TMeanAccumulatorVec1Vec actuals;
     TDoubleVec noise;
     TSizeVec offset;
-    TDoubleVecVec amplitudes{{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
-                             {0.3, 0.3, 1.0, 1.0, 1.0, 1.0, 1.0},
-                             {0.3, 0.3, 1.3, 1.0, 1.0, 1.3, 1.2},
-                             {0.3, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0}};
+    TDoubleVecVec modulations{{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
+                              {0.3, 0.3, 1.0, 1.0, 1.0, 1.0, 1.0},
+                              {0.3, 0.3, 1.3, 1.0, 1.0, 1.3, 1.2},
+                              {0.3, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0}};
 
     for (std::size_t test = 0; test < 100; ++test) {
 
         rng.generateUniformSamples(0, 168, 1, offset);
-        const auto& amplitude = amplitudes[test % amplitudes.size()];
+        const auto& modulation = modulations[test % modulations.size()];
 
         // clang-format off
         std::string expectedDecomposition[]{
@@ -1142,7 +1143,7 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
 
         auto component = [&](std::size_t i) {
             i = (168 + i - offset[0]) % 168;
-            return 10.0 * amplitude[i / 24] *
+            return 20.0 * modulation[i / 24] *
                    (1.0 + std::sin(boost::math::double_constants::two_pi *
                                    static_cast<double>(i) / 24.0));
         };
@@ -1157,7 +1158,7 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
             }
 
             auto decomposition = maths::CSignal::tradingDayDecomposition(
-                values, 0.0, 168, startOfWeekOverride);
+                values, 0.0, 168, startOfWeekOverride, 1e-6);
 
             BOOST_REQUIRE_EQUAL(expectedDecomposition[test % std::size(expectedDecomposition)],
                                 core::CContainerPrinter::print(decomposition));
@@ -1243,24 +1244,19 @@ BOOST_AUTO_TEST_CASE(testResidualVariance) {
 
         values.assign(100, maths::CSignal::TFloatMeanAccumulator{});
         actualComponent[0].assign(20, maths::CSignal::TMeanAccumulator{});
-        TMeanVarAccumulator moments[2];
+        TMeanVarAccumulator moments;
 
         rng.generateNormalSamples(0.0, 1.0, values.size(), noise);
         for (std::size_t i = 0; i < values.size(); ++i) {
             values[i].add(component(i) + noise[i]);
             actualComponent[0][i % period].add(component(i));
-            moments[0].add(component(i) + noise[i]);
-            moments[1].add(noise[i]);
+            moments.add(noise[i]);
         }
 
-        double overallVariance;
-        double residualVariance;
-        std::tie(overallVariance, residualVariance) = maths::CSignal::residualVariance(
-            values, {maths::CSignal::seasonalComponentSummary(20)}, actualComponent);
+        double residualVariance{maths::CSignal::residualVariance(
+            values, {maths::CSignal::seasonalComponentSummary(20)}, actualComponent)};
 
-        BOOST_REQUIRE_CLOSE(maths::CBasicStatistics::variance(moments[0]),
-                            overallVariance, 1e-4);
-        BOOST_REQUIRE_CLOSE(maths::CBasicStatistics::variance(moments[1]),
+        BOOST_REQUIRE_CLOSE(maths::CBasicStatistics::maximumLikelihoodVariance(moments),
                             residualVariance, 1e-4);
     }
 }

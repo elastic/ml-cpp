@@ -25,7 +25,6 @@
 #include <functional>
 #include <limits>
 #include <numeric>
-#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -221,7 +220,7 @@ public:
     //! Get an iterator to the end of the values with which to initialize the new component.
     CInitialValueConstIterator endInitialValues() const;
 
-    //! Get a description of the seasonal.
+    //! Get a description of the component.
     std::string print() const;
 
 private:
@@ -293,13 +292,6 @@ public:
                                   TFloatMeanAccumulatorVec values,
                                   double outlierFraction = OUTLIER_FRACTION);
 
-    CTimeSeriesTestForSeasonality& startOfWeek(core_t::TTime value) {
-        m_StartOfWeek = static_cast<std::size_t>(
-            ((core::constants::WEEK + value - (m_StartTime % core::constants::WEEK)) %
-             core::constants::WEEK) /
-            m_BucketLength);
-        return *this;
-    }
     CTimeSeriesTestForSeasonality& lowAutocorrelation(double value) {
         m_LowAutocorrelation = value;
         return *this;
@@ -320,6 +312,13 @@ public:
         m_VerySignificantPValue = value;
         return *this;
     }
+    CTimeSeriesTestForSeasonality& acceptedFalsePostiveRate(double value) {
+        m_AcceptedFalsePostiveRate = value;
+        return *this;
+    }
+
+    //! Set the start of the week(end) to use.
+    void startOfWeek(core_t::TTime value);
 
     //! Register a seasonal component which is already being modelled.
     void addModelledSeasonality(const CSeasonalTime& period);
@@ -336,11 +335,16 @@ private:
         CBasicStatistics::COrderStatisticsHeap<double, std::greater<double>>;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TSeasonalComponentVec = CSignal::TSeasonalComponentVec;
+    using TVarianceStats = CSignal::SVarianceStats;
     using TMeanAccumulatorVec1Vec = CSignal::TMeanAccumulatorVec1Vec;
     using TSegmentation = CTimeSeriesSegmentation;
     using TWeightFunc = TSegmentation::TWeightFunc;
 
     //! \brief Accumulates the minimum amplitude.
+    //!
+    //! This is used for finding and testing the significance of semi-periodic spikes
+    //! (or dips), i.e. frequently repeated values that are much further from the mean
+    //! than the datas' typical variation.
     class CMinAmplitude {
     public:
         static constexpr double INF = std::numeric_limits<double>::max();
@@ -351,68 +355,17 @@ private:
             : m_Level{level}, m_BucketLength{numberValues / this->targetCount(meanRepeats)},
               m_BucketAmplitudes(numberValues / m_BucketLength) {}
 
+        //! Have we seen enough data to test for semi-periodic spikes?
         static std::size_t seenSufficientDataToTestAmplitude(std::size_t range,
-                                                             std::size_t period) {
-            return range >= MINIMUM_REPEATS * period;
-        }
-
-        void add(std::size_t index, const TFloatMeanAccumulator& value) {
-            if (CBasicStatistics::count(value) > 0.0) {
-                std::size_t bucket{index / m_BucketLength};
-                if (bucket < m_BucketAmplitudes.size()) {
-                    ++m_Count;
-                    m_BucketAmplitudes[bucket].add(CBasicStatistics::mean(value) - m_Level);
-                }
-            }
-        }
-
-        double amplitude() const {
-            double amplitudes[]{INF, INF};
-            for (const auto& bucket : m_BucketAmplitudes) {
-                if (bucket.initialized()) {
-                    amplitudes[0] = std::min(amplitudes[0], std::max(-bucket.min(), 0.0));
-                    amplitudes[1] = std::min(amplitudes[1], std::max(bucket.max(), 0.0));
-                } else {
-                    amplitudes[0] = amplitudes[1] = 0.0;
-                    break;
-                }
-            }
-            return std::max(amplitudes[0], amplitudes[1]);
-        }
-
-        double significance(const boost::math::normal& normal) const {
-            double amplitude{this->amplitude()};
-            if (amplitude == 0.0) {
-                return 1.0;
-            }
-            double twoTailPValue{2.0 * CTools::safeCdf(normal, -amplitude)};
-            if (twoTailPValue == 0.0) {
-                return 0.0;
-            }
-            boost::math::binomial binomial(static_cast<double>(m_Count), twoTailPValue);
-            return CTools::safeCdfComplement(
-                binomial, static_cast<double>(m_BucketAmplitudes.size()) - 1.0);
-        }
-
-        std::string print() const {
-            auto appendBucket = [](const TMinMaxAccumulator& bucket,
-                                   std::ostringstream& result) {
-                if (bucket.initialized()) {
-                    result << "(" << bucket.min() << "," << bucket.max() << ")";
-                } else {
-                    result << "-";
-                }
-            };
-            std::ostringstream result;
-            result << "count = " << m_Count << " [";
-            appendBucket(m_BucketAmplitudes[0], result);
-            for (std::size_t i = 1; i < m_BucketAmplitudes.size(); ++i) {
-                result << ", ";
-                appendBucket(m_BucketAmplitudes[i], result);
-            }
-            result << "]";
-            return result.str();
-        }
+                                                             std::size_t period);
+        //! Update with \p value.
+        void add(std::size_t index, const TFloatMeanAccumulator& value);
+        //! Compute the amplitude.
+        double amplitude() const;
+        //! Compute the significance of the amplitude given residual distribution \p normal.
+        double significance(const boost::math::normal& normal) const;
+        //! Get a readable description.
+        std::string print() const;
 
     private:
         using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
@@ -437,7 +390,7 @@ private:
 
     using TAmplitudeVec = std::vector<CMinAmplitude>;
 
-    //! \brief A summary of a test statistics related to a component.
+    //! \brief A summary of test statistics related to a new seasonal component.
     struct SHypothesisStats {
         explicit SHypothesisStats(const TSeasonalComponent& period)
             : s_Period{period} {}
@@ -446,6 +399,8 @@ private:
         CFuzzyTruthValue testVariance(const CTimeSeriesTestForSeasonality& params) const;
         //! Test the amplitude of this hypothesis.
         CFuzzyTruthValue testAmplitude(const CTimeSeriesTestForSeasonality& params) const;
+        //! Get a readable description.
+        std::string print() const;
 
         //! A summary of the seasonal component period.
         TSeasonalComponent s_Period;
@@ -461,8 +416,14 @@ private:
         double s_Autocorrelation = 0.0;
         //! The autocorrelation estimate of absolute values for the hypothesis.
         double s_AutocorrelationUpperBound = 0.0;
+        //! The proportion of values in the seasonal component which are not missing.
+        double s_FractionNotMissing = 1.0;
         //! The residual variance after removing this component.
         double s_ResidualVariance = 0.0;
+        //! The amount of variance this component explains.
+        double s_ExplainedVariance = 0.0;
+        //! The number of values used to example the variance.
+        std::size_t s_NumberParametersToExplainVariance = 0;
         //! The explained variance significance.
         double s_ExplainedVariancePValue = 1.0;
         //! The amplitude significance.
@@ -483,42 +444,44 @@ private:
     struct SModel {
         SModel() = default;
         SModel(double residualVariance,
+               double truncatedResidualVariance,
                std::size_t numberTrendParameters,
                TFloatMeanAccumulatorVec trendInitialValues,
                THypothesisStatsVec hypotheses)
-            : s_ResidualVariance{residualVariance}, s_NumberTrendParameters{numberTrendParameters},
+            : s_ResidualVariance{residualVariance}, s_TruncatedResidualVariance{truncatedResidualVariance},
+              s_NumberTrendParameters{numberTrendParameters},
               s_TrendInitialValues{std::move(trendInitialValues)}, s_Hypotheses{std::move(hypotheses)} {
         }
 
+        //! Does this include seasonality?
         bool seasonal() const { return s_Hypotheses.size() > 0; }
+        //! Does this include seasonality with \p period?
+        bool seasonal(std::size_t period) const;
+        //! Should this behave as a null hypothesis?
+        bool isNull(std::size_t numberValues) const;
+        //! Should this behave as an alternative hypothesis?
+        bool isAlternative(std::size_t numberValues) const;
+        //! The number of degrees of freedom in the variance estimate.
+        double degreesFreedom(std::size_t numberValues) const;
+        //! The number of parameters in model.
+        double numberParameters() const;
+        //! The minimum mean number of repeats of any seasonal component.
+        double meanRepeats() const;
+        //! Get the variance explained per parameter. This is weighted by the variance
+        //! explained by each component of the model.
+        double explainedVariancePerParameter(double explainedVariance) const;
 
-        bool isNull(std::size_t numberValues) const {
-            return (s_Hypotheses.empty() || s_AlreadyModelled) &&
-                   this->degreesFreedom(numberValues) > 0.0;
-        }
-
-        bool isAlternative(std::size_t numberValues) const {
-            return s_Hypotheses.size() > 0 && s_AlreadyModelled == false &&
-                   this->degreesFreedom(numberValues) > 0.0;
-        }
-
-        double degreesFreedom(std::size_t numberValues) const {
-            return static_cast<double>(numberValues) -
-                   static_cast<double>(this->numberParameters() + 1);
-        }
-
-        std::size_t numberParameters() const {
-            return std::accumulate(
-                s_Hypotheses.begin(), s_Hypotheses.end(), s_NumberTrendParameters + 1,
-                [](std::size_t partialParameters, const auto& component) {
-                    return partialParameters + component.s_ComponentSize;
-                });
-        }
-
+        //! Are the seasonal components already modelled?
         bool s_AlreadyModelled = false;
+        //! The residual variance after removing the seasonal components.
         double s_ResidualVariance = std::numeric_limits<double>::max();
+        //! The residual variance after removing the seasonal components and outliers.
+        double s_TruncatedResidualVariance = std::numeric_limits<double>::max();
+        //! The number of parameters in the trend model.
         std::size_t s_NumberTrendParameters = 1;
+        //! The values with which to initialize the trend.
         TFloatMeanAccumulatorVec s_TrendInitialValues;
+        //! The seasonal components which have been found.
         THypothesisStatsVec s_Hypotheses;
     };
 
@@ -534,21 +497,20 @@ private:
                      TSeasonalComponentVec& periods,
                      TModelVec& decompositions) const;
     void addDiurnal(const TFloatMeanAccumulatorVec& valuesMinusTrend,
-                    TFloatMeanAccumulatorVec& valuesToDecompose,
                     std::size_t numberTrendSegments,
+                    TFloatMeanAccumulatorVec& valuesToDecompose,
                     TSeasonalComponentVec& periods,
                     TModelVec& decompositions) const;
     void addDecomposition(const TFloatMeanAccumulatorVec& valuesMinusTrend,
-                          TFloatMeanAccumulatorVec& valuesToDecompose,
                           std::size_t numberTrendSegments,
+                          TFloatMeanAccumulatorVec& valuesToDecompose,
                           TSeasonalComponentVec& periods,
                           TModelVec& decompositions) const;
     SModel testDecomposition(const TFloatMeanAccumulatorVec& valueToTest,
                              std::size_t numberTrendSegments,
                              const TSeasonalComponentVec& periods) const;
-    void updateResiduals(const TSeasonalComponent& period,
-                         const SHypothesisStats& hypothesis,
-                         TFloatMeanAccumulatorVec& trendInitialValues) const;
+    void updateResiduals(const SHypothesisStats& hypothesis,
+                         TFloatMeanAccumulatorVec& residuals) const;
     void finalizeHypotheses(THypothesisStatsVec& hypotheses) const;
     bool meanScale(TFloatMeanAccumulatorVec& values,
                    const SHypothesisStats& hypothesis,
@@ -557,16 +519,11 @@ private:
                                     const TSeasonalComponentVec& periodsToRemove,
                                     const TMeanAccumulatorVec1Vec& componentsToRemove,
                                     TFloatMeanAccumulatorVec& values) const;
-    void testExplainedVariance(const TFloatMeanAccumulatorVec& valueToTest,
-                               const TSeasonalComponent& period,
-                               SHypothesisStats& hypothesis) const;
-    void testAutocorrelation(const TFloatMeanAccumulatorVec& valuesToTest,
-                             const TSeasonalComponent& period,
-                             SHypothesisStats& hypothesis) const;
-    void testAmplitude(const TFloatMeanAccumulatorVec& valueToTest,
-                       const TSeasonalComponent& period,
-                       SHypothesisStats& hypothesis) const;
-    double winzorisedVariance(const TFloatMeanAccumulatorVec& valuesToTest) const;
+    void testExplainedVariance(const TVarianceStats& H0, SHypothesisStats& hypothesis) const;
+    void testAutocorrelation(SHypothesisStats& hypothesis) const;
+    void testAmplitude(SHypothesisStats& hypothesis) const;
+    double truncatedVariance(double outlierFraction,
+                             const TFloatMeanAccumulatorVec& residuals) const;
     bool alreadyModelled(const TSeasonalComponentVec& periods) const;
     bool onlyDiurnal(const TSeasonalComponentVec& periods) const;
     void removeIfInsufficientData(TSeasonalComponentVec& periods) const;
@@ -576,14 +533,14 @@ private:
     bool isWeekday(const TSeasonalComponent& period) const;
     bool seenSufficientData(const TSeasonalComponent& period) const;
     bool seenSufficientDataToTestForTradingDayDecomposition() const;
-    double precedence(const TSeasonalComponent& period) const;
+    double precedence() const;
     std::string annotationText(const TSeasonalComponent& period) const;
     std::size_t day() const;
     std::size_t week() const;
     std::size_t year() const;
     TSizeSizePr weekdayWindow() const;
     TSizeSizePr weekendWindow() const;
-    std::size_t observedRange() const;
+    std::size_t observedRange(const TFloatMeanAccumulatorVec& values) const;
 
 private:
     double m_MinimumRepeatsPerSegmentToTestVariance = 3.0;
@@ -592,20 +549,22 @@ private:
     double m_MediumAutocorrelation = 0.5;
     double m_HighAutocorrelation = 0.7;
     double m_SignificantPValue = 1e-3;
-    double m_VerySignificantPValue = 1e-10;
+    double m_VerySignificantPValue = 1e-8;
+    double m_AcceptedFalsePostiveRate = 1e-4;
     TOptionalSize m_StartOfWeek;
     core_t::TTime m_StartTime = 0;
     core_t::TTime m_BucketLength = 0;
     double m_OutlierFraction = OUTLIER_FRACTION;
     TFloatMeanAccumulatorVec m_Values;
     TSeasonalComponentVec m_ModelledPeriods;
-    // This is member data to avoid repeatedly reinitialising.
+    // The follow are member data to avoid repeatedly reinitialising.
     mutable TSizeVec m_WindowIndices;
     mutable TSeasonalComponentVec m_Periods;
     mutable TAmplitudeVec m_Amplitudes;
     mutable TMeanAccumulatorVec1Vec m_Components;
-    mutable TFloatMeanAccumulatorVec m_ValuesToTestComponent;
     mutable TFloatMeanAccumulatorVec m_ValuesToDecompose;
+    mutable TFloatMeanAccumulatorVec m_ValuesWithComponent;
+    mutable TFloatMeanAccumulatorVec m_ValuesWithoutComponent;
     mutable TMaxAccumulator m_Outliers;
 };
 }
