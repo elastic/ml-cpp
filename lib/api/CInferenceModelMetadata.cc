@@ -5,25 +5,20 @@
  */
 #include <api/CInferenceModelMetadata.h>
 
-#include <maths/CLinearAlgebraShims.h>
-
-#include <rapidjson/document.h>
-
 namespace ml {
 namespace api {
 
 namespace {
 // clang-format off
-const std::string JSON_MODEL_METADATA_TAG{"model_metadata"};
+const std::string JSON_CLASS_NAME_TAG{"class_name"};
+const std::string JSON_CLASSES_TAG{"classes"};
 const std::string JSON_FEATURE_NAME_TAG{"feature_name"};
 const std::string JSON_IMPORTANCE_TAG{"importance"};
-const std::string JSON_MEAN_MAGNITUDE_TAG{"mean_magnitude"};
-const std::string JSON_CLASSES_TAG{"classes"};
-const std::string JSON_CLASS_NAME_TAG{"class_name"};
-const std::string JSON_MIN_TAG{"min"};
 const std::string JSON_MAX_TAG{"max"};
+const std::string JSON_MEAN_MAGNITUDE_TAG{"mean_magnitude"};
+const std::string JSON_MIN_TAG{"min"};
+const std::string JSON_MODEL_METADATA_TAG{"model_metadata"};
 const std::string JSON_TOTAL_FEATURE_IMPORTANCE_TAG{"total_feature_importance"};
-const std::string JSON_SUM_TAG{"sum"};
 // clang-format on
 }
 

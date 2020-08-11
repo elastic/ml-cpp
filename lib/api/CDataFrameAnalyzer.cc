@@ -290,8 +290,6 @@ void CDataFrameAnalyzer::writeInferenceModel(const CDataFrameAnalysisRunner& ana
 void CDataFrameAnalyzer::writeInferenceModelMetadata(const CDataFrameAnalysisRunner& analysis,
                                                      core::CRapidJsonConcurrentLineWriter& writer) const {
     // Write model meta information
-
-    // Write the resulting model for inference.
     auto modelMetadata = analysis.inferenceModelMetadata();
     if (modelMetadata) {
         writer.StartObject();

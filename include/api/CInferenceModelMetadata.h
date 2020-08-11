@@ -17,6 +17,8 @@
 namespace ml {
 namespace api {
 
+//! \brief Class controls the serialization of the model meta information
+//! (such as totol feature importance) into JSON format.
 class API_EXPORT CInferenceModelMetadata {
 public:
     using TVector = maths::CDenseVector<double>;
@@ -24,11 +26,13 @@ public:
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
 
 public:
+    //! Writes metadata using \p writer.
     void write(TRapidJsonWriter& writer) const;
     void columnNames(const TStrVec& columnNames);
     void classValues(const TStrVec& classValues);
-
     const std::string& typeString() const;
+    //! Add importances \p values to the feature with index \p i to calculate total feature importance.
+    //! Total feature importance is the mean of the magnitudes of importances for individual data points.
     void addToFeatureImportance(std::size_t i, const TVector& values);
 
 private:

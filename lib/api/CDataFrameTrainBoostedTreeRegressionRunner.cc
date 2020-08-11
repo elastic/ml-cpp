@@ -9,12 +9,10 @@
 #include <core/CLogger.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
-#include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CDataFrameUtils.h>
-#include <maths/CLinearAlgebraEigen.h>
 #include <maths/CTreeShapFeatureImportance.h>
 
 #include <api/CBoostedTreeInferenceModelBuilder.h>
@@ -26,7 +24,6 @@
 #include <memory>
 #include <set>
 #include <string>
-#include <unordered_map>
 
 namespace ml {
 namespace api {

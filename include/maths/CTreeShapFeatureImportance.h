@@ -73,9 +73,8 @@ public:
     //! Get the maximum depth of any tree in \p forest.
     static std::size_t depth(const TTreeVec& forest);
 
+    //! Get the column names.
     const TStrVec& columnNames() const;
-
-    std::size_t numberTopShapValues() const;
 
 private:
     //! Collects the elements of the path through decision tree that are updated together

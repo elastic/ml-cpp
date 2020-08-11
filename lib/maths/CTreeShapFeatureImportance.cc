@@ -366,9 +366,5 @@ void CTreeShapFeatureImportance::unwindPath(CSplitPath& path, int pathIndex, int
 const CTreeShapFeatureImportance::TStrVec& CTreeShapFeatureImportance::columnNames() const {
     return m_ColumnNames;
 }
-
-std::size_t CTreeShapFeatureImportance::numberTopShapValues() const {
-    return m_NumberTopShapValues;
-}
 }
 }

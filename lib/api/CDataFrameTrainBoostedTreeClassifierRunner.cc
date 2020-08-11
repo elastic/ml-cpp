@@ -28,7 +28,6 @@
 #include <memory>
 #include <numeric>
 #include <set>
-#include <unordered_map>
 
 namespace ml {
 namespace api {
@@ -163,9 +162,6 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     }
 
     if (featureImportance != nullptr) {
-        using TVector = maths::CDenseVector<double>;
-        using TTotalShapValues = std::unordered_map<std::size_t, TVector>;
-        TTotalShapValues totalShapValues;
         int numberClasses{static_cast<int>(classValues.size())};
         const_cast<CDataFrameTrainBoostedTreeClassifierRunner*>(this)
             ->m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
