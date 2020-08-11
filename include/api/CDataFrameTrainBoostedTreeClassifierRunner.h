@@ -41,6 +41,8 @@ public:
     static const std::string NUM_TOP_CLASSES;
     static const std::string PREDICTION_FIELD_TYPE;
     static const std::string CLASS_ASSIGNMENT_OBJECTIVE;
+    static const std::string CLASSES_FIELD_NAME;
+    static const std::string CLASS_NAME_FIELD_NAME;
     static const TStrVec CLASS_ASSIGNMENT_OBJECTIVE_VALUES;
 
 public:

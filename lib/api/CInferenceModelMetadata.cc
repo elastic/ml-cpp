@@ -17,7 +17,7 @@ namespace {
 const std::string JSON_MODEL_METADATA_TAG{"model_metadata"};
 const std::string JSON_FEATURE_NAME_TAG{"feature_name"};
 const std::string JSON_IMPORTANCE_TAG{"importance"};
-const std::string JSON_MEAN_TAG{"mean"};
+const std::string JSON_MEAN_MAGNITUDE_TAG{"mean_magnitude"};
 const std::string JSON_CLASSES_TAG{"classes"};
 const std::string JSON_CLASS_NAME_TAG{"class_name"};
 const std::string JSON_MIN_TAG{"min"};
@@ -43,7 +43,7 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
         if (meanFeatureImportance.size() == 1) {
             writer.Key(JSON_IMPORTANCE_TAG);
             writer.StartObject();
-            writer.Key(JSON_MEAN_TAG);
+            writer.Key(JSON_MEAN_MAGNITUDE_TAG);
             writer.Double(meanFeatureImportance[0]);
             writer.Key(JSON_MIN_TAG);
             writer.Double(minMaxFeatureImportance[0].min());
@@ -58,7 +58,7 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
                 writer.StartObject();
                 writer.Key(JSON_CLASS_NAME_TAG);
                 writer.String(m_ClassValues[j]);
-                writer.Key(JSON_MEAN_TAG);
+                writer.Key(JSON_MEAN_MAGNITUDE_TAG);
                 writer.Double(meanFeatureImportance[j]);
                 writer.Key(JSON_MIN_TAG);
                 writer.Double(minMaxFeatureImportance[j].min());

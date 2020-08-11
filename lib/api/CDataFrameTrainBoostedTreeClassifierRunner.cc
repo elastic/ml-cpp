@@ -43,8 +43,6 @@ const std::string IS_TRAINING_FIELD_NAME{"is_training"};
 const std::string PREDICTION_PROBABILITY_FIELD_NAME{"prediction_probability"};
 const std::string PREDICTION_SCORE_FIELD_NAME{"prediction_score"};
 const std::string TOP_CLASSES_FIELD_NAME{"top_classes"};
-const std::string CLASSES_FIELD_NAME{"classes"};
-const std::string CLASS_NAME_FIELD_NAME{"class_name"};
 const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
 const std::string CLASS_SCORE_FIELD_NAME{"class_score"};
 
@@ -320,5 +318,7 @@ CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(
 }
 
 const std::string CDataFrameTrainBoostedTreeClassifierRunnerFactory::NAME{"classification"};
+const std::string CDataFrameTrainBoostedTreeClassifierRunner::CLASSES_FIELD_NAME{"classes"};
+const std::string CDataFrameTrainBoostedTreeClassifierRunner::CLASS_NAME_FIELD_NAME{"class_name"};
 }
 }

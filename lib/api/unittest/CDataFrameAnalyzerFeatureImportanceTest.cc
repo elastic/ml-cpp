@@ -14,6 +14,7 @@
 #include <maths/CTreeShapFeatureImportance.h>
 
 #include <api/CDataFrameAnalyzer.h>
+#include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
@@ -229,7 +230,6 @@ struct SFixture {
         BOOST_TEST_REQUIRE(
             core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
             core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
-        LOG_DEBUG(<< s_Output.str());
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
@@ -279,7 +279,6 @@ struct SFixture {
             core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
             core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
 
-        LOG_DEBUG(<< s_Output.str());
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
@@ -331,7 +330,6 @@ struct SFixture {
             core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
             core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
 
-        LOG_DEBUG(<< s_Output.str());
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
@@ -420,8 +418,14 @@ double readShapValue(const RESULTS& results, std::string shapField, std::string 
                  .GetArray()) {
             if (shapResult[api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME]
                     .GetString() == shapField) {
-                if (shapResult.HasMember(className)) {
-                    return shapResult[className].GetDouble();
+                for (const auto& item :
+                     shapResult[api::CDataFrameTrainBoostedTreeClassifierRunner::CLASSES_FIELD_NAME]
+                         .GetArray()) {
+                    if (item[api::CDataFrameTrainBoostedTreeClassifierRunner::CLASS_NAME_FIELD_NAME]
+                            .GetString() == className) {
+                        return item[api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME]
+                            .GetDouble();
+                    }
                 }
             }
         }
@@ -459,7 +463,8 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
             c4Sum += std::fabs(c4);
             // assert that no SHAP value for the dependent variable is returned
             BOOST_REQUIRE_EQUAL(readShapValue(result, "target"), 0.0);
-            if (result["row_results"]["results"]["ml"].HasMember("total_feature_importance")) {
+        } else if (result.HasMember("model_metadata")) {
+            if (result["model_metadata"].HasMember("total_feature_importance")) {
                 hasTotalFeatureImportance = true;
             }
         }
@@ -544,8 +549,8 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
             c2Sum += std::fabs(c2);
             c3Sum += std::fabs(c3);
             c4Sum += std::fabs(c4);
-
-            if (result["row_results"]["results"]["ml"].HasMember("total_feature_importance")) {
+        } else if (result.HasMember("model_metadata")) {
+            if (result["model_metadata"].HasMember("total_feature_importance")) {
                 hasTotalFeatureImportance = true;
             }
         }
@@ -570,35 +575,31 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
     bool hasTotalFeatureImportance{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            double c1{readShapValue(result, "c1")};
-            double c2{readShapValue(result, "c2")};
-            double c3{readShapValue(result, "c3")};
-            double c4{readShapValue(result, "c4")};
-            // We should have at least one feature that is important
-            BOOST_TEST_REQUIRE((c1 > 0.0 || c2 > 0.0 || c3 > 0.0 || c4 > 0.0));
-
             // class shap values should sum(abs()) to the overall feature importance
             double c1f{readShapValue(result, "c1", "foo")};
             double c1bar{readShapValue(result, "c1", "bar")};
             double c1baz{readShapValue(result, "c1", "baz")};
-            BOOST_REQUIRE_CLOSE(c1, std::abs(c1f) + std::abs(c1bar) + std::abs(c1baz), 1e-6);
+            double c1{std::abs(c1f) + std::abs(c1bar) + std::abs(c1baz)};
 
             double c2f{readShapValue(result, "c2", "foo")};
             double c2bar{readShapValue(result, "c2", "bar")};
             double c2baz{readShapValue(result, "c2", "baz")};
-            BOOST_REQUIRE_CLOSE(c2, std::abs(c2f) + std::abs(c2bar) + std::abs(c2baz), 1e-6);
+            double c2{std::abs(c2f) + std::abs(c2bar) + std::abs(c2baz)};
 
             double c3f{readShapValue(result, "c3", "foo")};
             double c3bar{readShapValue(result, "c3", "bar")};
             double c3baz{readShapValue(result, "c3", "baz")};
-            BOOST_REQUIRE_CLOSE(c3, std::abs(c3f) + std::abs(c3bar) + std::abs(c3baz), 1e-6);
+            double c3{std::abs(c3f) + std::abs(c3bar) + std::abs(c3baz)};
 
             double c4f{readShapValue(result, "c4", "foo")};
             double c4bar{readShapValue(result, "c4", "bar")};
             double c4baz{readShapValue(result, "c4", "baz")};
-            BOOST_REQUIRE_CLOSE(c4, std::abs(c4f) + std::abs(c4bar) + std::abs(c4baz), 1e-6);
+            double c4{std::abs(c4f) + std::abs(c4bar) + std::abs(c4baz)};
 
-            if (result["row_results"]["results"]["ml"].HasMember("total_feature_importance")) {
+            // We should have at least one feature that is important
+            BOOST_TEST_REQUIRE((c1 > 0.0 || c2 > 0.0 || c3 > 0.0 || c4 > 0.0));
+        } else if (result.HasMember("model_metadata")) {
+            if (result["model_metadata"].HasMember("total_feature_importance")) {
                 hasTotalFeatureImportance = true;
             }
         }
