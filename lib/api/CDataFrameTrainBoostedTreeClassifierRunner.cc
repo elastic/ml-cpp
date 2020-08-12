@@ -162,7 +162,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     }
 
     if (featureImportance != nullptr) {
-        int numberClasses{static_cast<int>(classValues.size())};
+        std::size_t numberClasses{classValues.size()};
         const_cast<CDataFrameTrainBoostedTreeClassifierRunner*>(this)
             ->m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
         const_cast<CDataFrameTrainBoostedTreeClassifierRunner*>(this)
@@ -180,13 +180,26 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                         writer.String(featureNames[i]);
                         if (shap[i].size() == 1) {
                             // output feature importance for individual classes in binary case
-                            writer.Key(IMPORTANCE_FIELD_NAME);
-                            writer.Double(shap[i](0));
+                            writer.Key(CLASSES_FIELD_NAME);
+                            writer.StartArray();
+                            for (std::size_t j = 0; j < numberClasses; ++j) {
+                                double importance{(j == predictedClassId)
+                                                      ? shap[i](0)
+                                                      : -shap[i](0)};
+                                writer.StartObject();
+                                writer.Key(CLASS_NAME_FIELD_NAME);
+                                writer.String(classValues[j]);
+                                writer.Key(IMPORTANCE_FIELD_NAME);
+                                writer.Double(importance);
+                                writer.EndObject();
+                            }
+                            writer.EndArray();
                         } else {
                             // output feature importance for individual classes in multiclass case
                             writer.Key(CLASSES_FIELD_NAME);
                             writer.StartArray();
-                            for (int j = 0; j < shap[i].size() && j < numberClasses; ++j) {
+                            for (std::size_t j = 0;
+                                 j < shap[i].size() && j < numberClasses; ++j) {
                                 writer.StartObject();
                                 writer.Key(CLASS_NAME_FIELD_NAME);
                                 writer.String(classValues[j]);

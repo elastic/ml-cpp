@@ -35,7 +35,8 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
         writer.String(m_ColumnNames[item.first]);
         auto meanFeatureImportance = maths::CBasicStatistics::mean(item.second);
         const auto& minMaxFeatureImportance = m_TotalShapValuesMinMax.at(item.first);
-        if (meanFeatureImportance.size() == 1) {
+        if (meanFeatureImportance.size() == 1 && m_ClassValues.empty()) {
+            // Regression
             writer.Key(JSON_IMPORTANCE_TAG);
             writer.StartObject();
             writer.Key(JSON_MEAN_MAGNITUDE_TAG);
@@ -45,7 +46,33 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
             writer.Key(JSON_MAX_TAG);
             writer.Double(minMaxFeatureImportance[0].max());
             writer.EndObject();
+        } else if (meanFeatureImportance.size() == 1 && m_ClassValues.empty() == false) {
+            // Binary classification
+            // since we track the min/max only for one class, this will make the range more robust
+            double minimum{std::min(minMaxFeatureImportance[0].min(),
+                                    -minMaxFeatureImportance[0].max())};
+            double maximum{-minimum};
+            writer.Key(JSON_CLASSES_TAG);
+            writer.StartArray();
+            for (std::size_t j = 0; j < m_ClassValues.size(); ++j) {
+                writer.StartObject();
+                writer.Key(JSON_CLASS_NAME_TAG);
+                writer.String(m_ClassValues[j]);
+                writer.Key(JSON_IMPORTANCE_TAG);
+                writer.StartObject();
+                writer.Key(JSON_MEAN_MAGNITUDE_TAG);
+                // mean magnitude is the same for both classes
+                writer.Double(meanFeatureImportance[0]);
+                writer.Key(JSON_MIN_TAG);
+                writer.Double(minimum);
+                writer.Key(JSON_MAX_TAG);
+                writer.Double(maximum);
+                writer.EndObject();
+                writer.EndObject();
+            }
+            writer.EndArray();
         } else {
+            // Multiclass classification
             writer.Key(JSON_CLASSES_TAG);
             writer.StartArray();
             for (std::size_t j = 0;
