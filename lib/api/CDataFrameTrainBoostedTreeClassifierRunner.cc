@@ -290,7 +290,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelDefinition(
 
 CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
 CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
-    return TOptionalInferenceModelMetadata(m_InferenceModelMetadata);
+    return m_InferenceModelMetadata;
 }
 
 // clang-format off

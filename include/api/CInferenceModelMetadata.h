@@ -21,6 +21,17 @@ namespace api {
 //! (such as totol feature importance) into JSON format.
 class API_EXPORT CInferenceModelMetadata {
 public:
+    static const std::string JSON_CLASS_NAME_TAG;
+    static const std::string JSON_CLASSES_TAG;
+    static const std::string JSON_FEATURE_NAME_TAG;
+    static const std::string JSON_IMPORTANCE_TAG;
+    static const std::string JSON_MAX_TAG;
+    static const std::string JSON_MEAN_MAGNITUDE_TAG;
+    static const std::string JSON_MIN_TAG;
+    static const std::string JSON_MODEL_METADATA_TAG;
+    static const std::string JSON_TOTAL_FEATURE_IMPORTANCE_TAG;
+
+public:
     using TVector = maths::CDenseVector<double>;
     using TStrVec = std::vector<std::string>;
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
@@ -38,15 +49,15 @@ public:
 private:
     using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<TVector>::TAccumulator;
     using TMinMaxAccumulator = std::vector<maths::CBasicStatistics::CMinMax<double>>;
-    using TTotalShapValuesMeanVar = std::unordered_map<std::size_t, TMeanVarAccumulator>;
-    using TTotalShapValuesMinMax = std::unordered_map<std::size_t, TMinMaxAccumulator>;
+    using TSizeMeanVarAccumulatorUMap = std::unordered_map<std::size_t, TMeanVarAccumulator>;
+    using TSizeMinMaxAccumulatorUMap = std::unordered_map<std::size_t, TMinMaxAccumulator>;
 
 private:
     void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
 
 private:
-    TTotalShapValuesMeanVar m_TotalShapValuesMeanVar;
-    TTotalShapValuesMinMax m_TotalShapValuesMinMax;
+    TSizeMeanVarAccumulatorUMap m_TotalShapValuesMeanVar;
+    TSizeMinMaxAccumulatorUMap m_TotalShapValuesMinMax;
     TStrVec m_ColumnNames;
     TStrVec m_ClassValues;
 };
