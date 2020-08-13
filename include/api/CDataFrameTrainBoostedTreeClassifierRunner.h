@@ -88,7 +88,7 @@ private:
 private:
     std::size_t m_NumTopClasses;
     EPredictionFieldType m_PredictionFieldType;
-    CInferenceModelMetadata m_InferenceModelMetadata;
+    mutable CInferenceModelMetadata m_InferenceModelMetadata;
 };
 
 //! \brief Makes a core::CDataFrame boosted tree classification runner.

@@ -60,7 +60,7 @@ private:
                   std::size_t dependentVariableColumn) const override;
 
 private:
-    CInferenceModelMetadata m_InferenceModelMetadata;
+    mutable CInferenceModelMetadata m_InferenceModelMetadata;
 };
 
 //! \brief Makes a core::CDataFrame boosted tree regression runner.

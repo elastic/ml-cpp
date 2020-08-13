@@ -163,10 +163,8 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
 
     if (featureImportance != nullptr) {
         std::size_t numberClasses{classValues.size()};
-        const_cast<CDataFrameTrainBoostedTreeClassifierRunner*>(this)
-            ->m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
-        const_cast<CDataFrameTrainBoostedTreeClassifierRunner*>(this)
-            ->m_InferenceModelMetadata.classValues(classValues);
+        m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
+        m_InferenceModelMetadata.classValues(classValues);
         featureImportance->shap(
             row, [&](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
                      const TStrVec& featureNames,

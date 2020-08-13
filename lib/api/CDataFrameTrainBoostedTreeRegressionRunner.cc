@@ -109,8 +109,7 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
     auto featureImportance = tree.shap();
     if (featureImportance != nullptr) {
-        const_cast<CDataFrameTrainBoostedTreeRegressionRunner*>(this)
-            ->m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
+        m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
         featureImportance->shap(
             row, [&writer, this](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
                                  const TStrVec& featureNames,
