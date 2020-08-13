@@ -45,6 +45,7 @@ CForecastRunner.cc \
 CGlobalCategoryId.cc \
 CHierarchicalResultsWriter.cc \
 CInferenceModelDefinition.cc \
+CInferenceModelMetadata.cc \
 CInputParser.cc \
 CIoManager.cc \
 CJsonOutputWriter.cc \

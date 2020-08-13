@@ -12,9 +12,12 @@
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
 #include <api/CInferenceModelDefinition.h>
+#include <api/CInferenceModelMetadata.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
+
+#include <boost/optional.hpp>
 
 #include <cstddef>
 #include <functional>
@@ -66,6 +69,7 @@ public:
     using TProgressRecorder = std::function<void(double)>;
     using TStrVecVec = std::vector<TStrVec>;
     using TInferenceModelDefinitionUPtr = std::unique_ptr<CInferenceModelDefinition>;
+    using TOptionalInferenceModelMetadata = boost::optional<const CInferenceModelMetadata&>;
 
 public:
     //! The intention is that concrete objects of this hierarchy are constructed
@@ -140,6 +144,9 @@ public:
     //! \return A serialisable definition of the trained model.
     virtual TInferenceModelDefinitionUPtr
     inferenceModelDefinition(const TStrVec& fieldNames, const TStrVecVec& categoryNames) const;
+
+    //! \return A serialisable metadata of the trained model.
+    virtual TOptionalInferenceModelMetadata inferenceModelMetadata() const;
 
     //! \return Reference to the analysis instrumentation.
     virtual const CDataFrameAnalysisInstrumentation& instrumentation() const = 0;

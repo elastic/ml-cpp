@@ -109,10 +109,11 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
     auto featureImportance = tree.shap();
     if (featureImportance != nullptr) {
+        m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
         featureImportance->shap(
-            row, [&writer](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
-                           const TStrVec& featureNames,
-                           const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+            row, [&writer, this](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
+                                 const TStrVec& featureNames,
+                                 const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
                 writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
                 writer.StartArray();
                 for (auto i : indices) {
@@ -126,6 +127,13 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
                     }
                 }
                 writer.EndArray();
+
+                for (int i = 0; i < shap.size(); ++i) {
+                    if (shap[i].lpNorm<1>() != 0) {
+                        const_cast<CDataFrameTrainBoostedTreeRegressionRunner*>(this)
+                            ->m_InferenceModelMetadata.addToFeatureImportance(i, shap[i]);
+                    }
+                }
             });
     }
     writer.EndObject();
@@ -145,6 +153,11 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition(
     return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
 
+CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
+CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
+    return TOptionalInferenceModelMetadata(m_InferenceModelMetadata);
+}
+
 // clang-format off
 const std::string CDataFrameTrainBoostedTreeRegressionRunner::STRATIFIED_CROSS_VALIDATION{"stratified_cross_validation"};
 const std::string CDataFrameTrainBoostedTreeRegressionRunner::LOSS_FUNCTION{"loss_function"};
@@ -160,7 +173,7 @@ const std::string& CDataFrameTrainBoostedTreeRegressionRunnerFactory::name() con
 
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeRegressionRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&) const {
-    HANDLE_FATAL(<< "Input error: classification has a non-optional parameter '"
+    HANDLE_FATAL(<< "Input error: regression has a non-optional parameter '"
                  << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.")
     return nullptr;
 }

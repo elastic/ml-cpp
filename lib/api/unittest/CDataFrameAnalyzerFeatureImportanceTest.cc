@@ -14,7 +14,9 @@
 #include <maths/CTreeShapFeatureImportance.h>
 
 #include <api/CDataFrameAnalyzer.h>
+#include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
+#include <api/CInferenceModelMetadata.h>
 
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CRandomNumbers.h>
@@ -229,7 +231,6 @@ struct SFixture {
         BOOST_TEST_REQUIRE(
             core::CProgramCounters::counter(counter_t::E_DFTPMPeakMemoryUsage) <
             core::CProgramCounters::counter(counter_t::E_DFTPMEstimatedPeakMemoryUsage));
-
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
@@ -418,8 +419,53 @@ double readShapValue(const RESULTS& results, std::string shapField, std::string 
                  .GetArray()) {
             if (shapResult[api::CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME]
                     .GetString() == shapField) {
-                if (shapResult.HasMember(className)) {
-                    return shapResult[className].GetDouble();
+                for (const auto& item :
+                     shapResult[api::CDataFrameTrainBoostedTreeClassifierRunner::CLASSES_FIELD_NAME]
+                         .GetArray()) {
+                    if (item[api::CDataFrameTrainBoostedTreeClassifierRunner::CLASS_NAME_FIELD_NAME]
+                            .GetString() == className) {
+                        return item[api::CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME]
+                            .GetDouble();
+                    }
+                }
+            }
+        }
+    }
+    return 0.0;
+}
+
+template<typename RESULTS>
+double readTotalShapValue(const RESULTS& results, std::string shapField) {
+    using TModelMetadata = api::CInferenceModelMetadata;
+    if (results[TModelMetadata::JSON_MODEL_METADATA_TAG].HasMember(
+            TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)) {
+        for (const auto& shapResult :
+             results[TModelMetadata::JSON_MODEL_METADATA_TAG][TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG]
+                 .GetArray()) {
+            if (shapResult[TModelMetadata::JSON_FEATURE_NAME_TAG].GetString() == shapField) {
+                return shapResult[TModelMetadata::JSON_IMPORTANCE_TAG][TModelMetadata::JSON_MEAN_MAGNITUDE_TAG]
+                    .GetDouble();
+            }
+        }
+    }
+    return 0.0;
+}
+
+template<typename RESULTS>
+double readTotalShapValue(const RESULTS& results, std::string shapField, std::string className) {
+    using TModelMetadata = api::CInferenceModelMetadata;
+    if (results[TModelMetadata::JSON_MODEL_METADATA_TAG].HasMember(
+            TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG)) {
+        for (const auto& shapResult :
+             results[TModelMetadata::JSON_MODEL_METADATA_TAG][TModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG]
+                 .GetArray()) {
+            if (shapResult[TModelMetadata::JSON_FEATURE_NAME_TAG].GetString() == shapField) {
+                for (const auto& item :
+                     shapResult[TModelMetadata::JSON_CLASSES_TAG].GetArray()) {
+                    if (item[TModelMetadata::JSON_CLASS_NAME_TAG].GetString() == className) {
+                        return item[TModelMetadata::JSON_IMPORTANCE_TAG][TModelMetadata::JSON_MEAN_MAGNITUDE_TAG]
+                            .GetDouble();
+                    }
                 }
             }
         }
@@ -439,7 +485,14 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
     auto results{runRegression(topShapValues, weights)};
 
     TMeanVarAccumulator bias;
+    TMeanAccumulator c1TotalShapExpected;
+    TMeanAccumulator c2TotalShapExpected;
+    TMeanAccumulator c3TotalShapExpected;
+    TMeanAccumulator c4TotalShapExpected;
     double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
+    double c1TotalShapActual{0.0}, c2TotalShapActual{0.0},
+        c3TotalShapActual{0.0}, c4TotalShapActual{0.0};
+    bool hasTotalFeatureImportance{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             double c1{readShapValue(result, "c1")};
@@ -454,8 +507,21 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
             c2Sum += std::fabs(c2);
             c3Sum += std::fabs(c3);
             c4Sum += std::fabs(c4);
+            c1TotalShapExpected.add(std::fabs(c1));
+            c2TotalShapExpected.add(std::fabs(c2));
+            c3TotalShapExpected.add(std::fabs(c3));
+            c4TotalShapExpected.add(std::fabs(c4));
             // assert that no SHAP value for the dependent variable is returned
             BOOST_REQUIRE_EQUAL(readShapValue(result, "target"), 0.0);
+        } else if (result.HasMember("model_metadata")) {
+            if (result["model_metadata"].HasMember("total_feature_importance")) {
+                hasTotalFeatureImportance = true;
+                c1TotalShapActual = readTotalShapValue(result, "c1");
+                c2TotalShapActual = readTotalShapValue(result, "c2");
+                c3TotalShapActual = readTotalShapValue(result, "c3");
+                c4TotalShapActual = readTotalShapValue(result, "c4");
+            }
+            // TODO check that the total feature importance is calculated correctly
         }
     }
 
@@ -471,6 +537,16 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
     BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 5.0); // c3 and c4 within 5% of each other
     // make sure the local approximation differs from the prediction always by the same bias (up to a numeric error)
     BOOST_REQUIRE_SMALL(maths::CBasicStatistics::variance(bias), 1e-6);
+    // TODO reactivate once Java parsing is ready
+    // BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
+    // BOOST_REQUIRE_CLOSE(c1TotalShapActual,
+    //                     maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c2TotalShapActual,
+    //                     maths::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c3TotalShapActual,
+    //                     maths::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c4TotalShapActual,
+    //                     maths::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
 }
 
 BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
@@ -508,18 +584,27 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     std::size_t topShapValues{4};
     TMeanVarAccumulator bias;
     auto results{runBinaryClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
-
+    TMeanAccumulator c1TotalShapExpected;
+    TMeanAccumulator c2TotalShapExpected;
+    TMeanAccumulator c3TotalShapExpected;
+    TMeanAccumulator c4TotalShapExpected;
     double c1Sum{0.0}, c2Sum{0.0}, c3Sum{0.0}, c4Sum{0.0};
+    double c1FooTotalShapActual{0.0}, c2FooTotalShapActual{0.0},
+        c3FooTotalShapActual{0.0}, c4FooTotalShapActual{0.0};
+    double c1BarTotalShapActual{0.0}, c2BarTotalShapActual{0.0},
+        c3BarTotalShapActual{0.0}, c4BarTotalShapActual{0.0};
+    bool hasTotalFeatureImportance{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            double c1{readShapValue(result, "c1")};
-            double c2{readShapValue(result, "c2")};
-            double c3{readShapValue(result, "c3")};
-            double c4{readShapValue(result, "c4")};
-            double predictionProbability{
-                result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble()};
             std::string targetPrediction{
                 result["row_results"]["results"]["ml"]["target_prediction"].GetString()};
+            double c1{readShapValue(result, "c1", targetPrediction)};
+            double c2{readShapValue(result, "c2", targetPrediction)};
+            double c3{readShapValue(result, "c3", targetPrediction)};
+            double c4{readShapValue(result, "c4", targetPrediction)};
+            double predictionProbability{
+                result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble()};
+
             double logOdds{0.0};
             if (targetPrediction == "bar") {
                 logOdds = std::log(predictionProbability /
@@ -536,6 +621,23 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
             c2Sum += std::fabs(c2);
             c3Sum += std::fabs(c3);
             c4Sum += std::fabs(c4);
+            c1TotalShapExpected.add(std::fabs(c1));
+            c2TotalShapExpected.add(std::fabs(c2));
+            c3TotalShapExpected.add(std::fabs(c3));
+            c4TotalShapExpected.add(std::fabs(c4));
+        } else if (result.HasMember("model_metadata")) {
+            if (result["model_metadata"].HasMember("total_feature_importance")) {
+                hasTotalFeatureImportance = true;
+            }
+            // TODO reactivate once Java parsing is ready
+            c1FooTotalShapActual = readTotalShapValue(result, "c1", "foo");
+            c2FooTotalShapActual = readTotalShapValue(result, "c2", "foo");
+            c3FooTotalShapActual = readTotalShapValue(result, "c3", "foo");
+            c4FooTotalShapActual = readTotalShapValue(result, "c4", "foo");
+            c1BarTotalShapActual = readTotalShapValue(result, "c1", "bar");
+            c2BarTotalShapActual = readTotalShapValue(result, "c2", "bar");
+            c3BarTotalShapActual = readTotalShapValue(result, "c3", "bar");
+            c4BarTotalShapActual = readTotalShapValue(result, "c4", "bar");
         }
     }
 
@@ -548,44 +650,131 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 40.0); // c3 and c4 within 40% of each other
     // make sure the local approximation differs from the prediction always by the same bias (up to a numeric error)
     BOOST_REQUIRE_SMALL(maths::CBasicStatistics::variance(bias), 1e-6);
+    // TODO reactivate once Java parsing is ready
+    // BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
+    // BOOST_REQUIRE_CLOSE(c1FooTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c2FooTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c3FooTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c4FooTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c1BarTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c2BarTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c3BarTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c4BarTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
 }
 
 BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SFixture) {
 
     std::size_t topShapValues{4};
     auto results{runMultiClassClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
-
+    TMeanAccumulator c1FooTotalShapExpected;
+    TMeanAccumulator c2FooTotalShapExpected;
+    TMeanAccumulator c3FooTotalShapExpected;
+    TMeanAccumulator c4FooTotalShapExpected;
+    TMeanAccumulator c1BarTotalShapExpected;
+    TMeanAccumulator c2BarTotalShapExpected;
+    TMeanAccumulator c3BarTotalShapExpected;
+    TMeanAccumulator c4BarTotalShapExpected;
+    TMeanAccumulator c1BazTotalShapExpected;
+    TMeanAccumulator c2BazTotalShapExpected;
+    TMeanAccumulator c3BazTotalShapExpected;
+    TMeanAccumulator c4BazTotalShapExpected;
+    double c1FooTotalShapActual{0.0}, c2FooTotalShapActual{0.0},
+        c3FooTotalShapActual{0.0}, c4FooTotalShapActual{0.0};
+    double c1BarTotalShapActual{0.0}, c2BarTotalShapActual{0.0},
+        c3BarTotalShapActual{0.0}, c4BarTotalShapActual{0.0};
+    double c1BazTotalShapActual{0.0}, c2BazTotalShapActual{0.0},
+        c3BazTotalShapActual{0.0}, c4BazTotalShapActual{0.0};
+    bool hasTotalFeatureImportance{false};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
-            double c1{readShapValue(result, "c1")};
-            double c2{readShapValue(result, "c2")};
-            double c3{readShapValue(result, "c3")};
-            double c4{readShapValue(result, "c4")};
-            // We should have at least one feature that is important
-            BOOST_TEST_REQUIRE((c1 > 0.0 || c2 > 0.0 || c3 > 0.0 || c4 > 0.0));
-
             // class shap values should sum(abs()) to the overall feature importance
             double c1f{readShapValue(result, "c1", "foo")};
             double c1bar{readShapValue(result, "c1", "bar")};
             double c1baz{readShapValue(result, "c1", "baz")};
-            BOOST_REQUIRE_CLOSE(c1, std::abs(c1f) + std::abs(c1bar) + std::abs(c1baz), 1e-6);
+            double c1{std::abs(c1f) + std::abs(c1bar) + std::abs(c1baz)};
+            c1FooTotalShapExpected.add(std::fabs(c1f));
+            c1BarTotalShapExpected.add(std::fabs(c1bar));
+            c1BazTotalShapExpected.add(std::fabs(c1baz));
 
             double c2f{readShapValue(result, "c2", "foo")};
             double c2bar{readShapValue(result, "c2", "bar")};
             double c2baz{readShapValue(result, "c2", "baz")};
-            BOOST_REQUIRE_CLOSE(c2, std::abs(c2f) + std::abs(c2bar) + std::abs(c2baz), 1e-6);
+            double c2{std::abs(c2f) + std::abs(c2bar) + std::abs(c2baz)};
+            c2FooTotalShapExpected.add(std::fabs(c2f));
+            c2BarTotalShapExpected.add(std::fabs(c2bar));
+            c2BazTotalShapExpected.add(std::fabs(c2baz));
 
             double c3f{readShapValue(result, "c3", "foo")};
             double c3bar{readShapValue(result, "c3", "bar")};
             double c3baz{readShapValue(result, "c3", "baz")};
-            BOOST_REQUIRE_CLOSE(c3, std::abs(c3f) + std::abs(c3bar) + std::abs(c3baz), 1e-6);
+            double c3{std::abs(c3f) + std::abs(c3bar) + std::abs(c3baz)};
+            c3FooTotalShapExpected.add(std::fabs(c3f));
+            c3BarTotalShapExpected.add(std::fabs(c3bar));
+            c3BazTotalShapExpected.add(std::fabs(c3baz));
 
             double c4f{readShapValue(result, "c4", "foo")};
             double c4bar{readShapValue(result, "c4", "bar")};
             double c4baz{readShapValue(result, "c4", "baz")};
-            BOOST_REQUIRE_CLOSE(c4, std::abs(c4f) + std::abs(c4bar) + std::abs(c4baz), 1e-6);
+            double c4{std::abs(c4f) + std::abs(c4bar) + std::abs(c4baz)};
+            c4FooTotalShapExpected.add(std::fabs(c4f));
+            c4BarTotalShapExpected.add(std::fabs(c4bar));
+            c4BazTotalShapExpected.add(std::fabs(c4baz));
+
+            // We should have at least one feature that is important
+            BOOST_TEST_REQUIRE((c1 > 0.0 || c2 > 0.0 || c3 > 0.0 || c4 > 0.0));
+        } else if (result.HasMember("model_metadata")) {
+            if (result["model_metadata"].HasMember("total_feature_importance")) {
+                hasTotalFeatureImportance = true;
+            }
+            // TODO reactivate once Java parsing is ready
+            c1FooTotalShapActual = readTotalShapValue(result, "c1", "foo");
+            c2FooTotalShapActual = readTotalShapValue(result, "c2", "foo");
+            c3FooTotalShapActual = readTotalShapValue(result, "c3", "foo");
+            c4FooTotalShapActual = readTotalShapValue(result, "c4", "foo");
+            c1BarTotalShapActual = readTotalShapValue(result, "c1", "bar");
+            c2BarTotalShapActual = readTotalShapValue(result, "c2", "bar");
+            c3BarTotalShapActual = readTotalShapValue(result, "c3", "bar");
+            c4BarTotalShapActual = readTotalShapValue(result, "c4", "bar");
+            c1BazTotalShapActual = readTotalShapValue(result, "c1", "baz");
+            c2BazTotalShapActual = readTotalShapValue(result, "c2", "baz");
+            c3BazTotalShapActual = readTotalShapValue(result, "c3", "baz");
+            c4BazTotalShapActual = readTotalShapValue(result, "c4", "baz");
         }
     }
+    // TODO reactivate once Java parsing is ready
+    // BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
+    // BOOST_REQUIRE_CLOSE(c1FooTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c1FooTotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c2FooTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c2FooTotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c3FooTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c3FooTotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c4FooTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c4FooTotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c1BarTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c1BarTotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c2BarTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c2BarTotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c3BarTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c3BarTotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c4BarTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c4BarTotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c1BazTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c1BazTotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c2BazTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c2BazTotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c3BazTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c3BazTotalShapExpected), 1.0);
+    // BOOST_REQUIRE_CLOSE(c4BazTotalShapActual,
+    //                     maths::CBasicStatistics::mean(c4BazTotalShapExpected), 1.0);
 }
 
 BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoShap, SFixture) {
