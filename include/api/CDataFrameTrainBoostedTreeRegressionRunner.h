@@ -10,6 +10,7 @@
 #include <maths/CBoostedTreeLoss.h>
 
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
+#include <api/CInferenceModelMetadata.h>
 #include <api/ImportExport.h>
 
 #include <rapidjson/fwd.h>
@@ -51,10 +52,15 @@ public:
     TInferenceModelDefinitionUPtr
     inferenceModelDefinition(const TStrVec& fieldNames,
                              const TStrVecVec& categoryNameMap) const override;
+    //! \return A serialisable metadata of the trained regression model.
+    TOptionalInferenceModelMetadata inferenceModelMetadata() const override;
 
 private:
     void validate(const core::CDataFrame& frame,
                   std::size_t dependentVariableColumn) const override;
+
+private:
+    mutable CInferenceModelMetadata m_InferenceModelMetadata;
 };
 
 //! \brief Makes a core::CDataFrame boosted tree regression runner.
