@@ -34,6 +34,10 @@
 
 * Calculate total feature importance to store with model metadata. (See {ml-pull}1387[#1387].)
 
+=== Enhancements
+
+* Calculate total feature importance to store with model metadata. (See {ml-pull}1387[#1387].)
+
 === Bug Fixes
 
 * Fix progress on resume after final training has completed for classification and regression.
