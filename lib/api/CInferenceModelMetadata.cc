@@ -98,7 +98,7 @@ void CInferenceModelMetadata::classValues(const TStrVec& classValues) {
 
 void CInferenceModelMetadata::addToFeatureImportance(std::size_t i, const TVector& values) {
     m_TotalShapValuesMeanVar
-        .emplace(std::make_pair(i, TVector::Zero(values.size())))
+        .emplace(std::make_pair(i, TMeanVarAccumulator(values.size())))
         .first->second.add(values.cwiseAbs());
     auto& minMaxVector =
         m_TotalShapValuesMinMax
