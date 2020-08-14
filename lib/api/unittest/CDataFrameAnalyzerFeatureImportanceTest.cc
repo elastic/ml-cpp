@@ -537,16 +537,15 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
     BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 5.0); // c3 and c4 within 5% of each other
     // make sure the local approximation differs from the prediction always by the same bias (up to a numeric error)
     BOOST_REQUIRE_SMALL(maths::CBasicStatistics::variance(bias), 1e-6);
-    // TODO reactivate once Java parsing is ready
-    // BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
-    // BOOST_REQUIRE_CLOSE(c1TotalShapActual,
-    //                     maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c2TotalShapActual,
-    //                     maths::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c3TotalShapActual,
-    //                     maths::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c4TotalShapActual,
-    //                     maths::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
+    BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
+    BOOST_REQUIRE_CLOSE(c1TotalShapActual,
+                        maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c2TotalShapActual,
+                        maths::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c3TotalShapActual,
+                        maths::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c4TotalShapActual,
+                        maths::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
 }
 
 BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
@@ -629,7 +628,6 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
             if (result["model_metadata"].HasMember("total_feature_importance")) {
                 hasTotalFeatureImportance = true;
             }
-            // TODO reactivate once Java parsing is ready
             c1FooTotalShapActual = readTotalShapValue(result, "c1", "foo");
             c2FooTotalShapActual = readTotalShapValue(result, "c2", "foo");
             c3FooTotalShapActual = readTotalShapValue(result, "c3", "foo");
@@ -650,24 +648,23 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 40.0); // c3 and c4 within 40% of each other
     // make sure the local approximation differs from the prediction always by the same bias (up to a numeric error)
     BOOST_REQUIRE_SMALL(maths::CBasicStatistics::variance(bias), 1e-6);
-    // TODO reactivate once Java parsing is ready
-    // BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
-    // BOOST_REQUIRE_CLOSE(c1FooTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c2FooTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c3FooTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c4FooTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c1BarTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c2BarTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c3BarTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c4BarTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
+    BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
+    BOOST_REQUIRE_CLOSE(c1FooTotalShapActual,
+                        maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c2FooTotalShapActual,
+                        maths::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c3FooTotalShapActual,
+                        maths::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c4FooTotalShapActual,
+                        maths::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c1BarTotalShapActual,
+                        maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c2BarTotalShapActual,
+                        maths::CBasicStatistics::mean(c2TotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c3BarTotalShapActual,
+                        maths::CBasicStatistics::mean(c3TotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c4BarTotalShapActual,
+                        maths::CBasicStatistics::mean(c4TotalShapExpected), 1.0);
 }
 
 BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SFixture) {
@@ -734,7 +731,6 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
             if (result["model_metadata"].HasMember("total_feature_importance")) {
                 hasTotalFeatureImportance = true;
             }
-            // TODO reactivate once Java parsing is ready
             c1FooTotalShapActual = readTotalShapValue(result, "c1", "foo");
             c2FooTotalShapActual = readTotalShapValue(result, "c2", "foo");
             c3FooTotalShapActual = readTotalShapValue(result, "c3", "foo");
@@ -749,32 +745,31 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
             c4BazTotalShapActual = readTotalShapValue(result, "c4", "baz");
         }
     }
-    // TODO reactivate once Java parsing is ready
-    // BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
-    // BOOST_REQUIRE_CLOSE(c1FooTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c1FooTotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c2FooTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c2FooTotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c3FooTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c3FooTotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c4FooTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c4FooTotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c1BarTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c1BarTotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c2BarTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c2BarTotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c3BarTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c3BarTotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c4BarTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c4BarTotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c1BazTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c1BazTotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c2BazTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c2BazTotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c3BazTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c3BazTotalShapExpected), 1.0);
-    // BOOST_REQUIRE_CLOSE(c4BazTotalShapActual,
-    //                     maths::CBasicStatistics::mean(c4BazTotalShapExpected), 1.0);
+    BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
+    BOOST_REQUIRE_CLOSE(c1FooTotalShapActual,
+                        maths::CBasicStatistics::mean(c1FooTotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c2FooTotalShapActual,
+                        maths::CBasicStatistics::mean(c2FooTotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c3FooTotalShapActual,
+                        maths::CBasicStatistics::mean(c3FooTotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c4FooTotalShapActual,
+                        maths::CBasicStatistics::mean(c4FooTotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c1BarTotalShapActual,
+                        maths::CBasicStatistics::mean(c1BarTotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c2BarTotalShapActual,
+                        maths::CBasicStatistics::mean(c2BarTotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c3BarTotalShapActual,
+                        maths::CBasicStatistics::mean(c3BarTotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c4BarTotalShapActual,
+                        maths::CBasicStatistics::mean(c4BarTotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c1BazTotalShapActual,
+                        maths::CBasicStatistics::mean(c1BazTotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c2BazTotalShapActual,
+                        maths::CBasicStatistics::mean(c2BazTotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c3BazTotalShapActual,
+                        maths::CBasicStatistics::mean(c3BazTotalShapExpected), 1.0);
+    BOOST_REQUIRE_CLOSE(c4BazTotalShapActual,
+                        maths::CBasicStatistics::mean(c4BazTotalShapExpected), 1.0);
 }
 
 BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoShap, SFixture) {
