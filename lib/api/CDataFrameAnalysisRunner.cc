@@ -193,6 +193,11 @@ CDataFrameAnalysisRunner::inferenceModelDefinition(const TStrVec& /*fieldNames*/
     return TInferenceModelDefinitionUPtr();
 }
 
+CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
+CDataFrameAnalysisRunner::inferenceModelMetadata() const {
+    return TOptionalInferenceModelMetadata();
+}
+
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr
 CDataFrameAnalysisRunnerFactory::make(const CDataFrameAnalysisSpecification& spec) const {
     auto result = this->makeImpl(spec);
