@@ -144,8 +144,7 @@ void CDataFrameAnalyzer::run() {
         analysisRunner->waitToFinish();
         this->writeInferenceModel(*analysisRunner, outputWriter);
         this->writeResultsOf(*analysisRunner, outputWriter);
-        // TODO reactivate once Java parsing is ready
-        // this->writeInferenceModelMetadata(*analysisRunner, outputWriter);
+        this->writeInferenceModelMetadata(*analysisRunner, outputWriter);
     }
 }
 
