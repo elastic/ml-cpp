@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
 
     LOG_DEBUG(<< "recall = " << TP / (TP + FN));
     LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
-    BOOST_REQUIRE(TP / (TP + FN) > 0.95);
+    BOOST_REQUIRE(TP / (TP + FN) > 0.96);
     BOOST_REQUIRE(TP / (TP + FP) > 0.99);
 }
 
@@ -483,9 +483,9 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
     BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.93);
     BOOST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.98);
     BOOST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.98);
-    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.93);
-    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.93);
-    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.93);
+    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.94);
+    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.94);
+    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.94);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticSparseDaily) {
@@ -957,9 +957,9 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnalWithLinearTrend) {
     BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.93);
     BOOST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.98);
     BOOST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.98);
-    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.93);
-    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.93);
-    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.93);
+    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.94);
+    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.94);
+    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.94);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend) {

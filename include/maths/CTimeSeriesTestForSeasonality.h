@@ -467,9 +467,12 @@ private:
         double numberParameters() const;
         //! The minimum mean number of repeats of any seasonal component.
         double meanRepeats() const;
-        //! Get the variance explained per parameter. This is weighted by the variance
-        //! explained by each component of the model.
+        //! Get the variance explained per parameter weighted by the variance explained
+        //! by each component of the model.
         double explainedVariancePerParameter(double explainedVariance) const;
+        //! Get the average autocorrelation weighted by the variance explained by each
+        //! component of the model.
+        double autocorrelation() const;
 
         //! Are the seasonal components already modelled?
         bool s_AlreadyModelled = false;

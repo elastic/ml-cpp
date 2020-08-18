@@ -39,6 +39,14 @@ double rightTailFTest(double v0, double v1, double df0, double df1) {
     double F{v0 == v1 ? 1.0 : v0 / v1};
     return CStatisticalTests::rightTailFTest(F, df0, df1);
 }
+
+bool almostDivisor(std::size_t i, std::size_t j, double eps) {
+    if (i > j) {
+        return false;
+    }
+    double diff{static_cast<double>(std::min(j % i, i - (j % i))) / static_cast<double>(j)};
+    return diff < eps;
+}
 }
 
 CNewTrendSummary::CNewTrendSummary(core_t::TTime startTime,
@@ -300,11 +308,13 @@ CSeasonalHypotheses CTimeSeriesTestForSeasonality::select(TModelVec& decompositi
     double qualitySelected{-std::numeric_limits<double>::max()};
     for (std::size_t H1 = 0; H1 < decompositions.size(); ++H1) {
         if (decompositions[H1].isAlternative(numberValues)) {
+            double autocorrelation{decompositions[H1].autocorrelation()};
             double pValue{computePValue(decompositions[H0], decompositions[H1])};
             LOG_TRACE(<< "hypothesis = "
                       << core::CContainerPrinter::print(decompositions[H1].s_Hypotheses));
             LOG_TRACE(<< "p-value = " << pValue);
-            if (pValue >= m_AcceptedFalsePostiveRate) {
+            LOG_TRACE(<< "autocorrelation = " << decompositions[H1].autocorrelation());
+            if (pValue >= m_AcceptedFalsePostiveRate && autocorrelation < m_HighAutocorrelation) {
                 continue;
             }
 
@@ -486,8 +496,8 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TFloatMeanAccumulatorVec&
         m_ValuesWithoutComponent = residuals;
         m_Periods.clear();
         for (std::size_t j = i + 1; j < periods.size(); ++j) {
-            if (periods[j].period() % periods[i].period() != 0 &&
-                periods[i].period() % periods[j].period() != 0) {
+            if (almostDivisor(periods[j].s_Period, periods[i].s_Period, 0.05) == false &&
+                almostDivisor(periods[i].s_Period, periods[j].s_Period, 0.05) == false) {
                 m_Periods.push_back(periods[j]);
             }
         }
@@ -528,7 +538,6 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TFloatMeanAccumulatorVec&
                 hypothesis.s_NumberScaleSegments = hypothesis.s_ScaleSegments.size() - 1;
                 hypothesis.s_MeanNumberRepeats =
                     CSignal::meanNumberRepeatedValues(m_ValuesWithComponent, period);
-
                 m_Periods.assign(1, period);
                 CSignal::fitSeasonalComponentsRobust(m_Periods, m_OutlierFraction,
                                                      m_ValuesWithComponent, m_Components);
@@ -979,6 +988,7 @@ CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::testVariance(
                             s_NumberScaleSegments - 1)};
     double minimumRepeatsPerSegment{params.m_MinimumRepeatsPerSegmentToTestVariance};
     double mediumAutocorrelation{params.m_MediumAutocorrelation};
+    double lowAutocorrelation{params.m_LowAutocorrelation};
     double highAutocorrelation{params.m_HighAutocorrelation};
     double logPValue{std::log(s_ExplainedVariancePValue)};
     double logSignificantPValue{std::log(params.m_SignificantPValue)};
@@ -990,6 +1000,7 @@ CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::testVariance(
            fuzzyGreaterThan(logPValue / logSignificantPValue, 1.0, 0.1) &&
            fuzzyGreaterThan(std::max(logPValue / logVerySignificantPValue, 1.0), 1.0, 0.1) &&
            fuzzyGreaterThan(s_Autocorrelation / mediumAutocorrelation, 1.0, 0.2) &&
+           fuzzyGreaterThan(std::min(s_Autocorrelation / lowAutocorrelation, 1.0), 1.0, 0.1) &&
            fuzzyGreaterThan(std::max(s_Autocorrelation / highAutocorrelation, 1.0), 1.0, 0.1);
 }
 
@@ -1065,6 +1076,16 @@ double CTimeSeriesTestForSeasonality::SModel::explainedVariancePerParameter(doub
         Z += hypothesis.s_ExplainedVariance;
     }
     return std::max(result / Z, std::numeric_limits<double>::min());
+}
+
+double CTimeSeriesTestForSeasonality::SModel::autocorrelation() const {
+    double result{0.0};
+    double Z{0.0};
+    for (const auto& hypothesis : s_Hypotheses) {
+        result += hypothesis.s_ExplainedVariance * hypothesis.s_Autocorrelation;
+        Z += hypothesis.s_ExplainedVariance;
+    }
+    return result / Z;
 }
 }
 }
