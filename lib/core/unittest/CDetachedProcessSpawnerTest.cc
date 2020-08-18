@@ -6,14 +6,15 @@
 
 #include <core/CDetachedProcessSpawner.h>
 #include <core/COsFileFuncs.h>
-#include <core/CSleep.h>
 #include <core/CStringUtils.h>
 
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <chrono>
+#include <cstdio>
+#include <cstdlib>
+#include <thread>
 
 BOOST_AUTO_TEST_SUITE(CDetachedProcessSpawnerTest)
 
@@ -60,7 +61,7 @@ BOOST_AUTO_TEST_CASE(testSpawn) {
     BOOST_TEST_REQUIRE(spawner.spawn(PROCESS_PATH1, args));
 
     // Expect the copy to complete in less than 1 second
-    ml::core::CSleep::sleep(1000);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     ml::core::COsFileFuncs::TStat statBuf;
     BOOST_REQUIRE_EQUAL(0, ml::core::COsFileFuncs::stat(OUTPUT_FILE.c_str(), &statBuf));
@@ -87,7 +88,7 @@ BOOST_AUTO_TEST_CASE(testKill) {
     BOOST_TEST_REQUIRE(spawner.terminateChild(childPid));
 
     // The spawner should detect the death of the process within half a second
-    ml::core::CSleep::sleep(500);
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     BOOST_TEST_REQUIRE(!spawner.hasChild(childPid));
 

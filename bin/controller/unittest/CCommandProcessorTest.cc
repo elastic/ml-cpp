@@ -5,7 +5,6 @@
  */
 
 #include <core/CProcess.h>
-#include <core/CSleep.h>
 #include <core/CStringUtils.h>
 
 #include "../CCommandProcessor.h"
@@ -13,11 +12,12 @@
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <chrono>
+#include <cstdio>
 #include <fstream>
 #include <sstream>
 #include <string>
-
-#include <stdio.h>
+#include <thread>
 
 BOOST_AUTO_TEST_SUITE(CCommandProcessorTest)
 
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(testStartPermitted) {
     processor.processCommands(commandStream);
 
     // Expect the copy to complete in less than 1 second
-    ml::core::CSleep::sleep(1000);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     std::ifstream ifs(OUTPUT_FILE.c_str());
     BOOST_TEST_REQUIRE(ifs.is_open());

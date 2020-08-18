@@ -12,15 +12,15 @@
 #include <core/CScopedLock.h>
 #include <core/CScopedReadLock.h>
 #include <core/CScopedWriteLock.h>
-#include <core/CSleep.h>
 #include <core/CThread.h>
 #include <core/CTimeUtils.h>
 
 #include <boost/test/unit_test.hpp>
 
 #include <atomic>
-
-#include <stdint.h>
+#include <chrono>
+#include <cstdint>
+#include <thread>
 
 BOOST_AUTO_TEST_SUITE(CReadWriteLockTest)
 
@@ -36,7 +36,7 @@ protected:
     void run() {
         for (uint32_t count = 0; count < m_Iterations; ++count) {
             m_Variable += m_Increment;
-            ml::core::CSleep::sleep(m_SleepTime);
+            std::this_thread::sleep_for(std::chrono::milliseconds(m_SleepTime));
         }
     }
 
@@ -61,7 +61,7 @@ protected:
     void run() {
         for (uint32_t count = 0; count < m_Iterations; ++count) {
             m_Variable.fetch_add(m_Increment);
-            ml::core::CSleep::sleep(m_SleepTime);
+            std::this_thread::sleep_for(std::chrono::milliseconds(m_SleepTime));
         }
     }
 
@@ -92,7 +92,7 @@ protected:
             ml::core::CScopedFastLock lock(m_Mutex);
 
             m_Variable += m_Increment;
-            ml::core::CSleep::sleep(m_SleepTime);
+            std::this_thread::sleep_for(std::chrono::milliseconds(m_SleepTime));
         }
     }
 
@@ -124,7 +124,7 @@ protected:
             ml::core::CScopedLock lock(m_Mutex);
 
             m_Variable += m_Increment;
-            ml::core::CSleep::sleep(m_SleepTime);
+            std::this_thread::sleep_for(std::chrono::milliseconds(m_SleepTime));
         }
     }
 
@@ -156,7 +156,7 @@ protected:
             ml::core::CScopedWriteLock lock(m_ReadWriteLock);
 
             m_Variable += m_Increment;
-            ml::core::CSleep::sleep(m_SleepTime);
+            std::this_thread::sleep_for(std::chrono::milliseconds(m_SleepTime));
         }
     }
 
@@ -189,7 +189,7 @@ protected:
             ml::core::CScopedReadLock lock(m_ReadWriteLock);
 
             m_LastRead = m_Variable;
-            ml::core::CSleep::sleep(m_SleepTime);
+            std::this_thread::sleep_for(std::chrono::milliseconds(m_SleepTime));
         }
     }
 

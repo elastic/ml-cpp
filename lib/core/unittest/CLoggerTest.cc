@@ -7,13 +7,13 @@
 #include <core/CLogger.h>
 #include <core/CNamedPipeFactory.h>
 #include <core/COsFileFuncs.h>
-#include <core/CSleep.h>
 
 #include <rapidjson/document.h>
 
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+#include <chrono>
 #include <fstream>
 #include <ios>
 #include <iterator>
@@ -148,7 +148,7 @@ BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
     std::thread reader([&loggedData] {
         for (std::size_t attempt = 1; attempt <= 100; ++attempt) {
             // wait a bit so that pipe has been created
-            ml::core::CSleep::sleep(50);
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
             std::ifstream strm(TEST_PIPE_NAME);
             if (strm.is_open()) {
                 std::copy(std::istreambuf_iterator<char>(strm),

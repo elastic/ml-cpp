@@ -6,7 +6,6 @@
 
 #include <core/CDualThreadStreamBuf.h>
 #include <core/CLogger.h>
-#include <core/CSleep.h>
 #include <core/CThread.h>
 #include <core/CTimeUtils.h>
 #include <core/CoreTypes.h>
@@ -15,11 +14,12 @@
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+#include <chrono>
+#include <cstdint>
+#include <cstring>
 #include <istream>
 #include <string>
-
-#include <stdint.h>
-#include <string.h>
+#include <thread>
 
 BOOST_AUTO_TEST_SUITE(CDualThreadStreamBufTest)
 
@@ -68,7 +68,7 @@ protected:
                 m_Buffer.signalFatalError();
                 break;
             }
-            ml::core::CSleep::sleep(m_Delay);
+            std::this_thread::sleep_for(std::chrono::milliseconds(m_Delay));
             if (count == m_FatalAfter) {
                 m_Buffer.signalFatalError();
             }
