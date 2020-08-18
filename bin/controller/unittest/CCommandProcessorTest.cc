@@ -47,7 +47,7 @@ const std::string SLOGAN2("You know, for search!");
 BOOST_AUTO_TEST_CASE(testStartPermitted) {
     // Remove any output file left behind by a previous failed test, but don't
     // check the return code as this will usually fail
-    ::remove(OUTPUT_FILE.c_str());
+    std::remove(OUTPUT_FILE.c_str());
 
     ml::controller::CCommandProcessor::TStrVec permittedPaths(1, PROCESS_PATH);
     ml::controller::CCommandProcessor processor(permittedPaths);
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE(testStartPermitted) {
 
     BOOST_REQUIRE_EQUAL(SLOGAN1, content);
 
-    BOOST_REQUIRE_EQUAL(0, ::remove(OUTPUT_FILE.c_str()));
+    BOOST_REQUIRE_EQUAL(0, std::remove(OUTPUT_FILE.c_str()));
 }
 
 BOOST_AUTO_TEST_CASE(testStartNonPermitted) {

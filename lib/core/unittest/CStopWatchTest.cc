@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE(testStopWatch) {
 
     std::this_thread::sleep_for(std::chrono::milliseconds(5500));
 
-    uint64_t elapsed(stopWatch.lap());
+    std::uint64_t elapsed(stopWatch.lap());
 
     LOG_DEBUG(<< "After a 5.5 second wait, the stop watch reads " << elapsed << " milliseconds");
 

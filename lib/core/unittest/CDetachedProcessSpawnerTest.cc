@@ -26,7 +26,7 @@ const std::string OUTPUT_FILE("withNs.xml");
 const std::string INPUT_FILE("testfiles\\withNs.xml");
 // File size is different on Windows due to CRLF line endings
 const size_t EXPECTED_FILE_SIZE(585);
-const char* winDir(::getenv("windir"));
+const char* winDir(std::getenv("windir"));
 const std::string PROCESS_PATH1(winDir != 0 ? std::string(winDir) + "\\System32\\cmd"
                                             : std::string("C:\\Windows\\System32\\cmd"));
 const std::string PROCESS_ARGS1[] = {"/C", "copy " + INPUT_FILE + " ."};
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(testSpawn) {
 
     // Remove any output file left behind by a previous failed test, but don't
     // check the return code as this will usually fail
-    ::remove(OUTPUT_FILE.c_str());
+    std::remove(OUTPUT_FILE.c_str());
 
     ml::core::CDetachedProcessSpawner::TStrVec permittedPaths(1, PROCESS_PATH1);
     ml::core::CDetachedProcessSpawner spawner(permittedPaths);
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(testSpawn) {
     BOOST_REQUIRE_EQUAL(0, ml::core::COsFileFuncs::stat(OUTPUT_FILE.c_str(), &statBuf));
     BOOST_REQUIRE_EQUAL(EXPECTED_FILE_SIZE, static_cast<size_t>(statBuf.st_size));
 
-    BOOST_REQUIRE_EQUAL(0, ::remove(OUTPUT_FILE.c_str()));
+    BOOST_REQUIRE_EQUAL(0, std::remove(OUTPUT_FILE.c_str()));
 }
 
 BOOST_AUTO_TEST_CASE(testKill) {
