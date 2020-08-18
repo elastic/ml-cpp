@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <complex>
 #include <numeric>
+#include <sstream>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -120,9 +121,10 @@ public:
         }
         //! Get a description of the component.
         std::string print() const {
-            return std::to_string(s_Period) + "/" + std::to_string(s_StartOfWeek) +
-                   "/" + std::to_string(s_WindowRepeat) + "/" +
-                   core::CContainerPrinter::print(s_Window);
+            std::ostringstream result;
+            result << s_Period << "/" << s_StartOfWeek << "/" << s_WindowRepeat
+                   << "/" << core::CContainerPrinter::print(s_Window);
+            return result.str();
         }
 
         std::size_t s_Period = 0;
@@ -138,9 +140,10 @@ public:
     struct SVarianceStats {
         //! Get a description of the variance stats.
         std::string print() const {
-            return "v = " + std::to_string(s_ResidualVariance) +
-                   ", <v> = " + std::to_string(s_TruncatedResidualVariance) +
-                   ", f = " + std::to_string(s_DegreesFreedom);
+            std::ostringstream result;
+            result << "v = " << s_ResidualVariance << ", <v> = " << s_TruncatedResidualVariance
+                   << ", f = " << s_DegreesFreedom;
+            return result.str();
         }
 
         double s_ResidualVariance;
@@ -406,16 +409,14 @@ public:
                                       })};
         std::size_t n{values.size()};
 
-        std::size_t last{windows[0].first};
+        std::size_t first{windows[0].first % n};
+        std::size_t i{windows[0].first % n};
         for (const auto& window : windows) {
-            for (std::size_t j = window.first; j < window.second; ++j, ++last) {
-                values[last % n] = values[j % n];
+            for (std::size_t j = window.first; j < window.second; ++j, ++i) {
+                values[i % n] = values[j % n];
             }
         }
-        for (std::size_t i = 0, j = windows[0].first % n; i < m;
-             ++i, j = (j + 1 == n ? windows[0].first % n : j + 1)) {
-            std::swap(values[i], values[j]);
-        }
+        std::rotate(values.begin(), values.begin() + first, values.end());
         values.resize(m);
     }
 

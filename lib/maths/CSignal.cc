@@ -483,14 +483,25 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
     TFloatMeanAccumulatorVec valuesToTestDaily{values};
     TMeanAccumulatorVec1Vec dailyComponents;
 
+    double epsVariance{CTools::pow2(100.0 * std::numeric_limits<double>::epsilon()) * [&] {
+        TMeanVarAccumulator moments;
+        for (const auto& value : values) {
+            if (CBasicStatistics::count(value) > 0.0) {
+                moments.add(CBasicStatistics::mean(value));
+            }
+        }
+        return CBasicStatistics::maximumLikelihoodVariance(moments);
+    }()};
     auto dailyHypothesis = [&] {
         TSeasonalComponentVec dailyPeriod{seasonalComponentSummary(day)};
         fitSeasonalComponentsRobust(dailyPeriod, outlierFraction,
                                     valuesToTestDaily, dailyComponents);
         return residualVarianceStats(valuesToTestDaily, dailyPeriod, dailyComponents);
     }();
+    LOG_TRACE(<< "daily variance = " << dailyHypothesis.s_ResidualVariance
+              << " threshold to test = " << epsVariance);
 
-    if (dailyHypothesis.s_ResidualVariance == 0.0) {
+    if (dailyHypothesis.s_ResidualVariance < epsVariance) {
         return {};
     }
 

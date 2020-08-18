@@ -470,7 +470,7 @@ BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
             }
         }
 
-        values = TSegmentation::meanScalePiecewiseLinearScaledSeasonal(
+        std::tie(values, std::ignore) = TSegmentation::meanScalePiecewiseLinearScaledSeasonal(
             std::move(values), period, segmentation,
             [](std::size_t) { return 1.0; });
 

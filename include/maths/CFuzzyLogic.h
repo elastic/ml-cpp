@@ -60,6 +60,18 @@ public:
     //! Get the fuzzy OR of two expressions.
     friend inline CFuzzyTruthValue operator||(const CFuzzyTruthValue& lhs,
                                               const CFuzzyTruthValue& rhs) {
+        // If possible rescale so both expressions have equal importance determining
+        // the expression truth value.
+        if (lhs.m_IsTrueThreshold < rhs.m_IsTrueThreshold && lhs.m_IsTrueThreshold > 0.0) {
+            double scale{lhs.m_IsTrueThreshold / rhs.m_IsTrueThreshold};
+            return {1.0 - (1.0 - lhs.m_Value) * (1.0 - scale * rhs.m_Value),
+                    1.0 - (1.0 - lhs.m_IsTrueThreshold) * (1.0 - scale * rhs.m_IsTrueThreshold)};
+        }
+        if (rhs.m_IsTrueThreshold < lhs.m_IsTrueThreshold && rhs.m_IsTrueThreshold > 0.0) {
+            double scale{rhs.m_IsTrueThreshold / lhs.m_IsTrueThreshold};
+            return {1.0 - (1.0 - scale * lhs.m_Value) * (1.0 - rhs.m_Value),
+                    1.0 - (1.0 - scale * lhs.m_IsTrueThreshold) * (1.0 - rhs.m_IsTrueThreshold)};
+        }
         return {1.0 - (1.0 - lhs.m_Value) * (1.0 - rhs.m_Value),
                 1.0 - (1.0 - lhs.m_IsTrueThreshold) * (1.0 - rhs.m_IsTrueThreshold)};
     }

@@ -15,6 +15,7 @@
 #include <maths/CTimeSeriesTestForSeasonality.h>
 #include <maths/MathsTypes.h>
 
+#include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTimeSeriesTestData.h>
 
@@ -24,6 +25,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <cmath>
+#include <map>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CTimeSeriesTestForSeasonalityTest)
@@ -37,6 +39,7 @@ using TSizeVec = std::vector<std::size_t>;
 using TTimeVec = std::vector<core_t::TTime>;
 using TTimeDoublePr = std::pair<core_t::TTime, double>;
 using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
+using TTimeDoubleMap = std::map<core_t::TTime, double>;
 using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
 using TFloatMeanAccumulator =
@@ -203,7 +206,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
 
     LOG_DEBUG(<< "recall = " << TP / (TP + FN));
     LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
-    BOOST_REQUIRE(TP / (TP + FN) > 0.96);
+    BOOST_REQUIRE(TP / (TP + FN) > 0.99);
     BOOST_REQUIRE(TP / (TP + FP) > 0.99);
 }
 
@@ -326,8 +329,8 @@ BOOST_AUTO_TEST_CASE(testRealTradingDaysPlusOutliers) {
             maths::CTimeSeriesTestForSeasonality seasonality{lastTest, bucketLength, values};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< result.print());
-            BOOST_REQUIRE(result.print() == "[86400/(172800,604800), 604800/(0,172800)]" ||
-                          result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800)]");
+            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800)]" ||
+                          result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]");
             values.assign(window / bucketLength, TFloatMeanAccumulator{});
             lastTest = time;
         }
@@ -376,8 +379,8 @@ BOOST_AUTO_TEST_CASE(testRealSwitchingNoSeasonality) {
 
 BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
 
-    // Test the accuracy for non-diurnal seasonal components with periods
-    // in the range [DAY / 5, 5 * DAY].
+    // Test the accuracy for non-diurnal seasonal components with periods in the
+    // range [DAY / 5, 5 * DAY].
 
     TGeneratorVec generators{smoothDaily, spikeyDaily};
     core_t::TTime startTime{10000};
@@ -481,11 +484,11 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
     LOG_DEBUG(<< "accuracy @ 1% error = " << TP[1] / (TP[1] + FP));
     LOG_DEBUG(<< "accuracy @ 5% error = " << TP[2] / (TP[2] + FP));
     BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.93);
-    BOOST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.98);
-    BOOST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.98);
-    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.94);
-    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.94);
-    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.94);
+    BOOST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.99);
+    BOOST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.99);
+    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.93);
+    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.93);
+    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.93);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticSparseDaily) {
@@ -778,9 +781,8 @@ BOOST_AUTO_TEST_CASE(testSyntheticMixtureOfSeasonalities) {
 
 BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithLinearScaling) {
 
-    // Test the ability to correctly decompose a time series with diurnal
-    // seasonal components in the presence of piecewise constant random
-    // linear scaling events.
+    // Test the ability to correctly decompose a time series with diurnal seasonal
+    // components in the presence of piecewise constant random linear scaling events.
 
     std::size_t segmentSupport[][2]{{100, 200}, {600, 900}};
     double scaleSupport[][2]{{4.0, 6.0}, {0.2, 0.4}};
@@ -955,17 +957,17 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnalWithLinearTrend) {
     LOG_DEBUG(<< "accuracy @ 1% error = " << TP[1] / (TP[1] + FP));
     LOG_DEBUG(<< "accuracy @ 5% error = " << TP[2] / (TP[2] + FP));
     BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.93);
-    BOOST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.98);
-    BOOST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.98);
-    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.94);
-    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.94);
-    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.94);
+    BOOST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.99);
+    BOOST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.99);
+    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.93);
+    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.93);
+    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.93);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend) {
 
-    // Test the ability to correctly decompose a time series with diurnal
-    // seasonal components and a piecewise linear trend.
+    // Test the ability to correctly decompose a time series with diurnal seasonal
+    // components and a piecewise linear trend.
 
     using TLinearModel = std::function<double(core_t::TTime)>;
     using TLinearModelVec = std::vector<TLinearModel>;
@@ -1046,7 +1048,102 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend) {
     BOOST_REQUIRE(TP / (TP + FN) > 0.99);
 }
 
+BOOST_AUTO_TEST_CASE(testWithModelledSeasonality) {
+}
+
+BOOST_AUTO_TEST_CASE(testStartOfWeekOverride) {
+}
+
+BOOST_AUTO_TEST_CASE(testNewTrendSummary) {
+}
+
+BOOST_AUTO_TEST_CASE(testNewSeasonalComponentSummary) {
+}
+
 BOOST_AUTO_TEST_CASE(testComponentInitialValues) {
+
+    // Test that the initial values for the seasonal components identified match
+    // the supplied values.
+
+    TGeneratorVec generators{smoothDaily, spikeyDaily, weekends};
+
+    test::CRandomNumbers rng;
+
+    TFloatMeanAccumulatorVec values;
+    TTimeDoubleMap predictions;
+    TSizeVec startTimes;
+    rng.generateUniformSamples(0, 10000000, 100, startTimes);
+    TTimeVec expectedWindowStarts{0, 2 * DAY, 0, 2 * DAY};
+    TTimeVec expectedWindowEnds{2 * DAY, 7 * DAY, 2 * DAY, 7 * DAY};
+    TTimeVec expectedPeriods{DAY, DAY, WEEK, WEEK};
+
+    for (std::size_t test = 0; test < 10; ++test) {
+        LOG_DEBUG(<< "test " << test + 1 << " / 10");
+
+        std::size_t index{test % generators.size()};
+        auto generator = generators[index];
+        core_t::TTime startTime{
+            HALF_HOUR * (static_cast<core_t::TTime>(startTimes[test]) / HALF_HOUR)};
+
+        values.assign((3 * WEEK) / HALF_HOUR, TFloatMeanAccumulator{});
+        for (core_t::TTime time = 0; time < 3 * WEEK; time += HALF_HOUR) {
+            std::size_t bucket(time / HALF_HOUR);
+            values[bucket].add(10.0 * generator(startTime + time));
+        }
+
+        maths::CTimeSeriesTestForSeasonality seasonality{startTime, HALF_HOUR, values};
+        auto result = seasonality.decompose();
+
+        // Expect agreement with generator.
+        predictions.clear();
+        for (const auto& component : result.components()) {
+            for (auto i = component.beginInitialValues();
+                 i != component.endInitialValues(); ++i) {
+                predictions[i->first] += maths::CBasicStatistics::mean(i->second);
+            }
+        }
+        for (const auto& prediction : predictions) {
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0 * generator(prediction.first),
+                                         prediction.second, 1e-3);
+        }
+
+        // Check the seasonal time is initialized correctly.
+        switch (index) {
+        case 0:
+        case 1:
+            for (const auto& component : result.components()) {
+                auto time = component.seasonalTime();
+                BOOST_REQUIRE_EQUAL(false, time->windowed());
+                BOOST_REQUIRE_EQUAL(0, time->windowRepeatStart());
+                BOOST_REQUIRE_EQUAL(0, time->windowStart());
+                BOOST_REQUIRE_EQUAL(WEEK, time->windowEnd());
+                BOOST_REQUIRE_EQUAL(DAY, time->period());
+            }
+            break;
+        default:
+            BOOST_REQUIRE_EQUAL(4, result.components().size());
+            for (std::size_t i = 0; i < result.components().size(); ++i) {
+                auto time = result.components()[i].seasonalTime();
+                BOOST_REQUIRE_EQUAL(true, time->windowed());
+                BOOST_REQUIRE_EQUAL(5 * DAY / HALF_HOUR, time->windowRepeatStart() / HALF_HOUR);
+                BOOST_REQUIRE_EQUAL(expectedWindowStarts[i], time->windowStart());
+                BOOST_REQUIRE_EQUAL(expectedWindowEnds[i], time->windowEnd());
+                BOOST_REQUIRE_EQUAL(expectedPeriods[i], time->period());
+            }
+            break;
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testComponentInitialValuesMixture) {
+
+    // Test that the initial values for the seasonal components identified match
+    // the supplied values.
+}
+
+BOOST_AUTO_TEST_CASE(testComponentInitialValuesWithScaling) {
+
+    // Test that we accurately
 }
 
 BOOST_AUTO_TEST_SUITE_END()

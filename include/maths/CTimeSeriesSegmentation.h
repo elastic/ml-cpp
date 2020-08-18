@@ -24,6 +24,7 @@ public:
     using TSizeVec = std::vector<std::size_t>;
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
+    using TFloatMeanAccumulatorVecBoolPr = std::pair<TFloatMeanAccumulatorVec, bool>;
     using TWeightFunc = std::function<double(std::size_t)>;
 
     //! Perform top-down recursive segmentation with linear models.
@@ -140,7 +141,7 @@ public:
     //! constant scale.
     //! \param[in] indexWeight A function used to weight indices of \p segmentation.
     //! \return The values with the mean scaled seasonal component.
-    static TFloatMeanAccumulatorVec
+    static TFloatMeanAccumulatorVecBoolPr
     meanScalePiecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
                                            std::size_t period,
                                            const TSizeVec& segmentation,

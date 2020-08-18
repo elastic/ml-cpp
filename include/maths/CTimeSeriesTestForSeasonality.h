@@ -138,8 +138,9 @@ public:
                                    std::size_t index,
                                    TFloatMeanAccumulatorVecCItr value,
                                    TSizeSizePr2Vec windows)
-            : m_Summary{&summary}, m_Index{index}, m_Value{value},
-              m_CurrentWindow{this->window()}, m_Windows{std::move(windows)} {}
+            : m_Summary{&summary}, m_Index{index}, m_Value{value}, m_Windows{std::move(windows)} {
+            m_CurrentWindow = this->window();
+        }
 
         //! \name Forward Iterator Contract
         //@{
@@ -150,10 +151,10 @@ public:
             return m_Value != rhs.m_Value;
         }
         TTimeFloatMeanAccumulatorPr operator*() const {
-            std::size_t index{m_Index % m_Summary->m_InitialValues.size()};
+            std::size_t index{m_Index % m_Summary->m_InitialValuesSpan};
             core_t::TTime offset{m_Summary->m_BucketLength *
                                  static_cast<core_t::TTime>(index)};
-            return {m_Summary->m_StartTime + offset, m_Summary->m_InitialValues[index]};
+            return {m_Summary->m_StartTime + offset, *m_Value};
         }
         CTimeFloatMeanAccumulatorPrCPtr operator->() const {
             return {this->operator*()};
@@ -200,6 +201,7 @@ public:
                                  bool diurnal,
                                  core_t::TTime startTime,
                                  core_t::TTime bucketLength,
+                                 std::size_t initialValuesSpan,
                                  TFloatMeanAccumulatorVec initialValues,
                                  double precedence);
 
@@ -230,6 +232,7 @@ private:
     bool m_Diurnal = false;
     core_t::TTime m_StartTime = 0;
     core_t::TTime m_BucketLength = 0;
+    std::size_t m_InitialValuesSpan = 0;
     TFloatMeanAccumulatorVec m_InitialValues;
     double m_Precedence = 0.0;
 };
@@ -253,6 +256,7 @@ public:
              bool diurnal,
              core_t::TTime startTime,
              core_t::TTime bucketLength,
+             std::size_t initialValuesSpan,
              TFloatMeanAccumulatorVec initialValues,
              double precedence);
 
@@ -525,6 +529,7 @@ private:
     void testExplainedVariance(const TVarianceStats& H0, SHypothesisStats& hypothesis) const;
     void testAutocorrelation(SHypothesisStats& hypothesis) const;
     void testAmplitude(SHypothesisStats& hypothesis) const;
+    TVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values) const;
     double truncatedVariance(double outlierFraction,
                              const TFloatMeanAccumulatorVec& residuals) const;
     bool alreadyModelled(const TSeasonalComponentVec& periods) const;
@@ -558,6 +563,7 @@ private:
     core_t::TTime m_StartTime = 0;
     core_t::TTime m_BucketLength = 0;
     double m_OutlierFraction = OUTLIER_FRACTION;
+    double m_EpsVariance = 0.0;
     TFloatMeanAccumulatorVec m_Values;
     TSeasonalComponentVec m_ModelledPeriods;
     // The follow are member data to avoid repeatedly reinitialising.

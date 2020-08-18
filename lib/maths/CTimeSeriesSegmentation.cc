@@ -327,7 +327,7 @@ CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(const TFloatMeanAcc
     return reweighted;
 }
 
-CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
+CTimeSeriesSegmentation::TFloatMeanAccumulatorVecBoolPr
 CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(
     const TFloatMeanAccumulatorVec& values,
     std::size_t period,
@@ -341,6 +341,8 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(
     TDoubleVec scales;
     std::tie(model, scales) = piecewiseLinearScaledSeasonal(
         values, period, segmentation, outlierFraction, outlierWeight);
+    LOG_TRACE(<< "model = " << core::CContainerPrinter::print(model));
+    LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
 
     double scale{meanScale(segmentation, scales, indexWeight)};
     LOG_TRACE(<< "mean scale = " << scale);
@@ -365,6 +367,11 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(
     }()};
     LOG_TRACE(<< "amplitude = " << amplitude << ", noise = " << noise);
 
+    if (*std::min_element(scales.begin(), scales.end()) < 0.0 ||
+        2.0 * *std::max_element(scales.begin(), scales.end()) * amplitude <= noise) {
+        return {{}, false};
+    }
+
     for (std::size_t i = 0; i < values.size(); ++i) {
         // If the component is "scaled away" in a segment we treat that
         // segment as missing.
@@ -379,7 +386,7 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(
         }
     }
 
-    return scaledValues;
+    return {std::move(scaledValues), true};
 }
 
 double CTimeSeriesSegmentation::meanScale(const TSizeVec& segmentation,
