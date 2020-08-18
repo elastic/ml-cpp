@@ -28,7 +28,10 @@ namespace {
 
 class CUnprotectedAdder : public ml::core::CThread {
 public:
-    CUnprotectedAdder(std::uint32_t sleepTime, std::uint32_t iterations, std::uint32_t increment, volatile std::uint32_t& variable)
+    CUnprotectedAdder(std::uint32_t sleepTime,
+                      std::uint32_t iterations,
+                      std::uint32_t increment,
+                      volatile std::uint32_t& variable)
         : m_SleepTime(sleepTime), m_Iterations(iterations),
           m_Increment(increment), m_Variable(variable) {}
 
@@ -53,7 +56,10 @@ private:
 
 class CAtomicAdder : public ml::core::CThread {
 public:
-    CAtomicAdder(std::uint32_t sleepTime, std::uint32_t iterations, std::uint32_t increment, std::atomic_uint_fast32_t& variable)
+    CAtomicAdder(std::uint32_t sleepTime,
+                 std::uint32_t iterations,
+                 std::uint32_t increment,
+                 std::atomic_uint_fast32_t& variable)
         : m_SleepTime(sleepTime), m_Iterations(iterations),
           m_Increment(increment), m_Variable(variable) {}
 
