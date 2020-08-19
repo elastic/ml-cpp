@@ -5,9 +5,9 @@
  */
 #include <test/CThreadDataWriter.h>
 
-#include <core/CSleep.h>
-
+#include <chrono>
 #include <fstream>
+#include <thread>
 
 namespace ml {
 namespace test {
@@ -21,7 +21,7 @@ CThreadDataWriter::CThreadDataWriter(std::uint32_t sleepTimeMs,
 }
 
 void CThreadDataWriter::run() {
-    core::CSleep::sleep(m_SleepTimeMs);
+    std::this_thread::sleep_for(std::chrono::milliseconds(m_SleepTimeMs));
 
     std::ofstream strm{m_FileName};
     for (std::size_t i = 0; i < m_Size && strm.good(); ++i) {

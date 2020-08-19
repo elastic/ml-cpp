@@ -6,7 +6,6 @@
 
 #include <core/CDualThreadStreamBuf.h>
 #include <core/CLogger.h>
-#include <core/CSleep.h>
 #include <core/CThread.h>
 #include <core/CTimeUtils.h>
 #include <core/CoreTypes.h>
@@ -15,11 +14,12 @@
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
+#include <chrono>
+#include <cstdint>
+#include <cstring>
 #include <istream>
 #include <string>
-
-#include <stdint.h>
-#include <string.h>
+#include <thread>
 
 BOOST_AUTO_TEST_SUITE(CDualThreadStreamBufTest)
 
@@ -39,7 +39,7 @@ private:
     using TOptionalTellgStore = boost::optional<CTellgStore>;
 
 public:
-    CInputThread(ml::core::CDualThreadStreamBuf& buffer, uint32_t delay = 0, size_t fatalAfter = 0)
+    CInputThread(ml::core::CDualThreadStreamBuf& buffer, std::uint32_t delay = 0, size_t fatalAfter = 0)
         : m_Buffer(buffer), m_Delay(delay), m_FatalAfter(fatalAfter),
           m_TotalData(0) {}
 
@@ -68,7 +68,7 @@ protected:
                 m_Buffer.signalFatalError();
                 break;
             }
-            ml::core::CSleep::sleep(m_Delay);
+            std::this_thread::sleep_for(std::chrono::milliseconds(m_Delay));
             if (count == m_FatalAfter) {
                 m_Buffer.signalFatalError();
             }
@@ -79,7 +79,7 @@ protected:
 
 private:
     ml::core::CDualThreadStreamBuf& m_Buffer;
-    uint32_t m_Delay;
+    std::uint32_t m_Delay;
     size_t m_FatalAfter;
     size_t m_TotalData;
     TOptionalTellgStore m_LastMismatch;
@@ -103,7 +103,7 @@ const char*
 
 BOOST_AUTO_TEST_CASE(testThroughput) {
     static const size_t TEST_SIZE(1000000);
-    size_t dataSize(::strlen(DATA));
+    size_t dataSize(std::strlen(DATA));
     size_t totalDataSize(TEST_SIZE * dataSize);
 
     ml::core::CDualThreadStreamBuf buf;
@@ -145,8 +145,8 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
 
 BOOST_AUTO_TEST_CASE(testSlowConsumer) {
     static const size_t TEST_SIZE(25);
-    static const uint32_t DELAY(200);
-    size_t dataSize(::strlen(DATA));
+    static const std::uint32_t DELAY(200);
+    size_t dataSize(std::strlen(DATA));
     size_t numNewLines(std::count(DATA, DATA + dataSize, '\n'));
     size_t totalDataSize(TEST_SIZE * dataSize);
 
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE(testSlowConsumer) {
 }
 
 BOOST_AUTO_TEST_CASE(testPutback) {
-    size_t dataSize(::strlen(DATA));
+    size_t dataSize(std::strlen(DATA));
 
     ml::core::CDualThreadStreamBuf buf;
 
@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE(testPutback) {
 BOOST_AUTO_TEST_CASE(testFatal) {
     static const size_t TEST_SIZE(10000);
     static const size_t BUFFER_CAPACITY(16384);
-    size_t dataSize(::strlen(DATA));
+    size_t dataSize(std::strlen(DATA));
 
     // These conditions need to be true for the test to work properly
     BOOST_TEST_REQUIRE(dataSize < BUFFER_CAPACITY);

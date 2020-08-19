@@ -6,9 +6,11 @@
 
 #include <core/CLogger.h>
 #include <core/CMonotonicTime.h>
-#include <core/CSleep.h>
 
 #include <boost/test/unit_test.hpp>
+
+#include <chrono>
+#include <thread>
 
 BOOST_AUTO_TEST_SUITE(CMonotonicTimeTest)
 
@@ -17,7 +19,7 @@ BOOST_AUTO_TEST_CASE(testMilliseconds) {
 
     uint64_t start(monoTime.milliseconds());
 
-    ml::core::CSleep::sleep(1000);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     uint64_t end(monoTime.milliseconds());
 
@@ -35,7 +37,7 @@ BOOST_AUTO_TEST_CASE(testNanoseconds) {
 
     uint64_t start(monoTime.nanoseconds());
 
-    ml::core::CSleep::sleep(1000);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     uint64_t end(monoTime.nanoseconds());
 

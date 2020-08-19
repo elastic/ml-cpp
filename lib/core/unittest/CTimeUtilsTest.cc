@@ -6,20 +6,21 @@
 
 #include <core/CCTimeR.h>
 #include <core/CLogger.h>
-#include <core/CSleep.h>
 #include <core/CTimeUtils.h>
 #include <core/CTimezone.h>
 
 #include <boost/test/unit_test.hpp>
 
-#include <time.h>
+#include <chrono>
+#include <ctime>
+#include <thread>
 
 BOOST_AUTO_TEST_SUITE(CTimeUtilsTest)
 
 BOOST_AUTO_TEST_CASE(testNow) {
     ml::core_t::TTime t1(ml::core::CTimeUtils::now());
     std::int64_t t1Ms(ml::core::CTimeUtils::nowMs());
-    ml::core::CSleep::sleep(1001);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1001));
     ml::core_t::TTime t2(ml::core::CTimeUtils::now());
     std::int64_t t2Ms(ml::core::CTimeUtils::nowMs());
 
