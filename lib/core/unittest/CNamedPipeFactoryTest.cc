@@ -7,7 +7,6 @@
 #include <core/CLogger.h>
 #include <core/CNamedPipeFactory.h>
 #include <core/COsFileFuncs.h>
-#include <core/CSleep.h>
 #include <core/CThread.h>
 
 #include <test/CThreadDataReader.h>
@@ -16,7 +15,9 @@
 #include <boost/test/unit_test.hpp>
 
 #include <atomic>
+#include <chrono>
 #include <cstdio>
+#include <thread>
 
 #ifndef Windows
 #include <unistd.h>
@@ -49,7 +50,7 @@ public:
 protected:
     void run() override {
         // Wait for the file to exist
-        ml::core::CSleep::sleep(SLEEP_TIME_MS);
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME_MS));
 
         // Cancel the open() or read() operation on the file
         m_HasCancelledBlockingCall.store(true);

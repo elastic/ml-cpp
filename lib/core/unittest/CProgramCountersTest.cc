@@ -10,7 +10,6 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 #include <core/CRegex.h>
-#include <core/CSleep.h>
 #include <core/CThread.h>
 
 #include <test/CRandomNumbers.h>

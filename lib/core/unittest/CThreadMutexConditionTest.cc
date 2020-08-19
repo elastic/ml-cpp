@@ -7,10 +7,12 @@
 #include <core/CCondition.h>
 #include <core/CLogger.h>
 #include <core/CMutex.h>
-#include <core/CSleep.h>
 #include <core/CThread.h>
 
 #include <boost/test/unit_test.hpp>
+
+#include <chrono>
+#include <thread>
 
 BOOST_AUTO_TEST_SUITE(CThreadMutexConditionTest)
 
@@ -65,7 +67,7 @@ BOOST_AUTO_TEST_CASE(testThread) {
     BOOST_TEST_REQUIRE(thread.start());
 
     // Wait for thread to initialise
-    ml::core::CSleep::sleep(1000);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     BOOST_TEST_REQUIRE(thread.isRunning() == true);
 

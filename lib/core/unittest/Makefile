@@ -73,7 +73,6 @@ CRegexFilterTest.cc \
 CRegexTest.cc \
 CResourceLocatorTest.cc \
 CShellArgQuoterTest.cc \
-CSleepTest.cc \
 CSmallVectorTest.cc \
 CStateCompressorTest.cc \
 CStateMachineTest.cc \
