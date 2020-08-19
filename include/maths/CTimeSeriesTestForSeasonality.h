@@ -459,8 +459,6 @@ private:
 
         //! Does this include seasonality?
         bool seasonal() const { return s_Hypotheses.size() > 0; }
-        //! Does this include seasonality with \p period?
-        bool seasonal(std::size_t period) const;
         //! Should this behave as a null hypothesis?
         bool isNull(std::size_t numberValues) const;
         //! Should this behave as an alternative hypothesis?
@@ -497,28 +495,34 @@ private:
 private:
     CSeasonalHypotheses select(TModelVec& hypotheses) const;
     void addNotSeasonal(const TFloatMeanAccumulatorVec& valuesMinusTrend,
-                        std::size_t numberTrendSegments,
+                        const TSizeVec& modelTrendSegments,
                         TModelVec& decompositions) const;
     void addModelled(const TFloatMeanAccumulatorVec& valuesMinusTrend,
-                     std::size_t numberTrendSegments,
+                     const TSizeVec& modelTrendSegments,
                      TSeasonalComponentVec& periods,
                      TModelVec& decompositions) const;
     void addDiurnal(const TFloatMeanAccumulatorVec& valuesMinusTrend,
-                    std::size_t numberTrendSegments,
-                    TFloatMeanAccumulatorVec& valuesToDecompose,
+                    const TSizeVec& modelTrendSegments,
                     TSeasonalComponentVec& periods,
                     TModelVec& decompositions) const;
     void addDecomposition(const TFloatMeanAccumulatorVec& valuesMinusTrend,
-                          std::size_t numberTrendSegments,
-                          TFloatMeanAccumulatorVec& valuesToDecompose,
+                          const TSizeVec& modelTrendSegments,
                           TSeasonalComponentVec& periods,
                           TModelVec& decompositions) const;
-    SModel testDecomposition(const TFloatMeanAccumulatorVec& valueToTest,
+    void testAndAddDecomposition(const TSeasonalComponentVec& periods,
+                                 const TSizeVec& modelTrendSegments,
+                                 const TFloatMeanAccumulatorVec& valuesToTest,
+                                 TModelVec& decompositions,
+                                 bool alreadyModelled) const;
+    SModel testDecomposition(const TSeasonalComponentVec& periods,
                              std::size_t numberTrendSegments,
-                             const TSeasonalComponentVec& periods) const;
+                             const TFloatMeanAccumulatorVec& valueToTest) const;
+    bool acceptDecomposition(const SModel& decomposition) const;
     void updateResiduals(const SHypothesisStats& hypothesis,
                          TFloatMeanAccumulatorVec& residuals) const;
     void finalizeHypotheses(THypothesisStatsVec& hypotheses) const;
+    void removeDiscontinuities(const TSizeVec& modelTrendSegments,
+                               TFloatMeanAccumulatorVec& values) const;
     bool meanScale(TFloatMeanAccumulatorVec& values,
                    const SHypothesisStats& hypothesis,
                    const TWeightFunc& weight) const;

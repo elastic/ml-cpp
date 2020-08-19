@@ -1052,12 +1052,43 @@ BOOST_AUTO_TEST_CASE(testWithModelledSeasonality) {
 }
 
 BOOST_AUTO_TEST_CASE(testStartOfWeekOverride) {
+
+    TFloatMeanAccumulatorVec values;
+
+    values.assign((3 * WEEK) / HALF_HOUR, TFloatMeanAccumulator{});
+    for (core_t::TTime time = 0; time < 3 * WEEK; time += HALF_HOUR) {
+        std::size_t bucket(time / HALF_HOUR);
+        values[bucket].add(10.0 * weekends(time));
+    }
+
+    maths::CTimeSeriesTestForSeasonality seasonality{0, HALF_HOUR, values};
+    auto result = seasonality.decompose();
+
+    BOOST_REQUIRE(result.components().size() > 0);
+    auto time = result.components()[0].seasonalTime();
+    BOOST_REQUIRE_EQUAL(true, time->windowed());
+
+    core_t::TTime startOfWeek{time->windowRepeatStart() + HALF_HOUR};
+
+    maths::CTimeSeriesTestForSeasonality restrictedSeasonality{0, HALF_HOUR, values};
+    restrictedSeasonality.startOfWeek(startOfWeek);
+    result = restrictedSeasonality.decompose();
+    BOOST_REQUIRE(result.components().size() > 0);
+
+    for (const auto& component : result.components()) {
+        auto componentTime = component.seasonalTime();
+        BOOST_REQUIRE_EQUAL(true, componentTime->windowed());
+        BOOST_REQUIRE_EQUAL(startOfWeek, componentTime->windowRepeatStart());
+    }
 }
 
-BOOST_AUTO_TEST_CASE(testNewTrendSummary) {
+BOOST_AUTO_TEST_CASE(testNewTrendSummaryNoTrend) {
 }
 
-BOOST_AUTO_TEST_CASE(testNewSeasonalComponentSummary) {
+BOOST_AUTO_TEST_CASE(testNewTrendSummaryLinearTrend) {
+}
+
+BOOST_AUTO_TEST_CASE(testNewTrendSummaryPiecewiseLinearTrend) {
 }
 
 BOOST_AUTO_TEST_CASE(testComponentInitialValues) {
