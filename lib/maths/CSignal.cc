@@ -483,7 +483,7 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
     TFloatMeanAccumulatorVec valuesToTestDaily{values};
     TMeanAccumulatorVec1Vec dailyComponents;
 
-    double epsVariance{CTools::pow2(100.0 * std::numeric_limits<double>::epsilon()) * [&] {
+    double epsVariance{CTools::pow2(1000.0 * std::numeric_limits<double>::epsilon()) * [&] {
         TMeanVarAccumulator moments;
         for (const auto& value : values) {
             if (CBasicStatistics::count(value) > 0.0) {

@@ -169,13 +169,13 @@ CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime start
             moments.add(CBasicStatistics::mean(value));
         }
     }
-    m_EpsVariance = CTools::pow2(100.0 * std::numeric_limits<double>::epsilon()) *
+    m_EpsVariance = CTools::pow2(1000.0 * std::numeric_limits<double>::epsilon()) *
                     CBasicStatistics::maximumLikelihoodVariance(moments);
     LOG_TRACE(<< "eps variance = " << m_EpsVariance);
 }
 
 void CTimeSeriesTestForSeasonality::startOfWeek(core_t::TTime value) {
-    m_StartOfWeek = static_cast<std::size_t>(
+    m_StartOfWeekOverride = static_cast<std::size_t>(
         ((core::constants::WEEK + value - (m_StartTime % core::constants::WEEK)) %
          core::constants::WEEK) /
         m_BucketLength);
@@ -430,8 +430,8 @@ void CTimeSeriesTestForSeasonality::addDiurnal(const TFloatMeanAccumulatorVec& v
                                                TSeasonalComponentVec& periods,
                                                TModelVec& decompositions) const {
     m_ValuesWithComponent = valuesMinusTrend;
-    periods = CSignal::tradingDayDecomposition(
-        m_ValuesWithComponent, m_OutlierFraction, this->week(), m_StartOfWeek);
+    periods = CSignal::tradingDayDecomposition(m_ValuesWithComponent, m_OutlierFraction,
+                                               this->week(), m_StartOfWeekOverride);
     periods.push_back(CSignal::seasonalComponentSummary(this->year()));
     this->removeIfInsufficientData(periods);
     if (periods.size() > 0 && // Did we find candidate weekend/weekday split?
@@ -468,7 +468,7 @@ void CTimeSeriesTestForSeasonality::addDecomposition(const TFloatMeanAccumulator
     auto diurnal = std::make_tuple(this->day(), this->week(), this->year());
     auto unit = [](std::size_t) { return 1.0; };
     periods = CSignal::seasonalDecomposition(m_ValuesWithComponent, m_OutlierFraction,
-                                             diurnal, unit, m_StartOfWeek);
+                                             diurnal, unit, m_StartOfWeekOverride);
     this->removeIfInsufficientData(periods);
     if (periods.size() > 0 && // Did this identified any candidate components?
         this->alreadyModelled(periods) == false && // We test modelled directly.
@@ -601,14 +601,15 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
         return {};
     }
 
-    this->finalizeHypotheses(hypotheses);
     double variance{this->truncatedVariance(0.0, residuals) + m_EpsVariance};
     double truncatedVariance{this->truncatedVariance(m_OutlierFraction, residuals) + m_EpsVariance};
+
     for (std::size_t i = 0; i < m_Values.size(); ++i) {
         double offset{CBasicStatistics::mean(m_Values[i]) -
                       CBasicStatistics::mean(valuesToTest[i])};
         CBasicStatistics::moment<0>(residuals[i]) += offset;
     }
+    this->finalizeHypotheses(valuesToTest, hypotheses);
 
     return {variance, truncatedVariance, 2 * numberTrendSegments,
             std::move(residuals), std::move(hypotheses)};
@@ -642,7 +643,8 @@ void CTimeSeriesTestForSeasonality::updateResiduals(const SHypothesisStats& hypo
     }
 }
 
-void CTimeSeriesTestForSeasonality::finalizeHypotheses(THypothesisStatsVec& hypotheses) const {
+void CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec& values,
+                                                       THypothesisStatsVec& hypotheses) const {
 
     // Ensure that we only keep "false" hypotheses which are needed because they
     // are the best hypothesis for their time window.
@@ -677,7 +679,7 @@ void CTimeSeriesTestForSeasonality::finalizeHypotheses(THypothesisStatsVec& hypo
     for (auto& hypothesis : hypotheses) {
         m_Periods.push_back(hypothesis.s_Period);
     }
-    m_ValuesWithComponent = m_Values;
+    m_ValuesWithComponent = values;
     CSignal::fitSeasonalComponentsRobust(m_Periods, m_OutlierFraction,
                                          m_ValuesWithComponent, m_Components);
 

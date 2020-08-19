@@ -520,7 +520,8 @@ private:
     bool acceptDecomposition(const SModel& decomposition) const;
     void updateResiduals(const SHypothesisStats& hypothesis,
                          TFloatMeanAccumulatorVec& residuals) const;
-    void finalizeHypotheses(THypothesisStatsVec& hypotheses) const;
+    void finalizeHypotheses(const TFloatMeanAccumulatorVec& valuesToTest,
+                            THypothesisStatsVec& hypotheses) const;
     void removeDiscontinuities(const TSizeVec& modelTrendSegments,
                                TFloatMeanAccumulatorVec& values) const;
     bool meanScale(TFloatMeanAccumulatorVec& values,
@@ -563,7 +564,7 @@ private:
     double m_SignificantPValue = 1e-3;
     double m_VerySignificantPValue = 1e-8;
     double m_AcceptedFalsePostiveRate = 1e-4;
-    TOptionalSize m_StartOfWeek;
+    TOptionalSize m_StartOfWeekOverride;
     core_t::TTime m_StartTime = 0;
     core_t::TTime m_BucketLength = 0;
     double m_OutlierFraction = OUTLIER_FRACTION;

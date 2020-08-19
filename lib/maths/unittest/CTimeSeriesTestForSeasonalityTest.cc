@@ -1053,6 +1053,8 @@ BOOST_AUTO_TEST_CASE(testWithModelledSeasonality) {
 
 BOOST_AUTO_TEST_CASE(testStartOfWeekOverride) {
 
+    // Test we respect the start of week override.
+
     TFloatMeanAccumulatorVec values;
 
     values.assign((3 * WEEK) / HALF_HOUR, TFloatMeanAccumulator{});
@@ -1082,15 +1084,6 @@ BOOST_AUTO_TEST_CASE(testStartOfWeekOverride) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testNewTrendSummaryNoTrend) {
-}
-
-BOOST_AUTO_TEST_CASE(testNewTrendSummaryLinearTrend) {
-}
-
-BOOST_AUTO_TEST_CASE(testNewTrendSummaryPiecewiseLinearTrend) {
-}
-
 BOOST_AUTO_TEST_CASE(testComponentInitialValues) {
 
     // Test that the initial values for the seasonal components identified match
@@ -1103,7 +1096,7 @@ BOOST_AUTO_TEST_CASE(testComponentInitialValues) {
     TFloatMeanAccumulatorVec values;
     TTimeDoubleMap predictions;
     TSizeVec startTimes;
-    rng.generateUniformSamples(0, 10000000, 100, startTimes);
+    rng.generateUniformSamples(0, 10000000, 10, startTimes);
     TTimeVec expectedWindowStarts{0, 2 * DAY, 0, 2 * DAY};
     TTimeVec expectedWindowEnds{2 * DAY, 7 * DAY, 2 * DAY, 7 * DAY};
     TTimeVec expectedPeriods{DAY, DAY, WEEK, WEEK};
@@ -1164,6 +1157,77 @@ BOOST_AUTO_TEST_CASE(testComponentInitialValues) {
             break;
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE(testNewTrendSummary) {
+
+    // Test we get the trend initial values we expect with either no trend
+    // or a linear ramp.
+
+    TGeneratorVec trends{constant, ramp};
+    TGeneratorVec seasons{smoothDaily, spikeyDaily, weekends};
+
+    test::CRandomNumbers rng;
+
+    TFloatMeanAccumulatorVec values;
+    TTimeDoubleMap predictions;
+    TSizeVec startTimes;
+    rng.generateUniformSamples(0, 10000000, 10, startTimes);
+
+    for (std::size_t test = 0; test < 10; ++test) {
+        LOG_DEBUG(<< "test " << test + 1 << " / 10");
+
+        core_t::TTime startTime{HOUR * (static_cast<core_t::TTime>(startTimes[test]) / HOUR)};
+        auto trend = trends[test % trends.size()];
+        auto season = seasons[test % seasons.size()];
+
+        values.assign((4 * WEEK) / HOUR, TFloatMeanAccumulator{});
+        for (core_t::TTime time = 0; time < 4 * WEEK; time += HOUR) {
+            std::size_t bucket(time / HOUR);
+            values[bucket].add(100.0 * trend(startTime + time) +
+                               10.0 * season(startTime + time));
+        }
+
+        maths::CTimeSeriesTestForSeasonality seasonality{startTime, HOUR, values};
+        auto result = seasonality.decompose();
+
+        BOOST_REQUIRE(result.trend() != nullptr);
+
+        predictions.clear();
+        for (auto i = result.trend()->beginInitialValues();
+             i != result.trend()->endInitialValues(); ++i) {
+            predictions[i->first] += maths::CBasicStatistics::mean(i->second);
+        }
+
+        // Expect slope to match.
+        TFloatMeanAccumulator expectedMeanSlope;
+        TFloatMeanAccumulator meanSlope;
+        for (core_t::TTime time = startTime + HOUR; time < startTime + 4 * WEEK;
+             time += HOUR) {
+            expectedMeanSlope.add(100.0 * (trend(time) - trend(time - HOUR)));
+            meanSlope.add(predictions[time] - predictions[time - HOUR]);
+        }
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+            static_cast<double>(maths::CBasicStatistics::mean(expectedMeanSlope)),
+            static_cast<double>(maths::CBasicStatistics::mean(meanSlope)), 1e-3);
+
+        // Expect agreement with generator.
+        for (const auto& component : result.components()) {
+            for (auto i = component.beginInitialValues();
+                 i != component.endInitialValues(); ++i) {
+                predictions[i->first] += maths::CBasicStatistics::mean(i->second);
+            }
+        }
+
+        for (const auto& prediction : predictions) {
+            BOOST_REQUIRE_CLOSE(100.0 * trend(prediction.first) +
+                                    10.0 * season(prediction.first),
+                                prediction.second, 1.0);
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testNewTrendSummaryPiecewiseLinearTrend) {
 }
 
 BOOST_AUTO_TEST_CASE(testComponentInitialValuesMixture) {
