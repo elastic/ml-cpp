@@ -32,6 +32,9 @@ public:
     CSeasonalTime(core_t::TTime period, double precedence);
     virtual ~CSeasonalTime() = default;
 
+    //! Check for equality with \p other.
+    bool operator==(const CSeasonalTime& other) const;
+
     //! A total order on seasonal times.
     bool operator<(const CSeasonalTime& rhs) const;
 
@@ -86,7 +89,7 @@ public:
     void regressionOrigin(core_t::TTime origin);
     //@}
 
-    //! \name Window
+    //! \name Window Properties
     //@{
     //! Get the repeat interval for the window pattern.
     virtual core_t::TTime windowRepeat() const = 0;
@@ -113,18 +116,13 @@ public:
     double fractionInWindow() const;
     //@}
 
-    //! Check whether this time's seasonal component time excludes
-    //! modeling \p other's.
-    bool excludes(const CSeasonalTime& other) const;
-
-    //! True if this has a weekend and false otherwise.
-    virtual bool hasWeekend() const = 0;
+    //! Get the component precendence for update with new components.
+    double precedence() const;
 
     //! Get a checksum for this object.
     virtual std::uint64_t checksum(std::uint64_t seed = 0) const = 0;
 
 protected:
-    double precedence() const;
     void precedence(double precedence);
 
 private:
@@ -182,9 +180,6 @@ public:
     //! Get the end of the window.
     virtual core_t::TTime windowEnd() const;
 
-    //! True if this has a weekend and false otherwise.
-    virtual bool hasWeekend() const;
-
     //! Get a checksum for this object.
     virtual std::uint64_t checksum(std::uint64_t seed = 0) const;
 
@@ -228,9 +223,6 @@ public:
 
     //! Returns the period.
     virtual core_t::TTime windowEnd() const;
-
-    //! Returns false.
-    virtual bool hasWeekend() const;
 
     //! Get a checksum for this object.
     virtual std::uint64_t checksum(std::uint64_t seed = 0) const;

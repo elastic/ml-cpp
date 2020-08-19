@@ -22,6 +22,8 @@
 #include <maths/CTools.h>
 #include <maths/MathsTypes.h>
 
+#include <boost/iterator/counting_iterator.hpp>
+
 #include <algorithm>
 #include <limits>
 #include <numeric>
@@ -40,6 +42,11 @@ double rightTailFTest(double v0, double v1, double df0, double df1) {
     return CStatisticalTests::rightTailFTest(F, df0, df1);
 }
 
+bool almostEqual(std::size_t i, std::size_t j, double eps) {
+    return std::fabs(static_cast<double>(i) - static_cast<double>(j)) <
+           eps * static_cast<double>(std::max(i, j));
+}
+
 bool almostDivisor(std::size_t i, std::size_t j, double eps) {
     if (i > j) {
         return false;
@@ -55,12 +62,20 @@ CNewTrendSummary::CNewTrendSummary(core_t::TTime startTime,
     : m_StartTime{startTime}, m_BucketLength{bucketLength}, m_InitialValues{std::move(initialValues)} {
 }
 
-CNewTrendSummary::CInitialValueConstIterator CNewTrendSummary::beginInitialValues() const {
-    return {*this, 0};
+core_t::TTime CNewTrendSummary::initialValuesStartTime() const {
+    return m_StartTime;
 }
 
-CNewTrendSummary::CInitialValueConstIterator CNewTrendSummary::endInitialValues() const {
-    return {*this, m_InitialValues.size()};
+core_t::TTime CNewTrendSummary::initialValuesEndTime() const {
+    return m_StartTime + static_cast<core_t::TTime>(m_InitialValues.size()) * m_BucketLength;
+}
+
+core_t::TTime CNewTrendSummary::bucketLength() const {
+    return m_BucketLength;
+}
+
+const CNewTrendSummary::TFloatMeanAccumulatorVec& CNewTrendSummary::initialValues() const {
+    return m_InitialValues;
 }
 
 CNewSeasonalComponentSummary::CNewSeasonalComponentSummary(std::string annotationText,
@@ -69,11 +84,10 @@ CNewSeasonalComponentSummary::CNewSeasonalComponentSummary(std::string annotatio
                                                            bool diurnal,
                                                            core_t::TTime startTime,
                                                            core_t::TTime bucketLength,
-                                                           std::size_t initialValuesSpan,
                                                            TFloatMeanAccumulatorVec initialValues,
                                                            double precedence)
-    : m_AnnotationText{std::move(annotationText)}, m_Period{period}, m_Size{size}, m_Diurnal{diurnal},
-      m_StartTime{startTime}, m_BucketLength{bucketLength}, m_InitialValuesSpan{initialValuesSpan},
+    : m_AnnotationText{std::move(annotationText)}, m_Period{period}, m_Size{size},
+      m_Diurnal{diurnal}, m_StartTime{startTime}, m_BucketLength{bucketLength},
       m_InitialValues{std::move(initialValues)}, m_Precedence{precedence} {
 }
 
@@ -103,16 +117,17 @@ CNewSeasonalComponentSummary::seasonalTime() const {
     return std::make_unique<CGeneralPeriodTime>(interval(m_Period.s_Period), m_Precedence);
 }
 
-CNewSeasonalComponentSummary::CInitialValueConstIterator
-CNewSeasonalComponentSummary::beginInitialValues() const {
-    auto windows = m_Period.windows(m_InitialValuesSpan);
-    auto start = windows.size() > 0 ? windows.front().first : 0;
-    return {*this, start, m_InitialValues.begin(), std::move(windows)};
+core_t::TTime CNewSeasonalComponentSummary::initialValuesStartTime() const {
+    return m_StartTime;
 }
 
-CNewSeasonalComponentSummary::CInitialValueConstIterator
-CNewSeasonalComponentSummary::endInitialValues() const {
-    return {*this, CInitialValueConstIterator::END, m_InitialValues.end(), {}};
+core_t::TTime CNewSeasonalComponentSummary::initialValuesEndTime() const {
+    return m_StartTime + static_cast<core_t::TTime>(m_InitialValues.size()) * m_BucketLength;
+}
+
+const CNewSeasonalComponentSummary::TFloatMeanAccumulatorVec&
+CNewSeasonalComponentSummary::initialValues() const {
+    return m_InitialValues;
 }
 
 std::string CNewSeasonalComponentSummary::print() const {
@@ -125,34 +140,40 @@ std::string CNewSeasonalComponentSummary::print() const {
     return result.str();
 }
 
-void CSeasonalHypotheses::add(CNewTrendSummary trend) {
+void CSeasonalDecomposition::add(CNewTrendSummary trend) {
     m_Trend = std::move(trend);
 }
 
-void CSeasonalHypotheses::add(std::string annotationText,
-                              const TSeasonalComponent& period,
-                              std::size_t size,
-                              bool diurnal,
-                              core_t::TTime startTime,
-                              core_t::TTime bucketLength,
-                              std::size_t initialValuesSpan,
-                              TFloatMeanAccumulatorVec initialValues,
-                              double precedence) {
-    m_Components.emplace_back(std::move(annotationText), period, size, diurnal,
-                              startTime, bucketLength, initialValuesSpan,
-                              std::move(initialValues), precedence);
+void CSeasonalDecomposition::add(std::string annotationText,
+                                 const TSeasonalComponent& period,
+                                 std::size_t size,
+                                 bool diurnal,
+                                 core_t::TTime startTime,
+                                 core_t::TTime bucketLength,
+                                 TFloatMeanAccumulatorVec initialValues,
+                                 double precedence) {
+    m_Seasonal.emplace_back(std::move(annotationText), period, size, diurnal, startTime,
+                            bucketLength, std::move(initialValues), precedence);
 }
 
-const CNewTrendSummary* CSeasonalHypotheses::trend() const {
+void CSeasonalDecomposition::add(TBoolVec seasonalToRemoveMask) {
+    m_SeasonalToRemoveMask = std::move(seasonalToRemoveMask);
+}
+
+const CNewTrendSummary* CSeasonalDecomposition::trend() const {
     return m_Trend != boost::none ? &(*m_Trend) : nullptr;
 }
 
-const CSeasonalHypotheses::TNewSeasonalComponentVec& CSeasonalHypotheses::components() const {
-    return m_Components;
+const CSeasonalDecomposition::TNewSeasonalComponentVec& CSeasonalDecomposition::seasonal() const {
+    return m_Seasonal;
 }
 
-std::string CSeasonalHypotheses::print() const {
-    return core::CContainerPrinter::print(m_Components);
+const CSeasonalDecomposition::TBoolVec& CSeasonalDecomposition::seasonalToRemoveMask() const {
+    return m_SeasonalToRemoveMask;
+}
+
+std::string CSeasonalDecomposition::print() const {
+    return core::CContainerPrinter::print(m_Seasonal);
 }
 
 CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime startTime,
@@ -174,11 +195,15 @@ CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime start
     LOG_TRACE(<< "eps variance = " << m_EpsVariance);
 }
 
-void CTimeSeriesTestForSeasonality::startOfWeek(core_t::TTime value) {
+void CTimeSeriesTestForSeasonality::startOfWeek(core_t::TTime startOfWeek) {
     m_StartOfWeekOverride = static_cast<std::size_t>(
-        ((core::constants::WEEK + value - (m_StartTime % core::constants::WEEK)) %
+        ((core::constants::WEEK + startOfWeek - (m_StartTime % core::constants::WEEK)) %
          core::constants::WEEK) /
         m_BucketLength);
+}
+
+void CTimeSeriesTestForSeasonality::minimumPeriod(core_t::TTime minimumPeriod) {
+    m_MinimumPeriod = minimumPeriod;
 }
 
 void CTimeSeriesTestForSeasonality::addModelledSeasonality(const CSeasonalTime& period) {
@@ -193,9 +218,14 @@ void CTimeSeriesTestForSeasonality::addModelledSeasonality(const CSeasonalTime& 
                                 buckets(period.window().second)};
     m_ModelledPeriods.emplace_back(periodInBuckets, startOfWindowInBuckets,
                                    windowRepeatInBuckets, windowInBuckets);
+    m_ModelledPeriodsPrecedence.emplace_back(period.precedence());
 }
 
-CSeasonalHypotheses CTimeSeriesTestForSeasonality::decompose() {
+void CTimeSeriesTestForSeasonality::addModelledSeasonalityPredictor(const TPredictor& predictor) {
+    m_ModelledPredictor = predictor;
+}
+
+CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() {
 
     using TRemoveTrend = std::function<bool(TFloatMeanAccumulatorVec&)>;
 
@@ -229,14 +259,10 @@ CSeasonalHypotheses CTimeSeriesTestForSeasonality::decompose() {
         }};
 
     TModelVec decompositions;
-    decompositions.reserve(6 * std::size(trendModels));
-
-    std::stable_sort(m_ModelledPeriods.begin(), m_ModelledPeriods.end(),
-                     [](const auto& lhs, const auto& rhs) {
-                         return lhs.s_Period < rhs.s_Period;
-                     });
     TFloatMeanAccumulatorVec valuesMinusTrend;
     TSeasonalComponentVec periods;
+
+    decompositions.reserve(6 * std::size(trendModels));
 
     for (const auto& removeTrend : trendModels) {
 
@@ -253,10 +279,9 @@ CSeasonalHypotheses CTimeSeriesTestForSeasonality::decompose() {
     return this->select(decompositions);
 }
 
-CSeasonalHypotheses CTimeSeriesTestForSeasonality::select(TModelVec& decompositions) const {
+CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompositions) const {
 
-    // Choose the trend hypothesis which is the most parsimonious explanation of
-    // the values variance.
+    // Choose the hypothesis which yields the best explanation of the values.
 
     // Sort by increasing complexity.
     std::stable_sort(decompositions.begin(), decompositions.end(),
@@ -322,16 +347,26 @@ CSeasonalHypotheses CTimeSeriesTestForSeasonality::select(TModelVec& decompositi
     double qualitySelected{-std::numeric_limits<double>::max()};
     for (std::size_t H1 = 0; H1 < decompositions.size(); ++H1) {
         if (decompositions[H1].isAlternative(numberValues)) {
-            double autocorrelation{decompositions[H1].autocorrelation()};
             double pValue{computePValue(decompositions[H0], decompositions[H1])};
+            double logPValue{pValue == 0.0
+                                 ? std::log(std::numeric_limits<double>::min())
+                                 : (pValue == 1.0 ? -std::numeric_limits<double>::min()
+                                                  : std::log(pValue))};
+            double logAcceptedFalsePostiveRate{std::log(m_AcceptedFalsePostiveRate)};
+            double autocorrelation{decompositions[H1].autocorrelation()};
             LOG_TRACE(<< "hypothesis = "
                       << core::CContainerPrinter::print(decompositions[H1].s_Hypotheses));
             LOG_TRACE(<< "variance = " << decompositions[H1].s_ResidualVariance
                       << ", truncated variance = " << decompositions[H1].s_ResidualVariance
                       << ", # parameters = " << decompositions[H1].numberParameters()
                       << ", p-value = " << pValue);
-            LOG_TRACE(<< "autocorrelation = " << decompositions[H1].autocorrelation());
-            if (pValue >= m_AcceptedFalsePostiveRate && autocorrelation < 0.8) {
+            if (pValue > m_AcceptedFalsePostiveRate &&
+                (fuzzyGreaterThan(logPValue / logAcceptedFalsePostiveRate, 1.0, 1.0) &&
+                 fuzzyGreaterThan(autocorrelation / m_HighAutocorrelation, 1.0, 0.1) &&
+                 fuzzyGreaterThan(static_cast<double>(decompositions[H0].numberParameters()) /
+                                      (0.05 * static_cast<double>(numberValues)),
+                                  1.0, 0.2))
+                        .boolean() == false) {
                 continue;
             }
 
@@ -351,10 +386,6 @@ CSeasonalHypotheses CTimeSeriesTestForSeasonality::select(TModelVec& decompositi
             //   4. The total model size. The p-value is less sensitive to model
             //      size as the window length increases. However, for both accuracy
             //      and efficiency considerations we strongly prefer smaller models.
-            double logPValue{pValue == 0.0
-                                 ? std::log(std::numeric_limits<double>::min())
-                                 : (pValue == 1.0 ? -std::numeric_limits<double>::min()
-                                                  : std::log(pValue))};
             double pValueProxy{computePValueProxy(decompositions[H0], decompositions[H1])};
             double explainedVariance{decompositions[H0].s_ResidualVariance -
                                      decompositions[H1].s_ResidualVariance};
@@ -382,7 +413,7 @@ CSeasonalHypotheses CTimeSeriesTestForSeasonality::select(TModelVec& decompositi
         }
     }
 
-    CSeasonalHypotheses result;
+    CSeasonalDecomposition result;
 
     if (selected < decompositions.size()) {
         LOG_TRACE(<< "selected = "
@@ -390,14 +421,17 @@ CSeasonalHypotheses CTimeSeriesTestForSeasonality::select(TModelVec& decompositi
 
         result.add(CNewTrendSummary{m_StartTime, m_BucketLength,
                                     std::move(decompositions[selected].s_TrendInitialValues)});
-        for (const auto& hypothesis : decompositions[selected].s_Hypotheses) {
-            LOG_TRACE(<< "Adding " << hypothesis.s_Period.print());
-            result.add(this->annotationText(hypothesis.s_Period),
-                       hypothesis.s_Period, hypothesis.s_ComponentSize,
-                       this->isDiurnal(hypothesis.s_Period.s_Period),
-                       m_StartTime, m_BucketLength, m_Values.size(),
-                       std::move(hypothesis.s_InitialValues), this->precedence());
+        for (auto& hypothesis : decompositions[selected].s_Hypotheses) {
+            if (hypothesis.s_Model) {
+                LOG_TRACE(<< "Adding " << hypothesis.s_Period.print());
+                result.add(this->annotationText(hypothesis.s_Period),
+                           hypothesis.s_Period, hypothesis.s_ComponentSize,
+                           this->isDiurnal(hypothesis.s_Period.s_Period), m_StartTime,
+                           m_BucketLength, std::move(hypothesis.s_InitialValues),
+                           this->precedence());
+            }
         }
+        result.add(std::move(decompositions[selected].s_RemoveComponentsMask));
     }
 
     return result;
@@ -420,6 +454,10 @@ void CTimeSeriesTestForSeasonality::addModelled(const TFloatMeanAccumulatorVec& 
     if (m_ModelledPeriods.size() > 0) {
         periods = m_ModelledPeriods;
         this->removeIfInsufficientData(periods);
+        std::stable_sort(periods.begin(), periods.end(),
+                         [](const auto& lhs, const auto& rhs) {
+                             return lhs.s_Period < rhs.s_Period;
+                         });
         this->testAndAddDecomposition(periods, modelTrendSegments,
                                       valuesMinusTrend, decompositions, true);
     }
@@ -429,12 +467,13 @@ void CTimeSeriesTestForSeasonality::addDiurnal(const TFloatMeanAccumulatorVec& v
                                                const TSizeVec& modelTrendSegments,
                                                TSeasonalComponentVec& periods,
                                                TModelVec& decompositions) const {
-    m_ValuesWithComponent = valuesMinusTrend;
-    periods = CSignal::tradingDayDecomposition(m_ValuesWithComponent, m_OutlierFraction,
+    m_TemporaryValues = valuesMinusTrend;
+    periods = CSignal::tradingDayDecomposition(m_TemporaryValues, m_OutlierFraction,
                                                this->week(), m_StartOfWeekOverride);
     periods.push_back(CSignal::seasonalComponentSummary(this->year()));
     this->removeIfInsufficientData(periods);
     if (periods.size() > 0 && // Did we find candidate weekend/weekday split?
+        this->includesPermittedPeriod(periods) && // Includes a sufficiently long period.
         this->alreadyModelled(periods) == false) { // We test modelled directly.
         this->testAndAddDecomposition(periods, modelTrendSegments,
                                       valuesMinusTrend, decompositions, false);
@@ -444,7 +483,8 @@ void CTimeSeriesTestForSeasonality::addDiurnal(const TFloatMeanAccumulatorVec& v
                     CSignal::seasonalComponentSummary(this->week()),
                     CSignal::seasonalComponentSummary(this->year())});
     this->removeIfInsufficientData(periods);
-    if (periods.size() > 0 &&                      // Is there sufficient data?
+    if (periods.size() > 0 &&                     // Is there sufficient data?
+        this->includesPermittedPeriod(periods) && // Includes a sufficiently long period.
         this->alreadyModelled(periods) == false) { // We test modelled directly.
         this->testAndAddDecomposition(periods, modelTrendSegments,
                                       valuesMinusTrend, decompositions, false);
@@ -453,7 +493,8 @@ void CTimeSeriesTestForSeasonality::addDiurnal(const TFloatMeanAccumulatorVec& v
     periods.assign({CSignal::seasonalComponentSummary(this->week()),
                     CSignal::seasonalComponentSummary(this->year())});
     this->removeIfInsufficientData(periods);
-    if (periods.size() > 0 &&                      // Is there sufficient data?
+    if (periods.size() > 0 &&                     // Is there sufficient data?
+        this->includesPermittedPeriod(periods) && // Includes a sufficiently long period.
         this->alreadyModelled(periods) == false) { // We test modelled directly.
         this->testAndAddDecomposition(periods, modelTrendSegments,
                                       valuesMinusTrend, decompositions, false);
@@ -464,13 +505,15 @@ void CTimeSeriesTestForSeasonality::addDecomposition(const TFloatMeanAccumulator
                                                      const TSizeVec& modelTrendSegments,
                                                      TSeasonalComponentVec& periods,
                                                      TModelVec& decompositions) const {
-    m_ValuesWithComponent = valuesMinusTrend;
+    m_TemporaryValues = valuesMinusTrend;
     auto diurnal = std::make_tuple(this->day(), this->week(), this->year());
     auto unit = [](std::size_t) { return 1.0; };
-    periods = CSignal::seasonalDecomposition(m_ValuesWithComponent, m_OutlierFraction,
-                                             diurnal, unit, m_StartOfWeekOverride);
+    periods = CSignal::seasonalDecomposition(m_TemporaryValues, m_OutlierFraction,
+                                             diurnal, unit, m_StartOfWeekOverride,
+                                             0.05, m_MaximumNumberComponents);
     this->removeIfInsufficientData(periods);
     if (periods.size() > 0 && // Did this identified any candidate components?
+        this->includesPermittedPeriod(periods) && // Includes a sufficiently long period.
         this->alreadyModelled(periods) == false && // We test modelled directly.
         this->onlyDiurnal(periods) == false) {     // We test diurnal directly.
         this->testAndAddDecomposition(periods, modelTrendSegments,
@@ -524,7 +567,7 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
         LOG_TRACE(<< "testing " << periods[i].print());
 
         // Precondition by removing all remaining components.
-        m_ValuesWithoutComponent = residuals;
+        m_TemporaryValues = residuals;
         m_Periods.clear();
         for (std::size_t j = i + 1; j < periods.size(); ++j) {
             if (almostDivisor(periods[j].s_Period, periods[i].s_Period, 0.05) == false &&
@@ -534,24 +577,24 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
         }
         if (m_Periods.size() > 0) {
             LOG_TRACE(<< "removing " << core::CContainerPrinter::print(m_Periods));
-            CSignal::fitSeasonalComponents(m_Periods, m_ValuesWithoutComponent, m_Components);
+            CSignal::fitSeasonalComponents(m_Periods, m_TemporaryValues, m_Components);
             this->removeComponentPredictions(m_Periods.size(), m_Periods,
-                                             m_Components, m_ValuesWithoutComponent);
+                                             m_Components, m_TemporaryValues);
         }
 
         // Restrict to the component to test time windows.
-        m_WindowIndices.resize(m_ValuesWithoutComponent.size());
+        m_WindowIndices.resize(m_TemporaryValues.size());
         std::iota(m_WindowIndices.begin(), m_WindowIndices.end(), 0);
-        CSignal::restrictTo(periods[i], m_ValuesWithoutComponent);
+        CSignal::restrictTo(periods[i], m_TemporaryValues);
         CSignal::restrictTo(periods[i], m_WindowIndices);
-        m_ValuesWithComponent = m_ValuesWithoutComponent;
+        m_ValuesToTest = m_TemporaryValues;
         TSeasonalComponent period{CSignal::seasonalComponentSummary(periods[i].period())};
 
         // Compute the null hypothesis residual variance statistics.
         m_Periods.assign(1, CSignal::seasonalComponentSummary(1));
         CSignal::fitSeasonalComponentsRobust(m_Periods, m_OutlierFraction,
-                                             m_ValuesWithoutComponent, m_Components);
-        auto H0 = this->residualVarianceStats(m_ValuesWithoutComponent);
+                                             m_TemporaryValues, m_Components);
+        auto H0 = this->residualVarianceStats(m_TemporaryValues);
 
         SHypothesisStats bestHypothesis{periods[i]};
 
@@ -559,8 +602,8 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
 
             SHypothesisStats hypothesis{periods[i]};
 
-            if (scale(m_ValuesWithComponent, hypothesis) &&
-                CSignal::countNotMissing(m_ValuesWithComponent) > 0) {
+            if (scale(m_ValuesToTest, hypothesis) &&
+                CSignal::countNotMissing(m_ValuesToTest) > 0) {
 
                 LOG_TRACE(<< "scale segments = "
                           << core::CContainerPrinter::print(hypothesis.s_ScaleSegments));
@@ -568,10 +611,10 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
                 hypothesis.s_NumberTrendSegments = numberTrendSegments;
                 hypothesis.s_NumberScaleSegments = hypothesis.s_ScaleSegments.size() - 1;
                 hypothesis.s_MeanNumberRepeats =
-                    CSignal::meanNumberRepeatedValues(m_ValuesWithComponent, period);
+                    CSignal::meanNumberRepeatedValues(m_ValuesToTest, period);
                 m_Periods.assign(1, period);
                 CSignal::fitSeasonalComponentsRobust(m_Periods, m_OutlierFraction,
-                                                     m_ValuesWithComponent, m_Components);
+                                                     m_ValuesToTest, m_Components);
 
                 this->testExplainedVariance(H0, hypothesis);
                 this->testAutocorrelation(hypothesis);
@@ -609,10 +652,14 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
                       CBasicStatistics::mean(valuesToTest[i])};
         CBasicStatistics::moment<0>(residuals[i]) += offset;
     }
-    this->finalizeHypotheses(valuesToTest, hypotheses);
+    TBoolVec removeComponentMask{this->finalizeHypotheses(valuesToTest, hypotheses)};
 
-    return {variance, truncatedVariance, 2 * numberTrendSegments,
-            std::move(residuals), std::move(hypotheses)};
+    return {variance,
+            truncatedVariance,
+            2 * numberTrendSegments,
+            std::move(residuals),
+            std::move(hypotheses),
+            std::move(removeComponentMask)};
 }
 
 bool CTimeSeriesTestForSeasonality::acceptDecomposition(const SModel& decomposition) const {
@@ -627,28 +674,90 @@ bool CTimeSeriesTestForSeasonality::acceptDecomposition(const SModel& decomposit
 
 void CTimeSeriesTestForSeasonality::updateResiduals(const SHypothesisStats& hypothesis,
                                                     TFloatMeanAccumulatorVec& residuals) const {
-    m_ValuesWithComponent = residuals;
-    CSignal::restrictTo(hypothesis.s_Period, m_ValuesWithComponent);
-    this->meanScale(m_ValuesWithComponent, hypothesis,
+    m_TemporaryValues = residuals;
+    CSignal::restrictTo(hypothesis.s_Period, m_TemporaryValues);
+    this->meanScale(m_TemporaryValues, hypothesis,
                     [](std::size_t) { return 1.0; });
     m_Periods.assign(1, CSignal::seasonalComponentSummary(hypothesis.s_Period.period()));
     CSignal::fitSeasonalComponentsRobust(m_Periods, m_OutlierFraction,
-                                         m_ValuesWithComponent, m_Components);
+                                         m_TemporaryValues, m_Components);
 
-    for (std::size_t i = 0; i < m_ValuesWithComponent.size(); ++i) {
+    for (std::size_t i = 0; i < m_TemporaryValues.size(); ++i) {
         auto& moments = residuals[m_WindowIndices[i]];
         CBasicStatistics::moment<0>(moments) =
-            CBasicStatistics::mean(m_ValuesWithComponent[i]) -
+            CBasicStatistics::mean(m_TemporaryValues[i]) -
             m_Periods[0].value(m_Components[0], i);
     }
 }
 
-void CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec& values,
-                                                       THypothesisStatsVec& hypotheses) const {
+CTimeSeriesTestForSeasonality::TBoolVec
+CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec& values,
+                                                  THypothesisStatsVec& hypotheses) const {
+
+    auto removeComponentMask = this->selectModelledHypotheses(hypotheses);
+
+    m_Periods.clear();
+    for (std::size_t i = 0; i < hypotheses.size(); ++i) {
+        if (hypotheses[i].s_Model) {
+            m_Periods.push_back(hypotheses[i].s_Period);
+        }
+    }
+
+    m_InitialValues = values;
+    this->removeModelledPredictions(removeComponentMask, m_StartTime, m_InitialValues);
+
+    CSignal::fitSeasonalComponentsRobust(m_Periods, m_OutlierFraction,
+                                         m_InitialValues, m_Components);
+
+    auto nextModelled = [&](std::size_t i) {
+        for (/**/; i < hypotheses.size() && hypotheses[i].s_Model == false; ++i) {
+        }
+        return i;
+    };
+
+    for (std::size_t i = 0, j = nextModelled(0); i < m_Periods.size();
+         j = nextModelled(++i)) {
+        for (auto scale : {hypotheses[j].s_ScaleSegments.size() > 2, false}) {
+
+            m_TemporaryValues = m_InitialValues;
+
+            std::swap(m_Periods[i], m_Periods.back());
+            std::swap(m_Components[i], m_Components.back());
+            this->removeComponentPredictions(m_Periods.size() - 1, m_Periods,
+                                             m_Components, m_TemporaryValues);
+            std::swap(m_Periods[i], m_Periods.back());
+            std::swap(m_Components[i], m_Components.back());
+
+            m_WindowIndices.resize(m_TemporaryValues.size());
+            std::iota(m_WindowIndices.begin(), m_WindowIndices.end(), 0);
+            CSignal::restrictTo(m_Periods[i], m_TemporaryValues);
+            CSignal::restrictTo(m_Periods[i], m_WindowIndices);
+
+            if (scale && this->meanScale(m_TemporaryValues, hypotheses[j], [&](std::size_t k) {
+                    return std::pow(
+                        0.9, static_cast<double>(m_TemporaryValues.size() - k - 1));
+                }) == false) {
+                continue;
+            }
+
+            hypotheses[j].s_ComponentSize = CSignal::selectComponentSize(
+                m_TemporaryValues, hypotheses[j].s_Period.period());
+            hypotheses[j].s_InitialValues.resize(values.size());
+            for (std::size_t k = 0; k < m_WindowIndices.size(); ++k) {
+                hypotheses[j].s_InitialValues[m_WindowIndices[k]] = m_TemporaryValues[k];
+            }
+            break;
+        }
+    }
+
+    return removeComponentMask;
+}
+
+CTimeSeriesTestForSeasonality::TBoolVec
+CTimeSeriesTestForSeasonality::selectModelledHypotheses(THypothesisStatsVec& hypotheses) const {
 
     // Ensure that we only keep "false" hypotheses which are needed because they
     // are the best hypothesis for their time window.
-
     for (std::size_t i = 0, removedCount = 0; i < hypotheses.size();
          i += (removedCount > 0 ? 0 : 1)) {
         removedCount = 0;
@@ -675,39 +784,65 @@ void CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulat
         }
     }
 
-    m_Periods.clear();
-    for (auto& hypothesis : hypotheses) {
-        m_Periods.push_back(hypothesis.s_Period);
-    }
-    m_ValuesWithComponent = values;
-    CSignal::fitSeasonalComponentsRobust(m_Periods, m_OutlierFraction,
-                                         m_ValuesWithComponent, m_Components);
+    // Determine which periods from hypotheses will be selected to model. The
+    // criteria are:
+    //   - They are permitted by the minimum period constraint,
+    //   - They don't match a component we already have,
+    //   - They aren't excluded by a component we already have.
+
+    std::size_t numberModelledPeriods{m_ModelledPeriods.size()};
+    std::ptrdiff_t excess{-static_cast<std::ptrdiff_t>(m_MaximumNumberComponents)};
 
     for (std::size_t i = 0; i < hypotheses.size(); ++i) {
-        for (auto scale : {hypotheses[i].s_ScaleSegments.size() > 2, false}) {
+        const auto& period = hypotheses[i].s_Period;
+        hypotheses[i].s_Model =
+            this->permittedPeriod(period) && this->alreadyModelled(period) == false &&
+            std::find(boost::counting_iterator<std::size_t>(0),
+                      boost::counting_iterator<std::size_t>(numberModelledPeriods),
+                      [&](std::size_t j) {
+                          return almostEqual(m_ModelledPeriods[j].s_Period,
+                                             period.s_Period, 0.05) &&
+                                 m_ModelledPeriodsPrecedence[j] >= this->precedence();
+                      }) == boost::counting_iterator<std::size_t>(numberModelledPeriods);
+        excess += hypotheses[i].s_Model ? 1 : 0;
+    }
 
-            hypotheses[i].s_InitialValues = m_ValuesWithComponent;
+    // Check which existing components we should remove if any.
+    TBoolVec removeComponentMask(numberModelledPeriods);
+    for (std::size_t i = 0; i < numberModelledPeriods; ++i) {
+        const auto& period = m_ModelledPeriods[i];
+        double precedence{m_ModelledPeriodsPrecedence[i]};
+        removeComponentMask[i] =
+            std::find(hypotheses.begin(), hypotheses.end(),
+                      [&](const auto& hypothesis) {
+                          return period == hypothesis.s_Period;
+                      }) == hypotheses.end() &&
+            std::find(hypotheses.begin(), hypotheses.end(), [&](const auto& hypothesis) {
+                return almostEqual(period.s_Period, hypothesis.s_Period.s_Period, 0.05) &&
+                       this->precedence() > precedence;
+            }) != hypotheses.end();
+        excess += removeComponentMask[i] ? 0 : 1;
+    }
 
-            std::swap(m_Periods[i], m_Periods.back());
-            std::swap(m_Components[i], m_Components.back());
-            this->removeComponentPredictions(m_Periods.size() - 1, m_Periods, m_Components,
-                                             hypotheses[i].s_InitialValues);
-            std::swap(m_Periods[i], m_Periods.back());
-            std::swap(m_Components[i], m_Components.back());
-            CSignal::restrictTo(m_Periods[i], hypotheses[i].s_InitialValues);
+    // Don't exceed the maximum number of components discarding excess in order
+    // of increasing explained variance.
+    for (/**/; excess > 0; --excess) {
+        auto hypothesis = std::min_element(
+            hypotheses.begin(), hypotheses.end(), [](const auto& lhs, const auto& rhs) {
+                return lhs.s_ExplainedVariance < rhs.s_ExplainedVariance;
+            });
+        hypothesis->s_Model = false;
+    }
 
-            if (scale &&
-                this->meanScale(hypotheses[i].s_InitialValues, hypotheses[i], [&](std::size_t j) {
-                    return std::pow(0.9, static_cast<double>(
-                                             hypotheses[i].s_InitialValues.size() - j - 1));
-                }) == false) {
-                continue;
-            }
+    return removeComponentMask;
+}
 
-            hypotheses[i].s_ComponentSize = CSignal::selectComponentSize(
-                hypotheses[i].s_InitialValues, hypotheses[i].s_Period.period());
-            break;
-        }
+void CTimeSeriesTestForSeasonality::removeModelledPredictions(const TBoolVec& removeComponentMask,
+                                                              core_t::TTime startTime,
+                                                              TFloatMeanAccumulatorVec& values) const {
+    core_t::TTime time{startTime};
+    for (std::size_t i = 0; i < values.size(); ++i, time += m_BucketLength) {
+        CBasicStatistics::moment<0>(values[i]) -= m_ModelledPredictor(time, removeComponentMask);
     }
 }
 
@@ -747,7 +882,7 @@ void CTimeSeriesTestForSeasonality::removeComponentPredictions(
 void CTimeSeriesTestForSeasonality::testExplainedVariance(const TVarianceStats& H0,
                                                           SHypothesisStats& hypothesis) const {
 
-    auto H1 = this->residualVarianceStats(m_ValuesWithComponent);
+    auto H1 = this->residualVarianceStats(m_ValuesToTest);
 
     hypothesis.s_FractionNotMissing = static_cast<double>(H1.s_NumberParameters) /
                                       static_cast<double>(m_Components[0].size());
@@ -769,8 +904,8 @@ void CTimeSeriesTestForSeasonality::testExplainedVariance(const TVarianceStats& 
 
 void CTimeSeriesTestForSeasonality::testAutocorrelation(SHypothesisStats& hypothesis) const {
     CSignal::TFloatMeanAccumulatorCRng valuesToTestAutocorrelation{
-        m_ValuesWithComponent, 0,
-        CIntegerTools::floor(m_ValuesWithComponent.size(), m_Periods[0].period())};
+        m_ValuesToTest, 0,
+        CIntegerTools::floor(m_ValuesToTest.size(), m_Periods[0].period())};
 
     double autocorrelations[]{
         CSignal::cyclicAutocorrelation(m_Periods[0], valuesToTestAutocorrelation),
@@ -806,23 +941,23 @@ void CTimeSeriesTestForSeasonality::testAmplitude(SHypothesisStats& hypothesis) 
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     hypothesis.s_SeenSufficientDataToTestAmplitude = CMinAmplitude::seenSufficientDataToTestAmplitude(
-        this->observedRange(m_ValuesWithComponent), m_Periods[0].s_Period);
+        this->observedRange(m_ValuesToTest), m_Periods[0].s_Period);
     if (hypothesis.s_SeenSufficientDataToTestAmplitude == false) {
         return;
     }
 
     double level{CBasicStatistics::mean(std::accumulate(
-        m_ValuesWithComponent.begin(), m_ValuesWithComponent.end(), TMeanAccumulator{},
+        m_ValuesToTest.begin(), m_ValuesToTest.end(), TMeanAccumulator{},
         [](TMeanAccumulator partialLevel, const TFloatMeanAccumulator& value) {
             partialLevel.add(CBasicStatistics::mean(value), CBasicStatistics::count(value));
             return partialLevel;
         }))};
 
-    m_Amplitudes.assign(m_Periods[0].period(), {m_ValuesWithComponent.size(),
-                                                hypothesis.s_MeanNumberRepeats, level});
-    for (std::size_t i = 0; i < m_ValuesWithComponent.size(); ++i) {
+    m_Amplitudes.assign(m_Periods[0].period(),
+                        {m_ValuesToTest.size(), hypothesis.s_MeanNumberRepeats, level});
+    for (std::size_t i = 0; i < m_ValuesToTest.size(); ++i) {
         if (m_Periods[0].contains(i)) {
-            m_Amplitudes[m_Periods[0].offset(i)].add(i, m_ValuesWithComponent[i]);
+            m_Amplitudes[m_Periods[0].offset(i)].add(i, m_ValuesToTest[i]);
         }
     }
 
@@ -892,12 +1027,16 @@ double CTimeSeriesTestForSeasonality::truncatedVariance(double outlierFraction,
 
 bool CTimeSeriesTestForSeasonality::alreadyModelled(const TSeasonalComponentVec& periods) const {
     for (const auto& period : periods) {
-        if (std::find(m_ModelledPeriods.begin(), m_ModelledPeriods.end(), period) ==
-            m_ModelledPeriods.end()) {
+        if (this->alreadyModelled(period) == false) {
             return false;
         }
     }
     return true;
+}
+
+bool CTimeSeriesTestForSeasonality::alreadyModelled(const TSeasonalComponent& period) const {
+    return std::find(m_ModelledPeriods.begin(), m_ModelledPeriods.end(), period) !=
+           m_ModelledPeriods.end();
 }
 
 bool CTimeSeriesTestForSeasonality::onlyDiurnal(const TSeasonalComponentVec& periods) const {
@@ -939,6 +1078,18 @@ bool CTimeSeriesTestForSeasonality::seenSufficientData(const TSeasonalComponent&
 
 bool CTimeSeriesTestForSeasonality::seenSufficientDataToTestForTradingDayDecomposition() const {
     return 2 * this->week() <= this->observedRange(m_Values);
+}
+
+bool CTimeSeriesTestForSeasonality::permittedPeriod(const TSeasonalComponent& period) const {
+    return m_MinimumPeriod == boost::none ||
+           static_cast<core_t::TTime>(period.s_WindowRepeat) * m_BucketLength > *m_MinimumPeriod;
+}
+
+bool CTimeSeriesTestForSeasonality::includesPermittedPeriod(const TSeasonalComponentVec& periods) const {
+    return m_MinimumPeriod == boost::none ||
+           std::find_if(periods.begin(), periods.end(), [this](const auto& period) {
+               return this->permittedPeriod(period);
+           }) == periods.end();
 }
 
 double CTimeSeriesTestForSeasonality::precedence() const {
@@ -983,7 +1134,7 @@ std::size_t CTimeSeriesTestForSeasonality::observedRange(const TFloatMeanAccumul
     return static_cast<std::size_t>(end - begin);
 }
 
-std::size_t CTimeSeriesTestForSeasonality::CMinAmplitude::seenSufficientDataToTestAmplitude(
+bool CTimeSeriesTestForSeasonality::CMinAmplitude::seenSufficientDataToTestAmplitude(
     std::size_t range,
     std::size_t period) {
     return range >= MINIMUM_REPEATS * period;
@@ -1098,13 +1249,13 @@ std::string CTimeSeriesTestForSeasonality::SHypothesisStats::print() const {
 }
 
 bool CTimeSeriesTestForSeasonality::SModel::isNull(std::size_t numberValues) const {
-    return (s_Hypotheses.empty() || s_AlreadyModelled) &&
+    bool simpleTrend{100 * s_NumberTrendParameters < 5 * numberValues};
+    return ((s_Hypotheses.empty() && simpleTrend) || s_AlreadyModelled) &&
            this->degreesFreedom(numberValues) > 0.0;
 }
 
 bool CTimeSeriesTestForSeasonality::SModel::isAlternative(std::size_t numberValues) const {
-    return s_Hypotheses.size() > 0 && s_AlreadyModelled == false &&
-           this->degreesFreedom(numberValues) > 0.0;
+    return this->isNull(numberValues) == false && this->degreesFreedom(numberValues) > 0.0;
 }
 
 double CTimeSeriesTestForSeasonality::SModel::degreesFreedom(std::size_t numberValues) const {

@@ -84,7 +84,6 @@ COneOfNPrior.cc \
 COrderings.cc \
 COrdinal.cc \
 COutliers.cc \
-CPeriodicityHypothesisTests.cc \
 CPoissonMeanConjugate.cc \
 CPrior.cc \
 CPriorStateSerialiser.cc \

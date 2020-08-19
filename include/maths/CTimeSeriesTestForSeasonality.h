@@ -39,60 +39,23 @@ class MATHS_EXPORT CNewTrendSummary final {
 public:
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
-    using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
-
-    //! \brief Iterate over the (time, value) to use to initialize the component.
-    class CInitialValueConstIterator
-        : std::iterator<std::forward_iterator_tag, const TTimeFloatMeanAccumulatorPr, std::ptrdiff_t> {
-    public:
-        CInitialValueConstIterator() = default;
-        CInitialValueConstIterator(const CNewTrendSummary& summary, std::size_t index)
-            : m_Summary{&summary}, m_Index{index} {
-            m_Value.first = summary.m_StartTime + static_cast<core_t::TTime>(index) *
-                                                      summary.m_BucketLength;
-            m_Value.second = summary.m_InitialValues[index];
-        }
-
-        //! \name Forward Iterator Contract
-        //@{
-        bool operator==(const CInitialValueConstIterator& rhs) const {
-            return m_Index == rhs.m_Index && m_Summary == rhs.m_Summary;
-        }
-        bool operator!=(const CInitialValueConstIterator& rhs) const {
-            return m_Index != rhs.m_Index || m_Summary != rhs.m_Summary;
-        }
-        const TTimeFloatMeanAccumulatorPr& operator*() const { return m_Value; }
-        const TTimeFloatMeanAccumulatorPr* operator->() const {
-            return &m_Value;
-        }
-        CInitialValueConstIterator& operator++() {
-            m_Value.first += m_Summary->m_BucketLength;
-            m_Value.second = m_Summary->m_InitialValues[++m_Index];
-            return *this;
-        }
-        CInitialValueConstIterator operator++(int) {
-            CInitialValueConstIterator result{*this};
-            this->operator++();
-            return result;
-        }
-        //@}
-
-    private:
-        const CNewTrendSummary* m_Summary = nullptr;
-        std::size_t m_Index = 0;
-        TTimeFloatMeanAccumulatorPr m_Value;
-    };
 
 public:
     CNewTrendSummary(core_t::TTime startTime,
                      core_t::TTime bucketLength,
                      TFloatMeanAccumulatorVec initialValues);
 
-    //! Get an iterator over the values with which to initialize the new trend.
-    CInitialValueConstIterator beginInitialValues() const;
+    //! Get the start time of the initial values.
+    core_t::TTime initialValuesStartTime() const;
 
-    //! Get an iterator to the end of the values with which to initialize the new trend.
-    CInitialValueConstIterator endInitialValues() const;
+    //! Get the end time of the initial values.
+    core_t::TTime initialValuesEndTime() const;
+
+    //! Get the initial values bucket length.
+    core_t::TTime bucketLength() const;
+
+    //! Get the values to use to initialize the component.
+    const TFloatMeanAccumulatorVec& initialValues() const;
 
 private:
     core_t::TTime m_StartTime = 0;
@@ -103,96 +66,10 @@ private:
 //! \brief A summary of a new seasonal component.
 class MATHS_EXPORT CNewSeasonalComponentSummary {
 public:
-    using TSizeSizePr = CSignal::TSizeSizePr;
-    using TSizeSizePr2Vec = CSignal::TSizeSizePr2Vec;
-    using TSizeSizePr2VecCItr = TSizeSizePr2Vec::const_iterator;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
-    using TFloatMeanAccumulatorVecCItr = TFloatMeanAccumulatorVec::const_iterator;
-    using TTimeFloatMeanAccumulatorPr = std::pair<core_t::TTime, TFloatMeanAccumulator>;
     using TSeasonalTimeUPtr = std::unique_ptr<CSeasonalTime>;
-
-    //! \brief Iterate over the (time, value) to use to initialize the component.
-    class CInitialValueConstIterator
-        : std::iterator<std::forward_iterator_tag, const TTimeFloatMeanAccumulatorPr, std::ptrdiff_t> {
-    public:
-        class CTimeFloatMeanAccumulatorPrCPtr {
-        public:
-            CTimeFloatMeanAccumulatorPrCPtr(const TTimeFloatMeanAccumulatorPr& value)
-                : m_Value{value} {}
-            const TTimeFloatMeanAccumulatorPr* operator->() const {
-                return &m_Value;
-            }
-
-        private:
-            TTimeFloatMeanAccumulatorPr m_Value;
-        };
-
-    public:
-        static constexpr std::size_t END{std::numeric_limits<std::size_t>::max()};
-
-    public:
-        CInitialValueConstIterator() = default;
-        CInitialValueConstIterator(const CNewSeasonalComponentSummary& summary,
-                                   std::size_t index,
-                                   TFloatMeanAccumulatorVecCItr value,
-                                   TSizeSizePr2Vec windows)
-            : m_Summary{&summary}, m_Index{index}, m_Value{value}, m_Windows{std::move(windows)} {
-            m_CurrentWindow = this->window();
-        }
-
-        //! \name Forward Iterator Contract
-        //@{
-        bool operator==(const CInitialValueConstIterator& rhs) const {
-            return m_Value == rhs.m_Value;
-        }
-        bool operator!=(const CInitialValueConstIterator& rhs) const {
-            return m_Value != rhs.m_Value;
-        }
-        TTimeFloatMeanAccumulatorPr operator*() const {
-            std::size_t index{m_Index % m_Summary->m_InitialValuesSpan};
-            core_t::TTime offset{m_Summary->m_BucketLength *
-                                 static_cast<core_t::TTime>(index)};
-            return {m_Summary->m_StartTime + offset, *m_Value};
-        }
-        CTimeFloatMeanAccumulatorPrCPtr operator->() const {
-            return {this->operator*()};
-        }
-        CInitialValueConstIterator& operator++() {
-            ++m_Index;
-            ++m_Value;
-            if (m_Index >= m_CurrentWindow->second) {
-                m_CurrentWindow = this->window();
-                m_Index = m_CurrentWindow != m_Windows.end()
-                              ? CTools::truncate(m_Index, m_CurrentWindow->first,
-                                                 m_CurrentWindow->second)
-                              : END;
-            }
-            return *this;
-        }
-        CInitialValueConstIterator operator++(int) {
-            CInitialValueConstIterator result{*this};
-            this->operator++();
-            return result;
-        }
-        //@}
-
-    private:
-        TSizeSizePr2VecCItr window() const {
-            return std::upper_bound(m_Windows.begin(), m_Windows.end(), m_Index,
-                                    [](std::size_t i, const TSizeSizePr& window) {
-                                        return i < window.second;
-                                    });
-        }
-
-    private:
-        const CNewSeasonalComponentSummary* m_Summary = nullptr;
-        std::size_t m_Index = 0;
-        TFloatMeanAccumulatorVecCItr m_Value;
-        TSizeSizePr2VecCItr m_CurrentWindow;
-        TSizeSizePr2Vec m_Windows;
-    };
 
 public:
     CNewSeasonalComponentSummary(std::string annotationText,
@@ -201,7 +78,6 @@ public:
                                  bool diurnal,
                                  core_t::TTime startTime,
                                  core_t::TTime bucketLength,
-                                 std::size_t initialValuesSpan,
                                  TFloatMeanAccumulatorVec initialValues,
                                  double precedence);
 
@@ -216,11 +92,14 @@ public:
     //! \warning The caller owns the returned object.
     TSeasonalTimeUPtr seasonalTime() const;
 
-    //! Get an iterator over the values with which to initialize the new component.
-    CInitialValueConstIterator beginInitialValues() const;
+    //! Get the start time of the initial values.
+    core_t::TTime initialValuesStartTime() const;
 
-    //! Get an iterator to the end of the values with which to initialize the new component.
-    CInitialValueConstIterator endInitialValues() const;
+    //! Get the end time of the initial values.
+    core_t::TTime initialValuesEndTime() const;
+
+    //! Get the values to use to initialize the component.
+    const TFloatMeanAccumulatorVec& initialValues() const;
 
     //! Get a description of the component.
     std::string print() const;
@@ -232,14 +111,15 @@ private:
     bool m_Diurnal = false;
     core_t::TTime m_StartTime = 0;
     core_t::TTime m_BucketLength = 0;
-    std::size_t m_InitialValuesSpan = 0;
     TFloatMeanAccumulatorVec m_InitialValues;
     double m_Precedence = 0.0;
 };
 
-//! \brief Represents a collection of accepted seasonal hypotheses.
-class MATHS_EXPORT CSeasonalHypotheses {
+//! \brief Represents the decomposition of a collection of values into zero or more
+//! seasonal components.
+class MATHS_EXPORT CSeasonalDecomposition {
 public:
+    using TBoolVec = std::vector<bool>;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
@@ -256,15 +136,20 @@ public:
              bool diurnal,
              core_t::TTime startTime,
              core_t::TTime bucketLength,
-             std::size_t initialValuesSpan,
              TFloatMeanAccumulatorVec initialValues,
              double precedence);
+
+    //! Add a mask of any seasonal components which should be removed.
+    void add(TBoolVec seasonalToRemoveMask);
 
     //! Get the summary of any trend component.
     const CNewTrendSummary* trend() const;
 
     //! Get the summaries of any periodic components.
-    const TNewSeasonalComponentVec& components() const;
+    const TNewSeasonalComponentVec& seasonal() const;
+
+    //! A mask of any currently modelled components to remove.
+    const TBoolVec& seasonalToRemoveMask() const;
 
     //! Get a description of the seasonal components.
     std::string print() const;
@@ -273,17 +158,17 @@ private:
     using TOptionalNewTrendSummary = boost::optional<CNewTrendSummary>;
 
 private:
-    //! The selected trend summary.
     TOptionalNewTrendSummary m_Trend;
-
-    //! The selected seasonal components if any.
-    TNewSeasonalComponentVec m_Components;
+    TNewSeasonalComponentVec m_Seasonal;
+    TBoolVec m_SeasonalToRemoveMask;
 };
 
 //! \brief Discovers the seasonal components present in the values in a time window
 //! of a discrete time series.
 class MATHS_EXPORT CTimeSeriesTestForSeasonality {
 public:
+    using TBoolVec = std::vector<bool>;
+    using TPredictor = std::function<double(core_t::TTime, const TBoolVec&)>;
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
@@ -320,21 +205,32 @@ public:
         m_AcceptedFalsePostiveRate = value;
         return *this;
     }
+    CTimeSeriesTestForSeasonality& maximumNumberOfComponents(std::size_t value) {
+        m_MaximumNumberComponents = value;
+        return *this;
+    }
 
     //! Set the start of the week(end) to use.
-    void startOfWeek(core_t::TTime value);
+    void startOfWeek(core_t::TTime startOfWeek);
+
+    //! The minimum seasonal component period to consider.
+    void minimumPeriod(core_t::TTime minimumPeriod);
 
     //! Register a seasonal component which is already being modelled.
     void addModelledSeasonality(const CSeasonalTime& period);
 
+    //! Add a predictor for the currently modelled seasonal conponents.
+    void addModelledSeasonalityPredictor(const TPredictor& predictor);
+
     //! Run the test and return the new components found if any.
-    CSeasonalHypotheses decompose();
+    CSeasonalDecomposition decompose();
 
 private:
     using TDoubleVec = std::vector<double>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeVec = std::vector<std::size_t>;
     using TOptionalSize = boost::optional<std::size_t>;
+    using TOptionalTime = boost::optional<core_t::TTime>;
     using TMaxAccumulator =
         CBasicStatistics::COrderStatisticsHeap<double, std::greater<double>>;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
@@ -360,8 +256,7 @@ private:
               m_BucketAmplitudes(numberValues / m_BucketLength) {}
 
         //! Have we seen enough data to test for semi-periodic spikes?
-        static std::size_t seenSufficientDataToTestAmplitude(std::size_t range,
-                                                             std::size_t period);
+        static bool seenSufficientDataToTestAmplitude(std::size_t range, std::size_t period);
         //! Update with \p value.
         void add(std::size_t index, const TFloatMeanAccumulator& value);
         //! Compute the amplitude.
@@ -406,6 +301,8 @@ private:
         //! Get a readable description.
         std::string print() const;
 
+        //! If true then this should be modelled.
+        bool s_Model = false;
         //! A summary of the seasonal component period.
         TSeasonalComponent s_Period;
         //! The desired component size.
@@ -451,11 +348,13 @@ private:
                double truncatedResidualVariance,
                std::size_t numberTrendParameters,
                TFloatMeanAccumulatorVec trendInitialValues,
-               THypothesisStatsVec hypotheses)
+               THypothesisStatsVec hypotheses,
+               TBoolVec removeComponentsMask)
             : s_ResidualVariance{residualVariance}, s_TruncatedResidualVariance{truncatedResidualVariance},
               s_NumberTrendParameters{numberTrendParameters},
-              s_TrendInitialValues{std::move(trendInitialValues)}, s_Hypotheses{std::move(hypotheses)} {
-        }
+              s_TrendInitialValues{std::move(trendInitialValues)},
+              s_Hypotheses{std::move(hypotheses)}, s_RemoveComponentsMask{std::move(
+                                                       removeComponentsMask)} {}
 
         //! Does this include seasonality?
         bool seasonal() const { return s_Hypotheses.size() > 0; }
@@ -488,12 +387,14 @@ private:
         TFloatMeanAccumulatorVec s_TrendInitialValues;
         //! The seasonal components which have been found.
         THypothesisStatsVec s_Hypotheses;
+        //! A mask of the currently modelled components to remove.
+        TBoolVec s_RemoveComponentsMask;
     };
 
     using TModelVec = std::vector<SModel>;
 
 private:
-    CSeasonalHypotheses select(TModelVec& hypotheses) const;
+    CSeasonalDecomposition select(TModelVec& hypotheses) const;
     void addNotSeasonal(const TFloatMeanAccumulatorVec& valuesMinusTrend,
                         const TSizeVec& modelTrendSegments,
                         TModelVec& decompositions) const;
@@ -520,8 +421,12 @@ private:
     bool acceptDecomposition(const SModel& decomposition) const;
     void updateResiduals(const SHypothesisStats& hypothesis,
                          TFloatMeanAccumulatorVec& residuals) const;
-    void finalizeHypotheses(const TFloatMeanAccumulatorVec& valuesToTest,
-                            THypothesisStatsVec& hypotheses) const;
+    TBoolVec finalizeHypotheses(const TFloatMeanAccumulatorVec& valuesToTest,
+                                THypothesisStatsVec& hypotheses) const;
+    TBoolVec selectModelledHypotheses(THypothesisStatsVec& hypotheses) const;
+    void removeModelledPredictions(const TBoolVec& removeComponentMask,
+                                   core_t::TTime startTime,
+                                   TFloatMeanAccumulatorVec& values) const;
     void removeDiscontinuities(const TSizeVec& modelTrendSegments,
                                TFloatMeanAccumulatorVec& values) const;
     bool meanScale(TFloatMeanAccumulatorVec& values,
@@ -538,6 +443,7 @@ private:
     double truncatedVariance(double outlierFraction,
                              const TFloatMeanAccumulatorVec& residuals) const;
     bool alreadyModelled(const TSeasonalComponentVec& periods) const;
+    bool alreadyModelled(const TSeasonalComponent& period) const;
     bool onlyDiurnal(const TSeasonalComponentVec& periods) const;
     void removeIfInsufficientData(TSeasonalComponentVec& periods) const;
     bool isDiurnal(std::size_t period) const;
@@ -546,6 +452,8 @@ private:
     bool isWeekday(const TSeasonalComponent& period) const;
     bool seenSufficientData(const TSeasonalComponent& period) const;
     bool seenSufficientDataToTestForTradingDayDecomposition() const;
+    bool permittedPeriod(const TSeasonalComponent& period) const;
+    bool includesPermittedPeriod(const TSeasonalComponentVec& period) const;
     double precedence() const;
     std::string annotationText(const TSeasonalComponent& period) const;
     std::size_t day() const;
@@ -564,21 +472,27 @@ private:
     double m_SignificantPValue = 1e-3;
     double m_VerySignificantPValue = 1e-8;
     double m_AcceptedFalsePostiveRate = 1e-4;
+    std::size_t m_MaximumNumberComponents = 10;
     TOptionalSize m_StartOfWeekOverride;
+    TOptionalTime m_MinimumPeriod;
     core_t::TTime m_StartTime = 0;
     core_t::TTime m_BucketLength = 0;
     double m_OutlierFraction = OUTLIER_FRACTION;
     double m_EpsVariance = 0.0;
-    TFloatMeanAccumulatorVec m_Values;
+    TPredictor m_ModelledPredictor = [](core_t::TTime, const TBoolVec&) {
+        return 0.0;
+    };
     TSeasonalComponentVec m_ModelledPeriods;
+    TDoubleVec m_ModelledPeriodsPrecedence;
+    TFloatMeanAccumulatorVec m_Values;
     // The follow are member data to avoid repeatedly reinitialising.
     mutable TSizeVec m_WindowIndices;
     mutable TSeasonalComponentVec m_Periods;
     mutable TAmplitudeVec m_Amplitudes;
     mutable TMeanAccumulatorVec1Vec m_Components;
-    mutable TFloatMeanAccumulatorVec m_ValuesToDecompose;
-    mutable TFloatMeanAccumulatorVec m_ValuesWithComponent;
-    mutable TFloatMeanAccumulatorVec m_ValuesWithoutComponent;
+    mutable TFloatMeanAccumulatorVec m_ValuesToTest;
+    mutable TFloatMeanAccumulatorVec m_InitialValues;
+    mutable TFloatMeanAccumulatorVec m_TemporaryValues;
     mutable TMaxAccumulator m_Outliers;
 };
 }

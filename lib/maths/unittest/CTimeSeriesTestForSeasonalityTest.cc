@@ -25,7 +25,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include <cmath>
-#include <map>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CTimeSeriesTestForSeasonalityTest)
@@ -39,7 +38,6 @@ using TSizeVec = std::vector<std::size_t>;
 using TTimeVec = std::vector<core_t::TTime>;
 using TTimeDoublePr = std::pair<core_t::TTime, double>;
 using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
-using TTimeDoubleMap = std::map<core_t::TTime, double>;
 using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
 using TFloatMeanAccumulator =
@@ -106,7 +104,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
                 maths::CTimeSeriesTestForSeasonality seasonality{startTime, bucketLength, values};
 
                 auto result = seasonality.decompose();
-                bool isSeasonal{result.components().size() > 0};
+                bool isSeasonal{result.seasonal().size() > 0};
 
                 if (isSeasonal) {
                     LOG_DEBUG(<< "got " << result.print() << " expected []");
@@ -192,7 +190,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
                 }
 
                 std::size_t found[]{0, 0};
-                for (const auto& component : result.components()) {
+                for (const auto& component : result.seasonal()) {
                     ++found[std::find(expected[index[0]].begin(),
                                       expected[index[0]].end(), component.print()) ==
                             expected[index[0]].end()];
@@ -449,20 +447,21 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
                 double found[]{0.0, 0.0, 0.0, 0.0};
                 if (result.print() != "[" + std::to_string(period) + "]") {
                     LOG_DEBUG(<< "got " << result.print() << ", expected [" << period << "]");
-                } else {
-                    found[0] = 1.0;
                 }
 
-                for (const auto& component : result.components()) {
+                for (const auto& component : result.seasonal()) {
                     core_t::TTime componentPeriod{component.seasonalTime()->period()};
                     double error{static_cast<double>(std::min(componentPeriod % period,
                                                               period - componentPeriod % period)) /
                                  static_cast<double>(period)};
+                    if (error == 0.0) {
+                        found[0] = 1.0;
+                    }
                     if (error < 0.01) {
-                        found[1] = std::max(found[1], 1.0);
+                        found[1] = 1.0;
                     }
                     if (error < 0.05) {
-                        found[2] = std::max(found[2], 1.0);
+                        found[2] = 1.0;
                     }
                     if (error >= 0.05) {
                         found[3] += 1.0;
@@ -483,7 +482,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
     LOG_DEBUG(<< "accuracy @ 0% error = " << TP[0] / (TP[0] + FP));
     LOG_DEBUG(<< "accuracy @ 1% error = " << TP[1] / (TP[1] + FP));
     LOG_DEBUG(<< "accuracy @ 5% error = " << TP[2] / (TP[2] + FP));
-    BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.93);
+    BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.97);
     BOOST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.99);
     BOOST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.99);
     BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.93);
@@ -757,7 +756,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticMixtureOfSeasonalities) {
                 auto result = seasonality.decompose();
 
                 std::size_t found[]{0, 0};
-                for (const auto& component : result.components()) {
+                for (const auto& component : result.seasonal()) {
                     ++found[std::find(expected[index[0]].begin(),
                                       expected[index[0]].end(), component.print()) ==
                             expected[index[0]].end()];
@@ -922,15 +921,16 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnalWithLinearTrend) {
                 double found[]{0.0, 0.0, 0.0, 0.0};
                 if (result.print() != "[" + std::to_string(period) + "]") {
                     LOG_DEBUG(<< "got " << result.print() << ", expected [" << period << "]");
-                } else {
-                    found[0] = 1.0;
                 }
 
-                for (const auto& component : result.components()) {
+                for (const auto& component : result.seasonal()) {
                     core_t::TTime componentPeriod{component.seasonalTime()->period()};
                     double error{static_cast<double>(std::min(componentPeriod % period,
                                                               period - componentPeriod % period)) /
                                  static_cast<double>(period)};
+                    if (error == 0.0) {
+                        found[0] = 1.0;
+                    }
                     if (error < 0.01) {
                         found[1] = std::max(found[1], 1.0);
                     }
@@ -956,7 +956,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnalWithLinearTrend) {
     LOG_DEBUG(<< "accuracy @ 0% error = " << TP[0] / (TP[0] + FP));
     LOG_DEBUG(<< "accuracy @ 1% error = " << TP[1] / (TP[1] + FP));
     LOG_DEBUG(<< "accuracy @ 5% error = " << TP[2] / (TP[2] + FP));
-    BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.93);
+    BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.97);
     BOOST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.99);
     BOOST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.99);
     BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.93);
@@ -1066,8 +1066,8 @@ BOOST_AUTO_TEST_CASE(testStartOfWeekOverride) {
     maths::CTimeSeriesTestForSeasonality seasonality{0, HALF_HOUR, values};
     auto result = seasonality.decompose();
 
-    BOOST_REQUIRE(result.components().size() > 0);
-    auto time = result.components()[0].seasonalTime();
+    BOOST_REQUIRE(result.seasonal().size() > 0);
+    auto time = result.seasonal()[0].seasonalTime();
     BOOST_REQUIRE_EQUAL(true, time->windowed());
 
     core_t::TTime startOfWeek{time->windowRepeatStart() + HALF_HOUR};
@@ -1075,16 +1075,19 @@ BOOST_AUTO_TEST_CASE(testStartOfWeekOverride) {
     maths::CTimeSeriesTestForSeasonality restrictedSeasonality{0, HALF_HOUR, values};
     restrictedSeasonality.startOfWeek(startOfWeek);
     result = restrictedSeasonality.decompose();
-    BOOST_REQUIRE(result.components().size() > 0);
+    BOOST_REQUIRE(result.seasonal().size() > 0);
 
-    for (const auto& component : result.components()) {
+    for (const auto& component : result.seasonal()) {
         auto componentTime = component.seasonalTime();
         BOOST_REQUIRE_EQUAL(true, componentTime->windowed());
         BOOST_REQUIRE_EQUAL(startOfWeek, componentTime->windowRepeatStart());
     }
 }
 
-BOOST_AUTO_TEST_CASE(testComponentInitialValues) {
+BOOST_AUTO_TEST_CASE(testMinimumPeriod) {
+}
+
+BOOST_AUTO_TEST_CASE(testNewComponentInitialValues) {
 
     // Test that the initial values for the seasonal components identified match
     // the supplied values.
@@ -1094,7 +1097,7 @@ BOOST_AUTO_TEST_CASE(testComponentInitialValues) {
     test::CRandomNumbers rng;
 
     TFloatMeanAccumulatorVec values;
-    TTimeDoubleMap predictions;
+    TDoubleVec predictions;
     TSizeVec startTimes;
     rng.generateUniformSamples(0, 10000000, 10, startTimes);
     TTimeVec expectedWindowStarts{0, 2 * DAY, 0, 2 * DAY};
@@ -1119,23 +1122,25 @@ BOOST_AUTO_TEST_CASE(testComponentInitialValues) {
         auto result = seasonality.decompose();
 
         // Expect agreement with generator.
-        predictions.clear();
-        for (const auto& component : result.components()) {
-            for (auto i = component.beginInitialValues();
-                 i != component.endInitialValues(); ++i) {
-                predictions[i->first] += maths::CBasicStatistics::mean(i->second);
+        predictions.assign(values.size(), 0.0);
+        for (const auto& component : result.seasonal()) {
+            BOOST_REQUIRE_EQUAL(startTime, component.initialValuesStartTime());
+            BOOST_REQUIRE_EQUAL(startTime + 3 * WEEK, component.initialValuesEndTime());
+            for (std::size_t i = 0; i < component.initialValues().size(); ++i) {
+                predictions[i] +=
+                    maths::CBasicStatistics::mean(component.initialValues()[i]);
             }
         }
-        for (const auto& prediction : predictions) {
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0 * generator(prediction.first),
-                                         prediction.second, 1e-3);
+        for (core_t::TTime time = 0; time < 3 * WEEK; time += HALF_HOUR) {
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0 * generator(startTime + time),
+                                         predictions[time / HALF_HOUR], 1e-3);
         }
 
         // Check the seasonal time is initialized correctly.
         switch (index) {
         case 0:
         case 1:
-            for (const auto& component : result.components()) {
+            for (const auto& component : result.seasonal()) {
                 auto time = component.seasonalTime();
                 BOOST_REQUIRE_EQUAL(false, time->windowed());
                 BOOST_REQUIRE_EQUAL(0, time->windowRepeatStart());
@@ -1145,9 +1150,9 @@ BOOST_AUTO_TEST_CASE(testComponentInitialValues) {
             }
             break;
         default:
-            BOOST_REQUIRE_EQUAL(4, result.components().size());
-            for (std::size_t i = 0; i < result.components().size(); ++i) {
-                auto time = result.components()[i].seasonalTime();
+            BOOST_REQUIRE_EQUAL(4, result.seasonal().size());
+            for (std::size_t i = 0; i < result.seasonal().size(); ++i) {
+                auto time = result.seasonal()[i].seasonalTime();
                 BOOST_REQUIRE_EQUAL(true, time->windowed());
                 BOOST_REQUIRE_EQUAL(5 * DAY / HALF_HOUR, time->windowRepeatStart() / HALF_HOUR);
                 BOOST_REQUIRE_EQUAL(expectedWindowStarts[i], time->windowStart());
@@ -1157,6 +1162,12 @@ BOOST_AUTO_TEST_CASE(testComponentInitialValues) {
             break;
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE(testNewComponentInitialValuesWithScaling) {
+
+    // Test that the initial values for the seasonal components when there
+    // are linear scalings in the test values.
 }
 
 BOOST_AUTO_TEST_CASE(testNewTrendSummary) {
@@ -1170,7 +1181,7 @@ BOOST_AUTO_TEST_CASE(testNewTrendSummary) {
     test::CRandomNumbers rng;
 
     TFloatMeanAccumulatorVec values;
-    TTimeDoubleMap predictions;
+    TDoubleVec predictions;
     TSizeVec startTimes;
     rng.generateUniformSamples(0, 10000000, 10, startTimes);
 
@@ -1193,36 +1204,40 @@ BOOST_AUTO_TEST_CASE(testNewTrendSummary) {
 
         BOOST_REQUIRE(result.trend() != nullptr);
 
-        predictions.clear();
-        for (auto i = result.trend()->beginInitialValues();
-             i != result.trend()->endInitialValues(); ++i) {
-            predictions[i->first] += maths::CBasicStatistics::mean(i->second);
+        predictions.assign(values.size(), 0.0);
+        BOOST_REQUIRE_EQUAL(startTime, result.trend()->initialValuesStartTime());
+        BOOST_REQUIRE_EQUAL(startTime + 4 * WEEK, result.trend()->initialValuesEndTime());
+        for (std::size_t i = 0; i < result.trend()->initialValues().size(); ++i) {
+            predictions[i] +=
+                maths::CBasicStatistics::mean(result.trend()->initialValues()[i]);
         }
 
         // Expect slope to match.
         TFloatMeanAccumulator expectedMeanSlope;
         TFloatMeanAccumulator meanSlope;
-        for (core_t::TTime time = startTime + HOUR; time < startTime + 4 * WEEK;
-             time += HOUR) {
-            expectedMeanSlope.add(100.0 * (trend(time) - trend(time - HOUR)));
-            meanSlope.add(predictions[time] - predictions[time - HOUR]);
+        for (core_t::TTime time = HOUR; time < 4 * WEEK; time += HOUR) {
+            expectedMeanSlope.add(
+                100.0 * (trend(startTime + time) - trend(startTime + time - HOUR)));
+            meanSlope.add(predictions[time / HOUR] - predictions[time / HOUR - 1]);
         }
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             static_cast<double>(maths::CBasicStatistics::mean(expectedMeanSlope)),
             static_cast<double>(maths::CBasicStatistics::mean(meanSlope)), 1e-3);
 
         // Expect agreement with generator.
-        for (const auto& component : result.components()) {
-            for (auto i = component.beginInitialValues();
-                 i != component.endInitialValues(); ++i) {
-                predictions[i->first] += maths::CBasicStatistics::mean(i->second);
+        for (const auto& component : result.seasonal()) {
+            for (std::size_t i = 0; i < component.initialValues().size(); ++i) {
+                BOOST_REQUIRE_EQUAL(startTime, component.initialValuesStartTime());
+                BOOST_REQUIRE_EQUAL(startTime + 4 * WEEK, component.initialValuesEndTime());
+                predictions[i] +=
+                    maths::CBasicStatistics::mean(component.initialValues()[i]);
             }
         }
 
-        for (const auto& prediction : predictions) {
-            BOOST_REQUIRE_CLOSE(100.0 * trend(prediction.first) +
-                                    10.0 * season(prediction.first),
-                                prediction.second, 1.0);
+        for (core_t::TTime time = 0; time < 4 * WEEK; time += HOUR) {
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0 * trend(startTime + time) +
+                                             10.0 * season(startTime + time),
+                                         predictions[time / HOUR], 1.0);
         }
     }
 }
@@ -1230,15 +1245,6 @@ BOOST_AUTO_TEST_CASE(testNewTrendSummary) {
 BOOST_AUTO_TEST_CASE(testNewTrendSummaryPiecewiseLinearTrend) {
 }
 
-BOOST_AUTO_TEST_CASE(testComponentInitialValuesMixture) {
 
-    // Test that the initial values for the seasonal components identified match
-    // the supplied values.
-}
-
-BOOST_AUTO_TEST_CASE(testComponentInitialValuesWithScaling) {
-
-    // Test that we accurately
-}
 
 BOOST_AUTO_TEST_SUITE_END()

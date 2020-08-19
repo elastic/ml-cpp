@@ -326,7 +326,8 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
     double varianceWithoutComponent{0.0};
     double pValue{1.0};
     double pValueToSelect{significantPValue};
-    double eps{static_cast<double>(std::numeric_limits<float>::epsilon())};
+    double eps{CTools::pow2(
+        1000.0 * static_cast<double>(std::numeric_limits<float>::epsilon()))};
 
     result.push_back(seasonalComponentSummary(1));
     fitSeasonalComponentsRobust(result, outlierFraction, valuesToTest, components);
@@ -424,8 +425,8 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
         // of seeing the smallest p-value to be chance that n p-values are all
         // greater than the observed p-value or 1 - (1 - p)^n. In practice,
         // this only holds if the p-values are independent, which they clearly
-        // aren't. For any correlation we have 1 - (1 - p)^{k n} for k < 1.
-        // We use k = 0.5.
+        // aren't. For any correlation we have morally 1 - (1 - p)^{k n} for
+        // k < 1. We use k = 0.5.
         auto H1 = residualVarianceStats(valuesToTest, result, components);
         varianceWithoutComponent = H0.s_ResidualVariance;
         varianceWithComponent = H1.s_ResidualVariance;

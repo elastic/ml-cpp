@@ -248,7 +248,7 @@ private:
     TMediatorPtr m_Mediator;
 
     //! The test for seasonal components.
-    CPeriodicityTest m_PeriodicityTest;
+    CSeasonalityTest m_SeasonalityTest;
 
     //! The test for calendar cyclic components.
     CCalendarTest m_CalendarCyclicTest;

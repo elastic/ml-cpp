@@ -14,10 +14,10 @@
 #include <maths/CCalendarComponent.h>
 #include <maths/CCalendarCyclicTest.h>
 #include <maths/CExpandingWindow.h>
-#include <maths/CPeriodicityHypothesisTests.h>
 #include <maths/CSeasonalComponent.h>
 #include <maths/CSeasonalTime.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
+#include <maths/CTimeSeriesTestForSeasonality.h>
 #include <maths/CTrendComponent.h>
 #include <maths/ImportExport.h>
 
@@ -40,6 +40,14 @@ class CTimeSeriesDecomposition;
 class MATHS_EXPORT CTimeSeriesDecompositionDetail : private CTimeSeriesDecompositionTypes {
 public:
     using TDoubleVec = std::vector<double>;
+    // clang-format off
+    using TMakeTestForSeasonality =
+        std::function<CTimeSeriesTestForSeasonality(core_t::TTime, 
+                                                    core_t::TTime,
+                                                    core_t::TTime,
+                                                    TFloatMeanAccumulatorVec)>;
+    // clang-format on
+
     class CMediator;
 
     //! \brief The base message passed.
@@ -61,8 +69,9 @@ public:
                   double trend,
                   double seasonal,
                   double calendar,
-                  const TPredictor& predictor,
-                  const CPeriodicityHypothesisTestsConfig& periodicityTestConfig);
+                  const TPredictor& calendarPredictor,
+                  const TPredictor& cyclicalPredictor,
+                  const TMakeTestForSeasonality& makeTestForSeasonality);
         SAddValue(const SAddValue&) = delete;
         SAddValue& operator=(const SAddValue&) = delete;
 
@@ -76,27 +85,21 @@ public:
         double s_Seasonal;
         //! The calendar component prediction at the value's time.
         double s_Calendar;
-        //! The predictor for value.
-        TPredictor s_Predictor;
-        //! The periodicity test configuration.
-        CPeriodicityHypothesisTestsConfig s_PeriodicityTestConfig;
+        //! The predictor for the calendar components as a function of time.
+        TPredictor s_CalendarPredictor;
+        //! The predictor for all cyclical components as a function of time.
+        TPredictor s_CyclicalPredictor;
+        //! A factory function to create the test for seasonal components.
+        TMakeTestForSeasonality s_MakeTestForSeasonality;
     };
 
     //! \brief The message passed to indicate periodic components have
     //! been detected.
     struct MATHS_EXPORT SDetectedSeasonal : public SMessage {
-        SDetectedSeasonal(core_t::TTime time,
-                          core_t::TTime lastTime,
-                          const CPeriodicityHypothesisTestsResult& result,
-                          const CExpandingWindow& window,
-                          const TPredictor& predictor);
+        SDetectedSeasonal(core_t::TTime time, core_t::TTime lastTime, CSeasonalDecomposition components);
 
         //! The components found.
-        CPeriodicityHypothesisTestsResult s_Result;
-        //! The window tested.
-        const CExpandingWindow& s_Window;
-        //! The predictor for window values.
-        TPredictor s_Predictor;
+        CSeasonalDecomposition s_Components;
     };
 
     //! \brief The message passed to indicate calendar components have
@@ -111,11 +114,7 @@ public:
     //! \brief The message passed to indicate new components are being
     //! modeled.
     struct MATHS_EXPORT SNewComponents : public SMessage {
-        enum EComponent {
-            E_DiurnalSeasonal,
-            E_GeneralSeasonal,
-            E_CalendarCyclic
-        };
+        enum EComponent { E_Seasonal, E_Calendar };
 
         SNewComponents(core_t::TTime time, core_t::TTime lastTime, EComponent component);
 
@@ -186,15 +185,15 @@ public:
 
     //! \brief Scans through increasingly low frequencies looking for custom
     //! diurnal and any other large amplitude seasonal components.
-    class MATHS_EXPORT CPeriodicityTest : public CHandler {
+    class MATHS_EXPORT CSeasonalityTest : public CHandler {
     public:
         //! Test types (categorised as short and long period tests).
         enum ETest { E_Short, E_Long };
 
     public:
-        CPeriodicityTest(double decayRate, core_t::TTime bucketLength);
-        CPeriodicityTest(const CPeriodicityTest& other, bool isForForecast = false);
-        CPeriodicityTest& operator=(const CPeriodicityTest&) = delete;
+        CSeasonalityTest(double decayRate, core_t::TTime bucketLength);
+        CSeasonalityTest(const CSeasonalityTest& other, bool isForForecast = false);
+        CSeasonalityTest& operator=(const CSeasonalityTest&) = delete;
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -203,7 +202,7 @@ public:
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Efficiently swap the state of this and \p other.
-        void swap(CPeriodicityTest& other);
+        void swap(CSeasonalityTest& other);
 
         //! Update the test with a new value.
         virtual void handle(const SAddValue& message);
@@ -432,8 +431,8 @@ public:
         //! Start using the trend for prediction.
         void useTrendForPrediction();
 
-        //! Get configuration for the periodicity test.
-        CPeriodicityHypothesisTestsConfig periodicityTestConfig() const;
+        //! Get a factory for the seasonal components test.
+        TMakeTestForSeasonality makeTestForSeasonality() const;
 
         //! Get the mean value of the baseline in the vicinity of \p time.
         double meanValue(core_t::TTime time) const;
@@ -763,26 +762,11 @@ public:
         //! Get the maximum permitted size of the components.
         std::size_t maxSize() const;
 
-        //! Add new seasonal components to \p components.
-        bool addSeasonalComponents(const CPeriodicityHypothesisTestsResult& result,
-                                   const CExpandingWindow& window,
-                                   const TPredictor& predictor);
+        //! Add new seasonal components.
+        void addSeasonalComponents(const CSeasonalDecomposition& components);
 
-        //! Add a new calendar component to \p components.
-        bool addCalendarComponent(const CCalendarFeature& feature);
-
-        //! Adjust the values to remove any piecewise constant linear scales
-        //! of the component with period \p period.
-        void adjustValuesForPiecewiseConstantScaling(std::size_t period,
-                                                     TFloatMeanAccumulatorVec& values) const;
-
-        //! Reweight the outlier values in \p values.
-        //!
-        //! These are the values with largest error w.r.t. \p predictor.
-        void reweightOutliers(core_t::TTime startTime,
-                              core_t::TTime dt,
-                              TPredictor predictor,
-                              TFloatMeanAccumulatorVec& values) const;
+        //! Add a new calendar component.
+        void addCalendarComponent(const CCalendarFeature& feature);
 
         //! Fit the trend component \p component to \p values.
         void fitTrend(core_t::TTime startTime,
@@ -876,8 +860,8 @@ public:
 };
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CTimeSeriesDecompositionDetail::CPeriodicityTest& lhs,
-                 CTimeSeriesDecompositionDetail::CPeriodicityTest& rhs) {
+inline void swap(CTimeSeriesDecompositionDetail::CSeasonalityTest& lhs,
+                 CTimeSeriesDecompositionDetail::CSeasonalityTest& rhs) {
     lhs.swap(rhs);
 }
 

@@ -230,10 +230,14 @@ void CTrendComponent::shiftSlope(core_t::TTime time, double shift) {
     }
 }
 
-void CTrendComponent::shiftLevel(core_t::TTime time, double value, double shift) {
+void CTrendComponent::shiftLevel(double shift) {
     for (auto& model : m_TrendModels) {
         model.s_Regression.shiftOrdinate(shift);
     }
+}
+
+void CTrendComponent::shiftLevel(core_t::TTime time, double value, double shift) {
+    this->shiftLevel(shift);
     if (m_TimeOfLastLevelChange != UNSET_TIME) {
         double dt{static_cast<double>(time - m_TimeOfLastLevelChange)};
         m_ProbabilityOfLevelChangeModel.addTrainingDataPoint(LEVEL_CHANGE_LABEL,
