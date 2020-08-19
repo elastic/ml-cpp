@@ -6,14 +6,15 @@
 
 #include <core/CDualThreadStreamBuf.h>
 #include <core/CNamedPipeFactory.h>
-#include <core/CSleep.h>
 #include <core/CThread.h>
 
 #include "../CBlockingCallCancellerThread.h"
 
 #include <boost/test/unit_test.hpp>
 
+#include <chrono>
 #include <istream>
+#include <thread>
 
 BOOST_AUTO_TEST_SUITE(CBlockingCallCancellerThreadTest)
 
@@ -25,7 +26,7 @@ public:
 
 protected:
     void run() override {
-        ml::core::CSleep::sleep(200);
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
         m_Buf.signalEndOfFile();
     }
