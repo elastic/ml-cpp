@@ -27,37 +27,33 @@ namespace maths {
 class CPrior;
 struct STimeSeriesDecompositionRestoreParams;
 
-//! \brief Decomposes a time series into a linear combination
-//! of periodic functions and a stationary random process.
+//! \brief Decomposes a time series into a linear combination of trend and cylical
+//! functions and a stationary random process.
 //!
 //! DESCRIPTION:\n
-//! This manages the decomposition of a times series into a linear
-//! combination of periodic terms. In particular, it assumes that
-//! a set of time series points, comprising the set of pairs
-//! \f$\{(t, f(t))\}\f$, is described by:
-//! <pre class="fragment">
-//!   \f$f(t) = \sum_i{ g_i(t | T_i) } + R\f$
-//! </pre>
+//! This looks for a trend and daily, weekly, weekend/weekday, and yearly seasonality.
+//! It also checks for offsets with high autocorrelation and predictive calendar
+//! components, such as day of month, last Friday of month, etc. It maintains the
+//! state to do this in a streaming fashion and will both add and remove predictive
+//! features as they come and go from the time series.
 //!
-//! Here, \f$g_i(t | T_i)\f$ denotes an arbitrary periodic function
-//! with period \f$T_i\f$, i.e.
-//! <pre class="fragment">
-//!   \f$g_i(t | T_i) = g_i(t + T_i | T_i)\f$
-//! </pre>
+//! It uses an additive combination of the predictive features it has selected to
+//! predict both the values and residual variance w.r.t. these predictions. It uses
+//! exponential decay to remove old data from the component models. The schecule is
+//! different for each component and the overall rate is controlled by the decay
+//! rate.
 //!
-//! and \f$R\f$ is a stationary random process, i.e. its distribution
-//! doesn't change over (short) time periods.
-//!
-//! By default this assumes the data has one day and one week
-//! periodicity, i.e. \f${ T_i } = { 86400, 604800 }\f$.
+//! The main functionality it provides are to predict the value and variance at
+//! a specified time, value and scale, to remove its prediction from a sample of
+//! the time series, see detrend, and forecasting, see forecast.
 class MATHS_EXPORT EMPTY_BASE_OPT CTimeSeriesDecomposition
     : public CTimeSeriesDecompositionInterface,
       private CTimeSeriesDecompositionDetail {
 public:
     //! \param[in] decayRate The rate at which information is lost.
     //! \param[in] bucketLength The data bucketing length.
-    //! \param[in] seasonalComponentSize The number of buckets to
-    //! use estimate a seasonal component.
+    //! \param[in] seasonalComponentSize The number of buckets to use estimate a
+    //! seasonal component.
     explicit CTimeSeriesDecomposition(double decayRate = 0.0,
                                       core_t::TTime bucketLength = 0,
                                       std::size_t seasonalComponentSize = COMPONENT_SIZE);
@@ -101,14 +97,12 @@ public:
     //!
     //! \param[in] time The time of the data point.
     //! \param[in] value The value of the data point.
-    //! \param[in] weights The weights of \p value. The smaller
-    //! the count weight the less influence \p value has on the trend
-    //! and it's local variance.
-    //! \param[in] componentChangeCallback Supplied with prediction
-    //! residuals if a new component is added as a result of adding the
-    //! data point.
-    //! \param[in] modelAnnotationCallback Supplied with an annotation
-    //! if a new component is added as a result of adding the data point.
+    //! \param[in] weights The weights of \p value. The smaller the count weight the
+    //! less influence \p value has on the decomposition.
+    //! \param[in] componentChangeCallback Supplied with samples of the prediction
+    //! residuals if a new component is added as a result of adding the data point.
+    //! \param[in] modelAnnotationCallback Supplied with an annotation if a new
+    //! component is added as a result of adding the data point.
     virtual void
     addPoint(core_t::TTime time,
              double value,
@@ -119,8 +113,7 @@ public:
     //! Apply \p change at \p time.
     //!
     //! \param[in] time The time of the change point.
-    //! \param[in] value The value immediately before the change
-    //! point.
+    //! \param[in] value The value immediately before the change point.
     //! \param[in] change A description of the change to apply.
     //! \return True if a new component was detected.
     virtual bool applyChange(core_t::TTime time, double value, const SChangeDescription& change);
@@ -134,12 +127,16 @@ public:
     //! Get the predicted value of the time series at \p time.
     //!
     //! \param[in] time The time of interest.
-    //! \param[in] confidence The symmetric confidence interval for the
-    //! prediction the baseline as a percentage.
+    //! \param[in] confidence The symmetric confidence interval for the prediction
+    //! the baseline as a percentage.
     //! \param[in] components The components to include in the baseline.
+    //! \param[in] removedSeasonalMask A bit mask of specific seasonal components
+    //! to remove. This is only intended for use by CTimeSeriesTestForSeasonlity.
+    //! \param[in] smooth Detail do not supply.
     virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
                                            double confidence = 0.0,
                                            int components = E_All,
+                                           const TBoolVec& removedSeasonalMask = {},
                                            bool smooth = true) const;
 
     //! Get the maximum interval for which the time series can be forecast.
@@ -160,8 +157,9 @@ public:
                           double minimumScale,
                           const TWriteForecastResult& writer);
 
-    //! Detrend \p value from the time series being modeled by removing
-    //! any trend and periodic component at \p time.
+    //! Detrend \p value by the prediction of the modelled features at \p time.
+    //!
+    //! \note That detrending preserves the time series mean.
     virtual double
     detrend(core_t::TTime time, double value, double confidence, int components = E_All) const;
 
@@ -171,10 +169,9 @@ public:
     //! Compute the variance scale at \p time.
     //!
     //! \param[in] time The time of interest.
-    //! \param[in] variance The variance of the distribution
-    //! to scale.
-    //! \param[in] confidence The symmetric confidence interval
-    //! for the variance scale as a percentage.
+    //! \param[in] variance The variance of the distribution to scale.
+    //! \param[in] confidence The symmetric confidence interval for the variance
+    //! scale as a percentage.
     virtual maths_t::TDoubleDoublePr
     scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
 
@@ -185,7 +182,7 @@ public:
     virtual void skipTime(core_t::TTime skipInterval);
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Debug the memory used by this object.
     virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -201,10 +198,6 @@ public:
 
     //! Get the seasonal components.
     virtual const maths_t::TSeasonalComponentVec& seasonalComponents() const;
-
-    //! This is the latest time of any point added to this object or
-    //! the time skipped to.
-    virtual core_t::TTime lastValueTime() const;
 
 private:
     using TMediatorPtr = std::unique_ptr<CMediator>;
@@ -222,12 +215,6 @@ private:
     template<typename F>
     maths_t::TDoubleDoublePr smooth(const F& f, core_t::TTime time, int components) const;
 
-    //! Check if \p component has been selected.
-    bool selected(core_t::TTime time, int components, const CSeasonalComponent& component) const;
-
-    //! Check if \p components match \p component.
-    bool matches(int components, const CSeasonalComponent& component) const;
-
 private:
     //! The time over which discontinuities between weekdays
     //! and weekends are smoothed out.
@@ -243,8 +230,7 @@ private:
     //! The time to which the trend has been propagated.
     core_t::TTime m_LastPropagationTime;
 
-    //! Handles the communication between the various tests and
-    //! components.
+    //! Handles the communication between the various tests and components.
     TMediatorPtr m_Mediator;
 
     //! The test for seasonal components.

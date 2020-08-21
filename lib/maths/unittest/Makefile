@@ -85,7 +85,6 @@ SRCS=\
 	CQDigestTest.cc \
 	CQuantileSketchTest.cc \
 	CRadialBasisFunctionTest.cc \
-	CRandomizedPeriodicityTestTest.cc \
 	CRandomProjectionClustererTest.cc \
 	CSamplingTest.cc \
 	CSeasonalComponentTest.cc \

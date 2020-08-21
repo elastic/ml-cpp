@@ -40,6 +40,7 @@ class CTimeSeriesDecomposition;
 class MATHS_EXPORT CTimeSeriesDecompositionDetail : private CTimeSeriesDecompositionTypes {
 public:
     using TDoubleVec = std::vector<double>;
+
     // clang-format off
     using TMakeTestForSeasonality =
         std::function<CTimeSeriesTestForSeasonality(core_t::TTime, 
@@ -70,7 +71,6 @@ public:
                   double seasonal,
                   double calendar,
                   const TPredictor& calendarPredictor,
-                  const TPredictor& cyclicalPredictor,
                   const TMakeTestForSeasonality& makeTestForSeasonality);
         SAddValue(const SAddValue&) = delete;
         SAddValue& operator=(const SAddValue&) = delete;
@@ -87,8 +87,6 @@ public:
         double s_Calendar;
         //! The predictor for the calendar components as a function of time.
         TPredictor s_CalendarPredictor;
-        //! The predictor for all cyclical components as a function of time.
-        TPredictor s_CyclicalPredictor;
         //! A factory function to create the test for seasonal components.
         TMakeTestForSeasonality s_MakeTestForSeasonality;
     };
@@ -227,7 +225,7 @@ public:
         TFloatMeanAccumulatorVec windowValues(const TPredictor& predictor) const;
 
         //! Get a checksum for this object.
-        uint64_t checksum(uint64_t seed = 0) const;
+        std::uint64_t checksum(std::uint64_t seed = 0) const;
 
         //! Debug the memory used by this object.
         void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -308,7 +306,7 @@ public:
         void propagateForwards(core_t::TTime start, core_t::TTime end);
 
         //! Get a checksum for this object.
-        uint64_t checksum(uint64_t seed = 0) const;
+        std::uint64_t checksum(std::uint64_t seed = 0) const;
 
         //! Debug the memory used by this object.
         void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -432,7 +430,7 @@ public:
         void useTrendForPrediction();
 
         //! Get a factory for the seasonal components test.
-        TMakeTestForSeasonality makeTestForSeasonality() const;
+        TMakeTestForSeasonality makeTestForSeasonality(const TFilteredPredictor& predictor) const;
 
         //! Get the mean value of the baseline in the vicinity of \p time.
         double meanValue(core_t::TTime time) const;
@@ -444,7 +442,7 @@ public:
         double meanVarianceScale() const;
 
         //! Get a checksum for this object.
-        uint64_t checksum(uint64_t seed = 0) const;
+        std::uint64_t checksum(std::uint64_t seed = 0) const;
 
         //! Debug the memory used by this object.
         void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -500,7 +498,7 @@ public:
             void shiftOrigin(core_t::TTime time);
 
             //! Get a checksum for this object.
-            uint64_t checksum(uint64_t seed) const;
+            std::uint64_t checksum(std::uint64_t seed) const;
 
         private:
             using TRegression = CLeastSquaresOnlineRegression<1>;
@@ -552,7 +550,7 @@ public:
             void age(double factor);
 
             //! Get a checksum for this object.
-            uint64_t checksum(uint64_t seed) const;
+            std::uint64_t checksum(std::uint64_t seed) const;
 
         private:
             using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
@@ -639,9 +637,8 @@ public:
             //! Refresh state after adding new components.
             void refreshForNewComponents();
 
-            //! Remove all components excluded by adding the component corresponding
-            //! to \p time.
-            void removeExcludedComponents(const CSeasonalTime& time);
+            //! Remove all components masked by \p removeComponentsMask.
+            void remove(const TBoolVec& removeComponentsMask);
 
             //! Remove low value components
             bool prune(core_t::TTime time, core_t::TTime bucketLength);
@@ -653,7 +650,7 @@ public:
             void linearScale(core_t::TTime time, double scale);
 
             //! Get a checksum for this object.
-            uint64_t checksum(uint64_t seed = 0) const;
+            std::uint64_t checksum(std::uint64_t seed = 0) const;
 
             //! Debug the memory used by this object.
             void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -734,7 +731,7 @@ public:
             void linearScale(core_t::TTime time, double scale);
 
             //! Get a checksum for this object.
-            uint64_t checksum(uint64_t seed = 0) const;
+            std::uint64_t checksum(std::uint64_t seed = 0) const;
 
             //! Debug the memory used by this object.
             void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;

@@ -92,7 +92,6 @@ CProbabilityCalibrator.cc \
 CQDigest.cc \
 CQuantileSketch.cc \
 CRadialBasisFunction.cc \
-CRandomizedPeriodicityTest.cc \
 CRestoreParams.cc \
 CSampling.cc \
 CSeasonalComponent.cc \

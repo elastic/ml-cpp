@@ -61,6 +61,7 @@ public:
     virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
                                            double confidence = 0.0,
                                            int components = E_All,
+                                           const TBoolVec& removedSeasonalMask = {},
                                            bool smooth = true) const;
 
     //! Returns 0.
@@ -92,7 +93,7 @@ public:
     virtual void skipTime(core_t::TTime skipInterval);
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Debug the memory used by this object.
     virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -108,9 +109,6 @@ public:
 
     //! Returns an empty vector.
     virtual const maths_t::TSeasonalComponentVec& seasonalComponents() const;
-
-    //! Returns 0.
-    virtual core_t::TTime lastValueTime() const;
 };
 }
 }

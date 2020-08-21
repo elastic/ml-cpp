@@ -221,7 +221,7 @@ void CTimeSeriesTestForSeasonality::addModelledSeasonality(const CSeasonalTime& 
     m_ModelledPeriodsPrecedence.emplace_back(period.precedence());
 }
 
-void CTimeSeriesTestForSeasonality::addModelledSeasonalityPredictor(const TPredictor& predictor) {
+void CTimeSeriesTestForSeasonality::modelledSeasonalityPredictor(const TPredictor& predictor) {
     m_ModelledPredictor = predictor;
 }
 
@@ -444,7 +444,8 @@ void CTimeSeriesTestForSeasonality::addNotSeasonal(const TFloatMeanAccumulatorVe
         this->truncatedVariance(0.0, valuesMinusTrend),
         this->truncatedVariance(m_OutlierFraction, valuesMinusTrend),
         modelTrendSegments.empty() ? 0 : modelTrendSegments.size() - 1,
-        TFloatMeanAccumulatorVec{}, THypothesisStatsVec{});
+        TFloatMeanAccumulatorVec{}, THypothesisStatsVec{},
+        TBoolVec(m_ModelledPeriods.size(), false));
 }
 
 void CTimeSeriesTestForSeasonality::addModelled(const TFloatMeanAccumulatorVec& valuesMinusTrend,
@@ -797,13 +798,13 @@ CTimeSeriesTestForSeasonality::selectModelledHypotheses(THypothesisStatsVec& hyp
         const auto& period = hypotheses[i].s_Period;
         hypotheses[i].s_Model =
             this->permittedPeriod(period) && this->alreadyModelled(period) == false &&
-            std::find(boost::counting_iterator<std::size_t>(0),
-                      boost::counting_iterator<std::size_t>(numberModelledPeriods),
-                      [&](std::size_t j) {
-                          return almostEqual(m_ModelledPeriods[j].s_Period,
-                                             period.s_Period, 0.05) &&
-                                 m_ModelledPeriodsPrecedence[j] >= this->precedence();
-                      }) == boost::counting_iterator<std::size_t>(numberModelledPeriods);
+            std::find_if(
+                boost::counting_iterator<std::size_t>(0),
+                boost::counting_iterator<std::size_t>(numberModelledPeriods),
+                [&](std::size_t j) {
+                    return almostEqual(m_ModelledPeriods[j].s_Period, period.s_Period, 0.05) &&
+                           m_ModelledPeriodsPrecedence[j] >= this->precedence();
+                }) == boost::counting_iterator<std::size_t>(numberModelledPeriods);
         excess += hypotheses[i].s_Model ? 1 : 0;
     }
 
@@ -813,11 +814,11 @@ CTimeSeriesTestForSeasonality::selectModelledHypotheses(THypothesisStatsVec& hyp
         const auto& period = m_ModelledPeriods[i];
         double precedence{m_ModelledPeriodsPrecedence[i]};
         removeComponentMask[i] =
-            std::find(hypotheses.begin(), hypotheses.end(),
-                      [&](const auto& hypothesis) {
-                          return period == hypothesis.s_Period;
-                      }) == hypotheses.end() &&
-            std::find(hypotheses.begin(), hypotheses.end(), [&](const auto& hypothesis) {
+            std::find_if(hypotheses.begin(), hypotheses.end(),
+                         [&](const auto& hypothesis) {
+                             return period == hypothesis.s_Period;
+                         }) == hypotheses.end() &&
+            std::find_if(hypotheses.begin(), hypotheses.end(), [&](const auto& hypothesis) {
                 return almostEqual(period.s_Period, hypothesis.s_Period.s_Period, 0.05) &&
                        this->precedence() > precedence;
             }) != hypotheses.end();

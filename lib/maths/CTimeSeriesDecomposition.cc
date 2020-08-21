@@ -223,21 +223,22 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
     m_LastValueTime = std::max(m_LastValueTime, time);
     this->propagateForwardsTo(time);
 
-    SAddValue message{
-        time,
-        lastTime,
-        value,
-        weights,
-        CBasicStatistics::mean(this->value(time, 0.0, E_TrendForced)),
-        CBasicStatistics::mean(this->value(time, 0.0, E_Seasonal)),
-        CBasicStatistics::mean(this->value(time, 0.0, E_Calendar)),
-        [this](core_t::TTime time_) {
-            return CBasicStatistics::mean(this->value(time_, 0.0, E_Calendar));
-        },
-        [this](core_t::TTime time_) {
-            return CBasicStatistics::mean(this->value(time_, 0.0, E_Seasonal | E_Calendar));
-        },
-        m_Components.makeTestForSeasonality()};
+    auto testForSeasonality = m_Components.makeTestForSeasonality(
+        [this](core_t::TTime time_, const TBoolVec& removedSeasonalMask) {
+            return CBasicStatistics::mean(this->value(time_, 0.0, E_Seasonal, removedSeasonalMask));
+        });
+
+    SAddValue message{time,
+                      lastTime,
+                      value,
+                      weights,
+                      CBasicStatistics::mean(this->value(time, 0.0, E_TrendForced)),
+                      CBasicStatistics::mean(this->value(time, 0.0, E_Seasonal)),
+                      CBasicStatistics::mean(this->value(time, 0.0, E_Calendar)),
+                      [this](core_t::TTime time_) {
+                          return CBasicStatistics::mean(this->value(time_, 0.0, E_Calendar));
+                      },
+                      testForSeasonality};
 
     m_Components.handle(message);
     m_SeasonalityTest.handle(message);
@@ -285,6 +286,7 @@ double CTimeSeriesDecomposition::meanValue(core_t::TTime time) const {
 TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
                                                 double confidence,
                                                 int components,
+                                                const TBoolVec& removedSeasonalMask,
                                                 bool smooth) const {
     TVector2x1 baseline{0.0};
 
@@ -299,9 +301,12 @@ TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
     }
 
     if (components & E_Seasonal) {
-        for (const auto& component : m_Components.seasonal()) {
-            if (this->selected(time, components, component)) {
-                baseline += vector2x1(component.value(time, confidence));
+        const auto& seasonal = m_Components.seasonal();
+        for (std::size_t i = 0; i < seasonal.size(); ++i) {
+            if (seasonal[i].initialized() &&
+                (removedSeasonalMask.empty() || removedSeasonalMask[i] == false) &&
+                seasonal[i].time().inWindow(time)) {
+                baseline += vector2x1(seasonal[i].value(time, confidence));
             }
         }
     }
@@ -317,7 +322,7 @@ TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
     if (smooth) {
         baseline += vector2x1(this->smooth(
             std::bind(&CTimeSeriesDecomposition::value, this, std::placeholders::_1,
-                      confidence, components & E_Seasonal, false),
+                      confidence, components & E_Seasonal, removedSeasonalMask, false),
             time - m_TimeShift, components));
     }
 
@@ -392,7 +397,7 @@ double CTimeSeriesDecomposition::detrend(core_t::TTime time,
                                          double value,
                                          double confidence,
                                          int components) const {
-    if (!this->initialized()) {
+    if (this->initialized() == false) {
         return value;
     }
     TDoubleDoublePr interval{this->value(time, confidence, components)};
@@ -407,7 +412,7 @@ TDoubleDoublePr CTimeSeriesDecomposition::scale(core_t::TTime time,
                                                 double variance,
                                                 double confidence,
                                                 bool smooth) const {
-    if (!this->initialized()) {
+    if (this->initialized() == false) {
         return {1.0, 1.0};
     }
 
@@ -466,7 +471,7 @@ void CTimeSeriesDecomposition::skipTime(core_t::TTime skipInterval) {
     m_LastPropagationTime += skipInterval;
 }
 
-uint64_t CTimeSeriesDecomposition::checksum(uint64_t seed) const {
+std::uint64_t CTimeSeriesDecomposition::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_LastValueTime);
     seed = CChecksum::calculate(seed, m_LastPropagationTime);
     seed = CChecksum::calculate(seed, m_SeasonalityTest);
@@ -511,6 +516,10 @@ void CTimeSeriesDecomposition::initializeMediator() {
 template<typename F>
 TDoubleDoublePr
 CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components) const {
+    if ((components & E_Seasonal) != E_Seasonal) {
+        return {0.0, 0.0};
+    }
+
     auto offset = [&f, time](core_t::TTime discontinuity) {
         TVector2x1 baselineMinusEps{vector2x1(f(discontinuity - 1))};
         TVector2x1 baselinePlusEps{vector2x1(f(discontinuity + 1))};
@@ -522,7 +531,7 @@ CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components)
     };
 
     for (const auto& component : m_Components.seasonal()) {
-        if (!component.initialized() || !this->matches(components, component) ||
+        if (component.initialized() == false ||
             component.time().windowRepeat() <= SMOOTHING_INTERVAL) {
             continue;
         }
@@ -548,28 +557,6 @@ CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components)
     }
 
     return {0.0, 0.0};
-}
-
-bool CTimeSeriesDecomposition::selected(core_t::TTime time,
-                                        int components,
-                                        const CSeasonalComponent& component) const {
-    return component.initialized() && this->matches(components, component) &&
-           component.time().inWindow(time);
-}
-
-bool CTimeSeriesDecomposition::matches(int components, const CSeasonalComponent& component) const {
-    int seasonal{components & E_Seasonal};
-    if (seasonal == E_Seasonal) {
-        return true;
-    }
-    core_t::TTime period{component.time().period()};
-    bool diurnal{(period % core::constants::DAY == 0) ||
-                 (period % core::constants::WEEK == 0)};
-    return (seasonal == E_Diurnal && diurnal) || (seasonal == E_NonDiurnal && !diurnal);
-}
-
-core_t::TTime CTimeSeriesDecomposition::lastValueTime() const {
-    return m_LastValueTime;
 }
 
 const core_t::TTime CTimeSeriesDecomposition::SMOOTHING_INTERVAL{7200};

@@ -220,7 +220,7 @@ public:
     void addModelledSeasonality(const CSeasonalTime& period);
 
     //! Add a predictor for the currently modelled seasonal conponents.
-    void addModelledSeasonalityPredictor(const TPredictor& predictor);
+    void modelledSeasonalityPredictor(const TPredictor& predictor);
 
     //! Run the test and return the new components found if any.
     CSeasonalDecomposition decompose();

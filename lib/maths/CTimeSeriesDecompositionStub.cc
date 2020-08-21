@@ -60,6 +60,7 @@ double CTimeSeriesDecompositionStub::meanValue(core_t::TTime /*time*/) const {
 maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::value(core_t::TTime /*time*/,
                                                              double /*confidence*/,
                                                              int /*components*/,
+                                                             const TBoolVec& /*removedSeasonalMask*/,
                                                              bool /*smooth*/) const {
     return {0.0, 0.0};
 }
@@ -102,7 +103,7 @@ CTimeSeriesDecompositionStub::windowValues(const TPredictor& /*predictor*/) cons
 void CTimeSeriesDecompositionStub::skipTime(core_t::TTime /*skipInterval*/) {
 }
 
-uint64_t CTimeSeriesDecompositionStub::checksum(uint64_t seed) const {
+std::uint64_t CTimeSeriesDecompositionStub::checksum(std::uint64_t seed) const {
     return seed;
 }
 
@@ -124,10 +125,6 @@ core_t::TTime CTimeSeriesDecompositionStub::timeShift() const {
 
 const maths_t::TSeasonalComponentVec& CTimeSeriesDecompositionStub::seasonalComponents() const {
     return NO_COMPONENTS;
-}
-
-core_t::TTime CTimeSeriesDecompositionStub::lastValueTime() const {
-    return 0;
 }
 }
 }
