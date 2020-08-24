@@ -562,7 +562,7 @@ BOOST_AUTO_TEST_CASE(testFitSingleSeasonalComponent) {
     test::CRandomNumbers rng;
 
     maths::CSignal::TFloatMeanAccumulatorVec values;
-    maths::CSignal::TMeanAccumulatorVec1Vec actuals;
+    maths::CSignal::TMeanAccumulatorVecVec actuals;
     TDoubleVec noise;
 
     for (std::size_t test = 0; test < 100; ++test) {
@@ -622,7 +622,7 @@ BOOST_AUTO_TEST_CASE(testFitMultipleSeasonalComponents) {
     TSizeVec lengths{72, 43, 95};
     TSizeVecVec periods{{5, 12}, {5, 10}, {10, 15}};
     maths::CSignal::TFloatMeanAccumulatorVec values;
-    maths::CSignal::TMeanAccumulatorVec1Vec actuals;
+    maths::CSignal::TMeanAccumulatorVecVec actuals;
     TDoubleVec noise;
 
     TMeanVarAccumulator overallMeanError;
@@ -696,7 +696,7 @@ BOOST_AUTO_TEST_CASE(testFitTradingDaySeasonalComponents) {
     maths::CSignal::TSeasonalComponentVec periods;
 
     maths::CSignal::TFloatMeanAccumulatorVec values;
-    maths::CSignal::TMeanAccumulatorVec1Vec actuals;
+    maths::CSignal::TMeanAccumulatorVecVec actuals;
     TSizeVec offset;
 
     for (std::size_t test = 0; test < 10; ++test) {
@@ -753,8 +753,8 @@ BOOST_AUTO_TEST_CASE(testFitSingleSeasonalComponentRobust) {
     test::CRandomNumbers rng;
 
     maths::CSignal::TFloatMeanAccumulatorVec values;
-    maths::CSignal::TMeanAccumulatorVec1Vec actuals;
-    maths::CSignal::TMeanAccumulatorVec1Vec actualsRobust;
+    maths::CSignal::TMeanAccumulatorVecVec actuals;
+    maths::CSignal::TMeanAccumulatorVecVec actualsRobust;
     TDoubleVec noise;
     TDoubleVec u01;
 
@@ -825,8 +825,8 @@ BOOST_AUTO_TEST_CASE(testFitMultipleSeasonalComponentsRobust) {
     test::CRandomNumbers rng;
 
     maths::CSignal::TFloatMeanAccumulatorVec values;
-    maths::CSignal::TMeanAccumulatorVec1Vec actuals;
-    maths::CSignal::TMeanAccumulatorVec1Vec actualsRobust;
+    maths::CSignal::TMeanAccumulatorVecVec actuals;
+    maths::CSignal::TMeanAccumulatorVecVec actualsRobust;
     TDoubleVec noise;
     TDoubleVec u01;
 
@@ -954,7 +954,7 @@ BOOST_AUTO_TEST_CASE(testSingleComponentSeasonalDecomposition) {
     test::CRandomNumbers rng;
 
     maths::CSignal::TFloatMeanAccumulatorVec values;
-    maths::CSignal::TMeanAccumulatorVec1Vec actuals;
+    maths::CSignal::TMeanAccumulatorVecVec actuals;
     TDoubleVec noise;
 
     for (std::size_t test = 0; test < 100; ++test) {
@@ -1012,7 +1012,7 @@ BOOST_AUTO_TEST_CASE(testMultipleSeasonalDecomposition) {
     test::CRandomNumbers rng;
 
     maths::CSignal::TFloatMeanAccumulatorVec values;
-    maths::CSignal::TMeanAccumulatorVec1Vec actuals;
+    maths::CSignal::TMeanAccumulatorVecVec actuals;
     TDoubleVec noise;
 
     TMeanVarAccumulator meanError;
@@ -1059,7 +1059,7 @@ BOOST_AUTO_TEST_CASE(testMultipleDiurnalSeasonalDecomposition) {
     test::CRandomNumbers rng;
 
     maths::CSignal::TFloatMeanAccumulatorVec values;
-    maths::CSignal::TMeanAccumulatorVec1Vec actuals;
+    maths::CSignal::TMeanAccumulatorVecVec actuals;
     TDoubleVec noise;
     TSizeVec offset;
     TDoubleVecVec amplitudes{{0.3, 0.3, 1.0, 1.0, 1.0, 1.0, 1.0},
@@ -1115,7 +1115,7 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
     test::CRandomNumbers rng;
 
     maths::CSignal::TFloatMeanAccumulatorVec values;
-    maths::CSignal::TMeanAccumulatorVec1Vec actuals;
+    maths::CSignal::TMeanAccumulatorVecVec actuals;
     TDoubleVec noise;
     TSizeVec offset;
     TDoubleVecVec modulations{{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0},
@@ -1238,7 +1238,7 @@ BOOST_AUTO_TEST_CASE(testResidualVariance) {
 
     maths::CSignal::TFloatMeanAccumulatorVec values;
     TDoubleVec noise;
-    maths::CSignal::TMeanAccumulatorVec1Vec actualComponent(1);
+    maths::CSignal::TMeanAccumulatorVecVec actualComponent(1);
 
     for (std::size_t test = 0; test < 10; ++test) {
 
@@ -1274,7 +1274,7 @@ BOOST_AUTO_TEST_CASE(testSelectComponentSize) {
     test::CRandomNumbers rng;
 
     maths::CSignal::TFloatMeanAccumulatorVec values;
-    maths::CSignal::TMeanAccumulatorVec1Vec actuals;
+    maths::CSignal::TMeanAccumulatorVecVec actuals;
     TDoubleVec noise;
 
     maths::CSignal::TMeanAccumulatorVec sizes(5);

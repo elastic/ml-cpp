@@ -8,7 +8,6 @@
 #define INCLUDED_ml_maths_CSignal_h
 
 #include <core/CContainerPrinter.h>
-#include <core/CSmallVector.h>
 #include <core/CVectorRange.h>
 
 #include <maths/CBasicStatistics.h>
@@ -47,7 +46,7 @@ public:
     using TFloatMeanAccumulatorCRng = core::CVectorRange<const TFloatMeanAccumulatorVec>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
-    using TMeanAccumulatorVec1Vec = core::CSmallVector<TMeanAccumulatorVec, 1>;
+    using TMeanAccumulatorVecVec = std::vector<TMeanAccumulatorVec>;
     using TMomentTransformFunc = std::function<double(const TFloatMeanAccumulator&)>;
     using TMomentWeightFunc = std::function<double(const TFloatMeanAccumulator&)>;
     using TPeriodWeightFunc = std::function<double(std::size_t)>;
@@ -286,7 +285,7 @@ public:
     //! \p periods fit to \p values.
     static void fitSeasonalComponents(const TSeasonalComponentVec& periods,
                                       const TFloatMeanAccumulatorVec& values,
-                                      TMeanAccumulatorVec1Vec& components);
+                                      TMeanAccumulatorVecVec& components);
 
     //! Fit the minimum MSE seasonal components with periods \p periods to \p values
     //! reweighting outliers in \p .
@@ -300,7 +299,7 @@ public:
     static void fitSeasonalComponentsRobust(const TSeasonalComponentVec& periods,
                                             double outlierFraction,
                                             TFloatMeanAccumulatorVec& values,
-                                            TMeanAccumulatorVec1Vec& components);
+                                            TMeanAccumulatorVecVec& components);
 
     //! Reweight outliers in \p values w.r.t. \p components.
     //!
@@ -309,7 +308,7 @@ public:
     //! \param[in] fraction The fraction of values treated as outliers.
     //! \param[in,out] values The values to reweight.
     static void reweightOutliers(const TSeasonalComponentVec& periods,
-                                 const TMeanAccumulatorVec1Vec& components,
+                                 const TMeanAccumulatorVecVec& components,
                                  double fraction,
                                  TFloatMeanAccumulatorVec& values);
 
@@ -342,7 +341,7 @@ public:
     //! freedom in the variance estimate.
     static SVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values,
                                                 const TSeasonalComponentVec& periods,
-                                                const TMeanAccumulatorVec1Vec& components);
+                                                const TMeanAccumulatorVecVec& components);
 
     //! Compute the variance of \p values minus the predictions of \p components.
     //!
@@ -353,7 +352,7 @@ public:
     //! \return The residual variance.
     static double residualVariance(const TFloatMeanAccumulatorVec& values,
                                    const TSeasonalComponentVec& periods,
-                                   const TMeanAccumulatorVec1Vec& components,
+                                   const TMeanAccumulatorVecVec& components,
                                    const TMomentWeightFunc& weight = count);
 
     //! Get the p-value of the variance statistics \p H1 given the null \p H0.
@@ -430,7 +429,7 @@ public:
 
 private:
     static void removeComponents(const TSeasonalComponentVec& periods,
-                                 const TMeanAccumulatorVec1Vec& components,
+                                 const TMeanAccumulatorVecVec& components,
                                  TFloatMeanAccumulatorVec& values);
     static void checkForSeasonalDecomposition(const TDoubleVec& correlations,
                                               std::size_t maxCorrelationPeriod,
@@ -442,7 +441,7 @@ private:
                                                 std::size_t day,
                                                 std::size_t week,
                                                 TSeasonalComponentVec& periods,
-                                                TMeanAccumulatorVec1Vec& components,
+                                                TMeanAccumulatorVecVec& components,
                                                 TSizeVec& candidatePeriods,
                                                 TSeasonalComponentVec& result,
                                                 TOptionalSize startOfWeekOverride,
@@ -450,7 +449,7 @@ private:
     template<typename VALUES, typename COMPONENT>
     static void doFitSeasonalComponents(const TSeasonalComponentVec& periods,
                                         const VALUES& values,
-                                        core::CSmallVector<COMPONENT, 1>& components);
+                                        std::vector<COMPONENT>& components);
     template<typename PREDICTOR, typename VALUES, typename COMPONENT>
     static void fitSeasonalComponentsMinusPrediction(const SSeasonalComponentSummary& period,
                                                      const PREDICTOR& predictor,

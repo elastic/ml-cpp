@@ -8,6 +8,7 @@
 #define INCLUDED_ml_maths_CTimeSeriesTestForSeasonality_h
 
 #include <core/CSmallVector.h>
+#include <core/CVectorRange.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
@@ -28,6 +29,10 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+namespace CTimeSeriesTestForSeasonalityTest {
+struct calibrateTruncatedVariance;
+}
 
 namespace ml {
 namespace maths {
@@ -181,6 +186,23 @@ public:
                                   TFloatMeanAccumulatorVec values,
                                   double outlierFraction = OUTLIER_FRACTION);
 
+    //! Set the start of the week(end) to use.
+    void startOfWeek(core_t::TTime startOfWeek);
+
+    //! The minimum seasonal component period to consider.
+    void minimumPeriod(core_t::TTime minimumPeriod);
+
+    //! Register a seasonal component which is already being modelled.
+    void addModelledSeasonality(const CSeasonalTime& period);
+
+    //! Add a predictor for the currently modelled seasonal conponents.
+    void modelledSeasonalityPredictor(const TPredictor& predictor);
+
+    //! Run the test and return the new components found if any.
+    CSeasonalDecomposition decompose();
+
+    //! \name Parameters
+    //@{
     CTimeSeriesTestForSeasonality& lowAutocorrelation(double value) {
         m_LowAutocorrelation = value;
         return *this;
@@ -209,21 +231,7 @@ public:
         m_MaximumNumberComponents = value;
         return *this;
     }
-
-    //! Set the start of the week(end) to use.
-    void startOfWeek(core_t::TTime startOfWeek);
-
-    //! The minimum seasonal component period to consider.
-    void minimumPeriod(core_t::TTime minimumPeriod);
-
-    //! Register a seasonal component which is already being modelled.
-    void addModelledSeasonality(const CSeasonalTime& period);
-
-    //! Add a predictor for the currently modelled seasonal conponents.
-    void modelledSeasonalityPredictor(const TPredictor& predictor);
-
-    //! Run the test and return the new components found if any.
-    CSeasonalDecomposition decompose();
+    //@}
 
 private:
     using TDoubleVec = std::vector<double>;
@@ -233,10 +241,12 @@ private:
     using TOptionalTime = boost::optional<core_t::TTime>;
     using TMaxAccumulator =
         CBasicStatistics::COrderStatisticsHeap<double, std::greater<double>>;
+    using TVarianceStats = CSignal::SVarianceStats;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TSeasonalComponentVec = CSignal::TSeasonalComponentVec;
-    using TVarianceStats = CSignal::SVarianceStats;
-    using TMeanAccumulatorVec1Vec = CSignal::TMeanAccumulatorVec1Vec;
+    using TSeasonalComponentCRng = core::CVectorRange<const TSeasonalComponentVec>;
+    using TMeanAccumulatorVecVec = CSignal::TMeanAccumulatorVecVec;
+    using TMeanAccumulatorVecCRng = core::CVectorRange<const TMeanAccumulatorVecVec>;
     using TSegmentation = CTimeSeriesSegmentation;
     using TWeightFunc = TSegmentation::TWeightFunc;
 
@@ -422,9 +432,10 @@ private:
     void updateResiduals(const SHypothesisStats& hypothesis,
                          TFloatMeanAccumulatorVec& residuals) const;
     TBoolVec finalizeHypotheses(const TFloatMeanAccumulatorVec& valuesToTest,
-                                THypothesisStatsVec& hypotheses) const;
+                                THypothesisStatsVec& hypotheses,
+                                TFloatMeanAccumulatorVec& residuals) const;
     TBoolVec selectModelledHypotheses(THypothesisStatsVec& hypotheses) const;
-    void removeModelledPredictions(const TBoolVec& removeComponentMask,
+    void removeModelledPredictions(const TBoolVec& componentsToRemoveMask,
                                    core_t::TTime startTime,
                                    TFloatMeanAccumulatorVec& values) const;
     void removeDiscontinuities(const TSizeVec& modelTrendSegments,
@@ -432,16 +443,20 @@ private:
     bool meanScale(TFloatMeanAccumulatorVec& values,
                    const SHypothesisStats& hypothesis,
                    const TWeightFunc& weight) const;
-    void removeComponentPredictions(std::size_t numberOfPeriodsToRemove,
-                                    const TSeasonalComponentVec& periodsToRemove,
-                                    const TMeanAccumulatorVec1Vec& componentsToRemove,
-                                    TFloatMeanAccumulatorVec& values) const;
+    void removePredictions(const TSeasonalComponentCRng& periodsToRemove,
+                           const TMeanAccumulatorVecCRng& componentsToRemove,
+                           TFloatMeanAccumulatorVec& values) const;
+    void addPredictions(const TSeasonalComponentCRng& periodsToRemove,
+                        const TMeanAccumulatorVecCRng& componentsToRemove,
+                        TFloatMeanAccumulatorVec& values) const;
     void testExplainedVariance(const TVarianceStats& H0, SHypothesisStats& hypothesis) const;
     void testAutocorrelation(SHypothesisStats& hypothesis) const;
     void testAmplitude(SHypothesisStats& hypothesis) const;
     TVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values) const;
     double truncatedVariance(double outlierFraction,
                              const TFloatMeanAccumulatorVec& residuals) const;
+    std::size_t buckets(core_t::TTime interval) const;
+    core_t::TTime adjustForStartTime(core_t::TTime startOfWeek) const;
     bool alreadyModelled(const TSeasonalComponentVec& periods) const;
     bool alreadyModelled(const TSeasonalComponent& period) const;
     bool onlyDiurnal(const TSeasonalComponentVec& periods) const;
@@ -489,11 +504,12 @@ private:
     mutable TSizeVec m_WindowIndices;
     mutable TSeasonalComponentVec m_Periods;
     mutable TAmplitudeVec m_Amplitudes;
-    mutable TMeanAccumulatorVec1Vec m_Components;
+    mutable TMeanAccumulatorVecVec m_Components;
     mutable TFloatMeanAccumulatorVec m_ValuesToTest;
-    mutable TFloatMeanAccumulatorVec m_InitialValues;
     mutable TFloatMeanAccumulatorVec m_TemporaryValues;
     mutable TMaxAccumulator m_Outliers;
+
+    friend struct CTimeSeriesTestForSeasonalityTest::calibrateTruncatedVariance;
 };
 }
 }
