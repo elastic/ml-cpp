@@ -309,7 +309,7 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
     periods.resize(pad - 1);
     std::iota(periods.begin(), periods.end(), 2);
     for (auto period : {day, week, year}) {
-        if (periods.back() < period && n >= 2 * period) {
+        if (periods.back() < period && 100 * n > 190 * period) {
             periods.push_back(period);
         }
     }
@@ -465,7 +465,7 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
     constexpr std::size_t WEEKDAY_DAILY{2};
     constexpr std::size_t WEEKDAY_WEEKLY{3};
 
-    if (values.size() < 2 * week) {
+    if (100 * values.size() < 190 * week) {
         return {};
     }
 

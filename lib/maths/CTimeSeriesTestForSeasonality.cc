@@ -429,6 +429,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
         result.add(CNewTrendSummary{m_StartTime, m_BucketLength,
                                     std::move(decompositions[selected].s_TrendInitialValues)});
         for (auto& hypothesis : decompositions[selected].s_Hypotheses) {
+            LOG_TRACE(<< "model = " << hypothesis.s_Model);
             if (hypothesis.s_Model) {
                 LOG_TRACE(<< "Adding " << hypothesis.s_Period.print());
                 result.add(this->annotationText(hypothesis.s_Period),
@@ -813,7 +814,7 @@ CTimeSeriesTestForSeasonality::selectModelledHypotheses(THypothesisStatsVec& hyp
     //   - They aren't excluded by a component we already have.
 
     std::size_t numberModelledPeriods{m_ModelledPeriods.size()};
-    std::ptrdiff_t excess{-static_cast<std::ptrdiff_t>(m_MaximumNumberComponents)};
+    std::ptrdiff_t excess{-m_MaximumNumberComponents};
 
     for (std::size_t i = 0; i < hypotheses.size(); ++i) {
         const auto& period = hypotheses[i].s_Period;
@@ -843,8 +844,10 @@ CTimeSeriesTestForSeasonality::selectModelledHypotheses(THypothesisStatsVec& hyp
                 return almostEqual(period.s_Period, hypothesis.s_Period.s_Period, 0.05) &&
                        this->precedence() >= precedence;
             }) != hypotheses.end();
-        excess += componentsToRemoveMask[i] ? 0 : 1;
+        excess -= componentsToRemoveMask[i] ? 1 : 0;
     }
+
+    LOG_TRACE(<< "excess = " << excess);
 
     // Don't exceed the maximum number of components discarding excess in order
     // of increasing explained variance.
@@ -1106,23 +1109,23 @@ bool CTimeSeriesTestForSeasonality::isWeekday(const TSeasonalComponent& period) 
 }
 
 bool CTimeSeriesTestForSeasonality::seenSufficientData(const TSeasonalComponent& period) const {
-    return 2 * period.s_WindowRepeat <= this->observedRange(m_Values);
+    return 190 * period.s_WindowRepeat < 100 * this->observedRange(m_Values);
 }
 
 bool CTimeSeriesTestForSeasonality::seenSufficientDataToTestForTradingDayDecomposition() const {
-    return 2 * this->week() <= this->observedRange(m_Values);
+    return 190 * this->week() < 100 * this->observedRange(m_Values);
 }
 
 bool CTimeSeriesTestForSeasonality::permittedPeriod(const TSeasonalComponent& period) const {
     return m_MinimumPeriod == boost::none ||
-           static_cast<core_t::TTime>(period.s_WindowRepeat) * m_BucketLength > *m_MinimumPeriod;
+           static_cast<core_t::TTime>(period.s_WindowRepeat) * m_BucketLength >= *m_MinimumPeriod;
 }
 
 bool CTimeSeriesTestForSeasonality::includesPermittedPeriod(const TSeasonalComponentVec& periods) const {
     return m_MinimumPeriod == boost::none ||
            std::find_if(periods.begin(), periods.end(), [this](const auto& period) {
                return this->permittedPeriod(period);
-           }) == periods.end();
+           }) != periods.end();
 }
 
 double CTimeSeriesTestForSeasonality::precedence() const {
@@ -1133,7 +1136,8 @@ double CTimeSeriesTestForSeasonality::precedence() const {
 
 std::string CTimeSeriesTestForSeasonality::annotationText(const TSeasonalComponent& period) const {
     return "Detected periodicity with period " +
-           core::CTimeUtils::durationToString(period.s_Period) +
+           core::CTimeUtils::durationToString(
+               m_BucketLength * static_cast<core_t::TTime>(period.s_Period)) +
            (this->isWeekend(period) ? " (weekend)"
                                     : (this->isWeekday(period) ? " (weekdays)" : ""));
 }

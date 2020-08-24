@@ -148,7 +148,6 @@ private:
 class CTestFixture {
 public:
     CTestFixture() { core::CTimezone::instance().setTimezone("GMT"); }
-
     ~CTestFixture() { core::CTimezone::instance().setTimezone(""); }
 };
 

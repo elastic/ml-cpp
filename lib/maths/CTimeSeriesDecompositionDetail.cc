@@ -76,7 +76,7 @@ using TCalendarComponentPtrVec = std::vector<CCalendarComponent*>;
 const core_t::TTime DAY{core::constants::DAY};
 const core_t::TTime WEEK{core::constants::WEEK};
 const core_t::TTime MONTH{4 * WEEK};
-const std::size_t MAXIMUM_COMPONENTS{8};
+const std::ptrdiff_t MAXIMUM_COMPONENTS{8};
 const TSeasonalComponentVec NO_SEASONAL_COMPONENTS;
 const TCalendarComponentVec NO_CALENDAR_COMPONENTS;
 
@@ -553,8 +553,8 @@ const CSeasonalityTestParameters::TParametersVecVec CSeasonalityTestParameters::
      {10, 1, 336, {10, 30, 60, 300, 600}, {}},
      {30, 1, 336, {30, 60, 300, 600, 1800}, {3 * 86400}},
      {60, 1, 336, {60, 300, 600, 1800, 3600}, {3 * 86400}},
-     {300, 1, 336, {300, 600, 1800, 3600, 7200}, {3 * 86400}},
-     {600, 1, 336, {600, 1800, 3600, 7200}, {3 * 86400}},
+     {300, 1, 336, {300, 600, 1800, 3600}, {3 * 86400}},
+     {600, 1, 336, {600, 1800, 3600}, {3 * 86400}},
      {900, 1, 336, {900, 1800, 3600, 7200, 14400}, {3 * 86400}},
      {1200, 1, 336, {1200, 3600, 7200, 14400}, {3 * 86400}},
      {1800, 1, 336, {1800, 3600, 7200, 14400}, {3 * 86400}},
@@ -571,8 +571,8 @@ const CSeasonalityTestParameters::TParametersVecVec CSeasonalityTestParameters::
      {10, 86401, 336, {3600, 7200}, {3 * 86400, 7 * 86400}},
      {30, 86401, 336, {3600, 7200}, {3 * 86400, 7 * 86400}},
      {60, 86401, 336, {7200, 14400, 28800}, {21 * 86400}},
-     {300, 86401, 336, {14400, 28800}, {21 * 86400}},
-     {600, 86401, 336, {14400, 28800}, {21 * 86400}},
+     {300, 86401, 336, {7200, 14400, 28800}, {21 * 86400}},
+     {600, 86401, 336, {7200, 14400, 28800}, {21 * 86400}},
      {900, 604801, 365, {28800, 86400, 259200}, {}},
      {1200, 604801, 365, {28800, 86400, 259200}, {}},
      {1800, 604801, 365, {28800, 86400, 259200}, {}},
@@ -1175,7 +1175,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(
                     traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
                         return m_Machine.acceptRestoreTraverser(traverser_);
                     }))
-            RESTORE_BUILT_IN(DECAY_RATE_6_3_TAG, m_DecayRate);
+            RESTORE_BUILT_IN(DECAY_RATE_6_3_TAG, m_DecayRate)
             RESTORE(GAIN_CONTROLLER_6_3_TAG,
                     traverser.traverseSubLevel(
                         std::bind(&CGainController::acceptRestoreTraverser,
@@ -1198,9 +1198,9 @@ bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(
             RESTORE(MEAN_VARIANCE_SCALE_6_3_TAG,
                     m_MeanVarianceScale.fromDelimited(traverser.value()))
             RESTORE(MOMENTS_6_3_TAG,
-                    m_PredictionErrorWithoutTrend.fromDelimited(traverser.value()));
+                    m_PredictionErrorWithoutTrend.fromDelimited(traverser.value()))
             RESTORE(MOMENTS_MINUS_TREND_6_3_TAG,
-                    m_PredictionErrorWithTrend.fromDelimited(traverser.value()));
+                    m_PredictionErrorWithTrend.fromDelimited(traverser.value()))
             RESTORE_BUILT_IN(TESTING_FOR_CHANGE_6_5_TAG, m_TestingForChange)
             RESTORE_BUILT_IN(USING_TREND_FOR_PREDICTION_6_3_TAG, m_UsingTrendForPrediction)
         }
@@ -1546,8 +1546,8 @@ void CTimeSeriesDecompositionDetail::CComponents::useTrendForPrediction() {
 
 CTimeSeriesDecompositionDetail::TMakeTestForSeasonality
 CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilteredPredictor& predictor) const {
-    return [&](core_t::TTime startTime, core_t::TTime bucketLength,
-               core_t::TTime minimumPeriod, TFloatMeanAccumulatorVec values) {
+    return [predictor, this](core_t::TTime startTime, core_t::TTime bucketLength,
+                             core_t::TTime minimumPeriod, TFloatMeanAccumulatorVec values) {
         CTimeSeriesTestForSeasonality test{startTime, bucketLength, std::move(values)};
         for (const auto& component : this->seasonal()) {
             const auto& time = component.time();
@@ -1557,7 +1557,9 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilte
             test.addModelledSeasonality(component.time());
         }
         test.maximumNumberOfComponents(
-            MAXIMUM_COMPONENTS - (m_Seasonal != nullptr ? m_Seasonal->size() : 0));
+            MAXIMUM_COMPONENTS -
+            static_cast<std::ptrdiff_t>(
+                m_Seasonal != nullptr ? m_Seasonal->components().size() : 0));
         test.modelledSeasonalityPredictor(predictor);
         test.minimumPeriod(minimumPeriod);
         return test;
@@ -1627,6 +1629,8 @@ std::size_t CTimeSeriesDecompositionDetail::CComponents::maxSize() const {
 void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CSeasonalDecomposition& components) {
 
     m_Seasonal->remove(components.seasonalToRemoveMask());
+    LOG_TRACE(<< "remove mask = "
+              << core::CContainerPrinter::print(components.seasonalToRemoveMask()));
 
     for (const auto& component : components.seasonal()) {
         auto seasonalTime = component.seasonalTime();
@@ -1647,6 +1651,7 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CS
         m_Seasonal->add(*seasonalTime, m_SeasonalComponentSize, m_DecayRate, bucketLength,
                         boundaryCondition, startTime, endTime, initialValues);
         m_ModelAnnotationCallback(component.annotationText());
+        LOG_DEBUG(<< component.annotationText());
     }
 
     m_Seasonal->refreshForNewComponents();
@@ -2242,6 +2247,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::add(
     m_Components.emplace_back(seasonalTime, size, decayRate, bucketLength, boundaryCondition);
     m_Components.back().initialize(startTime, endTime, values);
     m_Components.back().interpolate(CIntegerTools::floor(endTime, seasonalTime.period()));
+    m_PredictionErrors.emplace_back();
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::refreshForNewComponents() {

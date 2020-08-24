@@ -227,7 +227,7 @@ public:
         m_AcceptedFalsePostiveRate = value;
         return *this;
     }
-    CTimeSeriesTestForSeasonality& maximumNumberOfComponents(std::size_t value) {
+    CTimeSeriesTestForSeasonality& maximumNumberOfComponents(std::ptrdiff_t value) {
         m_MaximumNumberComponents = value;
         return *this;
     }
@@ -485,7 +485,7 @@ private:
     double m_SignificantPValue = 1e-3;
     double m_VerySignificantPValue = 1e-8;
     double m_AcceptedFalsePostiveRate = 1e-4;
-    std::size_t m_MaximumNumberComponents = 10;
+    std::ptrdiff_t m_MaximumNumberComponents = 10;
     TOptionalSize m_StartOfWeekOverride;
     TOptionalTime m_MinimumPeriod;
     core_t::TTime m_StartTime = 0;
