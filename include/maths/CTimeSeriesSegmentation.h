@@ -11,6 +11,7 @@
 #include <maths/Constants.h>
 #include <maths/MathsTypes.h>
 
+#include <tuple>
 #include <vector>
 
 namespace ml {
@@ -24,7 +25,8 @@ public:
     using TSizeVec = std::vector<std::size_t>;
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
-    using TFloatMeanAccumulatorVecBoolPr = std::pair<TFloatMeanAccumulatorVec, bool>;
+    using TFloatMeanAccumulatorVecDoubleVecBoolTr =
+        std::tuple<TFloatMeanAccumulatorVec, TDoubleVec, bool>;
     using TWeightFunc = std::function<double(std::size_t)>;
 
     //! Perform top-down recursive segmentation with linear models.
@@ -134,6 +136,20 @@ public:
                                         double outlierFraction = 0.0,
                                         double outlierWeight = 0.1);
 
+    //! Remove the predictions of a seasonal \p model with piecewise constant
+    //! linear scales \p scales.
+    //!
+    //! \param[in] segmentation The segmentation of \p values into intervals with
+    //! constant scale.
+    //! \param[in] model The underlying seasonal model.
+    //! \param[in] scales The piecewise constant linear scales to apply to \p model.
+    //! \return The values minus the scaled model predictions.
+    static TFloatMeanAccumulatorVec
+    removePiecewiseLinearScaledSeasonal(TFloatMeanAccumulatorVec values,
+                                        const TSizeVec& segmentation,
+                                        const TDoubleVec& model,
+                                        const TDoubleVec& scales);
+
     //! Rescale the piecewise linear scaled seasonal component of \p values with
     //! period \p period to its mean scale.
     //!
@@ -141,7 +157,7 @@ public:
     //! constant scale.
     //! \param[in] indexWeight A function used to weight indices of \p segmentation.
     //! \return The values with the mean scaled seasonal component.
-    static TFloatMeanAccumulatorVecBoolPr
+    static TFloatMeanAccumulatorVecDoubleVecBoolTr
     meanScalePiecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
                                            std::size_t period,
                                            const TSizeVec& segmentation,
@@ -159,19 +175,14 @@ public:
                             const TDoubleVec& scales,
                             const TWeightFunc& indexWeight);
 
-    //! Remove the predictions of a seasonal \p model with piecewise constant
-    //! linear scales \p scales.
+    //! Compute the scale at \p index for the piecewise linear \p scales on
+    //! \p segmentation.
     //!
-    //! \param[in] segmentation The segmentation of \p values into intervals with
-    //! constant scale.
-    //! \param[in] model The underlying seasonal model.
-    //! \param[in] scales The piecewise constant linear scales to apply to \p model.
-    //! \return The values minus the scaled model predictions.
-    static TFloatMeanAccumulatorVec
-    removePiecewiseLinearScaledSeasonal(TFloatMeanAccumulatorVec values,
-                                        const TSizeVec& segmentation,
-                                        const TDoubleVec& model,
-                                        const TDoubleVec& scales);
+    //! \param[in] index The index at which to compute the scale.
+    //! \param[in] segmentation The segmentation into intervals with constant scale.
+    //! \param[in] scales The piecewise constant linear scales to apply.
+    //! \return The scale at \p index.
+    static double scaleAt(std::size_t index, const TSizeVec& segmentation, const TDoubleVec& scales);
 
 private:
     using TPredictor = std::function<double(double)>;

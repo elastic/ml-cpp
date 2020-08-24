@@ -562,8 +562,8 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
             std::size_t period{hypothesis.s_Period.period()};
             hypothesis.s_ScaleSegments = TSegmentation::piecewiseLinearScaledSeasonal(
                 values, period, m_SignificantPValue, m_OutlierFraction);
-            return this->meanScale(values, hypothesis,
-                                   [](std::size_t) { return 1.0; });
+            return this->meanScale(hypothesis, [](std::size_t) { return 1.0; },
+                                   values, m_Scales);
         }};
 
     TFloatMeanAccumulatorVec residuals{valuesToTest};
@@ -657,13 +657,13 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
     double truncatedVariance{this->truncatedVariance(m_OutlierFraction, residuals) + m_EpsVariance};
     LOG_TRACE(<< "variance = " << variance << " <variance> = " << truncatedVariance);
 
+    TBoolVec componentsToRemoveMask{
+        this->finalizeHypotheses(valuesToTest, hypotheses, residuals)};
     for (std::size_t i = 0; i < m_Values.size(); ++i) {
         double offset{CBasicStatistics::mean(m_Values[i]) -
                       CBasicStatistics::mean(valuesToTest[i])};
         CBasicStatistics::moment<0>(residuals[i]) += offset;
     }
-    TBoolVec componentsToRemoveMask{
-        this->finalizeHypotheses(valuesToTest, hypotheses, residuals)};
 
     return {variance,
             truncatedVariance,
@@ -687,8 +687,7 @@ void CTimeSeriesTestForSeasonality::updateResiduals(const SHypothesisStats& hypo
                                                     TFloatMeanAccumulatorVec& residuals) const {
     m_TemporaryValues = residuals;
     CSignal::restrictTo(hypothesis.s_Period, m_TemporaryValues);
-    this->meanScale(m_TemporaryValues, hypothesis,
-                    [](std::size_t) { return 1.0; });
+    this->meanScale(hypothesis, [](std::size_t) { return 1.0; }, m_TemporaryValues, m_Scales);
     m_Periods.assign(1, CSignal::seasonalComponentSummary(hypothesis.s_Period.period()));
     CSignal::fitSeasonalComponentsRobust(m_Periods, m_OutlierFraction,
                                          m_TemporaryValues, m_Components);
@@ -744,28 +743,30 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
             CSignal::restrictTo(m_Periods[i], m_TemporaryValues);
             CSignal::restrictTo(m_Periods[i], m_WindowIndices);
 
-            if (scale && this->meanScale(m_TemporaryValues, hypotheses[j], [&](std::size_t k) {
-                    return std::pow(
-                        0.9, static_cast<double>(m_TemporaryValues.size() - k - 1));
-                }) == false) {
+            auto weight = [&](std::size_t k) {
+                return std::pow(0.9, static_cast<double>(m_TemporaryValues.size() - k - 1));
+            };
+
+            if (scale && this->meanScale(hypotheses[j], weight,
+                                         m_TemporaryValues, m_Scales) == false) {
                 continue;
             }
 
             period.assign(1, CSignal::seasonalComponentSummary(m_Periods[i].period()));
             CSignal::fitSeasonalComponents(period, m_TemporaryValues, component);
 
-            this->addPredictions({m_Periods, i + 1, m_Periods.size()},
-                                 {m_Components, i + 1, m_Components.size()},
-                                 m_TemporaryValues);
-
             hypotheses[j].s_ComponentSize = CSignal::selectComponentSize(
                 m_TemporaryValues, hypotheses[j].s_Period.period());
             hypotheses[j].s_InitialValues.resize(values.size());
+
             for (std::size_t k = 0; k < m_WindowIndices.size(); ++k) {
                 hypotheses[j].s_InitialValues[m_WindowIndices[k]] = m_TemporaryValues[k];
-                CBasicStatistics::moment<0>(residuals[m_WindowIndices[k]]) =
-                    CBasicStatistics::mean(m_TemporaryValues[k]) -
-                    m_Periods[i].value(component[0], k);
+                if (CBasicStatistics::count(residuals[m_WindowIndices[k]]) > 0.0) {
+                    CBasicStatistics::moment<0>(residuals[m_WindowIndices[k]]) -=
+                        (scale ? TSegmentation::scaleAt(k, hypotheses[j].s_ScaleSegments, m_Scales)
+                               : 1.0) *
+                        period[0].value(component[0], k);
+                }
             }
             break;
         }
@@ -876,15 +877,18 @@ void CTimeSeriesTestForSeasonality::removeDiscontinuities(const TSizeVec& modelT
     }
 }
 
-bool CTimeSeriesTestForSeasonality::meanScale(TFloatMeanAccumulatorVec& values,
-                                              const SHypothesisStats& hypothesis,
-                                              const TWeightFunc& weight) const {
+bool CTimeSeriesTestForSeasonality::meanScale(const SHypothesisStats& hypothesis,
+                                              const TWeightFunc& weight,
+                                              TFloatMeanAccumulatorVec& values,
+                                              TDoubleVec& scales) const {
     if (hypothesis.s_ScaleSegments.size() > 2) {
         bool successful;
-        std::tie(values, successful) = TSegmentation::meanScalePiecewiseLinearScaledSeasonal(
+        std::tie(values, scales, successful) = TSegmentation::meanScalePiecewiseLinearScaledSeasonal(
             values, hypothesis.s_Period.period(), hypothesis.s_ScaleSegments, weight);
         return successful;
     }
+
+    scales.assign(1, 1.0);
     return false;
 }
 
@@ -895,17 +899,6 @@ void CTimeSeriesTestForSeasonality::removePredictions(const TSeasonalComponentCR
         for (std::size_t j = 0; j < periodsToRemove.size(); ++j) {
             CBasicStatistics::moment<0>(values[i]) -=
                 periodsToRemove[j].value(componentsToRemove[j], i);
-        }
-    }
-}
-
-void CTimeSeriesTestForSeasonality::addPredictions(const TSeasonalComponentCRng& periodsToAdd,
-                                                   const TMeanAccumulatorVecCRng& componentsToAdd,
-                                                   TFloatMeanAccumulatorVec& values) const {
-    for (std::size_t i = 0; i < values.size(); ++i) {
-        for (std::size_t j = 0; j < periodsToAdd.size(); ++j) {
-            CBasicStatistics::moment<0>(values[i]) +=
-                periodsToAdd[j].value(componentsToAdd[j], i);
         }
     }
 }

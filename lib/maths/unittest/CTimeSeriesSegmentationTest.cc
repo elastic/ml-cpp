@@ -457,6 +457,8 @@ BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
     TDoubleVec noise;
     TFloatMeanAccumulatorVec values;
     TMeanAccumulatorVec actualMeanScaled;
+    TDoubleVec actualScales;
+    TMeanVarAccumulator overallScaleErrorMoments;
     TMeanVarAccumulator overallErrorMoments;
 
     for (std::size_t test = 0; test < 10; ++test) {
@@ -470,13 +472,23 @@ BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
             }
         }
 
-        std::tie(values, std::ignore) = TSegmentation::meanScalePiecewiseLinearScaledSeasonal(
+        bool successful;
+        std::tie(values, actualScales, successful) = TSegmentation::meanScalePiecewiseLinearScaledSeasonal(
             std::move(values), period, segmentation,
             [](std::size_t) { return 1.0; });
+
+        BOOST_REQUIRE(successful);
 
         actualMeanScaled.assign(period, TMeanAccumulator{});
         for (std::size_t i = 0; i < values.size(); ++i) {
             actualMeanScaled[i % period].add(maths::CBasicStatistics::mean(values[i]));
+        }
+
+        BOOST_REQUIRE_EQUAL(expectedScales.size(), actualScales.size());
+        for (std::size_t i = 0; i < expectedScales.size(); ++i) {
+            double expectedScale{expectedScales[i] / expectedMeanScale};
+            BOOST_REQUIRE_CLOSE(expectedScale, actualScales[i], 20.0);
+            overallScaleErrorMoments.add(std::fabs(expectedScale - actualScales[i]) / expectedScale);
         }
 
         TMeanVarAccumulator errorMoments;
@@ -496,6 +508,8 @@ BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
         overallErrorMoments += errorMoments;
     }
 
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(
+        0.0, maths::CBasicStatistics::mean(overallScaleErrorMoments), 0.05);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, maths::CBasicStatistics::mean(overallErrorMoments),
                                  std::sqrt(static_cast<double>(values.size()) /
                                            static_cast<double>(period) / 10.0));

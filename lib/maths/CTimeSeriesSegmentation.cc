@@ -314,8 +314,7 @@ CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(const TFloatMeanAcc
                                      outlierWeight, reweighted, model, scales);
 
     auto predict = [&](std::size_t i) {
-        auto right = std::upper_bound(segmentation.begin(), segmentation.end(), i);
-        return scales[right - segmentation.begin() - 1] * model[i % period];
+        return scaleAt(i, segmentation, scales) * model[i % period];
     };
 
     for (std::size_t i = 0; i != reweighted.size(); ++i) {
@@ -327,7 +326,27 @@ CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(const TFloatMeanAcc
     return reweighted;
 }
 
-CTimeSeriesSegmentation::TFloatMeanAccumulatorVecBoolPr
+CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
+CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(TFloatMeanAccumulatorVec values,
+                                                             const TSizeVec& segmentation,
+                                                             const TDoubleVec& model,
+                                                             const TDoubleVec& scales) {
+    std::size_t period{model.size()};
+
+    auto predict = [&](std::size_t i) {
+        return scaleAt(i, segmentation, scales) * model[i % period];
+    };
+
+    for (std::size_t i = 0; i != values.size(); ++i) {
+        if (CBasicStatistics::count(values[i]) > 0.0) {
+            CBasicStatistics::moment<0>(values[i]) -= predict(i);
+        }
+    }
+
+    return values;
+}
+
+CTimeSeriesSegmentation::TFloatMeanAccumulatorVecDoubleVecBoolTr
 CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(
     const TFloatMeanAccumulatorVec& values,
     std::size_t period,
@@ -369,15 +388,13 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(
 
     if (*std::min_element(scales.begin(), scales.end()) < 0.0 ||
         2.0 * *std::max_element(scales.begin(), scales.end()) * amplitude <= noise) {
-        return {{}, false};
+        return {{}, {}, false};
     }
 
     for (std::size_t i = 0; i < values.size(); ++i) {
         // If the component is "scaled away" in a segment we treat that
         // segment as missing.
-        auto index = std::upper_bound(segmentation.begin(), segmentation.end(), i);
-        double weight{std::min(
-            2.0 * scales[(index - segmentation.begin()) - 1] * amplitude - noise, 1.0)};
+        double weight{std::min(2.0 * scaleAt(i, segmentation, scales) * amplitude - noise, 1.0)};
         if (weight <= 0.0) {
             scaledValues[i] = TFloatMeanAccumulator{};
         } else {
@@ -386,7 +403,11 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(
         }
     }
 
-    return {std::move(scaledValues), true};
+    for (auto& segmentScale : scales) {
+        segmentScale /= scale;
+    }
+
+    return {std::move(scaledValues), std::move(scales), true};
 }
 
 double CTimeSeriesSegmentation::meanScale(const TSizeVec& segmentation,
@@ -401,25 +422,11 @@ double CTimeSeriesSegmentation::meanScale(const TSizeVec& segmentation,
     return CBasicStatistics::mean(result);
 }
 
-CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
-CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(TFloatMeanAccumulatorVec values,
-                                                             const TSizeVec& segmentation,
-                                                             const TDoubleVec& model,
-                                                             const TDoubleVec& scales) {
-    std::size_t period{model.size()};
-
-    auto predict = [&](std::size_t i) {
-        auto right = std::upper_bound(segmentation.begin(), segmentation.end(), i);
-        return scales[right - segmentation.begin() - 1] * model[i % period];
-    };
-
-    for (std::size_t i = 0; i != values.size(); ++i) {
-        if (CBasicStatistics::count(values[i]) > 0.0) {
-            CBasicStatistics::moment<0>(values[i]) -= predict(i);
-        }
-    }
-
-    return values;
+double CTimeSeriesSegmentation::scaleAt(std::size_t index,
+                                        const TSizeVec& segmentation,
+                                        const TDoubleVec& scales) {
+    return scales[std::upper_bound(segmentation.begin(), segmentation.end(), index) -
+                  segmentation.begin() - 1];
 }
 
 template<typename ITR>
@@ -725,13 +732,9 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal(
                    ? 0.0
                    : CBasicStatistics::mean(projection) / CBasicStatistics::mean(Z);
     };
-    auto scale = [&](std::size_t i) {
-        auto right = std::upper_bound(segmentation.begin(), segmentation.end(), i);
-        return scales[(right - segmentation.begin()) - 1];
-    };
+    auto scale = [&](std::size_t i) { return scaleAt(i, segmentation, scales); };
     auto predict = [&](std::size_t i) {
-        auto right = std::upper_bound(segmentation.begin(), segmentation.end(), i);
-        return scales[(right - segmentation.begin()) - 1] * model[i % period];
+        return scaleAt(i, segmentation, scales) * model[i % period];
     };
     auto fitScaledSeasonalModel = [&]() {
         for (std::size_t pass = 0; pass < 2; ++pass) {

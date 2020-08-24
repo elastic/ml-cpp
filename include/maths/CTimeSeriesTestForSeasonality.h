@@ -440,15 +440,13 @@ private:
                                    TFloatMeanAccumulatorVec& values) const;
     void removeDiscontinuities(const TSizeVec& modelTrendSegments,
                                TFloatMeanAccumulatorVec& values) const;
-    bool meanScale(TFloatMeanAccumulatorVec& values,
-                   const SHypothesisStats& hypothesis,
-                   const TWeightFunc& weight) const;
+    bool meanScale(const SHypothesisStats& hypothesis,
+                   const TWeightFunc& weight,
+                   TFloatMeanAccumulatorVec& values,
+                   TDoubleVec& scales) const;
     void removePredictions(const TSeasonalComponentCRng& periodsToRemove,
                            const TMeanAccumulatorVecCRng& componentsToRemove,
                            TFloatMeanAccumulatorVec& values) const;
-    void addPredictions(const TSeasonalComponentCRng& periodsToRemove,
-                        const TMeanAccumulatorVecCRng& componentsToRemove,
-                        TFloatMeanAccumulatorVec& values) const;
     void testExplainedVariance(const TVarianceStats& H0, SHypothesisStats& hypothesis) const;
     void testAutocorrelation(SHypothesisStats& hypothesis) const;
     void testAmplitude(SHypothesisStats& hypothesis) const;
@@ -508,6 +506,7 @@ private:
     mutable TFloatMeanAccumulatorVec m_ValuesToTest;
     mutable TFloatMeanAccumulatorVec m_TemporaryValues;
     mutable TMaxAccumulator m_Outliers;
+    mutable TDoubleVec m_Scales;
 
     friend struct CTimeSeriesTestForSeasonalityTest::calibrateTruncatedVariance;
 };

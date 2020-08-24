@@ -75,6 +75,8 @@ const core_t::TTime WEEK{core::constants::WEEK};
 
 BOOST_AUTO_TEST_CASE(calibrateTruncatedVariance, *boost::unit_test::disabled()) {
 
+    return; // Remove to run calibration.
+
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TRegression = maths::CLeastSquaresOnlineRegression<2, double>;
 
@@ -1230,7 +1232,7 @@ BOOST_AUTO_TEST_CASE(testNewComponentInitialValues) {
         core_t::TTime startTime{
             HALF_HOUR * (static_cast<core_t::TTime>(startTimes[test]) / HALF_HOUR)};
 
-        values.assign((3 * WEEK) / HALF_HOUR, TFloatMeanAccumulator{});
+        values.assign(3 * WEEK / HALF_HOUR, TFloatMeanAccumulator{});
         for (core_t::TTime time = 0; time < 3 * WEEK; time += HALF_HOUR) {
             values[time / HALF_HOUR].add(10.0 * generator(startTime + time));
         }
@@ -1250,7 +1252,7 @@ BOOST_AUTO_TEST_CASE(testNewComponentInitialValues) {
         }
         for (core_t::TTime time = 0; time < 3 * WEEK; time += HALF_HOUR) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0 * generator(startTime + time),
-                                         predictions[time / HALF_HOUR], 1e-3);
+                                         predictions[time / HALF_HOUR], 1e-4);
         }
 
         // Check the seasonal time is initialized correctly.
@@ -1309,7 +1311,7 @@ BOOST_AUTO_TEST_CASE(testNewTrendSummary) {
         auto trend = trends[test % trends.size()];
         auto season = seasons[test % seasons.size()];
 
-        values.assign((4 * WEEK) / HOUR, TFloatMeanAccumulator{});
+        values.assign(4 * WEEK / HOUR, TFloatMeanAccumulator{});
         for (core_t::TTime time = 0; time < 4 * WEEK; time += HOUR) {
             values[time / HOUR].add(100.0 * trend(startTime + time) +
                                     10.0 * season(startTime + time));
@@ -1364,6 +1366,42 @@ BOOST_AUTO_TEST_CASE(testNewTrendSummaryPiecewiseLinearTrend) {
 BOOST_AUTO_TEST_CASE(testWithSuppliedPredictor) {
 
     // Check the initial values in the case that we have a supplied predictor.
+
+    using TBoolVec = std::vector<bool>;
+
+    auto daily = [&](core_t::TTime time) {
+        return std::sin(boost::math::double_constants::pi *
+                        static_cast<double>(time % DAY) / static_cast<double>(DAY));
+    };
+    auto weekly = [](core_t::TTime time) {
+        double values[]{2.0, 2.1, 2.3, 2.2, 1.8, 1.6, 1.4,
+                        1.0, 1.2, 1.8, 1.5, 1.7, 1.8, 1.9};
+        return values[2 * (time % WEEK) / DAY];
+    };
+    core_t::TTime startTime{1000000};
+
+    TFloatMeanAccumulatorVec values(3 * WEEK / HOUR);
+    for (core_t::TTime time = 0; time < 3 * WEEK; time += HOUR) {
+        values[time / HOUR].add(daily(startTime + time) + weekly(startTime + time));
+    }
+
+    maths::CTimeSeriesTestForSeasonality seasonality{startTime, HOUR, values};
+    seasonality.addModelledSeasonality(maths::CDiurnalTime{0, 0, WEEK, DAY, 2 * WEEK});
+    seasonality.modelledSeasonalityPredictor([](core_t::TTime time, const TBoolVec&) {
+        return std::sin(boost::math::double_constants::pi *
+                        static_cast<double>(time % DAY) / static_cast<double>(DAY));
+    });
+
+    auto result = seasonality.decompose();
+
+    for (core_t::TTime time = 0; time < 3 * WEEK; time += HOUR) {
+        double prediction{0.0};
+        for (const auto& component : result.seasonal()) {
+            prediction +=
+                maths::CBasicStatistics::mean(component.initialValues()[time / HOUR]);
+        }
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(prediction, weekly(startTime + time), 1e-4);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testStartOfWeekOverride) {
@@ -1372,7 +1410,7 @@ BOOST_AUTO_TEST_CASE(testStartOfWeekOverride) {
 
     TFloatMeanAccumulatorVec values;
 
-    values.assign((3 * WEEK) / HALF_HOUR, TFloatMeanAccumulator{});
+    values.assign(3 * WEEK / HALF_HOUR, TFloatMeanAccumulator{});
     for (core_t::TTime time = 0; time < 3 * WEEK; time += HALF_HOUR) {
         std::size_t bucket(time / HALF_HOUR);
         values[bucket].add(10.0 * weekends(time));
