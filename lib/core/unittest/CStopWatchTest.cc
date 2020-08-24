@@ -5,10 +5,11 @@
  */
 
 #include <core/CLogger.h>
-#include <core/CSleep.h>
 #include <core/CStopWatch.h>
 
-#include <stdint.h>
+#include <chrono>
+#include <cstdint>
+#include <thread>
 
 #include <boost/test/unit_test.hpp>
 
@@ -21,9 +22,9 @@ BOOST_AUTO_TEST_CASE(testStopWatch) {
 
     stopWatch.start();
 
-    ml::core::CSleep::sleep(5500);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5500));
 
-    uint64_t elapsed(stopWatch.lap());
+    std::uint64_t elapsed(stopWatch.lap());
 
     LOG_DEBUG(<< "After a 5.5 second wait, the stop watch reads " << elapsed << " milliseconds");
 
@@ -31,7 +32,7 @@ BOOST_AUTO_TEST_CASE(testStopWatch) {
     BOOST_TEST_REQUIRE(elapsed >= 5400);
     BOOST_TEST_REQUIRE(elapsed <= 5600);
 
-    ml::core::CSleep::sleep(3500);
+    std::this_thread::sleep_for(std::chrono::milliseconds(3500));
 
     elapsed = stopWatch.stop();
 
@@ -43,11 +44,11 @@ BOOST_AUTO_TEST_CASE(testStopWatch) {
     BOOST_TEST_REQUIRE(elapsed <= 9100);
 
     // The stop watch should not count this time, as it's stopped
-    ml::core::CSleep::sleep(2000);
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
     stopWatch.start();
 
-    ml::core::CSleep::sleep(500);
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     elapsed = stopWatch.stop();
 
