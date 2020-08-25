@@ -13,8 +13,10 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CChecksum.h>
+#include <maths/CSpline.h>
 #include <maths/CTools.h>
 #include <maths/CToolsDetail.h>
 
@@ -32,6 +34,7 @@ namespace ml {
 namespace maths {
 namespace {
 
+using TSpline = CSpline<>;
 using TSizeVec = std::vector<std::size_t>;
 using TFloatUInt32Pr = std::pair<CFloatStorage, std::uint32_t>;
 
@@ -251,20 +254,31 @@ void CAdaptiveBucketing::initialValues(core_t::TTime start,
     }
 
     std::size_t n{values.size()};
-    core_t::TTime dT{(end - start) / static_cast<core_t::TTime>(n)};
-    core_t::TTime dt{static_cast<core_t::TTime>(
-        CTools::truncate(m_MinimumBucketLength, 1.0, static_cast<double>(dT)))};
+    core_t::TTime bucketLength{(end - start) / static_cast<core_t::TTime>(n)};
+    core_t::TTime dt{static_cast<core_t::TTime>(CTools::truncate(
+        m_MinimumBucketLength, 1.0, static_cast<double>(bucketLength)))};
     core_t::TTime repeat{static_cast<core_t::TTime>(
         m_Endpoints[m_Endpoints.size() - 1] - m_Endpoints[0])};
+    TDoubleVec knots(values.size());
+    TDoubleVec knotValues(values.size());
+    TDoubleVec knotWeights(values.size());
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        knots[i] = static_cast<double>(start + bucketLength * i);
+        knotValues[i] = CBasicStatistics::mean(values[i]);
+        knotWeights[i] = CBasicStatistics::count(values[i]);
+    }
+    TSpline seedValues{TSpline::E_Cubic};
+    TSpline seedWeights{TSpline::E_Linear};
+    seedValues.interpolate(knots, knotValues, TSpline::E_Natural);
+    seedWeights.interpolate(knots, knotWeights, TSpline::E_Natural);
 
-    double scale{std::pow(static_cast<double>(dt) / static_cast<double>(dT), 2.0)};
+    double scale{std::pow(static_cast<double>(dt) / static_cast<double>(bucketLength), 2.0)};
 
-    core_t::TTime lastRefined{start};
+    core_t::TTime observedSinceLastRefine{0};
     for (core_t::TTime time = start; time < end; time += dt) {
         if (this->inWindow(time)) {
-            core_t::TTime i{(time - start) / dT};
-            double value{CBasicStatistics::mean(values[i])};
-            double weight{scale * CBasicStatistics::count(values[i])};
+            double value{seedValues.value(static_cast<double>(time))};
+            double weight{scale * seedWeights.value(static_cast<double>(time))};
             std::size_t bucket;
             if (this->bucket(time, bucket)) {
                 if (weight > 0.0) {
@@ -272,9 +286,10 @@ void CAdaptiveBucketing::initialValues(core_t::TTime start,
                     this->add(bucket, time, value, weight);
                 }
             }
-            if (time - start >= lastRefined + repeat) {
+            observedSinceLastRefine += dt;
+            if (observedSinceLastRefine >= repeat) {
                 this->refine(time);
-                lastRefined += repeat;
+                observedSinceLastRefine = 0;
             }
         }
     }

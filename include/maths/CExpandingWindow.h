@@ -90,8 +90,12 @@ public:
     //! Get the bucket values.
     TFloatMeanAccumulatorVec values() const;
 
-    //! Get the bucket values minus the values from \p trend.
+    //! Get the bucket values minus the predictions of \p predictor.
     TFloatMeanAccumulatorVec valuesMinusPrediction(const TPredictor& predictor) const;
+
+    //! Get the bucket values in \p bucketValues minus the predictions of \p predictor.
+    TFloatMeanAccumulatorVec valuesMinusPrediction(TFloatMeanAccumulatorVec bucketValues,
+                                                   const TPredictor& predictor) const;
 
     //! Set the start time to \p time.
     void initialize(core_t::TTime time);

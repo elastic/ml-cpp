@@ -43,10 +43,9 @@ public:
 
     // clang-format off
     using TMakeTestForSeasonality =
-        std::function<CTimeSeriesTestForSeasonality(core_t::TTime, 
+        std::function<CTimeSeriesTestForSeasonality(const CExpandingWindow&,
                                                     core_t::TTime,
-                                                    core_t::TTime,
-                                                    TFloatMeanAccumulatorVec)>;
+                                                    const TFilteredPredictor&)>;
     // clang-format on
 
     class CMediator;
@@ -70,7 +69,7 @@ public:
                   double trend,
                   double seasonal,
                   double calendar,
-                  const TPredictor& calendarPredictor,
+                  const TFilteredPredictor& preconditioner,
                   const TMakeTestForSeasonality& makeTestForSeasonality);
         SAddValue(const SAddValue&) = delete;
         SAddValue& operator=(const SAddValue&) = delete;
@@ -86,7 +85,7 @@ public:
         //! The calendar component prediction at the value's time.
         double s_Calendar;
         //! The predictor for the calendar components as a function of time.
-        TPredictor s_CalendarPredictor;
+        TFilteredPredictor s_Preconditioner;
         //! A factory function to create the test for seasonal components.
         TMakeTestForSeasonality s_MakeTestForSeasonality;
     };

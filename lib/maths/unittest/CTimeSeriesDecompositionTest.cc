@@ -154,7 +154,7 @@ public:
 BOOST_FIXTURE_TEST_CASE(testSuperpositionOfSines, CTestFixture) {
     TTimeVec times;
     TDoubleVec trend;
-    for (core_t::TTime time = 0; time < 100 * WEEK + 1; time += HALF_HOUR) {
+    for (core_t::TTime time = 0; time < 50 * WEEK + 1; time += HALF_HOUR) {
         double weekly = 1200.0 + 1000.0 * std::sin(boost::math::double_constants::two_pi *
                                                    static_cast<double>(time) /
                                                    static_cast<double>(WEEK));
@@ -179,7 +179,7 @@ BOOST_FIXTURE_TEST_CASE(testSuperpositionOfSines, CTestFixture) {
     double totalMaxValue = 0.0;
     double totalPercentileError = 0.0;
 
-    for (std::size_t i = 0u; i < times.size(); ++i) {
+    for (std::size_t i = 0; i < times.size(); ++i) {
         core_t::TTime time = times[i];
         double value = trend[i] + noise[i];
 

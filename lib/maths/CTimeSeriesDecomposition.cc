@@ -235,8 +235,9 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                       CBasicStatistics::mean(this->value(time, 0.0, E_TrendForced)),
                       CBasicStatistics::mean(this->value(time, 0.0, E_Seasonal)),
                       CBasicStatistics::mean(this->value(time, 0.0, E_Calendar)),
-                      [this](core_t::TTime time_) {
-                          return CBasicStatistics::mean(this->value(time_, 0.0, E_Calendar));
+                      [this](core_t::TTime time_, const TBoolVec& testableSeasonalMask) {
+                          return CBasicStatistics::mean(this->value(
+                              time_, 0.0, E_Seasonal | E_Calendar, testableSeasonalMask));
                       },
                       testForSeasonality};
 

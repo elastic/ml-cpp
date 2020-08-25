@@ -186,6 +186,11 @@ public:
                                   TFloatMeanAccumulatorVec values,
                                   double outlierFraction = OUTLIER_FRACTION);
 
+    //! Check if it is possible to test for \p component given the window \p values.
+    static bool canTestComponent(const TFloatMeanAccumulatorVec& values,
+                                 core_t::TTime bucketLength,
+                                 const CSeasonalTime& component);
+
     //! Set the start of the week(end) to use.
     void startOfWeek(core_t::TTime startOfWeek);
 
@@ -199,7 +204,7 @@ public:
     void modelledSeasonalityPredictor(const TPredictor& predictor);
 
     //! Run the test and return the new components found if any.
-    CSeasonalDecomposition decompose();
+    CSeasonalDecomposition decompose() const;
 
     //! \name Parameters
     //@{
@@ -453,7 +458,6 @@ private:
     TVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values) const;
     double truncatedVariance(double outlierFraction,
                              const TFloatMeanAccumulatorVec& residuals) const;
-    std::size_t buckets(core_t::TTime interval) const;
     core_t::TTime adjustForStartTime(core_t::TTime startOfWeek) const;
     bool alreadyModelled(const TSeasonalComponentVec& periods) const;
     bool alreadyModelled(const TSeasonalComponent& period) const;
@@ -463,8 +467,6 @@ private:
     bool isDiurnal(const TSeasonalComponent& period) const;
     bool isWeekend(const TSeasonalComponent& period) const;
     bool isWeekday(const TSeasonalComponent& period) const;
-    bool seenSufficientData(const TSeasonalComponent& period) const;
-    bool seenSufficientDataToTestForTradingDayDecomposition() const;
     bool permittedPeriod(const TSeasonalComponent& period) const;
     bool includesPermittedPeriod(const TSeasonalComponentVec& period) const;
     double precedence() const;
@@ -474,7 +476,12 @@ private:
     std::size_t year() const;
     TSizeSizePr weekdayWindow() const;
     TSizeSizePr weekendWindow() const;
-    std::size_t observedRange(const TFloatMeanAccumulatorVec& values) const;
+    static TSeasonalComponent convert(core_t::TTime bucketLength,
+                                      const CSeasonalTime& component);
+    static std::size_t buckets(core_t::TTime bucketLength, core_t::TTime interval);
+    static bool seenSufficientDataToTest(const TFloatMeanAccumulatorVec& values,
+                                         const TSeasonalComponent& period);
+    static std::size_t observedRange(const TFloatMeanAccumulatorVec& values);
 
 private:
     double m_MinimumRepeatsPerSegmentToTestVariance = 3.0;
@@ -496,6 +503,7 @@ private:
         return 0.0;
     };
     TSeasonalComponentVec m_ModelledPeriods;
+    TBoolVec m_ModelledPeriodsTestable;
     TDoubleVec m_ModelledPeriodsPrecedence;
     TFloatMeanAccumulatorVec m_Values;
     // The follow are member data to avoid repeatedly reinitialising.

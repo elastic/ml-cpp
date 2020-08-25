@@ -724,14 +724,15 @@ void CSignal::reweightOutliers(const TPredictor& predictor,
     }
 
     TMaxAccumulator outliers{2 * numberOutliers};
-    TMeanAccumulator meanAbs;
     TMeanAccumulator meanDifference;
+    TMeanVarAccumulator predictionMoments;
     for (std::size_t i = 0; i < values.size(); ++i) {
         if (CBasicStatistics::count(values[i]) > 0.0) {
-            double difference{std::fabs(CBasicStatistics::mean(values[i]) - predictor(i))};
+            double prediction{predictor(i)};
+            double difference{std::fabs(CBasicStatistics::mean(values[i]) - prediction)};
             outliers.add({difference, i});
-            meanAbs.add(std::fabs(CBasicStatistics::mean(values[i])));
             meanDifference.add(difference);
+            predictionMoments.add(std::fabs(CBasicStatistics::mean(values[i])));
         }
     }
     if (CBasicStatistics::mean(meanDifference) == 0.0) {
@@ -746,9 +747,9 @@ void CSignal::reweightOutliers(const TPredictor& predictor,
         meanDifferenceOfOutliers.add(outliers[i].first);
     }
     meanDifference -= meanDifferenceOfOutliers;
-    double threshold{std::max(3.0 * CBasicStatistics::mean(meanDifference),
-                              std::numeric_limits<double>::epsilon() *
-                                  CBasicStatistics::mean(meanAbs))};
+    double threshold{
+        std::max(3.0 * CBasicStatistics::mean(meanDifference),
+                 0.05 * std::sqrt(CBasicStatistics::variance(predictionMoments)))};
     LOG_TRACE(<< "threshold = " << CBasicStatistics::mean(meanDifference));
 
     double logThreshold{std::log(threshold)};
