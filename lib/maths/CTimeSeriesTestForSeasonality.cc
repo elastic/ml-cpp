@@ -42,11 +42,6 @@ double rightTailFTest(double v0, double v1, double df0, double df1) {
     return CStatisticalTests::rightTailFTest(F, df0, df1);
 }
 
-bool almostEqual(std::size_t i, std::size_t j, double eps) {
-    return std::fabs(static_cast<double>(i) - static_cast<double>(j)) <
-           eps * static_cast<double>(std::max(i, j));
-}
-
 bool almostDivisor(std::size_t i, std::size_t j, double eps) {
     if (i > j) {
         return false;
@@ -84,11 +79,9 @@ CNewSeasonalComponentSummary::CNewSeasonalComponentSummary(std::string annotatio
                                                            bool diurnal,
                                                            core_t::TTime startTime,
                                                            core_t::TTime bucketLength,
-                                                           TFloatMeanAccumulatorVec initialValues,
-                                                           double precedence)
-    : m_AnnotationText{std::move(annotationText)}, m_Period{period}, m_Size{size},
-      m_Diurnal{diurnal}, m_StartTime{startTime}, m_BucketLength{bucketLength},
-      m_InitialValues{std::move(initialValues)}, m_Precedence{precedence} {
+                                                           TFloatMeanAccumulatorVec initialValues)
+    : m_AnnotationText{std::move(annotationText)}, m_Period{period}, m_Size{size}, m_Diurnal{diurnal},
+      m_StartTime{startTime}, m_BucketLength{bucketLength}, m_InitialValues{std::move(initialValues)} {
 }
 
 const std::string& CNewSeasonalComponentSummary::annotationText() const {
@@ -107,14 +100,14 @@ CNewSeasonalComponentSummary::seasonalTime() const {
     if (m_Diurnal && m_Period.windowed()) {
         return std::make_unique<CDiurnalTime>(
             (m_StartTime + interval(m_Period.s_StartOfWeek)) % interval(m_Period.s_WindowRepeat),
-            interval(m_Period.s_Window.first), interval(m_Period.s_Window.second),
-            interval(m_Period.s_Period), m_Precedence);
+            interval(m_Period.s_Window.first),
+            interval(m_Period.s_Window.second), interval(m_Period.s_Period));
     }
     if (m_Diurnal && m_Period.windowed() == false) {
-        return std::make_unique<CDiurnalTime>(
-            0, 0, core::constants::WEEK, interval(m_Period.s_Period), m_Precedence);
+        return std::make_unique<CDiurnalTime>(0, 0, core::constants::WEEK,
+                                              interval(m_Period.s_Period));
     }
-    return std::make_unique<CGeneralPeriodTime>(interval(m_Period.s_Period), m_Precedence);
+    return std::make_unique<CGeneralPeriodTime>(interval(m_Period.s_Period));
 }
 
 core_t::TTime CNewSeasonalComponentSummary::initialValuesStartTime() const {
@@ -150,10 +143,9 @@ void CSeasonalDecomposition::add(std::string annotationText,
                                  bool diurnal,
                                  core_t::TTime startTime,
                                  core_t::TTime bucketLength,
-                                 TFloatMeanAccumulatorVec initialValues,
-                                 double precedence) {
-    m_Seasonal.emplace_back(std::move(annotationText), period, size, diurnal, startTime,
-                            bucketLength, std::move(initialValues), precedence);
+                                 TFloatMeanAccumulatorVec initialValues) {
+    m_Seasonal.emplace_back(std::move(annotationText), period, size, diurnal,
+                            startTime, bucketLength, std::move(initialValues));
 }
 
 void CSeasonalDecomposition::add(TBoolVec seasonalToRemoveMask) {
@@ -213,7 +205,6 @@ void CTimeSeriesTestForSeasonality::addModelledSeasonality(const CSeasonalTime& 
     m_ModelledPeriods.push_back(period);
     m_ModelledPeriodsTestable.push_back(
         canTestComponent(m_Values, m_StartTime, m_BucketLength, component));
-    m_ModelledPeriodsPrecedence.emplace_back(component.precedence());
     if (period.windowed()) {
         m_StartOfWeekOverride = period.s_StartOfWeek;
     }
@@ -313,8 +304,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
             (variances[1] * degreesFreedom[0]) / (variances[3] * degreesFreedom[1]));
     };
 
-    // Select the best null hypothesis. This is either no seasonality or modelling
-    // the same seasonal components.
+    // Select the best null hypothesis.
     std::size_t H0{decompositions.size()};
     double pValueH0{1.0};
     for (std::size_t H1 = 0; H1 < decompositions.size(); ++H1) {
@@ -339,8 +329,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
         }
     }
 
-    // Select the best new decomposition if it is a statistically significant
-    // improvement.
+    // Select the best decomposition if it is a statistically significant improvement.
     std::size_t selected{decompositions.size()};
     double qualitySelected{-std::numeric_limits<double>::max()};
     for (std::size_t H1 = 0; H1 < decompositions.size(); ++H1) {
@@ -434,8 +423,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
                 result.add(this->annotationText(hypothesis.s_Period),
                            hypothesis.s_Period, hypothesis.s_ComponentSize,
                            this->isDiurnal(hypothesis.s_Period.s_Period), m_StartTime,
-                           m_BucketLength, std::move(hypothesis.s_InitialValues),
-                           this->precedence());
+                           m_BucketLength, std::move(hypothesis.s_InitialValues));
             }
         }
         result.add(std::move(decompositions[selected].s_RemoveComponentsMask));
@@ -815,38 +803,30 @@ CTimeSeriesTestForSeasonality::selectModelledHypotheses(THypothesisStatsVec& hyp
 
     // Determine which periods from hypotheses will be modelled.
     std::size_t numberModelledPeriods{m_ModelledPeriods.size()};
+    std::size_t countSimilarAlreadyModelled{0};
     for (std::size_t i = 0; i < hypotheses.size(); ++i) {
         const auto& period = hypotheses[i].s_Period;
-        hypotheses[i].s_Model =
-            this->permittedPeriod(period) && // Is longer than the minimum period?
-            this->alreadyModelled(period) == false && // Already modelled?
-            std::find_if( // Preferred to one already modelled?
-                boost::counting_iterator<std::size_t>(0),
-                boost::counting_iterator<std::size_t>(numberModelledPeriods),
-                [&](std::size_t j) {
-                    return almostEqual(m_ModelledPeriods[j].s_Period, period.s_Period, 0.05) &&
-                           m_ModelledPeriodsPrecedence[j] > this->precedence();
-                }) == boost::counting_iterator<std::size_t>(numberModelledPeriods);
+        if (std::find_if(boost::counting_iterator<std::size_t>(0),
+                         boost::counting_iterator<std::size_t>(numberModelledPeriods),
+                         [&](const auto& j) {
+                             return m_ModelledPeriods[j].almostEqual(period, 0.05) ||
+                                    (m_ModelledPeriods[j].periodAlmostEqual(period, 0.05) &&
+                                     m_ModelledPeriodsTestable[j] == false);
+                         }) != boost::counting_iterator<std::size_t>(numberModelledPeriods)) {
+            ++countSimilarAlreadyModelled;
+        }
+    }
+    for (std::size_t i = 0; i < hypotheses.size(); ++i) {
+        const auto& period = hypotheses[i].s_Period;
+        hypotheses[i].s_Model = this->permittedPeriod(period) &&
+                                countSimilarAlreadyModelled < hypotheses.size();
         excess += hypotheses[i].s_Model ? 1 : 0;
     }
 
     // Check which existing components we should remove if any.
     TBoolVec componentsToRemoveMask(numberModelledPeriods);
     for (std::size_t i = 0; i < numberModelledPeriods; ++i) {
-        const auto& period = m_ModelledPeriods[i];
-        double precedence{m_ModelledPeriodsPrecedence[i]};
-        componentsToRemoveMask[i] =
-            m_ModelledPeriodsTestable[i] &&                    // Can be tested?
-            std::find_if(hypotheses.begin(), hypotheses.end(), // Was selected?
-                         [&](const auto& hypothesis) {
-                             return period == hypothesis.s_Period;
-                         }) == hypotheses.end() &&
-            std::find_if(hypotheses.begin(), hypotheses.end(), // Preferred to one selected?
-                         [&](const auto& hypothesis) {
-                             return almostEqual(period.s_Period,
-                                                hypothesis.s_Period.s_Period, 0.05) &&
-                                    precedence > this->precedence();
-                         }) == hypotheses.end();
+        componentsToRemoveMask[i] = m_ModelledPeriodsTestable[i];
         excess -= componentsToRemoveMask[i] ? 1 : 0;
     }
 
@@ -1118,12 +1098,6 @@ bool CTimeSeriesTestForSeasonality::includesPermittedPeriod(const TSeasonalCompo
            std::find_if(periods.begin(), periods.end(), [this](const auto& period) {
                return this->permittedPeriod(period);
            }) != periods.end();
-}
-
-double CTimeSeriesTestForSeasonality::precedence() const {
-    core_t::TTime observedRange{
-        static_cast<core_t::TTime>(this->observedRange(m_Values)) * m_BucketLength};
-    return static_cast<double>(std::min(observedRange, 2 * core::constants::WEEK));
 }
 
 std::string CTimeSeriesTestForSeasonality::annotationText(const TSeasonalComponent& period) const {

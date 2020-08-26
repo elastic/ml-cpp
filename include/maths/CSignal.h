@@ -67,9 +67,24 @@ public:
             return s_Period == rhs.s_Period && s_StartOfWeek == rhs.s_StartOfWeek &&
                    s_WindowRepeat == rhs.s_WindowRepeat && s_Window == rhs.s_Window;
         }
+        bool almostEqual(const SSeasonalComponentSummary& rhs, double eps) const {
+            return almostEqual(s_Period, rhs.s_Period, eps) &&
+                   almostEqual(s_StartOfWeek, rhs.s_StartOfWeek, eps) &&
+                   almostEqual(s_WindowRepeat, rhs.s_WindowRepeat, eps) &&
+                   almostEqual(s_Window.first, rhs.s_Window.first, eps) &&
+                   almostEqual(s_Window.second, rhs.s_Window.second, eps);
+        }
+        bool periodAlmostEqual(const SSeasonalComponentSummary& rhs, double eps) const {
+            return almostEqual(s_Period, rhs.s_Period, eps);
+        }
+        static bool almostEqual(std::size_t i, std::size_t j, double eps) {
+            std::size_t max{std::max(i, j)};
+            std::size_t min{std::min(i, j)};
+            return static_cast<double>(max - min) <= eps * static_cast<double>(max);
+        }
         bool operator<(const SSeasonalComponentSummary& rhs) const {
             return COrderings::lexicographical_compare(
-                s_Period, s_StartOfWeek, s_WindowRepeat, s_Window, // this
+                s_Period, s_StartOfWeek, s_WindowRepeat, s_Window, // lhs
                 rhs.s_Period, rhs.s_StartOfWeek, rhs.s_WindowRepeat, rhs.s_Window);
         }
 

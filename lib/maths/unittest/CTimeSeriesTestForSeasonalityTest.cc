@@ -1081,14 +1081,13 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithNoChange) {
     // Check we keep the modelled seasonality if it hasn't changed.
 
     TGeneratorVec generators{smoothDaily, spikeyDaily, smoothWeekly, weekends};
-    TDiurnalTimeVecVec modelledComponents{
-        {{0, 0, WEEK, DAY, 4 * WEEK}},
-        {{0, 0, WEEK, DAY, 4 * WEEK}},
-        {{0, 0, WEEK, WEEK, 4 * WEEK}},
-        {{5 * DAY, 0 * DAY, 2 * DAY, DAY, 4 * WEEK},
-         {5 * DAY, 0 * DAY, 2 * DAY, WEEK, 4 * WEEK},
-         {5 * DAY, 2 * DAY, 7 * DAY, DAY, 4 * WEEK},
-         {5 * DAY, 2 * DAY, 7 * DAY, WEEK, 4 * WEEK}}};
+    TDiurnalTimeVecVec modelledComponents{{{0, 0, WEEK, DAY}},
+                                          {{0, 0, WEEK, DAY}},
+                                          {{0, 0, WEEK, WEEK}},
+                                          {{5 * DAY, 0 * DAY, 2 * DAY, DAY},
+                                           {5 * DAY, 0 * DAY, 2 * DAY, WEEK},
+                                           {5 * DAY, 2 * DAY, 7 * DAY, DAY},
+                                           {5 * DAY, 2 * DAY, 7 * DAY, WEEK}}};
 
     test::CRandomNumbers rng;
 
@@ -1134,12 +1133,11 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange) {
     // check that we correctly identify the new ones.
 
     TGeneratorVec generators{smoothDaily, weekends};
-    TDiurnalTimeVecVec modelledComponents{
-        {{5 * DAY, 0 * DAY, 2 * DAY, DAY, 2 * WEEK},
-         {5 * DAY, 0 * DAY, 2 * DAY, WEEK, 2 * WEEK},
-         {5 * DAY, 2 * DAY, 7 * DAY, DAY, 2 * WEEK},
-         {5 * DAY, 2 * DAY, 7 * DAY, WEEK, 2 * WEEK}},
-        {{0, 0, WEEK, DAY, 2 * WEEK}}};
+    TDiurnalTimeVecVec modelledComponents{{{5 * DAY, 0 * DAY, 2 * DAY, DAY},
+                                           {5 * DAY, 0 * DAY, 2 * DAY, WEEK},
+                                           {5 * DAY, 2 * DAY, 7 * DAY, DAY},
+                                           {5 * DAY, 2 * DAY, 7 * DAY, WEEK}},
+                                          {{0, 0, WEEK, DAY}}};
     TStrVecVec expected{{"86400"},
                         {"86400/(0,172800)", "86400/(172800,604800)",
                          "604800/(0,172800)", "604800/(172800,604800)"}};
@@ -1380,7 +1378,7 @@ BOOST_AUTO_TEST_CASE(testWithSuppliedPredictor) {
     }
 
     maths::CTimeSeriesTestForSeasonality seasonality{startTime, HOUR, values};
-    seasonality.addModelledSeasonality(maths::CDiurnalTime{0, 0, WEEK, DAY, 2 * WEEK});
+    seasonality.addModelledSeasonality(maths::CDiurnalTime{0, 0, WEEK, DAY});
     seasonality.modelledSeasonalityPredictor([](core_t::TTime time, const TBoolVec&) {
         return std::sin(boost::math::double_constants::pi *
                         static_cast<double>(time % DAY) / static_cast<double>(DAY));

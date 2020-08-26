@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     // Check that persistence preserves checksums.
 
-    maths::CDiurnalTime origDiurnal{3600, 0, 86400, 86400, 1.5};
+    maths::CDiurnalTime origDiurnal{3600, 0, 86400, 86400};
 
     LOG_DEBUG(<< "Test persist/restore");
 
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     BOOST_TEST_REQUIRE(restoredDiurnal.fromString(diurnalRepresentation));
     BOOST_REQUIRE_EQUAL(origDiurnal.checksum(), restoredDiurnal.checksum());
 
-    maths::CGeneralPeriodTime origPeriodic{7200, 2.1};
+    maths::CGeneralPeriodTime origPeriodic{7200};
     std::string periodicRepresentation{origPeriodic.toString()};
     LOG_DEBUG(<< "periodic time representation: " << periodicRepresentation);
     maths::CGeneralPeriodTime restoredPeriodic;
@@ -39,11 +39,11 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     LOG_DEBUG(<< "Test upgrade");
 
-    restoredDiurnal = maths::CDiurnalTime{0, 3600, 43200, 43200, 1.5};
+    restoredDiurnal = maths::CDiurnalTime{0, 3600, 43200, 43200};
     BOOST_TEST_REQUIRE(restoredDiurnal.fromString("3600:0:86400:86400:0"));
     BOOST_REQUIRE_EQUAL(origDiurnal.checksum(), restoredDiurnal.checksum());
 
-    restoredPeriodic = maths::CGeneralPeriodTime{16800, 2.1};
+    restoredPeriodic = maths::CGeneralPeriodTime{16800};
     BOOST_TEST_REQUIRE(restoredPeriodic.fromString("7200:0"));
     BOOST_REQUIRE_EQUAL(origPeriodic.checksum(), restoredPeriodic.checksum());
 }

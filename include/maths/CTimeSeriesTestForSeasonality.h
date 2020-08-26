@@ -83,8 +83,7 @@ public:
                                  bool diurnal,
                                  core_t::TTime startTime,
                                  core_t::TTime bucketLength,
-                                 TFloatMeanAccumulatorVec initialValues,
-                                 double precedence);
+                                 TFloatMeanAccumulatorVec initialValues);
 
     //! Get the annotation for this component.
     const std::string& annotationText() const;
@@ -117,7 +116,6 @@ private:
     core_t::TTime m_StartTime = 0;
     core_t::TTime m_BucketLength = 0;
     TFloatMeanAccumulatorVec m_InitialValues;
-    double m_Precedence = 0.0;
 };
 
 //! \brief Represents the decomposition of a collection of values into zero or more
@@ -141,8 +139,7 @@ public:
              bool diurnal,
              core_t::TTime startTime,
              core_t::TTime bucketLength,
-             TFloatMeanAccumulatorVec initialValues,
-             double precedence);
+             TFloatMeanAccumulatorVec initialValues);
 
     //! Add a mask of any seasonal components which should be removed.
     void add(TBoolVec seasonalToRemoveMask);
@@ -466,7 +463,6 @@ private:
     bool isWeekday(const TSeasonalComponent& period) const;
     bool permittedPeriod(const TSeasonalComponent& period) const;
     bool includesPermittedPeriod(const TSeasonalComponentVec& period) const;
-    double precedence() const;
     std::string annotationText(const TSeasonalComponent& period) const;
     std::size_t day() const;
     std::size_t week() const;
@@ -503,7 +499,6 @@ private:
     };
     TSeasonalComponentVec m_ModelledPeriods;
     TBoolVec m_ModelledPeriodsTestable;
-    TDoubleVec m_ModelledPeriodsPrecedence;
     TFloatMeanAccumulatorVec m_Values;
     // The follow are member data to avoid repeatedly reinitialising.
     mutable TSizeVec m_WindowIndices;

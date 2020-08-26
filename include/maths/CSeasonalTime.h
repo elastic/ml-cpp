@@ -28,8 +28,8 @@ public:
     using TTimeTimePr = std::pair<core_t::TTime, core_t::TTime>;
 
 public:
-    CSeasonalTime();
-    CSeasonalTime(core_t::TTime period, double precedence);
+    CSeasonalTime() = default;
+    CSeasonalTime(core_t::TTime period);
     virtual ~CSeasonalTime() = default;
 
     //! Check for equality with \p other.
@@ -116,14 +116,8 @@ public:
     double fractionInWindow() const;
     //@}
 
-    //! Get the component precendence for update with new components.
-    double precedence() const;
-
     //! Get a checksum for this object.
     virtual std::uint64_t checksum(std::uint64_t seed = 0) const = 0;
-
-protected:
-    void precedence(double precedence);
 
 private:
     //! Get the start of the repeat interval beginning at
@@ -139,25 +133,21 @@ private:
 
 private:
     //! The periodic repeat.
-    core_t::TTime m_Period;
+    core_t::TTime m_Period = 0;
     //! The origin of the time coordinates used to maintain
     //! a reasonably conditioned Gramian of the design matrix.
-    core_t::TTime m_RegressionOrigin;
-    //! The precedence of the corresponding component when
-    //! deciding which to keep amongst alternatives.
-    double m_Precedence;
+    core_t::TTime m_RegressionOrigin = 0;
 };
 
 //! \brief Provides times for daily and weekly period seasonal
 //! components of a time series decomposition.
 class MATHS_EXPORT CDiurnalTime : public CSeasonalTime {
 public:
-    CDiurnalTime();
+    CDiurnalTime() = default;
     CDiurnalTime(core_t::TTime startOfWeek,
                  core_t::TTime windowStart,
                  core_t::TTime windowEnd,
-                 core_t::TTime period,
-                 double precedence = 1.0);
+                 core_t::TTime period);
 
     //! Get a copy of this time.
     CDiurnalTime* clone() const;
@@ -189,11 +179,11 @@ private:
 
 private:
     //! The start of the week.
-    core_t::TTime m_StartOfWeek;
+    core_t::TTime m_StartOfWeek = 0;
     //! The start of the window.
-    core_t::TTime m_WindowStart;
+    core_t::TTime m_WindowStart = 0;
     //! The end of the window.
-    core_t::TTime m_WindowEnd;
+    core_t::TTime m_WindowEnd = 0;
 };
 
 //! \brief Provides times for arbitrary period seasonal components
@@ -201,7 +191,7 @@ private:
 class MATHS_EXPORT CGeneralPeriodTime : public CSeasonalTime {
 public:
     CGeneralPeriodTime() = default;
-    CGeneralPeriodTime(core_t::TTime period, double precedence = 1.0);
+    CGeneralPeriodTime(core_t::TTime period);
 
     //! Get a copy of this time.
     CGeneralPeriodTime* clone() const;

@@ -387,7 +387,7 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
             LOG_TRACE(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                BOOST_TEST_REQUIRE(sumResidual < 0.11 * sumValue);
+                BOOST_TEST_REQUIRE(sumResidual < 0.12 * sumValue);
                 BOOST_TEST_REQUIRE(maxResidual < 0.27 * maxValue);
                 BOOST_TEST_REQUIRE(percentileError < 0.04 * sumValue);
 
@@ -417,12 +417,12 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     BOOST_TEST_REQUIRE(totalSumResidual < 0.06 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.23 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.22 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.03 * totalSumValue);
 
     meanSlope /= refinements;
     LOG_DEBUG(<< "mean weekly |slope| = " << meanSlope);
-    BOOST_TEST_REQUIRE(meanSlope < 0.0013);
+    BOOST_TEST_REQUIRE(meanSlope < 0.0015);
 }
 
 BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
@@ -510,7 +510,7 @@ BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
         LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
         BOOST_TEST_REQUIRE(totalSumResidual < 0.015 * totalSumValue);
-        BOOST_TEST_REQUIRE(totalMaxResidual < 0.034 * totalMaxValue);
+        BOOST_TEST_REQUIRE(totalMaxResidual < 0.035 * totalMaxValue);
         BOOST_TEST_REQUIRE(totalPercentileError < 0.01 * totalSumValue);
     }
 }
@@ -755,9 +755,9 @@ BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
                 BOOST_TEST_REQUIRE(components.size() >= 2);
                 BOOST_TEST_REQUIRE(components[0].initialized());
                 BOOST_TEST_REQUIRE(components[1].initialized());
-            } else if (time > 12 * WEEK) {
+            } else if (time > 11 * WEEK) {
                 // Check that there is at least one component.
-                BOOST_REQUIRE_EQUAL(std::size_t(1), components.size());
+                BOOST_TEST_REQUIRE(components.size() >= 1);
                 BOOST_TEST_REQUIRE(components[0].initialized());
             } else {
                 // Check that there are no components.
@@ -770,9 +770,9 @@ BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
     LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.10 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.11 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.06 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.09 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.12 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.04 * totalSumValue);
 }
 
 BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
@@ -785,7 +785,7 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
         core_t::TTime time = 0;
         maths::CTimeSeriesDecomposition decomposition(0.01, TEN_MINS);
 
-        for (std::size_t i = 0u; i < 50; ++i) {
+        for (std::size_t i = 0; i < 50; ++i) {
             for (core_t::TTime t = 0; t < DAY; t += TEN_MINS) {
                 double value = 1.0;
                 double variance = 1.0;
@@ -825,8 +825,8 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
         LOG_DEBUG(<< "mean 70% error = " << maths::CBasicStatistics::mean(percentileError));
         LOG_DEBUG(<< "mean scale = " << maths::CBasicStatistics::mean(meanScale));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.34);
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentileError) < 0.08);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.5);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentileError) < 0.05);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, maths::CBasicStatistics::mean(meanScale), 0.04);
     }
     LOG_DEBUG(<< "Smoothly Varying Variance");
@@ -875,8 +875,8 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
         LOG_DEBUG(<< "mean 70% error = " << maths::CBasicStatistics::mean(percentileError));
         LOG_DEBUG(<< "mean scale = " << maths::CBasicStatistics::mean(meanScale));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.23);
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentileError) < 0.1);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.25);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentileError) < 0.025);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, maths::CBasicStatistics::mean(meanScale), 0.01);
     }
     LOG_DEBUG(<< "Long Term Trend");
@@ -945,7 +945,7 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
 
     core_t::TTime lastWeek = (startTime / WEEK + 1) * WEEK;
     TTimeDoublePrVec lastWeekTimeseries;
-    for (std::size_t i = 0u; i < timeseries.size(); ++i) {
+    for (std::size_t i = 0; i < timeseries.size(); ++i) {
         core_t::TTime time = timeseries[i].first;
         double value = timeseries[i].second;
 
@@ -958,7 +958,7 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
             double maxValue = 0.0;
             double percentileError = 0.0;
 
-            for (std::size_t j = 0u; j < lastWeekTimeseries.size(); ++j) {
+            for (std::size_t j = 0; j < lastWeekTimeseries.size(); ++j) {
                 TDoubleDoublePr prediction =
                     decomposition.value(lastWeekTimeseries[j].first, 70.0);
                 double residual = std::fabs(lastWeekTimeseries[j].second - mean(prediction));
@@ -1014,13 +1014,13 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.20 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.35 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.16 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.18 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.30 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.14 * totalSumValue);
 
     double pMinScaled = 1.0;
     double pMinUnscaled = 1.0;
-    for (std::size_t i = 0u; timeseries[i].first < startTime + DAY; ++i) {
+    for (std::size_t i = 0; timeseries[i].first < startTime + DAY; ++i) {
         core_t::TTime time = timeseries[i].first;
         double value = timeseries[i].second;
         double variance = model.marginalLikelihoodVariance();
@@ -1070,7 +1070,7 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
 
     core_t::TTime lastWeek = (startTime / WEEK + 1) * WEEK;
     TTimeDoublePrVec lastWeekTimeseries;
-    for (std::size_t i = 0u; i < timeseries.size(); ++i) {
+    for (std::size_t i = 0; i < timeseries.size(); ++i) {
         core_t::TTime time = timeseries[i].first;
         double value = timeseries[i].second;
 
@@ -1083,7 +1083,7 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
             double maxValue = 0.0;
             double percentileError = 0.0;
 
-            for (std::size_t j = 0u; j < lastWeekTimeseries.size(); ++j) {
+            for (std::size_t j = 0; j < lastWeekTimeseries.size(); ++j) {
                 TDoubleDoublePr prediction =
                     decomposition.value(lastWeekTimeseries[j].first, 70.0);
                 double residual = std::fabs(lastWeekTimeseries[j].second - mean(prediction));
@@ -1098,9 +1098,9 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
                 debug.addPrediction(lastWeekTimeseries[j].first, mean(prediction), residual);
             }
 
-            LOG_TRACE(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
-            LOG_TRACE(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
-            LOG_TRACE(<< "70% error = " << percentileError / sumValue);
+            LOG_DEBUG(<< "'sum residual' / 'sum value' = " << sumResidual / sumValue);
+            LOG_DEBUG(<< "'max residual' / 'max value' = " << maxResidual / maxValue);
+            LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
 
             if (time >= startTime + 2 * WEEK) {
                 totalSumResidual += sumResidual;
@@ -1125,9 +1125,9 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.34 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.70 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.15 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.3 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.7 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.19 * totalSumValue);
 
     TMeanAccumulator scale;
     double variance = decomposition.meanVariance();
@@ -1165,7 +1165,7 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
 
     core_t::TTime lastWeek = (startTime / WEEK + 1) * WEEK;
     TTimeDoublePrVec lastWeekTimeseries;
-    for (std::size_t i = 0u; i < timeseries.size(); ++i) {
+    for (std::size_t i = 0; i < timeseries.size(); ++i) {
         core_t::TTime time = timeseries[i].first;
         double value = timeseries[i].second;
 
@@ -1193,11 +1193,11 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
                 debug.addPrediction(lastWeekTimeseries[j].first, mean(prediction), residual);
             }
 
-            LOG_TRACE(<< "'sum residual' / 'sum value' = "
+            LOG_DEBUG(<< "'sum residual' / 'sum value' = "
                       << (sumResidual == 0.0 ? 0.0 : sumResidual / sumValue));
-            LOG_TRACE(<< "'max residual' / 'max value' = "
+            LOG_DEBUG(<< "'max residual' / 'max value' = "
                       << (maxResidual == 0.0 ? 0.0 : maxResidual / maxValue));
-            LOG_TRACE(<< "70% error = " << percentileError / sumValue);
+            LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
 
             if (time >= startTime + 2 * WEEK) {
                 totalSumResidual += sumResidual;
