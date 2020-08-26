@@ -259,12 +259,31 @@ void CAdaptiveBucketing::initialValues(core_t::TTime start,
         m_MinimumBucketLength, 1.0, static_cast<double>(bucketLength)))};
     core_t::TTime repeat{static_cast<core_t::TTime>(
         m_Endpoints[m_Endpoints.size() - 1] - m_Endpoints[0])};
-    TDoubleVec knots(values.size());
-    TDoubleVec knotValues(values.size());
-    TDoubleVec knotWeights(values.size());
+
+    // Initialize splines for seed values:
+    //   - For missing bucket values we use linear interpolation.
+    //   - For intrabucket interpolation we use cubic spline interpolation.
+    //   - For value weights we use linear interpolation.
+    TDoubleVec knots;
+    TDoubleVec knotValues;
+    TDoubleVec knotWeights;
+    knots.reserve(values.size());
+    knotValues.reserve(values.size());
+    knotWeights.reserve(values.size());
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        if (CBasicStatistics::count(values[i]) > 0.0) {
+            knots.push_back(static_cast<double>(start + bucketLength * i));
+            knotValues.push_back(CBasicStatistics::mean(values[i]));
+        }
+    }
+    TSpline interpolateMissingValues{TSpline::E_Linear};
+    interpolateMissingValues.interpolate(knots, knotValues, TSpline::E_Natural);
+    knots.resize(values.size());
+    knotValues.resize(values.size());
+    knotWeights.resize(values.size());
     for (std::size_t i = 0; i < values.size(); ++i) {
         knots[i] = static_cast<double>(start + bucketLength * i);
-        knotValues[i] = CBasicStatistics::mean(values[i]);
+        knotValues[i] = interpolateMissingValues.value(knots[i]);
         knotWeights[i] = CBasicStatistics::count(values[i]);
     }
     TSpline seedValues{TSpline::E_Cubic};
