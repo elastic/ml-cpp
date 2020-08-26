@@ -1117,9 +1117,6 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithNoChange) {
             maths::CTimeSeriesTestForSeasonality seasonality{0, HOUR, values};
             for (const auto& time : modelledComponents[index[0]]) {
                 seasonality.addModelledSeasonality(time);
-                if (time.windowed()) {
-                    seasonality.startOfWeek(time.windowRepeatStart());
-                }
             }
 
             auto result = seasonality.decompose();
@@ -1178,9 +1175,6 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange) {
             maths::CTimeSeriesTestForSeasonality seasonality{0, HOUR, values};
             for (const auto& time : modelledComponents[index[0]]) {
                 seasonality.addModelledSeasonality(time);
-                if (time.windowed()) {
-                    seasonality.startOfWeek(time.windowRepeatStart());
-                }
             }
 
             auto result = seasonality.decompose();
@@ -1401,39 +1395,6 @@ BOOST_AUTO_TEST_CASE(testWithSuppliedPredictor) {
                 maths::CBasicStatistics::mean(component.initialValues()[time / HOUR]);
         }
         BOOST_REQUIRE_CLOSE_ABSOLUTE(prediction, weekly(startTime + time), 1e-4);
-    }
-}
-
-BOOST_AUTO_TEST_CASE(testStartOfWeekOverride) {
-
-    // Test we respect the start of week override.
-
-    TFloatMeanAccumulatorVec values;
-
-    values.assign(3 * WEEK / HALF_HOUR, TFloatMeanAccumulator{});
-    for (core_t::TTime time = 0; time < 3 * WEEK; time += HALF_HOUR) {
-        std::size_t bucket(time / HALF_HOUR);
-        values[bucket].add(10.0 * weekends(time));
-    }
-
-    maths::CTimeSeriesTestForSeasonality seasonality{0, HALF_HOUR, values};
-    auto result = seasonality.decompose();
-
-    BOOST_REQUIRE(result.seasonal().size() > 0);
-    auto time = result.seasonal()[0].seasonalTime();
-    BOOST_REQUIRE_EQUAL(true, time->windowed());
-
-    core_t::TTime startOfWeek{time->windowRepeatStart() + HALF_HOUR};
-
-    maths::CTimeSeriesTestForSeasonality restrictedSeasonality{0, HALF_HOUR, values};
-    restrictedSeasonality.startOfWeek(startOfWeek);
-    result = restrictedSeasonality.decompose();
-    BOOST_REQUIRE(result.seasonal().size() > 0);
-
-    for (const auto& component : result.seasonal()) {
-        auto componentTime = component.seasonalTime();
-        BOOST_REQUIRE_EQUAL(true, componentTime->windowed());
-        BOOST_REQUIRE_EQUAL(startOfWeek, componentTime->windowRepeatStart());
     }
 }
 

@@ -57,7 +57,7 @@ double mean(const TDoubleDoublePr& x) {
 
 class CDebugGenerator {
 public:
-    static const bool ENABLED{true};
+    static const bool ENABLED{false};
 
 public:
     CDebugGenerator(const std::string& file = "results.py") : m_File(file) {}
@@ -429,6 +429,8 @@ BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
     double weights[]{0.1, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0};
 
     for (auto offset : {0 * DAY, 5 * DAY}) {
+        LOG_DEBUG(<< "offset = " << offset);
+
         TTimeVec times;
         TDoubleVec trend;
         for (core_t::TTime time = 0; time < 100 * WEEK; time += HALF_HOUR) {
@@ -454,7 +456,7 @@ BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
         double totalPercentileError = 0.0;
 
         core_t::TTime lastWeek = offset;
-        for (std::size_t i = 0u; i < times.size(); ++i) {
+        for (std::size_t i = 0; i < times.size(); ++i) {
             core_t::TTime time = times[i];
             double value = trend[i] + noise[i];
 
@@ -507,8 +509,8 @@ BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
         LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
         LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-        BOOST_TEST_REQUIRE(totalSumResidual < 0.025 * totalSumValue);
-        BOOST_TEST_REQUIRE(totalMaxResidual < 0.055 * totalMaxValue);
+        BOOST_TEST_REQUIRE(totalSumResidual < 0.015 * totalSumValue);
+        BOOST_TEST_REQUIRE(totalMaxResidual < 0.034 * totalMaxValue);
         BOOST_TEST_REQUIRE(totalPercentileError < 0.01 * totalSumValue);
     }
 }
@@ -533,7 +535,7 @@ BOOST_FIXTURE_TEST_CASE(testNanHandling, CTestFixture) {
     int componentsModifiedBefore{0};
 
     // Run through half of the periodic data.
-    std::size_t i = 0u;
+    std::size_t i = 0;
     for (; i < times.size() / 2; ++i) {
         decomposition.addPoint(times[i], trend[i] + noise[i], maths_t::CUnitWeights::UNIT,
                                [&componentsModifiedBefore](TFloatMeanAccumulatorVec) {
@@ -602,7 +604,7 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
     double totalPercentileError = 0.0;
 
     core_t::TTime lastWeek = 0;
-    for (std::size_t i = 0u; i < times.size(); ++i) {
+    for (std::size_t i = 0; i < times.size(); ++i) {
         core_t::TTime time = times[i];
         double value = trend[i] + noise[i];
 
@@ -639,7 +641,7 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
 
             if (time >= 1 * WEEK) {
                 BOOST_TEST_REQUIRE(sumResidual < 0.025 * sumValue);
-                BOOST_TEST_REQUIRE(maxResidual < 0.040 * maxValue);
+                BOOST_TEST_REQUIRE(maxResidual < 0.035 * maxValue);
                 BOOST_TEST_REQUIRE(percentileError < 0.01 * sumValue);
 
                 totalSumResidual += sumResidual;
@@ -662,7 +664,7 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
     LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.012 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.014 * totalSumValue);
     BOOST_TEST_REQUIRE(totalMaxResidual < 0.021 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.01 * totalSumValue);
 
@@ -705,7 +707,7 @@ BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
     double totalPercentileError = 0.0;
 
     core_t::TTime lastWeek = 0;
-    for (std::size_t i = 0u; i < times.size(); ++i) {
+    for (std::size_t i = 0; i < times.size(); ++i) {
         core_t::TTime time = times[i];
         double value = trend[i] + noise[i];
 

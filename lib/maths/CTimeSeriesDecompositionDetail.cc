@@ -1555,7 +1555,7 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilte
         TBoolVec testableMask;
         for (const auto& component : this->seasonal()) {
             testableMask.push_back(CTimeSeriesTestForSeasonality::canTestComponent(
-                values, bucketLength, component.time()));
+                values, startTime, bucketLength, component.time()));
         }
         values = window.valuesMinusPrediction(std::move(values), [&](core_t::TTime time) {
             return preconditioner(time, testableMask);
@@ -1563,10 +1563,6 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilte
         CTimeSeriesTestForSeasonality test{startTime, bucketLength, std::move(values)};
         std::ptrdiff_t maximumNumberComponents{MAXIMUM_COMPONENTS};
         for (const auto& component : this->seasonal()) {
-            const auto& time = component.time();
-            if (time.windowed()) {
-                test.startOfWeek(time.windowRepeatStart());
-            }
             test.addModelledSeasonality(component.time());
             --maximumNumberComponents;
         }

@@ -188,11 +188,9 @@ public:
 
     //! Check if it is possible to test for \p component given the window \p values.
     static bool canTestComponent(const TFloatMeanAccumulatorVec& values,
+                                 core_t::TTime startTime,
                                  core_t::TTime bucketLength,
                                  const CSeasonalTime& component);
-
-    //! Set the start of the week(end) to use.
-    void startOfWeek(core_t::TTime startOfWeek);
 
     //! The minimum seasonal component period to consider.
     void minimumPeriod(core_t::TTime minimumPeriod);
@@ -458,7 +456,6 @@ private:
     TVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values) const;
     double truncatedVariance(double outlierFraction,
                              const TFloatMeanAccumulatorVec& residuals) const;
-    core_t::TTime adjustForStartTime(core_t::TTime startOfWeek) const;
     bool alreadyModelled(const TSeasonalComponentVec& periods) const;
     bool alreadyModelled(const TSeasonalComponent& period) const;
     bool onlyDiurnal(const TSeasonalComponentVec& periods) const;
@@ -476,8 +473,10 @@ private:
     std::size_t year() const;
     TSizeSizePr weekdayWindow() const;
     TSizeSizePr weekendWindow() const;
-    static TSeasonalComponent convert(core_t::TTime bucketLength,
-                                      const CSeasonalTime& component);
+    static TSeasonalComponent toPeriod(core_t::TTime startTime,
+                                       core_t::TTime bucketLength,
+                                       const CSeasonalTime& component);
+    static core_t::TTime adjustForStartTime(core_t::TTime startTime, core_t::TTime startOfWeek);
     static std::size_t buckets(core_t::TTime bucketLength, core_t::TTime interval);
     static bool seenSufficientDataToTest(const TFloatMeanAccumulatorVec& values,
                                          const TSeasonalComponent& period);

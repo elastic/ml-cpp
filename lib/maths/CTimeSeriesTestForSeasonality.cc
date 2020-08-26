@@ -196,16 +196,12 @@ CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime start
 }
 
 bool CTimeSeriesTestForSeasonality::canTestComponent(const TFloatMeanAccumulatorVec& values,
+                                                     core_t::TTime startTime,
                                                      core_t::TTime bucketLength,
                                                      const CSeasonalTime& component) {
     return component.windowRepeat() >= 2 * bucketLength &&
            10 * (component.period() % bucketLength) < component.period() &&
-           seenSufficientDataToTest(values, convert(bucketLength, component));
-}
-
-void CTimeSeriesTestForSeasonality::startOfWeek(core_t::TTime startOfWeek) {
-    m_StartOfWeekOverride =
-        (buckets(m_BucketLength, this->adjustForStartTime(startOfWeek)) % this->week());
+           seenSufficientDataToTest(values, toPeriod(startTime, bucketLength, component));
 }
 
 void CTimeSeriesTestForSeasonality::minimumPeriod(core_t::TTime minimumPeriod) {
@@ -213,9 +209,14 @@ void CTimeSeriesTestForSeasonality::minimumPeriod(core_t::TTime minimumPeriod) {
 }
 
 void CTimeSeriesTestForSeasonality::addModelledSeasonality(const CSeasonalTime& component) {
-    m_ModelledPeriods.push_back(convert(m_BucketLength, component));
-    m_ModelledPeriodsTestable.push_back(canTestComponent(m_Values, m_BucketLength, component));
+    auto period = toPeriod(m_StartTime, m_BucketLength, component);
+    m_ModelledPeriods.push_back(period);
+    m_ModelledPeriodsTestable.push_back(
+        canTestComponent(m_Values, m_StartTime, m_BucketLength, component));
     m_ModelledPeriodsPrecedence.emplace_back(component.precedence());
+    if (period.windowed()) {
+        m_StartOfWeekOverride = period.s_StartOfWeek;
+    }
 }
 
 void CTimeSeriesTestForSeasonality::modelledSeasonalityPredictor(const TPredictor& predictor) {
@@ -1059,11 +1060,6 @@ double CTimeSeriesTestForSeasonality::truncatedVariance(double outlierFraction,
     return CBasicStatistics::maximumLikelihoodVariance(moments);
 };
 
-core_t::TTime CTimeSeriesTestForSeasonality::adjustForStartTime(core_t::TTime startOfWeek) const {
-    return (core::constants::WEEK + startOfWeek - (m_StartTime % core::constants::WEEK)) %
-           core::constants::WEEK;
-}
-
 bool CTimeSeriesTestForSeasonality::alreadyModelled(const TSeasonalComponentVec& periods) const {
     for (const auto& period : periods) {
         if (this->alreadyModelled(period) == false) {
@@ -1139,15 +1135,15 @@ std::string CTimeSeriesTestForSeasonality::annotationText(const TSeasonalCompone
 }
 
 std::size_t CTimeSeriesTestForSeasonality::day() const {
-    return (core::constants::DAY + m_BucketLength / 2) / m_BucketLength;
+    return buckets(m_BucketLength, core::constants::DAY);
 }
 
 std::size_t CTimeSeriesTestForSeasonality::week() const {
-    return (core::constants::WEEK + m_BucketLength / 2) / m_BucketLength;
+    return buckets(m_BucketLength, core::constants::WEEK);
 }
 
 std::size_t CTimeSeriesTestForSeasonality::year() const {
-    return (core::constants::YEAR + m_BucketLength / 2) / m_BucketLength;
+    return buckets(m_BucketLength, core::constants::YEAR);
 }
 
 CTimeSeriesTestForSeasonality::TSizeSizePr CTimeSeriesTestForSeasonality::weekdayWindow() const {
@@ -1159,13 +1155,15 @@ CTimeSeriesTestForSeasonality::TSizeSizePr CTimeSeriesTestForSeasonality::weeken
 }
 
 CTimeSeriesTestForSeasonality::TSeasonalComponent
-CTimeSeriesTestForSeasonality::convert(core_t::TTime bucketLength,
-                                       const CSeasonalTime& component) {
+CTimeSeriesTestForSeasonality::toPeriod(core_t::TTime startTime,
+                                        core_t::TTime bucketLength,
+                                        const CSeasonalTime& component) {
     std::size_t periodInBuckets{buckets(bucketLength, component.period())};
     if (component.windowed()) {
-        std::size_t weekInBuckets{buckets(bucketLength, core::constants::WEEK)};
         std::size_t startOfWindowInBuckets{
-            buckets(bucketLength, component.windowRepeatStart()) % weekInBuckets};
+            buckets(bucketLength,
+                    adjustForStartTime(startTime, component.windowRepeatStart())) %
+            buckets(bucketLength, core::constants::WEEK)};
         std::size_t windowRepeatInBuckets{buckets(bucketLength, component.windowRepeat())};
         TSizeSizePr windowInBuckets{buckets(bucketLength, component.window().first),
                                     buckets(bucketLength, component.window().second)};
@@ -1173,6 +1171,12 @@ CTimeSeriesTestForSeasonality::convert(core_t::TTime bucketLength,
     }
     TSizeSizePr windowInBuckets{0, periodInBuckets};
     return {periodInBuckets, 0, periodInBuckets, windowInBuckets};
+}
+
+core_t::TTime CTimeSeriesTestForSeasonality::adjustForStartTime(core_t::TTime startTime,
+                                                                core_t::TTime startOfWeek) {
+    return (core::constants::WEEK + startOfWeek - (startTime % core::constants::WEEK)) %
+           core::constants::WEEK;
 }
 
 std::size_t CTimeSeriesTestForSeasonality::buckets(core_t::TTime bucketLength,
