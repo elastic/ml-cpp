@@ -204,7 +204,8 @@ bool CTimeSeriesTestForSeasonality::canTestComponent(const TFloatMeanAccumulator
 }
 
 void CTimeSeriesTestForSeasonality::startOfWeek(core_t::TTime startOfWeek) {
-    m_StartOfWeekOverride = buckets(m_BucketLength, this->adjustForStartTime(startOfWeek));
+    m_StartOfWeekOverride =
+        (buckets(m_BucketLength, this->adjustForStartTime(startOfWeek)) % this->week());
 }
 
 void CTimeSeriesTestForSeasonality::minimumPeriod(core_t::TTime minimumPeriod) {
@@ -1162,8 +1163,9 @@ CTimeSeriesTestForSeasonality::convert(core_t::TTime bucketLength,
                                        const CSeasonalTime& component) {
     std::size_t periodInBuckets{buckets(bucketLength, component.period())};
     if (component.windowed()) {
+        std::size_t weekInBuckets{buckets(bucketLength, core::constants::WEEK)};
         std::size_t startOfWindowInBuckets{
-            buckets(bucketLength, component.windowRepeatStart())};
+            buckets(bucketLength, component.windowRepeatStart()) % weekInBuckets};
         std::size_t windowRepeatInBuckets{buckets(bucketLength, component.windowRepeat())};
         TSizeSizePr windowInBuckets{buckets(bucketLength, component.window().first),
                                     buckets(bucketLength, component.window().second)};

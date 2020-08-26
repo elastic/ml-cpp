@@ -479,7 +479,9 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
     std::size_t n{valuesToTest.size()};
     LOG_TRACE(<< "number values = " << n << "/" << values.size());
 
-    std::size_t startOfWeek{startOfWeekOverride != boost::none ? *startOfWeekOverride : 0};
+    std::size_t startOfWeek{startOfWeekOverride != boost::none && *startOfWeekOverride < week
+                                ? *startOfWeekOverride
+                                : 0};
 
     TFloatMeanAccumulatorVec valuesToTestDaily{values};
     TMeanAccumulatorVecVec dailyComponents;
@@ -566,7 +568,7 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
 
     // Choose the best partition.
 
-    if (startOfWeekOverride != boost::none) {
+    if (startOfWeekOverride != boost::none && *startOfWeekOverride < week) {
         captureVarianceAtStartOfWeek(startOfWeek);
     } else {
         // Compute the variances for each candidate partition.
