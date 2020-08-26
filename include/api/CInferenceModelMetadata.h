@@ -17,6 +17,12 @@
 namespace ml {
 namespace api {
 
+enum EPredictionFieldType {
+    E_PredictionFieldTypeString,
+    E_PredictionFieldTypeInt,
+    E_PredictionFieldTypeBool
+};
+
 //! \brief Class controls the serialization of the model meta information
 //! (such as totol feature importance) into JSON format.
 class API_EXPORT CInferenceModelMetadata {
@@ -35,12 +41,16 @@ public:
     using TVector = maths::CDenseVector<double>;
     using TStrVec = std::vector<std::string>;
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
+    using TPredictionFieldTypeResolverWriter =
+        std::function<void(const std::string&, EPredictionFieldType, TRapidJsonWriter&)>;
 
 public:
     //! Writes metadata using \p writer.
     void write(TRapidJsonWriter& writer) const;
     void columnNames(const TStrVec& columnNames);
     void classValues(const TStrVec& classValues);
+    void predictionFieldType(EPredictionFieldType predictionFieldType);
+    void predictionFieldTypeResolverWriter(const TPredictionFieldTypeResolverWriter& resolverWriter);
     const std::string& typeString() const;
     //! Add importances \p values to the feature with index \p i to calculate total feature importance.
     //! Total feature importance is the mean of the magnitudes of importances for individual data points.
@@ -60,6 +70,8 @@ private:
     TSizeMinMaxAccumulatorUMap m_TotalShapValuesMinMax;
     TStrVec m_ColumnNames;
     TStrVec m_ClassValues;
+    EPredictionFieldType m_PredictionFieldType;
+    TPredictionFieldTypeResolverWriter m_PredictionFieldTypeResolverWriter;
 };
 }
 }

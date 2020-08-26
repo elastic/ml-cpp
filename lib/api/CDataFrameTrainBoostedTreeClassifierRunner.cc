@@ -165,6 +165,9 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         std::size_t numberClasses{classValues.size()};
         m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
         m_InferenceModelMetadata.classValues(classValues);
+        m_InferenceModelMetadata.predictionFieldType(m_PredictionFieldType);
+        m_InferenceModelMetadata.predictionFieldTypeResolverWriter(
+            CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValueForType);
         featureImportance->shap(
             row, [&](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
                      const TStrVec& featureNames,
@@ -186,7 +189,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                                                       : -shap[i](0)};
                                 writer.StartObject();
                                 writer.Key(CLASS_NAME_FIELD_NAME);
-                                writer.String(classValues[j]);
+                                writePredictedCategoryValue(classValues[j], writer);
                                 writer.Key(IMPORTANCE_FIELD_NAME);
                                 writer.Double(importance);
                                 writer.EndObject();
@@ -200,7 +203,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                                  j < shap[i].size() && j < numberClasses; ++j) {
                                 writer.StartObject();
                                 writer.Key(CLASS_NAME_FIELD_NAME);
-                                writer.String(classValues[j]);
+                                writePredictedCategoryValue(classValues[j], writer);
                                 writer.Key(IMPORTANCE_FIELD_NAME);
                                 writer.Double(shap[i](j));
                                 writer.EndObject();
@@ -223,12 +226,13 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     writer.EndObject();
 }
 
-void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue(
+void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValueForType(
     const std::string& categoryValue,
-    core::CRapidJsonConcurrentLineWriter& writer) const {
+    EPredictionFieldType predictionFieldType,
+    core::CRapidJsonConcurrentLineWriter& writer) {
 
     double doubleValue;
-    switch (m_PredictionFieldType) {
+    switch (predictionFieldType) {
     case E_PredictionFieldTypeString:
         writer.String(categoryValue);
         break;
@@ -247,6 +251,12 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue(
         }
         break;
     }
+}
+void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue(
+    const std::string& categoryValue,
+    core::CRapidJsonConcurrentLineWriter& writer) const {
+    CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValueForType(
+        categoryValue, m_PredictionFieldType, writer);
 }
 
 CDataFrameTrainBoostedTreeClassifierRunner::TLossFunctionUPtr

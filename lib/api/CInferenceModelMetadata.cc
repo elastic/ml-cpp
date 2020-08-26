@@ -43,7 +43,12 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
             for (std::size_t j = 0; j < m_ClassValues.size(); ++j) {
                 writer.StartObject();
                 writer.Key(JSON_CLASS_NAME_TAG);
-                writer.String(m_ClassValues[j]);
+                if (m_PredictionFieldTypeResolverWriter) {
+                    m_PredictionFieldTypeResolverWriter(
+                        m_ClassValues[j], m_PredictionFieldType, writer);
+                } else {
+                    writer.String(m_ClassValues[j]);
+                }
                 writer.Key(JSON_IMPORTANCE_TAG);
                 writer.StartObject();
                 writer.Key(JSON_MEAN_MAGNITUDE_TAG);
@@ -65,7 +70,12 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
                  j < meanFeatureImportance.size() && j < m_ClassValues.size(); ++j) {
                 writer.StartObject();
                 writer.Key(JSON_CLASS_NAME_TAG);
-                writer.String(m_ClassValues[j]);
+                if (m_PredictionFieldTypeResolverWriter) {
+                    m_PredictionFieldTypeResolverWriter(
+                        m_ClassValues[j], m_PredictionFieldType, writer);
+                } else {
+                    writer.String(m_ClassValues[j]);
+                }
                 writer.Key(JSON_IMPORTANCE_TAG);
                 writer.StartObject();
                 writer.Key(JSON_MEAN_MAGNITUDE_TAG);
@@ -94,6 +104,15 @@ void CInferenceModelMetadata::columnNames(const TStrVec& columnNames) {
 
 void CInferenceModelMetadata::classValues(const TStrVec& classValues) {
     m_ClassValues = classValues;
+}
+
+void CInferenceModelMetadata::predictionFieldType(EPredictionFieldType predictionFieldType) {
+    m_PredictionFieldType = predictionFieldType;
+}
+
+void CInferenceModelMetadata::predictionFieldTypeResolverWriter(
+    const TPredictionFieldTypeResolverWriter& resolverWriter) {
+    m_PredictionFieldTypeResolverWriter = resolverWriter;
 }
 
 void CInferenceModelMetadata::addToFeatureImportance(std::size_t i, const TVector& values) {
