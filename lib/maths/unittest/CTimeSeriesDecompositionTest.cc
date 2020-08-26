@@ -57,7 +57,7 @@ double mean(const TDoubleDoublePr& x) {
 
 class CDebugGenerator {
 public:
-    static const bool ENABLED{false};
+    static const bool ENABLED{true};
 
 public:
     CDebugGenerator(const std::string& file = "results.py") : m_File(file) {}
@@ -214,9 +214,9 @@ BOOST_FIXTURE_TEST_CASE(testSuperpositionOfSines, CTestFixture) {
             LOG_TRACE(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                BOOST_TEST_REQUIRE(sumResidual < 0.06 * sumValue);
-                BOOST_TEST_REQUIRE(maxResidual < 0.12 * maxValue);
-                BOOST_TEST_REQUIRE(percentileError < 0.03 * sumValue);
+                BOOST_TEST_REQUIRE(sumResidual < 0.03 * sumValue);
+                BOOST_TEST_REQUIRE(maxResidual < 0.03 * maxValue);
+                BOOST_TEST_REQUIRE(percentileError < 0.01 * sumValue);
                 totalSumResidual += sumResidual;
                 totalMaxResidual += maxResidual;
                 totalSumValue += sumValue;
@@ -232,8 +232,8 @@ BOOST_FIXTURE_TEST_CASE(testSuperpositionOfSines, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.017 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.019 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.011 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.012 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.01 * totalSumValue);
 }
 
@@ -261,7 +261,7 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
     double totalMaxValue = 0.0;
     double totalPercentileError = 0.0;
 
-    for (std::size_t i = 0u; i < timeseries.size(); ++i) {
+    for (std::size_t i = 0; i < timeseries.size(); ++i) {
         core_t::TTime time;
         double value;
         std::tie(time, value) = timeseries[i];
@@ -298,9 +298,9 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
             LOG_TRACE(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                BOOST_TEST_REQUIRE(sumResidual < 0.28 * sumValue);
-                BOOST_TEST_REQUIRE(maxResidual < 0.56 * maxValue);
-                BOOST_TEST_REQUIRE(percentileError < 0.22 * sumValue);
+                BOOST_TEST_REQUIRE(sumResidual < 0.25 * sumValue);
+                BOOST_TEST_REQUIRE(maxResidual < 0.53 * maxValue);
+                BOOST_TEST_REQUIRE(percentileError < 0.15 * sumValue);
 
                 totalSumResidual += sumResidual;
                 totalMaxResidual += maxResidual;
@@ -317,9 +317,9 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.18 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.24 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.11 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.15 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.23 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.09 * totalSumValue);
 }
 
 BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
@@ -327,7 +327,7 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
 
     TTimeVec times;
     TDoubleVec trend;
-    for (core_t::TTime time = 0; time < 100 * WEEK; time += HALF_HOUR) {
+    for (core_t::TTime time = 0; time < 50 * WEEK; time += HALF_HOUR) {
         double weight = weights[(time / DAY) % 7];
         double daily = 100.0 * std::sin(boost::math::double_constants::two_pi *
                                         static_cast<double>(time) /
@@ -352,7 +352,7 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
     double refinements = 0.0;
 
     core_t::TTime lastWeek = 0;
-    for (std::size_t i = 0u; i < times.size(); ++i) {
+    for (std::size_t i = 0; i < times.size(); ++i) {
         core_t::TTime time = times[i];
         double value = trend[i] + noise[i];
 
@@ -387,9 +387,9 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
             LOG_TRACE(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                BOOST_TEST_REQUIRE(sumResidual < 0.15 * sumValue);
-                BOOST_TEST_REQUIRE(maxResidual < 0.33 * maxValue);
-                BOOST_TEST_REQUIRE(percentileError < 0.08 * sumValue);
+                BOOST_TEST_REQUIRE(sumResidual < 0.11 * sumValue);
+                BOOST_TEST_REQUIRE(maxResidual < 0.27 * maxValue);
+                BOOST_TEST_REQUIRE(percentileError < 0.04 * sumValue);
 
                 totalSumResidual += sumResidual;
                 totalMaxResidual += maxResidual;
@@ -402,7 +402,7 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
                         double slope = component.valueSpline().absSlope();
                         meanSlope += slope;
                         LOG_TRACE(<< "weekly |slope| = " << slope);
-                        BOOST_TEST_REQUIRE(slope < 0.0014);
+                        BOOST_TEST_REQUIRE(slope < 0.0017);
                         refinements += 1.0;
                     }
                 }
@@ -417,7 +417,7 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     BOOST_TEST_REQUIRE(totalSumResidual < 0.06 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.18 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.23 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.03 * totalSumValue);
 
     meanSlope /= refinements;

@@ -1660,8 +1660,13 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CS
                                      : CSplineTypes::E_Periodic;
         double bucketLength{static_cast<double>(m_BucketLength)};
 
+        std::size_t size{CTools::truncate(component.size(), // desired
+                                          2 * m_SeasonalComponentSize / 3,
+                                          3 * m_SeasonalComponentSize / 2)};
+        LOG_TRACE(<< "size = " << size << ", target = " << component.size());
+
         // Add the new seasonal component.
-        m_Seasonal->add(*time, m_SeasonalComponentSize, m_DecayRate, bucketLength,
+        m_Seasonal->add(*time, size, m_DecayRate, bucketLength,
                         boundaryCondition, startTime, endTime, initialValues);
         m_ModelAnnotationCallback(component.annotationText());
     }
@@ -1693,28 +1698,7 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CS
     // Fit a trend model.
     CTrendComponent newTrend{m_Trend.defaultDecayRate()};
     this->fitTrend(startTime, dt, initialValues, newTrend);
-    if (m_Trend.initialized() == false) {
-        m_Trend.swap(newTrend);
-    } else {
-        // Check if we can shift the existing trend model otherwise reinitialize.
-        TMeanVarAccumulator errorMoments[2];
-        core_t::TTime time{startTime};
-        for (std::size_t i = 0; i < initialValues.size(); ++i, time += dt) {
-            double errors[]{CBasicStatistics::mean(initialValues[i]) -
-                                CBasicStatistics::mean(m_Trend.value(time, 0.0)),
-                            CBasicStatistics::mean(initialValues[i]) -
-                                CBasicStatistics::mean(newTrend.value(time, 0.0))};
-            double weight{CBasicStatistics::mean(initialValues[i])};
-            errorMoments[0].add(errors[0], weight);
-            errorMoments[1].add(errors[1], weight);
-        }
-        if (CBasicStatistics::variance(errorMoments[1]) >
-            4.0 * CBasicStatistics::variance(errorMoments[0])) {
-            m_Trend.shiftLevel(CBasicStatistics::mean(errorMoments[0]));
-        } else {
-            m_Trend.swap(newTrend);
-        }
-    }
+    m_Trend.swap(newTrend);
     m_UsingTrendForPrediction = true;
 
     // Pass the residuals to the component changed callback.

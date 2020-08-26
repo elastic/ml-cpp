@@ -756,7 +756,13 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
                 m_TemporaryValues, hypotheses[j].s_Period.period());
             hypotheses[j].s_InitialValues.resize(values.size());
 
-            for (std::size_t k = 0; k < m_WindowIndices.size(); ++k) {
+            for (std::size_t k = 0; k < m_TemporaryValues.size(); ++k) {
+                if (CBasicStatistics::count(m_TemporaryValues[k]) > 0.0) {
+                    auto& value = CBasicStatistics::moment<0>(m_TemporaryValues[k]);
+                    double prediction{period[0].value(component[0], k)};
+                    value = prediction + (value - prediction) /
+                                             static_cast<double>(m_Periods.size());
+                }
                 hypotheses[j].s_InitialValues[m_WindowIndices[k]] = m_TemporaryValues[k];
                 if (CBasicStatistics::count(residuals[m_WindowIndices[k]]) > 0.0) {
                     CBasicStatistics::moment<0>(residuals[m_WindowIndices[k]]) -=
@@ -861,6 +867,10 @@ CTimeSeriesTestForSeasonality::selectModelledHypotheses(THypothesisStatsVec& hyp
 void CTimeSeriesTestForSeasonality::removeModelledPredictions(const TBoolVec& componentsToRemoveMask,
                                                               core_t::TTime startTime,
                                                               TFloatMeanAccumulatorVec& values) const {
+    TBoolVec mask{m_ModelledPeriodsTestable};
+    for (std::size_t i = 0; i < mask.size(); ++i) {
+        mask[i] = mask[i] == false || componentsToRemoveMask[i];
+    }
     core_t::TTime time{startTime};
     for (std::size_t i = 0; i < values.size(); ++i, time += m_BucketLength) {
         CBasicStatistics::moment<0>(values[i]) -=
