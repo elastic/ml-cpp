@@ -1299,6 +1299,30 @@ std::string CTimeSeriesTestForSeasonality::CMinAmplitude::print() const {
 
 CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::testVariance(
     const CTimeSeriesTestForSeasonality& params) const {
+
+    // Roughly speaking we have the following hard constraints:
+    //   1. We need to see at least m_MinimumRepeatsPerSegmentToTestVariance
+    //      repeats of the seasonality.
+    //   2. The test p-value needs to be less than m_SignificantPValue.
+    //   3. The autocorrelation needs to be higher than m_MediumAutocorrelation.
+    //
+    // We also get more confident the more non-missing values we see per repeat,
+    // if we have very high signficance or very high autocorrelation and less
+    // confident if we've seen very few repeats or have low autocorrelation.
+    //
+    // In order to make final decision we soften the hard constraints using a fuzzy
+    // logic approach. This uses a standard form with a logistic function to represent
+    // the truth value of a proposition and multiplicative AND. This has the effect
+    // that missing any constraint significantly means the test fails, but we can
+    // still take advantage of a constraint which nearly meets if some other one
+    // is comfortably satisfied. In this context, the width of the fuzzy region is
+    // relatively small, typically 10% of the constraint value.
+    //
+    // The non-hard considerations are one-sided, i.e. they either *only* increase
+    // or decrease the truth value of the overall proposition. This is done by
+    // setting them to the max or min of the constraint value and the decision
+    // boundary.
+
     double repeatsPerSegment{
         s_MeanNumberRepeats /
         static_cast<double>(std::max(s_NumberTrendSegments, std::size_t{1}) +
@@ -1326,6 +1350,9 @@ CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::testAmplitude(
     if (s_SeenSufficientDataToTestAmplitude == false) {
         return CFuzzyTruthValue::OR_UNDETERMINED;
     }
+
+    // Compare with the discussion in testVariance.
+
     double repeatsPerSegment{
         s_MeanNumberRepeats /
         static_cast<double>(std::max(s_NumberTrendSegments, std::size_t{1}) +
