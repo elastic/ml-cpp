@@ -224,6 +224,50 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
     TSizeVec modelTrendSegments;
     LOG_TRACE(<< "trend segments = " << core::CContainerPrinter::print(trendSegments));
 
+    // The quality of anomaly detection is sensitive to bias variance tradeoff.
+    // If you care about point predictions you can get away with erring on the side
+    // of overfitting slightly to avoid bias. We however care about the predicted
+    // distribution and are very sensitive to prediction variance. We therefore want
+    // to be careful to only model seasonality which adds significant predictive
+    // value.
+    //
+    // This is the main entry point to decomposing a signal into its seasonal
+    // components. This whole process is somewhat involved. Complications include
+    // all the various data characteristics we would like to deal with automatically
+    // these include: signals polluted with outliers, discontinuities in the trend,
+    // discontinuities in the seasonality (i.e. scaling up or down) and missing
+    // values. We'd also like very high power for detecting the most common seasonal
+    // components, i.e. daily, weekly, weekday/weekend modulation and yearly
+    // predictive calendar features are handled separately). We also run this
+    // continuously on various window lengths and it needs to produce a stable
+    // result if the seasonality is not changing whilst still being able to detect
+    // changes and to initialize new components with the right size (bias variance
+    // tradeoff) and seed values.
+    //
+    // The high-level strategy is
+    //   1. For various trend assumptions, no trend, linear and piecewise linear,
+    //   2. Test for the seasonalities we already model, common diurnal seasonality
+    //      and the best decomposition based on serial autocorrelation and select
+    //      those hypotheses for which there is strong evidence.
+    //   3. Ensure there is good evidence that the signal is seasonal vs the best
+    //      explanation for the values which only uses a trend.
+    //   4. Given a set of statistically significant seasonal hypotheses choose
+    //      the one which will lead to the best modelling and avoids churn.
+    //
+    // I found it was far more effective to consider each hypothesis separately.
+    // The alternative pushes much more complexity into the step to actually fit
+    // the model. For example, one might try and simultaneously fit piecewise linear
+    // trend and scaled seasonality, but determining the right break points (if any)
+    // in the trend together with the appropriate scaled seasonal components is a
+    // non trivial estimation problem. We take an ordered approach, first fitting
+    // the trend then seasonality and trying at each stage to fit significant
+    // patterns. However, we also test simpler hypotheses such that there is no
+    // trend at all explicitly. This is much more forgiving to the estimation process
+    // since if the data doesn't have a trend not trying to fit one can easily be
+    // identified as a better choice after the fact. The final selection is based
+    // on a number of criterion which are geared towards our modelling techniques
+    // and are described in select.
+
     TRemoveTrend removeTrendModels[]{
         [&](TFloatMeanAccumulatorVec&) {
             LOG_TRACE(<< "no trend");
