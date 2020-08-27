@@ -58,7 +58,7 @@ double mean(const TDoubleDoublePr& x) {
 
 class CDebugGenerator {
 public:
-    static const bool ENABLED{true};
+    static const bool ENABLED{false};
 
 public:
     CDebugGenerator(const std::string& file = "results.py") : m_File(file) {}
@@ -1741,8 +1741,8 @@ BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
     CDebugGenerator debug;
 
     TDoubleVec noise;
-    core_t::TTime time = 3 * HOUR;
-    for (/**/; time < 5 * YEAR; time += 6 * HOUR) {
+    core_t::TTime time = 2 * HOUR;
+    for (/**/; time < 4 * YEAR; time += 2 * HOUR) {
         double trend =
             15.0 * (2.0 + std::sin(boost::math::double_constants::two_pi *
                                    static_cast<double>(time) / static_cast<double>(YEAR))) +
@@ -1754,7 +1754,7 @@ BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
             TDouble1Vec prediction{decomposition.meanValue(time)};
             TDouble1Vec predictionError{decomposition.detrend(time, trend, 0.0)};
             double multiplier{controller.multiplier(prediction, {predictionError},
-                                                    4 * HOUR, 1.0, 0.0005)};
+                                                    2 * HOUR, 1.0, 0.0005)};
             decomposition.decayRate(multiplier * decomposition.decayRate());
         }
     }
@@ -1762,7 +1762,7 @@ BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
     // Predict over one year and check we get reasonable accuracy.
     double maxError{0.0};
     TMeanAccumulator meanError;
-    for (/**/; time < 6 * YEAR; time += 6 * HOUR) {
+    for (/**/; time < 5 * YEAR; time += 2 * HOUR) {
         double trend =
             15.0 * (2.0 + std::sin(boost::math::double_constants::two_pi *
                                    static_cast<double>(time) / static_cast<double>(YEAR))) +
@@ -1781,7 +1781,7 @@ BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
     LOG_DEBUG(<< "max error = " << maxError);
 
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.03);
-    BOOST_TEST_REQUIRE(maxError < 0.06);
+    BOOST_TEST_REQUIRE(maxError < 0.17);
 }
 
 BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture) {
