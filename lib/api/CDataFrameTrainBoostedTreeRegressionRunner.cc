@@ -128,7 +128,7 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
                 }
                 writer.EndArray();
 
-                for (int i = 0; i < shap.size(); ++i) {
+                for (int i = 0; i < static_cast<int>(shap.size()); ++i) {
                     if (shap[i].lpNorm<1>() != 0) {
                         const_cast<CDataFrameTrainBoostedTreeRegressionRunner*>(this)
                             ->m_InferenceModelMetadata.addToFeatureImportance(i, shap[i]);

@@ -29,6 +29,12 @@ public:
     using TReadPredictionFunc = std::function<TDouble2Vec(const TRowRef&)>;
     using TReadClassScoresFunc = std::function<TDouble2Vec(const TRowRef&)>;
 
+    enum EPredictionFieldType {
+        E_PredictionFieldTypeString,
+        E_PredictionFieldTypeInt,
+        E_PredictionFieldTypeBool
+    };
+
 public:
     static const std::size_t MAX_NUMBER_CLASSES;
     static const std::string NUM_CLASSES;
@@ -69,11 +75,6 @@ public:
 
     //! \return A serialisable metadata of the trained regression model.
     TOptionalInferenceModelMetadata inferenceModelMetadata() const override;
-
-    static void
-    writePredictedCategoryValueForType(const std::string& categoryValue,
-                                       EPredictionFieldType predictionFieldType,
-                                       core::CRapidJsonConcurrentLineWriter& writer);
 
 private:
     static TLossFunctionUPtr loss(std::size_t numberClasses);

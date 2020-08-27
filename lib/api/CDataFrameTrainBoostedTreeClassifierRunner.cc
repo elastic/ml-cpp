@@ -165,9 +165,10 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
         std::size_t numberClasses{classValues.size()};
         m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
         m_InferenceModelMetadata.classValues(classValues);
-        m_InferenceModelMetadata.predictionFieldType(m_PredictionFieldType);
         m_InferenceModelMetadata.predictionFieldTypeResolverWriter(
-            CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValueForType);
+            [this](const std::string& categoryValue, core::CRapidJsonConcurrentLineWriter& writer) {
+                this->writePredictedCategoryValue(categoryValue, writer);
+            });
         featureImportance->shap(
             row, [&](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
                      const TStrVec& featureNames,
@@ -226,13 +227,12 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     writer.EndObject();
 }
 
-void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValueForType(
+void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue(
     const std::string& categoryValue,
-    EPredictionFieldType predictionFieldType,
-    core::CRapidJsonConcurrentLineWriter& writer) {
+    core::CRapidJsonConcurrentLineWriter& writer) const {
 
     double doubleValue;
-    switch (predictionFieldType) {
+    switch (m_PredictionFieldType) {
     case E_PredictionFieldTypeString:
         writer.String(categoryValue);
         break;
@@ -251,12 +251,6 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValueForT
         }
         break;
     }
-}
-void CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValue(
-    const std::string& categoryValue,
-    core::CRapidJsonConcurrentLineWriter& writer) const {
-    CDataFrameTrainBoostedTreeClassifierRunner::writePredictedCategoryValueForType(
-        categoryValue, m_PredictionFieldType, writer);
 }
 
 CDataFrameTrainBoostedTreeClassifierRunner::TLossFunctionUPtr
