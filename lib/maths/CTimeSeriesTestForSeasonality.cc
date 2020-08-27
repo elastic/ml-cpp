@@ -238,7 +238,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
     // discontinuities in the seasonality (i.e. scaling up or down) and missing
     // values. We'd also like very high power for detecting the most common seasonal
     // components, i.e. daily, weekly, weekday/weekend modulation and yearly
-    // predictive calendar features are handled separately). We also run this
+    // (predictive calendar features are handled separately). We also run this
     // continuously on various window lengths and it needs to produce a stable
     // result if the seasonality is not changing whilst still being able to detect
     // changes and to initialize new components with the right size (bias variance
