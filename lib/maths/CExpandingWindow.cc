@@ -103,23 +103,20 @@ CExpandingWindow::valuesMinusPrediction(const TPredictor& predictor) const {
 CExpandingWindow::TFloatMeanAccumulatorVec
 CExpandingWindow::valuesMinusPrediction(TFloatMeanAccumulatorVec bucketValues,
                                         const TPredictor& predictor) const {
+
     core_t::TTime start{CIntegerTools::ceil(m_StartTime, m_DataBucketLength)};
-    core_t::TTime end{CIntegerTools::ceil(this->endTime(), m_DataBucketLength)};
     core_t::TTime size{static_cast<core_t::TTime>(bucketValues.size())};
     core_t::TTime offset{this->dataPointsTimeOffsetInBucket()};
 
-    TFloatMeanAccumulatorVec predictions(size);
-    for (core_t::TTime time = start + offset; time < end; time += m_DataBucketLength) {
-        core_t::TTime bucket{(time - m_StartTime) / this->bucketLength()};
-        if (bucket >= 0 && bucket < size) {
-            predictions[bucket].add(predictor(time));
-        }
-    }
-
     for (core_t::TTime i = 0; i < size; ++i) {
         if (CBasicStatistics::count(bucketValues[i]) > 0.0) {
-            CBasicStatistics::moment<0>(bucketValues[i]) -=
-                CBasicStatistics::mean(predictions[i]);
+            core_t::TTime bucketStart{start + offset + i * this->bucketLength()};
+            core_t::TTime bucketEnd{bucketStart + this->bucketLength()};
+            TFloatMeanAccumulator prediction;
+            for (core_t::TTime time = bucketStart; time < bucketEnd; time += m_DataBucketLength) {
+                prediction.add(predictor(time));
+            }
+            CBasicStatistics::moment<0>(bucketValues[i]) -= CBasicStatistics::mean(prediction);
         }
     }
 

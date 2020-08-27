@@ -455,6 +455,28 @@ void CTimeSeriesTestForSeasonality::addModelled(const TFloatMeanAccumulatorVec& 
                          });
         this->testAndAddDecomposition(periods, modelTrendSegments,
                                       valuesMinusTrend, decompositions, true);
+
+        m_Periods = periods;
+        CSignal::fitSeasonalComponents(m_Periods, valuesMinusTrend, m_Components);
+        m_TemporaryValues = valuesMinusTrend;
+        this->removePredictions({m_Periods, 0, m_Periods.size()},
+                                {m_Components, 0, m_Components.size()}, m_TemporaryValues);
+        auto diurnal = std::make_tuple(this->day(), this->week(), this->year());
+        auto unit = [](std::size_t) { return 1.0; };
+        for (const auto& period : CSignal::seasonalDecomposition(
+                 m_TemporaryValues, m_OutlierFraction, diurnal, unit,
+                 m_StartOfWeekOverride, 0.05, m_MaximumNumberComponents)) {
+            if (std::find_if(m_Periods.begin(), m_Periods.end(), [&](const auto& modelledPeriod) {
+                    return modelledPeriod.periodAlmostEqual(period, 0.05);
+                }) == m_Periods.end()) {
+                periods.push_back(period);
+            }
+        }
+        this->removeIfNotTestable(periods);
+        if (periods != m_Periods && this->includesPermittedPeriod(periods)) {
+            this->testAndAddDecomposition(periods, modelTrendSegments,
+                                          valuesMinusTrend, decompositions, false);
+        }
     }
 }
 
@@ -860,8 +882,7 @@ void CTimeSeriesTestForSeasonality::removeModelledPredictions(const TBoolVec& co
     }
     core_t::TTime time{startTime};
     for (std::size_t i = 0; i < values.size(); ++i, time += m_BucketLength) {
-        CBasicStatistics::moment<0>(values[i]) -=
-            m_ModelledPredictor(time, componentsToRemoveMask);
+        CBasicStatistics::moment<0>(values[i]) -= m_ModelledPredictor(time, mask);
     }
 }
 

@@ -58,7 +58,7 @@ double mean(const TDoubleDoublePr& x) {
 
 class CDebugGenerator {
 public:
-    static const bool ENABLED{false};
+    static const bool ENABLED{true};
 
 public:
     CDebugGenerator(const std::string& file = "results.py") : m_File(file) {}
@@ -1729,6 +1729,7 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
+
     // Test a yearly seasonal component.
 
     test::CRandomNumbers rng;
@@ -1779,11 +1780,12 @@ BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
     LOG_DEBUG(<< "max error = " << maxError);
 
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.02);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.03);
     BOOST_TEST_REQUIRE(maxError < 0.06);
 }
 
 BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture) {
+
     // Test smooth periodic signal polluted with pepper and salt outliers.
 
     using TSizeVec = std::vector<std::size_t>;
@@ -1834,7 +1836,7 @@ BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture) {
             }
 
             LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.04);
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.03);
             break;
         }
         debug.addValue(time, value);
@@ -1842,6 +1844,7 @@ BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testCalendar, CTestFixture) {
+
     // Test that we significantly reduce the error on the last Friday of each
     // month after estimating the appropriate component.
 
@@ -1882,7 +1885,7 @@ BOOST_FIXTURE_TEST_CASE(testCalendar, CTestFixture) {
         debug.addValue(time, trend(time) + noise[0]);
 
         if (time - DAY == *std::lower_bound(months.begin(), months.end(), time - DAY)) {
-            LOG_TRACE(<< "*** time = " << time << " ***");
+            LOG_TRACE(<< "time = " << time);
 
             std::size_t largeErrorCount = 0u;
 
@@ -1913,6 +1916,9 @@ BOOST_FIXTURE_TEST_CASE(testCalendar, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testConditionOfTrend, CTestFixture) {
+
+    // Test numerical stability of the trend model over very long time spans.
+
     auto trend = [](core_t::TTime time) {
         return std::pow(static_cast<double>(time) / static_cast<double>(WEEK), 2.0);
     };
@@ -1933,6 +1939,7 @@ BOOST_FIXTURE_TEST_CASE(testConditionOfTrend, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
+
     // Test we adapt to changing seasonality adding and removing components
     // as necessary.
 
@@ -1996,7 +2003,7 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
     }
 
-    double bounds[]{0.01, 0.016, 0.012, 0.14};
+    double bounds[]{0.01, 0.013, 0.15, 0.018};
     for (std::size_t i = 0; i < 4; ++i) {
         double error{maths::CBasicStatistics::mean(errors[i])};
         LOG_DEBUG(<< "error = " << error);
@@ -2005,6 +2012,9 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testSwap, CTestFixture) {
+
+    // Test that swapping preserves checksums.
+
     const double decayRate = 0.01;
     const core_t::TTime bucketLength = HALF_HOUR;
 
@@ -2044,7 +2054,9 @@ BOOST_FIXTURE_TEST_CASE(testSwap, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
+
     // Check that serialization is idempotent.
+
     const double decayRate = 0.01;
     const core_t::TTime bucketLength = HALF_HOUR;
 
@@ -2097,6 +2109,7 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
+
     // Check we can validly upgrade existing state.
 
     using TStrVec = std::vector<std::string>;

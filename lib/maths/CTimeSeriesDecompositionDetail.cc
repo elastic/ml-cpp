@@ -2312,7 +2312,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::prune(core_t::TTime
             } else {
                 bool fallback = true;
                 for (auto& component : m_Components) {
-                    if (!component.time().windowed()) {
+                    if (component.time().windowed() == false) {
                         component.shiftLevel(shift.second);
                         fallback = false;
                         break;
@@ -2491,7 +2491,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::shouldInterpolate(
     core_t::TTime last) const {
     for (const auto& component : m_Components) {
         CCalendarFeature feature = component.feature();
-        if (!feature.inWindow(time) && feature.inWindow(last)) {
+        if (feature.inWindow(time) == false && feature.inWindow(last)) {
             return true;
         }
     }
@@ -2503,7 +2503,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CCalendar::interpolate(core_t:
                                                                          bool refine) {
     for (auto& component : m_Components) {
         CCalendarFeature feature = component.feature();
-        if (!feature.inWindow(time) && feature.inWindow(lastTime)) {
+        if (feature.inWindow(time) == false && feature.inWindow(lastTime)) {
             component.interpolate(time - feature.offset(time), refine);
         }
     }
