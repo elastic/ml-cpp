@@ -244,7 +244,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
     // changes and to initialize new components with the right size (bias variance
     // tradeoff) and seed values.
     //
-    // The high-level strategy is
+    // The high-level strategy is:
     //   1. For various trend assumptions, no trend, linear and piecewise linear,
     //   2. Test for the seasonalities we already model, common diurnal seasonality
     //      and the best decomposition based on serial autocorrelation and select
@@ -875,6 +875,15 @@ CTimeSeriesTestForSeasonality::selectModelledHypotheses(THypothesisStatsVec& hyp
 
     // Ensure that we only keep "false" hypotheses which are needed because they
     // are the best hypothesis for their time window.
+    //
+    // For weekday/weekend modulation we use dedicated models for the weekend and
+    // weekdays since it is more parsimonious than using one model for the whole
+    // week. We do however need to ensure that we've selected a seasonal model for
+    // say weekends if we have one for weekdays (even it is just a level prediction).
+    // To do this we always add in all "windowed" seasonal components in testDecomposition,
+    // whether they meet the conditions to be selected or not. This prunes all
+    // those that aren't needed because we already have a model for their window.
+    // They are kept in order of their actual truth value.
     for (std::size_t i = 0, removedCount = 0; i < hypotheses.size();
          i += (removedCount > 0 ? 0 : 1)) {
         removedCount = 0;
@@ -1344,7 +1353,7 @@ std::string CTimeSeriesTestForSeasonality::CMinAmplitude::print() const {
 CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::testVariance(
     const CTimeSeriesTestForSeasonality& params) const {
 
-    // Roughly speaking we have the following hard constraints:
+    // We have the following hard constraints:
     //   1. We need to see at least m_MinimumRepeatsPerSegmentToTestVariance
     //      repeats of the seasonality.
     //   2. The test p-value needs to be less than m_SignificantPValue.
