@@ -567,8 +567,8 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
     LOG_TRACE(<< "testing " << core::CContainerPrinter::print(periods));
 
     TComputeScaling scalings[]{
-        [&](TFloatMeanAccumulatorVec& values, SHypothesisStats& stats) {
-            stats.s_ScaleSegments.assign({0, values.size()});
+        [&](TFloatMeanAccumulatorVec& values, SHypothesisStats& hypothesis) {
+            hypothesis.s_ScaleSegments.assign({0, values.size()});
             return true;
         },
         [&](TFloatMeanAccumulatorVec& values, SHypothesisStats& hypothesis) {
@@ -578,6 +578,39 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
             return this->meanScale(hypothesis, [](std::size_t) { return 1.0; },
                                    values, m_Scales);
         }};
+
+    // The following loop schematically does the following:
+    //   1. Remove any out-of-phase seasonal components which haven't been tested from
+    //      the values to test (these affect the tests we apply).
+    //   2. Test the period with and without piecewise linear scaling and choose the
+    //      best alternative.
+    //   3. If the period was accepted update the values to remove the predictions of
+    //      that component.
+    //
+    // Conceptually we are testing a sequence of nested hypotheses for modelling the
+    // seasonality since any added component could be zeroed just by setting all its
+    // predictions to zero. I chose not to express this as likelihood ratio test
+    // because we can get away with a less powerful test and its errors are sensitive
+    // to the distribution assumptions.
+    //
+    // For each component we test the significance of the variance it explains (F-test),
+    // the cyclic autocorrelation on the window of values and the significance of an
+    // amplitude test statistic. The amplitude test looks for frequently repeated spikes
+    // or dips. Our model can represent such signals with seasonality in the variance
+    // and modelling such approximate seasonality is very effective at reducing false
+    // positives.
+    //
+    // The treatment of outliers is subtle. The variance and autocorrelation tests are
+    // adversely affected by outliers. However, an unmodelled seasonality can easily
+    // generate outliers. We compute test statistics with and without outliers and use
+    // the most significant test. In this context, it is important to realize the outliers
+    // need to be identified w.r.t. the model which is assumed for the data. We therefore
+    // compute weights separately for the null hypothesis that the component is not present.
+    //
+    // The overall choice of whether to model a component depends on all these factors and
+    // also the number of repeats we have observed, the number of values we observe per
+    // period, etc (see testVariance and testAmplitude for details). Since the considerations
+    // are heterogenous we combine them using fuzzy logic.
 
     TFloatMeanAccumulatorVec residuals{valuesToTest};
     THypothesisStatsVec hypotheses;
