@@ -456,7 +456,7 @@ private:
     bool alreadyModelled(const TSeasonalComponentVec& periods) const;
     bool alreadyModelled(const TSeasonalComponent& period) const;
     bool onlyDiurnal(const TSeasonalComponentVec& periods) const;
-    void removeIfInsufficientData(TSeasonalComponentVec& periods) const;
+    void removeIfNotTestable(TSeasonalComponentVec& periods) const;
     bool isDiurnal(std::size_t period) const;
     bool isDiurnal(const TSeasonalComponent& period) const;
     bool isWeekend(const TSeasonalComponent& period) const;
@@ -474,8 +474,8 @@ private:
                                        const CSeasonalTime& component);
     static core_t::TTime adjustForStartTime(core_t::TTime startTime, core_t::TTime startOfWeek);
     static std::size_t buckets(core_t::TTime bucketLength, core_t::TTime interval);
-    static bool seenSufficientDataToTest(const TFloatMeanAccumulatorVec& values,
-                                         const TSeasonalComponent& period);
+    static bool canTestPeriod(const TFloatMeanAccumulatorVec& values,
+                              const TSeasonalComponent& period);
     static std::size_t observedRange(const TFloatMeanAccumulatorVec& values);
 
 private:

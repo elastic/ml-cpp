@@ -191,9 +191,8 @@ bool CTimeSeriesTestForSeasonality::canTestComponent(const TFloatMeanAccumulator
                                                      core_t::TTime startTime,
                                                      core_t::TTime bucketLength,
                                                      const CSeasonalTime& component) {
-    return component.windowRepeat() >= 2 * bucketLength &&
-           10 * (component.period() % bucketLength) < component.period() &&
-           seenSufficientDataToTest(values, toPeriod(startTime, bucketLength, component));
+    return 10 * (component.period() % bucketLength) < component.period() &&
+           canTestPeriod(values, toPeriod(startTime, bucketLength, component));
 }
 
 void CTimeSeriesTestForSeasonality::minimumPeriod(core_t::TTime minimumPeriod) {
@@ -447,9 +446,9 @@ void CTimeSeriesTestForSeasonality::addModelled(const TFloatMeanAccumulatorVec& 
                                                 const TSizeVec& modelTrendSegments,
                                                 TSeasonalComponentVec& periods,
                                                 TModelVec& decompositions) const {
-    if (m_ModelledPeriods.size() > 0) {
-        periods = m_ModelledPeriods;
-        this->removeIfInsufficientData(periods);
+    periods = m_ModelledPeriods;
+    this->removeIfNotTestable(periods);
+    if (periods.size() > 0) {
         std::stable_sort(periods.begin(), periods.end(),
                          [](const auto& lhs, const auto& rhs) {
                              return lhs.s_Period < rhs.s_Period;
@@ -467,7 +466,7 @@ void CTimeSeriesTestForSeasonality::addDiurnal(const TFloatMeanAccumulatorVec& v
     periods = CSignal::tradingDayDecomposition(m_TemporaryValues, m_OutlierFraction,
                                                this->week(), m_StartOfWeekOverride);
     periods.push_back(CSignal::seasonalComponentSummary(this->year()));
-    this->removeIfInsufficientData(periods);
+    this->removeIfNotTestable(periods);
     if (periods.size() > 0 && // Did we find candidate weekend/weekday split?
         this->includesPermittedPeriod(periods) && // Includes a sufficiently long period.
         this->alreadyModelled(periods) == false) { // We test modelled directly.
@@ -475,21 +474,25 @@ void CTimeSeriesTestForSeasonality::addDiurnal(const TFloatMeanAccumulatorVec& v
                                       valuesMinusTrend, decompositions, false);
     }
 
+    m_Periods = periods;
     periods.assign({CSignal::seasonalComponentSummary(this->day()),
                     CSignal::seasonalComponentSummary(this->week()),
                     CSignal::seasonalComponentSummary(this->year())});
-    this->removeIfInsufficientData(periods);
-    if (periods.size() > 0 &&                     // Is there sufficient data?
+    this->removeIfNotTestable(periods);
+    if (periods.size() > 0 &&   // Is there sufficient data?
+        periods != m_Periods && // Have we already tested these periods?
         this->includesPermittedPeriod(periods) && // Includes a sufficiently long period.
         this->alreadyModelled(periods) == false) { // We test modelled directly.
         this->testAndAddDecomposition(periods, modelTrendSegments,
                                       valuesMinusTrend, decompositions, false);
     }
 
+    m_Periods = periods;
     periods.assign({CSignal::seasonalComponentSummary(this->week()),
                     CSignal::seasonalComponentSummary(this->year())});
-    this->removeIfInsufficientData(periods);
-    if (periods.size() > 0 &&                     // Is there sufficient data?
+    this->removeIfNotTestable(periods);
+    if (periods.size() > 0 &&   // Is there sufficient data?
+        periods != m_Periods && // Have we already tested these periods?
         this->includesPermittedPeriod(periods) && // Includes a sufficiently long period.
         this->alreadyModelled(periods) == false) { // We test modelled directly.
         this->testAndAddDecomposition(periods, modelTrendSegments,
@@ -507,7 +510,7 @@ void CTimeSeriesTestForSeasonality::addDecomposition(const TFloatMeanAccumulator
     periods = CSignal::seasonalDecomposition(m_TemporaryValues, m_OutlierFraction,
                                              diurnal, unit, m_StartOfWeekOverride,
                                              0.05, m_MaximumNumberComponents);
-    this->removeIfInsufficientData(periods);
+    this->removeIfNotTestable(periods);
     if (periods.size() > 0 && // Did this identified any candidate components?
         this->includesPermittedPeriod(periods) && // Includes a sufficiently long period.
         this->alreadyModelled(periods) == false && // We test modelled directly.
@@ -562,7 +565,7 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
 
         LOG_TRACE(<< "testing " << periods[i].print());
 
-        // Precondition by removing all remaining components.
+        // Precondition by removing all remaining out-of-phase components.
         m_TemporaryValues = residuals;
         m_Periods.clear();
         for (std::size_t j = i + 1; j < periods.size(); ++j) {
@@ -826,7 +829,9 @@ CTimeSeriesTestForSeasonality::selectModelledHypotheses(THypothesisStatsVec& hyp
     // Check which existing components we should remove if any.
     TBoolVec componentsToRemoveMask(numberModelledPeriods);
     for (std::size_t i = 0; i < numberModelledPeriods; ++i) {
-        componentsToRemoveMask[i] = m_ModelledPeriodsTestable[i];
+        const auto& period = m_ModelledPeriods[i];
+        componentsToRemoveMask[i] = this->permittedPeriod(period) &&
+                                    m_ModelledPeriodsTestable[i];
         excess -= componentsToRemoveMask[i] ? 1 : 0;
     }
 
@@ -1060,11 +1065,10 @@ bool CTimeSeriesTestForSeasonality::onlyDiurnal(const TSeasonalComponentVec& per
            }) == periods.end();
 }
 
-void CTimeSeriesTestForSeasonality::removeIfInsufficientData(TSeasonalComponentVec& periods) const {
+void CTimeSeriesTestForSeasonality::removeIfNotTestable(TSeasonalComponentVec& periods) const {
     periods.erase(std::remove_if(periods.begin(), periods.end(),
                                  [this](const auto& period) {
-                                     return this->seenSufficientDataToTest(
-                                                m_Values, period) == false;
+                                     return canTestPeriod(m_Values, period) == false;
                                  }),
                   periods.end());
 }
@@ -1158,9 +1162,10 @@ std::size_t CTimeSeriesTestForSeasonality::buckets(core_t::TTime bucketLength,
     return static_cast<std::size_t>((interval + bucketLength / 2) / bucketLength);
 }
 
-bool CTimeSeriesTestForSeasonality::seenSufficientDataToTest(const TFloatMeanAccumulatorVec& values,
-                                                             const TSeasonalComponent& period) {
-    return 190 * period.s_WindowRepeat < 100 * observedRange(values);
+bool CTimeSeriesTestForSeasonality::canTestPeriod(const TFloatMeanAccumulatorVec& values,
+                                                  const TSeasonalComponent& period) {
+    return 190 * period.s_WindowRepeat < 100 * observedRange(values) &&
+           period.s_Period >= 2;
 }
 
 std::size_t CTimeSeriesTestForSeasonality::observedRange(const TFloatMeanAccumulatorVec& values) {

@@ -12,6 +12,7 @@
 #include <core/CTimezone.h>
 #include <core/Constants.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CDecayRateController.h>
 #include <maths/CIntegerTools.h>
 #include <maths/CLinearAlgebraFwd.h>
@@ -152,6 +153,9 @@ public:
 };
 
 BOOST_FIXTURE_TEST_CASE(testSuperpositionOfSines, CTestFixture) {
+
+    // Test mixture of two sine waves.
+
     TTimeVec times;
     TDoubleVec trend;
     for (core_t::TTime time = 0; time < 50 * WEEK + 1; time += HALF_HOUR) {
@@ -237,7 +241,10 @@ BOOST_FIXTURE_TEST_CASE(testSuperpositionOfSines, CTestFixture) {
     BOOST_TEST_REQUIRE(totalPercentileError < 0.01 * totalSumValue);
 }
 
-BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testDistortedPeriodicProblemCase, CTestFixture) {
+
+    // Test accuracy on real data set which caused issues historically.
+
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
@@ -323,6 +330,9 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodic, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
+
+    // Test we make longer components as smooth as possible.
+
     double weights[]{1.0, 0.1, 1.0, 1.0, 0.1, 1.0, 1.0};
 
     TTimeVec times;
@@ -426,6 +436,9 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
+
+    // Test weekday/weekend modulation of daily seasonality.
+
     double weights[]{0.1, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0};
 
     for (auto offset : {0 * DAY, 5 * DAY}) {
@@ -517,6 +530,8 @@ BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testNanHandling, CTestFixture) {
 
+    // Test flushing data which contains NaNs.
+
     TTimeVec times;
     TDoubleVec trend;
     for (core_t::TTime time = 0; time < 10 * WEEK + 1; time += HALF_HOUR) {
@@ -578,6 +593,9 @@ BOOST_FIXTURE_TEST_CASE(testNanHandling, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
+
+    // Test modelling of a single seasonl component.
+
     TTimeVec times;
     TDoubleVec trend;
     for (core_t::TTime time = 0; time < 10 * WEEK + 1; time += HALF_HOUR) {
@@ -676,6 +694,9 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
+
+    // Test a signal which only becomes seasonal after some time.
+
     const double daily[]{0.0,  0.0,  0.0,  0.0,  5.0,  5.0,  5.0,  40.0,
                          40.0, 40.0, 30.0, 30.0, 35.0, 35.0, 40.0, 50.0,
                          60.0, 80.0, 80.0, 10.0, 5.0,  0.0,  0.0,  0.0};
@@ -776,6 +797,7 @@ BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
+
     // Test that variance scales are correctly computed.
 
     test::CRandomNumbers rng;
@@ -921,6 +943,9 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
+
+    // Test accuracy on real data set which caused issues historically.
+
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
@@ -1048,6 +1073,9 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
+
+    // Test accuracy on real data set which caused issues historically.
+
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
@@ -1075,7 +1103,7 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
         double value = timeseries[i].second;
 
         if (time > lastWeek + WEEK) {
-            LOG_TRACE(<< "Processing week");
+            LOG_DEBUG(<< "Processing week at " << time);
 
             double sumResidual = 0.0;
             double maxResidual = 0.0;
@@ -1141,6 +1169,9 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
+
+    // Test accuracy on real data set which caused issues historically.
+
     TTimeDoublePrVec timeseries;
     core_t::TTime startTime;
     core_t::TTime endTime;
@@ -1170,7 +1201,7 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
         double value = timeseries[i].second;
 
         if (time > lastWeek + WEEK) {
-            LOG_TRACE(<< "Processing week");
+            LOG_DEBUG(<< "Processing week at " << time);
 
             double sumResidual = 0.0;
             double maxResidual = 0.0;
@@ -1223,11 +1254,12 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     BOOST_TEST_REQUIRE(totalSumResidual < 0.22 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.47 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.07 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.53 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.1 * totalSumValue);
 }
 
 BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
+
     // Test the accuracy of the modeling when there are periodically missing
     // values.
 
@@ -1240,7 +1272,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
 
         TMeanAccumulator error;
         core_t::TTime time = 0;
-        for (std::size_t t = 0u; t < 50; ++t) {
+        for (std::size_t t = 0; t < 50; ++t) {
             for (auto value :
                  {0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0, 0.0, 0.0, 0.0,
                   0.0, 0.0, 20.0, 18.0, 10.0, 4.0,  4.0, 4.0, 4.0, 5.0,
@@ -1265,7 +1297,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
         }
 
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.09);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.1);
     }
 
     LOG_DEBUG(<< "Weekly Periodic");
@@ -1275,7 +1307,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
 
         TMeanAccumulator error;
         core_t::TTime time = 0;
-        for (std::size_t t = 0u; t < 10; ++t) {
+        for (std::size_t t = 0; t < 10; ++t) {
             for (auto value :
                  {0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
                   0.0,  0.0,  10.0, 10.0, 8.0,  4.0,  3.0,  1.0,  1.0,  3.0,
@@ -1312,11 +1344,12 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
         }
 
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.11);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.12);
     }
 }
 
 BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
+
     // Test a simple linear ramp and non-periodic saw tooth series.
 
     const core_t::TTime length = 120 * DAY;
@@ -1344,7 +1377,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
         double totalMaxValue = 0.0;
         core_t::TTime lastDay = times[0];
 
-        for (std::size_t i = 0u; i < times.size(); ++i) {
+        for (std::size_t i = 0; i < times.size(); ++i) {
             decomposition.addPoint(times[i], trend[i] + noise[i]);
             debug.addValue(times[i], trend[i] + noise[i]);
 
@@ -1418,7 +1451,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
         double totalMaxValue = 0.0;
         core_t::TTime lastDay = times[0];
 
-        for (std::size_t i = 0u; i < times.size(); ++i) {
+        for (std::size_t i = 0; i < times.size(); ++i) {
             decomposition.addPoint(times[i], trend[i] + 0.3 * noise[i]);
             debug.addValue(times[i], trend[i] + 0.3 * noise[i]);
 
@@ -1464,6 +1497,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity, CTestFixture) {
+
     // Test a long term mean reverting component plus daily periodic component.
 
     TTimeVec times;
@@ -1493,7 +1527,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity, CTestFixture) {
     double totalMaxValue = 0.0;
     core_t::TTime lastDay = times[0];
 
-    for (std::size_t i = 0u; i < times.size(); ++i) {
+    for (std::size_t i = 0; i < times.size(); ++i) {
         decomposition.addPoint(times[i], trend[i] + 0.3 * noise[i]);
         debug.addValue(times[i], trend[i] + 0.3 * noise[i]);
 
@@ -1526,8 +1560,8 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity, CTestFixture) {
                 totalSumValue += sumValue;
                 totalMaxValue += maxValue;
 
-                BOOST_TEST_REQUIRE(sumResidual / sumValue < 0.47);
-                BOOST_TEST_REQUIRE(maxResidual / maxValue < 0.50);
+                BOOST_TEST_REQUIRE(sumResidual / sumValue < 0.51);
+                BOOST_TEST_REQUIRE(maxResidual / maxValue < 0.54);
             }
             lastDay += DAY;
         }
@@ -1536,8 +1570,8 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity, CTestFixture) {
     LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.04);
-    BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.05);
+    BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.05);
+    BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.06);
 }
 
 BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
@@ -1572,7 +1606,7 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
         double totalMaxValue = 0.0;
         core_t::TTime lastHour = times[0] + 3 * DAY;
 
-        for (std::size_t i = 0u; i < times.size(); ++i) {
+        for (std::size_t i = 0; i < times.size(); ++i) {
             decomposition.addPoint(times[i], trend[i] + noise[i]);
             debug.addValue(times[i], trend[i] + noise[i]);
 
@@ -1646,7 +1680,7 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
         double totalMaxValue = 0.0;
         core_t::TTime lastTwoDay = times[0] + 3 * DAY;
 
-        for (std::size_t i = 0u; i < times.size(); ++i) {
+        for (std::size_t i = 0; i < times.size(); ++i) {
             decomposition.addPoint(times[i], trend[i] + noise[i]);
             debug.addValue(times[i], trend[i] + noise[i]);
 
@@ -1689,8 +1723,8 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
         LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
         LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
 
-        BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.10);
-        BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.21);
+        BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.1);
+        BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.2);
     }
 }
 

@@ -464,8 +464,7 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
     constexpr std::size_t WEEKEND_WEEKLY{1};
     constexpr std::size_t WEEKDAY_DAILY{2};
     constexpr std::size_t WEEKDAY_WEEKLY{3};
-
-    if (100 * values.size() < 190 * week) {
+    if (100 * values.size() < 190 * week || week < 14) {
         return {};
     }
 
