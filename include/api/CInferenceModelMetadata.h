@@ -35,12 +35,15 @@ public:
     using TVector = maths::CDenseVector<double>;
     using TStrVec = std::vector<std::string>;
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
+    using TPredictionFieldTypeResolverWriter =
+        std::function<void(const std::string&, TRapidJsonWriter&)>;
 
 public:
     //! Writes metadata using \p writer.
     void write(TRapidJsonWriter& writer) const;
     void columnNames(const TStrVec& columnNames);
     void classValues(const TStrVec& classValues);
+    void predictionFieldTypeResolverWriter(const TPredictionFieldTypeResolverWriter& resolverWriter);
     const std::string& typeString() const;
     //! Add importances \p values to the feature with index \p i to calculate total feature importance.
     //! Total feature importance is the mean of the magnitudes of importances for individual data points.
@@ -60,6 +63,10 @@ private:
     TSizeMinMaxAccumulatorUMap m_TotalShapValuesMinMax;
     TStrVec m_ColumnNames;
     TStrVec m_ClassValues;
+    TPredictionFieldTypeResolverWriter m_PredictionFieldTypeResolverWriter =
+        [](const std::string& value, TRapidJsonWriter& writer) {
+            writer.String(value);
+        };
 };
 }
 }
