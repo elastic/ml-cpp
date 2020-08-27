@@ -224,7 +224,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
     TSizeVec modelTrendSegments;
     LOG_TRACE(<< "trend segments = " << core::CContainerPrinter::print(trendSegments));
 
-    TRemoveTrend trendModels[]{
+    TRemoveTrend removeTrendModels[]{
         [&](TFloatMeanAccumulatorVec&) {
             LOG_TRACE(<< "no trend");
             modelTrendSegments.clear();
@@ -250,9 +250,9 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
     TFloatMeanAccumulatorVec valuesMinusTrend;
     TSeasonalComponentVec periods;
 
-    decompositions.reserve(6 * std::size(trendModels));
+    decompositions.reserve(7 * std::size(removeTrendModels));
 
-    for (const auto& removeTrend : trendModels) {
+    for (const auto& removeTrend : removeTrendModels) {
 
         valuesMinusTrend = m_Values;
 
@@ -566,7 +566,7 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
 
     LOG_TRACE(<< "testing " << core::CContainerPrinter::print(periods));
 
-    TComputeScaling scalings[]{
+    TComputeScaling removeScalingModels[]{
         [&](TFloatMeanAccumulatorVec& values, SHypothesisStats& hypothesis) {
             hypothesis.s_ScaleSegments.assign({0, values.size()});
             return true;
@@ -653,11 +653,11 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
 
         SHypothesisStats bestHypothesis{periods[i]};
 
-        for (const auto& scale : scalings) {
+        for (const auto& removeScaling : removeScalingModels) {
 
             SHypothesisStats hypothesis{periods[i]};
 
-            if (scale(m_ValuesToTest, hypothesis) &&
+            if (removeScaling(m_ValuesToTest, hypothesis) &&
                 CSignal::countNotMissing(m_ValuesToTest) > 0) {
 
                 LOG_TRACE(<< "scale segments = "
@@ -1318,7 +1318,7 @@ CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::testVariance(
     // is comfortably satisfied. In this context, the width of the fuzzy region is
     // relatively small, typically 10% of the constraint value.
     //
-    // The non-hard considerations are one-sided, i.e. they either *only* increase
+    // The other considerations are one-sided, i.e. they either *only* increase
     // or decrease the truth value of the overall proposition. This is done by
     // setting them to the max or min of the constraint value and the decision
     // boundary.
