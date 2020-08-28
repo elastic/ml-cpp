@@ -1549,21 +1549,23 @@ CTimeSeriesDecompositionDetail::TMakeTestForSeasonality
 CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilteredPredictor& predictor) const {
     return [predictor, this](const CExpandingWindow& window, core_t::TTime minimumPeriod,
                              const TFilteredPredictor& preconditioner) {
-        core_t::TTime startTime{window.beginValuesTime()};
+        core_t::TTime valuesStartTime{window.beginValuesTime()};
+        core_t::TTime bucketStartTime{window.bucketStartTime()};
         core_t::TTime bucketLength{window.bucketLength()};
         auto values = window.values();
         TBoolVec testableMask;
         for (const auto& component : this->seasonal()) {
             testableMask.push_back(CTimeSeriesTestForSeasonality::canTestComponent(
-                values, startTime, bucketLength, component.time()));
+                values, bucketStartTime, bucketLength, component.time()));
         }
         values = window.valuesMinusPrediction(std::move(values), [&](core_t::TTime time) {
             return preconditioner(time, testableMask);
         });
-        CTimeSeriesTestForSeasonality test{startTime, bucketLength, std::move(values)};
+        CTimeSeriesTestForSeasonality test{valuesStartTime, bucketStartTime,
+                                           bucketLength, std::move(values)};
         std::ptrdiff_t maximumNumberComponents{MAXIMUM_COMPONENTS};
         for (const auto& component : this->seasonal()) {
-            test.addModelledSeasonality(component.time());
+            test.addModelledSeasonality(component.time(), component.size());
             --maximumNumberComponents;
         }
         test.maximumNumberOfComponents(maximumNumberComponents);

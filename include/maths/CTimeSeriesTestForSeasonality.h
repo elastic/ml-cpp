@@ -63,7 +63,7 @@ public:
     const TFloatMeanAccumulatorVec& initialValues() const;
 
 private:
-    core_t::TTime m_StartTime = 0;
+    core_t::TTime m_InitialValuesStartTime = 0;
     core_t::TTime m_BucketLength = 0;
     TFloatMeanAccumulatorVec m_InitialValues;
 };
@@ -81,7 +81,8 @@ public:
                                  const TSeasonalComponent& period,
                                  std::size_t size,
                                  bool diurnal,
-                                 core_t::TTime startTime,
+                                 core_t::TTime initialValuesStartTime,
+                                 core_t::TTime bucketStartTime,
                                  core_t::TTime bucketLength,
                                  TFloatMeanAccumulatorVec initialValues);
 
@@ -113,7 +114,8 @@ private:
     TSeasonalComponent m_Period;
     std::size_t m_Size = 0;
     bool m_Diurnal = false;
-    core_t::TTime m_StartTime = 0;
+    core_t::TTime m_InitialValuesStartTime = 0;
+    core_t::TTime m_BucketStartTime = 0;
     core_t::TTime m_BucketLength = 0;
     TFloatMeanAccumulatorVec m_InitialValues;
 };
@@ -137,7 +139,8 @@ public:
              const TSeasonalComponent& period,
              std::size_t size,
              bool diurnal,
-             core_t::TTime startTime,
+             core_t::TTime initialValuesStartTime,
+             core_t::TTime bucketStartTime,
              core_t::TTime bucketLength,
              TFloatMeanAccumulatorVec initialValues);
 
@@ -178,14 +181,15 @@ public:
     static constexpr double OUTLIER_FRACTION = 0.1;
 
 public:
-    CTimeSeriesTestForSeasonality(core_t::TTime startTime,
+    CTimeSeriesTestForSeasonality(core_t::TTime valuesStartTime,
+                                  core_t::TTime bucketStartTime,
                                   core_t::TTime bucketLength,
                                   TFloatMeanAccumulatorVec values,
                                   double outlierFraction = OUTLIER_FRACTION);
 
     //! Check if it is possible to test for \p component given the window \p values.
     static bool canTestComponent(const TFloatMeanAccumulatorVec& values,
-                                 core_t::TTime startTime,
+                                 core_t::TTime bucketStartTime,
                                  core_t::TTime bucketLength,
                                  const CSeasonalTime& component);
 
@@ -193,7 +197,7 @@ public:
     void minimumPeriod(core_t::TTime minimumPeriod);
 
     //! Register a seasonal component which is already being modelled.
-    void addModelledSeasonality(const CSeasonalTime& period);
+    void addModelledSeasonality(const CSeasonalTime& period, std::size_t size);
 
     //! Add a predictor for the currently modelled seasonal conponents.
     void modelledSeasonalityPredictor(const TPredictor& predictor);
@@ -435,6 +439,8 @@ private:
                                 THypothesisStatsVec& hypotheses,
                                 TFloatMeanAccumulatorVec& residuals) const;
     TBoolVec selectModelledHypotheses(THypothesisStatsVec& hypotheses) const;
+    std::size_t selectComponentSize(const TFloatMeanAccumulatorVec& valuesToTest,
+                                    const TSeasonalComponent& period) const;
     void removeModelledPredictions(const TBoolVec& componentsToRemoveMask,
                                    core_t::TTime startTime,
                                    TFloatMeanAccumulatorVec& values) const;
@@ -490,7 +496,8 @@ private:
     std::ptrdiff_t m_MaximumNumberComponents = 10;
     TOptionalSize m_StartOfWeekOverride;
     TOptionalTime m_MinimumPeriod;
-    core_t::TTime m_StartTime = 0;
+    core_t::TTime m_ValuesStartTime = 0;
+    core_t::TTime m_BucketStartTime = 0;
     core_t::TTime m_BucketLength = 0;
     double m_OutlierFraction = OUTLIER_FRACTION;
     double m_EpsVariance = 0.0;
@@ -498,6 +505,7 @@ private:
         return 0.0;
     };
     TSeasonalComponentVec m_ModelledPeriods;
+    TSizeVec m_ModelledPeriodsSizes;
     TBoolVec m_ModelledPeriodsTestable;
     TFloatMeanAccumulatorVec m_Values;
     // The follow are member data to avoid repeatedly reinitialising.

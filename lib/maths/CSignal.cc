@@ -598,8 +598,7 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
         startOfWeek = week + 1;
 
         // If the choice is marginal, we seek to partition where the time series
-        // value is absolutely small and the total difference between values
-        // either side of the partition times is small.
+        // value is absolutely small.
         double varianceThreshold{1.05 * *std::min_element(candidateVariances.begin(),
                                                           candidateVariances.end())};
         for (std::size_t i = 0; i < candidateVariances.size(); ++i) {

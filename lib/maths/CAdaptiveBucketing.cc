@@ -299,11 +299,8 @@ void CAdaptiveBucketing::initialValues(core_t::TTime start,
             double value{seedValues.value(static_cast<double>(time))};
             double weight{scale * seedWeights.value(static_cast<double>(time))};
             std::size_t bucket;
-            if (this->bucket(time, bucket)) {
-                if (weight > 0.0) {
-                    this->add(bucket, time, weight);
-                    this->add(bucket, time, value, weight);
-                }
+            if (this->bucket(time, bucket) && weight > 0.0) {
+                this->addInitialValue(bucket, time, value, weight);
             }
             observedSinceLastRefine += dt;
             if (observedSinceLastRefine >= repeat) {
@@ -801,7 +798,7 @@ bool CAdaptiveBucketing::bucket(core_t::TTime time, std::size_t& result) const {
     return true;
 }
 
-uint64_t CAdaptiveBucketing::checksum(uint64_t seed) const {
+std::uint64_t CAdaptiveBucketing::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_DecayRate);
     seed = CChecksum::calculate(seed, m_MinimumBucketLength);
     seed = CChecksum::calculate(seed, m_TargetSize);

@@ -65,6 +65,10 @@ void CExpandingWindow::acceptPersistInserter(core::CStatePersistInserter& insert
     inserter.insertValue(MEAN_OFFSET_TAG, m_MeanOffset.toDelimited());
 }
 
+core_t::TTime CExpandingWindow::bucketStartTime() const {
+    return m_StartTime;
+}
+
 core_t::TTime CExpandingWindow::bucketLength() const {
     return m_BucketLengths[m_BucketLengthIndex];
 }

@@ -71,6 +71,9 @@ public:
     //! Persist state by passing information to \p inserter.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
+    //! Get the start of the first bucket.
+    core_t::TTime bucketStartTime() const;
+
     //! Get the current bucket length.
     core_t::TTime bucketLength() const;
 
