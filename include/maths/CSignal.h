@@ -67,6 +67,13 @@ public:
             return s_Period == rhs.s_Period && s_StartOfWeek == rhs.s_StartOfWeek &&
                    s_WindowRepeat == rhs.s_WindowRepeat && s_Window == rhs.s_Window;
         }
+        bool operator<(const SSeasonalComponentSummary& rhs) const {
+            return COrderings::lexicographical_compare(
+                s_Period, s_StartOfWeek, s_WindowRepeat, s_Window, // lhs
+                rhs.s_Period, rhs.s_StartOfWeek, rhs.s_WindowRepeat, rhs.s_Window);
+        }
+
+        //! Check equality to within a relative \p eps.
         bool almostEqual(const SSeasonalComponentSummary& rhs, double eps) const {
             return almostEqual(s_Period, rhs.s_Period, eps) &&
                    almostEqual(s_StartOfWeek, rhs.s_StartOfWeek, eps) &&
@@ -74,18 +81,15 @@ public:
                    almostEqual(s_Window.first, rhs.s_Window.first, eps) &&
                    almostEqual(s_Window.second, rhs.s_Window.second, eps);
         }
+        //! Check equality of the period to within a relative \p eps.
         bool periodAlmostEqual(const SSeasonalComponentSummary& rhs, double eps) const {
             return almostEqual(s_Period, rhs.s_Period, eps);
         }
+        //! Check equality to within a relative \p eps.
         static bool almostEqual(std::size_t i, std::size_t j, double eps) {
             std::size_t max{std::max(i, j)};
             std::size_t min{std::min(i, j)};
             return static_cast<double>(max - min) <= eps * static_cast<double>(max);
-        }
-        bool operator<(const SSeasonalComponentSummary& rhs) const {
-            return COrderings::lexicographical_compare(
-                s_Period, s_StartOfWeek, s_WindowRepeat, s_Window, // lhs
-                rhs.s_Period, rhs.s_StartOfWeek, rhs.s_WindowRepeat, rhs.s_Window);
         }
 
         //! If this is windowed check whether the window contains \p index.
@@ -93,25 +97,38 @@ public:
             index = (s_WindowRepeat + index - s_StartOfWeek) % s_WindowRepeat;
             return index >= s_Window.first && index < s_Window.second;
         }
+
+        //! Get the fraction of \p range which falls in the time windows.
+        std::size_t fractionInWindow(std::size_t range) const {
+            if (s_WindowRepeat > 0) {
+                return ((s_Window.second - s_Window.first) * range) / s_WindowRepeat;
+            }
+            return range;
+        }
+
         //! The offset of \p index in the period.
         std::size_t offset(std::size_t index) const {
             index = (s_WindowRepeat + index - s_StartOfWeek) % s_WindowRepeat;
             return (index - s_Window.first) % this->period();
         }
+
         //! The next repeat of the value at \p index.
         std::size_t nextRepeat(std::size_t index) const {
             for (index += s_Period; this->contains(index) == false; index += s_Period) {
             }
             return index;
         }
+
         //! The windowed length of the repeat.
         std::size_t period() const {
             return std::min(s_Period, s_Window.second - s_Window.first);
         }
+
         //! True if this component is restricted to time windows.
         bool windowed() const {
             return s_Window.second - s_Window.first < s_WindowRepeat;
         }
+
         //! The indices of the start and end of the values in the time windows.
         TSizeSizePr2Vec windows(std::size_t numberValues) const {
             TSizeSizePr2Vec result;
@@ -126,6 +143,7 @@ public:
             }
             return result;
         }
+
         //! The value of the \p model of this component at \p index.
         template<typename MODEL>
         double value(const MODEL& model, std::size_t index) const {
@@ -133,6 +151,7 @@ public:
                        ? 0.0
                        : CBasicStatistics::mean(model[this->offset(index)]);
         }
+
         //! Get a description of the component.
         std::string print() const {
             std::ostringstream result;

@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_maths_CTimeSeriesTestForSeasonality_h
 #define INCLUDED_ml_maths_CTimeSeriesTestForSeasonality_h
 
+#include "model/ModelTypes.h"
 #include <core/CSmallVector.h>
 #include <core/CVectorRange.h>
 #include <core/Constants.h>
@@ -76,11 +77,19 @@ public:
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
     using TSeasonalTimeUPtr = std::unique_ptr<CSeasonalTime>;
 
+    enum EPeriodDescriptor {
+        E_Day = 0x1,
+        E_Week = 0x2,
+        E_Year = 0x4,
+        E_General = 0x8,
+        E_Diurnal = E_Day | E_Week
+    };
+
 public:
     CNewSeasonalComponentSummary(std::string annotationText,
                                  const TSeasonalComponent& period,
                                  std::size_t size,
-                                 bool diurnal,
+                                 EPeriodDescriptor periodDescriptor,
                                  core_t::TTime initialValuesStartTime,
                                  core_t::TTime bucketStartTime,
                                  core_t::TTime bucketLength,
@@ -113,7 +122,7 @@ private:
     std::string m_AnnotationText;
     TSeasonalComponent m_Period;
     std::size_t m_Size = 0;
-    bool m_Diurnal = false;
+    EPeriodDescriptor m_PeriodDescriptor = E_General;
     core_t::TTime m_InitialValuesStartTime = 0;
     core_t::TTime m_BucketStartTime = 0;
     core_t::TTime m_BucketLength = 0;
@@ -129,6 +138,7 @@ public:
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
     using TNewSeasonalComponentVec = std::vector<CNewSeasonalComponentSummary>;
+    using TPeriodDescriptor = CNewSeasonalComponentSummary::EPeriodDescriptor;
 
 public:
     //! Add the new trend summary.
@@ -138,7 +148,7 @@ public:
     void add(std::string annotationText,
              const TSeasonalComponent& period,
              std::size_t size,
-             bool diurnal,
+             TPeriodDescriptor periodDescriptor,
              core_t::TTime initialValuesStartTime,
              core_t::TTime bucketStartTime,
              core_t::TTime bucketLength,
@@ -251,8 +261,12 @@ private:
     using TSeasonalComponentCRng = core::CVectorRange<const TSeasonalComponentVec>;
     using TMeanAccumulatorVecVec = CSignal::TMeanAccumulatorVecVec;
     using TMeanAccumulatorVecCRng = core::CVectorRange<const TMeanAccumulatorVecVec>;
+    using TPeriodDescriptor = CNewSeasonalComponentSummary::EPeriodDescriptor;
     using TSegmentation = CTimeSeriesSegmentation;
     using TWeightFunc = TSegmentation::TWeightFunc;
+    using TBucketPredictor = std::function<double(std::size_t)>;
+    using TRemoveTrend =
+        std::function<bool(const TSeasonalComponentVec&, TFloatMeanAccumulatorVec&, TSizeVec&)>;
 
     //! \brief Accumulates the minimum amplitude.
     //!
@@ -262,7 +276,7 @@ private:
     class CMinAmplitude {
     public:
         static constexpr double INF = std::numeric_limits<double>::max();
-        static constexpr std::size_t MINIMUM_REPEATS{5};
+        static constexpr std::size_t MINIMUM_REPEATS{4};
 
     public:
         CMinAmplitude(std::size_t numberValues, double meanRepeats, double level)
@@ -325,8 +339,10 @@ private:
         std::size_t s_NumberTrendSegments = 0;
         //! The number of scale segments in the component.
         std::size_t s_NumberScaleSegments = 0;
-        //! The mean number of repeats of buckets with at least one measurement.
+        //! The mean number of repeats of buckets with at least one value.
         double s_MeanNumberRepeats = 0.0;
+        //! The number of repeats of the period window with at least one value.
+        double s_WindowRepeats = 0.0;
         //! The autocorrelation estimate of the hypothesis.
         double s_Autocorrelation = 0.0;
         //! The autocorrelation estimate of absolute values for the hypothesis.
@@ -382,6 +398,8 @@ private:
         double numberParameters() const;
         //! The minimum mean number of repeats of any seasonal component.
         double meanRepeats() const;
+        //! Get the total number of linear scalings of the periods which were used.
+        double numberScalings() const;
         //! Get the variance explained per parameter weighted by the variance explained
         //! by each component of the model.
         double explainedVariancePerParameter(double explainedVariance) const;
@@ -409,29 +427,20 @@ private:
 
 private:
     CSeasonalDecomposition select(TModelVec& hypotheses) const;
-    void addNotSeasonal(const TFloatMeanAccumulatorVec& valuesMinusTrend,
-                        const TSizeVec& modelTrendSegments,
-                        TModelVec& decompositions) const;
-    void addModelled(const TFloatMeanAccumulatorVec& valuesMinusTrend,
-                     const TSizeVec& modelTrendSegments,
-                     TSeasonalComponentVec& periods,
-                     TModelVec& decompositions) const;
-    void addDiurnal(const TFloatMeanAccumulatorVec& valuesMinusTrend,
-                    const TSizeVec& modelTrendSegments,
-                    TSeasonalComponentVec& periods,
-                    TModelVec& decompositions) const;
-    void addDecomposition(const TFloatMeanAccumulatorVec& valuesMinusTrend,
-                          const TSizeVec& modelTrendSegments,
-                          TSeasonalComponentVec& periods,
-                          TModelVec& decompositions) const;
+    void addNotSeasonal(const TRemoveTrend& removeTrend, TModelVec& decompositions) const;
+    void addModelled(const TRemoveTrend& removeTrend, TModelVec& decompositions) const;
+    void addDiurnal(const TRemoveTrend& removeTrend, TModelVec& decompositions) const;
+    void addHighestAutocorrelation(const TRemoveTrend& removeTrend,
+                                   TModelVec& decompositions) const;
     void testAndAddDecomposition(const TSeasonalComponentVec& periods,
                                  const TSizeVec& modelTrendSegments,
                                  const TFloatMeanAccumulatorVec& valuesToTest,
-                                 TModelVec& decompositions,
-                                 bool alreadyModelled) const;
+                                 bool alreadyModelled,
+                                 TModelVec& decompositions) const;
     SModel testDecomposition(const TSeasonalComponentVec& periods,
                              std::size_t numberTrendSegments,
-                             const TFloatMeanAccumulatorVec& valueToTest) const;
+                             const TFloatMeanAccumulatorVec& valueToTest,
+                             bool alreadyModelled) const;
     bool acceptDecomposition(const SModel& decomposition) const;
     void updateResiduals(const SHypothesisStats& hypothesis,
                          TFloatMeanAccumulatorVec& residuals) const;
@@ -450,9 +459,6 @@ private:
                    const TWeightFunc& weight,
                    TFloatMeanAccumulatorVec& values,
                    TDoubleVec& scales) const;
-    void removePredictions(const TSeasonalComponentCRng& periodsToRemove,
-                           const TMeanAccumulatorVecCRng& componentsToRemove,
-                           TFloatMeanAccumulatorVec& values) const;
     void testExplainedVariance(const TVarianceStats& H0, SHypothesisStats& hypothesis) const;
     void testAutocorrelation(SHypothesisStats& hypothesis) const;
     void testAmplitude(SHypothesisStats& hypothesis) const;
@@ -463,11 +469,11 @@ private:
     bool alreadyModelled(const TSeasonalComponent& period) const;
     bool onlyDiurnal(const TSeasonalComponentVec& periods) const;
     void removeIfNotTestable(TSeasonalComponentVec& periods) const;
+    TPeriodDescriptor periodDescriptor(std::size_t period) const;
     bool isDiurnal(std::size_t period) const;
     bool isDiurnal(const TSeasonalComponent& period) const;
     bool isWeekend(const TSeasonalComponent& period) const;
     bool isWeekday(const TSeasonalComponent& period) const;
-    bool permittedPeriod(const TSeasonalComponent& period) const;
     bool includesPermittedPeriod(const TSeasonalComponentVec& period) const;
     std::string annotationText(const TSeasonalComponent& period) const;
     std::size_t day() const;
@@ -483,6 +489,11 @@ private:
     static bool canTestPeriod(const TFloatMeanAccumulatorVec& values,
                               const TSeasonalComponent& period);
     static std::size_t observedRange(const TFloatMeanAccumulatorVec& values);
+    static void removePredictions(const TSeasonalComponentCRng& periodsToRemove,
+                                  const TMeanAccumulatorVecCRng& componentsToRemove,
+                                  TFloatMeanAccumulatorVec& values);
+    static void removePredictions(const TBucketPredictor& predictor,
+                                  TFloatMeanAccumulatorVec& values);
 
 private:
     double m_MinimumRepeatsPerSegmentToTestVariance = 3.0;
@@ -510,11 +521,14 @@ private:
     TFloatMeanAccumulatorVec m_Values;
     // The follow are member data to avoid repeatedly reinitialising.
     mutable TSizeVec m_WindowIndices;
-    mutable TSeasonalComponentVec m_Periods;
     mutable TAmplitudeVec m_Amplitudes;
+    mutable TSeasonalComponentVec m_Periods;
+    mutable TSeasonalComponentVec m_CandidatePeriods;
     mutable TMeanAccumulatorVecVec m_Components;
     mutable TFloatMeanAccumulatorVec m_ValuesToTest;
     mutable TFloatMeanAccumulatorVec m_TemporaryValues;
+    mutable TFloatMeanAccumulatorVec m_ValuesMinusTrend;
+    mutable TSizeVec m_ModelTrendSegments;
     mutable TMaxAccumulator m_Outliers;
     mutable TDoubleVec m_Scales;
 

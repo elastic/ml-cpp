@@ -170,7 +170,6 @@ public:
         LOG_DEBUG(<< "*** learn ***");
 
         test::CRandomNumbers rng;
-        LOG_DEBUG(<< m_BucketLength);
         maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary controllers{
             decayRateControllers()};
         maths::CUnivariateTimeSeriesModel model(
@@ -298,7 +297,7 @@ BOOST_AUTO_TEST_CASE(testDailyConstantLongTermTrend) {
 }
 
 BOOST_AUTO_TEST_CASE(testDailyVaryingLongTermTrend) {
-    core_t::TTime bucketLength{3600};
+    core_t::TTime bucketLength{1800};
     double day{static_cast<double>(core::constants::DAY)};
     TDoubleVec times{0.0,         5.0 * day,   10.0 * day,  15.0 * day,
                      20.0 * day,  25.0 * day,  30.0 * day,  35.0 * day,
@@ -323,7 +322,7 @@ BOOST_AUTO_TEST_CASE(testDailyVaryingLongTermTrend) {
     test.bucketLength(bucketLength)
         .daysToLearn(98)
         .noiseVariance(9.0)
-        .maximumPercentageOutOfBounds(4.0)
+        .maximumPercentageOutOfBounds(5.0)
         .maximumError(0.04)
         .run(trend);
 }
@@ -346,7 +345,7 @@ BOOST_AUTO_TEST_CASE(testComplexNoLongTermTrend) {
         .daysToLearn(63)
         .noiseVariance(24.0)
         .maximumPercentageOutOfBounds(11.0)
-        .maximumError(0.14)
+        .maximumError(0.13)
         .run(trend);
 }
 
@@ -368,7 +367,7 @@ BOOST_AUTO_TEST_CASE(testComplexConstantLongTermTrend) {
     test.bucketLength(bucketLength)
         .daysToLearn(63)
         .noiseVariance(24.0)
-        .maximumPercentageOutOfBounds(11.0)
+        .maximumPercentageOutOfBounds(20.0)
         .maximumError(0.02)
         .run(trend);
 }
@@ -400,7 +399,6 @@ BOOST_AUTO_TEST_CASE(testComplexVaryingLongTermTrend) {
         return trend_.value(time_) + scale[d] * (20.0 + y[h] + noise);
     };
 
-    // TODO weirdness
     CTest test;
     test.bucketLength(bucketLength)
         .daysToLearn(98)

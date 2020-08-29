@@ -391,8 +391,8 @@ BOOST_AUTO_TEST_CASE(testRealTradingDaysPlusOutliers) {
             maths::CTimeSeriesTestForSeasonality seasonality{lastTest, lastTest, HOUR, values};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< result.print());
-            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800)]" ||
-                          result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]");
+            BOOST_REQUIRE(result.print() == "[86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]" ||
+                          result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800)]");
             values.assign(window / HOUR, TFloatMeanAccumulator{});
             lastTest = time;
         }
@@ -727,6 +727,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
             maths::CTimeSeriesTestForSeasonality seasonality{
                 startTime, startTime, bucketLength, std::move(values)};
             auto result = seasonality.decompose();
+            LOG_DEBUG(<< result.print());
             BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800)]");
         }
     }
@@ -1024,8 +1025,8 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend) {
     double FN{0.0};
 
     for (std::size_t test = 0; test < 20; ++test) {
-        if ((test + 1) % 10 == 0) {
-            LOG_DEBUG(<< "test " << test + 1 << " / 100");
+        if ((test + 1) % 2 == 0) {
+            LOG_DEBUG(<< "test " << test + 1 << " / 20");
         }
 
         for (auto window : {3 * WEEK, 4 * WEEK}) {
@@ -1341,7 +1342,7 @@ BOOST_AUTO_TEST_CASE(testNewTrendSummary) {
         }
         BOOST_REQUIRE_CLOSE_ABSOLUTE(
             static_cast<double>(maths::CBasicStatistics::mean(expectedMeanSlope)),
-            static_cast<double>(maths::CBasicStatistics::mean(meanSlope)), 1e-3);
+            static_cast<double>(maths::CBasicStatistics::mean(meanSlope)), 2e-3);
 
         // Expect agreement with generator.
         for (const auto& component : result.seasonal()) {
@@ -1356,7 +1357,7 @@ BOOST_AUTO_TEST_CASE(testNewTrendSummary) {
         for (core_t::TTime time = 0; time < 4 * WEEK; time += HOUR) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0 * trend(startTime + time) +
                                              10.0 * season(startTime + time),
-                                         predictions[time / HOUR], 1.0);
+                                         predictions[time / HOUR], 10.0);
         }
     }
 }
