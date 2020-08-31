@@ -792,7 +792,7 @@ BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
     BOOST_TEST_REQUIRE(totalSumResidual < 0.09 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.13 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.10 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.05 * totalSumValue);
 }
 
@@ -1153,9 +1153,9 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.28 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.70 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.14 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.27 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.71 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.15 * totalSumValue);
 
     TMeanAccumulator scale;
     double variance = decomposition.meanVariance();
@@ -1253,9 +1253,9 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.19 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.47 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.09 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.18 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.51 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.12 * totalSumValue);
 }
 
 BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
@@ -2002,12 +2002,57 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
     }
 
-    double bounds[]{0.01, 0.013, 0.15, 0.019};
+    double bounds[]{0.01, 0.013, 0.15, 0.01};
     for (std::size_t i = 0; i < 4; ++i) {
         double error{maths::CBasicStatistics::mean(errors[i])};
         LOG_DEBUG(<< "error = " << error);
         BOOST_TEST_REQUIRE(error < bounds[i]);
     }
+}
+
+BOOST_FIXTURE_TEST_CASE(testRemoveSeasonal, CTestFixture) {
+
+    // Check we correctly remove all seasonal components.
+
+    test::CRandomNumbers rng;
+
+    auto trend = [](core_t::TTime time) {
+        return 20.0 +
+               10.0 * std::sin(boost::math::double_constants::two_pi *
+                               static_cast<double>(time) / static_cast<double>(DAY)) -
+               10.0 * (time > 4 * WEEK
+                           ? std::sin(boost::math::double_constants::two_pi *
+                                      static_cast<double>(time) / static_cast<double>(DAY))
+                           : 0.0);
+    };
+
+    maths::CTimeSeriesDecomposition decomposition(0.012, FIVE_MINS);
+    maths::CDecayRateController controller(maths::CDecayRateController::E_PredictionBias |
+                                               maths::CDecayRateController::E_PredictionErrorIncrease,
+                                           1);
+    CDebugGenerator debug;
+
+    TMeanAccumulator errors[4];
+    TDoubleVec noise;
+    for (core_t::TTime time = 0; time < 20 * WEEK; time += FIVE_MINS) {
+        rng.generateNormalSamples(0.0, 1.0, 1, noise);
+        decomposition.addPoint(time, trend(time) + noise[0]);
+        debug.addValue(time, trend(time) + noise[0]);
+
+        if (decomposition.initialized()) {
+            TDouble1Vec prediction{decomposition.meanValue(time)};
+            TDouble1Vec predictionError{
+                decomposition.detrend(time, trend(time) + noise[0], 0.0)};
+            double multiplier{controller.multiplier(prediction, {predictionError},
+                                                    FIVE_MINS, 1.0, 0.0001)};
+            decomposition.decayRate(multiplier * decomposition.decayRate());
+        }
+
+        double prediction = mean(decomposition.value(time, 0.0));
+        debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
+    }
+
+    BOOST_REQUIRE(decomposition.seasonalComponents().empty());
 }
 
 BOOST_FIXTURE_TEST_CASE(testSwap, CTestFixture) {
@@ -2041,8 +2086,8 @@ BOOST_FIXTURE_TEST_CASE(testSwap, CTestFixture) {
         decomposition2.addPoint(times[i], trend2[i] + noise[i + 1]);
     }
 
-    uint64_t checksum1 = decomposition1.checksum();
-    uint64_t checksum2 = decomposition2.checksum();
+    std::uint64_t checksum1 = decomposition1.checksum();
+    std::uint64_t checksum2 = decomposition2.checksum();
 
     LOG_DEBUG(<< "checksum1 = " << checksum1 << ", checksum2 = " << checksum2);
 

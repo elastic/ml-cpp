@@ -553,7 +553,7 @@ const CSeasonalityTestParameters::TParametersVecVec CSeasonalityTestParameters::
      {5, 1, 336, {5, 10, 30, 60, 300}, {}},
      {10, 1, 336, {10, 30, 60, 300, 600}, {}},
      {30, 1, 336, {30, 60, 300, 600, 1800}, {3 * 86400}},
-     {60, 1, 336, {60, 300, 600, 1800, 3600}, {3 * 86400}},
+     {60, 1, 336, {60, 300, 600, 1800, 3600, 7200}, {3 * 86400}},
      {300, 1, 336, {300, 600, 1800, 3600, 7200}, {3 * 86400}},
      {600, 1, 336, {600, 1800, 3600, 7200}, {3 * 86400}},
      {900, 1, 336, {900, 1800, 3600, 7200, 14400}, {3 * 86400}},
@@ -571,7 +571,7 @@ const CSeasonalityTestParameters::TParametersVecVec CSeasonalityTestParameters::
      {5, 86401, 336, {1800, 3600, 7200}, {3 * 86400, 21 * 86400}},
      {10, 86401, 336, {3600, 7200}, {3 * 86400, 7 * 86400, 21 * 86400}},
      {30, 86401, 336, {3600, 7200}, {3 * 86400, 7 * 86400, 21 * 86400}},
-     {60, 86401, 336, {7200, 14400, 28800}, {21 * 86400, 42 * 86400}},
+     {60, 86401, 336, {14400, 28800}, {21 * 86400, 42 * 86400}},
      {300, 86401, 336, {14400, 28800}, {21 * 86400, 42 * 86400}},
      {600, 86401, 336, {14400, 28800}, {21 * 86400, 42 * 86400}},
      {900, 604801, 365, {28800, 86400, 259200}, {}},
@@ -722,7 +722,7 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::test(const SAddValue& mes
                 auto seasonalityTest = makeTest(*window, minimumPeriod, preconditioner);
 
                 auto decomposition = seasonalityTest.decompose();
-                if (decomposition.seasonal().size() > 0) {
+                if (decomposition.componentsChanged()) {
                     this->mediator()->forward(
                         SDetectedSeasonal{time, lastTime, std::move(decomposition)});
                     break;
@@ -1397,7 +1397,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
         core_t::TTime time{message.s_Time};
         core_t::TTime lastTime{message.s_LastTime};
         const auto& components = message.s_Components;
-        LOG_DEBUG(<< "Detected seasonal components at " << time);
+        LOG_DEBUG(<< "Detected change in seasonal components at " << time);
 
         this->addSeasonalComponents(components);
         this->apply(SC_ADDED_COMPONENTS, message);
@@ -1639,6 +1639,11 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CS
     m_Seasonal->remove(components.seasonalToRemoveMask());
     LOG_TRACE(<< "remove mask = "
               << core::CContainerPrinter::print(components.seasonalToRemoveMask()));
+
+    if (components.seasonal().size() == 0) {
+        LOG_DEBUG(<< "removed all seasonality");
+        m_ModelAnnotationCallback("removed all seasonality");
+    }
 
     for (const auto& component : components.seasonal()) {
         LOG_DEBUG(<< component.annotationText());

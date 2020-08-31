@@ -141,6 +141,9 @@ public:
     using TPeriodDescriptor = CNewSeasonalComponentSummary::EPeriodDescriptor;
 
 public:
+    //! Should we remove existing modelled seasonality?
+    void removeModelled();
+
     //! Add the new trend summary.
     void add(CNewTrendSummary value);
 
@@ -156,6 +159,9 @@ public:
 
     //! Add a mask of any seasonal components which should be removed.
     void add(TBoolVec seasonalToRemoveMask);
+
+    //! Return true if the test thinks the components have changed.
+    bool componentsChanged() const;
 
     //! Get the summary of any trend component.
     const CNewTrendSummary* trend() const;
@@ -173,6 +179,7 @@ private:
     using TOptionalNewTrendSummary = boost::optional<CNewTrendSummary>;
 
 private:
+    bool m_RemoveModelled = false;
     TOptionalNewTrendSummary m_Trend;
     TNewSeasonalComponentVec m_Seasonal;
     TBoolVec m_SeasonalToRemoveMask;

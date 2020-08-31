@@ -351,8 +351,8 @@ BOOST_AUTO_TEST_CASE(testRealTradingDays) {
             maths::CTimeSeriesTestForSeasonality seasonality{lastTest, lastTest, HOUR, values};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< result.print());
-            BOOST_REQUIRE(result.print() == "[86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]" ||
-                          result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]");
+            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800)]" ||
+                          result.print() == "[86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]");
             values.assign(window / HOUR, TFloatMeanAccumulator{});
             lastTest = time;
         }
