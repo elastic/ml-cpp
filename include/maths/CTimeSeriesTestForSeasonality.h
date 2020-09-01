@@ -7,7 +7,6 @@
 #ifndef INCLUDED_ml_maths_CTimeSeriesTestForSeasonality_h
 #define INCLUDED_ml_maths_CTimeSeriesTestForSeasonality_h
 
-#include "model/ModelTypes.h"
 #include <core/CSmallVector.h>
 #include <core/CVectorRange.h>
 #include <core/Constants.h>
@@ -15,6 +14,7 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CFuzzyLogic.h>
+#include <maths/CLinearAlgebra.h>
 #include <maths/CSignal.h>
 #include <maths/CTimeSeriesSegmentation.h>
 #include <maths/ImportExport.h>
@@ -32,7 +32,7 @@
 #include <vector>
 
 namespace CTimeSeriesTestForSeasonalityTest {
-struct calibrateTruncatedVariance;
+struct calibrateFTest;
 }
 
 namespace ml {
@@ -72,6 +72,7 @@ private:
 //! \brief A summary of a new seasonal component.
 class MATHS_EXPORT CNewSeasonalComponentSummary {
 public:
+    using TOptionalTime = boost::optional<core_t::TTime>;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
@@ -93,6 +94,7 @@ public:
                                  core_t::TTime initialValuesStartTime,
                                  core_t::TTime bucketStartTime,
                                  core_t::TTime bucketLength,
+                                 TOptionalTime startOfWeekTime,
                                  TFloatMeanAccumulatorVec initialValues);
 
     //! Get the annotation for this component.
@@ -126,6 +128,7 @@ private:
     core_t::TTime m_InitialValuesStartTime = 0;
     core_t::TTime m_BucketStartTime = 0;
     core_t::TTime m_BucketLength = 0;
+    TOptionalTime m_StartOfWeekTime;
     TFloatMeanAccumulatorVec m_InitialValues;
 };
 
@@ -134,6 +137,7 @@ private:
 class MATHS_EXPORT CSeasonalDecomposition {
 public:
     using TBoolVec = std::vector<bool>;
+    using TOptionalTime = boost::optional<core_t::TTime>;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
@@ -155,6 +159,7 @@ public:
              core_t::TTime initialValuesStartTime,
              core_t::TTime bucketStartTime,
              core_t::TTime bucketLength,
+             TOptionalTime startOfWeekTime,
              TFloatMeanAccumulatorVec initialValues);
 
     //! Add a mask of any seasonal components which should be removed.
@@ -210,9 +215,6 @@ public:
                                  core_t::TTime bucketLength,
                                  const CSeasonalTime& component);
 
-    //! The minimum seasonal component period to consider.
-    void minimumPeriod(core_t::TTime minimumPeriod);
-
     //! Register a seasonal component which is already being modelled.
     void addModelledSeasonality(const CSeasonalTime& period, std::size_t size);
 
@@ -248,6 +250,14 @@ public:
         m_AcceptedFalsePostiveRate = value;
         return *this;
     }
+    CTimeSeriesTestForSeasonality& minimumPeriod(core_t::TTime value) {
+        m_MinimumPeriod = value;
+        return *this;
+    }
+    CTimeSeriesTestForSeasonality& minimumModelSize(std::size_t value) {
+        m_MinimumModelSize = value;
+        return *this;
+    }
     CTimeSeriesTestForSeasonality& maximumNumberOfComponents(std::ptrdiff_t value) {
         m_MaximumNumberComponents = value;
         return *this;
@@ -262,6 +272,8 @@ private:
     using TOptionalTime = boost::optional<core_t::TTime>;
     using TMaxAccumulator =
         CBasicStatistics::COrderStatisticsHeap<double, std::greater<double>>;
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+    using TVector2x1 = CVectorNx1<double, 2>;
     using TVarianceStats = CSignal::SVarianceStats;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TSeasonalComponentVec = CSignal::TSeasonalComponentVec;
@@ -340,8 +352,8 @@ private:
         bool s_Model = false;
         //! A summary of the seasonal component period.
         TSeasonalComponent s_Period;
-        //! The desired component size.
-        std::size_t s_ComponentSize = 0;
+        //! The desired component model size.
+        std::size_t s_ModelSize = 0;
         //! The number of segments in the trend.
         std::size_t s_NumberTrendSegments = 0;
         //! The number of scale segments in the component.
@@ -381,13 +393,13 @@ private:
     //! \brief A candidate model for the values being decomposed.
     struct SModel {
         SModel() = default;
-        SModel(double residualVariance,
-               double truncatedResidualVariance,
+        SModel(TMeanVarAccumulator residualMoments,
+               TMeanVarAccumulator truncatedResidualMoments,
                std::size_t numberTrendParameters,
                TFloatMeanAccumulatorVec trendInitialValues,
                THypothesisStatsVec hypotheses,
                TBoolVec removeComponentsMask)
-            : s_ResidualVariance{residualVariance}, s_TruncatedResidualVariance{truncatedResidualVariance},
+            : s_ResidualMoments{residualMoments}, s_TruncatedResidualMoments{truncatedResidualMoments},
               s_NumberTrendParameters{numberTrendParameters},
               s_TrendInitialValues{std::move(trendInitialValues)},
               s_Hypotheses{std::move(hypotheses)}, s_RemoveComponentsMask{std::move(
@@ -396,20 +408,24 @@ private:
         //! Does this include seasonality?
         bool seasonal() const { return s_Hypotheses.size() > 0; }
         //! Should this behave as a null hypothesis?
-        bool isNull(std::size_t numberValues) const;
+        bool isNull() const;
         //! Should this behave as an alternative hypothesis?
-        bool isAlternative(std::size_t numberValues) const;
-        //! The number of degrees of freedom in the variance estimate.
-        double degreesFreedom(std::size_t numberValues) const;
+        bool isAlternative() const;
+        //! The p-value of this model vs H0.
+        double pValue(const SModel& H0) const;
+        //! A proxy for p-value of this model vs H0 which doesn't underflow.
+        double logPValueProxy(const SModel& H0) const;
+        //! Get the variance explained per parameter weighted by the variance explained
+        //! by each component of the model.
+        TVector2x1 explainedVariancePerParameter(const SModel& H0) const;
         //! The number of parameters in model.
         double numberParameters() const;
+        //! The target model size.
+        double targetModelSize() const;
         //! The minimum mean number of repeats of any seasonal component.
         double meanRepeats() const;
         //! Get the total number of linear scalings of the periods which were used.
         double numberScalings() const;
-        //! Get the variance explained per parameter weighted by the variance explained
-        //! by each component of the model.
-        double explainedVariancePerParameter(double explainedVariance) const;
         //! Get the average autocorrelation weighted by the variance explained by each
         //! component of the model.
         double autocorrelation() const;
@@ -417,9 +433,9 @@ private:
         //! Are the seasonal components already modelled?
         bool s_AlreadyModelled = false;
         //! The residual variance after removing the seasonal components.
-        double s_ResidualVariance = std::numeric_limits<double>::max();
+        TMeanVarAccumulator s_ResidualMoments;
         //! The residual variance after removing the seasonal components and outliers.
-        double s_TruncatedResidualVariance = std::numeric_limits<double>::max();
+        TMeanVarAccumulator s_TruncatedResidualMoments;
         //! The number of parameters in the trend model.
         std::size_t s_NumberTrendParameters = 1;
         //! The values with which to initialize the trend.
@@ -457,6 +473,7 @@ private:
     TBoolVec selectModelledHypotheses(THypothesisStatsVec& hypotheses) const;
     std::size_t selectComponentSize(const TFloatMeanAccumulatorVec& valuesToTest,
                                     const TSeasonalComponent& period) const;
+    std::size_t similarModelled(const TSeasonalComponent& period) const;
     void removeModelledPredictions(const TBoolVec& componentsToRemoveMask,
                                    core_t::TTime startTime,
                                    TFloatMeanAccumulatorVec& values) const;
@@ -470,8 +487,8 @@ private:
     void testAutocorrelation(SHypothesisStats& hypothesis) const;
     void testAmplitude(SHypothesisStats& hypothesis) const;
     TVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values) const;
-    double truncatedVariance(double outlierFraction,
-                             const TFloatMeanAccumulatorVec& residuals) const;
+    TMeanVarAccumulator truncatedMoments(double outlierFraction,
+                                         const TFloatMeanAccumulatorVec& residuals) const;
     bool alreadyModelled(const TSeasonalComponentVec& periods) const;
     bool alreadyModelled(const TSeasonalComponent& period) const;
     bool onlyDiurnal(const TSeasonalComponentVec& periods) const;
@@ -509,10 +526,12 @@ private:
     double m_MediumAutocorrelation = 0.5;
     double m_HighAutocorrelation = 0.7;
     double m_SignificantPValue = 1e-3;
-    double m_VerySignificantPValue = 1e-8;
+    double m_VerySignificantPValue = 1e-6;
     double m_AcceptedFalsePostiveRate = 1e-4;
     std::ptrdiff_t m_MaximumNumberComponents = 10;
+    std::size_t m_MinimumModelSize = 24;
     TOptionalSize m_StartOfWeekOverride;
+    TOptionalTime m_StartOfWeekTimeOverride;
     TOptionalTime m_MinimumPeriod;
     core_t::TTime m_ValuesStartTime = 0;
     core_t::TTime m_BucketStartTime = 0;
@@ -539,7 +558,7 @@ private:
     mutable TMaxAccumulator m_Outliers;
     mutable TDoubleVec m_Scales;
 
-    friend struct CTimeSeriesTestForSeasonalityTest::calibrateTruncatedVariance;
+    friend struct CTimeSeriesTestForSeasonalityTest::calibrateFTest;
 };
 }
 }

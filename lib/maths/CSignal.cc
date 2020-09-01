@@ -325,7 +325,6 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
     double varianceWithComponent{0.0};
     double varianceWithoutComponent{0.0};
     double pValue{1.0};
-    double pValueToSelect{significantPValue};
     double eps{CTools::pow2(
         1000.0 * static_cast<double>(std::numeric_limits<float>::epsilon()))};
 
@@ -432,15 +431,13 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
         varianceWithComponent = H1.s_ResidualVariance;
         pValue = CTools::oneMinusPowOneMinusX(
             rightTailFTest(H0, H1), 0.5 * static_cast<double>(periods.size()));
-        pValueToSelect = std::pow(significantPValue,
-                                  std::max((0.2 - maxCorrelation) / 0.02, 1.0));
         LOG_TRACE(<< H1.print() << " vs " << H0.print());
-        LOG_TRACE(<< "p-value = " << pValue << ", p-value to accept = " << pValueToSelect);
+        LOG_TRACE(<< "p-value = " << pValue << ", p-value to accept = " << significantPValue);
 
         H0 = H1;
         removeComponents(result, components, valuesToTest);
 
-    } while (pValue < pValueToSelect && result.size() < maxComponents);
+    } while (pValue < significantPValue && result.size() < maxComponents);
 
     result.resize(sizeWithoutComponent);
     fitSeasonalComponents(result, values, components);
@@ -830,18 +827,25 @@ double CSignal::residualVariance(const TFloatMeanAccumulatorVec& values,
 }
 
 double CSignal::rightTailFTest(const SVarianceStats& H0, const SVarianceStats& H1) {
-    if (H1.s_DegreesFreedom <= 0.0) {
+    if (H1.s_DegreesFreedom <= 0.0 || // Insufficient data to test H1
+        H1.s_NumberParameters <= H0.s_NumberParameters || // H0 is not nested
+        H0.s_ResidualVariance == 0.0) { // The values were constant
         return 1.0;
     }
-    double F[]{H0.s_ResidualVariance == H1.s_ResidualVariance
-                   ? 1.0
-                   : H0.s_ResidualVariance / H1.s_ResidualVariance,
-               H0.s_TruncatedResidualVariance == H1.s_TruncatedResidualVariance
-                   ? 1.0
-                   : H0.s_TruncatedResidualVariance / H1.s_TruncatedResidualVariance};
-    return std::min(
-        CStatisticalTests::rightTailFTest(F[0], H0.s_DegreesFreedom, H1.s_DegreesFreedom),
-        CStatisticalTests::rightTailFTest(F[1], H0.s_DegreesFreedom, H1.s_DegreesFreedom));
+
+    double eps{std::numeric_limits<double>::epsilon()};
+    double v0[]{H0.s_ResidualVariance, std::max(H0.s_TruncatedResidualVariance,
+                                                eps * H0.s_ResidualVariance)};
+    double v1[]{std::max(H1.s_ResidualVariance, eps * v0[0]),
+                std::max(H1.s_TruncatedResidualVariance, eps * v0[1])};
+    double df[]{static_cast<double>(H1.s_NumberParameters - H0.s_NumberParameters),
+                H1.s_DegreesFreedom};
+
+    // This assumes that H1 is nested in H0.
+    double F[]{(df[1] * std::max(v0[0] - v1[0], 0.0)) / (df[0] * v1[0]),
+               (df[1] * std::max(v0[1] - v1[1], 0.0)) / (df[0] * v1[1])};
+    return std::min(CStatisticalTests::rightTailFTest(F[0], df[0], df[1]),
+                    CStatisticalTests::rightTailFTest(F[1], df[0], df[1]));
 }
 
 std::size_t CSignal::selectComponentSize(const TFloatMeanAccumulatorVec& values,

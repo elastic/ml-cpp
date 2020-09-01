@@ -11,8 +11,7 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CIntegerTools.h>
-#include <maths/CLeastSquaresOnlineRegression.h>
-#include <maths/CLeastSquaresOnlineRegressionDetail.h>
+#include <maths/COrderings.h>
 #include <maths/CSeasonalTime.h>
 #include <maths/CTimeSeriesTestForSeasonality.h>
 #include <maths/MathsTypes.h>
@@ -71,69 +70,6 @@ const core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
 const core_t::TTime HOUR{core::constants::HOUR};
 const core_t::TTime DAY{core::constants::DAY};
 const core_t::TTime WEEK{core::constants::WEEK};
-}
-
-BOOST_AUTO_TEST_CASE(calibrateTruncatedVariance, *boost::unit_test::disabled()) {
-
-    return; // Remove to run calibration.
-
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TRegression = maths::CLeastSquaresOnlineRegression<2, double>;
-
-    test::CRandomNumbers rng;
-
-    TDoubleVec noise;
-    TFloatMeanAccumulatorVec residuals;
-    maths::CSignal::TSeasonalComponentVec periods;
-    maths::CSignal::TMeanAccumulatorVecVec components;
-
-    double outlierFraction{0.1};
-    TDoubleVec meanNumberRepeats;
-    TDoubleVec variances;
-
-    maths::CTimeSeriesTestForSeasonality seasonality{0, 0, HOUR, {}};
-
-    for (auto period : {1, 12, 24, 36, 48, 60, 72, 84, 96, 108, 120, 122, 144, 156, 168}) {
-        meanNumberRepeats.push_back(static_cast<double>(2 * WEEK / HOUR) /
-                                    static_cast<double>(period));
-
-        TMeanAccumulator variance;
-
-        for (std::size_t sample = 0; sample < 500; ++sample) {
-            generateNoise(0, rng, 2 * WEEK, HOUR, noise);
-            residuals.assign(noise.size(), TFloatMeanAccumulator{});
-            for (std::size_t i = 0; i < noise.size(); ++i) {
-                residuals[i].add(noise[i]);
-            }
-            periods.assign(1, maths::CSignal::seasonalComponentSummary(period));
-            maths::CSignal::fitSeasonalComponentsRobust(periods, outlierFraction,
-                                                        residuals, components);
-
-            for (std::size_t i = 0; i < residuals.size(); ++i) {
-                maths::CBasicStatistics::moment<0>(residuals[i]) -=
-                    periods[0].value(components[0], i);
-            }
-
-            variance.add(seasonality.truncatedVariance(outlierFraction, residuals));
-        }
-
-        variances.push_back(maths::CBasicStatistics::mean(variance));
-    }
-
-    // Because we actively discard the samples with the largest residuals the variance
-    // estimate is not chi squared with fewer degrees of freedom for normal residuals.
-    // Instead it is monotonic decreasing function of the ratio window / period or number
-    // of repeats. It is observed to be well approximated by a low order polynomial in
-    // 1 - 1 / (1 + repeats). This computes the coefficients.
-
-    TRegression regression;
-    for (std::size_t i = 0; i < meanNumberRepeats.size(); ++i) {
-        regression.add(1.0 - 1.0 / (1.0 + meanNumberRepeats[i]),
-                       1.0 - 0.9 * (1.0 - variances[i] / variances[0]));
-    }
-    TRegression::TArray coeffs;
-    regression.parameters(coeffs);
-    LOG_DEBUG(<< core::CContainerPrinter::print(coeffs));
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
@@ -351,7 +287,7 @@ BOOST_AUTO_TEST_CASE(testRealTradingDays) {
             maths::CTimeSeriesTestForSeasonality seasonality{lastTest, lastTest, HOUR, values};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< result.print());
-            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800)]" ||
+            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800)]" ||
                           result.print() == "[86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]");
             values.assign(window / HOUR, TFloatMeanAccumulator{});
             lastTest = time;
@@ -391,8 +327,8 @@ BOOST_AUTO_TEST_CASE(testRealTradingDaysPlusOutliers) {
             maths::CTimeSeriesTestForSeasonality seasonality{lastTest, lastTest, HOUR, values};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< result.print());
-            BOOST_REQUIRE(result.print() == "[86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]" ||
-                          result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800)]");
+            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800)]" ||
+                          result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]");
             values.assign(window / HOUR, TFloatMeanAccumulator{});
             lastTest = time;
         }
@@ -536,12 +472,12 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
     LOG_DEBUG(<< "accuracy @ 0% error = " << TP[0] / (TP[0] + FP));
     LOG_DEBUG(<< "accuracy @ 1% error = " << TP[1] / (TP[1] + FP));
     LOG_DEBUG(<< "accuracy @ 5% error = " << TP[2] / (TP[2] + FP));
-    BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.97);
+    BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.98);
     BOOST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.99);
     BOOST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.99);
-    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.93);
-    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.93);
-    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.93);
+    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.94);
+    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.94);
+    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.94);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticSparseDaily) {
@@ -728,7 +664,8 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
                 startTime, startTime, bucketLength, std::move(values)};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< result.print());
-            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800)]");
+            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800)]" ||
+                          result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(172800,604800)]");
         }
     }
 }
@@ -820,7 +757,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticMixtureOfSeasonalities) {
 
     LOG_DEBUG(<< "recall = " << TP / (TP + FN));
     LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
-    BOOST_REQUIRE(TP / (TP + FN) > 0.99);
+    BOOST_REQUIRE(TP / (TP + FN) > 0.96);
     BOOST_REQUIRE(TP / (TP + FP) > 0.99);
 }
 
@@ -1176,7 +1113,7 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange) {
 
             values.assign(window / HOUR, TFloatMeanAccumulator{});
             for (core_t::TTime time = 0; time < window; time += FIVE_MINS) {
-                values[time / HOUR].add(5.0 * generator(time) + noise[time / FIVE_MINS]);
+                values[time / HOUR].add(10.0 * generator(time) + noise[time / FIVE_MINS]);
             }
 
             maths::CTimeSeriesTestForSeasonality seasonality{0, 0, HOUR, values};
@@ -1204,7 +1141,7 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange) {
 
     LOG_DEBUG(<< "recall = " << TP / (TP + FN));
     LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
-    BOOST_REQUIRE(TP / (TP + FN) > 0.97);
+    BOOST_REQUIRE(TP / (TP + FN) > 0.99);
     BOOST_REQUIRE(TP / (TP + FP) > 0.99);
 }
 
