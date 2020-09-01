@@ -95,12 +95,8 @@ BOOST_AUTO_TEST_CASE(testComputeAndSaveExecutionStrategyDiskUsageFlag) {
                         .diskUsageAllowed(false)
                         .outlierSpec();
 
-        // single error is registered that the memory limit is to low
-        LOG_DEBUG(<< "errors = " << core::CContainerPrinter::print(errors));
-        core::CRegex re;
-        re.init("Input error: memory limit.*");
-        BOOST_REQUIRE_EQUAL(1, static_cast<int>(errors.size()));
-        BOOST_TEST_REQUIRE(re.matches(errors[0]));
+        // no error should be registered
+        BOOST_REQUIRE_EQUAL(0, static_cast<int>(errors.size()));
     }
 
     // Test large memory requirement with disk usage
