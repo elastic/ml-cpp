@@ -103,7 +103,8 @@ CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::
 }
 
 void CDataFrameAnalysisInstrumentation::updateMemoryUsage(std::int64_t delta) {
-    std::int64_t memory{m_Memory.fetch_add(delta)};
+    m_Memory.fetch_add(delta);
+    std::int64_t memory{m_Memory.load()};
     if (memory >= 0) {
         core::CProgramCounters::counter(this->memoryCounterType()).max(static_cast<std::uint64_t>(memory));
     } else {
