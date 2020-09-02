@@ -358,6 +358,10 @@ private:
         std::size_t s_NumberTrendSegments = 0;
         //! The number of scale segments in the component.
         std::size_t s_NumberScaleSegments = 0;
+        //! The number of buckets we'd have to wait for a repeat of all the seasonal
+        //! components we've detected up to and including this one normalized by the
+        //! observed window.
+        double s_LeastCommonRepeat = 0;
         //! The mean number of repeats of buckets with at least one value.
         double s_MeanNumberRepeats = 0.0;
         //! The number of repeats of the period window with at least one value.
@@ -429,6 +433,8 @@ private:
         //! Get the average autocorrelation weighted by the variance explained by each
         //! component of the model.
         double autocorrelation() const;
+        //! The least common repeat of the seasonal components in this hypothesis.
+        double leastCommonRepeat() const;
 
         //! Are the seasonal components already modelled?
         bool s_AlreadyModelled = false;

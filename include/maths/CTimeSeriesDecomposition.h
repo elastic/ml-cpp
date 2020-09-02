@@ -199,6 +199,9 @@ public:
     //! Get the seasonal components.
     virtual const maths_t::TSeasonalComponentVec& seasonalComponents() const;
 
+    //! Get the time of the last value.
+    core_t::TTime lastValueTime() const;
+
 private:
     using TMediatorPtr = std::unique_ptr<CMediator>;
 

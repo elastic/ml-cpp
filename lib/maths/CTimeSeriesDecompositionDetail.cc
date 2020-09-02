@@ -561,27 +561,25 @@ const CSeasonalityTestParameters::TParametersVecVec CSeasonalityTestParameters::
      {1800, 1, 336, {1800, 3600, 7200, 14400}, {3 * 86400}},
      {3600, 1, 336, {3600, 7200, 14400}, {3 * 86400, 7 * 86400}},
      {7200, 1, 336, {7200, 14400}, {3 * 86400, 7 * 86400}},
-     {14400, 1, 168, {14400}, {7 * 86400, 21 * 86400}},
-     {21600, 1, 112, {21600}, {7 * 86400, 21 * 86400}},
-     {28800, 1, 84, {28800}, {21 * 86400}},
-     {43200, 1, 56, {43200}, {28 * 86400}},
+     {14400, 1, 336, {14400}, {7 * 86400, 21 * 86400}},
+     {21600, 1, 224, {21600}, {7 * 86400, 21 * 86400}},
+     {28800, 1, 168, {28800}, {21 * 86400}},
+     {43200, 1, 112, {43200}, {28 * 86400}},
      {86400, 1, 56, {86400}, {}}},
     /*  LONG WINDOW  */
     {{1, 86401, 336, {1800, 1800, 3600, 7200}, {3 * 86400, 21 * 86400}},
      {5, 86401, 336, {1800, 3600, 7200}, {3 * 86400, 21 * 86400}},
-     {10, 86401, 336, {1800, 3600, 7200}, {3 * 86400, 7 * 86400, 21 * 86400}},
-     {30, 86401, 336, {3600, 7200}, {3 * 86400, 7 * 86400, 21 * 86400}},
-     {60, 604801, 336, {14400, 28800}, {21 * 86400, 42 * 86400}},
-     {300, 604801, 336, {14400, 28800}, {21 * 86400, 42 * 86400}},
-     {600, 604801, 336, {14400, 28800}, {21 * 86400, 42 * 86400}},
+     {10, 86401, 336, {1800, 3600, 7200}, {3 * 86400, 21 * 86400}},
+     {30, 86401, 336, {3600, 7200}, {21 * 86400}},
+     {60, 604801, 336, {14400, 28800}, {}},
+     {300, 604801, 336, {14400, 28800}, {}},
+     {600, 604801, 336, {14400, 28800}, {}},
      {900, 1209601, 365, {28800, 86400, 259200}, {}},
      {1200, 1209601, 365, {28800, 86400, 259200}, {}},
      {1800, 1209601, 365, {28800, 86400, 259200}, {}},
      {3600, 1209601, 365, {28800, 86400, 259200}, {}},
      {7200, 1209601, 365, {28800, 86400, 259200}, {}},
      {14400, 1209601, 365, {28800, 86400, 259200}, {}},
-     {28800, 1209601, 365, {86400, 259200}, {}},
-     {43200, 1209601, 365, {86400, 259200}, {}},
      {86400, 1209601, 365, {86400, 259200}, {}},
      {604800, 1209601, 156, {604800}, {}}}};
 }
@@ -2019,10 +2017,10 @@ void CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::clear() {
 bool CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::remove(core_t::TTime bucketLength,
                                                                            core_t::TTime period) const {
     double history{CBasicStatistics::count(m_MeanErrors) * static_cast<double>(bucketLength)};
-    double referenceError{CBasicStatistics::mean(m_MeanErrors)(0)};
+    double errorWithNoComponents{CBasicStatistics::mean(m_MeanErrors)(0)};
     double errorWithComponent{CBasicStatistics::mean(m_MeanErrors)(1)};
     double errorWithoutComponent{CBasicStatistics::mean(m_MeanErrors)(2)};
-    return (history > static_cast<double>(WEEK) && errorWithComponent > referenceError) ||
+    return (history > static_cast<double>(WEEK) && errorWithComponent > errorWithNoComponents) ||
            (history > 5.0 * static_cast<double>(period) && m_MaxVarianceIncrease[0] < 1.2 &&
             errorWithoutComponent < 1.2 * errorWithComponent);
 }

@@ -847,8 +847,8 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
         LOG_DEBUG(<< "mean 70% error = " << maths::CBasicStatistics::mean(percentileError));
         LOG_DEBUG(<< "mean scale = " << maths::CBasicStatistics::mean(meanScale));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.42);
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentileError) < 0.03);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.5);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentileError) < 0.5);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, maths::CBasicStatistics::mean(meanScale), 0.02);
     }
     LOG_DEBUG(<< "Smoothly Varying Variance");
@@ -2002,7 +2002,7 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
     }
 
-    double bounds[]{0.01, 0.013, 0.27, 0.05};
+    double bounds[]{0.01, 0.013, 0.47, 0.02};
     for (std::size_t i = 0; i < 4; ++i) {
         double error{maths::CBasicStatistics::mean(errors[i])};
         LOG_DEBUG(<< "error = " << error);

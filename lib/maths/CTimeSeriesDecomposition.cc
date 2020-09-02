@@ -507,6 +507,10 @@ const maths_t::TSeasonalComponentVec& CTimeSeriesDecomposition::seasonalComponen
     return m_Components.seasonal();
 }
 
+core_t::TTime CTimeSeriesDecomposition::lastValueTime() const {
+    return m_LastValueTime;
+}
+
 void CTimeSeriesDecomposition::initializeMediator() {
     m_Mediator = std::make_unique<CMediator>();
     m_Mediator->registerHandler(m_SeasonalityTest);

@@ -452,8 +452,8 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
     // Select the best decomposition if it is a statistically significant improvement.
     std::size_t selected{decompositions.size()};
     double qualitySelected{-std::numeric_limits<double>::max()};
-    double pValueAlreadyModelled{1.0};
-    std::size_t h0AlreadModelled{0};
+    double minPValue{1.0};
+    std::size_t h0ForMinPValue{0};
     for (std::size_t H1 = 0; H1 < decompositions.size(); ++H1) {
         if (decompositions[H1].isAlternative()) {
             double pValue;
@@ -467,9 +467,8 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
             logPValueProxy = std::min(logPValueProxy, -std::numeric_limits<double>::min());
             double logAcceptedFalsePostiveRate{std::log(m_AcceptedFalsePostiveRate)};
             double autocorrelation{decompositions[H1].autocorrelation()};
-            if (decompositions[H1].s_AlreadyModelled && pValueAlreadyModelled < pValue) {
-                pValueAlreadyModelled = pValue;
-                h0AlreadModelled = H0;
+            if (pValue < minPValue) {
+                std::tie(minPValue, h0ForMinPValue) = std::make_pair(pValue, H0);
             }
             LOG_TRACE(<< "hypothesis = "
                       << core::CContainerPrinter::print(decompositions[H1].s_Hypotheses));
@@ -501,22 +500,30 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
             //   3. The amount of variance explained per parameter. Models with a
             //      small period which explain most of the variance are preferred
             //      because they can be modelled more accurately.
-            //   4. The total target model size. The p-value is less sensitive to model
+            //   4. The cyclic autocorrelation. Provides a better estimate of how much
+            //      variance will be explained over a longer time frame.
+            //   5. The total target model size. The p-value is less sensitive to model
             //      size as the window length increases. However, for both stability
             //      and efficiency considerations we strongly prefer smaller models.
-            //   5. The number of scalings and pieces in the trend model. These increase
+            //   6. The number of repeats we've seen of the superposition of seasonal
+            //      components. We prefer this not to be too small to avoid using
+            //      seasonal components to fit aperiodic features on the test window.
+            //   7. The number of scalings and pieces in the trend model. These increase
             //      false positives so if we have an alternative similarly good hypothesis
             //      we use that one.
-            //   6. Some consideration of whether the components are already modelled
-            //      to avoid churn on marginal decisions.
+            //   8. Whether the components are already modelled to avoid churn on marginal
+            //      decisions.
             auto explainedVariancePerParameter =
                 decompositions[H1].explainedVariancePerParameter(decompositions[H0]);
+            double leastCommonRepeat{decompositions[H1].leastCommonRepeat()};
             double numberTrendParameters{
                 static_cast<double>(decompositions[H1].s_NumberTrendParameters)};
-            double quality{0.9 * std::log(-logPValue) + 0.1 * std::log(-logPValueProxy) +
+            double quality{0.8 * std::log(-logPValue) + 0.2 * std::log(-logPValueProxy) +
                            1.0 * std::log(explainedVariancePerParameter(0)) +
                            1.0 * std::log(explainedVariancePerParameter(1)) -
+                           0.7 * std::log(1.0 - std::min(autocorrelation, 0.97)) -
                            0.5 * std::log(decompositions[H1].targetModelSize()) -
+                           0.3 * std::log(std::max(leastCommonRepeat, 0.5)) -
                            0.3 * std::log(2.0 + decompositions[H1].numberScalings()) -
                            0.3 * std::log(2.0 + numberTrendParameters) +
                            0.3 * (decompositions[H1].s_AlreadyModelled ? 1.0 : 0.0)};
@@ -535,8 +542,6 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
 
     CSeasonalDecomposition result;
 
-    LOG_TRACE(<< "p-value already modelled = " << pValueAlreadyModelled);
-    std::ptrdiff_t numberModelled(m_ModelledPeriods.size());
     if (selected < decompositions.size()) {
         LOG_TRACE(<< "selected = "
                   << core::CContainerPrinter::print(decompositions[selected].s_Hypotheses));
@@ -555,15 +560,20 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
             }
         }
         result.add(std::move(decompositions[selected].s_RemoveComponentsMask));
-    } else if (pValueAlreadyModelled > 0.75 && numberModelled > 0 &&
-               std::count(m_ModelledPeriodsTestable.begin(),
-                          m_ModelledPeriodsTestable.end(), true) == numberModelled) {
+        return result;
+    }
+
+    LOG_TRACE(<< "p-value min = " << minPValue);
+    std::ptrdiff_t numberModelled(m_ModelledPeriods.size());
+    if (minPValue > 0.75 && numberModelled > 0 &&
+        std::count(m_ModelledPeriodsTestable.begin(),
+                   m_ModelledPeriodsTestable.end(), true) == numberModelled) {
         // If the evidence for the current model is very weak remove it.
         result.removeModelled();
         result.add(CNewTrendSummary{
             m_ValuesStartTime, m_BucketLength,
-            std::move(decompositions[h0AlreadModelled].s_TrendInitialValues)});
-        result.add(std::move(decompositions[h0AlreadModelled].s_RemoveComponentsMask));
+            std::move(decompositions[h0ForMinPValue].s_TrendInitialValues)});
+        result.add(std::move(decompositions[h0ForMinPValue].s_RemoveComponentsMask));
     }
 
     return result;
@@ -781,6 +791,12 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
     THypothesisStatsVec hypotheses;
     hypotheses.reserve(periods.size());
 
+    // If the superposition of periodicities doesn't repeat in window we need to be careful
+    // not to use it to model non-cyclic changes. We start to penalise selection as lcm(periods)
+    // exceeds the window length.
+    std::size_t leastCommonRepeat{1};
+    std::size_t observedRange{this->observedRange(m_Values)};
+
     for (std::size_t i = 0; i < periods.size(); ++i) {
 
         LOG_TRACE(<< "testing " << periods[i].print());
@@ -832,9 +848,12 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
                 hypothesis.s_NumberScaleSegments = hypothesis.s_ScaleSegments.size() - 1;
                 hypothesis.s_MeanNumberRepeats =
                     CSignal::meanNumberRepeatedValues(m_ValuesToTest, period);
-                hypothesis.s_WindowRepeats =
-                    static_cast<double>(this->observedRange(m_Values)) /
-                    static_cast<double>(periods[i].s_WindowRepeat);
+                hypothesis.s_WindowRepeats = static_cast<double>(observedRange) /
+                                             static_cast<double>(periods[i].s_WindowRepeat);
+                hypothesis.s_LeastCommonRepeat =
+                    static_cast<double>(CIntegerTools::lcm(
+                        leastCommonRepeat, periods[i].s_WindowRepeat)) /
+                    static_cast<double>(observedRange);
 
                 m_Periods.assign(1, period);
                 CSignal::fitSeasonalComponentsRobust(m_Periods, m_OutlierFraction,
@@ -854,6 +873,7 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
         }
 
         if (alreadyModelled || bestHypothesis.s_Truth.boolean()) {
+            leastCommonRepeat = CIntegerTools::lcm(leastCommonRepeat, periods[i].s_WindowRepeat);
             LOG_TRACE(<< "selected " << periods[i].print());
             this->updateResiduals(bestHypothesis, residuals);
             hypotheses.push_back(std::move(bestHypothesis));
@@ -1586,6 +1606,7 @@ CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::testVariance(
            fuzzyGreaterThan(std::min(repeatsPerSegment / 2.0, 1.0), 1.0, 0.1) &&
            fuzzyGreaterThan(std::min(windowRepeatsPerSegment / minimumRepeatsPerSegment, 1.0),
                             1.0, 0.1) &&
+           fuzzyLessThan(std::max(s_LeastCommonRepeat / 0.5, 1.0), 1.0, 0.5) &&
            fuzzyGreaterThan(s_FractionNotMissing, 1.0, 0.5) &&
            fuzzyGreaterThan(logPValue / logSignificantPValue, 1.0, 0.1) &&
            fuzzyGreaterThan(std::max(logPValue / logVerySignificantPValue, 1.0), 1.0, 0.1) &&
@@ -1618,6 +1639,8 @@ CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::testAmplitude(
            fuzzyGreaterThan(std::min(repeatsPerSegment / 2.0, 1.0), 1.0, 0.1) &&
            fuzzyGreaterThan(std::min(windowRepeatsPerSegment / minimumRepeatsPerSegment, 1.0),
                             1.0, 0.1) &&
+           fuzzyLessThan(std::max(s_LeastCommonRepeat / 0.5, 1.0), 1.0, 0.5) &&
+           fuzzyGreaterThan(s_FractionNotMissing, 1.0, 0.5) &&
            fuzzyGreaterThan(autocorrelation / lowAutocorrelation, 1.0, 0.2) &&
            fuzzyGreaterThan(logPValue / logSignificantPValue, 1.0, 0.1) &&
            fuzzyGreaterThan(std::max(logPValue / logVerySignificantPValue, 1.0), 1.0, 0.1);
@@ -1741,6 +1764,14 @@ double CTimeSeriesTestForSeasonality::SModel::autocorrelation() const {
         Z += hypothesis.s_ExplainedVariance;
     }
     return result / Z;
+}
+
+double CTimeSeriesTestForSeasonality::SModel::leastCommonRepeat() const {
+    double result{0.0};
+    for (const auto& hypothesis : s_Hypotheses) {
+        result = std::max(result, hypothesis.s_LeastCommonRepeat);
+    }
+    return result;
 }
 }
 }
