@@ -442,7 +442,6 @@ BOOST_AUTO_TEST_CASE(testRestrictTo) {
         values[i].add(static_cast<double>(i));
     }
 
-    TSizeVec endpoints;
     maths::CSignal::TSizeSizePr2Vec windows;
     maths::CSignal::TFloatMeanAccumulatorVec restricted;
 
@@ -462,6 +461,7 @@ BOOST_AUTO_TEST_CASE(testRestrictTo) {
     test::CRandomNumbers rng;
 
     std::size_t tests{0};
+    TSizeVec endpoints;
 
     for (std::size_t test = 0; test < 1000; ++test) {
 
@@ -687,7 +687,10 @@ BOOST_AUTO_TEST_CASE(testFitMultipleSeasonalComponents) {
 
 BOOST_AUTO_TEST_CASE(testFitTradingDaySeasonalComponents) {
 
-    // Test fitting weekdays/weekend seasonal components.
+    // The idea of this test is to test we correctly identify weekday/weekend
+    // modulation of a daily seasonality. We randomize over the start offset
+    // of the weekend to simulate different sliding window starts and check
+    // we always partition where we should.
 
     test::CRandomNumbers rng;
 
