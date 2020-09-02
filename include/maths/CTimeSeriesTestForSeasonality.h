@@ -341,10 +341,19 @@ private:
         explicit SHypothesisStats(const TSeasonalComponent& period)
             : s_Period{period} {}
 
+        //! Test the variance explained by this component.
+        void testExplainedVariance(const CTimeSeriesTestForSeasonality& params,
+                                   const TVarianceStats& H0);
+        //! Test the cyclic autocorrelation of this component.
+        void testAutocorrelation(const CTimeSeriesTestForSeasonality& params);
+        //! Test for semi-periodic components.
+        void testAmplitude(const CTimeSeriesTestForSeasonality& params);
+
         //! Test the variance reduction of this hypothesis.
-        CFuzzyTruthValue testVariance(const CTimeSeriesTestForSeasonality& params) const;
+        CFuzzyTruthValue varianceTestResult(const CTimeSeriesTestForSeasonality& params) const;
         //! Test the amplitude of this hypothesis.
-        CFuzzyTruthValue testAmplitude(const CTimeSeriesTestForSeasonality& params) const;
+        CFuzzyTruthValue amplitudeTestResult(const CTimeSeriesTestForSeasonality& params) const;
+
         //! Get a readable description.
         std::string print() const;
 
@@ -466,11 +475,11 @@ private:
                                  const TFloatMeanAccumulatorVec& valuesToTest,
                                  bool alreadyModelled,
                                  TModelVec& decompositions) const;
+    bool considerDecompositionForSelection(const SModel& decomposition) const;
     SModel testDecomposition(const TSeasonalComponentVec& periods,
                              std::size_t numberTrendSegments,
                              const TFloatMeanAccumulatorVec& valueToTest,
                              bool alreadyModelled) const;
-    bool acceptDecomposition(const SModel& decomposition) const;
     void updateResiduals(const SHypothesisStats& hypothesis,
                          TFloatMeanAccumulatorVec& residuals) const;
     TBoolVec finalizeHypotheses(const TFloatMeanAccumulatorVec& valuesToTest,
@@ -489,9 +498,6 @@ private:
                    const TWeightFunc& weight,
                    TFloatMeanAccumulatorVec& values,
                    TDoubleVec& scales) const;
-    void testExplainedVariance(const TVarianceStats& H0, SHypothesisStats& hypothesis) const;
-    void testAutocorrelation(SHypothesisStats& hypothesis) const;
-    void testAmplitude(SHypothesisStats& hypothesis) const;
     TVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values) const;
     TMeanVarAccumulator truncatedMoments(double outlierFraction,
                                          const TFloatMeanAccumulatorVec& residuals) const;
