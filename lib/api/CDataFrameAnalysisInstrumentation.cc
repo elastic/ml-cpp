@@ -103,8 +103,7 @@ CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::
 }
 
 void CDataFrameAnalysisInstrumentation::updateMemoryUsage(std::int64_t delta) {
-    m_Memory.fetch_add(delta);
-    std::int64_t memory{m_Memory.load()};
+    std::int64_t memory{m_Memory.fetch_add(delta) + delta};
     if (memory >= 0) {
         core::CProgramCounters::counter(this->memoryCounterType()).max(static_cast<std::uint64_t>(memory));
     } else {
@@ -247,7 +246,7 @@ void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
         m_Writer->Key(TIMESTAMP_TAG);
         m_Writer->Int64(timestamp);
         m_Writer->Key(PEAK_MEMORY_USAGE_TAG);
-        m_Writer->Int64(m_Memory.load());
+        m_Writer->Uint64(core::CProgramCounters::counter(this->memoryCounterType()));
         m_Writer->Key(MEMORY_STATUS_TAG);
         switch (m_MemoryStatus) {
         case E_Ok:
