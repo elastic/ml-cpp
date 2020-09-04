@@ -145,9 +145,6 @@ public:
     using TPeriodDescriptor = CNewSeasonalComponentSummary::EPeriodDescriptor;
 
 public:
-    //! Should we remove existing modelled seasonality?
-    void removeModelled();
-
     //! Add the new trend summary.
     void add(CNewTrendSummary value);
 
@@ -184,7 +181,6 @@ private:
     using TOptionalNewTrendSummary = boost::optional<CNewTrendSummary>;
 
 private:
-    bool m_RemoveModelled = false;
     TOptionalNewTrendSummary m_Trend;
     TNewSeasonalComponentVec m_Seasonal;
     TBoolVec m_SeasonalToRemoveMask;
@@ -359,6 +355,10 @@ private:
 
         //! If true then this should be modelled.
         bool s_Model = false;
+        //! True if we're going to discard this model.
+        bool s_DiscardingModel = false;
+        //! The index of a similar modelled component if there is one.
+        std::size_t s_SimilarModelled = 0;
         //! A summary of the seasonal component period.
         TSeasonalComponent s_Period;
         //! The desired component model size.
@@ -406,14 +406,15 @@ private:
     //! \brief A candidate model for the values being decomposed.
     struct SModel {
         SModel() = default;
-        SModel(TMeanVarAccumulator residualMoments,
+        SModel(const CTimeSeriesTestForSeasonality& params,
+               TMeanVarAccumulator residualMoments,
                TMeanVarAccumulator truncatedResidualMoments,
                std::size_t numberTrendParameters,
                TFloatMeanAccumulatorVec trendInitialValues,
                THypothesisStatsVec hypotheses,
                TBoolVec removeComponentsMask)
-            : s_ResidualMoments{residualMoments}, s_TruncatedResidualMoments{truncatedResidualMoments},
-              s_NumberTrendParameters{numberTrendParameters},
+            : s_Params{&params}, s_ResidualMoments{residualMoments},
+              s_TruncatedResidualMoments{truncatedResidualMoments}, s_NumberTrendParameters{numberTrendParameters},
               s_TrendInitialValues{std::move(trendInitialValues)},
               s_Hypotheses{std::move(hypotheses)}, s_RemoveComponentsMask{std::move(
                                                        removeComponentsMask)} {}
@@ -435,8 +436,6 @@ private:
         double numberParameters() const;
         //! The target model size.
         double targetModelSize() const;
-        //! The minimum mean number of repeats of any seasonal component.
-        double meanRepeats() const;
         //! Get the total number of linear scalings of the periods which were used.
         double numberScalings() const;
         //! Get the average autocorrelation weighted by the variance explained by each
@@ -445,6 +444,8 @@ private:
         //! The least common repeat of the seasonal components in this hypothesis.
         double leastCommonRepeat() const;
 
+        //! The test to which this decomposition applies.
+        const CTimeSeriesTestForSeasonality* s_Params = nullptr;
         //! Are the seasonal components already modelled?
         bool s_AlreadyModelled = false;
         //! The residual variance after removing the seasonal components.
@@ -483,9 +484,11 @@ private:
     void updateResiduals(const SHypothesisStats& hypothesis,
                          TFloatMeanAccumulatorVec& residuals) const;
     TBoolVec finalizeHypotheses(const TFloatMeanAccumulatorVec& valuesToTest,
+                                bool alreadyModelled,
                                 THypothesisStatsVec& hypotheses,
                                 TFloatMeanAccumulatorVec& residuals) const;
-    TBoolVec selectModelledHypotheses(THypothesisStatsVec& hypotheses) const;
+    TBoolVec selectModelledHypotheses(bool alreadyModelled,
+                                      THypothesisStatsVec& hypotheses) const;
     std::size_t selectComponentSize(const TFloatMeanAccumulatorVec& valuesToTest,
                                     const TSeasonalComponent& period) const;
     std::size_t similarModelled(const TSeasonalComponent& period) const;
@@ -511,6 +514,7 @@ private:
     bool isDiurnal(const TSeasonalComponent& period) const;
     bool isWeekend(const TSeasonalComponent& period) const;
     bool isWeekday(const TSeasonalComponent& period) const;
+    bool permittedPeriod(const TSeasonalComponent& period) const;
     bool includesPermittedPeriod(const TSeasonalComponentVec& period) const;
     std::string annotationText(const TSeasonalComponent& period) const;
     std::size_t day() const;
@@ -538,6 +542,7 @@ private:
     double m_LowAutocorrelation = 0.3;
     double m_MediumAutocorrelation = 0.5;
     double m_HighAutocorrelation = 0.7;
+    double m_PValueToEvict = 0.75;
     double m_SignificantPValue = 1e-3;
     double m_VerySignificantPValue = 1e-6;
     double m_AcceptedFalsePostiveRate = 1e-4;

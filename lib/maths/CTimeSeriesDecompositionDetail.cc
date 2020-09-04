@@ -723,7 +723,6 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::test(const SAddValue& mes
                 if (decomposition.componentsChanged()) {
                     this->mediator()->forward(
                         SDetectedSeasonal{time, lastTime, std::move(decomposition)});
-                    break;
                 }
             }
         }

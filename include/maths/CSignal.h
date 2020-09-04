@@ -393,8 +393,10 @@ public:
     //!
     //! \param[in] H0 The variance statistics of the null hypothesis.
     //! \param[in] H1 The variance statistics of the alternative hypothesis.
+    //! \note This assumes that \p H1 nests inside \p H0.
     //! \return The p-value of \p H1.
-    static double rightTailFTest(const SVarianceStats& H0, const SVarianceStats& H1);
+    static double nestedDecompositionPValue(const SVarianceStats& H0,
+                                            const SVarianceStats& H1);
 
     //! Choose the number of buckets to use for a component model with \p period
     //! for which there is the strongest supporting evidence in \p values.

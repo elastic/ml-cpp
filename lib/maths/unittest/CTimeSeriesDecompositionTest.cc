@@ -58,7 +58,7 @@ double mean(const TDoubleDoublePr& x) {
 
 class CDebugGenerator {
 public:
-    static const bool ENABLED{true};
+    static const bool ENABLED{false};
 
 public:
     CDebugGenerator(const std::string& file = "results.py") : m_File(file) {}

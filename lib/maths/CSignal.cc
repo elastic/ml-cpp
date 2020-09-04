@@ -429,8 +429,8 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
         auto H1 = residualVarianceStats(valuesToTest, result, components);
         varianceWithoutComponent = H0.s_ResidualVariance;
         varianceWithComponent = H1.s_ResidualVariance;
-        pValue = CTools::oneMinusPowOneMinusX(
-            rightTailFTest(H0, H1), 0.5 * static_cast<double>(periods.size()));
+        pValue = CTools::oneMinusPowOneMinusX(nestedDecompositionPValue(H0, H1),
+                                              0.5 * static_cast<double>(periods.size()));
         LOG_TRACE(<< H1.print() << " vs " << H0.print());
         LOG_TRACE(<< "p-value = " << pValue << ", p-value to accept = " << significantPValue);
 
@@ -649,7 +649,7 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
                                  {WEEKEND_WEEKLY, WEEKDAY_DAILY}};
     for (std::size_t i = 0; i < std::size(alternatives); ++i) {
         auto alternativeHypothesis = hypothesisStatistics(values, alternatives[i]);
-        pValue = std::min(pValue, rightTailFTest(dailyHypothesis, alternativeHypothesis));
+        pValue = std::min(pValue, nestedDecompositionPValue(dailyHypothesis, alternativeHypothesis));
     }
     pValue = CTools::oneMinusPowOneMinusX(pValue, 0.5 * static_cast<double>(week));
     LOG_TRACE(<< "p-value = " << pValue);
@@ -661,12 +661,14 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
     result.push_back(periods[WEEKEND_DAILY]);
     result.push_back(periods[WEEKDAY_DAILY]);
     fitSeasonalComponentsRobust(result, outlierFraction, valuesToTestDaily, dailyComponents);
-    if (rightTailFTest(hypothesisStatistics(valuesToTestDaily, {WEEKEND_DAILY}),
-                       hypothesisStatistics(values, {WEEKEND_WEEKLY})) < significantPValue) {
+    if (nestedDecompositionPValue(
+            hypothesisStatistics(valuesToTestDaily, {WEEKEND_DAILY}),
+            hypothesisStatistics(values, {WEEKEND_WEEKLY})) < significantPValue) {
         result.push_back(periods[WEEKEND_WEEKLY]);
     }
-    if (rightTailFTest(hypothesisStatistics(valuesToTestDaily, {WEEKDAY_DAILY}),
-                       hypothesisStatistics(values, {WEEKDAY_WEEKLY})) < significantPValue) {
+    if (nestedDecompositionPValue(
+            hypothesisStatistics(valuesToTestDaily, {WEEKDAY_DAILY}),
+            hypothesisStatistics(values, {WEEKDAY_WEEKLY})) < significantPValue) {
         result.push_back(periods[WEEKDAY_WEEKLY]);
     }
     return result;
@@ -826,9 +828,10 @@ double CSignal::residualVariance(const TFloatMeanAccumulatorVec& values,
     return CBasicStatistics::maximumLikelihoodVariance(moments);
 }
 
-double CSignal::rightTailFTest(const SVarianceStats& H0, const SVarianceStats& H1) {
+double CSignal::nestedDecompositionPValue(const SVarianceStats& H0,
+                                          const SVarianceStats& H1) {
     if (H1.s_DegreesFreedom <= 0.0 || // Insufficient data to test H1
-        H1.s_NumberParameters <= H0.s_NumberParameters || // H0 is not nested
+        H1.s_NumberParameters <= H0.s_NumberParameters || // H1 is not nested
         H0.s_ResidualVariance == 0.0) { // The values were constant
         return 1.0;
     }
