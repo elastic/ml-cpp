@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "maths/CTimeSeriesDecompositionDetail.h"
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CPatternSet.h>
@@ -15,7 +14,7 @@
 
 #include <maths/CModelWeight.h>
 #include <maths/COrderings.h>
-#include <maths/CTimeSeriesDecompositionInterface.h>
+#include <maths/CTimeSeriesDecomposition.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnomalyDetectorModelConfig.h>
