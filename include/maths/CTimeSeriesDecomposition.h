@@ -27,7 +27,7 @@ namespace maths {
 class CPrior;
 struct STimeSeriesDecompositionRestoreParams;
 
-//! \brief Decomposes a time series into a linear combination of trend and cylical
+//! \brief Decomposes a time series into a linear combination of trend and cyclical
 //! functions and a stationary random process.
 //!
 //! DESCRIPTION:\n
