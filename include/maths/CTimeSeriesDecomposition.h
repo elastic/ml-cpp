@@ -39,7 +39,7 @@ struct STimeSeriesDecompositionRestoreParams;
 //!
 //! It uses an additive combination of the predictive features it has selected to
 //! predict both the values and residual variance w.r.t. these predictions. It uses
-//! exponential decay to remove old data from the component models. The schecule is
+//! exponential decay to remove old data from the component models. The schedule is
 //! different for each component and the overall rate is controlled by the decay
 //! rate.
 //!
