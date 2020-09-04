@@ -371,7 +371,7 @@ public:
     //! \param[in] values The values from which to compute variances.
     //! \param[in] periods The seasonal components being modelled.
     //! \param[in] components The models of \p periods to use.
-    //! \return The variance, the variance weighted by value counts and the degrees of
+    //! \return The variance weighted by value counts and the degrees of
     //! freedom in the variance estimate.
     static SVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values,
                                                 const TSeasonalComponentVec& periods,
