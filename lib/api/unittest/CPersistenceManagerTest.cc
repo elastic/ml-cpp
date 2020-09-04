@@ -35,10 +35,12 @@ BOOST_AUTO_TEST_SUITE(CPersistenceManagerTest)
 namespace {
 
 void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport,
+                           ml::core_t::TTime& snapshotTimestamp,
                            std::string& description,
                            std::string& snapshotIdOut,
                            std::size_t& numDocsOut) {
     LOG_DEBUG(<< "Persist complete with description: " << modelSnapshotReport.s_Description);
+    snapshotTimestamp = modelSnapshotReport.s_SnapshotTimestamp;
     description = modelSnapshotReport.s_Description;
     snapshotIdOut = modelSnapshotReport.s_SnapshotId;
     numDocsOut = modelSnapshotReport.s_NumDocs;
@@ -85,6 +87,7 @@ protected:
         ml::api::CPersistenceManager persistenceManager{
             30000, false, backgroundDataAdder, foregroundDataAdder};
 
+        ml::core_t::TTime snapshotTimestamp;
         std::string description;
         std::string snapshotId;
         std::size_t numDocs{0};
@@ -104,8 +107,8 @@ protected:
                                 fieldConfig,
                                 modelConfig,
                                 wrappedOutputStream,
-                                std::bind(&reportPersistComplete,
-                                          std::placeholders::_1, std::ref(description),
+                                std::bind(&reportPersistComplete, std::placeholders::_1,
+                                          std::ref(snapshotTimestamp), std::ref(description),
                                           std::ref(snapshotId), std::ref(numDocs)),
                                 &persistenceManager,
                                 -1,
@@ -221,6 +224,7 @@ protected:
         ml::api::CPersistenceManager persistenceManager{
             30000, false, backgroundDataAdder, foregroundDataAdder};
 
+        ml::core_t::TTime snapshotTimestamp;
         std::string description;
         std::string snapshotId;
         std::size_t numDocs{0};
@@ -236,8 +240,8 @@ protected:
                                 fieldConfig,
                                 modelConfig,
                                 wrappedOutputStream,
-                                std::bind(&reportPersistComplete,
-                                          std::placeholders::_1, std::ref(description),
+                                std::bind(&reportPersistComplete, std::placeholders::_1,
+                                          std::ref(snapshotTimestamp), std::ref(description),
                                           std::ref(snapshotId), std::ref(numDocs)),
                                 &persistenceManager,
                                 -1,
@@ -328,6 +332,7 @@ protected:
         // and kick off the background persistence chain explicitly
         ml::api::CPersistenceManager persistenceManager{30000, false, dataAdder};
 
+        ml::core_t::TTime snapshotTimestamp_;
         std::string description_;
         std::string snapshotId_;
         std::size_t numDocs_{0};
@@ -338,18 +343,19 @@ protected:
         {
             ml::core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-            CTestAnomalyJob job{JOB_ID,
-                                limits,
-                                fieldConfig,
-                                modelConfig,
-                                wrappedOutputStream,
-                                std::bind(&reportPersistComplete,
-                                          std::placeholders::_1, std::ref(description_),
-                                          std::ref(snapshotId_), std::ref(numDocs_)),
-                                &persistenceManager,
-                                -1,
-                                "time",
-                                "%d/%b/%Y:%T %z"};
+            CTestAnomalyJob job{
+                JOB_ID,
+                limits,
+                fieldConfig,
+                modelConfig,
+                wrappedOutputStream,
+                std::bind(&reportPersistComplete, std::placeholders::_1,
+                          std::ref(snapshotTimestamp_), std::ref(description_),
+                          std::ref(snapshotId_), std::ref(numDocs_)),
+                &persistenceManager,
+                -1,
+                "time",
+                "%d/%b/%Y:%T %z"};
 
             ml::api::CDataProcessor* firstProcessor{&job};
 
@@ -366,7 +372,7 @@ protected:
             job.finalise();
 
             ml::core_t::TTime snapshotTimestamp{1283524206};
-            const std::string snapshotId{ml::core::CStringUtils::typeToString(snapshotTimestamp)};
+            const std::string snapshotId{"my_special_snapshot"};
             const std::string description{"Supplied description for snapshot at " +
                                           ml::core::CTimeUtils::toIso8601(snapshotTimestamp)};
             BOOST_TEST_REQUIRE(job.doPersistStateInForeground(
@@ -374,14 +380,14 @@ protected:
 
             // Check that the snapshot description and Id reported by the "persist complete"
             // handler match those supplied to the persist function
+            BOOST_REQUIRE_EQUAL(snapshotTimestamp, snapshotTimestamp_);
             BOOST_REQUIRE_EQUAL(description, description_);
             BOOST_REQUIRE_EQUAL(snapshotId, snapshotId_);
 
             std::string state{dataStream->str()};
 
             // Compare snapshot ID embedded in the state string with the supplied value.
-            const std::string expectedId{"job_model_state_" +
-                                         std::to_string(snapshotTimestamp) + "#1"};
+            const std::string expectedId{"job_model_state_" + snapshotId + "#1"};
             BOOST_TEST_REQUIRE(state.find(expectedId) != std::string::npos);
         }
     }

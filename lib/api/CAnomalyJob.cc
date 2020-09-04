@@ -1107,7 +1107,8 @@ bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
 
     core_t::TTime snapshotTimestamp(core::CTimeUtils::now());
     const std::string snapshotId(core::CStringUtils::typeToString(snapshotTimestamp));
-    const std::string description{"Periodic background persist at " + snapshotId};
+    const std::string description{"Periodic background persist at " +
+                                  core::CTimeUtils::toIso8601(snapshotTimestamp)};
 
     return this->persistCopiedState(
         description, snapshotId, snapshotTimestamp, args->s_Time,
