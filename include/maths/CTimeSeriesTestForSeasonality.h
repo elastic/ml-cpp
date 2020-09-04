@@ -501,6 +501,7 @@ private:
     TVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values) const;
     TMeanVarAccumulator truncatedMoments(double outlierFraction,
                                          const TFloatMeanAccumulatorVec& residuals) const;
+    bool includesNewComponents(const TSeasonalComponentVec& periods) const;
     bool alreadyModelled(const TSeasonalComponentVec& periods) const;
     bool alreadyModelled(const TSeasonalComponent& period) const;
     bool onlyDiurnal(const TSeasonalComponentVec& periods) const;

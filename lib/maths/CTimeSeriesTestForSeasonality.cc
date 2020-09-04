@@ -631,8 +631,7 @@ void CTimeSeriesTestForSeasonality::addModelled(const TRemoveTrend& removeTrend,
             }
         }
         this->removeIfNotTestable(m_CandidatePeriods);
-        if (m_CandidatePeriods != m_Periods && // Have we already tested these periods?
-            this->includesPermittedPeriod(m_CandidatePeriods) &&
+        if (this->includesNewComponents(m_CandidatePeriods) &&
             this->onlyDiurnal(m_CandidatePeriods) == false) {
             this->testAndAddDecomposition(m_CandidatePeriods, m_ModelTrendSegments,
                                           m_ValuesMinusTrend, false, decompositions);
@@ -649,9 +648,7 @@ void CTimeSeriesTestForSeasonality::addDiurnal(const TRemoveTrend& removeTrend,
         m_TemporaryValues, m_OutlierFraction, this->week(), m_StartOfWeekOverride);
     m_CandidatePeriods.push_back(CSignal::seasonalComponentSummary(this->year()));
     this->removeIfNotTestable(m_CandidatePeriods);
-    if (m_CandidatePeriods.size() > 0 && // Did we find candidate weekend/weekday split?
-        this->includesPermittedPeriod(m_CandidatePeriods) &&
-        this->alreadyModelled(m_CandidatePeriods) == false &&
+    if (this->includesNewComponents(m_CandidatePeriods) &&
         removeTrend(m_CandidatePeriods, m_ValuesMinusTrend, m_ModelTrendSegments)) {
         this->testAndAddDecomposition(m_CandidatePeriods, m_ModelTrendSegments,
                                       m_ValuesMinusTrend, false, decompositions);
@@ -659,14 +656,13 @@ void CTimeSeriesTestForSeasonality::addDiurnal(const TRemoveTrend& removeTrend,
 
     // Weekday/weekend modulation removing trend before determining decomposition.
     if (removeTrend({}, m_ValuesMinusTrend, m_ModelTrendSegments)) {
+        m_Periods = m_CandidatePeriods;
         m_CandidatePeriods = CSignal::tradingDayDecomposition(
             m_TemporaryValues, m_OutlierFraction, this->week(), m_StartOfWeekOverride);
         m_CandidatePeriods.push_back(CSignal::seasonalComponentSummary(this->year()));
         this->removeIfNotTestable(m_CandidatePeriods);
-        if (m_CandidatePeriods.size() > 0 && // Did we find candidate weekend/weekday split?
-            m_CandidatePeriods != m_Periods && // Have we already tested these periods?
-            this->includesPermittedPeriod(m_CandidatePeriods) &&
-            this->alreadyModelled(m_CandidatePeriods) == false) {
+        if (m_CandidatePeriods != m_Periods && // Have we already tested these periods?
+            this->includesNewComponents(m_CandidatePeriods)) {
             this->testAndAddDecomposition(m_CandidatePeriods, m_ModelTrendSegments,
                                           m_ValuesMinusTrend, false, decompositions);
         }
@@ -678,10 +674,8 @@ void CTimeSeriesTestForSeasonality::addDiurnal(const TRemoveTrend& removeTrend,
                                CSignal::seasonalComponentSummary(this->week()),
                                CSignal::seasonalComponentSummary(this->year())});
     this->removeIfNotTestable(m_CandidatePeriods);
-    if (m_CandidatePeriods.size() > 0 && // Is there sufficient data?
-        m_CandidatePeriods != m_Periods && // Have we already tested these periods?
-        this->includesPermittedPeriod(m_CandidatePeriods) &&
-        this->alreadyModelled(m_CandidatePeriods) == false &&
+    if (m_CandidatePeriods != m_Periods && // Have we already tested these periods?
+        this->includesNewComponents(m_CandidatePeriods) &&
         removeTrend(m_CandidatePeriods, m_ValuesMinusTrend, m_ModelTrendSegments)) {
         this->testAndAddDecomposition(m_CandidatePeriods, m_ModelTrendSegments,
                                       m_ValuesMinusTrend, false, decompositions);
@@ -692,10 +686,8 @@ void CTimeSeriesTestForSeasonality::addDiurnal(const TRemoveTrend& removeTrend,
     m_CandidatePeriods.assign({CSignal::seasonalComponentSummary(this->week()),
                                CSignal::seasonalComponentSummary(this->year())});
     this->removeIfNotTestable(m_CandidatePeriods);
-    if (m_CandidatePeriods.size() > 0 && // Is there sufficient data?
-        m_CandidatePeriods != m_Periods && // Have we already tested these periods?
-        this->includesPermittedPeriod(m_CandidatePeriods) &&
-        this->alreadyModelled(m_CandidatePeriods) == false &&
+    if (m_CandidatePeriods != m_Periods && // Have we already tested these periods?
+        this->includesNewComponents(m_CandidatePeriods) &&
         removeTrend(m_CandidatePeriods, m_ValuesMinusTrend, m_ModelTrendSegments)) {
         this->testAndAddDecomposition(m_CandidatePeriods, m_ModelTrendSegments,
                                       m_ValuesMinusTrend, false, decompositions);
@@ -713,9 +705,7 @@ void CTimeSeriesTestForSeasonality::addHighestAutocorrelation(const TRemoveTrend
             m_TemporaryValues, m_OutlierFraction, diurnal, unit,
             m_StartOfWeekOverride, 0.05, m_MaximumNumberComponents);
         this->removeIfNotTestable(m_CandidatePeriods);
-        if (m_CandidatePeriods.size() > 0 && // Did this identified any candidate components?
-            this->includesPermittedPeriod(m_CandidatePeriods) && // Includes a sufficiently long period.
-            this->alreadyModelled(m_CandidatePeriods) == false &&
+        if (this->includesNewComponents(m_CandidatePeriods) &&
             this->onlyDiurnal(m_CandidatePeriods) == false) {
             this->testAndAddDecomposition(m_CandidatePeriods, m_ModelTrendSegments,
                                           m_ValuesMinusTrend, false, decompositions);
@@ -1223,6 +1213,11 @@ CTimeSeriesTestForSeasonality::truncatedMoments(double outlierFraction,
 
     return moments;
 };
+
+bool CTimeSeriesTestForSeasonality::includesNewComponents(const TSeasonalComponentVec& periods) const {
+    return periods.size() > 0 && this->includesPermittedPeriod(periods) &&
+           this->alreadyModelled(periods) == false;
+}
 
 bool CTimeSeriesTestForSeasonality::alreadyModelled(const TSeasonalComponentVec& periods) const {
     for (const auto& period : periods) {
