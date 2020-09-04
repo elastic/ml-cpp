@@ -467,7 +467,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
                                  : (pValue == 1.0 ? -std::numeric_limits<double>::min()
                                                   : std::log(pValue))};
             logPValueProxy = std::min(logPValueProxy, -std::numeric_limits<double>::min());
-            double logAcceptedFalsePostiveRate{std::log(m_AcceptedFalsePostiveRate)};
+            double logAcceptedFalsePositiveRate{std::log(m_AcceptedFalsePostiveRate)};
             double autocorrelation{decompositions[H1].autocorrelation()};
             if (pValue < minPValue) {
                 std::tie(minPValue, h0ForMinPValue) = std::make_pair(pValue, H0);
@@ -482,7 +482,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
             // if it's autocorrelation is high and number of segments in the trend
             // is large enough.
             if (pValue > m_AcceptedFalsePostiveRate &&
-                (fuzzyGreaterThan(logPValue / logAcceptedFalsePostiveRate, 1.0, 1.0) &&
+                (fuzzyGreaterThan(logPValue / logAcceptedFalsePositiveRate, 1.0, 1.0) &&
                  fuzzyGreaterThan(autocorrelation / m_HighAutocorrelation, 1.0, 0.1) &&
                  fuzzyLessThan(8.0 / static_cast<double>(decompositions[H0].numberParameters()),
                                1.0, 0.2))
@@ -515,6 +515,12 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
             //      we use that one.
             //   8. Whether the components are already modelled to avoid churn on marginal
             //      decisions.
+            //
+            // Why sum the logs you might ask. This makes the decision dimensionless.
+            // Consider that sum_i{ log(f_i) } < sum_i{ log(f_i') } is equivalent to
+            // sum_i{ log(f_i / f_i')} < 0 so if we scale each feature by a constant
+            // they cancel and we still make the same decision.
+
             auto explainedVariancePerParameter =
                 decompositions[H1].explainedVariancePerParameter(decompositions[H0]);
             double leastCommonRepeat{decompositions[H1].leastCommonRepeat()};
