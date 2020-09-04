@@ -52,7 +52,7 @@ class MATHS_EXPORT EMPTY_BASE_OPT CTimeSeriesDecomposition
 public:
     //! \param[in] decayRate The rate at which information is lost.
     //! \param[in] bucketLength The data bucketing length.
-    //! \param[in] seasonalComponentSize The number of buckets to use estimate a
+    //! \param[in] seasonalComponentSize The number of buckets to use to estimate a
     //! seasonal component.
     explicit CTimeSeriesDecomposition(double decayRate = 0.0,
                                       core_t::TTime bucketLength = 0,
