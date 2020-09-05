@@ -516,6 +516,9 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
             // Consider that sum_i{ log(f_i) } < sum_i{ log(f_i') } is equivalent to
             // sum_i{ log(f_i / f_i')} < 0 so if we scale each feature by a constant
             // they cancel and we still make the same decision.
+            //
+            // One can think of this as a smooth lexicographical order with the weights
+            // playing the role of the order: smaller weight values "break ties".
 
             auto explainedVariancePerParameter =
                 decompositions[H1].explainedVariancePerParameter(decompositions[H0]);
@@ -878,7 +881,7 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
                                      hypothesis.amplitudeTestResult(*this);
                 LOG_TRACE(<< "truth = " << hypothesis.s_Truth.print());
 
-                if (bestHypothesis.s_Truth.value() <= hypothesis.s_Truth.value()) {
+                if (hypothesis.isBetter(bestHypothesis)) {
                     bestHypothesis = std::move(hypothesis);
                 }
             }
@@ -1688,8 +1691,8 @@ CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::varianceTestRe
     double repeatsPerSegment{s_MeanNumberRepeats / static_cast<double>(segments)};
     double windowRepeatsPerSegment{segments > 1 ? s_WindowRepeats / static_cast<double>(segments)
                                                 : minimumRepeatsPerSegment};
-    double logPValue{std::log(s_ExplainedVariancePValue)};
-    LOG_TRACE(<< "repeats per segment = " << repeatsPerSegment);
+    double logPValue{std::log(std::max(s_ExplainedVariancePValue,
+                                       std::numeric_limits<double>::min()))};
     return fuzzyGreaterThan(repeatsPerSegment / minimumRepeatsPerSegment, 1.0, 0.3) &&
            fuzzyGreaterThan(std::min(repeatsPerSegment / 2.0, 1.0), 1.0, 0.1) &&
            fuzzyGreaterThan(std::min(windowRepeatsPerSegment / minimumRepeatsPerSegment, 1.0),
@@ -1721,8 +1724,8 @@ CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::amplitudeTestR
     double windowRepeatsPerSegment{segments > 1 ? s_WindowRepeats / static_cast<double>(segments)
                                                 : minimumRepeatsPerSegment};
     double autocorrelation{s_AutocorrelationUpperBound};
-    double logPValue{std::log(s_AmplitudePValue)};
-    LOG_TRACE(<< "repeats per segment = " << repeatsPerSegment);
+    double logPValue{
+        std::log(std::max(s_AmplitudePValue, std::numeric_limits<double>::min()))};
     return fuzzyGreaterThan(repeatsPerSegment / minimumRepeatsPerSegment, 1.0, 0.1) &&
            fuzzyGreaterThan(std::min(repeatsPerSegment / 2.0, 1.0), 1.0, 0.1) &&
            fuzzyGreaterThan(std::min(windowRepeatsPerSegment / minimumRepeatsPerSegment, 1.0),
@@ -1732,6 +1735,17 @@ CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::amplitudeTestR
            fuzzyGreaterThan(autocorrelation / lowAutocorrelation, 1.0, 0.2) &&
            fuzzyGreaterThan(logPValue / logSignificantPValue, 1.0, 0.1) &&
            fuzzyGreaterThan(std::max(logPValue / logVerySignificantPValue, 1.0), 1.0, 0.1);
+}
+
+bool CTimeSeriesTestForSeasonality::SHypothesisStats::isBetter(const SHypothesisStats& other) const {
+    // The truth value alone is not discriminative when all conditions are met.
+    double min{std::numeric_limits<double>::min()};
+    return 1.0 * std::log(s_Truth.value()) -
+               0.1 * std::log(std::max(s_ExplainedVariancePValue, min)) -
+               0.1 * std::log(std::max(s_AmplitudePValue, min)) >
+           1.0 * std::log(other.s_Truth.value()) -
+               0.1 * std::log(std::max(other.s_ExplainedVariancePValue, min)) -
+               0.1 * std::log(std::max(other.s_AmplitudePValue, min));
 }
 
 std::string CTimeSeriesTestForSeasonality::SHypothesisStats::print() const {

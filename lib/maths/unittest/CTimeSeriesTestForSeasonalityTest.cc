@@ -46,6 +46,8 @@ using TFloatMeanAccumulator =
 using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 using TDiurnalTimeVec = std::vector<maths::CDiurnalTime>;
 using TDiurnalTimeVecVec = std::vector<TDiurnalTimeVec>;
+using TLinearModel = std::function<double(core_t::TTime)>;
+using TLinearModelVec = std::vector<TLinearModel>;
 
 void generateNoise(std::size_t type,
                    test::CRandomNumbers& rng,
@@ -943,9 +945,6 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend) {
     // Test the ability to correctly decompose a time series with diurnal seasonal
     // components and a piecewise linear trend.
 
-    using TLinearModel = std::function<double(core_t::TTime)>;
-    using TLinearModelVec = std::vector<TLinearModel>;
-
     std::size_t segmentSupport[][2]{{100, 200}, {600, 900}};
     double slopeSupport[][2]{{0.5, 1.0}, {-1.0, -0.5}};
     double interceptSupport[][2]{{-10.0, 5.0}, {10.0, 20.0}};
@@ -1226,6 +1225,45 @@ BOOST_AUTO_TEST_CASE(testNewComponentInitialValuesWithPiecewiseLinearScaling) {
 
     // Test that the initial values for the seasonal components when there
     // are linear scalings in the test values.
+
+    TGeneratorVec generators{smoothDaily};
+
+    test::CRandomNumbers rng;
+
+    TFloatMeanAccumulatorVec values;
+    TDoubleVec noise;
+    TSizeVec startTimes;
+    TDoubleVec scales;
+    rng.generateUniformSamples(0, 10000000, 10, startTimes);
+    rng.generateUniformSamples(0.5, 2.0, 10, scales);
+
+    for (std::size_t test = 0; test < 10; ++test) {
+        LOG_DEBUG(<< "test " << test + 1 << " / 10");
+
+        generateNoise(test, rng, 2 * WEEK, FIVE_MINS, noise);
+        std::size_t index{test % generators.size()};
+        auto generator = generators[index];
+        core_t::TTime startTime{HOUR * (static_cast<core_t::TTime>(startTimes[test]) / HOUR)};
+
+        values.assign(2 * WEEK / HOUR, TFloatMeanAccumulator{});
+        for (core_t::TTime time = 0; time < 2 * WEEK; time += HOUR) {
+            values[time / HOUR].add(10.0 * (time < WEEK ? 1.0 : scales[test]) *
+                                        generator(startTime + time) +
+                                    0.1 * noise[time / HOUR]);
+        }
+
+        maths::CTimeSeriesTestForSeasonality seasonality{startTime, startTime, HOUR, values};
+        auto result = seasonality.decompose();
+
+        BOOST_REQUIRE_EQUAL(1, result.seasonal().size());
+        const auto& seasonal = result.seasonal()[0].initialValues();
+        for (std::size_t i = 0; i < seasonal.size(); ++i) {
+            double actual{10.0 * scales[test] *
+                          generator(startTime + HOUR * static_cast<core_t::TTime>(i))};
+            double prediction{maths::CBasicStatistics::mean(seasonal[i])};
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(actual, prediction, 1.0);
+        }
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testNewTrendSummary) {
@@ -1234,7 +1272,7 @@ BOOST_AUTO_TEST_CASE(testNewTrendSummary) {
     // or a linear ramp.
 
     TGeneratorVec trends{constant, ramp};
-    TGeneratorVec seasons{smoothDaily, spikeyDaily, weekends};
+    TGeneratorVec seasonalities{smoothDaily, spikeyDaily, weekends};
 
     test::CRandomNumbers rng;
 
@@ -1248,12 +1286,14 @@ BOOST_AUTO_TEST_CASE(testNewTrendSummary) {
 
         core_t::TTime startTime{HOUR * (static_cast<core_t::TTime>(startTimes[test]) / HOUR)};
         auto trend = trends[test % trends.size()];
-        auto season = seasons[test % seasons.size()];
+        auto generator = [&](core_t::TTime time) {
+            return 100.0 * trend(time) +
+                   10.0 * seasonalities[test % seasonalities.size()](time);
+        };
 
         values.assign(4 * WEEK / HOUR, TFloatMeanAccumulator{});
         for (core_t::TTime time = 0; time < 4 * WEEK; time += HOUR) {
-            values[time / HOUR].add(100.0 * trend(startTime + time) +
-                                    10.0 * season(startTime + time));
+            values[time / HOUR].add(generator(startTime + time));
         }
 
         maths::CTimeSeriesTestForSeasonality seasonality{startTime, startTime, HOUR, values};
@@ -1292,14 +1332,88 @@ BOOST_AUTO_TEST_CASE(testNewTrendSummary) {
         }
 
         for (core_t::TTime time = 0; time < 4 * WEEK; time += HOUR) {
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0 * trend(startTime + time) +
-                                             10.0 * season(startTime + time),
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(generator(startTime + time),
                                          predictions[time / HOUR], 10.0);
         }
     }
 }
 
 BOOST_AUTO_TEST_CASE(testNewTrendSummaryPiecewiseLinearTrend) {
+
+    // Test the initial values for a piecewise linear trend.
+
+    std::size_t segmentSupport[][2]{{100, 200}, {600, 900}};
+    double slopeSupport[][2]{{0.5, 1.0}, {-1.0, -0.5}};
+    double interceptSupport[][2]{{-10.0, 5.0}, {10.0, 20.0}};
+    TGeneratorVec generators{smoothDaily, spikeyDaily};
+    core_t::TTime startTime{0};
+
+    test::CRandomNumbers rng;
+
+    TFloatMeanAccumulatorVec values;
+    TDoubleVec noise;
+    TSizeVec index;
+
+    TFloatMeanAccumulator meanError;
+
+    for (std::size_t test = 0; test < 10; ++test) {
+        LOG_DEBUG(<< "test " << test + 1 << " / 20");
+
+        core_t::TTime endTime{startTime + 4 * WEEK};
+
+        TTimeVec segments;
+        TLinearModelVec models{[](core_t::TTime) { return 0.0; }};
+        for (std::size_t i = 0; i < 2; ++i) {
+            TSizeVec segment;
+            TDoubleVec slope;
+            TDoubleVec intercept;
+            rng.generateUniformSamples(segmentSupport[i][0], segmentSupport[i][1], 1, segment);
+            rng.generateUniformSamples(slopeSupport[i][0], slopeSupport[i][1], 1, slope);
+            rng.generateUniformSamples(interceptSupport[i][0],
+                                       interceptSupport[i][1], 1, intercept);
+            segments.push_back(startTime + segment[0] * HALF_HOUR);
+            models.push_back([startTime, slope, intercept](core_t::TTime time) {
+                return slope[0] * static_cast<double>(time - startTime) /
+                           static_cast<double>(DAY) +
+                       intercept[0];
+            });
+        }
+        segments.push_back(endTime);
+
+        auto generator = [&](core_t::TTime time) {
+            auto i = std::lower_bound(segments.begin(), segments.end(), time);
+            return 80.0 + 2.0 * (models[i - segments.begin()](time) +
+                                 5.0 * generators[index[0]](time));
+        };
+
+        rng.generateNormalSamples(0.0, 1.0, 2 * WEEK / HOUR, noise);
+        rng.generateUniformSamples(0, 2, 1, index);
+
+        values.assign(2 * WEEK / HOUR, TFloatMeanAccumulator{});
+        for (core_t::TTime time = 0; time < 4 * WEEK; time += 2 * HOUR) {
+            std::size_t bucket(time / 2 / HOUR);
+            values[bucket].add(generator(startTime + time) + noise[bucket]);
+        }
+
+        maths::CTimeSeriesTestForSeasonality seasonality{startTime, startTime,
+                                                         2 * HOUR, values};
+        auto result = seasonality.decompose();
+
+        // Since we remove step continuities just check agreement on the last
+        // couple of days of the window.
+        const auto& trend = result.trend()->initialValues();
+        for (std::size_t i = trend.size() - 36; i < trend.size(); ++i) {
+            double actual{generator(startTime + 2 * HOUR * static_cast<core_t::TTime>(i))};
+            double prediction{maths::CBasicStatistics::mean(trend[i])};
+            for (const auto& seasonal : result.seasonal()) {
+                prediction += maths::CBasicStatistics::mean(seasonal.initialValues()[i]);
+            }
+            BOOST_REQUIRE_CLOSE(actual, prediction, 15.0);
+            meanError.add(std::fabs(prediction - actual) / std::fabs(actual));
+        }
+    }
+
+    BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.03);
 }
 
 BOOST_AUTO_TEST_CASE(testWithSuppliedPredictor) {
@@ -1341,18 +1455,6 @@ BOOST_AUTO_TEST_CASE(testWithSuppliedPredictor) {
         }
         BOOST_REQUIRE_CLOSE_ABSOLUTE(prediction, weekly(startTime + time), 1e-4);
     }
-}
-
-BOOST_AUTO_TEST_CASE(testMinimumPeriod) {
-
-    // Test with two components only one of which should be accepted based on the
-    // minimum period constraint.
-}
-
-BOOST_AUTO_TEST_CASE(testMaximumNumberOfComponents) {
-
-    // Test with fewer permitted components than components present: should retain
-    // the most useful.
 }
 
 BOOST_AUTO_TEST_SUITE_END()

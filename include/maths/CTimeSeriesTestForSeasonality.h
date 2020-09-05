@@ -350,6 +350,9 @@ private:
         //! Test the amplitude of this hypothesis.
         CFuzzyTruthValue amplitudeTestResult(const CTimeSeriesTestForSeasonality& params) const;
 
+        //! Check if this is better than \p other.
+        bool isBetter(const SHypothesisStats& other) const;
+
         //! Get a readable description.
         std::string print() const;
 
