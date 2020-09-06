@@ -8,9 +8,9 @@
 
 namespace ml {
 namespace maths {
-const CFuzzyTruthValue CFuzzyTruthValue::TRUE{1.0};
-const CFuzzyTruthValue CFuzzyTruthValue::FALSE{0.0};
-const CFuzzyTruthValue CFuzzyTruthValue::OR_UNDETERMINED{0.0, 0.0};
-const CFuzzyTruthValue CFuzzyTruthValue::AND_UNDETERMINED{1.0, 1.0};
+const CFuzzyTruthValue CFuzzyTruthValue::TRUE_VALUE{1.0};
+const CFuzzyTruthValue CFuzzyTruthValue::FALSE_VALUE{0.0};
+const CFuzzyTruthValue CFuzzyTruthValue::OR_UNDETERMINED_VALUE{0.0, 0.0};
+const CFuzzyTruthValue CFuzzyTruthValue::AND_UNDETERMINED_VALUE{1.0, 1.0};
 }
 }

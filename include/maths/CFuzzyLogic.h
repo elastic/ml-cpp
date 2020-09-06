@@ -23,13 +23,13 @@ namespace maths {
 class MATHS_EXPORT CFuzzyTruthValue {
 public:
     //! A value which satisfies (value || expression).boolean() == true.
-    static const CFuzzyTruthValue TRUE;
+    static const CFuzzyTruthValue TRUE_VALUE;
     //! A value which satisfies (value && expression).boolean() == false.
-    static const CFuzzyTruthValue FALSE;
+    static const CFuzzyTruthValue FALSE_VALUE;
     //! A value which satisfies value || expression == expression.
-    static const CFuzzyTruthValue OR_UNDETERMINED;
+    static const CFuzzyTruthValue OR_UNDETERMINED_VALUE;
     //! A value which satisfies value && expression == expression.
-    static const CFuzzyTruthValue AND_UNDETERMINED;
+    static const CFuzzyTruthValue AND_UNDETERMINED_VALUE;
 
 public:
     CFuzzyTruthValue(double value = 0.5, double isTrueThreshold = 0.5)

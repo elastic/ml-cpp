@@ -852,8 +852,8 @@ void CAdaptiveBucketing::maybeSplitBucket() {
     // significances to adjust the bucket update weight.
     m_LargeErrorCountPValues = TFloatUInt32PrMinAccumulator{};
     for (std::size_t i = 0; i + 1 < m_Endpoints.size(); ++i) {
-        m_LargeErrorCountPValues.add(
-            {this->bucketLargeErrorCountPValue(totalLargeErrorCount, i), i});
+        m_LargeErrorCountPValues.add({this->bucketLargeErrorCountPValue(totalLargeErrorCount, i),
+                                      static_cast<std::uint32_t>(i)});
     }
 
     // We're choosing the minimum p-value of number of buckets independent

@@ -397,7 +397,7 @@ private:
         //! Have we seen enough values to test this hypothesis's amplitude.
         bool s_SeenSufficientDataToTestAmplitude = false;
         //! The truth value for the hypothesis.
-        CFuzzyTruthValue s_Truth = CFuzzyTruthValue::FALSE;
+        CFuzzyTruthValue s_Truth = CFuzzyTruthValue::FALSE_VALUE;
         //! The segmentation into constant linear scales.
         TSizeVec s_ScaleSegments;
         //! The values to use to initialize the component.

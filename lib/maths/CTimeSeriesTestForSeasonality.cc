@@ -1709,7 +1709,7 @@ CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::varianceTestRe
 CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::amplitudeTestResult(
     const CTimeSeriesTestForSeasonality& params) const {
     if (s_SeenSufficientDataToTestAmplitude == false) {
-        return CFuzzyTruthValue::OR_UNDETERMINED;
+        return CFuzzyTruthValue::OR_UNDETERMINED_VALUE;
     }
 
     // Compare with the discussion in testVariance.
