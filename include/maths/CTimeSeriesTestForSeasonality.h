@@ -353,6 +353,9 @@ private:
         //! Check if this is better than \p other.
         bool isBetter(const SHypothesisStats& other) const;
 
+        //! The weight of this hypothesis for compouting decomposition properties.
+        double weight() const;
+
         //! Get a readable description.
         std::string print() const;
 

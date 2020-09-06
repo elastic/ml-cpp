@@ -531,7 +531,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
                            0.7 * std::log(1.0 - std::min(autocorrelation, 0.97)) -
                            0.5 * std::log(decompositions[H1].targetModelSize()) -
                            0.3 * std::log(std::max(leastCommonRepeat, 0.5)) -
-                           0.3 * std::log(2.0 + decompositions[H1].numberScalings()) -
+                           0.3 * std::log(0.1 + decompositions[H1].numberScalings()) -
                            0.3 * std::log(2.0 + numberTrendParameters) +
                            0.3 * (decompositions[H1].s_AlreadyModelled ? 1.0 : 0.0)};
             LOG_TRACE(<< "explained variance per param = " << explainedVariancePerParameter);
@@ -1560,7 +1560,7 @@ void CTimeSeriesTestForSeasonality::SHypothesisStats::testExplainedVariance(
                             }
                             return result;
                         }));
-    s_NumberParametersToExplainVariance = H1.s_NumberParameters;
+    s_NumberParametersToExplainVariance = H1.s_NumberParameters + s_NumberScaleSegments - 1;
     s_ExplainedVariancePValue = CSignal::nestedDecompositionPValue(H0, H1);
     LOG_TRACE(<< "fraction not missing = " << s_FractionNotMissing);
     LOG_TRACE(<< H1.print() << " vs " << H0.print());
@@ -1740,12 +1740,19 @@ CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::amplitudeTestR
 bool CTimeSeriesTestForSeasonality::SHypothesisStats::isBetter(const SHypothesisStats& other) const {
     // The truth value alone is not discriminative when all conditions are met.
     double min{std::numeric_limits<double>::min()};
-    return 1.0 * std::log(s_Truth.value()) -
-               0.1 * std::log(std::max(s_ExplainedVariancePValue, min)) -
-               0.1 * std::log(std::max(s_AmplitudePValue, min)) >
-           1.0 * std::log(other.s_Truth.value()) -
-               0.1 * std::log(std::max(other.s_ExplainedVariancePValue, min)) -
-               0.1 * std::log(std::max(other.s_AmplitudePValue, min));
+    return COrderings::lexicographical_compare(
+        other.s_Truth.boolean(),
+        1.0 * std::log(std::max(other.s_Truth.value(), min)) +
+            0.5 * std::log(-std::log(std::max(other.s_ExplainedVariancePValue, min))),
+        s_Truth.boolean(),
+        1.0 * std::log(std::max(s_Truth.value(), min)) +
+            0.5 * std::log(-std::log(std::max(s_ExplainedVariancePValue, min))));
+}
+
+double CTimeSeriesTestForSeasonality::SHypothesisStats::weight() const {
+    return s_ExplainedVariance *
+           static_cast<double>(s_Period.s_Window.second - s_Period.s_Window.first) /
+           static_cast<double>(s_Period.s_WindowRepeat);
 }
 
 std::string CTimeSeriesTestForSeasonality::SHypothesisStats::print() const {
@@ -1820,9 +1827,10 @@ CTimeSeriesTestForSeasonality::SModel::explainedVariancePerParameter(const SMode
     double Z{0.0};
     for (const auto& hypothesis : s_Hypotheses) {
         if (hypothesis.s_Model || hypothesis.s_DiscardingModel == false) {
-            result += hypothesis.s_ExplainedVariance * explainedVariance /
+            double weight{hypothesis.weight()};
+            result += weight * explainedVariance /
                       static_cast<double>(hypothesis.s_NumberParametersToExplainVariance);
-            Z += hypothesis.s_ExplainedVariance;
+            Z += weight;
         }
     }
     return max(result / Z, TVector2x1{std::numeric_limits<double>::min()});
@@ -1867,8 +1875,9 @@ double CTimeSeriesTestForSeasonality::SModel::autocorrelation() const {
     double Z{0.0};
     for (const auto& hypothesis : s_Hypotheses) {
         if (hypothesis.s_Model || hypothesis.s_DiscardingModel == false) {
-            result += hypothesis.s_ExplainedVariance * hypothesis.s_Autocorrelation;
-            Z += hypothesis.s_ExplainedVariance;
+            double weight{hypothesis.weight()};
+            result += weight * hypothesis.s_Autocorrelation;
+            Z += weight;
         }
     }
     return result / Z;
