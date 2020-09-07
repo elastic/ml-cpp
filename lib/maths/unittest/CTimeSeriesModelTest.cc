@@ -1608,7 +1608,7 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
             2 * controllers[0].memoryUsage() + 32 * 12 /*Recent samples*/};
         std::size_t size{model->memoryUsage()};
         LOG_DEBUG(<< "size " << size << " expected " << expectedSize);
-        BOOST_TEST_REQUIRE(static_cast<double>(size) < 1.1 * static_cast<double>(expectedSize));
+        BOOST_TEST_REQUIRE(static_cast<double>(size) < 1.2 * static_cast<double>(expectedSize));
     }
 
     // TODO LOG_DEBUG(<< "Correlates");

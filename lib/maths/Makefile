@@ -48,6 +48,7 @@ CDecayRateController.cc \
 CDecompositionComponent.cc \
 CEntropySketch.cc \
 CExpandingWindow.cc \
+CFuzzyLogic.cc \
 CGammaRateConjugate.cc \
 CGradientDescent.cc \
 CInformationCriteria.cc \
@@ -83,7 +84,6 @@ COneOfNPrior.cc \
 COrderings.cc \
 COrdinal.cc \
 COutliers.cc \
-CPeriodicityHypothesisTests.cc \
 CPoissonMeanConjugate.cc \
 CPrior.cc \
 CPriorStateSerialiser.cc \
@@ -92,7 +92,6 @@ CProbabilityCalibrator.cc \
 CQDigest.cc \
 CQuantileSketch.cc \
 CRadialBasisFunction.cc \
-CRandomizedPeriodicityTest.cc \
 CRestoreParams.cc \
 CSampling.cc \
 CSeasonalComponent.cc \
@@ -109,6 +108,7 @@ CTimeSeriesDecompositionStub.cc \
 CTimeSeriesModel.cc \
 CTimeSeriesMultibucketFeatureSerialiser.cc \
 CTimeSeriesSegmentation.cc \
+CTimeSeriesTestForSeasonality.cc \
 CTools.cc \
 CTreeShapFeatureImportance.cc \
 CTrendComponent.cc \

@@ -34,14 +34,16 @@ struct SChangeDescription;
 //! hierarchy and CTimeSeriesDecompositionDetails.
 class MATHS_EXPORT CTimeSeriesDecompositionTypes {
 public:
+    using TBoolVec = std::vector<bool>;
     using TPredictor = std::function<double(core_t::TTime)>;
+    using TFilteredPredictor = std::function<double(core_t::TTime, const TBoolVec&)>;
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
     using TComponentChangeCallback = std::function<void(TFloatMeanAccumulatorVec)>;
 };
 
-//! \brief The interface for decomposing times series into periodic,
-//! calendar periodic and trend components.
+//! \brief The interface for decomposing times series into seasonal, calendar
+//! cyclical and trend components.
 class MATHS_EXPORT CTimeSeriesDecompositionInterface : public CTimeSeriesDecompositionTypes {
 public:
     using TDouble3Vec = core::CSmallVector<double, 3>;
@@ -51,15 +53,13 @@ public:
 
     //! The components of the decomposition.
     enum EComponents {
-        E_Diurnal = 0x1,
-        E_NonDiurnal = 0x2,
-        E_Seasonal = 0x3,
-        E_Trend = 0x4,
-        E_Calendar = 0x8,
-        E_All = 0xf,
-        E_TrendForced = 0x10 //!< Force get the trend component (if
-                             //!< it's not being used for prediction).
-                             //!< This needs to be bigger than E_All.
+        E_Seasonal = 0x1,
+        E_Trend = 0x2,
+        E_Calendar = 0x4,
+        E_All = 0x7,
+        E_TrendForced = 0x8 //!< Force get the trend component (if
+                            //!< it's not being used for prediction).
+                            //!< This needs to be bigger than E_All.
     };
 
 public:
@@ -87,14 +87,12 @@ public:
     //!
     //! \param[in] time The time of the data point.
     //! \param[in] value The value of the data point.
-    //! \param[in] weights The weights of \p value. The smaller
-    //! the product count weight the less influence \p value has
-    //! on the trend and it's local variance.
-    //! \param[in] componentChangeCallback Supplied with prediction
-    //! residuals if a new component is added as a result of adding the
-    //! data point.
-    //! \param[in] modelAnnotationCallback Supplied with an annotation
-    //! if a new component is added as a result of adding the data point.
+    //! \param[in] weights The weights of \p value. The smaller the count weight the
+    //! less influence \p value has on the decomposition.
+    //! \param[in] componentChangeCallback Supplied with samples of the prediction
+    //! residuals if a new component is added as a result of adding the data point.
+    //! \param[in] modelAnnotationCallback Supplied with an annotation if a new
+    //! component is added as a result of adding the data point.
     virtual void
     addPoint(core_t::TTime time,
              double value,
@@ -105,8 +103,7 @@ public:
     //! Apply \p change at \p time.
     //!
     //! \param[in] time The time of the change point.
-    //! \param[in] value The value immediately before the change
-    //! point.
+    //! \param[in] value The value immediately before the change point.
     //! \param[in] change A description of the change to apply.
     //! \return True if a new component was detected.
     virtual bool
@@ -121,12 +118,15 @@ public:
     //! Get the predicted value of the time series at \p time.
     //!
     //! \param[in] time The time of interest.
-    //! \param[in] confidence The symmetric confidence interval for the
-    //! prediction the baseline as a percentage.
+    //! \param[in] confidence The symmetric confidence interval for the prediction
+    //! the baseline as a percentage.
     //! \param[in] components The components to include in the baseline.
+    //! \param[in] removedSeasonalMask A bit mask of specific seasonal components
+    //! to remove. This is only intended for use by CTimeSeriesTestForSeasonlity.
     virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
                                            double confidence = 0.0,
                                            int components = E_All,
+                                           const TBoolVec& removedSeasonalMask = {},
                                            bool smooth = true) const = 0;
 
     //! Get the maximum interval for which the time series can be forecast.
@@ -147,8 +147,7 @@ public:
                           double minimumScale,
                           const TWriteForecastResult& writer) = 0;
 
-    //! Detrend \p value from the time series being modeled by removing
-    //! any periodic component at \p time.
+    //! Detrend \p value by the prediction of the modelled features at \p time.
     //!
     //! \note That detrending preserves the time series mean.
     virtual double detrend(core_t::TTime time,
@@ -163,8 +162,8 @@ public:
     //!
     //! \param[in] time The time of interest.
     //! \param[in] variance The variance of the distribution to scale.
-    //! \param[in] confidence The symmetric confidence interval for the
-    //! variance scale as a percentage.
+    //! \param[in] confidence The symmetric confidence interval for the variance
+    //! scale as a percentage.
     virtual maths_t::TDoubleDoublePr
     scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const = 0;
 
@@ -175,7 +174,7 @@ public:
     virtual void skipTime(core_t::TTime skipInterval) = 0;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const = 0;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const = 0;
 
     //! Get the memory used by this instance
     virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;
@@ -191,10 +190,6 @@ public:
 
     //! Get the seasonal components.
     virtual const maths_t::TSeasonalComponentVec& seasonalComponents() const = 0;
-
-    //! This is the latest time of any point added to this object or
-    //! the time skipped to.
-    virtual core_t::TTime lastValueTime() const = 0;
 
 protected:
     static void noopComponentChange(TFloatMeanAccumulatorVec) {}

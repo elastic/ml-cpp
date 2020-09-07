@@ -13,8 +13,10 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/RestoreMacros.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CChecksum.h>
+#include <maths/CSpline.h>
 #include <maths/CTools.h>
 #include <maths/CToolsDetail.h>
 
@@ -32,6 +34,7 @@ namespace ml {
 namespace maths {
 namespace {
 
+using TSpline = CSpline<>;
 using TSizeVec = std::vector<std::size_t>;
 using TFloatUInt32Pr = std::pair<CFloatStorage, std::uint32_t>;
 
@@ -251,30 +254,58 @@ void CAdaptiveBucketing::initialValues(core_t::TTime start,
     }
 
     std::size_t n{values.size()};
-    core_t::TTime dT{(end - start) / static_cast<core_t::TTime>(n)};
-    core_t::TTime dt{static_cast<core_t::TTime>(
-        CTools::truncate(m_MinimumBucketLength, 1.0, static_cast<double>(dT)))};
+    core_t::TTime bucketLength{(end - start) / static_cast<core_t::TTime>(n)};
+    core_t::TTime dt{static_cast<core_t::TTime>(CTools::truncate(
+        m_MinimumBucketLength, 1.0, static_cast<double>(bucketLength)))};
     core_t::TTime repeat{static_cast<core_t::TTime>(
         m_Endpoints[m_Endpoints.size() - 1] - m_Endpoints[0])};
 
-    double scale{std::pow(static_cast<double>(dt) / static_cast<double>(dT), 2.0)};
+    // Initialize splines for seed values:
+    //   - For missing bucket values we use linear interpolation.
+    //   - For intrabucket interpolation we use cubic spline interpolation.
+    //   - For value weights we use linear interpolation.
+    TDoubleVec knots;
+    TDoubleVec knotValues;
+    TDoubleVec knotWeights;
+    knots.reserve(values.size());
+    knotValues.reserve(values.size());
+    knotWeights.reserve(values.size());
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        if (CBasicStatistics::count(values[i]) > 0.0) {
+            knots.push_back(static_cast<double>(start + bucketLength * i));
+            knotValues.push_back(CBasicStatistics::mean(values[i]));
+        }
+    }
+    TSpline interpolateMissingValues{TSpline::E_Linear};
+    interpolateMissingValues.interpolate(knots, knotValues, TSpline::E_Natural);
+    knots.resize(values.size());
+    knotValues.resize(values.size());
+    knotWeights.resize(values.size());
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        knots[i] = static_cast<double>(start + bucketLength * i);
+        knotValues[i] = interpolateMissingValues.value(knots[i]);
+        knotWeights[i] = CBasicStatistics::count(values[i]);
+    }
+    TSpline seedValues{TSpline::E_Cubic};
+    TSpline seedWeights{TSpline::E_Linear};
+    seedValues.interpolate(knots, knotValues, TSpline::E_Natural);
+    seedWeights.interpolate(knots, knotWeights, TSpline::E_Natural);
 
-    core_t::TTime lastRefined{start};
+    double scale{std::pow(static_cast<double>(dt) / static_cast<double>(bucketLength), 2.0)};
+
+    core_t::TTime observedSinceLastRefine{0};
     for (core_t::TTime time = start; time < end; time += dt) {
         if (this->inWindow(time)) {
-            core_t::TTime i{(time - start) / dT};
-            double value{CBasicStatistics::mean(values[i])};
-            double weight{scale * CBasicStatistics::count(values[i])};
+            double value{seedValues.value(static_cast<double>(time))};
+            double weight{scale * seedWeights.value(static_cast<double>(time))};
             std::size_t bucket;
-            if (this->bucket(time, bucket)) {
-                if (weight > 0.0) {
-                    this->add(bucket, time, weight);
-                    this->add(bucket, time, value, weight);
-                }
+            if (this->bucket(time, bucket) && weight > 0.0) {
+                this->addInitialValue(bucket, time, value, weight);
             }
-            if (time - start >= lastRefined + repeat) {
+            observedSinceLastRefine += dt;
+            if (observedSinceLastRefine >= repeat) {
                 this->refine(time);
-                lastRefined += repeat;
+                observedSinceLastRefine = 0;
             }
         }
     }
@@ -767,7 +798,7 @@ bool CAdaptiveBucketing::bucket(core_t::TTime time, std::size_t& result) const {
     return true;
 }
 
-uint64_t CAdaptiveBucketing::checksum(uint64_t seed) const {
+std::uint64_t CAdaptiveBucketing::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_DecayRate);
     seed = CChecksum::calculate(seed, m_MinimumBucketLength);
     seed = CChecksum::calculate(seed, m_TargetSize);
@@ -821,8 +852,8 @@ void CAdaptiveBucketing::maybeSplitBucket() {
     // significances to adjust the bucket update weight.
     m_LargeErrorCountPValues = TFloatUInt32PrMinAccumulator{};
     for (std::size_t i = 0; i + 1 < m_Endpoints.size(); ++i) {
-        m_LargeErrorCountPValues.add(
-            {this->bucketLargeErrorCountPValue(totalLargeErrorCount, i), i});
+        m_LargeErrorCountPValues.add({this->bucketLargeErrorCountPValue(totalLargeErrorCount, i),
+                                      static_cast<std::uint32_t>(i)});
     }
 
     // We're choosing the minimum p-value of number of buckets independent

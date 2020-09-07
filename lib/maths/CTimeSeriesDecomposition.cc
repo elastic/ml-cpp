@@ -72,7 +72,7 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(double decayRate,
                                                    core_t::TTime bucketLength,
                                                    std::size_t seasonalComponentSize)
     : m_TimeShift{0}, m_LastValueTime{0}, m_LastPropagationTime{0},
-      m_PeriodicityTest{decayRate, bucketLength}, m_CalendarCyclicTest{decayRate, bucketLength},
+      m_SeasonalityTest{decayRate, bucketLength}, m_CalendarCyclicTest{decayRate, bucketLength},
       m_Components{decayRate, bucketLength, seasonalComponentSize} {
     this->initializeMediator();
 }
@@ -80,7 +80,7 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(double decayRate,
 CTimeSeriesDecomposition::CTimeSeriesDecomposition(const STimeSeriesDecompositionRestoreParams& params,
                                                    core::CStateRestoreTraverser& traverser)
     : m_TimeShift{0}, m_LastValueTime{0}, m_LastPropagationTime{0},
-      m_PeriodicityTest{params.s_DecayRate, params.s_MinimumBucketLength},
+      m_SeasonalityTest{params.s_DecayRate, params.s_MinimumBucketLength},
       m_CalendarCyclicTest{params.s_DecayRate, params.s_MinimumBucketLength},
       m_Components{params.s_DecayRate, params.s_MinimumBucketLength, params.s_ComponentSize} {
     traverser.traverseSubLevel(
@@ -93,7 +93,7 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(const CTimeSeriesDecompositio
                                                    bool isForForecast)
     : m_TimeShift{other.m_TimeShift}, m_LastValueTime{other.m_LastValueTime},
       m_LastPropagationTime{other.m_LastPropagationTime},
-      m_PeriodicityTest{other.m_PeriodicityTest, isForForecast},
+      m_SeasonalityTest{other.m_SeasonalityTest, isForForecast},
       m_CalendarCyclicTest{other.m_CalendarCyclicTest, isForForecast}, m_Components{
                                                                            other.m_Components} {
     this->initializeMediator();
@@ -109,8 +109,8 @@ bool CTimeSeriesDecomposition::acceptRestoreTraverser(const SDistributionRestore
             RESTORE_BUILT_IN(LAST_PROPAGATION_TIME_6_3_TAG, m_LastPropagationTime)
             RESTORE(PERIODICITY_TEST_6_3_TAG,
                     traverser.traverseSubLevel(
-                        std::bind(&CPeriodicityTest::acceptRestoreTraverser,
-                                  &m_PeriodicityTest, std::placeholders::_1)))
+                        std::bind(&CSeasonalityTest::acceptRestoreTraverser,
+                                  &m_SeasonalityTest, std::placeholders::_1)))
             RESTORE(CALENDAR_CYCLIC_TEST_6_3_TAG,
                     traverser.traverseSubLevel(
                         std::bind(&CCalendarTest::acceptRestoreTraverser,
@@ -146,7 +146,7 @@ void CTimeSeriesDecomposition::swap(CTimeSeriesDecomposition& other) {
     std::swap(m_TimeShift, other.m_TimeShift);
     std::swap(m_LastValueTime, other.m_LastValueTime);
     std::swap(m_LastPropagationTime, other.m_LastPropagationTime);
-    m_PeriodicityTest.swap(other.m_PeriodicityTest);
+    m_SeasonalityTest.swap(other.m_SeasonalityTest);
     m_CalendarCyclicTest.swap(other.m_CalendarCyclicTest);
     m_Components.swap(other.m_Components);
 }
@@ -166,8 +166,8 @@ void CTimeSeriesDecomposition::acceptPersistInserter(core::CStatePersistInserter
     inserter.insertValue(LAST_VALUE_TIME_6_3_TAG, m_LastValueTime);
     inserter.insertValue(LAST_PROPAGATION_TIME_6_3_TAG, m_LastPropagationTime);
     inserter.insertLevel(PERIODICITY_TEST_6_3_TAG,
-                         std::bind(&CPeriodicityTest::acceptPersistInserter,
-                                   &m_PeriodicityTest, std::placeholders::_1));
+                         std::bind(&CSeasonalityTest::acceptPersistInserter,
+                                   &m_SeasonalityTest, std::placeholders::_1));
     inserter.insertLevel(CALENDAR_CYCLIC_TEST_6_3_TAG,
                          std::bind(&CCalendarTest::acceptPersistInserter,
                                    &m_CalendarCyclicTest, std::placeholders::_1));
@@ -223,6 +223,11 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
     m_LastValueTime = std::max(m_LastValueTime, time);
     this->propagateForwardsTo(time);
 
+    auto testForSeasonality = m_Components.makeTestForSeasonality(
+        [this](core_t::TTime time_, const TBoolVec& removedSeasonalMask) {
+            return CBasicStatistics::mean(this->value(time_, 0.0, E_Seasonal, removedSeasonalMask));
+        });
+
     SAddValue message{time,
                       lastTime,
                       value,
@@ -230,14 +235,14 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                       CBasicStatistics::mean(this->value(time, 0.0, E_TrendForced)),
                       CBasicStatistics::mean(this->value(time, 0.0, E_Seasonal)),
                       CBasicStatistics::mean(this->value(time, 0.0, E_Calendar)),
-                      [this](core_t::TTime time_) {
-                          return CBasicStatistics::mean(
-                              this->value(time_, 0.0, E_Seasonal | E_Calendar));
+                      [this](core_t::TTime time_, const TBoolVec& testableSeasonalMask) {
+                          return CBasicStatistics::mean(this->value(
+                              time_, 0.0, E_Seasonal | E_Calendar, testableSeasonalMask));
                       },
-                      m_Components.periodicityTestConfig()};
+                      testForSeasonality};
 
     m_Components.handle(message);
-    m_PeriodicityTest.handle(message);
+    m_SeasonalityTest.handle(message);
     m_CalendarCyclicTest.handle(message);
 }
 
@@ -252,12 +257,12 @@ bool CTimeSeriesDecomposition::applyChange(core_t::TTime time,
         m_Components.shiftLevel(time, value, change.s_Value[0]);
         break;
     case SChangeDescription::E_LinearScale:
-        m_PeriodicityTest.linearScale(time, change.s_Value[0]);
+        m_SeasonalityTest.linearScale(time, change.s_Value[0]);
         m_Components.linearScale(time, change.s_Value[0]);
         break;
     case SChangeDescription::E_TimeShift: {
         core_t::TTime dt{static_cast<core_t::TTime>(change.s_Value[0])};
-        m_PeriodicityTest.shiftTime(dt);
+        m_SeasonalityTest.shiftTime(dt);
         m_TimeShift += dt;
         break;
     }
@@ -268,7 +273,7 @@ bool CTimeSeriesDecomposition::applyChange(core_t::TTime time,
 
 void CTimeSeriesDecomposition::propagateForwardsTo(core_t::TTime time) {
     if (time > m_LastPropagationTime) {
-        m_PeriodicityTest.propagateForwards(m_LastPropagationTime, time);
+        m_SeasonalityTest.propagateForwards(m_LastPropagationTime, time);
         m_CalendarCyclicTest.propagateForwards(m_LastPropagationTime, time);
         m_Components.propagateForwards(m_LastPropagationTime, time);
     }
@@ -282,6 +287,7 @@ double CTimeSeriesDecomposition::meanValue(core_t::TTime time) const {
 TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
                                                 double confidence,
                                                 int components,
+                                                const TBoolVec& removedSeasonalMask,
                                                 bool smooth) const {
     TVector2x1 baseline{0.0};
 
@@ -296,9 +302,12 @@ TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
     }
 
     if (components & E_Seasonal) {
-        for (const auto& component : m_Components.seasonal()) {
-            if (this->selected(time, components, component)) {
-                baseline += vector2x1(component.value(time, confidence));
+        const auto& seasonal = m_Components.seasonal();
+        for (std::size_t i = 0; i < seasonal.size(); ++i) {
+            if (seasonal[i].initialized() &&
+                (removedSeasonalMask.empty() || removedSeasonalMask[i] == false) &&
+                seasonal[i].time().inWindow(time)) {
+                baseline += vector2x1(seasonal[i].value(time, confidence));
             }
         }
     }
@@ -314,7 +323,7 @@ TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
     if (smooth) {
         baseline += vector2x1(this->smooth(
             std::bind(&CTimeSeriesDecomposition::value, this, std::placeholders::_1,
-                      confidence, components & E_Seasonal, false),
+                      confidence, components & E_Seasonal, removedSeasonalMask, false),
             time - m_TimeShift, components));
     }
 
@@ -389,7 +398,7 @@ double CTimeSeriesDecomposition::detrend(core_t::TTime time,
                                          double value,
                                          double confidence,
                                          int components) const {
-    if (!this->initialized()) {
+    if (this->initialized() == false) {
         return value;
     }
     TDoubleDoublePr interval{this->value(time, confidence, components)};
@@ -404,7 +413,7 @@ TDoubleDoublePr CTimeSeriesDecomposition::scale(core_t::TTime time,
                                                 double variance,
                                                 double confidence,
                                                 bool smooth) const {
-    if (!this->initialized()) {
+    if (this->initialized() == false) {
         return {1.0, 1.0};
     }
 
@@ -455,7 +464,7 @@ TDoubleDoublePr CTimeSeriesDecomposition::scale(core_t::TTime time,
 
 CTimeSeriesDecomposition::TFloatMeanAccumulatorVec
 CTimeSeriesDecomposition::windowValues(const TPredictor& predictor) const {
-    return m_PeriodicityTest.windowValues(predictor);
+    return m_SeasonalityTest.windowValues(predictor);
 }
 
 void CTimeSeriesDecomposition::skipTime(core_t::TTime skipInterval) {
@@ -463,10 +472,10 @@ void CTimeSeriesDecomposition::skipTime(core_t::TTime skipInterval) {
     m_LastPropagationTime += skipInterval;
 }
 
-uint64_t CTimeSeriesDecomposition::checksum(uint64_t seed) const {
+std::uint64_t CTimeSeriesDecomposition::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_LastValueTime);
     seed = CChecksum::calculate(seed, m_LastPropagationTime);
-    seed = CChecksum::calculate(seed, m_PeriodicityTest);
+    seed = CChecksum::calculate(seed, m_SeasonalityTest);
     seed = CChecksum::calculate(seed, m_CalendarCyclicTest);
     return CChecksum::calculate(seed, m_Components);
 }
@@ -474,14 +483,14 @@ uint64_t CTimeSeriesDecomposition::checksum(uint64_t seed) const {
 void CTimeSeriesDecomposition::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTimeSeriesDecomposition");
     core::CMemoryDebug::dynamicSize("m_Mediator", m_Mediator, mem);
-    core::CMemoryDebug::dynamicSize("m_PeriodicityTest", m_PeriodicityTest, mem);
+    core::CMemoryDebug::dynamicSize("m_SeasonalityTest", m_SeasonalityTest, mem);
     core::CMemoryDebug::dynamicSize("m_CalendarCyclicTest", m_CalendarCyclicTest, mem);
     core::CMemoryDebug::dynamicSize("m_Components", m_Components, mem);
 }
 
 std::size_t CTimeSeriesDecomposition::memoryUsage() const {
     return core::CMemory::dynamicSize(m_Mediator) +
-           core::CMemory::dynamicSize(m_PeriodicityTest) +
+           core::CMemory::dynamicSize(m_SeasonalityTest) +
            core::CMemory::dynamicSize(m_CalendarCyclicTest) +
            core::CMemory::dynamicSize(m_Components);
 }
@@ -498,9 +507,13 @@ const maths_t::TSeasonalComponentVec& CTimeSeriesDecomposition::seasonalComponen
     return m_Components.seasonal();
 }
 
+core_t::TTime CTimeSeriesDecomposition::lastValueTime() const {
+    return m_LastValueTime;
+}
+
 void CTimeSeriesDecomposition::initializeMediator() {
     m_Mediator = std::make_unique<CMediator>();
-    m_Mediator->registerHandler(m_PeriodicityTest);
+    m_Mediator->registerHandler(m_SeasonalityTest);
     m_Mediator->registerHandler(m_CalendarCyclicTest);
     m_Mediator->registerHandler(m_Components);
 }
@@ -508,6 +521,10 @@ void CTimeSeriesDecomposition::initializeMediator() {
 template<typename F>
 TDoubleDoublePr
 CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components) const {
+    if ((components & E_Seasonal) != E_Seasonal) {
+        return {0.0, 0.0};
+    }
+
     auto offset = [&f, time](core_t::TTime discontinuity) {
         TVector2x1 baselineMinusEps{vector2x1(f(discontinuity - 1))};
         TVector2x1 baselinePlusEps{vector2x1(f(discontinuity + 1))};
@@ -519,7 +536,7 @@ CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components)
     };
 
     for (const auto& component : m_Components.seasonal()) {
-        if (!component.initialized() || !this->matches(components, component) ||
+        if (component.initialized() == false ||
             component.time().windowRepeat() <= SMOOTHING_INTERVAL) {
             continue;
         }
@@ -545,28 +562,6 @@ CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components)
     }
 
     return {0.0, 0.0};
-}
-
-bool CTimeSeriesDecomposition::selected(core_t::TTime time,
-                                        int components,
-                                        const CSeasonalComponent& component) const {
-    return component.initialized() && this->matches(components, component) &&
-           component.time().inWindow(time);
-}
-
-bool CTimeSeriesDecomposition::matches(int components, const CSeasonalComponent& component) const {
-    int seasonal{components & E_Seasonal};
-    if (seasonal == E_Seasonal) {
-        return true;
-    }
-    core_t::TTime period{component.time().period()};
-    bool diurnal{(period % core::constants::DAY == 0) ||
-                 (period % core::constants::WEEK == 0)};
-    return (seasonal == E_Diurnal && diurnal) || (seasonal == E_NonDiurnal && !diurnal);
-}
-
-core_t::TTime CTimeSeriesDecomposition::lastValueTime() const {
-    return m_LastValueTime;
 }
 
 const core_t::TTime CTimeSeriesDecomposition::SMOOTHING_INTERVAL{7200};

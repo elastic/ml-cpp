@@ -106,16 +106,10 @@ public:
     }
 
     //! Compute the greatest common divisor of all integers in \p c.
-    //!
-    //! This uses the property:
-    //! <pre class="fragment">
-    //!   \f$gcd(a, b, c) = gcd(gcd(a, b), c)\f$
-    //! </pre>
-    //! to extend Euclid's algorithm to a collection of integers.
     template<typename INT_TYPE>
     static INT_TYPE gcd(std::vector<INT_TYPE> c) {
         if (c.empty()) {
-            return INT_TYPE(1);
+            return 0;
         }
         if (c.size() == 1) {
             return c[0];
@@ -126,6 +120,29 @@ public:
         INT_TYPE result{gcd(c[0], c[1])};
         for (std::size_t i = 2; i < c.size(); ++i) {
             result = gcd(result, c[i]);
+        }
+        return result;
+    }
+
+    //! Compute the least common multiple of \p a and \p b.
+    template<typename INT_TYPE>
+    static INT_TYPE lcm(INT_TYPE a, INT_TYPE b) {
+        // This also handles the case that a == b == 0.
+        return a == b ? a : a * b / gcd(a, b);
+    }
+
+    //! Compute the least common multiple of all integers in \p c.
+    template<typename INT_TYPE>
+    static INT_TYPE lcm(std::vector<INT_TYPE> c) {
+        if (c.empty()) {
+            return 0;
+        }
+        if (c.size() == 1) {
+            return c[0];
+        }
+        INT_TYPE result{lcm(c[0], c[1])};
+        for (std::size_t i = 2; i < c.size(); ++i) {
+            result = lcm(result, c[i]);
         }
         return result;
     }

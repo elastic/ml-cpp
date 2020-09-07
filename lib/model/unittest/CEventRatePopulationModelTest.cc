@@ -14,7 +14,7 @@
 
 #include <maths/CModelWeight.h>
 #include <maths/COrderings.h>
-#include <maths/CTimeSeriesDecompositionInterface.h>
+#include <maths/CTimeSeriesDecomposition.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -1425,14 +1425,14 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     auto modelNoSkipView = modelNoSkip->details();
 
     // but the underlying models for attributes a1 and a2 are the same
-    uint64_t withSkipChecksum =
+    std::uint64_t withSkipChecksum{
         modelWithSkipView
             ->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0)
-            ->checksum();
-    uint64_t noSkipChecksum =
+            ->checksum()};
+    std::uint64_t noSkipChecksum{
         modelNoSkipView
             ->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0)
-            ->checksum();
+            ->checksum()};
     BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
 
     withSkipChecksum = modelWithSkipView
@@ -1454,12 +1454,15 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
 
     // Check the last value times of all the underlying models are the same
-    const maths::CUnivariateTimeSeriesModel* timeSeriesModel =
+    const maths::CUnivariateTimeSeriesModel* timeSeriesModel{
         dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(modelNoSkipView->model(
-            model_t::E_PopulationCountByBucketPersonAndAttribute, 0));
+            model_t::E_PopulationCountByBucketPersonAndAttribute, 0))};
     BOOST_TEST_REQUIRE(timeSeriesModel);
+    const auto* trendModel = dynamic_cast<const maths::CTimeSeriesDecomposition*>(
+        &timeSeriesModel->trendModel());
+    BOOST_TEST_REQUIRE(trendModel);
 
-    core_t::TTime time = timeSeriesModel->trendModel().lastValueTime();
+    core_t::TTime time = trendModel->lastValueTime();
     BOOST_REQUIRE_EQUAL(model_t::sampleTime(model_t::E_PopulationCountByBucketPersonAndAttribute,
                                             200, bucketLength),
                         time);
@@ -1467,23 +1470,23 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     // The last times of the underlying time series models should all be the same
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1));
-    BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
+    BOOST_REQUIRE_EQUAL(time, trendModel->lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelNoSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2));
-    BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
+    BOOST_REQUIRE_EQUAL(time, trendModel->lastValueTime());
 
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 0));
-    BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
+    BOOST_REQUIRE_EQUAL(time, trendModel->lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 1));
-    BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
+    BOOST_REQUIRE_EQUAL(time, trendModel->lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 2));
-    BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
+    BOOST_REQUIRE_EQUAL(time, trendModel->lastValueTime());
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_PopulationCountByBucketPersonAndAttribute, 3));
-    BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
+    BOOST_REQUIRE_EQUAL(time, trendModel->lastValueTime());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -2966,16 +2966,16 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
         modelWithSkip->details();
     CAnomalyDetectorModel::TModelDetailsViewUPtr modelNoSkipView = modelNoSkip->details();
 
-    uint64_t withSkipChecksum =
+    std::uint64_t withSkipChecksum{
         static_cast<const maths::CUnivariateTimeSeriesModel*>(
             modelWithSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0))
             ->residualModel()
-            .checksum();
-    uint64_t noSkipChecksum =
+            .checksum()};
+    std::uint64_t noSkipChecksum{
         static_cast<const maths::CUnivariateTimeSeriesModel*>(
             modelNoSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0))
             ->residualModel()
-            .checksum();
+            .checksum()};
     BOOST_REQUIRE_EQUAL(withSkipChecksum, noSkipChecksum);
 
     // Check the last value times of the underlying models are the same
@@ -2983,16 +2983,23 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
         dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
             modelNoSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0));
     BOOST_TEST_REQUIRE(timeSeriesModel);
+    const auto* trendModel = dynamic_cast<const maths::CTimeSeriesDecomposition*>(
+        &timeSeriesModel->trendModel());
+    BOOST_TEST_REQUIRE(trendModel);
 
-    core_t::TTime time = timeSeriesModel->trendModel().lastValueTime();
+    core_t::TTime time = trendModel->lastValueTime();
     BOOST_REQUIRE_EQUAL(model_t::sampleTime(model_t::E_IndividualCountByBucketAndPerson,
                                             startTime, bucketLength),
                         time);
 
-    // The last times of model with a skip should be the same
     timeSeriesModel = dynamic_cast<const maths::CUnivariateTimeSeriesModel*>(
         modelWithSkipView->model(model_t::E_IndividualCountByBucketAndPerson, 0));
-    BOOST_REQUIRE_EQUAL(time, timeSeriesModel->trendModel().lastValueTime());
+    BOOST_TEST_REQUIRE(timeSeriesModel);
+    trendModel = dynamic_cast<const maths::CTimeSeriesDecomposition*>(
+        &timeSeriesModel->trendModel());
+    BOOST_TEST_REQUIRE(trendModel);
+
+    BOOST_REQUIRE_EQUAL(time, trendModel->lastValueTime());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

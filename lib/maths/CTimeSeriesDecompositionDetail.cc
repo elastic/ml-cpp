@@ -12,6 +12,7 @@
 #include <core/CPersistUtils.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
+#include <core/CTimeUtils.h>
 #include <core/CTimezone.h>
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
@@ -25,7 +26,6 @@
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraPersist.h>
-#include <maths/CPeriodicityHypothesisTests.h>
 #include <maths/CSampling.h>
 #include <maths/CSeasonalComponentAdaptiveBucketing.h>
 #include <maths/CSeasonalTime.h>
@@ -33,6 +33,7 @@
 #include <maths/CStatisticalTests.h>
 #include <maths/CTimeSeriesDecomposition.h>
 #include <maths/CTimeSeriesSegmentation.h>
+#include <maths/CTimeSeriesTestForSeasonality.h>
 #include <maths/CTools.h>
 #include <maths/Constants.h>
 
@@ -70,13 +71,15 @@ using TTimeTimePrSizeFMap = boost::container::flat_map<TTimeTimePr, std::size_t>
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
 using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
-using TComponent5Vec = CPeriodicityHypothesisTestsResult::TComponent5Vec;
 using TSeasonalComponentPtrVec = std::vector<CSeasonalComponent*>;
 using TCalendarComponentPtrVec = std::vector<CCalendarComponent*>;
 
 const core_t::TTime DAY{core::constants::DAY};
 const core_t::TTime WEEK{core::constants::WEEK};
 const core_t::TTime MONTH{4 * WEEK};
+const std::ptrdiff_t MAXIMUM_COMPONENTS{8};
+const TSeasonalComponentVec NO_SEASONAL_COMPONENTS;
+const TCalendarComponentVec NO_CALENDAR_COMPONENTS;
 
 //! We scale the time used for the regression model to improve
 //! the condition of the design matrix.
@@ -370,11 +373,6 @@ bool upgradeTrendModelToVersion_6_3(const core_t::TTime bucketLength,
 const TSizeSizeMap SC_STATES_UPGRADING_TO_VERSION_6_3{{0, 0}, {1, 1}, {2, 1}, {3, 2}, {4, 3}};
 
 ////////////////////////////////////////////////////////////////////////
-
-// Constants
-const std::size_t MAXIMUM_COMPONENTS{8};
-const TSeasonalComponentVec NO_SEASONAL_COMPONENTS;
-const TCalendarComponentVec NO_CALENDAR_COMPONENTS;
 }
 
 //////// SMessage ////////
@@ -392,22 +390,19 @@ CTimeSeriesDecompositionDetail::SAddValue::SAddValue(core_t::TTime time,
                                                      double trend,
                                                      double seasonal,
                                                      double calendar,
-                                                     const TPredictor& predictor,
-                                                     const CPeriodicityHypothesisTestsConfig& periodicityTestConfig)
+                                                     const TFilteredPredictor& preconditioner,
+                                                     const TMakeTestForSeasonality& makeTestForSeasonality)
     : SMessage{time, lastTime}, s_Value{value}, s_Weights{weights}, s_Trend{trend},
-      s_Seasonal{seasonal}, s_Calendar{calendar}, s_Predictor{predictor},
-      s_PeriodicityTestConfig{periodicityTestConfig} {
+      s_Seasonal{seasonal}, s_Calendar{calendar}, s_Preconditioner{preconditioner},
+      s_MakeTestForSeasonality{makeTestForSeasonality} {
 }
 
 //////// SDetectedSeasonal ////////
 
-CTimeSeriesDecompositionDetail::SDetectedSeasonal::SDetectedSeasonal(
-    core_t::TTime time,
-    core_t::TTime lastTime,
-    const CPeriodicityHypothesisTestsResult& result,
-    const CExpandingWindow& window,
-    const TPredictor& predictor)
-    : SMessage{time, lastTime}, s_Result{result}, s_Window{window}, s_Predictor{predictor} {
+CTimeSeriesDecompositionDetail::SDetectedSeasonal::SDetectedSeasonal(core_t::TTime time,
+                                                                     core_t::TTime lastTime,
+                                                                     CSeasonalDecomposition components)
+    : SMessage{time, lastTime}, s_Components{std::move(components)} {
 }
 
 //////// SDetectedCalendar ////////
@@ -473,7 +468,7 @@ std::size_t CTimeSeriesDecompositionDetail::CMediator::memoryUsage() const {
     return core::CMemory::dynamicSize(m_Handlers);
 }
 
-//////// CPeriodicityTest ////////
+//////// CSeasonalityTest ////////
 
 namespace {
 
@@ -488,7 +483,7 @@ using TTimeTimeVecPrVec = std::vector<std::pair<core_t::TTime, TTimeVec>>;
 //! The fewer points the higher the chance of the false positives, but for
 //! long bucket lengths using many buckets means it takes a long time to
 //! find significant periodic components.
-class CPeriodicityTestWindowParameters {
+class CSeasonalityTestParameters {
 public:
     static core_t::TTime maxBucketLength() { return 604800; }
 
@@ -552,57 +547,54 @@ private:
 //      windows,
 //   5. The times, in addition to "number buckets" * "window bucket lengths",
 //      when we'll test for seasonal components.
-const CPeriodicityTestWindowParameters::TParametersVecVec CPeriodicityTestWindowParameters::WINDOW_PARAMETERS{
+const CSeasonalityTestParameters::TParametersVecVec CSeasonalityTestParameters::WINDOW_PARAMETERS{
     {/*  SHORT WINDOW  */
-     {1, 1, 336, {1, 5, 10, 30, 60}, {}},
-     {5, 1, 336, {5, 10, 30, 60, 300}, {}},
+     {1, 1, 336, {1, 5, 10, 30, 60, 300, 600}, {}},
+     {5, 1, 336, {5, 10, 30, 60, 300, 600}, {}},
      {10, 1, 336, {10, 30, 60, 300, 600}, {}},
      {30, 1, 336, {30, 60, 300, 600, 1800}, {3 * 86400}},
-     {60, 1, 336, {60, 300, 600, 1800, 3600}, {3 * 86400}},
-     {300, 1, 336, {300, 600, 1800, 3600}, {3 * 86400}},
-     {600, 1, 336, {600, 1800, 3600}, {3 * 86400}},
-     {900, 1, 336, {900, 1800, 3600, 7200}, {3 * 86400}},
-     {1200, 1, 336, {1200, 3600, 7200}, {3 * 86400}},
-     {1800, 1, 336, {1800, 3600, 7200}, {3 * 86400}},
-     {3600, 1, 336, {3600, 7200}, {3 * 86400, 7 * 86400}},
-     {7200, 1, 336, {7200}, {3 * 86400, 7 * 86400}},
-     {14400, 1, 168, {14400}, {7 * 86400, 21 * 86400}},
-     {21600, 1, 112, {21600}, {7 * 86400, 21 * 86400}},
-     {28800, 1, 84, {28800}, {21 * 86400}},
-     {43200, 1, 56, {43200}, {28 * 86400}},
+     {60, 1, 336, {60, 300, 600, 1800, 3600, 7200}, {3 * 86400}},
+     {300, 1, 336, {300, 600, 1800, 3600, 7200}, {3 * 86400}},
+     {600, 1, 336, {600, 1800, 3600, 7200}, {3 * 86400}},
+     {900, 1, 336, {900, 1800, 3600, 7200, 14400}, {3 * 86400}},
+     {1200, 1, 336, {1200, 3600, 7200, 14400}, {3 * 86400}},
+     {1800, 1, 336, {1800, 3600, 7200, 14400}, {3 * 86400}},
+     {3600, 1, 336, {3600, 7200, 14400}, {3 * 86400, 7 * 86400}},
+     {7200, 1, 336, {7200, 14400}, {3 * 86400, 7 * 86400}},
+     {14400, 1, 336, {14400}, {7 * 86400, 21 * 86400}},
+     {21600, 1, 224, {21600}, {7 * 86400, 21 * 86400}},
+     {28800, 1, 168, {28800}, {21 * 86400}},
+     {43200, 1, 112, {43200}, {28 * 86400}},
      {86400, 1, 56, {86400}, {}}},
     /*  LONG WINDOW  */
-    {{1, 86401, 336, {600, 1800, 3600, 7200}, {3 * 86400}},
-     {5, 86401, 336, {1800, 3600, 7200}, {3 * 86400}},
-     {10, 86401, 336, {3600, 7200}, {3 * 86400, 7 * 86400}},
-     {30, 86401, 336, {3600, 7200}, {3 * 86400, 7 * 86400}},
-     {60, 86401, 336, {7200}, {21 * 86400}},
-     {300, 86401, 336, {7200, 14400}, {21 * 86400}},
-     {600, 86401, 336, {7200, 14400}, {21 * 86400}},
-     {900, 604801, 365, {7200, 14400, 28800, 86400, 259200}, {}},
-     {1200, 604801, 365, {7200, 14400, 28800, 86400, 259200}, {}},
-     {1800, 604801, 365, {14400, 28800, 86400, 259200}, {}},
-     {3600, 604801, 365, {14400, 28800, 86400, 259200}, {}},
-     {7200, 604801, 365, {14400, 28800, 86400, 259200}, {}},
-     {14400, 604801, 365, {28800, 86400, 259200}, {}},
-     {28800, 604801, 365, {86400, 259200}, {}},
-     {43200, 604801, 365, {86400, 259200}, {}},
-     {86400, 604801, 365, {86400, 259200}, {}},
-     {604800, 604801, 156, {604800}, {}}}};
+    {{1, 86401, 336, {1800, 1800, 3600, 7200}, {3 * 86400, 21 * 86400}},
+     {5, 86401, 336, {1800, 3600, 7200}, {3 * 86400, 21 * 86400}},
+     {10, 86401, 336, {1800, 3600, 7200}, {3 * 86400, 21 * 86400}},
+     {30, 86401, 336, {3600, 7200}, {21 * 86400}},
+     {60, 604801, 336, {14400, 28800}, {}},
+     {300, 604801, 336, {14400, 28800}, {}},
+     {600, 604801, 336, {14400, 28800}, {}},
+     {900, 1209601, 365, {28800, 86400, 259200}, {}},
+     {1200, 1209601, 365, {28800, 86400, 259200}, {}},
+     {1800, 1209601, 365, {28800, 86400, 259200}, {}},
+     {3600, 1209601, 365, {28800, 86400, 259200}, {}},
+     {7200, 1209601, 365, {28800, 86400, 259200}, {}},
+     {14400, 1209601, 365, {28800, 86400, 259200}, {}},
+     {86400, 1209601, 365, {86400, 259200}, {}},
+     {604800, 1209601, 156, {604800}, {}}}};
 }
 
-CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(double decayRate,
+CTimeSeriesDecompositionDetail::CSeasonalityTest::CSeasonalityTest(double decayRate,
                                                                    core_t::TTime bucketLength)
     : m_Machine{core::CStateMachine::create(
           PT_ALPHABET,
           PT_STATES,
           PT_TRANSITION_FUNCTION,
-          bucketLength > CPeriodicityTestWindowParameters::maxBucketLength() ? PT_NOT_TESTING
-                                                                             : PT_INITIAL)},
+          bucketLength > CSeasonalityTestParameters::maxBucketLength() ? PT_NOT_TESTING : PT_INITIAL)},
       m_DecayRate{decayRate}, m_BucketLength{bucketLength} {
 }
 
-CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(const CPeriodicityTest& other,
+CTimeSeriesDecompositionDetail::CSeasonalityTest::CSeasonalityTest(const CSeasonalityTest& other,
                                                                    bool isForForecast)
     : CHandler(), m_Machine{other.m_Machine}, m_DecayRate{other.m_DecayRate},
       m_BucketLength{other.m_BucketLength} {
@@ -614,7 +606,7 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::CPeriodicityTest(const CPeriod
     }
 }
 
-bool CTimeSeriesDecompositionDetail::CPeriodicityTest::acceptRestoreTraverser(
+bool CTimeSeriesDecompositionDetail::CSeasonalityTest::acceptRestoreTraverser(
     core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
@@ -645,7 +637,7 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::acceptRestoreTraverser(
     return true;
 }
 
-void CTimeSeriesDecompositionDetail::CPeriodicityTest::acceptPersistInserter(
+void CTimeSeriesDecompositionDetail::CSeasonalityTest::acceptPersistInserter(
     core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(PERIODICITY_TEST_MACHINE_6_3_TAG,
                          std::bind(&core::CStateMachine::acceptPersistInserter,
@@ -663,7 +655,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::acceptPersistInserter(
     core::CPersistUtils::persist(LINEAR_SCALES_7_2_TAG, m_LinearScales, inserter);
 }
 
-void CTimeSeriesDecompositionDetail::CPeriodicityTest::swap(CPeriodicityTest& other) {
+void CTimeSeriesDecompositionDetail::CSeasonalityTest::swap(CSeasonalityTest& other) {
     std::swap(m_Machine, other.m_Machine);
     std::swap(m_DecayRate, other.m_DecayRate);
     std::swap(m_BucketLength, other.m_BucketLength);
@@ -671,7 +663,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::swap(CPeriodicityTest& ot
     m_Windows[E_Long].swap(other.m_Windows[E_Long]);
 }
 
-void CTimeSeriesDecompositionDetail::CPeriodicityTest::handle(const SAddValue& message) {
+void CTimeSeriesDecompositionDetail::CSeasonalityTest::handle(const SAddValue& message) {
 
     core_t::TTime time{message.s_Time};
     double value{message.s_Value};
@@ -703,17 +695,17 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::handle(const SAddValue& m
     }
 }
 
-void CTimeSeriesDecompositionDetail::CPeriodicityTest::handle(const SNewComponents& /*message*/) {
+void CTimeSeriesDecompositionDetail::CSeasonalityTest::handle(const SNewComponents& /*message*/) {
     // This can be a no-op because we always maintain the raw time
     // series values in the windows and apply corrections for other
     // components only when we test.
 }
 
-void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& message) {
+void CTimeSeriesDecompositionDetail::CSeasonalityTest::test(const SAddValue& message) {
     core_t::TTime time{message.s_Time};
     core_t::TTime lastTime{message.s_LastTime};
-    const TPredictor& predictor{message.s_Predictor};
-    const CPeriodicityHypothesisTestsConfig& config{message.s_PeriodicityTestConfig};
+    const auto& preconditioner = message.s_Preconditioner;
+    const auto& makeTest = message.s_MakeTestForSeasonality;
 
     switch (m_Machine.state()) {
     case PT_TEST:
@@ -723,23 +715,14 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
                 this->pruneLinearScales();
 
                 const auto& window = m_Windows[i];
+                core_t::TTime minimumPeriod{
+                    CSeasonalityTestParameters::shortestComponent(i, m_BucketLength)};
+                auto seasonalityTest = makeTest(*window, minimumPeriod, preconditioner);
 
-                TFloatMeanAccumulatorVec values(
-                    window->valuesMinusPrediction(this->scaledPredictor(predictor)));
-
-                core_t::TTime start{CIntegerTools::floor(window->beginValuesTime(),
-                                                         m_BucketLength)};
-                core_t::TTime bucketLength{window->bucketLength()};
-                CPeriodicityHypothesisTestsResult result{
-                    testForPeriods(config, start, bucketLength, values)};
-                result.remove([&](const CPeriodicityHypothesisTestsResult::SComponent& component) {
-                    return component.s_Period <
-                           CPeriodicityTestWindowParameters::shortestComponent(i, m_BucketLength);
-                });
-
-                if (result.periodic()) {
-                    this->mediator()->forward(SDetectedSeasonal{
-                        time, lastTime, result, *window, predictor});
+                auto decomposition = seasonalityTest.decompose();
+                if (decomposition.componentsChanged()) {
+                    this->mediator()->forward(
+                        SDetectedSeasonal{time, lastTime, std::move(decomposition)});
                 }
             }
         }
@@ -754,12 +737,12 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::test(const SAddValue& mes
     }
 }
 
-void CTimeSeriesDecompositionDetail::CPeriodicityTest::linearScale(core_t::TTime time,
+void CTimeSeriesDecompositionDetail::CSeasonalityTest::linearScale(core_t::TTime time,
                                                                    double scale) {
     m_LinearScales.emplace_back(time, scale);
 }
 
-void CTimeSeriesDecompositionDetail::CPeriodicityTest::shiftTime(core_t::TTime dt) {
+void CTimeSeriesDecompositionDetail::CSeasonalityTest::shiftTime(core_t::TTime dt) {
     for (auto& window : m_Windows) {
         if (window != nullptr) {
             window->shiftTime(dt);
@@ -767,7 +750,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::shiftTime(core_t::TTime d
     }
 }
 
-void CTimeSeriesDecompositionDetail::CPeriodicityTest::propagateForwards(core_t::TTime start,
+void CTimeSeriesDecompositionDetail::CSeasonalityTest::propagateForwards(core_t::TTime start,
                                                                          core_t::TTime end) {
     if (m_Windows[E_Short] != nullptr) {
         stepwisePropagateForwards(start, end, DAY, [this](double time) {
@@ -782,7 +765,7 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::propagateForwards(core_t:
 }
 
 CTimeSeriesDecompositionDetail::TFloatMeanAccumulatorVec
-CTimeSeriesDecompositionDetail::CPeriodicityTest::windowValues(const TPredictor& predictor) const {
+CTimeSeriesDecompositionDetail::CSeasonalityTest::windowValues(const TPredictor& predictor) const {
     TFloatMeanAccumulatorVec result;
     for (auto i : {E_Short, E_Long}) {
         if (m_Windows[i] != nullptr) {
@@ -793,7 +776,7 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::windowValues(const TPredictor&
     return result;
 }
 
-uint64_t CTimeSeriesDecompositionDetail::CPeriodicityTest::checksum(uint64_t seed) const {
+std::uint64_t CTimeSeriesDecompositionDetail::CSeasonalityTest::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Machine);
     seed = CChecksum::calculate(seed, m_DecayRate);
     seed = CChecksum::calculate(seed, m_BucketLength);
@@ -801,14 +784,14 @@ uint64_t CTimeSeriesDecompositionDetail::CPeriodicityTest::checksum(uint64_t see
     return CChecksum::calculate(seed, m_LinearScales);
 }
 
-void CTimeSeriesDecompositionDetail::CPeriodicityTest::debugMemoryUsage(
+void CTimeSeriesDecompositionDetail::CSeasonalityTest::debugMemoryUsage(
     const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
-    mem->setName("CPeriodicityTest");
+    mem->setName("CSeasonalityTest");
     core::CMemoryDebug::dynamicSize("m_Windows", m_Windows, mem);
     core::CMemoryDebug::dynamicSize("m_LinearScales", m_LinearScales, mem);
 }
 
-std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::memoryUsage() const {
+std::size_t CTimeSeriesDecompositionDetail::CSeasonalityTest::memoryUsage() const {
     std::size_t usage{core::CMemory::dynamicSize(m_Windows)};
     if (m_Machine.state() == PT_INITIAL) {
         usage += this->extraMemoryOnInitialization();
@@ -816,7 +799,7 @@ std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::memoryUsage() cons
     return usage + core::CMemory::dynamicSize(m_LinearScales);
 }
 
-std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::extraMemoryOnInitialization() const {
+std::size_t CTimeSeriesDecompositionDetail::CSeasonalityTest::extraMemoryOnInitialization() const {
     static std::size_t result{0};
     if (result == 0) {
         for (auto i : {E_Short, E_Long}) {
@@ -830,7 +813,7 @@ std::size_t CTimeSeriesDecompositionDetail::CPeriodicityTest::extraMemoryOnIniti
     return result;
 }
 
-void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
+void CTimeSeriesDecompositionDetail::CSeasonalityTest::apply(std::size_t symbol,
                                                              const SMessage& message) {
     core_t::TTime time{message.s_Time};
 
@@ -884,15 +867,13 @@ void CTimeSeriesDecompositionDetail::CPeriodicityTest::apply(std::size_t symbol,
     }
 }
 
-CTimeSeriesDecompositionDetail::CPeriodicityTest::TExpandingWindowUPtr
-CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test, bool deflate) const {
+CTimeSeriesDecompositionDetail::CSeasonalityTest::TExpandingWindowUPtr
+CTimeSeriesDecompositionDetail::CSeasonalityTest::newWindow(ETest test, bool deflate) const {
 
     using TTimeCRng = CExpandingWindow::TTimeCRng;
 
-    std::size_t numberBuckets{
-        CPeriodicityTestWindowParameters::numberBuckets(test, m_BucketLength)};
-    const TTimeVec* bucketLengths{
-        CPeriodicityTestWindowParameters::bucketLengths(test, m_BucketLength)};
+    std::size_t numberBuckets{CSeasonalityTestParameters::numberBuckets(test, m_BucketLength)};
+    const TTimeVec* bucketLengths{CSeasonalityTestParameters::bucketLengths(test, m_BucketLength)};
 
     if (bucketLengths != nullptr) {
         return std::make_unique<CExpandingWindow>(
@@ -903,15 +884,14 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::newWindow(ETest test, bool def
     return {};
 }
 
-bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
+bool CTimeSeriesDecompositionDetail::CSeasonalityTest::shouldTest(ETest test,
                                                                   core_t::TTime time) const {
     // We need to test more frequently than we compress because it
     // would significantly delay when we first detect short periodic
     // components for longer bucket lengths otherwise.
     auto scheduledTest = [&]() {
         core_t::TTime length{time - m_Windows[test]->beginValuesTime()};
-        for (auto schedule :
-             CPeriodicityTestWindowParameters::testSchedule(test, m_BucketLength)) {
+        for (auto schedule : CSeasonalityTestParameters::testSchedule(test, m_BucketLength)) {
             if (length >= schedule && length < schedule + m_BucketLength) {
                 return true;
             }
@@ -923,7 +903,7 @@ bool CTimeSeriesDecompositionDetail::CPeriodicityTest::shouldTest(ETest test,
 }
 
 CTimeSeriesDecompositionDetail::TPredictor
-CTimeSeriesDecompositionDetail::CPeriodicityTest::scaledPredictor(const TPredictor& predictor) const {
+CTimeSeriesDecompositionDetail::CSeasonalityTest::scaledPredictor(const TPredictor& predictor) const {
     return [&predictor, this](core_t::TTime time) {
         auto i = std::lower_bound(m_LinearScales.begin(), m_LinearScales.end(), time,
                                   [](const TTimeDoublePr& lhs, core_t::TTime rhs) {
@@ -937,7 +917,7 @@ CTimeSeriesDecompositionDetail::CPeriodicityTest::scaledPredictor(const TPredict
     };
 }
 
-void CTimeSeriesDecompositionDetail::CPeriodicityTest::pruneLinearScales() {
+void CTimeSeriesDecompositionDetail::CSeasonalityTest::pruneLinearScales() {
     core_t::TTime cutoff{std::numeric_limits<core_t::TTime>::max()};
     for (const auto& window : m_Windows) {
         if (window != nullptr) {
@@ -1037,11 +1017,10 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::handle(const SAddValue& mess
 void CTimeSeriesDecompositionDetail::CCalendarTest::handle(const SNewComponents& message) {
     if (m_Machine.state() != CC_NOT_TESTING) {
         switch (message.s_Component) {
-        case SNewComponents::E_GeneralSeasonal:
-        case SNewComponents::E_DiurnalSeasonal:
+        case SNewComponents::E_Seasonal:
             this->apply(CC_RESET, message);
             break;
-        case SNewComponents::E_CalendarCyclic:
+        case SNewComponents::E_Calendar:
             break;
         }
     }
@@ -1079,7 +1058,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::propagateForwards(core_t::TT
     }
 }
 
-uint64_t CTimeSeriesDecompositionDetail::CCalendarTest::checksum(uint64_t seed) const {
+std::uint64_t CTimeSeriesDecompositionDetail::CCalendarTest::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Machine);
     seed = CChecksum::calculate(seed, m_DecayRate);
     seed = CChecksum::calculate(seed, m_LastMonth);
@@ -1193,7 +1172,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(
                     traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
                         return m_Machine.acceptRestoreTraverser(traverser_);
                     }))
-            RESTORE_BUILT_IN(DECAY_RATE_6_3_TAG, m_DecayRate);
+            RESTORE_BUILT_IN(DECAY_RATE_6_3_TAG, m_DecayRate)
             RESTORE(GAIN_CONTROLLER_6_3_TAG,
                     traverser.traverseSubLevel(
                         std::bind(&CGainController::acceptRestoreTraverser,
@@ -1216,9 +1195,9 @@ bool CTimeSeriesDecompositionDetail::CComponents::acceptRestoreTraverser(
             RESTORE(MEAN_VARIANCE_SCALE_6_3_TAG,
                     m_MeanVarianceScale.fromDelimited(traverser.value()))
             RESTORE(MOMENTS_6_3_TAG,
-                    m_PredictionErrorWithoutTrend.fromDelimited(traverser.value()));
+                    m_PredictionErrorWithoutTrend.fromDelimited(traverser.value()))
             RESTORE(MOMENTS_MINUS_TREND_6_3_TAG,
-                    m_PredictionErrorWithTrend.fromDelimited(traverser.value()));
+                    m_PredictionErrorWithTrend.fromDelimited(traverser.value()))
             RESTORE_BUILT_IN(TESTING_FOR_CHANGE_6_5_TAG, m_TestingForChange)
             RESTORE_BUILT_IN(USING_TREND_FOR_PREDICTION_6_3_TAG, m_UsingTrendForPrediction)
         }
@@ -1271,12 +1250,12 @@ void CTimeSeriesDecompositionDetail::CComponents::acceptPersistInserter(
                                    &m_GainController, std::placeholders::_1));
     inserter.insertLevel(TREND_6_3_TAG, std::bind(&CTrendComponent::acceptPersistInserter,
                                                   m_Trend, std::placeholders::_1));
-    if (m_Seasonal) {
+    if (m_Seasonal != nullptr) {
         inserter.insertLevel(SEASONAL_6_3_TAG,
                              std::bind(&CSeasonal::acceptPersistInserter,
                                        m_Seasonal.get(), std::placeholders::_1));
     }
-    if (m_Calendar) {
+    if (m_Calendar != nullptr) {
         inserter.insertLevel(CALENDAR_6_3_TAG,
                              std::bind(&CCalendar::acceptPersistInserter,
                                        m_Calendar.get(), std::placeholders::_1));
@@ -1323,11 +1302,11 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
         TComponentErrorsPtrVec calendarErrors;
         TDoubleVec deltas;
 
-        if (m_Seasonal) {
+        if (m_Seasonal != nullptr) {
             m_Seasonal->componentsErrorsAndDeltas(time, seasonalComponents,
                                                   seasonalErrors, deltas);
         }
-        if (m_Calendar) {
+        if (m_Calendar != nullptr) {
             m_Calendar->componentsAndErrors(time, calendarComponents, calendarErrors);
         }
 
@@ -1414,18 +1393,12 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedSeasonal
 
         core_t::TTime time{message.s_Time};
         core_t::TTime lastTime{message.s_LastTime};
-        const CPeriodicityHypothesisTestsResult& result{message.s_Result};
-        const CExpandingWindow& window{message.s_Window};
-        const TPredictor& predictor{message.s_Predictor};
+        const auto& components = message.s_Components;
+        LOG_DEBUG(<< "Detected change in seasonal components at " << time);
 
-        if (this->addSeasonalComponents(result, window, predictor)) {
-            LOG_DEBUG(<< "Detected seasonal components at " << time);
-            m_UsingTrendForPrediction = true;
-            this->clearComponentErrors();
-            this->apply(SC_ADDED_COMPONENTS, message);
-            this->mediator()->forward(
-                SNewComponents(time, lastTime, SNewComponents::E_GeneralSeasonal));
-        }
+        this->addSeasonalComponents(components);
+        this->apply(SC_ADDED_COMPONENTS, message);
+        this->mediator()->forward(SNewComponents(time, lastTime, SNewComponents::E_Seasonal));
         break;
     }
     case SC_DISABLED:
@@ -1445,7 +1418,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedCalendar
     switch (m_Machine.state()) {
     case SC_NORMAL:
     case SC_NEW_COMPONENTS: {
-        if (!m_Calendar) {
+        if (m_Calendar == nullptr) {
             m_Calendar = std::make_unique<CCalendar>();
         }
 
@@ -1460,8 +1433,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedCalendar
         LOG_DEBUG(<< "Detected feature '" << feature.print() << "' at " << time);
         this->addCalendarComponent(feature);
         this->apply(SC_ADDED_COMPONENTS, message);
-        this->mediator()->forward(
-            SNewComponents(time, lastTime, SNewComponents::E_CalendarCyclic));
+        this->mediator()->forward(SNewComponents(time, lastTime, SNewComponents::E_Calendar));
         break;
     }
     case SC_DISABLED:
@@ -1485,20 +1457,20 @@ void CTimeSeriesDecompositionDetail::CComponents::shiftLevel(core_t::TTime time,
 
 void CTimeSeriesDecompositionDetail::CComponents::linearScale(core_t::TTime time, double scale) {
     m_Trend.linearScale(scale);
-    if (m_Seasonal) {
+    if (m_Seasonal != nullptr) {
         m_Seasonal->linearScale(time, scale);
     }
-    if (m_Calendar) {
+    if (m_Calendar != nullptr) {
         m_Calendar->linearScale(time, scale);
     }
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::interpolateForForecast(core_t::TTime time) {
     if (this->shouldInterpolate(time, time - m_BucketLength)) {
-        if (m_Seasonal) {
+        if (m_Seasonal != nullptr) {
             m_Seasonal->interpolate(time, time - m_BucketLength, false);
         }
-        if (m_Calendar) {
+        if (m_Calendar != nullptr) {
             m_Calendar->interpolate(time, time - m_BucketLength, true);
         }
     }
@@ -1511,10 +1483,10 @@ void CTimeSeriesDecompositionDetail::CComponents::dataType(maths_t::EDataType da
 void CTimeSeriesDecompositionDetail::CComponents::decayRate(double decayRate) {
     m_DecayRate = decayRate;
     m_Trend.decayRate(decayRate);
-    if (m_Seasonal) {
+    if (m_Seasonal != nullptr) {
         m_Seasonal->decayRate(decayRate);
     }
-    if (m_Calendar) {
+    if (m_Calendar != nullptr) {
         m_Calendar->decayRate(decayRate);
     }
 }
@@ -1526,10 +1498,10 @@ double CTimeSeriesDecompositionDetail::CComponents::decayRate() const {
 void CTimeSeriesDecompositionDetail::CComponents::propagateForwards(core_t::TTime start,
                                                                     core_t::TTime end) {
     m_Trend.propagateForwardsByTime(end - start);
-    if (m_Seasonal) {
+    if (m_Seasonal != nullptr) {
         m_Seasonal->propagateForwards(start, end);
     }
-    if (m_Calendar) {
+    if (m_Calendar != nullptr) {
         m_Calendar->propagateForwards(start, end);
     }
     double factor{ageFactor(m_DecayRate, end - start)};
@@ -1553,12 +1525,12 @@ const CTrendComponent& CTimeSeriesDecompositionDetail::CComponents::trend() cons
 }
 
 const TSeasonalComponentVec& CTimeSeriesDecompositionDetail::CComponents::seasonal() const {
-    return m_Seasonal ? m_Seasonal->components() : NO_SEASONAL_COMPONENTS;
+    return m_Seasonal != nullptr ? m_Seasonal->components() : NO_SEASONAL_COMPONENTS;
 }
 
 const maths_t::TCalendarComponentVec&
 CTimeSeriesDecompositionDetail::CComponents::calendar() const {
-    return m_Calendar ? m_Calendar->components() : NO_CALENDAR_COMPONENTS;
+    return m_Calendar != nullptr ? m_Calendar->components() : NO_CALENDAR_COMPONENTS;
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::usingTrendForPrediction() const {
@@ -1569,19 +1541,36 @@ void CTimeSeriesDecompositionDetail::CComponents::useTrendForPrediction() {
     m_UsingTrendForPrediction = true;
 }
 
-CPeriodicityHypothesisTestsConfig
-CTimeSeriesDecompositionDetail::CComponents::periodicityTestConfig() const {
-    CPeriodicityHypothesisTestsConfig result;
-    for (const auto& component : this->seasonal()) {
-        const CSeasonalTime& time{component.time()};
-        result.hasDaily(result.hasDaily() || time.period() == DAY);
-        result.hasWeekend(result.hasWeekend() || time.hasWeekend());
-        result.hasWeekly(result.hasWeekly() || time.period() == WEEK);
-        if (time.hasWeekend()) {
-            result.startOfWeek(time.windowRepeatStart());
+CTimeSeriesDecompositionDetail::TMakeTestForSeasonality
+CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilteredPredictor& predictor) const {
+    return [predictor, this](const CExpandingWindow& window, core_t::TTime minimumPeriod,
+                             const TFilteredPredictor& preconditioner) {
+        core_t::TTime valuesStartTime{window.beginValuesTime()};
+        core_t::TTime bucketStartTime{window.bucketStartTime()};
+        core_t::TTime bucketLength{window.bucketLength()};
+        auto values = window.values();
+        TBoolVec testableMask;
+        for (const auto& component : this->seasonal()) {
+            testableMask.push_back(CTimeSeriesTestForSeasonality::canTestComponent(
+                values, bucketStartTime, bucketLength, component.time()));
         }
-    }
-    return result;
+        values = window.valuesMinusPrediction(std::move(values), [&](core_t::TTime time) {
+            return preconditioner(time, testableMask);
+        });
+        CTimeSeriesTestForSeasonality test{valuesStartTime, bucketStartTime,
+                                           bucketLength, std::move(values)};
+        std::ptrdiff_t maximumNumberComponents{MAXIMUM_COMPONENTS};
+        for (const auto& component : this->seasonal()) {
+            test.addModelledSeasonality(component.time(), component.size());
+            --maximumNumberComponents;
+        }
+        test.minimumPeriod(minimumPeriod)
+            .minimumModelSize(2 * m_SeasonalComponentSize / 3)
+            .maximumNumberOfComponents(maximumNumberComponents)
+            .modelledSeasonalityPredictor(predictor);
+
+        return test;
+    };
 }
 
 double CTimeSeriesDecompositionDetail::CComponents::meanValue(core_t::TTime time) const {
@@ -1606,7 +1595,7 @@ double CTimeSeriesDecompositionDetail::CComponents::meanVarianceScale() const {
     return CBasicStatistics::mean(m_MeanVarianceScale);
 }
 
-uint64_t CTimeSeriesDecompositionDetail::CComponents::checksum(uint64_t seed) const {
+std::uint64_t CTimeSeriesDecompositionDetail::CComponents::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Machine);
     seed = CChecksum::calculate(seed, m_DecayRate);
     seed = CChecksum::calculate(seed, m_BucketLength);
@@ -1644,260 +1633,90 @@ std::size_t CTimeSeriesDecompositionDetail::CComponents::maxSize() const {
     return MAXIMUM_COMPONENTS * m_SeasonalComponentSize;
 }
 
-bool CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(
-    const CPeriodicityHypothesisTestsResult& result,
-    const CExpandingWindow& window,
-    const TPredictor& predictor) {
-    using TSeasonalTimePtr = std::unique_ptr<CSeasonalTime>;
-    using TSeasonalTimePtrBoolPr = std::pair<TSeasonalTimePtr, bool>;
-    using TSeasonalTimePtrBoolPrVec = std::vector<TSeasonalTimePtrBoolPr>;
+void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CSeasonalDecomposition& components) {
 
-    TSeasonalTimePtrBoolPrVec newComponents;
-    const TSeasonalComponentVec& components{m_Seasonal->components()};
+    m_Seasonal->remove(components.seasonalToRemoveMask());
+    LOG_TRACE(<< "remove mask = "
+              << core::CContainerPrinter::print(components.seasonalToRemoveMask()));
 
-    // Find the components to add to the decomposition.
-    for (const auto& candidate : result.components()) {
-        TSeasonalTimePtr seasonalTime(candidate.seasonalTime());
-        if (std::find_if(components.begin(), components.end(),
-                         [&seasonalTime](const CSeasonalComponent& component) {
-                             return component.time().excludes(*seasonalTime);
-                         }) == components.end()) {
-            std::string annotationText{candidate.annotationText()};
-            LOG_DEBUG(<< annotationText);
-            m_ModelAnnotationCallback(annotationText);
-            newComponents.emplace_back(std::move(seasonalTime), candidate.s_PiecewiseScaled);
-        }
+    if (components.seasonal().size() == 0) {
+        LOG_DEBUG(<< "removed all seasonality");
+        m_ModelAnnotationCallback("removed all seasonality");
     }
 
-    if (newComponents.size() > 0) {
-        // Remove any components which have been superseded.
-        for (const auto& component : newComponents) {
-            m_Seasonal->removeExcludedComponents(*component.first);
-        }
+    for (const auto& component : components.seasonal()) {
+        LOG_DEBUG(<< component.annotationText());
 
-        std::sort(newComponents.begin(), newComponents.end(), COrderings::SLess{});
+        auto time = component.seasonalTime();
+        core_t::TTime period{time->period()};
+        core_t::TTime startTime{component.initialValuesStartTime()};
+        core_t::TTime endTime{component.initialValuesEndTime()};
+        const auto& initialValues = component.initialValues();
 
-        core_t::TTime startTime{window.beginValuesTime()};
-        core_t::TTime endTime{window.endValuesTime()};
-        core_t::TTime dt{window.bucketLength()};
+        // If we see multiple repeats of the component in the window we use
+        // a periodic boundary condition, which ensures that the prediction
+        // at the repeat is continuous.
+        auto boundaryCondition = period > time->windowLength()
+                                     ? CSplineTypes::E_Natural
+                                     : CSplineTypes::E_Periodic;
+        double bucketLength{static_cast<double>(m_BucketLength)};
 
-        TFloatMeanAccumulatorVec values{window.valuesMinusPrediction(predictor)};
-        TDoubleVec shifts(values.size());
-        std::transform(values.begin(), values.end(), shifts.begin(),
-                       [](const TFloatMeanAccumulator& value) {
-                           return CBasicStatistics::mean(value);
-                       });
-        result.removeTrendFrom(values);
-        TFloatMeanAccumulator level{std::accumulate(values.begin(), values.end(),
-                                                    TFloatMeanAccumulator{})};
-        for (std::size_t i = 0; i < shifts.size(); ++i) {
-            shifts[i] = CBasicStatistics::mean(values[i]) -
-                        CBasicStatistics::mean(level) - shifts[i];
-        }
+        std::size_t size{CTools::truncate(component.size(), // desired
+                                          2 * m_SeasonalComponentSize / 3,
+                                          3 * m_SeasonalComponentSize / 2)};
+        LOG_TRACE(<< "size = " << size << ", target = " << component.size());
 
-        for (auto& component : newComponents) {
-
-            TSeasonalTimePtr seasonalTime;
-            bool piecewiseConstantLinearScaling;
-            std::tie(seasonalTime, piecewiseConstantLinearScaling) = std::move(component);
-            core_t::TTime period{seasonalTime->period()};
-
-            // Extract the values, minus the prediction of existing components,
-            // ignoring any values which fall outside the window of the component
-            // to add.
-            values = window.valuesMinusPrediction(predictor);
-            if (seasonalTime->windowed()) {
-                core_t::TTime time{startTime};
-                for (std::size_t i = 0; i < values.size(); ++i) {
-                    if (seasonalTime->inWindow(time) == false) {
-                        values[i] = TFloatMeanAccumulator{};
-                    } else {
-                        CBasicStatistics::moment<0>(values[i]) += shifts[i];
-                    }
-                    time += dt;
-                }
-            }
-            if (piecewiseConstantLinearScaling) {
-                this->adjustValuesForPiecewiseConstantScaling(period / dt, values);
-            }
-
-            // Re-weight outlier values with respect to the predictions of the
-            // new seasonal component.
-            this->reweightOutliers(
-                startTime, dt,
-                [&](core_t::TTime time) {
-                    TMeanAccumulator prediction;
-                    std::size_t begin{static_cast<std::size_t>((time - startTime) / dt)};
-                    std::size_t step{static_cast<std::size_t>(seasonalTime->period() / dt)};
-                    std::size_t wrap{step * ((values.size() + step - 1) / step)};
-                    for (std::size_t i = begin; i < begin + values.size(); i += step) {
-                        std::size_t j{i % wrap};
-                        if (j < values.size()) {
-                            const auto& value = values[j];
-                            prediction.add(CBasicStatistics::mean(value),
-                                           CBasicStatistics::count(value));
-                        }
-                    }
-                    return CBasicStatistics::mean(prediction);
-                },
-                values);
-
-            // If we see multiple repeats of the component in the window we use
-            // a periodic boundary condition, which ensures that the prediction
-            // at the repeat is continuous.
-            auto boundaryCondition = period > seasonalTime->windowLength()
-                                         ? CSplineTypes::E_Natural
-                                         : CSplineTypes::E_Periodic;
-            double bucketLength{static_cast<double>(m_BucketLength)};
-
-            // Add the new seasonal component.
-            m_Seasonal->add(*seasonalTime, m_SeasonalComponentSize, m_DecayRate,
-                            bucketLength, boundaryCondition, startTime, endTime, values);
-        }
-
-        m_Seasonal->refreshForNewComponents();
-
-        TDoubleVec predictions;
-        m_GainController.clear();
-        for (core_t::TTime time = startTime; time < endTime; time += m_BucketLength) {
-            predictions.clear();
-            if (m_Seasonal) {
-                m_Seasonal->appendPredictions(time, predictions);
-            }
-            if (m_Calendar) {
-                m_Calendar->appendPredictions(time, predictions);
-            }
-            m_GainController.seed(predictions);
-            m_GainController.age(ageFactor(m_DecayRate, m_BucketLength));
-        }
-
-        values = window.valuesMinusPrediction(predictor);
-        result.removeDiscontinuitiesFrom(values);
-        CTrendComponent newTrend{m_Trend.defaultDecayRate()};
-        this->fitTrend(startTime, dt, values, newTrend);
-        this->reweightOutliers(startTime, dt,
-                               [&newTrend](core_t::TTime time) {
-                                   return CBasicStatistics::mean(newTrend.value(time, 0.0));
-                               },
-                               values);
-
-        // TODO Resetting the trend is bad from a forecast perspective so we
-        // should avoid it if the difference is small.
-        newTrend = CTrendComponent{m_Trend.defaultDecayRate()};
-        this->fitTrend(startTime, dt, values, newTrend);
-        m_Trend.swap(newTrend);
-
-        // Pass the residuals to the component changed callback.
-        core_t::TTime time{startTime};
-        for (auto& value : values) {
-            if (CBasicStatistics::count(value) > 0.0) {
-                CBasicStatistics::moment<0>(value) -=
-                    CBasicStatistics::mean(m_Trend.value(time, 0.0));
-            }
-            time += dt;
-        }
-        m_ComponentChangeCallback(std::move(values));
+        // Add the new seasonal component.
+        m_Seasonal->add(*time, size, m_DecayRate, bucketLength,
+                        boundaryCondition, startTime, endTime, initialValues);
+        m_ModelAnnotationCallback(component.annotationText());
     }
 
-    return newComponents.size() > 0;
+    m_Seasonal->refreshForNewComponents();
+
+    this->clearComponentErrors();
+
+    core_t::TTime startTime{components.trend()->initialValuesStartTime()};
+    core_t::TTime endTime{components.trend()->initialValuesEndTime()};
+    core_t::TTime dt{components.trend()->bucketLength()};
+    auto initialValues = components.trend()->initialValues();
+
+    // Reinitialize the gain controller.
+    TDoubleVec predictions;
+    m_GainController.clear();
+    for (core_t::TTime time = startTime; time < endTime; time += m_BucketLength) {
+        predictions.clear();
+        if (m_Seasonal != nullptr) {
+            m_Seasonal->appendPredictions(time, predictions);
+        }
+        if (m_Calendar != nullptr) {
+            m_Calendar->appendPredictions(time, predictions);
+        }
+        m_GainController.seed(predictions);
+        m_GainController.age(ageFactor(m_DecayRate, m_BucketLength));
+    }
+
+    // Fit a trend model.
+    CTrendComponent newTrend{m_Trend.defaultDecayRate()};
+    this->fitTrend(startTime, dt, initialValues, newTrend);
+    m_Trend.swap(newTrend);
+    m_UsingTrendForPrediction = true;
+
+    // Pass the residuals to the component changed callback.
+    core_t::TTime time{startTime};
+    for (std::size_t i = 0; i < initialValues.size(); ++i, time += dt) {
+        if (CBasicStatistics::count(initialValues[i]) > 0.0) {
+            CBasicStatistics::moment<0>(initialValues[i]) -=
+                CBasicStatistics::mean(m_Trend.value(time, 0.0));
+        }
+    }
+    m_ComponentChangeCallback(std::move(initialValues));
 }
 
-bool CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(const CCalendarFeature& feature) {
+void CTimeSeriesDecompositionDetail::CComponents::addCalendarComponent(const CCalendarFeature& feature) {
     double bucketLength{static_cast<double>(m_BucketLength)};
     m_Calendar->add(feature, m_CalendarComponentSize, m_DecayRate, bucketLength);
     m_ModelAnnotationCallback("Detected calendar feature: " + feature.print());
-    return true;
-}
-
-void CTimeSeriesDecompositionDetail::CComponents::adjustValuesForPiecewiseConstantScaling(
-    std::size_t period,
-    TFloatMeanAccumulatorVec& values) const {
-
-    // Periodicity testing detected piecewise constant linear scaling
-    // of the underlying seasonal component. Here, we adjust all values
-    // so the scaling is constant and equal to the average scaling for
-    // the last populated period.
-
-    TDoubleVec trend;
-    TDoubleVec scales;
-    TSizeVec segmentation(
-        CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(values, period));
-    std::tie(trend, scales) = CTimeSeriesSegmentation::piecewiseLinearScaledPeriodic(
-        values, period, segmentation);
-    LOG_TRACE(<< "trend = " << core::CContainerPrinter::print(trend));
-    LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
-    LOG_TRACE(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
-    values = CTimeSeriesSegmentation::removePiecewiseLinearScaledPeriodic(
-        values, segmentation, trend, scales);
-    TMeanAccumulator scale;
-    for (std::size_t i = scales.size(), j = period + 1; i > 0 && j > 0; --i) {
-        std::size_t a{segmentation[i - 1]};
-        std::size_t b{segmentation[i]};
-        for (std::size_t k = a; k < b && j > 0; --j, ++k) {
-            if (CBasicStatistics::count(values[k]) > 0.0) {
-                scale.add(scales[i - 1]);
-            }
-        }
-    }
-    LOG_TRACE(<< "scale = " << CBasicStatistics::mean(scale));
-    for (std::size_t i = 0; i < values.size(); ++i) {
-        CBasicStatistics::moment<0>(values[i]) += CBasicStatistics::mean(scale) *
-                                                  trend[i % trend.size()];
-    }
-}
-
-void CTimeSeriesDecompositionDetail::CComponents::reweightOutliers(
-    core_t::TTime startTime,
-    core_t::TTime dt,
-    TPredictor predictor,
-    TFloatMeanAccumulatorVec& values) const {
-    using TMinAccumulator =
-        CBasicStatistics::COrderStatisticsHeap<std::pair<double, std::size_t>>;
-
-    double numberValues{std::accumulate(
-        values.begin(), values.end(), 0.0, [](double n, const TFloatMeanAccumulator& value) {
-            return n + (CBasicStatistics::count(value) > 0.0 ? 1.0 : 0.0);
-        })};
-    std::size_t numberOutliers{static_cast<std::size_t>(SEASONAL_OUTLIER_FRACTION * numberValues)};
-
-    if (numberOutliers > 0) {
-
-        TMinAccumulator outliers{2 * numberOutliers};
-        TMeanAccumulator meanDifference;
-        core_t::TTime time{startTime};
-        for (std::size_t i = 0; i < values.size(); ++i, time += dt) {
-            if (CBasicStatistics::count(values[i]) > 0.0) {
-                double difference{
-                    std::fabs(CBasicStatistics::mean(values[i]) - predictor(time))};
-                outliers.add({-difference, i});
-                meanDifference.add(difference);
-            }
-        }
-        outliers.sort();
-        TMeanAccumulator meanDifferenceOfOutliers;
-        for (std::size_t i = 0; 4 * i < static_cast<std::size_t>(numberOutliers); ++i) {
-            meanDifferenceOfOutliers.add(-outliers[i].first);
-        }
-        meanDifference -= meanDifferenceOfOutliers;
-        for (std::size_t i = 0; i < outliers.count(); ++i) {
-            if (-outliers[i].first > 0.5 * SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD *
-                                         CBasicStatistics::mean(meanDifference)) {
-                CBasicStatistics::count(values[outliers[i].second]) *=
-                    CTools::logLinearlyInterpolate(
-                        0.5 * SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
-                        SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
-                        1.0, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD / 2
-                        SEASONAL_OUTLIER_WEIGHT, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD
-                        -outliers[i].first / CBasicStatistics::mean(meanDifference)) *
-                    CTools::logLinearlyInterpolate(
-                        SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
-                        16.0 * SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD,
-                        1.0, // weight for SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD
-                        SEASONAL_OUTLIER_WEIGHT, // weight for 16 * SEASONAL_OUTLIER_DIFFERENCE_THRESHOLD
-                        -outliers[i].first / CBasicStatistics::mean(meanDifference));
-            }
-        }
-    }
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::fitTrend(core_t::TTime startTime,
@@ -1906,9 +1725,6 @@ void CTimeSeriesDecompositionDetail::CComponents::fitTrend(core_t::TTime startTi
                                                            CTrendComponent& trend) const {
     core_t::TTime time{startTime};
     for (const auto& value : values) {
-        // Because we test before the window is fully compressed we can
-        // get a run of unset values at the end of the window, we should
-        // just ignore these.
         if (CBasicStatistics::count(value) > 0.0) {
             trend.add(time, CBasicStatistics::mean(value), CBasicStatistics::count(value));
             trend.propagateForwardsByTime(dt);
@@ -1918,10 +1734,10 @@ void CTimeSeriesDecompositionDetail::CComponents::fitTrend(core_t::TTime startTi
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::clearComponentErrors() {
-    if (m_Seasonal) {
+    if (m_Seasonal != nullptr) {
         m_Seasonal->clearPredictionErrors();
     }
-    if (m_Calendar) {
+    if (m_Calendar != nullptr) {
         m_Calendar->clearPredictionErrors();
     }
 }
@@ -2000,16 +1816,17 @@ void CTimeSeriesDecompositionDetail::CComponents::interpolate(const SMessage& me
         if (this->shouldInterpolate(time, lastTime)) {
             LOG_TRACE(<< "Interpolating values at " << time);
 
-            // Remove components that contain invalid (not finite) values,
-            // along with the associated prediction errors and signal that the
-            // set of components has been modified.
-            if (m_Seasonal) {
+            // As well as interpolating we also remove components that contain
+            // invalid (not finite) values, along with the associated prediction
+            // errors and signal that the set of components has been modified.
+
+            if (m_Seasonal != nullptr) {
                 if (m_Seasonal->removeComponentsWithBadValues(time)) {
                     m_ComponentChangeCallback({});
                 }
                 m_Seasonal->interpolate(time, lastTime, true);
             }
-            if (m_Calendar) {
+            if (m_Calendar != nullptr) {
                 if (m_Calendar->removeComponentsWithBadValues(time)) {
                     m_ComponentChangeCallback({});
                 }
@@ -2031,7 +1848,7 @@ void CTimeSeriesDecompositionDetail::CComponents::interpolate(const SMessage& me
 void CTimeSeriesDecompositionDetail::CComponents::shiftOrigin(core_t::TTime time) {
     time -= static_cast<core_t::TTime>(static_cast<double>(DAY) / m_DecayRate / 2.0);
     m_Trend.shiftOrigin(time);
-    if (m_Seasonal) {
+    if (m_Seasonal != nullptr) {
         m_Seasonal->shiftOrigin(time);
     }
     m_GainController.shiftOrigin(time);
@@ -2041,14 +1858,14 @@ void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime tim
 
     this->shiftOrigin(time);
 
-    if (m_Seasonal && m_Seasonal->prune(time, m_BucketLength)) {
+    if (m_Seasonal != nullptr && m_Seasonal->prune(time, m_BucketLength)) {
         m_Seasonal.reset();
     }
-    if (m_Calendar && m_Calendar->prune(time, m_BucketLength)) {
+    if (m_Calendar != nullptr && m_Calendar->prune(time, m_BucketLength)) {
         m_Calendar.reset();
     }
 
-    if (m_Seasonal) {
+    if (m_Seasonal != nullptr) {
         TSeasonalComponentVec& seasonal{m_Seasonal->components()};
         double slope{0.0};
         for (auto& component : seasonal) {
@@ -2151,7 +1968,8 @@ void CTimeSeriesDecompositionDetail::CComponents::CGainController::shiftOrigin(c
     }
 }
 
-uint64_t CTimeSeriesDecompositionDetail::CComponents::CGainController::checksum(uint64_t seed) const {
+std::uint64_t
+CTimeSeriesDecompositionDetail::CComponents::CGainController::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_RegressionOrigin);
     seed = CChecksum::calculate(seed, m_MeanSumAmplitudes);
     return CChecksum::calculate(seed, m_MeanSumAmplitudesTrend);
@@ -2198,10 +2016,10 @@ void CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::clear() {
 bool CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::remove(core_t::TTime bucketLength,
                                                                            core_t::TTime period) const {
     double history{CBasicStatistics::count(m_MeanErrors) * static_cast<double>(bucketLength)};
-    double referenceError{CBasicStatistics::mean(m_MeanErrors)(0)};
+    double errorWithNoComponents{CBasicStatistics::mean(m_MeanErrors)(0)};
     double errorWithComponent{CBasicStatistics::mean(m_MeanErrors)(1)};
     double errorWithoutComponent{CBasicStatistics::mean(m_MeanErrors)(2)};
-    return (history > static_cast<double>(WEEK) && errorWithComponent > referenceError) ||
+    return (history > static_cast<double>(WEEK) && errorWithComponent > errorWithNoComponents) ||
            (history > 5.0 * static_cast<double>(period) && m_MaxVarianceIncrease[0] < 1.2 &&
             errorWithoutComponent < 1.2 * errorWithComponent);
 }
@@ -2211,7 +2029,8 @@ void CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::age(double f
     m_MaxVarianceIncrease.age(factor);
 }
 
-uint64_t CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::checksum(uint64_t seed) const {
+std::uint64_t
+CTimeSeriesDecompositionDetail::CComponents::CComponentErrors::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_MeanErrors);
     return CChecksum::calculate(seed, m_MaxVarianceIncrease);
 }
@@ -2280,8 +2099,9 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::removeComponentsWit
         const CSeasonalTime& time_{m_Components[i].time()};
         if (m_Components[i].isBad()) {
             LOG_DEBUG(<< "Removing seasonal component"
-                      << " with period '" << time_.period() << "' at " << time
-                      << ". Invalid values detected.");
+                      << " with period '"
+                      << core::CTimeUtils::durationToString(time_.period())
+                      << "' at " << time << ". Invalid values detected.");
             remove[i] = true;
             anyBadComponentsFound |= true;
         }
@@ -2341,7 +2161,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::componentsErrorsAnd
     components.reserve(n);
     errors.reserve(n);
 
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         if (m_Components[i].time().inWindow(time)) {
             components.push_back(&m_Components[i]);
             errors.push_back(&m_PredictionErrors[i]);
@@ -2349,7 +2169,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::componentsErrorsAnd
     }
 
     deltas.resize(components.size(), 0.0);
-    for (std::size_t i = 1u; i < components.size(); ++i) {
+    for (std::size_t i = 1; i < components.size(); ++i) {
         core_t::TTime period{components[i]->time().period()};
         for (int j{static_cast<int>(i - 1)}; j > -1; --j) {
             core_t::TTime period_{components[j]->time().period()};
@@ -2425,10 +2245,10 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::add(
     m_Components.emplace_back(seasonalTime, size, decayRate, bucketLength, boundaryCondition);
     m_Components.back().initialize(startTime, endTime, values);
     m_Components.back().interpolate(CIntegerTools::floor(endTime, seasonalTime.period()));
+    m_PredictionErrors.emplace_back();
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::refreshForNewComponents() {
-    m_PredictionErrors.resize(m_Components.size());
     COrderings::simultaneousSort(
         m_Components, m_PredictionErrors,
         [](const CSeasonalComponent& lhs, const CSeasonalComponent& rhs) {
@@ -2436,13 +2256,18 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::refreshForNewCompon
         });
 }
 
-void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::removeExcludedComponents(
-    const CSeasonalTime& time) {
-    m_Components.erase(std::remove_if(m_Components.begin(), m_Components.end(),
-                                      [&time](const CSeasonalComponent& component) {
-                                          return time.excludes(component.time());
-                                      }),
-                       m_Components.end());
+void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::remove(const TBoolVec& removeComponentsMask) {
+    std::size_t end{0};
+    for (std::size_t i = 0; i < removeComponentsMask.size();
+         end += removeComponentsMask[i++] ? 0 : 1) {
+        if (i != end) {
+            std::swap(m_Components[end], m_Components[i]);
+            std::swap(m_PredictionErrors[end], m_PredictionErrors[i]);
+        }
+    }
+    m_Components.erase(m_Components.begin() + end, m_Components.end());
+    m_PredictionErrors.erase(m_PredictionErrors.begin() + end,
+                             m_PredictionErrors.end());
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::prune(core_t::TTime time,
@@ -2462,13 +2287,15 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::prune(core_t::TTime
         TBoolVec remove(n, false);
         TTimeTimePrDoubleFMap shifts;
         shifts.reserve(n);
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             const CSeasonalTime& time_{m_Components[i].time()};
             auto j = windowed.find(time_.window());
             if (j == windowed.end() || j->second > 1) {
                 if (m_PredictionErrors[i].remove(bucketLength, time_.period())) {
                     LOG_DEBUG(<< "Removing seasonal component"
-                              << " with period '" << time_.period() << "' at " << time);
+                              << " with period '"
+                              << core::CTimeUtils::durationToString(time_.period())
+                              << "' at " << time);
                     remove[i] = true;
                     shifts[time_.window()] += m_Components[i].meanValue();
                     --j->second;
@@ -2490,7 +2317,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::prune(core_t::TTime
             } else {
                 bool fallback = true;
                 for (auto& component : m_Components) {
-                    if (!component.time().windowed()) {
+                    if (component.time().windowed() == false) {
                         component.shiftLevel(shift.second);
                         fallback = false;
                         break;
@@ -2532,7 +2359,8 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::linearScale(core_t:
     }
 }
 
-uint64_t CTimeSeriesDecompositionDetail::CComponents::CSeasonal::checksum(uint64_t seed) const {
+std::uint64_t
+CTimeSeriesDecompositionDetail::CComponents::CSeasonal::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Components);
     return CChecksum::calculate(seed, m_PredictionErrors);
 }
@@ -2643,7 +2471,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CCalendar::componentsAndErrors
     std::size_t n = m_Components.size();
     components.reserve(n);
     errors.reserve(n);
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         if (m_Components[i].feature().inWindow(time)) {
             components.push_back(&m_Components[i]);
             errors.push_back(&m_PredictionErrors[i]);
@@ -2668,7 +2496,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::shouldInterpolate(
     core_t::TTime last) const {
     for (const auto& component : m_Components) {
         CCalendarFeature feature = component.feature();
-        if (!feature.inWindow(time) && feature.inWindow(last)) {
+        if (feature.inWindow(time) == false && feature.inWindow(last)) {
             return true;
         }
     }
@@ -2680,7 +2508,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CCalendar::interpolate(core_t:
                                                                          bool refine) {
     for (auto& component : m_Components) {
         CCalendarFeature feature = component.feature();
-        if (!feature.inWindow(time) && feature.inWindow(lastTime)) {
+        if (feature.inWindow(time) == false && feature.inWindow(lastTime)) {
             component.interpolate(time - feature.offset(time), refine);
         }
     }
@@ -2698,7 +2526,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::initialized() const
 bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::prune(core_t::TTime time,
                                                                    core_t::TTime bucketLength) {
     TBoolVec remove(m_Components.size(), false);
-    for (std::size_t i = 0u; i < m_Components.size(); ++i) {
+    for (std::size_t i = 0; i < m_Components.size(); ++i) {
         if (m_PredictionErrors[i].remove(bucketLength, m_Components[i].feature().window())) {
             LOG_DEBUG(<< "Removing calendar component"
                       << " '" << m_Components[i].feature().print() << "' at " << time);
@@ -2716,7 +2544,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::removeComponentsWit
 
     TBoolVec remove(m_Components.size(), false);
     bool anyBadComponentsFound{false};
-    for (std::size_t i = 0u; i < m_Components.size(); ++i) {
+    for (std::size_t i = 0; i < m_Components.size(); ++i) {
         if (m_Components[i].isBad()) {
             LOG_DEBUG(<< "Removing calendar component"
                       << " '" << m_Components[i].feature().print() << "' at "
@@ -2751,7 +2579,8 @@ void CTimeSeriesDecompositionDetail::CComponents::CCalendar::linearScale(core_t:
     }
 }
 
-uint64_t CTimeSeriesDecompositionDetail::CComponents::CCalendar::checksum(uint64_t seed) const {
+std::uint64_t
+CTimeSeriesDecompositionDetail::CComponents::CCalendar::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Components);
     return CChecksum::calculate(seed, m_PredictionErrors);
 }
