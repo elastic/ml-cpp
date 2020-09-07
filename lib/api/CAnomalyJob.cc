@@ -990,6 +990,22 @@ bool CAnomalyJob::persistModelsState(core::CDataAdder& persister,
 
 bool CAnomalyJob::persistStateInForeground(core::CDataAdder& persister,
                                            const std::string& descriptionPrefix) {
+    if (m_LastFinalisedBucketEndTime == 0) {
+        LOG_INFO(<< "Will not persist detectors as no results have been output");
+        return true;
+    }
+
+    core_t::TTime snapshotTimestamp{core::CTimeUtils::now()};
+    const std::string snapshotId{core::CStringUtils::typeToString(snapshotTimestamp)};
+    const std::string description{descriptionPrefix +
+                                  core::CTimeUtils::toIso8601(snapshotTimestamp)};
+    return this->doPersistStateInForeground(persister, description, snapshotId, snapshotTimestamp);
+}
+
+bool CAnomalyJob::doPersistStateInForeground(core::CDataAdder& persister,
+                                             const std::string& description,
+                                             const std::string& snapshotId,
+                                             core_t::TTime snapshotTimestamp) {
     if (m_PersistenceManager != nullptr) {
         // This will not happen if finalise() was called before persisting state
         if (m_PersistenceManager->isBusy()) {
@@ -997,11 +1013,6 @@ bool CAnomalyJob::persistStateInForeground(core::CDataAdder& persister,
                          "background persistence is still in progress");
             return false;
         }
-    }
-
-    if (m_LastFinalisedBucketEndTime == 0) {
-        LOG_INFO(<< "Will not persist detectors as no results have been output");
-        return true;
     }
 
     TKeyCRefAnomalyDetectorPtrPrVec detectors;
@@ -1015,7 +1026,7 @@ bool CAnomalyJob::persistStateInForeground(core::CDataAdder& persister,
     core::CProgramCounters::cacheCounters();
 
     return this->persistCopiedState(
-        descriptionPrefix, m_LastFinalisedBucketEndTime, detectors,
+        description, snapshotId, snapshotTimestamp, m_LastFinalisedBucketEndTime, detectors,
         m_Limits.resourceMonitor().createMemoryUsageReport(
             m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength()),
         m_ModelConfig.interimBucketCorrector(), m_Aggregator, normaliserState,
@@ -1094,9 +1105,14 @@ bool CAnomalyJob::runBackgroundPersist(TBackgroundPersistArgsPtr args,
         return false;
     }
 
+    core_t::TTime snapshotTimestamp(core::CTimeUtils::now());
+    const std::string snapshotId(core::CStringUtils::typeToString(snapshotTimestamp));
+    const std::string description{"Periodic background persist at " +
+                                  core::CTimeUtils::toIso8601(snapshotTimestamp)};
+
     return this->persistCopiedState(
-        "Periodic background persist at ", args->s_Time, args->s_Detectors,
-        args->s_ModelSizeStats, args->s_InterimBucketCorrector,
+        description, snapshotId, snapshotTimestamp, args->s_Time,
+        args->s_Detectors, args->s_ModelSizeStats, args->s_InterimBucketCorrector,
         args->s_Aggregator, args->s_NormalizerState, args->s_LatestRecordTime,
         args->s_LastResultsTime, persister);
 }
@@ -1147,7 +1163,9 @@ bool CAnomalyJob::persistModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& dete
     return true;
 }
 
-bool CAnomalyJob::persistCopiedState(const std::string& descriptionPrefix,
+bool CAnomalyJob::persistCopiedState(const std::string& description,
+                                     const std::string& snapshotId,
+                                     core_t::TTime snapshotTimestamp,
                                      core_t::TTime time,
                                      const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
                                      const model::CResourceMonitor::SModelSizeStats& modelSizeStats,
@@ -1161,10 +1179,8 @@ bool CAnomalyJob::persistCopiedState(const std::string& descriptionPrefix,
     try {
         core::CStateCompressor compressor(persister);
 
-        core_t::TTime snapshotTimestamp(core::CTimeUtils::now());
-        const std::string snapShotId(core::CStringUtils::typeToString(snapshotTimestamp));
         core::CDataAdder::TOStreamP strm = compressor.addStreamed(
-            ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE + '_' + snapShotId);
+            ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE + '_' + snapshotId);
         if (strm != nullptr) {
             // IMPORTANT - this method can run in a background thread while the
             // analytics carries on processing new buckets in the main thread.
@@ -1212,9 +1228,8 @@ bool CAnomalyJob::persistCopiedState(const std::string& descriptionPrefix,
 
             if (m_PersistCompleteFunc) {
                 CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport{
-                    MODEL_SNAPSHOT_MIN_VERSION, snapshotTimestamp,
-                    descriptionPrefix + core::CTimeUtils::toIso8601(snapshotTimestamp),
-                    snapShotId, compressor.numCompressedDocs(), modelSizeStats,
+                    MODEL_SNAPSHOT_MIN_VERSION, snapshotTimestamp, description,
+                    snapshotId, compressor.numCompressedDocs(), modelSizeStats,
                     normalizerState, latestRecordTime,
                     // This needs to be the last final result time as it serves
                     // as the time after which all results are deleted when a

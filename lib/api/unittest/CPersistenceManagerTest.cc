@@ -35,9 +35,13 @@ BOOST_AUTO_TEST_SUITE(CPersistenceManagerTest)
 namespace {
 
 void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport,
+                           ml::core_t::TTime& snapshotTimestamp,
+                           std::string& description,
                            std::string& snapshotIdOut,
                            std::size_t& numDocsOut) {
     LOG_DEBUG(<< "Persist complete with description: " << modelSnapshotReport.s_Description);
+    snapshotTimestamp = modelSnapshotReport.s_SnapshotTimestamp;
+    description = modelSnapshotReport.s_Description;
     snapshotIdOut = modelSnapshotReport.s_SnapshotId;
     numDocsOut = modelSnapshotReport.s_NumDocs;
 }
@@ -71,10 +75,10 @@ protected:
         ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr{
             backgroundStream = new std::ostringstream()};
         ml::api::CSingleStreamDataAdder backgroundDataAdder{backgroundStreamPtr};
+
         std::ostringstream* foregroundStream{nullptr};
         ml::api::CSingleStreamDataAdder::TOStreamP foregroundStreamPtr{
             foregroundStream = new std::ostringstream()};
-
         ml::api::CSingleStreamDataAdder foregroundDataAdder{foregroundStreamPtr};
 
         // The 30000 second persist interval is set large enough that the timer will
@@ -83,6 +87,8 @@ protected:
         ml::api::CPersistenceManager persistenceManager{
             30000, false, backgroundDataAdder, foregroundDataAdder};
 
+        ml::core_t::TTime snapshotTimestamp;
+        std::string description;
         std::string snapshotId;
         std::size_t numDocs{0};
 
@@ -102,6 +108,7 @@ protected:
                                 modelConfig,
                                 wrappedOutputStream,
                                 std::bind(&reportPersistComplete, std::placeholders::_1,
+                                          std::ref(snapshotTimestamp), std::ref(description),
                                           std::ref(snapshotId), std::ref(numDocs)),
                                 &persistenceManager,
                                 -1,
@@ -217,6 +224,8 @@ protected:
         ml::api::CPersistenceManager persistenceManager{
             30000, false, backgroundDataAdder, foregroundDataAdder};
 
+        ml::core_t::TTime snapshotTimestamp;
+        std::string description;
         std::string snapshotId;
         std::size_t numDocs{0};
 
@@ -232,6 +241,7 @@ protected:
                                 modelConfig,
                                 wrappedOutputStream,
                                 std::bind(&reportPersistComplete, std::placeholders::_1,
+                                          std::ref(snapshotTimestamp), std::ref(description),
                                           std::ref(snapshotId), std::ref(numDocs)),
                                 &persistenceManager,
                                 -1,
@@ -287,7 +297,105 @@ protected:
 
         BOOST_REQUIRE_EQUAL(backgroundState, foregroundState);
     }
+
+    void foregroundPersistWithGivenSnapshotDescriptors(const std::string& configFileName) {
+        // Start by creating processors with non-trivial state
+
+        static const ml::core_t::TTime BUCKET_SIZE{3600};
+        static const std::string JOB_ID{"job"};
+
+        std::string inputFilename{"testfiles/big_ascending.txt"};
+
+        // Open the input and output files
+        std::ifstream inputStrm{inputFilename};
+        BOOST_TEST_REQUIRE(inputStrm.is_open());
+
+        std::ofstream outputStrm{ml::core::COsFileFuncs::NULL_FILENAME};
+        BOOST_TEST_REQUIRE(outputStrm.is_open());
+
+        ml::model::CLimits limits;
+        ml::api::CFieldConfig fieldConfig;
+        BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
+
+        ml::model::CAnomalyDetectorModelConfig modelConfig{
+            ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE)};
+
+        std::ostringstream* dataStream{nullptr};
+        ml::api::CSingleStreamDataAdder::TOStreamP dataStreamPtr{
+            dataStream = new std::ostringstream()};
+
+        // Persist the processors' state
+        ml::api::CSingleStreamDataAdder dataAdder{dataStreamPtr};
+
+        // The 30000 second persist interval is set large enough that the timer
+        // will not trigger during the test - we bypass the timer in this test
+        // and kick off the background persistence chain explicitly
+        ml::api::CPersistenceManager persistenceManager{30000, false, dataAdder};
+
+        ml::core_t::TTime snapshotTimestamp_;
+        std::string description_;
+        std::string snapshotId_;
+        std::size_t numDocs_{0};
+
+        std::string backgroundSnapshotId;
+        std::string foregroundSnapshotId;
+
+        {
+            ml::core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
+
+            CTestAnomalyJob job{
+                JOB_ID,
+                limits,
+                fieldConfig,
+                modelConfig,
+                wrappedOutputStream,
+                std::bind(&reportPersistComplete, std::placeholders::_1,
+                          std::ref(snapshotTimestamp_), std::ref(description_),
+                          std::ref(snapshotId_), std::ref(numDocs_)),
+                &persistenceManager,
+                -1,
+                "time",
+                "%d/%b/%Y:%T %z"};
+
+            ml::api::CDataProcessor* firstProcessor{&job};
+
+            ml::api::CNdJsonInputParser parser{
+                {CTestFieldDataCategorizer::MLCATEGORY_NAME}, inputStrm};
+
+            BOOST_TEST_REQUIRE(parser.readStreamIntoMaps(
+                [firstProcessor](const ml::api::CDataProcessor::TStrStrUMap& dataRowFields) {
+                    return firstProcessor->handleRecord(
+                        dataRowFields, ml::api::CDataProcessor::TOptionalTime{});
+                }));
+
+            // Ensure the model size stats are up to date
+            job.finalise();
+
+            ml::core_t::TTime snapshotTimestamp{1283524206};
+            const std::string snapshotId{"my_special_snapshot"};
+            const std::string description{"Supplied description for snapshot at " +
+                                          ml::core::CTimeUtils::toIso8601(snapshotTimestamp)};
+            BOOST_TEST_REQUIRE(job.doPersistStateInForeground(
+                dataAdder, description, snapshotId, snapshotTimestamp));
+
+            // Check that the snapshot description and Id reported by the "persist complete"
+            // handler match those supplied to the persist function
+            BOOST_REQUIRE_EQUAL(snapshotTimestamp, snapshotTimestamp_);
+            BOOST_REQUIRE_EQUAL(description, description_);
+            BOOST_REQUIRE_EQUAL(snapshotId, snapshotId_);
+
+            std::string state{dataStream->str()};
+
+            // Compare snapshot ID embedded in the state string with the supplied value.
+            const std::string expectedId{"job_model_state_" + snapshotId + "#1"};
+            BOOST_TEST_REQUIRE(state.find(expectedId) != std::string::npos);
+        }
+    }
 };
+
+BOOST_FIXTURE_TEST_CASE(testDetectorPersistByWithGivenSnapshotDescriptors, CTestFixture) {
+    this->foregroundPersistWithGivenSnapshotDescriptors("testfiles/new_mlfields.conf");
+}
 
 BOOST_FIXTURE_TEST_CASE(testDetectorPersistBy, CTestFixture) {
     this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields.conf");
