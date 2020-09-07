@@ -95,9 +95,10 @@ void CDataFrameOutliersRunner::writeOneRow(const core::CDataFrame& frame,
     writer.StartObject();
     writer.Key(OUTLIER_SCORE_FIELD_NAME);
     writer.Double(row[scoreColumn]);
-    writer.Key(FEATURE_INFLUENCE_FIELD_NAME);
-    writer.StartArray();
     if (row[scoreColumn] > m_FeatureInfluenceThreshold) {
+        writer.Key(FEATURE_INFLUENCE_FIELD_NAME);
+        writer.StartArray();
+    
         for (std::size_t i = 0; i < numberFeatureScoreColumns; ++i) {
             writer.StartObject();
             writer.Key(FEATURE_NAME_FIELD_NAME);
@@ -106,8 +107,8 @@ void CDataFrameOutliersRunner::writeOneRow(const core::CDataFrame& frame,
             writer.Double(row[beginFeatureScoreColumns + i]);
             writer.EndObject();
         }
+        writer.EndArray();
     }
-    writer.EndArray();
     writer.EndObject();
 }
 
