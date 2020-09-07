@@ -54,7 +54,6 @@ CReadWriteLock.cc \
 CSetEnv.cc \
 CSetMode.cc \
 CShellArgQuoter.cc \
-CSleep.cc \
 CStateMachine.cc \
 CStrCaseCmp.cc \
 CStrFTime.cc \

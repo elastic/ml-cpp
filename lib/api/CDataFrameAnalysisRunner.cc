@@ -99,14 +99,14 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
         auto roundMb = [](std::size_t memory) {
             return 0.01 * static_cast<double>((100 * memory) / BYTES_IN_MB);
         };
-
-        // Report rounded up to the nearest MB.
-        HANDLE_FATAL(<< "Input error: memory limit " << roundMb(memoryLimit)
-                     << "MB is too low to perform analysis. You need to give the process"
-                     << " at least " << std::ceil(roundMb(memoryUsage))
-                     << "MB, but preferably more.");
-
-    } else if (m_NumberPartitions > 1) {
+        // Simply log the limit being configured too low.
+        // If we exceed the limit during the process, we will fail and the user
+        // will have to update the limit and attempt to re-run
+        LOG_DEBUG(<< "Memory limit " << roundMb(memoryLimit) << "MB is configured lower than estimate "
+                  << std::ceil(roundMb(memoryUsage)) << "MB."
+                  << "Analytics process may fail due to low memory limit");
+    }
+    if (m_NumberPartitions > 1) {
         // The maximum number of rows is found by binary search in the interval
         // [numberRows / m_NumberPartitions, numberRows / (m_NumberPartitions - 1)).
 
@@ -191,6 +191,11 @@ CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr
 CDataFrameAnalysisRunner::inferenceModelDefinition(const TStrVec& /*fieldNames*/,
                                                    const TStrVecVec& /*categoryNames*/) const {
     return TInferenceModelDefinitionUPtr();
+}
+
+CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
+CDataFrameAnalysisRunner::inferenceModelMetadata() const {
+    return TOptionalInferenceModelMetadata();
 }
 
 CDataFrameAnalysisRunnerFactory::TRunnerUPtr

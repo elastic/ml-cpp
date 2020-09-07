@@ -339,9 +339,7 @@ private:
     std::string m_Field;
 };
 
-class API_EXPORT CCustomEncoding : public CSerializableToJsonStream {
-public:
-};
+class API_EXPORT CCustomEncoding : public CSerializableToJsonStream {};
 
 //! \brief Mapping from categorical columns to numerical values related to categorical value distribution.
 class API_EXPORT CFrequencyEncoding final : public CEncoding {

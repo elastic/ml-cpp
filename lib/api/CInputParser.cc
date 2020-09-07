@@ -5,33 +5,53 @@
  */
 #include <api/CInputParser.h>
 
+#include <algorithm>
+
 namespace ml {
 namespace api {
 
-CInputParser::CInputParser() : m_GotFieldNames(false), m_GotData(false) {
+CInputParser::CInputParser(TStrVec mutableFieldNames)
+    : m_MutableFieldNames(std::move(mutableFieldNames)) {
 }
 
-CInputParser::~CInputParser() {
+void CInputParser::registerMutableFields(const TRegisterMutableFieldFunc& registerFunc,
+                                         TStrStrUMap& dataRowFields) const {
+
+    if (registerFunc) {
+        for (const auto& mutableFieldName : m_MutableFieldNames) {
+            registerFunc(mutableFieldName, dataRowFields[mutableFieldName]);
+        }
+    } else {
+        for (const auto& mutableFieldName : m_MutableFieldNames) {
+            dataRowFields[mutableFieldName];
+        }
+    }
 }
 
-bool CInputParser::gotFieldNames() const {
-    return m_GotFieldNames;
-}
+void CInputParser::registerMutableFields(const TRegisterMutableFieldFunc& registerFunc,
+                                         TStrVec& fieldNames,
+                                         TStrVec& fieldValues) const {
 
-bool CInputParser::gotData() const {
-    return m_GotData;
+    // This has to be done in two passes as adding the fields could invalidate
+    // the references registered - all additions must be done before any
+    // registrations
+    for (const auto& mutableFieldName : m_MutableFieldNames) {
+        if (std::find(fieldNames.begin(), fieldNames.end(), mutableFieldName) ==
+            fieldNames.end()) {
+            fieldNames.push_back(mutableFieldName);
+            fieldValues.emplace_back();
+        }
+    }
+    if (registerFunc) {
+        for (const auto& mutableFieldName : m_MutableFieldNames) {
+            auto iter = std::find(fieldNames.begin(), fieldNames.end(), mutableFieldName);
+            registerFunc(mutableFieldName, fieldValues[iter - fieldNames.begin()]);
+        }
+    }
 }
 
 const CInputParser::TStrVec& CInputParser::fieldNames() const {
     return m_FieldNames;
-}
-
-void CInputParser::gotFieldNames(bool gotFieldNames) {
-    m_GotFieldNames = gotFieldNames;
-}
-
-void CInputParser::gotData(bool gotData) {
-    m_GotData = gotData;
 }
 
 CInputParser::TStrVec& CInputParser::fieldNames() {

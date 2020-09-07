@@ -4,13 +4,9 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <core/CLogger.h>
-
 #include <api/CNdJsonOutputWriter.h>
 
 #include <boost/test/unit_test.hpp>
-
-#include <sstream>
 
 BOOST_AUTO_TEST_SUITE(CNdJsonOutputWriterTest)
 
@@ -24,10 +20,9 @@ BOOST_AUTO_TEST_CASE(testStringOutput) {
     ml::api::CNdJsonOutputWriter writer;
     BOOST_TEST_REQUIRE(writer.writeRow(dataRowFields, overrideDataRowFields));
 
-    const std::string& output = writer.internalString();
+    const std::string& output{writer.internalString()};
 
-    BOOST_REQUIRE_EQUAL(
-        std::string("{\"probability\":\"0.01\",\"normalized_score\":\"3.3\"}\n"), output);
+    BOOST_REQUIRE_EQUAL("{\"probability\":\"0.01\",\"normalized_score\":\"3.3\"}\n", output);
 }
 
 BOOST_AUTO_TEST_CASE(testNumericOutput) {
@@ -37,13 +32,12 @@ BOOST_AUTO_TEST_CASE(testNumericOutput) {
     ml::api::CNdJsonOutputWriter::TStrStrUMap overrideDataRowFields;
     overrideDataRowFields["normalized_score"] = "3.3";
 
-    ml::api::CNdJsonOutputWriter writer({"probability", "normalized_score"});
+    ml::api::CNdJsonOutputWriter writer{{"probability", "normalized_score"}};
     BOOST_TEST_REQUIRE(writer.writeRow(dataRowFields, overrideDataRowFields));
 
-    const std::string& output = writer.internalString();
+    const std::string& output{writer.internalString()};
 
-    BOOST_REQUIRE_EQUAL(
-        std::string("{\"probability\":0.01,\"normalized_score\":3.3}\n"), output);
+    BOOST_REQUIRE_EQUAL("{\"probability\":0.01,\"normalized_score\":3.3}\n", output);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

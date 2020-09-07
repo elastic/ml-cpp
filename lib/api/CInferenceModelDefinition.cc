@@ -885,16 +885,13 @@ COpaqueEncoding::COpaqueEncoding(const rapidjson::Document& object) {
 
 void COpaqueEncoding::addToJsonStream(TGenericLineWriter& writer) const {
 
-    if (m_Object.Empty()) {
-        return;
-    }
     if (m_Object.IsArray()) {
         // These are prepended to the array of other encoders so we don't wrap in
         // a StartArray and EndArray.
         for (const auto& val : m_Object.GetArray()) {
             writer.write(val);
         }
-    } else {
+    } else if (m_Object.IsObject() && m_Object.ObjectEmpty() == false) {
         writer.write(m_Object);
     }
 }

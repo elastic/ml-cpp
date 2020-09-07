@@ -10,6 +10,7 @@
 #include <core/CSetMode.h>
 
 #include <algorithm>
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <type_traits>
@@ -20,23 +21,26 @@
 #else
 #include <netinet/in.h>
 #endif
-#include <string.h>
 
 namespace ml {
 namespace api {
 
 // Initialise statics
-const size_t CLengthEncodedInputParser::WORK_BUFFER_SIZE(8192); // 8kB
+const std::size_t CLengthEncodedInputParser::WORK_BUFFER_SIZE{8192}; // 8kB
 
 CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream& strmIn)
-    : CInputParser(), m_StrmIn(strmIn), m_WorkBuffer(nullptr),
-      m_WorkBufferPtr(nullptr), m_WorkBufferEnd(nullptr), m_NoMoreRecords(false) {
+    : CLengthEncodedInputParser{TStrVec{}, strmIn} {
+}
+
+CLengthEncodedInputParser::CLengthEncodedInputParser(TStrVec mutableFieldNames,
+                                                     std::istream& strmIn)
+    : CInputParser{std::move(mutableFieldNames)}, m_StrmIn{strmIn} {
     // This test is not ideal because std::cin's stream buffer could have been
     // changed
     if (strmIn.rdbuf() == std::cin.rdbuf()) {
         LOG_DEBUG(<< "Length encoded input parser input is connected to stdin");
 
-        int result = core::CSetMode::setBinaryMode(::fileno(stdin));
+        int result{core::CSetMode::setBinaryMode(::fileno(stdin))};
         if (result == -1) {
             LOG_WARN(<< "Cannot set the stdin to binary mode");
         }
@@ -45,13 +49,14 @@ CLengthEncodedInputParser::CLengthEncodedInputParser(std::istream& strmIn)
     }
 }
 
-bool CLengthEncodedInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc) {
+bool CLengthEncodedInputParser::readStreamIntoMaps(const TMapReaderFunc& readerFunc,
+                                                   const TRegisterMutableFieldFunc& registerFunc) {
 
     if (this->readFieldNames() == false) {
         return false;
     }
 
-    TStrVec& fieldNames = this->fieldNames();
+    TStrVec& fieldNames{this->fieldNames()};
 
     // We reuse the same field map for every record
     TStrStrUMap recordFields;
@@ -60,61 +65,65 @@ bool CLengthEncodedInputParser::readStreamIntoMaps(const TMapReaderFunc& readerF
     // name - this avoids the need to repeatedly compute the same hashes
     TStrRefVec fieldValRefs;
     fieldValRefs.reserve(fieldNames.size());
-    for (TStrVecCItr iter = fieldNames.begin(); iter != fieldNames.end(); ++iter) {
-        fieldValRefs.emplace_back(recordFields[*iter]);
+    for (const auto& fieldName : fieldNames) {
+        fieldValRefs.emplace_back(recordFields[fieldName]);
     }
+
+    this->registerMutableFields(registerFunc, recordFields);
 
     return this->parseRecordLoop(
         [&readerFunc, &recordFields] { return readerFunc(recordFields); }, fieldValRefs);
 }
 
-bool CLengthEncodedInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc) {
+bool CLengthEncodedInputParser::readStreamIntoVecs(const TVecReaderFunc& readerFunc,
+                                                   const TRegisterMutableFieldFunc& registerFunc) {
 
     if (this->readFieldNames() == false) {
         return false;
     }
 
-    TStrVec& fieldNames = this->fieldNames();
+    TStrVec& fieldNames{this->fieldNames()};
+    std::size_t parsedFieldCount{fieldNames.size()};
 
     // We reuse the same value vector for every record
-    TStrVec fieldValues(fieldNames.size());
+    TStrVec fieldValues{fieldNames.size()};
+
+    this->registerMutableFields(registerFunc, fieldNames, fieldValues);
+
+    TStrRefVec fieldValRefs{fieldValues.begin(), fieldValues.begin() + parsedFieldCount};
 
     return parseRecordLoop(
         [&readerFunc, &fieldNames, &fieldValues] {
             return readerFunc(fieldNames, fieldValues);
         },
-        fieldValues);
+        fieldValRefs);
 }
 
 bool CLengthEncodedInputParser::readFieldNames() {
     // Reset the record buffer pointers in case we're reading a new stream
     m_WorkBufferEnd = m_WorkBufferPtr;
     m_NoMoreRecords = false;
-    TStrVec& fieldNames = this->fieldNames();
+    TStrVec& fieldNames{this->fieldNames()};
 
-    if (this->gotFieldNames() == false) {
-        if (this->parseRecordFromStream<true>(fieldNames) == false) {
-            LOG_ERROR(<< "Failed to parse length encoded header from stream");
-            return false;
-        }
-
-        if (fieldNames.empty()) {
-            // If we parsed no field names at all, return true, as
-            // completely empty input is technically valid
-            LOG_INFO(<< "Field names are empty");
-            m_NoMoreRecords = true;
-            return true;
-        }
-
-        this->gotFieldNames(true);
+    if (this->parseRecordFromStream<true>(fieldNames) == false) {
+        LOG_ERROR(<< "Failed to parse length encoded header from stream");
+        return false;
     }
+
+    if (fieldNames.empty()) {
+        // If we parsed no field names at all, return true, as
+        // completely empty input is technically valid
+        LOG_INFO(<< "Field names are empty");
+        m_NoMoreRecords = true;
+        return true;
+    }
+
     return true;
 }
 
-template<typename READER_FUNC, typename STR_VEC>
+template<typename READER_FUNC>
 bool CLengthEncodedInputParser::parseRecordLoop(const READER_FUNC& readerFunc,
-                                                STR_VEC& workSpace) {
-
+                                                TStrRefVec& workSpace) {
     while (m_NoMoreRecords == false) {
         if (this->parseRecordFromStream<false>(workSpace) == false) {
             LOG_ERROR(<< "Failed to parse length encoded data record from stream");
@@ -124,8 +133,6 @@ bool CLengthEncodedInputParser::parseRecordLoop(const READER_FUNC& readerFunc,
         if (m_NoMoreRecords) {
             break;
         }
-
-        this->gotData(true);
 
         if (readerFunc() == false) {
             LOG_ERROR(<< "Record handler function forced exit");
@@ -151,7 +158,7 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& values) {
         m_WorkBufferEnd = m_WorkBufferPtr;
     }
 
-    uint32_t numFields(0);
+    std::uint32_t numFields{0};
     if (this->parseUInt32FromStream(numFields) == false) {
         if (m_StrmIn.eof()) {
             // End-of-file is not an error at this point in the parsing
@@ -187,8 +194,8 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& values) {
         }
     }
 
-    for (size_t index = 0; index < numFields; ++index) {
-        uint32_t length(0);
+    for (std::size_t index = 0; index < numFields; ++index) {
+        std::uint32_t length{0};
         if (this->parseUInt32FromStream(length) == false) {
             LOG_ERROR(<< "Unable to read field length from input stream");
             return false;
@@ -201,7 +208,7 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& values) {
         // of the length variable is non-zero implies a field of 16MB or more,
         // which is unlikely, so assume corruption in this case.  See bug 1040
         // in Bugzilla for more details.
-        static const uint32_t HIGH_BYTE_MASK(0xFF000000);
+        static const std::uint32_t HIGH_BYTE_MASK{0xFF000000};
         if ((length & HIGH_BYTE_MASK) != 0u) {
             LOG_ERROR(<< "Parsed field length " << length
                       << " is suspiciously large - assuming corrupt input stream");
@@ -217,18 +224,18 @@ bool CLengthEncodedInputParser::parseRecordFromStream(STR_VEC& values) {
     return true;
 }
 
-bool CLengthEncodedInputParser::parseUInt32FromStream(uint32_t& num) {
-    size_t avail(m_WorkBufferEnd - m_WorkBufferPtr);
-    if (avail < sizeof(uint32_t)) {
+bool CLengthEncodedInputParser::parseUInt32FromStream(std::uint32_t& num) {
+    std::ptrdiff_t avail{m_WorkBufferEnd - m_WorkBufferPtr};
+    if (avail < static_cast<std::ptrdiff_t>(sizeof(std::uint32_t))) {
         avail = this->refillBuffer();
-        if (avail < sizeof(uint32_t)) {
+        if (avail < static_cast<std::ptrdiff_t>(sizeof(std::uint32_t))) {
             return false;
         }
     }
 
-    uint32_t netNum(0);
-    ::memcpy(&netNum, m_WorkBufferPtr, sizeof(uint32_t));
-    m_WorkBufferPtr += sizeof(uint32_t);
+    std::uint32_t netNum{0};
+    std::memcpy(&netNum, m_WorkBufferPtr, sizeof(std::uint32_t));
+    m_WorkBufferPtr += sizeof(std::uint32_t);
 
     // Integers are encoded in network byte order, so convert to host byte order
     // before interpreting
@@ -237,14 +244,14 @@ bool CLengthEncodedInputParser::parseUInt32FromStream(uint32_t& num) {
     return true;
 }
 
-bool CLengthEncodedInputParser::parseStringFromStream(size_t length, std::string& str) {
+bool CLengthEncodedInputParser::parseStringFromStream(std::size_t length, std::string& str) {
     if (length == 0) {
         str.clear();
         return true;
     }
 
-    bool append(false);
-    size_t avail(m_WorkBufferEnd - m_WorkBufferPtr);
+    bool append{false};
+    std::ptrdiff_t avail{m_WorkBufferEnd - m_WorkBufferPtr};
     do {
         if (avail == 0) {
             avail = this->refillBuffer();
@@ -253,7 +260,7 @@ bool CLengthEncodedInputParser::parseStringFromStream(size_t length, std::string
             }
         }
 
-        size_t copyLen(std::min(length, avail));
+        std::size_t copyLen{std::min(length, static_cast<std::size_t>(avail))};
         if (append) {
             str.append(m_WorkBufferPtr, copyLen);
         } else {
@@ -268,19 +275,19 @@ bool CLengthEncodedInputParser::parseStringFromStream(size_t length, std::string
     return true;
 }
 
-size_t CLengthEncodedInputParser::refillBuffer() {
+std::ptrdiff_t CLengthEncodedInputParser::refillBuffer() {
     // NB: This assumes the buffer is allocated, which is OK for a private
     // method.  Callers are responsible for ensuring that the buffer isn't NULL
     // when calling this method.
 
-    size_t avail(m_WorkBufferEnd - m_WorkBufferPtr);
+    std::ptrdiff_t avail{m_WorkBufferEnd - m_WorkBufferPtr};
     if (m_StrmIn.eof()) {
         // We can't read any more data - whatever's available now won't change
         return avail;
     }
 
     if (avail > 0) {
-        ::memcpy(m_WorkBuffer.get(), m_WorkBufferPtr, avail);
+        std::memcpy(m_WorkBuffer.get(), m_WorkBufferPtr, avail);
     }
 
     m_WorkBufferPtr = m_WorkBuffer.get();
@@ -289,7 +296,7 @@ size_t CLengthEncodedInputParser::refillBuffer() {
     if (m_StrmIn.bad()) {
         LOG_ERROR(<< "Input stream is bad");
     } else {
-        avail += static_cast<size_t>(m_StrmIn.gcount());
+        avail += static_cast<std::ptrdiff_t>(m_StrmIn.gcount());
     }
     m_WorkBufferEnd = m_WorkBufferPtr + avail;
 

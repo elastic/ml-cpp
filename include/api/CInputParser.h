@@ -6,14 +6,11 @@
 #ifndef INCLUDED_ml_api_CInputParser_h
 #define INCLUDED_ml_api_CInputParser_h
 
-#include <core/CNonCopyable.h>
-
 #include <api/ImportExport.h>
 
 #include <boost/unordered_map.hpp>
 
 #include <functional>
-#include <list>
 #include <string>
 #include <vector>
 
@@ -30,22 +27,20 @@ namespace api {
 //! Abstract interface declares the readStreamIntoMaps and readStreamIntoVecs
 //! methods that must be implemented in sub-classes.
 //!
-class API_EXPORT CInputParser : private core::CNonCopyable {
+class API_EXPORT CInputParser {
 public:
     using TStrVec = std::vector<std::string>;
-    using TStrVecItr = TStrVec::iterator;
-    using TStrVecCItr = TStrVec::const_iterator;
 
     using TStrStrUMap = boost::unordered_map<std::string, std::string>;
-    using TStrStrUMapItr = TStrStrUMap::iterator;
-    using TStrStrUMapCItr = TStrStrUMap::const_iterator;
 
     //! For fast access to the field values without repeatedly computing the
     //! hash, we maintain references to the values in the hash map
     using TStrRef = std::reference_wrapper<std::string>;
     using TStrRefVec = std::vector<TStrRef>;
-    using TStrRefVecItr = TStrRefVec::iterator;
-    using TStrRefVecCItr = TStrRefVec::const_iterator;
+
+    //! Callback function prototype for informing the consumer which fields
+    //! in the input data they are permitted to mutate.
+    using TRegisterMutableFieldFunc = std::function<void(const std::string&, std::string&)>;
 
     //! Callback function prototype that gets called for each record read
     //! from the input stream when reading into a map.  Return false to exit
@@ -58,14 +53,12 @@ public:
     using TVecReaderFunc = std::function<bool(const TStrVec&, const TStrVec&)>;
 
 public:
-    CInputParser();
-    virtual ~CInputParser();
+    CInputParser(TStrVec mutableFieldNames);
+    virtual ~CInputParser() = default;
 
-    //! Did we find the input field names?
-    bool gotFieldNames() const;
-
-    //! Did we find any data in the input?
-    bool gotData() const;
+    //! No copying
+    CInputParser(const CInputParser&) = delete;
+    CInputParser& operator=(const CInputParser&) = delete;
 
     //! Get field names
     const TStrVec& fieldNames() const;
@@ -75,34 +68,48 @@ public:
     //! will stop.  This method keeps reading until it reaches the end of the
     //! stream or an error occurs.  If it successfully reaches the end of
     //! the stream it returns true, otherwise it returns false.
-    virtual bool readStreamIntoMaps(const TMapReaderFunc& readerFunc) = 0;
+    bool readStreamIntoMaps(const TMapReaderFunc& readerFunc) {
+        return this->readStreamIntoMaps(readerFunc, TRegisterMutableFieldFunc{});
+    }
+
+    //! As above, but also supplying function for registering mutable fields.
+    virtual bool readStreamIntoMaps(const TMapReaderFunc& readerFunc,
+                                    const TRegisterMutableFieldFunc& registerFunc) = 0;
 
     //! Read records from the stream.  The supplied reader function is called
     //! once per record.  If the supplied reader function returns false, reading
     //! will stop.  This method keeps reading until it reaches the end of the
     //! stream or an error occurs.  If it successfully reaches the end of
     //! the stream it returns true, otherwise it returns false.
-    virtual bool readStreamIntoVecs(const TVecReaderFunc& readerFunc) = 0;
+    bool readStreamIntoVecs(const TVecReaderFunc& readerFunc) {
+        return this->readStreamIntoVecs(readerFunc, TRegisterMutableFieldFunc{});
+    }
+
+    //! As above, but also supplying function for registering mutable fields.
+    virtual bool readStreamIntoVecs(const TVecReaderFunc& readerFunc,
+                                    const TRegisterMutableFieldFunc& registerFunc) = 0;
 
 protected:
-    //! Set the "got field names" flag
-    void gotFieldNames(bool gotFieldNames);
+    //! Add any mutable fields to the map that will be passed to the reader
+    //! function, calling the registration function for each one.
+    void registerMutableFields(const TRegisterMutableFieldFunc& registerFunc,
+                               TStrStrUMap& dataRowFields) const;
 
-    //! Set the "got data" flag
-    void gotData(bool gotData);
+    //! Add any mutable fields to the vectors that will be passed to the reader
+    //! function, calling the registration function for each one.
+    void registerMutableFields(const TRegisterMutableFieldFunc& registerFunc,
+                               TStrVec& fieldNames,
+                               TStrVec& fieldValues) const;
 
     //! Writable access to the field names for derived classes only
     TStrVec& fieldNames();
 
 private:
-    //! Have we got the field names?
-    bool m_GotFieldNames;
-
-    //! Have we found any data?
-    bool m_GotData;
-
     //! Field names parsed from the input
     TStrVec m_FieldNames;
+
+    //! Names of mutable fields, which may or may not be in the input
+    TStrVec m_MutableFieldNames;
 };
 }
 }

@@ -24,36 +24,15 @@ BOOST_AUTO_TEST_CASE(testAdd) {
 
     ml::api::CCsvOutputWriter writer;
 
-    ml::api::CCsvOutputWriter::TStrVec fieldNames;
-    fieldNames.push_back("_cd");
-    fieldNames.push_back("_indextime");
-    fieldNames.push_back("_kv");
-    fieldNames.push_back("_raw");
-    fieldNames.push_back("_serial");
-    fieldNames.push_back("_si");
-    fieldNames.push_back("_sourcetype");
-    fieldNames.push_back("_time");
-    fieldNames.push_back("date_hour");
-    fieldNames.push_back("date_mday");
-    fieldNames.push_back("date_minute");
-    fieldNames.push_back("date_month");
-    fieldNames.push_back("date_second");
-    fieldNames.push_back("date_wday");
-    fieldNames.push_back("date_year");
-    fieldNames.push_back("date_zone");
-    fieldNames.push_back("eventtype");
-    fieldNames.push_back("host");
-    fieldNames.push_back("index");
-    fieldNames.push_back("linecount");
-    fieldNames.push_back("punct");
-    fieldNames.push_back("source");
-    fieldNames.push_back("sourcetype");
-    fieldNames.push_back("server");
-    fieldNames.push_back("timeendpos");
-    fieldNames.push_back("timestartpos");
+    ml::api::CCsvOutputWriter::TStrVec fieldNames{
+        "_cd",         "_indextime",  "_kv",         "_raw",      "_serial",
+        "_si",         "_sourcetype", "_time",       "date_hour", "date_mday",
+        "date_minute", "date_month",  "date_second", "date_wday", "date_year",
+        "date_zone",   "eventtype",   "host",        "index",     "linecount",
+        "punct",       "source",      "sourcetype",  "server",    "timeendpos",
+        "timestartpos"};
 
-    ml::api::CCsvOutputWriter::TStrVec mlFieldNames;
-    mlFieldNames.push_back("mlcategory");
+    ml::api::CCsvOutputWriter::TStrVec mlFieldNames{"mlcategory"};
 
     BOOST_TEST_REQUIRE(writer.fieldNames(fieldNames, mlFieldNames));
 
@@ -90,32 +69,24 @@ BOOST_AUTO_TEST_CASE(testAdd) {
 
     BOOST_TEST_REQUIRE(writer.writeRow(originalFields, mlFields));
 
-    std::string output(writer.internalString());
+    std::string output{writer.internalString()};
 
     LOG_DEBUG(<< "Output is:\n" << output);
 
-    for (ml::api::CCsvOutputWriter::TStrVecCItr iter = fieldNames.begin();
-         iter != fieldNames.end(); ++iter) {
-        LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
-        BOOST_TEST_REQUIRE(output.find(*iter) != std::string::npos);
+    for (const auto& fieldName : fieldNames) {
+        BOOST_TEST_REQUIRE(output.find(fieldName) != std::string::npos);
     }
 
-    for (ml::api::CCsvOutputWriter::TStrVecCItr iter = mlFieldNames.begin();
-         iter != mlFieldNames.end(); ++iter) {
-        LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
-        BOOST_TEST_REQUIRE(output.find(*iter) != std::string::npos);
+    for (const auto& fieldName : mlFieldNames) {
+        BOOST_TEST_REQUIRE(output.find(fieldName) != std::string::npos);
     }
 
-    for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = originalFields.begin();
-         iter != originalFields.end(); ++iter) {
-        LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
-        BOOST_TEST_REQUIRE(output.find(iter->second) != std::string::npos);
+    for (const auto& field : originalFields) {
+        BOOST_TEST_REQUIRE(output.find(field.second) != std::string::npos);
     }
 
-    for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = mlFields.begin();
-         iter != mlFields.end(); ++iter) {
-        LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
-        BOOST_TEST_REQUIRE(output.find(iter->second) != std::string::npos);
+    for (const auto& field : mlFields) {
+        BOOST_TEST_REQUIRE(output.find(field.second) != std::string::npos);
     }
 }
 
@@ -124,37 +95,15 @@ BOOST_AUTO_TEST_CASE(testOverwrite) {
 
     ml::api::CCsvOutputWriter writer;
 
-    ml::api::CCsvOutputWriter::TStrVec fieldNames;
-    fieldNames.push_back("_cd");
-    fieldNames.push_back("_indextime");
-    fieldNames.push_back("_kv");
-    fieldNames.push_back("_raw");
-    fieldNames.push_back("_serial");
-    fieldNames.push_back("_si");
-    fieldNames.push_back("_sourcetype");
-    fieldNames.push_back("_time");
-    fieldNames.push_back("date_hour");
-    fieldNames.push_back("date_mday");
-    fieldNames.push_back("date_minute");
-    fieldNames.push_back("date_month");
-    fieldNames.push_back("date_second");
-    fieldNames.push_back("date_wday");
-    fieldNames.push_back("date_year");
-    fieldNames.push_back("date_zone");
-    fieldNames.push_back("eventtype");
-    fieldNames.push_back("host");
-    fieldNames.push_back("index");
-    fieldNames.push_back("linecount");
-    fieldNames.push_back("punct");
-    fieldNames.push_back("source");
-    fieldNames.push_back("sourcetype");
-    fieldNames.push_back("server");
-    fieldNames.push_back("timeendpos");
-    fieldNames.push_back("timestartpos");
+    ml::api::CCsvOutputWriter::TStrVec fieldNames{
+        "_cd",         "_indextime",  "_kv",         "_raw",      "_serial",
+        "_si",         "_sourcetype", "_time",       "date_hour", "date_mday",
+        "date_minute", "date_month",  "date_second", "date_wday", "date_year",
+        "date_zone",   "eventtype",   "host",        "index",     "linecount",
+        "punct",       "source",      "sourcetype",  "server",    "timeendpos",
+        "timestartpos"};
 
-    ml::api::CCsvOutputWriter::TStrVec mlFieldNames;
-    mlFieldNames.push_back("eventtype");
-    mlFieldNames.push_back("mlcategory");
+    ml::api::CCsvOutputWriter::TStrVec mlFieldNames{"eventtype", "mlcategory"};
 
     BOOST_TEST_REQUIRE(writer.fieldNames(fieldNames, mlFieldNames));
 
@@ -193,38 +142,29 @@ BOOST_AUTO_TEST_CASE(testOverwrite) {
 
     BOOST_TEST_REQUIRE(writer.writeRow(originalFields, mlFields));
 
-    std::string output(writer.internalString());
+    std::string output{writer.internalString()};
 
     LOG_DEBUG(<< "Output is:\n" << output);
 
-    for (ml::api::CCsvOutputWriter::TStrVecCItr iter = fieldNames.begin();
-         iter != fieldNames.end(); ++iter) {
-        LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
-        BOOST_TEST_REQUIRE(output.find(*iter) != std::string::npos);
+    for (const auto& fieldName : fieldNames) {
+        BOOST_TEST_REQUIRE(output.find(fieldName) != std::string::npos);
     }
 
-    for (ml::api::CCsvOutputWriter::TStrVecCItr iter = mlFieldNames.begin();
-         iter != mlFieldNames.end(); ++iter) {
-        LOG_DEBUG(<< "Checking output contains '" << *iter << "'");
-        BOOST_TEST_REQUIRE(output.find(*iter) != std::string::npos);
+    for (const auto& fieldName : mlFieldNames) {
+        BOOST_TEST_REQUIRE(output.find(fieldName) != std::string::npos);
     }
 
-    for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = originalFields.begin();
-         iter != originalFields.end(); ++iter) {
-        // The Ml fields should override the originals
-        if (mlFields.find(iter->first) == mlFields.end()) {
-            LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
-            BOOST_TEST_REQUIRE(output.find(iter->second) != std::string::npos);
+    for (const auto& field : originalFields) {
+        // The ML fields should override the originals
+        if (mlFields.find(field.first) == mlFields.end()) {
+            BOOST_TEST_REQUIRE(output.find(field.second) != std::string::npos);
         } else {
-            LOG_DEBUG(<< "Checking output does not contain '" << iter->second << "'");
-            BOOST_TEST_REQUIRE(output.find(iter->second) == std::string::npos);
+            BOOST_TEST_REQUIRE(output.find(field.second) == std::string::npos);
         }
     }
 
-    for (ml::api::CCsvOutputWriter::TStrStrUMapCItr iter = mlFields.begin();
-         iter != mlFields.end(); ++iter) {
-        LOG_DEBUG(<< "Checking output contains '" << iter->second << "'");
-        BOOST_TEST_REQUIRE(output.find(iter->second) != std::string::npos);
+    for (const auto& field : mlFields) {
+        BOOST_TEST_REQUIRE(output.find(field.second) != std::string::npos);
     }
 }
 
@@ -232,42 +172,20 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
     // In this test, some fields from the input are changed in the output
 
     // Write to /dev/null (Unix) or nul (Windows)
-    std::ofstream ofs(ml::core::COsFileFuncs::NULL_FILENAME);
+    std::ofstream ofs{ml::core::COsFileFuncs::NULL_FILENAME};
     BOOST_TEST_REQUIRE(ofs.is_open());
 
-    ml::api::CCsvOutputWriter writer(ofs);
+    ml::api::CCsvOutputWriter writer{ofs};
 
-    ml::api::CCsvOutputWriter::TStrVec fieldNames;
-    fieldNames.push_back("_cd");
-    fieldNames.push_back("_indextime");
-    fieldNames.push_back("_kv");
-    fieldNames.push_back("_raw");
-    fieldNames.push_back("_serial");
-    fieldNames.push_back("_si");
-    fieldNames.push_back("_sourcetype");
-    fieldNames.push_back("_time");
-    fieldNames.push_back("date_hour");
-    fieldNames.push_back("date_mday");
-    fieldNames.push_back("date_minute");
-    fieldNames.push_back("date_month");
-    fieldNames.push_back("date_second");
-    fieldNames.push_back("date_wday");
-    fieldNames.push_back("date_year");
-    fieldNames.push_back("date_zone");
-    fieldNames.push_back("eventtype");
-    fieldNames.push_back("host");
-    fieldNames.push_back("index");
-    fieldNames.push_back("linecount");
-    fieldNames.push_back("punct");
-    fieldNames.push_back("source");
-    fieldNames.push_back("sourcetype");
-    fieldNames.push_back("server");
-    fieldNames.push_back("timeendpos");
-    fieldNames.push_back("timestartpos");
+    ml::api::CCsvOutputWriter::TStrVec fieldNames{
+        "_cd",         "_indextime",  "_kv",         "_raw",      "_serial",
+        "_si",         "_sourcetype", "_time",       "date_hour", "date_mday",
+        "date_minute", "date_month",  "date_second", "date_wday", "date_year",
+        "date_zone",   "eventtype",   "host",        "index",     "linecount",
+        "punct",       "source",      "sourcetype",  "server",    "timeendpos",
+        "timestartpos"};
 
-    ml::api::CCsvOutputWriter::TStrVec mlFieldNames;
-    mlFieldNames.push_back("eventtype");
-    mlFieldNames.push_back("mlcategory");
+    ml::api::CCsvOutputWriter::TStrVec mlFieldNames{"eventtype", "mlcategory"};
 
     ml::api::CCsvOutputWriter::TStrStrUMap originalFields;
     originalFields["_cd"] = "0:3933689";
@@ -303,18 +221,18 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
     mlFields["mlcategory"] = "42";
 
     // Write the record this many times
-    static const size_t TEST_SIZE(75000);
+    static const std::size_t TEST_SIZE{75000};
 
-    ml::core_t::TTime start(ml::core::CTimeUtils::now());
+    ml::core_t::TTime start{ml::core::CTimeUtils::now()};
     LOG_INFO(<< "Starting throughput test at " << ml::core::CTimeUtils::toTimeString(start));
 
     BOOST_TEST_REQUIRE(writer.fieldNames(fieldNames, mlFieldNames));
 
-    for (size_t count = 0; count < TEST_SIZE; ++count) {
+    for (std::size_t count = 0; count < TEST_SIZE; ++count) {
         BOOST_TEST_REQUIRE(writer.writeRow(originalFields, mlFields));
     }
 
-    ml::core_t::TTime end(ml::core::CTimeUtils::now());
+    ml::core_t::TTime end{ml::core::CTimeUtils::now()};
     LOG_INFO(<< "Finished throughput test at " << ml::core::CTimeUtils::toTimeString(end));
 
     LOG_INFO(<< "Writing " << TEST_SIZE << " records took " << (end - start) << " seconds");
@@ -323,14 +241,13 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
 BOOST_AUTO_TEST_CASE(testExcelQuoting) {
     ml::api::CCsvOutputWriter writer;
 
-    ml::api::CCsvOutputWriter::TStrVec fieldNames;
-    fieldNames.push_back("no_special");
-    fieldNames.push_back("contains_quote");
-    fieldNames.push_back("contains_quote_quote");
-    fieldNames.push_back("contains_separator");
-    fieldNames.push_back("contains_quote_separator");
-    fieldNames.push_back("contains_newline");
-    fieldNames.push_back("contains_quote_newline");
+    ml::api::CCsvOutputWriter::TStrVec fieldNames{"no_special",
+                                                  "contains_quote",
+                                                  "contains_quote_quote",
+                                                  "contains_separator",
+                                                  "contains_quote_separator",
+                                                  "contains_newline",
+                                                  "contains_quote_newline"};
 
     BOOST_TEST_REQUIRE(writer.fieldNames(fieldNames));
 
@@ -345,39 +262,35 @@ BOOST_AUTO_TEST_CASE(testExcelQuoting) {
 
     BOOST_TEST_REQUIRE(writer.writeRow(fieldValues));
 
-    std::string output(writer.internalString());
+    std::string output{writer.internalString()};
 
     LOG_DEBUG(<< "Output is:\n" << output);
 
-    BOOST_REQUIRE_EQUAL(std::string("no_special,"
-                                    "contains_quote,"
-                                    "contains_quote_quote,"
-                                    "contains_separator,"
-                                    "contains_quote_separator,"
-                                    "contains_newline,"
-                                    "contains_quote_newline\n"
-                                    "a,"
-                                    "\"\"\"\","
-                                    "\"\"\"\"\"\","
-                                    "\",\","
-                                    "\"\"\",\","
-                                    "\"\n\","
-                                    "\"\"\"\n\"\n"),
+    BOOST_REQUIRE_EQUAL("no_special,"
+                        "contains_quote,"
+                        "contains_quote_quote,"
+                        "contains_separator,"
+                        "contains_quote_separator,"
+                        "contains_newline,"
+                        "contains_quote_newline\n"
+                        "a,"
+                        "\"\"\"\","
+                        "\"\"\"\"\"\","
+                        "\",\","
+                        "\"\"\",\","
+                        "\"\n\","
+                        "\"\"\"\n\"\n",
                         output);
 }
 
 BOOST_AUTO_TEST_CASE(testNonExcelQuoting) {
-    ml::api::CCsvOutputWriter writer(false, true, '\\');
+    ml::api::CCsvOutputWriter writer{true, '\\'};
 
-    ml::api::CCsvOutputWriter::TStrVec fieldNames;
-    fieldNames.push_back("no_special");
-    fieldNames.push_back("contains_quote");
-    fieldNames.push_back("contains_escape");
-    fieldNames.push_back("contains_escape_quote");
-    fieldNames.push_back("contains_separator");
-    fieldNames.push_back("contains_escape_separator");
-    fieldNames.push_back("contains_newline");
-    fieldNames.push_back("contains_escape_newline");
+    ml::api::CCsvOutputWriter::TStrVec fieldNames{
+        "no_special",         "contains_quote",
+        "contains_escape",    "contains_escape_quote",
+        "contains_separator", "contains_escape_separator",
+        "contains_newline",   "contains_escape_newline"};
 
     BOOST_TEST_REQUIRE(writer.fieldNames(fieldNames));
 
@@ -393,26 +306,26 @@ BOOST_AUTO_TEST_CASE(testNonExcelQuoting) {
 
     BOOST_TEST_REQUIRE(writer.writeRow(fieldValues));
 
-    std::string output(writer.internalString());
+    std::string output{writer.internalString()};
 
     LOG_DEBUG(<< "Output is:\n" << output);
 
-    BOOST_REQUIRE_EQUAL(std::string("no_special,"
-                                    "contains_quote,"
-                                    "contains_escape,"
-                                    "contains_escape_quote,"
-                                    "contains_separator,"
-                                    "contains_escape_separator,"
-                                    "contains_newline,"
-                                    "contains_escape_newline\n"
-                                    "a,"
-                                    "\"\\\"\","
-                                    "\"\\\\\","
-                                    "\"\\\\\\\"\","
-                                    "\",\","
-                                    "\"\\\\,\","
-                                    "\"\n\","
-                                    "\"\\\\\n\"\n"),
+    BOOST_REQUIRE_EQUAL("no_special,"
+                        "contains_quote,"
+                        "contains_escape,"
+                        "contains_escape_quote,"
+                        "contains_separator,"
+                        "contains_escape_separator,"
+                        "contains_newline,"
+                        "contains_escape_newline\n"
+                        "a,"
+                        "\"\\\"\","
+                        "\"\\\\\","
+                        "\"\\\\\\\"\","
+                        "\",\","
+                        "\"\\\\,\","
+                        "\"\n\","
+                        "\"\\\\\n\"\n",
                         output);
 }
 

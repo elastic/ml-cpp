@@ -65,7 +65,7 @@ case `uname` in
             STL_EXTENSION=.so.6
             ZLIB_LOCATION=
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
-            SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.13
+            SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.14
             BOOST_LOCATION=$SYSROOT/usr/local/lib
             BOOST_COMPILER=clang
             BOOST_EXTENSION=mt-x64-1_71.dylib
