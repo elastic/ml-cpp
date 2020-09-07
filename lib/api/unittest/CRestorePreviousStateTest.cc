@@ -48,9 +48,16 @@ struct SRestoreTestConfig {
     bool s_CategorizerRestoreIsSymmetric;
 };
 
+// The persist/restore cycle of the latest version is always expected to be symmetric.
+// The flags in the version structures will need to be maintained accordingly.
 const std::vector<SRestoreTestConfig> BWC_VERSIONS{
-    SRestoreTestConfig{"5.6.0", false, false}, SRestoreTestConfig{"6.0.0", false, false},
-    SRestoreTestConfig{"6.1.0", false, false}};
+    SRestoreTestConfig{"5.6.0", false, false},
+    SRestoreTestConfig{"6.0.0", false, false},
+    SRestoreTestConfig{"6.1.0", false, false},
+    SRestoreTestConfig{"6.5.0", false, false},
+    SRestoreTestConfig{"7.1.0", false, false},
+    SRestoreTestConfig{"7.3.0", false, false},
+    SRestoreTestConfig{"7.9.0", true, true}};
 
 std::string stripDocIds(const std::string& persistedState) {
     // State is persisted in the Elasticsearch bulk format.
@@ -102,18 +109,22 @@ void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric) {
         BOOST_TEST_REQUIRE(restoredCategorizer.restoreState(retriever, completeToTime));
     }
 
+    std::string newPersistedState;
+    {
+        std::ostringstream* strm(nullptr);
+        ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
+        ml::api::CSingleStreamDataAdder persister(ptr);
+        BOOST_TEST_REQUIRE(restoredCategorizer.persistStateInForeground(persister, ""));
+        newPersistedState = strm->str();
+    }
+
     if (isSymmetric) {
         // Test the persisted state of the restored detector is the
         // same as the original
-        std::string newPersistedState;
-        {
-            std::ostringstream* strm(nullptr);
-            ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
-            ml::api::CSingleStreamDataAdder persister(ptr);
-            BOOST_TEST_REQUIRE(restoredCategorizer.persistStateInForeground(persister, ""));
-            newPersistedState = strm->str();
-        }
         BOOST_REQUIRE_EQUAL(stripDocIds(origPersistedState), stripDocIds(newPersistedState));
+    } else {
+        // Test that the persisted & the restored states are actually different.
+        BOOST_TEST_REQUIRE(stripDocIds(origPersistedState) != stripDocIds(newPersistedState));
     }
 }
 
@@ -171,20 +182,23 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
         BOOST_TEST_REQUIRE(completeToTime > 0);
     }
 
+    std::string newPersistedState;
+    {
+        std::ostringstream* strm(nullptr);
+        ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
+        ml::api::CSingleStreamDataAdder persister(ptr);
+        BOOST_TEST_REQUIRE(restoredJob.persistStateInForeground(persister, ""));
+        newPersistedState = strm->str();
+    }
+
     if (isSymmetric) {
         // Test the persisted state of the restored detector is the
         // same as the original
-        std::string newPersistedState;
-        {
-            std::ostringstream* strm(nullptr);
-            ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
-            ml::api::CSingleStreamDataAdder persister(ptr);
-            BOOST_TEST_REQUIRE(restoredJob.persistStateInForeground(persister, ""));
-            newPersistedState = strm->str();
-        }
-
         BOOST_REQUIRE_EQUAL(numRestoredDocs, numDocsInStateFile);
         BOOST_REQUIRE_EQUAL(stripDocIds(origPersistedState), stripDocIds(newPersistedState));
+    } else {
+        // Test that the persisted & the restored states are actually different.
+        BOOST_TEST_REQUIRE(stripDocIds(origPersistedState) != stripDocIds(newPersistedState));
     }
 }
 }
