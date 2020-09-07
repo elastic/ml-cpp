@@ -7,9 +7,10 @@
 
 #include <core/CNamedPipeFactory.h>
 #include <core/CScopedLock.h>
-#include <core/CSleep.h>
 
+#include <chrono>
 #include <fstream>
+#include <thread>
 
 namespace ml {
 namespace test {
@@ -53,7 +54,7 @@ void CThreadDataReader::run() {
         if (++m_Attempt > m_MaxAttempts) {
             return;
         }
-        core::CSleep::sleep(m_SleepTimeMs);
+        std::this_thread::sleep_for(std::chrono::milliseconds(m_SleepTimeMs));
         strm.open(m_FileName);
     } while (strm.is_open() == false);
 

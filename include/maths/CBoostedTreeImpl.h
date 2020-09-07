@@ -315,6 +315,9 @@ private:
     //! Start monitoring the final model training.
     void startProgressMonitoringFinalTrain();
 
+    //! Skip monitoring the final model training.
+    void skipProgressMonitoringFinalTrain();
+
     //! Record the training state using the \p recordTrainState callback function
     void recordState(const TTrainingStateCallback& recordTrainState) const;
 

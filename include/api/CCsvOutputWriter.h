@@ -6,14 +6,12 @@
 #ifndef INCLUDED_ml_api_CCsvOutputWriter_h
 #define INCLUDED_ml_api_CCsvOutputWriter_h
 
-#include <api/COutputHandler.h>
+#include <api/CSimpleOutputWriter.h>
 #include <api/ImportExport.h>
 
 #include <iosfwd>
-#include <set>
 #include <sstream>
 #include <string>
-#include <utility>
 
 namespace ml {
 namespace api {
@@ -41,7 +39,7 @@ namespace api {
 //! It is not acceptable to have the separator character be the same as the
 //! escape character, the quote character or the record end character.
 //!
-class API_EXPORT CCsvOutputWriter : public COutputHandler {
+class API_EXPORT CCsvOutputWriter : public CSimpleOutputWriter {
 public:
     //! CSV separator
     static const char COMMA;
@@ -55,14 +53,10 @@ public:
 public:
     //! Constructor that causes output to be written to the internal string
     //! stream
-    CCsvOutputWriter(bool outputMessages = false,
-                     bool outputHeader = true,
-                     char escape = QUOTE,
-                     char separator = COMMA);
+    CCsvOutputWriter(bool outputHeader = true, char escape = QUOTE, char separator = COMMA);
 
     //! Constructor that causes output to be written to the specified stream
     CCsvOutputWriter(std::ostream& strmOut,
-                     bool outputMessages = false,
                      bool outputHeader = true,
                      char escape = QUOTE,
                      char separator = COMMA);
@@ -71,22 +65,21 @@ public:
     ~CCsvOutputWriter() override;
 
     // Bring the other overload of fieldNames() into scope
-    using COutputHandler::fieldNames;
+    using CSimpleOutputWriter::fieldNames;
 
     //! Set field names, adding extra field names if they're not already
     //! present - this is only allowed once
     bool fieldNames(const TStrVec& fieldNames, const TStrVec& extraFieldNames) override;
 
     // Bring the other overloads of writeRow() into scope
-    using COutputHandler::writeRow;
+    using CSimpleOutputWriter::writeRow;
 
     //! Write a row to the stream, optionally overriding some of the
     //! original field values.  Where the same field is present in both
     //! overrideDataRowFields and dataRowFields, the value in
     //! overrideDataRowFields will be written.
     bool writeRow(const TStrStrUMap& dataRowFields,
-                  const TStrStrUMap& overrideDataRowFields,
-                  TOptionalTime time) override;
+                  const TStrStrUMap& overrideDataRowFields) override;
 
     //! Get the contents of the internal string stream - for use with the
     //! zero argument constructor
@@ -109,9 +102,6 @@ private:
     //! Reference to the stream we're going to write to
     std::ostream& m_StrmOut;
 
-    //! Should we output a messages section before the CSV?
-    bool m_OutputMessages;
-
     //! Should we output a row containing the CSV column names?
     bool m_OutputHeader;
 
@@ -128,13 +118,6 @@ private:
     //! output stream.  Held as a member so that the capacity adjusts to
     //! an appropriate level, avoiding regular memory allocations.
     std::string m_WorkRecord;
-
-    using TStrStrPr = std::pair<std::string, std::string>;
-    using TStrStrPrSet = std::set<TStrStrPr>;
-    using TStrStrPrSetCItr = TStrStrPrSet::const_iterator;
-
-    //! Messages to be printed before the next lot of output
-    TStrStrPrSet m_Messages;
 
     //! Character to use for escaping quotes (const to allow compiler
     //! optimisations, since the value can't be changed after construction)

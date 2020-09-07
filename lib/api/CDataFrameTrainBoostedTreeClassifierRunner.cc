@@ -15,6 +15,7 @@
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CDataFramePredictiveModel.h>
 #include <maths/CDataFrameUtils.h>
+#include <maths/CLinearAlgebraEigen.h>
 #include <maths/COrderings.h>
 #include <maths/CTools.h>
 #include <maths/CTreeShapFeatureImportance.h>
@@ -41,7 +42,6 @@ const std::string IS_TRAINING_FIELD_NAME{"is_training"};
 const std::string PREDICTION_PROBABILITY_FIELD_NAME{"prediction_probability"};
 const std::string PREDICTION_SCORE_FIELD_NAME{"prediction_score"};
 const std::string TOP_CLASSES_FIELD_NAME{"top_classes"};
-const std::string CLASS_NAME_FIELD_NAME{"class_name"};
 const std::string CLASS_PROBABILITY_FIELD_NAME{"class_probability"};
 const std::string CLASS_SCORE_FIELD_NAME{"class_score"};
 
@@ -162,7 +162,13 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     }
 
     if (featureImportance != nullptr) {
-        int numberClasses{static_cast<int>(classValues.size())};
+        std::size_t numberClasses{classValues.size()};
+        m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
+        m_InferenceModelMetadata.classValues(classValues);
+        m_InferenceModelMetadata.predictionFieldTypeResolverWriter(
+            [this](const std::string& categoryValue, core::CRapidJsonConcurrentLineWriter& writer) {
+                this->writePredictedCategoryValue(categoryValue, writer);
+            });
         featureImportance->shap(
             row, [&](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
                      const TStrVec& featureNames,
@@ -175,20 +181,47 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                         writer.Key(FEATURE_NAME_FIELD_NAME);
                         writer.String(featureNames[i]);
                         if (shap[i].size() == 1) {
-                            writer.Key(IMPORTANCE_FIELD_NAME);
-                            writer.Double(shap[i](0));
-                        } else {
-                            for (int j = 0; j < shap[i].size() && j < numberClasses; ++j) {
-                                writer.Key(classValues[j]);
-                                writer.Double(shap[i](j));
+                            // output feature importance for individual classes in binary case
+                            writer.Key(CLASSES_FIELD_NAME);
+                            writer.StartArray();
+                            for (std::size_t j = 0; j < numberClasses; ++j) {
+                                double importance{(j == predictedClassId)
+                                                      ? shap[i](0)
+                                                      : -shap[i](0)};
+                                writer.StartObject();
+                                writer.Key(CLASS_NAME_FIELD_NAME);
+                                writePredictedCategoryValue(classValues[j], writer);
+                                writer.Key(IMPORTANCE_FIELD_NAME);
+                                writer.Double(importance);
+                                writer.EndObject();
                             }
-                            writer.Key(CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME);
-                            writer.Double(shap[i].lpNorm<1>());
+                            writer.EndArray();
+                        } else {
+                            // output feature importance for individual classes in multiclass case
+                            writer.Key(CLASSES_FIELD_NAME);
+                            writer.StartArray();
+                            for (std::size_t j = 0;
+                                 j < shap[i].size() && j < numberClasses; ++j) {
+                                writer.StartObject();
+                                writer.Key(CLASS_NAME_FIELD_NAME);
+                                writePredictedCategoryValue(classValues[j], writer);
+                                writer.Key(IMPORTANCE_FIELD_NAME);
+                                writer.Double(shap[i](j));
+                                writer.EndObject();
+                            }
+                            writer.EndArray();
                         }
                         writer.EndObject();
                     }
                 }
                 writer.EndArray();
+
+                for (std::size_t i = 0; i < shap.size(); ++i) {
+                    if (shap[i].lpNorm<1>() != 0) {
+                        const_cast<CDataFrameTrainBoostedTreeClassifierRunner*>(this)
+                            ->m_InferenceModelMetadata.addToFeatureImportance(i, shap[i]);
+                    }
+                }
             });
     }
     writer.EndObject();
@@ -257,6 +290,11 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelDefinition(
     return std::make_unique<CInferenceModelDefinition>(builder.build());
 }
 
+CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
+CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
+    return m_InferenceModelMetadata;
+}
+
 // clang-format off
 // The MAX_NUMBER_CLASSES must match the value used in the Java code. See the
 // MAX_DEPENDENT_VARIABLE_CARDINALITY in the x-pack classification code.
@@ -291,5 +329,7 @@ CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(
 }
 
 const std::string CDataFrameTrainBoostedTreeClassifierRunnerFactory::NAME{"classification"};
+const std::string CDataFrameTrainBoostedTreeClassifierRunner::CLASSES_FIELD_NAME{"classes"};
+const std::string CDataFrameTrainBoostedTreeClassifierRunner::CLASS_NAME_FIELD_NAME{"class_name"};
 }
 }

@@ -13,7 +13,6 @@
 
 #include <api/CCsvOutputWriter.h>
 #include <api/CFieldConfig.h>
-#include <api/CNullOutput.h>
 #include <api/CResultNormalizer.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
@@ -82,9 +81,8 @@ void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric) {
 
     std::ostringstream outputStrm;
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-    ml::api::CNullOutput nullOutput;
     CTestFieldDataCategorizer restoredCategorizer("job", config, limits,
-                                                  nullOutput, wrappedOutputStream);
+                                                  nullptr, wrappedOutputStream);
 
     std::ifstream inputStrm(stateFile.c_str());
     BOOST_TEST_REQUIRE(inputStrm.is_open());

@@ -34,10 +34,21 @@
 
 * The Windows build platform for the {ml} C++ code now uses Visual Studio 2019. (See
   {ml-pull}1352[#1352].)
-* The macOS build platform for the {ml} C++ code is now High Sierra running Xcode 10.1,
-  or Ubuntu 18.04 running clang 6.0 for cross compilation. (See {ml-pull}867[#867].)
+* The macOS build platform for the {ml} C++ code is now Mojave running Xcode 11.3.1,
+  or Ubuntu 20.04 running clang 8 for cross compilation. (See {ml-pull}1429[#1429].)
 * The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 9.3. (See
   {ml-pull}1170[#1170].)
+
+== {es} version 7.10.0
+
+=== Enhancements
+
+* Calculate total feature importance to store with model metadata. (See {ml-pull}1387[#1387].)
+
+=== Bug Fixes
+
+* Fix progress on resume after final training has completed for classification and regression.
+  We previously showed progress stuck at zero for final training. (See {ml-pull}1443[#1443].)
 
 == {es} version 7.9.0
 

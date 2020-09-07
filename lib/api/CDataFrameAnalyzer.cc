@@ -144,6 +144,7 @@ void CDataFrameAnalyzer::run() {
         analysisRunner->waitToFinish();
         this->writeInferenceModel(*analysisRunner, outputWriter);
         this->writeResultsOf(*analysisRunner, outputWriter);
+        this->writeInferenceModelMetadata(*analysisRunner, outputWriter);
     }
 }
 
@@ -282,6 +283,21 @@ void CDataFrameAnalyzer::writeInferenceModel(const CDataFrameAnalysisRunner& ana
         writer.write(sizeInfoObject);
         writer.EndObject();
         modelDefinition->addToDocumentCompressed(writer);
+    }
+    writer.flush();
+}
+
+void CDataFrameAnalyzer::writeInferenceModelMetadata(const CDataFrameAnalysisRunner& analysis,
+                                                     core::CRapidJsonConcurrentLineWriter& writer) const {
+    // Write model meta information
+    auto modelMetadata = analysis.inferenceModelMetadata();
+    if (modelMetadata) {
+        writer.StartObject();
+        writer.Key(modelMetadata->typeString());
+        writer.StartObject();
+        modelMetadata->write(writer);
+        writer.EndObject();
+        writer.EndObject();
     }
     writer.flush();
 }

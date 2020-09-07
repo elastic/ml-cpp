@@ -253,7 +253,7 @@ public:
 
             if (ORDER > 1) {
                 T r{x - s_Moments[0]};
-                T r2{r * r};
+                T r2{las::componentwise(r) * las::componentwise(r)};
                 T dMean{mean - s_Moments[0]};
                 T dMean2{las::componentwise(dMean) * las::componentwise(dMean)};
                 T variance{s_Moments[1]};

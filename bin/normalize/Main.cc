@@ -106,8 +106,8 @@ int main(int argc, char** argv) {
         return std::make_unique<ml::api::CCsvInputParser>(ioMgr.inputStream());
     }()};
 
-    using TOutputHandlerUPtr = std::unique_ptr<ml::api::COutputHandler>;
-    const TOutputHandlerUPtr outputWriter{[writeCsv, &ioMgr]() -> TOutputHandlerUPtr {
+    using TSimpleOutputWriterUPtr = std::unique_ptr<ml::api::CSimpleOutputWriter>;
+    const TSimpleOutputWriterUPtr outputWriter{[writeCsv, &ioMgr]() -> TSimpleOutputWriterUPtr {
         if (writeCsv) {
             return std::make_unique<ml::api::CCsvOutputWriter>(ioMgr.outputStream());
         }

@@ -36,7 +36,6 @@
 #include <api/CJsonOutputWriter.h>
 #include <api/CLengthEncodedInputParser.h>
 #include <api/CModelSnapshotJsonWriter.h>
-#include <api/COutputChainer.h>
 #include <api/CPersistenceManager.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
@@ -172,6 +171,18 @@ int main(int argc, char** argv) {
 
     ml::api::CFieldConfig fieldConfig;
 
+    if (fieldConfig.initFromCmdLine(fieldConfigFile, clauseTokens) == false) {
+        LOG_FATAL(<< "Field config could not be interpreted");
+        return EXIT_FAILURE;
+    }
+
+    bool doingCategorization{fieldConfig.fieldNameSuperset().count(
+                                 ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0};
+    TStrVec mutableFields;
+    if (doingCategorization) {
+        mutableFields.push_back(ml::api::CFieldDataCategorizer::MLCATEGORY_NAME);
+    }
+
     ml::model_t::ESummaryMode summaryMode{
         summaryCountFieldName.empty() ? ml::model_t::E_None : ml::model_t::E_Manual};
     ml::model::CAnomalyDetectorModelConfig modelConfig{ml::model::CAnomalyDetectorModelConfig::defaultConfig(
@@ -238,20 +249,18 @@ int main(int argc, char** argv) {
         }()};
 
     using InputParserCUPtr = std::unique_ptr<ml::api::CInputParser>;
-    const InputParserCUPtr inputParser{[lengthEncodedInput, &ioMgr, delimiter]() -> InputParserCUPtr {
+    const InputParserCUPtr inputParser{[lengthEncodedInput, &mutableFields,
+                                        &ioMgr, delimiter]() -> InputParserCUPtr {
         if (lengthEncodedInput) {
-            return std::make_unique<ml::api::CLengthEncodedInputParser>(ioMgr.inputStream());
+            return std::make_unique<ml::api::CLengthEncodedInputParser>(
+                mutableFields, ioMgr.inputStream());
         }
-        return std::make_unique<ml::api::CCsvInputParser>(ioMgr.inputStream(), delimiter);
+        return std::make_unique<ml::api::CCsvInputParser>(
+            mutableFields, ioMgr.inputStream(), delimiter);
     }()};
 
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream{ioMgr.outputStream()};
-
     ml::api::CModelSnapshotJsonWriter modelSnapshotWriter{jobId, wrappedOutputStream};
-    if (fieldConfig.initFromCmdLine(fieldConfigFile, clauseTokens) == false) {
-        LOG_FATAL(<< "Field config could not be interpreted");
-        return EXIT_FAILURE;
-    }
 
     // The anomaly job knows how to detect anomalies
     ml::api::CAnomalyJob job{jobId,
@@ -277,26 +286,23 @@ int main(int argc, char** argv) {
         }
     }
 
-    ml::api::CDataProcessor* firstProcessor(&job);
-
-    // Chain the categorizer's output to the anomaly detector's input
-    ml::api::COutputChainer outputChainer(job);
-
     // The categorizer knows how to assign categories to records
     ml::api::CFieldDataCategorizer categorizer{jobId,
                                                fieldConfig,
                                                limits,
                                                timeField,
                                                timeFormat,
-                                               outputChainer,
+                                               &job,
                                                wrappedOutputStream,
                                                persistenceManager.get(),
                                                stopCategorizationOnWarnStatus};
 
-    if (fieldConfig.fieldNameSuperset().count(
-            ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
+    ml::api::CDataProcessor* firstProcessor{nullptr};
+    if (doingCategorization) {
         LOG_DEBUG(<< "Applying the categorizer for anomaly detection");
         firstProcessor = &categorizer;
+    } else {
+        firstProcessor = &job;
     }
 
     if (persistenceManager != nullptr) {
