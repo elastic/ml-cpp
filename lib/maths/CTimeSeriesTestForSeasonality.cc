@@ -1689,14 +1689,13 @@ CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::varianceTestRe
     std::size_t segments{std::max(s_NumberTrendSegments, std::size_t{1}) +
                          s_NumberScaleSegments - 1};
     double repeatsPerSegment{s_MeanNumberRepeats / static_cast<double>(segments)};
-    double windowRepeatsPerSegment{segments > 1 ? s_WindowRepeats / static_cast<double>(segments)
-                                                : minimumRepeatsPerSegment};
+    double windowRepeatsPerSegment{
+        segments > 1 ? s_WindowRepeats / static_cast<double>(segments) : 2.0};
     double logPValue{std::log(std::max(s_ExplainedVariancePValue,
                                        std::numeric_limits<double>::min()))};
     return fuzzyGreaterThan(repeatsPerSegment / minimumRepeatsPerSegment, 1.0, 0.3) &&
            fuzzyGreaterThan(std::min(repeatsPerSegment / 2.0, 1.0), 1.0, 0.1) &&
-           fuzzyGreaterThan(std::min(windowRepeatsPerSegment / minimumRepeatsPerSegment, 1.0),
-                            1.0, 0.1) &&
+           fuzzyGreaterThan(std::min(windowRepeatsPerSegment / 2.0, 1.0), 1.0, 0.1) &&
            fuzzyLessThan(std::max(s_LeastCommonRepeat / 0.5, 1.0), 1.0, 0.5) &&
            fuzzyGreaterThan(s_FractionNotMissing, 1.0, 0.5) &&
            fuzzyGreaterThan(logPValue / logSignificantPValue, 1.0, 0.1) &&
@@ -1721,15 +1720,14 @@ CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::amplitudeTestR
     std::size_t segments{std::max(s_NumberTrendSegments, std::size_t{1}) +
                          s_NumberScaleSegments - 1};
     double repeatsPerSegment{s_MeanNumberRepeats / static_cast<double>(segments)};
-    double windowRepeatsPerSegment{segments > 1 ? s_WindowRepeats / static_cast<double>(segments)
-                                                : minimumRepeatsPerSegment};
+    double windowRepeatsPerSegment{
+        segments > 1 ? s_WindowRepeats / static_cast<double>(segments) : 2.0};
     double autocorrelation{s_AutocorrelationUpperBound};
     double logPValue{
         std::log(std::max(s_AmplitudePValue, std::numeric_limits<double>::min()))};
     return fuzzyGreaterThan(repeatsPerSegment / minimumRepeatsPerSegment, 1.0, 0.1) &&
            fuzzyGreaterThan(std::min(repeatsPerSegment / 2.0, 1.0), 1.0, 0.1) &&
-           fuzzyGreaterThan(std::min(windowRepeatsPerSegment / minimumRepeatsPerSegment, 1.0),
-                            1.0, 0.1) &&
+           fuzzyGreaterThan(std::min(windowRepeatsPerSegment / 2.0, 1.0), 1.0, 0.1) &&
            fuzzyLessThan(std::max(s_LeastCommonRepeat / 0.5, 1.0), 1.0, 0.5) &&
            fuzzyGreaterThan(s_FractionNotMissing, 1.0, 0.5) &&
            fuzzyGreaterThan(autocorrelation / lowAutocorrelation, 1.0, 0.2) &&
