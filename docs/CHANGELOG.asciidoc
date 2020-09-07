@@ -44,6 +44,7 @@
 === Enhancements
 
 * Calculate total feature importance to store with model metadata. (See {ml-pull}1387[#1387].)
+* Change outlier detection feature_influence format to array with nested objects.
 
 === Bug Fixes
 

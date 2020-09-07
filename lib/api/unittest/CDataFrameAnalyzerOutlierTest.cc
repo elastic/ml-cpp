@@ -301,12 +301,19 @@ BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
     auto expectedFeatureInfluence = expectedFeatureInfluences.begin();
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
+
             BOOST_TEST_REQUIRE(expectedFeatureInfluence !=
                                expectedFeatureInfluences.end());
-            for (std::size_t i = 0; i < 5; ++i) {
+            for (int i = 0; i < 5; ++i) {
+                BOOST_TEST_REQUIRE(
+                    expectedNames[i].c_str() ==
+                    result["row_results"]["results"]["ml"]["feature_influence"][i]["feature_name"]
+                        .GetString());
+
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     (*expectedFeatureInfluence)[i],
-                    result["row_results"]["results"]["ml"][expectedNames[i]].GetDouble(),
+                    result["row_results"]["results"]["ml"]["feature_influence"][i]["influence"]
+                        .GetDouble(),
                     1e-4 * (*expectedFeatureInfluence)[i]);
             }
             ++expectedFeatureInfluence;
