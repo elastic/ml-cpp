@@ -168,6 +168,13 @@ public:
     bool persistStateInForeground(core::CDataAdder& persister,
                                   const std::string& descriptionPrefix) override;
 
+    //! Persist the current model state regardless of whether
+    //! any results have been output.
+    bool doPersistStateInForeground(core::CDataAdder& persister,
+                                    const std::string& description,
+                                    const std::string& snapshotId,
+                                    core_t::TTime snapshotTimestamp);
+
     //! Persist state of the residual models only
     bool persistModelsState(core::CDataAdder& persister,
                             core_t::TTime timestamp,
@@ -250,7 +257,9 @@ private:
     bool runForegroundPersist(core::CDataAdder& persister);
 
     //! Persist the detectors to a stream.
-    bool persistCopiedState(const std::string& descriptionPrefix,
+    bool persistCopiedState(const std::string& description,
+                            const std::string& snapshotId,
+                            core_t::TTime snapshotTimestamp,
                             core_t::TTime time,
                             const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
                             const model::CResourceMonitor::SModelSizeStats& modelSizeStats,
