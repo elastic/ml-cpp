@@ -52,7 +52,9 @@ const CDataFrameAnalysisConfigReader& parameterReader() {
 
 // Output
 const std::string OUTLIER_SCORE_FIELD_NAME{"outlier_score"};
-const std::string FEATURE_INFLUENCE_FIELD_NAME_PREFIX{"feature_influence."};
+const std::string FEATURE_NAME_FIELD_NAME{"feature_name"};
+const std::string FEATURE_INFLUENCE_FIELD_NAME{"feature_influence"};
+const std::string INFLUENCE_FIELD_NAME{"influence"};
 }
 
 CDataFrameOutliersRunner::CDataFrameOutliersRunner(const CDataFrameAnalysisSpecification& spec,
@@ -93,11 +95,19 @@ void CDataFrameOutliersRunner::writeOneRow(const core::CDataFrame& frame,
     writer.StartObject();
     writer.Key(OUTLIER_SCORE_FIELD_NAME);
     writer.Double(row[scoreColumn]);
-    if (row[scoreColumn] > m_FeatureInfluenceThreshold) {
+    if (row[scoreColumn] > m_FeatureInfluenceThreshold && numberFeatureScoreColumns > 0) {
+        writer.Key(FEATURE_INFLUENCE_FIELD_NAME);
+        writer.StartArray();
+
         for (std::size_t i = 0; i < numberFeatureScoreColumns; ++i) {
-            writer.Key(FEATURE_INFLUENCE_FIELD_NAME_PREFIX + frame.columnNames()[i]);
+            writer.StartObject();
+            writer.Key(FEATURE_NAME_FIELD_NAME);
+            writer.String(frame.columnNames()[i]);
+            writer.Key(INFLUENCE_FIELD_NAME);
             writer.Double(row[beginFeatureScoreColumns + i]);
+            writer.EndObject();
         }
+        writer.EndArray();
     }
     writer.EndObject();
 }
