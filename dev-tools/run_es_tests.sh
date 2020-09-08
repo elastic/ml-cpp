@@ -94,5 +94,5 @@ export GIT_COMMIT="$(git rev-parse HEAD)"
 export GIT_PREVIOUS_COMMIT="$GIT_COMMIT"
 
 IVY_REPO_URL="file://$2"
-./gradlew -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:integTest
+./gradlew -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest
 ./gradlew -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:integTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}"
