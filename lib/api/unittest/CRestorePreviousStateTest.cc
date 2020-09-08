@@ -7,6 +7,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/COsFileFuncs.h>
+#include <core/CProgramCounters.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
@@ -31,6 +32,18 @@
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CRestorePreviousStateTest)
+
+class CTestFixture {
+public:
+    CTestFixture() {
+        ml::core::CProgramCounters& counters = ml::core::CProgramCounters::instance();
+
+        // Set all counters to 0
+        for (std::size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
+            counters.counter(i) = 0;
+        }
+    }
+};
 
 namespace {
 
@@ -203,7 +216,7 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
 }
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreDetectorBy) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorBy, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper(
@@ -212,7 +225,7 @@ BOOST_AUTO_TEST_CASE(testRestoreDetectorBy) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreDetectorOver) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorOver, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/over_detector_state.json",
@@ -221,7 +234,7 @@ BOOST_AUTO_TEST_CASE(testRestoreDetectorOver) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreDetectorPartition) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorPartition, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/partition_detector_state.json",
@@ -230,7 +243,7 @@ BOOST_AUTO_TEST_CASE(testRestoreDetectorPartition) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreDetectorDc) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorDc, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper(
@@ -239,7 +252,7 @@ BOOST_AUTO_TEST_CASE(testRestoreDetectorDc) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreDetectorCount) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorCount, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/count_detector_state.json",
@@ -248,7 +261,7 @@ BOOST_AUTO_TEST_CASE(testRestoreDetectorCount) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreNormalizer) {
+BOOST_FIXTURE_TEST_CASE(testRestoreNormalizer, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -259,7 +272,7 @@ BOOST_AUTO_TEST_CASE(testRestoreNormalizer) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreCategorizer) {
+BOOST_FIXTURE_TEST_CASE(testRestoreCategorizer, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         categorizerRestoreHelper("testfiles/state/" + version.s_Version + "/categorizer_state.json",
