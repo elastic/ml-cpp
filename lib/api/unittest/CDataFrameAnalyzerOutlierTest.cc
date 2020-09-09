@@ -285,8 +285,7 @@ BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
 
     TDoubleVec expectedScores;
     TDoubleVecVec expectedFeatureInfluences;
-    TStrVec expectedNames{"feature_influence.c1", "feature_influence.c2", "feature_influence.c3",
-                          "feature_influence.c4", "feature_influence.c5"};
+    TStrVec expectedNames{"c1", "c2", "c3", "c4", "c5"};
 
     TStrVec fieldNames{"c1", "c2", "c3", "c4", "c5", ".", "."};
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
@@ -301,12 +300,19 @@ BOOST_AUTO_TEST_CASE(testRunOutlierFeatureInfluences) {
     auto expectedFeatureInfluence = expectedFeatureInfluences.begin();
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
+
             BOOST_TEST_REQUIRE(expectedFeatureInfluence !=
                                expectedFeatureInfluences.end());
-            for (std::size_t i = 0; i < 5; ++i) {
+            for (int i = 0; i < 5; ++i) {
+                BOOST_REQUIRE_EQUAL(
+                    expectedNames[i].c_str(),
+                    result["row_results"]["results"]["ml"]["feature_influence"][i]["feature_name"]
+                        .GetString());
+
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     (*expectedFeatureInfluence)[i],
-                    result["row_results"]["results"]["ml"][expectedNames[i]].GetDouble(),
+                    result["row_results"]["results"]["ml"]["feature_influence"][i]["influence"]
+                        .GetDouble(),
                     1e-4 * (*expectedFeatureInfluence)[i]);
             }
             ++expectedFeatureInfluence;
