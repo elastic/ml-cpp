@@ -280,6 +280,7 @@ private:
     using TSegmentation = CTimeSeriesSegmentation;
     using TWeightFunc = TSegmentation::TWeightFunc;
     using TBucketPredictor = std::function<double(std::size_t)>;
+    using TTransform = std::function<double(const TFloatMeanAccumulator&)>;
     using TRemoveTrend =
         std::function<bool(const TSeasonalComponentVec&, TFloatMeanAccumulatorVec&, TSizeVec&)>;
 
@@ -508,8 +509,12 @@ private:
                    TFloatMeanAccumulatorVec& values,
                    TDoubleVec& scales) const;
     TVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values) const;
-    TMeanVarAccumulator truncatedMoments(double outlierFraction,
-                                         const TFloatMeanAccumulatorVec& residuals) const;
+    TMeanVarAccumulator
+    truncatedMoments(double outlierFraction,
+                     const TFloatMeanAccumulatorVec& residuals,
+                     const TTransform& transform = [](const TFloatMeanAccumulator& value) {
+                         return CBasicStatistics::mean(value);
+                     }) const;
     bool includesNewComponents(const TSeasonalComponentVec& periods) const;
     bool alreadyModelled(const TSeasonalComponentVec& periods) const;
     bool alreadyModelled(const TSeasonalComponent& period) const;
@@ -536,6 +541,8 @@ private:
     static bool canTestPeriod(const TFloatMeanAccumulatorVec& values,
                               const TSeasonalComponent& period);
     static std::size_t observedRange(const TFloatMeanAccumulatorVec& values);
+    static std::size_t longestGap(const TFloatMeanAccumulatorVec& values);
+    static TSizeSizePr observedInterval(const TFloatMeanAccumulatorVec& values);
     static void removePredictions(const TSeasonalComponentCRng& periodsToRemove,
                                   const TMeanAccumulatorVecCRng& componentsToRemove,
                                   TFloatMeanAccumulatorVec& values);
