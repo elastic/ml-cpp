@@ -102,7 +102,7 @@ void addOutlierTestData(TStrVec fieldNames,
 BOOST_AUTO_TEST_CASE(testMemoryState) {
     std::string jobId{"testJob"};
     std::int64_t memoryLimit{1024 * 1024 * 1024}; //1gb default value
-    std::int64_t memoryUsage{1000};
+    std::int64_t memoryUsage{500000};
     std::int64_t timeBefore{std::chrono::duration_cast<std::chrono::milliseconds>(
                                 std::chrono::system_clock::now().time_since_epoch())
                                 .count()};
