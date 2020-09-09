@@ -1605,8 +1605,8 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
         }
 
         std::size_t expectedSize{
-            3 * sizeof(maths::CTimeSeriesDecomposition) +
-            trend[0].memoryUsage() + trend[1].memoryUsage() + trend[2].memoryUsage() +
+            3 * sizeof(maths::CTimeSeriesDecomposition) + trend[0].memoryUsage() +
+            trend[1].memoryUsage() + trend[2].memoryUsage() +
             2 * sizeof(maths::CMultivariateNormalConjugate<3>) +
             sizeof(maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary) +
             2 * controllers[0].memoryUsage() + 32 * 12 /*Recent samples*/};
