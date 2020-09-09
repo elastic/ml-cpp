@@ -238,6 +238,9 @@ CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime value
             meanAbs.add(std::fabs(CBasicStatistics::mean(value)));
         }
     }
+    // Note we don't bother modelling seasonality which is too small compared to the
+    // absolute values. We won't raise anomalies for differences from our predictions
+    // less than this anyway.
     m_EpsVariance = std::max(
         CTools::pow2(1000.0 * std::numeric_limits<double>::epsilon()) *
             CBasicStatistics::maximumLikelihoodVariance(moments),
