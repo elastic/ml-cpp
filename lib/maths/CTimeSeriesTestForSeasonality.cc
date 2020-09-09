@@ -1281,10 +1281,11 @@ CTimeSeriesTestForSeasonality::truncatedMoments(double outlierFraction,
                                                 const TFloatMeanAccumulatorVec& residuals) const {
     double cutoff{std::numeric_limits<double>::max()};
     std::size_t count{CSignal::countNotMissing(residuals)};
-    if (outlierFraction > 0.0) {
+    std::size_t numberOutliers{
+        static_cast<std::size_t>(outlierFraction * static_cast<double>(count) + 0.5)};
+    if (numberOutliers > 0) {
         m_Outliers.clear();
-        m_Outliers.resize(static_cast<std::size_t>(
-            outlierFraction * static_cast<double>(CSignal::countNotMissing(residuals)) + 0.5));
+        m_Outliers.resize(numberOutliers);
         for (const auto& value : residuals) {
             if (CBasicStatistics::count(value) > 0.0) {
                 m_Outliers.add(std::fabs(CBasicStatistics::mean(value)));
@@ -1302,7 +1303,7 @@ CTimeSeriesTestForSeasonality::truncatedMoments(double outlierFraction,
             moments.add(CBasicStatistics::mean(value));
         }
     }
-    if (m_OutlierFraction > 0.0) {
+    if (numberOutliers > 0) {
         moments.add(cutoff, static_cast<double>(count) - CBasicStatistics::count(moments));
     }
     CBasicStatistics::moment<1>(moments) += m_EpsVariance;
