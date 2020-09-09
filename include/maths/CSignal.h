@@ -216,10 +216,14 @@ public:
     //! \param[in] values The values for which to compute the autocorrelation.
     //! \param[in] transform Transforms \p values before computing the autocorrelation.
     //! \param[in] weight Weights \p values for computing the autocorrelation.
+    //! \param[in] eps The minimum variance we care about. This is added to the variance
+    //! when computing the autocorrelation so if the data variance is less than this it
+    //! drives the autocorrelation smoothly to zero.
     static double cyclicAutocorrelation(const SSeasonalComponentSummary& period,
                                         const TFloatMeanAccumulatorVec& values,
                                         const TMomentTransformFunc& transform = mean,
-                                        const TMomentWeightFunc& weight = count);
+                                        const TMomentWeightFunc& weight = count,
+                                        double eps = 0.0);
 
     //! Compute the discrete cyclic autocorrelation of \p values for the offset
     //! \p offset.
@@ -228,7 +232,8 @@ public:
     static double cyclicAutocorrelation(const SSeasonalComponentSummary& period,
                                         const TFloatMeanAccumulatorCRng& values,
                                         const TMomentTransformFunc& transform = mean,
-                                        const TMomentWeightFunc& weight = count);
+                                        const TMomentWeightFunc& weight = count,
+                                        double eps = 0.0);
 
     //! Get linear autocorrelations for all offsets up to the length of \p values.
     //!

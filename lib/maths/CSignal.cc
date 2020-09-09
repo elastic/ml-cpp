@@ -151,15 +151,18 @@ void CSignal::ifft(TComplexVec& f) {
 double CSignal::cyclicAutocorrelation(const SSeasonalComponentSummary& period,
                                       const TFloatMeanAccumulatorVec& values,
                                       const TMomentTransformFunc& tranform,
-                                      const TMomentWeightFunc& weight) {
-    return cyclicAutocorrelation(
-        period, TFloatMeanAccumulatorCRng(values, 0, values.size()), tranform, weight);
+                                      const TMomentWeightFunc& weight,
+                                      double eps) {
+    return cyclicAutocorrelation(period,
+                                 TFloatMeanAccumulatorCRng(values, 0, values.size()),
+                                 tranform, weight, eps);
 }
 
 double CSignal::cyclicAutocorrelation(const SSeasonalComponentSummary& period,
                                       const TFloatMeanAccumulatorCRng& values,
                                       const TMomentTransformFunc& transform,
-                                      const TMomentWeightFunc& weight) {
+                                      const TMomentWeightFunc& weight,
+                                      double eps) {
     TMeanVarAccumulator moments;
     for (std::size_t i = 0; i < values.size(); ++i) {
         if (period.contains(i) && CBasicStatistics::count(values[i]) > 0.0) {
@@ -183,7 +186,7 @@ double CSignal::cyclicAutocorrelation(const SSeasonalComponentSummary& period,
     }
 
     double a{CBasicStatistics::mean(autocorrelation)};
-    double v{CBasicStatistics::maximumLikelihoodVariance(moments)};
+    double v{CBasicStatistics::maximumLikelihoodVariance(moments) + eps};
 
     return a == v ? 1.0 : a / v;
 }
@@ -933,9 +936,9 @@ std::size_t CSignal::selectComponentSize(const TFloatMeanAccumulatorVec& values,
                                                   degreesFreedom[1 - H0]) < 0.1) {
                 break;
             }
-            if (CStatisticalTests::rightTailFTest(variances[1 - H0] / variances[H0],
-                                                  degreesFreedom[1 - H0],
-                                                  degreesFreedom[H0]) < 0.1) {
+            if (CStatisticalTests::rightTailFTest(
+                    variances[1 - H0] == variances[H0] ? 1.0 : variances[1 - H0] / variances[H0],
+                    degreesFreedom[1 - H0], degreesFreedom[H0]) < 0.1) {
                 H0 = 1 - H0;
             }
             size = compressedComponent.size();

@@ -536,6 +536,7 @@ private:
     static bool canTestPeriod(const TFloatMeanAccumulatorVec& values,
                               const TSeasonalComponent& period);
     static std::size_t observedRange(const TFloatMeanAccumulatorVec& values);
+    static std::size_t longestGap(const TFloatMeanAccumulatorVec& values);
     static void removePredictions(const TSeasonalComponentCRng& periodsToRemove,
                                   const TMeanAccumulatorVecCRng& componentsToRemove,
                                   TFloatMeanAccumulatorVec& values);

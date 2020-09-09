@@ -22,6 +22,7 @@
 #include <maths/CStatisticalTests.h>
 #include <maths/CTimeSeriesSegmentation.h>
 #include <maths/CTools.h>
+#include <maths/Constants.h>
 #include <maths/MathsTypes.h>
 
 #include <boost/iterator/counting_iterator.hpp>
@@ -29,6 +30,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <exception>
 #include <limits>
 #include <numeric>
 #include <random>
@@ -229,13 +231,17 @@ CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime value
           outlierFraction * static_cast<double>(CSignal::countNotMissing(m_Values)) + 0.5,
           1.0))} {
     TMeanVarAccumulator moments;
+    TMeanVarAccumulator meanAbs;
     for (const auto& value : m_Values) {
         if (CBasicStatistics::count(value) > 0.0) {
             moments.add(CBasicStatistics::mean(value));
+            meanAbs.add(std::fabs(CBasicStatistics::mean(value)));
         }
     }
-    m_EpsVariance = CTools::pow2(1000.0 * std::numeric_limits<double>::epsilon()) *
-                    CBasicStatistics::maximumLikelihoodVariance(moments);
+    m_EpsVariance = std::max(
+        CTools::pow2(1000.0 * std::numeric_limits<double>::epsilon()) *
+            CBasicStatistics::maximumLikelihoodVariance(moments),
+        CTools::pow2(MINIMUM_COEFFICIENT_OF_VARIATION * CBasicStatistics::mean(meanAbs)));
     LOG_TRACE(<< "eps variance = " << m_EpsVariance);
 }
 
@@ -314,6 +320,11 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
     // easily be identified as a better choice after the fact. The final selection
     // is based on a number of criterion which are geared towards our modelling
     // techniques and are described in select.
+
+    // Shortcircuit if we can't test any periods.
+    if (canTestPeriod(m_Values, CSignal::seasonalComponentSummary(2)) == false) {
+        return {};
+    }
 
     TSizeVec trendSegments{TSegmentation::piecewiseLinear(
         m_Values, m_SignificantPValue, m_OutlierFraction)};
@@ -407,17 +418,24 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
             return true;
         }};
 
-    TModelVec decompositions;
-    decompositions.reserve(8 * std::size(removeTrendModels));
+    try {
+        TModelVec decompositions;
+        decompositions.reserve(8 * std::size(removeTrendModels));
 
-    for (const auto& removeTrend : removeTrendModels) {
-        this->addNotSeasonal(removeTrend, decompositions);
-        this->addModelled(removeTrend, decompositions);
-        this->addDiurnal(removeTrend, decompositions);
-        this->addHighestAutocorrelation(removeTrend, decompositions);
+        for (const auto& removeTrend : removeTrendModels) {
+            this->addNotSeasonal(removeTrend, decompositions);
+            this->addModelled(removeTrend, decompositions);
+            this->addDiurnal(removeTrend, decompositions);
+            this->addHighestAutocorrelation(removeTrend, decompositions);
+        }
+
+        return this->select(decompositions);
+
+    } catch (const std::exception& e) {
+        LOG_ERROR(<< "Seasonal decomposition failed: " << e.what());
     }
 
-    return this->select(decompositions);
+    return {};
 }
 
 CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompositions) const {
@@ -1443,7 +1461,9 @@ std::size_t CTimeSeriesTestForSeasonality::buckets(core_t::TTime bucketLength,
 
 bool CTimeSeriesTestForSeasonality::canTestPeriod(const TFloatMeanAccumulatorVec& values,
                                                   const TSeasonalComponent& period) {
-    return 190 * period.s_WindowRepeat < 100 * observedRange(values) &&
+    std::size_t range{observedRange(values)};
+    std::size_t gap{longestGap(values)};
+    return range > gap && 190 * period.s_WindowRepeat < 100 * (range - gap) &&
            period.s_Period >= 2;
 }
 
@@ -1456,6 +1476,19 @@ std::size_t CTimeSeriesTestForSeasonality::observedRange(const TFloatMeanAccumul
     for (/**/; end > begin && CBasicStatistics::count(values[end - 1]) == 0.0; --end) {
     }
     return static_cast<std::size_t>(end - begin);
+}
+
+std::size_t CTimeSeriesTestForSeasonality::longestGap(const TFloatMeanAccumulatorVec& values) {
+    std::size_t result{0};
+    for (std::size_t i = 0, j = 0; j < values.size(); i = j) {
+        for (++j; j < values.size(); ++j) {
+            if (CBasicStatistics::count(values[j]) > 0.0) {
+                break;
+            }
+        }
+        result = std::max(result, j - i - 1);
+    }
+    return result;
 }
 
 void CTimeSeriesTestForSeasonality::removePredictions(const TSeasonalComponentCRng& periodsToRemove,
@@ -1512,11 +1545,11 @@ double CTimeSeriesTestForSeasonality::CMinAmplitude::amplitude() const {
 
 double CTimeSeriesTestForSeasonality::CMinAmplitude::significance(const boost::math::normal& normal) const {
     double amplitude{this->amplitude()};
-    if (amplitude == 0.0) {
+    if (amplitude == 0.0 || m_Count == 0) {
         return 1.0;
     }
     double twoTailPValue{2.0 * CTools::safeCdf(normal, -amplitude)};
-    if (twoTailPValue == 0.0) {
+    if (twoTailPValue <= 0.0) {
         return 0.0;
     }
     boost::math::binomial binomial(static_cast<double>(m_Count), twoTailPValue);
@@ -1575,24 +1608,36 @@ void CTimeSeriesTestForSeasonality::SHypothesisStats::testAutocorrelation(
         CIntegerTools::floor(params.m_ValuesToTest.size(), params.m_Periods[0].period())};
 
     double autocorrelations[]{
-        CSignal::cyclicAutocorrelation(params.m_Periods[0], valuesToTestAutocorrelation),
+        CSignal::cyclicAutocorrelation( // Normal
+            params.m_Periods[0], valuesToTestAutocorrelation,
+            [](const TFloatMeanAccumulator& value) {
+                return CBasicStatistics::mean(value);
+            },
+            [](const TFloatMeanAccumulator& value) {
+                return CBasicStatistics::count(value);
+            },
+            params.m_EpsVariance),
         CSignal::cyclicAutocorrelation( // Not reweighting outliers
             params.m_Periods[0], valuesToTestAutocorrelation,
             [](const TFloatMeanAccumulator& value) {
                 return CBasicStatistics::mean(value);
             },
-            [](const TFloatMeanAccumulator&) { return 1.0; }),
+            [](const TFloatMeanAccumulator&) { return 1.0; }, params.m_EpsVariance),
         CSignal::cyclicAutocorrelation( // Absolute values
             params.m_Periods[0], valuesToTestAutocorrelation,
             [](const TFloatMeanAccumulator& value) {
                 return std::fabs(CBasicStatistics::mean(value));
-            }),
+            },
+            [](const TFloatMeanAccumulator& value) {
+                return CBasicStatistics::count(value);
+            },
+            params.m_EpsVariance),
         CSignal::cyclicAutocorrelation( // Not reweighting outliers and absolute values
             params.m_Periods[0], valuesToTestAutocorrelation,
             [](const TFloatMeanAccumulator& value) {
                 return std::fabs(CBasicStatistics::mean(value));
             },
-            [](const TFloatMeanAccumulator&) { return 1.0; })};
+            [](const TFloatMeanAccumulator&) { return 1.0; }, params.m_EpsVariance)};
     LOG_TRACE(<< "autocorrelations = " << core::CContainerPrinter::print(autocorrelations));
 
     s_Autocorrelation = *std::max_element(std::begin(autocorrelations),
@@ -1802,7 +1847,9 @@ double CTimeSeriesTestForSeasonality::SModel::logPValueProxy(const SModel& H0) c
 
     double result{0.0};
     for (auto i : {0, 1}) {
-        if (df1[i] > 0.0 && df0[i] > 0.0) {
+        // d2 needs to be > 4 for finite variance. We can happily use 0.0 for the log(p-value)
+        // proxy if this condition is not satisfied.
+        if (df1[i] > 4.0 && df0[i] > 0.0) {
             boost::math::fisher_f f{df0[i], df1[i]};
             double mean{boost::math::mean(f)};
             double sd{boost::math::standard_deviation(f)};
@@ -1831,7 +1878,9 @@ CTimeSeriesTestForSeasonality::SModel::explainedVariancePerParameter(const SMode
             Z += weight;
         }
     }
-    return max(result / Z, TVector2x1{std::numeric_limits<double>::min()});
+    return result == TVector2x1{0.0}
+               ? result
+               : max(result / Z, TVector2x1{std::numeric_limits<double>::min()});
 }
 
 double CTimeSeriesTestForSeasonality::SModel::numberParameters() const {
@@ -1878,7 +1927,7 @@ double CTimeSeriesTestForSeasonality::SModel::autocorrelation() const {
             Z += weight;
         }
     }
-    return result / Z;
+    return result == 0.0 ? 0.0 : result / Z;
 }
 
 double CTimeSeriesTestForSeasonality::SModel::leastCommonRepeat() const {
