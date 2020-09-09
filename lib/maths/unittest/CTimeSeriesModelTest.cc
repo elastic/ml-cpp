@@ -1582,27 +1582,31 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
         TDoubleVecVec samples;
         rng.generateMultivariateNormalSamples(mean, covariance, 1000, samples);
 
-        maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
+        maths::CTimeSeriesDecomposition trend[]{
+            maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength},
+            maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength},
+            maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}};
         maths::CMultivariateNormalConjugate<3> prior{multivariateNormal()};
         auto controllers = decayRateControllers(3);
-        std::unique_ptr<maths::CModel> model{new maths::CMultivariateTimeSeriesModel{
-            modelParams(bucketLength), trend, prior, &controllers}};
+        auto model = std::make_unique<maths::CMultivariateTimeSeriesModel>(
+            modelParams(bucketLength), trend[0], prior, &controllers);
 
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(3)};
         core_t::TTime time{0};
         for (auto& sample : samples) {
-            for (auto& coordinate : sample) {
-                coordinate += 10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
-                                                    static_cast<double>(time) / 86400.0);
+            for (std::size_t i = 0; i < sample.size(); ++i) {
+                sample[i] += 10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
+                                                   static_cast<double>(time) / 86400.0);
+                trend[i].addPoint(time, sample[i]);
             }
-            trend.addPoint(time, sample[0]);
             model->addSamples(addSampleParams(weights),
                               {core::make_triple(time, TDouble2Vec(sample), TAG)});
             time += bucketLength;
         }
 
         std::size_t expectedSize{
-            3 * sizeof(maths::CTimeSeriesDecomposition) + 3 * trend.memoryUsage() +
+            3 * sizeof(maths::CTimeSeriesDecomposition) +
+            trend[0].memoryUsage() + trend[1].memoryUsage() + trend[2].memoryUsage() +
             2 * sizeof(maths::CMultivariateNormalConjugate<3>) +
             sizeof(maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary) +
             2 * controllers[0].memoryUsage() + 32 * 12 /*Recent samples*/};

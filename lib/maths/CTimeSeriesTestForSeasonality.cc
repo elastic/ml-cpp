@@ -230,14 +230,13 @@ CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime value
       m_Outliers{static_cast<std::size_t>(std::max(
           outlierFraction * static_cast<double>(CSignal::countNotMissing(m_Values)) + 0.5,
           1.0))} {
-    TMeanVarAccumulator moments;
-    TMeanVarAccumulator meanAbs;
-    for (const auto& value : m_Values) {
-        if (CBasicStatistics::count(value) > 0.0) {
-            moments.add(CBasicStatistics::mean(value));
-            meanAbs.add(std::fabs(CBasicStatistics::mean(value)));
-        }
-    }
+
+    TMeanVarAccumulator moments{this->truncatedMoments(m_OutlierFraction, m_Values)};
+    TMeanVarAccumulator meanAbs{this->truncatedMoments(
+        m_OutlierFraction, m_Values, [](const TFloatMeanAccumulator& value) {
+            return std::fabs(CBasicStatistics::mean(value));
+        })};
+
     // Note we don't bother modelling seasonality whose amplitude is too small
     // compared to the absolute values. We won't raise anomalies for differences
     // from our predictions which are smaller than this anyway.
@@ -1278,7 +1277,8 @@ CTimeSeriesTestForSeasonality::residualVarianceStats(const TFloatMeanAccumulator
 
 CTimeSeriesTestForSeasonality::TMeanVarAccumulator
 CTimeSeriesTestForSeasonality::truncatedMoments(double outlierFraction,
-                                                const TFloatMeanAccumulatorVec& residuals) const {
+                                                const TFloatMeanAccumulatorVec& residuals,
+                                                const TTransform& transform) const {
     double cutoff{std::numeric_limits<double>::max()};
     std::size_t count{CSignal::countNotMissing(residuals)};
     std::size_t numberOutliers{
@@ -1288,7 +1288,7 @@ CTimeSeriesTestForSeasonality::truncatedMoments(double outlierFraction,
         m_Outliers.resize(numberOutliers);
         for (const auto& value : residuals) {
             if (CBasicStatistics::count(value) > 0.0) {
-                m_Outliers.add(std::fabs(CBasicStatistics::mean(value)));
+                m_Outliers.add(std::fabs(transform(value)));
             }
         }
         cutoff = m_Outliers.biggest();
@@ -1298,9 +1298,8 @@ CTimeSeriesTestForSeasonality::truncatedMoments(double outlierFraction,
 
     TMeanVarAccumulator moments;
     for (const auto& value : residuals) {
-        if (CBasicStatistics::count(value) > 0.0 &&
-            std::fabs(CBasicStatistics::mean(value)) < cutoff) {
-            moments.add(CBasicStatistics::mean(value));
+        if (CBasicStatistics::count(value) > 0.0 && std::fabs(transform(value)) < cutoff) {
+            moments.add(transform(value));
         }
     }
     if (numberOutliers > 0) {
@@ -1472,20 +1471,19 @@ bool CTimeSeriesTestForSeasonality::canTestPeriod(const TFloatMeanAccumulatorVec
 }
 
 std::size_t CTimeSeriesTestForSeasonality::observedRange(const TFloatMeanAccumulatorVec& values) {
-    int begin{0};
-    int end{static_cast<int>(values.size())};
-    int size{static_cast<int>(values.size())};
-    for (/**/; begin < size && CBasicStatistics::count(values[begin]) == 0.0; ++begin) {
-    }
-    for (/**/; end > begin && CBasicStatistics::count(values[end - 1]) == 0.0; --end) {
-    }
-    return static_cast<std::size_t>(end - begin);
+    std::size_t begin;
+    std::size_t end;
+    std::tie(begin, end) = observedInterval(values);
+    return end - begin;
 }
 
 std::size_t CTimeSeriesTestForSeasonality::longestGap(const TFloatMeanAccumulatorVec& values) {
     std::size_t result{0};
-    for (std::size_t i = 0, j = 0; j < values.size(); i = j) {
-        for (++j; j < values.size(); ++j) {
+    std::size_t begin;
+    std::size_t end;
+    std::tie(begin, end) = observedInterval(values);
+    for (std::size_t i = begin, j = end; j < end; i = j) {
+        for (++j; j < end; ++j) {
             if (CBasicStatistics::count(values[j]) > 0.0) {
                 break;
             }
@@ -1493,6 +1491,18 @@ std::size_t CTimeSeriesTestForSeasonality::longestGap(const TFloatMeanAccumulato
         result = std::max(result, j - i - 1);
     }
     return result;
+}
+
+CTimeSeriesTestForSeasonality::TSizeSizePr
+CTimeSeriesTestForSeasonality::observedInterval(const TFloatMeanAccumulatorVec& values) {
+    std::size_t begin{0};
+    std::size_t end{values.size()};
+    std::size_t size{values.size()};
+    for (/**/; begin < size && CBasicStatistics::count(values[begin]) == 0.0; ++begin) {
+    }
+    for (/**/; end > begin && CBasicStatistics::count(values[end - 1]) == 0.0; --end) {
+    }
+    return {begin, end};
 }
 
 void CTimeSeriesTestForSeasonality::removePredictions(const TSeasonalComponentCRng& periodsToRemove,
