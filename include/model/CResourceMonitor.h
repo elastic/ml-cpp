@@ -44,6 +44,7 @@ public:
         std::size_t s_Usage = 0;
         std::size_t s_AdjustedUsage = 0;
         std::size_t s_PeakUsage = 0;
+        std::size_t s_AdjustedPeakUsage = 0;
         std::size_t s_ByFields = 0;
         std::size_t s_PartitionFields = 0;
         std::size_t s_OverFields = 0;
