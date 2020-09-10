@@ -103,9 +103,22 @@ CDataFrameAnalysisInstrumentation::CDataFrameAnalysisInstrumentation(const std::
 }
 
 void CDataFrameAnalysisInstrumentation::updateMemoryUsage(std::int64_t delta) {
-    std::int64_t memory{m_Memory.fetch_add(delta)};
+    std::int64_t memory{m_Memory.fetch_add(delta) + delta};
     if (memory >= 0) {
         core::CProgramCounters::counter(this->memoryCounterType()).max(static_cast<std::uint64_t>(memory));
+        if (memory > m_MemoryLimit) {
+            double memoryReestimateBytes{static_cast<double>(memory) * MEMORY_LIMIT_INCREMENT};
+            this->memoryReestimate(static_cast<std::int64_t>(memoryReestimateBytes));
+            this->memoryStatus(E_HardLimit);
+            this->flush();
+            m_Writer->flush();
+            LOG_INFO(<< "Required memory " << memory << " exceeds the memory limit "
+                     << m_MemoryLimit << ".  New estimated limit is "
+                     << memoryReestimateBytes << ".");
+            HANDLE_FATAL(<< "Input error: memory limit [" << bytesToString(m_MemoryLimit)
+                         << "] has been exceeded. Please force stop the job, increase to new estimated limit ["
+                         << bytesToString(memoryReestimateBytes) << "] and restart.")
+        }
     } else {
         // Something has gone wrong with memory estimation. Trap this case
         // to avoid underflowing the peak memory usage statistic.
@@ -183,21 +196,6 @@ void CDataFrameAnalysisInstrumentation::monitor(CDataFrameAnalysisInstrumentatio
             lastProgress = progress;
             writeProgress(lastTask, lastProgress, &writer);
         }
-        std::int64_t memory{instrumentation.memory()};
-        std::int64_t memoryLimit{instrumentation.m_MemoryLimit};
-        if (memory > memoryLimit) {
-            double memoryReestimateBytes{static_cast<double>(memory) * MEMORY_LIMIT_INCREMENT};
-            instrumentation.memoryReestimate(static_cast<std::int64_t>(memoryReestimateBytes));
-            instrumentation.memoryStatus(E_HardLimit);
-            instrumentation.flush();
-            writer.flush();
-            LOG_INFO(<< "Required memory " << memory << " exceeds the memory limit " << memoryLimit
-                     << ".  New estimated limit is " << memoryReestimateBytes << ".");
-            HANDLE_FATAL(<< "Input error: memory limit [" << bytesToString(memoryLimit)
-                         << "] has been exceeded. Please force stop the job, increase to new estimated limit ["
-                         << bytesToString(memoryReestimateBytes) << "] and restart.")
-        }
-
         wait = std::min(2 * wait, 1024);
     }
 
@@ -246,7 +244,7 @@ void CDataFrameAnalysisInstrumentation::writeMemory(std::int64_t timestamp) {
         m_Writer->Key(TIMESTAMP_TAG);
         m_Writer->Int64(timestamp);
         m_Writer->Key(PEAK_MEMORY_USAGE_TAG);
-        m_Writer->Int64(m_Memory.load());
+        m_Writer->Uint64(core::CProgramCounters::counter(this->memoryCounterType()));
         m_Writer->Key(MEMORY_STATUS_TAG);
         switch (m_MemoryStatus) {
         case E_Ok:
