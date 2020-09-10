@@ -28,6 +28,12 @@
 
 //=== Regressions
 
+== {es} version 7.9.2
+
+=== Bug Fixes
+
+* Fix reporting of peak memory usage in memory stats for data frame analytics. (See {ml-pull}1468[#1468].)
+
 == {es} version 7.9.0
 
 === New Features
