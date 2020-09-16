@@ -185,14 +185,15 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                             writer.Key(CLASSES_FIELD_NAME);
                             writer.StartArray();
                             for (std::size_t j = 0; j < numberClasses; ++j) {
-                                double importance{(j == 0)
-                                                      ? shap[i](0)
-                                                      : -shap[i](0)};
                                 writer.StartObject();
                                 writer.Key(CLASS_NAME_FIELD_NAME);
                                 writePredictedCategoryValue(classValues[j], writer);
                                 writer.Key(IMPORTANCE_FIELD_NAME);
-                                writer.Double(importance);
+                                if (j == 1) {
+                                    writer.Double(shap[i](0));
+                                } else {
+                                    writer.Double(-shap[i](0));
+                                }
                                 writer.EndObject();
                             }
                             writer.EndArray();
