@@ -205,10 +205,17 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
     }
 
     if (isSymmetric) {
+#ifdef Linux
         // Test the persisted state of the restored detector is the
-        // same as the original
+        // same as the original. This test is only performed on Linux
+        // due to platform differences in the way single precision
+        // floating point numbers are rounded when converting to string -
+        // leading to the round trip not being symmetric if say the persistence
+        // state file is generated on Linux but the test is run on Windows
+        // (MacOS is also excluded for simplicity).
         BOOST_REQUIRE_EQUAL(numRestoredDocs, numDocsInStateFile);
         BOOST_REQUIRE_EQUAL(stripDocIds(origPersistedState), stripDocIds(newPersistedState));
+#endif
     } else {
         // Test that the persisted & the restored states are actually different.
         BOOST_TEST_REQUIRE(stripDocIds(origPersistedState) != stripDocIds(newPersistedState));
