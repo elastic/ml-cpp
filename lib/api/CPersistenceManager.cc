@@ -75,6 +75,30 @@ void CPersistenceManager::useForegroundPersistence() {
     m_PersistInForeground = true;
 }
 
+bool CPersistenceManager::doForegroundPersist(core::CDataAdder::TPersistFunc persistFunc) {
+    if (!persistFunc) {
+        return false;
+    }
+
+    core::CScopedFastLock lock(m_Mutex);
+
+    if (this->isBusy()) {
+        return false;
+    }
+
+    if (m_BackgroundThread.isStarted()) {
+        // This join should be fast as the busy flag is false so the thread
+        // should either have already exited or be on the verge of exiting
+        if (m_BackgroundThread.waitForFinish() == false) {
+            return false;
+        }
+    }
+
+    persistFunc(m_FgDataAdder);
+
+    return true;
+}
+
 bool CPersistenceManager::addPersistFunc(core::CDataAdder::TPersistFunc persistFunc) {
     if (!persistFunc) {
         return false;

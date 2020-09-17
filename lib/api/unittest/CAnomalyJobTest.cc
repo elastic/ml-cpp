@@ -751,4 +751,108 @@ BOOST_AUTO_TEST_CASE(testRestoreFailsWithEmptyStream) {
     BOOST_TEST_REQUIRE(job.restoreState(restoreSearcher, completeToTime) == false);
 }
 
+BOOST_AUTO_TEST_CASE(testParsePersistControlMessageArgs) {
+    {
+        const ml::core_t::TTime expectedSnapshotTimestamp{1283524206};
+        const std::string expectedSnapshotId{"my_special_snapshot"};
+        const std::string expectedSnapshotDescription{
+            "Supplied description for snapshot at " +
+            ml::core::CTimeUtils::toIso8601(expectedSnapshotTimestamp)};
+
+        std::ostringstream ostrm;
+        ostrm << expectedSnapshotTimestamp << " " << expectedSnapshotId << " "
+              << expectedSnapshotDescription;
+
+        const std::string& validPersistControlMessage{ostrm.str()};
+
+        ml::core_t::TTime snapshotTimestamp;
+        std::string snapshotId;
+        std::string snapshotDescription;
+        BOOST_TEST_REQUIRE(ml::api::CAnomalyJob::parsePersistControlMessageArgs(
+            validPersistControlMessage, snapshotTimestamp, snapshotId, snapshotDescription));
+
+        BOOST_TEST_REQUIRE(expectedSnapshotTimestamp == snapshotTimestamp);
+        BOOST_TEST_REQUIRE(expectedSnapshotId == snapshotId);
+        BOOST_TEST_REQUIRE(expectedSnapshotDescription == snapshotDescription);
+    }
+    {
+        const std::string invalidPersistControlMessage{
+            "junk_timestamp snapshot_id invalid snapshot control message"};
+
+        ml::core_t::TTime snapshotTimestamp;
+        std::string snapshotId;
+        std::string snapshotDescription;
+        BOOST_TEST_REQUIRE(ml::api::CAnomalyJob::parsePersistControlMessageArgs(
+                               invalidPersistControlMessage, snapshotTimestamp,
+                               snapshotId, snapshotDescription) == false);
+    }
+    {
+        const std::string invalidPersistControlMessage{" "};
+
+        ml::core_t::TTime snapshotTimestamp;
+        std::string snapshotId;
+        std::string snapshotDescription;
+        BOOST_TEST_REQUIRE(ml::api::CAnomalyJob::parsePersistControlMessageArgs(
+                               invalidPersistControlMessage, snapshotTimestamp,
+                               snapshotId, snapshotDescription) == false);
+    }
+    {
+        const std::string invalidPersistControlMessage;
+
+        ml::core_t::TTime snapshotTimestamp;
+        std::string snapshotId;
+        std::string snapshotDescription;
+        BOOST_TEST_REQUIRE(ml::api::CAnomalyJob::parsePersistControlMessageArgs(
+                               invalidPersistControlMessage, snapshotTimestamp,
+                               snapshotId, snapshotDescription) == false);
+    }
+    {
+        const ml::core_t::TTime expectedSnapshotTimestamp{1283524206};
+        const std::string expectedSnapshotId{"my_special_snapshot"};
+
+        // Empty description is valid.
+        const std::string expectedSnapshotDescription;
+
+        std::ostringstream ostrm;
+        ostrm << expectedSnapshotTimestamp << " " << expectedSnapshotId << " "
+              << expectedSnapshotDescription;
+
+        const std::string& validPersistControlMessage{ostrm.str()};
+
+        ml::core_t::TTime snapshotTimestamp;
+        std::string snapshotId;
+        std::string snapshotDescription;
+        BOOST_TEST_REQUIRE(ml::api::CAnomalyJob::parsePersistControlMessageArgs(
+                               validPersistControlMessage, snapshotTimestamp,
+                               snapshotId, snapshotDescription) == true);
+    }
+    {
+        const ml::core_t::TTime expectedSnapshotTimestamp{1283524206};
+        const std::string expectedSnapshotId;
+        const std::string expectedSnapshotDescription;
+
+        std::ostringstream ostrm;
+        ostrm << expectedSnapshotTimestamp << " " << expectedSnapshotId << " "
+              << expectedSnapshotDescription;
+
+        const std::string& invalidPersistControlMessage{ostrm.str()};
+
+        ml::core_t::TTime snapshotTimestamp;
+        std::string snapshotId;
+        std::string snapshotDescription;
+        BOOST_TEST_REQUIRE(ml::api::CAnomalyJob::parsePersistControlMessageArgs(
+                               invalidPersistControlMessage, snapshotTimestamp,
+                               snapshotId, snapshotDescription) == false);
+    }
+    {
+        ml::core_t::TTime snapshotTimestamp;
+        std::string snapshotId;
+        std::string snapshotDescription;
+        const std::string invalidPersistControlMessage{"invalid_control_message"};
+        BOOST_TEST_REQUIRE(ml::api::CAnomalyJob::parsePersistControlMessageArgs(
+                               invalidPersistControlMessage, snapshotTimestamp,
+                               snapshotId, snapshotDescription) == false);
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

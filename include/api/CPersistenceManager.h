@@ -133,6 +133,10 @@ public:
     //! Concurrent calls to this method are not threadsafe.
     bool startPersist(core_t::TTime timeOfPersistence);
 
+    //! Start a foreground persist if a background one is not running,
+    //! using the provided persistence function.
+    bool doForegroundPersist(core::CDataAdder::TPersistFunc persistFunc);
+
 private:
     //! Implementation of the background thread
     class CBackgroundThread : public core::CThread {
