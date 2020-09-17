@@ -35,6 +35,10 @@
 #include <utility>
 #include <vector>
 
+namespace CAnomalyJobTest {
+struct testParsePersistControlMessageArgs;
+}
+
 namespace ml {
 namespace core {
 class CDataAdder;
@@ -376,6 +380,17 @@ private:
                    core_t::TTime time,
                    const TStrStrUMap& dataRowFields);
 
+    //! Parses a control message requesting that model state be persisted.
+    //! Extracts optional arguments to be used for persistence.
+    static bool parsePersistControlMessageArgs(const std::string& controlMessageArgs,
+                                               core_t::TTime& snapshotTimestamp,
+                                               std::string& snapshotId,
+                                               std::string& snapshotDescription);
+
+    //! Perform foreground persistence if control message contains valid optional
+    //! arguments else request a background persist
+    void processPersistControlMessage(const std::string& controlMessageArgs);
+
 protected:
     //! Get all the detectors.
     void detectors(TAnomalyDetectorPtrVec& detectors) const;
@@ -468,6 +483,9 @@ private:
 
     //! Flag indicating whether or not time has been advanced.
     bool m_TimeAdvanced{false};
+
+    // Test case access
+    friend struct CAnomalyJobTest::testParsePersistControlMessageArgs;
 };
 }
 }
