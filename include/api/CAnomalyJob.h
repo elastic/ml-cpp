@@ -36,8 +36,7 @@
 #include <vector>
 
 namespace CAnomalyJobTest {
-class CTestFixture;
-struct testParsePersistControlMessage;
+struct testParsePersistControlMessageArgs;
 }
 
 namespace ml {
@@ -383,14 +382,14 @@ private:
 
     //! Parses a control message requesting that model state be persisted.
     //! Extracts optional arguments to be used for persistence.
-    static bool parsePersistControlMessage(const std::string& controlMessage,
-                                           core_t::TTime& snapshotTimestamp,
-                                           std::string& snapshotId,
-                                           std::string& snapshotDescription);
+    static bool parsePersistControlMessageArgs(const std::string& controlMessageArgs,
+                                               core_t::TTime& snapshotTimestamp,
+                                               std::string& snapshotId,
+                                               std::string& snapshotDescription);
 
     //! Perform foreground persistence if control message contains valid optional
     //! arguments else request a background persist
-    void doPersist(const std::string& controlMessage);
+    void processPersistControlMessage(const std::string& controlMessageArgs);
 
 protected:
     //! Get all the detectors.
@@ -486,8 +485,7 @@ private:
     bool m_TimeAdvanced{false};
 
     // Test case access
-    friend class CAnomalyJobTest::CTestFixture;
-    friend struct CAnomalyJobTest::testParsePersistControlMessage;
+    friend struct CAnomalyJobTest::testParsePersistControlMessageArgs;
 };
 }
 }

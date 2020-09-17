@@ -349,7 +349,7 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
         this->doForecast(controlMessage);
         break;
     case 'w':
-        this->doPersist(controlMessage.substr(1));
+        this->processPersistControlMessage(controlMessage.substr(1));
         break;
     default:
         LOG_WARN(<< "Ignoring unknown control message of length "
@@ -363,22 +363,22 @@ bool CAnomalyJob::handleControlMessage(const std::string& controlMessage) {
     return true;
 }
 
-bool CAnomalyJob::parsePersistControlMessage(const std::string& controlMessage,
-                                             core_t::TTime& snapshotTimestamp,
-                                             std::string& snapshotId,
-                                             std::string& snapshotDescription) {
+bool CAnomalyJob::parsePersistControlMessageArgs(const std::string& controlMessageArgs,
+                                                 core_t::TTime& snapshotTimestamp,
+                                                 std::string& snapshotId,
+                                                 std::string& snapshotDescription) {
     // Expect at least 3 space separated strings - timestamp snapshotId snapshotDescription, where:
     // timestamp = string representation of seconds since epoch
     // snapshotId = short string identifier for snapshot - containing no spaces
     // snapshotDescription = description of snapshot. May contain spaces.
 
-    std::size_t pos{controlMessage.find(' ')};
+    std::size_t pos{controlMessageArgs.find(' ')};
     if (pos == std::string::npos) {
-        LOG_ERROR(<< "Invalid control message format: \"" << controlMessage << "\"");
+        LOG_ERROR(<< "Invalid control message format: \"" << controlMessageArgs << "\"");
         return false;
     }
 
-    std::string timestampStr{controlMessage.substr(0, pos)};
+    std::string timestampStr{controlMessageArgs.substr(0, pos)};
     if (timestampStr.empty()) {
         LOG_ERROR(<< "Received empty snapshot timestamp.");
         return false;
@@ -389,30 +389,25 @@ bool CAnomalyJob::parsePersistControlMessage(const std::string& controlMessage,
         return false;
     }
 
-    std::size_t pos2{controlMessage.find(' ', pos + 1)};
+    std::size_t pos2{controlMessageArgs.find(' ', pos + 1)};
     if (pos2 == std::string::npos) {
-        LOG_ERROR(<< "Invalid control message format: \"" << controlMessage << "\"");
+        LOG_ERROR(<< "Invalid control message format: \"" << controlMessageArgs << "\"");
         return false;
     }
-    snapshotId = controlMessage.substr(pos + 1, pos2 - pos - 1);
-    snapshotDescription = controlMessage.substr(pos2 + 1);
+    snapshotId = controlMessageArgs.substr(pos + 1, pos2 - pos - 1);
+    snapshotDescription = controlMessageArgs.substr(pos2 + 1);
 
     if (snapshotId.empty()) {
         LOG_ERROR(<< "Received empty snapshotId.");
         return false;
     }
 
-    if (snapshotDescription.empty()) {
-        LOG_ERROR(<< "Received empty snapshot description.");
-        return false;
-    }
-
     return true;
 }
 
-void CAnomalyJob::doPersist(const std::string& controlMessage) {
+void CAnomalyJob::processPersistControlMessage(const std::string& controlMessageArgs) {
     if (m_PersistenceManager != nullptr) {
-        if (controlMessage.empty()) {
+        if (controlMessageArgs.empty()) {
             if (this->isPersistenceNeeded("state")) {
                 m_PersistenceManager->startPersist(core::CTimeUtils::now());
             }
@@ -420,11 +415,17 @@ void CAnomalyJob::doPersist(const std::string& controlMessage) {
             core_t::TTime snapshotTimestamp{0};
             std::string snapshotId;
             std::string snapshotDescription;
-            if (parsePersistControlMessage(controlMessage, snapshotTimestamp,
-                                           snapshotId, snapshotDescription)) {
-                m_PersistenceManager->doForegroundPersist(std::bind(
-                    &CAnomalyJob::doPersistStateInForeground, this, std::placeholders::_1,
-                    snapshotDescription, snapshotId, snapshotTimestamp));
+            if (parsePersistControlMessageArgs(controlMessageArgs, snapshotTimestamp,
+                                               snapshotId, snapshotDescription)) {
+                if (m_PersistenceManager->doForegroundPersist(
+                        [this, &snapshotDescription, &snapshotId,
+                         &snapshotTimestamp](core::CDataAdder& persister) {
+                            return this->doPersistStateInForeground(
+                                persister, snapshotDescription, snapshotId, snapshotTimestamp);
+                        })) {
+                    LOG_ERROR(<< "Failed to persist state with parameters \""
+                              << controlMessageArgs << "\"");
+                }
             }
         }
     }
