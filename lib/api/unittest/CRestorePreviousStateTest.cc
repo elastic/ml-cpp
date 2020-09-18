@@ -7,6 +7,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/COsFileFuncs.h>
+#include <core/CProgramCounters.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
@@ -32,6 +33,18 @@
 
 BOOST_AUTO_TEST_SUITE(CRestorePreviousStateTest)
 
+class CTestFixture {
+public:
+    CTestFixture() {
+        ml::core::CProgramCounters& counters = ml::core::CProgramCounters::instance();
+
+        // Set all counters to 0
+        for (std::size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
+            counters.counter(i) = 0;
+        }
+    }
+};
+
 namespace {
 
 void reportPersistComplete(ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport modelSnapshotReport,
@@ -48,9 +61,16 @@ struct SRestoreTestConfig {
     bool s_CategorizerRestoreIsSymmetric;
 };
 
+// The persist/restore cycle of the latest version is always expected to be symmetric.
+// The flags in the version structures will need to be maintained accordingly.
 const std::vector<SRestoreTestConfig> BWC_VERSIONS{
-    SRestoreTestConfig{"5.6.0", false, false}, SRestoreTestConfig{"6.0.0", false, false},
-    SRestoreTestConfig{"6.1.0", false, false}};
+    SRestoreTestConfig{"5.6.0", false, false},
+    SRestoreTestConfig{"6.0.0", false, false},
+    SRestoreTestConfig{"6.1.0", false, false},
+    SRestoreTestConfig{"6.5.0", false, false},
+    SRestoreTestConfig{"7.1.0", false, false},
+    SRestoreTestConfig{"7.3.0", false, false},
+    SRestoreTestConfig{"7.9.0", true, true}};
 
 std::string stripDocIds(const std::string& persistedState) {
     // State is persisted in the Elasticsearch bulk format.
@@ -102,18 +122,22 @@ void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric) {
         BOOST_TEST_REQUIRE(restoredCategorizer.restoreState(retriever, completeToTime));
     }
 
+    std::string newPersistedState;
+    {
+        std::ostringstream* strm(nullptr);
+        ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
+        ml::api::CSingleStreamDataAdder persister(ptr);
+        BOOST_TEST_REQUIRE(restoredCategorizer.persistStateInForeground(persister, ""));
+        newPersistedState = strm->str();
+    }
+
     if (isSymmetric) {
         // Test the persisted state of the restored detector is the
         // same as the original
-        std::string newPersistedState;
-        {
-            std::ostringstream* strm(nullptr);
-            ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
-            ml::api::CSingleStreamDataAdder persister(ptr);
-            BOOST_TEST_REQUIRE(restoredCategorizer.persistStateInForeground(persister, ""));
-            newPersistedState = strm->str();
-        }
         BOOST_REQUIRE_EQUAL(stripDocIds(origPersistedState), stripDocIds(newPersistedState));
+    } else {
+        // Test that the persisted & the restored states are actually different.
+        BOOST_TEST_REQUIRE(stripDocIds(origPersistedState) != stripDocIds(newPersistedState));
     }
 }
 
@@ -171,25 +195,35 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
         BOOST_TEST_REQUIRE(completeToTime > 0);
     }
 
-    if (isSymmetric) {
-        // Test the persisted state of the restored detector is the
-        // same as the original
-        std::string newPersistedState;
-        {
-            std::ostringstream* strm(nullptr);
-            ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
-            ml::api::CSingleStreamDataAdder persister(ptr);
-            BOOST_TEST_REQUIRE(restoredJob.persistStateInForeground(persister, ""));
-            newPersistedState = strm->str();
-        }
+    std::string newPersistedState;
+    {
+        std::ostringstream* strm(nullptr);
+        ml::api::CSingleStreamDataAdder::TOStreamP ptr(strm = new std::ostringstream());
+        ml::api::CSingleStreamDataAdder persister(ptr);
+        BOOST_TEST_REQUIRE(restoredJob.persistStateInForeground(persister, ""));
+        newPersistedState = strm->str();
+    }
 
+    if (isSymmetric) {
+#ifdef Linux
+        // Test the persisted state of the restored detector is the
+        // same as the original. This test is only performed on Linux
+        // due to platform differences in the way single precision
+        // floating point numbers are rounded when converting to string -
+        // leading to the round trip not being symmetric if say the persistence
+        // state file is generated on Linux but the test is run on Windows
+        // (MacOS is also excluded for simplicity).
         BOOST_REQUIRE_EQUAL(numRestoredDocs, numDocsInStateFile);
         BOOST_REQUIRE_EQUAL(stripDocIds(origPersistedState), stripDocIds(newPersistedState));
+#endif
+    } else {
+        // Test that the persisted & the restored states are actually different.
+        BOOST_TEST_REQUIRE(stripDocIds(origPersistedState) != stripDocIds(newPersistedState));
     }
 }
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreDetectorBy) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorBy, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper(
@@ -198,7 +232,7 @@ BOOST_AUTO_TEST_CASE(testRestoreDetectorBy) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreDetectorOver) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorOver, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/over_detector_state.json",
@@ -207,7 +241,7 @@ BOOST_AUTO_TEST_CASE(testRestoreDetectorOver) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreDetectorPartition) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorPartition, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/partition_detector_state.json",
@@ -216,7 +250,7 @@ BOOST_AUTO_TEST_CASE(testRestoreDetectorPartition) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreDetectorDc) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorDc, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper(
@@ -225,7 +259,7 @@ BOOST_AUTO_TEST_CASE(testRestoreDetectorDc) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreDetectorCount) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorCount, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/count_detector_state.json",
@@ -234,7 +268,7 @@ BOOST_AUTO_TEST_CASE(testRestoreDetectorCount) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreNormalizer) {
+BOOST_FIXTURE_TEST_CASE(testRestoreNormalizer, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -245,7 +279,7 @@ BOOST_AUTO_TEST_CASE(testRestoreNormalizer) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testRestoreCategorizer) {
+BOOST_FIXTURE_TEST_CASE(testRestoreCategorizer, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         categorizerRestoreHelper("testfiles/state/" + version.s_Version + "/categorizer_state.json",
