@@ -197,8 +197,6 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                                 writer.EndObject();
                             }
                             writer.EndArray();
-                            writer.Key("baseline");
-                            writer.Double(featureImportance->baseline());
                         } else {
                             // output feature importance for individual classes in multiclass case
                             writer.Key(CLASSES_FIELD_NAME);

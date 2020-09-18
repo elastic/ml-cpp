@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <boost/test/tools/old/interface.hpp>
 #include <core/CDataFrame.h>
 
 #include <maths/CBasicStatistics.h>
@@ -394,21 +395,6 @@ struct SFixture {
 };
 
 template<typename RESULTS>
-double readBaseline(const RESULTS& results) {
-    if (results["row_results"]["results"]["ml"].HasMember(
-            api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)) {
-        for (const auto& shapResult :
-             results["row_results"]["results"]["ml"][api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME]
-                 .GetArray()) {
-            if (shapResult.HasMember("baseline")) {
-                return shapResult["baseline"].GetDouble();
-            }
-        }
-    }
-    return 0.0;
-}
-
-template<typename RESULTS>
 double readShapValue(const RESULTS& results, std::string shapField) {
     if (results["row_results"]["results"]["ml"].HasMember(
             api::CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME)) {
@@ -597,6 +583,7 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
 
     std::size_t topShapValues{4};
     TMeanVarAccumulator bias;
+    TMeanVarAccumulator baselineAccumulator;
     auto results{runBinaryClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
     TMeanAccumulator c1TotalShapExpected;
     TMeanAccumulator c2TotalShapExpected;
@@ -612,32 +599,42 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
         if (result.HasMember("row_results")) {
             std::string targetPrediction{
                 result["row_results"]["results"]["ml"]["target_prediction"].GetString()};
-            double c1{readShapValue(result, "c1", targetPrediction)};
-            double c2{readShapValue(result, "c2", targetPrediction)};
-            double c3{readShapValue(result, "c3", targetPrediction)};
-            double c4{readShapValue(result, "c4", targetPrediction)};
-            double baseline{readBaseline(result)};
             double predictionProbability{
                 result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble()};
-
             double logOdds{0.0};
-            logOdds = std::log(predictionProbability / (1.0 - predictionProbability + 1e-10));
             if (targetPrediction == "bar") {
-                // logOdds = std::log(predictionProbability /
-                //                    (1.0 - predictionProbability + 1e-10));
+                logOdds = std::log(predictionProbability /
+                                   (1.0 - predictionProbability + 1e-10));
             } else if (targetPrediction == "foo") {
-                // logOdds = std::log((1.0 - predictionProbability) /
-                //                    (predictionProbability + 1e-10));
-                baseline = -baseline;
+                logOdds = std::log((1.0 - predictionProbability) /
+                                   (predictionProbability + 1e-10));
+                // baseline = -baseline;
 
             } else {
                 BOOST_TEST_FAIL("Unknown predicted class " + targetPrediction);
             }
-            LOG_DEBUG(<< targetPrediction << " " << predictionProbability << "\t" << baseline
-                      << "\t" << logOdds << "\t" << (logOdds - (baseline + c1 + c2 + c3 + c4)));
-            BOOST_REQUIRE_CLOSE(logOdds, baseline + c1 + c2 + c3 + c4, 1);
+            baselineAccumulator.add(logOdds);
+        }
+    }
+    double baselineCommon{maths::CBasicStatistics::mean(baselineAccumulator)};
+
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            std::string targetPrediction{
+                result["row_results"]["results"]["ml"]["target_prediction"].GetString()};
+            double c1{readShapValue(result, "c1", targetPrediction)};
+            double c2{readShapValue(result, "c2", targetPrediction)};
+            double c3{readShapValue(result, "c3", targetPrediction)};
+            double c4{readShapValue(result, "c4", targetPrediction)};
+            double predictionProbability{
+                result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble()};
+            double logOdds = std::log(predictionProbability /
+                                      (1.0 - predictionProbability + 1e-10));
+            double cSum{c1 + c2 + c3 + c4};
+            // if predicted class is "foo", we need to flip the baseline
+            double baseline{(targetPrediction == "bar") ? baselineCommon : -baselineCommon};
+            BOOST_REQUIRE_CLOSE(logOdds, baseline + cSum, 1);
             // the difference between the prediction and the sum of all SHAP values constitutes bias
-            bias.add(logOdds - (baseline + c1 + c2 + c3 + c4));
             c1Sum += std::fabs(c1);
             c2Sum += std::fabs(c2);
             c3Sum += std::fabs(c3);
@@ -668,9 +665,6 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     BOOST_TEST_REQUIRE(c1Sum > c3Sum);
     BOOST_TEST_REQUIRE(c1Sum > c4Sum);
     BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 40.0); // c3 and c4 within 40% of each other
-    // make sure the local approximation differs from the prediction always by the same bias (up to a numeric error)
-    LOG_DEBUG(<< "mean bias " << maths::CBasicStatistics::mean(bias));
-    BOOST_REQUIRE_SMALL(maths::CBasicStatistics::variance(bias), 1e-6);
     BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
     BOOST_REQUIRE_CLOSE(c1FooTotalShapActual,
                         maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
