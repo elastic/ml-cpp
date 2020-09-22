@@ -366,5 +366,13 @@ void CTreeShapFeatureImportance::unwindPath(CSplitPath& path, int pathIndex, int
 const CTreeShapFeatureImportance::TStrVec& CTreeShapFeatureImportance::columnNames() const {
     return m_ColumnNames;
 }
+
+double CTreeShapFeatureImportance::baseline(std::size_t classIdx) const {
+    double result{0.0};
+    for (const auto& tree : *m_Forest) {
+        result += tree[0].value()(classIdx);
+    }
+    return result;
+}
 }
 }
