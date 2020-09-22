@@ -15,6 +15,12 @@ CSingleStreamSearcher::CSingleStreamSearcher(const TIStreamP& stream)
 }
 
 CSingleStreamSearcher::~CSingleStreamSearcher() {
+	// We have to ensure we consume the stream to its end
+	// as it is possible that we receive additional
+	// documents after the eos marker and we should not
+	// block the state streamer thread. We may receive
+	// additional documents in case the state reduces
+	// in size and spreads over less docs than prior state.
     this->consumeStream();
 }
 

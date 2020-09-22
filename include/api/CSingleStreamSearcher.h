@@ -39,14 +39,14 @@ public:
     CSingleStreamSearcher(const TIStreamP& stream);
 
     //! Ensure destructor is called to consume stream to its end
-    ~CSingleStreamSearcher();
+    ~CSingleStreamSearcher() override;
 
     //! Get the stream to retrieve data from.
     //! \return Pointer to the input stream.
     //! Some errors cannot be detected by this call itself, and are
     //! indicated by the stream going into the "bad" state as it is
     //! read from.
-    virtual TIStreamP search(size_t currentDocNum, size_t limit);
+    TIStreamP search(size_t currentDocNum, size_t limit) override;
 
 private:
     void consumeStream();
