@@ -1,7 +1,13 @@
 # Using CLion with `ml-cpp`
 
 CLion 2018.2 has added support for the compilation database project format. This tutorial shows how to create a
-compilation database for the `ml-cpp` project and integrate it with CLion.
+compilation database for the `ml-cpp` project and integrate it with CLion. 
+
+Note that from version 2020.2 CLion has support for [Makefile Projects](https://www.jetbrains.com/help/clion/makefiles-support.html).
+While Makefile projects simplify the initial import of the project into CLion some major deficiencies exist, including 
+the inability to include header files and unit test files in the project index. For this reason it is still recommended 
+that the compilation database project format be used.
+
 
 ## Installing prerequisites
 
@@ -51,8 +57,10 @@ Now, in CLion navigate to **File | Open** on the main menu and choose the `compi
 that contains it and click **Open as Project**. All files and symbols processed during the run of `compiledb make` are
 visible and accessible from CLion.
 
-You can enable automatic reload of the project for every change in `compile_commands.json` by setting th **Use
-auto-import** checkbox in **Settings / Preferences | Build, Execution, Deployment | Compilation Database**.
+You can enable automatic reload of the project for every change in `compile_commands.json`:
+ * In CLion 2018.2 set the **Use auto-import** checkbox in **Settings / Preferences | Build, Execution, Deployment | Compilation Database**.
+ * From CLion 2020.2 set both the **Reload project after changes in the build scripts**
+ and **Any changes** checkboxes in **Settings / Preferences | Build, Execution, Deployment | Build Tools** 
 
 To follow up the changes in the Makefiles, we can create File Watchers (you should have installed File Watchers plugin).
 Navigate to **Settings / Preferences | Tools | File Watchers** and create a new File Watcher for all files of type **GNU
@@ -69,8 +77,8 @@ Makefile** located in the project root and subdirectories:
 
 ## Create custom build targets for building and testing
 
-Compilation database itself lacks the data required for **building, running and debugging** an application. However, you
-can set up the workflow by adding **custom build targets** for your compilation database project and creating custom
+The compilation database itself lacks the data required for **building, running and debugging** an application. However,
+you can set up the workflow by adding **custom build targets** for your compilation database project and creating custom
 **Run/Debug configurations** for these targets.
 
 ### Custom build targets
@@ -112,7 +120,7 @@ Once you are done, your **Custom Build Targets** window should look similar to t
 
 ### Run/Debug Configuration
 
-Once we created the custom build target, we can use it to build projects and run/debug unit tests withing IDE.
+Once we have created the custom build target, we can use it to build projects and run/debug unit tests within the IDE.
 
 Let's go to menu **Run | Edit Configurations...** and click on **+** to create a new configuration.
 
