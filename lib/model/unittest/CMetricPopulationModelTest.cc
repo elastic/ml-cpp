@@ -4,6 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "CModelTestFixtureBase.h"
+
 #include <core/CContainerPrinter.h>
 #include <core/CIEEE754.h>
 #include <core/CLogger.h>
@@ -291,9 +293,7 @@ void processBucket(core_t::TTime time,
 }
 }
 
-class CTestFixture {
-protected:
-    CResourceMonitor m_ResourceMonitor;
+class CTestFixture : public CModelTestFixtureBase {
 };
 
 BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {

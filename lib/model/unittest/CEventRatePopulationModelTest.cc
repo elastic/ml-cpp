@@ -4,6 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "CModelTestFixtureBase.h"
+
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CPatternSet.h>
@@ -213,9 +215,7 @@ void addArrival(const SMessage& message,
 const TSizeDoublePr1Vec NO_CORRELATES;
 }
 
-class CTestFixture {
-protected:
-    CResourceMonitor m_ResourceMonitor;
+class CTestFixture : public CModelTestFixtureBase  {
 };
 
 BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {

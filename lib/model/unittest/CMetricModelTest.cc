@@ -4,6 +4,8 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "CModelTestFixtureBase.h"
+
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
@@ -259,7 +261,7 @@ void processBucket(core_t::TTime time,
 const TSizeDoublePr1Vec NO_CORRELATES;
 }
 
-class CTestFixture {
+class CTestFixture  : public CModelTestFixtureBase {
 public:
     void makeModel(const SModelParams& params,
                    const model_t::TFeatureVec& features,
@@ -302,7 +304,6 @@ protected:
     TMetricModelFactoryPtr m_Factory;
     ml::model::CModelFactory::TDataGathererPtr m_Gatherer;
     ml::model::CModelFactory::TModelPtr m_Model;
-    ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
 BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {

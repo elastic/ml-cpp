@@ -3,6 +3,7 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
+#include "CModelTestFixtureBase.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -74,9 +75,7 @@ makeScheduledEvent(const std::string& description, double start, double end) {
 const std::string EMPTY_STRING;
 }
 
-class CTestFixture {
-protected:
-    CResourceMonitor m_ResourceMonitor;
+class CTestFixture : public CModelTestFixtureBase {
 };
 
 BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
