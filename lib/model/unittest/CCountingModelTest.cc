@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include "CModelTestFixtureBase.h"
 
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
@@ -23,6 +22,8 @@
 
 #include <string>
 #include <vector>
+
+#include "CModelTestFixtureBase.h"
 
 BOOST_AUTO_TEST_SUITE(CCountingModelTest)
 
@@ -75,8 +76,7 @@ makeScheduledEvent(const std::string& description, double start, double end) {
 const std::string EMPTY_STRING;
 }
 
-class CTestFixture : public CModelTestFixtureBase {
-};
+class CTestFixture : public CModelTestFixtureBase {};
 
 BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     core_t::TTime startTime(100);

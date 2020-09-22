@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CModelTestFixtureBase.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
@@ -51,7 +49,7 @@
 
 #include <stdint.h>
 
-using TStrVec = std::vector<std::string>;
+#include "CModelTestFixtureBase.h"
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(TStrVec::iterator)
 
@@ -267,7 +265,7 @@ const TSizeDoublePr1Vec NO_CORRELATES;
 
 } // unnamed::
 
-class CTestFixture : public CModelTestFixtureBase  {
+class CTestFixture : public CModelTestFixtureBase {
 public:
     void makeModel(const SModelParams& params,
                    const model_t::TFeatureVec& features,

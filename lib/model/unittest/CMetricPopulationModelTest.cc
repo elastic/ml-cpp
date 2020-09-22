@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CModelTestFixtureBase.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CIEEE754.h>
 #include <core/CLogger.h>
@@ -48,6 +46,8 @@
 #include <utility>
 #include <vector>
 
+#include "CModelTestFixtureBase.h"
+
 BOOST_AUTO_TEST_SUITE(CMetricPopulationModelTest)
 
 using namespace ml;
@@ -55,9 +55,9 @@ using namespace model;
 
 namespace {
 
-using TMinAccumulator = ml::maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
+using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
 using TMaxAccumulator =
-ml::maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+    maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
 
 const std::string EMPTY_STRING;
 
@@ -278,8 +278,7 @@ void processBucket(core_t::TTime time,
 }
 }
 
-class CTestFixture : public CModelTestFixtureBase {
-};
+class CTestFixture : public CModelTestFixtureBase {};
 
 BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
     // Check that the correct data is read retrieved by the

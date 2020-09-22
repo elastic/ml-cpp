@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "CModelTestFixtureBase.h"
-
 #include <core/CContainerPrinter.h>
 #include <core/CLogger.h>
 #include <core/CRapidXmlParser.h>
@@ -54,6 +52,8 @@
 #include <utility>
 #include <vector>
 
+#include "CModelTestFixtureBase.h"
+
 BOOST_AUTO_TEST_SUITE(CMetricModelTest)
 
 using namespace ml;
@@ -61,8 +61,8 @@ using namespace model;
 
 namespace {
 
-using TMinAccumulator = ml::maths::CBasicStatistics::SMin<double>::TAccumulator;
-using TMaxAccumulator = ml::maths::CBasicStatistics::SMax<double>::TAccumulator;
+using TMinAccumulator = maths::CBasicStatistics::SMin<double>::TAccumulator;
+using TMaxAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
 
 const std::string EMPTY_STRING;
 
@@ -233,7 +233,7 @@ void processBucket(core_t::TTime time,
 const TSizeDoublePr1Vec NO_CORRELATES;
 }
 
-class CTestFixture  : public CModelTestFixtureBase {
+class CTestFixture : public CModelTestFixtureBase {
 public:
     void makeModel(const SModelParams& params,
                    const model_t::TFeatureVec& features,
