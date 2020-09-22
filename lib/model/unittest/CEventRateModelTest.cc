@@ -62,26 +62,6 @@ using namespace model;
 
 namespace {
 
-using TDoubleVec = std::vector<double>;
-using TDoubleVecVec = std::vector<TDoubleVec>;
-using TDoubleDoublePr = std::pair<double, double>;
-using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-using TUInt64Vec = std::vector<uint64_t>;
-using TTimeVec = std::vector<core_t::TTime>;
-using TSizeVec = std::vector<std::size_t>;
-using TSizeVecVec = std::vector<TSizeVec>;
-using TSizeVecVecVec = std::vector<TSizeVecVec>;
-using TDouble1Vec = core::CSmallVector<double, 1>;
-using TDouble2Vec = core::CSmallVector<double, 2>;
-using TSizeDoublePr = std::pair<std::size_t, double>;
-using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
-using TOptionalStr = boost::optional<std::string>;
-using TOptionalUInt64 = boost::optional<uint64_t>;
-using TOptionalDouble = boost::optional<double>;
-using TOptionalDoubleVec = std::vector<TOptionalDouble>;
-using TMathsModelPtr = std::shared_ptr<maths::CModel>;
-using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-
 const std::string EMPTY_STRING;
 
 TUInt64Vec rawEventCounts(std::size_t copies = 1) {

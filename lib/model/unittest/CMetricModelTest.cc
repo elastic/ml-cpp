@@ -61,36 +61,8 @@ using namespace model;
 
 namespace {
 
-using TDoubleDoublePr = std::pair<double, double>;
-using TSizeDoublePr = std::pair<std::size_t, double>;
-using TDoubleSizePr = std::pair<double, std::size_t>;
-using TDoubleVec = std::vector<double>;
-using TDoubleVecVec = std::vector<TDoubleVec>;
-using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-using TStrVec = std::vector<std::string>;
-using TStrVecVec = std::vector<TStrVec>;
-using TOptionalUInt64 = boost::optional<uint64_t>;
-using TOptionalDouble = boost::optional<double>;
-using TOptionalDoubleVec = std::vector<TOptionalDouble>;
-using TOptionalStr = boost::optional<std::string>;
-using TTimeDoublePr = std::pair<core_t::TTime, double>;
-using TOptionalTimeDoublePr = boost::optional<TTimeDoublePr>;
-using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-using TMinAccumulator = maths::CBasicStatistics::SMin<double>::TAccumulator;
-using TMaxAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
-using TMathsModelPtr = std::shared_ptr<maths::CModel>;
-using TPriorPtr = std::shared_ptr<maths::CPrior>;
-using TMultivariatePriorPtr = std::shared_ptr<maths::CMultivariatePrior>;
-using TDoubleStrPr = std::pair<double, std::string>;
-using TDouble1Vec = core::CSmallVector<double, 1>;
-using TDouble2Vec = core::CSmallVector<double, 2>;
-using TDouble4Vec = core::CSmallVector<double, 4>;
-using TDouble4Vec1Vec = core::CSmallVector<TDouble4Vec, 1>;
-using TSizeDoublePr = std::pair<std::size_t, double>;
-using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
-using TStrVec = std::vector<std::string>;
-using TTimeStrVecPr = std::pair<core_t::TTime, TStrVec>;
-using TTimeStrVecPrVec = std::vector<TTimeStrVecPr>;
+using TMinAccumulator = ml::maths::CBasicStatistics::SMin<double>::TAccumulator;
+using TMaxAccumulator = ml::maths::CBasicStatistics::SMax<double>::TAccumulator;
 
 const std::string EMPTY_STRING;
 

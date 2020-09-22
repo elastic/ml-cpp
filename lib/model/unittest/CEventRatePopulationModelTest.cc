@@ -57,19 +57,6 @@ using namespace model;
 
 namespace {
 
-using TDoubleVec = std::vector<double>;
-using TDoubleVecVec = std::vector<TDoubleVec>;
-using TDouble1Vec = core::CSmallVector<double, 1>;
-using TUIntVec = std::vector<unsigned int>;
-using TSizeVec = std::vector<std::size_t>;
-using TSizeVecVec = std::vector<TSizeVec>;
-using TDoubleStrPr = std::pair<double, std::string>;
-using TDoubleStrPrVec = std::vector<TDoubleStrPr>;
-using TSizeSizePr = std::pair<std::size_t, std::size_t>;
-using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
-using TSizeDoublePr = std::pair<std::size_t, double>;
-using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
-
 const std::string EMPTY_STRING;
 
 struct SMessage {

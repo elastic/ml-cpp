@@ -55,24 +55,9 @@ using namespace model;
 
 namespace {
 
-using TSizeSizePr = std::pair<std::size_t, std::size_t>;
-using TSizeSizePrVec = std::vector<TSizeSizePr>;
-using TSizeSizePrVecVec = std::vector<TSizeSizePrVec>;
-using TDoubleDoublePr = std::pair<double, double>;
-using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-using TDoubleStrPr = std::pair<double, std::string>;
-using TDoubleStrPrVec = std::vector<TDoubleStrPr>;
-using TStrVec = std::vector<std::string>;
-using TUIntVec = std::vector<unsigned int>;
-using TDoubleVec = std::vector<double>;
-using TSizeVec = std::vector<std::size_t>;
-using TSizeVecVec = std::vector<TSizeVec>;
-using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
+using TMinAccumulator = ml::maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
 using TMaxAccumulator =
-    maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
-using TDouble1Vec = core::CSmallVector<double, 1>;
-using TDouble2Vec = core::CSmallVector<double, 2>;
+ml::maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
 
 const std::string EMPTY_STRING;
 
