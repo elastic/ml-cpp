@@ -14,6 +14,17 @@ CSingleStreamSearcher::CSingleStreamSearcher(const TIStreamP& stream)
     : m_Stream(stream) {
 }
 
+CSingleStreamSearcher::~CSingleStreamSearcher() {
+    this->consumeStream();
+}
+
+void CSingleStreamSearcher::consumeStream() {
+    char buf[512];
+    while (m_Stream->good()) {
+        m_Stream->read(buf, 512);
+    }
+}
+
 CSingleStreamSearcher::TIStreamP
 CSingleStreamSearcher::search(size_t /*currentDocNum*/, size_t /*limit*/) {
     // documents in a stream are separated by '\0', skip over it in case to not confuse clients (see #279)
