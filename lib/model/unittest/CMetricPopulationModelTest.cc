@@ -14,11 +14,8 @@
 #include <core/CStringUtils.h>
 
 #include <maths/CBasicStatistics.h>
-#include <maths/CModelWeight.h>
 #include <maths/COrderings.h>
-#include <maths/CPrior.h>
 #include <maths/CSampling.h>
-#include <maths/CTimeSeriesDecompositionInterface.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -152,28 +149,15 @@ void generateTestMessages(std::size_t dimension,
     }
     LOG_DEBUG(<< "attributes = " << core::CContainerPrinter::print(attributes));
 
-    double attributeRates[] = {10.0, 2.0, 15.0, 2.0, 1.0};
-    double means[] = {5.0, 10.0, 7.0, 3.0, 15.0};
-    double variances[] = {1.0, 0.5, 2.0, 0.1, 4.0};
+    const double attributeRates[] = {10.0, 2.0, 15.0, 2.0, 1.0};
+    const double means[] = {5.0, 10.0, 7.0, 3.0, 15.0};
+    const double variances[] = {1.0, 0.5, 2.0, 0.1, 4.0};
 
-    TSizeSizePr attribute0AnomalyBucketPerson[] = {
-        TSizeSizePr(40u, 6u), TSizeSizePr(15u, 3u), TSizeSizePr(12u, 2u)};
-    TSizeSizePr attribute2AnomalyBucketPerson[] = {TSizeSizePr(44u, 9u),
-                                                   TSizeSizePr(30u, 5u)};
-    TSizeSizePr attribute3AnomalyBucketPerson[] = {TSizeSizePr(80u, 1u),
-                                                   TSizeSizePr(12u, 2u)};
-    TSizeSizePr attribute4AnomalyBucketPerson[] = {TSizeSizePr(60u, 2u)};
-
-    TSizeSizePrVecVec anomalies;
-    anomalies.push_back(TSizeSizePrVec(std::begin(attribute0AnomalyBucketPerson),
-                                       std::end(attribute0AnomalyBucketPerson)));
-    anomalies.push_back(TSizeSizePrVec());
-    anomalies.push_back(TSizeSizePrVec(std::begin(attribute2AnomalyBucketPerson),
-                                       std::end(attribute2AnomalyBucketPerson)));
-    anomalies.push_back(TSizeSizePrVec(std::begin(attribute3AnomalyBucketPerson),
-                                       std::end(attribute3AnomalyBucketPerson)));
-    anomalies.push_back(TSizeSizePrVec(std::begin(attribute4AnomalyBucketPerson),
-                                       std::end(attribute4AnomalyBucketPerson)));
+    TSizeSizePrVecVec anomalies{{{40u, 6u}, {15u, 3u}, {12u, 2u}},
+                                {},
+                                {{44u, 9u}, {30u, 5u}},
+                                {{80u, 1u}, {12u, 2u}},
+                                {{60u, 2u}}};
 
     test::CRandomNumbers rng;
 
@@ -234,11 +218,8 @@ std::string valueAsString(const TDouble1Vec& value) {
 CEventData addArrival(const SMessage& message,
                       const CModelFactory::TDataGathererPtr& gatherer,
                       CResourceMonitor& resourceMonitor) {
-    CDataGatherer::TStrCPtrVec fields;
-    fields.push_back(&message.s_Person);
-    fields.push_back(&message.s_Attribute);
-    std::string value = valueAsString(message.s_Value);
-    fields.push_back(&value);
+    std::string value{valueAsString(message.s_Value)};
+    CDataGatherer::TStrCPtrVec fields{&message.s_Person, &message.s_Attribute, &value};
     CEventData result;
     result.time(message.s_Time);
     gatherer->addArrival(fields, result, resourceMonitor);
@@ -257,13 +238,12 @@ void processBucket(core_t::TTime time,
     const std::string person("p");
     const std::string attribute("a");
     for (std::size_t i = 0u; i < n; ++i) {
-        CDataGatherer::TStrCPtrVec fieldValues;
-        fieldValues.push_back(&person);
-        fieldValues.push_back(&attribute);
-        fieldValues.push_back(&influencerValues[i]);
-        std::string valueAsString(core::CStringUtils::typeToStringPrecise(
-            bucket[i], core::CIEEE754::E_DoublePrecision));
-        fieldValues.push_back(&valueAsString);
+
+        const std::string valueAsString{core::CStringUtils::typeToStringPrecise(
+            bucket[i], core::CIEEE754::E_DoublePrecision)};
+
+        CDataGatherer::TStrCPtrVec fieldValues{&person, &attribute,
+                                               &influencerValues[i], &valueAsString};
 
         CEventData eventData;
         eventData.time(time);
@@ -300,10 +280,9 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
     SModelParams params(bucketLength);
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
     CMetricPopulationModelFactory factory(params, interimBucketCorrector);
-    model_t::TFeatureVec features;
-    features.push_back(model_t::E_PopulationMeanByPersonAndAttribute);
-    features.push_back(model_t::E_PopulationMinByPersonAndAttribute);
-    features.push_back(model_t::E_PopulationMaxByPersonAndAttribute);
+    model_t::TFeatureVec features{model_t::E_PopulationMeanByPersonAndAttribute,
+                                  model_t::E_PopulationMinByPersonAndAttribute,
+                                  model_t::E_PopulationMaxByPersonAndAttribute};
     factory.features(features);
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
     CModelFactory::TDataGathererPtr gatherer(
@@ -804,9 +783,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     TStrSizePrVecVec eventCounts[] = {TStrSizePrVecVec(), TStrSizePrVecVec(),
                                       TStrSizePrVecVec(), TStrSizePrVecVec()};
     {
-        TStrSizePrVec attributeCounts;
-        attributeCounts.push_back(TStrSizePr(attributes[0], 0));
-        attributeCounts.push_back(TStrSizePr(attributes[4], 0));
+        TStrSizePrVec attributeCounts{{attributes[0], 0}, {attributes[4], 0}};
         eventCounts[0].resize(numberBuckets, attributeCounts);
         eventCounts[0][0][0].second = 2; // p1, bucket 1,  c1
         eventCounts[0][2][0].second = 3; // p1, bucket 3,  c1
@@ -819,11 +796,8 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
         eventCounts[0][8][1].second = 3; // p1, bucket 9,  c5
     }
     {
-        TStrSizePrVec attributeCounts;
-        attributeCounts.push_back(TStrSizePr(attributes[0], 0));
-        attributeCounts.push_back(TStrSizePr(attributes[1], 0));
-        attributeCounts.push_back(TStrSizePr(attributes[2], 1));
-        attributeCounts.push_back(TStrSizePr(attributes[4], 0));
+        TStrSizePrVec attributeCounts{
+            {attributes[0], 0}, {attributes[1], 0}, {attributes[2], 1}, {attributes[4], 0}};
         eventCounts[1].resize(numberBuckets, attributeCounts);
         eventCounts[1][1][0].second = 2; // p2, bucket 2, c1
         eventCounts[1][3][0].second = 4; // p2, bucket 3, c1
@@ -841,9 +815,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
         eventCounts[1][5][3].second = 2; // p2, bucket 6, c5
     }
     {
-        TStrSizePrVec attributeCounts;
-        attributeCounts.push_back(TStrSizePr(attributes[2], 0));
-        attributeCounts.push_back(TStrSizePr(attributes[3], 2));
+        TStrSizePrVec attributeCounts{{attributes[2], 0}, {attributes[3], 2}};
         eventCounts[2].resize(numberBuckets, attributeCounts);
         eventCounts[2][0][0].second = 1;   // p3, bucket 1,   c3
         eventCounts[2][20][0].second = 4;  // p3, bucket 21,  c3
@@ -854,9 +826,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
         eventCounts[2][800][0].second = 2; // p3, bucket 801, c3
     }
     {
-        TStrSizePrVec attributeCounts;
-        attributeCounts.push_back(TStrSizePr(attributes[1], 0));
-        attributeCounts.push_back(TStrSizePr(attributes[3], 3));
+        TStrSizePrVec attributeCounts{{attributes[1], 0}, {attributes[3], 3}};
         eventCounts[3].resize(numberBuckets, attributeCounts);
         eventCounts[3][0][0].second = 2;  // p4, bucket 1,  c2
         eventCounts[3][1][0].second = 1;  // p4, bucket 2,  c2
@@ -873,10 +843,9 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     params.s_DecayRate = 0.01;
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
     CMetricPopulationModelFactory factory(params, interimBucketCorrector);
-    model_t::TFeatureVec features;
-    features.push_back(model_t::E_PopulationMeanByPersonAndAttribute);
-    features.push_back(model_t::E_PopulationMinByPersonAndAttribute);
-    features.push_back(model_t::E_PopulationMaxByPersonAndAttribute);
+    model_t::TFeatureVec features{model_t::E_PopulationMeanByPersonAndAttribute,
+                                  model_t::E_PopulationMinByPersonAndAttribute,
+                                  model_t::E_PopulationMaxByPersonAndAttribute};
     factory.features(features);
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
@@ -1350,10 +1319,9 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     params.s_DecayRate = 0.001;
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
     CMetricPopulationModelFactory factory(params, interimBucketCorrector);
-    model_t::TFeatureVec features;
-    features.push_back(model_t::E_PopulationMeanByPersonAndAttribute);
-    features.push_back(model_t::E_PopulationMinByPersonAndAttribute);
-    features.push_back(model_t::E_PopulationMaxByPersonAndAttribute);
+    model_t::TFeatureVec features{model_t::E_PopulationMeanByPersonAndAttribute,
+                                  model_t::E_PopulationMinByPersonAndAttribute,
+                                  model_t::E_PopulationMaxByPersonAndAttribute};
     factory.features(features);
     CModelFactory::SGathererInitializationData gathererInitData(startTime);
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
@@ -1453,11 +1421,10 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     CAnomalyDetectorModel::TModelPtr modelWithSkip(
         factoryWithSkip.makeModel(modelWithSkipInitData));
 
-    std::vector<SMessage> messages;
-    messages.push_back(SMessage(startTime + 10, "p1", "c1", TDouble1Vec(1, 20.0)));
-    messages.push_back(SMessage(startTime + 10, "p1", "c2", TDouble1Vec(1, 22.0)));
-    messages.push_back(SMessage(startTime + 10, "p2", "c1", TDouble1Vec(1, 20.0)));
-    messages.push_back(SMessage(startTime + 10, "p2", "c2", TDouble1Vec(1, 22.0)));
+    std::vector<SMessage> messages{{startTime + 10, "p1", "c1", {1, 20.0}},
+                                   {startTime + 10, "p1", "c2", {1, 22.0}},
+                                   {startTime + 10, "p2", "c1", {1, 20.0}},
+                                   {startTime + 10, "p2", "c2", {1, 22.0}}};
 
     std::vector<CModelFactory::TDataGathererPtr> gatherers{gathererNoSkip, gathererWithSkip};
     for (auto& gatherer : gatherers) {
@@ -1472,10 +1439,10 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
     messages.clear();
-    messages.push_back(SMessage(startTime + 10, "p1", "c1", TDouble1Vec(1, 21.0)));
-    messages.push_back(SMessage(startTime + 10, "p1", "c2", TDouble1Vec(1, 21.0)));
-    messages.push_back(SMessage(startTime + 10, "p2", "c1", TDouble1Vec(1, 21.0)));
-    messages.push_back(SMessage(startTime + 10, "p2", "c2", TDouble1Vec(1, 21.0)));
+    messages.push_back({startTime + 10, "p1", "c1", {1, 21.0}});
+    messages.push_back({startTime + 10, "p1", "c2", {1, 21.0}});
+    messages.push_back({startTime + 10, "p2", "c1", {1, 21.0}});
+    messages.push_back({startTime + 10, "p2", "c2", {1, 21.0}});
     for (auto& gatherer : gatherers) {
         for (auto& message : messages) {
             addArrival(message, gatherer, m_ResourceMonitor);

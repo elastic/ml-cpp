@@ -14,11 +14,8 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CLinearAlgebraTools.h>
-#include <maths/CModelWeight.h>
-#include <maths/CMultivariatePrior.h>
 #include <maths/CPrior.h>
 #include <maths/CSampling.h>
-#include <maths/CTimeSeriesDecompositionInterface.h>
 
 #include <model/CAnnotatedProbability.h>
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -29,8 +26,6 @@
 #include <model/CInterimBucketCorrector.h>
 #include <model/CMetricModel.h>
 #include <model/CMetricModelFactory.h>
-#include <model/CMetricPopulationModel.h>
-#include <model/CMetricPopulationModelFactory.h>
 #include <model/CModelDetailsView.h>
 #include <model/CModelFactory.h>
 #include <model/CPartitioningFields.h>
@@ -43,7 +38,6 @@
 
 #include "CModelTestFixtureBase.h"
 
-#include <boost/optional.hpp>
 #include <boost/optional/optional_io.hpp>
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
@@ -76,8 +70,7 @@ public:
 std::size_t addPerson(const std::string& p,
                       const CModelFactory::TDataGathererPtr& gatherer,
                       CResourceMonitor& resourceMonitor) {
-    CDataGatherer::TStrCPtrVec person;
-    person.push_back(&p);
+    CDataGatherer::TStrCPtrVec person{&p};
     person.resize(gatherer->fieldsOfInterest().size(), nullptr);
     CEventData result;
     gatherer->processFields(person, result, resourceMonitor);
@@ -300,10 +293,10 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
         unsigned int expectedSampleCounts[] = {2, 1};
 
         for (std::size_t i = 0; i < boost::size(sampleCounts); ++i) {
-            model_t::TFeatureVec features;
-            features.push_back(model_t::E_IndividualMeanByPerson);
-            features.push_back(model_t::E_IndividualMinByPerson);
-            features.push_back(model_t::E_IndividualMaxByPerson);
+            model_t::TFeatureVec features{model_t::E_IndividualMeanByPerson,
+                                          model_t::E_IndividualMinByPerson,
+                                          model_t::E_IndividualMaxByPerson};
+
             this->makeModel(params, features, startTime, &sampleCounts[i]);
             CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
             BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p", m_Gatherer, m_ResourceMonitor));
@@ -713,10 +706,10 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMetric, CTestFixture) {
     double anomaly = 5 * std::sqrt(variance);
 
     SModelParams params(bucketLength);
-    model_t::TFeatureVec features;
-    features.push_back(model_t::E_IndividualMeanByPerson);
-    features.push_back(model_t::E_IndividualMinByPerson);
-    features.push_back(model_t::E_IndividualMaxByPerson);
+    model_t::TFeatureVec features{model_t::E_IndividualMeanByPerson,
+                                  model_t::E_IndividualMinByPerson,
+                                  model_t::E_IndividualMaxByPerson};
+
     this->makeModel(params, features, startTime);
     CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
     BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p", m_Gatherer, m_ResourceMonitor));
@@ -1344,10 +1337,10 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.01;
-    model_t::TFeatureVec features;
-    features.push_back(model_t::E_IndividualMeanByPerson);
-    features.push_back(model_t::E_IndividualMinByPerson);
-    features.push_back(model_t::E_IndividualMaxByPerson);
+    model_t::TFeatureVec features{model_t::E_IndividualMeanByPerson,
+                                  model_t::E_IndividualMinByPerson,
+                                  model_t::E_IndividualMaxByPerson};
+
     CModelFactory::TDataGathererPtr gatherer;
     CModelFactory::TModelPtr model_;
     this->makeModel(params, features, startTime, gatherer, model_);
