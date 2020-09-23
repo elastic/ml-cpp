@@ -15,6 +15,13 @@
 
 #include <model/CResourceMonitor.h>
 
+#include <boost/optional.hpp>
+
+#include <map>
+#include <memory>
+#include <utility>
+#include <vector>
+
 using TDouble1Vec = ml::core::CSmallVector<double, 1>;
 using TDouble2Vec = ml::core::CSmallVector<double, 2>;
 using TDouble4Vec = ml::core::CSmallVector<double, 4>;
