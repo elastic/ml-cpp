@@ -39,6 +39,8 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
+#include "CModelTestFixtureBase.h"
+
 #include <boost/foreach.hpp>
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
@@ -49,8 +51,6 @@
 
 #include <stdint.h>
 
-using TStrVec = std::vector<std::string>;
-
 BOOST_TEST_DONT_PRINT_LOG_VALUE(TStrVec::iterator)
 
 BOOST_AUTO_TEST_SUITE(CEventRateModelTest)
@@ -59,26 +59,6 @@ using namespace ml;
 using namespace model;
 
 namespace {
-
-using TDoubleVec = std::vector<double>;
-using TDoubleVecVec = std::vector<TDoubleVec>;
-using TDoubleDoublePr = std::pair<double, double>;
-using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-using TUInt64Vec = std::vector<uint64_t>;
-using TTimeVec = std::vector<core_t::TTime>;
-using TSizeVec = std::vector<std::size_t>;
-using TSizeVecVec = std::vector<TSizeVec>;
-using TSizeVecVecVec = std::vector<TSizeVecVec>;
-using TDouble1Vec = core::CSmallVector<double, 1>;
-using TDouble2Vec = core::CSmallVector<double, 2>;
-using TSizeDoublePr = std::pair<std::size_t, double>;
-using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
-using TOptionalStr = boost::optional<std::string>;
-using TOptionalUInt64 = boost::optional<uint64_t>;
-using TOptionalDouble = boost::optional<double>;
-using TOptionalDoubleVec = std::vector<TOptionalDouble>;
-using TMathsModelPtr = std::shared_ptr<maths::CModel>;
-using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 const std::string EMPTY_STRING;
 
@@ -285,7 +265,7 @@ const TSizeDoublePr1Vec NO_CORRELATES;
 
 } // unnamed::
 
-class CTestFixture {
+class CTestFixture : public CModelTestFixtureBase {
 public:
     void makeModel(const SModelParams& params,
                    const model_t::TFeatureVec& features,
@@ -335,7 +315,6 @@ protected:
     TEventRateModelFactoryPtr m_Factory;
     ml::model::CModelFactory::TDataGathererPtr m_Gatherer;
     ml::model::CModelFactory::TModelPtr m_Model;
-    ml::model::CResourceMonitor m_ResourceMonitor;
 };
 
 BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {

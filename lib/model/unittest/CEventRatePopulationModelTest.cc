@@ -33,6 +33,8 @@
 #include <test/BoostTestPointerOutput.h>
 #include <test/CRandomNumbers.h>
 
+#include "CModelTestFixtureBase.h"
+
 #include <boost/lexical_cast.hpp>
 #include <boost/optional/optional_io.hpp>
 #include <boost/range.hpp>
@@ -54,19 +56,6 @@ using namespace ml;
 using namespace model;
 
 namespace {
-
-using TDoubleVec = std::vector<double>;
-using TDoubleVecVec = std::vector<TDoubleVec>;
-using TDouble1Vec = core::CSmallVector<double, 1>;
-using TUIntVec = std::vector<unsigned int>;
-using TSizeVec = std::vector<std::size_t>;
-using TSizeVecVec = std::vector<TSizeVec>;
-using TDoubleStrPr = std::pair<double, std::string>;
-using TDoubleStrPrVec = std::vector<TDoubleStrPr>;
-using TSizeSizePr = std::pair<std::size_t, std::size_t>;
-using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
-using TSizeDoublePr = std::pair<std::size_t, double>;
-using TSizeDoublePr1Vec = core::CSmallVector<TSizeDoublePr, 1>;
 
 const std::string EMPTY_STRING;
 
@@ -213,10 +202,7 @@ void addArrival(const SMessage& message,
 const TSizeDoublePr1Vec NO_CORRELATES;
 }
 
-class CTestFixture {
-protected:
-    CResourceMonitor m_ResourceMonitor;
-};
+class CTestFixture : public CModelTestFixtureBase {};
 
 BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
     // Check that the correct data is read retrieved by the
