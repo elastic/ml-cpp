@@ -36,6 +36,8 @@
 #include <test/BoostTestPointerOutput.h>
 #include <test/CRandomNumbers.h>
 
+#include "CModelTestFixtureBase.h"
+
 #include <boost/optional/optional_io.hpp>
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
@@ -53,24 +55,9 @@ using namespace model;
 
 namespace {
 
-using TSizeSizePr = std::pair<std::size_t, std::size_t>;
-using TSizeSizePrVec = std::vector<TSizeSizePr>;
-using TSizeSizePrVecVec = std::vector<TSizeSizePrVec>;
-using TDoubleDoublePr = std::pair<double, double>;
-using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-using TDoubleStrPr = std::pair<double, std::string>;
-using TDoubleStrPrVec = std::vector<TDoubleStrPr>;
-using TStrVec = std::vector<std::string>;
-using TUIntVec = std::vector<unsigned int>;
-using TDoubleVec = std::vector<double>;
-using TSizeVec = std::vector<std::size_t>;
-using TSizeVecVec = std::vector<TSizeVec>;
-using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
 using TMaxAccumulator =
     maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
-using TDouble1Vec = core::CSmallVector<double, 1>;
-using TDouble2Vec = core::CSmallVector<double, 2>;
 
 const std::string EMPTY_STRING;
 
@@ -291,10 +278,7 @@ void processBucket(core_t::TTime time,
 }
 }
 
-class CTestFixture {
-protected:
-    CResourceMonitor m_ResourceMonitor;
-};
+class CTestFixture : public CModelTestFixtureBase {};
 
 BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
     // Check that the correct data is read retrieved by the

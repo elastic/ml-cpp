@@ -18,6 +18,8 @@
 
 #include <test/CRandomNumbers.h>
 
+#include "CModelTestFixtureBase.h"
+
 #include <boost/test/unit_test.hpp>
 
 #include <string>
@@ -74,10 +76,7 @@ makeScheduledEvent(const std::string& description, double start, double end) {
 const std::string EMPTY_STRING;
 }
 
-class CTestFixture {
-protected:
-    CResourceMonitor m_ResourceMonitor;
-};
+class CTestFixture : public CModelTestFixtureBase {};
 
 BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     core_t::TTime startTime(100);
