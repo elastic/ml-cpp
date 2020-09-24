@@ -39,6 +39,8 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
+#include "CModelTestFixtureBase.h"
+
 #include <boost/foreach.hpp>
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
@@ -48,8 +50,6 @@
 #include <vector>
 
 #include <stdint.h>
-
-#include "CModelTestFixtureBase.h"
 
 BOOST_TEST_DONT_PRINT_LOG_VALUE(TStrVec::iterator)
 

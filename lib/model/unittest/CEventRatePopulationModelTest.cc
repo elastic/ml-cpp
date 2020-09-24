@@ -33,6 +33,8 @@
 #include <test/BoostTestPointerOutput.h>
 #include <test/CRandomNumbers.h>
 
+#include "CModelTestFixtureBase.h"
+
 #include <boost/lexical_cast.hpp>
 #include <boost/optional/optional_io.hpp>
 #include <boost/range.hpp>
@@ -47,8 +49,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "CModelTestFixtureBase.h"
 
 BOOST_AUTO_TEST_SUITE(CEventRatePopulationModelTest)
 

@@ -41,6 +41,8 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
+#include "CModelTestFixtureBase.h"
+
 #include <boost/optional.hpp>
 #include <boost/optional/optional_io.hpp>
 #include <boost/range.hpp>
@@ -51,8 +53,6 @@
 #include <memory>
 #include <utility>
 #include <vector>
-
-#include "CModelTestFixtureBase.h"
 
 BOOST_AUTO_TEST_SUITE(CMetricModelTest)
 

@@ -18,12 +18,12 @@
 
 #include <test/CRandomNumbers.h>
 
+#include "CModelTestFixtureBase.h"
+
 #include <boost/test/unit_test.hpp>
 
 #include <string>
 #include <vector>
-
-#include "CModelTestFixtureBase.h"
 
 BOOST_AUTO_TEST_SUITE(CCountingModelTest)
 
