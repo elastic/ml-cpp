@@ -18,7 +18,6 @@
 #include <api/CDataFrameTrainBoostedTreeRunner.h>
 #include <api/CInferenceModelMetadata.h>
 
-#include <rapidjson/document.h>
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CRandomNumbers.h>
 
