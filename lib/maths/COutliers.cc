@@ -405,7 +405,6 @@ std::size_t CEnsemble<POINT>::estimateMemoryUsage(TMethodSize methodSize,
     std::size_t numberModels{(ensembleSize + numberMethodsPerModel - 1) / numberMethodsPerModel};
     std::size_t maxNumberNeighbours{computeNumberNeighbours(sampleSize)};
     std::size_t projectionDimension{computeProjectionDimension(sampleSize, dimension)};
-    std::size_t numberNeighbours{(3 + maxNumberNeighbours) / 2};
 
     std::size_t pointsMemory{partitionNumberPoints *
                              (sizeof(TPoint) + las::estimateMemoryUsage<TPoint>(dimension))};
@@ -413,13 +412,13 @@ std::size_t CEnsemble<POINT>::estimateMemoryUsage(TMethodSize methodSize,
         partitionNumberPoints *
         CScorer::estimateMemoryUsage(computeFeatureInfluence ? dimension : 0)};
     std::size_t modelMemory{CModel::estimateMemoryUsage(
-        methodSize, sampleSize, numberNeighbours, projectionDimension, dimension)};
+        methodSize, sampleSize, maxNumberNeighbours, projectionDimension, dimension)};
     // The scores for a single method plus bookkeeping overhead for a single partition.
     std::size_t partitionScoringMemory{
         numberMethodsPerModel * partitionNumberPoints *
             (sizeof(TDouble1Vec) +
              (computeFeatureInfluence ? projectionDimension * sizeof(double) : 0)) +
-        methodSize(numberNeighbours, partitionNumberPoints, projectionDimension)};
+        methodSize(maxNumberNeighbours, partitionNumberPoints, projectionDimension)};
 
     return pointsMemory + scorersMemory + numberModels * modelMemory + partitionScoringMemory;
 }
