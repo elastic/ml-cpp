@@ -12,7 +12,7 @@
 # clang-format version, increment the image version, change the Dockerfile and
 # build a new image to be used for subsequent builds on this branch.
 
-HOST=push.docker.elastic.co
+HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-check-style
 VERSION=2
