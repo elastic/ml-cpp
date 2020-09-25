@@ -725,16 +725,23 @@ CBoostedTreeImpl::candidateSplits(const core::CDataFrame& frame,
     for (std::size_t i = 0; i < features.size(); ++i) {
 
         TDoubleVec featureSplits;
-        featureSplits.reserve(m_NumberSplitsPerFeature - 1);
 
-        for (std::size_t j = 1; j < m_NumberSplitsPerFeature; ++j) {
-            double rank{100.0 * static_cast<double>(j) / static_cast<double>(m_NumberSplitsPerFeature) +
-                        CSampling::uniformSample(m_Rng, -0.1, 0.1)};
-            double q;
-            if (featureQuantiles[i].quantile(rank, q)) {
-                featureSplits.push_back(q);
-            } else {
-                LOG_WARN(<< "Failed to compute quantile " << rank << ": ignoring split");
+        // Because we compute candidate splits for downsamples of the rows it's
+        // possible that all values are missing for a particular feature. In this
+        // case, we can happily initialize the candidate splits to an empty set
+        // since we'll only be choosing how to assign missing values.
+        if (featureQuantiles[i].count() > 0.0) {
+            featureSplits.reserve(m_NumberSplitsPerFeature - 1);
+            for (std::size_t j = 1; j < m_NumberSplitsPerFeature; ++j) {
+                double rank{100.0 * static_cast<double>(j) /
+                                static_cast<double>(m_NumberSplitsPerFeature) +
+                            CSampling::uniformSample(m_Rng, -0.1, 0.1)};
+                double q;
+                if (featureQuantiles[i].quantile(rank, q)) {
+                    featureSplits.push_back(q);
+                } else {
+                    LOG_WARN(<< "Failed to compute quantile " << rank << ": ignoring split");
+                }
             }
         }
 
