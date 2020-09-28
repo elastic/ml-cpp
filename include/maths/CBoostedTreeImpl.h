@@ -54,7 +54,8 @@ public:
     using TVector = CDenseVector<double>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-    using TMeanVarAccumulatorSizePr = std::pair<TMeanVarAccumulator, std::size_t>;
+    using TMeanVarAccumulatorSizeDoubleTuple =
+        std::tuple<TMeanVarAccumulator, std::size_t, double>;
     using TMeanVarAccumulatorVec = std::vector<TMeanVarAccumulator>;
     using TBayesinOptimizationUPtr = std::unique_ptr<maths::CBayesianOptimisation>;
     using TNodeVec = CBoostedTree::TNodeVec;
@@ -173,6 +174,8 @@ private:
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
     using TWorkspace = CBoostedTreeLeafNodeStatistics::CWorkspace;
+    using TSizeMeanVarAccumulator =
+        maths::CBasicStatistics::SSampleMeanVar<std::size_t>::TAccumulator;
 
     //! Tag progress through initialization.
     enum EInitializationStage {
@@ -211,7 +214,7 @@ private:
     void initializeTreeShap(const core::CDataFrame& frame);
 
     //! Train the forest and compute loss moments on each fold.
-    TMeanVarAccumulatorSizePr crossValidateForest(core::CDataFrame& frame);
+    TMeanVarAccumulatorSizeDoubleTuple crossValidateForest(core::CDataFrame& frame);
 
     //! Initialize the predictions and loss function derivatives for the masked
     //! rows in \p frame.
@@ -285,11 +288,13 @@ private:
 
     //! Select the next hyperparameters for which to train a model.
     bool selectNextHyperparameters(const TMeanVarAccumulator& lossMoments,
-                                   CBayesianOptimisation& bopt);
+                                   CBayesianOptimisation& bopt,
+                                   double numberNodes);
 
     //! Capture the current hyperparameter values.
     void captureBestHyperparameters(const TMeanVarAccumulator& lossMoments,
-                                    std::size_t maximumNumberTrees);
+                                    std::size_t maximumNumberTrees,
+                                    double numberNodes);
 
     //! Set the hyperparamaters from the best recorded.
     void restoreBestHyperparameters();
@@ -370,6 +375,7 @@ private:
     std::size_t m_NumberTopShapValues = 0;
     TTreeShapFeatureImportanceUPtr m_TreeShap;
     TAnalysisInstrumentationPtr m_Instrumentation;
+    mutable TMeanAccumulator m_ForestSizeAccumulator;
 
 private:
     friend class CBoostedTreeFactory;

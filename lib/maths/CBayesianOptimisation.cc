@@ -88,6 +88,7 @@ void CBayesianOptimisation::add(TVector x, double fx, double vx) {
     m_FunctionMeanValues.emplace_back(x.cwiseQuotient(m_MaxBoundary - m_MinBoundary),
                                       m_RangeScale * (fx - m_RangeShift));
     m_ErrorVariances.push_back(CTools::pow2(m_RangeScale) * vx);
+    m_FunctionValuesAccumulator.add(fx);
 }
 
 std::pair<CBayesianOptimisation::TVector, CBayesianOptimisation::TVector>
@@ -548,6 +549,10 @@ std::size_t CBayesianOptimisation::estimateMemoryUsage(std::size_t numberParamet
     return sizeof(CBayesianOptimisation) + boundaryMemoryUsage +
            functionMeanValuesMemoryUsage + errorVariancesMemoryUsage +
            kernelParametersMemoryUsage + minimumKernelCoordinateDistanceScale;
+}
+
+double CBayesianOptimisation::meanFunctionValue() const {
+    return CBasicStatistics::mean(m_FunctionValuesAccumulator);
 }
 
 const std::size_t CBayesianOptimisation::RESTARTS{10};

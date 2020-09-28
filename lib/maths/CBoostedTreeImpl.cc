@@ -146,6 +146,14 @@ double trace(std::size_t columns, const TMemoryMappedFloatVector& upperTriangle)
 }
 
 CDataFrameTrainBoostedTreeInstrumentationStub INSTRUMENTATION_STUB;
+
+double numberForestNodes(const CBoostedTreeImpl::TNodeVecVec& forest) {
+    double forestSize{0.0};
+    for (const auto& tree : forest) {
+        forestSize += static_cast<double>(tree.size());
+    }
+    return forestSize;
+}
 }
 
 CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,
@@ -223,11 +231,14 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
             TMeanVarAccumulator lossMoments;
             std::size_t maximumNumberTrees;
-            std::tie(lossMoments, maximumNumberTrees) = this->crossValidateForest(frame);
+            double numberNodes;
+            std::tie(lossMoments, maximumNumberTrees, numberNodes) =
+                this->crossValidateForest(frame);
 
-            this->captureBestHyperparameters(lossMoments, maximumNumberTrees);
+            this->captureBestHyperparameters(lossMoments, maximumNumberTrees, numberNodes);
 
-            if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
+            if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization,
+                                                numberNodes) == false) {
                 LOG_WARN(<< "Hyperparameter selection failed: exiting loop early");
                 break;
             }
@@ -481,7 +492,7 @@ void CBoostedTreeImpl::initializeTreeShap(const core::CDataFrame& frame) {
     }
 }
 
-CBoostedTreeImpl::TMeanVarAccumulatorSizePr
+CBoostedTreeImpl::TMeanVarAccumulatorSizeDoubleTuple
 CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame) {
 
     // We want to ensure we evaluate on equal proportions for each fold.
@@ -510,6 +521,8 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame) {
     TMeanVarAccumulator lossMoments;
     TDoubleVec numberTrees;
     numberTrees.reserve(m_NumberFolds);
+    TDoubleVec numberNodes;
+    numberNodes.reserve(m_NumberFolds);
 
     while (folds.size() > 0 && stopCrossValidationEarly(lossMoments) == false) {
         std::size_t fold{folds.back()};
@@ -524,6 +537,7 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame) {
         lossMoments.add(loss);
         m_FoldRoundTestLosses[fold][m_CurrentRound] = loss;
         numberTrees.push_back(static_cast<double>(forest.size()));
+        numberNodes.push_back(numberForestNodes(forest));
         m_Instrumentation->lossValues(fold, std::move(lossValues));
     }
     m_TrainingProgress.increment(m_MaximumNumberTrees * folds.size());
@@ -532,11 +546,12 @@ CBoostedTreeImpl::crossValidateForest(core::CDataFrame& frame) {
     std::sort(numberTrees.begin(), numberTrees.end());
     std::size_t medianNumberTrees{
         static_cast<std::size_t>(CBasicStatistics::median(numberTrees))};
+    double meanNumberNodes{CBasicStatistics::mean(numberNodes)};
     lossMoments = this->correctTestLossMoments(std::move(folds), lossMoments);
     LOG_TRACE(<< "test mean loss = " << CBasicStatistics::mean(lossMoments)
               << ", sigma = " << std::sqrt(CBasicStatistics::mean(lossMoments)));
 
-    return {lossMoments, medianNumberTrees};
+    return {lossMoments, medianNumberTrees, meanNumberNodes};
 }
 
 CBoostedTreeImpl::TNodeVec CBoostedTreeImpl::initializePredictionsAndLossDerivatives(
@@ -657,6 +672,9 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
                                forest.size());
 
     forest.resize(stoppingCondition.bestSize());
+
+    // record forest size
+    m_ForestSizeAccumulator.add(numberForestNodes(forest));
 
     LOG_TRACE(<< "Trained one forest");
 
@@ -1168,7 +1186,8 @@ CBoostedTreeImpl::TVector CBoostedTreeImpl::predictRow(const CEncodedDataFrameRo
 }
 
 bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& lossMoments,
-                                                 CBayesianOptimisation& bopt) {
+                                                 CBayesianOptimisation& bopt,
+                                                 double numberNodes) {
 
     TVector parameters{this->numberHyperparametersToTune()};
 
@@ -1209,7 +1228,14 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
               << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
               << ", feature bag fraction = " << m_FeatureBagFraction);
 
-    bopt.add(parameters, meanLoss, lossVariance);
+    //
+    // Keep track of the "average forest number of nodes" .
+    // Add 0.01 * "forest number nodes" * E[GP] / "average forest number nodes" to meanLoss.
+    auto modelSizeDifferentiator{0.01 * numberNodes /
+                                 maths::CBasicStatistics::mean(m_ForestSizeAccumulator) *
+                                 bopt.meanFunctionValue()};
+
+    bopt.add(parameters, meanLoss + modelSizeDifferentiator, lossVariance);
     if (3 * m_CurrentRound < m_NumberRounds) {
         std::generate_n(parameters.data(), parameters.size(), [&]() {
             return CSampling::uniformSample(m_Rng, 0.0, 1.0);
@@ -1267,11 +1293,14 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
 }
 
 void CBoostedTreeImpl::captureBestHyperparameters(const TMeanVarAccumulator& lossMoments,
-                                                  std::size_t maximumNumberTrees) {
+                                                  std::size_t maximumNumberTrees,
+                                                  double numberNodes) {
     // We capture the parameters with the lowest error at one standard
     // deviation above the mean. If the mean error improvement is marginal
     // we prefer the solution with the least variation across the folds.
-    double loss{lossAtNSigma(1.0, lossMoments)};
+    double modelSizeDifferentiator{
+        0.01 * numberNodes / CBasicStatistics::mean(m_ForestSizeAccumulator)};
+    double loss{lossAtNSigma(1.0, lossMoments) + modelSizeDifferentiator};
     if (loss < m_BestForestTestLoss) {
         m_BestForestTestLoss = loss;
         m_BestHyperparameters = CBoostedTreeHyperparameters{

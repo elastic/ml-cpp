@@ -12,6 +12,7 @@
 #include <core/CStateRestoreTraverser.h>
 #include <core/CoreTypes.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CPRNG.h>
 #include <maths/ImportExport.h>
@@ -93,6 +94,8 @@ public:
     static std::size_t estimateMemoryUsage(std::size_t numberParameters,
                                            std::size_t numberRounds);
 
+    double meanFunctionValue() const;
+
     //! \name Test Interface
     //@{
     //! Get minus the data likelihood and its gradient as a function of the kernel
@@ -112,6 +115,7 @@ private:
     using TVectorDoublePr = std::pair<TVector, double>;
     using TVectorDoublePrVec = std::vector<TVectorDoublePr>;
     using TMatrix = CDenseMatrix<double>;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 private:
     //! This lower bounds the coefficient associated with coordinate separation
@@ -144,6 +148,7 @@ private:
     TDoubleVec m_ErrorVariances;
     TVector m_KernelParameters;
     TVector m_MinimumKernelCoordinateDistanceScale;
+    TMeanAccumulator m_FunctionValuesAccumulator;
 };
 }
 }
