@@ -8,16 +8,12 @@
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
-#include <core/CSmallVector.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CEqualWithTolerance.h>
 #include <maths/CIntegerTools.h>
 #include <maths/CModelWeight.h>
-#include <maths/CNormalMeanPrecConjugate.h>
 #include <maths/CPrior.h>
-#include <maths/CTimeSeriesDecompositionInterface.h>
 
 #include <model/CAnnotatedProbability.h>
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -27,7 +23,6 @@
 #include <model/CEventData.h>
 #include <model/CEventRateModel.h>
 #include <model/CEventRateModelFactory.h>
-#include <model/CEventRatePopulationModel.h>
 #include <model/CEventRatePopulationModelFactory.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
@@ -41,7 +36,6 @@
 
 #include "CModelTestFixtureBase.h"
 
-#include <boost/foreach.hpp>
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -131,8 +125,7 @@ void generateSporadicEvents(const core_t::TTime& startTime,
 std::size_t addPerson(const std::string& p,
                       const CModelFactory::TDataGathererPtr& gatherer,
                       CResourceMonitor& resourceMonitor) {
-    CDataGatherer::TStrCPtrVec person;
-    person.push_back(&p);
+    CDataGatherer::TStrCPtrVec person{&p};
     CEventData result;
     gatherer->processFields(person, result, resourceMonitor);
     return *result.personId();
@@ -144,8 +137,7 @@ std::size_t addPersonWithInfluence(const std::string& p,
                                    std::size_t numInfluencers,
                                    TOptionalStr value = TOptionalStr()) {
     std::string i("i");
-    CDataGatherer::TStrCPtrVec person;
-    person.push_back(&p);
+    CDataGatherer::TStrCPtrVec person{&p};
     for (std::size_t j = 0; j < numInfluencers; ++j) {
         person.push_back(&i);
     }
@@ -164,8 +156,7 @@ void addArrival(CDataGatherer& gatherer,
                 const TOptionalStr& inf1 = TOptionalStr(),
                 const TOptionalStr& inf2 = TOptionalStr(),
                 const TOptionalStr& value = TOptionalStr()) {
-    CDataGatherer::TStrCPtrVec fieldValues;
-    fieldValues.push_back(&person);
+    CDataGatherer::TStrCPtrVec fieldValues{&person};
     if (inf1) {
         fieldValues.push_back(&(inf1.get()));
     }
@@ -239,10 +230,9 @@ void testModelWithValueField(model_t::EFeature feature,
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
         for (std::size_t j = 0; j < fields[i].size(); ++j) {
-            CDataGatherer::TStrCPtrVec f;
-            f.push_back(&strings[fields[i][j][0]]);
-            f.push_back(&strings[fields[i][j][1]]);
-            f.push_back(&strings[fields[i][j][2]]);
+            CDataGatherer::TStrCPtrVec f{&strings[fields[i][j][0]],
+                                         &strings[fields[i][j][1]],
+                                         &strings[fields[i][j][2]]};
             handleEvent(f, bucketStartTime + j, gatherer, resourceMonitor);
         }
 
@@ -308,7 +298,7 @@ public:
 
 protected:
     using TInterimBucketCorrectorPtr = std::shared_ptr<CInterimBucketCorrector>;
-    using TEventRateModelFactoryPtr = boost::shared_ptr<CEventRateModelFactory>;
+    using TEventRateModelFactoryPtr = std::shared_ptr<CEventRateModelFactory>;
 
 protected:
     TInterimBucketCorrectorPtr m_InterimBucketCorrector;
@@ -1242,10 +1232,7 @@ BOOST_FIXTURE_TEST_CASE(testModelsWithValueFields, CTestFixture) {
         std::size_t anomalousBucket = 20;
         std::size_t numberBuckets = 30;
 
-        TStrVec strings;
-        strings.push_back("p1");
-        strings.push_back("c1");
-        strings.push_back("c2");
+        TStrVec strings{"p1", "c1", "c2"};
         TSizeVecVecVec fieldsPerBucket;
 
         for (std::size_t i = 0; i < numberBuckets; i++) {
@@ -1292,14 +1279,13 @@ BOOST_FIXTURE_TEST_CASE(testModelsWithValueFields, CTestFixture) {
         std::size_t anomalousBucket = 20;
         std::size_t numberBuckets = 30;
 
-        TStrVec strings;
-        strings.push_back("p1");
-        strings.push_back("c1");
-        strings.push_back("c2");
-        strings.push_back("trwh5jks9djadkn453hgfadadfjhadhfkdhakj4hkahdlagl4iuygalshkdjbvlaus4hliu4WHGFLIUSDHLKAJ");
-        strings.push_back("2H4G55HALFMN569DNIVJ55B3BSJXU;4VBQ-LKDFNUE9HNV904U5QGA;DDFLVJKF95NSD,MMVASD.,A.4,A.SD4");
-        strings.push_back("a");
-        strings.push_back("b");
+        TStrVec strings{"p1",
+                        "c1",
+                        "c2",
+                        "trwh5jks9djadkn453hgfadadfjhadhfkdhakj4hkahdlagl4iuygalshkdjbvlaus4hliu4WHGFLIUSDHLKAJ",
+                        "2H4G55HALFMN569DNIVJ55B3BSJXU;4VBQ-LKDFNUE9HNV904U5QGA;DDFLVJKF95NSD,MMVASD.,A.4,A.SD4",
+                        "a",
+                        "b"};
 
         TSizeVecVecVec fieldsPerBucket;
 
@@ -1613,9 +1599,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         params.s_DecayRate = 0.001;
         auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
         CEventRateModelFactory factory(params, interimBucketCorrector);
-        TStrVec influenceFieldNames;
-        influenceFieldNames.push_back("IF1");
-        influenceFieldNames.push_back("IF2");
+        TStrVec influenceFieldNames{"IF1", "IF2"};
         factory.fieldNames("", "", "", "", influenceFieldNames);
         factory.features({model_t::E_IndividualCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
@@ -1970,9 +1954,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         params.s_DecayRate = 0.001;
         auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
         CEventRateModelFactory factory(params, interimBucketCorrector);
-        TStrVec influenceFieldNames;
-        influenceFieldNames.push_back("IF1");
-        influenceFieldNames.push_back("IF2");
+        TStrVec influenceFieldNames{"IF1", "IF2"};
         factory.fieldNames("", "", "", "foo", influenceFieldNames);
         factory.features({model_t::E_IndividualUniqueCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
