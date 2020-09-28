@@ -7,6 +7,7 @@
 #define INCLUDED_ml_core_CBlockingCallCancellerThread_h
 
 #include <core/CThread.h>
+#include <core/ImportExport.h>
 
 #include <atomic>
 
@@ -32,11 +33,16 @@ namespace core {
 //! We want to unblock this process when this happens so that it can
 //! delete the named pipe and exit.
 //!
-class CBlockingCallCancellerThread : public CThread {
+class CORE_EXPORT CBlockingCallCancellerThread : public CThread {
 public:
     CBlockingCallCancellerThread(CThread::TThreadId potentiallyBlockedThreadId);
 
+    //! Has this object cancelled the blocking call?
     const std::atomic_bool& hasCancelledBlockingCall() const;
+
+    //! Reset the object so that it can be reused.  The thread must be
+    //! stopped when this method is called.
+    bool reset();
 
 protected:
     //! Called when the thread is started.

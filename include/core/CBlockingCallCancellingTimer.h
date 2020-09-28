@@ -8,6 +8,7 @@
 
 #include <core/CBlockingCallCancellerThread.h>
 #include <core/CoreTypes.h>
+#include <core/ImportExport.h>
 
 #include <chrono>
 #include <condition_variable>
@@ -36,7 +37,7 @@ namespace core {
 //! We want to unblock this process when this happens so that it can
 //! delete the named pipe and exit.
 //!
-class CBlockingCallCancellingTimer : public CBlockingCallCancellerThread {
+class CORE_EXPORT CBlockingCallCancellingTimer : public CBlockingCallCancellerThread {
 public:
     //! Default timeout if not specified.
     static const ml::core_t::TTime DEFAULT_TIMEOUT_SECONDS;

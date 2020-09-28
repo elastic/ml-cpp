@@ -38,5 +38,15 @@ void CBlockingCallCancellerThread::shutdown() {
 bool CBlockingCallCancellerThread::isShutdown() {
     return m_Shutdown.load();
 }
+
+bool CBlockingCallCancellerThread::reset() {
+    if (this->isStarted()) {
+        LOG_ERROR(<< "Programmatic error - cannot reset canceller thread while running");
+        return false;
+    }
+    m_Shutdown.store(false);
+    m_HasCancelledBlockingCall.store(false);
+    return true;
+}
 }
 }

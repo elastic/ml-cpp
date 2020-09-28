@@ -27,6 +27,7 @@ bool setUpIStream(const std::string& fileName,
         return true;
     }
     if (isFileNamedPipe) {
+        cancellerThread.reset();
         cancellerThread.start();
         stream = core::CNamedPipeFactory::openPipeStreamRead(
             fileName, cancellerThread.hasCancelledBlockingCall());
@@ -47,6 +48,7 @@ bool setUpOStream(const std::string& fileName,
         return true;
     }
     if (isFileNamedPipe) {
+        cancellerThread.reset();
         cancellerThread.start();
         stream = core::CNamedPipeFactory::openPipeStreamWrite(
             fileName, cancellerThread.hasCancelledBlockingCall());
