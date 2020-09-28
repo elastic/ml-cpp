@@ -13,6 +13,7 @@
 //! IMPLEMENTATION DECISIONS:\n
 //! Standalone program.
 //!
+#include <core/CBlockingCallCancellingTimer.h>
 #include <core/CDataFrameRowSlice.h>
 #include <core/CDataSearcher.h>
 #include <core/CJsonOutputStreamWrapper.h>
@@ -38,11 +39,11 @@
 
 #include "CCmdLineParser.h"
 
+#include <chrono>
 #include <cstdlib>
 #include <fstream>
 #include <memory>
 #include <string>
-#include <vector>
 
 namespace {
 std::pair<std::string, bool> readFileToString(const std::string& fileName) {
@@ -93,23 +94,25 @@ int main(int argc, char** argv) {
 
     // Read command line options
     std::string configFile;
-    bool memoryUsageEstimationOnly(false);
+    bool memoryUsageEstimationOnly{false};
     std::string logProperties;
     std::string logPipe;
-    bool lengthEncodedInput(false);
+    bool lengthEncodedInput{false};
+    ml::core_t::TTime namedPipeConnectTimeout{
+        ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
     std::string inputFileName;
-    bool isInputFileNamedPipe(false);
+    bool isInputFileNamedPipe{false};
     std::string outputFileName;
-    bool isOutputFileNamedPipe(false);
+    bool isOutputFileNamedPipe{false};
     std::string restoreFileName;
-    bool isRestoreFileNamedPipe(false);
+    bool isRestoreFileNamedPipe{false};
     std::string persistFileName;
-    bool isPersistFileNamedPipe(false);
+    bool isPersistFileNamedPipe{false};
     if (ml::data_frame_analyzer::CCmdLineParser::parse(
-            argc, argv, configFile, memoryUsageEstimationOnly, logProperties, logPipe,
-            lengthEncodedInput, inputFileName, isInputFileNamedPipe, outputFileName,
-            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-            persistFileName, isPersistFileNamedPipe) == false) {
+            argc, argv, configFile, memoryUsageEstimationOnly, logProperties,
+            logPipe, lengthEncodedInput, namedPipeConnectTimeout, inputFileName,
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
+            isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe) == false) {
         return EXIT_FAILURE;
     }
 
@@ -118,16 +121,29 @@ int main(int argc, char** argv) {
     // after CCleanUpOnExit::run is run and it is safe to act on them there.
     std::atexit(CCleanUpOnExit::run);
 
+    ml::core::CBlockingCallCancellingTimer cancellerThread{
+        ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
+
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName,
-                              isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-                              persistFileName, isPersistFileNamedPipe);
+    ml::api::CIoManager ioMgr{
+        cancellerThread,        inputFileName,         isInputFileNamedPipe,
+        outputFileName,         isOutputFileNamedPipe, restoreFileName,
+        isRestoreFileNamedPipe, persistFileName,       isPersistFileNamedPipe};
 
-    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
-        LOG_FATAL(<< "Could not reconfigure logging");
+    if (cancellerThread.start() == false) {
+        // This log message will probably never been seen as it will go to the
+        // real stderr of this process rather than the log pipe...
+        LOG_FATAL(<< "Could not start blocking call canceller thread");
         return EXIT_FAILURE;
     }
+    if (ml::core::CLogger::instance().reconfigure(
+            logPipe, logProperties, cancellerThread.hasCancelledBlockingCall()) == false) {
+        LOG_FATAL(<< "Could not reconfigure logging");
+        cancellerThread.stop();
+        return EXIT_FAILURE;
+    }
+    cancellerThread.stop();
 
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
@@ -236,7 +252,7 @@ int main(int argc, char** argv) {
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped.
-    LOG_DEBUG(<< "Ml data frame analyzer exiting");
+    LOG_DEBUG(<< "ML data frame analyzer exiting");
 
     return EXIT_SUCCESS;
 }

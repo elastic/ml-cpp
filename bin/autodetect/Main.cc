@@ -13,6 +13,7 @@
 //! IMPLEMENTATION DECISIONS:\n
 //! Standalone program.
 //!
+#include <core/CBlockingCallCancellingTimer.h>
 #include <core/CDataAdder.h>
 #include <core/CDataSearcher.h>
 #include <core/CJsonOutputStreamWrapper.h>
@@ -45,6 +46,7 @@
 
 #include "CCmdLineParser.h"
 
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <functional>
@@ -99,6 +101,8 @@ int main(int argc, char** argv) {
     ml::core_t::TTime persistInterval{-1};
     std::size_t bucketPersistInterval{0};
     ml::core_t::TTime maxQuantileInterval{-1};
+    ml::core_t::TTime namedPipeConnectTimeout{
+        ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
     std::string inputFileName;
     bool isInputFileNamedPipe{false};
     std::string outputFileName;
@@ -118,25 +122,37 @@ int main(int argc, char** argv) {
             modelPlotConfigFile, jobId, logProperties, logPipe, bucketSpan, latency,
             summaryCountFieldName, delimiter, lengthEncodedInput, timeField,
             timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
-            bucketPersistInterval, maxQuantileInterval, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
-            isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe,
+            bucketPersistInterval, maxQuantileInterval, namedPipeConnectTimeout,
+            inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
+            restoreFileName, isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe,
             isPersistInForeground, maxAnomalyRecords, memoryUsage, multivariateByFields,
             stopCategorizationOnWarnStatus, clauseTokens) == false) {
         return EXIT_FAILURE;
     }
 
+    ml::core::CBlockingCallCancellingTimer cancellerThread{
+        ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
+
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr{inputFileName,   isInputFileNamedPipe,
-                              outputFileName,  isOutputFileNamedPipe,
-                              restoreFileName, isRestoreFileNamedPipe,
-                              persistFileName, isPersistFileNamedPipe};
+    ml::api::CIoManager ioMgr{
+        cancellerThread,        inputFileName,         isInputFileNamedPipe,
+        outputFileName,         isOutputFileNamedPipe, restoreFileName,
+        isRestoreFileNamedPipe, persistFileName,       isPersistFileNamedPipe};
 
-    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
-        LOG_FATAL(<< "Could not reconfigure logging");
+    if (cancellerThread.start() == false) {
+        // This log message will probably never been seen as it will go to the
+        // real stderr of this process rather than the log pipe...
+        LOG_FATAL(<< "Could not start blocking call canceller thread");
         return EXIT_FAILURE;
     }
+    if (ml::core::CLogger::instance().reconfigure(
+            logPipe, logProperties, cancellerThread.hasCancelledBlockingCall()) == false) {
+        LOG_FATAL(<< "Could not reconfigure logging");
+        cancellerThread.stop();
+        return EXIT_FAILURE;
+    }
+    cancellerThread.stop();
 
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
