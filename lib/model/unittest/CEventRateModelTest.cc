@@ -298,7 +298,7 @@ public:
 
 protected:
     using TInterimBucketCorrectorPtr = std::shared_ptr<CInterimBucketCorrector>;
-    using TEventRateModelFactoryPtr = boost::shared_ptr<CEventRateModelFactory>;
+    using TEventRateModelFactoryPtr = std::shared_ptr<CEventRateModelFactory>;
 
 protected:
     TInterimBucketCorrectorPtr m_InterimBucketCorrector;

@@ -1439,10 +1439,10 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
     messages.clear();
-    messages.push_back({startTime + 10, "p1", "c1", {1, 21.0}});
-    messages.push_back({startTime + 10, "p1", "c2", {1, 21.0}});
-    messages.push_back({startTime + 10, "p2", "c1", {1, 21.0}});
-    messages.push_back({startTime + 10, "p2", "c2", {1, 21.0}});
+    messages.emplace_back(startTime + 10, "p1", "c1", TDouble1Vec{1, 21.0});
+    messages.emplace_back(startTime + 10, "p1", "c2", TDouble1Vec{1, 21.0});
+    messages.emplace_back(startTime + 10, "p2", "c1", TDouble1Vec{1, 21.0});
+    messages.emplace_back(startTime + 10, "p2", "c2", TDouble1Vec{1, 21.0});
     for (auto& gatherer : gatherers) {
         for (auto& message : messages) {
             addArrival(message, gatherer, m_ResourceMonitor);
