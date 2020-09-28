@@ -14,7 +14,6 @@
 
 #include <maths/CModelWeight.h>
 #include <maths/COrderings.h>
-#include <maths/CTimeSeriesDecompositionInterface.h>
 
 #include <model/CAnnotatedProbabilityBuilder.h>
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -107,7 +106,7 @@ void generateTestMessages(core_t::TTime startTime, core_t::TTime bucketLength, T
     //   attribute   |    0    |    1    |    2    |    3    |   4
     // --------------+---------+---------+---------+---------+--------
     //    people     |  [0-19] |  [0-2], |  [0,2], |   3,4   |   3
-    //               |         |  [4-19] |  [5,19] |         |
+    //               |         |  [5-19] |  [4,19] |         |
     // --------------+---------+---------+---------+---------+--------
     //    rate       |   10    |   0.02  |   15    |    2    |   1
     // --------------+---------+---------+---------+---------+--------
@@ -133,28 +132,18 @@ void generateTestMessages(core_t::TTime startTime, core_t::TTime bucketLength, T
         people.push_back("p" + boost::lexical_cast<std::string>(i));
     }
 
-    std::size_t c0People[] = {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
-                              10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
-    std::size_t c1People[] = {0,  1,  2,  5,  6,  7,  8,  9,  10,
-                              11, 12, 13, 14, 15, 16, 17, 18, 19};
-    std::size_t c2People[] = {0,  1,  2,  4,  5,  6,  7,  8,  9, 10,
-                              11, 12, 13, 14, 15, 16, 17, 18, 19};
-    std::size_t c3People[] = {3, 4};
-    std::size_t c4People[] = {3};
-
-    TSizeVecVec attributePeople;
-    attributePeople.push_back(TSizeVec(std::begin(c0People), std::end(c0People)));
-    attributePeople.push_back(TSizeVec(std::begin(c1People), std::end(c1People)));
-    attributePeople.push_back(TSizeVec(std::begin(c2People), std::end(c2People)));
-    attributePeople.push_back(TSizeVec(std::begin(c3People), std::end(c3People)));
-    attributePeople.push_back(TSizeVec(std::begin(c4People), std::end(c4People)));
+    TSizeVecVec attributePeople{
+        {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
+        {0, 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
+        {0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
+        {3, 4},
+        {3}};
 
     double attributeRates[] = {10.0, 0.02, 15.0, 2.0, 1.0};
 
     TSizeSizeSizeTr anomaliesAttributePerson[] = {
-        TSizeSizeSizeTr(10u, 0u, 1u),  TSizeSizeSizeTr(15u, 0u, 11u),
-        TSizeSizeSizeTr(30u, 2u, 4u),  TSizeSizeSizeTr(35u, 2u, 5u),
-        TSizeSizeSizeTr(50u, 0u, 11u), TSizeSizeSizeTr(75u, 2u, 5u)};
+        {10u, 0u, 1u}, {15u, 0u, 11u}, {30u, 2u, 4u},
+        {35u, 2u, 5u}, {50u, 0u, 11u}, {75u, 2u, 5u}};
 
     test::CRandomNumbers rng;
 
@@ -191,9 +180,7 @@ void generateTestMessages(core_t::TTime startTime, core_t::TTime bucketLength, T
 void addArrival(const SMessage& message,
                 const CModelFactory::TDataGathererPtr& gatherer,
                 CResourceMonitor& resourceMonitor) {
-    CDataGatherer::TStrCPtrVec fields;
-    fields.push_back(&message.s_Person);
-    fields.push_back(&message.s_Attribute);
+    CDataGatherer::TStrCPtrVec fields{&message.s_Person, &message.s_Attribute};
     CEventData result;
     result.time(message.s_Time);
     gatherer->addArrival(fields, result, resourceMonitor);
