@@ -376,6 +376,7 @@ private:
     TTreeShapFeatureImportanceUPtr m_TreeShap;
     TAnalysisInstrumentationPtr m_Instrumentation;
     mutable TMeanAccumulator m_ForestSizeAccumulator;
+    mutable TDoubleVec m_MeanLossAccumulator;
 
 private:
     friend class CBoostedTreeFactory;
