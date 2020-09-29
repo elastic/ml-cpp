@@ -18,7 +18,7 @@ LIBS=\
 
 SRCS=\
     Main.cc \
-    CBlockingCallCancellerThreadTest.cc \
+    CBlockingCallCancellingStreamMonitorTest.cc \
     CCommandProcessorTest.cc \
 
 include $(CPP_SRC_HOME)/mk/stdboosttest.mk

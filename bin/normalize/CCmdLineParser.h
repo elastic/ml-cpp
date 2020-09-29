@@ -37,6 +37,7 @@ public:
                       std::string& logPipe,
                       core_t::TTime& bucketSpan,
                       bool& lengthEncodedInput,
+                      core_t::TTime& namedPipeConnectTimeout,
                       std::string& inputFileName,
                       bool& isInputFileNamedPipe,
                       std::string& outputFileName,

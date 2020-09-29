@@ -26,6 +26,7 @@ bool CCmdLineParser::parse(int argc,
                            char& delimiter,
                            bool& lengthEncodedInput,
                            core_t::TTime& persistInterval,
+                           core_t::TTime& namedPipeConnectTimeout,
                            std::string& inputFileName,
                            bool& isInputFileNamedPipe,
                            std::string& outputFileName,
@@ -43,34 +44,36 @@ bool CCmdLineParser::parse(int argc,
             ("help", "Display this information and exit")
             ("version", "Display version information and exit")
             ("limitconfig", boost::program_options::value<std::string>(),
-                        "Optional limit config file")
+                    "Optional limit config file")
             ("jobid", boost::program_options::value<std::string>(),
-                        "ID of the job this process is associated with")
+                    "ID of the job this process is associated with")
             ("logProperties", boost::program_options::value<std::string>(),
-                        "Optional logger properties file")
+                    "Optional logger properties file")
             ("logPipe", boost::program_options::value<std::string>(),
-                        "Optional log to named pipe")
+                    "Optional log to named pipe")
             ("delimiter", boost::program_options::value<char>(),
-                        "Optional delimiter character for delimited data formats - default is '\t' (tab separated)")
+                    "Optional delimiter character for delimited data formats - default is '\t' (tab separated)")
             ("lengthEncodedInput",
-                        "Take input in length encoded binary format - default is delimited")
+                    "Take input in length encoded binary format - default is delimited")
+            ("namedPipeConnectTimeout", boost::program_options::value<core_t::TTime>(),
+                    "Optional timeout (in seconds) for connecting named pipes on startup - default is 300 seconds")
             ("input", boost::program_options::value<std::string>(),
-                        "Optional file to read input from - not present means read from STDIN")
+                    "Optional file to read input from - not present means read from STDIN")
             ("inputIsPipe", "Specified input file is a named pipe")
             ("output", boost::program_options::value<std::string>(),
-                        "Optional file to write output to - not present means write to STDOUT")
+                    "Optional file to write output to - not present means write to STDOUT")
             ("outputIsPipe", "Specified output file is a named pipe")
             ("restore", boost::program_options::value<std::string>(),
-                        "Optional file to restore state from - not present means no state restoration")
+                    "Optional file to restore state from - not present means no state restoration")
             ("restoreIsPipe", "Specified restore file is a named pipe")
             ("persist", boost::program_options::value<std::string>(),
-                        "Optional file to persist state to - not present means no state persistence")
+                    "Optional file to persist state to - not present means no state persistence")
             ("persistIsPipe", "Specified persist file is a named pipe")
             ("persistInterval", boost::program_options::value<core_t::TTime>(),
-                        "Optional interval at which to periodically persist model state - if not specified then models will only be persisted at program exit")
+                    "Optional interval at which to periodically persist model state - if not specified then models will only be persisted at program exit")
             ("persistInForeground", "Persistence occurs in the foreground. Defaults to background persistence.")
             ("categorizationfield", boost::program_options::value<std::string>(),
-                        "Field to compute mlcategory from")
+                    "Field to compute mlcategory from")
         ;
         // clang-format on
 
@@ -107,6 +110,9 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("persistInterval") > 0) {
             persistInterval = vm["persistInterval"].as<core_t::TTime>();
+        }
+        if (vm.count("namedPipeConnectTimeout") > 0) {
+            namedPipeConnectTimeout = vm["namedPipeConnectTimeout"].as<core_t::TTime>();
         }
         if (vm.count("input") > 0) {
             inputFileName = vm["input"].as<std::string>();

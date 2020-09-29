@@ -20,7 +20,7 @@ all:: build
 
 SRCS= \
     Main.cc \
-    CBlockingCallCancellerThread.cc \
+    CBlockingCallCancellingStreamMonitor.cc \
     CCmdLineParser.cc \
     CCommandProcessor.cc \
 

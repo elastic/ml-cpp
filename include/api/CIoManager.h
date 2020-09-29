@@ -7,7 +7,6 @@
 #define INCLUDED_ml_api_CIoManager_h
 
 #include <core/CNamedPipeFactory.h>
-#include <core/CNonCopyable.h>
 
 #include <api/ImportExport.h>
 
@@ -15,14 +14,17 @@
 #include <string>
 
 namespace ml {
+namespace core {
+class CBlockingCallCancellerThread;
+}
 namespace api {
 
 //! \brief
-//! Manages the various IO streams of an API command.
+//! Manages the various IO streams of an ML C++ process.
 //!
 //! DESCRIPTION:\n
-//! Ml C++ commands that can be run from Java can take input
-//! from and send output to:
+//! ML C++ processes that can be run from Java can take input from
+//! and send output to:
 //! 1) STDIN/STDOUT
 //! 2) Standard files on disk
 //! 3) Named pipes
@@ -43,19 +45,24 @@ namespace api {
 //! always required.  Persist/restore streams are returned as pointers
 //! because some processes may not require both.
 //!
-class API_EXPORT CIoManager : private core::CNonCopyable {
+class API_EXPORT CIoManager {
 public:
     //! Leave \p inputFileName/\p outputFileName empty to indicate
     //! STDIN/STDOUT.  Leave \p restoreFileName/\p persistFileName empty to
     //! indicate no state restore or persist.
-    CIoManager(const std::string& inputFileName,
+    CIoManager(core::CBlockingCallCancellerThread& cancellerThread,
+               const std::string& inputFileName,
                bool isInputFileNamedPipe,
                const std::string& outputFileName,
                bool isOutputFileNamedPipe,
-               const std::string& restoreFileName = std::string(),
+               const std::string& restoreFileName = std::string{},
                bool isRestoreFileNamedPipe = true,
-               const std::string& persistFileName = std::string(),
+               const std::string& persistFileName = std::string{},
                bool isPersistFileNamedPipe = true);
+
+    //! No copying
+    CIoManager(const CIoManager&) = delete;
+    CIoManager& operator=(const CIoManager&) = delete;
 
     //! This will close any streams and unlink named pipes.  All
     //! input/output/restore/persist operations must be complete at the time
@@ -78,6 +85,9 @@ public:
     core::CNamedPipeFactory::TOStreamP persistStream();
 
 private:
+    //! Used to cancel named pipe connection attempts that take too long.
+    core::CBlockingCallCancellerThread& m_CancellerThread;
+
     //! Have the streams been successfully initialised?
     bool m_IoInitialised;
 

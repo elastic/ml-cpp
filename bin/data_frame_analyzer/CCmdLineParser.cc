@@ -24,6 +24,7 @@ bool CCmdLineParser::parse(int argc,
                            std::string& logProperties,
                            std::string& logPipe,
                            bool& lengthEncodedInput,
+                           core_t::TTime& namedPipeConnectTimeout,
                            std::string& inputFileName,
                            bool& isInputFileNamedPipe,
                            std::string& outputFileName,
@@ -46,7 +47,9 @@ bool CCmdLineParser::parse(int argc,
             ("logPipe", boost::program_options::value<std::string>(),
                     "Optional log to named pipe")
             ("lengthEncodedInput",
-                        "Take input in length encoded binary format - default is CSV")
+                    "Take input in length encoded binary format - default is CSV")
+            ("namedPipeConnectTimeout", boost::program_options::value<core_t::TTime>(),
+                    "Optional timeout (in seconds) for connecting named pipes on startup - default is 300 seconds")
             ("input", boost::program_options::value<std::string>(),
                     "Optional file to read input from - not present means read from STDIN")
             ("inputIsPipe", "Specified input file is a named pipe")
@@ -57,7 +60,7 @@ bool CCmdLineParser::parse(int argc,
                     "Optional file to restore state from - not present means no state restoration")
             ("restoreIsPipe", "Specified restore file is a named pipe")
             ("persist", boost::program_options::value<std::string>(),
-                   "File to persist state to - not present means no state persistence")
+                    "File to persist state to - not present means no state persistence")
             ("persistIsPipe", "Specified persist file is a named pipe")
         ;
         // clang-format on
@@ -89,6 +92,9 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("lengthEncodedInput") > 0) {
             lengthEncodedInput = true;
+        }
+        if (vm.count("namedPipeConnectTimeout") > 0) {
+            namedPipeConnectTimeout = vm["namedPipeConnectTimeout"].as<core_t::TTime>();
         }
         if (vm.count("input") > 0) {
             inputFileName = vm["input"].as<std::string>();

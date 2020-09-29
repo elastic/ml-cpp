@@ -6,7 +6,6 @@
 #include "CCommandProcessor.h"
 
 #include <core/CContainerPrinter.h>
-#include <core/CDetachedProcessSpawner.h>
 #include <core/CLogger.h>
 #include <core/CProcess.h>
 #include <core/CStringUtils.h>
