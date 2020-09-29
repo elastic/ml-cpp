@@ -13,6 +13,7 @@
 //! IMPLEMENTATION DECISIONS:\n
 //! Standalone program.
 //!
+#include <core/CBlockingCallCancellingTimer.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
 #include <core/CoreTypes.h>
@@ -32,43 +33,58 @@
 
 #include "CCmdLineParser.h"
 
+#include <chrono>
+#include <cstdio>
+#include <cstdlib>
 #include <functional>
 #include <memory>
 #include <string>
-
-#include <stdio.h>
-#include <stdlib.h>
 
 int main(int argc, char** argv) {
     // Read command line options
     std::string modelConfigFile;
     std::string logProperties;
     std::string logPipe;
-    ml::core_t::TTime bucketSpan(0);
-    bool lengthEncodedInput(false);
+    ml::core_t::TTime bucketSpan{0};
+    bool lengthEncodedInput{false};
+    ml::core_t::TTime namedPipeConnectTimeout{
+        ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
     std::string inputFileName;
-    bool isInputFileNamedPipe(false);
+    bool isInputFileNamedPipe{false};
     std::string outputFileName;
-    bool isOutputFileNamedPipe(false);
+    bool isOutputFileNamedPipe{false};
     std::string quantilesStateFile;
-    bool deleteStateFiles(false);
-    bool writeCsv(false);
+    bool deleteStateFiles{false};
+    bool writeCsv{false};
     if (ml::normalize::CCmdLineParser::parse(
-            argc, argv, modelConfigFile, logProperties, logPipe, bucketSpan, lengthEncodedInput,
-            inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
+            argc, argv, modelConfigFile, logProperties, logPipe, bucketSpan,
+            lengthEncodedInput, namedPipeConnectTimeout, inputFileName,
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
             quantilesStateFile, deleteStateFiles, writeCsv) == false) {
         return EXIT_FAILURE;
     }
 
+    ml::core::CBlockingCallCancellingTimer cancellerThread{
+        ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
+
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe,
-                              outputFileName, isOutputFileNamedPipe);
+    ml::api::CIoManager ioMgr{cancellerThread, inputFileName, isInputFileNamedPipe,
+                              outputFileName, isOutputFileNamedPipe};
 
-    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
-        LOG_FATAL(<< "Could not reconfigure logging");
+    if (cancellerThread.start() == false) {
+        // This log message will probably never been seen as it will go to the
+        // real stderr of this process rather than the log pipe...
+        LOG_FATAL(<< "Could not start blocking call canceller thread");
         return EXIT_FAILURE;
     }
+    if (ml::core::CLogger::instance().reconfigure(
+            logPipe, logProperties, cancellerThread.hasCancelledBlockingCall()) == false) {
+        LOG_FATAL(<< "Could not reconfigure logging");
+        cancellerThread.stop();
+        return EXIT_FAILURE;
+    }
+    cancellerThread.stop();
 
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
@@ -93,7 +109,7 @@ int main(int argc, char** argv) {
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(bucketSpan);
     if (!modelConfigFile.empty() && modelConfig.init(modelConfigFile) == false) {
-        LOG_FATAL(<< "Ml model config file '" << modelConfigFile << "' could not be loaded");
+        LOG_FATAL(<< "ML model config file '" << modelConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
 
@@ -118,7 +134,7 @@ int main(int argc, char** argv) {
     }()};
 
     // This object will do the work
-    ml::api::CResultNormalizer normalizer(modelConfig, *outputWriter);
+    ml::api::CResultNormalizer normalizer{modelConfig, *outputWriter};
 
     // Restore state
     if (!quantilesStateFile.empty()) {
@@ -127,7 +143,7 @@ int main(int argc, char** argv) {
             return EXIT_FAILURE;
         }
         if (deleteStateFiles) {
-            ::remove(quantilesStateFile.c_str());
+            std::remove(quantilesStateFile.c_str());
         }
     }
 
@@ -142,7 +158,7 @@ int main(int argc, char** argv) {
     // This message makes it easier to spot process crashes in a log file - if
     // this isn't present in the log for a given PID and there's no other log
     // message indicating early exit then the process has probably core dumped
-    LOG_DEBUG(<< "Ml normalizer exiting");
+    LOG_DEBUG(<< "ML normalizer exiting");
 
     return EXIT_SUCCESS;
 }

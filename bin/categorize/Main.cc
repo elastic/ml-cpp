@@ -13,6 +13,7 @@
 //! IMPLEMENTATION DECISIONS:\n
 //! Standalone program.
 //!
+#include <core/CBlockingCallCancellingTimer.h>
 #include <core/CDataAdder.h>
 #include <core/CDataSearcher.h>
 #include <core/CJsonOutputStreamWrapper.h>
@@ -40,11 +41,11 @@
 
 #include "CCmdLineParser.h"
 
+#include <chrono>
+#include <cstdlib>
 #include <functional>
 #include <memory>
 #include <string>
-
-#include <stdlib.h>
 
 int main(int argc, char** argv) {
     // Read command line options
@@ -61,6 +62,8 @@ int main(int argc, char** argv) {
     std::string timeFormat;
     bool stopCategorizationOnWarnStatus{false};
     ml::core_t::TTime persistInterval{-1};
+    ml::core_t::TTime namedPipeConnectTimeout{
+        ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
     std::string inputFileName;
     bool isInputFileNamedPipe{false};
     std::string outputFileName;
@@ -73,23 +76,36 @@ int main(int argc, char** argv) {
     std::string categorizationFieldName;
     if (ml::categorize::CCmdLineParser::parse(
             argc, argv, limitConfigFile, jobId, logProperties, logPipe, delimiter,
-            lengthEncodedInput, persistInterval, inputFileName, isInputFileNamedPipe,
-            outputFileName, isOutputFileNamedPipe, restoreFileName,
+            lengthEncodedInput, persistInterval, namedPipeConnectTimeout, inputFileName,
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
             isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe,
             isPersistInForeground, categorizationFieldName) == false) {
         return EXIT_FAILURE;
     }
 
+    ml::core::CBlockingCallCancellingTimer cancellerThread{
+        ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
+
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe, outputFileName,
-                              isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
-                              persistFileName, isPersistFileNamedPipe);
+    ml::api::CIoManager ioMgr{
+        cancellerThread,        inputFileName,         isInputFileNamedPipe,
+        outputFileName,         isOutputFileNamedPipe, restoreFileName,
+        isRestoreFileNamedPipe, persistFileName,       isPersistFileNamedPipe};
 
-    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
-        LOG_FATAL(<< "Could not reconfigure logging");
+    if (cancellerThread.start() == false) {
+        // This log message will probably never been seen as it will go to the
+        // real stderr of this process rather than the log pipe...
+        LOG_FATAL(<< "Could not start blocking call canceller thread");
         return EXIT_FAILURE;
     }
+    if (ml::core::CLogger::instance().reconfigure(
+            logPipe, logProperties, cancellerThread.hasCancelledBlockingCall()) == false) {
+        LOG_FATAL(<< "Could not reconfigure logging");
+        cancellerThread.stop();
+        return EXIT_FAILURE;
+    }
+    cancellerThread.stop();
 
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
@@ -116,7 +132,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    ml::model::CLimits limits(isPersistInForeground);
+    ml::model::CLimits limits{isPersistInForeground};
     if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false) {
         LOG_FATAL(<< "ML limit config file '" << limitConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
@@ -126,7 +142,7 @@ int main(int argc, char** argv) {
         LOG_FATAL(<< "No categorization field name specified");
         return EXIT_FAILURE;
     }
-    ml::api::CFieldConfig fieldConfig(categorizationFieldName);
+    ml::api::CFieldConfig fieldConfig{categorizationFieldName};
 
     using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
     const TDataSearcherUPtr restoreSearcher{[isRestoreFileNamedPipe, &ioMgr]() -> TDataSearcherUPtr {
@@ -176,7 +192,7 @@ int main(int argc, char** argv) {
         return std::make_unique<ml::api::CCsvInputParser>(ioMgr.inputStream(), delimiter);
     }()};
 
-    ml::core::CJsonOutputStreamWrapper wrappedOutputStream(ioMgr.outputStream());
+    ml::core::CJsonOutputStreamWrapper wrappedOutputStream{ioMgr.outputStream()};
 
     // The categorizer knows how to assign categories to records
     ml::api::CFieldDataCategorizer categorizer{jobId,
@@ -198,8 +214,8 @@ int main(int argc, char** argv) {
     }
 
     // The skeleton avoids the need to duplicate a lot of boilerplate code
-    ml::api::CCmdSkeleton skeleton(restoreSearcher.get(), persister.get(),
-                                   *inputParser, categorizer);
+    ml::api::CCmdSkeleton skeleton{restoreSearcher.get(), persister.get(),
+                                   *inputParser, categorizer};
     if (skeleton.ioLoop() == false) {
         LOG_FATAL(<< "ML categorization job failed");
         return EXIT_FAILURE;

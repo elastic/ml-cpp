@@ -6,6 +6,8 @@
 #ifndef INCLUDED_ml_data_frame_analyzer_CCmdLineParser_h
 #define INCLUDED_ml_data_frame_analyzer_CCmdLineParser_h
 
+#include <core/CoreTypes.h>
+
 #include <string>
 
 namespace ml {
@@ -31,6 +33,7 @@ public:
                       std::string& logProperties,
                       std::string& logPipe,
                       bool& lengthEncodedInput,
+                      core_t::TTime& namedPipeConnectTimeout,
                       std::string& inputFileName,
                       bool& isInputFileNamedPipe,
                       std::string& outputFileName,
