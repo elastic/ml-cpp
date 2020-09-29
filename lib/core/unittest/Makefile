@@ -29,6 +29,7 @@ Main.cc \
 CAlignmentTest.cc \
 CAllocationStrategyTest.cc \
 CBase64FilterTest.cc \
+CBlockingCallCancellingTimerTest.cc \
 CCompressedDictionaryTest.cc \
 CCompressUtilsTest.cc \
 CConcurrencyTest.cc \

@@ -47,7 +47,7 @@
 
 #include <ver/CBuildInfo.h>
 
-#include "CBlockingCallCancellerThread.h"
+#include "CBlockingCallCancellingStreamMonitor.h"
 #include "CCmdLineParser.h"
 #include "CCommandProcessor.h"
 
@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
     // 4) No plugin code ever runs
     // This thread will detect the death of the parent process because this
     // process's STDIN will be closed.
-    ml::controller::CBlockingCallCancellerThread cancellerThread{
+    ml::controller::CBlockingCallCancellingStreamMonitor cancellerThread{
         ml::core::CThread::currentThreadId(), std::cin};
     if (cancellerThread.start() == false) {
         // This log message will probably never been seen as it will go to the

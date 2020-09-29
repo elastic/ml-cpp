@@ -41,6 +41,7 @@ bool CCmdLineParser::parse(int argc,
                            core_t::TTime& persistInterval,
                            std::size_t& bucketPersistInterval,
                            core_t::TTime& maxQuantileInterval,
+                           core_t::TTime& namedPipeConnectTimeout,
                            std::string& inputFileName,
                            bool& isInputFileNamedPipe,
                            std::string& outputFileName,
@@ -93,6 +94,8 @@ bool CCmdLineParser::parse(int argc,
                         "Optional file to quantiles for normalization")
             ("deleteStateFiles",
                         "If the 'quantilesState' option is used and this flag is set then delete the model state files once they have been read")
+            ("namedPipeConnectTimeout", boost::program_options::value<core_t::TTime>(),
+                        "Optional timeout (in seconds) for connecting named pipes on startup - default is 300 seconds")
             ("input", boost::program_options::value<std::string>(),
                         "Optional file to read input from - not present means read from STDIN")
             ("inputIsPipe", "Specified input file is a named pipe")
@@ -208,6 +211,9 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("maxQuantileInterval") > 0) {
             maxQuantileInterval = vm["maxQuantileInterval"].as<core_t::TTime>();
+        }
+        if (vm.count("namedPipeConnectTimeout") > 0) {
+            namedPipeConnectTimeout = vm["namedPipeConnectTimeout"].as<core_t::TTime>();
         }
         if (vm.count("input") > 0) {
             inputFileName = vm["input"].as<std::string>();
