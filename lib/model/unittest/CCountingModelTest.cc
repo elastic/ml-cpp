@@ -78,9 +78,9 @@ const std::string EMPTY_STRING;
 class CTestFixture : public CModelTestFixtureBase {};
 
 BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
-    core_t::TTime startTime(100);
-    core_t::TTime bucketLength(100);
-    std::size_t maxAgeBuckets(1);
+    core_t::TTime startTime{100};
+    core_t::TTime bucketLength{100};
+    std::size_t maxAgeBuckets{1};
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
@@ -144,8 +144,8 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testCheckScheduledEvents, CTestFixture) {
-    core_t::TTime startTime(100);
-    core_t::TTime bucketLength(100);
+    core_t::TTime startTime{100};
+    core_t::TTime bucketLength{100};
 
     SModelParams params(bucketLength);
 
@@ -247,8 +247,8 @@ BOOST_FIXTURE_TEST_CASE(testCheckScheduledEvents, CTestFixture) {
 BOOST_FIXTURE_TEST_CASE(testInterimBucketCorrector, CTestFixture) {
     // Check that we correctly update estimate bucket completeness.
 
-    core_t::TTime time(0);
-    core_t::TTime bucketLength(600);
+    core_t::TTime time{0};
+    core_t::TTime bucketLength{600};
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
@@ -270,7 +270,7 @@ BOOST_FIXTURE_TEST_CASE(testInterimBucketCorrector, CTestFixture) {
     TDoubleVec uniform01;
     TSizeVec offsets;
 
-    for (std::size_t i = 0; i < 10; ++i, time += bucketLength) {
+    for (std::size_t i = 0u; i < 10; ++i, time += bucketLength) {
         rng.generateUniformSamples(0, bucketLength, 10, offsets);
         std::sort(offsets.begin(), offsets.end());
         for (auto offset : offsets) {
@@ -285,7 +285,7 @@ BOOST_FIXTURE_TEST_CASE(testInterimBucketCorrector, CTestFixture) {
     rng.generateUniformSamples(0, bucketLength, 10, offsets);
     std::sort(offsets.begin(), offsets.end());
 
-    for (std::size_t i = 0; i < offsets.size(); ++i) {
+    for (std::size_t i = 0u; i < offsets.size(); ++i) {
         rng.generateUniformSamples(0.0, 1.0, 1, uniform01);
         addArrival(*gatherer, m_ResourceMonitor,
                    time + static_cast<core_t::TTime>(offsets[i]),
