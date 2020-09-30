@@ -174,8 +174,6 @@ private:
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
     using TWorkspace = CBoostedTreeLeafNodeStatistics::CWorkspace;
-    using TSizeMeanVarAccumulator =
-        maths::CBasicStatistics::SSampleMeanVar<std::size_t>::TAccumulator;
 
     //! Tag progress through initialization.
     enum EInitializationStage {
@@ -376,7 +374,7 @@ private:
     TTreeShapFeatureImportanceUPtr m_TreeShap;
     TAnalysisInstrumentationPtr m_Instrumentation;
     mutable TMeanAccumulator m_ForestSizeAccumulator;
-    mutable TDoubleVec m_MeanLossAccumulator;
+    mutable TMeanAccumulator m_MeanLossAccumulator;
 
 private:
     friend class CBoostedTreeFactory;

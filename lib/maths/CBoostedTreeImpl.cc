@@ -4,7 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "maths/CBasicStatistics.h"
 #include <maths/CBoostedTreeImpl.h>
 
 #include <core/CContainerPrinter.h>
@@ -149,11 +148,11 @@ double trace(std::size_t columns, const TMemoryMappedFloatVector& upperTriangle)
 CDataFrameTrainBoostedTreeInstrumentationStub INSTRUMENTATION_STUB;
 
 double numberForestNodes(const CBoostedTreeImpl::TNodeVecVec& forest) {
-    double forestSize{0.0};
+    double numberNodes{0.0};
     for (const auto& tree : forest) {
-        forestSize += static_cast<double>(tree.size());
+        numberNodes += static_cast<double>(tree.size());
     }
-    return forestSize;
+    return numberNodes;
 }
 }
 
@@ -236,7 +235,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             std::tie(lossMoments, maximumNumberTrees, numberNodes) =
                 this->crossValidateForest(frame);
 
-            m_MeanLossAccumulator.push_back(CBasicStatistics::mean(lossMoments));
+            m_MeanLossAccumulator.add(CBasicStatistics::mean(lossMoments));
 
             this->captureBestHyperparameters(lossMoments, maximumNumberTrees, numberNodes);
 
@@ -1231,17 +1230,14 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
               << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
               << ", feature bag fraction = " << m_FeatureBagFraction);
 
-    //
-    // Keep track of the "average forest number of nodes" .
     // Add 0.01 * "forest number nodes" * E[GP] / "average forest number nodes" to meanLoss.
     auto modelSizeDifferentiator{0.01 * numberNodes /
                                  CBasicStatistics::mean(m_ForestSizeAccumulator) *
-                                 CBasicStatistics::median(m_MeanLossAccumulator)};
-
+                                 CBasicStatistics::mean(m_MeanLossAccumulator)};
     // LOG_INFO(<< "selectNextHyperparameters() modelSizeDifferentiator " << modelSizeDifferentiator << " numberNodes " << numberNodes
     // << " meanLoss " << meanLoss << " sum " <<  (meanLoss + modelSizeDifferentiator)  );
 
-    bopt.add(parameters, meanLoss /*+ modelSizeDifferentiator*/, lossVariance);
+    bopt.add(parameters, meanLoss + modelSizeDifferentiator, lossVariance);
     if (3 * m_CurrentRound < m_NumberRounds) {
         std::generate_n(parameters.data(), parameters.size(), [&]() {
             return CSampling::uniformSample(m_Rng, 0.0, 1.0);
@@ -1304,23 +1300,16 @@ void CBoostedTreeImpl::captureBestHyperparameters(const TMeanVarAccumulator& los
     // We capture the parameters with the lowest error at one standard
     // deviation above the mean. If the mean error improvement is marginal
     // we prefer the solution with the least variation across the folds.
-    double modelSizeDifferentiator{
-        0.01 * numberNodes / CBasicStatistics::mean(m_ForestSizeAccumulator)*CBasicStatistics::median(m_MeanLossAccumulator)};
-    double loss{lossAtNSigma(1.0, lossMoments) /*+ modelSizeDifferentiator*/};
-    LOG_INFO(<<"captureBestHyperparameters(): loss " << lossAtNSigma(1.0, lossMoments) 
-    << " model size term: " << modelSizeDifferentiator 
-    << " numberNodes " << numberNodes
-    << " total loss term: " << loss 
-   /* << " downsample factor: " << m_DownsampleFactor << " eta " << m_Eta 
-    << " m_EtaGrowthRatePerTree: " << m_EtaGrowthRatePerTree << " maximumNumberTrees: " << maximumNumberTrees
-    << " m_FeatureBagFraction" << m_FeatureBagFraction 
-    << " depthPenaltyMultiplier " << m_Regularization.depthPenaltyMultiplier()
-    << " treeSizePenaltyMultiplier " << m_Regularization.treeSizePenaltyMultiplier()
-    << " leafWeightPenaltyMultiplier " << m_Regularization.leafWeightPenaltyMultiplier()
-    << " softTreeDepthLimit " << m_Regularization.softTreeDepthLimit()*/);
+    double modelSizeDifferentiator{0.01 * numberNodes /
+                                   CBasicStatistics::mean(m_ForestSizeAccumulator) *
+                                   CBasicStatistics::mean(m_MeanLossAccumulator)};
+    double loss{lossAtNSigma(1.0, lossMoments) + modelSizeDifferentiator};
+    // LOG_INFO(<< "captureBestHyperparameters(): loss " << lossAtNSigma(1.0, lossMoments)
+    //          << " model size term: " << modelSizeDifferentiator
+    //          << " numberNodes " << numberNodes << " total loss term: " << loss);
     if (loss < m_BestForestTestLoss) {
         m_BestForestTestLoss = loss;
-        LOG_INFO(<<"Preferred best model: total loss " << m_BestForestTestLoss);
+        // LOG_INFO(<< "Preferred best model: total loss " << m_BestForestTestLoss);
         m_BestHyperparameters = CBoostedTreeHyperparameters{
             m_Regularization,       m_DownsampleFactor, m_Eta,
             m_EtaGrowthRatePerTree, maximumNumberTrees, m_FeatureBagFraction};
