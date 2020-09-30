@@ -22,6 +22,8 @@
 #include <utility>
 #include <vector>
 
+using TBoolVec = std::vector<bool>;
+
 using TDouble1Vec = ml::core::CSmallVector<double, 1>;
 using TDouble2Vec = ml::core::CSmallVector<double, 2>;
 using TDouble4Vec = ml::core::CSmallVector<double, 4>;
@@ -54,11 +56,17 @@ using TSizeSizePrUInt64Map = std::map<TSizeSizePr, uint64_t>;
 using TSizeVec = std::vector<std::size_t>;
 using TSizeVecVec = std::vector<TSizeVec>;
 using TSizeVecVecVec = std::vector<TSizeVecVec>;
+using TStrSizePr = std::pair<std::string, std::size_t>;
+using TStrSizePrVec = std::vector<TStrSizePr>;
+using TStrSizePrVecVec = std::vector<TStrSizePrVec>;
+using TStrSizePrVecVecVec = std::vector<TStrSizePrVecVec>;
+using TStrUInt64Map = std::map<std::string, uint64_t>;
 
 using TStrVec = std::vector<std::string>;
 using TStrVecVec = std::vector<TStrVec>;
 
 using TTimeDoublePr = std::pair<ml::core_t::TTime, double>;
+using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
 using TOptionalTimeDoublePr = boost::optional<TTimeDoublePr>;
 using TTimeStrVecPr = std::pair<ml::core_t::TTime, TStrVec>;
 using TTimeStrVecPrVec = std::vector<TTimeStrVecPr>;
