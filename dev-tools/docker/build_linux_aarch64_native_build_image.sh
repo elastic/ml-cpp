@@ -20,7 +20,7 @@ if [ `uname -m` != aarch64 ] ; then
     exit 1
 fi
 
-HOST=push.docker.elastic.co
+HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-linux-aarch64-native-build
 VERSION=2

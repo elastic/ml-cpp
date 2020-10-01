@@ -8,16 +8,12 @@
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
-#include <core/CSmallVector.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
-#include <maths/CEqualWithTolerance.h>
 #include <maths/CIntegerTools.h>
 #include <maths/CModelWeight.h>
-#include <maths/CNormalMeanPrecConjugate.h>
 #include <maths/CPrior.h>
-#include <maths/CTimeSeriesDecompositionInterface.h>
 
 #include <model/CAnnotatedProbability.h>
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -27,7 +23,6 @@
 #include <model/CEventData.h>
 #include <model/CEventRateModel.h>
 #include <model/CEventRateModelFactory.h>
-#include <model/CEventRatePopulationModel.h>
 #include <model/CEventRatePopulationModelFactory.h>
 #include <model/CInterimBucketCorrector.h>
 #include <model/CModelDetailsView.h>
@@ -41,8 +36,6 @@
 
 #include "CModelTestFixtureBase.h"
 
-#include <boost/foreach.hpp>
-#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <memory>
@@ -131,8 +124,7 @@ void generateSporadicEvents(const core_t::TTime& startTime,
 std::size_t addPerson(const std::string& p,
                       const CModelFactory::TDataGathererPtr& gatherer,
                       CResourceMonitor& resourceMonitor) {
-    CDataGatherer::TStrCPtrVec person;
-    person.push_back(&p);
+    CDataGatherer::TStrCPtrVec person{&p};
     CEventData result;
     gatherer->processFields(person, result, resourceMonitor);
     return *result.personId();
@@ -144,8 +136,7 @@ std::size_t addPersonWithInfluence(const std::string& p,
                                    std::size_t numInfluencers,
                                    TOptionalStr value = TOptionalStr()) {
     std::string i("i");
-    CDataGatherer::TStrCPtrVec person;
-    person.push_back(&p);
+    CDataGatherer::TStrCPtrVec person{&p};
     for (std::size_t j = 0; j < numInfluencers; ++j) {
         person.push_back(&i);
     }
@@ -164,8 +155,7 @@ void addArrival(CDataGatherer& gatherer,
                 const TOptionalStr& inf1 = TOptionalStr(),
                 const TOptionalStr& inf2 = TOptionalStr(),
                 const TOptionalStr& value = TOptionalStr()) {
-    CDataGatherer::TStrCPtrVec fieldValues;
-    fieldValues.push_back(&person);
+    CDataGatherer::TStrCPtrVec fieldValues{&person};
     if (inf1) {
         fieldValues.push_back(&(inf1.get()));
     }
@@ -217,8 +207,8 @@ void testModelWithValueField(model_t::EFeature feature,
                              CResourceMonitor& resourceMonitor) {
     LOG_DEBUG(<< "  *** testing feature " << model_t::print(feature));
 
-    const core_t::TTime startTime = 1346968800;
-    const core_t::TTime bucketLength = 3600;
+    const core_t::TTime startTime{1346968800};
+    const core_t::TTime bucketLength{3600};
     SModelParams params(bucketLength);
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
     CEventRatePopulationModelFactory factory(params, interimBucketCorrector);
@@ -228,21 +218,20 @@ void testModelWithValueField(model_t::EFeature feature,
     CModelFactory::TModelPtr model(factory.makeModel(gatherer));
     BOOST_TEST_REQUIRE(model);
 
-    std::size_t anomalousBucket = 20;
-    std::size_t numberBuckets = 30;
+    std::size_t anomalousBucket{20u};
+    std::size_t numberBuckets{30u};
 
     const core_t::TTime endTime = startTime + (numberBuckets * bucketLength);
 
-    std::size_t i = 0u;
+    std::size_t i{0u};
     for (core_t::TTime bucketStartTime = startTime; bucketStartTime < endTime;
          bucketStartTime += bucketLength, i++) {
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
         for (std::size_t j = 0; j < fields[i].size(); ++j) {
-            CDataGatherer::TStrCPtrVec f;
-            f.push_back(&strings[fields[i][j][0]]);
-            f.push_back(&strings[fields[i][j][1]]);
-            f.push_back(&strings[fields[i][j][2]]);
+            CDataGatherer::TStrCPtrVec f{&strings[fields[i][j][0]],
+                                         &strings[fields[i][j][1]],
+                                         &strings[fields[i][j][2]]};
             handleEvent(f, bucketStartTime + j, gatherer, resourceMonitor);
         }
 
@@ -308,7 +297,11 @@ public:
 
 protected:
     using TInterimBucketCorrectorPtr = std::shared_ptr<CInterimBucketCorrector>;
-    using TEventRateModelFactoryPtr = boost::shared_ptr<CEventRateModelFactory>;
+    using TEventRateModelFactoryPtr = std::shared_ptr<CEventRateModelFactory>;
+
+    using TDoubleSizeStrTr = core::CTriple<double, std::size_t, std::string>;
+    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr>;
+    using TMinAccumulatorVec = std::vector<TMinAccumulator>;
 
 protected:
     TInterimBucketCorrectorPtr m_InterimBucketCorrector;
@@ -318,8 +311,8 @@ protected:
 };
 
 BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
-    const core_t::TTime startTime = 1346968800;
-    const core_t::TTime bucketLength = 3600;
+    const core_t::TTime startTime{1346968800};
+    const core_t::TTime bucketLength{3600};
     SModelParams params(bucketLength);
     params.s_InitialDecayRateMultiplier = 1.0;
     this->makeModel(params, {model_t::E_IndividualCountByBucketAndPerson}, startTime, 1);
@@ -339,12 +332,13 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
     LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
               << ", # events = " << eventTimes.size());
 
-    std::size_t i = 0u, j = 0u;
+    std::size_t i{0u};
+    std::size_t j{0u};
     for (core_t::TTime bucketStartTime = startTime; bucketStartTime < endTime;
          bucketStartTime += bucketLength, ++j) {
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
-        double count = 0.0;
+        double count{0.0};
         for (/**/; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
             addArrival(*m_Gatherer, m_ResourceMonitor, eventTimes[i], "p1");
             count += 1.0;
@@ -411,8 +405,8 @@ BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
-    const core_t::TTime startTime = 1346968800;
-    const core_t::TTime bucketLength = 3600;
+    const core_t::TTime startTime{1346968800};
+    const core_t::TTime bucketLength{3600};
     SModelParams params(bucketLength);
     params.s_InitialDecayRateMultiplier = 1.0;
     this->makeModel(params, {model_t::E_IndividualNonZeroCountByBucketAndPerson},
@@ -433,12 +427,13 @@ BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
     LOG_DEBUG(<< "startTime = " << startTime << ", endTime = " << endTime
               << ", # events = " << eventTimes.size());
 
-    std::size_t i = 0u, j = 0u;
+    std::size_t i{0u};
+    std::size_t j{0u};
     for (core_t::TTime bucketStartTime = startTime; bucketStartTime < endTime;
          bucketStartTime += bucketLength) {
         core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
-        double count = 0.0;
+        double count{0.0};
         for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
             addArrival(*m_Gatherer, m_ResourceMonitor, eventTimes[i], "p1");
             count += 1.0;
@@ -479,8 +474,8 @@ BOOST_FIXTURE_TEST_CASE(testNonZeroCountSample, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testRare, CTestFixture) {
-    const core_t::TTime startTime = 1346968800;
-    const core_t::TTime bucketLength = 3600;
+    const core_t::TTime startTime{1346968800};
+    const core_t::TTime bucketLength{3600};
     SModelParams params(bucketLength);
     this->makeModel(params,
                     {model_t::E_IndividualTotalBucketCountByPerson,
@@ -488,7 +483,7 @@ BOOST_FIXTURE_TEST_CASE(testRare, CTestFixture) {
                     startTime, 5);
     CEventRateModel* model = dynamic_cast<CEventRateModel*>(m_Model.get());
 
-    core_t::TTime time = startTime;
+    core_t::TTime time{startTime};
     for (/**/; time < startTime + 10 * bucketLength; time += bucketLength) {
         addArrival(*m_Gatherer, m_ResourceMonitor, time + bucketLength / 2, "p1");
         addArrival(*m_Gatherer, m_ResourceMonitor, time + bucketLength / 2, "p2");
@@ -561,11 +556,11 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculation, CTestFixture) {
         TDoubleSizeAnotatedProbabilityTr,
         std::function<bool(const TDoubleSizeAnotatedProbabilityTr&, const TDoubleSizeAnotatedProbabilityTr&)>>;
 
-    const core_t::TTime startTime = 1346968800;
-    const core_t::TTime bucketLength = 3600;
+    const core_t::TTime startTime{1346968800};
+    const core_t::TTime bucketLength{3600};
 
-    TSizeVec anomalousBuckets[]{TSizeVec{25}, TSizeVec{24, 25, 26, 27}};
-    double anomalousBucketsRateMultipliers[]{3.0, 1.3};
+    TSizeVecVec anomalousBuckets{{25}, {24, 25, 26, 27}};
+    TDoubleVec anomalousBucketsRateMultipliers{3.0, 1.3};
 
     for (std::size_t t = 0; t < 2; ++t) {
 
@@ -595,12 +590,12 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculation, CTestFixture) {
                                              return lhs.first < rhs.first;
                                          });
 
-        std::size_t i = 0;
+        std::size_t i{0u};
         for (core_t::TTime j = 0, bucketStartTime = startTime;
              bucketStartTime < endTime; bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
-            double count = 0.0;
+            double count{0.0};
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 addArrival(*m_Gatherer, m_ResourceMonitor, eventTimes[i], "p1");
                 count += 1.0;
@@ -639,13 +634,12 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculation, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowNonZeroCount, CTestFixture) {
-    core_t::TTime startTime(0);
-    core_t::TTime bucketLength(100);
-    std::size_t lowNonZeroCountBucket = 6u;
-    std::size_t highNonZeroCountBucket = 8u;
+    core_t::TTime startTime{0};
+    core_t::TTime bucketLength{100};
+    std::size_t lowNonZeroCountBucket{6u};
+    std::size_t highNonZeroCountBucket{8u};
 
-    std::size_t bucketCounts[] = {50, 50, 50, 50, 50,  0,  0,
-                                  0,  50, 1,  50, 100, 50, 50};
+    TSizeVec bucketCounts{50, 50, 50, 50, 50, 0, 0, 0, 50, 1, 50, 100, 50, 50};
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
@@ -655,7 +649,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowNonZeroCount, CTestFixtu
 
     TDoubleVec probabilities;
 
-    core_t::TTime time = startTime;
+    core_t::TTime time{startTime};
     for (auto count : bucketCounts) {
         LOG_DEBUG(<< "Writing " << count << " values");
 
@@ -685,13 +679,12 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowNonZeroCount, CTestFixtu
 }
 
 BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighNonZeroCount, CTestFixture) {
-    core_t::TTime startTime(0);
-    core_t::TTime bucketLength(100);
-    std::size_t lowNonZeroCountBucket = 6u;
-    std::size_t highNonZeroCountBucket = 8u;
+    core_t::TTime startTime{0};
+    core_t::TTime bucketLength{100};
+    std::size_t lowNonZeroCountBucket{6u};
+    std::size_t highNonZeroCountBucket{8u};
 
-    std::size_t bucketCounts[] = {50, 50, 50,  50, 50, 0,  0,
-                                  0,  50, 100, 50, 1,  50, 50};
+    TSizeVec bucketCounts{50, 50, 50, 50, 50, 0, 0, 0, 50, 100, 50, 1, 50, 50};
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
@@ -701,7 +694,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighNonZeroCount, CTestFixt
 
     TDoubleVec probabilities;
 
-    core_t::TTime time = startTime;
+    core_t::TTime time{startTime};
     for (auto count : bucketCounts) {
         LOG_DEBUG(<< "Writing " << count << " values");
 
@@ -734,26 +727,18 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
     // Check we find the correct correlated variables, and identify
     // correlate and marginal anomalies.
 
-    using TDoubleSizeStrTr = core::CTriple<double, std::size_t, std::string>;
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr>;
-
-    const core_t::TTime startTime = 1346968800;
-    const core_t::TTime bucketLength = 3600;
+    const core_t::TTime startTime{1346968800};
+    const core_t::TTime bucketLength{3600};
 
     test::CRandomNumbers rng;
 
-    const std::size_t numberBuckets = 200;
-    const double means_[] = {20.0, 25.0, 100.0, 800.0};
-    const double covariances_[][4] = {{3.0, 2.5, 0.0, 0.0},
-                                      {2.5, 4.0, 0.0, 0.0},
-                                      {0.0, 0.0, 100.0, -500.0},
-                                      {0.0, 0.0, -500.0, 3000.0}};
+    const std::size_t numberBuckets{200};
+    const TDoubleVec means{20.0, 25.0, 100.0, 800.0};
+    const TDoubleVecVec covariances{{3.0, 2.5, 0.0, 0.0},
+                                    {2.5, 4.0, 0.0, 0.0},
+                                    {0.0, 0.0, 100.0, -500.0},
+                                    {0.0, 0.0, -500.0, 3000.0}};
 
-    TDoubleVec means(&means_[0], &means_[4]);
-    TDoubleVecVec covariances;
-    for (std::size_t i = 0u; i < 4; ++i) {
-        covariances.push_back(TDoubleVec(&covariances_[i][0], &covariances_[i][4]));
-    }
     TDoubleVecVec samples;
     rng.generateMultivariateNormalSamples(means, covariances, numberBuckets, samples);
 
@@ -770,15 +755,15 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
 
         LOG_DEBUG(<< "Test correlation anomalies");
 
-        std::size_t anomalyBuckets[]{100, 160, 190, numberBuckets};
-        double anomalies[][4]{{-5.73, 4.29, 0.0, 0.0},
-                              {0.0, 0.0, 89.99, 15.38},
-                              {-7.73, 5.59, 52.99, 9.03}};
+        TSizeVec anomalyBuckets{100, 160, 190, numberBuckets};
+        TDoubleVecVec anomalies{{-5.73, 4.29, 0.0, 0.0},
+                                {0.0, 0.0, 89.99, 15.38},
+                                {-7.73, 5.59, 52.99, 9.03}};
 
-        TMinAccumulator probabilities[4]{TMinAccumulator(2), TMinAccumulator(2),
-                                         TMinAccumulator(2), TMinAccumulator(2)};
+        TMinAccumulatorVec probabilities{TMinAccumulator{2}, TMinAccumulator{2},
+                                         TMinAccumulator{2}, TMinAccumulator{2}};
 
-        core_t::TTime time = startTime;
+        core_t::TTime time{startTime};
         for (std::size_t i = 0u, anomaly = 0u; i < numberBuckets; ++i) {
             for (std::size_t j = 0u; j < samples[i].size(); ++j) {
                 std::string person = std::string("p") +
@@ -813,9 +798,9 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
             time += bucketLength;
         }
 
-        std::string expectedResults[]{"[(100,p2), (190,p2)]", "[(100,p1), (190,p1)]",
-                                      "[(160,p4), (190,p4)]", "[(160,p3), (190,p3)]"};
-        for (std::size_t i = 0u; i < boost::size(probabilities); ++i) {
+        TStrVec expectedResults{"[(100,p2), (190,p2)]", "[(100,p1), (190,p1)]",
+                                "[(160,p4), (190,p4)]", "[(160,p3), (190,p3)]"};
+        for (std::size_t i = 0u; i < probabilities.size(); ++i) {
             LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
             std::string results[2];
             for (std::size_t j = 0u; j < 2; ++j) {
@@ -866,15 +851,15 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
         CEventRateModel* model = dynamic_cast<CEventRateModel*>(m_Model.get());
         BOOST_TEST_REQUIRE(model);
 
-        std::size_t anomalyBuckets[]{100, 160, 190, numberBuckets};
-        double anomalies[][4]{{11.07, 14.19, 0.0, 0.0},
-                              {0.0, 0.0, -66.9, 399.95},
-                              {11.07, 14.19, -48.15, 329.95}};
+        TSizeVec anomalyBuckets{100, 160, 190, numberBuckets};
+        TDoubleVecVec anomalies{{11.07, 14.19, 0.0, 0.0},
+                                {0.0, 0.0, -66.9, 399.95},
+                                {11.07, 14.19, -48.15, 329.95}};
 
-        TMinAccumulator probabilities[]{TMinAccumulator(3), TMinAccumulator(3),
-                                        TMinAccumulator(3), TMinAccumulator(3)};
+        TMinAccumulatorVec probabilities{TMinAccumulator{3}, TMinAccumulator{3},
+                                         TMinAccumulator{3}, TMinAccumulator{3}};
 
-        core_t::TTime time = startTime;
+        core_t::TTime time{startTime};
         for (std::size_t i = 0u, anomaly = 0u; i < numberBuckets; ++i) {
             for (std::size_t j = 0u; j < samples[i].size(); ++j) {
                 std::string person = std::string("p") +
@@ -910,9 +895,9 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
             time += bucketLength;
         }
 
-        std::string expectedResults[][2]{
+        TStrVecVec expectedResults{
             {"100,", "190,"}, {"100,", "190,"}, {"160,", "190,"}, {"160,", "190,"}};
-        for (std::size_t i = 0u; i < 4; ++i) {
+        for (std::size_t i = 0u; i < probabilities.size(); ++i) {
             LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
             TStrVec results;
             for (const auto& result : probabilities[i]) {
@@ -931,22 +916,19 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture) {
     // Check we find the correct correlated variables, and identify
     // correlate and marginal anomalies.
 
-    using TDoubleSizeStrTr = core::CTriple<double, std::size_t, std::string>;
-    using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr>;
-
-    const core_t::TTime startTime = 1346968800;
-    const core_t::TTime bucketLength = 600;
+    const core_t::TTime startTime{1346968800};
+    const core_t::TTime bucketLength{600};
 
     test::CRandomNumbers rng;
     rng.discard(200000);
 
-    const std::size_t numberBuckets = 2880;
-    const double means_[] = {20.0, 25.0, 50.0, 100.0};
-    const double covariances_[][4] = {{30.0, 20.0, 0.0, 0.0},
-                                      {20.0, 40.0, 0.0, 0.0},
-                                      {0.0, 0.0, 60.0, -50.0},
-                                      {0.0, 0.0, -50.0, 60.0}};
-    double trends[][24] = {
+    const std::size_t numberBuckets{2880};
+    const TDoubleVec means{20.0, 25.0, 50.0, 100.0};
+    const TDoubleVecVec covariances{{30.0, 20.0, 0.0, 0.0},
+                                    {20.0, 40.0, 0.0, 0.0},
+                                    {0.0, 0.0, 60.0, -50.0},
+                                    {0.0, 0.0, -50.0, 60.0}};
+    const TDoubleVecVec trends{
         {0.0, 0.0, 0.0,  1.0, 1.0, 2.0, 4.0, 10.0, 11.0, 10.0, 8.0, 8.0,
          7.0, 9.0, 12.0, 4.0, 3.0, 1.0, 1.0, 0.0,  0.0,  0.0,  0.0, 0.0},
         {0.0,  0.0,  0.0,  2.0, 2.0, 4.0, 8.0, 15.0, 18.0, 14.0, 12.0, 12.0,
@@ -959,19 +941,14 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture) {
          40.0,  40.0,  30.0,  20.0,  10.0,  0.0,   0.0,   0.0},
     };
 
-    TDoubleVec means(&means_[0], &means_[4]);
-    TDoubleVecVec covariances;
-    for (std::size_t i = 0u; i < 4; ++i) {
-        covariances.push_back(TDoubleVec(&covariances_[i][0], &covariances_[i][4]));
-    }
     TDoubleVecVec samples;
     rng.generateMultivariateNormalSamples(means, covariances, numberBuckets, samples);
 
-    std::size_t anomalyBuckets[] = {1950, 2400, 2700, numberBuckets};
-    double anomalies[][4] = {
+    TSizeVec anomalyBuckets{1950, 2400, 2700, numberBuckets};
+    TDoubleVecVec anomalies{
         {-23.9, 19.7, 0.0, 0.0}, {0.0, 0.0, 36.4, 36.4}, {-28.7, 30.4, 36.4, 36.4}};
-    TMinAccumulator probabilities[4] = {TMinAccumulator(4), TMinAccumulator(4),
-                                        TMinAccumulator(4), TMinAccumulator(4)};
+    TMinAccumulatorVec probabilities{TMinAccumulator{4}, TMinAccumulator{4},
+                                     TMinAccumulator{4}, TMinAccumulator{4}};
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.0002;
@@ -983,7 +960,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture) {
     CEventRateModel* model = dynamic_cast<CEventRateModel*>(m_Model.get());
     BOOST_TEST_REQUIRE(model);
 
-    core_t::TTime time = startTime;
+    core_t::TTime time{startTime};
     for (std::size_t i = 0u, anomaly = 0u; i < numberBuckets; ++i) {
         if (i % 10 == 0) {
             LOG_DEBUG(<< i << ") processing bucket [" << time << ", "
@@ -1030,10 +1007,10 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture) {
         time += bucketLength;
     }
 
-    std::string expectedResults[][2]{{"1950,p2", "2700,p2"},
-                                     {"1950,p1", "2700,p1"},
-                                     {"2400,p4", "2700,p4"},
-                                     {"2400,p3", "2700,p3"}};
+    TStrVecVec expectedResults{{"1950,p2", "2700,p2"},
+                               {"1950,p1", "2700,p1"},
+                               {"2400,p4", "2700,p4"},
+                               {"2400,p3", "2700,p3"}};
     for (std::size_t i = 0u; i < 4; ++i) {
         LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
         TStrVec results;
@@ -1053,12 +1030,10 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     using TEventDataVec = std::vector<CEventData>;
     using TSizeSizeMap = std::map<std::size_t, std::size_t>;
 
-    const core_t::TTime startTime = 1346968800;
-    const core_t::TTime bucketLength = 3600;
+    const core_t::TTime startTime{1346968800};
+    const core_t::TTime bucketLength{3600};
 
-    const std::string people[] = {std::string("p1"), std::string("p2"),
-                                  std::string("p3"), std::string("p4"),
-                                  std::string("p5"), std::string("p6")};
+    const TStrVec people{"p1", "p2", "p3", "p4", "p5", "p6"};
 
     TUInt64VecVec eventCounts;
     eventCounts.push_back(TUInt64Vec(1000u, 0));
@@ -1196,27 +1171,26 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testKey, CTestFixture) {
-    function_t::EFunction countFunctions[] = {function_t::E_IndividualCount,
-                                              function_t::E_IndividualNonZeroCount,
-                                              function_t::E_IndividualRareCount,
-                                              function_t::E_IndividualRareNonZeroCount,
-                                              function_t::E_IndividualRare,
-                                              function_t::E_IndividualLowCounts,
-                                              function_t::E_IndividualHighCounts};
-    bool useNull[] = {true, false};
-    std::string byField[] = {"", "by"};
-    std::string partitionField[] = {"", "partition"};
+    function_t::TFunctionVec countFunctions{function_t::E_IndividualCount,
+                                            function_t::E_IndividualNonZeroCount,
+                                            function_t::E_IndividualRareCount,
+                                            function_t::E_IndividualRareNonZeroCount,
+                                            function_t::E_IndividualRare,
+                                            function_t::E_IndividualLowCounts,
+                                            function_t::E_IndividualHighCounts};
+    TBoolVec useNull{true, false};
+    TStrVec byFields{"", "by"};
+    TStrVec partitionFields{"", "partition"};
 
     CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig();
 
-    int detectorIndex = 0;
-    for (std::size_t i = 0u; i < boost::size(countFunctions); ++i) {
-        for (std::size_t j = 0u; j < boost::size(useNull); ++j) {
-            for (std::size_t k = 0u; k < boost::size(byField); ++k) {
-                for (std::size_t l = 0u; l < boost::size(partitionField); ++l) {
-                    CSearchKey key(++detectorIndex, countFunctions[i],
-                                   useNull[j], model_t::E_XF_None, "",
-                                   byField[k], "", partitionField[l]);
+    int detectorIndex{0};
+    for (const auto& countFunction : countFunctions) {
+        for (bool usingNull : useNull) {
+            for (const auto& byField : byFields) {
+                for (const auto& partitionField : partitionFields) {
+                    CSearchKey key(++detectorIndex, countFunction, usingNull,
+                                   model_t::E_XF_None, "", byField, "", partitionField);
 
                     CAnomalyDetectorModelConfig::TModelFactoryCPtr factory =
                         config.factory(key);
@@ -1239,16 +1213,13 @@ BOOST_FIXTURE_TEST_CASE(testModelsWithValueFields, CTestFixture) {
     LOG_DEBUG(<< "*** testModelsValueFields ***");
     {
         // check E_PopulationUniqueCountByBucketPersonAndAttribute
-        std::size_t anomalousBucket = 20;
-        std::size_t numberBuckets = 30;
+        std::size_t anomalousBucket{20u};
+        std::size_t numberBuckets{30u};
 
-        TStrVec strings;
-        strings.push_back("p1");
-        strings.push_back("c1");
-        strings.push_back("c2");
+        TStrVec strings{"p1", "c1", "c2"};
         TSizeVecVecVec fieldsPerBucket;
 
-        for (std::size_t i = 0; i < numberBuckets; i++) {
+        for (std::size_t i = 0u; i < numberBuckets; i++) {
             TSizeVecVec fields;
             std::size_t attribute1Strings = 10;
             std::size_t attribute2Strings = 10;
@@ -1257,7 +1228,7 @@ BOOST_FIXTURE_TEST_CASE(testModelsWithValueFields, CTestFixture) {
                 attribute2Strings = 15;
             }
 
-            for (std::size_t j = 0;
+            for (std::size_t j = 0u;
                  j < std::max(attribute1Strings, attribute2Strings); j++) {
                 std::ostringstream ss1;
                 std::ostringstream ss2;
@@ -1289,21 +1260,20 @@ BOOST_FIXTURE_TEST_CASE(testModelsWithValueFields, CTestFixture) {
     }
     {
         // Check E_PopulationInfoContentByBucketPersonAndAttribute
-        std::size_t anomalousBucket = 20;
-        std::size_t numberBuckets = 30;
+        std::size_t anomalousBucket{20u};
+        std::size_t numberBuckets{30u};
 
-        TStrVec strings;
-        strings.push_back("p1");
-        strings.push_back("c1");
-        strings.push_back("c2");
-        strings.push_back("trwh5jks9djadkn453hgfadadfjhadhfkdhakj4hkahdlagl4iuygalshkdjbvlaus4hliu4WHGFLIUSDHLKAJ");
-        strings.push_back("2H4G55HALFMN569DNIVJ55B3BSJXU;4VBQ-LKDFNUE9HNV904U5QGA;DDFLVJKF95NSD,MMVASD.,A.4,A.SD4");
-        strings.push_back("a");
-        strings.push_back("b");
+        TStrVec strings{"p1",
+                        "c1",
+                        "c2",
+                        "trwh5jks9djadkn453hgfadadfjhadhfkdhakj4hkahdlagl4iuygalshkdjbvlaus4hliu4WHGFLIUSDHLKAJ",
+                        "2H4G55HALFMN569DNIVJ55B3BSJXU;4VBQ-LKDFNUE9HNV904U5QGA;DDFLVJKF95NSD,MMVASD.,A.4,A.SD4",
+                        "a",
+                        "b"};
 
         TSizeVecVecVec fieldsPerBucket;
 
-        for (std::size_t i = 0; i < numberBuckets; i++) {
+        for (std::size_t i = 0u; i < numberBuckets; i++) {
             TSizeVecVec fields;
 
             TSizeVec fb;
@@ -1357,8 +1327,8 @@ BOOST_FIXTURE_TEST_CASE(testModelsWithValueFields, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixture) {
-    const core_t::TTime startTime = 1346968800;
-    const core_t::TTime bucketLength = 3600;
+    const core_t::TTime startTime{1346968800};
+    const core_t::TTime bucketLength{3600};
 
     {
         // Test single influence name, single influence value
@@ -1386,7 +1356,8 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
                   << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
-        std::size_t i = 0u, j = 0u;
+        std::size_t i{0u};
+        std::size_t j{0u};
         for (core_t::TTime bucketStartTime = startTime;
              bucketStartTime < endTime; bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
@@ -1443,12 +1414,13 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
                   << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
-        std::size_t i = 0u, j = 0u;
+        std::size_t i{0u};
+        std::size_t j{0u};
         for (core_t::TTime bucketStartTime = startTime;
              bucketStartTime < endTime; bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
-            double count = 0.0;
+            double count{0.0};
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 std::stringstream ss;
                 ss << "inf" << (i % 2);
@@ -1506,12 +1478,13 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
                   << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
-        std::size_t i = 0u, j = 0u;
+        std::size_t i{0u};
+        std::size_t j{0u};
         for (core_t::TTime bucketStartTime = startTime;
              bucketStartTime < endTime; bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
-            double count = 0.0;
+            double count{0.0};
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 std::stringstream ss;
                 ss << "inf" << (i % 2);
@@ -1570,12 +1543,13 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
                   << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
-        std::size_t i = 0u, j = 0u;
+        std::size_t i{0u};
+        std::size_t j{0u};
         for (core_t::TTime bucketStartTime = startTime;
              bucketStartTime < endTime; bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
-            double count = 0.0;
+            double count{0.0};
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 std::stringstream ss;
                 ss << "inf";
@@ -1613,9 +1587,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         params.s_DecayRate = 0.001;
         auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
         CEventRateModelFactory factory(params, interimBucketCorrector);
-        TStrVec influenceFieldNames;
-        influenceFieldNames.push_back("IF1");
-        influenceFieldNames.push_back("IF2");
+        TStrVec influenceFieldNames{"IF1", "IF2"};
         factory.fieldNames("", "", "", "", influenceFieldNames);
         factory.features({model_t::E_IndividualCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
@@ -1635,12 +1607,13 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
                   << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
-        std::size_t i = 0u, j = 0u;
+        std::size_t i{0u};
+        std::size_t j{0u};
         for (core_t::TTime bucketStartTime = startTime;
              bucketStartTime < endTime; bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
-            double count = 0.0;
+            double count{0.0};
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 std::stringstream ss;
                 ss << "inf";
@@ -1710,10 +1683,10 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         core_t::TTime bucketStartTime = startTime;
         core_t::TTime bucketEndTime = startTime + bucketLength;
-        for (std::size_t i = 0, j = 0; bucketStartTime < endTime;
+        for (std::size_t i = 0u, j = 0u; bucketStartTime < endTime;
              bucketStartTime += bucketLength, bucketEndTime += bucketLength, ++j) {
 
-            double count = 0.0;
+            double count{0.0};
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 addArrival(*gatherer, m_ResourceMonitor, eventTimes[i], "p",
                            TOptionalStr("p"));
@@ -1741,8 +1714,8 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
 }
 
 BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CTestFixture) {
-    const core_t::TTime startTime = 1346968800;
-    const core_t::TTime bucketLength = 3600;
+    const core_t::TTime startTime{1346968800};
+    const core_t::TTime bucketLength{3600};
 
     {
         // Test single influence name, single influence value
@@ -1771,12 +1744,13 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
                   << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
-        std::size_t i = 0u, j = 0u;
+        std::size_t i{0u};
+        std::size_t j{0u};
         for (core_t::TTime bucketStartTime = startTime;
              bucketStartTime < endTime; bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
-            double count = 0.0;
+            double count{0.0};
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 addArrival(*gatherer, m_ResourceMonitor, eventTimes[i], "p",
                            TOptionalStr("inf1"), TOptionalStr(uniqueValue));
@@ -1839,12 +1813,13 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
                   << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
-        std::size_t i = 0u, j = 0u;
+        std::size_t i{0u};
+        std::size_t j{0u};
         for (core_t::TTime bucketStartTime = startTime;
              bucketStartTime < endTime; bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
-            double count = 0.0;
+            double count{0.0};
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 addArrival(*gatherer, m_ResourceMonitor, eventTimes[i], "p",
                            TOptionalStr("inf1"), TOptionalStr(uniqueValue));
@@ -1917,12 +1892,13 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
                   << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
-        std::size_t i = 0u, j = 0u;
+        std::size_t i{0u};
+        std::size_t j{0u};
         for (core_t::TTime bucketStartTime = startTime;
              bucketStartTime < endTime; bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
-            double count = 0.0;
+            double count{0.0};
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 addArrival(*gatherer, m_ResourceMonitor, eventTimes[i], "p",
                            TOptionalStr("inf1"), TOptionalStr(uniqueValue));
@@ -1970,9 +1946,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         params.s_DecayRate = 0.001;
         auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
         CEventRateModelFactory factory(params, interimBucketCorrector);
-        TStrVec influenceFieldNames;
-        influenceFieldNames.push_back("IF1");
-        influenceFieldNames.push_back("IF2");
+        TStrVec influenceFieldNames{"IF1", "IF2"};
         factory.fieldNames("", "", "", "foo", influenceFieldNames);
         factory.features({model_t::E_IndividualUniqueCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
@@ -1993,12 +1967,13 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
                   << ", # events = " << eventTimes.size());
 
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
-        std::size_t i = 0u, j = 0u;
+        std::size_t i{0u};
+        std::size_t j{0u};
         for (core_t::TTime bucketStartTime = startTime;
              bucketStartTime < endTime; bucketStartTime += bucketLength, ++j) {
             core_t::TTime bucketEndTime = bucketStartTime + bucketLength;
 
-            double count = 0.0;
+            double count{0.0};
             for (; i < eventTimes.size() && eventTimes[i] < bucketEndTime; ++i) {
                 addArrival(*gatherer, m_ResourceMonitor, eventTimes[i], "p",
                            TOptionalStr("inf1"), TOptionalStr("inf1"),
@@ -2058,8 +2033,8 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
 }
 
 BOOST_FIXTURE_TEST_CASE(testRareWithInfluence, CTestFixture) {
-    const core_t::TTime startTime = 1346968800;
-    const core_t::TTime bucketLength = 3600;
+    const core_t::TTime startTime{1346968800};
+    const core_t::TTime bucketLength{3600};
     SModelParams params(bucketLength);
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
     CEventRateModelFactory factory(params, interimBucketCorrector);
@@ -2083,7 +2058,7 @@ BOOST_FIXTURE_TEST_CASE(testRareWithInfluence, CTestFixture) {
 
     SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
 
-    core_t::TTime time = startTime;
+    core_t::TTime time{startTime};
 
     for (/**/; time < startTime + 50 * bucketLength; time += bucketLength) {
         addArrival(*gatherer, m_ResourceMonitor, time + bucketLength / 2, "p1",
@@ -2163,9 +2138,9 @@ BOOST_FIXTURE_TEST_CASE(testRareWithInfluence, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
-    core_t::TTime startTime(100);
-    std::size_t bucketLength(100);
-    std::size_t maxAgeBuckets(5);
+    core_t::TTime startTime{100};
+    std::size_t bucketLength{100};
+    std::size_t maxAgeBuckets{5};
 
     SModelParams params(bucketLength);
     params.s_InitialDecayRateMultiplier = 1.0;
@@ -2245,9 +2220,9 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
-    core_t::TTime startTime(100);
-    std::size_t bucketLength(100);
-    std::string summaryCountField("count");
+    core_t::TTime startTime{100};
+    std::size_t bucketLength{100};
+    std::string summaryCountField{"count"};
 
     SModelParams params(bucketLength);
     params.s_InitialDecayRateMultiplier = 1.0;
@@ -2344,9 +2319,9 @@ BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testInterimCorrections, CTestFixture) {
-    core_t::TTime startTime(3600);
-    core_t::TTime bucketLength(3600);
-    core_t::TTime endTime(2 * 24 * bucketLength);
+    core_t::TTime startTime{3600};
+    core_t::TTime bucketLength{3600};
+    core_t::TTime endTime{2 * 24 * bucketLength};
     SModelParams params(bucketLength);
     params.s_InitialDecayRateMultiplier = 1.0;
     params.s_MultibucketFeaturesWindowLength = 0;
@@ -2355,7 +2330,7 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrections, CTestFixture) {
     CCountingModel countingModel(params, m_Gatherer, m_InterimBucketCorrector);
 
     test::CRandomNumbers rng;
-    core_t::TTime now = startTime;
+    core_t::TTime now{startTime};
     TDoubleVec samples(3, 0.0);
     while (now < endTime) {
         rng.generateUniformSamples(50.0, 70.0, std::size_t(3), samples);
@@ -2470,16 +2445,16 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrections, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testInterimCorrectionsWithCorrelations, CTestFixture) {
-    core_t::TTime startTime(3600);
-    core_t::TTime bucketLength(3600);
+    core_t::TTime startTime{3600};
+    core_t::TTime bucketLength{3600};
 
     SModelParams params(bucketLength);
     params.s_MultivariateByFields = true;
     this->makeModel(params, {model_t::E_IndividualCountByBucketAndPerson}, startTime, 3);
     CEventRateModel* model = dynamic_cast<CEventRateModel*>(m_Model.get());
 
-    core_t::TTime now = startTime;
-    core_t::TTime endTime(now + 2 * 24 * bucketLength);
+    core_t::TTime now{startTime};
+    core_t::TTime endTime{now + 2 * 24 * bucketLength};
     test::CRandomNumbers rng;
     TDoubleVec samples(1, 0.0);
     while (now < endTime) {
@@ -2552,11 +2527,11 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrectionsWithCorrelations, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testSummaryCountZeroRecordsAreIgnored, CTestFixture) {
-    core_t::TTime startTime(100);
-    core_t::TTime bucketLength(100);
+    core_t::TTime startTime{100};
+    core_t::TTime bucketLength{100};
 
     SModelParams params(bucketLength);
-    std::string summaryCountField("count");
+    std::string summaryCountField{"count"};
 
     CModelFactory::TDataGathererPtr gathererWithZeros;
     CModelFactory::TModelPtr modelWithZerosPtr;
@@ -2573,13 +2548,13 @@ BOOST_FIXTURE_TEST_CASE(testSummaryCountZeroRecordsAreIgnored, CTestFixture) {
     // The idea here is to compare a model that has records with summary count of zero
     // against a model that has no records at all where the first model had the zero-count records.
 
-    core_t::TTime now = 100;
-    core_t::TTime end = now + 50 * bucketLength;
+    core_t::TTime now{100};
+    core_t::TTime end{now + 50 * bucketLength};
     test::CRandomNumbers rng;
     TSizeVec samples;
     TDoubleVec zeroCountProbability;
-    std::string summaryCountZero("0");
-    std::string summaryCountOne("1");
+    std::string summaryCountZero{"0"};
+    std::string summaryCountOne{"1"};
     while (now < end) {
         rng.generateUniformSamples(1, 10, 1, samples);
         rng.generateUniformSamples(0.0, 1.0, 1, zeroCountProbability);
@@ -2610,9 +2585,9 @@ BOOST_FIXTURE_TEST_CASE(testComputeProbabilityGivenDetectionRule, CTestFixture) 
     CDetectionRule rule;
     rule.addCondition(condition);
 
-    core_t::TTime startTime(3600);
-    core_t::TTime bucketLength(3600);
-    core_t::TTime endTime(24 * bucketLength);
+    core_t::TTime startTime{3600};
+    core_t::TTime bucketLength{3600};
+    core_t::TTime endTime{24 * bucketLength};
 
     SModelParams params(bucketLength);
     SModelParams::TDetectionRuleVec rules{rule};
@@ -2645,8 +2620,8 @@ BOOST_FIXTURE_TEST_CASE(testComputeProbabilityGivenDetectionRule, CTestFixture) 
 }
 
 BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
-    core_t::TTime startTime = 0;
-    core_t::TTime bucketLength = 1800;
+    core_t::TTime startTime{0};
+    core_t::TTime bucketLength{1800};
 
     model_t::EFeature feature = model_t::E_IndividualCountByBucketAndPerson;
     model_t::TFeatureVec features{feature};
@@ -2867,8 +2842,8 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     rule.action(CDetectionRule::E_SkipModelUpdate);
     rule.addCondition(condition);
 
-    std::size_t bucketLength(100);
-    std::size_t startTime(100);
+    std::size_t bucketLength{100};
+    std::size_t startTime{100};
 
     // Model without the skip sampling rule
     SModelParams paramsNoRules(bucketLength);

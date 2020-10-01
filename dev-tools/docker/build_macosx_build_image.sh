@@ -14,7 +14,7 @@
 # used for subsequent builds on this branch.  Then update the version to be
 # used for builds in docker/macosx_builder/Dockerfile.
 
-HOST=push.docker.elastic.co
+HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-macosx-build
 VERSION=9
