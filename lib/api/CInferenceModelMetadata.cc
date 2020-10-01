@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 #include <api/CInferenceModelMetadata.h>
+
 #include <cmath>
 
 namespace ml {
