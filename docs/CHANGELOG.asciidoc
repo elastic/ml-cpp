@@ -40,6 +40,9 @@
 
 * Fix progress on resume after final training has completed for classification and regression.
   We previously showed progress stuck at zero for final training. (See {ml-pull}1443[#1443].)
+* Avoid potential "Failed to compute quantile" and "No values added to quantile sketch" log errors
+  training regression and classification models if there are features with mostly missing values.
+  (See {ml-pull}1500[#1500].)
 
 == {es} version 7.9.2
 
