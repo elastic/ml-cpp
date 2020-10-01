@@ -8,6 +8,9 @@
 
 #include <core/CDetachedProcessSpawner.h>
 
+#include "CResponseJsonWriter.h"
+
+#include <cstdint>
 #include <iosfwd>
 #include <string>
 #include <vector>
@@ -25,7 +28,11 @@ namespace controller {
 //! command to be executed.
 //!
 //! Each command has the following format:
-//! verb arguments...
+//! ID verb arguments...
+//!
+//! The ID is expected to be a unique positive integer.  This is reported
+//! in error messages and in the response objects that are sent when the
+//! command is complete.
 //!
 //! Available verbs are:
 //! 1) start - in this case the arguments consist of the process name
@@ -51,30 +58,33 @@ public:
     static const std::string KILL;
 
 public:
-    CCommandProcessor(const TStrVec& permittedProcessPaths);
+    CCommandProcessor(const TStrVec& permittedProcessPaths, std::ostream& responseStream);
 
-    //! Action commands read from the supplied \p stream until end-of-file
-    //! is reached.
-    void processCommands(std::istream& stream);
+    //! Action commands read from the supplied \p commandStream until
+    //! end-of-file is reached.
+    void processCommands(std::istream& commandStream);
 
     //! Parse and handle a single command.
     bool handleCommand(const std::string& command);
 
 private:
     //! Handle a start command.
-    //! \param tokens Tokens to the command excluding the verb.  Passed
-    //!               non-const so that this method can manipulate the
-    //!               tokens without having to copy.
-    bool handleStart(TStrVec& tokens);
+    //! \param id The command ID.
+    //! \param tokens Tokens to the command excluding the command ID and verb.
+    bool handleStart(std::uint32_t id, TStrVec tokens);
 
     //! Handle a kill command.
+    //! \param id The command ID.
     //! \param tokens Expected to contain one element, namely the process
     //!               ID of the process to be killed.
-    bool handleKill(TStrVec& tokens);
+    bool handleKill(std::uint32_t id, TStrVec tokens);
 
 private:
     //! Used to spawn/kill the requested processes.
     core::CDetachedProcessSpawner m_Spawner;
+
+    //! Used to write responses in JSON format to the response stream.
+    CResponseJsonWriter m_ResponseWriter;
 };
 }
 }
