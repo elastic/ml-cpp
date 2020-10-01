@@ -84,6 +84,46 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
         writer.EndObject();
     }
     writer.EndArray();
+
+    writer.Key(JSON_FEATURE_IMPORTANCE_BASELINE_TAG);
+    writer.StartObject();
+    if (m_Baseline->size() == 1 && m_ClassValues.empty()) {
+        // for regression
+        writer.Key(JSON_BASELINE_TAG);
+        writer.Double(m_Baseline.get()(0));
+    } else if (m_Baseline->size() == 1 && m_ClassValues.empty() == false) {
+        // Binary classification
+        writer.Key(JSON_CLASSES_TAG);
+        writer.StartArray();
+        for (std::size_t j = 0; j < m_ClassValues.size(); ++j) {
+            writer.StartObject();
+            writer.Key(JSON_CLASS_NAME_TAG);
+            m_PredictionFieldTypeResolverWriter(m_ClassValues[j], writer);
+            writer.Key(JSON_BASELINE_TAG);
+            // Fix this
+            writer.Double(m_Baseline.get()(0));
+            writer.EndObject();
+        }
+
+        writer.EndArray();
+
+    } else {
+        // Multiclass classification
+        writer.Key(JSON_CLASSES_TAG);
+        writer.StartArray();
+        for (std::size_t j = 0; j < static_cast<std::size_t>(m_Baseline->size()) &&
+                                j < m_ClassValues.size();
+             ++j) {
+            writer.StartObject();
+            writer.Key(JSON_CLASS_NAME_TAG);
+            m_PredictionFieldTypeResolverWriter(m_ClassValues[j], writer);
+            writer.Key(JSON_BASELINE_TAG);
+            writer.Double(m_Baseline.get()(j));
+            writer.EndObject();
+        }
+        writer.EndArray();
+    }
+    writer.EndObject();
 }
 
 const std::string& CInferenceModelMetadata::typeString() const {
@@ -116,7 +156,13 @@ void CInferenceModelMetadata::addToFeatureImportance(std::size_t i, const TVecto
     }
 }
 
+void CInferenceModelMetadata::baseline(TVector&& baseline) {
+    m_Baseline = baseline;
+}
+
 // clang-format off
+const std::string CInferenceModelMetadata::JSON_BASELINE_TAG{"baseline"};
+const std::string CInferenceModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG{"feature_importance_baseline"};
 const std::string CInferenceModelMetadata::JSON_CLASS_NAME_TAG{"class_name"};
 const std::string CInferenceModelMetadata::JSON_CLASSES_TAG{"classes"};
 const std::string CInferenceModelMetadata::JSON_FEATURE_NAME_TAG{"feature_name"};

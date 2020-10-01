@@ -367,10 +367,10 @@ const CTreeShapFeatureImportance::TStrVec& CTreeShapFeatureImportance::columnNam
     return m_ColumnNames;
 }
 
-double CTreeShapFeatureImportance::baseline(std::size_t classIdx) const {
-    double result{0.0};
+CTreeShapFeatureImportance::TVector CTreeShapFeatureImportance::baseline() const {
+    TVector result{(*m_Forest)[0][0].value().size()};
     for (const auto& tree : *m_Forest) {
-        result += tree[0].value()(classIdx);
+        result += tree[0].value();
     }
     return result;
 }

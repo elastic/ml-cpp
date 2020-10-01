@@ -335,6 +335,7 @@ struct SFixture {
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+        LOG_DEBUG(<< s_Output.str());
         return std::make_pair(std::move(results), s_Output.str());
     }
 

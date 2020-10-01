@@ -169,74 +169,75 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
             [this](const std::string& categoryValue, core::CRapidJsonConcurrentLineWriter& writer) {
                 this->writePredictedCategoryValue(categoryValue, writer);
             });
-        featureImportance->shap(row, [&](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
-                                         const TStrVec& featureNames,
-                                         const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
-            writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
-            writer.StartArray();
-            TDoubleVec baseline;
-            baseline.reserve(numberClasses);
-            for (std::size_t j = 0; j < shap[0].size() && j < numberClasses; ++j) {
-                baseline.push_back(featureImportance->baseline(j));
-            }
-            for (auto i : indices) {
-                if (shap[i].norm() != 0.0) {
-                    writer.StartObject();
-                    writer.Key(FEATURE_NAME_FIELD_NAME);
-                    writer.String(featureNames[i]);
-                    if (shap[i].size() == 1) {
-                        // output feature importance for individual classes in binary case
-                        writer.Key(CLASSES_FIELD_NAME);
-                        writer.StartArray();
-                        for (std::size_t j = 0; j < numberClasses; ++j) {
-                            writer.StartObject();
-                            writer.Key(CLASS_NAME_FIELD_NAME);
-                            writePredictedCategoryValue(classValues[j], writer);
-                            writer.Key(IMPORTANCE_FIELD_NAME);
-                            if (j == 1) {
-                                writer.Double(shap[i](0));
-                            } else {
-                                writer.Double(-shap[i](0));
+        featureImportance->shap(
+            row, [&](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
+                     const TStrVec& featureNames,
+                     const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+                writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
+                writer.StartArray();
+                // TDoubleVec baseline;
+                // baseline.reserve(numberClasses);
+                // for (std::size_t j = 0; j < shap[0].size() && j < numberClasses; ++j) {
+                //     baseline.push_back(featureImportance->baseline(j));
+                // }
+                for (auto i : indices) {
+                    if (shap[i].norm() != 0.0) {
+                        writer.StartObject();
+                        writer.Key(FEATURE_NAME_FIELD_NAME);
+                        writer.String(featureNames[i]);
+                        if (shap[i].size() == 1) {
+                            // output feature importance for individual classes in binary case
+                            writer.Key(CLASSES_FIELD_NAME);
+                            writer.StartArray();
+                            for (std::size_t j = 0; j < numberClasses; ++j) {
+                                writer.StartObject();
+                                writer.Key(CLASS_NAME_FIELD_NAME);
+                                writePredictedCategoryValue(classValues[j], writer);
+                                writer.Key(IMPORTANCE_FIELD_NAME);
+                                if (j == 1) {
+                                    writer.Double(shap[i](0));
+                                } else {
+                                    writer.Double(-shap[i](0));
+                                }
+                                writer.EndObject();
                             }
-                            writer.EndObject();
-                        }
-                        writer.EndArray();
-                    } else {
-                        // output feature importance for individual classes in multiclass case
-                        writer.Key(CLASSES_FIELD_NAME);
-                        writer.StartArray();
-                        TDoubleVec featureImportanceSum(numberClasses, 0.0);
-                        for (std::size_t j = 0;
-                             j < shap[i].size() && j < numberClasses; ++j) {
-                            for (auto k : indices) {
-                                featureImportanceSum[j] += shap[k](j);
+                            writer.EndArray();
+                        } else {
+                            // output feature importance for individual classes in multiclass case
+                            writer.Key(CLASSES_FIELD_NAME);
+                            writer.StartArray();
+                            TDoubleVec featureImportanceSum(numberClasses, 0.0);
+                            for (std::size_t j = 0;
+                                 j < shap[i].size() && j < numberClasses; ++j) {
+                                for (auto k : indices) {
+                                    featureImportanceSum[j] += shap[k](j);
+                                }
                             }
+                            for (std::size_t j = 0;
+                                 j < shap[i].size() && j < numberClasses; ++j) {
+                                writer.StartObject();
+                                writer.Key(CLASS_NAME_FIELD_NAME);
+                                writePredictedCategoryValue(classValues[j], writer);
+                                writer.Key(IMPORTANCE_FIELD_NAME);
+                                // double correctedShap{
+                                //     shap[i](j) * (baseline[j] / featureImportanceSum[j] + 1.0)};
+                                writer.Double(shap[i](j));
+                                writer.EndObject();
+                            }
+                            writer.EndArray();
                         }
-                        for (std::size_t j = 0;
-                             j < shap[i].size() && j < numberClasses; ++j) {
-                            writer.StartObject();
-                            writer.Key(CLASS_NAME_FIELD_NAME);
-                            writePredictedCategoryValue(classValues[j], writer);
-                            writer.Key(IMPORTANCE_FIELD_NAME);
-                            double correctedShap{
-                                shap[i](j) * (baseline[j] / featureImportanceSum[j] + 1.0)};
-                            writer.Double(correctedShap);
-                            writer.EndObject();
-                        }
-                        writer.EndArray();
+                        writer.EndObject();
                     }
-                    writer.EndObject();
                 }
-            }
-            writer.EndArray();
+                writer.EndArray();
 
-            for (std::size_t i = 0; i < shap.size(); ++i) {
-                if (shap[i].lpNorm<1>() != 0) {
-                    const_cast<CDataFrameTrainBoostedTreeClassifierRunner*>(this)
-                        ->m_InferenceModelMetadata.addToFeatureImportance(i, shap[i]);
+                for (std::size_t i = 0; i < shap.size(); ++i) {
+                    if (shap[i].lpNorm<1>() != 0) {
+                        const_cast<CDataFrameTrainBoostedTreeClassifierRunner*>(this)
+                            ->m_InferenceModelMetadata.addToFeatureImportance(i, shap[i]);
+                    }
                 }
-            }
-        });
+            });
     }
     writer.EndObject();
 }
@@ -306,6 +307,10 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelDefinition(
 
 CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
 CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
+    const auto& featureImportance = this->boostedTree().shap();
+    if (featureImportance) {
+        m_InferenceModelMetadata.baseline(featureImportance->baseline());
+    }
     return m_InferenceModelMetadata;
 }
 
