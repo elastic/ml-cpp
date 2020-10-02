@@ -5,6 +5,7 @@
  */
 
 #include <core/CProcess.h>
+#include <core/CStringUtils.h>
 
 #include "../CCommandProcessor.h"
 
@@ -74,7 +75,10 @@ BOOST_AUTO_TEST_CASE(testStartPermitted) {
 
     BOOST_REQUIRE_EQUAL(SLOGAN1, content);
 
-    BOOST_REQUIRE_EQUAL("{\"id\":1,\"success\":true,\"reason\":\"Process '/bin/sh' started\"}\n",
+    std::string jsonEscapedProcessPath{PROCESS_PATH};
+    ml::core::CStringUtils::replace("\\", "\\\\", jsonEscapedProcessPath);
+    BOOST_REQUIRE_EQUAL("{\"id\":1,\"success\":true,\"reason\":\"Process '" +
+                            jsonEscapedProcessPath + "' started\"}\n",
                         responseStream.str());
 
     BOOST_REQUIRE_EQUAL(0, std::remove(OUTPUT_FILE.c_str()));
@@ -105,7 +109,10 @@ BOOST_AUTO_TEST_CASE(testStartNonPermitted) {
 
     BOOST_REQUIRE_EQUAL(SLOGAN2, content);
 
-    BOOST_REQUIRE_EQUAL("{\"id\":2,\"success\":false,\"reason\":\"Failed to start process '/bin/sh'\"}\n",
+    std::string jsonEscapedProcessPath{PROCESS_PATH};
+    ml::core::CStringUtils::replace("\\", "\\\\", jsonEscapedProcessPath);
+    BOOST_REQUIRE_EQUAL("{\"id\":2,\"success\":false,\"reason\":\"Failed to start process '" +
+                            jsonEscapedProcessPath + "'\"}\n",
                         responseStream.str());
 }
 
@@ -130,7 +137,8 @@ BOOST_AUTO_TEST_CASE(testKillDisallowed) {
     std::ostringstream responseStream;
     ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
 
-    std::string pidStr{std::to_string(ml::core::CProcess::instance().id())};
+    std::string pidStr{
+        ml::core::CStringUtils::typeToString(ml::core::CProcess::instance().id())};
     std::string command{"4\t" + ml::controller::CCommandProcessor::KILL + '\t' + pidStr};
 
     BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
