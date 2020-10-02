@@ -54,141 +54,95 @@ using namespace ml;
 using namespace model;
 
 namespace {
-
 const std::string EMPTY_STRING;
+const CModelTestFixtureBase::TSizeDoublePr1Vec NO_CORRELATES;
+}
 
-struct SMessage {
-    SMessage(core_t::TTime time, const std::string& person, const std::string& attribute)
-        : s_Time(time), s_Person(person), s_Attribute(attribute) {}
+class CTestFixture : public CModelTestFixtureBase {
+public:
+    void generateTestMessages(core_t::TTime startTime,
+                              core_t::TTime bucketLength,
+                              TMessageVec& messages) {
+        // The test case is as follows:
+        //
+        //   attribute   |    0    |    1    |    2    |    3    |   4
+        // --------------+---------+---------+---------+---------+--------
+        //    people     |  [0-19] |  [0-2], |  [0,2], |   3,4   |   3
+        //               |         |  [5-19] |  [4,19] |         |
+        // --------------+---------+---------+---------+---------+--------
+        //    rate       |   10    |   0.02  |   15    |    2    |   1
+        // --------------+---------+---------+---------+---------+--------
+        //  rate anomaly |   1,11  |    -    |   4,5   |   n/a   |  n/a
+        //     people    |         |         |         |         |
+        //
+        // There are 100 buckets.
 
-    bool operator<(const SMessage& other) const {
-        return maths::COrderings::lexicographical_compare(
-            s_Time, s_Person, s_Attribute, other.s_Time, other.s_Person, other.s_Attribute);
-    }
+        using TStrVec = std::vector<std::string>;
+        using TSizeSizeSizeTr = boost::tuple<std::size_t, std::size_t, size_t>;
 
-    core_t::TTime s_Time;
-    std::string s_Person;
-    std::string s_Attribute;
-};
+        const std::size_t numberBuckets = 100u;
+        const std::size_t numberAttributes = 5u;
+        const std::size_t numberPeople = 20u;
 
-struct SAnomaly {
-    SAnomaly() : s_Bucket(0u), s_Person(), s_Attributes() {}
-    SAnomaly(std::size_t bucket, const std::string& person, const TDoubleStrPrVec& attributes)
-        : s_Bucket(bucket), s_Person(person), s_Attributes(attributes) {}
-
-    std::size_t s_Bucket;
-    std::string s_Person;
-    TDoubleStrPrVec s_Attributes;
-
-    bool operator<(const SAnomaly& other) const {
-        return s_Bucket < other.s_Bucket;
-    }
-
-    std::string print() const {
-        std::ostringstream result;
-        result << "[" << s_Bucket << ", " + s_Person << ",";
-        for (std::size_t i = 0u; i < s_Attributes.size(); ++i) {
-            if (s_Attributes[i].first < 0.01) {
-                result << " " << s_Attributes[i].second;
-            }
+        TStrVec attributes;
+        for (std::size_t i = 0u; i < numberAttributes; ++i) {
+            attributes.push_back("c" + boost::lexical_cast<std::string>(i));
         }
-        result << "]";
-        return result.str();
-    }
-};
 
-using TMessageVec = std::vector<SMessage>;
+        TStrVec people;
+        for (std::size_t i = 0u; i < numberPeople; ++i) {
+            people.push_back("p" + boost::lexical_cast<std::string>(i));
+        }
 
-void generateTestMessages(core_t::TTime startTime, core_t::TTime bucketLength, TMessageVec& messages) {
-    // The test case is as follows:
-    //
-    //   attribute   |    0    |    1    |    2    |    3    |   4
-    // --------------+---------+---------+---------+---------+--------
-    //    people     |  [0-19] |  [0-2], |  [0,2], |   3,4   |   3
-    //               |         |  [5-19] |  [4,19] |         |
-    // --------------+---------+---------+---------+---------+--------
-    //    rate       |   10    |   0.02  |   15    |    2    |   1
-    // --------------+---------+---------+---------+---------+--------
-    //  rate anomaly |   1,11  |    -    |   4,5   |   n/a   |  n/a
-    //     people    |         |         |         |         |
-    //
-    // There are 100 buckets.
+        TSizeVecVec attributePeople{
+            {0,  1,  2,  3,  4,  5,  6,  7,  8,  9,
+             10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
+            {0, 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
+            {0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
+            {3, 4},
+            {3}};
 
-    using TStrVec = std::vector<std::string>;
-    using TSizeSizeSizeTr = boost::tuple<std::size_t, std::size_t, size_t>;
+        double attributeRates[] = {10.0, 0.02, 15.0, 2.0, 1.0};
 
-    const std::size_t numberBuckets = 100u;
-    const std::size_t numberAttributes = 5u;
-    const std::size_t numberPeople = 20u;
+        TSizeSizeSizeTr anomaliesAttributePerson[] = {
+            {10u, 0u, 1u}, {15u, 0u, 11u}, {30u, 2u, 4u},
+            {35u, 2u, 5u}, {50u, 0u, 11u}, {75u, 2u, 5u}};
 
-    TStrVec attributes;
-    for (std::size_t i = 0u; i < numberAttributes; ++i) {
-        attributes.push_back("c" + boost::lexical_cast<std::string>(i));
-    }
+        test::CRandomNumbers rng;
 
-    TStrVec people;
-    for (std::size_t i = 0u; i < numberPeople; ++i) {
-        people.push_back("p" + boost::lexical_cast<std::string>(i));
-    }
+        for (std::size_t i = 0u; i < numberBuckets; ++i, startTime += bucketLength) {
+            for (std::size_t j = 0u; j < numberAttributes; ++j) {
+                TUIntVec samples;
+                rng.generatePoissonSamples(attributeRates[j],
+                                           attributePeople[j].size(), samples);
 
-    TSizeVecVec attributePeople{
-        {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
-        {0, 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
-        {0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19},
-        {3, 4},
-        {3}};
+                for (std::size_t k = 0u; k < samples.size(); ++k) {
+                    unsigned int n = samples[k];
+                    if (std::binary_search(std::begin(anomaliesAttributePerson),
+                                           std::end(anomaliesAttributePerson),
+                                           TSizeSizeSizeTr(i, j, attributePeople[j][k]))) {
+                        n += static_cast<unsigned int>(2.5 * attributeRates[j]);
+                        LOG_DEBUG(<< i << " " << attributes[j]
+                                  << " generating anomaly " << n);
+                    }
 
-    double attributeRates[] = {10.0, 0.02, 15.0, 2.0, 1.0};
+                    TDoubleVec times;
+                    rng.generateUniformSamples(
+                        0.0, static_cast<double>(bucketLength - 1), n, times);
 
-    TSizeSizeSizeTr anomaliesAttributePerson[] = {
-        {10u, 0u, 1u}, {15u, 0u, 11u}, {30u, 2u, 4u},
-        {35u, 2u, 5u}, {50u, 0u, 11u}, {75u, 2u, 5u}};
-
-    test::CRandomNumbers rng;
-
-    for (std::size_t i = 0u; i < numberBuckets; ++i, startTime += bucketLength) {
-        for (std::size_t j = 0u; j < numberAttributes; ++j) {
-            TUIntVec samples;
-            rng.generatePoissonSamples(attributeRates[j], attributePeople[j].size(), samples);
-
-            for (std::size_t k = 0u; k < samples.size(); ++k) {
-                unsigned int n = samples[k];
-                if (std::binary_search(std::begin(anomaliesAttributePerson),
-                                       std::end(anomaliesAttributePerson),
-                                       TSizeSizeSizeTr(i, j, attributePeople[j][k]))) {
-                    n += static_cast<unsigned int>(2.5 * attributeRates[j]);
-                    LOG_DEBUG(<< i << " " << attributes[j] << " generating anomaly " << n);
-                }
-
-                TDoubleVec times;
-                rng.generateUniformSamples(
-                    0.0, static_cast<double>(bucketLength - 1), n, times);
-
-                for (std::size_t l = 0u; l < times.size(); ++l) {
-                    core_t::TTime time = startTime + static_cast<core_t::TTime>(times[l]);
-                    messages.emplace_back(time, people[attributePeople[j][k]],
-                                          attributes[j]);
+                    for (std::size_t l = 0u; l < times.size(); ++l) {
+                        core_t::TTime time = startTime +
+                                             static_cast<core_t::TTime>(times[l]);
+                        messages.emplace_back(time, people[attributePeople[j][k]],
+                                              attributes[j]);
+                    }
                 }
             }
         }
+
+        std::sort(messages.begin(), messages.end());
     }
-
-    std::sort(messages.begin(), messages.end());
-}
-
-void addArrival(const SMessage& message,
-                const CModelFactory::TDataGathererPtr& gatherer,
-                CResourceMonitor& resourceMonitor) {
-    CDataGatherer::TStrCPtrVec fields{&message.s_Person, &message.s_Attribute};
-    CEventData result;
-    result.time(message.s_Time);
-    gatherer->addArrival(fields, result, resourceMonitor);
-}
-
-const TSizeDoublePr1Vec NO_CORRELATES;
-}
-
-class CTestFixture : public CModelTestFixtureBase {};
+};
 
 BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
     // Check that the correct data is read retrieved by the
@@ -274,7 +228,7 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
             startTime += bucketLength;
         }
 
-        addArrival(message, gatherer, m_ResourceMonitor);
+        this->addArrival(message, gatherer);
 
         std::size_t pid, cid;
         BOOST_TEST_REQUIRE(gatherer->personId(message.s_Person, pid));
@@ -446,7 +400,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
             expectedCounts.clear();
         }
 
-        addArrival(message, gatherer, m_ResourceMonitor);
+        this->addArrival(message, gatherer);
 
         std::size_t pid, cid;
         BOOST_TEST_REQUIRE(gatherer->personId(message.s_Person, pid));
@@ -457,14 +411,8 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
 
 BOOST_FIXTURE_TEST_CASE(testComputeProbability, CTestFixture) {
     // Check that we get the probabilities we expect.
-
-    using TAnomalyVec = std::vector<SAnomaly>;
-    using TDoubleAnomalyPr = std::pair<double, SAnomaly>;
-    using TAnomalyAccumulator =
-        maths::CBasicStatistics::COrderStatisticsHeap<TDoubleAnomalyPr, maths::COrderings::SFirstLess>;
-
-    core_t::TTime startTime = 1367280000;
-    const core_t::TTime bucketLength = 3600;
+    core_t::TTime startTime{1367280000};
+    const core_t::TTime bucketLength{3600};
 
     TMessageVec messages;
     generateTestMessages(startTime, bucketLength, messages);
@@ -482,54 +430,13 @@ BOOST_FIXTURE_TEST_CASE(testComputeProbability, CTestFixture) {
     CEventRatePopulationModel* model =
         dynamic_cast<CEventRatePopulationModel*>(modelHolder.get());
 
-    TAnomalyAccumulator anomalies(6u);
-
-    for (std::size_t i = 0u, bucket = 0u; i < messages.size(); ++i) {
-        if (messages[i].s_Time >= startTime + bucketLength) {
-            LOG_DEBUG(<< "Updating and testing bucket = [" << startTime << ","
-                      << startTime + bucketLength << ")");
-
-            model->sample(startTime, startTime + bucketLength, m_ResourceMonitor);
-
-            SAnnotatedProbability annotatedProbability;
-            for (std::size_t pid = 0u; pid < gatherer->numberActivePeople(); ++pid) {
-                CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
-                model->computeProbability(pid, startTime, startTime + bucketLength,
-                                          partitioningFields, 2, annotatedProbability);
-
-                std::string person = model->personName(pid);
-                TDoubleStrPrVec attributes;
-                for (std::size_t j = 0u;
-                     j < annotatedProbability.s_AttributeProbabilities.size(); ++j) {
-                    attributes.emplace_back(
-                        annotatedProbability.s_AttributeProbabilities[j].s_Probability,
-                        *annotatedProbability.s_AttributeProbabilities[j].s_Attribute);
-                }
-                anomalies.add({annotatedProbability.s_Probability,
-                               SAnomaly(bucket, person, attributes)});
-            }
-
-            startTime += bucketLength;
-            ++bucket;
-        }
-
-        addArrival(messages[i], gatherer, m_ResourceMonitor);
-    }
-
-    anomalies.sort();
-    LOG_DEBUG(<< "Anomalies = " << anomalies.print());
-
-    TAnomalyVec orderedAnomalies;
-    for (std::size_t i = 0u; i < anomalies.count(); ++i) {
-        orderedAnomalies.push_back(anomalies[i].second);
-    }
-
-    std::sort(orderedAnomalies.begin(), orderedAnomalies.end());
-
-    LOG_DEBUG(<< "orderedAnomalies = " << core::CContainerPrinter::print(orderedAnomalies));
-
     TStrVec expectedAnomalies{"[10, p1, c0]", "[15, p11, c0]", "[30, p4, c2]",
                               "[35, p5, c2]", "[50, p11, c0]", "[75, p5, c2]"};
+
+    TAnomalyVec orderedAnomalies;
+
+    this->generateOrderedAnomalies(6u, startTime, bucketLength, messages,
+                                   gatherer, *model, orderedAnomalies);
 
     BOOST_REQUIRE_EQUAL(expectedAnomalies.size(), orderedAnomalies.size());
     for (std::size_t i = 0u; i < orderedAnomalies.size(); ++i) {
@@ -652,7 +559,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
             model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
             bucketStart += bucketLength;
         }
-        addArrival(message, gatherer, m_ResourceMonitor);
+        this->addArrival(message, gatherer);
     }
     model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
     size_t maxDimensionBeforePrune(model->dataGatherer().maxDimension());
@@ -666,7 +573,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
             expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
             bucketStart += bucketLength;
         }
-        addArrival(expectedMessage, expectedGatherer, m_ResourceMonitor);
+        this->addArrival(expectedMessage, expectedGatherer);
     }
     expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
 
@@ -683,8 +590,8 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
                             {bucketStart + 2100, "p5", "c6"}};
 
     for (const auto& newMessage : newMessages) {
-        addArrival(newMessage, gatherer, m_ResourceMonitor);
-        addArrival(newMessage, expectedGatherer, m_ResourceMonitor);
+        this->addArrival(newMessage, gatherer);
+        this->addArrival(newMessage, expectedGatherer);
     }
     model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
     expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
@@ -712,39 +619,17 @@ BOOST_FIXTURE_TEST_CASE(testKey, CTestFixture) {
                                             function_t::E_PopulationFreqRareCount,
                                             function_t::E_PopulationLowCounts,
                                             function_t::E_PopulationHighCounts};
-    TBoolVec useNull{true, false};
-    TStrVec byFields{"", "by"};
-    TStrVec partitionFields{"", "partition"};
 
-    {
-        CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig();
+    std::string fieldName;
+    std::string overFieldName{"over"};
 
-        int detectorIndex = 0;
-        for (const auto& countFunction : countFunctions) {
-            for (bool usingNull : useNull) {
-                for (const auto& byField : byFields) {
-                    for (const auto& partitionField : partitionFields) {
-                        CSearchKey key(++detectorIndex, countFunction,
-                                       usingNull, model_t::E_XF_None, "",
-                                       byField, "over", partitionField);
-
-                        CAnomalyDetectorModelConfig::TModelFactoryCPtr factory =
-                            config.factory(key);
-
-                        LOG_DEBUG(<< "expected key = " << key);
-                        LOG_DEBUG(<< "actual key   = " << factory->searchKey());
-                        BOOST_TEST_REQUIRE(key == factory->searchKey());
-                    }
-                }
-            }
-        }
-    }
+    generateAndCompareKey(countFunctions, fieldName, overFieldName,
+                          [](CSearchKey expectedKey, CSearchKey actualKey){
+                            BOOST_TEST_REQUIRE(expectedKey == actualKey);});
 }
 
 BOOST_FIXTURE_TEST_CASE(testFrequency, CTestFixture) {
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-
-    // Test we correctly compute frequencies for people and attributes.
+   // Test we correctly compute frequencies for people and attributes.
 
     struct SDatum {
         std::string s_Attribute;
@@ -805,7 +690,7 @@ BOOST_FIXTURE_TEST_CASE(testFrequency, CTestFixture) {
             populationModel->sample(time, time + bucketLength, m_ResourceMonitor);
             time += bucketLength;
         }
-        addArrival(message, gatherer, m_ResourceMonitor);
+        this->addArrival(message, gatherer);
     }
 
     {
@@ -916,7 +801,7 @@ BOOST_FIXTURE_TEST_CASE(testSampleRateWeight, CTestFixture) {
             populationModel->sample(time, time + bucketLength, m_ResourceMonitor);
             time += bucketLength;
         }
-        addArrival(message, gatherer, m_ResourceMonitor);
+        this->addArrival(message, gatherer);
     }
 
     // The heavy hitters generate one value per attribute per bucket.
@@ -1058,7 +943,7 @@ BOOST_FIXTURE_TEST_CASE(testPeriodicity, CTestFixture) {
             time += bucketLength;
         }
 
-        addArrival(message, gatherer, m_ResourceMonitor);
+        this->addArrival(message, gatherer);
     }
 
     double totalw{0.0};
@@ -1096,13 +981,13 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     CEventRatePopulationModel* modelNoGap =
         dynamic_cast<CEventRatePopulationModel*>(modelNoGapHolder.get());
 
-    addArrival(SMessage(100, "p1", "a1"), gathererNoGap, m_ResourceMonitor);
-    addArrival(SMessage(100, "p1", "a2"), gathererNoGap, m_ResourceMonitor);
-    addArrival(SMessage(100, "p2", "a1"), gathererNoGap, m_ResourceMonitor);
+    this->addArrival(SMessage(100, "p1", "a1"), gathererNoGap);
+    this->addArrival(SMessage(100, "p1", "a2"), gathererNoGap);
+    this->addArrival(SMessage(100, "p2", "a1"), gathererNoGap);
     modelNoGap->sample(100, 200, m_ResourceMonitor);
-    addArrival(SMessage(200, "p1", "a1"), gathererNoGap, m_ResourceMonitor);
+    this->addArrival(SMessage(200, "p1", "a1"), gathererNoGap);
     modelNoGap->sample(200, 300, m_ResourceMonitor);
-    addArrival(SMessage(300, "p1", "a1"), gathererNoGap, m_ResourceMonitor);
+    this->addArrival(SMessage(300, "p1", "a1"), gathererNoGap);
     modelNoGap->sample(300, 400, m_ResourceMonitor);
 
     CModelFactory::SGathererInitializationData gathererWithGapInitData(startTime);
@@ -1113,11 +998,11 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     CEventRatePopulationModel* modelWithGap =
         dynamic_cast<CEventRatePopulationModel*>(modelWithGapHolder.get());
 
-    addArrival(SMessage(100, "p1", "a1"), gathererWithGap, m_ResourceMonitor);
-    addArrival(SMessage(100, "p1", "a2"), gathererWithGap, m_ResourceMonitor);
-    addArrival(SMessage(100, "p2", "a1"), gathererWithGap, m_ResourceMonitor);
+    this->addArrival(SMessage(100, "p1", "a1"), gathererWithGap);
+    this->addArrival(SMessage(100, "p1", "a2"), gathererWithGap);
+    this->addArrival(SMessage(100, "p2", "a1"), gathererWithGap);
     modelWithGap->sample(100, 200, m_ResourceMonitor);
-    addArrival(SMessage(200, "p1", "a1"), gathererWithGap, m_ResourceMonitor);
+    this->addArrival(SMessage(200, "p1", "a1"), gathererWithGap);
     modelWithGap->skipSampling(1000);
     LOG_DEBUG(<< "Calling sample over skipped interval should do nothing except print some ERRORs");
     modelWithGap->sample(200, 1000, m_ResourceMonitor);
@@ -1127,9 +1012,9 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     BOOST_REQUIRE_EQUAL(std::size_t(2), gathererWithGap->numberActivePeople());
     BOOST_REQUIRE_EQUAL(std::size_t(2), gathererWithGap->numberActiveAttributes());
 
-    addArrival(SMessage(1000, "p1", "a1"), gathererWithGap, m_ResourceMonitor);
+    this->addArrival(SMessage(1000, "p1", "a1"), gathererWithGap);
     modelWithGap->sample(1000, 1100, m_ResourceMonitor);
-    addArrival(SMessage(1100, "p1", "a1"), gathererWithGap, m_ResourceMonitor);
+    this->addArrival(SMessage(1100, "p1", "a1"), gathererWithGap);
     modelWithGap->sample(1100, 1200, m_ResourceMonitor);
 
     // Check priors are the same
@@ -1185,26 +1070,26 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrections, CTestFixture) {
     while (now < endTime) {
         rng.generateUniformSamples(50.0, 70.0, std::size_t(3), samples);
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
-            addArrival(SMessage(now, "p1", "a1"), gatherer, m_ResourceMonitor);
+            this->addArrival(SMessage(now, "p1", "a1"), gatherer);
         }
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[1] + 0.5); ++i) {
-            addArrival(SMessage(now, "p2", "a1"), gatherer, m_ResourceMonitor);
+            this->addArrival(SMessage(now, "p2", "a1"), gatherer);
         }
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[2] + 0.5); ++i) {
-            addArrival(SMessage(now, "p3", "a2"), gatherer, m_ResourceMonitor);
+            this->addArrival(SMessage(now, "p3", "a2"), gatherer);
         }
         countingModel.sample(now, now + bucketLength, m_ResourceMonitor);
         model->sample(now, now + bucketLength, m_ResourceMonitor);
         now += bucketLength;
     }
     for (std::size_t i = 0; i < 35; ++i) {
-        addArrival(SMessage(now, "p1", "a1"), gatherer, m_ResourceMonitor);
+        this->addArrival(SMessage(now, "p1", "a1"), gatherer);
     }
     for (std::size_t i = 0; i < 1; ++i) {
-        addArrival(SMessage(now, "p2", "a1"), gatherer, m_ResourceMonitor);
+        this->addArrival(SMessage(now, "p2", "a1"), gatherer);
     }
     for (std::size_t i = 0; i < 100; ++i) {
-        addArrival(SMessage(now, "p3", "a2"), gatherer, m_ResourceMonitor);
+        this->addArrival(SMessage(now, "p3", "a2"), gatherer);
     }
     countingModel.sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
     model->sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
@@ -1278,7 +1163,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
             origModel->sample(startTime, startTime + bucketLength, m_ResourceMonitor);
             startTime += bucketLength;
         }
-        addArrival(message, gatherer, m_ResourceMonitor);
+        this->addArrival(message, gatherer);
     }
 
     std::string origXml;
@@ -1364,33 +1249,33 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     CAnomalyDetectorModel::TModelPtr modelWithSkip(
         factoryWithSkipRule.makeModel(modelWithSkipInitData));
 
-    addArrival(SMessage(100, "p1", "a1"), gathererNoSkip, m_ResourceMonitor);
-    addArrival(SMessage(100, "p1", "a1"), gathererWithSkip, m_ResourceMonitor);
-    addArrival(SMessage(100, "p1", "a2"), gathererNoSkip, m_ResourceMonitor);
-    addArrival(SMessage(100, "p1", "a2"), gathererWithSkip, m_ResourceMonitor);
-    addArrival(SMessage(100, "p2", "a1"), gathererNoSkip, m_ResourceMonitor);
-    addArrival(SMessage(100, "p2", "a1"), gathererWithSkip, m_ResourceMonitor);
+    this->addArrival(SMessage(100, "p1", "a1"), gathererNoSkip);
+    this->addArrival(SMessage(100, "p1", "a1"), gathererWithSkip);
+    this->addArrival(SMessage(100, "p1", "a2"), gathererNoSkip);
+    this->addArrival(SMessage(100, "p1", "a2"), gathererWithSkip);
+    this->addArrival(SMessage(100, "p2", "a1"), gathererNoSkip);
+    this->addArrival(SMessage(100, "p2", "a1"), gathererWithSkip);
     modelNoSkip->sample(100, 200, m_ResourceMonitor);
     modelWithSkip->sample(100, 200, m_ResourceMonitor);
 
     BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
-    addArrival(SMessage(200, "p1", "a1"), gathererNoSkip, m_ResourceMonitor);
-    addArrival(SMessage(200, "p1", "a1"), gathererWithSkip, m_ResourceMonitor);
-    addArrival(SMessage(200, "p1", "a2"), gathererNoSkip, m_ResourceMonitor);
-    addArrival(SMessage(200, "p1", "a2"), gathererWithSkip, m_ResourceMonitor);
-    addArrival(SMessage(200, "p2", "a1"), gathererNoSkip, m_ResourceMonitor);
-    addArrival(SMessage(200, "p2", "a1"), gathererWithSkip, m_ResourceMonitor);
+    this->addArrival(SMessage(200, "p1", "a1"), gathererNoSkip);
+    this->addArrival(SMessage(200, "p1", "a1"), gathererWithSkip);
+    this->addArrival(SMessage(200, "p1", "a2"), gathererNoSkip);
+    this->addArrival(SMessage(200, "p1", "a2"), gathererWithSkip);
+    this->addArrival(SMessage(200, "p2", "a1"), gathererNoSkip);
+    this->addArrival(SMessage(200, "p2", "a1"), gathererWithSkip);
 
     // This should be filtered out
-    addArrival(SMessage(200, "p1", "a3"), gathererWithSkip, m_ResourceMonitor);
-    addArrival(SMessage(200, "p2", "a3"), gathererWithSkip, m_ResourceMonitor);
+    this->addArrival(SMessage(200, "p1", "a3"), gathererWithSkip);
+    this->addArrival(SMessage(200, "p2", "a3"), gathererWithSkip);
 
     // Add another attribute that must not be skipped
-    addArrival(SMessage(200, "p1", "a4"), gathererNoSkip, m_ResourceMonitor);
-    addArrival(SMessage(200, "p1", "a4"), gathererWithSkip, m_ResourceMonitor);
-    addArrival(SMessage(200, "p2", "a4"), gathererNoSkip, m_ResourceMonitor);
-    addArrival(SMessage(200, "p2", "a4"), gathererWithSkip, m_ResourceMonitor);
+    this->addArrival(SMessage(200, "p1", "a4"), gathererNoSkip);
+    this->addArrival(SMessage(200, "p1", "a4"), gathererWithSkip);
+    this->addArrival(SMessage(200, "p2", "a4"), gathererNoSkip);
+    this->addArrival(SMessage(200, "p2", "a4"), gathererWithSkip);
 
     modelNoSkip->sample(200, 300, m_ResourceMonitor);
     modelWithSkip->sample(200, 300, m_ResourceMonitor);
