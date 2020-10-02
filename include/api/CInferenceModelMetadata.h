@@ -50,16 +50,17 @@ public:
     void addToFeatureImportance(std::size_t i, const TVector& values);
 
 private:
-    using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<TVector>::TAccumulator;
+    using TMeanAccumulator =
+        std::vector<maths::CBasicStatistics::SSampleMean<double>::TAccumulator>;
     using TMinMaxAccumulator = std::vector<maths::CBasicStatistics::CMinMax<double>>;
-    using TSizeMeanVarAccumulatorUMap = std::unordered_map<std::size_t, TMeanVarAccumulator>;
+    using TSizeMeanAccumulatorUMap = std::unordered_map<std::size_t, TMeanAccumulator>;
     using TSizeMinMaxAccumulatorUMap = std::unordered_map<std::size_t, TMinMaxAccumulator>;
 
 private:
     void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
 
 private:
-    TSizeMeanVarAccumulatorUMap m_TotalShapValuesMeanVar;
+    TSizeMeanAccumulatorUMap m_TotalShapValuesMean;
     TSizeMinMaxAccumulatorUMap m_TotalShapValuesMinMax;
     TStrVec m_ColumnNames;
     TStrVec m_ClassValues;
