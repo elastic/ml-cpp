@@ -54,9 +54,10 @@ public:
     void baseline(TVector&& baseline);
 
 private:
-    using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<TVector>::TAccumulator;
+    using TMeanAccumulator =
+        std::vector<maths::CBasicStatistics::SSampleMean<double>::TAccumulator>;
     using TMinMaxAccumulator = std::vector<maths::CBasicStatistics::CMinMax<double>>;
-    using TSizeMeanVarAccumulatorUMap = std::unordered_map<std::size_t, TMeanVarAccumulator>;
+    using TSizeMeanAccumulatorUMap = std::unordered_map<std::size_t, TMeanAccumulator>;
     using TSizeMinMaxAccumulatorUMap = std::unordered_map<std::size_t, TMinMaxAccumulator>;
     using TOptionalVector = boost::optional<TVector>;
 
@@ -65,7 +66,7 @@ private:
     void writeFeatureImportanceBaseline(TRapidJsonWriter& writer) const;
 
 private:
-    TSizeMeanVarAccumulatorUMap m_TotalShapValuesMeanVar;
+    TSizeMeanAccumulatorUMap m_TotalShapValuesMean;
     TSizeMinMaxAccumulatorUMap m_TotalShapValuesMinMax;
     TOptionalVector m_Baseline;
     TStrVec m_ColumnNames;

@@ -5,6 +5,8 @@
  */
 #include <api/CInferenceModelMetadata.h>
 
+#include <cmath>
+
 namespace ml {
 namespace api {
 
@@ -14,10 +16,10 @@ void CInferenceModelMetadata::write(TRapidJsonWriter& writer) const {
 }
 
 void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writer) const {
-    if (m_TotalShapValuesMeanVar.size() > 0) {
+    if (m_TotalShapValuesMean.size() > 0) {
         writer.Key(JSON_TOTAL_FEATURE_IMPORTANCE_TAG);
         writer.StartArray();
-        for (const auto& item : m_TotalShapValuesMeanVar) {
+        for (const auto& item : m_TotalShapValuesMean) {
             writer.StartObject();
             writer.Key(JSON_FEATURE_NAME_TAG);
             writer.String(m_ColumnNames[item.first]);
@@ -154,14 +156,15 @@ void CInferenceModelMetadata::predictionFieldTypeResolverWriter(
 }
 
 void CInferenceModelMetadata::addToFeatureImportance(std::size_t i, const TVector& values) {
-    m_TotalShapValuesMeanVar
-        .emplace(std::make_pair(i, TVector::Zero(values.size())))
-        .first->second.add(values.cwiseAbs());
+    auto& meanVector = m_TotalShapValuesMean
+                           .emplace(std::make_pair(i, TMeanAccumulator(values.size())))
+                           .first->second;
     auto& minMaxVector =
         m_TotalShapValuesMinMax
             .emplace(std::make_pair(i, TMinMaxAccumulator(values.size())))
             .first->second;
     for (std::size_t j = 0; j < minMaxVector.size(); ++j) {
+        meanVector[j].add(std::fabs(values[j]));
         minMaxVector[j].add(values[j]);
     }
 }
