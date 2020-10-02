@@ -206,21 +206,12 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                             // output feature importance for individual classes in multiclass case
                             writer.Key(CLASSES_FIELD_NAME);
                             writer.StartArray();
-                            TDoubleVec featureImportanceSum(numberClasses, 0.0);
-                            for (std::size_t j = 0;
-                                 j < shap[i].size() && j < numberClasses; ++j) {
-                                for (auto k : indices) {
-                                    featureImportanceSum[j] += shap[k](j);
-                                }
-                            }
                             for (std::size_t j = 0;
                                  j < shap[i].size() && j < numberClasses; ++j) {
                                 writer.StartObject();
                                 writer.Key(CLASS_NAME_FIELD_NAME);
                                 writePredictedCategoryValue(classValues[j], writer);
                                 writer.Key(IMPORTANCE_FIELD_NAME);
-                                // double correctedShap{
-                                //     shap[i](j) * (baseline[j] / featureImportanceSum[j] + 1.0)};
                                 writer.Double(shap[i](j));
                                 writer.EndObject();
                             }

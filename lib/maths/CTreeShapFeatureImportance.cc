@@ -368,7 +368,8 @@ const CTreeShapFeatureImportance::TStrVec& CTreeShapFeatureImportance::columnNam
 }
 
 CTreeShapFeatureImportance::TVector CTreeShapFeatureImportance::baseline() const {
-    TVector result{(*m_Forest)[0][0].value().size()};
+
+    TVector result{las::zero((*m_Forest)[0][0].value())};
     for (const auto& tree : *m_Forest) {
         result += tree[0].value();
     }

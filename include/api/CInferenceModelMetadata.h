@@ -62,6 +62,7 @@ private:
 
 private:
     void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
+    void writeFeatureImportanceBaseline(TRapidJsonWriter& writer) const;
 
 private:
     TSizeMeanVarAccumulatorUMap m_TotalShapValuesMeanVar;
