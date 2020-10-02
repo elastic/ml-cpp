@@ -65,9 +65,9 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
             writer.Key(JSON_CLASSES_TAG);
             writer.StartArray();
             for (std::size_t j = 0;
-                    j < static_cast<std::size_t>(meanFeatureImportance.size()) &&
-                    j < m_ClassValues.size();
-                    ++j) {
+                 j < static_cast<std::size_t>(meanFeatureImportance.size()) &&
+                 j < m_ClassValues.size();
+                 ++j) {
                 writer.StartObject();
                 writer.Key(JSON_CLASS_NAME_TAG);
                 m_PredictionFieldTypeResolverWriter(m_ClassValues[j], writer);
