@@ -29,10 +29,6 @@ BOOST_AUTO_TEST_SUITE(CCountingModelTest)
 using namespace ml;
 using namespace model;
 
-namespace {
-const std::string EMPTY_STRING;
-}
-
 class CTestFixture : public CModelTestFixtureBase {
 protected:
     SModelParams::TStrDetectionRulePr

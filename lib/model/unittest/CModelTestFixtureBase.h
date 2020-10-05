@@ -31,6 +31,8 @@
 
 class CModelTestFixtureBase {
 public:
+    static const std::string EMPTY_STRING;
+
     using TBoolVec = std::vector<bool>;
 
     using TDouble1Vec = ml::core::CSmallVector<double, 1>;
@@ -204,7 +206,8 @@ protected:
                                   ml::model::CAnomalyDetectorModel& model,
                                   TAnomalyVec& orderedAnomalies);
 
-    using TKeyCompareFunc = std::function<void(ml::model::CSearchKey expectedKey, ml::model::CSearchKey actualKey)>;
+    using TKeyCompareFunc =
+        std::function<void(ml::model::CSearchKey expectedKey, ml::model::CSearchKey actualKey)>;
 
     void generateAndCompareKey(const ml::model::function_t::TFunctionVec& countFunctions,
                                const std::string& fieldName,

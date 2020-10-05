@@ -55,8 +55,6 @@ using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1
 using TMaxAccumulator =
     maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
 
-const std::string EMPTY_STRING;
-
 const std::size_t numberAttributes{5u};
 const std::size_t numberPeople{10u};
 }
@@ -788,8 +786,9 @@ BOOST_FIXTURE_TEST_CASE(testKey, CTestFixture) {
     std::string overFieldName{"over"};
 
     generateAndCompareKey(countFunctions, fieldName, overFieldName,
-                          [](CSearchKey expectedKey, CSearchKey actualKey){
-                            BOOST_TEST_REQUIRE(expectedKey == actualKey);});
+                          [](CSearchKey expectedKey, CSearchKey actualKey) {
+                              BOOST_TEST_REQUIRE(expectedKey == actualKey);
+                          });
 }
 
 BOOST_FIXTURE_TEST_CASE(testFrequency, CTestFixture) {

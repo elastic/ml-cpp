@@ -1110,9 +1110,6 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
                         clonedModel->dataGatherer().numberActivePeople());
 }
 
-
-
-
 BOOST_FIXTURE_TEST_CASE(testKey, CTestFixture) {
     function_t::TFunctionVec countFunctions{function_t::E_IndividualCount,
                                             function_t::E_IndividualNonZeroCount,
@@ -1126,8 +1123,9 @@ BOOST_FIXTURE_TEST_CASE(testKey, CTestFixture) {
     std::string overFieldName;
 
     generateAndCompareKey(countFunctions, fieldName, overFieldName,
-                          [](CSearchKey expectedKey, CSearchKey actualKey){
-                              BOOST_TEST_REQUIRE(expectedKey == actualKey);});
+                          [](CSearchKey expectedKey, CSearchKey actualKey) {
+                              BOOST_TEST_REQUIRE(expectedKey == actualKey);
+                          });
 }
 
 BOOST_FIXTURE_TEST_CASE(testModelsWithValueFields, CTestFixture) {

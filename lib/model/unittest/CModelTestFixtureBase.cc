@@ -12,9 +12,7 @@
 
 #include <string>
 
-namespace {
-const std::string EMPTY_STRING;
-}
+const std::string CModelTestFixtureBase::EMPTY_STRING;
 
 std::size_t CModelTestFixtureBase::addPerson(const std::string& p,
                                              const ml::model::CModelFactory::TDataGathererPtr& gatherer,
@@ -279,16 +277,16 @@ void CModelTestFixtureBase::generateOrderedAnomalies(std::size_t numAnomalies,
               << ml::core::CContainerPrinter::print(orderedAnomalies));
 }
 
-
 void CModelTestFixtureBase::generateAndCompareKey(const ml::model::function_t::TFunctionVec& countFunctions,
-                           const std::string& fieldName,
-                           const std::string& overFieldName,
-                           TKeyCompareFunc keyCompare) {
+                                                  const std::string& fieldName,
+                                                  const std::string& overFieldName,
+                                                  TKeyCompareFunc keyCompare) {
     TBoolVec useNull{true, false};
     TStrVec byFields{"", "by"};
     TStrVec partitionFields{"", "partition"};
 
-    ml::model::CAnomalyDetectorModelConfig config = ml::model::CAnomalyDetectorModelConfig::defaultConfig();
+    ml::model::CAnomalyDetectorModelConfig config =
+        ml::model::CAnomalyDetectorModelConfig::defaultConfig();
 
     int detectorIndex{0};
     for (const auto& countFunction : countFunctions) {
@@ -296,7 +294,8 @@ void CModelTestFixtureBase::generateAndCompareKey(const ml::model::function_t::T
             for (const auto& byField : byFields) {
                 for (const auto& partitionField : partitionFields) {
                     ml::model::CSearchKey key(++detectorIndex, countFunction, usingNull,
-                                              ml::model_t::E_XF_None, fieldName, byField, overFieldName, partitionField);
+                                              ml::model_t::E_XF_None, fieldName,
+                                              byField, overFieldName, partitionField);
 
                     ml::model::CAnomalyDetectorModelConfig::TModelFactoryCPtr factory =
                         config.factory(key);

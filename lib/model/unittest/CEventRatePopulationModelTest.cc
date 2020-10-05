@@ -54,7 +54,6 @@ using namespace ml;
 using namespace model;
 
 namespace {
-const std::string EMPTY_STRING;
 const CModelTestFixtureBase::TSizeDoublePr1Vec NO_CORRELATES;
 }
 
@@ -624,12 +623,13 @@ BOOST_FIXTURE_TEST_CASE(testKey, CTestFixture) {
     std::string overFieldName{"over"};
 
     generateAndCompareKey(countFunctions, fieldName, overFieldName,
-                          [](CSearchKey expectedKey, CSearchKey actualKey){
-                            BOOST_TEST_REQUIRE(expectedKey == actualKey);});
+                          [](CSearchKey expectedKey, CSearchKey actualKey) {
+                              BOOST_TEST_REQUIRE(expectedKey == actualKey);
+                          });
 }
 
 BOOST_FIXTURE_TEST_CASE(testFrequency, CTestFixture) {
-   // Test we correctly compute frequencies for people and attributes.
+    // Test we correctly compute frequencies for people and attributes.
 
     struct SDatum {
         std::string s_Attribute;

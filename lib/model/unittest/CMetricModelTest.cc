@@ -57,7 +57,6 @@ namespace {
 using TMinAccumulator = maths::CBasicStatistics::SMin<double>::TAccumulator;
 using TMaxAccumulator = maths::CBasicStatistics::SMax<double>::TAccumulator;
 
-const std::string EMPTY_STRING;
 const CModelTestFixtureBase::TSizeDoublePr1Vec NO_CORRELATES;
 }
 
@@ -1319,8 +1318,9 @@ BOOST_FIXTURE_TEST_CASE(testKey, CTestFixture) {
     std::string overFieldName;
 
     generateAndCompareKey(countFunctions, fieldName, overFieldName,
-                          [](CSearchKey expectedKey, CSearchKey actualKey){
-                            BOOST_TEST_REQUIRE(expectedKey == actualKey);});
+                          [](CSearchKey expectedKey, CSearchKey actualKey) {
+                              BOOST_TEST_REQUIRE(expectedKey == actualKey);
+                          });
 }
 
 BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
