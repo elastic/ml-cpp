@@ -62,19 +62,6 @@ const CModelTestFixtureBase::TSizeDoublePr1Vec NO_CORRELATES;
 
 class CTestFixture : public CModelTestFixtureBase {
 public:
-    CEventData makeEventData(core_t::TTime time,
-                             std::size_t pid,
-                             double value,
-                             const TOptionalStr& influence = TOptionalStr()) {
-        CEventData result;
-        result.time(time);
-        result.person(pid);
-        result.addAttribute(std::size_t(0));
-        result.addValue({value});
-        result.addInfluence(influence);
-        return result;
-    }
-
     TDouble1Vec featureData(const CMetricModel& model,
                             model_t::EFeature feature,
                             std::size_t pid,
@@ -997,8 +984,8 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
 
         core_t::TTime time{startTime};
         for (std::size_t i = 0u; i < values.size(); ++i) {
-            processBucket(time, bucketLength, values[i], influencers[i],
-                          *gatherer, model, annotatedProbability);
+            this->processBucket(time, bucketLength, values[i], influencers[i],
+                                *gatherer, model, annotatedProbability);
             BOOST_REQUIRE_EQUAL(influences[i].size(),
                                 annotatedProbability.s_Influences.size());
             if (influences[i].size() > 0) {
@@ -1215,7 +1202,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
                      k < n; ++k, time += dt) {
                     std::size_t pid = this->addPerson(people[i], gatherer);
                     events.push_back(
-                        makeEventData(time, pid, samples[static_cast<size_t>(k)]));
+                        makeEventData(time, pid, {samples[static_cast<size_t>(k)]}));
                 }
             }
         }
@@ -1236,7 +1223,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
                                std::end(expectedPeople), events[i].personId())) {
             expectedEvents.push_back(makeEventData(events[i].time(),
                                                    mapping[*events[i].personId()],
-                                                   events[i].values()[0][0]));
+                                                   {events[i].values()[0][0]}));
         }
     }
 
@@ -1349,16 +1336,16 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
         SAnnotatedProbability annotatedProbability;
 
         core_t::TTime time{startTime};
-        processBucket(time, bucketLength, bucket1, influencerValues1,
-                      *gathererNoGap, modelNoGap, annotatedProbability);
+        this->processBucket(time, bucketLength, bucket1, influencerValues1,
+                            *gathererNoGap, modelNoGap, annotatedProbability);
 
         time += bucketLength;
-        processBucket(time, bucketLength, bucket2, influencerValues1,
-                      *gathererNoGap, modelNoGap, annotatedProbability);
+        this->processBucket(time, bucketLength, bucket2, influencerValues1,
+                            *gathererNoGap, modelNoGap, annotatedProbability);
 
         time += bucketLength;
-        processBucket(time, bucketLength, bucket3, influencerValues1,
-                      *gathererNoGap, modelNoGap, annotatedProbability);
+        this->processBucket(time, bucketLength, bucket3, influencerValues1,
+                            *gathererNoGap, modelNoGap, annotatedProbability);
     }
 
     CModelFactory::TDataGathererPtr gathererWithGap(factory.makeDataGatherer(startTime));
@@ -1378,20 +1365,20 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
         SAnnotatedProbability annotatedProbability;
 
         core_t::TTime time{startTime};
-        processBucket(time, bucketLength, bucket1, influencerValues1,
-                      *gathererWithGap, modelWithGap, annotatedProbability);
+        this->processBucket(time, bucketLength, bucket1, influencerValues1,
+                            *gathererWithGap, modelWithGap, annotatedProbability);
 
         time += gap;
         modelWithGap.skipSampling(time);
         LOG_DEBUG(<< "Calling sample over skipped interval should do nothing except print some ERRORs");
         modelWithGap.sample(startTime + bucketLength, time, m_ResourceMonitor);
 
-        processBucket(time, bucketLength, bucket2, influencerValues1,
-                      *gathererWithGap, modelWithGap, annotatedProbability);
+        this->processBucket(time, bucketLength, bucket2, influencerValues1,
+                            *gathererWithGap, modelWithGap, annotatedProbability);
 
         time += bucketLength;
-        processBucket(time, bucketLength, bucket3, influencerValues1,
-                      *gathererWithGap, modelWithGap, annotatedProbability);
+        this->processBucket(time, bucketLength, bucket3, influencerValues1,
+                            *gathererWithGap, modelWithGap, annotatedProbability);
     }
 
     BOOST_REQUIRE_EQUAL(
@@ -1529,88 +1516,88 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     SAnnotatedProbability annotatedProbability2;
 
     core_t::TTime time{startTime};
-    processBucket(time, bucketLength, bucket1, *gatherer, model,
-                  annotatedProbability, annotatedProbability2);
+    this->processBucket(time, bucketLength, bucket1, *gatherer, model,
+                        annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, bucket2, *gatherer, model,
-                  annotatedProbability, annotatedProbability2);
+    this->processBucket(time, bucketLength, bucket2, *gatherer, model,
+                        annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, bucket3, *gatherer, model,
-                  annotatedProbability, annotatedProbability2);
+    this->processBucket(time, bucketLength, bucket3, *gatherer, model,
+                        annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, bucket4, *gatherer, model,
-                  annotatedProbability, annotatedProbability2);
+    this->processBucket(time, bucketLength, bucket4, *gatherer, model,
+                        annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, bucket5, *gatherer, model,
-                  annotatedProbability, annotatedProbability2);
+    this->processBucket(time, bucketLength, bucket5, *gatherer, model,
+                        annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, bucket6, *gatherer, model,
-                  annotatedProbability, annotatedProbability2);
+    this->processBucket(time, bucketLength, bucket6, *gatherer, model,
+                        annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, bucket7, *gatherer, model,
-                  annotatedProbability, annotatedProbability2);
+    this->processBucket(time, bucketLength, bucket7, *gatherer, model,
+                        annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, bucket8, *gatherer, model,
-                  annotatedProbability, annotatedProbability2);
+    this->processBucket(time, bucketLength, bucket8, *gatherer, model,
+                        annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.5);
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.5);
 
     time += bucketLength;
-    processBucket(time, bucketLength, bucket9, *gatherer, model,
-                  annotatedProbability, annotatedProbability2);
+    this->processBucket(time, bucketLength, bucket9, *gatherer, model,
+                        annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.5);
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.5);
 
     time += bucketLength;
-    processBucket(time, bucketLength, bucket10, *gatherer, model,
-                  annotatedProbability, annotatedProbability2);
+    this->processBucket(time, bucketLength, bucket10, *gatherer, model,
+                        annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.5);
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.5);
 
     time += bucketLength;
-    processBucket(time, bucketLength, bucket11, *gatherer, model,
-                  annotatedProbability, annotatedProbability2);
+    this->processBucket(time, bucketLength, bucket11, *gatherer, model,
+                        annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.5);

@@ -206,13 +206,19 @@ protected:
                                   ml::model::CAnomalyDetectorModel& model,
                                   TAnomalyVec& orderedAnomalies);
 
+    ml::model::CEventData makeEventData(ml::core_t::TTime time,
+                                        std::size_t pid,
+                                        TDouble1Vec value = TDoubleVec(1, 0.0),
+                                        const TOptionalStr& influence = TOptionalStr(),
+                                        const TOptionalStr& stringValue = TOptionalStr());
+
     using TKeyCompareFunc =
         std::function<void(ml::model::CSearchKey expectedKey, ml::model::CSearchKey actualKey)>;
 
-    void generateAndCompareKey(const ml::model::function_t::TFunctionVec& countFunctions,
-                               const std::string& fieldName,
-                               const std::string& overFieldName,
-                               TKeyCompareFunc keyCompare);
+    static void generateAndCompareKey(const ml::model::function_t::TFunctionVec& countFunctions,
+                                      const std::string& fieldName,
+                                      const std::string& overFieldName,
+                                      TKeyCompareFunc keyCompare);
 
 protected:
     ml::model::CResourceMonitor m_ResourceMonitor;

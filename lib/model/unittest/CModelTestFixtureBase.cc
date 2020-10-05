@@ -278,11 +278,27 @@ void CModelTestFixtureBase::generateOrderedAnomalies(std::size_t numAnomalies,
               << ml::core::CContainerPrinter::print(orderedAnomalies));
 }
 
+ml::model::CEventData CModelTestFixtureBase::makeEventData(ml::core_t::TTime time,
+                                                           std::size_t pid,
+                                                           TDouble1Vec value,
+                                                           const TOptionalStr& influence,
+                                                           const TOptionalStr& stringValue) {
+    ml::model::CEventData result;
+    result.time(time);
+    result.person(pid);
+    result.addAttribute(std::size_t(0));
+    result.addValue(value);
+    result.addInfluence(influence);
+    if (stringValue) {
+        result.stringValue(stringValue.get());
+    }
+    return result;
+}
+
 void CModelTestFixtureBase::generateAndCompareKey(const ml::model::function_t::TFunctionVec& countFunctions,
                                                   const std::string& fieldName,
                                                   const std::string& overFieldName,
                                                   TKeyCompareFunc keyCompare) {
-    TBoolVec useNull{true, false};
     TStrVec byFields{"", "by"};
     TStrVec partitionFields{"", "partition"};
 
@@ -291,7 +307,7 @@ void CModelTestFixtureBase::generateAndCompareKey(const ml::model::function_t::T
 
     int detectorIndex{0};
     for (const auto& countFunction : countFunctions) {
-        for (bool usingNull : useNull) {
+        for (bool usingNull : {true, false}) {
             for (const auto& byField : byFields) {
                 for (const auto& partitionField : partitionFields) {
                     ml::model::CSearchKey key(++detectorIndex, countFunction, usingNull,

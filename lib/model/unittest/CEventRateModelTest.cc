@@ -124,25 +124,6 @@ public:
         }
     }
 
-    CEventData makeEventData(core_t::TTime time, std::size_t pid) {
-        CEventData eventData;
-        eventData.time(time);
-        eventData.person(pid);
-        eventData.addAttribute(std::size_t(0));
-        eventData.addValue(TDoubleVec(1, 0.0));
-        return eventData;
-    }
-
-    CEventData makeEventData(core_t::TTime time, std::size_t pid, const std::string value) {
-        CEventData eventData;
-        eventData.time(time);
-        eventData.person(pid);
-        eventData.addAttribute(std::size_t(0));
-        eventData.addValue(TDoubleVec(1, 0.0));
-        eventData.stringValue(value);
-        return eventData;
-    }
-
     void handleEvent(const CDataGatherer::TStrCPtrVec& fields,
                      core_t::TTime time,
                      CModelFactory::TDataGathererPtr& gatherer,
@@ -1745,7 +1726,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
                 for (std::size_t k = 1; k < 20; k++) {
                     std::stringstream ss;
                     ss << uniqueValue << "_" << k;
-                    CEventData d = makeEventData(eventTimes[i - 1], 0, ss.str());
+                    CEventData d = makeEventData(eventTimes[i - 1], 0, {}, ss.str());
                     if (k % 2 == 0) {
                         this->addArrival(*gatherer, eventTimes[i - 1], "p",
                                          TOptionalStr("inf1"), TOptionalStr(ss.str()));
