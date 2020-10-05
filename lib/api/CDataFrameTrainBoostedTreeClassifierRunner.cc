@@ -175,11 +175,6 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                      const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
                 writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
                 writer.StartArray();
-                // TDoubleVec baseline;
-                // baseline.reserve(numberClasses);
-                // for (std::size_t j = 0; j < shap[0].size() && j < numberClasses; ++j) {
-                //     baseline.push_back(featureImportance->baseline(j));
-                // }
                 for (auto i : indices) {
                     if (shap[i].norm() != 0.0) {
                         writer.StartObject();
@@ -300,7 +295,7 @@ CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
 CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
     const auto& featureImportance = this->boostedTree().shap();
     if (featureImportance) {
-        m_InferenceModelMetadata.baseline(featureImportance->baseline());
+        m_InferenceModelMetadata.featureImportanceBaseline(featureImportance->baseline());
     }
     return m_InferenceModelMetadata;
 }

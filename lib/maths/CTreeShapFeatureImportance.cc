@@ -368,7 +368,8 @@ const CTreeShapFeatureImportance::TStrVec& CTreeShapFeatureImportance::columnNam
 }
 
 CTreeShapFeatureImportance::TVector CTreeShapFeatureImportance::baseline() const {
-
+    // The root node, i.e. the first node in each tree, value is set to the average of the
+    // tree's leaf values. So we compute the baseline simply by averaging root node values.
     TVector result{las::zero((*m_Forest)[0][0].value())};
     for (const auto& tree : *m_Forest) {
         result += tree[0].value();

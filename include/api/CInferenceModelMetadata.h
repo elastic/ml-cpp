@@ -50,8 +50,9 @@ public:
     //! Add importances \p values to the feature with index \p i to calculate total feature importance.
     //! Total feature importance is the mean of the magnitudes of importances for individual data points.
     void addToFeatureImportance(std::size_t i, const TVector& values);
-
-    void baseline(TVector&& baseline);
+    //! Set the feature importance baseline (the individual feature importances are additive corrections
+    //! to the baseline value).
+    void featureImportanceBaseline(TVector&& baseline);
 
 private:
     using TMeanAccumulator =
@@ -68,7 +69,7 @@ private:
 private:
     TSizeMeanAccumulatorUMap m_TotalShapValuesMean;
     TSizeMinMaxAccumulatorUMap m_TotalShapValuesMinMax;
-    TOptionalVector m_Baseline;
+    TOptionalVector m_ShapBaseline;
     TStrVec m_ColumnNames;
     TStrVec m_ClassValues;
     TPredictionFieldTypeResolverWriter m_PredictionFieldTypeResolverWriter =

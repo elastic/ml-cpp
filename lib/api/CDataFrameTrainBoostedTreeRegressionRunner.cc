@@ -157,7 +157,7 @@ CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
 CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
     const auto& featureImportance = this->boostedTree().shap();
     if (featureImportance) {
-        m_InferenceModelMetadata.baseline(featureImportance->baseline());
+        m_InferenceModelMetadata.featureImportanceBaseline(featureImportance->baseline());
     }
     return m_InferenceModelMetadata;
 }

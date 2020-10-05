@@ -90,14 +90,14 @@ void CInferenceModelMetadata::writeTotalFeatureImportance(TRapidJsonWriter& writ
 }
 
 void CInferenceModelMetadata::writeFeatureImportanceBaseline(TRapidJsonWriter& writer) const {
-    if (m_Baseline) {
+    if (m_ShapBaseline) {
         writer.Key(JSON_FEATURE_IMPORTANCE_BASELINE_TAG);
         writer.StartObject();
-        if (m_Baseline->size() == 1 && m_ClassValues.empty()) {
-            // for regression
+        if (m_ShapBaseline->size() == 1 && m_ClassValues.empty()) {
+            // Regression
             writer.Key(JSON_BASELINE_TAG);
-            writer.Double(m_Baseline.get()(0));
-        } else if (m_Baseline->size() == 1 && m_ClassValues.empty() == false) {
+            writer.Double(m_ShapBaseline.get()(0));
+        } else if (m_ShapBaseline->size() == 1 && m_ClassValues.empty() == false) {
             // Binary classification
             writer.Key(JSON_CLASSES_TAG);
             writer.StartArray();
@@ -107,9 +107,9 @@ void CInferenceModelMetadata::writeFeatureImportanceBaseline(TRapidJsonWriter& w
                 m_PredictionFieldTypeResolverWriter(m_ClassValues[j], writer);
                 writer.Key(JSON_BASELINE_TAG);
                 if (j == 1) {
-                    writer.Double(m_Baseline.get()(0));
+                    writer.Double(m_ShapBaseline.get()(0));
                 } else {
-                    writer.Double(-m_Baseline.get()(0));
+                    writer.Double(-m_ShapBaseline.get()(0));
                 }
                 writer.EndObject();
             }
@@ -120,14 +120,14 @@ void CInferenceModelMetadata::writeFeatureImportanceBaseline(TRapidJsonWriter& w
             // Multiclass classification
             writer.Key(JSON_CLASSES_TAG);
             writer.StartArray();
-            for (std::size_t j = 0; j < static_cast<std::size_t>(m_Baseline->size()) &&
+            for (std::size_t j = 0; j < static_cast<std::size_t>(m_ShapBaseline->size()) &&
                                     j < m_ClassValues.size();
                  ++j) {
                 writer.StartObject();
                 writer.Key(JSON_CLASS_NAME_TAG);
                 m_PredictionFieldTypeResolverWriter(m_ClassValues[j], writer);
                 writer.Key(JSON_BASELINE_TAG);
-                writer.Double(m_Baseline.get()(j));
+                writer.Double(m_ShapBaseline.get()(j));
                 writer.EndObject();
             }
             writer.EndArray();
@@ -167,8 +167,8 @@ void CInferenceModelMetadata::addToFeatureImportance(std::size_t i, const TVecto
     }
 }
 
-void CInferenceModelMetadata::baseline(TVector&& baseline) {
-    m_Baseline = baseline;
+void CInferenceModelMetadata::featureImportanceBaseline(TVector&& baseline) {
+    m_ShapBaseline = baseline;
 }
 
 // clang-format off
