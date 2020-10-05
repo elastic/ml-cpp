@@ -74,8 +74,9 @@ ml::model::CEventData
 CModelTestFixtureBase::addArrival(const SMessage& message,
                                   ml::model::CModelFactory::TDataGathererPtr& gatherer) {
     ml::model::CDataGatherer::TStrCPtrVec fields{&message.s_Person, &message.s_Attribute};
+    std::string value;
     if (message.s_Value.empty() == false) {
-        std::string value{valueAsString(message.s_Value)};
+        value = {valueAsString(message.s_Value)};
         fields.push_back(&value);
     }
     ml::model::CEventData result;
