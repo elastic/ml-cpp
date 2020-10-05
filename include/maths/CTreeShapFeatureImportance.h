@@ -77,7 +77,7 @@ public:
     const TStrVec& columnNames() const;
 
     //! Get the baseline.
-    double baseline(std::size_t classIdx = 0) const;
+    TVector baseline() const;
 
 private:
     //! Collects the elements of the path through decision tree that are updated together
