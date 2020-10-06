@@ -155,7 +155,11 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelDefinition(
 
 CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
 CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
-    return TOptionalInferenceModelMetadata(m_InferenceModelMetadata);
+    const auto& featureImportance = this->boostedTree().shap();
+    if (featureImportance) {
+        m_InferenceModelMetadata.featureImportanceBaseline(featureImportance->baseline());
+    }
+    return m_InferenceModelMetadata;
 }
 
 // clang-format off
