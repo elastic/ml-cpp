@@ -49,6 +49,7 @@ SRCS=\
 	CMetricPopulationModelTest.cc \
 	CModelDetailsViewTest.cc \
 	CModelMemoryTest.cc \
+	CModelTestFixtureBase.cc \
 	CModelToolsTest.cc \
 	CModelTypesTest.cc \
 	CProbabilityAndInfluenceCalculatorTest.cc \
