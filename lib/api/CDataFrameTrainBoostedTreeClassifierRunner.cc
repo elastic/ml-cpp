@@ -138,14 +138,16 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(actualClassId) == false);
 
-    if (m_NumTopClasses > 0) {
+    if (m_NumTopClasses != 0) {
         TSizeVec classIds(scores.size());
         std::iota(classIds.begin(), classIds.end(), 0);
         std::sort(classIds.begin(), classIds.end(),
                   [&scores](std::size_t lhs, std::size_t rhs) {
                       return scores[lhs] > scores[rhs];
                   });
-        classIds.resize(std::min(classIds.size(), m_NumTopClasses));
+        // -1 is a special value meaning "output all the classes"
+        classIds.resize(m_NumTopClasses == -1 ? classIds.size()
+                                              : std::min(classIds.size(), m_NumTopClasses));
         writer.Key(TOP_CLASSES_FIELD_NAME);
         writer.StartArray();
         for (std::size_t i : classIds) {
