@@ -76,44 +76,11 @@ public:
     void makeModel(const SModelParams& params,
                    const model_t::TFeatureVec& features,
                    core_t::TTime startTime,
-                   unsigned int* sampleCount = nullptr) {
-        this->makeModel(params, features, startTime, m_Gatherer, m_Model, sampleCount);
+                   TOptionalUInt sampleCount = TOptionalUInt()) {
+        this->makeModelT<CMetricModelFactory>(params, features, startTime,
+                                              model_t::E_MetricOnline,
+                                              m_Gatherer, m_Model, sampleCount);
     }
-
-    void makeModel(const SModelParams& params,
-                   const model_t::TFeatureVec& features,
-                   core_t::TTime startTime,
-                   CModelFactory::TDataGathererPtr& gatherer,
-                   CModelFactory::TModelPtr& model,
-                   unsigned int* sampleCount = nullptr) {
-        if (m_InterimBucketCorrector == nullptr) {
-            m_InterimBucketCorrector =
-                std::make_shared<CInterimBucketCorrector>(params.s_BucketLength);
-        }
-        if (m_Factory == nullptr) {
-            m_Factory.reset(new CMetricModelFactory(params, m_InterimBucketCorrector));
-            m_Factory->features(features);
-        }
-        CModelFactory::SGathererInitializationData initData(startTime);
-        if (sampleCount) {
-            initData.s_SampleOverrideCount = *sampleCount;
-        }
-        gatherer.reset(m_Factory->makeDataGatherer(initData));
-        model.reset(m_Factory->makeModel({gatherer}));
-        BOOST_TEST_REQUIRE(model);
-        BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, model->category());
-        BOOST_REQUIRE_EQUAL(params.s_BucketLength, model->bucketLength());
-    }
-
-protected:
-    using TInterimBucketCorrectorPtr = std::shared_ptr<CInterimBucketCorrector>;
-    using TMetricModelFactoryPtr = boost::shared_ptr<CMetricModelFactory>;
-
-protected:
-    TInterimBucketCorrectorPtr m_InterimBucketCorrector;
-    TMetricModelFactoryPtr m_Factory;
-    ml::model::CModelFactory::TDataGathererPtr m_Gatherer;
-    ml::model::CModelFactory::TModelPtr m_Model;
 };
 
 BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
@@ -138,7 +105,7 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                                           model_t::E_IndividualMinByPerson,
                                           model_t::E_IndividualMaxByPerson};
 
-            this->makeModel(params, features, startTime, &sampleCount);
+            this->makeModel(params, features, startTime, sampleCount);
             CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
             BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", m_Gatherer));
 
@@ -387,7 +354,7 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
         LOG_DEBUG(<< "*** sample count = " << sampleCount << " ***");
 
         this->makeModel(params, {model_t::E_IndividualMeanLatLongByPerson},
-                        startTime, &sampleCount);
+                        startTime, sampleCount);
         CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
         BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", m_Gatherer));
 
@@ -1178,12 +1145,14 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
 
     CModelFactory::TDataGathererPtr gatherer;
     CModelFactory::TModelPtr model_;
-    this->makeModel(params, features, startTime, gatherer, model_);
+    this->makeModelT<CMetricModelFactory>(params, features, startTime,
+                                          model_t::E_MetricOnline, gatherer, model_);
     CMetricModel* model = dynamic_cast<CMetricModel*>(model_.get());
     BOOST_TEST_REQUIRE(model);
     CModelFactory::TDataGathererPtr expectedGatherer;
     CModelFactory::TModelPtr expectedModel_;
-    this->makeModel(params, features, startTime, expectedGatherer, expectedModel_);
+    this->makeModelT<CMetricModelFactory>(params, features, startTime, model_t::E_MetricOnline,
+                                          expectedGatherer, expectedModel_);
     CMetricModel* expectedModel = dynamic_cast<CMetricModel*>(expectedModel_.get());
     BOOST_TEST_REQUIRE(expectedModel);
 

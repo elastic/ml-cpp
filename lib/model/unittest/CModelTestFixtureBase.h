@@ -22,6 +22,7 @@
 #include <model/CResourceMonitor.h>
 
 #include <boost/optional.hpp>
+#include <boost/test/unit_test.hpp>
 
 #include <functional>
 #include <map>
@@ -54,6 +55,7 @@ public:
     using TOptionalDouble = boost::optional<double>;
     using TOptionalDoubleVec = std::vector<TOptionalDouble>;
     using TOptionalStr = boost::optional<std::string>;
+    using TOptionalUInt = boost::optional<unsigned int>;
     using TOptionalUInt64 = boost::optional<uint64_t>;
 
     using TPriorPtr = std::shared_ptr<ml::maths::CPrior>;
@@ -220,8 +222,48 @@ protected:
                                       const std::string& overFieldName,
                                       TKeyCompareFunc keyCompare);
 
+    template<typename T>
+    void makeModelT(const ml::model::SModelParams& params,
+                    const ml::model_t::TFeatureVec& features,
+                    ml::core_t::TTime startTime,
+                    ml::model_t::EModelType modelType,
+                    ml::model::CModelFactory::TDataGathererPtr& gatherer,
+                    ml::model::CModelFactory::TModelPtr& model,
+                    TOptionalUInt sampleCount = TOptionalUInt(),
+                    const std::string& summaryCountField = EMPTY_STRING) {
+        if (m_InterimBucketCorrector == nullptr) {
+            m_InterimBucketCorrector =
+                std::make_shared<ml::model::CInterimBucketCorrector>(params.s_BucketLength);
+        }
+        if (m_Factory == nullptr) {
+            m_Factory.reset(new T(params, m_InterimBucketCorrector,
+                                  summaryCountField.empty() ? ml::model_t::E_None
+                                                            : ml::model_t::E_Manual,
+                                  summaryCountField));
+            m_Factory->features(features);
+        }
+        ml::model::CModelFactory::SGathererInitializationData initData(startTime);
+        if (sampleCount) {
+            initData.s_SampleOverrideCount = *sampleCount;
+        }
+        gatherer.reset(m_Factory->makeDataGatherer(initData));
+        model.reset(m_Factory->makeModel({gatherer}));
+
+        BOOST_TEST_REQUIRE(model);
+        BOOST_REQUIRE_EQUAL(modelType, model->category());
+        BOOST_REQUIRE_EQUAL(params.s_BucketLength, model->bucketLength());
+    }
+
+protected:
+    using TInterimBucketCorrectorPtr = std::shared_ptr<ml::model::CInterimBucketCorrector>;
+    using TModelFactoryPtr = boost::shared_ptr<ml::model::CModelFactory>;
+
 protected:
     ml::model::CResourceMonitor m_ResourceMonitor;
+    TInterimBucketCorrectorPtr m_InterimBucketCorrector;
+    TModelFactoryPtr m_Factory;
+    ml::model::CModelFactory::TDataGathererPtr m_Gatherer;
+    ml::model::CModelFactory::TModelPtr m_Model;
 };
 
 #endif //INCLUDED_CModelTestFixtureBase_h

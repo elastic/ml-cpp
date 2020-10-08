@@ -151,6 +151,13 @@ public:
         std::sort(messages.begin(), messages.end());
     }
 
+    void makeModel(const SModelParams& params,
+                   const model_t::TFeatureVec& features,
+                   core_t::TTime startTime) {
+        this->makeModelT<CMetricPopulationModelFactory>(
+            params, features, startTime, model_t::E_MetricOnline, m_Gatherer, m_Model);
+    }
+
 private:
     double roundToNearestPersisted(double value) {
         std::string valueAsString{core::CStringUtils::typeToStringPrecise(
@@ -177,19 +184,15 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
     LOG_DEBUG(<< "# messages = " << messages.size());
 
     SModelParams params(bucketLength);
-    auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
-    CMetricPopulationModelFactory factory(params, interimBucketCorrector);
+
     model_t::TFeatureVec features{model_t::E_PopulationMeanByPersonAndAttribute,
                                   model_t::E_PopulationMinByPersonAndAttribute,
                                   model_t::E_PopulationMaxByPersonAndAttribute};
-    factory.features(features);
-    CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr gatherer(
-        dynamic_cast<CDataGatherer*>(factory.makeDataGatherer(gathererInitData)));
-    CModelFactory::SModelInitializationData modelInitData(gatherer);
-    CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
 
-    BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, model->category());
+    this->makeModel(params, features, startTime);
+    CMetricPopulationModel* model =
+        dynamic_cast<CMetricPopulationModel*>(m_Model.get());
+    BOOST_TEST_REQUIRE(model);
 
     TStrUInt64Map expectedBucketPersonCounts;
     TMeanAccumulatorVec expectedBucketMeans(numberPeople * numberAttributes);
@@ -203,20 +206,20 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
             LOG_DEBUG(<< "Testing bucket = [" << startTime << ","
                       << startTime + bucketLength << ")");
 
-            BOOST_REQUIRE_EQUAL(numberPeople, gatherer->numberActivePeople());
-            BOOST_REQUIRE_EQUAL(numberAttributes, gatherer->numberActiveAttributes());
+            BOOST_REQUIRE_EQUAL(numberPeople, m_Gatherer->numberActivePeople());
+            BOOST_REQUIRE_EQUAL(numberAttributes, m_Gatherer->numberActiveAttributes());
 
             // Test the person and attribute invariants.
-            for (std::size_t j = 0u; j < gatherer->numberActivePeople(); ++j) {
+            for (std::size_t j = 0u; j < m_Gatherer->numberActivePeople(); ++j) {
                 const std::string& name = model->personName(j);
                 std::size_t pid;
-                BOOST_TEST_REQUIRE(gatherer->personId(name, pid));
+                BOOST_TEST_REQUIRE(m_Gatherer->personId(name, pid));
                 BOOST_REQUIRE_EQUAL(j, pid);
             }
-            for (std::size_t j = 0u; j < gatherer->numberActiveAttributes(); ++j) {
+            for (std::size_t j = 0u; j < m_Gatherer->numberActiveAttributes(); ++j) {
                 const std::string& name = model->attributeName(j);
                 std::size_t cid;
-                BOOST_TEST_REQUIRE(gatherer->attributeId(name, cid));
+                BOOST_TEST_REQUIRE(m_Gatherer->attributeId(name, cid));
                 BOOST_REQUIRE_EQUAL(j, cid);
             }
 
@@ -228,7 +231,7 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
             // Test the person counts.
             for (const auto& count_ : expectedBucketPersonCounts) {
                 std::size_t pid;
-                BOOST_TEST_REQUIRE(gatherer->personId(count_.first, pid));
+                BOOST_TEST_REQUIRE(m_Gatherer->personId(count_.first, pid));
                 expectedCurrentBucketPersonIds.push_back(pid);
                 TOptionalUInt64 count = model->currentBucketCount(pid, startTime);
                 BOOST_TEST_REQUIRE(count);
@@ -297,7 +300,7 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
             startTime += bucketLength;
         }
 
-        CEventData eventData = this->addArrival(message, gatherer);
+        CEventData eventData = this->addArrival(message, m_Gatherer);
         std::size_t pid = *eventData.personId();
         std::size_t cid = *eventData.attributeId();
         ++expectedBucketPersonCounts[message.s_Person];
@@ -337,22 +340,18 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
     SModelParams params(bucketLength);
     params.s_InitialDecayRateMultiplier = 1.0;
     params.s_MaximumUpdatesPerBucket = 0.0;
-    auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
-    CMetricPopulationModelFactory factory(params, interimBucketCorrector);
+
     model_t::TFeatureVec features{model_t::E_PopulationMeanByPersonAndAttribute,
                                   model_t::E_PopulationMinByPersonAndAttribute,
                                   model_t::E_PopulationMaxByPersonAndAttribute};
-    factory.features(features);
-    CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr gatherer(
-        dynamic_cast<CDataGatherer*>(factory.makeDataGatherer(gathererInitData)));
-    CModelFactory::SModelInitializationData modelInitData(gatherer);
-    CAnomalyDetectorModel::TModelPtr modelHolder(factory.makeModel(modelInitData));
+
+    this->makeModel(params, features, startTime);
     CMetricPopulationModel* model =
-        dynamic_cast<CMetricPopulationModel*>(modelHolder.get());
+        dynamic_cast<CMetricPopulationModel*>(m_Model.get());
+    BOOST_TEST_REQUIRE(model);
 
     CModelFactory::TFeatureMathsModelPtrPrVec models{
-        factory.defaultFeatureModels(features, bucketLength, 1.0, false)};
+        m_Factory->defaultFeatureModels(features, bucketLength, 1.0, false)};
     BOOST_REQUIRE_EQUAL(features.size(), models.size());
     BOOST_REQUIRE_EQUAL(features[0], models[0].first);
     BOOST_REQUIRE_EQUAL(features[1], models[1].first);
@@ -382,7 +381,7 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
                         populationWeightedSamples[feature][cid].second;
                     TMathsModelPtr& model_ = expectedPopulationModels[feature][cid];
                     if (!model_) {
-                        model_ = factory.defaultFeatureModel(
+                        model_ = m_Factory->defaultFeatureModel(
                             features[feature], bucketLength, 1.0, false);
                     }
                     for (std::size_t j = 0u; j < samples_.second.size(); ++j) {
@@ -438,12 +437,12 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
             startTime += bucketLength;
         }
 
-        CEventData eventData = this->addArrival(message, gatherer);
+        CEventData eventData = this->addArrival(message, m_Gatherer);
         std::size_t pid = *eventData.personId();
         std::size_t cid = *eventData.attributeId();
         nonNegative &= message.s_Value[0] < 0.0;
 
-        double sampleCount = gatherer->sampleCount(cid);
+        double sampleCount = m_Gatherer->sampleCount(cid);
         if (sampleCount > 0.0) {
             TSizeSizePr key{pid, cid};
             sampleTimes[key].add(static_cast<double>(message.s_Time));
@@ -470,18 +469,18 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     core_t::TTime startTime{3600};
     core_t::TTime bucketLength{3600};
     SModelParams params(bucketLength);
-    auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
-    CMetricPopulationModelFactory factory(params, interimBucketCorrector);
-    factory.features({model_t::E_PopulationVarianceByPersonAndAttribute});
-    factory.fieldNames("", "P", "", "V", TStrVec{1, "I"});
-    CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
-    BOOST_TEST_REQUIRE(gatherer->isPopulation());
-    CModelFactory::SModelInitializationData initData(gatherer);
-    CAnomalyDetectorModel::TModelPtr model_(factory.makeModel(initData));
-    BOOST_TEST_REQUIRE(model_);
-    BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, model_->category());
-    CMetricPopulationModel& model = static_cast<CMetricPopulationModel&>(*model_.get());
+
+    model_t::TFeatureVec features{model_t::E_PopulationVarianceByPersonAndAttribute};
+
+    m_InterimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
+    m_Factory.reset(new CMetricPopulationModelFactory(params, m_InterimBucketCorrector));
+    m_Factory->features({model_t::E_PopulationVarianceByPersonAndAttribute});
+    m_Factory->fieldNames("", "P", "", "V", TStrVec{1, "I"});
+
+    this->makeModel(params, features, startTime);
+
+    CMetricPopulationModel& model =
+        static_cast<CMetricPopulationModel&>(*m_Model.get());
 
     TDoubleStrPrVec b1{{1.0, "i1"}, {1.1, "i1"}, {1.01, "i2"}, {1.02, "i2"}};
     TDoubleStrPrVec b2{{10.0, "i1"}};
@@ -501,43 +500,43 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     SAnnotatedProbability annotatedProbability;
 
     core_t::TTime time = startTime;
-    processBucket(time, bucketLength, b1, *gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b1, *m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b2, *gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b2, *m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b3, *gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b3, *m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b4, *gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b4, *m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b5, *gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b5, *m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b6, *gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b6, *m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b7, *gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b7, *m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b8, *gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b8, *m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b9, *gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b9, *m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability < 0.85);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b10, *gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b10, *m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability < 0.1);
     BOOST_REQUIRE_EQUAL(std::size_t(1), annotatedProbability.s_Influences.size());
     BOOST_REQUIRE_EQUAL(std::string("I"),
@@ -566,15 +565,10 @@ BOOST_FIXTURE_TEST_CASE(testComputeProbability, CTestFixture) {
         generateTestMessages(model_t::dimension(feature), startTime, bucketLength, messages);
 
         SModelParams params(bucketLength);
-        auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
-        CMetricPopulationModelFactory factory(params, interimBucketCorrector);
-        factory.features({feature});
-        CModelFactory::SGathererInitializationData gathererInitData(startTime);
-        CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
-        CModelFactory::SModelInitializationData modelInitData(gatherer);
-        CAnomalyDetectorModel::TModelPtr modelHolder(factory.makeModel(modelInitData));
+        this->makeModel(params, {feature}, startTime);
         CMetricPopulationModel* model =
-            dynamic_cast<CMetricPopulationModel*>(modelHolder.get());
+            static_cast<CMetricPopulationModel*>(m_Model.get());
+        BOOST_TEST_REQUIRE(model);
 
         TStrVec expectedAnomalies{
             "[12, p2, c0 c3]", "[15, p3, c0]", "[30, p5, c2]", "[40, p6, c0]",
@@ -583,7 +577,7 @@ BOOST_FIXTURE_TEST_CASE(testComputeProbability, CTestFixture) {
         TAnomalyVec orderedAnomalies;
 
         this->generateOrderedAnomalies(7u, startTime, bucketLength, messages,
-                                       gatherer, *model, orderedAnomalies);
+                                       m_Gatherer, *model, orderedAnomalies);
 
         BOOST_REQUIRE_EQUAL(expectedAnomalies.size(), orderedAnomalies.size());
         for (std::size_t j = 0u; j < orderedAnomalies.size(); ++j) {
@@ -663,20 +657,15 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.01;
-    auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
-    CMetricPopulationModelFactory factory(params, interimBucketCorrector);
     model_t::TFeatureVec features{model_t::E_PopulationMeanByPersonAndAttribute,
                                   model_t::E_PopulationMinByPersonAndAttribute,
                                   model_t::E_PopulationMaxByPersonAndAttribute};
-    factory.features(features);
-    CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
-    CModelFactory::SModelInitializationData modelInitData(gatherer);
-    CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
-    BOOST_TEST_REQUIRE(model);
-    CModelFactory::TDataGathererPtr expectedGatherer(factory.makeDataGatherer(gathererInitData));
+
+    this->makeModel(params, features, startTime);
+
+    CModelFactory::TDataGathererPtr expectedGatherer(m_Factory->makeDataGatherer({startTime}));
     CModelFactory::SModelInitializationData expectedModelInitData(expectedGatherer);
-    CAnomalyDetectorModel::TModelPtr expectedModel(factory.makeModel(expectedModelInitData));
+    CAnomalyDetectorModel::TModelPtr expectedModel(m_Factory->makeModel(expectedModelInitData));
     BOOST_TEST_REQUIRE(expectedModel);
 
     test::CRandomNumbers rng;
@@ -722,15 +711,15 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     core_t::TTime bucketStart{startTime};
     for (const auto& message : messages) {
         if (message.s_Time >= bucketStart + bucketLength) {
-            model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
+            m_Model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
             bucketStart += bucketLength;
         }
-        this->addArrival(message, gatherer);
+        this->addArrival(message, m_Gatherer);
     }
-    model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
-    size_t maxDimensionBeforePrune(model->dataGatherer().maxDimension());
-    model->prune();
-    size_t maxDimensionAfterPrune(model->dataGatherer().maxDimension());
+    m_Model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
+    size_t maxDimensionBeforePrune(m_Model->dataGatherer().maxDimension());
+    m_Model->prune();
+    size_t maxDimensionAfterPrune(m_Model->dataGatherer().maxDimension());
     BOOST_REQUIRE_EQUAL(maxDimensionBeforePrune, maxDimensionAfterPrune);
 
     bucketStart = startTime;
@@ -743,31 +732,31 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     }
     expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
 
-    LOG_DEBUG(<< "checksum          = " << model->checksum());
+    LOG_DEBUG(<< "checksum          = " << m_Model->checksum());
     LOG_DEBUG(<< "expected checksum = " << expectedModel->checksum());
-    BOOST_REQUIRE_EQUAL(expectedModel->checksum(), model->checksum());
+    BOOST_REQUIRE_EQUAL(expectedModel->checksum(), m_Model->checksum());
 
     // Now check that we recycle the person and attribute slots.
 
-    bucketStart = gatherer->currentBucketStartTime() + bucketLength;
+    bucketStart = m_Gatherer->currentBucketStartTime() + bucketLength;
 
     TMessageVec newMessages{{bucketStart + 10, "p1", "c2", TDouble1Vec(1, 20.0)},
                             {bucketStart + 200, "p5", "c6", TDouble1Vec(1, 10.0)},
                             {bucketStart + 2100, "p5", "c6", TDouble1Vec(1, 15.0)}};
 
     for (auto& newMessage : newMessages) {
-        this->addArrival(newMessage, gatherer);
+        this->addArrival(newMessage, m_Gatherer);
         this->addArrival(newMessage, expectedGatherer);
     }
-    model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
+    m_Model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
     expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
 
-    LOG_DEBUG(<< "checksum          = " << model->checksum());
+    LOG_DEBUG(<< "checksum          = " << m_Model->checksum());
     LOG_DEBUG(<< "expected checksum = " << expectedModel->checksum());
-    BOOST_REQUIRE_EQUAL(expectedModel->checksum(), model->checksum());
+    BOOST_REQUIRE_EQUAL(expectedModel->checksum(), m_Model->checksum());
 
     // Test that calling prune on a cloned model which has seen no new data does nothing
-    CAnomalyDetectorModel::TModelPtr clonedModelHolder(model->cloneForPersistence());
+    CAnomalyDetectorModel::TModelPtr clonedModelHolder(m_Model->cloneForPersistence());
     std::size_t numberOfPeopleBeforePrune(
         clonedModelHolder->dataGatherer().numberActivePeople());
     BOOST_TEST_REQUIRE(numberOfPeopleBeforePrune > 0);
@@ -831,28 +820,16 @@ BOOST_FIXTURE_TEST_CASE(testFrequency, CTestFixture) {
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
-    auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
-    CMetricPopulationModelFactory factory(params, interimBucketCorrector);
-    factory.features({model_t::E_PopulationMeanByPersonAndAttribute});
-    CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
-    const model::CDataGatherer& populationGatherer(
-        dynamic_cast<const model::CDataGatherer&>(*gatherer));
 
-    CModelFactory::SModelInitializationData modelInitData(gatherer);
-    CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
-
-    CMetricPopulationModel* populationModel =
-        dynamic_cast<CMetricPopulationModel*>(model.get());
-    BOOST_TEST_REQUIRE(populationModel);
+    this->makeModel(params, {model_t::E_PopulationMeanByPersonAndAttribute}, startTime);
 
     core_t::TTime time{startTime};
     for (const auto& message : messages) {
         if (message.s_Time >= time + bucketLength) {
-            populationModel->sample(time, time + bucketLength, m_ResourceMonitor);
+            m_Model->sample(time, time + bucketLength, m_ResourceMonitor);
             time += bucketLength;
         }
-        this->addArrival(message, gatherer);
+        this->addArrival(message, m_Gatherer);
     }
 
     {
@@ -860,14 +837,14 @@ BOOST_FIXTURE_TEST_CASE(testFrequency, CTestFixture) {
         for (auto& datum : data) {
             LOG_DEBUG(<< "*** person = " << datum.s_Person << " ***");
             std::size_t pid;
-            BOOST_TEST_REQUIRE(gatherer->personId(datum.s_Person, pid));
-            LOG_DEBUG(<< "frequency = " << populationModel->personFrequency(pid));
+            BOOST_TEST_REQUIRE(m_Gatherer->personId(datum.s_Person, pid));
+            LOG_DEBUG(<< "frequency = " << m_Model->personFrequency(pid));
             LOG_DEBUG(<< "expected frequency = "
                       << 1.0 / static_cast<double>(datum.s_Period));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0 / static_cast<double>(datum.s_Period),
-                                         populationModel->personFrequency(pid),
+                                         m_Model->personFrequency(pid),
                                          0.1 / static_cast<double>(datum.s_Period));
-            meanError.add(std::fabs(populationModel->personFrequency(pid) -
+            meanError.add(std::fabs(m_Model->personFrequency(pid) -
                                     1.0 / static_cast<double>(datum.s_Period)));
         }
         LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(meanError));
@@ -878,11 +855,11 @@ BOOST_FIXTURE_TEST_CASE(testFrequency, CTestFixture) {
         for (auto& datum : data) {
             LOG_DEBUG(<< "*** attributes = " << datum.s_Attribute << " ***");
             std::size_t cid;
-            BOOST_TEST_REQUIRE(populationGatherer.attributeId(datum.s_Attribute, cid));
-            LOG_DEBUG(<< "frequency = " << populationModel->attributeFrequency(cid));
+            BOOST_TEST_REQUIRE(m_Gatherer->attributeId(datum.s_Attribute, cid));
+            LOG_DEBUG(<< "frequency = " << m_Model->attributeFrequency(cid));
             LOG_DEBUG(<< "expected frequency = " << (10.0 - static_cast<double>(i)) / 10.0);
             BOOST_REQUIRE_EQUAL((10.0 - static_cast<double>(i)) / 10.0,
-                                populationModel->attributeFrequency(cid));
+                                m_Model->attributeFrequency(cid));
             ++i;
         }
     }
@@ -945,17 +922,11 @@ BOOST_FIXTURE_TEST_CASE(testSampleRateWeight, CTestFixture) {
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
-    auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
-    CMetricPopulationModelFactory factory(params, interimBucketCorrector);
-    factory.features({model_t::E_PopulationSumByBucketPersonAndAttribute});
-    CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
 
-    CModelFactory::SModelInitializationData modelInitData(gatherer);
-    CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
+    this->makeModel(params, {model_t::E_PopulationSumByBucketPersonAndAttribute}, startTime);
 
     CMetricPopulationModel* populationModel =
-        dynamic_cast<CMetricPopulationModel*>(model.get());
+        dynamic_cast<CMetricPopulationModel*>(m_Model.get());
     BOOST_TEST_REQUIRE(populationModel);
 
     core_t::TTime time{startTime};
@@ -964,7 +935,7 @@ BOOST_FIXTURE_TEST_CASE(testSampleRateWeight, CTestFixture) {
             populationModel->sample(time, time + bucketLength, m_ResourceMonitor);
             time += bucketLength;
         }
-        this->addArrival(message, gatherer);
+        this->addArrival(message, m_Gatherer);
     }
 
     // The heavy hitters generate one value per attribute per bucket.
@@ -983,7 +954,7 @@ BOOST_FIXTURE_TEST_CASE(testSampleRateWeight, CTestFixture) {
     for (auto& heavyHitter : heavyHitters) {
         LOG_DEBUG(<< "*** person = " << people[heavyHitter] << " ***");
         std::size_t pid;
-        BOOST_TEST_REQUIRE(gatherer->personId(people[heavyHitter], pid));
+        BOOST_TEST_REQUIRE(m_Gatherer->personId(people[heavyHitter], pid));
         for (std::size_t cid = 0u; cid < attributes.size(); ++cid) {
             double sampleRateWeight = populationModel->sampleRateWeight(pid, cid);
             LOG_DEBUG(<< "attribute = " << populationModel->attributeName(cid)
@@ -996,7 +967,7 @@ BOOST_FIXTURE_TEST_CASE(testSampleRateWeight, CTestFixture) {
     for (auto& norm : normal) {
         LOG_DEBUG(<< "*** person = " << people[norm] << " ***");
         std::size_t pid;
-        BOOST_TEST_REQUIRE(gatherer->personId(people[norm], pid));
+        BOOST_TEST_REQUIRE(m_Gatherer->personId(people[norm], pid));
         for (std::size_t cid = 0u; cid < attributes.size(); ++cid) {
             double sampleRateWeight = populationModel->sampleRateWeight(pid, cid);
             LOG_DEBUG(<< "attribute = " << populationModel->attributeName(cid)
@@ -1050,18 +1021,8 @@ BOOST_FIXTURE_TEST_CASE(testPeriodicity, CTestFixture) {
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
-    auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
-    CMetricPopulationModelFactory factory(params, interimBucketCorrector);
-    factory.features({model_t::E_PopulationMeanByPersonAndAttribute});
 
-    CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
-
-    CModelFactory::SModelInitializationData modelInitData(gatherer);
-    CAnomalyDetectorModel::TModelPtr model(factory.makeModel(modelInitData));
-    CMetricPopulationModel* populationModel =
-        dynamic_cast<CMetricPopulationModel*>(model.get());
-    BOOST_TEST_REQUIRE(populationModel);
+    this->makeModel(params, {model_t::E_PopulationMeanByPersonAndAttribute}, startTime);
 
     TStrDoubleMap personProbabilitiesWithoutPeriodicity;
     TStrDoubleMap personProbabilitiesWithPeriodicity;
@@ -1069,19 +1030,18 @@ BOOST_FIXTURE_TEST_CASE(testPeriodicity, CTestFixture) {
     core_t::TTime time = startTime;
     for (const auto& message : messages) {
         if (message.s_Time >= time + bucketLength) {
-            populationModel->sample(time, time + bucketLength, m_ResourceMonitor);
+            m_Model->sample(time, time + bucketLength, m_ResourceMonitor);
 
             for (const auto& person : people) {
                 std::size_t pid;
-                if (!gatherer->personId(person, pid)) {
+                if (!m_Gatherer->personId(person, pid)) {
                     continue;
                 }
 
                 CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
                 SAnnotatedProbability annotatedProbability;
-                if (populationModel->computeProbability(
-                        pid, time, time + bucketLength, partitioningFields, 1,
-                        annotatedProbability) == false) {
+                if (m_Model->computeProbability(pid, time, time + bucketLength, partitioningFields,
+                                                1, annotatedProbability) == false) {
                     continue;
                 }
 
@@ -1102,7 +1062,7 @@ BOOST_FIXTURE_TEST_CASE(testPeriodicity, CTestFixture) {
             time += bucketLength;
         }
 
-        this->addArrival(message, gatherer);
+        this->addArrival(message, m_Gatherer);
     }
 
     double totalw{0.0};
@@ -1132,34 +1092,28 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
-    auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
-    CMetricPopulationModelFactory factory(params, interimBucketCorrector);
     model_t::TFeatureVec features{model_t::E_PopulationMeanByPersonAndAttribute,
                                   model_t::E_PopulationMinByPersonAndAttribute,
                                   model_t::E_PopulationMaxByPersonAndAttribute};
-    factory.features(features);
-    CModelFactory::SGathererInitializationData gathererInitData(startTime);
-    CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
 
-    CModelFactory::SModelInitializationData modelInitData(gatherer);
-    CAnomalyDetectorModel::TModelPtr origModel(factory.makeModel(modelInitData));
+    this->makeModel(params, features, startTime);
 
     CMetricPopulationModel* populationModel =
-        dynamic_cast<CMetricPopulationModel*>(origModel.get());
+        dynamic_cast<CMetricPopulationModel*>(m_Model.get());
     BOOST_TEST_REQUIRE(populationModel);
 
     for (auto& message : messages) {
         if (message.s_Time >= startTime + bucketLength) {
-            origModel->sample(startTime, startTime + bucketLength, m_ResourceMonitor);
+            m_Model->sample(startTime, startTime + bucketLength, m_ResourceMonitor);
             startTime += bucketLength;
         }
-        this->addArrival(message, gatherer);
+        this->addArrival(message, m_Gatherer);
     }
 
     std::string origXml;
     {
         core::CRapidXmlStatePersistInserter inserter("root");
-        origModel->acceptPersistInserter(inserter);
+        m_Model->acceptPersistInserter(inserter);
         inserter.toXml(origXml);
     }
 
@@ -1170,7 +1124,8 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     BOOST_TEST_REQUIRE(parser.parseStringIgnoreCdata(origXml));
     core::CRapidXmlStateRestoreTraverser traverser(parser);
 
-    CAnomalyDetectorModel::TModelPtr restoredModel(factory.makeModel(modelInitData, traverser));
+    CAnomalyDetectorModel::TModelPtr restoredModel(
+        m_Factory->makeModel({m_Gatherer}, traverser));
 
     populationModel = dynamic_cast<CMetricPopulationModel*>(restoredModel.get());
     BOOST_TEST_REQUIRE(populationModel);
@@ -1184,9 +1139,9 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         inserter.toXml(newXml);
     }
 
-    LOG_DEBUG(<< "original checksum = " << origModel->checksum(false));
+    LOG_DEBUG(<< "original checksum = " << m_Model->checksum(false));
     LOG_DEBUG(<< "restored checksum = " << restoredModel->checksum(false));
-    BOOST_REQUIRE_EQUAL(origModel->checksum(false), restoredModel->checksum(false));
+    BOOST_REQUIRE_EQUAL(m_Model->checksum(false), restoredModel->checksum(false));
     BOOST_REQUIRE_EQUAL(origXml, newXml);
 }
 

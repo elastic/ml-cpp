@@ -187,53 +187,21 @@ public:
                    core_t::TTime startTime,
                    std::size_t numberPeople,
                    const std::string& summaryCountField = EMPTY_STRING) {
-        this->makeModel(params, features, startTime, numberPeople, m_Gatherer,
-                        m_Model, summaryCountField);
-    }
+        this->makeModelT<CEventRateModelFactory>(params, features, startTime,
+                                                 model_t::E_EventRateOnline, m_Gatherer,
+                                                 m_Model, {}, summaryCountField);
 
-    void makeModel(const SModelParams& params,
-                   const model_t::TFeatureVec& features,
-                   core_t::TTime startTime,
-                   std::size_t numberPeople,
-                   CModelFactory::TDataGathererPtr& gatherer,
-                   CModelFactory::TModelPtr& model,
-                   const std::string& summaryCountField = EMPTY_STRING) {
-        if (m_InterimBucketCorrector == nullptr) {
-            m_InterimBucketCorrector =
-                std::make_shared<CInterimBucketCorrector>(params.s_BucketLength);
-        }
-        if (m_Factory == nullptr) {
-            m_Factory.reset(new CEventRateModelFactory(
-                params, m_InterimBucketCorrector,
-                summaryCountField.empty() ? model_t::E_None : model_t::E_Manual,
-                summaryCountField));
-            m_Factory->features(features);
-        }
-        gatherer.reset(m_Factory->makeDataGatherer({startTime}));
-        model.reset(m_Factory->makeModel({gatherer}));
-        BOOST_TEST_REQUIRE(model);
-        BOOST_REQUIRE_EQUAL(model_t::E_EventRateOnline, model->category());
-        BOOST_REQUIRE_EQUAL(params.s_BucketLength, model->bucketLength());
         for (std::size_t i = 0u; i < numberPeople; ++i) {
             BOOST_REQUIRE_EQUAL(
                 std::size_t(i),
-                this->addPerson("p" + core::CStringUtils::typeToString(i + 1), gatherer));
+                this->addPerson("p" + core::CStringUtils::typeToString(i + 1), m_Gatherer));
         }
     }
 
 protected:
-    using TInterimBucketCorrectorPtr = std::shared_ptr<CInterimBucketCorrector>;
-    using TEventRateModelFactoryPtr = std::shared_ptr<CEventRateModelFactory>;
-
     using TDoubleSizeStrTr = core::CTriple<double, std::size_t, std::string>;
     using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizeStrTr>;
     using TMinAccumulatorVec = std::vector<TMinAccumulator>;
-
-protected:
-    TInterimBucketCorrectorPtr m_InterimBucketCorrector;
-    TEventRateModelFactoryPtr m_Factory;
-    ml::model::CModelFactory::TDataGathererPtr m_Gatherer;
-    ml::model::CModelFactory::TModelPtr m_Model;
 };
 
 BOOST_FIXTURE_TEST_CASE(testCountSample, CTestFixture) {
@@ -986,12 +954,15 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     features.push_back(model_t::E_IndividualTotalBucketCountByPerson);
     CModelFactory::TDataGathererPtr gatherer;
     CModelFactory::TModelPtr model_;
-    this->makeModel(params, features, startTime, 0, gatherer, model_);
+    this->makeModelT<CEventRateModelFactory>(
+        params, features, startTime, model_t::E_EventRateOnline, gatherer, model_);
     CEventRateModel* model = dynamic_cast<CEventRateModel*>(model_.get());
     BOOST_TEST_REQUIRE(model);
     CModelFactory::TDataGathererPtr expectedGatherer;
     CModelFactory::TModelPtr expectedModel_;
-    this->makeModel(params, features, startTime, 0, expectedGatherer, expectedModel_);
+    this->makeModelT<CEventRateModelFactory>(params, features, startTime,
+                                             model_t::E_EventRateOnline,
+                                             expectedGatherer, expectedModel_);
     CEventRateModel* expectedModel =
         dynamic_cast<CEventRateModel*>(expectedModel_.get());
     BOOST_TEST_REQUIRE(expectedModel);
@@ -2026,8 +1997,15 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     model_t::TFeatureVec features{feature};
     CModelFactory::TDataGathererPtr gathererNoGap;
     CModelFactory::TModelPtr modelNoGap_;
-    this->makeModel(params, features, startTime, 2, gathererNoGap, modelNoGap_);
+    this->makeModelT<CEventRateModelFactory>(params, features, startTime,
+                                             model_t::E_EventRateOnline,
+                                             gathererNoGap, modelNoGap_);
     CEventRateModel* modelNoGap = dynamic_cast<CEventRateModel*>(modelNoGap_.get());
+    for (std::size_t i = 0u; i < 2; ++i) {
+        BOOST_REQUIRE_EQUAL(
+            std::size_t(i),
+            this->addPerson("p" + core::CStringUtils::typeToString(i + 1), gathererNoGap));
+    }
 
     // p1: |1|1|1|
     // p2: |1|0|0|
@@ -2041,8 +2019,15 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
 
     CModelFactory::TDataGathererPtr gathererWithGap;
     CModelFactory::TModelPtr modelWithGap_;
-    this->makeModel(params, features, startTime, 2, gathererWithGap, modelWithGap_);
+    this->makeModelT<CEventRateModelFactory>(params, features, startTime,
+                                             model_t::E_EventRateOnline,
+                                             gathererWithGap, modelWithGap_);
     CEventRateModel* modelWithGap = dynamic_cast<CEventRateModel*>(modelWithGap_.get());
+    for (std::size_t i = 0u; i < 2; ++i) {
+        BOOST_REQUIRE_EQUAL(
+            std::size_t(i),
+            this->addPerson("p" + core::CStringUtils::typeToString(i + 1), gathererWithGap));
+    }
 
     // p1: |1|1|0|0|0|0|0|0|0|0|1|1|
     // p1: |1|X|X|X|X|X|X|X|X|X|1|1| -> equal to |1|1|1|
@@ -2108,8 +2093,9 @@ BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
     model_t::TFeatureVec features{feature};
     CModelFactory::TDataGathererPtr gathererSkipGap;
     CModelFactory::TModelPtr modelSkipGap_;
-    this->makeModel(params, features, startTime, 0, gathererSkipGap,
-                    modelSkipGap_, summaryCountField);
+    this->makeModelT<CEventRateModelFactory>(params, features, startTime,
+                                             model_t::E_EventRateOnline, gathererSkipGap,
+                                             modelSkipGap_, {}, summaryCountField);
     CEventRateModel* modelSkipGap = dynamic_cast<CEventRateModel*>(modelSkipGap_.get());
 
     // The idea here is to compare a model that has a gap skipped against a model
@@ -2137,8 +2123,9 @@ BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
 
     CModelFactory::TDataGathererPtr gathererExNull;
     CModelFactory::TModelPtr modelExNullGap_;
-    this->makeModel(params, features, startTime, 0, gathererExNull,
-                    modelExNullGap_, summaryCountField);
+    this->makeModelT<CEventRateModelFactory>(params, features, startTime,
+                                             model_t::E_EventRateOnline, gathererExNull,
+                                             modelExNullGap_, {}, summaryCountField);
     CEventRateModel* modelExNullGap =
         dynamic_cast<CEventRateModel*>(modelExNullGap_.get());
 
@@ -2413,14 +2400,17 @@ BOOST_FIXTURE_TEST_CASE(testSummaryCountZeroRecordsAreIgnored, CTestFixture) {
 
     CModelFactory::TDataGathererPtr gathererWithZeros;
     CModelFactory::TModelPtr modelWithZerosPtr;
-    this->makeModel(params, {model_t::E_IndividualCountByBucketAndPerson}, startTime,
-                    0, gathererWithZeros, modelWithZerosPtr, summaryCountField);
+    this->makeModelT<CEventRateModelFactory>(
+        params, {model_t::E_IndividualCountByBucketAndPerson}, startTime,
+        model_t::E_EventRateOnline, gathererWithZeros, modelWithZerosPtr, {},
+        summaryCountField);
     CEventRateModel& modelWithZeros = static_cast<CEventRateModel&>(*modelWithZerosPtr);
 
     CModelFactory::TDataGathererPtr gathererNoZeros;
     CModelFactory::TModelPtr modelNoZerosPtr;
-    this->makeModel(params, {model_t::E_IndividualCountByBucketAndPerson}, startTime,
-                    0, gathererNoZeros, modelNoZerosPtr, summaryCountField);
+    this->makeModelT<CEventRateModelFactory>(
+        params, {model_t::E_IndividualCountByBucketAndPerson}, startTime,
+        model_t::E_EventRateOnline, gathererNoZeros, modelNoZerosPtr, {}, summaryCountField);
     CEventRateModel& modelNoZeros = static_cast<CEventRateModel&>(*modelNoZerosPtr);
 
     // The idea here is to compare a model that has records with summary count of zero
