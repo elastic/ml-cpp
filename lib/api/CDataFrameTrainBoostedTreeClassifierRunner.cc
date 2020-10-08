@@ -81,7 +81,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     : CDataFrameTrainBoostedTreeRunner{
           spec, parameters, loss(parameters[NUM_CLASSES].as<std::size_t>())} {
 
-    m_NumTopClasses = parameters[NUM_TOP_CLASSES].as<std::ptrdiff_t>();
+    m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::ptrdiff_t{0});
     m_PredictionFieldType =
         parameters[PREDICTION_FIELD_TYPE].fallback(E_PredictionFieldTypeString);
     this->boostedTreeFactory().classAssignmentObjective(
