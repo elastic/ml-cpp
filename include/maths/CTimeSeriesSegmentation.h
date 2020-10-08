@@ -27,7 +27,7 @@ public:
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
     using TFloatMeanAccumulatorVecDoubleVecBoolTr =
         std::tuple<TFloatMeanAccumulatorVec, TDoubleVec, bool>;
-    using TWeightFunc = std::function<double(std::size_t)>;
+    using TIndexWeight = std::function<double(std::size_t)>;
 
     //! Perform top-down recursive segmentation with linear models.
     //!
@@ -161,7 +161,7 @@ public:
     meanScalePiecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
                                            std::size_t period,
                                            const TSizeVec& segmentation,
-                                           const TWeightFunc& indexWeight,
+                                           const TIndexWeight& indexWeight,
                                            double outlierFraction = 0.0,
                                            double outlierWeight = 0.1);
 
@@ -173,7 +173,7 @@ public:
     //! \param[in] indexWeight A function used to weight indices of \p segmentation.
     static double meanScale(const TSizeVec& segmentation,
                             const TDoubleVec& scales,
-                            const TWeightFunc& indexWeight);
+                            const TIndexWeight& indexWeight);
 
     //! Compute the scale at \p index for the piecewise linear \p scales on
     //! \p segmentation.

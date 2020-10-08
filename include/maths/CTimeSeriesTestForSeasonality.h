@@ -31,10 +31,6 @@
 #include <utility>
 #include <vector>
 
-namespace CTimeSeriesTestForSeasonalityTest {
-struct calibrateFTest;
-}
-
 namespace ml {
 namespace maths {
 
@@ -162,6 +158,9 @@ public:
     //! Add a mask of any seasonal components which should be removed.
     void add(TBoolVec seasonalToRemoveMask);
 
+    //! Set the within bucket value variance.
+    void withinBucketVariance(double variance);
+
     //! Return true if the test thinks the components have changed.
     bool componentsChanged() const;
 
@@ -174,6 +173,9 @@ public:
     //! A mask of any currently modelled components to remove.
     const TBoolVec& seasonalToRemoveMask() const;
 
+    //! Get the within bucket value variance.
+    double withinBucketVariance() const;
+
     //! Get a description of the seasonal components.
     std::string print() const;
 
@@ -184,6 +186,7 @@ private:
     TOptionalNewTrendSummary m_Trend;
     TNewSeasonalComponentVec m_Seasonal;
     TBoolVec m_SeasonalToRemoveMask;
+    double m_WithinBucketVariance = 0.0;
 };
 
 //! \brief Discovers the seasonal components present in the values in a time window
@@ -209,6 +212,7 @@ public:
     static bool canTestComponent(const TFloatMeanAccumulatorVec& values,
                                  core_t::TTime bucketStartTime,
                                  core_t::TTime bucketLength,
+                                 core_t::TTime minimumPeriod,
                                  const CSeasonalTime& component);
 
     //! Register a seasonal component which is already being modelled.
@@ -278,7 +282,7 @@ private:
     using TMeanAccumulatorVecCRng = core::CVectorRange<const TMeanAccumulatorVecVec>;
     using TPeriodDescriptor = CNewSeasonalComponentSummary::EPeriodDescriptor;
     using TSegmentation = CTimeSeriesSegmentation;
-    using TWeightFunc = TSegmentation::TWeightFunc;
+    using TIndexWeight = TSegmentation::TIndexWeight;
     using TBucketPredictor = std::function<double(std::size_t)>;
     using TTransform = std::function<double(const TFloatMeanAccumulator&)>;
     using TRemoveTrend =
@@ -505,7 +509,7 @@ private:
     void removeDiscontinuities(const TSizeVec& modelTrendSegments,
                                TFloatMeanAccumulatorVec& values) const;
     bool meanScale(const SHypothesisStats& hypothesis,
-                   const TWeightFunc& weight,
+                   const TIndexWeight& weight,
                    TFloatMeanAccumulatorVec& values,
                    TDoubleVec& scales) const;
     TVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values) const;
@@ -539,6 +543,7 @@ private:
     static core_t::TTime adjustForStartTime(core_t::TTime startTime, core_t::TTime startOfWeek);
     static std::size_t buckets(core_t::TTime bucketLength, core_t::TTime interval);
     static bool canTestPeriod(const TFloatMeanAccumulatorVec& values,
+                              std::size_t minimumPeriod,
                               const TSeasonalComponent& period);
     static std::size_t observedRange(const TFloatMeanAccumulatorVec& values);
     static std::size_t longestGap(const TFloatMeanAccumulatorVec& values);
@@ -563,7 +568,7 @@ private:
     std::size_t m_MinimumModelSize = 24;
     TOptionalSize m_StartOfWeekOverride;
     TOptionalTime m_StartOfWeekTimeOverride;
-    TOptionalTime m_MinimumPeriod;
+    core_t::TTime m_MinimumPeriod = 0;
     core_t::TTime m_ValuesStartTime = 0;
     core_t::TTime m_BucketStartTime = 0;
     core_t::TTime m_BucketLength = 0;
@@ -588,8 +593,6 @@ private:
     mutable TSizeVec m_ModelTrendSegments;
     mutable TMaxAccumulator m_Outliers;
     mutable TDoubleVec m_Scales;
-
-    friend struct CTimeSeriesTestForSeasonalityTest::calibrateFTest;
 };
 }
 }

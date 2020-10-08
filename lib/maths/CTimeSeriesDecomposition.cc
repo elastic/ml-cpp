@@ -235,6 +235,9 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
                       CBasicStatistics::mean(this->value(time, 0.0, E_TrendForced)),
                       CBasicStatistics::mean(this->value(time, 0.0, E_Seasonal)),
                       CBasicStatistics::mean(this->value(time, 0.0, E_Calendar)),
+                      [this](core_t::TTime time_) {
+                          return CBasicStatistics::mean(this->value(time_, 0.0));
+                      },
                       [this](core_t::TTime time_, const TBoolVec& testableSeasonalMask) {
                           return CBasicStatistics::mean(this->value(
                               time_, 0.0, E_Seasonal | E_Calendar, testableSeasonalMask));
@@ -257,7 +260,6 @@ bool CTimeSeriesDecomposition::applyChange(core_t::TTime time,
         m_Components.shiftLevel(time, value, change.s_Value[0]);
         break;
     case SChangeDescription::E_LinearScale:
-        m_SeasonalityTest.linearScale(time, change.s_Value[0]);
         m_Components.linearScale(time, change.s_Value[0]);
         break;
     case SChangeDescription::E_TimeShift: {
@@ -462,9 +464,10 @@ TDoubleDoublePr CTimeSeriesDecomposition::scale(core_t::TTime time,
     return pair(scale);
 }
 
-CTimeSeriesDecomposition::TFloatMeanAccumulatorVec
-CTimeSeriesDecomposition::windowValues(const TPredictor& predictor) const {
-    return m_SeasonalityTest.windowValues(predictor);
+CTimeSeriesDecomposition::TFloatMeanAccumulatorVec CTimeSeriesDecomposition::residuals() const {
+    return m_SeasonalityTest.residuals([this](core_t::TTime time) {
+        return CBasicStatistics::mean(this->value(time, 0.0));
+    });
 }
 
 void CTimeSeriesDecomposition::skipTime(core_t::TTime skipInterval) {

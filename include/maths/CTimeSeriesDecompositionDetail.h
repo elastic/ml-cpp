@@ -69,7 +69,8 @@ public:
                   double trend,
                   double seasonal,
                   double calendar,
-                  const TFilteredPredictor& preconditioner,
+                  const TPredictor& predictor,
+                  const TFilteredPredictor& seasonalityTestPreconditioner,
                   const TMakeTestForSeasonality& makeTestForSeasonality);
         SAddValue(const SAddValue&) = delete;
         SAddValue& operator=(const SAddValue&) = delete;
@@ -84,14 +85,16 @@ public:
         double s_Seasonal;
         //! The calendar component prediction at the value's time.
         double s_Calendar;
-        //! The predictor for the calendar components as a function of time.
-        TFilteredPredictor s_Preconditioner;
+        //! The window values predictor.
+        TPredictor s_Predictor;
+        //! The window values preconditioner to use for seasonality testing.
+        TFilteredPredictor s_SeasonalityTestPreconditioner;
         //! A factory function to create the test for seasonal components.
         TMakeTestForSeasonality s_MakeTestForSeasonality;
     };
 
-    //! \brief The message passed to indicate periodic components have
-    //! been detected.
+    //! \brief The message passed to indicate periodic components have been
+    //! detected.
     struct MATHS_EXPORT SDetectedSeasonal : public SMessage {
         SDetectedSeasonal(core_t::TTime time, core_t::TTime lastTime, CSeasonalDecomposition components);
 
@@ -99,8 +102,8 @@ public:
         CSeasonalDecomposition s_Components;
     };
 
-    //! \brief The message passed to indicate calendar components have
-    //! been detected.
+    //! \brief The message passed to indicate calendar components have been
+    //! detected.
     struct MATHS_EXPORT SDetectedCalendar : public SMessage {
         SDetectedCalendar(core_t::TTime time, core_t::TTime lastTime, CCalendarFeature feature);
 
@@ -108,15 +111,13 @@ public:
         CCalendarFeature s_Feature;
     };
 
-    //! \brief The message passed to indicate new components are being
-    //! modeled.
-    struct MATHS_EXPORT SNewComponents : public SMessage {
-        enum EComponent { E_Seasonal, E_Calendar };
+    //! \brief The message passed to indicate the trend is being used for prediction.
+    struct MATHS_EXPORT SDetectedTrend : public SMessage {
+        SDetectedTrend(const TPredictor& predictor,
+                       const TComponentChangeCallback& componentChangeCallback);
 
-        SNewComponents(core_t::TTime time, core_t::TTime lastTime, EComponent component);
-
-        //! The type of component.
-        EComponent s_Component;
+        TPredictor s_Predictor;
+        TComponentChangeCallback s_ComponentChangeCallback;
     };
 
     //! \brief The basic interface for one aspect of the modeling of a time
@@ -138,7 +139,7 @@ public:
         virtual void handle(const SDetectedCalendar& message);
 
         //! Handle when a new component is being modeled.
-        virtual void handle(const SNewComponents& message);
+        virtual void handle(const SDetectedTrend& message);
 
         //! Set the mediator.
         void mediator(CMediator* mediator);
@@ -202,16 +203,13 @@ public:
         void swap(CSeasonalityTest& other);
 
         //! Update the test with a new value.
-        virtual void handle(const SAddValue& message);
+        void handle(const SAddValue& message) override;
 
         //! Reset the test.
-        virtual void handle(const SNewComponents& message);
+        void handle(const SDetectedTrend& message) override;
 
         //! Test to see whether any seasonal components are present.
         void test(const SAddValue& message);
-
-        //! Record a linear scale of \p scale at \p time.
-        void linearScale(core_t::TTime time, double scale);
 
         //! Shift the start of the tests' expanding windows by \p dt.
         void shiftTime(core_t::TTime dt);
@@ -220,8 +218,8 @@ public:
         //! elapsed time.
         void propagateForwards(core_t::TTime start, core_t::TTime end);
 
-        //! Get the values in the window if we're going to test at \p time.
-        TFloatMeanAccumulatorVec windowValues(const TPredictor& predictor) const;
+        //! Get the window minus the predictions of \p predictor.
+        TFloatMeanAccumulatorVec residuals(const TPredictor& predictor) const;
 
         //! Get a checksum for this object.
         std::uint64_t checksum(std::uint64_t seed = 0) const;
@@ -233,8 +231,6 @@ public:
         std::size_t memoryUsage() const;
 
     private:
-        using TTimeDoublePr = std::pair<core_t::TTime, double>;
-        using TTimeDoublePrVec = std::vector<std::pair<core_t::TTime, double>>;
         using TExpandingWindowUPtr = std::unique_ptr<CExpandingWindow>;
         using TExpandingWindowPtrAry = std::array<TExpandingWindowUPtr, 2>;
 
@@ -251,12 +247,6 @@ public:
         //! Account for memory that is not allocated by initialisation.
         std::size_t extraMemoryOnInitialization() const;
 
-        //! Get the accounting for linear scales in the test window.
-        TPredictor scaledPredictor(const TPredictor& predictor) const;
-
-        //! Remove any linear scale events outside the test windows.
-        void pruneLinearScales();
-
     private:
         //! The state machine.
         core::CStateMachine m_Machine;
@@ -269,9 +259,6 @@ public:
 
         //! Expanding windows on the "recent" time series values.
         TExpandingWindowPtrAry m_Windows;
-
-        //! The times of linear scales in the window range.
-        TTimeDoublePrVec m_LinearScales;
     };
 
     //! \brief Tests for cyclic calendar components explaining large prediction
@@ -292,10 +279,10 @@ public:
         void swap(CCalendarTest& other);
 
         //! Update the test with a new value.
-        virtual void handle(const SAddValue& message);
+        void handle(const SAddValue& message) override;
 
         //! Reset the test.
-        virtual void handle(const SNewComponents& message);
+        void handle(const SDetectedSeasonal& message) override;
 
         //! Test to see whether any seasonal components are present.
         void test(const SMessage& message);
@@ -377,13 +364,13 @@ public:
         void swap(CComponents& other);
 
         //! Update the components with a new value.
-        virtual void handle(const SAddValue& message);
+        void handle(const SAddValue& message) override;
 
         //! Create new seasonal components.
-        virtual void handle(const SDetectedSeasonal& message);
+        void handle(const SDetectedSeasonal& message) override;
 
         //! Create a new calendar component.
-        virtual void handle(const SDetectedCalendar& message);
+        void handle(const SDetectedCalendar& message) override;
 
         //! Set whether or not we're testing for a change.
         void testingForChange(bool value);
@@ -795,9 +782,6 @@ public:
         //! shifted into the long term trend or in the absence of that
         //! the shortest component.
         void canonicalize(core_t::TTime time);
-
-        //! Set a watcher for state changes.
-        void notifyOnNewComponents(bool* watcher);
 
     private:
         //! The state machine.

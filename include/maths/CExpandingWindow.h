@@ -100,6 +100,9 @@ public:
     TFloatMeanAccumulatorVec valuesMinusPrediction(TFloatMeanAccumulatorVec bucketValues,
                                                    const TPredictor& predictor) const;
 
+    //! Get an estimate of the within bucket value variance.
+    double withinBucketVariance() const;
+
     //! Set the start time to \p time.
     void initialize(core_t::TTime time);
 
@@ -127,6 +130,8 @@ public:
 private:
     using TByte = unsigned char;
     using TByteVec = std::vector<TByte>;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TSizeFloatMeanAccumulatorPr = std::pair<std::size_t, TFloatMeanAccumulator>;
     using TSizeFloatMeanAccumulatorPrVec = std::vector<TSizeFloatMeanAccumulatorPr>;
 
@@ -176,7 +181,10 @@ private:
     TTimeCRng m_BucketLengths;
 
     //! The index in m_BucketLengths of the current window bucketing interval.
-    std::size_t m_BucketLengthIndex;
+    std::size_t m_BucketLengthIndex = 0;
+
+    //! The index of the current bucket.
+    std::size_t m_BucketIndex = 0;
 
     //! The time of the first data point.
     core_t::TTime m_StartTime;
@@ -185,13 +193,19 @@ private:
     TSizeFloatMeanAccumulatorPrVec m_BufferedValues;
 
     //! The total time to propagate the values forward on decompression.
-    double m_BufferedTimeToPropagate;
+    double m_BufferedTimeToPropagate = 0.0;
 
     //! The bucket values.
     TFloatMeanAccumulatorVec m_BucketValues;
 
     //! The deflated bucket values.
     TByteVec m_DeflatedBucketValues;
+
+    //! The current bucket values variance accumulator.
+    TMeanVarAccumulator m_WithinBucketVariance;
+
+    //! The mean accumulator of the within bucket values variance.
+    TMeanAccumulator m_AverageWithinBucketVariance;
 
     //! The mean offset of the window bucket values' in the bucket time interval.
     TFloatMeanAccumulator m_MeanOffset;

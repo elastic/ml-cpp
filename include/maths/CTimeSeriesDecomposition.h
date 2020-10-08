@@ -76,22 +76,22 @@ public:
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
     //! Clone this decomposition.
-    virtual CTimeSeriesDecomposition* clone(bool isForForecast = false) const;
+    CTimeSeriesDecomposition* clone(bool isForForecast = false) const override;
 
     //! Set the data type.
-    virtual void dataType(maths_t::EDataType dataType);
+    void dataType(maths_t::EDataType dataType) override;
 
     //! Set the decay rate.
-    virtual void decayRate(double decayRate);
+    void decayRate(double decayRate) override;
 
     //! Get the decay rate.
-    virtual double decayRate() const;
+    double decayRate() const override;
 
     //! Check if the decomposition has any initialized components.
-    virtual bool initialized() const;
+    bool initialized() const override;
 
     //! Set whether or not we're testing for a change.
-    virtual void testingForChange(bool value);
+    void testingForChange(bool value) override;
 
     //! Adds a time series point \f$(t, f(t))\f$.
     //!
@@ -103,12 +103,11 @@ public:
     //! residuals if a new component is added as a result of adding the data point.
     //! \param[in] modelAnnotationCallback Supplied with an annotation if a new
     //! component is added as a result of adding the data point.
-    virtual void
-    addPoint(core_t::TTime time,
-             double value,
-             const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
-             const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
-             const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation);
+    void addPoint(core_t::TTime time,
+                  double value,
+                  const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
+                  const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
+                  const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) override;
 
     //! Apply \p change at \p time.
     //!
@@ -116,13 +115,13 @@ public:
     //! \param[in] value The value immediately before the change point.
     //! \param[in] change A description of the change to apply.
     //! \return True if a new component was detected.
-    virtual bool applyChange(core_t::TTime time, double value, const SChangeDescription& change);
+    bool applyChange(core_t::TTime time, double value, const SChangeDescription& change) override;
 
     //! Propagate the decomposition forwards to \p time.
-    virtual void propagateForwardsTo(core_t::TTime time);
+    void propagateForwardsTo(core_t::TTime time) override;
 
     //! Get the mean value of the time series in the vicinity of \p time.
-    virtual double meanValue(core_t::TTime time) const;
+    double meanValue(core_t::TTime time) const override;
 
     //! Get the predicted value of the time series at \p time.
     //!
@@ -133,14 +132,14 @@ public:
     //! \param[in] removedSeasonalMask A bit mask of specific seasonal components
     //! to remove. This is only intended for use by CTimeSeriesTestForSeasonlity.
     //! \param[in] smooth Detail do not supply.
-    virtual maths_t::TDoubleDoublePr value(core_t::TTime time,
-                                           double confidence = 0.0,
-                                           int components = E_All,
-                                           const TBoolVec& removedSeasonalMask = {},
-                                           bool smooth = true) const;
+    maths_t::TDoubleDoublePr value(core_t::TTime time,
+                                   double confidence = 0.0,
+                                   int components = E_All,
+                                   const TBoolVec& removedSeasonalMask = {},
+                                   bool smooth = true) const override;
 
     //! Get the maximum interval for which the time series can be forecast.
-    virtual core_t::TTime maximumForecastInterval() const;
+    core_t::TTime maximumForecastInterval() const override;
 
     //! Forecast from \p start to \p end at \p dt intervals.
     //!
@@ -150,21 +149,20 @@ public:
     //! \param[in] confidence The forecast confidence interval.
     //! \param[in] minimumScale The minimum permitted seasonal scale.
     //! \param[in] writer Forecast results are passed to this callback.
-    virtual void forecast(core_t::TTime startTime,
-                          core_t::TTime endTime,
-                          core_t::TTime step,
-                          double confidence,
-                          double minimumScale,
-                          const TWriteForecastResult& writer);
+    void forecast(core_t::TTime startTime,
+                  core_t::TTime endTime,
+                  core_t::TTime step,
+                  double confidence,
+                  double minimumScale,
+                  const TWriteForecastResult& writer) override;
 
     //! Detrend \p value by the prediction of the modelled features at \p time.
     //!
     //! \note That detrending preserves the time series mean.
-    virtual double
-    detrend(core_t::TTime time, double value, double confidence, int components = E_All) const;
+    double detrend(core_t::TTime time, double value, double confidence, int components = E_All) const override;
 
     //! Get the mean variance of the baseline.
-    virtual double meanVariance() const;
+    double meanVariance() const override;
 
     //! Compute the variance scale at \p time.
     //!
@@ -172,32 +170,32 @@ public:
     //! \param[in] variance The variance of the distribution to scale.
     //! \param[in] confidence The symmetric confidence interval for the variance
     //! scale as a percentage.
-    virtual maths_t::TDoubleDoublePr
-    scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const;
+    maths_t::TDoubleDoublePr
+    scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const override;
 
-    //! Get the values in a recent time window.
-    virtual TFloatMeanAccumulatorVec windowValues(const TPredictor& predictor) const;
+    //! Get the prediction residuals in a recent time window.
+    TFloatMeanAccumulatorVec residuals() const override;
 
     //! Roll time forwards by \p skipInterval.
-    virtual void skipTime(core_t::TTime skipInterval);
+    void skipTime(core_t::TTime skipInterval) override;
 
     //! Get a checksum for this object.
-    virtual std::uint64_t checksum(std::uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
     //! Debug the memory used by this object.
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
 
     //! Get the memory used by this object.
-    virtual std::size_t memoryUsage() const;
+    std::size_t memoryUsage() const override;
 
     //! Get the static size of this object.
-    virtual std::size_t staticSize() const;
+    std::size_t staticSize() const override;
 
     //! Get the time shift which is being applied.
-    virtual core_t::TTime timeShift() const;
+    core_t::TTime timeShift() const override;
 
     //! Get the seasonal components.
-    virtual const maths_t::TSeasonalComponentVec& seasonalComponents() const;
+    const maths_t::TSeasonalComponentVec& seasonalComponents() const override;
 
     //! Get the time of the last value.
     core_t::TTime lastValueTime() const;
