@@ -81,7 +81,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     : CDataFrameTrainBoostedTreeRunner{
           spec, parameters, loss(parameters[NUM_CLASSES].as<std::size_t>())} {
 
-    m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::size_t{0});
+    m_NumTopClasses = parameters[NUM_TOP_CLASSES].as<std::ptrdiff_t>();
     m_PredictionFieldType =
         parameters[PREDICTION_FIELD_TYPE].fallback(E_PredictionFieldTypeString);
     this->boostedTreeFactory().classAssignmentObjective(
@@ -146,8 +146,10 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                       return scores[lhs] > scores[rhs];
                   });
         // -1 is a special value meaning "output all the classes"
-        classIds.resize(m_NumTopClasses == -1 ? classIds.size()
-                                              : std::min(classIds.size(), m_NumTopClasses));
+        classIds.resize(m_NumTopClasses == -1
+                            ? classIds.size()
+                            : std::min(classIds.size(),
+                                       static_cast<std::size_t>(m_NumTopClasses)));
         writer.Key(TOP_CLASSES_FIELD_NAME);
         writer.StartArray();
         for (std::size_t i : classIds) {
