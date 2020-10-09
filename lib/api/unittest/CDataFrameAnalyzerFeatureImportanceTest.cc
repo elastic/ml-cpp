@@ -487,6 +487,41 @@ double readTotalShapValue(const RESULTS& results, std::string shapField, std::st
     }
     return 0.0;
 }
+
+template<typename RESULTS>
+double readBaselineValue(const RESULTS& results) {
+    using TModelMetadata = api::CInferenceModelMetadata;
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember(TModelMetadata::JSON_MODEL_METADATA_TAG) &&
+            result[TModelMetadata::JSON_MODEL_METADATA_TAG].HasMember(
+                TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
+            return result[TModelMetadata::JSON_MODEL_METADATA_TAG][TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG]
+                         [TModelMetadata::JSON_BASELINE_TAG]
+                             .GetDouble();
+        }
+    }
+    return 0.0;
+}
+
+template<typename RESULTS>
+double readBaselineValue(const RESULTS& results, std::string className) {
+    using TModelMetadata = api::CInferenceModelMetadata;
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember(TModelMetadata::JSON_MODEL_METADATA_TAG) &&
+            result[TModelMetadata::JSON_MODEL_METADATA_TAG].HasMember(
+                TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
+            for (const auto& item :
+                 result[TModelMetadata::JSON_MODEL_METADATA_TAG][TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG]
+                       [TModelMetadata::JSON_CLASSES_TAG]
+                           .GetArray()) {
+                if (item[TModelMetadata::JSON_CLASS_NAME_TAG].GetString() == className) {
+                    return item[TModelMetadata::JSON_BASELINE_TAG].GetDouble();
+                }
+            }
+        }
+    }
+    return 0.0;
+}
 }
 
 BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
@@ -509,14 +544,7 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
     double c1TotalShapActual{0.0}, c2TotalShapActual{0.0},
         c3TotalShapActual{0.0}, c4TotalShapActual{0.0};
     bool hasTotalFeatureImportance{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
-            double prediction{
-                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble()};
-            baselineAccumulator.add(prediction);
-        }
-    }
-    double baseline{maths::CBasicStatistics::mean(baselineAccumulator)};
+    double baseline{readBaselineValue(results)};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             double c1{readShapValue(result, "c1")};
@@ -609,8 +637,6 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     // values are indeed a local approximation of the predicted log-odds.
 
     std::size_t topShapValues{4};
-    TMeanAccumulator baselineFooAccumulator;
-    TMeanAccumulator baselineBarAccumulator;
     auto resultsPair{runBinaryClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
     auto results{std::move(resultsPair.first)};
     TMeanAccumulator c1TotalShapExpected;
@@ -621,29 +647,8 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     double c1TotalShapActual[2], c2TotalShapActual[2], c3TotalShapActual[2],
         c4TotalShapActual[2];
     bool hasTotalFeatureImportance{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
-            std::string targetPrediction{
-                result["row_results"]["results"]["ml"]["target_prediction"].GetString()};
-            double predictionProbability{
-                result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble()};
-            double logOdds{std::log(predictionProbability /
-                                    (1.0 - predictionProbability + 1e-10))};
-            if (targetPrediction == "bar") {
-                // there are many ways to compute the baseline. This way generalizes to
-                // the multi-class classification
-                baselineBarAccumulator.add(logOdds);
-                baselineFooAccumulator.add(-logOdds);
-            } else if (targetPrediction == "foo") {
-                baselineFooAccumulator.add(logOdds);
-                baselineBarAccumulator.add(-logOdds);
-            } else {
-                BOOST_TEST_FAIL("Unknown predicted class " + targetPrediction);
-            }
-        }
-    }
-    double baselineFoo{maths::CBasicStatistics::mean(baselineFooAccumulator)};
-    double baselineBar{maths::CBasicStatistics::mean(baselineBarAccumulator)};
+    double baselineFoo{readBaselineValue(results, "foo")};
+    double baselineBar{readBaselineValue(results, "bar")};
     BOOST_TEST_REQUIRE(baselineFoo == -baselineBar);
     TStrVec classes{"foo", "bar"};
     for (const auto& result : results.GetArray()) {
@@ -728,19 +733,12 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
     double c4TotalShapActual[3];
     bool hasTotalFeatureImportance{false};
     TStrVec classes{"foo", "bar", "baz"};
-    TMeanAccumulatorVec baselineAccumulator(3);
+    TDoubleVec baselines;
+    baselines.reserve(3);
     // get baselines
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
-            for (std::size_t i = 0; i < classes.size(); ++i) {
-                double classProbability{readClassProbability(result, classes[i])};
-                double logOdds =
-                    std::log(classProbability / (1.0 - classProbability + 1e-10));
-                baselineAccumulator[i].add(logOdds);
-            }
-        }
+    for (const auto& className : classes) {
+        baselines.push_back(readBaselineValue(results, className));
     }
-
     double localApproximations[3];
     double classProbabilities[3];
     for (const auto& result : results.GetArray()) {
@@ -766,7 +764,8 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
                 c4TotalShapExpected[i].add(std::abs(c4ClassName));
 
                 double classProbability{readClassProbability(result, classes[i])};
-                double localApproximation{c1ClassName + c2ClassName + c3ClassName + c4ClassName};
+                double localApproximation{baselines[i] + c1ClassName +
+                                          c2ClassName + c3ClassName + c4ClassName};
                 localApproximations[i] = localApproximation;
                 classProbabilities[i] = classProbability;
                 denominator += std::exp(localApproximation);
@@ -775,9 +774,8 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
             // Test that sum of feature importances is a local approximations of
             // prediction probabilities for all classes
             for (std::size_t i = 0; i < classes.size(); ++i) {
-                BOOST_REQUIRE_SMALL(classProbabilities[i] -
-                                        std::exp(localApproximations[i]) / denominator,
-                                    1e-3);
+                BOOST_REQUIRE_CLOSE(classProbabilities[i],
+                                    std::exp(localApproximations[i]) / denominator, 1.0);
             }
 
             // We should have at least one feature that is important
@@ -803,15 +801,14 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
             LOG_INFO(<< "Incorrect results, missing total shap values: "
                      << resultsPair.second);
         }
-        // TODO now I cannot test for feature
-        //     BOOST_REQUIRE_CLOSE(c1TotalShapActual[i],
-        //                         maths::CBasicStatistics::mean(c1TotalShapExpected[i]), 1.0);
-        //     BOOST_REQUIRE_CLOSE(c2TotalShapActual[i],
-        //                         maths::CBasicStatistics::mean(c2TotalShapExpected[i]), 1.0);
-        //     BOOST_REQUIRE_CLOSE(c3TotalShapActual[i],
-        //                         maths::CBasicStatistics::mean(c3TotalShapExpected[i]), 1.0);
-        //     BOOST_REQUIRE_CLOSE(c4TotalShapActual[i],
-        //                         maths::CBasicStatistics::mean(c4TotalShapExpected[i]), 1.0);
+        BOOST_REQUIRE_CLOSE(c1TotalShapActual[i],
+                            maths::CBasicStatistics::mean(c1TotalShapExpected[i]), 1.0);
+        BOOST_REQUIRE_CLOSE(c2TotalShapActual[i],
+                            maths::CBasicStatistics::mean(c2TotalShapExpected[i]), 1.0);
+        BOOST_REQUIRE_CLOSE(c3TotalShapActual[i],
+                            maths::CBasicStatistics::mean(c3TotalShapExpected[i]), 1.0);
+        BOOST_REQUIRE_CLOSE(c4TotalShapActual[i],
+                            maths::CBasicStatistics::mean(c4TotalShapExpected[i]), 1.0);
     }
 }
 
