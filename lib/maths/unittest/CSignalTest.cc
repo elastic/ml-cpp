@@ -892,52 +892,6 @@ BOOST_AUTO_TEST_CASE(testFitMultipleSeasonalComponentsRobust) {
     BOOST_REQUIRE(maths::CBasicStatistics::mean(overallImprovement) > 4.0);
 }
 
-BOOST_AUTO_TEST_CASE(testRemoveLinearTrend) {
-
-    // Test the mean value difference is zero after removing a linear trend.
-
-    auto trend = [](std::size_t i) {
-        return 0.2 * static_cast<double>(i) +
-               5.0 * std::sin(boost::math::double_constants::two_pi *
-                              static_cast<double>(i) / 10.0);
-    };
-
-    test::CRandomNumbers rng;
-
-    maths::CSignal::TFloatMeanAccumulatorVec values;
-    TDoubleVec noise;
-
-    for (std::size_t test = 0; test < 100; ++test) {
-
-        values.assign(100, maths::CSignal::TFloatMeanAccumulator{});
-        rng.generateNormalSamples(0.0, 1.0, values.size(), noise);
-        for (std::size_t i = 0; i < noise.size(); ++i) {
-            values[i].add(trend(i) + noise[i]);
-        }
-
-        TMeanVarAccumulator initialDifference;
-        for (std::size_t i = 1; i < values.size(); ++i) {
-            initialDifference.add(maths::CBasicStatistics::mean(values[i]) -
-                                  maths::CBasicStatistics::mean(values[i - 1]));
-        }
-
-        double sigma{std::sqrt(1.0 / static_cast<double>(values.size()))};
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            0.2, maths::CBasicStatistics::mean(initialDifference), 3.0 * sigma);
-
-        maths::CSignal::removeLinearTrend(values);
-
-        TMeanVarAccumulator differenceMinusTrend;
-        for (std::size_t i = 1; i < values.size(); ++i) {
-            differenceMinusTrend.add(maths::CBasicStatistics::mean(values[i]) -
-                                     maths::CBasicStatistics::mean(values[i - 1]));
-        }
-
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(
-            0.0, maths::CBasicStatistics::mean(initialDifference), 3.0 * sigma);
-    }
-}
-
 BOOST_AUTO_TEST_CASE(testSingleComponentSeasonalDecomposition) {
 
     // Test that we reliably find a single seasonal component.
@@ -972,7 +926,7 @@ BOOST_AUTO_TEST_CASE(testSingleComponentSeasonalDecomposition) {
         }
 
         auto decomposition = maths::CSignal::seasonalDecomposition(
-            values, 0.1, {24, 7 * 24, 365 * 24}, [](std::size_t) { return 1.0; });
+            values, 0.1, {24, 7 * 24, 365 * 24});
 
         // We can detect additional components but must detect the real
         // component first.
@@ -1036,7 +990,7 @@ BOOST_AUTO_TEST_CASE(testMultipleSeasonalDecomposition) {
         }
 
         auto decomposition = maths::CSignal::seasonalDecomposition(
-            values, 0.1, {24, 7 * 24, 365 * 24}, [](std::size_t) { return 1.0; });
+            values, 0.1, {24, 7 * 24, 365 * 24});
 
         // We can detect additional components but must detect the two real
         // components first.
@@ -1100,11 +1054,7 @@ BOOST_AUTO_TEST_CASE(testMultipleDiurnalSeasonalDecomposition) {
         }
 
         auto decomposition = maths::CSignal::seasonalDecomposition(
-            values, 0.0, {24, 7 * 24, 365 * 24},
-            [](std::size_t period) {
-                return period == 24 || period == 168 ? 1.1 : 1.0;
-            },
-            {}, 1e-6);
+            values, 0.0, {24, 7 * 24, 365 * 24}, {}, 1e-6);
 
         BOOST_REQUIRE_EQUAL(expectedDecomposition[test % std::size(expectedDecomposition)],
                             core::CContainerPrinter::print(decomposition));

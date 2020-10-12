@@ -21,6 +21,8 @@ namespace api {
 //! (such as totol feature importance) into JSON format.
 class API_EXPORT CInferenceModelMetadata {
 public:
+    static const std::string JSON_BASELINE_TAG;
+    static const std::string JSON_FEATURE_IMPORTANCE_BASELINE_TAG;
     static const std::string JSON_CLASS_NAME_TAG;
     static const std::string JSON_CLASSES_TAG;
     static const std::string JSON_FEATURE_NAME_TAG;
@@ -48,19 +50,26 @@ public:
     //! Add importances \p values to the feature with index \p i to calculate total feature importance.
     //! Total feature importance is the mean of the magnitudes of importances for individual data points.
     void addToFeatureImportance(std::size_t i, const TVector& values);
+    //! Set the feature importance baseline (the individual feature importances are additive corrections
+    //! to the baseline value).
+    void featureImportanceBaseline(TVector&& baseline);
 
 private:
-    using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<TVector>::TAccumulator;
+    using TMeanAccumulator =
+        std::vector<maths::CBasicStatistics::SSampleMean<double>::TAccumulator>;
     using TMinMaxAccumulator = std::vector<maths::CBasicStatistics::CMinMax<double>>;
-    using TSizeMeanVarAccumulatorUMap = std::unordered_map<std::size_t, TMeanVarAccumulator>;
+    using TSizeMeanAccumulatorUMap = std::unordered_map<std::size_t, TMeanAccumulator>;
     using TSizeMinMaxAccumulatorUMap = std::unordered_map<std::size_t, TMinMaxAccumulator>;
+    using TOptionalVector = boost::optional<TVector>;
 
 private:
     void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
+    void writeFeatureImportanceBaseline(TRapidJsonWriter& writer) const;
 
 private:
-    TSizeMeanVarAccumulatorUMap m_TotalShapValuesMeanVar;
+    TSizeMeanAccumulatorUMap m_TotalShapValuesMean;
     TSizeMinMaxAccumulatorUMap m_TotalShapValuesMinMax;
+    TOptionalVector m_ShapBaseline;
     TStrVec m_ColumnNames;
     TStrVec m_ClassValues;
     TPredictionFieldTypeResolverWriter m_PredictionFieldTypeResolverWriter =

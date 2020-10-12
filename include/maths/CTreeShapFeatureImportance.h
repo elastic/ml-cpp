@@ -76,6 +76,9 @@ public:
     //! Get the column names.
     const TStrVec& columnNames() const;
 
+    //! Get the baseline.
+    TVector baseline() const;
+
 private:
     //! Collects the elements of the path through decision tree that are updated together
     struct SPathElement {

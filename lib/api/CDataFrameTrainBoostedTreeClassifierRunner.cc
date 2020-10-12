@@ -81,7 +81,7 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     : CDataFrameTrainBoostedTreeRunner{
           spec, parameters, loss(parameters[NUM_CLASSES].as<std::size_t>())} {
 
-    m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::size_t{0});
+    m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::ptrdiff_t{0});
     m_PredictionFieldType =
         parameters[PREDICTION_FIELD_TYPE].fallback(E_PredictionFieldTypeString);
     this->boostedTreeFactory().classAssignmentObjective(
@@ -138,14 +138,18 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     writer.Key(IS_TRAINING_FIELD_NAME);
     writer.Bool(maths::CDataFrameUtils::isMissing(actualClassId) == false);
 
-    if (m_NumTopClasses > 0) {
+    if (m_NumTopClasses != 0) {
         TSizeVec classIds(scores.size());
         std::iota(classIds.begin(), classIds.end(), 0);
         std::sort(classIds.begin(), classIds.end(),
                   [&scores](std::size_t lhs, std::size_t rhs) {
                       return scores[lhs] > scores[rhs];
                   });
-        classIds.resize(std::min(classIds.size(), m_NumTopClasses));
+        // -1 is a special value meaning "output all the classes"
+        classIds.resize(m_NumTopClasses == -1
+                            ? classIds.size()
+                            : std::min(classIds.size(),
+                                       static_cast<std::size_t>(m_NumTopClasses)));
         writer.Key(TOP_CLASSES_FIELD_NAME);
         writer.StartArray();
         for (std::size_t i : classIds) {
@@ -185,14 +189,15 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                             writer.Key(CLASSES_FIELD_NAME);
                             writer.StartArray();
                             for (std::size_t j = 0; j < numberClasses; ++j) {
-                                double importance{(j == predictedClassId)
-                                                      ? shap[i](0)
-                                                      : -shap[i](0)};
                                 writer.StartObject();
                                 writer.Key(CLASS_NAME_FIELD_NAME);
                                 writePredictedCategoryValue(classValues[j], writer);
                                 writer.Key(IMPORTANCE_FIELD_NAME);
-                                writer.Double(importance);
+                                if (j == 1) {
+                                    writer.Double(shap[i](0));
+                                } else {
+                                    writer.Double(-shap[i](0));
+                                }
                                 writer.EndObject();
                             }
                             writer.EndArray();
@@ -292,6 +297,10 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelDefinition(
 
 CDataFrameAnalysisRunner::TOptionalInferenceModelMetadata
 CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
+    const auto& featureImportance = this->boostedTree().shap();
+    if (featureImportance) {
+        m_InferenceModelMetadata.featureImportanceBaseline(featureImportance->baseline());
+    }
     return m_InferenceModelMetadata;
 }
 
