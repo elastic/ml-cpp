@@ -6,9 +6,8 @@
 #ifndef INCLUDED_ml_controller_CResponseJsonWriter_h
 #define INCLUDED_ml_controller_CResponseJsonWriter_h
 
-#include <core/CRapidJsonLineWriter.h>
-
-#include <rapidjson/ostreamwrapper.h>
+#include <core/CJsonOutputStreamWrapper.h>
+#include <core/CRapidJsonConcurrentLineWriter.h>
 
 #include <iosfwd>
 #include <string>
@@ -24,11 +23,18 @@ namespace controller {
 //!
 //! { "id" : 123, "success" : true, "reason" : "message explaining success/failure" }
 //!
-//! A newline is written after each document, i.e. the output is ND-JSON.
+//! They are written into a JSON array, i.e. the overall output looks
+//! something like this:
+//!
+//! [{ "id" : 1, "success" : true, "reason" : "all ok" }
+//! ,{ "id" : 2, "success" : false, "reason" : "something went wrong" }
+//! ,{ "id" : 3, "success" : true, "reason" : "ok again" }
+//! ]
 //!
 //! IMPLEMENTATION DECISIONS:\n
-//! Not using the concurrent line writer, as there's no need for thread
-//! safety.
+//! Uses the concurrent line writer.  There's no need for thread safety
+//! with the current design, but in future commands might be processed
+//! concurrently.
 //!
 class CResponseJsonWriter {
 public:
@@ -39,13 +45,11 @@ public:
     void writeResponse(std::uint32_t id, bool success, const std::string& reason);
 
 private:
-    //! JSON writer ostream wrapper
-    rapidjson::OStreamWrapper m_WriteStream;
+    //! Wrapped output stream
+    core::CJsonOutputStreamWrapper m_WrappedOutputStream;
 
-    using TGenericLineWriter = core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>;
-
-    //! JSON writer
-    TGenericLineWriter m_Writer;
+    //! JSON line writer
+    core::CRapidJsonConcurrentLineWriter m_Writer;
 };
 }
 }

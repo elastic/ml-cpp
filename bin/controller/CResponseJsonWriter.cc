@@ -6,6 +6,10 @@
 
 #include "CResponseJsonWriter.h"
 
+#include <core/CLogger.h>
+
+#include <ios>
+
 namespace ml {
 namespace controller {
 namespace {
@@ -17,7 +21,7 @@ const std::string REASON{"reason"};
 }
 
 CResponseJsonWriter::CResponseJsonWriter(std::ostream& responseStream)
-    : m_WriteStream{responseStream}, m_Writer{m_WriteStream} {
+    : m_WrappedOutputStream(responseStream), m_Writer{m_WrappedOutputStream} {
 }
 
 void CResponseJsonWriter::writeResponse(std::uint32_t id, bool success, const std::string& reason) {
@@ -29,7 +33,9 @@ void CResponseJsonWriter::writeResponse(std::uint32_t id, bool success, const st
     m_Writer.Key(REASON);
     m_Writer.String(reason);
     m_Writer.EndObject();
-    m_Writer.Flush();
+    m_Writer.flush();
+    LOG_DEBUG(<< "Wrote controller response - id: " << id
+              << " success: " << std::boolalpha << success << " reason: " << reason);
 }
 }
 }

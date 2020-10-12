@@ -51,140 +51,162 @@ BOOST_AUTO_TEST_CASE(testStartPermitted) {
     // check the return code as this will usually fail
     std::remove(OUTPUT_FILE.c_str());
 
-    ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
     std::ostringstream responseStream;
-    ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
 
-    std::string command{"1\t" + ml::controller::CCommandProcessor::START + '\t' + PROCESS_PATH};
-    for (std::size_t index = 0; index < boost::size(PROCESS_ARGS1); ++index) {
-        command += '\t';
-        command += PROCESS_ARGS1[index];
+        std::string command{"1\t" + ml::controller::CCommandProcessor::START + '\t' + PROCESS_PATH};
+        for (std::size_t index = 0; index < boost::size(PROCESS_ARGS1); ++index) {
+            command += '\t';
+            command += PROCESS_ARGS1[index];
+        }
+
+        std::istringstream commandStream{command + '\n'};
+        processor.processCommands(commandStream);
+
+        // Expect the copy to complete in less than 1 second
+        std::this_thread::sleep_for(std::chrono::seconds{1});
+
+        std::ifstream ifs{OUTPUT_FILE};
+        BOOST_TEST_REQUIRE(ifs.is_open());
+        std::string content;
+        std::getline(ifs, content);
+        ifs.close();
+
+        BOOST_REQUIRE_EQUAL(SLOGAN1, content);
     }
-
-    std::istringstream commandStream{command + '\n'};
-    processor.processCommands(commandStream);
-
-    // Expect the copy to complete in less than 1 second
-    std::this_thread::sleep_for(std::chrono::seconds{1});
-
-    std::ifstream ifs{OUTPUT_FILE};
-    BOOST_TEST_REQUIRE(ifs.is_open());
-    std::string content;
-    std::getline(ifs, content);
-    ifs.close();
-
-    BOOST_REQUIRE_EQUAL(SLOGAN1, content);
 
     std::string jsonEscapedProcessPath{PROCESS_PATH};
     ml::core::CStringUtils::replace("\\", "\\\\", jsonEscapedProcessPath);
-    BOOST_REQUIRE_EQUAL("{\"id\":1,\"success\":true,\"reason\":\"Process '" +
-                            jsonEscapedProcessPath + "' started\"}\n",
+    BOOST_REQUIRE_EQUAL("[{\"id\":1,\"success\":true,\"reason\":\"Process '" + jsonEscapedProcessPath +
+                            "' started\"}\n"
+                            "]",
                         responseStream.str());
 
     BOOST_REQUIRE_EQUAL(0, std::remove(OUTPUT_FILE.c_str()));
 }
 
 BOOST_AUTO_TEST_CASE(testStartNonPermitted) {
-    ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
     std::ostringstream responseStream;
-    ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
+        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
 
-    std::string command{"2\t" + ml::controller::CCommandProcessor::START + '\t' + PROCESS_PATH};
-    for (std::size_t index = 0; index < boost::size(PROCESS_ARGS2); ++index) {
-        command += '\t';
-        command += PROCESS_ARGS2[index];
+        std::string command{"2\t" + ml::controller::CCommandProcessor::START + '\t' + PROCESS_PATH};
+        for (std::size_t index = 0; index < boost::size(PROCESS_ARGS2); ++index) {
+            command += '\t';
+            command += PROCESS_ARGS2[index];
+        }
+
+        std::istringstream commandStream{command + '\n'};
+        processor.processCommands(commandStream);
+
+        // The delete should have been rejected, so the second input file should
+        // still exist and have the expected contents
+
+        std::ifstream ifs{INPUT_FILE2};
+        BOOST_TEST_REQUIRE(ifs.is_open());
+        std::string content;
+        std::getline(ifs, content);
+        ifs.close();
+
+        BOOST_REQUIRE_EQUAL(SLOGAN2, content);
     }
-
-    std::istringstream commandStream{command + '\n'};
-    processor.processCommands(commandStream);
-
-    // The delete should have been rejected, so the second input file should
-    // still exist and have the expected contents
-
-    std::ifstream ifs{INPUT_FILE2};
-    BOOST_TEST_REQUIRE(ifs.is_open());
-    std::string content;
-    std::getline(ifs, content);
-    ifs.close();
-
-    BOOST_REQUIRE_EQUAL(SLOGAN2, content);
 
     std::string jsonEscapedProcessPath{PROCESS_PATH};
     ml::core::CStringUtils::replace("\\", "\\\\", jsonEscapedProcessPath);
-    BOOST_REQUIRE_EQUAL("{\"id\":2,\"success\":false,\"reason\":\"Failed to start process '" +
-                            jsonEscapedProcessPath + "'\"}\n",
+    BOOST_REQUIRE_EQUAL("[{\"id\":2,\"success\":false,\"reason\":\"Failed to start process '" +
+                            jsonEscapedProcessPath +
+                            "'\"}\n"
+                            "]",
                         responseStream.str());
 }
 
 BOOST_AUTO_TEST_CASE(testStartNonExistent) {
-    ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
     std::ostringstream responseStream;
-    ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
+        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
 
-    std::string command{"3\t" + ml::controller::CCommandProcessor::START + "\tsome other process"};
+        std::string command{"3\t" + ml::controller::CCommandProcessor::START + "\tsome other process"};
 
-    BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+        BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+    }
 
-    BOOST_REQUIRE_EQUAL("{\"id\":3,\"success\":false,\"reason\":\"Failed to start process 'some other process'\"}\n",
+    BOOST_REQUIRE_EQUAL("[{\"id\":3,\"success\":false,\"reason\":\"Failed to start process 'some other process'\"}\n"
+                        "]",
                         responseStream.str());
 }
 
 BOOST_AUTO_TEST_CASE(testKillDisallowed) {
     // Attempt to kill a process that exists but isn't allowed to be killed,
     // namely the unit test program
-
-    ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
-    std::ostringstream responseStream;
-    ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
-
     std::string pidStr{
         ml::core::CStringUtils::typeToString(ml::core::CProcess::instance().id())};
-    std::string command{"4\t" + ml::controller::CCommandProcessor::KILL + '\t' + pidStr};
 
-    BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+    std::ostringstream responseStream;
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{PROCESS_PATH};
+        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
 
-    BOOST_REQUIRE_EQUAL("{\"id\":4,\"success\":false,\"reason\":\"Failed to kill process with PID " +
-                            pidStr + "\"}\n",
+        std::string command{"4\t" + ml::controller::CCommandProcessor::KILL + '\t' + pidStr};
+
+        BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+    }
+
+    BOOST_REQUIRE_EQUAL("[{\"id\":4,\"success\":false,\"reason\":\"Failed to kill process with PID " +
+                            pidStr +
+                            "\"}\n"
+                            "]",
                         responseStream.str());
 }
 
 BOOST_AUTO_TEST_CASE(testInvalidVerb) {
-    ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
     std::ostringstream responseStream;
-    ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
+        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
 
-    std::string command{"5\tdrive\tsome other process"};
+        std::string command{"5\tdrive\tsome other process"};
 
-    BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+        BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+    }
 
-    BOOST_REQUIRE_EQUAL("{\"id\":5,\"success\":false,\"reason\":\"Did not understand verb 'drive'\"}\n",
+    BOOST_REQUIRE_EQUAL("[{\"id\":5,\"success\":false,\"reason\":\"Did not understand verb 'drive'\"}\n"
+                        "]",
                         responseStream.str());
 }
 
 BOOST_AUTO_TEST_CASE(testTooFewTokens) {
-    ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
     std::ostringstream responseStream;
-    ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
+        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
 
-    std::string command{ml::controller::CCommandProcessor::START + "\tsome other process"};
+        std::string command{ml::controller::CCommandProcessor::START + "\tsome other process"};
 
-    BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+        BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+    }
 
     // It's not possible to respond without an ID
-    BOOST_TEST_REQUIRE(responseStream.str().empty());
+    BOOST_REQUIRE_EQUAL("[]", responseStream.str());
 }
 
 BOOST_AUTO_TEST_CASE(testMissingId) {
-    ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
     std::ostringstream responseStream;
-    ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
+    {
+        ml::controller::CCommandProcessor::TStrVec permittedPaths{"some other process"};
+        ml::controller::CCommandProcessor processor{permittedPaths, responseStream};
 
-    std::string command{ml::controller::CCommandProcessor::START + "\tsome other process\targ1\targ2"};
+        std::string command{ml::controller::CCommandProcessor::START +
+                            "\tsome other process\targ1\targ2"};
 
-    BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+        BOOST_REQUIRE_EQUAL(false, processor.handleCommand(command));
+    }
 
     // It's not possible to respond without an ID
-    BOOST_TEST_REQUIRE(responseStream.str().empty());
+    BOOST_REQUIRE_EQUAL("[]", responseStream.str());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
