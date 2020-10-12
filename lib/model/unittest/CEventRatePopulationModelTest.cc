@@ -34,7 +34,6 @@
 
 #include "CModelTestFixtureBase.h"
 
-#include <boost/lexical_cast.hpp>
 #include <boost/optional/optional_io.hpp>
 #include <boost/test/unit_test.hpp>
 #include <boost/tuple/tuple.hpp>
@@ -45,6 +44,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -85,12 +85,12 @@ public:
 
         TStrVec attributes;
         for (std::size_t i = 0u; i < numberAttributes; ++i) {
-            attributes.push_back("c" + boost::lexical_cast<std::string>(i));
+            attributes.push_back("c" + std::to_string(i));
         }
 
         TStrVec people;
         for (std::size_t i = 0u; i < numberPeople; ++i) {
-            people.push_back("p" + boost::lexical_cast<std::string>(i));
+            people.push_back("p" + std::to_string(i));
         }
 
         TSizeVecVec attributePeople{
@@ -270,14 +270,14 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
         TDouble2VecWeightsAryVec& weights() { return m_Weights; }
 
     private:
-        using TDoubleSizeUMap = boost::unordered_map<double, std::size_t>;
+        using TDoubleSizeUMap = std::unordered_map<double, std::size_t>;
 
     private:
         TDoubleSizeUMap m_Uniques;
         TDouble2VecVec m_Values;
         TDouble2VecWeightsAryVec m_Weights;
     };
-    using TSizeUniqueValuesUMap = boost::unordered_map<std::size_t, CUniqueValues>;
+    using TSizeUniqueValuesUMap = std::unordered_map<std::size_t, CUniqueValues>;
 
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
@@ -298,7 +298,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
 
     model::CModelFactory::TFeatureMathsModelPtrPrVec models{
         m_Factory->defaultFeatureModels(features, bucketLength, 1.0, false)};
-    BOOST_REQUIRE_EQUAL(std::size_t(1), models.size());
+    BOOST_REQUIRE_EQUAL(1, models.size());
     BOOST_REQUIRE_EQUAL(model_t::E_PopulationCountByBucketPersonAndAttribute,
                         models[0].first);
 
@@ -972,8 +972,8 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
 
     // Check prune does not remove people because last seen times are updated by adding gap duration
     modelWithGap->prune(maxAgeBuckets);
-    BOOST_REQUIRE_EQUAL(std::size_t(2), gathererWithGap->numberActivePeople());
-    BOOST_REQUIRE_EQUAL(std::size_t(2), gathererWithGap->numberActiveAttributes());
+    BOOST_REQUIRE_EQUAL(2, gathererWithGap->numberActivePeople());
+    BOOST_REQUIRE_EQUAL(2, gathererWithGap->numberActiveAttributes());
 
     this->addArrival(SMessage(1000, "p1", "a1"), gathererWithGap);
     modelWithGap->sample(1000, 1100, m_ResourceMonitor);
@@ -1004,12 +1004,12 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     modelWithGap->sample(1200, 1500, m_ResourceMonitor);
     modelWithGap->prune(maxAgeBuckets);
     // Age at this point will be 500 and since it's equal to maxAge it should still be here
-    BOOST_REQUIRE_EQUAL(std::size_t(2), gathererWithGap->numberActiveAttributes());
+    BOOST_REQUIRE_EQUAL(2, gathererWithGap->numberActiveAttributes());
     modelWithGap->sample(1500, 1600, m_ResourceMonitor);
     modelWithGap->prune(maxAgeBuckets);
     // Age at this point will be 600 so it should get pruned
-    BOOST_REQUIRE_EQUAL(std::size_t(1), gathererWithGap->numberActivePeople());
-    BOOST_REQUIRE_EQUAL(std::size_t(1), gathererWithGap->numberActiveAttributes());
+    BOOST_REQUIRE_EQUAL(1, gathererWithGap->numberActivePeople());
+    BOOST_REQUIRE_EQUAL(1, gathererWithGap->numberActiveAttributes());
 }
 
 BOOST_FIXTURE_TEST_CASE(testInterimCorrections, CTestFixture) {
@@ -1030,7 +1030,7 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrections, CTestFixture) {
     core_t::TTime endTime = now + 2 * 24 * bucketLength;
     TDoubleVec samples(3, 0.0);
     while (now < endTime) {
-        rng.generateUniformSamples(50.0, 70.0, std::size_t(3), samples);
+        rng.generateUniformSamples(50.0, 70.0, 3, samples);
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
             this->addArrival(SMessage(now, "p1", "a1"), m_Gatherer);
         }

@@ -256,7 +256,7 @@ protected:
 
 protected:
     using TInterimBucketCorrectorPtr = std::shared_ptr<ml::model::CInterimBucketCorrector>;
-    using TModelFactoryPtr = boost::shared_ptr<ml::model::CModelFactory>;
+    using TModelFactoryPtr = std::shared_ptr<ml::model::CModelFactory>;
 
 protected:
     ml::model::CResourceMonitor m_ResourceMonitor;

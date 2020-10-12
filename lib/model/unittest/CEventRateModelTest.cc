@@ -193,8 +193,7 @@ public:
 
         for (std::size_t i = 0u; i < numberPeople; ++i) {
             BOOST_REQUIRE_EQUAL(
-                std::size_t(i),
-                this->addPerson("p" + core::CStringUtils::typeToString(i + 1), m_Gatherer));
+                i, this->addPerson("p" + core::CStringUtils::typeToString(i + 1), m_Gatherer));
         }
     }
 
@@ -409,7 +408,7 @@ BOOST_FIXTURE_TEST_CASE(testRare, CTestFixture) {
     }
 
     // We expect "p1 = p2 > p3 = p4 >> p5".
-    BOOST_REQUIRE_EQUAL(std::size_t(5), probabilities.size());
+    BOOST_REQUIRE_EQUAL(5, probabilities.size());
     BOOST_REQUIRE_EQUAL(probabilities[0], probabilities[1]);
     BOOST_TEST_REQUIRE(probabilities[1] > probabilities[2]);
     BOOST_REQUIRE_EQUAL(probabilities[2], probabilities[3]);
@@ -566,7 +565,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowNonZeroCount, CTestFixtu
     }
 
     LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
-    BOOST_REQUIRE_EQUAL(std::size_t(11), probabilities.size());
+    BOOST_REQUIRE_EQUAL(11, probabilities.size());
     BOOST_TEST_REQUIRE(probabilities[lowNonZeroCountBucket] < 0.06);
     BOOST_TEST_REQUIRE(probabilities[highNonZeroCountBucket] > 0.9);
 }
@@ -610,7 +609,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighNonZeroCount, CTestFixt
     }
 
     LOG_DEBUG(<< "probabilities = " << core::CContainerPrinter::print(probabilities));
-    BOOST_REQUIRE_EQUAL(std::size_t(11), probabilities.size());
+    BOOST_REQUIRE_EQUAL(11, probabilities.size());
     BOOST_TEST_REQUIRE(probabilities[lowNonZeroCountBucket] < 0.06);
     BOOST_TEST_REQUIRE(probabilities[highNonZeroCountBucket] > 0.9);
 }
@@ -1216,7 +1215,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         factory.fieldNames("", "", "", "", influenceFieldNames);
         factory.features({model_t::E_IndividualCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-        BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gatherer, 1));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 1));
         CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
         CEventRateModel* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         BOOST_TEST_REQUIRE(model);
@@ -1272,7 +1271,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         factory.fieldNames("", "", "", "", influenceFieldNames);
         factory.features({model_t::E_IndividualCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-        BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gatherer, 1));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 1));
         CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
         CEventRateModel* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         BOOST_TEST_REQUIRE(model);
@@ -1320,7 +1319,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         // We expect equal influence since the influencers share the count.
         // Also the count would be fairly normal if either influencer were
         // removed so their influence is high.
-        BOOST_REQUIRE_EQUAL(std::size_t(2), lastInfluencersResult.size());
+        BOOST_REQUIRE_EQUAL(2, lastInfluencersResult.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(lastInfluencersResult[0].second,
                                      lastInfluencersResult[1].second, 0.05);
         BOOST_TEST_REQUIRE(lastInfluencersResult[0].second > 0.75);
@@ -1335,7 +1334,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         factory.fieldNames("", "", "", "", influenceFieldNames);
         factory.features({model_t::E_IndividualCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-        BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gatherer, 1));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 1));
         CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
         CEventRateModel* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         BOOST_TEST_REQUIRE(model);
@@ -1383,7 +1382,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         // We expect equal influence since the influencers share the count.
         // However, the bucket is still significantly anomalous omitting
         // the records from either influencer so their influence is smaller.
-        BOOST_REQUIRE_EQUAL(std::size_t(2), lastInfluencersResult.size());
+        BOOST_REQUIRE_EQUAL(2, lastInfluencersResult.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(lastInfluencersResult[0].second,
                                      lastInfluencersResult[1].second, 0.05);
         BOOST_TEST_REQUIRE(lastInfluencersResult[0].second > 0.5);
@@ -1399,7 +1398,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         factory.fieldNames("", "", "", "", influenceFieldNames);
         factory.features({model_t::E_IndividualCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-        BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gatherer, 1));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 1));
         CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
         CEventRateModel* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         BOOST_TEST_REQUIRE(model);
@@ -1449,7 +1448,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         }
         // The influence should be dominated by the first influencer, and the
         // _extra influencers should be dropped by the cutoff threshold
-        BOOST_REQUIRE_EQUAL(std::size_t(1), lastInfluencersResult.size());
+        BOOST_REQUIRE_EQUAL(1, lastInfluencersResult.size());
         BOOST_TEST_REQUIRE(lastInfluencersResult[0].second > 0.99);
     }
     {
@@ -1462,7 +1461,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         factory.fieldNames("", "", "", "", influenceFieldNames);
         factory.features({model_t::E_IndividualCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-        BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gatherer, 2));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 2));
         CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
         CEventRateModel* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         BOOST_TEST_REQUIRE(model);
@@ -1515,7 +1514,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         }
         // The influence should be dominated by the first influencer for both fields,
         // and the _extra influencers should be dropped by the cutoff threshold
-        BOOST_REQUIRE_EQUAL(std::size_t(2), lastInfluencersResult.size());
+        BOOST_REQUIRE_EQUAL(2, lastInfluencersResult.size());
         BOOST_REQUIRE_EQUAL(std::string("IF1"), *lastInfluencersResult[0].first.first);
         BOOST_REQUIRE_EQUAL(std::string("inf"), *lastInfluencersResult[0].first.second);
         BOOST_REQUIRE_EQUAL(std::string("IF2"), *lastInfluencersResult[1].first.first);
@@ -1535,7 +1534,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         factory.fieldNames("", "", byFieldName, "", {byFieldName});
         factory.features({model_t::E_IndividualCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-        BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gatherer, 1));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 1));
         CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
         CEventRateModel* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         BOOST_TEST_REQUIRE(model);
@@ -1595,8 +1594,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         factory.fieldNames("", "", "", "foo", influenceFieldNames);
         factory.features({model_t::E_IndividualUniqueCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            this->addPerson("p", gatherer, 1, TOptionalStr("v")));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 1, TOptionalStr("v")));
         CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
         CEventRateModel* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         BOOST_TEST_REQUIRE(model);
@@ -1663,8 +1661,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         factory.fieldNames("", "", "", "foo", influenceFieldNames);
         factory.features({model_t::E_IndividualUniqueCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            this->addPerson("p", gatherer, 1, TOptionalStr("v")));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 1, TOptionalStr("v")));
         CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
         CEventRateModel* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         BOOST_TEST_REQUIRE(model);
@@ -1726,7 +1723,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         // The influence should be shared by the two influencers, and as the anomaly
         // is about twice the regular count, each influencer contributes a lot to
         // the anomaly
-        BOOST_REQUIRE_EQUAL(std::size_t(2), lastInfluencersResult.size());
+        BOOST_REQUIRE_EQUAL(2, lastInfluencersResult.size());
         BOOST_REQUIRE_CLOSE_ABSOLUTE(lastInfluencersResult[0].second,
                                      lastInfluencersResult[1].second, 0.05);
         BOOST_TEST_REQUIRE(lastInfluencersResult[0].second > 0.6);
@@ -1741,8 +1738,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         factory.fieldNames("", "", "", "foo", influenceFieldNames);
         factory.features({model_t::E_IndividualUniqueCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            this->addPerson("p", gatherer, 1, TOptionalStr("v")));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 1, TOptionalStr("v")));
         CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
         CEventRateModel* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         BOOST_TEST_REQUIRE(model);
@@ -1802,7 +1798,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         }
         // The influence should be dominated by the first influencer, and the
         // _extra influencer should be dropped by the cutoff threshold
-        BOOST_REQUIRE_EQUAL(std::size_t(1), lastInfluencersResult.size());
+        BOOST_REQUIRE_EQUAL(1, lastInfluencersResult.size());
         BOOST_TEST_REQUIRE(lastInfluencersResult[0].second > 0.8);
     }
     {
@@ -1815,8 +1811,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         factory.fieldNames("", "", "", "foo", influenceFieldNames);
         factory.features({model_t::E_IndividualUniqueCountByBucketAndPerson});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            this->addPerson("p", gatherer, 2, TOptionalStr("v")));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer, 2, TOptionalStr("v")));
         CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
         CEventRateModel* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
         BOOST_TEST_REQUIRE(model);
@@ -1883,7 +1878,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctCountProbabilityCalculationWithInfluence, CT
         }
         // The influence should be dominated by the first influencer for both fields, and the
         // _extra influencers should be dropped by the cutoff threshold
-        BOOST_REQUIRE_EQUAL(std::size_t(2), lastInfluencersResult.size());
+        BOOST_REQUIRE_EQUAL(2, lastInfluencersResult.size());
         BOOST_REQUIRE_EQUAL(std::string("IF1"), *lastInfluencersResult[0].first.first);
         BOOST_REQUIRE_EQUAL(std::string("inf"), *lastInfluencersResult[0].first.second);
         BOOST_REQUIRE_EQUAL(std::string("IF2"), *lastInfluencersResult[1].first.first);
@@ -1905,11 +1900,11 @@ BOOST_FIXTURE_TEST_CASE(testRareWithInfluence, CTestFixture) {
     factory.fieldNames("", "", "", "", influenceFieldNames);
     factory.features(function_t::features(function_t::E_IndividualRare));
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-    BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p1", gatherer, 1));
-    BOOST_REQUIRE_EQUAL(std::size_t(1), this->addPerson("p2", gatherer, 1));
-    BOOST_REQUIRE_EQUAL(std::size_t(2), this->addPerson("p3", gatherer, 1));
-    BOOST_REQUIRE_EQUAL(std::size_t(3), this->addPerson("p4", gatherer, 1));
-    BOOST_REQUIRE_EQUAL(std::size_t(4), this->addPerson("p5", gatherer, 1));
+    BOOST_REQUIRE_EQUAL(0, this->addPerson("p1", gatherer, 1));
+    BOOST_REQUIRE_EQUAL(1, this->addPerson("p2", gatherer, 1));
+    BOOST_REQUIRE_EQUAL(2, this->addPerson("p3", gatherer, 1));
+    BOOST_REQUIRE_EQUAL(3, this->addPerson("p4", gatherer, 1));
+    BOOST_REQUIRE_EQUAL(4, this->addPerson("p5", gatherer, 1));
     CModelFactory::TModelPtr modelHolder(factory.makeModel(gatherer));
     CEventRateModel* model = dynamic_cast<CEventRateModel*>(modelHolder.get());
     BOOST_TEST_REQUIRE(model);
@@ -1949,7 +1944,7 @@ BOOST_FIXTURE_TEST_CASE(testRareWithInfluence, CTestFixture) {
     }
 
     // We expect "p1 = p2 = p3 = p4 >> p5".
-    BOOST_REQUIRE_EQUAL(std::size_t(5), probabilities.size());
+    BOOST_REQUIRE_EQUAL(5, probabilities.size());
     BOOST_REQUIRE_EQUAL(probabilities[0], probabilities[1]);
     BOOST_REQUIRE_EQUAL(probabilities[1], probabilities[2]);
     BOOST_REQUIRE_EQUAL(probabilities[2], probabilities[3]);
@@ -1957,7 +1952,7 @@ BOOST_FIXTURE_TEST_CASE(testRareWithInfluence, CTestFixture) {
 
     // Expect the influence for this anomaly to be "INF1":"inf2"
     LOG_DEBUG(<< core::CContainerPrinter::print(lastInfluencersResult));
-    BOOST_REQUIRE_EQUAL(std::size_t(1), lastInfluencersResult.size());
+    BOOST_REQUIRE_EQUAL(1, lastInfluencersResult.size());
     BOOST_TEST_REQUIRE(lastInfluencersResult[0].second > 0.75);
     BOOST_REQUIRE_EQUAL(std::string("IF1"), *lastInfluencersResult[0].first.first);
     BOOST_REQUIRE_EQUAL(std::string("inf2"), *lastInfluencersResult[0].first.second);
@@ -2003,8 +1998,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     CEventRateModel* modelNoGap = dynamic_cast<CEventRateModel*>(modelNoGap_.get());
     for (std::size_t i = 0u; i < 2; ++i) {
         BOOST_REQUIRE_EQUAL(
-            std::size_t(i),
-            this->addPerson("p" + core::CStringUtils::typeToString(i + 1), gathererNoGap));
+            i, this->addPerson("p" + core::CStringUtils::typeToString(i + 1), gathererNoGap));
     }
 
     // p1: |1|1|1|
@@ -2025,8 +2019,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     CEventRateModel* modelWithGap = dynamic_cast<CEventRateModel*>(modelWithGap_.get());
     for (std::size_t i = 0u; i < 2; ++i) {
         BOOST_REQUIRE_EQUAL(
-            std::size_t(i),
-            this->addPerson("p" + core::CStringUtils::typeToString(i + 1), gathererWithGap));
+            i, this->addPerson("p" + core::CStringUtils::typeToString(i + 1), gathererWithGap));
     }
 
     // p1: |1|1|0|0|0|0|0|0|0|0|1|1|
@@ -2046,7 +2039,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
 
     // Check prune does not remove people because last seen times are updated by adding gap duration
     modelWithGap->prune(maxAgeBuckets);
-    BOOST_REQUIRE_EQUAL(std::size_t(2), gathererWithGap->numberActivePeople());
+    BOOST_REQUIRE_EQUAL(2, gathererWithGap->numberActivePeople());
 
     this->addArrival(*gathererWithGap, 1000, "p1");
     modelWithGap->sample(1000, 1100, m_ResourceMonitor);
@@ -2075,11 +2068,11 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     modelWithGap->sample(1200, 1500, m_ResourceMonitor);
     modelWithGap->prune(maxAgeBuckets);
     // Age at this point will be 500 and since it's equal to maxAge it should still be here
-    BOOST_REQUIRE_EQUAL(std::size_t(2), gathererWithGap->numberActivePeople());
+    BOOST_REQUIRE_EQUAL(2, gathererWithGap->numberActivePeople());
     modelWithGap->sample(1500, 1600, m_ResourceMonitor);
     modelWithGap->prune(maxAgeBuckets);
     // Age at this point will be 600 so it should get pruned
-    BOOST_REQUIRE_EQUAL(std::size_t(1), gathererWithGap->numberActivePeople());
+    BOOST_REQUIRE_EQUAL(1, gathererWithGap->numberActivePeople());
 }
 
 BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
@@ -2198,7 +2191,7 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrections, CTestFixture) {
     core_t::TTime now{startTime};
     TDoubleVec samples(3, 0.0);
     while (now < endTime) {
-        rng.generateUniformSamples(50.0, 70.0, std::size_t(3), samples);
+        rng.generateUniformSamples(50.0, 70.0, 3, samples);
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
             this->addArrival(*m_Gatherer, now, "p1");
         }
@@ -2323,7 +2316,7 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrectionsWithCorrelations, CTestFixture) {
     test::CRandomNumbers rng;
     TDoubleVec samples(1, 0.0);
     while (now < endTime) {
-        rng.generateUniformSamples(80.0, 100.0, std::size_t(1), samples);
+        rng.generateUniformSamples(80.0, 100.0, 1, samples);
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
             this->addArrival(*m_Gatherer, now, "p1");
         }
@@ -2467,7 +2460,7 @@ BOOST_FIXTURE_TEST_CASE(testComputeProbabilityGivenDetectionRule, CTestFixture) 
     core_t::TTime now = startTime;
     TDoubleVec samples(1, 0.0);
     while (now < endTime) {
-        rng.generateUniformSamples(50.0, 70.0, std::size_t(1), samples);
+        rng.generateUniformSamples(50.0, 70.0, 1, samples);
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
             this->addArrival(*m_Gatherer, now, "p1");
         }

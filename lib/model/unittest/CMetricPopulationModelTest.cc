@@ -538,7 +538,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     time += bucketLength;
     processBucket(time, bucketLength, b10, *m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability < 0.1);
-    BOOST_REQUIRE_EQUAL(std::size_t(1), annotatedProbability.s_Influences.size());
+    BOOST_REQUIRE_EQUAL(1, annotatedProbability.s_Influences.size());
     BOOST_REQUIRE_EQUAL(std::string("I"),
                         *annotatedProbability.s_Influences[0].first.first);
     BOOST_REQUIRE_EQUAL(std::string("i2"),

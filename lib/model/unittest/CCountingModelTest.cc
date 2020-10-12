@@ -77,7 +77,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
         CModelFactory::TModelPtr modelNoGap;
         this->makeModelT<CCountingModelFactory>(
             params, features, startTime, model_t::E_Counting, gathererNoGap, modelNoGap);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gathererNoGap));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gathererNoGap));
 
         // |2|2|0|0|1| -> 1.0 mean count
         this->addArrival(*gathererNoGap, 100, "p");
@@ -99,7 +99,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
         this->makeModelT<CCountingModelFactory>(params, features, startTime,
                                                 model_t::E_Counting,
                                                 gathererWithGap, modelWithGap);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gathererWithGap));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gathererWithGap));
 
         // |2|2|0|0|1|
         // |2|X|X|X|1| -> 1.5 mean count where X means skipped bucket
@@ -110,7 +110,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
         this->addArrival(*gathererWithGap, 280, "p");
         modelWithGap->skipSampling(500);
         modelWithGap->prune(maxAgeBuckets);
-        BOOST_REQUIRE_EQUAL(std::size_t(1), gathererWithGap->numberActivePeople());
+        BOOST_REQUIRE_EQUAL(1, gathererWithGap->numberActivePeople());
         this->addArrival(*gathererWithGap, 500, "p");
         modelWithGap->sample(500, 600, m_ResourceMonitor);
 
@@ -141,7 +141,7 @@ BOOST_FIXTURE_TEST_CASE(testCheckScheduledEvents, CTestFixture) {
         this->makeModel(params, features, startTime);
         CCountingModel* modelNoGap = dynamic_cast<CCountingModel*>(m_Model.get());
         BOOST_TEST_REQUIRE(modelNoGap);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", m_Gatherer));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
         SModelParams::TStrDetectionRulePrVec matchedEvents =
             modelNoGap->checkScheduledEvents(50);
@@ -186,7 +186,7 @@ BOOST_FIXTURE_TEST_CASE(testCheckScheduledEvents, CTestFixture) {
         this->makeModel(params, features, startTime);
         CCountingModel* modelNoGap = dynamic_cast<CCountingModel*>(m_Model.get());
         BOOST_TEST_REQUIRE(modelNoGap);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", m_Gatherer));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
         // There are no events at this time
         modelNoGap->sampleBucketStatistics(0, 100, m_ResourceMonitor);
@@ -224,8 +224,8 @@ BOOST_FIXTURE_TEST_CASE(testInterimBucketCorrector, CTestFixture) {
     CCountingModel* model = dynamic_cast<CCountingModel*>(m_Model.get());
     BOOST_TEST_REQUIRE(model);
 
-    BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p1", m_Gatherer));
-    BOOST_REQUIRE_EQUAL(std::size_t(1), this->addPerson("p2", m_Gatherer));
+    BOOST_REQUIRE_EQUAL(0, this->addPerson("p1", m_Gatherer));
+    BOOST_REQUIRE_EQUAL(1, this->addPerson("p2", m_Gatherer));
 
     test::CRandomNumbers rng;
 
