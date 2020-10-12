@@ -20,7 +20,7 @@ if [ `uname -m` != x86_64 ] ; then
     exit 1
 fi
 
-HOST=push.docker.elastic.co
+HOST=docker.elastic.co
 ACCOUNT=ml-dev
 REPOSITORY=ml-linux-build
 VERSION=15

@@ -53,6 +53,7 @@ public:
                       core_t::TTime& persistInterval,
                       std::size_t& bucketPersistInterval,
                       core_t::TTime& maxQuantileInterval,
+                      core_t::TTime& namedPipeConnectTimeout,
                       std::string& inputFileName,
                       bool& isInputFileNamedPipe,
                       std::string& outputFileName,

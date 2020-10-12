@@ -5,7 +5,6 @@
  */
 
 #include <core/CContainerPrinter.h>
-#include <core/CLogger.h>
 #include <core/CoreTypes.h>
 
 #include <model/CCountingModel.h>
@@ -18,6 +17,8 @@
 
 #include <test/CRandomNumbers.h>
 
+#include "CModelTestFixtureBase.h"
+
 #include <boost/test/unit_test.hpp>
 
 #include <string>
@@ -28,61 +29,33 @@ BOOST_AUTO_TEST_SUITE(CCountingModelTest)
 using namespace ml;
 using namespace model;
 
-namespace {
-std::size_t addPerson(const std::string& p,
-                      const CModelFactory::TDataGathererPtr& gatherer,
-                      CResourceMonitor& resourceMonitor) {
-    CDataGatherer::TStrCPtrVec person;
-    person.push_back(&p);
-    CEventData result;
-    gatherer->processFields(person, result, resourceMonitor);
-    return *result.personId();
-}
-
-void addArrival(CDataGatherer& gatherer,
-                CResourceMonitor& resourceMonitor,
-                core_t::TTime time,
-                const std::string& person) {
-    CDataGatherer::TStrCPtrVec fieldValues;
-    fieldValues.push_back(&person);
-
-    CEventData eventData;
-    eventData.time(time);
-    gatherer.addArrival(fieldValues, eventData, resourceMonitor);
-}
-
-SModelParams::TStrDetectionRulePr
-makeScheduledEvent(const std::string& description, double start, double end) {
-    CRuleCondition conditionGte;
-    conditionGte.appliesTo(CRuleCondition::E_Time);
-    conditionGte.op(CRuleCondition::E_GTE);
-    conditionGte.value(start);
-    CRuleCondition conditionLt;
-    conditionLt.appliesTo(CRuleCondition::E_Time);
-    conditionLt.op(CRuleCondition::E_LT);
-    conditionLt.value(end);
-
-    CDetectionRule rule;
-    rule.action(CDetectionRule::E_SkipModelUpdate);
-    rule.addCondition(conditionGte);
-    rule.addCondition(conditionLt);
-
-    SModelParams::TStrDetectionRulePr event = std::make_pair(description, rule);
-    return event;
-}
-
-const std::string EMPTY_STRING;
-}
-
-class CTestFixture {
+class CTestFixture : public CModelTestFixtureBase {
 protected:
-    CResourceMonitor m_ResourceMonitor;
+    SModelParams::TStrDetectionRulePr
+    makeScheduledEvent(const std::string& description, double start, double end) {
+        CRuleCondition conditionGte;
+        conditionGte.appliesTo(CRuleCondition::E_Time);
+        conditionGte.op(CRuleCondition::E_GTE);
+        conditionGte.value(start);
+        CRuleCondition conditionLt;
+        conditionLt.appliesTo(CRuleCondition::E_Time);
+        conditionLt.op(CRuleCondition::E_LT);
+        conditionLt.value(end);
+
+        CDetectionRule rule;
+        rule.action(CDetectionRule::E_SkipModelUpdate);
+        rule.addCondition(conditionGte);
+        rule.addCondition(conditionLt);
+
+        SModelParams::TStrDetectionRulePr event = std::make_pair(description, rule);
+        return event;
+    }
 };
 
 BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
-    core_t::TTime startTime(100);
-    core_t::TTime bucketLength(100);
-    std::size_t maxAgeBuckets(1);
+    core_t::TTime startTime{100};
+    core_t::TTime bucketLength{100};
+    std::size_t maxAgeBuckets{1};
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
@@ -96,20 +69,20 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
         CModelFactory::SGathererInitializationData gathererNoGapInitData(startTime);
         CModelFactory::TDataGathererPtr gathererNoGap(
             factory.makeDataGatherer(gathererNoGapInitData));
-        BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p", gathererNoGap, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gathererNoGap));
         CModelFactory::SModelInitializationData modelNoGapInitData(gathererNoGap);
         CAnomalyDetectorModel::TModelPtr modelHolderNoGap(factory.makeModel(modelNoGapInitData));
         CCountingModel* modelNoGap =
             dynamic_cast<CCountingModel*>(modelHolderNoGap.get());
 
         // |2|2|0|0|1| -> 1.0 mean count
-        addArrival(*gathererNoGap, m_ResourceMonitor, 100, "p");
-        addArrival(*gathererNoGap, m_ResourceMonitor, 110, "p");
+        this->addArrival(*gathererNoGap, 100, "p");
+        this->addArrival(*gathererNoGap, 110, "p");
         modelNoGap->sample(100, 200, m_ResourceMonitor);
-        addArrival(*gathererNoGap, m_ResourceMonitor, 250, "p");
-        addArrival(*gathererNoGap, m_ResourceMonitor, 280, "p");
+        this->addArrival(*gathererNoGap, 250, "p");
+        this->addArrival(*gathererNoGap, 280, "p");
         modelNoGap->sample(200, 500, m_ResourceMonitor);
-        addArrival(*gathererNoGap, m_ResourceMonitor, 500, "p");
+        this->addArrival(*gathererNoGap, 500, "p");
         modelNoGap->sample(500, 600, m_ResourceMonitor);
 
         BOOST_REQUIRE_EQUAL(1.0, *modelNoGap->baselineBucketCount(0));
@@ -120,8 +93,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
         CModelFactory::SGathererInitializationData gathererWithGapInitData(startTime);
         CModelFactory::TDataGathererPtr gathererWithGap(
             factory.makeDataGatherer(gathererWithGapInitData));
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            addPerson("p", gathererWithGap, m_ResourceMonitor));
+        BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gathererWithGap));
         CModelFactory::SModelInitializationData modelWithGapInitData(gathererWithGap);
         CAnomalyDetectorModel::TModelPtr modelHolderWithGap(
             factory.makeModel(modelWithGapInitData));
@@ -130,15 +102,15 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
 
         // |2|2|0|0|1|
         // |2|X|X|X|1| -> 1.5 mean count where X means skipped bucket
-        addArrival(*gathererWithGap, m_ResourceMonitor, 100, "p");
-        addArrival(*gathererWithGap, m_ResourceMonitor, 110, "p");
+        this->addArrival(*gathererWithGap, 100, "p");
+        this->addArrival(*gathererWithGap, 110, "p");
         modelWithGap->sample(100, 200, m_ResourceMonitor);
-        addArrival(*gathererWithGap, m_ResourceMonitor, 250, "p");
-        addArrival(*gathererWithGap, m_ResourceMonitor, 280, "p");
+        this->addArrival(*gathererWithGap, 250, "p");
+        this->addArrival(*gathererWithGap, 280, "p");
         modelWithGap->skipSampling(500);
         modelWithGap->prune(maxAgeBuckets);
         BOOST_REQUIRE_EQUAL(std::size_t(1), gathererWithGap->numberActivePeople());
-        addArrival(*gathererWithGap, m_ResourceMonitor, 500, "p");
+        this->addArrival(*gathererWithGap, 500, "p");
         modelWithGap->sample(500, 600, m_ResourceMonitor);
 
         BOOST_REQUIRE_EQUAL(1.5, *modelWithGap->baselineBucketCount(0));
@@ -146,15 +118,17 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testCheckScheduledEvents, CTestFixture) {
-    core_t::TTime startTime(100);
-    core_t::TTime bucketLength(100);
+    core_t::TTime startTime{100};
+    core_t::TTime bucketLength{100};
 
     SModelParams params(bucketLength);
-    SModelParams::TStrDetectionRulePrVec events;
-    events.push_back(makeScheduledEvent("first event", 200, 300));
-    events.push_back(makeScheduledEvent("long event", 400, 1000));
-    events.push_back(makeScheduledEvent("masked event", 600, 800));
-    events.push_back(makeScheduledEvent("overlapping event", 900, 1100));
+
+    SModelParams::TStrDetectionRulePrVec events{
+        makeScheduledEvent("first event", 200, 300),
+        makeScheduledEvent("long event", 400, 1000),
+        makeScheduledEvent("masked event", 600, 800),
+        makeScheduledEvent("overlapping event", 900, 1100)};
+
     params.s_ScheduledEvents = std::cref(events);
     auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
 
@@ -166,7 +140,7 @@ BOOST_FIXTURE_TEST_CASE(testCheckScheduledEvents, CTestFixture) {
         CModelFactory::SGathererInitializationData gathererNoGapInitData(startTime);
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererNoGapInitData));
         CModelFactory::SModelInitializationData modelNoGapInitData(gatherer);
-        addArrival(*gatherer, m_ResourceMonitor, 200, "p");
+        this->addArrival(*gatherer, 200, "p");
 
         CAnomalyDetectorModel::TModelPtr modelHolderNoGap(factory.makeModel(modelNoGapInitData));
         CCountingModel* modelNoGap =
@@ -215,7 +189,7 @@ BOOST_FIXTURE_TEST_CASE(testCheckScheduledEvents, CTestFixture) {
         CModelFactory::SGathererInitializationData gathererNoGapInitData(startTime);
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererNoGapInitData));
         CModelFactory::SModelInitializationData modelNoGapInitData(gatherer);
-        addArrival(*gatherer, m_ResourceMonitor, 100, "p");
+        this->addArrival(*gatherer, 100, "p");
 
         CAnomalyDetectorModel::TModelPtr modelHolderNoGap(factory.makeModel(modelNoGapInitData));
         CCountingModel* modelNoGap =
@@ -247,11 +221,8 @@ BOOST_FIXTURE_TEST_CASE(testCheckScheduledEvents, CTestFixture) {
 BOOST_FIXTURE_TEST_CASE(testInterimBucketCorrector, CTestFixture) {
     // Check that we correctly update estimate bucket completeness.
 
-    using TSizeVec = std::vector<std::size_t>;
-    using TDoubleVec = std::vector<double>;
-
-    core_t::TTime time(0);
-    core_t::TTime bucketLength(600);
+    core_t::TTime time{0};
+    core_t::TTime bucketLength{600};
 
     SModelParams params(bucketLength);
     params.s_DecayRate = 0.001;
@@ -262,8 +233,8 @@ BOOST_FIXTURE_TEST_CASE(testInterimBucketCorrector, CTestFixture) {
 
     CModelFactory::SGathererInitializationData gathererInitData(time);
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
-    BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p1", gatherer, m_ResourceMonitor));
-    BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson("p2", gatherer, m_ResourceMonitor));
+    BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p1", gatherer));
+    BOOST_REQUIRE_EQUAL(std::size_t(1), this->addPerson("p2", gatherer));
     CModelFactory::SModelInitializationData modelInitData(gatherer);
     CAnomalyDetectorModel::TModelPtr modelHolder(factory.makeModel(modelInitData));
     CCountingModel* model{dynamic_cast<CCountingModel*>(modelHolder.get())};
@@ -273,14 +244,13 @@ BOOST_FIXTURE_TEST_CASE(testInterimBucketCorrector, CTestFixture) {
     TDoubleVec uniform01;
     TSizeVec offsets;
 
-    for (std::size_t i = 0; i < 10; ++i, time += bucketLength) {
+    for (std::size_t i = 0u; i < 10; ++i, time += bucketLength) {
         rng.generateUniformSamples(0, bucketLength, 10, offsets);
         std::sort(offsets.begin(), offsets.end());
         for (auto offset : offsets) {
             rng.generateUniformSamples(0.0, 1.0, 1, uniform01);
-            addArrival(*gatherer, m_ResourceMonitor,
-                       time + static_cast<core_t::TTime>(offset),
-                       uniform01[0] < 0.5 ? "p1" : "p2");
+            this->addArrival(*gatherer, time + static_cast<core_t::TTime>(offset),
+                             uniform01[0] < 0.5 ? "p1" : "p2");
         }
         model->sample(time, time + bucketLength, m_ResourceMonitor);
     }
@@ -288,11 +258,10 @@ BOOST_FIXTURE_TEST_CASE(testInterimBucketCorrector, CTestFixture) {
     rng.generateUniformSamples(0, bucketLength, 10, offsets);
     std::sort(offsets.begin(), offsets.end());
 
-    for (std::size_t i = 0; i < offsets.size(); ++i) {
+    for (std::size_t i = 0u; i < offsets.size(); ++i) {
         rng.generateUniformSamples(0.0, 1.0, 1, uniform01);
-        addArrival(*gatherer, m_ResourceMonitor,
-                   time + static_cast<core_t::TTime>(offsets[i]),
-                   uniform01[0] < 0.5 ? "p1" : "p2");
+        this->addArrival(*gatherer, time + static_cast<core_t::TTime>(offsets[i]),
+                         uniform01[0] < 0.5 ? "p1" : "p2");
         model->sampleBucketStatistics(time, time + bucketLength, m_ResourceMonitor);
         BOOST_REQUIRE_EQUAL(static_cast<double>(i + 1) / 10.0,
                             interimBucketCorrector->completeness());

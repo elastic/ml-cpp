@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE(testMemoryLimitHandling) {
         test::CDataFrameAnalysisSpecificationFactory{}
             .rows(numberSamples)
             .predictionMaximumNumberTrees(2)
-            .memoryLimit(10)
+            .memoryLimit(1000)
             .predicitionNumberRoundsPerHyperparameter(1)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
         outputWriterFactory};

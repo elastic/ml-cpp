@@ -50,7 +50,7 @@ void CModelSizeStatsJsonWriter::write(const std::string& jobId,
     writer.Uint64(results.s_AdjustedUsage);
 
     writer.Key(PEAK_MODEL_BYTES);
-    writer.Uint64(results.s_PeakUsage);
+    writer.Uint64(results.s_AdjustedPeakUsage);
 
     writer.Key(MODEL_BYTES_EXCEEDED);
     writer.Uint64(results.s_BytesExceeded);

@@ -37,6 +37,7 @@ public:
                       char& delimiter,
                       bool& lengthEncodedInput,
                       core_t::TTime& persistInterval,
+                      core_t::TTime& namedPipeConnectTimeout,
                       std::string& inputFileName,
                       bool& isInputFileNamedPipe,
                       std::string& outputFileName,

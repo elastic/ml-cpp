@@ -24,6 +24,7 @@ bool CCmdLineParser::parse(int argc,
                            std::string& logPipe,
                            core_t::TTime& bucketSpan,
                            bool& lengthEncodedInput,
+                           core_t::TTime& namedPipeConnectTimeout,
                            std::string& inputFileName,
                            bool& isInputFileNamedPipe,
                            std::string& outputFileName,
@@ -38,27 +39,29 @@ bool CCmdLineParser::parse(int argc,
             ("help", "Display this information and exit")
             ("version", "Display version information and exit")
             ("modelconfig", boost::program_options::value<std::string>(),
-                        "Optional model config file")
+                    "Optional model config file")
             ("logProperties", boost::program_options::value<std::string>(),
-                        "Optional logger properties file")
+                    "Optional logger properties file")
             ("logPipe", boost::program_options::value<std::string>(),
-                        "Optional log to named pipe")
+                    "Optional log to named pipe")
             ("bucketspan", boost::program_options::value<core_t::TTime>(),
-                        "Optional aggregation bucket span (in seconds) - default is 300")
+                    "Optional aggregation bucket span (in seconds) - default is 300")
             ("lengthEncodedInput",
-                        "Take input in length encoded binary format - default is CSV")
+                    "Take input in length encoded binary format - default is CSV")
+            ("namedPipeConnectTimeout", boost::program_options::value<core_t::TTime>(),
+                    "Optional timeout (in seconds) for connecting named pipes on startup - default is 300 seconds")
             ("input", boost::program_options::value<std::string>(),
-                        "Optional file to read input from - not present means read from STDIN")
+                    "Optional file to read input from - not present means read from STDIN")
             ("inputIsPipe", "Specified input file is a named pipe")
             ("output", boost::program_options::value<std::string>(),
-                        "Optional file to write output to - not present means write to STDOUT")
+                    "Optional file to write output to - not present means write to STDOUT")
             ("outputIsPipe", "Specified output file is a named pipe")
             ("quantilesState", boost::program_options::value<std::string>(),
-                        "Optional file to initialization data for normalization (in JSON)")
+                    "Optional file to initialization data for normalization (in JSON)")
             ("deleteStateFiles",
-                        "If this flag is set then delete the normalizer state files once they have been read")
+                    "If this flag is set then delete the normalizer state files once they have been read")
             ("writeCsv",
-                        "Write the results in CSV format (default is ND-JSON)")
+                    "Write the results in CSV format (default is ND-JSON)")
         ;
         // clang-format on
 
@@ -89,6 +92,9 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("lengthEncodedInput") > 0) {
             lengthEncodedInput = true;
+        }
+        if (vm.count("namedPipeConnectTimeout") > 0) {
+            namedPipeConnectTimeout = vm["namedPipeConnectTimeout"].as<core_t::TTime>();
         }
         if (vm.count("input") > 0) {
             inputFileName = vm["input"].as<std::string>();

@@ -3,12 +3,11 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#ifndef INCLUDED_ml_controller_CBlockingCallCancellerThread_h
-#define INCLUDED_ml_controller_CBlockingCallCancellerThread_h
+#ifndef INCLUDED_ml_controller_CBlockingCallCancellingStreamMonitor_h
+#define INCLUDED_ml_controller_CBlockingCallCancellingStreamMonitor_h
 
-#include <core/CThread.h>
+#include <core/CBlockingCallCancellerThread.h>
 
-#include <atomic>
 #include <iosfwd>
 
 namespace ml {
@@ -35,36 +34,22 @@ namespace controller {
 //! but will be blocked opening one of the named pipes.  The blocking call
 //! needs to be cancelled to allow this process to exit gracefully.
 //!
-class CBlockingCallCancellerThread : public core::CThread {
+class CBlockingCallCancellingStreamMonitor : public core::CBlockingCallCancellerThread {
 public:
-    CBlockingCallCancellerThread(core::CThread::TThreadId potentiallyBlockedThreadId,
-                                 std::istream& monitorStream);
-
-    const std::atomic_bool& hasCancelledBlockingCall() const;
+    CBlockingCallCancellingStreamMonitor(core::CThread::TThreadId potentiallyBlockedThreadId,
+                                         std::istream& monitorStream);
 
 protected:
-    //! Called when the thread is started.
-    void run() override;
+    //! Waits for end-of-file on the stream being monitored.
+    void waitForCondition() override;
 
-    //! Called when the thread is stopped.
-    void shutdown() override;
+    //! Interrupts the wait for end-of-file.
+    void stopWaitForCondition() override;
 
 private:
-    //! Thread ID of the thread that this object will cancel blocking IO in
-    //! if it detects end-of-file on its input stream.
-    core::CThread::TThreadId m_PotentiallyBlockedThreadId;
-
-    //! Stream to monitor for end-of-file.
     std::istream& m_MonitorStream;
-
-    //! Flag to indicate the monitoring thread should shut down
-    std::atomic_bool m_Shutdown;
-
-    //! Flag to indicate that an attempt to cancel blocking calls in the
-    //! monitored thread has been made
-    std::atomic_bool m_HasCancelledBlockingCall;
 };
 }
 }
 
-#endif // INCLUDED_ml_controller_CBlockingCallCancellerThread_h
+#endif // INCLUDED_ml_controller_CBlockingCallCancellingStreamMonitor_h

@@ -45,11 +45,22 @@
 
 * Calculate total feature importance to store with model metadata. (See {ml-pull}1387[#1387].)
 * Change outlier detection feature_influence format to array with nested objects. (See {ml-pull}1475[#1475], {es-pull}62068[#62068].)
+* Add timeouts to named pipe connections. (See {ml-pull}1514[#1514], {es-pull}62993[#62993], issue: {ml-issue}1504[#1504].)
 
 === Bug Fixes
 
 * Fix progress on resume after final training has completed for classification and regression.
   We previously showed progress stuck at zero for final training. (See {ml-pull}1443[#1443].)
+* Avoid potential "Failed to compute quantile" and "No values added to quantile sketch" log errors
+  training regression and classification models if there are features with mostly missing values.
+  (See {ml-pull}1500[#1500].)
+
+== {es} version 7.9.2
+
+=== Bug Fixes
+
+* Fix reporting of peak memory usage in memory stats for data frame analytics. (See {ml-pull}1468[#1468].)
+* Fix reporting of peak memory usage in model size stats for anomaly detection. (See {ml-pull}1484[#1484].)
 
 == {es} version 7.9.0
 
