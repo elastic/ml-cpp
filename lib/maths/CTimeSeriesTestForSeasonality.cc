@@ -645,9 +645,8 @@ void CTimeSeriesTestForSeasonality::addModelled(const TRemoveTrend& removeTrend,
         this->removePredictions({m_Periods, 0, m_Periods.size()},
                                 {m_Components, 0, m_Components.size()}, m_TemporaryValues);
         auto diurnal = std::make_tuple(this->day(), this->week(), this->year());
-        auto unit = [](std::size_t) { return 1.0; };
         for (const auto& period : CSignal::seasonalDecomposition(
-                 m_TemporaryValues, m_OutlierFraction, diurnal, unit,
+                 m_TemporaryValues, m_OutlierFraction, diurnal,
                  m_StartOfWeekOverride, 0.05, m_MaximumNumberComponents)) {
             if (std::find_if(m_Periods.begin(), m_Periods.end(), [&](const auto& modelledPeriod) {
                     return modelledPeriod.periodAlmostEqual(period, 0.05);
@@ -724,9 +723,8 @@ void CTimeSeriesTestForSeasonality::addHighestAutocorrelation(const TRemoveTrend
     if (removeTrend({}, m_ValuesMinusTrend, m_ModelTrendSegments)) {
         m_TemporaryValues = m_ValuesMinusTrend;
         auto diurnal = std::make_tuple(this->day(), this->week(), this->year());
-        auto unit = [](std::size_t) { return 1.0; };
         m_CandidatePeriods = CSignal::seasonalDecomposition(
-            m_TemporaryValues, m_OutlierFraction, diurnal, unit,
+            m_TemporaryValues, m_OutlierFraction, diurnal,
             m_StartOfWeekOverride, 0.05, m_MaximumNumberComponents);
         this->removeIfNotTestable(m_CandidatePeriods);
         if (this->includesNewComponents(m_CandidatePeriods) &&

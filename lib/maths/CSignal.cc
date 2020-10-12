@@ -253,24 +253,6 @@ void CSignal::autocorrelations(const TFloatMeanAccumulatorVec& values,
     }
 }
 
-void CSignal::removeLinearTrend(TFloatMeanAccumulatorVec& values) {
-    using TRegression = CLeastSquaresOnlineRegression<1, double>;
-    TRegression trend;
-    double dt{10.0 / static_cast<double>(values.size())};
-    double time{0.0};
-    for (const auto& value : values) {
-        trend.add(time, CBasicStatistics::mean(value), CBasicStatistics::count(value));
-        time += dt;
-    }
-    time = 0.0;
-    for (auto& value : values) {
-        if (CBasicStatistics::count(value) > 0.0) {
-            CBasicStatistics::moment<0>(value) -= trend.predict(time);
-        }
-        time += dt;
-    }
-}
-
 CSignal::SSeasonalComponentSummary CSignal::seasonalComponentSummary(std::size_t period) {
     return {period, 0, period, TSizeSizePr{0, period}};
 }
@@ -284,7 +266,6 @@ CSignal::TSeasonalComponentVec
 CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
                                double outlierFraction,
                                const TSizeSizeSizeTr& diurnal,
-                               const TPeriodWeightFunc& weight,
                                TOptionalSize startOfWeekOverride,
                                double significantPValue,
                                std::size_t maxComponents) {
@@ -354,7 +335,7 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
                 meanCorrelation.add(correlations[offset - 1] * static_cast<double>(n) /
                                     static_cast<double>(n - offset));
             }
-            correlations[period - 1] = weight(period) * CBasicStatistics::mean(meanCorrelation);
+            correlations[period - 1] = CBasicStatistics::mean(meanCorrelation);
             LOG_TRACE(<< "correlation(" << period << ") = " << correlations[period - 1]);
         }
 
