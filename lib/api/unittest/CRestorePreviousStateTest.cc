@@ -70,7 +70,7 @@ const std::vector<SRestoreTestConfig> BWC_VERSIONS{
     SRestoreTestConfig{"6.5.0", false, false},
     SRestoreTestConfig{"7.1.0", false, false},
     SRestoreTestConfig{"7.3.0", false, false},
-    SRestoreTestConfig{"7.9.0", true, true}};
+    SRestoreTestConfig{"7.9.0", false, true}};
 
 std::string stripDocIds(const std::string& persistedState) {
     // State is persisted in the Elasticsearch bulk format.
@@ -217,8 +217,9 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
         BOOST_REQUIRE_EQUAL(stripDocIds(origPersistedState), stripDocIds(newPersistedState));
 #endif
     } else {
-        // Test that the persisted & the restored states are actually different.
-        BOOST_TEST_REQUIRE(stripDocIds(origPersistedState) != stripDocIds(newPersistedState));
+        // The equality of the state is undetermined. It is possible that a new
+        // field is only sometimes present at which point some state objects may
+        // be different and some may be the same.
     }
 }
 }
