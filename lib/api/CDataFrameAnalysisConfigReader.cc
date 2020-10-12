@@ -112,6 +112,17 @@ std::size_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::size_t val
     return m_Value->GetUint64();
 }
 
+std::ptrdiff_t CDataFrameAnalysisConfigReader::CParameter::fallback(std::ptrdiff_t value) const {
+    if (m_Value == nullptr) {
+        return value;
+    }
+    if (m_Value->IsInt64() == false) {
+        this->handleFatal();
+        return value;
+    }
+    return m_Value->GetInt64();
+}
+
 double CDataFrameAnalysisConfigReader::CParameter::fallback(double value) const {
     if (m_Value == nullptr) {
         return value;
