@@ -84,6 +84,8 @@ public:
         bool fallback(bool value) const;
         //! Get an unsigned integer parameter.
         std::size_t fallback(std::size_t value) const;
+        //! Get a signed integer parameter.
+        std::ptrdiff_t fallback(std::ptrdiff_t value) const;
         //! Get a floating point parameter.
         double fallback(double value) const;
         //! Get a string parameter.
