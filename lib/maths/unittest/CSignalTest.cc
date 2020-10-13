@@ -1028,17 +1028,11 @@ BOOST_AUTO_TEST_CASE(testMultipleDiurnalSeasonalDecomposition) {
         rng.generateUniformSamples(0, 168, 1, offset);
         const auto& amplitude = amplitudes[test % amplitudes.size()];
 
-        // clang-format off
-        std::string expectedDecomposition[]{
-            "[24/" + std::to_string(offset[0]) + "/168/(0, 48)," +
-            " 24/" + std::to_string(offset[0]) + "/168/(48, 168)]",
-            "[24/" + std::to_string(offset[0]) + "/168/(0, 48)," +
-            " 24/" + std::to_string(offset[0]) + "/168/(48, 168)," +
-            " 168/" + std::to_string(offset[0]) + "/168/(48, 168)]",
-            "[24/" + std::to_string(offset[0]) + "/168/(0, 48)," +
-            " 24/" + std::to_string(offset[0]) + "/168/(48, 168)," +
-            " 168/" + std::to_string(offset[0]) + "/168/(0, 48)]"};
-        // clang-format on
+        std::string expectedDecomposition{
+            "[24/" + std::to_string(offset[0]) + "/168/(0, 48)," + " 24/" +
+            std::to_string(offset[0]) + "/168/(48, 168)," + " 168/" +
+            std::to_string(offset[0]) + "/168/(0, 48)," + " 168/" +
+            std::to_string(offset[0]) + "/168/(48, 168)]"};
 
         auto component = [&](std::size_t i) {
             i = (168 + i - offset[0]) % 168;
@@ -1056,7 +1050,7 @@ BOOST_AUTO_TEST_CASE(testMultipleDiurnalSeasonalDecomposition) {
         auto decomposition = maths::CSignal::seasonalDecomposition(
             values, 0.0, {24, 7 * 24, 365 * 24}, {}, 1e-6);
 
-        BOOST_REQUIRE_EQUAL(expectedDecomposition[test % std::size(expectedDecomposition)],
+        BOOST_REQUIRE_EQUAL(expectedDecomposition,
                             core::CContainerPrinter::print(decomposition));
     }
 }
@@ -1081,18 +1075,11 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
         rng.generateUniformSamples(0, 168, 1, offset);
         const auto& modulation = modulations[test % modulations.size()];
 
-        // clang-format off
-        std::string expectedDecomposition[]{
-            "[]",
-            "[24/" + std::to_string(offset[0]) + "/168/(0, 48)," +
-            " 24/" + std::to_string(offset[0]) + "/168/(48, 168)]",
-            "[24/" + std::to_string(offset[0]) + "/168/(0, 48)," +
-            " 24/" + std::to_string(offset[0]) + "/168/(48, 168)," +
-            " 168/" + std::to_string(offset[0]) + "/168/(48, 168)]",
-            "[24/" + std::to_string(offset[0]) + "/168/(0, 48)," +
-            " 24/" + std::to_string(offset[0]) + "/168/(48, 168)," +
-            " 168/" + std::to_string(offset[0]) + "/168/(0, 48)]"};
-        // clang-format on
+        std::string expectedDecomposition{
+            "[24/" + std::to_string(offset[0]) + "/168/(0, 48)," + " 24/" +
+            std::to_string(offset[0]) + "/168/(48, 168)," + " 168/" +
+            std::to_string(offset[0]) + "/168/(0, 48)," + " 168/" +
+            std::to_string(offset[0]) + "/168/(48, 168)]"};
 
         auto component = [&](std::size_t i) {
             i = (168 + i - offset[0]) % 168;
@@ -1112,9 +1099,12 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
 
             auto decomposition = maths::CSignal::tradingDayDecomposition(
                 values, 0.0, 168, startOfWeekOverride, 1e-6);
-
-            BOOST_REQUIRE_EQUAL(expectedDecomposition[test % std::size(expectedDecomposition)],
-                                core::CContainerPrinter::print(decomposition));
+            if (test % 4 == 0) {
+                BOOST_REQUIRE(decomposition.empty());
+            } else {
+                BOOST_REQUIRE_EQUAL(expectedDecomposition,
+                                    core::CContainerPrinter::print(decomposition));
+            }
         }
     }
 }

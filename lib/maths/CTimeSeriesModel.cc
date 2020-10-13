@@ -12,6 +12,7 @@
 #include <core/RestoreMacros.h>
 #include <core/UnwrapRef.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CDecayRateController.h>
 #include <maths/CModelDetail.h>
@@ -1680,6 +1681,9 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAc
         }
     }
 
+    // Reset the multi-bucket residual model. We can't reinitialize this from
+    // the initial values because they are not typically at the granularity of
+    // the job's bucket length.
     if (m_MultibucketFeature != nullptr) {
         m_MultibucketFeature->clear();
     }
@@ -2997,6 +3001,9 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMean
         }
     }
 
+    // Reset the multi-bucket residual model. We can't reinitialize this from
+    // the initial values because they are not typically at the granularity of
+    // the job's bucket length.
     if (m_MultibucketFeature != nullptr) {
         m_MultibucketFeature->clear();
     }

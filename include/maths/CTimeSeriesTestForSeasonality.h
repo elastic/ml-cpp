@@ -358,6 +358,9 @@ private:
         //! Check if this is better than \p other.
         bool isBetter(const SHypothesisStats& other) const;
 
+        //! Check if we should evict an existing component from the model.
+        bool evict(const CTimeSeriesTestForSeasonality& params, std::size_t modelledIndex) const;
+
         //! The weight of this hypothesis for compouting decomposition properties.
         double weight() const;
 
@@ -436,13 +439,15 @@ private:
         bool isNull() const;
         //! Should this behave as an alternative hypothesis?
         bool isAlternative() const;
+        //! The similarity of the components after applying this hypothesis.
+        double componentsSimilarity() const;
         //! The p-value of this model vs H0.
         double pValue(const SModel& H0) const;
         //! A proxy for p-value of this model vs H0 which doesn't underflow.
         double logPValueProxy(const SModel& H0) const;
         //! Get the variance explained per parameter weighted by the variance explained
         //! by each component of the model.
-        TVector2x1 explainedVariancePerParameter(const SModel& H0) const;
+        TVector2x1 explainedVariancePerParameter(double variance, double truncatedVariance) const;
         //! The number of parameters in model.
         double numberParameters() const;
         //! The target model size.
@@ -486,8 +491,11 @@ private:
                                  const TSizeVec& modelTrendSegments,
                                  const TFloatMeanAccumulatorVec& valuesToTest,
                                  bool alreadyModelled,
+                                 bool isDiurnal,
                                  TModelVec& decompositions) const;
-    bool considerDecompositionForSelection(const SModel& decomposition) const;
+    bool considerDecompositionForSelection(const SModel& decomposition,
+                                           bool alreadyModelled,
+                                           bool isDiurnal) const;
     SModel testDecomposition(const TSeasonalComponentVec& periods,
                              std::size_t numberTrendSegments,
                              const TFloatMeanAccumulatorVec& valueToTest,

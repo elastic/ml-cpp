@@ -279,7 +279,7 @@ public:
     //! \param[in] maxComponents The maximum number of modelled components.
     //! \return A summary of the seasonal components found.
     static TSeasonalComponentVec
-    seasonalDecomposition(TFloatMeanAccumulatorVec& values,
+    seasonalDecomposition(const TFloatMeanAccumulatorVec& values,
                           double outlierFraction,
                           const TSizeSizeSizeTr& diurnal,
                           TOptionalSize startOfWeekOverride = TOptionalSize{},
@@ -300,7 +300,7 @@ public:
     //! \param[in] significantPValue The p-value at which to return a component.
     //! \return A summary of the best decomposition.
     static TSeasonalComponentVec
-    tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
+    tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
                             double outlierFraction,
                             std::size_t week,
                             TOptionalSize startOfWeekOverride = TOptionalSize{},

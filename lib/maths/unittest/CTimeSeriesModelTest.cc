@@ -251,55 +251,62 @@ public:
     static const bool ENABLED{false};
 
 public:
-    CChangeDebug(std::string file = "results.m") : m_File(file) {
+    CChangeDebug(std::string file = "results.py") : m_File(file) {
         if (ENABLED) {
-            m_Actual << "a = [";
-            m_ModelBounds << "p = [";
-            m_Forecast << "f = [";
+            m_ModelBounds.resize(3);
+            m_Forecast.resize(3);
         }
     }
     ~CChangeDebug() {
         if (ENABLED) {
             std::ofstream file;
             file.open(m_File);
-            file << m_Actual.str() << "];\n";
-            file << m_ModelBounds.str() << "];\n";
-            file << m_Forecast.str() << "];\n";
-            file << "hold on;\n";
-            file << "plot(a);\n";
-            file << "plot(p);\n";
-            file << "plot([rows(a)-rows(f)+1:rows(a)],f);\n";
+            file << "import matplotlib.pyplot as plt;\n";
+            file << "a = " << core::CContainerPrinter::print(m_Actual) << ";\n";
+            file << "plt.plot(a, 'b');\n";
+            for (std::size_t i = 0; i < 3; ++i) {
+                file << "p" << i << " = "
+                     << core::CContainerPrinter::print(m_ModelBounds[i]) << ";\n";
+                file << "f" << i << " = "
+                     << core::CContainerPrinter::print(m_Forecast[i]) << ";\n";
+                file << "plt.plot(p" << i << ", 'g');\n";
+                file << "plt.plot(range(len(a)-len(f" << i << "),len(a)),f" << i << ", 'r');\n";
+            }
+            file << "plt.show();\n";
         }
     }
     void addValue(double value) {
         if (ENABLED) {
-            m_Actual << value << std::endl;
+            m_Actual.push_back(value);
         }
     }
     void addValueAndPrediction(core_t::TTime time,
                                double value,
                                const maths::CUnivariateTimeSeriesModel& model) {
         if (ENABLED) {
-            m_Actual << value << std::endl;
+            m_Actual.push_back(value);
             auto x = model.confidenceInterval(
                 time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
             if (x.size() == 3) {
-                m_ModelBounds << x[0][0] << "," << x[1][0] << "," << x[2][0] << std::endl;
+                for (std::size_t i = 0; i < 3; ++i) {
+                    m_ModelBounds[i].push_back(x[0][i]);
+                }
             }
         }
     }
     void addForecast(const maths::SErrorBar& errorBar) {
         if (ENABLED) {
-            m_Forecast << errorBar.s_LowerBound << "," << errorBar.s_Predicted
-                       << "," << errorBar.s_UpperBound << std::endl;
+            m_Forecast[0].push_back(errorBar.s_LowerBound);
+            m_Forecast[1].push_back(errorBar.s_Predicted);
+            m_Forecast[2].push_back(errorBar.s_UpperBound);
         }
     }
 
 private:
     std::string m_File;
-    std::ostringstream m_Actual;
-    std::ostringstream m_ModelBounds;
-    std::ostringstream m_Forecast;
+    TDoubleVec m_Actual;
+    TDoubleVecVec m_ModelBounds;
+    TDoubleVecVec m_Forecast;
 };
 }
 
@@ -942,8 +949,8 @@ BOOST_AUTO_TEST_CASE(testPredict, *boost::unit_test::disabled()) {
         TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
         core_t::TTime time{0};
         for (auto sample : samples) {
-            sample += 10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
-                                            static_cast<double>(time) / 86400.0);
+            sample += 10.0 + 10.0 * std::sin(boost::math::double_constants::two_pi *
+                                             static_cast<double>(time) / 86400.0);
 
             model.addSamples(addSampleParams(weights),
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
@@ -960,8 +967,8 @@ BOOST_AUTO_TEST_CASE(testPredict, *boost::unit_test::disabled()) {
 
         TMeanAccumulator meanError;
         for (core_t::TTime time_ = time; time_ < time + 86400; time_ += 3600) {
-            double trend_{10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
-                                                static_cast<double>(time_) / 86400.0)};
+            double trend_{10.0 + 10.0 * std::sin(boost::math::double_constants::two_pi *
+                                                 static_cast<double>(time_) / 86400.0)};
             double expected{maths::CBasicStatistics::mean(trend.value(time_)) +
                             maths::CBasicStatistics::mean(
                                 prior.marginalLikelihoodConfidenceInterval(0.0))};
@@ -2050,7 +2057,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities, *boost::unit_test::disabled(
         maths::CUnivariateTimeSeriesModel model{modelParams(bucketLength), 0, trend,
                                                 univariateNormal(DECAY_RATE / 3.0),
                                                 &controllers};
-        CChangeDebug debug("prior_reinitialization.m");
+        CChangeDebug debug("prior_reinitialization.py");
 
         core_t::TTime time{0};
         TDoubleVec samples;
@@ -2076,7 +2083,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities, *boost::unit_test::disabled(
         maths::CUnivariateTimeSeriesModel model{modelParams(bucketLength), 0, trend,
                                                 univariateNormal(DECAY_RATE / 3.0),
                                                 &controllers};
-        CChangeDebug debug("piecewise_constant.m");
+        CChangeDebug debug("piecewise_constant.py");
 
         // Add some data to the model.
 
@@ -2146,7 +2153,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities, *boost::unit_test::disabled(
         auto controllers = decayRateControllers(1);
         maths::CUnivariateTimeSeriesModel model{modelParams(bucketLength), 0, trend,
                                                 univariateNormal(), &controllers};
-        CChangeDebug debug("saw_tooth.m");
+        CChangeDebug debug("saw_tooth.py");
 
         // Add some data to the model.
 

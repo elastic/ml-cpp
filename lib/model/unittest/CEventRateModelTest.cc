@@ -836,7 +836,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture, *boost::unit_test::disabled()) {
     // Check we find the correct correlated variables, and identify
     // correlate and marginal anomalies.
 

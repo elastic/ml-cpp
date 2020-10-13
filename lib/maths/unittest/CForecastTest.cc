@@ -270,8 +270,8 @@ BOOST_AUTO_TEST_CASE(testDailyNoLongTermTrend) {
     test.bucketLength(bucketLength)
         .daysToLearn(63)
         .noiseVariance(64.0)
-        .maximumPercentageOutOfBounds(14.0)
-        .maximumError(0.13)
+        .maximumPercentageOutOfBounds(12.0)
+        .maximumError(0.14)
         .run(trend);
 }
 
@@ -291,7 +291,7 @@ BOOST_AUTO_TEST_CASE(testDailyConstantLongTermTrend) {
     test.bucketLength(bucketLength)
         .daysToLearn(63)
         .noiseVariance(64.0)
-        .maximumPercentageOutOfBounds(14.0)
+        .maximumPercentageOutOfBounds(13.0)
         .maximumError(0.016)
         .run(trend);
 }
@@ -344,8 +344,8 @@ BOOST_AUTO_TEST_CASE(testComplexNoLongTermTrend) {
     test.bucketLength(bucketLength)
         .daysToLearn(63)
         .noiseVariance(24.0)
-        .maximumPercentageOutOfBounds(16.0)
-        .maximumError(0.15)
+        .maximumPercentageOutOfBounds(11.0)
+        .maximumError(0.14)
         .run(trend);
 }
 
@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE(testComplexConstantLongTermTrend) {
     test.bucketLength(bucketLength)
         .daysToLearn(63)
         .noiseVariance(24.0)
-        .maximumPercentageOutOfBounds(21.0)
+        .maximumPercentageOutOfBounds(8.0)
         .maximumError(0.02)
         .run(trend);
 }
@@ -403,8 +403,8 @@ BOOST_AUTO_TEST_CASE(testComplexVaryingLongTermTrend) {
     test.bucketLength(bucketLength)
         .daysToLearn(98)
         .noiseVariance(4.0)
-        .maximumPercentageOutOfBounds(8.0)
-        .maximumError(0.03)
+        .maximumPercentageOutOfBounds(7.0)
+        .maximumError(0.04)
         .run(trend);
 }
 

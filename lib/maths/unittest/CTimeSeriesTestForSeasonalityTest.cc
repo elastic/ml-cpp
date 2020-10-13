@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
     BOOST_REQUIRE(TN / (FP + TN) > 0.99);
 }
 
-BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
+BOOST_AUTO_TEST_CASE(testSyntheticDiurnal, *boost::unit_test::disabled()) {
 
     // Test accuracy for a variety of synthetic time series with daily and
     // weekly seasonalities.
@@ -574,7 +574,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticSparseWeekly) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
+BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers, *boost::unit_test::disabled()) {
 
     // Test synthetic timeseries data with pepper and salt outliers.
 
@@ -941,7 +941,8 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnalWithLinearTrend) {
     BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.93);
 }
 
-BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend) {
+BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend,
+                     *boost::unit_test::disabled()) {
 
     // Test the ability to correctly decompose a time series with diurnal seasonal
     // components and a piecewise linear trend.
@@ -1073,7 +1074,7 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithNoChange) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange) {
+BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange, *boost::unit_test::disabled()) {
 
     // Simulate the seasonal components having changed in the test window and
     // check that we correctly identify the new ones.

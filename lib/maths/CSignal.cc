@@ -53,8 +53,8 @@ void scale(double scale, TComplexVec& f) {
 
 //! Compute the radix 2 FFT of \p f in-place.
 void radix2fft(TComplexVec& f) {
-    // Perform the appropriate permutation of f(x) by swapping
-    // each i in [0, N] with its bit reversal.
+    // Perform the appropriate permutation of f(x) by swapping each i in [0, N]
+    // with its bit reversal.
 
     std::uint64_t bits = CIntegerTools::nextPow2(f.size()) - 1;
     for (std::uint64_t i = 0; i < f.size(); ++i) {
@@ -105,8 +105,8 @@ void CSignal::fft(TComplexVec& f) {
     if ((m >> 1) == n) {
         radix2fft(f);
     } else {
-        // We use Bluestein's trick to reformulate as a convolution
-        // which can be computed by padding to a power of 2.
+        // We use Bluestein's trick to reformulate as a convolution which can be
+        // computed by padding to a power of 2.
 
         LOG_TRACE(<< "Using Bluestein's trick");
 
@@ -263,7 +263,7 @@ void CSignal::appendSeasonalComponentSummary(std::size_t period,
 }
 
 CSignal::TSeasonalComponentVec
-CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
+CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values,
                                double outlierFraction,
                                const TSizeSizeSizeTr& diurnal,
                                TOptionalSize startOfWeekOverride,
@@ -318,22 +318,35 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
     result.clear();
 
     do {
-        // Compute the serial autocorrelations padding to the maximum offset
-        // to avoid windowing effects.
+        // Centre the data.
+        double mean{CBasicStatistics::mean(std::accumulate(
+            valuesToTest.begin(), valuesToTest.end(), TMeanAccumulator{},
+            [](auto partialMean, const auto& value) {
+                partialMean.add(CBasicStatistics::mean(value));
+                return partialMean;
+            }))};
+        for (auto& value : valuesToTest) {
+            CBasicStatistics::moment<0>(value) -= mean;
+        }
+
+        // Compute the serial autocorrelations padding to the maximum offset to
+        // avoid windowing effects.
         valuesToTest.resize(n + 3 * pad);
         autocorrelations(valuesToTest, placeholder, correlations);
         valuesToTest.resize(n);
         correlations.resize(3 * pad);
 
-        // Average the serial correlations of each component over offets P, 2P,
-        // ..., mP for mP < n. Note that we need to correct the correlation for
-        // longer offsets for the zero pad we append.
+        // In order to handle with smooth varying functions whose autocorrelation
+        // is high for small offsets we perform an average the serial correlations
+        // of each component over offets P, 2P, ..., mP for mP < n. Note that we
+        // need to correct the correlation for longer offsets for the zero pad we
+        // append.
         for (std::size_t i = 0; i < periods.size(); ++i) {
             std::size_t period{periods[i]};
             TMeanAccumulator meanCorrelation;
             for (std::size_t offset = period; offset < 3 * pad; offset += period) {
-                meanCorrelation.add(correlations[offset - 1] * static_cast<double>(n) /
-                                    static_cast<double>(n - offset));
+                meanCorrelation.add(static_cast<double>(n) / static_cast<double>(n - offset) *
+                                    correlations[offset - 1]);
             }
             correlations[period - 1] = CBasicStatistics::mean(meanCorrelation);
             LOG_TRACE(<< "correlation(" << period << ") = " << correlations[period - 1]);
@@ -397,6 +410,10 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
                 valuesToTest, outlierFraction, day, week, decomposition, components,
                 candidatePeriods, result, startOfWeekOverride, significantPValue)) {
             valuesToTest.assign(values.begin(), values.begin() + n);
+        } else {
+            for (auto period : candidatePeriods) {
+                appendSeasonalComponentSummary(period, result);
+            }
         }
         LOG_TRACE(<< "selected periods = " << core::CContainerPrinter::print(result));
 
@@ -424,27 +441,22 @@ CSignal::seasonalDecomposition(TFloatMeanAccumulatorVec& values,
     } while (pValue < significantPValue && result.size() < maxComponents);
 
     result.resize(sizeWithoutComponent);
-    fitSeasonalComponents(result, values, components);
-    reweightOutliers(result, components, outlierFraction, values);
 
     return result;
 }
 
 CSignal::TSeasonalComponentVec
-CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
+CSignal::tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
                                  double outlierFraction,
                                  std::size_t week,
                                  TOptionalSize startOfWeekOverride,
                                  double significantPValue) {
 
-    using TSizeInitList = std::initializer_list<std::size_t>;
     using TMeanVarAccumulatorBuffer = boost::circular_buffer<TMeanVarAccumulator>;
     using TMeanVarAccumulatorBufferVec = std::vector<TMeanVarAccumulatorBuffer>;
 
     constexpr std::size_t WEEKEND_DAILY{0};
-    constexpr std::size_t WEEKEND_WEEKLY{1};
-    constexpr std::size_t WEEKDAY_DAILY{2};
-    constexpr std::size_t WEEKDAY_WEEKLY{3};
+    constexpr std::size_t WEEKDAY_DAILY{1};
     if (100 * values.size() < 190 * week || week < 14) {
         return {};
     }
@@ -453,9 +465,12 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
     std::size_t weekend{(2 * week + 3) / 7};
     std::size_t weekday{(5 * week + 3) / 7};
 
+    TFloatMeanAccumulatorVec temporaryValues{values};
+
     // Work on the largest subset of the values which is a multiple week.
-    std::size_t remainder{values.size() % week};
-    TFloatMeanAccumulatorCRng valuesToTest{values, 0, values.size() - remainder};
+    std::size_t remainder{temporaryValues.size() % week};
+    TFloatMeanAccumulatorCRng valuesToTest{temporaryValues, 0,
+                                           temporaryValues.size() - remainder};
     std::size_t n{valuesToTest.size()};
     LOG_TRACE(<< "number values = " << n << "/" << values.size());
 
@@ -463,8 +478,12 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
                                 ? *startOfWeekOverride
                                 : 0};
 
-    TFloatMeanAccumulatorVec valuesToTestDaily{values};
-    TMeanAccumulatorVecVec dailyComponents;
+    TSeasonalComponentVec dailyPeriod{seasonalComponentSummary(day)};
+    TMeanAccumulatorVecVec temporaryComponents;
+    fitSeasonalComponentsRobust(dailyPeriod, outlierFraction, temporaryValues,
+                                temporaryComponents);
+    auto dailyHypothesis =
+        residualVarianceStats(temporaryValues, dailyPeriod, temporaryComponents);
 
     double epsVariance{CTools::pow2(1000.0 * std::numeric_limits<double>::epsilon()) * [&] {
         TMeanVarAccumulator moments;
@@ -475,24 +494,18 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
         }
         return CBasicStatistics::maximumLikelihoodVariance(moments);
     }()};
-    auto dailyHypothesis = [&] {
-        TSeasonalComponentVec dailyPeriod{seasonalComponentSummary(day)};
-        fitSeasonalComponentsRobust(dailyPeriod, outlierFraction,
-                                    valuesToTestDaily, dailyComponents);
-        return residualVarianceStats(valuesToTestDaily, dailyPeriod, dailyComponents);
-    }();
     LOG_TRACE(<< "daily variance = " << dailyHypothesis.s_ResidualVariance
               << " threshold to test = " << epsVariance);
 
-    if (dailyHypothesis.s_ResidualVariance < epsVariance) {
+    if (dailyHypothesis.s_ResidualVariance <= epsVariance) {
         return {};
     }
 
-    valuesToTestDaily = values;
+    temporaryValues = values;
     TSeasonalComponentVec weeklyPeriod{seasonalComponentSummary(week)};
     TMeanAccumulatorVecVec weeklyComponent;
     fitSeasonalComponents(weeklyPeriod, values, weeklyComponent);
-    reweightOutliers(weeklyPeriod, weeklyComponent, outlierFraction, values);
+    reweightOutliers(weeklyPeriod, weeklyComponent, outlierFraction, temporaryValues);
 
     // Compute the partitions' index windows.
     TSizeSizePr2Vec weekends;
@@ -501,8 +514,8 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
         weekends.emplace_back(i, i + weekend);
         weekdays.emplace_back(i + weekend, i + week);
     }
-    std::size_t strides[]{day, weekend, day, weekday};
-    TSizeSizePr2Vec partitions[]{weekends, weekends, weekdays, weekdays};
+    std::size_t strides[]{day, day};
+    TSizeSizePr2Vec partitions[]{weekends, weekdays};
     LOG_TRACE(<< "day = " << day << ", weekend = " << weekend << ", weekday = " << weekday);
     LOG_TRACE(<< "weekends = " << core::CContainerPrinter::print(weekends)
               << ", weekdays = " << core::CContainerPrinter::print(weekdays));
@@ -512,9 +525,7 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
     // Initialize the components.
     TMeanVarAccumulatorBuffer components[]{
         TMeanVarAccumulatorBuffer{day, TMeanVarAccumulator{}},
-        TMeanVarAccumulatorBuffer{weekend, TMeanVarAccumulator{}},
-        TMeanVarAccumulatorBuffer{day, TMeanVarAccumulator{}},
-        TMeanVarAccumulatorBuffer{weekday, TMeanVarAccumulator{}}};
+        TMeanVarAccumulatorBuffer{day, TMeanVarAccumulator{}}};
     TMeanVarAccumulatorBufferVec placeholder(1);
     auto initialize = [&](const TSizeSizePr& window, TMeanVarAccumulatorBuffer& component) {
         placeholder[0].swap(component);
@@ -524,9 +535,7 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
         placeholder[0].swap(component);
     };
     initialize({0, weekend}, components[WEEKEND_DAILY]);
-    initialize({0, weekend}, components[WEEKEND_WEEKLY]);
     initialize({weekend, week}, components[WEEKDAY_DAILY]);
-    initialize({weekend, week}, components[WEEKDAY_WEEKLY]);
     LOG_TRACE(<< "components = " << core::CContainerPrinter::print(components));
 
     TMeanAccumulator variances[4];
@@ -604,58 +613,22 @@ CSignal::tradingDayDecomposition(TFloatMeanAccumulatorVec& values,
     }
     LOG_TRACE(<< "start of week = " << startOfWeek << "/" << week);
 
-    // Check the statistical significance of the various components.
-
-    SSeasonalComponentSummary periods[]{
-        {day, startOfWeek, week, TSizeSizePr{0 * day, 2 * day}},
-        {week, startOfWeek, week, TSizeSizePr{0 * day, 2 * day}},
-        {day, startOfWeek, week, TSizeSizePr{2 * day, 7 * day}},
-        {week, startOfWeek, week, TSizeSizePr{2 * day, 7 * day}}};
-
-    TSeasonalComponentVec hypothesisPeriods;
-    TMeanAccumulatorVecVec hypothesisComponents;
-    auto hypothesisStatistics = [&](const TFloatMeanAccumulatorVec& hypothesisValues,
-                                    const TSizeInitList& hypothesis) {
-        hypothesisPeriods.clear();
-        for (auto index : hypothesis) {
-            hypothesisPeriods.push_back(periods[index]);
-        }
-        fitSeasonalComponents(hypothesisPeriods, hypothesisValues, hypothesisComponents);
-        return residualVarianceStats(hypothesisValues, hypothesisPeriods, hypothesisComponents);
-    };
-
-    TSeasonalComponentVec result;
-    result.reserve(4);
-
     // Check if there is reasonable evidence for weekday/weekend partition.
-    double pValue{1.0};
-    TSizeInitList alternatives[]{{WEEKEND_DAILY, WEEKDAY_DAILY},
-                                 {WEEKEND_WEEKLY, WEEKDAY_DAILY}};
-    for (std::size_t i = 0; i < std::size(alternatives); ++i) {
-        auto alternativeHypothesis = hypothesisStatistics(values, alternatives[i]);
-        pValue = std::min(pValue, nestedDecompositionPValue(dailyHypothesis, alternativeHypothesis));
-    }
-    pValue = CTools::oneMinusPowOneMinusX(pValue, 0.5 * static_cast<double>(week));
+    TSeasonalComponentVec weekendPeriods{
+        {day, startOfWeek, week, TSizeSizePr{0 * day, 2 * day}},
+        {day, startOfWeek, week, TSizeSizePr{2 * day, 7 * day}}};
+    temporaryValues = values;
+    fitSeasonalComponentsRobust(weekendPeriods, outlierFraction,
+                                temporaryValues, temporaryComponents);
+    auto weekendHypothesis = residualVarianceStats(temporaryValues, weekendPeriods,
+                                                   temporaryComponents);
+    double pValue{CTools::oneMinusPowOneMinusX(
+        std::min(pValue, nestedDecompositionPValue(dailyHypothesis, weekendHypothesis)),
+        0.5 * static_cast<double>(week))};
+    weekendPeriods.emplace_back(week, startOfWeek, week, TSizeSizePr{0 * day, 2 * day});
+    weekendPeriods.emplace_back(week, startOfWeek, week, TSizeSizePr{2 * day, 7 * day});
     LOG_TRACE(<< "p-value = " << pValue);
-    if (pValue >= significantPValue) {
-        return result;
-    }
-
-    // Add components for which there is reasonable evidence.
-    result.push_back(periods[WEEKEND_DAILY]);
-    result.push_back(periods[WEEKDAY_DAILY]);
-    fitSeasonalComponentsRobust(result, outlierFraction, valuesToTestDaily, dailyComponents);
-    if (nestedDecompositionPValue(
-            hypothesisStatistics(valuesToTestDaily, {WEEKEND_DAILY}),
-            hypothesisStatistics(values, {WEEKEND_WEEKLY})) < significantPValue) {
-        result.push_back(periods[WEEKEND_WEEKLY]);
-    }
-    if (nestedDecompositionPValue(
-            hypothesisStatistics(valuesToTestDaily, {WEEKDAY_DAILY}),
-            hypothesisStatistics(values, {WEEKDAY_WEEKLY})) < significantPValue) {
-        result.push_back(periods[WEEKDAY_WEEKLY]);
-    }
-    return result;
+    return pValue >= significantPValue ? TSeasonalComponentVec{} : weekendPeriods;
 }
 
 void CSignal::fitSeasonalComponents(const TSeasonalComponentVec& periods,
@@ -989,12 +962,10 @@ bool CSignal::checkForTradingDayDecomposition(TFloatMeanAccumulatorVec& values,
                                               TSeasonalComponentVec& result,
                                               TOptionalSize startOfWeekOverride,
                                               double significantPValue) {
-    bool tested{false};
-    if (std::find_if(candidatePeriods.begin(), candidatePeriods.end(), [&](const auto& period) {
-            return period == day || period == week;
-        }) != candidatePeriods.end()) {
 
-        tested = true;
+    if (std::find_if(candidatePeriods.begin(), candidatePeriods.end(),
+                     [&](const auto& period) { return period == week; }) !=
+        candidatePeriods.end()) {
 
         decomposition.clear();
         for (const auto& period : candidatePeriods) {
@@ -1011,24 +982,19 @@ bool CSignal::checkForTradingDayDecomposition(TFloatMeanAccumulatorVec& values,
             values, outlierFraction, week, startOfWeekOverride, significantPValue);
 
         if (decomposition.size() > 0) {
-            bool inserted{false};
-            for (auto period : candidatePeriods) {
-                if (period != day && period != week) {
-                    appendSeasonalComponentSummary(period, result);
-                } else if (inserted == false) {
+            for (std::size_t i = 0; i + 1 < candidatePeriods.size(); ++i) {
+                if (candidatePeriods[i] != day) {
+                    appendSeasonalComponentSummary(candidatePeriods[i], result);
+                } else {
                     result.insert(result.end(), decomposition.begin(),
                                   decomposition.end());
-                    inserted = true;
+                    decomposition.clear();
                 }
             }
-            return tested;
+            result.insert(result.end(), decomposition.begin(), decomposition.end());
         }
     }
-
-    for (auto period : candidatePeriods) {
-        appendSeasonalComponentSummary(period, result);
-    }
-    return tested;
+    return candidatePeriods.back() == week;
 }
 
 template<typename VALUES, typename COMPONENT>

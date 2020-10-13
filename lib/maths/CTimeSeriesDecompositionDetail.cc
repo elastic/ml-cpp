@@ -554,40 +554,40 @@ private:
 //   5. The times, in addition to "number buckets" * "window bucket lengths",
 //      when we'll test for seasonal components.
 const CSeasonalityTestParameters::TParametersVecVec CSeasonalityTestParameters::WINDOW_PARAMETERS{
-    {/*  SHORT WINDOW  */
-     {1, 1, 336, {1, 5, 10, 30, 60, 300, 600}, {}},
-     {5, 1, 336, {5, 10, 30, 60, 300, 600}, {}},
-     {10, 1, 336, {10, 30, 60, 300, 600}, {}},
-     {30, 1, 336, {30, 60, 300, 600, 1800}, {3 * 86400}},
-     {60, 1, 336, {60, 300, 600, 1800, 3600, 7200}, {3 * 86400}},
-     {300, 1, 336, {300, 600, 1800, 3600, 7200}, {3 * 86400}},
-     {600, 1, 336, {600, 1800, 3600, 7200}, {3 * 86400}},
-     {900, 1, 336, {900, 1800, 3600, 7200, 14400}, {3 * 86400}},
-     {1200, 1, 336, {1200, 3600, 7200, 14400}, {3 * 86400}},
-     {1800, 1, 336, {1800, 3600, 7200, 14400}, {3 * 86400}},
-     {3600, 1, 336, {3600, 7200, 14400}, {3 * 86400, 7 * 86400}},
-     {7200, 1, 336, {7200, 14400}, {3 * 86400, 7 * 86400}},
-     {14400, 1, 336, {14400}, {7 * 86400, 21 * 86400}},
-     {21600, 1, 224, {21600}, {7 * 86400, 21 * 86400}},
-     {28800, 1, 168, {28800}, {21 * 86400}},
-     {43200, 1, 112, {43200}, {28 * 86400}},
+    /* SHORT WINDOW */
+    {{1, 1, 180, {1, 5, 10, 30, 60, 300, 600}, {}},
+     {5, 1, 180, {5, 10, 30, 60, 300, 600}, {}},
+     {10, 1, 180, {10, 30, 60, 300, 600}, {}},
+     {30, 1, 180, {30, 60, 300, 600}, {}},
+     {60, 1, 336, {60, 300, 900, 3600, 7200}, {3 * 604800}},
+     {300, 1, 336, {300, 900, 3600, 7200}, {3 * 604800}},
+     {600, 1, 336, {600, 3600, 7200}, {3 * 604800}},
+     {900, 1, 336, {900, 3600, 7200}, {3 * 604800}},
+     {1200, 1, 336, {1200, 3600, 7200}, {3 * 86400, 3 * 604800}},
+     {1800, 1, 336, {1800, 3600, 7200}, {3 * 86400, 3 * 604800}},
+     {3600, 1, 336, {3600, 7200}, {3 * 86400, 3 * 604800}},
+     {7200, 1, 336, {7200, 14400}, {3 * 86400, 3 * 604800}},
+     {14400, 1, 336, {14400}, {604800, 3 * 604800}},
+     {21600, 1, 224, {21600}, {604800, 3 * 604800}},
+     {28800, 1, 168, {28800}, {3 * 604800}},
+     {43200, 1, 112, {43200}, {4 * 604800}},
      {86400, 1, 56, {86400}, {}}},
-    /*  LONG WINDOW  */
-    {{1, 86401, 336, {1800, 1800, 3600, 7200}, {3 * 86400, 21 * 86400}},
-     {5, 86401, 336, {1800, 3600, 7200}, {3 * 86400, 21 * 86400}},
-     {10, 86401, 336, {1800, 3600, 7200}, {3 * 86400, 21 * 86400}},
-     {30, 86401, 336, {3600, 7200}, {21 * 86400}},
-     {60, 604801, 336, {14400, 28800}, {}},
-     {300, 604801, 336, {14400, 28800}, {}},
-     {600, 604801, 336, {14400, 28800}, {}},
-     {900, 1209601, 365, {28800, 86400, 259200}, {}},
-     {1200, 1209601, 365, {28800, 86400, 259200}, {}},
-     {1800, 1209601, 365, {28800, 86400, 259200}, {}},
-     {3600, 1209601, 365, {28800, 86400, 259200}, {}},
-     {7200, 1209601, 365, {28800, 86400, 259200}, {}},
-     {14400, 1209601, 365, {28800, 86400, 259200}, {}},
-     {86400, 1209601, 365, {86400, 259200}, {}},
-     {604800, 1209601, 156, {604800}, {}}}};
+    /* LONG WINDOW */
+    {{1, 30601, 336, {900, 3600, 7200}, {3 * 604800}},
+     {5, 30601, 336, {900, 3600, 7200}, {3 * 604800}},
+     {10, 30601, 336, {900, 3600, 7200}, {3 * 604800}},
+     {30, 30601, 336, {900, 3600, 7200}, {3 * 604800}},
+     {60, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
+     {300, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
+     {600, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
+     {900, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
+     {1200, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
+     {1800, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
+     {3600, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
+     {7200, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
+     {14400, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
+     {86400, 648001, 156, {43200, 86400, 604800}, {104 * 604800}},
+     {604800, 648001, 156, {43200, 86400, 604800}, {104 * 604800}}}};
 }
 
 CTimeSeriesDecompositionDetail::CSeasonalityTest::CSeasonalityTest(double decayRate,
@@ -749,12 +749,12 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::propagateForwards(core_t:
                                                                          core_t::TTime end) {
     if (m_Windows[E_Short] != nullptr) {
         stepwisePropagateForwards(start, end, DAY, [this](double time) {
-            m_Windows[E_Short]->propagateForwardsByTime(time);
+            m_Windows[E_Short]->propagateForwardsByTime(time / 8.0);
         });
     }
     if (m_Windows[E_Long] != nullptr) {
         stepwisePropagateForwards(start, end, WEEK, [this](double time) {
-            m_Windows[E_Long]->propagateForwardsByTime(time);
+            m_Windows[E_Long]->propagateForwardsByTime(time / 8.0);
         });
     }
 }
@@ -1009,7 +1009,7 @@ void CTimeSeriesDecompositionDetail::CCalendarTest::propagateForwards(core_t::TT
                                                                       core_t::TTime end) {
     if (m_Test != nullptr) {
         stepwisePropagateForwards(start, end, DAY, [this](double time) {
-            m_Test->propagateForwardsByTime(time);
+            m_Test->propagateForwardsByTime(time / 8.0);
         });
     }
 }
@@ -1616,7 +1616,7 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CS
 
         std::size_t size{CTools::truncate(component.size(), // desired
                                           2 * m_SeasonalComponentSize / 3,
-                                          3 * m_SeasonalComponentSize / 2)};
+                                          2 * m_SeasonalComponentSize)};
         LOG_TRACE(<< "size = " << size << ", target = " << component.size());
 
         // Add the new seasonal component.
@@ -2085,7 +2085,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::propagateForwards(c
     for (std::size_t i = 0; i < m_Components.size(); ++i) {
         core_t::TTime period{m_Components[i].time().period()};
         stepwisePropagateForwards(start, end, period, [&](double time) {
-            m_Components[i].propagateForwardsByTime(time / 4.0, 0.25);
+            m_Components[i].propagateForwardsByTime(time / 8.0, 0.25);
             m_PredictionErrors[i].age(std::exp(-m_Components[i].decayRate() * time));
         });
     }
@@ -2394,7 +2394,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CCalendar::propagateForwards(c
                                                                                core_t::TTime end) {
     for (std::size_t i = 0; i < m_Components.size(); ++i) {
         stepwisePropagateForwards(start, end, MONTH, [&](double time) {
-            m_Components[i].propagateForwardsByTime(time / 4.0);
+            m_Components[i].propagateForwardsByTime(time / 8.0);
             m_PredictionErrors[i].age(std::exp(-m_Components[i].decayRate() * time));
         });
     }
