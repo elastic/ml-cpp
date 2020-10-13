@@ -25,6 +25,7 @@
 
 #include <memory>
 #include <random>
+#include <utility>
 
 BOOST_AUTO_TEST_SUITE(CDataFrameAnalyzerFeatureImportanceTest)
 
@@ -40,6 +41,7 @@ using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumula
 using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
 using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 using TMemoryMappedMatrix = maths::CMemoryMappedDenseMatrix<double>;
+using TDocumentStrPr = std::pair<rapidjson::Document, std::string>;
 
 void setupLinearRegressionData(const TStrVec& fieldNames,
                                TStrVec& fieldValues,
@@ -183,9 +185,9 @@ void setupMultiClassClassificationData(const TStrVec& fieldNames,
 }
 
 struct SFixture {
-    rapidjson::Document runRegression(std::size_t shapValues,
-                                      const TDoubleVec& weights,
-                                      double noiseVar = 0.0) {
+    TDocumentStrPr runRegression(std::size_t shapValues,
+                                 const TDoubleVec& weights,
+                                 double noiseVar = 0.0) {
         auto outputWriterFactory = [&]() {
             return std::make_unique<core::CJsonOutputStreamWrapper>(s_Output);
         };
@@ -234,11 +236,10 @@ struct SFixture {
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-        return results;
+        return std::make_pair(std::move(results), s_Output.str());
     }
 
-    rapidjson::Document runBinaryClassification(std::size_t shapValues,
-                                                const TDoubleVec& weights) {
+    TDocumentStrPr runBinaryClassification(std::size_t shapValues, const TDoubleVec& weights) {
         auto outputWriterFactory = [&]() {
             return std::make_unique<core::CJsonOutputStreamWrapper>(s_Output);
         };
@@ -283,11 +284,11 @@ struct SFixture {
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-        return results;
+        return std::make_pair(std::move(results), s_Output.str());
     }
 
-    rapidjson::Document runMultiClassClassification(std::size_t shapValues,
-                                                    const TDoubleVec& weights) {
+    TDocumentStrPr runMultiClassClassification(std::size_t shapValues,
+                                               const TDoubleVec& weights) {
         auto outputWriterFactory = [&]() {
             return std::make_unique<core::CJsonOutputStreamWrapper>(s_Output);
         };
@@ -334,7 +335,7 @@ struct SFixture {
         rapidjson::Document results;
         rapidjson::ParseResult ok(results.Parse(s_Output.str()));
         BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
-        return results;
+        return std::make_pair(std::move(results), s_Output.str());
     }
 
     rapidjson::Document runRegressionWithMissingFeatures(std::size_t shapValues) {
@@ -486,6 +487,41 @@ double readTotalShapValue(const RESULTS& results, std::string shapField, std::st
     }
     return 0.0;
 }
+
+template<typename RESULTS>
+double readBaselineValue(const RESULTS& results) {
+    using TModelMetadata = api::CInferenceModelMetadata;
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember(TModelMetadata::JSON_MODEL_METADATA_TAG) &&
+            result[TModelMetadata::JSON_MODEL_METADATA_TAG].HasMember(
+                TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
+            return result[TModelMetadata::JSON_MODEL_METADATA_TAG][TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG]
+                         [TModelMetadata::JSON_BASELINE_TAG]
+                             .GetDouble();
+        }
+    }
+    return 0.0;
+}
+
+template<typename RESULTS>
+double readBaselineValue(const RESULTS& results, std::string className) {
+    using TModelMetadata = api::CInferenceModelMetadata;
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember(TModelMetadata::JSON_MODEL_METADATA_TAG) &&
+            result[TModelMetadata::JSON_MODEL_METADATA_TAG].HasMember(
+                TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG)) {
+            for (const auto& item :
+                 result[TModelMetadata::JSON_MODEL_METADATA_TAG][TModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG]
+                       [TModelMetadata::JSON_CLASSES_TAG]
+                           .GetArray()) {
+                if (item[TModelMetadata::JSON_CLASS_NAME_TAG].GetString() == className) {
+                    return item[TModelMetadata::JSON_BASELINE_TAG].GetDouble();
+                }
+            }
+        }
+    }
+    return 0.0;
+}
 }
 
 BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
@@ -496,7 +532,8 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
 
     std::size_t topShapValues{5}; //Note, number of requested shap values is larger than the number of regressors
     TDoubleVec weights{50, 150, 50, -50};
-    auto results{runRegression(topShapValues, weights)};
+    auto resultsPair{runRegression(topShapValues, weights)};
+    auto results{std::move(resultsPair.first)};
 
     TMeanAccumulator baselineAccumulator;
     TMeanAccumulator c1TotalShapExpected;
@@ -507,14 +544,7 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
     double c1TotalShapActual{0.0}, c2TotalShapActual{0.0},
         c3TotalShapActual{0.0}, c4TotalShapActual{0.0};
     bool hasTotalFeatureImportance{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
-            double prediction{
-                result["row_results"]["results"]["ml"]["target_prediction"].GetDouble()};
-            baselineAccumulator.add(prediction);
-        }
-    }
-    double baseline{maths::CBasicStatistics::mean(baselineAccumulator)};
+    double baseline{readBaselineValue(results)};
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
             double c1{readShapValue(result, "c1")};
@@ -558,6 +588,12 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceAllShap, SFixture) {
     BOOST_REQUIRE_CLOSE(weights[1] / weights[2], c2Sum / c3Sum, 10.0); // ratio within 10% of ratio of coefficients
     BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 5.0); // c3 and c4 within 5% of each other
     BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
+
+    if (c1TotalShapActual == 0 || c2TotalShapActual == 0 ||
+        c3TotalShapActual == 0 || c4TotalShapActual == 0) {
+        LOG_INFO(<< "Incorrect results, missing total shap values: "
+                 << resultsPair.second);
+    }
     BOOST_REQUIRE_CLOSE(c1TotalShapActual,
                         maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
     BOOST_REQUIRE_CLOSE(c2TotalShapActual,
@@ -572,7 +608,8 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
     // Test that feature importance calculates low SHAP values if regressors have no weight.
     // We also add high noise variance.
     std::size_t topShapValues{4};
-    auto results = runRegression(topShapValues, {10.0, 0.0, 0.0, 0.0}, 10.0);
+    auto resultsPair{runRegression(topShapValues, {10.0, 0.0, 0.0, 0.0}, 10.0)};
+    auto results{std::move(resultsPair.first)};
 
     TMeanAccumulator cNoImportanceMean;
     for (const auto& result : results.GetArray()) {
@@ -600,9 +637,8 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     // values are indeed a local approximation of the predicted log-odds.
 
     std::size_t topShapValues{4};
-    TMeanAccumulator baselineFooAccumulator;
-    TMeanAccumulator baselineBarAccumulator;
-    auto results{runBinaryClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
+    auto resultsPair{runBinaryClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
+    auto results{std::move(resultsPair.first)};
     TMeanAccumulator c1TotalShapExpected;
     TMeanAccumulator c2TotalShapExpected;
     TMeanAccumulator c3TotalShapExpected;
@@ -611,29 +647,8 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     double c1TotalShapActual[2], c2TotalShapActual[2], c3TotalShapActual[2],
         c4TotalShapActual[2];
     bool hasTotalFeatureImportance{false};
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
-            std::string targetPrediction{
-                result["row_results"]["results"]["ml"]["target_prediction"].GetString()};
-            double predictionProbability{
-                result["row_results"]["results"]["ml"]["prediction_probability"].GetDouble()};
-            double logOdds{std::log(predictionProbability /
-                                    (1.0 - predictionProbability + 1e-10))};
-            if (targetPrediction == "bar") {
-                // there are many ways to compute the baseline. This way generalizes to
-                // the multi-class classification
-                baselineBarAccumulator.add(logOdds);
-                baselineFooAccumulator.add(-logOdds);
-            } else if (targetPrediction == "foo") {
-                baselineFooAccumulator.add(logOdds);
-                baselineBarAccumulator.add(-logOdds);
-            } else {
-                BOOST_TEST_FAIL("Unknown predicted class " + targetPrediction);
-            }
-        }
-    }
-    double baselineFoo{maths::CBasicStatistics::mean(baselineFooAccumulator)};
-    double baselineBar{maths::CBasicStatistics::mean(baselineBarAccumulator)};
+    double baselineFoo{readBaselineValue(results, "foo")};
+    double baselineBar{readBaselineValue(results, "bar")};
     BOOST_TEST_REQUIRE(baselineFoo == -baselineBar);
     TStrVec classes{"foo", "bar"};
     for (const auto& result : results.GetArray()) {
@@ -687,6 +702,11 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
     BOOST_REQUIRE_CLOSE(c3Sum, c4Sum, 40.0); // c3 and c4 within 40% of each other
     BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
     for (std::size_t i = 0; i < classes.size(); ++i) {
+        if (c1TotalShapActual[i] == 0 || c2TotalShapActual[i] == 0 ||
+            c3TotalShapActual[i] == 0 || c4TotalShapActual[i] == 0) {
+            LOG_INFO(<< "Incorrect results, missing total shap values: "
+                     << resultsPair.second);
+        }
         BOOST_REQUIRE_CLOSE(c1TotalShapActual[i],
                             maths::CBasicStatistics::mean(c1TotalShapExpected), 1.0);
         BOOST_REQUIRE_CLOSE(c2TotalShapActual[i],
@@ -701,7 +721,8 @@ BOOST_FIXTURE_TEST_CASE(testClassificationFeatureImportanceAllShap, SFixture) {
 BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SFixture) {
 
     std::size_t topShapValues{4};
-    auto results{runMultiClassClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
+    auto resultsPair{runMultiClassClassification(topShapValues, {0.5, -0.7, 0.2, -0.2})};
+    auto results{std::move(resultsPair.first)};
     TMeanAccumulatorVec c1TotalShapExpected(3);
     TMeanAccumulatorVec c2TotalShapExpected(3);
     TMeanAccumulatorVec c3TotalShapExpected(3);
@@ -712,19 +733,12 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
     double c4TotalShapActual[3];
     bool hasTotalFeatureImportance{false};
     TStrVec classes{"foo", "bar", "baz"};
-    TMeanAccumulatorVec baselineAccumulator(3);
+    TDoubleVec baselines;
+    baselines.reserve(3);
     // get baselines
-    for (const auto& result : results.GetArray()) {
-        if (result.HasMember("row_results")) {
-            for (std::size_t i = 0; i < classes.size(); ++i) {
-                double classProbability{readClassProbability(result, classes[i])};
-                double logOdds =
-                    std::log(classProbability / (1.0 - classProbability + 1e-10));
-                baselineAccumulator[i].add(logOdds);
-            }
-        }
+    for (const auto& className : classes) {
+        baselines.push_back(readBaselineValue(results, className));
     }
-
     double localApproximations[3];
     double classProbabilities[3];
     for (const auto& result : results.GetArray()) {
@@ -750,7 +764,8 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
                 c4TotalShapExpected[i].add(std::abs(c4ClassName));
 
                 double classProbability{readClassProbability(result, classes[i])};
-                double localApproximation{c1ClassName + c2ClassName + c3ClassName + c4ClassName};
+                double localApproximation{baselines[i] + c1ClassName +
+                                          c2ClassName + c3ClassName + c4ClassName};
                 localApproximations[i] = localApproximation;
                 classProbabilities[i] = classProbability;
                 denominator += std::exp(localApproximation);
@@ -759,9 +774,8 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
             // Test that sum of feature importances is a local approximations of
             // prediction probabilities for all classes
             for (std::size_t i = 0; i < classes.size(); ++i) {
-                BOOST_REQUIRE_SMALL(classProbabilities[i] -
-                                        std::exp(localApproximations[i]) / denominator,
-                                    1e-3);
+                BOOST_REQUIRE_CLOSE(classProbabilities[i],
+                                    std::exp(localApproximations[i]) / denominator, 1.0);
             }
 
             // We should have at least one feature that is important
@@ -780,23 +794,29 @@ BOOST_FIXTURE_TEST_CASE(testMultiClassClassificationFeatureImportanceAllShap, SF
         }
     }
     BOOST_TEST_REQUIRE(hasTotalFeatureImportance);
-    // TODO now I cannot test for feature
-    // for (std::size_t i = 0; i < classes.size(); ++i) {
-    //     BOOST_REQUIRE_CLOSE(c1TotalShapActual[i],
-    //                         maths::CBasicStatistics::mean(c1TotalShapExpected[i]), 1.0);
-    //     BOOST_REQUIRE_CLOSE(c2TotalShapActual[i],
-    //                         maths::CBasicStatistics::mean(c2TotalShapExpected[i]), 1.0);
-    //     BOOST_REQUIRE_CLOSE(c3TotalShapActual[i],
-    //                         maths::CBasicStatistics::mean(c3TotalShapExpected[i]), 1.0);
-    //     BOOST_REQUIRE_CLOSE(c4TotalShapActual[i],
-    //                         maths::CBasicStatistics::mean(c4TotalShapExpected[i]), 1.0);
-    // }
+
+    for (std::size_t i = 0; i < classes.size(); ++i) {
+        if (c1TotalShapActual[i] == 0 || c2TotalShapActual[i] == 0 ||
+            c3TotalShapActual[i] == 0 || c4TotalShapActual[i] == 0) {
+            LOG_INFO(<< "Incorrect results, missing total shap values: "
+                     << resultsPair.second);
+        }
+        BOOST_REQUIRE_CLOSE(c1TotalShapActual[i],
+                            maths::CBasicStatistics::mean(c1TotalShapExpected[i]), 1.0);
+        BOOST_REQUIRE_CLOSE(c2TotalShapActual[i],
+                            maths::CBasicStatistics::mean(c2TotalShapExpected[i]), 1.0);
+        BOOST_REQUIRE_CLOSE(c3TotalShapActual[i],
+                            maths::CBasicStatistics::mean(c3TotalShapExpected[i]), 1.0);
+        BOOST_REQUIRE_CLOSE(c4TotalShapActual[i],
+                            maths::CBasicStatistics::mean(c4TotalShapExpected[i]), 1.0);
+    }
 }
 
 BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoShap, SFixture) {
     // Test that if topShapValue is set to 0, no feature importance values are returned.
     std::size_t topShapValues{0};
-    auto results{runRegression(topShapValues, {50.0, 150.0, 50.0, -50.0})};
+    auto resultsPair{runRegression(topShapValues, {50.0, 150.0, 50.0, -50.0})};
+    auto results{std::move(resultsPair.first)};
 
     for (const auto& result : results.GetArray()) {
         if (result.HasMember("row_results")) {
