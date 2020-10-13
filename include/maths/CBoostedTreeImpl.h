@@ -286,8 +286,7 @@ private:
 
     //! Select the next hyperparameters for which to train a model.
     bool selectNextHyperparameters(const TMeanVarAccumulator& lossMoments,
-                                   CBayesianOptimisation& bopt,
-                                   double numberNodes);
+                                   CBayesianOptimisation& bopt);
 
     //! Capture the current hyperparameter values.
     void captureBestHyperparameters(const TMeanVarAccumulator& lossMoments,
