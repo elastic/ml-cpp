@@ -51,12 +51,11 @@
 #include "CCmdLineParser.h"
 #include "CCommandProcessor.h"
 
+#include <cerrno>
+#include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <string>
-
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
 
 int main(int argc, char** argv) {
     const std::string& defaultNamedPipePath{ml::core::CNamedPipeFactory::defaultPath()};
@@ -67,8 +66,9 @@ int main(int argc, char** argv) {
         ml::core::CProcess::instance().parentId())};
     std::string logPipe;
     std::string commandPipe;
+    std::string outputPipe;
     if (ml::controller::CCmdLineParser::parse(argc, argv, jvmPidStr, logPipe,
-                                              commandPipe) == false) {
+                                              commandPipe, outputPipe) == false) {
         return EXIT_FAILURE;
     }
 
@@ -77,6 +77,9 @@ int main(int argc, char** argv) {
     }
     if (commandPipe.empty()) {
         commandPipe = defaultNamedPipePath + progName + "_command_" + jvmPidStr;
+    }
+    if (outputPipe.empty()) {
+        outputPipe = defaultNamedPipePath + progName + "_output_" + jvmPidStr;
     }
 
     // This needs to be started before reconfiguring logging just in case
@@ -129,13 +132,25 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    ml::core::CNamedPipeFactory::TOStreamP outputStream{ml::core::CNamedPipeFactory::openPipeStreamWrite(
+        outputPipe, cancellerThread.hasCancelledBlockingCall())};
+    if (outputStream == nullptr) {
+        if (cancellerThread.hasCancelledBlockingCall().load()) {
+            LOG_INFO(<< "Parent process died - ML controller exiting");
+        } else {
+            LOG_FATAL(<< "Could not open output pipe");
+        }
+        cancellerThread.stop();
+        return EXIT_FAILURE;
+    }
+
     // Change directory to the directory containing this program, because the
     // permitted paths all assume the current working directory contains the
     // permitted programs
     const std::string& progDir{ml::core::CProgName::progDir()};
     if (ml::core::COsFileFuncs::chdir(progDir.c_str()) == -1) {
         LOG_FATAL(<< "Could not change directory to '" << progDir
-                  << "': " << ::strerror(errno));
+                  << "': " << std::strerror(errno));
         cancellerThread.stop();
         return EXIT_FAILURE;
     }
@@ -143,7 +158,7 @@ int main(int argc, char** argv) {
     ml::controller::CCommandProcessor::TStrVec permittedProcessPaths{
         "./autodetect", "./categorize", "./data_frame_analyzer", "./normalize"};
 
-    ml::controller::CCommandProcessor processor{permittedProcessPaths};
+    ml::controller::CCommandProcessor processor{permittedProcessPaths, *outputStream};
     processor.processCommands(*commandStream);
 
     cancellerThread.stop();

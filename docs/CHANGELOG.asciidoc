@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.11.0
+
+=== Enhancements
+
+* Add a response mechanism for commands sent to the native controller. (See
+  {ml-pull}1520[#1520], {es-pull}63542[#63542], issue: {es-issue}62823[#62823].)
+
 == {es} version 7.10.0
 
 === Enhancements
