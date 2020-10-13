@@ -86,7 +86,7 @@ private:
                                      core::CRapidJsonConcurrentLineWriter& writer) const;
 
 private:
-    std::size_t m_NumTopClasses;
+    std::ptrdiff_t m_NumTopClasses;
     EPredictionFieldType m_PredictionFieldType;
     mutable CInferenceModelMetadata m_InferenceModelMetadata;
 };
