@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 namespace ml {
 namespace maths {
@@ -27,6 +28,9 @@ const core::TPersistenceTag BUCKET_LENGTH_INDEX_TAG{"a", "bucket_length_index"};
 const core::TPersistenceTag BUCKET_VALUES_TAG{"b", "bucket_values"};
 const core::TPersistenceTag START_TIME_TAG{"c", "start_time"};
 const core::TPersistenceTag MEAN_OFFSET_TAG{"d", "mean_offset"};
+const core::TPersistenceTag BUCKET_INDEX_TAG{"e", "bucket_index"};
+const core::TPersistenceTag WITHIN_BUCKET_VARIANCE_TAG{"f", "within_bucket_variance"};
+const core::TPersistenceTag AVERAGE_WITHIN_BUCKET_VARIANCE_TAG{"g", "average_within_bucket_variance"};
 const std::size_t MAX_BUFFER_SIZE{5};
 }
 
@@ -35,10 +39,9 @@ CExpandingWindow::CExpandingWindow(core_t::TTime bucketLength,
                                    std::size_t size,
                                    double decayRate,
                                    bool deflate)
-    : m_Deflate{deflate}, m_DecayRate{decayRate}, m_Size{size},
-      m_DataBucketLength{bucketLength}, m_BucketLengths{bucketLengths},
-      m_BucketLengthIndex{0}, m_StartTime{boost::numeric::bounds<core_t::TTime>::lowest()},
-      m_BufferedTimeToPropagate(0.0), m_BucketValues(size % 2 == 0 ? size : size + 1) {
+    : m_Deflate{deflate}, m_DecayRate{decayRate}, m_Size{size}, m_DataBucketLength{bucketLength},
+      m_BucketLengths{bucketLengths}, m_StartTime{std::numeric_limits<core_t::TTime>::min()},
+      m_BucketValues(size % 2 == 0 ? size : size + 1) {
     m_BufferedValues.reserve(MAX_BUFFER_SIZE);
     this->deflate(true);
 }
@@ -47,10 +50,15 @@ bool CExpandingWindow::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
     m_BucketValues.clear();
     do {
         const std::string& name = traverser.name();
+        RESTORE_BUILT_IN(BUCKET_INDEX_TAG, m_BucketIndex)
         RESTORE_BUILT_IN(BUCKET_LENGTH_INDEX_TAG, m_BucketLengthIndex)
         RESTORE_BUILT_IN(START_TIME_TAG, m_StartTime)
         RESTORE(BUCKET_VALUES_TAG,
-                core::CPersistUtils::restore(BUCKET_VALUES_TAG, m_BucketValues, traverser));
+                core::CPersistUtils::restore(BUCKET_VALUES_TAG, m_BucketValues, traverser))
+        RESTORE(WITHIN_BUCKET_VARIANCE_TAG,
+                m_WithinBucketVariance.fromDelimited(traverser.value()))
+        RESTORE(AVERAGE_WITHIN_BUCKET_VARIANCE_TAG,
+                m_AverageWithinBucketVariance.fromDelimited(traverser.value()))
         RESTORE(MEAN_OFFSET_TAG, m_MeanOffset.fromDelimited(traverser.value()))
     } while (traverser.next());
     this->deflate(true);
@@ -59,9 +67,13 @@ bool CExpandingWindow::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
 
 void CExpandingWindow::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     CScopeInflate inflate(*this, false);
+    inserter.insertValue(BUCKET_INDEX_TAG, m_BucketIndex);
     inserter.insertValue(BUCKET_LENGTH_INDEX_TAG, m_BucketLengthIndex);
     inserter.insertValue(START_TIME_TAG, m_StartTime);
     core::CPersistUtils::persist(BUCKET_VALUES_TAG, m_BucketValues, inserter);
+    inserter.insertValue(WITHIN_BUCKET_VARIANCE_TAG, m_WithinBucketVariance.toDelimited());
+    inserter.insertValue(AVERAGE_WITHIN_BUCKET_VARIANCE_TAG,
+                         m_AverageWithinBucketVariance.toDelimited());
     inserter.insertValue(MEAN_OFFSET_TAG, m_MeanOffset.toDelimited());
 }
 
@@ -127,6 +139,10 @@ CExpandingWindow::valuesMinusPrediction(TFloatMeanAccumulatorVec bucketValues,
     return bucketValues;
 }
 
+double CExpandingWindow::withinBucketVariance() const {
+    return CBasicStatistics::mean(m_AverageWithinBucketVariance);
+}
+
 void CExpandingWindow::initialize(core_t::TTime time) {
     m_StartTime = CIntegerTools::floor(time, m_BucketLengths[0]);
 }
@@ -144,6 +160,7 @@ void CExpandingWindow::propagateForwardsByTime(double time) {
     for (auto& value : m_BufferedValues) {
         value.second.age(factor);
     }
+    m_AverageWithinBucketVariance.age(factor);
     m_BufferedTimeToPropagate += time;
 }
 
@@ -161,16 +178,19 @@ void CExpandingWindow::add(core_t::TTime time, double value, double weight) {
                 } else {
                     std::size_t compression(m_BucketLengths[m_BucketLengthIndex] /
                                             m_BucketLengths[m_BucketLengthIndex - 1]);
-                    for (std::size_t i = 0u; i < m_BucketValues.size();
+                    for (std::size_t i = 0; i < m_BucketValues.size();
                          i += compression, ++end) {
                         std::swap(*end, m_BucketValues[i]);
-                        for (std::size_t j = 1u;
+                        for (std::size_t j = 1;
                              j < compression && i + j < m_BucketValues.size(); ++j) {
                             *end += m_BucketValues[i + j];
                         }
                     }
+                    m_BucketIndex = end - m_BucketValues.begin();
+                    m_AverageWithinBucketVariance = TMeanAccumulator{};
+                    m_WithinBucketVariance = TMeanVarAccumulator{};
                 }
-                std::fill(end, m_BucketValues.end(), TFloatMeanAccumulator());
+                std::fill(end, m_BucketValues.end(), TFloatMeanAccumulator{});
             } while (this->needToCompress(time));
         }
 
@@ -186,6 +206,14 @@ void CExpandingWindow::add(core_t::TTime time, double value, double weight) {
             }
             m_BufferedValues.back().second.add(value, weight);
         }
+        if (index != m_BucketIndex) {
+            m_AverageWithinBucketVariance.add(
+                CBasicStatistics::variance(m_WithinBucketVariance),
+                CBasicStatistics::count(m_WithinBucketVariance));
+            m_WithinBucketVariance = TMeanVarAccumulator{};
+            m_BucketIndex = index;
+        }
+        m_WithinBucketVariance.add(value, weight);
         m_MeanOffset.add(static_cast<double>(time % m_DataBucketLength));
     }
 }

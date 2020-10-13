@@ -96,7 +96,7 @@ maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::scale(core_t::TTime /*tim
 }
 
 CTimeSeriesDecompositionStub::TFloatMeanAccumulatorVec
-CTimeSeriesDecompositionStub::windowValues(const TPredictor& /*predictor*/) const {
+CTimeSeriesDecompositionStub::residuals() const {
     return {};
 }
 

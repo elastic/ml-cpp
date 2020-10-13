@@ -351,7 +351,7 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(
     const TFloatMeanAccumulatorVec& values,
     std::size_t period,
     const TSizeVec& segmentation,
-    const TWeightFunc& indexWeight,
+    const TIndexWeight& indexWeight,
     double outlierFraction,
     double outlierWeight) {
     using TDoubleCItr = TDoubleVec::const_iterator;
@@ -412,7 +412,7 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(
 
 double CTimeSeriesSegmentation::meanScale(const TSizeVec& segmentation,
                                           const TDoubleVec& scales,
-                                          const TWeightFunc& indexWeight) {
+                                          const TIndexWeight& indexWeight) {
     TMeanAccumulator result;
     for (std::size_t i = 1; i < segmentation.size(); ++i) {
         for (std::size_t j = segmentation[i - 1]; j < segmentation[i]; ++j) {

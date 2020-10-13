@@ -167,8 +167,8 @@ public:
     virtual maths_t::TDoubleDoublePr
     scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const = 0;
 
-    //! Get the values in a recent time window.
-    virtual TFloatMeanAccumulatorVec windowValues(const TPredictor& predictor) const = 0;
+    //! Get the prediction residuals in a recent time window.
+    virtual TFloatMeanAccumulatorVec residuals() const = 0;
 
     //! Roll time forwards by \p skipInterval.
     virtual void skipTime(core_t::TTime skipInterval) = 0;
