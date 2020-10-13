@@ -1298,6 +1298,8 @@ void CBoostedTreeImpl::captureBestHyperparameters(const TMeanVarAccumulator& los
     // We capture the parameters with the lowest error at one standard
     // deviation above the mean. If the mean error improvement is marginal
     // we prefer the solution with the least variation across the folds.
+    
+     // Add 0.01 * "forest number nodes" * E[GP] / "average forest number nodes" to meanLoss.
     double modelSizeDifferentiator{0.01 * numberNodes /
                                    CBasicStatistics::mean(m_ForestSizeAccumulator) *
                                    CBasicStatistics::mean(m_MeanLossAccumulator)};
