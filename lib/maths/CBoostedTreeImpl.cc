@@ -29,10 +29,9 @@
 #include <maths/CSpline.h>
 #include <maths/CTreeShapFeatureImportance.h>
 
-#include <boost/circular_buffer.hpp>
-
 #include <algorithm>
 #include <memory>
+#include <queue>
 
 namespace ml {
 namespace maths {
@@ -784,7 +783,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     LOG_TRACE(<< "Training one tree...");
 
     using TLeafNodeStatisticsPtr = CBoostedTreeLeafNodeStatistics::TPtr;
-    using TLeafNodeStatisticsPtrQueue = boost::circular_buffer<TLeafNodeStatisticsPtr>;
+    // TODO define comparison operator
+    using TLeafNodeStatisticsPtrQueue = std::priority_queue<TLeafNodeStatisticsPtr>;
 
     workspace.reinitialize(m_NumberThreads, candidateSplits, m_Loss->numberParameters());
 
