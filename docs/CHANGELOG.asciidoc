@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.11.0
+
+=== Enhancements
+
+* During regression and classification training prefer smaller models if performance is
+  similar (See {ml-pull}1516[#1516].)
+
 == {es} version 7.10.0
 
 === Enhancements
