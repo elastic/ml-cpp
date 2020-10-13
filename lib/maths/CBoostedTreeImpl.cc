@@ -239,8 +239,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
             this->captureBestHyperparameters(lossMoments, maximumNumberTrees, numberNodes);
 
-            if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization,
-                                                numberNodes) == false) {
+            if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
                 LOG_WARN(<< "Hyperparameter selection failed: exiting loop early");
                 break;
             }
