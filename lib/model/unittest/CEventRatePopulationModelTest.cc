@@ -232,7 +232,7 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
 
         std::size_t pid, cid;
         BOOST_TEST_REQUIRE(m_Gatherer->personId(message.s_Person, pid));
-        BOOST_TEST_REQUIRE(m_Gatherer->attributeId(message.s_Attribute, cid));
+        BOOST_TEST_REQUIRE(m_Gatherer->attributeId(message.s_Attribute.get(), cid));
         ++expectedBucketPersonCounts[pid];
         ++expectedBucketPersonAttributeCounts[{pid, cid}];
     }
@@ -398,7 +398,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
 
         std::size_t pid, cid;
         BOOST_TEST_REQUIRE(m_Gatherer->personId(message.s_Person, pid));
-        BOOST_TEST_REQUIRE(m_Gatherer->attributeId(message.s_Attribute, cid));
+        BOOST_TEST_REQUIRE(m_Gatherer->attributeId(message.s_Attribute.get(), cid));
         ++expectedCounts[{pid, cid}];
     }
 }
@@ -534,8 +534,8 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     for (const auto& message : messages) {
         if (std::binary_search(std::begin(expectedPeople),
                                std::end(expectedPeople), message.s_Person) &&
-            std::binary_search(std::begin(expectedAttributes),
-                               std::end(expectedAttributes), message.s_Attribute)) {
+            std::binary_search(std::begin(expectedAttributes), std::end(expectedAttributes),
+                               message.s_Attribute.get())) {
             expectedMessages.push_back(message);
         }
     }
@@ -572,9 +572,9 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
 
     bucketStart = m_Gatherer->currentBucketStartTime() + bucketLength;
 
-    TMessageVec newMessages{{bucketStart + 10, "p1", "c2"},
-                            {bucketStart + 200, "p5", "c6"},
-                            {bucketStart + 2100, "p5", "c6"}};
+    TMessageVec newMessages{{bucketStart + 10, "p1", TOptionalStr("c2")},
+                            {bucketStart + 200, "p5", TOptionalStr("c6")},
+                            {bucketStart + 2100, "p5", TOptionalStr("c6")}};
 
     for (const auto& newMessage : newMessages) {
         this->addArrival(newMessage, m_Gatherer);
@@ -944,13 +944,13 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     CEventRatePopulationModel* modelNoGap =
         dynamic_cast<CEventRatePopulationModel*>(modelNoGapHolder.get());
 
-    this->addArrival(SMessage(100, "p1", "a1"), gathererNoGap);
-    this->addArrival(SMessage(100, "p1", "a2"), gathererNoGap);
-    this->addArrival(SMessage(100, "p2", "a1"), gathererNoGap);
+    this->addArrival(SMessage(100, "p1", TOptionalStr("a1")), gathererNoGap);
+    this->addArrival(SMessage(100, "p1", TOptionalStr("a2")), gathererNoGap);
+    this->addArrival(SMessage(100, "p2", TOptionalStr("a1")), gathererNoGap);
     modelNoGap->sample(100, 200, m_ResourceMonitor);
-    this->addArrival(SMessage(200, "p1", "a1"), gathererNoGap);
+    this->addArrival(SMessage(200, "p1", TOptionalStr("a1")), gathererNoGap);
     modelNoGap->sample(200, 300, m_ResourceMonitor);
-    this->addArrival(SMessage(300, "p1", "a1"), gathererNoGap);
+    this->addArrival(SMessage(300, "p1", TOptionalStr("a1")), gathererNoGap);
     modelNoGap->sample(300, 400, m_ResourceMonitor);
 
     CModelFactory::SGathererInitializationData gathererWithGapInitData(startTime);
@@ -961,11 +961,11 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     CEventRatePopulationModel* modelWithGap =
         dynamic_cast<CEventRatePopulationModel*>(modelWithGapHolder.get());
 
-    this->addArrival(SMessage(100, "p1", "a1"), gathererWithGap);
-    this->addArrival(SMessage(100, "p1", "a2"), gathererWithGap);
-    this->addArrival(SMessage(100, "p2", "a1"), gathererWithGap);
+    this->addArrival(SMessage(100, "p1", TOptionalStr("a1")), gathererWithGap);
+    this->addArrival(SMessage(100, "p1", TOptionalStr("a2")), gathererWithGap);
+    this->addArrival(SMessage(100, "p2", TOptionalStr("a1")), gathererWithGap);
     modelWithGap->sample(100, 200, m_ResourceMonitor);
-    this->addArrival(SMessage(200, "p1", "a1"), gathererWithGap);
+    this->addArrival(SMessage(200, "p1", TOptionalStr("a1")), gathererWithGap);
     modelWithGap->skipSampling(1000);
     LOG_DEBUG(<< "Calling sample over skipped interval should do nothing except print some ERRORs");
     modelWithGap->sample(200, 1000, m_ResourceMonitor);
@@ -975,9 +975,9 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     BOOST_REQUIRE_EQUAL(2, gathererWithGap->numberActivePeople());
     BOOST_REQUIRE_EQUAL(2, gathererWithGap->numberActiveAttributes());
 
-    this->addArrival(SMessage(1000, "p1", "a1"), gathererWithGap);
+    this->addArrival(SMessage(1000, "p1", TOptionalStr("a1")), gathererWithGap);
     modelWithGap->sample(1000, 1100, m_ResourceMonitor);
-    this->addArrival(SMessage(1100, "p1", "a1"), gathererWithGap);
+    this->addArrival(SMessage(1100, "p1", TOptionalStr("a1")), gathererWithGap);
     modelWithGap->sample(1100, 1200, m_ResourceMonitor);
 
     // Check priors are the same
@@ -1032,26 +1032,26 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrections, CTestFixture) {
     while (now < endTime) {
         rng.generateUniformSamples(50.0, 70.0, 3, samples);
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
-            this->addArrival(SMessage(now, "p1", "a1"), m_Gatherer);
+            this->addArrival(SMessage(now, "p1", TOptionalStr("a1")), m_Gatherer);
         }
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[1] + 0.5); ++i) {
-            this->addArrival(SMessage(now, "p2", "a1"), m_Gatherer);
+            this->addArrival(SMessage(now, "p2", TOptionalStr("a1")), m_Gatherer);
         }
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[2] + 0.5); ++i) {
-            this->addArrival(SMessage(now, "p3", "a2"), m_Gatherer);
+            this->addArrival(SMessage(now, "p3", TOptionalStr("a2")), m_Gatherer);
         }
         countingModel.sample(now, now + bucketLength, m_ResourceMonitor);
         model->sample(now, now + bucketLength, m_ResourceMonitor);
         now += bucketLength;
     }
     for (std::size_t i = 0; i < 35; ++i) {
-        this->addArrival(SMessage(now, "p1", "a1"), m_Gatherer);
+        this->addArrival(SMessage(now, "p1", TOptionalStr("a1")), m_Gatherer);
     }
     for (std::size_t i = 0; i < 1; ++i) {
-        this->addArrival(SMessage(now, "p2", "a1"), m_Gatherer);
+        this->addArrival(SMessage(now, "p2", TOptionalStr("a1")), m_Gatherer);
     }
     for (std::size_t i = 0; i < 100; ++i) {
-        this->addArrival(SMessage(now, "p3", "a2"), m_Gatherer);
+        this->addArrival(SMessage(now, "p3", TOptionalStr("a2")), m_Gatherer);
     }
     countingModel.sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
     model->sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
@@ -1206,33 +1206,33 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     CAnomalyDetectorModel::TModelPtr modelWithSkip(
         factoryWithSkipRule.makeModel(modelWithSkipInitData));
 
-    this->addArrival(SMessage(100, "p1", "a1"), gathererNoSkip);
-    this->addArrival(SMessage(100, "p1", "a1"), gathererWithSkip);
-    this->addArrival(SMessage(100, "p1", "a2"), gathererNoSkip);
-    this->addArrival(SMessage(100, "p1", "a2"), gathererWithSkip);
-    this->addArrival(SMessage(100, "p2", "a1"), gathererNoSkip);
-    this->addArrival(SMessage(100, "p2", "a1"), gathererWithSkip);
+    this->addArrival(SMessage(100, "p1", TOptionalStr("a1")), gathererNoSkip);
+    this->addArrival(SMessage(100, "p1", TOptionalStr("a1")), gathererWithSkip);
+    this->addArrival(SMessage(100, "p1", TOptionalStr("a2")), gathererNoSkip);
+    this->addArrival(SMessage(100, "p1", TOptionalStr("a2")), gathererWithSkip);
+    this->addArrival(SMessage(100, "p2", TOptionalStr("a1")), gathererNoSkip);
+    this->addArrival(SMessage(100, "p2", TOptionalStr("a1")), gathererWithSkip);
     modelNoSkip->sample(100, 200, m_ResourceMonitor);
     modelWithSkip->sample(100, 200, m_ResourceMonitor);
 
     BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
-    this->addArrival(SMessage(200, "p1", "a1"), gathererNoSkip);
-    this->addArrival(SMessage(200, "p1", "a1"), gathererWithSkip);
-    this->addArrival(SMessage(200, "p1", "a2"), gathererNoSkip);
-    this->addArrival(SMessage(200, "p1", "a2"), gathererWithSkip);
-    this->addArrival(SMessage(200, "p2", "a1"), gathererNoSkip);
-    this->addArrival(SMessage(200, "p2", "a1"), gathererWithSkip);
+    this->addArrival(SMessage(200, "p1", TOptionalStr("a1")), gathererNoSkip);
+    this->addArrival(SMessage(200, "p1", TOptionalStr("a1")), gathererWithSkip);
+    this->addArrival(SMessage(200, "p1", TOptionalStr("a2")), gathererNoSkip);
+    this->addArrival(SMessage(200, "p1", TOptionalStr("a2")), gathererWithSkip);
+    this->addArrival(SMessage(200, "p2", TOptionalStr("a1")), gathererNoSkip);
+    this->addArrival(SMessage(200, "p2", TOptionalStr("a1")), gathererWithSkip);
 
     // This should be filtered out
-    this->addArrival(SMessage(200, "p1", "a3"), gathererWithSkip);
-    this->addArrival(SMessage(200, "p2", "a3"), gathererWithSkip);
+    this->addArrival(SMessage(200, "p1", TOptionalStr("a3")), gathererWithSkip);
+    this->addArrival(SMessage(200, "p2", TOptionalStr("a3")), gathererWithSkip);
 
     // Add another attribute that must not be skipped
-    this->addArrival(SMessage(200, "p1", "a4"), gathererNoSkip);
-    this->addArrival(SMessage(200, "p1", "a4"), gathererWithSkip);
-    this->addArrival(SMessage(200, "p2", "a4"), gathererNoSkip);
-    this->addArrival(SMessage(200, "p2", "a4"), gathererWithSkip);
+    this->addArrival(SMessage(200, "p1", TOptionalStr("a4")), gathererNoSkip);
+    this->addArrival(SMessage(200, "p1", TOptionalStr("a4")), gathererWithSkip);
+    this->addArrival(SMessage(200, "p2", TOptionalStr("a4")), gathererNoSkip);
+    this->addArrival(SMessage(200, "p2", TOptionalStr("a4")), gathererWithSkip);
 
     modelNoSkip->sample(200, 300, m_ResourceMonitor);
     modelWithSkip->sample(200, 300, m_ResourceMonitor);
