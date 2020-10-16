@@ -64,7 +64,7 @@ bool CCmdLineParser::parse(int argc,
             ("help", "Display this information and exit")
             ("version", "Display version information and exit")
             ("config", boost::program_options::value<std::string>(),
-             "The configuration file")
+             "The job configuration file")
             ("limitconfig", boost::program_options::value<std::string>(),
                         "Optional limit config file")
             ("modelconfig", boost::program_options::value<std::string>(),
