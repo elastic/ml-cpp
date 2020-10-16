@@ -585,7 +585,8 @@ public:
                     const TRegularization& regularization,
                     const TSizeVec& featureBag,
                     const CBoostedTreeNode& split,
-                    CWorkspace& workspace);
+                    CWorkspace& workspace,
+                    double gainThreshold);
 
     //! Order two leaves by decreasing gain in splitting them.
     bool operator<(const CBoostedTreeLeafNodeStatistics& rhs) const;

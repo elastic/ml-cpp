@@ -131,23 +131,43 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                                       const TRegularization& regularization,
                                       const TSizeVec& featureBag,
                                       const CBoostedTreeNode& split,
-                                      CWorkspace& workspace) {
-
+                                      CWorkspace& workspace,
+                                      double gainThreshold) {
+    TPtr leftChild;
+    TPtr rightChild;
     if (this->leftChildHasFewerRows()) {
-        auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-            leftChildId, *this, numberThreads, frame, encoder, regularization,
-            featureBag, true /*is left child*/, split, workspace);
-        auto rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-            rightChildId, std::move(*this), regularization, featureBag, workspace);
+        if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+            leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
+                leftChildId, *this, numberThreads, frame, encoder, regularization,
+                featureBag, true /*is left child*/, split, workspace);
+            if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
+                rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
+                    rightChildId, std::move(*this), regularization, featureBag, workspace);
+            }
+        } else {
+            if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
+                rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
+                    rightChildId, *this, numberThreads, frame, encoder, regularization,
+                    featureBag, false /*is left child*/, split, workspace);
+            }
+        }
 
         return {std::move(leftChild), std::move(rightChild)};
     }
 
-    auto rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-        rightChildId, *this, numberThreads, frame, encoder, regularization,
-        featureBag, false /*is left child*/, split, workspace);
-    auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-        leftChildId, std::move(*this), regularization, featureBag, workspace);
+    if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
+        rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
+            rightChildId, *this, numberThreads, frame, encoder, regularization,
+            featureBag, false /*is left child*/, split, workspace);
+        if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+            leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
+                leftChildId, std::move(*this), regularization, featureBag, workspace);
+        }
+    } else if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+        leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
+            leftChildId, *this, numberThreads, frame, encoder, regularization,
+            featureBag, true /*is left child*/, split, workspace);
+    }
 
     return {std::move(leftChild), std::move(rightChild)};
 }
