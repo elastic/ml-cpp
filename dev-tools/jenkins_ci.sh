@@ -67,6 +67,9 @@ git repack -a -d
 readonly GIT_TOPLEVEL=$(git rev-parse --show-toplevel 2> /dev/null)
 rm -f "${GIT_TOPLEVEL}/.git/objects/info/alternates"
 
+# The Docker version is helpful to identify version-specific Docker bugs
+docker --version
+
 # Build and test the native Linux architecture
 if [ "$HARDWARE_ARCH" = x86_64 ] ; then
 

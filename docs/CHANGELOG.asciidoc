@@ -43,6 +43,8 @@
 
 === Enhancements
 
+* During regression and classification training prefer smaller models if performance is 
+  similar (See {ml-pull}1516[#1516].)
 * Add a response mechanism for commands sent to the native controller. (See
   {ml-pull}1520[#1520], {es-pull}63542[#63542], issue: {es-issue}62823[#62823].)
 
