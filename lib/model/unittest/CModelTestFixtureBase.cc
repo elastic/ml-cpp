@@ -35,30 +35,6 @@ std::size_t CModelTestFixtureBase::addPerson(const std::string& p,
     return *result.personId();
 }
 
-void CModelTestFixtureBase::addArrival(ml::model::CDataGatherer& gatherer,
-                                       ml::core_t::TTime time,
-                                       const std::string& person,
-                                       const TOptionalStr& inf1,
-                                       const TOptionalStr& inf2,
-                                       const TOptionalStr& value) {
-    ml::model::CDataGatherer::TStrCPtrVec fieldValues{&person};
-    if (inf1) {
-        fieldValues.push_back(&(inf1.get()));
-    }
-    if (inf2) {
-        fieldValues.push_back(&(inf2.get()));
-    }
-
-    if (value) {
-        fieldValues.push_back(&(value.get()));
-    }
-
-    ml::model::CEventData eventData;
-    eventData.time(time);
-
-    gatherer.addArrival(fieldValues, eventData, m_ResourceMonitor);
-}
-
 std::string CModelTestFixtureBase::valueAsString(const TDouble1Vec& value) {
     std::string result{ml::core::CStringUtils::typeToStringPrecise(
         value[0], ml::core::CIEEE754::E_DoublePrecision)};
@@ -73,12 +49,40 @@ std::string CModelTestFixtureBase::valueAsString(const TDouble1Vec& value) {
 ml::model::CEventData
 CModelTestFixtureBase::addArrival(const SMessage& message,
                                   ml::model::CModelFactory::TDataGathererPtr& gatherer) {
-    ml::model::CDataGatherer::TStrCPtrVec fields{&message.s_Person, &message.s_Attribute};
+    ml::model::CDataGatherer::TStrCPtrVec fields{&message.s_Person};
+    if (message.s_Attribute) {
+        fields.push_back(&message.s_Attribute.get());
+    }
     std::string value;
-    if (message.s_Value.empty() == false) {
-        value = {valueAsString(message.s_Value)};
+    if (message.s_Dbl1Vec) {
+        value = {valueAsString(message.s_Dbl1Vec.get())};
         fields.push_back(&value);
     }
+    if (message.s_Inf1) {
+        fields.push_back(&(message.s_Inf1.get()));
+    }
+    if (message.s_Inf2) {
+        fields.push_back(&(message.s_Inf2.get()));
+    }
+    if (message.s_Value) {
+        fields.push_back(&(message.s_Value.get()));
+    }
+    std::string dblAsString;
+    if (message.s_Dbl) {
+        dblAsString = ml::core::CStringUtils::typeToStringPrecise(
+            message.s_Dbl.get(), ml::core::CIEEE754::E_DoublePrecision);
+        fields.push_back(&dblAsString);
+    }
+    std::string delimitedDblPr;
+    if (message.s_DblPr) {
+        delimitedDblPr += ml::core::CStringUtils::typeToStringPrecise(
+            message.s_DblPr.get().first, ml::core::CIEEE754::E_DoublePrecision);
+        delimitedDblPr += ml::model::CAnomalyDetectorModelConfig::DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER;
+        delimitedDblPr += ml::core::CStringUtils::typeToStringPrecise(
+            message.s_DblPr.get().second, ml::core::CIEEE754::E_DoublePrecision);
+        fields.push_back(&delimitedDblPr);
+    }
+
     ml::model::CEventData result;
     result.time(message.s_Time);
     gatherer->addArrival(fields, result, m_ResourceMonitor);
@@ -86,73 +90,16 @@ CModelTestFixtureBase::addArrival(const SMessage& message,
     return result;
 }
 
-void CModelTestFixtureBase::addArrival(ml::model::CDataGatherer& gatherer,
-                                       ml::core_t::TTime time,
-                                       const std::string& person,
-                                       double value,
-                                       const TOptionalStr& inf1,
-                                       const TOptionalStr& inf2,
-                                       const TOptionalStr& count) {
-    ml::model::CDataGatherer::TStrCPtrVec fieldValues;
-    fieldValues.push_back(&person);
-    if (inf1) {
-        fieldValues.push_back(&(inf1.get()));
-    }
-    if (inf2) {
-        fieldValues.push_back(&(inf2.get()));
-    }
-    if (count) {
-        fieldValues.push_back(&(count.get()));
-    }
-    std::string valueAsString(ml::core::CStringUtils::typeToStringPrecise(
-        value, ml::core::CIEEE754::E_DoublePrecision));
-    fieldValues.push_back(&valueAsString);
-
-    ml::model::CEventData eventData;
-    eventData.time(time);
-
-    gatherer.addArrival(fieldValues, eventData, m_ResourceMonitor);
-}
-
-void CModelTestFixtureBase::addArrival(ml::model::CDataGatherer& gatherer,
-                                       ml::core_t::TTime time,
-                                       const std::string& person,
-                                       double lat,
-                                       double lng,
-                                       const TOptionalStr& inf1,
-                                       const TOptionalStr& inf2) {
-    ml::model::CDataGatherer::TStrCPtrVec fieldValues;
-    fieldValues.push_back(&person);
-    if (inf1) {
-        fieldValues.push_back(&(inf1.get()));
-    }
-    if (inf2) {
-        fieldValues.push_back(&(inf2.get()));
-    }
-    std::string valueAsString;
-    valueAsString += ml::core::CStringUtils::typeToStringPrecise(
-        lat, ml::core::CIEEE754::E_DoublePrecision);
-    valueAsString += ml::model::CAnomalyDetectorModelConfig::DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER;
-    valueAsString += ml::core::CStringUtils::typeToStringPrecise(
-        lng, ml::core::CIEEE754::E_DoublePrecision);
-    fieldValues.push_back(&valueAsString);
-
-    ml::model::CEventData eventData;
-    eventData.time(time);
-
-    gatherer.addArrival(fieldValues, eventData, m_ResourceMonitor);
-}
-
 void CModelTestFixtureBase::processBucket(ml::core_t::TTime time,
                                           ml::core_t::TTime bucketLength,
                                           const TDoubleVec& bucket,
                                           const TStrVec& influencerValues,
-                                          ml::model::CDataGatherer& gatherer,
+                                          ml::model::CModelFactory::TDataGathererPtr& gatherer,
                                           ml::model::CAnomalyDetectorModel& model,
                                           ml::model::SAnnotatedProbability& probability) {
     for (std::size_t i = 0u; i < bucket.size(); ++i) {
-        this->addArrival(gatherer, time, "p", bucket[i],
-                         TOptionalStr(influencerValues[i]));
+        this->addArrival(
+            SMessage(time, "p", bucket[i], {}, TOptionalStr(influencerValues[i])), gatherer);
     }
     model.sample(time, time + bucketLength, m_ResourceMonitor);
     ml::model::CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
@@ -165,7 +112,7 @@ void CModelTestFixtureBase::processBucket(ml::core_t::TTime time,
 void CModelTestFixtureBase::processBucket(ml::core_t::TTime time,
                                           ml::core_t::TTime bucketLength,
                                           const TDoubleVec& bucket,
-                                          ml::model::CDataGatherer& gatherer,
+                                          ml::model::CModelFactory::TDataGathererPtr& gatherer,
                                           ml::model::CAnomalyDetectorModel& model,
                                           ml::model::SAnnotatedProbability& probability,
                                           ml::model::SAnnotatedProbability& probability2) {
@@ -186,7 +133,7 @@ void CModelTestFixtureBase::processBucket(ml::core_t::TTime time,
         ml::model::CEventData eventData;
         eventData.time(time);
 
-        gatherer.addArrival(fieldValues, eventData, m_ResourceMonitor);
+        gatherer->addArrival(fieldValues, eventData, m_ResourceMonitor);
     }
     model.sample(time, time + bucketLength, m_ResourceMonitor);
     ml::model::CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
@@ -199,7 +146,7 @@ void CModelTestFixtureBase::processBucket(ml::core_t::TTime time,
 void CModelTestFixtureBase::processBucket(ml::core_t::TTime time,
                                           ml::core_t::TTime bucketLength,
                                           const TDoubleStrPrVec& bucket,
-                                          ml::model::CDataGatherer& gatherer,
+                                          ml::model::CModelFactory::TDataGathererPtr& gatherer,
                                           ml::model::CAnomalyDetectorModel& model,
                                           ml::model::SAnnotatedProbability& probability) {
     const std::string person{"p"};
@@ -214,7 +161,7 @@ void CModelTestFixtureBase::processBucket(ml::core_t::TTime time,
         ml::model::CEventData eventData;
         eventData.time(time);
 
-        gatherer.addArrival(fieldValues, eventData, m_ResourceMonitor);
+        gatherer->addArrival(fieldValues, eventData, m_ResourceMonitor);
     }
     model.sample(time, time + bucketLength, m_ResourceMonitor);
     ml::model::CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);

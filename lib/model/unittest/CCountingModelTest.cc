@@ -80,13 +80,13 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
         BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gathererNoGap));
 
         // |2|2|0|0|1| -> 1.0 mean count
-        this->addArrival(*gathererNoGap, 100, "p");
-        this->addArrival(*gathererNoGap, 110, "p");
+        this->addArrival(SMessage(100, "p", TOptionalStr()), gathererNoGap);
+        this->addArrival(SMessage(110, "p", TOptionalStr()), gathererNoGap);
         modelNoGap->sample(100, 200, m_ResourceMonitor);
-        this->addArrival(*gathererNoGap, 250, "p");
-        this->addArrival(*gathererNoGap, 280, "p");
+        this->addArrival(SMessage(250, "p", TOptionalStr()), gathererNoGap);
+        this->addArrival(SMessage(280, "p", TOptionalStr()), gathererNoGap);
         modelNoGap->sample(200, 500, m_ResourceMonitor);
-        this->addArrival(*gathererNoGap, 500, "p");
+        this->addArrival(SMessage(500, "p", TOptionalStr()), gathererNoGap);
         modelNoGap->sample(500, 600, m_ResourceMonitor);
 
         BOOST_REQUIRE_EQUAL(1.0, *modelNoGap->baselineBucketCount(0));
@@ -103,15 +103,15 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
 
         // |2|2|0|0|1|
         // |2|X|X|X|1| -> 1.5 mean count where X means skipped bucket
-        this->addArrival(*gathererWithGap, 100, "p");
-        this->addArrival(*gathererWithGap, 110, "p");
+        this->addArrival(SMessage(100, "p", TOptionalStr()), gathererWithGap);
+        this->addArrival(SMessage(110, "p", TOptionalStr()), gathererWithGap);
         modelWithGap->sample(100, 200, m_ResourceMonitor);
-        this->addArrival(*gathererWithGap, 250, "p");
-        this->addArrival(*gathererWithGap, 280, "p");
+        this->addArrival(SMessage(250, "p", TOptionalStr()), gathererWithGap);
+        this->addArrival(SMessage(280, "p", TOptionalStr()), gathererWithGap);
         modelWithGap->skipSampling(500);
         modelWithGap->prune(maxAgeBuckets);
         BOOST_REQUIRE_EQUAL(1, gathererWithGap->numberActivePeople());
-        this->addArrival(*gathererWithGap, 500, "p");
+        this->addArrival(SMessage(500, "p", TOptionalStr()), gathererWithGap);
         modelWithGap->sample(500, 600, m_ResourceMonitor);
 
         BOOST_REQUIRE_EQUAL(1.5, *modelWithGap->baselineBucketCount(0));
@@ -237,8 +237,9 @@ BOOST_FIXTURE_TEST_CASE(testInterimBucketCorrector, CTestFixture) {
         std::sort(offsets.begin(), offsets.end());
         for (auto offset : offsets) {
             rng.generateUniformSamples(0.0, 1.0, 1, uniform01);
-            this->addArrival(*m_Gatherer, time + static_cast<core_t::TTime>(offset),
-                             uniform01[0] < 0.5 ? "p1" : "p2");
+            this->addArrival(SMessage(time + static_cast<core_t::TTime>(offset),
+                                      uniform01[0] < 0.5 ? "p1" : "p2", TOptionalStr()),
+                             m_Gatherer);
         }
         model->sample(time, time + bucketLength, m_ResourceMonitor);
     }
@@ -248,8 +249,9 @@ BOOST_FIXTURE_TEST_CASE(testInterimBucketCorrector, CTestFixture) {
 
     for (std::size_t i = 0u; i < offsets.size(); ++i) {
         rng.generateUniformSamples(0.0, 1.0, 1, uniform01);
-        this->addArrival(*m_Gatherer, time + static_cast<core_t::TTime>(offsets[i]),
-                         uniform01[0] < 0.5 ? "p1" : "p2");
+        this->addArrival(SMessage(time + static_cast<core_t::TTime>(offsets[i]),
+                                  uniform01[0] < 0.5 ? "p1" : "p2", TOptionalStr()),
+                         m_Gatherer);
         model->sampleBucketStatistics(time, time + bucketLength, m_ResourceMonitor);
         BOOST_REQUIRE_EQUAL(static_cast<double>(i + 1) / 10.0,
                             m_InterimBucketCorrector->completeness());
