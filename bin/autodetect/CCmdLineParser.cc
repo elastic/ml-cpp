@@ -22,6 +22,7 @@ const std::string CCmdLineParser::DESCRIPTION = "Usage: autodetect [options] [<f
 
 bool CCmdLineParser::parse(int argc,
                            const char* const* argv,
+                           std::string& configFile,
                            std::string& limitConfigFile,
                            std::string& modelConfigFile,
                            std::string& fieldConfigFile,
@@ -62,6 +63,8 @@ bool CCmdLineParser::parse(int argc,
         desc.add_options()
             ("help", "Display this information and exit")
             ("version", "Display version information and exit")
+            ("config", boost::program_options::value<std::string>(),
+             "The job configuration file")
             ("limitconfig", boost::program_options::value<std::string>(),
                         "Optional limit config file")
             ("modelconfig", boost::program_options::value<std::string>(),
@@ -153,6 +156,9 @@ bool CCmdLineParser::parse(int argc,
                       << model::CAnomalyScore::CURRENT_FORMAT_VERSION << std::endl
                       << ver::CBuildInfo::fullInfo() << std::endl;
             return false;
+        }
+        if (vm.count("config") > 0) {
+            configFile = vm["config"].as<std::string>();
         }
         if (vm.count("limitconfig") > 0) {
             limitConfigFile = vm["limitconfig"].as<std::string>();
