@@ -338,6 +338,30 @@ public:
             return seed;
         }
 
+        double& positiveDerivativesGSum() { return m_PositiveDerivativesGSum; }
+        double& positiveDerivativesHSum() { return m_PositiveDerivativesHSum; }
+        double& negativeDerivativesGSum() { return m_NegativeDerivativesGSum; }
+        double& negativeDerivativesHSum() { return m_NegativeDerivativesHSum; }
+
+        double positiveDerivativesGSum() const {
+            return m_PositiveDerivativesGSum;
+        }
+        double positiveDerivativesHSum() const {
+            return m_PositiveDerivativesHSum;
+        }
+        double negativeDerivativesGSum() const {
+            return m_NegativeDerivativesGSum;
+        }
+        double negativeDerivativesHSum() const {
+            return m_NegativeDerivativesHSum;
+        }
+
+    public:
+        double m_PositiveDerivativesGSum = 0.0;
+        double m_PositiveDerivativesHSum = 0.0;
+        double m_NegativeDerivativesGSum = 0.0;
+        double m_NegativeDerivativesHSum = 0.0;
+
     private:
         using TDerivativesVecVec = std::vector<TDerivativesVec>;
         using TAlignedDoubleVec = std::vector<double, core::CAlignedAllocator<double>>;
@@ -614,12 +638,14 @@ private:
                          double splitAt,
                          std::size_t minimumChildRowCount,
                          bool leftChildHasFewerRows,
-                         bool assignMissingToLeft)
+                         bool assignMissingToLeft,
+                         double leftChildMaxGain = -boosted_tree_detail::INF,
+                         double rightChildMaxGain = -boosted_tree_detail::INF)
             : s_Gain{CMathsFuncs::isNan(gain) ? -boosted_tree_detail::INF : gain},
               s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
               s_MinimumChildRowCount{static_cast<std::uint32_t>(minimumChildRowCount)},
-              s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft} {
-        }
+              s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft},
+              s_LeftChildMaxGain{leftChildMaxGain}, s_RightChildMaxGain{rightChildMaxGain} {}
 
         bool operator<(const SSplitStatistics& rhs) const {
             return COrderings::lexicographical_compare(
@@ -641,6 +667,8 @@ private:
         std::uint32_t s_MinimumChildRowCount = 0;
         bool s_LeftChildHasFewerRows = true;
         bool s_AssignMissingToLeft = true;
+        double s_LeftChildMaxGain = -boosted_tree_detail::INF;
+        double s_RightChildMaxGain = -boosted_tree_detail::INF;
     };
 
 private:
@@ -648,16 +676,16 @@ private:
                                          const core::CDataFrame& frame,
                                          const CDataFrameCategoryEncoder& encoder,
                                          const core::CPackedBitVector& rowMask,
-                                         CWorkspace& workspace) const;
+                                         CWorkspace& workspace);
     void computeRowMaskAndAggregateLossDerivatives(std::size_t numberThreads,
                                                    const core::CDataFrame& frame,
                                                    const CDataFrameCategoryEncoder& encoder,
                                                    bool isLeftChild,
                                                    const CBoostedTreeNode& split,
                                                    const core::CPackedBitVector& parentRowMask,
-                                                   CWorkspace& workspace) const;
+                                                   CWorkspace& workspace);
     void addRowDerivatives(const CEncodedDataFrameRowRef& row,
-                           CSplitsDerivatives& splitsDerivatives) const;
+                           CSplitsDerivatives& splitsDerivatives);
     SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;
 

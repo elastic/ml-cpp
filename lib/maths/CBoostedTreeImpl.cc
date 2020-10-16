@@ -29,6 +29,8 @@
 #include <maths/CSpline.h>
 #include <maths/CTreeShapFeatureImportance.h>
 
+#include <boost/circular_buffer.hpp>
+
 #include <algorithm>
 #include <memory>
 #include <queue>
@@ -784,7 +786,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
     using TLeafNodeStatisticsPtr = CBoostedTreeLeafNodeStatistics::TPtr;
     // TODO define comparison operator
-    using TLeafNodeStatisticsPtrQueue = std::priority_queue<TLeafNodeStatisticsPtr>;
+    using TLeafNodeStatisticsPtrQueue = boost::circular_buffer<TLeafNodeStatisticsPtr>;
 
     workspace.reinitialize(m_NumberThreads, candidateSplits, m_Loss->numberParameters());
 
