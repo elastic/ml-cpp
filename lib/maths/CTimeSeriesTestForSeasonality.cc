@@ -556,9 +556,12 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
             double leastCommonRepeat{decompositions[H1].leastCommonRepeat()};
             double numberTrendParameters{
                 static_cast<double>(decompositions[H1].s_NumberTrendParameters)};
-            double pValueVsSelected{selected < decompositions.size()
-                                        ? decompositions[H1].pValue(decompositions[selected])
-                                        : 0.0};
+            double pValueH1VsSelected{selected < decompositions.size()
+                                          ? decompositions[H1].pValue(decompositions[selected])
+                                          : 0.0};
+            double pValueSelectedVsH1{selected < decompositions.size()
+                                          ? decompositions[selected].pValue(decompositions[H1])
+                                          : 1.0};
 
             double quality{
                 1.0 * std::log(explainedVariancePerParameter(0)) +
@@ -566,10 +569,11 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
                 0.7 * decompositions[H1].componentsSimilarity() +
                 0.5 * std::log(-logPValue) + 0.2 * std::log(-logPValueProxy) -
                 0.5 * std::log(decompositions[H1].targetModelSize()) -
-                0.3 * std::log(0.1 + std::max(numberTrendParameters - 2.0, 0.0)) -
+                0.3 * std::log(0.1 + std::max(numberTrendParameters - 3.0, 0.0)) -
                 0.3 * std::log(0.1 + decompositions[H1].numberScalings()) -
                 0.3 * std::log(std::max(leastCommonRepeat, 0.5))};
-            LOG_TRACE(<< "p-value vs selected = " << pValueVsSelected);
+            LOG_TRACE(<< "p-value H1 vs selected = " << pValueH1VsSelected);
+            LOG_TRACE(<< "p-value selected vs H1 = " << pValueSelectedVsH1);
             LOG_TRACE(<< "explained variance per param = " << explainedVariancePerParameter);
             LOG_TRACE(<< "target size = " << decompositions[H1].targetModelSize()
                       << ", modelled = " << decompositions[H1].s_AlreadyModelled);
@@ -578,10 +582,10 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
             LOG_TRACE(<< "already modelled = " << decompositions[H1].s_AlreadyModelled);
             LOG_TRACE(<< "quality = " << quality);
 
-            if ((leastCommonRepeat <= 0.5 && decompositions[H1].numberScalings() == 0.0 &&
-                 pValueVsSelected < m_SignificantPValue) ||
-                quality > qualitySelected) {
+            if (pValueH1VsSelected < m_SignificantPValue ||
+                (pValueSelectedVsH1 >= m_SignificantPValue && quality > qualitySelected)) {
                 std::tie(selected, qualitySelected) = std::make_pair(H1, quality);
+                LOG_TRACE(<< "selected " << selected);
             }
         }
     }
@@ -637,7 +641,8 @@ void CTimeSeriesTestForSeasonality::addNotSeasonal(const TRemoveTrend& removeTre
         decompositions.emplace_back(
             *this, this->truncatedMoments(0.0, m_ValuesMinusTrend),
             this->truncatedMoments(m_OutlierFraction, m_ValuesMinusTrend),
-            m_ModelTrendSegments.empty() ? 0 : 2 * (m_ModelTrendSegments.size() - 1),
+            this->numberTrendParameters(
+                m_ModelTrendSegments.empty() ? 0 : m_ModelTrendSegments.size() - 1),
             m_Values, THypothesisStatsVec{}, m_ModelledPeriodsTestable);
     }
 }
@@ -689,7 +694,7 @@ void CTimeSeriesTestForSeasonality::addModelled(const TRemoveTrend& removeTrend,
 
 void CTimeSeriesTestForSeasonality::addDiurnal(const TRemoveTrend& removeTrend,
                                                TModelVec& decompositions) const {
-    // Day + year.
+    // day + year.
     m_CandidatePeriods.assign({CSignal::seasonalComponentSummary(this->day()),
                                CSignal::seasonalComponentSummary(this->year())});
     this->removeIfNotTestable(m_CandidatePeriods);
@@ -708,7 +713,7 @@ void CTimeSeriesTestForSeasonality::addDiurnal(const TRemoveTrend& removeTrend,
         m_CandidatePeriods = CSignal::tradingDayDecomposition(
             m_ValuesMinusTrend, m_OutlierFraction, this->week(), m_StartOfWeekOverride);
 
-        // Weekday/weekend modulation + year.
+        // weekday/weekend modulation + year.
         if (m_CandidatePeriods.size() > 0) {
             CSignal::appendSeasonalComponentSummary(this->year(), m_CandidatePeriods);
             this->removeIfNotTestable(m_CandidatePeriods);
@@ -721,9 +726,8 @@ void CTimeSeriesTestForSeasonality::addDiurnal(const TRemoveTrend& removeTrend,
             }
         }
 
-        // Day + week + year.
-        m_CandidatePeriods.assign({CSignal::seasonalComponentSummary(this->day()),
-                                   CSignal::seasonalComponentSummary(this->week()),
+        // week + year.
+        m_CandidatePeriods.assign({CSignal::seasonalComponentSummary(this->week()),
                                    CSignal::seasonalComponentSummary(this->year())});
         this->removeIfNotTestable(m_CandidatePeriods);
         if (this->includesNewComponents(m_CandidatePeriods)) {
@@ -979,7 +983,7 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
     return {*this,
             residualMoments,
             truncatedResidualMoments,
-            2 * numberTrendSegments,
+            this->numberTrendParameters(numberTrendSegments),
             std::move(residuals),
             std::move(hypotheses),
             std::move(componentsToRemoveMask)};
@@ -1003,8 +1007,7 @@ void CTimeSeriesTestForSeasonality::updateResiduals(const SHypothesisStats& hypo
     }
 
     for (std::size_t i = 0; i < m_TemporaryValues.size(); ++i) {
-        CBasicStatistics::moment<0>(residuals[m_WindowIndices[i]]) =
-            CBasicStatistics::mean(m_TemporaryValues[i]) -
+        CBasicStatistics::moment<0>(residuals[m_WindowIndices[i]]) -=
             (scale ? TSegmentation::scaleAt(i, scaleSegments, m_ComponentScales) *
                          m_ScaledComponent[0][m_Periods[0].offset(i)]
                    : m_Periods[0].value(m_Components[0], i));
@@ -1350,6 +1353,10 @@ CTimeSeriesTestForSeasonality::truncatedMoments(double outlierFraction,
     CBasicStatistics::moment<1>(moments) += m_EpsVariance;
 
     return moments;
+}
+
+std::size_t CTimeSeriesTestForSeasonality::numberTrendParameters(std::size_t numberTrendSegments) const {
+    return numberTrendSegments == 1 ? 3 : 2 * numberTrendSegments;
 }
 
 bool CTimeSeriesTestForSeasonality::includesNewComponents(const TSeasonalComponentVec& periods) const {

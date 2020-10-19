@@ -289,7 +289,8 @@ BOOST_AUTO_TEST_CASE(testRealTradingDays) {
             maths::CTimeSeriesTestForSeasonality seasonality{lastTest, lastTest, HOUR, values};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< result.print());
-            BOOST_REQUIRE(result.print() == "[86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]");
+            BOOST_REQUIRE(result.print() == "[86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]" ||
+                          result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]");
             values.assign(window / HOUR, TFloatMeanAccumulator{});
             lastTest = time;
         }
@@ -328,7 +329,7 @@ BOOST_AUTO_TEST_CASE(testRealTradingDaysPlusOutliers) {
             maths::CTimeSeriesTestForSeasonality seasonality{lastTest, lastTest, HOUR, values};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< result.print());
-            BOOST_REQUIRE(result.print() == "[86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]" ||
+            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]" ||
                           result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800)]");
             values.assign(window / HOUR, TFloatMeanAccumulator{});
             lastTest = time;
@@ -759,7 +760,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticMixtureOfSeasonalities) {
 
     LOG_DEBUG(<< "recall = " << TP / (TP + FN));
     LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
-    BOOST_REQUIRE(TP / (TP + FN) > 0.98);
+    BOOST_REQUIRE(TP / (TP + FN) > 0.99);
     BOOST_REQUIRE(TP / (TP + FP) > 0.99);
 }
 
@@ -940,8 +941,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnalWithLinearTrend) {
     BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.93);
 }
 
-BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend,
-                     *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend) {
 
     // Test the ability to correctly decompose a time series with diurnal seasonal
     // components and a piecewise linear trend.
@@ -1019,7 +1019,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend,
     }
 
     LOG_DEBUG(<< "Recall = " << TP / (TP + FN));
-    BOOST_REQUIRE(TP / (TP + FN) > 0.99);
+    BOOST_REQUIRE(TP / (TP + FN) > 0.97);
 }
 
 BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithNoChange) {
@@ -1073,7 +1073,7 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithNoChange) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange) {
 
     // Simulate the seasonal components having changed in the test window and
     // check that we correctly identify the new ones.
@@ -1141,8 +1141,8 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange, *boost::unit_test::disab
 
     LOG_DEBUG(<< "recall = " << TP / (TP + FN));
     LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
-    BOOST_REQUIRE(TP / (TP + FN) > 0.99);
-    BOOST_REQUIRE(TP / (TP + FP) > 0.99);
+    BOOST_REQUIRE(TP / (TP + FN) > 0.98);
+    BOOST_REQUIRE(TP / (TP + FP) > 0.97);
 }
 
 BOOST_AUTO_TEST_CASE(testNewComponentInitialValues) {

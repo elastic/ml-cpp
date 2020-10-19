@@ -533,6 +533,7 @@ private:
                      const TTransform& transform = [](const TFloatMeanAccumulator& value) {
                          return CBasicStatistics::mean(value);
                      }) const;
+    std::size_t numberTrendParameters(std::size_t numberTrendSegments) const;
     bool includesNewComponents(const TSeasonalComponentVec& periods) const;
     bool alreadyModelled(const TSeasonalComponentVec& periods) const;
     bool alreadyModelled(const TSeasonalComponent& period) const;
