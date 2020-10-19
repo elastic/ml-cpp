@@ -70,6 +70,9 @@ git repack -a -d
 readonly GIT_TOPLEVEL=$(git rev-parse --show-toplevel 2> /dev/null)
 rm -f "${GIT_TOPLEVEL}/.git/objects/info/alternates"
 
+# The Docker version is helpful to identify version-specific Docker bugs
+docker --version
+
 # If this is a PR build then fail fast on style checks
 if [ -n "$PR_AUTHOR" ] ; then
     ./docker_check_style.sh
