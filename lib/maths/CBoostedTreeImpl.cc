@@ -866,14 +866,24 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         this->featureBag(featureSampleProbabilities, featureBag);
 
         std::size_t n{splitCandidateTreeNodes.size()};
-        std::size_t lastCandidateIdx{n - (maximumNumberInternalNodes - tree.size())};
-        double smallestCandidateGain{splitCandidateTreeNodes[lastCandidateIdx]->gain()};
+        std::size_t currentNumberInternalNodes{(tree.size() - 1) / 2};
+        int lastCandidateIdx{n - (maximumNumberInternalNodes - currentNumberInternalNodes)};
+        double smallestCandidateGain =
+            lastCandidateIdx >= 0 ? splitCandidateTreeNodes[lastCandidateIdx]->gain() : 0.0;
+        // double smallestCandidateGain{-INF};
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
         std::tie(leftChild, rightChild) = leaf->split(
             leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder, m_Regularization,
             featureBag, tree[leaf->id()], workspace, smallestCandidateGain);
+
+        // if (leftChild == nullptr) {
+        //     LOG_DEBUG(<< "Left child didn't have to be computed");
+        // }
+        // if (rightChild == nullptr) {
+        //     LOG_DEBUG(<< "Right child didn't have to be computed");
+        // }
 
         // Need gain to be computed to compare here
         if (leftChild != nullptr && rightChild != nullptr && less(rightChild, leftChild)) {

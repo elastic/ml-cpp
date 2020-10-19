@@ -218,6 +218,10 @@ public:
             m_Derivatives.swap(other.m_Derivatives);
             m_MissingDerivatives.swap(other.m_MissingDerivatives);
             m_Storage.swap(other.m_Storage);
+            std::swap(m_PositiveDerivativesGSum, other.m_PositiveDerivativesGSum);
+            std::swap(m_PositiveDerivativesHSum, other.m_PositiveDerivativesHSum);
+            std::swap(m_NegativeDerivativesGSum, other.m_NegativeDerivativesGSum);
+            std::swap(m_NegativeDerivativesHSum, other.m_NegativeDerivativesHSum);
         }
 
         //! \return The aggregate count for \p feature and \p split.
@@ -272,6 +276,10 @@ public:
 
         //! Zero all values.
         void zero() {
+            m_PositiveDerivativesGSum = 0.0;
+            m_PositiveDerivativesHSum = 0.0;
+            m_NegativeDerivativesGSum = 0.0;
+            m_NegativeDerivativesHSum = 0.0;
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].zero();
@@ -282,6 +290,10 @@ public:
 
         //! Compute the accumulation of both collections of per split derivatives.
         void add(const CSplitsDerivatives& other) {
+            m_PositiveDerivativesGSum += other.m_PositiveDerivativesGSum;
+            m_PositiveDerivativesHSum += other.m_PositiveDerivativesHSum;
+            m_NegativeDerivativesGSum += other.m_NegativeDerivativesGSum;
+            m_NegativeDerivativesHSum += other.m_NegativeDerivativesHSum;
             for (std::size_t i = 0; i < other.m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < other.m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].add(other.m_Derivatives[i][j]);
@@ -292,6 +304,10 @@ public:
 
         //! Subtract \p rhs.
         void subtract(const CSplitsDerivatives& rhs) {
+            this->m_PositiveDerivativesGSum -= rhs.m_PositiveDerivativesGSum;
+            this->m_PositiveDerivativesHSum -= rhs.m_PositiveDerivativesHSum;
+            this->m_NegativeDerivativesGSum -= rhs.m_NegativeDerivativesGSum;
+            this->m_NegativeDerivativesHSum -= rhs.m_NegativeDerivativesHSum;
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].subtract(rhs.m_Derivatives[i][j]);
@@ -657,7 +673,8 @@ private:
         std::string print() const {
             std::ostringstream result;
             result << "split feature '" << s_Feature << "' @ " << s_SplitAt
-                   << ", gain = " << s_Gain;
+                   << ", gain = " << s_Gain << ", leftChildMaxGain = " << s_LeftChildMaxGain
+                   << ", rightChildMaxGain = " << s_RightChildMaxGain;
             return result.str();
         }
 
@@ -686,7 +703,7 @@ private:
                                                    const core::CPackedBitVector& parentRowMask,
                                                    CWorkspace& workspace);
     void addRowDerivatives(const CEncodedDataFrameRowRef& row,
-                           CSplitsDerivatives& splitsDerivatives);
+                           CSplitsDerivatives& splitsDerivatives) const;
     SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;
 

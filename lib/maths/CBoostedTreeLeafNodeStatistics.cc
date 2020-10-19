@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "core/Constants.h"
 #include <algorithm>
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
 
@@ -143,6 +144,8 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
             if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, std::move(*this), regularization, featureBag, workspace);
+                // rightChild->m_BestSplit.s_LeftChildMaxGain = leftChild->m_BestSplit.s_LeftChildMaxGain;
+                // rightChild->m_BestSplit.s_RightChildMaxGain = leftChild->m_BestSplit.s_RightChildMaxGain;
             }
         } else {
             if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
@@ -162,13 +165,20 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
         if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, std::move(*this), regularization, featureBag, workspace);
+            // leftChild->m_BestSplit.s_LeftChildMaxGain = rightChild->m_BestSplit.s_LeftChildMaxGain;
+            // leftChild->m_BestSplit.s_RightChildMaxGain = rightChild->m_BestSplit.s_RightChildMaxGain;
         }
     } else if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
         leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             leftChildId, *this, numberThreads, frame, encoder, regularization,
             featureBag, true /*is left child*/, split, workspace);
     }
-
+    // if (leftChild != nullptr) {
+    //     LOG_DEBUG(<< leftChild->m_BestSplit.print() << ", depth = " << leftChild->m_Depth);
+    // }
+    // if (rightChild != nullptr) {
+    //     LOG_DEBUG(<< rightChild->m_BestSplit.print() << ", depth = " << rightChild->m_Depth);
+    // }
     return {std::move(leftChild), std::move(rightChild)};
 }
 
@@ -284,21 +294,21 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
 }
 
 void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRowRef& row,
-                                                       CSplitsDerivatives& splitsDerivatives) {
+                                                       CSplitsDerivatives& splitsDerivatives) const {
 
     auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
                                            m_NumberLossParameters);
     if (derivatives.size() == 2) {
-        auto curvature = readLossCurvature(row.unencodedRow(), m_ExtraColumns,
-                                           m_NumberLossParameters);
-        LOG_DEBUG(<< "Gradient 0 " << derivatives(0) << " 1 " << derivatives(1)
-                  << " curvature(0,0) " << curvature(0, 0));
+        // auto curvature = readLossCurvature(row.unencodedRow(), m_ExtraColumns,
+        //                                    m_NumberLossParameters);
+        // LOG_DEBUG(<< "Gradient 0 " << derivatives(0) << " 1 " << derivatives(1)
+        //           << " curvature(0,0) " << curvature(0, 0));
         if (derivatives(0) >= 0.0) {
-            m_Derivatives.m_PositiveDerivativesGSum += derivatives(0);
-            m_Derivatives.m_PositiveDerivativesHSum += curvature(0, 0);
+            splitsDerivatives.m_PositiveDerivativesGSum += derivatives(0);
+            splitsDerivatives.m_PositiveDerivativesHSum += derivatives(1);
         } else {
-            m_Derivatives.m_NegativeDerivativesGSum += derivatives(0);
-            m_Derivatives.m_NegativeDerivativesHSum += curvature(0, 0);
+            splitsDerivatives.m_NegativeDerivativesGSum += derivatives(0);
+            splitsDerivatives.m_NegativeDerivativesHSum += derivatives(1);
         }
     }
 
@@ -462,9 +472,9 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
             // TODO continue from here, does it make sense?
             double C{CTools::pow2(m_Derivatives.positiveDerivativesGSum()) /
-                         m_Derivatives.positiveDerivativesHSum() +
+                         (m_Derivatives.positiveDerivativesHSum() + lambda + 1e-10) +
                      CTools::pow2(m_Derivatives.negativeDerivativesGSum()) /
-                         m_Derivatives.negativeDerivativesHSum()};
+                         (m_Derivatives.negativeDerivativesHSum() + lambda + 1e-10)};
             gainUpperBoundLeft[ASSIGN_MISSING_TO_LEFT] = C - minLossLeft[ASSIGN_MISSING_TO_LEFT];
             gainUpperBoundLeft[ASSIGN_MISSING_TO_RIGHT] = C - minLossLeft[ASSIGN_MISSING_TO_RIGHT];
             gainUpperBoundRight[ASSIGN_MISSING_TO_LEFT] = C - minLossRight[ASSIGN_MISSING_TO_LEFT];
@@ -499,6 +509,12 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
                     regularization.depthPenaltyMultiplier() *
                         (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
 
+        double childPenaltyForDepth{regularization.penaltyForDepth(m_Depth + 1)};
+        double childPenaltyForDepthPlusOne{regularization.penaltyForDepth(m_Depth + 2)};
+        double childPenalty{regularization.treeSizePenaltyMultiplier() +
+                            regularization.depthPenaltyMultiplier() *
+                                (2.0 * childPenaltyForDepthPlusOne - childPenaltyForDepth)};
+
         SSplitStatistics candidate{gain,
                                    h.trace() / static_cast<double>(m_NumberLossParameters),
                                    feature,
@@ -506,8 +522,8 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
                                    std::min(leftChildRowCount, c - leftChildRowCount),
                                    2 * leftChildRowCount < c,
                                    assignMissingToLeft,
-                                   maxGainLeftChild,
-                                   maxGainRightChild};
+                                   (0.5 * maxGainLeftChild - childPenalty),
+                                   (0.5 * maxGainRightChild - childPenalty)};
         LOG_TRACE(<< "candidate split: " << candidate.print());
 
         if (candidate > result) {
