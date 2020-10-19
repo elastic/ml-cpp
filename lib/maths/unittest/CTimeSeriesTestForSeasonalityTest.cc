@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
     BOOST_REQUIRE(TN / (FP + TN) > 0.99);
 }
 
-BOOST_AUTO_TEST_CASE(testSyntheticDiurnal, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
 
     // Test accuracy for a variety of synthetic time series with daily and
     // weekly seasonalities.
