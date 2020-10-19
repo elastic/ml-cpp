@@ -140,8 +140,8 @@ public:
                         }
                         core_t::TTime dt = (static_cast<core_t::TTime>(l) * bucketLength) /
                                            static_cast<core_t::TTime>(values.size());
-                        messages.push_back(SMessage(startTime + dt, people[k],
-                                                    attributes[j], value));
+                        SMessage message(startTime + dt, people[k], attributes[j], value);
+                        messages.push_back(message);
                     }
                 }
             }
@@ -304,9 +304,9 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
         std::size_t pid = *eventData.personId();
         std::size_t cid = *eventData.attributeId();
         ++expectedBucketPersonCounts[message.s_Person];
-        expectedBucketMeans[pid * numberAttributes + cid].add(message.s_Value[0]);
-        expectedBucketMins[pid * numberAttributes + cid].add(message.s_Value[0]);
-        expectedBucketMaxs[pid * numberAttributes + cid].add(message.s_Value[0]);
+        expectedBucketMeans[pid * numberAttributes + cid].add(message.s_Dbl1Vec.get()[0]);
+        expectedBucketMins[pid * numberAttributes + cid].add(message.s_Dbl1Vec.get()[0]);
+        expectedBucketMaxs[pid * numberAttributes + cid].add(message.s_Dbl1Vec.get()[0]);
     }
 }
 
@@ -440,15 +440,15 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
         CEventData eventData = this->addArrival(message, m_Gatherer);
         std::size_t pid = *eventData.personId();
         std::size_t cid = *eventData.attributeId();
-        nonNegative &= message.s_Value[0] < 0.0;
+        nonNegative &= message.s_Dbl1Vec.get()[0] < 0.0;
 
         double sampleCount = m_Gatherer->sampleCount(cid);
         if (sampleCount > 0.0) {
             TSizeSizePr key{pid, cid};
             sampleTimes[key].add(static_cast<double>(message.s_Time));
-            sampleMeans[key].add(message.s_Value[0]);
-            sampleMins[key].add(message.s_Value[0]);
-            sampleMaxs[key].add(message.s_Value[0]);
+            sampleMeans[key].add(message.s_Dbl1Vec.get()[0]);
+            sampleMins[key].add(message.s_Dbl1Vec.get()[0]);
+            sampleMaxs[key].add(message.s_Dbl1Vec.get()[0]);
             if (maths::CBasicStatistics::count(sampleTimes[key]) == sampleCount) {
                 expectedSampleTimes[key].push_back(
                     maths::CBasicStatistics::mean(sampleTimes[key]));
@@ -500,43 +500,43 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     SAnnotatedProbability annotatedProbability;
 
     core_t::TTime time = startTime;
-    processBucket(time, bucketLength, b1, *m_Gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b1, m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b2, *m_Gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b2, m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b3, *m_Gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b3, m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b4, *m_Gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b4, m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b5, *m_Gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b5, m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b6, *m_Gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b6, m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b7, *m_Gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b7, m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b8, *m_Gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b8, m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability > 0.8);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b9, *m_Gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b9, m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability < 0.85);
 
     time += bucketLength;
-    processBucket(time, bucketLength, b10, *m_Gatherer, model, annotatedProbability);
+    processBucket(time, bucketLength, b10, m_Gatherer, model, annotatedProbability);
     BOOST_TEST_REQUIRE(annotatedProbability.s_Probability < 0.1);
     BOOST_REQUIRE_EQUAL(1, annotatedProbability.s_Influences.size());
     BOOST_REQUIRE_EQUAL(std::string("I"),
@@ -740,9 +740,10 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
 
     bucketStart = m_Gatherer->currentBucketStartTime() + bucketLength;
 
-    TMessageVec newMessages{{bucketStart + 10, "p1", "c2", TDouble1Vec(1, 20.0)},
-                            {bucketStart + 200, "p5", "c6", TDouble1Vec(1, 10.0)},
-                            {bucketStart + 2100, "p5", "c6", TDouble1Vec(1, 15.0)}};
+    TMessageVec newMessages{
+        {bucketStart + 10, "p1", TOptionalStr{"c2"}, TDouble1Vec(1, 20.0)},
+        {bucketStart + 200, "p5", TOptionalStr{"c6"}, TDouble1Vec(1, 10.0)},
+        {bucketStart + 2100, "p5", TOptionalStr{"c6"}, TDouble1Vec(1, 15.0)}};
 
     for (auto& newMessage : newMessages) {
         this->addArrival(newMessage, m_Gatherer);
@@ -1191,10 +1192,11 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     CAnomalyDetectorModel::TModelPtr modelWithSkip(
         factoryWithSkip.makeModel(modelWithSkipInitData));
 
-    TMessageVec messages{{startTime + 10, "p1", "c1", {1, 20.0}},
-                         {startTime + 10, "p1", "c2", {1, 22.0}},
-                         {startTime + 10, "p2", "c1", {1, 20.0}},
-                         {startTime + 10, "p2", "c2", {1, 22.0}}};
+    TMessageVec messages{
+        {startTime + 10, "p1", TOptionalStr{"c1"}, TDouble1Vec{1, 20.0}},
+        {startTime + 10, "p1", TOptionalStr{"c2"}, TDouble1Vec{1, 22.0}},
+        {startTime + 10, "p2", TOptionalStr{"c1"}, TDouble1Vec{1, 20.0}},
+        {startTime + 10, "p2", TOptionalStr{"c2"}, TDouble1Vec{1, 22.0}}};
 
     std::vector<CModelFactory::TDataGathererPtr> gatherers{gathererNoSkip, gathererWithSkip};
     for (auto& gatherer : gatherers) {
@@ -1209,10 +1211,10 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     BOOST_REQUIRE_EQUAL(modelWithSkip->checksum(), modelNoSkip->checksum());
 
     messages.clear();
-    messages.emplace_back(startTime + 10, "p1", "c1", TDouble1Vec{1, 21.0});
-    messages.emplace_back(startTime + 10, "p1", "c2", TDouble1Vec{1, 21.0});
-    messages.emplace_back(startTime + 10, "p2", "c1", TDouble1Vec{1, 21.0});
-    messages.emplace_back(startTime + 10, "p2", "c2", TDouble1Vec{1, 21.0});
+    messages.emplace_back(startTime + 10, "p1", TOptionalStr{"c1"}, TDouble1Vec{1, 21.0});
+    messages.emplace_back(startTime + 10, "p1", TOptionalStr{"c2"}, TDouble1Vec{1, 21.0});
+    messages.emplace_back(startTime + 10, "p2", TOptionalStr{"c1"}, TDouble1Vec{1, 21.0});
+    messages.emplace_back(startTime + 10, "p2", TOptionalStr{"c2"}, TDouble1Vec{1, 21.0});
     for (auto& gatherer : gatherers) {
         for (auto& message : messages) {
             this->addArrival(message, gatherer);
@@ -1220,8 +1222,10 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     }
 
     // This should be filtered out
-    this->addArrival(SMessage(startTime + 10, "p1", "c3", TDouble1Vec(1, 21.0)), gathererWithSkip);
-    this->addArrival(SMessage(startTime + 10, "p2", "c3", TDouble1Vec(1, 21.0)), gathererWithSkip);
+    this->addArrival(SMessage(startTime + 10, "p1", TOptionalStr{"c3"}, TDouble1Vec{1, 21.0}),
+                     gathererWithSkip);
+    this->addArrival(SMessage(startTime + 10, "p2", TOptionalStr{"c3"}, TDouble1Vec{1, 21.0}),
+                     gathererWithSkip);
 
     modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
     modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);

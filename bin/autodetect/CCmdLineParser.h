@@ -34,6 +34,7 @@ public:
     //! later on by the api::CFieldConfig class.
     static bool parse(int argc,
                       const char* const* argv,
+                      std::string& config,
                       std::string& limitConfigFile,
                       std::string& modelConfigFile,
                       std::string& fieldConfigFile,
