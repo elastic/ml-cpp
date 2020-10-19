@@ -200,6 +200,7 @@ public:
 
 public:
     static constexpr double OUTLIER_FRACTION = 0.1;
+    static constexpr std::size_t MAXIMUM_NUMBER_SEGMENTS = 4;
 
 public:
     CTimeSeriesTestForSeasonality(core_t::TTime valuesStartTime,
@@ -266,6 +267,7 @@ public:
 
 private:
     using TDoubleVec = std::vector<double>;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeVec = std::vector<std::size_t>;
     using TOptionalSize = boost::optional<std::size_t>;
@@ -287,6 +289,8 @@ private:
     using TTransform = std::function<double(const TFloatMeanAccumulator&)>;
     using TRemoveTrend =
         std::function<bool(const TSeasonalComponentVec&, TFloatMeanAccumulatorVec&, TSizeVec&)>;
+    using TMeanScale =
+        std::function<void(const TSeasonalComponentVec&, TFloatMeanAccumulatorVec&)>;
 
     //! \brief Accumulates the minimum amplitude.
     //!
@@ -516,10 +520,12 @@ private:
                                    TFloatMeanAccumulatorVec& values) const;
     void removeDiscontinuities(const TSizeVec& modelTrendSegments,
                                TFloatMeanAccumulatorVec& values) const;
-    bool meanScale(const SHypothesisStats& hypothesis,
-                   const TIndexWeight& weight,
+    bool meanScale(const TSeasonalComponentVec& periods,
+                   const TSizeVec& scaleSegments,
                    TFloatMeanAccumulatorVec& values,
-                   TDoubleVec& scales) const;
+                   TDoubleVecVec& components,
+                   TDoubleVec& scales,
+                   const TIndexWeight& weight = [](std::size_t) { return 1.0; }) const;
     TVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values) const;
     TMeanVarAccumulator
     truncatedMoments(double outlierFraction,
@@ -590,7 +596,6 @@ private:
     TBoolVec m_ModelledPeriodsTestable;
     TFloatMeanAccumulatorVec m_Values;
     // The follow are member data to avoid repeatedly reinitialising.
-    mutable TSizeVec m_WindowIndices;
     mutable TAmplitudeVec m_Amplitudes;
     mutable TSeasonalComponentVec m_Periods;
     mutable TSeasonalComponentVec m_CandidatePeriods;
@@ -600,7 +605,9 @@ private:
     mutable TFloatMeanAccumulatorVec m_ValuesMinusTrend;
     mutable TSizeVec m_ModelTrendSegments;
     mutable TMaxAccumulator m_Outliers;
-    mutable TDoubleVec m_Scales;
+    mutable TSizeVec m_WindowIndices;
+    mutable TDoubleVecVec m_ScaledComponent;
+    mutable TDoubleVec m_ComponentScales;
 };
 }
 }

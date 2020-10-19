@@ -336,7 +336,8 @@ public:
     //! \param[in] components The seasonal component models in \p values.
     //! \param[in] fraction The fraction of values treated as outliers.
     //! \param[in,out] values The values to reweight.
-    static void reweightOutliers(const TSeasonalComponentVec& periods,
+    //! \return True if this reweighted any \p values.
+    static bool reweightOutliers(const TSeasonalComponentVec& periods,
                                  const TMeanAccumulatorVecVec& components,
                                  double fraction,
                                  TFloatMeanAccumulatorVec& values);
@@ -346,7 +347,8 @@ public:
     //! \param[in] predictor The \p values predictor.
     //! \param[in] fraction The fraction of values treated as outliers.
     //! \param[in,out] values The values to reweight.
-    static void reweightOutliers(const TPredictor& predictor,
+    //! \return True if this reweighted any \p values.
+    static bool reweightOutliers(const TPredictor& predictor,
                                  double fraction,
                                  TFloatMeanAccumulatorVec& values);
 

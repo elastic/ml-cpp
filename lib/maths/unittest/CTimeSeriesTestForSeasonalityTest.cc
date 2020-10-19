@@ -289,8 +289,7 @@ BOOST_AUTO_TEST_CASE(testRealTradingDays) {
             maths::CTimeSeriesTestForSeasonality seasonality{lastTest, lastTest, HOUR, values};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< result.print());
-            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800)]" ||
-                          result.print() == "[86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]");
+            BOOST_REQUIRE(result.print() == "[86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]");
             values.assign(window / HOUR, TFloatMeanAccumulator{});
             lastTest = time;
         }
@@ -329,8 +328,8 @@ BOOST_AUTO_TEST_CASE(testRealTradingDaysPlusOutliers) {
             maths::CTimeSeriesTestForSeasonality seasonality{lastTest, lastTest, HOUR, values};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< result.print());
-            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800)]" ||
-                          result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]");
+            BOOST_REQUIRE(result.print() == "[86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]" ||
+                          result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800)]");
             values.assign(window / HOUR, TFloatMeanAccumulator{});
             lastTest = time;
         }
@@ -574,7 +573,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticSparseWeekly) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
 
     // Test synthetic timeseries data with pepper and salt outliers.
 

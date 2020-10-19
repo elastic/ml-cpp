@@ -1590,7 +1590,7 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CS
 
     m_Seasonal->remove(components.seasonalToRemoveMask());
     LOG_TRACE(<< "remove mask = "
-              << core::CContainerPrinter::print(components.seasonalToRemoveMask()));
+             << core::CContainerPrinter::print(components.seasonalToRemoveMask()));
 
     if (components.seasonal().size() == 0) {
         LOG_DEBUG(<< "removed all seasonality");

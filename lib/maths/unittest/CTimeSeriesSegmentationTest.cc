@@ -4,11 +4,13 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CContainerPrinter.h>
 #include <core/CStringUtils.h>
 #include <core/Constants.h>
 #include <core/CoreTypes.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CSignal.h>
 #include <maths/CTimeSeriesSegmentation.h>
 
 #include <test/BoostTestCloseAbsolute.h>
@@ -39,22 +41,22 @@ public:
     static const bool ENABLED{false};
 
 public:
-    CDebugGenerator(const std::string& file = "results.m") : m_File(file) {}
+    CDebugGenerator(const std::string& file = "results.py") : m_File(file) {}
     ~CDebugGenerator() {
         if (ENABLED) {
             std::ofstream file;
             file.open(m_File);
+            file << "import matplotlib.pyplot as plt;\n";
             file << "f = " << core::CContainerPrinter::print(m_Values) << ";\n";
             file << "r = " << core::CContainerPrinter::print(m_Residuals) << ";\n";
-            file << "figure(1);\n";
-            file << "clf;\n";
-            file << "hold on;\n";
-            file << "plot(f);\n";
-            file << "axis([1 length(f) min(f) max(f)]);\n";
-            file << "figure(2);\n";
-            file << "clf;\n";
-            file << "plot(r, 'k');\n";
-            file << "axis([1 length(r) min(r) max(r)]);";
+            file << "plt.figure(1);\n";
+            file << "plt.clf();\n";
+            file << "plt.plot(f);\n";
+            file << "plt.show();\n";
+            file << "plt.figure(2);\n";
+            file << "plt.clf();\n";
+            file << "plt.plot(r, 'k');\n";
+            file << "plt.show();\n";
         }
     }
     void addValue(double value) {
@@ -97,7 +99,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinear) {
     LOG_DEBUG(<< "Basic");
     for (auto outlierFraction : {0.0, 0.1}) {
         CDebugGenerator debug(
-            "results.m." + core::CStringUtils::typeToStringPretty(outlierFraction));
+            "results." + core::CStringUtils::typeToStringPretty(outlierFraction) + ".py");
 
         values.assign(range / halfHour, TFloatMeanAccumulator{});
         TMeanVarAccumulator noiseMoments;
@@ -117,14 +119,13 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinear) {
                                   static_cast<std::size_t>(3 * week / halfHour),
                                   values.size()};
 
-        TSizeVec segmentation(
-            TSegmentation::piecewiseLinear(values, 0.01, outlierFraction, 0.1));
+        TSizeVec segmentation{TSegmentation::piecewiseLinear(values, 1e-5, outlierFraction)};
         LOG_DEBUG(<< "true segmentation = "
                   << core::CContainerPrinter::print(trueSegmentation));
         LOG_DEBUG(<< "segmentation      = " << core::CContainerPrinter::print(segmentation));
 
         TFloatMeanAccumulatorVec residuals{TSegmentation::removePiecewiseLinear(
-            values, segmentation, outlierFraction, 0.1)};
+            values, segmentation, outlierFraction)};
         TMeanVarAccumulator residualMoments;
         for (const auto& residual : residuals) {
             residualMoments.add(maths::CBasicStatistics::mean(residual));
@@ -151,12 +152,10 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinear) {
                            1.4 * maths::CBasicStatistics::variance(noiseMoments));
     }
 
-    LOG_DEBUG(<< "With Outliers");
-
     // Same again but with 5% salt-and-pepper outliers.
 
-    CDebugGenerator debug("results.m.outliers");
-
+    LOG_DEBUG(<< "With Outliers");
+    CDebugGenerator debug("results.outliers.py");
     values.assign(range / halfHour, TFloatMeanAccumulator{});
     TDoubleVec u01;
     TSizeVec inliers;
@@ -183,12 +182,12 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinear) {
                               static_cast<std::size_t>(3 * week / halfHour),
                               values.size()};
 
-    TSizeVec segmentation(TSegmentation::piecewiseLinear(values, 0.01, 0.05, 0.1));
+    TSizeVec segmentation(TSegmentation::piecewiseLinear(values, 0.01, 0.05));
     LOG_DEBUG(<< "true segmentation = " << core::CContainerPrinter::print(trueSegmentation));
     LOG_DEBUG(<< "segmentation      = " << core::CContainerPrinter::print(segmentation));
 
     TFloatMeanAccumulatorVec residuals{
-        TSegmentation::removePiecewiseLinear(values, segmentation, 0.05, 0.1)};
+        TSegmentation::removePiecewiseLinear(values, segmentation, 0.05)};
 
     // Project onto inliers.
     TMeanVarAccumulator residualMoments;
@@ -208,7 +207,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinear) {
     // Not biased.
     BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(residualMoments) -
                                  maths::CBasicStatistics::mean(noiseMoments)) <
-                       3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
+                       3.5 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
                                        maths::CBasicStatistics::count(noiseMoments)));
 
     // We've explained nearly all the variance.
@@ -224,82 +223,62 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledSeasonal) {
 
     test::CRandomNumbers rng;
 
-    std::size_t period{48};
-    std::string periods[]{"smooth", "spikey"};
+    std::string descriptions[]{"smooth", "weekends", "spikey"};
+    maths::CSignal::TSeasonalComponentVec periods[]{
+        {maths::CSignal::seasonalComponentSummary(48)},
+        {maths::CSignal::SSeasonalComponentSummary{48, 0, 336, {0, 240}},
+         maths::CSignal::SSeasonalComponentSummary{336, 0, 336, {0, 240}},
+         maths::CSignal::SSeasonalComponentSummary{48, 0, 336, {240, 336}},
+         maths::CSignal::SSeasonalComponentSummary{336, 0, 336, {240, 336}}},
+        {maths::CSignal::seasonalComponentSummary(48)}};
+
     TFloatMeanAccumulatorVec values(range / halfHour);
     TDoubleVec noise;
 
     LOG_DEBUG(<< "Basic");
-    for (auto outlierFraction : {0.0, 0.1}) {
-        std::size_t j{0};
-        for (auto seasonal : {smoothDaily, spikeyDaily}) {
-            LOG_DEBUG(<< periods[j]);
-            CDebugGenerator debug("results.m." +
-                                  core::CStringUtils::typeToStringPretty(outlierFraction) +
-                                  "." + periods[j++]);
+    std::size_t i{0};
+    for (auto seasonal : {smoothDaily, weekends, spikeyDaily}) {
+        LOG_DEBUG(<< descriptions[i]);
+        CDebugGenerator debug{"results." + descriptions[i] + ".py"};
 
-            values.assign(range / halfHour, TFloatMeanAccumulator{});
-            TMeanVarAccumulator noiseMoments;
-            for (core_t::TTime time = 0; time < range; time += halfHour) {
-                rng.generateNormalSamples(0.0, 3.0, 1, noise);
-                noiseMoments.add(noise[0]);
-                if (time < 3 * week / 2) {
-                    values[time / halfHour].add(100.0 * seasonal(time) + noise[0]);
-                } else if (time < 2 * week) {
-                    values[time / halfHour].add(50.0 * seasonal(time) + noise[0]);
-                } else {
-                    values[time / halfHour].add(300.0 * seasonal(time) + noise[0]);
-                }
-                debug.addValue(maths::CBasicStatistics::mean(values[time / halfHour]));
+        values.assign(range / halfHour, TFloatMeanAccumulator{});
+        TMeanVarAccumulator noiseMoments;
+        for (core_t::TTime time = 0; time < range; time += halfHour) {
+            rng.generateNormalSamples(0.0, 3.0, 1, noise);
+            noiseMoments.add(noise[0]);
+            if (time < 3 * week / 2) {
+                values[time / halfHour].add(100.0 * seasonal(time) + noise[0]);
+            } else if (time < 2 * week) {
+                values[time / halfHour].add(50.0 * seasonal(time) + noise[0]);
+            } else {
+                values[time / halfHour].add(300.0 * seasonal(time) + noise[0]);
             }
-            TSizeVec trueSegmentation{
-                0, static_cast<std::size_t>(3 * week / halfHour / 2),
-                static_cast<std::size_t>(2 * week / halfHour), values.size()};
-
-            TSizeVec segmentation{TSegmentation::piecewiseLinearScaledSeasonal(
-                values, period, 0.01, outlierFraction, 0.1)};
-            LOG_DEBUG(<< "true segmentation = "
-                      << core::CContainerPrinter::print(trueSegmentation));
-            LOG_DEBUG(<< "segmentation      = "
-                      << core::CContainerPrinter::print(segmentation));
-
-            TFloatMeanAccumulatorVec residuals{TSegmentation::removePiecewiseLinearScaledSeasonal(
-                values, period, segmentation, outlierFraction, 0.1)};
-            TMeanVarAccumulator residualMoments;
-            for (const auto& residual : residuals) {
-                residualMoments.add(maths::CBasicStatistics::mean(residual));
-                debug.addResidual(maths::CBasicStatistics::mean(residual));
-            }
-            LOG_DEBUG(<< "noise moments    = " << noiseMoments);
-            LOG_DEBUG(<< "residual moments = " << residualMoments);
-
-            // No false positives.
-            BOOST_REQUIRE_EQUAL(trueSegmentation.size(), segmentation.size());
-
-            // Distance in index space is small.
-            BOOST_TEST_REQUIRE(distance(trueSegmentation, segmentation) < 5);
-
-            // Not biased.
-            BOOST_TEST_REQUIRE(
-                std::fabs(maths::CBasicStatistics::mean(residualMoments) -
-                          maths::CBasicStatistics::mean(noiseMoments)) <
-                3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
-                                maths::CBasicStatistics::count(noiseMoments)));
-
-            // We've explained nearly all the variance.
-            BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(residualMoments) <
-                               1.4 * maths::CBasicStatistics::variance(noiseMoments));
+            debug.addValue(maths::CBasicStatistics::mean(values[time / halfHour]));
         }
-    }
+        TSizeVec trueSegmentation{0, static_cast<std::size_t>(3 * week / halfHour / 2),
+                                  static_cast<std::size_t>(2 * week / halfHour),
+                                  values.size()};
 
-    LOG_DEBUG(<< "With Outliers");
+        TSizeVec segmentation{TSegmentation::piecewiseLinearScaledSeasonal(
+            values, [&](std::size_t j) { return seasonal(halfHour * j); }, 0.001)};
+        LOG_DEBUG(<< "true segmentation = "
+                  << core::CContainerPrinter::print(trueSegmentation));
+        LOG_DEBUG(<< "segmentation      = " << core::CContainerPrinter::print(segmentation));
+
+        // No false positives.
+        BOOST_REQUIRE_EQUAL(trueSegmentation.size(), segmentation.size());
+
+        // Distance in index space is small.
+        BOOST_TEST_REQUIRE(distance(trueSegmentation, segmentation) < 5);
+    }
 
     // Same again but with 5% salt-and-pepper outliers.
 
-    std::size_t j{0};
-    for (auto seasonal : {smoothDaily, spikeyDaily}) {
-        LOG_DEBUG(<< periods[j]);
-        CDebugGenerator debug("results.m.outliers." + periods[j++]);
+    LOG_DEBUG(<< "With Outliers");
+    i = 0;
+    for (auto seasonal : {smoothDaily, weekends}) {
+        LOG_DEBUG(<< descriptions[i]);
+        CDebugGenerator debug("results.outliers." + descriptions[i] + ".py");
         values.assign(range / halfHour, TFloatMeanAccumulator{});
         TDoubleVec u01;
         TSizeVec inliers;
@@ -326,40 +305,31 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledSeasonal) {
                                   static_cast<std::size_t>(2 * week / halfHour),
                                   values.size()};
 
+        maths::CSignal::TMeanAccumulatorVecVec components;
+        maths::CSignal::fitSeasonalComponentsRobust(periods[i], 0.05, values, components);
         TSizeVec segmentation(TSegmentation::piecewiseLinearScaledSeasonal(
-            values, period, 0.01, 0.05, 0.01));
+            values,
+            [&](std::size_t j) {
+                double result{0.0};
+                for (std::size_t k = 0; k < periods[i].size(); ++k) {
+                    if (periods[i][k].contains(j)) {
+                        result += maths::CBasicStatistics::mean(
+                            components[k][periods[i][k].offset(j)]);
+                    }
+                }
+                return result;
+            },
+            0.01));
+        ++i;
         LOG_DEBUG(<< "true segmentation = "
                   << core::CContainerPrinter::print(trueSegmentation));
         LOG_DEBUG(<< "segmentation      = " << core::CContainerPrinter::print(segmentation));
-
-        TFloatMeanAccumulatorVec residuals{TSegmentation::removePiecewiseLinearScaledSeasonal(
-            values, period, trueSegmentation, 0.05, 0.01)};
-
-        // Project onto inliers.
-        TMeanVarAccumulator residualMoments;
-        for (auto i : inliers) {
-            residualMoments.add(maths::CBasicStatistics::mean(residuals[i]));
-            debug.addResidual(maths::CBasicStatistics::mean(residuals[i]));
-        }
-        LOG_DEBUG(<< "noise moments    = " << noiseMoments);
-        LOG_DEBUG(<< "residual moments = " << residualMoments);
 
         // No false positives
         BOOST_REQUIRE_EQUAL(trueSegmentation.size(), segmentation.size());
 
         // Distance in index space is small.
         BOOST_TEST_REQUIRE(distance(trueSegmentation, segmentation) < 20);
-
-        // Not biased.
-        BOOST_TEST_REQUIRE(
-            std::fabs(maths::CBasicStatistics::mean(residualMoments) -
-                      maths::CBasicStatistics::mean(noiseMoments)) <
-            3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
-                            maths::CBasicStatistics::count(noiseMoments)));
-
-        // We've explained nearly all the variance.
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(residualMoments) <
-                           1.4 * maths::CBasicStatistics::variance(noiseMoments));
     }
 }
 
@@ -379,10 +349,10 @@ BOOST_AUTO_TEST_CASE(testRemovePiecewiseLinearDiscontinuities) {
         }
     }
 
-    TSizeVec segmentation(TSegmentation::piecewiseLinear(values));
+    TSizeVec segmentation{TSegmentation::piecewiseLinear(values, 0.001, 0.1)};
     LOG_DEBUG(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
 
-    values = TSegmentation::removePiecewiseLinearDiscontinuities(values, segmentation);
+    values = TSegmentation::removePiecewiseLinearDiscontinuities(values, segmentation, 0.1);
 
     for (const auto& value : values) {
         BOOST_REQUIRE_EQUAL(3.0, static_cast<double>(maths::CBasicStatistics::mean(value)));
@@ -399,10 +369,10 @@ BOOST_AUTO_TEST_CASE(testRemovePiecewiseLinearDiscontinuities) {
         }
     }
 
-    segmentation = TSegmentation::piecewiseLinear(values);
+    segmentation = TSegmentation::piecewiseLinear(values, 0.001, 0.1);
     LOG_DEBUG(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
 
-    values = TSegmentation::removePiecewiseLinearDiscontinuities(values, segmentation);
+    values = TSegmentation::removePiecewiseLinearDiscontinuities(values, segmentation, 0.1);
 
     // Test
     //   1) We don't have any jump discontinuities,
@@ -438,85 +408,89 @@ BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
 
     // Test that mean scaling a component produces the expected values.
 
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
+
+    auto predictor = [](const maths::CSignal::TSeasonalComponentVec& periods,
+                        const maths::CSignal::TMeanAccumulatorVecVec& components,
+                        std::size_t j) {
+        double result{0.0};
+        for (std::size_t i = 0; i < components.size(); ++i) {
+            if (periods[i].contains(j)) {
+                result += maths::CBasicStatistics::mean(components[i][periods[i].offset(j)]);
+            }
+        }
+        return result;
+    };
 
     test::CRandomNumbers rng;
 
-    std::size_t period{20};
-
-    auto seasonal = [=](std::size_t i) {
-        return 10.0 * std::sin(boost::math::double_constants::pi *
-                               static_cast<double>(i % period) /
-                               static_cast<double>(period));
-    };
-
-    TSizeVec segmentation{0, 40, 100, 160};
-    TDoubleVec expectedScales{0.2, 1.3, 0.5};
-    double expectedMeanScale{(4.0 * 0.2 + 6.0 * 1.3 + 6.0 * 0.5) / 16.0};
+    core_t::TTime hour{core::constants::HOUR};
+    maths::CSignal::TSeasonalComponentVec periods[]{
+        {maths::CSignal::seasonalComponentSummary(24)},
+        {maths::CSignal::SSeasonalComponentSummary{24, 0, 168, {0, 120}},
+         maths::CSignal::SSeasonalComponentSummary{168, 0, 168, {0, 120}},
+         maths::CSignal::SSeasonalComponentSummary{24, 0, 168, {120, 168}},
+         maths::CSignal::SSeasonalComponentSummary{168, 0, 168, {120, 168}}}};
+    TSizeVec segmentation{0, 220, 380, 600};
+    TSizeVec repeats{24, 168};
+    TDoubleVec scales{0.2, 1.3, 0.5};
+    double expectedMeanScale{(11.0 * 0.2 + 8.0 * 1.3 + 11.0 * 0.5) / 30.0};
     TDoubleVec noise;
     TFloatMeanAccumulatorVec values;
-    TMeanAccumulatorVec actualMeanScaled;
-    TDoubleVec actualScales;
-    TMeanVarAccumulator overallScaleErrorMoments;
-    TMeanVarAccumulator overallErrorMoments;
 
-    for (std::size_t test = 0; test < 10; ++test) {
+    maths::CSignal::TMeanAccumulatorVecVec components;
 
-        rng.generateNormalSamples(0.0, 1.0, segmentation.back(), noise);
+    std::size_t i{0};
+    for (const auto& seasonal : {smoothDaily, weekends}) {
 
-        values.assign(segmentation.back(), TFloatMeanAccumulator{});
-        for (std::size_t i = 1; i < segmentation.size(); ++i) {
-            for (std::size_t j = segmentation[i - 1]; j < segmentation[i]; ++j) {
-                values[j].add(expectedScales[i - 1] * seasonal(j) + noise[j]);
+        TMeanVarAccumulator overallErrorMoments;
+        TDoubleVecVec scaledModels;
+        TDoubleVec modelScales;
+
+        for (std::size_t test = 0; test < 10; ++test) {
+
+            rng.generateNormalSamples(0.0, 1.0, segmentation.back(), noise);
+
+            values.assign(segmentation.back(), TFloatMeanAccumulator{});
+            for (std::size_t j = 1; j < segmentation.size(); ++j) {
+                for (std::size_t k = segmentation[j - 1]; k < segmentation[j]; ++k) {
+                    values[k].add(scales[j - 1] * 10.0 * seasonal(hour * k) + noise[k]);
+                }
             }
-        }
 
-        bool successful;
-        std::tie(values, actualScales, successful) = TSegmentation::meanScalePiecewiseLinearScaledSeasonal(
-            std::move(values), period, segmentation,
-            [](std::size_t) { return 1.0; });
+            values = TSegmentation::meanScalePiecewiseLinearScaledSeasonal(
+                std::move(values), periods[i], segmentation,
+                [](std::size_t) { return 1.0; }, 0.05, scaledModels, modelScales);
+            BOOST_REQUIRE(values.size() > 0);
 
-        BOOST_REQUIRE(successful);
+            maths::CSignal::fitSeasonalComponents(periods[i], values, components);
 
-        actualMeanScaled.assign(period, TMeanAccumulator{});
-        for (std::size_t i = 0; i < values.size(); ++i) {
-            actualMeanScaled[i % period].add(maths::CBasicStatistics::mean(values[i]));
-        }
-
-        BOOST_REQUIRE_EQUAL(expectedScales.size(), actualScales.size());
-        for (std::size_t i = 0; i < expectedScales.size(); ++i) {
-            double expectedScale{expectedScales[i] / expectedMeanScale};
-            BOOST_REQUIRE_CLOSE(expectedScale, actualScales[i], 20.0);
-            overallScaleErrorMoments.add(std::fabs(expectedScale - actualScales[i]) / expectedScale);
-        }
-
-        TMeanVarAccumulator errorMoments;
-        for (std::size_t i = 0; i < period; ++i) {
+            TMeanVarAccumulator errorMoments;
+            for (std::size_t j = 0; j < repeats[i]; ++j) {
+                double actual{expectedMeanScale * 10.0 * seasonal(hour * j)};
+                double prediction{predictor(periods[i], components, j)};
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                    actual, prediction,
+                    7.0 / std::sqrt(static_cast<double>(values.size()) /
+                                    static_cast<double>(repeats[i])));
+                errorMoments.add(actual - prediction);
+            }
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                expectedMeanScale * seasonal(i),
-                maths::CBasicStatistics::mean(actualMeanScaled[i]),
-                3.0 / std::sqrt(static_cast<double>(values.size()) /
-                                static_cast<double>(period)));
-            errorMoments.add(expectedMeanScale * seasonal(i) -
-                             maths::CBasicStatistics::mean(actualMeanScaled[i]));
+                1.0 / (static_cast<double>(values.size()) / static_cast<double>(repeats[i])),
+                maths::CBasicStatistics::variance(errorMoments), 0.1);
+
+            overallErrorMoments += errorMoments;
         }
-        BOOST_REQUIRE_CLOSE(
-            1.0 / (static_cast<double>(values.size()) / static_cast<double>(period)),
-            maths::CBasicStatistics::variance(errorMoments), 60.0); // 60%
 
-        overallErrorMoments += errorMoments;
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, maths::CBasicStatistics::mean(overallErrorMoments),
+                                     std::sqrt(static_cast<double>(values.size()) /
+                                               static_cast<double>(repeats[i]) / 10.0));
+        BOOST_REQUIRE_CLOSE(1.0 / (static_cast<double>(values.size()) /
+                                   static_cast<double>(repeats[i])),
+                            maths::CBasicStatistics::variance(overallErrorMoments),
+                            15.0); // 15%
+        ++i;
     }
-
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(
-        0.0, maths::CBasicStatistics::mean(overallScaleErrorMoments), 0.05);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, maths::CBasicStatistics::mean(overallErrorMoments),
-                                 std::sqrt(static_cast<double>(values.size()) /
-                                           static_cast<double>(period) / 10.0));
-    BOOST_REQUIRE_CLOSE(
-        1.0 / (static_cast<double>(values.size()) / static_cast<double>(period)),
-        maths::CBasicStatistics::variance(overallErrorMoments),
-        10.0); // 5%
 }
 
 BOOST_AUTO_TEST_CASE(testMeanScale) {

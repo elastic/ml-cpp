@@ -342,7 +342,9 @@ BOOST_AUTO_TEST_CASE(testFFTIFFTIdempotency) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testAutocorrelations) {
+BOOST_AUTO_TEST_CASE(testCyclicAutocorrelations) {
+    // Test the cyclic autocorrelation matches the autocorrelation calculated with FFT.
+
     test::CRandomNumbers rng;
 
     TSizeVec sizes;

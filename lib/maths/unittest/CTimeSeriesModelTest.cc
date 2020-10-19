@@ -5,6 +5,7 @@
  */
 
 #include <core/CLogger.h>
+#include <core/CContainerPrinter.h>
 #include <core/CRapidXmlParser.h>
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
