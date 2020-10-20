@@ -8,8 +8,10 @@
 
 #include <core/CLogger.h>
 
+#include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CLinearAlgebraEigen.h>
+#include <maths/CDataFrameCategoryEncoder.h>
 
 #include <test/CRandomNumbers.h>
 
@@ -18,6 +20,7 @@
 BOOST_AUTO_TEST_SUITE(CBoostedTreeLeafNodeStatisticsTest)
 
 using namespace ml;
+using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
@@ -305,6 +308,78 @@ BOOST_AUTO_TEST_CASE(testPerSplitDerivatives) {
 
     testPerSplitDerivativesFor(1 /*loss function parameter*/);
     testPerSplitDerivativesFor(3 /*loss function parameters*/);
+}
+
+BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
+    using TRegularization = maths::CBoostedTreeRegularization<double>;
+    using TLeafNodeStatisticsPtr = maths::CBoostedTreeLeafNodeStatistics::TPtr;
+    // create dataset and encoding
+    std::size_t cols{2};
+    TSizeVec extraColumns{2, 3, 4, 5};
+    std::size_t rows{6};
+    std::size_t numberThreads{1};
+    auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
+    frame->categoricalColumns(TBoolVec{false, false});
+    frame->resizeColumns(numberThreads, cols + extraColumns.size());
+
+    TDoubleVecVec features{{0.1}, {0.2}, {0.3}, {0.7}, {0.8}, {0.9}};
+    TDoubleVec targets{1.0, 1.0, 1.0, -1.0, -1.0, -1.0};
+    TDoubleVec predictions{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    TDoubleVec gradients{1.0, 1.0, 1.0, -1.0, -1.0, -1.0};
+    TDoubleVec curvature{2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
+    TDoubleVec weights{1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+    
+    for (std::size_t i = 0; i < rows; ++i) {
+        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                *(column++) = features[0][i];
+                *(column++) = targets[i];
+                *(column++) = predictions[i];
+                *(column++) = gradients[i];
+                *(column++) = curvature[i];
+                *(column) = weights[i];
+
+            });
+    }
+    frame->finishWritingRows();
+    
+
+    maths::CDataFrameCategoryEncoder encoder{{numberThreads, *frame, 1}};
+
+    TImmutableRadixSetVec featureSplits;
+    featureSplits.push_back(TImmutableRadixSet{0.25, 0.5, 0.75});
+
+    maths::CBoostedTreeLeafNodeStatistics::CWorkspace workspace;
+    workspace.reinitialize(numberThreads, featureSplits, 1);
+
+    core::CPackedBitVector trainingRowMask({true,true, true, true, true, true});
+
+    TSizeVec featureBag{0};
+
+
+
+    TRegularization regularization;
+    regularization.softTreeDepthLimit(1.0)
+                  .softTreeDepthTolerance(1.0);
+    LOG_DEBUG(<< "Regularization " << regularization.print());
+
+    auto rootSplit = std::make_shared<maths::CBoostedTreeLeafNodeStatistics>(
+        0 /*root*/, extraColumns, 1, numberThreads, *frame, encoder, regularization,
+        featureSplits, featureBag, 0 /*depth*/, trainingRowMask, workspace);
+
+    LOG_DEBUG(<< "Root gain: " << rootSplit->print());
+
+
+    maths::CBoostedTreeNode rootNode;
+
+    TLeafNodeStatisticsPtr leftChild;
+        TLeafNodeStatisticsPtr rightChild;
+        std::tie(leftChild, rightChild) = rootSplit->split(
+            1, 2, numberThreads, *frame, encoder, regularization,
+            featureBag, rootNode, workspace, 0);
+    LOG_DEBUG(<<"Left child: " << leftChild->print());
+    LOG_DEBUG(<<"Right child: " << rightChild->print());
+
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

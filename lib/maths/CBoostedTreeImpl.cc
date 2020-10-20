@@ -884,12 +884,12 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         featureSampleProbabilities = m_FeatureSampleProbabilities;
         this->featureBag(featureSampleProbabilities, featureBag);
 
-        std::size_t n{splitCandidateTreeNodes.size()};
-        std::size_t currentNumberInternalNodes{(tree.size() - 1) / 2};
-        int lastCandidateIdx{n - (maximumNumberInternalNodes - currentNumberInternalNodes)};
-        double smallestCandidateGain =
-            lastCandidateIdx >= 0 ? splitCandidateTreeNodes[lastCandidateIdx]->gain() : 0.0;
-        // double smallestCandidateGain{-INF};
+        int n{splitCandidateTreeNodes.size()};
+        // int currentNumberInternalNodes{(tree.size() - 1) / 2};
+        // int lastCandidateIdx{n - (maximumNumberInternalNodes - currentNumberInternalNodes)};
+        // double smallestCandidateGain =
+        //     lastCandidateIdx >= 0 ? splitCandidateTreeNodes[lastCandidateIdx]->gain() : 0.0;
+        double smallestCandidateGain{0};
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
