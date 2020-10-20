@@ -340,6 +340,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
 
     TSizeVec trendSegments{TSegmentation::piecewiseLinear(
         m_Values, m_SignificantPValue, m_OutlierFraction, MAXIMUM_NUMBER_SEGMENTS)};
+    LOG_TRACE(<< "trend segments = " << core::CContainerPrinter::print(trendSegments));
 
     TRemoveTrend removeTrendModels[]{
         [&](const TSeasonalComponentVec&, TFloatMeanAccumulatorVec& values,
@@ -556,12 +557,9 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
             double leastCommonRepeat{decompositions[H1].leastCommonRepeat()};
             double numberTrendParameters{
                 static_cast<double>(decompositions[H1].s_NumberTrendParameters)};
-            double pValueH1VsSelected{selected < decompositions.size()
-                                          ? decompositions[H1].pValue(decompositions[selected])
-                                          : 0.0};
-            double pValueSelectedVsH1{selected < decompositions.size()
-                                          ? decompositions[selected].pValue(decompositions[H1])
-                                          : 1.0};
+            double pValueVsSelected{selected < decompositions.size()
+                                        ? decompositions[H1].pValue(decompositions[selected])
+                                        : 0.0};
 
             double quality{
                 1.0 * std::log(explainedVariancePerParameter(0)) +
@@ -569,11 +567,10 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
                 0.7 * decompositions[H1].componentsSimilarity() +
                 0.5 * std::log(-logPValue) + 0.2 * std::log(-logPValueProxy) -
                 0.5 * std::log(decompositions[H1].targetModelSize()) -
-                0.3 * std::log(0.1 + std::max(numberTrendParameters - 3.0, 0.0)) -
+                0.3 * std::log(1.0 + std::max(numberTrendParameters - 3.0, 0.0)) -
                 0.3 * std::log(0.1 + decompositions[H1].numberScalings()) -
                 0.3 * std::log(std::max(leastCommonRepeat, 0.5))};
-            LOG_TRACE(<< "p-value H1 vs selected = " << pValueH1VsSelected);
-            LOG_TRACE(<< "p-value selected vs H1 = " << pValueSelectedVsH1);
+            LOG_TRACE(<< "p-value H1 vs selected = " << pValueVsSelected);
             LOG_TRACE(<< "explained variance per param = " << explainedVariancePerParameter);
             LOG_TRACE(<< "target size = " << decompositions[H1].targetModelSize()
                       << ", modelled = " << decompositions[H1].s_AlreadyModelled);
@@ -582,8 +579,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
             LOG_TRACE(<< "already modelled = " << decompositions[H1].s_AlreadyModelled);
             LOG_TRACE(<< "quality = " << quality);
 
-            if (pValueH1VsSelected < m_SignificantPValue ||
-                (pValueSelectedVsH1 >= m_SignificantPValue && quality > qualitySelected)) {
+            if (pValueVsSelected < m_VerySignificantPValue || quality > qualitySelected) {
                 std::tie(selected, qualitySelected) = std::make_pair(H1, quality);
                 LOG_TRACE(<< "selected " << selected);
             }
@@ -1672,7 +1668,7 @@ void CTimeSeriesTestForSeasonality::SHypothesisStats::testAutocorrelation(
 
     CSignal::TFloatMeanAccumulatorCRng valuesToTestAutocorrelation{
         params.m_ValuesToTest, 0,
-        CIntegerTools::floor(params.m_ValuesToTest.size(), params.m_Periods[0].s_WindowRepeat)};
+        CIntegerTools::floor(params.m_ValuesToTest.size(), params.m_Periods[0].period())};
 
     double autocorrelations[]{
         CSignal::cyclicAutocorrelation( // Normal

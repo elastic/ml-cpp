@@ -163,6 +163,11 @@ private:
     using TScale = std::function<double(std::size_t)>;
 
 private:
+    //! Choose the final segmentation we'll use.
+    static void selectSegmentation(std::size_t maxSegments,
+                                   TSizeVec& segmentation,
+                                   TDoubleDoublePrVec& depthAndPValue);
+
     //! Implements top-down recursive segmentation with linear models.
     template<typename ITR>
     static void fitTopDownPiecewiseLinear(ITR begin,

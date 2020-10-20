@@ -477,9 +477,9 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
     BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.98);
     BOOST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.99);
     BOOST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.99);
-    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.94);
-    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.94);
-    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.94);
+    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.96);
+    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.96);
+    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.96);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticSparseDaily) {
@@ -568,7 +568,11 @@ BOOST_AUTO_TEST_CASE(testSyntheticSparseWeekly) {
                 maths::CTimeSeriesTestForSeasonality seasonality{0, 0, HOUR, values};
                 auto result = seasonality.decompose();
                 LOG_DEBUG(<< result.print());
-                BOOST_REQUIRE(result.print() == (test == 0 ? "[86400, 604800]" : "[]"));
+                if (test == 0) {
+                    BOOST_REQUIRE(result.print() == "[86400/(0,172800), 604800/(0,172800), 604800/(172800,604800)]");
+                } else {
+                    BOOST_REQUIRE(result.print() == "[]");
+                }
             }
         }
     }
@@ -602,7 +606,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
                     static_cast<std::size_t>(0.05 * static_cast<double>(buckets))};
                 rng.generateUniformSamples(0, buckets, numberOutliers, outliers);
                 rng.generateUniformSamples(0, 1.0, numberOutliers, spikeOrTroughSelector);
-                rng.generateNormalSamples(0.0, 9.0, buckets, noise);
+                rng.generateNormalSamples(0.0, 1.0, buckets, noise);
                 std::sort(outliers.begin(), outliers.end());
 
                 values.assign(buckets, TFloatMeanAccumulator{});
@@ -615,9 +619,11 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
                             spikeOrTroughSelector[outlier - outliers.begin()] > 0.2 ? 0.0 : 100.0);
                     } else {
                         values[bucket].add(
-                            20.0 + 20.0 * std::sin(boost::math::double_constants::two_pi *
-                                                   static_cast<double>(time) /
-                                                   static_cast<double>(period)));
+                            20.0 +
+                            20.0 * std::sin(boost::math::double_constants::two_pi *
+                                            static_cast<double>(time) /
+                                            static_cast<double>(period)) +
+                            noise[bucket]);
                     }
                 }
 
@@ -643,7 +649,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
                 static_cast<std::size_t>(0.05 * static_cast<double>(buckets))};
             rng.generateUniformSamples(0, buckets, numberOutliers, outliers);
             rng.generateUniformSamples(0, 1.0, numberOutliers, spikeOrTroughSelector);
-            rng.generateNormalSamples(0.0, 9.0, buckets, noise);
+            rng.generateNormalSamples(0.0, 1.0, buckets, noise);
             std::sort(outliers.begin(), outliers.end());
 
             values.assign(buckets, TFloatMeanAccumulator{});
@@ -656,9 +662,10 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
                 } else {
                     values[bucket].add(
                         modulation[((time - startTime) / DAY) % 7] *
-                        (20.0 + 20.0 * std::sin(boost::math::double_constants::two_pi *
-                                                static_cast<double>(time) /
-                                                static_cast<double>(DAY))));
+                            (20.0 + 20.0 * std::sin(boost::math::double_constants::two_pi *
+                                                    static_cast<double>(time) /
+                                                    static_cast<double>(DAY))) +
+                        noise[bucket]);
                 }
             }
 
@@ -666,9 +673,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
                 startTime, startTime, bucketLength, std::move(values)};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< result.print());
-            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800)]" ||
-                          result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800)]" ||
-                          result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(172800,604800)]");
+            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800)]");
         }
     }
 }
@@ -933,12 +938,12 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnalWithLinearTrend) {
     LOG_DEBUG(<< "accuracy @ 0% error = " << TP[0] / (TP[0] + FP));
     LOG_DEBUG(<< "accuracy @ 1% error = " << TP[1] / (TP[1] + FP));
     LOG_DEBUG(<< "accuracy @ 5% error = " << TP[2] / (TP[2] + FP));
-    BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.97);
+    BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.98);
     BOOST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.99);
     BOOST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.99);
-    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.93);
-    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.93);
-    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.93);
+    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.94);
+    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.94);
+    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.94);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend) {
@@ -1222,7 +1227,8 @@ BOOST_AUTO_TEST_CASE(testNewComponentInitialValues) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testNewComponentInitialValuesWithPiecewiseLinearScaling) {
+BOOST_AUTO_TEST_CASE(testNewComponentInitialValuesWithPiecewiseLinearScaling,
+                     *boost::unit_test::disabled()) {
 
     // Test that the initial values for the seasonal components when there
     // are linear scalings in the test values.

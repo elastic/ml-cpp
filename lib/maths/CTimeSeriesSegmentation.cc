@@ -8,6 +8,7 @@
 
 #include <core/CContainerPrinter.h>
 #include <core/CTriple.h>
+#include <core/CVectorRange.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CLeastSquaresOnlineRegression.h>
@@ -28,10 +29,10 @@ CTimeSeriesSegmentation::TSizeVec
 CTimeSeriesSegmentation::piecewiseLinear(const TFloatMeanAccumulatorVec& values,
                                          double pValueToSegment,
                                          double outlierFraction,
-                                         std::size_t maxNumberSegments) {
+                                         std::size_t maxSegments) {
 
     std::size_t maxDepth{static_cast<std::size_t>(
-        std::ceil(std::log2(static_cast<double>(maxNumberSegments))))};
+        std::ceil(std::log2(static_cast<double>(maxSegments))))};
     LOG_TRACE(<< "max depth = " << maxDepth);
 
     TFloatMeanAccumulatorVec reweighted;
@@ -42,17 +43,7 @@ CTimeSeriesSegmentation::piecewiseLinear(const TFloatMeanAccumulatorVec& values,
                               maxDepth, pValueToSegment, outlierFraction,
                               segmentation, depthAndPValue, reweighted);
 
-    if (segmentation.size() - 1 > maxNumberSegments) {
-        // Prune by depth breaking ties by descending p-value.
-        COrderings::simultaneousSort(
-            depthAndPValue, segmentation,
-            [](const TDoubleDoublePr& lhs, const TDoubleDoublePr& rhs) {
-                return COrderings::lexicographical_compare(lhs.first, -lhs.second,
-                                                           rhs.first, -rhs.second);
-            });
-        segmentation.resize(maxNumberSegments);
-    }
-    std::sort(segmentation.begin(), segmentation.end());
+    selectSegmentation(maxSegments, segmentation, depthAndPValue);
 
     return segmentation;
 }
@@ -100,10 +91,10 @@ CTimeSeriesSegmentation::TSizeVec
 CTimeSeriesSegmentation::piecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
                                                        const TSeasonality& seasonality,
                                                        double pValueToSegment,
-                                                       std::size_t maxNumberSegments) {
+                                                       std::size_t maxSegments) {
 
     std::size_t maxDepth{static_cast<std::size_t>(
-        std::ceil(std::log2(static_cast<double>(maxNumberSegments))))};
+        std::ceil(std::log2(static_cast<double>(maxSegments))))};
     LOG_TRACE(<< "max depth = " << maxDepth);
 
     TSizeVec segmentation{0, values.size()};
@@ -114,17 +105,7 @@ CTimeSeriesSegmentation::piecewiseLinearScaledSeasonal(const TFloatMeanAccumulat
                                             seasonality, maxDepth, pValueToSegment,
                                             segmentation, depthAndPValue);
 
-    if (segmentation.size() - 1 > maxNumberSegments) {
-        // Prune by depth breaking ties by descending p-value.
-        COrderings::simultaneousSort(
-            depthAndPValue, segmentation,
-            [](const TDoubleDoublePr& lhs, const TDoubleDoublePr& rhs) {
-                return COrderings::lexicographical_compare(lhs.first, -lhs.second,
-                                                           rhs.first, -rhs.second);
-            });
-        segmentation.resize(maxNumberSegments);
-    }
-    std::sort(segmentation.begin(), segmentation.end());
+    selectSegmentation(maxSegments, segmentation, depthAndPValue);
 
     return segmentation;
 }
@@ -236,6 +217,27 @@ double CTimeSeriesSegmentation::scaleAt(std::size_t index,
                                         const TDoubleVec& scales) {
     return scales[std::upper_bound(segmentation.begin(), segmentation.end(), index) -
                   segmentation.begin() - 1];
+}
+
+void CTimeSeriesSegmentation::selectSegmentation(std::size_t maxSegments,
+                                                 TSizeVec& segmentation,
+                                                 TDoubleDoublePrVec& depthAndPValue) {
+
+    if (segmentation.size() - 1 > maxSegments) {
+        // Prune by depth breaking ties by descending p-value.
+        auto splits = core::make_range(segmentation, 2, segmentation.size());
+        COrderings::simultaneousSort(
+            depthAndPValue, splits,
+            [](const TDoubleDoublePr& lhs, const TDoubleDoublePr& rhs) {
+                return COrderings::lexicographical_compare(lhs.first, -lhs.second,
+                                                           rhs.first, -rhs.second);
+            });
+        LOG_TRACE(<< "depth and p-values = "
+                  << core::CContainerPrinter::print(depthAndPValue));
+        LOG_TRACE(<< "splits = " << core::CContainerPrinter::print(splits));
+        segmentation.resize(maxSegments + 1);
+    }
+    std::sort(segmentation.begin(), segmentation.end());
 }
 
 template<typename ITR>
