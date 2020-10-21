@@ -13,6 +13,7 @@ ML_LIBS=$(LIB_ML_CORE)
 
 USE_BOOST=1
 USE_BOOST_PROGRAMOPTIONS_LIBS=1
+USE_RAPIDJSON=1
 
 LIBS=$(ML_LIBS)
 
@@ -23,6 +24,7 @@ SRCS= \
     CBlockingCallCancellingStreamMonitor.cc \
     CCmdLineParser.cc \
     CCommandProcessor.cc \
+    CResponseJsonWriter.cc \
 
 ifneq ($(PLIST_FILE),)
 all:: $(CPP_SRC_HOME)/gradle.properties $(CPP_SRC_HOME)/mk/make_info_plist.sh
