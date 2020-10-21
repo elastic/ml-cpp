@@ -560,6 +560,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
             double pValueVsSelected{selected < decompositions.size()
                                         ? decompositions[H1].pValue(decompositions[selected])
                                         : 0.0};
+            LOG_TRACE(<< "p-value H1 vs selected = " << pValueVsSelected);
 
             double quality{
                 1.0 * std::log(explainedVariancePerParameter(0)) +
@@ -570,7 +571,6 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
                 0.3 * std::log(1.0 + std::max(numberTrendParameters - 3.0, 0.0)) -
                 0.3 * std::log(0.1 + decompositions[H1].numberScalings()) -
                 0.3 * std::log(std::max(leastCommonRepeat, 0.5))};
-            LOG_TRACE(<< "p-value H1 vs selected = " << pValueVsSelected);
             LOG_TRACE(<< "explained variance per param = " << explainedVariancePerParameter);
             LOG_TRACE(<< "target size = " << decompositions[H1].targetModelSize()
                       << ", modelled = " << decompositions[H1].s_AlreadyModelled);
