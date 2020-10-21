@@ -1919,7 +1919,7 @@ BOOST_FIXTURE_TEST_CASE(testSummaryCountZeroRecordsAreIgnored, CTestFixture) {
     BOOST_REQUIRE_EQUAL(modelWithZeros.checksum(), modelNoZeros.checksum());
 }
 
-BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture, *boost::unit_test::disabled()) {
     core_t::TTime startTime = 0;
     core_t::TTime bucketLength = 1800;
 

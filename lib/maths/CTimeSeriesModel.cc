@@ -1530,9 +1530,10 @@ CUnivariateTimeSeriesModel::applyChange(const SChangeDescription& change) {
 
     if (newTrendModel->applyChange(timeOfChangePoint, valueAtChangePoint, change)) {
         TFloatMeanAccumulatorVec window{m_TrendModel->residuals()};
-        TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(window)};
-        this->reinitializeStateGivenNewComponent(
-            CTimeSeriesSegmentation::removePiecewiseLinear(std::move(window), segmentation));
+        TSizeVec segmentation{CTimeSeriesSegmentation::piecewiseLinear(
+            window, COMPONENT_STATISTICALLY_SIGNIFICANT, SEASONAL_OUTLIER_FRACTION)};
+        this->reinitializeStateGivenNewComponent(CTimeSeriesSegmentation::removePiecewiseLinear(
+            std::move(window), segmentation, SEASONAL_OUTLIER_FRACTION));
     } else {
         m_ResidualModel = newResidualModel;
     }

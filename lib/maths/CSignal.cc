@@ -615,7 +615,7 @@ CSignal::tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
 
     // Check if there is reasonable evidence for weekday/weekend partition.
     TSeasonalComponentVec weekendPeriods{
-        {day, startOfWeek, week, TSizeSizePr{0 * day, 2 * day}},
+        {week, startOfWeek, week, TSizeSizePr{0 * day, 2 * day}},
         {day, startOfWeek, week, TSizeSizePr{2 * day, 7 * day}}};
     temporaryValues = values;
     fitSeasonalComponentsRobust(weekendPeriods, outlierFraction,
@@ -625,8 +625,9 @@ CSignal::tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
     double pValue{CTools::oneMinusPowOneMinusX(
         std::min(pValue, nestedDecompositionPValue(dailyHypothesis, weekendHypothesis)),
         0.5 * static_cast<double>(week))};
-    weekendPeriods.emplace_back(week, startOfWeek, week, TSizeSizePr{0 * day, 2 * day});
+    weekendPeriods.emplace_back(day, startOfWeek, week, TSizeSizePr{0 * day, 2 * day});
     weekendPeriods.emplace_back(week, startOfWeek, week, TSizeSizePr{2 * day, 7 * day});
+    std::sort(weekendPeriods.begin(), weekendPeriods.end());
     LOG_TRACE(<< "p-value = " << pValue);
     return pValue >= significantPValue ? TSeasonalComponentVec{} : weekendPeriods;
 }
@@ -648,7 +649,7 @@ void CSignal::fitSeasonalComponentsRobust(const TSeasonalComponentVec& periods,
     }
 }
 
-void CSignal::reweightOutliers(const TSeasonalComponentVec& periods,
+bool CSignal::reweightOutliers(const TSeasonalComponentVec& periods,
                                const TMeanAccumulatorVecVec& components,
                                double fraction,
                                TFloatMeanAccumulatorVec& values) {
@@ -659,10 +660,10 @@ void CSignal::reweightOutliers(const TSeasonalComponentVec& periods,
         }
         return value;
     };
-    reweightOutliers(predictor, fraction, values);
+    return reweightOutliers(predictor, fraction, values);
 }
 
-void CSignal::reweightOutliers(const TPredictor& predictor,
+bool CSignal::reweightOutliers(const TPredictor& predictor,
                                double fraction,
                                TFloatMeanAccumulatorVec& values) {
 
@@ -676,7 +677,7 @@ void CSignal::reweightOutliers(const TPredictor& predictor,
     LOG_TRACE(<< "number outliers = " << numberOutliers);
 
     if (numberOutliers == 0) {
-        return;
+        return false;
     }
 
     TMaxAccumulator outliers{2 * numberOutliers};
@@ -692,7 +693,7 @@ void CSignal::reweightOutliers(const TPredictor& predictor,
         }
     }
     if (CBasicStatistics::mean(meanDifference) == 0.0) {
-        return;
+        return false;
     }
 
     outliers.sort();
@@ -708,16 +709,21 @@ void CSignal::reweightOutliers(const TPredictor& predictor,
                  0.05 * std::sqrt(CBasicStatistics::variance(predictionMoments)))};
     LOG_TRACE(<< "threshold = " << CBasicStatistics::mean(meanDifference));
 
+    bool result{false};
+
     double logThreshold{std::log(threshold)};
     for (const auto& outlier : outliers) {
         double logDifference{std::log(outlier.first)};
-        CBasicStatistics::count(values[outlier.second]) *=
-            CTools::linearlyInterpolate(logThreshold - LOG_TWO, logThreshold,
-                                        1.0, 0.1, logDifference) *
-            CTools::linearlyInterpolate(logThreshold, logThreshold + LOG_SIXTEEN,
-                                        1.0, 0.1, logDifference);
+        double weight{CTools::linearlyInterpolate(logThreshold - LOG_TWO, logThreshold,
+                                                  1.0, 0.1, logDifference) *
+                      CTools::linearlyInterpolate(logThreshold, logThreshold + LOG_SIXTEEN,
+                                                  1.0, 0.1, logDifference)};
+        CBasicStatistics::count(values[outlier.second]) *= weight;
+        result |= (weight < 1.0);
     }
     LOG_TRACE(<< "values - outliers = " << core::CContainerPrinter::print(values));
+
+    return result;
 }
 
 double CSignal::meanNumberRepeatedValues(const TFloatMeanAccumulatorVec& values,

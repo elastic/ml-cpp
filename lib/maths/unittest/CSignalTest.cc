@@ -342,7 +342,9 @@ BOOST_AUTO_TEST_CASE(testFFTIFFTIdempotency) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testAutocorrelations) {
+BOOST_AUTO_TEST_CASE(testCyclicAutocorrelations) {
+    // Test the cyclic autocorrelation matches the autocorrelation calculated with FFT.
+
     test::CRandomNumbers rng;
 
     TSizeVec sizes;
@@ -1055,7 +1057,7 @@ BOOST_AUTO_TEST_CASE(testMultipleDiurnalSeasonalDecomposition) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
+BOOST_AUTO_TEST_CASE(testTradingDayDecomposition, *boost::unit_test::disabled()) {
 
     // Test decomposing into weekdays/weekend with and without and override.
 
@@ -1098,7 +1100,7 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
             }
 
             auto decomposition = maths::CSignal::tradingDayDecomposition(
-                values, 0.0, 168, startOfWeekOverride, 1e-6);
+                values, 0.0, 168, startOfWeekOverride, 1e-7);
             if (test % 4 == 0) {
                 BOOST_REQUIRE(decomposition.empty());
             } else {

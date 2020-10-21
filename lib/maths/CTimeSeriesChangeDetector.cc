@@ -303,10 +303,10 @@ void CUnivariateTimeSeriesChangeDetector::addSamples(const TTimeDoublePr1Vec& sa
     maths_t::TDoubleWeightsAry weight;
     for (auto i : timeorder) {
         core_t::TTime time{samples[i].first};
+        double value{samples[i].second};
         weight = weights[i];
-        maths_t::setWinsorisationWeight(winsorisation::MINIMUM_WEIGHT, weight);
-        m_TrendModel->addPoint(
-            time, CBasicStatistics::mean(m_TrendModel->value(time, 0.0)), weight);
+        maths_t::setWinsorisationWeight(1e-6, weight);
+        m_TrendModel->addPoint(time, value, weight);
     }
 
     for (auto& model : m_ChangeModels) {
