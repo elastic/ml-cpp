@@ -76,44 +76,11 @@ public:
     void makeModel(const SModelParams& params,
                    const model_t::TFeatureVec& features,
                    core_t::TTime startTime,
-                   unsigned int* sampleCount = nullptr) {
-        this->makeModel(params, features, startTime, m_Gatherer, m_Model, sampleCount);
+                   TOptionalUInt sampleCount = TOptionalUInt()) {
+        this->makeModelT<CMetricModelFactory>(params, features, startTime,
+                                              model_t::E_MetricOnline,
+                                              m_Gatherer, m_Model, sampleCount);
     }
-
-    void makeModel(const SModelParams& params,
-                   const model_t::TFeatureVec& features,
-                   core_t::TTime startTime,
-                   CModelFactory::TDataGathererPtr& gatherer,
-                   CModelFactory::TModelPtr& model,
-                   unsigned int* sampleCount = nullptr) {
-        if (m_InterimBucketCorrector == nullptr) {
-            m_InterimBucketCorrector =
-                std::make_shared<CInterimBucketCorrector>(params.s_BucketLength);
-        }
-        if (m_Factory == nullptr) {
-            m_Factory.reset(new CMetricModelFactory(params, m_InterimBucketCorrector));
-            m_Factory->features(features);
-        }
-        CModelFactory::SGathererInitializationData initData(startTime);
-        if (sampleCount) {
-            initData.s_SampleOverrideCount = *sampleCount;
-        }
-        gatherer.reset(m_Factory->makeDataGatherer(initData));
-        model.reset(m_Factory->makeModel({gatherer}));
-        BOOST_TEST_REQUIRE(model);
-        BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, model->category());
-        BOOST_REQUIRE_EQUAL(params.s_BucketLength, model->bucketLength());
-    }
-
-protected:
-    using TInterimBucketCorrectorPtr = std::shared_ptr<CInterimBucketCorrector>;
-    using TMetricModelFactoryPtr = boost::shared_ptr<CMetricModelFactory>;
-
-protected:
-    TInterimBucketCorrectorPtr m_InterimBucketCorrector;
-    TMetricModelFactoryPtr m_Factory;
-    ml::model::CModelFactory::TDataGathererPtr m_Gatherer;
-    ml::model::CModelFactory::TModelPtr m_Model;
 };
 
 BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
@@ -138,9 +105,9 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                                           model_t::E_IndividualMinByPerson,
                                           model_t::E_IndividualMaxByPerson};
 
-            this->makeModel(params, features, startTime, &sampleCount);
+            this->makeModel(params, features, startTime, sampleCount);
             CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
-            BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", m_Gatherer));
+            BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
             // Bucket values.
             uint64_t expectedCount{0};
@@ -175,7 +142,7 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                     LOG_DEBUG(<< "Adding " << data[j].second << " at "
                               << data[j].first);
 
-                    this->addArrival(*m_Gatherer, data[j].first, "p", data[j].second);
+                    this->addArrival(SMessage(data[j].first, "p", data[j].second), m_Gatherer);
 
                     ++expectedCount;
                     expectedMean.add(data[j].second);
@@ -233,14 +200,11 @@ BOOST_FIXTURE_TEST_CASE(testSample, CTestFixture) {
                             core_t::TTime sampleTime{static_cast<core_t::TTime>(
                                 expectedSampleTimes[k] + 0.5)};
                             expectedMeanSamples_.emplace_back(
-                                sampleTime, TDouble2Vec{expectedMeanSamples[k]},
-                                std::size_t(0));
+                                sampleTime, TDouble2Vec{expectedMeanSamples[k]}, 0);
                             expectedMinSamples_.emplace_back(
-                                sampleTime, TDouble2Vec{expectedMinSamples[k]},
-                                std::size_t(0));
+                                sampleTime, TDouble2Vec{expectedMinSamples[k]}, 0);
                             expectedMaxSamples_.emplace_back(
-                                sampleTime, TDouble2Vec{expectedMaxSamples[k]},
-                                std::size_t(0));
+                                sampleTime, TDouble2Vec{expectedMaxSamples[k]}, 0);
                         }
                         expectedMeanModel->addSamples(params_, expectedMeanSamples_);
                         expectedMinModel->addSamples(params_, expectedMinSamples_);
@@ -387,9 +351,9 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
         LOG_DEBUG(<< "*** sample count = " << sampleCount << " ***");
 
         this->makeModel(params, {model_t::E_IndividualMeanLatLongByPerson},
-                        startTime, &sampleCount);
+                        startTime, sampleCount);
         CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
-        BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", m_Gatherer));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
         // Bucket values.
         uint64_t expectedCount{0};
@@ -411,8 +375,10 @@ BOOST_FIXTURE_TEST_CASE(testMultivariateSample, CTestFixture) {
                 LOG_DEBUG(<< "Adding " << data[j].second[0] << ","
                           << data[j].second[1] << " at " << data[j].first);
 
-                this->addArrival(*m_Gatherer, data[j].first, "p",
-                                 data[j].second[0], data[j].second[1]);
+                this->addArrival(
+                    SMessage(data[j].first, "p", {},
+                             TDoubleDoublePr(data[j].second[0], data[j].second[1])),
+                    m_Gatherer);
 
                 ++expectedCount;
                 expectedLatLong.add(TVector2(data[j].second));
@@ -553,7 +519,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMetric, CTestFixture) {
 
     this->makeModel(params, features, startTime);
     CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", m_Gatherer));
+    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
     maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> minProbabilities(2u);
     test::CRandomNumbers rng;
@@ -567,8 +533,9 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMetric, CTestFixture) {
                   << ", offset = " << (i == anomalousBucket ? anomaly : 0.0));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
-            this->addArrival(*m_Gatherer, time + static_cast<core_t::TTime>(j), "p",
-                             values[j] + (i == anomalousBucket ? anomaly : 0.0));
+            this->addArrival(SMessage(time + static_cast<core_t::TTime>(j), "p",
+                                      values[j] + (i == anomalousBucket ? anomaly : 0.0)),
+                             m_Gatherer);
         }
         model.sample(time, time + bucketLength, m_ResourceMonitor);
 
@@ -604,7 +571,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMedian, CTestFixture) {
     SModelParams params(bucketLength);
     this->makeModel(params, {model_t::E_IndividualMedianByPerson}, startTime);
     CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", m_Gatherer));
+    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
     maths::CBasicStatistics::COrderStatisticsHeap<TDoubleSizePr> minProbabilities(2u);
     test::CRandomNumbers rng;
@@ -625,8 +592,8 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMedian, CTestFixture) {
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
-            this->addArrival(*m_Gatherer, time + static_cast<core_t::TTime>(j),
-                             "p", values[j]);
+            this->addArrival(
+                SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
         }
 
         model.sample(time, time + bucketLength, m_ResourceMonitor);
@@ -658,7 +625,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForMedian, CTestFixture) {
 
     // assert there is only 1 value in the last bucket and its the median
     BOOST_REQUIRE_EQUAL(fd->s_BucketValue->value()[0], mean * 3.0);
-    BOOST_REQUIRE_EQUAL(fd->s_BucketValue->value().size(), std::size_t(1));
+    BOOST_REQUIRE_EQUAL(fd->s_BucketValue->value().size(), 1);
 }
 
 BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMean, CTestFixture) {
@@ -676,7 +643,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMean, CTestFixture) {
     SModelParams params(bucketLength);
     this->makeModel(params, {model_t::E_IndividualLowMeanByPerson}, startTime);
     CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", m_Gatherer));
+    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
     TOptionalDoubleVec probabilities;
     test::CRandomNumbers rng;
@@ -694,8 +661,8 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMean, CTestFixture) {
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
-            this->addArrival(*m_Gatherer, time + static_cast<core_t::TTime>(j),
-                             "p", values[j]);
+            this->addArrival(
+                SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
         }
         model.sample(time, time + bucketLength, m_ResourceMonitor);
 
@@ -732,7 +699,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMean, CTestFixture) {
     SModelParams params(bucketLength);
     this->makeModel(params, {model_t::E_IndividualHighMeanByPerson}, startTime);
     CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", m_Gatherer));
+    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
     TOptionalDoubleVec probabilities;
     test::CRandomNumbers rng;
@@ -750,8 +717,8 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMean, CTestFixture) {
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
-            this->addArrival(*m_Gatherer, time + static_cast<core_t::TTime>(j),
-                             "p", values[j]);
+            this->addArrival(
+                SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
         }
         model.sample(time, time + bucketLength, m_ResourceMonitor);
 
@@ -786,7 +753,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowSum, CTestFixture) {
     SModelParams params(bucketLength);
     this->makeModel(params, {model_t::E_IndividualLowSumByBucketAndPerson}, startTime);
     CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", m_Gatherer));
+    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
     TOptionalDoubleVec probabilities;
     test::CRandomNumbers rng;
@@ -804,8 +771,8 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowSum, CTestFixture) {
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
-            this->addArrival(*m_Gatherer, time + static_cast<core_t::TTime>(j),
-                             "p", values[j]);
+            this->addArrival(
+                SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
         }
         model.sample(time, time + bucketLength, m_ResourceMonitor);
 
@@ -839,7 +806,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighSum, CTestFixture) {
     SModelParams params(bucketLength);
     this->makeModel(params, {model_t::E_IndividualHighSumByBucketAndPerson}, startTime);
     CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", m_Gatherer));
+    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
     TOptionalDoubleVec probabilities;
     test::CRandomNumbers rng;
@@ -857,8 +824,8 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighSum, CTestFixture) {
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
-            this->addArrival(*m_Gatherer, time + static_cast<core_t::TTime>(j),
-                             "p", values[j]);
+            this->addArrival(
+                SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
         }
         model.sample(time, time + bucketLength, m_ResourceMonitor);
 
@@ -908,7 +875,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
         factory.bucketLength(bucketLength);
         factory.fieldNames("", "", "P", "V", TStrVec{"I"});
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-        BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gatherer));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer));
         CModelFactory::TModelPtr model_(factory.makeModel(gatherer));
         BOOST_TEST_REQUIRE(model_);
         BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, model_->category());
@@ -923,8 +890,9 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
             maths::CBasicStatistics::SMin<TDoubleStrPr>::TAccumulator min;
             maths::CBasicStatistics::SMax<TDoubleStrPr>::TAccumulator max;
             for (std::size_t j = 0u; j < samples.size(); ++j) {
-                this->addArrival(*gatherer, time, "p", samples[j],
-                                 TOptionalStr(influencerValues[j]));
+                this->addArrival(SMessage(time, "p", samples[j], {},
+                                          TOptionalStr(influencerValues[j])),
+                                 gatherer);
                 min.add(TDoubleStrPr(samples[j], influencerValues[j]));
                 max.add(TDoubleStrPr(samples[j], influencerValues[j]));
             }
@@ -974,7 +942,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
         factory.fieldNames("", "", "P", "V", TStrVec(1, "I"));
         CModelFactory::SGathererInitializationData gathererInitData(startTime);
         CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(gathererInitData));
-        BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gatherer));
+        BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer));
         CModelFactory::TModelPtr model_(factory.makeModel(gatherer));
         BOOST_TEST_REQUIRE(model_);
         BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, model_->category());
@@ -985,7 +953,7 @@ BOOST_FIXTURE_TEST_CASE(testInfluence, CTestFixture) {
         core_t::TTime time{startTime};
         for (std::size_t i = 0u; i < values.size(); ++i) {
             this->processBucket(time, bucketLength, values[i], influencers[i],
-                                *gatherer, model, annotatedProbability);
+                                gatherer, model, annotatedProbability);
             BOOST_REQUIRE_EQUAL(influences[i].size(),
                                 annotatedProbability.s_Influences.size());
             if (influences[i].size() > 0) {
@@ -1178,12 +1146,14 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
 
     CModelFactory::TDataGathererPtr gatherer;
     CModelFactory::TModelPtr model_;
-    this->makeModel(params, features, startTime, gatherer, model_);
+    this->makeModelT<CMetricModelFactory>(params, features, startTime,
+                                          model_t::E_MetricOnline, gatherer, model_);
     CMetricModel* model = dynamic_cast<CMetricModel*>(model_.get());
     BOOST_TEST_REQUIRE(model);
     CModelFactory::TDataGathererPtr expectedGatherer;
     CModelFactory::TModelPtr expectedModel_;
-    this->makeModel(params, features, startTime, expectedGatherer, expectedModel_);
+    this->makeModelT<CMetricModelFactory>(params, features, startTime, model_t::E_MetricOnline,
+                                          expectedGatherer, expectedModel_);
     CMetricModel* expectedModel = dynamic_cast<CMetricModel*>(expectedModel_.get());
     BOOST_TEST_REQUIRE(expectedModel);
 
@@ -1233,9 +1203,10 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
             model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
             bucketStart += bucketLength;
         }
-        this->addArrival(*gatherer, events[i].time(),
-                         gatherer->personName(events[i].personId().get()),
-                         events[i].values()[0][0]);
+        this->addArrival(SMessage(events[i].time(),
+                                  gatherer->personName(events[i].personId().get()),
+                                  events[i].values()[0][0]),
+                         gatherer);
     }
     model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
     size_t maxDimensionBeforePrune(model->dataGatherer().maxDimension());
@@ -1251,9 +1222,10 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
         }
 
         this->addArrival(
-            *expectedGatherer, expectedEvents[i].time(),
-            expectedGatherer->personName(expectedEvents[i].personId().get()),
-            expectedEvents[i].values()[0][0]);
+            SMessage(expectedEvents[i].time(),
+                     expectedGatherer->personName(expectedEvents[i].personId().get()),
+                     expectedEvents[i].values()[0][0]),
+            expectedGatherer);
     }
     expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
 
@@ -1271,12 +1243,15 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
 
         std::size_t expectedNewPid = this->addPerson(newPerson, expectedGatherer);
 
-        this->addArrival(*gatherer, bucketStart + 1, gatherer->personName(newPid), 10.0);
-        this->addArrival(*gatherer, bucketStart + 2000, gatherer->personName(newPid), 15.0);
-        this->addArrival(*expectedGatherer, bucketStart + 1,
-                         expectedGatherer->personName(expectedNewPid), 10.0);
-        this->addArrival(*expectedGatherer, bucketStart + 2000,
-                         expectedGatherer->personName(expectedNewPid), 15.0);
+        this->addArrival(SMessage(bucketStart + 1, gatherer->personName(newPid), 10.0), gatherer);
+        this->addArrival(SMessage(bucketStart + 2000, gatherer->personName(newPid), 15.0),
+                         gatherer);
+        this->addArrival(SMessage(bucketStart + 1,
+                                  expectedGatherer->personName(expectedNewPid), 10.0),
+                         expectedGatherer);
+        this->addArrival(SMessage(bucketStart + 2000,
+                                  expectedGatherer->personName(expectedNewPid), 15.0),
+                         expectedGatherer);
     }
     model->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
     expectedModel->sample(bucketStart, bucketStart + bucketLength, m_ResourceMonitor);
@@ -1321,7 +1296,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
     factory.fieldNames("", "", "P", "V", TStrVec(1, "I"));
 
     CModelFactory::TDataGathererPtr gathererNoGap(factory.makeDataGatherer(startTime));
-    BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gathererNoGap));
+    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gathererNoGap));
     CModelFactory::TModelPtr modelNoGapPtr(factory.makeModel(gathererNoGap));
     BOOST_TEST_REQUIRE(modelNoGapPtr);
     BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, modelNoGapPtr->category());
@@ -1337,19 +1312,19 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
 
         core_t::TTime time{startTime};
         this->processBucket(time, bucketLength, bucket1, influencerValues1,
-                            *gathererNoGap, modelNoGap, annotatedProbability);
+                            gathererNoGap, modelNoGap, annotatedProbability);
 
         time += bucketLength;
         this->processBucket(time, bucketLength, bucket2, influencerValues1,
-                            *gathererNoGap, modelNoGap, annotatedProbability);
+                            gathererNoGap, modelNoGap, annotatedProbability);
 
         time += bucketLength;
         this->processBucket(time, bucketLength, bucket3, influencerValues1,
-                            *gathererNoGap, modelNoGap, annotatedProbability);
+                            gathererNoGap, modelNoGap, annotatedProbability);
     }
 
     CModelFactory::TDataGathererPtr gathererWithGap(factory.makeDataGatherer(startTime));
-    BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gathererWithGap));
+    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gathererWithGap));
     CModelFactory::TModelPtr modelWithGapPtr(factory.makeModel(gathererWithGap));
     BOOST_TEST_REQUIRE(modelWithGapPtr);
     BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, modelWithGapPtr->category());
@@ -1366,7 +1341,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
 
         core_t::TTime time{startTime};
         this->processBucket(time, bucketLength, bucket1, influencerValues1,
-                            *gathererWithGap, modelWithGap, annotatedProbability);
+                            gathererWithGap, modelWithGap, annotatedProbability);
 
         time += gap;
         modelWithGap.skipSampling(time);
@@ -1374,11 +1349,11 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
         modelWithGap.sample(startTime + bucketLength, time, m_ResourceMonitor);
 
         this->processBucket(time, bucketLength, bucket2, influencerValues1,
-                            *gathererWithGap, modelWithGap, annotatedProbability);
+                            gathererWithGap, modelWithGap, annotatedProbability);
 
         time += bucketLength;
         this->processBucket(time, bucketLength, bucket3, influencerValues1,
-                            *gathererWithGap, modelWithGap, annotatedProbability);
+                            gathererWithGap, modelWithGap, annotatedProbability);
     }
 
     BOOST_REQUIRE_EQUAL(
@@ -1415,20 +1390,25 @@ BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
 
     // p1: |(1, 42.0)|(1, 1.0)|(1, 1.0)|X|X|(1, 42.0)|
     // p2: |(1, 42.)|(0, 0.0)|(0, 0.0)|X|X|(0, 0.0)|
-    this->addArrival(*gathererSkipGap, 100, "p1", 42.0, TOptionalStr("i1"),
-                     TOptionalStr(), TOptionalStr("1"));
-    this->addArrival(*gathererSkipGap, 100, "p2", 42.0, TOptionalStr("i2"),
-                     TOptionalStr(), TOptionalStr("1"));
+    this->addArrival(SMessage(100, "p1", 42.0, {}, TOptionalStr("i1"),
+                              TOptionalStr(), TOptionalStr("1")),
+                     gathererSkipGap);
+    this->addArrival(SMessage(100, "p2", 42.0, {}, TOptionalStr("i2"),
+                              TOptionalStr(), TOptionalStr("1")),
+                     gathererSkipGap);
     modelSkipGap.sample(100, 200, m_ResourceMonitor);
-    this->addArrival(*gathererSkipGap, 200, "p1", 1.0, TOptionalStr("i1"),
-                     TOptionalStr(), TOptionalStr("1"));
+    this->addArrival(SMessage(200, "p1", 1.0, {}, TOptionalStr("i1"),
+                              TOptionalStr(), TOptionalStr("1")),
+                     gathererSkipGap);
     modelSkipGap.sample(200, 300, m_ResourceMonitor);
-    this->addArrival(*gathererSkipGap, 300, "p1", 1.0, TOptionalStr("i1"),
-                     TOptionalStr(), TOptionalStr("1"));
+    this->addArrival(SMessage(300, "p1", 1.0, {}, TOptionalStr("i1"),
+                              TOptionalStr(), TOptionalStr("1")),
+                     gathererSkipGap);
     modelSkipGap.sample(300, 400, m_ResourceMonitor);
     modelSkipGap.skipSampling(600);
-    this->addArrival(*gathererSkipGap, 600, "p1", 42.0, TOptionalStr("i1"),
-                     TOptionalStr(), TOptionalStr("1"));
+    this->addArrival(SMessage(600, "p1", 42.0, {}, TOptionalStr("i1"),
+                              TOptionalStr(), TOptionalStr("1")),
+                     gathererSkipGap);
     modelSkipGap.sample(600, 700, m_ResourceMonitor);
 
     CModelFactory::TDataGathererPtr gathererExNull(factory.makeDataGatherer(startTime));
@@ -1439,35 +1419,47 @@ BOOST_FIXTURE_TEST_CASE(testExplicitNulls, CTestFixture) {
 
     // p1: |(1, 42.0), ("", 42.0), (null, 42.0)|(1, 1.0)|(1, 1.0)|(null, 100.0)|(null, 100.0)|(1, 42.0)|
     // p2: |(1, 42.0), ("", 42.0)|(0, 0.0)|(0, 0.0)|(null, 100.0)|(null, 100.0)|(0, 0.0)|
-    this->addArrival(*gathererExNull, 100, "p1", 42.0, TOptionalStr("i1"),
-                     TOptionalStr(), TOptionalStr("1"));
-    this->addArrival(*gathererExNull, 100, "p1", 42.0, TOptionalStr("i1"),
-                     TOptionalStr(), TOptionalStr(""));
-    this->addArrival(*gathererExNull, 100, "p1", 42.0, TOptionalStr("i1"),
-                     TOptionalStr(), TOptionalStr("null"));
-    this->addArrival(*gathererExNull, 100, "p2", 42.0, TOptionalStr("i2"),
-                     TOptionalStr(), TOptionalStr("1"));
-    this->addArrival(*gathererExNull, 100, "p2", 42.0, TOptionalStr("i2"),
-                     TOptionalStr(), TOptionalStr(""));
+    this->addArrival(SMessage(100, "p1", 42.0, {}, TOptionalStr("i1"),
+                              TOptionalStr(), TOptionalStr("1")),
+                     gathererExNull);
+    this->addArrival(SMessage(100, "p1", 42.0, {}, TOptionalStr("i1"),
+                              TOptionalStr(), TOptionalStr("")),
+                     gathererExNull);
+    this->addArrival(SMessage(100, "p1", 42.0, {}, TOptionalStr("i1"),
+                              TOptionalStr(), TOptionalStr("null")),
+                     gathererExNull);
+    this->addArrival(SMessage(100, "p2", 42.0, {}, TOptionalStr("i2"),
+                              TOptionalStr(), TOptionalStr("1")),
+                     gathererExNull);
+    this->addArrival(SMessage(100, "p2", 42.0, {}, TOptionalStr("i2"),
+                              TOptionalStr(), TOptionalStr("")),
+                     gathererExNull);
     modelExNullGap.sample(100, 200, m_ResourceMonitor);
-    this->addArrival(*gathererExNull, 200, "p1", 1.0, TOptionalStr("i1"),
-                     TOptionalStr(), TOptionalStr("1"));
+    this->addArrival(SMessage(200, "p1", 1.0, {}, TOptionalStr("i1"),
+                              TOptionalStr(), TOptionalStr("1")),
+                     gathererExNull);
     modelExNullGap.sample(200, 300, m_ResourceMonitor);
-    this->addArrival(*gathererExNull, 300, "p1", 1.0, TOptionalStr("i1"),
-                     TOptionalStr(), TOptionalStr("1"));
+    this->addArrival(SMessage(300, "p1", 1.0, {}, TOptionalStr("i1"),
+                              TOptionalStr(), TOptionalStr("1")),
+                     gathererExNull);
     modelExNullGap.sample(300, 400, m_ResourceMonitor);
-    this->addArrival(*gathererExNull, 400, "p1", 100.0, TOptionalStr("i1"),
-                     TOptionalStr(), TOptionalStr("null"));
-    this->addArrival(*gathererExNull, 400, "p2", 100.0, TOptionalStr("i2"),
-                     TOptionalStr(), TOptionalStr("null"));
+    this->addArrival(SMessage(400, "p1", 100.0, {}, TOptionalStr("i1"),
+                              TOptionalStr(), TOptionalStr("null")),
+                     gathererExNull);
+    this->addArrival(SMessage(400, "p2", 100.0, {}, TOptionalStr("i2"),
+                              TOptionalStr(), TOptionalStr("null")),
+                     gathererExNull);
     modelExNullGap.sample(400, 500, m_ResourceMonitor);
-    this->addArrival(*gathererExNull, 500, "p1", 100.0, TOptionalStr("i1"),
-                     TOptionalStr(), TOptionalStr("null"));
-    this->addArrival(*gathererExNull, 500, "p2", 100.0, TOptionalStr("i2"),
-                     TOptionalStr(), TOptionalStr("null"));
+    this->addArrival(SMessage(500, "p1", 100.0, {}, TOptionalStr("i1"),
+                              TOptionalStr(), TOptionalStr("null")),
+                     gathererExNull);
+    this->addArrival(SMessage(500, "p2", 100.0, {}, TOptionalStr("i2"),
+                              TOptionalStr(), TOptionalStr("null")),
+                     gathererExNull);
     modelExNullGap.sample(500, 600, m_ResourceMonitor);
-    this->addArrival(*gathererExNull, 600, "p1", 42.0, TOptionalStr("i1"),
-                     TOptionalStr(), TOptionalStr("1"));
+    this->addArrival(SMessage(600, "p1", 42.0, {}, TOptionalStr("i1"),
+                              TOptionalStr(), TOptionalStr("1")),
+                     gathererExNull);
     modelExNullGap.sample(600, 700, m_ResourceMonitor);
 
     BOOST_REQUIRE_EQUAL(
@@ -1493,8 +1485,8 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     factory.fieldNames("", "", "P", "V", TStrVec());
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
     BOOST_TEST_REQUIRE(!gatherer->isPopulation());
-    BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gatherer));
-    BOOST_REQUIRE_EQUAL(std::size_t(1), this->addPerson("q", gatherer));
+    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer));
+    BOOST_REQUIRE_EQUAL(1, this->addPerson("q", gatherer));
     CModelFactory::TModelPtr model_(factory.makeModel(gatherer));
     BOOST_TEST_REQUIRE(model_);
     BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, model_->category());
@@ -1516,7 +1508,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     SAnnotatedProbability annotatedProbability2;
 
     core_t::TTime time{startTime};
-    this->processBucket(time, bucketLength, bucket1, *gatherer, model,
+    this->processBucket(time, bucketLength, bucket1, gatherer, model,
                         annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
@@ -1524,7 +1516,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
-    this->processBucket(time, bucketLength, bucket2, *gatherer, model,
+    this->processBucket(time, bucketLength, bucket2, gatherer, model,
                         annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
@@ -1532,7 +1524,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
-    this->processBucket(time, bucketLength, bucket3, *gatherer, model,
+    this->processBucket(time, bucketLength, bucket3, gatherer, model,
                         annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
@@ -1540,7 +1532,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
-    this->processBucket(time, bucketLength, bucket4, *gatherer, model,
+    this->processBucket(time, bucketLength, bucket4, gatherer, model,
                         annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
@@ -1548,7 +1540,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
-    this->processBucket(time, bucketLength, bucket5, *gatherer, model,
+    this->processBucket(time, bucketLength, bucket5, gatherer, model,
                         annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
@@ -1556,7 +1548,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
-    this->processBucket(time, bucketLength, bucket6, *gatherer, model,
+    this->processBucket(time, bucketLength, bucket6, gatherer, model,
                         annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
@@ -1564,7 +1556,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
-    this->processBucket(time, bucketLength, bucket7, *gatherer, model,
+    this->processBucket(time, bucketLength, bucket7, gatherer, model,
                         annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
@@ -1572,7 +1564,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.8);
 
     time += bucketLength;
-    this->processBucket(time, bucketLength, bucket8, *gatherer, model,
+    this->processBucket(time, bucketLength, bucket8, gatherer, model,
                         annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
@@ -1580,7 +1572,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.5);
 
     time += bucketLength;
-    this->processBucket(time, bucketLength, bucket9, *gatherer, model,
+    this->processBucket(time, bucketLength, bucket9, gatherer, model,
                         annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
@@ -1588,7 +1580,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.5);
 
     time += bucketLength;
-    this->processBucket(time, bucketLength, bucket10, *gatherer, model,
+    this->processBucket(time, bucketLength, bucket10, gatherer, model,
                         annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
@@ -1596,7 +1588,7 @@ BOOST_FIXTURE_TEST_CASE(testVarp, CTestFixture) {
     BOOST_TEST_REQUIRE(annotatedProbability2.s_Probability > 0.5);
 
     time += bucketLength;
-    this->processBucket(time, bucketLength, bucket11, *gatherer, model,
+    this->processBucket(time, bucketLength, bucket11, gatherer, model,
                         annotatedProbability, annotatedProbability2);
     LOG_DEBUG(<< "P1 " << annotatedProbability.s_Probability << ", P2 "
               << annotatedProbability2.s_Probability);
@@ -1614,7 +1606,7 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrections, CTestFixture) {
     factory.fieldNames("", "", "P", "V", TStrVec(1, "I"));
 
     CModelFactory::TDataGathererPtr gatherer(factory.makeDataGatherer(startTime));
-    BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", gatherer));
+    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", gatherer));
     CModelFactory::TModelPtr model_(factory.makeModel(gatherer));
     BOOST_TEST_REQUIRE(model_);
     BOOST_REQUIRE_EQUAL(model_t::E_MetricOnline, model_->category());
@@ -1630,28 +1622,28 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrections, CTestFixture) {
     test::CRandomNumbers rng;
     TDoubleVec samples(3, 0.0);
     while (now < endTime) {
-        rng.generateUniformSamples(50.0, 70.0, std::size_t(3), samples);
+        rng.generateUniformSamples(50.0, 70.0, 3, samples);
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
-            this->addArrival(*gatherer, now, "p1", 1.0, TOptionalStr("i1"));
+            this->addArrival(SMessage(now, "p1", 1.0, {}, TOptionalStr("i1")), gatherer);
         }
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[1] + 0.5); ++i) {
-            this->addArrival(*gatherer, now, "p2", 1.0, TOptionalStr("i2"));
+            this->addArrival(SMessage(now, "p2", 1.0, {}, TOptionalStr("i2")), gatherer);
         }
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[2] + 0.5); ++i) {
-            this->addArrival(*gatherer, now, "p3", 1.0, TOptionalStr("i3"));
+            this->addArrival(SMessage(now, "p3", 1.0, {}, TOptionalStr("i3")), gatherer);
         }
         countingModel.sample(now, now + bucketLength, m_ResourceMonitor);
         model.sample(now, now + bucketLength, m_ResourceMonitor);
         now += bucketLength;
     }
     for (std::size_t i = 0; i < 35; ++i) {
-        this->addArrival(*gatherer, now, "p1", 1.0, TOptionalStr("i1"));
+        this->addArrival(SMessage(now, "p1", 1.0, {}, TOptionalStr("i1")), gatherer);
     }
     for (std::size_t i = 0; i < 1; ++i) {
-        this->addArrival(*gatherer, now, "p2", 1.0, TOptionalStr("i2"));
+        this->addArrival(SMessage(now, "p2", 1.0, {}, TOptionalStr("i2")), gatherer);
     }
     for (std::size_t i = 0; i < 100; ++i) {
-        this->addArrival(*gatherer, now, "p3", 1.0, TOptionalStr("i3"));
+        this->addArrival(SMessage(now, "p3", 1.0, {}, TOptionalStr("i3")), gatherer);
     }
     countingModel.sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
     model.sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
@@ -1724,28 +1716,28 @@ BOOST_FIXTURE_TEST_CASE(testInterimCorrectionsWithCorrelations, CTestFixture) {
     test::CRandomNumbers rng;
     TDoubleVec samples(1, 0.0);
     while (now < endTime) {
-        rng.generateUniformSamples(80.0, 100.0, std::size_t(1), samples);
+        rng.generateUniformSamples(80.0, 100.0, 1, samples);
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 0.5); ++i) {
-            this->addArrival(*gatherer, now, "p1", 1.0, TOptionalStr("i1"));
+            this->addArrival(SMessage(now, "p1", 1.0, {}, TOptionalStr("i1")), gatherer);
         }
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] + 10.5); ++i) {
-            this->addArrival(*gatherer, now, "p2", 1.0, TOptionalStr("i2"));
+            this->addArrival(SMessage(now, "p2", 1.0, {}, TOptionalStr("i2")), gatherer);
         }
         for (std::size_t i = 0; i < static_cast<std::size_t>(samples[0] - 9.5); ++i) {
-            this->addArrival(*gatherer, now, "p3", 1.0, TOptionalStr("i3"));
+            this->addArrival(SMessage(now, "p3", 1.0, {}, TOptionalStr("i3")), gatherer);
         }
         countingModel.sample(now, now + bucketLength, m_ResourceMonitor);
         model.sample(now, now + bucketLength, m_ResourceMonitor);
         now += bucketLength;
     }
     for (std::size_t i = 0; i < 9; ++i) {
-        this->addArrival(*gatherer, now, "p1", 1.0, TOptionalStr("i1"));
+        this->addArrival(SMessage(now, "p1", 1.0, {}, TOptionalStr("i1")), gatherer);
     }
     for (std::size_t i = 0; i < 10; ++i) {
-        this->addArrival(*gatherer, now, "p2", 1.0, TOptionalStr("i2"));
+        this->addArrival(SMessage(now, "p2", 1.0, {}, TOptionalStr("i2")), gatherer);
     }
     for (std::size_t i = 0; i < 8; ++i) {
-        this->addArrival(*gatherer, now, "p3", 1.0, TOptionalStr("i3"));
+        this->addArrival(SMessage(now, "p3", 1.0, {}, TOptionalStr("i3")), gatherer);
     }
     countingModel.sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
     model.sampleBucketStatistics(now, now + bucketLength, m_ResourceMonitor);
@@ -1826,8 +1818,8 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatePersist, CTestFixture) {
             m_Model->sample(bucket - bucketLength, bucket, m_ResourceMonitor);
             bucket += bucketLength;
         }
-        this->addArrival(*m_Gatherer, time, "p1", samples[i][0]);
-        this->addArrival(*m_Gatherer, time, "p2", samples[i][0]);
+        this->addArrival(SMessage(time, "p1", samples[i][0]), m_Gatherer);
+        this->addArrival(SMessage(time, "p2", samples[i][0]), m_Gatherer);
 
         if ((i + 1) % 1000 == 0) {
             // Test persistence. (We check for idempotency.)
@@ -1907,13 +1899,16 @@ BOOST_FIXTURE_TEST_CASE(testSummaryCountZeroRecordsAreIgnored, CTestFixture) {
             double value = values[0];
             rng.generateUniformSamples(0.0, 1.0, 1, values);
             if (values[0] < 0.05) {
-                this->addArrival(*gathererWithZeros, now, "p1", value, TOptionalStr("i1"),
-                                 TOptionalStr(), TOptionalStr(summaryCountZero));
+                this->addArrival(SMessage(now, "p1", value, {}, TOptionalStr("i1"),
+                                          TOptionalStr(), TOptionalStr(summaryCountZero)),
+                                 gathererWithZeros);
             } else {
-                this->addArrival(*gathererWithZeros, now, "p1", value, TOptionalStr("i1"),
-                                 TOptionalStr(), TOptionalStr(summaryCountOne));
-                this->addArrival(*gathererNoZeros, now, "p1", value, TOptionalStr("i1"),
-                                 TOptionalStr(), TOptionalStr(summaryCountOne));
+                this->addArrival(SMessage(now, "p1", value, {}, TOptionalStr("i1"),
+                                          TOptionalStr(), TOptionalStr(summaryCountOne)),
+                                 gathererWithZeros);
+                this->addArrival(SMessage(now, "p1", value, {}, TOptionalStr("i1"),
+                                          TOptionalStr(), TOptionalStr(summaryCountOne)),
+                                 gathererNoZeros);
             }
         }
         modelWithZeros.sample(now, now + bucketLength, m_ResourceMonitor);
@@ -1974,8 +1969,8 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture, *boost::unit_test::d
                                         t < core::constants::WEEK + 4 * 3600
                                     ? 1.0
                                     : 0.0);
-            this->addArrival(*gatherer, t + bucketLength / 2, "p1", value[0]);
-            this->addArrival(*referenceGatherer, t + bucketLength / 2, "p1", value[0]);
+            this->addArrival(SMessage(t + bucketLength / 2, "p1", value[0]), gatherer);
+            this->addArrival(SMessage(t + bucketLength / 2, "p1", value[0]), referenceGatherer);
             model->sample(t, t + bucketLength, m_ResourceMonitor);
             referenceModel->sample(t, t + bucketLength, m_ResourceMonitor);
             meanPredictionError.add(std::fabs(
@@ -2033,9 +2028,9 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture, *boost::unit_test::d
                            (t < 5 * core::constants::WEEK ? 1.0 : 2.0);
             TDoubleVec noise;
             rng.generateUniformSamples(0.0, 3.0, 1, noise);
-            this->addArrival(*gatherer, t + bucketLength / 2, "p1", value + noise[0]);
-            this->addArrival(*referenceGatherer, t + bucketLength / 2, "p1",
-                             value + noise[0]);
+            this->addArrival(SMessage(t + bucketLength / 2, "p1", value + noise[0]), gatherer);
+            this->addArrival(SMessage(t + bucketLength / 2, "p1", value + noise[0]),
+                             referenceGatherer);
             model->sample(t, t + bucketLength, m_ResourceMonitor);
             referenceModel->sample(t, t + bucketLength, m_ResourceMonitor);
             meanPredictionError.add(std::fabs(
@@ -2098,9 +2093,9 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture, *boost::unit_test::d
                                 static_cast<double>(core::constants::WEEK)));
             TDoubleVec noise;
             rng.generateUniformSamples(0.0, 3.0, 1, noise);
-            this->addArrival(*gatherer, t + bucketLength / 2, "p1", value + noise[0]);
-            this->addArrival(*referenceGatherer, t + bucketLength / 2, "p1",
-                             value + noise[0]);
+            this->addArrival(SMessage(t + bucketLength / 2, "p1", value + noise[0]), gatherer);
+            this->addArrival(SMessage(t + bucketLength / 2, "p1", value + noise[0]),
+                             referenceGatherer);
             model->sample(t, t + bucketLength, m_ResourceMonitor);
             referenceModel->sample(t, t + bucketLength, m_ResourceMonitor);
             meanPredictionError.add(std::fabs(
@@ -2135,7 +2130,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMedian, CTestFixture) {
     SModelParams params(bucketLength);
     this->makeModel(params, {model_t::E_IndividualLowMedianByPerson}, startTime);
     CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", m_Gatherer));
+    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
     TOptionalDoubleVec probabilities;
     test::CRandomNumbers rng;
@@ -2153,8 +2148,8 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowMedian, CTestFixture) {
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
-            this->addArrival(*m_Gatherer, time + static_cast<core_t::TTime>(j),
-                             "p", values[j]);
+            this->addArrival(
+                SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
         }
         model.sample(time, time + bucketLength, m_ResourceMonitor);
 
@@ -2189,7 +2184,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMedian, CTestFixture) {
     SModelParams params(bucketLength);
     makeModel(params, {model_t::E_IndividualHighMeanByPerson}, startTime);
     CMetricModel& model = static_cast<CMetricModel&>(*m_Model);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), this->addPerson("p", m_Gatherer));
+    BOOST_REQUIRE_EQUAL(0, this->addPerson("p", m_Gatherer));
 
     TOptionalDoubleVec probabilities;
     test::CRandomNumbers rng;
@@ -2207,8 +2202,8 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighMedian, CTestFixture) {
         LOG_DEBUG(<< "values = " << core::CContainerPrinter::print(values));
 
         for (std::size_t j = 0u; j < values.size(); ++j) {
-            this->addArrival(*m_Gatherer, time + static_cast<core_t::TTime>(j),
-                             "p", values[j]);
+            this->addArrival(
+                SMessage(time + static_cast<core_t::TTime>(j), "p", values[j]), m_Gatherer);
         }
         model.sample(time, time + bucketLength, m_ResourceMonitor);
 
@@ -2270,8 +2265,8 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
     // Add a bucket to both models
     for (std::size_t i = 0; i < 60; i++) {
-        this->addArrival(*gathererNoSkip, startTime + i, "p1", 1.0);
-        this->addArrival(*gathererWithSkip, startTime + i, "p1", 1.0);
+        this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererNoSkip);
+        this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererWithSkip);
     }
     modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
     modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
@@ -2281,8 +2276,8 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
     // Add a bucket to both models
     for (std::size_t i = 0; i < 60; i++) {
-        this->addArrival(*gathererNoSkip, startTime + i, "p1", 1.0);
-        this->addArrival(*gathererWithSkip, startTime + i, "p1", 1.0);
+        this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererNoSkip);
+        this->addArrival(SMessage(startTime + i, "p1", 1.0), gathererWithSkip);
     }
     modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
     modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
@@ -2292,7 +2287,7 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
 
     // this sample will be skipped by the detection rule
     for (std::size_t i = 0; i < 60; i++) {
-        this->addArrival(*gathererWithSkip, startTime + i, "p1", 110.0);
+        this->addArrival(SMessage(startTime + i, "p1", 110.0), gathererWithSkip);
     }
     modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);
 
@@ -2303,8 +2298,8 @@ BOOST_FIXTURE_TEST_CASE(testIgnoreSamplingGivenDetectionRules, CTestFixture) {
     modelNoSkip->skipSampling(startTime);
 
     for (std::size_t i = 0; i < 60; i++) {
-        this->addArrival(*gathererNoSkip, startTime + i, "p1", 2.0);
-        this->addArrival(*gathererWithSkip, startTime + i, "p1", 2.0);
+        this->addArrival(SMessage(startTime + i, "p1", 2.0), gathererNoSkip);
+        this->addArrival(SMessage(startTime + i, "p1", 2.0), gathererWithSkip);
     }
     modelNoSkip->sample(startTime, endTime, m_ResourceMonitor);
     modelWithSkip->sample(startTime, endTime, m_ResourceMonitor);

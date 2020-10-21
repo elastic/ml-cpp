@@ -39,6 +39,15 @@
 * The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 9.3. (See
   {ml-pull}1170[#1170].)
 
+== {es} version 7.11.0
+
+=== Enhancements
+
+* During regression and classification training prefer smaller models if performance is 
+  similar (See {ml-pull}1516[#1516].)
+* Add a response mechanism for commands sent to the native controller. (See
+  {ml-pull}1520[#1520], {es-pull}63542[#63542], issue: {es-issue}62823[#62823].)
+
 == {es} version 7.10.0
 
 === Enhancements

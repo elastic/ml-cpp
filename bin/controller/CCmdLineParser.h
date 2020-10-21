@@ -33,7 +33,8 @@ public:
                       const char* const* argv,
                       std::string& jvmPidStr,
                       std::string& logPipe,
-                      std::string& commandPipe);
+                      std::string& commandPipe,
+                      std::string& outputPipe);
 
 private:
     static const std::string DESCRIPTION;

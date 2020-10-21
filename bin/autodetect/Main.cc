@@ -82,6 +82,7 @@ int main(int argc, char** argv) {
     using TStrVec = ml::autodetect::CCmdLineParser::TStrVec;
 
     // Read command line options
+    std::string configFile;
     std::string limitConfigFile;
     std::string modelConfigFile;
     std::string fieldConfigFile;
@@ -118,7 +119,7 @@ int main(int argc, char** argv) {
     bool stopCategorizationOnWarnStatus{false};
     TStrVec clauseTokens;
     if (ml::autodetect::CCmdLineParser::parse(
-            argc, argv, limitConfigFile, modelConfigFile, fieldConfigFile,
+            argc, argv, configFile, limitConfigFile, modelConfigFile, fieldConfigFile,
             modelPlotConfigFile, jobId, logProperties, logPipe, bucketSpan, latency,
             summaryCountFieldName, delimiter, lengthEncodedInput, timeField,
             timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,

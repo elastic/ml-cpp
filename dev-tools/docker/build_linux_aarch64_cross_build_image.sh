@@ -23,9 +23,12 @@ set -e
 
 cd `dirname $0`
 
-docker build --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION linux_aarch64_cross_image
+. ./prefetch_docker_image.sh
+CONTEXT=linux_aarch64_cross_image
+prefetch_docker_image $CONTEXT/Dockerfile
+docker build --no-cache -t $HOST/$ACCOUNT/$REPOSITORY:$VERSION $CONTEXT
 # Get a username and password for this by visiting
-# https://docker.elastic.co:7000 and allowing it to authenticate against your
+# https://docker-auth.elastic.co and allowing it to authenticate against your
 # GitHub account
 docker login $HOST
 docker push $HOST/$ACCOUNT/$REPOSITORY:$VERSION

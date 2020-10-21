@@ -10,6 +10,7 @@ TARGET=ml_test$(EXE_EXT)
 USE_BOOST=1
 USE_BOOST_PROGRAMOPTIONS_LIBS=1
 USE_BOOST_TEST_LIBS=1
+USE_RAPIDJSON=1
 
 all: build
 
@@ -20,6 +21,7 @@ SRCS=\
     Main.cc \
     CBlockingCallCancellingStreamMonitorTest.cc \
     CCommandProcessorTest.cc \
+    CResponseJsonWriterTest.cc \
 
 include $(CPP_SRC_HOME)/mk/stdboosttest.mk
 
