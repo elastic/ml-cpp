@@ -329,7 +329,7 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodicProblemCase, CTestFixture) {
     BOOST_TEST_REQUIRE(totalPercentileError < 0.09 * totalSumValue);
 }
 
-BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture, *boost::unit_test::disabled()) {
 
     // Test we make longer components as smooth as possible.
 

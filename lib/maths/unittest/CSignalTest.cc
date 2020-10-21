@@ -1100,7 +1100,7 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
             }
 
             auto decomposition = maths::CSignal::tradingDayDecomposition(
-                values, 0.0, 168, startOfWeekOverride, 1e-6);
+                values, 0.0, 168, startOfWeekOverride, 1e-7);
             if (test % 4 == 0) {
                 BOOST_REQUIRE(decomposition.empty());
             } else {
