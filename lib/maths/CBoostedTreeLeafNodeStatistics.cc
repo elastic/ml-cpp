@@ -148,8 +148,6 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
             if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, std::move(*this), regularization, featureBag, workspace);
-                // rightChild->m_BestSplit.s_LeftChildMaxGain = leftChild->m_BestSplit.s_LeftChildMaxGain;
-                // rightChild->m_BestSplit.s_RightChildMaxGain = leftChild->m_BestSplit.s_RightChildMaxGain;
                 if (rightChild != nullptr &&
                     rightChild->gain() >= this->m_BestSplit.s_RightChildMaxGain) {
                     LOG_DEBUG(<< "gain " << rightChild->gain() << " upper bound "
@@ -183,8 +181,6 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
         if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, std::move(*this), regularization, featureBag, workspace);
-            // leftChild->m_BestSplit.s_LeftChildMaxGain = rightChild->m_BestSplit.s_LeftChildMaxGain;
-            // leftChild->m_BestSplit.s_RightChildMaxGain = rightChild->m_BestSplit.s_RightChildMaxGain;
             if (leftChild != nullptr && leftChild->gain() >= this->m_BestSplit.s_LeftChildMaxGain) {
                 LOG_DEBUG(<< "gain " << leftChild->gain() << " upper bound "
                           << this->m_BestSplit.s_LeftChildMaxGain);
@@ -216,8 +212,12 @@ double CBoostedTreeLeafNodeStatistics::gain() const {
     return m_BestSplit.s_Gain;
 }
 
-double CBoostedTreeLeafNodeStatistics::maxGain() const {
-    return m_BestSplit.s_Gain;
+double CBoostedTreeLeafNodeStatistics::leftChildMaxGain() const {
+    return m_BestSplit.s_LeftChildMaxGain;
+}
+
+double CBoostedTreeLeafNodeStatistics::rightChildMaxGain() const {
+    return m_BestSplit.s_RightChildMaxGain;
 }
 
 double CBoostedTreeLeafNodeStatistics::curvature() const {
@@ -329,10 +329,6 @@ void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRo
     auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
                                            m_NumberLossParameters);
     if (derivatives.size() == 2) {
-        // auto curvature = readLossCurvature(row.unencodedRow(), m_ExtraColumns,
-        //                                    m_NumberLossParameters);
-        LOG_DEBUG(<< "Gradient 0 " << derivatives(0) << " 1 " << derivatives(1)
-       );
         if (derivatives(0) >= 0.0) {
             splitsDerivatives.m_PositiveDerivativesGSum += derivatives(0);
             splitsDerivatives.m_PositiveDerivativesHSum += derivatives(1);
@@ -459,12 +455,10 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
         bool assignMissingToLeft{true};
         std::size_t size{m_Derivatives.derivatives(feature).size()};
 
-        LOG_DEBUG(<<"Split size " << size);
-
         for (std::size_t split = 0; split + 1 < size; ++split) {
 
             std::size_t count{m_Derivatives.count(feature, split)};
-            LOG_DEBUG(<< "Count " << count);
+            // LOG_DEBUG(<< "Count " << count);
             if (count == 0) {
                 continue;
             }
@@ -482,7 +476,6 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
             hl[ASSIGN_MISSING_TO_RIGHT] += curvature;
             hr[ASSIGN_MISSING_TO_LEFT] -= curvature;
             hr[ASSIGN_MISSING_TO_RIGHT] -= curvature;
-
 
             double gain[2];
             minLossLeft[ASSIGN_MISSING_TO_LEFT] =
@@ -504,33 +497,46 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
                     : minLossLeft[ASSIGN_MISSING_TO_RIGHT] +
                           minLossRight[ASSIGN_MISSING_TO_RIGHT];
 
-            LOG_DEBUG( << "Split at " << m_CandidateSplits[feature][split]
-            << "\ngl[ASSIGN_MISSING_TO_LEFT] = " <<gl[ASSIGN_MISSING_TO_LEFT]
-            << "\nhl[ASSIGN_MISSING_TO_LEFT] = " << hl[ASSIGN_MISSING_TO_LEFT]
-            << "\ngl[ASSIGN_MISSING_TO_RIGHT] = " <<gl[ASSIGN_MISSING_TO_RIGHT]
-            << "\nhl[ASSIGN_MISSING_TO_RIGHT] = " << hl[ASSIGN_MISSING_TO_RIGHT]
-            << "\ngr[ASSIGN_MISSING_TO_LEFT] = " <<gr[ASSIGN_MISSING_TO_LEFT]
-            << "\nhr[ASSIGN_MISSING_TO_LEFT] = " << hr[ASSIGN_MISSING_TO_LEFT]
-            << "\ngr[ASSIGN_MISSING_TO_RIGHT] = " <<gr[ASSIGN_MISSING_TO_RIGHT]
-            << "\nhr[ASSIGN_MISSING_TO_RIGHT] = " << hr[ASSIGN_MISSING_TO_RIGHT]
-            << "\nminLossLeft[ASSIGN_MISSING_TO_LEFT] = " <<minLossLeft[ASSIGN_MISSING_TO_LEFT]
-            << "\nminLossRight[ASSIGN_MISSING_TO_LEFT] = " << minLossRight[ASSIGN_MISSING_TO_LEFT]
-            << "\nminLossLeft[ASSIGN_MISSING_TO_RIGHT] = " <<minLossLeft[ASSIGN_MISSING_TO_RIGHT]
-            << "\nminLossRight[ASSIGN_MISSING_TO_RIGHT] = " << minLossRight[ASSIGN_MISSING_TO_RIGHT]
-            << "\ncl[ASSIGN_MISSING_TO_LEFT] = " <<cl[ASSIGN_MISSING_TO_LEFT]
-            << "\ncl[ASSIGN_MISSING_TO_RIGHT] = " << cl[ASSIGN_MISSING_TO_RIGHT]
-            << "\n c = " << c);
-
-            // TODO continue from here, does it make sense?
             double C{CTools::pow2(m_Derivatives.positiveDerivativesGSum()) /
                          (m_Derivatives.positiveDerivativesHSum() + lambda + 1e-10) +
                      CTools::pow2(m_Derivatives.negativeDerivativesGSum()) /
                          (m_Derivatives.negativeDerivativesHSum() + lambda + 1e-10)};
-            gainUpperBoundLeft[ASSIGN_MISSING_TO_LEFT] = C - minLossLeft[ASSIGN_MISSING_TO_LEFT];
-            gainUpperBoundLeft[ASSIGN_MISSING_TO_RIGHT] = C - minLossLeft[ASSIGN_MISSING_TO_RIGHT];
-            gainUpperBoundRight[ASSIGN_MISSING_TO_LEFT] = C - minLossRight[ASSIGN_MISSING_TO_LEFT];
+            gainUpperBoundLeft[ASSIGN_MISSING_TO_LEFT] =
+                C - (minLossLeft[ASSIGN_MISSING_TO_LEFT] -
+                     (gain[ASSIGN_MISSING_TO_LEFT] - minimumLoss(g, h)));
+            gainUpperBoundLeft[ASSIGN_MISSING_TO_RIGHT] =
+                C - (minLossLeft[ASSIGN_MISSING_TO_RIGHT] -
+                     (gain[ASSIGN_MISSING_TO_RIGHT] - minimumLoss(g, h)));
+            gainUpperBoundRight[ASSIGN_MISSING_TO_LEFT] =
+                C - (minLossRight[ASSIGN_MISSING_TO_LEFT] -
+                     (gain[ASSIGN_MISSING_TO_LEFT] - minimumLoss(g, h)));
             gainUpperBoundRight[ASSIGN_MISSING_TO_RIGHT] =
-                C - minLossRight[ASSIGN_MISSING_TO_RIGHT];
+                C - (minLossRight[ASSIGN_MISSING_TO_RIGHT] -
+                     (gain[ASSIGN_MISSING_TO_RIGHT] - minimumLoss(g, h)));
+
+            // LOG_DEBUG(
+            //     << "Split at " << m_CandidateSplits[feature][split]
+            //     << "\ngl[ASSIGN_MISSING_TO_LEFT] = " << gl[ASSIGN_MISSING_TO_LEFT]
+            //     << "\nhl[ASSIGN_MISSING_TO_LEFT] = " << hl[ASSIGN_MISSING_TO_LEFT]
+            //     << "\ngl[ASSIGN_MISSING_TO_RIGHT] = " << gl[ASSIGN_MISSING_TO_RIGHT]
+            //     << "\nhl[ASSIGN_MISSING_TO_RIGHT] = " << hl[ASSIGN_MISSING_TO_RIGHT]
+            //     << "\ngr[ASSIGN_MISSING_TO_LEFT] = " << gr[ASSIGN_MISSING_TO_LEFT]
+            //     << "\nhr[ASSIGN_MISSING_TO_LEFT] = " << hr[ASSIGN_MISSING_TO_LEFT]
+            //     << "\ngr[ASSIGN_MISSING_TO_RIGHT] = " << gr[ASSIGN_MISSING_TO_RIGHT]
+            //     << "\nhr[ASSIGN_MISSING_TO_RIGHT] = " << hr[ASSIGN_MISSING_TO_RIGHT]
+            //     << "\nminLossLeft[ASSIGN_MISSING_TO_LEFT] = " << minLossLeft[ASSIGN_MISSING_TO_LEFT]
+            //     << "\nminLossRight[ASSIGN_MISSING_TO_LEFT] = " << minLossRight[ASSIGN_MISSING_TO_LEFT]
+            //     << "\nminLossLeft[ASSIGN_MISSING_TO_RIGHT] = " << minLossLeft[ASSIGN_MISSING_TO_RIGHT]
+            //     << "\nminLossRight[ASSIGN_MISSING_TO_RIGHT] = " << minLossRight[ASSIGN_MISSING_TO_RIGHT]
+            //     << "\ncl[ASSIGN_MISSING_TO_LEFT] = " << cl[ASSIGN_MISSING_TO_LEFT]
+            //     << "\ncl[ASSIGN_MISSING_TO_RIGHT] = " << cl[ASSIGN_MISSING_TO_RIGHT]
+            //     << "\n c = " << c << "\ngainUpperBoundLeft[ASSIGN_MISSING_TO_LEFT] = "
+            //     << gainUpperBoundLeft[ASSIGN_MISSING_TO_LEFT] << "\ngainUpperBoundLeft[ASSIGN_MISSING_TO_RIGHT] = "
+            //     << gainUpperBoundLeft[ASSIGN_MISSING_TO_RIGHT] << "\ngainUpperBoundRight[ASSIGN_MISSING_TO_LEFT] = "
+            //     << gainUpperBoundRight[ASSIGN_MISSING_TO_LEFT] << "\ngainUpperBoundRight[ASSIGN_MISSING_TO_RIGHT] = "
+            //     << gainUpperBoundRight[ASSIGN_MISSING_TO_RIGHT]
+            //     << "\ngain[ASSIGN_MISSING_TO_LEFT] = " << gain[ASSIGN_MISSING_TO_LEFT]
+            //     << "\ngain[ASSIGN_MISSING_TO_RIGHT] = " << gain[ASSIGN_MISSING_TO_RIGHT]);
 
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_LEFT];

@@ -610,7 +610,8 @@ public:
     //! Get the gain in loss of the best split of this leaf.
     double gain() const;
 
-    double maxGain() const;
+    double leftChildMaxGain() const;
+    double rightChildMaxGain() const;
 
     //! Get the total curvature of node.
     double curvature() const;
@@ -637,9 +638,7 @@ public:
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
 
-    std::string print() const {
-        return m_BestSplit.print();
-    }
+    std::string print() const { return m_BestSplit.print(); }
 
     //! Estimate the maximum leaf statistics' memory usage training on a data frame
     //! with \p numberCols columns using \p numberSplitsPerFeature for a loss function

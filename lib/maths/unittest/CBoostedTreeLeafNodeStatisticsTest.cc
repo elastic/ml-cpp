@@ -4,14 +4,15 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "core/CContainerPrinter.h"
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
 
 #include <core/CLogger.h>
 
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeUtils.h>
-#include <maths/CLinearAlgebraEigen.h>
 #include <maths/CDataFrameCategoryEncoder.h>
+#include <maths/CLinearAlgebraEigen.h>
 
 #include <test/CRandomNumbers.h>
 
@@ -313,73 +314,93 @@ BOOST_AUTO_TEST_CASE(testPerSplitDerivatives) {
 BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
     using TRegularization = maths::CBoostedTreeRegularization<double>;
     using TLeafNodeStatisticsPtr = maths::CBoostedTreeLeafNodeStatistics::TPtr;
+    using TNodeVec = maths::CBoostedTree::TNodeVec;
     // create dataset and encoding
     std::size_t cols{2};
     TSizeVec extraColumns{2, 3, 4, 5};
     std::size_t rows{6};
     std::size_t numberThreads{1};
-    auto frame = core::makeMainStorageDataFrame(cols, 2 * rows).first;
-    frame->categoricalColumns(TBoolVec{false, false});
-    frame->resizeColumns(numberThreads, cols + extraColumns.size());
 
-    TDoubleVecVec features{{0.1}, {0.2}, {0.3}, {0.7}, {0.8}, {0.9}};
-    TDoubleVec targets{1.0, 1.0, 1.0, -1.0, -1.0, -1.0};
-    TDoubleVec predictions{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-    TDoubleVec gradients{1.0, 1.0, 1.0, -1.0, -1.0, -1.0};
-    TDoubleVec curvature{2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
-    TDoubleVec weights{1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
-    
-    for (std::size_t i = 0; i < rows; ++i) {
-        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
-                *(column++) = features[0][i];
-                *(column++) = targets[i];
-                *(column++) = predictions[i];
-                *(column++) = gradients[i];
-                *(column++) = curvature[i];
-                *(column) = weights[i];
+    for (std::size_t seed = 0; seed < 1000; ++seed) {
+        LOG_DEBUG(<< "Seed: " << seed);
+        test::CRandomNumbers rng;
+        rng.seed(seed);
+        auto frame = core::makeMainStorageDataFrame(cols, rows).first;
+        frame->categoricalColumns(TBoolVec{false, false});
+        frame->resizeColumns(numberThreads, cols + extraColumns.size());
+        TDoubleVec features{0.1, 0.2, 0.3, 0.7, 0.8, 0.9};
+
+        TDoubleVec targets;
+        targets.reserve(features.size());
+        rng.generateUniformSamples(-1.0, 1.0, features.size(), targets);
+        LOG_DEBUG(<< "Targets " << core::CContainerPrinter::print(targets));
+        // TDoubleVec targets{1.0, 1.0, 1.0, -1.0, -1.0, -1.0};
+        TDoubleVec predictions{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+        // TDoubleVec gradients{1.0, 1.0, 1.0, -1.0, -1.0, -1.0};
+        TDoubleVec curvature{2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
+        TDoubleVec weights{1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+
+        for (std::size_t i = 0; i < rows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                *(column) = features[i];
+                *(++column) = targets[i];
+                *(++column) = predictions[i];
+                *(++column) = targets[i] - predictions[i];
+                *(++column) = curvature[i];
+                *(++column) = weights[i];
 
             });
-    }
-    frame->finishWritingRows();
-    
+        }
+        frame->finishWritingRows();
 
-    maths::CDataFrameCategoryEncoder encoder{{numberThreads, *frame, 1}};
+        maths::CDataFrameCategoryEncoder encoder{{numberThreads, *frame, 0}};
 
-    TImmutableRadixSetVec featureSplits;
-    featureSplits.push_back(TImmutableRadixSet{0.25, 0.5, 0.75});
+        TImmutableRadixSetVec featureSplits;
+        featureSplits.push_back(TImmutableRadixSet({0.25, 0.5, 0.75}));
 
-    maths::CBoostedTreeLeafNodeStatistics::CWorkspace workspace;
-    workspace.reinitialize(numberThreads, featureSplits, 1);
+        maths::CBoostedTreeLeafNodeStatistics::CWorkspace workspace;
+        workspace.reinitialize(numberThreads, featureSplits, 1);
 
-    core::CPackedBitVector trainingRowMask({true,true, true, true, true, true});
+        core::CPackedBitVector trainingRowMask({true, true, true, true, true, true});
 
-    TSizeVec featureBag{0};
+        TSizeVec featureBag{0};
 
+        TRegularization regularization;
+        regularization.softTreeDepthLimit(1.0).softTreeDepthTolerance(1.0);
+        LOG_DEBUG(<< "Regularization " << regularization.print());
 
+        TNodeVec tree(1);
 
-    TRegularization regularization;
-    regularization.softTreeDepthLimit(1.0)
-                  .softTreeDepthTolerance(1.0);
-    LOG_DEBUG(<< "Regularization " << regularization.print());
+        auto rootSplit = std::make_shared<maths::CBoostedTreeLeafNodeStatistics>(
+            0 /*root*/, extraColumns, 1, numberThreads, *frame, encoder, regularization,
+            featureSplits, featureBag, 0 /*depth*/, trainingRowMask, workspace);
 
-    auto rootSplit = std::make_shared<maths::CBoostedTreeLeafNodeStatistics>(
-        0 /*root*/, extraColumns, 1, numberThreads, *frame, encoder, regularization,
-        featureSplits, featureBag, 0 /*depth*/, trainingRowMask, workspace);
+        LOG_DEBUG(<< "Root gain: " << rootSplit->print());
+        LOG_DEBUG(<< "\n---------------------------------------------------------------------------"
+                  << "\n---------------------------------------------------------------------------");
 
-    LOG_DEBUG(<< "Root gain: " << rootSplit->print());
+        std::size_t splitFeature;
+        double splitValue;
+        std::tie(splitFeature, splitValue) = rootSplit->bestSplit();
+        bool assignMissingToLeft{rootSplit->assignMissingToLeft()};
 
+        std::size_t leftChildId, rightChildId;
+        std::tie(leftChildId, rightChildId) = tree[rootSplit->id()].split(
+            splitFeature, splitValue, assignMissingToLeft, rootSplit->gain(),
+            rootSplit->curvature(), tree);
 
-    maths::CBoostedTreeNode rootNode;
-
-    TLeafNodeStatisticsPtr leftChild;
+        TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
         std::tie(leftChild, rightChild) = rootSplit->split(
-            1, 2, numberThreads, *frame, encoder, regularization,
-            featureBag, rootNode, workspace, 0);
-    LOG_DEBUG(<<"Left child: " << leftChild->print());
-    LOG_DEBUG(<<"Right child: " << rightChild->print());
-
-
+            leftChildId, rightChildId, numberThreads, *frame, encoder,
+            regularization, featureBag, tree[rootSplit->id()], workspace, 0);
+        LOG_DEBUG(<< "Left child: " << leftChild->print());
+        LOG_DEBUG(<< "Right child: " << rightChild->print());
+        LOG_DEBUG(<< "\n---------------------------------------------------------------------------"
+                  << "\n---------------------------------------------------------------------------");
+        BOOST_REQUIRE(rootSplit->leftChildMaxGain() >= leftChild->gain());
+        BOOST_REQUIRE(rootSplit->rightChildMaxGain() >= rightChild->gain());
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
