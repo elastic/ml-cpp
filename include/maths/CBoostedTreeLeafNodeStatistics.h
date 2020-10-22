@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_maths_CBoostedTreeLeafNodeStatistics_h
 #define INCLUDED_ml_maths_CBoostedTreeLeafNodeStatistics_h
 
+#include "maths/CBasicStatistics.h"
 #include <core/CAlignment.h>
 #include <core/CImmutableRadixSet.h>
 #include <core/CMemory.h>
@@ -222,6 +223,10 @@ public:
             std::swap(m_PositiveDerivativesHSum, other.m_PositiveDerivativesHSum);
             std::swap(m_NegativeDerivativesGSum, other.m_NegativeDerivativesGSum);
             std::swap(m_NegativeDerivativesHSum, other.m_NegativeDerivativesHSum);
+            std::swap(m_PositiveDerivativesGMinMax, other.m_PositiveDerivativesGMinMax);
+            std::swap(m_PositiveDerivativesHMinMax, other.m_PositiveDerivativesHMinMax);
+            std::swap(m_NegativeDerivativesGMinMax, other.m_NegativeDerivativesGMinMax);
+            std::swap(m_NegativeDerivativesHMinMax, other.m_NegativeDerivativesHMinMax);
         }
 
         //! \return The aggregate count for \p feature and \p split.
@@ -280,6 +285,10 @@ public:
             m_PositiveDerivativesHSum = 0.0;
             m_NegativeDerivativesGSum = 0.0;
             m_NegativeDerivativesHSum = 0.0;
+            m_PositiveDerivativesHMinMax = TMinMaxAccumulator();
+            m_PositiveDerivativesGMinMax = TMinMaxAccumulator();
+            m_NegativeDerivativesHMinMax = TMinMaxAccumulator();
+            m_NegativeDerivativesGMinMax = TMinMaxAccumulator();
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].zero();
@@ -294,6 +303,11 @@ public:
             m_PositiveDerivativesHSum += other.m_PositiveDerivativesHSum;
             m_NegativeDerivativesGSum += other.m_NegativeDerivativesGSum;
             m_NegativeDerivativesHSum += other.m_NegativeDerivativesHSum;
+            m_PositiveDerivativesHMinMax += other.m_PositiveDerivativesHMinMax;
+            m_PositiveDerivativesGMinMax += other.m_PositiveDerivativesGMinMax;
+            m_NegativeDerivativesHMinMax += other.m_NegativeDerivativesHMinMax;
+            m_NegativeDerivativesGMinMax += other.m_NegativeDerivativesGMinMax;
+
             for (std::size_t i = 0; i < other.m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < other.m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].add(other.m_Derivatives[i][j]);
@@ -308,6 +322,10 @@ public:
             this->m_PositiveDerivativesHSum -= rhs.m_PositiveDerivativesHSum;
             this->m_NegativeDerivativesGSum -= rhs.m_NegativeDerivativesGSum;
             this->m_NegativeDerivativesHSum -= rhs.m_NegativeDerivativesHSum;
+            m_PositiveDerivativesHMinMax += rhs.m_PositiveDerivativesHMinMax;
+            m_PositiveDerivativesGMinMax += rhs.m_PositiveDerivativesGMinMax;
+            m_NegativeDerivativesHMinMax += rhs.m_NegativeDerivativesHMinMax;
+            m_NegativeDerivativesGMinMax += rhs.m_NegativeDerivativesGMinMax;
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].subtract(rhs.m_Derivatives[i][j]);
@@ -373,10 +391,16 @@ public:
         }
 
     public:
+        using TMinMaxAccumulator = maths::CBasicStatistics::CMinMax<double>;
+
         double m_PositiveDerivativesGSum = 0.0;
         double m_PositiveDerivativesHSum = 0.0;
         double m_NegativeDerivativesGSum = 0.0;
         double m_NegativeDerivativesHSum = 0.0;
+        TMinMaxAccumulator m_PositiveDerivativesHMinMax;
+        TMinMaxAccumulator m_PositiveDerivativesGMinMax;
+        TMinMaxAccumulator m_NegativeDerivativesHMinMax;
+        TMinMaxAccumulator m_NegativeDerivativesGMinMax;
 
     private:
         using TDerivativesVecVec = std::vector<TDerivativesVec>;

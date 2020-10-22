@@ -142,16 +142,16 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                 leftChildId, *this, numberThreads, frame, encoder, regularization,
                 featureBag, true /*is left child*/, split, workspace);
             if (leftChild != nullptr && leftChild->gain() >= this->m_BestSplit.s_LeftChildMaxGain) {
-                LOG_DEBUG(<< "gain " << leftChild->gain() << " upper bound "
-                          << this->m_BestSplit.s_LeftChildMaxGain);
+                // LOG_DEBUG(<< "gain " << leftChild->gain() << " upper bound "
+                //           << this->m_BestSplit.s_LeftChildMaxGain);
             }
             if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, std::move(*this), regularization, featureBag, workspace);
                 if (rightChild != nullptr &&
                     rightChild->gain() >= this->m_BestSplit.s_RightChildMaxGain) {
-                    LOG_DEBUG(<< "gain " << rightChild->gain() << " upper bound "
-                              << this->m_BestSplit.s_RightChildMaxGain);
+                    // LOG_DEBUG(<< "gain " << rightChild->gain() << " upper bound "
+                    //           << this->m_BestSplit.s_RightChildMaxGain);
                 }
             }
         } else {
@@ -161,8 +161,8 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                     featureBag, false /*is left child*/, split, workspace);
                 if (rightChild != nullptr &&
                     rightChild->gain() >= this->m_BestSplit.s_RightChildMaxGain) {
-                    LOG_DEBUG(<< "gain " << rightChild->gain() << " upper bound "
-                              << this->m_BestSplit.s_RightChildMaxGain);
+                    // LOG_DEBUG(<< "gain " << rightChild->gain() << " upper bound "
+                    //           << this->m_BestSplit.s_RightChildMaxGain);
                 }
             }
         }
@@ -175,15 +175,15 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
             rightChildId, *this, numberThreads, frame, encoder, regularization,
             featureBag, false /*is left child*/, split, workspace);
         if (rightChild != nullptr && rightChild->gain() >= this->m_BestSplit.s_RightChildMaxGain) {
-            LOG_DEBUG(<< "gain " << rightChild->gain() << " upper bound "
-                      << this->m_BestSplit.s_RightChildMaxGain);
+            // LOG_DEBUG(<< "gain " << rightChild->gain() << " upper bound "
+            //           << this->m_BestSplit.s_RightChildMaxGain);
         }
         if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, std::move(*this), regularization, featureBag, workspace);
             if (leftChild != nullptr && leftChild->gain() >= this->m_BestSplit.s_LeftChildMaxGain) {
-                LOG_DEBUG(<< "gain " << leftChild->gain() << " upper bound "
-                          << this->m_BestSplit.s_LeftChildMaxGain);
+                // LOG_DEBUG(<< "gain " << leftChild->gain() << " upper bound "
+                //           << this->m_BestSplit.s_LeftChildMaxGain);
             }
         }
     } else if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
@@ -191,8 +191,8 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
             leftChildId, *this, numberThreads, frame, encoder, regularization,
             featureBag, true /*is left child*/, split, workspace);
         if (leftChild != nullptr && leftChild->gain() >= this->m_BestSplit.s_LeftChildMaxGain) {
-            LOG_DEBUG(<< "gain " << leftChild->gain() << " upper bound "
-                      << this->m_BestSplit.s_LeftChildMaxGain);
+            // LOG_DEBUG(<< "gain " << leftChild->gain() << " upper bound "
+            //           << this->m_BestSplit.s_LeftChildMaxGain);
         }
     }
     // if (leftChild != nullptr) {
@@ -332,9 +332,13 @@ void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRo
         if (derivatives(0) >= 0.0) {
             splitsDerivatives.m_PositiveDerivativesGSum += derivatives(0);
             splitsDerivatives.m_PositiveDerivativesHSum += derivatives(1);
+            splitsDerivatives.m_PositiveDerivativesGMinMax.add(derivatives(0));
+            splitsDerivatives.m_PositiveDerivativesHMinMax.add(derivatives(1));
         } else {
             splitsDerivatives.m_NegativeDerivativesGSum += derivatives(0);
             splitsDerivatives.m_NegativeDerivativesHSum += derivatives(1);
+            splitsDerivatives.m_NegativeDerivativesGMinMax.add(derivatives(0));
+            splitsDerivatives.m_NegativeDerivativesHMinMax.add(derivatives(1));
         }
     }
 
@@ -460,6 +464,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
             std::size_t count{m_Derivatives.count(feature, split)};
             // LOG_DEBUG(<< "Count " << count);
             if (count == 0) {
+                // LOG_DEBUG(<< "Skipping split " << split << " since the count is " << count);
                 continue;
             }
 
@@ -497,22 +502,24 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
                     : minLossLeft[ASSIGN_MISSING_TO_RIGHT] +
                           minLossRight[ASSIGN_MISSING_TO_RIGHT];
 
-            double C{CTools::pow2(m_Derivatives.positiveDerivativesGSum()) /
-                         (m_Derivatives.positiveDerivativesHSum() + lambda + 1e-10) +
-                     CTools::pow2(m_Derivatives.negativeDerivativesGSum()) /
-                         (m_Derivatives.negativeDerivativesHSum() + lambda + 1e-10)};
+            double C{(m_Derivatives.m_PositiveDerivativesGMinMax.initialized()
+                          ? m_Derivatives.positiveDerivativesGSum() *
+                                m_Derivatives.m_PositiveDerivativesGMinMax.max() /
+                                (m_Derivatives.m_PositiveDerivativesHMinMax.min() + lambda + 1e-10)
+                          : 0.0) +
+                     (m_Derivatives.m_NegativeDerivativesGMinMax.initialized()
+                          ? m_Derivatives.negativeDerivativesGSum() *
+                                m_Derivatives.m_NegativeDerivativesGMinMax.min() /
+                                (m_Derivatives.m_NegativeDerivativesHMinMax.min() + lambda + 1e-10)
+                          : 0.0)};
             gainUpperBoundLeft[ASSIGN_MISSING_TO_LEFT] =
-                C - (minLossLeft[ASSIGN_MISSING_TO_LEFT] -
-                     (gain[ASSIGN_MISSING_TO_LEFT] - minimumLoss(g, h)));
+                C - (minLossLeft[ASSIGN_MISSING_TO_LEFT]);
             gainUpperBoundLeft[ASSIGN_MISSING_TO_RIGHT] =
-                C - (minLossLeft[ASSIGN_MISSING_TO_RIGHT] -
-                     (gain[ASSIGN_MISSING_TO_RIGHT] - minimumLoss(g, h)));
+                C - (minLossLeft[ASSIGN_MISSING_TO_RIGHT]);
             gainUpperBoundRight[ASSIGN_MISSING_TO_LEFT] =
-                C - (minLossRight[ASSIGN_MISSING_TO_LEFT] -
-                     (gain[ASSIGN_MISSING_TO_LEFT] - minimumLoss(g, h)));
+                C - (minLossRight[ASSIGN_MISSING_TO_LEFT]);
             gainUpperBoundRight[ASSIGN_MISSING_TO_RIGHT] =
-                C - (minLossRight[ASSIGN_MISSING_TO_RIGHT] -
-                     (gain[ASSIGN_MISSING_TO_RIGHT] - minimumLoss(g, h)));
+                C - (minLossRight[ASSIGN_MISSING_TO_RIGHT]);
 
             // LOG_DEBUG(
             //     << "Split at " << m_CandidateSplits[feature][split]
@@ -536,7 +543,8 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
             //     << gainUpperBoundRight[ASSIGN_MISSING_TO_LEFT] << "\ngainUpperBoundRight[ASSIGN_MISSING_TO_RIGHT] = "
             //     << gainUpperBoundRight[ASSIGN_MISSING_TO_RIGHT]
             //     << "\ngain[ASSIGN_MISSING_TO_LEFT] = " << gain[ASSIGN_MISSING_TO_LEFT]
-            //     << "\ngain[ASSIGN_MISSING_TO_RIGHT] = " << gain[ASSIGN_MISSING_TO_RIGHT]);
+            //     << "\ngain[ASSIGN_MISSING_TO_RIGHT] = " << gain[ASSIGN_MISSING_TO_RIGHT]
+            //     << "\nC = " << C << "\nminimumLoss(g, h) = " << minimumLoss(g, h));
 
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_LEFT];

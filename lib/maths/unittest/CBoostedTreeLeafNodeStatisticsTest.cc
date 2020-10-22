@@ -5,6 +5,8 @@
  */
 
 #include "core/CContainerPrinter.h"
+#include "maths/CQuantileSketch.h"
+#include <algorithm>
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
 
 #include <core/CLogger.h>
@@ -318,27 +320,36 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
     // create dataset and encoding
     std::size_t cols{2};
     TSizeVec extraColumns{2, 3, 4, 5};
-    std::size_t rows{6};
+    std::size_t rows{50};
     std::size_t numberThreads{1};
 
-    for (std::size_t seed = 0; seed < 1000; ++seed) {
+    for (std::size_t seed = 0; seed < 10000; ++seed) {
+        maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, rows);
         LOG_DEBUG(<< "Seed: " << seed);
         test::CRandomNumbers rng;
         rng.seed(seed);
         auto frame = core::makeMainStorageDataFrame(cols, rows).first;
         frame->categoricalColumns(TBoolVec{false, false});
         frame->resizeColumns(numberThreads, cols + extraColumns.size());
-        TDoubleVec features{0.1, 0.2, 0.3, 0.7, 0.8, 0.9};
+        TDoubleVec features;
+        features.reserve(rows);
+        while (true) {
+            rng.generateUniformSamples(0.0, 1.0, rows, features);
+            const auto[min, max] =
+                std::minmax_element(features.begin(), features.end());
+            if (*min < 0.25 && *max > 0.75) {
+                break;
+            }
+        }
+        // LOG_INFO(<< "x = " << core::CContainerPrinter::print(features));
 
         TDoubleVec targets;
         targets.reserve(features.size());
-        rng.generateUniformSamples(-1.0, 1.0, features.size(), targets);
-        LOG_DEBUG(<< "Targets " << core::CContainerPrinter::print(targets));
-        // TDoubleVec targets{1.0, 1.0, 1.0, -1.0, -1.0, -1.0};
-        TDoubleVec predictions{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-        // TDoubleVec gradients{1.0, 1.0, 1.0, -1.0, -1.0, -1.0};
-        TDoubleVec curvature{2.0, 2.0, 2.0, 2.0, 2.0, 2.0};
-        TDoubleVec weights{1.0, 1.0, 1.0, 1.0, 1.0, 1.0};
+        rng.generateUniformSamples(-10.0, 10.0, features.size(), targets);
+        // LOG_INFO(<< "y = " << core::CContainerPrinter::print(targets));
+        TDoubleVec predictions(rows, 0.0);
+        TDoubleVec curvature(rows, 2.0);
+        TDoubleVec weights(rows, 1.0);
 
         for (std::size_t i = 0; i < rows; ++i) {
             frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
@@ -350,24 +361,29 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
                 *(++column) = weights[i];
 
             });
+            sketch.add(features[i]);
         }
         frame->finishWritingRows();
 
         maths::CDataFrameCategoryEncoder encoder{{numberThreads, *frame, 0}};
 
+        TDoubleVec splitValues(3);
+        sketch.quantile(25.0, splitValues[0]);
+        sketch.quantile(50.0, splitValues[1]);
+        sketch.quantile(75.0, splitValues[2]);
+        // LOG_DEBUG(<< "Split values: " << core::CContainerPrinter::print(splitValues));
         TImmutableRadixSetVec featureSplits;
-        featureSplits.push_back(TImmutableRadixSet({0.25, 0.5, 0.75}));
+        featureSplits.push_back(TImmutableRadixSet(splitValues));
 
         maths::CBoostedTreeLeafNodeStatistics::CWorkspace workspace;
         workspace.reinitialize(numberThreads, featureSplits, 1);
 
-        core::CPackedBitVector trainingRowMask({true, true, true, true, true, true});
+        core::CPackedBitVector trainingRowMask(rows, true);
 
         TSizeVec featureBag{0};
 
         TRegularization regularization;
         regularization.softTreeDepthLimit(1.0).softTreeDepthTolerance(1.0);
-        LOG_DEBUG(<< "Regularization " << regularization.print());
 
         TNodeVec tree(1);
 
@@ -375,9 +391,8 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
             0 /*root*/, extraColumns, 1, numberThreads, *frame, encoder, regularization,
             featureSplits, featureBag, 0 /*depth*/, trainingRowMask, workspace);
 
-        LOG_DEBUG(<< "Root gain: " << rootSplit->print());
-        LOG_DEBUG(<< "\n---------------------------------------------------------------------------"
-                  << "\n---------------------------------------------------------------------------");
+        // LOG_INFO(<< "Root gain: " << rootSplit->print());
+        // LOG_INFO(<< "\n---------------------------------------------------------------------------");
 
         std::size_t splitFeature;
         double splitValue;
@@ -394,12 +409,20 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         std::tie(leftChild, rightChild) = rootSplit->split(
             leftChildId, rightChildId, numberThreads, *frame, encoder,
             regularization, featureBag, tree[rootSplit->id()], workspace, 0);
-        LOG_DEBUG(<< "Left child: " << leftChild->print());
-        LOG_DEBUG(<< "Right child: " << rightChild->print());
-        LOG_DEBUG(<< "\n---------------------------------------------------------------------------"
-                  << "\n---------------------------------------------------------------------------");
-        BOOST_REQUIRE(rootSplit->leftChildMaxGain() >= leftChild->gain());
-        BOOST_REQUIRE(rootSplit->rightChildMaxGain() >= rightChild->gain());
+        if (leftChild != nullptr) {
+            // LOG_DEBUG(<< "Left child: " << leftChild->print());
+            BOOST_REQUIRE(rootSplit->leftChildMaxGain() >= leftChild->gain());
+        } else {
+            // LOG_DEBUG(<< "Left child wasn't split");
+        }
+        if (rightChild != nullptr) {
+            // LOG_DEBUG(<< "Right child: " << rightChild->print());
+            BOOST_REQUIRE(rootSplit->rightChildMaxGain() >= rightChild->gain());
+            // LOG_DEBUG(<< "Right child wasn't split");
+        }
+        BOOST_REQUIRE(rightChild != nullptr || leftChild != nullptr);
+        // LOG_DEBUG(<< "\n---------------------------------------------------------------------------"
+        //           << "\n---------------------------------------------------------------------------");
     }
 }
 
