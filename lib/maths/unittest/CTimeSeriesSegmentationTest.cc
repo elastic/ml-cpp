@@ -631,7 +631,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseTimeShifted) {
     }
 
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-    BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 2.2);
+    BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 2.7);
 }
 
 BOOST_AUTO_TEST_CASE(testMeanScale) {
