@@ -85,7 +85,9 @@ const std::string INTERIM_BUCKET_CORRECTOR_TAG("k");
 
 //! The minimum version required to read the state corresponding to a model snapshot.
 //! This should be updated every time there is a breaking change to the model state.
-const std::string MODEL_SNAPSHOT_MIN_VERSION("6.4.0");
+//! (The last breaking change was in 7.9 in lib/core/CPackedBitVector.cc in
+//! https://github.com/elastic/ml-cpp/pull/1340)
+const std::string MODEL_SNAPSHOT_MIN_VERSION("7.9.0");
 
 //! Persist state as JSON with meaningful tag names.
 class CReadableJsonStatePersistInserter : public core::CJsonStatePersistInserter {
