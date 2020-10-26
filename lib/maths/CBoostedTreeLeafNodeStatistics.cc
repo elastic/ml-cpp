@@ -26,6 +26,18 @@ using TRowItr = core::CDataFrame::TRowItr;
 namespace {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
+
+void incrementStatsComputed(CBoostedTreeLeafNodeStatistics::TAnalysisInstrumentationPtr instrumentation) {
+    if (instrumentation != nullptr) {
+        instrumentation->statisticsComputed() += 1;
+    }
+}
+
+void incrementStatsNotComputed(CBoostedTreeLeafNodeStatistics::TAnalysisInstrumentationPtr instrumentation) {
+    if (instrumentation != nullptr) {
+        instrumentation->statisticsNotComputed() += 1;
+    }
+}
 }
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
@@ -133,7 +145,8 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                                       const TSizeVec& featureBag,
                                       const CBoostedTreeNode& split,
                                       CWorkspace& workspace,
-                                      double gainThreshold) {
+                                      double gainThreshold,
+                                      TAnalysisInstrumentationPtr instrumentation) {
     TPtr leftChild;
     TPtr rightChild;
     if (this->leftChildHasFewerRows()) {
@@ -141,29 +154,23 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, *this, numberThreads, frame, encoder, regularization,
                 featureBag, true /*is left child*/, split, workspace);
-            if (leftChild != nullptr && leftChild->gain() >= this->m_BestSplit.s_LeftChildMaxGain) {
-                LOG_DEBUG(<< "gain " << leftChild->gain() << " upper bound "
-                          << this->m_BestSplit.s_LeftChildMaxGain);
-            }
+            incrementStatsComputed(instrumentation);
             if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, std::move(*this), regularization, featureBag, workspace);
-                if (rightChild != nullptr &&
-                    rightChild->gain() >= this->m_BestSplit.s_RightChildMaxGain) {
-                    LOG_DEBUG(<< "gain " << rightChild->gain() << " upper bound "
-                              << this->m_BestSplit.s_RightChildMaxGain);
-                }
+                incrementStatsComputed(instrumentation);
+            } else {
+                incrementStatsNotComputed(instrumentation);
             }
         } else {
+            incrementStatsNotComputed(instrumentation);
             if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, *this, numberThreads, frame, encoder, regularization,
                     featureBag, false /*is left child*/, split, workspace);
-                if (rightChild != nullptr &&
-                    rightChild->gain() >= this->m_BestSplit.s_RightChildMaxGain) {
-                    LOG_DEBUG(<< "gain " << rightChild->gain() << " upper bound "
-                              << this->m_BestSplit.s_RightChildMaxGain);
-                }
+                incrementStatsNotComputed(instrumentation);
+            } else {
+                incrementStatsNotComputed(instrumentation);
             }
         }
 
@@ -174,33 +181,33 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
         rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             rightChildId, *this, numberThreads, frame, encoder, regularization,
             featureBag, false /*is left child*/, split, workspace);
-        if (rightChild != nullptr && rightChild->gain() >= this->m_BestSplit.s_RightChildMaxGain) {
-            LOG_DEBUG(<< "gain " << rightChild->gain() << " upper bound "
-                      << this->m_BestSplit.s_RightChildMaxGain);
-        }
+        incrementStatsComputed(instrumentation);
+
         if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, std::move(*this), regularization, featureBag, workspace);
-            if (leftChild != nullptr && leftChild->gain() >= this->m_BestSplit.s_LeftChildMaxGain) {
-                LOG_DEBUG(<< "gain " << leftChild->gain() << " upper bound "
-                          << this->m_BestSplit.s_LeftChildMaxGain);
+            incrementStatsComputed(instrumentation);
+            if (leftChild != nullptr) {
+                if (leftChild->gain() >= this->m_BestSplit.s_LeftChildMaxGain) {
+                    LOG_DEBUG(<< "gain " << leftChild->gain() << " upper bound "
+                              << this->m_BestSplit.s_LeftChildMaxGain);
+                } else {
+                    incrementStatsNotComputed(instrumentation);
+                }
             }
+        } else {
+            incrementStatsNotComputed(instrumentation);
         }
     } else if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+        incrementStatsNotComputed(instrumentation);
         leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             leftChildId, *this, numberThreads, frame, encoder, regularization,
             featureBag, true /*is left child*/, split, workspace);
-        if (leftChild != nullptr && leftChild->gain() >= this->m_BestSplit.s_LeftChildMaxGain) {
-            LOG_DEBUG(<< "gain " << leftChild->gain() << " upper bound "
-                      << this->m_BestSplit.s_LeftChildMaxGain);
-        }
+        incrementStatsComputed(instrumentation);
+    } else {
+        incrementStatsNotComputed(instrumentation);
     }
-    // if (leftChild != nullptr) {
-    //     LOG_DEBUG(<< leftChild->m_BestSplit.print() << ", depth = " << leftChild->m_Depth);
-    // }
-    // if (rightChild != nullptr) {
-    //     LOG_DEBUG(<< rightChild->m_BestSplit.print() << ", depth = " << rightChild->m_Depth);
-    // }
+
     return {std::move(leftChild), std::move(rightChild)};
 }
 

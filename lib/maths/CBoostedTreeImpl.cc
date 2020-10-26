@@ -296,6 +296,13 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     m_Instrumentation->updateProgress(1.0);
     m_Instrumentation->updateMemoryUsage(
         static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
+    if (m_Instrumentation != nullptr) {
+        LOG_DEBUG(<< "Statistics computed: " << m_Instrumentation->statisticsComputed()
+                  << "\nStatistics not computed: "
+                  << m_Instrumentation->statisticsNotComputed() << "\nSaved: "
+                  << (static_cast<double>(m_Instrumentation->statisticsNotComputed()) /
+                      m_Instrumentation->statisticsComputed()));
+    }
 }
 
 void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {
@@ -885,17 +892,18 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         this->featureBag(featureSampleProbabilities, featureBag);
 
         int n{splitCandidateTreeNodes.size()};
-        // int currentNumberInternalNodes{(tree.size() - 1) / 2};
-        // int lastCandidateIdx{n - (maximumNumberInternalNodes - currentNumberInternalNodes)};
-        // double smallestCandidateGain =
-        //     lastCandidateIdx >= 0 ? splitCandidateTreeNodes[lastCandidateIdx]->gain() : 0.0;
-        double smallestCandidateGain{0};
+        int currentNumberInternalNodes{(tree.size() - 1) / 2};
+        int lastCandidateIdx{n - (maximumNumberInternalNodes - currentNumberInternalNodes)};
+        double smallestCandidateGain =
+            lastCandidateIdx >= 0 ? splitCandidateTreeNodes[lastCandidateIdx]->gain() : 0.0;
+        // double smallestCandidateGain{0};
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
-        std::tie(leftChild, rightChild) = leaf->split(
-            leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder, m_Regularization,
-            featureBag, tree[leaf->id()], workspace, smallestCandidateGain);
+        std::tie(leftChild, rightChild) =
+            leaf->split(leftChildId, rightChildId, m_NumberThreads, frame,
+                        *m_Encoder, m_Regularization, featureBag, tree[leaf->id()],
+                        workspace, smallestCandidateGain, m_Instrumentation);
 
         // if (leftChild == nullptr) {
         //     LOG_DEBUG(<< "Left child didn't have to be computed");

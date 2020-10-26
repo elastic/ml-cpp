@@ -8,6 +8,7 @@
 #define INCLUDED_ml_maths_CBoostedTreeLeafNodeStatistics_h
 
 #include "maths/CBasicStatistics.h"
+#include "maths/CDataFrameAnalysisInstrumentationInterface.h"
 #include <core/CAlignment.h>
 #include <core/CImmutableRadixSet.h>
 #include <core/CMemory.h>
@@ -62,6 +63,7 @@ public:
     using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
     using TMemoryMappedDoubleVector = CMemoryMappedDenseVector<double, Eigen::Aligned16>;
     using TMemoryMappedDoubleMatrix = CMemoryMappedDenseMatrix<double, Eigen::Aligned16>;
+    using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
 
     //! \brief Accumulates aggregate derivatives.
     class MATHS_EXPORT CDerivatives {
@@ -626,7 +628,8 @@ public:
                     const TSizeVec& featureBag,
                     const CBoostedTreeNode& split,
                     CWorkspace& workspace,
-                    double gainThreshold);
+                    double gainThreshold,
+                    TAnalysisInstrumentationPtr instrumentation = nullptr);
 
     //! Order two leaves by decreasing gain in splitting them.
     bool operator<(const CBoostedTreeLeafNodeStatistics& rhs) const;
