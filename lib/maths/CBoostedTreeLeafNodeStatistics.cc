@@ -154,26 +154,17 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, *this, numberThreads, frame, encoder, regularization,
                 featureBag, true /*is left child*/, split, workspace);
-            // incrementStatsComputed(instrumentation);
             if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, std::move(*this), regularization, featureBag, workspace);
-                // incrementStatsComputed(instrumentation);
-            } else {
-                // incrementStatsNotComputed(instrumentation);
             }
         } else {
-            // incrementStatsNotComputed(instrumentation);
             if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, *this, numberThreads, frame, encoder, regularization,
                     featureBag, false /*is left child*/, split, workspace);
-                // incrementStatsNotComputed(instrumentation);
-            } else {
-                // incrementStatsNotComputed(instrumentation);
             }
         }
-
         return {std::move(leftChild), std::move(rightChild)};
     }
 
@@ -181,33 +172,16 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
         rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             rightChildId, *this, numberThreads, frame, encoder, regularization,
             featureBag, false /*is left child*/, split, workspace);
-        // incrementStatsComputed(instrumentation);
 
         if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, std::move(*this), regularization, featureBag, workspace);
-            // incrementStatsComputed(instrumentation);
-            if (leftChild != nullptr) {
-                if (leftChild->gain() >= this->m_BestSplit.s_LeftChildMaxGain) {
-                    LOG_DEBUG(<< "gain " << leftChild->gain() << " upper bound "
-                              << this->m_BestSplit.s_LeftChildMaxGain);
-                } else {
-                    // incrementStatsNotComputed(instrumentation);
-                }
-            }
-        } else {
-            // incrementStatsNotComputed(instrumentation);
         }
     } else if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
-        // incrementStatsNotComputed(instrumentation);
         leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             leftChildId, *this, numberThreads, frame, encoder, regularization,
             featureBag, true /*is left child*/, split, workspace);
-        // incrementStatsComputed(instrumentation);
-    } else {
-        // incrementStatsNotComputed(instrumentation);
     }
-
     return {std::move(leftChild), std::move(rightChild)};
 }
 
