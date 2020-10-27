@@ -188,6 +188,8 @@ public:
     //! to accept a scaling segment.
     //! \param[in] maxSegments The maximum number of segments to divide \p values into.
     //! \param[out] shifts If not null filled in with the shift for each segment.
+    //! \return The sorted segmentation indices. This includes the start and end
+    //! indices of \p values, i.e. 0 and values.size().
     static TSizeVec
     piecewiseTimeShifted(const TFloatMeanAccumulatorVec& values,
                          core_t::TTime bucketLength,

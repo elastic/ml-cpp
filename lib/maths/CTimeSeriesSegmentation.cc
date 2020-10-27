@@ -593,7 +593,7 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinearScaledSeasonal(
 
         // The following loop is the interesting part. We compute (up to constants)
         //
-        //   min_j{ min_s{ sum_{i<j}{(x_i - s p_i)^2} } + min_s{ sum_{i>=j}{(x_i - s p_i)^2} } }
+        //   min_i{ min_{sl, sr}{ sum_{j<i}{(x_ij - sl p_j)^2} + sum_{j>=i}{(x_j - sr p_j)^2} } }
         //
         // We use the fact that we can maintain sufficient statistics to which
         // we can both add and remove values to compute this in O(|S||T|) for
@@ -601,9 +601,9 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinearScaledSeasonal(
 
         for (ITR end_ = std::prev(end, 2); i != end_; ++i) {
             TMeanAccumulatorAry deltaStatistics{statistics(i, std::next(i))};
-            for (std::size_t j = 0; j < 3; ++j) {
-                leftStatistics[j] += deltaStatistics[j];
-                rightStatistics[j] -= deltaStatistics[j];
+            for (std::size_t k = 0; k < 3; ++k) {
+                leftStatistics[k] += deltaStatistics[k];
+                rightStatistics[k] -= deltaStatistics[k];
             }
             minResidualVariance.add(
                 {variance(leftStatistics, rightStatistics), std::next(i)});
@@ -847,38 +847,38 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseTimeShifted(ITR begin,
 
         // The following loop is the interesting part. We compute
         //
-        //   min_j{ min_s{ sum_{i < j}{(x_i - p_i(s))^2} } + min_s{ sum_{i >= j}{(x_i - p_i(s))^2} } }
+        //   min_i{ min_{sl, sr}{ sum_{j<i}{(x_j - p_{j+sl})^2} + sum_{j>=i}{(x_j - p_{j+sr})^2} } }
         //
         // We use the fact that we can remove values from the central moments
         // accumulator to compute this in O(|S||T|^2) for S candidate splits
         // and T candidate shifts.
 
-        for (std::size_t split = 5; split + 5 < range; ++split) {
-            const auto& valueLeftOfSplit = *(begin + split - 1);
-            for (std::size_t i = 0; i < predictions.size(); ++i) {
-                double prediction{predictions[i][offset + split - 1]};
+        for (std::size_t i = 5; i + 5 < range; ++i) {
+            const auto& valueLeftOfSplit = *(begin + i - 1);
+            for (std::size_t j = 0; j < predictions.size(); ++j) {
+                double prediction{predictions[j][offset + i - 1]};
                 TMeanVarAccumulator delta;
                 delta.add(CBasicStatistics::mean(valueLeftOfSplit) - prediction,
                           CBasicStatistics::count(valueLeftOfSplit));
-                leftMoments[i].add(CBasicStatistics::mean(valueLeftOfSplit) - prediction,
+                leftMoments[j].add(CBasicStatistics::mean(valueLeftOfSplit) - prediction,
                                    CBasicStatistics::count(valueLeftOfSplit));
-                rightMoments[i] -= delta;
+                rightMoments[j] -= delta;
             }
 
             double variance{std::numeric_limits<double>::max()};
-            for (std::size_t i = 0; i < leftMoments.size(); ++i) {
-                for (std::size_t j = 0; j < rightMoments.size(); ++j) {
+            for (std::size_t sl = 0; sl < leftMoments.size(); ++sl) {
+                for (std::size_t sr = 0; sr < rightMoments.size(); ++sr) {
                     double shiftsVariance{CBasicStatistics::maximumLikelihoodVariance(
-                        leftMoments[i] + rightMoments[j])};
+                        leftMoments[sl] + rightMoments[sr])};
                     if (shiftsVariance < variance) {
                         variance = shiftsVariance;
                     }
                 }
             }
-            LOG_TRACE(<< "  split = " << split << ", variance = " << variance);
+            LOG_TRACE(<< "  split = " << i << ", variance = " << variance);
 
             if (variance < bestSplitVariance) {
-                std::tie(bestSplitVariance, bestSplit) = std::make_pair(variance, split);
+                std::tie(bestSplitVariance, bestSplit) = std::make_pair(variance, i);
             }
         }
 
