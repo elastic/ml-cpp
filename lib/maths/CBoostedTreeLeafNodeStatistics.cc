@@ -439,6 +439,21 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
     double gainUpperBoundLeft[2];
     double gainUpperBoundRight[2];
 
+    double C{(m_Derivatives.m_PositiveDerivativesHMinMax.initialized()
+                  ? CTools::pow2(m_Derivatives.positiveDerivativesGSum()) /
+                        (m_Derivatives.m_PositiveDerivativesHMinMax.min() *
+                             m_Derivatives.positiveDerivativesGSum() /
+                             m_Derivatives.m_PositiveDerivativesGMinMax.max() +
+                         lambda + 1e-10)
+                  : 0.0) +
+             (m_Derivatives.m_NegativeDerivativesHMinMax.initialized()
+                  ? CTools::pow2(m_Derivatives.negativeDerivativesGSum()) /
+                        (m_Derivatives.m_NegativeDerivativesHMinMax.min() *
+                             m_Derivatives.negativeDerivativesGSum() /
+                             m_Derivatives.m_NegativeDerivativesGMinMax.min() +
+                         lambda + 1e-10)
+                  : 0.0)};
+
     for (auto feature : featureBag) {
         std::size_t c{m_Derivatives.missingCount(feature)};
         g = m_Derivatives.missingGradient(feature);
@@ -466,21 +481,6 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
         bool assignMissingToLeft{true};
         std::size_t size{m_Derivatives.derivatives(feature).size()};
 
-        double C{(m_Derivatives.m_PositiveDerivativesHMinMax.initialized()
-                          ? CTools::pow2(m_Derivatives.positiveDerivativesGSum()) /
-                                (m_Derivatives.m_PositiveDerivativesHMinMax.min() *
-                                     m_Derivatives.positiveDerivativesGSum() /
-                                     m_Derivatives.m_PositiveDerivativesGMinMax.max() +
-                                 lambda + 1e-10)
-                          : 0.0) +
-                     (m_Derivatives.m_NegativeDerivativesHMinMax.initialized()
-                          ? CTools::pow2(m_Derivatives.negativeDerivativesGSum()) /
-                                (m_Derivatives.m_NegativeDerivativesHMinMax.min() *
-                                     m_Derivatives.negativeDerivativesGSum() /
-                                     m_Derivatives.m_NegativeDerivativesGMinMax.min() +
-                                 lambda + 1e-10)
-                          : 0.0)};
-
         for (std::size_t split = 0; split + 1 < size; ++split) {
 
             std::size_t count{m_Derivatives.count(feature, split)};
@@ -506,13 +506,21 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
             double gain[2];
             minLossLeft[ASSIGN_MISSING_TO_LEFT] =
-                minimumLoss(gl[ASSIGN_MISSING_TO_LEFT], hl[ASSIGN_MISSING_TO_LEFT]);
+                cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c
+                    ? 0.0
+                    : minimumLoss(gl[ASSIGN_MISSING_TO_LEFT], hl[ASSIGN_MISSING_TO_LEFT]);
             minLossRight[ASSIGN_MISSING_TO_LEFT] =
-                minimumLoss(gr[ASSIGN_MISSING_TO_LEFT], hr[ASSIGN_MISSING_TO_LEFT]);
-            minLossLeft[ASSIGN_MISSING_TO_RIGHT] = minimumLoss(
-                gl[ASSIGN_MISSING_TO_RIGHT], hl[ASSIGN_MISSING_TO_RIGHT]);
-            minLossRight[ASSIGN_MISSING_TO_RIGHT] = minimumLoss(
-                gr[ASSIGN_MISSING_TO_RIGHT], hr[ASSIGN_MISSING_TO_RIGHT]);
+                cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c
+                    ? 0.0
+                    : minimumLoss(gr[ASSIGN_MISSING_TO_LEFT], hr[ASSIGN_MISSING_TO_LEFT]);
+            minLossLeft[ASSIGN_MISSING_TO_RIGHT] =
+                cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c
+                    ? 0.0
+                    : minimumLoss(gl[ASSIGN_MISSING_TO_RIGHT], hl[ASSIGN_MISSING_TO_RIGHT]);
+            minLossRight[ASSIGN_MISSING_TO_RIGHT] =
+                cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c
+                    ? 0.0
+                    : minimumLoss(gr[ASSIGN_MISSING_TO_RIGHT], hr[ASSIGN_MISSING_TO_RIGHT]);
             gain[ASSIGN_MISSING_TO_LEFT] =
                 cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c
                     ? -INF
@@ -524,31 +532,21 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
                     : minLossLeft[ASSIGN_MISSING_TO_RIGHT] +
                           minLossRight[ASSIGN_MISSING_TO_RIGHT];
 
-            
-            gainUpperBoundLeft[ASSIGN_MISSING_TO_LEFT] =
-                C - (minLossLeft[ASSIGN_MISSING_TO_LEFT]);
-            gainUpperBoundLeft[ASSIGN_MISSING_TO_RIGHT] =
-                C - (minLossLeft[ASSIGN_MISSING_TO_RIGHT]);
-            gainUpperBoundRight[ASSIGN_MISSING_TO_LEFT] =
-                C - (minLossRight[ASSIGN_MISSING_TO_LEFT]);
-            gainUpperBoundRight[ASSIGN_MISSING_TO_RIGHT] =
-                C - (minLossRight[ASSIGN_MISSING_TO_RIGHT]);
-
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
                 splitAt = m_CandidateSplits[feature][split];
                 leftChildRowCount = cl[ASSIGN_MISSING_TO_LEFT];
                 assignMissingToLeft = true;
-                maxGainLeftChild = gainUpperBoundLeft[ASSIGN_MISSING_TO_LEFT];
-                maxGainRightChild = gainUpperBoundRight[ASSIGN_MISSING_TO_LEFT];
+                maxGainLeftChild = C - (minLossLeft[ASSIGN_MISSING_TO_LEFT]);
+                maxGainRightChild = C - (minLossRight[ASSIGN_MISSING_TO_LEFT]);
             }
             if (gain[ASSIGN_MISSING_TO_RIGHT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_RIGHT];
                 splitAt = m_CandidateSplits[feature][split];
                 leftChildRowCount = cl[ASSIGN_MISSING_TO_RIGHT];
                 assignMissingToLeft = false;
-                maxGainLeftChild = gainUpperBoundLeft[ASSIGN_MISSING_TO_RIGHT];
-                maxGainRightChild = gainUpperBoundRight[ASSIGN_MISSING_TO_RIGHT];
+                maxGainLeftChild = C - (minLossLeft[ASSIGN_MISSING_TO_RIGHT]);
+                maxGainRightChild = C - (minLossRight[ASSIGN_MISSING_TO_RIGHT]);
             }
         }
 

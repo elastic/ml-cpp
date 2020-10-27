@@ -298,10 +298,10 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
     if (m_Instrumentation != nullptr) {
         LOG_TRACE(<< "Statistics computed: " << m_Instrumentation->statisticsComputed()
-                 << "\nStatistics not computed: "
-                 << m_Instrumentation->statisticsNotComputed() << "\nSaved: "
-                 << (static_cast<double>(m_Instrumentation->statisticsNotComputed()) /
-                     m_Instrumentation->statisticsComputed()));
+                  << "\nStatistics not computed: "
+                  << m_Instrumentation->statisticsNotComputed() << "\nSaved: "
+                  << (static_cast<double>(m_Instrumentation->statisticsNotComputed()) /
+                      m_Instrumentation->statisticsComputed()));
     }
 }
 
