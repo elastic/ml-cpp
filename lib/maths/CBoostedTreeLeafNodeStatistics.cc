@@ -436,8 +436,6 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
     double minLossLeft[2];
     double minLossRight[2];
-    double gainUpperBoundLeft[2];
-    double gainUpperBoundRight[2];
 
     double C{(m_Derivatives.m_PositiveDerivativesHMinMax.initialized()
                   ? CTools::pow2(m_Derivatives.positiveDerivativesGSum()) /
@@ -505,32 +503,27 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
             hr[ASSIGN_MISSING_TO_RIGHT] -= curvature;
 
             double gain[2];
-            minLossLeft[ASSIGN_MISSING_TO_LEFT] =
-                cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c
-                    ? 0.0
-                    : minimumLoss(gl[ASSIGN_MISSING_TO_LEFT], hl[ASSIGN_MISSING_TO_LEFT]);
-            minLossRight[ASSIGN_MISSING_TO_LEFT] =
-                cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c
-                    ? 0.0
-                    : minimumLoss(gr[ASSIGN_MISSING_TO_LEFT], hr[ASSIGN_MISSING_TO_LEFT]);
-            minLossLeft[ASSIGN_MISSING_TO_RIGHT] =
-                cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c
-                    ? 0.0
-                    : minimumLoss(gl[ASSIGN_MISSING_TO_RIGHT], hl[ASSIGN_MISSING_TO_RIGHT]);
-            minLossRight[ASSIGN_MISSING_TO_RIGHT] =
-                cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c
-                    ? 0.0
-                    : minimumLoss(gr[ASSIGN_MISSING_TO_RIGHT], hr[ASSIGN_MISSING_TO_RIGHT]);
-            gain[ASSIGN_MISSING_TO_LEFT] =
-                cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c
-                    ? -INF
-                    : minLossLeft[ASSIGN_MISSING_TO_LEFT] +
-                          minLossRight[ASSIGN_MISSING_TO_LEFT];
-            gain[ASSIGN_MISSING_TO_RIGHT] =
-                cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c
-                    ? -INF
-                    : minLossLeft[ASSIGN_MISSING_TO_RIGHT] +
-                          minLossRight[ASSIGN_MISSING_TO_RIGHT];
+            if (cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c) {
+                gain[ASSIGN_MISSING_TO_LEFT] = -INF;
+            } else {
+                minLossLeft[ASSIGN_MISSING_TO_LEFT] = minimumLoss(
+                    gl[ASSIGN_MISSING_TO_LEFT], hl[ASSIGN_MISSING_TO_LEFT]);
+                minLossRight[ASSIGN_MISSING_TO_LEFT] = minimumLoss(
+                    gr[ASSIGN_MISSING_TO_LEFT], hr[ASSIGN_MISSING_TO_LEFT]);
+                gain[ASSIGN_MISSING_TO_LEFT] = minLossLeft[ASSIGN_MISSING_TO_LEFT] +
+                                               minLossRight[ASSIGN_MISSING_TO_LEFT];
+            }
+
+            if (cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c) {
+                gain[ASSIGN_MISSING_TO_RIGHT] = -INF;
+            } else {
+                minLossLeft[ASSIGN_MISSING_TO_RIGHT] = minimumLoss(
+                    gl[ASSIGN_MISSING_TO_RIGHT], hl[ASSIGN_MISSING_TO_RIGHT]);
+                minLossRight[ASSIGN_MISSING_TO_RIGHT] = minimumLoss(
+                    gr[ASSIGN_MISSING_TO_RIGHT], hr[ASSIGN_MISSING_TO_RIGHT]);
+                gain[ASSIGN_MISSING_TO_RIGHT] = minLossLeft[ASSIGN_MISSING_TO_RIGHT] +
+                                                minLossRight[ASSIGN_MISSING_TO_RIGHT];
+            }
 
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
