@@ -87,6 +87,8 @@ std::size_t distance(const TSizeVec& lhs, const TSizeVec& rhs) {
 
 BOOST_AUTO_TEST_CASE(testPiecewiseLinear) {
 
+    // Test we identify trend knot points.
+
     core_t::TTime halfHour{core::constants::HOUR / 2};
     core_t::TTime week{core::constants::WEEK};
     core_t::TTime range{5 * week};
@@ -217,6 +219,8 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinear) {
 
 BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledSeasonal) {
 
+    // Test we identify scale change points.
+
     core_t::TTime halfHour{core::constants::HOUR / 2};
     core_t::TTime week{core::constants::WEEK};
     core_t::TTime range{5 * week};
@@ -333,7 +337,82 @@ BOOST_AUTO_TEST_CASE(testPiecewiseLinearScaledSeasonal) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testRemovePiecewiseLinearScaledSeasonal) {
+
+    // Test we get the residual distribution we expect after removing a piecewise
+    // linear scaled seasonal component.
+
+    core_t::TTime halfHour{core::constants::HOUR / 2};
+    core_t::TTime week{core::constants::WEEK};
+    core_t::TTime range{5 * week};
+
+    test::CRandomNumbers rng;
+
+    std::string descriptions[]{"smooth", "weekends", "spikey"};
+    maths::CSignal::TSeasonalComponentVec periods[]{
+        {maths::CSignal::seasonalComponentSummary(48)},
+        {maths::CSignal::SSeasonalComponentSummary{48, 0, 336, {0, 240}},
+         maths::CSignal::SSeasonalComponentSummary{336, 0, 336, {0, 240}},
+         maths::CSignal::SSeasonalComponentSummary{48, 0, 336, {240, 336}},
+         maths::CSignal::SSeasonalComponentSummary{336, 0, 336, {240, 336}}},
+        {maths::CSignal::seasonalComponentSummary(48)}};
+
+    TFloatMeanAccumulatorVec values(range / halfHour);
+    TDoubleVec noise;
+
+    LOG_DEBUG(<< "Basic");
+    std::size_t i{0};
+    for (auto seasonal : {smoothDaily, weekends, spikeyDaily}) {
+        LOG_DEBUG(<< descriptions[i]);
+        CDebugGenerator debug{"results." + descriptions[i] + ".py"};
+
+        values.assign(range / halfHour, TFloatMeanAccumulator{});
+        TMeanVarAccumulator noiseMoments;
+        for (core_t::TTime time = 0; time < range; time += halfHour) {
+            rng.generateNormalSamples(0.0, 3.0, 1, noise);
+            noiseMoments.add(noise[0]);
+            if (time < 3 * week / 2) {
+                values[time / halfHour].add(100.0 * seasonal(time) + noise[0]);
+            } else if (time < 2 * week) {
+                values[time / halfHour].add(50.0 * seasonal(time) + noise[0]);
+            } else {
+                values[time / halfHour].add(300.0 * seasonal(time) + noise[0]);
+            }
+            debug.addValue(maths::CBasicStatistics::mean(values[time / halfHour]));
+        }
+        TSizeVec segmentation{0, static_cast<std::size_t>(3 * week / halfHour / 2),
+                              static_cast<std::size_t>(2 * week / halfHour),
+                              values.size()};
+
+        TDoubleVec scales;
+        TFloatMeanAccumulatorVec residuals{TSegmentation::removePiecewiseLinearScaledSeasonal(
+            values, [&](std::size_t j) { return seasonal(halfHour * j); },
+            segmentation, 0.1, &scales)};
+
+        TMeanVarAccumulator residualMoments;
+        for (const auto& residual : residuals) {
+            residualMoments.add(maths::CBasicStatistics::mean(residual));
+            debug.addResidual(maths::CBasicStatistics::mean(residual));
+        }
+        LOG_DEBUG(<< "noise moments    = " << noiseMoments);
+        LOG_DEBUG(<< "residual moments = " << residualMoments);
+
+        // Not biased.
+        BOOST_TEST_REQUIRE(
+            std::fabs(maths::CBasicStatistics::mean(residualMoments) -
+                      maths::CBasicStatistics::mean(noiseMoments)) <
+            3.0 * std::sqrt(maths::CBasicStatistics::variance(noiseMoments) /
+                            maths::CBasicStatistics::count(noiseMoments)));
+
+        // We've explained nearly all the variance.
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(residualMoments) <
+                           1.1 * maths::CBasicStatistics::variance(noiseMoments));
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testRemovePiecewiseLinearDiscontinuities) {
+
+    // Test we correctly remove step discontinuities.
 
     std::size_t length{300};
 
@@ -491,6 +570,68 @@ BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
                             15.0); // 15%
         ++i;
     }
+}
+
+BOOST_AUTO_TEST_CASE(testPiecewiseTimeShifted) {
+
+    // Test that we identify time shift points.
+
+    core_t::TTime hour{core::constants::HOUR};
+
+    TSegmentation::TModel models[]{
+        [](core_t::TTime time) { return 10.0 * smoothDaily(86400 + time); },
+        [](core_t::TTime time) { return 10.0 * spikeyDaily(86400 + time); }};
+
+    test::CRandomNumbers rng;
+
+    TSizeVec shift;
+    core_t::TTime shifts[3]{0};
+    TFloatMeanAccumulatorVec values;
+    TDoubleVec noise;
+
+    TSizeVec segmentation{0, 80, 200, 240};
+
+    TSizeVec estimatedSegmentation;
+    TSegmentation::TTimeVec estimatedShifts;
+    TMeanVarAccumulator meanError;
+
+    for (std::size_t i = 0; i < 10; ++i) {
+        rng.generateUniformSamples(-5 * hour, -hour, 1, shift);
+        shifts[1] = hour * (static_cast<core_t::TTime>(shift[0]) / hour);
+        rng.generateUniformSamples(hour, 5 * hour, 1, shift);
+        shifts[2] = hour * (static_cast<core_t::TTime>(shift[0]) / hour);
+        LOG_DEBUG(<< "shifts = " << core::CContainerPrinter::print(shifts));
+
+        values.assign(240, TFloatMeanAccumulator{});
+        rng.generateNormalSamples(0.0, 1.0, 240, noise);
+
+        core_t::TTime time{0};
+        for (std::size_t j = 0; j < values.size(); ++j, time += hour / 2) {
+            core_t::TTime shiftedTime{
+                time + (j < 80 ? shifts[0] : (j < 200 ? shifts[1] : shifts[2]))};
+            values[j].add(models[i % 2](shiftedTime) + noise[j]);
+        }
+
+        estimatedSegmentation = TSegmentation::piecewiseTimeShifted(
+            values, hour / 2,
+            {-4 * hour, -3 * hour, -2 * hour, -1 * hour, 1 * hour, 2 * hour,
+             3 * hour, 4 * hour},
+            models[i % 2], 0.001, 3, &estimatedShifts);
+
+        BOOST_REQUIRE_EQUAL(segmentation.size(), estimatedSegmentation.size());
+        int error{0};
+        for (std::size_t j = 0; j < 4; ++j) {
+            error += std::abs(static_cast<int>(estimatedSegmentation[j]) -
+                              static_cast<int>(segmentation[j]));
+        }
+        BOOST_REQUIRE(error < 10);
+        BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(shifts),
+                            core::CContainerPrinter::print(estimatedShifts));
+        meanError.add(static_cast<double>(error));
+    }
+
+    LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
+    BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 2.7);
 }
 
 BOOST_AUTO_TEST_CASE(testMeanScale) {
