@@ -593,7 +593,7 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinearScaledSeasonal(
 
         // The following loop is the interesting part. We compute (up to constants)
         //
-        //   min_i{ min_{sl, sr}{ sum_{j<i}{(x_ij - sl p_j)^2} + sum_{j>=i}{(x_j - sr p_j)^2} } }
+        //   min_i{ min_{sl, sr}{ sum_{j<i}{(x_j - sl p_j)^2} + sum_{j>=i}{(x_j - sr p_j)^2} } }
         //
         // We use the fact that we can maintain sufficient statistics to which
         // we can both add and remove values to compute this in O(|S||T|) for
