@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
 
     for (std::size_t seed = 0; seed < 10000; ++seed) {
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, rows);
-        LOG_DEBUG(<< "Seed: " << seed);
+        // LOG_DEBUG(<< "Seed: " << seed);
         test::CRandomNumbers rng;
         rng.seed(seed);
         auto frame = core::makeMainStorageDataFrame(cols, rows).first;
