@@ -169,8 +169,9 @@ BOOST_AUTO_TEST_CASE(testScale) {
 }
 
 BOOST_AUTO_TEST_CASE(testTimeShift) {
-    TGeneratorVec trends{[](core_t::TTime time) { return 2.0 * smoothDaily(time); },
-                         [](core_t::TTime time) { return 2.0 * spikeyDaily(time); }};
+    TGeneratorVec trends{
+        [](core_t::TTime time) { return 2.0 * smoothDaily(time); },
+        [](core_t::TTime time) { return 2.0 * spikeyDaily(time); }};
     testChange(trends,
                [](TGenerator trend, core_t::TTime time) {
                    return trend(time - core::constants::HOUR);

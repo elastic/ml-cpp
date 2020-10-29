@@ -236,7 +236,6 @@ private:
                                           std::size_t maxDepth,
                                           double pValueToSegment,
                                           double outliersFraction,
-                                          const TMeanVarAccumulator& moments,
                                           TSizeVec& segmentation,
                                           TDoubleDoublePrVec& depthAndPValue,
                                           TFloatMeanAccumulatorVec& values);
