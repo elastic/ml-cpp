@@ -215,14 +215,13 @@ void reinitializeResidualModel(TDecompositionPtr10Vec& trends,
         (*controllers)[1].reset();
     }
 
-    std::size_t dimension{prior.dimension()};
+    prior.setToNonInformative(0.0, prior.decayRate());
 
+    std::size_t dimension{prior.dimension()};
     TFloatMeanAccumulatorVecVec residuals(dimension);
     for (std::size_t d = 0; d < dimension; ++d) {
         residuals[d] = trends[d]->residuals();
     }
-
-    prior.setToNonInformative(0.0, prior.decayRate());
     if (residuals.size() > 0) {
         TDouble10Vec1Vec samples;
         TDoubleVec weights;

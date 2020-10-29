@@ -90,9 +90,6 @@ public:
     //! Check if the decomposition has any initialized components.
     bool initialized() const override;
 
-    //! Set whether or not we're testing for a change.
-    void testingForChange(bool value) override;
-
     //! Adds a time series point \f$(t, f(t))\f$.
     //!
     //! \param[in] time The time of the data point.
@@ -109,13 +106,11 @@ public:
                   const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
                   const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) override;
 
-    //! Apply \p change at \p time.
-    //!
-    //! \param[in] time The time of the change point.
-    //! \param[in] value The value immediately before the change point.
-    //! \param[in] change A description of the change to apply.
-    //! \return True if a new component was detected.
-    bool applyChange(core_t::TTime time, double value, const SChangeDescription& change) override;
+    //! True if the time series may have undergone a sudden change.
+    bool mayHaveChanged() const override;
+
+    //! Shift seasonality by \p shift.
+    void shiftTime(core_t::TTime shift) override;
 
     //! Propagate the decomposition forwards to \p time.
     void propagateForwardsTo(core_t::TTime time) override;
@@ -137,6 +132,14 @@ public:
                                    int components = E_All,
                                    const TBoolVec& removedSeasonalMask = {},
                                    bool smooth = true) const override;
+
+    //! Get a function which returns the decomposition value as a function of time.
+    //!
+    //! This caches the expensive part of the calculation and so is much faster
+    //! than repeatedly calling value.
+    //!
+    //! \warning This can only be used as long as the trend component isn't updated.
+    TFilteredPredictor predictor(int components) const;
 
     //! Get the maximum interval for which the time series can be forecast.
     core_t::TTime maximumForecastInterval() const override;
@@ -233,6 +236,9 @@ private:
 
     //! Handles the communication between the various tests and components.
     TMediatorPtr m_Mediator;
+
+    //! The test for sudden change events.
+    CChangeDetectorTest m_ChangeDetectorTest;
 
     //! The test for seasonal components.
     CSeasonalityTest m_SeasonalityTest;

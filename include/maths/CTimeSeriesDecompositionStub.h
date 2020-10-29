@@ -37,9 +37,6 @@ public:
     //! Returns false.
     bool initialized() const override;
 
-    //! No-op.
-    void testingForChange(bool value) override;
-
     //! No-op returning false.
     void addPoint(core_t::TTime time,
                   double value,
@@ -47,8 +44,11 @@ public:
                   const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
                   const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) override;
 
-    //! No-op returning false.
-    bool applyChange(core_t::TTime time, double value, const SChangeDescription& change) override;
+    //! Returns false.
+    bool mayHaveChanged() const override;
+
+    //! No-op.
+    void shiftTime(core_t::TTime shift) override;
 
     //! No-op.
     void propagateForwardsTo(core_t::TTime time) override;

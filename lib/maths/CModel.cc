@@ -248,18 +248,6 @@ SModelProbabilityResult::SFeatureProbability::SFeatureProbability(EFeatureProbab
 
 //////// CModel ////////
 
-CModel::EUpdateResult CModel::combine(EUpdateResult lhs, EUpdateResult rhs) {
-    switch (lhs) {
-    case E_Success:
-        return rhs;
-    case E_Reset:
-        return rhs == E_Failure ? E_Failure : E_Reset;
-    case E_Failure:
-        return E_Failure;
-    }
-    return E_Failure;
-}
-
 CModel::CModel(const CModelParams& params) : m_Params(params) {
 }
 

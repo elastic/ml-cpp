@@ -80,9 +80,6 @@ public:
     //! Check if this is initialized.
     virtual bool initialized() const = 0;
 
-    //! Set whether or not we're testing for a change.
-    virtual void testingForChange(bool value) = 0;
-
     //! Adds a time series point \f$(t, f(t))\f$.
     //!
     //! \param[in] time The time of the data point.
@@ -100,14 +97,11 @@ public:
              const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
              const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) = 0;
 
-    //! Apply \p change at \p time.
-    //!
-    //! \param[in] time The time of the change point.
-    //! \param[in] value The value immediately before the change point.
-    //! \param[in] change A description of the change to apply.
-    //! \return True if a new component was detected.
-    virtual bool
-    applyChange(core_t::TTime time, double value, const SChangeDescription& change) = 0;
+    //! True if the time series may have undergone a sudden change.
+    virtual bool mayHaveChanged() const = 0;
+
+    //! Shift seasonality by \p shift.
+    virtual void shiftTime(core_t::TTime shift) = 0;
 
     //! Propagate the decomposition forwards to \p time.
     virtual void propagateForwardsTo(core_t::TTime time) = 0;

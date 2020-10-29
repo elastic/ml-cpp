@@ -25,10 +25,8 @@ class CDecayRateController;
 class CPrior;
 class CTimeSeriesDecompositionInterface;
 class CTimeSeriesAnomalyModel;
-class CUnivariateTimeSeriesChangeDetector;
 template<typename>
 class CTimeSeriesMultibucketFeature;
-struct SChangeDescription;
 struct SDistributionRestoreParams;
 struct SModelRestoreParams;
 
@@ -218,20 +216,11 @@ private:
     using TMultivariatePriorCPtrSizePr1Vec =
         core::CSmallVector<TMultivariatePriorCPtrSizePr, 1>;
     using TModelCPtr1Vec = core::CSmallVector<const CUnivariateTimeSeriesModel*, 1>;
-    using TChangeDetectorPtr = std::unique_ptr<CUnivariateTimeSeriesChangeDetector>;
 
 private:
     CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel& other,
                                std::size_t id,
                                bool isForForecast = false);
-
-    //! Test for and apply any change we find.
-    EUpdateResult testAndApplyChange(const CModelAddSamplesParams& params,
-                                     const TSizeVec& order,
-                                     const TTimeDouble2VecSizeTrVec& samples);
-
-    //! Apply \p change to this model.
-    EUpdateResult applyChange(const SChangeDescription& change);
 
     //! Update the trend with \p samples.
     EUpdateResult updateTrend(const CModelAddSamplesParams& params,
@@ -302,16 +291,6 @@ private:
     //! A model for time periods when the basic model can't predict the
     //! value of the time series.
     TAnomalyModelPtr m_AnomalyModel;
-
-    //! The last "normal" time and median value.
-    TTimeDoublePr m_CandidateChangePoint;
-
-    //! If the time series appears to be undergoing change, the contiguous
-    //! interval of unpredictable values.
-    core_t::TTime m_CurrentChangeInterval;
-
-    //! Used to test for changes in the time series.
-    TChangeDetectorPtr m_ChangeDetector;
 
     //! Models the correlations between time series.
     CTimeSeriesCorrelations* m_Correlations;

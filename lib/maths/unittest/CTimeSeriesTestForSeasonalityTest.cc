@@ -1227,8 +1227,7 @@ BOOST_AUTO_TEST_CASE(testNewComponentInitialValues) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testNewComponentInitialValuesWithPiecewiseLinearScaling,
-                     *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testNewComponentInitialValuesWithPiecewiseLinearScaling) {
 
     // Test that the initial values for the seasonal components when there
     // are linear scalings in the test values.

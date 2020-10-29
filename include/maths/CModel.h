@@ -302,9 +302,6 @@ public:
         E_Reset    //!< Model reset.
     };
 
-    //! Combine the results \p lhs and \p rhs.
-    static EUpdateResult combine(EUpdateResult lhs, EUpdateResult rhs);
-
 public:
     explicit CModel(const CModelParams& params);
     virtual ~CModel() = default;

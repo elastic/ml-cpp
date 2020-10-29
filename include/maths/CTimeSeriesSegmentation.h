@@ -216,6 +216,7 @@ private:
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMeanVarAccumulatorSizePr = std::pair<TMeanVarAccumulator, std::size_t>;
     using TRegression = CLeastSquaresOnlineRegression<1, double>;
+    using TRegressionArray = TRegression::TArray;
     using TPredictor = std::function<double(double)>;
     using TScale = std::function<double(std::size_t)>;
 
@@ -235,6 +236,7 @@ private:
                                           std::size_t maxDepth,
                                           double pValueToSegment,
                                           double outliersFraction,
+                                          const TMeanVarAccumulator& moments,
                                           TSizeVec& segmentation,
                                           TDoubleDoublePrVec& depthAndPValue,
                                           TFloatMeanAccumulatorVec& values);

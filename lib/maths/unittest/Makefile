@@ -95,11 +95,11 @@ SRCS=\
 	CSolversTest.cc \
 	CSplineTest.cc \
 	CStatisticalTestsTest.cc \
-	CTimeSeriesChangeDetectorTest.cc \
 	CTimeSeriesDecompositionTest.cc \
 	CTimeSeriesModelTest.cc \
 	CTimeSeriesMultibucketFeaturesTest.cc \
 	CTimeSeriesSegmentationTest.cc \
+	CTimeSeriesTestForChangeTest.cc \
 	CTimeSeriesTestForSeasonalityTest.cc \
 	CToolsTest.cc \
 	CTreeShapFeatureImportanceTest.cc \

@@ -1039,9 +1039,9 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.17 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.25 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.12 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.16 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.22 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.14 * totalSumValue);
 
     double pMinScaled = 1.0;
     double pMinUnscaled = 1.0;

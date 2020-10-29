@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE(testDailyNoLongTermTrend) {
         .daysToLearn(63)
         .noiseVariance(64.0)
         .maximumPercentageOutOfBounds(12.0)
-        .maximumError(0.14)
+        .maximumError(0.13)
         .run(trend);
 }
 

@@ -170,6 +170,14 @@ public:
                    : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
     }
 
+    //! A raw pointer.
+    template<typename T>
+    static std::uint64_t dispatch(std::uint64_t seed, const T* target) {
+        return target == nullptr
+                   ? seed
+                   : CChecksumImpl<typename selector<T>::value>::dispatch(seed, *target);
+    }
+
     //! Checksum a shared pointer.
     template<typename T>
     static std::uint64_t dispatch(std::uint64_t seed, const std::shared_ptr<T>& target) {
