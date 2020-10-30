@@ -384,10 +384,8 @@ BOOST_AUTO_TEST_CASE(testRemovePiecewiseLinearScaledSeasonal) {
                               static_cast<std::size_t>(2 * week / halfHour),
                               values.size()};
 
-        TDoubleVec scales;
         TFloatMeanAccumulatorVec residuals{TSegmentation::removePiecewiseLinearScaledSeasonal(
-            values, [&](std::size_t j) { return seasonal(halfHour * j); },
-            segmentation, 0.1, &scales)};
+            values, [&](std::size_t j) { return seasonal(halfHour * j); }, segmentation, 0.1)};
 
         TMeanVarAccumulator residualMoments;
         for (const auto& residual : residuals) {

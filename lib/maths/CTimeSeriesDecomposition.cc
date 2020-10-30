@@ -53,7 +53,7 @@ TDoubleDoublePr pair(const TVector2x1& v) {
 const std::string VERSION_7_11_TAG("7.11");
 const core::TPersistenceTag LAST_VALUE_TIME_7_11_TAG{"a", "last_value_time"};
 const core::TPersistenceTag LAST_PROPAGATION_TIME_7_11_TAG{"b", "last_propagation_time"};
-const core::TPersistenceTag CHANGE_DETECTOR_TEST_7_11_TAG{"c", "periodicity_test"};
+const core::TPersistenceTag CHANGE_POINT_TEST_7_11_TAG{"c", "change_point_test"};
 const core::TPersistenceTag SEASONALITY_TEST_7_11_TAG{"d", "seasonality_test"};
 const core::TPersistenceTag CALENDAR_CYCLIC_TEST_7_11_TAG{"e", "calendar_cyclic_test"};
 const core::TPersistenceTag COMPONENTS_7_11_TAG{"f", "components"};
@@ -118,9 +118,9 @@ bool CTimeSeriesDecomposition::acceptRestoreTraverser(const SDistributionRestore
             RESTORE_BUILT_IN(TIME_SHIFT_7_11_TAG, m_TimeShift)
             RESTORE_BUILT_IN(LAST_VALUE_TIME_7_11_TAG, m_LastValueTime)
             RESTORE_BUILT_IN(LAST_PROPAGATION_TIME_7_11_TAG, m_LastPropagationTime)
-            RESTORE(CHANGE_DETECTOR_TEST_7_11_TAG,
+            RESTORE(CHANGE_POINT_TEST_7_11_TAG,
                     traverser.traverseSubLevel(
-                        std::bind(&CChangeDetectorTest::acceptRestoreTraverser,
+                        std::bind(&CChangePointTest::acceptRestoreTraverser,
                                   &m_ChangeDetectorTest, std::placeholders::_1)))
             RESTORE(SEASONALITY_TEST_7_11_TAG,
                     traverser.traverseSubLevel(
@@ -200,8 +200,8 @@ void CTimeSeriesDecomposition::acceptPersistInserter(core::CStatePersistInserter
     inserter.insertValue(TIME_SHIFT_7_11_TAG, m_TimeShift);
     inserter.insertValue(LAST_VALUE_TIME_7_11_TAG, m_LastValueTime);
     inserter.insertValue(LAST_PROPAGATION_TIME_7_11_TAG, m_LastPropagationTime);
-    inserter.insertLevel(CHANGE_DETECTOR_TEST_7_11_TAG,
-                         std::bind(&CChangeDetectorTest::acceptPersistInserter,
+    inserter.insertLevel(CHANGE_POINT_TEST_7_11_TAG,
+                         std::bind(&CChangePointTest::acceptPersistInserter,
                                    &m_ChangeDetectorTest, std::placeholders::_1));
     inserter.insertLevel(SEASONALITY_TEST_7_11_TAG,
                          std::bind(&CSeasonalityTest::acceptPersistInserter,
@@ -297,6 +297,7 @@ void CTimeSeriesDecomposition::shiftTime(core_t::TTime shift) {
 
 void CTimeSeriesDecomposition::propagateForwardsTo(core_t::TTime time) {
     if (time > m_LastPropagationTime) {
+        m_ChangeDetectorTest.propagateForwards(m_LastPropagationTime, time);
         m_SeasonalityTest.propagateForwards(m_LastPropagationTime, time);
         m_CalendarCyclicTest.propagateForwards(m_LastPropagationTime, time);
         m_Components.propagateForwards(m_LastPropagationTime, time);

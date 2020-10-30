@@ -238,7 +238,7 @@ private:
     TMediatorPtr m_Mediator;
 
     //! The test for sudden change events.
-    CChangeDetectorTest m_ChangeDetectorTest;
+    CChangePointTest m_ChangePointTest;
 
     //! The test for seasonal components.
     CSeasonalityTest m_SeasonalityTest;

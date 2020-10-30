@@ -33,24 +33,30 @@ public:
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
 public:
-    CChangePoint(core_t::TTime time, TFloatMeanAccumulatorVec initialValues)
-        : m_Time{time}, m_InitialValues{std::move(initialValues)} {}
+    CChangePoint(std::size_t index, core_t::TTime time, TFloatMeanAccumulatorVec initialValues)
+        : m_Index{index}, m_Time{time}, m_InitialValues{std::move(initialValues)} {}
     virtual ~CChangePoint() = default;
 
     virtual bool apply(CTimeSeriesDecomposition&) const { return false; }
     virtual bool apply(CTrendComponent&) const { return false; }
     virtual bool apply(CSeasonalComponent&) const { return false; }
     virtual bool apply(CCalendarComponent&) const { return false; }
+    virtual bool largeEnough(double threshold) const = 0;
+    bool longEnough(core_t::TTime time, core_t::TTime minimumDuration) const {
+        return time > m_Time + minimumDuration;
+    }
     virtual const std::string& type() const = 0;
     virtual double value() const = 0;
     virtual std::string print() const = 0;
+    std::size_t index() const { return m_Index; }
     core_t::TTime time() const { return m_Time; }
     const TFloatMeanAccumulatorVec& initialValues() const {
         return m_InitialValues;
     }
 
 private:
-    core_t::TTime m_Time;
+    std::size_t m_Index = 0;
+    core_t::TTime m_Time = 0;
     TFloatMeanAccumulatorVec m_InitialValues;
 };
 
@@ -60,18 +66,21 @@ public:
     static const std::string TYPE;
 
 public:
-    CLevelShift(core_t::TTime time, double valueAtShift, double shift, TFloatMeanAccumulatorVec initialValues)
-        : CChangePoint{time, std::move(initialValues)}, m_Shift{shift}, m_ValueAtShift{valueAtShift} {
+    CLevelShift(std::size_t index, core_t::TTime time, double valueAtShift, double shift, TFloatMeanAccumulatorVec initialValues)
+        : CChangePoint{index, time, std::move(initialValues)}, m_Shift{shift}, m_ValueAtShift{valueAtShift} {
     }
 
     bool apply(CTrendComponent& component) const override;
+    bool largeEnough(double threshold) const override {
+        return m_Shift > threshold;
+    }
     const std::string& type() const override;
     std::string print() const override;
     double value() const override { return m_Shift; }
 
 private:
-    double m_Shift;
-    double m_ValueAtShift;
+    double m_Shift = 0.0;
+    double m_ValueAtShift = 0.0;
 };
 
 //! \brief Represents a linear scale of a time series.
@@ -80,18 +89,23 @@ public:
     static const std::string TYPE;
 
 public:
-    CScale(core_t::TTime time, double scale, TFloatMeanAccumulatorVec initialValues)
-        : CChangePoint{time, std::move(initialValues)}, m_Scale{scale} {}
+    CScale(std::size_t index, core_t::TTime time, double scale, double magnitude, TFloatMeanAccumulatorVec initialValues)
+        : CChangePoint{index, time, std::move(initialValues)}, m_Scale{scale}, m_Magnitude{magnitude} {
+    }
 
     bool apply(CTrendComponent& component) const override;
     bool apply(CSeasonalComponent& component) const override;
     bool apply(CCalendarComponent& component) const override;
+    bool largeEnough(double threshold) const override {
+        return m_Magnitude > threshold;
+    }
     const std::string& type() const override;
     std::string print() const override;
     double value() const override { return m_Scale; }
 
 private:
-    double m_Scale;
+    double m_Scale = 1.0;
+    double m_Magnitude = 0.0;
 };
 
 //! \brief Represents a time shift of a time series.
@@ -100,19 +114,20 @@ public:
     static const std::string TYPE;
 
 public:
-    CTimeShift(core_t::TTime time, core_t::TTime shift, TFloatMeanAccumulatorVec initialValues)
-        : CChangePoint{time, std::move(initialValues)}, m_Shift{shift} {}
+    CTimeShift(std::size_t index, core_t::TTime time, core_t::TTime shift, TFloatMeanAccumulatorVec initialValues)
+        : CChangePoint{index, time, std::move(initialValues)}, m_Shift{shift} {}
 
     bool apply(CTimeSeriesDecomposition& decomposition) const override;
+    bool largeEnough(double) const override { return m_Shift > 0; }
     const std::string& type() const override;
     std::string print() const override;
     double value() const override { return static_cast<double>(m_Shift); }
 
 private:
-    core_t::TTime m_Shift;
+    core_t::TTime m_Shift = 0;
 };
 
-//! \brief Test for sudden changes of shocks to a time series.
+//! \brief Test for sudden changes or shocks to a time series.
 class MATHS_EXPORT CTimeSeriesTestForChange {
 public:
     using TBoolVec = std::vector<bool>;
@@ -160,24 +175,23 @@ private:
     struct SChangePoint {
         SChangePoint() = default;
         SChangePoint(EType type,
-                     core_t::TTime time,
-                     double valueAtChange,
+                     std::size_t index,
                      double residualVariance,
                      double truncatedResidualVariance,
                      double numberParameters,
                      TFloatMeanAccumulatorVec initialValues)
-            : s_Type{type}, s_Time{time}, s_ValueAtChange{valueAtChange},
-              s_ResidualVariance{residualVariance}, s_TruncatedResidualVariance{truncatedResidualVariance},
+            : s_Type{type}, s_Index{index}, s_ResidualVariance{residualVariance},
+              s_TruncatedResidualVariance{truncatedResidualVariance},
               s_NumberParameters{numberParameters}, s_InitialValues{initialValues} {}
 
         EType s_Type = E_NoChangePoint;
-        core_t::TTime s_Time = 0;
-        double s_ValueAtChange = 0.0;
+        std::size_t s_Index = 0;
         double s_ResidualVariance = 0.0;
         double s_TruncatedResidualVariance = 0.0;
         double s_NumberParameters = 0.0;
         double s_LevelShift = 0.0;
         double s_Scale = 0.0;
+        double s_ScaleMagnitude = 0.0;
         core_t::TTime s_TimeShift = 0;
         TFloatMeanAccumulatorVec s_InitialValues;
     };
@@ -192,7 +206,7 @@ private:
                                          const TFloatMeanAccumulatorVec& residuals,
                                          const TTransform& transform = mean) const;
     core_t::TTime changeTime(std::size_t changeIndex) const;
-    double changeValue(std::size_t changeIndex) const;
+    double valueAtChange(std::size_t changeIndex) const;
     TDoubleDoublePr variances(const TFloatMeanAccumulatorVec& residuals) const;
     double pValue(double varianceH0,
                   double truncatedVarianceH0,

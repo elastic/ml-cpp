@@ -67,16 +67,20 @@ void testChange(const TGeneratorVec& trends,
         }
         auto predictor = [&](core_t::TTime time_) { return 10.0 * trend(time_); };
 
-        maths::CTimeSeriesTestForChange testForChange{
-            startTime,     startTime, BUCKET_LENGTH,
-            BUCKET_LENGTH, predictor, std::move(values)};
+        maths::CTimeSeriesTestForChange testForChange(startTime, startTime,
+                                                      BUCKET_LENGTH, BUCKET_LENGTH,
+                                                      predictor, std::move(values));
 
         auto change = testForChange.test();
 
         std::string actualChangeType{(change == nullptr ? "null" : change->type())};
-        LOG_TRACE(<< actualChangeType << " at " << change->time());
-
         truePositives += actualChangeType == expectedChangeType ? 1.0 : 0.0;
+
+        if (change == nullptr) {
+            continue;
+        }
+
+        LOG_TRACE(<< change->print() << " at " << change->time());
         if (actualChangeType == expectedChangeType) {
             meanError.add(std::fabs(expectedChange - change->value()) / expectedChange);
             meanTimeError(static_cast<double>(
@@ -91,7 +95,7 @@ void testChange(const TGeneratorVec& trends,
     truePositives /= 100.0;
 
     BOOST_REQUIRE(truePositives >= 0.99);
-    BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.02);
+    BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.03);
     BOOST_REQUIRE(maths::CBasicStatistics::mean(meanTimeError) < 5000);
 }
 }
@@ -135,14 +139,13 @@ BOOST_AUTO_TEST_CASE(testNoChange) {
             return maths::CBasicStatistics::mean(mean);
         };
 
-        maths::CTimeSeriesTestForChange testForChange{
-            10000,         10000,     BUCKET_LENGTH,
-            BUCKET_LENGTH, predictor, std::move(values)};
+        maths::CTimeSeriesTestForChange testForChange(
+            10000, 10000, BUCKET_LENGTH, BUCKET_LENGTH, predictor, std::move(values));
 
         auto change = testForChange.test();
 
         if (change != nullptr) {
-            LOG_DEBUG(<< change->type() << " value = " << change->value());
+            LOG_DEBUG(<< change->print());
         }
         trueNegatives += change == nullptr ? 1.0 : 0.0;
     }
@@ -182,6 +185,58 @@ BOOST_AUTO_TEST_CASE(testTimeShift) {
                    return trend(time + core::constants::HOUR);
                },
                maths::CTimeShift::TYPE, +static_cast<double>(core::constants::HOUR));
+}
+
+BOOST_AUTO_TEST_CASE(testWithReversion) {
+
+    // Test we handle temporary changes correctly.
+
+    using TTransform = std::function<double(double)>;
+    using TTransformVec = std::vector<TTransform>;
+
+    test::CRandomNumbers rng;
+
+    core_t::TTime startTime{100000};
+    double noiseVariance{1.0};
+    TGeneratorVec trends{smoothDaily, weekends, spikeyDaily};
+    TTransformVec transforms{[](double x) { return x + 10.0; },
+                             [](double x) { return 3.0 * x; }};
+
+    TDoubleVec samples;
+    for (std::size_t test = 0; test < 100; ++test) {
+        if (test % 10 == 0) {
+            LOG_DEBUG(<< test << "%");
+        }
+
+        const auto& trend = trends[test % trends.size()];
+        const auto& transform = transforms[test % transforms.size()];
+        auto predictor = [&](core_t::TTime time_) { return 10.0 * trend(time_); };
+
+        rng.generateNormalSamples(0.0, noiseVariance, 100, samples);
+
+        TFloatMeanAccumulatorVec values(samples.size());
+        core_t::TTime time{startTime};
+        for (std::size_t i = 0; i < 60; ++i, time += BUCKET_LENGTH) {
+            values[i].add(predictor(time) + samples[i]);
+        }
+        for (std::size_t i = 60; i < 80; ++i, time += BUCKET_LENGTH) {
+            values[i].add(transform(predictor(time)) + samples[i]);
+        }
+        for (std::size_t i = 80; i < samples.size(); ++i, time += BUCKET_LENGTH) {
+            values[i].add(predictor(time) + samples[i]);
+        }
+
+        maths::CTimeSeriesTestForChange testForChange(startTime, startTime,
+                                                      BUCKET_LENGTH, BUCKET_LENGTH,
+                                                      predictor, std::move(values));
+
+        auto change = testForChange.test();
+
+        LOG_TRACE(<< (change == nullptr ? "null" : change->print()));
+        if (change != nullptr) {
+            BOOST_REQUIRE(change->largeEnough(3.0 * std::sqrt(noiseVariance)) == false);
+        }
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

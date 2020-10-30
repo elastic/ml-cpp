@@ -204,7 +204,7 @@ public:
     };
 
     //! \brief Checks for sudden change or change events.
-    class MATHS_EXPORT CChangeDetectorTest : public CHandler {
+    class MATHS_EXPORT CChangePointTest : public CHandler {
     public:
         static constexpr core_t::TTime TEST_INTERVAL = 6 * core::constants::HOUR;
         static constexpr core_t::TTime TEST_INTERVAL_BUCKETS = 12;
@@ -215,9 +215,9 @@ public:
         static constexpr double MINIMUM_LARGE_ERROR_FRACTION_TO_TEST_FOR_CHANGE = 0.75;
 
     public:
-        CChangeDetectorTest(double decayRate, core_t::TTime bucketLength);
-        CChangeDetectorTest(const CChangeDetectorTest& other, bool isForForecast = false);
-        CChangeDetectorTest& operator=(const CChangeDetectorTest&) = delete;
+        CChangePointTest(double decayRate, core_t::TTime bucketLength);
+        CChangePointTest(const CChangePointTest& other, bool isForForecast = false);
+        CChangePointTest& operator=(const CChangePointTest&) = delete;
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -226,7 +226,7 @@ public:
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Efficiently swap the state of this and \p other.
-        void swap(CChangeDetectorTest& other);
+        void swap(CChangePointTest& other);
 
         //! Update the test with a new value.
         void handle(const SAddValue& message) override;

@@ -51,9 +51,7 @@ CTimeSeriesSegmentation::piecewiseLinear(const TFloatMeanAccumulatorVec& values,
 CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
 CTimeSeriesSegmentation::removePiecewiseLinear(TFloatMeanAccumulatorVec values,
                                                const TSizeVec& segmentation,
-                                               double outlierFraction,
-                                               TDoubleVec* shifts) {
-
+                                               double outlierFraction) {
     TFloatMeanAccumulatorVec reweighted{values};
     auto predict = fitPiecewiseLinear(segmentation, outlierFraction, reweighted);
     for (std::size_t i = 0; i < values.size(); ++i) {
@@ -61,19 +59,6 @@ CTimeSeriesSegmentation::removePiecewiseLinear(TFloatMeanAccumulatorVec values,
             CBasicStatistics::moment<0>(values[i]) -= predict(static_cast<double>(i));
         }
     }
-
-    if (shifts != nullptr) {
-        shifts->clear();
-        shifts->reserve(segmentation.size() - 2);
-        for (std::size_t i = 1; i < segmentation.size(); ++i) {
-            TMeanAccumulator shift;
-            for (std::size_t j = segmentation[i - 1]; j < segmentation[i]; ++j) {
-                shift.add(predict(static_cast<double>(j)));
-            }
-            shifts->push_back(CBasicStatistics::mean(shift));
-        }
-    }
-
     return values;
 }
 
@@ -132,8 +117,7 @@ CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
 CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(TFloatMeanAccumulatorVec values,
                                                              const TSeasonality& model,
                                                              const TSizeVec& segmentation,
-                                                             double outlierFraction,
-                                                             TDoubleVec* scales_) {
+                                                             double outlierFraction) {
     TFloatMeanAccumulatorVec reweighted{values};
     TDoubleVec scales;
     fitPiecewiseLinearScaledSeasonal(values, model, segmentation,
@@ -141,9 +125,6 @@ CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(TFloatMeanAccumulat
     for (std::size_t i = 0; i < values.size(); ++i) {
         CBasicStatistics::moment<0>(values[i]) -= scaleAt(i, segmentation, scales) *
                                                   model(i);
-    }
-    if (scales_ != nullptr) {
-        *scales_ = std::move(scales);
     }
     return values;
 }
@@ -682,21 +663,20 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal(
 
     auto computeScales = [&] {
         for (std::size_t j = 1; j < segmentation.size(); ++j) {
-            TMeanAccumulator projection;
-            TMeanAccumulator Z;
+            TMeanAccumulator xp;
+            TMeanAccumulator pp;
             for (std::size_t i = segmentation[j - 1]; i < segmentation[j]; ++i) {
                 double x{CBasicStatistics::mean(reweighted[i])};
                 double w{CBasicStatistics::count(reweighted[i])};
                 double p{model(i)};
                 if (w > 0.0) {
-                    projection.add(x * p, w);
-                    Z.add(p * p, w);
+                    xp.add(x * p, w);
+                    pp.add(p * p, w);
                 }
             }
-            scales[j - 1] = CBasicStatistics::mean(Z) == 0.0
+            scales[j - 1] = CBasicStatistics::mean(pp) == 0.0
                                 ? 1.0
-                                : CBasicStatistics::mean(projection) /
-                                      CBasicStatistics::mean(Z);
+                                : CBasicStatistics::mean(xp) / CBasicStatistics::mean(pp);
         }
     };
 

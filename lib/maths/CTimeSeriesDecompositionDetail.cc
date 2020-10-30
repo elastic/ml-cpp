@@ -506,17 +506,17 @@ std::size_t CTimeSeriesDecompositionDetail::CMediator::memoryUsage() const {
     return core::CMemory::dynamicSize(m_Handlers);
 }
 
-//////// CChangeDetectorTest ////////
+//////// CChangePointTest ////////
 
-CTimeSeriesDecompositionDetail::CChangeDetectorTest::CChangeDetectorTest(double decayRate,
-                                                                         core_t::TTime bucketLength)
+CTimeSeriesDecompositionDetail::CChangePointTest::CChangePointTest(double decayRate,
+                                                                   core_t::TTime bucketLength)
     : m_Machine{core::CStateMachine::create(CD_ALPHABET, CD_STATES, CD_TRANSITION_FUNCTION, CD_TEST)},
       m_DecayRate{decayRate}, m_BucketLength{bucketLength},
       m_Window(WINDOW_SIZE, TFloatMeanAccumulator{}) {
 }
 
-CTimeSeriesDecompositionDetail::CChangeDetectorTest::CChangeDetectorTest(const CChangeDetectorTest& other,
-                                                                         bool isForForecast)
+CTimeSeriesDecompositionDetail::CChangePointTest::CChangePointTest(const CChangePointTest& other,
+                                                                   bool isForForecast)
     : CHandler(), m_Machine{other.m_Machine}, m_BucketLength{other.m_BucketLength},
       m_Window{other.m_Window}, m_LastTestTime{other.m_LastTestTime},
       m_LastChangeTime{other.m_LastChangeTime}, m_MayHaveChanged{other.m_MayHaveChanged} {
@@ -525,7 +525,7 @@ CTimeSeriesDecompositionDetail::CChangeDetectorTest::CChangeDetectorTest(const C
     }
 }
 
-bool CTimeSeriesDecompositionDetail::CChangeDetectorTest::acceptRestoreTraverser(
+bool CTimeSeriesDecompositionDetail::CChangePointTest::acceptRestoreTraverser(
     core::CStateRestoreTraverser& traverser) {
     do {
         const std::string& name{traverser.name()};
@@ -546,7 +546,7 @@ bool CTimeSeriesDecompositionDetail::CChangeDetectorTest::acceptRestoreTraverser
     return true;
 }
 
-void CTimeSeriesDecompositionDetail::CChangeDetectorTest::acceptPersistInserter(
+void CTimeSeriesDecompositionDetail::CChangePointTest::acceptPersistInserter(
     core::CStatePersistInserter& inserter) const {
     inserter.insertLevel(CHANGE_DETECTOR_TEST_MACHINE_7_11_TAG,
                          std::bind(&core::CStateMachine::acceptPersistInserter,
@@ -561,7 +561,7 @@ void CTimeSeriesDecompositionDetail::CChangeDetectorTest::acceptPersistInserter(
     inserter.insertValue(MAY_HAVE_CHANGED_7_11_TAG, static_cast<int>(m_MayHaveChanged));
 }
 
-void CTimeSeriesDecompositionDetail::CChangeDetectorTest::swap(CChangeDetectorTest& other) {
+void CTimeSeriesDecompositionDetail::CChangePointTest::swap(CChangePointTest& other) {
     std::swap(m_Machine, other.m_Machine);
     std::swap(m_BucketLength, other.m_BucketLength);
     m_Window.swap(other.m_Window);
@@ -573,7 +573,7 @@ void CTimeSeriesDecompositionDetail::CChangeDetectorTest::swap(CChangeDetectorTe
     std::swap(m_MayHaveChanged, other.m_MayHaveChanged);
 }
 
-void CTimeSeriesDecompositionDetail::CChangeDetectorTest::handle(const SAddValue& message) {
+void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SAddValue& message) {
     core_t::TTime lastTime{message.s_LastTime};
     core_t::TTime time{message.s_Time};
     double value{message.s_Value};
@@ -614,13 +614,13 @@ void CTimeSeriesDecompositionDetail::CChangeDetectorTest::handle(const SAddValue
     }
 }
 
-void CTimeSeriesDecompositionDetail::CChangeDetectorTest::handle(const SDetectedSeasonal&) {
+void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SDetectedSeasonal&) {
     m_ResidualMoments = TMeanVarAccumulator{};
     m_LargeErrorFraction = 0.0;
     m_MayHaveChanged = false;
 }
 
-void CTimeSeriesDecompositionDetail::CChangeDetectorTest::test(const SAddValue& message) {
+void CTimeSeriesDecompositionDetail::CChangePointTest::test(const SAddValue& message) {
 
     core_t::TTime time{message.s_Time};
     core_t::TTime lastTime{message.s_LastTime};
@@ -642,24 +642,21 @@ void CTimeSeriesDecompositionDetail::CChangeDetectorTest::test(const SAddValue& 
             bucketsStartTime +
             static_cast<core_t::TTime>(CBasicStatistics::mean(m_MeanOffset))};
         TFloatMeanAccumulatorVec values{m_Window.begin(), m_Window.end()};
+        double residualVariance{CBasicStatistics::maximumLikelihoodVariance(m_ResidualMoments)};
         LOG_TRACE(<< "buckets start time = " << bucketsStartTime
                   << ", values start time = " << valuesStartTime);
 
-        CTimeSeriesTestForChange changeTest{
-            valuesStartTime,
-            bucketsStartTime,
-            this->windowBucketLength(),
-            m_BucketLength,
-            predictor,
-            std::move(values),
-            CBasicStatistics::maximumLikelihoodVariance(m_ResidualMoments)};
+        CTimeSeriesTestForChange changeTest(
+            valuesStartTime, bucketsStartTime, this->windowBucketLength(),
+            m_BucketLength, predictor, std::move(values), residualVariance);
 
         auto change = changeTest.test();
 
         if (change != nullptr && // did we detect a change at all
-            change->time() - m_LastChangeTime >= MINIMUM_CHANGE_DURATION &&
-            time - change->time() >= MINIMUM_CHANGE_DURATION) {
+            change->largeEnough(LARGE_ERROR_STANDARD_DEVIATIONS * std::sqrt(residualVariance)) &&
+            change->longEnough(time, MINIMUM_CHANGE_DURATION)) {
             change->apply(decomposition);
+            std::fill_n(m_Window.begin(), change->index(), TFloatMeanAccumulator{});
             m_LastChangeTime = change->time();
             m_MayHaveChanged = false;
             this->mediator()->forward(SDetectedChangePoint{time, lastTime, std::move(change)});
@@ -670,19 +667,18 @@ void CTimeSeriesDecompositionDetail::CChangeDetectorTest::test(const SAddValue& 
     }
 }
 
-bool CTimeSeriesDecompositionDetail::CChangeDetectorTest::mayHaveChanged() const {
+bool CTimeSeriesDecompositionDetail::CChangePointTest::mayHaveChanged() const {
     return m_MayHaveChanged;
 }
 
-void CTimeSeriesDecompositionDetail::CChangeDetectorTest::propagateForwards(core_t::TTime start,
-                                                                            core_t::TTime end) {
+void CTimeSeriesDecompositionDetail::CChangePointTest::propagateForwards(core_t::TTime start,
+                                                                         core_t::TTime end) {
     stepwisePropagateForwards(start, end, DAY, [this](double time) {
         m_ResidualMoments.age(std::exp(-m_DecayRate * time / 8.0));
     });
 }
 
-std::uint64_t
-CTimeSeriesDecompositionDetail::CChangeDetectorTest::checksum(std::uint64_t seed) const {
+std::uint64_t CTimeSeriesDecompositionDetail::CChangePointTest::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Machine);
     seed = CChecksum::calculate(seed, m_BucketLength);
     seed = CChecksum::calculate(seed, m_Window);
@@ -694,18 +690,18 @@ CTimeSeriesDecompositionDetail::CChangeDetectorTest::checksum(std::uint64_t seed
     return CChecksum::calculate(seed, m_MayHaveChanged);
 }
 
-void CTimeSeriesDecompositionDetail::CChangeDetectorTest::debugMemoryUsage(
+void CTimeSeriesDecompositionDetail::CChangePointTest::debugMemoryUsage(
     const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
-    mem->setName("CChangeDetectorTest");
+    mem->setName("CChangePointTest");
     core::CMemoryDebug::dynamicSize("m_Window", m_Window, mem);
 }
 
-std::size_t CTimeSeriesDecompositionDetail::CChangeDetectorTest::memoryUsage() const {
+std::size_t CTimeSeriesDecompositionDetail::CChangePointTest::memoryUsage() const {
     std::size_t usage{core::CMemory::dynamicSize(m_Window)};
     return usage;
 }
 
-void CTimeSeriesDecompositionDetail::CChangeDetectorTest::apply(std::size_t symbol) {
+void CTimeSeriesDecompositionDetail::CChangePointTest::apply(std::size_t symbol) {
 
     std::size_t old{m_Machine.state()};
     m_Machine.apply(symbol);
@@ -733,18 +729,18 @@ void CTimeSeriesDecompositionDetail::CChangeDetectorTest::apply(std::size_t symb
     }
 }
 
-bool CTimeSeriesDecompositionDetail::CChangeDetectorTest::shouldTest(core_t::TTime time) const {
+bool CTimeSeriesDecompositionDetail::CChangePointTest::shouldTest(core_t::TTime time) const {
     return m_MayHaveChanged &&
            (time - m_LastTestTime >
             std::max(TEST_INTERVAL, TEST_INTERVAL_BUCKETS * m_BucketLength));
 }
 
 core_t::TTime
-CTimeSeriesDecompositionDetail::CChangeDetectorTest::startOfWindowBucket(core_t::TTime time) const {
+CTimeSeriesDecompositionDetail::CChangePointTest::startOfWindowBucket(core_t::TTime time) const {
     return CIntegerTools::floor(time, this->windowBucketLength());
 }
 
-core_t::TTime CTimeSeriesDecompositionDetail::CChangeDetectorTest::windowBucketLength() const {
+core_t::TTime CTimeSeriesDecompositionDetail::CChangePointTest::windowBucketLength() const {
     return std::max(MINIMUM_WINDOW_BUCKET_LENGTH, m_BucketLength);
 }
 
