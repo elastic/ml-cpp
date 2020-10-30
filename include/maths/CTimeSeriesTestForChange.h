@@ -128,6 +128,29 @@ private:
 };
 
 //! \brief Test for sudden changes or shocks to a time series.
+//!
+//! DESCRIPTION\n
+//! This checks a window of bucketed average samples values looking for sudden changes.
+//! It tests for level shift, scaling and time shift events. If the variance explained
+//! by any hypothesis is statistically significant vs a null hypothesis that there
+//! is a smooth trend then it is considered for selection. We test candidate hypotheses
+//! in complexity order. A hypothesis will be selected if it explains a statistically
+//! significant additional proportion of the variance to an already selected hypothesis
+//! otherwise we fallback to minimizing the Akaike Information Criterion assuming residual
+//! errors are normally distributed. In practice this is a reasonable assumption since
+//! they are typically the average of multiple individual samples and so the CLT comes
+//! into play.
+//!
+//! Some noteworthy features:
+//!   -# If the outlier fraction is greater than zero then change models are fitted
+//!      reweighting this proportion of the data (assuming there is strong evidence
+//!      they come from a different distribution). P-values are computed with and
+//!      without removing outliers and the minimum is selected. The reason for using
+//!      both is that spikes in a seasonal pattern will often be treated as outliers
+//!      if the model is a poor fit. This significantly affects the test power if the
+//!      null is unable to fit them.
+//!   -# If sample variance is supplied any explained variance has to be significant
+//!      on the order of the sample variance.
 class MATHS_EXPORT CTimeSeriesTestForChange {
 public:
     using TBoolVec = std::vector<bool>;
@@ -140,17 +163,30 @@ public:
     static constexpr double OUTLIER_FRACTION = 0.1;
 
 public:
+    //! \param[in] valuesStartTime The average offset of samples in each time bucket.
+    //! \param[in] bucketStartTime The start first time bucket.
+    //! \param[in] bucketLength The length of the time buckets.
+    //! \param[in] sampleInterval The interval between samples of the time series.
+    //! \param[in] predictor The current model of the time series.
+    //! \param[in] values The average of values falling in each time bucket.
+    //! \param[in] sampleVariance The residual variance of the samples after removing
+    //! predictions.
+    //! \param[in] outlierFraction The proportion of values to treat as outliers.
+    //! This must be in the range (0.0, 1.0).
     CTimeSeriesTestForChange(core_t::TTime valuesStartTime,
                              core_t::TTime bucketsStartTime,
                              core_t::TTime bucketLength,
-                             core_t::TTime predictionInterval,
+                             core_t::TTime sampleInterval,
                              TPredictor predictor,
                              TFloatMeanAccumulatorVec values,
-                             double minimumVariance = 0.0,
+                             double sampleVariance = 0.0,
                              double outlierFraction = OUTLIER_FRACTION);
 
+    //! Test the values supplied to the constructor for a change.
     TChangePointUPtr test() const;
 
+    //! \name Parameters
+    //@{
     CTimeSeriesTestForChange& significantPValue(double value) {
         m_SignificantPValue = value;
         return *this;
@@ -159,6 +195,7 @@ public:
         m_AcceptedFalsePostiveRate = value;
         return *this;
     }
+    //@}
 
 private:
     using TDoubleDoublePr = std::pair<double, double>;
@@ -230,8 +267,8 @@ private:
     core_t::TTime m_ValuesStartTime = 0;
     core_t::TTime m_BucketsStartTime = 0;
     core_t::TTime m_BucketLength = 0;
-    core_t::TTime m_PredictionInterval = 0;
-    double m_MinimumVariance = 0.0;
+    core_t::TTime m_SampleInterval = 0;
+    double m_SampleVariance = 0.0;
     double m_OutlierFraction = OUTLIER_FRACTION;
     double m_EpsVariance = 0.0;
     TPredictor m_Predictor = [](core_t::TTime) { return 0.0; };

@@ -48,7 +48,7 @@ public:
     //! \param[in] pValueToSegment The maximum p-value of the explained variance
     //! to accept a trend segment.
     //! \param[in] outlierFraction The proportion of values to treat as outliers.
-    //! This must be in the range (0.0, 1.0].
+    //! This must be in the range (0.0, 1.0).
     //! \param[in] maxSegments The maximum number of segments to divide \p values into.
     //! \return The sorted segmentation indices. This includes the start and end
     //! indices of \p values, i.e. 0 and values.size().
@@ -63,7 +63,7 @@ public:
     //! \param[in] values The time series values.
     //! \param[in] segmentation The segmentation of \p values to use.
     //! \param[in] outlierFraction The proportion of values to treat as outliers.
-    //! This must be in the range (0.0, 1.0].
+    //! This must be in the range (0.0, 1.0).
     //! \return \p values minus the model predictions.
     static TFloatMeanAccumulatorVec removePiecewiseLinear(TFloatMeanAccumulatorVec values,
                                                           const TSizeVec& segmentation,
@@ -78,7 +78,7 @@ public:
     //! \param[in] values The time series values.
     //! \param[in] segmentation The segmentation of \p values to use.
     //! \param[in] outlierFraction The proportion of values to treat as outliers.
-    //! This must be in the range (0.0, 1.0].
+    //! This must be in the range (0.0, 1.0).
     //! \return \p values minus discontinuities at the trend knot points.
     static TFloatMeanAccumulatorVec
     removePiecewiseLinearDiscontinuities(TFloatMeanAccumulatorVec values,
@@ -124,7 +124,7 @@ public:
     //! \param[in] segmentation The segmentation of \p values into intervals with
     //! constant scale.
     //! \param[in] outlierFraction The proportion of values to treat as outliers.
-    //! This must be in the range (0.0, 1.0].
+    //! This must be in the range (0.0, 1.0).
     //! \return The values minus the scaled model predictions.
     static TFloatMeanAccumulatorVec
     removePiecewiseLinearScaledSeasonal(TFloatMeanAccumulatorVec values,
@@ -141,7 +141,7 @@ public:
     //! constant scale.
     //! \param[in] indexWeight A function used to weight indices of \p segmentation.
     //! \param[in] outlierFraction The proportion of values to treat as outliers.
-    //! This must be in the range (0.0, 1.0].
+    //! This must be in the range (0.0, 1.0).
     //! \param[out] models The component models.
     //! \param[out] scales The scales to apply to \p models in each segment.
     //! \return The values with the mean scaled seasonal component.

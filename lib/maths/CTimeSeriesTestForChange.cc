@@ -109,14 +109,14 @@ const std::string CTimeShift::TYPE{"time shift"};
 CTimeSeriesTestForChange::CTimeSeriesTestForChange(core_t::TTime valuesStartTime,
                                                    core_t::TTime bucketsStartTime,
                                                    core_t::TTime bucketLength,
-                                                   core_t::TTime predictionInterval,
+                                                   core_t::TTime sampleInterval,
                                                    TPredictor predictor,
                                                    TFloatMeanAccumulatorVec values,
-                                                   double minimumVariance,
+                                                   double sampleVariance,
                                                    double outlierFraction)
     : m_ValuesStartTime{valuesStartTime}, m_BucketsStartTime{bucketsStartTime},
-      m_BucketLength{bucketLength}, m_PredictionInterval{predictionInterval},
-      m_MinimumVariance{minimumVariance}, m_OutlierFraction{outlierFraction},
+      m_BucketLength{bucketLength}, m_SampleInterval{sampleInterval},
+      m_SampleVariance{sampleVariance}, m_OutlierFraction{outlierFraction},
       m_Predictor{std::move(predictor)}, m_Values{std::move(values)},
       m_Outliers{static_cast<std::size_t>(std::max(
           outlierFraction * static_cast<double>(CSignal::countNotMissing(m_Values)) + 0.5,
@@ -272,7 +272,7 @@ CTimeSeriesTestForChange::levelShift(double varianceH0,
         std::tie(variance, truncatedVariance) = this->variances(residuals);
         std::size_t changeIndex{trendSegments[trendSegments.size() - 2]};
         LOG_TRACE(<< "variance = " << variance << ", truncated variance = " << truncatedVariance
-                  << ", minimum variance = " << m_MinimumVariance);
+                  << ", minimum variance = " << m_SampleVariance);
         LOG_TRACE(<< "change index = " << changeIndex);
 
         double n{static_cast<double>(CSignal::countNotMissing(m_ValuesMinusPredictions))};
@@ -325,7 +325,7 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
         std::tie(variance, truncatedVariance) = this->variances(residuals);
         std::size_t changeIndex{scaleSegments[scaleSegments.size() - 2]};
         LOG_TRACE(<< "variance = " << variance << ", truncated variance = " << truncatedVariance
-                  << ", minimum variance = " << m_MinimumVariance);
+                  << ", minimum variance = " << m_SampleVariance);
         LOG_TRACE(<< "change index = " << changeIndex);
 
         double n{static_cast<double>(CSignal::countNotMissing(m_ValuesMinusPredictions))};
@@ -378,7 +378,7 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
 
     auto predictor = [this](core_t::TTime time) {
         TMeanAccumulator result;
-        for (core_t::TTime offset = 0; offset < m_BucketLength; offset += m_PredictionInterval) {
+        for (core_t::TTime offset = 0; offset < m_BucketLength; offset += m_SampleInterval) {
             result.add(m_Predictor(m_BucketsStartTime + time + offset));
         }
         return CBasicStatistics::mean(result);
@@ -411,7 +411,7 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
         std::size_t changeIndex{shiftSegments[shiftSegments.size() - 2]};
         LOG_TRACE(<< "shifts = " << core::CContainerPrinter::print(shifts));
         LOG_TRACE(<< "variance = " << variance << ", truncated variance = " << truncatedVariance
-                  << ", minimum variance = " << m_MinimumVariance);
+                  << ", minimum variance = " << m_SampleVariance);
         LOG_TRACE(<< "change index = " << changeIndex);
 
         double n{static_cast<double>(CSignal::countNotMissing(m_ValuesMinusPredictions))};
@@ -499,10 +499,10 @@ double CTimeSeriesTestForChange::pValue(double varianceH0,
                                         double truncatedVarianceH1,
                                         double parametersH1,
                                         double n) const {
-    return std::min(rightTailFTest(varianceH0 + m_MinimumVariance, varianceH1 + m_MinimumVariance,
+    return std::min(rightTailFTest(varianceH0 + m_SampleVariance, varianceH1 + m_SampleVariance,
                                    n - parametersH0, n - parametersH1),
-                    rightTailFTest(truncatedVarianceH0 + m_MinimumVariance,
-                                   truncatedVarianceH1 + m_MinimumVariance,
+                    rightTailFTest(truncatedVarianceH0 + m_SampleVariance,
+                                   truncatedVarianceH1 + m_SampleVariance,
                                    (1.0 - m_OutlierFraction) * n - parametersH0,
                                    (1.0 - m_OutlierFraction) * n - parametersH1));
 }
