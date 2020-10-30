@@ -80,7 +80,7 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(double decayRate,
                                                    core_t::TTime bucketLength,
                                                    std::size_t seasonalComponentSize)
     : m_TimeShift{0}, m_LastValueTime{0}, m_LastPropagationTime{0},
-      m_ChangeDetectorTest{decayRate, bucketLength}, m_SeasonalityTest{decayRate, bucketLength},
+      m_ChangePointTest{decayRate, bucketLength}, m_SeasonalityTest{decayRate, bucketLength},
       m_CalendarCyclicTest{decayRate, bucketLength}, m_Components{decayRate, bucketLength,
                                                                   seasonalComponentSize} {
     this->initializeMediator();
@@ -89,7 +89,7 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(double decayRate,
 CTimeSeriesDecomposition::CTimeSeriesDecomposition(const STimeSeriesDecompositionRestoreParams& params,
                                                    core::CStateRestoreTraverser& traverser)
     : m_TimeShift{0}, m_LastValueTime{0}, m_LastPropagationTime{0},
-      m_ChangeDetectorTest{params.s_DecayRate, params.s_MinimumBucketLength},
+      m_ChangePointTest{params.s_DecayRate, params.s_MinimumBucketLength},
       m_SeasonalityTest{params.s_DecayRate, params.s_MinimumBucketLength},
       m_CalendarCyclicTest{params.s_DecayRate, params.s_MinimumBucketLength},
       m_Components{params.s_DecayRate, params.s_MinimumBucketLength, params.s_ComponentSize} {
@@ -103,7 +103,7 @@ CTimeSeriesDecomposition::CTimeSeriesDecomposition(const CTimeSeriesDecompositio
                                                    bool isForForecast)
     : m_TimeShift{other.m_TimeShift}, m_LastValueTime{other.m_LastValueTime},
       m_LastPropagationTime{other.m_LastPropagationTime},
-      m_ChangeDetectorTest{other.m_ChangeDetectorTest, isForForecast},
+      m_ChangePointTest{other.m_ChangePointTest, isForForecast},
       m_SeasonalityTest{other.m_SeasonalityTest, isForForecast},
       m_CalendarCyclicTest{other.m_CalendarCyclicTest, isForForecast}, m_Components{
                                                                            other.m_Components} {
@@ -121,7 +121,7 @@ bool CTimeSeriesDecomposition::acceptRestoreTraverser(const SDistributionRestore
             RESTORE(CHANGE_POINT_TEST_7_11_TAG,
                     traverser.traverseSubLevel(
                         std::bind(&CChangePointTest::acceptRestoreTraverser,
-                                  &m_ChangeDetectorTest, std::placeholders::_1)))
+                                  &m_ChangePointTest, std::placeholders::_1)))
             RESTORE(SEASONALITY_TEST_7_11_TAG,
                     traverser.traverseSubLevel(
                         std::bind(&CSeasonalityTest::acceptRestoreTraverser,
@@ -180,7 +180,7 @@ void CTimeSeriesDecomposition::swap(CTimeSeriesDecomposition& other) {
     std::swap(m_TimeShift, other.m_TimeShift);
     std::swap(m_LastValueTime, other.m_LastValueTime);
     std::swap(m_LastPropagationTime, other.m_LastPropagationTime);
-    m_ChangeDetectorTest.swap(other.m_ChangeDetectorTest);
+    m_ChangePointTest.swap(other.m_ChangePointTest);
     m_SeasonalityTest.swap(other.m_SeasonalityTest);
     m_CalendarCyclicTest.swap(other.m_CalendarCyclicTest);
     m_Components.swap(other.m_Components);
@@ -202,7 +202,7 @@ void CTimeSeriesDecomposition::acceptPersistInserter(core::CStatePersistInserter
     inserter.insertValue(LAST_PROPAGATION_TIME_7_11_TAG, m_LastPropagationTime);
     inserter.insertLevel(CHANGE_POINT_TEST_7_11_TAG,
                          std::bind(&CChangePointTest::acceptPersistInserter,
-                                   &m_ChangeDetectorTest, std::placeholders::_1));
+                                   &m_ChangePointTest, std::placeholders::_1));
     inserter.insertLevel(SEASONALITY_TEST_7_11_TAG,
                          std::bind(&CSeasonalityTest::acceptPersistInserter,
                                    &m_SeasonalityTest, std::placeholders::_1));
@@ -280,14 +280,14 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
         [this]() { return this->predictor(E_Seasonal | E_Calendar); },
         testForSeasonality};
 
-    m_ChangeDetectorTest.handle(message);
+    m_ChangePointTest.handle(message);
     m_Components.handle(message);
     m_SeasonalityTest.handle(message);
     m_CalendarCyclicTest.handle(message);
 }
 
 bool CTimeSeriesDecomposition::mayHaveChanged() const {
-    return m_ChangeDetectorTest.mayHaveChanged();
+    return m_ChangePointTest.mayHaveChanged();
 }
 
 void CTimeSeriesDecomposition::shiftTime(core_t::TTime shift) {
@@ -297,7 +297,7 @@ void CTimeSeriesDecomposition::shiftTime(core_t::TTime shift) {
 
 void CTimeSeriesDecomposition::propagateForwardsTo(core_t::TTime time) {
     if (time > m_LastPropagationTime) {
-        m_ChangeDetectorTest.propagateForwards(m_LastPropagationTime, time);
+        m_ChangePointTest.propagateForwards(m_LastPropagationTime, time);
         m_SeasonalityTest.propagateForwards(m_LastPropagationTime, time);
         m_CalendarCyclicTest.propagateForwards(m_LastPropagationTime, time);
         m_Components.propagateForwards(m_LastPropagationTime, time);
@@ -541,7 +541,7 @@ void CTimeSeriesDecomposition::skipTime(core_t::TTime skipInterval) {
 std::uint64_t CTimeSeriesDecomposition::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_LastValueTime);
     seed = CChecksum::calculate(seed, m_LastPropagationTime);
-    seed = CChecksum::calculate(seed, m_ChangeDetectorTest);
+    seed = CChecksum::calculate(seed, m_ChangePointTest);
     seed = CChecksum::calculate(seed, m_SeasonalityTest);
     seed = CChecksum::calculate(seed, m_CalendarCyclicTest);
     return CChecksum::calculate(seed, m_Components);
@@ -550,7 +550,7 @@ std::uint64_t CTimeSeriesDecomposition::checksum(std::uint64_t seed) const {
 void CTimeSeriesDecomposition::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CTimeSeriesDecomposition");
     core::CMemoryDebug::dynamicSize("m_Mediator", m_Mediator, mem);
-    core::CMemoryDebug::dynamicSize("m_ChangeDetectorTest", m_ChangeDetectorTest, mem);
+    core::CMemoryDebug::dynamicSize("m_ChangePointTest", m_ChangePointTest, mem);
     core::CMemoryDebug::dynamicSize("m_SeasonalityTest", m_SeasonalityTest, mem);
     core::CMemoryDebug::dynamicSize("m_CalendarCyclicTest", m_CalendarCyclicTest, mem);
     core::CMemoryDebug::dynamicSize("m_Components", m_Components, mem);
@@ -558,7 +558,7 @@ void CTimeSeriesDecomposition::debugMemoryUsage(const core::CMemoryUsage::TMemor
 
 std::size_t CTimeSeriesDecomposition::memoryUsage() const {
     return core::CMemory::dynamicSize(m_Mediator) +
-           core::CMemory::dynamicSize(m_ChangeDetectorTest) +
+           core::CMemory::dynamicSize(m_ChangePointTest) +
            core::CMemory::dynamicSize(m_SeasonalityTest) +
            core::CMemory::dynamicSize(m_CalendarCyclicTest) +
            core::CMemory::dynamicSize(m_Components);
@@ -582,7 +582,7 @@ core_t::TTime CTimeSeriesDecomposition::lastValueTime() const {
 
 void CTimeSeriesDecomposition::initializeMediator() {
     m_Mediator = std::make_unique<CMediator>();
-    m_Mediator->registerHandler(m_ChangeDetectorTest);
+    m_Mediator->registerHandler(m_ChangePointTest);
     m_Mediator->registerHandler(m_SeasonalityTest);
     m_Mediator->registerHandler(m_CalendarCyclicTest);
     m_Mediator->registerHandler(m_Components);
