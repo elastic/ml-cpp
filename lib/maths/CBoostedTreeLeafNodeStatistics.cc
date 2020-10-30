@@ -4,19 +4,16 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "maths/CBasicStatistics.h"
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
 
 #include <core/CDataFrame.h>
 #include <core/CImmutableRadixSet.h>
 #include <core/CLogger.h>
-#include <core/Constants.h>
 
 #include <maths/CBoostedTree.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CTools.h>
 
-#include <algorithm>
 #include <limits>
 
 namespace ml {
@@ -27,7 +24,7 @@ using TRowItr = core::CDataFrame::TRowItr;
 namespace {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
-const std::size_t MIN_DEPTH_FOR_UPPER_BOUND{0}; // when to start computing gain upper bound
+const std::size_t MIN_DEPTH_FOR_UPPER_BOUND{5}; // when to start computing gain upper bound
 }
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
@@ -131,26 +128,26 @@ CBoostedTreeLeafNodeStatistics::TPtrPtrPr
 CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                                       std::size_t rightChildId,
                                       std::size_t numberThreads,
+                                      double gainThreshold,
                                       const core::CDataFrame& frame,
                                       const CDataFrameCategoryEncoder& encoder,
                                       const TRegularization& regularization,
                                       const TSizeVec& featureBag,
                                       const CBoostedTreeNode& split,
-                                      CWorkspace& workspace,
-                                      double gainThreshold) {
+                                      CWorkspace& workspace) {
     TPtr leftChild;
     TPtr rightChild;
     if (this->leftChildHasFewerRows()) {
-        if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+        if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND ||  this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, *this, numberThreads, frame, encoder, regularization,
                 featureBag, true /*is left child*/, split, workspace);
-            if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
+            if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND || this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, std::move(*this), regularization, featureBag, workspace);
             }
         } else {
-            if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
+            if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND || this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, *this, numberThreads, frame, encoder, regularization,
                     featureBag, false /*is left child*/, split, workspace);
@@ -159,16 +156,16 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
         return {std::move(leftChild), std::move(rightChild)};
     }
 
-    if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
+    if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND || this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
         rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             rightChildId, *this, numberThreads, frame, encoder, regularization,
             featureBag, false /*is left child*/, split, workspace);
 
-        if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+        if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND || this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, std::move(*this), regularization, featureBag, workspace);
         }
-    } else if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+    } else if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND || this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
         leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             leftChildId, *this, numberThreads, frame, encoder, regularization,
             featureBag, true /*is left child*/, split, workspace);

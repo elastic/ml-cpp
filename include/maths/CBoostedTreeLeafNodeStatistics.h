@@ -187,36 +187,27 @@ public:
     public:
         explicit CSplitsDerivatives(std::size_t numberLossParameters = 0)
             : m_NumberLossParameters{numberLossParameters},
-              m_PositiveDerivativesSum{TDerivativesSum::Zero()},
-              m_NegativeDerivativesSum{TDerivativesSum::Zero()},
-              m_PositiveDerivativesMax{std::numeric_limits<double>::min(),
-                                       std::numeric_limits<double>::min()},
-              m_PositiveDerivativesMin{std::numeric_limits<double>::max(),
-                                       std::numeric_limits<double>::max()},
-              m_NegativeDerivativesMin{std::numeric_limits<double>::max(),
-                                       std::numeric_limits<double>::max()} {}
+              m_PositiveDerivativesSum{TDerivatives2D::Zero()},
+              m_NegativeDerivativesSum{TDerivatives2D::Zero()},
+              m_PositiveDerivativesMax{-boosted_tree_detail::INF},
+              m_PositiveDerivativesMin{boosted_tree_detail::INF},
+              m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {}
         CSplitsDerivatives(const TImmutableRadixSetVec& candidateSplits, std::size_t numberLossParameters)
             : m_NumberLossParameters{numberLossParameters},
-              m_PositiveDerivativesSum{TDerivativesSum::Zero()},
-              m_NegativeDerivativesSum{TDerivativesSum::Zero()},
-              m_PositiveDerivativesMax{std::numeric_limits<double>::min(),
-                                       std::numeric_limits<double>::min()},
-              m_PositiveDerivativesMin{std::numeric_limits<double>::max(),
-                                       std::numeric_limits<double>::max()},
-              m_NegativeDerivativesMin{std::numeric_limits<double>::max(),
-                                       std::numeric_limits<double>::max()} {
+              m_PositiveDerivativesSum{TDerivatives2D::Zero()},
+              m_NegativeDerivativesSum{TDerivatives2D::Zero()},
+              m_PositiveDerivativesMax{-boosted_tree_detail::INF},
+              m_PositiveDerivativesMin{boosted_tree_detail::INF},
+              m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {
             this->map(candidateSplits);
         }
         CSplitsDerivatives(const CSplitsDerivatives& other)
             : m_NumberLossParameters{other.m_NumberLossParameters},
-              m_PositiveDerivativesSum{TDerivativesSum::Zero()},
-              m_NegativeDerivativesSum{TDerivativesSum::Zero()},
-              m_PositiveDerivativesMax{std::numeric_limits<double>::min(),
-                                       std::numeric_limits<double>::min()},
-              m_PositiveDerivativesMin{std::numeric_limits<double>::max(),
-                                       std::numeric_limits<double>::max()},
-              m_NegativeDerivativesMin{std::numeric_limits<double>::max(),
-                                       std::numeric_limits<double>::max()} {
+              m_PositiveDerivativesSum{TDerivatives2D::Zero()},
+              m_NegativeDerivativesSum{TDerivatives2D::Zero()},
+              m_PositiveDerivativesMax{-boosted_tree_detail::INF},
+              m_PositiveDerivativesMin{boosted_tree_detail::INF},
+              m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {
             this->map(other.m_Derivatives);
             this->add(other);
         }
@@ -302,14 +293,11 @@ public:
 
         //! Zero all values.
         void zero() {
-            m_PositiveDerivativesSum = TDerivativesSum::Zero();
-            m_NegativeDerivativesSum = TDerivativesSum::Zero();
-            m_PositiveDerivativesMax = {std::numeric_limits<double>::min(),
-                                        std::numeric_limits<double>::min()};
-            m_PositiveDerivativesMin = {std::numeric_limits<double>::max(),
-                                        std::numeric_limits<double>::max()};
-            m_NegativeDerivativesMin = {std::numeric_limits<double>::max(),
-                                        std::numeric_limits<double>::max()};
+            m_PositiveDerivativesSum.fill(0.0);
+            m_NegativeDerivativesSum.fill(0.0);
+            m_PositiveDerivativesMax.fill(-boosted_tree_detail::INF);
+            m_PositiveDerivativesMin.fill(boosted_tree_detail::INF);
+            m_NegativeDerivativesMin.fill(boosted_tree_detail::INF);
 
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
@@ -398,8 +386,8 @@ public:
         void addPositiveDerivatives(TDerivativesMappedVec derivatives) {
             m_PositiveDerivativesSum += derivatives;
             m_PositiveDerivativesMin =
-                m_PositiveDerivativesMin.cwiseMin(derivatives.cwiseAbs());
-            m_PositiveDerivativesMax = m_PositiveDerivativesMax.cwiseMax(derivatives);
+                m_PositiveDerivativesMin.cwiseMin(std::fabs(derivatives(0)));
+            m_PositiveDerivativesMax = m_PositiveDerivativesMax.cwiseMax(derivatives(0));
         }
 
         void addNegativeDerivatives(TDerivativesMappedVec derivatives) {
@@ -416,27 +404,27 @@ public:
             return m_NegativeDerivativesSum(0);
         }
 
-        double positiveDerivativesHMin() const {
-            return m_PositiveDerivativesMin(1);
-        }
-
-        double negativeDerivativesHMin() const {
-            return m_NegativeDerivativesMin(1);
-        }
-
         double positiveDerivativesGMax() const {
             return m_PositiveDerivativesMax(0);
+        }
+
+        double positiveDerivativesHMin() const {
+            return m_PositiveDerivativesMin(1);
         }
 
         double negativeDerivativesGMin() const {
             return m_NegativeDerivativesMin(0);
         }
 
+        double negativeDerivativesHMin() const {
+            return m_NegativeDerivativesMin(1);
+        }
+
     private:
         using TDerivativesVecVec = std::vector<TDerivativesVec>;
         using TAlignedDoubleVec = std::vector<double, core::CAlignedAllocator<double>>;
-        using TDerivativesSum = Eigen::Matrix<double, 2, 1>;
-        using TDerivativesMinMax = Eigen::Matrix<double, 2, 1>;
+        using TDerivatives2D = Eigen::Matrix<double, 2, 1>;
+        using TDerivatives1D = Eigen::Matrix<double, 1, 1>;
 
     private:
         static std::size_t number(const TDerivativesVec& derivatives) {
@@ -506,11 +494,11 @@ public:
         TDerivativesVecVec m_Derivatives;
         TDerivativesVec m_MissingDerivatives;
         TAlignedDoubleVec m_Storage;
-        TDerivativesSum m_PositiveDerivativesSum;
-        TDerivativesSum m_NegativeDerivativesSum;
-        TDerivativesMinMax m_PositiveDerivativesMax;
-        TDerivativesMinMax m_PositiveDerivativesMin;
-        TDerivativesMinMax m_NegativeDerivativesMin;
+        TDerivatives2D m_PositiveDerivativesSum;
+        TDerivatives2D m_NegativeDerivativesSum;
+        TDerivatives1D m_PositiveDerivativesMax;
+        TDerivatives1D m_PositiveDerivativesMin;
+        TDerivatives2D m_NegativeDerivativesMin;
     };
 
     //! \brief The derivatives and row masks objects to use for computations.
@@ -657,13 +645,13 @@ public:
     TPtrPtrPr split(std::size_t leftChildId,
                     std::size_t rightChildId,
                     std::size_t numberThreads,
+                    double gainThreshold,
                     const core::CDataFrame& frame,
                     const CDataFrameCategoryEncoder& encoder,
                     const TRegularization& regularization,
                     const TSizeVec& featureBag,
                     const CBoostedTreeNode& split,
-                    CWorkspace& workspace,
-                    double gainThreshold);
+                    CWorkspace& workspace);
 
     //! Order two leaves by decreasing gain in splitting them.
     bool operator<(const CBoostedTreeLeafNodeStatistics& rhs) const;
@@ -711,6 +699,10 @@ public:
     static std::size_t estimateMemoryUsage(std::size_t numberCols,
                                            std::size_t numberSplitsPerFeature,
                                            std::size_t numberLossParameters);
+
+    std::size_t depth() const {
+        return m_Depth;
+    }
 
 private:
     using TSizeVecCRef = std::reference_wrapper<const TSizeVec>;

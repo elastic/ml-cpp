@@ -399,8 +399,8 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
         std::tie(leftChild, rightChild) = rootSplit->split(
-            leftChildId, rightChildId, numberThreads, *frame, encoder,
-            regularization, featureBag, tree[rootSplit->id()], workspace, 0);
+            leftChildId, rightChildId, numberThreads, 0.0, *frame, encoder,
+            regularization, featureBag, tree[rootSplit->id()], workspace);
         if (leftChild != nullptr) {
             BOOST_REQUIRE(rootSplit->leftChildMaxGain() >= leftChild->gain());
         }

@@ -887,13 +887,12 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         int lastCandidateIdx{n - (maximumNumberInternalNodes - currentNumberInternalNodes)};
         double smallestCandidateGain =
             lastCandidateIdx >= 0 ? splitCandidateTreeNodes[lastCandidateIdx]->gain() : 0.0;
-        // double smallestCandidateGain{0};
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
         std::tie(leftChild, rightChild) = leaf->split(
-            leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder, m_Regularization,
-            featureBag, tree[leaf->id()], workspace, smallestCandidateGain);
+            leftChildId, rightChildId, m_NumberThreads, smallestCandidateGain, frame, *m_Encoder, m_Regularization,
+            featureBag, tree[leaf->id()], workspace);
 
         // Need gain to be computed to compare here
         if (leftChild != nullptr && rightChild != nullptr && less(rightChild, leftChild)) {
