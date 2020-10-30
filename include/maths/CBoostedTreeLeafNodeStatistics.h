@@ -13,11 +13,9 @@
 #include <core/CPackedBitVector.h>
 #include <core/CSmallVector.h>
 
-#include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTreeHyperparameters.h>
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CChecksum.h>
-#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraShims.h>
 #include <maths/CMathsFuncs.h>
@@ -63,7 +61,6 @@ public:
     using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
     using TMemoryMappedDoubleVector = CMemoryMappedDenseVector<double, Eigen::Aligned16>;
     using TMemoryMappedDoubleMatrix = CMemoryMappedDenseMatrix<double, Eigen::Aligned16>;
-    using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
 
     //! \brief Accumulates aggregate derivatives.
     class MATHS_EXPORT CDerivatives {
@@ -251,10 +248,6 @@ public:
             std::swap(m_PositiveDerivativesMax, other.m_PositiveDerivativesMax);
             std::swap(m_PositiveDerivativesMin, other.m_PositiveDerivativesMin);
             std::swap(m_NegativeDerivativesMin, other.m_NegativeDerivativesMin);
-            // std::swap(m_PositiveDerivativesGMinMax, other.m_PositiveDerivativesGMinMax);
-            // std::swap(m_PositiveDerivativesHMinMax, other.m_PositiveDerivativesHMinMax);
-            // std::swap(m_NegativeDerivativesGMinMax, other.m_NegativeDerivativesGMinMax);
-            // std::swap(m_NegativeDerivativesHMinMax, other.m_NegativeDerivativesHMinMax);
         }
 
         //! \return The aggregate count for \p feature and \p split.
@@ -439,13 +432,11 @@ public:
             return m_NegativeDerivativesMin(0);
         }
 
-    public:
     private:
         using TDerivativesVecVec = std::vector<TDerivativesVec>;
         using TAlignedDoubleVec = std::vector<double, core::CAlignedAllocator<double>>;
         using TDerivativesSum = Eigen::Matrix<double, 2, 1>;
         using TDerivativesMinMax = Eigen::Matrix<double, 2, 1>;
-        using TMinMaxAccumulator = maths::CBasicStatistics::CMinMax<double>;
 
     private:
         static std::size_t number(const TDerivativesVec& derivatives) {
@@ -672,8 +663,7 @@ public:
                     const TSizeVec& featureBag,
                     const CBoostedTreeNode& split,
                     CWorkspace& workspace,
-                    double gainThreshold,
-                    TAnalysisInstrumentationPtr instrumentation = nullptr);
+                    double gainThreshold);
 
     //! Order two leaves by decreasing gain in splitting them.
     bool operator<(const CBoostedTreeLeafNodeStatistics& rhs) const;
@@ -681,7 +671,10 @@ public:
     //! Get the gain in loss of the best split of this leaf.
     double gain() const;
 
+    //! Get the gain upper bound for the left child.
     double leftChildMaxGain() const;
+
+    //! Get the gain upper bound for the right child.
     double rightChildMaxGain() const;
 
     //! Get the total curvature of node.
@@ -709,6 +702,7 @@ public:
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
 
+    //! Get the best split info as a string.
     std::string print() const { return m_BestSplit.print(); }
 
     //! Estimate the maximum leaf statistics' memory usage training on a data frame
@@ -771,7 +765,7 @@ private:
                                          const core::CDataFrame& frame,
                                          const CDataFrameCategoryEncoder& encoder,
                                          const core::CPackedBitVector& rowMask,
-                                         CWorkspace& workspace);
+                                         CWorkspace& workspace) const;
     void computeRowMaskAndAggregateLossDerivatives(std::size_t numberThreads,
                                                    std::size_t depth,
                                                    const core::CDataFrame& frame,
@@ -779,7 +773,7 @@ private:
                                                    bool isLeftChild,
                                                    const CBoostedTreeNode& split,
                                                    const core::CPackedBitVector& parentRowMask,
-                                                   CWorkspace& workspace);
+                                                   CWorkspace& workspace) const;
     void addRowDerivatives(const CEncodedDataFrameRowRef& row,
                            std::size_t depth,
                            CSplitsDerivatives& splitsDerivatives) const;

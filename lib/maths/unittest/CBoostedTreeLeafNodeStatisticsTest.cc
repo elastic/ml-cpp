@@ -4,21 +4,20 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "core/CContainerPrinter.h"
-#include "maths/CQuantileSketch.h"
-#include <algorithm>
-#include <maths/CBoostedTreeLeafNodeStatistics.h>
-
 #include <core/CLogger.h>
 
 #include <maths/CBoostedTree.h>
+#include <maths/CBoostedTreeLeafNodeStatistics.h>
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CLinearAlgebraEigen.h>
+#include <maths/CQuantileSketch.h>
 
 #include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
+
+#include <algorithm>
 
 BOOST_AUTO_TEST_SUITE(CBoostedTreeLeafNodeStatisticsTest)
 
@@ -323,9 +322,8 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
     std::size_t rows{50};
     std::size_t numberThreads{1};
 
-    for (std::size_t seed = 0; seed < 10000; ++seed) {
+    for (std::size_t seed = 0; seed < 1000; ++seed) {
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, rows);
-        // LOG_DEBUG(<< "Seed: " << seed);
         test::CRandomNumbers rng;
         rng.seed(seed);
         auto frame = core::makeMainStorageDataFrame(cols, rows).first;
@@ -341,12 +339,10 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
                 break;
             }
         }
-        // LOG_INFO(<< "x = " << core::CContainerPrinter::print(features));
 
         TDoubleVec targets;
         targets.reserve(features.size());
         rng.generateUniformSamples(-10.0, 10.0, features.size(), targets);
-        // LOG_INFO(<< "y = " << core::CContainerPrinter::print(targets));
         TDoubleVec predictions(rows, 0.0);
         TDoubleVec curvature(rows, 2.0);
         TDoubleVec weights(rows, 1.0);
@@ -371,7 +367,6 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         sketch.quantile(25.0, splitValues[0]);
         sketch.quantile(50.0, splitValues[1]);
         sketch.quantile(75.0, splitValues[2]);
-        // LOG_DEBUG(<< "Split values: " << core::CContainerPrinter::print(splitValues));
         TImmutableRadixSetVec featureSplits;
         featureSplits.push_back(TImmutableRadixSet(splitValues));
 
@@ -391,9 +386,6 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
             0 /*root*/, extraColumns, 1, numberThreads, *frame, encoder, regularization,
             featureSplits, featureBag, 0 /*depth*/, trainingRowMask, workspace);
 
-        // LOG_INFO(<< "Root gain: " << rootSplit->print());
-        // LOG_INFO(<< "\n---------------------------------------------------------------------------");
-
         std::size_t splitFeature;
         double splitValue;
         std::tie(splitFeature, splitValue) = rootSplit->bestSplit();
@@ -410,19 +402,12 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
             leftChildId, rightChildId, numberThreads, *frame, encoder,
             regularization, featureBag, tree[rootSplit->id()], workspace, 0);
         if (leftChild != nullptr) {
-            // LOG_DEBUG(<< "Left child: " << leftChild->print());
             BOOST_REQUIRE(rootSplit->leftChildMaxGain() >= leftChild->gain());
-        } else {
-            // LOG_DEBUG(<< "Left child wasn't split");
         }
         if (rightChild != nullptr) {
-            // LOG_DEBUG(<< "Right child: " << rightChild->print());
             BOOST_REQUIRE(rootSplit->rightChildMaxGain() >= rightChild->gain());
-            // LOG_DEBUG(<< "Right child wasn't split");
         }
         BOOST_REQUIRE(rightChild != nullptr || leftChild != nullptr);
-        // LOG_DEBUG(<< "\n---------------------------------------------------------------------------"
-        //           << "\n---------------------------------------------------------------------------");
     }
 }
 

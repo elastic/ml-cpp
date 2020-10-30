@@ -27,18 +27,7 @@ using TRowItr = core::CDataFrame::TRowItr;
 namespace {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
-
-void incrementStatsComputed(CBoostedTreeLeafNodeStatistics::TAnalysisInstrumentationPtr instrumentation) {
-    if (instrumentation != nullptr) {
-        instrumentation->statisticsComputed() += 1;
-    }
-}
-
-void incrementStatsNotComputed(CBoostedTreeLeafNodeStatistics::TAnalysisInstrumentationPtr instrumentation) {
-    if (instrumentation != nullptr) {
-        instrumentation->statisticsNotComputed() += 1;
-    }
-}
+const std::size_t MIN_DEPTH_FOR_UPPER_BOUND{0}; // when to start computing gain upper bound
 }
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
@@ -148,8 +137,7 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                                       const TSizeVec& featureBag,
                                       const CBoostedTreeNode& split,
                                       CWorkspace& workspace,
-                                      double gainThreshold,
-                                      TAnalysisInstrumentationPtr instrumentation) {
+                                      double gainThreshold) {
     TPtr leftChild;
     TPtr rightChild;
     if (this->leftChildHasFewerRows()) {
@@ -253,7 +241,7 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
     const core::CDataFrame& frame,
     const CDataFrameCategoryEncoder& encoder,
     const core::CPackedBitVector& rowMask,
-    CWorkspace& workspace) {
+    CWorkspace& workspace) const {
 
     workspace.newLeaf(numberThreads);
 
@@ -281,7 +269,7 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
     bool isLeftChild,
     const CBoostedTreeNode& split,
     const core::CPackedBitVector& parentRowMask,
-    CWorkspace& workspace) {
+    CWorkspace& workspace) const {
 
     workspace.newLeaf(numberThreads);
 
@@ -315,7 +303,7 @@ void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRo
 
     auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
                                            m_NumberLossParameters);
-    if (/*depth > 4 && */ derivatives.size() == 2) {
+    if (depth >= MIN_DEPTH_FOR_UPPER_BOUND && derivatives.size() == 2) {
         if (derivatives(0) >= 0.0) {
             splitsDerivatives.addPositiveDerivatives(derivatives);
         } else {

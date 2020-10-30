@@ -33,7 +33,6 @@
 
 #include <algorithm>
 #include <memory>
-#include <queue>
 
 namespace ml {
 namespace maths {
@@ -296,13 +295,6 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     m_Instrumentation->updateProgress(1.0);
     m_Instrumentation->updateMemoryUsage(
         static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
-    if (m_Instrumentation != nullptr) {
-        LOG_TRACE(<< "Statistics computed: " << m_Instrumentation->statisticsComputed()
-                  << "\nStatistics not computed: "
-                  << m_Instrumentation->statisticsNotComputed() << "\nSaved: "
-                  << (static_cast<double>(m_Instrumentation->statisticsNotComputed()) /
-                      m_Instrumentation->statisticsComputed()));
-    }
 }
 
 void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {
@@ -811,7 +803,6 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     LOG_TRACE(<< "Training one tree...");
 
     using TLeafNodeStatisticsPtr = CBoostedTreeLeafNodeStatistics::TPtr;
-    // TODO define comparison operator
     using TLeafNodeStatisticsPtrQueue = boost::circular_buffer<TLeafNodeStatisticsPtr>;
 
     workspace.reinitialize(m_NumberThreads, candidateSplits, m_Loss->numberParameters());
@@ -900,17 +891,9 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
-        std::tie(leftChild, rightChild) =
-            leaf->split(leftChildId, rightChildId, m_NumberThreads, frame,
-                        *m_Encoder, m_Regularization, featureBag, tree[leaf->id()],
-                        workspace, smallestCandidateGain, m_Instrumentation);
-
-        // if (leftChild == nullptr) {
-        //     LOG_DEBUG(<< "Left child didn't have to be computed");
-        // }
-        // if (rightChild == nullptr) {
-        //     LOG_DEBUG(<< "Right child didn't have to be computed");
-        // }
+        std::tie(leftChild, rightChild) = leaf->split(
+            leftChildId, rightChildId, m_NumberThreads, frame, *m_Encoder, m_Regularization,
+            featureBag, tree[leaf->id()], workspace, smallestCandidateGain);
 
         // Need gain to be computed to compare here
         if (leftChild != nullptr && rightChild != nullptr && less(rightChild, leftChild)) {
