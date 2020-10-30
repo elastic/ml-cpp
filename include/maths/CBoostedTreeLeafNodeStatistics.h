@@ -185,16 +185,41 @@ public:
     class MATHS_EXPORT CSplitsDerivatives {
     public:
         using TDerivativesVec = std::vector<CDerivatives>;
+        using TDerivativesMappedVec = boosted_tree_detail::TAlignedMemoryMappedFloatVector;
 
     public:
         explicit CSplitsDerivatives(std::size_t numberLossParameters = 0)
-            : m_NumberLossParameters{numberLossParameters} {}
+            : m_NumberLossParameters{numberLossParameters},
+              m_PositiveDerivativesSum{TDerivativesSum::Zero()},
+              m_NegativeDerivativesSum{TDerivativesSum::Zero()},
+              m_PositiveDerivativesMax{std::numeric_limits<double>::min(),
+                                       std::numeric_limits<double>::min()},
+              m_PositiveDerivativesMin{std::numeric_limits<double>::max(),
+                                       std::numeric_limits<double>::max()},
+              m_NegativeDerivativesMin{std::numeric_limits<double>::max(),
+                                       std::numeric_limits<double>::max()} {}
         CSplitsDerivatives(const TImmutableRadixSetVec& candidateSplits, std::size_t numberLossParameters)
-            : m_NumberLossParameters{numberLossParameters} {
+            : m_NumberLossParameters{numberLossParameters},
+              m_PositiveDerivativesSum{TDerivativesSum::Zero()},
+              m_NegativeDerivativesSum{TDerivativesSum::Zero()},
+              m_PositiveDerivativesMax{std::numeric_limits<double>::min(),
+                                       std::numeric_limits<double>::min()},
+              m_PositiveDerivativesMin{std::numeric_limits<double>::max(),
+                                       std::numeric_limits<double>::max()},
+              m_NegativeDerivativesMin{std::numeric_limits<double>::max(),
+                                       std::numeric_limits<double>::max()} {
             this->map(candidateSplits);
         }
         CSplitsDerivatives(const CSplitsDerivatives& other)
-            : m_NumberLossParameters{other.m_NumberLossParameters} {
+            : m_NumberLossParameters{other.m_NumberLossParameters},
+              m_PositiveDerivativesSum{TDerivativesSum::Zero()},
+              m_NegativeDerivativesSum{TDerivativesSum::Zero()},
+              m_PositiveDerivativesMax{std::numeric_limits<double>::min(),
+                                       std::numeric_limits<double>::min()},
+              m_PositiveDerivativesMin{std::numeric_limits<double>::max(),
+                                       std::numeric_limits<double>::max()},
+              m_NegativeDerivativesMin{std::numeric_limits<double>::max(),
+                                       std::numeric_limits<double>::max()} {
             this->map(other.m_Derivatives);
             this->add(other);
         }
@@ -221,12 +246,15 @@ public:
             m_Derivatives.swap(other.m_Derivatives);
             m_MissingDerivatives.swap(other.m_MissingDerivatives);
             m_Storage.swap(other.m_Storage);
-            std::swap(m_PositiveDerivativesGSum, other.m_PositiveDerivativesGSum);
-            std::swap(m_NegativeDerivativesGSum, other.m_NegativeDerivativesGSum);
-            std::swap(m_PositiveDerivativesGMinMax, other.m_PositiveDerivativesGMinMax);
-            std::swap(m_PositiveDerivativesHMinMax, other.m_PositiveDerivativesHMinMax);
-            std::swap(m_NegativeDerivativesGMinMax, other.m_NegativeDerivativesGMinMax);
-            std::swap(m_NegativeDerivativesHMinMax, other.m_NegativeDerivativesHMinMax);
+            std::swap(m_PositiveDerivativesSum, other.m_PositiveDerivativesSum);
+            std::swap(m_NegativeDerivativesSum, other.m_NegativeDerivativesSum);
+            std::swap(m_PositiveDerivativesMax, other.m_PositiveDerivativesMax);
+            std::swap(m_PositiveDerivativesMin, other.m_PositiveDerivativesMin);
+            std::swap(m_NegativeDerivativesMin, other.m_NegativeDerivativesMin);
+            // std::swap(m_PositiveDerivativesGMinMax, other.m_PositiveDerivativesGMinMax);
+            // std::swap(m_PositiveDerivativesHMinMax, other.m_PositiveDerivativesHMinMax);
+            // std::swap(m_NegativeDerivativesGMinMax, other.m_NegativeDerivativesGMinMax);
+            // std::swap(m_NegativeDerivativesHMinMax, other.m_NegativeDerivativesHMinMax);
         }
 
         //! \return The aggregate count for \p feature and \p split.
@@ -281,12 +309,15 @@ public:
 
         //! Zero all values.
         void zero() {
-            m_PositiveDerivativesGSum = 0.0;
-            m_NegativeDerivativesGSum = 0.0;
-            m_PositiveDerivativesHMinMax = TMinMaxAccumulator();
-            m_PositiveDerivativesGMinMax = TMinMaxAccumulator();
-            m_NegativeDerivativesHMinMax = TMinMaxAccumulator();
-            m_NegativeDerivativesGMinMax = TMinMaxAccumulator();
+            m_PositiveDerivativesSum = TDerivativesSum::Zero();
+            m_NegativeDerivativesSum = TDerivativesSum::Zero();
+            m_PositiveDerivativesMax = {std::numeric_limits<double>::min(),
+                                        std::numeric_limits<double>::min()};
+            m_PositiveDerivativesMin = {std::numeric_limits<double>::max(),
+                                        std::numeric_limits<double>::max()};
+            m_NegativeDerivativesMin = {std::numeric_limits<double>::max(),
+                                        std::numeric_limits<double>::max()};
+
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].zero();
@@ -297,12 +328,14 @@ public:
 
         //! Compute the accumulation of both collections of per split derivatives.
         void add(const CSplitsDerivatives& other) {
-            m_PositiveDerivativesGSum += other.m_PositiveDerivativesGSum;
-            m_NegativeDerivativesGSum += other.m_NegativeDerivativesGSum;
-            m_PositiveDerivativesHMinMax += other.m_PositiveDerivativesHMinMax;
-            m_PositiveDerivativesGMinMax += other.m_PositiveDerivativesGMinMax;
-            m_NegativeDerivativesHMinMax += other.m_NegativeDerivativesHMinMax;
-            m_NegativeDerivativesGMinMax += other.m_NegativeDerivativesGMinMax;
+            m_PositiveDerivativesSum += other.m_PositiveDerivativesSum;
+            m_NegativeDerivativesSum += other.m_NegativeDerivativesSum;
+            m_PositiveDerivativesMax =
+                m_PositiveDerivativesMax.cwiseMax(other.m_PositiveDerivativesMax);
+            m_PositiveDerivativesMin =
+                m_PositiveDerivativesMin.cwiseMin(other.m_PositiveDerivativesMin);
+            m_NegativeDerivativesMin =
+                m_NegativeDerivativesMin.cwiseMin(other.m_NegativeDerivativesMin);
 
             for (std::size_t i = 0; i < other.m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < other.m_Derivatives[i].size(); ++j) {
@@ -314,12 +347,15 @@ public:
 
         //! Subtract \p rhs.
         void subtract(const CSplitsDerivatives& rhs) {
-            this->m_PositiveDerivativesGSum -= rhs.m_PositiveDerivativesGSum;
-            this->m_NegativeDerivativesGSum -= rhs.m_NegativeDerivativesGSum;
-            m_PositiveDerivativesHMinMax += rhs.m_PositiveDerivativesHMinMax;
-            m_PositiveDerivativesGMinMax += rhs.m_PositiveDerivativesGMinMax;
-            m_NegativeDerivativesHMinMax += rhs.m_NegativeDerivativesHMinMax;
-            m_NegativeDerivativesGMinMax += rhs.m_NegativeDerivativesGMinMax;
+            m_PositiveDerivativesSum -= rhs.m_PositiveDerivativesSum;
+            m_NegativeDerivativesSum -= rhs.m_NegativeDerivativesSum;
+            m_PositiveDerivativesMax =
+                m_PositiveDerivativesMax.cwiseMax(rhs.m_PositiveDerivativesMax);
+            m_PositiveDerivativesMin =
+                m_PositiveDerivativesMin.cwiseMin(rhs.m_PositiveDerivativesMin);
+            m_NegativeDerivativesMin =
+                m_NegativeDerivativesMin.cwiseMin(rhs.m_NegativeDerivativesMin);
+
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].subtract(rhs.m_Derivatives[i][j]);
@@ -366,19 +402,50 @@ public:
             return seed;
         }
 
+        void addPositiveDerivatives(TDerivativesMappedVec derivatives) {
+            m_PositiveDerivativesSum += derivatives;
+            m_PositiveDerivativesMin =
+                m_PositiveDerivativesMin.cwiseMin(derivatives.cwiseAbs());
+            m_PositiveDerivativesMax = m_PositiveDerivativesMax.cwiseMax(derivatives);
+        }
+
+        void addNegativeDerivatives(TDerivativesMappedVec derivatives) {
+            m_NegativeDerivativesSum += derivatives;
+            m_NegativeDerivativesMin =
+                m_NegativeDerivativesMin.cwiseMin(derivatives.cwiseAbs());
+        }
+
+        double positiveDerivativesGSum() const {
+            return m_PositiveDerivativesSum(0);
+        }
+
+        double negativeDerivativesGSum() const {
+            return m_NegativeDerivativesSum(0);
+        }
+
+        double positiveDerivativesHMin() const {
+            return m_PositiveDerivativesMin(1);
+        }
+
+        double negativeDerivativesHMin() const {
+            return m_NegativeDerivativesMin(1);
+        }
+
+        double positiveDerivativesGMax() const {
+            return m_PositiveDerivativesMax(0);
+        }
+
+        double negativeDerivativesGMin() const {
+            return m_NegativeDerivativesMin(0);
+        }
+
     public:
-        using TMinMaxAccumulator = maths::CBasicStatistics::CMinMax<double>;
-
-        double m_PositiveDerivativesGSum = 0.0;
-        double m_NegativeDerivativesGSum = 0.0;
-        TMinMaxAccumulator m_PositiveDerivativesHMinMax;
-        TMinMaxAccumulator m_PositiveDerivativesGMinMax;
-        TMinMaxAccumulator m_NegativeDerivativesHMinMax;
-        TMinMaxAccumulator m_NegativeDerivativesGMinMax;
-
     private:
         using TDerivativesVecVec = std::vector<TDerivativesVec>;
         using TAlignedDoubleVec = std::vector<double, core::CAlignedAllocator<double>>;
+        using TDerivativesSum = Eigen::Matrix<double, 2, 1>;
+        using TDerivativesMinMax = Eigen::Matrix<double, 2, 1>;
+        using TMinMaxAccumulator = maths::CBasicStatistics::CMinMax<double>;
 
     private:
         static std::size_t number(const TDerivativesVec& derivatives) {
@@ -448,6 +515,11 @@ public:
         TDerivativesVecVec m_Derivatives;
         TDerivativesVec m_MissingDerivatives;
         TAlignedDoubleVec m_Storage;
+        TDerivativesSum m_PositiveDerivativesSum;
+        TDerivativesSum m_NegativeDerivativesSum;
+        TDerivativesMinMax m_PositiveDerivativesMax;
+        TDerivativesMinMax m_PositiveDerivativesMin;
+        TDerivativesMinMax m_NegativeDerivativesMin;
     };
 
     //! \brief The derivatives and row masks objects to use for computations.
@@ -473,7 +545,6 @@ public:
                           const TImmutableRadixSetVec& candidateSplits,
                           std::size_t numberLossParameters) {
             m_MinimumGain = 0.0;
-            m_NumberLossParameters = numberLossParameters;
             m_Masks.resize(numberThreads);
             m_Derivatives.reserve(numberThreads);
             for (auto& mask : m_Masks) {
@@ -542,13 +613,8 @@ public:
                    core::CMemory::dynamicSize(m_Derivatives);
         }
 
-        std::size_t numberLossParameters() const {
-            return m_NumberLossParameters;
-        }
-
     private:
         std::size_t m_NumberThreads = 0;
-        std::size_t m_NumberLossParameters = 0;
         double m_MinimumGain = 0.0;
         bool m_ReducedMasks = false;
         bool m_ReducedDerivatives = false;
@@ -715,9 +781,8 @@ private:
                                                    const core::CPackedBitVector& parentRowMask,
                                                    CWorkspace& workspace);
     void addRowDerivatives(const CEncodedDataFrameRowRef& row,
+                           std::size_t depth,
                            CSplitsDerivatives& splitsDerivatives) const;
-    void addRowDerivativesUpdateBounds(const CEncodedDataFrameRowRef& row,
-                                       CSplitsDerivatives& splitsDerivatives) const;
 
     SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;

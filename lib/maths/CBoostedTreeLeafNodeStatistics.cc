@@ -260,26 +260,14 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
     core::CDataFrame::TRowFuncVec aggregators;
     aggregators.reserve(numberThreads);
 
-    if (workspace.numberLossParameters() == 1 /*&& depth > 4*/) {
-        for (std::size_t i = 0; i < numberThreads; ++i) {
-            auto& splitsDerivatives = workspace.derivatives()[i];
-            splitsDerivatives.zero();
-            aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    this->addRowDerivativesUpdateBounds(encoder.encode(*row), splitsDerivatives);
-                }
-            });
-        }
-    } else {
-        for (std::size_t i = 0; i < numberThreads; ++i) {
-            auto& splitsDerivatives = workspace.derivatives()[i];
-            splitsDerivatives.zero();
-            aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    this->addRowDerivatives(encoder.encode(*row), splitsDerivatives);
-                }
-            });
-        }
+    for (std::size_t i = 0; i < numberThreads; ++i) {
+        auto& splitsDerivatives = workspace.derivatives()[i];
+        splitsDerivatives.zero();
+        aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                this->addRowDerivatives(encoder.encode(*row), depth, splitsDerivatives);
+            }
+        });
     }
 
     frame.readRows(0, frame.numberRows(), aggregators, &rowMask);
@@ -300,79 +288,39 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
     core::CDataFrame::TRowFuncVec aggregators;
     aggregators.reserve(numberThreads);
 
-    if (workspace.numberLossParameters() == 1 && depth > 4) {
-        for (std::size_t i = 0; i < numberThreads; ++i) {
-            auto& mask = workspace.masks()[i];
-            auto& splitsDerivatives = workspace.derivatives()[i];
-            mask.clear();
-            splitsDerivatives.zero();
-            aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    auto encodedRow = encoder.encode(*row);
-                    if (split.assignToLeft(encodedRow) == isLeftChild) {
-                        std::size_t index{row->index()};
-                        mask.extend(false, index - mask.size());
-                        mask.extend(true);
-                        this->addRowDerivativesUpdateBounds(encodedRow, splitsDerivatives);
-                    }
+    for (std::size_t i = 0; i < numberThreads; ++i) {
+        auto& mask = workspace.masks()[i];
+        auto& splitsDerivatives = workspace.derivatives()[i];
+        mask.clear();
+        splitsDerivatives.zero();
+        aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                auto encodedRow = encoder.encode(*row);
+                if (split.assignToLeft(encodedRow) == isLeftChild) {
+                    std::size_t index{row->index()};
+                    mask.extend(false, index - mask.size());
+                    mask.extend(true);
+                    this->addRowDerivatives(encodedRow, depth, splitsDerivatives);
                 }
-            });
-        }
-    } else {
-        for (std::size_t i = 0; i < numberThreads; ++i) {
-            auto& mask = workspace.masks()[i];
-            auto& splitsDerivatives = workspace.derivatives()[i];
-            mask.clear();
-            splitsDerivatives.zero();
-            aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    auto encodedRow = encoder.encode(*row);
-                    if (split.assignToLeft(encodedRow) == isLeftChild) {
-                        std::size_t index{row->index()};
-                        mask.extend(false, index - mask.size());
-                        mask.extend(true);
-                        this->addRowDerivatives(encodedRow, splitsDerivatives);
-                    }
-                }
-            });
-        }
+            }
+        });
     }
 
     frame.readRows(0, frame.numberRows(), aggregators, &parentRowMask);
 }
 
 void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRowRef& row,
+                                                       std::size_t depth,
                                                        CSplitsDerivatives& splitsDerivatives) const {
 
     auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
                                            m_NumberLossParameters);
-
-    std::size_t numberFeatures{m_CandidateSplits.size()};
-    for (std::size_t feature = 0; feature < numberFeatures; ++feature) {
-        double featureValue{row[feature]};
-        if (CDataFrameUtils::isMissing(featureValue)) {
-            splitsDerivatives.addMissingDerivatives(feature, derivatives);
+    if (/*depth > 4 && */ derivatives.size() == 2) {
+        if (derivatives(0) >= 0.0) {
+            splitsDerivatives.addPositiveDerivatives(derivatives);
         } else {
-            std::ptrdiff_t split{m_CandidateSplits[feature].upperBound(featureValue)};
-            splitsDerivatives.addDerivatives(feature, split, derivatives);
+            splitsDerivatives.addNegativeDerivatives(derivatives);
         }
-    }
-}
-
-void CBoostedTreeLeafNodeStatistics::addRowDerivativesUpdateBounds(
-    const CEncodedDataFrameRowRef& row,
-    CSplitsDerivatives& splitsDerivatives) const {
-
-    auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
-                                           m_NumberLossParameters);
-    if (derivatives(0) >= 0.0) {
-        splitsDerivatives.m_PositiveDerivativesGSum += derivatives(0);
-        splitsDerivatives.m_PositiveDerivativesGMinMax.add(derivatives(0));
-        splitsDerivatives.m_PositiveDerivativesHMinMax.add(std::fabs(derivatives(1)));
-    } else {
-        splitsDerivatives.m_NegativeDerivativesGSum += derivatives(0);
-        splitsDerivatives.m_NegativeDerivativesGMinMax.add(derivatives(0));
-        splitsDerivatives.m_NegativeDerivativesHMinMax.add(std::fabs(derivatives(1)));
     }
 
     std::size_t numberFeatures{m_CandidateSplits.size()};
@@ -463,20 +411,16 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
     double minLossLeft[2];
     double minLossRight[2];
 
-    double C{(m_Derivatives.m_PositiveDerivativesHMinMax.initialized()
-                  ? CTools::pow2(m_Derivatives.m_PositiveDerivativesGSum) /
-                        (m_Derivatives.m_PositiveDerivativesHMinMax.min() *
-                             m_Derivatives.m_PositiveDerivativesGSum /
-                             m_Derivatives.m_PositiveDerivativesGMinMax.max() +
-                         lambda + 1e-10)
-                  : 0.0) +
-             (m_Derivatives.m_NegativeDerivativesHMinMax.initialized()
-                  ? CTools::pow2(m_Derivatives.m_NegativeDerivativesGSum) /
-                        (m_Derivatives.m_NegativeDerivativesHMinMax.min() *
-                             m_Derivatives.m_NegativeDerivativesGSum /
-                             m_Derivatives.m_NegativeDerivativesGMinMax.min() +
-                         lambda + 1e-10)
-                  : 0.0)};
+    double C{CTools::pow2(m_Derivatives.positiveDerivativesGSum()) /
+                 (m_Derivatives.positiveDerivativesHMin() *
+                      m_Derivatives.positiveDerivativesGSum() /
+                      m_Derivatives.positiveDerivativesGMax() +
+                  lambda + 1e-10) +
+             CTools::pow2(m_Derivatives.negativeDerivativesGSum()) /
+                 (m_Derivatives.negativeDerivativesHMin() *
+                      m_Derivatives.negativeDerivativesGSum() /
+                      m_Derivatives.negativeDerivativesGMin() +
+                  lambda + 1e-10)};
 
     for (auto feature : featureBag) {
         std::size_t c{m_Derivatives.missingCount(feature)};
@@ -508,9 +452,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
         for (std::size_t split = 0; split + 1 < size; ++split) {
 
             std::size_t count{m_Derivatives.count(feature, split)};
-            // LOG_DEBUG(<< "Count " << count);
             if (count == 0) {
-                // LOG_DEBUG(<< "Skipping split " << split << " since the count is " << count);
                 continue;
             }
 
