@@ -4,19 +4,16 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "maths/CBasicStatistics.h"
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
 
 #include <core/CDataFrame.h>
 #include <core/CImmutableRadixSet.h>
 #include <core/CLogger.h>
-#include <core/Constants.h>
 
 #include <maths/CBoostedTree.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CTools.h>
 
-#include <algorithm>
 #include <limits>
 
 namespace ml {

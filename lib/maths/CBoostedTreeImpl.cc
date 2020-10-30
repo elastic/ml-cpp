@@ -887,7 +887,6 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         int lastCandidateIdx{n - (maximumNumberInternalNodes - currentNumberInternalNodes)};
         double smallestCandidateGain =
             lastCandidateIdx >= 0 ? splitCandidateTreeNodes[lastCandidateIdx]->gain() : 0.0;
-        // double smallestCandidateGain{0};
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
