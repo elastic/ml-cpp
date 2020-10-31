@@ -641,10 +641,11 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::test(const SAddValue& mes
         core_t::TTime valuesStartTime{
             bucketsStartTime +
             static_cast<core_t::TTime>(CBasicStatistics::mean(m_MeanOffset))};
-        TFloatMeanAccumulatorVec values{m_Window.begin(), m_Window.end()};
         double residualVariance{CBasicStatistics::maximumLikelihoodVariance(m_ResidualMoments)};
+        TFloatMeanAccumulatorVec values{m_Window.begin(), m_Window.end()};
         LOG_TRACE(<< "buckets start time = " << bucketsStartTime
-                  << ", values start time = " << valuesStartTime);
+                  << ", values start time = " << valuesStartTime
+                  << ", residual variance = " << residualVariance);
 
         CTimeSeriesTestForChange changeTest(
             valuesStartTime, bucketsStartTime, this->windowBucketLength(),

@@ -358,8 +358,8 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
                                 static_cast<double>(scaleSegments.size() - 1),
                                 std::move(residuals)};
             change.s_Scale = scale;
-            change.s_ScaleMagnitude = (scale - 1.0) *
-                                      std::sqrt(CBasicStatistics::mean(pp));
+            change.s_ScaleMagnitude =
+                std::fabs((scale - 1.0) * std::sqrt(CBasicStatistics::mean(pp)));
 
             return change;
         }

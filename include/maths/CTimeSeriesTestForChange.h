@@ -72,7 +72,7 @@ public:
 
     bool apply(CTrendComponent& component) const override;
     bool largeEnough(double threshold) const override {
-        return m_Shift > threshold;
+        return std::fabs(m_Shift) > threshold;
     }
     const std::string& type() const override;
     std::string print() const override;
@@ -164,7 +164,7 @@ public:
 
 public:
     //! \param[in] valuesStartTime The average offset of samples in each time bucket.
-    //! \param[in] bucketStartTime The start first time bucket.
+    //! \param[in] bucketsStartTime The start first time bucket.
     //! \param[in] bucketLength The length of the time buckets.
     //! \param[in] sampleInterval The interval between samples of the time series.
     //! \param[in] predictor The current model of the time series.
