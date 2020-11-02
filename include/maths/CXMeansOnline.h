@@ -74,7 +74,7 @@ namespace maths {
 //! unsupervised clustering of the data which identifies reasonably
 //! separated clusters.
 template<typename T, std::size_t N>
-class CXMeansOnline final : public CClusterer<CVectorNx1<T, N>> {
+class CXMeansOnline : public CClusterer<CVectorNx1<T, N>> {
 public:
     using TPoint = CVectorNx1<T, N>;
     using TPointVec = std::vector<TPoint>;
