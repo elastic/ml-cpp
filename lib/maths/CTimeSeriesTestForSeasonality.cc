@@ -564,20 +564,20 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
             double pValueVsSelected{selected < decompositions.size()
                                         ? decompositions[H1].pValue(decompositions[selected])
                                         : 1.0};
+            double scalings{decompositions[H1].numberScalings()};
+            double segments{std::max(numberTrendParameters - 3.0, 0.0)};
             LOG_TRACE(<< "explained variance per param = " << explainedVariancePerParameter
-                      << ", scalings = " << decompositions[H1].numberScalings()
-                      << ", trend parameters = " << numberTrendParameters
+                      << ", scalings = " << scalings << ", trend parameters = " << numberTrendParameters
                       << ", p-value H1 vs selected = " << pValueVsSelected);
 
-            double quality{
-                1.0 * std::log(explainedVariancePerParameter(0)) +
-                1.0 * std::log(explainedVariancePerParameter(1)) +
-                0.7 * decompositions[H1].componentsSimilarity() +
-                0.5 * std::log(-logPValue) + 0.2 * std::log(-logPValueProxy) -
-                0.5 * std::log(decompositions[H1].targetModelSize()) -
-                0.3 * std::log(1.0 + std::max(numberTrendParameters - 3.0, 0.0)) -
-                0.3 * std::log(0.1 + decompositions[H1].numberScalings()) -
-                0.3 * std::log(std::max(leastCommonRepeat, 0.5))};
+            double quality{1.0 * std::log(explainedVariancePerParameter(0)) +
+                           1.0 * std::log(explainedVariancePerParameter(1)) +
+                           0.7 * decompositions[H1].componentsSimilarity() +
+                           0.5 * std::log(-logPValue) + 0.2 * std::log(-logPValueProxy) -
+                           0.5 * std::log(decompositions[H1].targetModelSize()) -
+                           0.3 * std::log(0.2 + CTools::pow2(scalings)) -
+                           0.3 * std::log(1.0 + CTools::pow2(segments)) -
+                           0.3 * std::log(std::max(leastCommonRepeat, 0.5))};
             double qualityToAccept{
                 1.0 * qualitySelected -
                 1.0 * std::log(1.0 + std::max(std::log(0.01 / pValueVsSelected), 0.0))};
@@ -751,7 +751,8 @@ void CTimeSeriesTestForSeasonality::addHighestAutocorrelation(const TRemoveTrend
             m_ValuesMinusTrend, m_OutlierFraction, diurnal,
             m_StartOfWeekOverride, 0.05, m_MaximumNumberComponents);
         this->removeIfNotTestable(m_CandidatePeriods);
-        if (this->includesNewComponents(m_CandidatePeriods) &&
+        if (removeTrend(m_CandidatePeriods, m_ValuesMinusTrend, m_ModelTrendSegments) &&
+            this->includesNewComponents(m_CandidatePeriods) &&
             this->onlyDiurnal(m_CandidatePeriods) == false) {
             this->testAndAddDecomposition(m_CandidatePeriods,
                                           m_ModelTrendSegments, m_ValuesMinusTrend,

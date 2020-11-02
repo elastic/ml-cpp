@@ -305,9 +305,9 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodicProblemCase, CTestFixture) {
             LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                BOOST_TEST_REQUIRE(sumResidual < 0.25 * sumValue);
-                BOOST_TEST_REQUIRE(maxResidual < 0.53 * maxValue);
-                BOOST_TEST_REQUIRE(percentileError < 0.16 * sumValue);
+                BOOST_TEST_REQUIRE(sumResidual < 0.33 * sumValue);
+                BOOST_TEST_REQUIRE(maxResidual < 0.43 * maxValue);
+                BOOST_TEST_REQUIRE(percentileError < 0.23 * sumValue);
 
                 totalSumResidual += sumResidual;
                 totalMaxResidual += maxResidual;
@@ -324,12 +324,12 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodicProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.16 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.23 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.09 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.19 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.20 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.11 * totalSumValue);
 }
 
-BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture, *boost::unit_test::disabled()) {
+BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
 
     // Test we make longer components as smooth as possible.
 
@@ -412,7 +412,7 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture, *boost::unit_t
                         double slope = component.valueSpline().absSlope();
                         meanSlope += slope;
                         LOG_TRACE(<< "weekly |slope| = " << slope);
-                        BOOST_TEST_REQUIRE(slope < 0.002);
+                        BOOST_TEST_REQUIRE(slope < 0.004);
                         refinements += 1.0;
                     }
                 }
@@ -435,7 +435,7 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture, *boost::unit_t
     BOOST_TEST_REQUIRE(meanSlope < 0.0019);
 }
 
-BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture, *boost::unit_test::disabled()) {
+BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
 
     // Test weekday/weekend modulation of daily seasonality.
 
@@ -523,7 +523,7 @@ BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture, *boost::unit_test::disabled()
         LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
         BOOST_TEST_REQUIRE(totalSumResidual < 0.021 * totalSumValue);
-        BOOST_TEST_REQUIRE(totalMaxResidual < 0.032 * totalMaxValue);
+        BOOST_TEST_REQUIRE(totalMaxResidual < 0.033 * totalMaxValue);
         BOOST_TEST_REQUIRE(totalPercentileError < 0.01 * totalSumValue);
     }
 }
@@ -693,7 +693,7 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
     BOOST_TEST_REQUIRE(components[0].initialized());
 }
 
-BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture, *boost::unit_test::disabled()) {
+BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
 
     // Test a signal which only becomes seasonal after some time.
 
@@ -1039,9 +1039,9 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.16 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.22 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.14 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.17 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.25 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.12 * totalSumValue);
 
     double pMinScaled = 1.0;
     double pMinUnscaled = 1.0;
@@ -1072,10 +1072,7 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
     BOOST_TEST_REQUIRE(pMinScaled > 10.0 * pMinUnscaled);
 }
 
-// TODO Reenable
-BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase,
-                        CTestFixture,
-                        *boost::unit_test::disabled()) {
+BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
 
     // Test accuracy on real data set which caused issues historically.
 
@@ -1156,9 +1153,9 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase,
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.28 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.70 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.14 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.30 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.71 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.19 * totalSumValue);
 
     TMeanAccumulator scale;
     double variance = decomposition.meanVariance();
@@ -1445,7 +1442,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
             }
         }
 
-        maths::CTimeSeriesDecomposition decomposition(0.01, HALF_HOUR);
+        maths::CTimeSeriesDecomposition decomposition(0.024, HALF_HOUR);
         CDebugGenerator debug("saw_tooth.py");
 
         double totalSumResidual = 0.0;
@@ -1494,14 +1491,12 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
         LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
         LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
 
-        BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.38);
-        BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.41);
+        BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.22);
+        BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.24);
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity,
-                        CTestFixture,
-                        *boost::unit_test::disabled()) {
+BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity, CTestFixture) {
 
     // Test a long term mean reverting component plus daily periodic component.
 
@@ -1523,7 +1518,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity,
     TDoubleVec noise;
     rng.generateNormalSamples(0.0, 4.0, times.size(), noise);
 
-    maths::CTimeSeriesDecomposition decomposition(0.048, HALF_HOUR);
+    maths::CTimeSeriesDecomposition decomposition(0.072, HALF_HOUR);
     CDebugGenerator debug;
 
     double totalSumResidual = 0.0;
@@ -1575,7 +1570,7 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrendAndPeriodicity,
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
 
     BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.04);
-    BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.05);
+    BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.04);
 }
 
 BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
@@ -1788,7 +1783,7 @@ BOOST_FIXTURE_TEST_CASE(testYearly, CTestFixture) {
     BOOST_TEST_REQUIRE(maxError < 0.08);
 }
 
-BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture, *boost::unit_test::disabled()) {
+BOOST_FIXTURE_TEST_CASE(testWithOutliers, CTestFixture) {
 
     // Test smooth periodic signal polluted with pepper and salt outliers.
 
@@ -1942,7 +1937,7 @@ BOOST_FIXTURE_TEST_CASE(testConditionOfTrend, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture, *boost::unit_test::disabled()) {
+BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
 
     // Test we adapt to changing seasonality adding and removing components
     // as necessary.
@@ -2007,7 +2002,7 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture, *boost::unit_test:
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
     }
 
-    double bounds[]{0.01, 0.013, 0.47, 0.02};
+    double bounds[]{0.01, 0.013, 0.15, 0.03};
     for (std::size_t i = 0; i < 4; ++i) {
         double error{maths::CBasicStatistics::mean(errors[i])};
         LOG_DEBUG(<< "error = " << error);
@@ -2015,7 +2010,7 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture, *boost::unit_test:
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRemoveSeasonal, CTestFixture, *boost::unit_test::disabled()) {
+BOOST_FIXTURE_TEST_CASE(testRemoveSeasonal, CTestFixture) {
 
     // Check we correctly remove all seasonal components.
 

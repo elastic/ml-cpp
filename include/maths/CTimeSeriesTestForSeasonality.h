@@ -575,7 +575,7 @@ private:
     double m_LowAutocorrelation = 0.3;
     double m_MediumAutocorrelation = 0.5;
     double m_HighAutocorrelation = 0.7;
-    double m_PValueToEvict = 0.75;
+    double m_PValueToEvict = 0.5;
     double m_SignificantPValue = 5e-3;
     double m_VerySignificantPValue = 1e-6;
     double m_AcceptedFalsePostiveRate = 1e-4;
