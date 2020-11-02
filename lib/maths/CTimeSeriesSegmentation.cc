@@ -51,13 +51,23 @@ CTimeSeriesSegmentation::piecewiseLinear(const TFloatMeanAccumulatorVec& values,
 CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
 CTimeSeriesSegmentation::removePiecewiseLinear(TFloatMeanAccumulatorVec values,
                                                const TSizeVec& segmentation,
-                                               double outlierFraction) {
+                                               double outlierFraction,
+                                               TDoubleVec& shifts) {
     TFloatMeanAccumulatorVec reweighted{values};
     auto predict = fitPiecewiseLinear(segmentation, outlierFraction, reweighted);
     for (std::size_t i = 0; i < values.size(); ++i) {
         if (CBasicStatistics::count(values[i]) > 0.0) {
             CBasicStatistics::moment<0>(values[i]) -= predict(static_cast<double>(i));
         }
+    }
+    shifts.clear();
+    shifts.reserve(segmentation.size() - 2);
+    for (std::size_t i = 1; i < segmentation.size(); ++i) {
+        TMeanAccumulator shift;
+        for (std::size_t j = segmentation[i - 1]; j < segmentation[i]; ++j) {
+            shift.add(predict(static_cast<double>(j)));
+        }
+        shifts.push_back(CBasicStatistics::mean(shift));
     }
     return values;
 }
@@ -117,9 +127,9 @@ CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
 CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(TFloatMeanAccumulatorVec values,
                                                              const TSeasonality& model,
                                                              const TSizeVec& segmentation,
-                                                             double outlierFraction) {
+                                                             double outlierFraction,
+                                                             TDoubleVec& scales) {
     TFloatMeanAccumulatorVec reweighted{values};
-    TDoubleVec scales;
     fitPiecewiseLinearScaledSeasonal(values, model, segmentation,
                                      outlierFraction, reweighted, scales);
     for (std::size_t i = 0; i < values.size(); ++i) {

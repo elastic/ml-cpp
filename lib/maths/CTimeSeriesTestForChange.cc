@@ -45,6 +45,32 @@ double rightTailFTest(double v0, double v1, double df0, double df1) {
     return CStatisticalTests::rightTailFTest(F, df0, df1);
 }
 
+std::size_t largestShift(const TDoubleVec& shifts) {
+    std::size_t result{0};
+    double largest{0.0};
+    for (std::size_t i = 1; i < shifts.size(); ++i) {
+        double shift{std::fabs(shifts[i] - shifts[i - 1])};
+        if (shift > largest) {
+            largest = shift;
+            result = i;
+        }
+    }
+    return result;
+}
+
+std::size_t largestScale(const TDoubleVec& scales) {
+    std::size_t result{0};
+    double largest{0.0};
+    for (std::size_t i = 1; i < scales.size(); ++i) {
+        double scale{std::max(scales[i] / scales[i - 1], scales[i - 1] / scales[i])};
+        if (scale > largest) {
+            largest = scale;
+            result = i;
+        }
+    }
+    return result;
+}
+
 const std::size_t H1{1};
 const core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
 const core_t::TTime HOUR{core::constants::HOUR};
@@ -174,16 +200,12 @@ CTimeSeriesTestForChange::TChangePointUPtr CTimeSeriesTestForChange::test() cons
 
         double n{static_cast<double>(CSignal::countNotMissing(m_Values))};
         for (std::size_t candidate = 1; candidate < changes.size(); ++candidate) {
-            double pValue{std::min(
-                rightTailFTest(changes[selected].s_TruncatedResidualVariance,
-                               changes[candidate].s_TruncatedResidualVariance,
-                               (1.0 - m_OutlierFraction) * n - changes[selected].s_NumberParameters,
-                               (1.0 - m_OutlierFraction) * n -
-                                   changes[candidate].s_NumberParameters),
-                rightTailFTest(changes[selected].s_ResidualVariance,
-                               changes[candidate].s_ResidualVariance,
-                               n - changes[selected].s_NumberParameters,
-                               n - changes[candidate].s_NumberParameters))};
+            double pValue{this->pValue(changes[selected].s_ResidualVariance,
+                                       changes[selected].s_TruncatedResidualVariance,
+                                       changes[selected].s_NumberParameters,
+                                       changes[candidate].s_ResidualVariance,
+                                       changes[candidate].s_TruncatedResidualVariance,
+                                       changes[candidate].s_NumberParameters, n)};
             double evidence{aic(changes[H1])};
             LOG_TRACE(<< print(changes[H1].s_Type) << " p-value = " << pValue
                       << ", evidence = " << evidence);
@@ -265,14 +287,17 @@ CTimeSeriesTestForChange::levelShift(double varianceH0,
     LOG_TRACE(<< "trend segments = " << core::CContainerPrinter::print(trendSegments));
 
     if (trendSegments.size() > 2) {
+        TDoubleVec shifts;
         auto residuals = TSegmentation::removePiecewiseLinear(
-            m_ValuesMinusPredictions, trendSegments, m_OutlierFraction);
+            m_ValuesMinusPredictions, trendSegments, m_OutlierFraction, shifts);
         double variance;
         double truncatedVariance;
         std::tie(variance, truncatedVariance) = this->variances(residuals);
-        std::size_t changeIndex{trendSegments[trendSegments.size() - 2]};
+        std::size_t changeIndex{trendSegments[largestShift(shifts)]};
+        std::size_t lastChangeIndex{trendSegments[trendSegments.size() - 2]};
+        LOG_TRACE(<< "shifts = " << core::CContainerPrinter::print(shifts));
         LOG_TRACE(<< "variance = " << variance << ", truncated variance = " << truncatedVariance
-                  << ", minimum variance = " << m_SampleVariance);
+                  << ", sample variance = " << m_SampleVariance);
         LOG_TRACE(<< "change index = " << changeIndex);
 
         double n{static_cast<double>(CSignal::countNotMissing(m_ValuesMinusPredictions))};
@@ -284,7 +309,7 @@ CTimeSeriesTestForChange::levelShift(double varianceH0,
         if (pValue < m_AcceptedFalsePostiveRate) {
             TMeanAccumulator shift;
             double weight{1.0};
-            for (std::size_t i = residuals.size(); i > changeIndex; --i, weight *= 0.9) {
+            for (std::size_t i = residuals.size(); i > lastChangeIndex; --i, weight *= 0.9) {
                 shift.add(CBasicStatistics::mean(m_ValuesMinusPredictions[i - 1]),
                           weight * CBasicStatistics::count(residuals[i - 1]));
             }
@@ -318,14 +343,17 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
     LOG_TRACE(<< "scale segments = " << core::CContainerPrinter::print(scaleSegments));
 
     if (scaleSegments.size() > 2) {
+        TDoubleVec scales;
         auto residuals = TSegmentation::removePiecewiseLinearScaledSeasonal(
-            m_Values, predictor, scaleSegments, m_OutlierFraction);
+            m_Values, predictor, scaleSegments, m_OutlierFraction, scales);
         double variance;
         double truncatedVariance;
         std::tie(variance, truncatedVariance) = this->variances(residuals);
-        std::size_t changeIndex{scaleSegments[scaleSegments.size() - 2]};
+        std::size_t changeIndex{scaleSegments[largestScale(scales)]};
+        std::size_t lastChangeIndex{scaleSegments[scaleSegments.size() - 2]};
+        LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
         LOG_TRACE(<< "variance = " << variance << ", truncated variance = " << truncatedVariance
-                  << ", minimum variance = " << m_SampleVariance);
+                  << ", sample variance = " << m_SampleVariance);
         LOG_TRACE(<< "change index = " << changeIndex);
 
         double n{static_cast<double>(CSignal::countNotMissing(m_ValuesMinusPredictions))};
@@ -338,7 +366,7 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
             TMeanAccumulator xp;
             TMeanAccumulator pp;
             double weight{1.0};
-            for (std::size_t i = residuals.size(); i > changeIndex; --i, weight *= 0.9) {
+            for (std::size_t i = residuals.size(); i > lastChangeIndex; --i, weight *= 0.9) {
                 double x{CBasicStatistics::mean(m_Values[i - 1])};
                 double p{predictor(i - 1)};
                 double w{weight * CBasicStatistics::count(residuals[i - 1])};
@@ -411,7 +439,7 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
         std::size_t changeIndex{shiftSegments[shiftSegments.size() - 2]};
         LOG_TRACE(<< "shifts = " << core::CContainerPrinter::print(shifts));
         LOG_TRACE(<< "variance = " << variance << ", truncated variance = " << truncatedVariance
-                  << ", minimum variance = " << m_SampleVariance);
+                  << ", sample variance = " << m_SampleVariance);
         LOG_TRACE(<< "change index = " << changeIndex);
 
         double n{static_cast<double>(CSignal::countNotMissing(m_ValuesMinusPredictions))};

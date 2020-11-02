@@ -1200,7 +1200,7 @@ CUnivariateTimeSeriesModel::winsorisationWeight(double derate,
     double scale{this->seasonalWeight(0.0, time)[0]};
     double sample{m_TrendModel->detrend(time, value[0], 0.0)};
     return {winsorisation::weight(*m_ResidualModel, derate, scale, sample) *
-            (m_TrendModel->mayHaveChanged() ? 0.1 : 1.0)};
+            (m_TrendModel->mayHaveChanged() ? winsorisation::CHANGE_WEIGHT : 1.0)};
 }
 
 CUnivariateTimeSeriesModel::TDouble2Vec
@@ -2535,17 +2535,21 @@ CMultivariateTimeSeriesModel::winsorisationWeight(double derate,
                                                   core_t::TTime time,
                                                   const TDouble2Vec& value) const {
 
-    TDouble2Vec result(this->dimension());
-
     std::size_t dimension{this->dimension()};
+
+    bool mayHaveChanged{
+        std::any_of(m_TrendModel.begin(), m_TrendModel.end(),
+                    [](const auto& model) { return model->mayHaveChanged(); })};
     TDouble2Vec scale(this->seasonalWeight(0.0, time));
     TDouble10Vec sample(dimension);
-    for (std::size_t d = 0u; d < dimension; ++d) {
+    for (std::size_t d = 0; d < dimension; ++d) {
         sample[d] = m_TrendModel[d]->detrend(time, value[d], 0.0);
     }
 
-    for (std::size_t d = 0u; d < dimension; ++d) {
-        result[d] = winsorisation::weight(*m_ResidualModel, d, derate, scale[d], sample);
+    TDouble2Vec result(dimension);
+    for (std::size_t d = 0; d < dimension; ++d) {
+        result[d] = winsorisation::weight(*m_ResidualModel, d, derate, scale[d], sample) *
+                    (mayHaveChanged ? winsorisation::CHANGE_WEIGHT : 1.0);
     }
 
     return result;

@@ -32,7 +32,8 @@ struct SModelRestoreParams;
 
 namespace winsorisation {
 //! The minimum Winsorisation weight.
-const double MINIMUM_WEIGHT{1e-2};
+constexpr double MINIMUM_WEIGHT{1e-2};
+constexpr double CHANGE_WEIGHT{0.1};
 
 //! Computes a Winsorisation weight for \p value based on its
 //! one tail p-value.

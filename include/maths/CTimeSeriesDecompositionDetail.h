@@ -206,13 +206,8 @@ public:
     //! \brief Checks for sudden change or change events.
     class MATHS_EXPORT CChangePointTest : public CHandler {
     public:
-        static constexpr core_t::TTime TEST_INTERVAL = 6 * core::constants::HOUR;
-        static constexpr core_t::TTime TEST_INTERVAL_BUCKETS = 12;
-        static constexpr core_t::TTime MINIMUM_CHANGE_DURATION = core::constants::DAY;
         static constexpr core_t::TTime MINIMUM_WINDOW_BUCKET_LENGTH = core::constants::HOUR;
-        static constexpr std::size_t WINDOW_SIZE = 120;
-        static constexpr double LARGE_ERROR_STANDARD_DEVIATIONS = 3.0;
-        static constexpr double MINIMUM_LARGE_ERROR_FRACTION_TO_TEST_FOR_CHANGE = 0.75;
+        static constexpr std::size_t WINDOW_SIZE = 96;
 
     public:
         CChangePointTest(double decayRate, core_t::TTime bucketLength);
@@ -260,8 +255,17 @@ public:
         //! Handle \p symbol.
         void apply(std::size_t symbol);
 
+        //! Update the fraction of recent large errors.
+        void updateLargeErrorFraction(double error);
+
+        //! The magnitude of a large error.
+        double largeError() const;
+
         //! Check if we should test for a change.
         bool shouldTest(core_t::TTime time) const;
+
+        //! The minimum time a change has to last.
+        core_t::TTime minimumChangeLength() const;
 
         //! The start time of the window bucket containing \p time.
         core_t::TTime startOfWindowBucket(core_t::TTime time) const;
@@ -296,9 +300,6 @@ public:
 
         //! The time the last change occurred.
         core_t::TTime m_LastChangeTime = 0;
-
-        //! Set to true if we think a change may be occurring at the moment.
-        bool m_MayHaveChanged = false;
     };
 
     //! \brief Scans through increasingly low frequencies looking for significant
