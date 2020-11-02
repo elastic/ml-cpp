@@ -160,6 +160,9 @@ public:
     //! Clear the current clusterer state.
     virtual void clear() = 0;
 
+    //! Remove the cluster with \p index.
+    virtual bool remove(std::size_t index) = 0;
+
     //! Get the number of clusters.
     virtual std::size_t numberClusters() const = 0;
 
@@ -234,7 +237,7 @@ public:
     virtual double probability(std::size_t index) const = 0;
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const = 0;
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const = 0;
 
     //! Get the memory used by this component
     virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const = 0;

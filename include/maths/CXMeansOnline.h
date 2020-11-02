@@ -74,7 +74,7 @@ namespace maths {
 //! unsupervised clustering of the data which identifies reasonably
 //! separated clusters.
 template<typename T, std::size_t N>
-class CXMeansOnline : public CClusterer<CVectorNx1<T, N>> {
+class CXMeansOnline final : public CClusterer<CVectorNx1<T, N>> {
 public:
     using TPoint = CVectorNx1<T, N>;
     using TPointVec = std::vector<TPoint>;
@@ -273,7 +273,7 @@ public:
             }
 
             TSizeVecVec split;
-            if (!this->splitSearch(rng, minimumCount, split)) {
+            if (this->splitSearch(rng, minimumCount, split) == false) {
                 return {};
             }
             LOG_TRACE(<< "split = " << core::CContainerPrinter::print(split));
@@ -320,7 +320,7 @@ public:
         }
 
         //! Get a checksum for this object.
-        uint64_t checksum(uint64_t seed) const {
+        std::uint64_t checksum(std::uint64_t seed) const {
             seed = CChecksum::calculate(seed, m_Index);
             seed = CChecksum::calculate(seed, m_DataType);
             seed = CChecksum::calculate(seed, m_DecayRate);
@@ -428,7 +428,7 @@ public:
                 LOG_TRACE(<< "BIC(1) - BIC(2) = " << gain << " (to split "
                           << MINIMUM_SPLIT_GAIN << ")");
 
-                if (!satisfiesCount) {
+                if (satisfiesCount == false) {
                     // Recurse to the (one) node with sufficient count.
                     if (n[0] > minimumCount && candidate[0].size() > 1) {
                         node.swap(candidate[0]);
@@ -630,8 +630,6 @@ public:
           m_Clusters(other.m_Clusters) {}
     CXMeansOnline(CXMeansOnline&&) = default;
 
-    ~CXMeansOnline() = default;
-
     //! The x-means clusterer has value semantics.
     CXMeansOnline& operator=(const CXMeansOnline& other) {
         if (this != &other) {
@@ -661,12 +659,12 @@ public:
     //! \name Clusterer Contract
     //@{
     //! Get the tag name for this clusterer.
-    virtual const core::TPersistenceTag& persistenceTag() const {
+    const core::TPersistenceTag& persistenceTag() const override {
         return CClustererTypes::X_MEANS_ONLINE_TAG;
     }
 
     //! Persist state by passing information to the supplied inserter.
-    virtual void acceptPersistInserter(core::CStatePersistInserter& inserter) const {
+    void acceptPersistInserter(core::CStatePersistInserter& inserter) const override {
         for (const auto& cluster : m_Clusters) {
             inserter.insertLevel(CLUSTER_TAG,
                                  std::bind(&CCluster::acceptPersistInserter,
@@ -687,21 +685,49 @@ public:
     //! Creates a copy of the clusterer.
     //!
     //! \warning Caller owns returned object.
-    virtual CXMeansOnline* clone() const { return new CXMeansOnline(*this); }
+    CXMeansOnline* clone() const override { return new CXMeansOnline(*this); }
 
     //! Clear the current clusterer state.
-    virtual void clear() {
+    void clear() override {
         *this = CXMeansOnline(m_DataType, m_WeightCalc, m_InitialDecayRate,
                               m_MinimumClusterFraction, m_MinimumClusterCount,
                               m_MinimumCategoryCount, this->splitFunc(),
                               this->mergeFunc());
     }
 
+    //! Remove the cluster with \p index.
+    bool remove(std::size_t index) override {
+
+        if (m_Clusters.size() <= 1) {
+            return false;
+        }
+
+        auto i = std::find_if(m_Clusters.begin(), m_Clusters.end(), [&](const auto& cluster) {
+            return cluster.index() == index;
+        });
+
+        if (i != m_Clusters.end()) {
+            CCluster& cluster = *i;
+            CCluster* nearest = this->nearest(cluster);
+            if (nearest != nullptr) {
+                LOG_TRACE(<< "Merging cluster " << cluster.index() << " at "
+                          << cluster.centre() << " and cluster "
+                          << nearest->index() << " at " << nearest->centre());
+                CCluster merge = nearest->merge(cluster, m_ClusterIndexGenerator);
+                (this->mergeFunc())(cluster.index(), nearest->index(), merge.index());
+                nearest->swap(merge);
+            }
+            m_Clusters.erase(i);
+            return true;
+        }
+        return false;
+    }
+
     //! Get the number of clusters.
-    virtual std::size_t numberClusters() const { return m_Clusters.size(); }
+    std::size_t numberClusters() const override { return m_Clusters.size(); }
 
     //! Set the type of data being clustered.
-    virtual void dataType(maths_t::EDataType dataType) {
+    void dataType(maths_t::EDataType dataType) override {
         m_DataType = dataType;
         for (auto& cluster : m_Clusters) {
             cluster.dataType(dataType);
@@ -709,7 +735,7 @@ public:
     }
 
     //! Set the rate at which information is aged out.
-    virtual void decayRate(double decayRate) {
+    void decayRate(double decayRate) override {
         m_DecayRate = decayRate;
         for (auto& cluster : m_Clusters) {
             cluster.decayRate(decayRate);
@@ -717,12 +743,12 @@ public:
     }
 
     //! Check if the cluster identified by \p index exists.
-    virtual bool hasCluster(std::size_t index) const {
+    bool hasCluster(std::size_t index) const override {
         return this->cluster(index) != nullptr;
     }
 
     //! Get the centre of the cluster identified by \p index.
-    virtual bool clusterCentre(std::size_t index, TPointPrecise& result) const {
+    bool clusterCentre(std::size_t index, TPointPrecise& result) const override {
         const CCluster* cluster = this->cluster(index);
         if (cluster == nullptr) {
             LOG_ERROR(<< "Cluster " << index << " doesn't exist");
@@ -733,7 +759,7 @@ public:
     }
 
     //! Get the spread of the cluster identified by \p index.
-    virtual bool clusterSpread(std::size_t index, double& result) const {
+    bool clusterSpread(std::size_t index, double& result) const override {
         const CCluster* cluster = this->cluster(index);
         if (cluster == nullptr) {
             LOG_ERROR(<< "Cluster " << index << " doesn't exist");
@@ -745,9 +771,9 @@ public:
 
     //! Gets the index of the cluster(s) to which \p point belongs
     //! together with their weighting factor.
-    virtual void cluster(const TPointPrecise& point,
-                         TSizeDoublePr2Vec& result,
-                         double count = 1.0) const {
+    void cluster(const TPointPrecise& point,
+                 TSizeDoublePr2Vec& result,
+                 double count = 1.0) const override {
         result.clear();
 
         if (m_Clusters.empty()) {
@@ -801,7 +827,7 @@ public:
 
     //! Update the clustering with \p point and return its cluster(s)
     //! together with their weighting factor.
-    virtual void add(const TPointPrecise& x, TSizeDoublePr2Vec& clusters, double count = 1.0) {
+    void add(const TPointPrecise& x, TSizeDoublePr2Vec& clusters, double count = 1.0) override {
         if (m_Clusters.size() == 1) {
             LOG_TRACE(<< "Adding " << x << " to " << m_Clusters[0].centre());
             m_Clusters[0].add(x, count);
@@ -866,7 +892,7 @@ public:
     }
 
     //! Update the clustering with \p points.
-    virtual void add(const TPointPreciseDoublePrVec& x) {
+    void add(const TPointPreciseDoublePrVec& x) override {
         if (m_Clusters.empty()) {
             m_Clusters.emplace_back(*this);
         }
@@ -884,7 +910,7 @@ public:
     //!
     //! \param time The time increment to apply.
     //! \note \p time must be non negative.
-    virtual void propagateForwardsByTime(double time) {
+    void propagateForwardsByTime(double time) override {
         if (time < 0.0) {
             LOG_ERROR(<< "Can't propagate backwards in time");
             return;
@@ -901,7 +927,7 @@ public:
     //! \param[in] numberSamples The desired number of samples.
     //! \param[out] samples Filled in with the samples.
     //! \return True if the cluster could be sampled and false otherwise.
-    virtual bool sample(std::size_t index, std::size_t numberSamples, TPointPreciseVec& samples) const {
+    bool sample(std::size_t index, std::size_t numberSamples, TPointPreciseVec& samples) const override {
         const CCluster* cluster = this->cluster(index);
         if (cluster == nullptr) {
             LOG_ERROR(<< "Cluster " << index << " doesn't exist");
@@ -915,7 +941,7 @@ public:
     //!
     //! \param[in] index The index of the cluster of interest.
     //! \return The probability of the cluster identified by \p index.
-    virtual double probability(std::size_t index) const {
+    double probability(std::size_t index) const override {
         double weight = 0.0;
         double Z = 0.0;
         for (const auto& cluster : m_Clusters) {
@@ -928,7 +954,7 @@ public:
     }
 
     //! Debug the memory used by the object.
-    virtual void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
+    void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override {
         mem->setName("CXMeansOnline");
         core::CMemoryDebug::dynamicSize("m_ClusterIndexGenerator",
                                         m_ClusterIndexGenerator, mem);
@@ -936,17 +962,17 @@ public:
     }
 
     //! Get the memory used by the object.
-    virtual std::size_t memoryUsage() const {
+    std::size_t memoryUsage() const override {
         std::size_t mem = core::CMemory::dynamicSize(m_ClusterIndexGenerator);
         mem += core::CMemory::dynamicSize(m_Clusters);
         return mem;
     }
 
     //! Get the static size of this object - used for virtual hierarchies
-    virtual std::size_t staticSize() const { return sizeof(*this); }
+    std::size_t staticSize() const override { return sizeof(*this); }
 
     //! Get a checksum for this object.
-    virtual uint64_t checksum(uint64_t seed = 0) const {
+    std::uint64_t checksum(std::uint64_t seed = 0) const override {
         seed = CChecksum::calculate(seed, m_DataType);
         seed = CChecksum::calculate(seed, m_DecayRate);
         seed = CChecksum::calculate(seed, m_HistoryLength);
@@ -1049,7 +1075,7 @@ protected:
 
         CCluster* nearest = this->nearest(*cluster);
 
-        if (nearest && nearest->shouldMerge(*cluster)) {
+        if (nearest != nullptr && nearest->shouldMerge(*cluster)) {
             LOG_TRACE(<< "Merging cluster " << nearest->index() << " at "
                       << nearest->centre() << " and cluster "
                       << cluster->index() << " at " << cluster->centre());
@@ -1097,7 +1123,7 @@ protected:
             // Merge the clusters to prune in increasing count order.
             CCluster& cluster = m_Clusters[prune[0].second];
             CCluster* nearest = this->nearest(cluster);
-            if (nearest) {
+            if (nearest != nullptr) {
                 LOG_TRACE(<< "Merging cluster " << cluster.index() << " at "
                           << cluster.centre() << " and cluster "
                           << nearest->index() << " at " << nearest->centre());

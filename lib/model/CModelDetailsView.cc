@@ -16,6 +16,7 @@
 #include <model/CEventRatePopulationModel.h>
 #include <model/CMetricModel.h>
 #include <model/CMetricPopulationModel.h>
+#include <model/CSearchKey.h>
 
 namespace ml {
 namespace model {
