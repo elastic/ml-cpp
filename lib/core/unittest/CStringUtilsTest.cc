@@ -969,4 +969,263 @@ BOOST_AUTO_TEST_CASE(testRoundtripMaxDouble) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testMemorySizeStringToMB) {
+    bool parsedOk{false};
+    std::size_t memorySizeMB{0};
+    const std::size_t defaultValue{1};
+
+    {
+        // All valid and specifying a whole number of MB
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("4194304b", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(4, memorySizeMB);
+
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("5120kb", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(5, memorySizeMB);
+
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("6mb", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(6, memorySizeMB);
+
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("7gb", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(7168, memorySizeMB);
+
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("8tb", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(8308688, memorySizeMB);
+
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("9pb", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(9663676416, memorySizeMB);
+    }
+
+    {
+        // Both valid and specifying a fractional number of MB. We expect the returned value to be rounded down
+        // to the nearest whole number of MB.
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("4195304b", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(4, memorySizeMB);
+
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("5140kb", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(5, memorySizeMB);
+    }
+
+    {
+        // Both invalid - specifying a fractional number of MB that less than 1MB. We expect the default value to be returned.
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("1048076b", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, memorySizeMB);
+
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("1004kb", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, memorySizeMB);
+    }
+
+    {
+        // All invalid formats
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("4194304B", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, memorySizeMB);
+
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("5140Kb", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, memorySizeMB);
+
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("5140KiB", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, memorySizeMB);
+
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("6mB", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, memorySizeMB);
+
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("6.5mb", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, memorySizeMB);
+
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("0.9gb", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, memorySizeMB);
+
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("1terabyte", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, memorySizeMB);
+
+        std::tie(memorySizeMB, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToMB("2pbs", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, memorySizeMB);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testTimeDurationStringToSeconds) {
+    bool parsedOk{false};
+    std::size_t durationSeconds{0};
+    const std::size_t defaultValue{1};
+
+    {
+        // All valid and specifying a whole number of seconds
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("14d", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(1209600, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("24h", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(86400, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("15m", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(900, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("30s", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(30, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("2000ms", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(2, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("3000000micros", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(3, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) = ml::core::CStringUtils::timeDurationStringToSeconds(
+            "4000000000nanos", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(4, durationSeconds);
+    }
+
+    {
+        // Valid and equating to a fractional number of seconds. We expect the returned value to be rounded
+        // down to the nearest whole number of seconds
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("2500ms", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(2, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("3800000micros", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(3, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) = ml::core::CStringUtils::timeDurationStringToSeconds(
+            "4900000000nanos", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_TEST_REQUIRE(4, durationSeconds);
+    }
+
+    {
+        // Invalid as they all equate to a number of seconds less than 1. We expect thge default value
+        // to be returned.
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("900ms", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("800000micros", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("700000000nanos", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+    }
+
+    {
+        // All invalid formats
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("2w", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("14days", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("14D", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("24H", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("24hrs", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("15minutes", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("15M", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("30seconds", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("30S", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("2.5s", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("2000millis", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) =
+            ml::core::CStringUtils::timeDurationStringToSeconds("3000000Micros", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+
+        std::tie(durationSeconds, parsedOk) = ml::core::CStringUtils::timeDurationStringToSeconds(
+            "4000000000nanoseconds", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_TEST_REQUIRE(1, durationSeconds);
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -29,6 +29,7 @@
 #include <model/ModelTypes.h>
 
 #include <api/CAnomalyJob.h>
+#include <api/CAnomalyJobConfig.h>
 #include <api/CCmdSkeleton.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
@@ -52,6 +53,19 @@
 #include <functional>
 #include <memory>
 #include <string>
+
+namespace {
+std::pair<std::string, bool> readFileToString(const std::string& fileName) {
+    std::ifstream fileStream{fileName};
+    if (fileStream.is_open() == false) {
+        LOG_FATAL(<< "Environment error: failed to open file '" << fileName << "'.");
+        return {std::string{}, false};
+    }
+    return {std::string{std::istreambuf_iterator<char>{fileStream},
+                        std::istreambuf_iterator<char>{}},
+            true};
+}
+}
 
 int main(int argc, char** argv) {
 
@@ -175,6 +189,21 @@ int main(int argc, char** argv) {
     // hence is done before reducing CPU priority.
     ml::core::CProcessPriority::reduceCpuPriority();
 
+    std::string anomalyJobConfigJson;
+    bool couldReadConfigFile;
+    std::tie(anomalyJobConfigJson, couldReadConfigFile) = readFileToString(configFile);
+    if (couldReadConfigFile == false) {
+        LOG_FATAL(<< "Failed to read config file '" << configFile << "'");
+        return EXIT_FAILURE;
+    }
+
+    ml::api::CAnomalyJobConfig jobConfig;
+    if (jobConfig.parse(anomalyJobConfigJson) == false) {
+        LOG_FATAL(<< "Failed to parse anomaly job config: '" << anomalyJobConfigJson << "'");
+        return EXIT_FAILURE;
+    }
+
+    jobId = jobConfig.jobId();
     if (jobId.empty()) {
         LOG_FATAL(<< "No job ID specified");
         return EXIT_FAILURE;

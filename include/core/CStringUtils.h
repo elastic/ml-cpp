@@ -33,6 +33,7 @@ public:
     static const std::string WHITESPACE_CHARS;
 
 public:
+    using TSizeBoolPr = std::pair<std::size_t, bool>;
     using TStrVec = std::vector<std::string>;
     using TStrVecItr = TStrVec::iterator;
     using TStrVecCItr = TStrVec::const_iterator;
@@ -83,6 +84,18 @@ public:
     static bool stringToTypeSilent(const std::string& str, T& ret) {
         return CStringUtils::_stringToType(true, str, ret);
     }
+
+    //! Convert a string representation of a time duration (in ES format e.g. "1000ms") to a whole number
+    //! of seconds. Returns a default value if any error occurs, however the assumption is that the input string
+    //! has already been validated by ES.
+    static TSizeBoolPr timeDurationStringToSeconds(const std::string& timeDurationString,
+                                                   std::size_t defaultValue);
+
+    //! Convert a string representation of a memory size (in ES format e.g. "4gb") to a whole number
+    //! of MB. Returns a default value if any error occurs, however the assumption is that the input string
+    //! has already been validated by ES.
+    static TSizeBoolPr memorySizeStringToMB(const std::string& memorySizeStr,
+                                            std::size_t defaultValue);
 
     //! Joins the strings in the container with the \p delimiter.
     //! CONTAINER must be a container of std::string.

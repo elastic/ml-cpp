@@ -21,6 +21,7 @@ all: build
 
 SRCS=\
 	Main.cc \
+	CAnomalyJobConfigTest.cc \
 	CAnomalyJobLimitTest.cc \
 	CAnomalyJobTest.cc \
 	CBoostedTreeInferenceModelBuilderTest.cc \

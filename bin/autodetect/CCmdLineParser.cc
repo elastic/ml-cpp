@@ -172,9 +172,6 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("modelplotconfig") > 0) {
             modelPlotConfigFile = vm["modelplotconfig"].as<std::string>();
         }
-        if (vm.count("jobid") > 0) {
-            jobId = vm["jobid"].as<std::string>();
-        }
         if (vm.count("logProperties") > 0) {
             logProperties = vm["logProperties"].as<std::string>();
         }
