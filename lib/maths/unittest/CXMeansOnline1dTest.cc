@@ -784,6 +784,7 @@ BOOST_AUTO_TEST_CASE(testLargeHistory) {
                                      0.001, // decay rate
                                      0.05); // minimum cluster fraction
 
+    // Set the decay rate to simulate decay rate control.
     clusterer.decayRate(0.0001);
 
     test::CRandomNumbers rng;
@@ -805,8 +806,50 @@ BOOST_AUTO_TEST_CASE(testLargeHistory) {
         clusterer.propagateForwardsByTime(1.0);
     }
 
-    BOOST_REQUIRE_EQUAL(std::size_t(1), reference.clusters().size());
-    BOOST_REQUIRE_EQUAL(std::size_t(2), clusterer.clusters().size());
+    BOOST_REQUIRE_EQUAL(1, reference.clusters().size());
+    BOOST_REQUIRE_EQUAL(2, clusterer.clusters().size());
+}
+
+BOOST_AUTO_TEST_CASE(testRemove) {
+    // Test some edge cases: removing fails when the clusterer has no data or when
+    // the incorrect index is specified. Also that remove removes the correct cluster
+    // and merges its state with the nearest remaining cluster.
+
+    maths::CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
+                                     maths::CAvailableModeDistributions::ALL,
+                                     maths_t::E_ClustersFractionWeight,
+                                     0.001, // decay rate
+                                     0.05); // minimum cluster fraction
+
+    test::CRandomNumbers rng;
+    TDoubleVec samples1;
+    rng.generateNormalSamples(5.0, 1.0, 1000, samples1);
+    TDoubleVec samples2;
+    rng.generateNormalSamples(15.0, 1.0, 100, samples2);
+
+    TDoubleVec samples(samples1);
+    samples.insert(samples.end(), samples2.begin(), samples2.end());
+    rng.random_shuffle(samples.begin() + 5000, samples.end());
+
+    BOOST_REQUIRE_EQUAL(false, clusterer.remove(0));
+
+    for (const auto& sample : samples) {
+        clusterer.add(sample);
+        clusterer.propagateForwardsByTime(1.0);
+    }
+
+    BOOST_REQUIRE_EQUAL(2, clusterer.clusters().size());
+    double count{clusterer.clusters()[0].count() + clusterer.clusters()[1].count()};
+
+    BOOST_REQUIRE_EQUAL(false, clusterer.remove(3));
+
+    BOOST_REQUIRE_EQUAL(true, clusterer.remove(1));
+
+    BOOST_REQUIRE_EQUAL(1, clusterer.clusters().size());
+    BOOST_REQUIRE_EQUAL(0, clusterer.clusters()[0].index());
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(count, clusterer.clusters()[0].count(), 1e-3);
+
+    BOOST_REQUIRE_EQUAL(false, clusterer.remove(0));
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {

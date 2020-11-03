@@ -36,6 +36,8 @@
   similar (See {ml-pull}1516[#1516].)
 * Add a response mechanism for commands sent to the native controller. (See
   {ml-pull}1520[#1520], {es-pull}63542[#63542], issue: {es-issue}62823[#62823].)
+* Fix an edge case which could cause typical and model plot bounds to blow up to around
+  max double. (See {ml-pull}1551[#1551].)
 
 == {es} version 7.10.0
 
