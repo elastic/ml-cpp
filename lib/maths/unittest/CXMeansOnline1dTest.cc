@@ -781,8 +781,11 @@ BOOST_AUTO_TEST_CASE(testLargeHistory) {
     maths::CXMeansOnline1d clusterer(maths_t::E_ContinuousData,
                                      maths::CAvailableModeDistributions::ALL,
                                      maths_t::E_ClustersFractionWeight,
-                                     0.0001, // decay rate
-                                     0.05);  // minimum cluster fraction
+                                     0.001, // decay rate
+                                     0.05); // minimum cluster fraction
+
+    // Set the decay rate to simulate decay rate control.
+    clusterer.decayRate(0.0001);
 
     test::CRandomNumbers rng;
     TDoubleVec samples1;
