@@ -47,6 +47,8 @@
   similar (See {ml-pull}1516[#1516].)
 * Add a response mechanism for commands sent to the native controller. (See
   {ml-pull}1520[#1520], {es-pull}63542[#63542], issue: {es-issue}62823[#62823].)
+* Fix an edge case which could cause typical and model plot bounds to blow up to around
+  max double. (See {ml-pull}1551[#1551].)
 
 == {es} version 7.10.0
 
@@ -63,6 +65,7 @@
 * Avoid potential "Failed to compute quantile" and "No values added to quantile sketch" log errors
   training regression and classification models if there are features with mostly missing values.
   (See {ml-pull}1500[#1500].)
+* Correct the anomaly detection job model state `min_version`. (See {ml-pull}1546[#1546].)
 
 == {es} version 7.9.2
 

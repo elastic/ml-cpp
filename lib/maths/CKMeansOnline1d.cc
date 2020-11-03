@@ -118,6 +118,10 @@ void CKMeansOnline1d::clear() {
     m_Clusters.clear();
 }
 
+bool CKMeansOnline1d::remove(std::size_t) {
+    return false;
+}
+
 std::size_t CKMeansOnline1d::numberClusters() const {
     return m_Clusters.size();
 }
@@ -139,7 +143,7 @@ bool CKMeansOnline1d::hasCluster(std::size_t index) const {
 }
 
 bool CKMeansOnline1d::clusterCentre(std::size_t index, double& result) const {
-    if (!this->hasCluster(index)) {
+    if (this->hasCluster(index) == false) {
         LOG_ERROR(<< "Cluster " << index << " doesn't exist");
         return false;
     }
@@ -148,7 +152,7 @@ bool CKMeansOnline1d::clusterCentre(std::size_t index, double& result) const {
 }
 
 bool CKMeansOnline1d::clusterSpread(std::size_t index, double& result) const {
-    if (!this->hasCluster(index)) {
+    if (this->hasCluster(index) == false) {
         LOG_ERROR(<< "Cluster " << index << " doesn't exist");
         return false;
     }
@@ -231,7 +235,7 @@ void CKMeansOnline1d::propagateForwardsByTime(double time) {
 }
 
 bool CKMeansOnline1d::sample(std::size_t index, std::size_t numberSamples, TDoubleVec& samples) const {
-    if (!this->hasCluster(index)) {
+    if (this->hasCluster(index) == false) {
         LOG_ERROR(<< "Cluster " << index << " doesn't exist");
         return false;
     }
@@ -242,7 +246,7 @@ bool CKMeansOnline1d::sample(std::size_t index, std::size_t numberSamples, TDoub
 }
 
 double CKMeansOnline1d::probability(std::size_t index) const {
-    if (!this->hasCluster(index)) {
+    if (this->hasCluster(index) == false) {
         return 0.0;
     }
     double weight = m_Clusters[index].numberSamples();
@@ -266,7 +270,7 @@ std::size_t CKMeansOnline1d::staticSize() const {
     return sizeof(*this);
 }
 
-uint64_t CKMeansOnline1d::checksum(uint64_t seed) const {
+std::uint64_t CKMeansOnline1d::checksum(std::uint64_t seed) const {
     return CChecksum::calculate(seed, m_Clusters);
 }
 }

@@ -35,28 +35,18 @@ void setDecayRate(double value, double fallback, double& result) {
 }
 
 CMultivariatePrior::CMultivariatePrior()
-    : m_Forecasting(false), m_DataType(maths_t::E_DiscreteData),
-      m_DecayRate(0.0), m_NumberSamples(0) {
+    : m_DataType(maths_t::E_DiscreteData), m_DecayRate(0.0), m_NumberSamples(0) {
 }
 
 CMultivariatePrior::CMultivariatePrior(maths_t::EDataType dataType, double decayRate)
-    : m_Forecasting(false), m_DataType(dataType), m_NumberSamples(0) {
+    : m_DataType(dataType), m_NumberSamples(0) {
     setDecayRate(decayRate, FALLBACK_DECAY_RATE, m_DecayRate);
 }
 
 void CMultivariatePrior::swap(CMultivariatePrior& other) noexcept {
-    std::swap(m_Forecasting, other.m_Forecasting);
     std::swap(m_DataType, other.m_DataType);
     std::swap(m_DecayRate, other.m_DecayRate);
     std::swap(m_NumberSamples, other.m_NumberSamples);
-}
-
-void CMultivariatePrior::forForecasting() {
-    m_Forecasting = true;
-}
-
-bool CMultivariatePrior::isForForecasting() const {
-    return m_Forecasting;
 }
 
 bool CMultivariatePrior::isDiscrete() const {
@@ -353,8 +343,7 @@ std::string CMultivariatePrior::printMarginalLikelihoodFunction(std::size_t x,
     return xabscissa.str() + yabscissa.str() + likelihood.str();
 }
 
-uint64_t CMultivariatePrior::checksum(uint64_t seed) const {
-    seed = CChecksum::calculate(seed, m_Forecasting);
+std::uint64_t CMultivariatePrior::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_DataType);
     seed = CChecksum::calculate(seed, m_DecayRate);
     return CChecksum::calculate(seed, m_NumberSamples);

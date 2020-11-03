@@ -392,7 +392,7 @@ void CMultivariateOneOfNPrior::addSamples(const TDouble10Vec1Vec& samples,
 }
 
 void CMultivariateOneOfNPrior::propagateForwardsByTime(double time) {
-    if (!CMathsFuncs::isFinite(time) || time < 0.0) {
+    if (CMathsFuncs::isFinite(time) == false || time < 0.0) {
         LOG_ERROR(<< "Bad propagation time " << time);
         return;
     }
@@ -402,9 +402,7 @@ void CMultivariateOneOfNPrior::propagateForwardsByTime(double time) {
     double alpha = std::exp(-this->scaledDecayRate() * time);
 
     for (auto& model : m_Models) {
-        if (!this->isForForecasting()) {
-            model.first.age(alpha);
-        }
+        model.first.age(alpha);
         model.second->propagateForwardsByTime(time);
     }
 
