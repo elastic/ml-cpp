@@ -782,7 +782,7 @@ BOOST_AUTO_TEST_CASE(testLargeHistory) {
                                      maths::CAvailableModeDistributions::ALL,
                                      maths_t::E_ClustersFractionWeight,
                                      0.0001, // decay rate
-                                     0.05); // minimum cluster fraction
+                                     0.05);  // minimum cluster fraction
 
     test::CRandomNumbers rng;
     TDoubleVec samples1;
@@ -823,7 +823,6 @@ BOOST_AUTO_TEST_CASE(testRemove) {
     rng.generateNormalSamples(5.0, 1.0, 1000, samples1);
     TDoubleVec samples2;
     rng.generateNormalSamples(15.0, 1.0, 100, samples2);
-
 
     TDoubleVec samples(samples1);
     samples.insert(samples.end(), samples2.begin(), samples2.end());
