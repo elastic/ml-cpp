@@ -330,12 +330,12 @@ public:
         void subtract(const CSplitsDerivatives& rhs) {
             m_PositiveDerivativesSum -= rhs.m_PositiveDerivativesSum;
             m_NegativeDerivativesSum -= rhs.m_NegativeDerivativesSum;
-            m_PositiveDerivativesMax =
-                m_PositiveDerivativesMax.cwiseMax(rhs.m_PositiveDerivativesMax);
-            m_PositiveDerivativesMin =
-                m_PositiveDerivativesMin.cwiseMin(rhs.m_PositiveDerivativesMin);
-            m_NegativeDerivativesMin =
-                m_NegativeDerivativesMin.cwiseMin(rhs.m_NegativeDerivativesMin);
+            // m_PositiveDerivativesMax =
+            //     m_PositiveDerivativesMax.cwiseMax(rhs.m_PositiveDerivativesMax);
+            // m_PositiveDerivativesMin =
+            //     m_PositiveDerivativesMin.cwiseMin(rhs.m_PositiveDerivativesMin);
+            // m_NegativeDerivativesMin =
+            //     m_NegativeDerivativesMin.cwiseMin(rhs.m_NegativeDerivativesMin);
 
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
@@ -385,15 +385,13 @@ public:
 
         void addPositiveDerivatives(TDerivativesMappedVec derivatives) {
             m_PositiveDerivativesSum += derivatives;
-            m_PositiveDerivativesMin =
-                m_PositiveDerivativesMin.cwiseMin(std::fabs(derivatives(0)));
+            m_PositiveDerivativesMin = m_PositiveDerivativesMin.cwiseMin(derivatives(1));
             m_PositiveDerivativesMax = m_PositiveDerivativesMax.cwiseMax(derivatives(0));
         }
 
         void addNegativeDerivatives(TDerivativesMappedVec derivatives) {
             m_NegativeDerivativesSum += derivatives;
-            m_NegativeDerivativesMin =
-                m_NegativeDerivativesMin.cwiseMin(derivatives.cwiseAbs());
+            m_NegativeDerivativesMin = m_NegativeDerivativesMin.cwiseMin(derivatives);
         }
 
         double positiveDerivativesGSum() const {
@@ -409,7 +407,7 @@ public:
         }
 
         double positiveDerivativesHMin() const {
-            return m_PositiveDerivativesMin(1);
+            return m_PositiveDerivativesMin(0);
         }
 
         double negativeDerivativesGMin() const {
@@ -424,7 +422,7 @@ public:
         using TDerivativesVecVec = std::vector<TDerivativesVec>;
         using TAlignedDoubleVec = std::vector<double, core::CAlignedAllocator<double>>;
         using TDerivatives2D = Eigen::Matrix<double, 2, 1>;
-        using TDerivatives1D = Eigen::Matrix<double, 1, 1>;
+        using TDerivatives1D = Eigen::Matrix<CFloatStorage, 1, 1>;
 
     private:
         static std::size_t number(const TDerivativesVec& derivatives) {
@@ -700,9 +698,7 @@ public:
                                            std::size_t numberSplitsPerFeature,
                                            std::size_t numberLossParameters);
 
-    std::size_t depth() const {
-        return m_Depth;
-    }
+    std::size_t depth() const { return m_Depth; }
 
 private:
     using TSizeVecCRef = std::reference_wrapper<const TSizeVec>;

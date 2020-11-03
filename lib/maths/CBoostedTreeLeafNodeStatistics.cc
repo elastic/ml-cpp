@@ -24,7 +24,7 @@ using TRowItr = core::CDataFrame::TRowItr;
 namespace {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
-const std::size_t MIN_DEPTH_FOR_UPPER_BOUND{5}; // when to start computing gain upper bound
+const std::size_t MIN_DEPTH_FOR_UPPER_BOUND{0}; // when to start computing gain upper bound
 }
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
@@ -138,37 +138,78 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
     TPtr leftChild;
     TPtr rightChild;
     if (this->leftChildHasFewerRows()) {
-        if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND ||  this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+        if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND ||
+            this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, *this, numberThreads, frame, encoder, regularization,
                 featureBag, true /*is left child*/, split, workspace);
-            if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND || this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
+            if (this->depth() > MIN_DEPTH_FOR_UPPER_BOUND && leftChild != nullptr &&
+                leftChild->gain() > this->m_BestSplit.s_LeftChildMaxGain) {
+                LOG_DEBUG(<< "The upper bound " << this->m_BestSplit.s_LeftChildMaxGain
+                          << " is wrong: threshold " << gainThreshold
+                          << " split " << leftChild->print());
+            }
+            if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND ||
+                this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, std::move(*this), regularization, featureBag, workspace);
+                if (this->depth() > MIN_DEPTH_FOR_UPPER_BOUND && rightChild != nullptr &&
+                    rightChild->gain() > this->m_BestSplit.s_RightChildMaxGain) {
+                    LOG_DEBUG(<< "The upper bound " << this->m_BestSplit.s_RightChildMaxGain
+                              << " is wrong: threshold " << gainThreshold
+                              << " split " << rightChild->print());
+                }
             }
         } else {
-            if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND || this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
+            if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND ||
+                this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, *this, numberThreads, frame, encoder, regularization,
                     featureBag, false /*is left child*/, split, workspace);
+                if (this->depth() > MIN_DEPTH_FOR_UPPER_BOUND && rightChild != nullptr &&
+                    rightChild->gain() > this->m_BestSplit.s_RightChildMaxGain) {
+                    LOG_DEBUG(<< "The upper bound " << this->m_BestSplit.s_RightChildMaxGain
+                              << " is wrong: threshold " << gainThreshold
+                              << " split " << rightChild->print());
+                }
             }
         }
         return {std::move(leftChild), std::move(rightChild)};
     }
 
-    if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND || this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
+    if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND ||
+        this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
         rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             rightChildId, *this, numberThreads, frame, encoder, regularization,
             featureBag, false /*is left child*/, split, workspace);
+        if (this->depth() > MIN_DEPTH_FOR_UPPER_BOUND &&
+            this->depth() > MIN_DEPTH_FOR_UPPER_BOUND && rightChild != nullptr &&
+            rightChild->gain() > this->m_BestSplit.s_RightChildMaxGain) {
+            LOG_DEBUG(<< "The upper bound " << this->m_BestSplit.s_RightChildMaxGain << " is wrong: threshold "
+                      << gainThreshold << " split " << rightChild->print());
+        }
 
-        if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND || this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+        if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND ||
+            this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, std::move(*this), regularization, featureBag, workspace);
+            if (this->depth() > MIN_DEPTH_FOR_UPPER_BOUND && leftChild != nullptr &&
+                leftChild->gain() > this->m_BestSplit.s_LeftChildMaxGain) {
+                LOG_DEBUG(<< "The upper bound " << this->m_BestSplit.s_LeftChildMaxGain
+                          << " is wrong: threshold " << gainThreshold
+                          << " split " << leftChild->print());
+            }
         }
-    } else if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND || this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+    } else if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND ||
+               this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
         leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             leftChildId, *this, numberThreads, frame, encoder, regularization,
             featureBag, true /*is left child*/, split, workspace);
+        if (this->depth() > MIN_DEPTH_FOR_UPPER_BOUND && leftChild != nullptr &&
+            leftChild->gain() > this->m_BestSplit.s_LeftChildMaxGain) {
+            LOG_DEBUG(<< "The upper bound " << this->m_BestSplit.s_LeftChildMaxGain << " is wrong: threshold "
+                      << gainThreshold << " split " << leftChild->print());
+        }
     }
     return {std::move(leftChild), std::move(rightChild)};
 }
