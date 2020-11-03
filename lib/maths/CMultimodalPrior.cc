@@ -444,6 +444,18 @@ void CMultimodalPrior::propagateForwardsByTime(double time) {
         mode.s_Prior->propagateForwardsByTime(time);
     }
 
+    // Remove any mode which is non-informative.
+    while (m_Modes.size() > 1) {
+        // Calling remove with the mode's index triggers a callback
+        // which also removes it from s_Modes, see CModeMergeCallback.
+        auto i = std::find_if(m_Modes.begin(), m_Modes.end(), [](const auto& mode) {
+            return mode.s_Prior->isNonInformative();
+        });
+        if (i == m_Modes.end() || m_Clusterer->remove(i->s_Index) == false) {
+            break;
+        }
+    }
+
     this->numberSamples(this->numberSamples() * std::exp(-this->decayRate() * time));
     LOG_TRACE(<< "numberSamples = " << this->numberSamples());
 }
