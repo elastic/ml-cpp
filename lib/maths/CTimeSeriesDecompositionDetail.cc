@@ -734,11 +734,11 @@ double CTimeSeriesDecompositionDetail::CChangePointTest::largeError() const {
 
 bool CTimeSeriesDecompositionDetail::CChangePointTest::shouldTest(core_t::TTime time) const {
     return time - m_LastTestTime >
-           this->minimumChangeLength() / (this->mayHaveChanged() ? 4 : 1);
+           this->minimumChangeLength() / (this->mayHaveChanged() ? 10 : 1);
 }
 
 core_t::TTime CTimeSeriesDecompositionDetail::CChangePointTest::minimumChangeLength() const {
-    return 12 * this->windowBucketLength();
+    return 30 * this->windowBucketLength();
 }
 
 core_t::TTime

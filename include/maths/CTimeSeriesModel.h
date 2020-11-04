@@ -33,7 +33,8 @@ struct SModelRestoreParams;
 namespace winsorisation {
 //! The minimum Winsorisation weight.
 constexpr double MINIMUM_WEIGHT{1e-2};
-constexpr double CHANGE_WEIGHT{0.1};
+//! The weight to apply when a suspected change is occurring.
+constexpr double CHANGE_WEIGHT{0.05};
 
 //! Computes a Winsorisation weight for \p value based on its
 //! one tail p-value.
@@ -161,16 +162,29 @@ public:
                      const TDouble2Vec1Vec& value,
                      SModelProbabilityResult& result) const override;
 
-    //! Get the Winsorisation weight to apply to \p value.
-    TDouble2Vec winsorisationWeight(double derate,
-                                    core_t::TTime time,
-                                    const TDouble2Vec& value) const override;
+    //! Fill in \p trendWeights and \p residualWeights with the count related
+    //! weights for \p value.
+    void countWeights(core_t::TTime time,
+                      const TDouble2Vec& value,
+                      double trendCountWeight,
+                      double priorCountWeight,
+                      double winsorisationDerate,
+                      double countVarianceScale,
+                      TDouble2VecWeightsAry& trendWeights,
+                      TDouble2VecWeightsAry& residualWeights) const override;
 
-    //! Get the seasonal variance scale at \p time.
-    TDouble2Vec seasonalWeight(double confidence, core_t::TTime time) const override;
+    //! Add to \p trendWeights and \p residualWeights.
+    void addCountWeights(double trendCountWeight,
+                         double priorCountWeight,
+                         double countVarianceScale,
+                         TDouble2VecWeightsAry& trendWeights,
+                         TDouble2VecWeightsAry& residualWeights) const override;
+
+    //! Fill in the seasonal variance scale at \p time.
+    void seasonalWeight(double confidence, core_t::TTime time, TDouble2Vec& weight) const override;
 
     //! Compute a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const override;
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
     //! Debug the memory used by this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;
@@ -614,16 +628,29 @@ public:
                      const TDouble2Vec1Vec& value,
                      SModelProbabilityResult& result) const override;
 
-    //! Get the Winsorisation weight to apply to \p value.
-    TDouble2Vec winsorisationWeight(double derate,
-                                    core_t::TTime time,
-                                    const TDouble2Vec& value) const override;
+    //! Fill in \p trendWeights and \p residualWeights with the count related
+    //! weights for \p value.
+    void countWeights(core_t::TTime time,
+                      const TDouble2Vec& value,
+                      double trendCountWeight,
+                      double priorCountWeight,
+                      double winsorisationDerate,
+                      double countVarianceScale,
+                      TDouble2VecWeightsAry& trendWeights,
+                      TDouble2VecWeightsAry& residualWeights) const override;
 
-    //! Get the seasonal variance scale at \p time.
-    TDouble2Vec seasonalWeight(double confidence, core_t::TTime time) const override;
+    //! Add to \p trendWeights and \p residualWeights.
+    void addCountWeights(double trendCountWeight,
+                         double priorCountWeight,
+                         double countVarianceScale,
+                         TDouble2VecWeightsAry& trendWeights,
+                         TDouble2VecWeightsAry& residualWeights) const override;
+
+    //! Fill in the seasonal variance scale at \p time.
+    void seasonalWeight(double confidence, core_t::TTime time, TDouble2Vec& weight) const override;
 
     //! Compute a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const override;
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
     //! Debug the memory used by this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const override;

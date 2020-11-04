@@ -526,7 +526,7 @@ void CTimeSeriesAnomalyModel::propagateForwardsByTime(double time) {
     m_AnomalyFeatureModels[1].propagateForwardsByTime(time);
 }
 
-uint64_t CTimeSeriesAnomalyModel::checksum(uint64_t seed) const {
+std::uint64_t CTimeSeriesAnomalyModel::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_BucketLength);
     seed = CChecksum::calculate(seed, m_Anomaly);
     seed = CChecksum::calculate(seed, m_AnomalyFeatureModels[0]);
@@ -739,10 +739,11 @@ CUnivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
 
     // Update the multi-bucket residual feature model.
     if (m_MultibucketFeatureModel != nullptr) {
+        TDouble2Vec seasonalWeight;
         for (auto i : valueorder) {
             core_t::TTime time{samples[i].first};
-            maths_t::setSeasonalVarianceScale(this->seasonalWeight(0.0, time)[0],
-                                              weights_[i]);
+            this->seasonalWeight(0.0, time, seasonalWeight);
+            maths_t::setSeasonalVarianceScale(seasonalWeight[0], weights_[i]);
         }
         m_MultibucketFeature->add(averageTime, this->params().bucketLength(),
                                   samples_, weights_);
@@ -1040,9 +1041,11 @@ bool CUnivariateTimeSeriesModel::uncorrelatedProbability(const CModelProbability
     double pOverall{aggregateFeatureProbabilities(probabilities, correlation)};
 
     if (m_AnomalyModel != nullptr && params.useAnomalyModel()) {
+        TDouble2Vec seasonalWeight;
+        this->seasonalWeight(0.0, time, seasonalWeight);
         double residual{
             (sample[0] - m_ResidualModel->nearestMarginalLikelihoodMean(sample[0])) /
-            std::max(std::sqrt(this->seasonalWeight(0.0, time)[0]), 1.0)};
+            std::max(std::sqrt(seasonalWeight[0]), 1.0)};
         double pSingleBucket{probabilities[0]};
 
         m_AnomalyModel->sample(params, time, residual, pSingleBucket, pOverall);
@@ -1170,10 +1173,11 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
     double pOverall{pSingleBucket};
 
     if (m_AnomalyModel != nullptr && params.useAnomalyModel()) {
-        double residual{
-            (mostAnomalousSample - mostAnomalousCorrelationModel->nearestMarginalLikelihoodMean(
-                                       mostAnomalousSample)) /
-            std::max(std::sqrt(this->seasonalWeight(0.0, mostAnomalousTime)[0]), 1.0)};
+        TDouble2Vec seasonalWeight;
+        this->seasonalWeight(0.0, mostAnomalousTime, seasonalWeight);
+        double residual{(mostAnomalousSample - mostAnomalousCorrelationModel->nearestMarginalLikelihoodMean(
+                                                   mostAnomalousSample)) /
+                        std::max(std::sqrt(seasonalWeight[0]), 1.0)};
 
         m_AnomalyModel->sample(params, mostAnomalousTime, residual, pSingleBucket, pOverall);
 
@@ -1193,25 +1197,67 @@ bool CUnivariateTimeSeriesModel::correlatedProbability(const CModelProbabilityPa
     return true;
 }
 
-CUnivariateTimeSeriesModel::TDouble2Vec
-CUnivariateTimeSeriesModel::winsorisationWeight(double derate,
-                                                core_t::TTime time,
-                                                const TDouble2Vec& value) const {
-    double scale{this->seasonalWeight(0.0, time)[0]};
+void CUnivariateTimeSeriesModel::countWeights(core_t::TTime time,
+                                              const TDouble2Vec& value,
+                                              double trendCountWeight,
+                                              double residualCountWeight,
+                                              double winsorisationDerate,
+                                              double countVarianceScale,
+                                              TDouble2VecWeightsAry& trendWeights,
+                                              TDouble2VecWeightsAry& residuaWeights) const {
+    if (m_TrendModel->seasonalComponents().size() > 0) {
+        countVarianceScale = 1.0;
+    }
+
+    double changeWeight{m_TrendModel->mayHaveChanged() ? winsorisation::CHANGE_WEIGHT : 1.0};
+
+    trendCountWeight /= countVarianceScale;
+    residualCountWeight *= changeWeight;
+    TDouble2Vec seasonalWeight;
+    this->seasonalWeight(0.0, time, seasonalWeight);
     double sample{m_TrendModel->detrend(time, value[0], 0.0)};
-    return {winsorisation::weight(*m_ResidualModel, derate, scale, sample) *
-            (m_TrendModel->mayHaveChanged() ? winsorisation::CHANGE_WEIGHT : 1.0)};
+    double winsorisationWeight{winsorisation::weight(
+        *m_ResidualModel, winsorisationDerate, seasonalWeight[0], sample)};
+
+    TDouble2Vec trendWinsorisationWeight{winsorisationWeight * changeWeight};
+    TDouble2Vec residualWinsorisationWeight{winsorisationWeight};
+
+    maths_t::setCount(TDouble2Vec{trendCountWeight}, trendWeights);
+    maths_t::setCount(TDouble2Vec{residualCountWeight}, residuaWeights);
+    maths_t::setWinsorisationWeight(trendWinsorisationWeight, trendWeights);
+    maths_t::setWinsorisationWeight(residualWinsorisationWeight, residuaWeights);
+    maths_t::setCountVarianceScale(TDouble2Vec{countVarianceScale}, trendWeights);
+    maths_t::setCountVarianceScale(TDouble2Vec{countVarianceScale}, residuaWeights);
 }
 
-CUnivariateTimeSeriesModel::TDouble2Vec
-CUnivariateTimeSeriesModel::seasonalWeight(double confidence, core_t::TTime time) const {
+void CUnivariateTimeSeriesModel::addCountWeights(double trendCountWeight,
+                                                 double residualCountWeight,
+                                                 double countVarianceScale,
+                                                 TDouble2VecWeightsAry& trendWeights,
+                                                 TDouble2VecWeightsAry& residuaWeights) const {
+    if (m_TrendModel->seasonalComponents().empty()) {
+        countVarianceScale = 1.0;
+    }
+
+    double changeWeight{m_TrendModel->mayHaveChanged() ? winsorisation::CHANGE_WEIGHT : 1.0};
+
+    residualCountWeight *= changeWeight;
+    trendCountWeight /= countVarianceScale;
+
+    maths_t::addCount(TDouble2Vec{trendCountWeight}, trendWeights);
+    maths_t::addCount(TDouble2Vec{residualCountWeight}, residuaWeights);
+}
+
+void CUnivariateTimeSeriesModel::seasonalWeight(double confidence,
+                                                core_t::TTime time,
+                                                TDouble2Vec& weight) const {
     double scale{m_TrendModel
                      ->scale(time, m_ResidualModel->marginalLikelihoodVariance(), confidence)
                      .second};
-    return {std::max(scale, this->params().minimumSeasonalVarianceScale())};
+    weight.assign(1, std::max(scale, this->params().minimumSeasonalVarianceScale()));
 }
 
-uint64_t CUnivariateTimeSeriesModel::checksum(uint64_t seed) const {
+std::uint64_t CUnivariateTimeSeriesModel::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_IsNonNegative);
     seed = CChecksum::calculate(seed, m_Controllers);
     seed = CChecksum::calculate(seed, m_TrendModel);
@@ -2192,13 +2238,14 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
     samples_.reserve(samples.size());
     weights_.reserve(samples.size());
     TMeanAccumulator averageTime_;
+    TDouble2Vec seasonalWeight;
     for (auto i : valueorder) {
         core_t::TTime time{samples[i].first};
         auto weight = unpack(params.priorWeights()[i]);
+        this->seasonalWeight(0.0, time, seasonalWeight);
         samples_.push_back(samples[i].second);
         weights_.push_back(weight);
-        scales_.push_back(sqrt(TVector(maths_t::countVarianceScale(weight)) *
-                               TVector(this->seasonalWeight(0.0, time)))
+        scales_.push_back(sqrt(TVector(maths_t::countVarianceScale(weight)) * TVector(seasonalWeight))
                               .toVector<TDouble10Vec>());
         averageTime_.add(static_cast<double>(time));
     }
@@ -2212,8 +2259,8 @@ CMultivariateTimeSeriesModel::addSamples(const CModelAddSamplesParams& params,
     if (m_MultibucketFeatureModel != nullptr) {
         for (auto i : valueorder) {
             core_t::TTime time{samples[i].first};
-            maths_t::setSeasonalVarianceScale(
-                TDouble10Vec(this->seasonalWeight(0.0, time)), weights_[i]);
+            this->seasonalWeight(0.0, time, seasonalWeight);
+            maths_t::setSeasonalVarianceScale(TDouble10Vec(seasonalWeight), weights_[i]);
         }
         m_MultibucketFeature->add(averageTime, this->params().bucketLength(),
                                   samples_, weights_);
@@ -2508,9 +2555,11 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
     if (m_AnomalyModel != nullptr && params.useAnomalyModel()) {
         double residual{0.0};
         TDouble10Vec nearest(m_ResidualModel->nearestMarginalLikelihoodMean(sample[0]));
-        TDouble2Vec scale(this->seasonalWeight(0.0, time));
+        TDouble2Vec seasonalWeight;
+        this->seasonalWeight(0.0, time, seasonalWeight);
         for (std::size_t i = 0; i < dimension; ++i) {
-            residual += (sample[0][i] - nearest[i]) / std::max(std::sqrt(scale[i]), 1.0);
+            residual += (sample[0][i] - nearest[i]) /
+                        std::max(std::sqrt(seasonalWeight[i]), 1.0);
         }
         double pSingleBucket{probabilities[0]};
 
@@ -2530,43 +2579,89 @@ bool CMultivariateTimeSeriesModel::probability(const CModelProbabilityParams& pa
     return true;
 }
 
-CMultivariateTimeSeriesModel::TDouble2Vec
-CMultivariateTimeSeriesModel::winsorisationWeight(double derate,
-                                                  core_t::TTime time,
-                                                  const TDouble2Vec& value) const {
-
+void CMultivariateTimeSeriesModel::countWeights(core_t::TTime time,
+                                                const TDouble2Vec& value,
+                                                double trendCountWeight,
+                                                double residualCountWeight,
+                                                double winsorisationDerate,
+                                                double countVarianceScale,
+                                                TDouble2VecWeightsAry& trendWeights,
+                                                TDouble2VecWeightsAry& residuaWeights) const {
     std::size_t dimension{this->dimension()};
 
     bool mayHaveChanged{
         std::any_of(m_TrendModel.begin(), m_TrendModel.end(),
                     [](const auto& model) { return model->mayHaveChanged(); })};
-    TDouble2Vec scale(this->seasonalWeight(0.0, time));
+    double changeWeight{mayHaveChanged ? winsorisation::CHANGE_WEIGHT : 1.0};
+
+    TDouble2Vec seasonalWeight;
+    this->seasonalWeight(0.0, time, seasonalWeight);
+
+    TDouble2Vec trendCountWeights(dimension, trendCountWeight);
+    TDouble2Vec residualCountWeights(dimension, residualCountWeight * changeWeight);
+    TDouble2Vec trendWinsorisationWeight(dimension);
+    TDouble2Vec residualWinsorisationWeight(dimension);
+    TDouble2Vec countVarianceScales(dimension, 1.0);
     TDouble10Vec sample(dimension);
     for (std::size_t d = 0; d < dimension; ++d) {
         sample[d] = m_TrendModel[d]->detrend(time, value[d], 0.0);
+        if (m_TrendModel[d]->seasonalComponents().size() == 0) {
+            trendCountWeights[d] /= countVarianceScale;
+            countVarianceScales[d] = countVarianceScale;
+        }
     }
-
-    TDouble2Vec result(dimension);
     for (std::size_t d = 0; d < dimension; ++d) {
-        result[d] = winsorisation::weight(*m_ResidualModel, d, derate, scale[d], sample) *
-                    (mayHaveChanged ? winsorisation::CHANGE_WEIGHT : 1.0);
+        double winsorisationWeight{winsorisation::weight(
+            *m_ResidualModel, d, winsorisationDerate, seasonalWeight[d], sample)};
+        trendWinsorisationWeight[d] = winsorisationWeight * changeWeight;
+        residualWinsorisationWeight[d] = winsorisationWeight;
     }
 
-    return result;
+    maths_t::setCount(trendCountWeights, trendWeights);
+    maths_t::setCount(residualCountWeights, residuaWeights);
+    maths_t::setWinsorisationWeight(trendWinsorisationWeight, trendWeights);
+    maths_t::setWinsorisationWeight(trendWinsorisationWeight, residuaWeights);
+    maths_t::setCountVarianceScale(countVarianceScales, trendWeights);
+    maths_t::setCountVarianceScale(countVarianceScales, residuaWeights);
 }
 
-CMultivariateTimeSeriesModel::TDouble2Vec
-CMultivariateTimeSeriesModel::seasonalWeight(double confidence, core_t::TTime time) const {
-    TDouble2Vec result(this->dimension());
+void CMultivariateTimeSeriesModel::addCountWeights(double trendCountWeight,
+                                                   double residualCountWeight,
+                                                   double countVarianceScale,
+                                                   TDouble2VecWeightsAry& trendWeights,
+                                                   TDouble2VecWeightsAry& residuaWeights) const {
+    std::size_t dimension{this->dimension()};
+
+    bool mayHaveChanged{
+        std::any_of(m_TrendModel.begin(), m_TrendModel.end(),
+                    [](const auto& model) { return model->mayHaveChanged(); })};
+    double changeWeight{mayHaveChanged ? winsorisation::CHANGE_WEIGHT : 1.0};
+
+    TDouble2Vec trendCountWeights(dimension, trendCountWeight);
+    TDouble2Vec residualCountWeights(dimension, residualCountWeight * changeWeight);
+    for (std::size_t d = 0; d < dimension; ++d) {
+        if (m_TrendModel[d]->seasonalComponents().empty()) {
+            trendCountWeights[d] /= countVarianceScale;
+        }
+    }
+
+    maths_t::addCount(trendCountWeights, trendWeights);
+    maths_t::addCount(residualCountWeights, residuaWeights);
+}
+
+void CMultivariateTimeSeriesModel::seasonalWeight(double confidence,
+                                                  core_t::TTime time,
+                                                  TDouble2Vec& weight) const {
+    std::size_t dimension{dimension = this->dimension()};
+    weight.resize(dimension);
     TDouble10Vec variances(m_ResidualModel->marginalLikelihoodVariances());
-    for (std::size_t d = 0u, dimension = this->dimension(); d < dimension; ++d) {
+    for (std::size_t d = 0; d < dimension; ++d) {
         double scale{m_TrendModel[d]->scale(time, variances[d], confidence).second};
-        result[d] = std::max(scale, this->params().minimumSeasonalVarianceScale());
+        weight[d] = std::max(scale, this->params().minimumSeasonalVarianceScale());
     }
-    return result;
 }
 
-uint64_t CMultivariateTimeSeriesModel::checksum(uint64_t seed) const {
+std::uint64_t CMultivariateTimeSeriesModel::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_IsNonNegative);
     seed = CChecksum::calculate(seed, m_Controllers);
     seed = CChecksum::calculate(seed, m_TrendModel);

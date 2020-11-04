@@ -60,7 +60,7 @@ struct SValuesAndWeights {
     maths::CModel::TTimeDouble2VecSizeTrVec s_BucketValues;
     maths::CModel::TTimeDouble2VecSizeTrVec s_Values;
     maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_TrendWeights;
-    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_PriorWeights;
+    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_ResidualWeights;
 };
 using TSizeValuesAndWeightsUMap = boost::unordered_map<std::size_t, SValuesAndWeights>;
 
@@ -423,31 +423,25 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                         continue;
                     }
 
-                    double vs = sample.varianceScale();
+                    double countVarianceScale = sample.varianceScale();
                     TDouble2Vec value(sample.value(dimension));
                     std::size_t duplicate = duplicates[cid].duplicate(sample.time(), value);
 
                     if (duplicate < attribute.s_Values.size()) {
-                        maths_t::addCount(TDouble2Vec(dimension, countWeight / vs),
-                                          attribute.s_TrendWeights[duplicate]);
-                        maths_t::addCount(TDouble2Vec(dimension, countWeight),
-                                          attribute.s_PriorWeights[duplicate]);
+                        model->addCountWeights(countWeight, countWeight, countVarianceScale,
+                                               attribute.s_TrendWeights[duplicate],
+                                               attribute.s_ResidualWeights[duplicate]);
                     } else {
                         attribute.s_Values.emplace_back(sample.time(), value, pid);
                         attribute.s_TrendWeights.push_back(
                             maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
-                        attribute.s_PriorWeights.push_back(
+                        attribute.s_ResidualWeights.push_back(
                             maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
                         auto& trendWeight = attribute.s_TrendWeights.back();
-                        auto& priorWeight = attribute.s_PriorWeights.back();
-                        maths_t::setCount(TDouble2Vec(dimension, countWeight / vs), trendWeight);
-                        maths_t::setWinsorisationWeight(
-                            model->winsorisationWeight(1.0, sample.time(), value), trendWeight);
-                        maths_t::setCountVarianceScale(TDouble2Vec(dimension, vs), trendWeight);
-                        maths_t::setCount(TDouble2Vec(dimension, countWeight), priorWeight);
-                        maths_t::setWinsorisationWeight(
-                            maths_t::winsorisationWeight(trendWeight), priorWeight);
-                        maths_t::setCountVarianceScale(TDouble2Vec(dimension, vs), priorWeight);
+                        auto& residualWeight = attribute.s_ResidualWeights.back();
+                        model->countWeights(sample.time(), value, countWeight,
+                                            countWeight, 1.0, // winsorisation derate
+                                            countVarianceScale, trendWeight, residualWeight);
                     }
                 }
             }
@@ -477,7 +471,7 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     .nonNegative(attribute.second.s_IsNonNegative)
                     .propagationInterval(this->propagationTime(cid, latest))
                     .trendWeights(attribute.second.s_TrendWeights)
-                    .priorWeights(attribute.second.s_PriorWeights)
+                    .priorWeights(attribute.second.s_ResidualWeights)
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
                     });
@@ -964,8 +958,9 @@ bool CMetricPopulationModel::fill(model_t::EFeature feature,
     core_t::TTime time{model_t::sampleTime(feature, bucketTime,
                                            this->bucketLength(), bucket->time())};
     maths_t::TDouble2VecWeightsAry weights(maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
-    maths_t::setSeasonalVarianceScale(
-        model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time), weights);
+    TDouble2Vec seasonalWeight;
+    model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time, seasonalWeight);
+    maths_t::setSeasonalVarianceScale(seasonalWeight, weights);
     maths_t::setCountVarianceScale(TDouble2Vec(dimension, bucket->varianceScale()), weights);
     bool skipAnomalyModelUpdate = this->shouldIgnoreSample(feature, pid, cid, time);
 

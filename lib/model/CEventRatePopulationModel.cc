@@ -52,7 +52,8 @@ using TSizeFuzzyDeduplicateUMap =
 //! \brief The values and weights for an attribute.
 struct SValuesAndWeights {
     maths::CModel::TTimeDouble2VecSizeTrVec s_Values;
-    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_Weights;
+    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_TrendWeights;
+    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_ResidualWeights;
 };
 using TSizeValuesAndWeightsUMap = boost::unordered_map<std::size_t, SValuesAndWeights>;
 
@@ -446,16 +447,20 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 std::size_t duplicate = duplicates[cid].duplicate(sampleTime, {value});
 
                 if (duplicate < attribute.s_Values.size()) {
-                    maths_t::addCount(TDouble2Vec{countWeight},
-                                      attribute.s_Weights[duplicate]);
+                    model->addCountWeights(countWeight, countWeight, 1.0,
+                                           attribute.s_TrendWeights[duplicate],
+                                           attribute.s_ResidualWeights[duplicate]);
                 } else {
                     attribute.s_Values.emplace_back(sampleTime, TDouble2Vec{value}, pid);
-                    attribute.s_Weights.push_back(
+                    attribute.s_TrendWeights.push_back(
                         maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-                    auto& weight = attribute.s_Weights.back();
-                    maths_t::setCount(TDouble2Vec{countWeight}, weight);
-                    maths_t::setWinsorisationWeight(
-                        model->winsorisationWeight(1.0, sampleTime, {value}), weight);
+                    attribute.s_ResidualWeights.push_back(
+                        maths_t::CUnitWeights::unit<TDouble2Vec>(1));
+                    model->countWeights(sampleTime, {value}, countWeight,
+                                        countWeight, 1.0, // winsorisation derate
+                                        1.0, // count variance scale
+                                        attribute.s_TrendWeights.back(),
+                                        attribute.s_ResidualWeights.back());
                 }
             }
 
@@ -478,8 +483,8 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 params.integer(true)
                     .nonNegative(true)
                     .propagationInterval(this->propagationTime(cid, sampleTime))
-                    .trendWeights(attribute.second.s_Weights)
-                    .priorWeights(attribute.second.s_Weights)
+                    .trendWeights(attribute.second.s_TrendWeights)
+                    .priorWeights(attribute.second.s_ResidualWeights)
                     .annotationCallback([&](const std::string& annotation) {
                         annotationCallback(annotation);
                     });
@@ -1045,8 +1050,11 @@ bool CEventRatePopulationModel::fill(model_t::EFeature feature,
         return false;
     }
     core_t::TTime time{model_t::sampleTime(feature, bucketTime, this->bucketLength())};
-    maths_t::TDouble2VecWeightsAry weight(maths_t::seasonalVarianceScaleWeight(
-        model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time)));
+    maths_t::TDouble2VecWeightsAry weight{[&] {
+        TDouble2Vec result;
+        model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time, result);
+        return maths_t::seasonalVarianceScaleWeight(result);
+    }()};
     double value{model_t::offsetCountToZero(
         feature, static_cast<double>(CDataGatherer::extractData(*data).s_Count))};
     bool skipAnomalyModelUpdate = this->shouldIgnoreSample(feature, pid, cid, time);

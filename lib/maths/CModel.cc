@@ -360,15 +360,26 @@ bool CModelStub::probability(const CModelProbabilityParams& /*params*/,
     return true;
 }
 
-CModelStub::TDouble2Vec CModelStub::winsorisationWeight(double /*derate*/,
-                                                        core_t::TTime /*time*/,
-                                                        const TDouble2Vec& /*value*/) const {
-    return {};
+void CModelStub::countWeights(core_t::TTime /*time*/,
+                              const TDouble2Vec& /*value*/,
+                              double /*trendCountWeight*/,
+                              double /*residualCountWeight*/,
+                              double /*winsorisationDerate*/,
+                              double /*countVarianceScale*/,
+                              TDouble2VecWeightsAry& /*trendWeights*/,
+                              TDouble2VecWeightsAry& /*residualWeights*/) const {
 }
 
-CModelStub::TDouble2Vec CModelStub::seasonalWeight(double /*confidence*/,
-                                                   core_t::TTime /*time*/) const {
-    return {};
+void CModelStub::addCountWeights(double /*trendCountWeight*/,
+                                 double /*residualCountWeight*/,
+                                 double /*countVarianceScale*/,
+                                 TDouble2VecWeightsAry& /*trendWeights*/,
+                                 TDouble2VecWeightsAry& /*residualWeights*/) const {
+}
+
+void CModelStub::seasonalWeight(double /*confidence*/,
+                                core_t::TTime /*time*/,
+                                TDouble2Vec& /*weight*/) const {
 }
 
 std::uint64_t CModelStub::checksum(std::uint64_t seed) const {

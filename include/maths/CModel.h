@@ -380,14 +380,14 @@ public:
     //! \param[in] firstDataTime The first time data was added to the model.
     //! \param[in] lastDataTime The last time data was added to the model.
     //! \param[in] startTime The start time of the forecast.
-    //! \param[in] endTime The start time of the forecast.
+    //! \param[in] endTime The end time of the forecast.
     //! \param[in] confidenceInterval The forecast confidence interval.
     //! \param[in] minimum The minimum permitted forecast value.
-    //! \param[in] maximum The minimum permitted forecast value.
-    //! \param[out] messageOut Filled in with any message generated
-    //! generated whilst forecasting.
-    //! \return true if forecast completed, false otherwise, in
-    //! which case \p[out] messageOut is set.
+    //! \param[in] maximum The maximum permitted forecast value.
+    //! \param[out] messageOut Filled in with any message generated whilst
+    //! forecasting.
+    //! \return true if forecast completed, false otherwise, in which case
+    //! \p messageOut is set.
     virtual bool forecast(core_t::TTime firstDataTime,
                           core_t::TTime lastDataTime,
                           core_t::TTime startTime,
@@ -404,14 +404,27 @@ public:
                              const TDouble2Vec1Vec& value,
                              SModelProbabilityResult& result) const = 0;
 
-    //! Get the Winsorisation weight to apply to \p value,
-    //! if appropriate.
-    virtual TDouble2Vec winsorisationWeight(double derate,
-                                            core_t::TTime time,
-                                            const TDouble2Vec& value) const = 0;
+    //! Fill in \p trendWeights and \p residualWeights with the count related
+    //! weights for \p value.
+    virtual void countWeights(core_t::TTime time,
+                              const TDouble2Vec& value,
+                              double trendCountWeight,
+                              double residualCountWeight,
+                              double winsorisationDerate,
+                              double countVarianceScale,
+                              TDouble2VecWeightsAry& trendWeights,
+                              TDouble2VecWeightsAry& residualWeights) const = 0;
 
-    //! Get the seasonal variance scale at \p time.
-    virtual TDouble2Vec seasonalWeight(double confidence, core_t::TTime time) const = 0;
+    //! Add to \p trendWeights and \p residualWeights.
+    virtual void addCountWeights(double trendCountWeight,
+                                 double residualCountWeight,
+                                 double countVarianceScale,
+                                 TDouble2VecWeightsAry& trendWeights,
+                                 TDouble2VecWeightsAry& residualWeights) const = 0;
+
+    //! Fill in the seasonal variance scale at \p time.
+    virtual void
+    seasonalWeight(double confidence, core_t::TTime time, TDouble2Vec& weight) const = 0;
 
     //! Compute a checksum for this object.
     virtual std::uint64_t checksum(std::uint64_t seed = 0) const = 0;
@@ -540,13 +553,25 @@ public:
                      const TDouble2Vec1Vec& value,
                      SModelProbabilityResult& result) const override;
 
-    //! Returns empty.
-    TDouble2Vec winsorisationWeight(double derate,
-                                    core_t::TTime time,
-                                    const TDouble2Vec& value) const override;
+    //! No-op.
+    void countWeights(core_t::TTime time,
+                      const TDouble2Vec& value,
+                      double trendCountWeight,
+                      double residualCountWeight,
+                      double winsorisationDerate,
+                      double countVarianceScale,
+                      TDouble2VecWeightsAry& trendWeights,
+                      TDouble2VecWeightsAry& residualWeights) const override;
 
-    //! Returns empty.
-    TDouble2Vec seasonalWeight(double confidence, core_t::TTime time) const override;
+    //! No-op.
+    void addCountWeights(double trendCountWeight,
+                         double residualCountWeight,
+                         double countVarianceScale,
+                         TDouble2VecWeightsAry& trendWeights,
+                         TDouble2VecWeightsAry& residualWeights) const override;
+
+    //! No-op.
+    void seasonalWeight(double confidence, core_t::TTime time, TDouble2Vec& weight) const override;
 
     //! Returns the seed.
     std::uint64_t checksum(std::uint64_t seed = 0) const override;
