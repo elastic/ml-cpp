@@ -427,7 +427,7 @@ void CAnomalyJob::processPersistControlMessage(const std::string& controlMessage
                          &snapshotTimestamp](core::CDataAdder& persister) {
                             return this->doPersistStateInForeground(
                                 persister, snapshotDescription, snapshotId, snapshotTimestamp);
-                        })) {
+                        }) == false) {
                     LOG_ERROR(<< "Failed to persist state with parameters \""
                               << controlMessageArgs << "\"");
                 }
