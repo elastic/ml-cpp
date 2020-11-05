@@ -240,14 +240,26 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
     core::CDataFrame::TRowFuncVec aggregators;
     aggregators.reserve(numberThreads);
 
-    for (std::size_t i = 0; i < numberThreads; ++i) {
-        auto& splitsDerivatives = workspace.derivatives()[i];
-        splitsDerivatives.zero();
-        aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                this->addRowDerivatives(encoder.encode(*row), splitsDerivatives);
-            }
-        });
+    if (workspace.numberLossParameters() == 2) {
+        for (std::size_t i = 0; i < numberThreads; ++i) {
+            auto& splitsDerivatives = workspace.derivatives()[i];
+            splitsDerivatives.zero();
+            aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    this->addRowDerivativesUpdateBounds(encoder.encode(*row), splitsDerivatives);
+                }
+            });
+        }
+    } else {
+        for (std::size_t i = 0; i < numberThreads; ++i) {
+            auto& splitsDerivatives = workspace.derivatives()[i];
+            splitsDerivatives.zero();
+            aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    this->addRowDerivatives(encoder.encode(*row), splitsDerivatives);
+                }
+            });
+        }
     }
 
     frame.readRows(0, frame.numberRows(), aggregators, &rowMask);
@@ -267,22 +279,42 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
     core::CDataFrame::TRowFuncVec aggregators;
     aggregators.reserve(numberThreads);
 
-    for (std::size_t i = 0; i < numberThreads; ++i) {
-        auto& mask = workspace.masks()[i];
-        auto& splitsDerivatives = workspace.derivatives()[i];
-        mask.clear();
-        splitsDerivatives.zero();
-        aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
-            for (auto row = beginRows; row != endRows; ++row) {
-                auto encodedRow = encoder.encode(*row);
-                if (split.assignToLeft(encodedRow) == isLeftChild) {
-                    std::size_t index{row->index()};
-                    mask.extend(false, index - mask.size());
-                    mask.extend(true);
-                    this->addRowDerivatives(encodedRow, splitsDerivatives);
+    if (workspace.numberLossParameters() == 2) {
+        for (std::size_t i = 0; i < numberThreads; ++i) {
+            auto& mask = workspace.masks()[i];
+            auto& splitsDerivatives = workspace.derivatives()[i];
+            mask.clear();
+            splitsDerivatives.zero();
+            aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    auto encodedRow = encoder.encode(*row);
+                    if (split.assignToLeft(encodedRow) == isLeftChild) {
+                        std::size_t index{row->index()};
+                        mask.extend(false, index - mask.size());
+                        mask.extend(true);
+                        this->addRowDerivativesUpdateBounds(encodedRow, splitsDerivatives);
+                    }
                 }
-            }
-        });
+            });
+        }
+    } else {
+        for (std::size_t i = 0; i < numberThreads; ++i) {
+            auto& mask = workspace.masks()[i];
+            auto& splitsDerivatives = workspace.derivatives()[i];
+            mask.clear();
+            splitsDerivatives.zero();
+            aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
+                for (auto row = beginRows; row != endRows; ++row) {
+                    auto encodedRow = encoder.encode(*row);
+                    if (split.assignToLeft(encodedRow) == isLeftChild) {
+                        std::size_t index{row->index()};
+                        mask.extend(false, index - mask.size());
+                        mask.extend(true);
+                        this->addRowDerivatives(encodedRow, splitsDerivatives);
+                    }
+                }
+            });
+        }
     }
 
     frame.readRows(0, frame.numberRows(), aggregators, &parentRowMask);
@@ -293,12 +325,28 @@ void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRo
 
     auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
                                            m_NumberLossParameters);
-    if (derivatives.size() == 2) {
-        if (derivatives(0) >= 0.0) {
-            splitsDerivatives.addPositiveDerivatives(derivatives);
+    std::size_t numberFeatures{m_CandidateSplits.size()};
+    for (std::size_t feature = 0; feature < numberFeatures; ++feature) {
+        double featureValue{row[feature]};
+        if (CDataFrameUtils::isMissing(featureValue)) {
+            splitsDerivatives.addMissingDerivatives(feature, derivatives);
         } else {
-            splitsDerivatives.addNegativeDerivatives(derivatives);
+            std::ptrdiff_t split{m_CandidateSplits[feature].upperBound(featureValue)};
+            splitsDerivatives.addDerivatives(feature, split, derivatives);
         }
+    }
+}
+
+void CBoostedTreeLeafNodeStatistics::addRowDerivativesUpdateBounds(
+    const CEncodedDataFrameRowRef& row,
+    CSplitsDerivatives& splitsDerivatives) const {
+
+    auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
+                                           m_NumberLossParameters);
+    if (derivatives(0) >= 0.0) {
+        splitsDerivatives.addPositiveDerivatives(derivatives);
+    } else {
+        splitsDerivatives.addNegativeDerivatives(derivatives);
     }
 
     std::size_t numberFeatures{m_CandidateSplits.size()};

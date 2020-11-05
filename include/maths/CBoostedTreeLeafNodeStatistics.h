@@ -295,8 +295,8 @@ public:
         void zero() {
             m_PositiveDerivativesSum.fill(0.0);
             m_NegativeDerivativesSum.fill(0.0);
-            m_PositiveDerivativesMax.fill(-boosted_tree_detail::INF);
-            m_PositiveDerivativesMin.fill(boosted_tree_detail::INF);
+            m_PositiveDerivativesMax = -boosted_tree_detail::INF;
+            m_PositiveDerivativesMin = boosted_tree_detail::INF;
             m_NegativeDerivativesMin.fill(boosted_tree_detail::INF);
 
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
@@ -311,10 +311,10 @@ public:
         void add(const CSplitsDerivatives& other) {
             m_PositiveDerivativesSum += other.m_PositiveDerivativesSum;
             m_NegativeDerivativesSum += other.m_NegativeDerivativesSum;
-            m_PositiveDerivativesMax =
-                m_PositiveDerivativesMax.cwiseMax(other.m_PositiveDerivativesMax);
-            m_PositiveDerivativesMin =
-                m_PositiveDerivativesMin.cwiseMin(other.m_PositiveDerivativesMin);
+            m_PositiveDerivativesMax = std::max(m_PositiveDerivativesMax,
+                                                other.m_PositiveDerivativesMax);
+            m_PositiveDerivativesMin = std::min(m_PositiveDerivativesMin,
+                                                other.m_PositiveDerivativesMin);
             m_NegativeDerivativesMin =
                 m_NegativeDerivativesMin.cwiseMin(other.m_NegativeDerivativesMin);
 
@@ -378,8 +378,10 @@ public:
 
         void addPositiveDerivatives(TDerivativesMappedVec derivatives) {
             m_PositiveDerivativesSum += derivatives;
-            m_PositiveDerivativesMin = m_PositiveDerivativesMin.cwiseMin(derivatives(1));
-            m_PositiveDerivativesMax = m_PositiveDerivativesMax.cwiseMax(derivatives(0));
+            m_PositiveDerivativesMin = std::min(
+                m_PositiveDerivativesMin, static_cast<double>(derivatives(1)));
+            m_PositiveDerivativesMax = std::max(
+                m_PositiveDerivativesMax, static_cast<double>(derivatives(0)));
         }
 
         void addNegativeDerivatives(TDerivativesMappedVec derivatives) {
@@ -396,11 +398,11 @@ public:
         }
 
         double positiveDerivativesGMax() const {
-            return m_PositiveDerivativesMax(0);
+            return m_PositiveDerivativesMax;
         }
 
         double positiveDerivativesHMin() const {
-            return m_PositiveDerivativesMin(0);
+            return m_PositiveDerivativesMin;
         }
 
         double negativeDerivativesGMin() const {
@@ -415,7 +417,7 @@ public:
         using TDerivativesVecVec = std::vector<TDerivativesVec>;
         using TAlignedDoubleVec = std::vector<double, core::CAlignedAllocator<double>>;
         using TDerivatives2D = Eigen::Matrix<double, 2, 1>;
-        using TDerivatives1D = Eigen::Matrix<CFloatStorage, 1, 1>;
+        using TDerivatives1D = double;
 
     private:
         static std::size_t number(const TDerivativesVec& derivatives) {
@@ -515,6 +517,7 @@ public:
                           const TImmutableRadixSetVec& candidateSplits,
                           std::size_t numberLossParameters) {
             m_MinimumGain = 0.0;
+            m_NumberLossParameters = numberLossParameters;
             m_Masks.resize(numberThreads);
             m_Derivatives.reserve(numberThreads);
             for (auto& mask : m_Masks) {
@@ -583,8 +586,13 @@ public:
                    core::CMemory::dynamicSize(m_Derivatives);
         }
 
+        std::size_t numberLossParameters() const {
+            return m_NumberLossParameters;
+        }
+
     private:
         std::size_t m_NumberThreads = 0;
+        std::size_t m_NumberLossParameters = 0;
         double m_MinimumGain = 0.0;
         bool m_ReducedMasks = false;
         bool m_ReducedDerivatives = false;
@@ -755,6 +763,9 @@ private:
                                                    CWorkspace& workspace) const;
     void addRowDerivatives(const CEncodedDataFrameRowRef& row,
                            CSplitsDerivatives& splitsDerivatives) const;
+
+    void addRowDerivativesUpdateBounds(const CEncodedDataFrameRowRef& row,
+                                       CSplitsDerivatives& splitsDerivatives) const;
 
     SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;
