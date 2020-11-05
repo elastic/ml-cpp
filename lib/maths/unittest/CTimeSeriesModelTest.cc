@@ -938,8 +938,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
     }
 }
 
-// TODO Reenable
-BOOST_AUTO_TEST_CASE(testPredict, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testPredict) {
     // Test prediction with a trend and with multimodal data.
 
     core_t::TTime bucketLength{600};
@@ -2359,7 +2358,7 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
 
     core_t::TTime time{0};
     TDoubleVec samples;
-    rng.generateNormalSamples(0.0, noiseVariance, 1000, samples);
+    rng.generateNormalSamples(0.0, noiseVariance, 2000, samples);
     for (auto sample : samples) {
         sample += 12.0 + 10.0 * smoothDaily(time);
         updateModel(time, sample, model);

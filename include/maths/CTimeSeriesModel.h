@@ -32,9 +32,9 @@ struct SModelRestoreParams;
 
 namespace winsorisation {
 //! The minimum Winsorisation weight.
-constexpr double MINIMUM_WEIGHT{1e-2};
+constexpr double MINIMUM_WEIGHT{0.01};
 //! The weight to apply when a suspected change is occurring.
-constexpr double CHANGE_WEIGHT{0.05};
+constexpr double CHANGE_WEIGHT{0.1};
 
 //! Computes a Winsorisation weight for \p value based on its
 //! one tail p-value.

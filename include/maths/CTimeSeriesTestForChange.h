@@ -43,7 +43,7 @@ public:
     virtual bool apply(CCalendarComponent&) const { return false; }
     virtual bool largeEnough(double threshold) const = 0;
     bool longEnough(core_t::TTime time, core_t::TTime minimumDuration) const {
-        return time > m_Time + minimumDuration;
+        return time >= m_Time + minimumDuration;
     }
     virtual const std::string& type() const = 0;
     virtual double value() const = 0;

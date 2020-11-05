@@ -26,6 +26,7 @@
 #include <array>
 #include <cstddef>
 #include <functional>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -270,7 +271,10 @@ public:
         //! The start time of the window bucket containing \p time.
         core_t::TTime startOfWindowBucket(core_t::TTime time) const;
 
-        //! The length of the window bucket.
+        //! The length of the window.
+        core_t::TTime windowLength() const;
+
+        //! The length of the window buckets.
         core_t::TTime windowBucketLength() const;
 
     private:
@@ -299,7 +303,8 @@ public:
         core_t::TTime m_LastTestTime = 0;
 
         //! The time the last change occurred.
-        core_t::TTime m_LastChangeTime = 0;
+        core_t::TTime m_LastUncommittedChangeTime =
+            std::numeric_limits<core_t::TTime>::min();
     };
 
     //! \brief Scans through increasingly low frequencies looking for significant
