@@ -167,7 +167,7 @@ public:
     void countWeights(core_t::TTime time,
                       const TDouble2Vec& value,
                       double trendCountWeight,
-                      double priorCountWeight,
+                      double residualCountWeight,
                       double winsorisationDerate,
                       double countVarianceScale,
                       TDouble2VecWeightsAry& trendWeights,
@@ -175,7 +175,7 @@ public:
 
     //! Add to \p trendWeights and \p residualWeights.
     void addCountWeights(double trendCountWeight,
-                         double priorCountWeight,
+                         double residualCountWeight,
                          double countVarianceScale,
                          TDouble2VecWeightsAry& trendWeights,
                          TDouble2VecWeightsAry& residualWeights) const override;
@@ -633,7 +633,7 @@ public:
     void countWeights(core_t::TTime time,
                       const TDouble2Vec& value,
                       double trendCountWeight,
-                      double priorCountWeight,
+                      double residualCountWeight,
                       double winsorisationDerate,
                       double countVarianceScale,
                       TDouble2VecWeightsAry& trendWeights,
@@ -641,7 +641,7 @@ public:
 
     //! Add to \p trendWeights and \p residualWeights.
     void addCountWeights(double trendCountWeight,
-                         double priorCountWeight,
+                         double residualCountWeight,
                          double countVarianceScale,
                          TDouble2VecWeightsAry& trendWeights,
                          TDouble2VecWeightsAry& residualWeights) const override;

@@ -30,6 +30,7 @@
 #include <test/CTimeSeriesTestData.h>
 
 #include "TestUtils.h"
+#include "maths/MathsTypes.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -114,11 +115,20 @@ maths::CModelParams modelParams(core_t::TTime bucketLength) {
                                core::constants::DAY};
 }
 
+maths::CModelAddSamplesParams addSampleParams(double interval,
+                                              const TDouble2VecWeightsAryVec& trendWeights,
+                                              const TDouble2VecWeightsAryVec& residualWeights) {
+    maths::CModelAddSamplesParams params;
+    params.integer(false)
+        .propagationInterval(interval)
+        .trendWeights(trendWeights)
+        .priorWeights(residualWeights);
+    return params;
+}
+
 maths::CModelAddSamplesParams
 addSampleParams(double interval, const TDouble2VecWeightsAryVec& weights) {
-    maths::CModelAddSamplesParams params;
-    params.integer(false).propagationInterval(interval).trendWeights(weights).priorWeights(weights);
-    return params;
+    return addSampleParams(interval, weights, weights);
 }
 
 maths::CModelAddSamplesParams addSampleParams(const TDouble2VecWeightsAryVec& weights) {
@@ -1437,6 +1447,7 @@ BOOST_AUTO_TEST_CASE(testWeights) {
 
         LOG_DEBUG(<< "Seasonal");
         TMeanAccumulator error;
+        TDouble2Vec scale;
         for (core_t::TTime time_ = time; time_ < time + 86400; time_ += 3600) {
             double dataScale{std::pow(
                 1.0 + 0.5 * std::sin(boost::math::double_constants::two_pi *
@@ -1447,25 +1458,35 @@ BOOST_AUTO_TEST_CASE(testWeights) {
                 model.trendModel()
                     .scale(time_, model.residualModel().marginalLikelihoodVariance(), 0.0)
                     .second};
-            double scale{model.seasonalWeight(0.0, time_)[0]};
+            model.seasonalWeight(0.0, time_, scale);
 
-            LOG_DEBUG(<< "expected weight = " << expectedScale << ", weight = " << scale
+            LOG_DEBUG(<< "expected weight = " << expectedScale << ", scale = " << scale
                       << " (data weight = " << dataScale << ")");
-            BOOST_REQUIRE_EQUAL(std::max(expectedScale, MINIMUM_SEASONAL_SCALE), scale);
+            BOOST_REQUIRE_EQUAL(std::max(expectedScale, MINIMUM_SEASONAL_SCALE), scale[0]);
 
-            error.add(std::fabs(scale - dataScale) / dataScale);
+            error.add(std::fabs(scale[0] - dataScale) / dataScale);
         }
         LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.26);
 
         LOG_DEBUG(<< "Winsorisation");
         TDouble2Vec prediction(model.predict(time));
-        double lastWeight = 1.0;
-        for (std::size_t i = 0u; i < 10; ++i) {
-            double weight_{model.winsorisationWeight(0.0, time, prediction)[0]};
-            LOG_DEBUG(<< "weight = " << weight_);
-            BOOST_TEST_REQUIRE(weight_ <= lastWeight);
-            lastWeight = weight_;
+        TDouble2VecWeightsAry trendWeights;
+        TDouble2VecWeightsAry residualWeights;
+        double lastTrendWinsorisationWeight{1.0};
+        double lastResidualWinsorisationWeight{1.0};
+        for (std::size_t i = 0; i < 10; ++i) {
+            model.countWeights(time, prediction, 1.0, 1.0, 1.0, 1.0,
+                               trendWeights, residualWeights);
+            double trendWinsorisationWeight{maths_t::winsorisationWeight(trendWeights)[0]};
+            double residualWinsorisationWeight{
+                maths_t::winsorisationWeight(residualWeights)[0]};
+            LOG_DEBUG(<< "trend weight = " << trendWinsorisationWeight
+                      << ", residual weight = " << residualWinsorisationWeight);
+            BOOST_TEST_REQUIRE(trendWinsorisationWeight <= lastTrendWinsorisationWeight);
+            BOOST_TEST_REQUIRE(residualWinsorisationWeight <= lastResidualWinsorisationWeight);
+            lastTrendWinsorisationWeight = trendWinsorisationWeight;
+            lastResidualWinsorisationWeight = residualWinsorisationWeight;
             prediction[0] *= 1.1;
         }
     }
@@ -1496,22 +1517,24 @@ BOOST_AUTO_TEST_CASE(testWeights) {
 
         LOG_DEBUG(<< "Seasonal");
         TMeanAccumulator error;
+        TDouble2Vec scale;
         for (core_t::TTime time_ = time; time_ < time + 86400; time_ += 3600) {
             double dataScale{std::pow(
                 1.0 + 0.5 * std::sin(boost::math::double_constants::two_pi *
                                      static_cast<double>(time_) / 86400.0),
                 2.0)};
 
-            for (std::size_t i = 0u; i < 3; ++i) {
+            model.seasonalWeight(0.0, time_, scale);
+            for (std::size_t i = 0; i < 3; ++i) {
                 double expectedScale{
                     model.trendModel()[i]
                         ->scale(time_, model.residualModel().marginalLikelihoodVariances()[i], 0.0)
                         .second};
-                double scale{model.seasonalWeight(0.0, time_)[i]};
                 LOG_DEBUG(<< "expected weight = " << expectedScale << ", weight = " << scale
                           << " (data weight = " << dataScale << ")");
-                BOOST_REQUIRE_EQUAL(std::max(expectedScale, MINIMUM_SEASONAL_SCALE), scale);
-                error.add(std::fabs(scale - dataScale) / dataScale);
+                BOOST_REQUIRE_EQUAL(std::max(expectedScale, MINIMUM_SEASONAL_SCALE),
+                                    scale[i]);
+                error.add(std::fabs(scale[i] - dataScale) / dataScale);
             }
         }
         LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
@@ -1519,12 +1542,22 @@ BOOST_AUTO_TEST_CASE(testWeights) {
 
         LOG_DEBUG(<< "Winsorisation");
         TDouble2Vec prediction(model.predict(time));
-        double lastWeight = 1.0;
-        for (std::size_t i = 0u; i < 10; ++i) {
-            double weight_{model.winsorisationWeight(0.0, time, prediction)[0]};
-            LOG_DEBUG(<< "weight = " << weight_);
-            BOOST_TEST_REQUIRE(weight_ <= lastWeight);
-            lastWeight = weight_;
+        TDouble2VecWeightsAry trendWeights;
+        TDouble2VecWeightsAry residualWeights;
+        double lastTrendWinsorisationWeight{1.0};
+        double lastResidualWinsorisationWeight{1.0};
+        for (std::size_t i = 0; i < 10; ++i) {
+            model.countWeights(time, prediction, 1.0, 1.0, 1.0, 1.0,
+                               trendWeights, residualWeights);
+            double trendWinsorisationWeight{maths_t::winsorisationWeight(trendWeights)[0]};
+            double residualWinsorisationWeight{
+                maths_t::winsorisationWeight(residualWeights)[0]};
+            LOG_DEBUG(<< "trend weight = " << trendWinsorisationWeight
+                      << ", residual weight = " << residualWinsorisationWeight);
+            BOOST_TEST_REQUIRE(trendWinsorisationWeight <= lastTrendWinsorisationWeight);
+            BOOST_TEST_REQUIRE(residualWinsorisationWeight <= lastResidualWinsorisationWeight);
+            lastTrendWinsorisationWeight = trendWinsorisationWeight;
+            lastResidualWinsorisationWeight = residualWinsorisationWeight;
             prediction[0] *= 1.1;
         }
     }
@@ -2026,8 +2059,7 @@ BOOST_AUTO_TEST_CASE(testAnomalyModel) {
     }
 }
 
-// TODO Reenable
-BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
     // Test reinitialization of the residual model after detecting a
     // step change.
     //
@@ -2038,12 +2070,13 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities, *boost::unit_test::disabled(
     using TDouble3Vec = core::CSmallVector<double, 3>;
     using TDouble3VecVec = std::vector<TDouble3Vec>;
 
-    TDouble2VecWeightsAryVec weight{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::CUnivariateTimeSeriesModel& model) {
-        maths_t::setWinsorisationWeight(
-            model.winsorisationWeight(0.0, time, {value}), weight[0]);
-        model.addSamples(addSampleParams(1.0, weight),
+        model.countWeights(time, {value}, 1.0, 1.0, 1.0, 1.0, trendWeights[0],
+                           residualWeights[0]);
+        model.addSamples(addSampleParams(1.0, trendWeights, residualWeights),
                          {core::make_triple(time, TDouble2Vec{value}, TAG)});
     };
 
@@ -2219,19 +2252,19 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities, *boost::unit_test::disabled(
     }
 }
 
-// TODO Reenable
-BOOST_AUTO_TEST_CASE(testLinearScaling, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testLinearScaling) {
     // We test that the predictions are good and the bounds do not
     // blow up after we:
     //   1) linearly scale down a periodic pattern,
     //   2) linearly scale up the same periodic pattern.
 
-    TDouble2VecWeightsAryVec weight{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::CUnivariateTimeSeriesModel& model) {
-        maths_t::setWinsorisationWeight(
-            model.winsorisationWeight(0.0, time, {value}), weight[0]);
-        model.addSamples(addSampleParams(1.0, weight),
+        model.countWeights(time, {value}, 1.0, 1.0, 1.0, 1.0, trendWeights[0],
+                           residualWeights[0]);
+        model.addSamples(addSampleParams(1.0, trendWeights, residualWeights),
                          {core::make_triple(time, TDouble2Vec{value}, TAG)});
     };
 
@@ -2299,14 +2332,16 @@ BOOST_AUTO_TEST_CASE(testLinearScaling, *boost::unit_test::disabled()) {
     }
 }
 
-// TODO Reenable
-BOOST_AUTO_TEST_CASE(testDaylightSaving, *boost::unit_test::disabled()) {
-    TDouble2VecWeightsAryVec weight{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+BOOST_AUTO_TEST_CASE(testDaylightSaving) {
+    // Test we detect daylight saving time shifts.
+
+    TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+    TDouble2VecWeightsAryVec residualWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
     auto updateModel = [&](core_t::TTime time, double value,
                            maths::CUnivariateTimeSeriesModel& model) {
-        maths_t::setWinsorisationWeight(
-            model.winsorisationWeight(0.0, time, {value}), weight[0]);
-        model.addSamples(addSampleParams(1.0, weight),
+        model.countWeights(time, {value}, 1.0, 1.0, 1.0, 1.0, trendWeights[0],
+                           residualWeights[0]);
+        model.addSamples(addSampleParams(1.0, trendWeights, residualWeights),
                          {core::make_triple(time, TDouble2Vec{value}, TAG)});
     };
 
