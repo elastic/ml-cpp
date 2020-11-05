@@ -20,6 +20,7 @@
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
 #include <core/CProgramCounters.h>
+#include <core/CStringUtils.h>
 #include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
@@ -52,20 +53,6 @@
 #include <cstdlib>
 #include <functional>
 #include <memory>
-#include <string>
-
-namespace {
-std::pair<std::string, bool> readFileToString(const std::string& fileName) {
-    std::ifstream fileStream{fileName};
-    if (fileStream.is_open() == false) {
-        LOG_FATAL(<< "Environment error: failed to open file '" << fileName << "'.");
-        return {std::string{}, false};
-    }
-    return {std::string{std::istreambuf_iterator<char>{fileStream},
-                        std::istreambuf_iterator<char>{}},
-            true};
-}
-}
 
 int main(int argc, char** argv) {
 
@@ -101,7 +88,6 @@ int main(int argc, char** argv) {
     std::string modelConfigFile;
     std::string fieldConfigFile;
     std::string modelPlotConfigFile;
-    std::string jobId;
     std::string logProperties;
     std::string logPipe;
     ml::core_t::TTime bucketSpan{0};
@@ -134,7 +120,7 @@ int main(int argc, char** argv) {
     TStrVec clauseTokens;
     if (ml::autodetect::CCmdLineParser::parse(
             argc, argv, configFile, limitConfigFile, modelConfigFile, fieldConfigFile,
-            modelPlotConfigFile, jobId, logProperties, logPipe, bucketSpan, latency,
+            modelPlotConfigFile, logProperties, logPipe, bucketSpan, latency,
             summaryCountFieldName, delimiter, lengthEncodedInput, timeField,
             timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
             bucketPersistInterval, maxQuantileInterval, namedPipeConnectTimeout,
@@ -191,7 +177,8 @@ int main(int argc, char** argv) {
 
     std::string anomalyJobConfigJson;
     bool couldReadConfigFile;
-    std::tie(anomalyJobConfigJson, couldReadConfigFile) = readFileToString(configFile);
+    std::tie(anomalyJobConfigJson, couldReadConfigFile) =
+        ml::core::CStringUtils::readFileToString(configFile);
     if (couldReadConfigFile == false) {
         LOG_FATAL(<< "Failed to read config file '" << configFile << "'");
         return EXIT_FAILURE;
@@ -203,11 +190,6 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    jobId = jobConfig.jobId();
-    if (jobId.empty()) {
-        LOG_FATAL(<< "No job ID specified");
-        return EXIT_FAILURE;
-    }
 
     ml::model::CLimits limits{isPersistInForeground};
     if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false) {
@@ -305,6 +287,7 @@ int main(int argc, char** argv) {
             mutableFields, ioMgr.inputStream(), delimiter);
     }()};
 
+    const std::string jobId{jobConfig.jobId()};
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream{ioMgr.outputStream()};
     ml::api::CModelSnapshotJsonWriter modelSnapshotWriter{jobId, wrappedOutputStream};
 

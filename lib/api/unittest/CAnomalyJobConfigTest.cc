@@ -16,6 +16,30 @@ BOOST_AUTO_TEST_SUITE(CAnomalyJobConfigTest)
 
 BOOST_AUTO_TEST_CASE(testParse) {
     {
+        const std::string inValidModelMemoryLimitBytes{
+            "[{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
+            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
+            "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"detector_index\":0}],\"influencers\":[]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"1048076b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
+            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
+            "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}]"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(!jobConfig.parse(inValidModelMemoryLimitBytes));
+    }
+    {
+        const std::string inValidModelMemoryLimitKiloBytes{
+            "[{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
+            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
+            "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"detector_index\":0}],\"influencers\":[]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"1004kb\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
+            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
+            "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}]"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(!jobConfig.parse(inValidModelMemoryLimitKiloBytes));
+    }
+    {
         const std::string inValidAnomalyJobConfig{
             "[{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
             "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
@@ -56,7 +80,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
             "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
             "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
             "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"detector_index\":0}],\"influencers\":[]},"
-            "\"analysis_limits\":{\"model_memory_limit\":\"11mb\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
             "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
             "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
 
@@ -80,10 +104,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
 
-        // The time_format field is always expected to be ignored in practice in production
-        BOOST_REQUIRE_EQUAL("epoch_ms", dataDescription.timeFormat());
-
-        using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetctorConfigVec;
+        using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetectorConfigVec;
         const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
         BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].detectorDescription());
@@ -103,7 +124,9 @@ BOOST_AUTO_TEST_CASE(testParse) {
         using TAnalysisLimits = ml::api::CAnomalyJobConfig::CAnalysisLimits;
         const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
         BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
-        BOOST_REQUIRE_EQUAL(11, analysisLimits.modelMemoryLimit());
+
+        // Expect the model memory limit to be rounded down to the nearest whole number of megabytes
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.modelMemoryLimit());
 
         using TModelPlotConfig = ml::api::CAnomalyJobConfig::CModelPlotConfig;
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
@@ -114,9 +137,9 @@ BOOST_AUTO_TEST_CASE(testParse) {
     {
         const std::string validAnomalyJobConfigWithMultipleInfluencers{
             "{\"job_id\":\"logs_max_bytes_by_geo\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603290557883,\"description\":\"\","
-            "\"analysis_config\":{\"bucket_span\":\"15m\",\"detectors\":[{\"detector_description\":\"max(bytes) by \\\"geo.src\\\" partitionfield=\\\"host.keyword\\\"\","
+            "\"analysis_config\":{\"bucket_span\":\"900ms\",\"detectors\":[{\"detector_description\":\"max(bytes) by \\\"geo.src\\\" partitionfield=\\\"host.keyword\\\"\","
             "\"function\":\"max\",\"field_name\":\"bytes\",\"by_field_name\":\"geo.src\",\"partition_field_name\":\"host.keyword\",\"detector_index\":0}],"
-            "\"influencers\":[\"geo.src\",\"host.keyword\"]},\"analysis_limits\":{\"model_memory_limit\":\"22mb\",\"categorization_examples_limit\":4},"
+            "\"influencers\":[\"geo.src\",\"host.keyword\"]},\"analysis_limits\":{\"model_memory_limit\":\"5140KB\",\"categorization_examples_limit\":4},"
             "\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
             "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,\"daily_model_snapshot_retention_after_days\":1,"
             "\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
@@ -133,7 +156,10 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
 
-        BOOST_REQUIRE_EQUAL(900, analysisConfig.bucketSpan());
+        // When the configured bucket span equates to less than 1s expect the default value
+        // to be used.
+        BOOST_REQUIRE_EQUAL(ml::api::CAnomalyJobConfig::CAnalysisConfig::DEFAULT_BUCKET_SPAN,
+                            analysisConfig.bucketSpan());
 
         BOOST_REQUIRE_EQUAL("", analysisConfig.summaryCountFieldName());
 
@@ -141,10 +167,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
 
-        // The time_format field is always expected to be ignored in practice in production
-        BOOST_REQUIRE_EQUAL("epoch_ms", dataDescription.timeFormat());
-
-        using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetctorConfigVec;
+        using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetectorConfigVec;
         const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
 
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
@@ -168,7 +191,9 @@ BOOST_AUTO_TEST_CASE(testParse) {
         using TAnalysisLimits = ml::api::CAnomalyJobConfig::CAnalysisLimits;
         const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
         BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
-        BOOST_REQUIRE_EQUAL(22, analysisLimits.modelMemoryLimit());
+
+        // Expect the model memory limit to be rounded down to the nearest whole number of megabytes
+        BOOST_REQUIRE_EQUAL(5, analysisLimits.modelMemoryLimit());
 
         using TModelPlotConfig = ml::api::CAnomalyJobConfig::CModelPlotConfig;
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
@@ -179,7 +204,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         const std::string validAnomalyJobConfigWithMultipleDetectors{
             "{\"job_id\":\"ecommerce_population\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603290153486,"
             "\"description\":\"ecommerce population job based on category and split by user\","
-            "\"analysis_config\":{\"bucket_span\":\"1h\","
+            "\"analysis_config\":{\"bucket_span\":\"800000micros\","
             "\"detectors\":["
             "{\"detector_description\":\"distinct_count(\\\"category.keyword\\\") by customer_id over \\\"category.keyword\\\"\",\"function\":\"distinct_count\",\"field_name\":\"category.keyword\",\"by_field_name\":\"customer_id\",\"over_field_name\":\"category.keyword\",\"detector_index\":0},"
             "{\"detector_description\":\"count over \\\"category.keyword\\\"\",\"function\":\"count\",\"over_field_name\":\"category.keyword\",\"detector_index\":1}],"
@@ -200,17 +225,17 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
 
-        BOOST_REQUIRE_EQUAL(3600, analysisConfig.bucketSpan());
+        // When the configured bucket span equates to less than 1s expect the default value
+        // to be used.
+        BOOST_REQUIRE_EQUAL(ml::api::CAnomalyJobConfig::CAnalysisConfig::DEFAULT_BUCKET_SPAN,
+                            analysisConfig.bucketSpan());
         BOOST_REQUIRE_EQUAL("", analysisConfig.summaryCountFieldName());
 
         const TDataDescription& dataDescription = jobConfig.dataDescription();
 
         BOOST_REQUIRE_EQUAL("order_date", dataDescription.timeField());
 
-        // The time_format field is always expected to be ignored in practice in production
-        BOOST_REQUIRE_EQUAL("epoch_ms", dataDescription.timeFormat());
-
-        using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetctorConfigVec;
+        using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetectorConfigVec;
         const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
 
         BOOST_REQUIRE_EQUAL(2, detectorsConfig.size());
@@ -255,9 +280,9 @@ BOOST_AUTO_TEST_CASE(testParse) {
     {
         const std::string validAnomalyJobConfigWithCustomRule{
             "{\"job_id\":\"count_with_range\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603901206253,\"description\":\"\","
-            "\"analysis_config\":{\"bucket_span\":\"30m\",\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"custom_rules\":[{\"actions\":[\"skip_result\"],\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"gt\",\"value\":30.0},{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\":50.0}]}],\"detector_index\":0}],"
+            "\"analysis_config\":{\"bucket_span\":\"700000000nanos\",\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"custom_rules\":[{\"actions\":[\"skip_result\"],\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"gt\",\"value\":30.0},{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\":50.0}]}],\"detector_index\":0}],"
             "\"influencers\":[]},\"analysis_limits\":{\"model_memory_limit\":\"11mb\",\"categorization_examples_limit\":5},"
-            "\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},\"model_plot_config\":{\"enabled\":false,\"annotations_enabled\":false},"
+            "\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
             "\"model_snapshot_retention_days\":10,\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
@@ -272,7 +297,10 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
 
-        BOOST_REQUIRE_EQUAL(1800, analysisConfig.bucketSpan());
+        // When the configured bucket span equates to less than 1s expect the default value
+        // to be used.
+        BOOST_REQUIRE_EQUAL(ml::api::CAnomalyJobConfig::CAnalysisConfig::DEFAULT_BUCKET_SPAN,
+                            analysisConfig.bucketSpan());
 
         BOOST_REQUIRE_EQUAL("", analysisConfig.summaryCountFieldName());
 
@@ -280,10 +308,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
 
-        // The time_format field is always expected to be ignored in practice in production
-        BOOST_REQUIRE_EQUAL("epoch_ms", dataDescription.timeFormat());
-
-        using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetctorConfigVec;
+        using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetectorConfigVec;
         const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
 
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
@@ -338,10 +363,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
 
-        // The time_format field is always expected to be ignored in practice in production
-        BOOST_REQUIRE_EQUAL("epoch_ms", dataDescription.timeFormat());
-
-        using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetctorConfigVec;
+        using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetectorConfigVec;
         const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
 
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());

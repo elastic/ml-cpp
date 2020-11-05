@@ -8,6 +8,7 @@
 #include <core/CLogger.h>
 #include <core/CRegex.h>
 #include <core/CStrCaseCmp.h>
+#include <core/Constants.h>
 
 #include <boost/multi_array.hpp>
 
@@ -17,6 +18,7 @@
 
 #include <ctype.h>
 #include <errno.h>
+#include <fstream>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,34 +41,13 @@ double clampToReadable(double x) {
 const std::locale& DO_NOT_USE_THIS_VARIABLE = ml::core::CStringUtils::locale();
 
 // Constants for parsing & converting memory size strings in standard ES format
-const std::string MEMORY_SIZE_FORMAT{"([\\d]+)(b|kb|mb|gb|tb|pb)"};
-const std::string BYTES{"b"};
-const std::string KILOBYTES{"kb"};
-const std::string MEGABYTES{"mb"};
-const std::string GIGABYTES{"gb"};
-const std::string TERABYTES{"tb"};
-const std::string PETABYTES{"pb"};
-const std::size_t BYTES_IN_MEGABYTES{1024 * 1024};
-const std::size_t KILOBYTES_IN_MEGABYTES{1024};
-const std::size_t MEGABYTES_IN_GIGABYTES{1024};
-const std::size_t MEGABYTES_IN_TERABYTES{1024 * 1024};
-const std::size_t MEGABYTES_IN_PETABYTES{1024 * 1024 * 1024};
-
-// Constants for parsing & converting time duration strings in standard ES format
-const std::string TIME_DURATION_FORMAT{"([\\d]+)(d|h||m|s|ms|micros|nanos)"};
-const std::string DAY{"d"};
-const std::string HOUR{"h"};
-const std::string MINUTE{"m"};
-const std::string SECOND{"m"};
-const std::string MILLI_SECOND{"ms"};
-const std::string MICRO_SECOND{"micros"};
-const std::string NANO_SECOND{"nanos"};
-const std::size_t SECONDS_IN_DAY{24 * 60 * 60};
-const std::size_t SECONDS_IN_HOUR{60 * 60};
-const std::size_t SECONDS_IN_MINUTE{60};
-const std::size_t MILLI_SECONDS_IN_SECOND{1000};
-const std::size_t MICRO_SECONDS_IN_SECOND{1000 * 1000};
-const std::size_t NANO_SECONDS_IN_SECOND{1000 * 1000 * 1000};
+const std::string MEMORY_SIZE_FORMAT{"([\\d]+)(b|k|kb|m|mb|g|gb|t|tb|p|pb)"};
+const char BYTES{'b'};
+const char KILOBYTES{'k'};
+const char MEGABYTES{'m'};
+const char GIGABYTES{'g'};
+const char TERABYTES{'t'};
+const char PETABYTES{'p'};
 }
 
 namespace ml {
@@ -473,8 +454,8 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     return buf;
 }
 
-CStringUtils::TSizeBoolPr CStringUtils::memorySizeStringToMB(const std::string& memorySizeStr,
-                                                             std::size_t defaultValue) {
+CStringUtils::TSizeBoolPr
+CStringUtils::memorySizeStringToBytes(const std::string& memorySizeStr, std::size_t defaultValue) {
     if (memorySizeStr.empty()) {
         LOG_ERROR(<< "Unable to parse empty memory size string");
         return {defaultValue, false};
@@ -489,7 +470,14 @@ CStringUtils::TSizeBoolPr CStringUtils::memorySizeStringToMB(const std::string& 
 
     CRegex::TStrVec tokens;
 
-    if (regex.tokenise(memorySizeStr, tokens) == false) {
+    const std::string lowerSizeStr{toLower(memorySizeStr)};
+
+    // permit '0' to be unit-less
+    if (lowerSizeStr == "0") {
+        return {std::size_t{0}, true};
+    }
+
+    if (regex.tokenise(lowerSizeStr, tokens) == false) {
         LOG_ERROR(<< "Unable to parse a memory limit from " << memorySizeStr);
         return {defaultValue, false};
     }
@@ -499,102 +487,32 @@ CStringUtils::TSizeBoolPr CStringUtils::memorySizeStringToMB(const std::string& 
         return {defaultValue, false};
     }
 
-    const std::string& limitStr = tokens[0];
+    const std::string& sizeStr = tokens[0];
     const std::string& multiplierStr = tokens[1];
 
-    std::size_t limit{0};
-    if (stringToType(limitStr, limit) == false) {
-        LOG_ERROR(<< "Could not convert " << limitStr << " to type long.");
+    std::size_t size{0};
+    if (stringToType(sizeStr, size) == false) {
+        LOG_ERROR(<< "Could not convert " << sizeStr << " to an integral size.");
         return {defaultValue, false};
     }
 
     // The assumption here is that the model memory limit string has already been validated
-    // i.e. the limit is already rounded down to the closest MiB with a minimum value of 1 MiB.
-    if (multiplierStr == BYTES) {
-        limit /= BYTES_IN_MEGABYTES;
-    } else if (multiplierStr == KILOBYTES) {
-        limit /= KILOBYTES_IN_MEGABYTES;
-    } else if (multiplierStr == MEGABYTES) {
-        // no-op;
-    } else if (multiplierStr == GIGABYTES) {
-        limit *= MEGABYTES_IN_GIGABYTES;
-    } else if (multiplierStr == TERABYTES) {
-        limit *= MEGABYTES_IN_TERABYTES;
-    } else if (multiplierStr == PETABYTES) {
-        limit *= MEGABYTES_IN_PETABYTES;
-    }
-
-    if (limit == 0) {
-        LOG_ERROR(<< "Invalid limit value " << memorySizeStr
-                  << ". Limit must have a minimum value of 1mb");
-        return {defaultValue, false};
-    }
-
-    return {limit, true};
-}
-
-CStringUtils::TSizeBoolPr
-CStringUtils::timeDurationStringToSeconds(const std::string& timeDurationString,
-                                          std::size_t defaultValue) {
-    if (timeDurationString.empty()) {
-        LOG_ERROR(<< "Unable to parse empty time duration string");
-        return {defaultValue, false};
-    }
-
-    CRegex regex;
-
-    if (regex.init(TIME_DURATION_FORMAT) == false) {
-        LOG_ERROR(<< "Unable to init regex " << TIME_DURATION_FORMAT);
-        return {defaultValue, false};
-    }
-
-    CRegex::TStrVec tokens;
-
-    if (regex.tokenise(timeDurationString, tokens) == false) {
-        LOG_ERROR(<< "Unable to parse a bucket span from " << timeDurationString);
-        return {defaultValue, false};
-    }
-
-    if (tokens.size() != 2) {
-        LOG_INFO(<< "Got wrong number of tokens:: " << tokens.size());
-        return {defaultValue, false};
-    }
-
-    const std::string& spanStr = tokens[0];
-    const std::string& multiplierStr = tokens[1];
-
-    std::size_t span{0};
-    if (stringToType(spanStr, span) == false) {
-        LOG_ERROR(<< "Could not convert " << spanStr << " to type long.");
-        return {defaultValue, false};
-    }
-
-    // The assumption here is that the bucket span string has already been validated
-    // in the sense that it is convertible to a whole number of seconds with a minimum
-    // value of 1s.
-    if (multiplierStr == DAY) {
-        span *= SECONDS_IN_DAY;
-    } else if (multiplierStr == HOUR) {
-        span *= SECONDS_IN_HOUR;
-    } else if (multiplierStr == MINUTE) {
-        span *= SECONDS_IN_MINUTE;
-    } else if (multiplierStr == SECOND) {
+    // i.e. the limit is already rounded down to the closest byte with a minimum value of 1 byte.
+    if (multiplierStr[0] == BYTES) {
         // no-op
-    } else if (multiplierStr == MILLI_SECOND) {
-        span /= MILLI_SECONDS_IN_SECOND;
-    } else if (multiplierStr == MICRO_SECOND) {
-        span /= MICRO_SECONDS_IN_SECOND;
-    } else if (multiplierStr == NANO_SECOND) {
-        span /= NANO_SECONDS_IN_SECOND;
+    } else if (multiplierStr[0] == KILOBYTES) {
+        size *= constants::BYTES_IN_KILOBYTE;
+    } else if (multiplierStr[0] == MEGABYTES) {
+        size *= constants::BYTES_IN_MEGABYTE;
+    } else if (multiplierStr[0] == GIGABYTES) {
+        size *= constants::BYTES_IN_GIGABYTE;
+    } else if (multiplierStr[0] == TERABYTES) {
+        size *= constants::BYTES_IN_TERABYTE;
+    } else if (multiplierStr[0] == PETABYTES) {
+        size *= constants::BYTES_IN_PETABYTE;
     }
 
-    if (span == 0) {
-        LOG_ERROR(<< "Invalid time duration value " << timeDurationString
-                  << ". Duration must have a minimum value of 1s");
-        return {defaultValue, false};
-    }
-
-    return {span, true};
+    return {size, true};
 }
 
 bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned long long& i) {
@@ -1152,6 +1070,17 @@ std::wstring CStringUtils::narrowToWide(const std::string& narrowStr) {
 const std::locale& CStringUtils::locale() {
     static std::locale loc;
     return loc;
+}
+
+std::pair<std::string, bool> CStringUtils::readFileToString(const std::string& fileName) {
+    std::ifstream fileStream{fileName};
+    if (fileStream.is_open() == false) {
+        LOG_ERROR(<< "Environment error: failed to open file '" << fileName << "'.");
+        return {std::string{}, false};
+    }
+    return {std::string{std::istreambuf_iterator<char>{fileStream},
+                        std::istreambuf_iterator<char>{}},
+            true};
 }
 }
 }

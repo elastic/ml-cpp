@@ -6,13 +6,9 @@
 
 #include <api/CAnomalyJobConfigReader.h>
 
-#include <core/CLogger.h>
-
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
-
-#include <cstring>
 
 #ifdef Windows
 // rapidjson::Writer<rapidjson::StringBuffer> gets instantiated in the core

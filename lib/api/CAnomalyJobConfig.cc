@@ -6,8 +6,9 @@
 #include <api/CAnomalyJobConfig.h>
 
 #include <core/CLogger.h>
-#include <core/CRegex.h>
 #include <core/CStringUtils.h>
+#include <core/CTimeUtils.h>
+#include <core/Constants.h>
 
 #include <api/CAnomalyJobConfigReader.h>
 
@@ -16,8 +17,6 @@
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/stringbuffer.h>
-
-#include <iostream>
 
 namespace ml {
 namespace api {
@@ -43,7 +42,7 @@ const std::string CAnomalyJobConfig::CAnalysisConfig::ENABLED{"enabled"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::STOP_ON_WARN{"stop_on_warn"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::LATENCY{"latency"};
 
-const std::size_t CAnomalyJobConfig::CAnalysisConfig::DEFAULT_BUCKET_SPAN{300};
+const core_t::TTime CAnomalyJobConfig::CAnalysisConfig::DEFAULT_BUCKET_SPAN{300};
 
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION{"function"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FIELD_NAME{"field_name"};
@@ -67,7 +66,8 @@ const std::string CAnomalyJobConfig::CAnalysisLimits::CATEGORIZATION_EXAMPLES_LI
     "categorization_examples_limit"};
 const std::string CAnomalyJobConfig::CAnalysisLimits::MODEL_MEMORY_LIMIT{"model_memory_limit"};
 
-const std::size_t CAnomalyJobConfig::CAnalysisLimits::DEFAULT_MEMORY_LIMIT{1024};
+const std::size_t CAnomalyJobConfig::CAnalysisLimits::DEFAULT_MEMORY_LIMIT_BYTES{
+    1024ULL * 1024 * 1024};
 
 const std::string CAnomalyJobConfig::CDataDescription::TIME_FIELD{"time_field"};
 const std::string CAnomalyJobConfig::CDataDescription::TIME_FORMAT{"time_format"};
@@ -91,9 +91,9 @@ const CAnomalyJobConfigReader CONFIG_READER{[] {
     theReader.addParameter(CAnomalyJobConfig::ANALYSIS_CONFIG,
                            CAnomalyJobConfigReader::E_RequiredParameter);
     theReader.addParameter(CAnomalyJobConfig::ANALYSIS_LIMITS,
-                           CAnomalyJobConfigReader::E_RequiredParameter);
+                           CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::MODEL_PLOT_CONFIG,
-                           CAnomalyJobConfigReader::E_RequiredParameter);
+                           CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::DATA_DESCRIPTION,
                            CAnomalyJobConfigReader::E_RequiredParameter);
     return theReader;
@@ -218,7 +218,7 @@ bool CAnomalyJobConfig::parse(const std::string& json) {
             m_ModelConfig.parse(*modelPlotConfig);
         }
     } catch (CAnomalyJobConfigReader::CParseError& e) {
-        LOG_ERROR(<< "Caught error while parsing anomaly job config: " << e.what());
+        LOG_ERROR(<< "Error parsing anomaly job config: " << e.what());
         return false;
     }
 
@@ -228,7 +228,7 @@ bool CAnomalyJobConfig::parse(const std::string& json) {
 void CAnomalyJobConfig::CModelPlotConfig::parse(const rapidjson::Value& modelPlotConfig) {
     auto parameters = MODEL_PLOT_CONFIG_READER.read(modelPlotConfig);
 
-    m_AnnotationsEnabled = parameters[ANNOTATIONS_ENABLED].fallback(true);
+    m_AnnotationsEnabled = parameters[ANNOTATIONS_ENABLED].fallback(false);
     m_Enabled = parameters[ENABLED].fallback(false);
     m_Terms = parameters[TERMS].fallback(EMPTY_STRING);
 }
@@ -239,11 +239,28 @@ void CAnomalyJobConfig::CAnalysisLimits::parse(const rapidjson::Value& analysisL
     m_CategorizationExamplesLimit = parameters[CATEGORIZATION_EXAMPLES_LIMIT].fallback(
         model::CLimits::DEFAULT_RESULTS_MAX_EXAMPLES);
 
+    const std::string memoryLimitStr{parameters[MODEL_MEMORY_LIMIT].as<std::string>()};
+    m_ModelMemoryLimit = CAnomalyJobConfig::CAnalysisLimits::modelMemoryLimitMb(memoryLimitStr);
+}
+
+std::size_t CAnomalyJobConfig::CAnalysisLimits::modelMemoryLimitMb(const std::string& memoryLimitStr) {
+    std::size_t memoryLimitMb{0};
+
     // We choose to ignore any errors here parsing the model memory limit string
     // as we assume that it has already been validated by ES. In the event that any
     // error _does_ occur an error is logged and a default value used.
-    std::tie(m_ModelMemoryLimit, std::ignore) = core::CStringUtils::memorySizeStringToMB(
-        parameters[MODEL_MEMORY_LIMIT].as<std::string>(), DEFAULT_MEMORY_LIMIT);
+    std::tie(memoryLimitMb, std::ignore) = core::CStringUtils::memorySizeStringToBytes(
+        memoryLimitStr, DEFAULT_MEMORY_LIMIT_BYTES);
+
+    memoryLimitMb /= core::constants::BYTES_IN_MEGABYTE;
+
+    if (memoryLimitMb == 0) {
+        LOG_ERROR(<< "Invalid limit value " << memoryLimitStr << ". Limit must have a minimum value of 1mb."
+                  << " Using default memory limit value " << DEFAULT_MEMORY_LIMIT_BYTES);
+        memoryLimitMb = DEFAULT_MEMORY_LIMIT_BYTES;
+    }
+
+    return memoryLimitMb;
 }
 
 void CAnomalyJobConfig::CDataDescription::parse(const rapidjson::Value& analysisLimits) {
@@ -258,8 +275,8 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
     // We choose to ignore any errors here parsing the time duration string as
     // we assume that it has already been validated by ES. In the event that any
     // error _does_ occur an error is logged and a default value used.
-    std::tie(m_BucketSpan, std::ignore) = core::CStringUtils::timeDurationStringToSeconds(
-        parameters[BUCKET_SPAN].as<std::string>(), DEFAULT_BUCKET_SPAN);
+    const std::string bucketSpanString{parameters[BUCKET_SPAN].as<std::string>()};
+    m_BucketSpan = CAnomalyJobConfig::CAnalysisConfig::bucketSpanSeconds(bucketSpanString);
 
     m_SummaryCountFieldName = parameters[SUMMARY_COUNT_FIELD_NAME].fallback(EMPTY_STRING);
     m_CategorizationFieldName = parameters[CATEGORIZATION_FIELD_NAME].fallback(EMPTY_STRING);
@@ -286,6 +303,22 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
 
     m_Influencers = parameters[INFLUENCERS].fallback(TStrVec{});
     m_Latency = parameters[LATENCY].fallback(EMPTY_STRING);
+}
+
+core_t::TTime CAnomalyJobConfig::CAnalysisConfig::bucketSpanSeconds(const std::string& bucketSpanString) {
+    core_t::TTime bucketSpanSeconds{0};
+    std::tie(bucketSpanSeconds, std::ignore) =
+        core::CTimeUtils::timeDurationStringToSeconds(bucketSpanString, DEFAULT_BUCKET_SPAN);
+
+    if (bucketSpanSeconds == 0) {
+        LOG_ERROR(<< "Invalid bucket span value " << bucketSpanString
+                  << ". Duration must have a minimum value of 1s. "
+                     "Using default bucket span value "
+                  << DEFAULT_BUCKET_SPAN);
+        bucketSpanSeconds = DEFAULT_BUCKET_SPAN;
+    }
+
+    return bucketSpanSeconds;
 }
 
 void CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::parse(const rapidjson::Value& detectorConfig) {

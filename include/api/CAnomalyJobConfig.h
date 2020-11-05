@@ -11,6 +11,8 @@
 #include <api/CDetectionRulesJsonParser.h>
 #include <api/ImportExport.h>
 
+#include <model/CLimits.h>
+
 #include <rapidjson/document.h>
 
 #include <string>
@@ -81,18 +83,18 @@ public:
         static const std::string ENABLED;
         static const std::string STOP_ON_WARN;
 
-        static const std::size_t DEFAULT_BUCKET_SPAN;
+        static const core_t::TTime DEFAULT_BUCKET_SPAN;
 
     public:
         using TStrVec = std::vector<std::string>;
-        using TDetctorConfigVec = std::vector<CDetectorConfig>;
+        using TDetectorConfigVec = std::vector<CDetectorConfig>;
 
     public:
         CAnalysisConfig() {}
 
         void parse(const rapidjson::Value& json);
 
-        std::size_t bucketSpan() const { return m_BucketSpan; }
+        core_t::TTime bucketSpan() const { return m_BucketSpan; }
 
         std::string summaryCountFieldName() const {
             return m_SummaryCountFieldName;
@@ -109,9 +111,13 @@ public:
         bool perPartitionCategorizationStopOnWarn() const {
             return m_PerPartitionCategorizationStopOnWarn;
         }
-        const TDetctorConfigVec& detectorsConfig() const { return m_Detectors; }
+        const TDetectorConfigVec& detectorsConfig() const {
+            return m_Detectors;
+        }
         const TStrVec& influencers() const { return m_Influencers; }
         std::string latency() const { return m_Latency; }
+
+        static core_t::TTime bucketSpanSeconds(const std::string& bucketSpanString);
 
     private:
         std::size_t m_BucketSpan{300}; // 5m
@@ -120,14 +126,18 @@ public:
         TStrVec m_CategorizationFilters{};
         bool m_PerPartitionCategorizationEnabled{false};
         bool m_PerPartitionCategorizationStopOnWarn{false};
-        TDetctorConfigVec m_Detectors{};
+        TDetectorConfigVec m_Detectors{};
         TStrVec m_Influencers{};
         std::string m_Latency{};
     };
 
     class CDataDescription {
     public:
-        static const std::string TIME_FIELD; // unused in production
+        static const std::string TIME_FIELD;
+
+        //  The time format present in the job config is in Java format and
+        // should be ignored in the C++ code. In any case, in production, the
+        // time field is always specified in seconds since epoch.
         static const std::string TIME_FORMAT;
 
     public:
@@ -137,7 +147,6 @@ public:
         void parse(const rapidjson::Value& json);
 
         std::string timeField() const { return m_TimeField; }
-        std::string timeFormat() const { return m_TimeFormat; }
 
     private:
         std::string m_TimeField;  // e.g. timestamp
@@ -158,10 +167,14 @@ public:
 
         bool annotationsEnabled() const { return m_AnnotationsEnabled; }
         bool enabled() const { return m_Enabled; }
+
+        // The terms string is a comma separated list of partition or
+        // by field values, but with no form of escaping.
+        // TODO improve this to be a more robust format
         std::string terms() const { return m_Terms; }
 
     private:
-        bool m_AnnotationsEnabled{true};
+        bool m_AnnotationsEnabled{false};
         bool m_Enabled{false};
         std::string m_Terms;
     };
@@ -171,7 +184,7 @@ public:
         static const std::string MODEL_MEMORY_LIMIT;
         static const std::string CATEGORIZATION_EXAMPLES_LIMIT;
 
-        static const std::size_t DEFAULT_MEMORY_LIMIT;
+        static const std::size_t DEFAULT_MEMORY_LIMIT_BYTES;
 
     public:
         //! Default constructor
@@ -187,8 +200,10 @@ public:
             return m_CategorizationExamplesLimit;
         }
 
+        static std::size_t modelMemoryLimitMb(const std::string& memoryLimitStr);
+
     private:
-        long m_CategorizationExamplesLimit{4};
+        std::size_t m_CategorizationExamplesLimit{model::CLimits::DEFAULT_RESULTS_MAX_EXAMPLES};
         std::size_t m_ModelMemoryLimit{};
     };
 

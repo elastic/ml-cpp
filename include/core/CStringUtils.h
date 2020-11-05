@@ -34,6 +34,7 @@ public:
 
 public:
     using TSizeBoolPr = std::pair<std::size_t, bool>;
+    using TStrBoolPr = std::pair<std::string, bool>;
     using TStrVec = std::vector<std::string>;
     using TStrVecItr = TStrVec::iterator;
     using TStrVecCItr = TStrVec::const_iterator;
@@ -85,17 +86,11 @@ public:
         return CStringUtils::_stringToType(true, str, ret);
     }
 
-    //! Convert a string representation of a time duration (in ES format e.g. "1000ms") to a whole number
-    //! of seconds. Returns a default value if any error occurs, however the assumption is that the input string
-    //! has already been validated by ES.
-    static TSizeBoolPr timeDurationStringToSeconds(const std::string& timeDurationString,
-                                                   std::size_t defaultValue);
-
     //! Convert a string representation of a memory size (in ES format e.g. "4gb") to a whole number
-    //! of MB. Returns a default value if any error occurs, however the assumption is that the input string
+    //! of bytes. Returns a default value if any error occurs, however the assumption is that the input string
     //! has already been validated by ES.
-    static TSizeBoolPr memorySizeStringToMB(const std::string& memorySizeStr,
-                                            std::size_t defaultValue);
+    static TSizeBoolPr memorySizeStringToBytes(const std::string& memorySizeStr,
+                                               std::size_t defaultValue);
 
     //! Joins the strings in the container with the \p delimiter.
     //! CONTAINER must be a container of std::string.
@@ -190,6 +185,10 @@ public:
     //! TODO - remove when we switch to a character conversion library
     //! (e.g. ICU)
     static const std::locale& locale();
+
+    //! Read the contents of a file into a string.
+    //! Returns a pair containing the file contents and a boolean indicating success or failure.
+    static TStrBoolPr readFileToString(const std::string& fileName);
 
 private:
     //! Internal calls for public templated methods

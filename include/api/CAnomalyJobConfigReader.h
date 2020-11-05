@@ -82,8 +82,8 @@ public:
         template<typename T>
         T as() const {
             if (m_Value == nullptr) {
-                throw CParseError("Input error: expected value for '" + m_Name +
-                                  "'. Please report this problem.");
+                throw CParseError("Input error: expected a value for '" +
+                                  m_Name + "'. Please report this problem.");
             }
             return this->fallback(T{});
         }
