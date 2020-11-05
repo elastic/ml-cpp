@@ -24,6 +24,18 @@ using TRowItr = core::CDataFrame::TRowItr;
 namespace {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
+
+void incrementStatsComputed(CBoostedTreeLeafNodeStatistics::TAnalysisInstrumentationPtr instrumentation) {
+    if (instrumentation != nullptr) {
+        instrumentation->statisticsComputed() += 1;
+    }
+}
+
+void incrementStatsNotComputed(CBoostedTreeLeafNodeStatistics::TAnalysisInstrumentationPtr instrumentation) {
+    if (instrumentation != nullptr) {
+        instrumentation->statisticsNotComputed() += 1;
+    }
+}
 }
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
@@ -131,23 +143,37 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                                       const TRegularization& regularization,
                                       const TSizeVec& featureBag,
                                       const CBoostedTreeNode& split,
-                                      CWorkspace& workspace) {
+                                      CWorkspace& workspace,
+                                      TAnalysisInstrumentationPtr instrumentation) {
     TPtr leftChild;
     TPtr rightChild;
+    // if (gainThreshold > 0.0) {
+    //     LOG_INFO(<< "threshold " << gainThreshold << " left bound "
+    //              << this->m_BestSplit.s_LeftChildMaxGain << " right bound "
+    //              << this->m_BestSplit.s_RightChildMaxGain);
+    // }
     if (this->leftChildHasFewerRows()) {
         if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, *this, numberThreads, frame, encoder, regularization,
                 featureBag, true /*is left child*/, split, workspace);
+            incrementStatsComputed(instrumentation);
             if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, std::move(*this), regularization, featureBag, workspace);
+                incrementStatsComputed(instrumentation);
+            } else {
+                incrementStatsNotComputed(instrumentation);
             }
         } else {
+            incrementStatsNotComputed(instrumentation);
             if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, *this, numberThreads, frame, encoder, regularization,
                     featureBag, false /*is left child*/, split, workspace);
+                incrementStatsComputed(instrumentation);
+            } else {
+                incrementStatsNotComputed(instrumentation);
             }
         }
         return {std::move(leftChild), std::move(rightChild)};
@@ -157,14 +183,24 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
         rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             rightChildId, *this, numberThreads, frame, encoder, regularization,
             featureBag, false /*is left child*/, split, workspace);
+        incrementStatsComputed(instrumentation);
         if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, std::move(*this), regularization, featureBag, workspace);
+            incrementStatsComputed(instrumentation);
+        } else {
+            incrementStatsNotComputed(instrumentation);
         }
-    } else if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
-        leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-            leftChildId, *this, numberThreads, frame, encoder, regularization,
-            featureBag, true /*is left child*/, split, workspace);
+    } else {
+        incrementStatsNotComputed(instrumentation);
+        if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+            leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
+                leftChildId, *this, numberThreads, frame, encoder, regularization,
+                featureBag, true /*is left child*/, split, workspace);
+            incrementStatsComputed(instrumentation);
+        } else {
+            incrementStatsNotComputed(instrumentation);
+        }
     }
     return {std::move(leftChild), std::move(rightChild)};
 }
@@ -240,26 +276,14 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
     core::CDataFrame::TRowFuncVec aggregators;
     aggregators.reserve(numberThreads);
 
-    if (workspace.numberLossParameters() == 2) {
-        for (std::size_t i = 0; i < numberThreads; ++i) {
-            auto& splitsDerivatives = workspace.derivatives()[i];
-            splitsDerivatives.zero();
-            aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    this->addRowDerivativesUpdateBounds(encoder.encode(*row), splitsDerivatives);
-                }
-            });
-        }
-    } else {
-        for (std::size_t i = 0; i < numberThreads; ++i) {
-            auto& splitsDerivatives = workspace.derivatives()[i];
-            splitsDerivatives.zero();
-            aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    this->addRowDerivatives(encoder.encode(*row), splitsDerivatives);
-                }
-            });
-        }
+    for (std::size_t i = 0; i < numberThreads; ++i) {
+        auto& splitsDerivatives = workspace.derivatives()[i];
+        splitsDerivatives.zero();
+        aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                this->addRowDerivatives(encoder.encode(*row), splitsDerivatives);
+            }
+        });
     }
 
     frame.readRows(0, frame.numberRows(), aggregators, &rowMask);
@@ -279,42 +303,22 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
     core::CDataFrame::TRowFuncVec aggregators;
     aggregators.reserve(numberThreads);
 
-    if (workspace.numberLossParameters() == 2) {
-        for (std::size_t i = 0; i < numberThreads; ++i) {
-            auto& mask = workspace.masks()[i];
-            auto& splitsDerivatives = workspace.derivatives()[i];
-            mask.clear();
-            splitsDerivatives.zero();
-            aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    auto encodedRow = encoder.encode(*row);
-                    if (split.assignToLeft(encodedRow) == isLeftChild) {
-                        std::size_t index{row->index()};
-                        mask.extend(false, index - mask.size());
-                        mask.extend(true);
-                        this->addRowDerivativesUpdateBounds(encodedRow, splitsDerivatives);
-                    }
+    for (std::size_t i = 0; i < numberThreads; ++i) {
+        auto& mask = workspace.masks()[i];
+        auto& splitsDerivatives = workspace.derivatives()[i];
+        mask.clear();
+        splitsDerivatives.zero();
+        aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
+            for (auto row = beginRows; row != endRows; ++row) {
+                auto encodedRow = encoder.encode(*row);
+                if (split.assignToLeft(encodedRow) == isLeftChild) {
+                    std::size_t index{row->index()};
+                    mask.extend(false, index - mask.size());
+                    mask.extend(true);
+                    this->addRowDerivatives(encodedRow, splitsDerivatives);
                 }
-            });
-        }
-    } else {
-        for (std::size_t i = 0; i < numberThreads; ++i) {
-            auto& mask = workspace.masks()[i];
-            auto& splitsDerivatives = workspace.derivatives()[i];
-            mask.clear();
-            splitsDerivatives.zero();
-            aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
-                for (auto row = beginRows; row != endRows; ++row) {
-                    auto encodedRow = encoder.encode(*row);
-                    if (split.assignToLeft(encodedRow) == isLeftChild) {
-                        std::size_t index{row->index()};
-                        mask.extend(false, index - mask.size());
-                        mask.extend(true);
-                        this->addRowDerivatives(encodedRow, splitsDerivatives);
-                    }
-                }
-            });
-        }
+            }
+        });
     }
 
     frame.readRows(0, frame.numberRows(), aggregators, &parentRowMask);
@@ -325,28 +329,13 @@ void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRo
 
     auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
                                            m_NumberLossParameters);
-    std::size_t numberFeatures{m_CandidateSplits.size()};
-    for (std::size_t feature = 0; feature < numberFeatures; ++feature) {
-        double featureValue{row[feature]};
-        if (CDataFrameUtils::isMissing(featureValue)) {
-            splitsDerivatives.addMissingDerivatives(feature, derivatives);
+
+    if (derivatives.size() == 2) {
+        if (derivatives(0) >= 0.0) {
+            splitsDerivatives.addPositiveDerivatives(derivatives);
         } else {
-            std::ptrdiff_t split{m_CandidateSplits[feature].upperBound(featureValue)};
-            splitsDerivatives.addDerivatives(feature, split, derivatives);
+            splitsDerivatives.addNegativeDerivatives(derivatives);
         }
-    }
-}
-
-void CBoostedTreeLeafNodeStatistics::addRowDerivativesUpdateBounds(
-    const CEncodedDataFrameRowRef& row,
-    CSplitsDerivatives& splitsDerivatives) const {
-
-    auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
-                                           m_NumberLossParameters);
-    if (derivatives(0) >= 0.0) {
-        splitsDerivatives.addPositiveDerivatives(derivatives);
-    } else {
-        splitsDerivatives.addNegativeDerivatives(derivatives);
     }
 
     std::size_t numberFeatures{m_CandidateSplits.size()};
@@ -360,6 +349,30 @@ void CBoostedTreeLeafNodeStatistics::addRowDerivativesUpdateBounds(
         }
     }
 }
+
+// void CBoostedTreeLeafNodeStatistics::addRowDerivativesUpdateBounds(
+//     const CEncodedDataFrameRowRef& row,
+//     CSplitsDerivatives& splitsDerivatives) const {
+
+//     auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
+//                                            m_NumberLossParameters);
+//     if (derivatives(0) >= 0.0) {
+//         splitsDerivatives.addPositiveDerivatives(derivatives);
+//     } else {
+//         splitsDerivatives.addNegativeDerivatives(derivatives);
+//     }
+
+//     std::size_t numberFeatures{m_CandidateSplits.size()};
+//     for (std::size_t feature = 0; feature < numberFeatures; ++feature) {
+//         double featureValue{row[feature]};
+//         if (CDataFrameUtils::isMissing(featureValue)) {
+//             splitsDerivatives.addMissingDerivatives(feature, derivatives);
+//         } else {
+//             std::ptrdiff_t split{m_CandidateSplits[feature].upperBound(featureValue)};
+//             splitsDerivatives.addDerivatives(feature, split, derivatives);
+//         }
+//     }
+// }
 
 CBoostedTreeLeafNodeStatistics::SSplitStatistics
 CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization& regularization,
@@ -581,10 +594,10 @@ double CBoostedTreeLeafNodeStatistics::computeChildGain(double gChild,
                                                         double maxGainChild) const {
     double positiveDerivativesGSum =
         std::max(std::min(gChild - m_Derivatives.negativeDerivativesGSum(),
-                          m_Derivatives.negativeDerivativesGSum()),
+                          m_Derivatives.positiveDerivativesGSum()),
                  0.0);
     double negativeDerivativesGSum =
-        std::min(std::max(gChild - m_Derivatives.negativeDerivativesGSum(),
+        std::min(std::max(gChild - m_Derivatives.positiveDerivativesGSum(),
                           m_Derivatives.negativeDerivativesGSum()),
                  0.0);
     double lookAheadGain{((positiveDerivativesGSum != 0.0)
@@ -599,7 +612,11 @@ double CBoostedTreeLeafNodeStatistics::computeChildGain(double gChild,
                                          m_Derivatives.negativeDerivativesGMin() +
                                      lambda + 1e-10)
                               : 0.0)};
-
+    // if (lookAheadGain == 0.0 || isnan(lookAheadGain)) {
+    //     LOG_INFO(<< "Look ahead gain " << lookAheadGain << " negativeDerivativesGSum "
+    //              << m_Derivatives.negativeDerivativesGSum() << " positiveDerivativesGSum "
+    //              << m_Derivatives.positiveDerivativesGSum() << " gChild " << gChild);
+    // }
     return (lookAheadGain == 0.0 || isnan(lookAheadGain)) ? INF : lookAheadGain - maxGainChild;
 }
 }

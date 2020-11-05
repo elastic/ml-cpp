@@ -139,6 +139,9 @@ public:
     virtual void lossValues(std::size_t fold, TDoubleVec&& lossValues) = 0;
     //! \return Structure contains hyperparameters.
     virtual SHyperparameters& hyperparameters() = 0;
+
+    virtual std::size_t& statisticsComputed() = 0;
+    virtual std::size_t& statisticsNotComputed() = 0;
 };
 
 //! \brief Dummies out all instrumentation for outlier detection.
@@ -169,8 +172,13 @@ public:
     void lossValues(std::size_t /* fold */, TDoubleVec&& /* lossValues */) override {}
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; }
 
+    std::size_t& statisticsComputed() override { return m_StatsComputed; }
+    std::size_t& statisticsNotComputed() override { return m_StatsNotComputed; }
+
 private:
     SHyperparameters m_Hyperparameters;
+    std::size_t m_StatsComputed = 0;
+    std::size_t m_StatsNotComputed = 0;
 };
 }
 }

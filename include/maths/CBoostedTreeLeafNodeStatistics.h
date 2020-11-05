@@ -16,6 +16,7 @@
 #include <maths/CBoostedTreeHyperparameters.h>
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CChecksum.h>
+#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraShims.h>
 #include <maths/CMathsFuncs.h>
@@ -61,6 +62,7 @@ public:
     using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
     using TMemoryMappedDoubleVector = CMemoryMappedDenseVector<double, Eigen::Aligned16>;
     using TMemoryMappedDoubleMatrix = CMemoryMappedDenseMatrix<double, Eigen::Aligned16>;
+    using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
 
     //! \brief Accumulates aggregate derivatives.
     class MATHS_EXPORT CDerivatives {
@@ -650,7 +652,8 @@ public:
                     const TRegularization& regularization,
                     const TSizeVec& featureBag,
                     const CBoostedTreeNode& split,
-                    CWorkspace& workspace);
+                    CWorkspace& workspace,
+                    TAnalysisInstrumentationPtr instrumentation = nullptr);
 
     //! Order two leaves by decreasing gain in splitting them.
     bool operator<(const CBoostedTreeLeafNodeStatistics& rhs) const;
@@ -764,8 +767,8 @@ private:
     void addRowDerivatives(const CEncodedDataFrameRowRef& row,
                            CSplitsDerivatives& splitsDerivatives) const;
 
-    void addRowDerivativesUpdateBounds(const CEncodedDataFrameRowRef& row,
-                                       CSplitsDerivatives& splitsDerivatives) const;
+    // void addRowDerivativesUpdateBounds(const CEncodedDataFrameRowRef& row,
+    //                                    CSplitsDerivatives& splitsDerivatives) const;
 
     SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;

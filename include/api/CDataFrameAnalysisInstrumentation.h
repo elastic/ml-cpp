@@ -197,6 +197,9 @@ public:
     //! \return Structure contains hyperparameters.
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; }
 
+    std::size_t& statisticsComputed() override { return m_StatsComputed; }
+    std::size_t& statisticsNotComputed() override { return m_StatsNotComputed; }
+
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
 
@@ -219,6 +222,9 @@ private:
     std::string m_LossType;
     TLossVec m_LossValues;
     SHyperparameters m_Hyperparameters;
+
+    std::size_t m_StatsComputed = 0;
+    std::size_t m_StatsNotComputed = 0;
 };
 }
 }
