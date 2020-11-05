@@ -853,6 +853,10 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
             break;
         }
 
+        if (totalGain < 0.0) {
+            LOG_INFO(<< "Total gain " << totalGain);
+        }
+
         auto leaf = splitCandidateTreeNodes.back();
         splitCandidateTreeNodes.pop_back();
 
@@ -886,9 +890,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         int currentNumberInternalNodes{(tree.size() - 1) / 2};
         int lastCandidateIdx{n - (maximumNumberInternalNodes - currentNumberInternalNodes)};
         double smallestCandidateGain =
-            lastCandidateIdx >= 0
-                ? std::max(splitCandidateTreeNodes[lastCandidateIdx]->gain(), 0.0)
-                : 0.0;
+            lastCandidateIdx >= 0 ? splitCandidateTreeNodes[lastCandidateIdx]->gain() : 0.0;
+        // double smallestCandidateGain = -INF;
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;

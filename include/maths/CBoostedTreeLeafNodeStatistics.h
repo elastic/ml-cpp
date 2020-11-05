@@ -330,13 +330,6 @@ public:
         void subtract(const CSplitsDerivatives& rhs) {
             m_PositiveDerivativesSum -= rhs.m_PositiveDerivativesSum;
             m_NegativeDerivativesSum -= rhs.m_NegativeDerivativesSum;
-            // m_PositiveDerivativesMax =
-            //     m_PositiveDerivativesMax.cwiseMax(rhs.m_PositiveDerivativesMax);
-            // m_PositiveDerivativesMin =
-            //     m_PositiveDerivativesMin.cwiseMin(rhs.m_PositiveDerivativesMin);
-            // m_NegativeDerivativesMin =
-            //     m_NegativeDerivativesMin.cwiseMin(rhs.m_NegativeDerivativesMin);
-
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].subtract(rhs.m_Derivatives[i][j]);

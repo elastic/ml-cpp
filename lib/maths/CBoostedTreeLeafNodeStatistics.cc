@@ -138,78 +138,36 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
     TPtr leftChild;
     TPtr rightChild;
     if (this->leftChildHasFewerRows()) {
-        if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND ||
-            this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+        if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, *this, numberThreads, frame, encoder, regularization,
                 featureBag, true /*is left child*/, split, workspace);
-            if (this->depth() > MIN_DEPTH_FOR_UPPER_BOUND && leftChild != nullptr &&
-                leftChild->gain() > this->m_BestSplit.s_LeftChildMaxGain) {
-                LOG_DEBUG(<< "The upper bound " << this->m_BestSplit.s_LeftChildMaxGain
-                          << " is wrong: threshold " << gainThreshold
-                          << " split " << leftChild->print());
-            }
-            if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND ||
-                this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
+            if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, std::move(*this), regularization, featureBag, workspace);
-                if (this->depth() > MIN_DEPTH_FOR_UPPER_BOUND && rightChild != nullptr &&
-                    rightChild->gain() > this->m_BestSplit.s_RightChildMaxGain) {
-                    LOG_DEBUG(<< "The upper bound " << this->m_BestSplit.s_RightChildMaxGain
-                              << " is wrong: threshold " << gainThreshold
-                              << " split " << rightChild->print());
-                }
             }
         } else {
-            if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND ||
-                this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
+            if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, *this, numberThreads, frame, encoder, regularization,
                     featureBag, false /*is left child*/, split, workspace);
-                if (this->depth() > MIN_DEPTH_FOR_UPPER_BOUND && rightChild != nullptr &&
-                    rightChild->gain() > this->m_BestSplit.s_RightChildMaxGain) {
-                    LOG_DEBUG(<< "The upper bound " << this->m_BestSplit.s_RightChildMaxGain
-                              << " is wrong: threshold " << gainThreshold
-                              << " split " << rightChild->print());
-                }
             }
         }
         return {std::move(leftChild), std::move(rightChild)};
     }
 
-    if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND ||
-        this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
+    if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
         rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             rightChildId, *this, numberThreads, frame, encoder, regularization,
             featureBag, false /*is left child*/, split, workspace);
-        if (this->depth() > MIN_DEPTH_FOR_UPPER_BOUND &&
-            this->depth() > MIN_DEPTH_FOR_UPPER_BOUND && rightChild != nullptr &&
-            rightChild->gain() > this->m_BestSplit.s_RightChildMaxGain) {
-            LOG_DEBUG(<< "The upper bound " << this->m_BestSplit.s_RightChildMaxGain << " is wrong: threshold "
-                      << gainThreshold << " split " << rightChild->print());
-        }
-
-        if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND ||
-            this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+        if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, std::move(*this), regularization, featureBag, workspace);
-            if (this->depth() > MIN_DEPTH_FOR_UPPER_BOUND && leftChild != nullptr &&
-                leftChild->gain() > this->m_BestSplit.s_LeftChildMaxGain) {
-                LOG_DEBUG(<< "The upper bound " << this->m_BestSplit.s_LeftChildMaxGain
-                          << " is wrong: threshold " << gainThreshold
-                          << " split " << leftChild->print());
-            }
         }
-    } else if (this->depth() <= MIN_DEPTH_FOR_UPPER_BOUND ||
-               this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+    } else if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
         leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             leftChildId, *this, numberThreads, frame, encoder, regularization,
             featureBag, true /*is left child*/, split, workspace);
-        if (this->depth() > MIN_DEPTH_FOR_UPPER_BOUND && leftChild != nullptr &&
-            leftChild->gain() > this->m_BestSplit.s_LeftChildMaxGain) {
-            LOG_DEBUG(<< "The upper bound " << this->m_BestSplit.s_LeftChildMaxGain << " is wrong: threshold "
-                      << gainThreshold << " split " << leftChild->print());
-        }
     }
     return {std::move(leftChild), std::move(rightChild)};
 }
@@ -341,7 +299,7 @@ void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRo
 
     auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
                                            m_NumberLossParameters);
-    if (depth >= MIN_DEPTH_FOR_UPPER_BOUND && derivatives.size() == 2) {
+    if (/*depth >= MIN_DEPTH_FOR_UPPER_BOUND &&*/ derivatives.size() == 2) {
         if (derivatives(0) >= 0.0) {
             splitsDerivatives.addPositiveDerivatives(derivatives);
         } else {
@@ -437,16 +395,20 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
     double minLossLeft[2];
     double minLossRight[2];
 
-    double C{CTools::pow2(m_Derivatives.positiveDerivativesGSum()) /
-                 (m_Derivatives.positiveDerivativesHMin() *
-                      m_Derivatives.positiveDerivativesGSum() /
-                      m_Derivatives.positiveDerivativesGMax() +
-                  lambda + 1e-10) +
-             CTools::pow2(m_Derivatives.negativeDerivativesGSum()) /
-                 (m_Derivatives.negativeDerivativesHMin() *
-                      m_Derivatives.negativeDerivativesGSum() /
-                      m_Derivatives.negativeDerivativesGMin() +
-                  lambda + 1e-10)};
+    double C{((m_Derivatives.positiveDerivativesGSum() != 0.0)
+                  ? CTools::pow2(m_Derivatives.positiveDerivativesGSum()) /
+                        (m_Derivatives.positiveDerivativesHMin() *
+                             m_Derivatives.positiveDerivativesGSum() /
+                             m_Derivatives.positiveDerivativesGMax() +
+                         lambda + 1e-10)
+                  : 0.0) +
+             ((m_Derivatives.negativeDerivativesGSum() != 0.0)
+                  ? CTools::pow2(m_Derivatives.negativeDerivativesGSum()) /
+                        (m_Derivatives.negativeDerivativesHMin() *
+                             m_Derivatives.negativeDerivativesGSum() /
+                             m_Derivatives.negativeDerivativesGMin() +
+                         lambda + 1e-10)
+                  : 0.0)};
 
     for (auto feature : featureBag) {
         std::size_t c{m_Derivatives.missingCount(feature)};
@@ -537,8 +499,8 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
             }
         }
 
-        maxGainLeftChild = (C == 0.0) ? INF : C - maxGainLeftChild;
-        maxGainRightChild = (C == 0.0) ? INF : C - maxGainRightChild;
+        maxGainLeftChild = (C == 0.0 || isnan(C)) ? INF : C - maxGainLeftChild;
+        maxGainRightChild = (C == 0.0 || isnan(C)) ? INF : C - maxGainRightChild;
 
         double penaltyForDepth{regularization.penaltyForDepth(m_Depth)};
         double penaltyForDepthPlusOne{regularization.penaltyForDepth(m_Depth + 1)};
@@ -555,6 +517,13 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
         double childPenalty{regularization.treeSizePenaltyMultiplier() +
                             regularization.depthPenaltyMultiplier() *
                                 (2.0 * childPenaltyForDepthPlusOne - childPenaltyForDepth)};
+        if ((0.5 * maxGainLeftChild - childPenalty) <= -INF) {
+            LOG_INFO(<< "left upper bound " << (0.5 * maxGainLeftChild - childPenalty));
+        }
+
+        if ((0.5 * maxGainRightChild - childPenalty) <= -INF) {
+            LOG_INFO(<< "right upper bound " << (0.5 * maxGainRightChild - childPenalty));
+        }
 
         SSplitStatistics candidate{gain,
                                    h.trace() / static_cast<double>(m_NumberLossParameters),
