@@ -770,6 +770,8 @@ private:
     SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;
 
+    double computeChildGain(double gChild, double lambda, double maxGainChild) const;
+
 private:
     std::size_t m_Id;
     std::size_t m_Depth;

@@ -853,10 +853,6 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
             break;
         }
 
-        if (totalGain < 0.0) {
-            LOG_INFO(<< "Total gain " << totalGain);
-        }
-
         auto leaf = splitCandidateTreeNodes.back();
         splitCandidateTreeNodes.pop_back();
 
