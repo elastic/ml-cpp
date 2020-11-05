@@ -24,7 +24,6 @@ using TRowItr = core::CDataFrame::TRowItr;
 namespace {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
-const std::size_t MIN_DEPTH_FOR_UPPER_BOUND{0}; // when to start computing gain upper bound
 }
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
@@ -43,8 +42,7 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
     : m_Id{id}, m_Depth{depth}, m_ExtraColumns{extraColumns},
       m_NumberLossParameters{numberLossParameters}, m_CandidateSplits{candidateSplits} {
 
-    this->computeAggregateLossDerivatives(numberThreads, depth, frame, encoder,
-                                          rowMask, workspace);
+    this->computeAggregateLossDerivatives(numberThreads, frame, encoder, rowMask, workspace);
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 
@@ -87,9 +85,8 @@ CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
         std::min(rowsPerThreadConstraint, workPerThreadConstraint), std::size_t{1})};
     numberThreads = std::min(numberThreads, maximumNumberThreads);
 
-    this->computeRowMaskAndAggregateLossDerivatives(numberThreads, m_Depth, frame,
-                                                    encoder, isLeftChild, split,
-                                                    parent.m_RowMask, workspace);
+    this->computeRowMaskAndAggregateLossDerivatives(
+        numberThreads, frame, encoder, isLeftChild, split, parent.m_RowMask, workspace);
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 
@@ -233,7 +230,6 @@ CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(std::size_t numberFeatures,
 
 void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
     std::size_t numberThreads,
-    std::size_t depth,
     const core::CDataFrame& frame,
     const CDataFrameCategoryEncoder& encoder,
     const core::CPackedBitVector& rowMask,
@@ -249,7 +245,7 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
         splitsDerivatives.zero();
         aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                this->addRowDerivatives(encoder.encode(*row), depth, splitsDerivatives);
+                this->addRowDerivatives(encoder.encode(*row), splitsDerivatives);
             }
         });
     }
@@ -259,7 +255,6 @@ void CBoostedTreeLeafNodeStatistics::computeAggregateLossDerivatives(
 
 void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
     std::size_t numberThreads,
-    std::size_t depth,
     const core::CDataFrame& frame,
     const CDataFrameCategoryEncoder& encoder,
     bool isLeftChild,
@@ -284,7 +279,7 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
                     std::size_t index{row->index()};
                     mask.extend(false, index - mask.size());
                     mask.extend(true);
-                    this->addRowDerivatives(encodedRow, depth, splitsDerivatives);
+                    this->addRowDerivatives(encodedRow, splitsDerivatives);
                 }
             }
         });
@@ -294,12 +289,11 @@ void CBoostedTreeLeafNodeStatistics::computeRowMaskAndAggregateLossDerivatives(
 }
 
 void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRowRef& row,
-                                                       std::size_t depth,
                                                        CSplitsDerivatives& splitsDerivatives) const {
 
     auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
                                            m_NumberLossParameters);
-    if (/*depth >= MIN_DEPTH_FOR_UPPER_BOUND &&*/ derivatives.size() == 2) {
+    if (derivatives.size() == 2) {
         if (derivatives(0) >= 0.0) {
             splitsDerivatives.addPositiveDerivatives(derivatives);
         } else {

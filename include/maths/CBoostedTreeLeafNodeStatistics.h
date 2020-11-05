@@ -742,13 +742,11 @@ private:
 
 private:
     void computeAggregateLossDerivatives(std::size_t numberThreads,
-                                         std::size_t depth,
                                          const core::CDataFrame& frame,
                                          const CDataFrameCategoryEncoder& encoder,
                                          const core::CPackedBitVector& rowMask,
                                          CWorkspace& workspace) const;
     void computeRowMaskAndAggregateLossDerivatives(std::size_t numberThreads,
-                                                   std::size_t depth,
                                                    const core::CDataFrame& frame,
                                                    const CDataFrameCategoryEncoder& encoder,
                                                    bool isLeftChild,
@@ -756,7 +754,6 @@ private:
                                                    const core::CPackedBitVector& parentRowMask,
                                                    CWorkspace& workspace) const;
     void addRowDerivatives(const CEncodedDataFrameRowRef& row,
-                           std::size_t depth,
                            CSplitsDerivatives& splitsDerivatives) const;
 
     SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
