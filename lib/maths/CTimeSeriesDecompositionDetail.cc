@@ -4,10 +4,10 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "core/CIEEE754.h"
 #include <maths/CTimeSeriesDecompositionDetail.h>
 
 #include <core/CContainerPrinter.h>
+#include <core/CIEEE754.h>
 #include <core/CLogger.h>
 #include <core/CMemory.h>
 #include <core/CPersistUtils.h>
@@ -608,6 +608,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SAddValue& m
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SDetectedSeasonal&) {
+    m_Window.assign(m_Window.size(), TFloatMeanAccumulator{});
     m_ResidualMoments = TMeanVarAccumulator{};
     m_LargeErrorFraction = 0.0;
 }
@@ -623,15 +624,20 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::test(const SAddValue& mes
 
         LOG_TRACE(<< "Testing for change at " << time);
 
+        auto begin = std::find_if(m_Window.begin(), m_Window.end(), [](const auto& bucket) {
+            return CBasicStatistics::count(bucket) > 0.0;
+        });
+        std::ptrdiff_t length{std::distance(begin, m_Window.end())};
+
         TPredictor predictor{makePredictor()};
         core_t::TTime bucketsStartTime{this->startOfWindowBucket(time) -
-                                       static_cast<core_t::TTime>(m_Window.size() - 1) *
+                                       static_cast<core_t::TTime>(length - 1) *
                                            this->windowBucketLength()};
         core_t::TTime valuesStartTime{
             bucketsStartTime +
             static_cast<core_t::TTime>(CBasicStatistics::mean(m_MeanOffset))};
         double residualVariance{CBasicStatistics::maximumLikelihoodVariance(m_ResidualMoments)};
-        TFloatMeanAccumulatorVec values{m_Window.begin(), m_Window.end()};
+        TFloatMeanAccumulatorVec values{begin, m_Window.end()};
         LOG_TRACE(<< "buckets start time = " << bucketsStartTime
                   << ", values start time = " << valuesStartTime
                   << ", residual variance = " << residualVariance);
@@ -647,9 +653,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::test(const SAddValue& mes
             change->largeEnough(this->largeError()) &&
             change->longEnough(time, this->minimumChangeLength())) {
             change->apply(decomposition);
-            std::fill_n(m_Window.begin(), change->index(), TFloatMeanAccumulator{});
             m_LastChangeTime = change->time();
-            m_LargeErrorFraction = 0.0;
             this->mediator()->forward(SDetectedChangePoint{time, lastTime, std::move(change)});
         } else if (change == nullptr) {
             m_LargeErrorFraction = 0.0;
@@ -734,11 +738,11 @@ double CTimeSeriesDecompositionDetail::CChangePointTest::largeError() const {
 
 bool CTimeSeriesDecompositionDetail::CChangePointTest::shouldTest(core_t::TTime time) const {
     return time - m_LastTestTime >
-           this->minimumChangeLength() / (this->mayHaveChanged() ? 10 : 1);
+           this->minimumChangeLength() / (m_LargeErrorFraction > 0.5 ? 8 : 1);
 }
 
 core_t::TTime CTimeSeriesDecompositionDetail::CChangePointTest::minimumChangeLength() const {
-    return 30 * this->windowBucketLength();
+    return 24 * this->windowBucketLength();
 }
 
 core_t::TTime
@@ -2364,7 +2368,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::propagateForwards(c
     for (std::size_t i = 0; i < m_Components.size(); ++i) {
         core_t::TTime period{m_Components[i].time().period()};
         stepwisePropagateForwards(start, end, period, [&](double time) {
-            m_Components[i].propagateForwardsByTime(time / 8.0, 0.25);
+            m_Components[i].propagateForwardsByTime(time / 4.0, 0.25);
             m_PredictionErrors[i].age(std::exp(-m_Components[i].decayRate() * time));
         });
     }
@@ -2673,7 +2677,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CCalendar::propagateForwards(c
                                                                                core_t::TTime end) {
     for (std::size_t i = 0; i < m_Components.size(); ++i) {
         stepwisePropagateForwards(start, end, MONTH, [&](double time) {
-            m_Components[i].propagateForwardsByTime(time / 8.0);
+            m_Components[i].propagateForwardsByTime(time / 4.0);
             m_PredictionErrors[i].age(std::exp(-m_Components[i].decayRate() * time));
         });
     }

@@ -50,7 +50,8 @@ std::size_t largestShift(const TDoubleVec& shifts) {
     double largest{0.0};
     for (std::size_t i = 1; i < shifts.size(); ++i) {
         double shift{std::fabs(shifts[i] - shifts[i - 1])};
-        if (shift > largest) {
+        // We prefer the earliest shift which is within 10% of the maximum.
+        if (shift > 1.1 * largest) {
             largest = shift;
             result = i;
         }
@@ -63,7 +64,8 @@ std::size_t largestScale(const TDoubleVec& scales) {
     double largest{0.0};
     for (std::size_t i = 1; i < scales.size(); ++i) {
         double scale{std::max(scales[i] / scales[i - 1], scales[i - 1] / scales[i])};
-        if (scale > largest) {
+        // We prefer the earliest scale which is within 10% of the maximum.
+        if (scale > 1.1 * largest) {
             largest = scale;
             result = i;
         }
