@@ -436,21 +436,14 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
     double minLossLeft[2];
     double minLossRight[2];
+    double maxGainLeftChild{-INF};
+    double maxGainRightChild{-INF};
+    double gChildLeft{-INF};
+    double gChildRight{-INF};
 
-    double C{((m_Derivatives.positiveDerivativesGSum() != 0.0)
-                  ? CTools::pow2(m_Derivatives.positiveDerivativesGSum()) /
-                        (m_Derivatives.positiveDerivativesHMin() *
-                             m_Derivatives.positiveDerivativesGSum() /
-                             m_Derivatives.positiveDerivativesGMax() +
-                         lambda + 1e-10)
-                  : 0.0) +
-             ((m_Derivatives.negativeDerivativesGSum() != 0.0)
-                  ? CTools::pow2(m_Derivatives.negativeDerivativesGSum()) /
-                        (m_Derivatives.negativeDerivativesHMin() *
-                             m_Derivatives.negativeDerivativesGSum() /
-                             m_Derivatives.negativeDerivativesGMin() +
-                         lambda + 1e-10)
-                  : 0.0)};
+    double gPlus{m_Derivatives.positiveDerivativesGSum()};
+    double gMinus{m_Derivatives.negativeDerivativesGSum()};
+    double C;
 
     for (auto feature : featureBag) {
         std::size_t c{m_Derivatives.missingCount(feature)};
@@ -473,8 +466,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
         double maximumGain{-INF};
         double splitAt{-INF};
-        double maxGainLeftChild{-INF};
-        double maxGainRightChild{-INF};
+
         std::size_t leftChildRowCount{0};
         bool assignMissingToLeft{true};
         std::size_t size{m_Derivatives.derivatives(feature).size()};
@@ -530,6 +522,8 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
                 assignMissingToLeft = true;
                 maxGainLeftChild = minLossLeft[ASSIGN_MISSING_TO_LEFT];
                 maxGainRightChild = minLossRight[ASSIGN_MISSING_TO_LEFT];
+                gChildLeft = gl[ASSIGN_MISSING_TO_LEFT](0);
+                gChildRight = gr[ASSIGN_MISSING_TO_LEFT](0);
             }
             if (gain[ASSIGN_MISSING_TO_RIGHT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_RIGHT];
@@ -538,10 +532,50 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
                 assignMissingToLeft = false;
                 maxGainLeftChild = minLossLeft[ASSIGN_MISSING_TO_RIGHT];
                 maxGainRightChild = minLossRight[ASSIGN_MISSING_TO_RIGHT];
+                gChildLeft = gl[ASSIGN_MISSING_TO_RIGHT](0);
+                gChildRight = gr[ASSIGN_MISSING_TO_RIGHT](0);
             }
         }
 
+        gPlus = std::max(std::min(gChildLeft - m_Derivatives.negativeDerivativesGSum(),
+                                  m_Derivatives.positiveDerivativesGSum()),
+                         0.0);
+        gMinus = std::min(std::max(gChildLeft - m_Derivatives.positiveDerivativesGSum(),
+                                   m_Derivatives.negativeDerivativesGSum()),
+                          0.0);
+        C = ((gPlus != 0.0) ? CTools::pow2(gPlus) /
+                                  (m_Derivatives.positiveDerivativesHMin() *
+                                       m_Derivatives.positiveDerivativesGSum() /
+                                       m_Derivatives.positiveDerivativesGMax() +
+                                   lambda + 1e-10)
+                            : 0.0) +
+            ((gMinus != 0.0) ? CTools::pow2(gMinus) /
+                                   (m_Derivatives.negativeDerivativesHMin() *
+                                        m_Derivatives.negativeDerivativesGSum() /
+                                        m_Derivatives.negativeDerivativesGMin() +
+                                    lambda + 1e-10)
+                             : 0.0);
+
         maxGainLeftChild = (C == 0.0 || isnan(C)) ? INF : C - maxGainLeftChild;
+
+        gPlus = std::max(std::min(gChildRight - m_Derivatives.negativeDerivativesGSum(),
+                                  m_Derivatives.positiveDerivativesGSum()),
+                         0.0);
+        gMinus = std::min(std::max(gChildRight - m_Derivatives.positiveDerivativesGSum(),
+                                   m_Derivatives.negativeDerivativesGSum()),
+                          0.0);
+        C = ((gPlus != 0.0) ? CTools::pow2(gPlus) /
+                                  (m_Derivatives.positiveDerivativesHMin() *
+                                       m_Derivatives.positiveDerivativesGSum() /
+                                       m_Derivatives.positiveDerivativesGMax() +
+                                   lambda + 1e-10)
+                            : 0.0) +
+            ((gMinus != 0.0) ? CTools::pow2(gMinus) /
+                                   (m_Derivatives.negativeDerivativesHMin() *
+                                        m_Derivatives.negativeDerivativesGSum() /
+                                        m_Derivatives.negativeDerivativesGMin() +
+                                    lambda + 1e-10)
+                             : 0.0);
         maxGainRightChild = (C == 0.0 || isnan(C)) ? INF : C - maxGainRightChild;
 
         double penaltyForDepth{regularization.penaltyForDepth(m_Depth)};
