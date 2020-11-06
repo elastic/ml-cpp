@@ -644,7 +644,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::test(const SAddValue& mes
 
         CTimeSeriesTestForChange changeTest(
             valuesStartTime, bucketsStartTime, this->windowBucketLength(),
-            m_BucketLength, predictor, std::move(values), residualVariance / 2.0);
+            m_BucketLength, predictor, std::move(values), residualVariance);
 
         auto change = changeTest.test();
         m_LastTestTime = time;
@@ -663,7 +663,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::test(const SAddValue& mes
 }
 
 bool CTimeSeriesDecompositionDetail::CChangePointTest::mayHaveChanged() const {
-    return m_LargeErrorFraction > 0.5;
+    return m_LargeErrorFraction > 0.75;
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::propagateForwards(core_t::TTime start,
@@ -752,7 +752,8 @@ core_t::TTime CTimeSeriesDecompositionDetail::CChangePointTest::minimumChangeLen
     // we give ourselves a margin to see the revert before we commit to making
     // a change.
     return std::max(36 * core::constants::HOUR / this->windowBucketLength(),
-                    core_t::TTime{6});
+                    core_t::TTime{6}) *
+           this->windowBucketLength();
 }
 
 core_t::TTime
