@@ -60,7 +60,7 @@ public:
     public:
         explicit CParseError(const std::string& what)
             : std::runtime_error{what} {}
-        virtual ~CParseError() throw() = default;
+        virtual ~CParseError() noexcept = default;
     };
 
 public:
