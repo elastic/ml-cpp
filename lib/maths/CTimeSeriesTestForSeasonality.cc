@@ -1031,15 +1031,15 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
     periodsHypotheses.reserve(hypotheses.size());
 
     for (std::size_t i = 0; i < hypotheses.size(); ++i) {
-        // If there are scale events in the time window we need to fit a model
-        // to compute the residuals accurately.
+        // We always fit here even components we are already modelling because it's
+        // a fairer comparison with new components.
         if (hypotheses[i].s_Model) {
             m_Periods.push_back(hypotheses[i].s_Period);
             periodsHypotheses.push_back(i);
-        } else if (hypotheses[i].s_ScaleSegments.size() > 2 &&
-                   hypotheses[i].s_DiscardingModel == false &&
+        } else if (hypotheses[i].s_DiscardingModel == false &&
                    m_ModelledPeriodsTestable[hypotheses[i].s_SimilarModelled]) {
             componentsExcludedMask[hypotheses[i].s_SimilarModelled] = true;
+            m_Periods.push_back(hypotheses[i].s_Period);
             periodsHypotheses.push_back(i);
         }
     }
