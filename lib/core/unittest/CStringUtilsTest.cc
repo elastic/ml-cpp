@@ -969,4 +969,151 @@ BOOST_AUTO_TEST_CASE(testRoundtripMaxDouble) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testMemorySizeStringToBytes) {
+    bool parsedOk{false};
+    std::size_t memorySizeBytes{0};
+    const std::size_t defaultValue{1};
+
+    {
+        // All valid and specifying a whole number of bytes
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("4194304b", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(4194304, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("4194304B", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(4194304, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("5120kb", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(5242880, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("5120k", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(5242880, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("5120KB", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(5242880, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("5120K", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(5242880, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("6mb", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(6291456, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("6MB", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(6291456, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("6m", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(6291456, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("6M", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(6291456, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("7gb", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(7516192768, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("7Gb", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(7516192768, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("7G", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(7516192768, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("7g", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(7516192768, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("8Tb", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(8796093022208ULL, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("8TB", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(8796093022208ULL, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("8T", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(8796093022208ULL, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("8t", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(8796093022208ULL, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("9pb", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(10133099161583616ULL, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("9PB", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(10133099161583616ULL, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("9P", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(10133099161583616ULL, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("9p", defaultValue);
+        BOOST_TEST_REQUIRE(parsedOk);
+        BOOST_REQUIRE_EQUAL(10133099161583616ULL, memorySizeBytes);
+    }
+    {
+        // All invalid formats. Expect a default value of 1 byte to be returned.
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("5140KiB", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_REQUIRE_EQUAL(1, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("6.5mb", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_REQUIRE_EQUAL(1, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("0.9gb", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_REQUIRE_EQUAL(1, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("1terabyte", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_REQUIRE_EQUAL(1, memorySizeBytes);
+
+        std::tie(memorySizeBytes, parsedOk) =
+            ml::core::CStringUtils::memorySizeStringToBytes("2pbs", defaultValue);
+        BOOST_TEST_REQUIRE(!parsedOk);
+        BOOST_REQUIRE_EQUAL(1, memorySizeBytes);
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

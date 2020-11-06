@@ -27,7 +27,6 @@ bool CCmdLineParser::parse(int argc,
                            std::string& modelConfigFile,
                            std::string& fieldConfigFile,
                            std::string& modelPlotConfigFile,
-                           std::string& jobId,
                            std::string& logProperties,
                            std::string& logPipe,
                            core_t::TTime& bucketSpan,
@@ -171,9 +170,6 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("modelplotconfig") > 0) {
             modelPlotConfigFile = vm["modelplotconfig"].as<std::string>();
-        }
-        if (vm.count("jobid") > 0) {
-            jobId = vm["jobid"].as<std::string>();
         }
         if (vm.count("logProperties") > 0) {
             logProperties = vm["logProperties"].as<std::string>();
