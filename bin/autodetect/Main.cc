@@ -190,7 +190,6 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-
     ml::model::CLimits limits{isPersistInForeground};
     if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false) {
         LOG_FATAL(<< "ML limit config file '" << limitConfigFile << "' could not be loaded");

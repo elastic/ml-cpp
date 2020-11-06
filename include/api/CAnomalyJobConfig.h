@@ -24,9 +24,9 @@ namespace api {
 //! \brief A parser to convert JSON configuration of an anomaly job JSON into an object
 class API_EXPORT CAnomalyJobConfig {
 public:
-    class CAnalysisConfig {
+    class API_EXPORT CAnalysisConfig {
     public:
-        class CDetectorConfig {
+        class API_EXPORT CDetectorConfig {
         public:
             static const std::string FUNCTION;
             static const std::string FIELD_NAME;
@@ -131,7 +131,7 @@ public:
         std::string m_Latency{};
     };
 
-    class CDataDescription {
+    class API_EXPORT CDataDescription {
     public:
         static const std::string TIME_FIELD;
 
@@ -153,7 +153,7 @@ public:
         std::string m_TimeFormat; // e.g. epoch_ms
     };
 
-    class CModelPlotConfig {
+    class API_EXPORT CModelPlotConfig {
     public:
         static const std::string ANNOTATIONS_ENABLED;
         static const std::string ENABLED;
@@ -179,7 +179,7 @@ public:
         std::string m_Terms;
     };
 
-    class CAnalysisLimits {
+    class API_EXPORT CAnalysisLimits {
     public:
         static const std::string MODEL_MEMORY_LIMIT;
         static const std::string CATEGORIZATION_EXAMPLES_LIMIT;

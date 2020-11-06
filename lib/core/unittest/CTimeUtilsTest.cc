@@ -519,77 +519,77 @@ BOOST_AUTO_TEST_CASE(testTimeDurationStringToSeconds) {
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("14d", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(1209600, durationSeconds);
+        BOOST_REQUIRE_EQUAL(1209600, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("14D", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(1209600, durationSeconds);
+        BOOST_REQUIRE_EQUAL(1209600, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("24h", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(86400, durationSeconds);
+        BOOST_REQUIRE_EQUAL(86400, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("24H", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(86400, durationSeconds);
+        BOOST_REQUIRE_EQUAL(86400, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("15m", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(900, durationSeconds);
+        BOOST_REQUIRE_EQUAL(900, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("15M", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(900, durationSeconds);
+        BOOST_REQUIRE_EQUAL(900, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("30s", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(30, durationSeconds);
+        BOOST_REQUIRE_EQUAL(30, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("30S", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(30, durationSeconds);
+        BOOST_REQUIRE_EQUAL(30, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("2000ms", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(2, durationSeconds);
+        BOOST_REQUIRE_EQUAL(2, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("2000MS", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(2, durationSeconds);
+        BOOST_REQUIRE_EQUAL(2, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("3000000micros", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(3, durationSeconds);
+        BOOST_REQUIRE_EQUAL(3, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("3000000MICROS", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(3, durationSeconds);
+        BOOST_REQUIRE_EQUAL(3, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("3000000MiCrOs", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(3, durationSeconds);
+        BOOST_REQUIRE_EQUAL(3, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("4000000000nanos", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(4, durationSeconds);
+        BOOST_REQUIRE_EQUAL(4, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("4000000000NANOS", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(4, durationSeconds);
+        BOOST_REQUIRE_EQUAL(4, durationSeconds);
     }
 
     {
@@ -598,17 +598,17 @@ BOOST_AUTO_TEST_CASE(testTimeDurationStringToSeconds) {
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("2500ms", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(2, durationSeconds);
+        BOOST_REQUIRE_EQUAL(2, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("3800000micros", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(3, durationSeconds);
+        BOOST_REQUIRE_EQUAL(3, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("4900000000nanos", defaultValue);
         BOOST_TEST_REQUIRE(parsedOk);
-        BOOST_TEST_REQUIRE(4, durationSeconds);
+        BOOST_REQUIRE_EQUAL(4, durationSeconds);
     }
 
     {
@@ -616,47 +616,47 @@ BOOST_AUTO_TEST_CASE(testTimeDurationStringToSeconds) {
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("2w", defaultValue);
         BOOST_TEST_REQUIRE(!parsedOk);
-        BOOST_TEST_REQUIRE(1, durationSeconds);
+        BOOST_REQUIRE_EQUAL(1, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("14days", defaultValue);
         BOOST_TEST_REQUIRE(!parsedOk);
-        BOOST_TEST_REQUIRE(1, durationSeconds);
+        BOOST_REQUIRE_EQUAL(1, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("24hrs", defaultValue);
         BOOST_TEST_REQUIRE(!parsedOk);
-        BOOST_TEST_REQUIRE(1, durationSeconds);
+        BOOST_REQUIRE_EQUAL(1, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("15minutes", defaultValue);
         BOOST_TEST_REQUIRE(!parsedOk);
-        BOOST_TEST_REQUIRE(1, durationSeconds);
+        BOOST_REQUIRE_EQUAL(1, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("30seconds", defaultValue);
         BOOST_TEST_REQUIRE(!parsedOk);
-        BOOST_TEST_REQUIRE(1, durationSeconds);
+        BOOST_REQUIRE_EQUAL(1, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("2.5s", defaultValue);
         BOOST_TEST_REQUIRE(!parsedOk);
-        BOOST_TEST_REQUIRE(1, durationSeconds);
+        BOOST_REQUIRE_EQUAL(1, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) =
             ml::core::CTimeUtils::timeDurationStringToSeconds("2000millis", defaultValue);
         BOOST_TEST_REQUIRE(!parsedOk);
-        BOOST_TEST_REQUIRE(1, durationSeconds);
+        BOOST_REQUIRE_EQUAL(1, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) = ml::core::CTimeUtils::timeDurationStringToSeconds(
             "3000000Microseconds", defaultValue);
         BOOST_TEST_REQUIRE(!parsedOk);
-        BOOST_TEST_REQUIRE(1, durationSeconds);
+        BOOST_REQUIRE_EQUAL(1, durationSeconds);
 
         std::tie(durationSeconds, parsedOk) = ml::core::CTimeUtils::timeDurationStringToSeconds(
             "4000000000nanoseconds", defaultValue);
         BOOST_TEST_REQUIRE(!parsedOk);
-        BOOST_TEST_REQUIRE(1, durationSeconds);
+        BOOST_REQUIRE_EQUAL(1, durationSeconds);
     }
 }
 

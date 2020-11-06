@@ -342,9 +342,11 @@ void CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::parse(const rapidjson:
         TStrPatternSetUMap emptyMap{};
         CDetectionRulesJsonParser rulesParser(emptyMap);
         if (rulesParser.parseRules(*customRules, m_CustomRules, errorString) == false) {
-            LOG_ERROR(<< errorString << toString(*customRules));
-            throw CAnomalyJobConfigReader::CParseError(
-                "Error parsing custom rules: " + toString(*customRules));
+            // TODO Re-enable this error handling when the CDetectionRulesJsonParser instance
+            // has been constructed with a valid filter map.
+            //            LOG_ERROR(<< errorString << toString(*customRules));
+            //            throw CAnomalyJobConfigReader::CParseError(
+            //                "Error parsing custom rules: " + toString(*customRules));
         }
     }
 
