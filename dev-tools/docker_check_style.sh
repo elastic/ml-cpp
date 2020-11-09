@@ -26,6 +26,8 @@ cd "$TOOLS_DIR/.."
 DOCKERFILE="$TOOLS_DIR/docker/style_checker/Dockerfile"
 TEMP_TAG=`git rev-parse --short=14 HEAD`-style-$$
 
+. "$TOOLS_DIR/docker/prefetch_docker_image.sh"
+prefetch_docker_image "$DOCKERFILE"
 docker build --no-cache --force-rm -t $TEMP_TAG -f "$DOCKERFILE" .
 docker run --rm --workdir=/ml-cpp $TEMP_TAG dev-tools/check-style.sh --all
 RC=$?

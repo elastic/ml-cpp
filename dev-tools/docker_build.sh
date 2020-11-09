@@ -60,6 +60,8 @@ cd "$TOOLS_DIR/.."
 # necessary network access
 3rd_party/pull-eigen.sh
 
+. "$TOOLS_DIR/docker/prefetch_docker_image.sh"
+
 for PLATFORM in `echo $PLATFORMS | tr ' ' '\n' | sort -u`
 do
 
@@ -70,6 +72,7 @@ do
     DOCKERFILE="$TOOLS_DIR/docker/${PLATFORM}_builder/Dockerfile"
     TEMP_TAG=`git rev-parse --short=14 HEAD`-$PLATFORM-$$
 
+    prefetch_docker_image "$DOCKERFILE"
     docker build --no-cache --force-rm -t $TEMP_TAG --build-arg SNAPSHOT=$SNAPSHOT -f "$DOCKERFILE" .
     # Using tar to copy the build artifacts out of the container seems more reliable
     # than docker cp, and also means the files end up with the correct uid/gid
