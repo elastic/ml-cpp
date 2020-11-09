@@ -370,7 +370,7 @@ public:
 
     //! Update the prior for the specified elapsed time.
     virtual void propagateForwardsByTime(double time) {
-        if (!CMathsFuncs::isFinite(time) || time < 0.0) {
+        if (CMathsFuncs::isFinite(time) == false || time < 0.0) {
             LOG_ERROR(<< "Bad propagation time " << time);
             return;
         }
@@ -386,12 +386,21 @@ public:
         // where w(i) is its weight we can achieve this by multiplying
         // all weights by some factor f in the range [0, 1].
 
-        if (!this->isForForecasting()) {
-            m_Clusterer->propagateForwardsByTime(time);
-        }
-
+        m_Clusterer->propagateForwardsByTime(time);
         for (const auto& mode : m_Modes) {
             mode.s_Prior->propagateForwardsByTime(time);
+        }
+
+        // Remove any mode which is non-informative.
+        while (m_Modes.size() > 1) {
+            // Calling remove with the mode's index triggers a callback
+            // which also removes it from s_Modes, see CModeMergeCallback.
+            auto i = std::find_if(m_Modes.begin(), m_Modes.end(), [](const auto& mode) {
+                return mode.s_Prior->isNonInformative();
+            });
+            if (i == m_Modes.end() || m_Clusterer->remove(i->s_Index) == false) {
+                break;
+            }
         }
 
         this->numberSamples(this->numberSamples() *

@@ -85,15 +85,6 @@ public:
     void swap(CMultivariatePrior& other) noexcept;
     //@}
 
-    //! Mark the prior as being used for forecasting.
-    void forForecasting();
-
-    //! Check if this prior is being used for forecasting.
-    //!
-    //! \warning This is an irreversible action so if the prior
-    //! is still need it should be copied first.
-    bool isForForecasting() const;
-
     //! Check if the prior is being used to model discrete data.
     bool isDiscrete() const;
 
@@ -385,11 +376,6 @@ protected:
     double smallest(const TDouble10Vec& x) const;
 
 private:
-    //! Set to true if this model is being used for forecasting. Note
-    //! we don't have any need to persist forecast models so this is
-    //! is not persisted.
-    bool m_Forecasting;
-
     //! If this is true then the prior is being used to model discrete
     //! data. Note that this is not persisted and deduced from context.
     maths_t::EDataType m_DataType;

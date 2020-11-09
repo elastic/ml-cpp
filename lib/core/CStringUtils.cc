@@ -6,7 +6,9 @@
 #include <core/CStringUtils.h>
 
 #include <core/CLogger.h>
+#include <core/CRegex.h>
 #include <core/CStrCaseCmp.h>
+#include <core/Constants.h>
 
 #include <boost/multi_array.hpp>
 
@@ -16,6 +18,7 @@
 
 #include <ctype.h>
 #include <errno.h>
+#include <fstream>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -36,6 +39,15 @@ double clampToReadable(double x) {
 // program.  Of course, the locale may already be constructed before this if
 // another static object has used it.
 const std::locale& DO_NOT_USE_THIS_VARIABLE = ml::core::CStringUtils::locale();
+
+// Constants for parsing & converting memory size strings in standard ES format
+const std::string MEMORY_SIZE_FORMAT{"([\\d]+)(b|k|kb|m|mb|g|gb|t|tb|p|pb)"};
+const char BYTES{'b'};
+const char KILOBYTES{'k'};
+const char MEGABYTES{'m'};
+const char GIGABYTES{'g'};
+const char TERABYTES{'t'};
+const char PETABYTES{'p'};
 }
 
 namespace ml {
@@ -440,6 +452,67 @@ std::string CStringUtils::typeToStringPrecise(double d, CIEEE754::EPrecision pre
     }
 
     return buf;
+}
+
+CStringUtils::TSizeBoolPr
+CStringUtils::memorySizeStringToBytes(const std::string& memorySizeStr, std::size_t defaultValue) {
+    if (memorySizeStr.empty()) {
+        LOG_ERROR(<< "Unable to parse empty memory size string");
+        return {defaultValue, false};
+    }
+
+    CRegex regex;
+
+    if (regex.init(MEMORY_SIZE_FORMAT) == false) {
+        LOG_ERROR(<< "Unable to init regex " << MEMORY_SIZE_FORMAT);
+        return {defaultValue, false};
+    }
+
+    CRegex::TStrVec tokens;
+
+    const std::string lowerSizeStr{toLower(memorySizeStr)};
+
+    // permit '0' to be unit-less
+    if (lowerSizeStr == "0") {
+        return {std::size_t{0}, true};
+    }
+
+    if (regex.tokenise(lowerSizeStr, tokens) == false) {
+        LOG_ERROR(<< "Unable to parse a memory limit from " << memorySizeStr);
+        return {defaultValue, false};
+    }
+
+    if (tokens.size() != 2) {
+        LOG_INFO(<< "Got wrong number of tokens:: " << tokens.size());
+        return {defaultValue, false};
+    }
+
+    const std::string& sizeStr = tokens[0];
+    const std::string& multiplierStr = tokens[1];
+
+    std::size_t size{0};
+    if (stringToType(sizeStr, size) == false) {
+        LOG_ERROR(<< "Could not convert " << sizeStr << " to an integral size.");
+        return {defaultValue, false};
+    }
+
+    // The assumption here is that the model memory limit string has already been validated
+    // i.e. the limit is already rounded down to the closest byte with a minimum value of 1 byte.
+    if (multiplierStr[0] == BYTES) {
+        // no-op
+    } else if (multiplierStr[0] == KILOBYTES) {
+        size *= constants::BYTES_IN_KILOBYTE;
+    } else if (multiplierStr[0] == MEGABYTES) {
+        size *= constants::BYTES_IN_MEGABYTE;
+    } else if (multiplierStr[0] == GIGABYTES) {
+        size *= constants::BYTES_IN_GIGABYTE;
+    } else if (multiplierStr[0] == TERABYTES) {
+        size *= constants::BYTES_IN_TERABYTE;
+    } else if (multiplierStr[0] == PETABYTES) {
+        size *= constants::BYTES_IN_PETABYTE;
+    }
+
+    return {size, true};
 }
 
 bool CStringUtils::_stringToType(bool silent, const std::string& str, unsigned long long& i) {
@@ -997,6 +1070,17 @@ std::wstring CStringUtils::narrowToWide(const std::string& narrowStr) {
 const std::locale& CStringUtils::locale() {
     static std::locale loc;
     return loc;
+}
+
+std::pair<std::string, bool> CStringUtils::readFileToString(const std::string& fileName) {
+    std::ifstream fileStream{fileName};
+    if (fileStream.is_open() == false) {
+        LOG_ERROR(<< "Environment error: failed to open file '" << fileName << "'.");
+        return {std::string{}, false};
+    }
+    return {std::string{std::istreambuf_iterator<char>{fileStream},
+                        std::istreambuf_iterator<char>{}},
+            true};
 }
 }
 }
