@@ -36,7 +36,7 @@ const std::string TYPICAL("typical");
 const std::string VALUE("value");
 }
 
-CDetectionRulesJsonParser::CDetectionRulesJsonParser(TStrPatternSetUMap& filtersByIdMap)
+CDetectionRulesJsonParser::CDetectionRulesJsonParser(const TStrPatternSetUMap& filtersByIdMap)
     : m_FiltersByIdMap(filtersByIdMap) {
 }
 

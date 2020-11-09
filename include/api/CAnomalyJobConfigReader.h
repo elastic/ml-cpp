@@ -142,7 +142,7 @@ public:
 
     private:
         CParameter(const std::string& name, SArrayElementTag);
-        void handleFatal() const;
+        [[noreturn]] void handleFatal() const;
 
     private:
         std::string m_Name;

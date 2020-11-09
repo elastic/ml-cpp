@@ -31,7 +31,7 @@ public:
 
 public:
     //! Default constructor
-    CDetectionRulesJsonParser(TStrPatternSetUMap& filtersByIdMap);
+    CDetectionRulesJsonParser(const TStrPatternSetUMap& filtersByIdMap);
 
     //! Parses a string expected to contain a JSON array with
     //! detection rules and adds the rule objects into the given vector.
@@ -62,7 +62,7 @@ private:
 
 private:
     //! The filters per id used by categorical rule conditions.
-    TStrPatternSetUMap& m_FiltersByIdMap;
+    const TStrPatternSetUMap& m_FiltersByIdMap;
 };
 }
 }
