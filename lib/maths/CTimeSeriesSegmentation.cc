@@ -673,20 +673,20 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal(
 
     auto computeScales = [&] {
         for (std::size_t j = 1; j < segmentation.size(); ++j) {
-            TMeanAccumulator xp;
-            TMeanAccumulator pp;
+            TMeanAccumulator projection;
+            TMeanAccumulator Z;
             for (std::size_t i = segmentation[j - 1]; i < segmentation[j]; ++i) {
                 double x{CBasicStatistics::mean(reweighted[i])};
                 double w{CBasicStatistics::count(reweighted[i])};
                 double p{model(i)};
                 if (w > 0.0) {
-                    xp.add(x * p, w);
-                    pp.add(p * p, w);
+                    projection.add(x * p, w);
+                    Z.add(p * p, w);
                 }
             }
-            scales[j - 1] = CBasicStatistics::mean(pp) == 0.0
+            scales[j - 1] = CBasicStatistics::mean(Z) == 0.0
                                 ? 1.0
-                                : CBasicStatistics::mean(xp) / CBasicStatistics::mean(pp);
+                                : CBasicStatistics::mean(projection) / CBasicStatistics::mean(Z);
         }
     };
 
