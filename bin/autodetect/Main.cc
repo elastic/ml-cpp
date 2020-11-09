@@ -175,21 +175,6 @@ int main(int argc, char** argv) {
     // hence is done before reducing CPU priority.
     ml::core::CProcessPriority::reduceCpuPriority();
 
-    std::string anomalyJobConfigJson;
-    bool couldReadConfigFile;
-    std::tie(anomalyJobConfigJson, couldReadConfigFile) =
-        ml::core::CStringUtils::readFileToString(configFile);
-    if (couldReadConfigFile == false) {
-        LOG_FATAL(<< "Failed to read config file '" << configFile << "'");
-        return EXIT_FAILURE;
-    }
-
-    ml::api::CAnomalyJobConfig jobConfig;
-    if (jobConfig.parse(anomalyJobConfigJson) == false) {
-        LOG_FATAL(<< "Failed to parse anomaly job config: '" << anomalyJobConfigJson << "'");
-        return EXIT_FAILURE;
-    }
-
     ml::model::CLimits limits{isPersistInForeground};
     if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false) {
         LOG_FATAL(<< "ML limit config file '" << limitConfigFile << "' could not be loaded");
@@ -200,6 +185,22 @@ int main(int argc, char** argv) {
 
     if (fieldConfig.initFromCmdLine(fieldConfigFile, clauseTokens) == false) {
         LOG_FATAL(<< "Field config could not be interpreted");
+        return EXIT_FAILURE;
+    }
+
+    std::string anomalyJobConfigJson;
+    bool couldReadConfigFile;
+    std::tie(anomalyJobConfigJson, couldReadConfigFile) =
+        ml::core::CStringUtils::readFileToString(configFile);
+    if (couldReadConfigFile == false) {
+        LOG_FATAL(<< "Failed to read config file '" << configFile << "'");
+        return EXIT_FAILURE;
+    }
+    // For now we need to reference the rule filters parsed by the old-style
+    // field config.
+    ml::api::CAnomalyJobConfig jobConfig{fieldConfig.ruleFilters()};
+    if (jobConfig.parse(anomalyJobConfigJson) == false) {
+        LOG_FATAL(<< "Failed to parse anomaly job config: '" << anomalyJobConfigJson << "'");
         return EXIT_FAILURE;
     }
 

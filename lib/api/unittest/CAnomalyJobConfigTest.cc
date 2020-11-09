@@ -398,6 +398,25 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL(false, modelPlotConfig.enabled());
         BOOST_REQUIRE_EQUAL(false, modelPlotConfig.annotationsEnabled());
     }
+    {
+        const std::string validAnomalyJobConfigWithCustomRuleFilter{
+            "{\"job_id\":\"mean_bytes_by_clientip\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1604671135245,\"description\":\"mean bytes by clientip\","
+            "\"analysis_config\":{\"bucket_span\":\"3h\",\"detectors\":[{\"detector_description\":\"mean(bytes) by clientip\",\"function\":\"mean\",\"field_name\":\"bytes\",\"by_field_name\":\"clientip\","
+            "\"custom_rules\":[{\"actions\":[\"skip_result\"],\"scope\":{\"clientip\":{\"filter_id\":\"safe_ips\",\"filter_type\":\"include\"}},\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\":10.0}]}],"
+            "\"detector_index\":0}],\"influencers\":[\"clientip\"]},\"analysis_limits\":{\"model_memory_limit\":\"42mb\",\"categorization_examples_limit\":4},"
+            "\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},\"model_plot_config\":{\"enabled\":false,\"annotations_enabled\":false},"
+            "\"model_snapshot_retention_days\":10,\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
+
+        // Expect parsing to fail if the filter referenced by the custom rule cannot be found
+        ml::api::CAnomalyJobConfig jobConfigEmptyFilterMap;
+        BOOST_TEST_REQUIRE(!jobConfigEmptyFilterMap.parse(validAnomalyJobConfigWithCustomRuleFilter));
+
+        // Expect parsing to succeed if the filter referenced by the custom rule can be found in the filter map.
+        ml::api::CDetectionRulesJsonParser::TStrPatternSetUMap filterMap{{"safe_ips", {}}};
+        ml::api::CAnomalyJobConfig jobConfig(filterMap);
+        BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfigWithCustomRuleFilter),
+                              "Cannot parse JSON job config!");
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -73,7 +73,6 @@ bool CAnomalyJobConfigReader::CParameter::fallback(bool value) const {
     }
     if (m_Value->IsBool() == false) {
         this->handleFatal();
-        return value;
     }
     return m_Value->GetBool();
 }
@@ -84,7 +83,6 @@ std::size_t CAnomalyJobConfigReader::CParameter::fallback(std::size_t value) con
     }
     if (m_Value->IsUint64() == false) {
         this->handleFatal();
-        return value;
     }
     return m_Value->GetUint64();
 }
@@ -95,7 +93,6 @@ std::ptrdiff_t CAnomalyJobConfigReader::CParameter::fallback(std::ptrdiff_t valu
     }
     if (m_Value->IsInt64() == false) {
         this->handleFatal();
-        return value;
     }
     return m_Value->GetInt64();
 }
@@ -109,7 +106,6 @@ double CAnomalyJobConfigReader::CParameter::fallback(double value) const {
     }
     if (m_Value->IsDouble() == false) {
         this->handleFatal();
-        return value;
     }
     return m_Value->GetDouble();
 }
@@ -120,7 +116,6 @@ std::string CAnomalyJobConfigReader::CParameter::fallback(const std::string& val
     }
     if (m_Value->IsString() == false) {
         this->handleFatal();
-        return value;
     }
     return m_Value->GetString();
 }
