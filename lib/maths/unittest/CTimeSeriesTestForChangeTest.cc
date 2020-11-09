@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CContainerPrinter.h>
 #include <core/Constants.h>
 
 #include <maths/CBasicStatistics.h>
@@ -12,7 +13,6 @@
 #include <test/CRandomNumbers.h>
 
 #include "TestUtils.h"
-#include "core/CContainerPrinter.h"
 
 #include <boost/test/unit_test.hpp>
 
@@ -42,13 +42,14 @@ void testChange(const TGeneratorVec& trends,
     test::CRandomNumbers rng;
 
     core_t::TTime startTime{100000};
+    std::size_t numberTests{100};
 
     double truePositives{0.0};
     TMeanAccumulator meanError;
     TMeanAccumulator meanTimeError;
 
     TDoubleVec samples;
-    for (std::size_t test = 0; test < 100; ++test) {
+    for (std::size_t test = 0; test < numberTests; ++test) {
         if (test % 10 == 0) {
             LOG_DEBUG(<< test << "%");
         }
@@ -92,7 +93,7 @@ void testChange(const TGeneratorVec& trends,
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
     LOG_DEBUG(<< "mean time error = " << maths::CBasicStatistics::mean(meanTimeError));
 
-    truePositives /= 100.0;
+    truePositives /= static_cast<double>(numberTests);
 
     BOOST_REQUIRE(truePositives >= 0.99);
     BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.03);
@@ -110,22 +111,25 @@ BOOST_AUTO_TEST_CASE(testNoChange) {
     TDoubleVec scales{0.1, 1.0, 2.0, 3.0, 5.0, 8.0};
 
     double trueNegatives{0.0};
+    std::size_t numberTests{100};
 
     TDoubleVec noise;
-    for (std::size_t t = 0; t < 100; ++t) {
-        if (t % 10 == 0) {
-            LOG_DEBUG(<< t << "%");
+    for (std::size_t test = 0; test < numberTests; ++test) {
+        if (test % 10 == 0) {
+            LOG_DEBUG(<< test << "%");
         }
 
-        switch (t % 3) {
+        switch (test % 3) {
         case 0:
-            rng.generateNormalSamples(10.0, variances[(t / 3) % variances.size()], 100, noise);
+            rng.generateNormalSamples(
+                10.0, variances[(test / 3) % variances.size()], 100, noise);
             break;
         case 1:
-            rng.generateLogNormalSamples(1.0, scales[(t / 3) % scales.size()], 100, noise);
+            rng.generateLogNormalSamples(1.0, scales[(test / 3) % scales.size()], 100, noise);
             break;
         case 2:
-            rng.generateGammaSamples(10.0, 10.0 * scales[(t / 3) % scales.size()], 100, noise);
+            rng.generateGammaSamples(
+                10.0, 10.0 * scales[(test / 3) % scales.size()], 100, noise);
             break;
         }
 
@@ -150,7 +154,7 @@ BOOST_AUTO_TEST_CASE(testNoChange) {
         trueNegatives += change == nullptr ? 1.0 : 0.0;
     }
 
-    trueNegatives /= 100.0;
+    trueNegatives /= static_cast<double>(numberTests);
 
     BOOST_REQUIRE(trueNegatives >= 0.99);
 }

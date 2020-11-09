@@ -365,21 +365,22 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
         LOG_TRACE(<< "scale p-value = " << pValue);
 
         if (pValue < m_AcceptedFalsePostiveRate) {
-            TMeanAccumulator xp;
-            TMeanAccumulator pp;
+            TMeanAccumulator projection;
+            TMeanAccumulator Z;
             double weight{1.0};
             for (std::size_t i = residuals.size(); i > lastChangeIndex; --i, weight *= 0.9) {
                 double x{CBasicStatistics::mean(m_Values[i - 1])};
                 double p{predictor(i - 1)};
                 double w{weight * CBasicStatistics::count(residuals[i - 1])};
                 if (w > 0.0) {
-                    xp.add(x * p, w);
-                    pp.add(p * p, w);
+                    projection.add(x * p, w);
+                    Z.add(p * p, w);
                 }
             }
-            double scale{CBasicStatistics::mean(pp) == 0.0
+            double scale{CBasicStatistics::mean(Z) == 0.0
                              ? 1.0
-                             : CBasicStatistics::mean(xp) / CBasicStatistics::mean(pp)};
+                             : CBasicStatistics::mean(projection) /
+                                   CBasicStatistics::mean(Z)};
 
             SChangePoint change{E_Scale,
                                 changeIndex,

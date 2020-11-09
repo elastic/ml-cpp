@@ -24,13 +24,13 @@
 #include <maths/CXMeansOnline.h>
 #include <maths/CXMeansOnline1d.h>
 #include <maths/Constants.h>
+#include <maths/MathsTypes.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 #include <test/CTimeSeriesTestData.h>
 
 #include "TestUtils.h"
-#include "maths/MathsTypes.h"
 
 #include <boost/test/unit_test.hpp>
 

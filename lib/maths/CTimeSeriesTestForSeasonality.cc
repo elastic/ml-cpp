@@ -376,6 +376,11 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
                     trend.add(static_cast<double>(j), CBasicStatistics::mean(values[j]),
                               CBasicStatistics::count(values[j]));
                 }
+                // Note that parameters are referenced by predictor. Reading them
+                // here refreshes the values used for prediction. Computing the
+                // parameters is the bottleneck in this code and the same values
+                // are used for each prediction. We optimise removePredictions by
+                // reading them once upfront.
                 trend.parameters(parameters);
                 this->removePredictions(predictor, values);
                 return true;
@@ -393,6 +398,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
                     trend.add(static_cast<double>(j), CBasicStatistics::mean(values[j]),
                               CBasicStatistics::count(values[j]));
                 }
+                // See above.
                 trend.parameters(parameters);
             }
             values = m_Values;
