@@ -9,6 +9,7 @@
 #include <core/CLogger.h>
 
 #include <api/CDetectionRulesJsonParser.h>
+#include <api/CFieldConfig.h>
 #include <api/ImportExport.h>
 
 #include <model/CLimits.h>
@@ -41,7 +42,8 @@ public:
         public:
             CDetectorConfig() {}
 
-            void parse(const rapidjson::Value& json);
+            void parse(const rapidjson::Value& detectorConfig,
+                       const CFieldConfig::TStrPatternSetUMap& ruleFilters);
 
             std::string function() const { return m_Function; }
             std::string fieldName() const { return m_FieldName; }
@@ -90,7 +92,12 @@ public:
         using TDetectorConfigVec = std::vector<CDetectorConfig>;
 
     public:
+        //! Default constructor
         CAnalysisConfig() {}
+
+        //! Constructor taking a map of detector rule filters keyed by filter_id.
+        explicit CAnalysisConfig(const CFieldConfig::TStrPatternSetUMap& ruleFilters)
+            : m_RuleFilters(ruleFilters) {}
 
         void parse(const rapidjson::Value& json);
 
@@ -120,7 +127,7 @@ public:
         static core_t::TTime bucketSpanSeconds(const std::string& bucketSpanString);
 
     private:
-        std::size_t m_BucketSpan{300}; // 5m
+        core_t::TTime m_BucketSpan{DEFAULT_BUCKET_SPAN};
         std::string m_SummaryCountFieldName{};
         std::string m_CategorizationFieldName{};
         TStrVec m_CategorizationFilters{};
@@ -129,6 +136,9 @@ public:
         TDetectorConfigVec m_Detectors{};
         TStrVec m_Influencers{};
         std::string m_Latency{};
+
+        //! The filters per id used by categorical rule conditions.
+        CFieldConfig::TStrPatternSetUMap m_RuleFilters{};
     };
 
     class API_EXPORT CDataDescription {
@@ -218,6 +228,8 @@ public:
 public:
     //! Default constructor
     CAnomalyJobConfig() {}
+    explicit CAnomalyJobConfig(const CFieldConfig::TStrPatternSetUMap& rulesFilter)
+        : m_AnalysisConfig(rulesFilter) {}
 
     bool parse(const std::string& json);
 
