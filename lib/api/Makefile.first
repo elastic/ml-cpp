@@ -20,6 +20,8 @@ all: build
 
 SRCS= \
 CAnomalyJob.cc \
+CAnomalyJobConfig.cc \
+CAnomalyJobConfigReader.cc \
 CBenchMarker.cc \
 CBoostedTreeInferenceModelBuilder.cc \
 CCategoryIdMapper.cc \

@@ -21,6 +21,7 @@
 #include <core/CNonInstantiatable.h>
 #include <core/CProcessPriority.h>
 #include <core/CProgramCounters.h>
+#include <core/CStringUtils.h>
 #include <core/Concurrency.h>
 
 #include <ver/CBuildInfo.h>
@@ -46,17 +47,6 @@
 #include <string>
 
 namespace {
-std::pair<std::string, bool> readFileToString(const std::string& fileName) {
-    std::ifstream fileStream{fileName};
-    if (fileStream.is_open() == false) {
-        LOG_FATAL(<< "Environment error: failed to open file '" << fileName << "'.");
-        return {std::string{}, false};
-    }
-    return {std::string{std::istreambuf_iterator<char>{fileStream},
-                        std::istreambuf_iterator<char>{}},
-            true};
-}
-
 class CCleanUpOnExit : private ml::core::CNonInstantiatable {
 public:
     using TTemporaryDirectoryPtr = std::shared_ptr<ml::core::CTemporaryDirectory>;
@@ -169,7 +159,8 @@ int main(int argc, char** argv) {
 
     std::string analysisSpecificationJson;
     bool couldReadConfigFile;
-    std::tie(analysisSpecificationJson, couldReadConfigFile) = readFileToString(configFile);
+    std::tie(analysisSpecificationJson, couldReadConfigFile) =
+        ml::core::CStringUtils::readFileToString(configFile);
     if (couldReadConfigFile == false) {
         LOG_FATAL(<< "Failed to read config file '" << configFile << "'");
         return EXIT_FAILURE;

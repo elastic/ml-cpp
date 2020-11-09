@@ -20,6 +20,7 @@
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
 #include <core/CProgramCounters.h>
+#include <core/CStringUtils.h>
 #include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
@@ -29,6 +30,7 @@
 #include <model/ModelTypes.h>
 
 #include <api/CAnomalyJob.h>
+#include <api/CAnomalyJobConfig.h>
 #include <api/CCmdSkeleton.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
@@ -51,7 +53,6 @@
 #include <cstdlib>
 #include <functional>
 #include <memory>
-#include <string>
 
 int main(int argc, char** argv) {
 
@@ -87,7 +88,6 @@ int main(int argc, char** argv) {
     std::string modelConfigFile;
     std::string fieldConfigFile;
     std::string modelPlotConfigFile;
-    std::string jobId;
     std::string logProperties;
     std::string logPipe;
     ml::core_t::TTime bucketSpan{0};
@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
     TStrVec clauseTokens;
     if (ml::autodetect::CCmdLineParser::parse(
             argc, argv, configFile, limitConfigFile, modelConfigFile, fieldConfigFile,
-            modelPlotConfigFile, jobId, logProperties, logPipe, bucketSpan, latency,
+            modelPlotConfigFile, logProperties, logPipe, bucketSpan, latency,
             summaryCountFieldName, delimiter, lengthEncodedInput, timeField,
             timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
             bucketPersistInterval, maxQuantileInterval, namedPipeConnectTimeout,
@@ -175,8 +175,18 @@ int main(int argc, char** argv) {
     // hence is done before reducing CPU priority.
     ml::core::CProcessPriority::reduceCpuPriority();
 
-    if (jobId.empty()) {
-        LOG_FATAL(<< "No job ID specified");
+    std::string anomalyJobConfigJson;
+    bool couldReadConfigFile;
+    std::tie(anomalyJobConfigJson, couldReadConfigFile) =
+        ml::core::CStringUtils::readFileToString(configFile);
+    if (couldReadConfigFile == false) {
+        LOG_FATAL(<< "Failed to read config file '" << configFile << "'");
+        return EXIT_FAILURE;
+    }
+
+    ml::api::CAnomalyJobConfig jobConfig;
+    if (jobConfig.parse(anomalyJobConfigJson) == false) {
+        LOG_FATAL(<< "Failed to parse anomaly job config: '" << anomalyJobConfigJson << "'");
         return EXIT_FAILURE;
     }
 
@@ -276,6 +286,7 @@ int main(int argc, char** argv) {
             mutableFields, ioMgr.inputStream(), delimiter);
     }()};
 
+    const std::string jobId{jobConfig.jobId()};
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream{ioMgr.outputStream()};
     ml::api::CModelSnapshotJsonWriter modelSnapshotWriter{jobId, wrappedOutputStream};
 
