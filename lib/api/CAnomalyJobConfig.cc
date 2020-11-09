@@ -297,7 +297,7 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
     if (detectorsConfig != nullptr && detectorsConfig->IsArray()) {
         m_Detectors.resize(detectorsConfig->Size());
         for (std::size_t i = 0; i < detectorsConfig->Size(); ++i) {
-            m_Detectors[i].parse((*detectorsConfig)[static_cast<int>(i)]);
+            m_Detectors[i].parse((*detectorsConfig)[static_cast<int>(i)], m_RuleFilters);
         }
     }
 
@@ -321,7 +321,9 @@ core_t::TTime CAnomalyJobConfig::CAnalysisConfig::bucketSpanSeconds(const std::s
     return bucketSpanSeconds;
 }
 
-void CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::parse(const rapidjson::Value& detectorConfig) {
+void CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::parse(
+    const rapidjson::Value& detectorConfig,
+    const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters) {
     auto parameters = DETECTOR_CONFIG_READER.read(detectorConfig);
 
     m_Function = parameters[FUNCTION].as<std::string>();
@@ -336,17 +338,11 @@ void CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::parse(const rapidjson:
     auto customRules = parameters[CUSTOM_RULES].jsonObject();
     if (customRules != nullptr) {
         std::string errorString;
-        using TStrPatternSetUMap = CDetectionRulesJsonParser::TStrPatternSetUMap;
-        // TODO How to populate the filters by Id map passed to the detection rules JSON parser?
-        // Pass an empty map as a placeholder
-        TStrPatternSetUMap emptyMap{};
-        CDetectionRulesJsonParser rulesParser(emptyMap);
+        CDetectionRulesJsonParser rulesParser(ruleFilters);
         if (rulesParser.parseRules(*customRules, m_CustomRules, errorString) == false) {
-            // TODO Re-enable this error handling when the CDetectionRulesJsonParser instance
-            // has been constructed with a valid filter map.
-            //            LOG_ERROR(<< errorString << toString(*customRules));
-            //            throw CAnomalyJobConfigReader::CParseError(
-            //                "Error parsing custom rules: " + toString(*customRules));
+            LOG_ERROR(<< errorString << toString(*customRules));
+            throw CAnomalyJobConfigReader::CParseError(
+                "Error parsing custom rules: " + toString(*customRules));
         }
     }
 
