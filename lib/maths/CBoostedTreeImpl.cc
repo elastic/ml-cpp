@@ -301,7 +301,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
                   << "\nStatistics not computed: "
                   << m_Instrumentation->statisticsNotComputed() << "\nSaved: "
                   << (static_cast<double>(m_Instrumentation->statisticsNotComputed()) /
-                      m_Instrumentation->statisticsComputed()));
+                      (m_Instrumentation->statisticsNotComputed() +
+                       m_Instrumentation->statisticsComputed())));
     }
 }
 
@@ -896,6 +897,9 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
         double smallestCandidateGain =
             lastCandidateIdx >= 0 ? splitCandidateTreeNodes[lastCandidateIdx]->gain() : 0.0;
+        // TODO don't forget to remove it!
+        // smallestCandidateGain = 0.0;
+
         // if (true || smallestCandidateGain > 0.0) {
         //     LOG_INFO(<< "n " << n << " maximumNumberInternalNodes " << maximumNumberInternalNodes
         //     << " currentNumberInternalNodes " << currentNumberInternalNodes << " lastCandidateIdx " << lastCandidateIdx);
