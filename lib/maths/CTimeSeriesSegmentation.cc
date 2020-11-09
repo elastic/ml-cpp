@@ -686,7 +686,8 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal(
             }
             scales[j - 1] = CBasicStatistics::mean(Z) == 0.0
                                 ? 1.0
-                                : CBasicStatistics::mean(projection) / CBasicStatistics::mean(Z);
+                                : CBasicStatistics::mean(projection) /
+                                      CBasicStatistics::mean(Z);
         }
     };
 
