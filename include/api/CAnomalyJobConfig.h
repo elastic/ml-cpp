@@ -9,7 +9,6 @@
 #include <core/CLogger.h>
 
 #include <api/CDetectionRulesJsonParser.h>
-#include <api/CFieldConfig.h>
 #include <api/ImportExport.h>
 
 #include <model/CLimits.h>
@@ -43,7 +42,7 @@ public:
             CDetectorConfig() {}
 
             void parse(const rapidjson::Value& detectorConfig,
-                       const CFieldConfig::TStrPatternSetUMap& ruleFilters);
+                       const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters);
 
             std::string function() const { return m_Function; }
             std::string fieldName() const { return m_FieldName; }
@@ -96,7 +95,7 @@ public:
         CAnalysisConfig() {}
 
         //! Constructor taking a map of detector rule filters keyed by filter_id.
-        explicit CAnalysisConfig(const CFieldConfig::TStrPatternSetUMap& ruleFilters)
+        explicit CAnalysisConfig(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters)
             : m_RuleFilters(ruleFilters) {}
 
         void parse(const rapidjson::Value& json);
@@ -138,7 +137,7 @@ public:
         std::string m_Latency{};
 
         //! The filters per id used by categorical rule conditions.
-        CFieldConfig::TStrPatternSetUMap m_RuleFilters{};
+        CDetectionRulesJsonParser::TStrPatternSetUMap m_RuleFilters{};
     };
 
     class API_EXPORT CDataDescription {
@@ -228,7 +227,7 @@ public:
 public:
     //! Default constructor
     CAnomalyJobConfig() {}
-    explicit CAnomalyJobConfig(const CFieldConfig::TStrPatternSetUMap& rulesFilter)
+    explicit CAnomalyJobConfig(const CDetectionRulesJsonParser::TStrPatternSetUMap& rulesFilter)
         : m_AnalysisConfig(rulesFilter) {}
 
     bool parse(const std::string& json);

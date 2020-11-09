@@ -323,7 +323,7 @@ core_t::TTime CAnomalyJobConfig::CAnalysisConfig::bucketSpanSeconds(const std::s
 
 void CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::parse(
     const rapidjson::Value& detectorConfig,
-    const CFieldConfig::TStrPatternSetUMap& ruleFilters) {
+    const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters) {
     auto parameters = DETECTOR_CONFIG_READER.read(detectorConfig);
 
     m_Function = parameters[FUNCTION].as<std::string>();

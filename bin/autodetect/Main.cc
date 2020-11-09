@@ -198,7 +198,7 @@ int main(int argc, char** argv) {
     }
     // For now we need to reference the rule filters parsed by the old-style
     // field config.
-    ml::api::CAnomalyJobConfig jobConfig(fieldConfig.ruleFilters());
+    ml::api::CAnomalyJobConfig jobConfig{fieldConfig.ruleFilters()};
     if (jobConfig.parse(anomalyJobConfigJson) == false) {
         LOG_FATAL(<< "Failed to parse anomaly job config: '" << anomalyJobConfigJson << "'");
         return EXIT_FAILURE;
