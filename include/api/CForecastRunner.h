@@ -174,10 +174,10 @@ public:
 
 private:
     struct API_EXPORT SForecast {
-        SForecast() {}
+        SForecast() = default;
 
-        SForecast(SForecast&& other) noexcept;
-        SForecast& operator=(SForecast&& other) noexcept;
+        SForecast(SForecast&& other) = default;
+        SForecast& operator=(SForecast&& other) = default;
 
         SForecast(const SForecast& that) = delete;
         SForecast& operator=(const SForecast&) = delete;
