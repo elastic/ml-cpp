@@ -51,37 +51,6 @@ const std::string CForecastRunner::INFO_DEFAULT_DURATION("Forecast duration not 
 const std::string CForecastRunner::INFO_DEFAULT_EXPIRY("Forecast expires_in not specified, setting to 14 days");
 const std::string CForecastRunner::INFO_NO_MODELS_CAN_CURRENTLY_BE_FORECAST("Insufficient history to forecast for all models");
 
-CForecastRunner::SForecast::SForecast(SForecast&& other) noexcept
-    : s_ForecastId(std::move(other.s_ForecastId)),
-      s_ForecastAlias(std::move(other.s_ForecastAlias)),
-      s_ForecastSeries(std::move(other.s_ForecastSeries)),
-      s_CreateTime(other.s_CreateTime), s_StartTime(other.s_StartTime),
-      s_Duration(other.s_Duration), s_ExpiryTime(other.s_ExpiryTime),
-      s_BoundsPercentile(other.s_BoundsPercentile),
-      s_NumberOfModels(other.s_NumberOfModels),
-      s_NumberOfForecastableModels(other.s_NumberOfForecastableModels),
-      s_MemoryUsage(other.s_MemoryUsage), s_Messages(other.s_Messages),
-      s_TemporaryFolder(std::move(other.s_TemporaryFolder)) {
-}
-
-CForecastRunner::SForecast& CForecastRunner::SForecast::operator=(SForecast&& other) noexcept {
-    s_ForecastId = std::move(other.s_ForecastId);
-    s_ForecastAlias = std::move(other.s_ForecastAlias);
-    s_ForecastSeries = std::move(other.s_ForecastSeries);
-    s_CreateTime = other.s_CreateTime;
-    s_StartTime = other.s_StartTime;
-    s_Duration = other.s_Duration;
-    s_ExpiryTime = other.s_ExpiryTime;
-    s_BoundsPercentile = other.s_BoundsPercentile;
-    s_NumberOfModels = other.s_NumberOfModels;
-    s_NumberOfForecastableModels = other.s_NumberOfForecastableModels;
-    s_MemoryUsage = other.s_MemoryUsage;
-    s_Messages = other.s_Messages;
-    s_TemporaryFolder = std::move(other.s_TemporaryFolder);
-
-    return *this;
-}
-
 CForecastRunner::CForecastRunner(const std::string& jobId,
                                  core::CJsonOutputStreamWrapper& strmOut,
                                  model::CResourceMonitor& resourceMonitor)
