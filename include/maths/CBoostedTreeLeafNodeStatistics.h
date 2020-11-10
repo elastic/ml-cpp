@@ -378,6 +378,10 @@ public:
             return seed;
         }
 
+        std::size_t numberLossParameters() const {
+            return m_NumberLossParameters;
+        }
+
         void addPositiveDerivatives(TDerivativesMappedVec derivatives) {
             m_PositiveDerivativesSum += derivatives;
             m_PositiveDerivativesMin = std::min(
@@ -720,8 +724,8 @@ private:
                          bool assignMissingToLeft,
                          std::size_t leftChildRowCount, // TODO remove after stats measurement
                          std::size_t rightChildRowCount, // TODO remove after stats measurement
-                         double leftChildMaxGain = -boosted_tree_detail::INF,
-                         double rightChildMaxGain = -boosted_tree_detail::INF)
+                         double leftChildMaxGain = boosted_tree_detail::INF,
+                         double rightChildMaxGain = boosted_tree_detail::INF)
             : s_Gain{CMathsFuncs::isNan(gain) ? -boosted_tree_detail::INF : gain},
               s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
               s_MinimumChildRowCount{static_cast<std::uint32_t>(minimumChildRowCount)},
@@ -753,8 +757,8 @@ private:
         std::uint32_t s_RightChildRowCount = 0; //  TODO remove after stats measurement
         bool s_LeftChildHasFewerRows = true;
         bool s_AssignMissingToLeft = true;
-        double s_LeftChildMaxGain = -boosted_tree_detail::INF;
-        double s_RightChildMaxGain = -boosted_tree_detail::INF;
+        double s_LeftChildMaxGain = boosted_tree_detail::INF;
+        double s_RightChildMaxGain = boosted_tree_detail::INF;
     };
 
 private:

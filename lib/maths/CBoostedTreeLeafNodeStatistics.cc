@@ -575,7 +575,11 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
             childrenGainStatsGlobal = childrenGainStatsPerFeature;
         }
     }
-    if (result.s_Gain > 0) {
+    if (m_Derivatives.numberLossParameters() > 2) {
+        // short-circuit the bound computation for the multi-class case
+        result.s_LeftChildMaxGain = INF;
+        result.s_RightChildMaxGain = INF;
+    } else if (result.s_Gain > 0) {
         if (result.s_LeftChildMaxGain != 0.0) {
             maxGainLeftChild = computeChildGain(childrenGainStatsGlobal.s_GLeft, lambda,
                                                 childrenGainStatsGlobal.s_MinLossLeft);
