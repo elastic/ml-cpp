@@ -718,12 +718,16 @@ private:
                          std::size_t minimumChildRowCount,
                          bool leftChildHasFewerRows,
                          bool assignMissingToLeft,
+                         std::size_t leftChildRowCount, // TODO remove after stats measurement
+                         std::size_t rightChildRowCount, // TODO remove after stats measurement
                          double leftChildMaxGain = -boosted_tree_detail::INF,
                          double rightChildMaxGain = -boosted_tree_detail::INF)
             : s_Gain{CMathsFuncs::isNan(gain) ? -boosted_tree_detail::INF : gain},
               s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
               s_MinimumChildRowCount{static_cast<std::uint32_t>(minimumChildRowCount)},
               s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft},
+              s_LeftChildRowCount{static_cast<std::uint32_t>(leftChildRowCount)},
+              s_RightChildRowCount{static_cast<std::uint32_t>(rightChildRowCount)},
               s_LeftChildMaxGain{leftChildMaxGain}, s_RightChildMaxGain{rightChildMaxGain} {}
 
         bool operator<(const SSplitStatistics& rhs) const {
@@ -745,6 +749,8 @@ private:
         std::size_t s_Feature = -1;
         double s_SplitAt = boosted_tree_detail::INF;
         std::uint32_t s_MinimumChildRowCount = 0;
+        std::uint32_t s_LeftChildRowCount = 0; // TODO remove after stats measurement
+        std::uint32_t s_RightChildRowCount = 0; //  TODO remove after stats measurement
         bool s_LeftChildHasFewerRows = true;
         bool s_AssignMissingToLeft = true;
         double s_LeftChildMaxGain = -boosted_tree_detail::INF;
