@@ -39,7 +39,6 @@ public:
                       std::string& modelConfigFile,
                       std::string& fieldConfigFile,
                       std::string& modelPlotConfigFile,
-                      std::string& jobId,
                       std::string& logProperties,
                       std::string& logPipe,
                       core_t::TTime& bucketSpan,

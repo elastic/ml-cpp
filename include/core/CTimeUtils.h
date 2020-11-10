@@ -35,6 +35,8 @@ public:
     //! customer site
     static const core_t::TTime MAX_CLOCK_DISCREPANCY;
 
+    using TTimeBoolPr = std::pair<core_t::TTime, bool>;
+
 public:
     //! Current time in seconds since the epoch
     static core_t::TTime now();
@@ -73,6 +75,12 @@ public:
 
     //! Formats the given duration as human-readable string.
     static std::string durationToString(core_t::TTime duration);
+
+    //! Convert a string representation of a time duration (in ES format e.g. "1000ms") to a whole number
+    //! of seconds. Returns a default value if any error occurs, however the assumption is that the input string
+    //! has already been validated by ES.
+    static TTimeBoolPr timeDurationStringToSeconds(const std::string& timeDurationString,
+                                                   core_t::TTime defaultValue);
 
 private:
     //! Factor out common code from the three string conversion methods

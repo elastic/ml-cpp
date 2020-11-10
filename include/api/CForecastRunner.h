@@ -44,8 +44,10 @@ struct testValidateNoExpiry;
 struct testValidateInvalidExpiry;
 struct testValidateBrokenMessage;
 struct testValidateMissingId;
+struct testValidateProvidedMinDiskSpace;
 struct testValidateProvidedMaxMemoryLimit;
 struct testValidateProvidedTooLargeMaxMemoryLimit;
+struct testSufficientDiskSpace;
 }
 
 namespace ml {
@@ -93,10 +95,15 @@ public:
     //! The purpose of this value is to guard the rest of the system against
     //! running out of disk space.
     //! minimum disk space required for disk persistence
-    static const std::size_t MIN_FORECAST_AVAILABLE_DISK_SPACE = 4294967296ull; // 4GB
+    //! (not defined inline because we need its address)
+    static const std::size_t DEFAULT_MIN_FORECAST_AVAILABLE_DISK_SPACE;
 
     //! minimum time between stat updates to prevent to many updates in a short time
     static const std::uint64_t MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE = 3000ul; // 3s
+
+    //! default bounds percentile
+    //! (not defined inline because we need its address)
+    static const double DEFAULT_BOUNDS_PERCENTILE;
 
 private:
     static const std::string ERROR_FORECAST_REQUEST_FAILED_TO_PARSE;
@@ -167,10 +174,10 @@ public:
 
 private:
     struct API_EXPORT SForecast {
-        SForecast();
+        SForecast() = default;
 
-        SForecast(SForecast&& other) noexcept;
-        SForecast& operator=(SForecast&& other) noexcept;
+        SForecast(SForecast&& other) = default;
+        SForecast& operator=(SForecast&& other) = default;
 
         SForecast(const SForecast& that) = delete;
         SForecast& operator=(const SForecast&) = delete;
@@ -191,31 +198,34 @@ private:
         TForecastResultSeriesVec s_ForecastSeries;
 
         //! Forecast create time
-        core_t::TTime s_CreateTime;
+        core_t::TTime s_CreateTime{0};
 
         //! Forecast start time
-        core_t::TTime s_StartTime;
+        core_t::TTime s_StartTime{0};
 
         //! Forecast duration
-        core_t::TTime s_Duration;
+        core_t::TTime s_Duration{0};
 
         //! Expiration of the forecast (for automatic deletion)
-        core_t::TTime s_ExpiryTime;
+        core_t::TTime s_ExpiryTime{0};
 
         //! Forecast bounds
-        double s_BoundsPercentile;
+        double s_BoundsPercentile{DEFAULT_BOUNDS_PERCENTILE};
 
         //! total number of models
-        std::size_t s_NumberOfModels;
+        std::size_t s_NumberOfModels{0};
 
         //! total number of models able to forecast
-        std::size_t s_NumberOfForecastableModels;
+        std::size_t s_NumberOfForecastableModels{0};
 
         //! total memory required for this forecasting job (only the models)
-        std::size_t s_MemoryUsage;
+        std::size_t s_MemoryUsage{0};
 
         //! maximum allowed memory (in bytes) that this forecast can use
-        std::size_t s_MaxForecastModelMemory;
+        std::size_t s_MaxForecastModelMemory{DEFAULT_MAX_FORECAST_MODEL_MEMORY};
+
+        //! minimum free disk space (in bytes) for a forecast to use disk
+        std::size_t s_MinForecastAvailableDiskSpace{DEFAULT_MIN_FORECAST_AVAILABLE_DISK_SPACE};
 
         //! A collection storing important messages from forecasting
         TStrUSet s_Messages;
@@ -236,7 +246,8 @@ private:
     bool tryGetJob(SForecast& forecastJob);
 
     //! check for sufficient disk space
-    bool sufficientAvailableDiskSpace(const boost::filesystem::path& path);
+    static bool sufficientAvailableDiskSpace(std::size_t minForecastAvailableDiskSpace,
+                                             const boost::filesystem::path& path);
 
     //! pushes new jobs into the internal 'queue' (thread boundary)
     bool push(SForecast& forecastJob);
@@ -299,8 +310,10 @@ private:
     friend struct CForecastRunnerTest::testValidateInvalidExpiry;
     friend struct CForecastRunnerTest::testValidateBrokenMessage;
     friend struct CForecastRunnerTest::testValidateMissingId;
+    friend struct CForecastRunnerTest::testValidateProvidedMinDiskSpace;
     friend struct CForecastRunnerTest::testValidateProvidedMaxMemoryLimit;
     friend struct CForecastRunnerTest::testValidateProvidedTooLargeMaxMemoryLimit;
+    friend struct CForecastRunnerTest::testSufficientDiskSpace;
 };
 }
 }

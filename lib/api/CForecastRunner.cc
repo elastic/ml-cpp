@@ -27,6 +27,8 @@ const std::string EMPTY_STRING;
 }
 
 const std::size_t CForecastRunner::DEFAULT_MAX_FORECAST_MODEL_MEMORY{20971520}; // 20MB
+const std::size_t CForecastRunner::DEFAULT_MIN_FORECAST_AVAILABLE_DISK_SPACE{4294967296ull}; // 4GB
+const double CForecastRunner::DEFAULT_BOUNDS_PERCENTILE{0.95};
 
 const std::string CForecastRunner::ERROR_FORECAST_REQUEST_FAILED_TO_PARSE("Failed to parse forecast request: ");
 const std::string CForecastRunner::ERROR_NO_FORECAST_ID("forecast ID must be specified and non empty");
@@ -48,44 +50,6 @@ const std::string CForecastRunner::WARNING_INVALID_EXPIRY("Forecast expires_in i
 const std::string CForecastRunner::INFO_DEFAULT_DURATION("Forecast duration not specified, setting to 1 day");
 const std::string CForecastRunner::INFO_DEFAULT_EXPIRY("Forecast expires_in not specified, setting to 14 days");
 const std::string CForecastRunner::INFO_NO_MODELS_CAN_CURRENTLY_BE_FORECAST("Insufficient history to forecast for all models");
-
-CForecastRunner::SForecast::SForecast()
-    : s_ForecastId(), s_ForecastAlias(), s_ForecastSeries(), s_CreateTime(0),
-      s_StartTime(0), s_Duration(0), s_ExpiryTime(0), s_BoundsPercentile(0),
-      s_NumberOfModels(0), s_NumberOfForecastableModels(0), s_MemoryUsage(0),
-      s_Messages(), s_TemporaryFolder() {
-}
-
-CForecastRunner::SForecast::SForecast(SForecast&& other) noexcept
-    : s_ForecastId(std::move(other.s_ForecastId)),
-      s_ForecastAlias(std::move(other.s_ForecastAlias)),
-      s_ForecastSeries(std::move(other.s_ForecastSeries)),
-      s_CreateTime(other.s_CreateTime), s_StartTime(other.s_StartTime),
-      s_Duration(other.s_Duration), s_ExpiryTime(other.s_ExpiryTime),
-      s_BoundsPercentile(other.s_BoundsPercentile),
-      s_NumberOfModels(other.s_NumberOfModels),
-      s_NumberOfForecastableModels(other.s_NumberOfForecastableModels),
-      s_MemoryUsage(other.s_MemoryUsage), s_Messages(other.s_Messages),
-      s_TemporaryFolder(std::move(other.s_TemporaryFolder)) {
-}
-
-CForecastRunner::SForecast& CForecastRunner::SForecast::operator=(SForecast&& other) noexcept {
-    s_ForecastId = std::move(other.s_ForecastId);
-    s_ForecastAlias = std::move(other.s_ForecastAlias);
-    s_ForecastSeries = std::move(other.s_ForecastSeries);
-    s_CreateTime = other.s_CreateTime;
-    s_StartTime = other.s_StartTime;
-    s_Duration = other.s_Duration;
-    s_ExpiryTime = other.s_ExpiryTime;
-    s_BoundsPercentile = other.s_BoundsPercentile;
-    s_NumberOfModels = other.s_NumberOfModels;
-    s_NumberOfForecastableModels = other.s_NumberOfForecastableModels;
-    s_MemoryUsage = other.s_MemoryUsage;
-    s_Messages = other.s_Messages;
-    s_TemporaryFolder = std::move(other.s_TemporaryFolder);
-
-    return *this;
-}
 
 CForecastRunner::CForecastRunner(const std::string& jobId,
                                  core::CJsonOutputStreamWrapper& strmOut,
@@ -345,7 +309,8 @@ bool CForecastRunner::pushForecastJob(const std::string& controlMessage,
     if (totalMemoryUsage >= forecastJob.s_MaxForecastModelMemory) {
         boost::filesystem::path temporaryFolder(forecastJob.s_TemporaryFolder);
 
-        if (this->sufficientAvailableDiskSpace(temporaryFolder) == false) {
+        if (this->sufficientAvailableDiskSpace(forecastJob.s_MinForecastAvailableDiskSpace,
+                                               temporaryFolder) == false) {
             this->sendErrorMessage(forecastJob, ERROR_MEMORY_LIMIT_DISKSPACE);
             return false;
         }
@@ -415,7 +380,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
     std::istringstream stringStream(controlMessage.substr(1));
     forecastJob.s_StartTime = lastResultsTime;
 
-    core_t::TTime expiresIn = 0l;
+    core_t::TTime expiresIn = 0;
     boost::property_tree::ptree properties;
     try {
         boost::property_tree::read_json(stringStream, properties);
@@ -427,6 +392,8 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
         forecastJob.s_CreateTime = properties.get<core_t::TTime>("create_time", 0);
         forecastJob.s_MaxForecastModelMemory = properties.get<std::size_t>(
             "max_model_memory", DEFAULT_MAX_FORECAST_MODEL_MEMORY);
+        forecastJob.s_MinForecastAvailableDiskSpace = properties.get<std::size_t>(
+            "min_available_disk_space", DEFAULT_MIN_FORECAST_AVAILABLE_DISK_SPACE);
 
         // tmp storage if available
         forecastJob.s_TemporaryFolder = properties.get<std::string>("tmp_storage", EMPTY_STRING);
@@ -434,7 +401,8 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
         expiresIn = properties.get<core_t::TTime>("expires_in", -1l);
 
         // note: this is not exposed on the Java side
-        forecastJob.s_BoundsPercentile = properties.get<double>("boundspercentile", 95.0);
+        forecastJob.s_BoundsPercentile =
+            properties.get<double>("boundspercentile", DEFAULT_BOUNDS_PERCENTILE);
     } catch (const std::exception& e) {
         LOG_ERROR(<< ERROR_FORECAST_REQUEST_FAILED_TO_PARSE << e.what());
         return false;
@@ -454,7 +422,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
         return false;
     }
 
-    if (lastResultsTime == 0l) {
+    if (lastResultsTime == 0) {
         errorFunction(forecastJob, ERROR_NO_DATA_PROCESSED);
         return false;
     }
@@ -470,11 +438,11 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
         LOG_INFO(<< INFO_DEFAULT_DURATION);
     }
 
-    if (expiresIn < -1l) {
+    if (expiresIn < -1) {
         // only log
         expiresIn = DEFAULT_EXPIRY_TIME;
         LOG_INFO(<< WARNING_INVALID_EXPIRY);
-    } else if (expiresIn == -1l) {
+    } else if (expiresIn == -1) {
         // only log
         expiresIn = DEFAULT_EXPIRY_TIME;
         LOG_DEBUG(<< INFO_DEFAULT_EXPIRY);
@@ -485,7 +453,8 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
     return true;
 }
 
-bool CForecastRunner::sufficientAvailableDiskSpace(const boost::filesystem::path& path) {
+bool CForecastRunner::sufficientAvailableDiskSpace(std::size_t minForecastAvailableDiskSpace,
+                                                   const boost::filesystem::path& path) {
     boost::system::error_code errorCode;
     auto spaceInfo = boost::filesystem::space(path, errorCode);
 
@@ -495,8 +464,8 @@ bool CForecastRunner::sufficientAvailableDiskSpace(const boost::filesystem::path
         return false;
     }
 
-    if (spaceInfo.available < MIN_FORECAST_AVAILABLE_DISK_SPACE) {
-        LOG_WARN(<< "Checked disk space for " << path << " - required: " << MIN_FORECAST_AVAILABLE_DISK_SPACE
+    if (spaceInfo.available < minForecastAvailableDiskSpace) {
+        LOG_WARN(<< "Checked disk space for " << path << " - required: " << minForecastAvailableDiskSpace
                  << ", available: " << spaceInfo.available);
         return false;
     }
