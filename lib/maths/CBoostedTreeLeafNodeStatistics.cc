@@ -203,7 +203,7 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                 featureBag, true /*is left child*/, split, workspace);
             incrementStatsComputed(instrumentation);
         } else {
-            incrementStatsNotComputed(instrumentation, this->m_BestSplit.s_RightChildRowCount);
+            incrementStatsNotComputed(instrumentation, this->m_BestSplit.s_LeftChildRowCount);
         }
     }
     return {std::move(leftChild), std::move(rightChild)};
@@ -506,6 +506,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
                 splitAt = m_CandidateSplits[feature][split];
                 leftChildRowCount = cl[ASSIGN_MISSING_TO_LEFT];
                 assignMissingToLeft = true;
+                // if gain > -INF then minLossLeft and minLossRight were initialized
                 childrenGainStatsPerFeature = {minLossLeft[ASSIGN_MISSING_TO_LEFT],
                                                minLossRight[ASSIGN_MISSING_TO_LEFT],
                                                gl[ASSIGN_MISSING_TO_LEFT](0),
@@ -516,6 +517,7 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
                 splitAt = m_CandidateSplits[feature][split];
                 leftChildRowCount = cl[ASSIGN_MISSING_TO_RIGHT];
                 assignMissingToLeft = false;
+                // if gain > -INF then minLossLeft and minLossRight were initialized
                 childrenGainStatsPerFeature = {minLossLeft[ASSIGN_MISSING_TO_RIGHT],
                                                minLossRight[ASSIGN_MISSING_TO_RIGHT],
                                                gl[ASSIGN_MISSING_TO_RIGHT](0),
@@ -559,13 +561,13 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
                             regularization.depthPenaltyMultiplier() *
                                 (2.0 * childPenaltyForDepthPlusOne - childPenaltyForDepth)};
         result.s_LeftChildMaxGain =
-            0.5 * childMaxGain(childrenGainStatsGlobal.s_GLeft,
-                               childrenGainStatsGlobal.s_MinLossLeft, lambda) -
+            0.5 * this->childMaxGain(childrenGainStatsGlobal.s_GLeft,
+                                     childrenGainStatsGlobal.s_MinLossLeft, lambda) -
             childPenalty;
 
         result.s_RightChildMaxGain =
-            0.5 * childMaxGain(childrenGainStatsGlobal.s_GRight,
-                               childrenGainStatsGlobal.s_MinLossRight, lambda) -
+            0.5 * this->childMaxGain(childrenGainStatsGlobal.s_GRight,
+                                     childrenGainStatsGlobal.s_MinLossRight, lambda) -
             childPenalty;
     }
 
@@ -577,6 +579,16 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 double CBoostedTreeLeafNodeStatistics::childMaxGain(double gChild,
                                                     double minLossChild,
                                                     double lambda) const {
+
+    // This computes the maximum possible gain we can expect splitting a child node given
+    // we know the sum of the positive (g^+) and negative gradients (g^-) at its parent,
+    // the minimum curvature on the positive and negative gradient set (hmin^+ and hmin^-)
+    // and largest and smallest gradient (gmax and gmin, respectively). The highest possible
+    // gain consistent with these constraints can be shown to be:
+    // (g^+)^2 / (hmin^+ * g^+ / gmax + lambda) + (g^-)^2 / (hmin^- * g^- / gmin + lambda)
+    // Since gchild = gchild^+ + gchild^-, we can improve estimates on g^+ and g^- for the child as:
+    // g^+ = max(min(gchild - g^-, g^+), 0),
+    // g^- = max(min(gchild - g^+, g^-), 0).
     double positiveDerivativesGSum =
         std::max(std::min(gChild - m_Derivatives.negativeDerivativesGSum(),
                           m_Derivatives.positiveDerivativesGSum()),

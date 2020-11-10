@@ -297,6 +297,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
 
     if (m_Instrumentation != nullptr) {
+        // TODO remove once performance measurements are finished
         LOG_INFO(<< "Statistics computed: " << m_Instrumentation->statisticsComputed()
                  << "\tnot computed: " << m_Instrumentation->statisticsNotComputed() << "\t saved: "
                  << (static_cast<double>(m_Instrumentation->statisticsNotComputed()) /
@@ -817,7 +818,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     workspace.reinitialize(m_NumberThreads, candidateSplits, m_Loss->numberParameters());
 
     TNodeVec tree(1);
-    // since number of leaves in a perfect binary tree is (numberInternalNodes+1)
+    // Since number of leaves in a perfect binary tree is (numberInternalNodes+1)
     // the total number of nodes in a tree is (2*numberInternalNodes+1)
     tree.reserve(2 * maximumNumberInternalNodes + 1);
 
@@ -827,8 +828,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     TSizeVec featureBag;
     this->featureBag(featureSampleProbabilities, featureBag);
 
-    TLeafNodeStatisticsPtrQueue splitCandidateTreeNodes(maximumNumberInternalNodes / 2 + 3);
-    splitCandidateTreeNodes.push_back(std::make_shared<CBoostedTreeLeafNodeStatistics>(
+    TLeafNodeStatisticsPtrQueue splittableLeaves(maximumNumberInternalNodes / 2 + 3);
+    splittableLeaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatistics>(
         0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
         frame, *m_Encoder, m_Regularization, candidateSplits, featureBag,
         0 /*depth*/, trainingRowMask, workspace));
@@ -843,7 +844,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         memory.s_Current += delta;
         memory.s_Max = std::max(memory.s_Max, memory.s_Current);
     }};
-    CScopeRecordMemoryUsage scopeMemoryUsage{splitCandidateTreeNodes,
+    CScopeRecordMemoryUsage scopeMemoryUsage{splittableLeaves,
                                              std::move(localRecordMemoryUsage)};
     scopeMemoryUsage.add(workspace);
 
@@ -858,12 +859,12 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
     for (std::size_t i = 0; i < maximumNumberInternalNodes; ++i) {
 
-        if (splitCandidateTreeNodes.empty()) {
+        if (splittableLeaves.empty()) {
             break;
         }
 
-        auto leaf = splitCandidateTreeNodes.back();
-        splitCandidateTreeNodes.pop_back();
+        auto leaf = splittableLeaves.back();
+        splittableLeaves.pop_back();
 
         scopeMemoryUsage.remove(leaf);
 
@@ -891,11 +892,16 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         featureSampleProbabilities = m_FeatureSampleProbabilities;
         this->featureBag(featureSampleProbabilities, featureBag);
 
-        std::size_t n{splitCandidateTreeNodes.size()};
+        std::size_t numberSplittableLeaves{splittableLeaves.size()};
         std::size_t currentNumberInternalNodes{(tree.size() - 1) / 2};
-        std::size_t lastCandidateIdx{n - (maximumNumberInternalNodes - currentNumberInternalNodes)};
+        auto smallestCurrentCandidateGainIndex =
+            static_cast<std::ptrdiff_t>(numberSplittableLeaves) -
+            static_cast<std::ptrdiff_t>(maximumNumberInternalNodes - currentNumberInternalNodes);
         double smallestCandidateGain{
-            lastCandidateIdx >= 0 ? splitCandidateTreeNodes[lastCandidateIdx]->gain() : 0.0};
+            smallestCurrentCandidateGainIndex >= 0
+                ? splittableLeaves[static_cast<std::size_t>(smallestCurrentCandidateGainIndex)]
+                      ->gain()
+                : 0.0};
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
@@ -912,22 +918,22 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         if (leftChild != nullptr &&
             leftChild->gain() >= MINIMUM_RELATIVE_GAIN_PER_SPLIT * totalGain) {
             scopeMemoryUsage.add(leftChild);
-            splitCandidateTreeNodes.push_back(std::move(leftChild));
+            splittableLeaves.push_back(std::move(leftChild));
         }
         if (rightChild != nullptr &&
             rightChild->gain() >= MINIMUM_RELATIVE_GAIN_PER_SPLIT * totalGain) {
             scopeMemoryUsage.add(rightChild);
-            splitCandidateTreeNodes.push_back(std::move(rightChild));
+            splittableLeaves.push_back(std::move(rightChild));
         }
-        std::inplace_merge(splitCandidateTreeNodes.begin(),
-                           splitCandidateTreeNodes.begin() + n,
-                           splitCandidateTreeNodes.end(), less);
+        std::inplace_merge(splittableLeaves.begin(),
+                           splittableLeaves.begin() + numberSplittableLeaves,
+                           splittableLeaves.end(), less);
 
         // Drop any leaves which can't possibly be split.
-        while (splitCandidateTreeNodes.size() + i + 1 > maximumNumberInternalNodes) {
-            scopeMemoryUsage.remove(splitCandidateTreeNodes.front());
-            workspace.minimumGain(splitCandidateTreeNodes.front()->gain());
-            splitCandidateTreeNodes.pop_front();
+        while (splittableLeaves.size() + i + 1 > maximumNumberInternalNodes) {
+            scopeMemoryUsage.remove(splittableLeaves.front());
+            workspace.minimumGain(splittableLeaves.front()->gain());
+            splittableLeaves.pop_front();
         }
     }
 

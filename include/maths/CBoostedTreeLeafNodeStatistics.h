@@ -184,20 +184,19 @@ public:
     class MATHS_EXPORT CSplitsDerivatives {
     public:
         using TDerivativesVec = std::vector<CDerivatives>;
-        using TDerivativesMappedVec = boosted_tree_detail::TAlignedMemoryMappedFloatVector;
 
     public:
         explicit CSplitsDerivatives(std::size_t numberLossParameters = 0)
             : m_NumberLossParameters{numberLossParameters},
-              m_PositiveDerivativesSum{TDerivatives2D::Zero()},
-              m_NegativeDerivativesSum{TDerivatives2D::Zero()},
+              m_PositiveDerivativesSum{TDerivatives2x1::Zero()},
+              m_NegativeDerivativesSum{TDerivatives2x1::Zero()},
               m_PositiveDerivativesMax{-boosted_tree_detail::INF},
               m_PositiveDerivativesMin{boosted_tree_detail::INF},
               m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {}
         CSplitsDerivatives(const TImmutableRadixSetVec& candidateSplits, std::size_t numberLossParameters)
             : m_NumberLossParameters{numberLossParameters},
-              m_PositiveDerivativesSum{TDerivatives2D::Zero()},
-              m_NegativeDerivativesSum{TDerivatives2D::Zero()},
+              m_PositiveDerivativesSum{TDerivatives2x1::Zero()},
+              m_NegativeDerivativesSum{TDerivatives2x1::Zero()},
               m_PositiveDerivativesMax{-boosted_tree_detail::INF},
               m_PositiveDerivativesMin{boosted_tree_detail::INF},
               m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {
@@ -205,8 +204,8 @@ public:
         }
         CSplitsDerivatives(const CSplitsDerivatives& other)
             : m_NumberLossParameters{other.m_NumberLossParameters},
-              m_PositiveDerivativesSum{TDerivatives2D::Zero()},
-              m_NegativeDerivativesSum{TDerivatives2D::Zero()},
+              m_PositiveDerivativesSum{TDerivatives2x1::Zero()},
+              m_NegativeDerivativesSum{TDerivatives2x1::Zero()},
               m_PositiveDerivativesMax{-boosted_tree_detail::INF},
               m_PositiveDerivativesMin{boosted_tree_detail::INF},
               m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {
@@ -382,7 +381,7 @@ public:
             return m_NumberLossParameters;
         }
 
-        void addPositiveDerivatives(const TDerivativesMappedVec& derivatives) {
+        void addPositiveDerivatives(const TMemoryMappedFloatVector& derivatives) {
             m_PositiveDerivativesSum += derivatives;
             m_PositiveDerivativesMin = std::min(
                 m_PositiveDerivativesMin, static_cast<double>(derivatives(1)));
@@ -390,7 +389,7 @@ public:
                 m_PositiveDerivativesMax, static_cast<double>(derivatives(0)));
         }
 
-        void addNegativeDerivatives(const TDerivativesMappedVec& derivatives) {
+        void addNegativeDerivatives(const TMemoryMappedFloatVector& derivatives) {
             m_NegativeDerivativesSum += derivatives;
             m_NegativeDerivativesMin = m_NegativeDerivativesMin.cwiseMin(derivatives);
         }
@@ -422,7 +421,7 @@ public:
     private:
         using TDerivativesVecVec = std::vector<TDerivativesVec>;
         using TAlignedDoubleVec = std::vector<double, core::CAlignedAllocator<double>>;
-        using TDerivatives2D = Eigen::Matrix<double, 2, 1>;
+        using TDerivatives2x1 = Eigen::Matrix<double, 2, 1>;
 
     private:
         static std::size_t number(const TDerivativesVec& derivatives) {
@@ -492,11 +491,11 @@ public:
         TDerivativesVecVec m_Derivatives;
         TDerivativesVec m_MissingDerivatives;
         TAlignedDoubleVec m_Storage;
-        TDerivatives2D m_PositiveDerivativesSum;
-        TDerivatives2D m_NegativeDerivativesSum;
+        TDerivatives2x1 m_PositiveDerivativesSum;
+        TDerivatives2x1 m_NegativeDerivativesSum;
         double m_PositiveDerivativesMax;
         double m_PositiveDerivativesMin;
-        TDerivatives2D m_NegativeDerivativesMin;
+        TDerivatives2x1 m_NegativeDerivativesMin;
     };
 
     //! \brief The derivatives and row masks objects to use for computations.
