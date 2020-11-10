@@ -354,30 +354,6 @@ void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRo
     }
 }
 
-// void CBoostedTreeLeafNodeStatistics::addRowDerivativesUpdateBounds(
-//     const CEncodedDataFrameRowRef& row,
-//     CSplitsDerivatives& splitsDerivatives) const {
-
-//     auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
-//                                            m_NumberLossParameters);
-//     if (derivatives(0) >= 0.0) {
-//         splitsDerivatives.addPositiveDerivatives(derivatives);
-//     } else {
-//         splitsDerivatives.addNegativeDerivatives(derivatives);
-//     }
-
-//     std::size_t numberFeatures{m_CandidateSplits.size()};
-//     for (std::size_t feature = 0; feature < numberFeatures; ++feature) {
-//         double featureValue{row[feature]};
-//         if (CDataFrameUtils::isMissing(featureValue)) {
-//             splitsDerivatives.addMissingDerivatives(feature, derivatives);
-//         } else {
-//             std::ptrdiff_t split{m_CandidateSplits[feature].upperBound(featureValue)};
-//             splitsDerivatives.addDerivatives(feature, split, derivatives);
-//         }
-//     }
-// }
-
 CBoostedTreeLeafNodeStatistics::SSplitStatistics
 CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization& regularization,
                                                            const TSizeVec& featureBag) const {
@@ -452,10 +428,8 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
     TDoubleMatrix hr[]{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
 
     double gain[2];
-    double minLossLeft[2];
-    double minLossRight[2];
-    double maxGainLeftChild{-INF};
-    double maxGainRightChild{-INF};
+    double minLossLeft[2]{0.0, 0.0};
+    double minLossRight[2]{0.0, 0.0};
     SChildredGainStats childrenGainStatsGlobal;
     SChildredGainStats childrenGainStatsPerFeature;
 
@@ -480,7 +454,6 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
         double maximumGain{-INF};
         double splitAt{-INF};
-
         std::size_t leftChildRowCount{0};
         bool assignMissingToLeft{true};
         std::size_t size{m_Derivatives.derivatives(feature).size()};
@@ -580,27 +553,20 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
         result.s_LeftChildMaxGain = INF;
         result.s_RightChildMaxGain = INF;
     } else if (result.s_Gain > 0) {
-        if (result.s_LeftChildMaxGain != 0.0) {
-            maxGainLeftChild = computeChildGain(childrenGainStatsGlobal.s_GLeft, lambda,
-                                                childrenGainStatsGlobal.s_MinLossLeft);
-        }
-
-        if (result.s_RightChildMaxGain != 0.0) {
-            maxGainRightChild = computeChildGain(childrenGainStatsGlobal.s_GRight, lambda,
-                                                 childrenGainStatsGlobal.s_MinLossRight);
-        }
-
         double childPenaltyForDepth{regularization.penaltyForDepth(m_Depth + 1)};
         double childPenaltyForDepthPlusOne{regularization.penaltyForDepth(m_Depth + 2)};
         double childPenalty{regularization.treeSizePenaltyMultiplier() +
                             regularization.depthPenaltyMultiplier() *
                                 (2.0 * childPenaltyForDepthPlusOne - childPenaltyForDepth)};
-        result.s_LeftChildMaxGain = 0.5 * maxGainLeftChild - childPenalty;
-        result.s_RightChildMaxGain = 0.5 * maxGainRightChild - childPenalty;
+        result.s_LeftChildMaxGain =
+            0.5 * childMaxGain(childrenGainStatsGlobal.s_GLeft,
+                               childrenGainStatsGlobal.s_MinLossLeft, lambda) -
+            childPenalty;
 
-    } else {
-        result.s_LeftChildMaxGain = -INF;
-        result.s_RightChildMaxGain = -INF;
+        result.s_RightChildMaxGain =
+            0.5 * childMaxGain(childrenGainStatsGlobal.s_GRight,
+                               childrenGainStatsGlobal.s_MinLossRight, lambda) -
+            childPenalty;
     }
 
     LOG_TRACE(<< "best split: " << result.print());
@@ -608,9 +574,9 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
     return result;
 }
 
-double CBoostedTreeLeafNodeStatistics::computeChildGain(double gChild,
-                                                        double lambda,
-                                                        double maxGainChild) const {
+double CBoostedTreeLeafNodeStatistics::childMaxGain(double gChild,
+                                                    double minLossChild,
+                                                    double lambda) const {
     double positiveDerivativesGSum =
         std::max(std::min(gChild - m_Derivatives.negativeDerivativesGSum(),
                           m_Derivatives.positiveDerivativesGSum()),
@@ -631,7 +597,7 @@ double CBoostedTreeLeafNodeStatistics::computeChildGain(double gChild,
                                          m_Derivatives.negativeDerivativesGMin() +
                                      lambda + 1e-10)
                               : 0.0)};
-    return lookAheadGain - maxGainChild;
+    return lookAheadGain - minLossChild;
 }
 }
 }

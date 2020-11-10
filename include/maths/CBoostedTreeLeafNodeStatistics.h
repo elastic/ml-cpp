@@ -382,7 +382,7 @@ public:
             return m_NumberLossParameters;
         }
 
-        void addPositiveDerivatives(TDerivativesMappedVec derivatives) {
+        void addPositiveDerivatives(const TDerivativesMappedVec& derivatives) {
             m_PositiveDerivativesSum += derivatives;
             m_PositiveDerivativesMin = std::min(
                 m_PositiveDerivativesMin, static_cast<double>(derivatives(1)));
@@ -390,7 +390,7 @@ public:
                 m_PositiveDerivativesMax, static_cast<double>(derivatives(0)));
         }
 
-        void addNegativeDerivatives(TDerivativesMappedVec derivatives) {
+        void addNegativeDerivatives(const TDerivativesMappedVec& derivatives) {
             m_NegativeDerivativesSum += derivatives;
             m_NegativeDerivativesMin = m_NegativeDerivativesMin.cwiseMin(derivatives);
         }
@@ -423,7 +423,6 @@ public:
         using TDerivativesVecVec = std::vector<TDerivativesVec>;
         using TAlignedDoubleVec = std::vector<double, core::CAlignedAllocator<double>>;
         using TDerivatives2D = Eigen::Matrix<double, 2, 1>;
-        using TDerivatives1D = double;
 
     private:
         static std::size_t number(const TDerivativesVec& derivatives) {
@@ -495,8 +494,8 @@ public:
         TAlignedDoubleVec m_Storage;
         TDerivatives2D m_PositiveDerivativesSum;
         TDerivatives2D m_NegativeDerivativesSum;
-        TDerivatives1D m_PositiveDerivativesMax;
-        TDerivatives1D m_PositiveDerivativesMin;
+        double m_PositiveDerivativesMax;
+        double m_PositiveDerivativesMin;
         TDerivatives2D m_NegativeDerivativesMin;
     };
 
@@ -523,7 +522,6 @@ public:
                           const TImmutableRadixSetVec& candidateSplits,
                           std::size_t numberLossParameters) {
             m_MinimumGain = 0.0;
-            m_NumberLossParameters = numberLossParameters;
             m_Masks.resize(numberThreads);
             m_Derivatives.reserve(numberThreads);
             for (auto& mask : m_Masks) {
@@ -592,13 +590,8 @@ public:
                    core::CMemory::dynamicSize(m_Derivatives);
         }
 
-        std::size_t numberLossParameters() const {
-            return m_NumberLossParameters;
-        }
-
     private:
         std::size_t m_NumberThreads = 0;
-        std::size_t m_NumberLossParameters = 0;
         double m_MinimumGain = 0.0;
         bool m_ReducedMasks = false;
         bool m_ReducedDerivatives = false;
@@ -706,8 +699,6 @@ public:
                                            std::size_t numberSplitsPerFeature,
                                            std::size_t numberLossParameters);
 
-    std::size_t depth() const { return m_Depth; }
-
 private:
     using TSizeVecCRef = std::reference_wrapper<const TSizeVec>;
 
@@ -729,9 +720,9 @@ private:
             : s_Gain{CMathsFuncs::isNan(gain) ? -boosted_tree_detail::INF : gain},
               s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
               s_MinimumChildRowCount{static_cast<std::uint32_t>(minimumChildRowCount)},
-              s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft},
               s_LeftChildRowCount{static_cast<std::uint32_t>(leftChildRowCount)},
               s_RightChildRowCount{static_cast<std::uint32_t>(rightChildRowCount)},
+              s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft},
               s_LeftChildMaxGain{leftChildMaxGain}, s_RightChildMaxGain{rightChildMaxGain} {}
 
         bool operator<(const SSplitStatistics& rhs) const {
@@ -777,13 +768,10 @@ private:
     void addRowDerivatives(const CEncodedDataFrameRowRef& row,
                            CSplitsDerivatives& splitsDerivatives) const;
 
-    // void addRowDerivativesUpdateBounds(const CEncodedDataFrameRowRef& row,
-    //                                    CSplitsDerivatives& splitsDerivatives) const;
-
     SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;
 
-    double computeChildGain(double gChild, double lambda, double maxGainChild) const;
+    double childMaxGain(double gChild, double minLossChild, double lambda) const;
 
 private:
     std::size_t m_Id;
