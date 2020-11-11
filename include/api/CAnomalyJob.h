@@ -70,9 +70,6 @@ class CFieldConfig;
 //!
 class API_EXPORT CAnomalyJob : public CDataProcessor {
 public:
-    //! Elasticsearch index for state
-    static const std::string ML_STATE_INDEX;
-
     //! Discriminant for Elasticsearch IDs
     static const std::string STATE_TYPE;
 

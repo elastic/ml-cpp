@@ -41,7 +41,6 @@ const std::string EMPTY_STRING;
 } // unnamed
 
 // Initialise statics
-const std::string CFieldDataCategorizer::ML_STATE_INDEX{".ml-state"};
 const std::string CFieldDataCategorizer::MLCATEGORY_NAME{"mlcategory"};
 const double CFieldDataCategorizer::SIMILARITY_THRESHOLD{0.7};
 const std::string CFieldDataCategorizer::STATE_TYPE{"categorizer_state"};
@@ -280,7 +279,6 @@ bool CFieldDataCategorizer::restoreState(core::CDataSearcher& restoreSearcher,
     try {
         // Restore from Elasticsearch compressed data
         core::CStateDecompressor decompressor(restoreSearcher);
-        decompressor.setStateRestoreSearch(ML_STATE_INDEX);
 
         core::CDataSearcher::TIStreamP strm(decompressor.search(1, 1));
         if (strm == nullptr) {
@@ -484,8 +482,7 @@ bool CFieldDataCategorizer::doPersistState(const TStrVec& partitionFieldValues,
     try {
         core::CStateCompressor compressor{persister};
 
-        core::CDataAdder::TOStreamP strm{
-            compressor.addStreamed(ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE)};
+        core::CDataAdder::TOStreamP strm{compressor.addStreamed(m_JobId + '_' + STATE_TYPE)};
 
         if (strm == nullptr) {
             LOG_ERROR(<< "Failed to create persistence stream");

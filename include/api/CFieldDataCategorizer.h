@@ -71,8 +71,6 @@ class CPersistenceManager;
 //!
 class API_EXPORT CFieldDataCategorizer : public CDataProcessor {
 public:
-    //! The index where state is stored
-    static const std::string ML_STATE_INDEX;
     //! The name of the field where the category is going to be written
     static const std::string MLCATEGORY_NAME;
 
