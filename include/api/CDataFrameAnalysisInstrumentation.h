@@ -10,6 +10,7 @@
 #include <core/CProgramCounters.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 
 #include <api/ImportExport.h>
@@ -197,11 +198,21 @@ public:
     //! \return Structure contains hyperparameters.
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; }
 
+    std::size_t& statisticsComputed() override { return m_StatsComputed; }
+    std::size_t& statisticsNotComputed() override { return m_StatsNotComputed; }
+    virtual void rowsSkipped(std::uint32_t numberRows) override {
+        m_RowsAccumulator.add(numberRows);
+    }
+    virtual std::uint32_t rowsSkipped() override {
+        return maths::CBasicStatistics::mean(m_RowsAccumulator);
+    }
+
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
 
 private:
     using TLossVec = std::vector<std::pair<std::size_t, TDoubleVec>>;
+    using TRowsAccumulator = maths::CBasicStatistics::SSampleMean<std::uint32_t>::TAccumulator;
 
 private:
     void writeAnalysisStats(std::int64_t timestamp) override;
@@ -219,6 +230,10 @@ private:
     std::string m_LossType;
     TLossVec m_LossValues;
     SHyperparameters m_Hyperparameters;
+
+    std::size_t m_StatsComputed = 0;
+    std::size_t m_StatsNotComputed = 0;
+    TRowsAccumulator m_RowsAccumulator;
 };
 }
 }
