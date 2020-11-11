@@ -16,6 +16,7 @@
 #include <maths/CBoostedTreeHyperparameters.h>
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CChecksum.h>
+#include <maths/CDataFrameAnalysisInstrumentationInterface.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CLinearAlgebraShims.h>
 #include <maths/CMathsFuncs.h>
@@ -61,6 +62,7 @@ public:
     using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
     using TMemoryMappedDoubleVector = CMemoryMappedDenseVector<double, Eigen::Aligned16>;
     using TMemoryMappedDoubleMatrix = CMemoryMappedDenseMatrix<double, Eigen::Aligned16>;
+    using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
 
     //! \brief Accumulates aggregate derivatives.
     class MATHS_EXPORT CDerivatives {
@@ -185,13 +187,28 @@ public:
 
     public:
         explicit CSplitsDerivatives(std::size_t numberLossParameters = 0)
-            : m_NumberLossParameters{numberLossParameters} {}
+            : m_NumberLossParameters{numberLossParameters},
+              m_PositiveDerivativesSum{TDerivatives2x1::Zero()},
+              m_NegativeDerivativesSum{TDerivatives2x1::Zero()},
+              m_PositiveDerivativesMax{-boosted_tree_detail::INF},
+              m_PositiveDerivativesMin{boosted_tree_detail::INF},
+              m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {}
         CSplitsDerivatives(const TImmutableRadixSetVec& candidateSplits, std::size_t numberLossParameters)
-            : m_NumberLossParameters{numberLossParameters} {
+            : m_NumberLossParameters{numberLossParameters},
+              m_PositiveDerivativesSum{TDerivatives2x1::Zero()},
+              m_NegativeDerivativesSum{TDerivatives2x1::Zero()},
+              m_PositiveDerivativesMax{-boosted_tree_detail::INF},
+              m_PositiveDerivativesMin{boosted_tree_detail::INF},
+              m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {
             this->map(candidateSplits);
         }
         CSplitsDerivatives(const CSplitsDerivatives& other)
-            : m_NumberLossParameters{other.m_NumberLossParameters} {
+            : m_NumberLossParameters{other.m_NumberLossParameters},
+              m_PositiveDerivativesSum{TDerivatives2x1::Zero()},
+              m_NegativeDerivativesSum{TDerivatives2x1::Zero()},
+              m_PositiveDerivativesMax{-boosted_tree_detail::INF},
+              m_PositiveDerivativesMin{boosted_tree_detail::INF},
+              m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {
             this->map(other.m_Derivatives);
             this->add(other);
         }
@@ -218,6 +235,11 @@ public:
             m_Derivatives.swap(other.m_Derivatives);
             m_MissingDerivatives.swap(other.m_MissingDerivatives);
             m_Storage.swap(other.m_Storage);
+            std::swap(m_PositiveDerivativesSum, other.m_PositiveDerivativesSum);
+            std::swap(m_NegativeDerivativesSum, other.m_NegativeDerivativesSum);
+            std::swap(m_PositiveDerivativesMax, other.m_PositiveDerivativesMax);
+            std::swap(m_PositiveDerivativesMin, other.m_PositiveDerivativesMin);
+            std::swap(m_NegativeDerivativesMin, other.m_NegativeDerivativesMin);
         }
 
         //! \return The aggregate count for \p feature and \p split.
@@ -272,6 +294,12 @@ public:
 
         //! Zero all values.
         void zero() {
+            m_PositiveDerivativesSum.fill(0.0);
+            m_NegativeDerivativesSum.fill(0.0);
+            m_PositiveDerivativesMax = -boosted_tree_detail::INF;
+            m_PositiveDerivativesMin = boosted_tree_detail::INF;
+            m_NegativeDerivativesMin.fill(boosted_tree_detail::INF);
+
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].zero();
@@ -282,6 +310,15 @@ public:
 
         //! Compute the accumulation of both collections of per split derivatives.
         void add(const CSplitsDerivatives& other) {
+            m_PositiveDerivativesSum += other.m_PositiveDerivativesSum;
+            m_NegativeDerivativesSum += other.m_NegativeDerivativesSum;
+            m_PositiveDerivativesMax = std::max(m_PositiveDerivativesMax,
+                                                other.m_PositiveDerivativesMax);
+            m_PositiveDerivativesMin = std::min(m_PositiveDerivativesMin,
+                                                other.m_PositiveDerivativesMin);
+            m_NegativeDerivativesMin =
+                m_NegativeDerivativesMin.cwiseMin(other.m_NegativeDerivativesMin);
+
             for (std::size_t i = 0; i < other.m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < other.m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].add(other.m_Derivatives[i][j]);
@@ -292,6 +329,8 @@ public:
 
         //! Subtract \p rhs.
         void subtract(const CSplitsDerivatives& rhs) {
+            m_PositiveDerivativesSum -= rhs.m_PositiveDerivativesSum;
+            m_NegativeDerivativesSum -= rhs.m_NegativeDerivativesSum;
             for (std::size_t i = 0; i < m_Derivatives.size(); ++i) {
                 for (std::size_t j = 0; j < m_Derivatives[i].size(); ++j) {
                     m_Derivatives[i][j].subtract(rhs.m_Derivatives[i][j]);
@@ -338,9 +377,51 @@ public:
             return seed;
         }
 
+        std::size_t numberLossParameters() const {
+            return m_NumberLossParameters;
+        }
+
+        void addPositiveDerivatives(const TMemoryMappedFloatVector& derivatives) {
+            m_PositiveDerivativesSum += derivatives;
+            m_PositiveDerivativesMin = std::min(
+                m_PositiveDerivativesMin, static_cast<double>(derivatives(1)));
+            m_PositiveDerivativesMax = std::max(
+                m_PositiveDerivativesMax, static_cast<double>(derivatives(0)));
+        }
+
+        void addNegativeDerivatives(const TMemoryMappedFloatVector& derivatives) {
+            m_NegativeDerivativesSum += derivatives;
+            m_NegativeDerivativesMin = m_NegativeDerivativesMin.cwiseMin(derivatives);
+        }
+
+        double positiveDerivativesGSum() const {
+            return m_PositiveDerivativesSum(0);
+        }
+
+        double negativeDerivativesGSum() const {
+            return m_NegativeDerivativesSum(0);
+        }
+
+        double positiveDerivativesGMax() const {
+            return m_PositiveDerivativesMax;
+        }
+
+        double positiveDerivativesHMin() const {
+            return m_PositiveDerivativesMin;
+        }
+
+        double negativeDerivativesGMin() const {
+            return m_NegativeDerivativesMin(0);
+        }
+
+        double negativeDerivativesHMin() const {
+            return m_NegativeDerivativesMin(1);
+        }
+
     private:
         using TDerivativesVecVec = std::vector<TDerivativesVec>;
         using TAlignedDoubleVec = std::vector<double, core::CAlignedAllocator<double>>;
+        using TDerivatives2x1 = Eigen::Matrix<double, 2, 1>;
 
     private:
         static std::size_t number(const TDerivativesVec& derivatives) {
@@ -410,6 +491,11 @@ public:
         TDerivativesVecVec m_Derivatives;
         TDerivativesVec m_MissingDerivatives;
         TAlignedDoubleVec m_Storage;
+        TDerivatives2x1 m_PositiveDerivativesSum;
+        TDerivatives2x1 m_NegativeDerivativesSum;
+        double m_PositiveDerivativesMax;
+        double m_PositiveDerivativesMin;
+        TDerivatives2x1 m_NegativeDerivativesMin;
     };
 
     //! \brief The derivatives and row masks objects to use for computations.
@@ -556,18 +642,26 @@ public:
     TPtrPtrPr split(std::size_t leftChildId,
                     std::size_t rightChildId,
                     std::size_t numberThreads,
+                    double gainThreshold,
                     const core::CDataFrame& frame,
                     const CDataFrameCategoryEncoder& encoder,
                     const TRegularization& regularization,
                     const TSizeVec& featureBag,
                     const CBoostedTreeNode& split,
-                    CWorkspace& workspace);
+                    CWorkspace& workspace,
+                    TAnalysisInstrumentationPtr instrumentation = nullptr);
 
     //! Order two leaves by decreasing gain in splitting them.
     bool operator<(const CBoostedTreeLeafNodeStatistics& rhs) const;
 
     //! Get the gain in loss of the best split of this leaf.
     double gain() const;
+
+    //! Get the gain upper bound for the left child.
+    double leftChildMaxGain() const;
+
+    //! Get the gain upper bound for the right child.
+    double rightChildMaxGain() const;
 
     //! Get the total curvature of node.
     double curvature() const;
@@ -594,6 +688,9 @@ public:
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
 
+    //! Get the best split info as a string.
+    std::string print() const { return m_BestSplit.print(); }
+
     //! Estimate the maximum leaf statistics' memory usage training on a data frame
     //! with \p numberCols columns using \p numberSplitsPerFeature for a loss function
     //! with \p numberLossParameters parameters.
@@ -614,12 +711,18 @@ private:
                          double splitAt,
                          std::size_t minimumChildRowCount,
                          bool leftChildHasFewerRows,
-                         bool assignMissingToLeft)
+                         bool assignMissingToLeft,
+                         std::size_t leftChildRowCount, // TODO remove after stats measurement
+                         std::size_t rightChildRowCount, // TODO remove after stats measurement
+                         double leftChildMaxGain = boosted_tree_detail::INF,
+                         double rightChildMaxGain = boosted_tree_detail::INF)
             : s_Gain{CMathsFuncs::isNan(gain) ? -boosted_tree_detail::INF : gain},
               s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
               s_MinimumChildRowCount{static_cast<std::uint32_t>(minimumChildRowCount)},
-              s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft} {
-        }
+              s_LeftChildRowCount{static_cast<std::uint32_t>(leftChildRowCount)},
+              s_RightChildRowCount{static_cast<std::uint32_t>(rightChildRowCount)},
+              s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft},
+              s_LeftChildMaxGain{leftChildMaxGain}, s_RightChildMaxGain{rightChildMaxGain} {}
 
         bool operator<(const SSplitStatistics& rhs) const {
             return COrderings::lexicographical_compare(
@@ -630,7 +733,8 @@ private:
         std::string print() const {
             std::ostringstream result;
             result << "split feature '" << s_Feature << "' @ " << s_SplitAt
-                   << ", gain = " << s_Gain;
+                   << ", gain = " << s_Gain << ", leftChildMaxGain = " << s_LeftChildMaxGain
+                   << ", rightChildMaxGain = " << s_RightChildMaxGain;
             return result.str();
         }
 
@@ -639,8 +743,12 @@ private:
         std::size_t s_Feature = -1;
         double s_SplitAt = boosted_tree_detail::INF;
         std::uint32_t s_MinimumChildRowCount = 0;
+        std::uint32_t s_LeftChildRowCount = 0; // TODO remove after stats measurement
+        std::uint32_t s_RightChildRowCount = 0; //  TODO remove after stats measurement
         bool s_LeftChildHasFewerRows = true;
         bool s_AssignMissingToLeft = true;
+        double s_LeftChildMaxGain = boosted_tree_detail::INF;
+        double s_RightChildMaxGain = boosted_tree_detail::INF;
     };
 
 private:
@@ -658,8 +766,11 @@ private:
                                                    CWorkspace& workspace) const;
     void addRowDerivatives(const CEncodedDataFrameRowRef& row,
                            CSplitsDerivatives& splitsDerivatives) const;
+
     SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;
+
+    double childMaxGain(double gChild, double minLossChild, double lambda) const;
 
 private:
     std::size_t m_Id;
