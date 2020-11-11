@@ -351,8 +351,8 @@ public:
         //! Test to see whether any seasonal components are present.
         void test(const SAddValue& message);
 
-        //! Shift the start of the tests' expanding windows by \p dt.
-        void shiftTime(core_t::TTime dt);
+        //! Shift the start of the tests' expanding windows by \p shift at \p time.
+        void shiftTime(core_t::TTime time, core_t::TTime shift);
 
         //! Age the test to account for the interval \p end - \p start
         //! elapsed time.

@@ -52,6 +52,7 @@ public:
     bool reversion() const { return m_Reversion; }
     std::size_t index() const { return m_Index; }
     core_t::TTime time() const { return m_Time; }
+    TFloatMeanAccumulatorVec& residuals() { return m_Residuals; }
     const TFloatMeanAccumulatorVec& residuals() const { return m_Residuals; }
 
 private:

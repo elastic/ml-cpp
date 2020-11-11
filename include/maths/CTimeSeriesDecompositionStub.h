@@ -45,7 +45,7 @@ public:
                   const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) override;
 
     //! No-op.
-    void shiftTime(core_t::TTime shift) override;
+    void shiftTime(core_t::TTime time, core_t::TTime shift) override;
 
     //! No-op.
     void propagateForwardsTo(core_t::TTime time) override;

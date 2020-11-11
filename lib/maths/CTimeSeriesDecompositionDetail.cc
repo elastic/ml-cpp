@@ -218,6 +218,16 @@ void stepwisePropagateForwards(core_t::TTime start,
     }
 }
 
+//! Add on mean zero \p variance normally distributed noise to \p values.
+void addMeanZeroNormalNoise(double variance, TFloatMeanAccumulatorVec& values) {
+    if (variance > 0.0) {
+        CPRNG::CXorOShiro128Plus rng;
+        for (auto& value : values) {
+            CBasicStatistics::moment<0>(value) += CSampling::normalSample(rng, 0.0, variance);
+        }
+    }
+}
+
 // Change Detector Test State Machine
 // States
 const std::size_t CD_TEST = 0;
@@ -664,6 +674,8 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::test(const SAddValue& mes
             change->largeEnough(this->largeError()) &&
             change->longEnough(time, this->minimumChangeLength(),
                                this->changeInWindow(time))) {
+            addMeanZeroNormalNoise(CBasicStatistics::variance(m_ResidualMoments),
+                                   change->residuals());
             change->apply(decomposition);
             this->mediator()->forward(SDetectedChangePoint{time, lastTime, std::move(change)});
             m_LargeErrorFraction = 0.0;
@@ -1086,10 +1098,11 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::test(const SAddValue& mes
     }
 }
 
-void CTimeSeriesDecompositionDetail::CSeasonalityTest::shiftTime(core_t::TTime dt) {
+void CTimeSeriesDecompositionDetail::CSeasonalityTest::shiftTime(core_t::TTime time,
+                                                                 core_t::TTime shift) {
     for (auto& window : m_Windows) {
         if (window != nullptr) {
-            window->shiftTime(dt);
+            window->shiftTime(time, shift);
         }
     }
 }
@@ -1113,15 +1126,9 @@ CTimeSeriesDecompositionDetail::CSeasonalityTest::residuals(const TPredictor& pr
     TFloatMeanAccumulatorVec result;
     for (auto i : {E_Short, E_Long}) {
         if (m_Windows[i] != nullptr) {
-            result = m_Windows[i]->valuesMinusPrediction(predictor);
             // Add on any noise we smooth away by averaging over longer buckets.
-            if (m_Windows[i]->withinBucketVariance() > 0.0) {
-                CPRNG::CXorOShiro128Plus rng;
-                for (auto& value : result) {
-                    CBasicStatistics::moment<0>(value) += CSampling::normalSample(
-                        rng, 0.0, m_Windows[i]->withinBucketVariance());
-                }
-            }
+            result = m_Windows[i]->valuesMinusPrediction(predictor);
+            addMeanZeroNormalNoise(m_Windows[i]->withinBucketVariance(), result);
             break;
         }
     }
@@ -2009,13 +2016,7 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CS
     // We typically underestimate the values variance if the window bucket length
     // is longer than the job bucket length. This adds noise to the values we use
     // to reinitialize the residual model to compensate.
-    if (components.withinBucketVariance() > 0.0) {
-        CPRNG::CXorOShiro128Plus rng;
-        for (auto& value : initialValues) {
-            CBasicStatistics::moment<0>(value) +=
-                CSampling::normalSample(rng, 0.0, components.withinBucketVariance());
-        }
-    }
+    addMeanZeroNormalNoise(components.withinBucketVariance(), initialValues);
     m_ComponentChangeCallback(std::move(initialValues));
 }
 

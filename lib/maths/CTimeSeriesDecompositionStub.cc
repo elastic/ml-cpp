@@ -41,7 +41,7 @@ void CTimeSeriesDecompositionStub::addPoint(
     const maths_t::TModelAnnotationCallback& /*modelAnnotationCallback*/) {
 }
 
-void CTimeSeriesDecompositionStub::shiftTime(core_t::TTime /*shift*/) {
+void CTimeSeriesDecompositionStub::shiftTime(core_t::TTime /*time*/, core_t::TTime /*shift*/) {
 }
 
 void CTimeSeriesDecompositionStub::propagateForwardsTo(core_t::TTime /*time*/) {

@@ -144,7 +144,7 @@ CTimeShift::CTimeShift(bool reversion,
 }
 
 bool CTimeShift::apply(CTimeSeriesDecomposition& decomposition) const {
-    decomposition.shiftTime(m_Shift);
+    decomposition.shiftTime(this->time(), m_Shift);
     return true;
 }
 

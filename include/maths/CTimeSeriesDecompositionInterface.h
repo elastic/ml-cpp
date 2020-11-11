@@ -97,8 +97,8 @@ public:
              const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
              const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) = 0;
 
-    //! Shift seasonality by \p shift.
-    virtual void shiftTime(core_t::TTime shift) = 0;
+    //! Shift seasonality by \p shift at \p time.
+    virtual void shiftTime(core_t::TTime time, core_t::TTime shift) = 0;
 
     //! Propagate the decomposition forwards to \p time.
     virtual void propagateForwardsTo(core_t::TTime time) = 0;
