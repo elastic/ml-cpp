@@ -447,8 +447,8 @@ void CEventRatePopulationModel::sample(core_t::TTime startTime,
                 std::size_t duplicate = duplicates[cid].duplicate(sampleTime, {value});
 
                 if (duplicate < attribute.s_Values.size()) {
-                    model->addCountWeights(countWeight, countWeight, 1.0,
-                                           attribute.s_TrendWeights[duplicate],
+                    model->addCountWeights(sampleTime, countWeight, countWeight,
+                                           1.0, attribute.s_TrendWeights[duplicate],
                                            attribute.s_ResidualWeights[duplicate]);
                 } else {
                     attribute.s_Values.emplace_back(sampleTime, TDouble2Vec{value}, pid);

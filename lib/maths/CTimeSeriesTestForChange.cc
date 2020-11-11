@@ -13,8 +13,10 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CCalendarComponent.h>
+#include <maths/CInformationCriteria.h>
 #include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>
+#include <maths/CLinearAlgebra.h>
 #include <maths/CSeasonalComponent.h>
 #include <maths/CStatisticalTests.h>
 #include <maths/CTimeSeriesDecomposition.h>
@@ -37,6 +39,8 @@ using TDoubleVec = std::vector<double>;
 using TSegmentation = CTimeSeriesSegmentation;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
+constexpr double EPS{0.1};
+
 double rightTailFTest(double v0, double v1, double df0, double df1) {
     if (df1 <= 0.0) {
         return 1.0;
@@ -51,7 +55,7 @@ std::size_t largestShift(const TDoubleVec& shifts) {
     for (std::size_t i = 1; i < shifts.size(); ++i) {
         double shift{std::fabs(shifts[i] - shifts[i - 1])};
         // We prefer the earliest shift which is within 10% of the maximum.
-        if (shift > 1.1 * largest) {
+        if (shift > (1.0 + EPS) * largest) {
             largest = shift;
             result = i;
         }
@@ -63,9 +67,9 @@ std::size_t largestScale(const TDoubleVec& scales) {
     std::size_t result{0};
     double largest{0.0};
     for (std::size_t i = 1; i < scales.size(); ++i) {
-        double scale{std::max(scales[i] / scales[i - 1], scales[i - 1] / scales[i])};
+        double scale{std::fabs(scales[i] - scales[i - 1])};
         // We prefer the earliest scale which is within 10% of the maximum.
-        if (scale > 1.1 * largest) {
+        if (scale > (1.0 + EPS) * largest) {
             largest = scale;
             result = i;
         }
@@ -73,10 +77,18 @@ std::size_t largestScale(const TDoubleVec& scales) {
     return result;
 }
 
-const std::size_t H1{1};
 const core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
 const core_t::TTime HOUR{core::constants::HOUR};
 const std::string NO_CHANGE{"no change"};
+}
+
+CLevelShift::CLevelShift(bool reversion,
+                         std::size_t index,
+                         core_t::TTime time,
+                         double valueAtShift,
+                         double shift,
+                         TFloatMeanAccumulatorVec residuals)
+    : CChangePoint{reversion, index, time, std::move(residuals)}, m_Shift{shift}, m_ValueAtShift{valueAtShift} {
 }
 
 bool CLevelShift::apply(CTrendComponent& component) const {
@@ -93,6 +105,10 @@ std::string CLevelShift::print() const {
 }
 
 const std::string CLevelShift::TYPE{"level shift"};
+
+CScale::CScale(bool reversion, std::size_t index, core_t::TTime time, double scale, double magnitude, TFloatMeanAccumulatorVec residuals)
+    : CChangePoint{reversion, index, time, std::move(residuals)}, m_Scale{scale}, m_Magnitude{magnitude} {
+}
 
 bool CScale::apply(CTrendComponent& component) const {
     component.linearScale(m_Scale);
@@ -118,6 +134,14 @@ std::string CScale::print() const {
 }
 
 const std::string CScale::TYPE{"scale"};
+
+CTimeShift::CTimeShift(bool reversion,
+                       std::size_t index,
+                       core_t::TTime time,
+                       core_t::TTime shift,
+                       TFloatMeanAccumulatorVec residuals)
+    : CChangePoint{reversion, index, time, std::move(residuals)}, m_Shift{shift} {
+}
 
 bool CTimeShift::apply(CTimeSeriesDecomposition& decomposition) const {
     decomposition.shiftTime(m_Shift);
@@ -208,9 +232,9 @@ CTimeSeriesTestForChange::TChangePointUPtr CTimeSeriesTestForChange::test() cons
                                        changes[candidate].s_ResidualVariance,
                                        changes[candidate].s_TruncatedResidualVariance,
                                        changes[candidate].s_NumberParameters, n)};
-            double evidence{aic(changes[H1])};
-            LOG_TRACE(<< print(changes[H1].s_Type) << " p-value = " << pValue
-                      << ", evidence = " << evidence);
+            double evidence{aic(changes[candidate])};
+            LOG_TRACE(<< print(changes[candidate].s_Type)
+                      << " p-value = " << pValue << ", evidence = " << evidence);
             if (pValue < m_SignificantPValue || evidence < selectedEvidence) {
                 std::tie(selectedEvidence, selected) = std::make_pair(evidence, candidate);
             }
@@ -222,17 +246,18 @@ CTimeSeriesTestForChange::TChangePointUPtr CTimeSeriesTestForChange::test() cons
         switch (changes[selected].s_Type) {
         case E_LevelShift:
             return std::make_unique<CLevelShift>(
-                changeIndex, changeTime, valueAtChange, changes[selected].s_LevelShift,
-                std::move(changes[selected].s_InitialValues));
+                changes[selected].s_Reversion, changeIndex, changeTime,
+                valueAtChange, changes[selected].s_LevelShift,
+                std::move(changes[selected].s_Residuals));
         case E_Scale:
             return std::make_unique<CScale>(
-                changeIndex, changeTime, changes[selected].s_Scale,
-                changes[selected].s_ScaleMagnitude,
-                std::move(changes[selected].s_InitialValues));
+                changes[selected].s_Reversion, changeIndex, changeTime,
+                changes[selected].s_Scale, changes[selected].s_ScaleMagnitude,
+                std::move(changes[selected].s_Residuals));
         case E_TimeShift:
             return std::make_unique<CTimeShift>(
-                changeIndex, changeTime, changes[selected].s_TimeShift,
-                std::move(changes[selected].s_InitialValues));
+                changes[selected].s_Reversion, changeIndex, changeTime,
+                changes[selected].s_TimeShift, std::move(changes[selected].s_Residuals));
         case E_NoChangePoint:
             LOG_ERROR(<< "Unexpected type");
             break;
@@ -284,28 +309,30 @@ CTimeSeriesTestForChange::levelShift(double varianceH0,
 
     m_ValuesMinusPredictions = this->removePredictions(this->bucketPredictor(), m_Values);
 
-    TSizeVec trendSegments{TSegmentation::piecewiseLinear(
-        m_ValuesMinusPredictions, m_SignificantPValue, m_OutlierFraction, 3)};
-    LOG_TRACE(<< "trend segments = " << core::CContainerPrinter::print(trendSegments));
+    TSizeVec segments{TSegmentation::piecewiseLinear(
+        m_ValuesMinusPredictions, m_SignificantPValue, m_OutlierFraction, 4)};
+    LOG_TRACE(<< "trend segments = " << core::CContainerPrinter::print(segments));
 
-    if (trendSegments.size() > 2) {
+    if (segments.size() > 2) {
         TDoubleVec shifts;
         auto residuals = TSegmentation::removePiecewiseLinear(
-            m_ValuesMinusPredictions, trendSegments, m_OutlierFraction, shifts);
-        double variance;
-        double truncatedVariance;
-        std::tie(variance, truncatedVariance) = this->variances(residuals);
-        std::size_t changeIndex{trendSegments[largestShift(shifts)]};
-        std::size_t lastChangeIndex{trendSegments[trendSegments.size() - 2]};
-        LOG_TRACE(<< "shifts = " << core::CContainerPrinter::print(shifts));
-        LOG_TRACE(<< "variance = " << variance << ", truncated variance = " << truncatedVariance
+            m_ValuesMinusPredictions, segments, m_OutlierFraction, shifts);
+        double varianceH1;
+        double truncatedVarianceH1;
+        std::tie(varianceH1, truncatedVarianceH1) = this->variances(residuals);
+        std::size_t shiftIndex{largestShift(shifts)};
+        std::size_t changeIndex{segments[shiftIndex]};
+        std::size_t lastChangeIndex{segments[segments.size() - 2]};
+        LOG_TRACE(<< "shifts = " << core::CContainerPrinter::print(shifts)
+                  << ", shift index = " << shiftIndex);
+        LOG_TRACE(<< "variance = " << varianceH1 << ", truncated variance = " << truncatedVarianceH1
                   << ", sample variance = " << m_SampleVariance);
         LOG_TRACE(<< "change index = " << changeIndex);
 
         double n{static_cast<double>(CSignal::countNotMissing(m_ValuesMinusPredictions))};
-        double parameters{2.0 * static_cast<double>(trendSegments.size() - 1)};
+        double parametersH1{2.0 * static_cast<double>(segments.size() - 1)};
         double pValue{this->pValue(varianceH0, truncatedVarianceH0, parametersH0,
-                                   variance, truncatedVariance, parameters, n)};
+                                   varianceH1, truncatedVarianceH1, parametersH1, n)};
         LOG_TRACE(<< "shift p-value = " << pValue);
 
         if (pValue < m_AcceptedFalsePostiveRate) {
@@ -316,12 +343,14 @@ CTimeSeriesTestForChange::levelShift(double varianceH0,
                           weight * CBasicStatistics::count(residuals[i - 1]));
             }
 
-            SChangePoint change{E_LevelShift,
-                                changeIndex,
-                                variance,
-                                truncatedVariance,
-                                2.0 * static_cast<double>(trendSegments.size() - 1),
-                                std::move(residuals)};
+            // Check if the change is a reversion, i.e. the level is around the
+            // same in the start and end intervals.
+            bool reversion{std::fabs(shifts.back() - shifts.front()) <
+                           EPS * std::fabs(shifts[shiftIndex] - shifts[shiftIndex - 1])};
+            LOG_TRACE(<< "reversion = " << reversion);
+
+            SChangePoint change(E_LevelShift, reversion, changeIndex, varianceH1,
+                                truncatedVarianceH1, parametersH1, std::move(residuals));
 
             change.s_LevelShift = CBasicStatistics::mean(shift);
 
@@ -340,28 +369,30 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
 
     auto predictor = this->bucketPredictor();
 
-    TSizeVec scaleSegments{TSegmentation::piecewiseLinearScaledSeasonal(
+    TSizeVec segments{TSegmentation::piecewiseLinearScaledSeasonal(
         m_Values, predictor, m_SignificantPValue, 3)};
-    LOG_TRACE(<< "scale segments = " << core::CContainerPrinter::print(scaleSegments));
+    LOG_TRACE(<< "scale segments = " << core::CContainerPrinter::print(segments));
 
-    if (scaleSegments.size() > 2) {
+    if (segments.size() > 2) {
         TDoubleVec scales;
         auto residuals = TSegmentation::removePiecewiseLinearScaledSeasonal(
-            m_Values, predictor, scaleSegments, m_OutlierFraction, scales);
-        double variance;
-        double truncatedVariance;
-        std::tie(variance, truncatedVariance) = this->variances(residuals);
-        std::size_t changeIndex{scaleSegments[largestScale(scales)]};
-        std::size_t lastChangeIndex{scaleSegments[scaleSegments.size() - 2]};
-        LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
-        LOG_TRACE(<< "variance = " << variance << ", truncated variance = " << truncatedVariance
+            m_Values, predictor, segments, m_OutlierFraction, scales);
+        double varianceH1;
+        double truncatedVarianceH1;
+        std::tie(varianceH1, truncatedVarianceH1) = this->variances(residuals);
+        std::size_t scaleIndex{largestScale(scales)};
+        std::size_t changeIndex{segments[scaleIndex]};
+        std::size_t lastChangeIndex{segments[segments.size() - 2]};
+        LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales)
+                  << ", scale index = " << scaleIndex);
+        LOG_TRACE(<< "variance = " << varianceH1 << ", truncated variance = " << truncatedVarianceH1
                   << ", sample variance = " << m_SampleVariance);
         LOG_TRACE(<< "change index = " << changeIndex);
 
         double n{static_cast<double>(CSignal::countNotMissing(m_ValuesMinusPredictions))};
-        double parameters{static_cast<double>(scaleSegments.size() - 1)};
+        double parametersH1{static_cast<double>(segments.size() - 1)};
         double pValue{this->pValue(varianceH0, truncatedVarianceH0, parametersH0,
-                                   variance, truncatedVariance, parameters, n)};
+                                   varianceH1, truncatedVarianceH1, parametersH1, n)};
         LOG_TRACE(<< "scale p-value = " << pValue);
 
         if (pValue < m_AcceptedFalsePostiveRate) {
@@ -371,7 +402,7 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
             for (std::size_t i = residuals.size(); i > lastChangeIndex; --i, weight *= 0.9) {
                 double x{CBasicStatistics::mean(m_Values[i - 1])};
                 double p{predictor(i - 1)};
-                double w{weight * CBasicStatistics::count(residuals[i - 1])};
+                double w{weight * CBasicStatistics::count(residuals[i - 1]) * std::fabs(p)};
                 if (w > 0.0) {
                     projection.add(x * p, w);
                     Z.add(p * p, w);
@@ -381,16 +412,19 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
                              ? 1.0
                              : CBasicStatistics::mean(projection) /
                                    CBasicStatistics::mean(Z)};
+            LOG_TRACE(<< "scale = " << scale);
 
-            SChangePoint change{E_Scale,
-                                changeIndex,
-                                variance,
-                                truncatedVariance,
-                                static_cast<double>(scaleSegments.size() - 1),
-                                std::move(residuals)};
+            // Check if the change is a reversion, i.e. the scale is around the
+            // same in the start and end intervals.
+            bool reversion{std::fabs(scales.back() - scales.front()) <
+                           EPS * std::fabs(scales[scaleIndex] - scales[scaleIndex - 1])};
+            LOG_TRACE(<< "reversion = " << reversion);
+
+            SChangePoint change(E_Scale, reversion, changeIndex, varianceH1,
+                                truncatedVarianceH1, parametersH1, std::move(residuals));
             change.s_Scale = scale;
-            change.s_ScaleMagnitude =
-                std::fabs((scale - 1.0) * std::sqrt(CBasicStatistics::mean(pp)));
+            change.s_ScaleMagnitude = std::fabs(scale - 1.0) *
+                                      std::sqrt(CBasicStatistics::mean(Z));
 
             return change;
         }
@@ -424,40 +458,36 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
     }
 
     TSegmentation::TTimeVec shifts;
-    TSizeVec shiftSegments{TSegmentation::piecewiseTimeShifted(
+    TSizeVec segments{TSegmentation::piecewiseTimeShifted(
         m_Values, m_BucketLength, candidateShifts, predictor,
-        m_SignificantPValue, 3, &shifts)};
-    LOG_TRACE(<< "shift segments = " << core::CContainerPrinter::print(shiftSegments));
+        m_SignificantPValue, 2, &shifts)};
+    LOG_TRACE(<< "shift segments = " << core::CContainerPrinter::print(segments));
 
-    if (shiftSegments.size() > 2) {
+    if (segments.size() > 2) {
         auto shiftedPredictor = [&](std::size_t i) {
             return m_Predictor(m_ValuesStartTime +
                                m_BucketLength * static_cast<core_t::TTime>(i) +
-                               TSegmentation::shiftAt(i, shiftSegments, shifts));
+                               TSegmentation::shiftAt(i, segments, shifts));
         };
         auto residuals = removePredictions(shiftedPredictor, m_Values);
-        double variance;
-        double truncatedVariance;
-        std::tie(variance, truncatedVariance) = this->variances(residuals);
-        std::size_t changeIndex{shiftSegments[shiftSegments.size() - 2]};
+        double varianceH1;
+        double truncatedVarianceH1;
+        std::tie(varianceH1, truncatedVarianceH1) = this->variances(residuals);
+        std::size_t changeIndex{segments[segments.size() - 2]};
         LOG_TRACE(<< "shifts = " << core::CContainerPrinter::print(shifts));
-        LOG_TRACE(<< "variance = " << variance << ", truncated variance = " << truncatedVariance
+        LOG_TRACE(<< "variance = " << varianceH1 << ", truncated variance = " << truncatedVarianceH1
                   << ", sample variance = " << m_SampleVariance);
         LOG_TRACE(<< "change index = " << changeIndex);
 
         double n{static_cast<double>(CSignal::countNotMissing(m_ValuesMinusPredictions))};
-        double parameters{static_cast<double>(shiftSegments.size() - 1)};
+        double parametersH1{static_cast<double>(segments.size() - 1)};
         double pValue{this->pValue(varianceH0, truncatedVarianceH0, parametersH0,
-                                   variance, truncatedVariance, parameters, n)};
+                                   varianceH1, truncatedVarianceH1, parametersH1, n)};
         LOG_TRACE(<< "time shift p-value = " << pValue);
 
         if (pValue < m_AcceptedFalsePostiveRate) {
-            SChangePoint change{E_TimeShift,
-                                changeIndex,
-                                variance,
-                                truncatedVariance,
-                                static_cast<double>(shiftSegments.size() - 1),
-                                std::move(residuals)};
+            SChangePoint change(E_TimeShift, false, changeIndex, varianceH1,
+                                truncatedVarianceH1, parametersH1, std::move(residuals));
             change.s_TimeShift = shifts.back();
             return change;
         }
@@ -538,6 +568,24 @@ double CTimeSeriesTestForChange::pValue(double varianceH0,
                                    (1.0 - m_OutlierFraction) * n - parametersH1));
 }
 
+double CTimeSeriesTestForChange::aic(const SChangePoint& change) const {
+    using TVector1x1 = CVectorNx1<double, 1>;
+
+    auto akaike = [&](const TMeanVarAccumulator& moments) {
+        CSphericalGaussianInfoCriterion<TVector1x1, E_AICc> result;
+        result.add(CBasicStatistics::momentsAccumulator(
+            CBasicStatistics::count(moments), TVector1x1{CBasicStatistics::mean(moments)},
+            TVector1x1{CBasicStatistics::maximumLikelihoodVariance(moments)}));
+        return result.calculate(change.s_NumberParameters);
+    };
+
+    TMeanVarAccumulator moments{this->truncatedMoments(0.0, change.s_Residuals)};
+    TMeanVarAccumulator truncatedMoments{
+        this->truncatedMoments(m_OutlierFraction, change.s_Residuals)};
+
+    return akaike(moments) + akaike(truncatedMoments);
+}
+
 CTimeSeriesTestForChange::TFloatMeanAccumulatorVec
 CTimeSeriesTestForChange::removePredictions(const TBucketPredictor& predictor,
                                             TFloatMeanAccumulatorVec values) {
@@ -552,17 +600,6 @@ CTimeSeriesTestForChange::removePredictions(const TBucketPredictor& predictor,
 std::size_t CTimeSeriesTestForChange::buckets(core_t::TTime bucketLength,
                                               core_t::TTime interval) {
     return static_cast<std::size_t>((interval + bucketLength / 2) / bucketLength);
-}
-
-double CTimeSeriesTestForChange::aic(const SChangePoint& change) {
-    // This is max_{\theta}{ -2 log(P(y | \theta)) + 2 * # parameters }
-    //
-    // We assume that the data are normally distributed.
-    return -std::log(std::exp(-2.0) / boost::math::double_constants::two_pi /
-                     change.s_ResidualVariance) +
-           -std::log(std::exp(-2.0) / boost::math::double_constants::two_pi /
-                     change.s_TruncatedResidualVariance) +
-           4.0 * change.s_NumberParameters;
 }
 
 const std::string& CTimeSeriesTestForChange::print(EType type) {

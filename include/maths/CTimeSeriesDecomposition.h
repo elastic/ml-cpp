@@ -106,9 +106,6 @@ public:
                   const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
                   const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) override;
 
-    //! True if the time series may have undergone a sudden change.
-    bool mayHaveChanged() const override;
-
     //! Shift seasonality by \p shift.
     void shiftTime(core_t::TTime shift) override;
 
@@ -167,14 +164,19 @@ public:
     //! Get the mean variance of the baseline.
     double meanVariance() const override;
 
-    //! Compute the variance scale at \p time.
+    //! Compute the variance scale weight to apply at \p time.
     //!
     //! \param[in] time The time of interest.
     //! \param[in] variance The variance of the distribution to scale.
     //! \param[in] confidence The symmetric confidence interval for the variance
     //! scale as a percentage.
-    maths_t::TDoubleDoublePr
-    scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const override;
+    maths_t::TDoubleDoublePr varianceScaleWeight(core_t::TTime time,
+                                                 double variance,
+                                                 double confidence,
+                                                 bool smooth = true) const override;
+
+    //! Get the count weight to apply at \p time.
+    double countWeight(core_t::TTime time) const override;
 
     //! Get the prediction residuals in a recent time window.
     TFloatMeanAccumulatorVec residuals() const override;

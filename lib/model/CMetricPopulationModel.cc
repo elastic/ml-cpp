@@ -428,7 +428,8 @@ void CMetricPopulationModel::sample(core_t::TTime startTime,
                     std::size_t duplicate = duplicates[cid].duplicate(sample.time(), value);
 
                     if (duplicate < attribute.s_Values.size()) {
-                        model->addCountWeights(countWeight, countWeight, countVarianceScale,
+                        model->addCountWeights(sample.time(), countWeight,
+                                               countWeight, countVarianceScale,
                                                attribute.s_TrendWeights[duplicate],
                                                attribute.s_ResidualWeights[duplicate]);
                     } else {

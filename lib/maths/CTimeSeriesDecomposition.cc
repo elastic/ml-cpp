@@ -265,6 +265,7 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
     SAddValue message{
         time,
         lastTime,
+        m_TimeShift,
         value,
         weights,
         CBasicStatistics::mean(this->value(time, 0.0, E_TrendForced)),
@@ -286,13 +287,11 @@ void CTimeSeriesDecomposition::addPoint(core_t::TTime time,
     m_CalendarCyclicTest.handle(message);
 }
 
-bool CTimeSeriesDecomposition::mayHaveChanged() const {
-    return m_ChangePointTest.mayHaveChanged();
-}
-
 void CTimeSeriesDecomposition::shiftTime(core_t::TTime shift) {
     m_SeasonalityTest.shiftTime(shift);
     m_TimeShift += shift;
+    m_LastValueTime += shift;
+    m_LastPropagationTime += shift;
 }
 
 void CTimeSeriesDecomposition::propagateForwardsTo(core_t::TTime time) {
@@ -446,10 +445,11 @@ void CTimeSeriesDecomposition::forecast(core_t::TTime startTime,
         bounds += TVector2x1{{shift - stretch / 2.0, shift + stretch / 2.0}};
 
         double variance{this->meanVariance()};
-        double scale{std::sqrt(std::max(
-            minimumScale, CBasicStatistics::mean(this->scale(time, variance, 0.0))))};
+        double boundsScale{std::sqrt(std::max(
+            minimumScale,
+            CBasicStatistics::mean(this->varianceScaleWeight(time, variance, 0.0))))};
         double prediction{(bounds(0) + bounds(1)) / 2.0};
-        double interval{scale * (bounds(1) - bounds(0))};
+        double interval{boundsScale * (bounds(1) - bounds(0))};
 
         return TDouble3Vec{prediction - interval / 2.0, prediction,
                            prediction + interval / 2.0};
@@ -474,10 +474,10 @@ double CTimeSeriesDecomposition::meanVariance() const {
     return m_Components.meanVarianceScale() * m_Components.meanVariance();
 }
 
-TDoubleDoublePr CTimeSeriesDecomposition::scale(core_t::TTime time,
-                                                double variance,
-                                                double confidence,
-                                                bool smooth) const {
+TDoubleDoublePr CTimeSeriesDecomposition::varianceScaleWeight(core_t::TTime time,
+                                                              double variance,
+                                                              double confidence,
+                                                              bool smooth) const {
     if (this->initialized() == false) {
         return {1.0, 1.0};
     }
@@ -518,13 +518,17 @@ TDoubleDoublePr CTimeSeriesDecomposition::scale(core_t::TTime time,
     scale = TVector2x1{1.0} + bias * (scale - TVector2x1{1.0});
 
     if (smooth) {
-        scale += vector2x1(this->smooth(std::bind(&CTimeSeriesDecomposition::scale,
-                                                  this, std::placeholders::_1,
-                                                  variance, confidence, false),
-                                        time, E_All));
+        scale += vector2x1(this->smooth(
+            std::bind(&CTimeSeriesDecomposition::varianceScaleWeight, this,
+                      std::placeholders::_1, variance, confidence, false),
+            time, E_All));
     }
 
     return pair(scale);
+}
+
+double CTimeSeriesDecomposition::countWeight(core_t::TTime time) const {
+    return m_ChangePointTest.countWeight(time);
 }
 
 CTimeSeriesDecomposition::TFloatMeanAccumulatorVec CTimeSeriesDecomposition::residuals() const {

@@ -416,7 +416,8 @@ public:
                               TDouble2VecWeightsAry& residualWeights) const = 0;
 
     //! Add to \p trendWeights and \p residualWeights.
-    virtual void addCountWeights(double trendCountWeight,
+    virtual void addCountWeights(core_t::TTime time,
+                                 double trendCountWeight,
                                  double residualCountWeight,
                                  double countVarianceScale,
                                  TDouble2VecWeightsAry& trendWeights,
@@ -564,7 +565,8 @@ public:
                       TDouble2VecWeightsAry& residualWeights) const override;
 
     //! No-op.
-    void addCountWeights(double trendCountWeight,
+    void addCountWeights(core_t::TTime time,
+                         double trendCountWeight,
                          double residualCountWeight,
                          double countVarianceScale,
                          TDouble2VecWeightsAry& trendWeights,

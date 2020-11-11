@@ -1209,7 +1209,7 @@ void CUnivariateTimeSeriesModel::countWeights(core_t::TTime time,
         countVarianceScale = 1.0;
     }
 
-    double changeWeight{m_TrendModel->mayHaveChanged() ? winsorisation::CHANGE_WEIGHT : 1.0};
+    double changeWeight{m_TrendModel->countWeight(time)};
 
     trendCountWeight /= countVarianceScale;
     residualCountWeight *= changeWeight;
@@ -1230,7 +1230,8 @@ void CUnivariateTimeSeriesModel::countWeights(core_t::TTime time,
     maths_t::setCountVarianceScale(TDouble2Vec{countVarianceScale}, residuaWeights);
 }
 
-void CUnivariateTimeSeriesModel::addCountWeights(double trendCountWeight,
+void CUnivariateTimeSeriesModel::addCountWeights(core_t::TTime time,
+                                                 double trendCountWeight,
                                                  double residualCountWeight,
                                                  double countVarianceScale,
                                                  TDouble2VecWeightsAry& trendWeights,
@@ -1239,9 +1240,7 @@ void CUnivariateTimeSeriesModel::addCountWeights(double trendCountWeight,
         countVarianceScale = 1.0;
     }
 
-    double changeWeight{m_TrendModel->mayHaveChanged() ? winsorisation::CHANGE_WEIGHT : 1.0};
-
-    residualCountWeight *= changeWeight;
+    residualCountWeight *= m_TrendModel->countWeight(time);
     trendCountWeight /= countVarianceScale;
 
     maths_t::addCount(TDouble2Vec{trendCountWeight}, trendWeights);
@@ -1252,7 +1251,7 @@ void CUnivariateTimeSeriesModel::seasonalWeight(double confidence,
                                                 core_t::TTime time,
                                                 TDouble2Vec& weight) const {
     double scale{m_TrendModel
-                     ->scale(time, m_ResidualModel->marginalLikelihoodVariance(), confidence)
+                     ->varianceScaleWeight(time, m_ResidualModel->marginalLikelihoodVariance(), confidence)
                      .second};
     weight.assign(1, std::max(scale, this->params().minimumSeasonalVarianceScale()));
 }
@@ -2589,16 +2588,11 @@ void CMultivariateTimeSeriesModel::countWeights(core_t::TTime time,
                                                 TDouble2VecWeightsAry& residuaWeights) const {
     std::size_t dimension{this->dimension()};
 
-    bool mayHaveChanged{
-        std::any_of(m_TrendModel.begin(), m_TrendModel.end(),
-                    [](const auto& model) { return model->mayHaveChanged(); })};
-    double changeWeight{mayHaveChanged ? winsorisation::CHANGE_WEIGHT : 1.0};
-
     TDouble2Vec seasonalWeight;
     this->seasonalWeight(0.0, time, seasonalWeight);
 
     TDouble2Vec trendCountWeights(dimension, trendCountWeight);
-    TDouble2Vec residualCountWeights(dimension, residualCountWeight * changeWeight);
+    TDouble2Vec residualCountWeights(dimension, residualCountWeight);
     TDouble2Vec trendWinsorisationWeight(dimension);
     TDouble2Vec residualWinsorisationWeight(dimension);
     TDouble2Vec countVarianceScales(dimension, 1.0);
@@ -2611,8 +2605,10 @@ void CMultivariateTimeSeriesModel::countWeights(core_t::TTime time,
         }
     }
     for (std::size_t d = 0; d < dimension; ++d) {
+        double changeWeight{m_TrendModel[d]->countWeight(time)};
         double winsorisationWeight{winsorisation::weight(
             *m_ResidualModel, d, winsorisationDerate, seasonalWeight[d], sample)};
+        residualCountWeights[d] *= changeWeight;
         trendWinsorisationWeight[d] = winsorisationWeight * changeWeight;
         residualWinsorisationWeight[d] = winsorisationWeight;
     }
@@ -2625,24 +2621,21 @@ void CMultivariateTimeSeriesModel::countWeights(core_t::TTime time,
     maths_t::setCountVarianceScale(countVarianceScales, residuaWeights);
 }
 
-void CMultivariateTimeSeriesModel::addCountWeights(double trendCountWeight,
+void CMultivariateTimeSeriesModel::addCountWeights(core_t::TTime time,
+                                                   double trendCountWeight,
                                                    double residualCountWeight,
                                                    double countVarianceScale,
                                                    TDouble2VecWeightsAry& trendWeights,
                                                    TDouble2VecWeightsAry& residuaWeights) const {
     std::size_t dimension{this->dimension()};
 
-    bool mayHaveChanged{
-        std::any_of(m_TrendModel.begin(), m_TrendModel.end(),
-                    [](const auto& model) { return model->mayHaveChanged(); })};
-    double changeWeight{mayHaveChanged ? winsorisation::CHANGE_WEIGHT : 1.0};
-
     TDouble2Vec trendCountWeights(dimension, trendCountWeight);
-    TDouble2Vec residualCountWeights(dimension, residualCountWeight * changeWeight);
+    TDouble2Vec residualCountWeights(dimension, residualCountWeight);
     for (std::size_t d = 0; d < dimension; ++d) {
         if (m_TrendModel[d]->seasonalComponents().empty()) {
             trendCountWeights[d] /= countVarianceScale;
         }
+        residualCountWeights[d] *= m_TrendModel[d]->countWeight(time);
     }
 
     maths_t::addCount(trendCountWeights, trendWeights);
@@ -2656,7 +2649,8 @@ void CMultivariateTimeSeriesModel::seasonalWeight(double confidence,
     weight.resize(dimension);
     TDouble10Vec variances(m_ResidualModel->marginalLikelihoodVariances());
     for (std::size_t d = 0; d < dimension; ++d) {
-        double scale{m_TrendModel[d]->scale(time, variances[d], confidence).second};
+        double scale{
+            m_TrendModel[d]->varianceScaleWeight(time, variances[d], confidence).second};
         weight[d] = std::max(scale, this->params().minimumSeasonalVarianceScale());
     }
 }

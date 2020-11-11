@@ -129,15 +129,14 @@ public:
     //! Update the sufficient statistics for computing info content.
     void add(const TMeanVarAccumulator& moments) {
         double ni = CBasicStatistics::count(moments);
-        const TBarePointPrecise& m{CBasicStatistics::mean(moments)};
-        const TBarePointPrecise& c{CBasicStatistics::maximumLikelihoodVariance(moments)};
-        std::size_t d{las::dimension(c)};
+        const TBarePointPrecise& mean{CBasicStatistics::mean(moments)};
+        const TBarePointPrecise& covarianceDiag{CBasicStatistics::maximumLikelihoodVariance(moments)};
+        std::size_t d{las::dimension(covarianceDiag)};
         double vi{0.0};
-        for (std::size_t i = 0u; i < d; ++i) {
-            vi += c(i);
+        for (std::size_t i = 0; i < d; ++i) {
+            vi += covarianceDiag(i);
         }
-        vi = std::max(vi, 10.0 * std::numeric_limits<TCoordinate>::epsilon() *
-                              las::norm(m));
+        vi = std::max(vi, EPS * las::norm(mean));
 
         m_D = static_cast<double>(d);
         m_K += 1.0;
@@ -155,10 +154,10 @@ public:
     }
 
     //! Calculate the information content of the clusters added so far.
-    double calculate() const {
+    double calculate(double p = 0.0) const {
         if (m_N != 0.0) {
             double logN{std::log(m_N)};
-            double p{m_D * m_K + 2.0 * m_K - 1.0};
+            p += m_D * m_K + 2.0 * m_K - 1.0;
             switch (TYPE) {
             case E_BIC:
                 return -2.0 * (m_Likelihood - m_N * logN) + p * logN;
@@ -169,6 +168,9 @@ public:
         }
         return 0.0;
     }
+
+private:
+    static constexpr double EPS{10.0 * std::numeric_limits<TCoordinate>::epsilon()};
 
 private:
     //! The point dimension.
@@ -234,10 +236,10 @@ public:
     }
 
     //! Calculate the information content of the clusters added so far.
-    double calculate() const {
+    double calculate(double p = 0.0) const {
         if (m_N != 0.0) {
             double logN{std::log(m_N)};
-            double p{m_D * (1.0 + 0.5 * (m_D + 1.0)) * m_K + m_K - 1.0};
+            p += m_D * (1.0 + 0.5 * (m_D + 1.0)) * m_K + m_K - 1.0;
             switch (TYPE) {
             case E_BIC:
                 return -2.0 * (m_Likelihood - m_N * logN) + p * logN;

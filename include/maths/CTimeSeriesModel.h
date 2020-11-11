@@ -33,8 +33,6 @@ struct SModelRestoreParams;
 namespace winsorisation {
 //! The minimum Winsorisation weight.
 constexpr double MINIMUM_WEIGHT{0.01};
-//! The weight to apply when a suspected change is occurring.
-constexpr double CHANGE_WEIGHT{0.1};
 
 //! Computes a Winsorisation weight for \p value based on its
 //! one tail p-value.
@@ -174,7 +172,8 @@ public:
                       TDouble2VecWeightsAry& residualWeights) const override;
 
     //! Add to \p trendWeights and \p residualWeights.
-    void addCountWeights(double trendCountWeight,
+    void addCountWeights(core_t::TTime time,
+                         double trendCountWeight,
                          double residualCountWeight,
                          double countVarianceScale,
                          TDouble2VecWeightsAry& trendWeights,
@@ -640,7 +639,8 @@ public:
                       TDouble2VecWeightsAry& residualWeights) const override;
 
     //! Add to \p trendWeights and \p residualWeights.
-    void addCountWeights(double trendCountWeight,
+    void addCountWeights(core_t::TTime time,
+                         double trendCountWeight,
                          double residualCountWeight,
                          double countVarianceScale,
                          TDouble2VecWeightsAry& trendWeights,

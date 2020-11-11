@@ -239,6 +239,7 @@ BOOST_AUTO_TEST_CASE(testWithReversion) {
         LOG_TRACE(<< (change == nullptr ? "null" : change->print()));
         if (change != nullptr) {
             BOOST_REQUIRE(change->largeEnough(3.0 * std::sqrt(noiseVariance)) == false);
+            BOOST_REQUIRE(change->reversion());
         }
     }
 }

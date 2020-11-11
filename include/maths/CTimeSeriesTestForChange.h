@@ -33,8 +33,9 @@ public:
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
 
 public:
-    CChangePoint(std::size_t index, core_t::TTime time, TFloatMeanAccumulatorVec initialValues)
-        : m_Index{index}, m_Time{time}, m_InitialValues{std::move(initialValues)} {}
+    CChangePoint(bool reversion, std::size_t index, core_t::TTime time, TFloatMeanAccumulatorVec residuals)
+        : m_Reversion{reversion}, m_Index{index}, m_Time{time}, m_Residuals{std::move(residuals)} {
+    }
     virtual ~CChangePoint() = default;
 
     virtual bool apply(CTimeSeriesDecomposition&) const { return false; }
@@ -42,22 +43,22 @@ public:
     virtual bool apply(CSeasonalComponent&) const { return false; }
     virtual bool apply(CCalendarComponent&) const { return false; }
     virtual bool largeEnough(double threshold) const = 0;
-    bool longEnough(core_t::TTime time, core_t::TTime minimumDuration) const {
-        return time >= m_Time + minimumDuration;
+    bool longEnough(core_t::TTime time, core_t::TTime minimumDuration, bool changeInWindow) const {
+        return (changeInWindow && m_Reversion) || time >= m_Time + minimumDuration;
     }
     virtual const std::string& type() const = 0;
     virtual double value() const = 0;
     virtual std::string print() const = 0;
+    bool reversion() const { return m_Reversion; }
     std::size_t index() const { return m_Index; }
     core_t::TTime time() const { return m_Time; }
-    const TFloatMeanAccumulatorVec& initialValues() const {
-        return m_InitialValues;
-    }
+    const TFloatMeanAccumulatorVec& residuals() const { return m_Residuals; }
 
 private:
+    bool m_Reversion = false;
     std::size_t m_Index = 0;
     core_t::TTime m_Time = 0;
-    TFloatMeanAccumulatorVec m_InitialValues;
+    TFloatMeanAccumulatorVec m_Residuals;
 };
 
 //! \brief Represents a level shift of a time series.
@@ -66,9 +67,12 @@ public:
     static const std::string TYPE;
 
 public:
-    CLevelShift(std::size_t index, core_t::TTime time, double valueAtShift, double shift, TFloatMeanAccumulatorVec initialValues)
-        : CChangePoint{index, time, std::move(initialValues)}, m_Shift{shift}, m_ValueAtShift{valueAtShift} {
-    }
+    CLevelShift(bool reversion,
+                std::size_t index,
+                core_t::TTime time,
+                double valueAtShift,
+                double shift,
+                TFloatMeanAccumulatorVec initialValues);
 
     bool apply(CTrendComponent& component) const override;
     bool largeEnough(double threshold) const override {
@@ -89,9 +93,12 @@ public:
     static const std::string TYPE;
 
 public:
-    CScale(std::size_t index, core_t::TTime time, double scale, double magnitude, TFloatMeanAccumulatorVec initialValues)
-        : CChangePoint{index, time, std::move(initialValues)}, m_Scale{scale}, m_Magnitude{magnitude} {
-    }
+    CScale(bool reversion,
+           std::size_t index,
+           core_t::TTime time,
+           double scale,
+           double magnitude,
+           TFloatMeanAccumulatorVec initialValues);
 
     bool apply(CTrendComponent& component) const override;
     bool apply(CSeasonalComponent& component) const override;
@@ -114,11 +121,14 @@ public:
     static const std::string TYPE;
 
 public:
-    CTimeShift(std::size_t index, core_t::TTime time, core_t::TTime shift, TFloatMeanAccumulatorVec initialValues)
-        : CChangePoint{index, time, std::move(initialValues)}, m_Shift{shift} {}
+    CTimeShift(bool reversion,
+               std::size_t index,
+               core_t::TTime time,
+               core_t::TTime shift,
+               TFloatMeanAccumulatorVec residuals);
 
     bool apply(CTimeSeriesDecomposition& decomposition) const override;
-    bool largeEnough(double) const override { return m_Shift > 0; }
+    bool largeEnough(double) const override { return m_Shift != 0; }
     const std::string& type() const override;
     std::string print() const override;
     double value() const override { return static_cast<double>(m_Shift); }
@@ -160,7 +170,7 @@ public:
     using TChangePointUPtr = std::unique_ptr<CChangePoint>;
 
 public:
-    static constexpr double OUTLIER_FRACTION = 0.1;
+    static constexpr double OUTLIER_FRACTION = 0.05;
 
 public:
     //! \param[in] valuesStartTime The average offset of samples in each time bucket.
@@ -212,16 +222,18 @@ private:
     struct SChangePoint {
         SChangePoint() = default;
         SChangePoint(EType type,
+                     bool reversion,
                      std::size_t index,
                      double residualVariance,
                      double truncatedResidualVariance,
                      double numberParameters,
-                     TFloatMeanAccumulatorVec initialValues)
-            : s_Type{type}, s_Index{index}, s_ResidualVariance{residualVariance},
-              s_TruncatedResidualVariance{truncatedResidualVariance},
-              s_NumberParameters{numberParameters}, s_InitialValues{initialValues} {}
+                     TFloatMeanAccumulatorVec residuals)
+            : s_Type{type}, s_Reversion{reversion}, s_Index{index},
+              s_ResidualVariance{residualVariance}, s_TruncatedResidualVariance{truncatedResidualVariance},
+              s_NumberParameters{numberParameters}, s_Residuals{residuals} {}
 
         EType s_Type = E_NoChangePoint;
+        bool s_Reversion = false;
         std::size_t s_Index = 0;
         double s_ResidualVariance = 0.0;
         double s_TruncatedResidualVariance = 0.0;
@@ -230,7 +242,7 @@ private:
         double s_Scale = 0.0;
         double s_ScaleMagnitude = 0.0;
         core_t::TTime s_TimeShift = 0;
-        TFloatMeanAccumulatorVec s_InitialValues;
+        TFloatMeanAccumulatorVec s_Residuals;
     };
 
 private:
@@ -252,10 +264,10 @@ private:
                   double truncatedVarianceH1,
                   double parametersH1,
                   double n) const;
+    double aic(const SChangePoint& change) const;
     static TFloatMeanAccumulatorVec removePredictions(const TBucketPredictor& predictor,
                                                       TFloatMeanAccumulatorVec values);
     static std::size_t buckets(core_t::TTime bucketLength, core_t::TTime interval);
-    static double aic(const SChangePoint& change);
     static double mean(const TFloatMeanAccumulator& value) {
         return CBasicStatistics::mean(value);
     }

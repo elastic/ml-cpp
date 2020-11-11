@@ -370,7 +370,8 @@ void CModelStub::countWeights(core_t::TTime /*time*/,
                               TDouble2VecWeightsAry& /*residualWeights*/) const {
 }
 
-void CModelStub::addCountWeights(double /*trendCountWeight*/,
+void CModelStub::addCountWeights(core_t::TTime /*time*/,
+                                 double /*trendCountWeight*/,
                                  double /*residualCountWeight*/,
                                  double /*countVarianceScale*/,
                                  TDouble2VecWeightsAry& /*trendWeights*/,

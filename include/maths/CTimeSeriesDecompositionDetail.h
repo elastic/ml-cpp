@@ -70,6 +70,7 @@ public:
     struct MATHS_EXPORT SAddValue : public SMessage {
         SAddValue(core_t::TTime time,
                   core_t::TTime lastTime,
+                  core_t::TTime timeShift,
                   double value,
                   const maths_t::TDoubleWeightsAry& weights,
                   double trend,
@@ -82,6 +83,8 @@ public:
         SAddValue(const SAddValue&) = delete;
         SAddValue& operator=(const SAddValue&) = delete;
 
+        //! The time shift being applied.
+        core_t::TTime s_TimeShift;
         //! The value to add.
         double s_Value;
         //! The weights of associated with the value.
@@ -233,8 +236,8 @@ public:
         //! Test to see whether any change has occurred.
         void test(const SAddValue& message);
 
-        //! True if the time series may have undergone a sudden change.
-        bool mayHaveChanged() const;
+        //! The weight to apply to samples for update.
+        double countWeight(core_t::TTime time) const;
 
         //! Age the test to account for the interval \p end - \p start elapsed time.
         void propagateForwards(core_t::TTime start, core_t::TTime end);
@@ -257,7 +260,13 @@ public:
         void apply(std::size_t symbol);
 
         //! Update the fraction of recent large errors.
-        void updateLargeErrorFraction(double error);
+        void updateLargeErrorFraction(core_t::TTime time, double error);
+
+        //! True if the time series may be experiencing a change point.
+        bool mayHaveChanged() const;
+
+        //! True if a change point was applied in the current window.
+        bool changeInWindow(core_t::TTime time) const;
 
         //! The magnitude of a large error.
         double largeError() const;
@@ -267,6 +276,9 @@ public:
 
         //! The minimum time a change has to last.
         core_t::TTime minimumChangeLength() const;
+
+        //! The length of time in which we expect to detect a change.
+        core_t::TTime maximumIntervalToDetectChange() const;
 
         //! The start time of the window bucket containing \p time.
         core_t::TTime startOfWindowBucket(core_t::TTime time) const;
@@ -300,11 +312,13 @@ public:
         double m_LargeErrorFraction = 0.0;
 
         //! The last test time.
-        core_t::TTime m_LastTestTime = 0;
+        core_t::TTime m_LastTestTime;
 
-        //! The time the last change occurred.
-        core_t::TTime m_LastUncommittedChangeTime =
-            std::numeric_limits<core_t::TTime>::min();
+        //! The last time a change point was detected.
+        core_t::TTime m_LastChangePointTime;
+
+        //! The time the last candidate change point occurred.
+        core_t::TTime m_LastCandidateChangePointTime;
     };
 
     //! \brief Scans through increasingly low frequencies looking for significant

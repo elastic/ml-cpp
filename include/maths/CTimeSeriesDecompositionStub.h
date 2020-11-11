@@ -44,9 +44,6 @@ public:
                   const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
                   const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) override;
 
-    //! Returns false.
-    bool mayHaveChanged() const override;
-
     //! No-op.
     void shiftTime(core_t::TTime shift) override;
 
@@ -81,8 +78,13 @@ public:
     double meanVariance() const override;
 
     //! Returns (1.0, 1.0).
-    maths_t::TDoubleDoublePr
-    scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const override;
+    maths_t::TDoubleDoublePr varianceScaleWeight(core_t::TTime time,
+                                                 double variance,
+                                                 double confidence,
+                                                 bool smooth = true) const override;
+
+    //! Returns 1.0.
+    double countWeight(core_t::TTime time) const override;
 
     //! Returns an empty vector.
     TFloatMeanAccumulatorVec residuals() const override;

@@ -22,6 +22,7 @@
 #include <maths/CSeasonalTime.h>
 #include <maths/CTimeSeriesDecomposition.h>
 #include <maths/Constants.h>
+#include <maths/MathsTypes.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
@@ -305,9 +306,9 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodicProblemCase, CTestFixture) {
             LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                BOOST_TEST_REQUIRE(sumResidual < 0.33 * sumValue);
-                BOOST_TEST_REQUIRE(maxResidual < 0.43 * maxValue);
-                BOOST_TEST_REQUIRE(percentileError < 0.23 * sumValue);
+                BOOST_TEST_REQUIRE(sumResidual < 0.24 * sumValue);
+                BOOST_TEST_REQUIRE(maxResidual < 0.54 * maxValue);
+                BOOST_TEST_REQUIRE(percentileError < 0.16 * sumValue);
 
                 totalSumResidual += sumResidual;
                 totalMaxResidual += maxResidual;
@@ -324,9 +325,9 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodicProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.19 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.20 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.11 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.15 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.23 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.09 * totalSumValue);
 }
 
 BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
@@ -833,7 +834,8 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
                 variance = 10.0;
             }
             double expectedScale = variance / meanVariance;
-            TDoubleDoublePr interval = decomposition.scale(time + t, meanVariance, 70.0);
+            TDoubleDoublePr interval =
+                decomposition.varianceScaleWeight(time + t, meanVariance, 70.0);
             LOG_TRACE(<< "time = " << t << ", expectedScale = " << expectedScale
                       << ", scale = " << core::CContainerPrinter::print(interval));
             double scale = (interval.first + interval.second) / 2.0;
@@ -883,7 +885,8 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
                 variance = 10.0;
             }
             double expectedScale = variance / meanVariance;
-            TDoubleDoublePr interval = decomposition.scale(time + t, meanVariance, 70.0);
+            TDoubleDoublePr interval =
+                decomposition.varianceScaleWeight(time + t, meanVariance, 70.0);
             LOG_TRACE(<< "time = " << t << ", expectedScale = " << expectedScale
                       << ", scale = " << core::CContainerPrinter::print(interval));
             double scale = (interval.first + interval.second) / 2.0;
@@ -929,8 +932,8 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
         TMeanAccumulator meanScale;
         double meanVariance = decomposition.meanVariance();
         for (core_t::TTime t = 0; t < DAY; t += TEN_MINS) {
-            TDoubleDoublePr interval =
-                decomposition.scale(times.back() + t, meanVariance, 70.0);
+            TDoubleDoublePr interval = decomposition.varianceScaleWeight(
+                times.back() + t, meanVariance, 70.0);
             LOG_TRACE(<< "time = " << t
                       << ", scale = " << core::CContainerPrinter::print(interval));
             double scale = (interval.first + interval.second) / 2.0;
@@ -1054,8 +1057,8 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
         maths_t::ETail tail;
         model.probabilityOfLessLikelySamples(
             maths_t::E_TwoSided, {decomposition.detrend(time, value, 70.0)},
-            {maths_t::seasonalVarianceScaleWeight(
-                std::max(decomposition.scale(time, variance, 70.0).second, 0.25))},
+            {maths_t::seasonalVarianceScaleWeight(std::max(
+                decomposition.varianceScaleWeight(time, variance, 70.0).second, 0.25))},
             lb, ub, tail);
         double pScaled = (lb + ub) / 2.0;
         pMinScaled = std::min(pMinScaled, pScaled);
@@ -1161,7 +1164,7 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
     double variance = decomposition.meanVariance();
     core_t::TTime time = maths::CIntegerTools::floor(endTime, DAY);
     for (core_t::TTime t = time; t < time + WEEK; t += TEN_MINS) {
-        scale.add(mean(decomposition.scale(t, variance, 70.0)));
+        scale.add(mean(decomposition.varianceScaleWeight(t, variance, 70.0)));
     }
 
     LOG_DEBUG(<< "scale = " << maths::CBasicStatistics::mean(scale));
@@ -1452,7 +1455,9 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
         core_t::TTime lastDay = times[0];
 
         for (std::size_t i = 0; i < times.size(); ++i) {
-            decomposition.addPoint(times[i], trend[i] + 0.3 * noise[i]);
+            decomposition.addPoint(
+                times[i], trend[i] + 0.3 * noise[i],
+                maths_t::countWeight(decomposition.countWeight(times[i])));
             debug.addValue(times[i], trend[i] + 0.3 * noise[i]);
 
             if (times[i] > lastDay + DAY) {
@@ -1491,8 +1496,8 @@ BOOST_FIXTURE_TEST_CASE(testLongTermTrend, CTestFixture) {
         LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
         LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
 
-        BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.22);
-        BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.24);
+        BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.19);
+        BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.20);
     }
 }
 
@@ -1891,8 +1896,9 @@ BOOST_FIXTURE_TEST_CASE(testCalendar, CTestFixture) {
             for (core_t::TTime time_ = time - DAY; time_ < time; time_ += TEN_MINS) {
                 double prediction =
                     maths::CBasicStatistics::mean(decomposition.value(time_));
-                double variance = 4.0 * maths::CBasicStatistics::mean(
-                                            decomposition.scale(time_, 4.0, 0.0));
+                double variance =
+                    4.0 * maths::CBasicStatistics::mean(
+                              decomposition.varianceScaleWeight(time_, 4.0, 0.0));
                 double actual = trend(time_);
                 if (std::fabs(prediction - actual) / std::sqrt(variance) > 3.0) {
                     LOG_TRACE(<< "  prediction = " << prediction);
@@ -2002,7 +2008,7 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
     }
 
-    double bounds[]{0.01, 0.013, 0.15, 0.03};
+    double bounds[]{0.01, 0.013, 0.17, 0.03};
     for (std::size_t i = 0; i < 4; ++i) {
         double error{maths::CBasicStatistics::mean(errors[i])};
         LOG_DEBUG(<< "error = " << error);
@@ -2225,7 +2231,7 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
             TDoubleDoublePr expectedValue{stringToPair(expectedValues[i])};
             TDoubleDoublePr expectedScale{stringToPair(expectedScales[i])};
             TDoubleDoublePr value{decomposition.value(time, 10.0)};
-            TDoubleDoublePr scale{decomposition.scale(time, 286374.0, 10.0)};
+            TDoubleDoublePr scale{decomposition.varianceScaleWeight(time, 286374.0, 10.0)};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.first, value.first,
                                          0.005 * std::fabs(expectedValue.first));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.second, value.second,
@@ -2294,7 +2300,7 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
             TDoubleDoublePr expectedValue{stringToPair(expectedValues[i])};
             TDoubleDoublePr expectedScale{stringToPair(expectedScales[i])};
             TDoubleDoublePr value{decomposition.value(time, 10.0)};
-            TDoubleDoublePr scale{decomposition.scale(time, 96.1654, 10.0)};
+            TDoubleDoublePr scale{decomposition.varianceScaleWeight(time, 96.1654, 10.0)};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.first, value.first,
                                          0.1 * std::fabs(expectedValue.first));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.second, value.second,
