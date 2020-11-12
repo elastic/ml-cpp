@@ -4,20 +4,25 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <maths/CBoostedTreeLeafNodeStatistics.h>
-
 #include <core/CLogger.h>
 
+#include <maths/CBoostedTree.h>
+#include <maths/CBoostedTreeLeafNodeStatistics.h>
 #include <maths/CBoostedTreeUtils.h>
+#include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CLinearAlgebraEigen.h>
+#include <maths/CQuantileSketch.h>
 
 #include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
 
+#include <algorithm>
+
 BOOST_AUTO_TEST_SUITE(CBoostedTreeLeafNodeStatisticsTest)
 
 using namespace ml;
+using TBoolVec = std::vector<bool>;
 using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TSizeVec = std::vector<std::size_t>;
@@ -305,6 +310,106 @@ BOOST_AUTO_TEST_CASE(testPerSplitDerivatives) {
 
     testPerSplitDerivativesFor(1 /*loss function parameter*/);
     testPerSplitDerivativesFor(3 /*loss function parameters*/);
+}
+
+BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
+    using TRegularization = maths::CBoostedTreeRegularization<double>;
+    using TLeafNodeStatisticsPtr = maths::CBoostedTreeLeafNodeStatistics::TPtr;
+    using TNodeVec = maths::CBoostedTree::TNodeVec;
+    // create dataset and encoding
+    std::size_t cols{2};
+    TSizeVec extraColumns{2, 3, 4, 5};
+    std::size_t rows{50};
+    std::size_t numberThreads{1};
+
+    for (std::size_t seed = 0; seed < 1000; ++seed) {
+        maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, rows);
+        test::CRandomNumbers rng;
+        rng.seed(seed);
+        auto frame = core::makeMainStorageDataFrame(cols, rows).first;
+        frame->categoricalColumns(TBoolVec{false, false});
+        frame->resizeColumns(numberThreads, cols + extraColumns.size());
+        TDoubleVec features;
+        features.reserve(rows);
+
+        while (true) {
+            rng.generateUniformSamples(0.0, 1.0, rows, features);
+            const auto min = std::min_element(features.begin(), features.end());
+            const auto max = std::max_element(features.begin(), features.end());
+            if (*min < 0.25 && *max > 0.75) {
+                break;
+            }
+        }
+
+        TDoubleVec targets;
+        targets.reserve(features.size());
+        rng.generateUniformSamples(-10.0, 10.0, features.size(), targets);
+        TDoubleVec predictions(rows, 0.0);
+        TDoubleVec curvature(rows, 2.0);
+        TDoubleVec weights(rows, 1.0);
+
+        for (std::size_t i = 0; i < rows; ++i) {
+            frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+                *(column) = features[i];
+                *(++column) = targets[i];
+                *(++column) = predictions[i];
+                *(++column) = targets[i] - predictions[i];
+                *(++column) = curvature[i];
+                *(++column) = weights[i];
+
+            });
+            sketch.add(features[i]);
+        }
+        frame->finishWritingRows();
+
+        maths::CDataFrameCategoryEncoder encoder{{numberThreads, *frame, 0}};
+
+        TDoubleVec splitValues(3);
+        sketch.quantile(25.0, splitValues[0]);
+        sketch.quantile(50.0, splitValues[1]);
+        sketch.quantile(75.0, splitValues[2]);
+        TImmutableRadixSetVec featureSplits;
+        featureSplits.push_back(TImmutableRadixSet(splitValues));
+
+        maths::CBoostedTreeLeafNodeStatistics::CWorkspace workspace;
+        workspace.reinitialize(numberThreads, featureSplits, 1);
+
+        core::CPackedBitVector trainingRowMask(rows, true);
+
+        TSizeVec featureBag{0};
+
+        TRegularization regularization;
+        regularization.softTreeDepthLimit(1.0).softTreeDepthTolerance(1.0);
+
+        TNodeVec tree(1);
+
+        auto rootSplit = std::make_shared<maths::CBoostedTreeLeafNodeStatistics>(
+            0 /*root*/, extraColumns, 1, numberThreads, *frame, encoder, regularization,
+            featureSplits, featureBag, 0 /*depth*/, trainingRowMask, workspace);
+
+        std::size_t splitFeature;
+        double splitValue;
+        std::tie(splitFeature, splitValue) = rootSplit->bestSplit();
+        bool assignMissingToLeft{rootSplit->assignMissingToLeft()};
+
+        std::size_t leftChildId, rightChildId;
+        std::tie(leftChildId, rightChildId) = tree[rootSplit->id()].split(
+            splitFeature, splitValue, assignMissingToLeft, rootSplit->gain(),
+            rootSplit->curvature(), tree);
+
+        TLeafNodeStatisticsPtr leftChild;
+        TLeafNodeStatisticsPtr rightChild;
+        std::tie(leftChild, rightChild) = rootSplit->split(
+            leftChildId, rightChildId, numberThreads, 0.0, *frame, encoder,
+            regularization, featureBag, tree[rootSplit->id()], workspace);
+        if (leftChild != nullptr) {
+            BOOST_REQUIRE(rootSplit->leftChildMaxGain() >= leftChild->gain());
+        }
+        if (rightChild != nullptr) {
+            BOOST_REQUIRE(rootSplit->rightChildMaxGain() >= rightChild->gain());
+        }
+        BOOST_REQUIRE(rightChild != nullptr || leftChild != nullptr);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

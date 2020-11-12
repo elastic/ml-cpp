@@ -24,6 +24,27 @@ using TRowItr = core::CDataFrame::TRowItr;
 namespace {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
+
+void incrementStatsComputed(CBoostedTreeLeafNodeStatistics::TAnalysisInstrumentationPtr instrumentation) {
+    if (instrumentation != nullptr) {
+        instrumentation->statisticsComputed() += 1;
+    }
+}
+
+void incrementStatsNotComputed(CBoostedTreeLeafNodeStatistics::TAnalysisInstrumentationPtr instrumentation,
+                               std::uint32_t rowsInChild) {
+    if (instrumentation != nullptr) {
+        instrumentation->statisticsNotComputed() += 1;
+        instrumentation->rowsSkipped(rowsInChild);
+    }
+}
+
+struct SChildredGainStats {
+    double s_MinLossLeft = -INF;
+    double s_MinLossRight = -INF;
+    double s_GLeft = -INF;
+    double s_GRight = -INF;
+};
 }
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(
@@ -125,29 +146,66 @@ CBoostedTreeLeafNodeStatistics::TPtrPtrPr
 CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                                       std::size_t rightChildId,
                                       std::size_t numberThreads,
+                                      double gainThreshold,
                                       const core::CDataFrame& frame,
                                       const CDataFrameCategoryEncoder& encoder,
                                       const TRegularization& regularization,
                                       const TSizeVec& featureBag,
                                       const CBoostedTreeNode& split,
-                                      CWorkspace& workspace) {
-
+                                      CWorkspace& workspace,
+                                      TAnalysisInstrumentationPtr instrumentation) {
+    TPtr leftChild;
+    TPtr rightChild;
     if (this->leftChildHasFewerRows()) {
-        auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-            leftChildId, *this, numberThreads, frame, encoder, regularization,
-            featureBag, true /*is left child*/, split, workspace);
-        auto rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-            rightChildId, std::move(*this), regularization, featureBag, workspace);
-
+        if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+            leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
+                leftChildId, *this, numberThreads, frame, encoder, regularization,
+                featureBag, true /*is left child*/, split, workspace);
+            incrementStatsComputed(instrumentation);
+            if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
+                rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
+                    rightChildId, std::move(*this), regularization, featureBag, workspace);
+                incrementStatsComputed(instrumentation);
+            } else {
+                incrementStatsNotComputed(instrumentation, this->m_BestSplit.s_RightChildRowCount);
+            }
+        } else {
+            incrementStatsNotComputed(instrumentation, this->m_BestSplit.s_LeftChildRowCount);
+            if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
+                rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
+                    rightChildId, *this, numberThreads, frame, encoder, regularization,
+                    featureBag, false /*is left child*/, split, workspace);
+                incrementStatsComputed(instrumentation);
+            } else {
+                incrementStatsNotComputed(instrumentation, this->m_BestSplit.s_RightChildRowCount);
+            }
+        }
         return {std::move(leftChild), std::move(rightChild)};
     }
 
-    auto rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-        rightChildId, *this, numberThreads, frame, encoder, regularization,
-        featureBag, false /*is left child*/, split, workspace);
-    auto leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
-        leftChildId, std::move(*this), regularization, featureBag, workspace);
-
+    if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
+        rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
+            rightChildId, *this, numberThreads, frame, encoder, regularization,
+            featureBag, false /*is left child*/, split, workspace);
+        incrementStatsComputed(instrumentation);
+        if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+            leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
+                leftChildId, std::move(*this), regularization, featureBag, workspace);
+            incrementStatsComputed(instrumentation);
+        } else {
+            incrementStatsNotComputed(instrumentation, this->m_BestSplit.s_LeftChildRowCount);
+        }
+    } else {
+        incrementStatsNotComputed(instrumentation, this->m_BestSplit.s_RightChildRowCount);
+        if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
+            leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
+                leftChildId, *this, numberThreads, frame, encoder, regularization,
+                featureBag, true /*is left child*/, split, workspace);
+            incrementStatsComputed(instrumentation);
+        } else {
+            incrementStatsNotComputed(instrumentation, this->m_BestSplit.s_LeftChildRowCount);
+        }
+    }
     return {std::move(leftChild), std::move(rightChild)};
 }
 
@@ -157,6 +215,14 @@ bool CBoostedTreeLeafNodeStatistics::operator<(const CBoostedTreeLeafNodeStatist
 
 double CBoostedTreeLeafNodeStatistics::gain() const {
     return m_BestSplit.s_Gain;
+}
+
+double CBoostedTreeLeafNodeStatistics::leftChildMaxGain() const {
+    return m_BestSplit.s_LeftChildMaxGain;
+}
+
+double CBoostedTreeLeafNodeStatistics::rightChildMaxGain() const {
+    return m_BestSplit.s_RightChildMaxGain;
 }
 
 double CBoostedTreeLeafNodeStatistics::curvature() const {
@@ -267,6 +333,15 @@ void CBoostedTreeLeafNodeStatistics::addRowDerivatives(const CEncodedDataFrameRo
 
     auto derivatives = readLossDerivatives(row.unencodedRow(), m_ExtraColumns,
                                            m_NumberLossParameters);
+
+    if (derivatives.size() == 2) {
+        if (derivatives(0) >= 0.0) {
+            splitsDerivatives.addPositiveDerivatives(derivatives);
+        } else {
+            splitsDerivatives.addNegativeDerivatives(derivatives);
+        }
+    }
+
     std::size_t numberFeatures{m_CandidateSplits.size()};
     for (std::size_t feature = 0; feature < numberFeatures; ++feature) {
         double featureValue{row[feature]};
@@ -352,6 +427,12 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
     TDoubleMatrix hl[]{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
     TDoubleMatrix hr[]{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
 
+    double gain[2];
+    double minLossLeft[2]{0.0, 0.0};
+    double minLossRight[2]{0.0, 0.0};
+    SChildredGainStats childrenGainStatsGlobal;
+    SChildredGainStats childrenGainStatsPerFeature;
+
     for (auto feature : featureBag) {
         std::size_t c{m_Derivatives.missingCount(feature)};
         g = m_Derivatives.missingGradient(feature);
@@ -398,30 +479,49 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
             hr[ASSIGN_MISSING_TO_LEFT] -= curvature;
             hr[ASSIGN_MISSING_TO_RIGHT] -= curvature;
 
-            double gain[2];
-            gain[ASSIGN_MISSING_TO_LEFT] =
-                cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c
-                    ? -INF
-                    : minimumLoss(gl[ASSIGN_MISSING_TO_LEFT], hl[ASSIGN_MISSING_TO_LEFT]) +
-                          minimumLoss(gr[ASSIGN_MISSING_TO_LEFT], hr[ASSIGN_MISSING_TO_LEFT]);
-            gain[ASSIGN_MISSING_TO_RIGHT] =
-                cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c
-                    ? -INF
-                    : minimumLoss(gl[ASSIGN_MISSING_TO_RIGHT], hl[ASSIGN_MISSING_TO_RIGHT]) +
-                          minimumLoss(gr[ASSIGN_MISSING_TO_RIGHT],
-                                      hr[ASSIGN_MISSING_TO_RIGHT]);
+            if (cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c) {
+                gain[ASSIGN_MISSING_TO_LEFT] = -INF;
+            } else {
+                minLossLeft[ASSIGN_MISSING_TO_LEFT] = minimumLoss(
+                    gl[ASSIGN_MISSING_TO_LEFT], hl[ASSIGN_MISSING_TO_LEFT]);
+                minLossRight[ASSIGN_MISSING_TO_LEFT] = minimumLoss(
+                    gr[ASSIGN_MISSING_TO_LEFT], hr[ASSIGN_MISSING_TO_LEFT]);
+                gain[ASSIGN_MISSING_TO_LEFT] = minLossLeft[ASSIGN_MISSING_TO_LEFT] +
+                                               minLossRight[ASSIGN_MISSING_TO_LEFT];
+            }
+
+            if (cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c) {
+                gain[ASSIGN_MISSING_TO_RIGHT] = -INF;
+            } else {
+                minLossLeft[ASSIGN_MISSING_TO_RIGHT] = minimumLoss(
+                    gl[ASSIGN_MISSING_TO_RIGHT], hl[ASSIGN_MISSING_TO_RIGHT]);
+                minLossRight[ASSIGN_MISSING_TO_RIGHT] = minimumLoss(
+                    gr[ASSIGN_MISSING_TO_RIGHT], hr[ASSIGN_MISSING_TO_RIGHT]);
+                gain[ASSIGN_MISSING_TO_RIGHT] = minLossLeft[ASSIGN_MISSING_TO_RIGHT] +
+                                                minLossRight[ASSIGN_MISSING_TO_RIGHT];
+            }
 
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_LEFT];
                 splitAt = m_CandidateSplits[feature][split];
                 leftChildRowCount = cl[ASSIGN_MISSING_TO_LEFT];
                 assignMissingToLeft = true;
+                // if gain > -INF then minLossLeft and minLossRight were initialized
+                childrenGainStatsPerFeature = {minLossLeft[ASSIGN_MISSING_TO_LEFT],
+                                               minLossRight[ASSIGN_MISSING_TO_LEFT],
+                                               gl[ASSIGN_MISSING_TO_LEFT](0),
+                                               gr[ASSIGN_MISSING_TO_LEFT](0)};
             }
             if (gain[ASSIGN_MISSING_TO_RIGHT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_RIGHT];
                 splitAt = m_CandidateSplits[feature][split];
                 leftChildRowCount = cl[ASSIGN_MISSING_TO_RIGHT];
                 assignMissingToLeft = false;
+                // if gain > -INF then minLossLeft and minLossRight were initialized
+                childrenGainStatsPerFeature = {minLossLeft[ASSIGN_MISSING_TO_RIGHT],
+                                               minLossRight[ASSIGN_MISSING_TO_RIGHT],
+                                               gl[ASSIGN_MISSING_TO_RIGHT](0),
+                                               gr[ASSIGN_MISSING_TO_RIGHT](0)};
             }
         }
 
@@ -430,28 +530,86 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
         // The gain is the difference between the quadratic minimum for loss with
         // no split and the loss with the minimum loss split we found.
-        double gain{0.5 * (maximumGain - minimumLoss(g, h)) -
-                    regularization.treeSizePenaltyMultiplier() -
-                    regularization.depthPenaltyMultiplier() *
-                        (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
-
-        SSplitStatistics candidate{gain,
+        double splitGain{0.5 * (maximumGain - minimumLoss(g, h)) -
+                         regularization.treeSizePenaltyMultiplier() -
+                         regularization.depthPenaltyMultiplier() *
+                             (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
+        SSplitStatistics candidate{splitGain,
                                    h.trace() / static_cast<double>(m_NumberLossParameters),
                                    feature,
                                    splitAt,
                                    std::min(leftChildRowCount, c - leftChildRowCount),
                                    2 * leftChildRowCount < c,
-                                   assignMissingToLeft};
+                                   assignMissingToLeft,
+                                   leftChildRowCount,
+                                   c - leftChildRowCount};
         LOG_TRACE(<< "candidate split: " << candidate.print());
 
         if (candidate > result) {
             result = candidate;
+            childrenGainStatsGlobal = childrenGainStatsPerFeature;
         }
+    }
+    if (m_Derivatives.numberLossParameters() > 2) {
+        // short-circuit the bound computation for the multi-class case
+        result.s_LeftChildMaxGain = INF;
+        result.s_RightChildMaxGain = INF;
+    } else if (result.s_Gain > 0) {
+        double childPenaltyForDepth{regularization.penaltyForDepth(m_Depth + 1)};
+        double childPenaltyForDepthPlusOne{regularization.penaltyForDepth(m_Depth + 2)};
+        double childPenalty{regularization.treeSizePenaltyMultiplier() +
+                            regularization.depthPenaltyMultiplier() *
+                                (2.0 * childPenaltyForDepthPlusOne - childPenaltyForDepth)};
+        result.s_LeftChildMaxGain =
+            0.5 * this->childMaxGain(childrenGainStatsGlobal.s_GLeft,
+                                     childrenGainStatsGlobal.s_MinLossLeft, lambda) -
+            childPenalty;
+
+        result.s_RightChildMaxGain =
+            0.5 * this->childMaxGain(childrenGainStatsGlobal.s_GRight,
+                                     childrenGainStatsGlobal.s_MinLossRight, lambda) -
+            childPenalty;
     }
 
     LOG_TRACE(<< "best split: " << result.print());
 
     return result;
+}
+
+double CBoostedTreeLeafNodeStatistics::childMaxGain(double gChild,
+                                                    double minLossChild,
+                                                    double lambda) const {
+
+    // This computes the maximum possible gain we can expect splitting a child node given
+    // we know the sum of the positive (g^+) and negative gradients (g^-) at its parent,
+    // the minimum curvature on the positive and negative gradient set (hmin^+ and hmin^-)
+    // and largest and smallest gradient (gmax and gmin, respectively). The highest possible
+    // gain consistent with these constraints can be shown to be:
+    // (g^+)^2 / (hmin^+ * g^+ / gmax + lambda) + (g^-)^2 / (hmin^- * g^- / gmin + lambda)
+    // Since gchild = gchild^+ + gchild^-, we can improve estimates on g^+ and g^- for the child as:
+    // g^+ = max(min(gchild - g^-, g^+), 0),
+    // g^- = max(min(gchild - g^+, g^-), 0).
+    double positiveDerivativesGSum =
+        std::max(std::min(gChild - m_Derivatives.negativeDerivativesGSum(),
+                          m_Derivatives.positiveDerivativesGSum()),
+                 0.0);
+    double negativeDerivativesGSum =
+        std::min(std::max(gChild - m_Derivatives.positiveDerivativesGSum(),
+                          m_Derivatives.negativeDerivativesGSum()),
+                 0.0);
+    double lookAheadGain{((positiveDerivativesGSum != 0.0)
+                              ? CTools::pow2(positiveDerivativesGSum) /
+                                    (m_Derivatives.positiveDerivativesHMin() * positiveDerivativesGSum /
+                                         m_Derivatives.positiveDerivativesGMax() +
+                                     lambda + 1e-10)
+                              : 0.0) +
+                         ((negativeDerivativesGSum != 0.0)
+                              ? CTools::pow2(negativeDerivativesGSum) /
+                                    (m_Derivatives.negativeDerivativesHMin() * negativeDerivativesGSum /
+                                         m_Derivatives.negativeDerivativesGMin() +
+                                     lambda + 1e-10)
+                              : 0.0)};
+    return lookAheadGain - minLossChild;
 }
 }
 }

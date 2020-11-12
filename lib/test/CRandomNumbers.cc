@@ -200,6 +200,10 @@ void CRandomNumbers::discard(std::size_t n) {
     m_Generator.discard(n);
 }
 
+void CRandomNumbers::seed(std::size_t seed) {
+    m_Generator.seed(seed);
+}
+
 CRandomNumbers::CUniform0nGenerator::CUniform0nGenerator(const TGenerator& generator)
     : m_Generator(new TGenerator(generator)) {
 }

@@ -156,6 +156,8 @@ public:
     //! Throw away \p n random numbers.
     void discard(std::size_t n);
 
+    void seed(std::size_t seed);
+
 private:
     //! The random number generator.
     TGenerator m_Generator;
