@@ -52,9 +52,9 @@ namespace core {
 //! \warning Since it allows a more efficient implementation and covers our use cases
 //! this only supports vectors up to length 2^30.
 // clang-format off
-class CORE_EXPORT CPackedBitVector final : private boost::equality_comparable<CPackedBitVector,
-                                                   boost::partially_ordered<CPackedBitVector,
-                                                   boost::bitwise<CPackedBitVector>>> {
+class CORE_EXPORT CPackedBitVector : private boost::equality_comparable<CPackedBitVector,
+                                             boost::partially_ordered<CPackedBitVector,
+                                             boost::bitwise<CPackedBitVector>>> {
     // clang-format on
 public:
     using TBoolVec = std::vector<bool>;
