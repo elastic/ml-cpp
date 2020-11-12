@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.10.1
+
+=== Bug Fixes
+
+* Fix a bug where the peak_model_bytes value of the model_size_stats object  was not
+  restored from the anomaly detector job snapshots.
+
 == {es} version 7.10.0
 
 === Enhancements
