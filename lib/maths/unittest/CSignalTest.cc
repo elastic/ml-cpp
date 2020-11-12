@@ -1057,7 +1057,7 @@ BOOST_AUTO_TEST_CASE(testMultipleDiurnalSeasonalDecomposition) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
+BOOST_AUTO_TEST_CASE(testTradingDayDecomposition, *boost::unit_test::disabled()) {
 
     // Test decomposing into weekdays/weekend with and without and override.
 
