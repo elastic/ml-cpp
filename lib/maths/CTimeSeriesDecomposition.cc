@@ -21,7 +21,6 @@
 #include <maths/CPrior.h>
 #include <maths/CRestoreParams.h>
 #include <maths/CSeasonalTime.h>
-#include <maths/CTimeSeriesTestForChange.h>
 
 #include <boost/container/flat_map.hpp>
 #include <boost/math/distributions/normal.hpp>

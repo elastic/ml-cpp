@@ -17,6 +17,7 @@
 #include <maths/CSeasonalComponent.h>
 #include <maths/CSeasonalTime.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
+#include <maths/CTimeSeriesTestForChange.h>
 #include <maths/CTimeSeriesTestForSeasonality.h>
 #include <maths/CTrendComponent.h>
 #include <maths/ImportExport.h>
@@ -37,7 +38,6 @@ class CNanInjector;
 namespace ml {
 namespace maths {
 class CExpandingWindow;
-class CChangePoint;
 class CTimeSeriesDecomposition;
 
 //! \brief Utilities for computing the decomposition.
