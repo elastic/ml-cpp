@@ -331,11 +331,11 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         frame->resizeColumns(numberThreads, cols + extraColumns.size());
         TDoubleVec features;
         features.reserve(rows);
+        double min, max;
         while (true) {
             rng.generateUniformSamples(0.0, 1.0, rows, features);
-            const auto[min, max] =
-                std::minmax_element(features.begin(), features.end());
-            if (*min < 0.25 && *max > 0.75) {
+            std::tie(min, max) = std::minmax_element(features.begin(), features.end());
+            if (min < 0.25 && max > 0.75) {
                 break;
             }
         }
