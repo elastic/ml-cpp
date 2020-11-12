@@ -130,7 +130,8 @@ public:
     void add(const TMeanVarAccumulator& moments) {
         double ni = CBasicStatistics::count(moments);
         const TBarePointPrecise& mean{CBasicStatistics::mean(moments)};
-        const TBarePointPrecise& covarianceDiag{CBasicStatistics::maximumLikelihoodVariance(moments)};
+        const TBarePointPrecise& covarianceDiag{
+            CBasicStatistics::maximumLikelihoodVariance(moments)};
         std::size_t d{las::dimension(covarianceDiag)};
         double vi{0.0};
         for (std::size_t i = 0; i < d; ++i) {
