@@ -231,7 +231,7 @@ CDataFrame::TRowFuncVecBoolPr CDataFrame::writeColumns(std::size_t numberThreads
         return {{std::move(writer)}, true};
     }
 
-    TRowFuncVec writers(numberThreads, std::move(writer));
+    TRowFuncVec writers(numberThreads, writer);
     bool successful{
         numberThreads > 1
             ? this->parallelApplyToAllRows(beginRows, endRows, writers, rowMask, true)
