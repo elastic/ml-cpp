@@ -619,7 +619,7 @@ BOOST_AUTO_TEST_CASE(testAddBucketValue) {
     BOOST_REQUIRE_EQUAL(prior.checksum(), model.residualModel().checksum());
 }
 
-BOOST_AUTO_TEST_CASE(testAddSamples, boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testAddSamples, *boost::unit_test::disabled()) {
     // Test: 1) Test multiple samples
     //       2) Test propagation interval
     //       3) Test decay rate control
@@ -938,7 +938,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples, boost::unit_test::disabled()) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testPredict, boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testPredict, *boost::unit_test::disabled()) {
     // Test prediction with a trend and with multimodal data.
 
     core_t::TTime bucketLength{600};
@@ -2060,7 +2060,7 @@ BOOST_AUTO_TEST_CASE(testAnomalyModel) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities, boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities, *boost::unit_test::disabled()) {
     // Test reinitialization of the residual model after detecting a
     // step change.
     //
@@ -2333,7 +2333,7 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testDaylightSaving, boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testDaylightSaving, *boost::unit_test::disabled()) {
     // Test we detect daylight saving time shifts.
 
     TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
