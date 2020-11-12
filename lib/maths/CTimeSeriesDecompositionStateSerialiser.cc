@@ -13,6 +13,7 @@
 #include <maths/CRestoreParams.h>
 #include <maths/CTimeSeriesDecomposition.h>
 #include <maths/CTimeSeriesDecompositionStub.h>
+#include <maths/CTimeSeriesTestForChange.h>
 
 #include <memory>
 #include <string>
