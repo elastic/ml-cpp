@@ -530,11 +530,11 @@ CBoostedTreeLeafNodeStatistics::computeBestSplitStatistics(const TRegularization
 
         // The gain is the difference between the quadratic minimum for loss with
         // no split and the loss with the minimum loss split we found.
-        double gain{0.5 * (maximumGain - minimumLoss(g, h)) -
-                    regularization.treeSizePenaltyMultiplier() -
-                    regularization.depthPenaltyMultiplier() *
-                        (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
-        SSplitStatistics candidate{gain,
+        double splitGain{0.5 * (maximumGain - minimumLoss(g, h)) -
+                         regularization.treeSizePenaltyMultiplier() -
+                         regularization.depthPenaltyMultiplier() *
+                             (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
+        SSplitStatistics candidate{splitGain,
                                    h.trace() / static_cast<double>(m_NumberLossParameters),
                                    feature,
                                    splitAt,
