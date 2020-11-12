@@ -66,8 +66,14 @@ public:
     enum EOperation { E_AND, E_OR, E_XOR };
 
     //! \brief A forward iterator over the indices of the one bits in bit vector.
-    class CORE_EXPORT COneBitIndexConstIterator
-        : public std::iterator<std::input_iterator_tag, std::size_t, std::ptrdiff_t> {
+    class CORE_EXPORT COneBitIndexConstIterator final {
+    public:
+        using iterator_category = std::input_iterator_tag;
+        using value_type = std::size_t;
+        using difference_type = std::ptrdiff_t;
+        using pointer = void;
+        using reference = void;
+
     public:
         COneBitIndexConstIterator() = default;
         COneBitIndexConstIterator(bool first, TUInt8VecCItr runLengthsItr, TUInt8VecCItr endRunLengthsItr);
@@ -79,7 +85,7 @@ public:
             return m_Current == rhs.m_Current && m_RunLengthsItr == rhs.m_RunLengthsItr;
         }
         bool operator!=(const COneBitIndexConstIterator& rhs) const {
-            return !(*this == rhs);
+            return (*this == rhs) == false;
         }
 
         COneBitIndexConstIterator& operator++() {
