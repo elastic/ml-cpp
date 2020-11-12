@@ -275,7 +275,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         m_Instrumentation->iteration(m_CurrentRound);
         m_Instrumentation->flush(TRAIN_FINAL_FOREST);
 
-        timeAccumulator.add(static_cast<double>(stopWatch.stop()));
+        timeAccumulator.add(static_cast<double>(stopWatch.stop() - lastLap));
 
         LOG_TRACE(<< "Training finished after " << m_CurrentRound << " iterations. "
                   << "Time per iteration in ms mean: "
