@@ -41,6 +41,13 @@
 * Fix an edge case which could cause typical and model plot bounds to blow up to around
   max double. (See {ml-pull}1551[#1551].)
 
+== {es} version 7.10.1
+
+=== Bug Fixes
+
+* Fix a bug where the peak_model_bytes value of the model_size_stats object  was not
+  restored from the anomaly detector job snapshots.
+
 == {es} version 7.10.0
 
 === Enhancements
