@@ -178,8 +178,8 @@ public:
     std::size_t& statisticsNotComputed() override {
         return m_StubStatsComputed;
     }
-    virtual void rowsSkipped(std::uint32_t /*numberRows*/) override{};
-    virtual std::uint32_t rowsSkipped() override { return 0ul; };
+    virtual void rowsSkipped(std::uint32_t /*numberRows*/) override {}
+    virtual std::uint32_t rowsSkipped() override { return 0ul; }
 
 private:
     SHyperparameters m_Hyperparameters;
