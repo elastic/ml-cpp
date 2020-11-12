@@ -364,8 +364,10 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
             modelTrendSegments.assign({0, values.size()});
 
             TRegression trend;
+            TRegression::TArray parameters;
+            parameters.fill(0.0);
             auto predictor = [&](std::size_t i) {
-                return trend.predict(static_cast<double>(i));
+                return TRegression::predict(parameters, static_cast<double>(i));
             };
 
             if (periods.empty()) {
@@ -374,6 +376,12 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
                     trend.add(static_cast<double>(j), CBasicStatistics::mean(values[j]),
                               CBasicStatistics::count(values[j]));
                 }
+                // Note that parameters are referenced by predictor. Reading them
+                // here refreshes the values used for prediction. Computing the
+                // parameters is the bottleneck in this code and the same values
+                // are used for each prediction. We optimise removePredictions by
+                // reading them once upfront.
+                trend.parameters(parameters);
                 this->removePredictions(predictor, values);
                 return true;
             }
@@ -390,6 +398,8 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
                     trend.add(static_cast<double>(j), CBasicStatistics::mean(values[j]),
                               CBasicStatistics::count(values[j]));
                 }
+                // See above.
+                trend.parameters(parameters);
             }
             values = m_Values;
             this->removePredictions(predictor, values);
@@ -559,27 +569,29 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
                 static_cast<double>(decompositions[H1].s_NumberTrendParameters)};
             double pValueVsSelected{selected < decompositions.size()
                                         ? decompositions[H1].pValue(decompositions[selected])
-                                        : 0.0};
-            LOG_TRACE(<< "p-value H1 vs selected = " << pValueVsSelected);
+                                        : 1.0};
+            double scalings{decompositions[H1].numberScalings()};
+            double segments{std::max(numberTrendParameters - 3.0, 0.0)};
+            LOG_TRACE(<< "explained variance per param = " << explainedVariancePerParameter
+                      << ", scalings = " << scalings << ", trend parameters = " << numberTrendParameters
+                      << ", p-value H1 vs selected = " << pValueVsSelected);
 
-            double quality{
-                1.0 * std::log(explainedVariancePerParameter(0)) +
-                1.0 * std::log(explainedVariancePerParameter(1)) +
-                0.7 * decompositions[H1].componentsSimilarity() +
-                0.5 * std::log(-logPValue) + 0.2 * std::log(-logPValueProxy) -
-                0.5 * std::log(decompositions[H1].targetModelSize()) -
-                0.3 * std::log(1.0 + std::max(numberTrendParameters - 3.0, 0.0)) -
-                0.3 * std::log(0.1 + decompositions[H1].numberScalings()) -
-                0.3 * std::log(std::max(leastCommonRepeat, 0.5))};
-            LOG_TRACE(<< "explained variance per param = " << explainedVariancePerParameter);
+            double quality{1.0 * std::log(explainedVariancePerParameter(0)) +
+                           1.0 * std::log(explainedVariancePerParameter(1)) +
+                           0.7 * decompositions[H1].componentsSimilarity() +
+                           0.5 * std::log(-logPValue) + 0.2 * std::log(-logPValueProxy) -
+                           0.5 * std::log(decompositions[H1].targetModelSize()) -
+                           0.3 * std::log(0.2 + CTools::pow2(scalings)) -
+                           0.3 * std::log(1.0 + CTools::pow2(segments)) -
+                           0.3 * std::log(std::max(leastCommonRepeat, 0.5))};
+            double qualityToAccept{
+                1.0 * qualitySelected -
+                1.0 * std::log(1.0 + std::max(std::log(0.01 / pValueVsSelected), 0.0))};
             LOG_TRACE(<< "target size = " << decompositions[H1].targetModelSize()
                       << ", modelled = " << decompositions[H1].s_AlreadyModelled);
-            LOG_TRACE(<< "scalings = " << decompositions[H1].numberScalings()
-                      << ", trend parameters = " << numberTrendParameters);
-            LOG_TRACE(<< "already modelled = " << decompositions[H1].s_AlreadyModelled);
-            LOG_TRACE(<< "quality = " << quality);
+            LOG_TRACE(<< "quality = " << quality << " to accept = " << qualityToAccept);
 
-            if (pValueVsSelected < m_VerySignificantPValue || quality > qualitySelected) {
+            if (quality > qualityToAccept) {
                 std::tie(selected, qualitySelected) = std::make_pair(H1, quality);
                 LOG_TRACE(<< "selected " << selected);
             }
@@ -745,7 +757,8 @@ void CTimeSeriesTestForSeasonality::addHighestAutocorrelation(const TRemoveTrend
             m_ValuesMinusTrend, m_OutlierFraction, diurnal,
             m_StartOfWeekOverride, 0.05, m_MaximumNumberComponents);
         this->removeIfNotTestable(m_CandidatePeriods);
-        if (this->includesNewComponents(m_CandidatePeriods) &&
+        if (removeTrend(m_CandidatePeriods, m_ValuesMinusTrend, m_ModelTrendSegments) &&
+            this->includesNewComponents(m_CandidatePeriods) &&
             this->onlyDiurnal(m_CandidatePeriods) == false) {
             this->testAndAddDecomposition(m_CandidatePeriods,
                                           m_ModelTrendSegments, m_ValuesMinusTrend,
@@ -1024,15 +1037,15 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
     periodsHypotheses.reserve(hypotheses.size());
 
     for (std::size_t i = 0; i < hypotheses.size(); ++i) {
-        // If there are scale events in the time window we need to fit a model
-        // to compute the residuals accurately.
+        // We always fit here even components we are already modelling because it's
+        // a fairer comparison with new components.
         if (hypotheses[i].s_Model) {
             m_Periods.push_back(hypotheses[i].s_Period);
             periodsHypotheses.push_back(i);
-        } else if (hypotheses[i].s_ScaleSegments.size() > 2 &&
-                   hypotheses[i].s_DiscardingModel == false &&
+        } else if (hypotheses[i].s_DiscardingModel == false &&
                    m_ModelledPeriodsTestable[hypotheses[i].s_SimilarModelled]) {
             componentsExcludedMask[hypotheses[i].s_SimilarModelled] = true;
+            m_Periods.push_back(hypotheses[i].s_Period);
             periodsHypotheses.push_back(i);
         }
     }

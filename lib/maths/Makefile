@@ -100,7 +100,6 @@ CSeasonalTime.cc \
 CSignal.cc \
 CSpline.cc \
 CStatisticalTests.cc \
-CTimeSeriesChangeDetector.cc \
 CTimeSeriesDecomposition.cc \
 CTimeSeriesDecompositionDetail.cc \
 CTimeSeriesDecompositionStateSerialiser.cc \
@@ -108,6 +107,7 @@ CTimeSeriesDecompositionStub.cc \
 CTimeSeriesModel.cc \
 CTimeSeriesMultibucketFeatureSerialiser.cc \
 CTimeSeriesSegmentation.cc \
+CTimeSeriesTestForChange.cc \
 CTimeSeriesTestForSeasonality.cc \
 CTools.cc \
 CTreeShapFeatureImportance.cc \

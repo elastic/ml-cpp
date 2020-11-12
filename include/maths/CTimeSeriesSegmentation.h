@@ -48,7 +48,7 @@ public:
     //! \param[in] pValueToSegment The maximum p-value of the explained variance
     //! to accept a trend segment.
     //! \param[in] outlierFraction The proportion of values to treat as outliers.
-    //! This must be in the range (0.0, 1.0].
+    //! This must be in the range (0.0, 1.0).
     //! \param[in] maxSegments The maximum number of segments to divide \p values into.
     //! \return The sorted segmentation indices. This includes the start and end
     //! indices of \p values, i.e. 0 and values.size().
@@ -63,13 +63,21 @@ public:
     //! \param[in] values The time series values.
     //! \param[in] segmentation The segmentation of \p values to use.
     //! \param[in] outlierFraction The proportion of values to treat as outliers.
-    //! This must be in the range (0.0, 1.0].
-    //! \param[out] shifts If not null filled in with the average shift of each segment.
+    //! This must be in the range (0.0, 1.0).
+    //! \param[out] shifts Filled in with the level shifts between each segment.
     //! \return \p values minus the model predictions.
     static TFloatMeanAccumulatorVec removePiecewiseLinear(TFloatMeanAccumulatorVec values,
                                                           const TSizeVec& segmentation,
                                                           double outlierFraction,
-                                                          TDoubleVec* shifts = nullptr);
+                                                          TDoubleVec& shifts);
+
+    //! Overload if shifts aren't wanted.
+    static TFloatMeanAccumulatorVec removePiecewiseLinear(TFloatMeanAccumulatorVec values,
+                                                          const TSizeVec& segmentation,
+                                                          double outlierFraction) {
+        TDoubleVec shifts;
+        return removePiecewiseLinear(values, segmentation, outlierFraction, shifts);
+    }
 
     //! Remove only the jump discontinuities in the segmented model.
     //!
@@ -80,7 +88,7 @@ public:
     //! \param[in] values The time series values.
     //! \param[in] segmentation The segmentation of \p values to use.
     //! \param[in] outlierFraction The proportion of values to treat as outliers.
-    //! This must be in the range (0.0, 1.0].
+    //! This must be in the range (0.0, 1.0).
     //! \return \p values minus discontinuities at the trend knot points.
     static TFloatMeanAccumulatorVec
     removePiecewiseLinearDiscontinuities(TFloatMeanAccumulatorVec values,
@@ -126,15 +134,26 @@ public:
     //! \param[in] segmentation The segmentation of \p values into intervals with
     //! constant scale.
     //! \param[in] outlierFraction The proportion of values to treat as outliers.
-    //! This must be in the range (0.0, 1.0].
-    //! \param[out] scales If not null filled in with the average scale of each segment.
+    //! This must be in the range (0.0, 1.0).
+    //! \param[out] scales Filled in with the scales for each segment.
     //! \return The values minus the scaled model predictions.
     static TFloatMeanAccumulatorVec
     removePiecewiseLinearScaledSeasonal(TFloatMeanAccumulatorVec values,
                                         const TSeasonality& model,
                                         const TSizeVec& segmentation,
                                         double outlierFraction,
-                                        TDoubleVec* scales = nullptr);
+                                        TDoubleVec& scales);
+
+    //! Overload if scales aren't wanted.
+    static TFloatMeanAccumulatorVec
+    removePiecewiseLinearScaledSeasonal(TFloatMeanAccumulatorVec values,
+                                        const TSeasonality& model,
+                                        const TSizeVec& segmentation,
+                                        double outlierFraction) {
+        TDoubleVec scales;
+        return removePiecewiseLinearScaledSeasonal(values, model, segmentation,
+                                                   outlierFraction, scales);
+    }
 
     //! Rescale \p values on \p segmentation to minimise residual variance for seasonal
     //! components with periods \p periods.
@@ -145,7 +164,7 @@ public:
     //! constant scale.
     //! \param[in] indexWeight A function used to weight indices of \p segmentation.
     //! \param[in] outlierFraction The proportion of values to treat as outliers.
-    //! This must be in the range (0.0, 1.0].
+    //! This must be in the range (0.0, 1.0).
     //! \param[out] models The component models.
     //! \param[out] scales The scales to apply to \p models in each segment.
     //! \return The values with the mean scaled seasonal component.
@@ -216,6 +235,7 @@ private:
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMeanVarAccumulatorSizePr = std::pair<TMeanVarAccumulator, std::size_t>;
     using TRegression = CLeastSquaresOnlineRegression<1, double>;
+    using TRegressionArray = TRegression::TArray;
     using TPredictor = std::function<double(double)>;
     using TScale = std::function<double(std::size_t)>;
 

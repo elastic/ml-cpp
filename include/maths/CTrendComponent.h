@@ -49,6 +49,7 @@ public:
     using TVector = CVectorNx1<double, 3>;
     using TMatrix = CSymmetricMatrixNxN<double, 3>;
     using TMatrixVec = std::vector<TMatrix>;
+    using TPredictor = std::function<double(core_t::TTime)>;
     using TSeasonalForecast = std::function<TDouble3Vec(core_t::TTime)>;
     using TWriteForecastResult = std::function<void(core_t::TTime, const TDouble3Vec&)>;
 
@@ -120,6 +121,14 @@ public:
     //! \param[in] confidence The symmetric confidence interval for the variance
     //! as a percentage.
     TDoubleDoublePr value(core_t::TTime time, double confidence) const;
+
+    //! Get a function which returns the trend value as a function of time.
+    //!
+    //! This caches the expensive part of the calculation and so is much faster
+    //! than repeatedly calling value.
+    //!
+    //! \warning This can only be used as long as the trend component isn't updated.
+    TPredictor predictor() const;
 
     //! Get the variance of the residual about the predicted value at \p time.
     //!
@@ -215,7 +224,7 @@ private:
 
 private:
     //! Get the smoothing factors for the different regression models.
-    TDoubleVec smoothingFactors(core_t::TTime interval) const;
+    void smoothingFactors(core_t::TTime interval, TDoubleVec& result) const;
 
     //! Select the most complex model for which there is significant evidence.
     TSizeVec selectModelOrdersForForecasting() const;

@@ -257,18 +257,26 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
     // Manages de-duplication of values.
     class CUniqueValues {
     public:
-        void add(double value, const maths_t::TDouble2VecWeightsAry& weight) {
+        void add(double value,
+                 const maths_t::TDouble2VecWeightsAry& trendWeight,
+                 const maths_t::TDouble2VecWeightsAry& residualWeight) {
             std::size_t duplicate =
                 m_Uniques.emplace(value, m_Uniques.size()).first->second;
             if (duplicate < m_Values.size()) {
-                maths_t::addCount(maths_t::count(weight), m_Weights[duplicate]);
+                maths_t::addCount(maths_t::count(trendWeight), m_TrendWeights[duplicate]);
+                maths_t::addCount(maths_t::count(residualWeight),
+                                  m_ResidualWeights[duplicate]);
             } else {
                 m_Values.push_back({value});
-                m_Weights.push_back(weight);
+                m_TrendWeights.push_back(trendWeight);
+                m_ResidualWeights.push_back(residualWeight);
             }
         }
         TDouble2VecVec& values() { return m_Values; }
-        TDouble2VecWeightsAryVec& weights() { return m_Weights; }
+        TDouble2VecWeightsAryVec& trendWeights() { return m_TrendWeights; }
+        TDouble2VecWeightsAryVec& residualWeights() {
+            return m_ResidualWeights;
+        }
 
     private:
         using TDoubleSizeUMap = std::unordered_map<double, std::size_t>;
@@ -276,7 +284,8 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
     private:
         TDoubleSizeUMap m_Uniques;
         TDouble2VecVec m_Values;
-        TDouble2VecWeightsAryVec m_Weights;
+        TDouble2VecWeightsAryVec m_TrendWeights;
+        TDouble2VecWeightsAryVec m_ResidualWeights;
     };
     using TSizeUniqueValuesUMap = std::unordered_map<std::size_t, CUniqueValues>;
 
@@ -333,20 +342,24 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
                 if (attributeModel == nullptr) {
                     attributeModel.reset(models[0].second->clone(cid));
                 }
+                double countWeight{model->sampleRateWeight(pid, cid)};
 
-                maths_t::TDouble2VecWeightsAry weight(
+                maths_t::TDouble2VecWeightsAry trendWeight(
                     maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-                maths_t::setCount(TDouble2Vec{model->sampleRateWeight(pid, cid)}, weight);
-                maths_t::setWinsorisationWeight(
-                    attributeModel->winsorisationWeight(1.0, time, {count}), weight);
-                expectedValuesAndWeights[cid].add(count, weight);
+                maths_t::TDouble2VecWeightsAry residualWeight(
+                    maths_t::CUnitWeights::unit<TDouble2Vec>(1));
+                attributeModel->countWeights(time, {count}, countWeight, countWeight,
+                                             1.0, 1.0, trendWeight, residualWeight);
+                expectedValuesAndWeights[cid].add(count, trendWeight, residualWeight);
             }
             for (auto& attributeExpectedValues : expectedValuesAndWeights) {
                 std::size_t cid = attributeExpectedValues.first;
                 TDouble2VecVec& values = attributeExpectedValues.second.values();
-                TDouble2VecWeightsAryVec& weights =
-                    attributeExpectedValues.second.weights();
-                maths::COrderings::simultaneousSort(values, weights);
+                TDouble2VecWeightsAryVec& trendWeights =
+                    attributeExpectedValues.second.trendWeights();
+                TDouble2VecWeightsAryVec& residualWeights =
+                    attributeExpectedValues.second.residualWeights();
+                maths::COrderings::simultaneousSort(values, trendWeights, residualWeights);
                 maths::CModel::TTimeDouble2VecSizeTrVec samples;
                 for (const auto& sample : values) {
                     samples.emplace_back(startTime + bucketLength / 2, sample, 0);
@@ -355,8 +368,8 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
                 params_.integer(true)
                     .nonNegative(true)
                     .propagationInterval(1.0)
-                    .trendWeights(weights)
-                    .priorWeights(weights);
+                    .trendWeights(trendWeights)
+                    .priorWeights(residualWeights);
                 expectedPopulationModels[cid]->addSamples(params_, samples);
             }
 

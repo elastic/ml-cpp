@@ -35,9 +35,9 @@ CTimeSeriesSegmentation::piecewiseLinear(const TFloatMeanAccumulatorVec& values,
         std::ceil(std::log2(static_cast<double>(maxSegments))))};
     LOG_TRACE(<< "max depth = " << maxDepth);
 
-    TFloatMeanAccumulatorVec reweighted;
     TSizeVec segmentation{0, values.size()};
     TDoubleDoublePrVec depthAndPValue;
+    TFloatMeanAccumulatorVec reweighted;
     fitTopDownPiecewiseLinear(values.cbegin(), values.cend(), 0, // depth
                               0, // offset of first value in range
                               maxDepth, pValueToSegment, outlierFraction,
@@ -52,8 +52,7 @@ CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
 CTimeSeriesSegmentation::removePiecewiseLinear(TFloatMeanAccumulatorVec values,
                                                const TSizeVec& segmentation,
                                                double outlierFraction,
-                                               TDoubleVec* shifts) {
-
+                                               TDoubleVec& shifts) {
     TFloatMeanAccumulatorVec reweighted{values};
     auto predict = fitPiecewiseLinear(segmentation, outlierFraction, reweighted);
     for (std::size_t i = 0; i < values.size(); ++i) {
@@ -61,19 +60,15 @@ CTimeSeriesSegmentation::removePiecewiseLinear(TFloatMeanAccumulatorVec values,
             CBasicStatistics::moment<0>(values[i]) -= predict(static_cast<double>(i));
         }
     }
-
-    if (shifts != nullptr) {
-        shifts->clear();
-        shifts->reserve(segmentation.size() - 2);
-        for (std::size_t i = 1; i < segmentation.size(); ++i) {
-            TMeanAccumulator shift;
-            for (std::size_t j = segmentation[i - 1]; j < segmentation[i]; ++j) {
-                shift.add(predict(static_cast<double>(j)));
-            }
-            shifts->push_back(CBasicStatistics::mean(shift));
+    shifts.clear();
+    shifts.reserve(segmentation.size() - 2);
+    for (std::size_t i = 1; i < segmentation.size(); ++i) {
+        TMeanAccumulator shift;
+        for (std::size_t j = segmentation[i - 1]; j < segmentation[i]; ++j) {
+            shift.add(predict(static_cast<double>(j)));
         }
+        shifts.push_back(CBasicStatistics::mean(shift));
     }
-
     return values;
 }
 
@@ -133,17 +128,13 @@ CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(TFloatMeanAccumulat
                                                              const TSeasonality& model,
                                                              const TSizeVec& segmentation,
                                                              double outlierFraction,
-                                                             TDoubleVec* scales_) {
+                                                             TDoubleVec& scales) {
     TFloatMeanAccumulatorVec reweighted{values};
-    TDoubleVec scales;
     fitPiecewiseLinearScaledSeasonal(values, model, segmentation,
                                      outlierFraction, reweighted, scales);
     for (std::size_t i = 0; i < values.size(); ++i) {
         CBasicStatistics::moment<0>(values[i]) -= scaleAt(i, segmentation, scales) *
                                                   model(i);
-    }
-    if (scales_ != nullptr) {
-        *scales_ = std::move(scales);
     }
     return values;
 }
@@ -354,16 +345,16 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinear(ITR begin,
     // of the explained variance.
 
     auto range = std::distance(begin, end);
-    int step{3};
-    if (range < 2 * step || depth > maxDepth) {
+    std::ptrdiff_t initialStep{4};
+    if (range < 2 * initialStep || depth > maxDepth) {
         return;
     }
 
     LOG_TRACE(<< "Considering splitting [" << offset << "," << offset + range << ")");
 
     double startTime{static_cast<double>(offset)};
-    reweighted.assign(begin, end);
     TMeanVarAccumulator moments{[&] {
+        reweighted.assign(begin, end);
         TRegression model{fitLinearModel(reweighted.cbegin(), reweighted.cend(), startTime)};
         auto predict = [&](std::size_t i) {
             double time{startTime + static_cast<double>(i)};
@@ -396,30 +387,36 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinear(ITR begin,
         for (auto reweights : {0, 1}) {
             LOG_TRACE(<< "  reweights = " << reweights);
 
-            ITR i = reweighted.cbegin();
-            minResidualVariance = TMinAccumulator{};
-            double splitTime{startTime};
             TRegression leftModel;
-            TRegression rightModel{fitLinearModel(i, reweighted.cend(), splitTime)};
+            TRegression rightModel;
+            TRegressionArray leftParameters;
+            TRegressionArray rightParameters;
 
-            auto varianceAfterStep = [&](int j) {
-                TRegression deltaModel{fitLinearModel(i, i + j, splitTime)};
-                return variance(residualMoments(reweighted.cbegin(), i + j,
-                                                startTime, leftModel + deltaModel),
-                                residualMoments(i + j, reweighted.cend(), splitTime + j,
-                                                rightModel - deltaModel));
+            auto minimumResidualVarianceSplit = [&](ITR begin_, ITR end_, std::ptrdiff_t j) {
+                TMinAccumulator result;
+                double splitTime{startTime +
+                                 static_cast<double>(begin_ - reweighted.cbegin())};
+                leftModel = fitLinearModel(reweighted.cbegin(), begin_, startTime);
+                rightModel = fitLinearModel(begin_, reweighted.cend(), splitTime);
+                for (ITR i = begin_; j < end_ - i;
+                     i = i + j, splitTime += static_cast<double>(j)) {
+                    TRegression deltaModel{fitLinearModel(i, i + j, splitTime)};
+                    leftModel += deltaModel;
+                    rightModel -= deltaModel;
+                    double residualVariance{variance(
+                        residualMoments(reweighted.cbegin(), i + j, startTime, leftModel),
+                        residualMoments(i + j, reweighted.cend(), splitTime + j, rightModel))};
+                    result.add({residualVariance, i + j});
+                }
+                return result;
             };
 
-            for (/**/; i + step < reweighted.cend(); i += step, splitTime += step) {
-                if (minResidualVariance.add({varianceAfterStep(step), i + step})) {
-                    for (int j = 1; j < step; ++j) {
-                        minResidualVariance.add({varianceAfterStep(j), i + j});
-                    }
-                }
-                TRegression deltaModel{fitLinearModel(i, i + step, splitTime)};
-                leftModel += deltaModel;
-                rightModel -= deltaModel;
-            }
+            minResidualVariance = minimumResidualVarianceSplit(
+                reweighted.cbegin(), reweighted.cend(), initialStep);
+            ITR split{minResidualVariance[0].second};
+            minResidualVariance = minimumResidualVarianceSplit(
+                split - std::min(split - reweighted.cbegin(), initialStep),
+                split + std::min(reweighted.cend() - split, initialStep), 1);
 
             if (outlierFraction < 0.0 || outlierFraction >= 1.0) {
                 LOG_ERROR(<< "Ignoring bad value for outlier fraction " << outlierFraction
@@ -428,13 +425,18 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinear(ITR begin,
             } else if (reweights == 1 || outlierFraction == 0.0) {
                 break;
             } else {
-                ITR split{minResidualVariance[0].second};
-                splitTime = static_cast<double>(std::distance(reweighted.cbegin(), split));
+                split = minResidualVariance[0].second;
+                double splitTime{
+                    static_cast<double>(std::distance(reweighted.cbegin(), split))};
                 leftModel = fitLinearModel(reweighted.cbegin(), split, startTime);
                 rightModel = fitLinearModel(split, reweighted.cend(), splitTime);
+                leftModel.parameters(leftParameters);
+                rightModel.parameters(rightParameters);
                 auto predict = [&](std::size_t j) {
                     double time{startTime + static_cast<double>(j)};
-                    return (time < splitTime ? leftModel : rightModel).predict(time);
+                    return time < splitTime
+                               ? TRegression::predict(leftParameters, time)
+                               : TRegression::predict(rightParameters, time);
                 };
                 reweighted.assign(begin, end);
                 CSignal::reweightOutliers(predict, outlierFraction, reweighted);
@@ -467,7 +469,7 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinear(ITR begin,
         double F{(df[1] * std::max(v[0] - v[1], 0.0)) / (df[0] * v[1])};
         double pValue{CTools::oneMinusPowOneMinusX(
             CStatisticalTests::rightTailFTest(F, df[0], df[1]),
-            static_cast<double>(reweighted.size() / step))};
+            static_cast<double>(reweighted.size() / initialStep))};
         LOG_TRACE(<< "  p-value = " << pValue);
 
         if (pValue < pValueToSegment) {
@@ -488,24 +490,28 @@ CTimeSeriesSegmentation::fitPiecewiseLinear(const TSizeVec& segmentation,
                                             double outlierFraction,
                                             TFloatMeanAccumulatorVec& values) {
     using TRegressionVec = std::vector<TRegression>;
+    using TRegressionArrayVec = std::vector<TRegressionArray>;
 
     TDoubleVec segmentEndTimes(segmentation.size() - 1,
                                static_cast<double>(values.size()));
     TRegressionVec models(segmentation.size() - 1);
+    TRegressionArrayVec parameters(segmentation.size() - 1);
 
     for (std::size_t i = 1; i < segmentation.size(); ++i) {
-        double a{static_cast<double>(segmentation[i - 1])};
-        double b{static_cast<double>(segmentation[i])};
-        segmentEndTimes[i - 1] = b;
-        models[i - 1] = fitLinearModel(values.begin() + segmentation[i - 1],
-                                       values.begin() + segmentation[i], a);
+        std::size_t a{segmentation[i - 1]};
+        std::size_t b{segmentation[i]};
+        segmentEndTimes[i - 1] = static_cast<double>(b);
+        models[i - 1] = fitLinearModel(values.begin() + a, values.begin() + b,
+                                       static_cast<double>(a));
+        models[i - 1].parameters(parameters[i - 1]);
     }
     LOG_TRACE(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
 
     auto predict = [&](std::size_t i) {
         double time{static_cast<double>(i)};
-        auto index = std::upper_bound(segmentEndTimes.begin(), segmentEndTimes.end(), time);
-        return models[index - segmentEndTimes.begin()].predict(time);
+        auto index = std::upper_bound(segmentEndTimes.begin(), segmentEndTimes.end(), time) -
+                     segmentEndTimes.begin();
+        return TRegression::predict(parameters[index], time);
     };
 
     if (CSignal::reweightOutliers(predict, outlierFraction, values)) {
@@ -513,13 +519,15 @@ CTimeSeriesSegmentation::fitPiecewiseLinear(const TSizeVec& segmentation,
             double a{static_cast<double>(segmentation[i - 1])};
             models[i - 1] = fitLinearModel(values.begin() + segmentation[i - 1],
                                            values.begin() + segmentation[i], a);
+            models[i - 1].parameters(parameters[i - 1]);
             LOG_TRACE(<< "model = " << models[i - 1].print());
         }
     }
 
     return [=](double time) {
-        auto index = std::upper_bound(segmentEndTimes.begin(), segmentEndTimes.end(), time);
-        return models[index - segmentEndTimes.begin()].predict(time);
+        auto index = std::upper_bound(segmentEndTimes.begin(), segmentEndTimes.end(), time) -
+                     segmentEndTimes.begin();
+        return TRegression::predict(parameters[index], time);
     };
 }
 
@@ -982,7 +990,7 @@ template<typename ITR>
 CTimeSeriesSegmentation::TMeanVarAccumulator
 CTimeSeriesSegmentation::residualMoments(ITR begin, ITR end, double startTime, const TRegression& model) {
     TMeanVarAccumulator moments;
-    TRegression::TArray params;
+    TRegressionArray params;
     model.parameters(params);
     for (double time = startTime; begin != end; ++begin, time += 1.0) {
         double w{CBasicStatistics::count(*begin)};

@@ -80,9 +80,6 @@ public:
     //! Check if this is initialized.
     virtual bool initialized() const = 0;
 
-    //! Set whether or not we're testing for a change.
-    virtual void testingForChange(bool value) = 0;
-
     //! Adds a time series point \f$(t, f(t))\f$.
     //!
     //! \param[in] time The time of the data point.
@@ -100,14 +97,8 @@ public:
              const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
              const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) = 0;
 
-    //! Apply \p change at \p time.
-    //!
-    //! \param[in] time The time of the change point.
-    //! \param[in] value The value immediately before the change point.
-    //! \param[in] change A description of the change to apply.
-    //! \return True if a new component was detected.
-    virtual bool
-    applyChange(core_t::TTime time, double value, const SChangeDescription& change) = 0;
+    //! Shift seasonality by \p shift at \p time.
+    virtual void shiftTime(core_t::TTime time, core_t::TTime shift) = 0;
 
     //! Propagate the decomposition forwards to \p time.
     virtual void propagateForwardsTo(core_t::TTime time) = 0;
@@ -158,14 +149,19 @@ public:
     //! Get the mean variance of the baseline.
     virtual double meanVariance() const = 0;
 
-    //! Compute the variance scale at \p time.
+    //! Compute the variance scale to apply at \p time.
     //!
     //! \param[in] time The time of interest.
     //! \param[in] variance The variance of the distribution to scale.
     //! \param[in] confidence The symmetric confidence interval for the variance
     //! scale as a percentage.
-    virtual maths_t::TDoubleDoublePr
-    scale(core_t::TTime time, double variance, double confidence, bool smooth = true) const = 0;
+    virtual maths_t::TDoubleDoublePr varianceScaleWeight(core_t::TTime time,
+                                                         double variance,
+                                                         double confidence,
+                                                         bool smooth = true) const = 0;
+
+    //! Get the count weight to apply at \p time.
+    virtual double countWeight(core_t::TTime time) const = 0;
 
     //! Get the prediction residuals in a recent time window.
     virtual TFloatMeanAccumulatorVec residuals() const = 0;

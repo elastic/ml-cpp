@@ -147,8 +147,17 @@ void CExpandingWindow::initialize(core_t::TTime time) {
     m_StartTime = CIntegerTools::floor(time, m_BucketLengths[0]);
 }
 
-void CExpandingWindow::shiftTime(core_t::TTime dt) {
-    m_StartTime += dt;
+void CExpandingWindow::shiftTime(core_t::TTime time, core_t::TTime shift) {
+    std::size_t index((time - m_StartTime) / m_BucketLengths[m_BucketLengthIndex]);
+    if (m_Deflate == false) {
+        std::fill(m_BucketValues.begin() + index, m_BucketValues.end(),
+                  TFloatMeanAccumulator{});
+    } else {
+        CScopeInflate inflate(*this, true);
+        std::fill(m_BucketValues.begin() + index, m_BucketValues.end(),
+                  TFloatMeanAccumulator{});
+    }
+    m_StartTime += shift;
 }
 
 void CExpandingWindow::propagateForwardsByTime(double time) {
