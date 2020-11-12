@@ -36,7 +36,7 @@ public:
     CChangePoint(bool reversion, std::size_t index, core_t::TTime time, TFloatMeanAccumulatorVec residuals)
         : m_Reversion{reversion}, m_Index{index}, m_Time{time}, m_Residuals{std::move(residuals)} {
     }
-    virtual ~CChangePoint() = default;
+    virtual ~CChangePoint();
 
     virtual bool apply(CTimeSeriesDecomposition&) const { return false; }
     virtual bool apply(CTrendComponent&) const { return false; }

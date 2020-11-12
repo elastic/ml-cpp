@@ -82,6 +82,8 @@ const core_t::TTime HOUR{core::constants::HOUR};
 const std::string NO_CHANGE{"no change"};
 }
 
+CChangePoint::~CChangePoint() = default;
+
 CLevelShift::CLevelShift(bool reversion,
                          std::size_t index,
                          core_t::TTime time,
