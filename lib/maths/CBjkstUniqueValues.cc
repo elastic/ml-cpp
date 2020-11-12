@@ -50,18 +50,20 @@ using TUInt8UInt8Pr = std::pair<uint8_t, uint8_t>;
 //!   |(g(x) >> 8) % 256|    g(x) % 256   |    zeros(x)     |
 //! \endcode
 // clang-format off
-class EMPTY_BASE_OPT CHashIterator
-    : public std::iterator<std::random_access_iterator_tag, uint16_t>,
-      private boost::less_than_comparable<CHashIterator,
+class EMPTY_BASE_OPT CHashIterator final
+    : private boost::less_than_comparable<CHashIterator,
               boost::addable<CHashIterator, ptrdiff_t,
               boost::subtractable<CHashIterator, ptrdiff_t>>> {
     // clang-format on
 public:
-    //! The STL that comes with g++ requires a default constructor - this
-    //! will create an object that's suitable only to be assigned to, which
-    //! is hopefully all g++'s STL does with it!
-    CHashIterator() : m_Itr() {}
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = uint16_t;
+    using difference_type = ptrdiff_t;
+    using pointer = void;
+    using reference = void;
 
+public:
+    CHashIterator() = default;
     CHashIterator(TUInt8VecItr itr) : m_Itr(itr) {}
 
     TUInt8VecItr base() const { return m_Itr; }
