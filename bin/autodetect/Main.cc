@@ -62,6 +62,7 @@ int main(int argc, char** argv) {
         ml::counter_t::E_TSADNumberNewPeopleRecycled,
         ml::counter_t::E_TSADNumberApiRecordsHandled,
         ml::counter_t::E_TSADMemoryUsage,
+        ml::counter_t::E_TSADPeakMemoryUsage,
         ml::counter_t::E_TSADNumberMemoryUsageChecks,
         ml::counter_t::E_TSADNumberMemoryUsageEstimates,
         ml::counter_t::E_TSADNumberRecordsNoTimeField,
