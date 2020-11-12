@@ -95,7 +95,7 @@ void testChange(const TGeneratorVec& trends,
 
     truePositives /= static_cast<double>(numberTests);
 
-    BOOST_REQUIRE(truePositives >= 0.99);
+    BOOST_REQUIRE(truePositives >= 0.98);
     BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.03);
     BOOST_REQUIRE(maths::CBasicStatistics::mean(meanTimeError) < 5000);
 }
