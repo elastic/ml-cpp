@@ -60,7 +60,7 @@ void detectorPersistHelper(const std::string& configFileName,
     static const std::string JOB_ID("job");
 
     // Open the input and output files
-    std::ifstream inputStrm(inputFilename.c_str());
+    std::ifstream inputStrm(inputFilename);
     BOOST_TEST_REQUIRE(inputStrm.is_open());
 
     std::ofstream outputStrm(ml::core::COsFileFuncs::NULL_FILENAME);
@@ -113,14 +113,12 @@ void detectorPersistHelper(const std::string& configFileName,
     TStrVec origFileContents(numOrigDocs);
     for (size_t index = 0; index < numOrigDocs; ++index) {
         std::string expectedOrigFilename(baseOrigOutputFilename);
-        expectedOrigFilename += "/_";
-        expectedOrigFilename += CTestAnomalyJob::ML_STATE_INDEX;
-        expectedOrigFilename += '/';
+        expectedOrigFilename += "/_index/";
         expectedOrigFilename +=
             ml::core::CDataAdder::makeCurrentDocId(origBaseDocId, 1 + index);
         expectedOrigFilename += ml::test::CMultiFileDataAdder::JSON_FILE_EXT;
         LOG_DEBUG(<< "Trying to open file: " << expectedOrigFilename);
-        std::ifstream origFile(expectedOrigFilename.c_str());
+        std::ifstream origFile(expectedOrigFilename);
         BOOST_TEST_REQUIRE(origFile.is_open());
         std::string json((std::istreambuf_iterator<char>(origFile)),
                          std::istreambuf_iterator<char>());
@@ -166,13 +164,11 @@ void detectorPersistHelper(const std::string& configFileName,
 
     for (size_t index = 0; index < numRestoredDocs; ++index) {
         std::string expectedRestoredFilename(baseRestoredOutputFilename);
-        expectedRestoredFilename += "/_";
-        expectedRestoredFilename += CTestAnomalyJob::ML_STATE_INDEX;
-        expectedRestoredFilename += '/';
+        expectedRestoredFilename += "/_index/";
         expectedRestoredFilename +=
             ml::core::CDataAdder::makeCurrentDocId(restoredBaseDocId, 1 + index);
         expectedRestoredFilename += ml::test::CMultiFileDataAdder::JSON_FILE_EXT;
-        std::ifstream restoredFile(expectedRestoredFilename.c_str());
+        std::ifstream restoredFile(expectedRestoredFilename);
         BOOST_TEST_REQUIRE(restoredFile.is_open());
         std::string json((std::istreambuf_iterator<char>(restoredFile)),
                          std::istreambuf_iterator<char>());
@@ -196,7 +192,7 @@ BOOST_AUTO_TEST_CASE(testSimpleWrite) {
     std::string baseOutputFilename(ml::test::CTestTmpDir::tmpDir() + "/filepersister");
 
     std::string expectedFilename(baseOutputFilename);
-    expectedFilename += "/_hello/1";
+    expectedFilename += "/_index/1";
     expectedFilename += EXTENSION;
 
     {
@@ -205,14 +201,14 @@ BOOST_AUTO_TEST_CASE(testSimpleWrite) {
         BOOST_REQUIRE_NO_THROW(boost::filesystem::remove_all(workDir));
 
         ml::test::CMultiFileDataAdder persister(baseOutputFilename, EXTENSION);
-        ml::core::CDataAdder::TOStreamP strm = persister.addStreamed("hello", "1");
+        ml::core::CDataAdder::TOStreamP strm = persister.addStreamed("1");
         BOOST_TEST_REQUIRE(strm);
         (*strm) << EVENT;
         BOOST_TEST_REQUIRE(persister.streamComplete(strm, true));
     }
 
     {
-        std::ifstream persistedFile(expectedFilename.c_str());
+        std::ifstream persistedFile(expectedFilename);
 
         BOOST_TEST_REQUIRE(persistedFile.is_open());
         std::string line;
@@ -223,19 +219,19 @@ BOOST_AUTO_TEST_CASE(testSimpleWrite) {
     BOOST_REQUIRE_EQUAL(0, ::remove(expectedFilename.c_str()));
 
     expectedFilename = baseOutputFilename;
-    expectedFilename += "/_stash/1";
+    expectedFilename += "/_index/2";
     expectedFilename += EXTENSION;
 
     {
         ml::test::CMultiFileDataAdder persister(baseOutputFilename, EXTENSION);
-        ml::core::CDataAdder::TOStreamP strm = persister.addStreamed("stash", "1");
+        ml::core::CDataAdder::TOStreamP strm = persister.addStreamed("2");
         BOOST_TEST_REQUIRE(strm);
         (*strm) << SUMMARY_EVENT;
         BOOST_TEST_REQUIRE(persister.streamComplete(strm, true));
     }
 
     {
-        std::ifstream persistedFile(expectedFilename.c_str());
+        std::ifstream persistedFile(expectedFilename);
 
         BOOST_TEST_REQUIRE(persistedFile.is_open());
         std::string line;

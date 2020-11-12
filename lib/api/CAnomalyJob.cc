@@ -119,7 +119,6 @@ private:
 }
 
 // Statics
-const std::string CAnomalyJob::ML_STATE_INDEX(".ml-state");
 const std::string CAnomalyJob::STATE_TYPE("model_state");
 const std::string CAnomalyJob::DEFAULT_TIME_FIELD_NAME("time");
 const std::string CAnomalyJob::EMPTY_STRING;
@@ -792,7 +791,6 @@ bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher,
     try {
         // Restore from Elasticsearch compressed data
         core::CStateDecompressor decompressor(restoreSearcher);
-        decompressor.setStateRestoreSearch(ML_STATE_INDEX);
 
         core::CDataSearcher::TIStreamP strm(decompressor.search(1, 1));
         if (strm == nullptr) {
@@ -1194,8 +1192,8 @@ bool CAnomalyJob::persistModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& dete
                                      const std::string& outputFormat) {
     try {
         const std::string snapShotId{core::CStringUtils::typeToString(timestamp)};
-        core::CDataAdder::TOStreamP strm = persister.addStreamed(
-            ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE + '_' + snapShotId);
+        core::CDataAdder::TOStreamP strm =
+            persister.addStreamed(m_JobId + '_' + STATE_TYPE + '_' + snapShotId);
         if (strm != nullptr) {
             {
                 // The JSON inserter must be destroyed before the stream is complete
@@ -1250,8 +1248,8 @@ bool CAnomalyJob::persistCopiedState(const std::string& description,
     try {
         core::CStateCompressor compressor(persister);
 
-        core::CDataAdder::TOStreamP strm = compressor.addStreamed(
-            ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE + '_' + snapshotId);
+        core::CDataAdder::TOStreamP strm =
+            compressor.addStreamed(m_JobId + '_' + STATE_TYPE + '_' + snapshotId);
         if (strm != nullptr) {
             // IMPORTANT - this method can run in a background thread while the
             // analytics carries on processing new buckets in the main thread.
