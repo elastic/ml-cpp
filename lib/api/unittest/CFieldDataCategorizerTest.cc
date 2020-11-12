@@ -125,7 +125,7 @@ class CTestDataAdder : public core::CDataAdder {
 public:
     CTestDataAdder() : m_Stream(new std::ostringstream) {}
 
-    TOStreamP addStreamed(const std::string& /*index*/, const std::string& /*id*/) override {
+    TOStreamP addStreamed(const std::string& /*id*/) override {
         return m_Stream;
     }
 

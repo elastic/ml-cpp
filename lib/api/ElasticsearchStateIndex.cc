@@ -9,9 +9,9 @@
 namespace ml {
 namespace api {
 
-const std::string ML_STATE_INDEX{".ml-state"};
-const std::string MODEL_STATE_TYPE{"model_state"};
+namespace {
 const std::string STATE_ID_SUFFIX{"_state"};
+}
 
 std::string getStateId(const std::string& jobId, const std::string& analysisName) {
     return jobId + '_' + analysisName + STATE_ID_SUFFIX;

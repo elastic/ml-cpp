@@ -45,21 +45,20 @@ public:
     //! be detected by this method, so the stream will go into the
     //! "bad" state if an error occurs during upload.  The caller
     //! must check for this.
-    //! \param index Index to add to metadata document
     //! \param id ID to add to metadata document
-    virtual TOStreamP addStreamed(const std::string& index, const std::string& id);
+    TOStreamP addStreamed(const std::string& id) override;
 
     //! Clients that get a stream using addStreamed() must call this
     //! method one they've finished sending data to the stream.
     //! \param stream The completed data stream
     //! \param force If true the stream is flushed
-    virtual bool streamComplete(TOStreamP& stream, bool force);
+    bool streamComplete(TOStreamP& stream, bool force) override;
 
-    virtual std::size_t maxDocumentSize() const;
+    std::size_t maxDocumentSize() const override;
 
 private:
     //! Recommended maximum Elasticsearch document size
-    static const size_t MAX_DOCUMENT_SIZE;
+    static const std::size_t MAX_DOCUMENT_SIZE;
 
 private:
     //! The stream we're writing to.

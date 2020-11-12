@@ -10,29 +10,18 @@
 #include "CMockDataAdder.h"
 
 CMockSearcher::CMockSearcher(const CMockDataAdder& mockDataAdder)
-    : m_MockDataAdder(mockDataAdder) {
+    : m_MockDataAdder{mockDataAdder} {
 }
 
-CMockSearcher::TIStreamP CMockSearcher::search(size_t currentDocNum, size_t /*limit*/) {
+CMockSearcher::TIStreamP CMockSearcher::search(std::size_t currentDocNum, std::size_t /*limit*/) {
     if (currentDocNum == 0) {
         LOG_ERROR(<< "Current doc number cannot be 0 - data store requires 1-based numbers");
-        return TIStreamP();
+        return TIStreamP{};
     }
 
-    TIStreamP stream;
-    const CMockDataAdder::TStrStrVecMap events = m_MockDataAdder.events();
-
-    CMockDataAdder::TStrStrVecMapCItr iter = events.find(m_SearchTerms[0]);
-    if (iter == events.end()) {
-        LOG_TRACE(<< "Can't find search " << m_SearchTerms[0]);
-        stream.reset(new std::stringstream("{}"));
-    } else {
-        LOG_TRACE(<< "Got search data for " << m_SearchTerms[0]);
-        if (currentDocNum > iter->second.size()) {
-            stream.reset(new std::stringstream("[ ]"));
-        } else {
-            stream.reset(new std::stringstream(iter->second[currentDocNum - 1]));
-        }
+    const CMockDataAdder::TStrVec& events = m_MockDataAdder.events();
+    if (currentDocNum > events.size()) {
+        return TIStreamP{new std::istringstream("[ ]")};
     }
-    return stream;
+    return TIStreamP{new std::istringstream(events[currentDocNum - 1])};
 }
