@@ -12,7 +12,6 @@
 #include <iosfwd>
 #include <memory>
 #include <string>
-#include <vector>
 
 namespace ml {
 namespace core {
@@ -32,9 +31,6 @@ namespace core {
 //!
 class CORE_EXPORT CDataSearcher : private CNonCopyable {
 public:
-    using TStrVec = std::vector<std::string>;
-    using TStrVecCItr = TStrVec::const_iterator;
-
     using TIStreamP = std::shared_ptr<std::istream>;
 
 public:
@@ -42,23 +38,13 @@ public:
     static const std::string EMPTY_STRING;
 
 public:
-    CDataSearcher();
     virtual ~CDataSearcher();
 
     //! Do a search that results in an input stream.
     //! A return value of NULL indicates a technical problem with the
     //! creation of the stream.  Other errors may be indicated by the
     //! returned stream going into the "bad" state.
-    virtual TIStreamP search(size_t currentDocNum, size_t limit) = 0;
-
-    //! Set the search for all documents in the index
-    virtual void setStateRestoreSearch(const std::string& index);
-
-    //! Set the search for all documents in the index with the ID
-    virtual void setStateRestoreSearch(const std::string& index, const std::string& id);
-
-protected:
-    TStrVec m_SearchTerms;
+    virtual TIStreamP search(std::size_t currentDocNum, std::size_t limit) = 0;
 };
 }
 }

@@ -20,10 +20,9 @@ namespace test {
 //!
 //! DESCRIPTION:\n
 //! Output file paths are a concatenation of the baseFilename
-//! passed to the constructor, the "index" argument to the
-//! persistence method, the "id" argument to the persistence
-//! method and the file extension passed to the constructor (default
-//! '.json').
+//! passed to the constructor, a hardcoded "_index" directory,
+//! the "id" argument to the persistence method and the file
+//! extension passed to the constructor (default '.json').
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! Only stream-based methods are presented here, as persistence
@@ -43,17 +42,16 @@ public:
     CMultiFileDataAdder(std::string baseFilename, std::string fileExtension = JSON_FILE_EXT);
 
     //! Add streamed data
-    //! \param index Sub-directory name
     //! \param id File name (without extension)
-    virtual TOStreamP addStreamed(const std::string& index, const std::string& id);
+    TOStreamP addStreamed(const std::string& id) override;
 
     //! Clients that get a stream using addStreamed() must call this
     //! method one they've finished sending data to the stream.
-    virtual bool streamComplete(TOStreamP& strm, bool force);
+    bool streamComplete(TOStreamP& strm, bool force) override;
 
 private:
     //! Make a file name of the form base/_index/id.extension
-    std::string makeFilename(const std::string& index, const std::string& id) const;
+    std::string makeFilename(const std::string& id) const;
 
 private:
     //! Name of the file to serialise models to

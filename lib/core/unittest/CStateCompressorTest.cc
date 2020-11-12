@@ -58,15 +58,15 @@ void insert1stLevel(ml::core::CStatePersistInserter& inserter, std::size_t n) {
 class CMockDataAdder : public ml::core::CDataAdder {
 public:
     CMockDataAdder(std::size_t maxDocSize)
-        : m_CurrentDocNum(0), m_MaxDocumentSize(maxDocSize) {}
+        : m_CurrentDocNum{0}, m_MaxDocumentSize{maxDocSize} {}
 
-    virtual TOStreamP addStreamed(const std::string& /*index*/, const std::string& /*id*/) {
+    TOStreamP addStreamed(const std::string& /*id*/) override {
         ++m_CurrentDocNum;
         m_CurrentStream = TOStreamP(new std::ostringstream);
         return m_CurrentStream;
     }
 
-    virtual bool streamComplete(TOStreamP& strm, bool /*force*/) {
+    bool streamComplete(TOStreamP& strm, bool /*force*/) override {
         BOOST_REQUIRE_EQUAL(m_CurrentStream, strm);
         std::ostringstream* ss =
             dynamic_cast<std::ostringstream*>(m_CurrentStream.get());
@@ -77,7 +77,7 @@ public:
         return true;
     }
 
-    virtual std::size_t maxDocumentSize() const { return m_MaxDocumentSize; }
+    std::size_t maxDocumentSize() const override { return m_MaxDocumentSize; }
 
     const TSizeStrMap& data() const { return m_Data; }
 
@@ -90,9 +90,9 @@ private:
 
 class CMockDataSearcher : public ml::core::CDataSearcher {
 public:
-    CMockDataSearcher(CMockDataAdder& adder) : m_Adder(adder), m_AskedFor(0) {}
+    CMockDataSearcher(CMockDataAdder& adder) : m_Adder{adder}, m_AskedFor{0} {}
 
-    virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
+    TIStreamP search(std::size_t /*currentDocNum*/, std::size_t /*limit*/) override {
         TIStreamP stream;
         const TSizeStrMap& events = m_Adder.data();
 
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE(testForApiNoKey) {
     {
         ml::core::CStateCompressor compressor(mockKvAdder);
 
-        TOStreamP strm = compressor.addStreamed("1", "");
+        TOStreamP strm = compressor.addStreamed("");
         {
             CJsonStatePersistInserter inserter(*strm);
             CJsonStatePersistInserter referenceInserter(referenceStream);
@@ -145,7 +145,6 @@ BOOST_AUTO_TEST_CASE(testForApiNoKey) {
         LOG_DEBUG(<< "Restoring data");
         CMockDataSearcher mockKvSearcher(mockKvAdder);
         ml::core::CStateDecompressor decompressor(mockKvSearcher);
-        decompressor.setStateRestoreSearch("1", "");
         TIStreamP istrm = decompressor.search(1, 1);
 
         std::istreambuf_iterator<char> eos;
@@ -169,7 +168,7 @@ BOOST_AUTO_TEST_CASE(testStreaming) {
         // Add lots of data to the mock datastore (compressed on the way)
         ml::core::CStateCompressor compressor(mockKvAdder);
 
-        TOStreamP strm = compressor.addStreamed("1", "");
+        TOStreamP strm = compressor.addStreamed("");
         {
             CJsonStatePersistInserter inserter(*strm);
 
@@ -186,7 +185,6 @@ BOOST_AUTO_TEST_CASE(testStreaming) {
         LOG_TRACE(<< "After compression, there are " << mockKvSearcher.totalDocs()
                   << " docs, asked for " << mockKvSearcher.askedFor());
         ml::core::CStateDecompressor decompressor(mockKvSearcher);
-        decompressor.setStateRestoreSearch("1", "");
         TIStreamP istrm = decompressor.search(1, 1);
 
         BOOST_REQUIRE_EQUAL(std::size_t(0), mockKvSearcher.askedFor());
@@ -243,7 +241,7 @@ BOOST_AUTO_TEST_CASE(testChunking) {
             try {
                 {
                     ml::core::CStateCompressor compressor(adder);
-                    ml::core::CDataAdder::TOStreamP strm = compressor.addStreamed("1", "");
+                    ml::core::CDataAdder::TOStreamP strm = compressor.addStreamed("");
                     for (std::size_t k = 0; k < j; k++) {
                         char c = char(*randItr++);
                         ss << c;
@@ -253,7 +251,6 @@ BOOST_AUTO_TEST_CASE(testChunking) {
                 {
                     CMockDataSearcher searcher(adder);
                     ml::core::CStateDecompressor decompressor(searcher);
-                    decompressor.setStateRestoreSearch("1", "");
                     ml::core::CDataSearcher::TIStreamP strm = decompressor.search(1, 1);
                     std::istreambuf_iterator<char> eos;
                     decompressed.assign(std::istreambuf_iterator<char>(*strm), eos);
@@ -276,7 +273,7 @@ BOOST_AUTO_TEST_CASE(testChunking) {
         try {
             {
                 ml::core::CStateCompressor compressor(adder);
-                ml::core::CDataAdder::TOStreamP strm = compressor.addStreamed("1", "");
+                ml::core::CDataAdder::TOStreamP strm = compressor.addStreamed("");
                 for (std::size_t k = 0; k < 100000000; k++) {
                     char c = char(*randItr++);
                     ss << c;
@@ -286,7 +283,6 @@ BOOST_AUTO_TEST_CASE(testChunking) {
             {
                 CMockDataSearcher searcher(adder);
                 ml::core::CStateDecompressor decompressor(searcher);
-                decompressor.setStateRestoreSearch("1", "");
                 ml::core::CDataSearcher::TIStreamP strm = decompressor.search(1, 1);
                 std::istreambuf_iterator<char> eos;
                 decompressed.assign(std::istreambuf_iterator<char>(*strm), eos);
