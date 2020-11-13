@@ -941,7 +941,7 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
         }
 
         LOG_DEBUG(<< "mean scale = " << maths::CBasicStatistics::mean(meanScale));
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, maths::CBasicStatistics::mean(meanScale), 0.02);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, maths::CBasicStatistics::mean(meanScale), 0.06);
     }
 }
 
