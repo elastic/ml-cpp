@@ -1024,7 +1024,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend) {
     }
 
     LOG_DEBUG(<< "Recall = " << TP / (TP + FN));
-    BOOST_REQUIRE(TP / (TP + FN) > 0.97);
+    BOOST_REQUIRE(TP / (TP + FN) > 0.92);
 }
 
 BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithNoChange) {

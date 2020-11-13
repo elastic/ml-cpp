@@ -433,7 +433,7 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
 
     meanSlope /= refinements;
     LOG_DEBUG(<< "mean weekly |slope| = " << meanSlope);
-    BOOST_TEST_REQUIRE(meanSlope < 0.0019);
+    BOOST_TEST_REQUIRE(meanSlope < 0.002);
 }
 
 BOOST_FIXTURE_TEST_CASE(testWeekend, CTestFixture) {
@@ -924,7 +924,7 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
         TDoubleVec noise;
         rng.generateNormalSamples(0.0, 4.0, times.size(), noise);
 
-        maths::CTimeSeriesDecomposition decomposition(0.024, HALF_HOUR);
+        maths::CTimeSeriesDecomposition decomposition(0.048, HALF_HOUR);
         for (std::size_t i = 0; i < times.size(); ++i) {
             decomposition.addPoint(times[i], trend[i] + 0.3 * noise[i]);
         }
