@@ -1030,6 +1030,7 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::handle(const SAddValue& m
 
     core_t::TTime time{message.s_Time};
     double value{message.s_Value};
+    double prediction{message.s_Seasonal + message.s_Calendar};
     // We have explicit handling of outliers and we can't accurately assess
     // them anyway before we've detected periodicity.
     double weight{maths_t::count(message.s_Weights)};
@@ -1040,7 +1041,7 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::handle(const SAddValue& m
     case PT_TEST:
         for (auto& window : m_Windows) {
             if (window != nullptr) {
-                window->add(time, value, weight);
+                window->add(time, value, prediction, weight);
             }
         }
         break;
@@ -1081,7 +1082,6 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::test(const SAddValue& mes
 
                 auto decomposition = seasonalityTest.decompose();
                 if (decomposition.componentsChanged()) {
-                    decomposition.withinBucketVariance(window->withinBucketVariance());
                     this->mediator()->forward(
                         SDetectedSeasonal{time, lastTime, std::move(decomposition)});
                 }
@@ -1861,7 +1861,8 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilte
             return preconditioner(time, testableMask);
         });
         CTimeSeriesTestForSeasonality test{valuesStartTime, bucketStartTime,
-                                           bucketLength, std::move(values)};
+                                           bucketLength, std::move(values),
+                                           window.withinBucketVariance()};
         test.minimumPeriod(minimumPeriod)
             .minimumModelSize(2 * m_SeasonalComponentSize / 3)
             .modelledSeasonalityPredictor(predictor);

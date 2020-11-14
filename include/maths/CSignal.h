@@ -91,7 +91,20 @@ public:
             return static_cast<double>(max - min) <= eps * static_cast<double>(max);
         }
 
-        //! If this is windowed check whether the window contains \p index.
+        //! Check if this component is nested in \p other.
+        bool nested(const SSeasonalComponentSummary& other) const {
+            if (other.windowed()) {
+                return other.s_Window == s_Window && other.s_Period > s_Period &&
+                       other.s_Period % s_Period == 0;
+            }
+            if (this->windowed()) {
+                return other.s_Period > s_WindowRepeat &&
+                       other.s_Period % s_WindowRepeat == 0;
+            }
+            return other.s_Period > s_Period && other.s_Period % s_Period == 0;
+        }
+
+        //! Check if this is windowed check whether the window contains \p index.
         bool contains(std::size_t index) const {
             index = (s_WindowRepeat + index - s_StartOfWeek) % s_WindowRepeat;
             return index >= s_Window.first && index < s_Window.second;

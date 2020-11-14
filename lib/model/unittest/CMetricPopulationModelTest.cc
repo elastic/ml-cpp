@@ -310,7 +310,7 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture, *boost::unit_test::disabled()) {
+BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
     // We check that the correct data is read from the gatherer
     // into the model on sample.
 

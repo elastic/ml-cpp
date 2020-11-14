@@ -82,8 +82,8 @@ BOOST_AUTO_TEST_CASE(testBasicUsage) {
                             core::CContainerPrinter::print(compressed.values()));
 
         core_t::TTime time{startTime + static_cast<core_t::TTime>(600 * size + 1)};
-        compressed.add(time, 5.0, 0.9);
-        uncompressed.add(time, 5.0, 0.9);
+        compressed.add(time, 5.0, 0.0, 0.9);
+        uncompressed.add(time, 5.0, 0.0, 0.9);
         expected1800[(time - startTime) / 1800].add(5.0, 0.9);
 
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected1800),

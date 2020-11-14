@@ -809,7 +809,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture, *boost::unit_test::disabled()) {
+BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture) {
     // Check we find the correct correlated variables, and identify
     // correlate and marginal anomalies.
 
@@ -2547,7 +2547,7 @@ BOOST_FIXTURE_TEST_CASE(testComputeProbabilityGivenDetectionRule, CTestFixture) 
     BOOST_REQUIRE_CLOSE_ABSOLUTE(annotatedProbability.s_Probability, 1.0, 0.00001);
 }
 
-BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture, *boost::unit_test::disabled()) {
+BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
     core_t::TTime startTime{0};
     core_t::TTime bucketLength{1800};
 
@@ -2576,7 +2576,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture, *boost::unit_test::d
         this->addPerson("p1", gatherer);
 
         params.s_ControlDecayRate = false;
-        params.s_DecayRate = 0.0001;
+        params.s_DecayRate = 0.001;
         CEventRateModelFactory referenceFactory(params, interimBucketCorrector);
         referenceFactory.features(features);
         CModelFactory::TDataGathererPtr referenceGatherer{

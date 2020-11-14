@@ -113,7 +113,12 @@ public:
     void propagateForwardsByTime(double time);
 
     //! Add \p value at \p time.
-    void add(core_t::TTime time, double value, double weight = 1.0);
+    void add(core_t::TTime time, double value, double prediction, double weight);
+
+    //! Add \p value at \p time.
+    void add(core_t::TTime time, double value) {
+        this->add(time, value, 0.0, 1.0);
+    }
 
     //! Check if we need to compress by increasing the bucket span.
     bool needToCompress(core_t::TTime time) const;

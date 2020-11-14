@@ -345,7 +345,7 @@ public:
         //! Update the test with a new value.
         void handle(const SAddValue& message) override;
 
-        //! Reset the test.
+        //! Sample the prediction residuals.
         void handle(const SDetectedTrend& message) override;
 
         //! Test to see whether any seasonal components are present.
