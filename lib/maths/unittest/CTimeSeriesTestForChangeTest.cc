@@ -68,9 +68,9 @@ void testChange(const TGeneratorVec& trends,
         }
         auto predictor = [&](core_t::TTime time_) { return 10.0 * trend(time_); };
 
-        maths::CTimeSeriesTestForChange testForChange(startTime, startTime,
-                                                      BUCKET_LENGTH, BUCKET_LENGTH,
-                                                      predictor, std::move(values));
+        maths::CTimeSeriesTestForChange testForChange(
+            maths::CTimeSeriesTestForChange::E_All, startTime, startTime,
+            BUCKET_LENGTH, BUCKET_LENGTH, predictor, std::move(values));
 
         auto change = testForChange.test();
 
@@ -144,7 +144,8 @@ BOOST_AUTO_TEST_CASE(testNoChange) {
         };
 
         maths::CTimeSeriesTestForChange testForChange(
-            10000, 10000, BUCKET_LENGTH, BUCKET_LENGTH, predictor, std::move(values));
+            maths::CTimeSeriesTestForChange::E_All, 10000, 10000, BUCKET_LENGTH,
+            BUCKET_LENGTH, predictor, std::move(values));
 
         auto change = testForChange.test();
 
@@ -230,9 +231,9 @@ BOOST_AUTO_TEST_CASE(testWithReversion) {
             values[i].add(predictor(time) + samples[i]);
         }
 
-        maths::CTimeSeriesTestForChange testForChange(startTime, startTime,
-                                                      BUCKET_LENGTH, BUCKET_LENGTH,
-                                                      predictor, std::move(values));
+        maths::CTimeSeriesTestForChange testForChange(
+            maths::CTimeSeriesTestForChange::E_All, startTime, startTime,
+            BUCKET_LENGTH, BUCKET_LENGTH, predictor, std::move(values));
 
         auto change = testForChange.test();
 

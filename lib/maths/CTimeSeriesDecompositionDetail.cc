@@ -640,6 +640,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::test(const SAddValue& mes
     core_t::TTime time{message.s_Time};
     core_t::TTime lastTime{message.s_LastTime};
     core_t::TTime timeShift{message.s_TimeShift};
+    bool seasonal{message.s_Decomposition->seasonalComponents().size() > 0};
     const auto& makePredictor = message.s_MakePredictor;
     CTimeSeriesDecomposition& decomposition{*message.s_Decomposition};
 
@@ -651,6 +652,8 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::test(const SAddValue& mes
         });
         std::ptrdiff_t length{std::distance(begin, m_Window.end())};
 
+        int testFor{seasonal ? CTimeSeriesTestForChange::E_All
+                             : CTimeSeriesTestForChange::E_LevelShift};
         TPredictor predictor{makePredictor()};
         core_t::TTime bucketsStartTime{this->startOfWindowBucket(time) -
                                        static_cast<core_t::TTime>(length - 1) *
@@ -664,7 +667,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::test(const SAddValue& mes
                   << ", last candidate time = " << m_LastCandidateChangePointTime);
 
         CTimeSeriesTestForChange changeTest(
-            valuesStartTime - timeShift, bucketsStartTime - timeShift,
+            testFor, valuesStartTime - timeShift, bucketsStartTime - timeShift,
             this->windowBucketLength(), m_BucketLength, predictor, std::move(values));
 
         auto change = changeTest.test();
@@ -2092,10 +2095,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::shouldUseTrendForPrediction() 
     if (df0 > 0.0 && df1 > 0.0 && v0 > 0.0) {
         double relativeLogSignificance{
             CTools::fastLog(CStatisticalTests::leftTailFTest(v1 / v0, df1, df0)) /
-            LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
-        double vt{*std::max_element(std::begin(COMPONENT_SIGNIFICANT_VARIANCE_REDUCTION),
-                                    std::end(COMPONENT_SIGNIFICANT_VARIANCE_REDUCTION)) *
-                  v0};
+            CTools::fastLog(0.001)};
+        double vt{0.6 * v0};
         double p{CTools::logisticFunction(relativeLogSignificance, 0.1, 1.0) *
                  (vt > v1 ? CTools::logisticFunction(vt / v1, 1.0, 1.0, +1.0)
                           : CTools::logisticFunction(v1 / vt, 0.1, 1.0, -1.0))};

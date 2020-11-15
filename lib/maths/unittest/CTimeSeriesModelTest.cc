@@ -2130,7 +2130,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
     }
     LOG_DEBUG(<< "Univariate: Piecewise Constant");
     {
-        core_t::TTime bucketLength{600};
+        core_t::TTime bucketLength{1800};
         maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
         auto controllers = decayRateControllers(1);
         maths::CUnivariateTimeSeriesModel model{modelParams(bucketLength), 0, trend,
@@ -2184,11 +2184,11 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
         };
 
         std::string m;
-        model.forecast(0, time, time, time + 800 * bucketLength, 90.0,
-                       {-1000.0}, {1000.0}, pushErrorBar, m);
+        model.forecast(0, time, time, time + expected.size() * bucketLength,
+                       90.0, {-1000.0}, {1000.0}, pushErrorBar, m);
 
         double outOfBounds{0.0};
-        for (std::size_t i = 0u; i < forecast.size(); ++i) {
+        for (std::size_t i = 0; i < forecast.size(); ++i) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expected[i], forecast[i][1], 0.1 * expected[i]);
             outOfBounds += static_cast<double>(expected[i] < forecast[i][0] ||
                                                expected[i] > forecast[i][2]);
@@ -2225,7 +2225,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
         }
         for (auto slope : {0.042}) {
             value = 5.0;
-            for (std::size_t i = 0u; i < 1500; ++i) {
+            for (std::size_t i = 0; i < 1500; ++i) {
                 rng.generateNormalSamples(0.0, 2.0, 1, noise);
                 updateModel(time, value + noise[0], model);
                 debug.addValueAndPrediction(time, value + noise[0], model);
@@ -2257,18 +2257,18 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
         };
 
         std::string m;
-        model.forecast(0, time, time, time + 2000 * bucketLength, 90.0,
-                       {-1000.0}, {1000.0}, pushErrorBar, m);
+        model.forecast(0, time, time, time + expected.size() * bucketLength,
+                       90.0, {-1000.0}, {1000.0}, pushErrorBar, m);
 
         double outOfBounds{0.0};
-        for (std::size_t i = 0u; i < forecast.size(); ++i) {
+        for (std::size_t i = 0; i < forecast.size(); ++i) {
             outOfBounds += static_cast<double>(expected[i] < forecast[i][0] ||
                                                expected[i] > forecast[i][2]);
         }
         double percentageOutOfBounds{100.0 * outOfBounds /
                                      static_cast<double>(forecast.size())};
         LOG_DEBUG(<< "% out-of-bounds = " << percentageOutOfBounds);
-        BOOST_TEST_REQUIRE(percentageOutOfBounds < 5.0);
+        BOOST_TEST_REQUIRE(percentageOutOfBounds < 6.0);
     }
 }
 

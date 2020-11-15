@@ -65,15 +65,23 @@ private:
 //! \brief Represents a level shift of a time series.
 class MATHS_EXPORT CLevelShift : public CChangePoint {
 public:
+    using TDoubleVec = std::vector<double>;
+    using TSizeVec = std::vector<std::size_t>;
+
+public:
     static const std::string TYPE;
 
 public:
     CLevelShift(bool reversion,
-                std::size_t index,
+                std::size_t changeIndex,
                 core_t::TTime time,
-                double valueAtShift,
                 double shift,
-                TFloatMeanAccumulatorVec initialValues);
+                core_t::TTime valuesStartTime,
+                core_t::TTime bucketLength,
+                TFloatMeanAccumulatorVec values,
+                TSizeVec segments,
+                TDoubleVec shifts,
+                TFloatMeanAccumulatorVec residuals);
 
     bool apply(CTrendComponent& component) const override;
     bool largeEnough(double threshold) const override {
@@ -85,7 +93,11 @@ public:
 
 private:
     double m_Shift = 0.0;
-    double m_ValueAtShift = 0.0;
+    core_t::TTime m_ValuesStartTime = 0;
+    core_t::TTime m_BucketLength = 0;
+    TFloatMeanAccumulatorVec m_Values;
+    TSizeVec m_Segments;
+    TDoubleVec m_Shifts;
 };
 
 //! \brief Represents a linear scale of a time series.
@@ -169,11 +181,18 @@ public:
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
     using TChangePointUPtr = std::unique_ptr<CChangePoint>;
+    enum ETestFor {
+        E_LevelShift = 0x1,
+        E_LinearScale = 0x2,
+        E_TimeShift = 0x4,
+        E_All = 0x7
+    };
 
 public:
     static constexpr double OUTLIER_FRACTION = 0.05;
 
 public:
+    //! \param[in] testFor The type of change to test for.
     //! \param[in] valuesStartTime The average offset of samples in each time bucket.
     //! \param[in] bucketsStartTime The start first time bucket.
     //! \param[in] bucketLength The length of the time buckets.
@@ -184,7 +203,8 @@ public:
     //! predictions.
     //! \param[in] outlierFraction The proportion of values to treat as outliers.
     //! This must be in the range (0.0, 1.0).
-    CTimeSeriesTestForChange(core_t::TTime valuesStartTime,
+    CTimeSeriesTestForChange(int testFor,
+                             core_t::TTime valuesStartTime,
                              core_t::TTime bucketsStartTime,
                              core_t::TTime bucketLength,
                              core_t::TTime sampleInterval,
@@ -218,32 +238,19 @@ private:
     using TBucketPredictor = std::function<double(std::size_t)>;
     using TTransform = std::function<double(const TFloatMeanAccumulator&)>;
 
-    enum EType { E_NoChangePoint, E_LevelShift, E_Scale, E_TimeShift };
-
     struct SChangePoint {
         SChangePoint() = default;
-        SChangePoint(EType type,
-                     bool reversion,
-                     std::size_t index,
-                     double residualVariance,
+        SChangePoint(double residualVariance,
                      double truncatedResidualVariance,
                      double numberParameters,
-                     TFloatMeanAccumulatorVec residuals)
-            : s_Type{type}, s_Reversion{reversion}, s_Index{index},
-              s_ResidualVariance{residualVariance}, s_TruncatedResidualVariance{truncatedResidualVariance},
-              s_NumberParameters{numberParameters}, s_Residuals{residuals} {}
+                     TChangePointUPtr changePoint)
+            : s_ResidualVariance{residualVariance}, s_TruncatedResidualVariance{truncatedResidualVariance},
+              s_NumberParameters{numberParameters}, s_ChangePoint{std::move(changePoint)} {}
 
-        EType s_Type = E_NoChangePoint;
-        bool s_Reversion = false;
-        std::size_t s_Index = 0;
         double s_ResidualVariance = 0.0;
         double s_TruncatedResidualVariance = 0.0;
         double s_NumberParameters = 0.0;
-        double s_LevelShift = 0.0;
-        double s_Scale = 0.0;
-        double s_ScaleMagnitude = 0.0;
-        core_t::TTime s_TimeShift = 0;
-        TFloatMeanAccumulatorVec s_Residuals;
+        TChangePointUPtr s_ChangePoint;
     };
 
 private:
@@ -272,9 +279,9 @@ private:
     static double mean(const TFloatMeanAccumulator& value) {
         return CBasicStatistics::mean(value);
     }
-    static const std::string& print(EType type);
 
 private:
+    int m_TestFor = E_All;
     double m_SignificantPValue = 1e-3;
     double m_AcceptedFalsePostiveRate = 1e-4;
     core_t::TTime m_ValuesStartTime = 0;

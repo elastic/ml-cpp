@@ -78,22 +78,28 @@ std::size_t largestScale(const TDoubleVec& scales) {
 
 const core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
 const core_t::TTime HOUR{core::constants::HOUR};
-const std::string NO_CHANGE{"no change"};
 }
 
 CChangePoint::~CChangePoint() = default;
 
 CLevelShift::CLevelShift(bool reversion,
-                         std::size_t index,
+                         std::size_t changeIndex,
                          core_t::TTime time,
-                         double valueAtShift,
                          double shift,
+                         core_t::TTime valuesStartTime,
+                         core_t::TTime bucketLength,
+                         TFloatMeanAccumulatorVec values,
+                         TSizeVec segments,
+                         TDoubleVec shifts,
                          TFloatMeanAccumulatorVec residuals)
-    : CChangePoint{reversion, index, time, std::move(residuals)}, m_Shift{shift}, m_ValueAtShift{valueAtShift} {
+    : CChangePoint{reversion, changeIndex, time, std::move(residuals)}, m_Shift{shift},
+      m_ValuesStartTime{valuesStartTime}, m_BucketLength{bucketLength}, m_Values{std::move(values)},
+      m_Segments{std::move(segments)}, m_Shifts{std::move(shifts)} {
 }
 
 bool CLevelShift::apply(CTrendComponent& component) const {
-    component.shiftLevel(this->time(), m_ValueAtShift, m_Shift);
+    component.shiftLevel(m_Shift, m_ValuesStartTime, m_BucketLength, m_Values,
+                         m_Segments, m_Shifts);
     return true;
 }
 
@@ -159,7 +165,8 @@ std::string CTimeShift::print() const {
 
 const std::string CTimeShift::TYPE{"time shift"};
 
-CTimeSeriesTestForChange::CTimeSeriesTestForChange(core_t::TTime valuesStartTime,
+CTimeSeriesTestForChange::CTimeSeriesTestForChange(int testFor,
+                                                   core_t::TTime valuesStartTime,
                                                    core_t::TTime bucketsStartTime,
                                                    core_t::TTime bucketLength,
                                                    core_t::TTime sampleInterval,
@@ -167,7 +174,7 @@ CTimeSeriesTestForChange::CTimeSeriesTestForChange(core_t::TTime valuesStartTime
                                                    TFloatMeanAccumulatorVec values,
                                                    double sampleVariance,
                                                    double outlierFraction)
-    : m_ValuesStartTime{valuesStartTime}, m_BucketsStartTime{bucketsStartTime},
+    : m_TestFor{testFor}, m_ValuesStartTime{valuesStartTime}, m_BucketsStartTime{bucketsStartTime},
       m_BucketLength{bucketLength}, m_SampleInterval{sampleInterval},
       m_SampleVariance{sampleVariance}, m_OutlierFraction{outlierFraction},
       m_Predictor{std::move(predictor)}, m_Values{std::move(values)},
@@ -202,13 +209,19 @@ CTimeSeriesTestForChange::TChangePointUPtr CTimeSeriesTestForChange::test() cons
 
     TChangePointVec changes;
     changes.reserve(3);
-    changes.push_back(this->levelShift(variance, truncatedVariance, parameters));
-    changes.push_back(this->scale(variance, truncatedVariance, parameters));
-    changes.push_back(this->timeShift(variance, truncatedVariance, parameters));
+    if (m_TestFor & E_LevelShift) {
+        changes.push_back(this->levelShift(variance, truncatedVariance, parameters));
+    }
+    if (m_TestFor & E_LinearScale) {
+        changes.push_back(this->scale(variance, truncatedVariance, parameters));
+    }
+    if (m_TestFor & E_TimeShift) {
+        changes.push_back(this->timeShift(variance, truncatedVariance, parameters));
+    }
 
     changes.erase(std::remove_if(changes.begin(), changes.end(),
                                  [](const auto& change) {
-                                     return change.s_Type == E_NoChangePoint;
+                                     return change.s_ChangePoint == nullptr;
                                  }),
                   changes.end());
     LOG_TRACE(<< "# changes = " << changes.size());
@@ -223,7 +236,7 @@ CTimeSeriesTestForChange::TChangePointUPtr CTimeSeriesTestForChange::test() cons
 
         double selectedEvidence{aic(changes[0])};
         std::size_t selected{0};
-        LOG_TRACE(<< print(changes[0].s_Type) << " evidence = " << selectedEvidence);
+        LOG_TRACE(<< changes[0].s_ChangePoint->print() << " evidence = " << selectedEvidence);
 
         double n{static_cast<double>(CSignal::countNotMissing(m_Values))};
         for (std::size_t candidate = 1; candidate < changes.size(); ++candidate) {
@@ -234,35 +247,13 @@ CTimeSeriesTestForChange::TChangePointUPtr CTimeSeriesTestForChange::test() cons
                                        changes[candidate].s_TruncatedResidualVariance,
                                        changes[candidate].s_NumberParameters, n)};
             double evidence{aic(changes[candidate])};
-            LOG_TRACE(<< print(changes[candidate].s_Type)
+            LOG_TRACE(<< changes[candidate].s_ChangePoint->print()
                       << " p-value = " << pValue << ", evidence = " << evidence);
             if (pValue < m_SignificantPValue || evidence < selectedEvidence) {
                 std::tie(selectedEvidence, selected) = std::make_pair(evidence, candidate);
             }
         }
-        std::size_t changeIndex{changes[selected].s_Index};
-        auto changeTime = this->changeTime(changeIndex);
-        auto valueAtChange = this->valueAtChange(changeIndex);
-
-        switch (changes[selected].s_Type) {
-        case E_LevelShift:
-            return std::make_unique<CLevelShift>(
-                changes[selected].s_Reversion, changeIndex, changeTime,
-                valueAtChange, changes[selected].s_LevelShift,
-                std::move(changes[selected].s_Residuals));
-        case E_Scale:
-            return std::make_unique<CScale>(
-                changes[selected].s_Reversion, changeIndex, changeTime,
-                changes[selected].s_Scale, changes[selected].s_ScaleMagnitude,
-                std::move(changes[selected].s_Residuals));
-        case E_TimeShift:
-            return std::make_unique<CTimeShift>(
-                changes[selected].s_Reversion, changeIndex, changeTime,
-                changes[selected].s_TimeShift, std::move(changes[selected].s_Residuals));
-        case E_NoChangePoint:
-            LOG_ERROR(<< "Unexpected type");
-            break;
-        }
+        return std::move(changes[selected].s_ChangePoint);
     }
 
     return {};
@@ -350,12 +341,12 @@ CTimeSeriesTestForChange::levelShift(double varianceH0,
                            EPS * std::fabs(shifts[shiftIndex] - shifts[shiftIndex - 1])};
             LOG_TRACE(<< "reversion = " << reversion);
 
-            SChangePoint change(E_LevelShift, reversion, changeIndex, varianceH1,
-                                truncatedVarianceH1, parametersH1, std::move(residuals));
+            auto changePoint = std::make_unique<CLevelShift>(
+                reversion, changeIndex, this->changeTime(changeIndex),
+                CBasicStatistics::mean(shift), m_ValuesStartTime, m_BucketLength, m_Values,
+                std::move(segments), std::move(shifts), std::move(residuals));
 
-            change.s_LevelShift = CBasicStatistics::mean(shift);
-
-            return change;
+            return {varianceH1, truncatedVarianceH1, parametersH1, std::move(changePoint)};
         }
     }
 
@@ -421,13 +412,12 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
                            EPS * std::fabs(scales[scaleIndex] - scales[scaleIndex - 1])};
             LOG_TRACE(<< "reversion = " << reversion);
 
-            SChangePoint change(E_Scale, reversion, changeIndex, varianceH1,
-                                truncatedVarianceH1, parametersH1, std::move(residuals));
-            change.s_Scale = scale;
-            change.s_ScaleMagnitude = std::fabs(scale - 1.0) *
-                                      std::sqrt(CBasicStatistics::mean(Z));
+            auto changePoint = std::make_unique<CScale>(
+                reversion, changeIndex, this->changeTime(changeIndex), scale,
+                std::fabs(scale - 1.0) * std::sqrt(CBasicStatistics::mean(Z)),
+                std::move(residuals));
 
-            return change;
+            return {varianceH1, truncatedVarianceH1, parametersH1, std::move(changePoint)};
         }
     }
 
@@ -487,10 +477,10 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
         LOG_TRACE(<< "time shift p-value = " << pValue);
 
         if (pValue < m_AcceptedFalsePostiveRate) {
-            SChangePoint change(E_TimeShift, false, changeIndex, varianceH1,
-                                truncatedVarianceH1, parametersH1, std::move(residuals));
-            change.s_TimeShift = shifts.back();
-            return change;
+            auto changePoint = std::make_unique<CTimeShift>(
+                false, changeIndex, this->changeTime(changeIndex),
+                shifts.back(), std::move(residuals));
+            return {varianceH1, truncatedVarianceH1, parametersH1, std::move(changePoint)};
         }
     }
 
@@ -543,10 +533,6 @@ core_t::TTime CTimeSeriesTestForChange::changeTime(std::size_t changeIndex) cons
     return m_ValuesStartTime + m_BucketLength * static_cast<core_t::TTime>(changeIndex);
 }
 
-double CTimeSeriesTestForChange::valueAtChange(std::size_t changeIndex) const {
-    return CBasicStatistics::mean(m_Values[changeIndex - 1]);
-}
-
 CTimeSeriesTestForChange::TDoubleDoublePr
 CTimeSeriesTestForChange::variances(const TFloatMeanAccumulatorVec& residuals) const {
     return {CBasicStatistics::maximumLikelihoodVariance(this->truncatedMoments(0.0, residuals)),
@@ -580,9 +566,10 @@ double CTimeSeriesTestForChange::aic(const SChangePoint& change) const {
         return result.calculate(change.s_NumberParameters);
     };
 
-    TMeanVarAccumulator moments{this->truncatedMoments(0.0, change.s_Residuals)};
-    TMeanVarAccumulator truncatedMoments{
-        this->truncatedMoments(m_OutlierFraction, change.s_Residuals)};
+    TMeanVarAccumulator moments{
+        this->truncatedMoments(0.0, change.s_ChangePoint->residuals())};
+    TMeanVarAccumulator truncatedMoments{this->truncatedMoments(
+        m_OutlierFraction, change.s_ChangePoint->residuals())};
 
     return akaike(moments) + akaike(truncatedMoments);
 }
@@ -601,19 +588,6 @@ CTimeSeriesTestForChange::removePredictions(const TBucketPredictor& predictor,
 std::size_t CTimeSeriesTestForChange::buckets(core_t::TTime bucketLength,
                                               core_t::TTime interval) {
     return static_cast<std::size_t>((interval + bucketLength / 2) / bucketLength);
-}
-
-const std::string& CTimeSeriesTestForChange::print(EType type) {
-    switch (type) {
-    case E_LevelShift:
-        return CLevelShift::TYPE;
-    case E_Scale:
-        return CScale::TYPE;
-    case E_TimeShift:
-        return CTimeShift::TYPE;
-    case E_NoChangePoint:
-        return NO_CHANGE;
-    }
 }
 }
 }

@@ -61,7 +61,7 @@ CTimeSeriesSegmentation::removePiecewiseLinear(TFloatMeanAccumulatorVec values,
         }
     }
     shifts.clear();
-    shifts.reserve(segmentation.size() - 2);
+    shifts.reserve(segmentation.size() - 1);
     for (std::size_t i = 1; i < segmentation.size(); ++i) {
         TMeanAccumulator shift;
         for (std::size_t j = segmentation[i - 1]; j < segmentation[i]; ++j) {
