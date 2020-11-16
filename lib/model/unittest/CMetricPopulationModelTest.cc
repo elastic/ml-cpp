@@ -54,9 +54,14 @@ namespace {
 using TMinAccumulator = maths::CBasicStatistics::COrderStatisticsStack<double, 1u>;
 using TMaxAccumulator =
     maths::CBasicStatistics::COrderStatisticsStack<double, 1u, std::greater<double>>;
+struct SValuesAndWeights {
+    maths::CModel::TTimeDouble2VecSizeTrVec s_Values;
+    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_TrendWeights;
+    maths::CModelAddSamplesParams::TDouble2VecWeightsAryVec s_ResidualWeights;
+};
 
-const std::size_t numberAttributes{5u};
-const std::size_t numberPeople{10u};
+const std::size_t numberAttributes{5};
+const std::size_t numberPeople{10};
 }
 
 class CTestFixture : public CModelTestFixtureBase {
@@ -169,8 +174,7 @@ private:
 };
 
 BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
-    // Check that the correct data is read retrieved by the
-    // basic model accessors.
+    // Check the correct data is retrieved by the basic model accessors.
 
     using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
     using TMinAccumulatorVec = std::vector<TMinAccumulator>;
@@ -311,25 +315,16 @@ BOOST_FIXTURE_TEST_CASE(testBasicAccessors, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
-    // We check that the correct data is read from the gatherer
-    // into the model on sample.
+    // Check the correct data is read from the gatherer into the model on sample.
 
-    using TTimeDouble2VecSizeTr = core::CTriple<core_t::TTime, TDouble2Vec, std::size_t>;
-    using TTimeDouble2VecSizeTrVec = std::vector<TTimeDouble2VecSizeTr>;
-    using TDouble2VecWeightsAry = maths_t::TDouble2VecWeightsAry;
-    using TDouble2VecWeightsAryVec = std::vector<TDouble2VecWeightsAry>;
+    using TSizeValueAndWeightsMap = std::map<std::size_t, SValuesAndWeights>;
+    using TSizeSizeValueAndWeightsMapMap = std::map<std::size_t, TSizeValueAndWeightsMap>;
     using TSizeSizePrDoubleVecMap = std::map<TSizeSizePr, TDoubleVec>;
     using TSizeSizePrMeanAccumulatorUMap = std::map<TSizeSizePr, TMeanAccumulator>;
     using TSizeSizePrMinAccumulatorMap = std::map<TSizeSizePr, TMinAccumulator>;
     using TSizeSizePrMaxAccumulatorMap = std::map<TSizeSizePr, TMaxAccumulator>;
     using TMathsModelPtr = std::shared_ptr<maths::CModel>;
     using TSizeMathsModelPtrMap = std::map<std::size_t, TMathsModelPtr>;
-    using TTimeDouble2VecSizeTrVecDouble2VecWeightsAryVecPr =
-        std::pair<TTimeDouble2VecSizeTrVec, TDouble2VecWeightsAryVec>;
-    using TSizeTimeDouble2VecSizeTrVecDouble2VecWeightsAryVecPrMap =
-        std::map<std::size_t, TTimeDouble2VecSizeTrVecDouble2VecWeightsAryVecPr>;
-    using TSizeSizeTimeDouble2VecSizeTrVecDouble2VecWeightAryVecPrMapMap =
-        std::map<std::size_t, TSizeTimeDouble2VecSizeTrVecDouble2VecWeightsAryVecPrMap>;
 
     core_t::TTime startTime{1367280000};
     const core_t::TTime bucketLength{3600};
@@ -346,8 +341,7 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
                                   model_t::E_PopulationMaxByPersonAndAttribute};
 
     this->makeModel(params, features, startTime);
-    CMetricPopulationModel* model =
-        dynamic_cast<CMetricPopulationModel*>(m_Model.get());
+    auto* model = dynamic_cast<CMetricPopulationModel*>(m_Model.get());
     BOOST_TEST_REQUIRE(model);
 
     CModelFactory::TFeatureMathsModelPtrPrVec models{
@@ -370,59 +364,59 @@ BOOST_FIXTURE_TEST_CASE(testMinMaxAndMean, CTestFixture) {
         if (message.s_Time >= startTime + bucketLength) {
             model->sample(startTime, startTime + bucketLength, m_ResourceMonitor);
 
-            TSizeSizeTimeDouble2VecSizeTrVecDouble2VecWeightAryVecPrMapMap populationWeightedSamples;
+            TSizeSizeValueAndWeightsMapMap populationWeightedSamples;
             for (std::size_t feature = 0; feature < features.size(); ++feature) {
                 for (const auto& samples_ : expectedSamples[feature]) {
                     std::size_t pid = samples_.first.first;
                     std::size_t cid = samples_.first.second;
-                    TTimeDouble2VecSizeTrVec& samples =
-                        populationWeightedSamples[feature][cid].first;
-                    TDouble2VecWeightsAryVec& weights =
-                        populationWeightedSamples[feature][cid].second;
+                    auto& attribute = populationWeightedSamples[feature][cid];
                     TMathsModelPtr& attributeModel = expectedPopulationModels[feature][cid];
                     if (attributeModel == nullptr) {
                         attributeModel = m_Factory->defaultFeatureModel(
                             features[feature], bucketLength, 1.0, false);
                     }
                     for (std::size_t j = 0; j < samples_.second.size(); ++j) {
-                        // We round to the nearest integer time (note this has to match
-                        // the behaviour of CMetricPartialStatistic::time).
+                        // We round to the nearest integer time (note this has to
+                        // match the behaviour of CMetricPartialStatistic::time).
                         core_t::TTime time_ = static_cast<core_t::TTime>(
                             expectedSampleTimes[{pid, cid}][j] + 0.5);
                         TDouble2Vec sample{samples_.second[j]};
-                        samples.emplace_back(time_, sample, pid);
-                        weights.push_back(maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-                        auto& weight = weights.back();
-                        maths_t::setCount(
-                            TDouble2Vec{model->sampleRateWeight(pid, cid)}, weight);
-                        // TODO
-                        //maths_t::setWinsorisationWeight(
-                        //    attributeModel->winsorisationWeight(1.0, time_, sample), weight);
+                        attribute.s_Values.emplace_back(time_, sample, pid);
+                        attribute.s_TrendWeights.push_back(
+                            maths_t::CUnitWeights::unit<TDouble2Vec>(1));
+                        attribute.s_ResidualWeights.push_back(
+                            maths_t::CUnitWeights::unit<TDouble2Vec>(1));
+                        double countWeight{model->sampleRateWeight(pid, cid)};
+                        attributeModel->countWeights(
+                            time_, sample, countWeight, countWeight, 1.0, 1.0,
+                            attribute.s_TrendWeights.back(),
+                            attribute.s_ResidualWeights.back());
                     }
                 }
             }
+
             for (auto& feature : populationWeightedSamples) {
                 for (auto& attribute : feature.second) {
-                    std::size_t cid = attribute.first;
-                    TTimeDouble2VecSizeTrVec& samples = attribute.second.first;
-                    TDouble2VecWeightsAryVec& weights = attribute.second.second;
-                    maths::COrderings::simultaneousSort(samples, weights);
+                    maths::COrderings::simultaneousSort(
+                        attribute.second.s_Values, attribute.second.s_TrendWeights,
+                        attribute.second.s_ResidualWeights);
                     maths::CModelAddSamplesParams params_;
                     params_.integer(false)
                         .nonNegative(nonNegative)
                         .propagationInterval(1.0)
-                        .trendWeights(weights)
-                        .priorWeights(weights);
-                    expectedPopulationModels[feature.first][cid]->addSamples(params_, samples);
+                        .trendWeights(attribute.second.s_TrendWeights)
+                        .priorWeights(attribute.second.s_ResidualWeights);
+                    expectedPopulationModels[feature.first][attribute.first]->addSamples(
+                        params_, attribute.second.s_Values);
                 }
             }
 
-            for (std::size_t feature = 0u; feature < features.size(); ++feature) {
+            for (std::size_t feature = 0; feature < features.size(); ++feature) {
                 if ((startTime / bucketLength) % 10 == 0) {
                     LOG_DEBUG(<< "Testing priors for feature "
                               << model_t::print(features[feature]));
                 }
-                for (std::size_t cid = 0u; cid < numberAttributes; ++cid) {
+                for (std::size_t cid = 0; cid < numberAttributes; ++cid) {
                     if (expectedPopulationModels[feature].count(cid) > 0) {
                         BOOST_REQUIRE_EQUAL(
                             expectedPopulationModels[feature][cid]->checksum(),
