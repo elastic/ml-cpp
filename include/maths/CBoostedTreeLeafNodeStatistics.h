@@ -740,7 +740,7 @@ private:
 
         double s_Gain = -boosted_tree_detail::INF;
         double s_Curvature = 0.0;
-        std::size_t s_Feature = -1;
+        std::size_t s_Feature = std::numeric_limits<std::size_t>::max();
         double s_SplitAt = boosted_tree_detail::INF;
         std::uint32_t s_MinimumChildRowCount = 0;
         std::uint32_t s_LeftChildRowCount = 0; // TODO remove after stats measurement
