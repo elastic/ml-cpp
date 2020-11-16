@@ -129,8 +129,14 @@ public:
 //! DESCRIPTION:\n
 //! This is a helper class used to read rows of a CDataFrame object which
 //! dereferences to CRowRef objects.
-class CORE_EXPORT CRowIterator final
-    : public std::iterator<std::forward_iterator_tag, CRowRef, std::ptrdiff_t, CRowPtr, CRowRef> {
+class CORE_EXPORT CRowIterator final {
+public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = CRowRef;
+    using difference_type = std::ptrdiff_t;
+    using pointer = CRowPtr;
+    using reference = CRowRef;
+
 public:
     CRowIterator() = default;
 

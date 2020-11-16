@@ -134,8 +134,15 @@ inline CSparseVectorCoordinate<SCALAR> vectorCoordinate(std::ptrdiff_t row, SCAL
 
 //! \brief Adapts Eigen::SparseVector::InnerIterator for use with STL.
 template<typename SCALAR, int FLAGS = Eigen::RowMajorBit>
-class CSparseVectorIndexIterator
-    : public std::iterator<std::input_iterator_tag, std::ptrdiff_t> {
+class CSparseVectorIndexIterator {
+public:
+    using iterator_category = std::input_iterator_tag;
+    using value_type = std::ptrdiff_t;
+    using difference_type = std::ptrdiff_t;
+    using pointer = void;
+    using reference = void;
+
+public:
     CSparseVectorIndexIterator(const CSparseVector<SCALAR, FLAGS>& vector, std::size_t index)
         : m_Vector(&vector), m_Base(vector, index) {}
 
@@ -144,7 +151,7 @@ class CSparseVectorIndexIterator
                m_Base.col() == rhs.m_Base.col();
     }
     bool operator!=(const CSparseVectorIndexIterator& rhs) const {
-        return !(*this == rhs);
+        return (*this == rhs) == false;
     }
 
     std::ptrdiff_t operator*() const {
