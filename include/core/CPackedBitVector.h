@@ -71,8 +71,8 @@ public:
         using iterator_category = std::input_iterator_tag;
         using value_type = std::size_t;
         using difference_type = std::ptrdiff_t;
-        using pointer = void;
-        using reference = void;
+        using pointer = std::size_t*;
+        using reference = std::size_t&;
 
     public:
         COneBitIndexConstIterator() = default;
