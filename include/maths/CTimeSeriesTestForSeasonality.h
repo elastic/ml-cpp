@@ -447,7 +447,9 @@ private:
         //! The similarity of the components after applying this hypothesis.
         double componentsSimilarity() const;
         //! The p-value of this model vs H0.
-        double pValue(const SModel& H0, double unexplainedVariance = 0.0) const;
+        double pValue(const SModel& H0,
+                      double minimumRelativeTruncatedVariance = 0.0,
+                      double unexplainedVariance = 0.0) const;
         //! A proxy for p-value of this model vs H0 which doesn't underflow.
         double logPValueProxy(const SModel& H0) const;
         //! Get the variance explained per parameter weighted by the variance explained

@@ -525,7 +525,7 @@ CTimeSeriesDecompositionDetail::CChangePointTest::CChangePointTest(double decayR
                                                                    core_t::TTime bucketLength)
     : m_Machine{core::CStateMachine::create(CD_ALPHABET, CD_STATES, CD_TRANSITION_FUNCTION, CD_TEST)},
       m_DecayRate{decayRate}, m_BucketLength{bucketLength},
-      m_Window(WINDOW_SIZE, TFloatMeanAccumulator{}),
+      m_Window(this->windowSize(), TFloatMeanAccumulator{}),
       m_LastTestTime{std::numeric_limits<core_t::TTime>::min() / 2},
       m_LastChangePointTime{std::numeric_limits<core_t::TTime>::min() / 2},
       m_LastCandidateChangePointTime{std::numeric_limits<core_t::TTime>::min() / 2} {
@@ -748,7 +748,8 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::apply(std::size_t symbol)
                   << CD_STATES[state]);
         switch (state) {
         case CD_TEST:
-            m_Window = TFloatMeanAccumulatorCBuf(WINDOW_SIZE, TFloatMeanAccumulator{});
+            m_Window = TFloatMeanAccumulatorCBuf(this->windowSize(),
+                                                 TFloatMeanAccumulator{});
             m_MeanOffset = TFloatMeanAccumulator{};
             m_LargeErrorFraction = 0.0;
             break;
@@ -826,6 +827,12 @@ core_t::TTime CTimeSeriesDecompositionDetail::CChangePointTest::windowLength() c
 
 core_t::TTime CTimeSeriesDecompositionDetail::CChangePointTest::windowBucketLength() const {
     return std::max(MINIMUM_WINDOW_BUCKET_LENGTH, m_BucketLength);
+}
+
+std::size_t CTimeSeriesDecompositionDetail::CChangePointTest::windowSize() const {
+    return std::max(static_cast<std::size_t>((4 * core::constants::DAY) /
+                                             this->windowBucketLength()),
+                    std::size_t{12});
 }
 
 //////// CSeasonalityTest ////////

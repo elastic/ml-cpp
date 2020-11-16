@@ -2346,8 +2346,8 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
         debug.addValueAndPrediction(time, sample, model);
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 4.1 * std::sqrt(noiseVariance));
-        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 4.2 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 4.2 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 4.3 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 }

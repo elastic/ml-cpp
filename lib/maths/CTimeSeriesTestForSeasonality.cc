@@ -568,7 +568,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
             double leastCommonRepeat{decompositions[H1].leastCommonRepeat()};
             double pValueVsSelected{
                 selected < decompositions.size()
-                    ? decompositions[H1].pValue(decompositions[selected], m_SampleVariance)
+                    ? decompositions[H1].pValue(decompositions[selected], 1e-3, m_SampleVariance)
                     : 1.0};
             double scalings{decompositions[H1].numberScalings()};
             double segments{
@@ -1922,6 +1922,7 @@ double CTimeSeriesTestForSeasonality::SModel::componentsSimilarity() const {
 }
 
 double CTimeSeriesTestForSeasonality::SModel::pValue(const SModel& H0,
+                                                     double minimumRelativeTruncatedVariance,
                                                      double unexplainedVariance) const {
 
     double n[]{CBasicStatistics::count(H0.s_ResidualMoments),
@@ -1939,6 +1940,8 @@ double CTimeSeriesTestForSeasonality::SModel::pValue(const SModel& H0,
     double df1[]{CBasicStatistics::count(s_ResidualMoments) - this->numberParameters(),
                  CBasicStatistics::count(s_TruncatedResidualMoments) -
                      this->numberParameters()};
+    v0[1] += minimumRelativeTruncatedVariance * v0[0];
+    v1[1] += minimumRelativeTruncatedVariance * v1[0];
 
     return std::min(rightTailFTest(v0[0] / df0[0], v1[0] / df1[0], df0[0], df1[0]),
                     rightTailFTest(v0[1] / df0[1], v1[1] / df1[1], df0[1], df1[1]));

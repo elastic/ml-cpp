@@ -259,6 +259,7 @@ private:
     SChangePoint scale(double varianceH0, double truncatedVarianceH0, double parametersH0) const;
     SChangePoint timeShift(double varianceH0, double truncatedVarianceH0, double parametersH0) const;
     TBucketPredictor bucketPredictor() const;
+    TPredictor bucketTimePredictor() const;
     TMeanVarAccumulator truncatedMoments(double outlierFraction,
                                          const TFloatMeanAccumulatorVec& residuals,
                                          const TTransform& transform = mean) const;
@@ -270,6 +271,11 @@ private:
                   double parametersH0,
                   double varianceH1,
                   double truncatedVarianceH1,
+                  double parametersH1,
+                  double n) const;
+    double pValue(double varianceH0,
+                  double parametersH0,
+                  double varianceH1,
                   double parametersH1,
                   double n) const;
     double aic(const SChangePoint& change) const;
