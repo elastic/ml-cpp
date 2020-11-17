@@ -41,7 +41,9 @@ using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 constexpr double EPS{0.1};
 
 double rightTailFTest(double v0, double v1, double df0, double df1) {
-    if (df1 <= 0.0) {
+    // If there is insufficient data for either hypothesis treat we are conservative
+    // and say the alternative hypothesis is not provable.
+    if (df0 <= 0.0 || df1 <= 0.0) {
         return 1.0;
     }
     double F{v0 == v1 ? 1.0 : (v0 / df0) / (v1 / df1)};
