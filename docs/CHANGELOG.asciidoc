@@ -47,8 +47,8 @@
 
 === Bug Fixes
 
-* Fix a bug where the peak_model_bytes value of the model_size_stats object  was not
-  restored from the anomaly detector job snapshots.
+* Fix a bug where the peak_model_bytes value of the model_size_stats object was not
+  restored from the anomaly detector job snapshots. (See {ml-pull}1572[#1572].)
 
 == {es} version 7.10.0
 
