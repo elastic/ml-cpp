@@ -32,8 +32,9 @@ public:
     using TFloatMeanAccumulatorVecDoubleVecPr = std::pair<TFloatMeanAccumulatorVec, TDoubleVec>;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TSeasonalComponentVec = std::vector<TSeasonalComponent>;
-    using TSeasonality = std::function<double(std::size_t)>;
+    using TConstantScale = std::function<double(const TSizeVec&, const TDoubleVec&)>;
     using TIndexWeight = std::function<double(std::size_t)>;
+    using TSeasonality = std::function<double(std::size_t)>;
     using TModel = std::function<double(core_t::TTime)>;
 
     //! Perform top-down recursive segmentation with linear models.
@@ -162,20 +163,20 @@ public:
     //! \param[in] periods The seasonal components present in \p values.
     //! \param[in] segmentation The segmentation of \p values into intervals with
     //! constant scale.
-    //! \param[in] indexWeight A function used to weight indices of \p segmentation.
+    //! \param[in] constantScale Computes the constant scale to apply to \p values.
     //! \param[in] outlierFraction The proportion of values to treat as outliers.
     //! This must be in the range (0.0, 1.0).
     //! \param[out] models The component models.
     //! \param[out] scales The scales to apply to \p models in each segment.
     //! \return The values with the mean scaled seasonal component.
     static TFloatMeanAccumulatorVec
-    meanScalePiecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
-                                           const TSeasonalComponentVec& periods,
-                                           const TSizeVec& segmentation,
-                                           const TIndexWeight& indexWeight,
-                                           double outlierFraction,
-                                           TDoubleVecVec& models,
-                                           TDoubleVec& scales);
+    constantScalePiecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
+                                               const TSeasonalComponentVec& periods,
+                                               const TSizeVec& segmentation,
+                                               const TConstantScale& constantScale,
+                                               double outlierFraction,
+                                               TDoubleVecVec& models,
+                                               TDoubleVec& scales);
 
     //! Compute the weighted mean scale for the piecewise linear \p scales on
     //! \p segmentation.
@@ -183,9 +184,10 @@ public:
     //! \param[in] segmentation The segmentation into intervals with constant scale.
     //! \param[in] scales The piecewise constant linear scales.
     //! \param[in] indexWeight A function used to weight indices of \p segmentation.
-    static double meanScale(const TSizeVec& segmentation,
-                            const TDoubleVec& scales,
-                            const TIndexWeight& indexWeight);
+    static double
+    meanScale(const TSizeVec& segmentation,
+              const TDoubleVec& scales,
+              const TIndexWeight& indexWeight = [](std::size_t) { return 1.0; });
 
     //! Compute the scale to use at \p index for the piecewise linear \p scales on
     //! \p segmentation.

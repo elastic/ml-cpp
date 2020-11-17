@@ -410,8 +410,9 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
             }
             double scale{CBasicStatistics::mean(Z) == 0.0
                              ? 1.0
-                             : CBasicStatistics::mean(projection) /
-                                   CBasicStatistics::mean(Z)};
+                             : std::max(CBasicStatistics::mean(projection) /
+                                            CBasicStatistics::mean(Z),
+                                        0.0)};
             LOG_TRACE(<< "scale = " << scale);
 
             // Check if the change is a reversion, i.e. the scale is around the

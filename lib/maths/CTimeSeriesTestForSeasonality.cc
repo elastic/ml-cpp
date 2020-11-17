@@ -858,7 +858,30 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
 
     LOG_TRACE(<< "testing " << core::CContainerPrinter::print(periods));
 
-    TMeanScaleHypothesis meanScales[]{
+    // We rescale to the minimum majority when testing to get an accurate estimate of
+    // the autocorrelation over the full window.
+    auto majorityScale = [](const TSizeVec& segmentation, const TDoubleVec& scales) {
+        TMeanVarAccumulator result;
+        std::size_t included{0};
+        std::size_t majority{(segmentation.back() - segmentation.front()) / 2 + 1};
+        for (double last{-1.0}, max{*std::max_element(scales.begin(), scales.end())};
+             included < majority;
+             /**/) {
+            double min{max};
+            std::size_t count{0};
+            for (std::size_t i = 0; i < scales.size(); ++i) {
+                if (scales[i] > last && scales[i] <= min) {
+                    min = scales[i];
+                    count += segmentation[i + 1] - segmentation[i];
+                }
+            }
+            result.add(min, static_cast<double>(count));
+            included += count;
+        }
+        return CBasicStatistics::mean(result);
+    };
+
+    TMeanScaleHypothesis constantScales[]{
         [&](TFloatMeanAccumulatorVec& values, const TSeasonalComponentVec&,
             const TMeanAccumulatorVecVec&, SHypothesisStats& hypothesis) {
             hypothesis.s_ScaleSegments.assign({0, values.size()});
@@ -870,8 +893,8 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
                 values,
                 [&](std::size_t i) { return period[0].value(component[0], i); },
                 m_SignificantPValue, MAXIMUM_NUMBER_SEGMENTS);
-            return this->meanScale(m_Periods, hypothesis.s_ScaleSegments,
-                                   values, m_ScaledComponent, m_ComponentScales);
+            return this->constantScale(majorityScale, m_Periods, hypothesis.s_ScaleSegments,
+                                       values, m_ScaledComponent, m_ComponentScales);
         }};
 
     TFloatMeanAccumulatorVec residuals{valuesToTest};
@@ -921,7 +944,7 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
         SHypothesisStats bestHypothesis{periods[i]};
 
         bool componentAlreadyModelled{this->alreadyModelled(periods[i])};
-        for (const auto& meanScale : meanScales) {
+        for (const auto& constantScale : constantScales) {
 
             SHypothesisStats hypothesis{periods[i]};
 
@@ -930,7 +953,7 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
             CSignal::fitSeasonalComponentsRobust(m_Periods, m_OutlierFraction,
                                                  m_ValuesToTest, m_Components);
 
-            if (meanScale(m_ValuesToTest, m_Periods, m_Components, hypothesis) &&
+            if (constantScale(m_ValuesToTest, m_Periods, m_Components, hypothesis) &&
                 CSignal::countNotMissing(m_ValuesToTest) > 0) {
 
                 LOG_TRACE(<< "scale segments = "
@@ -1017,8 +1040,12 @@ void CTimeSeriesTestForSeasonality::updateResiduals(const SHypothesisStats& hypo
     CSignal::restrictTo(hypothesis.s_Period, m_WindowIndices);
     m_Periods.assign(1, CSignal::seasonalComponentSummary(hypothesis.s_Period.period()));
 
-    bool scale{this->meanScale(m_Periods, scaleSegments, m_TemporaryValues,
-                               m_ScaledComponent, m_ComponentScales)};
+    auto meanScale = [](const TSizeVec& segmentation, const TDoubleVec& scales) {
+        return TSegmentation::meanScale(segmentation, scales);
+    };
+    bool scale{this->constantScale(meanScale, m_Periods, scaleSegments, m_TemporaryValues,
+                                   m_ScaledComponent, m_ComponentScales)};
+
     if (scale == false) {
         CSignal::fitSeasonalComponentsRobust(m_Periods, m_OutlierFraction,
                                              m_TemporaryValues, m_Components);
@@ -1089,12 +1116,15 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
             period.assign(1, CSignal::seasonalComponentSummary(m_Periods[i].period()));
 
             if (scale) {
-                if (this->meanScale(
-                        period, scaleSegments, m_TemporaryValues,
-                        m_ScaledComponent, m_ComponentScales, [&](std::size_t k) {
-                            return std::pow(0.9, static_cast<double>(
-                                                     m_TemporaryValues.size() - k - 1));
-                        }) == false) {
+                auto weightedMeanScale = [this](const TSizeVec& segmentation,
+                                                const TDoubleVec& scales) {
+                    return TSegmentation::meanScale(segmentation, scales, [&](std::size_t k) {
+                        return std::pow(
+                            0.9, static_cast<double>(m_TemporaryValues.size() - k - 1));
+                    });
+                };
+                if (this->constantScale(weightedMeanScale, period, scaleSegments, m_TemporaryValues,
+                                        m_ScaledComponent, m_ComponentScales) == false) {
                     continue;
                 }
             } else {
@@ -1316,15 +1346,15 @@ void CTimeSeriesTestForSeasonality::removeDiscontinuities(const TSizeVec& modelT
     }
 }
 
-bool CTimeSeriesTestForSeasonality::meanScale(const TSeasonalComponentVec& periods,
-                                              const TSizeVec& scaleSegments,
-                                              TFloatMeanAccumulatorVec& values,
-                                              TDoubleVecVec& components,
-                                              TDoubleVec& scales,
-                                              const TIndexWeight& weight) const {
+bool CTimeSeriesTestForSeasonality::constantScale(const TConstantScale& scale,
+                                                  const TSeasonalComponentVec& periods,
+                                                  const TSizeVec& scaleSegments,
+                                                  TFloatMeanAccumulatorVec& values,
+                                                  TDoubleVecVec& components,
+                                                  TDoubleVec& scales) const {
     if (scaleSegments.size() > 2) {
-        values = TSegmentation::meanScalePiecewiseLinearScaledSeasonal(
-            values, periods, scaleSegments, weight, m_OutlierFraction, components, scales);
+        values = TSegmentation::constantScalePiecewiseLinearScaledSeasonal(
+            values, periods, scaleSegments, scale, m_OutlierFraction, components, scales);
         return true;
     }
     return false;

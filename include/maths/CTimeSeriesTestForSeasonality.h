@@ -285,7 +285,7 @@ private:
     using TMeanAccumulatorVecCRng = core::CVectorRange<const TMeanAccumulatorVecVec>;
     using TPeriodDescriptor = CNewSeasonalComponentSummary::EPeriodDescriptor;
     using TSegmentation = CTimeSeriesSegmentation;
-    using TIndexWeight = TSegmentation::TIndexWeight;
+    using TConstantScale = TSegmentation::TConstantScale;
     using TBucketPredictor = std::function<double(std::size_t)>;
     using TTransform = std::function<double(const TFloatMeanAccumulator&)>;
     using TRemoveTrend =
@@ -523,12 +523,12 @@ private:
                                    TFloatMeanAccumulatorVec& values) const;
     void removeDiscontinuities(const TSizeVec& modelTrendSegments,
                                TFloatMeanAccumulatorVec& values) const;
-    bool meanScale(const TSeasonalComponentVec& periods,
-                   const TSizeVec& scaleSegments,
-                   TFloatMeanAccumulatorVec& values,
-                   TDoubleVecVec& components,
-                   TDoubleVec& scales,
-                   const TIndexWeight& weight = [](std::size_t) { return 1.0; }) const;
+    bool constantScale(const TConstantScale& scale,
+                       const TSeasonalComponentVec& periods,
+                       const TSizeVec& scaleSegments,
+                       TFloatMeanAccumulatorVec& values,
+                       TDoubleVecVec& components,
+                       TDoubleVec& scales) const;
     TVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values) const;
     TMeanVarAccumulator
     truncatedMoments(double outlierFraction,

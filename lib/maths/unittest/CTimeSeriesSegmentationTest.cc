@@ -498,6 +498,9 @@ BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
         }
         return result;
     };
+    auto meanScale = [](const TSizeVec& segmentation, const TDoubleVec& scales) {
+        return TSegmentation::meanScale(segmentation, scales);
+    };
 
     test::CRandomNumbers rng;
 
@@ -535,9 +538,9 @@ BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
                 }
             }
 
-            values = TSegmentation::meanScalePiecewiseLinearScaledSeasonal(
-                std::move(values), periods[i], segmentation,
-                [](std::size_t) { return 1.0; }, 0.05, scaledModels, modelScales);
+            values = TSegmentation::constantScalePiecewiseLinearScaledSeasonal(
+                std::move(values), periods[i], segmentation, meanScale, 0.05,
+                scaledModels, modelScales);
             BOOST_REQUIRE(values.size() > 0);
 
             maths::CSignal::fitSeasonalComponents(periods[i], values, components);
