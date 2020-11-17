@@ -2038,7 +2038,6 @@ BOOST_FIXTURE_TEST_CASE(testRemoveSeasonal, CTestFixture) {
                                            1);
     CDebugGenerator debug;
 
-    TMeanAccumulator errors[4];
     TDoubleVec noise;
     for (core_t::TTime time = 0; time < 20 * WEEK; time += FIVE_MINS) {
         rng.generateNormalSamples(0.0, 1.0, 1, noise);
