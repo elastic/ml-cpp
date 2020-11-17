@@ -1072,6 +1072,9 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
                               {0.3, 0.3, 1.3, 1.0, 1.0, 1.3, 1.2},
                               {0.3, 0.1, 1.0, 1.0, 1.0, 1.0, 1.0}};
 
+    double TP{0.0};
+    double FP{0.0};
+
     for (std::size_t test = 0; test < 100; ++test) {
 
         rng.generateUniformSamples(0, 168, 1, offset);
@@ -1100,15 +1103,19 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
             }
 
             auto decomposition = maths::CSignal::tradingDayDecomposition(
-                values, 0.0, 168, startOfWeekOverride, 1e-7);
-            if (test % 4 == 0) {
-                BOOST_REQUIRE(decomposition.empty());
+                values, 0.0, 168, startOfWeekOverride);
+            if (test % modulations.size() == 0) {
+                FP += decomposition.empty() ? 0.0 : 1.0;
+                TP += decomposition.empty() ? 1.0 : 0.0;
             } else {
                 BOOST_REQUIRE_EQUAL(expectedDecomposition,
                                     core::CContainerPrinter::print(decomposition));
             }
         }
     }
+
+    LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
+    BOOST_REQUIRE(TP / (TP + FP) >= 0.95);
 }
 
 BOOST_AUTO_TEST_CASE(testMeanNumberRepeatedValues) {

@@ -858,8 +858,8 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
 
     LOG_TRACE(<< "testing " << core::CContainerPrinter::print(periods));
 
-    // We rescale to the minimum majority when testing to get an accurate estimate of
-    // the autocorrelation over the full window.
+    // We rescale to the minimum majority when testing with piecewise constant scales
+    // to get an accurate estimate of the autocorrelation over the full window.
     auto majorityScale = [](const TSizeVec& segmentation, const TDoubleVec& scales) {
         TMeanVarAccumulator result;
         std::size_t included{0};
