@@ -547,22 +547,22 @@ CTrendComponent::TSizeVec CTrendComponent::selectModelOrdersForForecasting() con
         const SModel& model{m_TrendModels[i]};
 
         double n{CBasicStatistics::count(model.s_Mse)};
-        double mseH0{CBasicStatistics::mean(model.s_Mse)(0)};
-        double dfH0{n - 1.0};
+        double mse0{CBasicStatistics::mean(model.s_Mse)(0)};
+        double df0{n - 1.0};
 
-        for (std::size_t order = 2; mseH0 > 0.0 && order <= TRegression::N; ++order) {
+        for (std::size_t order = 2; mse0 > 0.0 && order <= TRegression::N; ++order) {
 
-            double mseH1{CBasicStatistics::mean(model.s_Mse)(order - 1)};
-            double dfH1{n - static_cast<double>(order)};
-            if (dfH1 < 0.0) {
+            double mse1{CBasicStatistics::mean(model.s_Mse)(order - 1)};
+            double df1{n - static_cast<double>(order)};
+            if (df1 < 0.0) {
                 break;
             }
 
-            double p{CStatisticalTests::leftTailFTest(mseH1 / mseH0, dfH1, dfH0)};
+            double p{CStatisticalTests::leftTailFTest((mse1 / df1) / (mse0 / df0), df1, df0)};
             if (p < MODEL_MSE_DECREASE_SIGNFICANT) {
                 result[i] = order;
-                mseH0 = mseH1;
-                dfH0 = dfH1;
+                mse0 = mse1;
+                df0 = df1;
             }
         }
     }
