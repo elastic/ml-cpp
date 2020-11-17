@@ -265,6 +265,23 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         BOOST_REQUIRE_EQUAL(model_t::E_MemoryStatusOk, m_ReportedModelSizeStats.s_MemoryStatus);
     }
     {
+        // As above but refreshing all resources in one call
+        CResourceMonitor mon;
+        mon.registerComponent(categorizer);
+        mon.registerComponent(detector1);
+        mon.registerComponent(detector2);
+
+        mon.memoryUsageReporter(std::bind(&CTestFixture::reportCallback, this,
+                                          std::placeholders::_1));
+        m_ReportedModelSizeStats.s_Usage = 0;
+        BOOST_REQUIRE_EQUAL(std::size_t(0), m_ReportedModelSizeStats.s_Usage);
+
+        mon.forceRefreshAll();
+        mon.sendMemoryUsageReportIfSignificantlyChanged(0);
+        BOOST_REQUIRE_EQUAL(mem, m_ReportedModelSizeStats.s_Usage);
+        BOOST_REQUIRE_EQUAL(model_t::E_MemoryStatusOk, m_ReportedModelSizeStats.s_MemoryStatus);
+    }
+    {
         // Test the report callback for allocation failures
         CResourceMonitor mon;
         mon.registerComponent(categorizer);

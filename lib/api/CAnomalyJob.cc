@@ -411,6 +411,11 @@ bool CAnomalyJob::parsePersistControlMessageArgs(const std::string& controlMessa
 
 void CAnomalyJob::processPersistControlMessage(const std::string& controlMessageArgs) {
     if (m_PersistenceManager != nullptr) {
+        // There is a subtle difference between these two cases.  When there
+        // are no control message arguments this triggers persistence of all
+        // chained processors, i.e. maybe the categorizer as well as the anomaly
+        // detector if there is one.  But when control message arguments are
+        // passed, ONLY the persistence of the anomaly detector is triggered.
         if (controlMessageArgs.empty()) {
             if (this->isPersistenceNeeded("state")) {
                 m_PersistenceManager->startPersist(core::CTimeUtils::now());
@@ -421,6 +426,10 @@ void CAnomalyJob::processPersistControlMessage(const std::string& controlMessage
             std::string snapshotDescription;
             if (parsePersistControlMessageArgs(controlMessageArgs, snapshotTimestamp,
                                                snapshotId, snapshotDescription)) {
+                // Since this is not going through the full persistence call
+                // chain, make sure model size stats are up to date before
+                // persisting
+                m_Limits.resourceMonitor().forceRefreshAll();
                 if (m_PersistenceManager->doForegroundPersist(
                         [this, &snapshotDescription, &snapshotId,
                          &snapshotTimestamp](core::CDataAdder& persister) {

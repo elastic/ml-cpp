@@ -122,6 +122,14 @@ void CResourceMonitor::forceRefresh(CMonitoredResource& resource) {
     this->updateAllowAllocations();
 }
 
+void CResourceMonitor::forceRefreshAll() {
+    for (auto& resource : m_Resources) {
+        this->memUsage(resource.first);
+    }
+
+    this->updateAllowAllocations();
+}
+
 void CResourceMonitor::updateAllowAllocations() {
     std::size_t total{this->totalMemory()};
     core::CProgramCounters::counter(counter_t::E_TSADMemoryUsage) = total;
