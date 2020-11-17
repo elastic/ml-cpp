@@ -418,6 +418,10 @@ void BICGain(maths_t::EDataType dataType,
 //! \param[in,out] category The category to Winsorise.
 void winsorise(const TDoubleDoublePr& interval, TTuple& category) {
 
+    if (CBasicStatistics::maximumLikelihoodVariance(category) < 0.0) {
+        CBasicStatisticcs::moment<1>(category) = 0.0;
+    }
+
     double a = interval.first;
     double b = interval.second;
     double m = CBasicStatistics::mean(category);
@@ -432,7 +436,7 @@ void winsorise(const TDoubleDoublePr& interval, TTuple& category) {
     }
 
     try {
-        boost::math::normal_distribution<> normal(m, sigma);
+        boost::math::normal normal(m, sigma);
         double pa = xa > t ? 0.0 : CTools::safeCdf(normal, a);
         double pb = xb > t ? 0.0 : CTools::safeCdfComplement(normal, b);
 
@@ -456,8 +460,8 @@ void winsorise(const TDoubleDoublePr& interval, TTuple& category) {
 
         double n = CBasicStatistics::count(category);
 
-        category.s_Moments[0] = wm;
-        category.s_Moments[1] = std::max((n - 1.0) / n * wv, 0.0);
+        CBasicStatistics::moment<0>(category) = wm;
+        CBasicStatistics::moment<1>(category) = std::max((n - 1.0) / n * wv, 0.0);
     } catch (const std::exception& e) {
         LOG_ERROR(<< "Bad category = " << category << ": " << e.what());
     }
