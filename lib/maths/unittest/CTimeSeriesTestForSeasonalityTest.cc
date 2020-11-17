@@ -1260,7 +1260,6 @@ BOOST_AUTO_TEST_CASE(testNewComponentInitialValuesWithPiecewiseLinearScaling) {
 
         maths::CTimeSeriesTestForSeasonality seasonality{startTime, startTime, HOUR, values};
         auto result = seasonality.decompose();
-        LOG_DEBUG(<< core::CContainerPrinter::print(result.seasonal()));
         BOOST_REQUIRE_EQUAL(1, result.seasonal().size());
         const auto& seasonal = result.seasonal()[0].initialValues();
         for (std::size_t i = 0; i < seasonal.size(); ++i) {

@@ -863,18 +863,21 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
     auto majorityScale = [](const TSizeVec& segmentation, const TDoubleVec& scales) {
         TMeanVarAccumulator result;
         std::size_t included{0};
-        std::size_t majority{(segmentation.back() - segmentation.front()) / 2 + 1};
+        std::size_t majority{2 * (segmentation.back() - segmentation.front()) / 3 + 1};
         for (double last{-1.0}, max{*std::max_element(scales.begin(), scales.end())};
              included < majority;
              /**/) {
             double min{max};
             std::size_t count{0};
             for (std::size_t i = 0; i < scales.size(); ++i) {
-                if (scales[i] > last && scales[i] <= min) {
+                if (scales[i] > last && scales[i] < min) {
                     min = scales[i];
+                    count = segmentation[i + 1] - segmentation[i];
+                } else if (scales[i] > last && scales[i] == min) {
                     count += segmentation[i + 1] - segmentation[i];
                 }
             }
+            last = min;
             result.add(min, static_cast<double>(count));
             included += count;
         }
