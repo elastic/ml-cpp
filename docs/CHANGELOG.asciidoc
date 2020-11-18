@@ -43,6 +43,10 @@
 * Estimate upper bound of potential gains before splitting a decision tree node to avoid 
   unnecessary computation. (See {ml-pull}1537[#1537].)
 
+=== Bug Fixes
+
+* Fix potential cause for log errors from CXMeansOnline1d. (See {ml-pull}1586[#1586].)
+
 == {es} version 7.10.1
 
 === Bug Fixes
