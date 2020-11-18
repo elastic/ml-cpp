@@ -222,12 +222,7 @@ void CExpandingWindow::add(core_t::TTime time, double value, double prediction, 
             m_WithinBucketVariance = TMeanVarAccumulator{};
             m_BucketIndex = index;
         }
-        double residual{value - prediction};
-        if (CBasicStatistics::count(m_AverageWithinBucketVariance) < 20.0 ||
-            std::fabs(residual) <
-                3.0 * std::sqrt(CBasicStatistics::mean(m_AverageWithinBucketVariance))) {
-            m_WithinBucketVariance.add(residual, weight);
-        }
+        m_WithinBucketVariance.add(value - prediction, weight);
         m_MeanOffset.add(static_cast<double>(time % m_DataBucketLength));
     }
 }
