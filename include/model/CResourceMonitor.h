@@ -102,6 +102,9 @@ public:
     //! Recalculate the memory usage regardless of whether there is a memory limit
     void forceRefresh(CMonitoredResource& resource);
 
+    //! Recalculate the memory usage for all monitored resources
+    void forceRefreshAll();
+
     //! Set the internal memory limit, as specified in a limits config file
     void memoryLimit(std::size_t limitMBs);
 
