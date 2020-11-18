@@ -185,33 +185,44 @@ decayRateControllers(std::size_t dimension) {
                                          dimension)}};
 }
 
-auto makeComponentDetectedCallback(maths::CPrior& prior,
+auto makeComponentDetectedCallback(double learnRate,
+                                   maths::CPrior& residualModel,
                                    TDecayRateController2Ary* controllers = nullptr) {
 
-    return [&prior, controllers](TFloatMeanAccumulatorVec residuals) {
+    return [learnRate, &residualModel, controllers](TFloatMeanAccumulatorVec residuals) {
 
         if (controllers != nullptr) {
-            prior.decayRate(prior.decayRate() / (*controllers)[1].multiplier());
+            residualModel.decayRate(residualModel.decayRate() /
+                                    (*controllers)[1].multiplier());
             (*controllers)[0].reset();
             (*controllers)[1].reset();
         }
 
-        prior.setToNonInformative(0.0, prior.decayRate());
+        residualModel.setToNonInformative(0.0, residualModel.decayRate());
         if (residuals.size() > 0) {
             maths_t::TDoubleWeightsAry1Vec weights(1);
+            double buckets{std::accumulate(residuals.begin(), residuals.end(), 0.0,
+                                           [](auto partialBuckets, const auto& residual) {
+                                               return partialBuckets +
+                                                      maths::CBasicStatistics::count(residual);
+                                           }) /
+                           learnRate};
+            double time{buckets / static_cast<double>(residuals.size())};
             for (const auto& residual : residuals) {
                 double weight(maths::CBasicStatistics::count(residual));
                 if (weight > 0.0) {
                     weights[0] = maths_t::countWeight(weight);
-                    prior.addSamples({maths::CBasicStatistics::mean(residual)}, weights);
+                    residualModel.addSamples({maths::CBasicStatistics::mean(residual)}, weights);
+                    residualModel.propagateForwardsByTime(time);
                 }
             }
         }
     };
 }
 
-void reinitializeResidualModel(TDecompositionPtr10Vec& trends,
-                               maths::CMultivariatePrior& prior,
+void reinitializeResidualModel(double learnRate,
+                               TDecompositionPtr10Vec& trends,
+                               maths::CMultivariatePrior& residualModel,
                                TDecayRateController2Ary* controllers = nullptr) {
 
     using TFloatMeanAccumulatorVecVec = std::vector<TFloatMeanAccumulatorVec>;
@@ -220,14 +231,14 @@ void reinitializeResidualModel(TDecompositionPtr10Vec& trends,
         for (auto& trend : trends) {
             trend->decayRate(trend->decayRate() / (*controllers)[0].multiplier());
         }
-        prior.decayRate(prior.decayRate() / (*controllers)[1].multiplier());
+        residualModel.decayRate(residualModel.decayRate() / (*controllers)[1].multiplier());
         (*controllers)[0].reset();
         (*controllers)[1].reset();
     }
 
-    prior.setToNonInformative(0.0, prior.decayRate());
+    residualModel.setToNonInformative(0.0, residualModel.decayRate());
 
-    std::size_t dimension{prior.dimension()};
+    std::size_t dimension{residualModel.dimension()};
     TFloatMeanAccumulatorVecVec residuals(dimension);
     for (std::size_t d = 0; d < dimension; ++d) {
         residuals[d] = trends[d]->residuals();
@@ -235,9 +246,18 @@ void reinitializeResidualModel(TDecompositionPtr10Vec& trends,
     if (residuals.size() > 0) {
         TDouble10Vec1Vec samples;
         TDoubleVec weights;
+        double time{0.0};
         for (std::size_t d = 0; d < dimension; ++d) {
             samples.resize(residuals[d].size(), TDouble10Vec(dimension));
             weights.resize(residuals[d].size(), std::numeric_limits<double>::max());
+            double buckets{
+                std::accumulate(residuals[d].begin(), residuals[d].end(), 0.0,
+                                [](auto partialBuckets, const auto& residual) {
+                                    return partialBuckets +
+                                           maths::CBasicStatistics::count(residual);
+                                }) /
+                learnRate};
+            time += buckets / static_cast<double>(residuals.size());
             for (std::size_t i = 0; i < residuals[d].size(); ++i) {
                 samples[i][d] = maths::CBasicStatistics::mean(residuals[d][i]);
                 weights[i] = std::min(
@@ -245,12 +265,14 @@ void reinitializeResidualModel(TDecompositionPtr10Vec& trends,
                     static_cast<double>(maths::CBasicStatistics::count(residuals[d][i])));
             }
         }
+        time /= static_cast<double>(dimension);
 
         maths_t::TDouble10VecWeightsAry1Vec weight(1);
         for (std::size_t i = 0; i < samples.size(); ++i) {
             if (weights[i] > 0.0) {
                 weight[0] = maths_t::countWeight(weights[i], dimension);
-                prior.addSamples({samples[i]}, weight);
+                residualModel.addSamples({samples[i]}, weight);
+                residualModel.propagateForwardsByTime(time);
             }
         }
     }
@@ -430,9 +452,10 @@ BOOST_AUTO_TEST_CASE(testMode) {
         TDoubleVec samples;
         rng.generateNormalSamples(1.0, 4.0, 1000, samples);
 
-        maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
+        auto params = modelParams(bucketLength);
+        maths::CTimeSeriesDecomposition trend{48.0 * DECAY_RATE, bucketLength};
         maths::CNormalMeanPrecConjugate prior{univariateNormal()};
-        maths::CUnivariateTimeSeriesModel model{modelParams(bucketLength), 0, trend, prior};
+        maths::CUnivariateTimeSeriesModel model{params, 0, trend, prior};
 
         core_t::TTime time{0};
         for (auto& sample : samples) {
@@ -445,13 +468,10 @@ BOOST_AUTO_TEST_CASE(testMode) {
 
         time = 0;
         for (auto sample : samples) {
-
             model.addSamples(addSampleParams(unit),
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
-
             trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
-                           makeComponentDetectedCallback(prior));
-
+                           makeComponentDetectedCallback(params.learnRate(), prior));
             prior.addSamples({trend.detrend(time, sample, 0.0)},
                              maths_t::CUnitWeights::SINGLE_UNIT);
             prior.propagateForwardsByTime(1.0);
@@ -524,13 +544,13 @@ BOOST_AUTO_TEST_CASE(testMode) {
         TDoubleVecVec samples;
         rng.generateMultivariateNormalSamples(mean, covariance, 1000, samples);
 
+        auto params = modelParams(bucketLength);
         TDecompositionPtr10Vec trends{
             TDecompositionPtr{new maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}},
             TDecompositionPtr{new maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}},
             TDecompositionPtr{new maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}}};
         maths::CMultivariateNormalConjugate<3> prior{multivariateNormal()};
-        maths::CMultivariateTimeSeriesModel model{modelParams(bucketLength),
-                                                  *trends[0], prior};
+        maths::CMultivariateTimeSeriesModel model{params, *trends[0], prior};
 
         core_t::TTime time{0};
         for (auto& sample : samples) {
@@ -561,7 +581,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
                 detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0);
             }
             if (reinitialize) {
-                reinitializeResidualModel(trends, prior);
+                reinitializeResidualModel(params.learnRate(), trends, prior);
             }
 
             prior.addSamples(detrended,
@@ -619,7 +639,7 @@ BOOST_AUTO_TEST_CASE(testAddBucketValue) {
     BOOST_REQUIRE_EQUAL(prior.checksum(), model.residualModel().checksum());
 }
 
-BOOST_AUTO_TEST_CASE(testAddSamples, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testAddSamples) {
     // Test: 1) Test multiple samples
     //       2) Test propagation interval
     //       3) Test decay rate control
@@ -793,11 +813,11 @@ BOOST_AUTO_TEST_CASE(testAddSamples, *boost::unit_test::disabled()) {
 
     LOG_DEBUG(<< "Decay rate control univariate");
     {
+        auto params = modelParams(bucketLength);
         maths::CTimeSeriesDecomposition trend{DECAY_RATE, bucketLength};
         maths::CNormalMeanPrecConjugate prior{univariateNormal()};
         auto controllers = decayRateControllers(1);
-        maths::CUnivariateTimeSeriesModel model(modelParams(bucketLength), 1,
-                                                trend, prior, &controllers);
+        maths::CUnivariateTimeSeriesModel model(params, 1, trend, prior, &controllers);
 
         TDoubleVec samples;
         rng.generateNormalSamples(1.0, 4.0, 2000, samples);
@@ -816,7 +836,8 @@ BOOST_AUTO_TEST_CASE(testAddSamples, *boost::unit_test::disabled()) {
             model.addSamples(addSampleParams(weights), sample_);
 
             trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
-                           makeComponentDetectedCallback(prior, &controllers));
+                           makeComponentDetectedCallback(params.learnRate(),
+                                                         prior, &controllers));
 
             double detrended{trend.detrend(time, sample, 0.0)};
             prior.addSamples({detrended}, maths_t::CUnitWeights::SINGLE_UNIT);
@@ -849,14 +870,14 @@ BOOST_AUTO_TEST_CASE(testAddSamples, *boost::unit_test::disabled()) {
 
     LOG_DEBUG(<< "Decay rate control multivariate");
     {
+        auto params = modelParams(bucketLength);
         TDecompositionPtr10Vec trends{
             TDecompositionPtr{new maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}},
             TDecompositionPtr{new maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}},
             TDecompositionPtr{new maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}}};
         maths::CMultivariateNormalConjugate<3> prior{multivariateNormal()};
         auto controllers = decayRateControllers(3);
-        maths::CMultivariateTimeSeriesModel model{modelParams(bucketLength),
-                                                  *trends[0], prior, &controllers};
+        maths::CMultivariateTimeSeriesModel model{params, *trends[0], prior, &controllers};
 
         TDoubleVecVec samples;
         {
@@ -898,7 +919,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples, *boost::unit_test::disabled()) {
             }
 
             if (reinitialize) {
-                reinitializeResidualModel(trends, prior, &controllers);
+                reinitializeResidualModel(params.learnRate(), trends, prior, &controllers);
             }
 
             prior.addSamples(detrended,
@@ -938,7 +959,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples, *boost::unit_test::disabled()) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testPredict, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testPredict) {
     // Test prediction with a trend and with multimodal data.
 
     core_t::TTime bucketLength{600};
@@ -947,11 +968,10 @@ BOOST_AUTO_TEST_CASE(testPredict, *boost::unit_test::disabled()) {
 
     LOG_DEBUG(<< "Univariate seasonal");
     {
-        maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
+        auto params = modelParams(bucketLength);
+        maths::CTimeSeriesDecomposition trend{48.0 * DECAY_RATE, bucketLength};
         maths::CNormalMeanPrecConjugate prior{univariateNormal()};
-        auto controllers = decayRateControllers(1);
-        maths::CUnivariateTimeSeriesModel model{modelParams(bucketLength), 0,
-                                                trend, prior, &controllers};
+        maths::CUnivariateTimeSeriesModel model{params, 0, trend, prior};
 
         TDoubleVec samples;
         rng.generateNormalSamples(0.0, 4.0, 1008, samples);
@@ -965,7 +985,7 @@ BOOST_AUTO_TEST_CASE(testPredict, *boost::unit_test::disabled()) {
                              {core::make_triple(time, TDouble2Vec{sample}, TAG)});
 
             trend.addPoint(time, sample, maths_t::CUnitWeights::UNIT,
-                           makeComponentDetectedCallback(prior));
+                           makeComponentDetectedCallback(params.learnRate(), prior));
 
             prior.addSamples({trend.detrend(time, sample, 0.0)},
                              maths_t::CUnitWeights::SINGLE_UNIT);
@@ -984,13 +1004,12 @@ BOOST_AUTO_TEST_CASE(testPredict, *boost::unit_test::disabled()) {
             double predicted{model.predict(time_)[0]};
             LOG_DEBUG(<< "expected = " << expected << " predicted = " << predicted
                       << " (trend = " << trend_ << ")");
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, predicted, 1e-3 * expected);
-            BOOST_TEST_REQUIRE(std::fabs(trend_ - predicted) / trend_ < 0.35);
-            meanError.add(std::fabs(trend_ - predicted) / trend_);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, predicted, 1e-3 * std::fabs(expected));
+            meanError.add(std::fabs(trend_ - predicted) / 10.0);
         }
 
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.06);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.07);
     }
 
     LOG_DEBUG(<< "Univariate nearest mode");
@@ -1034,13 +1053,14 @@ BOOST_AUTO_TEST_CASE(testPredict, *boost::unit_test::disabled()) {
 
     LOG_DEBUG(<< "Multivariate Seasonal");
     {
+        auto params = modelParams(bucketLength);
         TDecompositionPtr10Vec trends{
-            TDecompositionPtr{new maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}},
-            TDecompositionPtr{new maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}},
-            TDecompositionPtr{new maths::CTimeSeriesDecomposition{24.0 * DECAY_RATE, bucketLength}}};
+            TDecompositionPtr{new maths::CTimeSeriesDecomposition{48.0 * DECAY_RATE, bucketLength}},
+            TDecompositionPtr{new maths::CTimeSeriesDecomposition{48.0 * DECAY_RATE, bucketLength}},
+            TDecompositionPtr{new maths::CTimeSeriesDecomposition{48.0 * DECAY_RATE, bucketLength}}};
         maths::CMultivariateNormalConjugate<3> prior{multivariateNormal()};
-        maths::CMultivariateTimeSeriesModel model{maths::CMultivariateTimeSeriesModel{
-            modelParams(bucketLength), *trends[0], prior}};
+        maths::CMultivariateTimeSeriesModel model{
+            maths::CMultivariateTimeSeriesModel{params, *trends[0], prior}};
 
         TDoubleVecVec samples;
         TDoubleVec mean{0.0, 2.0, 1.0};
@@ -1051,8 +1071,8 @@ BOOST_AUTO_TEST_CASE(testPredict, *boost::unit_test::disabled()) {
         core_t::TTime time{0};
         for (auto& sample : samples) {
             for (auto& coordinate : sample) {
-                coordinate += 10.0 + 5.0 * std::sin(boost::math::double_constants::two_pi *
-                                                    static_cast<double>(time) / 86400.0);
+                coordinate += 10.0 + 10.0 * std::sin(boost::math::double_constants::two_pi *
+                                                     static_cast<double>(time) / 86400.0);
             }
 
             model.addSamples(addSampleParams(weights),
@@ -1069,7 +1089,7 @@ BOOST_AUTO_TEST_CASE(testPredict, *boost::unit_test::disabled()) {
                 detrended.push_back(trends[i]->detrend(time, sample[i], 0.0));
             }
             if (reinitialize) {
-                reinitializeResidualModel(trends, prior);
+                reinitializeResidualModel(params.learnRate(), trends, prior);
             }
 
             prior.addSamples({detrended},
@@ -1085,8 +1105,8 @@ BOOST_AUTO_TEST_CASE(testPredict, *boost::unit_test::disabled()) {
             maths::CMultivariatePrior::TSizeDoublePr10Vec condition;
             for (std::size_t i = 0u; i < mean.size(); ++i) {
                 double trend_{mean[i] + 10.0 +
-                              5.0 * std::sin(boost::math::double_constants::two_pi *
-                                             static_cast<double>(time_) / 86400.0)};
+                              10.0 * std::sin(boost::math::double_constants::two_pi *
+                                              static_cast<double>(time_) / 86400.0)};
                 maths::CMultivariatePrior::TUnivariatePriorPtr margin{
                     prior.univariate(marginalize, condition).first};
                 double expected{maths::CBasicStatistics::mean(trends[i]->value(time_)) +
@@ -1097,13 +1117,12 @@ BOOST_AUTO_TEST_CASE(testPredict, *boost::unit_test::disabled()) {
                 LOG_DEBUG(<< "expected = " << expected << " predicted = " << predicted
                           << " (trend = " << trend_ << ")");
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expected, predicted, 1e-3 * expected);
-                BOOST_TEST_REQUIRE(std::fabs(trend_ - predicted) / trend_ < 0.35);
-                meanError.add(std::fabs(trend_ - predicted) / trend_);
+                meanError.add(std::fabs(trend_ - predicted) / 10.0);
             }
         }
 
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.06);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.07);
     }
 
     LOG_DEBUG(<< "Multivariate nearest mode");
@@ -2060,7 +2079,7 @@ BOOST_AUTO_TEST_CASE(testAnomalyModel) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities) {
     // Test reinitialization of the residual model after detecting a
     // step change.
     //
@@ -2111,7 +2130,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities, *boost::unit_test::disabled(
     }
     LOG_DEBUG(<< "Univariate: Piecewise Constant");
     {
-        core_t::TTime bucketLength{600};
+        core_t::TTime bucketLength{1800};
         maths::CTimeSeriesDecomposition trend{24.0 * DECAY_RATE, bucketLength};
         auto controllers = decayRateControllers(1);
         maths::CUnivariateTimeSeriesModel model{modelParams(bucketLength), 0, trend,
@@ -2165,11 +2184,11 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities, *boost::unit_test::disabled(
         };
 
         std::string m;
-        model.forecast(0, time, time, time + 800 * bucketLength, 90.0,
-                       {-1000.0}, {1000.0}, pushErrorBar, m);
+        model.forecast(0, time, time, time + expected.size() * bucketLength,
+                       90.0, {-1000.0}, {1000.0}, pushErrorBar, m);
 
         double outOfBounds{0.0};
-        for (std::size_t i = 0u; i < forecast.size(); ++i) {
+        for (std::size_t i = 0; i < forecast.size(); ++i) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expected[i], forecast[i][1], 0.1 * expected[i]);
             outOfBounds += static_cast<double>(expected[i] < forecast[i][0] ||
                                                expected[i] > forecast[i][2]);
@@ -2206,7 +2225,7 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities, *boost::unit_test::disabled(
         }
         for (auto slope : {0.042}) {
             value = 5.0;
-            for (std::size_t i = 0u; i < 1500; ++i) {
+            for (std::size_t i = 0; i < 1500; ++i) {
                 rng.generateNormalSamples(0.0, 2.0, 1, noise);
                 updateModel(time, value + noise[0], model);
                 debug.addValueAndPrediction(time, value + noise[0], model);
@@ -2238,18 +2257,18 @@ BOOST_AUTO_TEST_CASE(testStepChangeDiscontinuities, *boost::unit_test::disabled(
         };
 
         std::string m;
-        model.forecast(0, time, time, time + 2000 * bucketLength, 90.0,
-                       {-1000.0}, {1000.0}, pushErrorBar, m);
+        model.forecast(0, time, time, time + expected.size() * bucketLength,
+                       90.0, {-1000.0}, {1000.0}, pushErrorBar, m);
 
         double outOfBounds{0.0};
-        for (std::size_t i = 0u; i < forecast.size(); ++i) {
+        for (std::size_t i = 0; i < forecast.size(); ++i) {
             outOfBounds += static_cast<double>(expected[i] < forecast[i][0] ||
                                                expected[i] > forecast[i][2]);
         }
         double percentageOutOfBounds{100.0 * outOfBounds /
                                      static_cast<double>(forecast.size())};
         LOG_DEBUG(<< "% out-of-bounds = " << percentageOutOfBounds);
-        BOOST_TEST_REQUIRE(percentageOutOfBounds < 5.0);
+        BOOST_TEST_REQUIRE(percentageOutOfBounds < 6.0);
     }
 }
 
@@ -2327,13 +2346,13 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
         debug.addValueAndPrediction(time, sample, model);
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 4.1 * std::sqrt(noiseVariance));
-        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 4.2 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 4.2 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 4.3 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 }
 
-BOOST_AUTO_TEST_CASE(testDaylightSaving, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testDaylightSaving) {
     // Test we detect daylight saving time shifts.
 
     TDouble2VecWeightsAryVec trendWeights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
@@ -2385,8 +2404,8 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving, *boost::unit_test::disabled()) {
         BOOST_REQUIRE_EQUAL(hour, model.trendModel().timeShift());
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 3.7 * std::sqrt(noiseVariance));
-        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.9 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 3.8 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.5 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 
@@ -2407,9 +2426,8 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving, *boost::unit_test::disabled()) {
         BOOST_REQUIRE_EQUAL(core_t::TTime(0), model.trendModel().timeShift());
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        // TODO improve seasonality testing with time shift.
-        //BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 4.1 * std::sqrt(noiseVariance));
-        //BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.9 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 3.3 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.5 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 }

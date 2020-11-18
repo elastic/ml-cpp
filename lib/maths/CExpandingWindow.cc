@@ -173,7 +173,7 @@ void CExpandingWindow::propagateForwardsByTime(double time) {
     m_BufferedTimeToPropagate += time;
 }
 
-void CExpandingWindow::add(core_t::TTime time, double value, double weight) {
+void CExpandingWindow::add(core_t::TTime time, double value, double prediction, double weight) {
     if (time >= m_StartTime) {
         if (this->needToCompress(time)) {
             CScopeInflate inflate(*this, true);
@@ -222,7 +222,7 @@ void CExpandingWindow::add(core_t::TTime time, double value, double weight) {
             m_WithinBucketVariance = TMeanVarAccumulator{};
             m_BucketIndex = index;
         }
-        m_WithinBucketVariance.add(value, weight);
+        m_WithinBucketVariance.add(value - prediction, weight);
         m_MeanOffset.add(static_cast<double>(time % m_DataBucketLength));
     }
 }

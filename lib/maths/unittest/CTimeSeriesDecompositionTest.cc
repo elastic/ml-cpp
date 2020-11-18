@@ -792,7 +792,7 @@ BOOST_FIXTURE_TEST_CASE(testSeasonalOnset, CTestFixture) {
     LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.09 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.10 * totalSumValue);
     BOOST_TEST_REQUIRE(totalMaxResidual < 0.11 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.05 * totalSumValue);
 }
@@ -2038,7 +2038,6 @@ BOOST_FIXTURE_TEST_CASE(testRemoveSeasonal, CTestFixture) {
                                            1);
     CDebugGenerator debug;
 
-    TMeanAccumulator errors[4];
     TDoubleVec noise;
     for (core_t::TTime time = 0; time < 20 * WEEK; time += FIVE_MINS) {
         rng.generateNormalSamples(0.0, 1.0, 1, noise);

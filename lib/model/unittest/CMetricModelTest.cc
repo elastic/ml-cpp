@@ -1919,7 +1919,7 @@ BOOST_FIXTURE_TEST_CASE(testSummaryCountZeroRecordsAreIgnored, CTestFixture) {
     BOOST_REQUIRE_EQUAL(modelWithZeros.checksum(), modelNoZeros.checksum());
 }
 
-BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture, *boost::unit_test::disabled()) {
+BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
     core_t::TTime startTime = 0;
     core_t::TTime bucketLength = 1800;
 
@@ -2111,7 +2111,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture, *boost::unit_test::d
         LOG_DEBUG(<< "reference = "
                   << maths::CBasicStatistics::mean(meanReferencePredictionError));
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanPredictionError) <
-                           0.80 * maths::CBasicStatistics::mean(meanReferencePredictionError));
+                           0.85 * maths::CBasicStatistics::mean(meanReferencePredictionError));
     }
 }
 

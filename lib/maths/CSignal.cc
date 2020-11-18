@@ -623,7 +623,7 @@ CSignal::tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
     auto weekendHypothesis = residualVarianceStats(temporaryValues, weekendPeriods,
                                                    temporaryComponents);
     double pValue{CTools::oneMinusPowOneMinusX(
-        std::min(pValue, nestedDecompositionPValue(dailyHypothesis, weekendHypothesis)),
+        nestedDecompositionPValue(dailyHypothesis, weekendHypothesis),
         0.5 * static_cast<double>(week))};
     weekendPeriods.emplace_back(day, startOfWeek, week, TSizeSizePr{0 * day, 2 * day});
     weekendPeriods.emplace_back(week, startOfWeek, week, TSizeSizePr{2 * day, 7 * day});

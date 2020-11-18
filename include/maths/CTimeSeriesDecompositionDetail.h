@@ -211,7 +211,6 @@ public:
     class MATHS_EXPORT CChangePointTest : public CHandler {
     public:
         static constexpr core_t::TTime MINIMUM_WINDOW_BUCKET_LENGTH = core::constants::HOUR;
-        static constexpr std::size_t WINDOW_SIZE = 96;
 
     public:
         CChangePointTest(double decayRate, core_t::TTime bucketLength);
@@ -289,6 +288,9 @@ public:
         //! The length of the window buckets.
         core_t::TTime windowBucketLength() const;
 
+        //! Get the window size to use.
+        std::size_t windowSize() const;
+
     private:
         //! The state machine.
         core::CStateMachine m_Machine;
@@ -345,7 +347,7 @@ public:
         //! Update the test with a new value.
         void handle(const SAddValue& message) override;
 
-        //! Reset the test.
+        //! Sample the prediction residuals.
         void handle(const SDetectedTrend& message) override;
 
         //! Test to see whether any seasonal components are present.

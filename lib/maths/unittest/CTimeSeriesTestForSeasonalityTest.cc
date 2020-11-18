@@ -1146,8 +1146,8 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange) {
 
     LOG_DEBUG(<< "recall = " << TP / (TP + FN));
     LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
-    BOOST_REQUIRE(TP / (TP + FN) > 0.96);
-    BOOST_REQUIRE(TP / (TP + FP) > 0.93);
+    BOOST_REQUIRE(TP / (TP + FN) > 0.92);
+    BOOST_REQUIRE(TP / (TP + FP) > 0.85);
 }
 
 BOOST_AUTO_TEST_CASE(testNewComponentInitialValues) {
@@ -1260,7 +1260,6 @@ BOOST_AUTO_TEST_CASE(testNewComponentInitialValuesWithPiecewiseLinearScaling) {
 
         maths::CTimeSeriesTestForSeasonality seasonality{startTime, startTime, HOUR, values};
         auto result = seasonality.decompose();
-
         BOOST_REQUIRE_EQUAL(1, result.seasonal().size());
         const auto& seasonal = result.seasonal()[0].initialValues();
         for (std::size_t i = 0; i < seasonal.size(); ++i) {
@@ -1363,7 +1362,7 @@ BOOST_AUTO_TEST_CASE(testNewTrendSummaryPiecewiseLinearTrend) {
     TFloatMeanAccumulator meanError;
 
     for (std::size_t test = 0; test < 10; ++test) {
-        LOG_DEBUG(<< "test " << test + 1 << " / 20");
+        LOG_DEBUG(<< "test " << test + 1 << " / 10");
 
         core_t::TTime endTime{startTime + 4 * WEEK};
 

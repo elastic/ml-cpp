@@ -19,17 +19,19 @@
 #include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CLinearAlgebra.h>
+#include <maths/CNaiveBayes.h>
 #include <maths/CSampling.h>
 #include <maths/CStatisticalTests.h>
 #include <maths/CTools.h>
 
 #include <boost/math/distributions/chi_squared.hpp>
 #include <boost/math/distributions/normal.hpp>
-#include <boost/range.hpp>
 
+#include <algorithm>
 #include <cmath>
 #include <exception>
 #include <numeric>
+#include <tuple>
 
 namespace ml {
 namespace maths {
@@ -37,7 +39,7 @@ namespace {
 using TDoubleDoublePr = std::pair<double, double>;
 
 const double TIME_SCALES[]{144.0, 72.0, 36.0, 12.0, 4.0, 1.0, 0.25, 0.05};
-const std::size_t NUMBER_MODELS{boost::size(TIME_SCALES)};
+const std::size_t NUMBER_MODELS{std::size(TIME_SCALES)};
 const double MINIMUM_WEIGHT_TO_USE_MODEL_FOR_PREDICTION{0.01};
 const double MODEL_MSE_DECREASE_SIGNFICANT{0.05};
 const double MAX_CONDITION{1e12};
@@ -53,8 +55,8 @@ double modelWeight(double targetDecayRate, double modelDecayRate) {
                      std::max(targetDecayRate, modelDecayRate);
 }
 
-//! We scale the time used for the regression model to improve
-//! the condition of the design matrix.
+//! We scale the time used for the regression model to improve the condition
+//! of the design matrix.
 double scaleTime(core_t::TTime time, core_t::TTime origin) {
     return static_cast<double>(time - origin) / static_cast<double>(core::constants::WEEK);
 }
@@ -236,14 +238,46 @@ void CTrendComponent::shiftLevel(double shift) {
     }
 }
 
-void CTrendComponent::shiftLevel(core_t::TTime time, double value, double shift) {
+void CTrendComponent::shiftLevel(double shift,
+                                 core_t::TTime valuesStartTime,
+                                 core_t::TTime bucketLength,
+                                 const TFloatMeanAccumulatorVec& values,
+                                 const TSizeVec& segments,
+                                 const TDoubleVec& shifts) {
     this->shiftLevel(shift);
+
+    auto indexTime = [&](std::size_t i) {
+        return valuesStartTime + bucketLength * static_cast<core_t::TTime>(i);
+    };
+
+    // If the last change is in the values' time window the next change
+    // is the first one after the closest. Otherwise, it is the first
+    // change.
+    auto next = std::min(
+        static_cast<std::size_t>(
+            m_TimeOfLastLevelChange < valuesStartTime
+                ? 1
+                : std::min_element(segments.begin() + 1, segments.end() - 1,
+                                   [&](auto lhs, auto rhs) {
+                                       return std::abs(indexTime(lhs) - m_TimeOfLastLevelChange) <
+                                              std::abs(indexTime(rhs) - m_TimeOfLastLevelChange);
+                                   }) -
+                      segments.begin() + 1),
+        segments.size() - 2);
+
+    std::size_t last{shifts.size() - 1};
+    core_t::TTime time{valuesStartTime + static_cast<core_t::TTime>(segments[last]) * bucketLength};
+    double magnitude{shifts[last] - shifts[next - 1]};
     if (m_TimeOfLastLevelChange != UNSET_TIME) {
         double dt{static_cast<double>(time - m_TimeOfLastLevelChange)};
+        double value{static_cast<double>(CBasicStatistics::mean(values[segments[next] - 1]))};
         m_ProbabilityOfLevelChangeModel.addTrainingDataPoint(LEVEL_CHANGE_LABEL,
                                                              {{dt}, {value}});
     }
-    m_MagnitudeOfLevelChangeModel.addSamples({shift}, maths_t::CUnitWeights::SINGLE_UNIT);
+    for (std::size_t i = segments[last]; i < values.size(); ++i, time += bucketLength) {
+        this->dontShiftLevel(time, CBasicStatistics::mean(values[i]));
+    }
+    m_MagnitudeOfLevelChangeModel.addSamples({magnitude}, maths_t::CUnitWeights::SINGLE_UNIT);
     m_TimeOfLastLevelChange = time;
 }
 
@@ -415,7 +449,8 @@ core_t::TTime CTrendComponent::maximumForecastInterval() const {
 }
 
 CTrendComponent::TDoubleDoublePr CTrendComponent::variance(double confidence) const {
-    if (!this->initialized()) {
+
+    if (this->initialized() == false) {
         return {0.0, 0.0};
     }
 
@@ -527,7 +562,7 @@ void CTrendComponent::forecast(core_t::TTime startTime,
         double qu;
         double variance{a * CBasicStatistics::mean(variance_) +
                         b * CBasicStatistics::variance(m_ValueMoments)};
-        boost::tie(ql, qu) = confidenceInterval(0.0, variance, confidence);
+        std::tie(ql, qu) = confidenceInterval(0.0, variance, confidence);
 
         writer(time, {level_[0] + seasonal_[0] + prediction + ql,
                       level_[1] + seasonal_[1] + prediction,
@@ -543,7 +578,7 @@ double CTrendComponent::parameters() const {
     return static_cast<double>(TRegression::N);
 }
 
-uint64_t CTrendComponent::checksum(uint64_t seed) const {
+std::uint64_t CTrendComponent::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_TargetDecayRate);
     seed = CChecksum::calculate(seed, m_FirstUpdate);
     seed = CChecksum::calculate(seed, m_LastUpdate);
@@ -718,7 +753,7 @@ bool CTrendComponent::SModel::acceptRestoreTraverser(core::CStateRestoreTraverse
     return true;
 }
 
-uint64_t CTrendComponent::SModel::checksum(uint64_t seed) const {
+std::uint64_t CTrendComponent::SModel::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, s_Weight);
     seed = CChecksum::calculate(seed, s_Regression);
     return CChecksum::calculate(seed, s_Mse);

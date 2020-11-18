@@ -61,7 +61,7 @@ CTimeSeriesSegmentation::removePiecewiseLinear(TFloatMeanAccumulatorVec values,
         }
     }
     shifts.clear();
-    shifts.reserve(segmentation.size() - 2);
+    shifts.reserve(segmentation.size() - 1);
     for (std::size_t i = 1; i < segmentation.size(); ++i) {
         TMeanAccumulator shift;
         for (std::size_t j = segmentation[i - 1]; j < segmentation[i]; ++j) {
@@ -140,11 +140,11 @@ CTimeSeriesSegmentation::removePiecewiseLinearScaledSeasonal(TFloatMeanAccumulat
 }
 
 CTimeSeriesSegmentation::TFloatMeanAccumulatorVec
-CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(
+CTimeSeriesSegmentation::constantScalePiecewiseLinearScaledSeasonal(
     const TFloatMeanAccumulatorVec& values,
     const TSeasonalComponentVec& periods,
     const TSizeVec& segmentation,
-    const TIndexWeight& indexWeight,
+    const TConstantScale& constantScale,
     double outlierFraction,
     TDoubleVecVec& models,
     TDoubleVec& scales) {
@@ -155,10 +155,11 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(
     fitPiecewiseLinearScaledSeasonal(values, periods, segmentation, outlierFraction,
                                      scaledValues, models, scales);
     LOG_TRACE(<< "models = " << core::CContainerPrinter::print(models));
+    LOG_TRACE(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
     LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
 
-    double scale{meanScale(segmentation, scales, indexWeight)};
-    LOG_TRACE(<< "mean scale = " << scale);
+    double scale{constantScale(segmentation, scales)};
+    LOG_TRACE(<< "scale = " << scale);
 
     scaledValues = values;
     for (std::size_t i = 0; i != values.size(); ++i) {
@@ -199,8 +200,7 @@ CTimeSeriesSegmentation::meanScalePiecewiseLinearScaledSeasonal(
 
     LOG_TRACE(<< "amplitude = " << amplitude << ", sd noise = " << noiseStandardDeviation);
 
-    if (*std::min_element(scales.begin(), scales.end()) < 0.0 ||
-        2.0 * *std::max_element(scales.begin(), scales.end()) * amplitude <= noiseStandardDeviation) {
+    if (2.0 * *std::max_element(scales.begin(), scales.end()) * amplitude <= noiseStandardDeviation) {
         return values;
     }
 
@@ -581,12 +581,12 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinearScaledSeasonal(
             double nl{CBasicStatistics::count(l[0])};
             double nr{CBasicStatistics::count(r[0])};
             double vl{CBasicStatistics::mean(l[0]) -
-                      (CBasicStatistics::mean(l[2]) == 0.0
+                      (CBasicStatistics::mean(l[1]) < 0.0 || CBasicStatistics::mean(l[2]) == 0.0
                            ? 0.0
                            : CTools::pow2(CBasicStatistics::mean(l[1])) /
                                  CBasicStatistics::mean(l[2]))};
             double vr{CBasicStatistics::mean(r[0]) -
-                      (CBasicStatistics::mean(l[2]) == 0.0
+                      (CBasicStatistics::mean(r[1]) < 0.0 || CBasicStatistics::mean(r[2]) == 0.0
                            ? 0.0
                            : CTools::pow2(CBasicStatistics::mean(r[1])) /
                                  CBasicStatistics::mean(r[2]))};
@@ -686,8 +686,9 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal(
             }
             scales[j - 1] = CBasicStatistics::mean(Z) == 0.0
                                 ? 1.0
-                                : CBasicStatistics::mean(projection) /
-                                      CBasicStatistics::mean(Z);
+                                : std::max(CBasicStatistics::mean(projection) /
+                                               CBasicStatistics::mean(Z),
+                                           0.0);
         }
     };
 
@@ -751,7 +752,7 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal(
         }
         return CBasicStatistics::mean(Z) == 0.0
                    ? 1.0
-                   : CBasicStatistics::mean(projection) / CBasicStatistics::mean(Z);
+                   : std::max(CBasicStatistics::mean(projection) / CBasicStatistics::mean(Z), 0.0);
     };
 
     auto fitSeasonalModels = [&](const TScale& scale_) {
@@ -966,9 +967,10 @@ CTimeSeriesSegmentation::centredResidualMoments(ITR begin,
             Z.add(p * p, w);
         }
     }
-    double scale{CBasicStatistics::mean(Z) == 0.0
-                     ? 1.0
-                     : CBasicStatistics::mean(projection) / CBasicStatistics::mean(Z)};
+    double scale{
+        CBasicStatistics::mean(Z) == 0.0
+            ? 1.0
+            : std::max(CBasicStatistics::mean(projection) / CBasicStatistics::mean(Z), 0.0)};
     LOG_TRACE(<< "  scale = " << scale);
 
     TMeanVarAccumulator moments;

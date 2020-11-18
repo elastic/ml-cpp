@@ -809,7 +809,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture, *boost::unit_test::disabled()) {
+BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture) {
     // Check we find the correct correlated variables, and identify
     // correlate and marginal anomalies.
 
@@ -821,10 +821,10 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture, *boost::unit_test::di
 
     const std::size_t numberBuckets{2880};
     const TDoubleVec means{20.0, 25.0, 50.0, 100.0};
-    const TDoubleVecVec covariances{{30.0, 20.0, 0.0, 0.0},
-                                    {20.0, 40.0, 0.0, 0.0},
-                                    {0.0, 0.0, 60.0, -50.0},
-                                    {0.0, 0.0, -50.0, 60.0}};
+    const TDoubleVecVec covariances{{20.0, 10.0, 0.0, 0.0},
+                                    {10.0, 30.0, 0.0, 0.0},
+                                    {0.0, 0.0, 50.0, -40.0},
+                                    {0.0, 0.0, -40.0, 50.0}};
     const TDoubleVecVec trends{
         {0.0, 0.0, 0.0,  1.0, 1.0, 2.0, 4.0, 10.0, 11.0, 10.0, 8.0, 8.0,
          7.0, 9.0, 12.0, 4.0, 3.0, 1.0, 1.0, 0.0,  0.0,  0.0,  0.0, 0.0},
@@ -858,27 +858,19 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture, *boost::unit_test::di
     BOOST_TEST_REQUIRE(model);
 
     core_t::TTime time{startTime};
-    for (std::size_t i = 0u, anomaly = 0u; i < numberBuckets; ++i) {
-        if (i % 10 == 0) {
-            LOG_DEBUG(<< i << ") processing bucket [" << time << ", "
-                      << time + bucketLength << ")");
-        }
+    for (std::size_t i = 0, anomaly = 0; i < numberBuckets; ++i) {
+        std::size_t hour1{static_cast<std::size_t>((time / 3600) % 24)};
+        std::size_t hour2{(hour1 + 1) % 24};
+        double dt{static_cast<double>(time % 3600) / 3600.0};
 
-        std::size_t hour1 = static_cast<std::size_t>((time / 3600) % 24);
-        std::size_t hour2 = (hour1 + 1) % 24;
-        double dt = static_cast<double>(time % 3600) / 3600.0;
-
-        for (std::size_t j = 0u; j < samples[i].size(); ++j) {
-            std::string person = std::string("p") +
-                                 core::CStringUtils::typeToString(j + 1);
-
-            double n = (1.0 - dt) * trends[j][hour1] + dt * trends[j][hour2] +
-                       samples[i][j];
-            if (i == anomalyBuckets[anomaly]) {
-                n += anomalies[anomaly][j];
-            }
-            n = std::max(n / 3.0, 0.0);
-            for (std::size_t k = 0u; k < static_cast<std::size_t>(n); ++k) {
+        for (std::size_t j = 0; j < samples[i].size(); ++j) {
+            std::string person{std::string("p") + core::CStringUtils::typeToString(j + 1)};
+            double n{std::max((1.0 - dt) * trends[j][hour1] +
+                                  dt * trends[j][hour2] + samples[i][j] +
+                                  (i == anomalyBuckets[anomaly] ? anomalies[anomaly][j] : 0.0),
+                              0.0) /
+                     3.0};
+            for (std::size_t k = 0; k < static_cast<std::size_t>(n); ++k) {
                 this->addArrival(SMessage(time + static_cast<core_t::TTime>(j),
                                           person, TOptionalDouble()),
                                  m_Gatherer);
@@ -889,7 +881,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture, *boost::unit_test::di
         }
         model->sample(time, time + bucketLength, m_ResourceMonitor);
 
-        for (std::size_t pid = 0u; pid < samples[i].size(); ++pid) {
+        for (std::size_t pid = 0; pid < samples[i].size(); ++pid) {
             SAnnotatedProbability p;
             CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
             BOOST_TEST_REQUIRE(model->computeProbability(
@@ -909,7 +901,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture, *boost::unit_test::di
                                {"1950,p1", "2700,p1"},
                                {"2400,p4", "2700,p4"},
                                {"2400,p3", "2700,p3"}};
-    for (std::size_t i = 0u; i < 4; ++i) {
+    for (std::size_t i = 0; i < 4; ++i) {
         LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
         TStrVec results;
         for (const auto& result : probabilities[i]) {
@@ -2547,7 +2539,7 @@ BOOST_FIXTURE_TEST_CASE(testComputeProbabilityGivenDetectionRule, CTestFixture) 
     BOOST_REQUIRE_CLOSE_ABSOLUTE(annotatedProbability.s_Probability, 1.0, 0.00001);
 }
 
-BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture, *boost::unit_test::disabled()) {
+BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
     core_t::TTime startTime{0};
     core_t::TTime bucketLength{1800};
 
@@ -2576,7 +2568,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture, *boost::unit_test::d
         this->addPerson("p1", gatherer);
 
         params.s_ControlDecayRate = false;
-        params.s_DecayRate = 0.0001;
+        params.s_DecayRate = 0.001;
         CEventRateModelFactory referenceFactory(params, interimBucketCorrector);
         referenceFactory.features(features);
         CModelFactory::TDataGathererPtr referenceGatherer{

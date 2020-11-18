@@ -1057,7 +1057,7 @@ BOOST_AUTO_TEST_CASE(testMultipleDiurnalSeasonalDecomposition) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testTradingDayDecomposition, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testTradingDayDecomposition) {
 
     // Test decomposing into weekdays/weekend with and without and override.
 
@@ -1100,8 +1100,8 @@ BOOST_AUTO_TEST_CASE(testTradingDayDecomposition, *boost::unit_test::disabled())
             }
 
             auto decomposition = maths::CSignal::tradingDayDecomposition(
-                values, 0.0, 168, startOfWeekOverride, 1e-7);
-            if (test % 4 == 0) {
+                values, 0.0, 168, startOfWeekOverride);
+            if (test % modulations.size() == 0) {
                 BOOST_REQUIRE(decomposition.empty());
             } else {
                 BOOST_REQUIRE_EQUAL(expectedDecomposition,

@@ -525,7 +525,7 @@ CTimeSeriesDecompositionDetail::CChangePointTest::CChangePointTest(double decayR
                                                                    core_t::TTime bucketLength)
     : m_Machine{core::CStateMachine::create(CD_ALPHABET, CD_STATES, CD_TRANSITION_FUNCTION, CD_TEST)},
       m_DecayRate{decayRate}, m_BucketLength{bucketLength},
-      m_Window(WINDOW_SIZE, TFloatMeanAccumulator{}),
+      m_Window(this->windowSize(), TFloatMeanAccumulator{}),
       m_LastTestTime{std::numeric_limits<core_t::TTime>::min() / 2},
       m_LastChangePointTime{std::numeric_limits<core_t::TTime>::min() / 2},
       m_LastCandidateChangePointTime{std::numeric_limits<core_t::TTime>::min() / 2} {
@@ -640,6 +640,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::test(const SAddValue& mes
     core_t::TTime time{message.s_Time};
     core_t::TTime lastTime{message.s_LastTime};
     core_t::TTime timeShift{message.s_TimeShift};
+    bool seasonal{message.s_Decomposition->seasonalComponents().size() > 0};
     const auto& makePredictor = message.s_MakePredictor;
     CTimeSeriesDecomposition& decomposition{*message.s_Decomposition};
 
@@ -651,6 +652,8 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::test(const SAddValue& mes
         });
         std::ptrdiff_t length{std::distance(begin, m_Window.end())};
 
+        int testFor{seasonal ? CTimeSeriesTestForChange::E_All
+                             : CTimeSeriesTestForChange::E_LevelShift};
         TPredictor predictor{makePredictor()};
         core_t::TTime bucketsStartTime{this->startOfWindowBucket(time) -
                                        static_cast<core_t::TTime>(length - 1) *
@@ -664,7 +667,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::test(const SAddValue& mes
                   << ", last candidate time = " << m_LastCandidateChangePointTime);
 
         CTimeSeriesTestForChange changeTest(
-            valuesStartTime - timeShift, bucketsStartTime - timeShift,
+            testFor, valuesStartTime - timeShift, bucketsStartTime - timeShift,
             this->windowBucketLength(), m_BucketLength, predictor, std::move(values));
 
         auto change = changeTest.test();
@@ -745,7 +748,8 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::apply(std::size_t symbol)
                   << CD_STATES[state]);
         switch (state) {
         case CD_TEST:
-            m_Window = TFloatMeanAccumulatorCBuf(WINDOW_SIZE, TFloatMeanAccumulator{});
+            m_Window = TFloatMeanAccumulatorCBuf(this->windowSize(),
+                                                 TFloatMeanAccumulator{});
             m_MeanOffset = TFloatMeanAccumulator{};
             m_LargeErrorFraction = 0.0;
             break;
@@ -823,6 +827,12 @@ core_t::TTime CTimeSeriesDecompositionDetail::CChangePointTest::windowLength() c
 
 core_t::TTime CTimeSeriesDecompositionDetail::CChangePointTest::windowBucketLength() const {
     return std::max(MINIMUM_WINDOW_BUCKET_LENGTH, m_BucketLength);
+}
+
+std::size_t CTimeSeriesDecompositionDetail::CChangePointTest::windowSize() const {
+    return std::max(static_cast<std::size_t>((4 * core::constants::DAY) /
+                                             this->windowBucketLength()),
+                    std::size_t{18});
 }
 
 //////// CSeasonalityTest ////////
@@ -924,8 +934,8 @@ const CSeasonalityTestParameters::TParametersVecVec CSeasonalityTestParameters::
      {900, 1, 336, {900, 3600, 7200}, {3 * 604800}},
      {1200, 1, 336, {1200, 3600, 7200}, {3 * 86400, 3 * 604800}},
      {1800, 1, 336, {1800, 3600, 7200}, {3 * 86400, 3 * 604800}},
-     {3600, 1, 336, {3600, 7200}, {3 * 86400, 3 * 604800}},
-     {7200, 1, 336, {7200, 14400}, {3 * 86400, 3 * 604800}},
+     {3600, 1, 336, {3600, 7200}, {3 * 86400, 604800, 3 * 604800}},
+     {7200, 1, 336, {7200, 14400}, {3 * 86400, 604800, 3 * 604800}},
      {14400, 1, 336, {14400}, {604800, 3 * 604800}},
      {21600, 1, 224, {21600}, {604800, 3 * 604800}},
      {28800, 1, 168, {28800}, {3 * 604800}},
@@ -1030,6 +1040,7 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::handle(const SAddValue& m
 
     core_t::TTime time{message.s_Time};
     double value{message.s_Value};
+    double prediction{message.s_Seasonal + message.s_Calendar};
     // We have explicit handling of outliers and we can't accurately assess
     // them anyway before we've detected periodicity.
     double weight{maths_t::count(message.s_Weights)};
@@ -1040,7 +1051,7 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::handle(const SAddValue& m
     case PT_TEST:
         for (auto& window : m_Windows) {
             if (window != nullptr) {
-                window->add(time, value, weight);
+                window->add(time, value, prediction, weight);
             }
         }
         break;
@@ -1081,7 +1092,6 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::test(const SAddValue& mes
 
                 auto decomposition = seasonalityTest.decompose();
                 if (decomposition.componentsChanged()) {
-                    decomposition.withinBucketVariance(window->withinBucketVariance());
                     this->mediator()->forward(
                         SDetectedSeasonal{time, lastTime, std::move(decomposition)});
                 }
@@ -1861,7 +1871,8 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilte
             return preconditioner(time, testableMask);
         });
         CTimeSeriesTestForSeasonality test{valuesStartTime, bucketStartTime,
-                                           bucketLength, std::move(values)};
+                                           bucketLength, std::move(values),
+                                           window.withinBucketVariance()};
         test.minimumPeriod(minimumPeriod)
             .minimumModelSize(2 * m_SeasonalComponentSize / 3)
             .modelledSeasonalityPredictor(predictor);
@@ -2091,10 +2102,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::shouldUseTrendForPrediction() 
     if (df0 > 0.0 && df1 > 0.0 && v0 > 0.0) {
         double relativeLogSignificance{
             CTools::fastLog(CStatisticalTests::leftTailFTest(v1 / v0, df1, df0)) /
-            LOG_COMPONENT_STATISTICALLY_SIGNIFICANCE};
-        double vt{*std::max_element(std::begin(COMPONENT_SIGNIFICANT_VARIANCE_REDUCTION),
-                                    std::end(COMPONENT_SIGNIFICANT_VARIANCE_REDUCTION)) *
-                  v0};
+            CTools::fastLog(0.001)};
+        double vt{0.6 * v0};
         double p{CTools::logisticFunction(relativeLogSignificance, 0.1, 1.0) *
                  (vt > v1 ? CTools::logisticFunction(vt / v1, 1.0, 1.0, +1.0)
                           : CTools::logisticFunction(v1 / vt, 0.1, 1.0, -1.0))};

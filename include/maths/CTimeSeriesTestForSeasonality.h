@@ -207,6 +207,7 @@ public:
                                   core_t::TTime bucketStartTime,
                                   core_t::TTime bucketLength,
                                   TFloatMeanAccumulatorVec values,
+                                  double sampleVariance = 0.0,
                                   double outlierFraction = OUTLIER_FRACTION);
 
     //! Check if it is possible to test for \p component given the window \p values.
@@ -284,7 +285,7 @@ private:
     using TMeanAccumulatorVecCRng = core::CVectorRange<const TMeanAccumulatorVecVec>;
     using TPeriodDescriptor = CNewSeasonalComponentSummary::EPeriodDescriptor;
     using TSegmentation = CTimeSeriesSegmentation;
-    using TIndexWeight = TSegmentation::TIndexWeight;
+    using TConstantScale = TSegmentation::TConstantScale;
     using TBucketPredictor = std::function<double(std::size_t)>;
     using TTransform = std::function<double(const TFloatMeanAccumulator&)>;
     using TRemoveTrend =
@@ -446,7 +447,9 @@ private:
         //! The similarity of the components after applying this hypothesis.
         double componentsSimilarity() const;
         //! The p-value of this model vs H0.
-        double pValue(const SModel& H0) const;
+        double pValue(const SModel& H0,
+                      double minimumRelativeTruncatedVariance = 0.0,
+                      double unexplainedVariance = 0.0) const;
         //! A proxy for p-value of this model vs H0 which doesn't underflow.
         double logPValueProxy(const SModel& H0) const;
         //! Get the variance explained per parameter weighted by the variance explained
@@ -520,12 +523,12 @@ private:
                                    TFloatMeanAccumulatorVec& values) const;
     void removeDiscontinuities(const TSizeVec& modelTrendSegments,
                                TFloatMeanAccumulatorVec& values) const;
-    bool meanScale(const TSeasonalComponentVec& periods,
-                   const TSizeVec& scaleSegments,
-                   TFloatMeanAccumulatorVec& values,
-                   TDoubleVecVec& components,
-                   TDoubleVec& scales,
-                   const TIndexWeight& weight = [](std::size_t) { return 1.0; }) const;
+    bool constantScale(const TConstantScale& scale,
+                       const TSeasonalComponentVec& periods,
+                       const TSizeVec& scaleSegments,
+                       TFloatMeanAccumulatorVec& values,
+                       TDoubleVecVec& components,
+                       TDoubleVec& scales) const;
     TVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values) const;
     TMeanVarAccumulator
     truncatedMoments(double outlierFraction,
@@ -587,6 +590,7 @@ private:
     core_t::TTime m_ValuesStartTime = 0;
     core_t::TTime m_BucketStartTime = 0;
     core_t::TTime m_BucketLength = 0;
+    double m_SampleVariance = 0.0;
     double m_OutlierFraction = OUTLIER_FRACTION;
     double m_EpsVariance = 0.0;
     TPredictor m_ModelledPredictor = [](core_t::TTime, const TBoolVec&) {
