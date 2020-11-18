@@ -419,7 +419,7 @@ void BICGain(maths_t::EDataType dataType,
 void winsorise(const TDoubleDoublePr& interval, TTuple& category) {
 
     if (CBasicStatistics::maximumLikelihoodVariance(category) < 0.0) {
-        CBasicStatisticcs::moment<1>(category) = 0.0;
+        CBasicStatistics::moment<1>(category) = 0.0;
     }
 
     double a = interval.first;
