@@ -235,7 +235,7 @@ private:
     using TMaxAccumulator =
         CBasicStatistics::COrderStatisticsHeap<double, std::greater<double>>;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
-    using TBucketPredictor = std::function<double(std::size_t)>;
+    using TBucketIndexPredictor = std::function<double(std::size_t)>;
     using TTransform = std::function<double(const TFloatMeanAccumulator&)>;
 
     struct SChangePoint {
@@ -258,8 +258,8 @@ private:
     SChangePoint levelShift(double varianceH0, double truncatedVarianceH0, double parametersH0) const;
     SChangePoint scale(double varianceH0, double truncatedVarianceH0, double parametersH0) const;
     SChangePoint timeShift(double varianceH0, double truncatedVarianceH0, double parametersH0) const;
-    TBucketPredictor bucketPredictor() const;
-    TPredictor bucketTimePredictor() const;
+    TBucketIndexPredictor bucketIndexPredictor() const;
+    TPredictor bucketPredictor() const;
     TMeanVarAccumulator truncatedMoments(double outlierFraction,
                                          const TFloatMeanAccumulatorVec& residuals,
                                          const TTransform& transform = mean) const;
@@ -279,7 +279,7 @@ private:
                   double parametersH1,
                   double n) const;
     double aic(const SChangePoint& change) const;
-    static TFloatMeanAccumulatorVec removePredictions(const TBucketPredictor& predictor,
+    static TFloatMeanAccumulatorVec removePredictions(const TBucketIndexPredictor& predictor,
                                                       TFloatMeanAccumulatorVec values);
     static std::size_t buckets(core_t::TTime bucketLength, core_t::TTime interval);
     static double mean(const TFloatMeanAccumulator& value) {

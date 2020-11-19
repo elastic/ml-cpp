@@ -614,7 +614,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SAddValue& m
             m_Window.push_back(TFloatMeanAccumulator{});
         }
         m_Window.back().add(value, weight);
-        m_MeanOffset.add(static_cast<double>(time - this->startOfWindowBucket(time)), weight);
+        m_MeanOffset.add(static_cast<double>(time % m_BucketLength), weight);
         m_ResidualMoments.add(value - prediction, weightForResidualMoments);
         this->updateLargeErrorFraction(time, std::fabs(value - prediction));
         this->test(message);
@@ -655,12 +655,8 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::test(const SAddValue& mes
         int testFor{seasonal ? CTimeSeriesTestForChange::E_All
                              : CTimeSeriesTestForChange::E_LevelShift};
         TPredictor predictor{makePredictor()};
-        core_t::TTime bucketsStartTime{this->startOfWindowBucket(time) -
-                                       static_cast<core_t::TTime>(length - 1) *
-                                           this->windowBucketLength()};
-        core_t::TTime valuesStartTime{
-            bucketsStartTime +
-            static_cast<core_t::TTime>(CBasicStatistics::mean(m_MeanOffset))};
+        core_t::TTime bucketsStartTime{this->bucketsStartTime(time, length)};
+        core_t::TTime valuesStartTime{this->valuesStartTime(bucketsStartTime)};
         TFloatMeanAccumulatorVec values{begin, m_Window.end()};
         LOG_TRACE(<< "buckets start time = " << bucketsStartTime
                   << ", values start time = " << valuesStartTime
@@ -814,6 +810,22 @@ core_t::TTime CTimeSeriesDecompositionDetail::CChangePointTest::minimumChangeLen
 core_t::TTime
 CTimeSeriesDecompositionDetail::CChangePointTest::maximumIntervalToDetectChange() const {
     return 3 * this->minimumChangeLength() / 2;
+}
+
+core_t::TTime
+CTimeSeriesDecompositionDetail::CChangePointTest::bucketsStartTime(core_t::TTime time,
+                                                                   core_t::TTime bucketsLength) const {
+    return this->startOfWindowBucket(time) -
+           static_cast<core_t::TTime>(bucketsLength - 1) * this->windowBucketLength();
+}
+
+core_t::TTime
+CTimeSeriesDecompositionDetail::CChangePointTest::valuesStartTime(core_t::TTime bucketsStartTime) const {
+    return (CIntegerTools::ceil(bucketsStartTime, m_BucketLength) +
+            CIntegerTools::floor(bucketsStartTime + this->windowBucketLength() - 1,
+                                 m_BucketLength)) /
+               2 +
+           (static_cast<core_t::TTime>(CBasicStatistics::mean(m_MeanOffset)));
 }
 
 core_t::TTime
@@ -1089,6 +1101,7 @@ void CTimeSeriesDecompositionDetail::CSeasonalityTest::test(const SAddValue& mes
                     CSeasonalityTestParameters::shortestComponent(i, m_BucketLength)};
                 auto seasonalityTest =
                     makeTest(*window, minimumPeriod, makePreconditioner());
+                seasonalityTest.fitAndRemoveUntestableModelledComponents();
 
                 auto decomposition = seasonalityTest.decompose();
                 if (decomposition.componentsChanged()) {
@@ -1859,20 +1872,22 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilte
     return [predictor, this](const CExpandingWindow& window, core_t::TTime minimumPeriod,
                              const TFilteredPredictor& preconditioner) {
         core_t::TTime valuesStartTime{window.beginValuesTime()};
-        core_t::TTime bucketStartTime{window.bucketStartTime()};
-        core_t::TTime bucketLength{window.bucketLength()};
+        core_t::TTime windowBucketStartTime{window.bucketStartTime()};
+        core_t::TTime windowBucketLength{window.bucketLength()};
         auto values = window.values();
         TBoolVec testableMask;
         for (const auto& component : this->seasonal()) {
             testableMask.push_back(CTimeSeriesTestForSeasonality::canTestComponent(
-                values, bucketStartTime, bucketLength, minimumPeriod, component.time()));
+                values, windowBucketStartTime, windowBucketLength,
+                minimumPeriod, component.time()));
         }
         values = window.valuesMinusPrediction(std::move(values), [&](core_t::TTime time) {
             return preconditioner(time, testableMask);
         });
-        CTimeSeriesTestForSeasonality test{valuesStartTime, bucketStartTime,
-                                           bucketLength, std::move(values),
-                                           window.withinBucketVariance()};
+        CTimeSeriesTestForSeasonality test{
+            valuesStartTime,    windowBucketStartTime,
+            windowBucketLength, m_BucketLength,
+            std::move(values),  window.withinBucketVariance()};
         test.minimumPeriod(minimumPeriod)
             .minimumModelSize(2 * m_SeasonalComponentSize / 3)
             .modelledSeasonalityPredictor(predictor);
@@ -2534,7 +2549,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::interpolate(core_t:
         core_t::TTime period{component.time().period()};
         core_t::TTime a{CIntegerTools::floor(lastTime, period)};
         core_t::TTime b{CIntegerTools::floor(time, period)};
-        if (b > a || !component.initialized()) {
+        if (b > a || component.initialized() == false) {
             component.interpolate(b, refine);
         }
     }
@@ -2653,8 +2668,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::prune(core_t::TTime
                     for (auto& component : m_Components) {
                         const CSeasonalTime& time_ = component.time();
                         auto containsWindow = [&time_](const TTimeTimePr& window) {
-                            return !(time_.windowEnd() <= window.first ||
-                                     time_.windowStart() >= window.second);
+                            return (time_.windowEnd() <= window.first ||
+                                    time_.windowStart() >= window.second) == false;
                         };
                         if (std::find_if(shifted.begin(), shifted.end(),
                                          containsWindow) == shifted.end()) {

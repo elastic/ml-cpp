@@ -95,8 +95,8 @@ public:
     //! at \p time fixed.
     void shiftSlope(core_t::TTime time, double shift);
 
-    //! Linearly scale the regressions by \p scale.
-    void linearScale(double scale);
+    //! Linearly scale the regressions by \p scale at \p time.
+    void linearScale(core_t::TTime time, double scale);
 
     //! Add the function value at \p time.
     //!

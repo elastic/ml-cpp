@@ -148,7 +148,7 @@ void CSeasonalComponentAdaptiveBucketing::initialValues(core_t::TTime startTime,
                                                         const TFloatMeanAccumulatorVec& values) {
     if (this->initialized()) {
         this->shiftOrigin(startTime);
-        if (!values.empty()) {
+        if (values.size() > 0) {
             this->CAdaptiveBucketing::initialValues(startTime, endTime, values);
             this->shiftSlope(startTime, -this->slope());
         }
@@ -186,9 +186,14 @@ void CSeasonalComponentAdaptiveBucketing::shiftSlope(core_t::TTime time, double 
     }
 }
 
-void CSeasonalComponentAdaptiveBucketing::linearScale(double scale) {
+void CSeasonalComponentAdaptiveBucketing::linearScale(core_t::TTime time, double scale) {
     for (auto& bucket : m_Buckets) {
+        double gradientBefore{gradient(bucket.s_Regression)};
         bucket.s_Regression.linearScale(scale);
+        double gradientAfter{gradient(bucket.s_Regression)};
+        bucket.s_Regression.shiftGradient(gradientBefore - gradientAfter);
+        bucket.s_Regression.shiftOrdinate(-(gradientBefore - gradientAfter) *
+                                          m_Time->regression(time));
     }
 }
 

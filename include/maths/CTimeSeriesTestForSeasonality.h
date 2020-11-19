@@ -88,7 +88,7 @@ public:
                                  std::size_t size,
                                  EPeriodDescriptor periodDescriptor,
                                  core_t::TTime initialValuesStartTime,
-                                 core_t::TTime bucketStartTime,
+                                 core_t::TTime bucketsStartTime,
                                  core_t::TTime bucketLength,
                                  TOptionalTime startOfWeekTime,
                                  TFloatMeanAccumulatorVec initialValues);
@@ -122,7 +122,7 @@ private:
     std::size_t m_Size = 0;
     EPeriodDescriptor m_PeriodDescriptor = E_General;
     core_t::TTime m_InitialValuesStartTime = 0;
-    core_t::TTime m_BucketStartTime = 0;
+    core_t::TTime m_BucketsStartTime = 0;
     core_t::TTime m_BucketLength = 0;
     TOptionalTime m_StartOfWeekTime;
     TFloatMeanAccumulatorVec m_InitialValues;
@@ -150,7 +150,7 @@ public:
              std::size_t size,
              TPeriodDescriptor periodDescriptor,
              core_t::TTime initialValuesStartTime,
-             core_t::TTime bucketStartTime,
+             core_t::TTime bucketsStartTime,
              core_t::TTime bucketLength,
              TOptionalTime startOfWeekTime,
              TFloatMeanAccumulatorVec initialValues);
@@ -204,15 +204,16 @@ public:
 
 public:
     CTimeSeriesTestForSeasonality(core_t::TTime valuesStartTime,
-                                  core_t::TTime bucketStartTime,
+                                  core_t::TTime bucketsStartTime,
                                   core_t::TTime bucketLength,
+                                  core_t::TTime sampleInterval,
                                   TFloatMeanAccumulatorVec values,
                                   double sampleVariance = 0.0,
                                   double outlierFraction = OUTLIER_FRACTION);
 
     //! Check if it is possible to test for \p component given the window \p values.
     static bool canTestComponent(const TFloatMeanAccumulatorVec& values,
-                                 core_t::TTime bucketStartTime,
+                                 core_t::TTime bucketsStartTime,
                                  core_t::TTime bucketLength,
                                  core_t::TTime minimumPeriod,
                                  const CSeasonalTime& component);
@@ -222,6 +223,9 @@ public:
 
     //! Add a predictor for the currently modelled seasonal conponents.
     void modelledSeasonalityPredictor(const TPredictor& predictor);
+
+    //! Fit and remove any seasonality we're modelling and can't test.
+    void fitAndRemoveUntestableModelledComponents();
 
     //! Run the test and return the new components found if any.
     CSeasonalDecomposition decompose() const;
@@ -519,7 +523,6 @@ private:
                                     const TSeasonalComponent& period) const;
     std::size_t similarModelled(const TSeasonalComponent& period) const;
     void removeModelledPredictions(const TBoolVec& componentsToRemoveMask,
-                                   core_t::TTime startTime,
                                    TFloatMeanAccumulatorVec& values) const;
     void removeDiscontinuities(const TSizeVec& modelTrendSegments,
                                TFloatMeanAccumulatorVec& values) const;
@@ -563,6 +566,10 @@ private:
     static bool canTestPeriod(const TFloatMeanAccumulatorVec& values,
                               std::size_t minimumPeriod,
                               const TSeasonalComponent& period);
+    static bool periodTooLongToTest(const TFloatMeanAccumulatorVec& values,
+                                    const TSeasonalComponent& period);
+    static bool periodTooShortToTest(std::size_t minimumPeriod,
+                                     const TSeasonalComponent& period);
     static std::size_t observedRange(const TFloatMeanAccumulatorVec& values);
     static std::size_t longestGap(const TFloatMeanAccumulatorVec& values);
     static TSizeSizePr observedInterval(const TFloatMeanAccumulatorVec& values);
@@ -588,8 +595,9 @@ private:
     TOptionalTime m_StartOfWeekTimeOverride;
     core_t::TTime m_MinimumPeriod = 0;
     core_t::TTime m_ValuesStartTime = 0;
-    core_t::TTime m_BucketStartTime = 0;
+    core_t::TTime m_BucketsStartTime = 0;
     core_t::TTime m_BucketLength = 0;
+    core_t::TTime m_SampleInterval = 0;
     double m_SampleVariance = 0.0;
     double m_OutlierFraction = OUTLIER_FRACTION;
     double m_EpsVariance = 0.0;
