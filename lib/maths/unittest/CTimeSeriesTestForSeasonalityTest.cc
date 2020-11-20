@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
                 }
 
                 maths::CTimeSeriesTestForSeasonality seasonality{
-                    startTime, startTime, bucketLength, values};
+                    startTime, startTime, bucketLength, bucketLength, values};
 
                 auto result = seasonality.decompose();
                 bool isSeasonal{result.seasonal().size() > 0};
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
                 }
 
                 maths::CTimeSeriesTestForSeasonality seasonality{
-                    startTime, startTime, bucketLength, values};
+                    startTime, startTime, bucketLength, bucketLength, values};
 
                 auto result = seasonality.decompose();
 
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE(testRealSpikeyDaily) {
 
             if (time > lastTest[j] + windows[j]) {
                 maths::CTimeSeriesTestForSeasonality seasonality{
-                    lastTest[j], lastTest[j], HOUR, values[j]};
+                    lastTest[j], lastTest[j], HOUR, HOUR, values[j]};
                 auto result = seasonality.decompose();
                 BOOST_REQUIRE_EQUAL("[86400]", result.print());
                 values[j].assign(windows[j] / HOUR, TFloatMeanAccumulator{});
@@ -286,7 +286,8 @@ BOOST_AUTO_TEST_CASE(testRealTradingDays) {
         values[((time - lastTest) % window) / HOUR].add(value);
 
         if (time > lastTest + window) {
-            maths::CTimeSeriesTestForSeasonality seasonality{lastTest, lastTest, HOUR, values};
+            maths::CTimeSeriesTestForSeasonality seasonality{lastTest, lastTest, HOUR,
+                                                             HALF_HOUR, values};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< result.print());
             BOOST_REQUIRE(result.print() == "[86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]" ||
@@ -326,7 +327,8 @@ BOOST_AUTO_TEST_CASE(testRealTradingDaysPlusOutliers) {
         values[((time - lastTest) % window) / HOUR].add(value);
 
         if (time > lastTest + window) {
-            maths::CTimeSeriesTestForSeasonality seasonality{lastTest, lastTest, HOUR, values};
+            maths::CTimeSeriesTestForSeasonality seasonality{lastTest, lastTest, HOUR,
+                                                             FIVE_MINS, values};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< result.print());
             BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800), 604800/(0,172800), 604800/(172800,604800)]" ||
@@ -367,7 +369,8 @@ BOOST_AUTO_TEST_CASE(testRealSwitchingNoSeasonality) {
         values[((time - lastTest) % window) / HOUR].add(value);
 
         if (time > lastTest + window) {
-            maths::CTimeSeriesTestForSeasonality seasonality{lastTest, lastTest, HOUR, values};
+            maths::CTimeSeriesTestForSeasonality seasonality{lastTest, lastTest, HOUR,
+                                                             HALF_HOUR, values};
             auto result = seasonality.decompose();
             BOOST_REQUIRE(result.print() == "[]");
             values.assign(window / HOUR, TFloatMeanAccumulator{});
@@ -433,7 +436,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
                 }
 
                 maths::CTimeSeriesTestForSeasonality seasonality{
-                    startTime, startTime, bucketLength, values};
+                    startTime, startTime, bucketLength, FIVE_MINS, values};
                 auto result = seasonality.decompose();
 
                 double found[]{0.0, 0.0, 0.0, 0.0};
@@ -513,7 +516,8 @@ BOOST_AUTO_TEST_CASE(testSyntheticSparseDaily) {
             }
 
             if (day > 3) {
-                maths::CTimeSeriesTestForSeasonality seasonality{0, 0, HALF_HOUR, values};
+                maths::CTimeSeriesTestForSeasonality seasonality{0, 0, HALF_HOUR,
+                                                                 HALF_HOUR, values};
                 auto result = seasonality.decompose();
                 BOOST_REQUIRE(result.print() == (test == 0 ? "[86400]" : "[]"));
             }
@@ -565,7 +569,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticSparseWeekly) {
             }
 
             if (week >= 3) {
-                maths::CTimeSeriesTestForSeasonality seasonality{0, 0, HOUR, values};
+                maths::CTimeSeriesTestForSeasonality seasonality{0, 0, HOUR, HOUR, values};
                 auto result = seasonality.decompose();
                 LOG_DEBUG(<< result.print());
                 if (test == 0) {
@@ -628,7 +632,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
                 }
 
                 maths::CTimeSeriesTestForSeasonality seasonality{
-                    startTime, startTime, bucketLength, values};
+                    startTime, startTime, bucketLength, bucketLength, values};
                 auto result = seasonality.decompose();
                 LOG_DEBUG(<< result.print());
                 BOOST_REQUIRE(result.print() == "[" + std::to_string(period) + "]");
@@ -670,7 +674,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
             }
 
             maths::CTimeSeriesTestForSeasonality seasonality{
-                startTime, startTime, bucketLength, std::move(values)};
+                startTime, startTime, bucketLength, bucketLength, std::move(values)};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< result.print());
             BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800)]");
@@ -743,7 +747,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticMixtureOfSeasonalities) {
                 }
 
                 maths::CTimeSeriesTestForSeasonality seasonality{
-                    startTime, startTime, bucketLength, values};
+                    startTime, startTime, bucketLength, FIVE_MINS, values};
                 auto result = seasonality.decompose();
 
                 std::size_t found[]{0, 0};
@@ -825,8 +829,8 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithLinearScaling) {
                 values[bucket].add(trend(startTime + time) + noise[bucket]);
             }
 
-            maths::CTimeSeriesTestForSeasonality seasonality{startTime, startTime,
-                                                             HALF_HOUR, values};
+            maths::CTimeSeriesTestForSeasonality seasonality{
+                startTime, startTime, HALF_HOUR, HALF_HOUR, values};
             auto result = seasonality.decompose();
 
             if (result.print() != "[86400]") {
@@ -897,7 +901,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnalWithLinearTrend) {
                 }
 
                 maths::CTimeSeriesTestForSeasonality seasonality{
-                    startTime, startTime, bucketLength, values};
+                    startTime, startTime, bucketLength, FIVE_MINS, values};
                 auto result = seasonality.decompose();
 
                 double found[]{0.0, 0.0, 0.0, 0.0};
@@ -1011,8 +1015,8 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend) {
                 values[bucket].add(trend(startTime + time) + noise[bucket]);
             }
 
-            maths::CTimeSeriesTestForSeasonality seasonality{startTime, startTime,
-                                                             HALF_HOUR, values};
+            maths::CTimeSeriesTestForSeasonality seasonality{
+                startTime, startTime, HALF_HOUR, HALF_HOUR, values};
             auto result = seasonality.decompose();
 
             if (result.print() != "[86400]") {
@@ -1064,7 +1068,7 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithNoChange) {
                 values[time / HOUR].add(5.0 * generator(time) + noise[time / FIVE_MINS]);
             }
 
-            maths::CTimeSeriesTestForSeasonality seasonality{0, 0, HOUR, values};
+            maths::CTimeSeriesTestForSeasonality seasonality{0, 0, HOUR, FIVE_MINS, values};
             for (const auto& time : modelledComponents[index[0]]) {
                 seasonality.addModelledSeasonality(time, 24);
             }
@@ -1121,7 +1125,7 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange) {
                 values[time / HOUR].add(10.0 * generator(time) + noise[time / FIVE_MINS]);
             }
 
-            maths::CTimeSeriesTestForSeasonality seasonality{0, 0, HOUR, values};
+            maths::CTimeSeriesTestForSeasonality seasonality{0, 0, HOUR, FIVE_MINS, values};
             for (const auto& time : modelledComponents[index[0]]) {
                 seasonality.addModelledSeasonality(time, 24);
             }
@@ -1180,8 +1184,8 @@ BOOST_AUTO_TEST_CASE(testNewComponentInitialValues) {
             values[time / HALF_HOUR].add(10.0 * generator(startTime + time));
         }
 
-        maths::CTimeSeriesTestForSeasonality seasonality{startTime, startTime,
-                                                         HALF_HOUR, values};
+        maths::CTimeSeriesTestForSeasonality seasonality{
+            startTime, startTime, HALF_HOUR, HALF_HOUR, values};
         auto result = seasonality.decompose();
 
         // Expect agreement with generator.
@@ -1258,7 +1262,8 @@ BOOST_AUTO_TEST_CASE(testNewComponentInitialValuesWithPiecewiseLinearScaling) {
                                     0.1 * noise[time / HOUR]);
         }
 
-        maths::CTimeSeriesTestForSeasonality seasonality{startTime, startTime, HOUR, values};
+        maths::CTimeSeriesTestForSeasonality seasonality{startTime, startTime,
+                                                         HOUR, HOUR, values};
         auto result = seasonality.decompose();
         BOOST_REQUIRE_EQUAL(1, result.seasonal().size());
         const auto& seasonal = result.seasonal()[0].initialValues();
@@ -1301,7 +1306,8 @@ BOOST_AUTO_TEST_CASE(testNewTrendSummary) {
             values[time / HOUR].add(generator(startTime + time));
         }
 
-        maths::CTimeSeriesTestForSeasonality seasonality{startTime, startTime, HOUR, values};
+        maths::CTimeSeriesTestForSeasonality seasonality{startTime, startTime,
+                                                         HOUR, HOUR, values};
         auto result = seasonality.decompose();
 
         BOOST_REQUIRE(result.trend() != nullptr);
@@ -1401,7 +1407,7 @@ BOOST_AUTO_TEST_CASE(testNewTrendSummaryPiecewiseLinearTrend) {
         }
 
         maths::CTimeSeriesTestForSeasonality seasonality{startTime, startTime,
-                                                         2 * HOUR, values};
+                                                         2 * HOUR, 2 * HOUR, values};
         auto result = seasonality.decompose();
 
         // Since we remove step continuities just check agreement on the last
@@ -1443,7 +1449,7 @@ BOOST_AUTO_TEST_CASE(testWithSuppliedPredictor) {
         values[time / HOUR].add(daily(startTime + time) + weekly(startTime + time));
     }
 
-    maths::CTimeSeriesTestForSeasonality seasonality{startTime, startTime, HOUR, values};
+    maths::CTimeSeriesTestForSeasonality seasonality{startTime, startTime, HOUR, HOUR, values};
     seasonality.addModelledSeasonality(maths::CDiurnalTime{0, 0, WEEK, DAY}, 24);
     seasonality.modelledSeasonalityPredictor([](core_t::TTime time, const TBoolVec&) {
         return std::sin(boost::math::double_constants::pi *

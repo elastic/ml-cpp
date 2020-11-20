@@ -289,10 +289,9 @@ void CTrendComponent::dontShiftLevel(core_t::TTime time, double value) {
     }
 }
 
-void CTrendComponent::linearScale(double scale) {
-    for (auto& model : m_TrendModels) {
-        model.s_Regression.linearScale(scale);
-    }
+void CTrendComponent::linearScale(core_t::TTime time, double scale) {
+    double shift{(scale - 1.0) * CBasicStatistics::mean(this->value(time, 0.0))};
+    this->shiftLevel(shift);
 }
 
 void CTrendComponent::add(core_t::TTime time, double value, double weight) {

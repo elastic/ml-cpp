@@ -108,7 +108,7 @@ public:
     void dontShiftLevel(core_t::TTime time, double value);
 
     //! Apply a linear scale by \p scale.
-    void linearScale(double scale);
+    void linearScale(core_t::TTime time, double scale);
 
     //! Adds a value \f$(t, f(t))\f$ to this component.
     //!

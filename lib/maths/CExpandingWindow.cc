@@ -16,6 +16,7 @@
 #include <maths/CChecksum.h>
 #include <maths/CIntegerTools.h>
 #include <maths/CMathsFuncs.h>
+#include <maths/CSignal.h>
 
 #include <algorithm>
 #include <cmath>
@@ -34,12 +35,12 @@ const core::TPersistenceTag AVERAGE_WITHIN_BUCKET_VARIANCE_TAG{"g", "average_wit
 const std::size_t MAX_BUFFER_SIZE{5};
 }
 
-CExpandingWindow::CExpandingWindow(core_t::TTime bucketLength,
+CExpandingWindow::CExpandingWindow(core_t::TTime sampleInterval,
                                    TTimeCRng bucketLengths,
                                    std::size_t size,
                                    double decayRate,
                                    bool deflate)
-    : m_Deflate{deflate}, m_DecayRate{decayRate}, m_Size{size}, m_DataBucketLength{bucketLength},
+    : m_Deflate{deflate}, m_DecayRate{decayRate}, m_Size{size}, m_SampleInterval{sampleInterval},
       m_BucketLengths{bucketLengths}, m_StartTime{std::numeric_limits<core_t::TTime>::min()},
       m_BucketValues(size % 2 == 0 ? size : size + 1) {
     m_BufferedValues.reserve(MAX_BUFFER_SIZE);
@@ -89,14 +90,14 @@ std::size_t CExpandingWindow::size() const {
     return m_Size;
 }
 
-core_t::TTime CExpandingWindow::dataPointsTimeOffsetInBucket() const {
+core_t::TTime CExpandingWindow::sampleAverageOffset() const {
     return static_cast<core_t::TTime>(CBasicStatistics::mean(m_MeanOffset) + 0.5);
 }
 
 core_t::TTime CExpandingWindow::beginValuesTime() const {
-    return this->dataPointsTimeOffsetInBucket() +
-           (CIntegerTools::ceil(m_StartTime, m_DataBucketLength) +
-            CIntegerTools::floor(m_StartTime + this->bucketLength() - 1, m_DataBucketLength)) /
+    return this->sampleAverageOffset() +
+           (CIntegerTools::ceil(m_StartTime, m_SampleInterval) +
+            CIntegerTools::floor(m_StartTime + this->bucketLength() - 1, m_SampleInterval)) /
                2;
 }
 
@@ -120,19 +121,15 @@ CExpandingWindow::TFloatMeanAccumulatorVec
 CExpandingWindow::valuesMinusPrediction(TFloatMeanAccumulatorVec bucketValues,
                                         const TPredictor& predictor) const {
 
-    core_t::TTime start{CIntegerTools::ceil(m_StartTime, m_DataBucketLength)};
-    core_t::TTime size{static_cast<core_t::TTime>(bucketValues.size())};
-    core_t::TTime offset{this->dataPointsTimeOffsetInBucket()};
+    core_t::TTime bucketLength{this->bucketLength()};
+    auto bucketPredictor = CSignal::bucketPredictor(
+        predictor, m_StartTime, bucketLength,
+        this->beginValuesTime() - m_StartTime, m_SampleInterval);
 
-    for (core_t::TTime i = 0; i < size; ++i) {
+    for (std::size_t i = 0; i < bucketValues.size(); ++i) {
         if (CBasicStatistics::count(bucketValues[i]) > 0.0) {
-            core_t::TTime bucketStart{start + offset + i * this->bucketLength()};
-            core_t::TTime bucketEnd{bucketStart + this->bucketLength()};
-            TFloatMeanAccumulator prediction;
-            for (core_t::TTime time = bucketStart; time < bucketEnd; time += m_DataBucketLength) {
-                prediction.add(predictor(time));
-            }
-            CBasicStatistics::moment<0>(bucketValues[i]) -= CBasicStatistics::mean(prediction);
+            CBasicStatistics::moment<0>(bucketValues[i]) -=
+                bucketPredictor(bucketLength * static_cast<core_t::TTime>(i));
         }
     }
 
@@ -223,7 +220,7 @@ void CExpandingWindow::add(core_t::TTime time, double value, double prediction, 
             m_BucketIndex = index;
         }
         m_WithinBucketVariance.add(value - prediction, weight);
-        m_MeanOffset.add(static_cast<double>(time % m_DataBucketLength));
+        m_MeanOffset.add(static_cast<double>(time % m_SampleInterval));
     }
 }
 

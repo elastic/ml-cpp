@@ -59,7 +59,7 @@ public:
     using TPredictor = std::function<double(core_t::TTime)>;
 
 public:
-    CExpandingWindow(core_t::TTime bucketLength,
+    CExpandingWindow(core_t::TTime sampleInterval,
                      TTimeCRng bucketLengths,
                      std::size_t size,
                      double decayRate = 0.0,
@@ -81,8 +81,8 @@ public:
     std::size_t size() const;
 
     //! Get the mean time offset of the data points added with respect to the start
-    //! of the *data* bucket.
-    core_t::TTime dataPointsTimeOffsetInBucket() const;
+    //! of the sample interval.
+    core_t::TTime sampleAverageOffset() const;
 
     //! Get the time of the first window value.
     core_t::TTime beginValuesTime() const;
@@ -179,8 +179,8 @@ private:
     //! The number of buckets.
     std::size_t m_Size;
 
-    //! The data bucket length.
-    core_t::TTime m_DataBucketLength;
+    //! The average length of time between samples.
+    core_t::TTime m_SampleInterval;
 
     //! The set of possible expanded window bucket lengths.
     TTimeCRng m_BucketLengths;

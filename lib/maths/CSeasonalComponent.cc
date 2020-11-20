@@ -141,7 +141,7 @@ void CSeasonalComponent::shiftSlope(core_t::TTime time, double shift) {
 }
 
 void CSeasonalComponent::linearScale(core_t::TTime time, double scale) {
-    m_Bucketing.linearScale(scale);
+    m_Bucketing.linearScale(time, scale);
     this->interpolate(time, false);
 }
 

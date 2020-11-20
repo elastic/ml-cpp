@@ -120,7 +120,7 @@ CScale::CScale(bool reversion, std::size_t index, core_t::TTime time, double sca
 }
 
 bool CScale::apply(CTrendComponent& component) const {
-    component.linearScale(m_Scale);
+    component.linearScale(this->time(), m_Scale);
     return true;
 }
 
@@ -273,7 +273,7 @@ CTimeSeriesTestForChange::TDoubleDoubleDoubleTr CTimeSeriesTestForChange::quadra
 
     using TRegression = CLeastSquaresOnlineRegression<2, double>;
 
-    m_ValuesMinusPredictions = this->removePredictions(this->bucketPredictor(), m_Values);
+    m_ValuesMinusPredictions = this->removePredictions(this->bucketIndexPredictor(), m_Values);
 
     TRegression trend;
     TRegression::TArray parameters;
@@ -309,7 +309,7 @@ CTimeSeriesTestForChange::levelShift(double varianceH0,
     // Test for piecewise linear shift. We use a hypothesis test against a null
     // hypothesis that there is a quadratic trend.
 
-    m_ValuesMinusPredictions = this->removePredictions(this->bucketPredictor(), m_Values);
+    m_ValuesMinusPredictions = this->removePredictions(this->bucketIndexPredictor(), m_Values);
 
     TSizeVec segments{TSegmentation::piecewiseLinear(
         m_ValuesMinusPredictions, m_SignificantPValue, m_OutlierFraction, 3)};
@@ -369,7 +369,7 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
     // Test for linear scales of the base predictor. We use a hypothesis test
     // against a null hypothesis that there is a quadratic trend.
 
-    auto predictor = this->bucketPredictor();
+    auto predictor = this->bucketIndexPredictor();
 
     TSizeVec segments{TSegmentation::piecewiseLinearScaledSeasonal(
         m_Values, predictor, m_SignificantPValue, 3)};
@@ -443,7 +443,7 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
     // Test for time shifts of the base predictor. We use a hypothesis test
     // against a null hypothesis that there is a quadratic trend.
 
-    auto predictor = this->bucketTimePredictor();
+    auto predictor = this->bucketPredictor();
 
     TSegmentation::TTimeVec candidateShifts;
     for (core_t::TTime shift = -6 * HOUR; shift < 0; shift += HALF_HOUR) {
@@ -456,7 +456,7 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
     TSegmentation::TTimeVec shifts;
     TSizeVec segments{TSegmentation::piecewiseTimeShifted(
         m_Values, m_BucketLength, candidateShifts, predictor,
-        m_SignificantPValue, 2, &shifts)};
+        m_SignificantPValue, 3, &shifts)};
     LOG_TRACE(<< "shift segments = " << core::CContainerPrinter::print(segments));
 
     if (segments.size() > 2) {
@@ -491,50 +491,17 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
     return {};
 }
 
-CTimeSeriesTestForChange::TBucketPredictor CTimeSeriesTestForChange::bucketPredictor() const {
-    // The following code is reverse engineering the average of the predictions
-    // which fall in each bucket of the time window. We have samples at some
-    // approximately fixed interval l and a bucket length L >= l. We also know
-    //
-    //   "values start - buckets start" = l / L sum_{0<=i<n}{ t0 + i l }    (1)
-    //
-    // where n = L / l. This summation is n t0 + n(n - 1)/2 l and we can use this
-    // to solve (1) for t0. The expected prediction is then
-    //
-    //   1 / n sum_{0<=i<n}{ p(t + t0 + i * l) }
-
-    double n{static_cast<double>(m_BucketLength) / static_cast<double>(m_SampleInterval)};
-    core_t::TTime offset{static_cast<core_t::TTime>(
-        std::max(static_cast<double>(m_ValuesStartTime - m_BucketsStartTime) -
-                     0.5 * (n - 1.0) * static_cast<double>(m_SampleInterval),
-                 0.0))};
-    return [offset, this](std::size_t i) {
-        TMeanAccumulator result;
-        core_t::TTime time{m_BucketsStartTime +
-                           static_cast<core_t::TTime>(m_BucketLength * i)};
-        for (core_t::TTime dt = offset; dt < m_BucketLength; dt += m_SampleInterval) {
-            result.add(m_Predictor(time + dt));
-        }
-        return CBasicStatistics::mean(result);
+CTimeSeriesTestForChange::TBucketIndexPredictor
+CTimeSeriesTestForChange::bucketIndexPredictor() const {
+    auto bucketPredictor = this->bucketPredictor();
+    return [ predictor = std::move(bucketPredictor), this ](std::size_t i) {
+        return predictor(m_BucketLength * static_cast<core_t::TTime>(i));
     };
 }
 
-CTimeSeriesTestForChange::TPredictor CTimeSeriesTestForChange::bucketTimePredictor() const {
-    // See above.
-
-    double n{static_cast<double>(m_BucketLength) / static_cast<double>(m_SampleInterval)};
-    core_t::TTime offset{static_cast<core_t::TTime>(
-        std::max(static_cast<double>(m_ValuesStartTime - m_BucketsStartTime) -
-                     0.5 * (n - 1.0) * static_cast<double>(m_SampleInterval),
-                 0.0))};
-    return [offset, this](core_t::TTime time) {
-        TMeanAccumulator result;
-        time += m_BucketsStartTime;
-        for (core_t::TTime dt = offset; dt < m_BucketLength; dt += m_SampleInterval) {
-            result.add(m_Predictor(time + dt));
-        }
-        return CBasicStatistics::mean(result);
-    };
+CTimeSeriesTestForChange::TPredictor CTimeSeriesTestForChange::bucketPredictor() const {
+    return CSignal::bucketPredictor(m_Predictor, m_BucketsStartTime, m_BucketLength,
+                                    m_ValuesStartTime - m_BucketsStartTime, m_SampleInterval);
 }
 
 CTimeSeriesTestForChange::TMeanVarAccumulator
@@ -628,7 +595,7 @@ double CTimeSeriesTestForChange::aic(const SChangePoint& change) const {
 }
 
 CTimeSeriesTestForChange::TFloatMeanAccumulatorVec
-CTimeSeriesTestForChange::removePredictions(const TBucketPredictor& predictor,
+CTimeSeriesTestForChange::removePredictions(const TBucketIndexPredictor& predictor,
                                             TFloatMeanAccumulatorVec values) {
     for (std::size_t i = 0; i < values.size(); ++i) {
         if (CBasicStatistics::count(values[i]) > 0.0) {

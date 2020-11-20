@@ -279,6 +279,12 @@ public:
         //! The length of time in which we expect to detect a change.
         core_t::TTime maximumIntervalToDetectChange() const;
 
+        //! The start of the sliding window of buckets given the time is now \p time.
+        core_t::TTime bucketsStartTime(core_t::TTime time, core_t::TTime bucketsLength) const;
+
+        //! The start of the values given the buckets start at \p bucketStartTime.
+        core_t::TTime valuesStartTime(core_t::TTime bucketsStartTime) const;
+
         //! The start time of the window bucket containing \p time.
         core_t::TTime startOfWindowBucket(core_t::TTime time) const;
 

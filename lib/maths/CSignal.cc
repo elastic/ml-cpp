@@ -663,7 +663,7 @@ bool CSignal::reweightOutliers(const TSeasonalComponentVec& periods,
     return reweightOutliers(predictor, fraction, values);
 }
 
-bool CSignal::reweightOutliers(const TPredictor& predictor,
+bool CSignal::reweightOutliers(const TIndexPredictor& predictor,
                                double fraction,
                                TFloatMeanAccumulatorVec& values) {
 
@@ -908,6 +908,39 @@ std::size_t CSignal::selectComponentSize(const TFloatMeanAccumulatorVec& values,
     LOG_TRACE(<< "selected size = " << size);
 
     return size;
+}
+
+CSignal::TPredictor CSignal::bucketPredictor(const TPredictor& predictor,
+                                             core_t::TTime bucketsStartTime,
+                                             core_t::TTime bucketLength,
+                                             core_t::TTime bucketAverageSampleTime,
+                                             core_t::TTime sampleInterval) {
+
+    // We assume that we have samples at some approximately fixed interval l and
+    // a bucket length L >= l. We also know
+    //
+    //   bucketAverageSampleTime = l / L sum_{0<=i<n}{ t0 + i l }             (1)
+    //
+    // where n = L / l. This summation is n t0 + n(n - 1)/2 l and we can use this
+    // to solve (1) for t0. The prediction of the bucket average for the bucket
+    // starting at t is then
+    //
+    //   1 / n sum_{0<=i<n}{ p(t + t0 + i * l) }
+
+    double n{static_cast<double>(bucketLength) / static_cast<double>(sampleInterval)};
+    core_t::TTime offset{static_cast<core_t::TTime>(
+        std::max(static_cast<double>(bucketAverageSampleTime) -
+                     0.5 * (n - 1.0) * static_cast<double>(sampleInterval),
+                 0.0))};
+
+    return [=](core_t::TTime time) {
+        TMeanAccumulator result;
+        time += bucketsStartTime;
+        for (core_t::TTime dt = offset; dt < bucketLength; dt += sampleInterval) {
+            result.add(predictor(time + dt));
+        }
+        return CBasicStatistics::mean(result);
+    };
 }
 
 void CSignal::removeComponents(const TSeasonalComponentVec& periods,

@@ -152,11 +152,9 @@ BOOST_AUTO_TEST_CASE(testBasicUsage) {
     LOG_DEBUG(<< "Testing overflow");
 
     window.add(static_cast<core_t::TTime>(size * 3600 + 1), 0.1);
-    BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(size * 3600) +
-                            window.dataPointsTimeOffsetInBucket(),
+    BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(size * 3600) + window.sampleAverageOffset(),
                         window.beginValuesTime());
-    BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(size * 3900) +
-                            window.dataPointsTimeOffsetInBucket(),
+    BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(size * 3900) + window.sampleAverageOffset(),
                         window.endValuesTime());
 
     TFloatMeanAccumulatorVec expected(size);

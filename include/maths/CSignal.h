@@ -50,7 +50,8 @@ public:
     using TMomentTransformFunc = std::function<double(const TFloatMeanAccumulator&)>;
     using TMomentWeightFunc = std::function<double(const TFloatMeanAccumulator&)>;
     using TIndexWeightFunc = std::function<double(std::size_t)>;
-    using TPredictor = std::function<double(std::size_t)>;
+    using TIndexPredictor = std::function<double(std::size_t)>;
+    using TPredictor = std::function<double(core_t::TTime)>;
 
     //! \brief A description of a seasonal component.
     struct SSeasonalComponentSummary {
@@ -361,7 +362,7 @@ public:
     //! \param[in] fraction The fraction of values treated as outliers.
     //! \param[in,out] values The values to reweight.
     //! \return True if this reweighted any \p values.
-    static bool reweightOutliers(const TPredictor& predictor,
+    static bool reweightOutliers(const TIndexPredictor& predictor,
                                  double fraction,
                                  TFloatMeanAccumulatorVec& values);
 
@@ -472,6 +473,21 @@ public:
             return CBasicStatistics::count(value) > 0.0;
         });
     }
+
+    //! Get a predictor for the average of predictions \p sampleInterval apart
+    //! for buckets starting at \p bucketsStartTime and length \p bucketLength.
+    //!
+    //! \param[in] predictor The predictor from which to compute the average.
+    //! \param[in] bucketsStartTime The start time of the buckets.
+    //! \param[in] bucketLength The bucket length.
+    //! \param[in] bucketAverageSampleTime The average of the sample offsets in
+    //! a time bucket.
+    //! \param[in] sampleInterval The average time between samples.
+    static TPredictor bucketPredictor(const TPredictor& predictor,
+                                      core_t::TTime bucketsStartTime,
+                                      core_t::TTime bucketLength,
+                                      core_t::TTime bucketAverageSampleTime,
+                                      core_t::TTime sampleInterval);
 
 private:
     static void removeComponents(const TSeasonalComponentVec& periods,
