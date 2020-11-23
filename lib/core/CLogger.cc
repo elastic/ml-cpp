@@ -306,8 +306,10 @@ bool CLogger::reconfigureLogToNamedPipe(const std::string& pipeName,
 
     m_PipeFile = CNamedPipeFactory::openPipeFileWrite(pipeName, isCancelled);
     if (m_PipeFile == nullptr) {
-        LOG_ERROR(<< "Cannot log to named pipe " << pipeName
-                  << " as it could not be opened for writing");
+        if (isCancelled.load() == false) {
+            LOG_ERROR(<< "Cannot log to named pipe " << pipeName
+                      << " as it could not be opened for writing");
+        }
         return false;
     }
 
