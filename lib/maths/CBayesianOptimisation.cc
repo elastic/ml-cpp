@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <cmath>
 #include <maths/CBayesianOptimisation.h>
 
 #include <core/CIEEE754.h>
@@ -52,12 +53,19 @@ double stableNormPdf(double z) {
     return CTools::stableExp(-z * z / 2.0) / boost::math::constants::root_two_pi<double>();
 }
 
+double stableProdd(double c, double x) {
+    return CTools::stable(boost::math::constants::root_pi<double>() * 
+    std::sqrt((std::erf(c*(1-x))+std::erf(c*x))/(2*c)));
+}
+
 // The kernel we use is v * I + a(0)^2 * O(I). We fall back to random search when
 // a(0)^2 < eps * v since for small eps and a reasonable number of dimensions the
 // expected improvement will be constant in the space we search. We don't terminate
 // altogether because it is possible that the function we're interpolating has a
 // narrow deep valley that the Gaussian Process hasn't sampled.
 const double MINIMUM_KERNEL_SCALE_FOR_EXPECTATION_MAXIMISATION{1e-8};
+
+
 }
 
 CBayesianOptimisation::CBayesianOptimisation(TDoubleDoublePrVec parameterBounds,
@@ -188,6 +196,35 @@ CBayesianOptimisation::maximumExpectedImprovement() {
 
     return {std::move(xmax), expectedImprovement};
 }
+
+double CBayesianOptimisation::evaluate(const TVector& input) const {
+    TVector Kxn;
+    double Kxx;
+    double vx{this->meanErrorVariance()};
+    TVector f{this->function()};
+     TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
+    Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
+    TVector Kinvf = Kldl.solve(f);
+    std::tie(Kxn, Kxx) = this->kernelCovariates(m_KernelParameters, input, vx);
+    return Kxn.transpose()*Kinvf;
+}
+
+double CBayesianOptimisation::anovaConstantFactor() const{
+    TVector f{this->function()};
+     TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
+    Eigen::LDLT<Eigen::MatrixXd> Kldl{K};
+    TVector Kinvf = Kldl.solve(f);
+    double sum{0.0};
+    for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i){
+        double prod{1.0};
+        for (std::size_t d = 0; d < m_MinBoundary.size(); ++d){
+            prod *= stableProdd(m_KernelParameters(d+1), m_FunctionMeanValues[i].first(d));
+        }
+        sum += Kinvf(i)*prod;
+    }
+    return CTools::pow2(m_KernelParameters(0))*sum;
+}
+
 
 std::pair<CBayesianOptimisation::TLikelihoodFunc, CBayesianOptimisation::TLikelihoodGradientFunc>
 CBayesianOptimisation::minusLikelihoodAndGradient() const {

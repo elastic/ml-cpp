@@ -368,4 +368,22 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testAnovaConstantFactor) {
+    test::CRandomNumbers rng;
+    TDoubleVec coordinates;
+    maths::CBayesianOptimisation bopt{{{0.0, 1.0}, {0.0, 1.0}}};
+    for (std::size_t i = 0; i < 10; ++i) {
+        rng.generateUniformSamples(0.0, 1.0, 2, coordinates);
+        TVector x{vector(coordinates)};
+        bopt.add(x, x.squaredNorm(), 1.0);
+    }
+
+    bopt.maximumLikelihoodKernel();
+    double f0_actual{bopt.anovaConstantFactor()};
+    LOG_DEBUG(<<"f0 = " << f0_actual);
+
+
+
+}
+
 BOOST_AUTO_TEST_SUITE_END()
