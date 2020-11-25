@@ -7,6 +7,7 @@
 #ifndef INCLUDED_ml_maths_CBayesianOptimisation_h
 #define INCLUDED_ml_maths_CBayesianOptimisation_h
 
+#include <c++/7/bits/c++config.h>
 #include <core/CDataSearcher.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -93,6 +94,9 @@ public:
     static std::size_t estimateMemoryUsage(std::size_t numberParameters,
                                            std::size_t numberRounds);
 
+    double evaluate(const TVector& input) const;
+    double anovaConstantFactor() const;
+
     //! \name Test Interface
     //@{
     //! Get minus the data likelihood and its gradient as a function of the kernel
@@ -132,7 +136,7 @@ private:
     TMatrix kernel(const TVector& a, double v) const;
     TVectorDoublePr kernelCovariates(const TVector& a, const TVector& x, double vx) const;
     double kernel(const TVector& a, const TVector& x, const TVector& y) const;
-
+    
 private:
     CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_Restarts;
