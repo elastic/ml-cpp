@@ -23,7 +23,10 @@
 #include <boost/random/binomial_distribution.hpp>
 #include <boost/random/chi_squared_distribution.hpp>
 #include <boost/random/normal_distribution.hpp>
+#include <boost/random/sobol.hpp>
+#include <boost/random/uniform_01.hpp>
 #include <boost/random/uniform_real_distribution.hpp>
+#include <boost/random/variate_generator.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -817,6 +820,26 @@ void CSampling::gammaSampleQuantiles(double shape, double rate, std::size_t n, T
         LOG_ERROR(<< "Failed to sample normal quantiles: " << e.what()
                   << ", shape = " << shape << ", rate = " << rate);
         result.clear();
+    }
+}
+
+void CSampling::sobolSequenceSample(std::size_t dim, std::size_t n, TDoubleVecVec& samples) {
+    samples.clear();
+    if (n == 0) {
+        return;
+    }
+    typedef boost::variate_generator<boost::random::sobol&, boost::uniform_01<double>> quasi_random_gen_t;
+    boost::random::sobol engine(dim);
+    quasi_random_gen_t gen(engine, boost::uniform_01<double>());
+    {
+        samples.resize(n, TDoubleVec(dim));
+        CDenseVector<double> sample(dim);
+        for (std::size_t i = 0u; i < n; ++i) {
+            // samples[i].resize(dim);
+            for (std::size_t j = 0u; j < dim; ++j) {
+                samples[i][j] = gen();
+            }
+        }
     }
 }
 

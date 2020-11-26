@@ -389,4 +389,36 @@ BOOST_AUTO_TEST_CASE(testVectorDissimilaritySampler) {
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentageSeparationIncrease) > 50.0);
 }
 
+BOOST_AUTO_TEST_CASE(testSobolSequenceSampling) {
+    {
+        // 1-dimensional sequence
+        std::size_t dim{1};
+        std::size_t n{10};
+        TDoubleVecVec expected{{0.5},   {0.75},  {0.25},   {0.375},  {0.875},
+                               {0.625}, {0.125}, {0.1875}, {0.6875}, {0.9375}};
+        TDoubleVecVec actual;
+        maths::CSampling::sobolSequenceSample(dim, n, actual);
+        for (std::size_t i = 0u; i < n; ++i) {
+            BOOST_REQUIRE_EQUAL_COLLECTIONS(expected[i].begin(), expected[i].end(),
+                                            actual[i].begin(), actual[i].end());
+        }
+    }
+
+    {
+        // 2-dimensional sequence
+        std::size_t dim{2};
+        std::size_t n{10};
+        TDoubleVecVec expected{
+            {0.5, 0.5},       {0.75, 0.25},    {0.25, 0.75},   {0.375, 0.375},
+            {0.875, 0.875},   {0.625, 0.125},  {0.125, 0.625}, {0.1875, 0.3125},
+            {0.6875, 0.8125}, {0.9375, 0.0625}};
+        TDoubleVecVec actual;
+        maths::CSampling::sobolSequenceSample(dim, n, actual);
+        for (std::size_t i = 0u; i < n; ++i) {
+            BOOST_REQUIRE_EQUAL_COLLECTIONS(expected[i].begin(), expected[i].end(),
+                                            actual[i].begin(), actual[i].end());
+        }
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
