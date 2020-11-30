@@ -400,7 +400,7 @@ BOOST_AUTO_TEST_CASE(testEvaluate) {
 }
 
 BOOST_AUTO_TEST_CASE(testEvaluate1D) {
-     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     test::CRandomNumbers rng;
     std::size_t dim{2};
     std::size_t mcSamples{1000};
@@ -419,7 +419,7 @@ BOOST_AUTO_TEST_CASE(testEvaluate1D) {
 
     TDoubleVecVec testSamples;
     maths::CSampling::sobolSequenceSample(dim, mcSamples, testSamples);
-    
+
     TDoubleVec testInput(1);
     rng.generateUniformSamples(0, 1, 1, testInput);
 
@@ -491,6 +491,37 @@ BOOST_AUTO_TEST_CASE(testAnovaTotalVariance) {
     }
     double totalVarianceExpected{maths::CBasicStatistics::mean(meanAccumulator)};
     BOOST_REQUIRE_CLOSE_ABSOLUTE(totalVarianceActual, totalVarianceExpected, 5e-4);
+}
+
+BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    TMeanAccumulator meanAccumulator;
+    std::size_t dim{2};
+    std::size_t mcSamples{1000};
+    TDoubleVec coordinates{0.25, 0.5, 0.75};
+    maths::CBayesianOptimisation bopt{{{0.0, 1.0}, {0.0, 1.0}}};
+    for (std::size_t i = 0; i < 3; ++i) {
+        for (std::size_t j = 0; j < 3; ++j) {
+            TVector x{vector({coordinates[i], coordinates[j]})};
+            bopt.add(x, x.squaredNorm(), 0.2);
+        }
+    }
+
+    TVector kernelParameters(vector({0.7, 0.5, 0.5}));
+    bopt.kernelParameters(kernelParameters);
+
+    TDoubleVecVec testSamples;
+    maths::CSampling::sobolSequenceSample(1, mcSamples, testSamples);
+
+    for (int d = 0; d < dim; ++d) {
+        TMeanAccumulator meanAccumulator;
+        for (int i = 0; i < mcSamples; ++i) {
+            meanAccumulator.add(maths::CTools::pow2(bopt.evaluate1D(testSamples[i][0], d)));
+        }
+        double mainEffectExpected(maths::CBasicStatistics::mean(meanAccumulator));
+        double mainEffectActual{bopt.anovaMainEffect(d)};
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(mainEffectActual, mainEffectExpected, 5e-4);
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()
