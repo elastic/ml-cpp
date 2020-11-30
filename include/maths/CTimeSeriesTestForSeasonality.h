@@ -376,6 +376,8 @@ private:
         //! Get a readable description.
         std::string print() const;
 
+        //! Set to true if the hypothesis can tested.
+        bool s_IsTestable = false;
         //! If true then this should be modelled.
         bool s_Model = false;
         //! True if we're going to discard this model.
@@ -444,6 +446,8 @@ private:
 
         //! Does this include seasonality?
         bool seasonal() const { return s_Hypotheses.size() > 0; }
+        //! True if every seasonal component could be tested.
+        bool isTestable() const;
         //! Should this behave as a null hypothesis?
         bool isNull() const;
         //! Should this behave as an alternative hypothesis?
