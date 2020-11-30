@@ -96,6 +96,7 @@ public:
 
     double evaluate(const TVector& input) const;
     double evaluate(const TVector& input, const TVector& Kinvf) const;
+    double evaluate1D(double input, int t) const;
     double anovaConstantFactor() const;
     double anovaTotalVariance() const;
     void kernelParameters(const TVector& parameters);
