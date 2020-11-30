@@ -10,6 +10,7 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CLinearAlgebraEigen.h>
+#include <maths/CSampling.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
@@ -24,6 +25,7 @@ using namespace ml;
 
 namespace {
 using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
 using TVector = maths::CDenseVector<double>;
 
 TVector vector(TDoubleVec components) {
@@ -368,22 +370,62 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testAnovaConstantFactor) {
-    test::CRandomNumbers rng;
-    TDoubleVec coordinates;
+BOOST_AUTO_TEST_CASE(testEvaluate) {
+    TDoubleVec coordinates{0.25, 0.5, 0.75};
     maths::CBayesianOptimisation bopt{{{0.0, 1.0}, {0.0, 1.0}}};
-    for (std::size_t i = 0; i < 10; ++i) {
-        rng.generateUniformSamples(0.0, 1.0, 2, coordinates);
-        TVector x{vector(coordinates)};
-        bopt.add(x, x.squaredNorm(), 1.0);
+    // TDoubleVec noise(9);
+    // rng.generateNormalSamples(0, 0.05, 9, noise)()
+    for (std::size_t i = 0; i < 3; ++i) {
+        for (std::size_t j = 0; j < 3; ++j) {
+            TVector x{vector({coordinates[i], coordinates[j]})};
+            bopt.add(x, x.squaredNorm(), 0.0);
+        }
     }
 
-    bopt.maximumLikelihoodKernel();
+    TVector kernelParameters(vector({1.0, 0.5, 0.5}));
+    bopt.kernelParameters(kernelParameters);
+    TVector Kinvf(vector({2136.47116549, -4268.907398, 2270.58871277,
+                          -4268.90739799, 8512.24014649, -4524.7466467,
+                          2270.58871276, -4524.74664669, 2404.70626004}));
+
+    TDoubleVecVec testPoints{{0.3, 0.3}, {0.3, 0.6}, {0.6, 0.3}};
+    TDoubleVec testTargets{0.17823499, 0.45056931, 0.45056931};
+
+    for (std::size_t i = 0u; i < testPoints.size(); ++i) {
+        TVector x{vector(testPoints[i])};
+        double actualTarget1{bopt.evaluate(x)};
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(actualTarget1, testTargets[i], 1e-5);
+        double actualTarget2{bopt.evaluate(x, Kinvf)};
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(actualTarget2, testTargets[i], 1e-5);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testAnovaConstantFactor) {
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    TMeanAccumulator meanAccumulator;
+    std::size_t dim{2};
+    std::size_t mcSamples{10000};
+    TDoubleVec coordinates{0.25, 0.5, 0.75};
+    maths::CBayesianOptimisation bopt{{{0.0, 1.0}, {0.0, 1.0}}};
+    for (std::size_t i = 0; i < 3; ++i) {
+        for (std::size_t j = 0; j < 3; ++j) {
+            TVector x{vector({coordinates[i], coordinates[j]})};
+            bopt.add(x, x.squaredNorm(), 0.2);
+        }
+    }
+
+    TVector kernelParameters(vector({1.0, 0.5, 0.5}));
+    bopt.kernelParameters(kernelParameters);
     double f0_actual{bopt.anovaConstantFactor()};
-    LOG_DEBUG(<<"f0 = " << f0_actual);
 
-
-
+    TDoubleVecVec testSamples;
+    maths::CSampling::sobolSequenceSample(dim, mcSamples, testSamples);
+    for (std::size_t i = 0u; i < mcSamples; ++i) {
+        TVector input{vector(testSamples[i])};
+        meanAccumulator.add(bopt.evaluate(input));
+    }
+    double f0_expected{maths::CBasicStatistics::mean(meanAccumulator)};
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(f0_actual, f0_expected, 5e-4);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

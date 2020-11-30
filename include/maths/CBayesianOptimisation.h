@@ -95,7 +95,9 @@ public:
                                            std::size_t numberRounds);
 
     double evaluate(const TVector& input) const;
+    double evaluate(const TVector& input, const TVector& Kinvf) const;
     double anovaConstantFactor() const;
+    void kernelParameters(const TVector& parameters);
 
     //! \name Test Interface
     //@{
@@ -136,7 +138,7 @@ private:
     TMatrix kernel(const TVector& a, double v) const;
     TVectorDoublePr kernelCovariates(const TVector& a, const TVector& x, double vx) const;
     double kernel(const TVector& a, const TVector& x, const TVector& y) const;
-    
+
 private:
     CPRNG::CXorOShiro128Plus m_Rng;
     std::size_t m_Restarts;
