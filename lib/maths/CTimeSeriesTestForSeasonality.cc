@@ -492,6 +492,14 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
 
 CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompositions) const {
 
+    // If the existing seasonality couldn't be tested short circuit: we'll keep it.
+
+    if (std::find_if(decompositions.begin(), decompositions.end(), [](const auto& decomposition) {
+            return decomposition.s_AlreadyModelled && decomposition.isTestable() == false;
+        }) != decompositions.end()) {
+        return {};
+    }
+
     // Choose the hypothesis which yields the best explanation of the values.
 
     // Sort by increasing complexity.
@@ -988,6 +996,7 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
                 LOG_TRACE(<< "scale segments = "
                           << core::CContainerPrinter::print(hypothesis.s_ScaleSegments));
 
+                hypothesis.s_IsTestable = true;
                 hypothesis.s_NumberTrendSegments = numberTrendSegments;
                 hypothesis.s_NumberScaleSegments = hypothesis.s_ScaleSegments.size() - 1;
                 hypothesis.s_MeanNumberRepeats =
@@ -1972,6 +1981,15 @@ double CTimeSeriesTestForSeasonality::SHypothesisStats::weight() const {
 
 std::string CTimeSeriesTestForSeasonality::SHypothesisStats::print() const {
     return s_Period.print();
+}
+
+bool CTimeSeriesTestForSeasonality::SModel::isTestable() const {
+    for (const auto& hypothesis : s_Hypotheses) {
+        if (hypothesis.s_IsTestable == false) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool CTimeSeriesTestForSeasonality::SModel::isNull() const {
