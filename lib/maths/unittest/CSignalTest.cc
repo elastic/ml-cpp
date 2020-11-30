@@ -9,10 +9,13 @@
 #include <core/CoreTypes.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CIntegerTools.h>
 #include <maths/CSignal.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
+
+#include "TestUtils.h"
 
 #include <boost/math/constants/constants.hpp>
 #include <boost/test/unit_test.hpp>
@@ -1241,6 +1244,39 @@ BOOST_AUTO_TEST_CASE(testSelectComponentSize) {
     LOG_DEBUG(<< "sizes = " << core::CContainerPrinter::print(sizes));
     for (std::size_t i = 1; i < sizes.size(); ++i) {
         BOOST_TEST_REQUIRE(sizes[i] < sizes[i - 1]);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testBucketPredictor) {
+
+    TPredictorVec predictors{smoothDaily, spikeyDaily};
+    core_t::TTime zero{0};
+    core_t::TTime startTime{86400};
+
+    maths::CSignal::TFloatMeanAccumulatorVec values;
+    for (auto predictor : predictors) {
+        for (core_t::TTime bucketLength : {3600, 7200, 14400, 43200}) {
+            for (core_t::TTime sampleInterval : {300, 600, 1800, 3600}) {
+                for (core_t::TTime offset : {zero, sampleInterval / 2}) {
+                    values.assign(604800 / bucketLength,
+                                  maths::CSignal::TFloatMeanAccumulator{});
+                    for (core_t::TTime time = startTime;
+                         time < startTime + 604800; time += sampleInterval) {
+                        values[(time - startTime) / bucketLength].add(predictor(time + offset));
+                    }
+                    auto bucketPredictor = maths::CSignal::bucketPredictor(
+                        predictor, startTime, bucketLength,
+                        maths::CIntegerTools::floor(bucketLength - 1, sampleInterval) / 2 + offset,
+                        sampleInterval);
+                    for (std::size_t i = 0; i < values.size(); ++i) {
+                        BOOST_REQUIRE_CLOSE_ABSOLUTE(
+                            double{maths::CBasicStatistics::mean(values[i])},
+                            bucketPredictor(bucketLength * static_cast<core_t::TTime>(i)),
+                            1e-3);
+                    }
+                }
+            }
+        }
     }
 }
 
