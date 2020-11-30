@@ -403,7 +403,7 @@ BOOST_AUTO_TEST_CASE(testEvaluate1D) {
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     test::CRandomNumbers rng;
     std::size_t dim{2};
-    std::size_t mcSamples{1000};
+    std::size_t mcSamples{100};
     TDoubleVec coordinates{0.25, 0.5, 0.75};
     maths::CBayesianOptimisation bopt{{{0.0, 1.0}, {0.0, 1.0}}};
     for (std::size_t i = 0; i < 3; ++i) {
@@ -423,7 +423,7 @@ BOOST_AUTO_TEST_CASE(testEvaluate1D) {
     TDoubleVec testInput(1);
     rng.generateUniformSamples(0, 1, 1, testInput);
 
-    for (int d = 0; d < dim; ++d) {
+    for (std::size_t d = 0; d < static_cast<int>(dim); ++d) {
         TMeanAccumulator meanAccumulator;
         double ftActual{bopt.evaluate1D(testInput[0], d)};
         for (std::size_t i = 0u; i < mcSamples; ++i) {
@@ -440,7 +440,7 @@ BOOST_AUTO_TEST_CASE(testAnovaConstantFactor) {
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     TMeanAccumulator meanAccumulator;
     std::size_t dim{2};
-    std::size_t mcSamples{10000};
+    std::size_t mcSamples{100};
     TDoubleVec coordinates{0.25, 0.5, 0.75};
     maths::CBayesianOptimisation bopt{{{0.0, 1.0}, {0.0, 1.0}}};
     for (std::size_t i = 0; i < 3; ++i) {
@@ -468,7 +468,7 @@ BOOST_AUTO_TEST_CASE(testAnovaTotalVariance) {
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     TMeanAccumulator meanAccumulator;
     std::size_t dim{2};
-    std::size_t mcSamples{10000};
+    std::size_t mcSamples{200};
     TDoubleVec coordinates{0.25, 0.5, 0.75};
     maths::CBayesianOptimisation bopt{{{0.0, 1.0}, {0.0, 1.0}}};
     for (std::size_t i = 0; i < 3; ++i) {
@@ -497,7 +497,7 @@ BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
     TMeanAccumulator meanAccumulator;
     std::size_t dim{2};
-    std::size_t mcSamples{1000};
+    std::size_t mcSamples{100};
     TDoubleVec coordinates{0.25, 0.5, 0.75};
     maths::CBayesianOptimisation bopt{{{0.0, 1.0}, {0.0, 1.0}}};
     for (std::size_t i = 0; i < 3; ++i) {
@@ -513,13 +513,13 @@ BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
     TDoubleVecVec testSamples;
     maths::CSampling::sobolSequenceSample(1, mcSamples, testSamples);
 
-    for (int d = 0; d < dim; ++d) {
+    for (std::size_t d = 0; d < dim; ++d) {
         TMeanAccumulator meanAccumulator;
-        for (int i = 0; i < mcSamples; ++i) {
-            meanAccumulator.add(maths::CTools::pow2(bopt.evaluate1D(testSamples[i][0], d)));
+        for (std::size_t i = 0; i < mcSamples; ++i) {
+            meanAccumulator.add(maths::CTools::pow2(bopt.evaluate1D(testSamples[i][0], static_cast<int>(d))));
         }
         double mainEffectExpected(maths::CBasicStatistics::mean(meanAccumulator));
-        double mainEffectActual{bopt.anovaMainEffect(d)};
+        double mainEffectActual{bopt.anovaMainEffect(static_cast<int>(d))};
         BOOST_REQUIRE_CLOSE_ABSOLUTE(mainEffectActual, mainEffectExpected, 5e-4);
     }
 }
