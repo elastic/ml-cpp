@@ -99,6 +99,7 @@ public:
     double evaluate1D(double input, int t) const;
     double anovaConstantFactor() const;
     double anovaTotalVariance() const;
+    double anovaMainEffect(int t) const;
     void kernelParameters(const TVector& parameters);
 
     //! \name Test Interface

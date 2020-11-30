@@ -253,7 +253,8 @@ double CBayesianOptimisation::evaluate1D(double input, int t) const {
     for (int i = 0; i < m_FunctionMeanValues.size(); ++i) {
         s += Kinvf(i) *
              std::exp(-(CTools::pow2(m_KernelParameters[t + 1]) + MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE) *
-                      CTools::pow2(input - m_FunctionMeanValues[i].first(t))) * Pit(i, t);
+                      CTools::pow2(input - m_FunctionMeanValues[i].first(t))) *
+             Pit(i, t);
     }
     return CTools::pow2(m_KernelParameters(0)) * s - f0;
 }
@@ -297,6 +298,39 @@ double CBayesianOptimisation::anovaTotalVariance() const {
     double variance{std::pow(m_KernelParameters(0), 4) * s -
                     CTools::pow2(this->anovaConstantFactor())};
     return variance;
+}
+
+double CBayesianOptimisation::anovaMainEffect(int t) const {
+    TVector f{this->function()};
+    TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
+    TVector Kinvf = K.ldlt().solve(f);
+    auto Pit = [this](int i, int t) {
+        double prod{1.0};
+        for (int d = 0; d < this->m_MinBoundary.size(); ++d) {
+            if (d != t) {
+                prod *= stableProdd(this->m_KernelParameters(d + 1),
+                                    this->m_FunctionMeanValues[i].first(d));
+            }
+        }
+        return prod;
+    };
+    double f0{this->anovaConstantFactor()};
+    double s1{0.0};
+    double s2{0.0};
+    for (int i = 0; i < m_FunctionMeanValues.size(); ++i) {
+        for (int j = 0; j < m_FunctionMeanValues.size(); ++j) {
+            s1 += Kinvf(i) * Kinvf(j) * Pit(i, t) * Pit(j, t) *
+                  stableProdIjt(m_KernelParameters(t + 1),
+                                m_FunctionMeanValues[i].first(t),
+                                m_FunctionMeanValues[j].first(t));
+        }
+        s2 += Kinvf(i) *
+              stableProdd(m_KernelParameters(t + 1), m_FunctionMeanValues[i].first(t)) *
+              Pit(i, t);
+    }
+    s1 *= std::pow(m_KernelParameters(0), 4);
+    s2 *= -2 * CTools::pow2(m_KernelParameters(0)) * f0;
+    return s1 + s2 + CTools::pow2(f0);
 }
 
 void CBayesianOptimisation::kernelParameters(const TVector& parameters) {
