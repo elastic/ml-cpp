@@ -374,8 +374,6 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
 BOOST_AUTO_TEST_CASE(testEvaluate) {
     TDoubleVec coordinates{0.25, 0.5, 0.75};
     maths::CBayesianOptimisation bopt{{{0.0, 1.0}, {0.0, 1.0}}};
-    // TDoubleVec noise(9);
-    // rng.generateNormalSamples(0, 0.05, 9, noise)()
     for (std::size_t i = 0; i < 3; ++i) {
         for (std::size_t j = 0; j < 3; ++j) {
             TVector x{vector({coordinates[i], coordinates[j]})};
@@ -398,6 +396,43 @@ BOOST_AUTO_TEST_CASE(testEvaluate) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(actualTarget1, testTargets[i], 1e-5);
         double actualTarget2{bopt.evaluate(x, Kinvf)};
         BOOST_REQUIRE_CLOSE_ABSOLUTE(actualTarget2, testTargets[i], 1e-5);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testEvaluate1D) {
+     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    test::CRandomNumbers rng;
+    std::size_t dim{2};
+    std::size_t mcSamples{1000};
+    TDoubleVec coordinates{0.25, 0.5, 0.75};
+    maths::CBayesianOptimisation bopt{{{0.0, 1.0}, {0.0, 1.0}}};
+    for (std::size_t i = 0; i < 3; ++i) {
+        for (std::size_t j = 0; j < 3; ++j) {
+            TVector x{vector({coordinates[i], coordinates[j]})};
+            bopt.add(x, x.squaredNorm(), 0.2);
+        }
+    }
+
+    TVector kernelParameters(vector({0.7, 0.5, 0.5}));
+    bopt.kernelParameters(kernelParameters);
+    double f0{bopt.anovaConstantFactor()};
+
+    TDoubleVecVec testSamples;
+    maths::CSampling::sobolSequenceSample(dim, mcSamples, testSamples);
+    
+    TDoubleVec testInput(1);
+    rng.generateUniformSamples(0, 1, 1, testInput);
+
+    for (int d = 0; d < dim; ++d) {
+        TMeanAccumulator meanAccumulator;
+        double ftActual{bopt.evaluate1D(testInput[0], d)};
+        for (std::size_t i = 0u; i < mcSamples; ++i) {
+            TVector input{vector(testSamples[i])};
+            input(d) = testInput[0];
+            meanAccumulator.add(bopt.evaluate(input) - f0);
+        }
+        double ftExpected{maths::CBasicStatistics::mean(meanAccumulator)};
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(ftActual, ftExpected, 5e-4);
     }
 }
 
