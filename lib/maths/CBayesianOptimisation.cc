@@ -66,6 +66,15 @@ double stableProdd(double theta1, double x) {
                           (std::erf(c * (1 - x)) + std::erf(c * x)) / (2 * c));
 }
 
+double stableProdIjt(double theta1, double xit, double xjt) {
+    double c{std::sqrt(CTools::pow2(theta1) + MINIMUM_KERNEL_SCALE_FOR_EXPECTATION_MAXIMISATION)};
+    return CTools::stable(
+        boost::math::constants::root_half_pi<double>() / (2 * c) *
+        std::exp(-0.5 * CTools::pow2(c) * CTools::pow2(xit - xjt)) *
+        (std::erf(c / boost::math::constants::root_two<double>() * (xit + xjt)) -
+         std::erf(c / boost::math::constants::root_two<double>() * (xit + xjt - 2))));
+}
+
 using TDoubleVec = std::vector<double>;
 using TVector = maths::CDenseVector<double>;
 
@@ -230,7 +239,7 @@ double CBayesianOptimisation::anovaConstantFactor() const {
     TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
     TVector Kinvf = K.ldlt().solve(f);
     double sum{0.0};
-    for (int i = 0; i < m_FunctionMeanValues.size(); ++i) {
+    for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
         double prod{1.0};
         for (int d = 0; d < m_MinBoundary.size(); ++d) {
             prod *= stableProdd(m_KernelParameters(d + 1),
@@ -239,6 +248,31 @@ double CBayesianOptimisation::anovaConstantFactor() const {
         sum += Kinvf(i) * prod;
     }
     return CTools::pow2(m_KernelParameters(0)) * sum;
+}
+
+double CBayesianOptimisation::anovaTotalVariance() const {
+    double s{0.0};
+    TVector f{this->function()};
+    TMatrix K{this->kernel(m_KernelParameters, this->meanErrorVariance())};
+    TVector Kinvf = K.ldlt().solve(f);
+    auto prodIj = [this, &Kinvf](int i, int j) {
+        double prod{1.0};
+        for (int t = 0; t < this->m_MinBoundary.size(); ++t) {
+            prod *= stableProdIjt(this->m_KernelParameters[t + 1],
+                                  this->m_FunctionMeanValues[i].first(t),
+                                  this->m_FunctionMeanValues[j].first(t));
+        }
+        return Kinvf(i) * Kinvf(j) * prod;
+    };
+
+    for (int i = 0; i < static_cast<int>(m_FunctionMeanValues.size()); ++i) {
+        for (int j = 0; j < static_cast<int>(m_FunctionMeanValues.size()); ++j) {
+            s += prodIj(i, j);
+        }
+    }
+    double variance{std::pow(m_KernelParameters(0), 4) * s -
+                    CTools::pow2(this->anovaConstantFactor())};
+    return variance;
 }
 
 void CBayesianOptimisation::kernelParameters(const TVector& parameters) {

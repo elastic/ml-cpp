@@ -97,6 +97,7 @@ public:
     double evaluate(const TVector& input) const;
     double evaluate(const TVector& input, const TVector& Kinvf) const;
     double anovaConstantFactor() const;
+    double anovaTotalVariance() const;
     void kernelParameters(const TVector& parameters);
 
     //! \name Test Interface
