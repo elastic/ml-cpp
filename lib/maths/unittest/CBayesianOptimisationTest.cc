@@ -11,6 +11,7 @@
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CSampling.h>
+#include <maths/CTools.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
@@ -416,7 +417,7 @@ BOOST_AUTO_TEST_CASE(testAnovaConstantFactor) {
 
     TVector kernelParameters(vector({1.0, 0.5, 0.5}));
     bopt.kernelParameters(kernelParameters);
-    double f0_actual{bopt.anovaConstantFactor()};
+    double f0Actual{bopt.anovaConstantFactor()};
 
     TDoubleVecVec testSamples;
     maths::CSampling::sobolSequenceSample(dim, mcSamples, testSamples);
@@ -424,8 +425,37 @@ BOOST_AUTO_TEST_CASE(testAnovaConstantFactor) {
         TVector input{vector(testSamples[i])};
         meanAccumulator.add(bopt.evaluate(input));
     }
-    double f0_expected{maths::CBasicStatistics::mean(meanAccumulator)};
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(f0_actual, f0_expected, 5e-4);
+    double f0Expected{maths::CBasicStatistics::mean(meanAccumulator)};
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(f0Actual, f0Expected, 5e-4);
+}
+
+BOOST_AUTO_TEST_CASE(testAnovaTotalVariance) {
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    TMeanAccumulator meanAccumulator;
+    std::size_t dim{2};
+    std::size_t mcSamples{10000};
+    TDoubleVec coordinates{0.25, 0.5, 0.75};
+    maths::CBayesianOptimisation bopt{{{0.0, 1.0}, {0.0, 1.0}}};
+    for (std::size_t i = 0; i < 3; ++i) {
+        for (std::size_t j = 0; j < 3; ++j) {
+            TVector x{vector({coordinates[i], coordinates[j]})};
+            bopt.add(x, x.squaredNorm(), 0.2);
+        }
+    }
+
+    TVector kernelParameters(vector({1.0, 0.5, 0.5}));
+    bopt.kernelParameters(kernelParameters);
+    double f0{bopt.anovaConstantFactor()};
+    double totalVarianceActual{bopt.anovaTotalVariance()};
+
+    TDoubleVecVec testSamples;
+    maths::CSampling::sobolSequenceSample(dim, mcSamples, testSamples);
+    for (std::size_t i = 0u; i < mcSamples; ++i) {
+        TVector input{vector(testSamples[i])};
+        meanAccumulator.add(maths::CTools::pow2(bopt.evaluate(input) - f0));
+    }
+    double totalVarianceExpected{maths::CBasicStatistics::mean(meanAccumulator)};
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(totalVarianceActual, totalVarianceExpected, 5e-4);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
