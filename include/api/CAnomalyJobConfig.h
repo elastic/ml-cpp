@@ -203,9 +203,9 @@ public:
 
         //! Size of the memory limit for the resource monitor
         //! as a whole number of MB.
-        std::size_t modelMemoryLimit() const { return m_ModelMemoryLimit; }
+        std::size_t modelMemoryLimitMb() const { return m_ModelMemoryLimitMb; }
 
-        long categorizationExamplesLimit() const {
+        std::size_t categorizationExamplesLimit() const {
             return m_CategorizationExamplesLimit;
         }
 
@@ -213,7 +213,7 @@ public:
 
     private:
         std::size_t m_CategorizationExamplesLimit{model::CLimits::DEFAULT_RESULTS_MAX_EXAMPLES};
-        std::size_t m_ModelMemoryLimit{};
+        std::size_t m_ModelMemoryLimitMb{model::CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB};
     };
 
 public:

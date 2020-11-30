@@ -65,6 +65,11 @@ bool CLimits::init(const std::string& configFile) {
     return true;
 }
 
+void CLimits::init(std::size_t maxExamples, std::size_t modelMemoryLimitMB) {
+    m_MaxExamples = maxExamples;
+    m_MemoryLimitMB = modelMemoryLimitMB;
+}
+
 size_t CLimits::anomalyMaxTimeBuckets() const {
     return m_AnomalyMaxTimeBuckets;
 }

@@ -24,18 +24,38 @@ BOOST_AUTO_TEST_CASE(testTrivial) {
 }
 
 BOOST_AUTO_TEST_CASE(testValid) {
-    ml::model::CLimits config;
-    BOOST_TEST_REQUIRE(config.init("testfiles/mllimits.conf"));
+    {
+        ml::model::CLimits config;
+        BOOST_TEST_REQUIRE(config.init("testfiles/mllimits.conf"));
 
-    // This one isn't present in the config file so should be defaulted
-    BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
-                        config.anomalyMaxTimeBuckets());
+        // This one isn't present in the config file so should be defaulted
+        BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
+                            config.anomalyMaxTimeBuckets());
 
-    BOOST_REQUIRE_EQUAL(size_t(8), config.maxExamples());
+        BOOST_REQUIRE_EQUAL(size_t(8), config.maxExamples());
 
-    BOOST_REQUIRE_EQUAL(0.005, config.unusualProbabilityThreshold());
+        BOOST_REQUIRE_EQUAL(0.005, config.unusualProbabilityThreshold());
 
-    BOOST_REQUIRE_EQUAL(size_t(4567), config.memoryLimitMB());
+        BOOST_REQUIRE_EQUAL(size_t(4567), config.memoryLimitMB());
+    }
+    {
+        ml::model::CLimits config;
+
+        // initialise from given values
+        config.init(2, 4096);
+
+        // This one should always be defaulted when there is no config file
+        BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
+                            config.anomalyMaxTimeBuckets());
+
+        // This also should be defaulted (as a percentage)
+        BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_RESULTS_UNUSUAL_PROBABILITY_THRESHOLD / 100,
+                            config.unusualProbabilityThreshold());
+
+        // These two should be as specified in the constructor.
+        BOOST_REQUIRE_EQUAL(size_t(2), config.maxExamples());
+        BOOST_REQUIRE_EQUAL(size_t(4096), config.memoryLimitMB());
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testInvalid) {
