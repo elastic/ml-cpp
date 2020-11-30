@@ -57,7 +57,6 @@ namespace ml {
 namespace maths {
 namespace {
 
-using TDoubleDoublePr = maths_t::TDoubleDoublePr;
 using TSeasonalComponentVec = maths_t::TSeasonalComponentVec;
 using TCalendarComponentVec = maths_t::TCalendarComponentVec;
 using TBoolVec = std::vector<bool>;
@@ -799,7 +798,7 @@ bool CTimeSeriesDecompositionDetail::CChangePointTest::shouldTest(core_t::TTime 
 
 core_t::TTime CTimeSeriesDecompositionDetail::CChangePointTest::minimumChangeLength() const {
     // Transient changes tend to last 1 day. In such cases we do not want to
-    // apply any change and mearly ignore the interval. By waiting 36 hours
+    // apply any change and mearly ignore the interval. By waiting 30 hours
     // we give ourselves a margin to see the revert before we commit to making
     // a change.
     core_t::TTime length{
@@ -821,11 +820,11 @@ CTimeSeriesDecompositionDetail::CChangePointTest::bucketsStartTime(core_t::TTime
 
 core_t::TTime
 CTimeSeriesDecompositionDetail::CChangePointTest::valuesStartTime(core_t::TTime bucketsStartTime) const {
-    return (CIntegerTools::ceil(bucketsStartTime, m_BucketLength) +
-            CIntegerTools::floor(bucketsStartTime + this->windowBucketLength() - 1,
-                                 m_BucketLength)) /
-               2 +
-           (static_cast<core_t::TTime>(CBasicStatistics::mean(m_MeanOffset)));
+    core_t::TTime bucketEndTime{bucketsStartTime + this->windowBucketLength() - 1};
+    core_t::TTime firstSampleInBucket{CIntegerTools::ceil(bucketsStartTime, m_BucketLength)};
+    core_t::TTime lastSampleInBucket{CIntegerTools::floor(bucketEndTime, m_BucketLength)};
+    return firstSampleInBucket + (lastSampleInBucket - firstSampleInBucket) / 2 +
+           static_cast<core_t::TTime>(CBasicStatistics::mean(m_MeanOffset) + 0.5);
 }
 
 core_t::TTime

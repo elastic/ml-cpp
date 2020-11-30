@@ -95,10 +95,11 @@ core_t::TTime CExpandingWindow::sampleAverageOffset() const {
 }
 
 core_t::TTime CExpandingWindow::beginValuesTime() const {
-    return this->sampleAverageOffset() +
-           (CIntegerTools::ceil(m_StartTime, m_SampleInterval) +
-            CIntegerTools::floor(m_StartTime + this->bucketLength() - 1, m_SampleInterval)) /
-               2;
+    core_t::TTime endTime{m_StartTime + this->bucketLength() - 1};
+    core_t::TTime firstSampleTime{CIntegerTools::ceil(m_StartTime, m_SampleInterval)};
+    core_t::TTime lastSampleTime{CIntegerTools::floor(endTime, m_SampleInterval)};
+    return firstSampleTime + (lastSampleTime - firstSampleTime) / 2 +
+           this->sampleAverageOffset();
 }
 
 core_t::TTime CExpandingWindow::endValuesTime() const {
