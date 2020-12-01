@@ -163,7 +163,8 @@ public:
     //! \param[in] periods The seasonal components present in \p values.
     //! \param[in] segmentation The segmentation of \p values into intervals with
     //! constant scale.
-    //! \param[in] constantScale Computes the constant scale to apply to \p values.
+    //! \param[in] computeConstantScale Computes the constant scale to apply to the
+    //! seasonal components of \p values.
     //! \param[in] outlierFraction The proportion of values to treat as outliers.
     //! This must be in the range (0.0, 1.0).
     //! \param[out] models The component models.
@@ -173,7 +174,7 @@ public:
     constantScalePiecewiseLinearScaledSeasonal(const TFloatMeanAccumulatorVec& values,
                                                const TSeasonalComponentVec& periods,
                                                const TSizeVec& segmentation,
-                                               const TConstantScale& constantScale,
+                                               const TConstantScale& computeConstantScale,
                                                double outlierFraction,
                                                TDoubleVecVec& models,
                                                TDoubleVec& scales);

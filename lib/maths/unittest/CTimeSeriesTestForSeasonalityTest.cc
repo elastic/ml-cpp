@@ -1271,7 +1271,7 @@ BOOST_AUTO_TEST_CASE(testNewComponentInitialValuesWithPiecewiseLinearScaling) {
             double actual{10.0 * scales[test] *
                           generator(startTime + HOUR * static_cast<core_t::TTime>(i))};
             double prediction{maths::CBasicStatistics::mean(seasonal[i])};
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(actual, prediction, 1.0);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(actual, prediction, 2.0);
         }
     }
 }

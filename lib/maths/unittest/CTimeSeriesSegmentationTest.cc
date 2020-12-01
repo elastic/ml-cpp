@@ -557,7 +557,7 @@ BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
             }
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 1.0 / (static_cast<double>(values.size()) / static_cast<double>(repeats[i])),
-                maths::CBasicStatistics::variance(errorMoments), 0.1);
+                maths::CBasicStatistics::variance(errorMoments), 0.3);
 
             overallErrorMoments += errorMoments;
         }
@@ -568,7 +568,7 @@ BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
         BOOST_REQUIRE_CLOSE(1.0 / (static_cast<double>(values.size()) /
                                    static_cast<double>(repeats[i])),
                             maths::CBasicStatistics::variance(overallErrorMoments),
-                            15.0); // 15%
+                            40.0); // 40%
         ++i;
     }
 }

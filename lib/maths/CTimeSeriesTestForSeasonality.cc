@@ -892,32 +892,9 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
 
     LOG_TRACE(<< "testing " << core::CContainerPrinter::print(periods));
 
-    // We rescale to the minimum majority when testing with piecewise constant scales
-    // to get an accurate estimate of the autocorrelation over the full window.
-    auto majorityScale = [](const TSizeVec& segmentation, const TDoubleVec& scales) {
-        TMeanVarAccumulator result;
-        std::size_t included{0};
-        std::size_t majority{2 * (segmentation.back() - segmentation.front()) / 3 + 1};
-        for (double last{-1.0}, max{*std::max_element(scales.begin(), scales.end())};
-             included < majority;
-             /**/) {
-            double min{max};
-            std::size_t count{0};
-            for (std::size_t i = 0; i < scales.size(); ++i) {
-                if (scales[i] > last && scales[i] < min) {
-                    min = scales[i];
-                    count = segmentation[i + 1] - segmentation[i];
-                } else if (scales[i] > last && scales[i] == min) {
-                    count += segmentation[i + 1] - segmentation[i];
-                }
-            }
-            last = min;
-            result.add(min, static_cast<double>(count));
-            included += count;
-        }
-        return CBasicStatistics::mean(result);
+    auto meanScale = [](const TSizeVec& segmentation, const TDoubleVec& scales) {
+        return TSegmentation::meanScale(segmentation, scales);
     };
-
     TMeanScaleHypothesis constantScales[]{
         [&](TFloatMeanAccumulatorVec& values, const TSeasonalComponentVec&,
             const TMeanAccumulatorVecVec&, SHypothesisStats& hypothesis) {
@@ -930,7 +907,7 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
                 values,
                 [&](std::size_t i) { return period[0].value(component[0], i); },
                 m_SignificantPValue, MAXIMUM_NUMBER_SEGMENTS);
-            return this->constantScale(majorityScale, m_Periods, hypothesis.s_ScaleSegments,
+            return this->constantScale(meanScale, m_Periods, hypothesis.s_ScaleSegments,
                                        values, m_ScaledComponent, m_ComponentScales);
         }};
 

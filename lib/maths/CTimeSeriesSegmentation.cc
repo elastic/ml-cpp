@@ -144,12 +144,10 @@ CTimeSeriesSegmentation::constantScalePiecewiseLinearScaledSeasonal(
     const TFloatMeanAccumulatorVec& values,
     const TSeasonalComponentVec& periods,
     const TSizeVec& segmentation,
-    const TConstantScale& constantScale,
+    const TConstantScale& computeConstantScale,
     double outlierFraction,
     TDoubleVecVec& models,
     TDoubleVec& scales) {
-
-    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
 
     TFloatMeanAccumulatorVec scaledValues;
     fitPiecewiseLinearScaledSeasonal(values, periods, segmentation, outlierFraction,
@@ -158,70 +156,56 @@ CTimeSeriesSegmentation::constantScalePiecewiseLinearScaledSeasonal(
     LOG_TRACE(<< "segmentation = " << core::CContainerPrinter::print(segmentation));
     LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales));
 
-    double scale{constantScale(segmentation, scales)};
-    LOG_TRACE(<< "scale = " << scale);
+    double constantScale{computeConstantScale(segmentation, scales)};
+    LOG_TRACE(<< "scale = " << constantScale);
+
+    auto seasonality = [&](std::size_t i) {
+        double result{0.0};
+        for (std::size_t j = 0; j < periods.size(); ++j) {
+            if (periods[j].contains(i)) {
+                result += models[j][periods[j].offset(i)];
+            }
+        }
+        return result;
+    };
 
     scaledValues = values;
-    for (std::size_t i = 0; i != values.size(); ++i) {
-        for (std::size_t j = 0; j < periods.size(); ++j) {
-            if (periods[j].contains(i) && CBasicStatistics::count(values[i]) > 0.0) {
-                CBasicStatistics::moment<0>(scaledValues[i]) -=
-                    scaleAt(i, segmentation, scales) * models[j][periods[j].offset(i)];
+    TDoubleVec weights;
+    weights.reserve(scales.size());
+    for (std::size_t i = 1; i < segmentation.size(); ++i) {
+        TMeanVarAccumulator valueMoments;
+        TMeanVarAccumulator residualMoments;
+        double scale{std::max(scales[i - 1] - 1e-3, 0.0)};
+        for (std::size_t j = segmentation[i - 1]; j < segmentation[i]; ++j) {
+            double count{CBasicStatistics::count(scaledValues[j])};
+            if (count > 0.0) {
+                double value{CBasicStatistics::mean(values[j])};
+                double residual{value - scale * seasonality(j)};
+                CBasicStatistics::moment<0>(scaledValues[j]) = residual;
+                valueMoments.add(value, count);
+                residualMoments.add(residual, count);
             }
         }
+        double valueRmse{std::sqrt(CBasicStatistics::variance(valueMoments))};
+        double residualRmse{std::sqrt(CBasicStatistics::variance(residualMoments))};
+        weights.push_back(CTools::linearlyInterpolate(residualRmse, 4.0 * residualRmse,
+                                                      0.0, 1.0, valueRmse));
     }
-
-    double noiseStandardDeviation{std::sqrt([&] {
-        TMeanVarAccumulator moments;
-        for (std::size_t i = 0; i < scaledValues.size(); ++i) {
-            if (std::any_of(periods.begin(), periods.end(), [&](const auto& period) {
-                    return period.contains(i);
-                })) {
-                moments.add(CBasicStatistics::mean(scaledValues[i]),
-                            CBasicStatistics::count(scaledValues[i]));
-            }
-        }
-        return CBasicStatistics::maximumLikelihoodVariance(moments);
-    }())};
-
-    double amplitude{[&] {
-        TMinMaxAccumulator minmax;
-        for (std::size_t i = 0; i < scaledValues.size(); ++i) {
-            double prediction{0.0};
-            for (std::size_t j = 0; j < periods.size(); ++j) {
-                if (periods[j].contains(i)) {
-                    prediction += models[j][periods[j].offset(i)];
-                }
-            }
-            minmax.add(prediction);
-        }
-        return minmax.range();
-    }()};
-
-    LOG_TRACE(<< "amplitude = " << amplitude << ", sd noise = " << noiseStandardDeviation);
-
-    if (2.0 * *std::max_element(scales.begin(), scales.end()) * amplitude <= noiseStandardDeviation) {
-        return values;
-    }
+    LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
 
     for (std::size_t i = 0; i < values.size(); ++i) {
         if (std::any_of(periods.begin(), periods.end(),
                         [&](const auto& period) { return period.contains(i); })) {
-            // If the component is "scaled away" we treat it as missing.
-            double weight{std::min(2.0 * scaleAt(i, segmentation, scales) * amplitude - noiseStandardDeviation,
-                                   1.0)};
-            double prediction{0.0};
-            for (std::size_t j = 0; j < periods.size(); ++j) {
-                if (periods[j].contains(i)) {
-                    prediction += models[j][periods[j].offset(i)];
-                }
-            }
-
+            double weight{scaleAt(i, segmentation, weights)};
             if (weight <= 0.0) {
+                // If the component is scaled to the noise level.
                 scaledValues[i] = TFloatMeanAccumulator{};
-            } else {
+            } else if (CBasicStatistics::count(scaledValues[i]) > 0.0) {
+                auto& mean = CBasicStatistics::moment<0>(scaledValues[i]);
+                double scale{scaleAt(i, segmentation, scales)};
                 CBasicStatistics::count(scaledValues[i]) *= weight;
-                CBasicStatistics::moment<0>(scaledValues[i]) += scale * prediction;
+                mean *= constantScale / scale;
+                mean += constantScale * seasonality(i);
             }
         }
     }
@@ -593,7 +577,7 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinearScaledSeasonal(
             return (nl * vl + nr * vr) / (nl + nr);
         };
 
-        ITR i{std::next(begin, 2)};
+        ITR i{begin + 2};
 
         TMeanAccumulatorAry leftStatistics{statistics(begin, i)};
         TMeanAccumulatorAry rightStatistics{statistics(i, end)};
@@ -607,14 +591,13 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinearScaledSeasonal(
         // we can both add and remove values to compute this in O(|S||T|) for
         // S candidate splits and T sufficient statistics.
 
-        for (ITR end_ = std::prev(end, 2); i != end_; ++i) {
-            TMeanAccumulatorAry deltaStatistics{statistics(i, std::next(i))};
+        for (ITR end_ = end - 2; i != end_; ++i) {
+            TMeanAccumulatorAry deltaStatistics{statistics(i, i + 1)};
             for (std::size_t k = 0; k < 3; ++k) {
                 leftStatistics[k] += deltaStatistics[k];
                 rightStatistics[k] -= deltaStatistics[k];
             }
-            minResidualVariance.add(
-                {variance(leftStatistics, rightStatistics), std::next(i)});
+            minResidualVariance.add({variance(leftStatistics, rightStatistics), i + 1});
         }
 
         ITR split{minResidualVariance[0].second};
