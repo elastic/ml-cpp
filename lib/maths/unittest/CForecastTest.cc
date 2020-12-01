@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE(testComplexConstantLongTermTrend) {
     test.bucketLength(bucketLength)
         .daysToLearn(63)
         .noiseVariance(4.0)
-        .maximumPercentageOutOfBounds(7.0)
+        .maximumPercentageOutOfBounds(7.5)
         .maximumError(0.02)
         .run(trend);
 }

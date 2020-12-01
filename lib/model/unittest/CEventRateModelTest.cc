@@ -823,8 +823,8 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedTrend, CTestFixture) {
     const TDoubleVec means{20.0, 25.0, 50.0, 100.0};
     const TDoubleVecVec covariances{{20.0, 10.0, 0.0, 0.0},
                                     {10.0, 30.0, 0.0, 0.0},
-                                    {0.0, 0.0, 50.0, -40.0},
-                                    {0.0, 0.0, -40.0, 50.0}};
+                                    {0.0, 0.0, 40.0, -30.0},
+                                    {0.0, 0.0, -30.0, 40.0}};
     const TDoubleVecVec trends{
         {0.0, 0.0, 0.0,  1.0, 1.0, 2.0, 4.0, 10.0, 11.0, 10.0, 8.0, 8.0,
          7.0, 9.0, 12.0, 4.0, 3.0, 1.0, 1.0, 0.0,  0.0,  0.0,  0.0, 0.0},
@@ -2745,7 +2745,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
         LOG_DEBUG(<< "reference = "
                   << maths::CBasicStatistics::mean(meanReferencePredictionError));
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanPredictionError) <
-                           0.8 * maths::CBasicStatistics::mean(meanReferencePredictionError));
+                           0.82 * maths::CBasicStatistics::mean(meanReferencePredictionError));
     }
 }
 
