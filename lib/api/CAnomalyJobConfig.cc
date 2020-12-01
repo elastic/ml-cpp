@@ -253,24 +253,24 @@ void CAnomalyJobConfig::CAnalysisLimits::parse(const rapidjson::Value& analysisL
         model::CLimits::DEFAULT_RESULTS_MAX_EXAMPLES);
 
     const std::string memoryLimitStr{parameters[MODEL_MEMORY_LIMIT].as<std::string>()};
-    m_ModelMemoryLimit = CAnomalyJobConfig::CAnalysisLimits::modelMemoryLimitMb(memoryLimitStr);
+    m_ModelMemoryLimitMb = CAnomalyJobConfig::CAnalysisLimits::modelMemoryLimitMb(memoryLimitStr);
 }
 
 std::size_t CAnomalyJobConfig::CAnalysisLimits::modelMemoryLimitMb(const std::string& memoryLimitStr) {
-    std::size_t memoryLimitMb{0};
-
     // We choose to ignore any errors here parsing the model memory limit string
     // as we assume that it has already been validated by ES. In the event that any
     // error _does_ occur an error is logged and a default value used.
-    std::tie(memoryLimitMb, std::ignore) = core::CStringUtils::memorySizeStringToBytes(
+    std::size_t memoryLimitBytes{0};
+    std::tie(memoryLimitBytes, std::ignore) = core::CStringUtils::memorySizeStringToBytes(
         memoryLimitStr, DEFAULT_MEMORY_LIMIT_BYTES);
 
-    memoryLimitMb /= core::constants::BYTES_IN_MEGABYTE;
+    std::size_t memoryLimitMb = memoryLimitBytes / core::constants::BYTES_IN_MEGABYTE;
 
     if (memoryLimitMb == 0) {
         LOG_ERROR(<< "Invalid limit value " << memoryLimitStr << ". Limit must have a minimum value of 1mb."
-                  << " Using default memory limit value " << DEFAULT_MEMORY_LIMIT_BYTES);
-        memoryLimitMb = DEFAULT_MEMORY_LIMIT_BYTES;
+                  << " Using default memory limit value "
+                  << DEFAULT_MEMORY_LIMIT_BYTES / core::constants::BYTES_IN_MEGABYTE);
+        memoryLimitMb = DEFAULT_MEMORY_LIMIT_BYTES / core::constants::BYTES_IN_MEGABYTE;
     }
 
     return memoryLimitMb;

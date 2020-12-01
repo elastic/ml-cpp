@@ -69,6 +69,11 @@ public:
     //! in the config file will be reset to their default values.
     bool init(const std::string& configFile);
 
+    //! Initialise with given values for the maximum number of
+    //! (categorisation) examples and the model memory limit (in MB).
+    //! All other settings take their default values.
+    void init(std::size_t maxExamples, std::size_t modelMemoryLimitMB);
+
     //! Access to settings
     size_t anomalyMaxTimeBuckets() const;
     size_t maxExamples() const;

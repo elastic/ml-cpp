@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
 
         // Expect the model memory limit to be rounded down to the nearest whole number of megabytes
-        BOOST_REQUIRE_EQUAL(4, analysisLimits.modelMemoryLimit());
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.modelMemoryLimitMb());
 
         using TModelPlotConfig = ml::api::CAnomalyJobConfig::CModelPlotConfig;
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
 
         // Expect the model memory limit to be rounded down to the nearest whole number of megabytes
-        BOOST_REQUIRE_EQUAL(5, analysisLimits.modelMemoryLimit());
+        BOOST_REQUIRE_EQUAL(5, analysisLimits.modelMemoryLimitMb());
 
         using TModelPlotConfig = ml::api::CAnomalyJobConfig::CModelPlotConfig;
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         using TAnalysisLimits = ml::api::CAnomalyJobConfig::CAnalysisLimits;
         const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
         BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
-        BOOST_REQUIRE_EQUAL(17, analysisLimits.modelMemoryLimit());
+        BOOST_REQUIRE_EQUAL(17, analysisLimits.modelMemoryLimitMb());
 
         using TModelPlotConfig = ml::api::CAnomalyJobConfig::CModelPlotConfig;
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         using TAnalysisLimits = ml::api::CAnomalyJobConfig::CAnalysisLimits;
         const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
         BOOST_REQUIRE_EQUAL(5, analysisLimits.categorizationExamplesLimit());
-        BOOST_REQUIRE_EQUAL(11, analysisLimits.modelMemoryLimit());
+        BOOST_REQUIRE_EQUAL(11, analysisLimits.modelMemoryLimitMb());
 
         using TModelPlotConfig = ml::api::CAnomalyJobConfig::CModelPlotConfig;
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
@@ -391,7 +391,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         using TAnalysisLimits = ml::api::CAnomalyJobConfig::CAnalysisLimits;
         const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
         BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
-        BOOST_REQUIRE_EQUAL(26, analysisLimits.modelMemoryLimit());
+        BOOST_REQUIRE_EQUAL(26, analysisLimits.modelMemoryLimitMb());
 
         using TModelPlotConfig = ml::api::CAnomalyJobConfig::CModelPlotConfig;
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();

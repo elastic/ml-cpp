@@ -176,12 +176,6 @@ int main(int argc, char** argv) {
     // hence is done before reducing CPU priority.
     ml::core::CProcessPriority::reduceCpuPriority();
 
-    ml::model::CLimits limits{isPersistInForeground};
-    if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false) {
-        LOG_FATAL(<< "ML limit config file '" << limitConfigFile << "' could not be loaded");
-        return EXIT_FAILURE;
-    }
-
     ml::api::CFieldConfig fieldConfig;
 
     if (fieldConfig.initFromCmdLine(fieldConfigFile, clauseTokens) == false) {
@@ -204,6 +198,12 @@ int main(int argc, char** argv) {
         LOG_FATAL(<< "Failed to parse anomaly job config: '" << anomalyJobConfigJson << "'");
         return EXIT_FAILURE;
     }
+
+    const ml::api::CAnomalyJobConfig::CAnalysisLimits& analysisLimits =
+        jobConfig.analysisLimits();
+    ml::model::CLimits limits{isPersistInForeground};
+    limits.init(analysisLimits.categorizationExamplesLimit(),
+                analysisLimits.modelMemoryLimitMb());
 
     bool doingCategorization{fieldConfig.fieldNameSuperset().count(
                                  ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0};
