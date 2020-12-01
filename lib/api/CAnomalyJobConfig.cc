@@ -54,8 +54,10 @@ const std::string CAnomalyJobConfig::CAnalysisConfig::PER_PARTITION_CATEGORIZATI
 const std::string CAnomalyJobConfig::CAnalysisConfig::ENABLED{"enabled"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::STOP_ON_WARN{"stop_on_warn"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::LATENCY{"latency"};
+const std::string CAnomalyJobConfig::CAnalysisConfig::MULTIVARIATE_BY_FIELDS{"multivariate_by_fields"};
 
 const core_t::TTime CAnomalyJobConfig::CAnalysisConfig::DEFAULT_BUCKET_SPAN{300};
+const core_t::TTime CAnomalyJobConfig::CAnalysisConfig::DEFAULT_LATENCY{0};
 
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION{"function"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FIELD_NAME{"field_name"};
@@ -66,6 +68,7 @@ const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::PARTITION
     "partition_field_name"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_DESCRIPTION{
     "detector_description"};
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_INDEX{"detector_index"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::EXCLUDE_FREQUENT{
     "exclude_frequent"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::USE_NULL{"use_null"};
@@ -147,6 +150,8 @@ const CAnomalyJobConfigReader DETECTOR_CONFIG_READER{[] {
                            CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_DESCRIPTION,
                            CAnomalyJobConfigReader::E_OptionalParameter);
+    theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_INDEX,
+                           CAnomalyJobConfigReader::E_RequiredParameter);
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::EXCLUDE_FREQUENT,
                            CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::USE_NULL,
@@ -288,8 +293,9 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
     // We choose to ignore any errors here parsing the time duration string as
     // we assume that it has already been validated by ES. In the event that any
     // error _does_ occur an error is logged and a default value used.
-    const std::string bucketSpanString{parameters[BUCKET_SPAN].as<std::string>()};
-    m_BucketSpan = CAnomalyJobConfig::CAnalysisConfig::bucketSpanSeconds(bucketSpanString);
+    const std::string& bucketSpanString{parameters[BUCKET_SPAN].as<std::string>()};
+    m_BucketSpan = CAnomalyJobConfig::CAnalysisConfig::durationSeconds(
+        bucketSpanString, DEFAULT_BUCKET_SPAN);
 
     m_SummaryCountFieldName = parameters[SUMMARY_COUNT_FIELD_NAME].fallback(EMPTY_STRING);
     m_CategorizationFieldName = parameters[CATEGORIZATION_FIELD_NAME].fallback(EMPTY_STRING);
@@ -310,33 +316,42 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
     if (detectorsConfig != nullptr && detectorsConfig->IsArray()) {
         m_Detectors.resize(detectorsConfig->Size());
         for (std::size_t i = 0; i < detectorsConfig->Size(); ++i) {
-            m_Detectors[i].parse((*detectorsConfig)[static_cast<int>(i)], m_RuleFilters);
+            m_Detectors[i].parse((*detectorsConfig)[static_cast<int>(i)], m_RuleFilters,
+                                 m_DetectorRules[static_cast<int>(i)]);
         }
     }
 
     m_Influencers = parameters[INFLUENCERS].fallback(TStrVec{});
-    m_Latency = parameters[LATENCY].fallback(EMPTY_STRING);
+
+    const std::string& latencyString{parameters[LATENCY].fallback(EMPTY_STRING)};
+    m_Latency = CAnomalyJobConfig::CAnalysisConfig::durationSeconds(latencyString, DEFAULT_LATENCY);
+
+    m_MultivariateByFields = parameters[MULTIVARIATE_BY_FIELDS].fallback(false);
 }
 
-core_t::TTime CAnomalyJobConfig::CAnalysisConfig::bucketSpanSeconds(const std::string& bucketSpanString) {
-    core_t::TTime bucketSpanSeconds{0};
-    std::tie(bucketSpanSeconds, std::ignore) =
-        core::CTimeUtils::timeDurationStringToSeconds(bucketSpanString, DEFAULT_BUCKET_SPAN);
+core_t::TTime
+CAnomalyJobConfig::CAnalysisConfig::durationSeconds(const std::string& durationString,
+                                                    core_t::TTime defaultDuration) {
+    core_t::TTime durationSeconds{0};
+    std::tie(durationSeconds, std::ignore) =
+        core::CTimeUtils::timeDurationStringToSeconds(durationString, defaultDuration);
 
-    if (bucketSpanSeconds == 0) {
-        LOG_ERROR(<< "Invalid bucket span value " << bucketSpanString
+    if (durationSeconds == 0) {
+        LOG_ERROR(<< "Invalid duration value " << durationString
                   << ". Duration must have a minimum value of 1s. "
-                     "Using default bucket span value "
-                  << DEFAULT_BUCKET_SPAN);
-        bucketSpanSeconds = DEFAULT_BUCKET_SPAN;
+                     "Using default duration value "
+                  << defaultDuration);
+        durationSeconds = defaultDuration;
     }
 
-    return bucketSpanSeconds;
+    return durationSeconds;
 }
 
 void CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::parse(
     const rapidjson::Value& detectorConfig,
-    const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters) {
+    const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
+    CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules) {
+
     auto parameters = DETECTOR_CONFIG_READER.read(detectorConfig);
 
     m_Function = parameters[FUNCTION].as<std::string>();
@@ -347,12 +362,13 @@ void CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::parse(
     m_PartitionFieldName = parameters[PARTITION_FIELD_NAME].fallback(EMPTY_STRING);
     m_ExcludeFrequent = parameters[EXCLUDE_FREQUENT].fallback(EMPTY_STRING);
     m_DetectorDescription = parameters[DETECTOR_DESCRIPTION].fallback(EMPTY_STRING);
+    m_DetectorIndex = parameters[DETECTOR_INDEX].as<std::size_t>();
 
     auto customRules = parameters[CUSTOM_RULES].jsonObject();
     if (customRules != nullptr) {
         std::string errorString;
         CDetectionRulesJsonParser rulesParser(ruleFilters);
-        if (rulesParser.parseRules(*customRules, m_CustomRules, errorString) == false) {
+        if (rulesParser.parseRules(*customRules, detectionRules, errorString) == false) {
             LOG_ERROR(<< errorString << toString(*customRules));
             throw CAnomalyJobConfigReader::CParseError(
                 "Error parsing custom rules: " + toString(*customRules));

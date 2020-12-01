@@ -29,9 +29,6 @@ bool CCmdLineParser::parse(int argc,
                            std::string& modelPlotConfigFile,
                            std::string& logProperties,
                            std::string& logPipe,
-                           core_t::TTime& bucketSpan,
-                           core_t::TTime& latency,
-                           std::string& summaryCountFieldName,
                            char& delimiter,
                            bool& lengthEncodedInput,
                            std::string& timeField,
@@ -53,7 +50,6 @@ bool CCmdLineParser::parse(int argc,
                            bool& isPersistInForeground,
                            std::size_t& maxAnomalyRecords,
                            bool& memoryUsage,
-                           bool& multivariateByFields,
                            bool& stopCategorizationOnWarnStatus,
                            TStrVec& clauseTokens) {
     try {
@@ -177,15 +173,6 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("logPipe") > 0) {
             logPipe = vm["logPipe"].as<std::string>();
         }
-        if (vm.count("bucketspan") > 0) {
-            bucketSpan = vm["bucketspan"].as<core_t::TTime>();
-        }
-        if (vm.count("latency") > 0) {
-            latency = vm["latency"].as<core_t::TTime>();
-        }
-        if (vm.count("summarycountfield") > 0) {
-            summaryCountFieldName = vm["summarycountfield"].as<std::string>();
-        }
         if (vm.count("delimiter") > 0) {
             delimiter = vm["delimiter"].as<char>();
         }
@@ -249,9 +236,6 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("memoryUsage") > 0) {
             memoryUsage = true;
-        }
-        if (vm.count("multivariateByFields") > 0) {
-            multivariateByFields = true;
         }
         if (vm.count("stopCategorizationOnWarnStatus") > 0) {
             stopCategorizationOnWarnStatus = true;

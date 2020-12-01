@@ -29,7 +29,7 @@ public:
     using TStrVec = std::vector<std::string>;
 
 public:
-    //! Parse the arguments and return options if appropriate.  Unamed
+    //! Parse the arguments and return options if appropriate.  Unnamed
     //! options are placed in a vector for further processing/validation
     //! later on by the api::CFieldConfig class.
     static bool parse(int argc,
@@ -41,9 +41,6 @@ public:
                       std::string& modelPlotConfigFile,
                       std::string& logProperties,
                       std::string& logPipe,
-                      core_t::TTime& bucketSpan,
-                      core_t::TTime& latency,
-                      std::string& summaryCountFieldName,
                       char& delimiter,
                       bool& lengthEncodedInput,
                       std::string& timeField,
@@ -65,7 +62,6 @@ public:
                       bool& isPersistInForeground,
                       std::size_t& maxAnomalyRecords,
                       bool& memoryUsage,
-                      bool& multivariateByFields,
                       bool& stopCategorizationOnWarnStatus,
                       TStrVec& clauseTokens);
 

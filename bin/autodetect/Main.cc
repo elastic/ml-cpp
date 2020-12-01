@@ -91,9 +91,6 @@ int main(int argc, char** argv) {
     std::string modelPlotConfigFile;
     std::string logProperties;
     std::string logPipe;
-    ml::core_t::TTime bucketSpan{0};
-    ml::core_t::TTime latency{0};
-    std::string summaryCountFieldName;
     char delimiter{'\t'};
     bool lengthEncodedInput{false};
     std::string timeField{ml::api::CAnomalyJob::DEFAULT_TIME_FIELD_NAME};
@@ -116,19 +113,17 @@ int main(int argc, char** argv) {
     bool isPersistInForeground{false};
     std::size_t maxAnomalyRecords{100};
     bool memoryUsage{false};
-    bool multivariateByFields{false};
     bool stopCategorizationOnWarnStatus{false};
     TStrVec clauseTokens;
     if (ml::autodetect::CCmdLineParser::parse(
             argc, argv, configFile, limitConfigFile, modelConfigFile, fieldConfigFile,
-            modelPlotConfigFile, logProperties, logPipe, bucketSpan, latency,
-            summaryCountFieldName, delimiter, lengthEncodedInput, timeField,
-            timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
+            modelPlotConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
+            timeField, timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
             bucketPersistInterval, maxQuantileInterval, namedPipeConnectTimeout,
             inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
-            restoreFileName, isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe,
-            isPersistInForeground, maxAnomalyRecords, memoryUsage, multivariateByFields,
-            stopCategorizationOnWarnStatus, clauseTokens) == false) {
+            restoreFileName, isRestoreFileNamedPipe, persistFileName,
+            isPersistFileNamedPipe, isPersistInForeground, maxAnomalyRecords,
+            memoryUsage, stopCategorizationOnWarnStatus, clauseTokens) == false) {
         return EXIT_FAILURE;
     }
 
@@ -212,12 +207,19 @@ int main(int argc, char** argv) {
         mutableFields.push_back(ml::api::CFieldDataCategorizer::MLCATEGORY_NAME);
     }
 
+    const ml::api::CAnomalyJobConfig::CAnalysisConfig& analysisConfig =
+        jobConfig.analysisConfig();
+    const std::string& summaryCountFieldName = analysisConfig.summaryCountFieldName();
+    ml::core_t::TTime bucketSpan = analysisConfig.bucketSpan();
+    ml::core_t::TTime latency = analysisConfig.latency();
+    bool multivariateByFields = analysisConfig.multivariateByFields();
+
     ml::model_t::ESummaryMode summaryMode{
         summaryCountFieldName.empty() ? ml::model_t::E_None : ml::model_t::E_Manual};
     ml::model::CAnomalyDetectorModelConfig modelConfig{ml::model::CAnomalyDetectorModelConfig::defaultConfig(
         bucketSpan, summaryMode, summaryCountFieldName, latency, multivariateByFields)};
     modelConfig.detectionRules(ml::model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(
-        fieldConfig.detectionRules()));
+        analysisConfig.detectionRules()));
     modelConfig.scheduledEvents(ml::model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(
         fieldConfig.scheduledEvents()));
 
