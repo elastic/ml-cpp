@@ -32,11 +32,11 @@ BOOST_AUTO_TEST_CASE(testValid) {
         BOOST_REQUIRE_EQUAL(ml::model::CLimits::DEFAULT_ANOMALY_MAX_TIME_BUCKETS,
                             config.anomalyMaxTimeBuckets());
 
-        BOOST_REQUIRE_EQUAL(size_t(8), config.maxExamples());
+        BOOST_REQUIRE_EQUAL(8, config.maxExamples());
 
         BOOST_REQUIRE_EQUAL(0.005, config.unusualProbabilityThreshold());
 
-        BOOST_REQUIRE_EQUAL(size_t(4567), config.memoryLimitMB());
+        BOOST_REQUIRE_EQUAL(4567, config.memoryLimitMB());
     }
     {
         ml::model::CLimits config;
@@ -53,8 +53,8 @@ BOOST_AUTO_TEST_CASE(testValid) {
                             config.unusualProbabilityThreshold());
 
         // These two should be as specified in the constructor.
-        BOOST_REQUIRE_EQUAL(size_t(2), config.maxExamples());
-        BOOST_REQUIRE_EQUAL(size_t(4096), config.memoryLimitMB());
+        BOOST_REQUIRE_EQUAL(2, config.maxExamples());
+        BOOST_REQUIRE_EQUAL(4096, config.memoryLimitMB());
     }
 }
 
