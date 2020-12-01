@@ -2404,7 +2404,7 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
         BOOST_REQUIRE_EQUAL(hour, model.trendModel().timeShift());
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 3.8 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 4.0 * std::sqrt(noiseVariance));
         BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.5 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
@@ -2426,7 +2426,7 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
         BOOST_REQUIRE_EQUAL(core_t::TTime(0), model.trendModel().timeShift());
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 3.3 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 3.5 * std::sqrt(noiseVariance));
         BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.5 * std::sqrt(noiseVariance));
         time += bucketLength;
     }

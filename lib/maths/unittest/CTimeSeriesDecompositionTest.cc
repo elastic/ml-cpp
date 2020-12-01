@@ -902,7 +902,7 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
         LOG_DEBUG(<< "mean scale = " << maths::CBasicStatistics::mean(meanScale));
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.3);
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentileError) < 0.04);
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, maths::CBasicStatistics::mean(meanScale), 0.01);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, maths::CBasicStatistics::mean(meanScale), 0.02);
     }
     LOG_DEBUG(<< "Long Term Trend");
     {
@@ -1056,7 +1056,7 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
         double lb, ub;
         maths_t::ETail tail;
         model.probabilityOfLessLikelySamples(
-            maths_t::E_TwoSided, {decomposition.detrend(time, value, 70.0)},
+            maths_t::E_TwoSided, {decomposition.detrend(time, value, 0.0)},
             {maths_t::seasonalVarianceScaleWeight(std::max(
                 decomposition.varianceScaleWeight(time, variance, 70.0).second, 0.25))},
             lb, ub, tail);
@@ -1064,7 +1064,7 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
         pMinScaled = std::min(pMinScaled, pScaled);
 
         model.probabilityOfLessLikelySamples(
-            maths_t::E_TwoSided, {decomposition.detrend(time, value, 70.0)},
+            maths_t::E_TwoSided, {decomposition.detrend(time, value, 0.0)},
             maths_t::CUnitWeights::SINGLE_UNIT, lb, ub, tail);
         double pUnscaled = (lb + ub) / 2.0;
         pMinUnscaled = std::min(pMinUnscaled, pUnscaled);
@@ -1072,7 +1072,7 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
 
     LOG_DEBUG(<< "pMinScaled = " << pMinScaled);
     LOG_DEBUG(<< "pMinUnscaled = " << pMinUnscaled);
-    BOOST_TEST_REQUIRE(pMinScaled > 10.0 * pMinUnscaled);
+    BOOST_TEST_REQUIRE(pMinScaled > 1e6 * pMinUnscaled);
 }
 
 BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
