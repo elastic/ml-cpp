@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include "maths/CBoostedTreeHyperparameters.h"
 #include <maths/CBoostedTreeFactory.h>
 
 #include <core/CIEEE754.h>
@@ -16,6 +17,7 @@
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTreeImpl.h>
 #include <maths/CBoostedTreeLoss.h>
+#include <maths/CBoostedTreeHyperparameters.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>
@@ -82,6 +84,8 @@ std::size_t computeMaximumNumberTrees(double eta) {
 bool intervalIsEmpty(const CBoostedTreeFactory::TVector& interval) {
     return interval(MAX_REGULARIZER_INDEX) - interval(MIN_REGULARIZER_INDEX) == 0.0;
 }
+
+using TStringVec = std::vector<std::string>;
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
@@ -180,32 +184,41 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
     // less than p_1, this translates to using log parameter values.
 
     CBayesianOptimisation::TDoubleDoublePrVec boundingBox;
+    TStringVec hyperparameters;
     if (m_TreeImpl->m_DownsampleFactorOverride == boost::none) {
         boundingBox.emplace_back(
             m_LogDownsampleFactorSearchInterval(MIN_REGULARIZER_INDEX),
             m_LogDownsampleFactorSearchInterval(MAX_REGULARIZER_INDEX));
+        hyperparameters.emplace_back(CBoostedTreeHyperparameters::DOWNSAMPLE_FACTOR);
     }
     if (m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
         boundingBox.emplace_back(
             m_LogDepthPenaltyMultiplierSearchInterval(MIN_REGULARIZER_INDEX),
             m_LogDepthPenaltyMultiplierSearchInterval(MAX_REGULARIZER_INDEX));
+        hyperparameters.emplace_back(CBoostedTreeHyperparameters::ALPHA);
+
     }
     if (m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
         boundingBox.emplace_back(
             m_LogLeafWeightPenaltyMultiplierSearchInterval(MIN_REGULARIZER_INDEX),
             m_LogLeafWeightPenaltyMultiplierSearchInterval(MAX_REGULARIZER_INDEX));
+        hyperparameters.emplace_back(CBoostedTreeHyperparameters::LAMBDA);
     }
     if (m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
         boundingBox.emplace_back(
             m_LogTreeSizePenaltyMultiplierSearchInterval(MIN_REGULARIZER_INDEX),
             m_LogTreeSizePenaltyMultiplierSearchInterval(MAX_REGULARIZER_INDEX));
+        hyperparameters.emplace_back(CBoostedTreeHyperparameters::GAMMA);
     }
     if (m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
         boundingBox.emplace_back(m_SoftDepthLimitSearchInterval(MIN_REGULARIZER_INDEX),
                                  m_SoftDepthLimitSearchInterval(MAX_REGULARIZER_INDEX));
+        hyperparameters.emplace_back(CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_LIMIT);
     }
     if (m_TreeImpl->m_RegularizationOverride.softTreeDepthTolerance() == boost::none) {
         boundingBox.emplace_back(MIN_SOFT_DEPTH_LIMIT_TOLERANCE, MAX_SOFT_DEPTH_LIMIT_TOLERANCE);
+        hyperparameters.emplace_back(CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_TOLERANCE);
+
     }
     if (m_TreeImpl->m_EtaOverride == boost::none) {
         double rate{m_TreeImpl->m_EtaGrowthRatePerTree - 1.0};
@@ -213,9 +226,11 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
                                  m_LogEtaSearchInterval(MAX_REGULARIZER_INDEX));
         boundingBox.emplace_back(1.0 + MIN_ETA_GROWTH_RATE_SCALE * rate,
                                  1.0 + MAX_ETA_GROWTH_RATE_SCALE * rate);
+        hyperparameters.emplace_back(CBoostedTreeHyperparameters::ETA);
     }
     if (m_TreeImpl->m_FeatureBagFractionOverride == boost::none) {
         boundingBox.emplace_back(MIN_FEATURE_BAG_FRACTION, MAX_FEATURE_BAG_FRACTION);
+        hyperparameters.emplace_back(CBoostedTreeHyperparameters::FEATURE_BAG_FRACTION);
     }
     LOG_TRACE(<< "hyperparameter search bounding box = "
               << core::CContainerPrinter::print(boundingBox));

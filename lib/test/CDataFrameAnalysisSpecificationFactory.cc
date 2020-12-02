@@ -9,6 +9,8 @@
 #include <core/CDataFrame.h>
 #include <core/CStringUtils.h>
 
+#include <maths/CBoostedTreeHyperparameters.h>
+
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CDataFrameAnalysisSpecificationJsonWriter.h>
 #include <api/CDataFrameOutliersRunner.h>
@@ -274,39 +276,39 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     writer.Key(api::CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME);
     writer.String(dependentVariable);
     if (m_Alpha >= 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::ALPHA);
+        writer.Key(maths::CBoostedTreeHyperparameters::ALPHA);
         writer.Double(m_Alpha);
     }
     if (m_Lambda >= 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::LAMBDA);
+        writer.Key(maths::CBoostedTreeHyperparameters::LAMBDA);
         writer.Double(m_Lambda);
     }
     if (m_Gamma >= 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::GAMMA);
+        writer.Key(maths::CBoostedTreeHyperparameters::GAMMA);
         writer.Double(m_Gamma);
     }
     if (m_SoftTreeDepthLimit >= 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT);
+        writer.Key(maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_LIMIT);
         writer.Double(m_SoftTreeDepthLimit);
     }
     if (m_SoftTreeDepthTolerance >= 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE);
+        writer.Key(maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_TOLERANCE);
         writer.Double(m_SoftTreeDepthTolerance);
     }
     if (m_Eta > 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::ETA);
+        writer.Key(maths::CBoostedTreeHyperparameters::ETA);
         writer.Double(m_Eta);
     }
     if (m_DownsampleFactor > 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR);
+        writer.Key(maths::CBoostedTreeHyperparameters::DOWNSAMPLE_FACTOR);
         writer.Double(m_DownsampleFactor);
     }
     if (m_MaximumNumberTrees > 0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::MAX_TREES);
+        writer.Key(maths::CBoostedTreeHyperparameters::MAX_TREES);
         writer.Uint64(m_MaximumNumberTrees);
     }
     if (m_FeatureBagFraction > 0.0) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION);
+        writer.Key(maths::CBoostedTreeHyperparameters::FEATURE_BAG_FRACTION);
         writer.Double(m_FeatureBagFraction);
     }
     if (m_NumberRoundsPerHyperparameter > 0) {

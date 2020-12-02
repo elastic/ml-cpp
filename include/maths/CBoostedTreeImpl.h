@@ -28,7 +28,6 @@
 #include <maths/ImportExport.h>
 
 #include <boost/optional.hpp>
-#include <boost/range/irange.hpp>
 
 #include <limits>
 #include <memory>
@@ -66,7 +65,6 @@ public:
     using TOptionalDouble = boost::optional<double>;
     using TRegularization = CBoostedTreeRegularization<double>;
     using TSizeVec = std::vector<std::size_t>;
-    using TSizeRange = boost::integer_range<std::size_t>;
     using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
 
 public:

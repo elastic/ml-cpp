@@ -3,12 +3,14 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
+#include "maths/CBoostedTreeHyperparameters.h"
 #include <api/CDataFrameAnalysisInstrumentation.h>
 
 #include <core/CTimeUtils.h>
 #include <core/Constants.h>
 
 #include <maths/CBoostedTree.h>
+#include <maths/CBoostedTreeHyperparameters.h>
 
 #include <api/CDataFrameOutliersRunner.h>
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
@@ -440,7 +442,7 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::
 
     if (writer != nullptr) {
 
-        writer->addMember(CDataFrameTrainBoostedTreeRunner::ETA,
+        writer->addMember(maths::CBoostedTreeHyperparameters::ETA,
                           rapidjson::Value(this->m_Hyperparameters.s_Eta).Move(),
                           parentObject);
         if (m_Type == E_Classification) {
@@ -451,32 +453,32 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::
                 parentObject);
         }
         writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::ALPHA,
+            maths::CBoostedTreeHyperparameters::ALPHA,
             rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_DepthPenaltyMultiplier)
                 .Move(),
             parentObject);
         writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT,
+            maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_LIMIT,
             rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_SoftTreeDepthLimit)
                 .Move(),
             parentObject);
         writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE,
+            maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_TOLERANCE,
             rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_SoftTreeDepthTolerance)
                 .Move(),
             parentObject);
         writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::GAMMA,
+            maths::CBoostedTreeHyperparameters::GAMMA,
             rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_TreeSizePenaltyMultiplier)
                 .Move(),
             parentObject);
         writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::LAMBDA,
+            maths::CBoostedTreeHyperparameters::LAMBDA,
             rapidjson::Value(this->m_Hyperparameters.s_Regularization.s_LeafWeightPenaltyMultiplier)
                 .Move(),
             parentObject);
         writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR,
+            maths::CBoostedTreeHyperparameters::DOWNSAMPLE_FACTOR,
             rapidjson::Value(this->m_Hyperparameters.s_DownsampleFactor).Move(),
             parentObject);
         writer->addMember(
@@ -485,12 +487,12 @@ void CDataFrameTrainBoostedTreeInstrumentation::writeHyperparameters(rapidjson::
                 .Move(),
             parentObject);
         writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::MAX_TREES,
+            maths::CBoostedTreeHyperparameters::MAX_TREES,
             rapidjson::Value(static_cast<std::uint64_t>(this->m_Hyperparameters.s_MaxTrees))
                 .Move(),
             parentObject);
         writer->addMember(
-            CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION,
+            maths::CBoostedTreeHyperparameters::FEATURE_BAG_FRACTION,
             rapidjson::Value(this->m_Hyperparameters.s_FeatureBagFraction).Move(),
             parentObject);
         writer->addMember(
