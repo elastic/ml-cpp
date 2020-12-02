@@ -934,7 +934,7 @@ core_t::TTime CTimeSeriesDecompositionDetail::CChangePointTest::windowBucketLeng
 std::size_t CTimeSeriesDecompositionDetail::CChangePointTest::windowSize() const {
     return std::max(static_cast<std::size_t>((4 * core::constants::DAY) /
                                              this->windowBucketLength()),
-                    std::size_t{18});
+                    std::size_t{32});
 }
 
 //////// CSeasonalityTest ////////
