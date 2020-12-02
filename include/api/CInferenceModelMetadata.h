@@ -8,6 +8,7 @@
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CLinearAlgebraEigen.h>
+#include <maths/CBoostedTree.h>
 
 #include <api/CInferenceModelDefinition.h>
 #include <api/ImportExport.h>
@@ -53,6 +54,7 @@ public:
     //! Set the feature importance baseline (the individual feature importances are additive corrections
     //! to the baseline value).
     void featureImportanceBaseline(TVector&& baseline);
+    void hyperparameterImportance(const maths::CBoostedTree::THyperparameterDoublePrVec& hyperparameterImportance);
 
 private:
     using TMeanAccumulator =

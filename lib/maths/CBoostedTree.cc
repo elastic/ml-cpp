@@ -163,6 +163,12 @@ CTreeShapFeatureImportance* CBoostedTree::shap() const {
     return m_Impl->shap();
 }
 
+CBoostedTree::THyperparameterDoublePrVec CBoostedTree::hyperparameterImportance() const {
+    // TODO implement
+    return THyperparameterDoublePrVec();
+
+}
+
 std::size_t CBoostedTree::columnHoldingDependentVariable() const {
     return m_Impl->columnHoldingDependentVariable();
 }
