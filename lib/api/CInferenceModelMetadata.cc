@@ -136,6 +136,9 @@ void CInferenceModelMetadata::writeFeatureImportanceBaseline(TRapidJsonWriter& w
     }
 }
 
+void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& writer) const {
+}
+
 const std::string& CInferenceModelMetadata::typeString() const {
     return JSON_MODEL_METADATA_TAG;
 }

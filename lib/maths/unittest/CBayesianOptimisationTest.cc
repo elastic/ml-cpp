@@ -383,19 +383,14 @@ BOOST_AUTO_TEST_CASE(testEvaluate) {
 
     TVector kernelParameters(vector({1.0, 0.5, 0.5}));
     bopt.kernelParameters(kernelParameters);
-    TVector Kinvf(vector({2136.47116549, -4268.907398, 2270.58871277,
-                          -4268.90739799, 8512.24014649, -4524.7466467,
-                          2270.58871276, -4524.74664669, 2404.70626004}));
 
     TDoubleVecVec testPoints{{0.3, 0.3}, {0.3, 0.6}, {0.6, 0.3}};
     TDoubleVec testTargets{0.17823499, 0.45056931, 0.45056931};
 
     for (std::size_t i = 0u; i < testPoints.size(); ++i) {
         TVector x{vector(testPoints[i])};
-        double actualTarget1{bopt.evaluate(x)};
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(actualTarget1, testTargets[i], 1e-5);
-        double actualTarget2{bopt.evaluate(x, Kinvf)};
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(actualTarget2, testTargets[i], 1e-5);
+        double actualTarget{bopt.evaluate(x)};
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(actualTarget, testTargets[i], 1e-5);
     }
 }
 
@@ -516,7 +511,8 @@ BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
     for (std::size_t d = 0; d < dim; ++d) {
         TMeanAccumulator meanAccumulator;
         for (std::size_t i = 0; i < mcSamples; ++i) {
-            meanAccumulator.add(maths::CTools::pow2(bopt.evaluate1D(testSamples[i][0], static_cast<int>(d))));
+            meanAccumulator.add(maths::CTools::pow2(
+                bopt.evaluate1D(testSamples[i][0], static_cast<int>(d))));
         }
         double mainEffectExpected(maths::CBasicStatistics::mean(meanAccumulator));
         double mainEffectActual{bopt.anovaMainEffect(static_cast<int>(d))};
