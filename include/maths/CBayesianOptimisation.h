@@ -7,7 +7,6 @@
 #ifndef INCLUDED_ml_maths_CBayesianOptimisation_h
 #define INCLUDED_ml_maths_CBayesianOptimisation_h
 
-#include <c++/7/bits/c++config.h>
 #include <core/CDataSearcher.h>
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
@@ -55,6 +54,7 @@ class MATHS_EXPORT CBayesianOptimisation {
 public:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
+    using TDoubleVec = std::vector<double>;
     using TOptionalDouble = boost::optional<double>;
     using TVector = CDenseVector<double>;
     using TLikelihoodFunc = std::function<double(const TVector&)>;
@@ -94,12 +94,28 @@ public:
     static std::size_t estimateMemoryUsage(std::size_t numberParameters,
                                            std::size_t numberRounds);
 
+    //! Evaluate the Guassian process at the point \p input.
     double evaluate(const TVector& input) const;
-    double evaluate(const TVector& input, const TVector& Kinvf) const;
-    double evaluate1D(double input, int t) const;
+
+    //! Compute the marginalized value of the Gaussian process in the dimension
+    //! \p t for the values \p input.
+    double evaluate1D(double input, int dimension) const;
+
+    //! Get the constant factor of the ANOVA decomposition of the Gaussian process.
     double anovaConstantFactor() const;
+
+    //! Get the total variance of the hyperparameters in the Gaussian process
+    //! using ANOVA decomposition.
     double anovaTotalVariance() const;
-    double anovaMainEffect(int t) const;
+
+    //! Get the main effect of the parameter \p t in the Gaussian process
+    //! using ANOVA decomposition.
+    double anovaMainEffect(int dimension) const;
+
+    //! Get the vector of main effects as a fraction of the total variance.
+    TDoubleVec anovaMainEffects() const;
+
+    //! Set kernel \p parameters explicitly.
     void kernelParameters(const TVector& parameters);
 
     //! \name Test Interface
@@ -117,7 +133,6 @@ public:
     //@}
 
 private:
-    using TDoubleVec = std::vector<double>;
     using TVectorDoublePr = std::pair<TVector, double>;
     using TVectorDoublePrVec = std::vector<TVectorDoublePr>;
     using TMatrix = CDenseMatrix<double>;
@@ -141,6 +156,12 @@ private:
     TMatrix kernel(const TVector& a, double v) const;
     TVectorDoublePr kernelCovariates(const TVector& a, const TVector& x, double vx) const;
     double kernel(const TVector& a, const TVector& x, const TVector& y) const;
+    double evaluate(const TVector& Kinvf, const TVector& input) const;
+    double evaluate1D(const TVector& Kinvf, double input, int dimension) const;
+    double anovaConstantFactor(const TVector& Kinvf) const;
+    double anovaTotalVariance(const TVector& Kinvf) const;
+    double anovaMainEffect(const TVector& Kinvf, int dimension) const;
+    TVector kinvf() const;
 
 private:
     CPRNG::CXorOShiro128Plus m_Rng;

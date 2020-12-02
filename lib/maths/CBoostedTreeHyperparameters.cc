@@ -23,6 +23,15 @@ const std::string CBoostedTreeHyperparameters::HYPERPARAM_MAXIMUM_NUMBER_TREES_T
     "hyperparam_maximum_number_trees"};
 const std::string CBoostedTreeHyperparameters::HYPERPARAM_REGULARIZATION_TAG{
     "hyperparam_regularization"};
+const std::string CBoostedTreeHyperparameters::DOWNSAMPLE_FACTOR{"downsample_factor"};
+const std::string CBoostedTreeHyperparameters::ALPHA{"alpha"};
+const std::string CBoostedTreeHyperparameters::LAMBDA{"lambda"};
+const std::string CBoostedTreeHyperparameters::GAMMA{"gamma"};
+const std::string CBoostedTreeHyperparameters::ETA{"eta"};
+const std::string CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_LIMIT{"soft_tree_depth_limit"};
+const std::string CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_TOLERANCE{"soft_tree_depth_tolerance"};
+const std::string CBoostedTreeHyperparameters::MAX_TREES{"max_trees"};
+const std::string CBoostedTreeHyperparameters::FEATURE_BAG_FRACTION{"feature_bag_fraction"};
 
 void CBoostedTreeHyperparameters::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     core::CPersistUtils::persist(HYPERPARAM_DOWNSAMPLE_FACTOR_TAG,
