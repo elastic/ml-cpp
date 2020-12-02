@@ -1230,31 +1230,63 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
 
     // Read parameters for last round.
     int i{0};
-    if (m_DownsampleFactorOverride == boost::none) {
-        parameters(i++) = CTools::stableLog(m_DownsampleFactor);
+    for (int i = 0; i < static_cast<int>(m_TunableHyperparameters.size()); ++i) {
+        switch (m_TunableHyperparameters[static_cast<std::size_t>(i)]) {
+        case E_Alpha:
+            parameters(i) = CTools::stableLog(m_Regularization.depthPenaltyMultiplier());
+            break;
+        case E_DownsampleFactor:
+            parameters(i) = CTools::stableLog(m_DownsampleFactor);
+            break;
+        case E_Eta:
+            parameters(i) = CTools::stableLog(m_Eta);
+            break;
+        case boosted_tree_detail::E_EtaGrowthRatePerTree:
+            parameters(i) = m_EtaGrowthRatePerTree;
+            break;
+        case E_FeatureBagFraction:
+            parameters(i) = m_FeatureBagFraction;
+            break;
+        case E_Gamma:
+            parameters(i) = CTools::stableLog(m_Regularization.treeSizePenaltyMultiplier());
+            break;
+        case E_Lambda:
+            parameters(i) =
+                CTools::stableLog(m_Regularization.leafWeightPenaltyMultiplier());
+            break;
+        case E_SoftTreeDepthLimit:
+            parameters(i) = m_Regularization.softTreeDepthLimit();
+            break;
+        case E_SoftTreeDepthTolerance:
+            parameters(i) = m_Regularization.softTreeDepthTolerance();
+            break;
+        }
     }
-    if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-        parameters(i++) = CTools::stableLog(m_Regularization.depthPenaltyMultiplier());
-    }
-    if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
-        parameters(i++) = CTools::stableLog(m_Regularization.leafWeightPenaltyMultiplier());
-    }
-    if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
-        parameters(i++) = CTools::stableLog(m_Regularization.treeSizePenaltyMultiplier());
-    }
-    if (m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
-        parameters(i++) = m_Regularization.softTreeDepthLimit();
-    }
-    if (m_RegularizationOverride.softTreeDepthTolerance() == boost::none) {
-        parameters(i++) = m_Regularization.softTreeDepthTolerance();
-    }
-    if (m_EtaOverride == boost::none) {
-        parameters(i++) = CTools::stableLog(m_Eta);
-        parameters(i++) = m_EtaGrowthRatePerTree;
-    }
-    if (m_FeatureBagFractionOverride == boost::none) {
-        parameters(i++) = m_FeatureBagFraction;
-    }
+    // if (m_DownsampleFactorOverride == boost::none) {
+    //     parameters(i++) = CTools::stableLog(m_DownsampleFactor);
+    // }
+    // if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
+    //     parameters(i++) = CTools::stableLog(m_Regularization.depthPenaltyMultiplier());
+    // }
+    // if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
+    //     parameters(i++) = CTools::stableLog(m_Regularization.leafWeightPenaltyMultiplier());
+    // }
+    // if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
+    //     parameters(i++) = CTools::stableLog(m_Regularization.treeSizePenaltyMultiplier());
+    // }
+    // if (m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
+    //     parameters(i++) = m_Regularization.softTreeDepthLimit();
+    // }
+    // if (m_RegularizationOverride.softTreeDepthTolerance() == boost::none) {
+    //     parameters(i++) = m_Regularization.softTreeDepthTolerance();
+    // }
+    // if (m_EtaOverride == boost::none) {
+    //     parameters(i++) = CTools::stableLog(m_Eta);
+    //     parameters(i++) = m_EtaGrowthRatePerTree;
+    // }
+    // if (m_FeatureBagFractionOverride == boost::none) {
+    //     parameters(i++) = m_FeatureBagFraction;
+    // }
 
     double meanLoss{CBasicStatistics::mean(lossMoments)};
     double lossVariance{CBasicStatistics::variance(lossMoments)};
@@ -1697,6 +1729,17 @@ const CBoostedTreeHyperparameters& CBoostedTreeImpl::bestHyperparameters() const
 
 CTreeShapFeatureImportance* CBoostedTreeImpl::shap() {
     return m_TreeShap.get();
+}
+
+CBoostedTreeImpl::THyperparameterDoublePrVec CBoostedTreeImpl::hyperparameterImportance() {
+    THyperparameterDoublePrVec hyperparameterImportances;
+    hyperparameterImportances.reserve(m_TunableHyperparameters.size());
+    TDoubleVec anovaMainEffects{m_BayesianOptimization->anovaMainEffects()};
+    for (std::size_t i = 0; i < anovaMainEffects.size(); ++i) {
+        hyperparameterImportances.emplace_back(m_TunableHyperparameters[i],
+                                               anovaMainEffects[i]);
+    }
+    return hyperparameterImportances;
 }
 
 const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureSampleProbabilities() const {

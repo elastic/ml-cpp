@@ -13,11 +13,11 @@
 #include <core/CStateRestoreTraverser.h>
 
 #include <maths/CBoostedTreeHyperparameters.h>
+#include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CDataFramePredictiveModel.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/ImportExport.h>
-#include <maths/CBoostedTreeUtils.h>
 
 #include <cstddef>
 #include <cstdint>
@@ -202,7 +202,7 @@ public:
     using TDataFramePtr = core::CDataFrame*;
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
-    using THyperparameterDoublePr = std::tuple<boosted_tree_detail::EHyperparameters, double>;
+    using THyperparameterDoublePr = std::pair<boosted_tree_detail::EHyperparameters, double>;
     using THyperparameterDoublePrVec = std::vector<THyperparameterDoublePr>;
 
     class MATHS_EXPORT CVisitor : public CDataFrameCategoryEncoder::CVisitor,
