@@ -31,6 +31,8 @@ using TAlignedMemoryMappedFloatVector =
 
 enum EExtraColumn { E_Prediction = 0, E_Gradient, E_Curvature, E_Weight };
 
+enum EHyperparameters {};
+
 //! Get the size of upper triangle of the loss Hessain.
 inline std::size_t lossHessianUpperTriangleSize(std::size_t numberLossParameters) {
     return numberLossParameters * (numberLossParameters + 1) / 2;

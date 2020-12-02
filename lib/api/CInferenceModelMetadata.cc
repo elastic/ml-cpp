@@ -137,6 +137,7 @@ void CInferenceModelMetadata::writeFeatureImportanceBaseline(TRapidJsonWriter& w
 }
 
 void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& writer) const {
+    // TODO implement
 }
 
 const std::string& CInferenceModelMetadata::typeString() const {
@@ -173,6 +174,11 @@ void CInferenceModelMetadata::addToFeatureImportance(std::size_t i, const TVecto
 void CInferenceModelMetadata::featureImportanceBaseline(TVector&& baseline) {
     m_ShapBaseline = baseline;
 }
+
+void CInferenceModelMetadata::hyperparameterImportance(const maths::CBoostedTree::THyperparameterDoublePrVec& hyperparameterImportance) {
+    // TODO implement
+}
+
 
 // clang-format off
 const std::string CInferenceModelMetadata::JSON_BASELINE_TAG{"baseline"};
