@@ -17,8 +17,8 @@
 
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
-#include <maths/CBoostedTreeLoss.h>
 #include <maths/CBoostedTreeHyperparameters.h>
+#include <maths/CBoostedTreeLoss.h>
 #include <maths/CDataFrameUtils.h>
 
 #include <api/CDataFrameAnalysisConfigReader.h>
@@ -43,15 +43,20 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(maths::CBoostedTreeHyperparameters::DOWNSAMPLE_FACTOR,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(maths::CBoostedTreeHyperparameters::ALPHA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(maths::CBoostedTreeHyperparameters::LAMBDA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(maths::CBoostedTreeHyperparameters::GAMMA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(maths::CBoostedTreeHyperparameters::ETA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(maths::CBoostedTreeHyperparameters::ALPHA,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(maths::CBoostedTreeHyperparameters::LAMBDA,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(maths::CBoostedTreeHyperparameters::GAMMA,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(maths::CBoostedTreeHyperparameters::ETA,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_LIMIT,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_TOLERANCE,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(maths::CBoostedTreeHyperparameters::MAX_TREES, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(maths::CBoostedTreeHyperparameters::MAX_TREES,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(maths::CBoostedTreeHyperparameters::FEATURE_BAG_FRACTION,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(NUM_FOLDS, CDataFrameAnalysisConfigReader::E_OptionalParameter);
@@ -86,9 +91,11 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     m_TrainingPercent = parameters[TRAINING_PERCENT_FIELD_NAME].fallback(100.0) / 100.0;
     std::size_t downsampleRowsPerFeature{
         parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
-    double downsampleFactor{parameters[maths::CBoostedTreeHyperparameters::DOWNSAMPLE_FACTOR].fallback(-1.0)};
+    double downsampleFactor{
+        parameters[maths::CBoostedTreeHyperparameters::DOWNSAMPLE_FACTOR].fallback(-1.0)};
 
-    std::size_t maxTrees{parameters[maths::CBoostedTreeHyperparameters::MAX_TREES].fallback(std::size_t{0})};
+    std::size_t maxTrees{
+        parameters[maths::CBoostedTreeHyperparameters::MAX_TREES].fallback(std::size_t{0})};
     std::size_t numberFolds{parameters[NUM_FOLDS].fallback(std::size_t{0})};
     std::size_t numberRoundsPerHyperparameter{
         parameters[MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER].fallback(std::size_t{0})};
@@ -102,37 +109,48 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double lambda{parameters[maths::CBoostedTreeHyperparameters::LAMBDA].fallback(-1.0)};
     double gamma{parameters[maths::CBoostedTreeHyperparameters::GAMMA].fallback(-1.0)};
     double eta{parameters[maths::CBoostedTreeHyperparameters::ETA].fallback(-1.0)};
-    double softTreeDepthLimit{parameters[maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
-    double softTreeDepthTolerance{parameters[maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
-    double featureBagFraction{parameters[maths::CBoostedTreeHyperparameters::FEATURE_BAG_FRACTION].fallback(-1.0)};
+    double softTreeDepthLimit{
+        parameters[maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
+    double softTreeDepthTolerance{parameters[maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_TOLERANCE]
+                                      .fallback(-1.0)};
+    double featureBagFraction{
+        parameters[maths::CBoostedTreeHyperparameters::FEATURE_BAG_FRACTION].fallback(-1.0)};
     if (parameters[FEATURE_PROCESSORS].jsonObject() != nullptr) {
         m_CustomProcessors.CopyFrom(*parameters[FEATURE_PROCESSORS].jsonObject(),
                                     m_CustomProcessors.GetAllocator());
     }
     if (alpha != -1.0 && alpha < 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::ALPHA << "' should be non-negative.")
+        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::ALPHA
+                     << "' should be non-negative.")
     }
     if (lambda != -1.0 && lambda < 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::LAMBDA << "' should be non-negative.")
+        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::LAMBDA
+                     << "' should be non-negative.")
     }
     if (gamma != -1.0 && gamma < 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::GAMMA << "' should be non-negative.")
+        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::GAMMA
+                     << "' should be non-negative.")
     }
     if (eta != -1.0 && (eta <= 0.0 || eta > 1.0)) {
-        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::ETA << "' should be in the range (0, 1].")
+        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::ETA
+                     << "' should be in the range (0, 1].")
     }
     if (softTreeDepthLimit != -1.0 && softTreeDepthLimit < 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_LIMIT << "' should be non-negative.")
+        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_LIMIT
+                     << "' should be non-negative.")
     }
     if (softTreeDepthTolerance != -1.0 && softTreeDepthTolerance <= 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_TOLERANCE << "' should be positive.")
+        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_TOLERANCE
+                     << "' should be positive.")
     }
     if (downsampleFactor != -1.0 && (downsampleFactor <= 0.0 || downsampleFactor > 1.0)) {
-        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::DOWNSAMPLE_FACTOR << "' should be in the range (0, 1]")
+        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::DOWNSAMPLE_FACTOR
+                     << "' should be in the range (0, 1]")
     }
     if (featureBagFraction != -1.0 &&
         (featureBagFraction <= 0.0 || featureBagFraction > 1.0)) {
-        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::FEATURE_BAG_FRACTION << "' should be in the range (0, 1]")
+        HANDLE_FATAL(<< "Input error: '" << maths::CBoostedTreeHyperparameters::FEATURE_BAG_FRACTION
+                     << "' should be in the range (0, 1]")
     }
 
     m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(

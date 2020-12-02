@@ -66,6 +66,8 @@ public:
     using TRegularization = CBoostedTreeRegularization<double>;
     using TSizeVec = std::vector<std::size_t>;
     using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
+    using THyperparameterDoublePr = std::pair<boosted_tree_detail::EHyperparameters, double>;
+    using THyperparameterDoublePrVec = std::vector<THyperparameterDoublePr>;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
@@ -92,6 +94,8 @@ public:
     //!
     //! \warning Will return a nullptr if a trained model isn't available.
     CTreeShapFeatureImportance* shap();
+
+    THyperparameterDoublePrVec hyperparameterImportance();
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
@@ -172,6 +176,7 @@ private:
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
     using TWorkspace = CBoostedTreeLeafNodeStatistics::CWorkspace;
+    using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameters>;
 
     //! Tag progress through initialization.
     enum EInitializationStage {
@@ -372,6 +377,7 @@ private:
     TAnalysisInstrumentationPtr m_Instrumentation;
     mutable TMeanAccumulator m_ForestSizeAccumulator;
     mutable TMeanAccumulator m_MeanLossAccumulator;
+    THyperparametersVec m_TunableHyperparameters;
 
 private:
     friend class CBoostedTreeFactory;

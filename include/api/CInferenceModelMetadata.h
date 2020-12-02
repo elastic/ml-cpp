@@ -7,8 +7,8 @@
 #define INCLUDED_ml_api_CInferenceModelMetadata_h
 
 #include <maths/CBasicStatistics.h>
-#include <maths/CLinearAlgebraEigen.h>
 #include <maths/CBoostedTree.h>
+#include <maths/CLinearAlgebraEigen.h>
 
 #include <api/CInferenceModelDefinition.h>
 #include <api/ImportExport.h>
