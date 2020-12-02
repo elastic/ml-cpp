@@ -46,6 +46,7 @@ public:
     using TDoubleVec = std::vector<double>;
     using TMakePredictor = std::function<TPredictor()>;
     using TMakeFilteredPredictor = std::function<TFilteredPredictor()>;
+    using TChangePointUPtr = std::unique_ptr<CChangePoint>;
 
     // clang-format off
     using TMakeTestForSeasonality =
@@ -135,8 +136,6 @@ public:
 
     //! \brief The message passed to indicate a sudden change has occurred.
     struct MATHS_EXPORT SDetectedChangePoint : public SMessage {
-        using TChangePointUPtr = std::unique_ptr<CChangePoint>;
-
         SDetectedChangePoint(core_t::TTime time, core_t::TTime lastTime, TChangePointUPtr change);
 
         //! The change description.
@@ -210,6 +209,7 @@ public:
     //! \brief Checks for sudden change or change events.
     class MATHS_EXPORT CChangePointTest : public CHandler {
     public:
+        static constexpr double CHANGE_COUNT_WEIGHT = 0.1;
         static constexpr core_t::TTime MINIMUM_WINDOW_BUCKET_LENGTH = core::constants::HOUR;
 
     public:
@@ -232,11 +232,11 @@ public:
         //! Reset residual distribution moments.
         void handle(const SDetectedSeasonal&) override;
 
-        //! Test to see whether any change has occurred.
-        void test(const SAddValue& message);
-
-        //! The weight to apply to samples for update.
+        //! Get the count weight to apply to samples.
         double countWeight(core_t::TTime time) const;
+
+        //! Get the derate to apply to the Winsorisation weight.
+        double winsorisationDerate(core_t::TTime time) const;
 
         //! Age the test to account for the interval \p end - \p start elapsed time.
         void propagateForwards(core_t::TTime start, core_t::TTime end);
@@ -258,14 +258,20 @@ public:
         //! Handle \p symbol.
         void apply(std::size_t symbol);
 
-        //! Update the fraction of recent large errors.
-        void updateLargeErrorFraction(core_t::TTime time, double error);
+        //! Update the total count weight statistics.
+        void updateTotalCountWeights(core_t::TTime time, core_t::TTime lastTime);
+
+        //! Update the fraction of recent large errors and test if a change may be occurring.
+        void testForCandidateChange(core_t::TTime time, double error);
+
+        //! Test if any change has occurred.
+        void testForChange(const SAddValue& message);
+
+        //! Test whether to undo the last change which was applied.
+        void testUndoLastChange(const SAddValue& message);
 
         //! True if the time series may be experiencing a change point.
         bool mayHaveChanged() const;
-
-        //! True if a change point was applied in the current window.
-        bool changeInWindow(core_t::TTime time) const;
 
         //! The magnitude of a large error.
         double largeError() const;
@@ -319,6 +325,12 @@ public:
         //! The proportion of recent values with significantly prediction error.
         double m_LargeErrorFraction = 0.0;
 
+        //! The total adjustment applied to the count weight.
+        double m_TotalCountWeightAdjustment = 0.0;
+
+        //! The minimum permitted total adjustment applied to the count weight.
+        double m_MinimumTotalCountWeightAdjustment = 0.0;
+
         //! The last test time.
         core_t::TTime m_LastTestTime;
 
@@ -327,6 +339,10 @@ public:
 
         //! The time the last candidate change point occurred.
         core_t::TTime m_LastCandidateChangePointTime;
+
+        //! The last change which was made, if it hasn't been committed, in a form
+        //! which can be undone.
+        TChangePointUPtr m_UndoableLastChange;
     };
 
     //! \brief Scans through increasingly low frequencies looking for significant

@@ -1156,9 +1156,9 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.30 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.71 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.19 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.35 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.73 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.23 * totalSumValue);
 
     TMeanAccumulator scale;
     double variance = decomposition.meanVariance();

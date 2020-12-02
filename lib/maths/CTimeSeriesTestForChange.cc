@@ -7,15 +7,21 @@
 #include <maths/CTimeSeriesTestForChange.h>
 
 #include <core/CContainerPrinter.h>
+#include <core/CIEEE754.h>
 #include <core/CLogger.h>
+#include <core/CStatePersistInserter.h>
+#include <core/CStateRestoreTraverser.h>
 #include <core/Constants.h>
+#include <core/RestoreMacros.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CCalendarComponent.h>
+#include <maths/CChecksum.h>
 #include <maths/CInformationCriteria.h>
 #include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>
 #include <maths/CLinearAlgebra.h>
+#include <maths/CMathsFuncs.h>
 #include <maths/CSeasonalComponent.h>
 #include <maths/CStatisticalTests.h>
 #include <maths/CTimeSeriesDecomposition.h>
@@ -28,6 +34,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <memory>
 #include <numeric>
 #include <vector>
 
@@ -39,6 +46,9 @@ using TSegmentation = CTimeSeriesSegmentation;
 using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 constexpr double EPS{0.1};
+constexpr core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
+constexpr core_t::TTime HOUR{core::constants::HOUR};
+const double LOG0p95{std::log(0.95)};
 
 double rightTailFTest(double v0, double v1, double df0, double df1) {
     // If there is insufficient data for either hypothesis treat we are conservative
@@ -78,25 +88,70 @@ std::size_t largestScale(const TDoubleVec& scales) {
     return result;
 }
 
-const core_t::TTime HALF_HOUR{core::constants::HOUR / 2};
-const core_t::TTime HOUR{core::constants::HOUR};
+const core::TPersistenceTag TYPE_TAG{"a", "change_type"};
+const core::TPersistenceTag TIME_TAG{"b", "change_time"};
+const core::TPersistenceTag VALUE_TAG{"c", "change_value"};
+const core::TPersistenceTag SIGNIFICANT_P_VALUE_TAG{"d", "significant_p_value"};
+}
+
+CChangePoint::CChangePoint(core_t::TTime time, TFloatMeanAccumulatorVec residuals, double significantPValue)
+    : m_Time{time}, m_SignificantPValue{significantPValue}, m_Residuals{std::move(residuals)} {
 }
 
 CChangePoint::~CChangePoint() = default;
 
-CLevelShift::CLevelShift(bool reversion,
-                         std::size_t changeIndex,
-                         core_t::TTime time,
+bool CChangePoint::longEnough(core_t::TTime time, core_t::TTime minimumDuration) const {
+    return time >= m_Time + minimumDuration;
+}
+
+std::uint64_t CChangePoint::checksum(std::uint64_t seed) const {
+    seed = CChecksum::calculate(seed, this->type());
+    seed = CChecksum::calculate(seed, m_Time);
+    seed = CChecksum::calculate(seed, m_SignificantPValue);
+    seed = CChecksum::calculate(seed, m_Residuals);
+    seed = CChecksum::calculate(seed, m_Mse);
+    return CChecksum::calculate(seed, m_UndoneMse);
+}
+
+void CChangePoint::add(core_t::TTime time,
+                       core_t::TTime lastTime,
+                       double value,
+                       double weight,
+                       const TPredictor& predictor) {
+    double factor{std::exp(3.0 * LOG0p95 * static_cast<double>(time - lastTime) /
+                           static_cast<double>(HOUR))};
+    m_Mse.add(CTools::pow2(value - predictor(time)), weight);
+    m_Mse.age(factor);
+    m_UndoneMse.add(CTools::pow2(value - this->undonePredict(predictor, time)), weight);
+    m_UndoneMse.age(factor);
+}
+
+bool CChangePoint::shouldUndo() const {
+    return rightTailFTest(CBasicStatistics::mean(m_Mse), CBasicStatistics::mean(m_UndoneMse),
+                          CBasicStatistics::count(m_Mse),
+                          CBasicStatistics::count(m_UndoneMse)) < m_SignificantPValue;
+}
+
+CLevelShift::CLevelShift(core_t::TTime time,
                          double shift,
                          core_t::TTime valuesStartTime,
                          core_t::TTime bucketLength,
                          TFloatMeanAccumulatorVec values,
                          TSizeVec segments,
                          TDoubleVec shifts,
-                         TFloatMeanAccumulatorVec residuals)
-    : CChangePoint{reversion, changeIndex, time, std::move(residuals)}, m_Shift{shift},
+                         TFloatMeanAccumulatorVec residuals,
+                         double significantPValue)
+    : CChangePoint{time, std::move(residuals), significantPValue}, m_Shift{shift},
       m_ValuesStartTime{valuesStartTime}, m_BucketLength{bucketLength}, m_Values{std::move(values)},
       m_Segments{std::move(segments)}, m_Shifts{std::move(shifts)} {
+}
+
+CLevelShift::TChangePointUPtr CLevelShift::undoable() const {
+    return {};
+}
+
+bool CLevelShift::largeEnough(double threshold) const {
+    return std::fabs(m_Shift) > threshold;
 }
 
 bool CLevelShift::apply(CTrendComponent& component) const {
@@ -113,10 +168,28 @@ std::string CLevelShift::print() const {
     return "level shift by " + core::CStringUtils::typeToString(m_Shift);
 }
 
+std::uint64_t CLevelShift::checksum(std::uint64_t seed) const {
+    seed = this->CChangePoint::checksum(seed);
+    seed = CChecksum::calculate(seed, m_Shift);
+    seed = CChecksum::calculate(seed, m_ValuesStartTime);
+    seed = CChecksum::calculate(seed, m_BucketLength);
+    seed = CChecksum::calculate(seed, m_Values);
+    seed = CChecksum::calculate(seed, m_Segments);
+    return CChecksum::calculate(seed, m_Shifts);
+}
+
 const std::string CLevelShift::TYPE{"level shift"};
 
-CScale::CScale(bool reversion, std::size_t index, core_t::TTime time, double scale, double magnitude, TFloatMeanAccumulatorVec residuals)
-    : CChangePoint{reversion, index, time, std::move(residuals)}, m_Scale{scale}, m_Magnitude{magnitude} {
+CScale::CScale(core_t::TTime time, double scale, double magnitude, TFloatMeanAccumulatorVec residuals, double significantPValue)
+    : CChangePoint{time, std::move(residuals), significantPValue}, m_Scale{scale}, m_Magnitude{magnitude} {
+}
+
+CScale::TChangePointUPtr CScale::undoable() const {
+    return {};
+}
+
+bool CScale::largeEnough(double threshold) const {
+    return m_Magnitude > threshold;
 }
 
 bool CScale::apply(CTrendComponent& component) const {
@@ -142,14 +215,27 @@ std::string CScale::print() const {
     return "linear scale by " + core::CStringUtils::typeToString(m_Scale);
 }
 
+std::uint64_t CScale::checksum(std::uint64_t seed) const {
+    seed = this->CChangePoint::checksum(seed);
+    seed = CChecksum::calculate(seed, m_Scale);
+    return CChecksum::calculate(seed, m_Magnitude);
+}
+
 const std::string CScale::TYPE{"scale"};
 
-CTimeShift::CTimeShift(bool reversion,
-                       std::size_t index,
-                       core_t::TTime time,
+CTimeShift::CTimeShift(core_t::TTime time,
                        core_t::TTime shift,
-                       TFloatMeanAccumulatorVec residuals)
-    : CChangePoint{reversion, index, time, std::move(residuals)}, m_Shift{shift} {
+                       TFloatMeanAccumulatorVec residuals,
+                       double significantPValue)
+    : CChangePoint{time, std::move(residuals), significantPValue}, m_Shift{shift} {
+}
+
+CTimeShift::CTimeShift(core_t::TTime time, core_t::TTime shift, double significantPValue)
+    : CChangePoint{time, {}, significantPValue}, m_Shift{shift} {
+}
+
+CTimeShift::TChangePointUPtr CTimeShift::undoable() const {
+    return std::make_unique<CTimeShift>(this->time(), -m_Shift, this->significantPValue());
 }
 
 bool CTimeShift::apply(CTimeSeriesDecomposition& decomposition) const {
@@ -165,7 +251,66 @@ std::string CTimeShift::print() const {
     return "time shift by " + core::CStringUtils::typeToString(m_Shift) + "s";
 }
 
+std::uint64_t CTimeShift::checksum(std::uint64_t seed) const {
+    seed = this->CChangePoint::checksum(seed);
+    return CChecksum::calculate(seed, m_Shift);
+}
+
+double CTimeShift::undonePredict(const TPredictor& predictor, core_t::TTime time) const {
+    return predictor(time + m_Shift);
+}
+
 const std::string CTimeShift::TYPE{"time shift"};
+
+bool CUndoableChangePointStateSerializer::
+operator()(TChangePointUPtr& result, core::CStateRestoreTraverser& traverser) const {
+    std::string type;
+    core_t::TTime time{std::numeric_limits<core_t::TTime>::min()};
+    double value{std::numeric_limits<double>::quiet_NaN()};
+    double significantPValue{std::numeric_limits<double>::quiet_NaN()};
+
+    do {
+        const std::string& name{traverser.name()};
+        RESTORE_NO_ERROR(TYPE_TAG, type = traverser.value())
+        RESTORE_BUILT_IN(TIME_TAG, time)
+        RESTORE_BUILT_IN(VALUE_TAG, value)
+        RESTORE_BUILT_IN(SIGNIFICANT_P_VALUE_TAG, significantPValue)
+    } while (traverser.next());
+
+    if (time == std::numeric_limits<core_t::TTime>::min()) {
+        LOG_ERROR(<< "Missing '" << TIME_TAG << "'");
+        return false;
+    }
+    if (CMathsFuncs::isFinite(value) == false) {
+        LOG_ERROR(<< "Missing '" << VALUE_TAG << "'");
+        return false;
+    }
+    if (CMathsFuncs::isFinite(significantPValue) == false) {
+        LOG_ERROR(<< "Missing '" << SIGNIFICANT_P_VALUE_TAG << "'");
+        return false;
+    }
+
+    if (type == CLevelShift::TYPE || type == CScale::TYPE) {
+        LOG_ERROR(<< "Unexpected type '" << type << "'");
+        return false;
+    }
+    if (type == CTimeShift::TYPE) {
+        result = std::make_unique<CTimeShift>(
+            time, static_cast<core_t::TTime>(value), significantPValue);
+        return true;
+    }
+    LOG_ERROR(<< "Missing '" << TYPE_TAG << "'");
+    return false;
+}
+
+void CUndoableChangePointStateSerializer::
+operator()(const CChangePoint& changePoint, core::CStatePersistInserter& inserter) const {
+    inserter.insertValue(TYPE_TAG, changePoint.type());
+    inserter.insertValue(TIME_TAG, changePoint.time());
+    inserter.insertValue(VALUE_TAG, changePoint.value(), core::CIEEE754::E_DoublePrecision);
+    inserter.insertValue(SIGNIFICANT_P_VALUE_TAG, changePoint.significantPValue(),
+                         core::CIEEE754::E_DoublePrecision);
+}
 
 CTimeSeriesTestForChange::CTimeSeriesTestForChange(int testFor,
                                                    core_t::TTime valuesStartTime,
@@ -273,7 +418,7 @@ CTimeSeriesTestForChange::TDoubleDoubleDoubleTr CTimeSeriesTestForChange::quadra
 
     using TRegression = CLeastSquaresOnlineRegression<2, double>;
 
-    m_ValuesMinusPredictions = this->removePredictions(this->bucketIndexPredictor(), m_Values);
+    m_ValuesMinusPredictions = removePredictions(this->bucketIndexPredictor(), m_Values);
 
     TRegression trend;
     TRegression::TArray parameters;
@@ -291,7 +436,7 @@ CTimeSeriesTestForChange::TDoubleDoubleDoubleTr CTimeSeriesTestForChange::quadra
         trend.parameters(parameters);
     }
     m_ValuesMinusPredictions =
-        this->removePredictions(predictor, std::move(m_ValuesMinusPredictions));
+        removePredictions(predictor, std::move(m_ValuesMinusPredictions));
 
     double variance;
     double truncatedVariance;
@@ -309,11 +454,10 @@ CTimeSeriesTestForChange::levelShift(double varianceH0,
     // Test for piecewise linear shift. We use a hypothesis test against a null
     // hypothesis that there is a quadratic trend.
 
-    m_ValuesMinusPredictions = this->removePredictions(this->bucketIndexPredictor(), m_Values);
+    m_ValuesMinusPredictions = removePredictions(this->bucketIndexPredictor(), m_Values);
 
     TSizeVec segments{TSegmentation::piecewiseLinear(
         m_ValuesMinusPredictions, m_SignificantPValue, m_OutlierFraction, 3)};
-    LOG_TRACE(<< "trend segments = " << core::CContainerPrinter::print(segments));
 
     if (segments.size() > 2) {
         TDoubleVec shifts;
@@ -325,6 +469,7 @@ CTimeSeriesTestForChange::levelShift(double varianceH0,
         std::size_t shiftIndex{largestShift(shifts)};
         std::size_t changeIndex{segments[shiftIndex]};
         std::size_t lastChangeIndex{segments[segments.size() - 2]};
+        LOG_TRACE(<< "trend segments = " << core::CContainerPrinter::print(segments));
         LOG_TRACE(<< "shifts = " << core::CContainerPrinter::print(shifts)
                   << ", shift index = " << shiftIndex);
         LOG_TRACE(<< "variance = " << varianceH1 << ", truncated variance = " << truncatedVarianceH1
@@ -340,21 +485,15 @@ CTimeSeriesTestForChange::levelShift(double varianceH0,
         if (pValue < m_AcceptedFalsePostiveRate) {
             TMeanAccumulator shift;
             double weight{1.0};
-            for (std::size_t i = residuals.size(); i > lastChangeIndex; --i, weight *= 0.9) {
+            for (std::size_t i = residuals.size(); i > lastChangeIndex; --i, weight *= 0.85) {
                 shift.add(CBasicStatistics::mean(m_ValuesMinusPredictions[i - 1]),
                           weight * CBasicStatistics::count(residuals[i - 1]));
             }
 
-            // Check if the change is a reversion, i.e. the level is around the
-            // same in the start and end intervals.
-            bool reversion{std::fabs(shifts.back() - shifts.front()) <
-                           EPS * std::fabs(shifts[shiftIndex] - shifts[shiftIndex - 1])};
-            LOG_TRACE(<< "reversion = " << reversion);
-
             auto changePoint = std::make_unique<CLevelShift>(
-                reversion, changeIndex, this->changeTime(changeIndex),
-                CBasicStatistics::mean(shift), m_ValuesStartTime, m_BucketLength, m_Values,
-                std::move(segments), std::move(shifts), std::move(residuals));
+                this->changeTime(changeIndex), CBasicStatistics::mean(shift),
+                m_ValuesStartTime, m_BucketLength, m_Values, std::move(segments),
+                std::move(shifts), std::move(residuals), m_SignificantPValue);
 
             return {varianceH1, truncatedVarianceH1, parametersH1, std::move(changePoint)};
         }
@@ -373,7 +512,6 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
 
     TSizeVec segments{TSegmentation::piecewiseLinearScaledSeasonal(
         m_Values, predictor, m_SignificantPValue, 3)};
-    LOG_TRACE(<< "scale segments = " << core::CContainerPrinter::print(segments));
 
     if (segments.size() > 2) {
         TDoubleVec scales;
@@ -385,6 +523,7 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
         std::size_t scaleIndex{largestScale(scales)};
         std::size_t changeIndex{segments[scaleIndex]};
         std::size_t lastChangeIndex{segments[segments.size() - 2]};
+        LOG_TRACE(<< "scale segments = " << core::CContainerPrinter::print(segments));
         LOG_TRACE(<< "scales = " << core::CContainerPrinter::print(scales)
                   << ", scale index = " << scaleIndex);
         LOG_TRACE(<< "variance = " << varianceH1 << ", truncated variance = " << truncatedVarianceH1
@@ -401,7 +540,7 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
             TMeanAccumulator projection;
             TMeanAccumulator Z;
             double weight{1.0};
-            for (std::size_t i = residuals.size(); i > lastChangeIndex; --i, weight *= 0.9) {
+            for (std::size_t i = residuals.size(); i > lastChangeIndex; --i, weight *= 0.85) {
                 double x{CBasicStatistics::mean(m_Values[i - 1])};
                 double p{predictor(i - 1)};
                 double w{weight * CBasicStatistics::count(residuals[i - 1]) * std::fabs(p)};
@@ -417,16 +556,10 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
                                         0.0)};
             LOG_TRACE(<< "scale = " << scale);
 
-            // Check if the change is a reversion, i.e. the scale is around the
-            // same in the start and end intervals.
-            bool reversion{std::fabs(scales.back() - scales.front()) <
-                           EPS * std::fabs(scales[scaleIndex] - scales[scaleIndex - 1])};
-            LOG_TRACE(<< "reversion = " << reversion);
-
             auto changePoint = std::make_unique<CScale>(
-                reversion, changeIndex, this->changeTime(changeIndex), scale,
+                this->changeTime(changeIndex), scale,
                 std::fabs(scale - 1.0) * std::sqrt(CBasicStatistics::mean(Z)),
-                std::move(residuals));
+                std::move(residuals), m_SignificantPValue);
 
             return {varianceH1, truncatedVarianceH1, parametersH1, std::move(changePoint)};
         }
@@ -457,11 +590,10 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
     TSizeVec segments{TSegmentation::piecewiseTimeShifted(
         m_Values, m_BucketLength, candidateShifts, predictor,
         m_SignificantPValue, 3, &shifts)};
-    LOG_TRACE(<< "shift segments = " << core::CContainerPrinter::print(segments));
 
     if (segments.size() > 2) {
         auto shiftedPredictor = [&](std::size_t i) {
-            return predictor(static_cast<core_t::TTime>(m_BucketLength * i) +
+            return predictor(m_BucketLength * static_cast<core_t::TTime>(i) +
                              TSegmentation::shiftAt(i, segments, shifts));
         };
         auto residuals = removePredictions(shiftedPredictor, m_Values);
@@ -469,6 +601,7 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
         double truncatedVarianceH1;
         std::tie(varianceH1, truncatedVarianceH1) = this->variances(residuals);
         std::size_t changeIndex{segments[segments.size() - 2]};
+        LOG_TRACE(<< "shift segments = " << core::CContainerPrinter::print(segments));
         LOG_TRACE(<< "shifts = " << core::CContainerPrinter::print(shifts));
         LOG_TRACE(<< "variance = " << varianceH1 << ", truncated variance = " << truncatedVarianceH1
                   << ", sample variance = " << m_SampleVariance);
@@ -482,8 +615,8 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
 
         if (pValue < m_AcceptedFalsePostiveRate) {
             auto changePoint = std::make_unique<CTimeShift>(
-                false, changeIndex, this->changeTime(changeIndex),
-                shifts.back(), std::move(residuals));
+                this->changeTime(changeIndex), shifts.back(),
+                std::move(residuals), m_SignificantPValue);
             return {varianceH1, truncatedVarianceH1, parametersH1, std::move(changePoint)};
         }
     }

@@ -20,6 +20,10 @@
 #include <vector>
 
 namespace ml {
+namespace core {
+class CStatePersistInserter;
+class CStateRestoreTraverser;
+}
 namespace maths {
 class CCalendarComponent;
 class CSeasonalComponent;
@@ -31,35 +35,47 @@ class MATHS_EXPORT CChangePoint {
 public:
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
+    using TChangePointUPtr = std::unique_ptr<CChangePoint>;
+    using TPredictor = std::function<double(core_t::TTime)>;
 
 public:
-    CChangePoint(bool reversion, std::size_t index, core_t::TTime time, TFloatMeanAccumulatorVec residuals)
-        : m_Reversion{reversion}, m_Index{index}, m_Time{time}, m_Residuals{std::move(residuals)} {
-    }
+    CChangePoint(core_t::TTime time, TFloatMeanAccumulatorVec residuals, double significantPValue);
     virtual ~CChangePoint();
 
+    virtual TChangePointUPtr undoable() const = 0;
+    virtual bool largeEnough(double threshold) const = 0;
+    bool longEnough(core_t::TTime time, core_t::TTime minimumDuration) const;
     virtual bool apply(CTimeSeriesDecomposition&) const { return false; }
     virtual bool apply(CTrendComponent&) const { return false; }
     virtual bool apply(CSeasonalComponent&) const { return false; }
     virtual bool apply(CCalendarComponent&) const { return false; }
-    virtual bool largeEnough(double threshold) const = 0;
-    bool longEnough(core_t::TTime time, core_t::TTime minimumDuration, bool changeInWindow) const {
-        return (changeInWindow && m_Reversion) || time >= m_Time + minimumDuration;
-    }
     virtual const std::string& type() const = 0;
     virtual double value() const = 0;
     virtual std::string print() const = 0;
-    bool reversion() const { return m_Reversion; }
-    std::size_t index() const { return m_Index; }
+    virtual std::uint64_t checksum(std::uint64_t seed = 0) const = 0;
+
+    void add(core_t::TTime time, core_t::TTime lastTime, double value, double weight, const TPredictor& predictor);
+    bool shouldUndo() const;
+
     core_t::TTime time() const { return m_Time; }
+    double significantPValue() const { return m_SignificantPValue; }
     TFloatMeanAccumulatorVec& residuals() { return m_Residuals; }
     const TFloatMeanAccumulatorVec& residuals() const { return m_Residuals; }
 
 private:
-    bool m_Reversion = false;
-    std::size_t m_Index = 0;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+private:
+    virtual double undonePredict(const TPredictor& predictor, core_t::TTime time) const {
+        return predictor(time);
+    }
+
+private:
     core_t::TTime m_Time = 0;
+    double m_SignificantPValue = 0.0;
     TFloatMeanAccumulatorVec m_Residuals;
+    TMeanAccumulator m_Mse;
+    TMeanAccumulator m_UndoneMse;
 };
 
 //! \brief Represents a level shift of a time series.
@@ -72,24 +88,23 @@ public:
     static const std::string TYPE;
 
 public:
-    CLevelShift(bool reversion,
-                std::size_t changeIndex,
-                core_t::TTime time,
+    CLevelShift(core_t::TTime time,
                 double shift,
                 core_t::TTime valuesStartTime,
                 core_t::TTime bucketLength,
                 TFloatMeanAccumulatorVec values,
                 TSizeVec segments,
                 TDoubleVec shifts,
-                TFloatMeanAccumulatorVec residuals);
+                TFloatMeanAccumulatorVec residuals,
+                double significantPValue);
 
+    TChangePointUPtr undoable() const override;
+    bool largeEnough(double threshold) const override;
     bool apply(CTrendComponent& component) const override;
-    bool largeEnough(double threshold) const override {
-        return std::fabs(m_Shift) > threshold;
-    }
     const std::string& type() const override;
     std::string print() const override;
     double value() const override { return m_Shift; }
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
 private:
     double m_Shift = 0.0;
@@ -106,22 +121,21 @@ public:
     static const std::string TYPE;
 
 public:
-    CScale(bool reversion,
-           std::size_t index,
-           core_t::TTime time,
+    CScale(core_t::TTime time,
            double scale,
            double magnitude,
-           TFloatMeanAccumulatorVec initialValues);
+           TFloatMeanAccumulatorVec residuals,
+           double significantPValue);
 
+    TChangePointUPtr undoable() const override;
+    bool largeEnough(double threshold) const override;
     bool apply(CTrendComponent& component) const override;
     bool apply(CSeasonalComponent& component) const override;
     bool apply(CCalendarComponent& component) const override;
-    bool largeEnough(double threshold) const override {
-        return m_Magnitude > threshold;
-    }
     const std::string& type() const override;
     std::string print() const override;
     double value() const override { return m_Scale; }
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
 
 private:
     double m_Scale = 1.0;
@@ -134,20 +148,37 @@ public:
     static const std::string TYPE;
 
 public:
-    CTimeShift(bool reversion,
-               std::size_t index,
-               core_t::TTime time,
+    CTimeShift(core_t::TTime time,
                core_t::TTime shift,
-               TFloatMeanAccumulatorVec residuals);
+               TFloatMeanAccumulatorVec residuals,
+               double significantPValue);
+    //! For undo only.
+    CTimeShift(core_t::TTime time, core_t::TTime shift, double significantPValue);
 
-    bool apply(CTimeSeriesDecomposition& decomposition) const override;
+    TChangePointUPtr undoable() const override;
     bool largeEnough(double) const override { return m_Shift != 0; }
+    bool apply(CTimeSeriesDecomposition& decomposition) const override;
     const std::string& type() const override;
     std::string print() const override;
     double value() const override { return static_cast<double>(m_Shift); }
+    std::uint64_t checksum(std::uint64_t seed = 0) const override;
+
+private:
+    double undonePredict(const TPredictor& predictor, core_t::TTime time) const override;
 
 private:
     core_t::TTime m_Shift = 0;
+};
+
+//! \brief Manages persist and restore of an undoable change point.
+class MATHS_EXPORT CUndoableChangePointStateSerializer {
+public:
+    using TChangePointUPtr = std::unique_ptr<CChangePoint>;
+
+public:
+    bool operator()(TChangePointUPtr& result, core::CStateRestoreTraverser& traverser) const;
+    void operator()(const CChangePoint& changePoint,
+                    core::CStatePersistInserter& inserter) const;
 };
 
 //! \brief Test for sudden changes or shocks to a time series.

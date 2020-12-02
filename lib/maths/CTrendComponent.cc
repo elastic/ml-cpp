@@ -246,6 +246,11 @@ void CTrendComponent::shiftLevel(double shift,
                                  const TDoubleVec& shifts) {
     this->shiftLevel(shift);
 
+    if (segments.size() <= 2) {
+        m_MagnitudeOfLevelChangeModel.addSamples({shift}, maths_t::CUnitWeights::SINGLE_UNIT);
+        return;
+    }
+
     auto indexTime = [&](std::size_t i) {
         return valuesStartTime + bucketLength * static_cast<core_t::TTime>(i);
     };

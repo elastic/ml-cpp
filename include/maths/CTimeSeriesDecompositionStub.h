@@ -86,6 +86,9 @@ public:
     //! Returns 1.0.
     double countWeight(core_t::TTime time) const override;
 
+    //! Returns 0.0.
+    double winsorisationDerate(core_t::TTime time) const override;
+
     //! Returns an empty vector.
     TFloatMeanAccumulatorVec residuals() const override;
 

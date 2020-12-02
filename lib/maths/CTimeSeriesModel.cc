@@ -1210,6 +1210,8 @@ void CUnivariateTimeSeriesModel::countWeights(core_t::TTime time,
     }
 
     double changeWeight{m_TrendModel->countWeight(time)};
+    winsorisationDerate =
+        std::max(winsorisationDerate, m_TrendModel->winsorisationDerate(time));
 
     trendCountWeight /= countVarianceScale;
     residualCountWeight *= changeWeight;
@@ -2607,7 +2609,9 @@ void CMultivariateTimeSeriesModel::countWeights(core_t::TTime time,
     for (std::size_t d = 0; d < dimension; ++d) {
         double changeWeight{m_TrendModel[d]->countWeight(time)};
         double winsorisationWeight{winsorisation::weight(
-            *m_ResidualModel, d, winsorisationDerate, seasonalWeight[d], sample)};
+            *m_ResidualModel, d,
+            std::max(winsorisationDerate, m_TrendModel[d]->winsorisationDerate(time)),
+            seasonalWeight[d], sample)};
         residualCountWeights[d] *= changeWeight;
         trendWinsorisationWeight[d] = winsorisationWeight * changeWeight;
         residualWinsorisationWeight[d] = winsorisationWeight;

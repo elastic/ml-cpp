@@ -280,7 +280,7 @@ void reinitializeResidualModel(double learnRate,
 
 class CChangeDebug {
 public:
-    static const bool ENABLED{false};
+    static const bool ENABLED{true};
 
 public:
     CChangeDebug(std::string file = "results.py") : m_File(file) {
@@ -2309,9 +2309,9 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
         time += bucketLength;
     }
 
-    // Scale by 0.3
+    LOG_DEBUG(<< "scale by 0.3");
 
-    rng.generateNormalSamples(0.0, noiseVariance, 200, samples);
+    rng.generateNormalSamples(0.0, noiseVariance, 300, samples);
     for (auto sample : samples) {
         sample = 0.3 * (12.0 + 10.0 * smoothDaily(time) + sample);
         updateModel(time, sample, model);
@@ -2325,12 +2325,12 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
         debug.addValueAndPrediction(time, sample, model);
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 1.2 * std::sqrt(noiseVariance));
-        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.3 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 1.6 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.4 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 
-    // Scale by 2 / 0.3
+    LOG_DEBUG(<< "scale by 6.6");
 
     rng.generateNormalSamples(0.0, noiseVariance, 300, samples);
     for (auto sample : samples) {
@@ -2346,8 +2346,8 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
         debug.addValueAndPrediction(time, sample, model);
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 4.2 * std::sqrt(noiseVariance));
-        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 4.3 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 3.6 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 4.0 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 }
@@ -2387,9 +2387,9 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
         time += bucketLength;
     }
 
-    // Shift by +1 hr.
+    LOG_DEBUG(<< "shift by 3600s");
 
-    rng.generateNormalSamples(0.0, noiseVariance, 200, samples);
+    rng.generateNormalSamples(0.0, noiseVariance, 300, samples);
     for (auto sample : samples) {
         sample += 12.0 + 10.0 * smoothDaily(time + hour);
         updateModel(time, sample, model);
@@ -2404,12 +2404,12 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
         BOOST_REQUIRE_EQUAL(hour, model.trendModel().timeShift());
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 4.0 * std::sqrt(noiseVariance));
-        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.5 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 4.2 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.6 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 
-    // Shift by -1 hr.
+    LOG_DEBUG(<< "shift by -3600s");
 
     rng.generateNormalSamples(0.0, noiseVariance, 300, samples);
     for (auto sample : samples) {
@@ -2427,7 +2427,7 @@ BOOST_AUTO_TEST_CASE(testDaylightSaving) {
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
         BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 3.5 * std::sqrt(noiseVariance));
-        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.5 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 3.8 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 }

@@ -17,29 +17,29 @@ namespace core {
 namespace constants {
 
 //! A minute in seconds.
-const core_t::TTime MINUTE{60};
+constexpr core_t::TTime MINUTE{60};
 
 //! An hour in seconds.
-const core_t::TTime HOUR{3600};
+constexpr core_t::TTime HOUR{3600};
 
 //! A day in seconds.
-const core_t::TTime DAY{86400};
+constexpr core_t::TTime DAY{86400};
 
 //! Two days in seconds.
-const core_t::TTime WEEKEND{172800};
+constexpr core_t::TTime WEEKEND{172800};
 
 //! Five days in seconds.
-const core_t::TTime WEEKDAYS{432000};
+constexpr core_t::TTime WEEKDAYS{432000};
 
 //! A week in seconds.
-const core_t::TTime WEEK{604800};
+constexpr core_t::TTime WEEK{604800};
 
 //! 365 days in seconds.
 //!
 //! Note that this doesn't use the more standard 365.2425 days average length
 //! of a Gregorian year because things work out slightly better if it is a
 //! multiple time series bucket length.
-const core_t::TTime YEAR{31536000};
+constexpr core_t::TTime YEAR{31536000};
 
 //! Log of min double.
 const double LOG_MIN_DOUBLE{std::log(std::numeric_limits<double>::min())};
@@ -51,10 +51,10 @@ const double LOG_MAX_DOUBLE{std::log(std::numeric_limits<double>::max())};
 const double LOG_DOUBLE_EPSILON{std::log(std::numeric_limits<double>::epsilon())};
 
 //! Log of two.
-const double LOG_TWO{0.693147180559945};
+constexpr double LOG_TWO{0.693147180559945};
 
 //! Log of two pi.
-const double LOG_TWO_PI{1.83787706640935};
+constexpr double LOG_TWO_PI{1.83787706640935};
 
 #ifdef Windows
 const char PATH_SEPARATOR = '\\';

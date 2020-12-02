@@ -163,6 +163,9 @@ public:
     //! Get the count weight to apply at \p time.
     virtual double countWeight(core_t::TTime time) const = 0;
 
+    //! Get the derate to apply to the Winsorisation weight at \p time.
+    virtual double winsorisationDerate(core_t::TTime time) const = 0;
+
     //! Get the prediction residuals in a recent time window.
     virtual TFloatMeanAccumulatorVec residuals() const = 0;
 

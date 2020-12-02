@@ -530,6 +530,10 @@ double CTimeSeriesDecomposition::countWeight(core_t::TTime time) const {
     return m_ChangePointTest.countWeight(time);
 }
 
+double CTimeSeriesDecomposition::winsorisationDerate(core_t::TTime time) const {
+    return m_ChangePointTest.winsorisationDerate(time);
+}
+
 CTimeSeriesDecomposition::TFloatMeanAccumulatorVec CTimeSeriesDecomposition::residuals() const {
     return m_SeasonalityTest.residuals([this](core_t::TTime time) {
         return CBasicStatistics::mean(this->value(time, 0.0));

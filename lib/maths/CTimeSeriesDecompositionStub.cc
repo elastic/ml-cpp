@@ -94,6 +94,10 @@ double CTimeSeriesDecompositionStub::countWeight(core_t::TTime /*time*/) const {
     return 1.0;
 }
 
+double CTimeSeriesDecompositionStub::winsorisationDerate(core_t::TTime /*time*/) const {
+    return 0.0;
+}
+
 CTimeSeriesDecompositionStub::TFloatMeanAccumulatorVec
 CTimeSeriesDecompositionStub::residuals() const {
     return {};
