@@ -225,15 +225,16 @@ public:
     static const std::string HYPERPARAM_FEATURE_BAG_FRACTION_TAG;
     static const std::string HYPERPARAM_MAXIMUM_NUMBER_TREES_TAG;
     static const std::string HYPERPARAM_REGULARIZATION_TAG;
-    static const std::string DOWNSAMPLE_FACTOR;
     static const std::string ALPHA;
-    static const std::string LAMBDA;
-    static const std::string GAMMA;
+    static const std::string DOWNSAMPLE_FACTOR;
     static const std::string ETA;
+    static const std::string FEATURE_BAG_FRACTION;
+    static const std::string GAMMA;
+    static const std::string LAMBDA;
+    static const std::string MAX_TREES;
     static const std::string SOFT_TREE_DEPTH_LIMIT;
     static const std::string SOFT_TREE_DEPTH_TOLERANCE;
-    static const std::string MAX_TREES;
-    static const std::string FEATURE_BAG_FRACTION;
+
 private:
     //! The regularisation parameters.
     TRegularization m_Regularization;
