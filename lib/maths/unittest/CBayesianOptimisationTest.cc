@@ -520,4 +520,106 @@ BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testAnovaConstantNotNormalized) {
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    test::CRandomNumbers rng;
+    TMeanAccumulator meanAccumulator;
+    std::size_t dim{2};
+    std::size_t mcSamples{1000};
+    std::size_t numTainSamples{20};
+    TDoubleVec trainSamples(numTainSamples * dim);
+    rng.generateUniformSamples(-3.0, 3.0, trainSamples.size(), trainSamples);
+    maths::CBayesianOptimisation bopt{{{-3.0, 3.0}, {-3.0, 3.0}}};
+    for (std::size_t i = 0; i < numTainSamples; i += 2) {
+        TVector x{vector({trainSamples[i], trainSamples[i + 1]})};
+        bopt.add(x, x.squaredNorm(), 1.0);
+    }
+
+    TVector kernelParameters(vector({0.7, 0.5, 0.5}));
+    bopt.kernelParameters(kernelParameters);
+    double f0Actual{bopt.anovaConstantFactor()};
+
+    TVector minBoundary(vector({-3.0, -3.0}));
+    TVector maxBoundary(vector({3.0, 3.0}));
+    TDoubleVecVec testSamples;
+    maths::CSampling::sobolSequenceSample(dim, mcSamples, testSamples);
+    for (std::size_t i = 0u; i < mcSamples; ++i) {
+        TVector input{vector(testSamples[i])};
+        input = input.cwiseProduct(maxBoundary - minBoundary) + minBoundary;
+        meanAccumulator.add(bopt.evaluate(input));
+    }
+    double f0Expected{maths::CBasicStatistics::mean(meanAccumulator)};
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(f0Actual, f0Expected, 5e-3);
+}
+
+BOOST_AUTO_TEST_CASE(testAnovaTotalVarianceNotNormalized) {
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    test::CRandomNumbers rng;
+    TMeanAccumulator meanAccumulator;
+    std::size_t dim{2};
+    std::size_t mcSamples{1000};
+    std::size_t numTainSamples{20};
+    TDoubleVec trainSamples(numTainSamples * dim);
+    rng.generateUniformSamples(-3.0, 3.0, trainSamples.size(), trainSamples);
+    maths::CBayesianOptimisation bopt{{{-3.0, 3.0}, {-3.0, 3.0}}};
+    for (std::size_t i = 0; i < numTainSamples; i += 2) {
+        TVector x{vector({trainSamples[i], trainSamples[i + 1]})};
+        bopt.add(x, x.squaredNorm(), 1.2);
+    }
+
+    TVector kernelParameters(vector({0.7, 0.5, 0.5}));
+    bopt.kernelParameters(kernelParameters);
+    double f0{bopt.anovaConstantFactor()};
+    double totalVarianceActual{bopt.anovaTotalVariance()};
+
+    TVector minBoundary(vector({-3.0, -3.0}));
+    TVector maxBoundary(vector({3.0, 3.0}));
+    TDoubleVecVec testSamples;
+    maths::CSampling::sobolSequenceSample(dim, mcSamples, testSamples);
+    for (std::size_t i = 0u; i < mcSamples; ++i) {
+        TVector input{vector(testSamples[i])};
+        input = input.cwiseProduct(maxBoundary - minBoundary) + minBoundary;
+        meanAccumulator.add(maths::CTools::pow2(bopt.evaluate(input) - f0));
+    }
+    double totalVarianceExpected{maths::CBasicStatistics::mean(meanAccumulator)};
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(totalVarianceActual, totalVarianceExpected, 5e-3);
+}
+
+BOOST_AUTO_TEST_CASE(testAnovaMainEffectNotNormalized) {
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    test::CRandomNumbers rng;
+    TMeanAccumulator meanAccumulator;
+    std::size_t dim{2};
+    std::size_t mcSamples{1000};
+    std::size_t numTainSamples{20};
+    TDoubleVec trainSamples(numTainSamples * dim);
+    rng.generateUniformSamples(-3.0, 3.0, trainSamples.size(), trainSamples);
+    maths::CBayesianOptimisation bopt{{{-3.0, 3.0}, {-3.0, 3.0}}};
+    for (std::size_t i = 0; i < numTainSamples; i += 2) {
+        TVector x{vector({trainSamples[i], trainSamples[i + 1]})};
+        bopt.add(x, x.squaredNorm(), 1.2);
+    }
+
+    TVector kernelParameters(vector({0.7, 0.5, 0.5}));
+    bopt.kernelParameters(kernelParameters);
+    double f0{bopt.anovaConstantFactor()};
+
+    TVector minBoundary(vector({-3.0}));
+    TVector maxBoundary(vector({3.0}));
+    TDoubleVecVec testSamples;
+    maths::CSampling::sobolSequenceSample(1, mcSamples, testSamples);
+    for (std::size_t d = 0; d < dim; ++d) {
+        TMeanAccumulator meanAccumulator;
+        for (std::size_t i = 0; i < mcSamples; ++i) {
+            TVector input{vector(testSamples[i])};
+            input = input.cwiseProduct(maxBoundary - minBoundary) + minBoundary;
+            meanAccumulator.add(
+                maths::CTools::pow2(bopt.evaluate1D(input[0], static_cast<int>(d))));
+        }
+        double mainEffectExpected(maths::CBasicStatistics::mean(meanAccumulator));
+        double mainEffectActual{bopt.anovaMainEffect(static_cast<int>(d))};
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(mainEffectActual, mainEffectExpected, 5e-3);
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

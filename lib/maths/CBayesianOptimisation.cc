@@ -213,6 +213,16 @@ CBayesianOptimisation::TVector CBayesianOptimisation::kinvf() const {
     return Kinvf;
 }
 
+CBayesianOptimisation::TVector CBayesianOptimisation::transformTo01(const TVector& x) const {
+    return {(x - m_MinBoundary).array() / (m_MaxBoundary - m_MinBoundary).array()};
+}
+
+CBayesianOptimisation::TVector CBayesianOptimisation::scaledKernelParameters() const {
+    TVector scaledKernelParameters{m_KernelParameters.tail(m_MinBoundary.size())};
+    scaledKernelParameters = scaledKernelParameters.cwiseProduct(m_MaxBoundary - m_MinBoundary);
+    return scaledKernelParameters;
+}
+
 double CBayesianOptimisation::evaluate(const TVector& input) const {
     return this->evaluate(this->kinvf(), input);
 }
@@ -225,24 +235,27 @@ double CBayesianOptimisation::evaluate(const TVector& Kinvf, const TVector& inpu
 }
 
 double CBayesianOptimisation::evaluate1D(const TVector& Kinvf, double input, int dimension) const {
-    auto prodIt = [this](std::size_t i, int t) {
+    TVector scaledKernelParameters{this->scaledKernelParameters()};
+    auto prodXt = [&scaledKernelParameters, this](const TVector& x, int t) {
         double prod{1.0};
-        for (int d = 0; d < this->m_MinBoundary.size(); ++d) {
+        for (int d = 0; d < m_MinBoundary.size(); ++d) {
             if (d != t) {
-                prod *= stableProdd(this->m_KernelParameters(d + 1),
-                                    this->m_FunctionMeanValues[i].first(d));
+                prod *= stableProdd(scaledKernelParameters(d), x(d));
             }
         }
         return prod;
     };
-    double f0{this->anovaConstantFactor()};
+    double f0{this->anovaConstantFactor(Kinvf)};
     double s{0.0};
+    input = (input - m_MinBoundary(dimension)) /
+            (m_MaxBoundary(dimension) - m_MinBoundary(dimension));
     for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
+        TVector x{this->transformTo01(m_FunctionMeanValues[i].first)};
         s += Kinvf(static_cast<int>(i)) *
-             std::exp(-(CTools::pow2(m_KernelParameters[dimension + 1]) +
+             std::exp(-(CTools::pow2(scaledKernelParameters[dimension]) +
                         MINIMUM_KERNEL_COORDINATE_DISTANCE_SCALE) *
-                      CTools::pow2(input - m_FunctionMeanValues[i].first(dimension))) *
-             prodIt(i, dimension);
+                      CTools::pow2(input - x(dimension))) *
+             prodXt(x, dimension);
     }
     return CTools::pow2(m_KernelParameters(0)) * s - f0;
 }
@@ -252,12 +265,13 @@ double CBayesianOptimisation::evaluate1D(double input, int dimension) const {
 }
 
 double CBayesianOptimisation::anovaConstantFactor(const TVector& Kinvf) const {
+    TVector scaledKernelParameters{this->scaledKernelParameters()};
     double sum{0.0};
     for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
         double prod{1.0};
+        TVector x{this->transformTo01(m_FunctionMeanValues[i].first)};
         for (int d = 0; d < m_MinBoundary.size(); ++d) {
-            prod *= stableProdd(m_KernelParameters(d + 1),
-                                m_FunctionMeanValues[i].first(d));
+            prod *= stableProdd(scaledKernelParameters(d), x(d));
         }
         sum += Kinvf(i) * prod;
     }
@@ -269,12 +283,13 @@ double CBayesianOptimisation::anovaConstantFactor() const {
 }
 
 double CBayesianOptimisation::anovaTotalVariance(const TVector& Kinvf) const {
-    auto prodIj = [this, &Kinvf](std::size_t i, std::size_t j) {
+    TVector scaledKernelParameters{this->scaledKernelParameters()};
+    auto prodIj = [this, &scaledKernelParameters, &Kinvf](std::size_t i, std::size_t j) {
+        TVector xi{this->transformTo01(this->m_FunctionMeanValues[i].first)};
+        TVector xj{this->transformTo01(this->m_FunctionMeanValues[j].first)};
         double prod{1.0};
         for (int t = 0; t < this->m_MinBoundary.size(); ++t) {
-            prod *= stableProdIjt(this->m_KernelParameters[t + 1],
-                                  this->m_FunctionMeanValues[i].first(t),
-                                  this->m_FunctionMeanValues[j].first(t));
+            prod *= stableProdIjt(scaledKernelParameters[t], xi(t), xj(t));
         }
         return Kinvf(static_cast<int>(i)) * Kinvf(static_cast<int>(j)) * prod;
     };
@@ -286,7 +301,7 @@ double CBayesianOptimisation::anovaTotalVariance(const TVector& Kinvf) const {
         }
     }
     double variance{std::pow(m_KernelParameters(0), 4) * s -
-                    CTools::pow2(this->anovaConstantFactor())};
+                    CTools::pow2(this->anovaConstantFactor(Kinvf))};
     return variance;
 }
 
@@ -295,12 +310,12 @@ double CBayesianOptimisation::anovaTotalVariance() const {
 }
 
 double CBayesianOptimisation::anovaMainEffect(const TVector& Kinvf, int dimension) const {
-    auto prodIt = [this](std::size_t i, int t) {
+    TVector scaledKernelParameters{this->scaledKernelParameters()};
+    auto prodXt = [this, &scaledKernelParameters](const TVector& x, int t) {
         double prod{1.0};
         for (int d = 0; d < this->m_MinBoundary.size(); ++d) {
             if (d != t) {
-                prod *= stableProdd(this->m_KernelParameters(d + 1),
-                                    this->m_FunctionMeanValues[i].first(d));
+                prod *= stableProdd(scaledKernelParameters(d), x(d));
             }
         }
         return prod;
@@ -309,17 +324,17 @@ double CBayesianOptimisation::anovaMainEffect(const TVector& Kinvf, int dimensio
     double s1{0.0};
     double s2{0.0};
     for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
+        TVector xi{this->transformTo01(m_FunctionMeanValues[i].first)};
         for (std::size_t j = 0; j < m_FunctionMeanValues.size(); ++j) {
+            TVector xj{this->transformTo01(m_FunctionMeanValues[j].first)};
             s1 += Kinvf(static_cast<int>(i)) * Kinvf(static_cast<int>(j)) *
-                  prodIt(i, dimension) * prodIt(j, dimension) *
-                  stableProdIjt(m_KernelParameters(dimension + 1),
-                                m_FunctionMeanValues[i].first(dimension),
-                                m_FunctionMeanValues[j].first(dimension));
+                  prodXt(xi, dimension) * prodXt(xj, dimension) *
+                  stableProdIjt(scaledKernelParameters(dimension),
+                                xi(dimension), xj(dimension));
         }
         s2 += Kinvf(static_cast<int>(i)) *
-              stableProdd(m_KernelParameters(dimension + 1),
-                          m_FunctionMeanValues[i].first(dimension)) *
-              prodIt(i, dimension);
+              stableProdd(scaledKernelParameters(dimension), xi(dimension)) *
+              prodXt(xi, dimension);
     }
     s1 *= std::pow(m_KernelParameters(0), 4);
     s2 *= -2 * CTools::pow2(m_KernelParameters(0)) * f0;
@@ -331,10 +346,10 @@ double CBayesianOptimisation::anovaMainEffect(int dimension) const {
 }
 
 TDoubleVec CBayesianOptimisation::anovaMainEffects() const {
-    TDoubleVec mainEffects(m_MinBoundary.size());
+    TDoubleVec mainEffects(static_cast<std::size_t>(m_MinBoundary.size()));
     TVector Kinvf{this->kinvf()};
     double totalVariance(this->anovaTotalVariance(Kinvf));
-    for (std::size_t i = 0; i < m_MinBoundary.size(); ++i) {
+    for (int i = 0; i < m_MinBoundary.size(); ++i) {
         mainEffects[i] = this->anovaMainEffect(Kinvf, i) / totalVariance;
     }
     return mainEffects;
