@@ -756,6 +756,7 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::updateTotalCountWeights(c
     m_TotalCountWeightAdjustment += static_cast<double>(time - lastTime) /
                                     static_cast<double>(m_BucketLength) *
                                     (this->countWeight(time) - 1.0);
+    m_TotalCountWeightAdjustment = std::min(m_TotalCountWeightAdjustment, 0.0);
     if (m_TotalCountWeightAdjustment == 0.0) {
         m_MinimumTotalCountWeightAdjustment =
             (CHANGE_COUNT_WEIGHT - 1.0) *
