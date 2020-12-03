@@ -28,6 +28,7 @@ const std::string CBoostedTreeHyperparameters::ALPHA{"alpha"};
 const std::string CBoostedTreeHyperparameters::LAMBDA{"lambda"};
 const std::string CBoostedTreeHyperparameters::GAMMA{"gamma"};
 const std::string CBoostedTreeHyperparameters::ETA{"eta"};
+const std::string CBoostedTreeHyperparameters::ETA_GROWTH_RATE_PER_TREE{"eta_growth_rate_per_tree"};
 const std::string CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_LIMIT{"soft_tree_depth_limit"};
 const std::string CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_TOLERANCE{"soft_tree_depth_tolerance"};
 const std::string CBoostedTreeHyperparameters::MAX_TREES{"max_trees"};

@@ -5,6 +5,9 @@
  */
 #include <api/CInferenceModelMetadata.h>
 
+#include <maths/CBoostedTreeHyperparameters.h>
+#include <maths/CBoostedTreeUtils.h>
+
 #include <cmath>
 
 namespace ml {
@@ -137,8 +140,17 @@ void CInferenceModelMetadata::writeFeatureImportanceBaseline(TRapidJsonWriter& w
 }
 
 void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& writer) const {
-    // TODO implement
-    // Continue from here!!!!!!!!
+    writer.Key(JSON_HYPERPARAMETER_IMPORTANCE_TAG);
+    writer.StartArray();
+    for (const auto& item : m_HyperparameterImportance) {
+        writer.StartObject();
+        writer.Key(JSON_HYPERPARAMETER_NAME_TAG);
+        writer.String(item.first);
+        writer.Key(JSON_IMPORTANCE_TAG);
+        writer.Double(item.second);
+        writer.EndObject();
+    }
+    writer.EndArray();
 }
 
 const std::string& CInferenceModelMetadata::typeString() const {
@@ -178,7 +190,50 @@ void CInferenceModelMetadata::featureImportanceBaseline(TVector&& baseline) {
 
 void CInferenceModelMetadata::hyperparameterImportance(
     const maths::CBoostedTree::THyperparameterDoublePrVec& hyperparameterImportance) {
-    // TODO implement
+    m_HyperparameterImportance.clear();
+    m_HyperparameterImportance.reserve(hyperparameterImportance.size());
+    for (const auto& item : hyperparameterImportance) {
+        switch (item.first) {
+        case maths::boosted_tree_detail::E_Alpha:
+            m_HyperparameterImportance.emplace_back(
+                maths::CBoostedTreeHyperparameters::ALPHA, item.second);
+            break;
+        case maths::boosted_tree_detail::E_DownsampleFactor:
+            m_HyperparameterImportance.emplace_back(
+                maths::CBoostedTreeHyperparameters::DOWNSAMPLE_FACTOR, item.second);
+            break;
+        case maths::boosted_tree_detail::E_Eta:
+            m_HyperparameterImportance.emplace_back(
+                maths::CBoostedTreeHyperparameters::ETA, item.second);
+            break;
+        case maths::boosted_tree_detail::E_EtaGrowthRatePerTree:
+            m_HyperparameterImportance.emplace_back(
+                maths::CBoostedTreeHyperparameters::ETA_GROWTH_RATE_PER_TREE, item.second);
+            break;
+        case maths::boosted_tree_detail::E_FeatureBagFraction:
+            m_HyperparameterImportance.emplace_back(
+                maths::CBoostedTreeHyperparameters::FEATURE_BAG_FRACTION, item.second);
+            break;
+        case maths::boosted_tree_detail::E_Gamma:
+            m_HyperparameterImportance.emplace_back(
+                maths::CBoostedTreeHyperparameters::GAMMA, item.second);
+            break;
+        case maths::boosted_tree_detail::E_Lambda:
+            m_HyperparameterImportance.emplace_back(
+                maths::CBoostedTreeHyperparameters::LAMBDA, item.second);
+            break;
+        case maths::boosted_tree_detail::E_SoftTreeDepthLimit:
+            m_HyperparameterImportance.emplace_back(
+                maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_LIMIT, item.second);
+            break;
+        case maths::boosted_tree_detail::E_SoftTreeDepthTolerance:
+            m_HyperparameterImportance.emplace_back(
+                maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_TOLERANCE, item.second);
+            break;
+        }
+    }
+    std::sort(m_HyperparameterImportance.begin(), m_HyperparameterImportance.end(),
+              [](const auto& a, const auto& b) { return a.second > b.second; });
 }
 
 // clang-format off
@@ -193,6 +248,8 @@ const std::string CInferenceModelMetadata::JSON_MEAN_MAGNITUDE_TAG{"mean_magnitu
 const std::string CInferenceModelMetadata::JSON_MIN_TAG{"min"};
 const std::string CInferenceModelMetadata::JSON_MODEL_METADATA_TAG{"model_metadata"};
 const std::string CInferenceModelMetadata::JSON_TOTAL_FEATURE_IMPORTANCE_TAG{"total_feature_importance"};
+const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_IMPORTANCE_TAG{"hyperparameter_importance"};
+const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_NAME_TAG{"hyperparameter_name"};
 // clang-format on
 }
 }
