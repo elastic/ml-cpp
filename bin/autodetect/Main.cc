@@ -207,6 +207,7 @@ int main(int argc, char** argv) {
         mutableFields.push_back(ml::api::CFieldDataCategorizer::MLCATEGORY_NAME);
     }
 
+    // TODO: Encapsulate the logic below into say CAnomalyJobConfig::makeModelConfig
     const ml::api::CAnomalyJobConfig::CAnalysisConfig& analysisConfig =
         jobConfig.analysisConfig();
     const std::string& summaryCountFieldName = analysisConfig.summaryCountFieldName();

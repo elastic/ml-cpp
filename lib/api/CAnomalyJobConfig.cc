@@ -391,7 +391,12 @@ void CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::parse(
     m_PartitionFieldName = parameters[PARTITION_FIELD_NAME].fallback(EMPTY_STRING);
     m_ExcludeFrequent = parameters[EXCLUDE_FREQUENT].fallback(EMPTY_STRING);
     m_DetectorDescription = parameters[DETECTOR_DESCRIPTION].fallback(EMPTY_STRING);
-    m_DetectorIndex = parameters[DETECTOR_INDEX].as<std::size_t>();
+
+    // The detector index is of type int for historical reasons
+    // and for consistency across the code base.
+    // The explicit cast is required here as our JSON parser does not support
+    // 32 bit integer values.
+    m_DetectorIndex = static_cast<int>(parameters[DETECTOR_INDEX].as<std::ptrdiff_t>());
 
     auto customRules = parameters[CUSTOM_RULES].jsonObject();
     if (customRules != nullptr) {

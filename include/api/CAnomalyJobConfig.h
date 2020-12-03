@@ -67,7 +67,7 @@ public:
             std::string m_PartitionFieldName{};
             std::string m_ExcludeFrequent{};
             std::string m_DetectorDescription{};
-            std::size_t m_DetectorIndex{};
+            int m_DetectorIndex{};
             bool m_UseNull{false};
         };
 
@@ -258,6 +258,7 @@ public:
     std::string jobId() const { return m_JobId; }
     std::string jobType() const { return m_JobType; }
     CAnalysisConfig& analysisConfig() { return m_AnalysisConfig; }
+    const CAnalysisConfig& analysisConfig() const { return m_AnalysisConfig; }
     const CDataDescription& dataDescription() const {
         return m_DataDescription;
     }
