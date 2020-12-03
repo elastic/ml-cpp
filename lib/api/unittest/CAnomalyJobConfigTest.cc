@@ -15,6 +15,15 @@
 BOOST_AUTO_TEST_SUITE(CAnomalyJobConfigTest)
 
 BOOST_AUTO_TEST_CASE(testParse) {
+
+    using TAnalysisConfig = ml::api::CAnomalyJobConfig::CAnalysisConfig;
+    using TDataDescription = ml::api::CAnomalyJobConfig::CDataDescription;
+    using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetectorConfigVec;
+
+    using TStrVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TStrVec;
+    using TAnalysisLimits = ml::api::CAnomalyJobConfig::CAnalysisLimits;
+    using TModelPlotConfig = ml::api::CAnomalyJobConfig::CModelPlotConfig;
+
     {
         const std::string inValidModelMemoryLimitBytes{
             "[{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
@@ -91,9 +100,6 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
 
-        using TAnalysisConfig = ml::api::CAnomalyJobConfig::CAnalysisConfig;
-        using TDataDescription = ml::api::CAnomalyJobConfig::CDataDescription;
-
         const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
 
         BOOST_REQUIRE_EQUAL(1800, analysisConfig.bucketSpan());
@@ -104,7 +110,6 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
 
-        using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetectorConfigVec;
         const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
         BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].detectorDescription());
@@ -114,21 +119,18 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].excludeFrequent());
-        BOOST_REQUIRE_EQUAL(0, detectorsConfig[0].customRules().size());
+        BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
 
-        using TStrVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TStrVec;
         const TStrVec& influencers = analysisConfig.influencers();
         BOOST_REQUIRE_EQUAL(0, influencers.size());
 
-        using TAnalysisLimits = ml::api::CAnomalyJobConfig::CAnalysisLimits;
         const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
         BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
 
         // Expect the model memory limit to be rounded down to the nearest whole number of megabytes
         BOOST_REQUIRE_EQUAL(4, analysisLimits.modelMemoryLimitMb());
 
-        using TModelPlotConfig = ml::api::CAnomalyJobConfig::CModelPlotConfig;
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
@@ -151,9 +153,6 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("logs_max_bytes_by_geo", jobConfig.jobId());
 
-        using TAnalysisConfig = ml::api::CAnomalyJobConfig::CAnalysisConfig;
-        using TDataDescription = ml::api::CAnomalyJobConfig::CDataDescription;
-
         const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
 
         // When the configured bucket span equates to less than 1s expect the default value
@@ -167,7 +166,6 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
 
-        using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetectorConfigVec;
         const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
 
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
@@ -179,23 +177,20 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
         BOOST_REQUIRE_EQUAL("host.keyword", detectorsConfig[0].partitionFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].excludeFrequent());
-        BOOST_REQUIRE_EQUAL(0, detectorsConfig[0].customRules().size());
+        BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
 
-        using TStrVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TStrVec;
         const TStrVec& influencers = analysisConfig.influencers();
         BOOST_REQUIRE_EQUAL(2, influencers.size());
         BOOST_REQUIRE_EQUAL("geo.src", influencers[0]);
         BOOST_REQUIRE_EQUAL("host.keyword", influencers[1]);
 
-        using TAnalysisLimits = ml::api::CAnomalyJobConfig::CAnalysisLimits;
         const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
         BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
 
         // Expect the model memory limit to be rounded down to the nearest whole number of megabytes
         BOOST_REQUIRE_EQUAL(5, analysisLimits.modelMemoryLimitMb());
 
-        using TModelPlotConfig = ml::api::CAnomalyJobConfig::CModelPlotConfig;
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
@@ -220,9 +215,6 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("ecommerce_population", jobConfig.jobId());
 
-        using TAnalysisConfig = ml::api::CAnomalyJobConfig::CAnalysisConfig;
-        using TDataDescription = ml::api::CAnomalyJobConfig::CDataDescription;
-
         const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
 
         // When the configured bucket span equates to less than 1s expect the default value
@@ -235,7 +227,6 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL("order_date", dataDescription.timeField());
 
-        using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetectorConfigVec;
         const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
 
         BOOST_REQUIRE_EQUAL(2, detectorsConfig.size());
@@ -247,7 +238,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL("category.keyword", detectorsConfig[0].overFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].excludeFrequent());
-        BOOST_REQUIRE_EQUAL(0, detectorsConfig[0].customRules().size());
+        BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
 
         BOOST_REQUIRE_EQUAL("count over \"category.keyword\"",
@@ -258,21 +249,18 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL("category.keyword", detectorsConfig[1].overFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[1].partitionFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[1].excludeFrequent());
-        BOOST_REQUIRE_EQUAL(0, detectorsConfig[1].customRules().size());
+        BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(1).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[1].useNull());
 
-        using TStrVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TStrVec;
         const TStrVec& influencers = analysisConfig.influencers();
         BOOST_REQUIRE_EQUAL(2, influencers.size());
         BOOST_REQUIRE_EQUAL("category.keyword", influencers[0]);
         BOOST_REQUIRE_EQUAL("customer_id", influencers[1]);
 
-        using TAnalysisLimits = ml::api::CAnomalyJobConfig::CAnalysisLimits;
         const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
         BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
         BOOST_REQUIRE_EQUAL(17, analysisLimits.modelMemoryLimitMb());
 
-        using TModelPlotConfig = ml::api::CAnomalyJobConfig::CModelPlotConfig;
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
@@ -292,9 +280,6 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("count_with_range", jobConfig.jobId());
 
-        using TAnalysisConfig = ml::api::CAnomalyJobConfig::CAnalysisConfig;
-        using TDataDescription = ml::api::CAnomalyJobConfig::CDataDescription;
-
         const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
 
         // When the configured bucket span equates to less than 1s expect the default value
@@ -308,7 +293,6 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
 
-        using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetectorConfigVec;
         const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
 
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
@@ -319,19 +303,16 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].excludeFrequent());
-        BOOST_REQUIRE_EQUAL(1, detectorsConfig[0].customRules().size());
+        BOOST_REQUIRE_EQUAL(1, analysisConfig.detectionRules().at(0).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
 
-        using TStrVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TStrVec;
         const TStrVec& influencers = analysisConfig.influencers();
         BOOST_REQUIRE_EQUAL(0, influencers.size());
 
-        using TAnalysisLimits = ml::api::CAnomalyJobConfig::CAnalysisLimits;
         const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
         BOOST_REQUIRE_EQUAL(5, analysisLimits.categorizationExamplesLimit());
         BOOST_REQUIRE_EQUAL(11, analysisLimits.modelMemoryLimitMb());
 
-        using TModelPlotConfig = ml::api::CAnomalyJobConfig::CModelPlotConfig;
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
         BOOST_REQUIRE_EQUAL(false, modelPlotConfig.enabled());
         BOOST_REQUIRE_EQUAL(false, modelPlotConfig.annotationsEnabled());
@@ -350,9 +331,6 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("unusual_message_counts", jobConfig.jobId());
 
-        using TAnalysisConfig = ml::api::CAnomalyJobConfig::CAnalysisConfig;
-        using TDataDescription = ml::api::CAnomalyJobConfig::CDataDescription;
-
         const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
 
         BOOST_REQUIRE_EQUAL(900, analysisConfig.bucketSpan());
@@ -363,7 +341,6 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
 
-        using TDetectorConfigVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TDetectorConfigVec;
         const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
 
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
@@ -374,10 +351,9 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].excludeFrequent());
-        BOOST_REQUIRE_EQUAL(0, detectorsConfig[0].customRules().size());
+        BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
 
-        using TStrVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TStrVec;
         const TStrVec& influencers = analysisConfig.influencers();
         BOOST_REQUIRE_EQUAL(1, influencers.size());
         BOOST_REQUIRE_EQUAL("mlcategory", influencers[0]);
@@ -388,12 +364,10 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL("foo.*", categorizationFilters[0]);
         BOOST_REQUIRE_EQUAL("bar.*", categorizationFilters[1]);
 
-        using TAnalysisLimits = ml::api::CAnomalyJobConfig::CAnalysisLimits;
         const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
         BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
         BOOST_REQUIRE_EQUAL(26, analysisLimits.modelMemoryLimitMb());
 
-        using TModelPlotConfig = ml::api::CAnomalyJobConfig::CModelPlotConfig;
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
         BOOST_REQUIRE_EQUAL(false, modelPlotConfig.enabled());
         BOOST_REQUIRE_EQUAL(false, modelPlotConfig.annotationsEnabled());
