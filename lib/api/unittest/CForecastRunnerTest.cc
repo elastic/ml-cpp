@@ -11,6 +11,7 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
+#include <api/CAnomalyJobConfig.h>
 #include <api/CFieldConfig.h>
 
 #include "CTestAnomalyJob.h"
@@ -74,6 +75,7 @@ BOOST_AUTO_TEST_CASE(testSummaryCount) {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
         ml::model::CLimits limits;
         ml::api::CFieldConfig fieldConfig;
+        ml::api::CAnomalyJobConfig jobConfig;
         ml::api::CFieldConfig::TStrVec clauses;
         clauses.push_back("count");
         clauses.push_back("summarycountfield=count");
@@ -81,7 +83,7 @@ BOOST_AUTO_TEST_CASE(testSummaryCount) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
+        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig, streamWrapper);
         populateJob(generateRecordWithSummaryCount, job);
 
         CTestAnomalyJob::TStrStrUMap dataRows;
@@ -144,6 +146,7 @@ BOOST_AUTO_TEST_CASE(testPopulation) {
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
         ml::model::CLimits limits;
+        ml::api::CAnomalyJobConfig jobConfig;
         ml::api::CFieldConfig fieldConfig;
         ml::api::CFieldConfig::TStrVec clauses;
         clauses.push_back("count");
@@ -153,7 +156,7 @@ BOOST_AUTO_TEST_CASE(testPopulation) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
+        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig, streamWrapper);
         populateJob(generatePopulationRecord, job);
 
         CTestAnomalyJob::TStrStrUMap dataRows;
@@ -187,6 +190,7 @@ BOOST_AUTO_TEST_CASE(testRare) {
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
         ml::model::CLimits limits;
+        ml::api::CAnomalyJobConfig jobConfig;
         ml::api::CFieldConfig fieldConfig;
         ml::api::CFieldConfig::TStrVec clauses;
         clauses.push_back("rare");
@@ -197,7 +201,7 @@ BOOST_AUTO_TEST_CASE(testRare) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
+        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig, streamWrapper);
         populateJob(generateRecordWithStatus, job, 5000);
 
         CTestAnomalyJob::TStrStrUMap dataRows;
@@ -231,6 +235,7 @@ BOOST_AUTO_TEST_CASE(testInsufficientData) {
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
         ml::model::CLimits limits;
+        ml::api::CAnomalyJobConfig jobConfig;
         ml::api::CFieldConfig fieldConfig;
         ml::api::CFieldConfig::TStrVec clauses;
         clauses.push_back("count");
@@ -238,7 +243,7 @@ BOOST_AUTO_TEST_CASE(testInsufficientData) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
+        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig, streamWrapper);
         populateJob(generateRecord, job, 3);
 
         CTestAnomalyJob::TStrStrUMap dataRows;

@@ -297,6 +297,7 @@ int main(int argc, char** argv) {
     // The anomaly job knows how to detect anomalies
     ml::api::CAnomalyJob job{jobId,
                              limits,
+                             jobConfig,
                              fieldConfig,
                              modelConfig,
                              wrappedOutputStream,

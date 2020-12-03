@@ -104,6 +104,10 @@ public:
 
         void parse(const rapidjson::Value& json);
 
+        bool processFilter(const std::string& key, const std::string& value);
+
+        bool updateFilters(const boost::property_tree::ptree& propTree);
+
         core_t::TTime bucketSpan() const { return m_BucketSpan; }
 
         std::string summaryCountFieldName() const {
@@ -133,6 +137,10 @@ public:
             return m_DetectorRules;
         }
 
+        const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters() const {
+            return m_RuleFilters;
+        }
+
         static core_t::TTime durationSeconds(const std::string& durationString,
                                              core_t::TTime defaultDuration);
 
@@ -145,7 +153,7 @@ public:
         bool m_PerPartitionCategorizationStopOnWarn{false};
         TDetectorConfigVec m_Detectors{};
         TStrVec m_Influencers{};
-        core_t::TTime m_Latency{};
+        core_t::TTime m_Latency{DEFAULT_LATENCY};
         bool m_MultivariateByFields{false};
 
         //! The detection rules per detector index.
@@ -249,7 +257,7 @@ public:
 
     std::string jobId() const { return m_JobId; }
     std::string jobType() const { return m_JobType; }
-    const CAnalysisConfig& analysisConfig() const { return m_AnalysisConfig; }
+    CAnalysisConfig& analysisConfig() { return m_AnalysisConfig; }
     const CDataDescription& dataDescription() const {
         return m_DataDescription;
     }

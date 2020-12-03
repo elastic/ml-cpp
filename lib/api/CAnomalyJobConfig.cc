@@ -324,9 +324,38 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
     m_Influencers = parameters[INFLUENCERS].fallback(TStrVec{});
 
     const std::string& latencyString{parameters[LATENCY].fallback(EMPTY_STRING)};
-    m_Latency = CAnomalyJobConfig::CAnalysisConfig::durationSeconds(latencyString, DEFAULT_LATENCY);
+    if (latencyString.empty() == false) {
+        m_Latency = CAnomalyJobConfig::CAnalysisConfig::durationSeconds(
+            latencyString, DEFAULT_LATENCY);
+    }
 
     m_MultivariateByFields = parameters[MULTIVARIATE_BY_FIELDS].fallback(false);
+}
+
+// TODO: Process updates as JSON
+bool CAnomalyJobConfig::CAnalysisConfig::processFilter(const std::string& key,
+                                                       const std::string& value) {
+    // expected format is filter.<filterId>=[json, array]
+    std::size_t sepPos{key.find('.')};
+    if (sepPos == std::string::npos) {
+        LOG_ERROR(<< "Unrecognised filter key: " + key);
+        return false;
+    }
+    std::string filterId = key.substr(sepPos + 1);
+    core::CPatternSet& filter = m_RuleFilters[filterId];
+    return filter.initFromJson(value);
+}
+
+// TODO: Process updates as JSON
+bool CAnomalyJobConfig::CAnalysisConfig::updateFilters(const boost::property_tree::ptree& propTree) {
+    for (const auto& filterEntry : propTree) {
+        const std::string& key = filterEntry.first;
+        const std::string& value = filterEntry.second.data();
+        if (this->processFilter(key, value) == false) {
+            return false;
+        }
+    }
+    return true;
 }
 
 core_t::TTime

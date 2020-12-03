@@ -20,9 +20,10 @@ const std::string CConfigUpdater::RULES_JSON("rulesJson");
 const std::string CConfigUpdater::FILTERS("filters");
 const std::string CConfigUpdater::SCHEDULED_EVENTS("scheduledEvents");
 
-CConfigUpdater::CConfigUpdater(CFieldConfig& fieldConfig,
+CConfigUpdater::CConfigUpdater(CAnomalyJobConfig& jobConfig,
+                               CFieldConfig& fieldConfig,
                                model::CAnomalyDetectorModelConfig& modelConfig)
-    : m_FieldConfig(fieldConfig), m_ModelConfig(modelConfig) {
+    : m_JobConfig(jobConfig), m_FieldConfig(fieldConfig), m_ModelConfig(modelConfig) {
 }
 
 bool CConfigUpdater::update(const std::string& config) {
@@ -59,7 +60,8 @@ bool CConfigUpdater::update(const std::string& config) {
                 return false;
             }
         } else if (stanzaName == FILTERS) {
-            if (m_FieldConfig.updateFilters(subTree) == false) {
+            // TODO: Move to JSON format for config updates.
+            if (m_JobConfig.analysisConfig().updateFilters(subTree) == false) {
                 LOG_ERROR(<< "Failed to update filters");
                 return false;
             }

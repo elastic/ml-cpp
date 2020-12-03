@@ -7,6 +7,7 @@
 
 CTestAnomalyJob::CTestAnomalyJob(const std::string& jobId,
                                  ml::model::CLimits& limits,
+                                 ml::api::CAnomalyJobConfig& jobConfig,
                                  ml::api::CFieldConfig& fieldConfig,
                                  ml::model::CAnomalyDetectorModelConfig& modelConfig,
                                  ml::core::CJsonOutputStreamWrapper& outputBuffer,
@@ -18,6 +19,7 @@ CTestAnomalyJob::CTestAnomalyJob(const std::string& jobId,
                                  std::size_t maxAnomalyRecords)
     : ml::api::CAnomalyJob(jobId,
                            limits,
+                           jobConfig,
                            fieldConfig,
                            modelConfig,
                            outputBuffer,

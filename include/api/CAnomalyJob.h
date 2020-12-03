@@ -50,6 +50,7 @@ class CHierarchicalResults;
 class CLimits;
 }
 namespace api {
+class CAnomalyJobConfig;
 class CPersistenceManager;
 class CModelPlotDataJsonWriter;
 class CFieldConfig;
@@ -142,6 +143,7 @@ public:
 public:
     CAnomalyJob(const std::string& jobId,
                 model::CLimits& limits,
+                CAnomalyJobConfig& jobConfig,
                 CFieldConfig& fieldConfig,
                 model::CAnomalyDetectorModelConfig& modelConfig,
                 core::CJsonOutputStreamWrapper& outputBuffer,
@@ -423,6 +425,10 @@ private:
 
     //! Object to which the output is passed
     CJsonOutputWriter m_JsonOutputWriter;
+
+    //! Configuration settings for the analysis parsed from
+    //! JSON configuration file.
+    CAnomalyJobConfig& m_JobConfig;
 
     //! Field names to use for the analysis
     CFieldConfig& m_FieldConfig;
