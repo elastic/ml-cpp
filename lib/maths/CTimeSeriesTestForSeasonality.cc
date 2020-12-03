@@ -1069,7 +1069,7 @@ void CTimeSeriesTestForSeasonality::updateResiduals(const SHypothesisStats& hypo
     for (std::size_t i = 0; i < m_TemporaryValues.size(); ++i) {
         CBasicStatistics::moment<0>(residuals[m_WindowIndices[i]]) -=
             (scale ? TSegmentation::scaleAt(i, scaleSegments, m_ComponentScales) *
-                         m_ScaledComponent[0][m_Periods[0].offset(i)]
+                         m_Periods[0].value(m_ScaledComponent[0], i)
                    : m_Periods[0].value(m_Components[0], i));
     }
 }
@@ -1139,7 +1139,7 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
                     });
                 };
                 if (this->constantScale(weightedMeanScale, period, scaleSegments, m_TemporaryValues,
-                                        m_ScaledComponent, m_ComponentScales) == false) {
+                                        component, m_ComponentScales) == false) {
                     continue;
                 }
             } else {
@@ -1149,6 +1149,8 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
             hypotheses[j].s_ModelSize =
                 this->selectComponentSize(m_TemporaryValues, period[0]);
             hypotheses[j].s_InitialValues.resize(values.size());
+            component[0] = CSignal::smoothResample(hypotheses[j].s_ModelSize,
+                                                   std::move(component[0]));
 
             double overlapping{static_cast<double>(std::count_if(
                 m_Periods.begin(), m_Periods.end(), [&](const auto& period_) {
@@ -1159,10 +1161,9 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
             for (std::size_t k = 0; k < m_TemporaryValues.size(); ++k) {
                 if (CBasicStatistics::count(m_TemporaryValues[k]) > 0.0) {
                     auto& value = CBasicStatistics::moment<0>(m_TemporaryValues[k]);
-                    double prediction{
-                        scale ? TSegmentation::scaleAt(k, scaleSegments, m_ComponentScales) *
-                                    m_ScaledComponent[0][period[0].offset(k)]
-                              : period[0].value(component[0], k)};
+                    double prediction{(scale ? TSegmentation::scaleAt(k, scaleSegments, m_ComponentScales)
+                                             : 1.0) *
+                                      period[0].value(component[0], k)};
                     value = prediction + (value - prediction) / overlapping;
                     CBasicStatistics::moment<0>(residuals[m_WindowIndices[k]]) -= prediction;
                 }
@@ -1320,8 +1321,9 @@ CTimeSeriesTestForSeasonality::selectComponentSize(const TFloatMeanAccumulatorVe
         matchingModelled == m_ModelledPeriods.end()
             ? 0
             : m_ModelledPeriodsSizes[matchingModelled - m_ModelledPeriods.begin()]};
-    return std::max(modelledSize,
-                    CSignal::selectComponentSize(valuesToTest, period.period()));
+    return CTools::truncate(
+        std::max(modelledSize, CSignal::selectComponentSize(valuesToTest, period.period())),
+        m_MinimumModelSize, m_MaximumModelSize);
 }
 
 std::size_t CTimeSeriesTestForSeasonality::similarModelled(const TSeasonalComponent& period) const {
@@ -1371,7 +1373,7 @@ bool CTimeSeriesTestForSeasonality::constantScale(const TConstantScale& scale,
                                                   const TSeasonalComponentVec& periods,
                                                   const TSizeVec& scaleSegments,
                                                   TFloatMeanAccumulatorVec& values,
-                                                  TDoubleVecVec& components,
+                                                  TMeanAccumulatorVecVec& components,
                                                   TDoubleVec& scales) const {
     if (scaleSegments.size() > 2) {
         values = TSegmentation::constantScalePiecewiseLinearScaledSeasonal(
@@ -2088,7 +2090,7 @@ double CTimeSeriesTestForSeasonality::SModel::targetModelSize() const {
     return static_cast<double>(std::accumulate(
         s_Hypotheses.begin(), s_Hypotheses.end(), 0, [&](auto partialSize, const auto& hypothesis) {
             if (hypothesis.s_Model) {
-                partialSize += std::max(hypothesis.s_ModelSize, s_Params->m_MinimumModelSize);
+                partialSize += hypothesis.s_ModelSize;
             } else if (hypothesis.s_DiscardingModel == false) {
                 partialSize += s_Params->m_ModelledPeriodsSizes[hypothesis.s_SimilarModelled];
             }

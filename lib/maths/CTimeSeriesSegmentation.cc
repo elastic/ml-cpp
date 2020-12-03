@@ -146,7 +146,7 @@ CTimeSeriesSegmentation::constantScalePiecewiseLinearScaledSeasonal(
     const TSizeVec& segmentation,
     const TConstantScale& computeConstantScale,
     double outlierFraction,
-    TDoubleVecVec& models,
+    TMeanAccumulatorVecVec& models,
     TDoubleVec& scales) {
 
     TFloatMeanAccumulatorVec scaledValues;
@@ -162,9 +162,7 @@ CTimeSeriesSegmentation::constantScalePiecewiseLinearScaledSeasonal(
     auto seasonality = [&](std::size_t i) {
         double result{0.0};
         for (std::size_t j = 0; j < periods.size(); ++j) {
-            if (periods[j].contains(i)) {
-                result += models[j][periods[j].offset(i)];
-            }
+            result += periods[j].value(models[j], i);
         }
         return result;
     };
@@ -701,7 +699,7 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal(
     const TSizeVec& segmentation,
     double outlierFraction,
     TFloatMeanAccumulatorVec& reweighted,
-    TDoubleVecVec& models,
+    TMeanAccumulatorVecVec& models,
     TDoubleVec& scales) {
 
     models.assign(periods.size(), {});
@@ -710,9 +708,7 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal(
     auto model = [&](std::size_t i) {
         double result{0.0};
         for (std::size_t j = 0; j < periods.size(); ++j) {
-            if (periods[j].contains(i)) {
-                result += models[j][periods[j].offset(i)];
-            }
+            result += periods[j].value(models[j], i);
         }
         return result;
     };
@@ -740,14 +736,13 @@ void CTimeSeriesSegmentation::fitPiecewiseLinearScaledSeasonal(
 
     auto fitSeasonalModels = [&](const TScale& scale_) {
         for (std::size_t i = 0; i < periods.size(); ++i) {
-            models[i].assign(periods[i].period(), 0.0);
+            models[i].assign(periods[i].period(), TMeanAccumulator{});
         }
         std::size_t iterations(periods.size() > 1 ? 2 : 1);
         for (std::size_t i = 0; i < iterations; ++i) {
             for (std::size_t j = 0; j < periods.size(); ++j) {
-                models[j].assign(periods[j].period(), 0.0);
-                fitSeasonalModel(reweighted.begin(), reweighted.end(),
-                                 periods[j], model, scale_, models[j]);
+                models[j] = fitSeasonalModel(reweighted.begin(), reweighted.end(),
+                                             periods[j], model, scale_);
             }
         }
     };
@@ -1033,14 +1028,12 @@ CTimeSeriesSegmentation::fitLinearModel(ITR begin, ITR end, double startTime) {
 }
 
 template<typename ITR>
-void CTimeSeriesSegmentation::fitSeasonalModel(ITR begin,
-                                               ITR end,
-                                               const TSeasonalComponent& period,
-                                               const TPredictor& predictor,
-                                               const TScale& scale,
-                                               TDoubleVec& result) {
-    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
-
+CTimeSeriesSegmentation::TMeanAccumulatorVec
+CTimeSeriesSegmentation::fitSeasonalModel(ITR begin,
+                                          ITR end,
+                                          const TSeasonalComponent& period,
+                                          const TPredictor& predictor,
+                                          const TScale& scale) {
     TMeanAccumulatorVec model(period.period());
     for (std::size_t i = 0; begin != end; ++i, ++begin) {
         if (period.contains(i)) {
@@ -1051,10 +1044,7 @@ void CTimeSeriesSegmentation::fitSeasonalModel(ITR begin,
             }
         }
     }
-
-    for (std::size_t i = 0; i < model.size(); ++i) {
-        result[i] = CBasicStatistics::mean(model[i]);
-    }
+    return model;
 }
 }
 }

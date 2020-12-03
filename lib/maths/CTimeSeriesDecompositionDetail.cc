@@ -1984,6 +1984,7 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilte
             m_BucketLength, std::move(values), window.withinBucketVariance());
         test.minimumPeriod(minimumPeriod)
             .minimumModelSize(2 * m_SeasonalComponentSize / 3)
+            .maximumModelSize(2 * m_SeasonalComponentSize)
             .modelledSeasonalityPredictor(predictor);
         std::ptrdiff_t maximumNumberComponents{MAXIMUM_COMPONENTS};
         for (const auto& component : this->seasonal()) {
@@ -2083,13 +2084,8 @@ void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CS
                                      : CSplineTypes::E_Periodic;
         double bucketLength{static_cast<double>(m_BucketLength)};
 
-        std::size_t size{CTools::truncate(component.size(), // desired
-                                          2 * m_SeasonalComponentSize / 3,
-                                          2 * m_SeasonalComponentSize)};
-        LOG_TRACE(<< "size = " << size << ", target = " << component.size());
-
         // Add the new seasonal component.
-        m_Seasonal->add(*time, size, m_DecayRate, bucketLength,
+        m_Seasonal->add(*time, component.size(), m_DecayRate, bucketLength,
                         boundaryCondition, startTime, endTime, initialValues);
         m_ModelAnnotationCallback(component.annotationText());
     }

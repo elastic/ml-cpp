@@ -910,6 +910,38 @@ std::size_t CSignal::selectComponentSize(const TFloatMeanAccumulatorVec& values,
     return size;
 }
 
+CSignal::TMeanAccumulatorVec
+CSignal::smoothResample(std::size_t size, TMeanAccumulatorVec component) {
+
+    if (size >= component.size()) {
+        return component;
+    }
+
+    // Smooth by convolving with a triangle function.
+
+    int n{static_cast<int>(component.size())};
+    int width{static_cast<int>((n + size - 1) / size)};
+    TMeanAccumulatorVec smooth(n);
+    for (int i = 0; i < n; ++i) {
+        if (CBasicStatistics::count(component[i]) > 0.0) {
+            double Z{0.0};
+            for (int j = i - width + 1; j < i + width; ++j) {
+                const auto& value = component[(n + j) % n];
+                if (CBasicStatistics::count(value) > 0.0) {
+                    double weight{static_cast<double>(
+                        width - (std::max(i, j) - std::min(i, j)))};
+                    smooth[i].add(CBasicStatistics::mean(value),
+                                  weight * CBasicStatistics::count(value));
+                    Z += weight;
+                }
+            }
+            CBasicStatistics::count(smooth[i]) /= Z;
+        }
+    }
+
+    return smooth;
+}
+
 CSignal::TPredictor CSignal::bucketPredictor(const TPredictor& predictor,
                                              core_t::TTime bucketsStartTime,
                                              core_t::TTime bucketLength,

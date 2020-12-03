@@ -264,6 +264,10 @@ public:
         m_MinimumModelSize = value;
         return *this;
     }
+    CTimeSeriesTestForSeasonality& maximumModelSize(std::size_t value) {
+        m_MaximumModelSize = value;
+        return *this;
+    }
     CTimeSeriesTestForSeasonality& maximumNumberOfComponents(std::ptrdiff_t value) {
         m_MaximumNumberComponents = value;
         return *this;
@@ -272,7 +276,6 @@ public:
 
 private:
     using TDoubleVec = std::vector<double>;
-    using TDoubleVecVec = std::vector<TDoubleVec>;
     using TSizeSizePr = std::pair<std::size_t, std::size_t>;
     using TSizeVec = std::vector<std::size_t>;
     using TOptionalSize = boost::optional<std::size_t>;
@@ -534,7 +537,7 @@ private:
                        const TSeasonalComponentVec& periods,
                        const TSizeVec& scaleSegments,
                        TFloatMeanAccumulatorVec& values,
-                       TDoubleVecVec& components,
+                       TMeanAccumulatorVecVec& components,
                        TDoubleVec& scales) const;
     TVarianceStats residualVarianceStats(const TFloatMeanAccumulatorVec& values) const;
     TMeanVarAccumulator
@@ -595,6 +598,7 @@ private:
     double m_AcceptedFalsePostiveRate = 1e-4;
     std::ptrdiff_t m_MaximumNumberComponents = 10;
     std::size_t m_MinimumModelSize = 24;
+    std::size_t m_MaximumModelSize = std::numeric_limits<std::size_t>::max();
     TOptionalSize m_StartOfWeekOverride;
     TOptionalTime m_StartOfWeekTimeOverride;
     core_t::TTime m_MinimumPeriod = 0;
@@ -623,7 +627,7 @@ private:
     mutable TSizeVec m_ModelTrendSegments;
     mutable TMaxAccumulator m_Outliers;
     mutable TSizeVec m_WindowIndices;
-    mutable TDoubleVecVec m_ScaledComponent;
+    mutable TMeanAccumulatorVecVec m_ScaledComponent;
     mutable TDoubleVec m_ComponentScales;
 };
 }

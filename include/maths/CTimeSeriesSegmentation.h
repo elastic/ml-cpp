@@ -29,7 +29,9 @@ public:
     using TTimeVec = std::vector<core_t::TTime>;
     using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
     using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
-    using TFloatMeanAccumulatorVecDoubleVecPr = std::pair<TFloatMeanAccumulatorVec, TDoubleVec>;
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+    using TMeanAccumulatorVec = std::vector<TMeanAccumulator>;
+    using TMeanAccumulatorVecVec = std::vector<TMeanAccumulatorVec>;
     using TSeasonalComponent = CSignal::SSeasonalComponentSummary;
     using TSeasonalComponentVec = std::vector<TSeasonalComponent>;
     using TConstantScale = std::function<double(const TSizeVec&, const TDoubleVec&)>;
@@ -176,7 +178,7 @@ public:
                                                const TSizeVec& segmentation,
                                                const TConstantScale& computeConstantScale,
                                                double outlierFraction,
-                                               TDoubleVecVec& models,
+                                               TMeanAccumulatorVecVec& models,
                                                TDoubleVec& scales);
 
     //! Compute the weighted mean scale for the piecewise linear \p scales on
@@ -234,7 +236,6 @@ public:
 private:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMeanVarAccumulatorSizePr = std::pair<TMeanVarAccumulator, std::size_t>;
     using TRegression = CLeastSquaresOnlineRegression<1, double>;
@@ -296,7 +297,7 @@ private:
                                                  const TSizeVec& segmentation,
                                                  double outlierFraction,
                                                  TFloatMeanAccumulatorVec& reweighted,
-                                                 TDoubleVecVec& model,
+                                                 TMeanAccumulatorVecVec& model,
                                                  TDoubleVec& scales);
 
     //! Implements top-down recursive segmentation of [\p begin, \p end) to minimise
@@ -341,12 +342,11 @@ private:
 
     //! Fit a seasonal model of period \p period to the values [\p begin, \p end).
     template<typename ITR>
-    static void fitSeasonalModel(ITR begin,
-                                 ITR end,
-                                 const TSeasonalComponent& period,
-                                 const TPredictor& predictor,
-                                 const TScale& scale,
-                                 TDoubleVec& result);
+    static TMeanAccumulatorVec fitSeasonalModel(ITR begin,
+                                                ITR end,
+                                                const TSeasonalComponent& period,
+                                                const TPredictor& predictor,
+                                                const TScale& scale);
 };
 }
 }
