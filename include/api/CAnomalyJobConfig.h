@@ -34,6 +34,7 @@ public:
             static const std::string OVER_FIELD_NAME;
             static const std::string PARTITION_FIELD_NAME;
             static const std::string DETECTOR_DESCRIPTION;
+            static const std::string DETECTOR_INDEX;
             static const std::string EXCLUDE_FREQUENT;
             static const std::string CUSTOM_RULES;
             static const std::string USE_NULL;
@@ -42,7 +43,8 @@ public:
             CDetectorConfig() {}
 
             void parse(const rapidjson::Value& detectorConfig,
-                       const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters);
+                       const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
+                       CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules);
 
             std::string function() const { return m_Function; }
             std::string fieldName() const { return m_FieldName; }
@@ -55,9 +57,6 @@ public:
             std::string detectorDescription() const {
                 return m_DetectorDescription;
             }
-            CDetectionRulesJsonParser::TDetectionRuleVec customRules() const {
-                return m_CustomRules;
-            }
             bool useNull() const { return m_UseNull; }
 
         private:
@@ -68,7 +67,7 @@ public:
             std::string m_PartitionFieldName{};
             std::string m_ExcludeFrequent{};
             std::string m_DetectorDescription{};
-            CDetectionRulesJsonParser::TDetectionRuleVec m_CustomRules{};
+            int m_DetectorIndex{};
             bool m_UseNull{false};
         };
 
@@ -80,15 +79,20 @@ public:
         static const std::string DETECTORS;
         static const std::string INFLUENCERS;
         static const std::string LATENCY;
+        static const std::string MULTIVARIATE_BY_FIELDS;
         static const std::string PER_PARTITION_CATEGORIZATION;
         static const std::string ENABLED;
         static const std::string STOP_ON_WARN;
 
         static const core_t::TTime DEFAULT_BUCKET_SPAN;
+        static const core_t::TTime DEFAULT_LATENCY;
 
     public:
         using TStrVec = std::vector<std::string>;
         using TDetectorConfigVec = std::vector<CDetectorConfig>;
+
+        using TIntDetectionRuleVecUMap =
+            boost::unordered_map<int, CDetectionRulesJsonParser::TDetectionRuleVec>;
 
     public:
         //! Default constructor
@@ -99,6 +103,10 @@ public:
             : m_RuleFilters(ruleFilters) {}
 
         void parse(const rapidjson::Value& json);
+
+        bool processFilter(const std::string& key, const std::string& value);
+
+        bool updateFilters(const boost::property_tree::ptree& propTree);
 
         core_t::TTime bucketSpan() const { return m_BucketSpan; }
 
@@ -121,9 +129,20 @@ public:
             return m_Detectors;
         }
         const TStrVec& influencers() const { return m_Influencers; }
-        std::string latency() const { return m_Latency; }
+        core_t::TTime latency() const { return m_Latency; }
 
-        static core_t::TTime bucketSpanSeconds(const std::string& bucketSpanString);
+        bool multivariateByFields() const { return m_MultivariateByFields; }
+
+        const TIntDetectionRuleVecUMap& detectionRules() const {
+            return m_DetectorRules;
+        }
+
+        const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters() const {
+            return m_RuleFilters;
+        }
+
+        static core_t::TTime durationSeconds(const std::string& durationString,
+                                             core_t::TTime defaultDuration);
 
     private:
         core_t::TTime m_BucketSpan{DEFAULT_BUCKET_SPAN};
@@ -134,7 +153,11 @@ public:
         bool m_PerPartitionCategorizationStopOnWarn{false};
         TDetectorConfigVec m_Detectors{};
         TStrVec m_Influencers{};
-        std::string m_Latency{};
+        core_t::TTime m_Latency{DEFAULT_LATENCY};
+        bool m_MultivariateByFields{false};
+
+        //! The detection rules per detector index.
+        TIntDetectionRuleVecUMap m_DetectorRules;
 
         //! The filters per id used by categorical rule conditions.
         CDetectionRulesJsonParser::TStrPatternSetUMap m_RuleFilters{};
@@ -234,6 +257,7 @@ public:
 
     std::string jobId() const { return m_JobId; }
     std::string jobType() const { return m_JobType; }
+    CAnalysisConfig& analysisConfig() { return m_AnalysisConfig; }
     const CAnalysisConfig& analysisConfig() const { return m_AnalysisConfig; }
     const CDataDescription& dataDescription() const {
         return m_DataDescription;

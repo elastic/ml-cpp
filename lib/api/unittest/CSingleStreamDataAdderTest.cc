@@ -14,6 +14,7 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
+#include <api/CAnomalyJobConfig.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
 #include <api/CNdJsonInputParser.h>
@@ -60,6 +61,7 @@ void detectorPersistHelper(const std::string& configFileName,
     BOOST_TEST_REQUIRE(outputStrm.is_open());
 
     ml::model::CLimits limits;
+    ml::api::CAnomalyJobConfig jobConfig;
     ml::api::CFieldConfig fieldConfig;
     BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
 
@@ -75,7 +77,7 @@ void detectorPersistHelper(const std::string& configFileName,
 
     {
         CTestAnomalyJob origJob(
-            JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+            JOB_ID, limits, jobConfig, fieldConfig, modelConfig, wrappedOutputStream,
             std::bind(&reportPersistComplete, std::placeholders::_1,
                       std::ref(origSnapshotId), std::ref(numOrigDocs)),
             nullptr, -1, "time", timeFormat);
@@ -126,7 +128,7 @@ void detectorPersistHelper(const std::string& configFileName,
 
     {
         CTestAnomalyJob restoredJob(
-            JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+            JOB_ID, limits, jobConfig, fieldConfig, modelConfig, wrappedOutputStream,
             std::bind(&reportPersistComplete, std::placeholders::_1,
                       std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 

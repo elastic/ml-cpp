@@ -31,6 +31,7 @@
 #include <model/CLimits.h>
 
 #include <api/CAnomalyJob.h>
+#include <api/CAnomalyJobConfig.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
 #include <api/CFieldDataCategorizer.h>
@@ -183,15 +184,18 @@ bool persistAnomalyDetectorStateToFile(const std::string& configFileName,
         return false;
     }
 
+    ml::api::CAnomalyJobConfig jobConfig;
+
     ml::core_t::TTime bucketSize(3600);
     std::string jobId("foo");
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
             bucketSize, ml::model_t::E_None, "", bucketSize * latencyBuckets, false);
 
-    ml::api::CAnomalyJob origJob(jobId, limits, fieldConfig, modelConfig, wrappedOutputStream,
-                                 std::bind(&reportPersistComplete, std::placeholders::_1),
-                                 nullptr, -1, "time", timeFormat, 0);
+    ml::api::CAnomalyJob origJob(
+        jobId, limits, jobConfig, fieldConfig, modelConfig, wrappedOutputStream,
+        std::bind(&reportPersistComplete, std::placeholders::_1), nullptr, -1,
+        "time", timeFormat, 0);
 
     using TInputParserUPtr = std::unique_ptr<ml::api::CInputParser>;
     const TInputParserUPtr parser{[&inputFilename, &inputStrm]() -> TInputParserUPtr {

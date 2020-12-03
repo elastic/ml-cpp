@@ -14,6 +14,7 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
+#include <api/CAnomalyJobConfig.h>
 #include <api/CCsvInputParser.h>
 #include <api/CFieldConfig.h>
 #include <api/CJsonOutputWriter.h>
@@ -68,6 +69,7 @@ void detectorPersistHelper(const std::string& configFileName,
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
     ml::model::CLimits limits;
+    ml::api::CAnomalyJobConfig jobConfig;
     ml::api::CFieldConfig fieldConfig;
     BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
 
@@ -77,7 +79,7 @@ void detectorPersistHelper(const std::string& configFileName,
 
     std::string origSnapshotId;
     std::size_t numOrigDocs(0);
-    CTestAnomalyJob origJob(JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+    CTestAnomalyJob origJob(JOB_ID, limits, jobConfig, fieldConfig, modelConfig, wrappedOutputStream,
                             std::bind(&reportPersistComplete, std::placeholders::_1,
                                       std::ref(origSnapshotId), std::ref(numOrigDocs)),
                             nullptr, -1, "time", timeFormat);
@@ -135,7 +137,7 @@ void detectorPersistHelper(const std::string& configFileName,
     std::string restoredSnapshotId;
     std::size_t numRestoredDocs(0);
     CTestAnomalyJob restoredJob(
-        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+        JOB_ID, limits, jobConfig, fieldConfig, modelConfig, wrappedOutputStream,
         std::bind(&reportPersistComplete, std::placeholders::_1,
                   std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 
