@@ -163,6 +163,8 @@ private:
     double anovaTotalVariance(const TVector& Kinvf) const;
     double anovaMainEffect(const TVector& Kinvf, int dimension) const;
     TVector kinvf() const;
+    TVector transformTo01(const TVector& x) const;
+    TVector scaledKernelParameters() const;
 
 private:
     CPRNG::CXorOShiro128Plus m_Rng;
