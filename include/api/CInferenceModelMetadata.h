@@ -33,6 +33,8 @@ public:
     static const std::string JSON_MIN_TAG;
     static const std::string JSON_MODEL_METADATA_TAG;
     static const std::string JSON_TOTAL_FEATURE_IMPORTANCE_TAG;
+    static const std::string JSON_HYPERPARAMETER_IMPORTANCE_TAG;
+    static const std::string JSON_HYPERPARAMETER_NAME_TAG;
 
 public:
     using TVector = maths::CDenseVector<double>;
@@ -63,6 +65,8 @@ private:
     using TSizeMeanAccumulatorUMap = std::unordered_map<std::size_t, TMeanAccumulator>;
     using TSizeMinMaxAccumulatorUMap = std::unordered_map<std::size_t, TMinMaxAccumulator>;
     using TOptionalVector = boost::optional<TVector>;
+    using TStrDoublePr = std::pair<std::string, double>;
+    using TStrDoublePrVec = std::vector<TStrDoublePr>;
 
 private:
     void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
@@ -79,6 +83,7 @@ private:
         [](const std::string& value, TRapidJsonWriter& writer) {
             writer.String(value);
         };
+    TStrDoublePrVec m_HyperparameterImportance;
 };
 }
 }

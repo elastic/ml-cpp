@@ -228,6 +228,7 @@ public:
     static const std::string ALPHA;
     static const std::string DOWNSAMPLE_FACTOR;
     static const std::string ETA;
+    static const std::string ETA_GROWTH_RATE_PER_TREE;
     static const std::string FEATURE_BAG_FRACTION;
     static const std::string GAMMA;
     static const std::string LAMBDA;
