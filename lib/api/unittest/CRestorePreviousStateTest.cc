@@ -12,6 +12,7 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
+#include <api/CAnomalyJobConfig.h>
 #include <api/CCsvOutputWriter.h>
 #include <api/CFieldConfig.h>
 #include <api/CResultNormalizer.h>
@@ -156,6 +157,7 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
     static const std::string JOB_ID("job");
 
     ml::model::CLimits limits;
+    ml::api::CAnomalyJobConfig jobConfig;
     ml::api::CFieldConfig fieldConfig;
     BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
 
@@ -171,7 +173,7 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
     std::string restoredSnapshotId;
     std::size_t numRestoredDocs(0);
     CTestAnomalyJob restoredJob(
-        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+        JOB_ID, limits, jobConfig, fieldConfig, modelConfig, wrappedOutputStream,
         std::bind(&reportPersistComplete, std::placeholders::_1,
                   std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 

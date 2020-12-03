@@ -13,6 +13,7 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
+#include <api/CAnomalyJobConfig.h>
 #include <api/CDataProcessor.h>
 #include <api/CFieldConfig.h>
 #include <api/CModelSnapshotJsonWriter.h>
@@ -65,6 +66,7 @@ protected:
         BOOST_TEST_REQUIRE(outputStrm.is_open());
 
         ml::model::CLimits limits;
+        ml::api::CAnomalyJobConfig jobConfig;
         ml::api::CFieldConfig fieldConfig;
         BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
 
@@ -104,6 +106,7 @@ protected:
 
             CTestAnomalyJob job{JOB_ID,
                                 limits,
+                                jobConfig,
                                 fieldConfig,
                                 modelConfig,
                                 wrappedOutputStream,
@@ -200,6 +203,7 @@ protected:
         BOOST_TEST_REQUIRE(outputStrm.is_open());
 
         ml::model::CLimits limits;
+        ml::api::CAnomalyJobConfig jobConfig;
         ml::api::CFieldConfig fieldConfig;
         BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
 
@@ -237,6 +241,7 @@ protected:
 
             CTestAnomalyJob job{JOB_ID,
                                 limits,
+                                jobConfig,
                                 fieldConfig,
                                 modelConfig,
                                 wrappedOutputStream,
@@ -314,6 +319,7 @@ protected:
         BOOST_TEST_REQUIRE(outputStrm.is_open());
 
         ml::model::CLimits limits;
+        ml::api::CAnomalyJobConfig jobConfig;
         ml::api::CFieldConfig fieldConfig;
         BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
 
@@ -346,6 +352,7 @@ protected:
             CTestAnomalyJob job{
                 JOB_ID,
                 limits,
+                jobConfig,
                 fieldConfig,
                 modelConfig,
                 wrappedOutputStream,
