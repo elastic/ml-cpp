@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
 
         BOOST_TEST_REQUIRE(configUpdater.update(configUpdate.str()));
 
-        const auto& events = fieldConfig.scheduledEvents();
+        const auto& events = jobConfig.analysisConfig().scheduledEvents();
         BOOST_REQUIRE_EQUAL(std::size_t(2), events.size());
         BOOST_REQUIRE_EQUAL(std::string("new_event_1"), events[0].first);
         BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 3.000000 AND TIME < 4.000000"),
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
 
         BOOST_TEST_REQUIRE(configUpdater.update(configUpdate.str()));
 
-        const auto& events = fieldConfig.scheduledEvents();
+        const auto& events = jobConfig.analysisConfig().scheduledEvents();
         BOOST_TEST_REQUIRE(events.empty());
     }
 }
