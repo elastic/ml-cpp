@@ -12,6 +12,7 @@
 
 #include <api/CAnomalyJobConfigReader.h>
 
+#include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
 #include <rapidjson/document.h>
@@ -58,6 +59,12 @@ const std::string CAnomalyJobConfig::CAnalysisConfig::MULTIVARIATE_BY_FIELDS{"mu
 
 const core_t::TTime CAnomalyJobConfig::CAnalysisConfig::DEFAULT_BUCKET_SPAN{300};
 const core_t::TTime CAnomalyJobConfig::CAnalysisConfig::DEFAULT_LATENCY{0};
+
+const std::string CAnomalyJobConfig::CAnalysisConfig::CLEAR{"clear"};
+const char CAnomalyJobConfig::CAnalysisConfig::SUFFIX_SEPARATOR{'.'};
+const std::string CAnomalyJobConfig::CAnalysisConfig::SCHEDULED_EVENT_PREFIX("scheduledevent.");
+const std::string CAnomalyJobConfig::CAnalysisConfig::DESCRIPTION_SUFFIX(".description");
+const std::string CAnomalyJobConfig::CAnalysisConfig::RULES_SUFFIX(".rules");
 
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION{"function"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FIELD_NAME{"field_name"};
@@ -333,10 +340,22 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
 }
 
 // TODO: Process updates as JSON
+bool CAnomalyJobConfig::CAnalysisConfig::updateFilters(const boost::property_tree::ptree& propTree) {
+    for (const auto& filterEntry : propTree) {
+        const std::string& key = filterEntry.first;
+        const std::string& value = filterEntry.second.data();
+        if (this->processFilter(key, value) == false) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// TODO: Process updates as JSON
 bool CAnomalyJobConfig::CAnalysisConfig::processFilter(const std::string& key,
                                                        const std::string& value) {
     // expected format is filter.<filterId>=[json, array]
-    std::size_t sepPos{key.find('.')};
+    std::size_t sepPos{key.find(SUFFIX_SEPARATOR)};
     if (sepPos == std::string::npos) {
         LOG_ERROR(<< "Unrecognised filter key: " + key);
         return false;
@@ -347,15 +366,106 @@ bool CAnomalyJobConfig::CAnalysisConfig::processFilter(const std::string& key,
 }
 
 // TODO: Process updates as JSON
-bool CAnomalyJobConfig::CAnalysisConfig::updateFilters(const boost::property_tree::ptree& propTree) {
-    for (const auto& filterEntry : propTree) {
-        const std::string& key = filterEntry.first;
-        const std::string& value = filterEntry.second.data();
-        if (this->processFilter(key, value) == false) {
+bool CAnomalyJobConfig::CAnalysisConfig::updateScheduledEvents(const boost::property_tree::ptree& propTree) {
+    m_ScheduledEvents.clear();
+
+    bool isClear = propTree.get(CLEAR, false);
+    if (isClear) {
+        return true;
+    }
+
+    TIntSet handledScheduledEvents;
+
+    for (const auto& scheduledEventEntry : propTree) {
+        const std::string& key = scheduledEventEntry.first;
+        const std::string& value = scheduledEventEntry.second.data();
+        if (this->processScheduledEvent(propTree, key, value, handledScheduledEvents) == false) {
             return false;
         }
     }
     return true;
+}
+
+// TODO: Process updates as JSON
+bool CAnomalyJobConfig::CAnalysisConfig::processScheduledEvent(
+    const boost::property_tree::ptree& propTree,
+    const std::string& key,
+    const std::string& value,
+    TIntSet& handledScheduledEvents) {
+    // Here we pull out the "1" in "scheduledevent.1.description"
+    // description may contain a '.'
+    std::size_t sepPos{key.find(SUFFIX_SEPARATOR, SCHEDULED_EVENT_PREFIX.length() + 1)};
+    if (sepPos == std::string::npos || sepPos == key.length() - 1) {
+        LOG_ERROR(<< "Unrecognised configuration option " << key << " = " << value);
+        return false;
+    }
+
+    std::string indexString{key, SCHEDULED_EVENT_PREFIX.length(),
+                            sepPos - SCHEDULED_EVENT_PREFIX.length()};
+    int indexKey;
+    if (core::CStringUtils::stringToType(indexString, indexKey) == false) {
+        LOG_ERROR(<< "Cannot convert config key to integer: " << indexString);
+        return false;
+    }
+
+    // Check if we've already seen this key
+    if (handledScheduledEvents.insert(indexKey).second == false) {
+        // Not an error
+        return true;
+    }
+
+    std::string description{propTree.get(
+        boost::property_tree::ptree::path_type{
+            SCHEDULED_EVENT_PREFIX + indexString + DESCRIPTION_SUFFIX, '\t'},
+        EMPTY_STRING)};
+
+    std::string rules{propTree.get(
+        boost::property_tree::ptree::path_type{
+            SCHEDULED_EVENT_PREFIX + indexString + RULES_SUFFIX, '\t'},
+        EMPTY_STRING)};
+
+    CDetectionRulesJsonParser::TDetectionRuleVec detectionRules;
+    if (this->parseRules(detectionRules, rules) == false) {
+        // parseRules() will have logged the error
+        return false;
+    }
+
+    if (detectionRules.size() != 1) {
+        LOG_ERROR(<< "Scheduled events must have exactly 1 rule");
+        return false;
+    }
+
+    m_ScheduledEvents.emplace_back(description, detectionRules[0]);
+
+    return true;
+}
+
+// TODO: Process updates as JSON
+bool CAnomalyJobConfig::CAnalysisConfig::parseRules(CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules,
+                                                    const std::string& rules) {
+    if (rules.empty()) {
+        return true;
+    }
+
+    CDetectionRulesJsonParser rulesParser{m_RuleFilters};
+    return rulesParser.parseRules(rules, detectionRules);
+}
+
+ml::model::CAnomalyDetectorModelConfig
+CAnomalyJobConfig::CAnalysisConfig::makeModelConfig() const {
+    ml::model_t::ESummaryMode summaryMode{
+        m_SummaryCountFieldName.empty() ? ml::model_t::E_None : ml::model_t::E_Manual};
+
+    ml::model::CAnomalyDetectorModelConfig modelConfig{ml::model::CAnomalyDetectorModelConfig::defaultConfig(
+        m_BucketSpan, summaryMode, m_SummaryCountFieldName, m_Latency, m_MultivariateByFields)};
+
+    modelConfig.detectionRules(
+        ml::model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(m_DetectorRules));
+
+    modelConfig.scheduledEvents(
+        ml::model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(m_ScheduledEvents));
+
+    return modelConfig;
 }
 
 core_t::TTime
