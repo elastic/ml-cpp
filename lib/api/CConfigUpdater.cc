@@ -66,7 +66,8 @@ bool CConfigUpdater::update(const std::string& config) {
                 return false;
             }
         } else if (stanzaName == SCHEDULED_EVENTS) {
-            if (m_FieldConfig.updateScheduledEvents(subTree) == false) {
+            // TODO: Move to JSON format for config updates.
+            if (m_JobConfig.analysisConfig().updateScheduledEvents(subTree) == false) {
                 LOG_ERROR(<< "Failed to update scheduled events");
                 return false;
             }
