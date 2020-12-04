@@ -298,8 +298,9 @@ void CTimeSeriesTestForSeasonality::fitAndRemoveUntestableModelledComponents() {
 
     TSeasonalComponentVec untestable;
     untestable.reserve(m_ModelledPeriods.size());
+    std::size_t minimumPeriod{buckets(m_BucketLength, m_MinimumPeriod)};
     for (const auto& period : m_ModelledPeriods) {
-        if (period.period() > 1 && periodTooShortToTest(m_MinimumPeriod, period)) {
+        if (period.period() > 1 && periodTooShortToTest(minimumPeriod, period)) {
             untestable.push_back(period);
         }
     }
