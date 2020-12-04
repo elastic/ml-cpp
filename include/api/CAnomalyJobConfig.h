@@ -19,10 +19,17 @@
 #include <vector>
 
 namespace ml {
+namespace model {
+class CAnomalyDetectorModelConfig;
+}
 namespace api {
 
 //! \brief A parser to convert JSON configuration of an anomaly job JSON into an object
 class API_EXPORT CAnomalyJobConfig {
+public:
+    using TStrDetectionRulePr = std::pair<std::string, model::CDetectionRule>;
+    using TStrDetectionRulePrVec = std::vector<TStrDetectionRulePr>;
+
 public:
     class API_EXPORT CAnalysisConfig {
     public:
@@ -87,6 +94,12 @@ public:
         static const core_t::TTime DEFAULT_BUCKET_SPAN;
         static const core_t::TTime DEFAULT_LATENCY;
 
+        static const std::string CLEAR;
+        static const char SUFFIX_SEPARATOR;
+        static const std::string SCHEDULED_EVENT_PREFIX;
+        static const std::string DESCRIPTION_SUFFIX;
+        static const std::string RULES_SUFFIX;
+
     public:
         using TStrVec = std::vector<std::string>;
         using TDetectorConfigVec = std::vector<CDetectorConfig>;
@@ -94,19 +107,23 @@ public:
         using TIntDetectionRuleVecUMap =
             boost::unordered_map<int, CDetectionRulesJsonParser::TDetectionRuleVec>;
 
+        //! Used to maintain a list of all unique config keys
+        using TIntSet = std::set<int>;
+
     public:
         //! Default constructor
         CAnalysisConfig() {}
 
         //! Constructor taking a map of detector rule filters keyed by filter_id.
-        explicit CAnalysisConfig(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters)
-            : m_RuleFilters(ruleFilters) {}
+        explicit CAnalysisConfig(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
+                                 const TStrDetectionRulePrVec& scheduledEvents)
+            : m_RuleFilters(ruleFilters), m_ScheduledEvents(scheduledEvents) {}
 
         void parse(const rapidjson::Value& json);
 
-        bool processFilter(const std::string& key, const std::string& value);
-
         bool updateFilters(const boost::property_tree::ptree& propTree);
+
+        bool updateScheduledEvents(const boost::property_tree::ptree& propTree);
 
         core_t::TTime bucketSpan() const { return m_BucketSpan; }
 
@@ -141,8 +158,27 @@ public:
             return m_RuleFilters;
         }
 
+        //! Get the scheduled events
+        const TStrDetectionRulePrVec& scheduledEvents() const {
+            return m_ScheduledEvents;
+        }
+
+        ml::model::CAnomalyDetectorModelConfig makeModelConfig() const;
+
         static core_t::TTime durationSeconds(const std::string& durationString,
                                              core_t::TTime defaultDuration);
+
+    private:
+        bool processFilter(const std::string& key, const std::string& value);
+
+        //! Process and store a scheduled event
+        bool processScheduledEvent(const boost::property_tree::ptree& propTree,
+                                   const std::string& key,
+                                   const std::string& value,
+                                   TIntSet& handledScheduledEvents);
+
+        bool parseRules(CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules,
+                        const std::string& rules);
 
     private:
         core_t::TTime m_BucketSpan{DEFAULT_BUCKET_SPAN};
@@ -161,6 +197,10 @@ public:
 
         //! The filters per id used by categorical rule conditions.
         CDetectionRulesJsonParser::TStrPatternSetUMap m_RuleFilters{};
+
+        //! The scheduled events (events apply to all detectors).
+        //! Events consist of a description and a detection rule
+        TStrDetectionRulePrVec m_ScheduledEvents{};
     };
 
     class API_EXPORT CDataDescription {
@@ -250,8 +290,9 @@ public:
 public:
     //! Default constructor
     CAnomalyJobConfig() {}
-    explicit CAnomalyJobConfig(const CDetectionRulesJsonParser::TStrPatternSetUMap& rulesFilter)
-        : m_AnalysisConfig(rulesFilter) {}
+    explicit CAnomalyJobConfig(const CDetectionRulesJsonParser::TStrPatternSetUMap& rulesFilter,
+                               const TStrDetectionRulePrVec& scheduledEvents)
+        : m_AnalysisConfig(rulesFilter, scheduledEvents) {}
 
     bool parse(const std::string& json);
 

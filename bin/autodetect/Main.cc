@@ -188,7 +188,8 @@ int main(int argc, char** argv) {
     }
     // For now we need to reference the rule filters parsed by the old-style
     // field config.
-    ml::api::CAnomalyJobConfig jobConfig{fieldConfig.ruleFilters()};
+    ml::api::CAnomalyJobConfig jobConfig{fieldConfig.ruleFilters(),
+                                         fieldConfig.scheduledEvents()};
     if (jobConfig.parse(anomalyJobConfigJson) == false) {
         LOG_FATAL(<< "Failed to parse anomaly job config: '" << anomalyJobConfigJson << "'");
         return EXIT_FAILURE;
@@ -207,22 +208,10 @@ int main(int argc, char** argv) {
         mutableFields.push_back(ml::api::CFieldDataCategorizer::MLCATEGORY_NAME);
     }
 
-    // TODO: Encapsulate the logic below into say CAnomalyJobConfig::makeModelConfig
     const ml::api::CAnomalyJobConfig::CAnalysisConfig& analysisConfig =
         jobConfig.analysisConfig();
-    const std::string& summaryCountFieldName = analysisConfig.summaryCountFieldName();
-    ml::core_t::TTime bucketSpan = analysisConfig.bucketSpan();
-    ml::core_t::TTime latency = analysisConfig.latency();
-    bool multivariateByFields = analysisConfig.multivariateByFields();
 
-    ml::model_t::ESummaryMode summaryMode{
-        summaryCountFieldName.empty() ? ml::model_t::E_None : ml::model_t::E_Manual};
-    ml::model::CAnomalyDetectorModelConfig modelConfig{ml::model::CAnomalyDetectorModelConfig::defaultConfig(
-        bucketSpan, summaryMode, summaryCountFieldName, latency, multivariateByFields)};
-    modelConfig.detectionRules(ml::model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(
-        analysisConfig.detectionRules()));
-    modelConfig.scheduledEvents(ml::model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(
-        fieldConfig.scheduledEvents()));
+    ml::model::CAnomalyDetectorModelConfig modelConfig = analysisConfig.makeModelConfig();
 
     if (!modelConfigFile.empty() && modelConfig.init(modelConfigFile) == false) {
         LOG_FATAL(<< "ML model config file '" << modelConfigFile << "' could not be loaded");
