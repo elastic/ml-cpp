@@ -418,6 +418,17 @@ public:
     static std::size_t selectComponentSize(const TFloatMeanAccumulatorVec& values,
                                            std::size_t period);
 
+    //! Apply a smooth resampling of \p component at \p size granularity.
+    //!
+    //! \param[in] size The granularity at which to resample.
+    //! \param[in] component The component to resample.
+    //! \return A resampling of \p component whose values are smoothed averages
+    //! of \p component at granularity \p size. This is done by convolving with
+    //! a function of width "component size" / "size" so \p component is not
+    //! actually resized.
+    //! \warning \p size should be greater than zero.
+    static TMeanAccumulatorVec smoothResample(std::size_t size, TMeanAccumulatorVec component);
+
     //! Restrict to the windows defined by \p period.
     //!
     //! \param[in] period Defines the window to restrict to if any.

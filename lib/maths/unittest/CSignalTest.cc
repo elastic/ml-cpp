@@ -1247,6 +1247,73 @@ BOOST_AUTO_TEST_CASE(testSelectComponentSize) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testSmoothResample) {
+
+    // Test that smoothing:
+    //   1. Doesn't introduce a bias.
+    //   2. Doesn't change the total count.
+    //   3. Produces the correct residual error variance.
+    //   4. Properly handles missing values.
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec u01;
+    maths::CSignal::TMeanAccumulatorVec values(144);
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, 1.0, values.size(), noise);
+    for (core_t::TTime time = 0; time < 86400; time += 600) {
+        values[time / 600].add(10.0 * smoothDaily(time) + noise[time / 600]);
+    }
+
+    auto resampled = maths::CSignal::smoothResample(values.size(), values);
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(values),
+                        core::CContainerPrinter::print(resampled));
+
+    auto resampled0 = maths::CSignal::smoothResample(0, values);
+    auto resampled1 = maths::CSignal::smoothResample(1, values);
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(resampled1),
+                        core::CContainerPrinter::print(resampled0));
+
+    TMeanVarAccumulator averageVariance;
+
+    for (std::size_t test = 0; test < 50; ++test) {
+
+        values.assign(values.size(), maths::CSignal::TFloatMeanAccumulator{});
+        rng.generateUniformSamples(0.0, 1.0, values.size(), u01);
+        double fractionMissing{static_cast<double>(test) / 100.0};
+        for (core_t::TTime time = 0; time < 86400; time += 600) {
+            if (u01[time / 600] > fractionMissing) {
+                values[time / 600].add(10.0 * smoothDaily(time) + noise[time / 600]);
+            }
+        }
+
+        for (std::size_t reduction = 2; reduction <= 6; ++reduction) {
+            resampled = maths::CSignal::smoothResample(values.size() / reduction, values);
+
+            BOOST_REQUIRE_EQUAL(values.size(), resampled.size());
+
+            TMeanVarAccumulator errorMoments;
+            double totalCount{0.0};
+            double totalResampledCount{0.0};
+            for (std::size_t i = 0; i < values.size(); ++i) {
+                errorMoments.add(maths::CBasicStatistics::mean(values[i]) -
+                                 maths::CBasicStatistics::mean(resampled[i]));
+                totalCount += maths::CBasicStatistics::count(values[i]);
+                totalResampledCount += maths::CBasicStatistics::count(resampled[i]);
+            }
+
+            BOOST_REQUIRE_CLOSE(totalCount, totalResampledCount, 0.1 /*%*/);
+            BOOST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(errorMoments)) < 0.05);
+            BOOST_REQUIRE(maths::CBasicStatistics::variance(errorMoments) < 1.2);
+
+            averageVariance.add(maths::CBasicStatistics::variance(errorMoments));
+        }
+    }
+
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(averageVariance) > 0.4);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(averageVariance) < 1.1);
+}
+
 BOOST_AUTO_TEST_CASE(testBucketPredictor) {
 
     TPredictorVec predictors{smoothDaily, spikeyDaily};

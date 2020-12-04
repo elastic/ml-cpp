@@ -485,8 +485,6 @@ BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
 
     // Test that mean scaling a component produces the expected values.
 
-    using TDoubleVecVec = std::vector<TDoubleVec>;
-
     auto predictor = [](const maths::CSignal::TSeasonalComponentVec& periods,
                         const maths::CSignal::TMeanAccumulatorVecVec& components,
                         std::size_t j) {
@@ -524,7 +522,7 @@ BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
     for (const auto& seasonal : {smoothDaily, weekends}) {
 
         TMeanVarAccumulator overallErrorMoments;
-        TDoubleVecVec scaledModels;
+        TSegmentation::TMeanAccumulatorVecVec scaledModels;
         TDoubleVec modelScales;
 
         for (std::size_t test = 0; test < 10; ++test) {
