@@ -28,7 +28,6 @@ const std::string EMPTY_STRING;
 
 const std::size_t CForecastRunner::DEFAULT_MAX_FORECAST_MODEL_MEMORY{20971520}; // 20MB
 const std::size_t CForecastRunner::DEFAULT_MIN_FORECAST_AVAILABLE_DISK_SPACE{4294967296ull}; // 4GB
-const double CForecastRunner::DEFAULT_BOUNDS_PERCENTILE{0.95};
 
 const std::string CForecastRunner::ERROR_FORECAST_REQUEST_FAILED_TO_PARSE("Failed to parse forecast request: ");
 const std::string CForecastRunner::ERROR_NO_FORECAST_ID("forecast ID must be specified and non empty");
@@ -401,8 +400,8 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
         expiresIn = properties.get<core_t::TTime>("expires_in", -1l);
 
         // note: this is not exposed on the Java side
-        forecastJob.s_BoundsPercentile =
-            properties.get<double>("boundspercentile", DEFAULT_BOUNDS_PERCENTILE);
+        forecastJob.s_BoundsPercentile = properties.get<double>(
+            "boundspercentile", maths::CModel::DEFAULT_FORECAST_CONFIDENCE_INTERVAL);
     } catch (const std::exception& e) {
         LOG_ERROR(<< ERROR_FORECAST_REQUEST_FAILED_TO_PARSE << e.what());
         return false;

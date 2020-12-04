@@ -305,6 +305,10 @@ public:
     //! Combine the results \p lhs and \p rhs.
     static EUpdateResult combine(EUpdateResult lhs, EUpdateResult rhs);
 
+    //! default confidence interval for forecasting
+    //! (not defined inline because we need its address)
+    static const double DEFAULT_FORECAST_CONFIDENCE_INTERVAL;
+
 public:
     explicit CModel(const CModelParams& params);
     virtual ~CModel() = default;
