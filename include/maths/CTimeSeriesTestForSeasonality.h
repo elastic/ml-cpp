@@ -227,6 +227,9 @@ public:
     //! Fit and remove any seasonality we're modelling and can't test.
     void fitAndRemoveUntestableModelledComponents();
 
+    //! Check invariants which are relied on to hold.
+    bool checkInvariants() const;
+
     //! Run the test and return the new components found if any.
     CSeasonalDecomposition decompose() const;
 

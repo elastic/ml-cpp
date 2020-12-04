@@ -191,7 +191,7 @@ CTimeSeriesSegmentation::constantScalePiecewiseLinearScaledSeasonal(
     }
     LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(weights));
 
-    for (std::size_t i = 0; i < values.size(); ++i) {
+    for (std::size_t i = 0; i < scaledValues.size(); ++i) {
         if (std::any_of(periods.begin(), periods.end(),
                         [&](const auto& period) { return period.contains(i); })) {
             double weight{scaleAt(i, segmentation, weights)};
@@ -248,9 +248,9 @@ CTimeSeriesSegmentation::piecewiseTimeShifted(const TFloatMeanAccumulatorVec& va
         predictions[0][j] = model(bucketLength * static_cast<core_t::TTime>(j));
     }
     for (std::size_t i = 0; i < candidateShifts.size(); ++i) {
-        for (std::size_t j = 0; j < values.size(); ++j) {
-            predictions[i + 1][j] = model(
-                bucketLength * static_cast<core_t::TTime>(j) + candidateShifts[i]);
+        core_t::TTime time{candidateShifts[i]};
+        for (std::size_t j = 0; j < values.size(); ++j, time += bucketLength) {
+            predictions[i + 1][j] = model(time);
         }
     }
 

@@ -660,7 +660,9 @@ void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SAddValue& m
 }
 
 void CTimeSeriesDecompositionDetail::CChangePointTest::handle(const SDetectedSeasonal& message) {
-    m_Window.assign(m_Window.size(), TFloatMeanAccumulator{});
+    if (m_Window.size() > 0) {
+        m_Window.assign(m_Window.size(), TFloatMeanAccumulator{});
+    }
     m_ResidualMoments = TMeanVarAccumulator{};
     m_LargeErrorFraction = 0.0;
     m_TotalCountWeightAdjustment = 0.0;
@@ -2059,9 +2061,13 @@ std::size_t CTimeSeriesDecompositionDetail::CComponents::maxSize() const {
 
 void CTimeSeriesDecompositionDetail::CComponents::addSeasonalComponents(const CSeasonalDecomposition& components) {
 
-    m_Seasonal->remove(components.seasonalToRemoveMask());
     LOG_TRACE(<< "remove mask = "
               << core::CContainerPrinter::print(components.seasonalToRemoveMask()));
+
+    if (m_Seasonal->remove(components.seasonalToRemoveMask()) == false) {
+        // We don't know how to apply the changes so just bail.
+        return;
+    }
 
     if (components.seasonal().size() == 0) {
         LOG_DEBUG(<< "removed all seasonality");
@@ -2532,10 +2538,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::removeComponentsWit
     if (anyBadComponentsFound) {
         CSetTools::simultaneousRemoveIf(remove, m_Components, m_PredictionErrors,
                                         [](bool remove_) { return remove_; });
-
-        return true;
     }
-    return false;
+    return anyBadComponentsFound;
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::propagateForwards(core_t::TTime start,
@@ -2686,7 +2690,13 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::refreshForNewCompon
         });
 }
 
-void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::remove(const TBoolVec& removeComponentsMask) {
+bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::remove(const TBoolVec& removeComponentsMask) {
+    if (removeComponentsMask.size() != m_Components.size()) {
+        LOG_ERROR(<< "Unexpected seasonal components to remove "
+                  << core::CContainerPrinter::print(removeComponentsMask)
+                  << ". Have " << m_Components.size() << " components.");
+        return false;
+    }
     std::size_t end{0};
     for (std::size_t i = 0; i < removeComponentsMask.size();
          end += removeComponentsMask[i++] ? 0 : 1) {
@@ -2698,6 +2708,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::remove(const TBoolV
     m_Components.erase(m_Components.begin() + end, m_Components.end());
     m_PredictionErrors.erase(m_PredictionErrors.begin() + end,
                              m_PredictionErrors.end());
+    return true;
 }
 
 bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::prune(core_t::TTime time,

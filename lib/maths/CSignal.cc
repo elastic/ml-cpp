@@ -334,7 +334,7 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values,
         valuesToTest.resize(n + 3 * pad);
         autocorrelations(valuesToTest, placeholder, correlations);
         valuesToTest.resize(n);
-        correlations.resize(3 * pad);
+        correlations.resize(std::max(3 * pad, periods.back()));
 
         // In order to handle with smooth varying functions whose autocorrelation
         // is high for small offsets we perform an average the serial correlations
@@ -538,7 +538,7 @@ CSignal::tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
     initialize({weekend, week}, components[WEEKDAY_DAILY]);
     LOG_TRACE(<< "components = " << core::CContainerPrinter::print(components));
 
-    TMeanAccumulator variances[4];
+    TMeanAccumulator variances[std::size(components)];
     for (std::size_t i = 0; i < std::size(components); ++i) {
         variances[i] = std::accumulate(
             components[i].begin(), components[i].end(), TMeanAccumulator{},

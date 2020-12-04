@@ -372,9 +372,6 @@ public:
         //! Sample the prediction residuals.
         void handle(const SDetectedTrend& message) override;
 
-        //! Test to see whether any seasonal components are present.
-        void test(const SAddValue& message);
-
         //! Shift the start of the tests' expanding windows by \p shift at \p time.
         void shiftTime(core_t::TTime time, core_t::TTime shift);
 
@@ -401,6 +398,9 @@ public:
     private:
         //! Handle \p symbol.
         void apply(std::size_t symbol, const SMessage& message);
+
+        //! Test to see whether any seasonal components are present.
+        void test(const SAddValue& message);
 
         //! Check if we should run the periodicity test on \p window.
         bool shouldTest(ETest test, core_t::TTime time) const;
@@ -785,7 +785,10 @@ public:
             void refreshForNewComponents();
 
             //! Remove all components masked by \p removeComponentsMask.
-            void remove(const TBoolVec& removeComponentsMask);
+            bool remove(const TBoolVec& removeComponentsMask);
+
+            //! Remove any components with invalid values
+            bool removeComponentsWithBadValues(core_t::TTime);
 
             //! Remove low value components
             bool prune(core_t::TTime time, core_t::TTime bucketLength);
@@ -801,9 +804,6 @@ public:
 
             //! Get the memory used by this object.
             std::size_t memoryUsage() const;
-
-            //! Remove any components with invalid values
-            bool removeComponentsWithBadValues(core_t::TTime);
 
         private:
             //! The components.
