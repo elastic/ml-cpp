@@ -19,6 +19,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
+#include <core/CProgramCounters.h>
 #include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
@@ -48,6 +49,16 @@
 #include <string>
 
 int main(int argc, char** argv) {
+
+    // Register the set of counters in which this program is interested
+    const ml::counter_t::TCounterTypeSet counters{
+        ml::counter_t::E_TSADMemoryUsage, ml::counter_t::E_TSADPeakMemoryUsage,
+        ml::counter_t::E_TSADNumberRecordsNoTimeField,
+        ml::counter_t::E_TSADNumberTimeFieldConversionErrors,
+        ml::counter_t::E_TSADAssignmentMemoryBasis};
+
+    ml::core::CProgramCounters::registerProgramCounterTypes(counters);
+
     // Read command line options
     std::string limitConfigFile;
     std::string jobId;

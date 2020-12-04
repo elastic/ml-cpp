@@ -241,7 +241,7 @@ void testBucketWriteHelper(bool isInterim) {
         const rapidjson::Value& bucket = bucketWrapper["bucket"];
         BOOST_TEST_REQUIRE(bucket.IsObject());
         BOOST_TEST_REQUIRE(bucket.HasMember("job_id"));
-        BOOST_REQUIRE_EQUAL(std::string("job"), std::string(bucket["job_id"].GetString()));
+        BOOST_REQUIRE_EQUAL("job", std::string(bucket["job_id"].GetString()));
 
         // 3 detectors each have 2 records (simple count detector isn't added)
         // except the population detector which has a single record and clauses
@@ -293,8 +293,7 @@ void testBucketWriteHelper(bool isInterim) {
         {
             const rapidjson::Value& record = records[rapidjson::SizeType(0)];
             BOOST_TEST_REQUIRE(record.HasMember("job_id"));
-            BOOST_REQUIRE_EQUAL(std::string("job"),
-                                std::string(record["job_id"].GetString()));
+            BOOST_REQUIRE_EQUAL("job", std::string(record["job_id"].GetString()));
             BOOST_TEST_REQUIRE(record.HasMember("detector_index"));
             BOOST_REQUIRE_EQUAL(1, record["detector_index"].GetInt());
             BOOST_TEST_REQUIRE(record.HasMember("timestamp"));
@@ -302,22 +301,19 @@ void testBucketWriteHelper(bool isInterim) {
             BOOST_TEST_REQUIRE(record.HasMember("probability"));
             BOOST_REQUIRE_EQUAL(0.0, record["probability"].GetDouble());
             BOOST_TEST_REQUIRE(record.HasMember("by_field_name"));
-            BOOST_REQUIRE_EQUAL(std::string("airline"),
+            BOOST_REQUIRE_EQUAL("airline",
                                 std::string(record["by_field_name"].GetString()));
             BOOST_TEST_REQUIRE(!record.HasMember("by_field_value"));
             BOOST_TEST_REQUIRE(!record.HasMember("correlated_by_field_value"));
             BOOST_TEST_REQUIRE(record.HasMember("function"));
-            BOOST_REQUIRE_EQUAL(std::string("mean"),
-                                std::string(record["function"].GetString()));
+            BOOST_REQUIRE_EQUAL("mean", std::string(record["function"].GetString()));
             BOOST_TEST_REQUIRE(record.HasMember("function_description"));
-            BOOST_REQUIRE_EQUAL(std::string("mean(responsetime)"),
+            BOOST_REQUIRE_EQUAL("mean(responsetime)",
                                 std::string(record["function_description"].GetString()));
             BOOST_TEST_REQUIRE(record.HasMember("over_field_name"));
-            BOOST_REQUIRE_EQUAL(std::string("pfn"),
-                                std::string(record["over_field_name"].GetString()));
+            BOOST_REQUIRE_EQUAL("pfn", std::string(record["over_field_name"].GetString()));
             BOOST_TEST_REQUIRE(record.HasMember("over_field_value"));
-            BOOST_REQUIRE_EQUAL(std::string("pfv"),
-                                std::string(record["over_field_value"].GetString()));
+            BOOST_REQUIRE_EQUAL("pfv", std::string(record["over_field_value"].GetString()));
             BOOST_TEST_REQUIRE(record.HasMember("bucket_span"));
             BOOST_REQUIRE_EQUAL(100, record["bucket_span"].GetInt());
             // It's hard to predict what these will be, so just assert their
@@ -340,29 +336,26 @@ void testBucketWriteHelper(bool isInterim) {
                 BOOST_TEST_REQUIRE(cause.HasMember("probability"));
                 BOOST_REQUIRE_EQUAL(0.0, cause["probability"].GetDouble());
                 BOOST_TEST_REQUIRE(cause.HasMember("field_name"));
-                BOOST_REQUIRE_EQUAL(std::string("responsetime"),
+                BOOST_REQUIRE_EQUAL("responsetime",
                                     std::string(cause["field_name"].GetString()));
                 BOOST_TEST_REQUIRE(cause.HasMember("by_field_name"));
-                BOOST_REQUIRE_EQUAL(std::string("airline"),
-                                    std::string(cause["by_field_name"].GetString()));
+                BOOST_REQUIRE_EQUAL(
+                    "airline", std::string(cause["by_field_name"].GetString()));
                 BOOST_TEST_REQUIRE(cause.HasMember("by_field_value"));
-                BOOST_REQUIRE_EQUAL(std::string("GAL"),
-                                    std::string(cause["by_field_value"].GetString()));
+                BOOST_REQUIRE_EQUAL("GAL", std::string(cause["by_field_value"].GetString()));
                 BOOST_TEST_REQUIRE(cause.HasMember("correlated_by_field_value"));
                 BOOST_REQUIRE_EQUAL(
-                    std::string("BAW"),
-                    std::string(cause["correlated_by_field_value"].GetString()));
+                    "BAW", std::string(cause["correlated_by_field_value"].GetString()));
                 BOOST_TEST_REQUIRE(cause.HasMember("partition_field_name"));
-                BOOST_REQUIRE_EQUAL(std::string("tfn"),
-                                    std::string(cause["partition_field_name"].GetString()));
+                BOOST_REQUIRE_EQUAL(
+                    "tfn", std::string(cause["partition_field_name"].GetString()));
                 BOOST_TEST_REQUIRE(cause.HasMember("partition_field_value"));
-                BOOST_REQUIRE_EQUAL(std::string(""),
-                                    std::string(cause["partition_field_value"].GetString()));
+                BOOST_REQUIRE_EQUAL(
+                    "", std::string(cause["partition_field_value"].GetString()));
                 BOOST_TEST_REQUIRE(cause.HasMember("function"));
-                BOOST_REQUIRE_EQUAL(std::string("mean"),
-                                    std::string(cause["function"].GetString()));
+                BOOST_REQUIRE_EQUAL("mean", std::string(cause["function"].GetString()));
                 BOOST_TEST_REQUIRE(cause.HasMember("function_description"));
-                BOOST_REQUIRE_EQUAL(std::string("mean(responsetime)"),
+                BOOST_REQUIRE_EQUAL("mean(responsetime)",
                                     std::string(cause["function_description"].GetString()));
                 BOOST_TEST_REQUIRE(cause.HasMember("typical"));
                 BOOST_TEST_REQUIRE(cause["typical"].IsArray());
@@ -383,8 +376,7 @@ void testBucketWriteHelper(bool isInterim) {
             for (rapidjson::SizeType k = 1; k < 3; k++) {
                 const rapidjson::Value& record = records[k];
                 BOOST_TEST_REQUIRE(record.HasMember("job_id"));
-                BOOST_REQUIRE_EQUAL(std::string("job"),
-                                    std::string(record["job_id"].GetString()));
+                BOOST_REQUIRE_EQUAL("job", std::string(record["job_id"].GetString()));
                 BOOST_TEST_REQUIRE(record.HasMember("detector_index"));
                 BOOST_REQUIRE_EQUAL(2, record["detector_index"].GetInt());
                 BOOST_TEST_REQUIRE(record.HasMember("timestamp"));
@@ -392,11 +384,10 @@ void testBucketWriteHelper(bool isInterim) {
                 BOOST_TEST_REQUIRE(record.HasMember("probability"));
                 BOOST_REQUIRE_EQUAL(0.0, record["probability"].GetDouble());
                 BOOST_TEST_REQUIRE(record.HasMember("by_field_name"));
-                BOOST_REQUIRE_EQUAL(std::string("airline"),
-                                    std::string(record["by_field_name"].GetString()));
+                BOOST_REQUIRE_EQUAL(
+                    "airline", std::string(record["by_field_name"].GetString()));
                 BOOST_TEST_REQUIRE(record.HasMember("by_field_value"));
-                BOOST_REQUIRE_EQUAL(std::string("GAL"),
-                                    std::string(record["by_field_value"].GetString()));
+                BOOST_REQUIRE_EQUAL("GAL", std::string(record["by_field_value"].GetString()));
                 BOOST_TEST_REQUIRE(record.HasMember("correlated_by_field_value"));
                 BOOST_REQUIRE_EQUAL(
                     std::string("BAW"),
@@ -412,20 +403,19 @@ void testBucketWriteHelper(bool isInterim) {
                 BOOST_REQUIRE_EQUAL(
                     10090.0, record["actual"][rapidjson::SizeType(0)].GetDouble());
                 BOOST_TEST_REQUIRE(record.HasMember("field_name"));
-                BOOST_REQUIRE_EQUAL(std::string("responsetime"),
+                BOOST_REQUIRE_EQUAL("responsetime",
                                     std::string(record["field_name"].GetString()));
                 BOOST_TEST_REQUIRE(record.HasMember("function"));
-                BOOST_REQUIRE_EQUAL(std::string("mean"),
-                                    std::string(record["function"].GetString()));
+                BOOST_REQUIRE_EQUAL("mean", std::string(record["function"].GetString()));
                 BOOST_TEST_REQUIRE(record.HasMember("function_description"));
-                BOOST_REQUIRE_EQUAL(std::string("mean(responsetime)"),
+                BOOST_REQUIRE_EQUAL("mean(responsetime)",
                                     std::string(record["function_description"].GetString()));
                 BOOST_TEST_REQUIRE(record.HasMember("partition_field_name"));
-                BOOST_REQUIRE_EQUAL(std::string("tfn"),
-                                    std::string(record["partition_field_name"].GetString()));
+                BOOST_REQUIRE_EQUAL(
+                    "tfn", std::string(record["partition_field_name"].GetString()));
                 BOOST_TEST_REQUIRE(record.HasMember("partition_field_value"));
-                BOOST_REQUIRE_EQUAL(std::string(""),
-                                    std::string(record["partition_field_value"].GetString()));
+                BOOST_REQUIRE_EQUAL(
+                    "", std::string(record["partition_field_value"].GetString()));
                 BOOST_TEST_REQUIRE(record.HasMember("bucket_span"));
                 BOOST_REQUIRE_EQUAL(100, record["bucket_span"].GetInt());
                 // It's hard to predict what these will be, so just assert their
@@ -446,8 +436,7 @@ void testBucketWriteHelper(bool isInterim) {
             for (rapidjson::SizeType k = 3; k < 5; k++) {
                 const rapidjson::Value& record = records[k];
                 BOOST_TEST_REQUIRE(record.HasMember("job_id"));
-                BOOST_REQUIRE_EQUAL(std::string("job"),
-                                    std::string(record["job_id"].GetString()));
+                BOOST_REQUIRE_EQUAL("job", std::string(record["job_id"].GetString()));
                 BOOST_TEST_REQUIRE(record.HasMember("detector_index"));
                 BOOST_REQUIRE_EQUAL(4, record["detector_index"].GetInt());
                 BOOST_TEST_REQUIRE(record.HasMember("timestamp"));
@@ -455,11 +444,10 @@ void testBucketWriteHelper(bool isInterim) {
                 BOOST_TEST_REQUIRE(record.HasMember("probability"));
                 BOOST_REQUIRE_EQUAL(0.0, record["probability"].GetDouble());
                 BOOST_TEST_REQUIRE(record.HasMember("by_field_name"));
-                BOOST_REQUIRE_EQUAL(std::string("airline"),
-                                    std::string(record["by_field_name"].GetString()));
+                BOOST_REQUIRE_EQUAL(
+                    "airline", std::string(record["by_field_name"].GetString()));
                 BOOST_TEST_REQUIRE(record.HasMember("by_field_value"));
-                BOOST_REQUIRE_EQUAL(std::string("GAL"),
-                                    std::string(record["by_field_value"].GetString()));
+                BOOST_REQUIRE_EQUAL("GAL", std::string(record["by_field_value"].GetString()));
                 BOOST_TEST_REQUIRE(record.HasMember("correlated_by_field_value"));
                 BOOST_REQUIRE_EQUAL(
                     std::string("BAW"),
@@ -476,17 +464,16 @@ void testBucketWriteHelper(bool isInterim) {
                     10090.0, record["actual"][rapidjson::SizeType(0)].GetDouble());
                 BOOST_TEST_REQUIRE(record.HasMember("function"));
                 // This would be count in the real case with properly generated input data
-                BOOST_REQUIRE_EQUAL(std::string("mean"),
-                                    std::string(record["function"].GetString()));
+                BOOST_REQUIRE_EQUAL("mean", std::string(record["function"].GetString()));
                 BOOST_TEST_REQUIRE(record.HasMember("function_description"));
-                BOOST_REQUIRE_EQUAL(std::string("mean(responsetime)"),
+                BOOST_REQUIRE_EQUAL("mean(responsetime)",
                                     std::string(record["function_description"].GetString()));
                 BOOST_TEST_REQUIRE(record.HasMember("partition_field_name"));
-                BOOST_REQUIRE_EQUAL(std::string("tfn"),
-                                    std::string(record["partition_field_name"].GetString()));
+                BOOST_REQUIRE_EQUAL(
+                    "tfn", std::string(record["partition_field_name"].GetString()));
                 BOOST_TEST_REQUIRE(record.HasMember("partition_field_value"));
-                BOOST_REQUIRE_EQUAL(std::string(""),
-                                    std::string(record["partition_field_value"].GetString()));
+                BOOST_REQUIRE_EQUAL(
+                    "", std::string(record["partition_field_value"].GetString()));
                 BOOST_TEST_REQUIRE(record.HasMember("bucket_span"));
                 BOOST_REQUIRE_EQUAL(100, record["bucket_span"].GetInt());
                 // It's hard to predict what these will be, so just assert their
@@ -1040,11 +1027,11 @@ BOOST_AUTO_TEST_CASE(testGeoResultsWrite) {
         BOOST_TEST_REQUIRE(record.HasMember("geo_results"));
         auto geoResultsObject = record["geo_results"].GetObject();
         BOOST_TEST_REQUIRE(geoResultsObject.HasMember("actual_point"));
-        BOOST_REQUIRE_EQUAL(std::string("40.000000000000,-40.000000000000"),
-                            (geoResultsObject["actual_point"].GetString()));
+        BOOST_REQUIRE_EQUAL(std::string{"40.000000000000,-40.000000000000"},
+                            geoResultsObject["actual_point"].GetString());
         BOOST_TEST_REQUIRE(geoResultsObject.HasMember("typical_point"));
-        BOOST_REQUIRE_EQUAL(std::string("90.000000000000,-90.000000000000"),
-                            (geoResultsObject["typical_point"].GetString()));
+        BOOST_REQUIRE_EQUAL(std::string{"90.000000000000,-90.000000000000"},
+                            geoResultsObject["typical_point"].GetString());
     }
 
     {
@@ -1164,7 +1151,7 @@ BOOST_AUTO_TEST_CASE(testWriteNonAnomalousBucket) {
 
     const rapidjson::Value& bucket = bucketWrapper["bucket"];
     BOOST_TEST_REQUIRE(bucket.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL(std::string("job"), std::string(bucket["job_id"].GetString()));
+    BOOST_REQUIRE_EQUAL("job", std::string(bucket["job_id"].GetString()));
     BOOST_REQUIRE_EQUAL(1000, bucket["timestamp"].GetInt());
     BOOST_TEST_REQUIRE(bucket.HasMember("bucket_influencers") == false);
     BOOST_REQUIRE_EQUAL(0, bucket["event_count"].GetInt());
@@ -1247,7 +1234,7 @@ BOOST_AUTO_TEST_CASE(testWriteCategoryDefinition) {
 
     const rapidjson::Value& category = categoryWrapper["category_definition"];
     BOOST_TEST_REQUIRE(category.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL(std::string("job"), std::string(category["job_id"].GetString()));
+    BOOST_REQUIRE_EQUAL("job", std::string(category["job_id"].GetString()));
     BOOST_TEST_REQUIRE(category.HasMember("partition_field_name") == false);
     BOOST_TEST_REQUIRE(category.HasMember("partition_field_value") == false);
     BOOST_TEST_REQUIRE(category.IsObject());
@@ -1307,7 +1294,7 @@ BOOST_AUTO_TEST_CASE(testWritePerPartitionCategoryDefinition) {
 
     const rapidjson::Value& category = categoryWrapper["category_definition"];
     BOOST_TEST_REQUIRE(category.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL(std::string("job"), std::string(category["job_id"].GetString()));
+    BOOST_REQUIRE_EQUAL("job", std::string(category["job_id"].GetString()));
     BOOST_TEST_REQUIRE(category.HasMember("partition_field_name"));
     BOOST_REQUIRE_EQUAL("event.dataset",
                         std::string(category["partition_field_name"].GetString()));
@@ -1390,16 +1377,15 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencers) {
 
     const rapidjson::Value& influencer = influencers[rapidjson::SizeType(0)];
     BOOST_TEST_REQUIRE(influencer.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL(std::string("job"), std::string(influencer["job_id"].GetString()));
+    BOOST_REQUIRE_EQUAL("job", std::string(influencer["job_id"].GetString()));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.5, influencer["probability"].GetDouble(), 0.001);
     BOOST_REQUIRE_CLOSE_ABSOLUTE(
         10.0, influencer["initial_influencer_score"].GetDouble(), 0.001);
     BOOST_TEST_REQUIRE(influencer.HasMember("influencer_score"));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, influencer["influencer_score"].GetDouble(), 0.001);
-    BOOST_REQUIRE_EQUAL(std::string("user"),
-                        std::string(influencer["influencer_field_name"].GetString()));
-    BOOST_REQUIRE_EQUAL(std::string("daisy"),
-                        std::string(influencer["influencer_field_value"].GetString()));
+    BOOST_REQUIRE_EQUAL("user", std::string(influencer["influencer_field_name"].GetString()));
+    BOOST_REQUIRE_EQUAL(
+        "daisy", std::string(influencer["influencer_field_value"].GetString()));
     BOOST_REQUIRE_EQUAL(42000, influencer["timestamp"].GetInt());
     BOOST_TEST_REQUIRE(influencer["is_interim"].GetBool());
     BOOST_TEST_REQUIRE(influencer.HasMember("bucket_span"));
@@ -1410,10 +1396,10 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencers) {
         100.0, influencer2["initial_influencer_score"].GetDouble(), 0.001);
     BOOST_TEST_REQUIRE(influencer2.HasMember("influencer_score"));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0, influencer2["influencer_score"].GetDouble(), 0.001);
-    BOOST_REQUIRE_EQUAL(std::string("user"),
-                        std::string(influencer2["influencer_field_name"].GetString()));
-    BOOST_REQUIRE_EQUAL(std::string("jim"),
-                        std::string(influencer2["influencer_field_value"].GetString()));
+    BOOST_REQUIRE_EQUAL(
+        "user", std::string(influencer2["influencer_field_name"].GetString()));
+    BOOST_REQUIRE_EQUAL(
+        "jim", std::string(influencer2["influencer_field_value"].GetString()));
     BOOST_REQUIRE_EQUAL(42000, influencer2["timestamp"].GetInt());
     BOOST_TEST_REQUIRE(influencer2["is_interim"].GetBool());
     BOOST_TEST_REQUIRE(influencer2.HasMember("bucket_span"));
@@ -1507,10 +1493,8 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencersWithLimit) {
         100.0, influencer["initial_influencer_score"].GetDouble(), 0.001);
     BOOST_TEST_REQUIRE(influencer.HasMember("influencer_score"));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0, influencer["influencer_score"].GetDouble(), 0.001);
-    BOOST_REQUIRE_EQUAL(std::string("user"),
-                        std::string(influencer["influencer_field_name"].GetString()));
-    BOOST_REQUIRE_EQUAL(std::string("jim"),
-                        std::string(influencer["influencer_field_value"].GetString()));
+    BOOST_REQUIRE_EQUAL("user", std::string(influencer["influencer_field_name"].GetString()));
+    BOOST_REQUIRE_EQUAL("jim", std::string(influencer["influencer_field_value"].GetString()));
     BOOST_TEST_REQUIRE(influencer.HasMember("bucket_span"));
 
     const rapidjson::Value& influencer2 = influencers[rapidjson::SizeType(1)];
@@ -1519,10 +1503,10 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencersWithLimit) {
         12.0, influencer2["initial_influencer_score"].GetDouble(), 0.001);
     BOOST_TEST_REQUIRE(influencer2.HasMember("influencer_score"));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(12.0, influencer2["influencer_score"].GetDouble(), 0.001);
-    BOOST_REQUIRE_EQUAL(std::string("computer"),
-                        std::string(influencer2["influencer_field_name"].GetString()));
-    BOOST_REQUIRE_EQUAL(std::string("laptop"),
-                        std::string(influencer2["influencer_field_value"].GetString()));
+    BOOST_REQUIRE_EQUAL(
+        "computer", std::string(influencer2["influencer_field_name"].GetString()));
+    BOOST_REQUIRE_EQUAL(
+        "laptop", std::string(influencer2["influencer_field_value"].GetString()));
     BOOST_TEST_REQUIRE(influencer2.HasMember("bucket_span"));
 
     // bucket influencers
@@ -1537,7 +1521,7 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencersWithLimit) {
     BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0, binf["initial_anomaly_score"].GetDouble(), 0.001);
     BOOST_TEST_REQUIRE(binf.HasMember("anomaly_score"));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(100.0, binf["anomaly_score"].GetDouble(), 0.001);
-    BOOST_REQUIRE_EQUAL(std::string("computer"),
+    BOOST_REQUIRE_EQUAL("computer",
                         std::string(binf["influencer_field_name"].GetString()));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf["raw_anomaly_score"].GetDouble(), 0.001);
 
@@ -1546,8 +1530,7 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencersWithLimit) {
     BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf2["initial_anomaly_score"].GetDouble(), 0.001);
     BOOST_TEST_REQUIRE(binf2.HasMember("anomaly_score"));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf2["anomaly_score"].GetDouble(), 0.001);
-    BOOST_REQUIRE_EQUAL(std::string("user"),
-                        std::string(binf2["influencer_field_name"].GetString()));
+    BOOST_REQUIRE_EQUAL("user", std::string(binf2["influencer_field_name"].GetString()));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, binf2["raw_anomaly_score"].GetDouble(), 0.001);
 
     const rapidjson::Value& binf3 = bucketInfluencers[rapidjson::SizeType(2)];
@@ -1555,7 +1538,7 @@ BOOST_AUTO_TEST_CASE(testWriteInfluencersWithLimit) {
     BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf3["initial_anomaly_score"].GetDouble(), 0.001);
     BOOST_TEST_REQUIRE(binf3.HasMember("anomaly_score"));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0, binf3["anomaly_score"].GetDouble(), 0.001);
-    BOOST_REQUIRE_EQUAL(std::string("bucket_time"),
+    BOOST_REQUIRE_EQUAL("bucket_time",
                         std::string(binf3["influencer_field_name"].GetString()));
     BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, binf3["raw_anomaly_score"].GetDouble(), 0.001);
 }
@@ -1663,8 +1646,8 @@ BOOST_AUTO_TEST_CASE(testWriteWithInfluences) {
     {
         const rapidjson::Value& influence = influences[rapidjson::SizeType(0)];
         BOOST_TEST_REQUIRE(influence.HasMember("influencer_field_name"));
-        BOOST_REQUIRE_EQUAL(std::string("host"),
-                            std::string(influence["influencer_field_name"].GetString()));
+        BOOST_REQUIRE_EQUAL(
+            "host", std::string(influence["influencer_field_name"].GetString()));
         BOOST_TEST_REQUIRE(influence.HasMember("influencer_field_values"));
         const rapidjson::Value& influencerFieldValues = influence["influencer_field_values"];
         BOOST_TEST_REQUIRE(influencerFieldValues.IsArray());
@@ -1681,8 +1664,8 @@ BOOST_AUTO_TEST_CASE(testWriteWithInfluences) {
     {
         const rapidjson::Value& influence = influences[rapidjson::SizeType(1)];
         BOOST_TEST_REQUIRE(influence.HasMember("influencer_field_name"));
-        BOOST_REQUIRE_EQUAL(std::string("user"),
-                            std::string(influence["influencer_field_name"].GetString()));
+        BOOST_REQUIRE_EQUAL(
+            "user", std::string(influence["influencer_field_name"].GetString()));
         BOOST_TEST_REQUIRE(influence.HasMember("influencer_field_values"));
         const rapidjson::Value& influencerFieldValues = influence["influencer_field_values"];
         BOOST_TEST_REQUIRE(influencerFieldValues.IsArray());
@@ -1728,8 +1711,7 @@ BOOST_AUTO_TEST_CASE(testPersistNormalizer) {
     BOOST_TEST_REQUIRE(quantileWrapper.HasMember("quantiles"));
     const rapidjson::Value& quantileState = quantileWrapper["quantiles"];
     BOOST_TEST_REQUIRE(quantileState.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL(std::string("job"),
-                        std::string(quantileState["job_id"].GetString()));
+    BOOST_REQUIRE_EQUAL("job", std::string(quantileState["job_id"].GetString()));
     BOOST_TEST_REQUIRE(quantileState.HasMember("quantile_state"));
     BOOST_TEST_REQUIRE(quantileState.HasMember("timestamp"));
 }
@@ -1750,6 +1732,7 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
         resourceUsage.s_OverFields = 7;
         resourceUsage.s_AllocationFailures = 8;
         resourceUsage.s_MemoryStatus = ml::model_t::E_MemoryStatusHardLimit;
+        resourceUsage.s_AssignmentMemoryBasis = ml::model_t::E_AssignmentBasisCurrentModelBytes;
         resourceUsage.s_BucketStartTime = 9;
         resourceUsage.s_BytesExceeded = 10;
         resourceUsage.s_BytesMemoryLimit = 11;
@@ -1776,7 +1759,7 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
     const rapidjson::Value& sizeStats = resourceWrapper["model_size_stats"];
 
     BOOST_TEST_REQUIRE(sizeStats.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL(std::string{"job"}, sizeStats["job_id"].GetString());
+    BOOST_REQUIRE_EQUAL("job", sizeStats["job_id"].GetString());
     BOOST_TEST_REQUIRE(sizeStats.HasMember("model_bytes"));
     BOOST_REQUIRE_EQUAL(2, sizeStats["model_bytes"].GetInt());
     BOOST_TEST_REQUIRE(sizeStats.HasMember("peak_model_bytes"));
@@ -1792,7 +1775,10 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
     BOOST_TEST_REQUIRE(sizeStats.HasMember("timestamp"));
     BOOST_REQUIRE_EQUAL(9000, sizeStats["timestamp"].GetInt());
     BOOST_TEST_REQUIRE(sizeStats.HasMember("memory_status"));
-    BOOST_REQUIRE_EQUAL(std::string{"hard_limit"}, sizeStats["memory_status"].GetString());
+    BOOST_REQUIRE_EQUAL("hard_limit", sizeStats["memory_status"].GetString());
+    BOOST_TEST_REQUIRE(sizeStats.HasMember("assignment_memory_basis"));
+    BOOST_REQUIRE_EQUAL("current_model_bytes",
+                        sizeStats["assignment_memory_basis"].GetString());
     BOOST_TEST_REQUIRE(sizeStats.HasMember("log_time"));
     std::int64_t nowMs{ml::core::CTimeUtils::nowMs()};
     BOOST_TEST_REQUIRE(nowMs >= sizeStats["log_time"].GetInt64());
@@ -1813,7 +1799,7 @@ BOOST_AUTO_TEST_CASE(testReportMemoryUsage) {
     BOOST_TEST_REQUIRE(sizeStats.HasMember("failed_category_count"));
     BOOST_REQUIRE_EQUAL(17, sizeStats["failed_category_count"].GetInt());
     BOOST_TEST_REQUIRE(sizeStats.HasMember("categorization_status"));
-    BOOST_REQUIRE_EQUAL(std::string{"warn"}, sizeStats["categorization_status"].GetString());
+    BOOST_REQUIRE_EQUAL("warn", sizeStats["categorization_status"].GetString());
 }
 
 BOOST_AUTO_TEST_CASE(testWriteCategorizerStats) {
@@ -1845,13 +1831,11 @@ BOOST_AUTO_TEST_CASE(testWriteCategorizerStats) {
     const rapidjson::Value& categorizerStats = resourceWrapper["categorizer_stats"];
 
     BOOST_TEST_REQUIRE(categorizerStats.HasMember("job_id"));
-    BOOST_REQUIRE_EQUAL(std::string{"job"}, categorizerStats["job_id"].GetString());
+    BOOST_REQUIRE_EQUAL("job", categorizerStats["job_id"].GetString());
     BOOST_TEST_REQUIRE(categorizerStats.HasMember("partition_field_name"));
-    BOOST_REQUIRE_EQUAL(std::string{"foo"},
-                        categorizerStats["partition_field_name"].GetString());
+    BOOST_REQUIRE_EQUAL("foo", categorizerStats["partition_field_name"].GetString());
     BOOST_TEST_REQUIRE(categorizerStats.HasMember("partition_field_value"));
-    BOOST_REQUIRE_EQUAL(std::string{"bar"},
-                        categorizerStats["partition_field_value"].GetString());
+    BOOST_REQUIRE_EQUAL("bar", categorizerStats["partition_field_value"].GetString());
     BOOST_TEST_REQUIRE(categorizerStats.HasMember("categorized_doc_count"));
     BOOST_REQUIRE_EQUAL(1, categorizerStats["categorized_doc_count"].GetInt());
     BOOST_TEST_REQUIRE(categorizerStats.HasMember("total_category_count"));
@@ -1865,8 +1849,7 @@ BOOST_AUTO_TEST_CASE(testWriteCategorizerStats) {
     BOOST_TEST_REQUIRE(categorizerStats.HasMember("failed_category_count"));
     BOOST_REQUIRE_EQUAL(6, categorizerStats["failed_category_count"].GetInt());
     BOOST_TEST_REQUIRE(categorizerStats.HasMember("categorization_status"));
-    BOOST_REQUIRE_EQUAL(std::string{"ok"},
-                        categorizerStats["categorization_status"].GetString());
+    BOOST_REQUIRE_EQUAL("ok", categorizerStats["categorization_status"].GetString());
     BOOST_TEST_REQUIRE(categorizerStats.HasMember("categorization_status"));
     BOOST_REQUIRE_EQUAL("ok", categorizerStats["categorization_status"].GetString());
     BOOST_TEST_REQUIRE(categorizerStats.HasMember("timestamp"));
@@ -1939,9 +1922,9 @@ BOOST_AUTO_TEST_CASE(testWriteScheduledEvent) {
     const rapidjson::Value& events = bucketWithEvents["scheduled_events"];
     BOOST_TEST_REQUIRE(events.IsArray());
     BOOST_REQUIRE_EQUAL(rapidjson::SizeType(2), events.Size());
-    BOOST_REQUIRE_EQUAL(std::string("event-foo"),
+    BOOST_REQUIRE_EQUAL("event-foo",
                         std::string(events[rapidjson::SizeType(0)].GetString()));
-    BOOST_REQUIRE_EQUAL(std::string("event-bar"),
+    BOOST_REQUIRE_EQUAL("event-bar",
                         std::string(events[rapidjson::SizeType(1)].GetString()));
 }
 

@@ -29,24 +29,25 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     // The output writer won't close the JSON structures until is is destroyed
     {
         model::CResourceMonitor::SModelSizeStats modelSizeStats{
-            10000,                     // bytes used
-            20000,                     // bytes used (adjusted)
-            30000,                     // peak bytes used
-            60000,                     // peak bytes used (adjusted)
-            3,                         // # by fields
-            1,                         // # partition fields
-            150,                       // # over fields
-            4,                         // # allocation failures
-            model_t::E_MemoryStatusOk, // memory status
-            core_t::TTime(1521046309), // bucket start time
-            0,                         // model bytes exceeded
-            50000,                     // model bytes memory limit
-            {1000,                     // categorized messages
-             100,                      // total categories
-             7,                        // frequent categories
-             13,                       // rare categories
-             2,                        // dead categories
-             8,                        // failed categories
+            10000,                             // bytes used
+            20000,                             // bytes used (adjusted)
+            30000,                             // peak bytes used
+            60000,                             // peak bytes used (adjusted)
+            3,                                 // # by fields
+            1,                                 // # partition fields
+            150,                               // # over fields
+            4,                                 // # allocation failures
+            model_t::E_MemoryStatusOk,         // memory status
+            model_t::E_AssignmentBasisUnknown, // assignment memory basis
+            core_t::TTime(1521046309),         // bucket start time
+            0,                                 // model bytes exceeded
+            50000,                             // model bytes memory limit
+            {1000,                             // categorized messages
+             100,                              // total categories
+             7,                                // frequent categories
+             13,                               // rare categories
+             2,                                // dead categories
+             8,                                // failed categories
              model_t::E_CategorizationStatusWarn}};
 
         CModelSnapshotJsonWriter::SModelSnapshotReport report{
@@ -124,6 +125,7 @@ BOOST_AUTO_TEST_CASE(testWrite) {
     BOOST_TEST_REQUIRE(modelSizeStats.HasMember("memory_status"));
     BOOST_REQUIRE_EQUAL(std::string("ok"),
                         std::string(modelSizeStats["memory_status"].GetString()));
+    BOOST_REQUIRE_EQUAL(false, modelSizeStats.HasMember("assignment_memory_basis"));
     BOOST_TEST_REQUIRE(modelSizeStats.HasMember("model_bytes_exceeded"));
     BOOST_REQUIRE_EQUAL(std::uint64_t(0),
                         modelSizeStats["model_bytes_exceeded"].GetUint64());
