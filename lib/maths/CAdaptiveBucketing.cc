@@ -269,7 +269,6 @@ void CAdaptiveBucketing::initialValues(core_t::TTime start,
     TDoubleVec knotWeights;
     knots.reserve(values.size());
     knotValues.reserve(values.size());
-    knotWeights.reserve(values.size());
     for (std::size_t i = 0; i < values.size(); ++i) {
         if (CBasicStatistics::count(values[i]) > 0.0) {
             knots.push_back(static_cast<double>(start + bucketLength * i));
@@ -277,13 +276,17 @@ void CAdaptiveBucketing::initialValues(core_t::TTime start,
         }
     }
     TSpline interpolateMissingValues{TSpline::E_Linear};
-    interpolateMissingValues.interpolate(knots, knotValues, TSpline::E_Natural);
+    if (knots.size() >= 2) {
+        interpolateMissingValues.interpolate(knots, knotValues, TSpline::E_Natural);
+    }
     knots.resize(values.size());
     knotValues.resize(values.size());
     knotWeights.resize(values.size());
     for (std::size_t i = 0; i < values.size(); ++i) {
         knots[i] = static_cast<double>(start + bucketLength * i);
-        knotValues[i] = interpolateMissingValues.value(knots[i]);
+        knotValues[i] = interpolateMissingValues.initialized()
+                            ? interpolateMissingValues.value(knots[i])
+                            : static_cast<double>(CBasicStatistics::mean(values[i]));
         knotWeights[i] = CBasicStatistics::count(values[i]);
     }
     TSpline seedValues{TSpline::E_Cubic};
