@@ -1269,6 +1269,11 @@ BOOST_AUTO_TEST_CASE(testSmoothResample) {
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(values),
                         core::CContainerPrinter::print(resampled));
 
+    auto resampled0 = maths::CSignal::smoothResample(0, values);
+    auto resampled1 = maths::CSignal::smoothResample(1, values);
+    BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(resampled1),
+                        core::CContainerPrinter::print(resampled0));
+
     TMeanVarAccumulator averageVariance;
 
     for (std::size_t test = 0; test < 50; ++test) {

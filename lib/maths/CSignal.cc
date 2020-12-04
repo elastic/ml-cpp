@@ -917,6 +917,13 @@ CSignal::smoothResample(std::size_t size, TMeanAccumulatorVec component) {
         return component;
     }
 
+    // Pass size of zero is really an error. We'll handle this as best we can
+    // and log an error.
+    if (size == 0) {
+        LOG_ERROR(<< "Smooth resample passed component size of zero! Using one.");
+        size = 1;
+    }
+
     // Smooth by convolving with a triangle function.
 
     int n{static_cast<int>(component.size())};

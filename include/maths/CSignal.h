@@ -426,6 +426,7 @@ public:
     //! of \p component at granularity \p size. This is done by convolving with
     //! a function of width "component size" / "size" so \p component is not
     //! actually resized.
+    //! \warning \p size should be greater than zero.
     static TMeanAccumulatorVec smoothResample(std::size_t size, TMeanAccumulatorVec component);
 
     //! Restrict to the windows defined by \p period.
