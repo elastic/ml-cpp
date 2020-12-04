@@ -146,15 +146,16 @@ void CExpandingWindow::initialize(core_t::TTime time) {
 }
 
 void CExpandingWindow::shiftTime(core_t::TTime time, core_t::TTime shift) {
-    std::size_t index((std::max(time, m_StartTime) - m_StartTime) / m_BucketLengths[m_BucketLengthIndex]);
+    std::size_t index((std::max(time, m_StartTime) - m_StartTime) /
+                      m_BucketLengths[m_BucketLengthIndex]);
     if (index < m_BucketValues.size()) {
         if (m_Deflate == false) {
             std::fill(m_BucketValues.begin() + index, m_BucketValues.end(),
-                    TFloatMeanAccumulator{});
+                      TFloatMeanAccumulator{});
         } else {
             CScopeInflate inflate(*this, true);
             std::fill(m_BucketValues.begin() + index, m_BucketValues.end(),
-                    TFloatMeanAccumulator{});
+                      TFloatMeanAccumulator{});
         }
     }
     m_StartTime += shift;

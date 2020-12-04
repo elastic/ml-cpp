@@ -1105,7 +1105,7 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
             m_Periods.push_back(hypotheses[i].s_Period);
             periodsHypotheses.push_back(i);
         } else if (hypotheses[i].s_DiscardingModel == false &&
-                   hypotheses[i].s_SimilarModelled < m_ModelledPeriodsTestable.size() && 
+                   hypotheses[i].s_SimilarModelled < m_ModelledPeriodsTestable.size() &&
                    m_ModelledPeriodsTestable[hypotheses[i].s_SimilarModelled]) {
             componentsExcludedMask[hypotheses[i].s_SimilarModelled] = true;
             m_Periods.push_back(hypotheses[i].s_Period);
@@ -1289,7 +1289,8 @@ CTimeSeriesTestForSeasonality::selectModelledHypotheses(bool alreadyModelled,
             for (auto& hypothesis : hypotheses) {
                 std::size_t similar{hypothesis.s_SimilarModelled};
                 if (similar < m_ModelledPeriods.size() && componentsToRemoveMask[similar] &&
-                    m_ModelledPeriods[similar].windowed() && retainingModelForWindow(similar) == false) {
+                    m_ModelledPeriods[similar].windowed() &&
+                    retainingModelForWindow(similar) == false) {
                     componentsToRemoveMask[similar] = false;
                     hypothesis.s_DiscardingModel = false;
                     ++excess;
@@ -1304,7 +1305,8 @@ CTimeSeriesTestForSeasonality::selectModelledHypotheses(bool alreadyModelled,
                 std::size_t similar{hypothesis.s_SimilarModelled};
                 if (similar < m_ModelledPeriodsTestable.size()) {
                     bool remove{componentsToRemoveMask[similar]};
-                    hypothesis.s_Model = m_ModelledPeriodsTestable[similar] && remove == false;
+                    hypothesis.s_Model = m_ModelledPeriodsTestable[similar] &&
+                                         remove == false;
                     componentsToRemoveMask[similar] = remove || hypothesis.s_Model;
                 }
             }
