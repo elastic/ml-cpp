@@ -102,6 +102,8 @@ CBayesianOptimisation::CBayesianOptimisation(core::CStateRestoreTraverser& trave
 }
 
 void CBayesianOptimisation::add(TVector x, double fx, double vx) {
+    TVector normalizedPoint{x.cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
+    TVector transformedPoint{this->transformTo01(normalizedPoint)};
     m_FunctionMeanValues.emplace_back(x.cwiseQuotient(m_MaxBoundary - m_MinBoundary),
                                       m_RangeScale * (fx - m_RangeShift));
     m_ErrorVariances.push_back(CTools::pow2(m_RangeScale) * vx);
@@ -214,7 +216,8 @@ CBayesianOptimisation::TVector CBayesianOptimisation::kinvf() const {
 }
 
 CBayesianOptimisation::TVector CBayesianOptimisation::transformTo01(const TVector& x) const {
-    return {(x - m_MinBoundary).array() / (m_MaxBoundary - m_MinBoundary).array()};
+    return {(x.cwiseProduct(m_MaxBoundary - m_MinBoundary) - m_MinBoundary)
+                .cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
 }
 
 CBayesianOptimisation::TVector CBayesianOptimisation::scaledKernelParameters() const {
@@ -345,12 +348,14 @@ double CBayesianOptimisation::anovaMainEffect(int dimension) const {
     return this->anovaMainEffect(this->kinvf(), dimension);
 }
 
-TDoubleVec CBayesianOptimisation::anovaMainEffects() const {
-    TDoubleVec mainEffects(static_cast<std::size_t>(m_MinBoundary.size()));
+CBayesianOptimisation::TDoubleDoublePrVec CBayesianOptimisation::anovaMainEffects() const {
+    TDoubleDoublePrVec mainEffects;
+    mainEffects.reserve(static_cast<std::size_t>(m_MinBoundary.size()));
     TVector Kinvf{this->kinvf()};
     double totalVariance(this->anovaTotalVariance(Kinvf));
     for (int i = 0; i < m_MinBoundary.size(); ++i) {
-        mainEffects[i] = this->anovaMainEffect(Kinvf, i) / totalVariance;
+        double effect{this->anovaMainEffect(Kinvf, i)};
+        mainEffects.emplace_back(effect, effect / totalVariance);
     }
     return mainEffects;
 }

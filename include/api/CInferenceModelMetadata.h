@@ -14,6 +14,7 @@
 #include <api/ImportExport.h>
 
 #include <string>
+#include <tuple>
 
 namespace ml {
 namespace api {
@@ -28,6 +29,8 @@ public:
     static const std::string JSON_CLASSES_TAG;
     static const std::string JSON_FEATURE_NAME_TAG;
     static const std::string JSON_IMPORTANCE_TAG;
+    static const std::string JSON_RELATIVE_IMPORTANCE_TAG;
+    static const std::string JSON_ABSOLUTE_IMPORTANCE_TAG;
     static const std::string JSON_MAX_TAG;
     static const std::string JSON_MEAN_MAGNITUDE_TAG;
     static const std::string JSON_MIN_TAG;
@@ -56,7 +59,7 @@ public:
     //! Set the feature importance baseline (the individual feature importances are additive corrections
     //! to the baseline value).
     void featureImportanceBaseline(TVector&& baseline);
-    void hyperparameterImportance(const maths::CBoostedTree::THyperparameterDoublePrVec& hyperparameterImportance);
+    void hyperparameterImportance(const maths::CBoostedTree::THyperparameterDoubleDoubleTupleVec& hyperparameterImportance);
 
 private:
     using TMeanAccumulator =
@@ -65,8 +68,8 @@ private:
     using TSizeMeanAccumulatorUMap = std::unordered_map<std::size_t, TMeanAccumulator>;
     using TSizeMinMaxAccumulatorUMap = std::unordered_map<std::size_t, TMinMaxAccumulator>;
     using TOptionalVector = boost::optional<TVector>;
-    using TStrDoublePr = std::pair<std::string, double>;
-    using TStrDoublePrVec = std::vector<TStrDoublePr>;
+    using TStrDoubleDoubleTuple = std::tuple<std::string, double, double>;
+    using TStrDoubleDoubleTupleVec = std::vector<TStrDoubleDoubleTuple>;
 
 private:
     void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
@@ -83,7 +86,7 @@ private:
         [](const std::string& value, TRapidJsonWriter& writer) {
             writer.String(value);
         };
-    TStrDoublePrVec m_HyperparameterImportance;
+    TStrDoubleDoubleTupleVec m_HyperparameterImportance;
 };
 }
 }
