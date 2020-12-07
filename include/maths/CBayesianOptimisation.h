@@ -112,8 +112,9 @@ public:
     //! using ANOVA decomposition.
     double anovaMainEffect(int dimension) const;
 
-    //! Get the vector of main effects as a fraction of the total variance.
-    TDoubleVec anovaMainEffects() const;
+    //! Get the vector of main effects as an absolute value and as a fraction
+    //! of the total variance.
+    TDoubleDoublePrVec anovaMainEffects() const;
 
     //! Set kernel \p parameters explicitly.
     void kernelParameters(const TVector& parameters);

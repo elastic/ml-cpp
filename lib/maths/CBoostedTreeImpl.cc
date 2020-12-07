@@ -1235,32 +1235,33 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     // Read parameters for last round.
     for (int i = 0; i < static_cast<int>(m_TunableHyperparameters.size()); ++i) {
         switch (m_TunableHyperparameters[static_cast<std::size_t>(i)]) {
-        case E_Alpha:
+        case boosted_tree_detail::E_Alpha:
             parameters(i) = CTools::stableLog(m_Regularization.depthPenaltyMultiplier());
             break;
-        case E_DownsampleFactor:
+        case boosted_tree_detail::E_DownsampleFactor:
             parameters(i) = CTools::stableLog(m_DownsampleFactor);
             break;
-        case E_Eta:
+        case boosted_tree_detail::E_Eta:
             parameters(i) = CTools::stableLog(m_Eta) / scale;
             break;
         case boosted_tree_detail::E_EtaGrowthRatePerTree:
             parameters(i) = m_EtaGrowthRatePerTree;
             break;
-        case E_FeatureBagFraction:
+        case boosted_tree_detail::E_FeatureBagFraction:
             parameters(i) = m_FeatureBagFraction;
             break;
-        case E_Gamma:
-            parameters(i) = CTools::stableLog(m_Regularization.treeSizePenaltyMultiplier() / scale);
+        case boosted_tree_detail::E_Gamma:
+            parameters(i) = CTools::stableLog(
+                m_Regularization.treeSizePenaltyMultiplier() / scale);
             break;
-        case E_Lambda:
-            parameters(i) =
-                CTools::stableLog(m_Regularization.leafWeightPenaltyMultiplier() / scale);
+        case boosted_tree_detail::E_Lambda:
+            parameters(i) = CTools::stableLog(
+                m_Regularization.leafWeightPenaltyMultiplier() / scale);
             break;
-        case E_SoftTreeDepthLimit:
+        case boosted_tree_detail::E_SoftTreeDepthLimit:
             parameters(i) = m_Regularization.softTreeDepthLimit();
             break;
-        case E_SoftTreeDepthTolerance:
+        case boosted_tree_detail::E_SoftTreeDepthTolerance:
             parameters(i) = m_Regularization.softTreeDepthTolerance();
             break;
         }
@@ -1312,7 +1313,8 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     }
 
     // Write parameters for next round.
-    i = 0;
+    // TODO [valeriy,pr1598] replace by switch-case construction
+    int i{0};
     if (m_DownsampleFactorOverride == boost::none) {
         m_DownsampleFactor = CTools::stableExp(parameters(i++));
         scale = std::min(1.0, 2.0 * m_DownsampleFactor /
@@ -1724,13 +1726,16 @@ CTreeShapFeatureImportance* CBoostedTreeImpl::shap() {
     return m_TreeShap.get();
 }
 
-CBoostedTreeImpl::THyperparameterDoublePrVec CBoostedTreeImpl::hyperparameterImportance() {
-    THyperparameterDoublePrVec hyperparameterImportances;
+CBoostedTreeImpl::THyperparameterDoubleDoubleTupleVec
+CBoostedTreeImpl::hyperparameterImportance() {
+    THyperparameterDoubleDoubleTupleVec hyperparameterImportances;
     hyperparameterImportances.reserve(m_TunableHyperparameters.size());
-    TDoubleVec anovaMainEffects{m_BayesianOptimization->anovaMainEffects()};
+    CBayesianOptimisation::TDoubleDoublePrVec anovaMainEffects{
+        m_BayesianOptimization->anovaMainEffects()};
     for (std::size_t i = 0; i < anovaMainEffects.size(); ++i) {
         hyperparameterImportances.emplace_back(m_TunableHyperparameters[i],
-                                               anovaMainEffects[i]);
+                                               anovaMainEffects[i].first,
+                                               anovaMainEffects[i].second);
     }
     return hyperparameterImportances;
 }
