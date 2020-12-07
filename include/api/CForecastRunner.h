@@ -101,10 +101,6 @@ public:
     //! minimum time between stat updates to prevent to many updates in a short time
     static const std::uint64_t MINIMUM_TIME_ELAPSED_FOR_STATS_UPDATE = 3000ul; // 3s
 
-    //! default bounds percentile
-    //! (not defined inline because we need its address)
-    static const double DEFAULT_BOUNDS_PERCENTILE;
-
 private:
     static const std::string ERROR_FORECAST_REQUEST_FAILED_TO_PARSE;
     static const std::string ERROR_NO_FORECAST_ID;
@@ -210,7 +206,7 @@ private:
         core_t::TTime s_ExpiryTime{0};
 
         //! Forecast bounds
-        double s_BoundsPercentile{DEFAULT_BOUNDS_PERCENTILE};
+        double s_BoundsPercentile{maths::CModel::DEFAULT_FORECAST_CONFIDENCE_INTERVAL};
 
         //! total number of models
         std::size_t s_NumberOfModels{0};
