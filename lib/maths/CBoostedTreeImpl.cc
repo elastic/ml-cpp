@@ -1228,6 +1228,17 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
 
     TVector parameters{this->numberHyperparametersToTune()};
 
+    TVector minBoundary;
+    TVector maxBoundary;
+    std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
+    
+    // Downsampling acts as a regularisation and also increases the variance
+    // of each of the base learners so we scale the other regularisation terms
+    // and the weight shrinkage to compensate.
+    double scale{std::min(1.0, 2.0 * m_DownsampleFactor /
+                                   (CTools::stableExp(minBoundary(0)) +
+                                    CTools::stableExp(maxBoundary(0))))};
+
     // Read parameters for last round.
     int i{0};
     if (m_DownsampleFactorOverride == boost::none) {
@@ -1237,10 +1248,12 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         parameters(i++) = CTools::stableLog(m_Regularization.depthPenaltyMultiplier());
     }
     if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
-        parameters(i++) = CTools::stableLog(m_Regularization.leafWeightPenaltyMultiplier());
+        parameters(i++) =
+            CTools::stableLog(m_Regularization.leafWeightPenaltyMultiplier() / scale);
     }
     if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
-        parameters(i++) = CTools::stableLog(m_Regularization.treeSizePenaltyMultiplier());
+        parameters(i++) =
+            CTools::stableLog(m_Regularization.treeSizePenaltyMultiplier() / scale);
     }
     if (m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
         parameters(i++) = m_Regularization.softTreeDepthLimit();
@@ -1249,7 +1262,7 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         parameters(i++) = m_Regularization.softTreeDepthTolerance();
     }
     if (m_EtaOverride == boost::none) {
-        parameters(i++) = CTools::stableLog(m_Eta);
+        parameters(i++) = CTools::stableLog(m_Eta) / scale;
         parameters(i++) = m_EtaGrowthRatePerTree;
     }
     if (m_FeatureBagFractionOverride == boost::none) {
@@ -1270,29 +1283,19 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         std::generate_n(parameters.data(), parameters.size(), [&]() {
             return CSampling::uniformSample(m_Rng, 0.0, 1.0);
         });
-        TVector minBoundary;
-        TVector maxBoundary;
-        std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
+
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
     } else {
         std::tie(parameters, std::ignore) = bopt.maximumExpectedImprovement();
     }
 
-    // Downsampling acts as a regularisation and also increases the variance
-    // of each of the base learners so we scale the other regularisation terms
-    // and the weight shrinkage to compensate.
-    double scale{1.0};
-
     // Write parameters for next round.
     i = 0;
     if (m_DownsampleFactorOverride == boost::none) {
         m_DownsampleFactor = CTools::stableExp(parameters(i++));
-        TVector minBoundary;
-        TVector maxBoundary;
-        std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
-        scale = std::min(scale, 2.0 * m_DownsampleFactor /
-                                    (CTools::stableExp(minBoundary(0)) +
-                                     CTools::stableExp(maxBoundary(0))));
+        scale = std::min(1.0, 2.0 * m_DownsampleFactor /
+                                  (CTools::stableExp(minBoundary(0)) +
+                                   CTools::stableExp(maxBoundary(0))));
     }
     if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
         m_Regularization.depthPenaltyMultiplier(CTools::stableExp(parameters(i++)));
