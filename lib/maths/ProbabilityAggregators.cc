@@ -260,7 +260,7 @@ bool CJointProbabilityOfLessLikelySamples::calculate(double& result) const {
     // of independent samples {y(1), y(2), ... , y(n)} than a specified
     // collection {x(1), x(2), ... , x(n)}, where this is defined as the
     // probability of the set R:
-    //   { {y(i)} : Product_j{ L(y(j)) } <= Product_j{ L(y(j)) } }.
+    //   { {y(i)} : Product_i{ L(y(i)) } <= Product_i{ L(x(i)) } }.
     //
     // We will assume that y(i) ~ N(m(i), v(i)). In this case, it is possible
     // to show that:

@@ -31,11 +31,16 @@ public:
 
 public:
     //! Default constructor
-    CDetectionRulesJsonParser(TStrPatternSetUMap& filtersByIdMap);
+    CDetectionRulesJsonParser(const TStrPatternSetUMap& filtersByIdMap);
 
     //! Parses a string expected to contain a JSON array with
     //! detection rules and adds the rule objects into the given vector.
     bool parseRules(const std::string& json, TDetectionRuleVec& rules);
+
+    //! Parses a JSON value object expected to represent a JSON array of
+    //! detection rules. Adds rule objects to the given vector. Any error messages
+    //! are passed back in the error string.
+    bool parseRules(const rapidjson::Value& value, TDetectionRuleVec& rules, std::string& errorString);
 
 private:
     bool parseRuleScope(const rapidjson::Value& ruleObject, model::CDetectionRule& rule);
@@ -57,7 +62,7 @@ private:
 
 private:
     //! The filters per id used by categorical rule conditions.
-    TStrPatternSetUMap& m_FiltersByIdMap;
+    const TStrPatternSetUMap& m_FiltersByIdMap;
 };
 }
 }

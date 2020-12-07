@@ -62,7 +62,7 @@ public:
     CTestDataSearcher(const std::string& data)
         : m_Stream(new std::istringstream(data)) {}
 
-    virtual TIStreamP search(size_t /*currentDocNum*/, size_t /*limit*/) {
+    TIStreamP search(std::size_t /*currentDocNum*/, std::size_t /*limit*/) override {
         std::istringstream* intermediateStateStream{
             static_cast<std::istringstream*>(m_Stream.get())};
         // Discard first line, which contains the state id.
@@ -101,8 +101,6 @@ rapidjson::Document treeToJsonDocument(const maths::CBoostedTree& tree) {
 auto restoreTree(std::string persistedState, TDataFrameUPtr& frame, std::size_t dependentVariable) {
     CTestDataSearcher dataSearcher(persistedState);
     auto decompressor = std::make_unique<core::CStateDecompressor>(dataSearcher);
-    decompressor->setStateRestoreSearch(api::ML_STATE_INDEX,
-                                        api::getStateId("testJob", "regression"));
     auto stream = decompressor->search(1, 1);
     return maths::CBoostedTreeFactory::constructFromString(*stream).restoreFor(
         *frame, dependentVariable);

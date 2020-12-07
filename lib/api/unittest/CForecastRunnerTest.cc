@@ -11,6 +11,7 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
+#include <api/CAnomalyJobConfig.h>
 #include <api/CFieldConfig.h>
 
 #include "CTestAnomalyJob.h"
@@ -74,6 +75,7 @@ BOOST_AUTO_TEST_CASE(testSummaryCount) {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
         ml::model::CLimits limits;
         ml::api::CFieldConfig fieldConfig;
+        ml::api::CAnomalyJobConfig jobConfig;
         ml::api::CFieldConfig::TStrVec clauses;
         clauses.push_back("count");
         clauses.push_back("summarycountfield=count");
@@ -81,7 +83,7 @@ BOOST_AUTO_TEST_CASE(testSummaryCount) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
+        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig, streamWrapper);
         populateJob(generateRecordWithSummaryCount, job);
 
         CTestAnomalyJob::TStrStrUMap dataRows;
@@ -144,6 +146,7 @@ BOOST_AUTO_TEST_CASE(testPopulation) {
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
         ml::model::CLimits limits;
+        ml::api::CAnomalyJobConfig jobConfig;
         ml::api::CFieldConfig fieldConfig;
         ml::api::CFieldConfig::TStrVec clauses;
         clauses.push_back("count");
@@ -153,7 +156,7 @@ BOOST_AUTO_TEST_CASE(testPopulation) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
+        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig, streamWrapper);
         populateJob(generatePopulationRecord, job);
 
         CTestAnomalyJob::TStrStrUMap dataRows;
@@ -187,6 +190,7 @@ BOOST_AUTO_TEST_CASE(testRare) {
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
         ml::model::CLimits limits;
+        ml::api::CAnomalyJobConfig jobConfig;
         ml::api::CFieldConfig fieldConfig;
         ml::api::CFieldConfig::TStrVec clauses;
         clauses.push_back("rare");
@@ -197,7 +201,7 @@ BOOST_AUTO_TEST_CASE(testRare) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
+        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig, streamWrapper);
         populateJob(generateRecordWithStatus, job, 5000);
 
         CTestAnomalyJob::TStrStrUMap dataRows;
@@ -231,6 +235,7 @@ BOOST_AUTO_TEST_CASE(testInsufficientData) {
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
         ml::model::CLimits limits;
+        ml::api::CAnomalyJobConfig jobConfig;
         ml::api::CFieldConfig fieldConfig;
         ml::api::CFieldConfig::TStrVec clauses;
         clauses.push_back("count");
@@ -238,7 +243,7 @@ BOOST_AUTO_TEST_CASE(testInsufficientData) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
-        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, streamWrapper);
+        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig, streamWrapper);
         populateJob(generateRecord, job, 3);
 
         CTestAnomalyJob::TStrStrUMap dataRows;
@@ -333,23 +338,44 @@ BOOST_AUTO_TEST_CASE(testValidateMissingId) {
                            message, forecastJob, 1400000000) == false);
 }
 
-BOOST_AUTO_TEST_CASE(testValidateProvidedMaxMemoryLimit) {
+BOOST_AUTO_TEST_CASE(testValidateProvidedMinDiskSpace) {
     ml::api::CForecastRunner::SForecast forecastJob;
 
-    std::string message(
+    std::string message{
         "p{\"duration\":" + std::to_string(3 * ml::core::constants::WEEK) +
-        ",\"forecast_id\": \"42\",\"create_time\": \"1511370819\",\"max_model_memory\": 10000000}");
+        ",\"forecast_id\": \"42\",\"create_time\": \"1511370819\",\"min_available_disk_space\": 100000}"};
 
     BOOST_TEST_REQUIRE(ml::api::CForecastRunner::parseAndValidateForecastRequest(
         message, forecastJob, 1400000000));
-    BOOST_REQUIRE_EQUAL(forecastJob.s_MaxForecastModelMemory, static_cast<size_t>(10000000));
+    BOOST_REQUIRE_EQUAL(100000, forecastJob.s_MinForecastAvailableDiskSpace);
 
-    std::string message2("p{\"duration\":" + std::to_string(3 * ml::core::constants::WEEK) +
-                         ",\"forecast_id\": \"42\",\"create_time\": \"1511370819\"}");
+    std::string message2{"p{\"duration\":" + std::to_string(3 * ml::core::constants::WEEK) +
+                         ",\"forecast_id\": \"42\",\"create_time\": \"1511370819\"}"};
 
     BOOST_TEST_REQUIRE(ml::api::CForecastRunner::parseAndValidateForecastRequest(
         message2, forecastJob, 1400000000));
-    BOOST_REQUIRE_EQUAL(forecastJob.s_MaxForecastModelMemory, 20971520ull);
+    BOOST_REQUIRE_EQUAL(ml::api::CForecastRunner::DEFAULT_MIN_FORECAST_AVAILABLE_DISK_SPACE,
+                        forecastJob.s_MinForecastAvailableDiskSpace);
+}
+
+BOOST_AUTO_TEST_CASE(testValidateProvidedMaxMemoryLimit) {
+    ml::api::CForecastRunner::SForecast forecastJob;
+
+    std::string message{
+        "p{\"duration\":" + std::to_string(3 * ml::core::constants::WEEK) +
+        ",\"forecast_id\": \"42\",\"create_time\": \"1511370819\",\"max_model_memory\": 10000000}"};
+
+    BOOST_TEST_REQUIRE(ml::api::CForecastRunner::parseAndValidateForecastRequest(
+        message, forecastJob, 1400000000));
+    BOOST_REQUIRE_EQUAL(10000000, forecastJob.s_MaxForecastModelMemory);
+
+    std::string message2{"p{\"duration\":" + std::to_string(3 * ml::core::constants::WEEK) +
+                         ",\"forecast_id\": \"42\",\"create_time\": \"1511370819\"}"};
+
+    BOOST_TEST_REQUIRE(ml::api::CForecastRunner::parseAndValidateForecastRequest(
+        message2, forecastJob, 1400000000));
+    BOOST_REQUIRE_EQUAL(ml::api::CForecastRunner::DEFAULT_MAX_FORECAST_MODEL_MEMORY,
+                        forecastJob.s_MaxForecastModelMemory);
 }
 
 BOOST_AUTO_TEST_CASE(testValidateProvidedTooLargeMaxMemoryLimit) {
@@ -382,6 +408,17 @@ BOOST_AUTO_TEST_CASE(testValidateProvidedTooLargeMaxMemoryLimit) {
         [](const ml::api::CForecastRunner::SForecast&, const std::string&) {
             return;
         }));
+}
+
+BOOST_AUTO_TEST_CASE(testSufficientDiskSpace) {
+
+    // These tests could theoretically fail based on environmental factors, but
+    // it's unlikely - they are saying the current directory must have at least
+    // 1 byte free disk space and less than 16 exabytes free
+    BOOST_REQUIRE_EQUAL(
+        true, ml::api::CForecastRunner::sufficientAvailableDiskSpace(1, "."));
+    BOOST_REQUIRE_EQUAL(false, ml::api::CForecastRunner::sufficientAvailableDiskSpace(
+                                   std::numeric_limits<std::size_t>::max(), "."));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

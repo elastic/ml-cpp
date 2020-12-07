@@ -25,6 +25,7 @@ class CTestAnomalyJob : public ml::api::CAnomalyJob {
 public:
     CTestAnomalyJob(const std::string& jobId,
                     ml::model::CLimits& limits,
+                    ml::api::CAnomalyJobConfig& jobConfig,
                     ml::api::CFieldConfig& fieldConfig,
                     ml::model::CAnomalyDetectorModelConfig& modelConfig,
                     ml::core::CJsonOutputStreamWrapper& outputBuffer,

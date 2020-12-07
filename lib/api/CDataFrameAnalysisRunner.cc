@@ -174,7 +174,7 @@ CDataFrameAnalysisRunner::TStatePersister CDataFrameAnalysisRunner::statePersist
         if (persister != nullptr) {
             core::CStateCompressor compressor(*persister);
             auto persistStream = compressor.addStreamed(
-                ML_STATE_INDEX, getStateId(m_Spec.jobId(), m_Spec.analysisName()));
+                getStateId(m_Spec.jobId(), m_Spec.analysisName()));
             {
                 core::CJsonStatePersistInserter inserter{*persistStream};
                 persistFunction(inserter);

@@ -30,7 +30,7 @@ public:
     //! A return value of NULL indicates a technical problem with the
     //! creation of the stream.  Other errors may be indicated by the
     //! returned stream going into the "bad" state.
-    virtual TIStreamP search(size_t currentDocNum, size_t limit);
+    TIStreamP search(std::size_t currentDocNum, std::size_t limit) override;
 
 private:
     const CMockDataAdder& m_MockDataAdder;

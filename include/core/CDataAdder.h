@@ -30,8 +30,7 @@ namespace core {
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! There's an assumption that persisted state will be saved to a
-//! data store that can retrieve based on 2 values: index and ID.
-//! Elasticsearch supports this.
+//! data store that can retrieve based on a single ID.
 //!
 class CORE_EXPORT CDataAdder : private CNonCopyable {
 public:
@@ -48,7 +47,7 @@ public:
     //! returns it is not possible to detect all error conditions
     //! immediately.  If the stream goes bad whilst being written to then
     //! this also indicates failure.
-    virtual TOStreamP addStreamed(const std::string& index, const std::string& id) = 0;
+    virtual TOStreamP addStreamed(const std::string& id) = 0;
 
     //! Clients that get a stream using addStreamed() must call this
     //! method one they've finished sending data to the stream.
@@ -69,7 +68,7 @@ public:
     //! document number.  The ID is of the form baseId#currentDocNum if
     //! baseId is not empty, and simply currentDocNum converted to a string
     //! if baseId is empty.
-    static std::string makeCurrentDocId(const std::string& baseId, size_t currentDocNum);
+    static std::string makeCurrentDocId(const std::string& baseId, std::size_t currentDocNum);
 };
 }
 }

@@ -248,6 +248,8 @@ SModelProbabilityResult::SFeatureProbability::SFeatureProbability(EFeatureProbab
 
 //////// CModel ////////
 
+const double CModel::DEFAULT_FORECAST_CONFIDENCE_INTERVAL{95.0};
+
 CModel::CModel(const CModelParams& params) : m_Params(params) {
 }
 

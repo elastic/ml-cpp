@@ -145,7 +145,7 @@ public:
         std::streamsize m_BufferOffset;
 
         //! Level of nested objects, used to unwind later on.
-        size_t m_NestedLevel;
+        std::size_t m_NestedLevel;
     };
 
 public:
@@ -154,17 +154,9 @@ public:
 
     //! CDataSearcher interface method - transparently read compressed
     //! data and return it in an uncompressed stream
-    virtual TIStreamP search(size_t currentDocNum, size_t limit);
-
-    virtual void setStateRestoreSearch(const std::string& index);
-
-    //! CDataSearcher interface method - specify the search strings to use
-    virtual void setStateRestoreSearch(const std::string& index, const std::string& id);
+    TIStreamP search(std::size_t currentDocNum, std::size_t limit) override;
 
 private:
-    //! Reference to the downstream data store
-    CDataSearcher& m_Searcher;
-
     //! The dechunker object
     CDechunkFilter m_FilterSource;
 

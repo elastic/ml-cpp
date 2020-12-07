@@ -37,6 +37,7 @@
 #include <model/CStringStore.h>
 
 #include <api/CAnnotationJsonWriter.h>
+#include <api/CAnomalyJobConfig.h>
 #include <api/CConfigUpdater.h>
 #include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
@@ -119,7 +120,6 @@ private:
 }
 
 // Statics
-const std::string CAnomalyJob::ML_STATE_INDEX(".ml-state");
 const std::string CAnomalyJob::STATE_TYPE("model_state");
 const std::string CAnomalyJob::DEFAULT_TIME_FIELD_NAME("time");
 const std::string CAnomalyJob::EMPTY_STRING;
@@ -128,6 +128,7 @@ const CAnomalyJob::TAnomalyDetectorPtr CAnomalyJob::NULL_DETECTOR;
 
 CAnomalyJob::CAnomalyJob(const std::string& jobId,
                          model::CLimits& limits,
+                         CAnomalyJobConfig& jobConfig,
                          CFieldConfig& fieldConfig,
                          model::CAnomalyDetectorModelConfig& modelConfig,
                          core::CJsonOutputStreamWrapper& outputStream,
@@ -140,8 +141,8 @@ CAnomalyJob::CAnomalyJob(const std::string& jobId,
     : CDataProcessor{timeFieldName, timeFieldFormat}, m_JobId{jobId}, m_Limits{limits},
       m_OutputStream{outputStream}, m_ForecastRunner{m_JobId, m_OutputStream,
                                                      limits.resourceMonitor()},
-      m_JsonOutputWriter{m_JobId, m_OutputStream}, m_FieldConfig{fieldConfig},
-      m_ModelConfig{modelConfig}, m_NumRecordsHandled{0},
+      m_JsonOutputWriter{m_JobId, m_OutputStream}, m_JobConfig{jobConfig},
+      m_FieldConfig{fieldConfig}, m_ModelConfig{modelConfig}, m_NumRecordsHandled{0},
       m_LastFinalisedBucketEndTime{0}, m_PersistCompleteFunc{persistCompleteFunc},
       m_MaxDetectors{std::numeric_limits<size_t>::max()},
       m_PersistenceManager{persistenceManager}, m_MaxQuantileInterval{maxQuantileInterval},
@@ -412,6 +413,11 @@ bool CAnomalyJob::parsePersistControlMessageArgs(const std::string& controlMessa
 
 void CAnomalyJob::processPersistControlMessage(const std::string& controlMessageArgs) {
     if (m_PersistenceManager != nullptr) {
+        // There is a subtle difference between these two cases.  When there
+        // are no control message arguments this triggers persistence of all
+        // chained processors, i.e. maybe the categorizer as well as the anomaly
+        // detector if there is one.  But when control message arguments are
+        // passed, ONLY the persistence of the anomaly detector is triggered.
         if (controlMessageArgs.empty()) {
             if (this->isPersistenceNeeded("state")) {
                 m_PersistenceManager->startPersist(core::CTimeUtils::now());
@@ -422,12 +428,16 @@ void CAnomalyJob::processPersistControlMessage(const std::string& controlMessage
             std::string snapshotDescription;
             if (parsePersistControlMessageArgs(controlMessageArgs, snapshotTimestamp,
                                                snapshotId, snapshotDescription)) {
+                // Since this is not going through the full persistence call
+                // chain, make sure model size stats are up to date before
+                // persisting
+                m_Limits.resourceMonitor().forceRefreshAll();
                 if (m_PersistenceManager->doForegroundPersist(
                         [this, &snapshotDescription, &snapshotId,
                          &snapshotTimestamp](core::CDataAdder& persister) {
                             return this->doPersistStateInForeground(
                                 persister, snapshotDescription, snapshotId, snapshotTimestamp);
-                        })) {
+                        }) == false) {
                     LOG_ERROR(<< "Failed to persist state with parameters \""
                               << controlMessageArgs << "\"");
                 }
@@ -447,7 +457,7 @@ void CAnomalyJob::acknowledgeFlush(const std::string& flushId) {
 
 void CAnomalyJob::updateConfig(const std::string& config) {
     LOG_DEBUG(<< "Received update config request: " << config);
-    CConfigUpdater configUpdater(m_FieldConfig, m_ModelConfig);
+    CConfigUpdater configUpdater(m_JobConfig, m_FieldConfig, m_ModelConfig);
     if (configUpdater.update(config) == false) {
         LOG_ERROR(<< "Failed to update configuration");
     }
@@ -792,7 +802,6 @@ bool CAnomalyJob::restoreState(core::CDataSearcher& restoreSearcher,
     try {
         // Restore from Elasticsearch compressed data
         core::CStateDecompressor decompressor(restoreSearcher);
-        decompressor.setStateRestoreSearch(ML_STATE_INDEX);
 
         core::CDataSearcher::TIStreamP strm(decompressor.search(1, 1));
         if (strm == nullptr) {
@@ -1194,8 +1203,8 @@ bool CAnomalyJob::persistModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& dete
                                      const std::string& outputFormat) {
     try {
         const std::string snapShotId{core::CStringUtils::typeToString(timestamp)};
-        core::CDataAdder::TOStreamP strm = persister.addStreamed(
-            ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE + '_' + snapShotId);
+        core::CDataAdder::TOStreamP strm =
+            persister.addStreamed(m_JobId + '_' + STATE_TYPE + '_' + snapShotId);
         if (strm != nullptr) {
             {
                 // The JSON inserter must be destroyed before the stream is complete
@@ -1250,8 +1259,8 @@ bool CAnomalyJob::persistCopiedState(const std::string& description,
     try {
         core::CStateCompressor compressor(persister);
 
-        core::CDataAdder::TOStreamP strm = compressor.addStreamed(
-            ML_STATE_INDEX, m_JobId + '_' + STATE_TYPE + '_' + snapshotId);
+        core::CDataAdder::TOStreamP strm =
+            compressor.addStreamed(m_JobId + '_' + STATE_TYPE + '_' + snapshotId);
         if (strm != nullptr) {
             // IMPORTANT - this method can run in a background thread while the
             // analytics carries on processing new buckets in the main thread.

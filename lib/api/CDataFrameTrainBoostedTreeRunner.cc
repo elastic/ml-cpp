@@ -311,8 +311,6 @@ bool CDataFrameTrainBoostedTreeRunner::restoreBoostedTree(core::CDataFrame& fram
     // Restore from compressed JSON.
     try {
         core::CStateDecompressor decompressor(*restoreSearcher);
-        decompressor.setStateRestoreSearch(
-            ML_STATE_INDEX, getStateId(this->spec().jobId(), this->spec().analysisName()));
         core::CDataSearcher::TIStreamP inputStream{decompressor.search(1, 1)}; // search arguments are ignored
         if (inputStream == nullptr) {
             LOG_ERROR(<< "Unable to connect to data store");

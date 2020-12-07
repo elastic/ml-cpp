@@ -50,6 +50,7 @@ class CHierarchicalResults;
 class CLimits;
 }
 namespace api {
+class CAnomalyJobConfig;
 class CPersistenceManager;
 class CModelPlotDataJsonWriter;
 class CFieldConfig;
@@ -70,9 +71,6 @@ class CFieldConfig;
 //!
 class API_EXPORT CAnomalyJob : public CDataProcessor {
 public:
-    //! Elasticsearch index for state
-    static const std::string ML_STATE_INDEX;
-
     //! Discriminant for Elasticsearch IDs
     static const std::string STATE_TYPE;
 
@@ -145,6 +143,7 @@ public:
 public:
     CAnomalyJob(const std::string& jobId,
                 model::CLimits& limits,
+                CAnomalyJobConfig& jobConfig,
                 CFieldConfig& fieldConfig,
                 model::CAnomalyDetectorModelConfig& modelConfig,
                 core::CJsonOutputStreamWrapper& outputBuffer,
@@ -427,7 +426,15 @@ private:
     //! Object to which the output is passed
     CJsonOutputWriter m_JsonOutputWriter;
 
-    //! Field names to use for the analysis
+    //! Configuration settings for the analysis parsed from
+    //! JSON configuration file.
+    //! Note that this is a non-const reference as it needs to be capable of
+    //! being modified by job updates (and those changes reflected wherever a
+    //! reference is held).
+    CAnomalyJobConfig& m_JobConfig;
+
+    //! Field names to use for the analysis.
+    //! This is a non-const reference for the same reasons as for m_JobConfig.
     CFieldConfig& m_FieldConfig;
 
     //! The model configuration

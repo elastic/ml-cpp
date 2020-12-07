@@ -276,7 +276,8 @@ const TRegression* CSeasonalComponentAdaptiveBucketing::regression(core_t::TTime
 double CSeasonalComponentAdaptiveBucketing::slope() const {
     CBasicStatistics::CMinMax<double> minmax;
     for (const auto& bucket : m_Buckets) {
-        if (bucket.s_Regression.count() > 0.0) {
+        if (bucket.s_Regression.count() > 0.0 &&
+            (minmax.initialized() == false || std::fabs(minmax.signMargin()) > 0.0)) {
             minmax.add(gradient(bucket.s_Regression));
         }
     }

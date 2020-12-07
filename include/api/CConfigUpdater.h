@@ -8,6 +8,7 @@
 
 #include <model/CAnomalyDetectorModelConfig.h>
 
+#include <api/CAnomalyJobConfig.h>
 #include <api/CFieldConfig.h>
 #include <api/ImportExport.h>
 
@@ -34,7 +35,9 @@ namespace api {
 //!
 class API_EXPORT CConfigUpdater {
 public:
-    CConfigUpdater(CFieldConfig& fieldConfig, model::CAnomalyDetectorModelConfig& modelConfig);
+    CConfigUpdater(CAnomalyJobConfig& jobConfig,
+                   CFieldConfig& fieldConfig,
+                   model::CAnomalyDetectorModelConfig& modelConfig);
 
     //! Update from given config changes
     //! \param config the requested changes in an ini syntax
@@ -49,6 +52,7 @@ private:
     static const std::string SCHEDULED_EVENTS;
 
 private:
+    CAnomalyJobConfig& m_JobConfig;
     CFieldConfig& m_FieldConfig;
     model::CAnomalyDetectorModelConfig& m_ModelConfig;
 };
