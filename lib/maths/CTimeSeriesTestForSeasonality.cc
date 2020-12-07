@@ -314,8 +314,19 @@ void CTimeSeriesTestForSeasonality::fitAndRemoveUntestableModelledComponents() {
 }
 
 bool CTimeSeriesTestForSeasonality::checkInvariants() const {
-    return m_ModelledPeriods.size() == m_ModelledPeriodsSizes.size() ||
-           m_ModelledPeriodsSizes.size() == m_ModelledPeriodsTestable.size();
+    if (m_ModelledPeriods.size() != m_ModelledPeriodsSizes.size()) {
+        LOG_ERROR(<< "# modelled periods ("
+                  << core::CContainerPrinter::print(m_ModelledPeriods) << ") != # modelled period sizes ("
+                  << core::CContainerPrinter::print(m_ModelledPeriodsSizes) << ")");
+        return false;
+    }
+    if (m_ModelledPeriodsSizes.size() != m_ModelledPeriodsTestable.size()) {
+        LOG_ERROR(<< "# modelled period sizes ("
+                  << core::CContainerPrinter::print(m_ModelledPeriodsSizes) << ") != # modelled period testable ("
+                  << core::CContainerPrinter::print(m_ModelledPeriodsTestable) << ")");
+        return false;
+    }
+    return true;
 }
 
 CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
