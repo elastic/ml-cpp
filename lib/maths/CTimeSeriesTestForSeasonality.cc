@@ -313,6 +313,22 @@ void CTimeSeriesTestForSeasonality::fitAndRemoveUntestableModelledComponents() {
     }
 }
 
+bool CTimeSeriesTestForSeasonality::checkInvariants() const {
+    if (m_ModelledPeriods.size() != m_ModelledPeriodsSizes.size()) {
+        LOG_ERROR(<< "# modelled periods ("
+                  << core::CContainerPrinter::print(m_ModelledPeriods) << ") != # modelled period sizes ("
+                  << core::CContainerPrinter::print(m_ModelledPeriodsSizes) << ")");
+        return false;
+    }
+    if (m_ModelledPeriodsSizes.size() != m_ModelledPeriodsTestable.size()) {
+        LOG_ERROR(<< "# modelled period sizes ("
+                  << core::CContainerPrinter::print(m_ModelledPeriodsSizes) << ") != # modelled period testable ("
+                  << core::CContainerPrinter::print(m_ModelledPeriodsTestable) << ")");
+        return false;
+    }
+    return true;
+}
+
 CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
 
     // The quality of anomaly detection is sensitive to bias variance tradeoff.
@@ -358,6 +374,11 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
     // easily be identified as a better choice after the fact. The final selection
     // is based on a number of criterion which are geared towards our modelling
     // techniques and are described in select.
+
+    if (this->checkInvariants() == false) {
+        LOG_ERROR(<< "Failed invariants. Not testing for seasonality.");
+        return {};
+    }
 
     LOG_TRACE(<< "decomposing " << m_Values.size()
               << " values, bucket length = " << m_BucketLength);
@@ -1095,6 +1116,7 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
             m_Periods.push_back(hypotheses[i].s_Period);
             periodsHypotheses.push_back(i);
         } else if (hypotheses[i].s_DiscardingModel == false &&
+                   hypotheses[i].s_SimilarModelled < m_ModelledPeriodsTestable.size() &&
                    m_ModelledPeriodsTestable[hypotheses[i].s_SimilarModelled]) {
             componentsExcludedMask[hypotheses[i].s_SimilarModelled] = true;
             m_Periods.push_back(hypotheses[i].s_Period);
@@ -1122,7 +1144,7 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
         for (auto scale : {scaleSegments.size() > 2, false}) {
 
             m_TemporaryValues = residuals;
-            m_WindowIndices.resize(m_TemporaryValues.size());
+            m_WindowIndices.resize(residuals.size());
             std::iota(m_WindowIndices.begin(), m_WindowIndices.end(), 0);
             this->removePredictions({m_Periods, i + 1, m_Periods.size()},
                                     {m_Components, i + 1, m_Components.size()},
@@ -1149,7 +1171,7 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
 
             hypotheses[j].s_ModelSize =
                 this->selectComponentSize(m_TemporaryValues, period[0]);
-            hypotheses[j].s_InitialValues.resize(values.size());
+            hypotheses[j].s_InitialValues.resize(residuals.size());
             component[0] = CSignal::smoothResample(hypotheses[j].s_ModelSize,
                                                    std::move(component[0]));
 
@@ -1160,15 +1182,16 @@ CTimeSeriesTestForSeasonality::finalizeHypotheses(const TFloatMeanAccumulatorVec
                 }))};
 
             for (std::size_t k = 0; k < m_TemporaryValues.size(); ++k) {
-                if (CBasicStatistics::count(m_TemporaryValues[k]) > 0.0) {
-                    auto& value = CBasicStatistics::moment<0>(m_TemporaryValues[k]);
+                auto& moments = m_TemporaryValues[k];
+                if (CBasicStatistics::count(moments) > 0.0) {
+                    auto& value = CBasicStatistics::moment<0>(moments);
                     double prediction{(scale ? TSegmentation::scaleAt(k, scaleSegments, m_ComponentScales)
                                              : 1.0) *
                                       period[0].value(component[0], k)};
                     value = prediction + (value - prediction) / overlapping;
                     CBasicStatistics::moment<0>(residuals[m_WindowIndices[k]]) -= prediction;
                 }
-                hypotheses[j].s_InitialValues[m_WindowIndices[k]] = m_TemporaryValues[k];
+                hypotheses[j].s_InitialValues[m_WindowIndices[k]] = moments;
             }
             break;
         }
@@ -1258,26 +1281,29 @@ CTimeSeriesTestForSeasonality::selectModelledHypotheses(bool alreadyModelled,
     if (alreadyModelled && std::count(componentsToRemoveMask.begin(),
                                       componentsToRemoveMask.end(), true) > 0) {
 
-        // Ensure we still have one component per window.
-        if (*std::find_if(
-                boost::counting_iterator<std::size_t>(0),
-                boost::counting_iterator<std::size_t>(m_ModelledPeriods.size()), [&](auto i) {
-                    return m_ModelledPeriods[i].windowed() &&
-                           componentsToRemoveMask[i] == false;
-                }) != m_ModelledPeriods.size()) {
-            for (std::size_t i = 0; i < numberModelled; ++i) {
-                if (m_ModelledPeriods[i].windowed() && componentsToRemoveMask[i] &&
-                    // There is no other component for this window.
-                    *std::find_if(boost::counting_iterator<std::size_t>(0),
-                                  boost::counting_iterator<std::size_t>(
-                                      m_ModelledPeriods.size()),
-                                  [&](auto j) {
-                                      return m_ModelledPeriods[j].s_Window ==
-                                                 m_ModelledPeriods[i].s_Window &&
-                                             componentsToRemoveMask[j] == false;
-                                  }) == m_ModelledPeriods.size()) {
-                    componentsToRemoveMask[i] = false;
-                    hypotheses[i].s_DiscardingModel = false;
+        // Are we retaining any already modelled windowed components?
+        if (*std::find_if(boost::counting_iterator<std::size_t>(0),
+                          boost::counting_iterator<std::size_t>(numberModelled), [&](auto i) {
+                              return m_ModelledPeriods[i].windowed() &&
+                                     componentsToRemoveMask[i] == false;
+                          }) != numberModelled) {
+            auto retainingModelForWindow = [&](std::size_t i) {
+                return m_ModelledPeriods[i].windowed() &&
+                       *std::find_if(boost::counting_iterator<std::size_t>(0),
+                                     boost::counting_iterator<std::size_t>(numberModelled),
+                                     [&](auto j) {
+                                         return m_ModelledPeriods[j].s_Window ==
+                                                    m_ModelledPeriods[i].s_Window &&
+                                                componentsToRemoveMask[j] == false;
+                                     }) < numberModelled;
+            };
+            for (auto& hypothesis : hypotheses) {
+                std::size_t similar{hypothesis.s_SimilarModelled};
+                if (similar < m_ModelledPeriods.size() && componentsToRemoveMask[similar] &&
+                    m_ModelledPeriods[similar].windowed() &&
+                    retainingModelForWindow(similar) == false) {
+                    componentsToRemoveMask[similar] = false;
+                    hypothesis.s_DiscardingModel = false;
                     ++excess;
                 }
             }
@@ -1288,9 +1314,12 @@ CTimeSeriesTestForSeasonality::selectModelledHypotheses(bool alreadyModelled,
                        componentsToRemoveMask.end(), true) > 0) {
             for (auto& hypothesis : hypotheses) {
                 std::size_t similar{hypothesis.s_SimilarModelled};
-                bool remove{componentsToRemoveMask[similar]};
-                hypothesis.s_Model = m_ModelledPeriodsTestable[similar] && remove == false;
-                componentsToRemoveMask[similar] = remove || hypothesis.s_Model;
+                if (similar < m_ModelledPeriodsTestable.size()) {
+                    bool remove{componentsToRemoveMask[similar]};
+                    hypothesis.s_Model = m_ModelledPeriodsTestable[similar] &&
+                                         remove == false;
+                    componentsToRemoveMask[similar] = remove || hypothesis.s_Model;
+                }
             }
         }
         LOG_TRACE(<< "components to remove = "
