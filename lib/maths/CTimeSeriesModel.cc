@@ -2649,7 +2649,7 @@ void CMultivariateTimeSeriesModel::addCountWeights(core_t::TTime time,
 void CMultivariateTimeSeriesModel::seasonalWeight(double confidence,
                                                   core_t::TTime time,
                                                   TDouble2Vec& weight) const {
-    std::size_t dimension{dimension = this->dimension()};
+    std::size_t dimension{this->dimension()};
     weight.resize(dimension);
     TDouble10Vec variances(m_ResidualModel->marginalLikelihoodVariances());
     for (std::size_t d = 0; d < dimension; ++d) {

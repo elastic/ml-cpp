@@ -387,7 +387,8 @@ void CTimeSeriesSegmentation::fitTopDownPiecewiseLinear(ITR begin,
                     rightModel -= deltaModel;
                     double residualVariance{variance(
                         residualMoments(reweighted.cbegin(), i + j, startTime, leftModel),
-                        residualMoments(i + j, reweighted.cend(), splitTime + j, rightModel))};
+                        residualMoments(i + j, reweighted.cend(),
+                                        splitTime + static_cast<double>(j), rightModel))};
                     result.add({residualVariance, i + j});
                 }
                 return result;

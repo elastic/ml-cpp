@@ -2120,9 +2120,10 @@ double CTimeSeriesTestForSeasonality::SModel::targetModelSize() const {
     return static_cast<double>(std::accumulate(
         s_Hypotheses.begin(), s_Hypotheses.end(), 0, [&](auto partialSize, const auto& hypothesis) {
             if (hypothesis.s_Model) {
-                partialSize += hypothesis.s_ModelSize;
+                partialSize += static_cast<double>(hypothesis.s_ModelSize);
             } else if (hypothesis.s_DiscardingModel == false) {
-                partialSize += s_Params->m_ModelledPeriodsSizes[hypothesis.s_SimilarModelled];
+                partialSize += static_cast<double>(
+                    s_Params->m_ModelledPeriodsSizes[hypothesis.s_SimilarModelled]);
             }
             return partialSize;
         }));
