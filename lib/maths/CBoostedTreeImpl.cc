@@ -1231,7 +1231,7 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     TVector minBoundary;
     TVector maxBoundary;
     std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
-    
+
     // Downsampling acts as a regularisation and also increases the variance
     // of each of the base learners so we scale the other regularisation terms
     // and the weight shrinkage to compensate.
