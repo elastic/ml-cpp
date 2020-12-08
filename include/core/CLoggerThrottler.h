@@ -57,17 +57,20 @@ public:
     std::pair<std::size_t, bool> skip(const char* file, int line);
 
 private:
-    using TCharIntPrInt64SizePrUMap =
-        boost::unordered_map<std::pair<const char*, int>, std::pair<std::int64_t, std::size_t>>;
+    using TConstCharPtrIntPr = std::pair<const char*, int>;
+    using TInt64SizePr = std::pair<std::int64_t, std::size_t>;
+    using TConstCharPtrIntPrInt64SizePrUMap =
+        boost::unordered_map<TConstCharPtrIntPr, TInt64SizePr>;
 
 private:
     CLoggerThrottler();
+    TInt64SizePr& lookup(const TConstCharPtrIntPr& key);
 
 private:
     static CLoggerThrottler ms_Instance;
     std::int64_t m_MinimumLogInterval;
     std::mutex m_Mutex;
-    TCharIntPrInt64SizePrUMap m_LastLogTimesAndCounts;
+    TConstCharPtrIntPrInt64SizePrUMap m_LastLogTimesAndCounts;
 };
 }
 }

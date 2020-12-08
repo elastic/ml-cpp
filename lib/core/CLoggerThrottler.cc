@@ -25,22 +25,29 @@ void CLoggerThrottler::minimumLogInterval(std::int64_t minimumLogInterval) {
 std::pair<std::size_t, bool> CLoggerThrottler::skip(const char* file, int line) {
 
     auto key = std::make_pair(file, line);
-    auto value = std::make_pair(std::numeric_limits<std::int64_t>::min(), 0);
     auto now = CTimeUtils::nowMs();
 
-    std::unique_lock<std::mutex> lock{m_Mutex};
-    auto lastTime = m_LastLogTimesAndCounts.emplace(key, value).first;
-    auto count = lastTime->second.second + 1;
+    // The following makes use of the fact that unordered_map insertions (even
+    // those triggering a rehash) do not invalidate references.
 
-    if (now > lastTime->second.first + m_MinimumLogInterval) {
-        lastTime->second = std::make_pair(now, 0);
+    auto& value = this->lookup(key);
+    std::size_t count{value.second + 1};
+
+    if (now > value.first + m_MinimumLogInterval) {
+        value = std::make_pair(now, 0);
         return std::make_pair(count, false);
     }
-    ++lastTime->second.second;
+    ++value.second;
     return std::make_pair(count, true);
 }
 
 CLoggerThrottler::CLoggerThrottler() : m_MinimumLogInterval{3600 * 1000} {
+}
+
+CLoggerThrottler::TInt64SizePr& CLoggerThrottler::lookup(const TConstCharPtrIntPr& key) {
+    auto value = std::make_pair(std::numeric_limits<std::int64_t>::min(), 0);
+    std::unique_lock<std::mutex> lock{m_Mutex};
+    return m_LastLogTimesAndCounts.emplace(key, value).first->second;
 }
 
 CLoggerThrottler CLoggerThrottler::ms_Instance;
