@@ -6,6 +6,7 @@
 #ifndef INCLUDED_ml_core_CLogger_h
 #define INCLUDED_ml_core_CLogger_h
 
+#include <core/CLoggerThrottler.h>
 #include <core/CNamedPipeFactory.h>
 #include <core/CNonCopyable.h>
 #include <core/ImportExport.h>
@@ -160,6 +161,9 @@ public:
     //! CLogger is a singleton, so we can not just create new instances
     void reset();
 
+    //! Get the object which performs log throttling.
+    CLoggerThrottler& throttler();
+
 private:
     //! Constructor for a singleton is private.
     CLogger();
@@ -193,6 +197,9 @@ private:
 
     //! The default handler for fatal errors.
     TFatalErrorHandler m_FatalErrorHandler;
+
+    //! The log throttler.
+    CLoggerThrottler m_Throttler;
 };
 
 CORE_EXPORT std::ostream& operator<<(std::ostream& strm, CLogger::ELevel level);

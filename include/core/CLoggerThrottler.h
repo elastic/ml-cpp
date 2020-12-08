@@ -35,11 +35,9 @@ namespace core {
 //! if a log line is spamming.
 class CORE_EXPORT CLoggerThrottler {
 public:
+    CLoggerThrottler();
     CLoggerThrottler(const CLoggerThrottler&) = delete;
     CLoggerThrottler& operator=(const CLoggerThrottler&) = delete;
-
-    //! Get the unique log throttler.
-    static CLoggerThrottler& instance();
 
     //! Set the minimum interval between repeated log messages.
     //!
@@ -64,11 +62,9 @@ private:
         boost::unordered_map<TConstCharPtrIntPr, TInt64SizePr>;
 
 private:
-    CLoggerThrottler();
     TInt64SizePr& lookup(const TConstCharPtrIntPr& key);
 
 private:
-    static CLoggerThrottler ms_Instance;
     std::int64_t m_MinimumLogIntervalMs;
     std::mutex m_Mutex;
     TConstCharPtrIntPrInt64SizePrUMap m_LastLogTimesAndCounts;

@@ -13,8 +13,7 @@
 namespace ml {
 namespace core {
 
-CLoggerThrottler& CLoggerThrottler::instance() {
-    return ms_Instance;
+CLoggerThrottler::CLoggerThrottler() : m_MinimumLogIntervalMs{3600 * 1000} {
 }
 
 void CLoggerThrottler::minimumLogIntervalMs(std::int64_t minimumLogIntervalMs) {
@@ -40,15 +39,10 @@ std::pair<std::size_t, bool> CLoggerThrottler::skip(const char* file, int line) 
     return std::make_pair(count, true);
 }
 
-CLoggerThrottler::CLoggerThrottler() : m_MinimumLogIntervalMs{3600 * 1000} {
-}
-
 CLoggerThrottler::TInt64SizePr& CLoggerThrottler::lookup(const TConstCharPtrIntPr& key) {
     auto value = std::make_pair(std::numeric_limits<std::int64_t>::min(), 0);
     std::unique_lock<std::mutex> lock{m_Mutex};
     return m_LastLogTimesAndCounts.emplace(key, value).first->second;
 }
-
-CLoggerThrottler CLoggerThrottler::ms_Instance;
 }
 }
