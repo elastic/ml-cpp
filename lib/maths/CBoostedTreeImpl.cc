@@ -1235,9 +1235,12 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     // Downsampling acts as a regularisation and also increases the variance
     // of each of the base learners so we scale the other regularisation terms
     // and the weight shrinkage to compensate.
-    double scale{std::min(1.0, 2.0 * m_DownsampleFactor /
+    double scale{1.0};
+    if (m_DownsampleFactorOverride == boost::none) {
+        scale = std::min(scale, 2.0 * m_DownsampleFactor /
                                    (CTools::stableExp(minBoundary(0)) +
-                                    CTools::stableExp(maxBoundary(0))))};
+                                    CTools::stableExp(maxBoundary(0))));
+    }
 
     // Read parameters for last round.
     for (int i = 0; i < static_cast<int>(m_TunableHyperparameters.size()); ++i) {
