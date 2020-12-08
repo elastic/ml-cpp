@@ -18,6 +18,11 @@
 
 #include <seccomp/CSystemCallFilter.h>
 
+
+// TODO including torch/all.h causes problems. 
+// Which headers are required?
+#include <torch/script.h>
+
 #include "CCmdLineParser.h"
 
 #include <chrono>
@@ -68,12 +73,25 @@ int main(int argc, char** argv) {
 
 
     // Reduce memory priority before installing system call filters.
-    // ml::core::CProcessPriority::reduceMemoryPriority();
+    ml::core::CProcessPriority::reduceMemoryPriority();
 
     // ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
+
     if (ioMgr.initIo() == false) {
-        LOG_FATAL(<< "Failed to initialise IO");
+        LOG_FATAL(<< "Failed to initialise IO");        
+        return EXIT_FAILURE;
+    }
+
+
+
+    torch::jit::script::Module module;
+    try {    
+        module = torch::jit::load(ioMgr.inputStream());
+        LOG_INFO(<< "model loaded");
+    }
+    catch (const c10::Error& e) {                        
+        LOG_FATAL(<< "Error loading the model: " << e.msg());
         return EXIT_FAILURE;
     }
 
