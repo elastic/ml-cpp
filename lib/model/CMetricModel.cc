@@ -266,14 +266,12 @@ void CMetricModel::sample(core_t::TTime startTime,
                          ? this->params().s_MaximumUpdatesPerBucket / static_cast<double>(n)
                          : 1.0) *
                     this->learnRate(feature);
-                double derate = this->derate(pid, sampleTime);
+                double winsorisationDerate = this->derate(pid, sampleTime);
                 // Note we need to scale the amount of data we'll "age out" of the residual
                 // model in one bucket by the empty bucket weight so the posterior doesn't
                 // end up too flat.
-                double deratedInterval =
-                    (1.0 + (this->params().s_InitialDecayRateMultiplier - 1.0) * derate) *
-                    emptyBucketWeight;
-                double deratedCountWeight = emptyBucketWeight * countWeight;
+                double scaledInterval = emptyBucketWeight;
+                double scaledCountWeight = emptyBucketWeight * countWeight;
 
                 LOG_TRACE(<< "Bucket = " << gatherer.printCurrentBucket()
                           << ", feature = " << model_t::print(feature)
@@ -281,31 +279,23 @@ void CMetricModel::sample(core_t::TTime startTime,
                           << ", isInteger = " << data_.second.s_IsInteger
                           << ", person = " << this->personName(pid)
                           << ", dimension = " << dimension << ", count weight = " << countWeight
-                          << ", derated count weight = " << deratedCountWeight
-                          << ", derated interval = " << deratedInterval);
+                          << ", scaled count weight = " << scaledCountWeight
+                          << ", scaled interval = " << scaledInterval);
 
                 values.resize(n);
                 trendWeights.resize(n, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
                 priorWeights.resize(n, maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
-                for (std::size_t i = 0u; i < n; ++i) {
-                    core_t::TTime ti = samples[i].time();
-                    TDouble2Vec vi(samples[i].value(dimension));
-                    double vs = samples[i].varianceScale();
+                for (std::size_t i = 0; i < n; ++i) {
+                    core_t::TTime ithSampleTime = samples[i].time();
+                    TDouble2Vec ithSampleValue(samples[i].value(dimension));
+                    double countVarianceScale = samples[i].varianceScale();
                     values[i] = core::make_triple(
-                        model_t::sampleTime(feature, time, bucketLength, ti),
-                        vi, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID);
-                    maths_t::setCount(TDouble2Vec(dimension, countWeight / vs),
-                                      trendWeights[i]);
-                    maths_t::setWinsorisationWeight(
-                        model->winsorisationWeight(derate, ti, vi), trendWeights[i]);
-                    maths_t::setCountVarianceScale(TDouble2Vec(dimension, vs),
-                                                   trendWeights[i]);
-                    maths_t::setCount(TDouble2Vec(dimension, deratedCountWeight),
-                                      priorWeights[i]);
-                    maths_t::setWinsorisationWeight(
-                        maths_t::winsorisationWeight(trendWeights[i]), priorWeights[i]);
-                    maths_t::setCountVarianceScale(TDouble2Vec(dimension, vs),
-                                                   priorWeights[i]);
+                        model_t::sampleTime(feature, time, bucketLength, ithSampleTime),
+                        ithSampleValue, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID);
+                    model->countWeights(ithSampleTime, ithSampleValue,
+                                        countWeight, scaledCountWeight,
+                                        winsorisationDerate, countVarianceScale,
+                                        trendWeights[i], priorWeights[i]);
                 }
 
                 auto annotationCallback = [&](const std::string& annotation) {
@@ -323,7 +313,7 @@ void CMetricModel::sample(core_t::TTime startTime,
                 maths::CModelAddSamplesParams params;
                 params.integer(data_.second.s_IsInteger)
                     .nonNegative(data_.second.s_IsNonNegative)
-                    .propagationInterval(deratedInterval)
+                    .propagationInterval(scaledInterval)
                     .trendWeights(trendWeights)
                     .priorWeights(priorWeights)
                     .annotationCallback([&](const std::string& annotation) {
@@ -577,9 +567,10 @@ bool CMetricModel::fill(model_t::EFeature feature,
     }
     core_t::TTime time{model_t::sampleTime(feature, bucketTime,
                                            this->bucketLength(), bucket->time())};
-    maths_t::TDouble2VecWeightsAry weights(maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
-    maths_t::setSeasonalVarianceScale(
-        model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time), weights);
+    maths_t::TDouble2VecWeightsAry weights{maths_t::CUnitWeights::unit<TDouble2Vec>(dimension)};
+    TDouble2Vec seasonalWeight;
+    model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time, seasonalWeight);
+    maths_t::setSeasonalVarianceScale(seasonalWeight, weights);
     maths_t::setCountVarianceScale(TDouble2Vec(dimension, bucket->varianceScale()), weights);
     bool skipAnomalyModelUpdate = this->shouldIgnoreSample(
         feature, pid, model_t::INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID, time);
@@ -647,6 +638,8 @@ void CMetricModel::fill(model_t::EFeature feature,
 
     // Declared outside the loop to minimize the number of times it is created.
     TDouble1VecDouble1VecPr value;
+    TDouble2Vec seasonalWeights[2];
+    TDouble2Vec weight(2);
 
     for (std::size_t i = 0u; i < correlates.size(); ++i) {
         TSize2Vec variables(pid == correlates[i][0] ? TSize2Vec{0, 1} : TSize2Vec{1, 0});
@@ -656,13 +649,14 @@ void CMetricModel::fill(model_t::EFeature feature,
         params.s_Variables[i] = variables;
         const maths::CModel* models[]{
             model, this->model(feature, correlates[i][variables[1]])};
-        maths_t::TDouble2VecWeightsAry weight(maths_t::CUnitWeights::unit<TDouble2Vec>(2));
-        TDouble2Vec scale(2);
-        scale[variables[0]] = models[0]->seasonalWeight(
-            maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, bucketTime)[0];
-        scale[variables[1]] = models[1]->seasonalWeight(
-            maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, bucketTime)[0];
-        maths_t::setSeasonalVarianceScale(scale, weight);
+        maths_t::TDouble2VecWeightsAry weights(maths_t::CUnitWeights::unit<TDouble2Vec>(2));
+        models[0]->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL,
+                                  bucketTime, seasonalWeights[0]);
+        models[1]->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL,
+                                  bucketTime, seasonalWeights[1]);
+        weight[variables[0]] = seasonalWeights[0][0];
+        weight[variables[1]] = seasonalWeights[1][0];
+        maths_t::setSeasonalVarianceScale(weight, weights);
 
         const TFeatureData* data[2];
         data[0] = this->featureData(feature, correlates[i][0], bucketTime);
@@ -684,9 +678,9 @@ void CMetricModel::fill(model_t::EFeature feature,
                 params.s_Values[i][2 * j + 1] = bucket1->value()[j];
             }
             params.s_Counts[i] = TDouble2Vec{bucket0->count(), bucket1->count()};
-            scale[variables[0]] = bucket0->varianceScale();
-            scale[variables[1]] = bucket1->varianceScale();
-            maths_t::setCountVarianceScale(scale, weight);
+            weight[variables[0]] = bucket0->varianceScale();
+            weight[variables[1]] = bucket1->varianceScale();
+            maths_t::setCountVarianceScale(weight, weights);
             for (std::size_t j = 0u; j < data[0]->s_InfluenceValues.size(); ++j) {
                 for (const auto& influenceValue : data[0]->s_InfluenceValues[j]) {
                     TStrCRef influence = influenceValue.first;
@@ -712,7 +706,7 @@ void CMetricModel::fill(model_t::EFeature feature,
                 }
             }
         }
-        params.s_ComputeProbabilityParams.addWeights(weight);
+        params.s_ComputeProbabilityParams.addWeights(weights);
     }
     if (interim && model_t::requiresInterimResultAdjustment(feature)) {
         core_t::TTime time{bucketTime + bucketLength / 2};

@@ -20,6 +20,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <numeric>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CCalendarComponentAdaptiveBucketingTest)
@@ -231,9 +232,11 @@ BOOST_FIXTURE_TEST_CASE(testPropagateForwardsByTime, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testMinimumBucketLength, CTestFixture) {
-    double function[] = {0.0, 0.0, 10.0, 12.0, 11.0, 16.0, 15.0, 1.0,
-                         0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
-                         0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0};
+    using TSizeVec = std::vector<std::size_t>;
+
+    double function[]{0.0, 0.0, 10.0, 12.0, 11.0, 16.0, 15.0, 1.0,
+                      0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,
+                      0.0, 0.0, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0};
     std::size_t n{boost::size(function)};
 
     test::CRandomNumbers rng;
@@ -244,7 +247,10 @@ BOOST_FIXTURE_TEST_CASE(testMinimumBucketLength, CTestFixture) {
     bucketing1.initialize(n);
     bucketing2.initialize(n);
 
-    for (std::size_t i = 0u; i < 10; ++i) {
+    TSizeVec indices(bucketing1.endpoints().size());
+    std::iota(indices.begin(), indices.end(), 0);
+
+    for (std::size_t i = 0; i < 7; ++i) {
         for (core_t::TTime t = 0; t < 86400; t += 3600) {
             TDoubleVec values;
             rng.generateNormalSamples(function[t / 3600], 1.0, 6, values);
@@ -258,34 +264,55 @@ BOOST_FIXTURE_TEST_CASE(testMinimumBucketLength, CTestFixture) {
         bucketing2.refine(86400);
 
         const TFloatVec& endpoints1{bucketing1.endpoints()};
-        const TFloatVec& endpoints2{bucketing2.endpoints()};
+        TFloatVec endpoints2{bucketing2.endpoints()};
 
         BOOST_REQUIRE_EQUAL(endpoints1.size(), endpoints2.size());
+
+        // Check the separation constraint is satisfied.
+
         TMinAccumulator minimumBucketLength1;
         TMinAccumulator minimumBucketLength2;
-        double minimumTotalError{0.0};
-        for (std::size_t j = 1u; j < endpoints1.size(); ++j) {
+        for (std::size_t j = 1; j < endpoints1.size(); ++j) {
             minimumBucketLength1.add(endpoints1[j] - endpoints1[j - 1]);
             minimumBucketLength2.add(endpoints2[j] - endpoints2[j - 1]);
-            double minimumShift{
-                std::max(1500.0 - (endpoints1[j] - endpoints1[j - 1]), 0.0) / 2.0};
-            minimumTotalError += minimumShift;
         }
         LOG_DEBUG(<< "minimumBucketLength1 = " << minimumBucketLength1);
         LOG_DEBUG(<< "minimumBucketLength2 = " << minimumBucketLength2);
         BOOST_TEST_REQUIRE(minimumBucketLength2[0] >= 1500.0);
 
-        LOG_DEBUG(<< core::CContainerPrinter::print(endpoints1));
-        LOG_DEBUG(<< core::CContainerPrinter::print(endpoints2));
+        double difference{std::accumulate(
+            indices.begin(), indices.end(), 0.0, [&](double result, std::size_t index) {
+                return result + std::fabs(endpoints2[index] - endpoints1[index]);
+            })};
 
-        double totalError{0.0};
-        for (std::size_t j = 0u; j < endpoints1.size(); ++j) {
-            totalError += std::fabs(endpoints2[j] - endpoints1[j]);
+        // Check that perturbations of the endpoints which preserve the separation
+        // constraint increase the difference from desired positions, i.e. that we
+        // have minimized displacement to achieve the required separation constraint.
+        for (std::size_t trial = 0; trial < 20; ++trial) {
+            endpoints2 = bucketing2.endpoints();
+            for (std::size_t j = 1; j + 1 < endpoints2.size(); ++j) {
+                double a{endpoints2[j - 1] + 1500.0};
+                double b{endpoints2[j + 1] - 1500.0};
+                if (a < b) {
+                    TDoubleVec shift;
+                    rng.generateUniformSamples(a, b, 1, shift);
+                    endpoints2[j] = 0.95 * endpoints2[j] + 0.05 * shift[0];
+                }
+            }
+            for (std::size_t j = 1; j < endpoints1.size(); ++j) {
+                minimumBucketLength2.add(endpoints2[j] - endpoints2[j - 1]);
+            }
+            BOOST_TEST_REQUIRE(minimumBucketLength2[0] >= 1500.0);
+
+            double shiftedDifference{std::accumulate(
+                indices.begin(), indices.end(), 0.0, [&](double result, std::size_t index) {
+                    return result + std::fabs(endpoints2[index] - endpoints1[index]);
+                })};
+
+            LOG_TRACE(<< "difference         = " << difference);
+            LOG_TRACE(<< "shifted difference = " << shiftedDifference);
+            BOOST_TEST_REQUIRE(difference < shiftedDifference);
         }
-
-        LOG_DEBUG(<< "minimumTotalError = " << minimumTotalError);
-        LOG_DEBUG(<< "totalError        = " << totalError);
-        BOOST_TEST_REQUIRE(totalError <= 10.0 * minimumTotalError);
     }
 }
 

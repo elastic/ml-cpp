@@ -77,7 +77,6 @@ SRCS=\
 	COrdinalTest.cc \
 	COrthogonaliserTest.cc \
 	COutliersTest.cc \
-	CPeriodicityHypothesisTestsTest.cc \
 	CPoissonMeanConjugateTest.cc \
 	CPriorTest.cc \
 	CPRNGTest.cc \
@@ -86,7 +85,6 @@ SRCS=\
 	CQDigestTest.cc \
 	CQuantileSketchTest.cc \
 	CRadialBasisFunctionTest.cc \
-	CRandomizedPeriodicityTestTest.cc \
 	CRandomProjectionClustererTest.cc \
 	CSamplingTest.cc \
 	CSeasonalComponentTest.cc \
@@ -97,11 +95,12 @@ SRCS=\
 	CSolversTest.cc \
 	CSplineTest.cc \
 	CStatisticalTestsTest.cc \
-	CTimeSeriesChangeDetectorTest.cc \
 	CTimeSeriesDecompositionTest.cc \
 	CTimeSeriesModelTest.cc \
 	CTimeSeriesMultibucketFeaturesTest.cc \
 	CTimeSeriesSegmentationTest.cc \
+	CTimeSeriesTestForChangeTest.cc \
+	CTimeSeriesTestForSeasonalityTest.cc \
 	CToolsTest.cc \
 	CTreeShapFeatureImportanceTest.cc \
 	CTrendComponentTest.cc \
