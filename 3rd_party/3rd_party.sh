@@ -43,6 +43,9 @@ case `uname` in
         GCC_RT_LOCATION=
         STL_LOCATION=
         ZLIB_LOCATION=
+        TORCH_LIBRARIES="torch_cpu c10"
+        TORCH_LOCATION=/Users/davidkyle/source/pytorch/build_libtorch/build/lib
+        TORCH_EXTENSION=.dylib
         ;;
 
     Linux)
@@ -195,6 +198,22 @@ if [ ! -z "$ZLIB_LOCATION" ] ; then
         exit 9
     fi
 fi
+if [ ! -z "$TORCH_LOCATION" ] ; then
+    if ls $TORCH_LOCATION/*$TORCH_EXTENSION >/dev/null ; then
+        if [ -n "$INSTALL_DIR" ] ; then            
+            for LIBRARY in $TORCH_LIBRARIES
+            do
+                rm -f $INSTALL_DIR/*$LIBRARY*$TORCH_EXTENSION
+                cp $TORCH_LOCATION/*$LIBRARY*$TORCH_EXTENSION $INSTALL_DIR
+                chmod u+wx $INSTALL_DIR/*$LIBRARY*$TORCH_EXTENSION
+            done            
+        fi        
+    else
+        echo "Torch libraries not found"
+        exit 10
+    fi
+fi
+
 
 # Special extra platform-specific processing
 case `uname` in
