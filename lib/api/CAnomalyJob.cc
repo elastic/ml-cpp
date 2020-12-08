@@ -90,7 +90,7 @@ const std::string INTERIM_BUCKET_CORRECTOR_TAG("k");
 //! versions cannot read the model state of newer versions following a breaking
 //! change.  This constant tells the node assignment code not to load new model states
 //! on old nodes in a mixed version cluster.  (The last breaking change was in 7.11 in
-//! lib/core/CPackedBitVector.cc in https://github.com/elastic/ml-cpp/pull/1550.)
+//! lib/maths/CTimeSeriesDecomposition.cc in https://github.com/elastic/ml-cpp/pull/1614.)
 const std::string MODEL_SNAPSHOT_MIN_VERSION("7.11.0");
 
 //! Persist state as JSON with meaningful tag names.
