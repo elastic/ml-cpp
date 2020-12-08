@@ -14,6 +14,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <mutex>
 
 namespace ml {
 namespace core {
