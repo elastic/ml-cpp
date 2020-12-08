@@ -40,6 +40,23 @@ public:
         ml::core::CLogger::instance().reset();
     }
 };
+
+std::function<void()> makeReader(std::ostringstream& loggedData) {
+    return [&loggedData] {
+        for (std::size_t attempt = 1; attempt <= 100; ++attempt) {
+            // wait a bit so that pipe has been created
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::ifstream strm(TEST_PIPE_NAME);
+            if (strm.is_open()) {
+                std::copy(std::istreambuf_iterator<char>(strm),
+                          std::istreambuf_iterator<char>(),
+                          std::ostreambuf_iterator<char>(loggedData));
+                return;
+            }
+        }
+        BOOST_FAIL("Failed to connect to logging pipe within a reasonable time");
+    };
+}
 }
 
 BOOST_FIXTURE_TEST_CASE(testLogging, CTestFixture) {
@@ -139,23 +156,6 @@ BOOST_FIXTURE_TEST_CASE(testSetLevel, CTestFixture) {
     BOOST_TEST_REQUIRE(logger.setLoggingLevel(ml::core::CLogger::E_Debug));
 
     LOG_DEBUG(<< "Finished logger level test");
-}
-
-std::function<void()> makeReader(std::ostringstream& loggedData) {
-    return [&loggedData] {
-        for (std::size_t attempt = 1; attempt <= 100; ++attempt) {
-            // wait a bit so that pipe has been created
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
-            std::ifstream strm(TEST_PIPE_NAME);
-            if (strm.is_open()) {
-                std::copy(std::istreambuf_iterator<char>(strm),
-                          std::istreambuf_iterator<char>(),
-                          std::ostreambuf_iterator<char>(loggedData));
-                return;
-            }
-        }
-        BOOST_FAIL("Failed to connect to logging pipe within a reasonable time");
-    };
 }
 
 BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
