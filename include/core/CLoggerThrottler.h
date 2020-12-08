@@ -33,7 +33,7 @@ namespace core {
 //! little contention. Furthermore, the overhead of locking and unlocking the mutex
 //! should be neglible compared to the work done if the log line were actually
 //! emitted. So this should actually give a significant performance improvement
-//! if an log line is spamming.
+//! if a log line is spamming.
 class CORE_EXPORT CLoggerThrottler {
 public:
     CLoggerThrottler(const CLoggerThrottler&) = delete;
@@ -46,6 +46,14 @@ public:
     void minimumLogInterval(std::int64_t minimumLogInterval);
 
     //! Should we skip logging of \p line in \p file?
+    //!
+    //! \param[in] file The file containing the log line.
+    //! \param[in] line The log line.
+    //! \return A pair comprising the count of log lines since the log line was
+    //! last output (skip returned false) and whether to output the line or not.
+    //! \note This is expected to be used in conjuction with __FILE__ and __LINE__
+    //! macros although any unique identifiers which are a string literal and an
+    //! integer are permitted.
     std::pair<std::size_t, bool> skip(const char* file, int line);
 
 private:
