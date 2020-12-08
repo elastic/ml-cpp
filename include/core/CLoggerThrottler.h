@@ -7,7 +7,6 @@
 #ifndef INCLUDED_ml_core_CLoggerThrottler_h
 #define INCLUDED_ml_core_CLoggerThrottler_h
 
-#include <core/CoreTypes.h>
 #include <core/ImportExport.h>
 
 #include <boost/unordered_map.hpp>
@@ -43,7 +42,9 @@ public:
     static CLoggerThrottler& instance();
 
     //! Set the minimum interval between repeated log messages.
-    void minimumLogInterval(std::int64_t minimumLogInterval);
+    //!
+    //! \note This expects the interval in milliseconds.
+    void minimumLogIntervalMs(std::int64_t minimumLogIntervalMs);
 
     //! Should we skip logging of \p line in \p file?
     //!
@@ -68,7 +69,7 @@ private:
 
 private:
     static CLoggerThrottler ms_Instance;
-    std::int64_t m_MinimumLogInterval;
+    std::int64_t m_MinimumLogIntervalMs;
     std::mutex m_Mutex;
     TConstCharPtrIntPrInt64SizePrUMap m_LastLogTimesAndCounts;
 };

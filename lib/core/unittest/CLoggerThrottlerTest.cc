@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(testThreadSafety) {
 
 BOOST_AUTO_TEST_CASE(testThrottling) {
 
-    core::CLoggerThrottler::instance().minimumLogInterval(1000); // 1s
+    core::CLoggerThrottler::instance().minimumLogIntervalMs(1000); // 1s
 
     std::size_t logged[]{0, 0};
     std::size_t counts[]{0, 0};

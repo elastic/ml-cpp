@@ -189,7 +189,7 @@ BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
         }
         rapidjson::Document doc;
         doc.Parse<rapidjson::kParseDefaultFlags>(line);
-        BOOST_TEST_REQUIRE(!doc.HasParseError());
+        BOOST_TEST_REQUIRE(doc.HasParseError() == false);
         BOOST_TEST_REQUIRE(doc.HasMember("message"));
         const rapidjson::Value& messageValue = doc["message"];
         std::string messageString(messageValue.GetString(), messageValue.GetStringLength());
@@ -236,11 +236,10 @@ BOOST_FIXTURE_TEST_CASE(testWarnAndErrorThrottling, CTestFixture) {
         }
         rapidjson::Document doc;
         doc.Parse<rapidjson::kParseDefaultFlags>(line);
-        BOOST_TEST_REQUIRE(!doc.HasParseError());
+        BOOST_TEST_REQUIRE(doc.HasParseError() == false);
         BOOST_TEST_REQUIRE(doc.HasMember("message"));
         const rapidjson::Value& messageValue = doc["message"];
         std::string messageString(messageValue.GetString(), messageValue.GetStringLength());
-        std::cout << messageString << std::endl;
 
         // we expect messages to be in order, so we only need to test the current one
         if (messageString.find(messages[foundMessages]) != std::string::npos) {

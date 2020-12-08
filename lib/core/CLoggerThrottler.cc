@@ -8,7 +8,6 @@
 
 #include <core/CTimeUtils.h>
 
-#include <iostream>
 #include <limits>
 
 namespace ml {
@@ -18,8 +17,8 @@ CLoggerThrottler& CLoggerThrottler::instance() {
     return ms_Instance;
 }
 
-void CLoggerThrottler::minimumLogInterval(std::int64_t minimumLogInterval) {
-    m_MinimumLogInterval = minimumLogInterval;
+void CLoggerThrottler::minimumLogIntervalMs(std::int64_t minimumLogIntervalMs) {
+    m_MinimumLogIntervalMs = minimumLogIntervalMs;
 }
 
 std::pair<std::size_t, bool> CLoggerThrottler::skip(const char* file, int line) {
@@ -33,7 +32,7 @@ std::pair<std::size_t, bool> CLoggerThrottler::skip(const char* file, int line) 
     auto& value = this->lookup(key);
     std::size_t count{value.second + 1};
 
-    if (now > value.first + m_MinimumLogInterval) {
+    if (now >= value.first + m_MinimumLogIntervalMs) {
         value = std::make_pair(now, 0);
         return std::make_pair(count, false);
     }
@@ -41,7 +40,7 @@ std::pair<std::size_t, bool> CLoggerThrottler::skip(const char* file, int line) 
     return std::make_pair(count, true);
 }
 
-CLoggerThrottler::CLoggerThrottler() : m_MinimumLogInterval{3600 * 1000} {
+CLoggerThrottler::CLoggerThrottler() : m_MinimumLogIntervalMs{3600 * 1000} {
 }
 
 CLoggerThrottler::TInt64SizePr& CLoggerThrottler::lookup(const TConstCharPtrIntPr& key) {
