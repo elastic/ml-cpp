@@ -53,6 +53,8 @@
   max double. (See {ml-pull}1551[#1551].)
 * Estimate upper bound of potential gains before splitting a decision tree node to avoid 
   unnecessary computation. (See {ml-pull}1537[#1537].)
+* Improvements to time series modeling particularly in relation to adaption to change.
+  (See {ml-pull})1614[#1614].)
 
 === Bug Fixes
 
