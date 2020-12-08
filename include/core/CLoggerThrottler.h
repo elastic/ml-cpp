@@ -18,7 +18,7 @@
 namespace ml {
 namespace core {
 
-//! \brief Implements per log line throttling. 
+//! \brief Implements per log line throttling.
 //!
 //! DESCRIPTION:\n
 //! This implements global throttling for a program per line log line. By default
@@ -45,10 +45,11 @@ public:
     void minimumLogInterval(std::int64_t minimumLogInterval);
 
     //! Should we skip logging of \p line in \p file?
-    bool skip(const char* file, int line);
+    std::pair<std::size_t, bool> skip(const char* file, int line);
 
 private:
-    using TCharIntInt64UMap = boost::unordered_map<std::pair<const char*, int>, std::int64_t>; 
+    using TCharIntPrInt64SizePrUMap =
+        boost::unordered_map<std::pair<const char*, int>, std::pair<std::int64_t, std::size_t>>;
 
 private:
     CLoggerThrottler();
@@ -57,9 +58,8 @@ private:
     static CLoggerThrottler ms_Instance;
     std::int64_t m_MinimumLogInterval;
     std::mutex m_Mutex;
-    TCharIntInt64UMap m_LastLogTimes;
+    TCharIntPrInt64SizePrUMap m_LastLogTimesAndCounts;
 };
-
 }
 }
 

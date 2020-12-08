@@ -14,7 +14,9 @@
 #include <boost/log/sources/severity_logger.hpp>
 #include <boost/log/utility/manipulators/add_value.hpp>
 
+#include <cstddef>
 #include <sstream>
+#include <tuple>
 
 // Location info
 #ifdef LOG_LOCATION_INFO
@@ -75,30 +77,42 @@
 #ifdef LOG_WARN
 #undef LOG_WARN
 #endif
-#define LOG_WARN(message)                                                                       \
-    if (ml::core::CLoggerThrottler::instance().skip(__FILE__, __LINE__) == false) {             \
-        BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Warn) \
-        LOG_LOCATION_INFO                                                                       \
-        message;                                                                                \
+#define LOG_WARN(message)                                                      \
+    {                                                                          \
+        std::size_t countOfWarnMessages;                                       \
+        bool skipWarnMessage;                                                  \
+        std::tie(countOfWarnMessages, skipWarnMessage) =                       \
+            ml::core::CLoggerThrottler::instance().skip(__FILE__, __LINE__);   \
+        if (skipWarnMessage == false) {                                        \
+            BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(),       \
+                                 ml::core::CLogger::E_Warn)                    \
+            LOG_LOCATION_INFO                                                  \
+            message << " [" << countOfWarnMessages << "]";                     \
+        }                                                                      \
     }
 #ifdef LOG_ERROR
 #undef LOG_ERROR
 #endif
-#define LOG_ERROR(message)                                                                       \
-    if (ml::core::CLoggerThrottler::instance().skip(__FILE__, __LINE__) == false) {              \
-        BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Error) \
-        LOG_LOCATION_INFO                                                                        \
-        message;                                                                                 \
+#define LOG_ERROR(message)                                                     \
+    {                                                                          \
+        std::size_t countOfErrorMessages;                                      \
+        bool skipErrorMessage;                                                 \
+        std::tie(countOfErrorMessages, skipErrorMessage) =                     \
+            ml::core::CLoggerThrottler::instance().skip(__FILE__, __LINE__);   \
+        if (skipErrorMessage == false) {                                       \
+            BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(),       \
+                                 ml::core::CLogger::E_Error)                   \
+            LOG_LOCATION_INFO                                                  \
+            message << " [" << countOfErrorMessages << "]";                    \
+        }                                                                      \
     }
 #ifdef LOG_FATAL
 #undef LOG_FATAL
 #endif
-#define LOG_FATAL(message)                                                                       \
-    if (ml::core::CLoggerThrottler::instance().skip(__FILE__, __LINE__) == false) {              \
-        BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Fatal) \
-        LOG_LOCATION_INFO                                                                        \
-        message;                                                                                 \
-    }
+#define LOG_FATAL(message)                                                                   \
+    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Fatal) \
+    LOG_LOCATION_INFO                                                                        \
+    message
 #ifdef HANDLE_FATAL
 #undef HANDLE_FATAL
 #endif
