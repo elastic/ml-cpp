@@ -46,9 +46,13 @@ public:
     using TDoubleDoublePr = maths_t::TDoubleDoublePr;
     using TDoubleVec = std::vector<double>;
     using TDouble3Vec = core::CSmallVector<double, 3>;
+    using TSizeVec = std::vector<std::size_t>;
     using TVector = CVectorNx1<double, 3>;
     using TMatrix = CSymmetricMatrixNxN<double, 3>;
     using TMatrixVec = std::vector<TMatrix>;
+    using TFloatMeanAccumulator = CBasicStatistics::SSampleMean<CFloatStorage>::TAccumulator;
+    using TFloatMeanAccumulatorVec = std::vector<TFloatMeanAccumulator>;
+    using TPredictor = std::function<double(core_t::TTime)>;
     using TSeasonalForecast = std::function<TDouble3Vec(core_t::TTime)>;
     using TWriteForecastResult = std::function<void(core_t::TTime, const TDouble3Vec&)>;
 
@@ -78,8 +82,25 @@ public:
     //! at \p time fixed.
     void shiftSlope(core_t::TTime time, double shift);
 
-    //! Apply a level shift of \p value at \p time and \p value.
-    void shiftLevel(core_t::TTime time, double value, double shift);
+    //! Apply a level shift of \p shift.
+    //!
+    //! \note This bypasses the shift model.
+    void shiftLevel(double shift);
+
+    //! Apply a level shift of \p shift.
+    //!
+    //! \param[in] shift The shift to apply.
+    //! \param[in] valuesStartTime The start time of \p values.
+    //! \param[in] bucketLength The bucket length of \p values.
+    //! \param[in] values The values used to test for a shift.
+    //! \param[in] segments The constant shift segments endpoints of \p values.
+    //! \param[in] shifts The shifts for each segment of \p values.
+    void shiftLevel(double shift,
+                    core_t::TTime valuesStartTime,
+                    core_t::TTime bucketLength,
+                    const TFloatMeanAccumulatorVec& values,
+                    const TSizeVec& segments,
+                    const TDoubleVec& shifts);
 
     //! Apply no level shift at \p time and \p value.
     //!
@@ -87,7 +108,7 @@ public:
     void dontShiftLevel(core_t::TTime time, double value);
 
     //! Apply a linear scale by \p scale.
-    void linearScale(double scale);
+    void linearScale(core_t::TTime time, double scale);
 
     //! Adds a value \f$(t, f(t))\f$ to this component.
     //!
@@ -115,6 +136,14 @@ public:
     //! \param[in] confidence The symmetric confidence interval for the variance
     //! as a percentage.
     TDoubleDoublePr value(core_t::TTime time, double confidence) const;
+
+    //! Get a function which returns the trend value as a function of time.
+    //!
+    //! This caches the expensive part of the calculation and so is much faster
+    //! than repeatedly calling value.
+    //!
+    //! \warning This can only be used as long as the trend component isn't updated.
+    TPredictor predictor() const;
 
     //! Get the variance of the residual about the predicted value at \p time.
     //!
@@ -147,13 +176,12 @@ public:
     double parameters() const;
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Get a debug description of this object.
     std::string print() const;
 
 private:
-    using TSizeVec = std::vector<std::size_t>;
     using TRegression = CLeastSquaresOnlineRegression<2, double>;
     using TRegressionArray = TRegression::TArray;
     using TRegressionArrayVec = std::vector<TRegressionArray>;
@@ -166,7 +194,7 @@ private:
         explicit SModel(double weight);
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
-        uint64_t checksum(uint64_t seed) const;
+        std::uint64_t checksum(std::uint64_t seed) const;
         TMeanAccumulator s_Weight;
         TRegression s_Regression;
         TVectorMeanAccumulator s_Mse;
@@ -210,7 +238,7 @@ private:
 
 private:
     //! Get the smoothing factors for the different regression models.
-    TDoubleVec smoothingFactors(core_t::TTime interval) const;
+    void smoothingFactors(core_t::TTime interval, TDoubleVec& result) const;
 
     //! Select the most complex model for which there is significant evidence.
     TSizeVec selectModelOrdersForForecasting() const;

@@ -897,7 +897,8 @@ bool CPseudoHuber::isCurvatureConstant() const {
     return false;
 }
 
-CMsle::TDoubleVector CPseudoHuber::transform(const TMemoryMappedFloatVector& prediction) const {
+CPseudoHuber::TDoubleVector
+CPseudoHuber::transform(const TMemoryMappedFloatVector& prediction) const {
     TDoubleVector result{1};
     result(0) = prediction(0);
     return result;

@@ -141,7 +141,7 @@ void CSeasonalComponent::shiftSlope(core_t::TTime time, double shift) {
 }
 
 void CSeasonalComponent::linearScale(core_t::TTime time, double scale) {
-    m_Bucketing.linearScale(scale);
+    m_Bucketing.linearScale(time, scale);
     this->interpolate(time, false);
 }
 
@@ -170,8 +170,8 @@ void CSeasonalComponent::decayRate(double decayRate) {
     return m_Bucketing.decayRate(decayRate);
 }
 
-void CSeasonalComponent::propagateForwardsByTime(double time, bool meanRevert) {
-    m_Bucketing.propagateForwardsByTime(time, meanRevert);
+void CSeasonalComponent::propagateForwardsByTime(double time, double meanRevertFactor) {
+    m_Bucketing.propagateForwardsByTime(time, meanRevertFactor);
 }
 
 const CSeasonalTime& CSeasonalComponent::time() const {

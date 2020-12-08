@@ -227,7 +227,7 @@ protected:
     bool bucket(core_t::TTime time, std::size_t& result) const;
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Get the memory used by this component
     std::size_t memoryUsage() const;
@@ -246,8 +246,9 @@ private:
     //! Check if \p time is in the this component's window.
     virtual bool inWindow(core_t::TTime time) const = 0;
 
-    //! Add the function value at \p time.
-    virtual void add(std::size_t bucket, core_t::TTime time, double value, double weight) = 0;
+    //! Add the function initial value at \p time.
+    virtual void
+    addInitialValue(std::size_t bucket, core_t::TTime time, double value, double weight) = 0;
 
     //! Get the offset w.r.t. the start of the bucketing of \p time.
     virtual double offset(core_t::TTime time) const = 0;
@@ -263,6 +264,9 @@ private:
 
     //! Implements split of \p bucket for derived state.
     virtual void split(std::size_t bucket) = 0;
+
+    //! Compute the p-value of the large error count for \p bucket.
+    double bucketLargeErrorCountPValue(double totalLargeErrorCount, std::size_t bucket) const;
 
     //! Check if there is evidence of systematically large errors in a
     //! bucket and split it if there is.
@@ -292,7 +296,7 @@ private:
     core_t::TTime m_LastLargeErrorPeriod = 0;
 
     //! The p-values of the most significant large error counts.
-    TFloatUInt32PrMinAccumulator m_LargeErrorCountSignificances;
+    TFloatUInt32PrMinAccumulator m_LargeErrorCountPValues;
 
     //! The mean weight of values added.
     TFloatMeanAccumulator m_MeanWeight;
