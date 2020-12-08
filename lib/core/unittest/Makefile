@@ -50,6 +50,7 @@ CJsonOutputStreamWrapperTest.cc \
 CJsonStatePersistInserterTest.cc \
 CJsonStateRestoreTraverserTest.cc \
 CLoggerTest.cc \
+CLoggerThrottlerTest.cc \
 CLoopProgressTest.cc \
 CMemoryUsageJsonWriterTest.cc \
 CMemoryUsageTest.cc \

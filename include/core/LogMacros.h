@@ -7,6 +7,8 @@
 // The lack of include guards is deliberate in this file, to allow per-file
 // redefinition of logging macros
 
+#include <core/CLoggerThrottler.h>
+
 #include <boost/current_function.hpp>
 #include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/sources/severity_logger.hpp>
@@ -73,25 +75,30 @@
 #ifdef LOG_WARN
 #undef LOG_WARN
 #endif
-#define LOG_WARN(message)                                                                   \
-    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Warn) \
-    LOG_LOCATION_INFO                                                                       \
-    message
+#define LOG_WARN(message)                                                                       \
+    if (ml::core::CLoggerThrottler::instance().skip(__FILE__, __LINE__) == false) {             \
+        BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Warn) \
+        LOG_LOCATION_INFO                                                                       \
+        message;                                                                                \
+    }
 #ifdef LOG_ERROR
 #undef LOG_ERROR
 #endif
-#define LOG_ERROR(message)                                                                   \
-    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Error) \
-    LOG_LOCATION_INFO                                                                        \
-    message
+#define LOG_ERROR(message)                                                                       \
+    if (ml::core::CLoggerThrottler::instance().skip(__FILE__, __LINE__) == false) {              \
+        BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Error) \
+        LOG_LOCATION_INFO                                                                        \
+        message;                                                                                 \
+    }
 #ifdef LOG_FATAL
 #undef LOG_FATAL
 #endif
-#define LOG_FATAL(message)                                                                   \
-    BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Fatal) \
-    LOG_LOCATION_INFO                                                                        \
-    message
-
+#define LOG_FATAL(message)                                                                       \
+    if (ml::core::CLoggerThrottler::instance().skip(__FILE__, __LINE__) == false) {              \
+        BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(), ml::core::CLogger::E_Fatal) \
+        LOG_LOCATION_INFO                                                                        \
+        message;                                                                                 \
+    }
 #ifdef HANDLE_FATAL
 #undef HANDLE_FATAL
 #endif

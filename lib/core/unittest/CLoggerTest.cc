@@ -17,6 +17,7 @@
 #include <fstream>
 #include <ios>
 #include <iterator>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <thread>
@@ -30,7 +31,6 @@ const char* const TEST_PIPE_NAME = "\\\\.\\pipe\\testpipe";
 #else
 const char* const TEST_PIPE_NAME = "testfiles/testpipe";
 #endif
-}
 
 class CTestFixture {
 public:
@@ -40,6 +40,7 @@ public:
         ml::core::CLogger::instance().reset();
     }
 };
+}
 
 BOOST_FIXTURE_TEST_CASE(testLogging, CTestFixture) {
     std::string t("Test message");
@@ -140,12 +141,8 @@ BOOST_FIXTURE_TEST_CASE(testSetLevel, CTestFixture) {
     LOG_DEBUG(<< "Finished logger level test");
 }
 
-BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
-    std::vector<std::string> messages{"Non-iso8859-15: 编码", "Non-ascii: üaöä",
-                                      "Non-iso8859-15: 编码 test", "surrogate pair: 𐐷 test"};
-
-    std::ostringstream loggedData;
-    std::thread reader([&loggedData] {
+std::function<void()> makeReader(std::ostringstream& loggedData) {
+    return [&loggedData] {
         for (std::size_t attempt = 1; attempt <= 100; ++attempt) {
             // wait a bit so that pipe has been created
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -158,10 +155,18 @@ BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
             }
         }
         BOOST_FAIL("Failed to connect to logging pipe within a reasonable time");
-    });
+    };
+}
+
+BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
+    std::vector<std::string> messages{"Non-iso8859-15: 编码", "Non-ascii: üaöä",
+                                      "Non-iso8859-15: 编码 test", "surrogate pair: 𐐷 test"};
+
+    std::ostringstream loggedData;
+    std::thread reader(makeReader(loggedData));
 
     ml::core::CLogger& logger = ml::core::CLogger::instance();
-    // logger might got reconfigured in previous tests, so reset and reconfigure it
+    // logger might have been reconfigured in previous tests, so reset and reconfigure it
     logger.reset();
     logger.reconfigure(TEST_PIPE_NAME, "");
 
@@ -197,6 +202,53 @@ BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
         }
     }
     BOOST_REQUIRE_EQUAL(messages.size(), foundMessages);
+}
+
+BOOST_FIXTURE_TEST_CASE(testWarnAndErrorThrottling, CTestFixture) {
+
+    std::ostringstream loggedData;
+    std::thread reader(makeReader(loggedData));
+
+    std::string messages[]{"Warn should only be seen once", "Error should only be seen once"};
+
+    ml::core::CLogger& logger = ml::core::CLogger::instance();
+    // logger might have been reconfigured in previous tests, so reset and reconfigure it
+    logger.reset();
+    logger.reconfigure(TEST_PIPE_NAME, "");
+
+    for (std::size_t i = 0; i < 10; ++i) {
+        LOG_WARN(<< messages[0])
+        LOG_ERROR(<< messages[1])
+    }
+
+    // reset the logger to end the stream and revert state for following tests
+    logger.reset();
+
+    reader.join();
+    std::istringstream inputStream(loggedData.str());
+    std::string line;
+    size_t foundMessages = 0;
+
+    // test that we found the messages we put in,
+    while (std::getline(inputStream, line)) {
+        if (line.empty()) {
+            continue;
+        }
+        rapidjson::Document doc;
+        doc.Parse<rapidjson::kParseDefaultFlags>(line);
+        BOOST_TEST_REQUIRE(!doc.HasParseError());
+        BOOST_TEST_REQUIRE(doc.HasMember("message"));
+        const rapidjson::Value& messageValue = doc["message"];
+        std::string messageString(messageValue.GetString(), messageValue.GetStringLength());
+        std::cout << messageString << std::endl;
+
+        // we expect messages to be in order, so we only need to test the current one
+        if (messageString.find(messages[foundMessages]) != std::string::npos) {
+            ++foundMessages;
+        } else if (foundMessages > 1) {
+            BOOST_FAIL(messageString + " did not contain " + messages[foundMessages]);
+        }
+    }
 }
 
 // Disabled because it doesn't assert
