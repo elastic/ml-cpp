@@ -62,9 +62,6 @@ private:
         boost::unordered_map<TConstCharPtrIntPr, TInt64SizePr>;
 
 private:
-    TInt64SizePr& lookup(const TConstCharPtrIntPr& key);
-
-private:
     std::int64_t m_MinimumLogIntervalMs;
     std::mutex m_Mutex;
     TConstCharPtrIntPrInt64SizePrUMap m_LastLogTimesAndCounts;

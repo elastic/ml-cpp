@@ -24,7 +24,7 @@ BOOST_AUTO_TEST_CASE(testThreadSafety) {
 
     std::size_t logged1[]{0, 0, 0, 0};
     std::thread t1{[&] {
-        for (std::size_t i = 0; i < 100; ++i) {
+        for (std::size_t i = 0; i < 1000; ++i) {
             logged1[0] += throttler.skip("a", 290).second ? 0 : 1;
             logged1[1] += throttler.skip("a", 382).second ? 0 : 1;
             logged1[2] += throttler.skip("b", 21).second ? 0 : 1;
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(testThreadSafety) {
 
     std::size_t logged2[]{0, 0, 0, 0};
     std::thread t2{[&] {
-        for (std::size_t i = 0; i < 100; ++i) {
+        for (std::size_t i = 0; i < 1000; ++i) {
             logged2[0] += throttler.skip("a", 290).second ? 0 : 1;
             logged2[1] += throttler.skip("a", 382).second ? 0 : 1;
             logged2[2] += throttler.skip("b", 21).second ? 0 : 1;

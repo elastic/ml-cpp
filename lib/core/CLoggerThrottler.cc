@@ -24,25 +24,22 @@ std::pair<std::size_t, bool> CLoggerThrottler::skip(const char* file, int line) 
 
     auto key = std::make_pair(file, line);
     auto now = CTimeUtils::nowMs();
+    auto value = std::make_pair(std::numeric_limits<std::int64_t>::min(), 0);
 
-    // The following makes use of the fact that unordered_map insertions (even
-    // those triggering a rehash) do not invalidate references.
+    // We have to hold the lock while updating the map entry because the same log
+    // line may be triggered from different threads and we don't try and update
+    // the last time and count atomically.
 
-    auto& value = this->lookup(key);
-    std::size_t count{value.second + 1};
+    std::unique_lock<std::mutex> lock{m_Mutex};
+    auto& valueRef = m_LastLogTimesAndCounts.emplace(key, value).first->second;
+    std::size_t count{valueRef.second + 1};
 
-    if (now >= value.first + m_MinimumLogIntervalMs) {
-        value = std::make_pair(now, 0);
+    if (now >= valueRef.first + m_MinimumLogIntervalMs) {
+        valueRef = std::make_pair(now, 0);
         return std::make_pair(count, false);
     }
-    ++value.second;
+    ++valueRef.second;
     return std::make_pair(count, true);
-}
-
-CLoggerThrottler::TInt64SizePr& CLoggerThrottler::lookup(const TConstCharPtrIntPr& key) {
-    auto value = std::make_pair(std::numeric_limits<std::int64_t>::min(), 0);
-    std::unique_lock<std::mutex> lock{m_Mutex};
-    return m_LastLogTimesAndCounts.emplace(key, value).first->second;
 }
 }
 }
