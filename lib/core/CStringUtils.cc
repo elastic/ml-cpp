@@ -501,15 +501,15 @@ CStringUtils::memorySizeStringToBytes(const std::string& memorySizeStr, std::siz
     if (multiplierStr[0] == BYTES) {
         // no-op
     } else if (multiplierStr[0] == KILOBYTES) {
-        size *= constants::BYTES_IN_KILOBYTE;
+        size *= constants::BYTES_IN_KILOBYTES;
     } else if (multiplierStr[0] == MEGABYTES) {
-        size *= constants::BYTES_IN_MEGABYTE;
+        size *= constants::BYTES_IN_MEGABYTES;
     } else if (multiplierStr[0] == GIGABYTES) {
-        size *= constants::BYTES_IN_GIGABYTE;
+        size *= constants::BYTES_IN_GIGABYTES;
     } else if (multiplierStr[0] == TERABYTES) {
-        size *= constants::BYTES_IN_TERABYTE;
+        size *= constants::BYTES_IN_TERABYTES;
     } else if (multiplierStr[0] == PETABYTES) {
-        size *= constants::BYTES_IN_PETABYTE;
+        size *= constants::BYTES_IN_PETABYTES;
     }
 
     return {size, true};

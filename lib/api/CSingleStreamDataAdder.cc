@@ -6,20 +6,21 @@
 #include <api/CSingleStreamDataAdder.h>
 
 #include <core/CLogger.h>
+#include <core/Constants.h>
 
 #include <ostream>
 
 namespace ml {
 namespace api {
 
-const size_t CSingleStreamDataAdder::MAX_DOCUMENT_SIZE(16 * 1024 * 1024); // 16MB
+const std::size_t CSingleStreamDataAdder::MAX_DOCUMENT_SIZE(16 * core::constants::BYTES_IN_MEGABYTES);
 
 CSingleStreamDataAdder::CSingleStreamDataAdder(const TOStreamP& stream)
     : m_Stream(stream) {
 }
 
 CSingleStreamDataAdder::TOStreamP CSingleStreamDataAdder::addStreamed(const std::string& id) {
-    if (m_Stream != nullptr && !m_Stream->bad()) {
+    if (m_Stream != nullptr && m_Stream->bad() == false) {
         // Start with metadata, leaving the index for the receiving code to set
         (*m_Stream) << "{\"index\":{\"_id\":\"" << id << "\"}}\n";
     }
@@ -33,7 +34,7 @@ bool CSingleStreamDataAdder::streamComplete(TOStreamP& stream, bool force) {
         return false;
     }
 
-    if (stream != nullptr && !stream->bad()) {
+    if (stream != nullptr && stream->bad() == false) {
         // Each Elasticsearch document must be followed by a newline
         stream->put('\n');
 
@@ -46,7 +47,7 @@ bool CSingleStreamDataAdder::streamComplete(TOStreamP& stream, bool force) {
         }
     }
 
-    return stream != nullptr && !stream->bad();
+    return stream != nullptr && stream->bad() == false;
 }
 
 std::size_t CSingleStreamDataAdder::maxDocumentSize() const {
