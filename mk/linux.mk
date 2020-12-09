@@ -76,6 +76,10 @@ RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
 endif
 EIGENINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/eigen
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY -DEIGEN_MAX_ALIGN_BYTES=32
+TORCHINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/pytorch/torch/include
+TORCHCPULIB=-ltorch_cpu
+TORCHLDFLAGS=-L$(CPP_SRC_HOME)/3rd_party/pytorch/build_libtorch/build/lib
+C10LIB=-lc10
 XMLINCLUDES=`/usr/local/gcc93/bin/xml2-config --cflags`
 XMLLIBS=`/usr/local/gcc93/bin/xml2-config --libs`
 DYNAMICLIBLDFLAGS=$(PLATPICFLAGS) -shared -Wl,--as-needed -L$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR) $(COVERAGE) -Wl,-z,relro -Wl,-z,now -Wl,-rpath,'$$ORIGIN/.'

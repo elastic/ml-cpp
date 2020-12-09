@@ -74,6 +74,10 @@ RAPIDJSONINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/rapidjson/include
 RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
 EIGENINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/eigen
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY -DEIGEN_MAX_ALIGN_BYTES=32
+TORCHINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/pytorch/torch/include
+TORCHCPULIB=-ltorch_cpu
+TORCHLDFLAGS=-L$(CPP_SRC_HOME)/3rd_party/pytorch/build_libtorch/build/lib
+C10LIB=-lc10
 XMLINCLUDES=-isystem $(SYSROOT)/usr/include/libxml2
 XMLLIBLDFLAGS=-L$(SYSROOT)/usr/lib
 XMLLIBS=-lxml2
