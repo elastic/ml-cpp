@@ -539,7 +539,7 @@ CSignal::tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
     initialize({weekend, week}, components[WEEKDAY_DAILY]);
     LOG_TRACE(<< "components = " << core::CContainerPrinter::print(components));
 
-    TMeanAccumulator variances[boost::size(components)];
+    TMeanAccumulator variances[2];
     for (std::size_t i = 0; i < boost::size(components); ++i) {
         variances[i] = std::accumulate(
             components[i].begin(), components[i].end(), TMeanAccumulator{},
