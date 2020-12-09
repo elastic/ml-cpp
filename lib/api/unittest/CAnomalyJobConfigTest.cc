@@ -8,6 +8,8 @@
 
 #include <api/CAnomalyJobConfig.h>
 
+#include <model/FunctionTypes.h>
+
 #include <boost/test/unit_test.hpp>
 
 #include <rapidjson/stringbuffer.h>
@@ -113,12 +115,14 @@ BOOST_AUTO_TEST_CASE(testParse) {
         const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
         BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].detectorDescription());
-        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_IndividualRareCount,
+                            detectorsConfig[0].function());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].fieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].byFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
-        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, detectorsConfig[0].excludeFrequent());
         BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
 
@@ -171,12 +175,14 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
         BOOST_REQUIRE_EQUAL("max(bytes) by \"geo.src\" partitionfield=\"host.keyword\"",
                             detectorsConfig[0].detectorDescription());
-        BOOST_REQUIRE_EQUAL("max", detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("max", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_IndividualMetricMax,
+                            detectorsConfig[0].function());
         BOOST_REQUIRE_EQUAL("bytes", detectorsConfig[0].fieldName());
         BOOST_REQUIRE_EQUAL("geo.src", detectorsConfig[0].byFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
         BOOST_REQUIRE_EQUAL("host.keyword", detectorsConfig[0].partitionFieldName());
-        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, detectorsConfig[0].excludeFrequent());
         BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
 
@@ -232,23 +238,27 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL(2, detectorsConfig.size());
         BOOST_REQUIRE_EQUAL("distinct_count(\"category.keyword\") by customer_id over \"category.keyword\"",
                             detectorsConfig[0].detectorDescription());
-        BOOST_REQUIRE_EQUAL("distinct_count", detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("distinct_count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_PopulationDistinctCount,
+                            detectorsConfig[0].function());
         BOOST_REQUIRE_EQUAL("category.keyword", detectorsConfig[0].fieldName());
         BOOST_REQUIRE_EQUAL("customer_id", detectorsConfig[0].byFieldName());
         BOOST_REQUIRE_EQUAL("category.keyword", detectorsConfig[0].overFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
-        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, detectorsConfig[0].excludeFrequent());
         BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
 
         BOOST_REQUIRE_EQUAL("count over \"category.keyword\"",
                             detectorsConfig[1].detectorDescription());
-        BOOST_REQUIRE_EQUAL("count", detectorsConfig[1].function());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[1].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_PopulationCount,
+                            detectorsConfig[1].function());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[1].fieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[1].byFieldName());
         BOOST_REQUIRE_EQUAL("category.keyword", detectorsConfig[1].overFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[1].partitionFieldName());
-        BOOST_REQUIRE_EQUAL("", detectorsConfig[1].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, detectorsConfig[1].excludeFrequent());
         BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(1).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[1].useNull());
 
@@ -297,12 +307,14 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
         BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].detectorDescription());
-        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_IndividualRareCount,
+                            detectorsConfig[0].function());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].fieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].byFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
-        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, detectorsConfig[0].excludeFrequent());
         BOOST_REQUIRE_EQUAL(1, analysisConfig.detectionRules().at(0).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
 
@@ -345,12 +357,14 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
         BOOST_REQUIRE_EQUAL("count by mlcategory", detectorsConfig[0].detectorDescription());
-        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_IndividualRareCount,
+                            detectorsConfig[0].function());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].fieldName());
         BOOST_REQUIRE_EQUAL("mlcategory", detectorsConfig[0].byFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
-        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, detectorsConfig[0].excludeFrequent());
         BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
 

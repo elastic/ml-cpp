@@ -98,16 +98,9 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         // 1230000 bytes
         // Run the data once to find out what the current platform uses
         ml::api::CAnomalyJobConfig jobConfig;
-        api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clause;
-        clause.push_back("value");
-        clause.push_back("by");
-        clause.push_back("colour");
-        clause.push_back("over");
-        clause.push_back("species");
-        clause.push_back("partitionfield=greenhouse");
+        jobConfig.analysisConfig().addDetector("value", "", "colour", "species", "greenhouse");
 
-        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
+        api::CFieldConfig fieldConfig;
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -143,16 +136,9 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
     {
         // Now run the data with limiting
         ml::api::CAnomalyJobConfig jobConfig;
-        api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clause;
-        clause.push_back("value");
-        clause.push_back("by");
-        clause.push_back("colour");
-        clause.push_back("over");
-        clause.push_back("species");
-        clause.push_back("partitionfield=greenhouse");
+        jobConfig.analysisConfig().addDetector("value", "", "colour", "species", "greenhouse");
 
-        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
+        api::CFieldConfig fieldConfig;
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -204,17 +190,9 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         // Run the data without any resource limits and check that
         // all the expected fields are in the results set
         model::CLimits limits;
-        ml::api::CAnomalyJobConfig jobConfig;
+        api::CAnomalyJobConfig jobConfig;
+        jobConfig.analysisConfig().addDetector("value", "", "colour", "species", "greenhouse");
         api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clause;
-        clause.push_back("value");
-        clause.push_back("by");
-        clause.push_back("colour");
-        clause.push_back("over");
-        clause.push_back("species");
-        clause.push_back("partitionfield=greenhouse");
-
-        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -252,16 +230,9 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         // check that we get only anomalies from the first 2 partitions
         model::CLimits limits;
         ml::api::CAnomalyJobConfig jobConfig;
-        api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clause;
-        clause.push_back("value");
-        clause.push_back("by");
-        clause.push_back("colour");
-        clause.push_back("over");
-        clause.push_back("species");
-        clause.push_back("partitionfield=greenhouse");
+        jobConfig.analysisConfig().addDetector("value", "", "colour", "species", "greenhouse");
 
-        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
+        api::CFieldConfig fieldConfig;
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -381,9 +352,9 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             model::CLimits limits;
             limits.resourceMonitor().memoryLimit(memoryLimit);
             ml::api::CAnomalyJobConfig jobConfig;
+            jobConfig.analysisConfig().addDetector("mean", "foo", "bar", "", "");
+
             api::CFieldConfig fieldConfig;
-            api::CFieldConfig::TStrVec clauses{"mean(foo)", "by", "bar"};
-            fieldConfig.initFromClause(clauses);
             model::CAnomalyDetectorModelConfig modelConfig =
                 model::CAnomalyDetectorModelConfig::defaultConfig(testParam.s_BucketLength);
             CTestAnomalyJob job("job", limits, jobConfig, fieldConfig,
@@ -434,9 +405,9 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             model::CLimits limits;
             limits.resourceMonitor().memoryLimit(memoryLimit);
             ml::api::CAnomalyJobConfig jobConfig;
+            jobConfig.analysisConfig().addDetector("mean", "foo", "", "", "bar");
+
             api::CFieldConfig fieldConfig;
-            api::CFieldConfig::TStrVec clauses{"mean(foo)", "partitionfield=bar"};
-            fieldConfig.initFromClause(clauses);
             model::CAnomalyDetectorModelConfig modelConfig =
                 model::CAnomalyDetectorModelConfig::defaultConfig(testParam.s_BucketLength);
             CTestAnomalyJob job("job", limits, jobConfig, fieldConfig,
@@ -487,9 +458,9 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             model::CLimits limits;
             limits.resourceMonitor().memoryLimit(memoryLimit);
             ml::api::CAnomalyJobConfig jobConfig;
+            jobConfig.analysisConfig().addDetector("mean", "foo", "", "bar", "");
+
             api::CFieldConfig fieldConfig;
-            api::CFieldConfig::TStrVec clauses{"mean(foo)", "over", "bar"};
-            fieldConfig.initFromClause(clauses);
             model::CAnomalyDetectorModelConfig modelConfig =
                 model::CAnomalyDetectorModelConfig::defaultConfig(testParam.s_BucketLength);
             CTestAnomalyJob job("job", limits, jobConfig, fieldConfig,

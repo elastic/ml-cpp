@@ -6,6 +6,7 @@
 #include <api/CAnomalyJobConfig.h>
 
 #include <core/CLogger.h>
+#include <core/CStrCaseCmp.h>
 #include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
 #include <core/Constants.h>
@@ -14,6 +15,7 @@
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
+#include <model/FunctionTypes.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
@@ -80,6 +82,115 @@ const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::EXCLUDE_F
     "exclude_frequent"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::USE_NULL{"use_null"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::CUSTOM_RULES{"custom_rules"};
+
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::ALL_TOKEN("all");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::BY_TOKEN("by");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::NONE_TOKEN("none");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::OVER_TOKEN("over");
+
+// Event rate functions
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_COUNT("count");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_COUNT_ABBREV("c");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LOW_COUNT("low_count");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LOW_COUNT_ABBREV("low_c");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_HIGH_COUNT("high_count");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_HIGH_COUNT_ABBREV("high_c");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_DISTINCT_COUNT("distinct_count");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_DISTINCT_COUNT_ABBREV("dc");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LOW_DISTINCT_COUNT("low_distinct_count");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LOW_DISTINCT_COUNT_ABBREV("low_dc");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_HIGH_DISTINCT_COUNT("high_distinct_count");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_HIGH_DISTINCT_COUNT_ABBREV("high_dc");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_NON_ZERO_COUNT("non_zero_count");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_NON_ZERO_COUNT_ABBREV("nzc");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_RARE_NON_ZERO_COUNT("rare_non_zero_count");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_RARE_NON_ZERO_COUNT_ABBREV("rnzc");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_RARE("rare");
+// No abbreviation for "rare" as "r" is a little too obscure
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_RARE_COUNT("rare_count");
+// No abbreviation for "rare_count" as "rc" is sometimes used as an abbreviation
+// for "return code"
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_FREQ_RARE("freq_rare");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_FREQ_RARE_ABBREV("fr");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_FREQ_RARE_COUNT("freq_rare_count");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_FREQ_RARE_COUNT_ABBREV("frc");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LOW_NON_ZERO_COUNT("low_non_zero_count");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LOW_NON_ZERO_COUNT_ABBREV("low_nzc");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_HIGH_NON_ZERO_COUNT("high_non_zero_count");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_HIGH_NON_ZERO_COUNT_ABBREV("high_nzc");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_INFO_CONTENT("info_content");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LOW_INFO_CONTENT("low_info_content");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_HIGH_INFO_CONTENT("high_info_content");
+
+// Metric functions
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_METRIC("metric");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_AVERAGE("avg");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_MEAN("mean");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LOW_MEAN("low_mean");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_HIGH_MEAN("high_mean");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LOW_AVERAGE("low_avg");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_HIGH_AVERAGE("high_avg");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_MEDIAN("median");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LOW_MEDIAN("low_median");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_HIGH_MEDIAN("high_median");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_MIN("min");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_MAX("max");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_VARIANCE("varp");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LOW_VARIANCE("low_varp");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_HIGH_VARIANCE("high_varp");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_SUM("sum");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LOW_SUM("low_sum");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_HIGH_SUM("high_sum");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_NON_NULL_SUM("non_null_sum");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_NON_NULL_SUM_ABBREV("nns");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LOW_NON_NULL_SUM("low_non_null_sum");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LOW_NON_NULL_SUM_ABBREV("low_nns");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_HIGH_NON_NULL_SUM("high_non_null_sum");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_HIGH_NON_NULL_SUM_ABBREV("high_nns");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_TIME_OF_DAY("time_of_day");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_TIME_OF_WEEK("time_of_week");
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LAT_LONG("lat_long");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_MAX_VELOCITY("max_velocity");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_MIN_VELOCITY("min_velocity");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_MEAN_VELOCITY("mean_velocity");
+const std::string
+    CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_SUM_VELOCITY("sum_velocity");
 
 const std::string CAnomalyJobConfig::CModelPlotConfig::ANNOTATIONS_ENABLED{"annotations_enabled"};
 const std::string CAnomalyJobConfig::CModelPlotConfig::ENABLED{"enabled"};
@@ -324,6 +435,7 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
         m_Detectors.resize(detectorsConfig->Size());
         for (std::size_t i = 0; i < detectorsConfig->Size(); ++i) {
             m_Detectors[i].parse((*detectorsConfig)[static_cast<int>(i)], m_RuleFilters,
+                                 (m_SummaryCountFieldName.empty() == false),
                                  m_DetectorRules[static_cast<int>(i)]);
         }
     }
@@ -453,17 +565,17 @@ bool CAnomalyJobConfig::CAnalysisConfig::parseRules(CDetectionRulesJsonParser::T
 
 ml::model::CAnomalyDetectorModelConfig
 CAnomalyJobConfig::CAnalysisConfig::makeModelConfig() const {
-    ml::model_t::ESummaryMode summaryMode{
-        m_SummaryCountFieldName.empty() ? ml::model_t::E_None : ml::model_t::E_Manual};
+    model_t::ESummaryMode summaryMode{
+        m_SummaryCountFieldName.empty() ? model_t::E_None : model_t::E_Manual};
 
-    ml::model::CAnomalyDetectorModelConfig modelConfig{ml::model::CAnomalyDetectorModelConfig::defaultConfig(
+    model::CAnomalyDetectorModelConfig modelConfig{model::CAnomalyDetectorModelConfig::defaultConfig(
         m_BucketSpan, summaryMode, m_SummaryCountFieldName, m_Latency, m_MultivariateByFields)};
 
     modelConfig.detectionRules(
-        ml::model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(m_DetectorRules));
+        model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(m_DetectorRules));
 
     modelConfig.scheduledEvents(
-        ml::model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(m_ScheduledEvents));
+        model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(m_ScheduledEvents));
 
     return modelConfig;
 }
@@ -489,11 +601,12 @@ CAnomalyJobConfig::CAnalysisConfig::durationSeconds(const std::string& durationS
 void CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::parse(
     const rapidjson::Value& detectorConfig,
     const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
+    bool haveSummaryCountField,
     CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules) {
 
     auto parameters = DETECTOR_CONFIG_READER.read(detectorConfig);
 
-    m_Function = parameters[FUNCTION].as<std::string>();
+    m_FunctionName = parameters[FUNCTION].as<std::string>();
     m_FieldName = parameters[FIELD_NAME].fallback(EMPTY_STRING);
     m_ByFieldName = parameters[BY_FIELD_NAME].fallback(EMPTY_STRING);
     m_OverFieldName = parameters[OVER_FIELD_NAME].fallback(EMPTY_STRING);
@@ -520,6 +633,290 @@ void CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::parse(
     }
 
     m_UseNull = parameters[USE_NULL].fallback(false);
+
+    if (this->determineFunction(haveSummaryCountField) == false) {
+        throw CAnomalyJobConfigReader::CParseError("Error determining function");
+    }
+    if (this->decipherExcludeFrequentSetting() == false) {
+        throw CAnomalyJobConfigReader::CParseError("Error deciphering exclude frequent setting");
+    }
+}
+
+bool CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::determineFunction(bool haveSummaryCountField) {
+
+    bool isPopulation{m_OverFieldName.empty() == false};
+    bool hasByField{m_ByFieldName.empty() == false};
+
+    // Some functions must take an argument, some mustn't and for the rest it's
+    // optional.  Validate this based on the contents of these flags after
+    // determining the function.  Similarly for by fields.
+    // TODO: Check how much validation is required here (if any) if parsing JSON job config.
+    bool argumentRequired{false};
+    bool argumentInvalid{false};
+    bool byFieldRequired{false};
+    bool byFieldInvalid{false};
+
+    if (m_FunctionName == FUNCTION_COUNT || m_FunctionName == FUNCTION_COUNT_ABBREV) {
+        m_Function = isPopulation ? model::function_t::E_PopulationCount
+                                  : model::function_t::E_IndividualRareCount;
+        argumentInvalid = true;
+    } else if (m_FunctionName == FUNCTION_DISTINCT_COUNT ||
+               m_FunctionName == FUNCTION_DISTINCT_COUNT_ABBREV) {
+        m_Function = isPopulation ? model::function_t::E_PopulationDistinctCount
+                                  : model::function_t::E_IndividualDistinctCount;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_LOW_DISTINCT_COUNT ||
+               m_FunctionName == FUNCTION_LOW_DISTINCT_COUNT_ABBREV) {
+        m_Function = isPopulation ? model::function_t::E_PopulationLowDistinctCount
+                                  : model::function_t::E_IndividualLowDistinctCount;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_HIGH_DISTINCT_COUNT ||
+               m_FunctionName == FUNCTION_HIGH_DISTINCT_COUNT_ABBREV) {
+        m_Function = isPopulation ? model::function_t::E_PopulationHighDistinctCount
+                                  : model::function_t::E_IndividualHighDistinctCount;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_NON_ZERO_COUNT ||
+               m_FunctionName == FUNCTION_NON_ZERO_COUNT_ABBREV) {
+        m_Function = model::function_t::E_IndividualNonZeroCount;
+        argumentInvalid = true;
+    } else if (m_FunctionName == FUNCTION_RARE_NON_ZERO_COUNT ||
+               m_FunctionName == FUNCTION_RARE_NON_ZERO_COUNT_ABBREV) {
+        m_Function = model::function_t::E_IndividualRareNonZeroCount;
+        argumentInvalid = true;
+        byFieldRequired = true;
+    } else if (m_FunctionName == FUNCTION_RARE) {
+        m_Function = isPopulation ? model::function_t::E_PopulationRare
+                                  : model::function_t::E_IndividualRare;
+        argumentInvalid = true;
+        byFieldRequired = true;
+    } else if (m_FunctionName == FUNCTION_RARE_COUNT) {
+        m_Function = model::function_t::E_PopulationRareCount;
+        argumentInvalid = true;
+        byFieldRequired = true;
+    } else if (m_FunctionName == FUNCTION_LOW_COUNT || m_FunctionName == FUNCTION_LOW_COUNT_ABBREV) {
+        m_Function = isPopulation ? model::function_t::E_PopulationLowCounts
+                                  : model::function_t::E_IndividualLowCounts;
+        argumentInvalid = true;
+    } else if (m_FunctionName == FUNCTION_HIGH_COUNT ||
+               m_FunctionName == FUNCTION_HIGH_COUNT_ABBREV) {
+        m_Function = isPopulation ? model::function_t::E_PopulationHighCounts
+                                  : model::function_t::E_IndividualHighCounts;
+        argumentInvalid = true;
+    } else if (m_FunctionName == FUNCTION_LOW_NON_ZERO_COUNT ||
+               m_FunctionName == FUNCTION_LOW_NON_ZERO_COUNT_ABBREV) {
+        m_Function = model::function_t::E_IndividualLowNonZeroCount;
+        argumentInvalid = true;
+    } else if (m_FunctionName == FUNCTION_HIGH_NON_ZERO_COUNT ||
+               m_FunctionName == FUNCTION_HIGH_NON_ZERO_COUNT_ABBREV) {
+        m_Function = model::function_t::E_IndividualHighNonZeroCount;
+        argumentInvalid = true;
+    } else if (m_FunctionName == FUNCTION_FREQ_RARE || m_FunctionName == FUNCTION_FREQ_RARE_ABBREV) {
+        m_Function = model::function_t::E_PopulationFreqRare;
+        argumentInvalid = true;
+        byFieldRequired = true;
+    } else if (m_FunctionName == FUNCTION_FREQ_RARE_COUNT ||
+               m_FunctionName == FUNCTION_FREQ_RARE_COUNT_ABBREV) {
+        m_Function = model::function_t::E_PopulationFreqRareCount;
+        argumentInvalid = true;
+        byFieldRequired = true;
+    } else if (m_FunctionName == FUNCTION_INFO_CONTENT) {
+        m_Function = isPopulation ? model::function_t::E_PopulationInfoContent
+                                  : model::function_t::E_IndividualInfoContent;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_LOW_INFO_CONTENT) {
+        m_Function = isPopulation ? model::function_t::E_PopulationLowInfoContent
+                                  : model::function_t::E_IndividualLowInfoContent;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_HIGH_INFO_CONTENT) {
+        m_Function = isPopulation ? model::function_t::E_PopulationHighInfoContent
+                                  : model::function_t::E_IndividualHighInfoContent;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_METRIC) {
+        if (haveSummaryCountField) {
+            LOG_ERROR(<< "Function " << m_FunctionName
+                      << "() cannot be used with a summary count field");
+            return false;
+        }
+
+        m_Function = isPopulation ? model::function_t::E_PopulationMetric
+                                  : model::function_t::E_IndividualMetric;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_AVERAGE || m_FunctionName == FUNCTION_MEAN) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMetricMean
+                                  : model::function_t::E_IndividualMetricMean;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_LOW_AVERAGE || m_FunctionName == FUNCTION_LOW_MEAN) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMetricLowMean
+                                  : model::function_t::E_IndividualMetricLowMean;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_HIGH_AVERAGE || m_FunctionName == FUNCTION_HIGH_MEAN) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMetricHighMean
+                                  : model::function_t::E_IndividualMetricHighMean;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_MEDIAN) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMetricMedian
+                                  : model::function_t::E_IndividualMetricMedian;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_LOW_MEDIAN) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMetricLowMedian
+                                  : model::function_t::E_IndividualMetricLowMedian;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_HIGH_MEDIAN) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMetricHighMedian
+                                  : model::function_t::E_IndividualMetricHighMedian;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_MIN) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMetricMin
+                                  : model::function_t::E_IndividualMetricMin;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_MAX) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMetricMax
+                                  : model::function_t::E_IndividualMetricMax;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_VARIANCE) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMetricVariance
+                                  : model::function_t::E_IndividualMetricVariance;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_LOW_VARIANCE) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMetricLowVariance
+                                  : model::function_t::E_IndividualMetricLowVariance;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_HIGH_VARIANCE) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMetricHighVariance
+                                  : model::function_t::E_IndividualMetricHighVariance;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_SUM) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMetricSum
+                                  : model::function_t::E_IndividualMetricSum;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_LOW_SUM) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMetricLowSum
+                                  : model::function_t::E_IndividualMetricLowSum;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_HIGH_SUM) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMetricHighSum
+                                  : model::function_t::E_IndividualMetricHighSum;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_NON_NULL_SUM ||
+               m_FunctionName == FUNCTION_NON_NULL_SUM_ABBREV) {
+        m_Function = model::function_t::E_IndividualMetricNonNullSum;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_LOW_NON_NULL_SUM ||
+               m_FunctionName == FUNCTION_LOW_NON_NULL_SUM_ABBREV) {
+        m_Function = model::function_t::E_IndividualMetricLowNonNullSum;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_HIGH_NON_NULL_SUM ||
+               m_FunctionName == FUNCTION_HIGH_NON_NULL_SUM_ABBREV) {
+        m_Function = model::function_t::E_IndividualMetricHighNonNullSum;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_TIME_OF_DAY) {
+        m_Function = isPopulation ? model::function_t::E_PopulationTimeOfDay
+                                  : model::function_t::E_IndividualTimeOfDay;
+        argumentRequired = false;
+        argumentInvalid = true;
+    } else if (m_FunctionName == FUNCTION_TIME_OF_WEEK) {
+        m_Function = isPopulation ? model::function_t::E_PopulationTimeOfWeek
+                                  : model::function_t::E_IndividualTimeOfWeek;
+        argumentRequired = false;
+        argumentInvalid = true;
+    } else if (m_FunctionName == FUNCTION_LAT_LONG) {
+        m_Function = isPopulation ? model::function_t::E_PopulationLatLong
+                                  : model::function_t::E_IndividualLatLong;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_MAX_VELOCITY) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMaxVelocity
+                                  : model::function_t::E_IndividualMaxVelocity;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_MIN_VELOCITY) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMinVelocity
+                                  : model::function_t::E_IndividualMinVelocity;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_MEAN_VELOCITY) {
+        m_Function = isPopulation ? model::function_t::E_PopulationMeanVelocity
+                                  : model::function_t::E_IndividualMeanVelocity;
+        argumentRequired = true;
+    } else if (m_FunctionName == FUNCTION_SUM_VELOCITY) {
+        m_Function = isPopulation ? model::function_t::E_PopulationSumVelocity
+                                  : model::function_t::E_IndividualSumVelocity;
+        argumentRequired = true;
+    } else {
+        if (haveSummaryCountField) {
+            LOG_ERROR(<< "Implicit function metric() cannot be "
+                         "used with a summary count field");
+            return false;
+        }
+
+        m_Function = isPopulation ? model::function_t::E_PopulationMetric
+                                  : model::function_t::E_IndividualMetric;
+
+        // This is inconsistent notation, but kept for backwards compatibility
+        m_FieldName = m_FunctionName;
+
+        return true;
+    }
+
+    // Validate
+    if (model::function_t::isPopulation(m_Function) && isPopulation == false) {
+        LOG_ERROR(<< "Function " << m_FunctionName << "() requires an 'over' field");
+        return false;
+    }
+
+    if (isPopulation && model::function_t::isPopulation(m_Function) == false) {
+        LOG_ERROR(<< "Function " << m_FunctionName << "() cannot be used with an 'over' field");
+        return false;
+    }
+
+    if (byFieldRequired && hasByField == false) {
+        LOG_ERROR(<< "Function " << m_FunctionName << "() requires a 'by' field");
+        return false;
+    }
+
+    if (byFieldInvalid && hasByField) {
+        LOG_ERROR(<< "Function " << m_FunctionName << "() cannot be used with a 'by' field");
+        return false;
+    }
+
+    if (argumentRequired && m_FieldName.empty()) {
+        LOG_ERROR(<< "Function " << m_FunctionName << "() requires an argument");
+        return false;
+    }
+
+    if (argumentInvalid && m_FieldName.empty() == false) {
+        LOG_ERROR(<< "Function " << m_FunctionName << "() does not take an argument");
+        return false;
+    }
+
+    return true;
+}
+
+bool CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::decipherExcludeFrequentSetting() {
+
+    bool hasByField{m_ByFieldName.empty() == false};
+    bool isPopulation{m_OverFieldName.empty() == false};
+
+    if (m_ExcludeFrequent.empty() == false) {
+        if (m_ExcludeFrequent.length() == ALL_TOKEN.length() &&
+            core::CStrCaseCmp::strCaseCmp(m_ExcludeFrequent.c_str(), ALL_TOKEN.c_str()) == 0) {
+            m_ByHasExcludeFrequent = hasByField;
+            m_OverHasExcludeFrequent = isPopulation;
+        } else if (m_ExcludeFrequent.length() == BY_TOKEN.length() &&
+                   core::CStrCaseCmp::strCaseCmp(m_ExcludeFrequent.c_str(),
+                                                 BY_TOKEN.c_str()) == 0) {
+            m_ByHasExcludeFrequent = hasByField;
+        } else if (m_ExcludeFrequent.length() == OVER_TOKEN.length() &&
+                   core::CStrCaseCmp::strCaseCmp(m_ExcludeFrequent.c_str(),
+                                                 OVER_TOKEN.c_str()) == 0) {
+            m_OverHasExcludeFrequent = isPopulation;
+        } else {
+            if (m_ExcludeFrequent.length() != NONE_TOKEN.length() ||
+                core::CStrCaseCmp::strCaseCmp(m_ExcludeFrequent.c_str(),
+                                              NONE_TOKEN.c_str()) != 0) {
+                LOG_ERROR(<< "Unexpected excludeFrequent value = " << m_ExcludeFrequent);
+                return false;
+            }
+        }
+    }
+    return true;
 }
 }
 }
