@@ -59,6 +59,7 @@
 === Bug Fixes
 
 * Fix potential cause for log errors from CXMeansOnline1d. (See {ml-pull}1586[#1586].)
+* Fix scaling of some hyperparameter for Bayesian optimization. (See {ml-pull}1612[#1612].)
 
 == {es} version 7.10.1
 
