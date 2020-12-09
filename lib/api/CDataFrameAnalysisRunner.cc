@@ -10,6 +10,7 @@
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
 #include <core/CStateCompressor.h>
+#include <core/Constants.h>
 
 #include <api/CDataFrameAnalysisSpecification.h>
 #include <api/CMemoryUsageEstimationResultJsonWriter.h>
@@ -32,8 +33,6 @@ std::size_t maximumNumberPartitions(const CDataFrameAnalysisSpecification& spec)
     // user to allocate more resources for the job in this case.
     return static_cast<std::size_t>(std::sqrt(static_cast<double>(spec.numberRows())) + 0.5);
 }
-
-const std::size_t BYTES_IN_MB{1024 * 1024};
 }
 
 CDataFrameAnalysisRunner::CDataFrameAnalysisRunner(const CDataFrameAnalysisSpecification& spec)
@@ -49,7 +48,7 @@ void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJ
     std::size_t numberColumns{m_Spec.numberColumns()};
     std::size_t maxNumberPartitions{maximumNumberPartitions(m_Spec)};
     if (maxNumberPartitions == 0) {
-        writer.write("0", "0");
+        writer.write("0mb", "0mb");
         return;
     }
     std::size_t expectedMemoryWithoutDisk{
@@ -57,7 +56,9 @@ void CDataFrameAnalysisRunner::estimateMemoryUsage(CMemoryUsageEstimationResultJ
     std::size_t expectedMemoryWithDisk{this->estimateMemoryUsage(
         numberRows, numberRows / maxNumberPartitions, numberColumns)};
     auto roundUpToNearestMb = [](std::size_t bytes) {
-        return std::to_string((bytes + BYTES_IN_MB - 1) / BYTES_IN_MB) + "mb";
+        return std::to_string((bytes + core::constants::BYTES_IN_MEGABYTES - 1) /
+                              core::constants::BYTES_IN_MEGABYTES) +
+               "mb";
     };
     writer.write(roundUpToNearestMb(expectedMemoryWithoutDisk),
                  roundUpToNearestMb(expectedMemoryWithDisk));
@@ -97,14 +98,14 @@ void CDataFrameAnalysisRunner::computeAndSaveExecutionStrategy() {
 
     if (memoryUsage > memoryLimit) {
         auto roundMb = [](std::size_t memory) {
-            return 0.01 * static_cast<double>((100 * memory) / BYTES_IN_MB);
+            return 0.01 * static_cast<double>((100 * memory) / core::constants::BYTES_IN_MEGABYTES);
         };
-        // Simply log the limit being configured too low.
-        // If we exceed the limit during the process, we will fail and the user
-        // will have to update the limit and attempt to re-run
-        LOG_DEBUG(<< "Memory limit " << roundMb(memoryLimit) << "MB is configured lower than estimate "
-                  << std::ceil(roundMb(memoryUsage)) << "MB."
-                  << "Analytics process may fail due to low memory limit");
+        // Simply log the limit being configured too low. If we exceed the limit
+        // during the run, we will fail and the user will have to update the
+        // limit and attempt to re-run.
+        LOG_INFO(<< "Memory limit " << roundMb(memoryLimit) << "MB is configured lower"
+                 << " than the estimate " << std::ceil(roundMb(memoryUsage)) << "MB."
+                 << "The analytics process may fail due to hitting the memory limit.");
     }
     if (m_NumberPartitions > 1) {
         // The maximum number of rows is found by binary search in the interval
