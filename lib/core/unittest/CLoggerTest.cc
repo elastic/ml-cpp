@@ -207,7 +207,6 @@ BOOST_FIXTURE_TEST_CASE(testNonAsciiJsonLogging, CTestFixture) {
     logger.reset();
 
     reader.join();
-
     loggedExpectedMessages(loggedData.str(), messages);
 }
 
