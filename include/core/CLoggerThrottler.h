@@ -53,11 +53,11 @@ public:
     //! \note This is expected to be used in conjuction with __FILE__ and __LINE__
     //! macros although any unique identifiers which are a string literal and an
     //! integer are permitted.
-    //! \warning We make no attempt to deduplicate errors for which __FILE__
-    //! resolves to a different string literal; this might conceivably happen
-    //! for log lines in a header. This is not expected to be important (it might
-    //! result in slightly more logging) and it is possible to work around this
-    //! by explicitly wrapping the logging, for example:
+    //! \warning We make no attempt to deduplicate logging from the same line for
+    //! which __FILE__ resolves to a different string literal; this might conceivably
+    //! happen for logging in a header. This is not expected to be important (it
+    //! might result in slightly more logging) and it is possible to work around
+    //! this by explicitly wrapping the logging, for example:
     //! \code
     //! if (core::CLogger::instance().throttler().skip("my unique string", 0) == false) {
     //!     LOG_ERROR(<< ...)
