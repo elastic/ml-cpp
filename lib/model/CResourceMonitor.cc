@@ -90,8 +90,8 @@ void CResourceMonitor::updateMemoryLimitsAndPruneThreshold(std::size_t limitMBs)
         // more models?", and it causes problems if these calculations overflow.
         m_ByteLimitHigh = std::numeric_limits<std::size_t>::max() / 2 + 1;
     } else {
-        m_ByteLimitHigh = static_cast<std::size_t>(
-            (limitMBs * 1024 * 1024) / this->persistenceMemoryIncreaseFactor());
+        m_ByteLimitHigh = (limitMBs * core::constants::BYTES_IN_MEGABYTES) /
+                          this->persistenceMemoryIncreaseFactor();
     }
     m_ByteLimitLow = (m_ByteLimitHigh * 49) / 50;
     m_PruneThreshold = (m_ByteLimitHigh * 3) / 5;

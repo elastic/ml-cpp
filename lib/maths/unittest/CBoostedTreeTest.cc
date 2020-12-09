@@ -59,7 +59,7 @@ using TLossFunctionUPtr = maths::CBoostedTreeFactory::TLossFunctionUPtr;
 namespace {
 
 const double LARGE_POSITIVE_CONSTANT{300.0};
-const int BYTES_IN_MB{1024 * 1024};
+const double BYTES_IN_MB{static_cast<double>(core::constants::BYTES_IN_MEGABYTES)};
 
 class CTestInstrumentation : public maths::CDataFrameTrainBoostedTreeInstrumentationStub {
 public:
@@ -475,7 +475,7 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
     test::CRandomNumbers rng;
     double noiseVariance{100.0};
     std::size_t trainRows{500};
-    std::size_t testRows{100};
+    std::size_t testRows{200};
     std::size_t cols{6};
     std::size_t capacity{500};
 

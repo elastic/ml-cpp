@@ -5,6 +5,7 @@
  */
 
 #include <core/CWordDictionary.h>
+#include <core/Constants.h>
 
 #include <model/CAnomalyDetector.h>
 #include <model/CAnomalyDetectorModelConfig.h>
@@ -127,7 +128,8 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         LOG_DEBUG(<< "Resource limit is: " << mon.m_ByteLimitHigh);
         if (sizeof(std::size_t) == 8) {
             // 64-bit platform
-            BOOST_REQUIRE_EQUAL(std::size_t(4096ull * 1024 * 1024 / 2), mon.m_ByteLimitHigh);
+            BOOST_REQUIRE_EQUAL(std::size_t(4 * core::constants::BYTES_IN_GIGABYTES / 2),
+                                mon.m_ByteLimitHigh);
         } else {
             // Unexpected platform
             BOOST_TEST_REQUIRE(false);
@@ -143,7 +145,8 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         LOG_DEBUG(<< "Resource limit is: " << mon.m_ByteLimitHigh);
         if (sizeof(std::size_t) == 8) {
             // 64-bit platform
-            BOOST_REQUIRE_EQUAL(std::size_t(4096ull * 1024 * 1024), mon.m_ByteLimitHigh);
+            BOOST_REQUIRE_EQUAL(std::size_t(4 * core::constants::BYTES_IN_GIGABYTES),
+                                mon.m_ByteLimitHigh);
         } else {
             // Unexpected platform
             BOOST_TEST_REQUIRE(false);
@@ -525,7 +528,7 @@ BOOST_FIXTURE_TEST_CASE(testExtraMemory, CTestFixture) {
     BOOST_REQUIRE_EQUAL(allocationLimit, monitor.allocationLimit());
 
     // Push over the limit by adding 1MB
-    monitor.addExtraMemory(1024 * 1024);
+    monitor.addExtraMemory(core::constants::BYTES_IN_MEGABYTES);
     BOOST_TEST_REQUIRE(monitor.areAllocationsAllowed() == false);
     BOOST_REQUIRE_EQUAL(std::size_t(0), monitor.allocationLimit());
 

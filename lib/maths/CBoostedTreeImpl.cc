@@ -13,6 +13,7 @@
 #include <core/CPersistUtils.h>
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
+#include <core/Constants.h>
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
@@ -51,7 +52,7 @@ namespace {
 const double MINIMUM_SPLIT_REFRESH_INTERVAL{3.0};
 const std::string HYPERPARAMETER_OPTIMIZATION_ROUND{"hyperparameter_optimization_round_"};
 const std::string TRAIN_FINAL_FOREST{"train_final_forest"};
-const int BYTES_IN_MB{1024 * 1024};
+const double BYTES_IN_MB{static_cast<double>(core::constants::BYTES_IN_MEGABYTES)};
 
 //! \brief Record the memory used by a supplied object using the RAII idiom.
 class CScopeRecordMemoryUsage {
@@ -295,16 +296,6 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     m_Instrumentation->updateProgress(1.0);
     m_Instrumentation->updateMemoryUsage(
         static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
-
-    if (m_Instrumentation != nullptr) {
-        // TODO remove once performance measurements are finished
-        LOG_INFO(<< "Statistics computed: " << m_Instrumentation->statisticsComputed()
-                 << "\tnot computed: " << m_Instrumentation->statisticsNotComputed() << "\t saved: "
-                 << (static_cast<double>(m_Instrumentation->statisticsNotComputed()) /
-                     (m_Instrumentation->statisticsNotComputed() +
-                      m_Instrumentation->statisticsComputed()))
-                 << "\t avg. rows skipped: " << m_Instrumentation->rowsSkipped());
-    }
 }
 
 void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {
@@ -905,10 +896,9 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
 
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
-        std::tie(leftChild, rightChild) =
-            leaf->split(leftChildId, rightChildId, m_NumberThreads,
-                        smallestCandidateGain, frame, *m_Encoder, m_Regularization,
-                        featureBag, tree[leaf->id()], workspace, m_Instrumentation);
+        std::tie(leftChild, rightChild) = leaf->split(
+            leftChildId, rightChildId, m_NumberThreads, smallestCandidateGain, frame,
+            *m_Encoder, m_Regularization, featureBag, tree[leaf->id()], workspace);
 
         // Need gain to be computed to compare here
         if (leftChild != nullptr && rightChild != nullptr && less(rightChild, leftChild)) {
@@ -1228,6 +1218,20 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
 
     TVector parameters{this->numberHyperparametersToTune()};
 
+    TVector minBoundary;
+    TVector maxBoundary;
+    std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
+
+    // Downsampling acts as a regularisation and also increases the variance
+    // of each of the base learners so we scale the other regularisation terms
+    // and the weight shrinkage to compensate.
+    double scale{1.0};
+    if (minBoundary.size() > 0) {
+        scale = std::min(scale, 2.0 * m_DownsampleFactor /
+                                    (CTools::stableExp(minBoundary(0)) +
+                                     CTools::stableExp(maxBoundary(0))));
+    }
+
     // Read parameters for last round.
     int i{0};
     if (m_DownsampleFactorOverride == boost::none) {
@@ -1237,10 +1241,12 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         parameters(i++) = CTools::stableLog(m_Regularization.depthPenaltyMultiplier());
     }
     if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
-        parameters(i++) = CTools::stableLog(m_Regularization.leafWeightPenaltyMultiplier());
+        parameters(i++) =
+            CTools::stableLog(m_Regularization.leafWeightPenaltyMultiplier() / scale);
     }
     if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
-        parameters(i++) = CTools::stableLog(m_Regularization.treeSizePenaltyMultiplier());
+        parameters(i++) =
+            CTools::stableLog(m_Regularization.treeSizePenaltyMultiplier() / scale);
     }
     if (m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
         parameters(i++) = m_Regularization.softTreeDepthLimit();
@@ -1249,7 +1255,7 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         parameters(i++) = m_Regularization.softTreeDepthTolerance();
     }
     if (m_EtaOverride == boost::none) {
-        parameters(i++) = CTools::stableLog(m_Eta);
+        parameters(i++) = CTools::stableLog(m_Eta) / scale;
         parameters(i++) = m_EtaGrowthRatePerTree;
     }
     if (m_FeatureBagFractionOverride == boost::none) {
@@ -1270,29 +1276,19 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         std::generate_n(parameters.data(), parameters.size(), [&]() {
             return CSampling::uniformSample(m_Rng, 0.0, 1.0);
         });
-        TVector minBoundary;
-        TVector maxBoundary;
-        std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
+
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
     } else {
         std::tie(parameters, std::ignore) = bopt.maximumExpectedImprovement();
     }
 
-    // Downsampling acts as a regularisation and also increases the variance
-    // of each of the base learners so we scale the other regularisation terms
-    // and the weight shrinkage to compensate.
-    double scale{1.0};
-
     // Write parameters for next round.
     i = 0;
     if (m_DownsampleFactorOverride == boost::none) {
         m_DownsampleFactor = CTools::stableExp(parameters(i++));
-        TVector minBoundary;
-        TVector maxBoundary;
-        std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
-        scale = std::min(scale, 2.0 * m_DownsampleFactor /
-                                    (CTools::stableExp(minBoundary(0)) +
-                                     CTools::stableExp(maxBoundary(0))));
+        scale = std::min(1.0, 2.0 * m_DownsampleFactor /
+                                  (CTools::stableExp(minBoundary(0)) +
+                                   CTools::stableExp(maxBoundary(0))));
     }
     if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
         m_Regularization.depthPenaltyMultiplier(CTools::stableExp(parameters(i++)));

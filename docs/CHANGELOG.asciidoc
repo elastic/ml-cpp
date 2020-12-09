@@ -55,10 +55,12 @@
   unnecessary computation. (See {ml-pull}1537[#1537].)
 * Improvements to time series modeling particularly in relation to adaption to change.
   (See {ml-pull})1614[#1614].)
+* Warn and error log throttling. (See {ml-pull}1615[#1615].)
 
 === Bug Fixes
 
 * Fix potential cause for log errors from CXMeansOnline1d. (See {ml-pull}1586[#1586].)
+* Fix scaling of some hyperparameter for Bayesian optimization. (See {ml-pull}1612[#1612].)
 
 == {es} version 7.10.1
 

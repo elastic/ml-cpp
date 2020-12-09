@@ -177,6 +177,10 @@ void CLogger::reset() {
     m_Reconfigured.store(false);
 }
 
+CLoggerThrottler& CLogger::throttler() {
+    return m_Throttler;
+}
+
 CLogger& CLogger::instance() {
     static CLogger instance;
     return instance;
