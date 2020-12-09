@@ -27,6 +27,7 @@
 
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/math/distributions/fisher_f.hpp>
+#include <boost/range/size.hpp>
 
 #include <algorithm>
 #include <cstddef>
@@ -494,7 +495,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::decompose() const {
 
     try {
         TModelVec decompositions;
-        decompositions.reserve(8 * std::size(removeTrendModels));
+        decompositions.reserve(8 * boost::size(removeTrendModels));
 
         for (const auto& removeTrend : removeTrendModels) {
             this->addNotSeasonal(removeTrend, decompositions);

@@ -26,6 +26,7 @@
 
 #include <boost/math/distributions/chi_squared.hpp>
 #include <boost/math/distributions/normal.hpp>
+#include <boost/range/size.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -39,7 +40,7 @@ namespace {
 using TDoubleDoublePr = std::pair<double, double>;
 
 const double TIME_SCALES[]{144.0, 72.0, 36.0, 12.0, 4.0, 1.0, 0.25, 0.05};
-const std::size_t NUMBER_MODELS{std::size(TIME_SCALES)};
+const std::size_t NUMBER_MODELS{boost::size(TIME_SCALES)};
 const double MINIMUM_WEIGHT_TO_USE_MODEL_FOR_PREDICTION{0.01};
 const double MODEL_MSE_DECREASE_SIGNFICANT{0.05};
 const double MAX_CONDITION{1e12};
