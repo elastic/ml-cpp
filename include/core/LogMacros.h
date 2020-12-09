@@ -14,6 +14,7 @@
 
 #include <cstddef>
 #include <sstream>
+#include <string>
 #include <tuple>
 
 // Location info
@@ -75,34 +76,38 @@
 #ifdef LOG_WARN
 #undef LOG_WARN
 #endif
-#define LOG_WARN(message)                                                       \
-    {                                                                           \
-        std::size_t countOfWarnMessages;                                        \
-        bool skipWarnMessage;                                                   \
-        std::tie(countOfWarnMessages, skipWarnMessage) =                        \
-            ml::core::CLogger::instance().throttler().skip(__FILE__, __LINE__); \
-        if (skipWarnMessage == false) {                                         \
-            BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(),        \
-                                 ml::core::CLogger::E_Warn)                     \
-            LOG_LOCATION_INFO                                                   \
-            message << " | repeated [" << countOfWarnMessages << "]";           \
-        }                                                                       \
+#define LOG_WARN(message)                                                                 \
+    {                                                                                     \
+        std::size_t countOfWarnMessages;                                                  \
+        bool skipWarnMessage;                                                             \
+        std::tie(countOfWarnMessages, skipWarnMessage) =                                  \
+            ml::core::CLogger::instance().throttler().skip(__FILE__, __LINE__);           \
+        if (skipWarnMessage == false) {                                                   \
+            BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(),                  \
+                                 ml::core::CLogger::E_Warn)                               \
+            LOG_LOCATION_INFO                                                             \
+            message << (countOfWarnMessages > 1                                           \
+                            ? " | repeated [" + std::to_string(countOfWarnMessages) + "]" \
+                            : "");                                                        \
+        }                                                                                 \
     }
 #ifdef LOG_ERROR
 #undef LOG_ERROR
 #endif
-#define LOG_ERROR(message)                                                      \
-    {                                                                           \
-        std::size_t countOfErrorMessages;                                       \
-        bool skipErrorMessage;                                                  \
-        std::tie(countOfErrorMessages, skipErrorMessage) =                      \
-            ml::core::CLogger::instance().throttler().skip(__FILE__, __LINE__); \
-        if (skipErrorMessage == false) {                                        \
-            BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(),        \
-                                 ml::core::CLogger::E_Error)                    \
-            LOG_LOCATION_INFO                                                   \
-            message << " | repeated [" << countOfErrorMessages << "]";          \
-        }                                                                       \
+#define LOG_ERROR(message)                                                                 \
+    {                                                                                      \
+        std::size_t countOfErrorMessages;                                                  \
+        bool skipErrorMessage;                                                             \
+        std::tie(countOfErrorMessages, skipErrorMessage) =                                 \
+            ml::core::CLogger::instance().throttler().skip(__FILE__, __LINE__);            \
+        if (skipErrorMessage == false) {                                                   \
+            BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(),                   \
+                                 ml::core::CLogger::E_Error)                               \
+            LOG_LOCATION_INFO                                                              \
+            message << (countOfErrorMessages > 1                                           \
+                            ? " | repeated [" + std::to_string(countOfErrorMessages) + "]" \
+                            : "");                                                         \
+        }                                                                                  \
     }
 #ifdef LOG_FATAL
 #undef LOG_FATAL
