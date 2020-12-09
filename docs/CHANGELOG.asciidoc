@@ -55,6 +55,7 @@
   unnecessary computation. (See {ml-pull}1537[#1537].)
 * Improvements to time series modeling particularly in relation to adaption to change.
   (See {ml-pull})1614[#1614].)
+* Warn and error log throttling. (See {ml-pull}1615[#1615].)
 
 === Bug Fixes
 

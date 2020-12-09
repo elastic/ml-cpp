@@ -87,6 +87,7 @@ CJsonOutputStreamWrapper.cc \
 CJsonStatePersistInserter.cc \
 CJsonStateRestoreTraverser.cc \
 CLogger.cc \
+CLoggerThrottler.cc \
 CLoopProgress.cc \
 CMemory.cc \
 CMemoryUsage.cc \
