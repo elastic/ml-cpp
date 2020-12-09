@@ -20,6 +20,7 @@
 #include <boost/circular_buffer.hpp>
 #include <boost/math/constants/constants.hpp>
 #include <boost/math/distributions/normal.hpp>
+#include <boost/range/size.hpp>
 
 #include <algorithm>
 #include <array>
@@ -538,8 +539,8 @@ CSignal::tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
     initialize({weekend, week}, components[WEEKDAY_DAILY]);
     LOG_TRACE(<< "components = " << core::CContainerPrinter::print(components));
 
-    TMeanAccumulator variances[std::size(components)];
-    for (std::size_t i = 0; i < std::size(components); ++i) {
+    TMeanAccumulator variances[boost::size(components)];
+    for (std::size_t i = 0; i < boost::size(components); ++i) {
         variances[i] = std::accumulate(
             components[i].begin(), components[i].end(), TMeanAccumulator{},
             [](auto variance_, const auto& value) {
@@ -563,7 +564,7 @@ CSignal::tradingDayDecomposition(const TFloatMeanAccumulatorVec& values,
         // Compute the variances for each candidate partition.
         captureVarianceAtStartOfWeek(0);
         for (std::size_t i = 0; i + 1 < week; ++i) {
-            for (std::size_t j = 0; j < std::size(components); ++j) {
+            for (std::size_t j = 0; j < boost::size(components); ++j) {
                 TMeanVarAccumulator next;
                 for (const auto& subset : partitions[j]) {
                     for (std::size_t k = i + subset.first + strides[j];
