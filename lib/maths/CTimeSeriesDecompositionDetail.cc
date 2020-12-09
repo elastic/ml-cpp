@@ -940,6 +940,9 @@ std::size_t CTimeSeriesDecompositionDetail::CChangePointTest::windowSize() const
                     std::size_t{32});
 }
 
+const core_t::TTime CTimeSeriesDecompositionDetail::CChangePointTest::MINIMUM_WINDOW_BUCKET_LENGTH{
+    core::constants::HOUR};
+
 //////// CSeasonalityTest ////////
 
 namespace {

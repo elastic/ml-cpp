@@ -311,7 +311,7 @@ private:
     class CMinAmplitude {
     public:
         static constexpr double INF = std::numeric_limits<double>::max();
-        static constexpr std::size_t MINIMUM_REPEATS{4};
+        static const std::size_t MINIMUM_REPEATS;
 
     public:
         CMinAmplitude(std::size_t numberValues, double meanRepeats, double level)

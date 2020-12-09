@@ -1755,6 +1755,8 @@ std::string CTimeSeriesTestForSeasonality::CMinAmplitude::print() const {
     return result.str();
 }
 
+const std::size_t CTimeSeriesTestForSeasonality::CMinAmplitude::MINIMUM_REPEATS{4};
+
 void CTimeSeriesTestForSeasonality::SHypothesisStats::testExplainedVariance(
     const CTimeSeriesTestForSeasonality& params,
     const TVarianceStats& H0) {

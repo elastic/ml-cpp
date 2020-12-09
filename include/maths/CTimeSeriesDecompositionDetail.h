@@ -210,7 +210,7 @@ public:
     class MATHS_EXPORT CChangePointTest : public CHandler {
     public:
         static constexpr double CHANGE_COUNT_WEIGHT = 0.1;
-        static constexpr core_t::TTime MINIMUM_WINDOW_BUCKET_LENGTH = core::constants::HOUR;
+        static const core_t::TTime MINIMUM_WINDOW_BUCKET_LENGTH;
 
     public:
         CChangePointTest(double decayRate, core_t::TTime bucketLength);
