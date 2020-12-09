@@ -8,6 +8,7 @@
 #include <core/CBase64Filter.h>
 #include <core/CPersistUtils.h>
 #include <core/CStringUtils.h>
+#include <core/Constants.h>
 
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
@@ -84,7 +85,7 @@ const std::string JSON_WEIGHTED_SUM_TAG{"weighted_sum"};
 const std::string JSON_WEIGHTS_TAG{"weights"};
 // clang-format on
 
-const std::size_t MAX_DOCUMENT_SIZE(16 * 1024 * 1024); // 16MB
+const std::size_t MAX_DOCUMENT_SIZE(16 * core::constants::BYTES_IN_MEGABYTES);
 
 auto toRapidjsonValue(std::size_t value) {
     return rapidjson::Value{static_cast<std::uint64_t>(value)};
@@ -431,9 +432,10 @@ void CInferenceModelDefinition::addToDocumentCompressed(TRapidJsonWriter& writer
     std::streamsize remained{compressedStream.tellg()};
     compressedStream.seekg(0, compressedStream.beg);
     std::size_t docNum{0};
+    std::string buffer;
     while (remained > 0) {
         std::size_t bytesToProcess{std::min(MAX_DOCUMENT_SIZE, static_cast<size_t>(remained))};
-        std::string buffer;
+        buffer.clear();
         std::copy_n(std::istreambuf_iterator<char>(compressedStream.seekg(processed)),
                     bytesToProcess, std::back_inserter(buffer));
         remained -= bytesToProcess;

@@ -59,7 +59,7 @@ using TLossFunctionUPtr = maths::CBoostedTreeFactory::TLossFunctionUPtr;
 namespace {
 
 const double LARGE_POSITIVE_CONSTANT{300.0};
-const int BYTES_IN_MB{1024 * 1024};
+const double BYTES_IN_MB{static_cast<double>(core::constants::BYTES_IN_MEGABYTES)};
 
 class CTestInstrumentation : public maths::CDataFrameTrainBoostedTreeInstrumentationStub {
 public:
