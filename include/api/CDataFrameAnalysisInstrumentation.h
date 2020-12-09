@@ -198,15 +198,6 @@ public:
     //! \return Structure contains hyperparameters.
     SHyperparameters& hyperparameters() override { return m_Hyperparameters; }
 
-    std::size_t& statisticsComputed() override { return m_StatsComputed; }
-    std::size_t& statisticsNotComputed() override { return m_StatsNotComputed; }
-    virtual void rowsSkipped(std::uint32_t numberRows) override {
-        m_RowsAccumulator.add(numberRows);
-    }
-    virtual std::uint32_t rowsSkipped() override {
-        return maths::CBasicStatistics::mean(m_RowsAccumulator);
-    }
-
 protected:
     counter_t::ECounterTypes memoryCounterType() override;
 
@@ -230,10 +221,6 @@ private:
     std::string m_LossType;
     TLossVec m_LossValues;
     SHyperparameters m_Hyperparameters;
-
-    std::size_t m_StatsComputed = 0;
-    std::size_t m_StatsNotComputed = 0;
-    TRowsAccumulator m_RowsAccumulator;
 };
 }
 }

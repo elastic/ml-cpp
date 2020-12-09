@@ -295,16 +295,6 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
     m_Instrumentation->updateProgress(1.0);
     m_Instrumentation->updateMemoryUsage(
         static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
-
-    if (m_Instrumentation != nullptr) {
-        // TODO remove once performance measurements are finished
-        LOG_INFO(<< "Statistics computed: " << m_Instrumentation->statisticsComputed()
-                 << "\tnot computed: " << m_Instrumentation->statisticsNotComputed() << "\t saved: "
-                 << (static_cast<double>(m_Instrumentation->statisticsNotComputed()) /
-                     (m_Instrumentation->statisticsNotComputed() +
-                      m_Instrumentation->statisticsComputed()))
-                 << "\t avg. rows skipped: " << m_Instrumentation->rowsSkipped());
-    }
 }
 
 void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {
@@ -908,7 +898,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         std::tie(leftChild, rightChild) =
             leaf->split(leftChildId, rightChildId, m_NumberThreads,
                         smallestCandidateGain, frame, *m_Encoder, m_Regularization,
-                        featureBag, tree[leaf->id()], workspace, m_Instrumentation);
+                        featureBag, tree[leaf->id()], workspace);
 
         // Need gain to be computed to compare here
         if (leftChild != nullptr && rightChild != nullptr && less(rightChild, leftChild)) {

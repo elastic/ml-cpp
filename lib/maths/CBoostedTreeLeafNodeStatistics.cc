@@ -25,20 +25,6 @@ namespace {
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
 
-void incrementStatsComputed(CBoostedTreeLeafNodeStatistics::TAnalysisInstrumentationPtr instrumentation) {
-    if (instrumentation != nullptr) {
-        instrumentation->statisticsComputed() += 1;
-    }
-}
-
-void incrementStatsNotComputed(CBoostedTreeLeafNodeStatistics::TAnalysisInstrumentationPtr instrumentation,
-                               std::uint32_t rowsInChild) {
-    if (instrumentation != nullptr) {
-        instrumentation->statisticsNotComputed() += 1;
-        instrumentation->rowsSkipped(rowsInChild);
-    }
-}
-
 struct SChildredGainStats {
     double s_MinLossLeft = -INF;
     double s_MinLossRight = -INF;
@@ -152,8 +138,7 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
                                       const TRegularization& regularization,
                                       const TSizeVec& featureBag,
                                       const CBoostedTreeNode& split,
-                                      CWorkspace& workspace,
-                                      TAnalysisInstrumentationPtr instrumentation) {
+                                      CWorkspace& workspace) {
     TPtr leftChild;
     TPtr rightChild;
     if (this->leftChildHasFewerRows()) {
@@ -161,24 +146,16 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, *this, numberThreads, frame, encoder, regularization,
                 featureBag, true /*is left child*/, split, workspace);
-            incrementStatsComputed(instrumentation);
             if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, std::move(*this), regularization, featureBag, workspace);
-                incrementStatsComputed(instrumentation);
-            } else {
-                incrementStatsNotComputed(instrumentation, this->m_BestSplit.s_RightChildRowCount);
-            }
+            } 
         } else {
-            incrementStatsNotComputed(instrumentation, this->m_BestSplit.s_LeftChildRowCount);
             if (this->m_BestSplit.s_RightChildMaxGain > gainThreshold) {
                 rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                     rightChildId, *this, numberThreads, frame, encoder, regularization,
                     featureBag, false /*is left child*/, split, workspace);
-                incrementStatsComputed(instrumentation);
-            } else {
-                incrementStatsNotComputed(instrumentation, this->m_BestSplit.s_RightChildRowCount);
-            }
+            } 
         }
         return {std::move(leftChild), std::move(rightChild)};
     }
@@ -187,24 +164,16 @@ CBoostedTreeLeafNodeStatistics::split(std::size_t leftChildId,
         rightChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
             rightChildId, *this, numberThreads, frame, encoder, regularization,
             featureBag, false /*is left child*/, split, workspace);
-        incrementStatsComputed(instrumentation);
         if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, std::move(*this), regularization, featureBag, workspace);
-            incrementStatsComputed(instrumentation);
-        } else {
-            incrementStatsNotComputed(instrumentation, this->m_BestSplit.s_LeftChildRowCount);
         }
     } else {
-        incrementStatsNotComputed(instrumentation, this->m_BestSplit.s_RightChildRowCount);
         if (this->m_BestSplit.s_LeftChildMaxGain > gainThreshold) {
             leftChild = std::make_shared<CBoostedTreeLeafNodeStatistics>(
                 leftChildId, *this, numberThreads, frame, encoder, regularization,
                 featureBag, true /*is left child*/, split, workspace);
-            incrementStatsComputed(instrumentation);
-        } else {
-            incrementStatsNotComputed(instrumentation, this->m_BestSplit.s_LeftChildRowCount);
-        }
+        } 
     }
     return {std::move(leftChild), std::move(rightChild)};
 }
