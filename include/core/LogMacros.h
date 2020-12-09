@@ -85,7 +85,7 @@
             BOOST_LOG_STREAM_SEV(ml::core::CLogger::instance().logger(),        \
                                  ml::core::CLogger::E_Warn)                     \
             LOG_LOCATION_INFO                                                   \
-            message << " [" << countOfWarnMessages << "]";                      \
+            message << " | repeated [" << countOfWarnMessages << "]";                      \
         }                                                                       \
     }
 #ifdef LOG_ERROR
