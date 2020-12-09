@@ -475,7 +475,7 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
     test::CRandomNumbers rng;
     double noiseVariance{100.0};
     std::size_t trainRows{500};
-    std::size_t testRows{100};
+    std::size_t testRows{200};
     std::size_t cols{6};
     std::size_t capacity{500};
 
