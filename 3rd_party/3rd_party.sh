@@ -44,7 +44,7 @@ case `uname` in
         STL_LOCATION=
         ZLIB_LOCATION=
         TORCH_LIBRARIES="torch_cpu c10"
-        TORCH_LOCATION=/Users/davidkyle/source/pytorch/build_libtorch/build/lib
+        TORCH_LOCATION=pytorch/build_libtorch/build/lib
         TORCH_EXTENSION=.dylib
         ;;
 
