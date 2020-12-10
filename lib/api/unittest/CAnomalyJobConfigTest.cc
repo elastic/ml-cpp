@@ -8,6 +8,8 @@
 
 #include <api/CAnomalyJobConfig.h>
 
+#include <model/FunctionTypes.h>
+
 #include <boost/test/unit_test.hpp>
 
 #include <rapidjson/stringbuffer.h>
@@ -88,7 +90,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         const std::string validAnomalyJobConfig{
             "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
             "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
-            "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"detector_index\":0}],\"influencers\":[]},"
+            "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"all\",\"by_field_name\":\"customer_id\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
             "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
             "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
             "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
@@ -113,12 +115,14 @@ BOOST_AUTO_TEST_CASE(testParse) {
         const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
         BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].detectorDescription());
-        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_PopulationCount,
+                            detectorsConfig[0].function());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].fieldName());
-        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].byFieldName());
-        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
+        BOOST_REQUIRE_EQUAL("customer_id", detectorsConfig[0].byFieldName());
+        BOOST_REQUIRE_EQUAL("category.keyword", detectorsConfig[0].overFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
-        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_Both, detectorsConfig[0].excludeFrequent());
         BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
 
@@ -135,7 +139,442 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
     }
+    {
+        const std::string validAnomalyJobConfig{
+            "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
+            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
+            "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"all\",\"by_field_name\":\"customer_id\",\"detector_index\":0}],\"influencers\":[]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
+            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
+            "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
 
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
+                              "Cannot parse JSON job config!");
+
+        BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
+        BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
+
+        const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
+
+        BOOST_REQUIRE_EQUAL(1800, analysisConfig.bucketSpan());
+
+        BOOST_REQUIRE_EQUAL("doc_count", analysisConfig.summaryCountFieldName());
+
+        const TDataDescription& dataDescription = jobConfig.dataDescription();
+
+        BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
+
+        const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
+        BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].detectorDescription());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_IndividualRareCount,
+                            detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].fieldName());
+        BOOST_REQUIRE_EQUAL("customer_id", detectorsConfig[0].byFieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_By, detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
+        BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
+
+        const TStrVec& influencers = analysisConfig.influencers();
+        BOOST_REQUIRE_EQUAL(0, influencers.size());
+
+        const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
+
+        // Expect the model memory limit to be rounded down to the nearest whole number of megabytes
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.modelMemoryLimitMb());
+
+        const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
+    }
+    {
+        const std::string validAnomalyJobConfig{
+            "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
+            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
+            "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"all\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
+            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
+            "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
+                              "Cannot parse JSON job config!");
+
+        BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
+        BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
+
+        const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
+
+        BOOST_REQUIRE_EQUAL(1800, analysisConfig.bucketSpan());
+
+        BOOST_REQUIRE_EQUAL("doc_count", analysisConfig.summaryCountFieldName());
+
+        const TDataDescription& dataDescription = jobConfig.dataDescription();
+
+        BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
+
+        const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
+        BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].detectorDescription());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_PopulationCount,
+                            detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].fieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].byFieldName());
+        BOOST_REQUIRE_EQUAL("category.keyword", detectorsConfig[0].overFieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_Over, detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
+        BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
+
+        const TStrVec& influencers = analysisConfig.influencers();
+        BOOST_REQUIRE_EQUAL(0, influencers.size());
+
+        const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
+
+        // Expect the model memory limit to be rounded down to the nearest whole number of megabytes
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.modelMemoryLimitMb());
+
+        const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
+    }
+    {
+        const std::string validAnomalyJobConfig{
+            "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
+            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
+            "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"whatever\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
+            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
+            "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(!jobConfig.parse(validAnomalyJobConfig));
+    }
+    {
+        const std::string validAnomalyJobConfig{
+            "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
+            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
+            "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"by\",\"by_field_name\":\"customer_id\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
+            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
+            "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
+                              "Cannot parse JSON job config!");
+
+        BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
+        BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
+
+        const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
+
+        BOOST_REQUIRE_EQUAL(1800, analysisConfig.bucketSpan());
+
+        BOOST_REQUIRE_EQUAL("doc_count", analysisConfig.summaryCountFieldName());
+
+        const TDataDescription& dataDescription = jobConfig.dataDescription();
+
+        BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
+
+        const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
+        BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].detectorDescription());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_PopulationCount,
+                            detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].fieldName());
+        BOOST_REQUIRE_EQUAL("customer_id", detectorsConfig[0].byFieldName());
+        BOOST_REQUIRE_EQUAL("category.keyword", detectorsConfig[0].overFieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_By, detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
+        BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
+
+        const TStrVec& influencers = analysisConfig.influencers();
+        BOOST_REQUIRE_EQUAL(0, influencers.size());
+
+        const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
+
+        // Expect the model memory limit to be rounded down to the nearest whole number of megabytes
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.modelMemoryLimitMb());
+
+        const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
+    }
+    {
+        const std::string validAnomalyJobConfig{
+            "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
+            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
+            "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"over\",\"by_field_name\":\"customer_id\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
+            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
+            "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
+                              "Cannot parse JSON job config!");
+
+        BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
+        BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
+
+        const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
+
+        BOOST_REQUIRE_EQUAL(1800, analysisConfig.bucketSpan());
+
+        BOOST_REQUIRE_EQUAL("doc_count", analysisConfig.summaryCountFieldName());
+
+        const TDataDescription& dataDescription = jobConfig.dataDescription();
+
+        BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
+
+        const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
+        BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].detectorDescription());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_PopulationCount,
+                            detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].fieldName());
+        BOOST_REQUIRE_EQUAL("customer_id", detectorsConfig[0].byFieldName());
+        BOOST_REQUIRE_EQUAL("category.keyword", detectorsConfig[0].overFieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_Over, detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
+        BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
+
+        const TStrVec& influencers = analysisConfig.influencers();
+        BOOST_REQUIRE_EQUAL(0, influencers.size());
+
+        const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
+
+        // Expect the model memory limit to be rounded down to the nearest whole number of megabytes
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.modelMemoryLimitMb());
+
+        const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
+    }
+    {
+        const std::string validAnomalyJobConfig{
+            "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
+            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
+            "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"by\",\"by_field_name\":\"customer_id\",\"detector_index\":0}],\"influencers\":[]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
+            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
+            "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
+                              "Cannot parse JSON job config!");
+
+        BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
+        BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
+
+        const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
+
+        BOOST_REQUIRE_EQUAL(1800, analysisConfig.bucketSpan());
+
+        BOOST_REQUIRE_EQUAL("doc_count", analysisConfig.summaryCountFieldName());
+
+        const TDataDescription& dataDescription = jobConfig.dataDescription();
+
+        BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
+
+        const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
+        BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].detectorDescription());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_IndividualRareCount,
+                            detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].fieldName());
+        BOOST_REQUIRE_EQUAL("customer_id", detectorsConfig[0].byFieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_By, detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
+        BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
+
+        const TStrVec& influencers = analysisConfig.influencers();
+        BOOST_REQUIRE_EQUAL(0, influencers.size());
+
+        const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
+
+        // Expect the model memory limit to be rounded down to the nearest whole number of megabytes
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.modelMemoryLimitMb());
+
+        const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
+    }
+    {
+        const std::string validAnomalyJobConfig{
+            "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
+            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
+            "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"none\",\"by_field_name\":\"customer_id\",\"detector_index\":0}],\"influencers\":[]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
+            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
+            "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
+                              "Cannot parse JSON job config!");
+
+        BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
+        BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
+
+        const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
+
+        BOOST_REQUIRE_EQUAL(1800, analysisConfig.bucketSpan());
+
+        BOOST_REQUIRE_EQUAL("doc_count", analysisConfig.summaryCountFieldName());
+
+        const TDataDescription& dataDescription = jobConfig.dataDescription();
+
+        BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
+
+        const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
+        BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].detectorDescription());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_IndividualRareCount,
+                            detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].fieldName());
+        BOOST_REQUIRE_EQUAL("customer_id", detectorsConfig[0].byFieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
+        BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
+
+        const TStrVec& influencers = analysisConfig.influencers();
+        BOOST_REQUIRE_EQUAL(0, influencers.size());
+
+        const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
+
+        // Expect the model memory limit to be rounded down to the nearest whole number of megabytes
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.modelMemoryLimitMb());
+
+        const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
+    }
+    {
+        const std::string validAnomalyJobConfig{
+            "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
+            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
+            "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"over\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
+            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
+            "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
+                              "Cannot parse JSON job config!");
+
+        BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
+        BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
+
+        const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
+
+        BOOST_REQUIRE_EQUAL(1800, analysisConfig.bucketSpan());
+
+        BOOST_REQUIRE_EQUAL("doc_count", analysisConfig.summaryCountFieldName());
+
+        const TDataDescription& dataDescription = jobConfig.dataDescription();
+
+        BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
+
+        const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
+        BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].detectorDescription());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_PopulationCount,
+                            detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].fieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].byFieldName());
+        BOOST_REQUIRE_EQUAL("category.keyword", detectorsConfig[0].overFieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_Over, detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
+        BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
+
+        const TStrVec& influencers = analysisConfig.influencers();
+        BOOST_REQUIRE_EQUAL(0, influencers.size());
+
+        const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
+
+        // Expect the model memory limit to be rounded down to the nearest whole number of megabytes
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.modelMemoryLimitMb());
+
+        const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
+    }
+    {
+        const std::string validAnomalyJobConfig{
+            "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
+            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
+            "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"none\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
+            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
+            "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
+                              "Cannot parse JSON job config!");
+
+        BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
+        BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
+
+        const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
+
+        BOOST_REQUIRE_EQUAL(1800, analysisConfig.bucketSpan());
+
+        BOOST_REQUIRE_EQUAL("doc_count", analysisConfig.summaryCountFieldName());
+
+        const TDataDescription& dataDescription = jobConfig.dataDescription();
+
+        BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
+
+        const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
+        BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].detectorDescription());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_PopulationCount,
+                            detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].fieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].byFieldName());
+        BOOST_REQUIRE_EQUAL("category.keyword", detectorsConfig[0].overFieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
+        BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
+
+        const TStrVec& influencers = analysisConfig.influencers();
+        BOOST_REQUIRE_EQUAL(0, influencers.size());
+
+        const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
+
+        // Expect the model memory limit to be rounded down to the nearest whole number of megabytes
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.modelMemoryLimitMb());
+
+        const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
+    }
     {
         const std::string validAnomalyJobConfigWithMultipleInfluencers{
             "{\"job_id\":\"logs_max_bytes_by_geo\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603290557883,\"description\":\"\","
@@ -171,12 +610,14 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
         BOOST_REQUIRE_EQUAL("max(bytes) by \"geo.src\" partitionfield=\"host.keyword\"",
                             detectorsConfig[0].detectorDescription());
-        BOOST_REQUIRE_EQUAL("max", detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("max", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_IndividualMetricMax,
+                            detectorsConfig[0].function());
         BOOST_REQUIRE_EQUAL("bytes", detectorsConfig[0].fieldName());
         BOOST_REQUIRE_EQUAL("geo.src", detectorsConfig[0].byFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
         BOOST_REQUIRE_EQUAL("host.keyword", detectorsConfig[0].partitionFieldName());
-        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, detectorsConfig[0].excludeFrequent());
         BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
 
@@ -232,23 +673,27 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL(2, detectorsConfig.size());
         BOOST_REQUIRE_EQUAL("distinct_count(\"category.keyword\") by customer_id over \"category.keyword\"",
                             detectorsConfig[0].detectorDescription());
-        BOOST_REQUIRE_EQUAL("distinct_count", detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("distinct_count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_PopulationDistinctCount,
+                            detectorsConfig[0].function());
         BOOST_REQUIRE_EQUAL("category.keyword", detectorsConfig[0].fieldName());
         BOOST_REQUIRE_EQUAL("customer_id", detectorsConfig[0].byFieldName());
         BOOST_REQUIRE_EQUAL("category.keyword", detectorsConfig[0].overFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
-        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, detectorsConfig[0].excludeFrequent());
         BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
 
         BOOST_REQUIRE_EQUAL("count over \"category.keyword\"",
                             detectorsConfig[1].detectorDescription());
-        BOOST_REQUIRE_EQUAL("count", detectorsConfig[1].function());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[1].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_PopulationCount,
+                            detectorsConfig[1].function());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[1].fieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[1].byFieldName());
         BOOST_REQUIRE_EQUAL("category.keyword", detectorsConfig[1].overFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[1].partitionFieldName());
-        BOOST_REQUIRE_EQUAL("", detectorsConfig[1].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, detectorsConfig[1].excludeFrequent());
         BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(1).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[1].useNull());
 
@@ -297,12 +742,14 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
         BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].detectorDescription());
-        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_IndividualRareCount,
+                            detectorsConfig[0].function());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].fieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].byFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
-        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, detectorsConfig[0].excludeFrequent());
         BOOST_REQUIRE_EQUAL(1, analysisConfig.detectionRules().at(0).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
 
@@ -345,12 +792,14 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL(1, detectorsConfig.size());
         BOOST_REQUIRE_EQUAL("count by mlcategory", detectorsConfig[0].detectorDescription());
-        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_IndividualRareCount,
+                            detectorsConfig[0].function());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].fieldName());
         BOOST_REQUIRE_EQUAL("mlcategory", detectorsConfig[0].byFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
         BOOST_REQUIRE_EQUAL("", detectorsConfig[0].partitionFieldName());
-        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, detectorsConfig[0].excludeFrequent());
         BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
         BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
 

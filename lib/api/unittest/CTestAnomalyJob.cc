@@ -5,6 +5,8 @@
  */
 #include "CTestAnomalyJob.h"
 
+#include <api/CAnomalyJobConfig.h>
+
 CTestAnomalyJob::CTestAnomalyJob(const std::string& jobId,
                                  ml::model::CLimits& limits,
                                  ml::api::CAnomalyJobConfig& jobConfig,
@@ -29,4 +31,19 @@ CTestAnomalyJob::CTestAnomalyJob(const std::string& jobId,
                            timeFieldName,
                            timeFieldFormat,
                            maxAnomalyRecords) {
+}
+
+ml::api::CAnomalyJobConfig
+CTestAnomalyJob::makeSimpleJobConfig(const std::string& functionName,
+                                     const std::string& fieldName,
+                                     const std::string& byFieldName,
+                                     const std::string& overFieldName,
+                                     const std::string& partitionFieldName,
+                                     const ml::api::CDataProcessor::TStrVec& influencers,
+                                     const std::string& summaryCountFieldName) {
+    ml::api::CAnomalyJobConfig jobConfig;
+    jobConfig.analysisConfig().addDetector(functionName, fieldName, byFieldName,
+                                           overFieldName, partitionFieldName,
+                                           influencers, summaryCountFieldName);
+    return jobConfig;
 }
