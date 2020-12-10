@@ -527,9 +527,11 @@ BOOST_AUTO_TEST_CASE(testAnovaConstantNotNormalized) {
     std::size_t dim{2};
     std::size_t mcSamples{1000};
     std::size_t numTainSamples{20};
+    double a{0.2};
+    double b{0.8};
     TDoubleVec trainSamples(numTainSamples * dim);
-    rng.generateUniformSamples(-3.0, 3.0, trainSamples.size(), trainSamples);
-    maths::CBayesianOptimisation bopt{{{-3.0, 3.0}, {-3.0, 3.0}}};
+    rng.generateUniformSamples(a, b, trainSamples.size(), trainSamples);
+    maths::CBayesianOptimisation bopt{{{a, b}, {a, b}}};
     for (std::size_t i = 0; i < numTainSamples; i += 2) {
         TVector x{vector({trainSamples[i], trainSamples[i + 1]})};
         bopt.add(x, x.squaredNorm(), 1.0);
@@ -539,8 +541,8 @@ BOOST_AUTO_TEST_CASE(testAnovaConstantNotNormalized) {
     bopt.kernelParameters(kernelParameters);
     double f0Actual{bopt.anovaConstantFactor()};
 
-    TVector minBoundary(vector({-3.0, -3.0}));
-    TVector maxBoundary(vector({3.0, 3.0}));
+    TVector minBoundary(vector({a, a}));
+    TVector maxBoundary(vector({b, b}));
     TDoubleVecVec testSamples;
     maths::CSampling::sobolSequenceSample(dim, mcSamples, testSamples);
     for (std::size_t i = 0u; i < mcSamples; ++i) {
@@ -559,9 +561,11 @@ BOOST_AUTO_TEST_CASE(testAnovaTotalVarianceNotNormalized) {
     std::size_t dim{2};
     std::size_t mcSamples{1000};
     std::size_t numTainSamples{20};
+    double a{0.2};
+    double b{0.8};
     TDoubleVec trainSamples(numTainSamples * dim);
-    rng.generateUniformSamples(-3.0, 3.0, trainSamples.size(), trainSamples);
-    maths::CBayesianOptimisation bopt{{{-3.0, 3.0}, {-3.0, 3.0}}};
+    rng.generateUniformSamples(a, b, trainSamples.size(), trainSamples);
+    maths::CBayesianOptimisation bopt{{{a, b}, {a, b}}};
     for (std::size_t i = 0; i < numTainSamples; i += 2) {
         TVector x{vector({trainSamples[i], trainSamples[i + 1]})};
         bopt.add(x, x.squaredNorm(), 1.2);
@@ -572,8 +576,8 @@ BOOST_AUTO_TEST_CASE(testAnovaTotalVarianceNotNormalized) {
     double f0{bopt.anovaConstantFactor()};
     double totalVarianceActual{bopt.anovaTotalVariance()};
 
-    TVector minBoundary(vector({-3.0, -3.0}));
-    TVector maxBoundary(vector({3.0, 3.0}));
+    TVector minBoundary(vector({a, a}));
+    TVector maxBoundary(vector({b, b}));
     TDoubleVecVec testSamples;
     maths::CSampling::sobolSequenceSample(dim, mcSamples, testSamples);
     for (std::size_t i = 0u; i < mcSamples; ++i) {
