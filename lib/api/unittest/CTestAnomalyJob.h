@@ -42,6 +42,15 @@ public:
     bool handleRecord(const TStrStrUMap& dataRowFields) {
         return this->handleRecord(dataRowFields, TOptionalTime{});
     }
+
+    static ml::api::CAnomalyJobConfig
+    makeSimpleJobConfig(const std::string& functionName,
+                        const std::string& fieldName,
+                        const std::string& byFieldName,
+                        const std::string& overFieldName,
+                        const std::string& partitionFieldName,
+                        const TStrVec& influencers = {},
+                        const std::string& summaryCountFieldName = "");
 };
 
 #endif // INCLUDED_CTestAnomalyJob_h

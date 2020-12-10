@@ -192,7 +192,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime t
     this->outputBucketResultsUntil(*time);
 
     if (m_DetectorKeys.empty()) {
-        this->populateDetectorKeys(m_FieldConfig, m_DetectorKeys);
+        this->populateDetectorKeys(m_JobConfig, m_DetectorKeys);
     }
 
     for (std::size_t i = 0u; i < m_DetectorKeys.size(); ++i) {
@@ -1594,18 +1594,18 @@ CAnomalyJob::makeDetector(const model::CAnomalyDetectorModelConfig& modelConfig,
                                                            firstTime, modelFactory);
 }
 
-void CAnomalyJob::populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec& keys) {
+void CAnomalyJob::populateDetectorKeys(const CAnomalyJobConfig& jobConfig, TKeyVec& keys) {
     keys.clear();
 
     // Add a key for the simple count detector.
     keys.push_back(model::CSearchKey::simpleCountKey());
 
-    for (const auto& fieldOptions : fieldConfig.fieldOptions()) {
-        keys.emplace_back(fieldOptions.configKey(), fieldOptions.function(),
+    for (const auto& fieldOptions : jobConfig.analysisConfig().detectorsConfig()) {
+        keys.emplace_back(fieldOptions.detectorIndex(), fieldOptions.function(),
                           fieldOptions.useNull(), fieldOptions.excludeFrequent(),
                           fieldOptions.fieldName(), fieldOptions.byFieldName(),
                           fieldOptions.overFieldName(), fieldOptions.partitionFieldName(),
-                          fieldConfig.influencerFieldNames());
+                          jobConfig.analysisConfig().influencers());
     }
 }
 
