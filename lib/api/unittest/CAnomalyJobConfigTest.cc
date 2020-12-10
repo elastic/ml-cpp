@@ -249,6 +249,18 @@ BOOST_AUTO_TEST_CASE(testParse) {
         const std::string validAnomalyJobConfig{
             "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
             "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
+            "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"whatever\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
+            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
+            "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(!jobConfig.parse(validAnomalyJobConfig));
+    }
+    {
+        const std::string validAnomalyJobConfig{
+            "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
+            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
             "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"by\",\"by_field_name\":\"customer_id\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
             "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
             "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
