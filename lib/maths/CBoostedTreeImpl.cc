@@ -1235,33 +1235,33 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     // Read parameters for last round.
     for (int i = 0; i < static_cast<int>(m_TunableHyperparameters.size()); ++i) {
         switch (m_TunableHyperparameters[static_cast<std::size_t>(i)]) {
-        case boosted_tree_detail::E_Alpha:
+        case E_Alpha:
             parameters(i) = CTools::stableLog(m_Regularization.depthPenaltyMultiplier());
             break;
-        case boosted_tree_detail::E_DownsampleFactor:
+        case E_DownsampleFactor:
             parameters(i) = CTools::stableLog(m_DownsampleFactor);
             break;
-        case boosted_tree_detail::E_Eta:
+        case E_Eta:
             parameters(i) = CTools::stableLog(m_Eta) / scale;
             break;
-        case boosted_tree_detail::E_EtaGrowthRatePerTree:
+        case E_EtaGrowthRatePerTree:
             parameters(i) = m_EtaGrowthRatePerTree;
             break;
-        case boosted_tree_detail::E_FeatureBagFraction:
+        case E_FeatureBagFraction:
             parameters(i) = m_FeatureBagFraction;
             break;
-        case boosted_tree_detail::E_Gamma:
+        case E_Gamma:
             parameters(i) = CTools::stableLog(
                 m_Regularization.treeSizePenaltyMultiplier() / scale);
             break;
-        case boosted_tree_detail::E_Lambda:
+        case E_Lambda:
             parameters(i) = CTools::stableLog(
                 m_Regularization.leafWeightPenaltyMultiplier() / scale);
             break;
-        case boosted_tree_detail::E_SoftTreeDepthLimit:
+        case E_SoftTreeDepthLimit:
             parameters(i) = m_Regularization.softTreeDepthLimit();
             break;
-        case boosted_tree_detail::E_SoftTreeDepthTolerance:
+        case E_SoftTreeDepthTolerance:
             parameters(i) = m_Regularization.softTreeDepthTolerance();
             break;
         }
@@ -1313,37 +1313,48 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     }
 
     // Write parameters for next round.
-    // TODO [valeriy,pr1598] replace by switch-case construction
-    int i{0};
     if (m_DownsampleFactorOverride == boost::none) {
-        m_DownsampleFactor = CTools::stableExp(parameters(i++));
-        scale = std::min(1.0, 2.0 * m_DownsampleFactor /
-                                  (CTools::stableExp(minBoundary(0)) +
-                                   CTools::stableExp(maxBoundary(0))));
+        auto i = std::distance(m_TunableHyperparameters.begin(),
+                               std::find(m_TunableHyperparameters.begin(),
+                                         m_TunableHyperparameters.end(), E_DownsampleFactor));
+        if (static_cast<std::size_t>(i) < m_TunableHyperparameters.size()) {
+            scale = std::min(1.0, 2.0 * parameters(i) /
+                                      (CTools::stableExp(minBoundary(0)) +
+                                       CTools::stableExp(maxBoundary(0))));
+        }
     }
-    if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
-        m_Regularization.depthPenaltyMultiplier(CTools::stableExp(parameters(i++)));
-    }
-    if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
-        m_Regularization.leafWeightPenaltyMultiplier(
-            scale * CTools::stableExp(parameters(i++)));
-    }
-    if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
-        m_Regularization.treeSizePenaltyMultiplier(
-            scale * CTools::stableExp(parameters(i++)));
-    }
-    if (m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
-        m_Regularization.softTreeDepthLimit(parameters(i++));
-    }
-    if (m_RegularizationOverride.softTreeDepthTolerance() == boost::none) {
-        m_Regularization.softTreeDepthTolerance(parameters(i++));
-    }
-    if (m_EtaOverride == boost::none) {
-        m_Eta = CTools::stableExp(scale * parameters(i++));
-        m_EtaGrowthRatePerTree = parameters(i++);
-    }
-    if (m_FeatureBagFractionOverride == boost::none) {
-        m_FeatureBagFraction = parameters(i++);
+    for (int i = 0; i < static_cast<int>(m_TunableHyperparameters.size()); ++i) {
+        switch (m_TunableHyperparameters[static_cast<std::size_t>(i)]) {
+        case E_Alpha:
+            m_Regularization.depthPenaltyMultiplier(CTools::stableExp(parameters(i)));
+            break;
+        case E_DownsampleFactor:
+            m_DownsampleFactor = CTools::stableExp(parameters(i));
+            break;
+        case E_Eta:
+            m_Eta = CTools::stableExp(scale * parameters(i));
+            break;
+        case E_EtaGrowthRatePerTree:
+            m_EtaGrowthRatePerTree = parameters(i);
+            break;
+        case E_FeatureBagFraction:
+            m_FeatureBagFraction = parameters(i);
+            break;
+        case E_Gamma:
+            m_Regularization.treeSizePenaltyMultiplier(
+                scale * CTools::stableExp(parameters(i)));
+            break;
+        case E_Lambda:
+            m_Regularization.leafWeightPenaltyMultiplier(
+                scale * CTools::stableExp(parameters(i)));
+            break;
+        case E_SoftTreeDepthLimit:
+            m_Regularization.softTreeDepthLimit(parameters(i));
+            break;
+        case E_SoftTreeDepthTolerance:
+            m_Regularization.softTreeDepthTolerance(parameters(i));
+            break;
+        }
     }
 
     return true;
