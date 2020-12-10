@@ -97,8 +97,8 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         // Without limits, this data set should make the models around
         // 1230000 bytes
         // Run the data once to find out what the current platform uses
-        ml::api::CAnomalyJobConfig jobConfig;
-        jobConfig.analysisConfig().addDetector("value", "", "colour", "species", "greenhouse");
+        ml::api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "colour", "species", "greenhouse");
 
         api::CFieldConfig fieldConfig;
 
@@ -135,8 +135,8 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
     }
     {
         // Now run the data with limiting
-        ml::api::CAnomalyJobConfig jobConfig;
-        jobConfig.analysisConfig().addDetector("value", "", "colour", "species", "greenhouse");
+        ml::api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "colour", "species", "greenhouse");
 
         api::CFieldConfig fieldConfig;
 
@@ -190,8 +190,8 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         // Run the data without any resource limits and check that
         // all the expected fields are in the results set
         model::CLimits limits;
-        api::CAnomalyJobConfig jobConfig;
-        jobConfig.analysisConfig().addDetector("value", "", "colour", "species", "greenhouse");
+        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "colour", "species", "greenhouse");
         api::CFieldConfig fieldConfig;
 
         model::CAnomalyDetectorModelConfig modelConfig =
@@ -229,8 +229,8 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         // Run the data with some resource limits after the first 4 records and
         // check that we get only anomalies from the first 2 partitions
         model::CLimits limits;
-        ml::api::CAnomalyJobConfig jobConfig;
-        jobConfig.analysisConfig().addDetector("value", "", "colour", "species", "greenhouse");
+        ml::api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "colour", "species", "greenhouse");
 
         api::CFieldConfig fieldConfig;
 
@@ -351,8 +351,8 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             std::size_t memoryLimit{10 /*MB*/};
             model::CLimits limits;
             limits.resourceMonitor().memoryLimit(memoryLimit);
-            ml::api::CAnomalyJobConfig jobConfig;
-            jobConfig.analysisConfig().addDetector("mean", "foo", "bar", "", "");
+            ml::api::CAnomalyJobConfig jobConfig =
+                CTestAnomalyJob::makeSimpleJobConfig("mean", "foo", "bar", "", "");
 
             api::CFieldConfig fieldConfig;
             model::CAnomalyDetectorModelConfig modelConfig =
@@ -404,8 +404,8 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             std::size_t memoryLimit{10 /*MB*/};
             model::CLimits limits;
             limits.resourceMonitor().memoryLimit(memoryLimit);
-            ml::api::CAnomalyJobConfig jobConfig;
-            jobConfig.analysisConfig().addDetector("mean", "foo", "", "", "bar");
+            ml::api::CAnomalyJobConfig jobConfig =
+                CTestAnomalyJob::makeSimpleJobConfig("mean", "foo", "", "", "bar");
 
             api::CFieldConfig fieldConfig;
             model::CAnomalyDetectorModelConfig modelConfig =
@@ -457,8 +457,8 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             std::size_t memoryLimit{5 /*MB*/};
             model::CLimits limits;
             limits.resourceMonitor().memoryLimit(memoryLimit);
-            ml::api::CAnomalyJobConfig jobConfig;
-            jobConfig.analysisConfig().addDetector("mean", "foo", "", "bar", "");
+            ml::api::CAnomalyJobConfig jobConfig =
+                CTestAnomalyJob::makeSimpleJobConfig("mean", "foo", "", "bar", "");
 
             api::CFieldConfig fieldConfig;
             model::CAnomalyDetectorModelConfig modelConfig =

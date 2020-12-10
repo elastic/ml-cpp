@@ -19,34 +19,7 @@
 #include <string>
 #include <vector>
 
-namespace CAnomalyJobLimitTest {
-struct testAccuracy;
-struct testLimit;
-struct testModelledEntityCountForFixedMemoryLimit;
-}
-
-namespace CAnomalyJobTest {
-struct testBadTimes;
-struct testOutOfSequence;
-struct testControlMessages;
-struct testSkipTimeControlMessage;
-struct testIsPersistenceNeeded;
-struct testModelPlot;
-struct testInterimResultEdgeCases;
-struct testRestoreFailsWithEmptyStream;
-}
-
-namespace CForecastRunnerTest {
-struct testSummaryCount;
-struct testRare;
-struct testInsufficientData;
-}
-
-namespace CStringStoreTest {
-struct testPersonStringPruning;
-struct testAttributeStringPruning;
-struct testInfluencerStringPruning;
-}
+class CTestAnomalyJob;
 
 namespace ml {
 namespace model {
@@ -174,20 +147,8 @@ public:
                 return m_PartitionFieldName;
             }
 
-            model_t::EExcludeFrequent excludeFrequent() const {
-                if (m_OverHasExcludeFrequent) {
-                    if (m_ByHasExcludeFrequent) {
-                        return model_t::E_XF_Both;
-                    } else {
-                        return model_t::E_XF_Over;
-                    }
-                } else {
-                    if (m_ByHasExcludeFrequent) {
-                        return model_t::E_XF_By;
-                    }
-                }
-                return model_t::E_XF_None;
-            }
+            model_t::EExcludeFrequent excludeFrequent() const;
+
             std::string detectorDescription() const {
                 return m_DetectorDescription;
             }
@@ -314,10 +275,10 @@ public:
                          const std::string& byFieldName,
                          const std::string& overFieldName,
                          const std::string& partitionFieldName,
-                         const TStrVec& influencers = {},
-                         const std::string& summaryCountFieldName = "") {
-            m_Influencers = std::move(influencers);
-            m_SummaryCountFieldName = std::move(summaryCountFieldName);
+                         const TStrVec& influencers,
+                         const std::string& summaryCountFieldName) {
+            m_Influencers = influencers;
+            m_SummaryCountFieldName = summaryCountFieldName;
             m_Detectors.emplace_back(functionName, fieldName, byFieldName,
                                      overFieldName, partitionFieldName);
         }
@@ -355,23 +316,7 @@ public:
         //! Events consist of a description and a detection rule
         TStrDetectionRulePrVec m_ScheduledEvents{};
 
-        friend struct CAnomalyJobLimitTest::testAccuracy;
-        friend struct CAnomalyJobLimitTest::testLimit;
-        friend struct CAnomalyJobLimitTest::testModelledEntityCountForFixedMemoryLimit;
-        friend struct CAnomalyJobTest::testBadTimes;
-        friend struct CAnomalyJobTest::testOutOfSequence;
-        friend struct CAnomalyJobTest::testControlMessages;
-        friend struct CAnomalyJobTest::testSkipTimeControlMessage;
-        friend struct CAnomalyJobTest::testIsPersistenceNeeded;
-        friend struct CAnomalyJobTest::testModelPlot;
-        friend struct CAnomalyJobTest::testInterimResultEdgeCases;
-        friend struct CAnomalyJobTest::testRestoreFailsWithEmptyStream;
-        friend struct CForecastRunnerTest::testSummaryCount;
-        friend struct CForecastRunnerTest::testRare;
-        friend struct CForecastRunnerTest::testInsufficientData;
-        friend struct CStringStoreTest::testPersonStringPruning;
-        friend struct CStringStoreTest::testAttributeStringPruning;
-        friend struct CStringStoreTest::testInfluencerStringPruning;
+        friend class ::CTestAnomalyJob;
     };
 
     class API_EXPORT CDataDescription {
@@ -465,24 +410,7 @@ public:
                                const TStrDetectionRulePrVec& scheduledEvents)
         : m_AnalysisConfig(rulesFilter, scheduledEvents) {}
 
-    bool initFromFile(const std::string& configFile) {
-        std::string anomalyJobConfigJson;
-        bool couldReadConfigFile;
-        std::tie(anomalyJobConfigJson, couldReadConfigFile) =
-            ml::core::CStringUtils::readFileToString(configFile);
-        if (couldReadConfigFile == false) {
-            LOG_ERROR(<< "Failed to read config file '" << configFile << "'");
-            return false;
-        }
-
-        if (this->parse(anomalyJobConfigJson) == false) {
-            LOG_ERROR(<< "Failed to parse anomaly job config: '"
-                      << anomalyJobConfigJson << "'");
-            return false;
-        }
-
-        return true;
-    }
+    bool initFromFile(const std::string& configFile);
 
     bool parse(const std::string& json);
 

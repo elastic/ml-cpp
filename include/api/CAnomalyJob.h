@@ -368,7 +368,7 @@ private:
                  const model::CAnomalyDetector::TModelFactoryCPtr& modelFactory);
 
     //! Populate detector keys from the anomaly job config.
-    void populateDetectorKeys(const CAnomalyJobConfig& fieldConfig, TKeyVec& keys);
+    void populateDetectorKeys(const CAnomalyJobConfig& jobConfig, TKeyVec& keys);
 
     //! Extract the field called \p fieldName from \p dataRowFields.
     const std::string* fieldValue(const std::string& fieldName, const TStrStrUMap& dataRowFields);

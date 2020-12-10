@@ -125,10 +125,10 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
     core_t::TTime BUCKET_SPAN(10000);
     core_t::TTime time = 100000000;
 
-    api::CAnomalyJobConfig jobConfig;
     api::CFieldConfig fieldConfig;
 
-    jobConfig.analysisConfig().addDetector("max", "notes", "composer", "", "instrument");
+    api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+        "max", "notes", "composer", "", "instrument");
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
@@ -305,10 +305,10 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
     core_t::TTime BUCKET_SPAN(10000);
     core_t::TTime time = 100000000;
 
-    api::CAnomalyJobConfig jobConfig;
     api::CFieldConfig fieldConfig;
 
-    jobConfig.analysisConfig().addDetector("dc", "notes", "composer", "", "instrument");
+    api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+        "dc", "notes", "", "composer", "instrument");
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
@@ -491,9 +491,8 @@ BOOST_FIXTURE_TEST_CASE(testInfluencerStringPruning, CTestFixture) {
     core_t::TTime BUCKET_SPAN(10000);
     core_t::TTime time = 100000000;
 
-    api::CAnomalyJobConfig jobConfig;
-    jobConfig.analysisConfig().addDetector("max", "notes", "", "", "",
-                                           {"composer", "instrument"});
+    api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+        "max", "notes", "", "", "", {"composer", "instrument"});
 
     api::CFieldConfig fieldConfig;
 

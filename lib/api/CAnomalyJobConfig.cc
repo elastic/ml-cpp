@@ -6,7 +6,6 @@
 #include <api/CAnomalyJobConfig.h>
 
 #include <core/CLogger.h>
-#include <core/CStrCaseCmp.h>
 #include <core/CStringUtils.h>
 #include <core/CTimeUtils.h>
 #include <core/Constants.h>
@@ -316,6 +315,24 @@ const CAnomalyJobConfigReader DATA_DESCRIPTION_READER{[] {
                            CAnomalyJobConfigReader::E_OptionalParameter);
     return theReader;
 }()};
+}
+
+bool CAnomalyJobConfig::initFromFile(const std::string& configFile) {
+    std::string anomalyJobConfigJson;
+    bool couldReadConfigFile;
+    std::tie(anomalyJobConfigJson, couldReadConfigFile) =
+        ml::core::CStringUtils::readFileToString(configFile);
+    if (couldReadConfigFile == false) {
+        LOG_ERROR(<< "Failed to read config file '" << configFile << "'");
+        return false;
+    }
+
+    if (this->parse(anomalyJobConfigJson) == false) {
+        LOG_ERROR(<< "Failed to parse anomaly job config: '" << anomalyJobConfigJson << "'");
+        return false;
+    }
+
+    return true;
 }
 
 bool CAnomalyJobConfig::parse(const std::string& json) {
@@ -647,90 +664,95 @@ bool CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::determineFunction(bool
     bool isPopulation{m_OverFieldName.empty() == false};
     bool hasByField{m_ByFieldName.empty() == false};
 
-    // Some functions must take an argument, some mustn't and for the rest it's
+    // Some functions must take a field, some mustn't and for the rest it's
     // optional.  Validate this based on the contents of these flags after
     // determining the function.  Similarly for by fields.
     // TODO: Check how much validation is required here (if any) if parsing JSON job config.
-    bool argumentRequired{false};
-    bool argumentInvalid{false};
+    bool fieldRequired{false};
+    bool fieldInvalid{false};
     bool byFieldRequired{false};
     bool byFieldInvalid{false};
+
+    if (m_FunctionName.empty()) {
+        LOG_ERROR(<< "No function specified");
+        return false;
+    }
 
     if (m_FunctionName == FUNCTION_COUNT || m_FunctionName == FUNCTION_COUNT_ABBREV) {
         m_Function = isPopulation ? model::function_t::E_PopulationCount
                                   : model::function_t::E_IndividualRareCount;
-        argumentInvalid = true;
+        fieldInvalid = true;
     } else if (m_FunctionName == FUNCTION_DISTINCT_COUNT ||
                m_FunctionName == FUNCTION_DISTINCT_COUNT_ABBREV) {
         m_Function = isPopulation ? model::function_t::E_PopulationDistinctCount
                                   : model::function_t::E_IndividualDistinctCount;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_LOW_DISTINCT_COUNT ||
                m_FunctionName == FUNCTION_LOW_DISTINCT_COUNT_ABBREV) {
         m_Function = isPopulation ? model::function_t::E_PopulationLowDistinctCount
                                   : model::function_t::E_IndividualLowDistinctCount;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_HIGH_DISTINCT_COUNT ||
                m_FunctionName == FUNCTION_HIGH_DISTINCT_COUNT_ABBREV) {
         m_Function = isPopulation ? model::function_t::E_PopulationHighDistinctCount
                                   : model::function_t::E_IndividualHighDistinctCount;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_NON_ZERO_COUNT ||
                m_FunctionName == FUNCTION_NON_ZERO_COUNT_ABBREV) {
         m_Function = model::function_t::E_IndividualNonZeroCount;
-        argumentInvalid = true;
+        fieldInvalid = true;
     } else if (m_FunctionName == FUNCTION_RARE_NON_ZERO_COUNT ||
                m_FunctionName == FUNCTION_RARE_NON_ZERO_COUNT_ABBREV) {
         m_Function = model::function_t::E_IndividualRareNonZeroCount;
-        argumentInvalid = true;
+        fieldInvalid = true;
         byFieldRequired = true;
     } else if (m_FunctionName == FUNCTION_RARE) {
         m_Function = isPopulation ? model::function_t::E_PopulationRare
                                   : model::function_t::E_IndividualRare;
-        argumentInvalid = true;
+        fieldInvalid = true;
         byFieldRequired = true;
     } else if (m_FunctionName == FUNCTION_RARE_COUNT) {
         m_Function = model::function_t::E_PopulationRareCount;
-        argumentInvalid = true;
+        fieldInvalid = true;
         byFieldRequired = true;
     } else if (m_FunctionName == FUNCTION_LOW_COUNT || m_FunctionName == FUNCTION_LOW_COUNT_ABBREV) {
         m_Function = isPopulation ? model::function_t::E_PopulationLowCounts
                                   : model::function_t::E_IndividualLowCounts;
-        argumentInvalid = true;
+        fieldInvalid = true;
     } else if (m_FunctionName == FUNCTION_HIGH_COUNT ||
                m_FunctionName == FUNCTION_HIGH_COUNT_ABBREV) {
         m_Function = isPopulation ? model::function_t::E_PopulationHighCounts
                                   : model::function_t::E_IndividualHighCounts;
-        argumentInvalid = true;
+        fieldInvalid = true;
     } else if (m_FunctionName == FUNCTION_LOW_NON_ZERO_COUNT ||
                m_FunctionName == FUNCTION_LOW_NON_ZERO_COUNT_ABBREV) {
         m_Function = model::function_t::E_IndividualLowNonZeroCount;
-        argumentInvalid = true;
+        fieldInvalid = true;
     } else if (m_FunctionName == FUNCTION_HIGH_NON_ZERO_COUNT ||
                m_FunctionName == FUNCTION_HIGH_NON_ZERO_COUNT_ABBREV) {
         m_Function = model::function_t::E_IndividualHighNonZeroCount;
-        argumentInvalid = true;
+        fieldInvalid = true;
     } else if (m_FunctionName == FUNCTION_FREQ_RARE || m_FunctionName == FUNCTION_FREQ_RARE_ABBREV) {
         m_Function = model::function_t::E_PopulationFreqRare;
-        argumentInvalid = true;
+        fieldInvalid = true;
         byFieldRequired = true;
     } else if (m_FunctionName == FUNCTION_FREQ_RARE_COUNT ||
                m_FunctionName == FUNCTION_FREQ_RARE_COUNT_ABBREV) {
         m_Function = model::function_t::E_PopulationFreqRareCount;
-        argumentInvalid = true;
+        fieldInvalid = true;
         byFieldRequired = true;
     } else if (m_FunctionName == FUNCTION_INFO_CONTENT) {
         m_Function = isPopulation ? model::function_t::E_PopulationInfoContent
                                   : model::function_t::E_IndividualInfoContent;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_LOW_INFO_CONTENT) {
         m_Function = isPopulation ? model::function_t::E_PopulationLowInfoContent
                                   : model::function_t::E_IndividualLowInfoContent;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_HIGH_INFO_CONTENT) {
         m_Function = isPopulation ? model::function_t::E_PopulationHighInfoContent
                                   : model::function_t::E_IndividualHighInfoContent;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_METRIC) {
         if (haveSummaryCountField) {
             LOG_ERROR(<< "Function " << m_FunctionName
@@ -740,153 +762,158 @@ bool CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::determineFunction(bool
 
         m_Function = isPopulation ? model::function_t::E_PopulationMetric
                                   : model::function_t::E_IndividualMetric;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_AVERAGE || m_FunctionName == FUNCTION_MEAN) {
         m_Function = isPopulation ? model::function_t::E_PopulationMetricMean
                                   : model::function_t::E_IndividualMetricMean;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_LOW_AVERAGE || m_FunctionName == FUNCTION_LOW_MEAN) {
         m_Function = isPopulation ? model::function_t::E_PopulationMetricLowMean
                                   : model::function_t::E_IndividualMetricLowMean;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_HIGH_AVERAGE || m_FunctionName == FUNCTION_HIGH_MEAN) {
         m_Function = isPopulation ? model::function_t::E_PopulationMetricHighMean
                                   : model::function_t::E_IndividualMetricHighMean;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_MEDIAN) {
         m_Function = isPopulation ? model::function_t::E_PopulationMetricMedian
                                   : model::function_t::E_IndividualMetricMedian;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_LOW_MEDIAN) {
         m_Function = isPopulation ? model::function_t::E_PopulationMetricLowMedian
                                   : model::function_t::E_IndividualMetricLowMedian;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_HIGH_MEDIAN) {
         m_Function = isPopulation ? model::function_t::E_PopulationMetricHighMedian
                                   : model::function_t::E_IndividualMetricHighMedian;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_MIN) {
         m_Function = isPopulation ? model::function_t::E_PopulationMetricMin
                                   : model::function_t::E_IndividualMetricMin;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_MAX) {
         m_Function = isPopulation ? model::function_t::E_PopulationMetricMax
                                   : model::function_t::E_IndividualMetricMax;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_VARIANCE) {
         m_Function = isPopulation ? model::function_t::E_PopulationMetricVariance
                                   : model::function_t::E_IndividualMetricVariance;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_LOW_VARIANCE) {
         m_Function = isPopulation ? model::function_t::E_PopulationMetricLowVariance
                                   : model::function_t::E_IndividualMetricLowVariance;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_HIGH_VARIANCE) {
         m_Function = isPopulation ? model::function_t::E_PopulationMetricHighVariance
                                   : model::function_t::E_IndividualMetricHighVariance;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_SUM) {
         m_Function = isPopulation ? model::function_t::E_PopulationMetricSum
                                   : model::function_t::E_IndividualMetricSum;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_LOW_SUM) {
         m_Function = isPopulation ? model::function_t::E_PopulationMetricLowSum
                                   : model::function_t::E_IndividualMetricLowSum;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_HIGH_SUM) {
         m_Function = isPopulation ? model::function_t::E_PopulationMetricHighSum
                                   : model::function_t::E_IndividualMetricHighSum;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_NON_NULL_SUM ||
                m_FunctionName == FUNCTION_NON_NULL_SUM_ABBREV) {
         m_Function = model::function_t::E_IndividualMetricNonNullSum;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_LOW_NON_NULL_SUM ||
                m_FunctionName == FUNCTION_LOW_NON_NULL_SUM_ABBREV) {
         m_Function = model::function_t::E_IndividualMetricLowNonNullSum;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_HIGH_NON_NULL_SUM ||
                m_FunctionName == FUNCTION_HIGH_NON_NULL_SUM_ABBREV) {
         m_Function = model::function_t::E_IndividualMetricHighNonNullSum;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_TIME_OF_DAY) {
         m_Function = isPopulation ? model::function_t::E_PopulationTimeOfDay
                                   : model::function_t::E_IndividualTimeOfDay;
-        argumentRequired = false;
-        argumentInvalid = true;
+        fieldRequired = false;
+        fieldInvalid = true;
     } else if (m_FunctionName == FUNCTION_TIME_OF_WEEK) {
         m_Function = isPopulation ? model::function_t::E_PopulationTimeOfWeek
                                   : model::function_t::E_IndividualTimeOfWeek;
-        argumentRequired = false;
-        argumentInvalid = true;
+        fieldRequired = false;
+        fieldInvalid = true;
     } else if (m_FunctionName == FUNCTION_LAT_LONG) {
         m_Function = isPopulation ? model::function_t::E_PopulationLatLong
                                   : model::function_t::E_IndividualLatLong;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_MAX_VELOCITY) {
         m_Function = isPopulation ? model::function_t::E_PopulationMaxVelocity
                                   : model::function_t::E_IndividualMaxVelocity;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_MIN_VELOCITY) {
         m_Function = isPopulation ? model::function_t::E_PopulationMinVelocity
                                   : model::function_t::E_IndividualMinVelocity;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_MEAN_VELOCITY) {
         m_Function = isPopulation ? model::function_t::E_PopulationMeanVelocity
                                   : model::function_t::E_IndividualMeanVelocity;
-        argumentRequired = true;
+        fieldRequired = true;
     } else if (m_FunctionName == FUNCTION_SUM_VELOCITY) {
         m_Function = isPopulation ? model::function_t::E_PopulationSumVelocity
                                   : model::function_t::E_IndividualSumVelocity;
-        argumentRequired = true;
+        fieldRequired = true;
     } else {
-        if (haveSummaryCountField) {
-            LOG_ERROR(<< "Implicit function metric() cannot be "
-                         "used with a summary count field");
-            return false;
-        }
-
-        m_Function = isPopulation ? model::function_t::E_PopulationMetric
-                                  : model::function_t::E_IndividualMetric;
-
-        // This is inconsistent notation, but kept for backwards compatibility
-        m_FieldName = m_FunctionName;
-
-        return true;
+        LOG_ERROR(<< "Invalid function " << m_FunctionName << " specified");
+        return false;
     }
 
     // Validate
     if (model::function_t::isPopulation(m_Function) && isPopulation == false) {
-        LOG_ERROR(<< "Function " << m_FunctionName << "() requires an 'over' field");
+        LOG_ERROR(<< "Function " << m_FunctionName << " requires an 'over' field");
         return false;
     }
 
     if (isPopulation && model::function_t::isPopulation(m_Function) == false) {
-        LOG_ERROR(<< "Function " << m_FunctionName << "() cannot be used with an 'over' field");
+        LOG_ERROR(<< "Function " << m_FunctionName << " cannot be used with an 'over' field");
         return false;
     }
 
     if (byFieldRequired && hasByField == false) {
-        LOG_ERROR(<< "Function " << m_FunctionName << "() requires a 'by' field");
+        LOG_ERROR(<< "Function " << m_FunctionName << " requires a 'by' field");
         return false;
     }
 
     if (byFieldInvalid && hasByField) {
-        LOG_ERROR(<< "Function " << m_FunctionName << "() cannot be used with a 'by' field");
+        LOG_ERROR(<< "Function " << m_FunctionName << " cannot be used with a 'by' field");
         return false;
     }
 
-    if (argumentRequired && m_FieldName.empty()) {
-        LOG_ERROR(<< "Function " << m_FunctionName << "() requires an argument");
+    if (fieldRequired && m_FieldName.empty()) {
+        LOG_ERROR(<< "Function " << m_FunctionName << " requires a field");
         return false;
     }
 
-    if (argumentInvalid && m_FieldName.empty() == false) {
-        LOG_ERROR(<< "Function " << m_FunctionName << "() does not take an argument");
+    if (fieldInvalid && m_FieldName.empty() == false) {
+        LOG_ERROR(<< "Function " << m_FunctionName << " does not work on a field");
         return false;
     }
 
     return true;
+}
+
+model_t::EExcludeFrequent
+CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::excludeFrequent() const {
+    if (m_OverHasExcludeFrequent) {
+        if (m_ByHasExcludeFrequent) {
+            return model_t::E_XF_Both;
+        } else {
+            return model_t::E_XF_Over;
+        }
+    } else {
+        if (m_ByHasExcludeFrequent) {
+            return model_t::E_XF_By;
+        }
+    }
+    return model_t::E_XF_None;
 }
 
 bool CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::decipherExcludeFrequentSetting() {
@@ -895,23 +922,15 @@ bool CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::decipherExcludeFrequen
     bool isPopulation{m_OverFieldName.empty() == false};
 
     if (m_ExcludeFrequent.empty() == false) {
-        if (m_ExcludeFrequent.length() == ALL_TOKEN.length() &&
-            core::CStrCaseCmp::strCaseCmp(m_ExcludeFrequent.c_str(), ALL_TOKEN.c_str()) == 0) {
+        if (m_ExcludeFrequent == ALL_TOKEN) {
             m_ByHasExcludeFrequent = hasByField;
             m_OverHasExcludeFrequent = isPopulation;
-        } else if (m_ExcludeFrequent.length() == BY_TOKEN.length() &&
-                   core::CStrCaseCmp::strCaseCmp(m_ExcludeFrequent.c_str(),
-                                                 BY_TOKEN.c_str()) == 0) {
+        } else if (m_ExcludeFrequent == BY_TOKEN) {
             m_ByHasExcludeFrequent = hasByField;
-        } else if (m_ExcludeFrequent.length() == OVER_TOKEN.length() &&
-                   core::CStrCaseCmp::strCaseCmp(m_ExcludeFrequent.c_str(),
-                                                 OVER_TOKEN.c_str()) == 0) {
+        } else if (m_ExcludeFrequent == OVER_TOKEN) {
             m_OverHasExcludeFrequent = isPopulation;
         } else {
-            if (m_ExcludeFrequent.length() != NONE_TOKEN.length() ||
-                core::CStrCaseCmp::strCaseCmp(m_ExcludeFrequent.c_str(),
-                                              NONE_TOKEN.c_str()) != 0) {
-                LOG_ERROR(<< "Unexpected excludeFrequent value = " << m_ExcludeFrequent);
+            if (m_ExcludeFrequent == NONE_TOKEN) {
                 return false;
             }
         }

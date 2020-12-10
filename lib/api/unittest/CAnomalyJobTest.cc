@@ -185,8 +185,8 @@ BOOST_AUTO_TEST_CASE(testBadTimes) {
     {
         // Test with no time field
         model::CLimits limits;
-        api::CAnomalyJobConfig jobConfig;
-        jobConfig.analysisConfig().addDetector("value", "", "", "", "greenhouse");
+        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "", "", "greenhouse");
 
         api::CFieldConfig fieldConfig;
 
@@ -209,8 +209,8 @@ BOOST_AUTO_TEST_CASE(testBadTimes) {
     {
         // Test with bad time field
         model::CLimits limits;
-        api::CAnomalyJobConfig jobConfig;
-        jobConfig.analysisConfig().addDetector("value", "", "", "", "greenhouse");
+        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "", "", "greenhouse");
 
         api::CFieldConfig fieldConfig;
 
@@ -233,8 +233,8 @@ BOOST_AUTO_TEST_CASE(testBadTimes) {
     {
         // Test with bad time field format
         model::CLimits limits;
-        api::CAnomalyJobConfig jobConfig;
-        jobConfig.analysisConfig().addDetector("value", "", "", "", "greenhouse");
+        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "", "", "greenhouse");
 
         api::CFieldConfig fieldConfig;
 
@@ -261,8 +261,8 @@ BOOST_AUTO_TEST_CASE(testOutOfSequence) {
     {
         // Test out of sequence record
         model::CLimits limits;
-        api::CAnomalyJobConfig jobConfig;
-        jobConfig.analysisConfig().addDetector("value", "", "", "", "greenhouse");
+        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "", "", "greenhouse");
 
         api::CFieldConfig fieldConfig;
 
@@ -298,8 +298,8 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
     {
         // Test control messages
         model::CLimits limits;
-        api::CAnomalyJobConfig jobConfig;
-        jobConfig.analysisConfig().addDetector("value", "", "", "", "greenhouse");
+        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "", "", "greenhouse");
 
         api::CFieldConfig fieldConfig;
 
@@ -331,8 +331,8 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
     {
         // Test reset bucket
         model::CLimits limits;
-        api::CAnomalyJobConfig jobConfig;
-        jobConfig.analysisConfig().addDetector("count", "", "", "", "greenhouse");
+        api::CAnomalyJobConfig jobConfig =
+            CTestAnomalyJob::makeSimpleJobConfig("count", "", "", "", "greenhouse");
 
         api::CFieldConfig fieldConfig;
 
@@ -448,8 +448,8 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
 
 BOOST_AUTO_TEST_CASE(testSkipTimeControlMessage) {
     model::CLimits limits;
-    api::CAnomalyJobConfig jobConfig;
-    jobConfig.analysisConfig().addDetector("count", "", "", "", "");
+    api::CAnomalyJobConfig jobConfig =
+        CTestAnomalyJob::makeSimpleJobConfig("count", "", "", "", "");
 
     api::CFieldConfig fieldConfig;
 
@@ -500,8 +500,8 @@ BOOST_AUTO_TEST_CASE(testSkipTimeControlMessage) {
 BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
 
     model::CLimits limits;
-    api::CAnomalyJobConfig jobConfig;
-    jobConfig.analysisConfig().addDetector("count", "", "", "", "");
+    api::CAnomalyJobConfig jobConfig =
+        CTestAnomalyJob::makeSimpleJobConfig("count", "", "", "", "");
 
     api::CFieldConfig fieldConfig;
 
@@ -607,10 +607,10 @@ BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
 BOOST_AUTO_TEST_CASE(testModelPlot) {
     core_t::TTime bucketSize = 10000;
     model::CLimits limits;
-    api::CAnomalyJobConfig jobConfig;
     api::CFieldConfig fieldConfig;
 
-    jobConfig.analysisConfig().addDetector("mean", "value", "animal", "", "");
+    ml::api::CAnomalyJobConfig jobConfig =
+        CTestAnomalyJob::makeSimpleJobConfig("mean", "value", "animal", "", "");
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(bucketSize, model_t::E_None,
@@ -684,8 +684,8 @@ BOOST_AUTO_TEST_CASE(testInterimResultEdgeCases) {
 
     core_t::TTime bucketSize = 3600;
     model::CLimits limits;
-    api::CAnomalyJobConfig jobConfig;
-    jobConfig.analysisConfig().addDetector("count", "", "error", "", "");
+    api::CAnomalyJobConfig jobConfig =
+        CTestAnomalyJob::makeSimpleJobConfig("count", "", "error", "", "");
 
     api::CFieldConfig fieldConfig;
 
@@ -746,8 +746,8 @@ BOOST_AUTO_TEST_CASE(testInterimResultEdgeCases) {
 
 BOOST_AUTO_TEST_CASE(testRestoreFailsWithEmptyStream) {
     model::CLimits limits;
-    api::CAnomalyJobConfig jobConfig;
-    jobConfig.analysisConfig().addDetector("value", "", "", "", "greenhouse");
+    api::CAnomalyJobConfig jobConfig =
+        CTestAnomalyJob::makeSimpleJobConfig("value", "", "", "", "greenhouse");
 
     api::CFieldConfig fieldConfig;
 
