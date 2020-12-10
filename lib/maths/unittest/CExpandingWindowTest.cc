@@ -19,6 +19,7 @@
 #include <boost/math/constants/constants.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include <map>
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CExpandingWindowTest)
@@ -81,8 +82,8 @@ BOOST_AUTO_TEST_CASE(testBasicUsage) {
                             core::CContainerPrinter::print(compressed.values()));
 
         core_t::TTime time{startTime + static_cast<core_t::TTime>(600 * size + 1)};
-        compressed.add(time, 5.0, 0.9);
-        uncompressed.add(time, 5.0, 0.9);
+        compressed.add(time, 5.0, 0.0, 0.9);
+        uncompressed.add(time, 5.0, 0.0, 0.9);
         expected1800[(time - startTime) / 1800].add(5.0, 0.9);
 
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(expected1800),
@@ -151,8 +152,10 @@ BOOST_AUTO_TEST_CASE(testBasicUsage) {
     LOG_DEBUG(<< "Testing overflow");
 
     window.add(static_cast<core_t::TTime>(size * 3600 + 1), 0.1);
-    BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(size * 3600), window.startTime());
-    BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(size * 3900), window.endTime());
+    BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(size * 3600) + window.sampleAverageOffset(),
+                        window.beginValuesTime());
+    BOOST_REQUIRE_EQUAL(static_cast<core_t::TTime>(size * 3900) + window.sampleAverageOffset(),
+                        window.endValuesTime());
 
     TFloatMeanAccumulatorVec expected(size);
     expected[0].add(0.1);
@@ -196,6 +199,43 @@ BOOST_AUTO_TEST_CASE(testValuesMinusPrediction) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(maths::CBasicStatistics::mean(expected[i]),
                                      maths::CBasicStatistics::mean(actual[i]),
                                      maths::CFloatStorage(1e-5f));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testValuesStartAndEndTimes) {
+    // Test that we get the correct value start and end times for multiple
+    // offsets and window bucket length.
+
+    using TTimeTimeVecMap = std::map<core_t::TTime, std::vector<core_t::TTime>>;
+
+    std::size_t size{24};
+
+    TTimeTimeVecMap expectedStartTimes{{120, {120, 240, 840, 1740}},
+                                       {300, {0, 150, 750, 1650}}};
+
+    for (core_t::TTime dataBucketLength : {120, 300}) {
+
+        const auto& bucketLengthExpectedStartTimes = expectedStartTimes[dataBucketLength];
+
+        for (auto offset : {0, 60}) {
+
+            maths::CExpandingWindow window{dataBucketLength,
+                                           TTimeCRng{BUCKET_LENGTHS, 0, 4}, size};
+
+            core_t::TTime time{offset};
+            for (std::size_t i = 0; i < 4; ++i) {
+                core_t::TTime windowLength{
+                    static_cast<core_t::TTime>(size * window.bucketLength())};
+                for (/**/; time < windowLength; time += dataBucketLength) {
+                    window.add(time, 10.0);
+                    BOOST_REQUIRE_EQUAL(bucketLengthExpectedStartTimes[i] + offset,
+                                        window.beginValuesTime());
+                    BOOST_REQUIRE_EQUAL(bucketLengthExpectedStartTimes[i] + offset + windowLength,
+                                        window.endValuesTime());
+                }
+                window.add(time, 10.0);
+            }
+        }
     }
 }
 

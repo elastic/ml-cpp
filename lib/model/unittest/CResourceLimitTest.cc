@@ -579,13 +579,14 @@ BOOST_FIXTURE_TEST_CASE(testLimitByOver, CTestFixture) {
     // should only have red flowers as results now
     BOOST_REQUIRE_EQUAL(std::size_t(0), secondResults.size());
 }
+
 BOOST_FIXTURE_TEST_CASE(testLargeAllocations, CTestFixture) {
 
     SLargeAllocationTestParams params[] = {
         {false, 70, 3000, 2700, 2900, model_t::E_EventRateOnline},
         {true, 70, 5000, 4500, 4700, model_t::E_EventRateOnline},
-        {false, 100, 4000, 3500, 3700, model_t::E_MetricOnline},
-        {true, 100, 7000, 6100, 6300, model_t::E_MetricOnline}};
+        {false, 100, 4000, 3400, 3700, model_t::E_MetricOnline},
+        {true, 100, 7000, 5900, 6100, model_t::E_MetricOnline}};
 
     for (auto& param : params) {
         doTestLargeAllocations(param);

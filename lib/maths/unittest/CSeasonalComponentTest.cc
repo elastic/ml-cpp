@@ -300,7 +300,7 @@ BOOST_AUTO_TEST_CASE(testConstantPeriodic) {
         totalError2 /= 30.0;
         LOG_DEBUG(<< "totalError1 = " << totalError1);
         LOG_DEBUG(<< "totalError2 = " << totalError2);
-        BOOST_TEST_REQUIRE(totalError1 < 0.42);
+        BOOST_TEST_REQUIRE(totalError1 < 0.46);
         BOOST_TEST_REQUIRE(totalError2 < 0.01);
     }
 
@@ -511,7 +511,7 @@ BOOST_AUTO_TEST_CASE(testTimeVaryingPeriodic) {
                           << mean(seasonal.value(time + core::constants::DAY - 1, 0.0)));
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     mean(seasonal.value(time, 0.0)),
-                    mean(seasonal.value(time + core::constants::DAY - 1, 0.0)), 0.2);
+                    mean(seasonal.value(time + core::constants::DAY - 1, 0.0)), 0.4);
             }
 
             error1 /= static_cast<double>(function.size());

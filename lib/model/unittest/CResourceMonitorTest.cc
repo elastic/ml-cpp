@@ -473,9 +473,9 @@ BOOST_FIXTURE_TEST_CASE(testPruning, CTestFixture) {
     BOOST_TEST_REQUIRE(monitor.m_PruneWindow > level);
 
     // If it grows enough we will stop pruning and revert to memory status OK,
-    // and 7000 completely empty buckets (even without the all pervasive person)
+    // and 8000 completely empty buckets (even without the all pervasive person)
     // is the quickest way to achieve this.
-    bucket += BUCKET_LENGTH * 7000;
+    bucket += BUCKET_LENGTH * 8000;
     this->addTestData(bucket, BUCKET_LENGTH, 2, 0, startOffset, detector, monitor);
     LOG_DEBUG(<< "Window is now: " << monitor.m_PruneWindow);
     BOOST_REQUIRE_EQUAL(false, monitor.m_HasPruningStarted);

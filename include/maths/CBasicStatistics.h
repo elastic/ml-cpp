@@ -79,6 +79,14 @@ public:
                                : (third <= second ? third : second);
     }
 
+    //! Compute the \p percentage percentile variance assuming it's calculated
+    //! from \p degreesFreedom normal random variables.
+    //!
+    //! \param[in] percentage The required percentile in the range (0, 100).
+    //! \param[in] variance The variance statistic value.
+    //! \param[in] degreesFreedom The number of values used to compute \p variance.
+    static double varianceAtPercentile(double percentage, double variance, double degreesFreedom);
+
     /////////////////////////// ACCUMULATORS ///////////////////////////
 
     ////////////////////////// Central Moments /////////////////////////
@@ -1047,6 +1055,9 @@ private:
                        : *this->begin();
         }
 
+        //! Get the maximum number of statistics.
+        inline std::size_t capacity() const { return m_Statistics.size(); }
+
         //! Get the number of statistics.
         inline std::size_t count() const {
             return m_Statistics.size() - m_UnusedCount;
@@ -1267,14 +1278,14 @@ public:
                                       const LESS& less = LESS{})
             : TImpl{std::vector<T>(std::max(n, std::size_t(1)), initial), less} {
             if (n == 0) {
-                LOG_ERROR(<< "Invalid size of 0 for order statistics accumulator");
+                LOG_DEBUG(<< "Invalid size of 0 for order statistics accumulator");
             }
         }
 
         //! Reset the number of statistics to gather to \p n.
         void resize(std::size_t n) {
             if (n == 0) {
-                LOG_ERROR(<< "Invalid resize to 0 for order statistics accumulator");
+                LOG_DEBUG(<< "Invalid resize to 0 for order statistics accumulator");
                 n = 1;
             }
             this->clear();

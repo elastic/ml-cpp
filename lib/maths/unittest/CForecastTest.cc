@@ -57,7 +57,8 @@ public:
     ~CDebugGenerator() {
         if (ENABLED) {
             std::ofstream file;
-            file.open("results.m");
+            file.open("results.py");
+            file << "import matplotlib.pyplot as plt;\n";
             file << "t = " << core::CContainerPrinter::print(m_ValueTimes) << ";\n";
             file << "f = " << core::CContainerPrinter::print(m_Values) << ";\n";
             file << "tp = " << core::CContainerPrinter::print(m_PredictionTimes) << ";\n";
@@ -66,12 +67,12 @@ public:
             file << "fl = " << core::CContainerPrinter::print(m_ForecastLower) << ";\n";
             file << "fm = " << core::CContainerPrinter::print(m_ForecastMean) << ";\n";
             file << "fu = " << core::CContainerPrinter::print(m_ForecastUpper) << ";\n";
-            file << "hold on;\n";
-            file << "plot(t, f);\n";
-            file << "plot(tp, fp, 'k');\n";
-            file << "plot(tf, fl, 'r');\n";
-            file << "plot(tf, fm, 'k');\n";
-            file << "plot(tf, fu, 'r');\n";
+            file << "plt.plot(t, f);\n";
+            file << "plt.plot(tp, fp, 'k');\n";
+            file << "plt.plot(tf, fl, 'r');\n";
+            file << "plt.plot(tf, fm, 'k');\n";
+            file << "plt.plot(tf, fu, 'r');\n";
+            file << "plt.show();\n";
         }
     }
     void addValue(core_t::TTime time, double value) {
@@ -107,7 +108,7 @@ private:
 };
 
 const double DECAY_RATE{0.0005};
-const std::size_t TAG{0u};
+const std::size_t TAG{0};
 const TDouble2Vec MINIMUM_VALUE{boost::numeric::bounds<double>::lowest()};
 const TDouble2Vec MAXIMUM_VALUE{boost::numeric::bounds<double>::highest()};
 
@@ -138,82 +139,116 @@ void mockSink(maths::SErrorBar errorBar, TErrorBarVec& prediction) {
     prediction.push_back(errorBar);
 }
 
-void test(TTrend trend,
-          core_t::TTime bucketLength,
-          std::size_t daysToLearn,
-          double noiseVariance,
-          double maximumPercentageOutOfBounds,
-          double maximumError) {
-    LOG_DEBUG(<< "*** learn ***");
-
-    test::CRandomNumbers rng;
-
-    maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary controllers{
-        decayRateControllers()};
-    maths::CUnivariateTimeSeriesModel model(
-        params(bucketLength), TAG, maths::CTimeSeriesDecomposition(0.012, bucketLength),
-        maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE),
-        &controllers);
-    CDebugGenerator debug;
-
-    core_t::TTime time{0};
-    TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
-    for (std::size_t d = 0u; d < daysToLearn; ++d) {
-        TDoubleVec noise;
-        rng.generateNormalSamples(0.0, noiseVariance,
-                                  core::constants::DAY / bucketLength, noise);
-
-        for (std::size_t i = 0u; i < noise.size(); ++i, time += bucketLength) {
-            maths::CModelAddSamplesParams params;
-            params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
-            double yi{trend(time, noise[i])};
-            model.addSamples(params, {core::make_triple(time, TDouble2Vec{yi}, TAG)});
-            debug.addValue(time, yi);
-            debug.addPrediction(time, maths::CBasicStatistics::mean(model.predict(time)));
-        }
+class CTest {
+public:
+    CTest& bucketLength(core_t::TTime value) {
+        m_BucketLength = value;
+        return *this;
+    }
+    CTest& daysToLearn(std::size_t value) {
+        m_DaysToLearn = value;
+        return *this;
+    }
+    CTest& noiseVariance(double value) {
+        m_NoiseVariance = value;
+        return *this;
+    }
+    // Note that if the confidence intervals are perfectly calibrated we expect 20%
+    // out-of-bounds since we ask for 80% confidence interval. In practice, we tend
+    // to get somewhat lower % since we allow for the parameters to change over the
+    // forecast interval.
+    CTest& maximumPercentageOutOfBounds(double value) {
+        m_MaximumPercentageOutOfBounds = value;
+        return *this;
+    }
+    CTest& maximumError(double value) {
+        m_MaximumError = value;
+        return *this;
     }
 
-    LOG_DEBUG(<< "*** forecast ***");
+    void run(TTrend trend) const {
+        LOG_DEBUG(<< "*** learn ***");
 
-    TErrorBarVec prediction;
-    core_t::TTime start{time};
-    core_t::TTime end{time + 2 * core::constants::WEEK};
-    TModelPtr forecastModel(model.cloneForForecast());
-    std::string m;
-    forecastModel->forecast(
-        0, start, start, end, 80.0, MINIMUM_VALUE, MAXIMUM_VALUE,
-        std::bind(&mockSink, std::placeholders::_1, std::ref(prediction)), m);
+        test::CRandomNumbers rng;
+        maths::CUnivariateTimeSeriesModel::TDecayRateController2Ary controllers{
+            decayRateControllers()};
+        maths::CUnivariateTimeSeriesModel model(
+            params(m_BucketLength), TAG,
+            maths::CTimeSeriesDecomposition(0.012, m_BucketLength),
+            maths::CNormalMeanPrecConjugate::nonInformativePrior(maths_t::E_ContinuousData, DECAY_RATE),
+            &controllers);
+        CDebugGenerator debug;
 
-    std::size_t outOfBounds{0};
-    std::size_t count{0};
-    TMeanAccumulator error;
+        core_t::TTime time{0};
+        TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
+        for (std::size_t d = 0; d < m_DaysToLearn; ++d) {
+            TDoubleVec noise;
+            rng.generateNormalSamples(0.0, m_NoiseVariance,
+                                      core::constants::DAY / m_BucketLength, noise);
 
-    for (std::size_t i = 0u; i < prediction.size(); /**/) {
-        TDoubleVec noise;
-        rng.generateNormalSamples(0.0, noiseVariance,
-                                  core::constants::DAY / bucketLength, noise);
-        TDoubleVec day;
-        for (std::size_t j = 0u; i < prediction.size() && j < noise.size();
-             ++i, ++j, time += bucketLength) {
-            double yj{trend(time, noise[j])};
-            day.push_back(yj);
-            outOfBounds +=
-                (yj < prediction[i].s_LowerBound || yj > prediction[i].s_UpperBound ? 1 : 0);
-            ++count;
-            error.add(std::fabs(yj - prediction[i].s_Predicted) / std::fabs(yj));
-            debug.addValue(time, yj);
-            debug.addForecast(time, prediction[i]);
+            for (std::size_t i = 0; i < noise.size(); ++i, time += m_BucketLength) {
+                maths::CModelAddSamplesParams params;
+                params.integer(false)
+                    .propagationInterval(1.0)
+                    .trendWeights(weights)
+                    .priorWeights(weights);
+                double yi{trend(time, noise[i])};
+                model.addSamples(params, {core::make_triple(time, TDouble2Vec{yi}, TAG)});
+                debug.addValue(time, yi);
+                debug.addPrediction(
+                    time, maths::CBasicStatistics::mean(model.predict(time)));
+            }
         }
+
+        LOG_DEBUG(<< "*** forecast ***");
+
+        TErrorBarVec prediction;
+        core_t::TTime start{time};
+        core_t::TTime end{time + 2 * core::constants::WEEK};
+        TModelPtr forecastModel(model.cloneForForecast());
+        std::string m;
+        forecastModel->forecast(
+            0, start, start, end, 80.0, MINIMUM_VALUE, MAXIMUM_VALUE,
+            std::bind(&mockSink, std::placeholders::_1, std::ref(prediction)), m);
+
+        std::size_t outOfBounds{0};
+        std::size_t count{0};
+        TMeanAccumulator error;
+
+        for (std::size_t i = 0; i < prediction.size(); /**/) {
+            TDoubleVec noise;
+            rng.generateNormalSamples(0.0, m_NoiseVariance,
+                                      core::constants::DAY / m_BucketLength, noise);
+            TDoubleVec day;
+            for (std::size_t j = 0; i < prediction.size() && j < noise.size();
+                 ++i, ++j, time += m_BucketLength) {
+                double yj{trend(time, noise[j])};
+                day.push_back(yj);
+                outOfBounds +=
+                    (yj < prediction[i].s_LowerBound || yj > prediction[i].s_UpperBound ? 1 : 0);
+                ++count;
+                error.add(std::fabs(yj - prediction[i].s_Predicted) / std::fabs(yj));
+                debug.addValue(time, yj);
+                debug.addForecast(time, prediction[i]);
+            }
+        }
+
+        double percentageOutOfBounds{100.0 * static_cast<double>(outOfBounds) /
+                                     static_cast<double>(count)};
+        LOG_DEBUG(<< "% out of bounds = " << percentageOutOfBounds);
+        LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
+
+        BOOST_TEST_REQUIRE(percentageOutOfBounds < m_MaximumPercentageOutOfBounds);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < m_MaximumError);
     }
 
-    double percentageOutOfBounds{100.0 * static_cast<double>(outOfBounds) /
-                                 static_cast<double>(count)};
-    LOG_DEBUG(<< "% out of bounds = " << percentageOutOfBounds);
-    LOG_DEBUG(<< "error = " << maths::CBasicStatistics::mean(error));
-
-    BOOST_TEST_REQUIRE(percentageOutOfBounds < maximumPercentageOutOfBounds);
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < maximumError);
-}
+private:
+    core_t::TTime m_BucketLength = 0;
+    std::size_t m_DaysToLearn = 0;
+    double m_NoiseVariance = 0.0;
+    double m_MaximumPercentageOutOfBounds = 20.0;
+    double m_MaximumError = 0.0;
+};
 }
 
 BOOST_AUTO_TEST_CASE(testDailyNoLongTermTrend) {
@@ -231,7 +266,13 @@ BOOST_AUTO_TEST_CASE(testDailyNoLongTermTrend) {
         return 40.0 + alpha * y[i / 6] + beta * y[(i / 6 + 1) % y.size()] + noise;
     };
 
-    test(trend, bucketLength, 63, 64.0, 10.0, 0.15);
+    CTest test;
+    test.bucketLength(bucketLength)
+        .daysToLearn(63)
+        .noiseVariance(64.0)
+        .maximumPercentageOutOfBounds(12.0)
+        .maximumError(0.14)
+        .run(trend);
 }
 
 BOOST_AUTO_TEST_CASE(testDailyConstantLongTermTrend) {
@@ -246,11 +287,17 @@ BOOST_AUTO_TEST_CASE(testDailyConstantLongTermTrend) {
                y[i] + noise;
     };
 
-    test(trend, bucketLength, 63, 64.0, 12.0, 0.016);
+    CTest test;
+    test.bucketLength(bucketLength)
+        .daysToLearn(63)
+        .noiseVariance(64.0)
+        .maximumPercentageOutOfBounds(13.0)
+        .maximumError(0.016)
+        .run(trend);
 }
 
 BOOST_AUTO_TEST_CASE(testDailyVaryingLongTermTrend) {
-    core_t::TTime bucketLength{3600};
+    core_t::TTime bucketLength{1800};
     double day{static_cast<double>(core::constants::DAY)};
     TDoubleVec times{0.0,         5.0 * day,   10.0 * day,  15.0 * day,
                      20.0 * day,  25.0 * day,  30.0 * day,  35.0 * day,
@@ -271,7 +318,13 @@ BOOST_AUTO_TEST_CASE(testDailyVaryingLongTermTrend) {
                8.0 * std::sin(boost::math::double_constants::two_pi * time_ / 43200.0) + noise;
     };
 
-    test(trend, bucketLength, 98, 9.0, 7.0, 0.043);
+    CTest test;
+    test.bucketLength(bucketLength)
+        .daysToLearn(98)
+        .noiseVariance(9.0)
+        .maximumPercentageOutOfBounds(5.0)
+        .maximumError(0.04)
+        .run(trend);
 }
 
 BOOST_AUTO_TEST_CASE(testComplexNoLongTermTrend) {
@@ -287,7 +340,13 @@ BOOST_AUTO_TEST_CASE(testComplexNoLongTermTrend) {
         return scale[d] * (20.0 + y[h] + noise);
     };
 
-    test(trend, bucketLength, 63, 24.0, 10.0, 0.14);
+    CTest test;
+    test.bucketLength(bucketLength)
+        .daysToLearn(63)
+        .noiseVariance(4.0)
+        .maximumPercentageOutOfBounds(9.0)
+        .maximumError(0.06)
+        .run(trend);
 }
 
 BOOST_AUTO_TEST_CASE(testComplexConstantLongTermTrend) {
@@ -304,7 +363,13 @@ BOOST_AUTO_TEST_CASE(testComplexConstantLongTermTrend) {
                scale[d] * (20.0 + y[h] + noise);
     };
 
-    test(trend, bucketLength, 63, 24.0, 10.0, 0.01);
+    CTest test;
+    test.bucketLength(bucketLength)
+        .daysToLearn(63)
+        .noiseVariance(4.0)
+        .maximumPercentageOutOfBounds(7.5)
+        .maximumError(0.02)
+        .run(trend);
 }
 
 BOOST_AUTO_TEST_CASE(testComplexVaryingLongTermTrend) {
@@ -327,14 +392,20 @@ BOOST_AUTO_TEST_CASE(testComplexVaryingLongTermTrend) {
     maths::CSpline<> trend_(maths::CSplineTypes::E_Cubic);
     trend_.interpolate(times, values, maths::CSplineTypes::E_Natural);
 
-    TTrend trend = [&trend_, &y, &scale, bucketLength](core_t::TTime time, double noise) {
+    TTrend trend = [&trend_, &y, &scale](core_t::TTime time, double noise) {
         core_t::TTime d{(time % core::constants::WEEK) / core::constants::DAY};
-        core_t::TTime h{(time % core::constants::DAY) / 2 / bucketLength};
+        core_t::TTime h{(time % core::constants::DAY) / core::constants::HOUR};
         double time_{static_cast<double>(time)};
         return trend_.value(time_) + scale[d] * (20.0 + y[h] + noise);
     };
 
-    test(trend, bucketLength, 63, 4.0, 19.0, 0.04);
+    CTest test;
+    test.bucketLength(bucketLength)
+        .daysToLearn(98)
+        .noiseVariance(4.0)
+        .maximumPercentageOutOfBounds(17.0)
+        .maximumError(0.05)
+        .run(trend);
 }
 
 BOOST_AUTO_TEST_CASE(testNonNegative) {
@@ -421,7 +492,7 @@ BOOST_AUTO_TEST_CASE(testFinancialIndex) {
     core_t::TTime endTime;
     BOOST_TEST_REQUIRE(test::CTimeSeriesTestData::parse(
         "testfiles/financial_index.csv", timeseries, startTime, endTime, "^([0-9]+),([0-9\\.]+)"));
-    BOOST_TEST_REQUIRE(!timeseries.empty());
+    BOOST_TEST_REQUIRE(timeseries.empty() == false);
 
     LOG_DEBUG(<< "timeseries = "
               << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10)

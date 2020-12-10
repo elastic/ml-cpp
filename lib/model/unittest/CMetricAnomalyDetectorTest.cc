@@ -332,7 +332,7 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
     LOG_DEBUG(<< "high rate noise = " << highRateNoise << ", low rate noise = " << lowRateNoise);
 
     // We don't have significantly more noise in the low rate channel.
-    BOOST_TEST_REQUIRE(std::fabs((1.0 + lowRateNoise) / (1.0 + highRateNoise) - 1.0) < 0.1);
+    BOOST_TEST_REQUIRE(lowRateNoise / highRateNoise < 1.5);
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
@@ -438,7 +438,7 @@ BOOST_AUTO_TEST_CASE(testExcludeFrequent) {
 
         // expect there to be 2 anomalies
         BOOST_REQUIRE_EQUAL(std::size_t(2), highAnomalyTimes.size());
-        BOOST_REQUIRE_CLOSE_ABSOLUTE(92.0, highAnomalyFactors[1], 2.0);
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(99.0, highAnomalyFactors[1], 2.0);
     }
     {
         model::CAnomalyDetectorModelConfig modelConfig =

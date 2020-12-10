@@ -14,16 +14,20 @@
 #include <maths/CCalendarComponent.h>
 #include <maths/CCalendarCyclicTest.h>
 #include <maths/CExpandingWindow.h>
-#include <maths/CPeriodicityHypothesisTests.h>
 #include <maths/CSeasonalComponent.h>
 #include <maths/CSeasonalTime.h>
 #include <maths/CTimeSeriesDecompositionInterface.h>
+#include <maths/CTimeSeriesTestForChange.h>
+#include <maths/CTimeSeriesTestForSeasonality.h>
 #include <maths/CTrendComponent.h>
 #include <maths/ImportExport.h>
+
+#include <boost/circular_buffer.hpp>
 
 #include <array>
 #include <cstddef>
 #include <functional>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -40,6 +44,17 @@ class CTimeSeriesDecomposition;
 class MATHS_EXPORT CTimeSeriesDecompositionDetail : private CTimeSeriesDecompositionTypes {
 public:
     using TDoubleVec = std::vector<double>;
+    using TMakePredictor = std::function<TPredictor()>;
+    using TMakeFilteredPredictor = std::function<TFilteredPredictor()>;
+    using TChangePointUPtr = std::unique_ptr<CChangePoint>;
+
+    // clang-format off
+    using TMakeTestForSeasonality =
+        std::function<CTimeSeriesTestForSeasonality(const CExpandingWindow&,
+                                                    core_t::TTime,
+                                                    const TFilteredPredictor&)>;
+    // clang-format on
+
     class CMediator;
 
     //! \brief The base message passed.
@@ -56,16 +71,21 @@ public:
     struct MATHS_EXPORT SAddValue : public SMessage {
         SAddValue(core_t::TTime time,
                   core_t::TTime lastTime,
+                  core_t::TTime timeShift,
                   double value,
                   const maths_t::TDoubleWeightsAry& weights,
                   double trend,
                   double seasonal,
                   double calendar,
-                  const TPredictor& predictor,
-                  const CPeriodicityHypothesisTestsConfig& periodicityTestConfig);
+                  CTimeSeriesDecomposition& decomposition,
+                  const TMakePredictor& makePredictor,
+                  const TMakeFilteredPredictor& makeSeasonalityTestPreconditioner,
+                  const TMakeTestForSeasonality& makeTestForSeasonality);
         SAddValue(const SAddValue&) = delete;
         SAddValue& operator=(const SAddValue&) = delete;
 
+        //! The time shift being applied.
+        core_t::TTime s_TimeShift;
         //! The value to add.
         double s_Value;
         //! The weights of associated with the value.
@@ -76,31 +96,28 @@ public:
         double s_Seasonal;
         //! The calendar component prediction at the value's time.
         double s_Calendar;
-        //! The predictor for value.
-        TPredictor s_Predictor;
-        //! The periodicity test configuration.
-        CPeriodicityHypothesisTestsConfig s_PeriodicityTestConfig;
+        //! The time series decomposition.
+        CTimeSeriesDecomposition* s_Decomposition;
+        //! Makes the predictor to use in the change detector test.
+        TMakePredictor s_MakePredictor;
+        //! Makes the preconditioner to use for seasonality testing. This removes
+        //! components which won't be explicitly tested.
+        TMakeFilteredPredictor s_MakeSeasonalityTestPreconditioner;
+        //! A factory function to create the test for seasonal components.
+        TMakeTestForSeasonality s_MakeTestForSeasonality;
     };
 
-    //! \brief The message passed to indicate periodic components have
-    //! been detected.
+    //! \brief The message passed to indicate periodic components have been
+    //! detected.
     struct MATHS_EXPORT SDetectedSeasonal : public SMessage {
-        SDetectedSeasonal(core_t::TTime time,
-                          core_t::TTime lastTime,
-                          const CPeriodicityHypothesisTestsResult& result,
-                          const CExpandingWindow& window,
-                          const TPredictor& predictor);
+        SDetectedSeasonal(core_t::TTime time, core_t::TTime lastTime, CSeasonalDecomposition components);
 
         //! The components found.
-        CPeriodicityHypothesisTestsResult s_Result;
-        //! The window tested.
-        const CExpandingWindow& s_Window;
-        //! The predictor for window values.
-        TPredictor s_Predictor;
+        CSeasonalDecomposition s_Components;
     };
 
-    //! \brief The message passed to indicate calendar components have
-    //! been detected.
+    //! \brief The message passed to indicate calendar components have been
+    //! detected.
     struct MATHS_EXPORT SDetectedCalendar : public SMessage {
         SDetectedCalendar(core_t::TTime time, core_t::TTime lastTime, CCalendarFeature feature);
 
@@ -108,19 +125,21 @@ public:
         CCalendarFeature s_Feature;
     };
 
-    //! \brief The message passed to indicate new components are being
-    //! modeled.
-    struct MATHS_EXPORT SNewComponents : public SMessage {
-        enum EComponent {
-            E_DiurnalSeasonal,
-            E_GeneralSeasonal,
-            E_CalendarCyclic
-        };
+    //! \brief The message passed to indicate the trend is being used for prediction.
+    struct MATHS_EXPORT SDetectedTrend : public SMessage {
+        SDetectedTrend(const TPredictor& predictor,
+                       const TComponentChangeCallback& componentChangeCallback);
 
-        SNewComponents(core_t::TTime time, core_t::TTime lastTime, EComponent component);
+        TPredictor s_Predictor;
+        TComponentChangeCallback s_ComponentChangeCallback;
+    };
 
-        //! The type of component.
-        EComponent s_Component;
+    //! \brief The message passed to indicate a sudden change has occurred.
+    struct MATHS_EXPORT SDetectedChangePoint : public SMessage {
+        SDetectedChangePoint(core_t::TTime time, core_t::TTime lastTime, TChangePointUPtr change);
+
+        //! The change description.
+        TChangePointUPtr s_Change;
     };
 
     //! \brief The basic interface for one aspect of the modeling of a time
@@ -142,7 +161,10 @@ public:
         virtual void handle(const SDetectedCalendar& message);
 
         //! Handle when a new component is being modeled.
-        virtual void handle(const SNewComponents& message);
+        virtual void handle(const SDetectedTrend& message);
+
+        //! Handle when a new sudden change is detected.
+        virtual void handle(const SDetectedChangePoint& message);
 
         //! Set the mediator.
         void mediator(CMediator* mediator);
@@ -184,17 +206,16 @@ public:
         THandlerRefVec m_Handlers;
     };
 
-    //! \brief Scans through increasingly low frequencies looking for custom
-    //! diurnal and any other large amplitude seasonal components.
-    class MATHS_EXPORT CPeriodicityTest : public CHandler {
+    //! \brief Checks for sudden change or change events.
+    class MATHS_EXPORT CChangePointTest : public CHandler {
     public:
-        //! Test types (categorised as short and long period tests).
-        enum ETest { E_Short, E_Long };
+        static constexpr double CHANGE_COUNT_WEIGHT = 0.1;
+        static const core_t::TTime MINIMUM_WINDOW_BUCKET_LENGTH;
 
     public:
-        CPeriodicityTest(double decayRate, core_t::TTime bucketLength);
-        CPeriodicityTest(const CPeriodicityTest& other, bool isForForecast = false);
-        CPeriodicityTest& operator=(const CPeriodicityTest&) = delete;
+        CChangePointTest(double decayRate, core_t::TTime bucketLength);
+        CChangePointTest(const CChangePointTest& other, bool isForForecast = false);
+        CChangePointTest& operator=(const CChangePointTest&) = delete;
 
         //! Initialize by reading state from \p traverser.
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
@@ -203,32 +224,25 @@ public:
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
         //! Efficiently swap the state of this and \p other.
-        void swap(CPeriodicityTest& other);
+        void swap(CChangePointTest& other);
 
         //! Update the test with a new value.
-        virtual void handle(const SAddValue& message);
+        void handle(const SAddValue& message) override;
 
-        //! Reset the test.
-        virtual void handle(const SNewComponents& message);
+        //! Reset residual distribution moments.
+        void handle(const SDetectedSeasonal&) override;
 
-        //! Test to see whether any seasonal components are present.
-        void test(const SAddValue& message);
+        //! Get the count weight to apply to samples.
+        double countWeight(core_t::TTime time) const;
 
-        //! Record a linear scale of \p scale at \p time.
-        void linearScale(core_t::TTime time, double scale);
+        //! Get the derate to apply to the Winsorisation weight.
+        double winsorisationDerate(core_t::TTime time) const;
 
-        //! Shift the start of the tests' expanding windows by \p dt.
-        void shiftTime(core_t::TTime dt);
-
-        //! Age the test to account for the interval \p end - \p start
-        //! elapsed time.
+        //! Age the test to account for the interval \p end - \p start elapsed time.
         void propagateForwards(core_t::TTime start, core_t::TTime end);
 
-        //! Get the values in the window if we're going to test at \p time.
-        TFloatMeanAccumulatorVec windowValues(const TPredictor& predictor) const;
-
         //! Get a checksum for this object.
-        uint64_t checksum(uint64_t seed = 0) const;
+        std::uint64_t checksum(std::uint64_t seed = 0) const;
 
         //! Debug the memory used by this object.
         void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -237,34 +251,165 @@ public:
         std::size_t memoryUsage() const;
 
     private:
-        using TTimeDoublePr = std::pair<core_t::TTime, double>;
-        using TTimeDoublePrVec = std::vector<std::pair<core_t::TTime, double>>;
-        using TExpandingWindowPtr = std::unique_ptr<CExpandingWindow>;
-        using TExpandingWindowPtrAry = std::array<TExpandingWindowPtr, 2>;
+        using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
+        using TFloatMeanAccumulatorCBuf = boost::circular_buffer<TFloatMeanAccumulator>;
 
     private:
-        //! The longest bucket length at which we'll test for periodic
-        //! components.
-        static const core_t::TTime LONGEST_BUCKET_LENGTH;
+        //! Handle \p symbol.
+        void apply(std::size_t symbol);
+
+        //! Update the total count weight statistics.
+        void updateTotalCountWeights(core_t::TTime time, core_t::TTime lastTime);
+
+        //! Update the fraction of recent large errors and test if a change may be occurring.
+        void testForCandidateChange(core_t::TTime time, double error);
+
+        //! Test if any change has occurred.
+        void testForChange(const SAddValue& message);
+
+        //! Test whether to undo the last change which was applied.
+        void testUndoLastChange(const SAddValue& message);
+
+        //! True if the time series may be experiencing a change point.
+        bool mayHaveChanged() const;
+
+        //! The magnitude of a large error.
+        double largeError() const;
+
+        //! Check if we should test for a change.
+        bool shouldTest(core_t::TTime time) const;
+
+        //! The minimum time a change has to last.
+        core_t::TTime minimumChangeLength() const;
+
+        //! The length of time in which we expect to detect a change.
+        core_t::TTime maximumIntervalToDetectChange() const;
+
+        //! The start of the sliding window of buckets given the time is now \p time.
+        core_t::TTime bucketsStartTime(core_t::TTime time, core_t::TTime bucketsLength) const;
+
+        //! The start of the values given the buckets start at \p bucketStartTime.
+        core_t::TTime valuesStartTime(core_t::TTime bucketsStartTime) const;
+
+        //! The start time of the window bucket containing \p time.
+        core_t::TTime startOfWindowBucket(core_t::TTime time) const;
+
+        //! The length of the window.
+        core_t::TTime windowLength() const;
+
+        //! The length of the window buckets.
+        core_t::TTime windowBucketLength() const;
+
+        //! Get the window size to use.
+        std::size_t windowSize() const;
+
+    private:
+        //! The state machine.
+        core::CStateMachine m_Machine;
+
+        //! Controls the rate at which information is lost.
+        double m_DecayRate;
+
+        //! The raw data bucketing interval.
+        core_t::TTime m_BucketLength;
+
+        //! The window tested for changes.
+        TFloatMeanAccumulatorCBuf m_Window;
+
+        //! The average offset of the values time w.r.t. the start of the buckets.
+        TFloatMeanAccumulator m_MeanOffset;
+
+        //! The mean and variance of the prediction residuals.
+        TMeanVarAccumulator m_ResidualMoments;
+
+        //! The proportion of recent values with significantly prediction error.
+        double m_LargeErrorFraction = 0.0;
+
+        //! The total adjustment applied to the count weight.
+        double m_TotalCountWeightAdjustment = 0.0;
+
+        //! The minimum permitted total adjustment applied to the count weight.
+        double m_MinimumTotalCountWeightAdjustment = 0.0;
+
+        //! The last test time.
+        core_t::TTime m_LastTestTime;
+
+        //! The last time a change point was detected.
+        core_t::TTime m_LastChangePointTime;
+
+        //! The time the last candidate change point occurred.
+        core_t::TTime m_LastCandidateChangePointTime;
+
+        //! The last change which was made, if it hasn't been committed, in a form
+        //! which can be undone.
+        TChangePointUPtr m_UndoableLastChange;
+    };
+
+    //! \brief Scans through increasingly low frequencies looking for significant
+    //! seasonal components.
+    class MATHS_EXPORT CSeasonalityTest : public CHandler {
+    public:
+        //! Test types (categorised as short and long period tests).
+        enum ETest { E_Short, E_Long };
+
+    public:
+        CSeasonalityTest(double decayRate, core_t::TTime bucketLength);
+        CSeasonalityTest(const CSeasonalityTest& other, bool isForForecast = false);
+        CSeasonalityTest& operator=(const CSeasonalityTest&) = delete;
+
+        //! Initialize by reading state from \p traverser.
+        bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
+
+        //! Persist state by passing information to \p inserter.
+        void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
+
+        //! Efficiently swap the state of this and \p other.
+        void swap(CSeasonalityTest& other);
+
+        //! Update the test with a new value.
+        void handle(const SAddValue& message) override;
+
+        //! Sample the prediction residuals.
+        void handle(const SDetectedTrend& message) override;
+
+        //! Shift the start of the tests' expanding windows by \p shift at \p time.
+        void shiftTime(core_t::TTime time, core_t::TTime shift);
+
+        //! Age the test to account for the interval \p end - \p start
+        //! elapsed time.
+        void propagateForwards(core_t::TTime start, core_t::TTime end);
+
+        //! Get the window minus the predictions of \p predictor.
+        TFloatMeanAccumulatorVec residuals(const TPredictor& predictor) const;
+
+        //! Get a checksum for this object.
+        std::uint64_t checksum(std::uint64_t seed = 0) const;
+
+        //! Debug the memory used by this object.
+        void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
+
+        //! Get the memory used by this object.
+        std::size_t memoryUsage() const;
+
+    private:
+        using TExpandingWindowUPtr = std::unique_ptr<CExpandingWindow>;
+        using TExpandingWindowPtrAry = std::array<TExpandingWindowUPtr, 2>;
 
     private:
         //! Handle \p symbol.
         void apply(std::size_t symbol, const SMessage& message);
 
+        //! Test to see whether any seasonal components are present.
+        void test(const SAddValue& message);
+
         //! Check if we should run the periodicity test on \p window.
         bool shouldTest(ETest test, core_t::TTime time) const;
 
         //! Get a new \p test. (Warning: this is owned by the caller.)
-        CExpandingWindow* newWindow(ETest test, bool deflate = true) const;
+        TExpandingWindowUPtr newWindow(ETest test, bool deflate = true) const;
 
         //! Account for memory that is not allocated by initialisation.
         std::size_t extraMemoryOnInitialization() const;
-
-        //! Get the accounting for linear scales in the test window.
-        TPredictor scaledPredictor(const TPredictor& predictor) const;
-
-        //! Remove any linear scale events outside the test windows.
-        void pruneLinearScales();
 
     private:
         //! The state machine.
@@ -278,9 +423,6 @@ public:
 
         //! Expanding windows on the "recent" time series values.
         TExpandingWindowPtrAry m_Windows;
-
-        //! The times of linear scales in the window range.
-        TTimeDoublePrVec m_LinearScales;
     };
 
     //! \brief Tests for cyclic calendar components explaining large prediction
@@ -301,10 +443,10 @@ public:
         void swap(CCalendarTest& other);
 
         //! Update the test with a new value.
-        virtual void handle(const SAddValue& message);
+        void handle(const SAddValue& message) override;
 
         //! Reset the test.
-        virtual void handle(const SNewComponents& message);
+        void handle(const SDetectedSeasonal& message) override;
 
         //! Test to see whether any seasonal components are present.
         void test(const SMessage& message);
@@ -314,7 +456,7 @@ public:
         void propagateForwards(core_t::TTime start, core_t::TTime end);
 
         //! Get a checksum for this object.
-        uint64_t checksum(uint64_t seed = 0) const;
+        std::uint64_t checksum(std::uint64_t seed = 0) const;
 
         //! Debug the memory used by this object.
         void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -386,22 +528,16 @@ public:
         void swap(CComponents& other);
 
         //! Update the components with a new value.
-        virtual void handle(const SAddValue& message);
+        void handle(const SAddValue& message) override;
 
         //! Create new seasonal components.
-        virtual void handle(const SDetectedSeasonal& message);
+        void handle(const SDetectedSeasonal& message) override;
 
         //! Create a new calendar component.
-        virtual void handle(const SDetectedCalendar& message);
+        void handle(const SDetectedCalendar& message) override;
 
-        //! Set whether or not we're testing for a change.
-        void testingForChange(bool value);
-
-        //! Apply \p shift to the level at \p time and \p value.
-        void shiftLevel(core_t::TTime time, double value, double shift);
-
-        //! Apply a linear scale of \p scale.
-        void linearScale(core_t::TTime time, double scale);
+        //! Update the components with a sudden change.
+        void handle(const SDetectedChangePoint& message) override;
 
         //! Maybe re-interpolate the components.
         void interpolateForForecast(core_t::TTime time);
@@ -437,8 +573,8 @@ public:
         //! Start using the trend for prediction.
         void useTrendForPrediction();
 
-        //! Get configuration for the periodicity test.
-        CPeriodicityHypothesisTestsConfig periodicityTestConfig() const;
+        //! Get a factory for the seasonal components test.
+        TMakeTestForSeasonality makeTestForSeasonality(const TFilteredPredictor& predictor) const;
 
         //! Get the mean value of the baseline in the vicinity of \p time.
         double meanValue(core_t::TTime time) const;
@@ -450,7 +586,7 @@ public:
         double meanVarianceScale() const;
 
         //! Get a checksum for this object.
-        uint64_t checksum(uint64_t seed = 0) const;
+        std::uint64_t checksum(std::uint64_t seed = 0) const;
 
         //! Debug the memory used by this object.
         void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -506,7 +642,7 @@ public:
             void shiftOrigin(core_t::TTime time);
 
             //! Get a checksum for this object.
-            uint64_t checksum(uint64_t seed) const;
+            std::uint64_t checksum(std::uint64_t seed) const;
 
         private:
             using TRegression = CLeastSquaresOnlineRegression<1>;
@@ -558,7 +694,7 @@ public:
             void age(double factor);
 
             //! Get a checksum for this object.
-            uint64_t checksum(uint64_t seed) const;
+            std::uint64_t checksum(std::uint64_t seed) const;
 
         private:
             using TMaxAccumulator = CBasicStatistics::SMax<double>::TAccumulator;
@@ -642,12 +778,17 @@ public:
                      core_t::TTime endTime,
                      const TFloatMeanAccumulatorVec& values);
 
+            //! Apply \p change to the components.
+            void apply(const CChangePoint& change);
+
             //! Refresh state after adding new components.
             void refreshForNewComponents();
 
-            //! Remove all components excluded by adding the component corresponding
-            //! to \p time.
-            void removeExcludedComponents(const CSeasonalTime& time);
+            //! Remove all components masked by \p removeComponentsMask.
+            bool remove(const TBoolVec& removeComponentsMask);
+
+            //! Remove any components with invalid values
+            bool removeComponentsWithBadValues(core_t::TTime);
 
             //! Remove low value components
             bool prune(core_t::TTime time, core_t::TTime bucketLength);
@@ -655,20 +796,14 @@ public:
             //! Shift the components' time origin to \p time.
             void shiftOrigin(core_t::TTime time);
 
-            //! Linearly scale the components' by \p scale.
-            void linearScale(core_t::TTime time, double scale);
-
             //! Get a checksum for this object.
-            uint64_t checksum(uint64_t seed = 0) const;
+            std::uint64_t checksum(std::uint64_t seed = 0) const;
 
             //! Debug the memory used by this object.
             void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
 
             //! Get the memory used by this object.
             std::size_t memoryUsage() const;
-
-            //! Remove any components with invalid values
-            bool removeComponentsWithBadValues(core_t::TTime);
 
         private:
             //! The components.
@@ -733,14 +868,14 @@ public:
             //! Add and initialize a new component.
             void add(const CCalendarFeature& feature, std::size_t size, double decayRate, double bucketLength);
 
+            //! Apply \p change to the components.
+            void apply(const CChangePoint& change);
+
             //! Remove low value components.
             bool prune(core_t::TTime time, core_t::TTime bucketLength);
 
-            //! Linearly scale the components' by \p scale.
-            void linearScale(core_t::TTime time, double scale);
-
             //! Get a checksum for this object.
-            uint64_t checksum(uint64_t seed = 0) const;
+            std::uint64_t checksum(std::uint64_t seed = 0) const;
 
             //! Debug the memory used by this object.
             void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -768,26 +903,11 @@ public:
         //! Get the maximum permitted size of the components.
         std::size_t maxSize() const;
 
-        //! Add new seasonal components to \p components.
-        bool addSeasonalComponents(const CPeriodicityHypothesisTestsResult& result,
-                                   const CExpandingWindow& window,
-                                   const TPredictor& predictor);
+        //! Add new seasonal components.
+        void addSeasonalComponents(const CSeasonalDecomposition& components);
 
-        //! Add a new calendar component to \p components.
-        bool addCalendarComponent(const CCalendarFeature& feature);
-
-        //! Adjust the values to remove any piecewise constant linear scales
-        //! of the component with period \p period.
-        void adjustValuesForPiecewiseConstantScaling(std::size_t period,
-                                                     TFloatMeanAccumulatorVec& values) const;
-
-        //! Reweight the outlier values in \p values.
-        //!
-        //! These are the values with largest error w.r.t. \p predictor.
-        void reweightOutliers(core_t::TTime startTime,
-                              core_t::TTime dt,
-                              TPredictor predictor,
-                              TFloatMeanAccumulatorVec& values) const;
+        //! Add a new calendar component.
+        void addCalendarComponent(const CCalendarFeature& feature);
 
         //! Fit the trend component \p component to \p values.
         void fitTrend(core_t::TTime startTime,
@@ -820,9 +940,6 @@ public:
         //! shifted into the long term trend or in the absence of that
         //! the shortest component.
         void canonicalize(core_t::TTime time);
-
-        //! Set a watcher for state changes.
-        void notifyOnNewComponents(bool* watcher);
 
     private:
         //! The state machine.
@@ -869,9 +986,6 @@ public:
         //! Supplied with an annotation if a component is added.
         maths_t::TModelAnnotationCallback m_ModelAnnotationCallback;
 
-        //! Set to true when testing for a change.
-        bool m_TestingForChange = false;
-
         //! Set to true if the trend model should be used for prediction.
         bool m_UsingTrendForPrediction = false;
 
@@ -881,8 +995,8 @@ public:
 };
 
 //! Create a free function which will be found by Koenig lookup.
-inline void swap(CTimeSeriesDecompositionDetail::CPeriodicityTest& lhs,
-                 CTimeSeriesDecompositionDetail::CPeriodicityTest& rhs) {
+inline void swap(CTimeSeriesDecompositionDetail::CSeasonalityTest& lhs,
+                 CTimeSeriesDecompositionDetail::CSeasonalityTest& rhs) {
     lhs.swap(rhs);
 }
 

@@ -55,8 +55,8 @@ void CLeastSquaresOnlineRegression<N, T>::shiftAbscissa(double dx) {
     //   -> 1/n * (  sum_i{ t(i)^i * y(i) }
     //             + sum_j{ (i j) * dx^(i - j) * sum_i{ t(i)^j y(i) } } )
 
-    double d[2 * N - 2] = {dx};
-    for (std::size_t i = 1u; i < 2 * N - 2; ++i) {
+    double d[2 * N - 2]{dx};
+    for (std::size_t i = 1; i < 2 * N - 2; ++i) {
         d[i] = d[i - 1] * dx;
     }
     LOG_TRACE(<< "d = " << core::CContainerPrinter::print(d));
@@ -65,14 +65,14 @@ void CLeastSquaresOnlineRegression<N, T>::shiftAbscissa(double dx) {
     for (std::size_t i = 2 * N - 2; i > 0; --i) {
         LOG_TRACE(<< "i = " << i);
         for (std::size_t j = 0; j < i; ++j) {
-            double bij = CCategoricalTools::binomialCoefficient(i, j) * d[i - j - 1];
+            double bij{CCategoricalTools::binomialCoefficient(i, j) * d[i - j - 1]};
             LOG_TRACE(<< "bij = " << bij);
             CBasicStatistics::moment<0>(m_S)(i) += bij * CBasicStatistics::mean(m_S)(j);
             if (i >= N) {
                 continue;
             }
-            std::size_t yi = i + 2 * N - 1;
-            std::size_t yj = j + 2 * N - 1;
+            std::size_t yi{i + 2 * N - 1};
+            std::size_t yj{j + 2 * N - 1};
             LOG_TRACE(<< "yi = " << yi << ", yj = " << yj);
             CBasicStatistics::moment<0>(m_S)(yi) += bij * CBasicStatistics::mean(m_S)(yj);
         }
@@ -146,14 +146,14 @@ bool CLeastSquaresOnlineRegression<N, T>::covariances(std::size_t n,
         case N: {
             constexpr int N_{static_cast<int>(N)};
             Eigen::Matrix<double, N_, N_> x;
-            if (!this->covariances(N, x, variance, maxCondition, result)) {
+            if (this->covariances(N, x, variance, maxCondition, result) == false) {
                 continue;
             }
             break;
         }
         default: {
             CDenseMatrix<double> x(n, n);
-            if (!this->covariances(n, x, variance, maxCondition, result)) {
+            if (this->covariances(n, x, variance, maxCondition, result) == false) {
                 continue;
             }
             break;
@@ -208,7 +208,7 @@ bool CLeastSquaresOnlineRegression<N, T>::parameters(std::size_t n,
 
     // Don't bother checking the solution since we check the matrix
     // condition above.
-    VECTOR r = svd.solve(y);
+    VECTOR r{svd.solve(y)};
     for (std::size_t i = 0; i < n; ++i) {
         result[i] = r(i);
     }

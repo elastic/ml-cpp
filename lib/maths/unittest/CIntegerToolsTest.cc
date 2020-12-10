@@ -26,7 +26,7 @@ namespace {
 
 using TSizeVec = std::vector<std::size_t>;
 
-std::string printBits(uint64_t x) {
+std::string printBits(std::uint64_t x) {
     std::string result(64, '0');
     for (std::size_t i = 0u; i < 64; ++i, x >>= 1) {
         if (x & 0x1) {
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(testReverseBits) {
     std::string expected;
     std::string actual;
     for (std::size_t i = 0u; i < values.size(); ++i) {
-        uint64_t x = static_cast<uint64_t>(values[i]);
+        std::uint64_t x = static_cast<std::uint64_t>(values[i]);
         expected = printBits(x);
         std::reverse(expected.begin(), expected.end());
         actual = printBits(maths::CIntegerTools::reverseBits(x));
@@ -113,16 +113,16 @@ BOOST_AUTO_TEST_CASE(testGcd) {
                               std::back_inserter(cf));
 
         // Use 64 bit integers here otherwise overflow will occur in 32 bit code
-        uint64_t bigGcd = 1;
+        std::uint64_t bigGcd = 1;
         for (std::size_t j = 0u; j < cf.size(); ++j) {
             bigGcd *= primes[cf[j]];
         }
 
-        uint64_t big1 = 1;
+        std::uint64_t big1 = 1;
         for (std::size_t j = 0u; j < split[0]; ++j) {
             big1 *= primes[indices[j]];
         }
-        uint64_t big2 = 1;
+        std::uint64_t big2 = 1;
         for (std::size_t j = split[0]; j < indices.size(); ++j) {
             big2 *= primes[indices[j]];
         }
@@ -174,6 +174,55 @@ BOOST_AUTO_TEST_CASE(testGcd) {
     LOG_DEBUG(<< "n = " << core::CContainerPrinter::print(n) << " - expected gcd = 19"
               << ", gcd = " << maths::CIntegerTools::gcd(n));
     BOOST_REQUIRE_EQUAL(std::size_t(19), maths::CIntegerTools::gcd(n));
+}
+
+BOOST_AUTO_TEST_CASE(testLcm) {
+    // Check that least common multiple is a multiple of its arguments and that
+    // there is no smaller common multiple.
+
+    test::CRandomNumbers rng;
+
+    auto isMultiple = [](std::size_t i, const TSizeVec& integers) {
+        for (auto j : integers) {
+            if (i % j != 0) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    TSizeVec integers;
+
+    BOOST_REQUIRE_EQUAL(0, maths::CIntegerTools::lcm(integers));
+    integers.push_back(0);
+    BOOST_REQUIRE_EQUAL(0, maths::CIntegerTools::lcm(integers));
+    integers.push_back(0);
+    BOOST_REQUIRE_EQUAL(0, maths::CIntegerTools::lcm(integers));
+
+    integers.clear();
+    integers.push_back(5);
+    BOOST_REQUIRE_EQUAL(5, maths::CIntegerTools::lcm(integers));
+    integers.push_back(0);
+    BOOST_REQUIRE_EQUAL(0, maths::CIntegerTools::lcm(integers));
+
+    for (std::size_t i = 0; i < 100; ++i) {
+        rng.generateUniformSamples(1, 200, 2, integers);
+        std::size_t lcm{maths::CIntegerTools::lcm(integers[0], integers[1])};
+        BOOST_TEST_REQUIRE(isMultiple(lcm, integers));
+        for (std::size_t j = std::max(integers[0], integers[1]); j < lcm; ++j) {
+            BOOST_TEST_REQUIRE(isMultiple(j, integers) == false);
+        }
+    }
+
+    for (std::size_t i = 0; i < 100; ++i) {
+        rng.generateUniformSamples(1, 20, 5, integers);
+        std::size_t lcm{maths::CIntegerTools::lcm(integers)};
+        BOOST_TEST_REQUIRE(isMultiple(lcm, integers));
+        for (std::size_t j = *std::max_element(integers.begin(), integers.end());
+             j < lcm; ++j) {
+            BOOST_TEST_REQUIRE(isMultiple(j, integers) == false);
+        }
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testBinomial) {

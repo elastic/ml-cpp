@@ -154,7 +154,7 @@ double CAnomalyDetectorModelConfig::bucketNormalizationFactor(core_t::TTime buck
 double CAnomalyDetectorModelConfig::trendDecayRate(double modelDecayRate,
                                                    core_t::TTime bucketLength) {
     double scale = static_cast<double>(bucketLength / 24 / STANDARD_BUCKET_LENGTH);
-    return std::min(24.0 * modelDecayRate / bucketNormalizationFactor(bucketLength) /
+    return std::min(48.0 * modelDecayRate / bucketNormalizationFactor(bucketLength) /
                         std::max(scale, 1.0),
                     0.1);
 }
