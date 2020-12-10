@@ -931,7 +931,7 @@ bool CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::decipherExcludeFrequen
             m_OverHasExcludeFrequent = isPopulation;
         } else {
             if (m_ExcludeFrequent != NONE_TOKEN) {
-                LOG_ERROR(<< "Unexpected excludeFrequent value = " << m_ExcludeFrequent);
+                LOG_ERROR(<< "Unexpected exclude_frequent value = " << m_ExcludeFrequent);
                 return false;
             }
         }
