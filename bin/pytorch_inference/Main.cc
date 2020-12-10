@@ -23,6 +23,7 @@
 // Which headers are required?
 #include <torch/script.h>
 
+#include "CBufferedIStreamAdapter.h"
 #include "CCmdLineParser.h"
 
 #include <chrono>
@@ -32,9 +33,8 @@
 #include <memory>
 #include <string>
 
+
 int main(int argc, char** argv) {
-
-
     // Read command line options
     std::string modelId;
     ml::core_t::TTime namedPipeConnectTimeout{
@@ -84,10 +84,23 @@ int main(int argc, char** argv) {
     }
 
 
+    
 
     torch::jit::script::Module module;
     try {    
-        module = torch::jit::load(ioMgr.inputStream());
+        // ioMgr.inputStream().seekg(0);
+        // if (!ioMgr.inputStream().good()) {
+            // LOG_INFO(<< "bad stream");
+            // return EXIT_FAILURE;
+        // }
+
+        auto readAdapter = std::make_unique<ml::torch::CBufferedIStreamAdapter>(1330816933, ioMgr.inputStream());
+        LOG_INFO(<< "load");
+        module = torch::jit::load(std::move(readAdapter));
+
+
+        // module = torch::jit::load(ioMgr.inputStream());
+        // module = torch::jit::load("/Users/davidkyle/source/ml-search/projects/universal/torchscript/dbmdz-ner/conll03_traced_ner.pt");
         LOG_INFO(<< "model loaded");
     }
     catch (const c10::Error& e) {                        

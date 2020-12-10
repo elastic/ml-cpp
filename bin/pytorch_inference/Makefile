@@ -21,6 +21,7 @@ all: build
 
 SRCS= \
     Main.cc \
+    CBufferedIStreamAdapter.cc \
     CCmdLineParser.cc \
 
 NO_TEST_CASES=1
