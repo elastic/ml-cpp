@@ -214,8 +214,7 @@ CBayesianOptimisation::TVector CBayesianOptimisation::kinvf() const {
 }
 
 CBayesianOptimisation::TVector CBayesianOptimisation::transformTo01(const TVector& x) const {
-    return {(x - m_MinBoundary)
-                .cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
+    return {(x - m_MinBoundary).cwiseQuotient(m_MaxBoundary - m_MinBoundary)};
 }
 
 CBayesianOptimisation::TVector CBayesianOptimisation::scaledKernelParameters() const {
@@ -352,7 +351,8 @@ CBayesianOptimisation::TDoubleDoublePrVec CBayesianOptimisation::anovaMainEffect
     TVector Kinvf{this->kinvf()};
     double f0{this->anovaConstantFactor(Kinvf)};
     double totalVariance(this->anovaTotalVariance(Kinvf));
-    LOG_TRACE(<<"GP ANOVA constant " << f0 << " variance " << totalVariance <<"\n kernel parameters " << m_KernelParameters.transpose());
+    LOG_TRACE(<< "GP ANOVA constant " << f0 << " variance " << totalVariance
+              << "\n kernel parameters " << m_KernelParameters.transpose());
     for (int i = 0; i < m_MinBoundary.size(); ++i) {
         double effect{this->anovaMainEffect(Kinvf, i)};
         mainEffects.emplace_back(effect, effect / totalVariance);

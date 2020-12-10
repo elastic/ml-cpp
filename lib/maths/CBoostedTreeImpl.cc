@@ -1295,9 +1295,8 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     double meanLoss{CBasicStatistics::mean(lossMoments)};
     double lossVariance{CBasicStatistics::variance(lossMoments)};
 
-    LOG_TRACE(<< "round = " << m_CurrentRound << " loss = " << meanLoss
-              << " variance = " << lossVariance
-              << ": regularization = " << m_Regularization.print()
+    LOG_TRACE(<< "round = " << m_CurrentRound << " loss = " << meanLoss << " variance = "
+              << lossVariance << ": regularization = " << m_Regularization.print()
               << ", downsample factor = " << m_DownsampleFactor << ", eta = " << m_Eta
               << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
               << ", feature bag fraction = " << m_FeatureBagFraction);
