@@ -159,8 +159,8 @@ CDataFrameTrainBoostedTreeRegressionRunner::inferenceModelMetadata() const {
     if (featureImportance) {
         m_InferenceModelMetadata.featureImportanceBaseline(featureImportance->baseline());
     }
-    const auto& hyperparameterImportance = this->boostedTree().hyperparameterImportance();
-    m_InferenceModelMetadata.hyperparameterImportance(hyperparameterImportance);
+    m_InferenceModelMetadata.hyperparameterImportance(
+        this->boostedTree().hyperparameterImportance());
     return m_InferenceModelMetadata;
 }
 

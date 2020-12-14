@@ -5,7 +5,8 @@
  */
 #include <api/CInferenceModelMetadata.h>
 
-#include <maths/CBoostedTreeHyperparameters.h>
+#include <api/CDataFrameTrainBoostedTreeRunner.h>
+
 #include <maths/CBoostedTreeUtils.h>
 
 #include <cmath>
@@ -201,47 +202,47 @@ void CInferenceModelMetadata::hyperparameterImportance(
         switch (item.s_Hyperparameter) {
         case maths::boosted_tree_detail::E_Alpha:
             m_HyperparameterImportance.emplace_back(
-                maths::CBoostedTreeHyperparameters::ALPHA, item.s_Value,
+                CDataFrameTrainBoostedTreeRunner::ALPHA, item.s_Value,
                 item.s_AbsoluteImportance, item.s_RelativeImportance);
             break;
         case maths::boosted_tree_detail::E_DownsampleFactor:
             m_HyperparameterImportance.emplace_back(
-                maths::CBoostedTreeHyperparameters::DOWNSAMPLE_FACTOR, item.s_Value,
+                CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR, item.s_Value,
                 item.s_AbsoluteImportance, item.s_RelativeImportance);
             break;
         case maths::boosted_tree_detail::E_Eta:
             m_HyperparameterImportance.emplace_back(
-                maths::CBoostedTreeHyperparameters::ETA, item.s_Value,
+                CDataFrameTrainBoostedTreeRunner::ETA, item.s_Value,
                 item.s_AbsoluteImportance, item.s_RelativeImportance);
             break;
         case maths::boosted_tree_detail::E_EtaGrowthRatePerTree:
             m_HyperparameterImportance.emplace_back(
-                maths::CBoostedTreeHyperparameters::ETA_GROWTH_RATE_PER_TREE,
+                CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE,
                 item.s_Value, item.s_AbsoluteImportance, item.s_RelativeImportance);
             break;
         case maths::boosted_tree_detail::E_FeatureBagFraction:
             m_HyperparameterImportance.emplace_back(
-                maths::CBoostedTreeHyperparameters::FEATURE_BAG_FRACTION,
+                CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION,
                 item.s_Value, item.s_AbsoluteImportance, item.s_RelativeImportance);
             break;
         case maths::boosted_tree_detail::E_Gamma:
             m_HyperparameterImportance.emplace_back(
-                maths::CBoostedTreeHyperparameters::GAMMA, item.s_Value,
+                CDataFrameTrainBoostedTreeRunner::GAMMA, item.s_Value,
                 item.s_AbsoluteImportance, item.s_RelativeImportance);
             break;
         case maths::boosted_tree_detail::E_Lambda:
             m_HyperparameterImportance.emplace_back(
-                maths::CBoostedTreeHyperparameters::LAMBDA, item.s_Value,
+                CDataFrameTrainBoostedTreeRunner::LAMBDA, item.s_Value,
                 item.s_AbsoluteImportance, item.s_RelativeImportance);
             break;
         case maths::boosted_tree_detail::E_SoftTreeDepthLimit:
             m_HyperparameterImportance.emplace_back(
-                maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_LIMIT,
+                CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT,
                 item.s_Value, item.s_AbsoluteImportance, item.s_RelativeImportance);
             break;
         case maths::boosted_tree_detail::E_SoftTreeDepthTolerance:
             m_HyperparameterImportance.emplace_back(
-                maths::CBoostedTreeHyperparameters::SOFT_TREE_DEPTH_TOLERANCE,
+                CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE,
                 item.s_Value, item.s_AbsoluteImportance, item.s_RelativeImportance);
             break;
         }

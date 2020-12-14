@@ -37,6 +37,16 @@ public:
     static const std::string DEPENDENT_VARIABLE_NAME;
     static const std::string PREDICTION_FIELD_NAME;
     static const std::string DOWNSAMPLE_ROWS_PER_FEATURE;
+    static const std::string DOWNSAMPLE_FACTOR;
+    static const std::string ALPHA;
+    static const std::string LAMBDA;
+    static const std::string GAMMA;
+    static const std::string ETA;
+    static const std::string ETA_GROWTH_RATE_PER_TREE;
+    static const std::string SOFT_TREE_DEPTH_LIMIT;
+    static const std::string SOFT_TREE_DEPTH_TOLERANCE;
+    static const std::string MAX_TREES;
+    static const std::string FEATURE_BAG_FRACTION;
     static const std::string NUM_FOLDS;
     static const std::string STOP_CROSS_VALIDATION_EARLY;
     static const std::string MAX_OPTIMIZATION_ROUNDS_PER_HYPERPARAMETER;

@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "maths/CBoostedTreeHyperparameters.h"
-#include "maths/CBoostedTreeUtils.h"
 #include <maths/CBoostedTreeFactory.h>
 
 #include <core/CIEEE754.h>
@@ -16,9 +14,9 @@
 #include <core/RestoreMacros.h>
 
 #include <maths/CBayesianOptimisation.h>
-#include <maths/CBoostedTreeHyperparameters.h>
 #include <maths/CBoostedTreeImpl.h>
 #include <maths/CBoostedTreeLoss.h>
+#include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>

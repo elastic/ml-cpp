@@ -109,7 +109,7 @@ initBayesianOptimization(std::size_t dim, std::size_t numSamples, double min, do
 }
 }
 
-BOOST_AUTO_TEST_CASE(testLikelihoodGradient, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testLikelihoodGradient) {
 
     // Test that the likelihood gradient matches the numerical gradient.
 
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(testLikelihoodGradient, *boost::unit_test::disabled()) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(testMaximumLikelihoodKernel, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testMaximumLikelihoodKernel) {
 
     // Check that the kernel parameters we choose are at a minimum of the likelihood
     // as a function of those parameters.
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(testMaximumLikelihoodKernel, *boost::unit_test::disabled())
     }
 }
 
-BOOST_AUTO_TEST_CASE(testExpectedImprovementGradient, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testExpectedImprovementGradient) {
 
     // Test that the expected improvement gradient matches the numerical gradient.
 
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE(testExpectedImprovementGradient, *boost::unit_test::disable
     }
 }
 
-BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement) {
 
     // This tests the efficiency of the search on a variety of non-convex functions.
     // We check the value of the function we find after fixed number of iterations
@@ -352,7 +352,7 @@ BOOST_AUTO_TEST_CASE(testMaximumExpectedImprovement, *boost::unit_test::disabled
                        1.8 * maths::CBasicStatistics::mean(meanImprovementRs)); // 80%
 }
 
-BOOST_AUTO_TEST_CASE(testPersistRestore, *boost::unit_test::disabled()) {
+BOOST_AUTO_TEST_CASE(testPersistRestore) {
     // 1d
     {
         TDoubleVec minBoundary{0.};

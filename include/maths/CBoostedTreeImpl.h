@@ -33,7 +33,6 @@
 #include <memory>
 #include <numeric>
 #include <sstream>
-#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -96,6 +95,7 @@ public:
     //! \warning Will return a nullptr if a trained model isn't available.
     CTreeShapFeatureImportance* shap();
 
+    //! Get the vector of hyperparameter importances.
     THyperparameterImportanceVec hyperparameterImportance();
 
     //! Get the model produced by training if it has been run.

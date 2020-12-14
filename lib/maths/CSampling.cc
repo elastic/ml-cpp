@@ -835,7 +835,6 @@ void CSampling::sobolSequenceSample(std::size_t dim, std::size_t n, TDoubleVecVe
         samples.resize(n, TDoubleVec(dim));
         CDenseVector<double> sample(dim);
         for (std::size_t i = 0u; i < n; ++i) {
-            // samples[i].resize(dim);
             for (std::size_t j = 0u; j < dim; ++j) {
                 samples[i][j] = gen();
             }

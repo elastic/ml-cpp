@@ -54,7 +54,6 @@ class MATHS_EXPORT CBayesianOptimisation {
 public:
     using TDoubleDoublePr = std::pair<double, double>;
     using TDoubleDoublePrVec = std::vector<TDoubleDoublePr>;
-    using TDoubleVec = std::vector<double>;
     using TOptionalDouble = boost::optional<double>;
     using TVector = CDenseVector<double>;
     using TLikelihoodFunc = std::function<double(const TVector&)>;
@@ -134,7 +133,7 @@ public:
     //@}
 
 private:
-    using TStrVec = std::vector<std::string>;
+    using TDoubleVec = std::vector<double>;
     using TVectorDoublePr = std::pair<TVector, double>;
     using TVectorDoublePrVec = std::vector<TVectorDoublePr>;
     using TMatrix = CDenseMatrix<double>;
@@ -174,7 +173,6 @@ private:
     double m_RangeScale = 1.0;
     TVector m_MinBoundary;
     TVector m_MaxBoundary;
-    TStrVec m_ParameterNames;
     TVectorDoublePrVec m_FunctionMeanValues;
     TDoubleVec m_ErrorVariances;
     TVector m_KernelParameters;
