@@ -58,7 +58,8 @@ public:
             for (; bucketStart + bucketLength <= time; bucketStart += bucketLength) {
                 detector.buildResults(bucketStart, bucketStart + bucketLength, results);
                 monitor.pruneIfRequired(bucketStart);
-                numBuckets++;
+                monitor.updateMoments(monitor.totalMemory(), bucketStart, bucketLength);
+                ++numBuckets;
                 newBucket = true;
             }
 
@@ -88,9 +89,9 @@ protected:
 };
 
 BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
-    const std::string EMPTY_STRING;
-    const core_t::TTime FIRST_TIME(358556400);
-    const core_t::TTime BUCKET_LENGTH(3600);
+    static const std::string EMPTY_STRING;
+    static const core_t::TTime FIRST_TIME{358556400};
+    static const core_t::TTime BUCKET_LENGTH{3600};
 
     CAnomalyDetectorModelConfig modelConfig =
         CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
@@ -185,7 +186,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
-        mon.sendMemoryUsageReportIfSignificantlyChanged(0);
+        mon.sendMemoryUsageReportIfSignificantlyChanged(0, 1);
         BOOST_REQUIRE_EQUAL(mem, mon.totalMemory());
         BOOST_REQUIRE_EQUAL(mem, mon.m_PreviousTotal);
 
@@ -263,7 +264,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
-        mon.sendMemoryUsageReportIfSignificantlyChanged(0);
+        mon.sendMemoryUsageReportIfSignificantlyChanged(0, 1);
         BOOST_REQUIRE_EQUAL(mem, m_ReportedModelSizeStats.s_Usage);
         BOOST_REQUIRE_EQUAL(model_t::E_MemoryStatusOk, m_ReportedModelSizeStats.s_MemoryStatus);
     }
@@ -280,7 +281,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(0), m_ReportedModelSizeStats.s_Usage);
 
         mon.forceRefreshAll();
-        mon.sendMemoryUsageReportIfSignificantlyChanged(0);
+        mon.sendMemoryUsageReportIfSignificantlyChanged(0, 1);
         BOOST_REQUIRE_EQUAL(mem, m_ReportedModelSizeStats.s_Usage);
         BOOST_REQUIRE_EQUAL(model_t::E_MemoryStatusOk, m_ReportedModelSizeStats.s_MemoryStatus);
     }
@@ -303,7 +304,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
-        mon.sendMemoryUsageReportIfSignificantlyChanged(0);
+        mon.sendMemoryUsageReportIfSignificantlyChanged(0, 1);
         BOOST_REQUIRE_EQUAL(std::size_t(0), m_ReportedModelSizeStats.s_AllocationFailures);
         BOOST_REQUIRE_EQUAL(mem, m_ReportedModelSizeStats.s_Usage);
         BOOST_REQUIRE_EQUAL(model_t::E_MemoryStatusSoftLimit,
@@ -320,7 +321,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
-        mon.sendMemoryUsageReportIfSignificantlyChanged(0);
+        mon.sendMemoryUsageReportIfSignificantlyChanged(0, 1);
         BOOST_REQUIRE_EQUAL(std::size_t(12345), m_ReportedModelSizeStats.s_AllocationFailures);
         BOOST_REQUIRE_EQUAL(std::size_t(54321), m_ReportedModelSizeStats.s_ByFields);
         BOOST_REQUIRE_EQUAL(std::size_t(23456), m_ReportedModelSizeStats.s_OverFields);
@@ -338,7 +339,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
-        mon.sendMemoryUsageReportIfSignificantlyChanged(0);
+        mon.sendMemoryUsageReportIfSignificantlyChanged(0, 1);
         BOOST_REQUIRE_EQUAL(std::size_t(3), m_ReportedModelSizeStats.s_AllocationFailures);
         BOOST_REQUIRE_EQUAL(mem, m_ReportedModelSizeStats.s_Usage);
         BOOST_REQUIRE_EQUAL(core_t::TTime(14402000), mon.m_LastAllocationFailureReport);
@@ -356,7 +357,7 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         mon.refresh(categorizer);
         mon.refresh(detector1);
         mon.refresh(detector2);
-        mon.sendMemoryUsageReportIfSignificantlyChanged(0);
+        mon.sendMemoryUsageReportIfSignificantlyChanged(0, 1);
         BOOST_REQUIRE_EQUAL(std::size_t(12345), m_ReportedModelSizeStats.s_AllocationFailures);
         BOOST_REQUIRE_EQUAL(std::size_t(54321), m_ReportedModelSizeStats.s_ByFields);
         BOOST_REQUIRE_EQUAL(std::size_t(23456), m_ReportedModelSizeStats.s_OverFields);
@@ -368,52 +369,60 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
         CResourceMonitor mon;
         mon.memoryUsageReporter(std::bind(&CTestFixture::reportCallback, this,
                                           std::placeholders::_1));
-        BOOST_TEST_REQUIRE(!mon.needToSendReport());
+        BOOST_TEST_REQUIRE(!mon.needToSendReport(
+            model_t::E_AssignmentBasisCurrentModelBytes, 0, 1));
 
         std::size_t origTotalMemory = mon.totalMemory();
 
         // Go up to 10 bytes, triggering a need
         mon.m_MonitoredResourceCurrentMemory = 10;
-        BOOST_TEST_REQUIRE(mon.needToSendReport());
-        mon.sendMemoryUsageReport(0);
+        BOOST_TEST_REQUIRE(
+            mon.needToSendReport(model_t::E_AssignmentBasisCurrentModelBytes, 0, 1));
+        mon.sendMemoryUsageReport(0, 1);
         BOOST_REQUIRE_EQUAL(origTotalMemory + 10, m_ReportedModelSizeStats.s_Usage);
 
         // Nothing new added, so no report
-        BOOST_TEST_REQUIRE(!mon.needToSendReport());
+        BOOST_TEST_REQUIRE(!mon.needToSendReport(
+            model_t::E_AssignmentBasisCurrentModelBytes, 0, 1));
 
         // 10% increase should trigger a need
         mon.m_MonitoredResourceCurrentMemory += 1 + (origTotalMemory + 9) / 10;
-        BOOST_TEST_REQUIRE(mon.needToSendReport());
-        mon.sendMemoryUsageReport(0);
+        BOOST_TEST_REQUIRE(
+            mon.needToSendReport(model_t::E_AssignmentBasisCurrentModelBytes, 0, 1));
+        mon.sendMemoryUsageReport(0, 1);
         BOOST_REQUIRE_EQUAL(origTotalMemory + 11 + (origTotalMemory + 9) / 10,
                             m_ReportedModelSizeStats.s_Usage);
 
         // Huge increase should trigger a need
         mon.m_MonitoredResourceCurrentMemory = 1000;
-        BOOST_TEST_REQUIRE(mon.needToSendReport());
-        mon.sendMemoryUsageReport(0);
+        BOOST_TEST_REQUIRE(
+            mon.needToSendReport(model_t::E_AssignmentBasisCurrentModelBytes, 0, 1));
+        mon.sendMemoryUsageReport(0, 1);
         BOOST_REQUIRE_EQUAL(origTotalMemory + 1000, m_ReportedModelSizeStats.s_Usage);
 
         // 0.1% increase should not trigger a need
         mon.m_MonitoredResourceCurrentMemory += 1 + (origTotalMemory + 999) / 1000;
-        BOOST_TEST_REQUIRE(!mon.needToSendReport());
+        BOOST_TEST_REQUIRE(!mon.needToSendReport(
+            model_t::E_AssignmentBasisCurrentModelBytes, 0, 1));
 
         // A decrease should trigger a need
         mon.m_MonitoredResourceCurrentMemory = 900;
-        BOOST_TEST_REQUIRE(mon.needToSendReport());
-        mon.sendMemoryUsageReport(0);
+        BOOST_TEST_REQUIRE(
+            mon.needToSendReport(model_t::E_AssignmentBasisCurrentModelBytes, 0, 1));
+        mon.sendMemoryUsageReport(0, 1);
         BOOST_REQUIRE_EQUAL(origTotalMemory + 900, m_ReportedModelSizeStats.s_Usage);
 
         // A tiny decrease should not trigger a need
         mon.m_MonitoredResourceCurrentMemory = 899;
-        BOOST_TEST_REQUIRE(!mon.needToSendReport());
+        BOOST_TEST_REQUIRE(!mon.needToSendReport(
+            model_t::E_AssignmentBasisCurrentModelBytes, 0, 1));
     }
 }
 
 BOOST_FIXTURE_TEST_CASE(testPruning, CTestFixture) {
-    const std::string EMPTY_STRING;
-    const core_t::TTime FIRST_TIME(358556400);
-    const core_t::TTime BUCKET_LENGTH(3600);
+    static const std::string EMPTY_STRING;
+    static const core_t::TTime FIRST_TIME{358556400};
+    static const core_t::TTime BUCKET_LENGTH{3600};
 
     CAnomalyDetectorModelConfig modelConfig =
         CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
@@ -437,6 +446,8 @@ BOOST_FIXTURE_TEST_CASE(testPruning, CTestFixture) {
     BOOST_REQUIRE_EQUAL(false, monitor.pruneIfRequired(bucket));
     BOOST_REQUIRE_EQUAL(false, monitor.m_HasPruningStarted);
     BOOST_REQUIRE_EQUAL(model_t::E_MemoryStatusOk, monitor.m_MemoryStatus);
+    // Memory should not be stable, as we've only seen 2 buckets
+    BOOST_REQUIRE_EQUAL(false, monitor.isMemoryStable(BUCKET_LENGTH));
 
     LOG_DEBUG(<< "Saturating the pruner");
     // Add enough data to saturate the pruner
@@ -446,6 +457,9 @@ BOOST_FIXTURE_TEST_CASE(testPruning, CTestFixture) {
     BOOST_REQUIRE_EQUAL(true, monitor.m_HasPruningStarted);
     BOOST_TEST_REQUIRE(monitor.m_PruneWindow < std::size_t(1000));
     BOOST_REQUIRE_EQUAL(model_t::E_MemoryStatusSoftLimit, monitor.m_MemoryStatus);
+    // Memory should be stable now, after 1100 more buckets,
+    // and with the pruner running
+    BOOST_REQUIRE_EQUAL(true, monitor.isMemoryStable(BUCKET_LENGTH));
     BOOST_REQUIRE_EQUAL(true, monitor.m_AllowAllocations);
 
     LOG_DEBUG(<< "Allowing pruner to relax");
@@ -487,9 +501,9 @@ BOOST_FIXTURE_TEST_CASE(testPruning, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testExtraMemory, CTestFixture) {
-    const std::string EMPTY_STRING;
-    const core_t::TTime FIRST_TIME(358556400);
-    const core_t::TTime BUCKET_LENGTH(3600);
+    static const std::string EMPTY_STRING;
+    static const core_t::TTime FIRST_TIME{358556400};
+    static const core_t::TTime BUCKET_LENGTH{3600};
 
     CAnomalyDetectorModelConfig modelConfig =
         CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
@@ -522,7 +536,7 @@ BOOST_FIXTURE_TEST_CASE(testExtraMemory, CTestFixture) {
     // Push over the limit by adding 1MB
     monitor.addExtraMemory(core::constants::BYTES_IN_MEGABYTES);
     BOOST_TEST_REQUIRE(monitor.areAllocationsAllowed() == false);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), monitor.allocationLimit());
+    BOOST_REQUIRE_EQUAL(0, monitor.allocationLimit());
 
     monitor.clearExtraMemory();
     BOOST_TEST_REQUIRE(monitor.areAllocationsAllowed());
@@ -539,27 +553,71 @@ BOOST_FIXTURE_TEST_CASE(testPeakUsage, CTestFixture) {
         std::bind(&CTestFixture::reportCallback, this, std::placeholders::_1));
     std::size_t baseTotalMemory = monitor.totalMemory();
 
-    monitor.sendMemoryUsageReport(0);
+    monitor.sendMemoryUsageReport(0, 1);
     BOOST_REQUIRE_EQUAL(baseTotalMemory, m_ReportedModelSizeStats.s_Usage);
     BOOST_REQUIRE_EQUAL(baseTotalMemory, m_ReportedModelSizeStats.s_PeakUsage);
 
     monitor.addExtraMemory(100);
 
-    monitor.sendMemoryUsageReport(0);
+    monitor.sendMemoryUsageReport(0, 1);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 100, m_ReportedModelSizeStats.s_Usage);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 100, m_ReportedModelSizeStats.s_PeakUsage);
 
     monitor.addExtraMemory(-50);
 
-    monitor.sendMemoryUsageReport(0);
+    monitor.sendMemoryUsageReport(0, 1);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 50, m_ReportedModelSizeStats.s_Usage);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 100, m_ReportedModelSizeStats.s_PeakUsage);
 
     monitor.addExtraMemory(100);
 
-    monitor.sendMemoryUsageReport(0);
+    monitor.sendMemoryUsageReport(0, 1);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 150, m_ReportedModelSizeStats.s_Usage);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 150, m_ReportedModelSizeStats.s_PeakUsage);
+}
+
+BOOST_FIXTURE_TEST_CASE(testUpdateMoments, CTestFixture) {
+
+    static const core_t::TTime FIRST_TIME{358556400};
+    static const core_t::TTime BUCKET_LENGTH{3600};
+
+    CLimits limits;
+    CResourceMonitor& monitor = limits.resourceMonitor();
+    core_t::TTime time{FIRST_TIME};
+    std::size_t totalMemory{1000000};
+
+    // For the first 19 buckets memory is not stable due to the bucket count alone
+    for (std::size_t count = 0; count < 19; ++count) {
+        monitor.updateMoments(totalMemory, time, BUCKET_LENGTH);
+        BOOST_REQUIRE_EQUAL(FIRST_TIME, monitor.m_FirstMomentsUpdateTime);
+        BOOST_REQUIRE_EQUAL(time, monitor.m_LastMomentsUpdateTime);
+        BOOST_REQUIRE_EQUAL(false, monitor.isMemoryStable(BUCKET_LENGTH));
+        time += BUCKET_LENGTH;
+        totalMemory += 200000;
+    }
+
+    // At bucket 20 the coefficient of variation comes into play - initially it's
+    // too high, as we added 200000 bytes to the memory usage in every one of the
+    // first 19 buckets
+    for (std::size_t count = 20; count < 45; ++count) {
+        monitor.updateMoments(totalMemory, time, BUCKET_LENGTH);
+        BOOST_REQUIRE_EQUAL(FIRST_TIME, monitor.m_FirstMomentsUpdateTime);
+        BOOST_REQUIRE_EQUAL(time, monitor.m_LastMomentsUpdateTime);
+        BOOST_REQUIRE_EQUAL(false, monitor.isMemoryStable(BUCKET_LENGTH));
+        time += BUCKET_LENGTH;
+    }
+
+    // After several buckets of flat memory use memory should be reported as
+    // stable, and should continue to be reported as stable even when there
+    // are small fluctuations
+    for (std::size_t count = 46; count < 100; ++count) {
+        monitor.updateMoments(totalMemory, time, BUCKET_LENGTH);
+        BOOST_REQUIRE_EQUAL(FIRST_TIME, monitor.m_FirstMomentsUpdateTime);
+        BOOST_REQUIRE_EQUAL(time, monitor.m_LastMomentsUpdateTime);
+        BOOST_REQUIRE_EQUAL(true, monitor.isMemoryStable(BUCKET_LENGTH));
+        time += BUCKET_LENGTH;
+        totalMemory += (count % 5 - 2) * 1000;
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

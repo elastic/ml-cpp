@@ -793,6 +793,22 @@ enum EMemoryStatus {
 MODEL_EXPORT
 std::string print(EMemoryStatus memoryStatus);
 
+//! Where to get the job memory from for use in node assignment decisions.
+//! Prior to 7.11 this decision was made in Java code, indicated by the
+//! "unknown" value of this enum.  From 7.11 onwards the CResourceMonitor
+//! class makes the decision, and uses this enum to report that to the Java
+//! code.
+enum EAssignmentMemoryBasis {
+    E_AssignmentBasisUnknown = 0,           //!< Decision made in Java code
+    E_AssignmentBasisModelMemoryLimit = 1,  //!< Use model memory limit
+    E_AssignmentBasisCurrentModelBytes = 2, //!< Use current actual model size
+    E_AssignmentBasisPeakModelBytes = 3 //!< Use highest ever actual model size
+};
+
+//! Get a string description of \p assignmentMemoryBasis.
+MODEL_EXPORT
+std::string print(EAssignmentMemoryBasis assignmentMemoryBasis);
+
 //! An enumeration of the TokenListDataCategorizer status -
 //! Start in the OK state. Moves into the "warn" state if too
 //! few categories are being seen frequently.

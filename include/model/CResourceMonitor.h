@@ -8,6 +8,8 @@
 
 #include <core/CoreTypes.h>
 
+#include <maths/CBasicStatistics.h>
+
 #include <model/ImportExport.h>
 #include <model/ModelTypes.h>
 #include <model/SCategorizerStats.h>
@@ -17,9 +19,11 @@
 #include <functional>
 
 namespace CResourceMonitorTest {
+class CTestFixture;
 struct testMonitor;
 struct testPeakUsage;
 struct testPruning;
+struct testUpdateMoments;
 }
 namespace CResourceLimitTest {
 class CTestFixture;
@@ -50,6 +54,7 @@ public:
         std::size_t s_OverFields = 0;
         std::size_t s_AllocationFailures = 0;
         model_t::EMemoryStatus s_MemoryStatus = model_t::E_MemoryStatusOk;
+        model_t::EAssignmentMemoryBasis s_AssignmentMemoryBasis = model_t::E_AssignmentBasisUnknown;
         core_t::TTime s_BucketStartTime = 0;
         std::size_t s_BytesExceeded = 0;
         std::size_t s_BytesMemoryLimit = 0;
@@ -62,6 +67,7 @@ public:
     using TMemoryUsageReporterFunc =
         std::function<void(const CResourceMonitor::SModelSizeStats&)>;
     using TTimeSizeMap = std::map<core_t::TTime, std::size_t>;
+    using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
     //! The minimum time between prunes
     static const core_t::TTime MINIMUM_PRUNE_FREQUENCY;
@@ -120,10 +126,11 @@ public:
     void categorizerAllocationFailures(std::size_t categorizerAllocationFailures);
 
     //! Send a memory usage report if it's changed by more than a certain percentage
-    void sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime bucketStartTime);
+    void sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime bucketStartTime,
+                                                     core_t::TTime bucketLength);
 
     //! Send a memory usage report
-    void sendMemoryUsageReport(core_t::TTime bucketStartTime);
+    void sendMemoryUsageReport(core_t::TTime bucketStartTime, core_t::TTime bucketLength);
 
     //! Create a memory usage report
     SModelSizeStats createMemoryUsageReport(core_t::TTime bucketStartTime);
@@ -176,9 +183,22 @@ private:
     //! Update the given model and recalculate the total usage
     void memUsage(CMonitoredResource* resource);
 
+    //! Update the moments that are used to determine whether memory is stable
+    void updateMoments(std::size_t totalMemory,
+                       core_t::TTime bucketStartTime,
+                       core_t::TTime bucketLength);
+
     //! Determine if we need to send a usage report, based on
     //! increased usage, or increased errors
-    bool needToSendReport();
+    bool needToSendReport(model_t::EAssignmentMemoryBasis currentAssignmentMemoryBasis,
+                          core_t::TTime bucketStartTime,
+                          core_t::TTime bucketLength);
+
+    //! Report whether memory usage has been sufficiently stable in
+    //! recent reports to justify switching from using the model
+    //! memory limit to actual memory usage when deciding which node
+    //! to assign the job to.
+    bool isMemoryStable(core_t::TTime bucketLength) const;
 
     //! After a change in memory usage, check whether allocations
     //! shoule be allowed or not
@@ -206,23 +226,23 @@ private:
     TMonitoredResourcePtrSizeUMap m_Resources;
 
     //! Is there enough free memory to allow creating new components
-    bool m_AllowAllocations;
+    bool m_AllowAllocations{true};
 
     //! The relative margin to apply to the byte limits.
     double m_ByteLimitMargin;
 
     //! The upper limit for memory usage, checked on increasing values
-    std::size_t m_ByteLimitHigh;
+    std::size_t m_ByteLimitHigh{0};
 
     //! The lower limit for memory usage, checked on decreasing values
-    std::size_t m_ByteLimitLow;
+    std::size_t m_ByteLimitLow{0};
 
     //! The memory usage of the monitored resources based on the most recent
     //! calculation
-    std::size_t m_MonitoredResourceCurrentMemory;
+    std::size_t m_MonitoredResourceCurrentMemory{0};
 
     //! Extra memory to enable accounting of soon to be allocated memory
-    std::size_t m_ExtraMemory;
+    std::size_t m_ExtraMemory{0};
 
     //! The total memory usage on the previous usage report
     std::size_t m_PreviousTotal;
@@ -234,20 +254,20 @@ private:
     TTimeSizeMap m_AllocationFailures;
 
     //! The time at which the last allocation failure was reported
-    core_t::TTime m_LastAllocationFailureReport;
+    core_t::TTime m_LastAllocationFailureReport{0};
 
     //! Keep track of the model memory status
-    model_t::EMemoryStatus m_MemoryStatus;
+    model_t::EMemoryStatus m_MemoryStatus{model_t::E_MemoryStatusOk};
 
     //! Keep track of whether pruning has started, for efficiency in most cases
-    bool m_HasPruningStarted;
+    bool m_HasPruningStarted{false};
 
     //! The threshold at which pruning should kick in and head
     //! towards for the sweet spot
-    std::size_t m_PruneThreshold;
+    std::size_t m_PruneThreshold{0};
 
     //! The last time we did a full prune of all the models
-    core_t::TTime m_LastPruneTime;
+    core_t::TTime m_LastPruneTime{0};
 
     //! Number of buckets to go back when pruning
     std::size_t m_PruneWindow;
@@ -259,21 +279,32 @@ private:
     std::size_t m_PruneWindowMinimum;
 
     //! Don't do any sort of memory checking if this is set
-    bool m_NoLimit;
+    bool m_NoLimit{false};
 
     //! The number of bytes over the high limit for memory usage at the last allocation failure
-    std::size_t m_CurrentBytesExceeded;
+    std::size_t m_CurrentBytesExceeded{0};
 
     //! Is persistence occurring in the foreground?
     bool m_PersistenceInForeground;
 
     //! Number of categorizer allocation failures to date
-    std::size_t m_CategorizerAllocationFailures = 0;
+    std::size_t m_CategorizerAllocationFailures{0};
+
+    //! Estimates of mean and variance for recent reports of model bytes
+    TMeanVarAccumulator m_ModelBytesMoments;
+
+    //! Time the m_ModelBytesMoments was first updated
+    core_t::TTime m_FirstMomentsUpdateTime{0};
+
+    //! Time the m_ModelBytesMoments was last updated
+    core_t::TTime m_LastMomentsUpdateTime{0};
 
     //! Test friends
+    friend class CResourceMonitorTest::CTestFixture;
     friend struct CResourceMonitorTest::testMonitor;
     friend struct CResourceMonitorTest::testPeakUsage;
     friend struct CResourceMonitorTest::testPruning;
+    friend struct CResourceMonitorTest::testUpdateMoments;
     friend class CResourceLimitTest::CTestFixture;
     friend struct CAnomalyJobLimitTest::testAccuracy;
     friend struct CAnomalyJobLimitTest::testLimit;

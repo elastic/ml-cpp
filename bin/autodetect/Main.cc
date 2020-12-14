@@ -77,7 +77,8 @@ int main(int argc, char** argv) {
         ml::counter_t::E_TSADNumberExcludedFrequentInvocations,
         ml::counter_t::E_TSADNumberSamplesOutsideLatencyWindow,
         ml::counter_t::E_TSADNumberMemoryLimitModelCreationFailures,
-        ml::counter_t::E_TSADNumberPrunedItems};
+        ml::counter_t::E_TSADNumberPrunedItems,
+        ml::counter_t::E_TSADAssignmentMemoryBasis};
 
     ml::core::CProgramCounters::registerProgramCounterTypes(counters);
 

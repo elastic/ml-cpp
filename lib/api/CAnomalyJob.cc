@@ -517,7 +517,8 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
          lastBucketEndTime += bucketLength) {
         this->outputResults(lastBucketEndTime);
         m_Limits.resourceMonitor().decreaseMargin(bucketLength);
-        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(lastBucketEndTime);
+        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(
+            lastBucketEndTime, bucketLength);
         m_LastFinalisedBucketEndTime = lastBucketEndTime + bucketLength;
 
         // Check for periodic persistence immediately after calculating results
@@ -1427,7 +1428,7 @@ void CAnomalyJob::outputResultsWithinRange(bool isInterim, core_t::TTime start, 
         } else {
             this->outputResults(time);
         }
-        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(time);
+        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(time, bucketLength);
         time += bucketLength;
     }
 }
@@ -1460,10 +1461,11 @@ void CAnomalyJob::writeOutAnnotations(const TAnnotationVec& annotations) {
 }
 
 void CAnomalyJob::refreshMemoryAndReport() {
-    if (m_LastFinalisedBucketEndTime < m_ModelConfig.bucketLength()) {
+    core_t::TTime bucketLength{m_ModelConfig.bucketLength()};
+    if (m_LastFinalisedBucketEndTime < bucketLength) {
         LOG_ERROR(<< "Cannot report memory usage because last finalized bucket end time ("
-                  << m_LastFinalisedBucketEndTime << ") is smaller than bucket span ("
-                  << m_ModelConfig.bucketLength() << ')');
+                  << m_LastFinalisedBucketEndTime
+                  << ") is smaller than bucket span (" << bucketLength << ')');
         return;
     }
     // Make sure model size stats are up to date and then send a final memory
@@ -1478,7 +1480,7 @@ void CAnomalyJob::refreshMemoryAndReport() {
         m_Limits.resourceMonitor().forceRefresh(*detector);
     }
     m_Limits.resourceMonitor().sendMemoryUsageReport(
-        m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength());
+        m_LastFinalisedBucketEndTime - bucketLength, bucketLength);
 }
 
 void CAnomalyJob::persistIndividualDetector(const model::CAnomalyDetector& detector,
