@@ -89,9 +89,9 @@ protected:
 };
 
 BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
-    const std::string EMPTY_STRING;
-    const core_t::TTime FIRST_TIME(358556400);
-    const core_t::TTime BUCKET_LENGTH(3600);
+    static const std::string EMPTY_STRING;
+    static const core_t::TTime FIRST_TIME{358556400};
+    static const core_t::TTime BUCKET_LENGTH{3600};
 
     CAnomalyDetectorModelConfig modelConfig =
         CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
@@ -420,9 +420,9 @@ BOOST_FIXTURE_TEST_CASE(testMonitor, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testPruning, CTestFixture) {
-    const std::string EMPTY_STRING;
-    const core_t::TTime FIRST_TIME(358556400);
-    const core_t::TTime BUCKET_LENGTH(3600);
+    static const std::string EMPTY_STRING;
+    static const core_t::TTime FIRST_TIME{358556400};
+    static const core_t::TTime BUCKET_LENGTH{3600};
 
     CAnomalyDetectorModelConfig modelConfig =
         CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
@@ -501,9 +501,9 @@ BOOST_FIXTURE_TEST_CASE(testPruning, CTestFixture) {
 }
 
 BOOST_FIXTURE_TEST_CASE(testExtraMemory, CTestFixture) {
-    const std::string EMPTY_STRING;
-    const core_t::TTime FIRST_TIME(358556400);
-    const core_t::TTime BUCKET_LENGTH(3600);
+    static const std::string EMPTY_STRING;
+    static const core_t::TTime FIRST_TIME{358556400};
+    static const core_t::TTime BUCKET_LENGTH{3600};
 
     CAnomalyDetectorModelConfig modelConfig =
         CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
@@ -574,6 +574,50 @@ BOOST_FIXTURE_TEST_CASE(testPeakUsage, CTestFixture) {
     monitor.sendMemoryUsageReport(0, 1);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 150, m_ReportedModelSizeStats.s_Usage);
     BOOST_REQUIRE_EQUAL(baseTotalMemory + 150, m_ReportedModelSizeStats.s_PeakUsage);
+}
+
+BOOST_FIXTURE_TEST_CASE(testUpdateMoments, CTestFixture) {
+
+    static const core_t::TTime FIRST_TIME{358556400};
+    static const core_t::TTime BUCKET_LENGTH{3600};
+
+    CLimits limits;
+    CResourceMonitor& monitor = limits.resourceMonitor();
+    core_t::TTime time{FIRST_TIME};
+    std::size_t totalMemory{1000000};
+
+    // For the first 19 buckets memory is not stable due to the bucket count alone
+    for (std::size_t count = 0; count < 19; ++count) {
+        monitor.updateMoments(totalMemory, time, BUCKET_LENGTH);
+        BOOST_REQUIRE_EQUAL(FIRST_TIME, monitor.m_FirstMomentsUpdateTime);
+        BOOST_REQUIRE_EQUAL(time, monitor.m_LastMomentsUpdateTime);
+        BOOST_REQUIRE_EQUAL(false, monitor.isMemoryStable(BUCKET_LENGTH));
+        time += BUCKET_LENGTH;
+        totalMemory += 200000;
+    }
+
+    // At bucket 20 the coefficient of variation comes into play - initially it's
+    // too high, as we added 200000 bytes to the memory usage in every one of the
+    // first 19 buckets
+    for (std::size_t count = 20; count < 45; ++count) {
+        monitor.updateMoments(totalMemory, time, BUCKET_LENGTH);
+        BOOST_REQUIRE_EQUAL(FIRST_TIME, monitor.m_FirstMomentsUpdateTime);
+        BOOST_REQUIRE_EQUAL(time, monitor.m_LastMomentsUpdateTime);
+        BOOST_REQUIRE_EQUAL(false, monitor.isMemoryStable(BUCKET_LENGTH));
+        time += BUCKET_LENGTH;
+    }
+
+    // After several buckets of flat memory use memory should be reported as
+    // stable, and should continue to be reported as stable even when there
+    // are small fluctuations
+    for (std::size_t count = 46; count < 100; ++count) {
+        monitor.updateMoments(totalMemory, time, BUCKET_LENGTH);
+        BOOST_REQUIRE_EQUAL(FIRST_TIME, monitor.m_FirstMomentsUpdateTime);
+        BOOST_REQUIRE_EQUAL(time, monitor.m_LastMomentsUpdateTime);
+        BOOST_REQUIRE_EQUAL(true, monitor.isMemoryStable(BUCKET_LENGTH));
+        time += BUCKET_LENGTH;
+        totalMemory += (count % 5 - 2) * 1000;
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -274,10 +274,11 @@ void CResourceMonitor::updateMoments(std::size_t totalMemory,
             // The idea is to age this so that observations from more than 20
             // buckets ago have little effect.  This means the end results will
             // be close to what the old Java calculation did - it literally
-            // searched the last 20 buckets.
+            // searched the last 20 buckets.  Aging at e^-0.1 seems reasonable
+            // to reduce the variance at the required rate.
             double factor{std::exp(
                 -static_cast<double>((bucketStartTime - m_LastMomentsUpdateTime) / bucketLength) /
-                static_cast<double>(BUCKETS_FOR_ESTABLISHED_MEMORY_SIZE))};
+                static_cast<double>(BUCKETS_FOR_ESTABLISHED_MEMORY_SIZE / 2))};
             m_ModelBytesMoments.age(factor);
         }
     }
@@ -331,7 +332,7 @@ bool CResourceMonitor::isMemoryStable(core_t::TTime bucketLength) const {
     double variance{maths::CBasicStatistics::variance(m_ModelBytesMoments)};
     double cv{(variance > 0.0) ? std::sqrt(variance) / mean : 0.0};
     LOG_TRACE(<< "Model memory stability at " << m_LastMomentsUpdateTime
-              << ": bucket count = " << bucketCount << ", observation count = "
+              << ": bucket count = " << bucketCount << ", sample count = "
               << maths::CBasicStatistics::count(m_ModelBytesMoments) << ", mean = " << mean
               << ", variance = " << variance << ", coefficient of variation = " << cv);
     if (cv > ESTABLISHED_MEMORY_CV_THRESHOLD) {

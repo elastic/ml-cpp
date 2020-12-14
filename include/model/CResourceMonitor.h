@@ -23,6 +23,7 @@ class CTestFixture;
 struct testMonitor;
 struct testPeakUsage;
 struct testPruning;
+struct testUpdateMoments;
 }
 namespace CResourceLimitTest {
 class CTestFixture;
@@ -303,6 +304,7 @@ private:
     friend struct CResourceMonitorTest::testMonitor;
     friend struct CResourceMonitorTest::testPeakUsage;
     friend struct CResourceMonitorTest::testPruning;
+    friend struct CResourceMonitorTest::testUpdateMoments;
     friend class CResourceLimitTest::CTestFixture;
     friend struct CAnomalyJobLimitTest::testAccuracy;
     friend struct CAnomalyJobLimitTest::testLimit;
