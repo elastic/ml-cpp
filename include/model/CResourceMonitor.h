@@ -19,6 +19,7 @@
 #include <functional>
 
 namespace CResourceMonitorTest {
+class CTestFixture;
 struct testMonitor;
 struct testPeakUsage;
 struct testPruning;
@@ -181,6 +182,11 @@ private:
     //! Update the given model and recalculate the total usage
     void memUsage(CMonitoredResource* resource);
 
+    //! Update the moments that are used to determine whether memory is stable
+    void updateMoments(std::size_t totalMemory,
+                       core_t::TTime bucketStartTime,
+                       core_t::TTime bucketLength);
+
     //! Determine if we need to send a usage report, based on
     //! increased usage, or increased errors
     bool needToSendReport(model_t::EAssignmentMemoryBasis currentAssignmentMemoryBasis,
@@ -293,6 +299,7 @@ private:
     core_t::TTime m_LastMomentsUpdateTime{0};
 
     //! Test friends
+    friend class CResourceMonitorTest::CTestFixture;
     friend struct CResourceMonitorTest::testMonitor;
     friend struct CResourceMonitorTest::testPeakUsage;
     friend struct CResourceMonitorTest::testPruning;

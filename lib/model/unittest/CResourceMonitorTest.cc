@@ -58,7 +58,8 @@ public:
             for (; bucketStart + bucketLength <= time; bucketStart += bucketLength) {
                 detector.buildResults(bucketStart, bucketStart + bucketLength, results);
                 monitor.pruneIfRequired(bucketStart);
-                numBuckets++;
+                monitor.updateMoments(monitor.totalMemory(), bucketStart, bucketLength);
+                ++numBuckets;
                 newBucket = true;
             }
 
@@ -445,6 +446,8 @@ BOOST_FIXTURE_TEST_CASE(testPruning, CTestFixture) {
     BOOST_REQUIRE_EQUAL(false, monitor.pruneIfRequired(bucket));
     BOOST_REQUIRE_EQUAL(false, monitor.m_HasPruningStarted);
     BOOST_REQUIRE_EQUAL(model_t::E_MemoryStatusOk, monitor.m_MemoryStatus);
+    // Memory should not be stable, as we've only seen 2 buckets
+    BOOST_REQUIRE_EQUAL(false, monitor.isMemoryStable(BUCKET_LENGTH));
 
     LOG_DEBUG(<< "Saturating the pruner");
     // Add enough data to saturate the pruner
@@ -454,6 +457,9 @@ BOOST_FIXTURE_TEST_CASE(testPruning, CTestFixture) {
     BOOST_REQUIRE_EQUAL(true, monitor.m_HasPruningStarted);
     BOOST_TEST_REQUIRE(monitor.m_PruneWindow < std::size_t(1000));
     BOOST_REQUIRE_EQUAL(model_t::E_MemoryStatusSoftLimit, monitor.m_MemoryStatus);
+    // Memory should be stable now, after 1100 more buckets,
+    // and with the pruner running
+    BOOST_REQUIRE_EQUAL(true, monitor.isMemoryStable(BUCKET_LENGTH));
     BOOST_REQUIRE_EQUAL(true, monitor.m_AllowAllocations);
 
     LOG_DEBUG(<< "Allowing pruner to relax");
@@ -530,7 +536,7 @@ BOOST_FIXTURE_TEST_CASE(testExtraMemory, CTestFixture) {
     // Push over the limit by adding 1MB
     monitor.addExtraMemory(core::constants::BYTES_IN_MEGABYTES);
     BOOST_TEST_REQUIRE(monitor.areAllocationsAllowed() == false);
-    BOOST_REQUIRE_EQUAL(std::size_t(0), monitor.allocationLimit());
+    BOOST_REQUIRE_EQUAL(0, monitor.allocationLimit());
 
     monitor.clearExtraMemory();
     BOOST_TEST_REQUIRE(monitor.areAllocationsAllowed());

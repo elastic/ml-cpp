@@ -264,12 +264,9 @@ void CResourceMonitor::sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime
     }
 }
 
-bool CResourceMonitor::needToSendReport(model_t::EAssignmentMemoryBasis currentAssignmentMemoryBasis,
-                                        core_t::TTime bucketStartTime,
-                                        core_t::TTime bucketLength) {
-    std::size_t total{this->totalMemory()};
-
-    // Update the moments that are used to determine whether memory is stable
+void CResourceMonitor::updateMoments(std::size_t totalMemory,
+                                     core_t::TTime bucketStartTime,
+                                     core_t::TTime bucketLength) {
     if (m_FirstMomentsUpdateTime <= 0) {
         m_FirstMomentsUpdateTime = bucketStartTime;
     } else {
@@ -284,8 +281,17 @@ bool CResourceMonitor::needToSendReport(model_t::EAssignmentMemoryBasis currentA
             m_ModelBytesMoments.age(factor);
         }
     }
-    m_ModelBytesMoments.add(static_cast<double>(total));
+    m_ModelBytesMoments.add(static_cast<double>(totalMemory));
     m_LastMomentsUpdateTime = bucketStartTime;
+}
+
+bool CResourceMonitor::needToSendReport(model_t::EAssignmentMemoryBasis currentAssignmentMemoryBasis,
+                                        core_t::TTime bucketStartTime,
+                                        core_t::TTime bucketLength) {
+    std::size_t total{this->totalMemory()};
+
+    // Update the moments that are used to determine whether memory is stable
+    this->updateMoments(total, bucketStartTime, bucketLength);
 
     // Has the usage changed by more than 1% ?
     if ((std::max(total, m_PreviousTotal) - std::min(total, m_PreviousTotal)) >
