@@ -9,7 +9,6 @@
 #include <core/Constants.h>
 
 #include <maths/CBoostedTree.h>
-#include <maths/CBoostedTreeHyperparameters.h>
 
 #include <api/CDataFrameOutliersRunner.h>
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
