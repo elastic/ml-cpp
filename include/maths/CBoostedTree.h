@@ -203,9 +203,8 @@ public:
     using TDataFramePtr = core::CDataFrame*;
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
-    using THyperparameterDoubleDoubleTuple =
-        std::tuple<boosted_tree_detail::EHyperparameters, double, double>;
-    using THyperparameterDoubleDoubleTupleVec = std::vector<THyperparameterDoubleDoubleTuple>;
+    using THyperparameterImportanceVec =
+        std::vector<boosted_tree_detail::SHyperparameterImportance>;
 
     class MATHS_EXPORT CVisitor : public CDataFrameCategoryEncoder::CVisitor,
                                   public CBoostedTreeNode::CVisitor {
@@ -235,7 +234,7 @@ public:
     //! \warning Will return a nullptr if a trained model isn't available.
     CTreeShapFeatureImportance* shap() const override;
 
-    THyperparameterDoubleDoubleTupleVec hyperparameterImportance() const;
+    THyperparameterImportanceVec hyperparameterImportance() const;
 
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const override;

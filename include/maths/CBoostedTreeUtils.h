@@ -43,6 +43,20 @@ enum EHyperparameters {
     E_SoftTreeDepthTolerance
 };
 
+struct SHyperparameterImportance {
+    SHyperparameterImportance(EHyperparameters hyperparameter,
+                              double value,
+                              double absoluteImportance,
+                              double relativeImportance)
+        : s_Hyperparameter(hyperparameter), s_Value(value),
+          s_AbsoluteImportance(absoluteImportance),
+          s_RelativeImportance(relativeImportance){};
+    EHyperparameters s_Hyperparameter;
+    double s_Value;
+    double s_AbsoluteImportance;
+    double s_RelativeImportance;
+};
+
 //! Get the size of upper triangle of the loss Hessain.
 inline std::size_t lossHessianUpperTriangleSize(std::size_t numberLossParameters) {
     return numberLossParameters * (numberLossParameters + 1) / 2;

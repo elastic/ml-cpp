@@ -163,7 +163,7 @@ CTreeShapFeatureImportance* CBoostedTree::shap() const {
     return m_Impl->shap();
 }
 
-CBoostedTree::THyperparameterDoubleDoubleTupleVec CBoostedTree::hyperparameterImportance() const {
+CBoostedTree::THyperparameterImportanceVec CBoostedTree::hyperparameterImportance() const {
     return m_Impl->hyperparameterImportance();
 }
 

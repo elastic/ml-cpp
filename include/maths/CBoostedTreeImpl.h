@@ -67,9 +67,8 @@ public:
     using TRegularization = CBoostedTreeRegularization<double>;
     using TSizeVec = std::vector<std::size_t>;
     using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
-    using THyperparameterDoubleDoubleTuple =
-        std::tuple<boosted_tree_detail::EHyperparameters, double, double>;
-    using THyperparameterDoubleDoubleTupleVec = std::vector<THyperparameterDoubleDoubleTuple>;
+    using THyperparameterImportanceVec =
+        std::vector<boosted_tree_detail::SHyperparameterImportance>;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
@@ -97,7 +96,7 @@ public:
     //! \warning Will return a nullptr if a trained model isn't available.
     CTreeShapFeatureImportance* shap();
 
-    THyperparameterDoubleDoubleTupleVec hyperparameterImportance();
+    THyperparameterImportanceVec hyperparameterImportance();
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;

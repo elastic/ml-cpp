@@ -23,21 +23,22 @@ namespace api {
 //! (such as totol feature importance) into JSON format.
 class API_EXPORT CInferenceModelMetadata {
 public:
+    static const std::string JSON_ABSOLUTE_IMPORTANCE_TAG;
     static const std::string JSON_BASELINE_TAG;
-    static const std::string JSON_FEATURE_IMPORTANCE_BASELINE_TAG;
     static const std::string JSON_CLASS_NAME_TAG;
     static const std::string JSON_CLASSES_TAG;
+    static const std::string JSON_FEATURE_IMPORTANCE_BASELINE_TAG;
     static const std::string JSON_FEATURE_NAME_TAG;
+    static const std::string JSON_HYPERPARAMETER_IMPORTANCE_TAG;
+    static const std::string JSON_HYPERPARAMETER_NAME_TAG;
+    static const std::string JSON_HYPERPARAMETER_VALUE_TAG;
     static const std::string JSON_IMPORTANCE_TAG;
-    static const std::string JSON_RELATIVE_IMPORTANCE_TAG;
-    static const std::string JSON_ABSOLUTE_IMPORTANCE_TAG;
     static const std::string JSON_MAX_TAG;
     static const std::string JSON_MEAN_MAGNITUDE_TAG;
     static const std::string JSON_MIN_TAG;
     static const std::string JSON_MODEL_METADATA_TAG;
+    static const std::string JSON_RELATIVE_IMPORTANCE_TAG;
     static const std::string JSON_TOTAL_FEATURE_IMPORTANCE_TAG;
-    static const std::string JSON_HYPERPARAMETER_IMPORTANCE_TAG;
-    static const std::string JSON_HYPERPARAMETER_NAME_TAG;
 
 public:
     using TVector = maths::CDenseVector<double>;
@@ -59,7 +60,7 @@ public:
     //! Set the feature importance baseline (the individual feature importances are additive corrections
     //! to the baseline value).
     void featureImportanceBaseline(TVector&& baseline);
-    void hyperparameterImportance(const maths::CBoostedTree::THyperparameterDoubleDoubleTupleVec& hyperparameterImportance);
+    void hyperparameterImportance(const maths::CBoostedTree::THyperparameterImportanceVec& hyperparameterImportance);
 
 private:
     using TMeanAccumulator =
@@ -68,8 +69,8 @@ private:
     using TSizeMeanAccumulatorUMap = std::unordered_map<std::size_t, TMeanAccumulator>;
     using TSizeMinMaxAccumulatorUMap = std::unordered_map<std::size_t, TMinMaxAccumulator>;
     using TOptionalVector = boost::optional<TVector>;
-    using TStrDoubleDoubleTuple = std::tuple<std::string, double, double>;
-    using TStrDoubleDoubleTupleVec = std::vector<TStrDoubleDoubleTuple>;
+    using TStrDoubleDoubleDoubleTuple = std::tuple<std::string, double, double, double>;
+    using TStrDoubleDoubleDoubleTupleVec = std::vector<TStrDoubleDoubleDoubleTuple>;
 
 private:
     void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
@@ -86,7 +87,7 @@ private:
         [](const std::string& value, TRapidJsonWriter& writer) {
             writer.String(value);
         };
-    TStrDoubleDoubleTupleVec m_HyperparameterImportance;
+    TStrDoubleDoubleDoubleTupleVec m_HyperparameterImportance;
 };
 }
 }

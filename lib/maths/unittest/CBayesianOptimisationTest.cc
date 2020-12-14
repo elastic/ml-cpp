@@ -105,7 +105,7 @@ initBayesianOptimization(std::size_t dim, std::size_t numSamples, double min, do
     TDoubleVec kernelParameters(dim + 1, 0.5);
     kernelParameters[0] = 0.7;
     bopt.kernelParameters(vector(kernelParameters));
-    return std::move(bopt);
+    return bopt;
 }
 }
 
@@ -429,7 +429,7 @@ BOOST_AUTO_TEST_CASE(testEvaluate1D) {
     TDoubleVec testInput(1);
     rng.generateUniformSamples(0, 1, 1, testInput);
 
-    for (std::size_t d = 0; d < static_cast<int>(dim); ++d) {
+    for (int d = 0; d < static_cast<int>(dim); ++d) {
         TMeanAccumulator meanAccumulator;
         double ftActual{bopt.evaluate1D(testInput[0], d)};
         for (std::size_t i = 0u; i < mcSamples; ++i) {
@@ -510,7 +510,7 @@ BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
             }
             double mainEffectExpected(maths::CBasicStatistics::mean(meanAccumulator));
             double mainEffectActual{bopt.anovaMainEffect(static_cast<int>(d))};
-            BOOST_REQUIRE_CLOSE_ABSOLUTE(mainEffectActual, mainEffectExpected, 5e-4);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(mainEffectActual, mainEffectExpected, 5e-3);
         }
     };
     verify(0.0, 1.0);
