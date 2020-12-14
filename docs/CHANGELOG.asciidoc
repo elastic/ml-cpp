@@ -45,6 +45,9 @@
 * Improvements to time series modeling particularly in relation to adaption to change.
   (See {ml-pull})1614[#1614].)
 * Warn and error log throttling. (See {ml-pull}1615[#1615].)
+* Soften the effect of fluctuations in anomaly detection job memory usage on node
+  assignment and add `assignment_memory_basis` to `model_size_stats`.
+  (See {ml-pull}1623[#1623], {es-pull}65561[#65561], issue: {es-issue}63163[#63163].)
 
 === Bug Fixes
 

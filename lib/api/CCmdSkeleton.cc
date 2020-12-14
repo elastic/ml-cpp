@@ -8,6 +8,9 @@
 #include <core/CDataAdder.h>
 #include <core/CDataSearcher.h>
 #include <core/CLogger.h>
+#include <core/CProgramCounters.h>
+
+#include <model/ModelTypes.h>
 
 #include <api/CDataProcessor.h>
 #include <api/CInputParser.h>
@@ -28,6 +31,13 @@ CCmdSkeleton::CCmdSkeleton(core::CDataSearcher* restoreSearcher,
 bool CCmdSkeleton::ioLoop() {
     if (m_RestoreSearcher == nullptr) {
         LOG_DEBUG(<< "No restoration source specified - will not attempt to restore state");
+        // If we restore state then that state will supply the assignment memory
+        // basis, and for jobs that pre-date this field, that will be restored
+        // as "unknown".  But if we are starting from scratch then we should
+        // start with the model memory limit approach, as this will save the
+        // Java code having to make a complicated decision to determine this.
+        core::CProgramCounters::counter(counter_t::E_TSADAssignmentMemoryBasis) =
+            static_cast<std::uint64_t>(model_t::E_AssignmentBasisModelMemoryLimit);
     } else {
         core_t::TTime completeToTime(0);
         if (m_Processor.restoreState(*m_RestoreSearcher, completeToTime) == false) {

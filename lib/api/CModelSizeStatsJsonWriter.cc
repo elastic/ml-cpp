@@ -26,6 +26,7 @@ const std::string TOTAL_OVER_FIELD_COUNT{"total_over_field_count"};
 const std::string TOTAL_PARTITION_FIELD_COUNT{"total_partition_field_count"};
 const std::string BUCKET_ALLOCATION_FAILURES_COUNT{"bucket_allocation_failures_count"};
 const std::string MEMORY_STATUS{"memory_status"};
+const std::string ASSIGNMENT_MEMORY_BASIS{"assignment_memory_basis"};
 const std::string CATEGORIZED_DOC_COUNT{"categorized_doc_count"};
 const std::string TOTAL_CATEGORY_COUNT{"total_category_count"};
 const std::string FREQUENT_CATEGORY_COUNT{"frequent_category_count"};
@@ -72,6 +73,11 @@ void CModelSizeStatsJsonWriter::write(const std::string& jobId,
 
     writer.Key(MEMORY_STATUS);
     writer.String(model_t::print(results.s_MemoryStatus));
+
+    if (results.s_AssignmentMemoryBasis != model_t::E_AssignmentBasisUnknown) {
+        writer.Key(ASSIGNMENT_MEMORY_BASIS);
+        writer.String(model_t::print(results.s_AssignmentMemoryBasis));
+    }
 
     CModelSizeStatsJsonWriter::writeCommonFields(
         jobId, results.s_OverallCategorizerStats, results.s_BucketStartTime, writer);
