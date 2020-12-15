@@ -373,8 +373,13 @@ private:
         //! Check if this is better than \p other.
         bool isBetter(const SHypothesisStats& other) const;
 
-        //! Check if we should evict an existing component from the model.
+        //! Check whether to evict an existing component from the model.
         bool evict(const CTimeSeriesTestForSeasonality& params, std::size_t modelledIndex) const;
+
+        //! Check if it is permitted to evict an existing component from the model
+        //! given the test window parameters.
+        bool isEvictionPermitted(const CTimeSeriesTestForSeasonality& params,
+                                 std::size_t modelledIndex) const;
 
         //! The weight of this hypothesis for compouting decomposition properties.
         double weight() const;
@@ -460,6 +465,8 @@ private:
         bool isAlternative() const;
         //! The similarity of the components after applying this hypothesis.
         double componentsSimilarity() const;
+        //! Check if we are allowed to evict all components of this model.
+        std::size_t isEvictionPermitted() const;
         //! The p-value of this model vs H0.
         double pValue(const SModel& H0,
                       double minimumRelativeTruncatedVariance = 0.0,
@@ -595,7 +602,7 @@ private:
     double m_LowAutocorrelation = 0.3;
     double m_MediumAutocorrelation = 0.5;
     double m_HighAutocorrelation = 0.7;
-    double m_PValueToEvict = 0.5;
+    double m_PValueToEvict = 0.4;
     double m_SignificantPValue = 5e-3;
     double m_VerySignificantPValue = 1e-6;
     double m_AcceptedFalsePostiveRate = 1e-4;
