@@ -9,6 +9,7 @@
 #include <core/CProgramCounters.h>
 #include <core/Constants.h>
 
+#include <maths/CMathsFuncs.h>
 #include <maths/CTools.h>
 
 #include <model/CMonitoredResource.h>
@@ -345,11 +346,8 @@ bool CResourceMonitor::isMemoryStable(core_t::TTime bucketLength) const {
               << ", coefficient of variation = " << (std::sqrt(variance) / mean));
     // Instead of literally testing the coefficient of variation it's more
     // robust against zeroes and NaNs to rearrange it as follows
-    if (variance > maths::CTools::pow2(ESTABLISHED_MEMORY_CV_THRESHOLD * mean)) {
-        return false;
-    }
-
-    return true;
+    return maths::CMathsFuncs::isNan(variance) == false &&
+           variance <= maths::CTools::pow2(ESTABLISHED_MEMORY_CV_THRESHOLD * mean);
 }
 
 void CResourceMonitor::sendMemoryUsageReport(core_t::TTime bucketStartTime,
