@@ -40,7 +40,8 @@ enum EHyperparameters {
     E_Gamma,
     E_Lambda,
     E_SoftTreeDepthLimit,
-    E_SoftTreeDepthTolerance
+    E_SoftTreeDepthTolerance,
+    E_LastHyperparameter //put all new hyperparameter before this one
 };
 
 struct SHyperparameterImportance {

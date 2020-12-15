@@ -330,6 +330,9 @@ private:
     //! Record hyperparameters for instrumentation.
     void recordHyperparameters();
 
+    //! Populate the list of tunable hyperparameters
+    void initializeTunableHyperparameters();
+
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     EInitializationStage m_InitializationStage = E_NotInitialized;

@@ -825,20 +825,24 @@ void CSampling::gammaSampleQuantiles(double shape, double rate, std::size_t n, T
 
 void CSampling::sobolSequenceSample(std::size_t dim, std::size_t n, TDoubleVecVec& samples) {
     samples.clear();
-    if (n == 0) {
+    if (n == 0 || dim == 0) {
         return;
     }
-    typedef boost::variate_generator<boost::random::sobol&, boost::uniform_01<double>> quasi_random_gen_t;
-    boost::random::sobol engine(dim);
-    quasi_random_gen_t gen(engine, boost::uniform_01<double>());
-    {
+
+    try {
+        typedef boost::variate_generator<boost::random::sobol&, boost::uniform_01<double>> quasi_random_gen_t;
+        boost::random::sobol engine(dim);
+        quasi_random_gen_t gen(engine, boost::uniform_01<double>());
         samples.resize(n, TDoubleVec(dim));
-        CDenseVector<double> sample(dim);
         for (std::size_t i = 0u; i < n; ++i) {
             for (std::size_t j = 0u; j < dim; ++j) {
                 samples[i][j] = gen();
             }
         }
+    } catch (const std::exception& e) {
+        LOG_ERROR(<< "Failed to sample Sobol sequence: " << e.what()
+                  << ", dim = " << dim << ", n = " << n);
+        samples.clear();
     }
 }
 

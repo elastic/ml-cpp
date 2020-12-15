@@ -261,7 +261,7 @@ const std::string CInferenceModelMetadata::JSON_CLASSES_TAG{"classes"};
 const std::string CInferenceModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG{"feature_importance_baseline"};
 const std::string CInferenceModelMetadata::JSON_FEATURE_NAME_TAG{"feature_name"};
 const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_IMPORTANCE_TAG{"hyperparameter_importance"};
-const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_NAME_TAG{"hyperparameter_name"};
+const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_NAME_TAG{"name"};
 const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_VALUE_TAG{"value"};
 const std::string CInferenceModelMetadata::JSON_IMPORTANCE_TAG{"importance"};
 const std::string CInferenceModelMetadata::JSON_MAX_TAG{"max"};
