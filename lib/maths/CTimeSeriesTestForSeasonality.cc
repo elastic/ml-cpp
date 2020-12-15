@@ -559,6 +559,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
     double qualitySelected{-std::numeric_limits<double>::max()};
     double minPValue{1.0};
     std::size_t h0ForMinPValue{0};
+    std::size_t h1ForMinPValue{0};
     for (std::size_t H1 = 0; H1 < decompositions.size(); ++H1) {
         if (decompositions[H1].isAlternative()) {
             double pValueVsH0;
@@ -574,7 +575,9 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
                                       ? m_PValueToEvict
                                       : m_AcceptedFalsePostiveRate};
             if (pValueVsH0 < minPValue) {
-                std::tie(minPValue, h0ForMinPValue) = std::make_pair(pValueVsH0, H0);
+                minPValue = pValueVsH0;
+                h0ForMinPValue = H0;
+                h1ForMinPValue = H1;
             }
             LOG_TRACE(<< "hypothesis = "
                       << core::CContainerPrinter::print(decompositions[H1].s_Hypotheses));
@@ -690,14 +693,20 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
         return result;
     }
 
-    LOG_TRACE(<< "p-value min = " << minPValue);
+    // Check if we should remove all components.
 
-    // If the evidence for seasonality is weak and we can test all components
-    // in this window remove them.
     std::ptrdiff_t numberModelled(m_ModelledPeriods.size());
-    if (minPValue > m_PValueToEvict && numberModelled > 0 &&
-        std::count(m_ModelledPeriodsTestable.begin(),
-                   m_ModelledPeriodsTestable.end(), true) == numberModelled) {
+    double fractionNotMissing{static_cast<double>(observedRange(m_Values)) /
+                              static_cast<double>(m_Values.size())};
+    LOG_TRACE(<< "p-value min = " << minPValue);
+    LOG_TRACE(<< "fraction not missing = " << fractionNotMissing);
+
+    if ((numberModelled > 0 && // We're modelling seasonality
+         decompositions[h1ForMinPValue].isEvictionPermitted() && // The window is suitable
+         minPValue > m_PValueToEvict) && // We have weak evidence for seasonality
+        (fuzzyGreaterThan(minPValue / m_PValueToEvict, 1.0, 0.2) &&
+         fuzzyGreaterThan(fractionNotMissing, 1.0, 0.5)) // We've observed enough of the window
+            .boolean()) {
         result.add(CNewTrendSummary{
             m_ValuesStartTime, m_BucketLength,
             std::move(decompositions[h0ForMinPValue].s_TrendInitialValues)});
@@ -941,7 +950,7 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
     // not to use it to model non-seasonal changes. We start to penalise the selection as
     // lcm(periods) exceeds the window length.
     std::size_t leastCommonRepeat{1};
-    std::size_t observedRange{this->observedRange(m_Values)};
+    std::size_t range{observedRange(m_Values)};
 
     for (std::size_t i = 0; i < periods.size(); ++i) {
 
@@ -1000,14 +1009,14 @@ CTimeSeriesTestForSeasonality::testDecomposition(const TSeasonalComponentVec& pe
                 hypothesis.s_NumberScaleSegments = hypothesis.s_ScaleSegments.size() - 1;
                 hypothesis.s_MeanNumberRepeats =
                     CSignal::meanNumberRepeatedValues(m_ValuesToTest, period);
-                hypothesis.s_WindowRepeats = static_cast<double>(observedRange) /
+                hypothesis.s_WindowRepeats = static_cast<double>(range) /
                                              static_cast<double>(periods[i].s_WindowRepeat);
                 hypothesis.s_LeastCommonRepeat =
                     static_cast<double>(componentAlreadyModelled
                                             ? leastCommonRepeat
                                             : CIntegerTools::lcm(leastCommonRepeat,
                                                                  periods[i].s_WindowRepeat)) /
-                    static_cast<double>(observedRange);
+                    static_cast<double>(range);
                 hypothesis.testExplainedVariance(*this, H0);
                 hypothesis.testAutocorrelation(*this);
                 hypothesis.testAmplitude(*this);
@@ -1972,14 +1981,20 @@ bool CTimeSeriesTestForSeasonality::SHypothesisStats::isBetter(const SHypothesis
 
 bool CTimeSeriesTestForSeasonality::SHypothesisStats::evict(const CTimeSeriesTestForSeasonality& params,
                                                             std::size_t modelledIndex) const {
+    return this->isEvictionPermitted(params, modelledIndex) &&
+           s_ExplainedVariancePValue > params.m_PValueToEvict &&
+           s_AmplitudePValue > params.m_PValueToEvict;
+}
+
+bool CTimeSeriesTestForSeasonality::SHypothesisStats::isEvictionPermitted(
+    const CTimeSeriesTestForSeasonality& params,
+    std::size_t modelledIndex) const {
     std::size_t range{params.m_ModelledPeriods[modelledIndex].fractionInWindow(
         observedRange(params.m_Values))};
     std::size_t period{params.m_ModelledPeriods[modelledIndex].period()};
     return params.m_ModelledPeriodsTestable[modelledIndex] &&
            3 * period >= params.m_ModelledPeriodsSizes[modelledIndex] &&
-           CMinAmplitude::seenSufficientDataToTestAmplitude(range, period) &&
-           s_ExplainedVariancePValue > params.m_PValueToEvict &&
-           s_AmplitudePValue > params.m_PValueToEvict;
+           CMinAmplitude::seenSufficientDataToTestAmplitude(range, period);
 }
 
 double CTimeSeriesTestForSeasonality::SHypothesisStats::weight() const {
@@ -2021,6 +2036,18 @@ double CTimeSeriesTestForSeasonality::SModel::componentsSimilarity() const {
         }
     }
     return 1.0;
+}
+
+std::size_t CTimeSeriesTestForSeasonality::SModel::isEvictionPermitted() const {
+    if (s_AlreadyModelled == false) {
+        return false;
+    }
+    for (std::size_t i = 0; i < s_Hypotheses.size(); ++i) {
+        if (s_Hypotheses[i].isEvictionPermitted(*s_Params, i) == false) {
+            return false;
+        }
+    }
+    return true;
 }
 
 double CTimeSeriesTestForSeasonality::SModel::pValue(const SModel& H0,
