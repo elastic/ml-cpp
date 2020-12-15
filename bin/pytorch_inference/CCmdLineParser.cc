@@ -18,7 +18,14 @@ const std::string CCmdLineParser::DESCRIPTION = "Usage: pytorch_inference [optio
 
 bool CCmdLineParser::parse(int argc,
                            const char* const* argv,
-                           std::string& modelId) {
+                           std::string& modelId,
+                           core_t::TTime& namedPipeConnectTimeout,
+                           std::string& inputFileName,
+                           bool& isInputFileNamedPipe,
+                           std::string& outputFileName,
+                           bool& isOutputFileNamedPipe,
+                           std::string& restoreFileName,
+                           bool& isRestoreFileNamedPipe) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -27,6 +34,19 @@ bool CCmdLineParser::parse(int argc,
             ("version", "Display version information and exit")
             ("modelid", boost::program_options::value<std::string>(),
                         "The TorchScript model this process is associated with")
+            ("namedPipeConnectTimeout", boost::program_options::value<core_t::TTime>(),
+                        "Optional timeout (in seconds) for connecting named pipes on startup - default is 300 seconds")
+            ("input", boost::program_options::value<std::string>(),
+                        "Optional file to read input from - not present means read from STDIN")
+            ("inputIsPipe", "Specified input file is a named pipe")
+            ("output", boost::program_options::value<std::string>(),
+                        "Optional file to write output to - not present means write to STDOUT")
+            ("outputIsPipe", "Specified output file is a named pipe")
+            ("restore", boost::program_options::value<std::string>(),
+                        "Optional file to restore state from - not present means no state restoration")
+            ("restoreIsPipe", "Specified restore file is a named pipe")
+            ("persist", boost::program_options::value<std::string>(),
+                        "Optional file to persist state to - not present means no state persistence")            
             ;
         // clang-format on
 
@@ -49,6 +69,27 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("modelid") > 0) {
              modelId = vm["modelid"].as<std::string>();
         }
+        if (vm.count("namedPipeConnectTimeout") > 0) {
+            namedPipeConnectTimeout = vm["namedPipeConnectTimeout"].as<core_t::TTime>();
+        }
+        if (vm.count("input") > 0) {
+            inputFileName = vm["input"].as<std::string>();
+        }
+        if (vm.count("inputIsPipe") > 0) {
+            isInputFileNamedPipe = true;
+        }
+        if (vm.count("output") > 0) {
+            outputFileName = vm["output"].as<std::string>();
+        }
+        if (vm.count("outputIsPipe") > 0) {
+            isOutputFileNamedPipe = true;
+        }
+        if (vm.count("restore") > 0) {
+            restoreFileName = vm["restore"].as<std::string>();
+        }
+        if (vm.count("restoreIsPipe") > 0) {
+            isRestoreFileNamedPipe = true;
+        }        
 
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;

@@ -37,10 +37,25 @@
 int main(int argc, char** argv) {
     // Read command line options
     std::string modelId;
+    std::string inputFileName;
+    bool isInputFileNamedPipe{false};
+    std::string outputFileName;
+    bool isOutputFileNamedPipe{false};
+    std::string restoreFileName;
+    bool isRestoreFileNamedPipe{false};
+    std::string persistFileName;
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
 
-    if (ml::torch::CCmdLineParser::parse(argc, argv, modelId) == false) {
+    if (ml::torch::CCmdLineParser::parse(argc, argv, 
+                                        modelId, 
+                                        namedPipeConnectTimeout,
+                                        inputFileName,
+                                        isInputFileNamedPipe,
+                                        outputFileName,
+                                        isOutputFileNamedPipe,
+                                        restoreFileName, 
+                                        isRestoreFileNamedPipe) == false) {
         return EXIT_FAILURE;
     }
 
@@ -51,9 +66,9 @@ int main(int argc, char** argv) {
     // std::ios actions that only work before first use
     const std::string EMPTY;
     ml::api::CIoManager ioMgr{cancellerThread, 
-        EMPTY, false,
-        EMPTY, false, 
-        EMPTY, false,  
+        inputFileName, isInputFileNamedPipe,
+        outputFileName, isOutputFileNamedPipe,         
+        restoreFileName, isRestoreFileNamedPipe,
         EMPTY, false};
 
     if (cancellerThread.start() == false) {
@@ -84,23 +99,17 @@ int main(int argc, char** argv) {
     }
 
 
+    // auto ins = gulp(ioMgr.inputStream());
+    // LOG_INFO(<< "got mes " << ins);
     
 
     torch::jit::script::Module module;
     try {    
-        // ioMgr.inputStream().seekg(0);
-        // if (!ioMgr.inputStream().good()) {
-            // LOG_INFO(<< "bad stream");
-            // return EXIT_FAILURE;
-        // }
-
-        auto readAdapter = std::make_unique<ml::torch::CBufferedIStreamAdapter>(1330816933, ioMgr.inputStream());
-        LOG_INFO(<< "load");
+        auto readAdapter = std::make_unique<ml::torch::CBufferedIStreamAdapter>(ioMgr.inputStream());
+        LOG_INFO(<< "size is " << readAdapter->size());
+        
         module = torch::jit::load(std::move(readAdapter));
 
-
-        // module = torch::jit::load(ioMgr.inputStream());
-        // module = torch::jit::load("/Users/davidkyle/source/ml-search/projects/universal/torchscript/dbmdz-ner/conll03_traced_ner.pt");
         LOG_INFO(<< "model loaded");
     }
     catch (const c10::Error& e) {                        

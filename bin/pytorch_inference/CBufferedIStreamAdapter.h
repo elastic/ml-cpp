@@ -14,16 +14,20 @@ namespace torch {
 
 class CBufferedIStreamAdapter : public caffe2::serialize::ReadAdapterInterface {    
 public:
-    CBufferedIStreamAdapter(size_t size, std::istream& inputStream);
+    CBufferedIStreamAdapter(std::istream& inputStream);
 
-    size_t size() const override;
-    size_t read(uint64_t pos, void* buf, size_t n, const char* what = "") const override;
+    std::size_t size() const override;
+    std::size_t read(uint64_t pos, void* buf, std::size_t n, const char* what = "") const override;
+
+    char* buffer() const;
         
     CBufferedIStreamAdapter(const CBufferedIStreamAdapter&) = delete;
     CBufferedIStreamAdapter& operator=(const CBufferedIStreamAdapter&) = delete;
 
 private:
-    size_t m_Size;
+	bool parseSizeFromStream(std::size_t& num, std::istream& inputStream);
+
+    std::size_t m_Size;
     std::unique_ptr<char[]> m_Buffer;
 };
 

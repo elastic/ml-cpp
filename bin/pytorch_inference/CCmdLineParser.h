@@ -31,7 +31,14 @@ public:
     //! Parse the arguments and return options if appropriate.  
     static bool parse(int argc,
                       const char* const* argv,
-                      std::string& modelId);
+                      std::string& modelId,
+                      core_t::TTime& namedPipeConnectTimeout,
+                      std::string& inputFileName,
+                      bool& isInputFileNamedPipe,
+                      std::string& outputFileName,
+                      bool& isOutputFileNamedPipe,
+                      std::string& restoreFileName,
+                      bool& isRestoreFileNamedPipe);
 
 private:
     static const std::string DESCRIPTION;
