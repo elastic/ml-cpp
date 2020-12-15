@@ -1981,9 +1981,9 @@ bool CTimeSeriesTestForSeasonality::SHypothesisStats::isBetter(const SHypothesis
 
 bool CTimeSeriesTestForSeasonality::SHypothesisStats::evict(const CTimeSeriesTestForSeasonality& params,
                                                             std::size_t modelledIndex) const {
-    return this->isEvictionPermitted(params, modelledIndex) &&
-           s_ExplainedVariancePValue > params.m_PValueToEvict &&
-           s_AmplitudePValue > params.m_PValueToEvict;
+    return s_ExplainedVariancePValue > params.m_PValueToEvict &&
+           s_AmplitudePValue > params.m_PValueToEvict &&
+           this->isEvictionPermitted(params, modelledIndex);
 }
 
 bool CTimeSeriesTestForSeasonality::SHypothesisStats::isEvictionPermitted(
