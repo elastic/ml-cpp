@@ -19,7 +19,7 @@
 namespace ml {
 namespace torch {
 
-CBufferedIStreamAdapter::CBufferedIStreamAdapter(std::istream& inputStream)
+CBufferedIStreamAdapter::CBufferedIStreamAdapter(core::CNamedPipeFactory::TIStreamP inputStream)
 {
 	if (parseSizeFromStream(m_Size, inputStream) == false) {
 		LOG_ERROR(<< "Failed to read model size");
@@ -30,15 +30,15 @@ CBufferedIStreamAdapter::CBufferedIStreamAdapter(std::istream& inputStream)
 
 	m_Buffer = std::make_unique<char[]>(m_Size);
 	LOG_INFO(<< "reading stream");
-	inputStream.read(m_Buffer.get(), m_Size);
+	inputStream->read(m_Buffer.get(), m_Size);
 
-	LOG_INFO(<<  "read " << inputStream.gcount());
+	LOG_INFO(<<  "read " << inputStream->gcount());
 
-	if (inputStream.eof()) {
+	if (inputStream->eof()) {
 		LOG_INFO(<< "end of stream");
 	}
 
-	if (inputStream.good() == false) {
+	if (inputStream->good() == false) {
 		LOG_INFO(<< "stream not good");
 	}
 }
@@ -69,21 +69,21 @@ size_t CBufferedIStreamAdapter::read(uint64_t pos, void* buf, size_t n, const ch
 }
 
 // TODO: This reads a 4 byte int even though sizeof num is 8 bytes
-bool CBufferedIStreamAdapter::parseSizeFromStream(std::size_t& num, std::istream& inputStream) {
-    if (inputStream.eof()) {
+bool CBufferedIStreamAdapter::parseSizeFromStream(std::size_t& num, core::CNamedPipeFactory::TIStreamP inputStream) {
+    if (inputStream->eof()) {
         LOG_ERROR(<< "Unexpected end of stream reading model size");
         return false;
     }
 
     std::uint32_t netNum{0};
-    inputStream.read(reinterpret_cast<char*>(&netNum), sizeof(std::uint32_t));
+    inputStream->read(reinterpret_cast<char*>(&netNum), sizeof(std::uint32_t));
 
     // Integers are encoded in network byte order, so convert to host byte order
     // before interpreting
     num = ntohl(netNum);
     LOG_INFO(<< "sizeb " << num);
 
-    return inputStream.good();    
+    return inputStream->good();    
 }
 
 

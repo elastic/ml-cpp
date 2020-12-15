@@ -34,6 +34,16 @@
 #include <string>
 
 
+std::string gulp(std::istream &in)
+{
+    std::string ret;
+    char buffer[4096];
+    while (in.read(buffer, sizeof(buffer)))
+        ret.append(buffer, sizeof(buffer));
+    ret.append(buffer, in.gcount());
+    return ret;
+}
+
 int main(int argc, char** argv) {
     // Read command line options
     std::string modelId;
@@ -90,7 +100,7 @@ int main(int argc, char** argv) {
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
 
-    // ml::seccomp::CSystemCallFilter::installSystemCallFilter();
+    ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
 
     if (ioMgr.initIo() == false) {
@@ -98,14 +108,9 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-
-    // auto ins = gulp(ioMgr.inputStream());
-    // LOG_INFO(<< "got mes " << ins);
-    
-
     torch::jit::script::Module module;
     try {    
-        auto readAdapter = std::make_unique<ml::torch::CBufferedIStreamAdapter>(ioMgr.inputStream());
+        auto readAdapter = std::make_unique<ml::torch::CBufferedIStreamAdapter>(ioMgr.restoreStream());
         LOG_INFO(<< "size is " << readAdapter->size());
         
         module = torch::jit::load(std::move(readAdapter));
@@ -117,6 +122,9 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+
+    auto ins = gulp(ioMgr.inputStream());
+    LOG_INFO(<< "input command" << ins);
 
 
 
