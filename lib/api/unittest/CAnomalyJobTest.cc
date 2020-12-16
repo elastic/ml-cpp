@@ -185,12 +185,11 @@ BOOST_AUTO_TEST_CASE(testBadTimes) {
     {
         // Test with no time field
         model::CLimits limits;
-        api::CAnomalyJobConfig jobConfig;
+        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "", "", "greenhouse");
+
         api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clauses;
-        clauses.push_back("value");
-        clauses.push_back("partitionfield=greenhouse");
-        fieldConfig.initFromClause(clauses);
+
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
         std::stringstream outputStrm;
@@ -210,12 +209,11 @@ BOOST_AUTO_TEST_CASE(testBadTimes) {
     {
         // Test with bad time field
         model::CLimits limits;
-        api::CAnomalyJobConfig jobConfig;
+        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "", "", "greenhouse");
+
         api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clauses;
-        clauses.push_back("value");
-        clauses.push_back("partitionfield=greenhouse");
-        fieldConfig.initFromClause(clauses);
+
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
         std::stringstream outputStrm;
@@ -235,12 +233,11 @@ BOOST_AUTO_TEST_CASE(testBadTimes) {
     {
         // Test with bad time field format
         model::CLimits limits;
-        api::CAnomalyJobConfig jobConfig;
+        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "", "", "greenhouse");
+
         api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clauses;
-        clauses.push_back("value");
-        clauses.push_back("partitionfield=greenhouse");
-        fieldConfig.initFromClause(clauses);
+
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
         std::stringstream outputStrm;
@@ -264,12 +261,11 @@ BOOST_AUTO_TEST_CASE(testOutOfSequence) {
     {
         // Test out of sequence record
         model::CLimits limits;
-        api::CAnomalyJobConfig jobConfig;
+        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "", "", "greenhouse");
+
         api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clauses;
-        clauses.push_back("value");
-        clauses.push_back("partitionfield=greenhouse");
-        fieldConfig.initFromClause(clauses);
+
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
         std::stringstream outputStrm;
@@ -302,12 +298,11 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
     {
         // Test control messages
         model::CLimits limits;
-        api::CAnomalyJobConfig jobConfig;
+        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "", "", "greenhouse");
+
         api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clauses;
-        clauses.push_back("value");
-        clauses.push_back("partitionfield=greenhouse");
-        fieldConfig.initFromClause(clauses);
+
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
         std::stringstream outputStrm;
@@ -336,12 +331,11 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
     {
         // Test reset bucket
         model::CLimits limits;
-        api::CAnomalyJobConfig jobConfig;
+        api::CAnomalyJobConfig jobConfig =
+            CTestAnomalyJob::makeSimpleJobConfig("count", "", "", "", "greenhouse");
+
         api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clauses;
-        clauses.push_back("count");
-        clauses.push_back("partitionfield=greenhouse");
-        fieldConfig.initFromClause(clauses);
+
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
 
@@ -454,11 +448,11 @@ BOOST_AUTO_TEST_CASE(testControlMessages) {
 
 BOOST_AUTO_TEST_CASE(testSkipTimeControlMessage) {
     model::CLimits limits;
-    api::CAnomalyJobConfig jobConfig;
+    api::CAnomalyJobConfig jobConfig =
+        CTestAnomalyJob::makeSimpleJobConfig("count", "", "", "", "");
+
     api::CFieldConfig fieldConfig;
-    api::CFieldConfig::TStrVec clauses;
-    clauses.push_back("count");
-    fieldConfig.initFromClause(clauses);
+
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
 
@@ -506,11 +500,11 @@ BOOST_AUTO_TEST_CASE(testSkipTimeControlMessage) {
 BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
 
     model::CLimits limits;
-    api::CAnomalyJobConfig jobConfig;
+    api::CAnomalyJobConfig jobConfig =
+        CTestAnomalyJob::makeSimpleJobConfig("count", "", "", "", "");
+
     api::CFieldConfig fieldConfig;
-    api::CFieldConfig::TStrVec clauses;
-    clauses.push_back("count");
-    fieldConfig.initFromClause(clauses);
+
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
 
@@ -613,13 +607,10 @@ BOOST_AUTO_TEST_CASE(testIsPersistenceNeeded) {
 BOOST_AUTO_TEST_CASE(testModelPlot) {
     core_t::TTime bucketSize = 10000;
     model::CLimits limits;
-    api::CAnomalyJobConfig jobConfig;
     api::CFieldConfig fieldConfig;
-    api::CFieldConfig::TStrVec clauses;
-    clauses.push_back("mean(value)");
-    clauses.push_back("by");
-    clauses.push_back("animal");
-    fieldConfig.initFromClause(clauses);
+
+    ml::api::CAnomalyJobConfig jobConfig =
+        CTestAnomalyJob::makeSimpleJobConfig("mean", "value", "animal", "", "");
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(bucketSize, model_t::E_None,
@@ -693,10 +684,10 @@ BOOST_AUTO_TEST_CASE(testInterimResultEdgeCases) {
 
     core_t::TTime bucketSize = 3600;
     model::CLimits limits;
-    api::CAnomalyJobConfig jobConfig;
+    api::CAnomalyJobConfig jobConfig =
+        CTestAnomalyJob::makeSimpleJobConfig("count", "", "error", "", "");
+
     api::CFieldConfig fieldConfig;
-    api::CFieldConfig::TStrVec clauses{"count", "by", "error"};
-    fieldConfig.initFromClause(clauses);
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(bucketSize);
@@ -755,12 +746,11 @@ BOOST_AUTO_TEST_CASE(testInterimResultEdgeCases) {
 
 BOOST_AUTO_TEST_CASE(testRestoreFailsWithEmptyStream) {
     model::CLimits limits;
-    api::CAnomalyJobConfig jobConfig;
+    api::CAnomalyJobConfig jobConfig =
+        CTestAnomalyJob::makeSimpleJobConfig("value", "", "", "", "greenhouse");
+
     api::CFieldConfig fieldConfig;
-    api::CFieldConfig::TStrVec clauses;
-    clauses.push_back("value");
-    clauses.push_back("partitionfield=greenhouse");
-    fieldConfig.initFromClause(clauses);
+
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE);
     std::ostringstream outputStrm;

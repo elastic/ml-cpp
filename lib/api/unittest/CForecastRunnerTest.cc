@@ -75,7 +75,8 @@ BOOST_AUTO_TEST_CASE(testSummaryCount) {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
         ml::model::CLimits limits;
         ml::api::CFieldConfig fieldConfig;
-        ml::api::CAnomalyJobConfig jobConfig;
+        ml::api::CAnomalyJobConfig jobConfig =
+            CTestAnomalyJob::makeSimpleJobConfig("count", "", "", "", "", {}, "count");
         ml::api::CFieldConfig::TStrVec clauses;
         clauses.push_back("count");
         clauses.push_back("summarycountfield=count");
@@ -190,14 +191,11 @@ BOOST_AUTO_TEST_CASE(testRare) {
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
         ml::model::CLimits limits;
-        ml::api::CAnomalyJobConfig jobConfig;
-        ml::api::CFieldConfig fieldConfig;
-        ml::api::CFieldConfig::TStrVec clauses;
-        clauses.push_back("rare");
-        clauses.push_back("by");
-        clauses.push_back("status");
+        ml::api::CAnomalyJobConfig jobConfig =
+            CTestAnomalyJob::makeSimpleJobConfig("rare", "", "status", "", "");
 
-        fieldConfig.initFromClause(clauses);
+        ml::api::CFieldConfig fieldConfig;
+
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
@@ -235,11 +233,11 @@ BOOST_AUTO_TEST_CASE(testInsufficientData) {
     {
         ml::core::CJsonOutputStreamWrapper streamWrapper(outputStrm);
         ml::model::CLimits limits;
-        ml::api::CAnomalyJobConfig jobConfig;
+        ml::api::CAnomalyJobConfig jobConfig =
+            CTestAnomalyJob::makeSimpleJobConfig("count", "", "", "", "");
+
         ml::api::CFieldConfig fieldConfig;
-        ml::api::CFieldConfig::TStrVec clauses;
-        clauses.push_back("count");
-        fieldConfig.initFromClause(clauses);
+
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_LENGTH);
 
