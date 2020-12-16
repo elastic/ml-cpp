@@ -11,7 +11,7 @@
 cd `dirname "$BASH_SOURCE"`
 
 rm -rf pytorch 
-git -c advice.detachedHead=false clone --depth=1 --branch=v1.7.0 git@github.com:pytorch/pytorch.git
+git -c advice.detachedHead=false clone --depth=1 --branch=v1.7.1 git@github.com:pytorch/pytorch.git
 
 cd pytorch
 echo "Updating submodules"

@@ -29,17 +29,11 @@ CBufferedIStreamAdapter::CBufferedIStreamAdapter(core::CNamedPipeFactory::TIStre
 
 
 	m_Buffer = std::make_unique<char[]>(m_Size);
-	LOG_INFO(<< "reading stream");
 	inputStream->read(m_Buffer.get(), m_Size);
 
-	LOG_INFO(<<  "read " << inputStream->gcount());
-
-	if (inputStream->eof()) {
-		LOG_INFO(<< "end of stream");
-	}
-
-	if (inputStream->good() == false) {
-		LOG_INFO(<< "stream not good");
+	if (m_Size != inputStream->gcount()) {
+		LOG_ERROR(<< "Input size [" << inputStream->gcount() << 
+			"] did not match expected input size [" << m_Size << "]");
 	}
 }
 
@@ -47,14 +41,9 @@ size_t CBufferedIStreamAdapter::size() const {
 	return m_Size;
 }
 
-char* CBufferedIStreamAdapter::buffer() const {
-	return m_Buffer.get();
-}
-
 size_t CBufferedIStreamAdapter::read(uint64_t pos, void* buf, size_t n, const char* what) const {
 	if (pos > m_Size) {
 		LOG_ERROR(<< "cannot read when pos is > size: " << what);
-		// error with what
 		return 0;
 
 	}
@@ -81,8 +70,6 @@ bool CBufferedIStreamAdapter::parseSizeFromStream(std::size_t& num, core::CNamed
     // Integers are encoded in network byte order, so convert to host byte order
     // before interpreting
     num = ntohl(netNum);
-    LOG_INFO(<< "sizeb " << num);
-
     return inputStream->good();    
 }
 

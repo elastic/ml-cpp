@@ -21,8 +21,6 @@ public:
 
     std::size_t size() const override;
     std::size_t read(uint64_t pos, void* buf, std::size_t n, const char* what = "") const override;
-
-    char* buffer() const;
         
     CBufferedIStreamAdapter(const CBufferedIStreamAdapter&) = delete;
     CBufferedIStreamAdapter& operator=(const CBufferedIStreamAdapter&) = delete;

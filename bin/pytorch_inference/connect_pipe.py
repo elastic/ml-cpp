@@ -11,12 +11,10 @@ input_pipe_name = 'input_pipe'
 output_pipe_name = 'output_pipe'
 
 
-# source_file_name = 'small.txt'
-# file_size = 11
 source_file_name = '/Users/davidkyle/source/ml-search/projects/universal/torchscript/dbmdz-ner/conll03_traced_ner.pt'
 file_size = 1330816933
 
-def streamFile(source, destination) :
+def stream_file(source, destination) :
 	while True:
 		piece = source.read(8192)  
 		if not piece:
@@ -41,6 +39,16 @@ def wait_for_pipe(file_name, num_retries=5) :
 		time.sleep(0.05)
 
 	return stat.S_ISFIFO(os.stat(file_name).st_mode)
+
+def write_tokens(fifo):
+
+	# hardcoded query based on the example 
+	# https://github.com/elastic/ml-search/tree/master/projects/universal/torchscript/dbmdz-ner
+	tokens = [101, 20164, 10932, 10289, 3561, 119, 1110, 170, 1419, 1359, 1107, 1203, 1365, 1392, 119, 2098, 3834, 1132, 1107, 141, 25810, 23904, 117, 3335, 1304, 1665, 20316, 1106, 1103, 6545, 3640, 119, 102]
+
+	for token in tokens:
+		fifo.write(token.to_bytes(4, 'big'))
+
 
 
 def main():
@@ -73,12 +81,13 @@ def main():
 		print("streaming model...")
 
 		with open(source_file_name, 'rb') as source_file:
-			streamFile(source_file, restore_pipe)
+			stream_file(source_file, restore_pipe)
 
 
 	print("writing query")
-	input_pipe.write("Hello world".encode())
-
+	write_tokens(input_pipe)
+	# one shot inference
+	input_pipe.close()
 
 
 	print("reading results")

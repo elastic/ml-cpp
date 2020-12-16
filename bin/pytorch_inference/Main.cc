@@ -34,14 +34,21 @@
 #include <string>
 
 
-std::string gulp(std::istream &in)
-{
-    std::string ret;
-    char buffer[4096];
-    while (in.read(buffer, sizeof(buffer)))
-        ret.append(buffer, sizeof(buffer));
-    ret.append(buffer, in.gcount());
-    return ret;
+torch::Tensor infer(torch::jit::script::Module& module, std::vector<float>& data) {
+    torch::Tensor tokens_tensor = torch::from_blob(data.data(), {1, static_cast<long long>(data.size())}).to(torch::kInt64);    
+    std::vector<torch::jit::IValue> inputs;
+    inputs.push_back(tokens_tensor);
+    inputs.push_back(torch::ones({1, static_cast<long long>(data.size())}));  // attention mask
+    inputs.push_back(torch::zeros({1, static_cast<long long>(data.size())}).to(torch::kInt64)); // token type ids
+    inputs.push_back(torch::arange(static_cast<long long>(data.size())).to(torch::kInt64)); // position ids
+
+    torch::NoGradGuard no_grad;
+    auto tuple = module.forward(inputs).toTuple();  
+    auto predictions = tuple->elements()[0].toTensor();
+
+    auto result = torch::argmax(predictions, 2);
+    LOG_INFO(<< result);
+    return result;
 }
 
 int main(int argc, char** argv) {
@@ -99,7 +106,6 @@ int main(int argc, char** argv) {
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
-
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
 
 
@@ -110,10 +116,9 @@ int main(int argc, char** argv) {
 
     torch::jit::script::Module module;
     try {    
-        auto readAdapter = std::make_unique<ml::torch::CBufferedIStreamAdapter>(ioMgr.restoreStream());
-        LOG_INFO(<< "size is " << readAdapter->size());
-        
+        auto readAdapter = std::make_unique<ml::torch::CBufferedIStreamAdapter>(ioMgr.restoreStream());        
         module = torch::jit::load(std::move(readAdapter));
+        module.eval();
 
         LOG_INFO(<< "model loaded");
     }
@@ -121,15 +126,6 @@ int main(int argc, char** argv) {
         LOG_FATAL(<< "Error loading the model: " << e.msg());
         return EXIT_FAILURE;
     }
-
-
-    auto ins = gulp(ioMgr.inputStream());
-    LOG_INFO(<< "input command" << ins);
-
-
-
-    // Print out the runtime counters generated during this execution context
-    LOG_DEBUG(<< ml::core::CProgramCounters::instance());
 
 
     LOG_DEBUG(<< "ML Torch model prototype exiting");
