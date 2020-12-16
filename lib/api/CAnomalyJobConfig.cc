@@ -404,13 +404,13 @@ std::size_t CAnomalyJobConfig::CAnalysisLimits::modelMemoryLimitMb(const std::st
     std::tie(memoryLimitBytes, std::ignore) = core::CStringUtils::memorySizeStringToBytes(
         memoryLimitStr, DEFAULT_MEMORY_LIMIT_BYTES);
 
-    std::size_t memoryLimitMb = memoryLimitBytes / core::constants::BYTES_IN_MEGABYTE;
+    std::size_t memoryLimitMb{memoryLimitBytes / core::constants::BYTES_IN_MEGABYTES};
 
     if (memoryLimitMb == 0) {
         LOG_ERROR(<< "Invalid limit value " << memoryLimitStr << ". Limit must have a minimum value of 1mb."
                   << " Using default memory limit value "
-                  << DEFAULT_MEMORY_LIMIT_BYTES / core::constants::BYTES_IN_MEGABYTE);
-        memoryLimitMb = DEFAULT_MEMORY_LIMIT_BYTES / core::constants::BYTES_IN_MEGABYTE;
+                  << DEFAULT_MEMORY_LIMIT_BYTES / core::constants::BYTES_IN_MEGABYTES);
+        memoryLimitMb = DEFAULT_MEMORY_LIMIT_BYTES / core::constants::BYTES_IN_MEGABYTES;
     }
 
     return memoryLimitMb;

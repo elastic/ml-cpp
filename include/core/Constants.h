@@ -42,19 +42,19 @@ constexpr core_t::TTime WEEK{604800};
 constexpr core_t::TTime YEAR{31536000};
 
 //! The number of bytes in a kilobyte
-const std::size_t BYTES_IN_KILOBYTE{1024ULL};
+constexpr std::size_t BYTES_IN_KILOBYTES{1024ULL};
 
 //! The number of bytes in a megabyte
-const std::size_t BYTES_IN_MEGABYTE{1024ULL * 1024};
+constexpr std::size_t BYTES_IN_MEGABYTES{1024ULL * 1024};
 
 //! The number of bytes in a gigabyte
-const std::size_t BYTES_IN_GIGABYTE{1024ULL * 1024 * 1024};
+constexpr std::size_t BYTES_IN_GIGABYTES{1024ULL * 1024 * 1024};
 
 //! The number of bytes in a terabyte
-const std::size_t BYTES_IN_TERABYTE{1024ULL * 1024 * 1024 * 1024};
+constexpr std::size_t BYTES_IN_TERABYTES{1024ULL * 1024 * 1024 * 1024};
 
 //! The number of bytes in a gigabyte
-const std::size_t BYTES_IN_PETABYTE{1024ULL * 1024 * 1024 * 1024 * 1024};
+constexpr std::size_t BYTES_IN_PETABYTES{1024ULL * 1024 * 1024 * 1024 * 1024};
 
 //! Log of min double.
 const double LOG_MIN_DOUBLE{std::log(std::numeric_limits<double>::min())};
@@ -72,9 +72,9 @@ constexpr double LOG_TWO{0.693147180559945};
 constexpr double LOG_TWO_PI{1.83787706640935};
 
 #ifdef Windows
-const char PATH_SEPARATOR = '\\';
+constexpr char PATH_SEPARATOR{'\\'};
 #else
-const char PATH_SEPARATOR = '/';
+constexpr char PATH_SEPARATOR{'/'};
 #endif
 }
 }
