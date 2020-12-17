@@ -12,7 +12,7 @@ namespace ml {
 namespace seccomp {
 
 //! \brief
-//! Installs secure computing modes for Linux, macOs and Windows
+//! Installs secure computing modes for Linux, macOS and Windows
 //!
 //! DESCRIPTION:\n
 //! ML processes require a subset of system calls to function correctly.
