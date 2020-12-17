@@ -121,8 +121,7 @@ protected:
                 &job,   wrappedOutputStream,        &persistenceManager};
 
             ml::api::CDataProcessor* firstProcessor{nullptr};
-            if (jobConfig.analysisConfig().fieldNameSuperset().count(
-                    CTestFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
+            if (jobConfig.analysisConfig().categorizationFieldName().empty() == false) {
                 LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
                 firstProcessor = &categorizer;
             } else {

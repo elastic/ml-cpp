@@ -197,8 +197,7 @@ int main(int argc, char** argv) {
     const ml::api::CAnomalyJobConfig::CAnalysisConfig& analysisConfig =
         jobConfig.analysisConfig();
 
-    bool doingCategorization{analysisConfig.fieldNameSuperset().count(
-                                 ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0};
+    bool doingCategorization{analysisConfig.categorizationFieldName().empty() == false};
     TStrVec mutableFields;
     if (doingCategorization) {
         mutableFields.push_back(ml::api::CFieldDataCategorizer::MLCATEGORY_NAME);

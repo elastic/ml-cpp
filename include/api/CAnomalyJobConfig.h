@@ -45,6 +45,7 @@ public:
             static const std::string OVER_FIELD_NAME;
             static const std::string PARTITION_FIELD_NAME;
             static const std::string DETECTOR_DESCRIPTION;
+            static const std::string DETECTOR_INDEX;
             static const std::string EXCLUDE_FREQUENT;
             static const std::string CUSTOM_RULES;
             static const std::string USE_NULL;
@@ -178,10 +179,6 @@ public:
         };
 
     public:
-        //! Used to return the superset of enabled field names
-        using TStrSet = std::set<std::string>;
-
-    public:
         static const std::string BUCKET_SPAN;
         static const std::string SUMMARY_COUNT_FIELD_NAME;
         static const std::string CATEGORIZATION_FIELD_NAME;
@@ -220,9 +217,7 @@ public:
         //! Construct with just a categorization field.  (In the case of a
         //! categorization job, this is all that is needed for this config.)
         CAnalysisConfig(const std::string& categorizationFieldName)
-            : m_CategorizationFieldName{categorizationFieldName} {
-            this->seenField(m_CategorizationFieldName);
-        }
+            : m_CategorizationFieldName{categorizationFieldName} {}
 
         //! Constructor taking a map of detector rule filters keyed by filter_id &
         //! a vector of scheduled events data
@@ -282,17 +277,6 @@ public:
         static core_t::TTime durationSeconds(const std::string& durationString,
                                              core_t::TTime defaultDuration);
 
-        const TStrSet& fieldNameSuperset() const { return m_FieldNameSuperset; }
-
-        void seenField(const std::string& fieldName) {
-            if (fieldName.empty()) {
-                return;
-            }
-
-            // Duplicates are expected here so don't log them
-            m_FieldNameSuperset.insert(fieldName);
-        }
-
         bool parseRules(int detectorIndex, const std::string& rules);
 
     private:
@@ -343,8 +327,6 @@ public:
         //! The scheduled events (events apply to all detectors).
         //! Events consist of a description and a detection rule
         TStrDetectionRulePrVec m_ScheduledEvents{};
-
-        TStrSet m_FieldNameSuperset;
 
         friend class ::CTestAnomalyJob;
     };

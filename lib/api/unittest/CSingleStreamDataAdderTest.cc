@@ -85,8 +85,7 @@ void detectorPersistHelper(const std::string& configFileName,
                                               limits, &origJob, wrappedOutputStream);
 
         ml::api::CDataProcessor* firstProcessor{nullptr};
-        if (jobConfig.analysisConfig().fieldNameSuperset().count(
-                CTestFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
+        if (jobConfig.analysisConfig().categorizationFieldName().empty() == false) {
             LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
             firstProcessor = &categorizer;
         } else {
@@ -137,8 +136,7 @@ void detectorPersistHelper(const std::string& configFileName,
         size_t numCategorizerDocs(0);
 
         ml::api::CDataProcessor* restoredFirstProcessor{nullptr};
-        if (jobConfig.analysisConfig().fieldNameSuperset().count(
-                CTestFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
+        if (jobConfig.analysisConfig().categorizationFieldName().empty() == false) {
             LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
             numCategorizerDocs = 1;
             restoredFirstProcessor = &restoredCategorizer;

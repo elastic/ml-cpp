@@ -76,6 +76,7 @@ const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::PARTITION
     "partition_field_name"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_DESCRIPTION{
     "detector_description"};
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_INDEX{"detector_index"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::EXCLUDE_FREQUENT{
     "exclude_frequent"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::USE_NULL{"use_null"};
@@ -266,6 +267,8 @@ const CAnomalyJobConfigReader DETECTOR_CONFIG_READER{[] {
                            CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_DESCRIPTION,
                            CAnomalyJobConfigReader::E_OptionalParameter);
+    theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_INDEX,
+                           CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::EXCLUDE_FREQUENT,
                            CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::USE_NULL,
@@ -447,28 +450,22 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
     // The Job config has already been validated by Java before being passed to
     // the C++ backend. So we can safely assume that the detector config is a
     // non-null array - hence this check isn't strictly necessary.
-    this->seenField(m_SummaryCountFieldName);
-    this->seenField(m_CategorizationFieldName);
     if (detectorsConfig != nullptr && detectorsConfig->IsArray()) {
         m_Detectors.resize(detectorsConfig->Size());
-        int detectorIndex{0};
+        int fallbackDetectorIndex{0};
         for (std::size_t i = 0; i < detectorsConfig->Size(); ++i) {
-            m_Detectors[i].parse((*detectorsConfig)[detectorIndex], m_RuleFilters,
-                                 (m_SummaryCountFieldName.empty() == false),
-                                 detectorIndex, m_DetectorRules[detectorIndex]);
-            this->seenField(m_Detectors[i].fieldName());
-            this->seenField(m_Detectors[i].byFieldName());
-            this->seenField(m_Detectors[i].overFieldName());
-            this->seenField(m_Detectors[i].partitionFieldName());
+            m_Detectors[i].parse((*detectorsConfig)[fallbackDetectorIndex], m_RuleFilters,
+                                 (m_SummaryCountFieldName.empty() == false), fallbackDetectorIndex,
+                                 m_DetectorRules[fallbackDetectorIndex]);
 
             if (m_PerPartitionCategorizationEnabled) {
                 if (m_CategorizationFieldName.empty()) {
                     throw CAnomalyJobConfigReader::CParseError(
-                        "perpartitioncategorization specified without a categorization field");
+                        "per_partition_categorization enabled without a categorization field");
                 }
                 if (m_Detectors[i].partitionFieldName().empty()) {
                     throw CAnomalyJobConfigReader::CParseError(
-                        "perpartitioncategorization specified without a partition field");
+                        "per_partition_categorization enabled without a partition field");
                 }
                 if (m_CategorizationPartitionFieldName.empty()) {
                     m_CategorizationPartitionFieldName = m_Detectors[i].partitionFieldName();
@@ -476,19 +473,16 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
                     if (m_CategorizationPartitionFieldName !=
                         m_Detectors[i].partitionFieldName()) {
                         throw CAnomalyJobConfigReader::CParseError(
-                            "perpartitioncategorization specified when partition "
+                            "per_partition_categorization enabled when partition "
                             "field varies between detectors");
                     }
                 }
             }
-            ++detectorIndex;
+            ++fallbackDetectorIndex;
         }
     }
 
     m_Influencers = parameters[INFLUENCERS].fallback(TStrVec{});
-    for (const auto& influencer : m_Influencers) {
-        this->seenField(influencer);
-    }
 
     const std::string& latencyString{parameters[LATENCY].fallback(EMPTY_STRING)};
     if (latencyString.empty() == false) {
@@ -656,7 +650,7 @@ void CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::parse(
     const rapidjson::Value& detectorConfig,
     const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
     bool haveSummaryCountField,
-    int detectorIndex,
+    int fallbackDetectorIndex,
     CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules) {
 
     auto parameters = DETECTOR_CONFIG_READER.read(detectorConfig);
@@ -672,7 +666,7 @@ void CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::parse(
 
     // The detector index is of type int for historical reasons
     // and for consistency across the code base.
-    m_DetectorIndex = detectorIndex;
+    m_DetectorIndex = parameters[DETECTOR_INDEX].fallback(fallbackDetectorIndex);
 
     auto customRules = parameters[CUSTOM_RULES].jsonObject();
     if (customRules != nullptr) {
