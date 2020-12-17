@@ -194,15 +194,15 @@ int main(int argc, char** argv) {
     limits.init(analysisLimits.categorizationExamplesLimit(),
                 analysisLimits.modelMemoryLimitMb());
 
-    bool doingCategorization{fieldConfig.fieldNameSuperset().count(
+    const ml::api::CAnomalyJobConfig::CAnalysisConfig& analysisConfig =
+        jobConfig.analysisConfig();
+
+    bool doingCategorization{analysisConfig.fieldNameSuperset().count(
                                  ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0};
     TStrVec mutableFields;
     if (doingCategorization) {
         mutableFields.push_back(ml::api::CFieldDataCategorizer::MLCATEGORY_NAME);
     }
-
-    const ml::api::CAnomalyJobConfig::CAnalysisConfig& analysisConfig =
-        jobConfig.analysisConfig();
 
     ml::model::CAnomalyDetectorModelConfig modelConfig = analysisConfig.makeModelConfig();
 
@@ -281,7 +281,6 @@ int main(int argc, char** argv) {
     ml::api::CAnomalyJob job{jobId,
                              limits,
                              jobConfig,
-                             fieldConfig,
                              modelConfig,
                              wrappedOutputStream,
                              std::bind(&ml::api::CModelSnapshotJsonWriter::write,
@@ -304,7 +303,7 @@ int main(int argc, char** argv) {
 
     // The categorizer knows how to assign categories to records
     ml::api::CFieldDataCategorizer categorizer{jobId,
-                                               fieldConfig,
+                                               analysisConfig,
                                                limits,
                                                timeField,
                                                timeFormat,

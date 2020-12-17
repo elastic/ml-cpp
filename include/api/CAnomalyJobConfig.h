@@ -45,7 +45,6 @@ public:
             static const std::string OVER_FIELD_NAME;
             static const std::string PARTITION_FIELD_NAME;
             static const std::string DETECTOR_DESCRIPTION;
-            static const std::string DETECTOR_INDEX;
             static const std::string EXCLUDE_FREQUENT;
             static const std::string CUSTOM_RULES;
             static const std::string USE_NULL;
@@ -135,6 +134,7 @@ public:
             void parse(const rapidjson::Value& detectorConfig,
                        const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
                        bool haveSummaryCountField,
+                       int detectorIndex,
                        CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules);
 
             int detectorIndex() const { return m_DetectorIndex; }
@@ -178,6 +178,10 @@ public:
         };
 
     public:
+        //! Used to return the superset of enabled field names
+        using TStrSet = std::set<std::string>;
+
+    public:
         static const std::string BUCKET_SPAN;
         static const std::string SUMMARY_COUNT_FIELD_NAME;
         static const std::string CATEGORIZATION_FIELD_NAME;
@@ -213,6 +217,13 @@ public:
         //! Default constructor
         CAnalysisConfig() {}
 
+        //! Construct with just a categorization field.  (In the case of a
+        //! categorization job, this is all that is needed for this config.)
+        CAnalysisConfig(const std::string& categorizationFieldName)
+            : m_CategorizationFieldName{categorizationFieldName} {
+            this->seenField(m_CategorizationFieldName);
+        }
+
         //! Constructor taking a map of detector rule filters keyed by filter_id &
         //! a vector of scheduled events data
         CAnalysisConfig(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
@@ -232,6 +243,9 @@ public:
         }
         std::string categorizationFieldName() const {
             return m_CategorizationFieldName;
+        }
+        std::string categorizationPartitionFieldName() const {
+            return m_CategorizationPartitionFieldName;
         }
         const TStrVec& categorizationFilters() const {
             return m_CategorizationFilters;
@@ -268,6 +282,19 @@ public:
         static core_t::TTime durationSeconds(const std::string& durationString,
                                              core_t::TTime defaultDuration);
 
+        const TStrSet& fieldNameSuperset() const { return m_FieldNameSuperset; }
+
+        void seenField(const std::string& fieldName) {
+            if (fieldName.empty()) {
+                return;
+            }
+
+            // Duplicates are expected here so don't log them
+            m_FieldNameSuperset.insert(fieldName);
+        }
+
+        bool parseRules(int detectorIndex, const std::string& rules);
+
     private:
         // Convenience method intended for use by the unit tests only
         void addDetector(const std::string& functionName,
@@ -298,6 +325,7 @@ public:
         core_t::TTime m_BucketSpan{DEFAULT_BUCKET_SPAN};
         std::string m_SummaryCountFieldName{};
         std::string m_CategorizationFieldName{};
+        std::string m_CategorizationPartitionFieldName{};
         TStrVec m_CategorizationFilters{};
         bool m_PerPartitionCategorizationEnabled{false};
         bool m_PerPartitionCategorizationStopOnWarn{false};
@@ -315,6 +343,8 @@ public:
         //! The scheduled events (events apply to all detectors).
         //! Events consist of a description and a detection rule
         TStrDetectionRulePrVec m_ScheduledEvents{};
+
+        TStrSet m_FieldNameSuperset;
 
         friend class ::CTestAnomalyJob;
     };
@@ -423,10 +453,12 @@ public:
     }
     const CModelPlotConfig& modelPlotConfig() const { return m_ModelConfig; }
     const CAnalysisLimits& analysisLimits() const { return m_AnalysisLimits; }
+    bool isInitialized() const { return m_IsInitialized; }
 
 private:
     std::string m_JobId;
     std::string m_JobType;
+    bool m_IsInitialized{false};
     CAnalysisConfig m_AnalysisConfig;
     CDataDescription m_DataDescription;
     CModelPlotConfig m_ModelConfig;

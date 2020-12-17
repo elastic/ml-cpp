@@ -14,7 +14,6 @@
 
 #include <api/CAnomalyJobConfig.h>
 #include <api/CCsvOutputWriter.h>
-#include <api/CFieldConfig.h>
 #include <api/CResultNormalizer.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
@@ -98,12 +97,16 @@ std::string stripDocIds(const std::string& persistedState) {
 
 void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric) {
     ml::model::CLimits limits;
-    ml::api::CFieldConfig config("count", "mlcategory");
+
+    const std::string jsonConfig{
+        "{\"job_id\":\"new_ml_fields\",\"analysis_config\":{\"detectors\":[{\"function\":\"count\",\"by_field_name\":\"mlcategory\"}]}}"};
+    ml::api::CAnomalyJobConfig jobConfig;
+    BOOST_TEST_REQUIRE(jobConfig.parse(jsonConfig));
 
     std::ostringstream outputStrm;
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-    CTestFieldDataCategorizer restoredCategorizer("job", config, limits,
-                                                  nullptr, wrappedOutputStream);
+    CTestFieldDataCategorizer restoredCategorizer(
+        "job", jobConfig.analysisConfig(), limits, nullptr, wrappedOutputStream);
 
     std::ifstream inputStrm(stateFile.c_str());
     BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -158,8 +161,7 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
 
     ml::model::CLimits limits;
     ml::api::CAnomalyJobConfig jobConfig;
-    ml::api::CFieldConfig fieldConfig;
-    BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
+    BOOST_TEST_REQUIRE(jobConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
@@ -173,7 +175,7 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
     std::string restoredSnapshotId;
     std::size_t numRestoredDocs(0);
     CTestAnomalyJob restoredJob(
-        JOB_ID, limits, jobConfig, fieldConfig, modelConfig, wrappedOutputStream,
+        JOB_ID, limits, jobConfig, modelConfig, wrappedOutputStream,
         std::bind(&reportPersistComplete, std::placeholders::_1,
                   std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 
@@ -231,7 +233,7 @@ BOOST_FIXTURE_TEST_CASE(testRestoreDetectorBy, CTestFixture) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper(
             "testfiles/state/" + version.s_Version + "/by_detector_state.json",
-            "testfiles/new_mlfields.conf", version.s_DetectorRestoreIsSymmetric, 0);
+            "testfiles/new_mlfields.json", version.s_DetectorRestoreIsSymmetric, 0);
     }
 }
 
@@ -239,7 +241,7 @@ BOOST_FIXTURE_TEST_CASE(testRestoreDetectorOver, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/over_detector_state.json",
-                                     "testfiles/new_mlfields_over.conf",
+                                     "testfiles/new_mlfields_over.json",
                                      version.s_DetectorRestoreIsSymmetric, 0);
     }
 }
@@ -248,7 +250,7 @@ BOOST_FIXTURE_TEST_CASE(testRestoreDetectorPartition, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/partition_detector_state.json",
-                                     "testfiles/new_mlfields_partition.conf",
+                                     "testfiles/new_mlfields_partition.json",
                                      version.s_DetectorRestoreIsSymmetric, 0);
     }
 }
@@ -258,7 +260,7 @@ BOOST_FIXTURE_TEST_CASE(testRestoreDetectorDc, CTestFixture) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper(
             "testfiles/state/" + version.s_Version + "/dc_detector_state.json",
-            "testfiles/new_persist_dc.conf", version.s_DetectorRestoreIsSymmetric, 5);
+            "testfiles/new_persist_dc.json", version.s_DetectorRestoreIsSymmetric, 5);
     }
 }
 
@@ -266,7 +268,7 @@ BOOST_FIXTURE_TEST_CASE(testRestoreDetectorCount, CTestFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/count_detector_state.json",
-                                     "testfiles/new_persist_count.conf",
+                                     "testfiles/new_persist_count.json",
                                      version.s_DetectorRestoreIsSymmetric, 5);
     }
 }

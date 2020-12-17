@@ -15,7 +15,6 @@
 
 #include <api/CAnomalyJobConfig.h>
 #include <api/CDataProcessor.h>
-#include <api/CFieldConfig.h>
 #include <api/CModelSnapshotJsonWriter.h>
 #include <api/CNdJsonInputParser.h>
 #include <api/CPersistenceManager.h>
@@ -67,8 +66,7 @@ protected:
 
         ml::model::CLimits limits;
         ml::api::CAnomalyJobConfig jobConfig;
-        ml::api::CFieldConfig fieldConfig;
-        BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
+        BOOST_TEST_REQUIRE(jobConfig.initFromFile(configFileName));
 
         ml::model::CAnomalyDetectorModelConfig modelConfig{
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE)};
@@ -107,7 +105,6 @@ protected:
             CTestAnomalyJob job{JOB_ID,
                                 limits,
                                 jobConfig,
-                                fieldConfig,
                                 modelConfig,
                                 wrappedOutputStream,
                                 std::bind(&reportPersistComplete, std::placeholders::_1,
@@ -120,11 +117,11 @@ protected:
 
             // The categorizer knows how to assign categories to records
             CTestFieldDataCategorizer categorizer{
-                JOB_ID, fieldConfig,         limits,
-                &job,   wrappedOutputStream, &persistenceManager};
+                JOB_ID, jobConfig.analysisConfig(), limits,
+                &job,   wrappedOutputStream,        &persistenceManager};
 
             ml::api::CDataProcessor* firstProcessor{nullptr};
-            if (fieldConfig.fieldNameSuperset().count(
+            if (jobConfig.analysisConfig().fieldNameSuperset().count(
                     CTestFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
                 LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
                 firstProcessor = &categorizer;
@@ -204,8 +201,7 @@ protected:
 
         ml::model::CLimits limits;
         ml::api::CAnomalyJobConfig jobConfig;
-        ml::api::CFieldConfig fieldConfig;
-        BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
+        BOOST_TEST_REQUIRE(jobConfig.initFromFile(configFileName));
 
         ml::model::CAnomalyDetectorModelConfig modelConfig{
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE)};
@@ -242,7 +238,6 @@ protected:
             CTestAnomalyJob job{JOB_ID,
                                 limits,
                                 jobConfig,
-                                fieldConfig,
                                 modelConfig,
                                 wrappedOutputStream,
                                 std::bind(&reportPersistComplete, std::placeholders::_1,
@@ -320,8 +315,7 @@ protected:
 
         ml::model::CLimits limits;
         ml::api::CAnomalyJobConfig jobConfig;
-        ml::api::CFieldConfig fieldConfig;
-        BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
+        BOOST_TEST_REQUIRE(jobConfig.initFromFile(configFileName));
 
         ml::model::CAnomalyDetectorModelConfig modelConfig{
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SIZE)};
@@ -353,7 +347,6 @@ protected:
                 JOB_ID,
                 limits,
                 jobConfig,
-                fieldConfig,
                 modelConfig,
                 wrappedOutputStream,
                 std::bind(&reportPersistComplete, std::placeholders::_1,
@@ -401,24 +394,24 @@ protected:
 };
 
 BOOST_FIXTURE_TEST_CASE(testDetectorPersistByWithGivenSnapshotDescriptors, CTestFixture) {
-    this->foregroundPersistWithGivenSnapshotDescriptors("testfiles/new_mlfields.conf");
+    this->foregroundPersistWithGivenSnapshotDescriptors("testfiles/new_mlfields.json");
 }
 
 BOOST_FIXTURE_TEST_CASE(testDetectorPersistBy, CTestFixture) {
-    this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields.conf");
+    this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields.json");
 }
 
 BOOST_FIXTURE_TEST_CASE(testDetectorPersistOver, CTestFixture) {
-    this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields_over.conf");
+    this->foregroundBackgroundCompCategorizationAndAnomalyDetection("testfiles/new_mlfields_over.json");
 }
 
 BOOST_FIXTURE_TEST_CASE(testDetectorPersistPartition, CTestFixture) {
     this->foregroundBackgroundCompCategorizationAndAnomalyDetection(
-        "testfiles/new_mlfields_partition.conf");
+        "testfiles/new_mlfields_partition.json");
 }
 
 BOOST_FIXTURE_TEST_CASE(testDetectorBackgroundPersistStaticsConsistency, CTestFixture) {
-    this->foregroundBackgroundCompAnomalyDetectionAfterStaticsUpdate("testfiles/new_mlfields_over.conf");
+    this->foregroundBackgroundCompAnomalyDetectionAfterStaticsUpdate("testfiles/new_mlfields_over.json");
 }
 
 BOOST_FIXTURE_TEST_CASE(testBackgroundPersistCategorizationConsistency, CTestFixture) {
@@ -432,7 +425,7 @@ BOOST_FIXTURE_TEST_CASE(testBackgroundPersistCategorizationConsistency, CTestFix
     BOOST_TEST_REQUIRE(outputStrm.is_open());
 
     ml::model::CLimits limits;
-    ml::api::CFieldConfig fieldConfig{"message"};
+    ml::api::CAnomalyJobConfig::CAnalysisConfig fieldConfig{"message"};
 
     std::ostringstream* backgroundStream{nullptr};
     ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr(
@@ -516,7 +509,7 @@ BOOST_FIXTURE_TEST_CASE(testCategorizationOnlyPersist, CTestFixture) {
     BOOST_TEST_REQUIRE(outputStrm.is_open());
 
     ml::model::CLimits limits;
-    ml::api::CFieldConfig fieldConfig{"agent"};
+    ml::api::CAnomalyJobConfig::CAnalysisConfig fieldConfig{"agent"};
 
     std::ostringstream* backgroundStream{nullptr};
     ml::api::CSingleStreamDataAdder::TOStreamP backgroundStreamPtr{

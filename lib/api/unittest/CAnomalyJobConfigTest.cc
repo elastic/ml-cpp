@@ -25,7 +25,10 @@ BOOST_AUTO_TEST_CASE(testParse) {
     using TStrVec = ml::api::CAnomalyJobConfig::CAnalysisConfig::TStrVec;
     using TAnalysisLimits = ml::api::CAnomalyJobConfig::CAnalysisLimits;
     using TModelPlotConfig = ml::api::CAnomalyJobConfig::CModelPlotConfig;
-
+    {
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(!jobConfig.isInitialized());
+    }
     {
         const std::string inValidModelMemoryLimitBytes{
             "[{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
@@ -37,6 +40,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_TEST_REQUIRE(!jobConfig.parse(inValidModelMemoryLimitBytes));
+        BOOST_TEST_REQUIRE(!jobConfig.isInitialized());
     }
     {
         const std::string inValidModelMemoryLimitKiloBytes{
@@ -49,6 +53,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_TEST_REQUIRE(!jobConfig.parse(inValidModelMemoryLimitKiloBytes));
+        BOOST_TEST_REQUIRE(!jobConfig.isInitialized());
     }
     {
         const std::string inValidAnomalyJobConfig{
@@ -61,6 +66,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_TEST_REQUIRE(!jobConfig.parse(inValidAnomalyJobConfig));
+        BOOST_TEST_REQUIRE(!jobConfig.isInitialized());
     }
     {
         const std::string inValidBucketSpanType{
@@ -73,6 +79,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_TEST_REQUIRE(!jobConfig.parse(inValidBucketSpanType));
+        BOOST_TEST_REQUIRE(!jobConfig.isInitialized());
     }
     {
         const std::string missingRequiredJobId{
@@ -98,6 +105,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
                               "Cannot parse JSON job config!");
+        BOOST_TEST_REQUIRE(jobConfig.isInitialized());
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
@@ -151,6 +159,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
                               "Cannot parse JSON job config!");
+        BOOST_TEST_REQUIRE(jobConfig.isInitialized());
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
@@ -204,6 +213,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
                               "Cannot parse JSON job config!");
+        BOOST_TEST_REQUIRE(jobConfig.isInitialized());
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
@@ -256,6 +266,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_TEST_REQUIRE(!jobConfig.parse(validAnomalyJobConfig));
+        BOOST_TEST_REQUIRE(!jobConfig.isInitialized());
     }
     {
         const std::string validAnomalyJobConfig{
@@ -269,6 +280,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
                               "Cannot parse JSON job config!");
+        BOOST_TEST_REQUIRE(jobConfig.isInitialized());
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
@@ -322,6 +334,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
                               "Cannot parse JSON job config!");
+        BOOST_TEST_REQUIRE(jobConfig.isInitialized());
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
@@ -375,6 +388,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
                               "Cannot parse JSON job config!");
+        BOOST_TEST_REQUIRE(jobConfig.isInitialized());
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
@@ -428,6 +442,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
                               "Cannot parse JSON job config!");
+        BOOST_TEST_REQUIRE(jobConfig.isInitialized());
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
@@ -481,6 +496,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
                               "Cannot parse JSON job config!");
+        BOOST_TEST_REQUIRE(jobConfig.isInitialized());
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
@@ -534,6 +550,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfig),
                               "Cannot parse JSON job config!");
+        BOOST_TEST_REQUIRE(jobConfig.isInitialized());
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
@@ -588,6 +605,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfigWithMultipleInfluencers),
                               "Cannot parse JSON job config!");
+        BOOST_TEST_REQUIRE(jobConfig.isInitialized());
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("logs_max_bytes_by_geo", jobConfig.jobId());
@@ -652,6 +670,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfigWithMultipleDetectors),
                               "Cannot parse JSON job config!");
+        BOOST_TEST_REQUIRE(jobConfig.isInitialized());
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("ecommerce_population", jobConfig.jobId());
@@ -721,6 +740,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfigWithCustomRule),
                               "Cannot parse JSON job config!");
+        BOOST_TEST_REQUIRE(jobConfig.isInitialized());
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("count_with_range", jobConfig.jobId());
@@ -765,6 +785,122 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL(false, modelPlotConfig.annotationsEnabled());
     }
     {
+        const std::string validMultiMetricCategorizationJobConfig{
+            "{\"job_id\":\"categorize_message\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1604311804567,\"description\":\"\","
+            "\"analysis_config\":{\"bucket_span\":\"15m\",\"categorization_field_name\":\"message\",\"per_partition_categorization\":{\"enabled\":true,\"stop_on_warn\":false},\"detectors\":["
+            "{\"detector_description\":\"count by mlcategory partitionfield=\\\"agent.keyword\\\"\",\"function\":\"count\",\"by_field_name\":\"mlcategory\",\"partition_field_name\":\"agent.keyword\",\"detector_index\":0},"
+            "{\"detector_description\":\"rare by mlcategory partitionfield=\\\"agent.keyword\\\"\",\"function\":\"rare\",\"by_field_name\":\"mlcategory\",\"partition_field_name\":\"agent.keyword\",\"detector_index\":1}"
+            "],\"influencers\":[\"mlcategory\",\"agent.keyword\",\"message.keyword\"]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"45mb\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},"
+            "\"model_snapshot_retention_days\":10,\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_REQUIRE_MESSAGE(jobConfig.parse(validMultiMetricCategorizationJobConfig),
+                              "Cannot parse JSON job config!");
+        BOOST_TEST_REQUIRE(jobConfig.isInitialized());
+
+        BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
+        BOOST_REQUIRE_EQUAL("categorize_message", jobConfig.jobId());
+
+        const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
+
+        BOOST_REQUIRE_EQUAL(900, analysisConfig.bucketSpan());
+
+        BOOST_REQUIRE_EQUAL("", analysisConfig.summaryCountFieldName());
+
+        const TDataDescription& dataDescription = jobConfig.dataDescription();
+
+        BOOST_REQUIRE_EQUAL("timestamp", dataDescription.timeField());
+
+        const TDetectorConfigVec& detectorsConfig = analysisConfig.detectorsConfig();
+
+        BOOST_REQUIRE_EQUAL(2, detectorsConfig.size());
+        BOOST_REQUIRE_EQUAL("count by mlcategory partitionfield=\"agent.keyword\"",
+                            detectorsConfig[0].detectorDescription());
+        BOOST_REQUIRE_EQUAL("count", detectorsConfig[0].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_IndividualRareCount,
+                            detectorsConfig[0].function());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].fieldName());
+        BOOST_REQUIRE_EQUAL("mlcategory", detectorsConfig[0].byFieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[0].overFieldName());
+        BOOST_REQUIRE_EQUAL("agent.keyword", detectorsConfig[0].partitionFieldName());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, detectorsConfig[0].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(0).size());
+        BOOST_REQUIRE_EQUAL(false, detectorsConfig[0].useNull());
+
+        BOOST_REQUIRE_EQUAL("rare by mlcategory partitionfield=\"agent.keyword\"",
+                            detectorsConfig[1].detectorDescription());
+        BOOST_REQUIRE_EQUAL("rare", detectorsConfig[1].functionName());
+        BOOST_REQUIRE_EQUAL(ml::model::function_t::E_IndividualRare,
+                            detectorsConfig[1].function());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[1].fieldName());
+        BOOST_REQUIRE_EQUAL("mlcategory", detectorsConfig[1].byFieldName());
+        BOOST_REQUIRE_EQUAL("", detectorsConfig[1].overFieldName());
+        BOOST_REQUIRE_EQUAL("agent.keyword", detectorsConfig[1].partitionFieldName());
+        BOOST_REQUIRE_EQUAL(ml::model_t::E_XF_None, detectorsConfig[1].excludeFrequent());
+        BOOST_REQUIRE_EQUAL(0, analysisConfig.detectionRules().at(1).size());
+        BOOST_REQUIRE_EQUAL(false, detectorsConfig[1].useNull());
+
+        const TStrVec& influencers = analysisConfig.influencers();
+        BOOST_REQUIRE_EQUAL(3, influencers.size());
+        BOOST_REQUIRE_EQUAL("mlcategory", influencers[0]);
+        BOOST_REQUIRE_EQUAL("agent.keyword", influencers[1]);
+        BOOST_REQUIRE_EQUAL("message.keyword", influencers[2]);
+
+        BOOST_REQUIRE_EQUAL("message", analysisConfig.categorizationFieldName());
+        const TStrVec& categorizationFilters = analysisConfig.categorizationFilters();
+        BOOST_REQUIRE_EQUAL(0, categorizationFilters.size());
+
+        const TAnalysisLimits& analysisLimits = jobConfig.analysisLimits();
+        BOOST_REQUIRE_EQUAL(4, analysisLimits.categorizationExamplesLimit());
+        BOOST_REQUIRE_EQUAL(45, analysisLimits.modelMemoryLimitMb());
+
+        const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
+        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
+    }
+    {
+        const std::string validMultiMetricCategorizationJobConfig{
+            "{\"job_id\":\"categorize_message\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1604311804567,\"description\":\"\","
+            "\"analysis_config\":{\"bucket_span\":\"15m\",\"categorization_field_name\":\"message\",\"per_partition_categorization\":{\"enabled\":true,\"stop_on_warn\":false},\"detectors\":["
+            "{\"detector_description\":\"count by mlcategory partitionfield=\\\"agent.keyword\\\"\",\"function\":\"count\",\"by_field_name\":\"mlcategory\",\"partition_field_name\":\"agent.keyword\",\"detector_index\":0},"
+            "{\"detector_description\":\"rare by mlcategory partitionfield=\\\"message.keyword\\\"\",\"function\":\"rare\",\"by_field_name\":\"mlcategory\",\"partition_field_name\":\"message.keyword\",\"detector_index\":1}"
+            "],\"influencers\":[\"mlcategory\",\"agent.keyword\",\"message.keyword\"]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"45mb\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},"
+            "\"model_snapshot_retention_days\":10,\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(!jobConfig.parse(validMultiMetricCategorizationJobConfig));
+        BOOST_TEST_REQUIRE(!jobConfig.isInitialized());
+    }
+    {
+        const std::string validMultiMetricCategorizationJobConfig{
+            "{\"job_id\":\"categorize_message\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1604311804567,\"description\":\"\","
+            "\"analysis_config\":{\"bucket_span\":\"15m\",\"categorization_field_name\":\"message\",\"per_partition_categorization\":{\"enabled\":true,\"stop_on_warn\":false},\"detectors\":["
+            "{\"detector_description\":\"count by mlcategory partitionfield=\\\"agent.keyword\\\"\",\"function\":\"count\",\"by_field_name\":\"mlcategory\",\"detector_index\":0}"
+            "],\"influencers\":[\"mlcategory\",\"agent.keyword\",\"message.keyword\"]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"45mb\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},"
+            "\"model_snapshot_retention_days\":10,\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(!jobConfig.parse(validMultiMetricCategorizationJobConfig));
+        BOOST_TEST_REQUIRE(!jobConfig.isInitialized());
+    }
+    {
+        const std::string validMultiMetricCategorizationJobConfig{
+            "{\"job_id\":\"categorize_message\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1604311804567,\"description\":\"\","
+            "\"analysis_config\":{\"bucket_span\":\"15m\",\"per_partition_categorization\":{\"enabled\":true,\"stop_on_warn\":false},\"detectors\":["
+            "{\"detector_description\":\"count by mlcategory partitionfield=\\\"agent.keyword\\\"\",\"function\":\"count\",\"by_field_name\":\"mlcategory\",\"partition_field_name\":\"agent.keyword\",\"detector_index\":0},"
+            "{\"detector_description\":\"rare by mlcategory partitionfield=\\\"agent.keyword\\\"\",\"function\":\"rare\",\"by_field_name\":\"mlcategory\",\"partition_field_name\":\"agent.keyword\",\"detector_index\":1}"
+            "],\"influencers\":[\"mlcategory\",\"agent.keyword\",\"message.keyword\"]},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"45mb\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},"
+            "\"model_snapshot_retention_days\":10,\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(!jobConfig.parse(validMultiMetricCategorizationJobConfig));
+        BOOST_TEST_REQUIRE(!jobConfig.isInitialized());
+    }
+    {
         const std::string validCategorizationJobConfig{
             "{\"job_id\":\"unusual_message_counts\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1604311804567,\"custom_settings\":{\"created_by\":\"categorization-wizard\"},\"description\":\"Unusual message counts\","
             "\"analysis_config\":{\"bucket_span\":\"15m\",\"categorization_field_name\":\"message\",\"categorization_filters\":[\"foo.*\",\"bar.*\"],\"per_partition_categorization\":{\"enabled\":false},\"detectors\":[{\"detector_description\":\"count by mlcategory\",\"function\":\"count\",\"by_field_name\":\"mlcategory\",\"detector_index\":0}],\"influencers\":[\"mlcategory\"]},"
@@ -774,6 +910,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_REQUIRE_MESSAGE(jobConfig.parse(validCategorizationJobConfig),
                               "Cannot parse JSON job config!");
+        BOOST_TEST_REQUIRE(jobConfig.isInitialized());
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("unusual_message_counts", jobConfig.jobId());
@@ -833,6 +970,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         // Expect parsing to fail if the filter referenced by the custom rule cannot be found
         ml::api::CAnomalyJobConfig jobConfigEmptyFilterMap;
         BOOST_TEST_REQUIRE(!jobConfigEmptyFilterMap.parse(validAnomalyJobConfigWithCustomRuleFilter));
+        BOOST_TEST_REQUIRE(!jobConfigEmptyFilterMap.isInitialized());
 
         // Expect parsing to succeed if the filter referenced by the custom rule can be found in the filter map.
         ml::api::CDetectionRulesJsonParser::TStrPatternSetUMap filterMap{{"safe_ips", {}}};
@@ -840,6 +978,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         ml::api::CAnomalyJobConfig jobConfig(filterMap, scheduledEvents);
         BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfigWithCustomRuleFilter),
                               "Cannot parse JSON job config!");
+        BOOST_TEST_REQUIRE(jobConfig.isInitialized());
     }
 }
 
