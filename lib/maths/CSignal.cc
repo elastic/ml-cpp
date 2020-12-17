@@ -341,8 +341,7 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values,
         // of each component over offets P, 2P, ..., mP for mP < n. Note that we
         // need to correct the correlation for longer offsets for the zero pad we
         // append.
-        for (std::size_t i = 0; i < periods.size(); ++i) {
-            std::size_t period{periods[i]};
+        for (auto period : periods) {
             TMeanAccumulator meanCorrelation;
             for (std::size_t offset = period; offset < 3 * pad; offset += period) {
                 meanCorrelation.add(static_cast<double>(n) / static_cast<double>(n - offset) *
@@ -359,6 +358,15 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values,
             *std::max_element(periods.begin(), periods.end(), correlationLess)};
         double maxCorrelation{correlations[maxCorrelationPeriod - 1]};
         LOG_TRACE(<< "max correlation(" << maxCorrelationPeriod << ") = " << maxCorrelation);
+
+        sizeWithoutComponent = result.size();
+
+        // Exclude if there is a not too much longer period that has significantly
+        // higher autocorrelation for which we haven't seen enough repeats.
+        if (maxCorrelation < 0.8 * *std::max_element(correlations.begin() + pad,
+                                                     correlations.begin() + 3 * pad / 2)) {
+            break;
+        }
 
         candidatePeriods.clear();
 
@@ -385,8 +393,6 @@ CSignal::seasonalDecomposition(const TFloatMeanAccumulatorVec& values,
         }
         LOG_TRACE(<< "candidate periods = "
                   << core::CContainerPrinter::print(candidatePeriods));
-
-        sizeWithoutComponent = result.size();
 
         // If we've already selected the candidate components or we've explained
         // nearly all the variance then stop.
