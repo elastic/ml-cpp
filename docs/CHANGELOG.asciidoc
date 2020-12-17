@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.12.0
+
+=== Enhancements
+
+* Fix edge case which could cause spurious anomalies early in the learning process
+  if the time series has non-diurnal seasonality. (See {ml-pull}1634[#1634].)
+
 == {es} version 7.11.0
 
 === Enhancements
