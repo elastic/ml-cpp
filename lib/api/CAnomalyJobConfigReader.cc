@@ -81,10 +81,10 @@ int CAnomalyJobConfigReader::CParameter::fallback(int value) const {
     if (m_Value == nullptr) {
         return value;
     }
-    if (m_Value->IsInt64() == false) {
+    if (m_Value->IsInt() == false) {
         this->handleFatal();
     }
-    return static_cast<int>(m_Value->GetInt64());
+    return m_Value->GetInt();
 }
 
 std::size_t CAnomalyJobConfigReader::CParameter::fallback(std::size_t value) const {
