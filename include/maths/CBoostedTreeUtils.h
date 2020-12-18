@@ -43,7 +43,7 @@ enum EHyperparameters {
     E_SoftTreeDepthTolerance
 };
 
-constexpr std::size_t NUMBER_HYPERPARAMETERS = E_SoftTreeDepthTolerance; // This must be last hyperparameter
+constexpr std::size_t NUMBER_HYPERPARAMETERS = E_SoftTreeDepthTolerance + 1; // This must be last hyperparameter
 
 struct SHyperparameterImportance {
     SHyperparameterImportance(EHyperparameters hyperparameter,

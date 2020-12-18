@@ -96,7 +96,7 @@ public:
     CTreeShapFeatureImportance* shap();
 
     //! Get the vector of hyperparameter importances.
-    THyperparameterImportanceVec hyperparameterImportance();
+    THyperparameterImportanceVec hyperparameterImportance() const;
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;

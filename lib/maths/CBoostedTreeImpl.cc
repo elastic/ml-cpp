@@ -1770,7 +1770,7 @@ CTreeShapFeatureImportance* CBoostedTreeImpl::shap() {
     return m_TreeShap.get();
 }
 
-CBoostedTreeImpl::THyperparameterImportanceVec CBoostedTreeImpl::hyperparameterImportance() {
+CBoostedTreeImpl::THyperparameterImportanceVec CBoostedTreeImpl::hyperparameterImportance() const {
     THyperparameterImportanceVec hyperparameterImportances;
     hyperparameterImportances.reserve(m_TunableHyperparameters.size());
     CBayesianOptimisation::TDoubleDoublePrVec anovaMainEffects{
