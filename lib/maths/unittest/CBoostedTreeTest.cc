@@ -475,7 +475,7 @@ BOOST_AUTO_TEST_CASE(testNonLinear) {
     test::CRandomNumbers rng;
     double noiseVariance{100.0};
     std::size_t trainRows{500};
-    std::size_t testRows{200};
+    std::size_t testRows{500};
     std::size_t cols{6};
     std::size_t capacity{500};
 
@@ -695,7 +695,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
     test::CRandomNumbers rng;
 
     std::size_t trainRows{1000};
-    std::size_t testRows{200};
+    std::size_t testRows{1000};
     std::size_t rows{trainRows + testRows};
     std::size_t cols{6};
     std::size_t capacity{500};
@@ -1008,7 +1008,7 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
     test::CRandomNumbers rng;
 
     std::size_t trainRows{1000};
-    std::size_t rows{1200};
+    std::size_t rows{2000};
     std::size_t cols{4};
     std::size_t capacity{600};
 
@@ -1178,7 +1178,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
     test::CRandomNumbers testRng;
 
     std::size_t trainRows{1000};
-    std::size_t rows{1200};
+    std::size_t rows{2000};
     std::size_t cols{4};
     std::size_t capacity{600};
     int numberClasses{3};
