@@ -902,7 +902,7 @@ core_t::TTime CTimeSeriesDecompositionDetail::CChangePointTest::minimumChangeLen
 
 core_t::TTime
 CTimeSeriesDecompositionDetail::CChangePointTest::maximumIntervalToDetectChange() const {
-    return 4 * this->minimumChangeLength() / 3;
+    return 5 * this->minimumChangeLength() / 3;
 }
 
 core_t::TTime
