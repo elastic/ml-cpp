@@ -28,7 +28,7 @@ public:
     using TStrVec = std::vector<std::string>;
 
 public:
-    //! Parse the arguments and return options if appropriate.  
+    //! Parse the arguments and return options if appropriate.
     static bool parse(int argc,
                       const char* const* argv,
                       std::string& modelId,

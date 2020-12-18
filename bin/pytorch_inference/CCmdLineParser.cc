@@ -5,7 +5,6 @@
  */
 #include "CCmdLineParser.h"
 
-
 #include <boost/program_options.hpp>
 
 #include <iostream>
@@ -57,7 +56,6 @@ bool CCmdLineParser::parse(int argc,
                 .run();
         boost::program_options::store(parsed, vm);
 
-
         if (vm.count("help") > 0) {
             std::cerr << desc << std::endl;
             return false;
@@ -67,7 +65,7 @@ bool CCmdLineParser::parse(int argc,
             return false;
         }
         if (vm.count("modelid") > 0) {
-             modelId = vm["modelid"].as<std::string>();
+            modelId = vm["modelid"].as<std::string>();
         }
         if (vm.count("namedPipeConnectTimeout") > 0) {
             namedPipeConnectTimeout = vm["namedPipeConnectTimeout"].as<core_t::TTime>();
@@ -89,7 +87,7 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("restoreIsPipe") > 0) {
             isRestoreFileNamedPipe = true;
-        }        
+        }
 
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
