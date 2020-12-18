@@ -97,7 +97,7 @@ public:
     double evaluate(const TVector& input) const;
 
     //! Compute the marginalized value of the Gaussian process in the dimension
-    //! \p t for the values \p input.
+    //! \p dimension for the values \p input.
     double evaluate1D(double input, int dimension) const;
 
     //! Get the constant factor of the ANOVA decomposition of the Gaussian process.
@@ -107,7 +107,7 @@ public:
     //! using ANOVA decomposition.
     double anovaTotalVariance() const;
 
-    //! Get the main effect of the parameter \p t in the Gaussian process
+    //! Get the main effect of the parameter \p dimension in the Gaussian process
     //! using ANOVA decomposition.
     double anovaMainEffect(int dimension) const;
 

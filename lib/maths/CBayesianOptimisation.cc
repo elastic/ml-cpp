@@ -243,7 +243,7 @@ double CBayesianOptimisation::evaluate1D(const TVector& Kinvf, double input, int
         }
         return prod;
     };
-    double f0{this->anovaConstantFactor(Kinvf)};
+
     double sum{0.0};
     input = (input - m_MinBoundary(dimension)) /
             (m_MaxBoundary(dimension) - m_MinBoundary(dimension));
@@ -255,7 +255,11 @@ double CBayesianOptimisation::evaluate1D(const TVector& Kinvf, double input, int
                         CTools::pow2(input - x(dimension))) *
                prodXt(x, dimension);
     }
-    return CTools::pow2(m_KernelParameters(0)) * sum - f0;
+
+    double theta02{CTools::pow2(m_KernelParameters(0))};
+    double scale{std::max(1.0, theta02)}; //prevent cancellation errors
+    double f0{this->anovaConstantFactor(Kinvf) / scale};
+    return scale * (theta02 / scale * sum - f0);
 }
 
 double CBayesianOptimisation::evaluate1D(double input, int dimension) const {
@@ -303,9 +307,11 @@ double CBayesianOptimisation::anovaTotalVariance(const TVector& Kinvf) const {
             sum += prodIj(i, j);
         }
     }
-    double variance{std::max(0.0, std::pow(m_KernelParameters(0), 4) * sum -
-                                      CTools::pow2(this->anovaConstantFactor(Kinvf)))};
-    return variance;
+    double theta04{std::pow(m_KernelParameters(0), 4)};
+    double scale{std::max(1.0, theta04)}; // prevent cancellation errors
+    double f02{CTools::pow2(this->anovaConstantFactor(Kinvf)) / scale};
+    double variance{scale * (theta04 / scale * sum - f02)};
+    return std::max(0.0, variance);
 }
 
 double CBayesianOptimisation::anovaTotalVariance() const {
@@ -323,7 +329,6 @@ double CBayesianOptimisation::anovaMainEffect(const TVector& Kinvf, int dimensio
         }
         return prod;
     };
-    double f0{this->anovaConstantFactor()};
     double sum1{0.0};
     double sum2{0.0};
     for (std::size_t i = 0; i < m_FunctionMeanValues.size(); ++i) {
@@ -339,9 +344,12 @@ double CBayesianOptimisation::anovaMainEffect(const TVector& Kinvf, int dimensio
                 integrate1dKernel(scaledKernelParameters(dimension), xi(dimension)) *
                 prodXt(xi, dimension);
     }
-    sum1 *= std::pow(m_KernelParameters(0), 4);
-    sum2 *= -2 * CTools::pow2(m_KernelParameters(0)) * f0;
-    return sum1 + sum2 + CTools::pow2(f0);
+    double theta02{CTools::pow2(m_KernelParameters(0))};
+    double theta04{std::pow(m_KernelParameters(0), 4)};
+    double f0{this->anovaConstantFactor()};
+    double f02{CTools::pow2(f0)};
+    double scale{std::max(1.0, theta04)}; // prevent cancellation errors
+    return scale * (theta04 * sum1 / scale - 2 * theta02 * sum2 * f0 / scale + f02 / scale);
 }
 
 double CBayesianOptimisation::anovaMainEffect(int dimension) const {

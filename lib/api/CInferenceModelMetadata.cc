@@ -231,8 +231,6 @@ void CInferenceModelMetadata::hyperparameterImportance(
         case maths::boosted_tree_detail::E_SoftTreeDepthTolerance:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE;
             break;
-        case maths::boosted_tree_detail::E_LastHyperparameter:
-            break;
         }
         m_HyperparameterImportance.emplace_back(
             hyperparameterName, item.s_Value, item.s_AbsoluteImportance,

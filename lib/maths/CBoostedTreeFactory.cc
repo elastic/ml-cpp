@@ -83,8 +83,6 @@ std::size_t computeMaximumNumberTrees(double eta) {
 bool intervalIsEmpty(const CBoostedTreeFactory::TVector& interval) {
     return interval(MAX_REGULARIZER_INDEX) - interval(MIN_REGULARIZER_INDEX) == 0.0;
 }
-
-using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameters>;
 }
 
 CBoostedTreeFactory::TBoostedTreeUPtr
@@ -183,7 +181,7 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
     // less than p_1, this translates to using log parameter values.
 
     CBayesianOptimisation::TDoubleDoublePrVec boundingBox;
-    for (int i = 0; i < static_cast<int>(E_LastHyperparameter); ++i) {
+    for (int i = 0; i < static_cast<int>(NUMBER_HYPERPARAMETERS); ++i) {
         switch (i) {
         case E_DownsampleFactor:
             if (m_TreeImpl->m_DownsampleFactorOverride == boost::none) {
@@ -245,9 +243,6 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
             if (m_TreeImpl->m_FeatureBagFractionOverride == boost::none) {
                 boundingBox.emplace_back(MIN_FEATURE_BAG_FRACTION, MAX_FEATURE_BAG_FRACTION);
             }
-            break;
-        case E_LastHyperparameter:
-            // only a placeholder
             break;
         }
     }

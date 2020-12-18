@@ -40,9 +40,10 @@ enum EHyperparameters {
     E_Gamma,
     E_Lambda,
     E_SoftTreeDepthLimit,
-    E_SoftTreeDepthTolerance,
-    E_LastHyperparameter //put all new hyperparameter before this one
+    E_SoftTreeDepthTolerance
 };
+
+constexpr std::size_t NUMBER_HYPERPARAMETERS = E_SoftTreeDepthTolerance; // This must be last hyperparameter
 
 struct SHyperparameterImportance {
     SHyperparameterImportance(EHyperparameters hyperparameter,
@@ -52,7 +53,7 @@ struct SHyperparameterImportance {
                               bool supplied)
         : s_Hyperparameter(hyperparameter), s_Value(value),
           s_AbsoluteImportance(absoluteImportance),
-          s_RelativeImportance(relativeImportance), s_Supplied(supplied){};
+          s_RelativeImportance(relativeImportance), s_Supplied(supplied) {}
     EHyperparameters s_Hyperparameter;
     double s_Value;
     double s_AbsoluteImportance;

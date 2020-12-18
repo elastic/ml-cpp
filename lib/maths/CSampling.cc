@@ -830,9 +830,10 @@ void CSampling::sobolSequenceSample(std::size_t dim, std::size_t n, TDoubleVecVe
     }
 
     try {
-        typedef boost::variate_generator<boost::random::sobol&, boost::uniform_01<double>> quasi_random_gen_t;
+        using TSobolGenerator =
+            boost::variate_generator<boost::random::sobol&, boost::uniform_01<double>>;
         boost::random::sobol engine(dim);
-        quasi_random_gen_t gen(engine, boost::uniform_01<double>());
+        TSobolGenerator gen(engine, boost::uniform_01<double>());
         samples.resize(n, TDoubleVec(dim));
         for (std::size_t i = 0u; i < n; ++i) {
             for (std::size_t j = 0u; j < dim; ++j) {

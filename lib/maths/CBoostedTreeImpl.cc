@@ -1267,8 +1267,6 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
         case E_SoftTreeDepthTolerance:
             parameters(i) = m_Regularization.softTreeDepthTolerance();
             break;
-        case E_LastHyperparameter:
-            break;
         }
     }
 
@@ -1333,8 +1331,6 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
             break;
         case E_SoftTreeDepthTolerance:
             m_Regularization.softTreeDepthTolerance(parameters(i));
-            break;
-        case E_LastHyperparameter:
             break;
         }
     }
@@ -1416,7 +1412,7 @@ void CBoostedTreeImpl::recordHyperparameters() {
 
 void CBoostedTreeImpl::initializeTunableHyperparameters() {
     m_TunableHyperparameters.clear();
-    for (int i = 0; i < static_cast<int>(E_LastHyperparameter); ++i) {
+    for (int i = 0; i < static_cast<int>(NUMBER_HYPERPARAMETERS); ++i) {
         switch (i) {
         case E_DownsampleFactor:
             if (m_DownsampleFactorOverride == boost::none) {
@@ -1462,9 +1458,6 @@ void CBoostedTreeImpl::initializeTunableHyperparameters() {
             if (m_FeatureBagFractionOverride == boost::none) {
                 m_TunableHyperparameters.emplace_back(E_FeatureBagFraction);
             }
-            break;
-        case E_LastHyperparameter:
-            // only a placeholder
             break;
         }
     }
@@ -1782,7 +1775,7 @@ CBoostedTreeImpl::THyperparameterImportanceVec CBoostedTreeImpl::hyperparameterI
     hyperparameterImportances.reserve(m_TunableHyperparameters.size());
     CBayesianOptimisation::TDoubleDoublePrVec anovaMainEffects{
         m_BayesianOptimization->anovaMainEffects()};
-    for (std::size_t i = 0; i < static_cast<std::size_t>(E_LastHyperparameter); ++i) {
+    for (std::size_t i = 0; i < static_cast<std::size_t>(NUMBER_HYPERPARAMETERS); ++i) {
         double absoluteImportance{0.0};
         double relativeImportance{0.0};
         bool supplied{true};
@@ -1821,8 +1814,6 @@ CBoostedTreeImpl::THyperparameterImportanceVec CBoostedTreeImpl::hyperparameterI
             break;
         case E_SoftTreeDepthTolerance:
             hyperparameterValue = m_Regularization.softTreeDepthTolerance();
-            break;
-        case E_LastHyperparameter:
             break;
         }
         hyperparameterImportances.emplace_back(m_TunableHyperparameters[i],
