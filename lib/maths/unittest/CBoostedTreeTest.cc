@@ -1178,7 +1178,7 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
     test::CRandomNumbers testRng;
 
     std::size_t trainRows{1000};
-    std::size_t rows{2000};
+    std::size_t rows{2500};
     std::size_t cols{4};
     std::size_t capacity{600};
     int numberClasses{3};
