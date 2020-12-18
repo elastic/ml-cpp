@@ -91,6 +91,8 @@ public:
         const rapidjson::Value* jsonObject() { return m_Value; }
         //! Get a boolean parameter.
         bool fallback(bool value) const;
+        //! Get an integer parameter.
+        int fallback(int value) const;
         //! Get an unsigned integer parameter.
         std::size_t fallback(std::size_t value) const;
         //! Get a signed integer parameter.

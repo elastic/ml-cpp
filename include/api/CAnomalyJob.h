@@ -144,7 +144,6 @@ public:
     CAnomalyJob(const std::string& jobId,
                 model::CLimits& limits,
                 CAnomalyJobConfig& jobConfig,
-                CFieldConfig& fieldConfig,
                 model::CAnomalyDetectorModelConfig& modelConfig,
                 core::CJsonOutputStreamWrapper& outputBuffer,
                 const TPersistCompleteFunc& persistCompleteFunc,
@@ -367,8 +366,8 @@ private:
                  core_t::TTime firstTime,
                  const model::CAnomalyDetector::TModelFactoryCPtr& modelFactory);
 
-    //! Populate detector keys from the field config.
-    void populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec& keys);
+    //! Populate detector keys from the anomaly job config.
+    void populateDetectorKeys(const CAnomalyJobConfig& jobConfig, TKeyVec& keys);
 
     //! Extract the field called \p fieldName from \p dataRowFields.
     const std::string* fieldValue(const std::string& fieldName, const TStrStrUMap& dataRowFields);
@@ -432,10 +431,6 @@ private:
     //! being modified by job updates (and those changes reflected wherever a
     //! reference is held).
     CAnomalyJobConfig& m_JobConfig;
-
-    //! Field names to use for the analysis.
-    //! This is a non-const reference for the same reasons as for m_JobConfig.
-    CFieldConfig& m_FieldConfig;
 
     //! The model configuration
     model::CAnomalyDetectorModelConfig& m_ModelConfig;

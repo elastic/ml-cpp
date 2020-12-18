@@ -9,7 +9,6 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 
 #include <api/CAnomalyJobConfig.h>
-#include <api/CFieldConfig.h>
 #include <api/ImportExport.h>
 
 #include <string>
@@ -36,7 +35,6 @@ namespace api {
 class API_EXPORT CConfigUpdater {
 public:
     CConfigUpdater(CAnomalyJobConfig& jobConfig,
-                   CFieldConfig& fieldConfig,
                    model::CAnomalyDetectorModelConfig& modelConfig);
 
     //! Update from given config changes
@@ -53,7 +51,6 @@ private:
 
 private:
     CAnomalyJobConfig& m_JobConfig;
-    CFieldConfig& m_FieldConfig;
     model::CAnomalyDetectorModelConfig& m_ModelConfig;
 };
 }

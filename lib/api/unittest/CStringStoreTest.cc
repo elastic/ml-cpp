@@ -13,7 +13,6 @@
 
 #include <api/CAnomalyJobConfig.h>
 #include <api/CCsvInputParser.h>
-#include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/CJsonOutputWriter.h>
 
@@ -125,15 +124,8 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
     core_t::TTime BUCKET_SPAN(10000);
     core_t::TTime time = 100000000;
 
-    api::CAnomalyJobConfig jobConfig;
-    api::CFieldConfig fieldConfig;
-    api::CFieldConfig::TStrVec clause;
-    clause.push_back("max(notes)");
-    clause.push_back("by");
-    clause.push_back("composer");
-    clause.push_back("partitionfield=instrument");
-
-    BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
+    api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+        "max", "notes", "composer", "", "instrument");
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
@@ -150,18 +142,15 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::names().m_Strings.size());
 
         LOG_TRACE(<< "Setting up job");
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig,
-                            wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
         wrappedOutputStream.syncFlush();
@@ -200,14 +189,12 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig, wrappedOutputStream,
+        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream,
                             CTestAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
@@ -215,8 +202,7 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         adder.clear();
 
         // No influencers in this configuration
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
 
         // "", "count", "notes", "composer", "instrument", "Elgar", "Holst", "Delius", "flute", "tuba"
         BOOST_TEST_REQUIRE(this->nameExists("count"));
@@ -241,14 +227,12 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::names().m_Strings.size());
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig, wrappedOutputStream,
+        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream,
                             CTestAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
@@ -256,8 +240,7 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
         adder.clear();
 
         // No influencers in this configuration
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
 
         // While the 3 composers from the second partition should have been culled in the prune,
         // their names still exist in the first partition, so will still be in the string store
@@ -290,7 +273,7 @@ BOOST_FIXTURE_TEST_CASE(testPersonStringPruning, CTestFixture) {
 
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig, wrappedOutputStream,
+        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream,
                             CTestAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
@@ -318,15 +301,8 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
     core_t::TTime BUCKET_SPAN(10000);
     core_t::TTime time = 100000000;
 
-    api::CAnomalyJobConfig jobConfig;
-    api::CFieldConfig fieldConfig;
-    api::CFieldConfig::TStrVec clause;
-    clause.push_back("dc(notes)");
-    clause.push_back("over");
-    clause.push_back("composer");
-    clause.push_back("partitionfield=instrument");
-
-    BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
+    api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+        "dc", "notes", "", "composer", "instrument");
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
@@ -343,17 +319,14 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::names().m_Strings.size());
 
         LOG_TRACE(<< "Setting up job");
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig,
-                            wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
         time = playData(time, BUCKET_SPAN, 100, 3, 2, 99, job);
         wrappedOutputStream.syncFlush();
@@ -398,7 +371,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig, wrappedOutputStream,
+        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream,
                             CTestAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
@@ -440,7 +413,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig, wrappedOutputStream,
+        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream,
                             CTestAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
@@ -483,7 +456,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeStringPruning, CTestFixture) {
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig, wrappedOutputStream,
+        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream,
                             CTestAnomalyJob::TPersistCompleteFunc());
 
         core_t::TTime completeToTime(0);
@@ -511,14 +484,8 @@ BOOST_FIXTURE_TEST_CASE(testInfluencerStringPruning, CTestFixture) {
     core_t::TTime BUCKET_SPAN(10000);
     core_t::TTime time = 100000000;
 
-    api::CAnomalyJobConfig jobConfig;
-    api::CFieldConfig fieldConfig;
-    api::CFieldConfig::TStrVec clause;
-    clause.push_back("max(notes)");
-    clause.push_back("influencerfield=instrument");
-    clause.push_back("influencerfield=composer");
-
-    BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
+    api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+        "max", "notes", "", "", "", {"composer", "instrument"});
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig(BUCKET_SPAN);
@@ -534,17 +501,14 @@ BOOST_FIXTURE_TEST_CASE(testInfluencerStringPruning, CTestFixture) {
         model::CStringStore::influencers().clearEverythingTestOnly();
         model::CStringStore::names().clearEverythingTestOnly();
 
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::influencers().m_Strings.size());
-        BOOST_REQUIRE_EQUAL(std::size_t(0),
-                            model::CStringStore::names().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::influencers().m_Strings.size());
+        BOOST_REQUIRE_EQUAL(0, model::CStringStore::names().m_Strings.size());
 
         LOG_TRACE(<< "Setting up job");
         std::ostringstream outputStrm;
         ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
-        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig,
-                            wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
         // Play in a few buckets with influencers, and see that they stick around for
         // 3 buckets

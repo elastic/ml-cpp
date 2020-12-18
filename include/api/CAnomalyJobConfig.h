@@ -12,16 +12,20 @@
 #include <api/ImportExport.h>
 
 #include <model/CLimits.h>
+#include <model/FunctionTypes.h>
 
 #include <rapidjson/document.h>
 
 #include <string>
 #include <vector>
 
+class CTestAnomalyJob;
+
 namespace ml {
 namespace model {
 class CAnomalyDetectorModelConfig;
 }
+
 namespace api {
 
 //! \brief A parser to convert JSON configuration of an anomaly job JSON into an object
@@ -45,34 +49,130 @@ public:
             static const std::string EXCLUDE_FREQUENT;
             static const std::string CUSTOM_RULES;
             static const std::string USE_NULL;
+            static const std::string ALL_TOKEN;
+            static const std::string BY_TOKEN;
+            static const std::string NONE_TOKEN;
+            static const std::string OVER_TOKEN;
+
+            //! Strings that define the type of analysis to run
+            static const std::string FUNCTION_COUNT;
+            static const std::string FUNCTION_COUNT_ABBREV;
+            static const std::string FUNCTION_LOW_COUNT;
+            static const std::string FUNCTION_LOW_COUNT_ABBREV;
+            static const std::string FUNCTION_HIGH_COUNT;
+            static const std::string FUNCTION_HIGH_COUNT_ABBREV;
+            static const std::string FUNCTION_DISTINCT_COUNT;
+            static const std::string FUNCTION_DISTINCT_COUNT_ABBREV;
+            static const std::string FUNCTION_LOW_DISTINCT_COUNT;
+            static const std::string FUNCTION_LOW_DISTINCT_COUNT_ABBREV;
+            static const std::string FUNCTION_HIGH_DISTINCT_COUNT;
+            static const std::string FUNCTION_HIGH_DISTINCT_COUNT_ABBREV;
+            static const std::string FUNCTION_NON_ZERO_COUNT;
+            static const std::string FUNCTION_NON_ZERO_COUNT_ABBREV;
+            static const std::string FUNCTION_RARE_NON_ZERO_COUNT;
+            static const std::string FUNCTION_RARE_NON_ZERO_COUNT_ABBREV;
+            static const std::string FUNCTION_RARE;
+            static const std::string FUNCTION_RARE_COUNT;
+            static const std::string FUNCTION_FREQ_RARE;
+            static const std::string FUNCTION_FREQ_RARE_ABBREV;
+            static const std::string FUNCTION_FREQ_RARE_COUNT;
+            static const std::string FUNCTION_FREQ_RARE_COUNT_ABBREV;
+            static const std::string FUNCTION_LOW_NON_ZERO_COUNT;
+            static const std::string FUNCTION_LOW_NON_ZERO_COUNT_ABBREV;
+            static const std::string FUNCTION_HIGH_NON_ZERO_COUNT;
+            static const std::string FUNCTION_HIGH_NON_ZERO_COUNT_ABBREV;
+            static const std::string FUNCTION_INFO_CONTENT;
+            static const std::string FUNCTION_LOW_INFO_CONTENT;
+            static const std::string FUNCTION_HIGH_INFO_CONTENT;
+            static const std::string FUNCTION_METRIC;
+            static const std::string FUNCTION_AVERAGE;
+            static const std::string FUNCTION_MEAN;
+            static const std::string FUNCTION_LOW_MEAN;
+            static const std::string FUNCTION_HIGH_MEAN;
+            static const std::string FUNCTION_LOW_AVERAGE;
+            static const std::string FUNCTION_HIGH_AVERAGE;
+            static const std::string FUNCTION_MEDIAN;
+            static const std::string FUNCTION_LOW_MEDIAN;
+            static const std::string FUNCTION_HIGH_MEDIAN;
+            static const std::string FUNCTION_MIN;
+            static const std::string FUNCTION_MAX;
+            static const std::string FUNCTION_VARIANCE;
+            static const std::string FUNCTION_LOW_VARIANCE;
+            static const std::string FUNCTION_HIGH_VARIANCE;
+            static const std::string FUNCTION_SUM;
+            static const std::string FUNCTION_LOW_SUM;
+            static const std::string FUNCTION_HIGH_SUM;
+            static const std::string FUNCTION_NON_NULL_SUM;
+            static const std::string FUNCTION_NON_NULL_SUM_ABBREV;
+            static const std::string FUNCTION_LOW_NON_NULL_SUM;
+            static const std::string FUNCTION_LOW_NON_NULL_SUM_ABBREV;
+            static const std::string FUNCTION_HIGH_NON_NULL_SUM;
+            static const std::string FUNCTION_HIGH_NON_NULL_SUM_ABBREV;
+            static const std::string FUNCTION_TIME_OF_DAY;
+            static const std::string FUNCTION_TIME_OF_WEEK;
+            static const std::string FUNCTION_LAT_LONG;
+            static const std::string FUNCTION_MAX_VELOCITY;
+            static const std::string FUNCTION_MIN_VELOCITY;
+            static const std::string FUNCTION_MEAN_VELOCITY;
+            static const std::string FUNCTION_SUM_VELOCITY;
 
         public:
             CDetectorConfig() {}
 
+            // Convenience ctor intended for use by the unit tests only
+            CDetectorConfig(const std::string& functionName,
+                            const std::string& fieldName,
+                            const std::string& byFieldName,
+                            const std::string& overFieldName,
+                            const std::string& partitionFieldName)
+                : m_FunctionName(functionName),
+                  m_FieldName(fieldName), m_ByFieldName{byFieldName},
+                  m_OverFieldName{overFieldName}, m_PartitionFieldName{partitionFieldName} {
+                this->determineFunction(false);
+                this->decipherExcludeFrequentSetting();
+            }
+
             void parse(const rapidjson::Value& detectorConfig,
                        const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
+                       bool haveSummaryCountField,
+                       int detectorIndex,
                        CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules);
 
-            std::string function() const { return m_Function; }
+            int detectorIndex() const { return m_DetectorIndex; }
+            std::string functionName() const { return m_FunctionName; }
+            model::function_t::EFunction function() const { return m_Function; }
             std::string fieldName() const { return m_FieldName; }
             std::string byFieldName() const { return m_ByFieldName; }
             std::string overFieldName() const { return m_OverFieldName; }
             std::string partitionFieldName() const {
                 return m_PartitionFieldName;
             }
-            std::string excludeFrequent() const { return m_ExcludeFrequent; }
+
+            model_t::EExcludeFrequent excludeFrequent() const;
+
             std::string detectorDescription() const {
                 return m_DetectorDescription;
             }
             bool useNull() const { return m_UseNull; }
+            bool isPopulation() const {
+                return m_OverFieldName.empty() == false;
+            }
 
         private:
-            std::string m_Function{};
+            bool determineFunction(bool haveSummaryCountField);
+
+            bool decipherExcludeFrequentSetting();
+
+        private:
+            std::string m_FunctionName{};
+            model::function_t::EFunction m_Function;
             std::string m_FieldName{};
             std::string m_ByFieldName{};
             std::string m_OverFieldName{};
             std::string m_PartitionFieldName{};
             std::string m_ExcludeFrequent{};
+            bool m_ByHasExcludeFrequent{false};
+            bool m_OverHasExcludeFrequent{false};
             std::string m_DetectorDescription{};
             int m_DetectorIndex{};
             bool m_UseNull{false};
@@ -114,9 +214,15 @@ public:
         //! Default constructor
         CAnalysisConfig() {}
 
-        //! Constructor taking a map of detector rule filters keyed by filter_id.
-        explicit CAnalysisConfig(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
-                                 const TStrDetectionRulePrVec& scheduledEvents)
+        //! Construct with just a categorization field.  (In the case of a
+        //! categorization job, this is all that is needed for this config.)
+        CAnalysisConfig(const std::string& categorizationFieldName)
+            : m_CategorizationFieldName{categorizationFieldName} {}
+
+        //! Constructor taking a map of detector rule filters keyed by filter_id &
+        //! a vector of scheduled events data
+        CAnalysisConfig(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
+                        const TStrDetectionRulePrVec& scheduledEvents)
             : m_RuleFilters(ruleFilters), m_ScheduledEvents(scheduledEvents) {}
 
         void parse(const rapidjson::Value& json);
@@ -132,6 +238,9 @@ public:
         }
         std::string categorizationFieldName() const {
             return m_CategorizationFieldName;
+        }
+        std::string categorizationPartitionFieldName() const {
+            return m_CategorizationPartitionFieldName;
         }
         const TStrVec& categorizationFilters() const {
             return m_CategorizationFilters;
@@ -168,7 +277,23 @@ public:
         static core_t::TTime durationSeconds(const std::string& durationString,
                                              core_t::TTime defaultDuration);
 
+        bool parseRules(int detectorIndex, const std::string& rules);
+
     private:
+        // Convenience method intended for use by the unit tests only
+        void addDetector(const std::string& functionName,
+                         const std::string& fieldName,
+                         const std::string& byFieldName,
+                         const std::string& overFieldName,
+                         const std::string& partitionFieldName,
+                         const TStrVec& influencers,
+                         const std::string& summaryCountFieldName) {
+            m_Influencers = influencers;
+            m_SummaryCountFieldName = summaryCountFieldName;
+            m_Detectors.emplace_back(functionName, fieldName, byFieldName,
+                                     overFieldName, partitionFieldName);
+        }
+
         bool processFilter(const std::string& key, const std::string& value);
 
         //! Process and store a scheduled event
@@ -184,6 +309,7 @@ public:
         core_t::TTime m_BucketSpan{DEFAULT_BUCKET_SPAN};
         std::string m_SummaryCountFieldName{};
         std::string m_CategorizationFieldName{};
+        std::string m_CategorizationPartitionFieldName{};
         TStrVec m_CategorizationFilters{};
         bool m_PerPartitionCategorizationEnabled{false};
         bool m_PerPartitionCategorizationStopOnWarn{false};
@@ -201,6 +327,8 @@ public:
         //! The scheduled events (events apply to all detectors).
         //! Events consist of a description and a detection rule
         TStrDetectionRulePrVec m_ScheduledEvents{};
+
+        friend class ::CTestAnomalyJob;
     };
 
     class API_EXPORT CDataDescription {
@@ -294,6 +422,8 @@ public:
                                const TStrDetectionRulePrVec& scheduledEvents)
         : m_AnalysisConfig(rulesFilter, scheduledEvents) {}
 
+    bool initFromFile(const std::string& configFile);
+
     bool parse(const std::string& json);
 
     std::string jobId() const { return m_JobId; }
@@ -305,10 +435,12 @@ public:
     }
     const CModelPlotConfig& modelPlotConfig() const { return m_ModelConfig; }
     const CAnalysisLimits& analysisLimits() const { return m_AnalysisLimits; }
+    bool isInitialized() const { return m_IsInitialized; }
 
 private:
     std::string m_JobId;
     std::string m_JobType;
+    bool m_IsInitialized{false};
     CAnalysisConfig m_AnalysisConfig;
     CDataDescription m_DataDescription;
     CModelPlotConfig m_ModelConfig;

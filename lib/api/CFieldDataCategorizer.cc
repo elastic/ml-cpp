@@ -18,6 +18,7 @@
 
 #include <model/CTokenListReverseSearchCreator.h>
 
+#include <api/CAnomalyJobConfig.h>
 #include <api/CFieldConfig.h>
 #include <api/CNoopCategoryIdMapper.h>
 #include <api/CPerPartitionCategoryIdMapper.h>
@@ -47,7 +48,7 @@ const std::string CFieldDataCategorizer::STATE_TYPE{"categorizer_state"};
 const std::string CFieldDataCategorizer::STATE_VERSION{"1"};
 
 CFieldDataCategorizer::CFieldDataCategorizer(std::string jobId,
-                                             const CFieldConfig& config,
+                                             const CAnomalyJobConfig::CAnalysisConfig& analysisConfig,
                                              model::CLimits& limits,
                                              const std::string& timeFieldName,
                                              const std::string& timeFieldFormat,
@@ -59,12 +60,12 @@ CFieldDataCategorizer::CFieldDataCategorizer(std::string jobId,
       m_ChainedProcessor{chainedProcessor}, m_OutputStream{outputStream},
       m_StopCategorizationOnWarnStatus{stopCategorizationOnWarnStatus},
       m_JsonOutputWriter{m_JobId, m_OutputStream}, m_AnnotationJsonWriter{m_OutputStream},
-      m_PartitionFieldName{config.categorizationPartitionFieldName()},
-      m_CategorizationFieldName{config.categorizationFieldName()}, m_PersistenceManager{persistenceManager} {
+      m_PartitionFieldName{analysisConfig.categorizationPartitionFieldName()},
+      m_CategorizationFieldName{analysisConfig.categorizationFieldName()}, m_PersistenceManager{persistenceManager} {
 
-    if (config.categorizationFilters().empty() == false) {
+    if (analysisConfig.categorizationFilters().empty() == false) {
         LOG_DEBUG(<< "Configuring categorization filtering");
-        m_CategorizationFilter.configure(config.categorizationFilters());
+        m_CategorizationFilter.configure(analysisConfig.categorizationFilters());
     }
 }
 

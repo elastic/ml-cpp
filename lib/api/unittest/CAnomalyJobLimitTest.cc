@@ -13,7 +13,6 @@
 
 #include <api/CAnomalyJobConfig.h>
 #include <api/CCsvInputParser.h>
-#include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/CJsonOutputWriter.h>
 
@@ -97,17 +96,8 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         // Without limits, this data set should make the models around
         // 1230000 bytes
         // Run the data once to find out what the current platform uses
-        ml::api::CAnomalyJobConfig jobConfig;
-        api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clause;
-        clause.push_back("value");
-        clause.push_back("by");
-        clause.push_back("colour");
-        clause.push_back("over");
-        clause.push_back("species");
-        clause.push_back("partitionfield=greenhouse");
-
-        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
+        ml::api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "colour", "species", "greenhouse");
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -120,8 +110,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
 
         {
             LOG_TRACE(<< "Setting up job");
-            CTestAnomalyJob job("job", limits, jobConfig, fieldConfig,
-                                modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
             std::ifstream inputStrm("testfiles/resource_accuracy.csv");
             BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -142,17 +131,8 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
     }
     {
         // Now run the data with limiting
-        ml::api::CAnomalyJobConfig jobConfig;
-        api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clause;
-        clause.push_back("value");
-        clause.push_back("by");
-        clause.push_back("colour");
-        clause.push_back("over");
-        clause.push_back("species");
-        clause.push_back("partitionfield=greenhouse");
-
-        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
+        ml::api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "colour", "species", "greenhouse");
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -167,8 +147,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
                 limits.resourceMonitor().m_ByteLimitHigh - 1024;
 
             LOG_TRACE(<< "Setting up job");
-            CTestAnomalyJob job("job", limits, jobConfig, fieldConfig,
-                                modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
             std::ifstream inputStrm("testfiles/resource_accuracy.csv");
             BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -204,24 +183,14 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         // Run the data without any resource limits and check that
         // all the expected fields are in the results set
         model::CLimits limits;
-        ml::api::CAnomalyJobConfig jobConfig;
-        api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clause;
-        clause.push_back("value");
-        clause.push_back("by");
-        clause.push_back("colour");
-        clause.push_back("over");
-        clause.push_back("species");
-        clause.push_back("partitionfield=greenhouse");
-
-        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
+        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "colour", "species", "greenhouse");
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
 
         LOG_TRACE(<< "Setting up job");
-        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig,
-                            wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
         std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition.csv");
         BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -251,17 +220,8 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         // Run the data with some resource limits after the first 4 records and
         // check that we get only anomalies from the first 2 partitions
         model::CLimits limits;
-        ml::api::CAnomalyJobConfig jobConfig;
-        api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clause;
-        clause.push_back("value");
-        clause.push_back("by");
-        clause.push_back("colour");
-        clause.push_back("over");
-        clause.push_back("species");
-        clause.push_back("partitionfield=greenhouse");
-
-        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
+        ml::api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "colour", "species", "greenhouse");
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -270,8 +230,7 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
         LOG_TRACE(<< "Setting up job");
-        CTestAnomalyJob job("job", limits, jobConfig, fieldConfig, modelConfig,
-                            wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
         std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition_first8.csv");
         BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -380,14 +339,12 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             std::size_t memoryLimit{10 /*MB*/};
             model::CLimits limits;
             limits.resourceMonitor().memoryLimit(memoryLimit);
-            ml::api::CAnomalyJobConfig jobConfig;
-            api::CFieldConfig fieldConfig;
-            api::CFieldConfig::TStrVec clauses{"mean(foo)", "by", "bar"};
-            fieldConfig.initFromClause(clauses);
+            ml::api::CAnomalyJobConfig jobConfig =
+                CTestAnomalyJob::makeSimpleJobConfig("mean", "foo", "bar", "", "");
+
             model::CAnomalyDetectorModelConfig modelConfig =
                 model::CAnomalyDetectorModelConfig::defaultConfig(testParam.s_BucketLength);
-            CTestAnomalyJob job("job", limits, jobConfig, fieldConfig,
-                                modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
             core_t::TTime startTime{1495110323};
             core_t::TTime endTime{1495260323};
@@ -435,14 +392,12 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             std::size_t memoryLimit{10 /*MB*/};
             model::CLimits limits;
             limits.resourceMonitor().memoryLimit(memoryLimit);
-            ml::api::CAnomalyJobConfig jobConfig;
-            api::CFieldConfig fieldConfig;
-            api::CFieldConfig::TStrVec clauses{"mean(foo)", "partitionfield=bar"};
-            fieldConfig.initFromClause(clauses);
+            ml::api::CAnomalyJobConfig jobConfig =
+                CTestAnomalyJob::makeSimpleJobConfig("mean", "foo", "", "", "bar");
+
             model::CAnomalyDetectorModelConfig modelConfig =
                 model::CAnomalyDetectorModelConfig::defaultConfig(testParam.s_BucketLength);
-            CTestAnomalyJob job("job", limits, jobConfig, fieldConfig,
-                                modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
             core_t::TTime startTime{1495110323};
             core_t::TTime endTime{1495260323};
@@ -490,14 +445,12 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             std::size_t memoryLimit{5 /*MB*/};
             model::CLimits limits;
             limits.resourceMonitor().memoryLimit(memoryLimit);
-            ml::api::CAnomalyJobConfig jobConfig;
-            api::CFieldConfig fieldConfig;
-            api::CFieldConfig::TStrVec clauses{"mean(foo)", "over", "bar"};
-            fieldConfig.initFromClause(clauses);
+            ml::api::CAnomalyJobConfig jobConfig =
+                CTestAnomalyJob::makeSimpleJobConfig("mean", "foo", "", "bar", "");
+
             model::CAnomalyDetectorModelConfig modelConfig =
                 model::CAnomalyDetectorModelConfig::defaultConfig(testParam.s_BucketLength);
-            CTestAnomalyJob job("job", limits, jobConfig, fieldConfig,
-                                modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
             core_t::TTime startTime{1495110323};
             core_t::TTime endTime{1495230323};

@@ -77,7 +77,8 @@ int main(int argc, char** argv) {
         ml::counter_t::E_TSADNumberExcludedFrequentInvocations,
         ml::counter_t::E_TSADNumberSamplesOutsideLatencyWindow,
         ml::counter_t::E_TSADNumberMemoryLimitModelCreationFailures,
-        ml::counter_t::E_TSADNumberPrunedItems};
+        ml::counter_t::E_TSADNumberPrunedItems,
+        ml::counter_t::E_TSADAssignmentMemoryBasis};
 
     ml::core::CProgramCounters::registerProgramCounterTypes(counters);
 
@@ -178,20 +179,12 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    std::string anomalyJobConfigJson;
-    bool couldReadConfigFile;
-    std::tie(anomalyJobConfigJson, couldReadConfigFile) =
-        ml::core::CStringUtils::readFileToString(configFile);
-    if (couldReadConfigFile == false) {
-        LOG_FATAL(<< "Failed to read config file '" << configFile << "'");
-        return EXIT_FAILURE;
-    }
-    // For now we need to reference the rule filters parsed by the old-style
-    // field config.
+    // For now we need to reference the rule filters and scheduled events parsed
+    // by the old-style field config as they are not present in the JSON job config.
     ml::api::CAnomalyJobConfig jobConfig{fieldConfig.ruleFilters(),
                                          fieldConfig.scheduledEvents()};
-    if (jobConfig.parse(anomalyJobConfigJson) == false) {
-        LOG_FATAL(<< "Failed to parse anomaly job config: '" << anomalyJobConfigJson << "'");
+    if (jobConfig.initFromFile(configFile) == false) {
+        LOG_FATAL(<< "JSON config could not be interpreted");
         return EXIT_FAILURE;
     }
 
@@ -201,15 +194,14 @@ int main(int argc, char** argv) {
     limits.init(analysisLimits.categorizationExamplesLimit(),
                 analysisLimits.modelMemoryLimitMb());
 
-    bool doingCategorization{fieldConfig.fieldNameSuperset().count(
-                                 ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0};
+    const ml::api::CAnomalyJobConfig::CAnalysisConfig& analysisConfig =
+        jobConfig.analysisConfig();
+
+    bool doingCategorization{analysisConfig.categorizationFieldName().empty() == false};
     TStrVec mutableFields;
     if (doingCategorization) {
         mutableFields.push_back(ml::api::CFieldDataCategorizer::MLCATEGORY_NAME);
     }
-
-    const ml::api::CAnomalyJobConfig::CAnalysisConfig& analysisConfig =
-        jobConfig.analysisConfig();
 
     ml::model::CAnomalyDetectorModelConfig modelConfig = analysisConfig.makeModelConfig();
 
@@ -288,7 +280,6 @@ int main(int argc, char** argv) {
     ml::api::CAnomalyJob job{jobId,
                              limits,
                              jobConfig,
-                             fieldConfig,
                              modelConfig,
                              wrappedOutputStream,
                              std::bind(&ml::api::CModelSnapshotJsonWriter::write,
@@ -311,7 +302,7 @@ int main(int argc, char** argv) {
 
     // The categorizer knows how to assign categories to records
     ml::api::CFieldDataCategorizer categorizer{jobId,
-                                               fieldConfig,
+                                               analysisConfig,
                                                limits,
                                                timeField,
                                                timeFormat,

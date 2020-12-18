@@ -19,6 +19,7 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
+#include <core/CProgramCounters.h>
 #include <core/CoreTypes.h>
 
 #include <ver/CBuildInfo.h>
@@ -27,7 +28,6 @@
 
 #include <api/CCmdSkeleton.h>
 #include <api/CCsvInputParser.h>
-#include <api/CFieldConfig.h>
 #include <api/CFieldDataCategorizer.h>
 #include <api/CIoManager.h>
 #include <api/CJsonOutputWriter.h>
@@ -48,6 +48,16 @@
 #include <string>
 
 int main(int argc, char** argv) {
+
+    // Register the set of counters in which this program is interested
+    const ml::counter_t::TCounterTypeSet counters{
+        ml::counter_t::E_TSADMemoryUsage, ml::counter_t::E_TSADPeakMemoryUsage,
+        ml::counter_t::E_TSADNumberRecordsNoTimeField,
+        ml::counter_t::E_TSADNumberTimeFieldConversionErrors,
+        ml::counter_t::E_TSADAssignmentMemoryBasis};
+
+    ml::core::CProgramCounters::registerProgramCounterTypes(counters);
+
     // Read command line options
     std::string limitConfigFile;
     std::string jobId;
@@ -142,7 +152,7 @@ int main(int argc, char** argv) {
         LOG_FATAL(<< "No categorization field name specified");
         return EXIT_FAILURE;
     }
-    ml::api::CFieldConfig fieldConfig{categorizationFieldName};
+    ml::api::CAnomalyJobConfig::CAnalysisConfig analysisConfig{categorizationFieldName};
 
     using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
     const TDataSearcherUPtr restoreSearcher{[isRestoreFileNamedPipe, &ioMgr]() -> TDataSearcherUPtr {
@@ -196,7 +206,7 @@ int main(int argc, char** argv) {
 
     // The categorizer knows how to assign categories to records
     ml::api::CFieldDataCategorizer categorizer{jobId,
-                                               fieldConfig,
+                                               analysisConfig,
                                                limits,
                                                timeField,
                                                timeFormat,

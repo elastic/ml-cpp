@@ -9,33 +9,36 @@
 #include <core/CProgramCounters.h>
 #include <core/Constants.h>
 
+#include <maths/CMathsFuncs.h>
+#include <maths/CTools.h>
+
 #include <model/CMonitoredResource.h>
 #include <model/CStringStore.h>
 
 #include <algorithm>
+#include <cmath>
 #include <limits>
+
+namespace {
+const std::size_t BUCKETS_FOR_ESTABLISHED_MEMORY_SIZE{20};
+const double ESTABLISHED_MEMORY_CV_THRESHOLD{0.1};
+}
 
 namespace ml {
 namespace model {
 
 // Only prune once per hour
-const core_t::TTime CResourceMonitor::MINIMUM_PRUNE_FREQUENCY(60 * 60);
-const std::size_t CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB(4096);
-const double CResourceMonitor::DEFAULT_BYTE_LIMIT_MARGIN(0.7);
-const core_t::TTime
-    CResourceMonitor::MAXIMUM_BYTE_LIMIT_MARGIN_PERIOD(2 * core::constants::HOUR);
+const core_t::TTime CResourceMonitor::MINIMUM_PRUNE_FREQUENCY{60 * 60};
+const std::size_t CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB{4096};
+const double CResourceMonitor::DEFAULT_BYTE_LIMIT_MARGIN{0.7};
+const core_t::TTime CResourceMonitor::MAXIMUM_BYTE_LIMIT_MARGIN_PERIOD{2 * core::constants::HOUR};
 
 CResourceMonitor::CResourceMonitor(bool persistenceInForeground, double byteLimitMargin)
-    : m_AllowAllocations(true), m_ByteLimitMargin{byteLimitMargin},
-      m_ByteLimitHigh(0), m_ByteLimitLow(0), m_MonitoredResourceCurrentMemory(0),
-      m_ExtraMemory(0), m_PreviousTotal(this->totalMemory()),
-      m_LastAllocationFailureReport(0), m_MemoryStatus(model_t::E_MemoryStatusOk),
-      m_HasPruningStarted(false), m_PruneThreshold(0), m_LastPruneTime(0),
-      m_PruneWindow(std::numeric_limits<std::size_t>::max()),
-      m_PruneWindowMaximum(std::numeric_limits<std::size_t>::max()),
-      m_PruneWindowMinimum(std::numeric_limits<std::size_t>::max()),
-      m_NoLimit(false), m_CurrentBytesExceeded(0),
-      m_PersistenceInForeground(persistenceInForeground) {
+    : m_ByteLimitMargin{byteLimitMargin}, m_PreviousTotal{this->totalMemory()},
+      m_PruneWindow{std::numeric_limits<std::size_t>::max()},
+      m_PruneWindowMaximum{std::numeric_limits<std::size_t>::max()},
+      m_PruneWindowMinimum{std::numeric_limits<std::size_t>::max()},
+      m_PersistenceInForeground{persistenceInForeground} {
     this->updateMemoryLimitsAndPruneThreshold(DEFAULT_MEMORY_LIMIT_MB);
 }
 
@@ -45,7 +48,7 @@ void CResourceMonitor::memoryUsageReporter(const TMemoryUsageReporterFunc& repor
 
 void CResourceMonitor::registerComponent(CMonitoredResource& resource) {
     LOG_TRACE(<< "Registering component: " << &resource);
-    m_Resources.emplace(&resource, std::size_t(0));
+    m_Resources.emplace(&resource, 0);
 }
 
 void CResourceMonitor::unRegisterComponent(CMonitoredResource& resource) {
@@ -254,20 +257,60 @@ void CResourceMonitor::memUsage(CMonitoredResource* resource) {
     m_MonitoredResourceCurrentMemory += (modelCurrentUsage - modelPreviousUsage);
 }
 
-void CResourceMonitor::sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime bucketStartTime) {
-    if (this->needToSendReport()) {
-        this->sendMemoryUsageReport(bucketStartTime);
+void CResourceMonitor::sendMemoryUsageReportIfSignificantlyChanged(core_t::TTime bucketStartTime,
+                                                                   core_t::TTime bucketLength) {
+    std::uint64_t assignmentMemoryBasis{
+        core::CProgramCounters::counter(counter_t::E_TSADAssignmentMemoryBasis)};
+    if (this->needToSendReport(static_cast<model_t::EAssignmentMemoryBasis>(assignmentMemoryBasis),
+                               bucketStartTime, bucketLength)) {
+        this->sendMemoryUsageReport(bucketStartTime, bucketLength);
     }
 }
 
-bool CResourceMonitor::needToSendReport() {
-    // Has the usage changed by more than 1% ?
+void CResourceMonitor::updateMoments(std::size_t totalMemory,
+                                     core_t::TTime bucketStartTime,
+                                     core_t::TTime bucketLength) {
+    if (m_FirstMomentsUpdateTime <= 0) {
+        m_FirstMomentsUpdateTime = bucketStartTime;
+    } else {
+        if (bucketLength > 0 && bucketStartTime >= m_LastMomentsUpdateTime + bucketLength) {
+            // The idea is to age this so that observations from more than 20
+            // buckets ago have little effect.  This means the end results will
+            // be close to what the old Java calculation did - it literally
+            // searched the last 20 buckets.  Aging at e^-0.1 seems reasonable
+            // to reduce the variance at the required rate.
+            double factor{std::exp(
+                -static_cast<double>((bucketStartTime - m_LastMomentsUpdateTime) / bucketLength) /
+                static_cast<double>(BUCKETS_FOR_ESTABLISHED_MEMORY_SIZE / 2))};
+            m_ModelBytesMoments.age(factor);
+        }
+    }
+    m_ModelBytesMoments.add(static_cast<double>(totalMemory));
+    m_LastMomentsUpdateTime = bucketStartTime;
+}
+
+bool CResourceMonitor::needToSendReport(model_t::EAssignmentMemoryBasis currentAssignmentMemoryBasis,
+                                        core_t::TTime bucketStartTime,
+                                        core_t::TTime bucketLength) {
     std::size_t total{this->totalMemory()};
+
+    // Update the moments that are used to determine whether memory is stable
+    this->updateMoments(total, bucketStartTime, bucketLength);
+
+    // Has the usage changed by more than 1% ?
     if ((std::max(total, m_PreviousTotal) - std::min(total, m_PreviousTotal)) >
         m_PreviousTotal / 100) {
         return true;
     }
 
+    // Is the assignment memory basis changing?
+    if ((currentAssignmentMemoryBasis == model_t::E_AssignmentBasisUnknown ||
+         currentAssignmentMemoryBasis == model_t::E_AssignmentBasisModelMemoryLimit) &&
+        this->isMemoryStable(bucketLength)) {
+        return true;
+    }
+
+    // Have we had new allocation failures
     if (!m_AllocationFailures.empty()) {
         core_t::TTime latestAllocationError{(--m_AllocationFailures.end())->first};
         if (latestAllocationError > m_LastAllocationFailureReport) {
@@ -277,8 +320,43 @@ bool CResourceMonitor::needToSendReport() {
     return false;
 }
 
-void CResourceMonitor::sendMemoryUsageReport(core_t::TTime bucketStartTime) {
+bool CResourceMonitor::isMemoryStable(core_t::TTime bucketLength) const {
+
+    // Sanity check
+    if (maths::CBasicStatistics::count(m_ModelBytesMoments) == 0.0) {
+        LOG_ERROR(<< "Programmatic error: checking memory stability before adding any measurements");
+        return false;
+    }
+
+    // Must have been monitoring for 20 buckets
+    std::size_t bucketCount{
+        static_cast<std::size_t>((m_LastMomentsUpdateTime - m_FirstMomentsUpdateTime) / bucketLength) +
+        1};
+    if (bucketCount < BUCKETS_FOR_ESTABLISHED_MEMORY_SIZE) {
+        return false;
+    }
+
+    // Coefficient of variation must be less than 0.1
+    double mean{maths::CBasicStatistics::mean(m_ModelBytesMoments)};
+    double variance{maths::CBasicStatistics::variance(m_ModelBytesMoments)};
+    LOG_TRACE(<< "Model memory stability at " << m_LastMomentsUpdateTime
+              << ": bucket count = " << bucketCount
+              << ", sample count = " << maths::CBasicStatistics::count(m_ModelBytesMoments)
+              << ", mean = " << mean << ", variance = " << variance
+              << ", coefficient of variation = " << (std::sqrt(variance) / mean));
+    // Instead of literally testing the coefficient of variation it's more
+    // robust against zeroes and NaNs to rearrange it as follows
+    return maths::CMathsFuncs::isNan(variance) == false &&
+           variance <= maths::CTools::pow2(ESTABLISHED_MEMORY_CV_THRESHOLD * mean);
+}
+
+void CResourceMonitor::sendMemoryUsageReport(core_t::TTime bucketStartTime,
+                                             core_t::TTime bucketLength) {
     std::size_t total{this->totalMemory()};
+    if (this->isMemoryStable(bucketLength)) {
+        core::CProgramCounters::counter(counter_t::E_TSADAssignmentMemoryBasis) =
+            static_cast<std::uint64_t>(model_t::E_AssignmentBasisCurrentModelBytes);
+    }
     core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage) = std::max(
         static_cast<std::size_t>(core::CProgramCounters::counter(counter_t::E_TSADPeakMemoryUsage)),
         total);
@@ -302,6 +380,10 @@ CResourceMonitor::createMemoryUsageReport(core_t::TTime bucketStartTime) {
     res.s_BytesMemoryLimit = this->persistenceMemoryIncreaseFactor() * m_ByteLimitHigh;
     res.s_BytesExceeded = m_CurrentBytesExceeded;
     res.s_MemoryStatus = m_MemoryStatus;
+    std::uint64_t assignmentMemoryBasis{
+        core::CProgramCounters::counter(counter_t::E_TSADAssignmentMemoryBasis)};
+    res.s_AssignmentMemoryBasis =
+        static_cast<model_t::EAssignmentMemoryBasis>(assignmentMemoryBasis);
     res.s_BucketStartTime = bucketStartTime;
     for (const auto& resource : m_Resources) {
         resource.first->updateModelSizeStats(res);

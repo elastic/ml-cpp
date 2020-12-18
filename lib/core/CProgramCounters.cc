@@ -37,7 +37,7 @@ const std::string VALUE_TAG("b");
 void addStringInt(TGenericLineWriter& writer,
                   const std::string& name,
                   const std::string& description,
-                  uint64_t counter) {
+                  std::uint64_t counter) {
     writer.StartObject();
 
     writer.String(NAME_TYPE);
@@ -58,11 +58,11 @@ CProgramCounters& CProgramCounters::instance() {
 }
 
 CProgramCounters::TCounter& CProgramCounters::counter(counter_t::ECounterTypes counterType) {
-    size_t counterPos = static_cast<size_t>(counterType);
+    std::size_t counterPos = static_cast<std::size_t>(counterType);
     return counter(counterPos);
 }
 
-CProgramCounters::TCounter& CProgramCounters::counter(size_t index) {
+CProgramCounters::TCounter& CProgramCounters::counter(std::size_t index) {
     if (index >= ms_Instance.m_Counters.size()) {
         // If the enum values in ECounterTypes have been maintained in a contiguous block then logically this
         // can only happen when restoring state that contains one or more counters that are unknown to this version of the application.
@@ -101,7 +101,7 @@ void CProgramCounters::staticsAcceptPersistInserter(CStatePersistInserter& inser
         if (ms_Instance.m_ProgramCounterTypes.size() > 0) {
             for (const auto& counterType : ms_Instance.m_ProgramCounterTypes) {
                 const auto& counter = container[counterType];
-                if (counter != uint64_t{0}) {
+                if (counter != 0) {
                     inserter.insertValue(KEY_TAG, counterType);
                     inserter.insertValue(VALUE_TAG, counter);
                 }
@@ -133,7 +133,7 @@ void CProgramCounters::staticsAcceptPersistInserter(CStatePersistInserter& inser
 }
 
 bool CProgramCounters::staticsAcceptRestoreTraverser(CStateRestoreTraverser& traverser) {
-    uint64_t value = 0;
+    std::uint64_t value = 0;
     int key = 0;
     do {
         const std::string& name = traverser.name();

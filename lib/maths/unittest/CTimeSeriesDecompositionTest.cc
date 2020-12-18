@@ -2023,13 +2023,11 @@ BOOST_FIXTURE_TEST_CASE(testRemoveSeasonal, CTestFixture) {
     test::CRandomNumbers rng;
 
     auto trend = [](core_t::TTime time) {
-        return 20.0 +
-               10.0 * std::sin(boost::math::double_constants::two_pi *
-                               static_cast<double>(time) / static_cast<double>(DAY)) -
-               10.0 * (time > 4 * WEEK
-                           ? std::sin(boost::math::double_constants::two_pi *
-                                      static_cast<double>(time) / static_cast<double>(DAY))
-                           : 0.0);
+        return 20.0 + 10.0 * (time <= 4 * WEEK
+                                  ? std::sin(boost::math::double_constants::two_pi *
+                                             static_cast<double>(time) /
+                                             static_cast<double>(DAY))
+                                  : 0.0);
     };
 
     maths::CTimeSeriesDecomposition decomposition(0.012, FIVE_MINS);

@@ -12,7 +12,7 @@
 
 #include <model/CLimits.h>
 
-#include <api/CFieldConfig.h>
+#include <api/CAnomalyJobConfig.h>
 #include <api/CSimpleOutputWriter.h>
 
 #include "CTestFieldDataCategorizer.h"
@@ -152,16 +152,17 @@ std::string setupPerPartitionStopOnWarnTest(bool stopOnWarnAtInit,
                                             bool sendControlMessageAfter50,
                                             bool controlMessageContent) {
     model::CLimits limits;
-    CFieldConfig config;
-    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_per_partition_categorization.conf"));
+    CAnomalyJobConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_per_partition_categorization.json"));
 
     std::ostringstream outputStrm;
     {
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
         CTestFieldDataCategorizer categorizer{
-            "job",   config,          limits, nullptr, wrappedOutputStream,
-            nullptr, stopOnWarnAtInit};
+            "job",           config.analysisConfig(), limits,
+            nullptr,         wrappedOutputStream,     nullptr,
+            stopOnWarnAtInit};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFieldsPartition1;
         categorizer.registerMutableField(
@@ -206,15 +207,15 @@ std::string setupPerPartitionStopOnWarnTest(bool stopOnWarnAtInit,
 
 BOOST_AUTO_TEST_CASE(testWithoutPerPartitionCategorization) {
     model::CLimits limits;
-    CFieldConfig config;
-    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    CAnomalyJobConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.json"));
     CTestChainedProcessor testChainedProcessor;
 
     std::ostringstream outputStrm;
     core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-    CTestFieldDataCategorizer categorizer{"job", config, limits, &testChainedProcessor,
-                                          wrappedOutputStream};
+    CTestFieldDataCategorizer categorizer{"job", config.analysisConfig(), limits,
+                                          &testChainedProcessor, wrappedOutputStream};
 
     BOOST_REQUIRE_EQUAL(false, testChainedProcessor.hasFinalised());
     BOOST_REQUIRE_EQUAL(0, categorizer.numRecordsHandled());
@@ -281,7 +282,7 @@ BOOST_AUTO_TEST_CASE(testWithoutPerPartitionCategorization) {
         std::ostringstream outputStrm2;
         core::CJsonOutputStreamWrapper wrappedOutputStream2{outputStrm2};
 
-        CTestFieldDataCategorizer newCategorizer{"job", config, limits2,
+        CTestFieldDataCategorizer newCategorizer{"job", config.analysisConfig(), limits2,
                                                  nullptr, wrappedOutputStream2};
         CTestDataSearcher restorer{origJson};
         core_t::TTime time{0};
@@ -297,15 +298,15 @@ BOOST_AUTO_TEST_CASE(testWithoutPerPartitionCategorization) {
 
 BOOST_AUTO_TEST_CASE(testWithPerPartitionCategorization) {
     model::CLimits limits;
-    CFieldConfig config;
-    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_per_partition_categorization.conf"));
+    CAnomalyJobConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_per_partition_categorization.json"));
     CTestChainedProcessor testChainedProcessor;
 
     std::ostringstream outputStrm;
     core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-    CTestFieldDataCategorizer categorizer{"job", config, limits, &testChainedProcessor,
-                                          wrappedOutputStream};
+    CTestFieldDataCategorizer categorizer{"job", config.analysisConfig(), limits,
+                                          &testChainedProcessor, wrappedOutputStream};
 
     BOOST_REQUIRE_EQUAL(false, testChainedProcessor.hasFinalised());
     BOOST_REQUIRE_EQUAL(0, categorizer.numRecordsHandled());
@@ -407,7 +408,7 @@ BOOST_AUTO_TEST_CASE(testWithPerPartitionCategorization) {
         std::ostringstream outputStrm2;
         core::CJsonOutputStreamWrapper wrappedOutputStream2{outputStrm2};
 
-        CTestFieldDataCategorizer newCategorizer{"job", config, limits2,
+        CTestFieldDataCategorizer newCategorizer{"job", config.analysisConfig(), limits2,
                                                  nullptr, wrappedOutputStream2};
         CTestDataSearcher restorer{origJson};
         core_t::TTime time{0};
@@ -423,14 +424,15 @@ BOOST_AUTO_TEST_CASE(testWithPerPartitionCategorization) {
 
 BOOST_AUTO_TEST_CASE(testNodeReverseSearch) {
     model::CLimits limits;
-    CFieldConfig config;
-    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    CAnomalyJobConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.json"));
 
     std::ostringstream outputStrm;
     {
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-        CTestFieldDataCategorizer categorizer{"job", config, limits, nullptr, wrappedOutputStream};
+        CTestFieldDataCategorizer categorizer{"job", config.analysisConfig(),
+                                              limits, nullptr, wrappedOutputStream};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
         categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
@@ -462,14 +464,15 @@ BOOST_AUTO_TEST_CASE(testNodeReverseSearch) {
 
 BOOST_AUTO_TEST_CASE(testJobKilledReverseSearch) {
     model::CLimits limits;
-    CFieldConfig config;
-    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    CAnomalyJobConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.json"));
 
     std::ostringstream outputStrm;
     {
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-        CTestFieldDataCategorizer categorizer{"job", config, limits, nullptr, wrappedOutputStream};
+        CTestFieldDataCategorizer categorizer{"job", config.analysisConfig(),
+                                              limits, nullptr, wrappedOutputStream};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
         categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
@@ -509,8 +512,8 @@ BOOST_AUTO_TEST_CASE(testJobKilledReverseSearch) {
 
 BOOST_AUTO_TEST_CASE(testPassOnControlMessages) {
     model::CLimits limits;
-    CFieldConfig config;
-    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    CAnomalyJobConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.json"));
 
     CTestChainedProcessor testChainedProcessor;
 
@@ -518,8 +521,8 @@ BOOST_AUTO_TEST_CASE(testPassOnControlMessages) {
     {
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-        CTestFieldDataCategorizer categorizer{
-            "job", config, limits, &testChainedProcessor, wrappedOutputStream};
+        CTestFieldDataCategorizer categorizer{"job", config.analysisConfig(), limits,
+                                              &testChainedProcessor, wrappedOutputStream};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
         categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
@@ -543,14 +546,15 @@ BOOST_AUTO_TEST_CASE(testPassOnControlMessages) {
 
 BOOST_AUTO_TEST_CASE(testHandleControlMessages) {
     model::CLimits limits;
-    CFieldConfig config;
-    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    CAnomalyJobConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.json"));
 
     std::ostringstream outputStrm;
     {
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-        CTestFieldDataCategorizer categorizer{"job", config, limits, nullptr, wrappedOutputStream};
+        CTestFieldDataCategorizer categorizer{"job", config.analysisConfig(),
+                                              limits, nullptr, wrappedOutputStream};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
         categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
@@ -569,12 +573,13 @@ BOOST_AUTO_TEST_CASE(testHandleControlMessages) {
 
 BOOST_AUTO_TEST_CASE(testRestoreStateFailsWithEmptyState) {
     model::CLimits limits;
-    CFieldConfig config;
-    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    CAnomalyJobConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.json"));
 
     std::ostringstream outputStrm;
     core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
-    CTestFieldDataCategorizer categorizer{"job", config, limits, nullptr, wrappedOutputStream};
+    CTestFieldDataCategorizer categorizer{"job", config.analysisConfig(),
+                                          limits, nullptr, wrappedOutputStream};
 
     core_t::TTime completeToTime{0};
     CEmptySearcher restoreSearcher;
@@ -583,14 +588,15 @@ BOOST_AUTO_TEST_CASE(testRestoreStateFailsWithEmptyState) {
 
 BOOST_AUTO_TEST_CASE(testFlushWritesOnlyChangedCategories) {
     model::CLimits limits;
-    CFieldConfig config;
-    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    CAnomalyJobConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.json"));
 
     std::ostringstream outputStrm;
     {
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-        CTestFieldDataCategorizer categorizer{"job", config, limits, nullptr, wrappedOutputStream};
+        CTestFieldDataCategorizer categorizer{"job", config.analysisConfig(),
+                                              limits, nullptr, wrappedOutputStream};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
         categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
@@ -648,14 +654,15 @@ BOOST_AUTO_TEST_CASE(testFlushWritesOnlyChangedCategories) {
 
 BOOST_AUTO_TEST_CASE(testFinalizeWritesOnlyChangedCategories) {
     model::CLimits limits;
-    CFieldConfig config;
-    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    CAnomalyJobConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.json"));
 
     std::ostringstream outputStrm;
     {
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-        CTestFieldDataCategorizer categorizer{"job", config, limits, nullptr, wrappedOutputStream};
+        CTestFieldDataCategorizer categorizer{"job", config.analysisConfig(),
+                                              limits, nullptr, wrappedOutputStream};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
         categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
@@ -696,14 +703,15 @@ BOOST_AUTO_TEST_CASE(testFinalizeWritesOnlyChangedCategories) {
 
 BOOST_AUTO_TEST_CASE(testWarnStatusCausesUrgentStatsWrite) {
     model::CLimits limits;
-    CFieldConfig config;
-    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    CAnomalyJobConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.json"));
 
     std::ostringstream outputStrm;
     {
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
-        CTestFieldDataCategorizer categorizer{"job", config, limits, nullptr, wrappedOutputStream};
+        CTestFieldDataCategorizer categorizer{"job", config.analysisConfig(),
+                                              limits, nullptr, wrappedOutputStream};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
         categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,
@@ -742,15 +750,17 @@ BOOST_AUTO_TEST_CASE(testWarnStatusCausesUrgentStatsWrite) {
 
 BOOST_AUTO_TEST_CASE(testStopCategorizingOnWarnStatusSingleCategorizer) {
     model::CLimits limits;
-    CFieldConfig config;
-    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.conf"));
+    CAnomalyJobConfig config;
+    BOOST_TEST_REQUIRE(config.initFromFile("testfiles/new_persist_categorization.json"));
 
     std::ostringstream outputStrm;
     {
         core::CJsonOutputStreamWrapper wrappedOutputStream{outputStrm};
 
         CTestFieldDataCategorizer categorizer{
-            "job", config, limits, nullptr, wrappedOutputStream, nullptr, true};
+            "job",   config.analysisConfig(), limits,
+            nullptr, wrappedOutputStream,     nullptr,
+            true};
 
         CFieldDataCategorizer::TStrStrUMap dataRowFields;
         categorizer.registerMutableField(CFieldDataCategorizer::MLCATEGORY_NAME,

@@ -129,7 +129,6 @@ const CAnomalyJob::TAnomalyDetectorPtr CAnomalyJob::NULL_DETECTOR;
 CAnomalyJob::CAnomalyJob(const std::string& jobId,
                          model::CLimits& limits,
                          CAnomalyJobConfig& jobConfig,
-                         CFieldConfig& fieldConfig,
                          model::CAnomalyDetectorModelConfig& modelConfig,
                          core::CJsonOutputStreamWrapper& outputStream,
                          const TPersistCompleteFunc& persistCompleteFunc,
@@ -142,7 +141,7 @@ CAnomalyJob::CAnomalyJob(const std::string& jobId,
       m_OutputStream{outputStream}, m_ForecastRunner{m_JobId, m_OutputStream,
                                                      limits.resourceMonitor()},
       m_JsonOutputWriter{m_JobId, m_OutputStream}, m_JobConfig{jobConfig},
-      m_FieldConfig{fieldConfig}, m_ModelConfig{modelConfig}, m_NumRecordsHandled{0},
+      m_ModelConfig{modelConfig}, m_NumRecordsHandled{0},
       m_LastFinalisedBucketEndTime{0}, m_PersistCompleteFunc{persistCompleteFunc},
       m_MaxDetectors{std::numeric_limits<size_t>::max()},
       m_PersistenceManager{persistenceManager}, m_MaxQuantileInterval{maxQuantileInterval},
@@ -192,7 +191,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime t
     this->outputBucketResultsUntil(*time);
 
     if (m_DetectorKeys.empty()) {
-        this->populateDetectorKeys(m_FieldConfig, m_DetectorKeys);
+        this->populateDetectorKeys(m_JobConfig, m_DetectorKeys);
     }
 
     for (std::size_t i = 0u; i < m_DetectorKeys.size(); ++i) {
@@ -457,7 +456,7 @@ void CAnomalyJob::acknowledgeFlush(const std::string& flushId) {
 
 void CAnomalyJob::updateConfig(const std::string& config) {
     LOG_DEBUG(<< "Received update config request: " << config);
-    CConfigUpdater configUpdater(m_JobConfig, m_FieldConfig, m_ModelConfig);
+    CConfigUpdater configUpdater(m_JobConfig, m_ModelConfig);
     if (configUpdater.update(config) == false) {
         LOG_ERROR(<< "Failed to update configuration");
     }
@@ -517,7 +516,8 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
          lastBucketEndTime += bucketLength) {
         this->outputResults(lastBucketEndTime);
         m_Limits.resourceMonitor().decreaseMargin(bucketLength);
-        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(lastBucketEndTime);
+        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(
+            lastBucketEndTime, bucketLength);
         m_LastFinalisedBucketEndTime = lastBucketEndTime + bucketLength;
 
         // Check for periodic persistence immediately after calculating results
@@ -1427,7 +1427,7 @@ void CAnomalyJob::outputResultsWithinRange(bool isInterim, core_t::TTime start, 
         } else {
             this->outputResults(time);
         }
-        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(time);
+        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(time, bucketLength);
         time += bucketLength;
     }
 }
@@ -1460,10 +1460,11 @@ void CAnomalyJob::writeOutAnnotations(const TAnnotationVec& annotations) {
 }
 
 void CAnomalyJob::refreshMemoryAndReport() {
-    if (m_LastFinalisedBucketEndTime < m_ModelConfig.bucketLength()) {
+    core_t::TTime bucketLength{m_ModelConfig.bucketLength()};
+    if (m_LastFinalisedBucketEndTime < bucketLength) {
         LOG_ERROR(<< "Cannot report memory usage because last finalized bucket end time ("
-                  << m_LastFinalisedBucketEndTime << ") is smaller than bucket span ("
-                  << m_ModelConfig.bucketLength() << ')');
+                  << m_LastFinalisedBucketEndTime
+                  << ") is smaller than bucket span (" << bucketLength << ')');
         return;
     }
     // Make sure model size stats are up to date and then send a final memory
@@ -1478,7 +1479,7 @@ void CAnomalyJob::refreshMemoryAndReport() {
         m_Limits.resourceMonitor().forceRefresh(*detector);
     }
     m_Limits.resourceMonitor().sendMemoryUsageReport(
-        m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength());
+        m_LastFinalisedBucketEndTime - bucketLength, bucketLength);
 }
 
 void CAnomalyJob::persistIndividualDetector(const model::CAnomalyDetector& detector,
@@ -1594,18 +1595,18 @@ CAnomalyJob::makeDetector(const model::CAnomalyDetectorModelConfig& modelConfig,
                                                            firstTime, modelFactory);
 }
 
-void CAnomalyJob::populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec& keys) {
+void CAnomalyJob::populateDetectorKeys(const CAnomalyJobConfig& jobConfig, TKeyVec& keys) {
     keys.clear();
 
     // Add a key for the simple count detector.
     keys.push_back(model::CSearchKey::simpleCountKey());
 
-    for (const auto& fieldOptions : fieldConfig.fieldOptions()) {
-        keys.emplace_back(fieldOptions.configKey(), fieldOptions.function(),
+    for (const auto& fieldOptions : jobConfig.analysisConfig().detectorsConfig()) {
+        keys.emplace_back(fieldOptions.detectorIndex(), fieldOptions.function(),
                           fieldOptions.useNull(), fieldOptions.excludeFrequent(),
                           fieldOptions.fieldName(), fieldOptions.byFieldName(),
                           fieldOptions.overFieldName(), fieldOptions.partitionFieldName(),
-                          fieldConfig.influencerFieldNames());
+                          jobConfig.analysisConfig().influencers());
     }
 }
 
