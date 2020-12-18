@@ -25,13 +25,15 @@ CBufferedIStreamAdapter::CBufferedIStreamAdapter(core::CNamedPipeFactory::TIStre
 		LOG_ERROR(<< "Failed to read model size");
 	}
 
-	LOG_INFO(<< "Loading model of size: " << m_Size);
+	LOG_DEBUG(<< "Loading model of size: " << m_Size);
 
 
 	m_Buffer = std::make_unique<char[]>(m_Size);
 	inputStream->read(m_Buffer.get(), m_Size);
 
-	if (m_Size != inputStream->gcount()) {
+	// gcount is the number of bytes read in the last read operation,
+	// not the total. If the model is read in chunks this test will not pass
+	if (m_Size != static_cast<std::size_t>(inputStream->gcount())) {
 		LOG_ERROR(<< "Input size [" << inputStream->gcount() << 
 			"] did not match expected input size [" << m_Size << "]");
 	}

@@ -5,32 +5,19 @@
  */
 
 #include <api/CIoManager.h>
-
 #include <core/CBlockingCallCancellingTimer.h>
-#include <core/CDataAdder.h>
-#include <core/CDataSearcher.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
-#include <core/CProgramCounters.h>
+#include <core/CRapidJsonLineWriter.h>
 #include <core/CoreTypes.h>
-
-#include <ver/CBuildInfo.h>
-
 #include <seccomp/CSystemCallFilter.h>
 
-
-// TODO including torch/all.h causes problems. 
-// Which headers are required?
+#include <rapidjson/ostreamwrapper.h>
 #include <torch/script.h>
 
 #include "CBufferedIStreamAdapter.h"
 #include "CCmdLineParser.h"
 
-#include <chrono>
-#include <cstdio>
-#include <cstdlib>
-#include <functional>
-#include <memory>
 #include <string>
 
 
@@ -38,21 +25,51 @@ torch::Tensor infer(torch::jit::script::Module& module, std::vector<float>& data
     torch::Tensor tokens_tensor = torch::from_blob(data.data(), {1, static_cast<long long>(data.size())}).to(torch::kInt64);    
     std::vector<torch::jit::IValue> inputs;
     inputs.push_back(tokens_tensor);
-    inputs.push_back(torch::ones({1, static_cast<long long>(data.size())}));  // attention mask
-    inputs.push_back(torch::zeros({1, static_cast<long long>(data.size())}).to(torch::kInt64)); // token type ids
-    inputs.push_back(torch::arange(static_cast<long long>(data.size())).to(torch::kInt64)); // position ids
+    inputs.push_back(torch::ones({1, static_cast<std::int64_t>(data.size())}));  // attention mask
+    inputs.push_back(torch::zeros({1, static_cast<std::int64_t>(data.size())}).to(torch::kInt64)); // token type ids
+    inputs.push_back(torch::arange(static_cast<std::int64_t>(data.size())).to(torch::kInt64)); // position ids
 
     torch::NoGradGuard no_grad;
     auto tuple = module.forward(inputs).toTuple();  
     auto predictions = tuple->elements()[0].toTensor();
 
-    auto result = torch::argmax(predictions, 2);
-    LOG_INFO(<< result);
-    return result;
+    return torch::argmax(predictions, 2);
+}
+
+std::uint32_t readUInt32(std::istream& stream) {
+    std::uint32_t netNum{0};
+    stream.read(reinterpret_cast<char*>(&netNum), sizeof(std::uint32_t));
+    return ntohl(netNum);    
+}
+
+std::vector<float> readTokens(std::istream& inputStream) {
+    // return a float vector rather than integers because 
+    // float is need to create the tensor    
+    std::vector<float> tokens;
+    std::uint32_t numTokens = readUInt32(inputStream);
+    for (uint32_t i=0; i<numTokens; ++i) {
+        tokens.push_back(readUInt32(inputStream));
+    }
+
+    return tokens;
+}
+
+void writePrediction(torch::Tensor& prediction, std::ostream& outputStream) {
+    rapidjson::OStreamWrapper writeStream(outputStream);
+    ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> jsonWriter(writeStream);
+    jsonWriter.StartObject();
+    jsonWriter.Key("inference");
+    jsonWriter.StartArray();
+    auto arr = prediction.accessor<std::int64_t, 2>();
+    for(int i = 0; i < arr.size(1); i++) {                
+        jsonWriter.Int64(arr[0][i]);
+    }
+    jsonWriter.EndArray();
+    jsonWriter.EndObject();
 }
 
 int main(int argc, char** argv) {
-    // Read command line options
+    // command line options
     std::string modelId;
     std::string inputFileName;
     bool isInputFileNamedPipe{false};
@@ -103,7 +120,6 @@ int main(int argc, char** argv) {
     cancellerThread.stop();
 
 
-
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
     ml::seccomp::CSystemCallFilter::installSystemCallFilter();
@@ -114,18 +130,23 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    
     torch::jit::script::Module module;
     try {    
-        auto readAdapter = std::make_unique<ml::torch::CBufferedIStreamAdapter>(ioMgr.restoreStream());        
-        module = torch::jit::load(std::move(readAdapter));
+        auto readAdapter = std::make_unique<ml::torch::CBufferedIStreamAdapter>(ioMgr.restoreStream());            
+        module = torch::jit::load(std::move(readAdapter));        
         module.eval();
 
-        LOG_INFO(<< "model loaded");
+        LOG_DEBUG(<< "model loaded");
     }
     catch (const c10::Error& e) {                        
         LOG_FATAL(<< "Error loading the model: " << e.msg());
         return EXIT_FAILURE;
     }
+
+    std::vector<float> tokens = readTokens(ioMgr.inputStream());
+    torch::Tensor results = infer(module, tokens);
+    writePrediction(results, ioMgr.outputStream());
 
 
     LOG_DEBUG(<< "ML Torch model prototype exiting");

@@ -46,6 +46,8 @@ def write_tokens(fifo):
 	# https://github.com/elastic/ml-search/tree/master/projects/universal/torchscript/dbmdz-ner
 	tokens = [101, 20164, 10932, 10289, 3561, 119, 1110, 170, 1419, 1359, 1107, 1203, 1365, 1392, 119, 2098, 3834, 1132, 1107, 141, 25810, 23904, 117, 3335, 1304, 1665, 20316, 1106, 1103, 6545, 3640, 119, 102]
 
+	num_tokens = len(tokens)
+	fifo.write(num_tokens.to_bytes(4, 'big'))
 	for token in tokens:
 		fifo.write(token.to_bytes(4, 'big'))
 
@@ -91,7 +93,8 @@ def main():
 
 
 	print("reading results")
-	# results = output_pipe.read()
+	results = output_pipe.read()
+	print(results)
 
 
 if __name__ == "__main__":
