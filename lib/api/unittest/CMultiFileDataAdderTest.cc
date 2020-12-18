@@ -16,7 +16,6 @@
 
 #include <api/CAnomalyJobConfig.h>
 #include <api/CCsvInputParser.h>
-#include <api/CFieldConfig.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CNdJsonInputParser.h>
 
@@ -70,8 +69,7 @@ void detectorPersistHelper(const std::string& configFileName,
 
     ml::model::CLimits limits;
     ml::api::CAnomalyJobConfig jobConfig;
-    ml::api::CFieldConfig fieldConfig;
-    BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
+    BOOST_TEST_REQUIRE(jobConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
@@ -79,7 +77,7 @@ void detectorPersistHelper(const std::string& configFileName,
 
     std::string origSnapshotId;
     std::size_t numOrigDocs(0);
-    CTestAnomalyJob origJob(JOB_ID, limits, jobConfig, fieldConfig, modelConfig, wrappedOutputStream,
+    CTestAnomalyJob origJob(JOB_ID, limits, jobConfig, modelConfig, wrappedOutputStream,
                             std::bind(&reportPersistComplete, std::placeholders::_1,
                                       std::ref(origSnapshotId), std::ref(numOrigDocs)),
                             nullptr, -1, "time", timeFormat);
@@ -137,7 +135,7 @@ void detectorPersistHelper(const std::string& configFileName,
     std::string restoredSnapshotId;
     std::size_t numRestoredDocs(0);
     CTestAnomalyJob restoredJob(
-        JOB_ID, limits, jobConfig, fieldConfig, modelConfig, wrappedOutputStream,
+        JOB_ID, limits, jobConfig, modelConfig, wrappedOutputStream,
         std::bind(&reportPersistComplete, std::placeholders::_1,
                   std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 
@@ -247,27 +245,27 @@ BOOST_AUTO_TEST_CASE(testSimpleWrite) {
 }
 
 BOOST_AUTO_TEST_CASE(testDetectorPersistBy) {
-    detectorPersistHelper("testfiles/new_mlfields.conf",
+    detectorPersistHelper("testfiles/new_mlfields.json",
                           "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
 BOOST_AUTO_TEST_CASE(testDetectorPersistOver) {
-    detectorPersistHelper("testfiles/new_mlfields_over.conf",
+    detectorPersistHelper("testfiles/new_mlfields_over.json",
                           "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
 BOOST_AUTO_TEST_CASE(testDetectorPersistPartition) {
-    detectorPersistHelper("testfiles/new_mlfields_partition.conf",
+    detectorPersistHelper("testfiles/new_mlfields_partition.json",
                           "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
 BOOST_AUTO_TEST_CASE(testDetectorPersistDc) {
-    detectorPersistHelper("testfiles/new_persist_dc.conf",
+    detectorPersistHelper("testfiles/new_persist_dc.json",
                           "testfiles/files_users_programs.csv", 5);
 }
 
 BOOST_AUTO_TEST_CASE(testDetectorPersistCount) {
-    detectorPersistHelper("testfiles/new_persist_count.conf",
+    detectorPersistHelper("testfiles/new_persist_count.json",
                           "testfiles/files_users_programs.csv", 5);
 }
 
