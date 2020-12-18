@@ -1,0 +1,12 @@
+{
+  "job_id": "new_persist_count",
+  "analysis_config": {
+    "detectors": [
+     {
+        "function": "count",
+        "by_field_name": "program"
+     }
+    ]
+  }
+}
+

@@ -14,6 +14,7 @@
 #include <model/CTokenListDataCategorizer.h>
 
 #include <api/CAnnotationJsonWriter.h>
+#include <api/CAnomalyJobConfig.h>
 #include <api/CCategoryIdMapper.h>
 #include <api/CDataProcessor.h>
 #include <api/CGlobalCategoryId.h>
@@ -100,7 +101,7 @@ public:
 public:
     //! Construct without persistence capability
     CFieldDataCategorizer(std::string jobId,
-                          const CFieldConfig& config,
+                          const CAnomalyJobConfig::CAnalysisConfig& analysisConfig,
                           model::CLimits& limits,
                           const std::string& timeFieldName,
                           const std::string& timeFieldFormat,

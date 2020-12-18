@@ -1,0 +1,38 @@
+{
+  "job_id": "new_ml_fields",
+  "analysis_config": {
+    "detectors": [
+      {
+        "function": "count",
+        "by_field_name": "mlcategory",
+        "partition_field_name": "agent"
+      },
+      {
+        "function": "count",
+        "by_field_name": "remote_ip"
+      },
+      {
+        "function": "count",
+        "by_field_name": "remote_user"
+     },
+     {
+        "function": "count",
+        "by_field_name": "request"
+     },
+     {
+        "function": "count",
+        "by_field_name": "response"
+     },
+     {
+        "function": "metric",
+        "field_name": "bytes",
+        "by_field_name": "referrer"
+     },
+     {
+        "function": "count",
+        "by_field_name": "agent"
+     }
+    ]
+  }
+}
+

@@ -24,7 +24,7 @@ class CTestFieldDataCategorizer : public ml::api::CFieldDataCategorizer {
 
 public:
     CTestFieldDataCategorizer(const std::string& jobId,
-                              const ml::api::CFieldConfig& config,
+                              const ml::api::CAnomalyJobConfig::CAnalysisConfig& config,
                               ml::model::CLimits& limits,
                               ml::api::CDataProcessor* chainedProcessor,
                               ml::core::CJsonOutputStreamWrapper& outputStream,
@@ -32,7 +32,7 @@ public:
                               bool stopCategorizationOnWarnStatus = false);
 
     CTestFieldDataCategorizer(const std::string& jobId,
-                              const ml::api::CFieldConfig& config,
+                              const ml::api::CAnomalyJobConfig::CAnalysisConfig& config,
                               ml::model::CLimits& limits,
                               const std::string& timeFieldName,
                               const std::string& timeFieldFormat,

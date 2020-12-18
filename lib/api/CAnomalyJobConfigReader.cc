@@ -77,6 +77,16 @@ bool CAnomalyJobConfigReader::CParameter::fallback(bool value) const {
     return m_Value->GetBool();
 }
 
+int CAnomalyJobConfigReader::CParameter::fallback(int value) const {
+    if (m_Value == nullptr) {
+        return value;
+    }
+    if (m_Value->IsInt() == false) {
+        this->handleFatal();
+    }
+    return m_Value->GetInt();
+}
+
 std::size_t CAnomalyJobConfigReader::CParameter::fallback(std::size_t value) const {
     if (m_Value == nullptr) {
         return value;

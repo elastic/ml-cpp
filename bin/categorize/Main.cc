@@ -28,7 +28,6 @@
 
 #include <api/CCmdSkeleton.h>
 #include <api/CCsvInputParser.h>
-#include <api/CFieldConfig.h>
 #include <api/CFieldDataCategorizer.h>
 #include <api/CIoManager.h>
 #include <api/CJsonOutputWriter.h>
@@ -153,7 +152,7 @@ int main(int argc, char** argv) {
         LOG_FATAL(<< "No categorization field name specified");
         return EXIT_FAILURE;
     }
-    ml::api::CFieldConfig fieldConfig{categorizationFieldName};
+    ml::api::CAnomalyJobConfig::CAnalysisConfig analysisConfig{categorizationFieldName};
 
     using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
     const TDataSearcherUPtr restoreSearcher{[isRestoreFileNamedPipe, &ioMgr]() -> TDataSearcherUPtr {
@@ -207,7 +206,7 @@ int main(int argc, char** argv) {
 
     // The categorizer knows how to assign categories to records
     ml::api::CFieldDataCategorizer categorizer{jobId,
-                                               fieldConfig,
+                                               analysisConfig,
                                                limits,
                                                timeField,
                                                timeFormat,
