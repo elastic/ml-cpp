@@ -27,25 +27,22 @@ using namespace api;
 
 BOOST_AUTO_TEST_CASE(testUpdateGivenUpdateCannotBeParsed) {
     CAnomalyJobConfig jobConfig;
-    CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
-    CConfigUpdater configUpdater(jobConfig, fieldConfig, modelConfig);
+    CConfigUpdater configUpdater(jobConfig, modelConfig);
     BOOST_TEST_REQUIRE(configUpdater.update("this is invalid") == false);
 }
 
 BOOST_AUTO_TEST_CASE(testUpdateGivenUnknownStanzas) {
     CAnomalyJobConfig jobConfig;
-    CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
-    CConfigUpdater configUpdater(jobConfig, fieldConfig, modelConfig);
+    CConfigUpdater configUpdater(jobConfig, modelConfig);
     BOOST_TEST_REQUIRE(configUpdater.update("[unknown1]\na = 1\n[unknown2]\nb = 2\n") == false);
 }
 
 BOOST_AUTO_TEST_CASE(testUpdateGivenModelPlotConfig) {
     CAnomalyJobConfig jobConfig;
-    CFieldConfig fieldConfig;
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
     modelConfig.modelPlotBoundsPercentile(95.0);
@@ -56,7 +53,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenModelPlotConfig) {
 
     std::string configUpdate("[modelPlotConfig]\nboundspercentile = 83.5\nterms = c,d\nannotations_enabled = false\n");
 
-    CConfigUpdater configUpdater(jobConfig, fieldConfig, modelConfig);
+    CConfigUpdater configUpdater(jobConfig, modelConfig);
 
     BOOST_TEST_REQUIRE(configUpdater.update(configUpdate));
     BOOST_REQUIRE_EQUAL(83.5, modelConfig.modelPlotBoundsPercentile());
@@ -69,13 +66,12 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenModelPlotConfig) {
 
 BOOST_AUTO_TEST_CASE(testUpdateGivenDetectorRules) {
     CAnomalyJobConfig jobConfig;
-    CFieldConfig fieldConfig;
     std::string originalRules0("[{\"actions\":[\"skip_result\"],");
     originalRules0 += "\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\": 5.0}]}]";
     std::string originalRules1("[{\"actions\":[\"skip_result\"],");
     originalRules1 += "\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"gt\",\"value\": 5.0}]}]";
-    fieldConfig.parseRules(0, originalRules0);
-    fieldConfig.parseRules(1, originalRules1);
+    jobConfig.analysisConfig().parseRules(0, originalRules0);
+    jobConfig.analysisConfig().parseRules(1, originalRules1);
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
@@ -85,15 +81,15 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenDetectorRules) {
                               "[{\"actions\":[\"skip_result\"],\"conditions\":[{\"applies_to\":\"typical\","
                               "\"operator\":\"lt\",\"value\": 15.0}]}]");
 
-    CConfigUpdater configUpdater(jobConfig, fieldConfig, modelConfig);
+    CConfigUpdater configUpdater(jobConfig, modelConfig);
 
     BOOST_TEST_REQUIRE(configUpdater.update(configUpdate0));
     BOOST_TEST_REQUIRE(configUpdater.update(configUpdate1));
 
-    CFieldConfig::TIntDetectionRuleVecUMap::const_iterator itr =
-        fieldConfig.detectionRules().find(0);
+    CAnomalyJobConfig::CAnalysisConfig::TIntDetectionRuleVecUMap::const_iterator itr =
+        jobConfig.analysisConfig().detectionRules().find(0);
     BOOST_TEST_REQUIRE(itr->second.empty());
-    itr = fieldConfig.detectionRules().find(1);
+    itr = jobConfig.analysisConfig().detectionRules().find(1);
     BOOST_REQUIRE_EQUAL(std::size_t(1), itr->second.size());
     BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT IF TYPICAL < 15.000000"),
                         itr->second[0].print());
@@ -111,7 +107,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenRulesWithInvalidDetectorIndex) {
 
     std::string configUpdate("[detectorRules]\ndetectorIndex = invalid\nrulesJson = []\n");
 
-    CConfigUpdater configUpdater(jobConfig, fieldConfig, modelConfig);
+    CConfigUpdater configUpdater(jobConfig, modelConfig);
 
     BOOST_TEST_REQUIRE(configUpdater.update(configUpdate) == false);
 }
@@ -141,7 +137,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenFilters) {
     // Update existing ones
     std::string configUpdate("[filters]\nfilter.filter_1=[\"ccc\",\"ddd\"]\nfilter.filter_2=[\"aaa\",\"bbb\"]\n");
 
-    CConfigUpdater configUpdater(jobConfig, fieldConfig, modelConfig);
+    CConfigUpdater configUpdater(jobConfig, modelConfig);
 
     BOOST_TEST_REQUIRE(configUpdater.update(configUpdate));
 
@@ -205,7 +201,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
-    CConfigUpdater configUpdater(jobConfig, fieldConfig, modelConfig);
+    CConfigUpdater configUpdater(jobConfig, modelConfig);
 
     // Test an update that replaces the events
     {

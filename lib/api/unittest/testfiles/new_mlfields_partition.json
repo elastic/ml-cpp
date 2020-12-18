@@ -1,0 +1,38 @@
+{
+  "job_id": "new_ml_fields_partition",
+  "analysis_config": {
+    "detectors": [
+      {
+        "function": "count",
+        "partition_field_name": "mlcategory"
+      },
+      {
+        "function": "count",
+        "partition_field_name": "remote_ip"
+      },
+      {
+        "function": "count",
+        "partition_field_name": "remote_user"
+     },
+     {
+        "function": "count",
+        "partition_field_name": "request"
+     },
+     {
+        "function": "count",
+        "partition_field_name": "response"
+     },
+     {
+        "function": "avg",
+        "field_name": "bytes",
+        "partition_field_name": "request"
+     },
+     {
+        "function": "high_sum",
+        "field_name": "bytes",
+        "partition_field_name": "response"
+     }
+    ],
+    "categorization_field_name": "agent"
+  }
+}
