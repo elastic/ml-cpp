@@ -142,18 +142,21 @@ void CInferenceModelMetadata::writeFeatureImportanceBaseline(TRapidJsonWriter& w
 }
 
 void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& writer) const {
-    writer.Key(JSON_HYPERPARAMETER_IMPORTANCE_TAG);
+    // TODO use struct instead of a tuple
+    writer.Key(JSON_HYPERPARAMETERS_TAG);
     writer.StartArray();
     for (const auto& item : m_HyperparameterImportance) {
         writer.StartObject();
         writer.Key(JSON_HYPERPARAMETER_NAME_TAG);
-        writer.String(std::get<0>(item));
+        writer.String(item.s_HyperparameterName);
         writer.Key(JSON_HYPERPARAMETER_VALUE_TAG);
-        writer.Double(std::get<1>(item));
+        writer.Double(item.s_Value);
         writer.Key(JSON_ABSOLUTE_IMPORTANCE_TAG);
-        writer.Double(std::get<2>(item));
+        writer.Double(item.s_AbsoluteImportance);
         writer.Key(JSON_RELATIVE_IMPORTANCE_TAG);
-        writer.Double(std::get<3>(item));
+        writer.Double(item.s_RelativeImportance);
+        writer.Key(JSON_HYPERPARAMETER_SUPPLIED_TAG);
+        writer.Bool(item.s_Supplied);
         writer.EndObject();
     }
     writer.EndArray();
@@ -199,57 +202,45 @@ void CInferenceModelMetadata::hyperparameterImportance(
     m_HyperparameterImportance.clear();
     m_HyperparameterImportance.reserve(hyperparameterImportance.size());
     for (const auto& item : hyperparameterImportance) {
+        std::string hyperparameterName;
         switch (item.s_Hyperparameter) {
         case maths::boosted_tree_detail::E_Alpha:
-            m_HyperparameterImportance.emplace_back(
-                CDataFrameTrainBoostedTreeRunner::ALPHA, item.s_Value,
-                item.s_AbsoluteImportance, item.s_RelativeImportance);
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::ALPHA;
             break;
         case maths::boosted_tree_detail::E_DownsampleFactor:
-            m_HyperparameterImportance.emplace_back(
-                CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR, item.s_Value,
-                item.s_AbsoluteImportance, item.s_RelativeImportance);
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR;
             break;
         case maths::boosted_tree_detail::E_Eta:
-            m_HyperparameterImportance.emplace_back(
-                CDataFrameTrainBoostedTreeRunner::ETA, item.s_Value,
-                item.s_AbsoluteImportance, item.s_RelativeImportance);
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR;
             break;
         case maths::boosted_tree_detail::E_EtaGrowthRatePerTree:
-            m_HyperparameterImportance.emplace_back(
-                CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE,
-                item.s_Value, item.s_AbsoluteImportance, item.s_RelativeImportance);
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE;
             break;
         case maths::boosted_tree_detail::E_FeatureBagFraction:
-            m_HyperparameterImportance.emplace_back(
-                CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION,
-                item.s_Value, item.s_AbsoluteImportance, item.s_RelativeImportance);
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::FEATURE_BAG_FRACTION;
             break;
         case maths::boosted_tree_detail::E_Gamma:
-            m_HyperparameterImportance.emplace_back(
-                CDataFrameTrainBoostedTreeRunner::GAMMA, item.s_Value,
-                item.s_AbsoluteImportance, item.s_RelativeImportance);
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::GAMMA;
             break;
         case maths::boosted_tree_detail::E_Lambda:
-            m_HyperparameterImportance.emplace_back(
-                CDataFrameTrainBoostedTreeRunner::LAMBDA, item.s_Value,
-                item.s_AbsoluteImportance, item.s_RelativeImportance);
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::LAMBDA;
             break;
         case maths::boosted_tree_detail::E_SoftTreeDepthLimit:
-            m_HyperparameterImportance.emplace_back(
-                CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT,
-                item.s_Value, item.s_AbsoluteImportance, item.s_RelativeImportance);
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT;
             break;
         case maths::boosted_tree_detail::E_SoftTreeDepthTolerance:
-            m_HyperparameterImportance.emplace_back(
-                CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE,
-                item.s_Value, item.s_AbsoluteImportance, item.s_RelativeImportance);
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE;
+            break;
+        case maths::boosted_tree_detail::E_LastHyperparameter:
             break;
         }
+        m_HyperparameterImportance.emplace_back(
+            hyperparameterName, item.s_Value, item.s_AbsoluteImportance,
+            item.s_RelativeImportance, item.s_Supplied);
     }
     std::sort(m_HyperparameterImportance.begin(),
               m_HyperparameterImportance.end(), [](const auto& a, const auto& b) {
-                  return std::get<2>(a) > std::get<2>(b);
+                  return a.s_AbsoluteImportance > b.s_AbsoluteImportance;
               });
 }
 
@@ -260,9 +251,10 @@ const std::string CInferenceModelMetadata::JSON_CLASS_NAME_TAG{"class_name"};
 const std::string CInferenceModelMetadata::JSON_CLASSES_TAG{"classes"};
 const std::string CInferenceModelMetadata::JSON_FEATURE_IMPORTANCE_BASELINE_TAG{"feature_importance_baseline"};
 const std::string CInferenceModelMetadata::JSON_FEATURE_NAME_TAG{"feature_name"};
-const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_IMPORTANCE_TAG{"hyperparameter_importance"};
+const std::string CInferenceModelMetadata::JSON_HYPERPARAMETERS_TAG{"hyperparameters"};
 const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_NAME_TAG{"name"};
 const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_VALUE_TAG{"value"};
+const std::string CInferenceModelMetadata::JSON_HYPERPARAMETER_SUPPLIED_TAG{"supplied"};
 const std::string CInferenceModelMetadata::JSON_IMPORTANCE_TAG{"importance"};
 const std::string CInferenceModelMetadata::JSON_MAX_TAG{"max"};
 const std::string CInferenceModelMetadata::JSON_MEAN_MAGNITUDE_TAG{"mean_magnitude"};

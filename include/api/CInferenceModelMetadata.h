@@ -29,9 +29,10 @@ public:
     static const std::string JSON_CLASSES_TAG;
     static const std::string JSON_FEATURE_IMPORTANCE_BASELINE_TAG;
     static const std::string JSON_FEATURE_NAME_TAG;
-    static const std::string JSON_HYPERPARAMETER_IMPORTANCE_TAG;
+    static const std::string JSON_HYPERPARAMETERS_TAG;
     static const std::string JSON_HYPERPARAMETER_NAME_TAG;
     static const std::string JSON_HYPERPARAMETER_VALUE_TAG;
+    static const std::string JSON_HYPERPARAMETER_SUPPLIED_TAG;
     static const std::string JSON_IMPORTANCE_TAG;
     static const std::string JSON_MAX_TAG;
     static const std::string JSON_MEAN_MAGNITUDE_TAG;
@@ -63,14 +64,29 @@ public:
     void hyperparameterImportance(const maths::CBoostedTree::THyperparameterImportanceVec& hyperparameterImportance);
 
 private:
+    struct SHyperparameterImportance {
+        SHyperparameterImportance(std::string hyperparameterName,
+                                  double value,
+                                  double absoluteImportance,
+                                  double relativeImportance,
+                                  bool supplied)
+            : s_HyperparameterName(hyperparameterName), s_Value(value),
+              s_AbsoluteImportance(absoluteImportance),
+              s_RelativeImportance(relativeImportance), s_Supplied(supplied){};
+        std::string s_HyperparameterName;
+        double s_Value;
+        double s_AbsoluteImportance;
+        double s_RelativeImportance;
+        bool s_Supplied;
+    };
+
     using TMeanAccumulator =
         std::vector<maths::CBasicStatistics::SSampleMean<double>::TAccumulator>;
     using TMinMaxAccumulator = std::vector<maths::CBasicStatistics::CMinMax<double>>;
     using TSizeMeanAccumulatorUMap = std::unordered_map<std::size_t, TMeanAccumulator>;
     using TSizeMinMaxAccumulatorUMap = std::unordered_map<std::size_t, TMinMaxAccumulator>;
     using TOptionalVector = boost::optional<TVector>;
-    using TStrDoubleDoubleDoubleTuple = std::tuple<std::string, double, double, double>;
-    using TStrDoubleDoubleDoubleTupleVec = std::vector<TStrDoubleDoubleDoubleTuple>;
+    using THyperparametersVec = std::vector<SHyperparameterImportance>;
 
 private:
     void writeTotalFeatureImportance(TRapidJsonWriter& writer) const;
@@ -87,7 +103,7 @@ private:
         [](const std::string& value, TRapidJsonWriter& writer) {
             writer.String(value);
         };
-    TStrDoubleDoubleDoubleTupleVec m_HyperparameterImportance;
+    THyperparametersVec m_HyperparameterImportance;
 };
 }
 }

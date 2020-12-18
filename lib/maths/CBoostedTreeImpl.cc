@@ -1782,9 +1782,19 @@ CBoostedTreeImpl::THyperparameterImportanceVec CBoostedTreeImpl::hyperparameterI
     hyperparameterImportances.reserve(m_TunableHyperparameters.size());
     CBayesianOptimisation::TDoubleDoublePrVec anovaMainEffects{
         m_BayesianOptimization->anovaMainEffects()};
-    for (std::size_t i = 0; i < anovaMainEffects.size(); ++i) {
+    for (std::size_t i = 0; i < static_cast<std::size_t>(E_LastHyperparameter); ++i) {
+        double absoluteImportance{0.0};
+        double relativeImportance{0.0};
+        bool supplied{true};
+        auto tunableIndex = std::distance(m_TunableHyperparameters.begin(),
+                                          std::find(m_TunableHyperparameters.begin(),
+                                                    m_TunableHyperparameters.end(), i));
+        if (static_cast<std::size_t>(tunableIndex) < m_TunableHyperparameters.size()) {
+            supplied = false;
+            std::tie(absoluteImportance, relativeImportance) = anovaMainEffects[tunableIndex];
+        }
         double hyperparameterValue;
-        switch (m_TunableHyperparameters[i]) {
+        switch (i) {
         case E_Alpha:
             hyperparameterValue = m_Regularization.depthPenaltyMultiplier();
             break;
@@ -1815,9 +1825,9 @@ CBoostedTreeImpl::THyperparameterImportanceVec CBoostedTreeImpl::hyperparameterI
         case E_LastHyperparameter:
             break;
         }
-        hyperparameterImportances.emplace_back(
-            m_TunableHyperparameters[i], hyperparameterValue,
-            anovaMainEffects[i].first, anovaMainEffects[i].second);
+        hyperparameterImportances.emplace_back(m_TunableHyperparameters[i],
+                                               hyperparameterValue, absoluteImportance,
+                                               relativeImportance, supplied);
     }
     return hyperparameterImportances;
 }

@@ -48,14 +48,16 @@ struct SHyperparameterImportance {
     SHyperparameterImportance(EHyperparameters hyperparameter,
                               double value,
                               double absoluteImportance,
-                              double relativeImportance)
+                              double relativeImportance,
+                              bool supplied)
         : s_Hyperparameter(hyperparameter), s_Value(value),
           s_AbsoluteImportance(absoluteImportance),
-          s_RelativeImportance(relativeImportance){};
+          s_RelativeImportance(relativeImportance), s_Supplied(supplied){};
     EHyperparameters s_Hyperparameter;
     double s_Value;
     double s_AbsoluteImportance;
     double s_RelativeImportance;
+    bool s_Supplied;
 };
 
 //! Get the size of upper triangle of the loss Hessain.
