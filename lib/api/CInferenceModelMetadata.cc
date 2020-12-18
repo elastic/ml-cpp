@@ -151,10 +151,12 @@ void CInferenceModelMetadata::writeHyperparameterImportance(TRapidJsonWriter& wr
         writer.String(item.s_HyperparameterName);
         writer.Key(JSON_HYPERPARAMETER_VALUE_TAG);
         writer.Double(item.s_Value);
-        writer.Key(JSON_ABSOLUTE_IMPORTANCE_TAG);
-        writer.Double(item.s_AbsoluteImportance);
-        writer.Key(JSON_RELATIVE_IMPORTANCE_TAG);
-        writer.Double(item.s_RelativeImportance);
+        if (item.s_Supplied == false) {
+            writer.Key(JSON_ABSOLUTE_IMPORTANCE_TAG);
+            writer.Double(item.s_AbsoluteImportance);
+            writer.Key(JSON_RELATIVE_IMPORTANCE_TAG);
+            writer.Double(item.s_RelativeImportance);
+        }
         writer.Key(JSON_HYPERPARAMETER_SUPPLIED_TAG);
         writer.Bool(item.s_Supplied);
         writer.EndObject();
