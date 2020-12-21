@@ -44,7 +44,7 @@ case `uname` in
         STL_LOCATION=
         ZLIB_LOCATION=
         TORCH_LIBRARIES="torch_cpu c10"
-        TORCH_LOCATION=pytorch/torch/lib
+        TORCH_LOCATION=
         TORCH_EXTENSION=.dylib
         ;;
 
@@ -69,7 +69,7 @@ case `uname` in
             ZLIB_LOCATION=
             if [ `uname -m` != aarch64 ] ; then
                 TORCH_LIBRARIES="torch_cpu c10"
-                TORCH_LOCATION=pytorch/torch/lib
+                TORCH_LOCATION=
                 TORCH_EXTENSION=.so  
             fi
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
@@ -83,7 +83,7 @@ case `uname` in
             STL_LOCATION=
             ZLIB_LOCATION=
             TORCH_LIBRARIES="torch_cpu c10"
-            TORCH_LOCATION=pytorch/torch/lib
+            TORCH_LOCATION=
             TORCH_EXTENSION=.dylib            
         else
             SYSROOT=/usr/local/sysroot-$CPP_CROSS_COMPILE-linux-gnu
@@ -131,7 +131,7 @@ case `uname` in
         ZLIB_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         ZLIB_EXTENSION=1.dll
         TORCH_LIBRARIES="torch_cpu c10"
-        TORCH_LOCATION=pytorch/torch/lib
+        TORCH_LOCATION=
         TORCH_EXTENSION=.dll
         ;;
 
