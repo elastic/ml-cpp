@@ -35,6 +35,8 @@ public:
     static bool parse(int argc,
                       const char* const* argv,
                       std::string& config,
+                      std::string& filtersConfig,
+                      std::string& eventsConfig,
                       std::string& limitConfigFile,
                       std::string& modelConfigFile,
                       std::string& fieldConfigFile,

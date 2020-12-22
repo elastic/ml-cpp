@@ -225,6 +225,12 @@ public:
                         const TStrDetectionRulePrVec& scheduledEvents)
             : m_RuleFilters(ruleFilters), m_ScheduledEvents(scheduledEvents) {}
 
+        void init(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
+                  const TStrDetectionRulePrVec& scheduledEvents) {
+            m_RuleFilters = ruleFilters;
+            m_ScheduledEvents = scheduledEvents;
+        }
+
         void parse(const rapidjson::Value& json);
 
         bool updateFilters(const boost::property_tree::ptree& propTree);
@@ -407,6 +413,44 @@ public:
         std::size_t m_ModelMemoryLimitMb{model::CResourceMonitor::DEFAULT_MEMORY_LIMIT_MB};
     };
 
+    class API_EXPORT CFilterConfig {
+    public:
+        static const std::string FILTER_ID;
+        static const std::string ITEMS;
+
+    public:
+        CFilterConfig() {}
+
+        void parse(const rapidjson::Value& filterConfig,
+                   CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters);
+
+        std::string name() const { return m_FilterName; }
+        CAnomalyJobConfig::CAnalysisConfig::TStrVec filterList() const {
+            return m_FilterList;
+        }
+
+    private:
+        using TStrVec = std::vector<std::string>;
+
+        std::string m_FilterName;
+        TStrVec m_FilterList;
+    };
+
+    class API_EXPORT CEventConfig {
+    public:
+        static const std::string DESCRIPTION;
+        static const std::string RULES;
+
+    public:
+        void parse(const rapidjson::Value& filterConfig,
+                   const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
+                   TStrDetectionRulePrVec& scheduledEvents);
+
+    private:
+        std::string m_Description;
+        CDetectionRulesJsonParser::TDetectionRuleVec m_DetectionRules;
+    };
+
 public:
     static const std::string JOB_ID;
     static const std::string JOB_TYPE;
@@ -418,16 +462,39 @@ public:
 public:
     //! Default constructor
     CAnomalyJobConfig() {}
-    explicit CAnomalyJobConfig(const CDetectionRulesJsonParser::TStrPatternSetUMap& rulesFilter,
-                               const TStrDetectionRulePrVec& scheduledEvents)
-        : m_AnalysisConfig(rulesFilter, scheduledEvents) {}
+
+    explicit CAnomalyJobConfig(const std::string& categorizationFieldName)
+        : m_AnalysisConfig(categorizationFieldName) {}
+
+    // This one is only needed for historical reasons. Once The Java side sends the
+    // scheduled events and filters config as JSON this can go.
+    CAnomalyJobConfig(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
+                      const TStrDetectionRulePrVec& scheduledEvents)
+        : m_AnalysisConfig(ruleFilters, scheduledEvents) {}
+
+    bool readFile(const std::string& fileName, std::string& fileContents);
 
     bool initFromFile(const std::string& configFile);
 
+    bool initFromFiles(const std::string& configFile,
+                       const std::string& filtersConfigFile,
+                       const std::string& eventsConfigFile);
+
     bool parse(const std::string& json);
+    bool parseFilterConfig(const std::string& json);
+    bool parseEventConfig(const std::string& json);
 
     std::string jobId() const { return m_JobId; }
     std::string jobType() const { return m_JobType; }
+    const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters() const {
+        return m_RuleFilters;
+    }
+    CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters() {
+        return m_RuleFilters;
+    }
+    const TStrDetectionRulePrVec& scheduledEvents() const {
+        return m_ScheduledEvents;
+    }
     CAnalysisConfig& analysisConfig() { return m_AnalysisConfig; }
     const CAnalysisConfig& analysisConfig() const { return m_AnalysisConfig; }
     const CDataDescription& dataDescription() const {
@@ -441,10 +508,15 @@ private:
     std::string m_JobId;
     std::string m_JobType;
     bool m_IsInitialized{false};
+    CDetectionRulesJsonParser::TStrPatternSetUMap m_RuleFilters;
+    TStrDetectionRulePrVec m_ScheduledEvents;
     CAnalysisConfig m_AnalysisConfig;
     CDataDescription m_DataDescription;
     CModelPlotConfig m_ModelConfig;
     CAnalysisLimits m_AnalysisLimits;
+
+    std::vector<CFilterConfig> m_Filters{};
+    std::vector<CEventConfig> m_Events{};
 };
 }
 }

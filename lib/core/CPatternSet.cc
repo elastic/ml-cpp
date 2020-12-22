@@ -26,6 +26,42 @@ CPatternSet::CPatternSet()
       m_ContainsPatterns() {
 }
 
+bool CPatternSet::initFromPatternList(const TStrVec& patterns) {
+    TStrVec fullPatterns;
+    TStrVec prefixPatterns;
+    TStrVec suffixPatterns;
+    TStrVec containsPatterns;
+
+    for (const auto& pattern : patterns) {
+        std::size_t length = pattern.length();
+        if (length == 0) {
+            continue;
+        }
+        if (pattern[0] == WILDCARD) {
+            if (length > 2 && pattern[length - 1] == WILDCARD) {
+                std::string middle = pattern.substr(1, length - 2);
+                containsPatterns.push_back(middle);
+            } else if (length > 1) {
+                std::string suffix = pattern.substr(1);
+                suffixPatterns.push_back(std::string(suffix.rbegin(), suffix.rend()));
+            }
+        } else if (length > 1 && pattern[length - 1] == WILDCARD) {
+            prefixPatterns.push_back(pattern.substr(0, length - 1));
+        } else {
+            fullPatterns.push_back(pattern);
+        }
+    }
+
+    this->sortAndPruneDuplicates(fullPatterns);
+    this->sortAndPruneDuplicates(prefixPatterns);
+    this->sortAndPruneDuplicates(suffixPatterns);
+    this->sortAndPruneDuplicates(containsPatterns);
+    return m_FullMatchPatterns.build(fullPatterns) &&
+           m_PrefixPatterns.build(prefixPatterns) &&
+           m_SuffixPatterns.build(suffixPatterns) &&
+           m_ContainsPatterns.build(containsPatterns);
+}
+
 bool CPatternSet::initFromJson(const std::string& json) {
     TStrVec fullPatterns;
     TStrVec prefixPatterns;
