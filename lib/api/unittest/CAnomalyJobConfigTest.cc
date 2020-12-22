@@ -982,4 +982,109 @@ BOOST_AUTO_TEST_CASE(testParse) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testParseFilterConfig) {
+    {
+        const std::string validFilterConfigJson{
+            "[{\"filter_id\":\"safe_ips\", \"items\":[\"127.0.0.1\",\"192.168.0.1\"]}]"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(jobConfig.parseFilterConfig(validFilterConfigJson));
+
+        BOOST_REQUIRE_EQUAL(1, jobConfig.ruleFilters().size());
+
+        BOOST_TEST_REQUIRE(jobConfig.ruleFilters()["safe_ips"].contains("127.0.0.1"));
+        BOOST_TEST_REQUIRE(jobConfig.ruleFilters()["safe_ips"].contains("192.168.0.1"));
+    }
+    {
+        const std::string validFilterConfigJson{
+            "[{\"filter_id\":\"safe_ips\", \"items\":[\"127.0.0.1\",\"192.168.0.1\"]},{\"filter_id\":\"safe_domains\", \"items\":[\"elastic.*\",\"*.co.nz\"]}]"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(jobConfig.parseFilterConfig(validFilterConfigJson));
+
+        BOOST_REQUIRE_EQUAL(2, jobConfig.ruleFilters().size());
+
+        BOOST_TEST_REQUIRE(jobConfig.ruleFilters()["safe_ips"].contains("127.0.0.1"));
+        BOOST_TEST_REQUIRE(jobConfig.ruleFilters()["safe_ips"].contains("192.168.0.1"));
+
+        BOOST_TEST_REQUIRE(jobConfig.ruleFilters()["safe_domains"].contains("elastic.*"));
+        BOOST_TEST_REQUIRE(jobConfig.ruleFilters()["safe_domains"].contains("*.co.nz"));
+    }
+    {
+        const std::string invalidFilterConfigJson{
+            "{\"filter_id\":\"safe_ips\", \"items\":[\"127.0.0.1\",\"192.168.0.1\"]},{\"filter_id\":\"safe_domains\", \"items\":[\"elastic.*\",\"*.co.nz\"]}"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(!jobConfig.parseFilterConfig(invalidFilterConfigJson));
+    }
+    {
+        const std::string invalidFilterConfigJson{
+            "[{\"filter_id\":[\"127.0.0.1\",\"192.168.0.1\"]},{\"filter_id\":\"safe_domains\", \"items\":[\"elastic.*\",\"*.co.nz\"]}]"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(!jobConfig.parseFilterConfig(invalidFilterConfigJson));
+    }
+    {
+        const std::string invalidFilterConfigJson{
+            "[{\"filter_id\":\"safe_ips\", \"items\":\"127.0.0.1\"}]"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(!jobConfig.parseFilterConfig(invalidFilterConfigJson));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testParseScheduledEvents) {
+
+    {
+        const std::string validScheduledEventsConfigJson{
+            "["
+            "{\"description\":\"christmas\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\":1.6088544E9},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\":1.6089408E9}]}]},"
+            "{\"description\":\"black_friday\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\":1.6286364E9},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\":1.6290684E9}]}]}"
+            "]"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(jobConfig.parseEventConfig(validScheduledEventsConfigJson));
+
+        BOOST_REQUIRE_EQUAL(2, jobConfig.scheduledEvents().size());
+
+        BOOST_REQUIRE_EQUAL("christmas", jobConfig.scheduledEvents()[0].first);
+        BOOST_REQUIRE_EQUAL("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1608854400.000000 AND TIME < 1608940800.000000",
+                            jobConfig.scheduledEvents()[0].second.print());
+
+        BOOST_REQUIRE_EQUAL("black_friday", jobConfig.scheduledEvents()[1].first);
+        BOOST_REQUIRE_EQUAL("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1628636400.000000 AND TIME < 1629068400.000000",
+                            jobConfig.scheduledEvents()[1].second.print());
+    }
+    {
+        const std::string invalidScheduledEventsConfigJson{
+            "["
+            "{\"description\":\"christmas\", \"rules\":[]},"
+            "{\"description\":\"black_friday\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\":1.6286364E9},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\":1.6290684E9}]}]}"
+            "]"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(!jobConfig.parseEventConfig(invalidScheduledEventsConfigJson));
+    }
+    {
+        const std::string invalidScheduledEventsConfigJson{
+            "["
+            "{\"description\":\"christmas\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\":1.6088544E9},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\":1.6089408E9}]}]},"
+            "{\"event_rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\":1.6286364E9},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\":1.6290684E9}]}]}"
+            "]"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(!jobConfig.parseEventConfig(invalidScheduledEventsConfigJson));
+    }
+    {
+        const std::string validScheduledEventsConfigJson{
+            "["
+            "{\"description\":\"christmas\", \"rules\":[{\"actions\":[\"skip_whatever\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\":1.6088544E9},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\":1.6089408E9}]}]},"
+            "{\"description\":\"black_friday\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\":1.6286364E9},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\":1.6290684E9}]}]}"
+            "]"};
+
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(!jobConfig.parseEventConfig(validScheduledEventsConfigJson));
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
