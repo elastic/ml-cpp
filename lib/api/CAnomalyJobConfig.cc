@@ -205,6 +205,12 @@ const std::size_t CAnomalyJobConfig::CAnalysisLimits::DEFAULT_MEMORY_LIMIT_BYTES
 const std::string CAnomalyJobConfig::CDataDescription::TIME_FIELD{"time_field"};
 const std::string CAnomalyJobConfig::CDataDescription::TIME_FORMAT{"time_format"};
 
+const std::string CAnomalyJobConfig::CEventConfig::DESCRIPTION{"description"};
+const std::string CAnomalyJobConfig::CEventConfig::RULES{"rules"};
+
+const std::string CAnomalyJobConfig::CFilterConfig::FILTER_ID{"filter_id"};
+const std::string CAnomalyJobConfig::CFilterConfig::ITEMS{"items"};
+
 namespace {
 const std::string EMPTY_STRING;
 
@@ -214,6 +220,24 @@ std::string toString(const rapidjson::Value& value) {
     value.Accept(writer);
     return strbuf.GetString();
 };
+
+const CAnomalyJobConfigReader FILTERS_READER{[] {
+    CAnomalyJobConfigReader theReader;
+    theReader.addParameter(CAnomalyJobConfig::CFilterConfig::FILTER_ID,
+                           CAnomalyJobConfigReader::E_RequiredParameter);
+    theReader.addParameter(CAnomalyJobConfig::CFilterConfig::ITEMS,
+                           CAnomalyJobConfigReader::E_RequiredParameter);
+    return theReader;
+}()};
+
+const CAnomalyJobConfigReader EVENTS_READER{[] {
+    CAnomalyJobConfigReader theReader;
+    theReader.addParameter(CAnomalyJobConfig::CEventConfig::DESCRIPTION,
+                           CAnomalyJobConfigReader::E_RequiredParameter);
+    theReader.addParameter(CAnomalyJobConfig::CEventConfig::RULES,
+                           CAnomalyJobConfigReader::E_RequiredParameter);
+    return theReader;
+}()};
 
 const CAnomalyJobConfigReader CONFIG_READER{[] {
     CAnomalyJobConfigReader theReader;
@@ -333,6 +357,166 @@ bool CAnomalyJobConfig::initFromFile(const std::string& configFile) {
     }
 
     return true;
+}
+
+bool CAnomalyJobConfig::readFile(const std::string& fileName, std::string& fileContents) {
+    bool couldReadFile;
+    std::tie(fileContents, couldReadFile) = ml::core::CStringUtils::readFileToString(fileName);
+    if (couldReadFile == false) {
+        LOG_ERROR(<< "Failed to read file '" << fileName << "'");
+        return false;
+    }
+
+    return true;
+}
+
+bool CAnomalyJobConfig::initFromFiles(const std::string& configFile,
+                                      const std::string& filtersConfigFile,
+                                      const std::string& eventsConfigFile) {
+
+    std::string filtersConfigJson;
+    if (filtersConfigFile.empty() == false &&
+        this->readFile(filtersConfigFile, filtersConfigJson)) {
+        if (this->parseFilterConfig(filtersConfigJson) == false) {
+            LOG_ERROR(<< "Failed to parse filters job config: '" << filtersConfigJson << "'");
+            return false;
+        }
+    }
+
+    std::string eventsConfigJson;
+    if (eventsConfigFile.empty() == false &&
+        this->readFile(eventsConfigFile, eventsConfigJson)) {
+        if (this->parseEventConfig(eventsConfigJson) == false) {
+            LOG_ERROR(<< "Failed to parse scheduled events config: '"
+                      << eventsConfigJson << "'");
+            return false;
+        }
+    }
+
+    m_AnalysisConfig.init(m_RuleFilters, m_ScheduledEvents);
+
+    std::string anomalyJobConfigJson;
+    if (this->readFile(configFile, anomalyJobConfigJson) == false) {
+        // error logged by readFile
+        return false;
+    }
+
+    if (this->parse(anomalyJobConfigJson) == false) {
+        LOG_ERROR(<< "Failed to parse anomaly job config: '" << anomalyJobConfigJson << "'");
+        return false;
+    }
+
+    return true;
+}
+
+bool CAnomalyJobConfig::parseEventConfig(const std::string& json) {
+    rapidjson::Document doc;
+    if (doc.Parse<0>(json).HasParseError()) {
+        LOG_ERROR(<< "An error occurred while parsing scheduled event config from JSON: "
+                  << doc.GetParseError());
+        return false;
+    }
+
+    if (doc.Empty()) {
+        return true;
+    }
+
+    try {
+        if (doc.IsArray()) {
+            m_Events.resize(doc.Size());
+            for (unsigned int i = 0; i < doc.Size(); ++i) {
+                if (!doc[i].IsObject()) {
+                    LOG_ERROR(<< "Could not parse scheduled events: expected events array to contain objects. JSON: "
+                              << doc.GetParseError());
+                    ;
+                    return false;
+                }
+
+                m_Events[i].parse(doc[i], m_RuleFilters, m_ScheduledEvents);
+            }
+        }
+
+    } catch (CAnomalyJobConfigReader::CParseError& e) {
+        LOG_ERROR(<< "Error parsing events config: " << e.what());
+        return false;
+    }
+
+    return true;
+}
+
+void CAnomalyJobConfig::CEventConfig::parse(const rapidjson::Value& filterConfig,
+                                            const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
+                                            TStrDetectionRulePrVec& scheduledEvents) {
+    auto parameters = EVENTS_READER.read(filterConfig);
+
+    m_Description = parameters[DESCRIPTION].as<std::string>();
+
+    auto eventRules = parameters[RULES].jsonObject();
+    if (eventRules != nullptr) {
+        std::string errorString;
+        CDetectionRulesJsonParser rulesParser(ruleFilters);
+        if (rulesParser.parseRules(*eventRules, m_DetectionRules, errorString) == false) {
+            LOG_ERROR(<< errorString << toString(*eventRules));
+            throw CAnomalyJobConfigReader::CParseError(
+                "Error parsing scheduled event rules: " + toString(*eventRules));
+        }
+    }
+
+    if (m_DetectionRules.size() != 1) {
+        throw CAnomalyJobConfigReader::CParseError(
+            "Scheduled events must have exactly 1 rule: " + toString(*eventRules));
+    }
+
+    scheduledEvents.emplace_back(m_Description, m_DetectionRules[0]);
+}
+
+bool CAnomalyJobConfig::parseFilterConfig(const std::string& json) {
+    rapidjson::Document doc;
+    if (doc.Parse<0>(json).HasParseError()) {
+        LOG_ERROR(<< "An error occurred while parsing filter config from JSON: "
+                  << doc.GetParseError());
+        return false;
+    }
+
+    if (doc.Empty()) {
+        return true;
+    }
+
+    try {
+        if (doc.IsArray()) {
+            m_Filters.resize(doc.Size());
+            for (unsigned int i = 0; i < doc.Size(); ++i) {
+                if (!doc[i].IsObject()) {
+                    LOG_ERROR(<< "Could not parse filters: expected filters array to contain objects. JSON: "
+                              << doc.GetParseError());
+                    ;
+                    return false;
+                }
+
+                m_Filters[i].parse(doc[i], m_RuleFilters);
+            }
+        }
+
+    } catch (CAnomalyJobConfigReader::CParseError& e) {
+        LOG_ERROR(<< "Error parsing filter config: " << e.what());
+        return false;
+    }
+
+    return true;
+}
+
+void CAnomalyJobConfig::CFilterConfig::parse(const rapidjson::Value& filterConfig,
+                                             CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters) {
+    auto parameters = FILTERS_READER.read(filterConfig);
+
+    m_FilterName = parameters[FILTER_ID].as<std::string>();
+    m_FilterList = parameters[ITEMS].fallback(TStrVec{});
+
+    core::CPatternSet& filter = ruleFilters[m_FilterName];
+    if (filter.initFromPatternList(m_FilterList) == false) {
+        throw CAnomalyJobConfigReader::CParseError("Error building filter rules: " +
+                                                   toString(filterConfig));
+    }
 }
 
 bool CAnomalyJobConfig::parse(const std::string& json) {

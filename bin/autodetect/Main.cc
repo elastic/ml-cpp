@@ -86,6 +86,8 @@ int main(int argc, char** argv) {
 
     // Read command line options
     std::string configFile;
+    std::string filtersConfigFile;
+    std::string eventsConfigFile;
     std::string limitConfigFile;
     std::string modelConfigFile;
     std::string fieldConfigFile;
@@ -117,9 +119,10 @@ int main(int argc, char** argv) {
     bool stopCategorizationOnWarnStatus{false};
     TStrVec clauseTokens;
     if (ml::autodetect::CCmdLineParser::parse(
-            argc, argv, configFile, limitConfigFile, modelConfigFile, fieldConfigFile,
-            modelPlotConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
-            timeField, timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
+            argc, argv, configFile, filtersConfigFile, eventsConfigFile,
+            limitConfigFile, modelConfigFile, fieldConfigFile, modelPlotConfigFile,
+            logProperties, logPipe, delimiter, lengthEncodedInput, timeField,
+            timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
             bucketPersistInterval, maxQuantileInterval, namedPipeConnectTimeout,
             inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
             restoreFileName, isRestoreFileNamedPipe, persistFileName,
@@ -172,6 +175,15 @@ int main(int argc, char** argv) {
     // hence is done before reducing CPU priority.
     ml::core::CProcessPriority::reduceCpuPriority();
 
+    // TODO enable the currently disabled code block once the Java code supplying the
+    // filters and events config files is committed.
+#if 0
+    ml::api::CAnomalyJobConfig jobConfig;
+    if (jobConfig.initFromFiles(configFile, filtersConfigFile, eventsConfigFile) == false) {
+        LOG_FATAL(<< "JSON config could not be interpreted");
+        return EXIT_FAILURE;
+    }
+#else
     ml::api::CFieldConfig fieldConfig;
 
     if (fieldConfig.initFromCmdLine(fieldConfigFile, clauseTokens) == false) {
@@ -187,6 +199,7 @@ int main(int argc, char** argv) {
         LOG_FATAL(<< "JSON config could not be interpreted");
         return EXIT_FAILURE;
     }
+#endif
 
     const ml::api::CAnomalyJobConfig::CAnalysisLimits& analysisLimits =
         jobConfig.analysisLimits();
