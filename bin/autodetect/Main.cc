@@ -33,7 +33,6 @@
 #include <api/CAnomalyJobConfig.h>
 #include <api/CCmdSkeleton.h>
 #include <api/CCsvInputParser.h>
-#include <api/CFieldConfig.h>
 #include <api/CFieldDataCategorizer.h>
 #include <api/CIoManager.h>
 #include <api/CJsonOutputWriter.h>
@@ -175,31 +174,11 @@ int main(int argc, char** argv) {
     // hence is done before reducing CPU priority.
     ml::core::CProcessPriority::reduceCpuPriority();
 
-    // TODO enable the currently disabled code block once the Java code supplying the
-    // filters and events config files is committed.
-#if 0
     ml::api::CAnomalyJobConfig jobConfig;
     if (jobConfig.initFromFiles(configFile, filtersConfigFile, eventsConfigFile) == false) {
         LOG_FATAL(<< "JSON config could not be interpreted");
         return EXIT_FAILURE;
     }
-#else
-    ml::api::CFieldConfig fieldConfig;
-
-    if (fieldConfig.initFromCmdLine(fieldConfigFile, clauseTokens) == false) {
-        LOG_FATAL(<< "Field config could not be interpreted");
-        return EXIT_FAILURE;
-    }
-
-    // For now we need to reference the rule filters and scheduled events parsed
-    // by the old-style field config as they are not present in the JSON job config.
-    ml::api::CAnomalyJobConfig jobConfig{fieldConfig.ruleFilters(),
-                                         fieldConfig.scheduledEvents()};
-    if (jobConfig.initFromFile(configFile) == false) {
-        LOG_FATAL(<< "JSON config could not be interpreted");
-        return EXIT_FAILURE;
-    }
-#endif
 
     const ml::api::CAnomalyJobConfig::CAnalysisLimits& analysisLimits =
         jobConfig.analysisLimits();
@@ -223,12 +202,11 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    if (!modelPlotConfigFile.empty() &&
-        modelConfig.configureModelPlot(modelPlotConfigFile) == false) {
-        LOG_FATAL(<< "ML model plot config file '" << modelPlotConfigFile
-                  << "' could not be loaded");
-        return EXIT_FAILURE;
-    }
+    const ml::api::CAnomalyJobConfig::CModelPlotConfig& modelPlotConfig =
+        jobConfig.modelPlotConfig();
+    modelConfig.configureModelPlot(modelPlotConfig.enabled(),
+                                   modelPlotConfig.annotationsEnabled(),
+                                   modelPlotConfig.terms());
 
     using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
     const TDataSearcherUPtr restoreSearcher{[isRestoreFileNamedPipe, &ioMgr]() -> TDataSearcherUPtr {

@@ -231,6 +231,14 @@ public:
             m_ScheduledEvents = scheduledEvents;
         }
 
+        void initRuleFilters(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters) {
+            m_RuleFilters = ruleFilters;
+        }
+
+        void initScheduledEvents(const TStrDetectionRulePrVec& scheduledEvents) {
+            m_ScheduledEvents = scheduledEvents;
+        }
+
         void parse(const rapidjson::Value& json);
 
         bool updateFilters(const boost::property_tree::ptree& propTree);
@@ -458,6 +466,8 @@ public:
     static const std::string DATA_DESCRIPTION;
     static const std::string MODEL_PLOT_CONFIG;
     static const std::string ANALYSIS_LIMITS;
+    static const std::string FILTERS;
+    static const std::string EVENTS;
 
 public:
     //! Default constructor
@@ -483,6 +493,12 @@ public:
     bool parse(const std::string& json);
     bool parseFilterConfig(const std::string& json);
     bool parseEventConfig(const std::string& json);
+
+    void initRuleFilters() { m_AnalysisConfig.initRuleFilters(m_RuleFilters); }
+
+    void initScheduledEvents() {
+        m_AnalysisConfig.initScheduledEvents(m_ScheduledEvents);
+    }
 
     std::string jobId() const { return m_JobId; }
     std::string jobType() const { return m_JobType; }

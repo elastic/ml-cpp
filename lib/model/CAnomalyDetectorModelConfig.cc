@@ -53,6 +53,7 @@ core_t::TTime validateBucketLength(core_t::TTime length) {
 }
 }
 
+const double CAnomalyDetectorModelConfig::DEFAULT_BOUNDS_PERCENTILE(95.0);
 const std::string CAnomalyDetectorModelConfig::DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER(",");
 const core_t::TTime CAnomalyDetectorModelConfig::DEFAULT_BUCKET_LENGTH(300);
 const std::size_t CAnomalyDetectorModelConfig::DEFAULT_LATENCY_BUCKETS(0);
@@ -372,6 +373,29 @@ bool CAnomalyDetectorModelConfig::init(const boost::property_tree::ptree& propTr
     return result;
 }
 
+void CAnomalyDetectorModelConfig::configureModelPlot(bool modelPlotEnabled,
+                                                     bool annotationsEnabled,
+                                                     const std::string& terms) {
+    if (modelPlotEnabled) {
+        m_ModelPlotBoundsPercentile = DEFAULT_BOUNDS_PERCENTILE;
+    }
+
+    m_ModelPlotAnnotationsEnabled = annotationsEnabled;
+    for (auto& factory : m_Factories) {
+        factory.second->annotationsEnabled(annotationsEnabled);
+    }
+
+    TStrVec tokens;
+    std::string remainder;
+    core::CStringUtils::tokenise(",", terms, tokens, remainder);
+    if (remainder.empty() == false) {
+        tokens.push_back(remainder);
+    }
+    for (const auto& token : tokens) {
+        m_ModelPlotTerms.insert(token);
+    }
+}
+
 bool CAnomalyDetectorModelConfig::configureModelPlot(const std::string& modelPlotConfigFile) {
     LOG_DEBUG(<< "Reading model plot config file " << modelPlotConfigFile);
 
@@ -445,6 +469,7 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree:
             LOG_ERROR(<< "Cannot parse as bool: " << valueStr);
             return false;
         }
+        m_ModelPlotAnnotationsEnabled = annotationsEnabled;
         for (auto& factory : m_Factories) {
             factory.second->annotationsEnabled(annotationsEnabled);
         }
@@ -455,6 +480,10 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree:
     }
 
     return true;
+}
+
+bool CAnomalyDetectorModelConfig::modelPlotAnnotationsEnabled() const {
+    return m_ModelPlotAnnotationsEnabled;
 }
 
 CAnomalyDetectorModelConfig::TModelFactoryCPtr
