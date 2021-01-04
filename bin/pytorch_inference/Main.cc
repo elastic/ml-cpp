@@ -4,12 +4,14 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <api/CIoManager.h>
 #include <core/CBlockingCallCancellingTimer.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
 #include <core/CRapidJsonLineWriter.h>
 #include <core/CoreTypes.h>
+
+#include <api/CIoManager.h>
+
 #include <seccomp/CSystemCallFilter.h>
 
 #include <rapidjson/ostreamwrapper.h>
@@ -18,38 +20,59 @@
 #include "CBufferedIStreamAdapter.h"
 #include "CCmdLineParser.h"
 
+#include <boost/optional.hpp>
+
+#include <memory>
 #include <string>
 
-torch::Tensor infer(torch::jit::script::Module& module, std::vector<float>& data) {
-    torch::Tensor tokens_tensor =
-        torch::from_blob(data.data(), {1, static_cast<long long>(data.size())}).to(torch::kInt64);
+using TFloatVec = std::vector<float>;
+
+torch::Tensor infer(torch::jit::script::Module& module, TFloatVec& data) {
+    torch::Tensor tokensTensor =
+        torch::from_blob(data.data(), {1, static_cast<std::int64_t>(data.size())}).to(torch::kInt64);
     std::vector<torch::jit::IValue> inputs;
-    inputs.push_back(tokens_tensor);
+    inputs.push_back(tokensTensor);
     inputs.push_back(torch::ones({1, static_cast<std::int64_t>(data.size())})); // attention mask
     inputs.push_back(
         torch::zeros({1, static_cast<std::int64_t>(data.size())}).to(torch::kInt64)); // token type ids
     inputs.push_back(torch::arange(static_cast<std::int64_t>(data.size())).to(torch::kInt64)); // position ids
 
-    torch::NoGradGuard no_grad;
+    torch::NoGradGuard noGrad;
     auto tuple = module.forward(inputs).toTuple();
     auto predictions = tuple->elements()[0].toTensor();
 
     return torch::argmax(predictions, 2);
 }
 
-std::uint32_t readUInt32(std::istream& stream) {
+bool readUInt32(std::istream& stream, std::uint32_t& num) {
     std::uint32_t netNum{0};
     stream.read(reinterpret_cast<char*>(&netNum), sizeof(std::uint32_t));
-    return ntohl(netNum);
+    num = ntohl(netNum);
+    return stream.good();
 }
 
-std::vector<float> readTokens(std::istream& inputStream) {
+boost::optional<TFloatVec> readTokens(std::istream& inputStream) {
+    if (inputStream.eof()) {
+        LOG_ERROR(<< "Unexpected end of stream reading tokens");
+        return boost::none;
+    }
+
     // return a float vector rather than integers because
-    // float is need to create the tensor
-    std::vector<float> tokens;
-    std::uint32_t numTokens = readUInt32(inputStream);
+    // float is needed to create the tensor
+    TFloatVec tokens;
+    std::uint32_t numTokens;
+    if (readUInt32(inputStream, numTokens) == false) {
+        LOG_ERROR(<< "Error reading the number of tokens");
+        return boost::none;
+    }
+
     for (uint32_t i = 0; i < numTokens; ++i) {
-        tokens.push_back(readUInt32(inputStream));
+        std::uint32_t token;
+        if (readUInt32(inputStream, token) == false) {
+            LOG_ERROR(<< "Error reading token");
+            return boost::none;
+        }
+        tokens.push_back(token);
     }
 
     return tokens;
@@ -130,8 +153,10 @@ int main(int argc, char** argv) {
 
     torch::jit::script::Module module;
     try {
-        auto readAdapter = std::make_unique<ml::torch::CBufferedIStreamAdapter>(
-            ioMgr.restoreStream());
+        auto readAdapter = std::make_unique<ml::torch::CBufferedIStreamAdapter>(*ioMgr.restoreStream());
+        if (readAdapter->init() == false) {
+            return EXIT_FAILURE;
+        }
         module = torch::jit::load(std::move(readAdapter));
         module.eval();
 
@@ -141,8 +166,13 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    std::vector<float> tokens = readTokens(ioMgr.inputStream());
-    torch::Tensor results = infer(module, tokens);
+    boost::optional<TFloatVec> tokens = readTokens(ioMgr.inputStream());
+    if (!tokens) {
+        LOG_ERROR(<< "Cannot infer, failed to read input tokens");
+        return EXIT_FAILURE;
+    }
+
+    torch::Tensor results = infer(module, *tokens);
     writePrediction(results, ioMgr.outputStream());
 
     LOG_DEBUG(<< "ML Torch model prototype exiting");

@@ -19,7 +19,11 @@ Invoke the C++ from this directory with the command:
    ../../build/distribution/platform/{PLATFORM}/pytorch_inference --restore=restore_pipe --restoreIsPipe --input=input_pipe --inputIsPipe --output=output_pipe --outputIsPipe
 
 
-replacing {PLATFORM} with your OS specific path   
+replacing {PLATFORM} with your OS specific path.
+
+Then run this script with input from one of the example directories
+
+python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/input.json  examples/ner/expected_response.json
 
 '''
 def parse_arguments():
@@ -98,7 +102,7 @@ def main():
 		file_stats = os.stat(args.model)
 		file_size = file_stats.st_size
 		
-		# TODO is this a signed int?
+		# 4 byte unsigned int
 		b = (file_size).to_bytes(4, 'big')
 		restore_pipe.write(b)
 

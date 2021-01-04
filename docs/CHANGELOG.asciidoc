@@ -38,7 +38,6 @@
   or Ubuntu 20.04 running clang 8 for cross compilation. (See {ml-pull}1429[#1429].)
 * The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 9.3. (See
   {ml-pull}1170[#1170].)
-* Preform inference with PyTorch TorchScript models
 
 == {es} version 7.12.0
 

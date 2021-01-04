@@ -4,9 +4,9 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <core/CLogger.h>
-
 #include "CBufferedIStreamAdapter.h"
+
+#include <core/CLogger.h>
 
 // For ntohl
 #ifdef Windows
@@ -18,36 +18,45 @@
 namespace ml {
 namespace torch {
 
-CBufferedIStreamAdapter::CBufferedIStreamAdapter(core::CNamedPipeFactory::TIStreamP inputStream) {
-    if (parseSizeFromStream(m_Size, inputStream) == false) {
+CBufferedIStreamAdapter::CBufferedIStreamAdapter(std::istream& inputStream) 
+  : m_InputStream(inputStream) 
+{
+}
+
+bool CBufferedIStreamAdapter::init() {
+    if (parseSizeFromStream(m_Size) == false) {
         LOG_ERROR(<< "Failed to read model size");
+        return false;
     }
 
     LOG_DEBUG(<< "Loading model of size: " << m_Size);
 
     m_Buffer = std::make_unique<char[]>(m_Size);
-    inputStream->read(m_Buffer.get(), m_Size);
+    m_InputStream.read(m_Buffer.get(), m_Size);
 
     // gcount is the number of bytes read in the last read operation,
     // not the total. If the model is read in chunks this test will not pass
-    if (m_Size != static_cast<std::size_t>(inputStream->gcount())) {
-        LOG_ERROR(<< "Input size [" << inputStream->gcount()
+    if (m_Size != static_cast<std::size_t>(m_InputStream.gcount())) {
+        LOG_ERROR(<< "Input size [" << m_InputStream.gcount()
                   << "] did not match expected input size [" << m_Size << "]");
-    }
+        return false;
+    }    
+
+    return true;
 }
 
-size_t CBufferedIStreamAdapter::size() const {
+std::size_t CBufferedIStreamAdapter::size() const {
     return m_Size;
 }
 
-size_t CBufferedIStreamAdapter::read(uint64_t pos, void* buf, size_t n, const char* what) const {
+std::size_t CBufferedIStreamAdapter::read(std::uint64_t pos, void* buf, std::size_t n, const char* what) const {
     if (pos > m_Size) {
-        LOG_ERROR(<< "cannot read when pos is > size: " << what);
+        LOG_ERROR(<< "cannot read when position [" << pos << "] is > buffer size [" << m_Size << "]: " << what);
         return 0;
     }
 
     if (pos + n > m_Size) {
-        LOG_ERROR(<< "trimming n to size");
+        LOG_DEBUG(<< "read size [" << n << "] + position [" << pos << "] is > buffer size [" << m_Size << "]: " << what);
         n = m_Size - pos;
     }
 
@@ -55,21 +64,19 @@ size_t CBufferedIStreamAdapter::read(uint64_t pos, void* buf, size_t n, const ch
     return n;
 }
 
-// TODO: This reads a 4 byte int even though sizeof num is 8 bytes
-bool CBufferedIStreamAdapter::parseSizeFromStream(std::size_t& num,
-                                                  core::CNamedPipeFactory::TIStreamP inputStream) {
-    if (inputStream->eof()) {
+bool CBufferedIStreamAdapter::parseSizeFromStream(std::size_t& num) {                                                  
+    if (m_InputStream.eof()) {
         LOG_ERROR(<< "Unexpected end of stream reading model size");
         return false;
     }
 
     std::uint32_t netNum{0};
-    inputStream->read(reinterpret_cast<char*>(&netNum), sizeof(std::uint32_t));
+    m_InputStream.read(reinterpret_cast<char*>(&netNum), sizeof(std::uint32_t));
 
     // Integers are encoded in network byte order, so convert to host byte order
     // before interpreting
     num = ntohl(netNum);
-    return inputStream->good();
+    return m_InputStream.good();
 }
 }
 }

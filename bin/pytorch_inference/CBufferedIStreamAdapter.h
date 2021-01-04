@@ -7,28 +7,56 @@
 #ifndef INCLUDED_ml_torch_CBufferedIStreamAdapter_h
 #define INCLUDED_ml_torch_CBufferedIStreamAdapter_h
 
-#include <core/CNamedPipeFactory.h>
-
 #include <caffe2/serialize/read_adapter_interface.h>
+
+#include <iosfwd>
+#include <memory>
 
 namespace ml {
 namespace torch {
 
+//! \brief
+//! A buffered stream implementation of ReadAdapterInterface
+//! for reading TorchScript models (.pt files). 
+//!
+//! DESCRIPTION:\n	
+//! TorchScript model readers require seek and tell type
+//! functionality which is not provided in all input streams.
+//! The entire model is read into a buffer to support this. 	
+//!
+//! The max supported model size is 4GB limited by the 32 bit number 
+//! the size is serialized as. 	
+//!
+//! See https://github.com/pytorch/pytorch/blob/master/caffe2/serialize/inline_container.h
+//! for details of the serialized TorchScript model format.	
+//!
+//! IMPLEMENTATION DECISIONS:\n
+//! First reads the size of the model file from the stream
+//! then allocates a buffer large enough to hold the model 
+//! definition and reads the model into that buffer.
+//!  	
 class CBufferedIStreamAdapter : public caffe2::serialize::ReadAdapterInterface {
 public:
-    CBufferedIStreamAdapter(core::CNamedPipeFactory::TIStreamP inputStream);
+    CBufferedIStreamAdapter(std::istream& inputStream);
+
+    //! True if the model is successfully read.
+    //! Must be called before read or size
+    bool init();
 
     std::size_t size() const override;
-    std::size_t read(uint64_t pos, void* buf, std::size_t n, const char* what = "") const override;
+    std::size_t read(std::uint64_t pos, void* buf, std::size_t n, const char* what = "") const override;
 
     CBufferedIStreamAdapter(const CBufferedIStreamAdapter&) = delete;
     CBufferedIStreamAdapter& operator=(const CBufferedIStreamAdapter&) = delete;
 
 private:
-    bool parseSizeFromStream(std::size_t& num, core::CNamedPipeFactory::TIStreamP inputStream);
+	//! Reads a 4 bytes unsigned int from the stream into \p num.
+	//! \p num will not be larger than 2^32
+    bool parseSizeFromStream(std::size_t& num);
 
-    std::size_t m_Size;
+    std::size_t m_Size{0};
     std::unique_ptr<char[]> m_Buffer;
+    std::istream& m_InputStream;
 };
 }
 }
