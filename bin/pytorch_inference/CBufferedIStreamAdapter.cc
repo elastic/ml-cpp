@@ -18,9 +18,8 @@
 namespace ml {
 namespace torch {
 
-CBufferedIStreamAdapter::CBufferedIStreamAdapter(std::istream& inputStream) 
-  : m_InputStream(inputStream) 
-{
+CBufferedIStreamAdapter::CBufferedIStreamAdapter(std::istream& inputStream)
+    : m_InputStream(inputStream) {
 }
 
 bool CBufferedIStreamAdapter::init() {
@@ -40,7 +39,7 @@ bool CBufferedIStreamAdapter::init() {
         LOG_ERROR(<< "Input size [" << m_InputStream.gcount()
                   << "] did not match expected input size [" << m_Size << "]");
         return false;
-    }    
+    }
 
     return true;
 }
@@ -49,14 +48,17 @@ std::size_t CBufferedIStreamAdapter::size() const {
     return m_Size;
 }
 
-std::size_t CBufferedIStreamAdapter::read(std::uint64_t pos, void* buf, std::size_t n, const char* what) const {
+std::size_t
+CBufferedIStreamAdapter::read(std::uint64_t pos, void* buf, std::size_t n, const char* what) const {
     if (pos > m_Size) {
-        LOG_ERROR(<< "cannot read when position [" << pos << "] is > buffer size [" << m_Size << "]: " << what);
+        LOG_ERROR(<< "cannot read when position [" << pos
+                  << "] is > buffer size [" << m_Size << "]: " << what);
         return 0;
     }
 
     if (pos + n > m_Size) {
-        LOG_DEBUG(<< "read size [" << n << "] + position [" << pos << "] is > buffer size [" << m_Size << "]: " << what);
+        LOG_DEBUG(<< "read size [" << n << "] + position [" << pos
+                  << "] is > buffer size [" << m_Size << "]: " << what);
         n = m_Size - pos;
     }
 
@@ -64,7 +66,7 @@ std::size_t CBufferedIStreamAdapter::read(std::uint64_t pos, void* buf, std::siz
     return n;
 }
 
-bool CBufferedIStreamAdapter::parseSizeFromStream(std::size_t& num) {                                                  
+bool CBufferedIStreamAdapter::parseSizeFromStream(std::size_t& num) {
     if (m_InputStream.eof()) {
         LOG_ERROR(<< "Unexpected end of stream reading model size");
         return false;

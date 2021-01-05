@@ -17,24 +17,24 @@ namespace torch {
 
 //! \brief
 //! A buffered stream implementation of ReadAdapterInterface
-//! for reading TorchScript models (.pt files). 
+//! for reading TorchScript models (.pt files).
 //!
-//! DESCRIPTION:\n	
+//! DESCRIPTION:\n
 //! TorchScript model readers require seek and tell type
 //! functionality which is not provided in all input streams.
-//! The entire model is read into a buffer to support this. 	
+//! The entire model is read into a buffer to support this.
 //!
-//! The max supported model size is 4GB limited by the 32 bit number 
-//! the size is serialized as. 	
+//! The max supported model size is 4GB limited by the 32 bit number
+//! the size is serialized as.
 //!
 //! See https://github.com/pytorch/pytorch/blob/master/caffe2/serialize/inline_container.h
-//! for details of the serialized TorchScript model format.	
+//! for details of the serialized TorchScript model format.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! First reads the size of the model file from the stream
-//! then allocates a buffer large enough to hold the model 
+//! then allocates a buffer large enough to hold the model
 //! definition and reads the model into that buffer.
-//!  	
+//!
 class CBufferedIStreamAdapter : public caffe2::serialize::ReadAdapterInterface {
 public:
     CBufferedIStreamAdapter(std::istream& inputStream);
@@ -50,8 +50,8 @@ public:
     CBufferedIStreamAdapter& operator=(const CBufferedIStreamAdapter&) = delete;
 
 private:
-	//! Reads a 4 bytes unsigned int from the stream into \p num.
-	//! \p num will not be larger than 2^32
+    //! Reads a 4 bytes unsigned int from the stream into \p num.
+    //! \p num will not be larger than 2^32
     bool parseSizeFromStream(std::size_t& num);
 
     std::size_t m_Size{0};

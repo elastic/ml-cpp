@@ -29,7 +29,8 @@ using TFloatVec = std::vector<float>;
 
 torch::Tensor infer(torch::jit::script::Module& module, TFloatVec& data) {
     torch::Tensor tokensTensor =
-        torch::from_blob(data.data(), {1, static_cast<std::int64_t>(data.size())}).to(torch::kInt64);
+        torch::from_blob(data.data(), {1, static_cast<std::int64_t>(data.size())})
+            .to(torch::kInt64);
     std::vector<torch::jit::IValue> inputs;
     inputs.push_back(tokensTensor);
     inputs.push_back(torch::ones({1, static_cast<std::int64_t>(data.size())})); // attention mask
@@ -153,7 +154,8 @@ int main(int argc, char** argv) {
 
     torch::jit::script::Module module;
     try {
-        auto readAdapter = std::make_unique<ml::torch::CBufferedIStreamAdapter>(*ioMgr.restoreStream());
+        auto readAdapter = std::make_unique<ml::torch::CBufferedIStreamAdapter>(
+            *ioMgr.restoreStream());
         if (readAdapter->init() == false) {
             return EXIT_FAILURE;
         }
