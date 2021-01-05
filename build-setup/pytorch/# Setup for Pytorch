@@ -1,0 +1,43 @@
+# Setup for Pytorch
+
+If you wish to build and run the PyTorch inference applications you will need to install Pytorch and build the torch libraries. 
+
+
+Although not strictly required it is recommended to install [Anaconda](https://www.anaconda.com/products/individual#download-section) as the instructions here use the Conda Package manager that comes with Anaconda. Additionally a C++14 compiler is required.
+
+
+## Install the Python Dependencies 
+```
+conda install numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_extensions future six requests dataclasses
+```
+
+## Clone the v1.7.1 release of the Pytorch repository
+```
+git clone --depth=1 --branch=v1.7.1 git@github.com:pytorch/pytorch.git
+cd pytorch
+# update submodules used by PyTorch
+git submodule sync
+git submodule update --init --recursive
+``` 
+
+
+## Build macOS
+```
+export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
+MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ python setup.py install
+```
+
+Once built copy headers and libraries to system directories
+```
+sudo mkdir /usr/local/include/pytorch
+sudo cp -r torch/include/* /usr/local/include/pytorch/
+
+sudo cp torch/lib/libtorch_cpu.dylib /usr/local/lib/
+sudo cp torch/lib/libc10.dylib /usr/local/lib/
+```
+
+## Linux
+TODO
+
+## Windows
+TODO
