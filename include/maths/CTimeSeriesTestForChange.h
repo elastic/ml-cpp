@@ -44,7 +44,7 @@ public:
 
     virtual TChangePointUPtr undoable() const = 0;
     virtual bool largeEnough(double threshold) const = 0;
-    bool longEnough(core_t::TTime time, core_t::TTime minimumDuration) const;
+    virtual bool longEnough(core_t::TTime time, core_t::TTime minimumDuration) const = 0;
     virtual bool apply(CTimeSeriesDecomposition&) const { return false; }
     virtual bool apply(CTrendComponent&) const { return false; }
     virtual bool apply(CSeasonalComponent&) const { return false; }
@@ -100,6 +100,7 @@ public:
 
     TChangePointUPtr undoable() const override;
     bool largeEnough(double threshold) const override;
+    bool longEnough(core_t::TTime time, core_t::TTime minimumDuration) const override;
     bool apply(CTrendComponent& component) const override;
     const std::string& type() const override;
     std::string print() const override;
@@ -124,11 +125,13 @@ public:
     CScale(core_t::TTime time,
            double scale,
            double magnitude,
+           double minimumDurationScale,
            TFloatMeanAccumulatorVec residuals,
            double significantPValue);
 
     TChangePointUPtr undoable() const override;
     bool largeEnough(double threshold) const override;
+    bool longEnough(core_t::TTime time, core_t::TTime minimumDuration) const override;
     bool apply(CTrendComponent& component) const override;
     bool apply(CSeasonalComponent& component) const override;
     bool apply(CCalendarComponent& component) const override;
@@ -140,6 +143,7 @@ public:
 private:
     double m_Scale = 1.0;
     double m_Magnitude = 0.0;
+    double m_MinimumDurationScale = 1.0;
 };
 
 //! \brief Represents a time shift of a time series.
@@ -157,6 +161,7 @@ public:
 
     TChangePointUPtr undoable() const override;
     bool largeEnough(double) const override { return m_Shift != 0; }
+    bool longEnough(core_t::TTime time, core_t::TTime minimumDuration) const override;
     bool apply(CTimeSeriesDecomposition& decomposition) const override;
     const std::string& type() const override;
     std::string print() const override;
