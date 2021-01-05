@@ -44,7 +44,7 @@ case `uname` in
         STL_LOCATION=
         ZLIB_LOCATION=
         TORCH_LIBRARIES="torch_cpu c10"
-        TORCH_LOCATION=
+        TORCH_LOCATION=/usr/local/lib
         TORCH_EXTENSION=.dylib
         ;;
 
