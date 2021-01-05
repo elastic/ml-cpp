@@ -100,10 +100,6 @@ CChangePoint::CChangePoint(core_t::TTime time, TFloatMeanAccumulatorVec residual
 
 CChangePoint::~CChangePoint() = default;
 
-bool CChangePoint::longEnough(core_t::TTime time, core_t::TTime minimumDuration) const {
-    return time >= m_Time + minimumDuration;
-}
-
 std::uint64_t CChangePoint::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, this->type());
     seed = CChecksum::calculate(seed, m_Time);
@@ -154,6 +150,10 @@ bool CLevelShift::largeEnough(double threshold) const {
     return std::fabs(m_Shift) > threshold;
 }
 
+bool CLevelShift::longEnough(core_t::TTime time, core_t::TTime minimumDuration) const {
+    return time >= this->time() + minimumDuration;
+}
+
 bool CLevelShift::apply(CTrendComponent& component) const {
     component.shiftLevel(m_Shift, m_ValuesStartTime, m_BucketLength, m_Values,
                          m_Segments, m_Shifts);
@@ -180,8 +180,14 @@ std::uint64_t CLevelShift::checksum(std::uint64_t seed) const {
 
 const std::string CLevelShift::TYPE{"level shift"};
 
-CScale::CScale(core_t::TTime time, double scale, double magnitude, TFloatMeanAccumulatorVec residuals, double significantPValue)
-    : CChangePoint{time, std::move(residuals), significantPValue}, m_Scale{scale}, m_Magnitude{magnitude} {
+CScale::CScale(core_t::TTime time,
+               double scale,
+               double magnitude,
+               double minimumDurationScale,
+               TFloatMeanAccumulatorVec residuals,
+               double significantPValue)
+    : CChangePoint{time, std::move(residuals), significantPValue}, m_Scale{scale},
+      m_Magnitude{magnitude}, m_MinimumDurationScale{minimumDurationScale} {
 }
 
 CScale::TChangePointUPtr CScale::undoable() const {
@@ -190,6 +196,12 @@ CScale::TChangePointUPtr CScale::undoable() const {
 
 bool CScale::largeEnough(double threshold) const {
     return m_Magnitude > threshold;
+}
+
+bool CScale::longEnough(core_t::TTime time, core_t::TTime minimumDuration) const {
+    minimumDuration = static_cast<core_t::TTime>(
+        static_cast<double>(minimumDuration) / m_MinimumDurationScale + 0.5);
+    return time >= this->time() + minimumDuration;
 }
 
 bool CScale::apply(CTrendComponent& component) const {
@@ -236,6 +248,10 @@ CTimeShift::CTimeShift(core_t::TTime time, core_t::TTime shift, double significa
 
 CTimeShift::TChangePointUPtr CTimeShift::undoable() const {
     return std::make_unique<CTimeShift>(this->time(), -m_Shift, this->significantPValue());
+}
+
+bool CTimeShift::longEnough(core_t::TTime time, core_t::TTime minimumDuration) const {
+    return time >= this->time() + minimumDuration;
 }
 
 bool CTimeShift::apply(CTimeSeriesDecomposition& decomposition) const {
@@ -556,10 +572,27 @@ CTimeSeriesTestForChange::scale(double varianceH0, double truncatedVarianceH0, d
                                         0.0)};
             LOG_TRACE(<< "scale = " << scale);
 
+            // The impact of applying a scale is less clear for small values.
+            // We therefore wait to see more data if the predicted absolute
+            // values we've observed to change are relatively small.
+            TMeanAccumulator averagePredictionBeforeChange;
+            TMeanAccumulator averagePredictionAfterChange;
+            for (std::size_t i = 0; i < changeIndex; ++i) {
+                averagePredictionBeforeChange.add(std::fabs(predictor(i)));
+            }
+            for (std::size_t i = changeIndex; i < m_Values.size(); ++i) {
+                averagePredictionAfterChange.add(std::fabs(predictor(i)));
+            }
+            double minimumDurationScale{
+                std::min(CBasicStatistics::mean(averagePredictionAfterChange) /
+                             CBasicStatistics::mean(averagePredictionBeforeChange),
+                         1.0)};
+            LOG_TRACE(<< "minimum duration scale = " << minimumDurationScale);
+
             auto changePoint = std::make_unique<CScale>(
                 this->changeTime(changeIndex), scale,
                 std::fabs(scale - 1.0) * std::sqrt(CBasicStatistics::mean(Z)),
-                std::move(residuals), m_SignificantPValue);
+                minimumDurationScale, std::move(residuals), m_SignificantPValue);
 
             return {varianceH1, truncatedVarianceH1, parametersH1, std::move(changePoint)};
         }
