@@ -116,10 +116,9 @@ int main(int argc, char** argv) {
     bool stopCategorizationOnWarnStatus{false};
     TStrVec clauseTokens;
     if (ml::autodetect::CCmdLineParser::parse(
-            argc, argv, configFile, filtersConfigFile, eventsConfigFile,
-            limitConfigFile, modelConfigFile,
-            logProperties, logPipe, delimiter, lengthEncodedInput, timeField,
-            timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
+            argc, argv, configFile, filtersConfigFile, eventsConfigFile, limitConfigFile,
+            modelConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
+            timeField, timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
             bucketPersistInterval, maxQuantileInterval, namedPipeConnectTimeout,
             inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
             restoreFileName, isRestoreFileNamedPipe, persistFileName,
