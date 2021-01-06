@@ -89,8 +89,6 @@ int main(int argc, char** argv) {
     std::string eventsConfigFile;
     std::string limitConfigFile;
     std::string modelConfigFile;
-    std::string fieldConfigFile;
-    std::string modelPlotConfigFile;
     std::string logProperties;
     std::string logPipe;
     char delimiter{'\t'};
@@ -119,7 +117,7 @@ int main(int argc, char** argv) {
     TStrVec clauseTokens;
     if (ml::autodetect::CCmdLineParser::parse(
             argc, argv, configFile, filtersConfigFile, eventsConfigFile,
-            limitConfigFile, modelConfigFile, fieldConfigFile, modelPlotConfigFile,
+            limitConfigFile, modelConfigFile,
             logProperties, logPipe, delimiter, lengthEncodedInput, timeField,
             timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
             bucketPersistInterval, maxQuantileInterval, namedPipeConnectTimeout,

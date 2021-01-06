@@ -94,9 +94,6 @@ public:
     //! in its string value.
     static const std::string DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER;
 
-    //! The central confidence interval for the model debug plot as a percentage.
-    static const double DEFAULT_BOUNDS_PERCENTILE;
-
     //! Bucket length if none is specified on the command line.
     static const core_t::TTime DEFAULT_BUCKET_LENGTH;
 

@@ -53,7 +53,6 @@ core_t::TTime validateBucketLength(core_t::TTime length) {
 }
 }
 
-const double CAnomalyDetectorModelConfig::DEFAULT_BOUNDS_PERCENTILE(95.0);
 const std::string CAnomalyDetectorModelConfig::DEFAULT_MULTIVARIATE_COMPONENT_DELIMITER(",");
 const core_t::TTime CAnomalyDetectorModelConfig::DEFAULT_BUCKET_LENGTH(300);
 const std::size_t CAnomalyDetectorModelConfig::DEFAULT_LATENCY_BUCKETS(0);
@@ -377,7 +376,7 @@ void CAnomalyDetectorModelConfig::configureModelPlot(bool modelPlotEnabled,
                                                      bool annotationsEnabled,
                                                      const std::string& terms) {
     if (modelPlotEnabled) {
-        m_ModelPlotBoundsPercentile = DEFAULT_BOUNDS_PERCENTILE;
+        m_ModelPlotBoundsPercentile = ml::maths::CModel::DEFAULT_BOUNDS_PERCENTILE;
     }
 
     m_ModelPlotAnnotationsEnabled = annotationsEnabled;

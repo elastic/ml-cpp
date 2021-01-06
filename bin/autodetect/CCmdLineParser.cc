@@ -27,8 +27,6 @@ bool CCmdLineParser::parse(int argc,
                            std::string& eventsConfigFile,
                            std::string& limitConfigFile,
                            std::string& modelConfigFile,
-                           std::string& fieldConfigFile,
-                           std::string& modelPlotConfigFile,
                            std::string& logProperties,
                            std::string& logPipe,
                            char& delimiter,
@@ -172,12 +170,6 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("modelconfig") > 0) {
             modelConfigFile = vm["modelconfig"].as<std::string>();
-        }
-        if (vm.count("fieldconfig") > 0) {
-            fieldConfigFile = vm["fieldconfig"].as<std::string>();
-        }
-        if (vm.count("modelplotconfig") > 0) {
-            modelPlotConfigFile = vm["modelplotconfig"].as<std::string>();
         }
         if (vm.count("logProperties") > 0) {
             logProperties = vm["logProperties"].as<std::string>();
