@@ -452,7 +452,7 @@ BOOST_AUTO_TEST_CASE(testNonNegative) {
     std::string m;
     TModelPtr forecastModel(model.cloneForForecast());
     forecastModel->forecast(
-        0, start, start, end, maths::CModel::DEFAULT_FORECAST_CONFIDENCE_INTERVAL,
+        0, start, start, end, maths::CModel::DEFAULT_BOUNDS_PERCENTILE,
         MINIMUM_VALUE, MAXIMUM_VALUE,
         std::bind(&mockSink, std::placeholders::_1, std::ref(prediction)), m);
 

@@ -39,14 +39,13 @@ bool CPatternSet::initFromPatternList(const TStrVec& patterns) {
         }
         if (pattern[0] == WILDCARD) {
             if (length > 2 && pattern[length - 1] == WILDCARD) {
-                std::string middle = pattern.substr(1, length - 2);
-                containsPatterns.push_back(middle);
+                containsPatterns.emplace_back(pattern, 1, length - 2);
             } else if (length > 1) {
                 std::string suffix = pattern.substr(1);
                 suffixPatterns.push_back(std::string(suffix.rbegin(), suffix.rend()));
             }
         } else if (length > 1 && pattern[length - 1] == WILDCARD) {
-            prefixPatterns.push_back(pattern.substr(0, length - 1));
+            prefixPatterns.emplace_back(pattern, 0, length - 1);
         } else {
             fullPatterns.push_back(pattern);
         }

@@ -6,6 +6,8 @@
 
 #include <core/CContainerPrinter.h>
 
+#include <maths/CModel.h>
+
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CCountingModelFactory.h>
 #include <model/CEventRateModelFactory.h>
@@ -262,6 +264,43 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_REQUIRE_EQUAL(
             core::CContainerPrinter::print(config2.normalizedScoreKnotPoints()),
             core::CContainerPrinter::print(config1.normalizedScoreKnotPoints()));
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testConfigureModelPlot) {
+    using TStrSet = CAnomalyDetectorModelConfig::TStrSet;
+    static const std::string EMPTY_STRING;
+    {
+        CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig();
+        config.configureModelPlot(true, true, EMPTY_STRING);
+        BOOST_REQUIRE_EQUAL(ml::maths::CModel::DEFAULT_BOUNDS_PERCENTILE,
+                            config.modelPlotBoundsPercentile());
+        BOOST_REQUIRE_EQUAL(true, config.modelPlotAnnotationsEnabled());
+        BOOST_REQUIRE_EQUAL(0, config.modelPlotTerms().size());
+    }
+    {
+        CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig();
+        config.configureModelPlot(false, true, EMPTY_STRING);
+        BOOST_REQUIRE_EQUAL(-1.0, config.modelPlotBoundsPercentile());
+        BOOST_REQUIRE_EQUAL(true, config.modelPlotAnnotationsEnabled());
+        BOOST_REQUIRE_EQUAL(0, config.modelPlotTerms().size());
+    }
+    {
+        CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig();
+        config.configureModelPlot(false, false, EMPTY_STRING);
+        BOOST_REQUIRE_EQUAL(-1.0, config.modelPlotBoundsPercentile());
+        BOOST_REQUIRE_EQUAL(false, config.modelPlotAnnotationsEnabled());
+        BOOST_REQUIRE_EQUAL(0, config.modelPlotTerms().size());
+    }
+    {
+        const std::string terms{"foo,bar,baz"};
+        const TStrSet termSet{"foo", "bar", "baz"};
+        CAnomalyDetectorModelConfig config = CAnomalyDetectorModelConfig::defaultConfig();
+        config.configureModelPlot(true, false, terms);
+        BOOST_REQUIRE_EQUAL(ml::maths::CModel::DEFAULT_BOUNDS_PERCENTILE,
+                            config.modelPlotBoundsPercentile());
+        BOOST_REQUIRE_EQUAL(false, config.modelPlotAnnotationsEnabled());
+        BOOST_TEST_REQUIRE(termSet == config.modelPlotTerms());
     }
 }
 

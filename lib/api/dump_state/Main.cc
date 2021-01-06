@@ -33,7 +33,6 @@
 #include <api/CAnomalyJob.h>
 #include <api/CAnomalyJobConfig.h>
 #include <api/CCsvInputParser.h>
-#include <api/CFieldConfig.h>
 #include <api/CFieldDataCategorizer.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CModelSnapshotJsonWriter.h>

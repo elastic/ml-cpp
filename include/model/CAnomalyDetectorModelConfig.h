@@ -355,8 +355,18 @@ public:
     bool configureModelPlot(const std::string& modelPlotConfigFile);
 
     //! Configure modelPlotConfig params from a property tree
-    //! expected to contain two properties: 'boundsPercentile' and 'terms'
+    //! expected to contain three properties: 'boundsPercentile', 'annotationsEnabled'
+    //! and 'terms'
     bool configureModelPlot(const boost::property_tree::ptree& propTree);
+
+    //! Configure modelPlotConfig params directly, from the three properties
+    //! 'modelPlotEnabled', 'annotationPlotEnabled' and 'terms'.
+    //! This initialisation method does not allow setting the value of the
+    //! 'boundsPercentile' property, instead a default value is used when 'modelPlotEnabled'
+    //! is true and a value of -1.0 is used otherwise.
+    void configureModelPlot(bool modelPlotEnabled,
+                            bool annotationsEnabled,
+                            const std::string& terms);
 
     //! Set the central confidence interval for the model debug plot
     //! to \p percentage.
@@ -368,6 +378,9 @@ public:
 
     //! Get the central confidence interval for the model debug plot.
     double modelPlotBoundsPercentile() const;
+
+    //! Are annotations enabled for each of the models?
+    bool modelPlotAnnotationsEnabled() const;
 
     //! Set terms (by, over, or partition field values) to filter
     //! model debug data. When empty, no filtering is applied.
@@ -438,6 +451,9 @@ private:
     //! A cache of customized factories requested from this config.
     mutable TSearchKeyFactoryCPtrMap m_FactoryCache;
 
+    //! Are annotations enabled for each of the models?
+    bool m_ModelPlotAnnotationsEnabled{false};
+
     //! The central confidence interval for the model debug plot.
     double m_ModelPlotBoundsPercentile;
 
@@ -472,11 +488,11 @@ private:
     //@}
 
     //! A reference to the map containing detection rules per
-    //! detector key. Note that the owner of the map is CFieldConfig.
+    //! detector key. Note that the owner of the map is CAnomalyJobConfig::CAnalysisConfig.
     TIntDetectionRuleVecUMapCRef m_DetectionRules;
 
     //! A reference to the vector of scheduled events.
-    //! The owner of the vector is CFieldConfig
+    //! The owner of the vector is CAnomalyJobConfig::CAnalysisConfig.
     TStrDetectionRulePrVecCRef m_ScheduledEvents;
 };
 }

@@ -206,7 +206,7 @@ private:
         core_t::TTime s_ExpiryTime{0};
 
         //! Forecast bounds
-        double s_BoundsPercentile{maths::CModel::DEFAULT_FORECAST_CONFIDENCE_INTERVAL};
+        double s_BoundsPercentile{maths::CModel::DEFAULT_BOUNDS_PERCENTILE};
 
         //! total number of models
         std::size_t s_NumberOfModels{0};

@@ -42,7 +42,6 @@ namespace model {
 class CLimits;
 }
 namespace api {
-class CFieldConfig;
 class CPersistenceManager;
 
 //! \brief
