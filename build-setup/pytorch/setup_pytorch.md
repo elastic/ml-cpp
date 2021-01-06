@@ -23,7 +23,7 @@ git submodule update --init --recursive
 ## Build macOS
 ```
 export CMAKE_PREFIX_PATH=${CONDA_PREFIX:-"$(dirname $(which conda))/../"}
-MACOSX_DEPLOYMENT_TARGET=10.9 CC=clang CXX=clang++ python setup.py install
+CC=clang CXX=clang++ python setup.py install
 ```
 
 Once built copy headers and libraries to system directories

@@ -66,12 +66,10 @@ case `uname` in
             STL_LOCATION=/usr/local/gcc93/lib64
             STL_PATTERN=libstdc++
             STL_EXTENSION=.so.6
-            ZLIB_LOCATION=
-            if [ `uname -m` != aarch64 ] ; then
-                TORCH_LIBRARIES="torch_cpu c10"
-                TORCH_LOCATION=/usr/local/gcc93/lib
-                TORCH_EXTENSION=.so  
-            fi
+            ZLIB_LOCATION=            
+            TORCH_LIBRARIES="torch_cpu c10"
+            TORCH_LOCATION=/usr/local/gcc93/lib
+            TORCH_EXTENSION=.so              
         elif [ "$CPP_CROSS_COMPILE" = macosx ] ; then
             SYSROOT=/usr/local/sysroot-x86_64-apple-macosx10.14
             BOOST_LOCATION=$SYSROOT/usr/local/lib
