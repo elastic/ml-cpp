@@ -2,8 +2,7 @@
 
 If you wish to build and run the PyTorch inference applications you will need to install Pytorch and build the torch libraries. 
 
-
-Although not strictly required it is recommended to install [Anaconda](https://www.anaconda.com/products/individual#download-section) as the instructions here use the Conda Package manager that comes with Anaconda. Additionally a C++14 compiler is required.
+Although not strictly required it is recommended to install [Anaconda](https://www.anaconda.com/products/individual#download-section) as the following instructions use the Conda Package manager that comes with Anaconda. Additionally a C++14 compiler is required.
 
 
 ## Install the Python Dependencies 
