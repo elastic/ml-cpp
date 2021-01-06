@@ -16,7 +16,7 @@ will wait for them to appear -but not for long- so start the
 C++ app first. 
 
 Invoke the C++ from this directory with the command:
-   ../../build/distribution/platform/{PLATFORM}/pytorch_inference --restore=restore_pipe --restoreIsPipe --input=input_pipe --inputIsPipe --output=output_pipe --outputIsPipe
+   ../../build/distribution/platform/{PLATFORM}/pytorch_inference --restore=restore_pipe --input=input_pipe --output=output_pipe --log=log_pipe
 
 
 replacing {PLATFORM} with your OS specific path.
@@ -36,6 +36,7 @@ def parse_arguments():
     parser.add_argument('--restore_pipe', default='restore_pipe')
     parser.add_argument('--input_pipe', default='input_pipe')
     parser.add_argument('--output_pipe', default='output_pipe')
+    parser.add_argument('--log_pipe', default='log_pipe')
 
     return parser.parse_args()
 
@@ -73,12 +74,26 @@ def write_tokens(fifo, tokens):
 		fifo.write(token.to_bytes(4, 'big'))
 
 
+def print_logging(fifo):
+
+	print("reading logs")
+	line = fifo.readline()
+	while line:
+		print(line)
+		line = fifo.readline()
+
 
 def main():
 
 	args = parse_arguments()
 
-	# input streams must be connected in a specfic order.
+	# pipes must be connected in a specfic order.
+	if not wait_for_pipe(args.log_pipe):	
+		print("Error: logging pipe [{}] has not been created".format(args.log_pipe))
+		return
+
+	log_pipe = open(args.log_pipe)
+
 	if not wait_for_pipe(args.input_pipe):	
 		print("Error: input pipe [{}] has not been created".format(args.input_pipe))
 		return
@@ -91,11 +106,9 @@ def main():
 
 	output_pipe = open(args.output_pipe)
 
-
 	if not wait_for_pipe(args.restore_pipe):
-		print("Error: timed out waiting for the restore pipe to be created")
+		print("Error: restore pipe [{}] has not been created".format(args.restore_pipe))
 		return		
-
 
 	# stream the torchscript model	 
 	with open(args.restore_pipe, 'wb') as restore_pipe:
@@ -132,6 +145,9 @@ def main():
 	else:
 		print('ERROR: inference results do not match expected results')
 		print(results)
+
+	
+	print_logging(log_pipe)	
 
 
 if __name__ == "__main__":

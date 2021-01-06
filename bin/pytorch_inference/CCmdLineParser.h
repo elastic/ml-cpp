@@ -33,12 +33,10 @@ public:
                       const char* const* argv,
                       std::string& modelId,
                       core_t::TTime& namedPipeConnectTimeout,
-                      std::string& inputFileName,
-                      bool& isInputFileNamedPipe,
+                      std::string& inputFileName,                      
                       std::string& outputFileName,
-                      bool& isOutputFileNamedPipe,
-                      std::string& restoreFileName,
-                      bool& isRestoreFileNamedPipe);
+                      std::string& restoreFileName,                      
+                      std::string& loggingFileName);
 
 private:
     static const std::string DESCRIPTION;

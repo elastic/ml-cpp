@@ -96,20 +96,16 @@ void writePrediction(torch::Tensor& prediction, std::ostream& outputStream) {
 int main(int argc, char** argv) {
     // command line options
     std::string modelId;
-    std::string inputFileName;
-    bool isInputFileNamedPipe{false};
+    std::string inputFileName;    
     std::string outputFileName;
-    bool isOutputFileNamedPipe{false};
-    std::string restoreFileName;
-    bool isRestoreFileNamedPipe{false};
-    std::string persistFileName;
+    std::string restoreFileName;    
+    std::string loggingFileName;
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
 
     if (ml::torch::CCmdLineParser::parse(
             argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
-            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
-            restoreFileName, isRestoreFileNamedPipe) == false) {
+            outputFileName, restoreFileName, loggingFileName) == false) {
         return EXIT_FAILURE;
     }
 
@@ -121,11 +117,11 @@ int main(int argc, char** argv) {
     const std::string EMPTY;
     ml::api::CIoManager ioMgr{cancellerThread,
                               inputFileName,
-                              isInputFileNamedPipe,
+                              true,
                               outputFileName,
-                              isOutputFileNamedPipe,
+                              true,
                               restoreFileName,
-                              isRestoreFileNamedPipe,
+                              true,
                               EMPTY,
                               false};
 
@@ -135,8 +131,8 @@ int main(int argc, char** argv) {
         LOG_FATAL(<< "Could not start blocking call canceller thread");
         return EXIT_FAILURE;
     }
-    if (ml::core::CLogger::instance().reconfigure(
-            EMPTY, EMPTY, cancellerThread.hasCancelledBlockingCall()) == false) {
+    
+    if (ml::core::CLogger::instance().reconfigureLogToNamedPipe(loggingFileName, cancellerThread.hasCancelledBlockingCall()) == false) {
         LOG_FATAL(<< "Could not reconfigure logging");
         cancellerThread.stop();
         return EXIT_FAILURE;
