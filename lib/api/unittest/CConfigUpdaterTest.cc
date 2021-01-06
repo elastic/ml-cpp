@@ -9,9 +9,7 @@
 
 #include <api/CAnomalyJobConfig.h>
 #include <api/CConfigUpdater.h>
-#include <api/CFieldConfig.h>
 
-#include <boost/property_tree/ptree.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <sstream>
@@ -97,10 +95,14 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenDetectorRules) {
 
 BOOST_AUTO_TEST_CASE(testUpdateGivenRulesWithInvalidDetectorIndex) {
     CAnomalyJobConfig jobConfig;
-    CFieldConfig fieldConfig;
-    std::string originalRules("[{\"actions\":[\"skip_result\"],");
-    originalRules += "\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\": 5.0}]}]";
-    fieldConfig.parseRules(0, originalRules);
+    const std::string validAnomalyJobConfigWithCustomRule{
+        "{\"job_id\":\"count_with_range\","
+        "\"analysis_config\":{\"detectors\":[{\"function\":\"count\","
+        "\"custom_rules\":[{\"actions\":[\"skip_result\"],\"conditions\":[{\"applies_to\":\"actual\",\"operator\":\"lt\",\"value\": 5.0}]}],"
+        "\"detector_index\":0}]},\"analysis_limits\":{\"model_memory_limit\":\"11mb\",\"categorization_examples_limit\":5},"
+        "\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"}}"};
+
+    BOOST_TEST_REQUIRE(jobConfig.parse(validAnomalyJobConfigWithCustomRule));
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
@@ -114,14 +116,17 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenRulesWithInvalidDetectorIndex) {
 
 BOOST_AUTO_TEST_CASE(testUpdateGivenFilters) {
     CAnomalyJobConfig jobConfig;
-    CFieldConfig fieldConfig;
-    fieldConfig.processFilter("filter.filter_1", "[\"aaa\",\"bbb\"]");
-    fieldConfig.processFilter("filter.filter_2", "[\"ccc\",\"ddd\"]");
+
+    const std::string jsonFilterConfig{
+        "{\"filters\":[{\"filter_id\":\"filter_1\", \"items\":[\"aaa\",\"bbb\"]}, {\"filter_id\":\"filter_2\", \"items\":[\"ccc\",\"ddd\"]}]}"};
+
+    BOOST_TEST_REQUIRE(jobConfig.parseFilterConfig(jsonFilterConfig));
+    jobConfig.initRuleFilters();
 
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
 
-    auto ruleFilters = fieldConfig.ruleFilters();
+    auto ruleFilters = jobConfig.ruleFilters();
     BOOST_REQUIRE_EQUAL(std::size_t(2), ruleFilters.size());
 
     BOOST_TEST_REQUIRE(ruleFilters["filter_1"].contains("aaa"));
@@ -164,32 +169,20 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenFilters) {
 }
 
 BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
-    std::string validRule1 =
-        "[{\"actions\":[\"skip_result\",\"skip_model_update\"],"
-        "\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 1.0},"
-        "{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 2.0}]}]";
-    std::string validRule2 =
-        "[{\"actions\":[\"skip_result\",\"skip_model_update\"],"
-        "\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 3.0},"
-        "{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 4.0}]}]";
+    const std::string validScheduledEvents{
+        "{\"events\":["
+        "{\"description\":\"old_event_1\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 1.0},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 2.0}]}]},"
+        "{\"description\":\"old_event_2\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 3.0},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 4.0}]}]}"
+        "]}"};
 
     CAnomalyJobConfig jobConfig;
-    CFieldConfig fieldConfig;
 
     // Set up some events
     {
-        boost::property_tree::ptree propTree;
-        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.0.description", '\t'),
-                     "old_event_1");
-        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.0.rules", '\t'),
-                     validRule1);
-        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.1.description", '\t'),
-                     "old_event_2");
-        propTree.put(boost::property_tree::ptree::path_type("scheduledevent.1.rules", '\t'),
-                     validRule2);
-        fieldConfig.updateScheduledEvents(propTree);
+        BOOST_TEST_REQUIRE(jobConfig.parseEventConfig(validScheduledEvents));
+        jobConfig.initScheduledEvents();
 
-        const auto& events = fieldConfig.scheduledEvents();
+        const auto& events = jobConfig.analysisConfig().scheduledEvents();
         BOOST_REQUIRE_EQUAL(std::size_t(2), events.size());
         BOOST_REQUIRE_EQUAL(std::string("old_event_1"), events[0].first);
         BOOST_REQUIRE_EQUAL(std::string("SKIP_RESULT AND SKIP_MODEL_UPDATE IF TIME >= 1.000000 AND TIME < 2.000000"),
@@ -205,6 +198,15 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
 
     // Test an update that replaces the events
     {
+        std::string validRule1 =
+            "[{\"actions\":[\"skip_result\",\"skip_model_update\"],"
+            "\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 1.0},"
+            "{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 2.0}]}]";
+        std::string validRule2 =
+            "[{\"actions\":[\"skip_result\",\"skip_model_update\"],"
+            "\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 3.0},"
+            "{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 4.0}]}]";
+
         std::stringstream configUpdate;
         configUpdate << "[scheduledEvents]"
                      << "\n";

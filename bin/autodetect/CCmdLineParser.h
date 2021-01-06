@@ -38,8 +38,6 @@ public:
                       std::string& filtersConfig,
                       std::string& eventsConfig,
                       std::string& limitConfigFile,
-                      std::string& modelConfigFile,
-                      std::string& fieldConfigFile,
                       std::string& modelPlotConfigFile,
                       std::string& logProperties,
                       std::string& logPipe,

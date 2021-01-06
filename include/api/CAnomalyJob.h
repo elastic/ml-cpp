@@ -53,7 +53,6 @@ namespace api {
 class CAnomalyJobConfig;
 class CPersistenceManager;
 class CModelPlotDataJsonWriter;
-class CFieldConfig;
 
 //! \brief
 //! The Ml anomaly detector.

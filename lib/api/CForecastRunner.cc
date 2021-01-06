@@ -401,7 +401,7 @@ bool CForecastRunner::parseAndValidateForecastRequest(const std::string& control
 
         // note: this is not exposed on the Java side
         forecastJob.s_BoundsPercentile = properties.get<double>(
-            "boundspercentile", maths::CModel::DEFAULT_FORECAST_CONFIDENCE_INTERVAL);
+            "boundspercentile", maths::CModel::DEFAULT_BOUNDS_PERCENTILE);
     } catch (const std::exception& e) {
         LOG_ERROR(<< ERROR_FORECAST_REQUEST_FAILED_TO_PARSE << e.what());
         return false;

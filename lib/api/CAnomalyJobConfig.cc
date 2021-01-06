@@ -42,6 +42,8 @@ const std::string CAnomalyJobConfig::ANALYSIS_CONFIG{"analysis_config"};
 const std::string CAnomalyJobConfig::ANALYSIS_LIMITS{"analysis_limits"};
 const std::string CAnomalyJobConfig::DATA_DESCRIPTION{"data_description"};
 const std::string CAnomalyJobConfig::MODEL_PLOT_CONFIG{"model_plot_config"};
+const std::string CAnomalyJobConfig::FILTERS{"filters"};
+const std::string CAnomalyJobConfig::EVENTS{"events"};
 
 const std::string CAnomalyJobConfig::CAnalysisConfig::BUCKET_SPAN{"bucket_span"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::SUMMARY_COUNT_FIELD_NAME{
@@ -422,18 +424,22 @@ bool CAnomalyJobConfig::parseEventConfig(const std::string& json) {
     }
 
     try {
-        if (doc.IsArray()) {
-            m_Events.resize(doc.Size());
-            for (unsigned int i = 0; i < doc.Size(); ++i) {
-                if (!doc[i].IsObject()) {
-                    LOG_ERROR(<< "Could not parse scheduled events: expected events array to contain objects. JSON: "
-                              << doc.GetParseError());
-                    ;
-                    return false;
-                }
+        if (doc.HasMember(EVENTS) == false || doc[EVENTS].IsArray() == false) {
+            LOG_ERROR(<< "Missing expected array field '" << EVENTS << "'. JSON: " << json);
+            return false;
+        }
 
-                m_Events[i].parse(doc[i], m_RuleFilters, m_ScheduledEvents);
+        const rapidjson::Value& value = doc[EVENTS];
+
+        m_Events.resize(value.Size());
+        for (unsigned int i = 0; i < value.Size(); ++i) {
+            if (value[i].IsObject() == false) {
+                LOG_ERROR(<< "Could not parse scheduled events: expected events array to contain objects. JSON: "
+                          << json);
+                return false;
             }
+
+            m_Events[i].parse(value[i], m_RuleFilters, m_ScheduledEvents);
         }
 
     } catch (CAnomalyJobConfigReader::CParseError& e) {
@@ -483,20 +489,22 @@ bool CAnomalyJobConfig::parseFilterConfig(const std::string& json) {
     }
 
     try {
-        if (doc.IsArray()) {
-            m_Filters.resize(doc.Size());
-            for (unsigned int i = 0; i < doc.Size(); ++i) {
-                if (!doc[i].IsObject()) {
-                    LOG_ERROR(<< "Could not parse filters: expected filters array to contain objects. JSON: "
-                              << doc.GetParseError());
-                    ;
-                    return false;
-                }
-
-                m_Filters[i].parse(doc[i], m_RuleFilters);
-            }
+        if (doc.HasMember(FILTERS) == false || doc[FILTERS].IsArray() == false) {
+            LOG_ERROR(<< "Missing expected array field '" << FILTERS << "'. JSON: " << json);
+            return false;
         }
 
+        const rapidjson::Value& value = doc[FILTERS];
+        m_Filters.resize(value.Size());
+        for (unsigned int i = 0; i < value.Size(); ++i) {
+            if (value[i].IsObject() == false) {
+                LOG_ERROR(<< "Could not parse filters: expected filters array to contain objects. JSON: "
+                          << toString(value[i]));
+                return false;
+            }
+
+            m_Filters[i].parse(value[i], m_RuleFilters);
+        }
     } catch (CAnomalyJobConfigReader::CParseError& e) {
         LOG_ERROR(<< "Error parsing filter config: " << e.what());
         return false;
@@ -520,8 +528,6 @@ void CAnomalyJobConfig::CFilterConfig::parse(const rapidjson::Value& filterConfi
 }
 
 bool CAnomalyJobConfig::parse(const std::string& json) {
-    LOG_DEBUG(<< "Parsing anomaly job config");
-
     rapidjson::Document doc;
     if (doc.Parse<0>(json).HasParseError()) {
         LOG_ERROR(<< "An error occurred while parsing anomaly job config from JSON: "
