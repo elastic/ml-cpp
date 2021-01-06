@@ -19,7 +19,6 @@
 #include <model/CTokenListReverseSearchCreator.h>
 
 #include <api/CAnomalyJobConfig.h>
-#include <api/CFieldConfig.h>
 #include <api/CNoopCategoryIdMapper.h>
 #include <api/CPerPartitionCategoryIdMapper.h>
 #include <api/CPersistenceManager.h>

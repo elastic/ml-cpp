@@ -14,6 +14,10 @@
 
 #include <rapidjson/stringbuffer.h>
 
+namespace {
+const std::string EMPTY_STRING;
+}
+
 BOOST_AUTO_TEST_SUITE(CAnomalyJobConfigTest)
 
 BOOST_AUTO_TEST_CASE(testParse) {
@@ -99,7 +103,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
             "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
             "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"all\",\"by_field_name\":\"customer_id\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
             "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
-            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
+            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true,\"terms\":\"customer_id\"},\"model_snapshot_retention_days\":10,"
             "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
@@ -146,6 +150,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
+        BOOST_REQUIRE_EQUAL("customer_id", modelPlotConfig.terms());
     }
     {
         const std::string validAnomalyJobConfig{
@@ -153,7 +158,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
             "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
             "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"all\",\"by_field_name\":\"customer_id\",\"detector_index\":0}],\"influencers\":[]},"
             "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
-            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
+            "\"model_plot_config\":{\"enabled\":false,\"annotations_enabled\":true,\"terms\":\"customer_id\"},\"model_snapshot_retention_days\":10,"
             "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
@@ -198,8 +203,9 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL(4, analysisLimits.modelMemoryLimitMb());
 
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
-        BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
+        BOOST_REQUIRE_EQUAL(false, modelPlotConfig.enabled());
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
+        BOOST_REQUIRE_EQUAL("customer_id", modelPlotConfig.terms());
     }
     {
         const std::string validAnomalyJobConfig{
@@ -254,6 +260,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
+        BOOST_REQUIRE_EQUAL(EMPTY_STRING, modelPlotConfig.terms());
     }
     {
         const std::string validAnomalyJobConfig{
@@ -274,7 +281,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
             "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
             "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"by\",\"by_field_name\":\"customer_id\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
             "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
-            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
+            "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true,\"terms\":\"customer_id,category.keyword\"},\"model_snapshot_retention_days\":10,"
             "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
@@ -321,6 +328,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         const TModelPlotConfig& modelPlotConfig = jobConfig.modelPlotConfig();
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.enabled());
         BOOST_REQUIRE_EQUAL(true, modelPlotConfig.annotationsEnabled());
+        BOOST_REQUIRE_EQUAL("customer_id,category.keyword", modelPlotConfig.terms());
     }
     {
         const std::string validAnomalyJobConfig{
@@ -985,7 +993,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
 BOOST_AUTO_TEST_CASE(testParseFilterConfig) {
     {
         const std::string validFilterConfigJson{
-            "[{\"filter_id\":\"safe_ips\", \"items\":[\"127.0.0.1\",\"192.168.0.1\"]}]"};
+            "{\"filters\":[{\"filter_id\":\"safe_ips\", \"items\":[\"127.0.0.1\",\"192.168.0.1\"]}]}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_TEST_REQUIRE(jobConfig.parseFilterConfig(validFilterConfigJson));
@@ -997,7 +1005,7 @@ BOOST_AUTO_TEST_CASE(testParseFilterConfig) {
     }
     {
         const std::string validFilterConfigJson{
-            "[{\"filter_id\":\"safe_ips\", \"items\":[\"127.0.0.1\",\"192.168.0.1\"]},{\"filter_id\":\"safe_domains\", \"items\":[\"elastic.*\",\"*.co.nz\"]}]"};
+            "{\"filters\":[{\"filter_id\":\"safe_ips\", \"items\":[\"127.0.0.1\",\"192.168.0.1\"]},{\"filter_id\":\"safe_domains\", \"items\":[\"elastic.*\",\"*.co.nz\"]}]}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_TEST_REQUIRE(jobConfig.parseFilterConfig(validFilterConfigJson));
@@ -1012,21 +1020,21 @@ BOOST_AUTO_TEST_CASE(testParseFilterConfig) {
     }
     {
         const std::string invalidFilterConfigJson{
-            "{\"filter_id\":\"safe_ips\", \"items\":[\"127.0.0.1\",\"192.168.0.1\"]},{\"filter_id\":\"safe_domains\", \"items\":[\"elastic.*\",\"*.co.nz\"]}"};
+            "{\"filters\":{\"filter_id\":\"safe_ips\", \"items\":[\"127.0.0.1\",\"192.168.0.1\"]},{\"filter_id\":\"safe_domains\", \"items\":[\"elastic.*\",\"*.co.nz\"]}}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_TEST_REQUIRE(!jobConfig.parseFilterConfig(invalidFilterConfigJson));
     }
     {
         const std::string invalidFilterConfigJson{
-            "[{\"filter_id\":[\"127.0.0.1\",\"192.168.0.1\"]},{\"filter_id\":\"safe_domains\", \"items\":[\"elastic.*\",\"*.co.nz\"]}]"};
+            "{\"filters\":[{\"filter_id\":[\"127.0.0.1\",\"192.168.0.1\"]},{\"filter_id\":\"safe_domains\", \"items\":[\"elastic.*\",\"*.co.nz\"]}]}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_TEST_REQUIRE(!jobConfig.parseFilterConfig(invalidFilterConfigJson));
     }
     {
         const std::string invalidFilterConfigJson{
-            "[{\"filter_id\":\"safe_ips\", \"items\":\"127.0.0.1\"}]"};
+            "{\"filters\":[{\"filter_id\":\"safe_ips\", \"items\":\"127.0.0.1\"}]}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_TEST_REQUIRE(!jobConfig.parseFilterConfig(invalidFilterConfigJson));
@@ -1037,10 +1045,10 @@ BOOST_AUTO_TEST_CASE(testParseScheduledEvents) {
 
     {
         const std::string validScheduledEventsConfigJson{
-            "["
+            "{\"events\":["
             "{\"description\":\"christmas\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\":1.6088544E9},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\":1.6089408E9}]}]},"
             "{\"description\":\"black_friday\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\":1.6286364E9},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\":1.6290684E9}]}]}"
-            "]"};
+            "]}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_TEST_REQUIRE(jobConfig.parseEventConfig(validScheduledEventsConfigJson));
@@ -1057,30 +1065,30 @@ BOOST_AUTO_TEST_CASE(testParseScheduledEvents) {
     }
     {
         const std::string invalidScheduledEventsConfigJson{
-            "["
+            "{\"events\":["
             "{\"description\":\"christmas\", \"rules\":[]},"
             "{\"description\":\"black_friday\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\":1.6286364E9},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\":1.6290684E9}]}]}"
-            "]"};
+            "]}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_TEST_REQUIRE(!jobConfig.parseEventConfig(invalidScheduledEventsConfigJson));
     }
     {
         const std::string invalidScheduledEventsConfigJson{
-            "["
+            "{\"events\":["
             "{\"description\":\"christmas\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\":1.6088544E9},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\":1.6089408E9}]}]},"
             "{\"event_rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\":1.6286364E9},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\":1.6290684E9}]}]}"
-            "]"};
+            "]}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_TEST_REQUIRE(!jobConfig.parseEventConfig(invalidScheduledEventsConfigJson));
     }
     {
         const std::string validScheduledEventsConfigJson{
-            "["
+            "{\"events\":["
             "{\"description\":\"christmas\", \"rules\":[{\"actions\":[\"skip_whatever\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\":1.6088544E9},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\":1.6089408E9}]}]},"
             "{\"description\":\"black_friday\", \"rules\":[{\"actions\":[\"skip_result\",\"skip_model_update\"],\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\":1.6286364E9},{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\":1.6290684E9}]}]}"
-            "]"};
+            "]}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
         BOOST_TEST_REQUIRE(!jobConfig.parseEventConfig(validScheduledEventsConfigJson));
