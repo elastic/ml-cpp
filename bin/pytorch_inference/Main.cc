@@ -96,16 +96,16 @@ void writePrediction(torch::Tensor& prediction, std::ostream& outputStream) {
 int main(int argc, char** argv) {
     // command line options
     std::string modelId;
-    std::string inputFileName;    
+    std::string inputFileName;
     std::string outputFileName;
-    std::string restoreFileName;    
+    std::string restoreFileName;
     std::string loggingFileName;
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
 
-    if (ml::torch::CCmdLineParser::parse(
-            argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
-            outputFileName, restoreFileName, loggingFileName) == false) {
+    if (ml::torch::CCmdLineParser::parse(argc, argv, modelId, namedPipeConnectTimeout,
+                                         inputFileName, outputFileName,
+                                         restoreFileName, loggingFileName) == false) {
         return EXIT_FAILURE;
     }
 
@@ -115,15 +115,9 @@ int main(int argc, char** argv) {
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
     const std::string EMPTY;
-    ml::api::CIoManager ioMgr{cancellerThread,
-                              inputFileName,
-                              true,
-                              outputFileName,
-                              true,
-                              restoreFileName,
-                              true,
-                              EMPTY,
-                              false};
+    ml::api::CIoManager ioMgr{
+        cancellerThread, inputFileName, true,  outputFileName, true,
+        restoreFileName, true,          EMPTY, false};
 
     if (cancellerThread.start() == false) {
         // This log message will probably never been seen as it will go to the
@@ -131,8 +125,9 @@ int main(int argc, char** argv) {
         LOG_FATAL(<< "Could not start blocking call canceller thread");
         return EXIT_FAILURE;
     }
-    
-    if (ml::core::CLogger::instance().reconfigureLogToNamedPipe(loggingFileName, cancellerThread.hasCancelledBlockingCall()) == false) {
+
+    if (ml::core::CLogger::instance().reconfigureLogToNamedPipe(
+            loggingFileName, cancellerThread.hasCancelledBlockingCall()) == false) {
         LOG_FATAL(<< "Could not reconfigure logging");
         cancellerThread.stop();
         return EXIT_FAILURE;

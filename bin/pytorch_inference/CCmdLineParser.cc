@@ -19,9 +19,9 @@ bool CCmdLineParser::parse(int argc,
                            const char* const* argv,
                            std::string& modelId,
                            core_t::TTime& namedPipeConnectTimeout,
-                           std::string& inputFileName,                           
-                           std::string& outputFileName,                           
-                           std::string& restoreFileName,                           
+                           std::string& inputFileName,
+                           std::string& outputFileName,
+                           std::string& restoreFileName,
                            std::string& loggingFileName) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
@@ -76,8 +76,7 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("log") > 0) {
             loggingFileName = vm["log"].as<std::string>();
-        }        
-
+        }
 
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
