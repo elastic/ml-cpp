@@ -45,11 +45,10 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
     TStrVec fieldValues{"", "", "", "", "", "0", ""};
     api::CDataFrameAnalyzer analyzer{
         test::CDataFrameAnalysisSpecificationFactory{}
-        .predictionLambda(0.5)
-        .predictionEta(.5)
-        .predictionGamma(0.5)
-        .predictionSpec(
-            test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
+            .predictionLambda(0.5)
+            .predictionEta(.5)
+            .predictionGamma(0.5)
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target"),
         outputWriterFactory};
     test::CDataFrameAnalyzerTrainingFactory::addPredictionTestData(
         TLossFunctionType::E_MseRegression, fieldNames, fieldValues, analyzer,
@@ -79,8 +78,8 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
         if (result.HasMember("model_metadata")) {
             hasModelMetadata = true;
             BOOST_TEST_REQUIRE(result["model_metadata"].IsObject() = true);
-            if(result["model_metadata"].Accept(modelMetaDataValidator) == false) {
-               rapidjson::StringBuffer sb;
+            if (result["model_metadata"].Accept(modelMetaDataValidator) == false) {
+                rapidjson::StringBuffer sb;
                 modelMetaDataValidator.GetInvalidSchemaPointer().StringifyUriFragment(sb);
                 LOG_ERROR(<< "Invalid schema: " << sb.GetString());
                 LOG_ERROR(<< "Invalid keyword: "
@@ -88,13 +87,12 @@ BOOST_AUTO_TEST_CASE(testJsonSchema) {
                 sb.Clear();
                 modelMetaDataValidator.GetInvalidDocumentPointer().StringifyUriFragment(sb);
                 LOG_ERROR(<< "Invalid document: " << sb.GetString());
-                BOOST_FAIL("Schema validation failed"); 
+                BOOST_FAIL("Schema validation failed");
             }
         }
     }
 
     BOOST_TEST_REQUIRE(hasModelMetadata);
-
 }
 
 BOOST_AUTO_TEST_SUITE_END()
