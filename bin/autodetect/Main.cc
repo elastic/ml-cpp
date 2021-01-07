@@ -87,7 +87,6 @@ int main(int argc, char** argv) {
     std::string configFile;
     std::string filtersConfigFile;
     std::string eventsConfigFile;
-    std::string limitConfigFile;
     std::string modelConfigFile;
     std::string logProperties;
     std::string logPipe;
@@ -111,18 +110,19 @@ int main(int argc, char** argv) {
     std::string persistFileName;
     bool isPersistFileNamedPipe{false};
     bool isPersistInForeground{false};
+    bool isPersistDisabled{false};
     std::size_t maxAnomalyRecords{100};
     bool memoryUsage{false};
     bool stopCategorizationOnWarnStatus{false};
     TStrVec clauseTokens;
     if (ml::autodetect::CCmdLineParser::parse(
-            argc, argv, configFile, filtersConfigFile, eventsConfigFile, limitConfigFile,
-            modelConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
-            timeField, timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
+            argc, argv, configFile, filtersConfigFile, eventsConfigFile, modelConfigFile,
+            logProperties, logPipe, delimiter, lengthEncodedInput, timeField,
+            timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
             bucketPersistInterval, maxQuantileInterval, namedPipeConnectTimeout,
             inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
-            restoreFileName, isRestoreFileNamedPipe, persistFileName,
-            isPersistFileNamedPipe, isPersistInForeground, maxAnomalyRecords,
+            restoreFileName, isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe,
+            isPersistInForeground, isPersistDisabled, maxAnomalyRecords,
             memoryUsage, stopCategorizationOnWarnStatus, clauseTokens) == false) {
         return EXIT_FAILURE;
     }
@@ -230,6 +230,11 @@ int main(int argc, char** argv) {
         return nullptr;
     }()};
 
+#if 0
+    // TODO: Enable this code block once the corresponding changes to the Java code are available
+    // and remove now unneeded command line args from parser
+    ml::core_t::TTime persistInterval{jobConfig.persistInterval()};
+#endif
     if ((bucketPersistInterval > 0 || persistInterval >= 0) && persister == nullptr) {
         LOG_FATAL(<< "Periodic persistence cannot be enabled using the '"
                   << ((persistInterval >= 0) ? "persistInterval" : "bucketPersistInterval")
@@ -240,9 +245,10 @@ int main(int argc, char** argv) {
 
     using TPersistenceManagerUPtr = std::unique_ptr<ml::api::CPersistenceManager>;
     const TPersistenceManagerUPtr persistenceManager{
-        [persistInterval, isPersistInForeground, &persister,
+        [isPersistDisabled, persistInterval, isPersistInForeground, &persister,
          &bucketPersistInterval]() -> TPersistenceManagerUPtr {
-            if (persistInterval >= 0 || bucketPersistInterval > 0) {
+            if (isPersistDisabled == false &&
+                (persistInterval >= 0 || bucketPersistInterval > 0)) {
                 return std::make_unique<ml::api::CPersistenceManager>(
                     persistInterval, isPersistInForeground, *persister, bucketPersistInterval);
             }
@@ -274,7 +280,7 @@ int main(int argc, char** argv) {
                                        &modelSnapshotWriter, std::placeholders::_1),
                              persistenceManager.get(),
                              maxQuantileInterval,
-                             timeField,
+                             jobConfig.dataDescription().timeField(),
                              timeFormat,
                              maxAnomalyRecords};
 
@@ -289,15 +295,16 @@ int main(int argc, char** argv) {
     }
 
     // The categorizer knows how to assign categories to records
-    ml::api::CFieldDataCategorizer categorizer{jobId,
-                                               analysisConfig,
-                                               limits,
-                                               timeField,
-                                               timeFormat,
-                                               &job,
-                                               wrappedOutputStream,
-                                               persistenceManager.get(),
-                                               stopCategorizationOnWarnStatus};
+    ml::api::CFieldDataCategorizer categorizer{
+        jobId,
+        analysisConfig,
+        limits,
+        jobConfig.dataDescription().timeField(),
+        timeFormat,
+        &job,
+        wrappedOutputStream,
+        persistenceManager.get(),
+        analysisConfig.perPartitionCategorizationStopOnWarn()};
 
     ml::api::CDataProcessor* firstProcessor{nullptr};
     if (doingCategorization) {

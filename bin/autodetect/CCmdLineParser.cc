@@ -25,7 +25,6 @@ bool CCmdLineParser::parse(int argc,
                            std::string& configFile,
                            std::string& filtersConfigFile,
                            std::string& eventsConfigFile,
-                           std::string& limitConfigFile,
                            std::string& modelConfigFile,
                            std::string& logProperties,
                            std::string& logPipe,
@@ -48,6 +47,7 @@ bool CCmdLineParser::parse(int argc,
                            std::string& persistFileName,
                            bool& isPersistFileNamedPipe,
                            bool& isPersistInForeground,
+                           bool& isPersistDisabled,
                            std::size_t& maxAnomalyRecords,
                            bool& memoryUsage,
                            bool& stopCategorizationOnWarnStatus,
@@ -113,6 +113,7 @@ bool CCmdLineParser::parse(int argc,
             ("persistInterval", boost::program_options::value<core_t::TTime>(),
                     "Optional time interval at which to periodically persist model state (Mutually exclusive with bucketPersistInterval)")
             ("persistInForeground", "Persistence occurs in the foreground. Defaults to background persistence.")
+            ("doNotPersist", "Periodic persistence of model state is disabled.")
             ("bucketPersistInterval", boost::program_options::value<std::size_t>(),
                     "Optional number of buckets after which to periodically persist model state (Mutually exclusive with persistInterval)")
             ("maxQuantileInterval", boost::program_options::value<core_t::TTime>(),
@@ -164,9 +165,6 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("eventsconfig") > 0) {
             eventsConfigFile = vm["eventsconfig"].as<std::string>();
-        }
-        if (vm.count("limitconfig") > 0) {
-            limitConfigFile = vm["limitconfig"].as<std::string>();
         }
         if (vm.count("modelconfig") > 0) {
             modelConfigFile = vm["modelconfig"].as<std::string>();
@@ -234,6 +232,9 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("persistInForeground") > 0) {
             isPersistInForeground = true;
+        }
+        if (vm.count("doNotPersist") > 0) {
+            isPersistDisabled = true;
         }
         if (vm.count("maxAnomalyRecords") > 0) {
             maxAnomalyRecords = vm["maxAnomalyRecords"].as<std::size_t>();

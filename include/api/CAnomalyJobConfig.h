@@ -354,6 +354,8 @@ public:
         // time field is always specified in seconds since epoch.
         static const std::string TIME_FORMAT;
 
+        static const std::string DEFAULT_TIME_FIELD;
+
     public:
         //! Default constructor
         CDataDescription() {}
@@ -464,10 +466,13 @@ public:
     static const std::string JOB_TYPE;
     static const std::string ANALYSIS_CONFIG;
     static const std::string DATA_DESCRIPTION;
+    static const std::string BACKGROUND_PERSIST_INTERVAL;
     static const std::string MODEL_PLOT_CONFIG;
     static const std::string ANALYSIS_LIMITS;
     static const std::string FILTERS;
     static const std::string EVENTS;
+
+    static const core_t::TTime DEFAULT_BACKGROUND_PERSIST_INTERVAL;
 
 public:
     //! Default constructor
@@ -519,6 +524,9 @@ public:
     const CModelPlotConfig& modelPlotConfig() const { return m_ModelConfig; }
     const CAnalysisLimits& analysisLimits() const { return m_AnalysisLimits; }
     bool isInitialized() const { return m_IsInitialized; }
+    core_t::TTime persistInterval() const {
+        return m_BackgroundPersistInterval;
+    }
 
 private:
     std::string m_JobId;
@@ -533,6 +541,8 @@ private:
 
     std::vector<CFilterConfig> m_Filters{};
     std::vector<CEventConfig> m_Events{};
+
+    core_t::TTime m_BackgroundPersistInterval{DEFAULT_BACKGROUND_PERSIST_INTERVAL};
 };
 }
 }
