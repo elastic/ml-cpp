@@ -695,7 +695,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
     test::CRandomNumbers rng;
 
     std::size_t trainRows{1000};
-    std::size_t testRows{200};
+    std::size_t testRows{1000};
     std::size_t rows{trainRows + testRows};
     std::size_t cols{6};
     std::size_t capacity{500};
