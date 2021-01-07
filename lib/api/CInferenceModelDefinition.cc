@@ -12,13 +12,13 @@
 
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
+#include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
 
 #include <cmath>
 #include <iterator>
 #include <memory>
 #include <ostream>
-#include <unordered_map>
-#include <unordered_set>
 
 namespace ml {
 namespace api {
@@ -280,7 +280,7 @@ void CEnsemble::targetType(ETargetType targetType) {
 }
 
 CTrainedModel::TStringVec CEnsemble::removeUnusedFeatures() {
-    std::unordered_set<std::string> set;
+    boost::unordered_set<std::string> set;
     for (auto& trainedModel : this->trainedModels()) {
         TStringVec vec(trainedModel->removeUnusedFeatures());
         set.insert(vec.begin(), vec.end());
@@ -380,7 +380,7 @@ CTree::TTreeNodeVec& CTree::treeStructure() {
 }
 
 CTrainedModel::TStringVec CTree::removeUnusedFeatures() {
-    std::unordered_map<std::size_t, std::size_t> selectedFeatureIndices;
+    boost::unordered_map<std::size_t, std::size_t> selectedFeatureIndices;
     for (auto& treeNode : m_TreeStructure) {
         if (treeNode.leaf() == false) {
             std::size_t adjustedIndex{selectedFeatureIndices

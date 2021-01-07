@@ -21,7 +21,6 @@
 #include <cstdint>
 #include <memory>
 #include <mutex>
-#include <unordered_map>
 
 namespace ml {
 namespace api {

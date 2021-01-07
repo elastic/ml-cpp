@@ -16,10 +16,10 @@
 #include <rapidjson/ostreamwrapper.h>
 
 #include <boost/optional.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <sstream>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 namespace ml {
@@ -354,7 +354,7 @@ public:
     private:
         const CFrequencyEncoding& m_Encoding;
     };
-    using TStringDoubleUMap = const std::unordered_map<std::string, double>;
+    using TStringDoubleUMap = const boost::unordered_map<std::string, double>;
 
 public:
     ~CFrequencyEncoding() override = default;
@@ -417,7 +417,7 @@ public:
     private:
         const CTargetMeanEncoding& m_Encoding;
     };
-    using TStringDoubleUMap = std::unordered_map<std::string, double>;
+    using TStringDoubleUMap = boost::unordered_map<std::string, double>;
 
 public:
     ~CTargetMeanEncoding() override = default;
@@ -462,9 +462,9 @@ public:
     using TApiCustomEncodingUPtr = std::unique_ptr<api::CCustomEncoding>;
     using TApiCustomEncodingUPtrVec = std::vector<TApiCustomEncodingUPtr>;
     using TRapidJsonWriter = core::CRapidJsonConcurrentLineWriter;
-    using TSizeStringUMap = std::unordered_map<std::size_t, std::string>;
+    using TSizeStringUMap = boost::unordered_map<std::size_t, std::string>;
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
-    using TStringSizeUMap = std::unordered_map<std::string, std::size_t>;
+    using TStringSizeUMap = boost::unordered_map<std::string, std::size_t>;
     using TStringSizeUMapVec = std::vector<TStringSizeUMap>;
     using TStringVec = std::vector<std::string>;
     using TTrainedModelUPtr = CEnsemble::TTrainedModelUPtr;

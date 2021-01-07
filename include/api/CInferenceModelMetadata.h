@@ -12,6 +12,8 @@
 #include <api/CInferenceModelDefinition.h>
 #include <api/ImportExport.h>
 
+#include <boost/unordered_map.hpp>
+
 #include <string>
 
 namespace ml {
@@ -58,8 +60,8 @@ private:
     using TMeanAccumulator =
         std::vector<maths::CBasicStatistics::SSampleMean<double>::TAccumulator>;
     using TMinMaxAccumulator = std::vector<maths::CBasicStatistics::CMinMax<double>>;
-    using TSizeMeanAccumulatorUMap = std::unordered_map<std::size_t, TMeanAccumulator>;
-    using TSizeMinMaxAccumulatorUMap = std::unordered_map<std::size_t, TMinMaxAccumulator>;
+    using TSizeMeanAccumulatorUMap = boost::unordered_map<std::size_t, TMeanAccumulator>;
+    using TSizeMinMaxAccumulatorUMap = boost::unordered_map<std::size_t, TMinMaxAccumulator>;
     using TOptionalVector = boost::optional<TVector>;
 
 private:
