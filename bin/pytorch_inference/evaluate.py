@@ -1,7 +1,9 @@
 import argparse
 import json
 import os
+import platform
 import stat
+import subprocess
 import time
 
 
@@ -11,15 +13,8 @@ to the C++ app. Once the model is loaded the script sends the
 encoded tokens from the input_tokens files and checks the model's 
 response matches the expected. 
 
-This script expects the C++ process to create the pipes and 
-will wait for them to appear -but not for long- so start the 
-C++ app first. 
-
-Invoke the C++ from this directory with the command:
-   ../../build/distribution/platform/{PLATFORM}/pytorch_inference --restore=restore_pipe --input=input_pipe --output=output_pipe --log=log_pipe
-
-
-replacing {PLATFORM} with your OS specific path.
+This script first lauches the C++ pytorch_inference process then
+connects the pipes.
 
 Then run this script with input from one of the example directories
 
@@ -39,6 +34,35 @@ def parse_arguments():
     parser.add_argument('--log_pipe', default='log_pipe')
 
     return parser.parse_args()
+
+
+def path_to_app():
+
+	os_platform = platform.system()
+	if os_platform == 'Darwin':
+		sub_path = 'darwin-x86_64/controller.app/Contents/MacOS/'
+	elif os_platform == 'Linux':
+		# TODO handle the different path for arm architecture 
+		sub_path = 'linux-x86_64/'
+	elif os_platform == 'Windows':
+		sub_path = 'windows-x86_64/'
+	else: 
+		raise RuntimeError('Unknown platform')
+
+
+	return "../../build/distribution/platform/" + sub_path + "pytorch_inference"
+
+def lauch_pytorch_app(args):
+
+	command = [path_to_app(), 
+		'--restore=' + args.restore_pipe, '--restoreIsPipe', 
+		'--input=' + args.input_pipe, '--inputIsPipe',
+		'--output=' + args.output_pipe, '--outputIsPipe',
+		'--log=' + args.log_pipe, '--logIsPipe',
+		'--namedPipeConnectTimeout=3']		
+	
+	subprocess.Popen(command)
+
 
 def stream_file(source, destination) :
 	while True:
@@ -86,6 +110,8 @@ def print_logging(fifo):
 def main():
 
 	args = parse_arguments()
+
+	lauch_pytorch_app(args)
 
 	# pipes must be connected in a specfic order.
 	if not wait_for_pipe(args.log_pipe):	
