@@ -203,6 +203,33 @@ void CSeasonalComponentAdaptiveBucketing::linearScale(core_t::TTime time, double
             m_Buckets[i].s_Regression.shiftOrdinate(
                 -(gradientBefore - gradientAfter) * m_Time->regression(bucketTime));
         }
+
+        // We'd ideally like to approximate the new residual variance we'll see,
+        // but we don't wait long enough to be able to estimate this accurately
+        // in change point detection. Also, typically scaling is a plausible
+        // approximation of the change the time series undergoes and we'll also
+        // subsequently have to adjust parameters and expect to see transient
+        // prediction errors as a result.
+        //
+        // Here, we simply capture the impact of an additional independent noise
+        // term on the model to account for this. We choose the magnitude so that
+        // small relative prediction errors do not produce anomalies immediately
+        // after applying a scaling. This amounts to adding variance proportional
+        // to the square of the prediction.
+        //
+        // We have no good a-priori choice for exactly how large to make this
+        // term, but we do have some properties we'd like it to have:
+        //   1. It should only affect the case we scale up since this is when
+        //      our previous variance estimates are likely too small,
+        //   2. The bigger the change the less confident we should be in our
+        //      previous variance estimates,
+        //   3. We still want to be sensitive to large relative prediction
+        //      errors.
+        //
+        // This prescribes a functional form min(max(a * (scale - 1), 0), b) * p(t)^2.
+        // The constants a and b were chosen to give reasonable anomaly detection
+        // on some representative data sets with scaling change points.
+
         m_Buckets[i].s_Variance += CTools::truncate(0.02 * (scale - 1.0), 0.0, 0.1) *
                                    CTools::pow2(this->predict(i, time, centres[i]));
     }
