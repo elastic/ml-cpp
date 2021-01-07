@@ -46,6 +46,12 @@
 * Fix edge case which could cause spurious anomalies early in the learning process
   if the time series has non-diurnal seasonality. (See {ml-pull}1634[#1634].)
 
+=== Bug Fixes
+
+* Fix a source of instability in time series modeling for anomaly detection. This has
+  been observed to cause spurious anomalies for a partition which no longer receives
+  any data. (See {ml-pull}1646[#1646].)
+
 == {es} version 7.11.0
 
 === Enhancements
