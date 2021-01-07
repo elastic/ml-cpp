@@ -97,15 +97,20 @@ int main(int argc, char** argv) {
     // command line options
     std::string modelId;
     std::string inputFileName;
+    bool isInputFileNamedPipe{false};
     std::string outputFileName;
+    bool isOutputFileNamedPipe{false};
     std::string restoreFileName;
-    std::string loggingFileName;
+    bool isRestoreFileNamedPipe{false};
+    std::string logFileName;
+    bool isLogFileNamedPipe{false};
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
 
     if (ml::torch::CCmdLineParser::parse(argc, argv, modelId, namedPipeConnectTimeout,
-                                         inputFileName, outputFileName,
-                                         restoreFileName, loggingFileName) == false) {
+                                         inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
+                                         restoreFileName, isRestoreFileNamedPipe, logFileName,
+                                         isLogFileNamedPipe) == false) {
         return EXIT_FAILURE;
     }
 
@@ -116,8 +121,8 @@ int main(int argc, char** argv) {
     // std::ios actions that only work before first use
     const std::string EMPTY;
     ml::api::CIoManager ioMgr{
-        cancellerThread, inputFileName, true,  outputFileName, true,
-        restoreFileName, true,          EMPTY, false};
+        cancellerThread, inputFileName, isInputFileNamedPipe,  outputFileName, isOutputFileNamedPipe,
+        restoreFileName, isRestoreFileNamedPipe,          EMPTY, false};
 
     if (cancellerThread.start() == false) {
         // This log message will probably never been seen as it will go to the
@@ -126,12 +131,14 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    if (ml::core::CLogger::instance().reconfigureLogToNamedPipe(
-            loggingFileName, cancellerThread.hasCancelledBlockingCall()) == false) {
-        LOG_FATAL(<< "Could not reconfigure logging");
-        cancellerThread.stop();
-        return EXIT_FAILURE;
-    }
+    if (isLogFileNamedPipe) {
+        if (ml::core::CLogger::instance().reconfigureLogToNamedPipe(
+                logFileName, cancellerThread.hasCancelledBlockingCall()) == false) {
+            LOG_FATAL(<< "Could not reconfigure logging");
+            cancellerThread.stop();
+            return EXIT_FAILURE;
+        }
+    } 
     cancellerThread.stop();
 
     // Reduce memory priority before installing system call filters.

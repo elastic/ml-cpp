@@ -20,9 +20,13 @@ bool CCmdLineParser::parse(int argc,
                            std::string& modelId,
                            core_t::TTime& namedPipeConnectTimeout,
                            std::string& inputFileName,
+                           bool& isInputFileNamedPipe,
                            std::string& outputFileName,
+                           bool& isOutputFileNamedPipe,
                            std::string& restoreFileName,
-                           std::string& loggingFileName) {
+                           bool& isRestoreFileNamedPipe,
+                           std::string& loggingFileName,
+                           bool& isLogFileNamedPipe) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -34,13 +38,17 @@ bool CCmdLineParser::parse(int argc,
             ("namedPipeConnectTimeout", boost::program_options::value<core_t::TTime>(),
                         "Optional timeout (in seconds) for connecting named pipes on startup - default is 300 seconds")
             ("input", boost::program_options::value<std::string>(),
-                        "Named pipe to read input from")            
+                        "Optional file to read input from - not present means read from STDIN")
+            ("inputIsPipe", "Specified input file is a named pipe")        
             ("output", boost::program_options::value<std::string>(),
-                        "Named pipe to write output to")
+                        "Optional file to write output to - not present means write to STDOUT")
+            ("outputIsPipe", "Specified output file is a named pipe")
             ("restore", boost::program_options::value<std::string>(),
                         "Named pipe to read model from")    
+            ("restoreIsPipe", "Specified restore file is a named pipe")
             ("log", boost::program_options::value<std::string>(),
-                        "Named pipe to write log messages to")                                 
+                        "Named pipe to write log messages to")
+            ("logIsPipe", "Specified log file is a named pipe")                        
             ;
         // clang-format on
 
@@ -68,15 +76,27 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("input") > 0) {
             inputFileName = vm["input"].as<std::string>();
         }
+        if (vm.count("inputIsPipe") > 0) {
+            isInputFileNamedPipe = true;
+        }        
         if (vm.count("output") > 0) {
             outputFileName = vm["output"].as<std::string>();
         }
+        if (vm.count("outputIsPipe") > 0) {
+            isOutputFileNamedPipe = true;
+        }        
         if (vm.count("restore") > 0) {
             restoreFileName = vm["restore"].as<std::string>();
         }
+        if (vm.count("restoreIsPipe") > 0) {
+            isRestoreFileNamedPipe = true;
+        }        
         if (vm.count("log") > 0) {
             loggingFileName = vm["log"].as<std::string>();
         }
+        if (vm.count("logIsPipe") > 0) {
+            isLogFileNamedPipe = true;
+        }        
 
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
