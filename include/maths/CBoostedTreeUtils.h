@@ -32,18 +32,18 @@ using TAlignedMemoryMappedFloatVector =
 enum EExtraColumn { E_Prediction = 0, E_Gradient, E_Curvature, E_Weight };
 
 enum EHyperparameters {
-    E_Alpha = 0,
-    E_DownsampleFactor,
+    E_DownsampleFactor = 0,
+    E_Alpha,
+    E_Lambda,
+    E_Gamma,
+    E_SoftTreeDepthLimit,
+    E_SoftTreeDepthTolerance,
     E_Eta,
     E_EtaGrowthRatePerTree,
-    E_FeatureBagFraction,
-    E_Gamma,
-    E_Lambda,
-    E_SoftTreeDepthLimit,
-    E_SoftTreeDepthTolerance
+    E_FeatureBagFraction
 };
 
-constexpr std::size_t NUMBER_HYPERPARAMETERS = E_SoftTreeDepthTolerance + 1; // This must be last hyperparameter
+constexpr std::size_t NUMBER_HYPERPARAMETERS = E_FeatureBagFraction + 1; // This must be last hyperparameter
 
 struct SHyperparameterImportance {
     SHyperparameterImportance(EHyperparameters hyperparameter,
