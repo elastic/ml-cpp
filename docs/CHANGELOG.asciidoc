@@ -45,6 +45,8 @@
 
 * Fix edge case which could cause spurious anomalies early in the learning process
   if the time series has non-diurnal seasonality. (See {ml-pull}1634[#1634].)
+* Compute importance of hyperparameters optimized in the fine parameter tuning step.
+  (See {ml-pull}1627[#1627].)
 
 == {es} version 7.11.0
 

@@ -367,6 +367,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::ALPHA{"alpha"};
 const std::string CDataFrameTrainBoostedTreeRunner::LAMBDA{"lambda"};
 const std::string CDataFrameTrainBoostedTreeRunner::GAMMA{"gamma"};
 const std::string CDataFrameTrainBoostedTreeRunner::ETA{"eta"};
+const std::string CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE{"eta_growth_rate_per_tree"};
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_LIMIT{"soft_tree_depth_limit"};
 const std::string CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE{"soft_tree_depth_tolerance"};
 const std::string CDataFrameTrainBoostedTreeRunner::MAX_TREES{"max_trees"};

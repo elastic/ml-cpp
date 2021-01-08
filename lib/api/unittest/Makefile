@@ -41,6 +41,7 @@ SRCS=\
 	CFieldDataCategorizerTest.cc \
 	CForecastRunnerTest.cc \
 	CGlobalCategoryIdTest.cc \
+	CInferenceModelMetadataTest.cc \
 	CIoManagerTest.cc \
 	CJsonOutputWriterTest.cc \
 	CLengthEncodedInputParserTest.cc \

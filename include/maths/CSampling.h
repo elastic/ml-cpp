@@ -660,6 +660,10 @@ public:
     //! and \p rate on the \p n quantile intervals.
     static void gammaSampleQuantiles(double shape, double rate, std::size_t n, TDoubleVec& result);
 
+    //! Generate \p samples of Sobol sequence \p n elements on
+    //! the hypercube [0, 1] in \p dim dimensions.
+    static void sobolSequenceSample(std::size_t dim, std::size_t n, TDoubleVecVec& samples);
+
 private:
     //! \brief A uniform generator on the interval [0, n).
     template<typename RNG>

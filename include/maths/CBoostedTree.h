@@ -13,6 +13,7 @@
 #include <core/CStateRestoreTraverser.h>
 
 #include <maths/CBoostedTreeHyperparameters.h>
+#include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CDataFramePredictiveModel.h>
 #include <maths/CLinearAlgebraEigen.h>
@@ -201,6 +202,8 @@ public:
     using TDataFramePtr = core::CDataFrame*;
     using TNodeVec = std::vector<CBoostedTreeNode>;
     using TNodeVecVec = std::vector<TNodeVec>;
+    using THyperparameterImportanceVec =
+        std::vector<boosted_tree_detail::SHyperparameterImportance>;
 
     class MATHS_EXPORT CVisitor : public CDataFrameCategoryEncoder::CVisitor,
                                   public CBoostedTreeNode::CVisitor {
@@ -229,6 +232,9 @@ public:
     //!
     //! \warning Will return a nullptr if a trained model isn't available.
     CTreeShapFeatureImportance* shap() const override;
+
+    //! Get the vector of hyperparameter importances.
+    THyperparameterImportanceVec hyperparameterImportance() const;
 
     //! Get the column containing the dependent variable.
     std::size_t columnHoldingDependentVariable() const override;

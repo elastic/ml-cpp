@@ -16,6 +16,7 @@
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CBoostedTreeImpl.h>
 #include <maths/CBoostedTreeLoss.h>
+#include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>
@@ -220,6 +221,7 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
     LOG_TRACE(<< "hyperparameter search bounding box = "
               << core::CContainerPrinter::print(boundingBox));
 
+    m_TreeImpl->initializeTunableHyperparameters();
     m_TreeImpl->m_BayesianOptimization = std::make_unique<CBayesianOptimisation>(
         std::move(boundingBox),
         m_BayesianOptimisationRestarts.value_or(CBayesianOptimisation::RESTARTS));

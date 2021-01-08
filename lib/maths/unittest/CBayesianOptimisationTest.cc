@@ -10,6 +10,8 @@
 #include <maths/CBasicStatistics.h>
 #include <maths/CBayesianOptimisation.h>
 #include <maths/CLinearAlgebraEigen.h>
+#include <maths/CSampling.h>
+#include <maths/CTools.h>
 
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
@@ -24,6 +26,7 @@ using namespace ml;
 
 namespace {
 using TDoubleVec = std::vector<double>;
+using TDoubleVecVec = std::vector<TDoubleVec>;
 using TVector = maths::CDenseVector<double>;
 
 TVector vector(TDoubleVec components) {
@@ -82,6 +85,27 @@ void testPersistRestoreIsIdempotent(const TDoubleVec& minBoundary,
     LOG_DEBUG(<< "First string " << persistOnceSStream.str());
     LOG_DEBUG(<< "Second string " << persistTwiceSStream.str());
     BOOST_REQUIRE_EQUAL(persistOnceSStream.str(), persistTwiceSStream.str());
+}
+
+maths::CBayesianOptimisation
+initBayesianOptimization(std::size_t dim, std::size_t numSamples, double min, double max) {
+    test::CRandomNumbers rng;
+    TDoubleVec trainSamples(numSamples * dim);
+    rng.generateUniformSamples(min, max, trainSamples.size(), trainSamples);
+    maths::CBayesianOptimisation::TDoubleDoublePrVec boundaries;
+    boundaries.reserve(dim);
+    for (std::size_t d = 0; d < dim; ++d) {
+        boundaries.emplace_back(min, max);
+    }
+    maths::CBayesianOptimisation bopt{boundaries};
+    for (std::size_t i = 0; i < numSamples; i += 2) {
+        TVector x{vector({trainSamples[i], trainSamples[i + 1]})};
+        bopt.add(x, x.squaredNorm(), 1.0);
+    }
+    TDoubleVec kernelParameters(dim + 1, 0.5);
+    kernelParameters[0] = 0.7;
+    bopt.kernelParameters(vector(kernelParameters));
+    return bopt;
 }
 }
 
@@ -366,6 +390,132 @@ BOOST_AUTO_TEST_CASE(testPersistRestore) {
             testPersistRestoreIsIdempotent(minBoundary, maxBoundary, parameterFunctionValues);
         }
     }
+}
+
+BOOST_AUTO_TEST_CASE(testEvaluate) {
+    TDoubleVec coordinates{0.25, 0.5, 0.75};
+    maths::CBayesianOptimisation bopt{{{0.0, 1.0}, {0.0, 1.0}}};
+    for (std::size_t i = 0; i < 3; ++i) {
+        for (std::size_t j = 0; j < 3; ++j) {
+            TVector x{vector({coordinates[i], coordinates[j]})};
+            bopt.add(x, x.squaredNorm(), 0.0);
+        }
+    }
+
+    TVector kernelParameters(vector({1.0, 0.5, 0.5}));
+    bopt.kernelParameters(kernelParameters);
+
+    TDoubleVecVec testPoints{{0.3, 0.3}, {0.3, 0.6}, {0.6, 0.3}};
+    TDoubleVec testTargets{0.17823499, 0.45056931, 0.45056931};
+
+    for (std::size_t i = 0u; i < testPoints.size(); ++i) {
+        TVector x{vector(testPoints[i])};
+        double actualTarget{bopt.evaluate(x)};
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(actualTarget, testTargets[i], 1e-5);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testEvaluate1D) {
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    test::CRandomNumbers rng;
+    std::size_t dim{2};
+    std::size_t mcSamples{100};
+    maths::CBayesianOptimisation bopt{initBayesianOptimization(dim, 20, 0.0, 1.0)};
+    double f0{bopt.anovaConstantFactor()};
+
+    TDoubleVecVec testSamples;
+    maths::CSampling::sobolSequenceSample(dim, mcSamples, testSamples);
+
+    TDoubleVec testInput(1);
+    rng.generateUniformSamples(0, 1, 1, testInput);
+
+    for (int d = 0; d < static_cast<int>(dim); ++d) {
+        TMeanAccumulator meanAccumulator;
+        double ftActual{bopt.evaluate1D(testInput[0], d)};
+        for (std::size_t i = 0u; i < mcSamples; ++i) {
+            TVector input{vector(testSamples[i])};
+            input(d) = testInput[0];
+            meanAccumulator.add(bopt.evaluate(input) - f0);
+        }
+        double ftExpected{maths::CBasicStatistics::mean(meanAccumulator)};
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(ftActual, ftExpected, 5e-4);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(testAnovaConstantFactor) {
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+    std::size_t dim{2};
+    std::size_t mcSamples{1000};
+    TDoubleVecVec testSamples;
+    maths::CSampling::sobolSequenceSample(dim, mcSamples, testSamples);
+
+    auto verify = [&](double min, double max) {
+        TMeanAccumulator meanAccumulator;
+        maths::CBayesianOptimisation bopt{initBayesianOptimization(dim, 20, min, max)};
+        double f0Actual{bopt.anovaConstantFactor()};
+        for (std::size_t i = 0u; i < mcSamples; ++i) {
+            TVector input{(vector(testSamples[i]) * (max - min)).array() + min};
+            meanAccumulator.add(bopt.evaluate(input));
+        }
+        double f0Expected{maths::CBasicStatistics::mean(meanAccumulator)};
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(f0Actual, f0Expected, 5e-3);
+    };
+    verify(0.0, 1.0);
+    verify(-3.0, 3.0);
+    verify(0.2, 0.8);
+}
+
+BOOST_AUTO_TEST_CASE(testAnovaTotalVariance) {
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    TMeanAccumulator meanAccumulator;
+    std::size_t dim{2};
+    std::size_t mcSamples{1000};
+    TDoubleVecVec testSamples;
+    maths::CSampling::sobolSequenceSample(dim, mcSamples, testSamples);
+
+    auto verify = [&](double min, double max) {
+        TMeanAccumulator meanAccumulator;
+        maths::CBayesianOptimisation bopt{initBayesianOptimization(dim, 20, min, max)};
+        double f0{bopt.anovaConstantFactor()};
+        double totalVarianceActual{bopt.anovaTotalVariance()};
+        for (std::size_t i = 0u; i < mcSamples; ++i) {
+            TVector input{(vector(testSamples[i]) * (max - min)).array() + min};
+            meanAccumulator.add(maths::CTools::pow2(bopt.evaluate(input) - f0));
+        }
+        double totalVarianceExpected{maths::CBasicStatistics::mean(meanAccumulator)};
+        BOOST_REQUIRE_CLOSE_ABSOLUTE(totalVarianceActual, totalVarianceExpected, 5e-3);
+    };
+    verify(0.0, 1.0);
+    verify(-3.0, 3.0);
+    verify(0.2, 0.8);
+}
+
+BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
+    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+    TMeanAccumulator meanAccumulator;
+    std::size_t dim{2};
+    std::size_t mcSamples{1000};
+    TDoubleVecVec testSamples;
+    maths::CSampling::sobolSequenceSample(1, mcSamples, testSamples);
+
+    auto verify = [&](double min, double max) {
+        maths::CBayesianOptimisation bopt{initBayesianOptimization(dim, 20, min, max)};
+        for (std::size_t d = 0; d < dim; ++d) {
+            TMeanAccumulator meanAccumulator;
+            for (std::size_t i = 0; i < mcSamples; ++i) {
+                TVector input{(vector(testSamples[i]) * (max - min)).array() + min};
+                meanAccumulator.add(maths::CTools::pow2(
+                    bopt.evaluate1D(input[0], static_cast<int>(d))));
+            }
+            double mainEffectExpected(maths::CBasicStatistics::mean(meanAccumulator));
+            double mainEffectActual{bopt.anovaMainEffect(static_cast<int>(d))};
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(mainEffectActual, mainEffectExpected, 5e-3);
+        }
+    };
+    verify(0.0, 1.0);
+    verify(-3.0, 3.0);
+    verify(0.2, 0.8);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
