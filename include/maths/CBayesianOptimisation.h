@@ -93,6 +93,31 @@ public:
     static std::size_t estimateMemoryUsage(std::size_t numberParameters,
                                            std::size_t numberRounds);
 
+    //! Evaluate the Guassian process at the point \p input.
+    double evaluate(const TVector& input) const;
+
+    //! Compute the marginalized value of the Gaussian process in the dimension
+    //! \p dimension for the values \p input.
+    double evaluate1D(double input, int dimension) const;
+
+    //! Get the constant factor of the ANOVA decomposition of the Gaussian process.
+    double anovaConstantFactor() const;
+
+    //! Get the total variance of the hyperparameters in the Gaussian process
+    //! using ANOVA decomposition.
+    double anovaTotalVariance() const;
+
+    //! Get the main effect of the parameter \p dimension in the Gaussian process
+    //! using ANOVA decomposition.
+    double anovaMainEffect(int dimension) const;
+
+    //! Get the vector of main effects as an absolute value and as a fraction
+    //! of the total variance.
+    TDoubleDoublePrVec anovaMainEffects() const;
+
+    //! Set kernel \p parameters explicitly.
+    void kernelParameters(const TVector& parameters);
+
     //! \name Test Interface
     //@{
     //! Get minus the data likelihood and its gradient as a function of the kernel
@@ -132,6 +157,14 @@ private:
     TMatrix kernel(const TVector& a, double v) const;
     TVectorDoublePr kernelCovariates(const TVector& a, const TVector& x, double vx) const;
     double kernel(const TVector& a, const TVector& x, const TVector& y) const;
+    double evaluate(const TVector& Kinvf, const TVector& input) const;
+    double evaluate1D(const TVector& Kinvf, double input, int dimension) const;
+    double anovaConstantFactor(const TVector& Kinvf) const;
+    double anovaTotalVariance(const TVector& Kinvf) const;
+    double anovaMainEffect(const TVector& Kinvf, int dimension) const;
+    TVector kinvf() const;
+    TVector transformTo01(const TVector& x) const;
+    TVector scaledKernelParameters() const;
 
 private:
     CPRNG::CXorOShiro128Plus m_Rng;

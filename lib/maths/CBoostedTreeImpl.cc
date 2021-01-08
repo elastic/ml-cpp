@@ -339,6 +339,8 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     std::size_t foldRoundLossMemoryUsage{m_NumberFolds * m_NumberRounds *
                                          sizeof(TOptionalDouble)};
     std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
+    std::size_t tunableHyperparametersMemoryUsage{m_TunableHyperparameters.size() *
+                                                  sizeof(int)};
     // The leaves' row masks memory is accounted for here because it's proportional
     // to the log2(number of nodes). The compressed bit vector representation uses
     // roughly log2(E[run length]) / E[run length] bytes per bit. As we grow the
@@ -371,8 +373,9 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
         this->numberHyperparametersToTune(), m_NumberRounds)};
     std::size_t worstCaseMemoryUsage{
         sizeof(*this) + forestMemoryUsage + foldRoundLossMemoryUsage +
-        hyperparametersMemoryUsage + leafNodeStatisticsMemoryUsage +
-        dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
+        hyperparametersMemoryUsage + tunableHyperparametersMemoryUsage +
+        leafNodeStatisticsMemoryUsage + dataTypeMemoryUsage +
+        featureSampleProbabilities + missingFeatureMaskMemoryUsage +
         trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage};
 
     return CBoostedTreeImpl::correctedMemoryUsage(static_cast<double>(worstCaseMemoryUsage));
@@ -1265,8 +1268,8 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     double meanLoss{CBasicStatistics::mean(lossMoments)};
     double lossVariance{CBasicStatistics::variance(lossMoments)};
 
-    LOG_TRACE(<< "round = " << m_CurrentRound << " loss = " << meanLoss
-              << ": regularization = " << m_Regularization.print()
+    LOG_TRACE(<< "round = " << m_CurrentRound << " loss = " << meanLoss << " variance = "
+              << lossVariance << ": regularization = " << m_Regularization.print()
               << ", downsample factor = " << m_DownsampleFactor << ", eta = " << m_Eta
               << ", eta growth rate per tree = " << m_EtaGrowthRatePerTree
               << ", feature bag fraction = " << m_FeatureBagFraction);
@@ -1283,6 +1286,16 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     }
 
     // Write parameters for next round.
+    if (m_DownsampleFactorOverride == boost::none) {
+        auto i = std::distance(m_TunableHyperparameters.begin(),
+                               std::find(m_TunableHyperparameters.begin(),
+                                         m_TunableHyperparameters.end(), E_DownsampleFactor));
+        if (static_cast<std::size_t>(i) < m_TunableHyperparameters.size()) {
+            scale = std::min(1.0, 2.0 * parameters(i) /
+                                      (CTools::stableExp(minBoundary(0)) +
+                                       CTools::stableExp(maxBoundary(0))));
+        }
+    }
     i = 0;
     if (m_DownsampleFactorOverride == boost::none) {
         m_DownsampleFactor = CTools::stableExp(parameters(i++));
@@ -1388,6 +1401,59 @@ void CBoostedTreeImpl::recordHyperparameters() {
             m_Regularization.softTreeDepthTolerance(),
             m_Regularization.treeSizePenaltyMultiplier(),
             m_Regularization.leafWeightPenaltyMultiplier()};
+}
+
+void CBoostedTreeImpl::initializeTunableHyperparameters() {
+    m_TunableHyperparameters.clear();
+    for (int i = 0; i < static_cast<int>(NUMBER_HYPERPARAMETERS); ++i) {
+        switch (i) {
+        case E_DownsampleFactor:
+            if (m_DownsampleFactorOverride == boost::none) {
+                m_TunableHyperparameters.emplace_back(E_DownsampleFactor);
+            }
+            break;
+        case E_Alpha:
+            if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
+                m_TunableHyperparameters.emplace_back(E_Alpha);
+            }
+            break;
+        case E_Lambda:
+            if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
+                m_TunableHyperparameters.emplace_back(E_Lambda);
+            }
+            break;
+        case E_Gamma:
+            if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
+                m_TunableHyperparameters.emplace_back(E_Gamma);
+            }
+            break;
+        case E_SoftTreeDepthLimit:
+            if (m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
+                m_TunableHyperparameters.emplace_back(E_SoftTreeDepthLimit);
+            }
+            break;
+        case E_SoftTreeDepthTolerance:
+            if (m_RegularizationOverride.softTreeDepthTolerance() == boost::none) {
+                m_TunableHyperparameters.emplace_back(E_SoftTreeDepthTolerance);
+            }
+            break;
+        case E_Eta:
+            if (m_EtaOverride == boost::none) {
+                m_TunableHyperparameters.emplace_back(E_Eta);
+            }
+            break;
+        case E_EtaGrowthRatePerTree:
+            if (m_EtaOverride == boost::none) {
+                m_TunableHyperparameters.emplace_back(E_EtaGrowthRatePerTree);
+            }
+            break;
+        case E_FeatureBagFraction:
+            if (m_FeatureBagFractionOverride == boost::none) {
+                m_TunableHyperparameters.emplace_back(E_FeatureBagFraction);
+            }
+            break;
+        }
+    }
 }
 
 void CBoostedTreeImpl::startProgressMonitoringFineTuneHyperparameters() {
@@ -1540,6 +1606,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_StopCrossValidationEarly, inserter);
     core::CPersistUtils::persist(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, inserter);
     core::CPersistUtils::persist(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, inserter);
+    // m_TunableHyperparameters is not persisted explicitly, it is restored from overriden hyperparameters
 }
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -1653,8 +1720,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                 core::CPersistUtils::restore(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, traverser))
         RESTORE(TRAINING_ROW_MASKS_TAG,
                 core::CPersistUtils::restore(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, traverser))
+        // m_TunableHyperparameters is not restored explicitly, it is restored from overriden hyperparameters
     } while (traverser.next());
-
+    this->initializeTunableHyperparameters();
     m_InitializationStage = static_cast<EInitializationStage>(initializationStage);
 
     return true;
@@ -1693,6 +1761,60 @@ const CBoostedTreeHyperparameters& CBoostedTreeImpl::bestHyperparameters() const
 
 CTreeShapFeatureImportance* CBoostedTreeImpl::shap() {
     return m_TreeShap.get();
+}
+
+CBoostedTreeImpl::THyperparameterImportanceVec
+CBoostedTreeImpl::hyperparameterImportance() const {
+    THyperparameterImportanceVec hyperparameterImportances;
+    hyperparameterImportances.reserve(m_TunableHyperparameters.size());
+    CBayesianOptimisation::TDoubleDoublePrVec anovaMainEffects{
+        m_BayesianOptimization->anovaMainEffects()};
+    for (std::size_t i = 0; i < static_cast<std::size_t>(NUMBER_HYPERPARAMETERS); ++i) {
+        double absoluteImportance{0.0};
+        double relativeImportance{0.0};
+        bool supplied{true};
+        auto tunableIndex = std::distance(m_TunableHyperparameters.begin(),
+                                          std::find(m_TunableHyperparameters.begin(),
+                                                    m_TunableHyperparameters.end(), i));
+        if (static_cast<std::size_t>(tunableIndex) < m_TunableHyperparameters.size()) {
+            supplied = false;
+            std::tie(absoluteImportance, relativeImportance) = anovaMainEffects[tunableIndex];
+        }
+        double hyperparameterValue;
+        switch (i) {
+        case E_Alpha:
+            hyperparameterValue = m_Regularization.depthPenaltyMultiplier();
+            break;
+        case E_DownsampleFactor:
+            hyperparameterValue = m_DownsampleFactor;
+            break;
+        case E_Eta:
+            hyperparameterValue = m_Eta;
+            break;
+        case E_EtaGrowthRatePerTree:
+            hyperparameterValue = m_EtaGrowthRatePerTree;
+            break;
+        case E_FeatureBagFraction:
+            hyperparameterValue = m_FeatureBagFraction;
+            break;
+        case E_Gamma:
+            hyperparameterValue = m_Regularization.treeSizePenaltyMultiplier();
+            break;
+        case E_Lambda:
+            hyperparameterValue = m_Regularization.leafWeightPenaltyMultiplier();
+            break;
+        case E_SoftTreeDepthLimit:
+            hyperparameterValue = m_Regularization.softTreeDepthLimit();
+            break;
+        case E_SoftTreeDepthTolerance:
+            hyperparameterValue = m_Regularization.softTreeDepthTolerance();
+            break;
+        }
+        hyperparameterImportances.emplace_back(static_cast<EHyperparameters>(i),
+                                               hyperparameterValue, absoluteImportance,
+                                               relativeImportance, supplied);
+    }
+    return hyperparameterImportances;
 }
 
 const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureSampleProbabilities() const {
