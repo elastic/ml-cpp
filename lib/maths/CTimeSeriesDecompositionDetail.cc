@@ -2284,12 +2284,12 @@ void CTimeSeriesDecompositionDetail::CComponents::shiftOrigin(core_t::TTime time
 
 void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime time) {
 
-    // There is redundancy in the specification of the additive decomposition.
-    // For any trend and collection of seasonal and trend models {m_i} then for
-    // any set of |{m_i}| constants {c_j} satisfying sum_j c_j = 0 all models
-    // of the form m_i' = s_i + c_{j(i)} for any permutation j(.) give the same
-    // predictions. Here we choose a canonical form which minimises the values
-    // of the components to avoid issues with cancellation errors.
+    // There is redundancy in the specification of the additive decomposition. For
+    // any collection of models {m_i} then for any set of |{m_i}| constants {c_j}
+    // satisfying sum_j c_j = 0 all models of the form m_i' = s_i + c_{j(i)} for
+    // any permutation j(.) give the same predictions. Here we choose a canonical
+    // form which minimises the values of the components to avoid issues with
+    // cancellation errors.
 
     using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
 
@@ -2594,8 +2594,8 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::propagateForwards(c
     for (std::size_t i = 0; i < m_Components.size(); ++i) {
         core_t::TTime period{m_Components[i].time().period()};
         stepwisePropagateForwards(start, end, period, [&](double time) {
-            m_Components[i].propagateForwardsByTime(time / 4.0, 0.25);
-            m_PredictionErrors[i].age(std::exp(-m_Components[i].decayRate() * time / 4.0));
+            m_Components[i].propagateForwardsByTime(time / 8.0, 0.25);
+            m_PredictionErrors[i].age(std::exp(-m_Components[i].decayRate() * time));
         });
     }
 }
@@ -2692,7 +2692,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::interpolate(core_t:
         core_t::TTime a{CIntegerTools::floor(lastTime, period)};
         core_t::TTime b{CIntegerTools::floor(time, period)};
         if (b > a || component.initialized() == false) {
-            component.interpolate(b, refine);
+            component.interpolate(time, refine);
         }
     }
 }
@@ -2717,7 +2717,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::add(
     const TFloatMeanAccumulatorVec& values) {
     m_Components.emplace_back(seasonalTime, size, decayRate, bucketLength, boundaryCondition);
     m_Components.back().initialize(startTime, endTime, values);
-    m_Components.back().interpolate(CIntegerTools::floor(endTime, seasonalTime.period()));
+    m_Components.back().interpolate(endTime);
     m_PredictionErrors.emplace_back();
 }
 
@@ -2910,8 +2910,8 @@ void CTimeSeriesDecompositionDetail::CComponents::CCalendar::propagateForwards(c
                                                                                core_t::TTime end) {
     for (std::size_t i = 0; i < m_Components.size(); ++i) {
         stepwisePropagateForwards(start, end, MONTH, [&](double time) {
-            m_Components[i].propagateForwardsByTime(time / 4.0);
-            m_PredictionErrors[i].age(std::exp(-m_Components[i].decayRate() * time / 4.0));
+            m_Components[i].propagateForwardsByTime(time / 8.0);
+            m_PredictionErrors[i].age(std::exp(-m_Components[i].decayRate() * time));
         });
     }
 }
