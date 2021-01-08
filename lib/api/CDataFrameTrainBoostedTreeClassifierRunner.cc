@@ -301,6 +301,8 @@ CDataFrameTrainBoostedTreeClassifierRunner::inferenceModelMetadata() const {
     if (featureImportance) {
         m_InferenceModelMetadata.featureImportanceBaseline(featureImportance->baseline());
     }
+    m_InferenceModelMetadata.hyperparameterImportance(
+        this->boostedTree().hyperparameterImportance());
     return m_InferenceModelMetadata;
 }
 
