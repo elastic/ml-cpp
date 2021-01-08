@@ -6,7 +6,8 @@
 
 OS=MacOSX
 
-CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/darwin-x86_64
+HARDWARE_ARCH:=$(shell uname -m | sed 's/arm64/aarch64/')
+CPP_PLATFORM_HOME=$(CPP_DISTRIBUTION_HOME)/platform/darwin-$(HARDWARE_ARCH)
 ML_APP_NAME=controller
 APP_CONTENTS=$(ML_APP_NAME).app/Contents
 
@@ -24,9 +25,13 @@ COVERAGE=--coverage
 endif
 endif
 
+ifeq ($(HARDWARE_ARCH),x86_64)
+ARCHCFLAGS=-msse4.2
+endif
+
 SDK_PATH:=$(shell xcrun --show-sdk-path)
 # Start by enabling all warnings and then disable the really pointless/annoying ones
-CFLAGS=-g $(OPTCFLAGS) -msse4.2 -fstack-protector -Weverything -Werror-switch -Wno-deprecated -Wno-disabled-macro-expansion -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-float-equal -Wno-missing-prototypes -Wno-padded -Wno-sign-conversion -Wno-unreachable-code -Wno-used-but-marked-unused $(COVERAGE)
+CFLAGS=-g $(OPTCFLAGS) $(ARCHCFLAGS) -fstack-protector -Weverything -Werror-switch -Wno-deprecated -Wno-disabled-macro-expansion -Wno-documentation-deprecated-sync -Wno-documentation-unknown-command -Wno-float-equal -Wno-missing-prototypes -Wno-padded -Wno-poison-system-directories -Wno-sign-conversion -Wno-unreachable-code -Wno-used-but-marked-unused $(COVERAGE)
 CXXFLAGS=$(CFLAGS) -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-exit-time-destructors -Wno-global-constructors -Wno-return-std-move-in-c++11 -Wno-unused-member-function -Wno-weak-vtables
 CPPFLAGS=-isystem $(CPP_SRC_HOME)/3rd_party/include -isystem /usr/local/include -D$(OS) $(OPTCPPFLAGS)
 ANALYZEFLAGS=--analyze
@@ -46,21 +51,30 @@ RESOURCES_DIR=$(APP_CONTENTS)/Resources
 LOCALLIBS=
 NETLIBS=
 BOOSTVER=1_71
+ifeq ($(HARDWARE_ARCH),x86_64)
+BOOSTARCH=x64
+else
+BOOSTARCH=a64
+endif
 BOOSTCLANGVER:=$(shell $(CXX) --version | grep ' version ' | sed 's/.* version //' | awk -F. '{ print $$1$$2; }')
 # Use -isystem instead of -I for Boost headers to suppress warnings from Boost
 BOOSTINCLUDES=-isystem /usr/local/include/boost-$(BOOSTVER)
 BOOSTCPPFLAGS=-DBOOST_ALL_DYN_LINK -DBOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
-BOOSTLOGLIBS=-lboost_log-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
-BOOSTLOGSETUPLIBS=-lboost_log_setup-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
-BOOSTREGEXLIBS=-lboost_regex-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
-BOOSTIOSTREAMSLIBS=-lboost_iostreams-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
-BOOSTPROGRAMOPTIONSLIBS=-lboost_program_options-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
-BOOSTTHREADLIBS=-lboost_thread-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER) -lboost_system-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
-BOOSTFILESYSTEMLIBS=-lboost_filesystem-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER) -lboost_system-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
-BOOSTDATETIMELIBS=-lboost_date_time-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
-BOOSTTESTLIBS=-lboost_unit_test_framework-clang-darwin$(BOOSTCLANGVER)-mt-x64-$(BOOSTVER)
+BOOSTLOGLIBS=-lboost_log-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTLOGSETUPLIBS=-lboost_log_setup-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTREGEXLIBS=-lboost_regex-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTIOSTREAMSLIBS=-lboost_iostreams-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTPROGRAMOPTIONSLIBS=-lboost_program_options-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTTHREADLIBS=-lboost_thread-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTARCH)-$(BOOSTVER) -lboost_system-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTFILESYSTEMLIBS=-lboost_filesystem-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTARCH)-$(BOOSTVER) -lboost_system-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTDATETIMELIBS=-lboost_date_time-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
+BOOSTTESTLIBS=-lboost_unit_test_framework-clang-darwin$(BOOSTCLANGVER)-mt-$(BOOSTARCH)-$(BOOSTVER)
 RAPIDJSONINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/rapidjson/include
+ifeq ($(HARDWARE_ARCH),x86_64)
 RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_SSE42
+else
+RAPIDJSONCPPFLAGS=-DRAPIDJSON_HAS_STDSTRING -DRAPIDJSON_NEON
+endif
 EIGENINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/eigen
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY -DEIGEN_MAX_ALIGN_BYTES=32
 XMLINCLUDES=-isystem $(SDK_PATH)/usr/include/libxml2
