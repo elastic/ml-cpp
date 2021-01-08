@@ -38,7 +38,6 @@ SRCS=\
 	CDataFrameTrainBoostedTreeRegressionRunnerTest.cc \
 	CDataFrameMockAnalysisRunner.cc \
 	CDetectionRulesJsonParserTest.cc \
-	CFieldConfigTest.cc \
 	CFieldDataCategorizerTest.cc \
 	CForecastRunnerTest.cc \
 	CGlobalCategoryIdTest.cc \

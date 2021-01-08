@@ -23,10 +23,10 @@ const std::string CCmdLineParser::DESCRIPTION = "Usage: autodetect [options] [<f
 bool CCmdLineParser::parse(int argc,
                            const char* const* argv,
                            std::string& configFile,
+                           std::string& filtersConfigFile,
+                           std::string& eventsConfigFile,
                            std::string& limitConfigFile,
                            std::string& modelConfigFile,
-                           std::string& fieldConfigFile,
-                           std::string& modelPlotConfigFile,
                            std::string& logProperties,
                            std::string& logPipe,
                            char& delimiter,
@@ -60,6 +60,10 @@ bool CCmdLineParser::parse(int argc,
             ("version", "Display version information and exit")
             ("config", boost::program_options::value<std::string>(),
                     "The job configuration file")
+            ("filtersconfig", boost::program_options::value<std::string>(),
+             "The filters configuration file")
+            ("eventsconfig", boost::program_options::value<std::string>(),
+             "The scheduled events configuration file")
             ("limitconfig", boost::program_options::value<std::string>(),
                     "Optional limit config file")
             ("modelconfig", boost::program_options::value<std::string>(),
@@ -155,17 +159,17 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("config") > 0) {
             configFile = vm["config"].as<std::string>();
         }
+        if (vm.count("filtersconfig") > 0) {
+            filtersConfigFile = vm["filtersconfig"].as<std::string>();
+        }
+        if (vm.count("eventsconfig") > 0) {
+            eventsConfigFile = vm["eventsconfig"].as<std::string>();
+        }
         if (vm.count("limitconfig") > 0) {
             limitConfigFile = vm["limitconfig"].as<std::string>();
         }
         if (vm.count("modelconfig") > 0) {
             modelConfigFile = vm["modelconfig"].as<std::string>();
-        }
-        if (vm.count("fieldconfig") > 0) {
-            fieldConfigFile = vm["fieldconfig"].as<std::string>();
-        }
-        if (vm.count("modelplotconfig") > 0) {
-            modelPlotConfigFile = vm["modelplotconfig"].as<std::string>();
         }
         if (vm.count("logProperties") > 0) {
             logProperties = vm["logProperties"].as<std::string>();

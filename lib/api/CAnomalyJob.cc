@@ -39,7 +39,6 @@
 #include <api/CAnnotationJsonWriter.h>
 #include <api/CAnomalyJobConfig.h>
 #include <api/CConfigUpdater.h>
-#include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CModelPlotDataJsonWriter.h>
