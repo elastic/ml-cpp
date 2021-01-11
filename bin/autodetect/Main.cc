@@ -110,7 +110,6 @@ int main(int argc, char** argv) {
     std::string persistFileName;
     bool isPersistFileNamedPipe{false};
     bool isPersistInForeground{false};
-    bool isPersistDisabled{false};
     std::size_t maxAnomalyRecords{100};
     bool memoryUsage{false};
     bool stopCategorizationOnWarnStatus{false};
@@ -121,8 +120,8 @@ int main(int argc, char** argv) {
             timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
             bucketPersistInterval, maxQuantileInterval, namedPipeConnectTimeout,
             inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
-            restoreFileName, isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe,
-            isPersistInForeground, isPersistDisabled, maxAnomalyRecords,
+            restoreFileName, isRestoreFileNamedPipe, persistFileName,
+            isPersistFileNamedPipe, isPersistInForeground, maxAnomalyRecords,
             memoryUsage, stopCategorizationOnWarnStatus, clauseTokens) == false) {
         return EXIT_FAILURE;
     }
@@ -245,10 +244,9 @@ int main(int argc, char** argv) {
 
     using TPersistenceManagerUPtr = std::unique_ptr<ml::api::CPersistenceManager>;
     const TPersistenceManagerUPtr persistenceManager{
-        [isPersistDisabled, persistInterval, isPersistInForeground, &persister,
+        [persistInterval, isPersistInForeground, &persister,
          &bucketPersistInterval]() -> TPersistenceManagerUPtr {
-            if (isPersistDisabled == false &&
-                (persistInterval >= 0 || bucketPersistInterval > 0)) {
+            if (persistInterval >= 0 || bucketPersistInterval > 0) {
                 return std::make_unique<ml::api::CPersistenceManager>(
                     persistInterval, isPersistInForeground, *persister, bucketPersistInterval);
             }

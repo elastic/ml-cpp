@@ -59,7 +59,6 @@ public:
                       std::string& persistFileName,
                       bool& isPersistFileNamedPipe,
                       bool& isPersistInForeground,
-                      bool& isPersistDisabled,
                       std::size_t& maxAnomalyRecords,
                       bool& memoryUsage,
                       bool& stopCategorizationOnWarnStatus,
