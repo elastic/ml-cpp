@@ -106,7 +106,7 @@ bool CSeasonalComponent::initialize(core_t::TTime startTime,
                                     const TFloatMeanAccumulatorVec& values) {
     this->clear();
 
-    if (!m_Bucketing.initialize(this->maxSize())) {
+    if (m_Bucketing.initialize(this->maxSize()) == false) {
         LOG_ERROR(<< "Bad input size: " << this->maxSize());
         return false;
     }
@@ -137,10 +137,14 @@ void CSeasonalComponent::shiftLevel(double shift) {
 }
 
 void CSeasonalComponent::shiftSlope(core_t::TTime time, double shift) {
+    const auto& time_ = m_Bucketing.time();
+    time = time_.startOfWindow(time) + (time_.inWindow(time) ? 0 : time_.windowRepeat());
     m_Bucketing.shiftSlope(time, shift);
 }
 
 void CSeasonalComponent::linearScale(core_t::TTime time, double scale) {
+    const auto& time_ = m_Bucketing.time();
+    time = time_.startOfWindow(time) + (time_.inWindow(time) ? 0 : time_.windowRepeat());
     m_Bucketing.linearScale(time, scale);
     this->interpolate(time, false);
 }
@@ -154,6 +158,10 @@ void CSeasonalComponent::interpolate(core_t::TTime time, bool refine) {
     if (refine) {
         m_Bucketing.refine(time);
     }
+
+    const auto& time_ = m_Bucketing.time();
+    time = time_.startOfWindow(time) + (time_.inWindow(time) ? 0 : +time_.windowRepeat());
+
     TDoubleVec knots;
     TDoubleVec values;
     TDoubleVec variances;
@@ -253,7 +261,7 @@ double CSeasonalComponent::meanVariance() const {
 bool CSeasonalComponent::covariances(core_t::TTime time, TMatrix& result) const {
     result = TMatrix(0.0);
 
-    if (!this->initialized()) {
+    if (this->initialized() == false) {
         return false;
     }
 

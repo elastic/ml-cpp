@@ -48,6 +48,12 @@
 * Compute importance of hyperparameters optimized in the fine parameter tuning step.
   (See {ml-pull}1627[#1627].)
 
+=== Bug Fixes
+
+* Fix a source of instability in time series modeling for anomaly detection. This has
+  been observed to cause spurious anomalies for a partition which no longer receives
+  any data. (See {ml-pull}1646[#1646].)
+
 == {es} version 7.11.0
 
 === Enhancements

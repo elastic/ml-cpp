@@ -179,21 +179,30 @@ void CSeasonalComponentAdaptiveBucketing::shiftLevel(double shift) {
 
 void CSeasonalComponentAdaptiveBucketing::shiftSlope(core_t::TTime time, double shift) {
     if (std::fabs(shift) > 0.0) {
-        for (auto& bucket : m_Buckets) {
-            bucket.s_Regression.shiftGradient(shift);
-            bucket.s_Regression.shiftOrdinate(-shift * m_Time->regression(time));
+        const auto& centres = this->centres();
+        for (std::size_t i = 0; i < m_Buckets.size(); ++i) {
+            core_t::TTime bucketTime{time + static_cast<core_t::TTime>(centres[i] + 0.5)};
+            m_Buckets[i].s_Regression.shiftGradient(shift);
+            m_Buckets[i].s_Regression.shiftOrdinate(-shift * m_Time->regression(bucketTime));
         }
     }
 }
 
 void CSeasonalComponentAdaptiveBucketing::linearScale(core_t::TTime time, double scale) {
-    for (auto& bucket : m_Buckets) {
-        double gradientBefore{gradient(bucket.s_Regression)};
-        bucket.s_Regression.linearScale(scale);
-        double gradientAfter{gradient(bucket.s_Regression)};
-        bucket.s_Regression.shiftGradient(gradientBefore - gradientAfter);
-        bucket.s_Regression.shiftOrdinate(-(gradientBefore - gradientAfter) *
-                                          m_Time->regression(time));
+    const auto& centres = this->centres();
+    for (std::size_t i = 0; i < m_Buckets.size(); ++i) {
+        if (scale <= 1.0) {
+            m_Buckets[i].s_Regression.linearScale(scale);
+        } else {
+            double gradientBefore{gradient(m_Buckets[i].s_Regression)};
+            m_Buckets[i].s_Regression.linearScale(scale);
+            double gradientAfter{gradient(m_Buckets[i].s_Regression)};
+
+            core_t::TTime bucketTime{time + static_cast<core_t::TTime>(centres[i] + 0.5)};
+            m_Buckets[i].s_Regression.shiftGradient(gradientBefore - gradientAfter);
+            m_Buckets[i].s_Regression.shiftOrdinate(
+                -(gradientBefore - gradientAfter) * m_Time->regression(bucketTime));
+        }
     }
 }
 
@@ -213,8 +222,8 @@ void CSeasonalComponentAdaptiveBucketing::add(core_t::TTime time,
     double t{m_Time->regression(time)};
     TRegression& regression{bucket_.s_Regression};
 
-    TDoubleMeanVarAccumulator moments = CBasicStatistics::momentsAccumulator(
-        regression.count(), prediction, static_cast<double>(bucket_.s_Variance));
+    TDoubleMeanVarAccumulator moments{CBasicStatistics::momentsAccumulator(
+        regression.count(), prediction, static_cast<double>(bucket_.s_Variance))};
     moments.add(value, weight * weight);
 
     regression.add(t, value, weight);

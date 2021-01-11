@@ -2284,6 +2284,15 @@ void CTimeSeriesDecompositionDetail::CComponents::shiftOrigin(core_t::TTime time
 
 void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime time) {
 
+    // There is redundancy in the specification of the additive decomposition. For
+    // any collection of models {m_i} then for any set of |{m_i}| constants {c_j}
+    // satisfying sum_j c_j = 0 all models of the form m_i' = s_i + c_{j(i)} for
+    // any permutation j(.) give the same predictions. Here we choose a canonical
+    // form which minimises the values of the components to avoid issues with
+    // cancellation errors.
+
+    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
+
     this->shiftOrigin(time);
 
     if (m_Seasonal != nullptr && m_Seasonal->prune(time, m_BucketLength)) {
@@ -2294,17 +2303,55 @@ void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime tim
     }
 
     if (m_Seasonal != nullptr) {
-        TSeasonalComponentVec& seasonal{m_Seasonal->components()};
-        double slope{0.0};
-        for (auto& component : seasonal) {
+        // We maintain the sum level and slope for each separate window if the
+        // components are only defined on a time window.
+
+        TTimeTimePrDoubleFMap levels;
+        TTimeTimePrDoubleFMap slopes;
+        TTimeTimePrDoubleFMap numberLevels;
+        TTimeTimePrDoubleFMap numberSlopes;
+        for (auto& component : m_Seasonal->components()) {
+            auto window = component.time().windowed() ? component.time().window()
+                                                      : TTimeTimePr{0, 0};
+            levels[window] += component.meanValue();
+            numberLevels[window] += 1.0;
             if (component.slopeAccurate(time)) {
-                double slope_{component.slope()};
-                slope += slope_;
-                component.shiftSlope(time, -slope_);
+                slopes[window] += component.slope();
+                numberSlopes[window] += 1.0;
             }
         }
-        if (slope != 0.0) {
-            m_Trend.shiftSlope(time, slope);
+
+        TMinMaxAccumulator commonLevel;
+        for (const auto& level : levels) {
+            commonLevel.add(level.second);
+        }
+        if (commonLevel.signMargin() != 0.0) {
+            for (auto& component : m_Seasonal->components()) {
+                auto window = component.time().windowed() ? component.time().window()
+                                                          : TTimeTimePr{0, 0};
+                component.shiftLevel((levels[window] - commonLevel.signMargin()) /
+                                         numberLevels[window] -
+                                     component.meanValue());
+            }
+            m_Trend.shiftLevel(commonLevel.signMargin());
+        }
+
+        TMinMaxAccumulator commonSlope;
+        for (const auto& slope : slopes) {
+            commonSlope.add(slope.second);
+        }
+        if (commonSlope.signMargin() != 0.0) {
+            for (auto& component : m_Seasonal->components()) {
+                if (component.slopeAccurate(time)) {
+                    auto window = component.time().windowed()
+                                      ? component.time().window()
+                                      : TTimeTimePr{0, 0};
+                    component.shiftSlope(time, (slopes[window] - commonSlope.signMargin()) /
+                                                       numberSlopes[window] -
+                                                   component.slope());
+                }
+            }
+            m_Trend.shiftSlope(time, commonSlope.signMargin());
         }
     }
 }
@@ -2645,7 +2692,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::interpolate(core_t:
         core_t::TTime a{CIntegerTools::floor(lastTime, period)};
         core_t::TTime b{CIntegerTools::floor(time, period)};
         if (b > a || component.initialized() == false) {
-            component.interpolate(b, refine);
+            component.interpolate(time, refine);
         }
     }
 }
@@ -2670,7 +2717,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::add(
     const TFloatMeanAccumulatorVec& values) {
     m_Components.emplace_back(seasonalTime, size, decayRate, bucketLength, boundaryCondition);
     m_Components.back().initialize(startTime, endTime, values);
-    m_Components.back().interpolate(CIntegerTools::floor(endTime, seasonalTime.period()));
+    m_Components.back().interpolate(endTime);
     m_PredictionErrors.emplace_back();
 }
 
