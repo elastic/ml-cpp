@@ -1072,7 +1072,7 @@ BOOST_FIXTURE_TEST_CASE(testSpikeyDataProblemCase, CTestFixture) {
 
     LOG_DEBUG(<< "pMinScaled = " << pMinScaled);
     LOG_DEBUG(<< "pMinUnscaled = " << pMinUnscaled);
-    BOOST_TEST_REQUIRE(pMinScaled > 1e6 * pMinUnscaled);
+    BOOST_TEST_REQUIRE(pMinScaled > 1e3 * pMinUnscaled);
 }
 
 BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
@@ -1257,7 +1257,7 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     BOOST_TEST_REQUIRE(totalSumResidual < 0.20 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.48 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.51 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.08 * totalSumValue);
 }
 
@@ -2030,32 +2030,41 @@ BOOST_FIXTURE_TEST_CASE(testRemoveSeasonal, CTestFixture) {
                                   : 0.0);
     };
 
-    maths::CTimeSeriesDecomposition decomposition(0.012, FIVE_MINS);
-    maths::CDecayRateController controller(maths::CDecayRateController::E_PredictionBias |
-                                               maths::CDecayRateController::E_PredictionErrorIncrease,
-                                           1);
-    CDebugGenerator debug;
+    for (auto noiseVariance : {1.0, 0.0}) {
 
-    TDoubleVec noise;
-    for (core_t::TTime time = 0; time < 20 * WEEK; time += FIVE_MINS) {
-        rng.generateNormalSamples(0.0, 1.0, 1, noise);
-        decomposition.addPoint(time, trend(time) + noise[0]);
-        debug.addValue(time, trend(time) + noise[0]);
+        maths::CTimeSeriesDecomposition decomposition(0.012, FIVE_MINS);
+        maths::CDecayRateController controller{
+            maths::CDecayRateController::E_PredictionBias |
+                maths::CDecayRateController::E_PredictionErrorIncrease,
+            1};
+        CDebugGenerator debug;
 
-        if (decomposition.initialized()) {
-            TDouble1Vec prediction{decomposition.meanValue(time)};
-            TDouble1Vec predictionError{
-                decomposition.detrend(time, trend(time) + noise[0], 0.0)};
-            double multiplier{controller.multiplier(prediction, {predictionError},
-                                                    FIVE_MINS, 1.0, 0.0001)};
-            decomposition.decayRate(multiplier * decomposition.decayRate());
+        TDoubleVec noise;
+        for (core_t::TTime time = 0; time < 20 * WEEK; time += FIVE_MINS) {
+            if (noiseVariance > 0.0) {
+                rng.generateNormalSamples(0.0, 1.0, 1, noise);
+            } else {
+                noise.assign(1, 0.0);
+            }
+
+            decomposition.addPoint(time, trend(time) + noise[0]);
+            debug.addValue(time, trend(time) + noise[0]);
+
+            if (decomposition.initialized()) {
+                TDouble1Vec prediction{decomposition.meanValue(time)};
+                TDouble1Vec predictionError{
+                    decomposition.detrend(time, trend(time) + noise[0], 0.0)};
+                double multiplier{controller.multiplier(
+                    prediction, {predictionError}, FIVE_MINS, 1.0, 0.0001)};
+                decomposition.decayRate(multiplier * decomposition.decayRate());
+            }
+
+            double prediction{mean(decomposition.value(time, 0.0))};
+            debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
         }
 
-        double prediction = mean(decomposition.value(time, 0.0));
-        debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
+        BOOST_REQUIRE(decomposition.seasonalComponents().empty());
     }
-
-    BOOST_REQUIRE(decomposition.seasonalComponents().empty());
 }
 
 BOOST_FIXTURE_TEST_CASE(testSwap, CTestFixture) {

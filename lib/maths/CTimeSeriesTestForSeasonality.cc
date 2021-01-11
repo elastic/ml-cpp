@@ -253,10 +253,11 @@ CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime value
     // Note we don't bother modelling seasonality whose amplitude is too small
     // compared to the absolute values. We won't raise anomalies for differences
     // from our predictions which are smaller than this anyway.
-    m_EpsVariance = std::max(
-        CTools::pow2(1000.0 * std::numeric_limits<double>::epsilon()) *
-            CBasicStatistics::maximumLikelihoodVariance(moments),
-        CTools::pow2(MINIMUM_COEFFICIENT_OF_VARIATION * CBasicStatistics::mean(meanAbs)));
+    m_EpsVariance =
+        std::max(CTools::pow2(1000.0 * std::numeric_limits<double>::epsilon()) *
+                     CBasicStatistics::maximumLikelihoodVariance(moments),
+                 CTools::pow2(MINIMUM_COEFFICIENT_OF_VARIATION *
+                              std::max(CBasicStatistics::mean(meanAbs), 1e-8)));
     LOG_TRACE(<< "eps variance = " << m_EpsVariance);
 }
 
@@ -519,6 +520,7 @@ CSeasonalDecomposition CTimeSeriesTestForSeasonality::select(TModelVec& decompos
     if (std::find_if(decompositions.begin(), decompositions.end(), [](const auto& decomposition) {
             return decomposition.s_AlreadyModelled && decomposition.isTestable() == false;
         }) != decompositions.end()) {
+        LOG_TRACE(<< "Not testable");
         return {};
     }
 
@@ -1968,13 +1970,17 @@ CFuzzyTruthValue CTimeSeriesTestForSeasonality::SHypothesisStats::amplitudeTestR
 }
 
 bool CTimeSeriesTestForSeasonality::SHypothesisStats::isBetter(const SHypothesisStats& other) const {
-    // The truth value alone is not discriminative when all conditions are met.
+    // We check (lexicographically):
+    //   1. "is testable" which is equivalent to if the stats have been initialized,
+    //   2. The truth value,
+    //   3. The amount of variance the hypothesis explains, which doesn't saturate
+    //      like the truth value.
     double min{std::numeric_limits<double>::min()};
     return COrderings::lexicographical_compare(
-        other.s_Truth.boolean(),
+        other.s_IsTestable, other.s_Truth.boolean(),
         1.0 * std::log(std::max(other.s_Truth.value(), min)) +
             0.5 * std::log(-std::log(std::max(other.s_ExplainedVariancePValue, min))),
-        s_Truth.boolean(),
+        s_IsTestable, s_Truth.boolean(),
         1.0 * std::log(std::max(s_Truth.value(), min)) +
             0.5 * std::log(-std::log(std::max(s_ExplainedVariancePValue, min))));
 }

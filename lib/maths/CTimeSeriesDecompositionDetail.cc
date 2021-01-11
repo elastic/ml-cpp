@@ -1977,11 +1977,6 @@ CTimeSeriesDecompositionDetail::CComponents::makeTestForSeasonality(const TFilte
         values = window.valuesMinusPrediction(std::move(values), [&](core_t::TTime time) {
             return preconditioner(time, testableMask);
         });
-        // Inject noise at 1% of the value to avoid overfitting very stable data.
-        CPRNG::CXorOShiro128Plus rng;
-        for (auto& value : values) {
-            CBasicStatistics::moment<0>(value) *= CSampling::uniformSample(rng, 0.995, 1.005);
-        }
         CTimeSeriesTestForSeasonality test(
             valuesStartTime, windowBucketStartTime, windowBucketLength,
             m_BucketLength, std::move(values), window.withinBucketVariance());

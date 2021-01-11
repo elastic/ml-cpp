@@ -160,7 +160,7 @@ void CSeasonalComponent::interpolate(core_t::TTime time, bool refine) {
     }
 
     const auto& time_ = m_Bucketing.time();
-    time = time_.startOfWindow(time) + (time_.inWindow(time) ? 0 : +time_.windowRepeat());
+    time = time_.startOfWindow(time) + (time_.inWindow(time) ? 0 : time_.windowRepeat());
 
     TDoubleVec knots;
     TDoubleVec values;
