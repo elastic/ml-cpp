@@ -472,7 +472,14 @@ public:
     static const std::string FILTERS;
     static const std::string EVENTS;
 
-    static const core_t::TTime DEFAULT_BACKGROUND_PERSIST_INTERVAL;
+    // Roughly how often should the quantiles be output when no
+    // anomalies are being detected?  A staggering factor that varies by job is
+    // added to this.
+    static const core_t::TTime BASE_MAX_QUANTILE_INTERVAL;
+
+    // Roughly how often should the state be persisted?  A staggering
+    // factor that varies by job is added to this.
+    static const core_t::TTime DEFAULT_BASE_PERSIST_INTERVAL;
 
 public:
     //! Default constructor
@@ -498,6 +505,12 @@ public:
     bool parse(const std::string& json);
     bool parseFilterConfig(const std::string& json);
     bool parseEventConfig(const std::string& json);
+
+    // Generate a random time of up to 1 hour to be added to intervals at which we
+    // perform periodic operations.  This means that when there are many jobs
+    // there is a certain amount of staggering of their periodic operations.
+    // A given job will always be given the same staggering interval.
+    core_t::TTime intervalStagger();
 
     void initRuleFilters() { m_AnalysisConfig.initRuleFilters(m_RuleFilters); }
 
@@ -527,6 +540,9 @@ public:
     core_t::TTime persistInterval() const {
         return m_BackgroundPersistInterval;
     }
+    core_t::TTime quantilePersistInterval() const {
+        return m_MaxQuantilePersistInterval;
+    }
 
 private:
     std::string m_JobId;
@@ -542,7 +558,9 @@ private:
     std::vector<CFilterConfig> m_Filters{};
     std::vector<CEventConfig> m_Events{};
 
-    core_t::TTime m_BackgroundPersistInterval{DEFAULT_BACKGROUND_PERSIST_INTERVAL};
+    core_t::TTime m_BackgroundPersistInterval{DEFAULT_BASE_PERSIST_INTERVAL};
+
+    core_t::TTime m_MaxQuantilePersistInterval{BASE_MAX_QUANTILE_INTERVAL};
 };
 }
 }

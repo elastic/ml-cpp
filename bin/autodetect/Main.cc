@@ -96,9 +96,7 @@ int main(int argc, char** argv) {
     std::string timeFormat;
     std::string quantilesStateFile;
     bool deleteStateFiles{false};
-    ml::core_t::TTime persistInterval{-1};
     std::size_t bucketPersistInterval{0};
-    ml::core_t::TTime maxQuantileInterval{-1};
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
     std::string inputFileName;
@@ -117,8 +115,8 @@ int main(int argc, char** argv) {
     if (ml::autodetect::CCmdLineParser::parse(
             argc, argv, configFile, filtersConfigFile, eventsConfigFile, modelConfigFile,
             logProperties, logPipe, delimiter, lengthEncodedInput, timeField,
-            timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
-            bucketPersistInterval, maxQuantileInterval, namedPipeConnectTimeout,
+            timeFormat, quantilesStateFile, deleteStateFiles,
+            bucketPersistInterval, namedPipeConnectTimeout,
             inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
             restoreFileName, isRestoreFileNamedPipe, persistFileName,
             isPersistFileNamedPipe, isPersistInForeground, maxAnomalyRecords,
@@ -229,11 +227,8 @@ int main(int argc, char** argv) {
         return nullptr;
     }()};
 
-#if 0
-    // TODO: Enable this code block once the corresponding changes to the Java code are available
-    // and remove now unneeded command line args from parser
+
     ml::core_t::TTime persistInterval{jobConfig.persistInterval()};
-#endif
     if ((bucketPersistInterval > 0 || persistInterval >= 0) && persister == nullptr) {
         LOG_FATAL(<< "Periodic persistence cannot be enabled using the '"
                   << ((persistInterval >= 0) ? "persistInterval" : "bucketPersistInterval")
@@ -277,7 +272,7 @@ int main(int argc, char** argv) {
                              std::bind(&ml::api::CModelSnapshotJsonWriter::write,
                                        &modelSnapshotWriter, std::placeholders::_1),
                              persistenceManager.get(),
-                             maxQuantileInterval,
+                             jobConfig.quantilePersistInterval(),
                              jobConfig.dataDescription().timeField(),
                              timeFormat,
                              maxAnomalyRecords};

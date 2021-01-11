@@ -20,6 +20,8 @@
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/stringbuffer.h>
 
+#include <random>
+
 #ifdef Windows
 // rapidjson::Writer<rapidjson::StringBuffer> gets instantiated in the core
 // library, and on Windows it gets exported too, because
@@ -46,7 +48,8 @@ const std::string CAnomalyJobConfig::MODEL_PLOT_CONFIG{"model_plot_config"};
 const std::string CAnomalyJobConfig::FILTERS{"filters"};
 const std::string CAnomalyJobConfig::EVENTS{"events"};
 
-const core_t::TTime CAnomalyJobConfig::DEFAULT_BACKGROUND_PERSIST_INTERVAL{-1};
+const core_t::TTime CAnomalyJobConfig::BASE_MAX_QUANTILE_INTERVAL{21600}; // 6 hours
+const core_t::TTime CAnomalyJobConfig::DEFAULT_BASE_PERSIST_INTERVAL{10800}; // 3 hours
 
 const std::string CAnomalyJobConfig::CAnalysisConfig::BUCKET_SPAN{"bucket_span"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::SUMMARY_COUNT_FIELD_NAME{
@@ -575,8 +578,14 @@ bool CAnomalyJobConfig::parse(const std::string& json) {
         // error _does_ occur an error is logged and a default value used.
         const std::string& bucketPersistIntervalString{
             parameters[BACKGROUND_PERSIST_INTERVAL].fallback(EMPTY_STRING)};
+
+        const core_t::TTime defaultBackgroundPersistInterval{
+            DEFAULT_BASE_PERSIST_INTERVAL + this->intervalStagger()};
         m_BackgroundPersistInterval = CAnomalyJobConfig::CAnalysisConfig::durationSeconds(
-            bucketPersistIntervalString, DEFAULT_BACKGROUND_PERSIST_INTERVAL);
+            bucketPersistIntervalString, defaultBackgroundPersistInterval);
+
+        m_MaxQuantilePersistInterval = BASE_MAX_QUANTILE_INTERVAL + this->intervalStagger();
+
     } catch (CAnomalyJobConfigReader::CParseError& e) {
         LOG_ERROR(<< "Error parsing anomaly job config: " << e.what());
         return false;
@@ -585,6 +594,13 @@ bool CAnomalyJobConfig::parse(const std::string& json) {
     m_IsInitialized = true;
 
     return true;
+}
+
+core_t::TTime CAnomalyJobConfig::intervalStagger() {
+    std::seed_seq seed(m_JobId.begin(), m_JobId.end());
+    std::mt19937 generator{seed};
+    std::uniform_int_distribution<> distribution{0, core::constants::HOUR - 1};
+    return distribution(generator);
 }
 
 void CAnomalyJobConfig::CModelPlotConfig::parse(const rapidjson::Value& modelPlotConfig) {

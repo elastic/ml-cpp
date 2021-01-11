@@ -34,9 +34,7 @@ bool CCmdLineParser::parse(int argc,
                            std::string& timeFormat,
                            std::string& quantilesState,
                            bool& deleteStateFiles,
-                           core_t::TTime& persistInterval,
                            std::size_t& bucketPersistInterval,
-                           core_t::TTime& maxQuantileInterval,
                            core_t::TTime& namedPipeConnectTimeout,
                            std::string& inputFileName,
                            bool& isInputFileNamedPipe,
@@ -135,14 +133,6 @@ bool CCmdLineParser::parse(int argc,
                 .run();
         boost::program_options::store(parsed, vm);
 
-        auto checkConflictingOptions = [&vm](const std::string& opt1,
-                                             const std::string& opt2) {
-            if (vm.count(opt1) && (vm[opt1].defaulted() == false) &&
-                vm.count(opt2) && (vm[opt2].defaulted() == false))
-                throw std::runtime_error("Conflicting options '" + opt1 +
-                                         "' and '" + opt2 + "'.");
-        };
-
         if (vm.count("help") > 0) {
             std::cerr << desc << std::endl;
             return false;
@@ -191,15 +181,8 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("deleteStateFiles") > 0) {
             deleteStateFiles = true;
         }
-        checkConflictingOptions("persistInterval", "bucketPersistInterval");
-        if (vm.count("persistInterval") > 0) {
-            persistInterval = vm["persistInterval"].as<core_t::TTime>();
-        }
         if (vm.count("bucketPersistInterval") > 0) {
             bucketPersistInterval = vm["bucketPersistInterval"].as<std::size_t>();
-        }
-        if (vm.count("maxQuantileInterval") > 0) {
-            maxQuantileInterval = vm["maxQuantileInterval"].as<core_t::TTime>();
         }
         if (vm.count("namedPipeConnectTimeout") > 0) {
             namedPipeConnectTimeout = vm["namedPipeConnectTimeout"].as<core_t::TTime>();
