@@ -41,7 +41,6 @@ CDataFrameTrainBoostedTreeRegressionRunner.cc \
 CDataFrameTrainBoostedTreeRunner.cc \
 CDataProcessor.cc \
 CDetectionRulesJsonParser.cc \
-CFieldConfig.cc \
 CFieldDataCategorizer.cc \
 CForecastRunner.cc \
 CGlobalCategoryId.cc \

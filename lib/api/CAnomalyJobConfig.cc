@@ -42,6 +42,8 @@ const std::string CAnomalyJobConfig::ANALYSIS_CONFIG{"analysis_config"};
 const std::string CAnomalyJobConfig::ANALYSIS_LIMITS{"analysis_limits"};
 const std::string CAnomalyJobConfig::DATA_DESCRIPTION{"data_description"};
 const std::string CAnomalyJobConfig::MODEL_PLOT_CONFIG{"model_plot_config"};
+const std::string CAnomalyJobConfig::FILTERS{"filters"};
+const std::string CAnomalyJobConfig::EVENTS{"events"};
 
 const std::string CAnomalyJobConfig::CAnalysisConfig::BUCKET_SPAN{"bucket_span"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::SUMMARY_COUNT_FIELD_NAME{
@@ -205,6 +207,12 @@ const std::size_t CAnomalyJobConfig::CAnalysisLimits::DEFAULT_MEMORY_LIMIT_BYTES
 const std::string CAnomalyJobConfig::CDataDescription::TIME_FIELD{"time_field"};
 const std::string CAnomalyJobConfig::CDataDescription::TIME_FORMAT{"time_format"};
 
+const std::string CAnomalyJobConfig::CEventConfig::DESCRIPTION{"description"};
+const std::string CAnomalyJobConfig::CEventConfig::RULES{"rules"};
+
+const std::string CAnomalyJobConfig::CFilterConfig::FILTER_ID{"filter_id"};
+const std::string CAnomalyJobConfig::CFilterConfig::ITEMS{"items"};
+
 namespace {
 const std::string EMPTY_STRING;
 
@@ -215,12 +223,30 @@ std::string toString(const rapidjson::Value& value) {
     return strbuf.GetString();
 };
 
+const CAnomalyJobConfigReader FILTERS_READER{[] {
+    CAnomalyJobConfigReader theReader;
+    theReader.addParameter(CAnomalyJobConfig::CFilterConfig::FILTER_ID,
+                           CAnomalyJobConfigReader::E_RequiredParameter);
+    theReader.addParameter(CAnomalyJobConfig::CFilterConfig::ITEMS,
+                           CAnomalyJobConfigReader::E_RequiredParameter);
+    return theReader;
+}()};
+
+const CAnomalyJobConfigReader EVENTS_READER{[] {
+    CAnomalyJobConfigReader theReader;
+    theReader.addParameter(CAnomalyJobConfig::CEventConfig::DESCRIPTION,
+                           CAnomalyJobConfigReader::E_RequiredParameter);
+    theReader.addParameter(CAnomalyJobConfig::CEventConfig::RULES,
+                           CAnomalyJobConfigReader::E_RequiredParameter);
+    return theReader;
+}()};
+
 const CAnomalyJobConfigReader CONFIG_READER{[] {
     CAnomalyJobConfigReader theReader;
     theReader.addParameter(CAnomalyJobConfig::JOB_ID,
                            CAnomalyJobConfigReader::E_RequiredParameter);
     theReader.addParameter(CAnomalyJobConfig::JOB_TYPE,
-                           CAnomalyJobConfigReader::E_RequiredParameter);
+                           CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::ANALYSIS_CONFIG,
                            CAnomalyJobConfigReader::E_RequiredParameter);
     theReader.addParameter(CAnomalyJobConfig::ANALYSIS_LIMITS,
@@ -228,14 +254,14 @@ const CAnomalyJobConfigReader CONFIG_READER{[] {
     theReader.addParameter(CAnomalyJobConfig::MODEL_PLOT_CONFIG,
                            CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::DATA_DESCRIPTION,
-                           CAnomalyJobConfigReader::E_RequiredParameter);
+                           CAnomalyJobConfigReader::E_OptionalParameter);
     return theReader;
 }()};
 
 const CAnomalyJobConfigReader ANALYSIS_CONFIG_READER{[] {
     CAnomalyJobConfigReader theReader;
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::BUCKET_SPAN,
-                           CAnomalyJobConfigReader::E_RequiredParameter);
+                           CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::SUMMARY_COUNT_FIELD_NAME,
                            CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CATEGORIZATION_FIELD_NAME,
@@ -268,7 +294,7 @@ const CAnomalyJobConfigReader DETECTOR_CONFIG_READER{[] {
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_DESCRIPTION,
                            CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_INDEX,
-                           CAnomalyJobConfigReader::E_RequiredParameter);
+                           CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::EXCLUDE_FREQUENT,
                            CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::USE_NULL,
@@ -335,9 +361,173 @@ bool CAnomalyJobConfig::initFromFile(const std::string& configFile) {
     return true;
 }
 
-bool CAnomalyJobConfig::parse(const std::string& json) {
-    LOG_DEBUG(<< "Parsing anomaly job config");
+bool CAnomalyJobConfig::readFile(const std::string& fileName, std::string& fileContents) {
+    bool couldReadFile;
+    std::tie(fileContents, couldReadFile) = ml::core::CStringUtils::readFileToString(fileName);
+    if (couldReadFile == false) {
+        LOG_ERROR(<< "Failed to read file '" << fileName << "'");
+        return false;
+    }
 
+    return true;
+}
+
+bool CAnomalyJobConfig::initFromFiles(const std::string& configFile,
+                                      const std::string& filtersConfigFile,
+                                      const std::string& eventsConfigFile) {
+
+    std::string filtersConfigJson;
+    if (filtersConfigFile.empty() == false &&
+        this->readFile(filtersConfigFile, filtersConfigJson)) {
+        if (this->parseFilterConfig(filtersConfigJson) == false) {
+            LOG_ERROR(<< "Failed to parse filters job config: '" << filtersConfigJson << "'");
+            return false;
+        }
+    }
+
+    std::string eventsConfigJson;
+    if (eventsConfigFile.empty() == false &&
+        this->readFile(eventsConfigFile, eventsConfigJson)) {
+        if (this->parseEventConfig(eventsConfigJson) == false) {
+            LOG_ERROR(<< "Failed to parse scheduled events config: '"
+                      << eventsConfigJson << "'");
+            return false;
+        }
+    }
+
+    m_AnalysisConfig.init(m_RuleFilters, m_ScheduledEvents);
+
+    std::string anomalyJobConfigJson;
+    if (this->readFile(configFile, anomalyJobConfigJson) == false) {
+        // error logged by readFile
+        return false;
+    }
+
+    if (this->parse(anomalyJobConfigJson) == false) {
+        LOG_ERROR(<< "Failed to parse anomaly job config: '" << anomalyJobConfigJson << "'");
+        return false;
+    }
+
+    return true;
+}
+
+bool CAnomalyJobConfig::parseEventConfig(const std::string& json) {
+    rapidjson::Document doc;
+    if (doc.Parse<0>(json).HasParseError()) {
+        LOG_ERROR(<< "An error occurred while parsing scheduled event config from JSON: "
+                  << doc.GetParseError());
+        return false;
+    }
+
+    if (doc.Empty()) {
+        return true;
+    }
+
+    try {
+        if (doc.HasMember(EVENTS) == false || doc[EVENTS].IsArray() == false) {
+            LOG_ERROR(<< "Missing expected array field '" << EVENTS << "'. JSON: " << json);
+            return false;
+        }
+
+        const rapidjson::Value& value = doc[EVENTS];
+
+        m_Events.resize(value.Size());
+        for (unsigned int i = 0; i < value.Size(); ++i) {
+            if (value[i].IsObject() == false) {
+                LOG_ERROR(<< "Could not parse scheduled events: expected events array to contain objects. JSON: "
+                          << json);
+                return false;
+            }
+
+            m_Events[i].parse(value[i], m_RuleFilters, m_ScheduledEvents);
+        }
+
+    } catch (CAnomalyJobConfigReader::CParseError& e) {
+        LOG_ERROR(<< "Error parsing events config: " << e.what());
+        return false;
+    }
+
+    return true;
+}
+
+void CAnomalyJobConfig::CEventConfig::parse(const rapidjson::Value& filterConfig,
+                                            const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
+                                            TStrDetectionRulePrVec& scheduledEvents) {
+    auto parameters = EVENTS_READER.read(filterConfig);
+
+    m_Description = parameters[DESCRIPTION].as<std::string>();
+
+    auto eventRules = parameters[RULES].jsonObject();
+    if (eventRules != nullptr) {
+        std::string errorString;
+        CDetectionRulesJsonParser rulesParser(ruleFilters);
+        if (rulesParser.parseRules(*eventRules, m_DetectionRules, errorString) == false) {
+            LOG_ERROR(<< errorString << toString(*eventRules));
+            throw CAnomalyJobConfigReader::CParseError(
+                "Error parsing scheduled event rules: " + toString(*eventRules));
+        }
+    }
+
+    if (m_DetectionRules.size() != 1) {
+        throw CAnomalyJobConfigReader::CParseError(
+            "Scheduled events must have exactly 1 rule: " + toString(*eventRules));
+    }
+
+    scheduledEvents.emplace_back(m_Description, m_DetectionRules[0]);
+}
+
+bool CAnomalyJobConfig::parseFilterConfig(const std::string& json) {
+    rapidjson::Document doc;
+    if (doc.Parse<0>(json).HasParseError()) {
+        LOG_ERROR(<< "An error occurred while parsing filter config from JSON: "
+                  << doc.GetParseError());
+        return false;
+    }
+
+    if (doc.Empty()) {
+        return true;
+    }
+
+    try {
+        if (doc.HasMember(FILTERS) == false || doc[FILTERS].IsArray() == false) {
+            LOG_ERROR(<< "Missing expected array field '" << FILTERS << "'. JSON: " << json);
+            return false;
+        }
+
+        const rapidjson::Value& value = doc[FILTERS];
+        m_Filters.resize(value.Size());
+        for (unsigned int i = 0; i < value.Size(); ++i) {
+            if (value[i].IsObject() == false) {
+                LOG_ERROR(<< "Could not parse filters: expected filters array to contain objects. JSON: "
+                          << toString(value[i]));
+                return false;
+            }
+
+            m_Filters[i].parse(value[i], m_RuleFilters);
+        }
+    } catch (CAnomalyJobConfigReader::CParseError& e) {
+        LOG_ERROR(<< "Error parsing filter config: " << e.what());
+        return false;
+    }
+
+    return true;
+}
+
+void CAnomalyJobConfig::CFilterConfig::parse(const rapidjson::Value& filterConfig,
+                                             CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters) {
+    auto parameters = FILTERS_READER.read(filterConfig);
+
+    m_FilterName = parameters[FILTER_ID].as<std::string>();
+    m_FilterList = parameters[ITEMS].fallback(TStrVec{});
+
+    core::CPatternSet& filter = ruleFilters[m_FilterName];
+    if (filter.initFromPatternList(m_FilterList) == false) {
+        throw CAnomalyJobConfigReader::CParseError("Error building filter rules: " +
+                                                   toString(filterConfig));
+    }
+}
+
+bool CAnomalyJobConfig::parse(const std::string& json) {
     rapidjson::Document doc;
     if (doc.Parse<0>(json).HasParseError()) {
         LOG_ERROR(<< "An error occurred while parsing anomaly job config from JSON: "
@@ -349,7 +539,7 @@ bool CAnomalyJobConfig::parse(const std::string& json) {
         auto parameters = CONFIG_READER.read(doc);
 
         m_JobId = parameters[JOB_ID].as<std::string>();
-        m_JobType = parameters[JOB_TYPE].as<std::string>();
+        m_JobType = parameters[JOB_TYPE].fallback(EMPTY_STRING);
 
         auto analysisConfig = parameters[ANALYSIS_CONFIG].jsonObject();
         if (analysisConfig != nullptr) {
@@ -374,6 +564,8 @@ bool CAnomalyJobConfig::parse(const std::string& json) {
         LOG_ERROR(<< "Error parsing anomaly job config: " << e.what());
         return false;
     }
+
+    m_IsInitialized = true;
 
     return true;
 }
@@ -428,7 +620,7 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
     // We choose to ignore any errors here parsing the time duration string as
     // we assume that it has already been validated by ES. In the event that any
     // error _does_ occur an error is logged and a default value used.
-    const std::string& bucketSpanString{parameters[BUCKET_SPAN].as<std::string>()};
+    const std::string& bucketSpanString{parameters[BUCKET_SPAN].fallback(EMPTY_STRING)};
     m_BucketSpan = CAnomalyJobConfig::CAnalysisConfig::durationSeconds(
         bucketSpanString, DEFAULT_BUCKET_SPAN);
 
@@ -450,10 +642,33 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
     // non-null array - hence this check isn't strictly necessary.
     if (detectorsConfig != nullptr && detectorsConfig->IsArray()) {
         m_Detectors.resize(detectorsConfig->Size());
+        int fallbackDetectorIndex{0};
         for (std::size_t i = 0; i < detectorsConfig->Size(); ++i) {
-            m_Detectors[i].parse((*detectorsConfig)[static_cast<int>(i)], m_RuleFilters,
-                                 (m_SummaryCountFieldName.empty() == false),
-                                 m_DetectorRules[static_cast<int>(i)]);
+            m_Detectors[i].parse((*detectorsConfig)[fallbackDetectorIndex], m_RuleFilters,
+                                 (m_SummaryCountFieldName.empty() == false), fallbackDetectorIndex,
+                                 m_DetectorRules[fallbackDetectorIndex]);
+
+            if (m_PerPartitionCategorizationEnabled) {
+                if (m_CategorizationFieldName.empty()) {
+                    throw CAnomalyJobConfigReader::CParseError(
+                        "per_partition_categorization enabled without a categorization field");
+                }
+                if (m_Detectors[i].partitionFieldName().empty()) {
+                    throw CAnomalyJobConfigReader::CParseError(
+                        "per_partition_categorization enabled without a partition field");
+                }
+                if (m_CategorizationPartitionFieldName.empty()) {
+                    m_CategorizationPartitionFieldName = m_Detectors[i].partitionFieldName();
+                } else {
+                    if (m_CategorizationPartitionFieldName !=
+                        m_Detectors[i].partitionFieldName()) {
+                        throw CAnomalyJobConfigReader::CParseError(
+                            "per_partition_categorization enabled when partition "
+                            "field varies between detectors");
+                    }
+                }
+            }
+            ++fallbackDetectorIndex;
         }
     }
 
@@ -570,6 +785,12 @@ bool CAnomalyJobConfig::CAnalysisConfig::processScheduledEvent(
 }
 
 // TODO: Process updates as JSON
+bool CAnomalyJobConfig::CAnalysisConfig::parseRules(int detectorIndex,
+                                                    const std::string& rules) {
+    return parseRules(m_DetectorRules[detectorIndex], rules);
+}
+
+// TODO: Process updates as JSON
 bool CAnomalyJobConfig::CAnalysisConfig::parseRules(CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules,
                                                     const std::string& rules) {
     if (rules.empty()) {
@@ -619,6 +840,7 @@ void CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::parse(
     const rapidjson::Value& detectorConfig,
     const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
     bool haveSummaryCountField,
+    int fallbackDetectorIndex,
     CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules) {
 
     auto parameters = DETECTOR_CONFIG_READER.read(detectorConfig);
@@ -634,9 +856,7 @@ void CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::parse(
 
     // The detector index is of type int for historical reasons
     // and for consistency across the code base.
-    // The explicit cast is required here as our JSON parser does not support
-    // 32 bit integer values.
-    m_DetectorIndex = static_cast<int>(parameters[DETECTOR_INDEX].as<std::ptrdiff_t>());
+    m_DetectorIndex = parameters[DETECTOR_INDEX].fallback(fallbackDetectorIndex);
 
     auto customRules = parameters[CUSTOM_RULES].jsonObject();
     if (customRules != nullptr) {

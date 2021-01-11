@@ -53,7 +53,6 @@ namespace api {
 class CAnomalyJobConfig;
 class CPersistenceManager;
 class CModelPlotDataJsonWriter;
-class CFieldConfig;
 
 //! \brief
 //! The Ml anomaly detector.
@@ -144,7 +143,6 @@ public:
     CAnomalyJob(const std::string& jobId,
                 model::CLimits& limits,
                 CAnomalyJobConfig& jobConfig,
-                CFieldConfig& fieldConfig,
                 model::CAnomalyDetectorModelConfig& modelConfig,
                 core::CJsonOutputStreamWrapper& outputBuffer,
                 const TPersistCompleteFunc& persistCompleteFunc,
@@ -432,10 +430,6 @@ private:
     //! being modified by job updates (and those changes reflected wherever a
     //! reference is held).
     CAnomalyJobConfig& m_JobConfig;
-
-    //! Field names to use for the analysis.
-    //! This is a non-const reference for the same reasons as for m_JobConfig.
-    CFieldConfig& m_FieldConfig;
 
     //! The model configuration
     model::CAnomalyDetectorModelConfig& m_ModelConfig;

@@ -39,7 +39,6 @@
 #include <api/CAnnotationJsonWriter.h>
 #include <api/CAnomalyJobConfig.h>
 #include <api/CConfigUpdater.h>
-#include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CModelPlotDataJsonWriter.h>
@@ -129,7 +128,6 @@ const CAnomalyJob::TAnomalyDetectorPtr CAnomalyJob::NULL_DETECTOR;
 CAnomalyJob::CAnomalyJob(const std::string& jobId,
                          model::CLimits& limits,
                          CAnomalyJobConfig& jobConfig,
-                         CFieldConfig& fieldConfig,
                          model::CAnomalyDetectorModelConfig& modelConfig,
                          core::CJsonOutputStreamWrapper& outputStream,
                          const TPersistCompleteFunc& persistCompleteFunc,
@@ -142,7 +140,7 @@ CAnomalyJob::CAnomalyJob(const std::string& jobId,
       m_OutputStream{outputStream}, m_ForecastRunner{m_JobId, m_OutputStream,
                                                      limits.resourceMonitor()},
       m_JsonOutputWriter{m_JobId, m_OutputStream}, m_JobConfig{jobConfig},
-      m_FieldConfig{fieldConfig}, m_ModelConfig{modelConfig}, m_NumRecordsHandled{0},
+      m_ModelConfig{modelConfig}, m_NumRecordsHandled{0},
       m_LastFinalisedBucketEndTime{0}, m_PersistCompleteFunc{persistCompleteFunc},
       m_MaxDetectors{std::numeric_limits<size_t>::max()},
       m_PersistenceManager{persistenceManager}, m_MaxQuantileInterval{maxQuantileInterval},
@@ -457,7 +455,7 @@ void CAnomalyJob::acknowledgeFlush(const std::string& flushId) {
 
 void CAnomalyJob::updateConfig(const std::string& config) {
     LOG_DEBUG(<< "Received update config request: " << config);
-    CConfigUpdater configUpdater(m_JobConfig, m_FieldConfig, m_ModelConfig);
+    CConfigUpdater configUpdater(m_JobConfig, m_ModelConfig);
     if (configUpdater.update(config) == false) {
         LOG_ERROR(<< "Failed to update configuration");
     }

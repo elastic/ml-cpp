@@ -12,7 +12,7 @@
 #include <model/CHierarchicalResultsNormalizer.h>
 #include <model/ModelTypes.h>
 
-#include <api/CFieldConfig.h>
+#include <api/CAnomalyJobConfig.h>
 #include <api/CModelSizeStatsJsonWriter.h>
 #include <api/CModelSnapshotJsonWriter.h>
 
@@ -522,7 +522,8 @@ void CJsonOutputWriter::addMetricFields(const CHierarchicalResultsWriter::TResul
                                      results.s_FunctionDescription, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(TYPICAL, results.s_BaselineMean, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_CurrentMean, *docPtr);
-    if (results.s_FunctionName == CFieldConfig::FUNCTION_LAT_LONG) {
+    if (results.s_FunctionName ==
+        CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LAT_LONG) {
         rapidjson::Value geoResults = m_Writer.makeObject();
         auto geoPointToString = [](const auto& point) -> std::string {
             std::ostringstream result;
@@ -640,7 +641,8 @@ void CJsonOutputWriter::addPopulationCauseFields(const CHierarchicalResultsWrite
                                      results.s_FunctionDescription, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(TYPICAL, results.s_PopulationAverage, *docPtr);
     m_Writer.addDoubleArrayFieldToObj(ACTUAL, results.s_FunctionValue, *docPtr);
-    if (results.s_FunctionName == CFieldConfig::FUNCTION_LAT_LONG) {
+    if (results.s_FunctionName ==
+        CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION_LAT_LONG) {
         rapidjson::Value geoResults = m_Writer.makeObject();
         auto geoPointToString = [](const auto& point) -> std::string {
             std::ostringstream result;

@@ -1,0 +1,13 @@
+{
+    "job_id":"new_persist_categorization",
+    "analysis_config":
+    {
+        "detectors":[
+            {
+                "function":"count",
+                "by_field_name":"mlcategory"
+            }
+        ],
+        "categorization_field_name":"message"
+    }
+}

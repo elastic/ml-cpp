@@ -14,6 +14,8 @@ BOOST_AUTO_TEST_SUITE(CPatternSetTest)
 using namespace ml;
 using namespace core;
 
+using TStrVec = std::vector<std::string>;
+
 BOOST_AUTO_TEST_CASE(testInitFromJson_GivenInvalidJson) {
     std::string json("[\"foo\"");
     CPatternSet set;
@@ -42,11 +44,32 @@ BOOST_AUTO_TEST_CASE(testInitFromJson_GivenArrayWithDuplicates) {
     BOOST_TEST_REQUIRE(set.contains("bar"));
 }
 
+BOOST_AUTO_TEST_CASE(testInitFromList_GivenArrayWithDuplicates) {
+    TStrVec list{"foo", "foo", "bar", "bar"};
+
+    CPatternSet set;
+    BOOST_TEST_REQUIRE(set.initFromPatternList(list));
+
+    BOOST_TEST_REQUIRE(set.contains("foo"));
+    BOOST_TEST_REQUIRE(set.contains("bar"));
+}
+
 BOOST_AUTO_TEST_CASE(testContains_GivenFullMatchKeys) {
     std::string json("[\"foo\",\"bar\"]");
 
     CPatternSet set;
     BOOST_TEST_REQUIRE(set.initFromJson(json));
+
+    BOOST_TEST_REQUIRE(set.contains("foo"));
+    BOOST_TEST_REQUIRE(set.contains("bar"));
+    BOOST_TEST_REQUIRE(set.contains("nonItem") == false);
+}
+
+BOOST_AUTO_TEST_CASE(testInitFromList_Contains_GivenFullMatchKeys) {
+    TStrVec list{"foo", "bar"};
+
+    CPatternSet set;
+    BOOST_TEST_REQUIRE(set.initFromPatternList(list));
 
     BOOST_TEST_REQUIRE(set.contains("foo"));
     BOOST_TEST_REQUIRE(set.contains("bar"));
@@ -67,11 +90,39 @@ BOOST_AUTO_TEST_CASE(testContains_GivenPrefixKeys) {
     BOOST_TEST_REQUIRE(set.contains("_foo") == false);
 }
 
+BOOST_AUTO_TEST_CASE(testInitFromList_Contains_GivenPrefixKeys) {
+    TStrVec list{"abc*", "foo*"};
+
+    CPatternSet set;
+    BOOST_TEST_REQUIRE(set.initFromPatternList(list));
+
+    BOOST_TEST_REQUIRE(set.contains("abc"));
+    BOOST_TEST_REQUIRE(set.contains("abcd"));
+    BOOST_TEST_REQUIRE(set.contains("zabc") == false);
+    BOOST_TEST_REQUIRE(set.contains("foo"));
+    BOOST_TEST_REQUIRE(set.contains("foo_"));
+    BOOST_TEST_REQUIRE(set.contains("_foo") == false);
+}
+
 BOOST_AUTO_TEST_CASE(testContains_GivenSuffixKeys) {
     std::string json("[\"*xyz\", \"*foo\"]");
 
     CPatternSet set;
     BOOST_TEST_REQUIRE(set.initFromJson(json));
+
+    BOOST_TEST_REQUIRE(set.contains("xyz"));
+    BOOST_TEST_REQUIRE(set.contains("aaaaxyz"));
+    BOOST_TEST_REQUIRE(set.contains("xyza") == false);
+    BOOST_TEST_REQUIRE(set.contains("foo"));
+    BOOST_TEST_REQUIRE(set.contains("_foo"));
+    BOOST_TEST_REQUIRE(set.contains("foo_") == false);
+}
+
+BOOST_AUTO_TEST_CASE(testInitFromList_Contains_GivenSuffixKeys) {
+    TStrVec list{"*xyz", "*foo"};
+
+    CPatternSet set;
+    BOOST_TEST_REQUIRE(set.initFromPatternList(list));
 
     BOOST_TEST_REQUIRE(set.contains("xyz"));
     BOOST_TEST_REQUIRE(set.contains("aaaaxyz"));
@@ -99,11 +150,42 @@ BOOST_AUTO_TEST_CASE(testContains_GivenContainsKeys) {
     BOOST_TEST_REQUIRE(set.contains("12346789") == false);
 }
 
+BOOST_AUTO_TEST_CASE(testInitFromList_Contains_GivenContainsKeys) {
+    TStrVec list{"*foo*", "*456*"};
+
+    CPatternSet set;
+    BOOST_TEST_REQUIRE(set.initFromPatternList(list));
+
+    BOOST_TEST_REQUIRE(set.contains("foo"));
+    BOOST_TEST_REQUIRE(set.contains("_foo_"));
+    BOOST_TEST_REQUIRE(set.contains("_foo"));
+    BOOST_TEST_REQUIRE(set.contains("foo_"));
+    BOOST_TEST_REQUIRE(set.contains("_fo_") == false);
+    BOOST_TEST_REQUIRE(set.contains("456"));
+    BOOST_TEST_REQUIRE(set.contains("123456"));
+    BOOST_TEST_REQUIRE(set.contains("456789"));
+    BOOST_TEST_REQUIRE(set.contains("123456789"));
+    BOOST_TEST_REQUIRE(set.contains("12346789") == false);
+}
+
 BOOST_AUTO_TEST_CASE(testContains_GivenMixedKeys) {
     std::string json("[\"foo\", \"foo*\", \"*foo\", \"*foo*\"]");
 
     CPatternSet set;
     BOOST_TEST_REQUIRE(set.initFromJson(json));
+
+    BOOST_TEST_REQUIRE(set.contains("foo"));
+    BOOST_TEST_REQUIRE(set.contains("_foo_"));
+    BOOST_TEST_REQUIRE(set.contains("_foo"));
+    BOOST_TEST_REQUIRE(set.contains("foo_"));
+    BOOST_TEST_REQUIRE(set.contains("fo") == false);
+}
+
+BOOST_AUTO_TEST_CASE(testInitFromList_Contains_GivenMixedKeys) {
+    TStrVec list{"foo", "foo*", "*foo", "*foo*"};
+
+    CPatternSet set;
+    BOOST_TEST_REQUIRE(set.initFromPatternList(list));
 
     BOOST_TEST_REQUIRE(set.contains("foo"));
     BOOST_TEST_REQUIRE(set.contains("_foo_"));

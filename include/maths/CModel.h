@@ -304,7 +304,7 @@ public:
 
     //! default confidence interval for forecasting
     //! (not defined inline because we need its address)
-    static const double DEFAULT_FORECAST_CONFIDENCE_INTERVAL;
+    static const double DEFAULT_BOUNDS_PERCENTILE;
 
 public:
     explicit CModel(const CModelParams& params);

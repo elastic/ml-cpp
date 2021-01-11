@@ -21,9 +21,8 @@ const std::string CConfigUpdater::FILTERS("filters");
 const std::string CConfigUpdater::SCHEDULED_EVENTS("scheduledEvents");
 
 CConfigUpdater::CConfigUpdater(CAnomalyJobConfig& jobConfig,
-                               CFieldConfig& fieldConfig,
                                model::CAnomalyDetectorModelConfig& modelConfig)
-    : m_JobConfig(jobConfig), m_FieldConfig(fieldConfig), m_ModelConfig(modelConfig) {
+    : m_JobConfig(jobConfig), m_ModelConfig(modelConfig) {
 }
 
 bool CConfigUpdater::update(const std::string& config) {
@@ -55,7 +54,7 @@ bool CConfigUpdater::update(const std::string& config) {
                 return false;
             }
             std::string rulesJson = subTree.get(RULES_JSON, std::string());
-            if (m_FieldConfig.parseRules(detectorIndex, rulesJson) == false) {
+            if (m_JobConfig.analysisConfig().parseRules(detectorIndex, rulesJson) == false) {
                 LOG_ERROR(<< "Failed to update detector rules for detector: " << detectorIndex);
                 return false;
             }

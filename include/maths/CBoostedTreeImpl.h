@@ -28,7 +28,6 @@
 #include <maths/ImportExport.h>
 
 #include <boost/optional.hpp>
-#include <boost/range/irange.hpp>
 
 #include <limits>
 #include <memory>
@@ -66,8 +65,9 @@ public:
     using TOptionalDouble = boost::optional<double>;
     using TRegularization = CBoostedTreeRegularization<double>;
     using TSizeVec = std::vector<std::size_t>;
-    using TSizeRange = boost::integer_range<std::size_t>;
     using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
+    using THyperparameterImportanceVec =
+        std::vector<boosted_tree_detail::SHyperparameterImportance>;
 
 public:
     static const double MINIMUM_RELATIVE_GAIN_PER_SPLIT;
@@ -94,6 +94,9 @@ public:
     //!
     //! \warning Will return a nullptr if a trained model isn't available.
     CTreeShapFeatureImportance* shap();
+
+    //! Get the vector of hyperparameter importances.
+    THyperparameterImportanceVec hyperparameterImportance() const;
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
@@ -174,6 +177,7 @@ private:
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
     using TWorkspace = CBoostedTreeLeafNodeStatistics::CWorkspace;
+    using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameters>;
 
     //! Tag progress through initialization.
     enum EInitializationStage {
@@ -326,6 +330,9 @@ private:
     //! Record hyperparameters for instrumentation.
     void recordHyperparameters();
 
+    //! Populate the list of tunable hyperparameters
+    void initializeTunableHyperparameters();
+
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
     EInitializationStage m_InitializationStage = E_NotInitialized;
@@ -374,6 +381,7 @@ private:
     TAnalysisInstrumentationPtr m_Instrumentation;
     mutable TMeanAccumulator m_ForestSizeAccumulator;
     mutable TMeanAccumulator m_MeanLossAccumulator;
+    THyperparametersVec m_TunableHyperparameters;
 
 private:
     friend class CBoostedTreeFactory;
