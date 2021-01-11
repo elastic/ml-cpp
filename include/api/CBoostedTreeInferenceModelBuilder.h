@@ -14,6 +14,8 @@
 
 #include <rapidjson/document.h>
 
+#include <boost/unordered_map.hpp>
+
 #include <string>
 
 namespace ml {
@@ -25,7 +27,7 @@ public:
     using TDoubleVec = std::vector<double>;
     using TStrVec = std::vector<std::string>;
     using TStrVecVec = std::vector<TStrVec>;
-    using TSizeStringUMap = std::unordered_map<std::size_t, std::string>;
+    using TSizeStringUMap = boost::unordered_map<std::size_t, std::string>;
     using TSizeStringUMapVec = std::vector<TSizeStringUMap>;
     using TVector = maths::CBoostedTreeNode::TVector;
     using TApiCustomEncodingUPtr = std::unique_ptr<api::CCustomEncoding>;
@@ -59,8 +61,8 @@ protected:
 
 private:
     using TOneHotEncodingUPtr = std::unique_ptr<COneHotEncoding>;
-    using TOneHotEncodingUMap = std::unordered_map<std::string, TOneHotEncodingUPtr>;
-    using TStringDoubleUMap = std::unordered_map<std::string, double>;
+    using TOneHotEncodingUMap = boost::unordered_map<std::string, TOneHotEncodingUPtr>;
+    using TStringDoubleUMap = boost::unordered_map<std::string, double>;
 
 private:
     virtual void setTargetType() = 0;

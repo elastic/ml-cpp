@@ -39,13 +39,13 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
+#include <boost/unordered_map.hpp>
 
 #include <algorithm>
 #include <cstddef>
 #include <map>
 #include <set>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -279,7 +279,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
         }
 
     private:
-        using TDoubleSizeUMap = std::unordered_map<double, std::size_t>;
+        using TDoubleSizeUMap = boost::unordered_map<double, std::size_t>;
 
     private:
         TDoubleSizeUMap m_Uniques;
@@ -287,7 +287,7 @@ BOOST_FIXTURE_TEST_CASE(testFeatures, CTestFixture) {
         TDouble2VecWeightsAryVec m_TrendWeights;
         TDouble2VecWeightsAryVec m_ResidualWeights;
     };
-    using TSizeUniqueValuesUMap = std::unordered_map<std::size_t, CUniqueValues>;
+    using TSizeUniqueValuesUMap = boost::unordered_map<std::size_t, CUniqueValues>;
 
     core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
