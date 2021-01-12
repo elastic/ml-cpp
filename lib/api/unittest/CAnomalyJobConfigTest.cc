@@ -210,7 +210,8 @@ BOOST_AUTO_TEST_CASE(testParse) {
         const ml::core_t::TTime expectedQuantilePersistInterval{
             ml::api::CAnomalyJobConfig::BASE_MAX_QUANTILE_INTERVAL +
             jobConfig.intervalStagger()};
-        BOOST_REQUIRE_EQUAL(expectedQuantilePersistInterval, jobConfig.quantilePersistInterval());
+        BOOST_REQUIRE_EQUAL(expectedQuantilePersistInterval,
+                            jobConfig.quantilePersistInterval());
 
         const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
 
@@ -344,7 +345,8 @@ BOOST_AUTO_TEST_CASE(testParse) {
         const ml::core_t::TTime expectedQuantilePersistInterval{
             ml::api::CAnomalyJobConfig::BASE_MAX_QUANTILE_INTERVAL +
             jobConfig.intervalStagger()};
-        BOOST_REQUIRE_EQUAL(expectedQuantilePersistInterval, jobConfig.quantilePersistInterval());
+        BOOST_REQUIRE_EQUAL(expectedQuantilePersistInterval,
+                            jobConfig.quantilePersistInterval());
 
         const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
 

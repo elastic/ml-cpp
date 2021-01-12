@@ -115,10 +115,9 @@ int main(int argc, char** argv) {
     if (ml::autodetect::CCmdLineParser::parse(
             argc, argv, configFile, filtersConfigFile, eventsConfigFile, modelConfigFile,
             logProperties, logPipe, delimiter, lengthEncodedInput, timeField,
-            timeFormat, quantilesStateFile, deleteStateFiles,
-            bucketPersistInterval, namedPipeConnectTimeout,
-            inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
-            restoreFileName, isRestoreFileNamedPipe, persistFileName,
+            timeFormat, quantilesStateFile, deleteStateFiles, bucketPersistInterval,
+            namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe, outputFileName,
+            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe, persistFileName,
             isPersistFileNamedPipe, isPersistInForeground, maxAnomalyRecords,
             memoryUsage, stopCategorizationOnWarnStatus, clauseTokens) == false) {
         return EXIT_FAILURE;
@@ -226,7 +225,6 @@ int main(int argc, char** argv) {
         }
         return nullptr;
     }()};
-
 
     ml::core_t::TTime persistInterval{jobConfig.persistInterval()};
     if ((bucketPersistInterval > 0 || persistInterval >= 0) && persister == nullptr) {
