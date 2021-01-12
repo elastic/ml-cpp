@@ -23,6 +23,7 @@ SRCS= \
     CDataFrameAnalyzerTrainingFactory.cc \
     CMultiFileDataAdder.cc \
     CMultiFileSearcher.cc \
+    CProgramCounterClearingFixture.cc \
     CRandomNumbers.cc \
     CTestObserver.cc \
     CTestTmpDir.cc \
