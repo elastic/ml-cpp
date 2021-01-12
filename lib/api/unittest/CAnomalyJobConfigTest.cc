@@ -20,6 +20,39 @@ const std::string EMPTY_STRING;
 
 BOOST_AUTO_TEST_SUITE(CAnomalyJobConfigTest)
 
+BOOST_AUTO_TEST_CASE(testIntervalStagger) {
+    const std::string job1ConfigJson{
+        "{\"job_id\":\"job1\",\"description\":\"job number one\", \"analysis_config\":{\"detectors\":[]}}"};
+
+    ml::api::CAnomalyJobConfig job1Config;
+    BOOST_TEST_REQUIRE(job1Config.parse(job1ConfigJson));
+    BOOST_TEST_REQUIRE(job1Config.isInitialized());
+    BOOST_REQUIRE_LE(0, job1Config.intervalStagger());
+    BOOST_REQUIRE_GE(3599, job1Config.intervalStagger());
+
+    const std::string job2ConfigJson{
+        "{\"job_id\":\"job2\",\"description\":\"job number two\", \"analysis_config\":{\"detectors\":[]}}"};
+
+    ml::api::CAnomalyJobConfig job2Config;
+    BOOST_TEST_REQUIRE(job2Config.parse(job2ConfigJson));
+    BOOST_TEST_REQUIRE(job2Config.isInitialized());
+    BOOST_REQUIRE_LE(0, job1Config.intervalStagger());
+    BOOST_REQUIRE_GE(3599, job1Config.intervalStagger());
+
+    const std::string job3ConfigJson{
+        "{\"job_id\":\"job1\",\"description\":\"job number three has same jobId as job number one\", \"analysis_config\":{\"detectors\":[]}}"};
+
+    ml::api::CAnomalyJobConfig job3Config;
+    BOOST_TEST_REQUIRE(job3Config.parse(job3ConfigJson));
+    BOOST_TEST_REQUIRE(job3Config.isInitialized());
+    BOOST_REQUIRE_LE(0, job1Config.intervalStagger());
+    BOOST_REQUIRE_GE(3599, job1Config.intervalStagger());
+
+    BOOST_REQUIRE_NE(job1Config.intervalStagger(), job2Config.intervalStagger());
+    BOOST_REQUIRE_NE(job2Config.intervalStagger(), job3Config.intervalStagger());
+    BOOST_REQUIRE_EQUAL(job3Config.intervalStagger(), job1Config.intervalStagger());
+}
+
 BOOST_AUTO_TEST_CASE(testParse) {
 
     using TAnalysisConfig = ml::api::CAnomalyJobConfig::CAnalysisConfig;
@@ -102,7 +135,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
             "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
             "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
             "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"all\",\"by_field_name\":\"customer_id\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
-            "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"background_persist_interval\":\"3h\",\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
             "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true,\"terms\":\"customer_id\"},\"model_snapshot_retention_days\":10,"
             "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
 
@@ -113,6 +146,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
+        BOOST_REQUIRE_EQUAL(10800, jobConfig.persistInterval());
 
         const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
 
@@ -168,6 +202,16 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
+        const ml::core_t::TTime expectedPersistInterval{
+            ml::api::CAnomalyJobConfig::DEFAULT_BASE_PERSIST_INTERVAL +
+            jobConfig.intervalStagger()};
+        BOOST_REQUIRE_EQUAL(expectedPersistInterval, jobConfig.persistInterval());
+
+        const ml::core_t::TTime expectedQuantilePersistInterval{
+            ml::api::CAnomalyJobConfig::BASE_MAX_QUANTILE_INTERVAL +
+            jobConfig.intervalStagger()};
+        BOOST_REQUIRE_EQUAL(expectedQuantilePersistInterval,
+                            jobConfig.quantilePersistInterval());
 
         const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
 
@@ -212,7 +256,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
             "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
             "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
             "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"all\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
-            "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
+            "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"background_persist_interval\":\"1d\",\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
             "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
             "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
 
@@ -223,6 +267,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
 
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
+        BOOST_REQUIRE_EQUAL(86400, jobConfig.persistInterval());
 
         const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
 
@@ -263,7 +308,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL(EMPTY_STRING, modelPlotConfig.terms());
     }
     {
-        const std::string validAnomalyJobConfig{
+        const std::string invalidAnomalyJobConfig{
             "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
             "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
             "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"whatever\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
@@ -272,13 +317,13 @@ BOOST_AUTO_TEST_CASE(testParse) {
             "\"daily_model_snapshot_retention_after_days\":1,\"results_index_name\":\"shared\",\"allow_lazy_open\":false}"};
 
         ml::api::CAnomalyJobConfig jobConfig;
-        BOOST_TEST_REQUIRE(!jobConfig.parse(validAnomalyJobConfig));
+        BOOST_TEST_REQUIRE(!jobConfig.parse(invalidAnomalyJobConfig));
         BOOST_TEST_REQUIRE(!jobConfig.isInitialized());
     }
     {
         const std::string validAnomalyJobConfig{
             "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
-            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
+            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\",\"multivariate_by_fields\":true,"
             "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"by\",\"by_field_name\":\"customer_id\",\"over_field_name\":\"category.keyword\",\"detector_index\":0}],\"influencers\":[]},"
             "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
             "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true,\"terms\":\"customer_id,category.keyword\"},\"model_snapshot_retention_days\":10,"
@@ -292,11 +337,23 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL("anomaly_detector", jobConfig.jobType());
         BOOST_REQUIRE_EQUAL("flight_event_rate", jobConfig.jobId());
 
+        const ml::core_t::TTime expectedPersistInterval{
+            ml::api::CAnomalyJobConfig::DEFAULT_BASE_PERSIST_INTERVAL +
+            jobConfig.intervalStagger()};
+        BOOST_REQUIRE_EQUAL(expectedPersistInterval, jobConfig.persistInterval());
+
+        const ml::core_t::TTime expectedQuantilePersistInterval{
+            ml::api::CAnomalyJobConfig::BASE_MAX_QUANTILE_INTERVAL +
+            jobConfig.intervalStagger()};
+        BOOST_REQUIRE_EQUAL(expectedQuantilePersistInterval,
+                            jobConfig.quantilePersistInterval());
+
         const TAnalysisConfig& analysisConfig = jobConfig.analysisConfig();
 
         BOOST_REQUIRE_EQUAL(1800, analysisConfig.bucketSpan());
 
         BOOST_REQUIRE_EQUAL("doc_count", analysisConfig.summaryCountFieldName());
+        BOOST_REQUIRE_EQUAL(true, analysisConfig.multivariateByFields());
 
         const TDataDescription& dataDescription = jobConfig.dataDescription();
 
@@ -352,6 +409,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL(1800, analysisConfig.bucketSpan());
 
         BOOST_REQUIRE_EQUAL("doc_count", analysisConfig.summaryCountFieldName());
+        BOOST_REQUIRE_EQUAL(false, analysisConfig.multivariateByFields());
 
         const TDataDescription& dataDescription = jobConfig.dataDescription();
 
@@ -387,7 +445,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
     {
         const std::string validAnomalyJobConfig{
             "{\"job_id\":\"flight_event_rate\",\"job_type\":\"anomaly_detector\",\"job_version\":\"8.0.0\",\"create_time\":1603110779167,"
-            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\","
+            "\"description\":\"\",\"analysis_config\":{\"bucket_span\":\"30m\",\"summary_count_field_name\":\"doc_count\",\"multivariate_by_fields\":false,"
             "\"detectors\":[{\"detector_description\":\"count\",\"function\":\"count\",\"exclude_frequent\":\"by\",\"by_field_name\":\"customer_id\",\"detector_index\":0}],\"influencers\":[]},"
             "\"analysis_limits\":{\"model_memory_limit\":\"4195304b\",\"categorization_examples_limit\":4},\"data_description\":{\"time_field\":\"timestamp\",\"time_format\":\"epoch_ms\"},"
             "\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true},\"model_snapshot_retention_days\":10,"
@@ -406,6 +464,7 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_REQUIRE_EQUAL(1800, analysisConfig.bucketSpan());
 
         BOOST_REQUIRE_EQUAL("doc_count", analysisConfig.summaryCountFieldName());
+        BOOST_REQUIRE_EQUAL(false, analysisConfig.multivariateByFields());
 
         const TDataDescription& dataDescription = jobConfig.dataDescription();
 
