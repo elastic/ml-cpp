@@ -213,7 +213,7 @@ void CInferenceModelMetadata::hyperparameterImportance(
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR;
             break;
         case maths::boosted_tree_detail::E_Eta:
-            hyperparameterName = CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR;
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::ETA;
             break;
         case maths::boosted_tree_detail::E_EtaGrowthRatePerTree:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE;
