@@ -12,6 +12,7 @@
 #include <core/CRegex.h>
 #include <core/CThread.h>
 
+#include <test/CProgramCounterClearingFixture.h>
 #include <test/CRandomNumbers.h>
 
 #include <boost/test/unit_test.hpp>
@@ -23,21 +24,6 @@
 BOOST_AUTO_TEST_SUITE(CProgramCountersTest)
 
 const int TEST_COUNTER{0u};
-
-class CTestFixture {
-public:
-    CTestFixture() {
-        ml::core::CProgramCounters& counters = ml::core::CProgramCounters::instance();
-
-        // Set all counters to 0
-        for (std::size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
-            counters.counter(i) = 0;
-        }
-
-        // Clear the cache
-        counters.m_Cache.clear();
-    }
-};
 
 class CProgramCountersTestRunner : public ml::core::CThread {
 public:
@@ -89,7 +75,7 @@ void restore(const std::string& staticsXml) {
         &ml::core::CProgramCounters::staticsAcceptRestoreTraverser));
 }
 
-BOOST_FIXTURE_TEST_CASE(testCounters, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testCounters, ml::test::CProgramCounterClearingFixture) {
     ml::core::CProgramCounters& counters = ml::core::CProgramCounters::instance();
 
     using TCounter = ml::core::CProgramCounters::TCounter;
@@ -130,7 +116,7 @@ BOOST_FIXTURE_TEST_CASE(testCounters, CTestFixture) {
     BOOST_REQUIRE_EQUAL(TCounter(0x1000000), counters.counter(TEST_COUNTER));
 }
 
-BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testPersist, ml::test::CProgramCounterClearingFixture) {
     // Run the first set of checks without registering a specific subset of counters
     // in order to test the entire set now and in the future
     using TCounter = ml::core::CProgramCounters::TCounter;
@@ -278,7 +264,7 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
     BOOST_REQUIRE_EQUAL(outputOrder1, outputOrder2);
 }
 
-BOOST_FIXTURE_TEST_CASE(testUnknownCounter, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testUnknownCounter, ml::test::CProgramCounterClearingFixture) {
     ml::core::CProgramCounters& counters = ml::core::CProgramCounters::instance();
 
     // Name of the log file to use. It must match the name specified
@@ -309,7 +295,7 @@ BOOST_FIXTURE_TEST_CASE(testUnknownCounter, CTestFixture) {
     std::remove(logFile);
 }
 
-BOOST_FIXTURE_TEST_CASE(testMissingCounter, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testMissingCounter, ml::test::CProgramCounterClearingFixture) {
     // explicitly register interest in a particular set of counters
     const ml::counter_t::TCounterTypeSet counterSet{
         ml::counter_t::E_TSADNumberNewPeopleNotAllowed,
@@ -348,7 +334,7 @@ BOOST_FIXTURE_TEST_CASE(testMissingCounter, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testCacheCounters, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testCacheCounters, ml::test::CProgramCounterClearingFixture) {
     ml::core::CProgramCounters& counters = ml::core::CProgramCounters::instance();
 
     // confirm that initially the cache is empty
@@ -386,7 +372,7 @@ BOOST_FIXTURE_TEST_CASE(testCacheCounters, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testMax, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testMax, ml::test::CProgramCounterClearingFixture) {
     ml::test::CRandomNumbers rng;
     std::size_t m1{0}, m2{0};
     std::thread thread1{[&m1, &rng] {

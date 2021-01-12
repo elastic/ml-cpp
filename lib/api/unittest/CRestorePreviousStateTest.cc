@@ -7,7 +7,6 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/COsFileFuncs.h>
-#include <core/CProgramCounters.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
@@ -18,6 +17,8 @@
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
+
+#include <test/CProgramCounterClearingFixture.h>
 
 #include "CTestAnomalyJob.h"
 #include "CTestFieldDataCategorizer.h"
@@ -32,18 +33,6 @@
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CRestorePreviousStateTest)
-
-class CTestFixture {
-public:
-    CTestFixture() {
-        ml::core::CProgramCounters& counters = ml::core::CProgramCounters::instance();
-
-        // Set all counters to 0
-        for (std::size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
-            counters.counter(i) = 0;
-        }
-    }
-};
 
 namespace {
 
@@ -228,7 +217,7 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
 }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRestoreDetectorBy, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorBy, ml::test::CProgramCounterClearingFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper(
@@ -237,7 +226,7 @@ BOOST_FIXTURE_TEST_CASE(testRestoreDetectorBy, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRestoreDetectorOver, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorOver, ml::test::CProgramCounterClearingFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/over_detector_state.json",
@@ -246,7 +235,7 @@ BOOST_FIXTURE_TEST_CASE(testRestoreDetectorOver, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRestoreDetectorPartition, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorPartition, ml::test::CProgramCounterClearingFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/partition_detector_state.json",
@@ -255,7 +244,7 @@ BOOST_FIXTURE_TEST_CASE(testRestoreDetectorPartition, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRestoreDetectorDc, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorDc, ml::test::CProgramCounterClearingFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper(
@@ -264,7 +253,7 @@ BOOST_FIXTURE_TEST_CASE(testRestoreDetectorDc, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRestoreDetectorCount, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorCount, ml::test::CProgramCounterClearingFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/count_detector_state.json",
@@ -273,7 +262,7 @@ BOOST_FIXTURE_TEST_CASE(testRestoreDetectorCount, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRestoreNormalizer, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testRestoreNormalizer, ml::test::CProgramCounterClearingFixture) {
     for (const auto& version : BWC_VERSIONS) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -284,7 +273,7 @@ BOOST_FIXTURE_TEST_CASE(testRestoreNormalizer, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRestoreCategorizer, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testRestoreCategorizer, ml::test::CProgramCounterClearingFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         categorizerRestoreHelper("testfiles/state/" + version.s_Version + "/categorizer_state.json",

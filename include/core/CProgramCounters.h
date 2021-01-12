@@ -18,7 +18,6 @@
 #include <vector>
 
 namespace CProgramCountersTest {
-class CTestFixture;
 class CProgramCountersTestRunner;
 struct testCounters;
 struct testUnknownCounter;
@@ -28,6 +27,9 @@ struct testPersist;
 }
 
 namespace ml {
+namespace test {
+class CProgramCounterClearingFixture;
+}
 namespace counter_t {
 
 //! The enum values must be explicitly assigned & names should have a meaningful prefix to effectively namespace counters
@@ -354,7 +356,7 @@ private:
                                                 const CProgramCounters& counters);
 
     //! Befriend the test suite
-    friend class CProgramCountersTest::CTestFixture;
+    friend class test::CProgramCounterClearingFixture;
     friend class CProgramCountersTest::CProgramCountersTestRunner;
     friend struct CProgramCountersTest::testCounters;
     friend struct CProgramCountersTest::testUnknownCounter;
