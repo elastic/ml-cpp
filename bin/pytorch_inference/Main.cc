@@ -107,10 +107,10 @@ int main(int argc, char** argv) {
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
 
-    if (ml::torch::CCmdLineParser::parse(argc, argv, modelId, namedPipeConnectTimeout,
-                                         inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
-                                         restoreFileName, isRestoreFileNamedPipe, logFileName,
-                                         isLogFileNamedPipe) == false) {
+    if (ml::torch::CCmdLineParser::parse(
+            argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
+            isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
+            isRestoreFileNamedPipe, logFileName, isLogFileNamedPipe) == false) {
         return EXIT_FAILURE;
     }
 
@@ -120,9 +120,15 @@ int main(int argc, char** argv) {
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
     const std::string EMPTY;
-    ml::api::CIoManager ioMgr{
-        cancellerThread, inputFileName, isInputFileNamedPipe,  outputFileName, isOutputFileNamedPipe,
-        restoreFileName, isRestoreFileNamedPipe,          EMPTY, false};
+    ml::api::CIoManager ioMgr{cancellerThread,
+                              inputFileName,
+                              isInputFileNamedPipe,
+                              outputFileName,
+                              isOutputFileNamedPipe,
+                              restoreFileName,
+                              isRestoreFileNamedPipe,
+                              EMPTY,
+                              false};
 
     if (cancellerThread.start() == false) {
         // This log message will probably never been seen as it will go to the
@@ -138,7 +144,7 @@ int main(int argc, char** argv) {
             cancellerThread.stop();
             return EXIT_FAILURE;
         }
-    } 
+    }
     cancellerThread.stop();
 
     // Reduce memory priority before installing system call filters.

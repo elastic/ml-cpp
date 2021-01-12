@@ -78,25 +78,25 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("inputIsPipe") > 0) {
             isInputFileNamedPipe = true;
-        }        
+        }
         if (vm.count("output") > 0) {
             outputFileName = vm["output"].as<std::string>();
         }
         if (vm.count("outputIsPipe") > 0) {
             isOutputFileNamedPipe = true;
-        }        
+        }
         if (vm.count("restore") > 0) {
             restoreFileName = vm["restore"].as<std::string>();
         }
         if (vm.count("restoreIsPipe") > 0) {
             isRestoreFileNamedPipe = true;
-        }        
+        }
         if (vm.count("log") > 0) {
             loggingFileName = vm["log"].as<std::string>();
         }
         if (vm.count("logIsPipe") > 0) {
             isLogFileNamedPipe = true;
-        }        
+        }
 
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
