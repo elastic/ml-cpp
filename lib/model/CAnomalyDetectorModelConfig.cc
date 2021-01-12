@@ -376,7 +376,7 @@ void CAnomalyDetectorModelConfig::configureModelPlot(bool modelPlotEnabled,
                                                      bool annotationsEnabled,
                                                      const std::string& terms) {
     if (modelPlotEnabled) {
-        m_ModelPlotBoundsPercentile = ml::maths::CModel::DEFAULT_BOUNDS_PERCENTILE;
+        m_ModelPlotBoundsPercentile = maths::CModel::DEFAULT_BOUNDS_PERCENTILE;
     }
 
     m_ModelPlotAnnotationsEnabled = annotationsEnabled;

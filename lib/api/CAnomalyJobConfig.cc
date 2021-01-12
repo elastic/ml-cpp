@@ -20,6 +20,8 @@
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/stringbuffer.h>
 
+#include <random>
+
 #ifdef Windows
 // rapidjson::Writer<rapidjson::StringBuffer> gets instantiated in the core
 // library, and on Windows it gets exported too, because
@@ -41,9 +43,13 @@ const std::string CAnomalyJobConfig::JOB_TYPE{"job_type"};
 const std::string CAnomalyJobConfig::ANALYSIS_CONFIG{"analysis_config"};
 const std::string CAnomalyJobConfig::ANALYSIS_LIMITS{"analysis_limits"};
 const std::string CAnomalyJobConfig::DATA_DESCRIPTION{"data_description"};
+const std::string CAnomalyJobConfig::BACKGROUND_PERSIST_INTERVAL{"background_persist_interval"};
 const std::string CAnomalyJobConfig::MODEL_PLOT_CONFIG{"model_plot_config"};
 const std::string CAnomalyJobConfig::FILTERS{"filters"};
 const std::string CAnomalyJobConfig::EVENTS{"events"};
+
+const core_t::TTime CAnomalyJobConfig::BASE_MAX_QUANTILE_INTERVAL{21600}; // 6 hours
+const core_t::TTime CAnomalyJobConfig::DEFAULT_BASE_PERSIST_INTERVAL{10800}; // 3 hours
 
 const std::string CAnomalyJobConfig::CAnalysisConfig::BUCKET_SPAN{"bucket_span"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::SUMMARY_COUNT_FIELD_NAME{
@@ -207,6 +213,8 @@ const std::size_t CAnomalyJobConfig::CAnalysisLimits::DEFAULT_MEMORY_LIMIT_BYTES
 const std::string CAnomalyJobConfig::CDataDescription::TIME_FIELD{"time_field"};
 const std::string CAnomalyJobConfig::CDataDescription::TIME_FORMAT{"time_format"};
 
+const std::string CAnomalyJobConfig::CDataDescription::DEFAULT_TIME_FIELD{"time"};
+
 const std::string CAnomalyJobConfig::CEventConfig::DESCRIPTION{"description"};
 const std::string CAnomalyJobConfig::CEventConfig::RULES{"rules"};
 
@@ -255,6 +263,8 @@ const CAnomalyJobConfigReader CONFIG_READER{[] {
                            CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::DATA_DESCRIPTION,
                            CAnomalyJobConfigReader::E_OptionalParameter);
+    theReader.addParameter(CAnomalyJobConfig::BACKGROUND_PERSIST_INTERVAL,
+                           CAnomalyJobConfigReader::E_OptionalParameter);
     return theReader;
 }()};
 
@@ -275,6 +285,8 @@ const CAnomalyJobConfigReader ANALYSIS_CONFIG_READER{[] {
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::INFLUENCERS,
                            CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::LATENCY,
+                           CAnomalyJobConfigReader::E_OptionalParameter);
+    theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::MULTIVARIATE_BY_FIELDS,
                            CAnomalyJobConfigReader::E_OptionalParameter);
     return theReader;
 }()};
@@ -560,6 +572,20 @@ bool CAnomalyJobConfig::parse(const std::string& json) {
         if (modelPlotConfig != nullptr) {
             m_ModelConfig.parse(*modelPlotConfig);
         }
+
+        // We choose to ignore any errors here parsing the time duration string as
+        // we assume that it has already been validated by ES. In the event that any
+        // error _does_ occur an error is logged and a default value used.
+        const std::string& bucketPersistIntervalString{
+            parameters[BACKGROUND_PERSIST_INTERVAL].fallback(EMPTY_STRING)};
+
+        const core_t::TTime defaultBackgroundPersistInterval{
+            DEFAULT_BASE_PERSIST_INTERVAL + this->intervalStagger()};
+        m_BackgroundPersistInterval = CAnomalyJobConfig::CAnalysisConfig::durationSeconds(
+            bucketPersistIntervalString, defaultBackgroundPersistInterval);
+
+        m_MaxQuantilePersistInterval = BASE_MAX_QUANTILE_INTERVAL + this->intervalStagger();
+
     } catch (CAnomalyJobConfigReader::CParseError& e) {
         LOG_ERROR(<< "Error parsing anomaly job config: " << e.what());
         return false;
@@ -568,6 +594,13 @@ bool CAnomalyJobConfig::parse(const std::string& json) {
     m_IsInitialized = true;
 
     return true;
+}
+
+core_t::TTime CAnomalyJobConfig::intervalStagger() {
+    std::seed_seq seed(m_JobId.begin(), m_JobId.end());
+    std::mt19937 generator{seed};
+    std::uniform_int_distribution<> distribution{0, core::constants::HOUR - 1};
+    return distribution(generator);
 }
 
 void CAnomalyJobConfig::CModelPlotConfig::parse(const rapidjson::Value& modelPlotConfig) {
@@ -611,7 +644,7 @@ std::size_t CAnomalyJobConfig::CAnalysisLimits::modelMemoryLimitMb(const std::st
 void CAnomalyJobConfig::CDataDescription::parse(const rapidjson::Value& analysisLimits) {
     auto parameters = DATA_DESCRIPTION_READER.read(analysisLimits);
 
-    m_TimeField = parameters[TIME_FIELD].as<std::string>();
+    m_TimeField = parameters[TIME_FIELD].fallback(DEFAULT_TIME_FIELD);
     m_TimeFormat = parameters[TIME_FORMAT].fallback(EMPTY_STRING); // Ignore
 }
 
