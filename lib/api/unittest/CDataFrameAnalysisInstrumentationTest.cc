@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <boost/test/tools/interface.hpp>
 #include <core/CTimeUtils.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
@@ -11,6 +10,7 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CDataFrameAnalyzerTrainingFactory.h>
+#include <test/CProgramCounterClearingFixture.h>
 
 #include <rapidjson/schema.h>
 
@@ -99,7 +99,7 @@ void addOutlierTestData(TStrVec fieldNames,
 }
 }
 
-BOOST_AUTO_TEST_CASE(testMemoryState) {
+BOOST_FIXTURE_TEST_CASE(testMemoryState, ml::test::CProgramCounterClearingFixture) {
     std::string jobId{"testJob"};
     std::int64_t memoryLimit{1024 * 1024 * 1024}; //1gb default value
     std::int64_t memoryUsage{500000};
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
     BOOST_TEST_REQUIRE(hasMemoryUsage);
 }
 
-BOOST_AUTO_TEST_CASE(testTrainingRegression) {
+BOOST_FIXTURE_TEST_CASE(testTrainingRegression, ml::test::CProgramCounterClearingFixture) {
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE(testTrainingRegression) {
     BOOST_TEST_REQUIRE(hasMemoryUsage);
 }
 
-BOOST_AUTO_TEST_CASE(testTrainingClassification) {
+BOOST_FIXTURE_TEST_CASE(testTrainingClassification, ml::test::CProgramCounterClearingFixture) {
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
@@ -299,7 +299,7 @@ BOOST_AUTO_TEST_CASE(testTrainingClassification) {
     BOOST_TEST_REQUIRE(initialMemoryReport);
 }
 
-BOOST_AUTO_TEST_CASE(testOutlierDetection) {
+BOOST_FIXTURE_TEST_CASE(testOutlierDetection, ml::test::CProgramCounterClearingFixture) {
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
