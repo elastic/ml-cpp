@@ -42,7 +42,6 @@ public:
                       std::string& logPipe,
                       char& delimiter,
                       bool& lengthEncodedInput,
-                      std::string& timeField,
                       std::string& timeFormat,
                       std::string& quantilesState,
                       bool& deleteStateFiles,
@@ -60,7 +59,7 @@ public:
                       std::size_t& maxAnomalyRecords,
                       bool& memoryUsage,
                       bool& stopCategorizationOnWarnStatus,
-                      TStrVec& clauseTokens);
+                      TStrVec& unknownTokens);
 
 private:
     static const std::string DESCRIPTION;

@@ -1040,9 +1040,18 @@ BOOST_AUTO_TEST_CASE(testParse) {
         BOOST_TEST_REQUIRE(!jobConfigEmptyFilterMap.isInitialized());
 
         // Expect parsing to succeed if the filter referenced by the custom rule can be found in the filter map.
-        ml::api::CDetectionRulesJsonParser::TStrPatternSetUMap filterMap{{"safe_ips", {}}};
-        ml::api::CAnomalyJobConfig::TStrDetectionRulePrVec scheduledEvents{};
-        ml::api::CAnomalyJobConfig jobConfig(filterMap, scheduledEvents);
+        const std::string filterConfigJson{"{\"filters\":[{\"filter_id\":\"safe_ips\",\"items\":[]}]}"};
+        ml::api::CAnomalyJobConfig jobConfig;
+        BOOST_TEST_REQUIRE(jobConfig.parseFilterConfig(filterConfigJson));
+
+        const std::string validScheduledEventsConfigJson{"{\"events\":["
+                                                         "]}"};
+
+        BOOST_TEST_REQUIRE(jobConfig.parseEventConfig(validScheduledEventsConfigJson));
+
+        jobConfig.analysisConfig().init(jobConfig.ruleFilters(),
+                                        jobConfig.scheduledEvents());
+
         BOOST_REQUIRE_MESSAGE(jobConfig.parse(validAnomalyJobConfigWithCustomRuleFilter),
                               "Cannot parse JSON job config!");
         BOOST_TEST_REQUIRE(jobConfig.isInitialized());

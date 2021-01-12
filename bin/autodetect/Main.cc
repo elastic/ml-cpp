@@ -92,7 +92,6 @@ int main(int argc, char** argv) {
     std::string logPipe;
     char delimiter{'\t'};
     bool lengthEncodedInput{false};
-    std::string timeField{ml::api::CAnomalyJob::DEFAULT_TIME_FIELD_NAME};
     std::string timeFormat;
     std::string quantilesStateFile;
     bool deleteStateFiles{false};
@@ -111,15 +110,15 @@ int main(int argc, char** argv) {
     std::size_t maxAnomalyRecords{100};
     bool memoryUsage{false};
     bool stopCategorizationOnWarnStatus{false};
-    TStrVec clauseTokens;
+    TStrVec unknownTokens;
     if (ml::autodetect::CCmdLineParser::parse(
-            argc, argv, configFile, filtersConfigFile, eventsConfigFile, modelConfigFile,
-            logProperties, logPipe, delimiter, lengthEncodedInput, timeField,
+            argc, argv, configFile, filtersConfigFile, eventsConfigFile,
+            modelConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
             timeFormat, quantilesStateFile, deleteStateFiles, bucketPersistInterval,
             namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe, outputFileName,
             isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe, persistFileName,
             isPersistFileNamedPipe, isPersistInForeground, maxAnomalyRecords,
-            memoryUsage, stopCategorizationOnWarnStatus, clauseTokens) == false) {
+            memoryUsage, stopCategorizationOnWarnStatus, unknownTokens) == false) {
         return EXIT_FAILURE;
     }
 
@@ -151,6 +150,12 @@ int main(int argc, char** argv) {
     // must be done from the program, and NOT a shared library, as each program
     // statically links its own version library.
     LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
+
+    if (unknownTokens.size()) {
+        LOG_ERROR(<< "Unkown command line options: "
+                  << ml::core::CContainerPrinter::print(unknownTokens));
+        return EXIT_FAILURE;
+    }
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();
