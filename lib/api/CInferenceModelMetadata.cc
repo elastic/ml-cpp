@@ -234,10 +234,14 @@ void CInferenceModelMetadata::hyperparameterImportance(
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE;
             break;
         }
-        double absoluteImportance {(std::fabs(item.s_AbsoluteImportance) < 1e-8) ? 0.0 : item.s_AbsoluteImportance};
-        double relativeImportance {(std::fabs(item.s_RelativeImportance) < 1e-8) ? 0.0 : item.s_RelativeImportance};
-        m_HyperparameterImportance.emplace_back(
-            hyperparameterName, item.s_Value, absoluteImportance, relativeImportance, item.s_Supplied);
+        double absoluteImportance{(std::fabs(item.s_AbsoluteImportance) < 1e-8)
+                                      ? 0.0
+                                      : item.s_AbsoluteImportance};
+        double relativeImportance{(std::fabs(item.s_RelativeImportance) < 1e-8)
+                                      ? 0.0
+                                      : item.s_RelativeImportance};
+        m_HyperparameterImportance.emplace_back(hyperparameterName, item.s_Value, absoluteImportance,
+                                                relativeImportance, item.s_Supplied);
     }
     std::sort(m_HyperparameterImportance.begin(),
               m_HyperparameterImportance.end(), [](const auto& a, const auto& b) {
