@@ -24,4 +24,3 @@ CProgramCounterClearingFixture::CProgramCounterClearingFixture() {
 }
 }
 }
-
