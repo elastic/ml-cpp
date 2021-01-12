@@ -536,7 +536,7 @@ BOOST_AUTO_TEST_CASE(testTimeVaryingPeriodic) {
 
     LOG_DEBUG(<< "mean error 1 = " << totalError1 / numberErrors);
     LOG_DEBUG(<< "mean error 2 = " << totalError2 / numberErrors);
-    BOOST_TEST_REQUIRE(totalError1 / numberErrors < 19.0);
+    BOOST_TEST_REQUIRE(totalError1 / numberErrors < 18.0);
     BOOST_TEST_REQUIRE(totalError2 / numberErrors < 14.0);
 }
 

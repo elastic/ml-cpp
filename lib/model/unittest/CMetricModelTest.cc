@@ -2059,7 +2059,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
         // control.
 
         params.s_ControlDecayRate = true;
-        params.s_DecayRate = 0.0005;
+        params.s_DecayRate = 0.001;
         auto interimBucketCorrector = std::make_shared<CInterimBucketCorrector>(bucketLength);
         CMetricModelFactory factory(params, interimBucketCorrector);
         factory.features(features);
@@ -2067,7 +2067,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
         CModelFactory::TModelPtr model(factory.makeModel(gatherer));
 
         params.s_ControlDecayRate = false;
-        params.s_DecayRate = 0.0005;
+        params.s_DecayRate = 0.001;
         CMetricModelFactory referenceFactory(params, interimBucketCorrector);
         referenceFactory.features(features);
         CModelFactory::TDataGathererPtr referenceGatherer(
@@ -2111,7 +2111,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
         LOG_DEBUG(<< "reference = "
                   << maths::CBasicStatistics::mean(meanReferencePredictionError));
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanPredictionError) <
-                           0.75 * maths::CBasicStatistics::mean(meanReferencePredictionError));
+                           0.8 * maths::CBasicStatistics::mean(meanReferencePredictionError));
     }
 }
 
