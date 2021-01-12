@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE(testVectorNx1) {
             maths::CVectorNx1<double, 4> sy = s * y;
             LOG_DEBUG(<< "Sy = " << sy);
             for (std::size_t i = 0u; i < 4; ++i) {
-                BOOST_REQUIRE_EQUAL(expected(i), sy(i));
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(expected(i), sy(i), 1e-14);
             }
         }
     }
