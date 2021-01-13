@@ -219,12 +219,6 @@ public:
         CAnalysisConfig(const std::string& categorizationFieldName)
             : m_CategorizationFieldName{categorizationFieldName} {}
 
-        //! Constructor taking a map of detector rule filters keyed by filter_id &
-        //! a vector of scheduled events data
-        CAnalysisConfig(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
-                        const TStrDetectionRulePrVec& scheduledEvents)
-            : m_RuleFilters(ruleFilters), m_ScheduledEvents(scheduledEvents) {}
-
         void init(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
                   const TStrDetectionRulePrVec& scheduledEvents) {
             m_RuleFilters = ruleFilters;
@@ -487,12 +481,6 @@ public:
 
     explicit CAnomalyJobConfig(const std::string& categorizationFieldName)
         : m_AnalysisConfig(categorizationFieldName) {}
-
-    // This one is only needed for historical reasons. Once The Java side sends the
-    // scheduled events and filters config as JSON this can go.
-    CAnomalyJobConfig(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
-                      const TStrDetectionRulePrVec& scheduledEvents)
-        : m_AnalysisConfig(ruleFilters, scheduledEvents) {}
 
     bool readFile(const std::string& fileName, std::string& fileContents);
 

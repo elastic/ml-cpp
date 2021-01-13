@@ -17,7 +17,7 @@
 namespace ml {
 namespace autodetect {
 
-const std::string CCmdLineParser::DESCRIPTION = "Usage: autodetect [options] [<fieldname>+ [by <fieldname>]]\n"
+const std::string CCmdLineParser::DESCRIPTION = "Usage: autodetect [options]]\n"
                                                 "Options:";
 
 bool CCmdLineParser::parse(int argc,
@@ -30,7 +30,6 @@ bool CCmdLineParser::parse(int argc,
                            std::string& logPipe,
                            char& delimiter,
                            bool& lengthEncodedInput,
-                           std::string& timeField,
                            std::string& timeFormat,
                            std::string& quantilesState,
                            bool& deleteStateFiles,
@@ -46,47 +45,29 @@ bool CCmdLineParser::parse(int argc,
                            bool& isPersistFileNamedPipe,
                            bool& isPersistInForeground,
                            std::size_t& maxAnomalyRecords,
-                           bool& memoryUsage,
-                           bool& stopCategorizationOnWarnStatus,
-                           TStrVec& clauseTokens) {
+                           bool& memoryUsage) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
         desc.add_options()
             ("help", "Display this information and exit")
             ("version", "Display version information and exit")
-            ("config", boost::program_options::value<std::string>(),
+            ("config", boost::program_options::value<std::string>()->required(),
                     "The job configuration file")
             ("filtersconfig", boost::program_options::value<std::string>(),
-             "The filters configuration file")
+                    "The filters configuration file")
             ("eventsconfig", boost::program_options::value<std::string>(),
-             "The scheduled events configuration file")
-            ("limitconfig", boost::program_options::value<std::string>(),
-                    "Optional limit config file")
+                    "The scheduled events configuration file")
             ("modelconfig", boost::program_options::value<std::string>(),
                     "Optional model config file")
-            ("fieldconfig", boost::program_options::value<std::string>(),
-                    "Optional field config file")
-            ("modelplotconfig", boost::program_options::value<std::string>(),
-                    "Optional model plot config file")
-            ("jobid", boost::program_options::value<std::string>(),
-                    "ID of the job this process is associated with")
             ("logProperties", boost::program_options::value<std::string>(),
                     "Optional logger properties file")
             ("logPipe", boost::program_options::value<std::string>(),
                     "Optional log to named pipe")
-            ("bucketspan", boost::program_options::value<core_t::TTime>(),
-                    "Optional aggregation bucket span (in seconds) - default is 300")
-            ("latency", boost::program_options::value<core_t::TTime>(),
-                    "Optional maximum delay for out-of-order records (in seconds) - default is 0")
-            ("summarycountfield", boost::program_options::value<std::string>(),
-                    "Optional field to that contains counts for pre-summarized input - default is none")
             ("delimiter", boost::program_options::value<char>(),
                     "Optional delimiter character for delimited data formats - default is '\t' (tab separated)")
             ("lengthEncodedInput",
                     "Take input in length encoded binary format - default is delimited")
-            ("timefield", boost::program_options::value<std::string>(),
-                    "Optional name of the field containing the timestamp - default is 'time'")
             ("timeformat", boost::program_options::value<std::string>(),
                     "Optional format of the date in the time field in strptime code - default is the epoch time in seconds")
             ("quantilesState", boost::program_options::value<std::string>(),
@@ -107,31 +88,19 @@ bool CCmdLineParser::parse(int argc,
             ("persist", boost::program_options::value<std::string>(),
                     "Optional file to persist state to - not present means no state persistence")
             ("persistIsPipe", "Specified persist file is a named pipe")
-            ("persistInterval", boost::program_options::value<core_t::TTime>(),
-                    "Optional time interval at which to periodically persist model state (Mutually exclusive with bucketPersistInterval)")
             ("persistInForeground", "Persistence occurs in the foreground. Defaults to background persistence.")
             ("bucketPersistInterval", boost::program_options::value<std::size_t>(),
-                    "Optional number of buckets after which to periodically persist model state (Mutually exclusive with persistInterval)")
-            ("maxQuantileInterval", boost::program_options::value<core_t::TTime>(),
-                    "Optional interval at which to periodically output quantiles if they have not been output due to an anomaly - if not specified then quantiles will only be output following a big anomaly")
+                    "Optional number of buckets after which to periodically persist model state.")
             ("maxAnomalyRecords", boost::program_options::value<std::size_t>(),
                     "The maximum number of records to be outputted for each bucket. Defaults to 100, a value 0 removes the limit.")
             ("memoryUsage",
                     "Log the model memory usage at the end of the job")
-            ("multivariateByFields",
-                    "Optional flag to enable multi-variate analysis of correlated by fields")
-            ("stopCategorizationOnWarnStatus",
-                    "Optional flag to stop categorization for partitions where the status is 'warn'.")
         ;
         // clang-format on
-
         boost::program_options::variables_map vm;
-        boost::program_options::parsed_options parsed =
-            boost::program_options::command_line_parser(argc, argv)
-                .options(desc)
-                .allow_unregistered()
-                .run();
-        boost::program_options::store(parsed, vm);
+        boost::program_options::store(
+            boost::program_options::parse_command_line(argc, argv, desc), vm);
+        boost::program_options::notify(vm);
 
         if (vm.count("help") > 0) {
             std::cerr << desc << std::endl;
@@ -168,9 +137,6 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("lengthEncodedInput") > 0) {
             lengthEncodedInput = true;
-        }
-        if (vm.count("timefield") > 0) {
-            timeField = vm["timefield"].as<std::string>();
         }
         if (vm.count("timeformat") > 0) {
             timeFormat = vm["timeformat"].as<std::string>();
@@ -220,13 +186,6 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("memoryUsage") > 0) {
             memoryUsage = true;
         }
-        if (vm.count("stopCategorizationOnWarnStatus") > 0) {
-            stopCategorizationOnWarnStatus = true;
-        }
-
-        boost::program_options::collect_unrecognized(
-            parsed.options, boost::program_options::include_positional)
-            .swap(clauseTokens);
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;
