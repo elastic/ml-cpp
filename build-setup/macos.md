@@ -1,5 +1,7 @@
 # Machine Learning Build Machine Setup for macOS
 
+These same instructions should work for native compilation on both x86_64 and aarch64 architectures.
+
 To ensure everything is consistent for redistributable builds we build all redistributable components from source.
 
 NOTE: if you upgrade macOS then Xcode may need to be re-installed. Please ensure your Xcode is still valid after upgrades.
@@ -27,11 +29,12 @@ Note, that bash doesn't read `~/.bashrc` for login shells (which is what you get
 Most of the tools are built via a GNU "configure" script. There are some environment variables that affect the behaviour of this. Therefore, when building ANY tool on macOS, set the following environment variables:
 
 ```
+export SSEFLAGS=`[ $(uname -m) = x86_64 ] && echo -msse4.2`
 export CPP='clang -E'
 export CC=clang
-export CFLAGS='-O3 -msse4.2'
+export CFLAGS="-O3 $SSEFLAGS"
 export CXX='clang++ -std=c++14 -stdlib=libc++'
-export CXXFLAGS='-O3 -msse4.2'
+export CXXFLAGS="-O3 $SSEFLAGS"
 export CXXCPP='clang++ -std=c++14 -E'
 export LDFLAGS=-Wl,-headerpad_max_install_names
 unset CPATH
@@ -50,7 +53,8 @@ The first major piece of development software to install is Apple's development 
 - If you are using El Capitan, you must install Xcode 8.2.x
 - If you are using Sierra, you must install Xcode 9.2.x
 - If you are using High Sierra, you must install Xcode 10.1.x
-- If you are using Mojave, you must install Xcode 10.3.x
+- If you are using Mojave, you must install Xcode 11.3.x
+- If you are using Catalina or Big Sur, you must install Xcode 12.3.x or above
 
 Older versions of Xcode are installed by dragging the app from the `.dmg` file to the `/Applications` directory on your Mac (or if you got it from the App Store it will already be in the `/Applications` directory). More modern versions of Xcode are distributed as a `.xip` file; simply double click the `.xip` file to expand it, then drag `Xcode.app` to your `/Applications` directory.
 
@@ -90,6 +94,34 @@ to:
 
 ```
     (3ul)(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \
+```
+
+Then edit `tools/build/src/tools/darwin.jam` and change:
+
+```
+        case arm :
+        {
+            if $(instruction-set) {
+                options = -arch$(_)$(instruction-set) ;
+            } else {
+                options = -arch arm ;
+            }
+        }
+```
+
+to:
+
+```
+        case arm :
+        {
+            if $(instruction-set) {
+                options = -arch$(_)$(instruction-set) ;
+            } else if $(address-model) = 64 {
+                options = -arch arm64 ;
+            } else {
+                options = -arch arm ;
+            }
+        }
 ```
 
 To complete the build, type:

@@ -24,7 +24,7 @@ case `uname` in
 
     Darwin)
         SIMPLE_PLATFORM=macos
-        BUNDLE_PLATFORM=darwin-x86_64
+        BUNDLE_PLATFORM=darwin-`uname -m | sed 's/arm64/aarch64/'`
         ;;
 
     Linux)
@@ -91,10 +91,6 @@ case $SIMPLE_PLATFORM in
         PATH=/usr/local/gcc75/bin:/usr/bin:/bin:/usr/local/gcc75/sbin:/usr/sbin:/sbin:/usr/local/bin
         ;;
 
-    linux-musl)
-        PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
-        ;;
-
     macos)
         PATH=/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin
         ;;
@@ -118,10 +114,6 @@ case $SIMPLE_PLATFORM in
 
     linux)
         export LD_LIBRARY_PATH=/usr/local/gcc75/lib64:/usr/local/gcc75/lib:/usr/lib:/lib
-        ;;
-
-    linux-musl)
-        export LD_LIBRARY_PATH=/usr/local/lib64:/usr/local/lib:/usr/lib:/lib
         ;;
 
     windows)
