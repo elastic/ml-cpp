@@ -109,7 +109,6 @@ int main(int argc, char** argv) {
     bool isPersistInForeground{false};
     std::size_t maxAnomalyRecords{100};
     bool memoryUsage{false};
-    TStrVec unknownTokens;
     if (ml::autodetect::CCmdLineParser::parse(
             argc, argv, configFile, filtersConfigFile, eventsConfigFile,
             modelConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
