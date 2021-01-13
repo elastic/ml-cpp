@@ -92,7 +92,6 @@ int main(int argc, char** argv) {
     std::string logPipe;
     char delimiter{'\t'};
     bool lengthEncodedInput{false};
-    std::string timeField{ml::api::CAnomalyJob::DEFAULT_TIME_FIELD_NAME};
     std::string timeFormat;
     std::string quantilesStateFile;
     bool deleteStateFiles{false};
@@ -110,16 +109,14 @@ int main(int argc, char** argv) {
     bool isPersistInForeground{false};
     std::size_t maxAnomalyRecords{100};
     bool memoryUsage{false};
-    bool stopCategorizationOnWarnStatus{false};
-    TStrVec clauseTokens;
     if (ml::autodetect::CCmdLineParser::parse(
-            argc, argv, configFile, filtersConfigFile, eventsConfigFile, modelConfigFile,
-            logProperties, logPipe, delimiter, lengthEncodedInput, timeField,
+            argc, argv, configFile, filtersConfigFile, eventsConfigFile,
+            modelConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
             timeFormat, quantilesStateFile, deleteStateFiles, bucketPersistInterval,
-            namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe, outputFileName,
-            isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe, persistFileName,
-            isPersistFileNamedPipe, isPersistInForeground, maxAnomalyRecords,
-            memoryUsage, stopCategorizationOnWarnStatus, clauseTokens) == false) {
+            namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe,
+            outputFileName, isOutputFileNamedPipe, restoreFileName,
+            isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe,
+            isPersistInForeground, maxAnomalyRecords, memoryUsage) == false) {
         return EXIT_FAILURE;
     }
 
