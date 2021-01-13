@@ -37,7 +37,7 @@ public:
                       std::string& config,
                       std::string& filtersConfig,
                       std::string& eventsConfig,
-                      std::string& modelPlotConfigFile,
+                      std::string& modelConfigFile,
                       std::string& logProperties,
                       std::string& logPipe,
                       char& delimiter,
@@ -57,9 +57,7 @@ public:
                       bool& isPersistFileNamedPipe,
                       bool& isPersistInForeground,
                       std::size_t& maxAnomalyRecords,
-                      bool& memoryUsage,
-                      bool& stopCategorizationOnWarnStatus,
-                      TStrVec& unknownTokens);
+                      bool& memoryUsage);
 
 private:
     static const std::string DESCRIPTION;

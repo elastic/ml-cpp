@@ -17,7 +17,7 @@
 namespace ml {
 namespace autodetect {
 
-const std::string CCmdLineParser::DESCRIPTION = "Usage: autodetect [options] [<fieldname>+ [by <fieldname>]]\n"
+const std::string CCmdLineParser::DESCRIPTION = "Usage: autodetect [options]]\n"
                                                 "Options:";
 
 bool CCmdLineParser::parse(int argc,
@@ -45,29 +45,21 @@ bool CCmdLineParser::parse(int argc,
                            bool& isPersistFileNamedPipe,
                            bool& isPersistInForeground,
                            std::size_t& maxAnomalyRecords,
-                           bool& memoryUsage,
-                           bool& stopCategorizationOnWarnStatus,
-                           TStrVec& unknownTokens) {
+                           bool& memoryUsage) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
         desc.add_options()
             ("help", "Display this information and exit")
             ("version", "Display version information and exit")
-            ("config", boost::program_options::value<std::string>(),
+            ("config", boost::program_options::value<std::string>()->required(),
                     "The job configuration file")
             ("filtersconfig", boost::program_options::value<std::string>(),
-             "The filters configuration file")
+                    "The filters configuration file")
             ("eventsconfig", boost::program_options::value<std::string>(),
-             "The scheduled events configuration file")
-            ("limitconfig", boost::program_options::value<std::string>(),
-                    "Optional limit config file")
+                    "The scheduled events configuration file")
             ("modelconfig", boost::program_options::value<std::string>(),
                     "Optional model config file")
-            ("fieldconfig", boost::program_options::value<std::string>(),
-                    "Optional field config file")
-            ("modelplotconfig", boost::program_options::value<std::string>(),
-                    "Optional model plot config file")
             ("logProperties", boost::program_options::value<std::string>(),
                     "Optional logger properties file")
             ("logPipe", boost::program_options::value<std::string>(),
@@ -103,18 +95,12 @@ bool CCmdLineParser::parse(int argc,
                     "The maximum number of records to be outputted for each bucket. Defaults to 100, a value 0 removes the limit.")
             ("memoryUsage",
                     "Log the model memory usage at the end of the job")
-            ("stopCategorizationOnWarnStatus",
-                    "Optional flag to stop categorization for partitions where the status is 'warn'.")
         ;
         // clang-format on
-
         boost::program_options::variables_map vm;
-        boost::program_options::parsed_options parsed =
-            boost::program_options::command_line_parser(argc, argv)
-                .options(desc)
-                .allow_unregistered()
-                .run();
-        boost::program_options::store(parsed, vm);
+        boost::program_options::store(
+            boost::program_options::parse_command_line(argc, argv, desc), vm);
+        boost::program_options::notify(vm);
 
         if (vm.count("help") > 0) {
             std::cerr << desc << std::endl;
@@ -200,13 +186,6 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("memoryUsage") > 0) {
             memoryUsage = true;
         }
-        if (vm.count("stopCategorizationOnWarnStatus") > 0) {
-            stopCategorizationOnWarnStatus = true;
-        }
-
-        boost::program_options::collect_unrecognized(
-            parsed.options, boost::program_options::include_positional)
-            .swap(unknownTokens);
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;
