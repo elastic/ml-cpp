@@ -573,16 +573,17 @@ bool CAnomalyJobConfig::parse(const std::string& json) {
             m_ModelConfig.parse(*modelPlotConfig);
         }
 
-        // We choose to ignore any errors here parsing the time duration string as
-        // we assume that it has already been validated by ES. In the event that any
-        // error _does_ occur an error is logged and a default value used.
-        const std::string& bucketPersistIntervalString{
-            parameters[BACKGROUND_PERSIST_INTERVAL].fallback(EMPTY_STRING)};
-
         const core_t::TTime defaultBackgroundPersistInterval{
             DEFAULT_BASE_PERSIST_INTERVAL + this->intervalStagger()};
-        m_BackgroundPersistInterval = CAnomalyJobConfig::CAnalysisConfig::durationSeconds(
-            bucketPersistIntervalString, defaultBackgroundPersistInterval);
+
+        const std::string& backgroundPersistIntervalString{
+            parameters[BACKGROUND_PERSIST_INTERVAL].fallback(EMPTY_STRING)};
+        if (backgroundPersistIntervalString.empty() == false) {
+            m_BackgroundPersistInterval = CAnomalyJobConfig::CAnalysisConfig::durationSeconds(
+                backgroundPersistIntervalString, defaultBackgroundPersistInterval);
+        } else {
+            m_BackgroundPersistInterval = defaultBackgroundPersistInterval;
+        }
 
         m_MaxQuantilePersistInterval = BASE_MAX_QUANTILE_INTERVAL + this->intervalStagger();
 
