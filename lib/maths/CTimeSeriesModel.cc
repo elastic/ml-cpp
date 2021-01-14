@@ -613,7 +613,7 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(
                                     : nullptr),
       m_Correlations(nullptr) {
     if (controllers) {
-        m_Controllers = std::make_unique<TDecayRateController2Ary>(*controllers);
+        m_DecayRateControllers = std::make_unique<TDecayRateController2Ary>(*controllers);
     }
 }
 
@@ -1260,7 +1260,7 @@ void CUnivariateTimeSeriesModel::seasonalWeight(double confidence,
 
 std::uint64_t CUnivariateTimeSeriesModel::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_IsNonNegative);
-    seed = CChecksum::calculate(seed, m_Controllers);
+    seed = CChecksum::calculate(seed, m_DecayRateControllers);
     seed = CChecksum::calculate(seed, m_TrendModel);
     seed = CChecksum::calculate(seed, m_ResidualModel);
     seed = CChecksum::calculate(seed, m_MultibucketFeature);
@@ -1271,7 +1271,7 @@ std::uint64_t CUnivariateTimeSeriesModel::checksum(std::uint64_t seed) const {
 
 void CUnivariateTimeSeriesModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CUnivariateTimeSeriesModel");
-    core::CMemoryDebug::dynamicSize("m_Controllers", m_Controllers, mem);
+    core::CMemoryDebug::dynamicSize("m_DecayRateControllers", m_DecayRateControllers, mem);
     core::CMemoryDebug::dynamicSize("m_TrendModel", m_TrendModel, mem);
     core::CMemoryDebug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
     core::CMemoryDebug::dynamicSize("m_MultibucketFeature", m_MultibucketFeature, mem);
@@ -1281,7 +1281,7 @@ void CUnivariateTimeSeriesModel::debugMemoryUsage(const core::CMemoryUsage::TMem
 }
 
 std::size_t CUnivariateTimeSeriesModel::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Controllers) +
+    return core::CMemory::dynamicSize(m_DecayRateControllers) +
            core::CMemory::dynamicSize(m_TrendModel) +
            core::CMemory::dynamicSize(m_ResidualModel) +
            core::CMemory::dynamicSize(m_MultibucketFeature) +
@@ -1299,8 +1299,8 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
             RESTORE_BOOL(IS_FORECASTABLE_6_3_TAG, m_IsForecastable)
             RESTORE_SETUP_TEARDOWN(
                 CONTROLLER_6_3_TAG,
-                m_Controllers = std::make_unique<TDecayRateController2Ary>(),
-                core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
+                m_DecayRateControllers = std::make_unique<TDecayRateController2Ary>(),
+                core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_DecayRateControllers, traverser),
                 /**/)
             RESTORE(TREND_MODEL_6_3_TAG,
                     traverser.traverseSubLevel(std::bind<bool>(
@@ -1336,8 +1336,8 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
             RESTORE_BOOL(IS_FORECASTABLE_OLD_TAG, m_IsForecastable)
             RESTORE_SETUP_TEARDOWN(
                 CONTROLLER_OLD_TAG,
-                m_Controllers = std::make_unique<TDecayRateController2Ary>(),
-                core::CPersistUtils::restore(CONTROLLER_OLD_TAG, *m_Controllers, traverser),
+                m_DecayRateControllers = std::make_unique<TDecayRateController2Ary>(),
+                core::CPersistUtils::restore(CONTROLLER_OLD_TAG, *m_DecayRateControllers, traverser),
                 /**/)
             RESTORE(TREND_OLD_TAG, traverser.traverseSubLevel(std::bind<bool>(
                                        CTimeSeriesDecompositionStateSerialiser(),
@@ -1356,6 +1356,16 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
                 /**/)
         } while (traverser.next());
     }
+
+    if (m_DecayRateControllers != nullptr) {
+        (*m_DecayRateControllers)[E_TrendControl].checks(
+            CDecayRateController::E_PredictionBias |
+            CDecayRateController::E_PredictionErrorIncrease);
+        (*m_DecayRateControllers)[E_ResidualControl].checks(
+            CDecayRateController::E_PredictionBias | CDecayRateController::E_PredictionErrorIncrease |
+            maths::CDecayRateController::E_PredictionErrorDecrease);
+    }
+
     return true;
 }
 
@@ -1382,8 +1392,8 @@ void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInsert
     inserter.insertValue(ID_6_3_TAG, m_Id);
     inserter.insertValue(IS_NON_NEGATIVE_6_3_TAG, static_cast<int>(m_IsNonNegative));
     inserter.insertValue(IS_FORECASTABLE_6_3_TAG, static_cast<int>(m_IsForecastable));
-    if (m_Controllers != nullptr) {
-        core::CPersistUtils::persist(CONTROLLER_6_3_TAG, *m_Controllers, inserter);
+    if (m_DecayRateControllers != nullptr) {
+        core::CPersistUtils::persist(CONTROLLER_6_3_TAG, *m_DecayRateControllers, inserter);
     }
     if (m_TrendModel != nullptr) {
         inserter.insertLevel(
@@ -1453,8 +1463,9 @@ CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeri
                          ? std::make_unique<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel)
                          : nullptr),
       m_Correlations(nullptr) {
-    if (!isForForecast && other.m_Controllers != nullptr) {
-        m_Controllers = std::make_unique<TDecayRateController2Ary>(*other.m_Controllers);
+    if (!isForForecast && other.m_DecayRateControllers != nullptr) {
+        m_DecayRateControllers =
+            std::make_unique<TDecayRateController2Ary>(*other.m_DecayRateControllers);
     }
 }
 
@@ -1514,7 +1525,7 @@ double CUnivariateTimeSeriesModel::updateDecayRates(const CModelAddSamplesParams
                                                     const TDouble1Vec& samples) {
     double multiplier{1.0};
 
-    if (m_Controllers == nullptr) {
+    if (m_DecayRateControllers == nullptr) {
         return multiplier;
     }
 
@@ -1525,7 +1536,7 @@ double CUnivariateTimeSeriesModel::updateDecayRates(const CModelAddSamplesParams
         this->appendPredictionErrors(params.propagationInterval(), sample, errors);
     }
     {
-        CDecayRateController& controller{(*m_Controllers)[E_TrendControl]};
+        CDecayRateController& controller{(*m_DecayRateControllers)[E_TrendControl]};
         TDouble1Vec trendMean{m_TrendModel->meanValue(time)};
         multiplier = controller.multiplier(
             trendMean, errors[E_TrendControl], this->params().bucketLength(),
@@ -1536,7 +1547,7 @@ double CUnivariateTimeSeriesModel::updateDecayRates(const CModelAddSamplesParams
         }
     }
     {
-        CDecayRateController& controller{(*m_Controllers)[E_ResidualControl]};
+        CDecayRateController& controller{(*m_DecayRateControllers)[E_ResidualControl]};
         TDouble1Vec residualMean{m_ResidualModel->marginalLikelihoodMean()};
         multiplier = controller.multiplier(
             residualMean, errors[E_ResidualControl], this->params().bucketLength(),
@@ -1569,12 +1580,12 @@ void CUnivariateTimeSeriesModel::appendPredictionErrors(double interval,
 
 void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec residuals) {
 
-    if (m_Controllers != nullptr) {
+    if (m_DecayRateControllers != nullptr) {
         m_ResidualModel->decayRate(m_ResidualModel->decayRate() /
-                                   (*m_Controllers)[E_ResidualControl].multiplier());
+                                   (*m_DecayRateControllers)[E_ResidualControl].multiplier());
         m_TrendModel->decayRate(m_TrendModel->decayRate() /
-                                (*m_Controllers)[E_TrendControl].multiplier());
-        for (auto& controller : *m_Controllers) {
+                                (*m_DecayRateControllers)[E_TrendControl].multiplier());
+        for (auto& controller : *m_DecayRateControllers) {
             controller.reset();
         }
     }
@@ -2116,7 +2127,7 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(
                                           params.decayRate())
                                     : nullptr) {
     if (controllers) {
-        m_Controllers = std::make_unique<TDecayRateController2Ary>(*controllers);
+        m_DecayRateControllers = std::make_unique<TDecayRateController2Ary>(*controllers);
     }
     for (std::size_t d = 0u; d < this->dimension(); ++d) {
         m_TrendModel.emplace_back(trend.clone());
@@ -2135,8 +2146,9 @@ CMultivariateTimeSeriesModel::CMultivariateTimeSeriesModel(const CMultivariateTi
       m_AnomalyModel(other.m_AnomalyModel != nullptr
                          ? std::make_unique<CTimeSeriesAnomalyModel>(*other.m_AnomalyModel)
                          : nullptr) {
-    if (other.m_Controllers) {
-        m_Controllers = std::make_unique<TDecayRateController2Ary>(*other.m_Controllers);
+    if (other.m_DecayRateControllers) {
+        m_DecayRateControllers =
+            std::make_unique<TDecayRateController2Ary>(*other.m_DecayRateControllers);
     }
     m_TrendModel.reserve(other.m_TrendModel.size());
     for (const auto& trend : other.m_TrendModel) {
@@ -2661,7 +2673,7 @@ void CMultivariateTimeSeriesModel::seasonalWeight(double confidence,
 
 std::uint64_t CMultivariateTimeSeriesModel::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_IsNonNegative);
-    seed = CChecksum::calculate(seed, m_Controllers);
+    seed = CChecksum::calculate(seed, m_DecayRateControllers);
     seed = CChecksum::calculate(seed, m_TrendModel);
     seed = CChecksum::calculate(seed, m_ResidualModel);
     seed = CChecksum::calculate(seed, m_MultibucketFeature);
@@ -2671,7 +2683,7 @@ std::uint64_t CMultivariateTimeSeriesModel::checksum(std::uint64_t seed) const {
 
 void CMultivariateTimeSeriesModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
     mem->setName("CUnivariateTimeSeriesModel");
-    core::CMemoryDebug::dynamicSize("m_Controllers", m_Controllers, mem);
+    core::CMemoryDebug::dynamicSize("m_DecayRateControllers", m_DecayRateControllers, mem);
     core::CMemoryDebug::dynamicSize("m_TrendModel", m_TrendModel, mem);
     core::CMemoryDebug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
     core::CMemoryDebug::dynamicSize("m_MultibucketFeature", m_MultibucketFeature, mem);
@@ -2681,7 +2693,7 @@ void CMultivariateTimeSeriesModel::debugMemoryUsage(const core::CMemoryUsage::TM
 }
 
 std::size_t CMultivariateTimeSeriesModel::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_Controllers) +
+    return core::CMemory::dynamicSize(m_DecayRateControllers) +
            core::CMemory::dynamicSize(m_TrendModel) +
            core::CMemory::dynamicSize(m_ResidualModel) +
            core::CMemory::dynamicSize(m_MultibucketFeature) +
@@ -2697,8 +2709,8 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
             RESTORE_BOOL(IS_NON_NEGATIVE_6_3_TAG, m_IsNonNegative)
             RESTORE_SETUP_TEARDOWN(
                 CONTROLLER_6_3_TAG,
-                m_Controllers = std::make_unique<TDecayRateController2Ary>(),
-                core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
+                m_DecayRateControllers = std::make_unique<TDecayRateController2Ary>(),
+                core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_DecayRateControllers, traverser),
                 /**/)
             RESTORE_SETUP_TEARDOWN(
                 TREND_MODEL_6_3_TAG, m_TrendModel.push_back(TDecompositionPtr()),
@@ -2732,8 +2744,8 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
             RESTORE_BOOL(IS_NON_NEGATIVE_OLD_TAG, m_IsNonNegative)
             RESTORE_SETUP_TEARDOWN(
                 CONTROLLER_OLD_TAG,
-                m_Controllers = std::make_unique<TDecayRateController2Ary>(),
-                core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
+                m_DecayRateControllers = std::make_unique<TDecayRateController2Ary>(),
+                core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_DecayRateControllers, traverser),
                 /**/)
             RESTORE_SETUP_TEARDOWN(
                 TREND_OLD_TAG, m_TrendModel.push_back(TDecompositionPtr()),
@@ -2754,6 +2766,16 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
                 /**/)
         } while (traverser.next());
     }
+
+    if (m_DecayRateControllers != nullptr) {
+        (*m_DecayRateControllers)[E_TrendControl].checks(
+            CDecayRateController::E_PredictionBias |
+            CDecayRateController::E_PredictionErrorIncrease);
+        (*m_DecayRateControllers)[E_ResidualControl].checks(
+            CDecayRateController::E_PredictionBias | CDecayRateController::E_PredictionErrorIncrease |
+            maths::CDecayRateController::E_PredictionErrorDecrease);
+    }
+
     return true;
 }
 
@@ -2762,8 +2784,8 @@ void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInse
     // is reinitialized.
     inserter.insertValue(VERSION_6_3_TAG, "");
     inserter.insertValue(IS_NON_NEGATIVE_6_3_TAG, static_cast<int>(m_IsNonNegative));
-    if (m_Controllers) {
-        core::CPersistUtils::persist(CONTROLLER_6_3_TAG, *m_Controllers, inserter);
+    if (m_DecayRateControllers) {
+        core::CPersistUtils::persist(CONTROLLER_6_3_TAG, *m_DecayRateControllers, inserter);
     }
     for (const auto& trend : m_TrendModel) {
         inserter.insertLevel(TREND_MODEL_6_3_TAG,
@@ -2883,7 +2905,7 @@ CMultivariateTimeSeriesModel::updateTrend(const CModelAddSamplesParams& params,
 void CMultivariateTimeSeriesModel::updateDecayRates(const CModelAddSamplesParams& params,
                                                     core_t::TTime time,
                                                     const TDouble10Vec1Vec& samples) {
-    if (m_Controllers != nullptr) {
+    if (m_DecayRateControllers != nullptr) {
         TDouble1VecVec errors[2];
         errors[0].reserve(samples.size());
         errors[1].reserve(samples.size());
@@ -2891,7 +2913,7 @@ void CMultivariateTimeSeriesModel::updateDecayRates(const CModelAddSamplesParams
             this->appendPredictionErrors(params.propagationInterval(), sample, errors);
         }
         {
-            CDecayRateController& controller{(*m_Controllers)[E_TrendControl]};
+            CDecayRateController& controller{(*m_DecayRateControllers)[E_TrendControl]};
             TDouble1Vec trendMean(this->dimension());
             for (std::size_t d = 0u; d < trendMean.size(); ++d) {
                 trendMean[d] = m_TrendModel[d]->meanValue(time);
@@ -2907,7 +2929,7 @@ void CMultivariateTimeSeriesModel::updateDecayRates(const CModelAddSamplesParams
             }
         }
         {
-            CDecayRateController& controller{(*m_Controllers)[E_ResidualControl]};
+            CDecayRateController& controller{(*m_DecayRateControllers)[E_ResidualControl]};
             TDouble1Vec residualMean(m_ResidualModel->marginalLikelihoodMean());
             double multiplier{controller.multiplier(
                 residualMean, errors[E_ResidualControl], this->params().bucketLength(),
@@ -2936,14 +2958,14 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMean
     using TDoubleVec = std::vector<double>;
     using TDouble10VecVec = std::vector<TDouble10Vec>;
 
-    if (m_Controllers != nullptr) {
+    if (m_DecayRateControllers != nullptr) {
         m_ResidualModel->decayRate(m_ResidualModel->decayRate() /
-                                   (*m_Controllers)[E_ResidualControl].multiplier());
+                                   (*m_DecayRateControllers)[E_ResidualControl].multiplier());
         for (auto& trend : m_TrendModel) {
             trend->decayRate(trend->decayRate() /
-                             (*m_Controllers)[E_TrendControl].multiplier());
+                             (*m_DecayRateControllers)[E_TrendControl].multiplier());
         }
-        for (auto& controller : *m_Controllers) {
+        for (auto& controller : *m_DecayRateControllers) {
             controller.reset();
         }
     }

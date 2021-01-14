@@ -284,7 +284,7 @@ private:
 
     //! These control the trend and residual model decay rates (see
     //! CDecayRateController for more details).
-    TDecayRateController2AryPtr m_Controllers;
+    TDecayRateController2AryPtr m_DecayRateControllers;
 
     //! The time series trend decomposition.
     //!
@@ -723,7 +723,7 @@ private:
 
     //! These control the trend and residual model decay rates (see
     //! CDecayRateController for more details).
-    TDecayRateController2AryPtr m_Controllers;
+    TDecayRateController2AryPtr m_DecayRateControllers;
 
     //! The time series trend decomposition.
     TDecompositionPtr10Vec m_TrendModel;
