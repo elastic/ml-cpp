@@ -48,6 +48,12 @@
 * Compute importance of hyperparameters optimized in the fine parameter tuning step.
   (See {ml-pull}1627[#1627].)
 
+=== Bug Fixes
+
+* Fix missing state in persist and restore for anomaly detection. This caused suboptimal
+  modelling after a job was closed and reopened or failed over to a different node.
+  (See {ml-pull}1668[#1668].)
+
 == {es} version 7.11.0
 
 === Enhancements
