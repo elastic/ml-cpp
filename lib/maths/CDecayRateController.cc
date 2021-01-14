@@ -146,7 +146,7 @@ bool CDecayRateController::acceptRestoreTraverser(core::CStateRestoreTraverser& 
 
 void CDecayRateController::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(CHECKS_TAG, m_Checks);
-    inserter.insertValue(TARGET_TAG, m_Target);
+    inserter.insertValue(TARGET_TAG, m_Target, core::CIEEE754::E_DoublePrecision);
     inserter.insertValue(MULTIPLIER_TAG, m_Multiplier.toDelimited());
     inserter.insertValue(RNG_TAG, m_Rng.toString());
     core::CPersistUtils::persist(PREDICTION_MEAN_TAG, m_PredictionMean, inserter);

@@ -1357,10 +1357,14 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
         } while (traverser.next());
     }
 
-    if (m_DecayRateControllers != nullptr) {
+    if (m_DecayRateControllers != nullptr &&
+        (*m_DecayRateControllers)[E_TrendControl].checks() == 0) {
         (*m_DecayRateControllers)[E_TrendControl].checks(
             CDecayRateController::E_PredictionBias |
             CDecayRateController::E_PredictionErrorIncrease);
+    }
+    if (m_DecayRateControllers != nullptr &&
+        (*m_DecayRateControllers)[E_ResidualControl].checks() == 0) {
         (*m_DecayRateControllers)[E_ResidualControl].checks(
             CDecayRateController::E_PredictionBias | CDecayRateController::E_PredictionErrorIncrease |
             maths::CDecayRateController::E_PredictionErrorDecrease);
@@ -2767,10 +2771,14 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
         } while (traverser.next());
     }
 
-    if (m_DecayRateControllers != nullptr) {
+    if (m_DecayRateControllers != nullptr &&
+        (*m_DecayRateControllers)[E_TrendControl].checks() == 0) {
         (*m_DecayRateControllers)[E_TrendControl].checks(
             CDecayRateController::E_PredictionBias |
             CDecayRateController::E_PredictionErrorIncrease);
+    }
+    if (m_DecayRateControllers != nullptr &&
+        (*m_DecayRateControllers)[E_ResidualControl].checks() == 0) {
         (*m_DecayRateControllers)[E_ResidualControl].checks(
             CDecayRateController::E_PredictionBias | CDecayRateController::E_PredictionErrorIncrease |
             maths::CDecayRateController::E_PredictionErrorDecrease);
