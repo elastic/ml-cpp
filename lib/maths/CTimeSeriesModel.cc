@@ -99,6 +99,7 @@ double aggregateFeatureProbabilities(const TDouble4Vec& probabilities, double co
 const std::string VERSION_6_3_TAG("6.3");
 const std::string VERSION_6_5_TAG("6.5");
 const std::string VERSION_7_3_TAG("7.3");
+const std::string VERSION_7_11_TAG("7.11");
 
 // Models
 // Version >= 6.3
@@ -1291,7 +1292,9 @@ std::size_t CUnivariateTimeSeriesModel::memoryUsage() const {
 
 bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                         core::CStateRestoreTraverser& traverser) {
-    if (traverser.name() == VERSION_6_3_TAG) {
+    bool stateMissingControllerChecks{false};
+    if (traverser.name() == VERSION_6_3_TAG || traverser.name() == VERSION_7_11_TAG) {
+        stateMissingControllerChecks = (traverser.name() == VERSION_6_3_TAG);
         while (traverser.next()) {
             const std::string& name{traverser.name()};
             RESTORE_BUILT_IN(ID_6_3_TAG, m_Id)
@@ -1329,6 +1332,7 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
         }
     } else {
         // There is no version string this is historic state.
+        stateMissingControllerChecks = true;
         do {
             const std::string& name{traverser.name()};
             RESTORE_BUILT_IN(ID_OLD_TAG, m_Id)
@@ -1357,11 +1361,11 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
         } while (traverser.next());
     }
 
-    if (m_Controllers != nullptr && (*m_Controllers)[E_TrendControl].checks() == 0) {
+    if (m_Controllers != nullptr && stateMissingControllerChecks) {
         (*m_Controllers)[E_TrendControl].checks(CDecayRateController::E_PredictionBias |
                                                 CDecayRateController::E_PredictionErrorIncrease);
     }
-    if (m_Controllers != nullptr && (*m_Controllers)[E_ResidualControl].checks() == 0) {
+    if (m_Controllers != nullptr && stateMissingControllerChecks) {
         (*m_Controllers)[E_ResidualControl].checks(
             CDecayRateController::E_PredictionBias | CDecayRateController::E_PredictionErrorIncrease |
             maths::CDecayRateController::E_PredictionErrorDecrease);
@@ -1389,7 +1393,7 @@ void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInsert
 
     // Note that we don't persist this->params() or the correlations
     // because that state is reinitialized.
-    inserter.insertValue(VERSION_6_3_TAG, "");
+    inserter.insertValue(VERSION_7_11_TAG, "");
     inserter.insertValue(ID_6_3_TAG, m_Id);
     inserter.insertValue(IS_NON_NEGATIVE_6_3_TAG, static_cast<int>(m_IsNonNegative));
     inserter.insertValue(IS_FORECASTABLE_6_3_TAG, static_cast<int>(m_IsForecastable));
@@ -2702,7 +2706,9 @@ std::size_t CMultivariateTimeSeriesModel::memoryUsage() const {
 
 bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                           core::CStateRestoreTraverser& traverser) {
-    if (traverser.name() == VERSION_6_3_TAG) {
+    bool stateMissingControllerChecks{false};
+    if (traverser.name() == VERSION_6_3_TAG || traverser.name() == VERSION_7_11_TAG) {
+        stateMissingControllerChecks = (traverser.name() == VERSION_6_3_TAG);
         while (traverser.next()) {
             const std::string& name{traverser.name()};
             RESTORE_BOOL(IS_NON_NEGATIVE_6_3_TAG, m_IsNonNegative)
@@ -2738,6 +2744,7 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
                 /**/)
         }
     } else {
+        stateMissingControllerChecks = true;
         do {
             const std::string& name{traverser.name()};
             RESTORE_BOOL(IS_NON_NEGATIVE_OLD_TAG, m_IsNonNegative)
@@ -2766,11 +2773,11 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
         } while (traverser.next());
     }
 
-    if (m_Controllers != nullptr && (*m_Controllers)[E_TrendControl].checks() == 0) {
+    if (m_Controllers != nullptr && stateMissingControllerChecks) {
         (*m_Controllers)[E_TrendControl].checks(CDecayRateController::E_PredictionBias |
                                                 CDecayRateController::E_PredictionErrorIncrease);
     }
-    if (m_Controllers != nullptr && (*m_Controllers)[E_ResidualControl].checks() == 0) {
+    if (m_Controllers != nullptr && stateMissingControllerChecks) {
         (*m_Controllers)[E_ResidualControl].checks(
             CDecayRateController::E_PredictionBias | CDecayRateController::E_PredictionErrorIncrease |
             maths::CDecayRateController::E_PredictionErrorDecrease);
@@ -2782,7 +2789,7 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
 void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     // Note that we don't persist this->params() because that state
     // is reinitialized.
-    inserter.insertValue(VERSION_6_3_TAG, "");
+    inserter.insertValue(VERSION_7_11_TAG, "");
     inserter.insertValue(IS_NON_NEGATIVE_6_3_TAG, static_cast<int>(m_IsNonNegative));
     if (m_Controllers) {
         core::CPersistUtils::persist(CONTROLLER_6_3_TAG, *m_Controllers, inserter);
