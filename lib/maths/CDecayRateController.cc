@@ -31,6 +31,7 @@ const std::string RECENT_ABS_ERROR_TAG{"d"};
 const std::string HISTORICAL_ABS_ERROR_TAG{"e"};
 const std::string RNG_TAG{"f"};
 const std::string MULTIPLIER_TAG{"g"};
+const std::string CHECKS_TAG{"h"};
 
 //! The factor by which we'll increase the decay rate per bucket.
 const double INCREASE_RATE{1.2};
@@ -92,14 +93,22 @@ double adjustedMaximumMultiplier(core_t::TTime bucketLength_) {
 }
 }
 
-CDecayRateController::CDecayRateController() : m_Checks(0), m_Target(1.0) {
+CDecayRateController::CDecayRateController() {
     m_Multiplier.add(m_Target);
 }
 
 CDecayRateController::CDecayRateController(int checks, std::size_t dimension)
-    : m_Checks(checks), m_Target(1.0), m_PredictionMean(dimension), m_Bias(dimension),
+    : m_Checks{checks}, m_PredictionMean(dimension), m_Bias(dimension),
       m_RecentAbsError(dimension), m_HistoricalAbsError(dimension) {
     m_Multiplier.add(m_Target);
+}
+
+int CDecayRateController::checks() const {
+    return m_Checks;
+}
+
+void CDecayRateController::checks(int checks) {
+    m_Checks = checks;
 }
 
 void CDecayRateController::reset() {
@@ -116,6 +125,7 @@ bool CDecayRateController::acceptRestoreTraverser(core::CStateRestoreTraverser& 
     m_Multiplier = TMeanAccumulator();
     do {
         const std::string& name = traverser.name();
+        RESTORE_BUILT_IN(CHECKS_TAG, m_Checks)
         RESTORE_BUILT_IN(TARGET_TAG, m_Target)
         RESTORE(MULTIPLIER_TAG, m_Multiplier.fromDelimited(traverser.value()))
         RESTORE(RNG_TAG, m_Rng.fromString(traverser.value()))
@@ -135,7 +145,8 @@ bool CDecayRateController::acceptRestoreTraverser(core::CStateRestoreTraverser& 
 }
 
 void CDecayRateController::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    inserter.insertValue(TARGET_TAG, m_Target);
+    inserter.insertValue(CHECKS_TAG, m_Checks);
+    inserter.insertValue(TARGET_TAG, m_Target, core::CIEEE754::E_DoublePrecision);
     inserter.insertValue(MULTIPLIER_TAG, m_Multiplier.toDelimited());
     inserter.insertValue(RNG_TAG, m_Rng.toString());
     core::CPersistUtils::persist(PREDICTION_MEAN_TAG, m_PredictionMean, inserter);
@@ -201,9 +212,9 @@ double CDecayRateController::multiplier(const TDouble1Vec& prediction,
     }
 
     if (count > 0.0) {
-        double factors[]{std::exp(-FAST_DECAY_RATE * decayRate),
-                         std::exp(-FAST_DECAY_RATE * decayRate),
-                         std::exp(-SLOW_DECAY_RATE * decayRate)};
+        TDouble3Ary factors{std::exp(-FAST_DECAY_RATE * decayRate),
+                            std::exp(-FAST_DECAY_RATE * decayRate),
+                            std::exp(-SLOW_DECAY_RATE * decayRate)};
         for (auto& component : m_PredictionMean) {
             component.age(factors[2]);
         }
@@ -222,7 +233,7 @@ double CDecayRateController::multiplier(const TDouble1Vec& prediction,
         // Compute the change to apply to the target decay rate.
         TMaxAccumulator change;
         for (std::size_t d = 0u; d < dimension; ++d) {
-            double stats[3];
+            TDouble3Ary stats;
             for (std::size_t i = 0u; i < 3; ++i) {
                 stats[i] = std::fabs(CBasicStatistics::mean((*stats_[i])[d]));
             }
@@ -272,7 +283,11 @@ std::size_t CDecayRateController::memoryUsage() const {
     return mem;
 }
 
-uint64_t CDecayRateController::checksum(uint64_t seed) const {
+std::uint64_t CDecayRateController::checksum(std::uint64_t seed) const {
+    seed = CChecksum::calculate(seed, m_Checks);
+    seed = CChecksum::calculate(seed, m_Target);
+    seed = CChecksum::calculate(seed, m_Multiplier);
+    seed = CChecksum::calculate(seed, m_Rng);
     seed = CChecksum::calculate(seed, m_PredictionMean);
     seed = CChecksum::calculate(seed, m_Bias);
     seed = CChecksum::calculate(seed, m_RecentAbsError);
@@ -283,20 +298,55 @@ double CDecayRateController::count() const {
     return CBasicStatistics::count(m_HistoricalAbsError[0]);
 }
 
-double CDecayRateController::change(const double (&stats)[3], core_t::TTime bucketLength) const {
-    if (((m_Checks & E_PredictionErrorIncrease) && stats[1] > ERROR_INCREASING * stats[2]) ||
-        ((m_Checks & E_PredictionErrorDecrease) && stats[2] > ERROR_DECREASING * stats[1]) ||
-        ((m_Checks & E_PredictionBias) && stats[0] > BIASED * stats[1])) {
+double CDecayRateController::change(const TDouble3Ary& stats, core_t::TTime bucketLength) const {
+    if (this->notControlling()) {
+        return 1.0;
+    }
+    if (this->increaseDecayRateErrorIncreasing(stats) ||
+        this->increaseDecayRateErrorDecreasing(stats) ||
+        this->increaseDecayRateBiased(stats)) {
         return adjustMultiplier(INCREASE_RATE, bucketLength);
     }
-    if ((!(m_Checks & E_PredictionErrorIncrease) ||
-         stats[1] < ERROR_NOT_INCREASING * stats[2]) &&
-        (!(m_Checks & E_PredictionErrorDecrease) ||
-         stats[2] < ERROR_NOT_DECREASING * stats[1]) &&
-        (!(m_Checks & E_PredictionBias) || stats[0] < NOT_BIASED * stats[1])) {
+    if (this->decreaseDecayRateErrorNotIncreasing(stats) &&
+        this->decreaseDecayRateErrorNotDecreasing(stats) &&
+        this->decreaseDecayRateNotBiased(stats)) {
         return adjustMultiplier(DECREASE_RATE, bucketLength);
     }
     return 1.0;
+}
+
+bool CDecayRateController::notControlling() const {
+    return (m_Checks & E_PredictionErrorIncrease) == false &&
+           (m_Checks & E_PredictionErrorDecrease) == false &&
+           (m_Checks & E_PredictionBias) == false;
+}
+
+bool CDecayRateController::increaseDecayRateErrorIncreasing(const TDouble3Ary& stats) const {
+    return (m_Checks & E_PredictionErrorIncrease) &&
+           stats[1] > ERROR_INCREASING * stats[2];
+}
+
+bool CDecayRateController::increaseDecayRateErrorDecreasing(const TDouble3Ary& stats) const {
+    return (m_Checks & E_PredictionErrorDecrease) &&
+           stats[2] > ERROR_DECREASING * stats[1];
+}
+
+bool CDecayRateController::increaseDecayRateBiased(const TDouble3Ary& stats) const {
+    return (m_Checks & E_PredictionBias) && stats[0] > BIASED * stats[1];
+}
+
+bool CDecayRateController::decreaseDecayRateErrorNotIncreasing(const TDouble3Ary& stats) const {
+    return (m_Checks & E_PredictionErrorIncrease) == false ||
+           stats[1] < ERROR_NOT_INCREASING * stats[2];
+}
+
+bool CDecayRateController::decreaseDecayRateErrorNotDecreasing(const TDouble3Ary& stats) const {
+    return (m_Checks & E_PredictionErrorDecrease) == false ||
+           stats[2] < ERROR_NOT_DECREASING * stats[1];
+}
+
+bool CDecayRateController::decreaseDecayRateNotBiased(const TDouble3Ary& stats) const {
+    return (m_Checks & E_PredictionBias) == false || stats[0] < NOT_BIASED * stats[1];
 }
 }
 }

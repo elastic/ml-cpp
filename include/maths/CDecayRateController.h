@@ -14,7 +14,8 @@
 #include <maths/CPRNG.h>
 #include <maths/ImportExport.h>
 
-#include <stdint.h>
+#include <array>
+#include <cstdint>
 
 namespace ml {
 namespace core {
@@ -60,6 +61,12 @@ public:
     CDecayRateController();
     CDecayRateController(int checks, std::size_t dimension);
 
+    //! Get the checks which this controller is performing.
+    int checks() const;
+
+    //! Set the checks which this controller is performing.
+    void checks(int checks);
+
     //! Reset the errors.
     void reset();
 
@@ -90,21 +97,28 @@ public:
     std::size_t memoryUsage() const;
 
     //! Get a checksum of this object.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
 private:
-    //! Get the count of residuals added so far.
-    double count() const;
+    using TDouble3Ary = std::array<double, 3>;
 
-    //! Get the change to apply to the decay rate multiplier.
-    double change(const double (&stats)[3], core_t::TTime bucketLength) const;
+private:
+    double count() const;
+    double change(const TDouble3Ary& stats, core_t::TTime bucketLength) const;
+    bool notControlling() const;
+    bool increaseDecayRateErrorIncreasing(const TDouble3Ary& stats) const;
+    bool increaseDecayRateErrorDecreasing(const TDouble3Ary& stats) const;
+    bool increaseDecayRateBiased(const TDouble3Ary& stats) const;
+    bool decreaseDecayRateErrorNotIncreasing(const TDouble3Ary& stats) const;
+    bool decreaseDecayRateErrorNotDecreasing(const TDouble3Ary& stats) const;
+    bool decreaseDecayRateNotBiased(const TDouble3Ary& stats) const;
 
 private:
     //! The checks we perform to detect error conditions.
-    int m_Checks;
+    int m_Checks = 0;
 
     //! The current target multiplier.
-    double m_Target;
+    double m_Target = 1.0;
 
     //! The cumulative multiplier applied to the decay rate.
     TMeanAccumulator m_Multiplier;
