@@ -57,7 +57,7 @@ std::string print_(int count, bool suffix) {
 CCalendarFeature::CCalendarFeature() : m_Feature(INVALID), m_Value(INVALID) {
 }
 
-CCalendarFeature::CCalendarFeature(uint16_t feature, core_t::TTime time)
+CCalendarFeature::CCalendarFeature(std::uint16_t feature, core_t::TTime time)
     : m_Feature(INVALID), m_Value(INVALID) {
     int dayOfWeek{};
     int dayOfMonth{};
@@ -86,7 +86,8 @@ CCalendarFeature::TCalendarFeature4Ary CCalendarFeature::features(core_t::TTime 
                                                month, year, secondsSinceMidnight)) {
         dayOfMonth -= 1;
         auto i = result.begin();
-        for (uint16_t feature = BEGIN_FEATURES; feature < END_FEATURES; ++feature, ++i) {
+        for (std::uint16_t feature = BEGIN_FEATURES; feature < END_FEATURES;
+             ++feature, ++i) {
             i->initialize(feature, dayOfWeek, dayOfMonth, month, year);
         }
     } else {
@@ -95,23 +96,23 @@ CCalendarFeature::TCalendarFeature4Ary CCalendarFeature::features(core_t::TTime 
     return result;
 }
 
-void CCalendarFeature::initialize(uint16_t feature, int dayOfWeek, int dayOfMonth, int month, int year) {
+void CCalendarFeature::initialize(std::uint16_t feature, int dayOfWeek, int dayOfMonth, int month, int year) {
     switch (feature) {
     case DAYS_SINCE_START_OF_MONTH:
         m_Feature = feature;
-        m_Value = static_cast<uint16_t>(dayOfMonth);
+        m_Value = static_cast<std::uint16_t>(dayOfMonth);
         break;
     case DAYS_BEFORE_END_OF_MONTH:
         m_Feature = feature;
-        m_Value = static_cast<uint16_t>(lastDayInMonth(year, month) - dayOfMonth);
+        m_Value = static_cast<std::uint16_t>(lastDayInMonth(year, month) - dayOfMonth);
         break;
     case DAY_OF_WEEK_AND_WEEKS_SINCE_START_OF_MONTH:
         m_Feature = feature;
-        m_Value = static_cast<uint16_t>(8 * (dayOfMonth / 7) + dayOfWeek);
+        m_Value = static_cast<std::uint16_t>(8 * (dayOfMonth / 7) + dayOfWeek);
         break;
     case DAY_OF_WEEK_AND_WEEKS_BEFORE_END_OF_MONTH:
         m_Feature = feature;
-        m_Value = static_cast<uint16_t>(
+        m_Value = static_cast<std::uint16_t>(
             8 * ((lastDayInMonth(year, month) - dayOfMonth) / 7) + dayOfWeek);
         break;
     default:
@@ -123,8 +124,8 @@ void CCalendarFeature::initialize(uint16_t feature, int dayOfWeek, int dayOfMont
 bool CCalendarFeature::fromDelimited(const std::string& value) {
     int state[2]{0, 0};
     if (core::CPersistUtils::fromString(value, std::begin(state), std::end(state))) {
-        m_Feature = static_cast<uint16_t>(state[0]);
-        m_Value = static_cast<uint16_t>(state[1]);
+        m_Feature = static_cast<std::uint16_t>(state[0]);
+        m_Value = static_cast<std::uint16_t>(state[1]);
         return true;
     }
     return false;
@@ -197,7 +198,11 @@ core_t::TTime CCalendarFeature::window() const {
     return core::constants::DAY;
 }
 
-uint64_t CCalendarFeature::checksum(uint64_t seed) const {
+core_t::TTime CCalendarFeature::repeat() const {
+    return 30 * core::constants::DAY;
+}
+
+std::uint64_t CCalendarFeature::checksum(std::uint64_t seed) const {
     seed = CChecksum::calculate(seed, m_Feature);
     return CChecksum::calculate(seed, m_Value);
 }
@@ -222,7 +227,7 @@ std::string CCalendarFeature::print() const {
     return "-";
 }
 
-const uint16_t CCalendarFeature::INVALID(boost::numeric::bounds<uint16_t>::highest());
+const std::uint16_t CCalendarFeature::INVALID(std::numeric_limits<std::uint16_t>::max());
 
 std::ostream& operator<<(std::ostream& strm, const CCalendarFeature& feature) {
     return strm << feature.print();

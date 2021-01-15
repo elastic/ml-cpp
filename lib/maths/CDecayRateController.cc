@@ -72,6 +72,12 @@ const double MINIMUM_COV_TO_CONTROL{1e-4};
 const double MINIMUM_MULTIPLIER{0.2};
 //! The maximum decay rate multiplier permitted.
 const double MAXIMUM_MULTIPLIER{40.0};
+//! The bias stat index.
+const std::size_t BIAS{0};
+//! The recent prediction error index.
+const std::size_t RECENT_ERROR{1};
+//! The long time average prediction error index.
+const std::size_t HISTORIC_ERROR{2};
 
 //! Compute the \p learnRate and \p decayRate adjusted minimum
 //! count to control.
@@ -172,7 +178,10 @@ double CDecayRateController::multiplier(const TDouble1Vec& prediction,
 
     std::size_t dimension{m_PredictionMean.size()};
     double count{this->count()};
-    TMeanAccumulator1Vec* stats_[]{&m_Bias, &m_RecentAbsError, &m_HistoricalAbsError};
+    TMeanAccumulator1Vec* stats_[3];
+    stats_[BIAS] = &m_Bias;
+    stats_[RECENT_ERROR] = &m_RecentAbsError;
+    stats_[HISTORIC_ERROR] = &m_HistoricalAbsError;
     double numberPredictionErrors{static_cast<double>(predictionErrors.size())};
 
     for (auto predictionError : predictionErrors) {
@@ -180,7 +189,7 @@ double CDecayRateController::multiplier(const TDouble1Vec& prediction,
             continue;
         }
 
-        for (std::size_t d = 0u; d < dimension; ++d) {
+        for (std::size_t d = 0; d < dimension; ++d) {
             // Truncate the prediction error to deal with large outliers.
             if (count > 0.0) {
                 double bias{CBasicStatistics::mean(m_Bias[d])};
@@ -203,22 +212,23 @@ double CDecayRateController::multiplier(const TDouble1Vec& prediction,
                       std::fabs(CBasicStatistics::mean(m_PredictionMean[d]))};
             double tolerance{sd > 0.0 ? CSampling::normalSample(m_Rng, 0.0, sd * sd) : 0.0};
             m_PredictionMean[d].add(prediction[d], weight);
-            (*stats_[0])[d].add(predictionError[d] + tolerance, weight);
-            (*stats_[1])[d].add(std::fabs(predictionError[d] + tolerance), weight);
-            (*stats_[2])[d].add(std::fabs(predictionError[d] + tolerance), weight);
+            (*stats_[BIAS])[d].add(predictionError[d] + tolerance, weight);
+            (*stats_[RECENT_ERROR])[d].add(std::fabs(predictionError[d] + tolerance), weight);
+            (*stats_[HISTORIC_ERROR])[d].add(std::fabs(predictionError[d] + tolerance), weight);
             LOG_TRACE(<< "stats = " << core::CContainerPrinter::print(stats_));
             LOG_TRACE(<< "predictions = " << CBasicStatistics::mean(m_PredictionMean));
         }
     }
 
     if (count > 0.0) {
-        TDouble3Ary factors{std::exp(-FAST_DECAY_RATE * decayRate),
-                            std::exp(-FAST_DECAY_RATE * decayRate),
-                            std::exp(-SLOW_DECAY_RATE * decayRate)};
+        TDouble3Ary factors;
+        factors[BIAS] = std::exp(-FAST_DECAY_RATE * decayRate);
+        factors[RECENT_ERROR] = std::exp(-FAST_DECAY_RATE * decayRate);
+        factors[HISTORIC_ERROR] = std::exp(-SLOW_DECAY_RATE * decayRate);
         for (auto& component : m_PredictionMean) {
-            component.age(factors[2]);
+            component.age(factors[HISTORIC_ERROR]);
         }
-        for (std::size_t i = 0u; i < 3; ++i) {
+        for (std::size_t i = 0; i < 3; ++i) {
             for (auto& component : *stats_[i]) {
                 component.age(factors[i]);
             }
@@ -232,9 +242,9 @@ double CDecayRateController::multiplier(const TDouble1Vec& prediction,
 
         // Compute the change to apply to the target decay rate.
         TMaxAccumulator change;
-        for (std::size_t d = 0u; d < dimension; ++d) {
+        for (std::size_t d = 0; d < dimension; ++d) {
             TDouble3Ary stats;
-            for (std::size_t i = 0u; i < 3; ++i) {
+            for (std::size_t i = 0; i < 3; ++i) {
                 stats[i] = std::fabs(CBasicStatistics::mean((*stats_[i])[d]));
             }
             change.add(this->change(stats, bucketLength));
@@ -276,7 +286,7 @@ void CDecayRateController::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsa
 }
 
 std::size_t CDecayRateController::memoryUsage() const {
-    std::size_t mem = core::CMemory::dynamicSize(m_PredictionMean);
+    std::size_t mem{core::CMemory::dynamicSize(m_PredictionMean)};
     mem += core::CMemory::dynamicSize(m_Bias);
     mem += core::CMemory::dynamicSize(m_RecentAbsError);
     mem += core::CMemory::dynamicSize(m_HistoricalAbsError);
@@ -323,30 +333,31 @@ bool CDecayRateController::notControlling() const {
 
 bool CDecayRateController::increaseDecayRateErrorIncreasing(const TDouble3Ary& stats) const {
     return (m_Checks & E_PredictionErrorIncrease) &&
-           stats[1] > ERROR_INCREASING * stats[2];
+           stats[RECENT_ERROR] > ERROR_INCREASING * stats[HISTORIC_ERROR];
 }
 
 bool CDecayRateController::increaseDecayRateErrorDecreasing(const TDouble3Ary& stats) const {
     return (m_Checks & E_PredictionErrorDecrease) &&
-           stats[2] > ERROR_DECREASING * stats[1];
+           stats[HISTORIC_ERROR] > ERROR_DECREASING * stats[RECENT_ERROR];
 }
 
 bool CDecayRateController::increaseDecayRateBiased(const TDouble3Ary& stats) const {
-    return (m_Checks & E_PredictionBias) && stats[0] > BIASED * stats[1];
+    return (m_Checks & E_PredictionBias) && stats[BIAS] > BIASED * stats[RECENT_ERROR];
 }
 
 bool CDecayRateController::decreaseDecayRateErrorNotIncreasing(const TDouble3Ary& stats) const {
     return (m_Checks & E_PredictionErrorIncrease) == false ||
-           stats[1] < ERROR_NOT_INCREASING * stats[2];
+           stats[RECENT_ERROR] < ERROR_NOT_INCREASING * stats[HISTORIC_ERROR];
 }
 
 bool CDecayRateController::decreaseDecayRateErrorNotDecreasing(const TDouble3Ary& stats) const {
     return (m_Checks & E_PredictionErrorDecrease) == false ||
-           stats[2] < ERROR_NOT_DECREASING * stats[1];
+           stats[HISTORIC_ERROR] < ERROR_NOT_DECREASING * stats[RECENT_ERROR];
 }
 
 bool CDecayRateController::decreaseDecayRateNotBiased(const TDouble3Ary& stats) const {
-    return (m_Checks & E_PredictionBias) == false || stats[0] < NOT_BIASED * stats[1];
+    return (m_Checks & E_PredictionBias) == false ||
+           stats[BIAS] < NOT_BIASED * stats[RECENT_ERROR];
 }
 }
 }
