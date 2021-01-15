@@ -20,6 +20,7 @@
 
 using namespace ml;
 using namespace handy_typedefs;
+using TDoubleVec = std::vector<double>;
 
 void CDecayRateControllerTest::testLowCov() {
     // Supply small but biased errors so we increase the decay
@@ -68,7 +69,6 @@ void CDecayRateControllerTest::testOrderedErrors() {
 }
 
 void CDecayRateControllerTest::testPersist() {
-    using TDoubleVec = std::vector<double>;
 
     test::CRandomNumbers rng;
 
@@ -109,6 +109,49 @@ void CDecayRateControllerTest::testPersist() {
     }
 }
 
+void CDecayRateControllerTest::testBehaviourAfterPersistAndRestore() {
+    // Test that we get the same decisions after persisting and restoring.
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec values;
+    rng.generateUniformSamples(1000.0, 1010.0, 1000, values);
+
+    TDoubleVec errors;
+    rng.generateUniformSamples(-2.0, 6.0, 1000, errors);
+
+    maths::CDecayRateController origController{
+        maths::CDecayRateController::E_PredictionBias, 1};
+    maths::CDecayRateController restoredController;
+    for (std::size_t i = 0; i < 500; ++i) {
+        origController.multiplier({values[i]}, {{errors[i]}}, 3600, 1.0, 0.0005);
+    }
+
+    std::string origXml;
+    {
+        core::CRapidXmlStatePersistInserter inserter("root");
+        origController.acceptPersistInserter(inserter);
+        inserter.toXml(origXml);
+    }
+
+    // Restore the XML into a new controller.
+    {
+        core::CRapidXmlParser parser;
+        CPPUNIT_ASSERT(parser.parseStringIgnoreCdata(origXml));
+        core::CRapidXmlStateRestoreTraverser traverser(parser);
+        CPPUNIT_ASSERT_EQUAL(true, traverser.traverseSubLevel(std::bind(
+                                       &maths::CDecayRateController::acceptRestoreTraverser,
+                                       &restoredController, std::placeholders::_1)));
+    }
+
+    for (std::size_t i = 500; i < values.size(); ++i) {
+        CPPUNIT_ASSERT_DOUBLES_EQUAL(
+            origController.multiplier({values[i]}, {{errors[i]}}, 3600, 1.0, 0.0005),
+            restoredController.multiplier({values[i]}, {{errors[i]}}, 3600, 1.0, 0.0005),
+            0.001);
+    }
+}
+
 CppUnit::Test* CDecayRateControllerTest::suite() {
     CppUnit::TestSuite* suiteOfTests = new CppUnit::TestSuite("CDecayRateControllerTest");
 
@@ -119,6 +162,9 @@ CppUnit::Test* CDecayRateControllerTest::suite() {
         &CDecayRateControllerTest::testOrderedErrors));
     suiteOfTests->addTest(new CppUnit::TestCaller<CDecayRateControllerTest>(
         "CDecayRateControllerTest::testPersist", &CDecayRateControllerTest::testPersist));
+    suiteOfTests->addTest(new CppUnit::TestCaller<CDecayRateControllerTest>(
+        "CDecayRateControllerTest::testBehaviourAfterPersistAndRestore",
+        &CDecayRateControllerTest::testBehaviourAfterPersistAndRestore));
 
     return suiteOfTests;
 }

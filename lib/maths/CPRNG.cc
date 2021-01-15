@@ -9,6 +9,8 @@
 
 #include <maths/CPRNG.h>
 
+#include <maths/CChecksum.h>
+
 #include <boost/numeric/conversion/bounds.hpp>
 
 #include <algorithm>
@@ -79,6 +81,10 @@ std::string CPRNG::CSplitMix64::toString() const {
 
 bool CPRNG::CSplitMix64::fromString(const std::string& state) {
     return core::CStringUtils::stringToType(state, m_X);
+}
+
+uint64_t CPRNG::CSplitMix64::checksum(uint64_t seed) const {
+    return CChecksum::calculate(seed, m_X);
 }
 
 const uint64_t CPRNG::CSplitMix64::A(0x9E3779B97F4A7C15);
@@ -152,6 +158,10 @@ std::string CPRNG::CXorOShiro128Plus::toString() const {
 
 bool CPRNG::CXorOShiro128Plus::fromString(const std::string& state) {
     return core::CPersistUtils::fromString(state, &m_X[0], &m_X[2]);
+}
+
+uint64_t CPRNG::CXorOShiro128Plus::checksum(uint64_t seed) const {
+    return CChecksum::calculate(seed, m_X);
 }
 
 const uint64_t CPRNG::CXorOShiro128Plus::JUMP[] = {0xbeac0467eba5facb, 0xd86b048b86aa9922};
@@ -236,6 +246,10 @@ bool CPRNG::CXorShift1024Mult::fromString(std::string state) {
     }
     state.resize(delimPos);
     return core::CPersistUtils::fromString(state, &m_X[0], &m_X[16]);
+}
+
+uint64_t CPRNG::CXorShift1024Mult::checksum(uint64_t seed) const {
+    return CChecksum::calculate(seed, m_X);
 }
 
 const uint64_t CPRNG::CXorShift1024Mult::A(1181783497276652981);
