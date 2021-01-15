@@ -431,7 +431,7 @@ bool CAnomalyJobConfig::parseEventConfig(const std::string& json) {
         return false;
     }
 
-    if (doc.Empty()) {
+    if (doc.ObjectEmpty()) {
         return true;
     }
 
@@ -496,7 +496,7 @@ bool CAnomalyJobConfig::parseFilterConfig(const std::string& json) {
         return false;
     }
 
-    if (doc.Empty()) {
+    if (doc.ObjectEmpty()) {
         return true;
     }
 
