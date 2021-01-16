@@ -28,6 +28,8 @@
 #include <test/CRandomNumbers.h>
 #include <test/CTimeSeriesTestData.h>
 
+#include "TestUtils.h"
+
 #include <boost/math/constants/constants.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -2016,6 +2018,39 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
     }
 }
 
+BOOST_FIXTURE_TEST_CASE(testStability, CTestFixture) {
+
+    auto trend = [](core_t::TTime time) {
+        return 2000.0 + (time < 10 * WEEK ? 100.0 * weekends(time) : -2000.0);
+    };
+
+    maths::CTimeSeriesDecomposition decomposition(0.012, HALF_HOUR);
+    maths::CDecayRateController controller(maths::CDecayRateController::E_PredictionBias |
+                                               maths::CDecayRateController::E_PredictionErrorIncrease,
+                                           1);
+    CDebugGenerator debug;
+
+    for (core_t::TTime time = 0; time < 2 * YEAR; time += HALF_HOUR) {
+        decomposition.addPoint(time, trend(time));
+        debug.addValue(time, trend(time));
+
+        if (decomposition.initialized()) {
+            TDouble1Vec mean{decomposition.meanValue(time)};
+            TDouble1Vec predictionError{decomposition.detrend(time, trend(time), 0.0)};
+            double multiplier{controller.multiplier(mean, {predictionError},
+                                                    HALF_HOUR, 1.0, 0.0005)};
+            decomposition.decayRate(multiplier * decomposition.decayRate());
+        }
+
+        double prediction{mean(decomposition.value(time, 0.0))};
+        debug.addPrediction(time, prediction, trend(time) - prediction);
+
+        if (time > 20 * WEEK) {
+            BOOST_REQUIRE(std::fabs(trend(time) - prediction) < 5.0);
+        }
+    }
+}
+
 BOOST_FIXTURE_TEST_CASE(testRemoveSeasonal, CTestFixture) {
 
     // Check we correctly remove all seasonal components.
@@ -2051,7 +2086,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveSeasonal, CTestFixture) {
             decomposition.decayRate(multiplier * decomposition.decayRate());
         }
 
-        double prediction = mean(decomposition.value(time, 0.0));
+        double prediction{mean(decomposition.value(time, 0.0))};
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
     }
 
