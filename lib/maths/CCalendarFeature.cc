@@ -54,9 +54,6 @@ std::string print_(int count, bool suffix) {
 }
 }
 
-CCalendarFeature::CCalendarFeature() : m_Feature(INVALID), m_Value(INVALID) {
-}
-
 CCalendarFeature::CCalendarFeature(std::uint16_t feature, core_t::TTime time)
     : m_Feature(INVALID), m_Value(INVALID) {
     int dayOfWeek{};
@@ -132,9 +129,9 @@ bool CCalendarFeature::fromDelimited(const std::string& value) {
 }
 
 std::string CCalendarFeature::toDelimited() const {
-    int state[2] = {static_cast<int>(m_Feature), static_cast<int>(m_Value)};
-    const int* begin = std::begin(state);
-    const int* end = std::end(state);
+    int state[2]{static_cast<int>(m_Feature), static_cast<int>(m_Value)};
+    const int* begin{std::begin(state)};
+    const int* end{std::end(state)};
     return core::CPersistUtils::toString(begin, end);
 }
 
@@ -190,16 +187,12 @@ core_t::TTime CCalendarFeature::offset(core_t::TTime time) const {
 }
 
 bool CCalendarFeature::inWindow(core_t::TTime time) const {
-    core_t::TTime offset = this->offset(time);
+    core_t::TTime offset{this->offset(time)};
     return offset >= 0 && offset < this->window();
 }
 
 core_t::TTime CCalendarFeature::window() const {
     return core::constants::DAY;
-}
-
-core_t::TTime CCalendarFeature::repeat() const {
-    return 30 * core::constants::DAY;
 }
 
 std::uint64_t CCalendarFeature::checksum(std::uint64_t seed) const {

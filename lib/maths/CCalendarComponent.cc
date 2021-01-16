@@ -42,7 +42,7 @@ CCalendarComponent::CCalendarComponent(const CCalendarFeature& feature,
     : CDecompositionComponent{maxSize, boundaryCondition,
                               valueInterpolationType, varianceInterpolationType},
       m_Bucketing{feature, decayRate, minimumBucketLength},
-      m_LastInterpolationTime{std::numeric_limits<core_t::TTime>::min()} {
+      m_LastInterpolationTime{2 * (std::numeric_limits<core_t::TTime>::min() / 3)} {
 }
 
 CCalendarComponent::CCalendarComponent(double decayRate,
@@ -52,7 +52,7 @@ CCalendarComponent::CCalendarComponent(double decayRate,
                                        CSplineTypes::EType varianceInterpolationType)
     : CDecompositionComponent{0, CSplineTypes::E_Periodic,
                               valueInterpolationType, varianceInterpolationType},
-      m_LastInterpolationTime{std::numeric_limits<core_t::TTime>::min()} {
+      m_LastInterpolationTime{2 * (std::numeric_limits<core_t::TTime>::min() / 3)} {
     traverser.traverseSubLevel(std::bind(&CCalendarComponent::acceptRestoreTraverser,
                                          this, decayRate, minimumBucketLength,
                                          std::placeholders::_1));
@@ -124,8 +124,9 @@ void CCalendarComponent::add(core_t::TTime time, double value, double weight) {
 }
 
 bool CCalendarComponent::shouldInterpolate(core_t::TTime time) const {
-    return CIntegerTools::floor(time, this->feature().repeat()) !=
-           CIntegerTools::floor(m_LastInterpolationTime, this->feature().repeat());
+    auto feature = this->feature();
+    core_t::TTime offset{feature.offset(time)};
+    return offset > feature.window() && time > m_LastInterpolationTime + offset;
 }
 
 void CCalendarComponent::interpolate(core_t::TTime time, bool refine) {
@@ -135,10 +136,12 @@ void CCalendarComponent::interpolate(core_t::TTime time, bool refine) {
     TDoubleVec knots;
     TDoubleVec values;
     TDoubleVec variances;
-    if (m_Bucketing.knots(time, this->boundaryCondition(), knots, values, variances)) {
+    if (m_Bucketing.knots(time - this->feature().offset(time),
+                          this->boundaryCondition(), knots, values, variances)) {
         this->CDecompositionComponent::interpolate(knots, values, variances);
     }
     m_LastInterpolationTime = time;
+    LOG_TRACE(<< "last interpolation time = " << m_LastInterpolationTime);
 }
 
 double CCalendarComponent::decayRate() const {

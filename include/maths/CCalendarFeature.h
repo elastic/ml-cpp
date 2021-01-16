@@ -42,7 +42,7 @@ public:
     using TCalendarFeature4Ary = std::array<CCalendarFeature, 4>;
 
 public:
-    CCalendarFeature();
+    CCalendarFeature() = default;
     CCalendarFeature(std::uint16_t feature, core_t::TTime time);
 
     //! Get all the features for \p time.
@@ -76,9 +76,6 @@ public:
     //! Get this feature's window.
     core_t::TTime window() const;
 
-    //! The approximate feature repeat.
-    core_t::TTime repeat() const;
-
     //! Get a checksum for this object.
     std::uint64_t checksum(std::uint64_t seed = 0) const;
 
@@ -91,9 +88,9 @@ private:
 
 private:
     //! The feature.
-    std::uint16_t m_Feature;
+    std::uint16_t m_Feature = INVALID;
     //! The feature value.
-    std::uint16_t m_Value;
+    std::uint16_t m_Value = INVALID;
 };
 
 MATHS_EXPORT

@@ -2975,9 +2975,8 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::shouldInterpolate(c
 void CTimeSeriesDecompositionDetail::CComponents::CCalendar::interpolate(core_t::TTime time,
                                                                          bool refine) {
     for (auto& component : m_Components) {
-        CCalendarFeature feature = component.feature();
         if (component.shouldInterpolate(time)) {
-            component.interpolate(time - feature.offset(time), refine);
+            component.interpolate(time, refine);
         }
     }
 }
