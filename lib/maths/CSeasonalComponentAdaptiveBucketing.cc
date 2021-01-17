@@ -179,9 +179,9 @@ void CSeasonalComponentAdaptiveBucketing::shiftLevel(double shift) {
 
 void CSeasonalComponentAdaptiveBucketing::shiftSlope(core_t::TTime time, double shift) {
     if (std::fabs(shift) > 0.0) {
-        for (std::size_t i = 0; i < m_Buckets.size(); ++i) {
-            m_Buckets[i].s_Regression.shiftGradient(shift);
-            m_Buckets[i].s_Regression.shiftOrdinate(-shift * m_Time->regression(time));
+        for (auto& bucket : m_Buckets) {
+            bucket.s_Regression.shiftGradient(shift);
+            bucket.s_Regression.shiftOrdinate(-shift * m_Time->regression(time));
         }
     }
 }

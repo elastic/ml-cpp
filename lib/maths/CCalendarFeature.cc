@@ -14,8 +14,7 @@
 #include <maths/CChecksum.h>
 #include <maths/CIntegerTools.h>
 
-#include <boost/numeric/conversion/bounds.hpp>
-
+#include <limits>
 #include <ostream>
 
 namespace ml {
