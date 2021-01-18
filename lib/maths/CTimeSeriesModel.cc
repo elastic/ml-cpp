@@ -112,7 +112,7 @@ double aggregateFeatureProbabilities(const TDouble4Vec& probabilities, double co
 
 const std::string VERSION_6_3_TAG("6.3");
 const std::string VERSION_6_5_TAG("6.5");
-const std::string VERSION_6_8_TAG("6.8");
+const std::string VERSION_6_8_14_TAG("6.8.14");
 
 // Models
 // Version >= 6.3
@@ -1251,7 +1251,7 @@ std::size_t CUnivariateTimeSeriesModel::memoryUsage() const {
 bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                         core::CStateRestoreTraverser& traverser) {
     bool stateMissingControllerChecks{false};
-    if (traverser.name() == VERSION_6_3_TAG || traverser.name() == VERSION_6_8_TAG) {
+    if (traverser.name() == VERSION_6_3_TAG || traverser.name() == VERSION_6_8_14_TAG) {
         stateMissingControllerChecks = (traverser.name() == VERSION_6_3_TAG);
         while (traverser.next()) {
             const std::string& name{traverser.name()};
@@ -1346,7 +1346,7 @@ void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInsert
 
     // Note that we don't persist this->params() or the correlations
     // because that state is reinitialized.
-    inserter.insertValue(VERSION_6_8_TAG, "");
+    inserter.insertValue(VERSION_6_8_14_TAG, "");
     inserter.insertValue(ID_6_3_TAG, m_Id);
     inserter.insertValue(IS_NON_NEGATIVE_6_3_TAG, static_cast<int>(m_IsNonNegative));
     inserter.insertValue(IS_FORECASTABLE_6_3_TAG, static_cast<int>(m_IsForecastable));
@@ -2691,7 +2691,7 @@ std::size_t CMultivariateTimeSeriesModel::memoryUsage() const {
 bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                           core::CStateRestoreTraverser& traverser) {
     bool stateMissingControllerChecks{false};
-    if (traverser.name() == VERSION_6_3_TAG || traverser.name() == VERSION_6_8_TAG) {
+    if (traverser.name() == VERSION_6_3_TAG || traverser.name() == VERSION_6_8_14_TAG) {
         stateMissingControllerChecks = (traverser.name() == VERSION_6_3_TAG);
         while (traverser.next()) {
             const std::string& name{traverser.name()};
@@ -2775,7 +2775,7 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
 void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     // Note that we don't persist this->params() because that state
     // is reinitialized.
-    inserter.insertValue(VERSION_6_8_TAG, "");
+    inserter.insertValue(VERSION_6_8_14_TAG, "");
     inserter.insertValue(IS_NON_NEGATIVE_6_3_TAG, static_cast<int>(m_IsNonNegative));
     if (m_Controllers) {
         core::CPersistUtils::persist(CONTROLLER_6_3_TAG, *m_Controllers, inserter);
