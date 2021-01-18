@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 6.8.14
+
+=== Bug Fixes
+* Fix missing state in persist and restore for anomaly detection. This caused suboptimal
+  modelling after a job was closed and reopened or failed over to a different node.
+  (See {ml-pull}1668[#1668].)
+
 == {es} version 6.8.12
 
 === Bug Fixes

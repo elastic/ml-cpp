@@ -90,6 +90,9 @@ public:
         //! Restore from a string.
         bool fromString(const std::string& state);
 
+        //! Get a checksum for this object.
+        uint64_t checksum(uint64_t seed) const;
+
     private:
         static const uint64_t A;
         static const uint64_t B;
@@ -177,6 +180,9 @@ public:
         std::string toString() const;
         //! Restore from a string.
         bool fromString(const std::string& state);
+
+        //! Get a checksum for this object.
+        uint64_t checksum(uint64_t seed) const;
 
     private:
         static const uint64_t JUMP[2];
@@ -266,6 +272,9 @@ public:
         std::string toString() const;
         //! Restore from a string.
         bool fromString(std::string state);
+
+        //! Get a checksum for this object.
+        uint64_t checksum(uint64_t seed) const;
 
     private:
         static const uint64_t A;

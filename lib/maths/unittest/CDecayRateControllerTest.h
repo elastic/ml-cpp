@@ -14,6 +14,7 @@ public:
     void testLowCov();
     void testOrderedErrors();
     void testPersist();
+    void testBehaviourAfterPersistAndRestore();
 
     static CppUnit::Test* suite();
 };
