@@ -82,3 +82,30 @@ RUN \
   cd .. && \
   rm -rf patchelf-0.10
 
+# Install Anaconda for building PyTorch
+ARG anaconda_root=/opt/anaconda3
+RUN \
+  wget --quiet https://repo.anaconda.com/archive/Anaconda3-2020.11-Linux-x86_64.sh && \
+  chmod +x Anaconda3-2020.11-Linux-x86_64.sh && \
+  ./Anaconda3-2020.11-Linux-x86_64.sh -b -p ${anaconda_root} && \
+  ${anaconda_root}/bin/conda install -y numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_extensions future six requests dataclasses && \
+  rm /Anaconda3-2020.11-Linux-x86_64.sh
+
+# Clone PyTorch
+RUN \
+  git -c advice.detachedHead=false clone --depth=1 --branch=v1.7.1 https://github.com/pytorch/pytorch.git && \
+  cd pytorch && \
+  git submodule sync && \
+  git submodule update --init --recursive 
+  
+# Build & install PyTorch
+ENV PATH ${PATH}:${anaconda_root}/bin/
+RUN \
+  cd pytorch && \
+  CMAKE_PREFIX_PATH=${anaconda_root}/bin ${anaconda_root}/bin/python3 setup.py install && \
+  mkdir /usr/local/gcc93/include/pytorch && \
+  cp -r torch/include/* /usr/local/gcc93/include/pytorch/ && \
+  cp torch/lib/libtorch_cpu.so /usr/local/gcc93/lib && \
+  cp torch/lib/libc10.so /usr/local/gcc93/lib && \
+  rm -rf ${anaconda_root} && \
+  cd .. && rm -rf pytorch
