@@ -91,7 +91,7 @@ public:
         bool fromString(const std::string& state);
 
         //! Get a checksum for this object.
-        std::uint64_t checksum(std::uint64_t seed) const;
+        uint64_t checksum(uint64_t seed) const;
 
     private:
         static const uint64_t A;
@@ -182,7 +182,7 @@ public:
         bool fromString(const std::string& state);
 
         //! Get a checksum for this object.
-        std::uint64_t checksum(std::uint64_t seed) const;
+        uint64_t checksum(uint64_t seed) const;
 
     private:
         static const uint64_t JUMP[2];
@@ -274,7 +274,7 @@ public:
         bool fromString(std::string state);
 
         //! Get a checksum for this object.
-        std::uint64_t checksum(std::uint64_t seed) const;
+        uint64_t checksum(uint64_t seed) const;
 
     private:
         static const uint64_t A;
