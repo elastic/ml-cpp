@@ -52,7 +52,7 @@
 
 * Fix a source of instability in time series modeling for anomaly detection. This has
   been observed to cause spurious anomalies for a partition which no longer receives
-  any data.
+  any data. (See {ml-pull}1675[#1675].)
 
 == {es} version 7.11.0
 
