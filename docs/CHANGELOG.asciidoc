@@ -62,6 +62,9 @@
 
 * Fix potential cause for log errors from CXMeansOnline1d. (See {ml-pull}1586[#1586].)
 * Fix scaling of some hyperparameter for Bayesian optimization. (See {ml-pull}1612[#1612].)
+* Fix missing state in persist and restore for anomaly detection. This caused suboptimal
+  modelling after a job was closed and reopened or failed over to a different node.
+  (See {ml-pull}1668[#1668].)
 
 == {es} version 7.10.1
 
