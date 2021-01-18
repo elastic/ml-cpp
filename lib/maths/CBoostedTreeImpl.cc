@@ -1287,11 +1287,15 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     bopt.add(parameters, meanLoss, lossVariance);
     if (3 * m_CurrentRound < m_NumberRounds) {
         std::generate_n(parameters.data(), parameters.size(), [&]() {
+            // TODO [bopt-early-stopping] should be better a Sobol sampling
             return CSampling::uniformSample(m_Rng, 0.0, 1.0);
         });
 
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
     } else {
+        if (m_BayesianOptimization->anovaTotalVariance() < 1e-9) {
+            return false;
+        }
         std::tie(parameters, std::ignore) = bopt.maximumExpectedImprovement();
     }
 
