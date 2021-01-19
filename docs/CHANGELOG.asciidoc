@@ -47,6 +47,7 @@
   if the time series has non-diurnal seasonality. (See {ml-pull}1634[#1634].)
 * Compute importance of hyperparameters optimized in the fine parameter tuning step.
   (See {ml-pull}1627[#1627].)
+* Early stopping for the fine parameter tuning step. (See {ml-pull}1676[#1676].)
 
 == {es} version 7.11.0
 

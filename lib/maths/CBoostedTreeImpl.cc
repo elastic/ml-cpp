@@ -343,6 +343,11 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
     std::size_t tunableHyperparametersMemoryUsage{m_TunableHyperparameters.size() *
                                                   sizeof(int)};
+    std::size_t hyperparameterSamplesMemoryUsage{
+        m_HyperparameterSamples.empty()
+            ? 0
+            : m_HyperparameterSamples.size() *
+                  m_HyperparameterSamples[0].size() * sizeof(double)};
     // The leaves' row masks memory is accounted for here because it's proportional
     // to the log2(number of nodes). The compressed bit vector representation uses
     // roughly log2(E[run length]) / E[run length] bytes per bit. As we grow the
@@ -376,8 +381,8 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     std::size_t worstCaseMemoryUsage{
         sizeof(*this) + forestMemoryUsage + foldRoundLossMemoryUsage +
         hyperparametersMemoryUsage + tunableHyperparametersMemoryUsage +
-        leafNodeStatisticsMemoryUsage + dataTypeMemoryUsage +
-        featureSampleProbabilities + missingFeatureMaskMemoryUsage +
+        hyperparameterSamplesMemoryUsage + leafNodeStatisticsMemoryUsage +
+        dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
         trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage};
 
     return CBoostedTreeImpl::correctedMemoryUsage(static_cast<double>(worstCaseMemoryUsage));
