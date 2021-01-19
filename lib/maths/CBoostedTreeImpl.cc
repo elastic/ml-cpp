@@ -203,6 +203,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     this->startProgressMonitoringFineTuneHyperparameters();
 
+    this->initializeHyperparameterSamples();
+
     if (this->canTrain() == false) {
 
         // Fallback to using the constant predictor which minimises the loss.
@@ -1286,11 +1288,8 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
 
     bopt.add(parameters, meanLoss, lossVariance);
     if (3 * m_CurrentRound < m_NumberRounds) {
-        std::generate_n(parameters.data(), parameters.size(), [&]() {
-            // TODO [bopt-early-stopping] should be better a Sobol sampling
-            return CSampling::uniformSample(m_Rng, 0.0, 1.0);
-        });
-
+        std::move(m_HyperparameterSamples[m_CurrentRound].begin(),
+                  m_HyperparameterSamples[m_CurrentRound].end(), parameters.data());
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
     } else {
         if (m_BayesianOptimization->anovaTotalVariance() < 1e-9) {
@@ -1472,6 +1471,12 @@ void CBoostedTreeImpl::initializeTunableHyperparameters() {
     }
 }
 
+void CBoostedTreeImpl::initializeHyperparameterSamples() {
+    std::size_t dim{m_TunableHyperparameters.size()};
+    std::size_t n{m_NumberRounds / 3 + 1};
+    CSampling::sobolSequenceSample(dim, n, m_HyperparameterSamples);
+}
+
 void CBoostedTreeImpl::startProgressMonitoringFineTuneHyperparameters() {
 
     // This costs "number folds" * "maximum number trees per forest" units
@@ -1623,6 +1628,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, inserter);
     core::CPersistUtils::persist(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, inserter);
     // m_TunableHyperparameters is not persisted explicitly, it is restored from overriden hyperparameters
+    // m_HyperparameterSamples is not persisted explicitly, it is re-generated
 }
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
@@ -1737,8 +1743,10 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(TRAINING_ROW_MASKS_TAG,
                 core::CPersistUtils::restore(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, traverser))
         // m_TunableHyperparameters is not restored explicitly, it is restored from overriden hyperparameters
+        // m_HyperparameterSamples is not restored explicitly, it is re-generated
     } while (traverser.next());
     this->initializeTunableHyperparameters();
+    this->initializeHyperparameterSamples();
     m_InitializationStage = static_cast<EInitializationStage>(initializationStage);
 
     return true;
@@ -1756,6 +1764,7 @@ std::size_t CBoostedTreeImpl::memoryUsage() const {
     mem += core::CMemory::dynamicSize(m_BestForest);
     mem += core::CMemory::dynamicSize(m_BayesianOptimization);
     mem += core::CMemory::dynamicSize(m_Instrumentation);
+    mem += core::CMemory::dynamicSize(m_HyperparameterSamples);
     return mem;
 }
 
