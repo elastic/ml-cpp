@@ -5,6 +5,8 @@
  */
 #include "CCmdLineParser.h"
 
+#include <ver/CBuildInfo.h>
+
 #include <boost/program_options.hpp>
 
 #include <iostream>
@@ -64,7 +66,7 @@ bool CCmdLineParser::parse(int argc,
             return false;
         }
         if (vm.count("version") > 0) {
-            std::cerr << "Pytorch prototype " << std::endl;
+            std::cerr << ver::CBuildInfo::fullInfo() << std::endl;
             return false;
         }
         if (vm.count("modelid") > 0) {

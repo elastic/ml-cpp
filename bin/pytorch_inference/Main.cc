@@ -10,20 +10,29 @@
 #include <core/CRapidJsonLineWriter.h>
 #include <core/CoreTypes.h>
 
+#include <ver/CBuildInfo.h>
+
 #include <api/CIoManager.h>
 
 #include <seccomp/CSystemCallFilter.h>
 
-#include <rapidjson/ostreamwrapper.h>
-#include <torch/script.h>
-
 #include "CBufferedIStreamAdapter.h"
 #include "CCmdLineParser.h"
+
+#include <rapidjson/ostreamwrapper.h>
+#include <torch/script.h>
 
 #include <boost/optional.hpp>
 
 #include <memory>
 #include <string>
+
+// For ntohl
+#ifdef Windows
+#include <WinSock2.h>
+#else
+#include <netinet/in.h>
+#endif
 
 using TFloatVec = std::vector<float>;
 
@@ -146,6 +155,11 @@ int main(int argc, char** argv) {
         }
     }
     cancellerThread.stop();
+
+    // Log the program version immediately after reconfiguring the logger.  This
+    // must be done from the program, and NOT a shared library, as each program
+    // statically links its own version library.
+    LOG_DEBUG(<< ml::ver::CBuildInfo::fullInfo());
 
     // Reduce memory priority before installing system call filters.
     ml::core::CProcessPriority::reduceMemoryPriority();

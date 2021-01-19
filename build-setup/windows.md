@@ -191,3 +191,73 @@ lib -NOLOGO strptime.obj
 copy strptime.lib C:\usr\local\lib
 ```
 
+### CMake
+
+CMake is required to build PyTorch.  Download the MSI installer for version 3.19.3 from <https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-win64-x64.msi> (or get a more recent version).
+
+Install it mainly using the default options _except_ on the "Install Options" dialog check "Add CMake to the system PATH for all users".
+
+### Python 3.7
+
+PyTorch currently requires Python 3.6, 3.7 or 3.8, and version 3.7 appears to cause fewest problems in their test status matrix, so we use that.
+
+Download the executable installer for Python 3.7.9 from <https://www.python.org/ftp/python/3.7.9/python-3.7.9-amd64.exe>.
+
+Right click on the installer and "Run as administrator".  (Note that evelating privileges during the install is not sufficient for the Python 3.7.9 installer, it needs to have elevated privileges when first run.  Obviously this is bad practice, but that's the way it is in version 3.7.9.)
+
+On the first installer screen click "Customize installation".  (Although "Install Now" seems like it would do the job, the "Install launcher for all users" option literally only installs the _launcher_ for all users, not Python itself.)
+
+Click "Next" on the "Optional Features" screen.
+
+On the "Advanced Options" screen, check "Install for all users" and "Add Python to environment variables".  Then click "Install".
+
+For the time being, do not take advantage of the option on the final installer screen to reconfigure the machine to allow paths longer than 260 characters.  We still support Windows versions that do not have this option.
+
+### PyTorch 1.7.1
+
+PyTorch requires that certain Python modules are installed.  Start a command prompt "cmd.exe" using "Run as administrator".  In it run:
+
+```
+pip install install numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_extensions future six requests dataclasses
+```
+
+This stalls part way through waiting for a key press, and it's necessary to press enter in the command prompt window to get it to complete.
+
+Next, in a Git bash shell run:
+
+```
+cd /c/tools
+git clone --depth=1 --branch=v1.7.1 git@github.com:pytorch/pytorch.git
+cd pytorch
+git submodule sync
+git submodule update --init --recursive
+```
+
+Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
+
+```
+cd \tools\pytorch
+set USE_DISTRIBUTED=OFF
+python setup.py install
+```
+
+This will take a very long time to complete - many hours on a moderately sized VM.
+
+When it completes, at the very end there is an error message that the Python modules could not be installed.  This can be ignored as we only want the headers, DLLs and import libraries.
+
+To finish off, in a Git bash shell run:
+
+```
+cd /c/tools/pytorch
+mkdir /c/usr/local/include/pytorch
+cp -r torch/include/* /c/usr/local/include/pytorch/
+cp torch/lib/torch_cpu.dll /c/usr/local/bin/
+cp torch/lib/torch_cpu.lib /c/usr/local/lib/
+cp torch/lib/c10.dll /c/usr/local/bin/
+cp torch/lib/c10.lib /c/usr/local/lib/
+cp torch/lib/fbgemm.dll /c/usr/local/bin/
+cp torch/lib/fbgemm.lib /c/usr/local/lib/
+cp torch/lib/asmjit.dll /c/usr/local/bin/
+cp torch/lib/asmjit.lib /c/usr/local/lib/
+```
+
