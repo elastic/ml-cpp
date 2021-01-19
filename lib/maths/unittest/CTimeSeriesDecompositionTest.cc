@@ -2257,6 +2257,8 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(5994.36, meanValue, 0.005);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(286374.0, meanVariance, 0.5);
 
+        TMeanAccumulator meanValueError;
+        TMeanAccumulator meanScaleError;
         for (core_t::TTime time = 60480000, i = 0;
              i < static_cast<core_t::TTime>(expectedValues.size());
              time += HALF_HOUR, ++i) {
@@ -2265,14 +2267,27 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
             TDoubleDoublePr value{decomposition.value(time, 10.0)};
             TDoubleDoublePr scale{decomposition.varianceScaleWeight(time, 286374.0, 10.0)};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.first, value.first,
-                                         0.005 * std::fabs(expectedValue.first));
+                                         0.2 * std::fabs(expectedValue.first));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.second, value.second,
-                                         0.005 * std::fabs(expectedValue.second));
+                                         0.2 * std::fabs(expectedValue.second));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedScale.first, scale.first,
-                                         0.005 * expectedScale.first);
+                                         0.3 * std::max(expectedScale.second, 0.4));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedScale.second, scale.second,
-                                         0.005 * std::max(expectedScale.second, 0.4));
+                                         0.3 * std::max(expectedScale.second, 0.4));
+            meanValueError.add(std::fabs(expectedValue.first - value.first) /
+                               std::fabs(expectedValue.first));
+            meanValueError.add(std::fabs(expectedValue.second - value.second) /
+                               std::fabs(expectedValue.second));
+            meanScaleError.add(std::fabs(expectedScale.first - scale.first) /
+                               std::fabs(expectedScale.first));
+            meanScaleError.add(std::fabs(expectedScale.first - scale.first) /
+                               std::fabs(expectedScale.first));
         }
+
+        LOG_DEBUG(<< "mean value error = " << maths::CBasicStatistics::mean(meanValueError));
+        LOG_DEBUG(<< "mean scale error = " << maths::CBasicStatistics::mean(meanScaleError));
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanValueError) < 0.01);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanScaleError) < 0.02);
 
         // Check some basic operations on the upgraded model.
         decomposition.forecast(60480000, 60480000 + WEEK, HALF_HOUR, 90.0, 1.0,
@@ -2351,8 +2366,8 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
                                expectedScale.second);
         }
 
-        LOG_DEBUG(<< "Mean value error = " << maths::CBasicStatistics::mean(meanValueError));
-        LOG_DEBUG(<< "Mean scale error = " << maths::CBasicStatistics::mean(meanScaleError));
+        LOG_DEBUG(<< "mean value error = " << maths::CBasicStatistics::mean(meanValueError));
+        LOG_DEBUG(<< "mean scale error = " << maths::CBasicStatistics::mean(meanScaleError));
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanValueError) < 0.06);
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanScaleError) < 0.07);
 
