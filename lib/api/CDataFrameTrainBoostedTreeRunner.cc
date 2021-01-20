@@ -146,7 +146,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         .stopCrossValidationEarly(stopCrossValidationEarly)
         .analysisInstrumentation(m_Instrumentation)
         .trainingStateCallback(this->statePersister())
-        .earlyStoppingAllowed(earlyStoppingAllowed);
+        .stopHyperparameterOptimizationEarly(earlyStoppingAllowed);
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(

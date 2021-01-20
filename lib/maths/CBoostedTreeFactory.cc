@@ -1285,8 +1285,8 @@ CBoostedTreeFactory& CBoostedTreeFactory::trainingStateCallback(TTrainingStateCa
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::earlyStoppingAllowed(bool earlyStoppingAllowed) {
-    m_TreeImpl->m_EarlyStoppingAllowed = earlyStoppingAllowed;
+CBoostedTreeFactory& CBoostedTreeFactory::stopHyperparameterOptimizationEarly(bool stopEarly) {
+    m_TreeImpl->m_StopHyperparameterOptimizationEarly = stopEarly;
     return *this;
 }
 

@@ -1297,7 +1297,8 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
                   m_HyperparameterSamples[m_CurrentRound].end(), parameters.data());
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
     } else {
-        if (m_EarlyStoppingAllowed && m_BayesianOptimization->anovaTotalVariance() < 1e-9) {
+        if (m_StopHyperparameterOptimizationEarly &&
+            m_BayesianOptimization->anovaTotalVariance() < 1e-9) {
             return false;
         }
         std::tie(parameters, std::ignore) = bopt.maximumExpectedImprovement();
@@ -1635,7 +1636,7 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, inserter);
     core::CPersistUtils::persist(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, inserter);
     core::CPersistUtils::persist(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
-                                 m_EarlyStoppingAllowed, inserter);
+                                 m_StopHyperparameterOptimizationEarly, inserter);
     // m_TunableHyperparameters is not persisted explicitly, it is restored from overriden hyperparameters
     // m_HyperparameterSamples is not persisted explicitly, it is re-generated
 }
@@ -1657,7 +1658,7 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
     int initializationStage{static_cast<int>(E_FullyInitialized)};
 
     if (traverser.name() != VERSION_7_11_TAG) {
-        m_EarlyStoppingAllowed = false;
+        m_StopHyperparameterOptimizationEarly = false;
     }
 
     do {
@@ -1758,7 +1759,7 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                 core::CPersistUtils::restore(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, traverser))
         RESTORE(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
                 core::CPersistUtils::restore(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
-                                             m_EarlyStoppingAllowed, traverser))
+                                             m_StopHyperparameterOptimizationEarly, traverser))
         // m_TunableHyperparameters is not restored explicitly, it is restored from overriden hyperparameters
         // m_HyperparameterSamples is not restored explicitly, it is re-generated
     } while (traverser.next());
