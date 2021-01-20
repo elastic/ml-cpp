@@ -1762,7 +1762,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // TODO LOG_DEBUG(<< "Correlates");
 }
 
-BOOST_AUTO_TEST_CASE(testUpgrade) {
+BOOST_AUTO_TEST_CASE(testUpgradeFrom6p2) {
     // Test upgrade is minimally disruptive. We test the upgraded model
     // predicted confidence intervals verses the values we obtain from
     // the previous model. Note the confidence interval depends on both
@@ -1830,6 +1830,11 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
                     boost::lexical_cast<double>(interval[j]), 0.0001);
             }
         }
+        BOOST_TEST_REQUIRE(restoredModel.decayRateControllers() != nullptr);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[0].checks() != 0);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[1].checks() != 0);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[0].dimension() == 1);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[1].dimension() == 1);
     }
 
     LOG_DEBUG(<< "Multivariate");
@@ -1879,6 +1884,11 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
                     boost::lexical_cast<double>(interval[j]), 0.0001);
             }
         }
+        BOOST_TEST_REQUIRE(restoredModel.decayRateControllers() != nullptr);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[0].checks() != 0);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[1].checks() != 0);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[0].dimension() == 3);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[1].dimension() == 3);
     }
 }
 

@@ -1445,6 +1445,11 @@ const CPrior& CUnivariateTimeSeriesModel::residualModel() const {
     return *m_ResidualModel;
 }
 
+const CUnivariateTimeSeriesModel::TDecayRateController2Ary*
+CUnivariateTimeSeriesModel::decayRateControllers() const {
+    return m_Controllers.get();
+}
+
 CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel& other,
                                                        std::size_t id,
                                                        bool isForForecast)
@@ -2748,7 +2753,7 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
             RESTORE_SETUP_TEARDOWN(
                 CONTROLLER_OLD_TAG,
                 m_Controllers = std::make_unique<TDecayRateController2Ary>(),
-                core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
+                core::CPersistUtils::restore(CONTROLLER_OLD_TAG, *m_Controllers, traverser),
                 /**/)
             RESTORE_SETUP_TEARDOWN(
                 TREND_OLD_TAG, m_TrendModel.push_back(TDecompositionPtr()),
@@ -2844,6 +2849,11 @@ CMultivariateTimeSeriesModel::trendModel() const {
 
 const CMultivariatePrior& CMultivariateTimeSeriesModel::residualModel() const {
     return *m_ResidualModel;
+}
+
+const CMultivariateTimeSeriesModel::TDecayRateController2Ary*
+CMultivariateTimeSeriesModel::decayRateControllers() const {
+    return m_Controllers.get();
 }
 
 CMultivariateTimeSeriesModel::EUpdateResult

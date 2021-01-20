@@ -47,6 +47,8 @@
   if the time series has non-diurnal seasonality. (See {ml-pull}1634[#1634].)
 * Compute importance of hyperparameters optimized in the fine parameter tuning step.
   (See {ml-pull}1627[#1627].)
+* Correct upgrade for pre-6.3 state for lat_long anomaly anomaly detectors. (See
+  {ml-pull}1681[#1681].)
 
 === Bug Fixes
 

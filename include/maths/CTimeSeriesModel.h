@@ -195,6 +195,9 @@ public:
 
     //! Get the residual model.
     const CPrior& residualModel() const;
+
+    //! Get the decay rate controllers.
+    const TDecayRateController2Ary* decayRateControllers() const;
     //@}
 
 private:
@@ -662,6 +665,9 @@ public:
 
     //! Get the residual model.
     const CMultivariatePrior& residualModel() const;
+
+    //! Get the decay rate controllers.
+    const TDecayRateController2Ary* decayRateControllers() const;
     //@}
 
 private:
