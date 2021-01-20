@@ -35,10 +35,8 @@ bool CConfigUpdater::update(const std::string& json) {
 
     if (doc.HasMember(CAnomalyJobConfig::MODEL_PLOT_CONFIG)) {
         if (doc[CAnomalyJobConfig::MODEL_PLOT_CONFIG].IsObject() == false) {
-            LOG_ERROR(<< "Input error: expected "
-                      << CAnomalyJobConfig::MODEL_PLOT_CONFIG
-                      << " to be JSON object but input was '"
-                      << json
+            LOG_ERROR(<< "Input error: expected " << CAnomalyJobConfig::MODEL_PLOT_CONFIG
+                      << " to be JSON object but input was '" << json
                       << "'. Please report this problem.");
             return false;
         }
