@@ -1381,7 +1381,9 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
 std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {
     return m_RegularizationOverride.countNotSet() +
            (m_DownsampleFactorOverride != boost::none ? 0 : 1) +
-           (m_EtaOverride != boost::none ? 0 : 2) +
+           (m_EtaOverride != boost::none
+                ? 0
+                : (m_EtaGrowthRatePerTreeOverride != boost::none ? 1 : 2)) +
            (m_FeatureBagFractionOverride != boost::none ? 0 : 1);
 }
 
@@ -1455,7 +1457,7 @@ void CBoostedTreeImpl::initializeTunableHyperparameters() {
             }
             break;
         case E_EtaGrowthRatePerTree:
-            if (m_EtaOverride == boost::none) {
+            if (m_EtaOverride == boost::none && m_EtaGrowthRatePerTreeOverride == boost::none) {
                 m_TunableHyperparameters.emplace_back(E_EtaGrowthRatePerTree);
             }
             break;
@@ -1512,6 +1514,7 @@ const std::string DOWNSAMPLE_FACTOR_TAG{"downsample_factor"};
 const std::string ENCODER_TAG{"encoder"};
 const std::string ETA_GROWTH_RATE_PER_TREE_TAG{"eta_growth_rate_per_tree"};
 const std::string ETA_OVERRIDE_TAG{"eta_override"};
+const std::string ETA_GROWTH_PER_TREE_OVERRIDE_TAG{"eta_growth_per_tree"};
 const std::string ETA_TAG{"eta"};
 const std::string FEATURE_BAG_FRACTION_OVERRIDE_TAG{"feature_bag_fraction_override"};
 const std::string FEATURE_BAG_FRACTION_TAG{"feature_bag_fraction"};
@@ -1579,6 +1582,8 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_EtaGrowthRatePerTree, inserter);
     core::CPersistUtils::persist(ETA_TAG, m_Eta, inserter);
     core::CPersistUtils::persist(ETA_OVERRIDE_TAG, m_EtaOverride, inserter);
+    core::CPersistUtils::persist(ETA_GROWTH_PER_TREE_OVERRIDE_TAG,
+                                 m_EtaGrowthRatePerTreeOverride, inserter);
     core::CPersistUtils::persist(FEATURE_BAG_FRACTION_TAG, m_FeatureBagFraction, inserter);
     core::CPersistUtils::persist(FEATURE_BAG_FRACTION_OVERRIDE_TAG,
                                  m_FeatureBagFractionOverride, inserter);
@@ -1666,6 +1671,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                                              m_EtaGrowthRatePerTree, traverser))
         RESTORE(ETA_OVERRIDE_TAG,
                 core::CPersistUtils::restore(ETA_OVERRIDE_TAG, m_EtaOverride, traverser))
+        RESTORE(ETA_GROWTH_PER_TREE_OVERRIDE_TAG,
+                core::CPersistUtils::restore(ETA_GROWTH_PER_TREE_OVERRIDE_TAG,
+                                             m_EtaGrowthRatePerTreeOverride, traverser))
         RESTORE(ETA_TAG, core::CPersistUtils::restore(ETA_TAG, m_Eta, traverser))
         RESTORE(FEATURE_BAG_FRACTION_OVERRIDE_TAG,
                 core::CPersistUtils::restore(FEATURE_BAG_FRACTION_OVERRIDE_TAG,
