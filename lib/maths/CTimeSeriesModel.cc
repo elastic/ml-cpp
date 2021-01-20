@@ -2756,7 +2756,7 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
         (*m_Controllers)[E_TrendControl].checks(CDecayRateController::E_PredictionBias |
                                                 CDecayRateController::E_PredictionErrorIncrease);
     }
-    if (m_Controllers != nullptr && (*m_Controllers)[E_TrendControl].checks() == 0) {
+    if (m_Controllers != nullptr && (*m_Controllers)[E_ResidualControl].checks() == 0) {
         (*m_Controllers)[E_ResidualControl].checks(
             CDecayRateController::E_PredictionBias | CDecayRateController::E_PredictionErrorIncrease |
             maths::CDecayRateController::E_PredictionErrorDecrease);
