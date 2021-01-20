@@ -597,6 +597,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
                     .predictionPersisterSupplier(persisterSupplier)
                     .predictionRestoreSearcherSupplier(restorerSupplier)
                     .regressionLossFunction(lossFunction)
+                    .earlyStoppingAllowed(false)
                     .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
                                     dependentVariable);
             };

@@ -1515,8 +1515,9 @@ void CBoostedTreeImpl::skipProgressMonitoringFinalTrain() {
 }
 
 namespace {
+const std::string VERSION_7_11_TAG{"7.11"};
 const std::string VERSION_7_8_TAG{"7.8"};
-const TStrVec SUPPORTED_VERSIONS{VERSION_7_8_TAG};
+const TStrVec SUPPORTED_VERSIONS{VERSION_7_8_TAG, VERSION_7_11_TAG};
 
 const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
 const std::string BEST_FOREST_TAG{"best_forest"};
@@ -1557,6 +1558,7 @@ const std::string STOP_CROSS_VALIDATION_EARLY_TAG{"stop_cross_validation_eraly"}
 const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
 const std::string NUMBER_TOP_SHAP_VALUES_TAG{"top_shap_values"};
+const std::string STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stop_hyperparameter_optimization_early"};
 }
 
 const std::string& CBoostedTreeImpl::bestHyperparametersName() {
@@ -1580,7 +1582,7 @@ CBoostedTreeImpl::TStrVec CBoostedTreeImpl::bestHyperparameterNames() {
 }
 
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(VERSION_7_8_TAG, "", inserter);
+    core::CPersistUtils::persist(VERSION_7_11_TAG, "", inserter);
     core::CPersistUtils::persistIfNotNull(BAYESIAN_OPTIMIZATION_TAG,
                                           m_BayesianOptimization, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
@@ -1635,12 +1637,15 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_StopCrossValidationEarly, inserter);
     core::CPersistUtils::persist(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, inserter);
     core::CPersistUtils::persist(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, inserter);
+    core::CPersistUtils::persist(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
+                                 m_EarlyStoppingAllowed, inserter);
     // m_TunableHyperparameters is not persisted explicitly, it is restored from overriden hyperparameters
     // m_HyperparameterSamples is not persisted explicitly, it is re-generated
 }
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    if (traverser.name() != VERSION_7_8_TAG) {
+    if (std::find(SUPPORTED_VERSIONS.begin(), SUPPORTED_VERSIONS.end(),
+                  traverser.name()) == SUPPORTED_VERSIONS.end()) {
         LOG_ERROR(<< "Input error: unsupported state serialization version. "
                   << "Currently supported versions: "
                   << core::CContainerPrinter::print(SUPPORTED_VERSIONS) << ".");
@@ -1653,6 +1658,10 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
     };
 
     int initializationStage{static_cast<int>(E_FullyInitialized)};
+
+    if (traverser.name() != VERSION_7_11_TAG) {
+        m_EarlyStoppingAllowed = false;
+    }
 
     do {
         const std::string& name = traverser.name();
@@ -1750,6 +1759,9 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                 core::CPersistUtils::restore(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, traverser))
         RESTORE(TRAINING_ROW_MASKS_TAG,
                 core::CPersistUtils::restore(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, traverser))
+        RESTORE(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
+                core::CPersistUtils::restore(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
+                                             m_EarlyStoppingAllowed, traverser))
         // m_TunableHyperparameters is not restored explicitly, it is restored from overriden hyperparameters
         // m_HyperparameterSamples is not restored explicitly, it is re-generated
     } while (traverser.next());
