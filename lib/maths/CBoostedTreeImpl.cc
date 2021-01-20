@@ -1295,9 +1295,6 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     if (3 * m_CurrentRound < m_NumberRounds) {
         std::move(m_HyperparameterSamples[m_CurrentRound].begin(),
                   m_HyperparameterSamples[m_CurrentRound].end(), parameters.data());
-        // std::generate_n(parameters.data(), parameters.size(), [&]() {
-        //     return CSampling::uniformSample(m_Rng, 0.0, 1.0);
-        // });
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
     } else {
         if (m_EarlyStoppingAllowed && m_BayesianOptimization->anovaTotalVariance() < 1e-9) {
