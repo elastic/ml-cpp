@@ -106,17 +106,16 @@ RUN \
 
 # Install CMake
 # v3.5 minimum is required
-ARG cmake_install_dir=/usr/local/cmake
 RUN \
   cd ${build_dir} && \
   wget --quiet https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-Linux-x86_64.sh && \
   chmod +x cmake-3.19.3-Linux-x86_64.sh && \
-  mkdir ${cmake_install_dir} && \
-  ./cmake-3.19.3-Linux-x86_64.sh --skip-license --prefix=${cmake_install_dir} && \
+  mkdir /usr/local/cmake && \
+  ./cmake-3.19.3-Linux-x86_64.sh --skip-license --prefix=/usr/local/cmake && \
   rm -f cmake-3.19.3-Linux-x86_64.sh
 
 # Add cmake to PATH
-ENV PATH=${PATH}:${cmake_install_dir}/bin
+ENV PATH=${PATH}:/usr/local/cmake/bin
 
 # Clone PyTorch
 RUN \
