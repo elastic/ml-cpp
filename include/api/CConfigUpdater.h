@@ -24,7 +24,7 @@ namespace api {
 //! update, a control message is being sent with the requested
 //! configuration changes. This class is responsible for parsing
 //! text with the requested configuration changes and apply them.
-//! The changes are expected in an JSON formatted syntax.
+//! The changes are expected in a JSON document.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! As long as the parsing of the configuration changes is
