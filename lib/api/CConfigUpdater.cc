@@ -23,7 +23,7 @@ bool CConfigUpdater::update(const std::string& json) {
     rapidjson::Document doc;
     if (doc.Parse<0>(json.c_str()).HasParseError()) {
         LOG_ERROR(<< "An error occurred while parsing pattern set from JSON: "
-                         << rapidjson::GetParseError_En(doc.GetParseError()));
+                  << rapidjson::GetParseError_En(doc.GetParseError()));
         return false;
     }
 
