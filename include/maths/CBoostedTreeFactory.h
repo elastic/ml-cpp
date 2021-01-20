@@ -120,6 +120,8 @@ public:
     //! Set the callback function for training state recording.
     CBoostedTreeFactory& trainingStateCallback(TTrainingStateCallback callback);
 
+    CBoostedTreeFactory& earlyStoppingAllowed(bool earlyStopping = true);
+
     //! Estimate the maximum booking memory that training the boosted tree on a
     //! data frame with \p numberRows row and \p numberColumns columns will use.
     std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;

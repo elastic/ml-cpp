@@ -387,6 +387,7 @@ private:
     mutable TMeanAccumulator m_MeanLossAccumulator;
     THyperparametersVec m_TunableHyperparameters;
     TDoubleVecVec m_HyperparameterSamples;
+    bool m_EarlyStoppingAllowed = true;
 
 private:
     friend class CBoostedTreeFactory;

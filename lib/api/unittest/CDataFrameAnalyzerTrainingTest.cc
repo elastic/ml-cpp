@@ -1011,6 +1011,7 @@ BOOST_AUTO_TEST_CASE(testProgressFromRestart) {
             .memoryLimit(18000000)
             .predictionPersisterSupplier(persisterSupplier)
             .predictionRestoreSearcherSupplier(restorerSupplier)
+            .earlyStoppingAllowed(false)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target");
     };
 

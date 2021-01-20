@@ -1421,6 +1421,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
         std::thread worker{[&]() {
             auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                                   threads, std::make_unique<maths::boosted_tree::CMse>())
+                                  .EarlyStoppingAllowed(false)
                                   .analysisInstrumentation(instrumentation)
                                   .buildFor(*frame, cols - 1);
 

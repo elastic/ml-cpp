@@ -1285,6 +1285,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::trainingStateCallback(TTrainingStateCa
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::earlyStoppingAllowed(bool earlyStoppingAllowed) {
+    m_TreeImpl->m_EarlyStoppingAllowed = earlyStoppingAllowed;
+    return *this;
+}
+
 std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
                                                      std::size_t numberColumns) const {
     std::size_t maximumNumberTrees{this->mainLoopMaximumNumberTrees(
