@@ -1829,7 +1829,7 @@ BOOST_AUTO_TEST_CASE(testUpgradeFrom6p2) {
                     boost::lexical_cast<double>(expectedInterval[j]),
                     boost::lexical_cast<double>(interval[j]), 0.0001);
             }
-        }        
+        }
         BOOST_TEST_REQUIRE(restoredModel.decayRateControllers() != nullptr);
         BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[0].checks() != 0);
         BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[1].checks() != 0);
