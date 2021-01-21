@@ -49,12 +49,13 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenModelPlotConfig) {
     terms.insert(std::string("b"));
     modelConfig.modelPlotTerms(terms);
 
-    std::string configUpdate("[modelPlotConfig]\nboundspercentile = 83.5\nterms = c,d\nannotations_enabled = false\n");
+    std::string configUpdate{"{\"model_plot_config\":{\"enabled\":true,\"annotations_enabled\":true,\"terms\":\"c,d\"}}"};
 
     CConfigUpdater configUpdater(jobConfig, modelConfig);
 
     BOOST_TEST_REQUIRE(configUpdater.update(configUpdate));
-    BOOST_REQUIRE_EQUAL(83.5, modelConfig.modelPlotBoundsPercentile());
+    BOOST_REQUIRE_EQUAL(true, modelConfig.modelPlotEnabled());
+    BOOST_REQUIRE_EQUAL(true, modelConfig.modelPlotAnnotationsEnabled());
 
     terms = modelConfig.modelPlotTerms();
     BOOST_REQUIRE_EQUAL(std::size_t(2), terms.size());
@@ -74,16 +75,15 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenDetectorRules) {
     model::CAnomalyDetectorModelConfig modelConfig =
         model::CAnomalyDetectorModelConfig::defaultConfig();
 
-    std::string configUpdate0("[detectorRules]\ndetectorIndex = 0\nrulesJson = []\n");
-    std::string configUpdate1("[detectorRules]\ndetectorIndex = 1\nrulesJson = "
-                              "[{\"actions\":[\"skip_result\"],\"conditions\":[{\"applies_to\":\"typical\","
-                              "\"operator\":\"lt\",\"value\": 15.0}]}]");
+    std::string configUpdate0{"{\"detector_rules\": {\"detector_index\":0, \"custom_rules\":[]}}"};
+    std::string configUpdate1{"{\"detector_rules\": {\"detector_index\":1, \"custom_rules\":[{\"actions\":[\"skip_result\"], \"conditions\":[{\"applies_to\":\"typical\",\"operator\":\"lt\",\"value\": 15.0}]}]}}"};
 
     CConfigUpdater configUpdater(jobConfig, modelConfig);
 
     BOOST_TEST_REQUIRE(configUpdater.update(configUpdate0));
     BOOST_TEST_REQUIRE(configUpdater.update(configUpdate1));
 
+    BOOST_REQUIRE_EQUAL(2, jobConfig.analysisConfig().detectionRules().size());
     CAnomalyJobConfig::CAnalysisConfig::TIntDetectionRuleVecUMap::const_iterator itr =
         jobConfig.analysisConfig().detectionRules().find(0);
     BOOST_TEST_REQUIRE(itr->second.empty());
@@ -140,7 +140,9 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenFilters) {
     BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("ddd"));
 
     // Update existing ones
-    std::string configUpdate("[filters]\nfilter.filter_1=[\"ccc\",\"ddd\"]\nfilter.filter_2=[\"aaa\",\"bbb\"]\n");
+    std::string configUpdateOld("[filters]\nfilter.filter_1=[\"ccc\",\"ddd\"]\nfilter.filter_2=[\"aaa\",\"bbb\"]\n");
+
+    std::string configUpdate{"{\"filters\": [{\"filter_id\": \"filter_1\", \"items\":[\"ccc\", \"ddd\"]}, {\"filter_id\": \"filter_2\", \"items\":[\"aaa\", \"bbb\"]}]}"};
 
     CConfigUpdater configUpdater(jobConfig, modelConfig);
 
@@ -160,7 +162,8 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenFilters) {
     BOOST_TEST_REQUIRE(ruleFilters["filter_2"].contains("ddd") == false);
 
     // Now update by adding a new filter
-    configUpdate = "[filters]\nfilter.filter_3=[\"new\"]\n";
+    configUpdateOld = "[filters]\nfilter.filter_3=[\"new\"]\n";
+    configUpdate = "{\"filters\": [{\"filter_id\":\"filter_3\",\"items\":[\"new\"]}]}";
     BOOST_TEST_REQUIRE(configUpdater.update(configUpdate));
 
     ruleFilters = jobConfig.analysisConfig().ruleFilters();
@@ -207,17 +210,11 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
             "\"conditions\":[{\"applies_to\":\"time\",\"operator\":\"gte\",\"value\": 3.0},"
             "{\"applies_to\":\"time\",\"operator\":\"lt\",\"value\": 4.0}]}]";
 
-        std::stringstream configUpdate;
-        configUpdate << "[scheduledEvents]"
-                     << "\n";
-        configUpdate << "scheduledevent.0.description = new_event_1"
-                     << "\n";
-        configUpdate << "scheduledevent.0.rules = " << validRule2 << "\n";
-        configUpdate << "scheduledevent.1.description = new_event_2"
-                     << "\n";
-        configUpdate << "scheduledevent.1.rules = " << validRule1 << "\n";
+        std::string configUpdate{
+            "{\"events\": [{\"description\":\"new_event_1\", \"rules\": " + validRule2 +
+            "}, {\"description\":\"new_event_2\", \"rules\": " + validRule1 + " }] }"};
 
-        BOOST_TEST_REQUIRE(configUpdater.update(configUpdate.str()));
+        BOOST_TEST_REQUIRE(configUpdater.update(configUpdate));
 
         const auto& events = jobConfig.analysisConfig().scheduledEvents();
         BOOST_REQUIRE_EQUAL(std::size_t(2), events.size());
@@ -232,10 +229,7 @@ BOOST_AUTO_TEST_CASE(testUpdateGivenScheduledEvents) {
     // Now test an update that clears the events
     {
         std::stringstream configUpdate;
-        configUpdate << "[scheduledEvents]"
-                     << "\n";
-        configUpdate << "clear = true"
-                     << "\n";
+        configUpdate << "{\"events\":[]}";
 
         BOOST_TEST_REQUIRE(configUpdater.update(configUpdate.str()));
 

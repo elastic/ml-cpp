@@ -39,6 +39,8 @@ public:
     public:
         class API_EXPORT CDetectorConfig {
         public:
+            static const std::string DETECTOR_RULES;
+
             static const std::string FUNCTION;
             static const std::string FIELD_NAME;
             static const std::string BY_FIELD_NAME;
@@ -287,6 +289,10 @@ public:
 
         bool parseRules(int detectorIndex, const std::string& rules);
 
+        bool parseRules(int detectorIndex, const rapidjson::Value& rules);
+
+        bool parseRulesUpdate(const rapidjson::Value& rulesUpdateConfig);
+
     private:
         // Convenience method intended for use by the unit tests only
         void addDetector(const std::string& functionName,
@@ -302,13 +308,8 @@ public:
                                      overFieldName, partitionFieldName);
         }
 
-        bool processFilter(const std::string& key, const std::string& value);
-
-        //! Process and store a scheduled event
-        bool processScheduledEvent(const boost::property_tree::ptree& propTree,
-                                   const std::string& key,
-                                   const std::string& value,
-                                   TIntSet& handledScheduledEvents);
+        bool parseRules(CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules,
+                        const rapidjson::Value& rules);
 
         bool parseRules(CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules,
                         const std::string& rules);
@@ -523,6 +524,7 @@ public:
         return m_DataDescription;
     }
     const CModelPlotConfig& modelPlotConfig() const { return m_ModelConfig; }
+    CModelPlotConfig& modelPlotConfig() { return m_ModelConfig; }
     const CAnalysisLimits& analysisLimits() const { return m_AnalysisLimits; }
     bool isInitialized() const { return m_IsInitialized; }
     core_t::TTime persistInterval() const {
