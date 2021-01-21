@@ -1302,6 +1302,11 @@ CBoostedTreeFactory& CBoostedTreeFactory::trainingStateCallback(TTrainingStateCa
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::stopHyperparameterOptimizationEarly(bool stopEarly) {
+    m_TreeImpl->m_StopHyperparameterOptimizationEarly = stopEarly;
+    return *this;
+}
+
 std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
                                                      std::size_t numberColumns) const {
     std::size_t maximumNumberTrees{this->mainLoopMaximumNumberTrees(

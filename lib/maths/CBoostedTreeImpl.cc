@@ -222,6 +222,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         // Hyperparameter optimisation loop.
 
         this->initializePerFoldTestLosses();
+        this->initializeHyperparameterSamples();
 
         while (m_CurrentRound < m_NumberRounds) {
 
@@ -339,8 +340,10 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     std::size_t foldRoundLossMemoryUsage{m_NumberFolds * m_NumberRounds *
                                          sizeof(TOptionalDouble)};
     std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
-    std::size_t tunableHyperparametersMemoryUsage{m_TunableHyperparameters.size() *
-                                                  sizeof(int)};
+    std::size_t tunableHyperparametersMemoryUsage{
+        this->numberHyperparametersToTune() * sizeof(int)};
+    std::size_t hyperparameterSamplesMemoryUsage{
+        (m_NumberRounds / 3 + 1) * this->numberHyperparametersToTune() * sizeof(double)};
     // The leaves' row masks memory is accounted for here because it's proportional
     // to the log2(number of nodes). The compressed bit vector representation uses
     // roughly log2(E[run length]) / E[run length] bytes per bit. As we grow the
@@ -374,8 +377,8 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     std::size_t worstCaseMemoryUsage{
         sizeof(*this) + forestMemoryUsage + foldRoundLossMemoryUsage +
         hyperparametersMemoryUsage + tunableHyperparametersMemoryUsage +
-        leafNodeStatisticsMemoryUsage + dataTypeMemoryUsage +
-        featureSampleProbabilities + missingFeatureMaskMemoryUsage +
+        hyperparameterSamplesMemoryUsage + leafNodeStatisticsMemoryUsage +
+        dataTypeMemoryUsage + featureSampleProbabilities + missingFeatureMaskMemoryUsage +
         trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage};
 
     return CBoostedTreeImpl::correctedMemoryUsage(static_cast<double>(worstCaseMemoryUsage));
@@ -1219,7 +1222,7 @@ CBoostedTreeImpl::TVector CBoostedTreeImpl::predictRow(const CEncodedDataFrameRo
 bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& lossMoments,
                                                  CBayesianOptimisation& bopt) {
 
-    TVector parameters{this->numberHyperparametersToTune()};
+    TVector parameters{m_TunableHyperparameters.size()};
 
     TVector minBoundary;
     TVector maxBoundary;
@@ -1285,13 +1288,15 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
               << ", feature bag fraction = " << m_FeatureBagFraction);
 
     bopt.add(parameters, meanLoss, lossVariance);
-    if (3 * m_CurrentRound < m_NumberRounds) {
-        std::generate_n(parameters.data(), parameters.size(), [&]() {
-            return CSampling::uniformSample(m_Rng, 0.0, 1.0);
-        });
-
+    if (m_CurrentRound < m_HyperparameterSamples.size()) {
+        std::copy(m_HyperparameterSamples[m_CurrentRound].begin(),
+                  m_HyperparameterSamples[m_CurrentRound].end(), parameters.data());
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
     } else {
+        if (m_StopHyperparameterOptimizationEarly &&
+            m_BayesianOptimization->anovaTotalVariance() < 1e-9) {
+            return false;
+        }
         std::tie(parameters, std::ignore) = bopt.maximumExpectedImprovement();
     }
 
@@ -1470,6 +1475,12 @@ void CBoostedTreeImpl::initializeTunableHyperparameters() {
     }
 }
 
+void CBoostedTreeImpl::initializeHyperparameterSamples() {
+    std::size_t dim{m_TunableHyperparameters.size()};
+    std::size_t n{m_NumberRounds / 3 + 1};
+    CSampling::sobolSequenceSample(dim, n, m_HyperparameterSamples);
+}
+
 void CBoostedTreeImpl::startProgressMonitoringFineTuneHyperparameters() {
 
     // This costs "number folds" * "maximum number trees per forest" units
@@ -1500,8 +1511,9 @@ void CBoostedTreeImpl::skipProgressMonitoringFinalTrain() {
 }
 
 namespace {
+const std::string VERSION_7_11_TAG{"7.11"};
 const std::string VERSION_7_8_TAG{"7.8"};
-const TStrVec SUPPORTED_VERSIONS{VERSION_7_8_TAG};
+const TStrVec SUPPORTED_VERSIONS{VERSION_7_8_TAG, VERSION_7_11_TAG};
 
 const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
 const std::string BEST_FOREST_TAG{"best_forest"};
@@ -1543,6 +1555,7 @@ const std::string STOP_CROSS_VALIDATION_EARLY_TAG{"stop_cross_validation_eraly"}
 const std::string TESTING_ROW_MASKS_TAG{"testing_row_masks"};
 const std::string TRAINING_ROW_MASKS_TAG{"training_row_masks"};
 const std::string NUMBER_TOP_SHAP_VALUES_TAG{"top_shap_values"};
+const std::string STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG{"stop_hyperparameter_optimization_early"};
 }
 
 const std::string& CBoostedTreeImpl::bestHyperparametersName() {
@@ -1566,7 +1579,7 @@ CBoostedTreeImpl::TStrVec CBoostedTreeImpl::bestHyperparameterNames() {
 }
 
 void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
-    core::CPersistUtils::persist(VERSION_7_8_TAG, "", inserter);
+    core::CPersistUtils::persist(VERSION_7_11_TAG, "", inserter);
     core::CPersistUtils::persistIfNotNull(BAYESIAN_OPTIMIZATION_TAG,
                                           m_BayesianOptimization, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
@@ -1623,11 +1636,15 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
                                  m_StopCrossValidationEarly, inserter);
     core::CPersistUtils::persist(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, inserter);
     core::CPersistUtils::persist(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, inserter);
+    core::CPersistUtils::persist(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
+                                 m_StopHyperparameterOptimizationEarly, inserter);
     // m_TunableHyperparameters is not persisted explicitly, it is restored from overriden hyperparameters
+    // m_HyperparameterSamples is not persisted explicitly, it is re-generated
 }
 
 bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    if (traverser.name() != VERSION_7_8_TAG) {
+    if (std::find(SUPPORTED_VERSIONS.begin(), SUPPORTED_VERSIONS.end(),
+                  traverser.name()) == SUPPORTED_VERSIONS.end()) {
         LOG_ERROR(<< "Input error: unsupported state serialization version. "
                   << "Currently supported versions: "
                   << core::CContainerPrinter::print(SUPPORTED_VERSIONS) << ".");
@@ -1640,6 +1657,10 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
     };
 
     int initializationStage{static_cast<int>(E_FullyInitialized)};
+
+    if (traverser.name() != VERSION_7_11_TAG) {
+        m_StopHyperparameterOptimizationEarly = false;
+    }
 
     do {
         const std::string& name = traverser.name();
@@ -1740,9 +1761,14 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                 core::CPersistUtils::restore(TESTING_ROW_MASKS_TAG, m_TestingRowMasks, traverser))
         RESTORE(TRAINING_ROW_MASKS_TAG,
                 core::CPersistUtils::restore(TRAINING_ROW_MASKS_TAG, m_TrainingRowMasks, traverser))
+        RESTORE(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
+                core::CPersistUtils::restore(STOP_HYPERPARAMETER_OPTIMIZATION_EARLY_TAG,
+                                             m_StopHyperparameterOptimizationEarly, traverser))
         // m_TunableHyperparameters is not restored explicitly, it is restored from overriden hyperparameters
+        // m_HyperparameterSamples is not restored explicitly, it is re-generated
     } while (traverser.next());
     this->initializeTunableHyperparameters();
+    this->initializeHyperparameterSamples();
     m_InitializationStage = static_cast<EInitializationStage>(initializationStage);
 
     return true;
@@ -1760,6 +1786,7 @@ std::size_t CBoostedTreeImpl::memoryUsage() const {
     mem += core::CMemory::dynamicSize(m_BestForest);
     mem += core::CMemory::dynamicSize(m_BayesianOptimization);
     mem += core::CMemory::dynamicSize(m_Instrumentation);
+    mem += core::CMemory::dynamicSize(m_HyperparameterSamples);
     return mem;
 }
 
