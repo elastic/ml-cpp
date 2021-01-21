@@ -1,5 +1,7 @@
 # Machine Learning Build Machine Setup for macOS
 
+These same instructions should work for native compilation on both x86_64 and aarch64 architectures.
+
 To ensure everything is consistent for redistributable builds we build all redistributable components from source.
 
 NOTE: if you upgrade macOS then Xcode may need to be re-installed. Please ensure your Xcode is still valid after upgrades.
@@ -28,11 +30,12 @@ Note, that bash doesn't read `~/.bashrc` for login shells (which is what you get
 Some tools may be built via a GNU "configure" script. There are some environment variables that affect the behaviour of this. Therefore, when building ANY tool on macOS, set the following environment variables:
 
 ```
+export SSEFLAGS=`[ $(uname -m) = x86_64 ] && echo -msse4.2`
 export CPP='clang -E'
 export CC=clang
-export CFLAGS='-O3 -msse4.2'
+export CFLAGS="-O3 $SSEFLAGS"
 export CXX='clang++ -std=c++17 -stdlib=libc++'
-export CXXFLAGS='-O3 -msse4.2'
+export CXXFLAGS="-O3 $SSEFLAGS"
 export CXXCPP='clang++ -std=c++17 -E'
 export LDFLAGS=-Wl,-headerpad_max_install_names
 unset CPATH
@@ -51,7 +54,7 @@ For C++17 Xcode 10 is required, and this requires macOS High Sierra or above. Th
 
 - If you are using High Sierra, you must install Xcode 10.1.x
 - If you are using Mojave, you must install Xcode 11.3.x
-- If you are using Catalina, you must install Xcode 11.6.x or above
+- If you are using Catalina or Big Sur, you must install Xcode 12.3.x or above
 
 Xcode is distributed as a `.xip` file; simply double click the `.xip` file to expand it, then drag `Xcode.app` to your `/Applications` directory.
 (Older versions of Xcode can be downloaded from [here](https://developer.apple.com/download/more/), provided you are signed in with your Apple ID.)
@@ -94,11 +97,39 @@ to:
     (3ul)(17ul)(29ul)(37ul)(53ul)(67ul)(79ul) \
 ```
 
+Then edit `tools/build/src/tools/darwin.jam` and change:
+
+```
+        case arm :
+        {
+            if $(instruction-set) {
+                options = -arch$(_)$(instruction-set) ;
+            } else {
+                options = -arch arm ;
+            }
+        }
+```
+
+to:
+
+```
+        case arm :
+        {
+            if $(instruction-set) {
+                options = -arch$(_)$(instruction-set) ;
+            } else if $(address-model) = 64 {
+                options = -arch arm64 ;
+            } else {
+                options = -arch arm ;
+            }
+        }
+```
+
 To complete the build, type:
 
 ```
-./b2 -j8 --layout=versioned --disable-icu cxxflags="-std=c++17 -stdlib=libc++ -msse4.2" linkflags="-std=c++17 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC
-sudo ./b2 install --layout=versioned --disable-icu cxxflags="-std=c++17 -stdlib=libc++ -msse4.2" linkflags="-std=c++17 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC
+./b2 -j8 --layout=versioned --disable-icu cxxflags="-std=c++17 -stdlib=libc++ $SSEFLAGS" linkflags="-std=c++17 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC
+sudo ./b2 install --layout=versioned --disable-icu cxxflags="-std=c++17 -stdlib=libc++ $SSEFLAGS" linkflags="-std=c++17 -stdlib=libc++ -Wl,-headerpad_max_install_names" optimization=speed inlining=full define=BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS define=BOOST_LOG_WITHOUT_DEBUG_OUTPUT define=BOOST_LOG_WITHOUT_EVENT_LOG define=BOOST_LOG_WITHOUT_SYSLOG define=BOOST_LOG_WITHOUT_IPC
 ```
 
 to install the Boost headers and libraries.

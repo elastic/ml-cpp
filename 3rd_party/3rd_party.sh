@@ -37,7 +37,12 @@ case `uname` in
     Darwin)
         BOOST_LOCATION=/usr/local/lib
         BOOST_COMPILER=clang
-        BOOST_EXTENSION=mt-x64-1_71.dylib
+        if [ `uname -m` = x86_64 ] ; then
+            BOOST_ARCH=x64
+        else
+            BOOST_ARCH=a64
+        fi
+        BOOST_EXTENSION=mt-${BOOST_ARCH}-1_71.dylib
         BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
         XML_LOCATION=
         GCC_RT_LOCATION=

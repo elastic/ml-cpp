@@ -37,28 +37,28 @@ if (cppCrossCompile != '' && cppCrossCompile != 'macosx' && cppCrossCompile != '
   throw new GradleException("CPP_CROSS_COMPILE property must be empty, 'macosx' or 'aarch64'")
 }
 
+String osArch = System.properties['os.arch']
+// Some versions of Java report hardware architectures that
+// don't match other tools - these need to be normalized
+if (osArch == 'amd64') {
+  osArch = 'x86_64'
+} else if (osArch == 'arm64') {
+  osArch = 'aarch64'
+}
 String artifactClassifier;
 if (isWindows) {
   artifactClassifier = 'windows-x86_64'
 } else if (isMacOsX || cppCrossCompile == 'macosx') {
-  artifactClassifier = 'darwin-x86_64'
+  artifactClassifier = 'darwin-' + osArch
 } else if (cppCrossCompile != '') {
   artifactClassifier = 'linux-' + cppCrossCompile
 } else {
-  String osArch = System.properties['os.arch']
-  // Some versions of Java report hardware architectures that
-  // don't match other tools - these need to be normalized
-  if (osArch == 'amd64') {
-    osArch = 'x86_64'
-  } else if (osArch == 'i386') {
-    osArch = 'x86'
-  }
   artifactClassifier = 'linux-' + osArch
 }
 
 // Always do the C++ build using bash (Git bash on Windows)
 project.ext.bash = isWindows ? "C:\\Program Files\\Git\\bin\\bash" : "/bin/bash"
-project.ext.make = (isMacOsX || isWindows) ? "gnumake" : (isLinux ? "make" : "gmake")
+project.ext.make = (isMacOsX || isWindows) ? "gnumake" : "make"
 project.ext.numCpus = Runtime.runtime.availableProcessors()
 project.ext.makeEnvironment = [ 'CPP_CROSS_COMPILE': cppCrossCompile,
                                 'VERSION_QUALIFIER': versionQualifier,

@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <boost/test/tools/interface.hpp>
 #include <core/CJsonOutputStreamWrapper.h>
 
 #include <maths/CBoostedTreeLoss.h>

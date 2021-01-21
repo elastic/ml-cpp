@@ -20,6 +20,8 @@
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/stringbuffer.h>
 
+#include <random>
+
 #ifdef Windows
 // rapidjson::Writer<rapidjson::StringBuffer> gets instantiated in the core
 // library, and on Windows it gets exported too, because
@@ -41,9 +43,13 @@ const std::string CAnomalyJobConfig::JOB_TYPE{"job_type"};
 const std::string CAnomalyJobConfig::ANALYSIS_CONFIG{"analysis_config"};
 const std::string CAnomalyJobConfig::ANALYSIS_LIMITS{"analysis_limits"};
 const std::string CAnomalyJobConfig::DATA_DESCRIPTION{"data_description"};
+const std::string CAnomalyJobConfig::BACKGROUND_PERSIST_INTERVAL{"background_persist_interval"};
 const std::string CAnomalyJobConfig::MODEL_PLOT_CONFIG{"model_plot_config"};
 const std::string CAnomalyJobConfig::FILTERS{"filters"};
 const std::string CAnomalyJobConfig::EVENTS{"events"};
+
+const core_t::TTime CAnomalyJobConfig::BASE_MAX_QUANTILE_INTERVAL{21600}; // 6 hours
+const core_t::TTime CAnomalyJobConfig::DEFAULT_BASE_PERSIST_INTERVAL{10800}; // 3 hours
 
 const std::string CAnomalyJobConfig::CAnalysisConfig::BUCKET_SPAN{"bucket_span"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::SUMMARY_COUNT_FIELD_NAME{
@@ -68,6 +74,8 @@ const char CAnomalyJobConfig::CAnalysisConfig::SUFFIX_SEPARATOR{'.'};
 const std::string CAnomalyJobConfig::CAnalysisConfig::SCHEDULED_EVENT_PREFIX("scheduledevent.");
 const std::string CAnomalyJobConfig::CAnalysisConfig::DESCRIPTION_SUFFIX(".description");
 const std::string CAnomalyJobConfig::CAnalysisConfig::RULES_SUFFIX(".rules");
+
+const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_RULES{"detector_rules"};
 
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FUNCTION{"function"};
 const std::string CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::FIELD_NAME{"field_name"};
@@ -207,6 +215,8 @@ const std::size_t CAnomalyJobConfig::CAnalysisLimits::DEFAULT_MEMORY_LIMIT_BYTES
 const std::string CAnomalyJobConfig::CDataDescription::TIME_FIELD{"time_field"};
 const std::string CAnomalyJobConfig::CDataDescription::TIME_FORMAT{"time_format"};
 
+const std::string CAnomalyJobConfig::CDataDescription::DEFAULT_TIME_FIELD{"time"};
+
 const std::string CAnomalyJobConfig::CEventConfig::DESCRIPTION{"description"};
 const std::string CAnomalyJobConfig::CEventConfig::RULES{"rules"};
 
@@ -255,6 +265,8 @@ const CAnomalyJobConfigReader CONFIG_READER{[] {
                            CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::DATA_DESCRIPTION,
                            CAnomalyJobConfigReader::E_OptionalParameter);
+    theReader.addParameter(CAnomalyJobConfig::BACKGROUND_PERSIST_INTERVAL,
+                           CAnomalyJobConfigReader::E_OptionalParameter);
     return theReader;
 }()};
 
@@ -275,6 +287,8 @@ const CAnomalyJobConfigReader ANALYSIS_CONFIG_READER{[] {
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::INFLUENCERS,
                            CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::LATENCY,
+                           CAnomalyJobConfigReader::E_OptionalParameter);
+    theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::MULTIVARIATE_BY_FIELDS,
                            CAnomalyJobConfigReader::E_OptionalParameter);
     return theReader;
 }()};
@@ -301,6 +315,15 @@ const CAnomalyJobConfigReader DETECTOR_CONFIG_READER{[] {
                            CAnomalyJobConfigReader::E_OptionalParameter);
     theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::CUSTOM_RULES,
                            CAnomalyJobConfigReader::E_OptionalParameter);
+    return theReader;
+}()};
+
+const CAnomalyJobConfigReader CUSTOM_RULES_UPDATE_CONFIG_READER{[] {
+    CAnomalyJobConfigReader theReader;
+    theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_INDEX,
+                           CAnomalyJobConfigReader::E_RequiredParameter);
+    theReader.addParameter(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::CUSTOM_RULES,
+                           CAnomalyJobConfigReader::E_RequiredParameter);
     return theReader;
 }()};
 
@@ -419,7 +442,9 @@ bool CAnomalyJobConfig::parseEventConfig(const std::string& json) {
         return false;
     }
 
-    if (doc.Empty()) {
+    m_ScheduledEvents.clear();
+
+    if (doc.ObjectEmpty()) {
         return true;
     }
 
@@ -431,6 +456,7 @@ bool CAnomalyJobConfig::parseEventConfig(const std::string& json) {
 
         const rapidjson::Value& value = doc[EVENTS];
 
+        m_Events.clear();
         m_Events.resize(value.Size());
         for (unsigned int i = 0; i < value.Size(); ++i) {
             if (value[i].IsObject() == false) {
@@ -476,21 +502,23 @@ void CAnomalyJobConfig::CEventConfig::parse(const rapidjson::Value& filterConfig
     scheduledEvents.emplace_back(m_Description, m_DetectionRules[0]);
 }
 
-bool CAnomalyJobConfig::parseFilterConfig(const std::string& json) {
+bool CAnomalyJobConfig::parseFilterConfig(const std::string& jsonString) {
+
     rapidjson::Document doc;
-    if (doc.Parse<0>(json).HasParseError()) {
+    if (doc.Parse<0>(jsonString).HasParseError()) {
         LOG_ERROR(<< "An error occurred while parsing filter config from JSON: "
                   << doc.GetParseError());
         return false;
     }
 
-    if (doc.Empty()) {
+    if (doc.ObjectEmpty()) {
         return true;
     }
 
     try {
         if (doc.HasMember(FILTERS) == false || doc[FILTERS].IsArray() == false) {
-            LOG_ERROR(<< "Missing expected array field '" << FILTERS << "'. JSON: " << json);
+            LOG_ERROR(<< "Missing expected array field '" << FILTERS
+                      << "'. JSON: " << jsonString);
             return false;
         }
 
@@ -502,7 +530,6 @@ bool CAnomalyJobConfig::parseFilterConfig(const std::string& json) {
                           << toString(value[i]));
                 return false;
             }
-
             m_Filters[i].parse(value[i], m_RuleFilters);
         }
     } catch (CAnomalyJobConfigReader::CParseError& e) {
@@ -560,6 +587,21 @@ bool CAnomalyJobConfig::parse(const std::string& json) {
         if (modelPlotConfig != nullptr) {
             m_ModelConfig.parse(*modelPlotConfig);
         }
+
+        const core_t::TTime defaultBackgroundPersistInterval{
+            DEFAULT_BASE_PERSIST_INTERVAL + this->intervalStagger()};
+
+        const std::string& backgroundPersistIntervalString{
+            parameters[BACKGROUND_PERSIST_INTERVAL].fallback(EMPTY_STRING)};
+        if (backgroundPersistIntervalString.empty() == false) {
+            m_BackgroundPersistInterval = CAnomalyJobConfig::CAnalysisConfig::durationSeconds(
+                backgroundPersistIntervalString, defaultBackgroundPersistInterval);
+        } else {
+            m_BackgroundPersistInterval = defaultBackgroundPersistInterval;
+        }
+
+        m_MaxQuantilePersistInterval = BASE_MAX_QUANTILE_INTERVAL + this->intervalStagger();
+
     } catch (CAnomalyJobConfigReader::CParseError& e) {
         LOG_ERROR(<< "Error parsing anomaly job config: " << e.what());
         return false;
@@ -568,6 +610,13 @@ bool CAnomalyJobConfig::parse(const std::string& json) {
     m_IsInitialized = true;
 
     return true;
+}
+
+core_t::TTime CAnomalyJobConfig::intervalStagger() {
+    std::seed_seq seed(m_JobId.begin(), m_JobId.end());
+    std::mt19937 generator{seed};
+    std::uniform_int_distribution<> distribution{0, core::constants::HOUR - 1};
+    return distribution(generator);
 }
 
 void CAnomalyJobConfig::CModelPlotConfig::parse(const rapidjson::Value& modelPlotConfig) {
@@ -611,7 +660,7 @@ std::size_t CAnomalyJobConfig::CAnalysisLimits::modelMemoryLimitMb(const std::st
 void CAnomalyJobConfig::CDataDescription::parse(const rapidjson::Value& analysisLimits) {
     auto parameters = DATA_DESCRIPTION_READER.read(analysisLimits);
 
-    m_TimeField = parameters[TIME_FIELD].as<std::string>();
+    m_TimeField = parameters[TIME_FIELD].fallback(DEFAULT_TIME_FIELD);
     m_TimeFormat = parameters[TIME_FORMAT].fallback(EMPTY_STRING); // Ignore
 }
 
@@ -683,114 +732,47 @@ void CAnomalyJobConfig::CAnalysisConfig::parse(const rapidjson::Value& analysisC
     m_MultivariateByFields = parameters[MULTIVARIATE_BY_FIELDS].fallback(false);
 }
 
-// TODO: Process updates as JSON
-bool CAnomalyJobConfig::CAnalysisConfig::updateFilters(const boost::property_tree::ptree& propTree) {
-    for (const auto& filterEntry : propTree) {
-        const std::string& key = filterEntry.first;
-        const std::string& value = filterEntry.second.data();
-        if (this->processFilter(key, value) == false) {
-            return false;
+bool CAnomalyJobConfig::CAnalysisConfig::parseRulesUpdate(const rapidjson::Value& rulesUpdateConfig) {
+    try {
+        auto parameters = CUSTOM_RULES_UPDATE_CONFIG_READER.read(rulesUpdateConfig);
+        int detectorIndex = parameters[CDetectorConfig::DETECTOR_INDEX].as<int>();
+        auto customRules = parameters[CDetectorConfig::CUSTOM_RULES].jsonObject();
+        if (customRules != nullptr) {
+            m_DetectorRules[detectorIndex].clear();
+            if (this->parseRules(detectorIndex, *customRules) == false) {
+                LOG_ERROR(<< "Failed to update detector rules for detector: " << detectorIndex);
+                return false;
+            }
         }
-    }
-    return true;
-}
-
-// TODO: Process updates as JSON
-bool CAnomalyJobConfig::CAnalysisConfig::processFilter(const std::string& key,
-                                                       const std::string& value) {
-    // expected format is filter.<filterId>=[json, array]
-    std::size_t sepPos{key.find(SUFFIX_SEPARATOR)};
-    if (sepPos == std::string::npos) {
-        LOG_ERROR(<< "Unrecognised filter key: " + key);
+    } catch (CAnomalyJobConfigReader::CParseError& e) {
+        LOG_ERROR(<< "Error parsing events config: " << e.what());
         return false;
     }
-    std::string filterId = key.substr(sepPos + 1);
-    core::CPatternSet& filter = m_RuleFilters[filterId];
-    return filter.initFromJson(value);
-}
-
-// TODO: Process updates as JSON
-bool CAnomalyJobConfig::CAnalysisConfig::updateScheduledEvents(const boost::property_tree::ptree& propTree) {
-    m_ScheduledEvents.clear();
-
-    bool isClear = propTree.get(CLEAR, false);
-    if (isClear) {
-        return true;
-    }
-
-    TIntSet handledScheduledEvents;
-
-    for (const auto& scheduledEventEntry : propTree) {
-        const std::string& key = scheduledEventEntry.first;
-        const std::string& value = scheduledEventEntry.second.data();
-        if (this->processScheduledEvent(propTree, key, value, handledScheduledEvents) == false) {
-            return false;
-        }
-    }
-    return true;
-}
-
-// TODO: Process updates as JSON
-bool CAnomalyJobConfig::CAnalysisConfig::processScheduledEvent(
-    const boost::property_tree::ptree& propTree,
-    const std::string& key,
-    const std::string& value,
-    TIntSet& handledScheduledEvents) {
-    // Here we pull out the "1" in "scheduledevent.1.description"
-    // description may contain a '.'
-    std::size_t sepPos{key.find(SUFFIX_SEPARATOR, SCHEDULED_EVENT_PREFIX.length() + 1)};
-    if (sepPos == std::string::npos || sepPos == key.length() - 1) {
-        LOG_ERROR(<< "Unrecognised configuration option " << key << " = " << value);
-        return false;
-    }
-
-    std::string indexString{key, SCHEDULED_EVENT_PREFIX.length(),
-                            sepPos - SCHEDULED_EVENT_PREFIX.length()};
-    int indexKey;
-    if (core::CStringUtils::stringToType(indexString, indexKey) == false) {
-        LOG_ERROR(<< "Cannot convert config key to integer: " << indexString);
-        return false;
-    }
-
-    // Check if we've already seen this key
-    if (handledScheduledEvents.insert(indexKey).second == false) {
-        // Not an error
-        return true;
-    }
-
-    std::string description{propTree.get(
-        boost::property_tree::ptree::path_type{
-            SCHEDULED_EVENT_PREFIX + indexString + DESCRIPTION_SUFFIX, '\t'},
-        EMPTY_STRING)};
-
-    std::string rules{propTree.get(
-        boost::property_tree::ptree::path_type{
-            SCHEDULED_EVENT_PREFIX + indexString + RULES_SUFFIX, '\t'},
-        EMPTY_STRING)};
-
-    CDetectionRulesJsonParser::TDetectionRuleVec detectionRules;
-    if (this->parseRules(detectionRules, rules) == false) {
-        // parseRules() will have logged the error
-        return false;
-    }
-
-    if (detectionRules.size() != 1) {
-        LOG_ERROR(<< "Scheduled events must have exactly 1 rule");
-        return false;
-    }
-
-    m_ScheduledEvents.emplace_back(description, detectionRules[0]);
 
     return true;
 }
 
-// TODO: Process updates as JSON
+bool CAnomalyJobConfig::CAnalysisConfig::parseRules(int detectorIndex,
+                                                    const rapidjson::Value& rules) {
+    return parseRules(m_DetectorRules[detectorIndex], rules);
+}
+
+bool CAnomalyJobConfig::CAnalysisConfig::parseRules(CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules,
+                                                    const rapidjson::Value& rules) {
+    CDetectionRulesJsonParser rulesParser{m_RuleFilters};
+    std::string errorString;
+    if (rulesParser.parseRules(rules, detectionRules, errorString) == false) {
+        LOG_ERROR(<< "Error parsing detector rules: " << errorString);
+        return false;
+    }
+    return true;
+}
+
 bool CAnomalyJobConfig::CAnalysisConfig::parseRules(int detectorIndex,
                                                     const std::string& rules) {
     return parseRules(m_DetectorRules[detectorIndex], rules);
 }
 
-// TODO: Process updates as JSON
 bool CAnomalyJobConfig::CAnalysisConfig::parseRules(CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules,
                                                     const std::string& rules) {
     if (rules.empty()) {
@@ -887,7 +869,6 @@ bool CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::determineFunction(bool
     // Some functions must take a field, some mustn't and for the rest it's
     // optional.  Validate this based on the contents of these flags after
     // determining the function.  Similarly for by fields.
-    // TODO: Check how much validation is required here (if any) if parsing JSON job config.
     bool fieldRequired{false};
     bool fieldInvalid{false};
     bool byFieldRequired{false};
