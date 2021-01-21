@@ -351,6 +351,7 @@ private:
     TRegularizationOverride m_RegularizationOverride;
     TOptionalDouble m_DownsampleFactorOverride;
     TOptionalDouble m_EtaOverride;
+    TOptionalDouble m_EtaGrowthRatePerTreeOverride;
     TOptionalSize m_NumberFoldsOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;

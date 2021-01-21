@@ -1618,6 +1618,28 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
         BOOST_REQUIRE_EQUAL(0.4, regression->bestHyperparameters().featureBagFraction());
         BOOST_REQUIRE_EQUAL(0.6, regression->bestHyperparameters().downsampleFactor());
     }
+    {
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .analysisInstrumentation(instrumentation)
+                              .depthPenaltyMultiplier(1.0)
+                              .softTreeDepthLimit(3.0)
+                              .softTreeDepthTolerance(0.1)
+                              .featureBagFraction(0.4)
+                              .downsampleFactor(0.6)
+                              .etaGrowthRatePerTree(1.1)
+                              .buildFor(*frame, cols - 1);
+
+        regression->train();
+        BOOST_REQUIRE_EQUAL(
+            1.0, regression->bestHyperparameters().regularization().depthPenaltyMultiplier());
+        BOOST_REQUIRE_EQUAL(
+            3.0, regression->bestHyperparameters().regularization().softTreeDepthLimit());
+        BOOST_REQUIRE_EQUAL(
+            0.1, regression->bestHyperparameters().regularization().softTreeDepthTolerance());
+        BOOST_REQUIRE_EQUAL(0.4, regression->bestHyperparameters().featureBagFraction());
+        BOOST_REQUIRE_EQUAL(1.1, regression->bestHyperparameters().etaGrowthRatePerTree());
+    }
 }
 
 BOOST_AUTO_TEST_CASE(testPersistRestore) {

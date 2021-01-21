@@ -100,6 +100,8 @@ public:
     CBoostedTreeFactory& maxTreeDepthTolerance(double maxTreeDepthTolerance);
     //! Set the amount we'll shrink the weights on each each iteration.
     CBoostedTreeFactory& eta(double eta);
+    //! Set the amount we'll grow eta on each each iteration.
+    CBoostedTreeFactory& etaGrowthRatePerTree(double etaGrowthRatePerTree);
     //! Set the maximum number of trees in the ensemble.
     CBoostedTreeFactory& maximumNumberTrees(std::size_t maximumNumberTrees);
     //! Set the fraction of features we'll use in the bag to build a tree.

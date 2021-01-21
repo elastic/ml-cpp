@@ -105,6 +105,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     double lambda{parameters[LAMBDA].fallback(-1.0)};
     double gamma{parameters[GAMMA].fallback(-1.0)};
     double eta{parameters[ETA].fallback(-1.0)};
+    double etaGrowthRatePerTree{parameters[ETA_GROWTH_RATE_PER_TREE].fallback(-1.0)};
     double softTreeDepthLimit{parameters[SOFT_TREE_DEPTH_LIMIT].fallback(-1.0)};
     double softTreeDepthTolerance{parameters[SOFT_TREE_DEPTH_TOLERANCE].fallback(-1.0)};
     double featureBagFraction{parameters[FEATURE_BAG_FRACTION].fallback(-1.0)};
@@ -123,6 +124,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     }
     if (eta != -1.0 && (eta <= 0.0 || eta > 1.0)) {
         HANDLE_FATAL(<< "Input error: '" << ETA << "' should be in the range (0, 1].")
+    }
+    if (etaGrowthRatePerTree != -1.0 && etaGrowthRatePerTree <= 0.0) {
+        HANDLE_FATAL(<< "Input error: '" << ETA_GROWTH_RATE_PER_TREE << "' should be positive.")
     }
     if (softTreeDepthLimit != -1.0 && softTreeDepthLimit < 0.0) {
         HANDLE_FATAL(<< "Input error: '" << SOFT_TREE_DEPTH_LIMIT << "' should be non-negative.")
@@ -166,6 +170,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     }
     if (eta > 0.0 && eta <= 1.0) {
         m_BoostedTreeFactory->eta(eta);
+    }
+    if (etaGrowthRatePerTree > 0.0) {
+        m_BoostedTreeFactory->etaGrowthRatePerTree(etaGrowthRatePerTree);
     }
     if (softTreeDepthLimit >= 0.0) {
         m_BoostedTreeFactory->softTreeDepthLimit(softTreeDepthLimit);
