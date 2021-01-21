@@ -375,7 +375,9 @@ bool CAnomalyDetectorModelConfig::init(const boost::property_tree::ptree& propTr
 void CAnomalyDetectorModelConfig::configureModelPlot(bool modelPlotEnabled,
                                                      bool annotationsEnabled,
                                                      const std::string& terms) {
-    if (modelPlotEnabled) {
+    m_ModelPlotEnabled = modelPlotEnabled;
+
+    if (m_ModelPlotEnabled) {
         m_ModelPlotBoundsPercentile = maths::CModel::DEFAULT_BOUNDS_PERCENTILE;
     }
 
@@ -390,6 +392,8 @@ void CAnomalyDetectorModelConfig::configureModelPlot(bool modelPlotEnabled,
     if (remainder.empty() == false) {
         tokens.push_back(remainder);
     }
+
+    m_ModelPlotTerms.clear();
     for (const auto& token : tokens) {
         m_ModelPlotTerms.insert(token);
     }
@@ -479,6 +483,10 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree:
     }
 
     return true;
+}
+
+bool CAnomalyDetectorModelConfig::modelPlotEnabled() const {
+    return m_ModelPlotEnabled;
 }
 
 bool CAnomalyDetectorModelConfig::modelPlotAnnotationsEnabled() const {
