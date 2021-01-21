@@ -65,6 +65,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(FEATURE_PROCESSORS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(EARLY_STOPPING_ALLOWED,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -82,6 +84,9 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         m_DependentVariableFieldName + "_prediction");
 
     m_TrainingPercent = parameters[TRAINING_PERCENT_FIELD_NAME].fallback(100.0) / 100.0;
+
+    bool earlyStoppingAllowed = parameters[EARLY_STOPPING_ALLOWED].fallback(true);
+
     std::size_t downsampleRowsPerFeature{
         parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
     double downsampleFactor{parameters[DOWNSAMPLE_FACTOR].fallback(-1.0)};
@@ -140,7 +145,8 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
     (*m_BoostedTreeFactory)
         .stopCrossValidationEarly(stopCrossValidationEarly)
         .analysisInstrumentation(m_Instrumentation)
-        .trainingStateCallback(this->statePersister());
+        .trainingStateCallback(this->statePersister())
+        .stopHyperparameterOptimizationEarly(earlyStoppingAllowed);
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(
@@ -382,6 +388,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME{"fea
 const std::string CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME{"importance"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME{"feature_importance"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS{"feature_processors"};
+const std::string CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ALLOWED{"early_stopping_allowed"};
 // clang-format on
 }
 }
