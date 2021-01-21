@@ -243,8 +243,8 @@ CMake version 3.5 is the minimum required to build PyTorch. Download version 3.1
 
 ```
 chmod +x cmake-3.19.3-Linux-x86_64.sh
-mkdir /usr/local/cmake
-./cmake-3.19.3-Linux-x86_64.sh --skip-license --prefix=/usr/local/cmake
+sudo mkdir /usr/local/cmake
+sudo ./cmake-3.19.3-Linux-x86_64.sh --skip-license --prefix=/usr/local/cmake
 ```  
 
 In your `.bashrc` file add CMake to `PATH`:
@@ -261,7 +261,8 @@ PyTorch currently requires Python 3.6, 3.7 or 3.8, and version 3.7 appears to ca
 tar -xzf Python-3.7.9.tgz
 cd Python-3.7.9/
 ./configure --enable-optimizations
-make altinstall
+make
+sudo make altinstall
 ```
 
 ### PyTorch 1.7.1
@@ -269,7 +270,7 @@ make altinstall
 PyTorch requires that certain Python modules are installed. Install these modules with `pip` using the same Python version you will build PyTorch with. If you followed the instructions above and built Python from source use `python3.7`:
 
 ```
-/usr/local/bin/python3.7 -m pip install install numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_extensions future six requests dataclasses
+sudo /usr/local/bin/python3.7 -m pip install install numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_extensions future six requests dataclasses
 ```
 
 Then obtain the PyTorch code:
@@ -292,10 +293,10 @@ export USE_DISTRIBUTED=OFF
 Once built copy headers and libraries to system directories:
 
 ```
-mkdir /usr/local/gcc93/include/pytorch
-cp -r torch/include/* /usr/local/gcc93/include/pytorch/ 
-cp torch/lib/libtorch_cpu.so /usr/local/gcc93/lib 
-cp torch/lib/libc10.so /usr/local/gcc93/lib 
+sudo mkdir /usr/local/gcc93/include/pytorch
+sudo cp -r torch/include/* /usr/local/gcc93/include/pytorch/ 
+sudo cp torch/lib/libtorch_cpu.so /usr/local/gcc93/lib 
+sudo cp torch/lib/libc10.so /usr/local/gcc93/lib 
 ```
 
 ### valgrind
