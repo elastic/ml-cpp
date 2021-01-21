@@ -203,8 +203,6 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
     this->startProgressMonitoringFineTuneHyperparameters();
 
-    this->initializeHyperparameterSamples();
-
     if (this->canTrain() == false) {
 
         // Fallback to using the constant predictor which minimises the loss.
@@ -224,6 +222,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         // Hyperparameter optimisation loop.
 
         this->initializePerFoldTestLosses();
+        this->initializeHyperparameterSamples();
 
         while (m_CurrentRound < m_NumberRounds) {
 
@@ -341,13 +340,10 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     std::size_t foldRoundLossMemoryUsage{m_NumberFolds * m_NumberRounds *
                                          sizeof(TOptionalDouble)};
     std::size_t hyperparametersMemoryUsage{numberColumns * sizeof(double)};
-    std::size_t tunableHyperparametersMemoryUsage{m_TunableHyperparameters.size() *
-                                                  sizeof(int)};
+    std::size_t tunableHyperparametersMemoryUsage{
+        this->numberHyperparametersToTune() * sizeof(int)};
     std::size_t hyperparameterSamplesMemoryUsage{
-        m_HyperparameterSamples.empty()
-            ? 0
-            : m_HyperparameterSamples.size() *
-                  m_HyperparameterSamples[0].size() * sizeof(double)};
+        (m_NumberRounds / 3 + 1) * this->numberHyperparametersToTune() * sizeof(double)};
     // The leaves' row masks memory is accounted for here because it's proportional
     // to the log2(number of nodes). The compressed bit vector representation uses
     // roughly log2(E[run length]) / E[run length] bytes per bit. As we grow the
@@ -1226,7 +1222,7 @@ CBoostedTreeImpl::TVector CBoostedTreeImpl::predictRow(const CEncodedDataFrameRo
 bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& lossMoments,
                                                  CBayesianOptimisation& bopt) {
 
-    TVector parameters{this->numberHyperparametersToTune()};
+    TVector parameters{m_TunableHyperparameters.size()};
 
     TVector minBoundary;
     TVector maxBoundary;
@@ -1292,8 +1288,8 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
               << ", feature bag fraction = " << m_FeatureBagFraction);
 
     bopt.add(parameters, meanLoss, lossVariance);
-    if (3 * m_CurrentRound < m_NumberRounds) {
-        std::move(m_HyperparameterSamples[m_CurrentRound].begin(),
+    if (m_CurrentRound < m_HyperparameterSamples.size()) {
+        std::copy(m_HyperparameterSamples[m_CurrentRound].begin(),
                   m_HyperparameterSamples[m_CurrentRound].end(), parameters.data());
         parameters = minBoundary + parameters.cwiseProduct(maxBoundary - minBoundary);
     } else {
