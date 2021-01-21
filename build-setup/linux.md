@@ -17,7 +17,7 @@ For example, you might create a `.bashrc` file in your home directory containing
 umask 0002
 export JAVA_HOME=/usr/local/jdk1.8.0_121
 export LD_LIBRARY_PATH=/usr/local/gcc93/lib64:/usr/local/gcc93/lib:/usr/lib:/lib
-export PATH=$JAVA_HOME/bin:/usr/local/gcc93/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
+export PATH=$JAVA_HOME/bin:/usr/local/gcc93/bin:/usr/local/cmake/bin:/usr/bin:/bin:/usr/sbin:/sbin:/home/vagrant/bin
 # Only required if building the C++ code directly using make - adjust depending on the location of your Git clone
 export CPP_SRC_HOME=$HOME/ml-cpp
 ```
@@ -247,11 +247,7 @@ sudo mkdir /usr/local/cmake
 sudo ./cmake-3.19.3-Linux-x86_64.sh --skip-license --prefix=/usr/local/cmake
 ```  
 
-In your `.bashrc` file add CMake to `PATH`:
-
-```
-PATH=$PATH:/usr/local/cmake/bin
-```
+Please ensure `/usr/local/cmake/bin` is in your `PATH` environment variable. 
 
 ### Python 
 
