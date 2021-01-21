@@ -1234,7 +1234,7 @@ CBoostedTreeFactory& CBoostedTreeFactory::eta(double eta) {
 
 CBoostedTreeFactory& CBoostedTreeFactory::etaGrowthRatePerTree(double etaGrowthRatePerTree) {
     if (etaGrowthRatePerTree < MIN_ETA) {
-        LOG_WARN(<< "Truncating supplied learning rate " << etaGrowthRatePerTree
+        LOG_WARN(<< "Truncating supplied learning rate growth rate " << etaGrowthRatePerTree
                  << " which must be no smaller than " << MIN_ETA);
         etaGrowthRatePerTree = std::max(etaGrowthRatePerTree, MIN_ETA);
     }
