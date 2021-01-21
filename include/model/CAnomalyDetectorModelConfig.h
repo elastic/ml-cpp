@@ -379,6 +379,9 @@ public:
     //! Get the central confidence interval for the model debug plot.
     double modelPlotBoundsPercentile() const;
 
+    //! Is model plot enabled?
+    bool modelPlotEnabled() const;
+
     //! Are annotations enabled for each of the models?
     bool modelPlotAnnotationsEnabled() const;
 
@@ -450,6 +453,9 @@ private:
 
     //! A cache of customized factories requested from this config.
     mutable TSearchKeyFactoryCPtrMap m_FactoryCache;
+
+    //! Is model plot enabled?
+    bool m_ModelPlotEnabled{false};
 
     //! Are annotations enabled for each of the models?
     bool m_ModelPlotAnnotationsEnabled{false};
