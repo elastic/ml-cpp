@@ -127,6 +127,10 @@ RUN \
 
 # Build LibTorch
 RUN \
+  export BUILD_TEST=OFF && \
+  export BUILD_CAFFE2=OFF && \
+  export USE_NUMPY=OFF && \
+  export USE_DISTRIBUTED=OFF && \
   cd ${build_dir}/pytorch && \
   /usr/local/bin/python3.7 setup.py install && \
   mkdir /usr/local/gcc93/include/pytorch && \
