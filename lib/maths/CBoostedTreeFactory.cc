@@ -233,7 +233,8 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
             }
             break;
         case E_EtaGrowthRatePerTree:
-            if (m_TreeImpl->m_EtaOverride == boost::none) {
+            if (m_TreeImpl->m_EtaOverride == boost::none &&
+                m_TreeImpl->m_EtaGrowthRatePerTreeOverride == boost::none) {
                 double rate{m_TreeImpl->m_EtaGrowthRatePerTree - 1.0};
                 boundingBox.emplace_back(1.0 + MIN_ETA_GROWTH_RATE_SCALE * rate,
                                          1.0 + MAX_ETA_GROWTH_RATE_SCALE * rate);
@@ -441,6 +442,10 @@ void CBoostedTreeFactory::initializeHyperparametersSetup(core::CDataFrame& frame
         m_TreeImpl->m_Eta =
             computeEta(frame.numberColumns() - this->numberExtraColumnsForTrain());
         m_TreeImpl->m_EtaGrowthRatePerTree = 1.0 + m_TreeImpl->m_Eta / 2.0;
+    }
+
+    if (m_TreeImpl->m_EtaGrowthRatePerTreeOverride != boost::none) {
+        m_TreeImpl->m_EtaGrowthRatePerTree = *(m_TreeImpl->m_EtaGrowthRatePerTreeOverride);
     }
 
     if (m_TreeImpl->m_MaximumNumberTreesOverride != boost::none) {
@@ -839,7 +844,9 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
 
                 auto applyEta = [](CBoostedTreeImpl& tree, double eta) {
                     tree.m_Eta = CTools::stableExp(eta);
-                    tree.m_EtaGrowthRatePerTree = 1.0 + tree.m_Eta / 2.0;
+                    if (tree.m_EtaGrowthRatePerTreeOverride == boost::none) {
+                        tree.m_EtaGrowthRatePerTree = 1.0 + tree.m_Eta / 2.0;
+                    }
                     if (tree.m_MaximumNumberTreesOverride == boost::none) {
                         tree.m_MaximumNumberTrees = computeMaximumNumberTrees(tree.m_Eta);
                     }
@@ -1222,6 +1229,16 @@ CBoostedTreeFactory& CBoostedTreeFactory::eta(double eta) {
         eta = 1.0;
     }
     m_TreeImpl->m_EtaOverride = eta;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::etaGrowthRatePerTree(double etaGrowthRatePerTree) {
+    if (etaGrowthRatePerTree < MIN_ETA) {
+        LOG_WARN(<< "Truncating supplied learning rate growth rate " << etaGrowthRatePerTree
+                 << " which must be no smaller than " << MIN_ETA);
+        etaGrowthRatePerTree = std::max(etaGrowthRatePerTree, MIN_ETA);
+    }
+    m_TreeImpl->m_EtaGrowthRatePerTreeOverride = etaGrowthRatePerTree;
     return *this;
 }
 
