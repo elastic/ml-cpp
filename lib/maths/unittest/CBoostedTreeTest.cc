@@ -247,6 +247,7 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
 
             auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                                   1, lossFunction->clone())
+                                  .stopHyperparameterOptimizationEarly(false)
                                   .buildFor(*frame, cols - 1);
 
             regression->train();
