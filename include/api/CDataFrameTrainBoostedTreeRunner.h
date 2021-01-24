@@ -54,6 +54,7 @@ public:
     static const std::string NUM_TOP_FEATURE_IMPORTANCE_VALUES;
     static const std::string TRAINING_PERCENT_FIELD_NAME;
     static const std::string FEATURE_PROCESSORS;
+    static const std::string EARLY_STOPPING_ALLOWED;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;

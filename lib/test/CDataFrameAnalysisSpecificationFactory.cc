@@ -182,6 +182,12 @@ CDataFrameAnalysisSpecificationFactory::predictionRestoreSearcherSupplier(
 }
 
 CDataFrameAnalysisSpecificationFactory&
+CDataFrameAnalysisSpecificationFactory::earlyStoppingAllowed(bool earlyStoppingAllowed) {
+    m_EarlyStoppingAllowed = earlyStoppingAllowed;
+    return *this;
+}
+
+CDataFrameAnalysisSpecificationFactory&
 CDataFrameAnalysisSpecificationFactory::numberClasses(std::size_t number) {
     m_NumberClasses = number;
     return *this;
@@ -338,6 +344,10 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
     if (m_CustomProcessors.IsNull() == false) {
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS);
         writer.write(m_CustomProcessors);
+    }
+    if (m_EarlyStoppingAllowed == false) {
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ALLOWED);
+        writer.Bool(m_EarlyStoppingAllowed);
     }
 
     if (analysis == regression()) {

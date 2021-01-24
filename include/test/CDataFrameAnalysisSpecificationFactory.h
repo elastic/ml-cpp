@@ -85,6 +85,7 @@ public:
     predictionPersisterSupplier(TPersisterSupplier* persisterSupplier);
     CDataFrameAnalysisSpecificationFactory&
     predictionRestoreSearcherSupplier(TRestoreSearcherSupplier* restoreSearcherSupplier);
+    CDataFrameAnalysisSpecificationFactory& earlyStoppingAllowed(bool earlyStoppingAllowed);
 
     // Regression
     CDataFrameAnalysisSpecificationFactory& regressionLossFunction(TLossFunctionType lossFunction);
@@ -145,6 +146,7 @@ private:
     std::size_t m_NumberClasses = 2;
     std::size_t m_NumberTopClasses = 0;
     std::string m_PredictionFieldType;
+    bool m_EarlyStoppingAllowed = true;
 };
 }
 }

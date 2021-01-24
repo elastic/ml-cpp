@@ -1067,13 +1067,13 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.67);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.68);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.5);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.51);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
@@ -1156,7 +1156,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
     LOG_DEBUG(<< "recalls    = " << core::CContainerPrinter::print(recalls));
 
     BOOST_TEST_REQUIRE(std::fabs(precisions[0] - precisions[1]) < 0.1);
-    BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.1);
+    BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.11);
 }
 
 BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
@@ -1421,6 +1421,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
         std::thread worker{[&]() {
             auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                                   threads, std::make_unique<maths::boosted_tree::CMse>())
+                                  .stopHyperparameterOptimizationEarly(false)
                                   .analysisInstrumentation(instrumentation)
                                   .buildFor(*frame, cols - 1);
 
@@ -1616,6 +1617,28 @@ BOOST_AUTO_TEST_CASE(testHyperparameterOverrides) {
             1.0, regression->bestHyperparameters().regularization().depthPenaltyMultiplier());
         BOOST_REQUIRE_EQUAL(0.4, regression->bestHyperparameters().featureBagFraction());
         BOOST_REQUIRE_EQUAL(0.6, regression->bestHyperparameters().downsampleFactor());
+    }
+    {
+        auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                              1, std::make_unique<maths::boosted_tree::CMse>())
+                              .analysisInstrumentation(instrumentation)
+                              .depthPenaltyMultiplier(1.0)
+                              .softTreeDepthLimit(3.0)
+                              .softTreeDepthTolerance(0.1)
+                              .featureBagFraction(0.4)
+                              .downsampleFactor(0.6)
+                              .etaGrowthRatePerTree(1.1)
+                              .buildFor(*frame, cols - 1);
+
+        regression->train();
+        BOOST_REQUIRE_EQUAL(
+            1.0, regression->bestHyperparameters().regularization().depthPenaltyMultiplier());
+        BOOST_REQUIRE_EQUAL(
+            3.0, regression->bestHyperparameters().regularization().softTreeDepthLimit());
+        BOOST_REQUIRE_EQUAL(
+            0.1, regression->bestHyperparameters().regularization().softTreeDepthTolerance());
+        BOOST_REQUIRE_EQUAL(0.4, regression->bestHyperparameters().featureBagFraction());
+        BOOST_REQUIRE_EQUAL(1.1, regression->bestHyperparameters().etaGrowthRatePerTree());
     }
 }
 
