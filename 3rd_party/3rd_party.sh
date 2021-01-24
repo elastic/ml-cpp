@@ -133,8 +133,8 @@ case `uname` in
         STL_EXTENSION=.dll
         ZLIB_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         ZLIB_EXTENSION=1.dll
-        TORCH_LIBRARIES="torch_cpu c10"
-        TORCH_LOCATION=/$LOCAL_DRIVE/usr/local/lib
+        TORCH_LIBRARIES="asmjit c10 fbgemm torch_cpu"
+        TORCH_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         TORCH_EXTENSION=.dll
         ;;
 

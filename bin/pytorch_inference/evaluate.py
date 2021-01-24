@@ -26,7 +26,7 @@ def parse_arguments():
     parser.add_argument('model', help='A TorchScript model with .pt extension')
     parser.add_argument('input_tokens', help='JSON file with an array field "tokens"')
     parser.add_argument('expected_output', help='Expected output. Another JSON file with an array field "tokens"')
-    # C++ pipe names
+    # The app pipe names
     parser.add_argument('--restore_pipe', default='restore_pipe')
     parser.add_argument('--input_pipe', default='input_pipe')
     parser.add_argument('--output_pipe', default='output_pipe')
