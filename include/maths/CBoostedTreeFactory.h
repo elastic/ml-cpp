@@ -115,6 +115,8 @@ public:
     CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& numberTopShapValues(std::size_t numberTopShapValues);
+    //! Stop hyperparameter optimization early if the the process is not promising.
+    CBoostedTreeFactory& stopHyperparameterOptimizationEarly(bool stopEarly);
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&

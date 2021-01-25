@@ -361,7 +361,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
                     8.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
             }
             // Good R^2...
-            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.94);
+            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.93);
 
             meanModelRSquared.add(modelRSquared[i][0]);
         }
@@ -434,7 +434,7 @@ BOOST_AUTO_TEST_CASE(testLinear) {
             meanModelRSquared.add(modelRSquared[i][0]);
         }
         LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
     }
 }
 
@@ -758,7 +758,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.08);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.1);
     BOOST_TEST_REQUIRE(modelRSquared > 0.98);
 }
 
@@ -1067,13 +1067,13 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticRegression) {
         LOG_DEBUG(<< "log relative error = "
                   << maths::CBasicStatistics::mean(logRelativeError));
 
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.67);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(logRelativeError) < 0.68);
         meanLogRelativeError.add(maths::CBasicStatistics::mean(logRelativeError));
     }
 
     LOG_DEBUG(<< "mean log relative error = "
               << maths::CBasicStatistics::mean(meanLogRelativeError));
-    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.5);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanLogRelativeError) < 0.51);
 }
 
 BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
@@ -1156,7 +1156,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
     LOG_DEBUG(<< "recalls    = " << core::CContainerPrinter::print(recalls));
 
     BOOST_TEST_REQUIRE(std::fabs(precisions[0] - precisions[1]) < 0.1);
-    BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.1);
+    BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.11);
 }
 
 BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
@@ -1422,6 +1422,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
             auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                                   threads, std::make_unique<maths::boosted_tree::CMse>())
                                   .analysisInstrumentation(instrumentation)
+                                  .stopHyperparameterOptimizationEarly(false)
                                   .buildFor(*frame, cols - 1);
 
             regression->train();
