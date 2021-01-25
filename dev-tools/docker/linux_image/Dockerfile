@@ -131,6 +131,10 @@ RUN \
   export BUILD_CAFFE2=OFF && \
   export USE_NUMPY=OFF && \
   export USE_DISTRIBUTED=OFF && \
+  export USE_MKLDNN=OFF && \
+  export BLAS=Eigen && \
+  export PYTORCH_BUILD_VERSION=1.7.1 && \
+  export PYTORCH_BUILD_NUMBER=1 && \
   cd ${build_dir}/pytorch && \
   /usr/local/bin/python3.7 setup.py install && \
   mkdir /usr/local/gcc93/include/pytorch && \
