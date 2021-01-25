@@ -6,6 +6,8 @@
 
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 
+#include <core/CDataFrame.h>
+#include <core/CFloatStorage.h>
 #include <core/CLogger.h>
 #include <core/CRapidJsonConcurrentLineWriter.h>
 
@@ -32,6 +34,37 @@ namespace {
 const std::string IS_TRAINING_FIELD_NAME{"is_training"};
 
 const std::set<std::string> PREDICTION_FIELD_NAME_BLACKLIST{IS_TRAINING_FIELD_NAME};
+
+// This is a temporary code to catch the bug in
+// https://github.com/elastic/elasticsearch/issues/59413.
+using TFloatVec = std::vector<core::CFloatStorage>;
+using TFloatVecVec = std::vector<TFloatVec>;
+void logDataFrame(const core::CDataFrame& frame) {
+    TFloatVecVec frameVec;
+    frameVec.reserve(frame.numberRows());
+    frame.readRows(1, [&](core::CDataFrame::TRowItr beginRows, core::CDataFrame::TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            TFloatVec rowVec;
+            rowVec.reserve(row->numberColumns());
+            for (std::size_t i = 0; i < row->numberColumns(); ++i) {
+                rowVec.push_back(row->data()[i]);
+            }
+            frameVec.emplace_back(std::move(rowVec));
+        }
+    });
+    std::stringstream logStr;
+    for (auto& rowVec : frameVec) {
+        for (auto& el : rowVec) {
+            logStr << el << ", ";
+        }
+        logStr << "\n";
+    }
+    LOG_DEBUG(<< "Data frame: \n" << logStr.str());
+}
+
+void logModel(CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr definition) {
+    LOG_DEBUG(<< "Model definition: \n" << definition->jsonString());
+}
 }
 
 const CDataFrameAnalysisConfigReader&
@@ -95,7 +128,7 @@ CDataFrameTrainBoostedTreeRegressionRunner::CDataFrameTrainBoostedTreeRegression
 }
 
 void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
-    const core::CDataFrame&,
+    const core::CDataFrame& frame,
     const TRowRef& row,
     core::CRapidJsonConcurrentLineWriter& writer) const {
 
@@ -109,11 +142,23 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
     writer.Bool(maths::CDataFrameUtils::isMissing(row[columnHoldingDependentVariable]) == false);
     auto featureImportance = tree.shap();
     if (featureImportance != nullptr) {
+        bool noFeatureImportances{true};
         m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
         featureImportance->shap(
-            row, [&writer, this](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
-                                 const TStrVec& featureNames,
-                                 const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+            row, [&writer, &noFeatureImportances,
+                  this](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
+                        const TStrVec& featureNames,
+                        const maths::CTreeShapFeatureImportance::TVectorVec& shap) {
+                // This is a temporary blog to catch the bug from
+                // https://github.com/elastic/elasticsearch/issues/59413
+                if (noFeatureImportances) {
+                    for (auto i : indices) {
+                        if (shap[i].norm() != 0.0) {
+                            noFeatureImportances = false;
+                            break;
+                        }
+                    }
+                }
                 writer.Key(FEATURE_IMPORTANCE_FIELD_NAME);
                 writer.StartArray();
                 for (auto i : indices) {
@@ -135,6 +180,15 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
                     }
                 }
             });
+        // This is temporary logging, we are interested in a special case with
+        // 500 rows and 3 columns. It will be removed after we caught the bug
+        // https://github.com/elastic/elasticsearch/issues/59413.
+        if (noFeatureImportances && m_DebugInfoPrinted == false) {
+            logDataFrame(frame);
+            logModel(this->inferenceModelDefinition(
+                frame.columnNames(), frame.categoricalColumnValues()));
+            m_DebugInfoPrinted = true;
+        }
     }
     writer.EndObject();
 }
