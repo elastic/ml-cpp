@@ -233,15 +233,39 @@ git submodule sync
 git submodule update --init --recursive
 ```
 
+In `caffe2/utils/CMakeLists.txt` delete the following line (line 4):
+
+```
+    utils/threadpool/pthreadpool-cpp.cc
+```
+
+In `torch/CMakeLists.txt` remove the guards around `onnx_library`, i.e. change lines 99-101 from:
+
+```
+    if(BUILD_TEST)
+      list(APPEND TORCH_PYTHON_LINK_LIBRARIES onnx_library)
+    endif(BUILD_TEST)
+```
+
+to:
+
+```
+    list(APPEND TORCH_PYTHON_LINK_LIBRARIES onnx_library)
+```
+
 Start a command prompt using Start Menu -&gt; Apps -&gt; Visual Studio 2019 -&gt; x64 Native Tools Command Prompt for VS 2019, then in it type:
 
 ```
 cd \tools\pytorch
+set BUILD_TEST=OFF
+set BUILD_CAFFE2=OFF
+set USE_NUMPY=OFF
 set USE_DISTRIBUTED=OFF
+set MSVC_Z7_OVERRIDE=OFF
+set PYTORCH_BUILD_VERSION=1.7.1
+set PYTORCH_BUILD_NUMBER=1
 python setup.py install
 ```
-
-This will take a very long time to complete - many hours on a moderately sized VM.
 
 When it completes, at the very end there is an error message that the Python modules could not be installed.  This can be ignored as we only want the headers, DLLs and import libraries.
 
