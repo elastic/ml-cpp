@@ -59,11 +59,11 @@ void logDataFrame(const core::CDataFrame& frame) {
         }
         logStr << "\n";
     }
-    LOG_INFO(<< "Data frame: \n" << logStr.str());
+    LOG_DEBUG(<< "Data frame: \n" << logStr.str());
 }
 
 void logModel(CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr definition) {
-    LOG_INFO(<< "Model definition: \n" << definition->jsonString());
+    LOG_DEBUG(<< "Model definition: \n" << definition->jsonString());
 }
 }
 
@@ -183,8 +183,7 @@ void CDataFrameTrainBoostedTreeRegressionRunner::writeOneRow(
         // This is temporary logging, we are interested in a special case with
         // 500 rows and 3 columns. It will be removed after we caught the bug
         // https://github.com/elastic/elasticsearch/issues/59413.
-        if (noFeatureImportances && frame.numberRows() == 500 &&
-            frame.numberColumns() == 3 && m_DebugInfoPrinted == false) {
+        if (noFeatureImportances && m_DebugInfoPrinted == false) {
             logDataFrame(frame);
             logModel(this->inferenceModelDefinition(
                 frame.columnNames(), frame.categoricalColumnValues()));
