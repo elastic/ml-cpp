@@ -26,8 +26,7 @@ def parse_arguments():
     parser.add_argument('model', help='A TorchScript model with .pt extension')
     parser.add_argument('input_tokens', help='JSON file with an array field "tokens"')
     parser.add_argument('expected_output', help='Expected output. Another JSON file with an array field "tokens"')
-    # The pipes are created by the C++ app
-	# The names must match those passed to app
+    # The app pipe names
     parser.add_argument('--restore_pipe', default='restore_pipe')
     parser.add_argument('--input_pipe', default='input_pipe')
     parser.add_argument('--output_pipe', default='output_pipe')
@@ -43,7 +42,7 @@ def path_to_app():
 		sub_path = 'darwin-x86_64/controller.app/Contents/MacOS/'
 	elif os_platform == 'Linux':
 		# TODO handle the different path for arm architecture 
-		sub_path = 'linux-x86_64/'
+		sub_path = 'linux-x86_64/bin/'
 	elif os_platform == 'Windows':
 		sub_path = 'windows-x86_64/'
 	else: 
@@ -86,7 +85,7 @@ def wait_for_pipe(file_name, num_retries=5) :
 
 
 		num_retries = num_retries -1
-		time.sleep(0.05)
+		time.sleep(0.5)
 
 	return stat.S_ISFIFO(os.stat(file_name).st_mode)
 
