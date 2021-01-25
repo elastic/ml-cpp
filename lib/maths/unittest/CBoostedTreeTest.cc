@@ -358,7 +358,7 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
             if (lossFunctionType != TLossFunctionType::E_MsleRegression) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     0.0, modelBias[i][0],
-                    8.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+                    6.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
             }
             // Good R^2...
             BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.93);
