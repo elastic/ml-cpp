@@ -59,11 +59,11 @@ void logDataFrame(const core::CDataFrame& frame) {
         }
         logStr << "\n";
     }
-    LOG_DEBUG(<< "Data frame: \n" << logStr.str());
+    LOG_INFO(<< "Data frame: \n" << logStr.str());
 }
 
 void logModel(CDataFrameAnalysisRunner::TInferenceModelDefinitionUPtr definition) {
-    LOG_DEBUG(<< "Model definition: \n" << definition->jsonString());
+    LOG_INFO(<< "Model definition: \n" << definition->jsonString());
 }
 }
 
