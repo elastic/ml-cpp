@@ -4,8 +4,6 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include "core/CDataFrame.h"
-#include "core/CFloatStorage.h"
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 
 #include <core/CDataFrame.h>
