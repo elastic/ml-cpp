@@ -1,181 +1,116 @@
+'''
+Reads a TorchScript model from file and restores it to the C++
+app, together with the encoded tokens from the input_tokens
+file.  Then it checks the model's response matches the expected.
+
+This script first prepares the input files, then launches the C++
+pytorch_inference program which handles them in batch.
+
+Run this script with input from one of the example directories,
+for example:
+
+python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/input.json  examples/ner/expected_response.json
+'''
+
 import argparse
 import json
 import os
 import platform
 import stat
 import subprocess
-import time
 
-
-'''
-Reads a TorchScript model from file and streams it via a pipe
-to the C++ app. Once the model is loaded the script sends the 
-encoded tokens from the input_tokens files and checks the model's 
-response matches the expected. 
-
-This script first lauches the C++ pytorch_inference process then
-connects the pipes.
-
-Then run this script with input from one of the example directories
-
-python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/input.json  examples/ner/expected_response.json
-
-'''
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('model', help='A TorchScript model with .pt extension')
     parser.add_argument('input_tokens', help='JSON file with an array field "tokens"')
     parser.add_argument('expected_output', help='Expected output. Another JSON file with an array field "tokens"')
-    # The app pipe names
-    parser.add_argument('--restore_pipe', default='restore_pipe')
-    parser.add_argument('--input_pipe', default='input_pipe')
-    parser.add_argument('--output_pipe', default='output_pipe')
-    parser.add_argument('--log_pipe', default='log_pipe')
+    parser.add_argument('--restore_file', default='restore_file')
+    parser.add_argument('--input_file', default='input_file')
+    parser.add_argument('--output_file', default='output_file')
 
     return parser.parse_args()
 
-
 def path_to_app():
 
-	os_platform = platform.system()
-	if os_platform == 'Darwin':
-		sub_path = 'darwin-x86_64/controller.app/Contents/MacOS/'
-	elif os_platform == 'Linux':
-		# TODO handle the different path for arm architecture 
-		sub_path = 'linux-x86_64/bin/'
-	elif os_platform == 'Windows':
-		sub_path = 'windows-x86_64/'
-	else: 
-		raise RuntimeError('Unknown platform')
+    os_platform = platform.system()
+    if os_platform == 'Darwin':
+        sub_path = 'darwin-x86_64/controller.app/Contents/MacOS/'
+    elif os_platform == 'Linux':
+        # TODO handle the different path for arm architecture
+        sub_path = 'linux-x86_64/bin/'
+    elif os_platform == 'Windows':
+        sub_path = 'windows-x86_64/bin/'
+    else:
+        raise RuntimeError('Unknown platform')
 
+    return "../../build/distribution/platform/" + sub_path + "pytorch_inference"
 
-	return "../../build/distribution/platform/" + sub_path + "pytorch_inference"
+def launch_pytorch_app(args):
 
-def lauch_pytorch_app(args):
+    command = [path_to_app(),
+        '--restore=' + args.restore_file,
+        '--input=' + args.input_file,
+        '--output=' + args.output_file]
 
-	command = [path_to_app(), 
-		'--restore=' + args.restore_pipe, '--restoreIsPipe', 
-		'--input=' + args.input_pipe, '--inputIsPipe',
-		'--output=' + args.output_pipe, '--outputIsPipe',
-		'--log=' + args.log_pipe, '--logIsPipe',
-		'--namedPipeConnectTimeout=3']		
-	
-	subprocess.Popen(command)
-
+    subprocess.Popen(command).communicate()
 
 def stream_file(source, destination) :
-	while True:
-		piece = source.read(8192)  
-		if not piece:
-			break
+    while True:
+        piece = source.read(8192)
+        if not piece:
+            break
 
-		destination.write(piece)
+        destination.write(piece)
 
-def wait_for_pipe(file_name, num_retries=5) :
-	'''
-	the pipe must exist else it will be created as an 
-	ordinary file when opened for write
-	'''
-	while num_retries > 0:
-		try:
-			if stat.S_ISFIFO(os.stat(file_name).st_mode):
-				break
-		except Exception:
-			pass
+def write_tokens(destination, tokens):
 
-
-		num_retries = num_retries -1
-		time.sleep(0.5)
-
-	return stat.S_ISFIFO(os.stat(file_name).st_mode)
-
-def write_tokens(fifo, tokens):
-
-	num_tokens = len(tokens)
-	fifo.write(num_tokens.to_bytes(4, 'big'))
-	for token in tokens:
-		fifo.write(token.to_bytes(4, 'big'))
-
-
-def print_logging(fifo):
-
-	print("reading logs")
-	line = fifo.readline()
-	while line:
-		print(line)
-		line = fifo.readline()
-
+    num_tokens = len(tokens)
+    destination.write(num_tokens.to_bytes(4, 'big'))
+    for token in tokens:
+        destination.write(token.to_bytes(4, 'big'))
 
 def main():
 
-	args = parse_arguments()
+    args = parse_arguments()
 
-	lauch_pytorch_app(args)
+    # create the restore file
+    with open(args.restore_file, 'wb') as restore_file:
+        file_stats = os.stat(args.model)
+        file_size = file_stats.st_size
 
-	# pipes must be connected in a specfic order.
-	if not wait_for_pipe(args.log_pipe):	
-		print("Error: logging pipe [{}] has not been created".format(args.log_pipe))
-		return
+        # 4 byte unsigned int
+        b = (file_size).to_bytes(4, 'big')
+        restore_file.write(b)
 
-	log_pipe = open(args.log_pipe)
+        print("streaming model of size", file_size, flush=True)
 
-	if not wait_for_pipe(args.input_pipe):	
-		print("Error: input pipe [{}] has not been created".format(args.input_pipe))
-		return
+        with open(args.model, 'rb') as source_file:
+            stream_file(source_file, restore_file)
 
-	input_pipe = open('input_pipe', 'wb')
+    with open(args.input_file, 'wb') as input_file:
+        with open(args.input_tokens) as token_file:
+            input_tokens = json.load(token_file)
+        print("writing query", flush=True)
+        write_tokens(input_file, input_tokens['tokens'])
 
-	if not wait_for_pipe(args.output_pipe):	
-		print("Error: output pipe [{}] has not been created".format(args.output_pipe))
-		return
+    # one shot inference
+    launch_pytorch_app(args)
 
-	output_pipe = open(args.output_pipe)
+    print("reading results", flush=True)
+    with open(args.expected_output) as expected_output_file:
+        expected = json.load(expected_output_file)
 
-	if not wait_for_pipe(args.restore_pipe):
-		print("Error: restore pipe [{}] has not been created".format(args.restore_pipe))
-		return		
+    with open(args.output_file) as output_file:
+        results = json.load(output_file)
 
-	# stream the torchscript model	 
-	with open(args.restore_pipe, 'wb') as restore_pipe:
-		file_stats = os.stat(args.model)
-		file_size = file_stats.st_size
-		
-		# 4 byte unsigned int
-		b = (file_size).to_bytes(4, 'big')
-		restore_pipe.write(b)
-
-		print("streaming model of size", file_size)
-
-		with open(args.model, 'rb') as source_file:
-			stream_file(source_file, restore_pipe)
-
-
-	with open(args.input_tokens) as token_file:
-		input_tokens = json.load(token_file)
-	
-	print("writing query")
-	write_tokens(input_pipe, input_tokens['tokens'])
-	# one shot inference
-	input_pipe.close()
-
-
-	print("reading results")
-	with open(args.expected_output) as expected_output_file:
-		expected = json.load(expected_output_file)
-
-	results = json.load(output_pipe)
-	# compare to expected
-	if results['inference'] == expected['tokens']:
-		print('inference results match expected results')
-	else:
-		print('ERROR: inference results do not match expected results')
-		print(results)
-
-	
-	print_logging(log_pipe)	
+    # compare to expected
+    if results['inference'] == expected['tokens']:
+        print('inference results match expected results')
+    else:
+        print('ERROR: inference results do not match expected results')
+        print(results)
 
 
 if __name__ == "__main__":
-	main()
-	
+    main()
 
