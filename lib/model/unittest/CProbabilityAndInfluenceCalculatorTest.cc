@@ -126,9 +126,11 @@ void computeProbability(core_t::TTime time,
                         const maths::CModel& model,
                         double& probability,
                         TTail2Vec& tail) {
+    TDouble2Vec varianceScale;
+    model.seasonalWeight(0.0, time, varianceScale);
     maths_t::TDouble2VecWeightsAry weight(
         maths_t::CUnitWeights::unit<TDouble2Vec>(sample.size()));
-    maths_t::setSeasonalVarianceScale(model.seasonalWeight(0.0, time), weight);
+    maths_t::setSeasonalVarianceScale(varianceScale, weight);
     maths::CModelProbabilityParams params;
     params.addCalculation(calculation).addWeights(weight);
     maths::SModelProbabilityResult result;
@@ -155,9 +157,11 @@ void computeInfluences(CALCULATOR& calculator,
                        const std::string& influencerName,
                        const TStrCRefDouble1VecDoublePrPrVec& influencerValues,
                        TStoredStringPtrStoredStringPtrPrDoublePrVec& result) {
-    model::CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
+    TDouble2Vec varianceScale;
+    model.seasonalWeight(0.0, time, varianceScale);
     maths_t::TDouble2VecWeightsAry weight(maths_t::CUnitWeights::unit<TDouble2Vec>(1));
-    maths_t::setSeasonalVarianceScale(model.seasonalWeight(0.0, time), weight);
+    maths_t::setSeasonalVarianceScale(varianceScale, weight);
+    model::CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
     model::CProbabilityAndInfluenceCalculator::SParams params(partitioningFields);
     params.s_Feature = feature;
     params.s_Model = &model;

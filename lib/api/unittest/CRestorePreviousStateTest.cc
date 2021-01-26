@@ -7,17 +7,18 @@
 #include <core/CJsonOutputStreamWrapper.h>
 #include <core/CLogger.h>
 #include <core/COsFileFuncs.h>
-#include <core/CProgramCounters.h>
 
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
+#include <api/CAnomalyJobConfig.h>
 #include <api/CCsvOutputWriter.h>
-#include <api/CFieldConfig.h>
 #include <api/CResultNormalizer.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
 #include <api/CStateRestoreStreamFilter.h>
+
+#include <test/CProgramCounterClearingFixture.h>
 
 #include "CTestAnomalyJob.h"
 #include "CTestFieldDataCategorizer.h"
@@ -32,18 +33,6 @@
 #include <vector>
 
 BOOST_AUTO_TEST_SUITE(CRestorePreviousStateTest)
-
-class CTestFixture {
-public:
-    CTestFixture() {
-        ml::core::CProgramCounters& counters = ml::core::CProgramCounters::instance();
-
-        // Set all counters to 0
-        for (std::size_t i = 0; i < ml::counter_t::NUM_COUNTERS; ++i) {
-            counters.counter(i) = 0;
-        }
-    }
-};
 
 namespace {
 
@@ -70,7 +59,7 @@ const std::vector<SRestoreTestConfig> BWC_VERSIONS{
     SRestoreTestConfig{"6.5.0", false, false},
     SRestoreTestConfig{"7.1.0", false, false},
     SRestoreTestConfig{"7.3.0", false, false},
-    SRestoreTestConfig{"7.9.0", true, true}};
+    SRestoreTestConfig{"7.9.0", false, true}};
 
 std::string stripDocIds(const std::string& persistedState) {
     // State is persisted in the Elasticsearch bulk format.
@@ -97,12 +86,16 @@ std::string stripDocIds(const std::string& persistedState) {
 
 void categorizerRestoreHelper(const std::string& stateFile, bool isSymmetric) {
     ml::model::CLimits limits;
-    ml::api::CFieldConfig config("count", "mlcategory");
+
+    const std::string jsonConfig{
+        "{\"job_id\":\"new_ml_fields\",\"analysis_config\":{\"detectors\":[{\"function\":\"count\",\"by_field_name\":\"mlcategory\"}]}}"};
+    ml::api::CAnomalyJobConfig jobConfig;
+    BOOST_TEST_REQUIRE(jobConfig.parse(jsonConfig));
 
     std::ostringstream outputStrm;
     ml::core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
-    CTestFieldDataCategorizer restoredCategorizer("job", config, limits,
-                                                  nullptr, wrappedOutputStream);
+    CTestFieldDataCategorizer restoredCategorizer(
+        "job", jobConfig.analysisConfig(), limits, nullptr, wrappedOutputStream);
 
     std::ifstream inputStrm(stateFile.c_str());
     BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -156,8 +149,8 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
     static const std::string JOB_ID("job");
 
     ml::model::CLimits limits;
-    ml::api::CFieldConfig fieldConfig;
-    BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
+    ml::api::CAnomalyJobConfig jobConfig;
+    BOOST_TEST_REQUIRE(jobConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
@@ -171,7 +164,7 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
     std::string restoredSnapshotId;
     std::size_t numRestoredDocs(0);
     CTestAnomalyJob restoredJob(
-        JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+        JOB_ID, limits, jobConfig, modelConfig, wrappedOutputStream,
         std::bind(&reportPersistComplete, std::placeholders::_1,
                   std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 
@@ -217,58 +210,59 @@ void anomalyDetectorRestoreHelper(const std::string& stateFile,
         BOOST_REQUIRE_EQUAL(stripDocIds(origPersistedState), stripDocIds(newPersistedState));
 #endif
     } else {
-        // Test that the persisted & the restored states are actually different.
-        BOOST_TEST_REQUIRE(stripDocIds(origPersistedState) != stripDocIds(newPersistedState));
+        // The equality of the state is undetermined. It is possible that a new
+        // field is only sometimes present at which point some state objects may
+        // be different and some may be the same.
     }
 }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRestoreDetectorBy, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorBy, ml::test::CProgramCounterClearingFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper(
             "testfiles/state/" + version.s_Version + "/by_detector_state.json",
-            "testfiles/new_mlfields.conf", version.s_DetectorRestoreIsSymmetric, 0);
+            "testfiles/new_mlfields.json", version.s_DetectorRestoreIsSymmetric, 0);
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRestoreDetectorOver, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorOver, ml::test::CProgramCounterClearingFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/over_detector_state.json",
-                                     "testfiles/new_mlfields_over.conf",
+                                     "testfiles/new_mlfields_over.json",
                                      version.s_DetectorRestoreIsSymmetric, 0);
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRestoreDetectorPartition, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorPartition, ml::test::CProgramCounterClearingFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/partition_detector_state.json",
-                                     "testfiles/new_mlfields_partition.conf",
+                                     "testfiles/new_mlfields_partition.json",
                                      version.s_DetectorRestoreIsSymmetric, 0);
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRestoreDetectorDc, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorDc, ml::test::CProgramCounterClearingFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper(
             "testfiles/state/" + version.s_Version + "/dc_detector_state.json",
-            "testfiles/new_persist_dc.conf", version.s_DetectorRestoreIsSymmetric, 5);
+            "testfiles/new_persist_dc.json", version.s_DetectorRestoreIsSymmetric, 5);
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRestoreDetectorCount, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testRestoreDetectorCount, ml::test::CProgramCounterClearingFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         anomalyDetectorRestoreHelper("testfiles/state/" + version.s_Version + "/count_detector_state.json",
-                                     "testfiles/new_persist_count.conf",
+                                     "testfiles/new_persist_count.json",
                                      version.s_DetectorRestoreIsSymmetric, 5);
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRestoreNormalizer, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testRestoreNormalizer, ml::test::CProgramCounterClearingFixture) {
     for (const auto& version : BWC_VERSIONS) {
         ml::model::CAnomalyDetectorModelConfig modelConfig =
             ml::model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -279,7 +273,7 @@ BOOST_FIXTURE_TEST_CASE(testRestoreNormalizer, CTestFixture) {
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(testRestoreCategorizer, CTestFixture) {
+BOOST_FIXTURE_TEST_CASE(testRestoreCategorizer, ml::test::CProgramCounterClearingFixture) {
     for (const auto& version : BWC_VERSIONS) {
         LOG_INFO(<< "Test restoring state from version " << version.s_Version);
         categorizerRestoreHelper("testfiles/state/" + version.s_Version + "/categorizer_state.json",

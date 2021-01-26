@@ -95,8 +95,8 @@ public:
     //! at \p time fixed.
     void shiftSlope(core_t::TTime time, double shift);
 
-    //! Linearly scale the regressions by \p scale.
-    void linearScale(double scale);
+    //! Linearly scale the regressions by \p scale at \p time.
+    void linearScale(core_t::TTime time, double scale);
 
     //! Add the function value at \p time.
     //!
@@ -108,7 +108,11 @@ public:
     void add(core_t::TTime time, double value, double prediction, double weight = 1.0);
 
     //! Age the bucket values to account for \p time elapsed time.
-    void propagateForwardsByTime(double time, bool meanRevert = false);
+    //!
+    //! \param[in] meanRevertFactor Controls how quicly the components mean
+    //! revert as a multiplier of the rate at which data is aged out of the
+    //! component. By default components don't mean revert.
+    void propagateForwardsByTime(double time, double meanRevertFactor = 0.0);
 
     //! Get the time provider.
     const CSeasonalTime& time() const;
@@ -126,7 +130,7 @@ public:
     bool slopeAccurate(core_t::TTime time) const;
 
     //! Get a checksum for this object.
-    uint64_t checksum(uint64_t seed = 0) const;
+    std::uint64_t checksum(std::uint64_t seed = 0) const;
 
     //! Get the memory used by this component
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -154,7 +158,8 @@ private:
         bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
         void acceptPersistInserter(core::CStatePersistInserter& inserter) const;
 
-        uint64_t checksum(uint64_t seed) const;
+        //! Get a checksum for this object.
+        std::uint64_t checksum(std::uint64_t seed) const;
 
         //! Check that the state is valid.
         bool isBad() const;
@@ -181,8 +186,8 @@ private:
     //! Check if \p time is in the this component's window.
     bool inWindow(core_t::TTime time) const override;
 
-    //! Add the function value at \p time.
-    void add(std::size_t bucket, core_t::TTime time, double value, double weight) override;
+    //! Add the function initial value at \p time.
+    void addInitialValue(std::size_t bucket, core_t::TTime time, double value, double weight) override;
 
     //! Get the offset w.r.t. the start of the bucketing of \p time.
     double offset(core_t::TTime time) const override;

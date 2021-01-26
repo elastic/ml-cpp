@@ -56,9 +56,9 @@ public:
     };
 
     //! Compute the difference between \p S and [\p begin, \p end).
-    template<typename T, typename ITR>
-    static void inplace_set_difference(std::vector<T>& S, ITR begin, ITR end) {
-        typename std::vector<T>::iterator i = S.begin(), last = i;
+    template<typename CONTAINER, typename ITR>
+    static void inplace_set_difference(CONTAINER& S, ITR begin, ITR end) {
+        auto i = S.begin(), last = i;
         for (ITR j = begin; i != S.end() && j != end; /**/) {
             if (*i < *j) {
                 if (last != i) {

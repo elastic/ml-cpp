@@ -84,10 +84,11 @@ void CModelDetailsView::modelPlotForByFieldId(core_t::TTime time,
         std::size_t dimension = model_t::dimension(feature);
         time = model_t::sampleTime(feature, time, model->params().bucketLength());
 
-        maths_t::TDouble2VecWeightsAry weights(
-            maths_t::CUnitWeights::unit<TDouble2Vec>(dimension));
-        maths_t::setSeasonalVarianceScale(
-            model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time), weights);
+        maths_t::TDouble2VecWeightsAry weights{
+            maths_t::CUnitWeights::unit<TDouble2Vec>(dimension)};
+        TDouble2Vec seasonalWeight;
+        model->seasonalWeight(maths::DEFAULT_SEASONAL_CONFIDENCE_INTERVAL, time, seasonalWeight);
+        maths_t::setSeasonalVarianceScale(seasonalWeight, weights);
         maths_t::setCountVarianceScale(
             TDouble2Vec(dimension, this->countVarianceScale(feature, byFieldId, time)), weights);
 

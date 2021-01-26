@@ -11,8 +11,8 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
+#include <api/CAnomalyJobConfig.h>
 #include <api/CCsvInputParser.h>
-#include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/CJsonOutputWriter.h>
 
@@ -96,16 +96,8 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         // Without limits, this data set should make the models around
         // 1230000 bytes
         // Run the data once to find out what the current platform uses
-        api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clause;
-        clause.push_back("value");
-        clause.push_back("by");
-        clause.push_back("colour");
-        clause.push_back("over");
-        clause.push_back("species");
-        clause.push_back("partitionfield=greenhouse");
-
-        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
+        ml::api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "colour", "species", "greenhouse");
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -118,7 +110,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
 
         {
             LOG_TRACE(<< "Setting up job");
-            CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
             std::ifstream inputStrm("testfiles/resource_accuracy.csv");
             BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -139,16 +131,8 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
     }
     {
         // Now run the data with limiting
-        api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clause;
-        clause.push_back("value");
-        clause.push_back("by");
-        clause.push_back("colour");
-        clause.push_back("over");
-        clause.push_back("species");
-        clause.push_back("partitionfield=greenhouse");
-
-        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
+        ml::api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "colour", "species", "greenhouse");
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -163,7 +147,7 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
                 limits.resourceMonitor().m_ByteLimitHigh - 1024;
 
             LOG_TRACE(<< "Setting up job");
-            CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
             std::ifstream inputStrm("testfiles/resource_accuracy.csv");
             BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -199,22 +183,14 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         // Run the data without any resource limits and check that
         // all the expected fields are in the results set
         model::CLimits limits;
-        api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clause;
-        clause.push_back("value");
-        clause.push_back("by");
-        clause.push_back("colour");
-        clause.push_back("over");
-        clause.push_back("species");
-        clause.push_back("partitionfield=greenhouse");
-
-        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
+        api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "colour", "species", "greenhouse");
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
 
         LOG_TRACE(<< "Setting up job");
-        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
         std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition.csv");
         BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -244,16 +220,8 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         // Run the data with some resource limits after the first 4 records and
         // check that we get only anomalies from the first 2 partitions
         model::CLimits limits;
-        api::CFieldConfig fieldConfig;
-        api::CFieldConfig::TStrVec clause;
-        clause.push_back("value");
-        clause.push_back("by");
-        clause.push_back("colour");
-        clause.push_back("over");
-        clause.push_back("species");
-        clause.push_back("partitionfield=greenhouse");
-
-        BOOST_TEST_REQUIRE(fieldConfig.initFromClause(clause));
+        ml::api::CAnomalyJobConfig jobConfig = CTestAnomalyJob::makeSimpleJobConfig(
+            "metric", "value", "colour", "species", "greenhouse");
 
         model::CAnomalyDetectorModelConfig modelConfig =
             model::CAnomalyDetectorModelConfig::defaultConfig(3600);
@@ -262,7 +230,7 @@ BOOST_AUTO_TEST_CASE(testLimit) {
         core::CJsonOutputStreamWrapper wrappedOutputStream(outputStrm);
 
         LOG_TRACE(<< "Setting up job");
-        CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+        CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
         std::ifstream inputStrm("testfiles/resource_limits_3_2over_3partition_first8.csv");
         BOOST_TEST_REQUIRE(inputStrm.is_open());
@@ -355,8 +323,8 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
         std::size_t s_ExpectedByMemoryUsageRelativeErrorDivisor;
         std::size_t s_ExpectedPartitionUsageRelativeErrorDivisor;
         std::size_t s_ExpectedOverUsageRelativeErrorDivisor;
-    } testParams[]{{600, 550, 6000, 300, 33, 39, 40},
-                   {3600, 550, 5500, 300, 27, 25, 20},
+    } testParams[]{{600, 500, 6000, 300, 33, 30, 40},
+                   {3600, 500, 5500, 300, 27, 25, 20},
                    {172800, 150, 850, 110, 6, 6, 3}};
 
     for (const auto& testParam : testParams) {
@@ -371,12 +339,12 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             std::size_t memoryLimit{10 /*MB*/};
             model::CLimits limits;
             limits.resourceMonitor().memoryLimit(memoryLimit);
-            api::CFieldConfig fieldConfig;
-            api::CFieldConfig::TStrVec clauses{"mean(foo)", "by", "bar"};
-            fieldConfig.initFromClause(clauses);
+            ml::api::CAnomalyJobConfig jobConfig =
+                CTestAnomalyJob::makeSimpleJobConfig("mean", "foo", "bar", "", "");
+
             model::CAnomalyDetectorModelConfig modelConfig =
                 model::CAnomalyDetectorModelConfig::defaultConfig(testParam.s_BucketLength);
-            CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
             core_t::TTime startTime{1495110323};
             core_t::TTime endTime{1495260323};
@@ -407,13 +375,15 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
             LOG_DEBUG(<< "Memory usage bytes = " << used.s_Usage);
-            LOG_DEBUG(<< "Memory limit bytes = " << memoryLimit * 1024 * 1024);
+            LOG_DEBUG(<< "Memory limit bytes = "
+                      << memoryLimit * core::constants::BYTES_IN_MEGABYTES);
             BOOST_TEST_REQUIRE(used.s_ByFields > testParam.s_ExpectedByFields);
             BOOST_TEST_REQUIRE(used.s_ByFields < 800);
             BOOST_REQUIRE_EQUAL(std::size_t(2), used.s_PartitionFields);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                memoryLimit * 1024 * 1024 / 2, used.s_Usage,
-                memoryLimit * 1024 * 1024 / testParam.s_ExpectedByMemoryUsageRelativeErrorDivisor);
+                memoryLimit * core::constants::BYTES_IN_MEGABYTES / 2, used.s_Usage,
+                memoryLimit * core::constants::BYTES_IN_MEGABYTES /
+                    testParam.s_ExpectedByMemoryUsageRelativeErrorDivisor);
         }
 
         LOG_DEBUG(<< "**** Test partition with bucketLength = " << testParam.s_BucketLength
@@ -422,12 +392,12 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             std::size_t memoryLimit{10 /*MB*/};
             model::CLimits limits;
             limits.resourceMonitor().memoryLimit(memoryLimit);
-            api::CFieldConfig fieldConfig;
-            api::CFieldConfig::TStrVec clauses{"mean(foo)", "partitionfield=bar"};
-            fieldConfig.initFromClause(clauses);
+            ml::api::CAnomalyJobConfig jobConfig =
+                CTestAnomalyJob::makeSimpleJobConfig("mean", "foo", "", "", "bar");
+
             model::CAnomalyDetectorModelConfig modelConfig =
                 model::CAnomalyDetectorModelConfig::defaultConfig(testParam.s_BucketLength);
-            CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
             core_t::TTime startTime{1495110323};
             core_t::TTime endTime{1495260323};
@@ -458,13 +428,15 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "# partition = " << used.s_PartitionFields);
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
             LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
+            LOG_DEBUG(<< "Memory limit bytes = " << memoryLimit * 1024 * 1024);
             BOOST_TEST_REQUIRE(used.s_PartitionFields > testParam.s_ExpectedPartitionFields);
             BOOST_TEST_REQUIRE(used.s_PartitionFields < 450);
             BOOST_TEST_REQUIRE(static_cast<double>(used.s_ByFields) >
                                0.96 * static_cast<double>(used.s_PartitionFields));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                memoryLimit * 1024 * 1024 / 2, used.s_Usage,
-                memoryLimit * 1024 * 1024 / testParam.s_ExpectedPartitionUsageRelativeErrorDivisor);
+                memoryLimit * core::constants::BYTES_IN_MEGABYTES / 2, used.s_Usage,
+                memoryLimit * core::constants::BYTES_IN_MEGABYTES /
+                    testParam.s_ExpectedPartitionUsageRelativeErrorDivisor);
         }
 
         LOG_DEBUG(<< "**** Test over with bucketLength = " << testParam.s_BucketLength
@@ -473,12 +445,12 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             std::size_t memoryLimit{5 /*MB*/};
             model::CLimits limits;
             limits.resourceMonitor().memoryLimit(memoryLimit);
-            api::CFieldConfig fieldConfig;
-            api::CFieldConfig::TStrVec clauses{"mean(foo)", "over", "bar"};
-            fieldConfig.initFromClause(clauses);
+            ml::api::CAnomalyJobConfig jobConfig =
+                CTestAnomalyJob::makeSimpleJobConfig("mean", "foo", "", "bar", "");
+
             model::CAnomalyDetectorModelConfig modelConfig =
                 model::CAnomalyDetectorModelConfig::defaultConfig(testParam.s_BucketLength);
-            CTestAnomalyJob job("job", limits, fieldConfig, modelConfig, wrappedOutputStream);
+            CTestAnomalyJob job("job", limits, jobConfig, modelConfig, wrappedOutputStream);
 
             core_t::TTime startTime{1495110323};
             core_t::TTime endTime{1495230323};
@@ -507,11 +479,13 @@ BOOST_AUTO_TEST_CASE(testModelledEntityCountForFixedMemoryLimit) {
             LOG_DEBUG(<< "# over = " << used.s_OverFields);
             LOG_DEBUG(<< "Memory status = " << used.s_MemoryStatus);
             LOG_DEBUG(<< "Memory usage = " << used.s_Usage);
+            LOG_DEBUG(<< "Memory limit bytes = " << memoryLimit * 1024 * 1024);
             BOOST_TEST_REQUIRE(used.s_OverFields > testParam.s_ExpectedOverFields);
             BOOST_TEST_REQUIRE(used.s_OverFields < 7000);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                memoryLimit * 1024 * 1024 / 2, used.s_Usage,
-                memoryLimit * 1024 * 1024 / testParam.s_ExpectedOverUsageRelativeErrorDivisor);
+                memoryLimit * core::constants::BYTES_IN_MEGABYTES / 2, used.s_Usage,
+                memoryLimit * core::constants::BYTES_IN_MEGABYTES /
+                    testParam.s_ExpectedOverUsageRelativeErrorDivisor);
         }
     }
 }

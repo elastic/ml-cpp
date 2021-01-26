@@ -115,7 +115,7 @@ struct restore_container_selector {
     using value = BasicRestore;
 };
 template<typename T>
-struct restore_container_selector<T, typename enable_if<typename T::const_iterator>::type> {
+struct restore_container_selector<T, typename enable_if<typename T::iterator>::type> {
     using value = ContainerRestore;
 };
 //@}

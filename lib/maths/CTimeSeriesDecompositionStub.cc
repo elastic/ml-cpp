@@ -33,9 +33,6 @@ bool CTimeSeriesDecompositionStub::initialized() const {
     return false;
 }
 
-void CTimeSeriesDecompositionStub::testingForChange(bool /*value*/) {
-}
-
 void CTimeSeriesDecompositionStub::addPoint(
     core_t::TTime /*time*/,
     double /*value*/,
@@ -44,10 +41,7 @@ void CTimeSeriesDecompositionStub::addPoint(
     const maths_t::TModelAnnotationCallback& /*modelAnnotationCallback*/) {
 }
 
-bool CTimeSeriesDecompositionStub::applyChange(core_t::TTime /*time*/,
-                                               double /*value*/,
-                                               const SChangeDescription& /*change*/) {
-    return false;
+void CTimeSeriesDecompositionStub::shiftTime(core_t::TTime /*time*/, core_t::TTime /*shift*/) {
 }
 
 void CTimeSeriesDecompositionStub::propagateForwardsTo(core_t::TTime /*time*/) {
@@ -60,6 +54,7 @@ double CTimeSeriesDecompositionStub::meanValue(core_t::TTime /*time*/) const {
 maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::value(core_t::TTime /*time*/,
                                                              double /*confidence*/,
                                                              int /*components*/,
+                                                             const TBoolVec& /*removedSeasonalMask*/,
                                                              bool /*smooth*/) const {
     return {0.0, 0.0};
 }
@@ -87,22 +82,31 @@ double CTimeSeriesDecompositionStub::meanVariance() const {
     return 0.0;
 }
 
-maths_t::TDoubleDoublePr CTimeSeriesDecompositionStub::scale(core_t::TTime /*time*/,
-                                                             double /*variance*/,
-                                                             double /*confidence*/,
-                                                             bool /*smooth*/) const {
+maths_t::TDoubleDoublePr
+CTimeSeriesDecompositionStub::varianceScaleWeight(core_t::TTime /*time*/,
+                                                  double /*variance*/,
+                                                  double /*confidence*/,
+                                                  bool /*smooth*/) const {
     return {1.0, 1.0};
 }
 
+double CTimeSeriesDecompositionStub::countWeight(core_t::TTime /*time*/) const {
+    return 1.0;
+}
+
+double CTimeSeriesDecompositionStub::winsorisationDerate(core_t::TTime /*time*/) const {
+    return 0.0;
+}
+
 CTimeSeriesDecompositionStub::TFloatMeanAccumulatorVec
-CTimeSeriesDecompositionStub::windowValues(const TPredictor& /*predictor*/) const {
+CTimeSeriesDecompositionStub::residuals() const {
     return {};
 }
 
 void CTimeSeriesDecompositionStub::skipTime(core_t::TTime /*skipInterval*/) {
 }
 
-uint64_t CTimeSeriesDecompositionStub::checksum(uint64_t seed) const {
+std::uint64_t CTimeSeriesDecompositionStub::checksum(std::uint64_t seed) const {
     return seed;
 }
 
@@ -124,10 +128,6 @@ core_t::TTime CTimeSeriesDecompositionStub::timeShift() const {
 
 const maths_t::TSeasonalComponentVec& CTimeSeriesDecompositionStub::seasonalComponents() const {
     return NO_COMPONENTS;
-}
-
-core_t::TTime CTimeSeriesDecompositionStub::lastValueTime() const {
-    return 0;
 }
 }
 }

@@ -27,8 +27,6 @@ namespace ml {
 namespace maths {
 namespace {
 
-using TFloatMeanVarAccumulator = CCalendarComponentAdaptiveBucketing::TFloatMeanVarAccumulator;
-
 //! Clear a vector and recover its memory.
 template<typename T>
 void clearAndShrink(std::vector<T>& vector) {
@@ -136,7 +134,7 @@ double CCalendarComponentAdaptiveBucketing::count(core_t::TTime time) const {
     return value ? static_cast<double>(CBasicStatistics::count(*value)) : 0.0;
 }
 
-const TFloatMeanVarAccumulator*
+const CCalendarComponentAdaptiveBucketing::TFloatMeanVarAccumulator*
 CCalendarComponentAdaptiveBucketing::value(core_t::TTime time) const {
     const TFloatMeanVarAccumulator* result{nullptr};
     if (this->initialized()) {
@@ -148,7 +146,7 @@ CCalendarComponentAdaptiveBucketing::value(core_t::TTime time) const {
     return result;
 }
 
-uint64_t CCalendarComponentAdaptiveBucketing::checksum(uint64_t seed) const {
+std::uint64_t CCalendarComponentAdaptiveBucketing::checksum(std::uint64_t seed) const {
     seed = this->CAdaptiveBucketing::checksum(seed);
     seed = CChecksum::calculate(seed, m_Feature);
     return CChecksum::calculate(seed, m_Values);
@@ -181,7 +179,7 @@ bool CCalendarComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
 
 void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints) {
     // Values are assigned based on their intersection with each
-    // bucket in the previous configuration. The regression and
+    // bucket in the previous configuration. The moments and
     // variance are computed using the appropriate combination
     // rules. Note that the count is weighted by the square of
     // the fractional intersection between the old and new buckets.
@@ -227,12 +225,12 @@ void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints)
     for (std::size_t i = 1u; i < n; ++i) {
         double yl{newEndpoints[i - 1]};
         double yr{newEndpoints[i]};
-        std::size_t r = std::lower_bound(oldEndpoints.begin(), oldEndpoints.end(), yr) -
-                        oldEndpoints.begin();
+        std::size_t r(std::lower_bound(oldEndpoints.begin(), oldEndpoints.end(), yr) -
+                      oldEndpoints.begin());
         r = CTools::truncate(r, std::size_t(1), n - 1);
 
-        std::size_t l = std::upper_bound(oldEndpoints.begin(), oldEndpoints.end(), yl) -
-                        oldEndpoints.begin();
+        std::size_t l(std::upper_bound(oldEndpoints.begin(), oldEndpoints.end(), yl) -
+                      oldEndpoints.begin());
         l = CTools::truncate(l, std::size_t(1), r);
 
         LOG_TRACE(<< "interval = [" << yl << "," << yr << "]");
@@ -317,10 +315,11 @@ bool CCalendarComponentAdaptiveBucketing::inWindow(core_t::TTime time) const {
     return m_Feature.inWindow(time);
 }
 
-void CCalendarComponentAdaptiveBucketing::add(std::size_t bucket,
-                                              core_t::TTime /*time*/,
-                                              double value,
-                                              double weight) {
+void CCalendarComponentAdaptiveBucketing::addInitialValue(std::size_t bucket,
+                                                          core_t::TTime time,
+                                                          double value,
+                                                          double weight) {
+    this->CAdaptiveBucketing::add(bucket, time, weight);
     m_Values[bucket].add(value, weight);
 }
 
@@ -361,7 +360,7 @@ std::string CCalendarComponentAdaptiveBucketing::name() const {
 }
 
 bool CCalendarComponentAdaptiveBucketing::isBad() const {
-    // check for bad values in both the means and the variances
+    // Check for bad values in both the means and the variances.
     return std::any_of(m_Values.begin(), m_Values.end(), [](const auto& value) {
         return ((CMathsFuncs::isFinite(CBasicStatistics::mean(value)) == false) ||
                 (CMathsFuncs::isFinite(CBasicStatistics::variance(value))) == false);

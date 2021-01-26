@@ -2044,6 +2044,20 @@ std::string print(EMemoryStatus memoryStatus) {
     return "-";
 }
 
+std::string print(EAssignmentMemoryBasis assignmentMemoryBasis) {
+    switch (assignmentMemoryBasis) {
+    case E_AssignmentBasisUnknown:
+        return "unknown";
+    case E_AssignmentBasisModelMemoryLimit:
+        return "model_memory_limit";
+    case E_AssignmentBasisCurrentModelBytes:
+        return "current_model_bytes";
+    case E_AssignmentBasisPeakModelBytes:
+        return "peak_model_bytes";
+    }
+    return "-";
+}
+
 std::string print(ECategorizationStatus categorizationStatus) {
     switch (categorizationStatus) {
     case E_CategorizationStatusOk:

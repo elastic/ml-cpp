@@ -3,7 +3,6 @@
  * or more contributor license agreements. Licensed under the Elastic License;
  * you may not use this file except in compliance with the Elastic License.
  */
-#include <boost/test/tools/interface.hpp>
 #include <core/CTimeUtils.h>
 
 #include <api/CDataFrameAnalysisInstrumentation.h>
@@ -11,6 +10,7 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CDataFrameAnalyzerTrainingFactory.h>
+#include <test/CProgramCounterClearingFixture.h>
 
 #include <rapidjson/schema.h>
 
@@ -99,18 +99,17 @@ void addOutlierTestData(TStrVec fieldNames,
 }
 }
 
-BOOST_AUTO_TEST_CASE(testMemoryState) {
+BOOST_FIXTURE_TEST_CASE(testMemoryState, ml::test::CProgramCounterClearingFixture) {
     std::string jobId{"testJob"};
-    std::int64_t memoryLimit{1024 * 1024 * 1024}; //1gb default value
+    std::size_t memoryLimit{core::constants::BYTES_IN_GIGABYTES};
     std::int64_t memoryUsage{500000};
     std::int64_t timeBefore{std::chrono::duration_cast<std::chrono::milliseconds>(
                                 std::chrono::system_clock::now().time_since_epoch())
                                 .count()};
     std::stringstream outputStream;
     {
-        core::CJsonOutputStreamWrapper streamWrapper(outputStream);
-        api::CDataFrameTrainBoostedTreeInstrumentation instrumentation{
-            jobId, static_cast<std::size_t>(memoryLimit)};
+        core::CJsonOutputStreamWrapper streamWrapper{outputStream};
+        api::CDataFrameTrainBoostedTreeInstrumentation instrumentation{jobId, memoryLimit};
         api::CDataFrameTrainBoostedTreeInstrumentation::CScopeSetOutputStream setStream{
             instrumentation, streamWrapper};
         instrumentation.updateMemoryUsage(memoryUsage);
@@ -142,7 +141,7 @@ BOOST_AUTO_TEST_CASE(testMemoryState) {
     BOOST_TEST_REQUIRE(hasMemoryUsage);
 }
 
-BOOST_AUTO_TEST_CASE(testTrainingRegression) {
+BOOST_FIXTURE_TEST_CASE(testTrainingRegression, ml::test::CProgramCounterClearingFixture) {
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
@@ -235,7 +234,7 @@ BOOST_AUTO_TEST_CASE(testTrainingRegression) {
     BOOST_TEST_REQUIRE(hasMemoryUsage);
 }
 
-BOOST_AUTO_TEST_CASE(testTrainingClassification) {
+BOOST_FIXTURE_TEST_CASE(testTrainingClassification, ml::test::CProgramCounterClearingFixture) {
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);
@@ -299,7 +298,7 @@ BOOST_AUTO_TEST_CASE(testTrainingClassification) {
     BOOST_TEST_REQUIRE(initialMemoryReport);
 }
 
-BOOST_AUTO_TEST_CASE(testOutlierDetection) {
+BOOST_FIXTURE_TEST_CASE(testOutlierDetection, ml::test::CProgramCounterClearingFixture) {
     std::stringstream output;
     auto outputWriterFactory = [&output]() {
         return std::make_unique<core::CJsonOutputStreamWrapper>(output);

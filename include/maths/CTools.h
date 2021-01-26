@@ -635,6 +635,11 @@ public:
     //! Linearly interpolate a function on the interval [\p a, \p b].
     static double linearlyInterpolate(double a, double b, double fa, double fb, double x);
 
+    //! Log-linearly interpolate a function on the interval [\p a, \p b].
+    //!
+    //! \warning The caller must ensure that \p a and \p b are positive.
+    static double logLinearlyInterpolate(double a, double b, double fa, double fb, double x);
+
     //! A custom, numerically robust, implementation of \f$(1 - x) ^ p\f$.
     //!
     //! \note It is assumed that p is integer.

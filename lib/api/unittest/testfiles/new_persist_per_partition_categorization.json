@@ -1,0 +1,17 @@
+{
+  "job_id":"new_persist_per_partition_categorization",
+  "analysis_config": {
+    "detectors":[
+      {
+        "function":"count",
+        "by_field_name":"mlcategory",
+        "partition_field_name":"event.dataset"
+      }
+    ],
+    "per_partition_categorization":{
+      "enabled":true,
+      "stop_on_warn":false
+    },
+    "categorization_field_name":"message"
+  }
+}

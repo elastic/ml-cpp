@@ -181,7 +181,7 @@ void testEstimateMemoryUsage(std::int64_t numberRows,
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor0Rows) {
-    testEstimateMemoryUsage(0, "0", "0", 1);
+    testEstimateMemoryUsage(0, "0mb", "0mb", 1);
 }
 
 BOOST_AUTO_TEST_CASE(testEstimateMemoryUsageFor1Row) {

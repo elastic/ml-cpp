@@ -42,6 +42,7 @@ public:
     static const std::string LAMBDA;
     static const std::string GAMMA;
     static const std::string ETA;
+    static const std::string ETA_GROWTH_RATE_PER_TREE;
     static const std::string SOFT_TREE_DEPTH_LIMIT;
     static const std::string SOFT_TREE_DEPTH_TOLERANCE;
     static const std::string MAX_TREES;
@@ -53,6 +54,7 @@ public:
     static const std::string NUM_TOP_FEATURE_IMPORTANCE_VALUES;
     static const std::string TRAINING_PERCENT_FIELD_NAME;
     static const std::string FEATURE_PROCESSORS;
+    static const std::string EARLY_STOPPING_ALLOWED;
 
     // Output
     static const std::string IS_TRAINING_FIELD_NAME;

@@ -48,6 +48,8 @@ public:
     //! Initialise the set from JSON that is an array of strings.
     bool initFromJson(const std::string& json);
 
+    bool initFromPatternList(const std::vector<std::string>& patterns);
+
     //! Check if the set contains the given key.
     bool contains(const std::string& key) const;
 

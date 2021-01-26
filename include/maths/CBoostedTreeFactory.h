@@ -100,6 +100,8 @@ public:
     CBoostedTreeFactory& maxTreeDepthTolerance(double maxTreeDepthTolerance);
     //! Set the amount we'll shrink the weights on each each iteration.
     CBoostedTreeFactory& eta(double eta);
+    //! Set the amount we'll grow eta on each each iteration.
+    CBoostedTreeFactory& etaGrowthRatePerTree(double etaGrowthRatePerTree);
     //! Set the maximum number of trees in the ensemble.
     CBoostedTreeFactory& maximumNumberTrees(std::size_t maximumNumberTrees);
     //! Set the fraction of features we'll use in the bag to build a tree.
@@ -113,6 +115,8 @@ public:
     CBoostedTreeFactory& rowsPerFeature(std::size_t rowsPerFeature);
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& numberTopShapValues(std::size_t numberTopShapValues);
+    //! Stop hyperparameter optimization early if the the process is not promising.
+    CBoostedTreeFactory& stopHyperparameterOptimizationEarly(bool stopEarly);
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&

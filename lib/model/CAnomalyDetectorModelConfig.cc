@@ -154,7 +154,7 @@ double CAnomalyDetectorModelConfig::bucketNormalizationFactor(core_t::TTime buck
 double CAnomalyDetectorModelConfig::trendDecayRate(double modelDecayRate,
                                                    core_t::TTime bucketLength) {
     double scale = static_cast<double>(bucketLength / 24 / STANDARD_BUCKET_LENGTH);
-    return std::min(24.0 * modelDecayRate / bucketNormalizationFactor(bucketLength) /
+    return std::min(48.0 * modelDecayRate / bucketNormalizationFactor(bucketLength) /
                         std::max(scale, 1.0),
                     0.1);
 }
@@ -372,6 +372,33 @@ bool CAnomalyDetectorModelConfig::init(const boost::property_tree::ptree& propTr
     return result;
 }
 
+void CAnomalyDetectorModelConfig::configureModelPlot(bool modelPlotEnabled,
+                                                     bool annotationsEnabled,
+                                                     const std::string& terms) {
+    m_ModelPlotEnabled = modelPlotEnabled;
+
+    if (m_ModelPlotEnabled) {
+        m_ModelPlotBoundsPercentile = maths::CModel::DEFAULT_BOUNDS_PERCENTILE;
+    }
+
+    m_ModelPlotAnnotationsEnabled = annotationsEnabled;
+    for (auto& factory : m_Factories) {
+        factory.second->annotationsEnabled(annotationsEnabled);
+    }
+
+    TStrVec tokens;
+    std::string remainder;
+    core::CStringUtils::tokenise(",", terms, tokens, remainder);
+    if (remainder.empty() == false) {
+        tokens.push_back(remainder);
+    }
+
+    m_ModelPlotTerms.clear();
+    for (const auto& token : tokens) {
+        m_ModelPlotTerms.insert(token);
+    }
+}
+
 bool CAnomalyDetectorModelConfig::configureModelPlot(const std::string& modelPlotConfigFile) {
     LOG_DEBUG(<< "Reading model plot config file " << modelPlotConfigFile);
 
@@ -445,6 +472,7 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree:
             LOG_ERROR(<< "Cannot parse as bool: " << valueStr);
             return false;
         }
+        m_ModelPlotAnnotationsEnabled = annotationsEnabled;
         for (auto& factory : m_Factories) {
             factory.second->annotationsEnabled(annotationsEnabled);
         }
@@ -455,6 +483,14 @@ bool CAnomalyDetectorModelConfig::configureModelPlot(const boost::property_tree:
     }
 
     return true;
+}
+
+bool CAnomalyDetectorModelConfig::modelPlotEnabled() const {
+    return m_ModelPlotEnabled;
+}
+
+bool CAnomalyDetectorModelConfig::modelPlotAnnotationsEnabled() const {
+    return m_ModelPlotAnnotationsEnabled;
 }
 
 CAnomalyDetectorModelConfig::TModelFactoryCPtr

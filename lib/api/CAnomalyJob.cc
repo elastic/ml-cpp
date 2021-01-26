@@ -37,8 +37,8 @@
 #include <model/CStringStore.h>
 
 #include <api/CAnnotationJsonWriter.h>
+#include <api/CAnomalyJobConfig.h>
 #include <api/CConfigUpdater.h>
-#include <api/CFieldConfig.h>
 #include <api/CHierarchicalResultsWriter.h>
 #include <api/CJsonOutputWriter.h>
 #include <api/CModelPlotDataJsonWriter.h>
@@ -88,9 +88,9 @@ const std::string INTERIM_BUCKET_CORRECTOR_TAG("k");
 //! Newer versions are able to read the model state of older versions, but older
 //! versions cannot read the model state of newer versions following a breaking
 //! change.  This constant tells the node assignment code not to load new model states
-//! on old nodes in a mixed version cluster.  (The last breaking change was in 7.9 in
-//! lib/core/CPackedBitVector.cc in https://github.com/elastic/ml-cpp/pull/1340.)
-const std::string MODEL_SNAPSHOT_MIN_VERSION("7.9.0");
+//! on old nodes in a mixed version cluster.  (The last breaking change was in 7.11 in
+//! lib/maths/CTimeSeriesDecomposition.cc in https://github.com/elastic/ml-cpp/pull/1614.)
+const std::string MODEL_SNAPSHOT_MIN_VERSION("7.11.0");
 
 //! Persist state as JSON with meaningful tag names.
 class CReadableJsonStatePersistInserter : public core::CJsonStatePersistInserter {
@@ -127,7 +127,7 @@ const CAnomalyJob::TAnomalyDetectorPtr CAnomalyJob::NULL_DETECTOR;
 
 CAnomalyJob::CAnomalyJob(const std::string& jobId,
                          model::CLimits& limits,
-                         CFieldConfig& fieldConfig,
+                         CAnomalyJobConfig& jobConfig,
                          model::CAnomalyDetectorModelConfig& modelConfig,
                          core::CJsonOutputStreamWrapper& outputStream,
                          const TPersistCompleteFunc& persistCompleteFunc,
@@ -139,7 +139,7 @@ CAnomalyJob::CAnomalyJob(const std::string& jobId,
     : CDataProcessor{timeFieldName, timeFieldFormat}, m_JobId{jobId}, m_Limits{limits},
       m_OutputStream{outputStream}, m_ForecastRunner{m_JobId, m_OutputStream,
                                                      limits.resourceMonitor()},
-      m_JsonOutputWriter{m_JobId, m_OutputStream}, m_FieldConfig{fieldConfig},
+      m_JsonOutputWriter{m_JobId, m_OutputStream}, m_JobConfig{jobConfig},
       m_ModelConfig{modelConfig}, m_NumRecordsHandled{0},
       m_LastFinalisedBucketEndTime{0}, m_PersistCompleteFunc{persistCompleteFunc},
       m_MaxDetectors{std::numeric_limits<size_t>::max()},
@@ -190,7 +190,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime t
     this->outputBucketResultsUntil(*time);
 
     if (m_DetectorKeys.empty()) {
-        this->populateDetectorKeys(m_FieldConfig, m_DetectorKeys);
+        this->populateDetectorKeys(m_JobConfig, m_DetectorKeys);
     }
 
     for (std::size_t i = 0u; i < m_DetectorKeys.size(); ++i) {
@@ -411,6 +411,11 @@ bool CAnomalyJob::parsePersistControlMessageArgs(const std::string& controlMessa
 
 void CAnomalyJob::processPersistControlMessage(const std::string& controlMessageArgs) {
     if (m_PersistenceManager != nullptr) {
+        // There is a subtle difference between these two cases.  When there
+        // are no control message arguments this triggers persistence of all
+        // chained processors, i.e. maybe the categorizer as well as the anomaly
+        // detector if there is one.  But when control message arguments are
+        // passed, ONLY the persistence of the anomaly detector is triggered.
         if (controlMessageArgs.empty()) {
             if (this->isPersistenceNeeded("state")) {
                 m_PersistenceManager->startPersist(core::CTimeUtils::now());
@@ -421,6 +426,10 @@ void CAnomalyJob::processPersistControlMessage(const std::string& controlMessage
             std::string snapshotDescription;
             if (parsePersistControlMessageArgs(controlMessageArgs, snapshotTimestamp,
                                                snapshotId, snapshotDescription)) {
+                // Since this is not going through the full persistence call
+                // chain, make sure model size stats are up to date before
+                // persisting
+                m_Limits.resourceMonitor().forceRefreshAll();
                 if (m_PersistenceManager->doForegroundPersist(
                         [this, &snapshotDescription, &snapshotId,
                          &snapshotTimestamp](core::CDataAdder& persister) {
@@ -446,7 +455,7 @@ void CAnomalyJob::acknowledgeFlush(const std::string& flushId) {
 
 void CAnomalyJob::updateConfig(const std::string& config) {
     LOG_DEBUG(<< "Received update config request: " << config);
-    CConfigUpdater configUpdater(m_FieldConfig, m_ModelConfig);
+    CConfigUpdater configUpdater(m_JobConfig, m_ModelConfig);
     if (configUpdater.update(config) == false) {
         LOG_ERROR(<< "Failed to update configuration");
     }
@@ -506,7 +515,8 @@ void CAnomalyJob::outputBucketResultsUntil(core_t::TTime time) {
          lastBucketEndTime += bucketLength) {
         this->outputResults(lastBucketEndTime);
         m_Limits.resourceMonitor().decreaseMargin(bucketLength);
-        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(lastBucketEndTime);
+        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(
+            lastBucketEndTime, bucketLength);
         m_LastFinalisedBucketEndTime = lastBucketEndTime + bucketLength;
 
         // Check for periodic persistence immediately after calculating results
@@ -1416,7 +1426,7 @@ void CAnomalyJob::outputResultsWithinRange(bool isInterim, core_t::TTime start, 
         } else {
             this->outputResults(time);
         }
-        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(time);
+        m_Limits.resourceMonitor().sendMemoryUsageReportIfSignificantlyChanged(time, bucketLength);
         time += bucketLength;
     }
 }
@@ -1449,10 +1459,11 @@ void CAnomalyJob::writeOutAnnotations(const TAnnotationVec& annotations) {
 }
 
 void CAnomalyJob::refreshMemoryAndReport() {
-    if (m_LastFinalisedBucketEndTime < m_ModelConfig.bucketLength()) {
+    core_t::TTime bucketLength{m_ModelConfig.bucketLength()};
+    if (m_LastFinalisedBucketEndTime < bucketLength) {
         LOG_ERROR(<< "Cannot report memory usage because last finalized bucket end time ("
-                  << m_LastFinalisedBucketEndTime << ") is smaller than bucket span ("
-                  << m_ModelConfig.bucketLength() << ')');
+                  << m_LastFinalisedBucketEndTime
+                  << ") is smaller than bucket span (" << bucketLength << ')');
         return;
     }
     // Make sure model size stats are up to date and then send a final memory
@@ -1467,7 +1478,7 @@ void CAnomalyJob::refreshMemoryAndReport() {
         m_Limits.resourceMonitor().forceRefresh(*detector);
     }
     m_Limits.resourceMonitor().sendMemoryUsageReport(
-        m_LastFinalisedBucketEndTime - m_ModelConfig.bucketLength());
+        m_LastFinalisedBucketEndTime - bucketLength, bucketLength);
 }
 
 void CAnomalyJob::persistIndividualDetector(const model::CAnomalyDetector& detector,
@@ -1583,18 +1594,18 @@ CAnomalyJob::makeDetector(const model::CAnomalyDetectorModelConfig& modelConfig,
                                                            firstTime, modelFactory);
 }
 
-void CAnomalyJob::populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec& keys) {
+void CAnomalyJob::populateDetectorKeys(const CAnomalyJobConfig& jobConfig, TKeyVec& keys) {
     keys.clear();
 
     // Add a key for the simple count detector.
     keys.push_back(model::CSearchKey::simpleCountKey());
 
-    for (const auto& fieldOptions : fieldConfig.fieldOptions()) {
-        keys.emplace_back(fieldOptions.configKey(), fieldOptions.function(),
+    for (const auto& fieldOptions : jobConfig.analysisConfig().detectorsConfig()) {
+        keys.emplace_back(fieldOptions.detectorIndex(), fieldOptions.function(),
                           fieldOptions.useNull(), fieldOptions.excludeFrequent(),
                           fieldOptions.fieldName(), fieldOptions.byFieldName(),
                           fieldOptions.overFieldName(), fieldOptions.partitionFieldName(),
-                          fieldConfig.influencerFieldNames());
+                          jobConfig.analysisConfig().influencers());
     }
 }
 

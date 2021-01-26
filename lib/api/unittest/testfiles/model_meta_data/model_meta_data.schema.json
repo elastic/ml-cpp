@@ -1,0 +1,97 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "https://raw.githubusercontent.com/elastic/ml-json-schemas-private/master/schemas/model_meta_data/model_meta_data.schema.json",
+    "description": "Optional model meta information",
+    "title": "model_meta_data",
+    "type": "object",
+    "properties": {
+        "total_feature_importance": {
+            "description": "Average feature importance for all features used by the model",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "field_name": {
+                        "type": "string"
+                    },
+                    "importance": {
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "field_name",
+                    "importance"
+                ],
+                "additionalProperties": false
+            },
+            "additionalItems": false
+        },
+        "hyperparameters": {
+            "description": "List of hyperparameters together their absolute and relative importances from Bayesian optimization.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "oneOf": [
+                    {
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "description": "The best hyperparameter value or the value supplied by the user.",
+                                "type": "number"
+                            },
+                            "supplied": {
+                                "description": "Wether or not the value was supplied by the user.",
+                                "type": "boolean",
+                                "enum": [
+                                    false
+                                ]
+                            },
+                            "absolute_importance": {
+                                "type": "number"
+                            },
+                            "relative_importance": {
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "value",
+                            "supplied",
+                            "absolute_importance",
+                            "relative_importance"
+                        ],
+                        "additionalProperties": false
+                    },
+                    {
+                        "properties": {
+                            "name": {
+                                "type": "string"
+                            },
+                            "value": {
+                                "description": "The best hyperparameter value or the value supplied by the user.",
+                                "type": "number"
+                            },
+                            "supplied": {
+                                "description": "Wether or not the value was supplied by the user.",
+                                "type": "boolean",
+                                "enum": [
+                                    true
+                                ]
+                            }
+                        },
+                        "required": [
+                            "name",
+                            "value",
+                            "supplied"
+                        ],
+                        "additionalProperties": false
+                    }
+                ]
+            },
+            "additionalItems": false
+        }
+    },
+    "additionalProperties": false
+}

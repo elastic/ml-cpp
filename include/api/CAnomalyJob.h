@@ -50,9 +50,9 @@ class CHierarchicalResults;
 class CLimits;
 }
 namespace api {
+class CAnomalyJobConfig;
 class CPersistenceManager;
 class CModelPlotDataJsonWriter;
-class CFieldConfig;
 
 //! \brief
 //! The Ml anomaly detector.
@@ -142,7 +142,7 @@ public:
 public:
     CAnomalyJob(const std::string& jobId,
                 model::CLimits& limits,
-                CFieldConfig& fieldConfig,
+                CAnomalyJobConfig& jobConfig,
                 model::CAnomalyDetectorModelConfig& modelConfig,
                 core::CJsonOutputStreamWrapper& outputBuffer,
                 const TPersistCompleteFunc& persistCompleteFunc,
@@ -365,8 +365,8 @@ private:
                  core_t::TTime firstTime,
                  const model::CAnomalyDetector::TModelFactoryCPtr& modelFactory);
 
-    //! Populate detector keys from the field config.
-    void populateDetectorKeys(const CFieldConfig& fieldConfig, TKeyVec& keys);
+    //! Populate detector keys from the anomaly job config.
+    void populateDetectorKeys(const CAnomalyJobConfig& jobConfig, TKeyVec& keys);
 
     //! Extract the field called \p fieldName from \p dataRowFields.
     const std::string* fieldValue(const std::string& fieldName, const TStrStrUMap& dataRowFields);
@@ -424,8 +424,12 @@ private:
     //! Object to which the output is passed
     CJsonOutputWriter m_JsonOutputWriter;
 
-    //! Field names to use for the analysis
-    CFieldConfig& m_FieldConfig;
+    //! Configuration settings for the analysis parsed from
+    //! JSON configuration file.
+    //! Note that this is a non-const reference as it needs to be capable of
+    //! being modified by job updates (and those changes reflected wherever a
+    //! reference is held).
+    CAnomalyJobConfig& m_JobConfig;
 
     //! The model configuration
     model::CAnomalyDetectorModelConfig& m_ModelConfig;

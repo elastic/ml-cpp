@@ -33,7 +33,6 @@
 #include <api/CAnomalyJobConfig.h>
 #include <api/CCmdSkeleton.h>
 #include <api/CCsvInputParser.h>
-#include <api/CFieldConfig.h>
 #include <api/CFieldDataCategorizer.h>
 #include <api/CIoManager.h>
 #include <api/CJsonOutputWriter.h>
@@ -77,7 +76,8 @@ int main(int argc, char** argv) {
         ml::counter_t::E_TSADNumberExcludedFrequentInvocations,
         ml::counter_t::E_TSADNumberSamplesOutsideLatencyWindow,
         ml::counter_t::E_TSADNumberMemoryLimitModelCreationFailures,
-        ml::counter_t::E_TSADNumberPrunedItems};
+        ml::counter_t::E_TSADNumberPrunedItems,
+        ml::counter_t::E_TSADAssignmentMemoryBasis};
 
     ml::core::CProgramCounters::registerProgramCounterTypes(counters);
 
@@ -85,24 +85,17 @@ int main(int argc, char** argv) {
 
     // Read command line options
     std::string configFile;
-    std::string limitConfigFile;
+    std::string filtersConfigFile;
+    std::string eventsConfigFile;
     std::string modelConfigFile;
-    std::string fieldConfigFile;
-    std::string modelPlotConfigFile;
     std::string logProperties;
     std::string logPipe;
-    ml::core_t::TTime bucketSpan{0};
-    ml::core_t::TTime latency{0};
-    std::string summaryCountFieldName;
     char delimiter{'\t'};
     bool lengthEncodedInput{false};
-    std::string timeField{ml::api::CAnomalyJob::DEFAULT_TIME_FIELD_NAME};
     std::string timeFormat;
     std::string quantilesStateFile;
     bool deleteStateFiles{false};
-    ml::core_t::TTime persistInterval{-1};
     std::size_t bucketPersistInterval{0};
-    ml::core_t::TTime maxQuantileInterval{-1};
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
     std::string inputFileName;
@@ -116,19 +109,14 @@ int main(int argc, char** argv) {
     bool isPersistInForeground{false};
     std::size_t maxAnomalyRecords{100};
     bool memoryUsage{false};
-    bool multivariateByFields{false};
-    bool stopCategorizationOnWarnStatus{false};
-    TStrVec clauseTokens;
     if (ml::autodetect::CCmdLineParser::parse(
-            argc, argv, configFile, limitConfigFile, modelConfigFile, fieldConfigFile,
-            modelPlotConfigFile, logProperties, logPipe, bucketSpan, latency,
-            summaryCountFieldName, delimiter, lengthEncodedInput, timeField,
-            timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
-            bucketPersistInterval, maxQuantileInterval, namedPipeConnectTimeout,
-            inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
-            restoreFileName, isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe,
-            isPersistInForeground, maxAnomalyRecords, memoryUsage, multivariateByFields,
-            stopCategorizationOnWarnStatus, clauseTokens) == false) {
+            argc, argv, configFile, filtersConfigFile, eventsConfigFile,
+            modelConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
+            timeFormat, quantilesStateFile, deleteStateFiles, bucketPersistInterval,
+            namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe,
+            outputFileName, isOutputFileNamedPipe, restoreFileName,
+            isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe,
+            isPersistInForeground, maxAnomalyRecords, memoryUsage) == false) {
         return EXIT_FAILURE;
     }
 
@@ -176,62 +164,39 @@ int main(int argc, char** argv) {
     // hence is done before reducing CPU priority.
     ml::core::CProcessPriority::reduceCpuPriority();
 
+    ml::api::CAnomalyJobConfig jobConfig;
+    if (jobConfig.initFromFiles(configFile, filtersConfigFile, eventsConfigFile) == false) {
+        LOG_FATAL(<< "JSON config could not be interpreted");
+        return EXIT_FAILURE;
+    }
+
+    const ml::api::CAnomalyJobConfig::CAnalysisLimits& analysisLimits =
+        jobConfig.analysisLimits();
     ml::model::CLimits limits{isPersistInForeground};
-    if (!limitConfigFile.empty() && limits.init(limitConfigFile) == false) {
-        LOG_FATAL(<< "ML limit config file '" << limitConfigFile << "' could not be loaded");
-        return EXIT_FAILURE;
-    }
+    limits.init(analysisLimits.categorizationExamplesLimit(),
+                analysisLimits.modelMemoryLimitMb());
 
-    ml::api::CFieldConfig fieldConfig;
+    const ml::api::CAnomalyJobConfig::CAnalysisConfig& analysisConfig =
+        jobConfig.analysisConfig();
 
-    if (fieldConfig.initFromCmdLine(fieldConfigFile, clauseTokens) == false) {
-        LOG_FATAL(<< "Field config could not be interpreted");
-        return EXIT_FAILURE;
-    }
-
-    std::string anomalyJobConfigJson;
-    bool couldReadConfigFile;
-    std::tie(anomalyJobConfigJson, couldReadConfigFile) =
-        ml::core::CStringUtils::readFileToString(configFile);
-    if (couldReadConfigFile == false) {
-        LOG_FATAL(<< "Failed to read config file '" << configFile << "'");
-        return EXIT_FAILURE;
-    }
-    // For now we need to reference the rule filters parsed by the old-style
-    // field config.
-    ml::api::CAnomalyJobConfig jobConfig{fieldConfig.ruleFilters()};
-    if (jobConfig.parse(anomalyJobConfigJson) == false) {
-        LOG_FATAL(<< "Failed to parse anomaly job config: '" << anomalyJobConfigJson << "'");
-        return EXIT_FAILURE;
-    }
-
-    bool doingCategorization{fieldConfig.fieldNameSuperset().count(
-                                 ml::api::CFieldDataCategorizer::MLCATEGORY_NAME) > 0};
+    bool doingCategorization{analysisConfig.categorizationFieldName().empty() == false};
     TStrVec mutableFields;
     if (doingCategorization) {
         mutableFields.push_back(ml::api::CFieldDataCategorizer::MLCATEGORY_NAME);
     }
 
-    ml::model_t::ESummaryMode summaryMode{
-        summaryCountFieldName.empty() ? ml::model_t::E_None : ml::model_t::E_Manual};
-    ml::model::CAnomalyDetectorModelConfig modelConfig{ml::model::CAnomalyDetectorModelConfig::defaultConfig(
-        bucketSpan, summaryMode, summaryCountFieldName, latency, multivariateByFields)};
-    modelConfig.detectionRules(ml::model::CAnomalyDetectorModelConfig::TIntDetectionRuleVecUMapCRef(
-        fieldConfig.detectionRules()));
-    modelConfig.scheduledEvents(ml::model::CAnomalyDetectorModelConfig::TStrDetectionRulePrVecCRef(
-        fieldConfig.scheduledEvents()));
+    ml::model::CAnomalyDetectorModelConfig modelConfig = analysisConfig.makeModelConfig();
 
     if (!modelConfigFile.empty() && modelConfig.init(modelConfigFile) == false) {
         LOG_FATAL(<< "ML model config file '" << modelConfigFile << "' could not be loaded");
         return EXIT_FAILURE;
     }
 
-    if (!modelPlotConfigFile.empty() &&
-        modelConfig.configureModelPlot(modelPlotConfigFile) == false) {
-        LOG_FATAL(<< "ML model plot config file '" << modelPlotConfigFile
-                  << "' could not be loaded");
-        return EXIT_FAILURE;
-    }
+    const ml::api::CAnomalyJobConfig::CModelPlotConfig& modelPlotConfig =
+        jobConfig.modelPlotConfig();
+    modelConfig.configureModelPlot(modelPlotConfig.enabled(),
+                                   modelPlotConfig.annotationsEnabled(),
+                                   modelPlotConfig.terms());
 
     using TDataSearcherUPtr = std::unique_ptr<ml::core::CDataSearcher>;
     const TDataSearcherUPtr restoreSearcher{[isRestoreFileNamedPipe, &ioMgr]() -> TDataSearcherUPtr {
@@ -258,6 +223,7 @@ int main(int argc, char** argv) {
         return nullptr;
     }()};
 
+    ml::core_t::TTime persistInterval{jobConfig.persistInterval()};
     if ((bucketPersistInterval > 0 || persistInterval >= 0) && persister == nullptr) {
         LOG_FATAL(<< "Periodic persistence cannot be enabled using the '"
                   << ((persistInterval >= 0) ? "persistInterval" : "bucketPersistInterval")
@@ -295,14 +261,14 @@ int main(int argc, char** argv) {
     // The anomaly job knows how to detect anomalies
     ml::api::CAnomalyJob job{jobId,
                              limits,
-                             fieldConfig,
+                             jobConfig,
                              modelConfig,
                              wrappedOutputStream,
                              std::bind(&ml::api::CModelSnapshotJsonWriter::write,
                                        &modelSnapshotWriter, std::placeholders::_1),
                              persistenceManager.get(),
-                             maxQuantileInterval,
-                             timeField,
+                             jobConfig.quantilePersistInterval(),
+                             jobConfig.dataDescription().timeField(),
                              timeFormat,
                              maxAnomalyRecords};
 
@@ -317,15 +283,16 @@ int main(int argc, char** argv) {
     }
 
     // The categorizer knows how to assign categories to records
-    ml::api::CFieldDataCategorizer categorizer{jobId,
-                                               fieldConfig,
-                                               limits,
-                                               timeField,
-                                               timeFormat,
-                                               &job,
-                                               wrappedOutputStream,
-                                               persistenceManager.get(),
-                                               stopCategorizationOnWarnStatus};
+    ml::api::CFieldDataCategorizer categorizer{
+        jobId,
+        analysisConfig,
+        limits,
+        jobConfig.dataDescription().timeField(),
+        timeFormat,
+        &job,
+        wrappedOutputStream,
+        persistenceManager.get(),
+        analysisConfig.perPartitionCategorizationStopOnWarn()};
 
     ml::api::CDataProcessor* firstProcessor{nullptr};
     if (doingCategorization) {

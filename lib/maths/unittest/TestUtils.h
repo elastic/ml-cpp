@@ -299,8 +299,8 @@ double smoothWeekly(core_t::TTime time);
 //! Spikey daily periodic.
 double spikeyDaily(core_t::TTime time);
 
-//! Spikey weekly periodic.
-double spikeyWeekly(core_t::TTime time);
+//! Spikey daily + weekly periodic.
+double spikeyDailyWeekly(core_t::TTime time);
 
 //! Weekday/weekend periodic.
 double weekends(core_t::TTime time);

@@ -24,7 +24,11 @@
 #include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <stdlib.h>
+#include <algorithm>
+#include <functional>
+#include <numeric>
+#include <string>
+#include <vector>
 
 BOOST_AUTO_TEST_SUITE(CBasicStatisticsTest)
 
@@ -70,6 +74,47 @@ BOOST_AUTO_TEST_CASE(testMean) {
 
     // Compare with hand calculated value
     BOOST_REQUIRE_EQUAL(56.47875, mean);
+}
+
+BOOST_AUTO_TEST_CASE(testVarianceAtPercentile) {
+
+    // Test that the variance at a percentile is correctly calibrated.
+
+    test::CRandomNumbers rng;
+
+    TDoubleVec samples;
+    TMeanAccumulator bias;
+
+    for (auto percentile : {10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0}) {
+
+        for (std::size_t n : {5, 20, 50}) {
+
+            double varianceAtPercentile{maths::CBasicStatistics::varianceAtPercentile(
+                percentile, 1.0, static_cast<double>(n - 1))};
+
+            double percentageLessThan{0.0};
+            for (std::size_t i = 0; i < 1000; ++i) {
+                rng.generateNormalSamples(0.0, 1.0, n, samples);
+                double variance{maths::CBasicStatistics::variance(std::accumulate(
+                    samples.begin(), samples.end(), TMeanVarAccumulator{},
+                    [](TMeanVarAccumulator moments, double value) {
+                        moments.add(value);
+                        return moments;
+                    }))};
+                if (variance < varianceAtPercentile) {
+                    percentageLessThan += 0.1;
+                }
+            }
+
+            LOG_DEBUG(<< "variance(" << percentile << ") = " << varianceAtPercentile
+                      << ", % less than = " << percentageLessThan);
+            BOOST_REQUIRE_CLOSE_ABSOLUTE(percentile, percentageLessThan, 4.0);
+            bias.add(percentile - percentageLessThan);
+        }
+    }
+
+    LOG_DEBUG(<< "bias = " << maths::CBasicStatistics::mean(bias));
+    BOOST_REQUIRE(maths::CBasicStatistics::mean(bias) < 0.1);
 }
 
 BOOST_AUTO_TEST_CASE(testCentralMoments) {

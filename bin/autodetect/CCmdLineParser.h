@@ -29,30 +29,23 @@ public:
     using TStrVec = std::vector<std::string>;
 
 public:
-    //! Parse the arguments and return options if appropriate.  Unamed
+    //! Parse the arguments and return options if appropriate.  Unnamed
     //! options are placed in a vector for further processing/validation
     //! later on by the api::CFieldConfig class.
     static bool parse(int argc,
                       const char* const* argv,
                       std::string& config,
-                      std::string& limitConfigFile,
+                      std::string& filtersConfig,
+                      std::string& eventsConfig,
                       std::string& modelConfigFile,
-                      std::string& fieldConfigFile,
-                      std::string& modelPlotConfigFile,
                       std::string& logProperties,
                       std::string& logPipe,
-                      core_t::TTime& bucketSpan,
-                      core_t::TTime& latency,
-                      std::string& summaryCountFieldName,
                       char& delimiter,
                       bool& lengthEncodedInput,
-                      std::string& timeField,
                       std::string& timeFormat,
                       std::string& quantilesState,
                       bool& deleteStateFiles,
-                      core_t::TTime& persistInterval,
                       std::size_t& bucketPersistInterval,
-                      core_t::TTime& maxQuantileInterval,
                       core_t::TTime& namedPipeConnectTimeout,
                       std::string& inputFileName,
                       bool& isInputFileNamedPipe,
@@ -64,10 +57,7 @@ public:
                       bool& isPersistFileNamedPipe,
                       bool& isPersistInForeground,
                       std::size_t& maxAnomalyRecords,
-                      bool& memoryUsage,
-                      bool& multivariateByFields,
-                      bool& stopCategorizationOnWarnStatus,
-                      TStrVec& clauseTokens);
+                      bool& memoryUsage);
 
 private:
     static const std::string DESCRIPTION;

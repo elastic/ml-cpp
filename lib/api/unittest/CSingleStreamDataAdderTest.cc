@@ -14,8 +14,8 @@
 #include <model/CAnomalyDetectorModelConfig.h>
 #include <model/CLimits.h>
 
+#include <api/CAnomalyJobConfig.h>
 #include <api/CCsvInputParser.h>
-#include <api/CFieldConfig.h>
 #include <api/CNdJsonInputParser.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
@@ -60,8 +60,8 @@ void detectorPersistHelper(const std::string& configFileName,
     BOOST_TEST_REQUIRE(outputStrm.is_open());
 
     ml::model::CLimits limits;
-    ml::api::CFieldConfig fieldConfig;
-    BOOST_TEST_REQUIRE(fieldConfig.initFromFile(configFileName));
+    ml::api::CAnomalyJobConfig jobConfig;
+    BOOST_TEST_REQUIRE(jobConfig.initFromFile(configFileName));
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
         ml::model::CAnomalyDetectorModelConfig::defaultConfig(
@@ -75,18 +75,17 @@ void detectorPersistHelper(const std::string& configFileName,
 
     {
         CTestAnomalyJob origJob(
-            JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+            JOB_ID, limits, jobConfig, modelConfig, wrappedOutputStream,
             std::bind(&reportPersistComplete, std::placeholders::_1,
                       std::ref(origSnapshotId), std::ref(numOrigDocs)),
             nullptr, -1, "time", timeFormat);
 
         // The categorizer knows how to assign categories to records
-        CTestFieldDataCategorizer categorizer(JOB_ID, fieldConfig, limits,
-                                              &origJob, wrappedOutputStream);
+        CTestFieldDataCategorizer categorizer(JOB_ID, jobConfig.analysisConfig(),
+                                              limits, &origJob, wrappedOutputStream);
 
         ml::api::CDataProcessor* firstProcessor{nullptr};
-        if (fieldConfig.fieldNameSuperset().count(
-                CTestFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
+        if (jobConfig.analysisConfig().categorizationFieldName().empty() == false) {
             LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
             firstProcessor = &categorizer;
         } else {
@@ -126,19 +125,18 @@ void detectorPersistHelper(const std::string& configFileName,
 
     {
         CTestAnomalyJob restoredJob(
-            JOB_ID, limits, fieldConfig, modelConfig, wrappedOutputStream,
+            JOB_ID, limits, jobConfig, modelConfig, wrappedOutputStream,
             std::bind(&reportPersistComplete, std::placeholders::_1,
                       std::ref(restoredSnapshotId), std::ref(numRestoredDocs)));
 
         // The categorizer knows how to assign categories to records
         CTestFieldDataCategorizer restoredCategorizer(
-            JOB_ID, fieldConfig, limits, &restoredJob, wrappedOutputStream);
+            JOB_ID, jobConfig.analysisConfig(), limits, &restoredJob, wrappedOutputStream);
 
         size_t numCategorizerDocs(0);
 
         ml::api::CDataProcessor* restoredFirstProcessor{nullptr};
-        if (fieldConfig.fieldNameSuperset().count(
-                CTestFieldDataCategorizer::MLCATEGORY_NAME) > 0) {
+        if (jobConfig.analysisConfig().categorizationFieldName().empty() == false) {
             LOG_DEBUG(<< "Applying the categorization categorizer for anomaly detection");
             numCategorizerDocs = 1;
             restoredFirstProcessor = &restoredCategorizer;
@@ -190,32 +188,32 @@ void detectorPersistHelper(const std::string& configFileName,
 }
 
 BOOST_AUTO_TEST_CASE(testDetectorPersistBy) {
-    detectorPersistHelper("testfiles/new_mlfields.conf",
+    detectorPersistHelper("testfiles/new_mlfields.json",
                           "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
 BOOST_AUTO_TEST_CASE(testDetectorPersistOver) {
-    detectorPersistHelper("testfiles/new_mlfields_over.conf",
+    detectorPersistHelper("testfiles/new_mlfields_over.json",
                           "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
 BOOST_AUTO_TEST_CASE(testDetectorPersistPartition) {
-    detectorPersistHelper("testfiles/new_mlfields_partition.conf",
+    detectorPersistHelper("testfiles/new_mlfields_partition.json",
                           "testfiles/big_ascending.txt", 0, "%d/%b/%Y:%T %z");
 }
 
 BOOST_AUTO_TEST_CASE(testDetectorPersistDc) {
-    detectorPersistHelper("testfiles/new_persist_dc.conf",
+    detectorPersistHelper("testfiles/new_persist_dc.json",
                           "testfiles/files_users_programs.csv", 5);
 }
 
 BOOST_AUTO_TEST_CASE(testDetectorPersistCount) {
-    detectorPersistHelper("testfiles/new_persist_count.conf",
+    detectorPersistHelper("testfiles/new_persist_count.json",
                           "testfiles/files_users_programs.csv", 5);
 }
 
 BOOST_AUTO_TEST_CASE(testDetectorPersistCategorization) {
-    detectorPersistHelper("testfiles/new_persist_categorization.conf",
+    detectorPersistHelper("testfiles/new_persist_categorization.json",
                           "testfiles/time_messages.csv", 0);
 }
 
