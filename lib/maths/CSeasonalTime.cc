@@ -61,6 +61,11 @@ double CSeasonalTime::regressionInterval(core_t::TTime start, core_t::TTime end)
            static_cast<double>(this->regressionTimeScale());
 }
 
+core_t::TTime CSeasonalTime::startOfPeriod(core_t::TTime time) const {
+    core_t::TTime startOfWindow{this->startOfWindow(time)};
+    return startOfWindow + CIntegerTools::floor(time - startOfWindow, m_Period);
+}
+
 core_t::TTime CSeasonalTime::startOfWindowRepeat(core_t::TTime time) const {
     return this->startOfWindowRepeat(this->windowRepeatStart(), time);
 }

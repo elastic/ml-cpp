@@ -130,7 +130,7 @@ void CCalendarComponentAdaptiveBucketing::propagateForwardsByTime(double time) {
 }
 
 double CCalendarComponentAdaptiveBucketing::count(core_t::TTime time) const {
-    const TFloatMeanVarAccumulator* value = this->value(time);
+    const TFloatMeanVarAccumulator* value{this->value(time)};
     return value ? static_cast<double>(CBasicStatistics::count(*value)) : 0.0;
 }
 

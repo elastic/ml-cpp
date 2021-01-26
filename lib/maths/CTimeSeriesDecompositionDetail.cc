@@ -1773,7 +1773,7 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SAddValue& messag
             CSeasonalComponent* component{seasonalComponents[i - 1]};
             CComponentErrors* error_{seasonalErrors[i - 1]};
             double varianceIncrease{variance == 0.0 ? 1.0 : variances[i] / variance / expectedVarianceIncrease};
-            component->add(time, values[i], weight);
+            component->add(time, values[i], weight, 0.5);
             error_->add(referenceError, error, predictions[i - 1], varianceIncrease, weight);
         }
         for (std::size_t i = m + 1; i <= m + n; ++i) {
@@ -1885,12 +1885,12 @@ void CTimeSeriesDecompositionDetail::CComponents::handle(const SDetectedChangePo
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::interpolateForForecast(core_t::TTime time) {
-    if (this->shouldInterpolate(time, time - m_BucketLength)) {
+    if (this->shouldInterpolate(time)) {
         if (m_Seasonal != nullptr) {
-            m_Seasonal->interpolate(time, time - m_BucketLength, false);
+            m_Seasonal->interpolate(time, false);
         }
         if (m_Calendar != nullptr) {
-            m_Calendar->interpolate(time, time - m_BucketLength, true);
+            m_Calendar->interpolate(time, true);
         }
     }
 }
@@ -2224,24 +2224,21 @@ bool CTimeSeriesDecompositionDetail::CComponents::shouldUseTrendForPrediction() 
     return m_UsingTrendForPrediction;
 }
 
-bool CTimeSeriesDecompositionDetail::CComponents::shouldInterpolate(core_t::TTime time,
-                                                                    core_t::TTime last) {
+bool CTimeSeriesDecompositionDetail::CComponents::shouldInterpolate(core_t::TTime time) {
     return m_Machine.state() == SC_NEW_COMPONENTS ||
-           (m_Seasonal && m_Seasonal->shouldInterpolate(time, last)) ||
-           (m_Calendar && m_Calendar->shouldInterpolate(time, last));
+           (m_Seasonal && m_Seasonal->shouldInterpolate(time)) ||
+           (m_Calendar && m_Calendar->shouldInterpolate(time));
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::interpolate(const SMessage& message) {
     core_t::TTime time{message.s_Time};
-    core_t::TTime lastTime{message.s_LastTime};
-
     std::size_t state{m_Machine.state()};
 
     switch (state) {
     case SC_NORMAL:
     case SC_NEW_COMPONENTS:
         this->canonicalize(time);
-        if (this->shouldInterpolate(time, lastTime)) {
+        if (this->shouldInterpolate(time)) {
             LOG_TRACE(<< "Interpolating values at " << time);
 
             // As well as interpolating we also remove components that contain
@@ -2252,13 +2249,13 @@ void CTimeSeriesDecompositionDetail::CComponents::interpolate(const SMessage& me
                 if (m_Seasonal->removeComponentsWithBadValues(time)) {
                     m_ComponentChangeCallback({});
                 }
-                m_Seasonal->interpolate(time, lastTime, true);
+                m_Seasonal->interpolate(time, true);
             }
             if (m_Calendar != nullptr) {
                 if (m_Calendar->removeComponentsWithBadValues(time)) {
                     m_ComponentChangeCallback({});
                 }
-                m_Calendar->interpolate(time, lastTime, true);
+                m_Calendar->interpolate(time, true);
             }
 
             this->apply(SC_INTERPOLATED, message);
@@ -2284,6 +2281,15 @@ void CTimeSeriesDecompositionDetail::CComponents::shiftOrigin(core_t::TTime time
 
 void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime time) {
 
+    // There is redundancy in the specification of the additive decomposition. For
+    // any collection of models {m_i} then for any set of |{m_i}| constants {c_j}
+    // satisfying sum_j c_j = 0 all models of the form m_i' = s_i + c_{j(i)} for
+    // any permutation j(.) give the same predictions. Here we choose a canonical
+    // form which minimises the values of the components to avoid issues with
+    // cancellation errors.
+
+    using TMinMaxAccumulator = CBasicStatistics::CMinMax<double>;
+
     this->shiftOrigin(time);
 
     if (m_Seasonal != nullptr && m_Seasonal->prune(time, m_BucketLength)) {
@@ -2294,17 +2300,54 @@ void CTimeSeriesDecompositionDetail::CComponents::canonicalize(core_t::TTime tim
     }
 
     if (m_Seasonal != nullptr) {
-        TSeasonalComponentVec& seasonal{m_Seasonal->components()};
-        double slope{0.0};
-        for (auto& component : seasonal) {
+        // Compute the sum level and slope for each separate window if the
+        // components are time windowed.
+        TTimeTimePrDoubleFMap levels;
+        TTimeTimePrDoubleFMap slopes;
+        TTimeTimePrDoubleFMap numberLevels;
+        TTimeTimePrDoubleFMap numberSlopes;
+        for (auto& component : m_Seasonal->components()) {
+            auto window = component.time().windowed() ? component.time().window()
+                                                      : TTimeTimePr{0, 0};
+            levels[window] += component.meanValue();
+            numberLevels[window] += 1.0;
             if (component.slopeAccurate(time)) {
-                double slope_{component.slope()};
-                slope += slope_;
-                component.shiftSlope(time, -slope_);
+                slopes[window] += component.slope();
+                numberSlopes[window] += 1.0;
             }
         }
-        if (slope != 0.0) {
-            m_Trend.shiftSlope(time, slope);
+
+        TMinMaxAccumulator commonLevel;
+        for (const auto& level : levels) {
+            commonLevel.add(level.second);
+        }
+        if (commonLevel.signMargin() != 0.0) {
+            for (auto& component : m_Seasonal->components()) {
+                auto window = component.time().windowed() ? component.time().window()
+                                                          : TTimeTimePr{0, 0};
+                component.shiftLevel((levels[window] - commonLevel.signMargin()) /
+                                         numberLevels[window] -
+                                     component.meanValue());
+            }
+            m_Trend.shiftLevel(commonLevel.signMargin());
+        }
+
+        TMinMaxAccumulator commonSlope;
+        for (const auto& slope : slopes) {
+            commonSlope.add(slope.second);
+        }
+        if (commonSlope.signMargin() != 0.0) {
+            for (auto& component : m_Seasonal->components()) {
+                if (component.slopeAccurate(time)) {
+                    auto window = component.time().windowed()
+                                      ? component.time().window()
+                                      : TTimeTimePr{0, 0};
+                    component.shiftSlope(time, (slopes[window] - commonSlope.signMargin()) /
+                                                       numberSlopes[window] -
+                                                   component.slope());
+                }
+            }
+            m_Trend.shiftSlope(time, commonSlope.signMargin());
         }
     }
 }
@@ -2358,7 +2401,12 @@ double CTimeSeriesDecompositionDetail::CComponents::CGainController::gain() cons
         TRegression::TArray params;
         m_MeanSumAmplitudesTrend.parameters(params);
         if (params[1] > 0.01 * CBasicStatistics::mean(m_MeanSumAmplitudes)) {
-            return 1.0;
+            // Anything less than one is sufficient to ensure that the basic update
+            // dynamics are stable (poles of the Z-transform inside the unit circle).
+            // There are however other factors at play which are hard to quantify
+            // such as the sample weight and the fact that there's a lag detecting
+            // instability. This gives us a margin for error.
+            return 0.8;
         }
     }
     return 3.0;
@@ -2547,7 +2595,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::propagateForwards(c
     for (std::size_t i = 0; i < m_Components.size(); ++i) {
         core_t::TTime period{m_Components[i].time().period()};
         stepwisePropagateForwards(start, end, period, [&](double time) {
-            m_Components[i].propagateForwardsByTime(time / 8.0, 0.25);
+            m_Components[i].propagateForwardsByTime(time / 6.0, 0.25);
             m_PredictionErrors[i].age(std::exp(-m_Components[i].decayRate() * time));
         });
     }
@@ -2623,14 +2671,9 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::appendPredictions(
     }
 }
 
-bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::shouldInterpolate(
-    core_t::TTime time,
-    core_t::TTime last) const {
+bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::shouldInterpolate(core_t::TTime time) const {
     for (const auto& component : m_Components) {
-        core_t::TTime period{component.time().period()};
-        core_t::TTime a{CIntegerTools::floor(last, period)};
-        core_t::TTime b{CIntegerTools::floor(time, period)};
-        if (b > a) {
+        if (component.shouldInterpolate(time)) {
             return true;
         }
     }
@@ -2638,14 +2681,10 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::shouldInterpolate(
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::interpolate(core_t::TTime time,
-                                                                         core_t::TTime lastTime,
                                                                          bool refine) {
     for (auto& component : m_Components) {
-        core_t::TTime period{component.time().period()};
-        core_t::TTime a{CIntegerTools::floor(lastTime, period)};
-        core_t::TTime b{CIntegerTools::floor(time, period)};
-        if (b > a || component.initialized() == false) {
-            component.interpolate(b, refine);
+        if (component.shouldInterpolate(time)) {
+            component.interpolate(time, refine);
         }
     }
 }
@@ -2670,7 +2709,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::add(
     const TFloatMeanAccumulatorVec& values) {
     m_Components.emplace_back(seasonalTime, size, decayRate, bucketLength, boundaryCondition);
     m_Components.back().initialize(startTime, endTime, values);
-    m_Components.back().interpolate(CIntegerTools::floor(endTime, seasonalTime.period()));
+    m_Components.back().interpolate(endTime);
     m_PredictionErrors.emplace_back();
 }
 
@@ -2863,7 +2902,7 @@ void CTimeSeriesDecompositionDetail::CComponents::CCalendar::propagateForwards(c
                                                                                core_t::TTime end) {
     for (std::size_t i = 0; i < m_Components.size(); ++i) {
         stepwisePropagateForwards(start, end, MONTH, [&](double time) {
-            m_Components[i].propagateForwardsByTime(time / 8.0);
+            m_Components[i].propagateForwardsByTime(time / 6.0);
             m_PredictionErrors[i].age(std::exp(-m_Components[i].decayRate() * time));
         });
     }
@@ -2924,12 +2963,9 @@ void CTimeSeriesDecompositionDetail::CComponents::CCalendar::appendPredictions(
     }
 }
 
-bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::shouldInterpolate(
-    core_t::TTime time,
-    core_t::TTime last) const {
+bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::shouldInterpolate(core_t::TTime time) const {
     for (const auto& component : m_Components) {
-        CCalendarFeature feature = component.feature();
-        if (feature.inWindow(time) == false && feature.inWindow(last)) {
+        if (component.shouldInterpolate(time)) {
             return true;
         }
     }
@@ -2937,12 +2973,10 @@ bool CTimeSeriesDecompositionDetail::CComponents::CCalendar::shouldInterpolate(
 }
 
 void CTimeSeriesDecompositionDetail::CComponents::CCalendar::interpolate(core_t::TTime time,
-                                                                         core_t::TTime lastTime,
                                                                          bool refine) {
     for (auto& component : m_Components) {
-        CCalendarFeature feature = component.feature();
-        if (feature.inWindow(time) == false && feature.inWindow(lastTime)) {
-            component.interpolate(time - feature.offset(time), refine);
+        if (component.shouldInterpolate(time)) {
+            component.interpolate(time, refine);
         }
     }
 }

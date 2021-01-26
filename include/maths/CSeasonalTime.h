@@ -61,6 +61,9 @@ public:
     //! between \p start and \p end.
     double regressionInterval(core_t::TTime start, core_t::TTime end) const;
 
+    //! Get the start time of the period containing \p time.
+    core_t::TTime startOfPeriod(core_t::TTime time) const;
+
     //! Get the start of the repeat containing \p time.
     core_t::TTime startOfWindowRepeat(core_t::TTime time) const;
 

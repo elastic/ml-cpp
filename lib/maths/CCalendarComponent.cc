@@ -18,10 +18,8 @@
 #include <maths/CSampling.h>
 #include <maths/CSeasonalTime.h>
 
-#include <boost/math/distributions/chi_squared.hpp>
-#include <boost/math/distributions/normal.hpp>
-
 #include <ios>
+#include <limits>
 #include <vector>
 
 namespace ml {
@@ -30,6 +28,7 @@ namespace {
 using TDoubleDoublePr = maths_t::TDoubleDoublePr;
 const core::TPersistenceTag DECOMPOSITION_COMPONENT_TAG{"a", "decomposition_component"};
 const core::TPersistenceTag BUCKETING_TAG{"b", "bucketing"};
+const core::TPersistenceTag LAST_INTERPOLATION_TAG{"c", "last_interpolation_time"};
 const std::string EMPTY_STRING;
 }
 
@@ -42,7 +41,8 @@ CCalendarComponent::CCalendarComponent(const CCalendarFeature& feature,
                                        CSplineTypes::EType varianceInterpolationType)
     : CDecompositionComponent{maxSize, boundaryCondition,
                               valueInterpolationType, varianceInterpolationType},
-      m_Bucketing{feature, decayRate, minimumBucketLength} {
+      m_Bucketing{feature, decayRate, minimumBucketLength},
+      m_LastInterpolationTime{2 * (std::numeric_limits<core_t::TTime>::min() / 3)} {
 }
 
 CCalendarComponent::CCalendarComponent(double decayRate,
@@ -51,7 +51,8 @@ CCalendarComponent::CCalendarComponent(double decayRate,
                                        CSplineTypes::EType valueInterpolationType,
                                        CSplineTypes::EType varianceInterpolationType)
     : CDecompositionComponent{0, CSplineTypes::E_Periodic,
-                              valueInterpolationType, varianceInterpolationType} {
+                              valueInterpolationType, varianceInterpolationType},
+      m_LastInterpolationTime{2 * (std::numeric_limits<core_t::TTime>::min() / 3)} {
     traverser.traverseSubLevel(std::bind(&CCalendarComponent::acceptRestoreTraverser,
                                          this, decayRate, minimumBucketLength,
                                          std::placeholders::_1));
@@ -60,6 +61,7 @@ CCalendarComponent::CCalendarComponent(double decayRate,
 void CCalendarComponent::swap(CCalendarComponent& other) {
     this->CDecompositionComponent::swap(other);
     m_Bucketing.swap(other.m_Bucketing);
+    std::swap(m_LastInterpolationTime, other.m_LastInterpolationTime);
 }
 
 bool CCalendarComponent::acceptRestoreTraverser(double decayRate,
@@ -75,6 +77,7 @@ bool CCalendarComponent::acceptRestoreTraverser(double decayRate,
                                CCalendarComponentAdaptiveBucketing bucketing(
                                    decayRate, minimumBucketLength, traverser),
                                true, m_Bucketing.swap(bucketing))
+        RESTORE_BUILT_IN(LAST_INTERPOLATION_TAG, m_LastInterpolationTime)
     } while (traverser.next());
 
     return true;
@@ -88,6 +91,7 @@ void CCalendarComponent::acceptPersistInserter(core::CStatePersistInserter& inse
     inserter.insertLevel(BUCKETING_TAG,
                          std::bind(&CCalendarComponentAdaptiveBucketing::acceptPersistInserter,
                                    &m_Bucketing, std::placeholders::_1));
+    inserter.insertValue(LAST_INTERPOLATION_TAG, m_LastInterpolationTime);
 }
 
 bool CCalendarComponent::initialized() const {
@@ -119,6 +123,12 @@ void CCalendarComponent::add(core_t::TTime time, double value, double weight) {
     m_Bucketing.add(time, value, weight);
 }
 
+bool CCalendarComponent::shouldInterpolate(core_t::TTime time) const {
+    auto feature = this->feature();
+    core_t::TTime offset{feature.offset(time)};
+    return offset > feature.window() && time > m_LastInterpolationTime + offset;
+}
+
 void CCalendarComponent::interpolate(core_t::TTime time, bool refine) {
     if (refine) {
         m_Bucketing.refine(time);
@@ -126,9 +136,12 @@ void CCalendarComponent::interpolate(core_t::TTime time, bool refine) {
     TDoubleVec knots;
     TDoubleVec values;
     TDoubleVec variances;
-    if (m_Bucketing.knots(time, this->boundaryCondition(), knots, values, variances)) {
+    if (m_Bucketing.knots(time - this->feature().offset(time),
+                          this->boundaryCondition(), knots, values, variances)) {
         this->CDecompositionComponent::interpolate(knots, values, variances);
     }
+    m_LastInterpolationTime = time;
+    LOG_TRACE(<< "last interpolation time = " << m_LastInterpolationTime);
 }
 
 double CCalendarComponent::decayRate() const {
@@ -167,9 +180,10 @@ double CCalendarComponent::meanVariance() const {
     return this->CDecompositionComponent::meanVariance();
 }
 
-uint64_t CCalendarComponent::checksum(uint64_t seed) const {
+std::uint64_t CCalendarComponent::checksum(std::uint64_t seed) const {
     seed = this->CDecompositionComponent::checksum(seed);
-    return CChecksum::calculate(seed, m_Bucketing);
+    seed = CChecksum::calculate(seed, m_Bucketing);
+    return CChecksum::calculate(seed, m_LastInterpolationTime);
 }
 
 void CCalendarComponent::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
