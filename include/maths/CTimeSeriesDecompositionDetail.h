@@ -760,10 +760,10 @@ public:
             void appendPredictions(core_t::TTime time, TDoubleVec& predictions) const;
 
             //! Check if we need to interpolate any of the components.
-            bool shouldInterpolate(core_t::TTime time, core_t::TTime last) const;
+            bool shouldInterpolate(core_t::TTime time) const;
 
             //! Interpolate the components at \p time.
-            void interpolate(core_t::TTime time, core_t::TTime last, bool refine);
+            void interpolate(core_t::TTime time, bool refine);
 
             //! Check if any of the components has been initialized.
             bool initialized() const;
@@ -857,10 +857,10 @@ public:
             void appendPredictions(core_t::TTime time, TDoubleVec& predictions) const;
 
             //! Check if we need to interpolate any of the components.
-            bool shouldInterpolate(core_t::TTime time, core_t::TTime last) const;
+            bool shouldInterpolate(core_t::TTime time) const;
 
             //! Interpolate the components at \p time.
-            void interpolate(core_t::TTime time, core_t::TTime last, bool refine);
+            void interpolate(core_t::TTime time, bool refine);
 
             //! Check if any of the components has been initialized.
             bool initialized() const;
@@ -925,7 +925,7 @@ public:
         bool shouldUseTrendForPrediction();
 
         //! Check if we should interpolate.
-        bool shouldInterpolate(core_t::TTime time, core_t::TTime last);
+        bool shouldInterpolate(core_t::TTime time);
 
         //! Maybe re-interpolate the components.
         void interpolate(const SMessage& message);

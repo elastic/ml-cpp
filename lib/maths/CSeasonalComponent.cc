@@ -19,10 +19,8 @@
 #include <maths/CSampling.h>
 #include <maths/CSeasonalTime.h>
 
-#include <boost/math/distributions/chi_squared.hpp>
-#include <boost/math/distributions/normal.hpp>
-
 #include <cmath>
+#include <limits>
 #include <vector>
 
 namespace ml {
@@ -34,6 +32,7 @@ using TDoubleDoublePr = maths_t::TDoubleDoublePr;
 const core::TPersistenceTag DECOMPOSITION_COMPONENT_TAG{"a", "decomposition_component"};
 const core::TPersistenceTag RNG_TAG{"b", "rng"};
 const core::TPersistenceTag BUCKETING_TAG{"c", "bucketing"};
+const core::TPersistenceTag LAST_INTERPOLATION_TAG{"d", "last_interpolation_time"};
 const std::string EMPTY_STRING;
 }
 
@@ -46,7 +45,8 @@ CSeasonalComponent::CSeasonalComponent(const CSeasonalTime& time,
                                        CSplineTypes::EType varianceInterpolationType)
     : CDecompositionComponent{maxSize, boundaryCondition,
                               valueInterpolationType, varianceInterpolationType},
-      m_Bucketing{time, decayRate, minimumBucketLength} {
+      m_Bucketing{time, decayRate, minimumBucketLength},
+      m_LastInterpolationTime{2 * (std::numeric_limits<core_t::TTime>::min() / 3)} {
 }
 
 CSeasonalComponent::CSeasonalComponent(double decayRate,
@@ -55,7 +55,8 @@ CSeasonalComponent::CSeasonalComponent(double decayRate,
                                        CSplineTypes::EType valueInterpolationType,
                                        CSplineTypes::EType varianceInterpolationType)
     : CDecompositionComponent{0, CSplineTypes::E_Periodic,
-                              valueInterpolationType, varianceInterpolationType} {
+                              valueInterpolationType, varianceInterpolationType},
+      m_LastInterpolationTime{2 * (std::numeric_limits<core_t::TTime>::min() / 3)} {
     traverser.traverseSubLevel(std::bind(&CSeasonalComponent::acceptRestoreTraverser,
                                          this, decayRate, minimumBucketLength,
                                          std::placeholders::_1));
@@ -65,6 +66,7 @@ void CSeasonalComponent::swap(CSeasonalComponent& other) {
     this->CDecompositionComponent::swap(other);
     std::swap(m_Rng, other.m_Rng);
     m_Bucketing.swap(other.m_Bucketing);
+    std::swap(m_LastInterpolationTime, other.m_LastInterpolationTime);
 }
 
 bool CSeasonalComponent::acceptRestoreTraverser(double decayRate,
@@ -81,6 +83,7 @@ bool CSeasonalComponent::acceptRestoreTraverser(double decayRate,
                                CSeasonalComponentAdaptiveBucketing bucketing(
                                    decayRate, minimumBucketLength, traverser),
                                true, m_Bucketing.swap(bucketing))
+        RESTORE_BUILT_IN(LAST_INTERPOLATION_TAG, m_LastInterpolationTime)
     } while (traverser.next());
 
     return true;
@@ -95,6 +98,7 @@ void CSeasonalComponent::acceptPersistInserter(core::CStatePersistInserter& inse
     inserter.insertLevel(BUCKETING_TAG,
                          std::bind(&CSeasonalComponentAdaptiveBucketing::acceptPersistInserter,
                                    &m_Bucketing, std::placeholders::_1));
+    inserter.insertValue(LAST_INTERPOLATION_TAG, m_LastInterpolationTime);
 }
 
 bool CSeasonalComponent::initialized() const {
@@ -106,7 +110,7 @@ bool CSeasonalComponent::initialize(core_t::TTime startTime,
                                     const TFloatMeanAccumulatorVec& values) {
     this->clear();
 
-    if (!m_Bucketing.initialize(this->maxSize())) {
+    if (m_Bucketing.initialize(this->maxSize()) == false) {
         LOG_ERROR(<< "Bad input size: " << this->maxSize());
         return false;
     }
@@ -141,25 +145,42 @@ void CSeasonalComponent::shiftSlope(core_t::TTime time, double shift) {
 }
 
 void CSeasonalComponent::linearScale(core_t::TTime time, double scale) {
+    const auto& time_ = m_Bucketing.time();
+    core_t::TTime startOfWindow{time_.startOfWindow(time) +
+                                (time_.inWindow(time) ? 0 : time_.windowRepeat())};
+    time = time <= startOfWindow ? startOfWindow : time_.startOfPeriod(time);
     m_Bucketing.linearScale(time, scale);
     this->interpolate(time, false);
 }
 
-void CSeasonalComponent::add(core_t::TTime time, double value, double weight) {
+void CSeasonalComponent::add(core_t::TTime time, double value, double weight, double gradientLearnRate) {
     double predicted{CBasicStatistics::mean(this->value(this->jitter(time), 0.0))};
-    m_Bucketing.add(time, value, predicted, weight);
+    m_Bucketing.add(time, value, predicted, weight, gradientLearnRate);
+}
+
+bool CSeasonalComponent::shouldInterpolate(core_t::TTime time) const {
+    const auto& time_ = m_Bucketing.time();
+    return time_.startOfPeriod(time) > time_.startOfPeriod(m_LastInterpolationTime);
 }
 
 void CSeasonalComponent::interpolate(core_t::TTime time, bool refine) {
     if (refine) {
         m_Bucketing.refine(time);
     }
+
+    const auto& time_ = m_Bucketing.time();
+    core_t::TTime startOfWindow{time_.startOfWindow(time) +
+                                (time_.inWindow(time) ? 0 : time_.windowRepeat())};
+
     TDoubleVec knots;
     TDoubleVec values;
     TDoubleVec variances;
-    if (m_Bucketing.knots(time, this->boundaryCondition(), knots, values, variances)) {
+    if (m_Bucketing.knots(time <= startOfWindow ? startOfWindow : time_.startOfPeriod(time),
+                          this->boundaryCondition(), knots, values, variances)) {
         this->CDecompositionComponent::interpolate(knots, values, variances);
     }
+    m_LastInterpolationTime = time_.startOfPeriod(time);
+    LOG_TRACE(<< "last interpolation time = " << m_LastInterpolationTime);
 }
 
 double CSeasonalComponent::decayRate() const {
@@ -176,6 +197,10 @@ void CSeasonalComponent::propagateForwardsByTime(double time, double meanRevertF
 
 const CSeasonalTime& CSeasonalComponent::time() const {
     return m_Bucketing.time();
+}
+
+const CSeasonalComponentAdaptiveBucketing& CSeasonalComponent::bucketing() const {
+    return m_Bucketing;
 }
 
 TDoubleDoublePr CSeasonalComponent::value(core_t::TTime time, double confidence) const {
@@ -253,7 +278,7 @@ double CSeasonalComponent::meanVariance() const {
 bool CSeasonalComponent::covariances(core_t::TTime time, TMatrix& result) const {
     result = TMatrix(0.0);
 
-    if (!this->initialized()) {
+    if (this->initialized() == false) {
         return false;
     }
 
@@ -277,9 +302,10 @@ bool CSeasonalComponent::slopeAccurate(core_t::TTime time) const {
     return m_Bucketing.slopeAccurate(time);
 }
 
-uint64_t CSeasonalComponent::checksum(uint64_t seed) const {
+std::uint64_t CSeasonalComponent::checksum(std::uint64_t seed) const {
     seed = this->CDecompositionComponent::checksum(seed);
-    return CChecksum::calculate(seed, m_Bucketing);
+    seed = CChecksum::calculate(seed, m_Bucketing);
+    return CChecksum::calculate(seed, m_LastInterpolationTime);
 }
 
 void CSeasonalComponent::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {

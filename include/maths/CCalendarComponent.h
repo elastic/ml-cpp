@@ -93,6 +93,9 @@ public:
     //! less influence it has on the component.
     void add(core_t::TTime time, double value, double weight = 1.0);
 
+    //! Check whether to reinterpolate the component predictions.
+    bool shouldInterpolate(core_t::TTime time) const;
+
     //! Update the interpolation of the bucket values.
     //!
     //! \param[in] time The time at which to interpolate.
@@ -152,6 +155,9 @@ private:
 private:
     //! The mean and variance in collection of buckets covering the period.
     CCalendarComponentAdaptiveBucketing m_Bucketing;
+
+    //! The last interpolation time.
+    core_t::TTime m_LastInterpolationTime;
 };
 
 //! Create a free function which will be found by Koenig lookup.
