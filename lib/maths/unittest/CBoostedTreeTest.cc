@@ -358,10 +358,10 @@ BOOST_AUTO_TEST_CASE(testPiecewiseConstant) {
             if (lossFunctionType != TLossFunctionType::E_MsleRegression) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
                     0.0, modelBias[i][0],
-                    9.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
+                    8.0 * std::sqrt(noiseVariance / static_cast<double>(trainRows)));
             }
             // Good R^2...
-            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.94);
+            BOOST_TEST_REQUIRE(modelRSquared[i][0] > 0.93);
 
             meanModelRSquared.add(modelRSquared[i][0]);
         }
@@ -434,7 +434,7 @@ BOOST_AUTO_TEST_CASE(testLinear) {
             meanModelRSquared.add(modelRSquared[i][0]);
         }
         LOG_DEBUG(<< "mean R^2 = " << maths::CBasicStatistics::mean(meanModelRSquared));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.98);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanModelRSquared) > 0.97);
     }
 }
 
@@ -758,7 +758,7 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.085);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.1);
     BOOST_TEST_REQUIRE(modelRSquared > 0.98);
 }
 
@@ -1421,8 +1421,8 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
         std::thread worker{[&]() {
             auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                                   threads, std::make_unique<maths::boosted_tree::CMse>())
-                                  .stopHyperparameterOptimizationEarly(false)
                                   .analysisInstrumentation(instrumentation)
+                                  .stopHyperparameterOptimizationEarly(false)
                                   .buildFor(*frame, cols - 1);
 
             regression->train();
@@ -1454,10 +1454,14 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
                 BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]",
                                     core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
             } else if (task.s_Name == maths::CBoostedTreeFactory::FINAL_TRAINING) {
-                // Just assert that training started as there is no guarantee on how far it's got
-                BOOST_TEST_REQUIRE(task.s_TenPercentProgressPoints.empty() == false);
-                BOOST_TEST_REQUIRE("[0]" != core::CContainerPrinter::print(
-                                                task.s_TenPercentProgressPoints));
+                // Progress might be 90% or 100% depending on whether the final
+                // progress update registered
+                if (task.s_TenPercentProgressPoints.size() != 11 ||
+                    task.s_TenPercentProgressPoints.front() != 0 ||
+                    task.s_TenPercentProgressPoints.back() != 100) {
+                    BOOST_REQUIRE_EQUAL("[0, 10, 20, 30, 40, 50, 60, 70, 80, 90]",
+                                        core::CContainerPrinter::print(task.s_TenPercentProgressPoints));
+                }
             }
             BOOST_TEST_REQUIRE(task.s_Monotonic);
         }
