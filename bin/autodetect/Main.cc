@@ -87,19 +87,15 @@ int main(int argc, char** argv) {
     std::string configFile;
     std::string filtersConfigFile;
     std::string eventsConfigFile;
-    std::string limitConfigFile;
     std::string modelConfigFile;
     std::string logProperties;
     std::string logPipe;
     char delimiter{'\t'};
     bool lengthEncodedInput{false};
-    std::string timeField{ml::api::CAnomalyJob::DEFAULT_TIME_FIELD_NAME};
     std::string timeFormat;
     std::string quantilesStateFile;
     bool deleteStateFiles{false};
-    ml::core_t::TTime persistInterval{-1};
     std::size_t bucketPersistInterval{0};
-    ml::core_t::TTime maxQuantileInterval{-1};
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
     std::string inputFileName;
@@ -113,17 +109,14 @@ int main(int argc, char** argv) {
     bool isPersistInForeground{false};
     std::size_t maxAnomalyRecords{100};
     bool memoryUsage{false};
-    bool stopCategorizationOnWarnStatus{false};
-    TStrVec clauseTokens;
     if (ml::autodetect::CCmdLineParser::parse(
-            argc, argv, configFile, filtersConfigFile, eventsConfigFile, limitConfigFile,
+            argc, argv, configFile, filtersConfigFile, eventsConfigFile,
             modelConfigFile, logProperties, logPipe, delimiter, lengthEncodedInput,
-            timeField, timeFormat, quantilesStateFile, deleteStateFiles, persistInterval,
-            bucketPersistInterval, maxQuantileInterval, namedPipeConnectTimeout,
-            inputFileName, isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe,
-            restoreFileName, isRestoreFileNamedPipe, persistFileName,
-            isPersistFileNamedPipe, isPersistInForeground, maxAnomalyRecords,
-            memoryUsage, stopCategorizationOnWarnStatus, clauseTokens) == false) {
+            timeFormat, quantilesStateFile, deleteStateFiles, bucketPersistInterval,
+            namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe,
+            outputFileName, isOutputFileNamedPipe, restoreFileName,
+            isRestoreFileNamedPipe, persistFileName, isPersistFileNamedPipe,
+            isPersistInForeground, maxAnomalyRecords, memoryUsage) == false) {
         return EXIT_FAILURE;
     }
 
@@ -230,6 +223,7 @@ int main(int argc, char** argv) {
         return nullptr;
     }()};
 
+    ml::core_t::TTime persistInterval{jobConfig.persistInterval()};
     if ((bucketPersistInterval > 0 || persistInterval >= 0) && persister == nullptr) {
         LOG_FATAL(<< "Periodic persistence cannot be enabled using the '"
                   << ((persistInterval >= 0) ? "persistInterval" : "bucketPersistInterval")
@@ -273,8 +267,8 @@ int main(int argc, char** argv) {
                              std::bind(&ml::api::CModelSnapshotJsonWriter::write,
                                        &modelSnapshotWriter, std::placeholders::_1),
                              persistenceManager.get(),
-                             maxQuantileInterval,
-                             timeField,
+                             jobConfig.quantilePersistInterval(),
+                             jobConfig.dataDescription().timeField(),
                              timeFormat,
                              maxAnomalyRecords};
 
@@ -289,15 +283,16 @@ int main(int argc, char** argv) {
     }
 
     // The categorizer knows how to assign categories to records
-    ml::api::CFieldDataCategorizer categorizer{jobId,
-                                               analysisConfig,
-                                               limits,
-                                               timeField,
-                                               timeFormat,
-                                               &job,
-                                               wrappedOutputStream,
-                                               persistenceManager.get(),
-                                               stopCategorizationOnWarnStatus};
+    ml::api::CFieldDataCategorizer categorizer{
+        jobId,
+        analysisConfig,
+        limits,
+        jobConfig.dataDescription().timeField(),
+        timeFormat,
+        &job,
+        wrappedOutputStream,
+        persistenceManager.get(),
+        analysisConfig.perPartitionCategorizationStopOnWarn()};
 
     ml::api::CDataProcessor* firstProcessor{nullptr};
     if (doingCategorization) {

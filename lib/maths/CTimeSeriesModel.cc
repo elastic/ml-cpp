@@ -29,6 +29,7 @@
 #include <maths/CTimeSeriesSegmentation.h>
 #include <maths/CTools.h>
 #include <maths/Constants.h>
+#include <maths/MathsTypes.h>
 
 #include <cmath>
 #include <cstddef>
@@ -96,9 +97,23 @@ double aggregateFeatureProbabilities(const TDouble4Vec& probabilities, double co
     return probabilities[0];
 }
 
+std::shared_ptr<CPrior> conditional(const CMultivariatePrior& prior,
+                                    std::size_t dimension,
+                                    const core::CSmallVector<double, 10>& value) {
+    std::size_t dimensions{prior.dimension()};
+    TSizeDoublePr10Vec condition(dimensions - 1);
+    for (std::size_t i = 0, j = 0; i < dimensions; ++i) {
+        if (i != dimension) {
+            condition[j++] = std::make_pair(i, value[i]);
+        }
+    }
+    return prior.univariate(NOTHING_TO_MARGINALIZE, condition).first;
+}
+
 const std::string VERSION_6_3_TAG("6.3");
 const std::string VERSION_6_5_TAG("6.5");
 const std::string VERSION_7_3_TAG("7.3");
+const std::string VERSION_7_11_TAG("7.11");
 
 // Models
 // Version >= 6.3
@@ -148,19 +163,16 @@ const std::string FIRST_CORRELATE_ID_TAG{"a"};
 const std::string SECOND_CORRELATE_ID_TAG{"b"};
 const std::string CORRELATION_MODEL_TAG{"c"};
 const std::string CORRELATION_TAG{"d"};
-}
 
 namespace forecast {
-namespace {
 const std::string INFO_INSUFFICIENT_HISTORY{"Insufficient history to forecast"};
 const std::string INFO_COULD_NOT_FORECAST_FOR_FULL_DURATION{
     "Unable to accurately forecast for the full requested time interval"};
 const std::string ERROR_MULTIVARIATE{"Forecast not supported for multivariate features"};
 }
-}
 
 namespace winsorisation {
-namespace {
+constexpr double MINIMUM_WEIGHT{0.01};
 const double MAXIMUM_P_VALUE{1e-3};
 const double MINIMUM_P_VALUE{1e-5};
 const double LOG_MAXIMUM_P_VALUE{std::log(MAXIMUM_P_VALUE)};
@@ -175,28 +187,25 @@ double deratedMinimumWeight(double derate) {
 }
 
 //! Compute the one tail p-value of \p value.
-double computePValue(const CPrior& prior, double scale, double value) {
+double computePValue(const CPrior& prior, const maths_t::TDoubleWeightsAry& weights, double value) {
     double lowerBound;
     double upperBound;
-    if (prior.minusLogJointCdf({value}, {maths_t::seasonalVarianceScaleWeight(scale)},
-                               lowerBound, upperBound) == false) {
+    if (prior.minusLogJointCdf({value}, {weights}, lowerBound, upperBound) == false) {
         return 1.0;
     }
     if (upperBound >= MINUS_LOG_TOLERANCE) {
         double f{std::exp(-(lowerBound + upperBound) / 2.0)};
         return std::min(f, 1.0 - f);
     }
-    if (prior.minusLogJointCdfComplement({value}, {maths_t::seasonalVarianceScaleWeight(scale)},
-                                         lowerBound, upperBound) == false) {
+    if (prior.minusLogJointCdfComplement({value}, {weights}, lowerBound, upperBound) == false) {
         return 1.0;
     }
     return std::exp(-(lowerBound + upperBound) / 2.0);
 }
-}
 
-double weight(const CPrior& prior, double derate, double scale, double value) {
+double weight(const CPrior& prior, const maths_t::TDoubleWeightsAry& weights, double derate, double value) {
 
-    double pValue{computePValue(prior, scale, value)};
+    double pValue{computePValue(prior, weights, value)};
     if (pValue >= MAXIMUM_P_VALUE) {
         return 1.0;
     }
@@ -217,22 +226,6 @@ double weight(const CPrior& prior, double derate, double scale, double value) {
 
     return CMathsFuncs::isNan(weight) ? 1.0 : weight;
 }
-
-double weight(const CMultivariatePrior& prior,
-              std::size_t dimension,
-              double derate,
-              double scale,
-              const core::CSmallVector<double, 10>& value) {
-    std::size_t dimensions = prior.dimension();
-    TSizeDoublePr10Vec condition(dimensions - 1);
-    for (std::size_t i = 0u, j = 0u; i < dimensions; ++i) {
-        if (i != dimension) {
-            condition[j++] = std::make_pair(i, value[i]);
-        }
-    }
-    std::shared_ptr<CPrior> conditional(
-        prior.univariate(NOTHING_TO_MARGINALIZE, condition).first);
-    return weight(*conditional, derate, scale, value[dimension]);
 }
 }
 
@@ -264,7 +257,7 @@ public:
     void propagateForwardsByTime(double time);
 
     //! Compute a checksum for this object.
-    uint64_t checksum(uint64_t seed) const;
+    std::uint64_t checksum(std::uint64_t seed) const;
 
     //! Debug the memory used by this object.
     void debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const;
@@ -317,7 +310,7 @@ private:
         }
 
         //! Compute a checksum for this object.
-        uint64_t checksum(uint64_t seed) const {
+        std::uint64_t checksum(std::uint64_t seed) const {
             seed = CChecksum::calculate(seed, m_FirstAnomalousBucketTime);
             seed = CChecksum::calculate(seed, m_LastAnomalousBucketTime);
             seed = CChecksum::calculate(seed, m_SumPredictionError);
@@ -1209,17 +1202,19 @@ void CUnivariateTimeSeriesModel::countWeights(core_t::TTime time,
         countVarianceScale = 1.0;
     }
 
-    double changeWeight{m_TrendModel->countWeight(time)};
-    winsorisationDerate =
-        std::max(winsorisationDerate, m_TrendModel->winsorisationDerate(time));
-
-    trendCountWeight /= countVarianceScale;
-    residualCountWeight *= changeWeight;
     TDouble2Vec seasonalWeight;
     this->seasonalWeight(0.0, time, seasonalWeight);
     double sample{m_TrendModel->detrend(time, value[0], 0.0)};
+    auto weights = maths_t::CUnitWeights::UNIT;
+    maths_t::setCount(std::min(residualCountWeight / trendCountWeight, 1.0), weights);
+    maths_t::setSeasonalVarianceScale(seasonalWeight[0], weights);
     double winsorisationWeight{winsorisation::weight(
-        *m_ResidualModel, winsorisationDerate, seasonalWeight[0], sample)};
+        *m_ResidualModel, weights,
+        std::max(winsorisationDerate, m_TrendModel->winsorisationDerate(time)), sample)};
+
+    double changeWeight{m_TrendModel->countWeight(time)};
+    trendCountWeight /= countVarianceScale;
+    residualCountWeight *= changeWeight;
 
     TDouble2Vec trendWinsorisationWeight{winsorisationWeight * changeWeight};
     TDouble2Vec residualWinsorisationWeight{winsorisationWeight};
@@ -1291,7 +1286,9 @@ std::size_t CUnivariateTimeSeriesModel::memoryUsage() const {
 
 bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                         core::CStateRestoreTraverser& traverser) {
-    if (traverser.name() == VERSION_6_3_TAG) {
+    bool stateMissingControllerChecks{false};
+    if (traverser.name() == VERSION_6_3_TAG || traverser.name() == VERSION_7_11_TAG) {
+        stateMissingControllerChecks = (traverser.name() == VERSION_6_3_TAG);
         while (traverser.next()) {
             const std::string& name{traverser.name()};
             RESTORE_BUILT_IN(ID_6_3_TAG, m_Id)
@@ -1329,6 +1326,7 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
         }
     } else {
         // There is no version string this is historic state.
+        stateMissingControllerChecks = true;
         do {
             const std::string& name{traverser.name()};
             RESTORE_BUILT_IN(ID_OLD_TAG, m_Id)
@@ -1356,6 +1354,17 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
                 /**/)
         } while (traverser.next());
     }
+
+    if (m_Controllers != nullptr && stateMissingControllerChecks) {
+        (*m_Controllers)[E_TrendControl].checks(CDecayRateController::E_PredictionBias |
+                                                CDecayRateController::E_PredictionErrorIncrease);
+    }
+    if (m_Controllers != nullptr && stateMissingControllerChecks) {
+        (*m_Controllers)[E_ResidualControl].checks(
+            CDecayRateController::E_PredictionBias | CDecayRateController::E_PredictionErrorIncrease |
+            maths::CDecayRateController::E_PredictionErrorDecrease);
+    }
+
     return true;
 }
 
@@ -1378,7 +1387,7 @@ void CUnivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInsert
 
     // Note that we don't persist this->params() or the correlations
     // because that state is reinitialized.
-    inserter.insertValue(VERSION_6_3_TAG, "");
+    inserter.insertValue(VERSION_7_11_TAG, "");
     inserter.insertValue(ID_6_3_TAG, m_Id);
     inserter.insertValue(IS_NON_NEGATIVE_6_3_TAG, static_cast<int>(m_IsNonNegative));
     inserter.insertValue(IS_FORECASTABLE_6_3_TAG, static_cast<int>(m_IsForecastable));
@@ -1434,6 +1443,11 @@ const CTimeSeriesDecompositionInterface& CUnivariateTimeSeriesModel::trendModel(
 
 const CPrior& CUnivariateTimeSeriesModel::residualModel() const {
     return *m_ResidualModel;
+}
+
+const CUnivariateTimeSeriesModel::TDecayRateController2Ary*
+CUnivariateTimeSeriesModel::decayRateControllers() const {
+    return m_Controllers.get();
 }
 
 CUnivariateTimeSeriesModel::CUnivariateTimeSeriesModel(const CUnivariateTimeSeriesModel& other,
@@ -2608,10 +2622,13 @@ void CMultivariateTimeSeriesModel::countWeights(core_t::TTime time,
     }
     for (std::size_t d = 0; d < dimension; ++d) {
         double changeWeight{m_TrendModel[d]->countWeight(time)};
+        auto weights = maths_t::CUnitWeights::UNIT;
+        maths_t::setCount(std::min(residualCountWeight / trendCountWeight, 1.0), weights);
+        maths_t::setSeasonalVarianceScale(seasonalWeight[d], weights);
         double winsorisationWeight{winsorisation::weight(
-            *m_ResidualModel, d,
+            *conditional(*m_ResidualModel, d, sample), weights,
             std::max(winsorisationDerate, m_TrendModel[d]->winsorisationDerate(time)),
-            seasonalWeight[d], sample)};
+            sample[d])};
         residualCountWeights[d] *= changeWeight;
         trendWinsorisationWeight[d] = winsorisationWeight * changeWeight;
         residualWinsorisationWeight[d] = winsorisationWeight;
@@ -2691,7 +2708,9 @@ std::size_t CMultivariateTimeSeriesModel::memoryUsage() const {
 
 bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParams& params,
                                                           core::CStateRestoreTraverser& traverser) {
-    if (traverser.name() == VERSION_6_3_TAG) {
+    bool stateMissingControllerChecks{false};
+    if (traverser.name() == VERSION_6_3_TAG || traverser.name() == VERSION_7_11_TAG) {
+        stateMissingControllerChecks = (traverser.name() == VERSION_6_3_TAG);
         while (traverser.next()) {
             const std::string& name{traverser.name()};
             RESTORE_BOOL(IS_NON_NEGATIVE_6_3_TAG, m_IsNonNegative)
@@ -2727,13 +2746,14 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
                 /**/)
         }
     } else {
+        stateMissingControllerChecks = true;
         do {
             const std::string& name{traverser.name()};
             RESTORE_BOOL(IS_NON_NEGATIVE_OLD_TAG, m_IsNonNegative)
             RESTORE_SETUP_TEARDOWN(
                 CONTROLLER_OLD_TAG,
                 m_Controllers = std::make_unique<TDecayRateController2Ary>(),
-                core::CPersistUtils::restore(CONTROLLER_6_3_TAG, *m_Controllers, traverser),
+                core::CPersistUtils::restore(CONTROLLER_OLD_TAG, *m_Controllers, traverser),
                 /**/)
             RESTORE_SETUP_TEARDOWN(
                 TREND_OLD_TAG, m_TrendModel.push_back(TDecompositionPtr()),
@@ -2754,13 +2774,24 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
                 /**/)
         } while (traverser.next());
     }
+
+    if (m_Controllers != nullptr && stateMissingControllerChecks) {
+        (*m_Controllers)[E_TrendControl].checks(CDecayRateController::E_PredictionBias |
+                                                CDecayRateController::E_PredictionErrorIncrease);
+    }
+    if (m_Controllers != nullptr && stateMissingControllerChecks) {
+        (*m_Controllers)[E_ResidualControl].checks(
+            CDecayRateController::E_PredictionBias | CDecayRateController::E_PredictionErrorIncrease |
+            maths::CDecayRateController::E_PredictionErrorDecrease);
+    }
+
     return true;
 }
 
 void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     // Note that we don't persist this->params() because that state
     // is reinitialized.
-    inserter.insertValue(VERSION_6_3_TAG, "");
+    inserter.insertValue(VERSION_7_11_TAG, "");
     inserter.insertValue(IS_NON_NEGATIVE_6_3_TAG, static_cast<int>(m_IsNonNegative));
     if (m_Controllers) {
         core::CPersistUtils::persist(CONTROLLER_6_3_TAG, *m_Controllers, inserter);
@@ -2818,6 +2849,11 @@ CMultivariateTimeSeriesModel::trendModel() const {
 
 const CMultivariatePrior& CMultivariateTimeSeriesModel::residualModel() const {
     return *m_ResidualModel;
+}
+
+const CMultivariateTimeSeriesModel::TDecayRateController2Ary*
+CMultivariateTimeSeriesModel::decayRateControllers() const {
+    return m_Controllers.get();
 }
 
 CMultivariateTimeSeriesModel::EUpdateResult

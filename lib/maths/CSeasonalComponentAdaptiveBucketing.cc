@@ -179,11 +179,9 @@ void CSeasonalComponentAdaptiveBucketing::shiftLevel(double shift) {
 
 void CSeasonalComponentAdaptiveBucketing::shiftSlope(core_t::TTime time, double shift) {
     if (std::fabs(shift) > 0.0) {
-        const auto& centres = this->centres();
-        for (std::size_t i = 0; i < m_Buckets.size(); ++i) {
-            core_t::TTime bucketTime{time + static_cast<core_t::TTime>(centres[i] + 0.5)};
-            m_Buckets[i].s_Regression.shiftGradient(shift);
-            m_Buckets[i].s_Regression.shiftOrdinate(-shift * m_Time->regression(bucketTime));
+        for (auto& bucket : m_Buckets) {
+            bucket.s_Regression.shiftGradient(shift);
+            bucket.s_Regression.shiftOrdinate(-shift * m_Time->regression(time));
         }
     }
 }
@@ -201,7 +199,7 @@ void CSeasonalComponentAdaptiveBucketing::linearScale(core_t::TTime time, double
             core_t::TTime bucketTime{time + static_cast<core_t::TTime>(centres[i] + 0.5)};
             m_Buckets[i].s_Regression.shiftGradient(gradientBefore - gradientAfter);
             m_Buckets[i].s_Regression.shiftOrdinate(
-                -(gradientBefore - gradientAfter) * m_Time->regression(bucketTime));
+                (gradientAfter - gradientBefore) * m_Time->regression(bucketTime));
         }
     }
 }
@@ -209,7 +207,8 @@ void CSeasonalComponentAdaptiveBucketing::linearScale(core_t::TTime time, double
 void CSeasonalComponentAdaptiveBucketing::add(core_t::TTime time,
                                               double value,
                                               double prediction,
-                                              double weight) {
+                                              double weight,
+                                              double gradientLearnRate) {
     std::size_t bucket{0};
     if (this->initialized() == false || this->bucket(time, bucket) == false) {
         return;
@@ -226,22 +225,32 @@ void CSeasonalComponentAdaptiveBucketing::add(core_t::TTime time,
         regression.count(), prediction, static_cast<double>(bucket_.s_Variance))};
     moments.add(value, weight * weight);
 
-    regression.add(t, value, weight);
-    bucket_.s_Variance = CBasicStatistics::maximumLikelihoodVariance(moments);
+    if (m_Time->regressionInterval(bucket_.s_FirstUpdate, bucket_.s_LastUpdate) <
+        SUFFICIENT_INTERVAL_TO_ESTIMATE_SLOPE) {
+        regression.add(t, value, weight);
+        double gradientAfter{gradient(regression)};
+        regression.shiftGradient(-gradientAfter);
+        regression.shiftOrdinate(gradientAfter * t);
+    } else if (gradientLearnRate < 1.0) {
+        double gradientBefore{gradient(regression)};
+        regression.add(t, value, weight);
+        double gradientAfter{gradient(regression)};
+        if (std::fabs(gradientAfter) > std::fabs(gradientBefore)) {
+            regression.shiftGradient((1.0 - gradientLearnRate) *
+                                     (gradientBefore - gradientAfter));
+            regression.shiftOrdinate((1.0 - gradientLearnRate) *
+                                     (gradientAfter - gradientBefore) * t);
+        }
+    } else {
+        regression.add(t, value, weight);
+    }
 
     if (std::fabs(value - prediction) >
         LARGE_ERROR_STANDARD_DEVIATIONS * std::sqrt(bucket_.s_Variance)) {
         this->addLargeError(bucket, time);
     }
 
-    if (m_Time->regressionInterval(bucket_.s_FirstUpdate, bucket_.s_LastUpdate) <
-        SUFFICIENT_INTERVAL_TO_ESTIMATE_SLOPE) {
-        double delta{regression.predict(t)};
-        regression.shiftGradient(-gradient(regression));
-        delta -= regression.predict(t);
-        regression.shiftOrdinate(delta);
-    }
-
+    bucket_.s_Variance = CBasicStatistics::maximumLikelihoodVariance(moments);
     bucket_.s_FirstUpdate = bucket_.s_FirstUpdate == UNSET_TIME
                                 ? time
                                 : std::min(bucket_.s_FirstUpdate, time);
@@ -258,7 +267,7 @@ void CSeasonalComponentAdaptiveBucketing::propagateForwardsByTime(double time, d
     if (time < 0.0) {
         LOG_ERROR(<< "Can't propagate bucketing backwards in time");
     } else if (this->initialized()) {
-        double factor{std::exp(-this->decayRate() * m_Time->fractionInWindow() * time)};
+        double factor{std::exp(-this->decayRate() * time)};
         this->age(factor);
         for (auto& bucket : m_Buckets) {
             bucket.s_Regression.age(factor, meanRevertFactor);

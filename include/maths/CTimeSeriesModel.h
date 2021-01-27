@@ -30,25 +30,6 @@ class CTimeSeriesMultibucketFeature;
 struct SDistributionRestoreParams;
 struct SModelRestoreParams;
 
-namespace winsorisation {
-//! The minimum Winsorisation weight.
-constexpr double MINIMUM_WEIGHT{0.01};
-
-//! Computes a Winsorisation weight for \p value based on its
-//! one tail p-value.
-MATHS_EXPORT
-double weight(const CPrior& prior, double derate, double scale, double value);
-
-//! Computes a Winsorisation weight for \p value based on its
-//! marginal for \p dimension one tail p-value.
-MATHS_EXPORT
-double weight(const CMultivariatePrior& prior,
-              std::size_t dimension,
-              double derate,
-              double scale,
-              const core::CSmallVector<double, 10>& value);
-}
-
 //! \brief A CModel implementation for modeling a univariate time series.
 class MATHS_EXPORT CUnivariateTimeSeriesModel : public CModel {
 public:
@@ -214,6 +195,9 @@ public:
 
     //! Get the residual model.
     const CPrior& residualModel() const;
+
+    //! Get the decay rate controllers.
+    const TDecayRateController2Ary* decayRateControllers() const;
     //@}
 
 private:
@@ -681,6 +665,9 @@ public:
 
     //! Get the residual model.
     const CMultivariatePrior& residualModel() const;
+
+    //! Get the decay rate controllers.
+    const TDecayRateController2Ary* decayRateControllers() const;
     //@}
 
 private:

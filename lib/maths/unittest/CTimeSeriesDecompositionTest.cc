@@ -28,6 +28,8 @@
 #include <test/CRandomNumbers.h>
 #include <test/CTimeSeriesTestData.h>
 
+#include "TestUtils.h"
+
 #include <boost/math/constants/constants.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -306,9 +308,9 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodicProblemCase, CTestFixture) {
             LOG_DEBUG(<< "70% error = " << percentileError / sumValue);
 
             if (time >= 2 * WEEK) {
-                BOOST_TEST_REQUIRE(sumResidual < 0.24 * sumValue);
+                BOOST_TEST_REQUIRE(sumResidual < 0.26 * sumValue);
                 BOOST_TEST_REQUIRE(maxResidual < 0.54 * maxValue);
-                BOOST_TEST_REQUIRE(percentileError < 0.16 * sumValue);
+                BOOST_TEST_REQUIRE(percentileError < 0.18 * sumValue);
 
                 totalSumResidual += sumResidual;
                 totalMaxResidual += maxResidual;
@@ -325,9 +327,9 @@ BOOST_FIXTURE_TEST_CASE(testDistortedPeriodicProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.15 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.16 * totalSumValue);
     BOOST_TEST_REQUIRE(totalMaxResidual < 0.23 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.09 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.10 * totalSumValue);
 }
 
 BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
@@ -428,7 +430,7 @@ BOOST_FIXTURE_TEST_CASE(testMinimizeLongComponents, CTestFixture) {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     BOOST_TEST_REQUIRE(totalSumResidual < 0.04 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.14 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.11 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.01 * totalSumValue);
 
     meanSlope /= refinements;
@@ -660,8 +662,8 @@ BOOST_FIXTURE_TEST_CASE(testSinglePeriodicity, CTestFixture) {
 
             if (time >= 1 * WEEK) {
                 BOOST_TEST_REQUIRE(sumResidual < 0.025 * sumValue);
-                BOOST_TEST_REQUIRE(maxResidual < 0.035 * maxValue);
-                BOOST_TEST_REQUIRE(percentileError < 0.01 * sumValue);
+                BOOST_TEST_REQUIRE(maxResidual < 0.045 * maxValue);
+                BOOST_TEST_REQUIRE(percentileError < 0.02 * sumValue);
 
                 totalSumResidual += sumResidual;
                 totalMaxResidual += maxResidual;
@@ -849,7 +851,7 @@ BOOST_FIXTURE_TEST_CASE(testVarianceScale, CTestFixture) {
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(error));
         LOG_DEBUG(<< "mean 70% error = " << maths::CBasicStatistics::mean(percentileError));
         LOG_DEBUG(<< "mean scale = " << maths::CBasicStatistics::mean(meanScale));
-        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.5);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(error) < 0.4);
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(percentileError) < 0.1);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(1.0, maths::CBasicStatistics::mean(meanScale), 0.02);
     }
@@ -1156,9 +1158,9 @@ BOOST_FIXTURE_TEST_CASE(testVeryLargeValuesProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
-    BOOST_TEST_REQUIRE(totalSumResidual < 0.35 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.73 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.23 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalSumResidual < 0.34 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.74 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.24 * totalSumValue);
 
     TMeanAccumulator scale;
     double variance = decomposition.meanVariance();
@@ -1257,8 +1259,8 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     BOOST_TEST_REQUIRE(totalSumResidual < 0.20 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.51 * totalMaxValue);
-    BOOST_TEST_REQUIRE(totalPercentileError < 0.08 * totalSumValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.42 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalPercentileError < 0.09 * totalSumValue);
 }
 
 BOOST_FIXTURE_TEST_CASE(testDiurnalPeriodicityWithMissingValues, CTestFixture) {
@@ -1653,8 +1655,8 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
         LOG_DEBUG(<< "total 'sum residual' / 'sum value' = " << totalSumResidual / totalSumValue);
         LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
 
-        BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.15);
-        BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.12);
+        BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.17);
+        BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.14);
     }
 
     LOG_DEBUG(<< "Two daily");
@@ -1728,7 +1730,7 @@ BOOST_FIXTURE_TEST_CASE(testNonDiurnal, CTestFixture) {
         LOG_DEBUG(<< "total 'max residual' / 'max value' = " << totalMaxResidual / totalMaxValue);
 
         BOOST_TEST_REQUIRE(totalSumResidual / totalSumValue < 0.09);
-        BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.21);
+        BOOST_TEST_REQUIRE(totalMaxResidual / totalMaxValue < 0.20);
     }
 }
 
@@ -1889,7 +1891,7 @@ BOOST_FIXTURE_TEST_CASE(testCalendar, CTestFixture) {
         debug.addValue(time, trend(time) + noise[0]);
 
         if (time - DAY == *std::lower_bound(months.begin(), months.end(), time - DAY)) {
-            LOG_TRACE(<< "time = " << time);
+            LOG_DEBUG(<< "time = " << time);
 
             std::size_t largeErrorCount = 0;
 
@@ -1909,11 +1911,11 @@ BOOST_FIXTURE_TEST_CASE(testCalendar, CTestFixture) {
                 debug.addPrediction(time_, prediction, actual - prediction);
             }
 
-            LOG_TRACE(<< "large error count = " << largeErrorCount);
-            if (++count <= 4) {
+            LOG_DEBUG(<< "large error count = " << largeErrorCount);
+            if (++count <= 5) {
                 BOOST_TEST_REQUIRE(largeErrorCount > 15);
             }
-            if (count >= 5) {
+            if (count >= 6) {
                 BOOST_TEST_REQUIRE(largeErrorCount <= 1);
             }
         }
@@ -2008,11 +2010,44 @@ BOOST_FIXTURE_TEST_CASE(testComponentLifecycle, CTestFixture) {
         debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
     }
 
-    double bounds[]{0.01, 0.013, 0.17, 0.03};
+    double bounds[]{0.01, 0.013, 0.15, 0.02};
     for (std::size_t i = 0; i < 4; ++i) {
         double error{maths::CBasicStatistics::mean(errors[i])};
         LOG_DEBUG(<< "error = " << error);
         BOOST_TEST_REQUIRE(error < bounds[i]);
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(testStability, CTestFixture) {
+
+    auto trend = [](core_t::TTime time) {
+        return 2000.0 + (time < 10 * WEEK ? 100.0 * weekends(time) : -2000.0);
+    };
+
+    maths::CTimeSeriesDecomposition decomposition(0.012, HALF_HOUR);
+    maths::CDecayRateController controller(maths::CDecayRateController::E_PredictionBias |
+                                               maths::CDecayRateController::E_PredictionErrorIncrease,
+                                           1);
+    CDebugGenerator debug;
+
+    for (core_t::TTime time = 0; time < 2 * YEAR; time += HALF_HOUR) {
+        decomposition.addPoint(time, trend(time));
+        debug.addValue(time, trend(time));
+
+        if (decomposition.initialized()) {
+            TDouble1Vec mean{decomposition.meanValue(time)};
+            TDouble1Vec predictionError{decomposition.detrend(time, trend(time), 0.0)};
+            double multiplier{controller.multiplier(mean, {predictionError},
+                                                    HALF_HOUR, 1.0, 0.0005)};
+            decomposition.decayRate(multiplier * decomposition.decayRate());
+        }
+
+        double prediction{mean(decomposition.value(time, 0.0))};
+        debug.addPrediction(time, prediction, trend(time) - prediction);
+
+        if (time > 20 * WEEK) {
+            BOOST_REQUIRE(std::fabs(trend(time) - prediction) < 5.0);
+        }
     }
 }
 
@@ -2062,8 +2097,6 @@ BOOST_FIXTURE_TEST_CASE(testRemoveSeasonal, CTestFixture) {
             double prediction{mean(decomposition.value(time, 0.0))};
             debug.addPrediction(time, prediction, trend(time) + noise[0] - prediction);
         }
-
-        BOOST_REQUIRE(decomposition.seasonalComponents().empty());
     }
 }
 
@@ -2231,6 +2264,8 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(5994.36, meanValue, 0.005);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(286374.0, meanVariance, 0.5);
 
+        TMeanAccumulator meanValueError;
+        TMeanAccumulator meanScaleError;
         for (core_t::TTime time = 60480000, i = 0;
              i < static_cast<core_t::TTime>(expectedValues.size());
              time += HALF_HOUR, ++i) {
@@ -2239,14 +2274,27 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
             TDoubleDoublePr value{decomposition.value(time, 10.0)};
             TDoubleDoublePr scale{decomposition.varianceScaleWeight(time, 286374.0, 10.0)};
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.first, value.first,
-                                         0.005 * std::fabs(expectedValue.first));
+                                         0.2 * std::fabs(expectedValue.first));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue.second, value.second,
-                                         0.005 * std::fabs(expectedValue.second));
+                                         0.2 * std::fabs(expectedValue.second));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedScale.first, scale.first,
-                                         0.005 * expectedScale.first);
+                                         0.3 * std::max(expectedScale.second, 0.4));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedScale.second, scale.second,
-                                         0.005 * std::max(expectedScale.second, 0.4));
+                                         0.3 * std::max(expectedScale.second, 0.4));
+            meanValueError.add(std::fabs(expectedValue.first - value.first) /
+                               std::fabs(expectedValue.first));
+            meanValueError.add(std::fabs(expectedValue.second - value.second) /
+                               std::fabs(expectedValue.second));
+            meanScaleError.add(std::fabs(expectedScale.first - scale.first) /
+                               std::fabs(expectedScale.first));
+            meanScaleError.add(std::fabs(expectedScale.first - scale.first) /
+                               std::fabs(expectedScale.first));
         }
+
+        LOG_DEBUG(<< "mean value error = " << maths::CBasicStatistics::mean(meanValueError));
+        LOG_DEBUG(<< "mean scale error = " << maths::CBasicStatistics::mean(meanScaleError));
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanValueError) < 0.01);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanScaleError) < 0.02);
 
         // Check some basic operations on the upgraded model.
         decomposition.forecast(60480000, 60480000 + WEEK, HALF_HOUR, 90.0, 1.0,
@@ -2325,8 +2373,8 @@ BOOST_FIXTURE_TEST_CASE(testUpgrade, CTestFixture) {
                                expectedScale.second);
         }
 
-        LOG_DEBUG(<< "Mean value error = " << maths::CBasicStatistics::mean(meanValueError));
-        LOG_DEBUG(<< "Mean scale error = " << maths::CBasicStatistics::mean(meanScaleError));
+        LOG_DEBUG(<< "mean value error = " << maths::CBasicStatistics::mean(meanValueError));
+        LOG_DEBUG(<< "mean scale error = " << maths::CBasicStatistics::mean(meanScaleError));
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanValueError) < 0.06);
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanScaleError) < 0.07);
 

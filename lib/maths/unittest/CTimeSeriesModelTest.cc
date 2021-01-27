@@ -1762,7 +1762,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // TODO LOG_DEBUG(<< "Correlates");
 }
 
-BOOST_AUTO_TEST_CASE(testUpgrade) {
+BOOST_AUTO_TEST_CASE(testUpgradeFrom6p2) {
     // Test upgrade is minimally disruptive. We test the upgraded model
     // predicted confidence intervals verses the values we obtain from
     // the previous model. Note the confidence interval depends on both
@@ -1806,30 +1806,30 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
         maths::SModelRestoreParams restoreParams{params, decompositionParams, distributionParams};
         maths::CUnivariateTimeSeriesModel restoredModel{restoreParams, traverser};
 
+        TMeanAccumulator meanError;
         TStrVec expectedInterval;
-        TStrVec interval;
-        for (core_t::TTime time = 600000, i = 0;
-             i < static_cast<core_t::TTime>(expectedIntervals.size());
-             time += halfHour, ++i) {
+        core_t::TTime time{600000};
+        for (std::size_t i = 0; i < expectedIntervals.size(); ++i, time += halfHour) {
             expectedInterval.clear();
-            interval.clear();
-
             core::CStringUtils::tokenise(",", expectedIntervals[i], expectedInterval, empty);
-            std::string interval_{core::CContainerPrinter::print(restoredModel.confidenceInterval(
-                time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1)))};
-            core::CStringUtils::replace("[", "", interval_);
-            core::CStringUtils::replace("]", "", interval_);
-            core::CStringUtils::replace(" ", "", interval_);
-            interval_ += ",";
-            core::CStringUtils::tokenise(",", interval_, interval, empty);
+
+            auto interval = restoredModel.confidenceInterval(
+                time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
 
             BOOST_REQUIRE_EQUAL(expectedInterval.size(), interval.size());
-            for (std::size_t j = 0u; j < expectedInterval.size(); ++j) {
+            for (std::size_t j = 0; j < expectedInterval.size(); ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                    boost::lexical_cast<double>(expectedInterval[j]),
-                    boost::lexical_cast<double>(interval[j]), 0.0001);
+                    boost::lexical_cast<double>(expectedInterval[j]), interval[j][0], 1.0);
+                meanError.add(std::fabs(boost::lexical_cast<double>(expectedInterval[j]) -
+                                        interval[j][0]));
             }
         }
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.005);
+        BOOST_TEST_REQUIRE(restoredModel.decayRateControllers() != nullptr);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[0].checks() != 0);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[1].checks() != 0);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[0].dimension() == 1);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[1].dimension() == 1);
     }
 
     LOG_DEBUG(<< "Multivariate");
@@ -1855,30 +1855,29 @@ BOOST_AUTO_TEST_CASE(testUpgrade) {
         maths::SModelRestoreParams restoreParams{params, decompositionParams, distributionParams};
         maths::CMultivariateTimeSeriesModel restoredModel{restoreParams, traverser};
 
+        TMeanAccumulator meanError;
+        core_t::TTime time{600000};
         TStrVec expectedInterval;
-        TStrVec interval;
-        for (core_t::TTime time = 600000, i = 0;
-             i < static_cast<core_t::TTime>(expectedIntervals.size());
-             time += halfHour, ++i) {
+        for (std::size_t i = 0; i < expectedIntervals.size(); ++i, time += halfHour) {
             expectedInterval.clear();
-            interval.clear();
-
             core::CStringUtils::tokenise(",", expectedIntervals[i], expectedInterval, empty);
-            std::string interval_{core::CContainerPrinter::print(restoredModel.confidenceInterval(
-                time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(3)))};
-            core::CStringUtils::replace("[", "", interval_);
-            core::CStringUtils::replace("]", "", interval_);
-            core::CStringUtils::replace(" ", "", interval_);
-            interval_ += ",";
-            core::CStringUtils::tokenise(",", interval_, interval, empty);
 
-            BOOST_REQUIRE_EQUAL(expectedInterval.size(), interval.size());
-            for (std::size_t j = 0u; j < expectedInterval.size(); ++j) {
-                BOOST_REQUIRE_CLOSE_ABSOLUTE(
-                    boost::lexical_cast<double>(expectedInterval[j]),
-                    boost::lexical_cast<double>(interval[j]), 0.0001);
+            auto interval = restoredModel.confidenceInterval(
+                time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(3));
+
+            for (std::size_t j = 0; j < expectedInterval.size(); ++j) {
+                BOOST_REQUIRE_CLOSE_ABSOLUTE(boost::lexical_cast<double>(expectedInterval[j]),
+                                             interval[j / 3][j % 3], 1.0);
+                meanError.add(std::fabs(boost::lexical_cast<double>(expectedInterval[j]) -
+                                        interval[j / 3][j % 3]));
             }
         }
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.01);
+        BOOST_TEST_REQUIRE(restoredModel.decayRateControllers() != nullptr);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[0].checks() != 0);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[1].checks() != 0);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[0].dimension() == 3);
+        BOOST_TEST_REQUIRE((*restoredModel.decayRateControllers())[1].dimension() == 3);
     }
 }
 
@@ -2347,7 +2346,7 @@ BOOST_AUTO_TEST_CASE(testLinearScaling) {
         auto x = model.confidenceInterval(
             time, 90.0, maths_t::CUnitWeights::unit<TDouble2Vec>(1));
         BOOST_TEST_REQUIRE(std::fabs(sample - x[1][0]) < 3.6 * std::sqrt(noiseVariance));
-        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 4.0 * std::sqrt(noiseVariance));
+        BOOST_TEST_REQUIRE(std::fabs(x[2][0] - x[0][0]) < 4.5 * std::sqrt(noiseVariance));
         time += bucketLength;
     }
 }

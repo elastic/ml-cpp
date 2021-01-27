@@ -74,7 +74,7 @@ private:
                                   bool supplied)
             : s_HyperparameterName(hyperparameterName), s_Value(value),
               s_AbsoluteImportance(absoluteImportance),
-              s_RelativeImportance(relativeImportance), s_Supplied(supplied){};
+              s_RelativeImportance(relativeImportance), s_Supplied(supplied) {}
         std::string s_HyperparameterName;
         double s_Value;
         double s_AbsoluteImportance;

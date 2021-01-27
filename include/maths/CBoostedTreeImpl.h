@@ -178,6 +178,7 @@ private:
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
     using TWorkspace = CBoostedTreeLeafNodeStatistics::CWorkspace;
     using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameters>;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
 
     //! Tag progress through initialization.
     enum EInitializationStage {
@@ -330,8 +331,11 @@ private:
     //! Record hyperparameters for instrumentation.
     void recordHyperparameters();
 
-    //! Populate the list of tunable hyperparameters
+    //! Populate the list of tunable hyperparameters.
     void initializeTunableHyperparameters();
+
+    //! Use Sobol sampler for for random hyperparamers.
+    void initializeHyperparameterSamples();
 
 private:
     mutable CPRNG::CXorOShiro128Plus m_Rng;
@@ -347,6 +351,7 @@ private:
     TRegularizationOverride m_RegularizationOverride;
     TOptionalDouble m_DownsampleFactorOverride;
     TOptionalDouble m_EtaOverride;
+    TOptionalDouble m_EtaGrowthRatePerTreeOverride;
     TOptionalSize m_NumberFoldsOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
@@ -382,6 +387,8 @@ private:
     mutable TMeanAccumulator m_ForestSizeAccumulator;
     mutable TMeanAccumulator m_MeanLossAccumulator;
     THyperparametersVec m_TunableHyperparameters;
+    TDoubleVecVec m_HyperparameterSamples;
+    bool m_StopHyperparameterOptimizationEarly = true;
 
 private:
     friend class CBoostedTreeFactory;

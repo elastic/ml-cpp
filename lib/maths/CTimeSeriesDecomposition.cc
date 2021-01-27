@@ -345,9 +345,11 @@ TDoubleDoublePr CTimeSeriesDecomposition::value(core_t::TTime time,
 
     if (smooth) {
         baseline += vector2x1(this->smooth(
-            std::bind(&CTimeSeriesDecomposition::value, this, std::placeholders::_1,
-                      confidence, components & E_Seasonal, removedSeasonalMask, false),
-            time - m_TimeShift, components));
+            [&](core_t::TTime time_) {
+                return this->value(time_ - m_TimeShift, confidence,
+                                   components & E_Seasonal, removedSeasonalMask, false);
+            },
+            time, components));
     }
 
     return pair(baseline);
@@ -518,8 +520,10 @@ TDoubleDoublePr CTimeSeriesDecomposition::varianceScaleWeight(core_t::TTime time
 
     if (smooth) {
         scale += vector2x1(this->smooth(
-            std::bind(&CTimeSeriesDecomposition::varianceScaleWeight, this,
-                      std::placeholders::_1, variance, confidence, false),
+            [&](core_t::TTime time_) {
+                return this->varianceScaleWeight(time_ - m_TimeShift, variance,
+                                                 confidence, false);
+            },
             time, E_All));
     }
 
@@ -623,16 +627,12 @@ CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components)
         bool timeInWindow{times.inWindow(time)};
         bool inWindowBefore{times.inWindow(time - SMOOTHING_INTERVAL)};
         bool inWindowAfter{times.inWindow(time + SMOOTHING_INTERVAL)};
-        if ((!timeInWindow && inWindowBefore) ||
-            (timeInWindow && inWindowBefore &&
-             times.startOfWindow(time) != times.startOfWindow(time + SMOOTHING_INTERVAL))) {
+        if (timeInWindow == false && inWindowBefore) {
             core_t::TTime discontinuity{times.startOfWindow(time - SMOOTHING_INTERVAL) +
                                         times.windowLength()};
             return pair(-offset(discontinuity));
         }
-        if ((!timeInWindow && inWindowAfter) ||
-            (timeInWindow && inWindowAfter &&
-             times.startOfWindow(time) != times.startOfWindow(time + SMOOTHING_INTERVAL))) {
+        if (timeInWindow == false && inWindowAfter) {
             core_t::TTime discontinuity{component.time().startOfWindow(time + SMOOTHING_INTERVAL)};
             return pair(offset(discontinuity));
         }
@@ -641,6 +641,6 @@ CTimeSeriesDecomposition::smooth(const F& f, core_t::TTime time, int components)
     return {0.0, 0.0};
 }
 
-const core_t::TTime CTimeSeriesDecomposition::SMOOTHING_INTERVAL{7200};
+const core_t::TTime CTimeSeriesDecomposition::SMOOTHING_INTERVAL{14400};
 }
 }

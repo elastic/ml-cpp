@@ -111,6 +111,7 @@ CNewSeasonalComponentSummary::seasonalTime() const {
     auto interval = [this](std::size_t i) {
         return m_BucketLength * static_cast<core_t::TTime>(i);
     };
+
     if ((m_PeriodDescriptor & E_Diurnal) != 0) {
         core_t::TTime period{[this] {
             if (m_PeriodDescriptor == E_Day) {
@@ -147,11 +148,13 @@ CNewSeasonalComponentSummary::seasonalTime() const {
                                         core::constants::WEEK};
             return std::make_unique<CDiurnalTime>(startOfWeek, windowStart, windowEnd, period);
         }
-        return std::make_unique<CDiurnalTime>(0, 0, core::constants::WEEK, period);
+        return std::make_unique<CGeneralPeriodTime>(period);
     }
+
     if (m_PeriodDescriptor == E_Year) {
         return std::make_unique<CGeneralPeriodTime>(core::constants::YEAR);
     }
+
     return std::make_unique<CGeneralPeriodTime>(interval(m_Period.s_Period));
 }
 
@@ -1999,7 +2002,7 @@ bool CTimeSeriesTestForSeasonality::SHypothesisStats::isEvictionPermitted(
         observedRange(params.m_Values))};
     std::size_t period{params.m_ModelledPeriods[modelledIndex].period()};
     return params.m_ModelledPeriodsTestable[modelledIndex] &&
-           3 * period >= params.m_ModelledPeriodsSizes[modelledIndex] &&
+           4 * period >= params.m_ModelledPeriodsSizes[modelledIndex] &&
            CMinAmplitude::seenSufficientDataToTestAmplitude(range, period);
 }
 

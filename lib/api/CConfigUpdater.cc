@@ -7,75 +7,66 @@
 
 #include <model/CLimits.h>
 
-#include <boost/property_tree/ini_parser.hpp>
-#include <boost/property_tree/ptree.hpp>
+#include <rapidjson/document.h>
+#include <rapidjson/error/en.h>
+#include <rapidjson/stringbuffer.h>
 
 namespace ml {
 namespace api {
-
-const std::string CConfigUpdater::MODEL_DEBUG_CONFIG("modelPlotConfig");
-const std::string CConfigUpdater::DETECTOR_RULES("detectorRules");
-const std::string CConfigUpdater::DETECTOR_INDEX("detectorIndex");
-const std::string CConfigUpdater::RULES_JSON("rulesJson");
-const std::string CConfigUpdater::FILTERS("filters");
-const std::string CConfigUpdater::SCHEDULED_EVENTS("scheduledEvents");
 
 CConfigUpdater::CConfigUpdater(CAnomalyJobConfig& jobConfig,
                                model::CAnomalyDetectorModelConfig& modelConfig)
     : m_JobConfig(jobConfig), m_ModelConfig(modelConfig) {
 }
 
-bool CConfigUpdater::update(const std::string& config) {
-    boost::property_tree::ptree propTree;
-
-    try {
-        std::istringstream strm(config);
-        boost::property_tree::ini_parser::read_ini(strm, propTree);
-    } catch (boost::property_tree::ptree_error& e) {
-        LOG_ERROR(<< "Error parsing config from '" << config << "' : " << e.what());
+bool CConfigUpdater::update(const std::string& json) {
+    rapidjson::Document doc;
+    if (doc.Parse<0>(json.c_str()).HasParseError()) {
+        LOG_ERROR(<< "An error occurred while parsing pattern set from JSON: "
+                  << rapidjson::GetParseError_En(doc.GetParseError()));
         return false;
     }
 
-    for (boost::property_tree::ptree::const_iterator stanzaItr = propTree.begin();
-         stanzaItr != propTree.end(); ++stanzaItr) {
-        const std::string& stanzaName = stanzaItr->first;
-        const boost::property_tree::ptree& subTree = stanzaItr->second;
-
-        if (stanzaName == MODEL_DEBUG_CONFIG) {
-            if (m_ModelConfig.configureModelPlot(subTree) == false) {
-                LOG_ERROR(<< "Could not parse modelPlotConfig");
-                return false;
-            }
-        } else if (stanzaName == DETECTOR_RULES) {
-            std::string detectorIndexString = subTree.get(DETECTOR_INDEX, std::string());
-            int detectorIndex;
-            if (core::CStringUtils::stringToType(detectorIndexString, detectorIndex) == false) {
-                LOG_ERROR(<< "Invalid detector index: " << detectorIndexString);
-                return false;
-            }
-            std::string rulesJson = subTree.get(RULES_JSON, std::string());
-            if (m_JobConfig.analysisConfig().parseRules(detectorIndex, rulesJson) == false) {
-                LOG_ERROR(<< "Failed to update detector rules for detector: " << detectorIndex);
-                return false;
-            }
-        } else if (stanzaName == FILTERS) {
-            // TODO: Move to JSON format for config updates.
-            if (m_JobConfig.analysisConfig().updateFilters(subTree) == false) {
-                LOG_ERROR(<< "Failed to update filters");
-                return false;
-            }
-        } else if (stanzaName == SCHEDULED_EVENTS) {
-            // TODO: Move to JSON format for config updates.
-            if (m_JobConfig.analysisConfig().updateScheduledEvents(subTree) == false) {
-                LOG_ERROR(<< "Failed to update scheduled events");
-                return false;
-            }
-        } else {
-            LOG_WARN(<< "Ignoring unknown update config stanza: " << stanzaName);
-            return false;
-        }
+    if (doc.IsObject() == false) {
+        LOG_ERROR(<< "Input error: expected JSON object but input was '" << json
+                  << "'. Please report this problem.");
+        return false;
     }
 
+    if (doc.HasMember(CAnomalyJobConfig::MODEL_PLOT_CONFIG)) {
+        if (doc[CAnomalyJobConfig::MODEL_PLOT_CONFIG].IsObject() == false) {
+            LOG_ERROR(<< "Input error: expected " << CAnomalyJobConfig::MODEL_PLOT_CONFIG
+                      << " to be JSON object but input was '" << json
+                      << "'. Please report this problem.");
+            return false;
+        }
+        const rapidjson::Value& value = doc[CAnomalyJobConfig::MODEL_PLOT_CONFIG];
+
+        m_JobConfig.modelPlotConfig().parse(value);
+        const ml::api::CAnomalyJobConfig::CModelPlotConfig& modelPlotConfig =
+            m_JobConfig.modelPlotConfig();
+        m_ModelConfig.configureModelPlot(modelPlotConfig.enabled(),
+                                         modelPlotConfig.annotationsEnabled(),
+                                         modelPlotConfig.terms());
+    } else if (doc.HasMember(CAnomalyJobConfig::FILTERS)) {
+        if (m_JobConfig.parseFilterConfig(json) == false) {
+            LOG_ERROR(<< "Failed to parse filter config update: " << json);
+            return false;
+        }
+        m_JobConfig.initRuleFilters();
+    } else if (doc.HasMember(CAnomalyJobConfig::EVENTS)) {
+        if (m_JobConfig.parseEventConfig(json) == false) {
+            LOG_ERROR(<< "Failed to parse events config update: " << json);
+            return false;
+        }
+        m_JobConfig.initScheduledEvents();
+    } else if (doc.HasMember(CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_RULES)) {
+        return m_JobConfig.analysisConfig().parseRulesUpdate(
+            doc[CAnomalyJobConfig::CAnalysisConfig::CDetectorConfig::DETECTOR_RULES]);
+    } else {
+        LOG_ERROR(<< "Unexpected JSON update message: " << json);
+        return false;
+    }
     return true;
 }
 }

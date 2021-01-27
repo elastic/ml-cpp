@@ -617,8 +617,8 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
             double c1{readShapValue(result, "c1")};
             double prediction{
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble()};
-            // c1 explains 94% of the prediction value, i.e. the difference from the prediction is less than 6%.
-            BOOST_REQUIRE_CLOSE(c1, prediction, 6.0);
+            // c1 explains 92% of the prediction value, i.e. the difference from the prediction is less than 8%.
+            BOOST_REQUIRE_CLOSE(c1, prediction, 8.0);
             for (const auto& feature : {"c2", "c3", "c4"}) {
                 double c = readShapValue(result, feature);
                 BOOST_REQUIRE_SMALL(c, 3.0);

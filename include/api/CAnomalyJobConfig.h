@@ -39,6 +39,8 @@ public:
     public:
         class API_EXPORT CDetectorConfig {
         public:
+            static const std::string DETECTOR_RULES;
+
             static const std::string FUNCTION;
             static const std::string FIELD_NAME;
             static const std::string BY_FIELD_NAME;
@@ -219,12 +221,6 @@ public:
         CAnalysisConfig(const std::string& categorizationFieldName)
             : m_CategorizationFieldName{categorizationFieldName} {}
 
-        //! Constructor taking a map of detector rule filters keyed by filter_id &
-        //! a vector of scheduled events data
-        CAnalysisConfig(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
-                        const TStrDetectionRulePrVec& scheduledEvents)
-            : m_RuleFilters(ruleFilters), m_ScheduledEvents(scheduledEvents) {}
-
         void init(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
                   const TStrDetectionRulePrVec& scheduledEvents) {
             m_RuleFilters = ruleFilters;
@@ -293,6 +289,10 @@ public:
 
         bool parseRules(int detectorIndex, const std::string& rules);
 
+        bool parseRules(int detectorIndex, const rapidjson::Value& rules);
+
+        bool parseRulesUpdate(const rapidjson::Value& rulesUpdateConfig);
+
     private:
         // Convenience method intended for use by the unit tests only
         void addDetector(const std::string& functionName,
@@ -308,13 +308,8 @@ public:
                                      overFieldName, partitionFieldName);
         }
 
-        bool processFilter(const std::string& key, const std::string& value);
-
-        //! Process and store a scheduled event
-        bool processScheduledEvent(const boost::property_tree::ptree& propTree,
-                                   const std::string& key,
-                                   const std::string& value,
-                                   TIntSet& handledScheduledEvents);
+        bool parseRules(CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules,
+                        const rapidjson::Value& rules);
 
         bool parseRules(CDetectionRulesJsonParser::TDetectionRuleVec& detectionRules,
                         const std::string& rules);
@@ -353,6 +348,8 @@ public:
         // should be ignored in the C++ code. In any case, in production, the
         // time field is always specified in seconds since epoch.
         static const std::string TIME_FORMAT;
+
+        static const std::string DEFAULT_TIME_FIELD;
 
     public:
         //! Default constructor
@@ -464,10 +461,20 @@ public:
     static const std::string JOB_TYPE;
     static const std::string ANALYSIS_CONFIG;
     static const std::string DATA_DESCRIPTION;
+    static const std::string BACKGROUND_PERSIST_INTERVAL;
     static const std::string MODEL_PLOT_CONFIG;
     static const std::string ANALYSIS_LIMITS;
     static const std::string FILTERS;
     static const std::string EVENTS;
+
+    // Roughly how often should the quantiles be output when no
+    // anomalies are being detected?  A staggering factor that varies by job is
+    // added to this.
+    static const core_t::TTime BASE_MAX_QUANTILE_INTERVAL;
+
+    // Roughly how often should the state be persisted?  A staggering
+    // factor that varies by job is added to this.
+    static const core_t::TTime DEFAULT_BASE_PERSIST_INTERVAL;
 
 public:
     //! Default constructor
@@ -475,12 +482,6 @@ public:
 
     explicit CAnomalyJobConfig(const std::string& categorizationFieldName)
         : m_AnalysisConfig(categorizationFieldName) {}
-
-    // This one is only needed for historical reasons. Once The Java side sends the
-    // scheduled events and filters config as JSON this can go.
-    CAnomalyJobConfig(const CDetectionRulesJsonParser::TStrPatternSetUMap& ruleFilters,
-                      const TStrDetectionRulePrVec& scheduledEvents)
-        : m_AnalysisConfig(ruleFilters, scheduledEvents) {}
 
     bool readFile(const std::string& fileName, std::string& fileContents);
 
@@ -493,6 +494,12 @@ public:
     bool parse(const std::string& json);
     bool parseFilterConfig(const std::string& json);
     bool parseEventConfig(const std::string& json);
+
+    // Generate a random time of up to 1 hour to be added to intervals at which we
+    // perform periodic operations.  This means that when there are many jobs
+    // there is a certain amount of staggering of their periodic operations.
+    // A given job will always be given the same staggering interval.
+    core_t::TTime intervalStagger();
 
     void initRuleFilters() { m_AnalysisConfig.initRuleFilters(m_RuleFilters); }
 
@@ -517,8 +524,15 @@ public:
         return m_DataDescription;
     }
     const CModelPlotConfig& modelPlotConfig() const { return m_ModelConfig; }
+    CModelPlotConfig& modelPlotConfig() { return m_ModelConfig; }
     const CAnalysisLimits& analysisLimits() const { return m_AnalysisLimits; }
     bool isInitialized() const { return m_IsInitialized; }
+    core_t::TTime persistInterval() const {
+        return m_BackgroundPersistInterval;
+    }
+    core_t::TTime quantilePersistInterval() const {
+        return m_MaxQuantilePersistInterval;
+    }
 
 private:
     std::string m_JobId;
@@ -533,6 +547,10 @@ private:
 
     std::vector<CFilterConfig> m_Filters{};
     std::vector<CEventConfig> m_Events{};
+
+    core_t::TTime m_BackgroundPersistInterval{DEFAULT_BASE_PERSIST_INTERVAL};
+
+    core_t::TTime m_MaxQuantilePersistInterval{BASE_MAX_QUANTILE_INTERVAL};
 };
 }
 }

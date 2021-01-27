@@ -213,7 +213,7 @@ void CInferenceModelMetadata::hyperparameterImportance(
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR;
             break;
         case maths::boosted_tree_detail::E_Eta:
-            hyperparameterName = CDataFrameTrainBoostedTreeRunner::DOWNSAMPLE_FACTOR;
+            hyperparameterName = CDataFrameTrainBoostedTreeRunner::ETA;
             break;
         case maths::boosted_tree_detail::E_EtaGrowthRatePerTree:
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::ETA_GROWTH_RATE_PER_TREE;
@@ -234,9 +234,14 @@ void CInferenceModelMetadata::hyperparameterImportance(
             hyperparameterName = CDataFrameTrainBoostedTreeRunner::SOFT_TREE_DEPTH_TOLERANCE;
             break;
         }
-        m_HyperparameterImportance.emplace_back(
-            hyperparameterName, item.s_Value, item.s_AbsoluteImportance,
-            item.s_RelativeImportance, item.s_Supplied);
+        double absoluteImportance{(std::fabs(item.s_AbsoluteImportance) < 1e-8)
+                                      ? 0.0
+                                      : item.s_AbsoluteImportance};
+        double relativeImportance{(std::fabs(item.s_RelativeImportance) < 1e-8)
+                                      ? 0.0
+                                      : item.s_RelativeImportance};
+        m_HyperparameterImportance.emplace_back(hyperparameterName, item.s_Value, absoluteImportance,
+                                                relativeImportance, item.s_Supplied);
     }
     std::sort(m_HyperparameterImportance.begin(),
               m_HyperparameterImportance.end(), [](const auto& a, const auto& b) {

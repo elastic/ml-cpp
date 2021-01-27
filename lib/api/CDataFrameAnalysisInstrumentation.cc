@@ -146,8 +146,7 @@ void CDataFrameAnalysisInstrumentation::updateProgress(double fractionalProgress
 
 void CDataFrameAnalysisInstrumentation::resetProgress() {
     std::lock_guard<std::mutex> lock{m_ProgressMutex};
-    // FIXME Hack to get integration tests passing.
-    m_ProgressMonitoredTask = "analyzing"; // NO_TASK;
+    m_ProgressMonitoredTask = NO_TASK;
     m_FractionalProgress.store(0);
     m_Finished.store(false);
 }
