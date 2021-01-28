@@ -45,6 +45,8 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
         theReader.addParameter(LAMBDA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(GAMMA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(ETA, CDataFrameAnalysisConfigReader::E_OptionalParameter);
+        theReader.addParameter(ETA_GROWTH_RATE_PER_TREE,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(SOFT_TREE_DEPTH_LIMIT,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(SOFT_TREE_DEPTH_TOLERANCE,
