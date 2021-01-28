@@ -37,10 +37,11 @@ using TDoubleVec = std::vector<double>;
 using TTimeVec = std::vector<core_t::TTime>;
 using TTimeDoublePr = std::pair<core_t::TTime, double>;
 using TTimeDoublePrVec = std::vector<TTimeDoublePr>;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
 class CTestSeasonalComponent : public maths::CSeasonalComponent {
 public:
-    // Bring base class method hidden by the signature above into scope
+    // Bring base class method hidden by the signature above into scope.
     using maths::CSeasonalComponent::initialize;
 
 public:
@@ -75,8 +76,7 @@ void generateSeasonalValues(test::CRandomNumbers& rng,
                             TTimeDoublePrVec& samples) {
     using TSizeVec = std::vector<std::size_t>;
 
-    // Generate time uniformly at random in the interval
-    // [startTime, endTime).
+    // Generate time uniformly at random in the interval [startTime, endTime).
 
     core_t::TTime period = function[function.size() - 1].first;
 
@@ -139,6 +139,29 @@ BOOST_AUTO_TEST_CASE(testSwap) {
 
     BOOST_REQUIRE_EQUAL(checksum1, seasonal2.checksum());
     BOOST_REQUIRE_EQUAL(checksum2, seasonal1.checksum());
+}
+
+BOOST_AUTO_TEST_CASE(testInitialize) {
+    // Test we correctly initialize a component when supplying values.
+
+    maths::CSeasonalComponent::TFloatMeanAccumulatorVec initialValues(100);
+    for (std::size_t i = 0; i < 20; ++i) {
+        initialValues[i].add(static_cast<double>(i % 10));
+    }
+
+    maths::CSeasonalComponent component{maths::CGeneralPeriodTime{20}, 10, 0.0, 0};
+    component.initialize(0, 200, initialValues);
+
+    BOOST_REQUIRE_EQUAL(false, component.shouldInterpolate(59));
+    BOOST_REQUIRE_EQUAL(true, component.shouldInterpolate(60));
+
+    TMeanAccumulator meanError;
+    for (std::size_t i = 20; i < 30; ++i) {
+        meanError.add(std::fabs(maths::CBasicStatistics::mean(component.value(
+                                    2 * static_cast<core_t::TTime>(i), 0.0)) -
+                                static_cast<double>(i % 10)));
+    }
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.3);
 }
 
 BOOST_AUTO_TEST_CASE(testShouldInterpolate) {
@@ -703,8 +726,6 @@ BOOST_AUTO_TEST_CASE(testVeryLowVariation) {
 }
 
 BOOST_AUTO_TEST_CASE(testVariance) {
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-
     // Check that we estimate a periodic variance.
 
     test::CRandomNumbers rng;
