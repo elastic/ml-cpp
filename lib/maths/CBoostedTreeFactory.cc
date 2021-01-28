@@ -1302,9 +1302,13 @@ CBoostedTreeFactory& CBoostedTreeFactory::trainingStateCallback(TTrainingStateCa
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::stopHyperparameterOptimizationEarly(bool stopEarly) {
-    m_TreeImpl->m_StopHyperparameterOptimizationEarly = stopEarly;
+CBoostedTreeFactory& CBoostedTreeFactory::earlyStoppingEnabled(bool earlyStoppingEnabled) {
+    this->stopHyperparameterOptimizationEarly(earlyStoppingEnabled);
     return *this;
+}
+
+void CBoostedTreeFactory::stopHyperparameterOptimizationEarly(bool stopEarly) {
+    m_TreeImpl->m_StopHyperparameterOptimizationEarly = stopEarly;
 }
 
 std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
