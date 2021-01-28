@@ -261,7 +261,7 @@ private:
     //! Stubs out persistence.
     static void noopRecordTrainingState(CBoostedTree::TPersistFunc);
 
-    //! Stop hyperparameter optimization early if the the process is not promising.
+    //! Stop hyperparameter optimization early if the process is not promising.
     void stopHyperparameterOptimizationEarly(bool stopEarly);
 
 private:
