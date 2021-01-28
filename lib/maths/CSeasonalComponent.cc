@@ -13,6 +13,7 @@
 #include <core/Constants.h>
 #include <core/RestoreMacros.h>
 
+#include <maths/CBasicStatistics.h>
 #include <maths/CChecksum.h>
 #include <maths/CIntegerTools.h>
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>
@@ -116,6 +117,16 @@ bool CSeasonalComponent::initialize(core_t::TTime startTime,
     }
 
     m_Bucketing.initialValues(startTime, endTime, values);
+    auto last = std::find_if(values.rbegin(), values.rend(),
+                             [](const auto& value) {
+                                 return CBasicStatistics::count(value) > 0.0;
+                             })
+                    .base();
+    if (last != values.begin()) {
+        this->interpolate(startTime + (static_cast<core_t::TTime>(last - values.begin()) *
+                                       (endTime - startTime)) /
+                                          static_cast<core_t::TTime>(values.size()));
+    }
 
     return true;
 }

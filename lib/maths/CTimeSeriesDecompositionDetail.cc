@@ -2712,7 +2712,6 @@ void CTimeSeriesDecompositionDetail::CComponents::CSeasonal::add(
     const TFloatMeanAccumulatorVec& values) {
     m_Components.emplace_back(seasonalTime, size, decayRate, bucketLength, boundaryCondition);
     m_Components.back().initialize(startTime, endTime, values);
-    m_Components.back().interpolate(endTime);
     m_PredictionErrors.emplace_back();
 }
 
