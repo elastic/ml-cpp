@@ -65,7 +65,7 @@ const CDataFrameAnalysisConfigReader& CDataFrameTrainBoostedTreeRunner::paramete
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         theReader.addParameter(FEATURE_PROCESSORS,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
-        theReader.addParameter(EARLY_STOPPING_ALLOWED,
+        theReader.addParameter(EARLY_STOPPING_ENABLED,
                                CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
@@ -85,7 +85,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
 
     m_TrainingPercent = parameters[TRAINING_PERCENT_FIELD_NAME].fallback(100.0) / 100.0;
 
-    bool earlyStoppingAllowed = parameters[EARLY_STOPPING_ALLOWED].fallback(true);
+    bool earlyStoppingEnabled = parameters[EARLY_STOPPING_ENABLED].fallback(true);
 
     std::size_t downsampleRowsPerFeature{
         parameters[DOWNSAMPLE_ROWS_PER_FEATURE].fallback(std::size_t{0})};
@@ -150,7 +150,7 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
         .stopCrossValidationEarly(stopCrossValidationEarly)
         .analysisInstrumentation(m_Instrumentation)
         .trainingStateCallback(this->statePersister())
-        .stopHyperparameterOptimizationEarly(earlyStoppingAllowed);
+        .earlyStoppingEnabled(earlyStoppingEnabled);
 
     if (downsampleRowsPerFeature > 0) {
         m_BoostedTreeFactory->initialDownsampleRowsPerFeature(
@@ -395,7 +395,7 @@ const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_NAME_FIELD_NAME{"fea
 const std::string CDataFrameTrainBoostedTreeRunner::IMPORTANCE_FIELD_NAME{"importance"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_IMPORTANCE_FIELD_NAME{"feature_importance"};
 const std::string CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS{"feature_processors"};
-const std::string CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ALLOWED{"early_stopping_allowed"};
+const std::string CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ENABLED{"early_stopping_enabled"};
 // clang-format on
 }
 }
