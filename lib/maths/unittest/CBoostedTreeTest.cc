@@ -1422,7 +1422,7 @@ BOOST_AUTO_TEST_CASE(testProgressMonitoring) {
             auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                                   threads, std::make_unique<maths::boosted_tree::CMse>())
                                   .analysisInstrumentation(instrumentation)
-                                  .stopHyperparameterOptimizationEarly(false)
+                                  .earlyStoppingEnabled(false)
                                   .buildFor(*frame, cols - 1);
 
             regression->train();
