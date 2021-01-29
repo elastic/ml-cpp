@@ -102,7 +102,7 @@ RUN \
 
 # Install Python dependencies 
 RUN \
-  /usr/local/bin/pip3.7 install numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_extensions future six requests dataclasses  
+  /usr/local/bin/pip3.7 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses  
 
 # Install CMake
 # v3.5 minimum is required
@@ -117,16 +117,14 @@ RUN \
 # Add cmake to PATH
 ENV PATH=${PATH}:/usr/local/cmake/bin
 
-# Clone PyTorch
+# Clone PyTorch and build LibTorch
+# If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
 RUN \
   cd ${build_dir} && \
   git -c advice.detachedHead=false clone --depth=1 --branch=v1.7.1 https://github.com/pytorch/pytorch.git && \
   cd pytorch && \
   git submodule sync && \
-  git submodule update --init --recursive 
-
-# Build LibTorch
-RUN \
+  git submodule update --init --recursive && \
   export BUILD_TEST=OFF && \
   export BUILD_CAFFE2=OFF && \
   export USE_NUMPY=OFF && \
@@ -140,8 +138,5 @@ RUN \
   mkdir /usr/local/gcc93/include/pytorch && \
   cp -r torch/include/* /usr/local/gcc93/include/pytorch/ && \
   cp torch/lib/libtorch_cpu.so /usr/local/gcc93/lib && \
-  cp torch/lib/libc10.so /usr/local/gcc93/lib 
-
-# Clean up
-RUN \
+  cp torch/lib/libc10.so /usr/local/gcc93/lib && \
   rm -rf ${build_dir}/*
