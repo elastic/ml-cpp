@@ -160,7 +160,7 @@ Install using all the default options.  When the installer completes a Finder wi
 PyTorch requires that certain Python modules are installed.  To install them:
 
 ```
-sudo /Library/Frameworks/Python.framework/Versions/3.7/bin/pip3.7 install install numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_extensions future six requests dataclasses
+sudo /Library/Frameworks/Python.framework/Versions/3.7/bin/pip3.7 install install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 ```
 
 Then obtain the PyTorch code:
@@ -179,6 +179,9 @@ export BUILD_TEST=OFF
 export BUILD_CAFFE2=OFF
 export USE_NUMPY=OFF
 export USE_DISTRIBUTED=OFF
+export USE_MKLDNN=OFF
+export PYTORCH_BUILD_VERSION=1.7.1
+export PYTORCH_BUILD_NUMBER=1
 /Library/Frameworks/Python.framework/Versions/3.7/bin/python3.7 setup.py install
 ```
 

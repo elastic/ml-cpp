@@ -266,7 +266,7 @@ sudo make altinstall
 PyTorch requires that certain Python modules are installed. Install these modules with `pip` using the same Python version you will build PyTorch with. If you followed the instructions above and built Python from source use `python3.7`:
 
 ```
-sudo /usr/local/bin/python3.7 -m pip install install numpy ninja pyyaml mkl mkl-include setuptools cmake cffi typing_extensions future six requests dataclasses
+sudo /usr/local/bin/python3.7 -m pip install install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 ```
 
 Then obtain the PyTorch code:
