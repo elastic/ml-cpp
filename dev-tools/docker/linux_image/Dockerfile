@@ -133,10 +133,9 @@ RUN \
   export BLAS=Eigen && \
   export PYTORCH_BUILD_VERSION=1.7.1 && \
   export PYTORCH_BUILD_NUMBER=1 && \
-  cd ${build_dir}/pytorch && \
   /usr/local/bin/python3.7 setup.py install && \
   mkdir /usr/local/gcc93/include/pytorch && \
   cp -r torch/include/* /usr/local/gcc93/include/pytorch/ && \
   cp torch/lib/libtorch_cpu.so /usr/local/gcc93/lib && \
   cp torch/lib/libc10.so /usr/local/gcc93/lib && \
-  rm -rf ${build_dir}/*
+  cd .. && rm -rf ${build_dir}/*
