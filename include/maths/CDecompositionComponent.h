@@ -105,6 +105,11 @@ protected:
         std::size_t memoryUsage() const;
 
     private:
+        //! Check the state invariants after restoration
+        //! Abort on failure.
+        void checkRestoredInvariants() const;
+
+    private:
         //! The splines' types.
         TTypeArray m_Types;
         //! The splines' knots.

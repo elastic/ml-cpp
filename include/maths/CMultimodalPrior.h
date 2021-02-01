@@ -329,6 +329,10 @@ private:
     bool acceptRestoreTraverser(const SDistributionRestoreParams& params,
                                 core::CStateRestoreTraverser& traverser);
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
     //! We should only use this prior when it has multiple modes.
     virtual bool participatesInModelSelection() const;
 
