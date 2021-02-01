@@ -1259,7 +1259,7 @@ BOOST_FIXTURE_TEST_CASE(testMixedSmoothAndSpikeyDataProblemCase, CTestFixture) {
     LOG_DEBUG(<< "total 70% error = " << totalPercentileError / totalSumValue);
 
     BOOST_TEST_REQUIRE(totalSumResidual < 0.20 * totalSumValue);
-    BOOST_TEST_REQUIRE(totalMaxResidual < 0.42 * totalMaxValue);
+    BOOST_TEST_REQUIRE(totalMaxResidual < 0.47 * totalMaxValue);
     BOOST_TEST_REQUIRE(totalPercentileError < 0.09 * totalSumValue);
 }
 

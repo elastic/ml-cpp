@@ -195,6 +195,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             specFactory.rows(s_Rows)
                 .memoryLimit(26000000)
+                .earlyStoppingEnabled(false)
                 .predictionCategoricalFieldNames({"c1"})
                 .predictionAlpha(s_Alpha)
                 .predictionLambda(s_Lambda)
@@ -247,6 +248,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             specFactory.rows(s_Rows)
                 .memoryLimit(26000000)
+                .earlyStoppingEnabled(false)
                 .predictionCategoricalFieldNames({"target"})
                 .predictionAlpha(s_Alpha)
                 .predictionLambda(s_Lambda)
@@ -296,6 +298,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             specFactory.rows(s_Rows)
                 .memoryLimit(26000000)
+                .earlyStoppingEnabled(false)
                 .predictionCategoricalFieldNames({"target"})
                 .predictionAlpha(s_Alpha)
                 .predictionLambda(s_Lambda)
@@ -346,6 +349,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             specFactory.rows(s_Rows)
                 .memoryLimit(26000000)
+                .earlyStoppingEnabled(false)
                 .predictionAlpha(s_Alpha)
                 .predictionLambda(s_Lambda)
                 .predictionGamma(s_Gamma)

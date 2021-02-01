@@ -61,7 +61,6 @@ private:
 
 private:
     mutable CInferenceModelMetadata m_InferenceModelMetadata;
-    mutable bool m_DebugInfoPrinted = false;
 };
 
 //! \brief Makes a core::CDataFrame boosted tree regression runner.
