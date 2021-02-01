@@ -82,3 +82,54 @@ RUN \
   cd .. && \
   rm -rf patchelf-0.10
 
+# Build Python 3.7
+# —-enable-optimizations for a stable/release build
+RUN \
+  cd ${build_dir} && \
+  wget --quiet -O - https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz | tar xzf - && \
+  cd Python-3.7.9/ && \  
+  ./configure --enable-optimizations && \ 
+  make altinstall && \
+  cd .. && rm -rf Python-3.7.9
+
+# Install Python dependencies 
+RUN \
+  /usr/local/bin/pip3.7 install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses  
+
+# Install CMake
+# v3.5 minimum is required
+RUN \
+  cd ${build_dir} && \
+  wget --quiet https://github.com/Kitware/CMake/releases/download/v3.19.3/cmake-3.19.3-Linux-aarch64.sh && \
+  chmod +x cmake-3.19.3-Linux-aarch64.sh && \
+  mkdir /usr/local/cmake && \
+  ./cmake-3.19.3-Linux-aarch64.sh --skip-license --prefix=/usr/local/cmake && \
+  rm -f cmake-3.19.3-Linux-aarch64.sh
+
+# Add cmake to PATH
+ENV PATH=${PATH}:/usr/local/cmake/bin
+
+# Clone PyTorch and build LibTorch
+# If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
+RUN \
+  cd ${build_dir} && \
+  git -c advice.detachedHead=false clone --depth=1 --branch=v1.7.1 https://github.com/pytorch/pytorch.git && \
+  cd pytorch && \
+  git submodule sync && \
+  git submodule update --init --recursive && \
+  export BUILD_TEST=OFF && \
+  export USE_FBGEMM=OFF  && \
+  export USE_NUMPY=OFF && \
+  export USE_DISTRIBUTED=OFF && \
+  export USE_MKLDNN=OFF && \
+  export BLAS=Eigen && \
+  export PYTORCH_BUILD_VERSION=1.7.1 && \
+  export PYTORCH_BUILD_NUMBER=1 && \
+  cd ${build_dir}/pytorch && \
+  /usr/local/bin/python3.7 setup.py install && \
+  mkdir /usr/local/gcc93/include/pytorch && \
+  cp -r torch/include/* /usr/local/gcc93/include/pytorch/ && \
+  cp torch/lib/libtorch_cpu.so /usr/local/gcc93/lib && \
+  cp torch/lib/libc10.so /usr/local/gcc93/lib && \
+  rm -rf ${build_dir}/*
+
