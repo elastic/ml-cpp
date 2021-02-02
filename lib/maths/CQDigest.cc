@@ -80,6 +80,7 @@ bool CQDigest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
 
 void CQDigest::checkRestoredInvariants() const {
     VIOLATES_INVARIANT_NO_EVALUATION(m_Root, ==, nullptr);
+    this->checkInvariants();
 }
 
 void CQDigest::add(uint32_t value, uint64_t n) {
@@ -108,8 +109,6 @@ void CQDigest::add(uint32_t value, uint64_t n) {
         TNodePtrVec compress(1u, &leaf);
         this->compress(compress);
     }
-
-    this->checkInvariants();
 }
 
 void CQDigest::merge(const CQDigest& digest) {
@@ -128,8 +127,6 @@ void CQDigest::merge(const CQDigest& digest) {
 
     // Compress the whole tree.
     this->compress();
-
-    this->checkInvariants();
 }
 
 void CQDigest::propagateForwardsByTime(double time) {

@@ -2785,7 +2785,7 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
         } while (traverser.next());
     }
 
-    this->checkInvariants();
+    this->checkRestoredInvariants();
 
     if (m_Controllers != nullptr && stateMissingControllerChecks) {
         (*m_Controllers)[E_TrendControl].checks(CDecayRateController::E_PredictionBias |
@@ -2800,7 +2800,7 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
     return true;
 }
 
-void CMultivariateTimeSeriesModel::checkInvariants() const {
+void CMultivariateTimeSeriesModel::checkRestoredInvariants() const {
     for (const auto& trendModel : m_TrendModel) {
         VIOLATES_INVARIANT_NO_EVALUATION(trendModel, ==, nullptr);
     }

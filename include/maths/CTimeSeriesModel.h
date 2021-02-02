@@ -729,7 +729,7 @@ private:
 
     //! Check the state invariants after restoration
     //! Abort on failure.
-    void checkInvariants() const;
+    void checkRestoredInvariants() const;
 
 private:
     //! True if the data are non-negative.
