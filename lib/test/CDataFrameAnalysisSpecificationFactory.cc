@@ -182,8 +182,8 @@ CDataFrameAnalysisSpecificationFactory::predictionRestoreSearcherSupplier(
 }
 
 CDataFrameAnalysisSpecificationFactory&
-CDataFrameAnalysisSpecificationFactory::earlyStoppingAllowed(bool earlyStoppingAllowed) {
-    m_EarlyStoppingAllowed = earlyStoppingAllowed;
+CDataFrameAnalysisSpecificationFactory::earlyStoppingEnabled(bool earlyStoppingEnabled) {
+    m_EarlyStoppingEnabled = earlyStoppingEnabled;
     return *this;
 }
 
@@ -345,9 +345,9 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
         writer.Key(api::CDataFrameTrainBoostedTreeRunner::FEATURE_PROCESSORS);
         writer.write(m_CustomProcessors);
     }
-    if (m_EarlyStoppingAllowed == false) {
-        writer.Key(api::CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ALLOWED);
-        writer.Bool(m_EarlyStoppingAllowed);
+    if (m_EarlyStoppingEnabled == false) {
+        writer.Key(api::CDataFrameTrainBoostedTreeRunner::EARLY_STOPPING_ENABLED);
+        writer.Bool(m_EarlyStoppingEnabled);
     }
 
     if (analysis == regression()) {

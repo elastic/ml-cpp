@@ -597,7 +597,7 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeRegressionTrainingWithStateRecovery) {
                     .predictionPersisterSupplier(persisterSupplier)
                     .predictionRestoreSearcherSupplier(restorerSupplier)
                     .regressionLossFunction(lossFunction)
-                    .earlyStoppingAllowed(false)
+                    .earlyStoppingEnabled(false)
                     .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(),
                                     dependentVariable);
             };
@@ -1012,7 +1012,7 @@ BOOST_AUTO_TEST_CASE(testProgressFromRestart) {
             .memoryLimit(18000000)
             .predictionPersisterSupplier(persisterSupplier)
             .predictionRestoreSearcherSupplier(restorerSupplier)
-            .earlyStoppingAllowed(false)
+            .earlyStoppingEnabled(false)
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target");
     };
 
