@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the Elastic License.
 #
 
-FROM centos:7
+FROM centos:7 AS builder
 
 # This is basically automating the setup instructions in build-setup/linux.md
 
@@ -139,3 +139,10 @@ RUN \
   cp torch/lib/libtorch_cpu.so /usr/local/gcc93/lib && \
   cp torch/lib/libc10.so /usr/local/gcc93/lib && \
   cd .. && rm -rf ${build_dir}/*
+
+FROM centos:7
+COPY --from=builder /usr/local/gcc93 /usr/local/gcc93
+COPY --from=builder /usr/include /usr/include
+RUN \
+  rm /var/lib/rpm/__db.* && \
+  yum install -y bzip2 git make unzip which zip zlib-devel
