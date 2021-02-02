@@ -46,6 +46,10 @@
 * Fix a source of instability in time series modeling for anomaly detection. This has
   been observed to cause spurious anomalies for a partition which no longer receives
   any data. (See {ml-pull}1675[#1675].)
+* Ensure that we stop modeling seasonality for data which flatlines. This is important
+  for count and sum detectors which treat empty buckets as zero. We could see spurious
+  anomalies in realtime detection after a partition no longer received data any data
+  as a result. (See {ml-pull}1654[#1654].)
 
 == {es} version 7.11.0
 
