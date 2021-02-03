@@ -18,6 +18,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 
 namespace ml {
 namespace core {
@@ -106,6 +107,16 @@ public:
     //! Get the whether the data are non-negative.
     bool isNonNegative() const;
 
+    //! Set the proportion of non-empty buckets.
+    CModelAddSamplesParams& bucketOccupancy(double occupancy);
+    //! Get the proportion of non-empty buckets.
+    double bucketOccupancy() const;
+
+    //! Set the first value time.
+    CModelAddSamplesParams& firstValueTime(core_t::TTime time);
+    //! Get the first value time.
+    core_t::TTime firstValueTime() const;
+
     //! Set the model propagation interval.
     CModelAddSamplesParams& propagationInterval(double interval);
     //! Get the model propagation interval.
@@ -132,8 +143,12 @@ private:
     maths_t::EDataType m_Type = maths_t::E_MixedData;
     //! True if the data are non-negative false otherwise.
     bool m_IsNonNegative = false;
+    //! The proportion of non-empty buckets.
+    double m_Occupancy = 1.0;
     //! The propagation interval.
     double m_PropagationInterval = 1.0;
+    //! The first value time.
+    core_t::TTime m_FirstValueTime = std::numeric_limits<core_t::TTime>::min();
     //! The trend sample weights.
     const TDouble2VecWeightsAryVec* m_TrendWeights = nullptr;
     //! The prior sample weights.

@@ -18,7 +18,8 @@
 #include <boost/array.hpp>
 
 #include <cstddef>
-#include <stdint.h>
+#include <cstdint>
+#include <limits>
 #include <string>
 #include <utility>
 #include <vector>
@@ -90,12 +91,16 @@ public:
     //! residuals if a new component is added as a result of adding the data point.
     //! \param[in] modelAnnotationCallback Supplied with an annotation if a new
     //! component is added as a result of adding the data point.
+    //! \param[in] occupancy The proportion of non-empty buckets.
+    //! \param[in] firstValueTime The time of the first value added to the decomposition.
     virtual void
     addPoint(core_t::TTime time,
              double value,
              const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
              const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
-             const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) = 0;
+             const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,
+             double occupancy = 0.0,
+             core_t::TTime firstValueTime = std::numeric_limits<core_t::TTime>::min()) = 0;
 
     //! Shift seasonality by \p shift at \p time.
     virtual void shiftTime(core_t::TTime time, core_t::TTime shift) = 0;

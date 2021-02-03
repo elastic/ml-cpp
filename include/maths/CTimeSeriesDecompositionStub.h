@@ -38,11 +38,14 @@ public:
     bool initialized() const override;
 
     //! No-op returning false.
-    void addPoint(core_t::TTime time,
-                  double value,
-                  const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
-                  const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
-                  const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation) override;
+    void
+    addPoint(core_t::TTime time,
+             double value,
+             const maths_t::TDoubleWeightsAry& weights = TWeights::UNIT,
+             const TComponentChangeCallback& componentChangeCallback = noopComponentChange,
+             const maths_t::TModelAnnotationCallback& modelAnnotationCallback = noopModelAnnotation,
+             double occupancy = 1.0,
+             core_t::TTime firstValueTime = std::numeric_limits<core_t::TTime>::min()) override;
 
     //! No-op.
     void shiftTime(core_t::TTime time, core_t::TTime shift) override;

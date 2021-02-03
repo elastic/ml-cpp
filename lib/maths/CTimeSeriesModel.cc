@@ -1476,9 +1476,6 @@ CUnivariateTimeSeriesModel::EUpdateResult
 CUnivariateTimeSeriesModel::updateTrend(const CModelAddSamplesParams& params,
                                         const TTimeDouble2VecSizeTrVec& samples) {
 
-    const TDouble2VecWeightsAryVec& weights = params.trendWeights();
-    const auto& modelAnnotationCallback = params.annotationCallback();
-
     for (const auto& sample : samples) {
         if (sample.second.size() != 1) {
             LOG_ERROR(<< "Dimension mismatch: '" << sample.second.size() << " != 1'");
@@ -1508,16 +1505,21 @@ CUnivariateTimeSeriesModel::updateTrend(const CModelAddSamplesParams& params,
         }
         result = E_Reset;
     };
+    const auto& weights = params.trendWeights();
+    const auto& modelAnnotationCallback = params.annotationCallback();
+    double occupancy{params.bucketOccupancy()};
+    core_t::TTime firstValueTime{params.firstValueTime()};
+
     for (auto i : timeorder) {
         core_t::TTime time{samples[i].first};
         double value{samples[i].second[0]};
         TDoubleWeightsAry weight{unpack(weights[i])};
         m_TrendModel->addPoint(time, value, weight, componentChangeCallback,
-                               modelAnnotationCallback);
+                               modelAnnotationCallback, occupancy, firstValueTime);
     }
 
     if (result == E_Reset) {
-        this->reinitializeStateGivenNewComponent(std::move(window));
+        this->reinitializeStateGivenNewComponent(params, std::move(window));
     }
 
     return result;
@@ -1581,7 +1583,9 @@ void CUnivariateTimeSeriesModel::appendPredictionErrors(double interval,
     }
 }
 
-void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec residuals) {
+void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
+    const CModelAddSamplesParams& params,
+    TFloatMeanAccumulatorVec residuals) {
 
     if (m_Controllers != nullptr) {
         m_ResidualModel->decayRate(m_ResidualModel->decayRate() /
@@ -1609,9 +1613,10 @@ void CUnivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAc
                                                   CBasicStatistics::count(residual);
                                        }) /
                        this->params().learnRate()};
-        double time{buckets / static_cast<double>(residuals.size())};
+        double time{params.bucketOccupancy() * buckets /
+                    static_cast<double>(residuals.size())};
         for (const auto& residual : residuals) {
-            double weight{CBasicStatistics::count(residual)};
+            double weight{params.bucketOccupancy() * CBasicStatistics::count(residual)};
             if (weight > 0.0) {
                 weights[0] = maths_t::countWeight(weight);
                 m_ResidualModel->addSamples({CBasicStatistics::mean(residual)}, weights);
@@ -2860,9 +2865,6 @@ CMultivariateTimeSeriesModel::EUpdateResult
 CMultivariateTimeSeriesModel::updateTrend(const CModelAddSamplesParams& params,
                                           const TTimeDouble2VecSizeTrVec& samples) {
 
-    const TDouble2VecWeightsAryVec& weights = params.trendWeights();
-    const auto& modelAnnotationCallback = params.annotationCallback();
-
     std::size_t dimension{this->dimension()};
 
     for (const auto& sample : samples) {
@@ -2891,6 +2893,10 @@ CMultivariateTimeSeriesModel::updateTrend(const CModelAddSamplesParams& params,
     auto componentChangeCallback = [&result](TFloatMeanAccumulatorVec) {
         result = E_Reset;
     };
+    const auto& weights = params.trendWeights();
+    const auto& modelAnnotationCallback = params.annotationCallback();
+    double occupancy{params.bucketOccupancy()};
+    core_t::TTime firstValueTime{params.firstValueTime()};
 
     maths_t::TDoubleWeightsAry weight;
     for (auto i : timeorder) {
@@ -2901,7 +2907,7 @@ CMultivariateTimeSeriesModel::updateTrend(const CModelAddSamplesParams& params,
                 weight[j] = weights[i][j][d];
             }
             m_TrendModel[d]->addPoint(time, value[d], weight, componentChangeCallback,
-                                      modelAnnotationCallback);
+                                      modelAnnotationCallback, occupancy, firstValueTime);
         }
     }
 
@@ -2910,7 +2916,7 @@ CMultivariateTimeSeriesModel::updateTrend(const CModelAddSamplesParams& params,
         for (std::size_t d = 0; d < dimension; ++d) {
             window[d] = m_TrendModel[d]->residuals();
         }
-        this->reinitializeStateGivenNewComponent(std::move(window));
+        this->reinitializeStateGivenNewComponent(params, std::move(window));
     }
 
     return result;
@@ -2967,7 +2973,9 @@ void CMultivariateTimeSeriesModel::appendPredictionErrors(double interval,
     }
 }
 
-void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMeanAccumulatorVec10Vec residuals) {
+void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(
+    const CModelAddSamplesParams& params,
+    TFloatMeanAccumulatorVec10Vec residuals) {
 
     using TDoubleVec = std::vector<double>;
     using TDouble10VecVec = std::vector<TDouble10Vec>;
@@ -3006,10 +3014,11 @@ void CMultivariateTimeSeriesModel::reinitializeStateGivenNewComponent(TFloatMean
                 samples[i][d] = CBasicStatistics::mean(residuals[d][i]);
                 weights[i] = std::min(
                     weights[i],
-                    static_cast<double>(CBasicStatistics::count(residuals[d][i])));
+                    params.bucketOccupancy() *
+                        static_cast<double>(CBasicStatistics::count(residuals[d][i])));
             }
         }
-        time /= static_cast<double>(dimension);
+        time *= params.bucketOccupancy() / static_cast<double>(dimension);
 
         maths_t::TDouble10VecWeightsAry1Vec weight(1);
         for (std::size_t i = 0; i < samples.size(); ++i) {

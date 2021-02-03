@@ -238,10 +238,9 @@ CTimeSeriesTestForSeasonality::CTimeSeriesTestForSeasonality(core_t::TTime value
                                                              core_t::TTime bucketLength,
                                                              core_t::TTime sampleInterval,
                                                              TFloatMeanAccumulatorVec values,
-                                                             double sampleVariance,
                                                              double outlierFraction)
     : m_ValuesStartTime{valuesStartTime}, m_BucketsStartTime{bucketsStartTime},
-      m_BucketLength{bucketLength}, m_SampleInterval{sampleInterval}, m_SampleVariance{sampleVariance},
+      m_BucketLength{bucketLength}, m_SampleInterval{sampleInterval},
       m_OutlierFraction{outlierFraction}, m_Values{std::move(values)},
       m_Outliers{static_cast<std::size_t>(std::max(
           outlierFraction * static_cast<double>(CSignal::countNotMissing(m_Values)) + 0.5,

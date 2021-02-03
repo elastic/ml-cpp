@@ -280,7 +280,7 @@ void reinitializeResidualModel(double learnRate,
 
 class CChangeDebug {
 public:
-    static const bool ENABLED{true};
+    static const bool ENABLED{false};
 
 public:
     CChangeDebug(std::string file = "results.py") : m_File(file) {

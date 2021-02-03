@@ -208,7 +208,6 @@ public:
                                   core_t::TTime bucketLength,
                                   core_t::TTime sampleInterval,
                                   TFloatMeanAccumulatorVec values,
-                                  double sampleVariance = 0.0,
                                   double outlierFraction = OUTLIER_FRACTION);
 
     //! Check if it is possible to test for \p component given the window \p values.
@@ -273,6 +272,10 @@ public:
     }
     CTimeSeriesTestForSeasonality& maximumNumberOfComponents(std::ptrdiff_t value) {
         m_MaximumNumberComponents = value;
+        return *this;
+    }
+    CTimeSeriesTestForSeasonality& sampleVariance(double value) {
+        m_SampleVariance = value;
         return *this;
     }
     //@}

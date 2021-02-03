@@ -99,6 +99,24 @@ bool CModelAddSamplesParams::isNonNegative() const {
     return m_IsNonNegative;
 }
 
+CModelAddSamplesParams& CModelAddSamplesParams::bucketOccupancy(double occupancy) {
+    m_Occupancy = occupancy;
+    return *this;
+}
+
+double CModelAddSamplesParams::bucketOccupancy() const {
+    return m_Occupancy;
+}
+
+CModelAddSamplesParams& CModelAddSamplesParams::firstValueTime(core_t::TTime time) {
+    m_FirstValueTime = time;
+    return *this;
+}
+
+core_t::TTime CModelAddSamplesParams::firstValueTime() const {
+    return m_FirstValueTime;
+}
+
 CModelAddSamplesParams& CModelAddSamplesParams::propagationInterval(double interval) {
     m_PropagationInterval = interval;
     return *this;
