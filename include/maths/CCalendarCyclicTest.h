@@ -104,6 +104,10 @@ private:
     //! Extract from the compressed representation.
     TErrorStatsVec inflate() const;
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants(const TErrorStatsVec& errors) const;
+
 private:
     //! The rate at which the error counts are aged.
     double m_DecayRate;

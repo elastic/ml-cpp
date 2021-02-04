@@ -313,9 +313,15 @@ bool CMultinomialConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser&
                                this->numberSamples(numberSamples))
     } while (traverser.next());
 
+    this->checkRestoredInvariants();
+
     this->shrink();
 
     return true;
+}
+
+void CMultinomialConjugate::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT(m_Concentrations.size(), !=, m_Categories.size());
 }
 
 void CMultinomialConjugate::swap(CMultinomialConjugate& other) noexcept {

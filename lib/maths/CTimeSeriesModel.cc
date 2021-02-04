@@ -1371,7 +1371,14 @@ bool CUnivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestoreParam
             maths::CDecayRateController::E_PredictionErrorDecrease);
     }
 
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CUnivariateTimeSeriesModel::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT_NO_EVALUATION(m_TrendModel, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_ResidualModel, ==, nullptr);
 }
 
 void CUnivariateTimeSeriesModel::persistModelsState(core::CStatePersistInserter& inserter) const {
@@ -2690,7 +2697,7 @@ std::uint64_t CMultivariateTimeSeriesModel::checksum(std::uint64_t seed) const {
 }
 
 void CMultivariateTimeSeriesModel::debugMemoryUsage(const core::CMemoryUsage::TMemoryUsagePtr& mem) const {
-    mem->setName("CUnivariateTimeSeriesModel");
+    mem->setName("CMultivariateTimeSeriesModel");
     core::CMemoryDebug::dynamicSize("m_Controllers", m_Controllers, mem);
     core::CMemoryDebug::dynamicSize("m_TrendModel", m_TrendModel, mem);
     core::CMemoryDebug::dynamicSize("m_ResidualModel", m_ResidualModel, mem);
@@ -2778,6 +2785,8 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
         } while (traverser.next());
     }
 
+    this->checkRestoredInvariants();
+
     if (m_Controllers != nullptr && stateMissingControllerChecks) {
         (*m_Controllers)[E_TrendControl].checks(CDecayRateController::E_PredictionBias |
                                                 CDecayRateController::E_PredictionErrorIncrease);
@@ -2789,6 +2798,18 @@ bool CMultivariateTimeSeriesModel::acceptRestoreTraverser(const SModelRestorePar
     }
 
     return true;
+}
+
+void CMultivariateTimeSeriesModel::checkRestoredInvariants() const {
+    for (const auto& trendModel : m_TrendModel) {
+        VIOLATES_INVARIANT_NO_EVALUATION(trendModel, ==, nullptr);
+    }
+    VIOLATES_INVARIANT_NO_EVALUATION(m_ResidualModel, ==, nullptr);
+    VIOLATES_INVARIANT(m_TrendModel.size(), !=, this->dimension());
+    VIOLATES_INVARIANT_NO_EVALUATION(m_Controllers, ==, nullptr);
+    VIOLATES_INVARIANT((*m_Controllers)[E_TrendControl].dimension(), !=, this->dimension());
+    VIOLATES_INVARIANT((*m_Controllers)[E_ResidualControl].dimension(), !=,
+                       this->dimension());
 }
 
 void CMultivariateTimeSeriesModel::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

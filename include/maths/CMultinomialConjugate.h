@@ -349,6 +349,10 @@ private:
     //! Read parameters from \p traverser.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
     //! Shrinks vectors so that we don't use more memory than we need.
     //! Typically vector implements a doubling policy when growing the
     //! buffer, which means that the buffers can end up twice as large
