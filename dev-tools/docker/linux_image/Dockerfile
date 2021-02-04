@@ -145,4 +145,4 @@ COPY --from=builder /usr/local/gcc93 /usr/local/gcc93
 COPY --from=builder /usr/include /usr/include
 RUN \
   rm /var/lib/rpm/__db.* && \
-  yum install -y bzip2 git make unzip which zip zlib-devel
+  yum install -y bzip2 gcc git make unzip which zip zlib-devel
