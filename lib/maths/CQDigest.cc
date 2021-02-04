@@ -80,7 +80,9 @@ bool CQDigest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
 
 void CQDigest::checkRestoredInvariants() const {
     VIOLATES_INVARIANT_NO_EVALUATION(m_Root, ==, nullptr);
-    this->checkInvariants();
+    if (this->checkInvariants() == false) {
+        LOG_ABORT(<< "Invariance check failed for Q Digest");
+    }
 }
 
 void CQDigest::add(uint32_t value, uint64_t n) {
