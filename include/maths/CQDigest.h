@@ -224,6 +224,10 @@ private:
         bool operator()(const CNode* lhs, const CNode* rhs) const;
     };
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
     //! Represents a node of the q-digest with convenience
     //! operations for compression.
     class MATHS_EXPORT CNode {

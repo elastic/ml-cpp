@@ -178,6 +178,10 @@ private:
     using TBucketVec = std::vector<SBucket>;
 
 private:
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
     //! Restore by traversing a state document
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 

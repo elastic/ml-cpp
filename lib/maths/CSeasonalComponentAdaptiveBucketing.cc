@@ -380,7 +380,14 @@ bool CSeasonalComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
 
     m_Buckets.shrink_to_fit();
 
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CSeasonalComponentAdaptiveBucketing::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT_NO_EVALUATION(m_Time, ==, nullptr);
+    VIOLATES_INVARIANT(m_Buckets.size(), !=, this->centres().size());
 }
 
 void CSeasonalComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints) {

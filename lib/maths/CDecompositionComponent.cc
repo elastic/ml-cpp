@@ -245,7 +245,14 @@ bool CDecompositionComponent::CPackedSplines::acceptRestoreTraverser(
         this->interpolate(knots, values, variances, boundary);
     }
 
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CDecompositionComponent::CPackedSplines::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT(m_Knots.size(), !=, m_Values[0].size());
+    VIOLATES_INVARIANT(m_Values[0].size(), !=, m_Values[1].size());
 }
 
 void CDecompositionComponent::CPackedSplines::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

@@ -147,7 +147,15 @@ bool CDecayRateController::acceptRestoreTraverser(core::CStateRestoreTraverser& 
     if (CBasicStatistics::count(m_Multiplier) == 0.0) {
         m_Multiplier.add(m_Target);
     }
+    this->checkRestoredInvariants();
     return true;
+}
+
+void CDecayRateController::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT(m_PredictionMean.size(), !=, m_Bias.size());
+    VIOLATES_INVARIANT(m_Bias.size(), !=, m_RecentAbsError.size());
+    VIOLATES_INVARIANT(m_RecentAbsError.size(), !=, m_HistoricalAbsError.size());
+    VIOLATES_INVARIANT(m_PredictionMean.size(), <=, 0);
 }
 
 void CDecayRateController::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
