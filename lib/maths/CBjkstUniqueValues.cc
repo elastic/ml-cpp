@@ -331,7 +331,19 @@ bool CBjkstUniqueValues::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
         }
     } while (traverser.next());
 
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CBjkstUniqueValues::checkRestoredInvariants() const {
+    const SSketch* sketch = boost::get<SSketch>(&m_Sketch);
+    if (sketch != nullptr) {
+        VIOLATES_INVARIANT(sketch->s_G.size(), !=, sketch->s_H.size());
+        VIOLATES_INVARIANT(sketch->s_H.size(), !=, sketch->s_Z.size());
+        VIOLATES_INVARIANT(sketch->s_Z.size(), !=, sketch->s_B.size());
+        VIOLATES_INVARIANT(sketch->s_B.size(), !=, m_NumberHashes);
+    }
 }
 
 void CBjkstUniqueValues::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

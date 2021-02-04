@@ -169,6 +169,10 @@ private:
     //! Implements inflate.
     void doInflate(bool commit);
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
 private:
     //! True if the bucket values are stored in deflated format.
     bool m_Deflate;

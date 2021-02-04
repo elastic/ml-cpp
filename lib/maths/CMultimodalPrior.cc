@@ -209,7 +209,13 @@ bool CMultimodalPrior::acceptRestoreTraverser(const SDistributionRestoreParams& 
         m_Clusterer->mergeFunc(CModeMergeCallback(*this));
     }
 
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CMultimodalPrior::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT_NO_EVALUATION(m_SeedPrior, ==, nullptr);
 }
 
 CMultimodalPrior::CMultimodalPrior(const CMultimodalPrior& other)

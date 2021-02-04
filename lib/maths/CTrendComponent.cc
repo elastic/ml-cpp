@@ -185,7 +185,14 @@ bool CTrendComponent::acceptRestoreTraverser(const SDistributionRestoreParams& p
                          m_MagnitudeOfLevelChangeModel =
                              CNormalMeanPrecConjugate(params, traverser))
     } while (traverser.next());
+
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CTrendComponent::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT(m_FirstUpdate, >, m_LastUpdate);
 }
 
 bool CTrendComponent::initialized() const {

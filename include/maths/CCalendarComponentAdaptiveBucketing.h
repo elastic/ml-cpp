@@ -109,6 +109,10 @@ private:
     //! Restore by traversing a state document
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
     //! Compute the values corresponding to the change in end
     //! points from \p endpoints. The values are assigned based
     //! on their intersection with each bucket in the previous

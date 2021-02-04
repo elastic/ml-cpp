@@ -62,8 +62,15 @@ bool CExpandingWindow::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                 m_AverageWithinBucketVariance.fromDelimited(traverser.value()))
         RESTORE(MEAN_OFFSET_TAG, m_MeanOffset.fromDelimited(traverser.value()))
     } while (traverser.next());
+    this->checkRestoredInvariants();
     this->deflate(true);
     return true;
+}
+
+void CExpandingWindow::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT(m_BucketIndex, >=, m_BucketValues.size());
+    VIOLATES_INVARIANT(m_BucketLengthIndex, >=, m_BucketLengths.size());
+    VIOLATES_INVARIANT(m_Size, !=, m_BucketValues.size());
 }
 
 void CExpandingWindow::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

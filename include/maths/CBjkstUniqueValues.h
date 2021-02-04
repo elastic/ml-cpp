@@ -91,6 +91,10 @@ private:
     //! Create by traversing a state document.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
 public:
     //! Convert to a node tree.
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;

@@ -275,6 +275,10 @@ private:
                            TMultivariatePriorCPtrSizePr1Vec& correlationDistributionModels,
                            TModelCPtr1Vec& correlatedTimeSeriesModels) const;
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
 private:
     //! A unique identifier for this model.
     std::size_t m_Id;
@@ -722,6 +726,10 @@ private:
 
     //! Get the model dimension.
     std::size_t dimension() const;
+
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
 
 private:
     //! True if the data are non-negative.
