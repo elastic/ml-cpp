@@ -1702,7 +1702,7 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
                 core::CPersistUtils::restore(BEST_HYPERPARAMETERS_TAG,
                                              m_BestHyperparameters, traverser))
         RESTORE_SETUP_TEARDOWN(
-            FEATURE_BAG_FRACTION_OVERRIDE_TAG,
+            CLASSIFICATION_WEIGHTS_OVERRIDE_TAG,
             m_ClassificationWeightsOverride = TStrDoublePrVec{},
             core::CPersistUtils::restore(CLASSIFICATION_WEIGHTS_OVERRIDE_TAG,
                                          *m_ClassificationWeightsOverride, traverser),
