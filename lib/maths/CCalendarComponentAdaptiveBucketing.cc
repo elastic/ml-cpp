@@ -130,7 +130,7 @@ void CCalendarComponentAdaptiveBucketing::propagateForwardsByTime(double time) {
 }
 
 double CCalendarComponentAdaptiveBucketing::count(core_t::TTime time) const {
-    const TFloatMeanVarAccumulator* value = this->value(time);
+    const TFloatMeanVarAccumulator* value{this->value(time)};
     return value ? static_cast<double>(CBasicStatistics::count(*value)) : 0.0;
 }
 
@@ -174,7 +174,13 @@ bool CCalendarComponentAdaptiveBucketing::acceptRestoreTraverser(core::CStateRes
         RESTORE(VALUES_TAG, core::CPersistUtils::restore(VALUES_TAG, m_Values, traverser))
     } while (traverser.next());
 
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CCalendarComponentAdaptiveBucketing::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT(m_Values.size(), !=, this->centres().size());
 }
 
 void CCalendarComponentAdaptiveBucketing::refresh(const TFloatVec& oldEndpoints) {

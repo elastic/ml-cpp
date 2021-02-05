@@ -195,6 +195,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             specFactory.rows(s_Rows)
                 .memoryLimit(26000000)
+                .earlyStoppingEnabled(false)
                 .predictionCategoricalFieldNames({"c1"})
                 .predictionAlpha(s_Alpha)
                 .predictionLambda(s_Lambda)
@@ -247,6 +248,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             specFactory.rows(s_Rows)
                 .memoryLimit(26000000)
+                .earlyStoppingEnabled(false)
                 .predictionCategoricalFieldNames({"target"})
                 .predictionAlpha(s_Alpha)
                 .predictionLambda(s_Lambda)
@@ -296,6 +298,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             specFactory.rows(s_Rows)
                 .memoryLimit(26000000)
+                .earlyStoppingEnabled(false)
                 .predictionCategoricalFieldNames({"target"})
                 .predictionAlpha(s_Alpha)
                 .predictionLambda(s_Lambda)
@@ -346,6 +349,7 @@ struct SFixture {
         api::CDataFrameAnalyzer analyzer{
             specFactory.rows(s_Rows)
                 .memoryLimit(26000000)
+                .earlyStoppingEnabled(false)
                 .predictionAlpha(s_Alpha)
                 .predictionLambda(s_Lambda)
                 .predictionGamma(s_Gamma)
@@ -617,11 +621,12 @@ BOOST_FIXTURE_TEST_CASE(testRegressionFeatureImportanceNoImportance, SFixture) {
             double c1{readShapValue(result, "c1")};
             double prediction{
                 result["row_results"]["results"]["ml"]["target_prediction"].GetDouble()};
-            // c1 explains 92% of the prediction value, i.e. the difference from the prediction is less than 8%.
-            BOOST_REQUIRE_CLOSE(c1, prediction, 8.0);
+            // c1 explains 89-92% of the prediction value depending on platform,
+            // i.e. the difference from the prediction is less than 11%.
+            BOOST_REQUIRE_CLOSE(c1, prediction, 11.0);
             for (const auto& feature : {"c2", "c3", "c4"}) {
                 double c = readShapValue(result, feature);
-                BOOST_REQUIRE_SMALL(c, 3.0);
+                BOOST_REQUIRE_SMALL(c, 3.5);
                 cNoImportanceMean.add(std::fabs(c));
             }
         }

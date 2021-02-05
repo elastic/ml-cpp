@@ -108,8 +108,15 @@ bool CCalendarCyclicTest::acceptRestoreTraverser(core::CStateRestoreTraverser& t
         } while (traverser.next());
         errors.resize(SIZE);
     }
+    this->checkRestoredInvariants(errors);
     this->deflate(errors);
     return true;
+}
+
+void CCalendarCyclicTest::checkRestoredInvariants(const TErrorStatsVec& errors) const {
+    VIOLATES_INVARIANT(m_CurrentBucketIndex, >=,
+                       static_cast<core_t::TTime>(errors.size()));
+    VIOLATES_INVARIANT(errors.size(), !=, SIZE);
 }
 
 void CCalendarCyclicTest::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

@@ -16,10 +16,9 @@
 #include <maths/ImportExport.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <memory>
 #include <vector>
-
-#include <stdint.h>
 
 namespace CTimeSeriesDecompositionTest {
 class CNanInjector;
@@ -103,9 +102,16 @@ public:
     //! \param[in] time The time of \p value.
     //! \param[in] value The value of the function at \p time.
     //! \param[in] prediction The prediction for \p value.
-    //! \param[in] weight The weight of function point. The smaller
-    //! this is the less influence it has on the bucket.
-    void add(core_t::TTime time, double value, double prediction, double weight = 1.0);
+    //! \param[in] weight The weight of function point. The smaller this is
+    //! the less influence it has on the bucket.
+    //! \param[in] gradientLearnRate Must be in the range [0,1] with lower
+    //! values reduce the rate at which we adapt bucket regression model
+    //! gradients.
+    void add(core_t::TTime time,
+             double value,
+             double prediction,
+             double weight = 1.0,
+             double gradientLearnRate = 1.0);
 
     //! Age the bucket values to account for \p time elapsed time.
     //!
@@ -172,6 +178,10 @@ private:
     using TBucketVec = std::vector<SBucket>;
 
 private:
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
     //! Restore by traversing a state document
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 

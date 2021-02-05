@@ -178,7 +178,27 @@ bool CAdaptiveBucketing::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
     if (m_LargeErrorCounts.empty()) {
         m_LargeErrorCounts.resize(m_Centres.size(), 0.0);
     }
+
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CAdaptiveBucketing::checkRestoredInvariants() const {
+
+    // Fail if the invariant "m_Endpoints.size() == m_Centres.size() + 1 or both empty"
+    // does not hold true.
+    if ((m_Endpoints.size() != m_Centres.size() + 1) &&
+        (m_Endpoints.empty() == false || m_Centres.empty() == false)) {
+        LOG_ABORT(<< "Invariance check failed: m_Endpoints.size() != m_Centres.size() + 1."
+                  << " [" << m_Endpoints.size() << " != " << m_Centres.size() + 1 << "]"
+                  << " && "
+                  << "(m_Endpoints.empty() == false || m_Centres.empty() == false)"
+                  << " [" << std::boolalpha << m_Endpoints.empty() << " || "
+                  << m_Centres.empty() << "]");
+    }
+
+    VIOLATES_INVARIANT(m_Centres.size(), !=, m_LargeErrorCounts.size());
 }
 
 void CAdaptiveBucketing::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

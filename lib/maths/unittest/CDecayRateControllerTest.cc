@@ -69,6 +69,8 @@ BOOST_AUTO_TEST_CASE(testOrderedErrors) {
 }
 
 BOOST_AUTO_TEST_CASE(testPersist) {
+    // Test persist and restore preserves checksums.
+
     test::CRandomNumbers rng;
 
     TDoubleVec values;

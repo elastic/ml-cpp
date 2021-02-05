@@ -258,6 +258,10 @@ private:
     //! Get the weight to assign to the prediction verses the long term mean.
     double weightOfPrediction(core_t::TTime time) const;
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
 private:
     //! The default rate at which information is aged out of the trend models.
     double m_DefaultDecayRate;

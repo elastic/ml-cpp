@@ -167,6 +167,10 @@ protected:
     //! Get the accept persist function bound to this object.
     TPersistFunc getAcceptPersistInserter() const;
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
     //! Restore by traversing a state document
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
