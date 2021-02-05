@@ -298,9 +298,8 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     std::size_t dependentVariableColumn(dependentVariablePos -
                                         frame.columnNames().begin());
 
-    // Create restore searcher and restore in a scope
-    // so that the restore searcher gets destructed
-    // and performs any cleanup necessary.
+    // Create restore searcher and restore in a scope so that the restore searcher
+    // gets destructed and performs any cleanup necessary.
     {
         auto restoreSearcher{this->spec().restoreSearcher()};
         bool treeRestored{false};

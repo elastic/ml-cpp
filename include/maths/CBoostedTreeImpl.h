@@ -49,7 +49,11 @@ class CTreeShapFeatureImportance;
 class MATHS_EXPORT CBoostedTreeImpl final {
 public:
     using TDoubleVec = std::vector<double>;
+    using TSizeVec = std::vector<std::size_t>;
     using TStrVec = std::vector<std::string>;
+    using TOptionalDouble = boost::optional<double>;
+    using TStrDoublePrVec = std::vector<std::pair<std::string, double>>;
+    using TOptionalStrDoublePrVec = boost::optional<TStrDoublePrVec>;
     using TVector = CDenseVector<double>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
@@ -62,9 +66,7 @@ public:
     using TLossFunction = boosted_tree::CLoss;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
-    using TOptionalDouble = boost::optional<double>;
     using TRegularization = CBoostedTreeRegularization<double>;
-    using TSizeVec = std::vector<std::size_t>;
     using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
     using THyperparameterImportanceVec =
         std::vector<boosted_tree_detail::SHyperparameterImportance>;
@@ -355,6 +357,7 @@ private:
     TOptionalSize m_NumberFoldsOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
+    TOptionalStrDoublePrVec m_ClassificationWeightsOverride;
     TRegularization m_Regularization;
     TVector m_ClassificationWeights;
     double m_DownsampleFactor = 0.5;

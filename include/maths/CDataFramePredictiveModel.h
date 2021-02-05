@@ -39,8 +39,9 @@ public:
 
     //! The objective for the classification decision (given predicted class probabilities).
     enum EClassAssignmentObjective {
-        E_Accuracy,     //!< Maximize prediction accuracy.
-        E_MinimumRecall //!< Maximize the minimum per class recall.
+        E_Accuracy,      //!< Maximize prediction accuracy.
+        E_MinimumRecall, //!< Maximize the minimum per class recall.
+        E_Custom         //!< User defined class weights.
     };
 
 public:

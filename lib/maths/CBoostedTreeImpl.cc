@@ -14,6 +14,7 @@
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
 #include <core/Constants.h>
+#include <core/RestoreMacros.h>
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
@@ -477,6 +478,28 @@ void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& fram
                     }
                     return readPrediction(row, m_ExtraColumns, numberClasses);
                 });
+            break;
+        case CBoostedTree::E_Custom:
+            if (m_ClassificationWeightsOverride != boost::none) {
+                const auto& classes = frame.categoricalColumnValues()[m_DependentVariable];
+                m_ClassificationWeights = TVector::Ones(numberClasses);
+                for (std::size_t i = 0; i < classes.size(); ++i) {
+                    auto j = std::find_if(m_ClassificationWeightsOverride->begin(),
+                                          m_ClassificationWeightsOverride->end(),
+                                          [&](const auto& weight) {
+                                              return weight.first == classes[i];
+                                          });
+                    if (j != m_ClassificationWeightsOverride->end()) {
+                        m_ClassificationWeights(i) = j->second;
+                    } else {
+                        LOG_WARN(<< "Missing weight for class '" << classes[i] << "'. Overrides = "
+                                 << core::CContainerPrinter::print(m_ClassificationWeightsOverride)
+                                 << ".")
+                    }
+                }
+                LOG_TRACE(<< "classification weights = "
+                          << m_ClassificationWeights.transpose());
+            }
             break;
         }
     }
@@ -1519,6 +1542,7 @@ const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
 const std::string BEST_FOREST_TAG{"best_forest"};
 const std::string BEST_FOREST_TEST_LOSS_TAG{"best_forest_test_loss"};
 const std::string BEST_HYPERPARAMETERS_TAG{"best_hyperparameters"};
+const std::string CLASSIFICATION_WEIGHTS_OVERRIDE_TAG{"classification_weights_tag"};
 const std::string CURRENT_ROUND_TAG{"current_round"};
 const std::string DEPENDENT_VARIABLE_TAG{"dependent_variable"};
 const std::string DOWNSAMPLE_FACTOR_OVERRIDE_TAG{"downsample_factor_override"};
@@ -1585,6 +1609,8 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TAG, m_BestForest, inserter);
     core::CPersistUtils::persist(BEST_HYPERPARAMETERS_TAG, m_BestHyperparameters, inserter);
+    core::CPersistUtils::persistIfNotNull(CLASSIFICATION_WEIGHTS_OVERRIDE_TAG,
+                                          m_ClassificationWeightsOverride, inserter);
     core::CPersistUtils::persist(CURRENT_ROUND_TAG, m_CurrentRound, inserter);
     core::CPersistUtils::persist(DEPENDENT_VARIABLE_TAG, m_DependentVariable, inserter);
     core::CPersistUtils::persist(DOWNSAMPLE_FACTOR_OVERRIDE_TAG,
@@ -1675,6 +1701,12 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(BEST_HYPERPARAMETERS_TAG,
                 core::CPersistUtils::restore(BEST_HYPERPARAMETERS_TAG,
                                              m_BestHyperparameters, traverser))
+        RESTORE_SETUP_TEARDOWN(
+            FEATURE_BAG_FRACTION_OVERRIDE_TAG,
+            m_ClassificationWeightsOverride = TStrDoublePrVec{},
+            core::CPersistUtils::restore(CLASSIFICATION_WEIGHTS_OVERRIDE_TAG,
+                                         *m_ClassificationWeightsOverride, traverser),
+            /*no-op*/)
         RESTORE(CURRENT_ROUND_TAG,
                 core::CPersistUtils::restore(CURRENT_ROUND_TAG, m_CurrentRound, traverser))
         RESTORE(DEPENDENT_VARIABLE_TAG,
@@ -1767,6 +1799,7 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         // m_TunableHyperparameters is not restored explicitly, it is restored from overriden hyperparameters
         // m_HyperparameterSamples is not restored explicitly, it is re-generated
     } while (traverser.next());
+
     this->initializeTunableHyperparameters();
     this->initializeHyperparameterSamples();
     m_InitializationStage = static_cast<EInitializationStage>(initializationStage);

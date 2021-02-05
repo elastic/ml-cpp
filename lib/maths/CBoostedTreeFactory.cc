@@ -1128,6 +1128,11 @@ CBoostedTreeFactory::classAssignmentObjective(CBoostedTree::EClassAssignmentObje
     return *this;
 }
 
+CBoostedTreeFactory& CBoostedTreeFactory::classificationWeights(TStrDoublePrVec weights) {
+    m_TreeImpl->m_ClassificationWeightsOverride = std::move(weights);
+    return *this;
+}
+
 CBoostedTreeFactory& CBoostedTreeFactory::minimumFrequencyToOneHotEncode(double frequency) {
     if (frequency >= 1.0) {
         LOG_WARN(<< "Frequency to one-hot encode must be less than one");
