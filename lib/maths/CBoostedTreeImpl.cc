@@ -1921,7 +1921,7 @@ const CBoostedTreeImpl::TSizeVec& CBoostedTreeImpl::extraColumns() const {
     return m_ExtraColumns;
 }
 
-CBoostedTreeImpl::TVector CBoostedTreeImpl::classificationWeights() const {
+const CBoostedTreeImpl::TVector& CBoostedTreeImpl::classificationWeights() const {
     return m_ClassificationWeights;
 }
 

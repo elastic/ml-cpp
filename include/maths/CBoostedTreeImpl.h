@@ -114,7 +114,7 @@ public:
 
     //! Get the weights to apply to each class's predicted probability when
     //! assigning classes.
-    TVector classificationWeights() const;
+    const TVector& classificationWeights() const;
 
     //! Get the number of columns training the model will add to the data frame.
     static std::size_t numberExtraColumnsForTrain(std::size_t numberLossParameters) {
