@@ -14,6 +14,7 @@
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
 #include <core/Constants.h>
+#include <core/RestoreMacros.h>
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
@@ -176,15 +177,7 @@ CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              const TTrainingStateCallback& recordTrainStateCallback) {
 
-    if (m_DependentVariable >= frame.numberColumns()) {
-        HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
-                     << "' was incorrectly initialized. Please report this problem.")
-        return;
-    }
-    if (m_Loss == nullptr) {
-        HANDLE_FATAL(<< "Internal error: must supply a loss function for training. "
-                     << "Please report this problem.")
-    }
+    this->checkTrainInvariants(frame);
 
     if (m_Loss->isRegression()) {
         m_Instrumentation->type(CDataFrameTrainBoostedTreeInstrumentationInterface::E_Regression);
@@ -1772,6 +1765,79 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
     m_InitializationStage = static_cast<EInitializationStage>(initializationStage);
 
     return true;
+}
+
+void CBoostedTreeImpl::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT_NO_EVALUATION(m_Loss, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_BayesianOptimization, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_Encoder, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_Instrumentation, ==, nullptr);
+    VIOLATES_INVARIANT(m_FeatureDataTypes.size(), ==,
+                       m_FeatureSampleProbabilities.size());
+    VIOLATES_INVARIANT(m_FeatureSampleProbabilities.size(), ==,
+                       m_MissingFeatureRowMasks.size());
+    VIOLATES_INVARIANT(m_TrainingRowMasks.size(), ==, m_TestingRowMasks.size());
+    VIOLATES_INVARIANT(m_CurrentRound, <=, m_NumberRounds);
+    for (std::size_t i = 0; i < m_TrainingRowMasks.size(); ++i) {
+        VIOLATES_INVARIANT(m_TrainingRowMasks[i].size(), ==,
+                           m_TestingRowMasks[i].size());
+    }
+    for (const auto& samples : m_HyperparameterSamples) {
+        VIOLATES_INVARIANT(m_TunableHyperparameters.size(), ==, samples.size());
+    }
+    if (m_FoldRoundTestLosses.size() > 0) {
+        VIOLATES_INVARIANT(m_FoldRoundTestLosses.size(), ==, m_NumberFolds);
+        for (const auto& losses : m_FoldRoundTestLosses) {
+            VIOLATES_INVARIANT(losses.size(), ==, m_NumberRounds);
+        }
+    }
+}
+
+void CBoostedTreeImpl::checkTrainInvariants(const core::CDataFrame& frame) const {
+    if (m_DependentVariable >= frame.numberColumns()) {
+        HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
+                     << "' was incorrectly initialized. Please report this problem.")
+        return;
+    }
+    if (m_Loss == nullptr) {
+        HANDLE_FATAL(<< "Internal error: must supply a loss function for training. "
+                     << "Please report this problem.")
+    }
+    if (m_Encoder == nullptr) {
+        HANDLE_FATAL(<< "Internal error: must supply an category encoder. "
+                     << "Please report this problem.")
+    }
+    if (m_BayesianOptimization == nullptr) {
+        HANDLE_FATAL(<< "Internal error: must supply an optimizer. Please report this problem.")
+    }
+    for (const auto& mask : m_MissingFeatureRowMasks) {
+        if (mask.size() != frame.numberRows()) {
+            HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
+                         << mask.size() << " !=  " << frame.numberRows()
+                         << "). Please report this problem.")
+        }
+    }
+    for (const auto& mask : m_MissingFeatureRowMasks) {
+        if (mask.size() != frame.numberRows()) {
+            HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
+                         << mask.size() << " !=  " << frame.numberRows()
+                         << "). Please report this problem.")
+        }
+    }
+    for (const auto& mask : m_TrainingRowMasks) {
+        if (mask.size() != frame.numberRows()) {
+            HANDLE_FATAL(<< "Internal error: unexpected missing training mask ("
+                         << mask.size() << " !=  " << frame.numberRows()
+                         << "). Please report this problem.")
+        }
+    }
+    for (const auto& mask : m_TestingRowMasks) {
+        if (mask.size() != frame.numberRows()) {
+            HANDLE_FATAL(<< "Internal error: unexpected missing testing mask ("
+                         << mask.size() << " !=  " << frame.numberRows()
+                         << "). Please report this problem.")
+        }
+    }
 }
 
 std::size_t CBoostedTreeImpl::memoryUsage() const {
