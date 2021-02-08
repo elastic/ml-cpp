@@ -41,6 +41,12 @@
 * Correct upgrade for pre-6.3 state for lat_long anomaly anomaly detectors. (See
   {ml-pull}1681[#1681].)
 
+=== Bug Fixes
+
+* Fix a source of instability in time series modeling for anomaly detection. This has
+  been observed to cause spurious anomalies for a partition which no longer receives
+  any data. (See {ml-pull}1675[#1675].)
+
 == {es} version 7.11.0
 
 === Enhancements

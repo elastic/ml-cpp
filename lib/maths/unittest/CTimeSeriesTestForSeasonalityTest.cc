@@ -1212,7 +1212,7 @@ BOOST_AUTO_TEST_CASE(testNewComponentInitialValues) {
                 BOOST_REQUIRE_EQUAL(false, time->windowed());
                 BOOST_REQUIRE_EQUAL(0, time->windowRepeatStart());
                 BOOST_REQUIRE_EQUAL(0, time->windowStart());
-                BOOST_REQUIRE_EQUAL(WEEK, time->windowEnd());
+                BOOST_REQUIRE_EQUAL(DAY, time->windowEnd());
                 BOOST_REQUIRE_EQUAL(DAY, time->period());
             }
             break;
