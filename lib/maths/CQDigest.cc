@@ -84,9 +84,9 @@ void CQDigest::checkRestoredInvariants() const {
     // This check on invariants is proving unreliable as it
     // fails on occasion, see ml-cpp#1728 for details.
     // Disabling the check pending investigation.
-//    if (this->checkInvariants() == false) {
-//        LOG_ABORT(<< "Invariance check failed for Q Digest");
-//    }
+    //    if (this->checkInvariants() == false) {
+    //        LOG_ABORT(<< "Invariance check failed for Q Digest");
+    //    }
 }
 
 void CQDigest::add(uint32_t value, uint64_t n) {
