@@ -36,8 +36,10 @@ def path_to_app():
     if os_platform == 'Darwin':
         sub_path = 'darwin-x86_64/controller.app/Contents/MacOS/'
     elif os_platform == 'Linux':
-        # TODO handle the different path for arm architecture
-        sub_path = 'linux-x86_64/bin/'
+        if platform.machine() == 'aarch64':
+            sub_path = 'linux-aarch64/bin/'
+        else:
+            sub_path = 'linux-x86_64/bin/'
     elif os_platform == 'Windows':
         sub_path = 'windows-x86_64/bin/'
     else:

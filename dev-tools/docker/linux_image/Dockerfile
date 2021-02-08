@@ -4,7 +4,7 @@
 # you may not use this file except in compliance with the Elastic License.
 #
 
-FROM centos:7
+FROM centos:7 AS builder
 
 # This is basically automating the setup instructions in build-setup/linux.md
 
@@ -133,10 +133,16 @@ RUN \
   export BLAS=Eigen && \
   export PYTORCH_BUILD_VERSION=1.7.1 && \
   export PYTORCH_BUILD_NUMBER=1 && \
-  cd ${build_dir}/pytorch && \
   /usr/local/bin/python3.7 setup.py install && \
   mkdir /usr/local/gcc93/include/pytorch && \
   cp -r torch/include/* /usr/local/gcc93/include/pytorch/ && \
   cp torch/lib/libtorch_cpu.so /usr/local/gcc93/lib && \
   cp torch/lib/libc10.so /usr/local/gcc93/lib && \
-  rm -rf ${build_dir}/*
+  cd .. && rm -rf ${build_dir}/*
+
+FROM centos:7
+COPY --from=builder /usr/local/gcc93 /usr/local/gcc93
+COPY --from=builder /usr/include /usr/include
+RUN \
+  rm /var/lib/rpm/__db.* && \
+  yum install -y bzip2 gcc git make unzip which zip zlib-devel
