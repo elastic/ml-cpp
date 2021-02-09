@@ -115,11 +115,11 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
                      << CLASS_ASSIGNMENT_OBJECTIVE_VALUES[maths::CDataFramePredictiveModel::E_Custom]
                      << " for " << CLASS_ASSIGNMENT_OBJECTIVE << " if supplying "
                      << CLASSIFICATION_WEIGHTS << " but got '"
-                     << CLASS_ASSIGNMENT_OBJECTIVE_VALUES[classAssignmentObjective] << "'.")
+                     << CLASS_ASSIGNMENT_OBJECTIVE_VALUES[classAssignmentObjective] << "'.");
     }
     if (classificationWeights.size() > 0 && classificationWeights.size() != numberClasses) {
         HANDLE_FATAL(<< "Input error: expected " << numberClasses << " " << CLASSIFICATION_WEIGHTS
-                     << " but got " << classificationWeights.size() << ".")
+                     << " but got " << classificationWeights.size() << ".");
     }
 }
 

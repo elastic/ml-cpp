@@ -486,7 +486,7 @@ void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& fram
                     } else {
                         LOG_WARN(<< "Missing weight for class '" << classes[i] << "'. Overrides = "
                                  << core::CContainerPrinter::print(m_ClassificationWeightsOverride)
-                                 << ".")
+                                 << ".");
                     }
                 }
                 LOG_TRACE(<< "classification weights = "
