@@ -14,7 +14,7 @@ namespace core {
     do {                                                                       \
         if (lhs op rhs) {                                                      \
             LOG_ABORT(<< "Invariance check failed: " #lhs " " #op " " #rhs "." \
-                      << " [" << lhs << " " << #op << " " << rhs << "]");      \
+                      << " [" << lhs << " " #op " " << rhs << "]");            \
         }                                                                      \
     } while (0)
 
