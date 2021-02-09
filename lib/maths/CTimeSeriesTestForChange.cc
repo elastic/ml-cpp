@@ -611,6 +611,20 @@ CTimeSeriesTestForChange::timeShift(double varianceH0,
 
     auto predictor = this->bucketPredictor();
 
+    // If the variance of the values is small compared to the predictor on the
+    // test interval we can't trust the shifted residual variance estimates.
+    TMeanVarAccumulator moments[2];
+    for (std::size_t i = 0; i < m_Values.size(); ++i) {
+        if (CBasicStatistics::count(m_Values[i]) > 0.0) {
+            moments[0].add(CBasicStatistics::mean(m_Values[i]));
+            moments[1].add(predictor(m_BucketLength * static_cast<core_t::TTime>(i)));
+        }
+    }
+    if (CBasicStatistics::variance(moments[0]) <
+        0.1 * CBasicStatistics::variance(moments[1])) {
+        return {};
+    }
+
     TSegmentation::TTimeVec candidateShifts;
     for (core_t::TTime shift = -6 * HOUR; shift < 0; shift += HALF_HOUR) {
         candidateShifts.push_back(shift);
