@@ -90,11 +90,12 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     const TStrVec& categoricalFieldNames{spec.categoricalFieldNames()};
     if (std::find(categoricalFieldNames.begin(), categoricalFieldNames.end(),
                   this->dependentVariableFieldName()) == categoricalFieldNames.end()) {
-        HANDLE_FATAL(<< "Input error: trying to perform classification with numeric target.")
+        HANDLE_FATAL(<< "Input error: trying to perform classification with numeric target.");
     }
     if (PREDICTION_FIELD_NAME_BLACKLIST.count(this->predictionFieldName()) > 0) {
         HANDLE_FATAL(<< "Input error: " << PREDICTION_FIELD_NAME << " must not be equal to any of "
-                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST) << ".")
+                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST)
+                     << ".");
     }
 }
 
@@ -275,13 +276,13 @@ void CDataFrameTrainBoostedTreeClassifierRunner::validate(const core::CDataFrame
                      << "two classes. Trying to predict '"
                      << frame.columnNames()[dependentVariableColumn] << "' which has '"
                      << categoryCount << "' categories in the training data. "
-                     << "The number of rows read is '" << frame.numberRows() << "'.")
+                     << "The number of rows read is '" << frame.numberRows() << "'.");
     } else if (categoryCount > MAX_NUMBER_CLASSES) {
         HANDLE_FATAL(<< "Input error: the maximum number of classes supported is "
                      << MAX_NUMBER_CLASSES << ". Trying to predict '"
                      << frame.columnNames()[dependentVariableColumn] << "' which has '"
                      << categoryCount << "' categories in the training data. "
-                     << "The number of rows read is '" << frame.numberRows() << "'.")
+                     << "The number of rows read is '" << frame.numberRows() << "'.");
     }
 }
 
@@ -325,7 +326,7 @@ const std::string& CDataFrameTrainBoostedTreeClassifierRunnerFactory::name() con
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&) const {
     HANDLE_FATAL(<< "Input error: classification has a non-optional parameter '"
-                 << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.")
+                 << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.");
     return nullptr;
 }
 

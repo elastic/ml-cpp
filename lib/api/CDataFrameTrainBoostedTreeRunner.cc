@@ -116,32 +116,33 @@ CDataFrameTrainBoostedTreeRunner::CDataFrameTrainBoostedTreeRunner(
                                     m_CustomProcessors.GetAllocator());
     }
     if (alpha != -1.0 && alpha < 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << ALPHA << "' should be non-negative.")
+        HANDLE_FATAL(<< "Input error: '" << ALPHA << "' should be non-negative.");
     }
     if (lambda != -1.0 && lambda < 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << LAMBDA << "' should be non-negative.")
+        HANDLE_FATAL(<< "Input error: '" << LAMBDA << "' should be non-negative.");
     }
     if (gamma != -1.0 && gamma < 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << GAMMA << "' should be non-negative.")
+        HANDLE_FATAL(<< "Input error: '" << GAMMA << "' should be non-negative.");
     }
     if (eta != -1.0 && (eta <= 0.0 || eta > 1.0)) {
-        HANDLE_FATAL(<< "Input error: '" << ETA << "' should be in the range (0, 1].")
+        HANDLE_FATAL(<< "Input error: '" << ETA << "' should be in the range (0, 1].");
     }
     if (etaGrowthRatePerTree != -1.0 && etaGrowthRatePerTree <= 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << ETA_GROWTH_RATE_PER_TREE << "' should be positive.")
+        HANDLE_FATAL(<< "Input error: '" << ETA_GROWTH_RATE_PER_TREE << "' should be positive.");
     }
     if (softTreeDepthLimit != -1.0 && softTreeDepthLimit < 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << SOFT_TREE_DEPTH_LIMIT << "' should be non-negative.")
+        HANDLE_FATAL(<< "Input error: '" << SOFT_TREE_DEPTH_LIMIT << "' should be non-negative.");
     }
     if (softTreeDepthTolerance != -1.0 && softTreeDepthTolerance <= 0.0) {
-        HANDLE_FATAL(<< "Input error: '" << SOFT_TREE_DEPTH_TOLERANCE << "' should be positive.")
+        HANDLE_FATAL(<< "Input error: '" << SOFT_TREE_DEPTH_TOLERANCE << "' should be positive.");
     }
     if (downsampleFactor != -1.0 && (downsampleFactor <= 0.0 || downsampleFactor > 1.0)) {
-        HANDLE_FATAL(<< "Input error: '" << DOWNSAMPLE_FACTOR << "' should be in the range (0, 1]")
+        HANDLE_FATAL(<< "Input error: '" << DOWNSAMPLE_FACTOR << "' should be in the range (0, 1]");
     }
     if (featureBagFraction != -1.0 &&
         (featureBagFraction <= 0.0 || featureBagFraction > 1.0)) {
-        HANDLE_FATAL(<< "Input error: '" << FEATURE_BAG_FRACTION << "' should be in the range (0, 1]")
+        HANDLE_FATAL(<< "Input error: '" << FEATURE_BAG_FRACTION
+                     << "' should be in the range (0, 1]");
     }
 
     m_BoostedTreeFactory = std::make_unique<maths::CBoostedTreeFactory>(
@@ -237,13 +238,13 @@ const std::string& CDataFrameTrainBoostedTreeRunner::predictionFieldName() const
 
 bool CDataFrameTrainBoostedTreeRunner::validate(const core::CDataFrame& frame) const {
     if (frame.numberColumns() <= 1) {
-        HANDLE_FATAL(<< "Input error: analysis need at least one regressor.")
+        HANDLE_FATAL(<< "Input error: analysis need at least one regressor.");
         return false;
     }
     if (frame.numberRows() > maths::CBoostedTreeFactory::maximumNumberRows()) {
         HANDLE_FATAL(<< "Input error: no more than "
                      << maths::CBoostedTreeFactory::maximumNumberRows()
-                     << " are supported. You need to downsample your data.")
+                     << " are supported. You need to downsample your data.");
         return false;
     }
     return true;
@@ -258,21 +259,21 @@ void CDataFrameTrainBoostedTreeRunner::accept(CBoostedTreeInferenceModelBuilder&
 
 const maths::CBoostedTree& CDataFrameTrainBoostedTreeRunner::boostedTree() const {
     if (m_BoostedTree == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree missing. Please report this problem.")
+        HANDLE_FATAL(<< "Internal error: boosted tree missing. Please report this problem.");
     }
     return *m_BoostedTree;
 }
 
 maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() {
     if (m_BoostedTreeFactory == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.")
+        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
     }
     return *m_BoostedTreeFactory;
 }
 
 const maths::CBoostedTreeFactory& CDataFrameTrainBoostedTreeRunner::boostedTreeFactory() const {
     if (m_BoostedTreeFactory == nullptr) {
-        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.")
+        HANDLE_FATAL(<< "Internal error: boosted tree factory missing. Please report this problem.");
     }
     return *m_BoostedTreeFactory;
 }
@@ -284,7 +285,7 @@ void CDataFrameTrainBoostedTreeRunner::runImpl(core::CDataFrame& frame) {
     if (dependentVariablePos == frame.columnNames().end()) {
         HANDLE_FATAL(<< "Input error: supplied variable to predict '"
                      << m_DependentVariableFieldName << "' is missing from training"
-                     << " data " << core::CContainerPrinter::print(frame.columnNames()))
+                     << " data " << core::CContainerPrinter::print(frame.columnNames()));
         return;
     }
 

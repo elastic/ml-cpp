@@ -301,7 +301,7 @@ void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainStat
 void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
     if (m_BestForestTestLoss == INF) {
         HANDLE_FATAL(<< "Internal error: no model available for prediction. "
-                     << "Please report this problem.")
+                     << "Please report this problem.");
         return;
     }
     bool successful;
@@ -315,7 +315,7 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
         });
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: failed model inference. "
-                     << "Please report this problem.")
+                     << "Please report this problem.");
     }
 }
 
@@ -1796,46 +1796,46 @@ void CBoostedTreeImpl::checkRestoredInvariants() const {
 void CBoostedTreeImpl::checkTrainInvariants(const core::CDataFrame& frame) const {
     if (m_DependentVariable >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
-                     << "' was incorrectly initialized. Please report this problem.")
+                     << "' was incorrectly initialized. Please report this problem.");
         return;
     }
     if (m_Loss == nullptr) {
         HANDLE_FATAL(<< "Internal error: must supply a loss function for training. "
-                     << "Please report this problem.")
+                     << "Please report this problem.");
     }
     if (m_Encoder == nullptr) {
         HANDLE_FATAL(<< "Internal error: must supply an category encoder. "
-                     << "Please report this problem.")
+                     << "Please report this problem.");
     }
     if (m_BayesianOptimization == nullptr) {
-        HANDLE_FATAL(<< "Internal error: must supply an optimizer. Please report this problem.")
+        HANDLE_FATAL(<< "Internal error: must supply an optimizer. Please report this problem.");
     }
     for (const auto& mask : m_MissingFeatureRowMasks) {
         if (mask.size() != frame.numberRows()) {
             HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
                          << mask.size() << " !=  " << frame.numberRows()
-                         << "). Please report this problem.")
+                         << "). Please report this problem.");
         }
     }
     for (const auto& mask : m_MissingFeatureRowMasks) {
         if (mask.size() != frame.numberRows()) {
             HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
                          << mask.size() << " !=  " << frame.numberRows()
-                         << "). Please report this problem.")
+                         << "). Please report this problem.");
         }
     }
     for (const auto& mask : m_TrainingRowMasks) {
         if (mask.size() != frame.numberRows()) {
             HANDLE_FATAL(<< "Internal error: unexpected missing training mask ("
                          << mask.size() << " !=  " << frame.numberRows()
-                         << "). Please report this problem.")
+                         << "). Please report this problem.");
         }
     }
     for (const auto& mask : m_TestingRowMasks) {
         if (mask.size() != frame.numberRows()) {
             HANDLE_FATAL(<< "Internal error: unexpected missing testing mask ("
                          << mask.size() << " !=  " << frame.numberRows()
-                         << "). Please report this problem.")
+                         << "). Please report this problem.");
         }
     }
 }
@@ -1941,7 +1941,7 @@ const CBoostedTreeImpl::TNodeVecVec& CBoostedTreeImpl::trainedModel() const {
 CBoostedTreeImpl::TLossFunction& CBoostedTreeImpl::loss() const {
     if (m_Loss == nullptr) {
         HANDLE_FATAL(<< "Internal error: loss function unavailable. "
-                     << "Please report this problem.")
+                     << "Please report this problem.");
     }
     return *m_Loss;
 }

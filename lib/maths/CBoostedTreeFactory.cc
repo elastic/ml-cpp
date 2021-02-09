@@ -133,7 +133,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
 
     if (dependentVariable != m_TreeImpl->m_DependentVariable) {
         HANDLE_FATAL(<< "Internal error: expected dependent variable "
-                     << m_TreeImpl->m_DependentVariable << " got " << dependentVariable)
+                     << m_TreeImpl->m_DependentVariable << " got " << dependentVariable);
         return nullptr;
     }
 

@@ -77,7 +77,7 @@ CDataFrameAnalysisConfigReader::read(const rapidjson::Value& json) const {
         }
         if (found == false) {
             HANDLE_FATAL(<< "Input error: unexpected parameter '"
-                         << i->name.GetString() << "'. Please report this problem.")
+                         << i->name.GetString() << "'. Please report this problem.");
         }
     }
 
