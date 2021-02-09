@@ -44,6 +44,9 @@ public:
     static const std::string CLASSES_FIELD_NAME;
     static const std::string CLASS_NAME_FIELD_NAME;
     static const TStrVec CLASS_ASSIGNMENT_OBJECTIVE_VALUES;
+    static const std::string CLASSIFICATION_WEIGHTS;
+    static const std::string CLASSIFICATION_WEIGHTS_CLASS;
+    static const std::string CLASSIFICATION_WEIGHTS_WEIGHT;
 
 public:
     static const CDataFrameAnalysisConfigReader& parameterReader();
