@@ -260,10 +260,15 @@ private:
     std::size_t numberFeatures() const;
 
     //! Get the number of features to consider splitting on.
-    std::size_t featureBagSize() const;
+    std::size_t featureBagSize(double fractionMultiplier) const;
 
     //! Sample the features according to their categorical distribution.
-    void featureBag(TDoubleVec& probabilities, TSizeVec& features) const;
+    void treeFeatureBag(TDoubleVec& probabilities, TSizeVec& treeFeatureBag) const;
+
+    //! Sample the features according to their categorical distribution.
+    void nodeFeatureBag(const TSizeVec& treeFeatureBag,
+                        TDoubleVec& probabilities,
+                        TSizeVec& nodeFeatureBag) const;
 
     //! Get a column mask of the suitable regressor features.
     void candidateRegressorFeatures(const TDoubleVec& probabilities, TSizeVec& features) const;
