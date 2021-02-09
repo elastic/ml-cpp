@@ -359,7 +359,7 @@ CDataFrameAnalysisSpecificationFactory::predictionParams(const std::string& anal
             writer.Key(TClassificationRunner::PREDICTION_FIELD_TYPE);
             writer.String(m_PredictionFieldType);
         }
-        if (m_ClassificationWeights.size() > 0) {
+        if (m_ClassificationWeights.empty() == false) {
             writer.Key(TClassificationRunner::CLASS_ASSIGNMENT_OBJECTIVE);
             writer.String(
                 TClassificationRunner::CLASS_ASSIGNMENT_OBJECTIVE_VALUES[maths::CDataFramePredictiveModel::E_Custom]);
