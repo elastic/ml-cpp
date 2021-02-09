@@ -750,6 +750,72 @@ BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierImbalanced) {
     }
 }
 
+BOOST_AUTO_TEST_CASE(testRunBoostedTreeClassifierWithUserClassWeights) {
+
+    // Test that the correct weights are propagated through to training.
+
+    std::stringstream output;
+    auto outputWriterFactory = [&output]() {
+        return std::make_unique<core::CJsonOutputStreamWrapper>(output);
+    };
+
+    std::size_t numberExamples{500};
+    TStrVec fieldNames{"f1", "f2", "f3", "target", ".", "."};
+    TStrVec fieldValues{"", "", "", "", "0", ""};
+    test::CRandomNumbers rng;
+    TDoubleVec weights{1.0, 1.0, 1.0};
+    TDoubleVec regressors;
+    rng.generateUniformSamples(-5.0, 10.0, numberExamples * weights.size(), regressors);
+
+    test::CDataFrameAnalysisSpecificationFactory specFactory;
+    api::CDataFrameAnalyzer analyzer{
+        specFactory.rows(numberExamples)
+            .columns(4)
+            .memoryLimit(18000000)
+            .predictionCategoricalFieldNames({"target"})
+            .classificationWeights({{"foo", 0.8}, {"bar", 0.2}})
+            .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(), "target"),
+        outputWriterFactory};
+
+    TStrVec actuals;
+    auto frame = test::CDataFrameAnalyzerTrainingFactory::setupBinaryClassificationData(
+        fieldNames, fieldValues, analyzer, weights, regressors, actuals);
+    analyzer.handleRecord(fieldNames, {"", "", "", "", "", "$"});
+
+    auto classifier = maths::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
+                          .classAssignmentObjective(maths::CBoostedTree::E_Custom)
+                          .classificationWeights({{"foo", 0.8}, {"bar", 0.2}})
+                          .buildFor(*frame, 3);
+
+    classifier->train();
+    classifier->predict();
+
+    TStrVec expectedPredictions(frame->numberRows());
+    frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            auto scores = classifier->readAndAdjustPrediction(*row);
+            std::size_t prediction(scores[1] < scores[0] ? 0 : 1);
+            expectedPredictions[row->index()] = frame->categoricalColumnValues()[3][prediction];
+        }
+    });
+
+    rapidjson::Document results;
+    rapidjson::ParseResult ok(results.Parse(output.str()));
+    BOOST_TEST_REQUIRE(static_cast<bool>(ok) == true);
+
+    auto expectedPrediction = expectedPredictions.begin();
+    for (const auto& result : results.GetArray()) {
+        if (result.HasMember("row_results")) {
+            BOOST_TEST_REQUIRE(expectedPrediction != expectedPredictions.end());
+            std::string prediction{
+                result["row_results"]["results"]["ml"]["target_prediction"].GetString()};
+            BOOST_TEST_REQUIRE(*expectedPrediction == prediction);
+            ++expectedPrediction;
+        }
+    }
+}
+
 BOOST_AUTO_TEST_CASE(testCategoricalFields) {
 
     std::stringstream output;
