@@ -235,5 +235,14 @@ void CBoostedTree::accept(CBoostedTree::CVisitor& visitor) const {
 const CBoostedTreeHyperparameters& CBoostedTree::bestHyperparameters() const {
     return m_Impl->bestHyperparameters();
 }
+
+CBoostedTree::TDoubleVec CBoostedTree::classificationWeights() const {
+    const auto& weights = m_Impl->classificationWeights();
+    TDoubleVec result(weights.size());
+    for (int i = 0; i < weights.size(); ++i) {
+        result[i] = weights(i);
+    }
+    return result;
+}
 }
 }
