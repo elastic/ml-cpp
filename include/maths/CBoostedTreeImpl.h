@@ -301,6 +301,12 @@ private:
     //! Set the hyperparamaters from the best recorded.
     void restoreBestHyperparameters();
 
+    //! Check invariants which are assumed to hold after restoring.
+    void checkRestoredInvariants() const;
+
+    //! Check invariants which are assumed to hold in order to train on \p frame.
+    void checkTrainInvariants(const core::CDataFrame& frame) const;
+
     //! Get the number of hyperparameters to tune.
     std::size_t numberHyperparametersToTune() const;
 
