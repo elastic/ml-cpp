@@ -83,30 +83,26 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser)
         const std::string& name = traverser.name();
         if (name == IDENTIFIER_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), m_DetectorIndex) == false) {
-                LOG_ERROR(<< "Invalid identifier in " << traverser.value());
-                return false;
+                LOG_ABORT(<< "Invalid identifier in " << traverser.value());
             }
         } else if (name == FUNCTION_NAME_TAG) {
             int function(-1);
             if (core::CStringUtils::stringToType(traverser.value(), function) == false ||
                 function < 0) {
-                LOG_ERROR(<< "Invalid function in " << traverser.value());
-                return false;
+                LOG_ABORT(<< "Invalid function in " << traverser.value());
             }
             m_Function = static_cast<function_t::EFunction>(function);
         } else if (name == USE_NULL_TAG) {
             int useNull(-1);
             if (core::CStringUtils::stringToType(traverser.value(), useNull) == false) {
-                LOG_ERROR(<< "Invalid use null flag in " << traverser.value());
-                return false;
+                LOG_ABORT(<< "Invalid use null flag in " << traverser.value());
             }
             m_UseNull = (useNull != 0);
         } else if (name == EXCLUDE_FREQUENT_TAG) {
             int excludeFrequent(-1);
             if ((core::CStringUtils::stringToType(traverser.value(), excludeFrequent) == false) ||
                 (excludeFrequent < 0)) {
-                LOG_ERROR(<< "Invalid excludeFrequent flag in " << traverser.value());
-                return false;
+                LOG_ABORT(<< "Invalid excludeFrequent flag in " << traverser.value());
             }
             m_ExcludeFrequent = static_cast<model_t::EExcludeFrequent>(excludeFrequent);
         } else if (name == FIELD_NAME_TAG) {

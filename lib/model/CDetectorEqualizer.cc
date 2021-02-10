@@ -45,8 +45,7 @@ bool CDetectorEqualizer::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
                                /**/)
         if (name == SKETCH_TAG) {
             if (!detector) {
-                LOG_ERROR(<< "Expected the detector label first");
-                return false;
+                LOG_ABORT(<< "Expected the detector label first");
             }
             m_Sketches.emplace_back(
                 *detector, maths::CQuantileSketch(SKETCH_INTERPOLATION, SKETCH_SIZE));

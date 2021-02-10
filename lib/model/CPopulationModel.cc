@@ -323,6 +323,9 @@ bool CPopulationModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
         }
     } while (traverser.next());
 
+    VIOLATES_INVARIANT(m_AttributeFirstBucketTimes.size(), !=,
+                       m_AttributeLastBucketTimes.size());
+
     return true;
 }
 

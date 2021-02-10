@@ -778,8 +778,7 @@ bool CDataGatherer::acceptRestoreTraverser(const std::string& summaryCountFieldN
             int feature(-1);
             if (core::CStringUtils::stringToType(traverser.value(), feature) == false ||
                 feature < 0) {
-                LOG_ERROR(<< "Invalid feature in " << traverser.value());
-                return false;
+                LOG_ABORT(<< "Invalid feature in " << traverser.value());
             }
             m_Features.push_back(static_cast<model_t::EFeature>(feature));
             continue;
@@ -820,16 +819,14 @@ bool CDataGatherer::restoreBucketGatherer(const std::string& summaryCountFieldNa
                 *this, summaryCountFieldName, personFieldName, attributeFieldName,
                 valueFieldName, influenceFieldNames, traverser);
             if (m_BucketGatherer == nullptr) {
-                LOG_ERROR(<< "Failed to create event rate bucket gatherer");
-                return false;
+                LOG_ABORT(<< "Failed to create event rate bucket gatherer");
             }
         } else if (name == CBucketGatherer::METRIC_BUCKET_GATHERER_TAG) {
             m_BucketGatherer = std::make_unique<CMetricBucketGatherer>(
                 *this, summaryCountFieldName, personFieldName, attributeFieldName,
                 valueFieldName, influenceFieldNames, traverser);
             if (m_BucketGatherer == nullptr) {
-                LOG_ERROR(<< "Failed to create metric bucket gatherer");
-                return false;
+                LOG_ABORT(<< "Failed to create metric bucket gatherer");
             }
         }
     } while (traverser.next());

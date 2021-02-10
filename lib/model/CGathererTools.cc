@@ -127,8 +127,7 @@ bool CGathererTools::CArrivalTimeGatherer::acceptRestoreTraverser(core::CStateRe
         const std::string& name = traverser.name();
         if (name == LAST_TIME_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), m_LastTime) == false) {
-                LOG_ERROR(<< "Invalid last time in " << traverser.value());
-                continue;
+                LOG_ABORT(<< "Invalid last time in " << traverser.value());
             }
         }
     } while (traverser.next());
