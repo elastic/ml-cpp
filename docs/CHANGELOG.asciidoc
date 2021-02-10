@@ -51,6 +51,8 @@
   model training. (See {ml-pull}1676[#1676].)
 * Correct upgrade for pre-6.3 state for lat_long anomaly anomaly detectors. (See
   {ml-pull}1681[#1681].)
+* Per tree feature bag to speed up training of regression and classification models
+  and improve scalability for large numbers of features. (See {ml-pull}1733[#1733].)
 
 === Bug Fixes
 
