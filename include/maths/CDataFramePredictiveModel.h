@@ -70,12 +70,6 @@ public:
     //! Read the raw model prediction from \p row and make posthoc adjustments.
     virtual TDouble2Vec readAndAdjustPrediction(const TRowRef& row) const = 0;
 
-    //! \name Test Only
-    //@{
-    //! Get the weight that has been chosen for each feature for training.
-    virtual const TDoubleVec& featureWeightsForTraining() const = 0;
-    //@}
-
 protected:
     CDataFramePredictiveModel(core::CDataFrame& frame, TTrainingStateCallback recordTrainingState);
     core::CDataFrame& frame() const;
