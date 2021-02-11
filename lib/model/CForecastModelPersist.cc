@@ -85,11 +85,13 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model,
     }
 
     if (m_RestoreTraverser.name() != FORECAST_MODEL_PERSIST_TAG) {
-        LOG_ABORT(<< "Failed to restore forecast model, unexpected tag");
+        LOG_ERROR(<< "Failed to restore forecast model, unexpected tag");
+        return false;
     }
 
     if (!m_RestoreTraverser.hasSubLevel()) {
-        LOG_ABORT(<< "Failed to restore forecast model, unexpected format");
+        LOG_ERROR(<< "Failed to restore forecast model, unexpected format");
+        return false;
     }
 
     auto restoreOneModel = [&](core::CStateRestoreTraverser& traverser,
@@ -110,7 +112,8 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model,
             RESTORE_BUILT_IN(LAST_DATA_TIME_TAG, lastDataTime)
             if (name == MODEL_TAG) {
                 if (restoredDataType == false) {
-                    LOG_ABORT(<< "Failed to restore forecast model, datatype missing");
+                    LOG_ERROR(<< "Failed to restore forecast model, datatype missing");
+                    return false;
                 }
 
                 auto modelParams =
@@ -134,16 +137,16 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model,
                         return maths::CModelStateSerialiser()(params, model_, traverser_);
                     };
                 if (traverser.traverseSubLevel(serialiserOperator) == false) {
-                    LOG_ABORT(<< "Failed to restore forecast model, model missing");
+                    LOG_ERROR(<< "Failed to restore forecast model, model missing");
+                    return false;
                 }
             }
         } while (traverser.next());
 
-        VIOLATES_INVARIANT(firstDataTime, >, lastDataTime);
-
         // only the by_field_value can be empty
         if (model_ == nullptr || restoredFeature == false || restoredDataType == false) {
-            LOG_ABORT(<< "Failed to restore forecast model, data missing");
+            LOG_ERROR(<< "Failed to restore forecast model, data missing");
+            return false;
         }
 
         return true;
@@ -152,7 +155,8 @@ bool CForecastModelPersist::CRestore::nextModel(TMathsModelPtr& model,
     TMathsModelPtr originalModel;
     if (m_RestoreTraverser.traverseSubLevel(std::bind<bool>(
             restoreOneModel, std::placeholders::_1, std::ref(originalModel))) == false) {
-        LOG_ABORT(<< "Failed to restore forecast model, internal error");
+        LOG_ERROR(<< "Failed to restore forecast model, internal error");
+        return false;
     }
 
     model.reset(originalModel->cloneForForecast());
