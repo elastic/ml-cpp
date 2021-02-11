@@ -14,6 +14,7 @@
 #include <core/CProgramCounters.h>
 #include <core/CStopWatch.h>
 #include <core/Constants.h>
+#include <core/RestoreMacros.h>
 
 #include <maths/CBasicStatisticsPersist.h>
 #include <maths/CBayesianOptimisation.h>
@@ -176,15 +177,7 @@ CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              const TTrainingStateCallback& recordTrainStateCallback) {
 
-    if (m_DependentVariable >= frame.numberColumns()) {
-        HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
-                     << "' was incorrectly initialized. Please report this problem.")
-        return;
-    }
-    if (m_Loss == nullptr) {
-        HANDLE_FATAL(<< "Internal error: must supply a loss function for training. "
-                     << "Please report this problem.")
-    }
+    this->checkTrainInvariants(frame);
 
     if (m_Loss->isRegression()) {
         m_Instrumentation->type(CDataFrameTrainBoostedTreeInstrumentationInterface::E_Regression);
@@ -242,7 +235,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             this->captureBestHyperparameters(lossMoments, maximumNumberTrees, numberNodes);
 
             if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
-                LOG_WARN(<< "Hyperparameter selection failed: exiting loop early");
+                LOG_INFO(<< "Exiting hyperparameter optimisation loop early");
                 break;
             }
 
@@ -477,6 +470,28 @@ void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& fram
                     }
                     return readPrediction(row, m_ExtraColumns, numberClasses);
                 });
+            break;
+        case CBoostedTree::E_Custom:
+            if (m_ClassificationWeightsOverride != boost::none) {
+                const auto& classes = frame.categoricalColumnValues()[m_DependentVariable];
+                m_ClassificationWeights = TVector::Ones(numberClasses);
+                for (std::size_t i = 0; i < classes.size(); ++i) {
+                    auto j = std::find_if(m_ClassificationWeightsOverride->begin(),
+                                          m_ClassificationWeightsOverride->end(),
+                                          [&](const auto& weight) {
+                                              return weight.first == classes[i];
+                                          });
+                    if (j != m_ClassificationWeightsOverride->end()) {
+                        m_ClassificationWeights(i) = j->second;
+                    } else {
+                        LOG_WARN(<< "Missing weight for class '" << classes[i] << "'. Overrides = "
+                                 << core::CContainerPrinter::print(m_ClassificationWeightsOverride)
+                                 << ".")
+                    }
+                }
+                LOG_TRACE(<< "classification weights = "
+                          << m_ClassificationWeights.transpose());
+            }
             break;
         }
     }
@@ -822,14 +837,18 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     // Sampling transforms the probabilities. We use a placeholder outside
     // the loop adding nodes so we only allocate the vector once.
     TDoubleVec featureSampleProbabilities{m_FeatureSampleProbabilities};
-    TSizeVec featureBag;
-    this->featureBag(featureSampleProbabilities, featureBag);
+    TSizeVec treeFeatureBag;
+    TSizeVec nodeFeatureBag;
+    this->treeFeatureBag(featureSampleProbabilities, treeFeatureBag);
+
+    featureSampleProbabilities = m_FeatureSampleProbabilities;
+    this->nodeFeatureBag(treeFeatureBag, featureSampleProbabilities, nodeFeatureBag);
 
     TLeafNodeStatisticsPtrQueue splittableLeaves(maximumNumberInternalNodes / 2 + 3);
     splittableLeaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatistics>(
         0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
-        frame, *m_Encoder, m_Regularization, candidateSplits, featureBag,
-        0 /*depth*/, trainingRowMask, workspace));
+        frame, *m_Encoder, m_Regularization, candidateSplits, treeFeatureBag,
+        nodeFeatureBag, 0 /*depth*/, trainingRowMask, workspace));
 
     // We update local variables because the callback can be expensive if it
     // requires accessing atomics.
@@ -887,7 +906,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                                    leaf->gain(), leaf->curvature(), tree);
 
         featureSampleProbabilities = m_FeatureSampleProbabilities;
-        this->featureBag(featureSampleProbabilities, featureBag);
+        this->nodeFeatureBag(treeFeatureBag, featureSampleProbabilities, nodeFeatureBag);
 
         std::size_t numberSplittableLeaves{splittableLeaves.size()};
         std::size_t currentNumberInternalNodes{(tree.size() - 1) / 2};
@@ -903,8 +922,9 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
         std::tie(leftChild, rightChild) = leaf->split(
-            leftChildId, rightChildId, m_NumberThreads, smallestCandidateGain, frame,
-            *m_Encoder, m_Regularization, featureBag, tree[leaf->id()], workspace);
+            leftChildId, rightChildId, m_NumberThreads, smallestCandidateGain,
+            frame, *m_Encoder, m_Regularization, treeFeatureBag, nodeFeatureBag,
+            tree[leaf->id()], workspace);
 
         // Need gain to be computed to compare here
         if (leftChild != nullptr && rightChild != nullptr && less(rightChild, leftChild)) {
@@ -1073,22 +1093,41 @@ std::size_t CBoostedTreeImpl::numberFeatures() const {
     return m_Encoder->numberEncodedColumns();
 }
 
-std::size_t CBoostedTreeImpl::featureBagSize() const {
+std::size_t CBoostedTreeImpl::featureBagSize(double fraction) const {
     return static_cast<std::size_t>(std::max(
-        std::ceil(m_FeatureBagFraction * static_cast<double>(this->numberFeatures())), 1.0));
+        std::ceil(std::min(fraction, 1.0) * static_cast<double>(this->numberFeatures())), 1.0));
 }
 
-void CBoostedTreeImpl::featureBag(TDoubleVec& probabilities, TSizeVec& bag) const {
+void CBoostedTreeImpl::treeFeatureBag(TDoubleVec& probabilities, TSizeVec& treeFeatureBag) const {
 
-    std::size_t size{this->featureBagSize()};
+    std::size_t size{this->featureBagSize(1.5 * m_FeatureBagFraction)};
 
-    this->candidateRegressorFeatures(probabilities, bag);
-    if (size >= bag.size()) {
+    this->candidateRegressorFeatures(probabilities, treeFeatureBag);
+    if (size >= treeFeatureBag.size()) {
         return;
     }
 
-    CSampling::categoricalSampleWithoutReplacement(m_Rng, probabilities, size, bag);
-    std::sort(bag.begin(), bag.end());
+    CSampling::categoricalSampleWithoutReplacement(m_Rng, probabilities, size, treeFeatureBag);
+    std::sort(treeFeatureBag.begin(), treeFeatureBag.end());
+}
+
+void CBoostedTreeImpl::nodeFeatureBag(const TSizeVec& treeFeatureBag,
+                                      TDoubleVec& probabilities,
+                                      TSizeVec& nodeFeatureBag) const {
+
+    std::size_t size{this->featureBagSize(m_FeatureBagFraction)};
+
+    this->candidateRegressorFeatures(probabilities, nodeFeatureBag);
+    CSetTools::simultaneousRemoveIf(nodeFeatureBag, probabilities, [&](const auto i) {
+        return std::binary_search(treeFeatureBag.begin(), treeFeatureBag.end(), i) == false;
+    });
+
+    if (size >= nodeFeatureBag.size()) {
+        return;
+    }
+
+    CSampling::categoricalSampleWithoutReplacement(m_Rng, probabilities, size, nodeFeatureBag);
+    std::sort(nodeFeatureBag.begin(), nodeFeatureBag.end());
 }
 
 void CBoostedTreeImpl::candidateRegressorFeatures(const TDoubleVec& probabilities,
@@ -1519,6 +1558,7 @@ const std::string BAYESIAN_OPTIMIZATION_TAG{"bayesian_optimization"};
 const std::string BEST_FOREST_TAG{"best_forest"};
 const std::string BEST_FOREST_TEST_LOSS_TAG{"best_forest_test_loss"};
 const std::string BEST_HYPERPARAMETERS_TAG{"best_hyperparameters"};
+const std::string CLASSIFICATION_WEIGHTS_OVERRIDE_TAG{"classification_weights_tag"};
 const std::string CURRENT_ROUND_TAG{"current_round"};
 const std::string DEPENDENT_VARIABLE_TAG{"dependent_variable"};
 const std::string DOWNSAMPLE_FACTOR_OVERRIDE_TAG{"downsample_factor_override"};
@@ -1585,6 +1625,8 @@ void CBoostedTreeImpl::acceptPersistInserter(core::CStatePersistInserter& insert
     core::CPersistUtils::persist(BEST_FOREST_TEST_LOSS_TAG, m_BestForestTestLoss, inserter);
     core::CPersistUtils::persist(BEST_FOREST_TAG, m_BestForest, inserter);
     core::CPersistUtils::persist(BEST_HYPERPARAMETERS_TAG, m_BestHyperparameters, inserter);
+    core::CPersistUtils::persistIfNotNull(CLASSIFICATION_WEIGHTS_OVERRIDE_TAG,
+                                          m_ClassificationWeightsOverride, inserter);
     core::CPersistUtils::persist(CURRENT_ROUND_TAG, m_CurrentRound, inserter);
     core::CPersistUtils::persist(DEPENDENT_VARIABLE_TAG, m_DependentVariable, inserter);
     core::CPersistUtils::persist(DOWNSAMPLE_FACTOR_OVERRIDE_TAG,
@@ -1675,6 +1717,12 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         RESTORE(BEST_HYPERPARAMETERS_TAG,
                 core::CPersistUtils::restore(BEST_HYPERPARAMETERS_TAG,
                                              m_BestHyperparameters, traverser))
+        RESTORE_SETUP_TEARDOWN(
+            CLASSIFICATION_WEIGHTS_OVERRIDE_TAG,
+            m_ClassificationWeightsOverride = TStrDoublePrVec{},
+            core::CPersistUtils::restore(CLASSIFICATION_WEIGHTS_OVERRIDE_TAG,
+                                         *m_ClassificationWeightsOverride, traverser),
+            /*no-op*/)
         RESTORE(CURRENT_ROUND_TAG,
                 core::CPersistUtils::restore(CURRENT_ROUND_TAG, m_CurrentRound, traverser))
         RESTORE(DEPENDENT_VARIABLE_TAG,
@@ -1767,11 +1815,85 @@ bool CBoostedTreeImpl::acceptRestoreTraverser(core::CStateRestoreTraverser& trav
         // m_TunableHyperparameters is not restored explicitly, it is restored from overriden hyperparameters
         // m_HyperparameterSamples is not restored explicitly, it is re-generated
     } while (traverser.next());
+
     this->initializeTunableHyperparameters();
     this->initializeHyperparameterSamples();
     m_InitializationStage = static_cast<EInitializationStage>(initializationStage);
 
     return true;
+}
+
+void CBoostedTreeImpl::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT_NO_EVALUATION(m_Loss, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_BayesianOptimization, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_Encoder, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_Instrumentation, ==, nullptr);
+    VIOLATES_INVARIANT(m_FeatureDataTypes.size(), ==,
+                       m_FeatureSampleProbabilities.size());
+    VIOLATES_INVARIANT(m_FeatureSampleProbabilities.size(), ==,
+                       m_MissingFeatureRowMasks.size());
+    VIOLATES_INVARIANT(m_TrainingRowMasks.size(), ==, m_TestingRowMasks.size());
+    VIOLATES_INVARIANT(m_CurrentRound, <=, m_NumberRounds);
+    for (std::size_t i = 0; i < m_TrainingRowMasks.size(); ++i) {
+        VIOLATES_INVARIANT(m_TrainingRowMasks[i].size(), ==,
+                           m_TestingRowMasks[i].size());
+    }
+    for (const auto& samples : m_HyperparameterSamples) {
+        VIOLATES_INVARIANT(m_TunableHyperparameters.size(), ==, samples.size());
+    }
+    if (m_FoldRoundTestLosses.size() > 0) {
+        VIOLATES_INVARIANT(m_FoldRoundTestLosses.size(), ==, m_NumberFolds);
+        for (const auto& losses : m_FoldRoundTestLosses) {
+            VIOLATES_INVARIANT(losses.size(), ==, m_NumberRounds);
+        }
+    }
+}
+
+void CBoostedTreeImpl::checkTrainInvariants(const core::CDataFrame& frame) const {
+    if (m_DependentVariable >= frame.numberColumns()) {
+        HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
+                     << "' was incorrectly initialized. Please report this problem.")
+        return;
+    }
+    if (m_Loss == nullptr) {
+        HANDLE_FATAL(<< "Internal error: must supply a loss function for training. "
+                     << "Please report this problem.")
+    }
+    if (m_Encoder == nullptr) {
+        HANDLE_FATAL(<< "Internal error: must supply an category encoder. "
+                     << "Please report this problem.")
+    }
+    if (m_BayesianOptimization == nullptr) {
+        HANDLE_FATAL(<< "Internal error: must supply an optimizer. Please report this problem.")
+    }
+    for (const auto& mask : m_MissingFeatureRowMasks) {
+        if (mask.size() != frame.numberRows()) {
+            HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
+                         << mask.size() << " !=  " << frame.numberRows()
+                         << "). Please report this problem.")
+        }
+    }
+    for (const auto& mask : m_MissingFeatureRowMasks) {
+        if (mask.size() != frame.numberRows()) {
+            HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
+                         << mask.size() << " !=  " << frame.numberRows()
+                         << "). Please report this problem.")
+        }
+    }
+    for (const auto& mask : m_TrainingRowMasks) {
+        if (mask.size() != frame.numberRows()) {
+            HANDLE_FATAL(<< "Internal error: unexpected missing training mask ("
+                         << mask.size() << " !=  " << frame.numberRows()
+                         << "). Please report this problem.")
+        }
+    }
+    for (const auto& mask : m_TestingRowMasks) {
+        if (mask.size() != frame.numberRows()) {
+            HANDLE_FATAL(<< "Internal error: unexpected missing testing mask ("
+                         << mask.size() << " !=  " << frame.numberRows()
+                         << "). Please report this problem.")
+        }
+    }
 }
 
 std::size_t CBoostedTreeImpl::memoryUsage() const {
@@ -1888,7 +2010,7 @@ const CBoostedTreeImpl::TSizeVec& CBoostedTreeImpl::extraColumns() const {
     return m_ExtraColumns;
 }
 
-CBoostedTreeImpl::TVector CBoostedTreeImpl::classificationWeights() const {
+const CBoostedTreeImpl::TVector& CBoostedTreeImpl::classificationWeights() const {
     return m_ClassificationWeights;
 }
 

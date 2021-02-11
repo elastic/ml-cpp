@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CContainerPrinter.h>
 #include <core/CDataFrame.h>
 #include <core/CJsonStatePersistInserter.h>
 #include <core/CLogger.h>
@@ -758,8 +759,8 @@ BOOST_AUTO_TEST_CASE(testCategoricalRegressors) {
 
     LOG_DEBUG(<< "bias = " << modelBias);
     LOG_DEBUG(<< " R^2 = " << modelRSquared);
-    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.1);
-    BOOST_TEST_REQUIRE(modelRSquared > 0.98);
+    BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, modelBias, 0.16);
+    BOOST_TEST_REQUIRE(modelRSquared > 0.96);
 }
 
 BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
@@ -1091,7 +1092,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
     TDoubleVecVec x;
     TDoubleVec means{0.0, 3.0};
     TDoubleVec variances{6.0, 6.0};
-    for (std::size_t i = 0; i < 4; ++i) {
+    for (std::size_t i = 0; i < std::size(classes); ++i) {
         TDoubleVecVec xi;
         double mean{means[classes[i]]};
         double variance{variances[classes[i]]};
@@ -1102,7 +1103,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
 
     auto frame = core::makeMainStorageDataFrame(cols).first;
     frame->categoricalColumns(TBoolVec{false, false, true});
-    for (std::size_t i = 0, index = 0; i < 4; ++i) {
+    for (std::size_t i = 0, index = 0; i < std::size(classes); ++i) {
         for (std::size_t j = 0; j < classesRowCounts[i]; ++j, ++index) {
             frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
                 for (std::size_t k = 0; k < cols - 1; ++k, ++column) {
@@ -1115,13 +1116,12 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
     }
     frame->finishWritingRows();
 
-    auto classification =
-        maths::CBoostedTreeFactory::constructFromParameters(
-            1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
-            .buildFor(*frame, cols - 1);
+    auto classifier = maths::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
+                          .buildFor(*frame, cols - 1);
 
-    classification->train();
-    classification->predict();
+    classifier->train();
+    classifier->predict();
 
     TDoubleVec precisions;
     TDoubleVec recalls;
@@ -1132,7 +1132,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
         TDoubleVec falseNegatives(2, 0.0);
         frame->readRows(1, [&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
-                auto scores = classification->readAndAdjustPrediction(*row);
+                auto scores = classifier->readAndAdjustPrediction(*row);
                 std::size_t prediction(scores[1] < scores[0] ? 0 : 1);
                 if (row->index() >= trainRows &&
                     row->index() < trainRows + classesRowCounts[2]) {
@@ -1157,6 +1157,57 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
 
     BOOST_TEST_REQUIRE(std::fabs(precisions[0] - precisions[1]) < 0.1);
     BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.11);
+}
+
+BOOST_AUTO_TEST_CASE(testClassificationWeightsOverride) {
+
+    // Test that the overrides are reflected in the classification weights used.
+
+    using TStrVec = std::vector<std::string>;
+
+    test::CRandomNumbers rng;
+
+    std::size_t classes[]{1, 0};
+    std::size_t classesRowCounts[]{50, 50};
+    std::size_t cols{3};
+
+    TDoubleVecVec x;
+    TDoubleVec means{0.0, 3.0};
+    TDoubleVec variances{6.0, 6.0};
+    for (std::size_t i = 0; i < std::size(classes); ++i) {
+        TDoubleVecVec xi;
+        double mean{means[classes[i]]};
+        double variance{variances[classes[i]]};
+        rng.generateMultivariateNormalSamples(
+            {mean, mean}, {{variance, 0.0}, {0.0, variance}}, classesRowCounts[i], xi);
+        x.insert(x.end(), xi.begin(), xi.end());
+    }
+
+    auto frame = core::makeMainStorageDataFrame(cols).first;
+    frame->categoricalColumns(TBoolVec{false, false, true});
+
+    std::string classValues[]{"foo", "bar"};
+    TStrVec row(cols);
+    for (std::size_t i = 0, index = 0; i < std::size(classes); ++i) {
+        for (std::size_t j = 0; j < classesRowCounts[i]; ++j, ++index) {
+            row[0] = std::to_string(x[index][0]);
+            row[1] = std::to_string(x[index][1]);
+            row[2] = classValues[i];
+            frame->parseAndWriteRow({row, 0, cols});
+        }
+    }
+    frame->finishWritingRows();
+
+    auto classifier = maths::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::boosted_tree::CBinomialLogisticLoss>())
+                          .classAssignmentObjective(maths::CBoostedTree::E_Custom)
+                          .classificationWeights({{"foo", 0.8}, {"bar", 0.2}})
+                          .buildFor(*frame, cols - 1);
+
+    classifier->train();
+
+    BOOST_TEST_REQUIRE("[0.8, 0.2]", core::CContainerPrinter::print(
+                                         classifier->classificationWeights()));
 }
 
 BOOST_AUTO_TEST_CASE(testMultinomialLogisticRegression) {
