@@ -18,6 +18,7 @@
 
 #include "CBufferedIStreamAdapter.h"
 #include "CCmdLineParser.h"
+#include "CCommandParser.h"
 
 #include <rapidjson/ostreamwrapper.h>
 #include <torch/script.h>
@@ -54,44 +55,12 @@ torch::Tensor infer(torch::jit::script::Module& module, TFloatVec& data) {
     return torch::argmax(predictions, 2);
 }
 
-bool readUInt32(std::istream& stream, std::uint32_t& num) {
-    std::uint32_t netNum{0};
-    stream.read(reinterpret_cast<char*>(&netNum), sizeof(std::uint32_t));
-    num = ntohl(netNum);
-    return stream.good();
-}
-
-boost::optional<TFloatVec> readTokens(std::istream& inputStream) {
-    if (inputStream.eof()) {
-        LOG_ERROR(<< "Unexpected end of stream reading tokens");
-        return boost::none;
-    }
-
-    // return a float vector rather than integers because
-    // float is needed to create the tensor
-    TFloatVec tokens;
-    std::uint32_t numTokens;
-    if (readUInt32(inputStream, numTokens) == false) {
-        LOG_ERROR(<< "Error reading the number of tokens");
-        return boost::none;
-    }
-
-    for (uint32_t i = 0; i < numTokens; ++i) {
-        std::uint32_t token;
-        if (readUInt32(inputStream, token) == false) {
-            LOG_ERROR(<< "Error reading token");
-            return boost::none;
-        }
-        tokens.push_back(token);
-    }
-
-    return tokens;
-}
-
-void writePrediction(torch::Tensor& prediction, std::ostream& outputStream) {
+void writePrediction(const torch::Tensor& prediction, const std::string& requestId, std::ostream& outputStream) {
     rapidjson::OStreamWrapper writeStream(outputStream);
     ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> jsonWriter(writeStream);
     jsonWriter.StartObject();
+    jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
+    jsonWriter.String(requestId);
     jsonWriter.Key("inference");
     jsonWriter.StartArray();
     auto arr = prediction.accessor<std::int64_t, 2>();
@@ -100,6 +69,19 @@ void writePrediction(torch::Tensor& prediction, std::ostream& outputStream) {
     }
     jsonWriter.EndArray();
     jsonWriter.EndObject();
+}
+
+
+bool handleRequest(const ml::torch::CCommandParser::SRequest& request,
+    torch::jit::script::Module& module,
+    std::ostream& outputStream) {
+
+    // A float vector is needed to create the tensor
+    TFloatVec tokens{request.s_Tokens.begin(), request.s_Tokens.end()};
+    torch::Tensor results = infer(module, tokens);
+    writePrediction(results, request.s_RequestId, outputStream);
+
+    return true;
 }
 
 int main(int argc, char** argv) {
@@ -186,14 +168,13 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    boost::optional<TFloatVec> tokens = readTokens(ioMgr.inputStream());
-    if (!tokens) {
-        LOG_ERROR(<< "Cannot infer, failed to read input tokens");
-        return EXIT_FAILURE;
-    }
 
-    torch::Tensor results = infer(module, *tokens);
-    writePrediction(results, ioMgr.outputStream());
+    ml::torch::CCommandParser commandParser{ioMgr.inputStream()};
+
+    commandParser.ioLoop([&module, &ioMgr](const ml::torch::CCommandParser::SRequest& request){
+        return handleRequest(request, module, ioMgr.outputStream());
+    });
+
 
     LOG_DEBUG(<< "ML Torch model prototype exiting");
 

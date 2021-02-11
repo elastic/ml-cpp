@@ -22,6 +22,9 @@ CBufferedIStreamAdapter::CBufferedIStreamAdapter(std::istream& inputStream)
     : m_InputStream(inputStream) {
 }
 
+CBufferedIStreamAdapter::~CBufferedIStreamAdapter() {
+}
+
 bool CBufferedIStreamAdapter::init() {
     if (parseSizeFromStream(m_Size) == false) {
         LOG_ERROR(<< "Failed to read model size");

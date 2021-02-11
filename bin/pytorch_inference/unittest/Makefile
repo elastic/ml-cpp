@@ -5,29 +5,21 @@
 #
 include $(CPP_SRC_HOME)/mk/defines.mk
 
-TARGET=$(OBJS_DIR)/pytorch_inference$(EXE_EXT)
-
-INSTALL_DIR=$(CPP_PLATFORM_HOME)/$(EXE_DIR)
-
-ML_LIBS=$(LIB_ML_CORE) $(LIB_ML_API)
+TARGET=ml_test$(EXE_EXT)
 
 USE_BOOST=1
 USE_BOOST_PROGRAMOPTIONS_LIBS=1
-USE_NET=1
+USE_BOOST_TEST_LIBS=1
 USE_RAPIDJSON=1
 USE_TORCH=1
 
-LIBS=$(ML_LIBS)
-
 all: build
 
-SRCS= \
+LIBS=\
+    ../.objs/C*$(OBJECT_FILE_EXT) \
+
+SRCS=\
     Main.cc \
-    CBufferedIStreamAdapter.cc \
-    CCmdLineParser.cc \
-    CCommandParser.cc \
+    CCommandParserTest.cc \
 
-NO_TEST_CASES=1
-
-include $(CPP_SRC_HOME)/mk/stdapp.mk
-
+include $(CPP_SRC_HOME)/mk/stdboosttest.mk
