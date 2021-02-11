@@ -75,42 +75,51 @@ def main():
 
     args = parse_arguments()
 
-    # create the restore file
-    with open(args.restore_file, 'wb') as restore_file:
-        file_stats = os.stat(args.model)
-        file_size = file_stats.st_size
+    try:
+        # create the restore file
+        with open(args.restore_file, 'wb') as restore_file:
+            file_stats = os.stat(args.model)
+            file_size = file_stats.st_size
 
-        # 4 byte unsigned int
-        b = (file_size).to_bytes(4, 'big')
-        restore_file.write(b)
+            # 4 byte unsigned int
+            b = (file_size).to_bytes(4, 'big')
+            restore_file.write(b)
 
-        print("streaming model of size", file_size, flush=True)
+            print("streaming model of size", file_size, flush=True)
 
-        with open(args.model, 'rb') as source_file:
-            stream_file(source_file, restore_file)
+            with open(args.model, 'rb') as source_file:
+                stream_file(source_file, restore_file)
 
-    with open(args.input_file, 'wb') as input_file:
-        with open(args.input_tokens) as token_file:
-            input_tokens = json.load(token_file)
-        print("writing query", flush=True)
-        write_tokens(input_file, input_tokens['tokens'])
+        with open(args.input_file, 'wb') as input_file:
+            with open(args.input_tokens) as token_file:
+                input_tokens = json.load(token_file)
+            print("writing query", flush=True)
+            write_tokens(input_file, input_tokens['tokens'])
 
-    # one shot inference
-    launch_pytorch_app(args)
+        # one shot inference
+        launch_pytorch_app(args)
 
-    print("reading results", flush=True)
-    with open(args.expected_output) as expected_output_file:
-        expected = json.load(expected_output_file)
+        print("reading results", flush=True)
+        with open(args.expected_output) as expected_output_file:
+            expected = json.load(expected_output_file)
 
-    with open(args.output_file) as output_file:
-        results = json.load(output_file)
+        with open(args.output_file) as output_file:
+            results = json.load(output_file)
 
-    # compare to expected
-    if results['inference'] == expected['tokens']:
-        print('inference results match expected results')
-    else:
-        print('ERROR: inference results do not match expected results')
-        print(results)
+        # compare to expected
+        if results['inference'] == expected['tokens']:
+            print('inference results match expected results')
+        else:
+            print('ERROR: inference results do not match expected results')
+            print(results)
+
+    finally:        
+        if os.path.isfile(args.restore_file):
+            os.remove(args.restore_file)
+        if os.path.isfile(args.input_file):
+            os.remove(args.input_file)
+        if os.path.isfile(args.output_file):
+            os.remove(args.output_file)                        
 
 
 if __name__ == "__main__":
