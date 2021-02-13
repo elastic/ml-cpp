@@ -368,6 +368,17 @@ auto predictAndComputeEvaluationMetrics(const F& generateFunction,
     return std::make_pair(std::move(modelBias), std::move(modelRSquared));
 }
 
+std::size_t maxDepth(const std::vector<maths::CBoostedTreeNode>& tree,
+                     const maths::CBoostedTreeNode& node,
+                     std::size_t depth) {
+    std::size_t result{depth};
+    if (node.isLeaf() == false) {
+        result = std::max(result, maxDepth(tree, tree[node.leftChildIndex()], depth + 1));
+        result = std::max(result, maxDepth(tree, tree[node.rightChildIndex()], depth + 1));
+    }
+    return result;
+}
+
 void readFileToStream(const std::string& filename, std::stringstream& stream) {
     std::ifstream file(filename);
     BOOST_TEST_REQUIRE(file.is_open());
@@ -992,8 +1003,8 @@ BOOST_AUTO_TEST_CASE(testFeatureBags) {
                static_cast<double>(std::accumulate(selected.begin(), selected.end(), 0));
     };
 
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.001);
-    BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.001);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForTree) < 0.005);
+    BOOST_TEST_REQUIRE(distanceToSorted(selectedForNode) < 0.005);
 }
 
 BOOST_AUTO_TEST_CASE(testIntegerRegressor) {
@@ -1150,17 +1161,6 @@ BOOST_AUTO_TEST_CASE(testTranslationInvariance) {
     }
 
     BOOST_REQUIRE_CLOSE_ABSOLUTE(rsquared[0], rsquared[1], 0.01);
-}
-
-std::size_t maxDepth(const std::vector<maths::CBoostedTreeNode>& tree,
-                     const maths::CBoostedTreeNode& node,
-                     std::size_t depth) {
-    std::size_t result{depth};
-    if (node.isLeaf() == false) {
-        result = std::max(result, maxDepth(tree, tree[node.leftChildIndex()], depth + 1));
-        result = std::max(result, maxDepth(tree, tree[node.rightChildIndex()], depth + 1));
-    }
-    return result;
 }
 
 BOOST_AUTO_TEST_CASE(testDepthBasedRegularization) {
