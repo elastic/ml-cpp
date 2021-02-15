@@ -36,6 +36,7 @@ class CBoostedTreeImpl;
 //! Factory for CBoostedTree objects.
 class MATHS_EXPORT CBoostedTreeFactory final {
 public:
+    using TStrDoublePrVec = std::vector<std::pair<std::string, double>>;
     using TVector = CVectorNx1<double, 3>;
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
@@ -73,6 +74,8 @@ public:
     //! Set the objective to use when choosing the class assignments.
     CBoostedTreeFactory&
     classAssignmentObjective(CBoostedTree::EClassAssignmentObjective objective);
+    //! Set the class weights used for assigning labels to classes from the predicted probabilities.
+    CBoostedTreeFactory& classificationWeights(TStrDoublePrVec weights);
     //! Set the minimum fraction with a category value to one-hot encode.
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
     //! Set the number of folds to use for estimating the generalisation error.
