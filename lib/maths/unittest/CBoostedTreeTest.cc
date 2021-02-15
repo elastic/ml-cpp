@@ -28,6 +28,7 @@
 #include <test/CTestTmpDir.h>
 
 #include <boost/make_shared.hpp>
+#include <boost/range.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -1092,7 +1093,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
     TDoubleVecVec x;
     TDoubleVec means{0.0, 3.0};
     TDoubleVec variances{6.0, 6.0};
-    for (std::size_t i = 0; i < std::size(classes); ++i) {
+    for (std::size_t i = 0; i < boost::size(classes); ++i) {
         TDoubleVecVec xi;
         double mean{means[classes[i]]};
         double variance{variances[classes[i]]};
@@ -1103,7 +1104,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
 
     auto frame = core::makeMainStorageDataFrame(cols).first;
     frame->categoricalColumns(TBoolVec{false, false, true});
-    for (std::size_t i = 0, index = 0; i < std::size(classes); ++i) {
+    for (std::size_t i = 0, index = 0; i < boost::size(classes); ++i) {
         for (std::size_t j = 0; j < classesRowCounts[i]; ++j, ++index) {
             frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
                 for (std::size_t k = 0; k < cols - 1; ++k, ++column) {
@@ -1174,7 +1175,7 @@ BOOST_AUTO_TEST_CASE(testClassificationWeightsOverride) {
     TDoubleVecVec x;
     TDoubleVec means{0.0, 3.0};
     TDoubleVec variances{6.0, 6.0};
-    for (std::size_t i = 0; i < std::size(classes); ++i) {
+    for (std::size_t i = 0; i < boost::size(classes); ++i) {
         TDoubleVecVec xi;
         double mean{means[classes[i]]};
         double variance{variances[classes[i]]};
@@ -1188,7 +1189,7 @@ BOOST_AUTO_TEST_CASE(testClassificationWeightsOverride) {
 
     std::string classValues[]{"foo", "bar"};
     TStrVec row(cols);
-    for (std::size_t i = 0, index = 0; i < std::size(classes); ++i) {
+    for (std::size_t i = 0, index = 0; i < boost::size(classes); ++i) {
         for (std::size_t j = 0; j < classesRowCounts[i]; ++j, ++index) {
             row[0] = std::to_string(x[index][0]);
             row[1] = std::to_string(x[index][1]);
