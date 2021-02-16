@@ -38,6 +38,9 @@ Thumbs.db
 # compilation database stuff
 compile_commands.json
 
+# python virtualenv
+**/jupyter/env
+
 # native binary stuff:
 *.o
 *.obj
