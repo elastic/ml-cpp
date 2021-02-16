@@ -147,7 +147,7 @@ private:
     using TOptionalVector = boost::optional<TVector>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
-    using TApplyRegularizer = std::function<bool(CBoostedTreeImpl&, double)>;
+    using TApplyParameter = std::function<bool(CBoostedTreeImpl&, double)>;
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss);
@@ -208,7 +208,7 @@ private:
     //! \return The interval to search during the main hyperparameter optimisation
     //! loop or null if this couldn't be found.
     TOptionalVector testLossLineSearch(core::CDataFrame& frame,
-                                       const TApplyRegularizer& applyRegularizerStep,
+                                       const TApplyParameter& applyParameterStep,
                                        double intervalLeftEnd,
                                        double intervalRightEnd,
                                        double returnedIntervalLeftEndOffset,
