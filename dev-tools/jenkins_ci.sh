@@ -74,7 +74,7 @@ rm -f "${GIT_TOPLEVEL}/.git/objects/info/alternates"
 
 case `uname` in
 
-    case Darwin)
+    Darwin)
         # For macOS, build directly on the machine
         ./download_macos_deps.sh
         if [ -z "$PR_AUTHOR" ] ; then
