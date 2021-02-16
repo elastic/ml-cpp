@@ -204,6 +204,10 @@ const CBoostedTree::TNodeVecVec& CBoostedTree::trainedModel() const {
     return m_Impl->trainedModel();
 }
 
+CBoostedTreeImpl& CBoostedTree::impl() {
+    return *m_Impl;
+}
+
 const CBoostedTree::TDoubleVec& CBoostedTree::featureWeightsForTraining() const {
     return m_Impl->featureSampleProbabilities();
 }

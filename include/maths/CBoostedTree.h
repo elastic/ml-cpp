@@ -263,8 +263,11 @@ public:
 
     //! \name Test Only
     //@{
+    //! Get the implementation.
+    CBoostedTreeImpl& impl();
+
     //! Get the weight that has been chosen for each feature for training.
-    const TDoubleVec& featureWeightsForTraining() const override;
+    const TDoubleVec& featureWeightsForTraining() const;
 
     //! The name of the object holding the best hyperaparameters in the state document.
     static const std::string& bestHyperparametersName();

@@ -43,6 +43,7 @@ class CImmutableRadixSet;
 }
 namespace maths {
 class CBayesianOptimisation;
+class CBoostedTreeImplForTest;
 class CTreeShapFeatureImportance;
 
 //! \brief Implementation of CBoostedTree.
@@ -76,6 +77,7 @@ public:
     CBoostedTreeImpl(std::size_t numberThreads,
                      TLossFunctionUPtr loss,
                      TAnalysisInstrumentationPtr instrumentation = nullptr);
+    CBoostedTreeImpl(CBoostedTreeImpl&&);
 
     ~CBoostedTreeImpl();
 
@@ -397,6 +399,7 @@ private:
 
 private:
     friend class CBoostedTreeFactory;
+    friend class CBoostedTreeImplForTest;
 };
 }
 }
