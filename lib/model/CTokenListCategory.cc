@@ -178,11 +178,9 @@ bool CTokenListCategory::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
         }
     } while (traverser.next());
 
-    // Verify that m_CommonUniqueTokenIds is sorted in ascending order.
-    bool isSortedAsc = std::is_sorted(
-        m_CommonUniqueTokenIds.begin(), m_CommonUniqueTokenIds.end(),
-        [](const auto& a, const auto& b) { return a.first < b.first; });
-    VIOLATES_INVARIANT(isSortedAsc, ==, false);
+    // Ensure that m_CommonUniqueTokenIds is sorted in ascending order.
+    std::sort(m_CommonUniqueTokenIds.begin(), m_CommonUniqueTokenIds.end(),
+              [](const auto& a, const auto& b) { return a.first < b.first; });
 
     // m_BaseRawStringLen will only have been persisted by 7.9 and above.
     // In this case the absolute maximum set at the beginning of the method

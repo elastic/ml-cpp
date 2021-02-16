@@ -237,7 +237,8 @@ bool restoreAttributePeopleData(core::CStateRestoreTraverser& traverser, TSizeUS
             }
             std::size_t pid = 0;
             if (core::CStringUtils::stringToType(traverser.value(), pid) == false) {
-                LOG_ABORT(<< "Invalid person ID in " << traverser.value());
+                LOG_ERROR(<< "Invalid person ID in " << traverser.value());
+                return false;
             }
             data[lastCid].insert(pid);
         }
