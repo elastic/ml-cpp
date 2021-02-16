@@ -122,7 +122,7 @@ case `uname` in
         fi
         ;;
 
-    case *)
+    *)
         echo `uname 2>&1` "- unsupported operating system"
         exit 1
         ;;
