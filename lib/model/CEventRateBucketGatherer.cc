@@ -223,7 +223,8 @@ bool restoreAttributePeopleData(core::CStateRestoreTraverser& traverser, TSizeUS
         const std::string& name = traverser.name();
         if (name == ATTRIBUTE_TAG) {
             if (core::CStringUtils::stringToType(traverser.value(), lastCid) == false) {
-                LOG_ABORT(<< "Invalid attribute ID in " << traverser.value());
+                LOG_ERROR(<< "Invalid attribute ID in " << traverser.value());
+                return false;
             }
             seenCid = true;
             if (lastCid >= data.size()) {
@@ -275,7 +276,8 @@ bool restoreFeatureData(core::CStateRestoreTraverser& traverser,
                 TSizeSizePrStrDataUMapQueue::CSerializer<SStrDataBucketSerializer>(
                     TSizeSizePrStrDataUMap(1)),
                 std::ref(*data), std::placeholders::_1)) == false) {
-            LOG_ABORT(<< "Invalid unique value mapping in " << traverser.value());
+            LOG_ERROR(<< "Invalid unique value mapping in " << traverser.value());
+            return false;
         }
     } else if (name == TIMES_OF_DAY_TAG) {
         if (featureData.count(model_t::E_DiurnalTimes) == 0) {
@@ -289,7 +291,8 @@ bool restoreFeatureData(core::CStateRestoreTraverser& traverser,
         if (traverser.traverseSubLevel(std::bind<bool>(
                 TSizeSizePrMeanAccumulatorUMapQueue::CSerializer<STimesBucketSerializer>(),
                 std::ref(*data), std::placeholders::_1)) == false) {
-            LOG_ABORT(<< "Invalid times mapping in " << traverser.value());
+            LOG_ERROR(<< "Invalid times mapping in " << traverser.value());
+            return false;
         }
     }
     return true;
@@ -680,7 +683,8 @@ bool restoreInfluencerUniqueStrings(core::CStateRestoreTraverser& traverser,
         } else if (name == UNIQUE_WORD_TAG) {
             CUniqueStringFeatureData::TWord value;
             if (value.fromDelimited(traverser.value()) == false) {
-                LOG_ABORT(<< "Failed to restore word " << traverser.value());
+                LOG_ERROR(<< "Failed to restore word " << traverser.value());
+                return false;
             }
             auto i = data.begin();
             for (/**/; i != data.end(); ++i) {

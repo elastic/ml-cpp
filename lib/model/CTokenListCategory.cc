@@ -94,7 +94,8 @@ bool CTokenListCategory::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
             TSizeSizePr tokenAndWeight{0, 0};
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  tokenAndWeight.first) == false) {
-                LOG_ABORT(<< "Invalid base token ID in " << traverser.value());
+                LOG_ERROR(<< "Invalid base token ID in " << traverser.value());
+                return false;
             }
 
             m_BaseTokenIds.push_back(tokenAndWeight);
@@ -107,46 +108,53 @@ bool CTokenListCategory::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
             TSizeSizePr& tokenAndWeight = m_BaseTokenIds.back();
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  tokenAndWeight.second) == false) {
-                LOG_ABORT(<< "Invalid base token weight in " << traverser.value());
+                LOG_ERROR(<< "Invalid base token weight in " << traverser.value());
+                return false;
             }
 
             m_BaseWeight += tokenAndWeight.second;
         } else if (name == MAX_STRING_LEN) {
             if (core::CStringUtils::stringToType(traverser.value(), m_MaxStringLen) == false) {
-                LOG_ABORT(<< "Invalid maximum string length in " << traverser.value());
+                LOG_ERROR(<< "Invalid maximum string length in " << traverser.value());
+                return false;
             }
         } else if (name == ORDERED_COMMON_TOKEN_BEGIN_INDEX) {
             if (core::CStringUtils::stringToType(
                     traverser.value(), m_OrderedCommonTokenBeginIndex) == false) {
-                LOG_ABORT(<< "Invalid ordered common token start index in "
+                LOG_ERROR(<< "Invalid ordered common token start index in "
                           << traverser.value());
+                return false;
             }
         } else if (name == ORDERED_COMMON_TOKEN_END_INDEX) {
             if (core::CStringUtils::stringToType(
                     traverser.value(), m_OrderedCommonTokenEndIndex) == false) {
-                LOG_ABORT(<< "Invalid ordered common token end index in "
+                LOG_ERROR(<< "Invalid ordered common token end index in "
                           << traverser.value());
+                return false;
             }
         } else if (name == COMMON_UNIQUE_TOKEN_ID) {
             TSizeSizePr tokenAndWeight{0, 0};
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  tokenAndWeight.first) == false) {
-                LOG_ABORT(<< "Invalid common unique token ID in " << traverser.value());
+                LOG_ERROR(<< "Invalid common unique token ID in " << traverser.value());
+                return false;
             }
 
             m_CommonUniqueTokenIds.push_back(tokenAndWeight);
             expectWeight = true;
         } else if (name == COMMON_UNIQUE_TOKEN_WEIGHT) {
             if (!expectWeight) {
-                LOG_ABORT(<< "Common unique token weight precedes common unique token ID in "
+                LOG_ERROR(<< "Common unique token weight precedes common unique token ID in "
                           << traverser.value());
+                return false;
             }
 
             TSizeSizePr& tokenAndWeight = m_CommonUniqueTokenIds.back();
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  tokenAndWeight.second) == false) {
-                LOG_ABORT(<< "Invalid common unique token weight in "
+                LOG_ERROR(<< "Invalid common unique token weight in "
                           << traverser.value());
+                return false;
             }
             expectWeight = false;
 
@@ -154,15 +162,18 @@ bool CTokenListCategory::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
         } else if (name == ORIG_UNIQUE_TOKEN_WEIGHT) {
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  m_OrigUniqueTokenWeight) == false) {
-                LOG_ABORT(<< "Invalid unique token weight in " << traverser.value());
+                LOG_ERROR(<< "Invalid unique token weight in " << traverser.value());
+                return false;
             }
         } else if (name == NUM_MATCHES) {
             if (core::CStringUtils::stringToType(traverser.value(), m_NumMatches) == false) {
-                LOG_ABORT(<< "Invalid number of matches in " << traverser.value());
+                LOG_ERROR(<< "Invalid number of matches in " << traverser.value());
+                return false;
             }
         } else if (name == BASE_RAW_STRING_LENGTH) {
             if (core::CStringUtils::stringToType(traverser.value(), m_BaseRawStringLen) == false) {
-                LOG_ABORT(<< "Invalid base raw string length in " << traverser.value());
+                LOG_ERROR(<< "Invalid base raw string length in " << traverser.value());
+                return false;
             }
         }
     } while (traverser.next());

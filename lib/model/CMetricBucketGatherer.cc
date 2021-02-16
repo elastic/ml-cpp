@@ -989,8 +989,7 @@ bool CMetricBucketGatherer::acceptRestoreTraverser(core::CStateRestoreTraverser&
             }
             isCurrentVersion = (version == CURRENT_VERSION);
         } else if (this->acceptRestoreTraverserInternal(traverser, isCurrentVersion) == false) {
-            // Expect acceptRestoreTraverserInternal to abort on error closest to point of failure.
-            // Do nothing here.
+            // Soldier on or we'll get a core dump later.
         }
     } while (traverser.next());
 
@@ -1003,62 +1002,73 @@ bool CMetricBucketGatherer::acceptRestoreTraverserInternal(core::CStateRestoreTr
     if (name == MEAN_TAG) {
         CRestoreFeatureData<model_t::E_Mean> restore;
         if (restore(traverser, 1, isCurrentVersion, *this, m_FeatureData) == false) {
-            LOG_ABORT(<< "Invalid mean data in " << traverser.value());
+            LOG_ERROR(<< "Invalid mean data in " << traverser.value());
+            return false;
         }
     } else if (name == MIN_TAG) {
         CRestoreFeatureData<model_t::E_Min> restore;
         if (restore(traverser, 1, isCurrentVersion, *this, m_FeatureData) == false) {
-            LOG_ABORT(<< "Invalid min data in " << traverser.value());
+            LOG_ERROR(<< "Invalid min data in " << traverser.value());
+            return false;
         }
     } else if (name == MAX_TAG) {
         CRestoreFeatureData<model_t::E_Max> restore;
         if (restore(traverser, 1, isCurrentVersion, *this, m_FeatureData) == false) {
-            LOG_ABORT(<< "Invalid max data in " << traverser.value());
+            LOG_ERROR(<< "Invalid max data in " << traverser.value());
+            return false;
         }
     } else if (name == SUM_TAG) {
         CRestoreFeatureData<model_t::E_Sum> restore;
         if (restore(traverser, 1, isCurrentVersion, *this, m_FeatureData) == false) {
-            LOG_ABORT(<< "Invalid sum data in " << traverser.value());
+            LOG_ERROR(<< "Invalid sum data in " << traverser.value());
+            return false;
         }
     } else if (name == MEDIAN_TAG) {
         CRestoreFeatureData<model_t::E_Median> restore;
         if (restore(traverser, 1, isCurrentVersion, *this, m_FeatureData) == false) {
-            LOG_ABORT(<< "Invalid median data in " << traverser.value());
+            LOG_ERROR(<< "Invalid median data in " << traverser.value());
+            return false;
         }
     } else if (name == VARIANCE_TAG) {
         CRestoreFeatureData<model_t::E_Variance> restore;
         if (restore(traverser, 1, isCurrentVersion, *this, m_FeatureData) == false) {
-            LOG_ABORT(<< "Invalid variance data in " << traverser.value());
+            LOG_ERROR(<< "Invalid variance data in " << traverser.value());
+            return false;
         }
     } else if (name.find(MULTIVARIATE_MEAN_TAG) != std::string::npos) {
         std::size_t dimension;
         if (core::CStringUtils::stringToType(
                 name.substr(MULTIVARIATE_MEAN_TAG.length()), dimension) == false) {
-            LOG_ABORT(<< "Invalid dimension in " << name);
+            LOG_ERROR(<< "Invalid dimension in " << name);
+            return false;
         }
         CRestoreFeatureData<model_t::E_MultivariateMean> restore;
         if (restore(traverser, dimension, isCurrentVersion, *this, m_FeatureData) == false) {
-            LOG_ABORT(<< "Invalid multivariate mean data in " << traverser.value());
+            LOG_ERROR(<< "Invalid multivariate mean data in " << traverser.value());
+            return false;
         }
     } else if (name.find(MULTIVARIATE_MIN_TAG) != std::string::npos) {
         std::size_t dimension;
         if (core::CStringUtils::stringToType(
                 name.substr(MULTIVARIATE_MIN_TAG.length()), dimension) == false) {
-            LOG_ABORT(<< "Invalid dimension in " << name);
+            LOG_ERROR(<< "Invalid dimension in " << name);
+            return false;
         }
         CRestoreFeatureData<model_t::E_MultivariateMin> restore;
         if (restore(traverser, dimension, isCurrentVersion, *this, m_FeatureData) == false) {
-            LOG_ABORT(<< "Invalid multivariate min data in " << traverser.value());
+            LOG_ERROR(<< "Invalid multivariate min data in " << traverser.value());
         }
     } else if (name.find(MULTIVARIATE_MAX_TAG) != std::string::npos) {
         std::size_t dimension;
         if (core::CStringUtils::stringToType(
                 name.substr(MULTIVARIATE_MAX_TAG.length()), dimension) == false) {
-            LOG_ABORT(<< "Invalid dimension in " << name);
+            LOG_ERROR(<< "Invalid dimension in " << name);
+            return false;
         }
         CRestoreFeatureData<model_t::E_MultivariateMax> restore;
         if (restore(traverser, dimension, isCurrentVersion, *this, m_FeatureData) == false) {
-            LOG_ABORT(<< "Invalid multivariate max data in " << traverser.value());
+            LOG_ERROR(<< "Invalid multivariate max data in " << traverser.value());
+            return false;
         }
     }
 
