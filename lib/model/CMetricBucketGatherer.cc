@@ -1057,6 +1057,7 @@ bool CMetricBucketGatherer::acceptRestoreTraverserInternal(core::CStateRestoreTr
         CRestoreFeatureData<model_t::E_MultivariateMin> restore;
         if (restore(traverser, dimension, isCurrentVersion, *this, m_FeatureData) == false) {
             LOG_ERROR(<< "Invalid multivariate min data in " << traverser.value());
+            return false;
         }
     } else if (name.find(MULTIVARIATE_MAX_TAG) != std::string::npos) {
         std::size_t dimension;
