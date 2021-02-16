@@ -51,7 +51,7 @@ public:
     using TDoubleVec = CBoostedTreeImpl::TDoubleVec;
 
 public:
-    CBoostedTreeImplForTest(CBoostedTreeImpl& treeImpl)
+    explicit CBoostedTreeImplForTest(CBoostedTreeImpl& treeImpl)
         : m_TreeImpl{treeImpl} {}
     CBoostedTreeImplForTest(const CBoostedTreeImplForTest&) = delete;
     CBoostedTreeImplForTest& operator=(const CBoostedTreeImplForTest&) = delete;
@@ -636,7 +636,7 @@ BOOST_AUTO_TEST_CASE(testHuber) {
 }
 
 BOOST_AUTO_TEST_CASE(testMsle) {
-    // TODO Test quality of MSLE on data with log-normal errors.
+    // TODO #1744 test quality of MSLE on data with log-normal errors.
 }
 
 BOOST_AUTO_TEST_CASE(testThreading) {
