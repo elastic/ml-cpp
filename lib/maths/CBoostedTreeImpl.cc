@@ -169,9 +169,8 @@ CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,
 }
 
 CBoostedTreeImpl::CBoostedTreeImpl() = default;
-
 CBoostedTreeImpl::~CBoostedTreeImpl() = default;
-
+CBoostedTreeImpl::CBoostedTreeImpl(CBoostedTreeImpl&&) = default;
 CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
 
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
@@ -1117,16 +1116,44 @@ void CBoostedTreeImpl::nodeFeatureBag(const TSizeVec& treeFeatureBag,
 
     std::size_t size{this->featureBagSize(m_FeatureBagFraction)};
 
-    this->candidateRegressorFeatures(probabilities, nodeFeatureBag);
-    CSetTools::simultaneousRemoveIf(nodeFeatureBag, probabilities, [&](const auto i) {
-        return std::binary_search(treeFeatureBag.begin(), treeFeatureBag.end(), i) == false;
-    });
-
-    if (size >= nodeFeatureBag.size()) {
+    if (size >= treeFeatureBag.size()) {
+        // Since we don't include features with zero probability of being sampled
+        // in the bag we can just copy this collection over as the candidates.
+        nodeFeatureBag = treeFeatureBag;
         return;
     }
 
+    // We have P(i in S) = P(i in S | i in B) P(i in B) for sample S and bag B.
+    // We'd ideally like to preserve P(i in S) by arranging for P(i in S | i in B)
+    // to be equal to P(i in S) / P(i in B). P(i in B) is the chance of sampling
+    // item i without replacement for weights w. There is no closed form solution
+    // for this probability. We can simply sample many bags and use the relative
+    // frequency to get this quantity to arbitrary precision, but this isn't
+    // worthwhile. There are two limits, for |B| / |F| -> 0 then P(i in B) -> w_i
+    // and we want to sample uniformly at random from B and for |B| -> |F| then
+    // P(i in B) -> 1 and we want to sample according to w so we reweight by
+    // 1 / (w_i + |B| / |F| (1 - w_i)).
+
+    double fraction{static_cast<double>(treeFeatureBag.size()) /
+                    static_cast<double>(std::count_if(
+                        probabilities.begin(), probabilities.end(),
+                        [](auto probability) { return probability > 0.0; }))};
+    LOG_TRACE(<< "fraction = " << fraction);
+
+    for (std::size_t i = 0; i < treeFeatureBag.size(); ++i) {
+        probabilities[i] = probabilities[treeFeatureBag[i]];
+    }
+    probabilities.resize(treeFeatureBag.size());
+    double Z{std::accumulate(probabilities.begin(), probabilities.end(), 0.0)};
+    for (auto& probability : probabilities) {
+        probability /= Z;
+        probability /= probability + fraction * (1.0 - probability);
+    }
+
     CSampling::categoricalSampleWithoutReplacement(m_Rng, probabilities, size, nodeFeatureBag);
+    for (auto& i : nodeFeatureBag) {
+        i = treeFeatureBag[i];
+    }
     std::sort(nodeFeatureBag.begin(), nodeFeatureBag.end());
 }
 
