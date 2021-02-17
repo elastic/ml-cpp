@@ -279,8 +279,11 @@ public:
     //! A list of the names of the best individual hyperparameters in the state document.
     static TStrVec bestHyperparameterNames();
 
-    //! \return Class containing best hyperparameters.
+    //! \return The best hyperparameters.
     const CBoostedTreeHyperparameters& bestHyperparameters() const;
+
+    //! \return The classification weights vector.
+    TDoubleVec classificationWeights() const;
     //@}
 
 private:
