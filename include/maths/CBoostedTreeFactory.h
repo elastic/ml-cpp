@@ -285,12 +285,12 @@ private:
     std::size_t m_NumberThreads;
     TBoostedTreeImplUPtr m_TreeImpl;
     TVector m_LogDownsampleFactorSearchInterval;
+    TVector m_LogFeatureBagFractionInterval;
     TVector m_LogDepthPenaltyMultiplierSearchInterval;
     TVector m_LogTreeSizePenaltyMultiplierSearchInterval;
     TVector m_LogLeafWeightPenaltyMultiplierSearchInterval;
     TVector m_SoftDepthLimitSearchInterval;
     TVector m_LogEtaSearchInterval;
-    TVector m_LogFeatureBagFractionInterval;
     TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;
 };
 }

@@ -150,8 +150,8 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     case CBoostedTreeImpl::E_DepthPenaltyMultiplierInitialized:
     case CBoostedTreeImpl::E_TreeSizePenaltyMultiplierInitialized:
     case CBoostedTreeImpl::E_LeafWeightPenaltyMultiplierInitialized:
-    case CBoostedTreeImpl::E_FeatureBagFractionInitialized:
     case CBoostedTreeImpl::E_DownsampleFactorInitialized:
+    case CBoostedTreeImpl::E_FeatureBagFractionInitialized:
     case CBoostedTreeImpl::E_EtaInitialized:
         return this->buildFor(frame, dependentVariable);
     }
@@ -864,7 +864,7 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
 void CBoostedTreeFactory::initializeUnsetFeatureBagFraction(core::CDataFrame& frame) {
 
     if (m_TreeImpl->m_FeatureBagFractionOverride == boost::none) {
-        if (skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_FeatureBagFractionInitialized, [&] {
+        if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_FeatureBagFractionInitialized, [&] {
                 double searchIntervalSize{FEATURE_BAG_FRACTION_LINE_SEARCH_RANGE};
                 double logMaxFeatureBagFraction{CTools::stableLog(std::min(
                     2.0 * m_TreeImpl->m_FeatureBagFraction, MAX_FEATURE_BAG_FRACTION))};
@@ -1552,6 +1552,7 @@ const std::string INITIALIZATION_CHECKPOINT_TAG{"initialization_checkpoint"};
 const std::string LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_depth_penalty_multiplier_search_interval"};
 const std::string LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG{"log_downsample_factor_search_interval"};
 const std::string LOG_ETA_SEARCH_INTERVAL_TAG{"log_eta_search_interval"};
+const std::string LOG_FEATURE_BAG_FRACTION_INTERVAL_TAG{"log_feature_bag_fraction_interval"};
 const std::string LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_leaf_weight_penalty_multiplier_search_interval"};
 const std::string LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_tree_size_penalty_multiplier_search_interval"};
 const std::string SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG{"soft_depth_limit_search_interval"};
@@ -1577,6 +1578,8 @@ void CBoostedTreeFactory::acceptPersistInserter(core::CStatePersistInserter& ins
                                      m_LogDownsampleFactorSearchInterval, inserter);
         core::CPersistUtils::persist(LOG_ETA_SEARCH_INTERVAL_TAG,
                                      m_LogEtaSearchInterval, inserter);
+        core::CPersistUtils::persist(LOG_FEATURE_BAG_FRACTION_INTERVAL_TAG,
+                                     m_LogFeatureBagFractionInterval, inserter);
         core::CPersistUtils::persist(
             LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
             m_LogLeafWeightPenaltyMultiplierSearchInterval, inserter);
@@ -1628,6 +1631,10 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
                         RESTORE(LOG_ETA_SEARCH_INTERVAL_TAG,
                                 core::CPersistUtils::restore(LOG_ETA_SEARCH_INTERVAL_TAG,
                                                              m_LogEtaSearchInterval, traverser))
+                        RESTORE(LOG_FEATURE_BAG_FRACTION_INTERVAL_TAG,
+                                core::CPersistUtils::restore(
+                                    LOG_FEATURE_BAG_FRACTION_INTERVAL_TAG,
+                                    m_LogFeatureBagFractionInterval, traverser))
                         RESTORE(LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
                                 core::CPersistUtils::restore(
                                     LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
