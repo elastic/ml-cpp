@@ -20,6 +20,7 @@
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>
+#include <maths/COrderings.h>
 #include <maths/CSampling.h>
 
 #include <boost/optional/optional_io.hpp>
@@ -38,6 +39,7 @@ const std::size_t BEST_PARAMETER_INDEX{1};
 const std::size_t MAX_PARAMETER_INDEX{2};
 const std::size_t MAX_LINE_SEARCH_ITERATIONS{10};
 const double LINE_SEARCH_MINIMUM_RELATIVE_EI_TO_CONTINUE{0.01};
+const double MIN_ROWS_PER_FEATURE{20.0};
 const double MIN_SOFT_DEPTH_LIMIT{2.0};
 const double MIN_SOFT_DEPTH_LIMIT_TOLERANCE{0.05};
 const double MAX_SOFT_DEPTH_LIMIT_TOLERANCE{0.25};
@@ -46,7 +48,7 @@ const double MIN_ETA_SCALE{0.5};
 const double MAX_ETA_SCALE{2.0};
 const double MIN_ETA_GROWTH_RATE_SCALE{0.5};
 const double MAX_ETA_GROWTH_RATE_SCALE{1.5};
-const double MIN_FEATURE_BAG_FRACTION{0.2};
+const double FEATURE_BAG_FRACTION_LINE_SEARCH_RANGE{8.0};
 const double MAX_FEATURE_BAG_FRACTION{0.8};
 const double MIN_DOWNSAMPLE_LINE_SEARCH_RANGE{2.0};
 const double MAX_DOWNSAMPLE_LINE_SEARCH_RANGE{144.0};
@@ -60,6 +62,7 @@ const double MAX_DOWNSAMPLE_FACTOR_SCALE{3.0};
 const double MAX_DESIRED_INITIAL_DOWNSAMPLE_FRACTION{0.5};
 const double MAX_NUMBER_FOLDS{5.0};
 const std::size_t MAX_NUMBER_TREES{static_cast<std::size_t>(2.0 / MIN_ETA + 0.5)};
+const double EPS{0.01};
 
 double computeEta(std::size_t numberRegressors) {
     // eta is the learning rate. There is a lot of empirical evidence that
@@ -147,6 +150,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     case CBoostedTreeImpl::E_DepthPenaltyMultiplierInitialized:
     case CBoostedTreeImpl::E_TreeSizePenaltyMultiplierInitialized:
     case CBoostedTreeImpl::E_LeafWeightPenaltyMultiplierInitialized:
+    case CBoostedTreeImpl::E_FeatureBagFractionInitialized:
     case CBoostedTreeImpl::E_DownsampleFactorInitialized:
     case CBoostedTreeImpl::E_EtaInitialized:
         return this->buildFor(frame, dependentVariable);
@@ -244,7 +248,9 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
             break;
         case E_FeatureBagFraction:
             if (m_TreeImpl->m_FeatureBagFractionOverride == boost::none) {
-                boundingBox.emplace_back(MIN_FEATURE_BAG_FRACTION, MAX_FEATURE_BAG_FRACTION);
+                boundingBox.emplace_back(
+                    CTools::stableExp(m_LogFeatureBagFractionInterval(MIN_PARAMETER_INDEX)),
+                    CTools::stableExp(m_LogFeatureBagFractionInterval(MAX_PARAMETER_INDEX)));
             }
             break;
         }
@@ -434,6 +440,7 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
     }
 
     this->initializeUnsetDownsampleFactor(frame);
+    this->initializeUnsetFeatureBagFraction(frame);
     this->initializeUnsetEta(frame);
 }
 
@@ -457,11 +464,17 @@ void CBoostedTreeFactory::initializeHyperparametersSetup(core::CDataFrame& frame
         m_TreeImpl->m_MaximumNumberTrees = computeMaximumNumberTrees(m_TreeImpl->m_Eta);
     }
 
+    double numberFeatures{static_cast<double>(m_TreeImpl->m_Encoder->numberEncodedColumns())};
+
     if (m_TreeImpl->m_FeatureBagFractionOverride != boost::none) {
         m_TreeImpl->m_FeatureBagFraction = *(m_TreeImpl->m_FeatureBagFractionOverride);
+    } else {
+        m_TreeImpl->m_FeatureBagFraction =
+            std::min(m_TreeImpl->m_FeatureBagFraction,
+                     m_TreeImpl->m_TrainingRowMasks[0].manhattan() /
+                         MIN_ROWS_PER_FEATURE / numberFeatures);
     }
 
-    double numberFeatures{static_cast<double>(m_TreeImpl->m_Encoder->numberEncodedColumns())};
     double downsampleFactor{m_InitialDownsampleRowsPerFeature * numberFeatures /
                             m_TreeImpl->m_TrainingRowMasks[0].manhattan()};
     m_TreeImpl->m_DownsampleFactor = m_TreeImpl->m_DownsampleFactorOverride.value_or(
@@ -795,14 +808,30 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                     return tree.m_DownsampleFactor * numberTrainingRows > 10.0;
                 };
 
-                TVector fallback{{logMinDownsampleFactor, meanLogDownSampleFactor,
-                                  logMaxDownsampleFactor}};
+                // If there is very little relative difference in the loss prefer smaller
+                // downsample factors because they train faster. We add a penalty which is
+                // eps * lmin * (x - xmin) / (xmax - xmin) for x the down sample factor,
+                // [xmin, xmax] the search interval and lmin the minimum test loss. This
+                // means we'll never use a parameter whose loss is more than 1 + eps times
+                // larger than the minimum.
+                auto adjustTestLoss = [=](double logDownsampleFactor,
+                                          double minTestLoss, double testLoss) {
+                    return testLoss + CTools::linearlyInterpolate(
+                                          logMinDownsampleFactor, logMaxDownsampleFactor,
+                                          0.0, EPS * minTestLoss, logDownsampleFactor);
+                };
+
+                TVector fallback;
+                fallback(MIN_PARAMETER_INDEX) = logMinDownsampleFactor;
+                fallback(BEST_PARAMETER_INDEX) = meanLogDownSampleFactor;
+                fallback(MAX_PARAMETER_INDEX) = logMaxDownsampleFactor;
+
                 m_LogDownsampleFactorSearchInterval =
                     this->testLossLineSearch(
                             frame, applyDownsampleFactor,
                             logMinDownsampleFactor, logMaxDownsampleFactor,
                             CTools::stableLog(MIN_DOWNSAMPLE_FACTOR_SCALE),
-                            CTools::stableLog(MAX_DOWNSAMPLE_FACTOR_SCALE))
+                            CTools::stableLog(MAX_DOWNSAMPLE_FACTOR_SCALE), adjustTestLoss)
                         .value_or(fallback);
 
                 // Truncate the log(factor) to be less than or equal to log(1.0) and the
@@ -824,6 +853,67 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
 
                 if (intervalIsEmpty(m_LogDownsampleFactorSearchInterval)) {
                     m_TreeImpl->m_DownsampleFactorOverride = m_TreeImpl->m_DownsampleFactor;
+                }
+            })) {
+            m_TreeImpl->m_TrainingProgress.increment(
+                this->lineSearchMaximumNumberIterations(frame));
+        }
+    }
+}
+
+void CBoostedTreeFactory::initializeUnsetFeatureBagFraction(core::CDataFrame& frame) {
+
+    if (m_TreeImpl->m_FeatureBagFractionOverride == boost::none) {
+        if (skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_FeatureBagFractionInitialized, [&] {
+                double searchIntervalSize{FEATURE_BAG_FRACTION_LINE_SEARCH_RANGE};
+                double logMaxFeatureBagFraction{CTools::stableLog(std::min(
+                    2.0 * m_TreeImpl->m_FeatureBagFraction, MAX_FEATURE_BAG_FRACTION))};
+                double logMinFeatureBagFraction{logMaxFeatureBagFraction -
+                                                CTools::stableLog(searchIntervalSize)};
+                double mainLoopSearchInterval{CTools::stableLog(0.2 * searchIntervalSize)};
+
+                auto applyFeatureBagFraction = [&](CBoostedTreeImpl& tree,
+                                                   double logFeatureBagFraction) {
+                    tree.m_FeatureBagFraction = CTools::stableExp(logFeatureBagFraction);
+                    return tree.featureBagSize(tree.m_FeatureBagFraction) > 1;
+                };
+
+                // If there is very little relative difference in the loss prefer smaller
+                // feature bag fractions because they train faster. We add a penalty which
+                // is eps * lmin * (x - xmin) / (xmax - xmin) for x the feature bag fraction,
+                // [xmin, xmax] the search interval and lmin the minimum test loss. This
+                // means we'll never use a parameter whose loss is more than 1 + eps times
+                // larger than the minimum.
+                auto adjustTestLoss = [=](double logFeatureBagFraction,
+                                          double minTestLoss, double testLoss) {
+                    return testLoss + CTools::linearlyInterpolate(
+                                          logMinFeatureBagFraction, logMaxFeatureBagFraction,
+                                          0.0, EPS * minTestLoss, logFeatureBagFraction);
+                };
+
+                TVector fallback;
+                fallback(MIN_PARAMETER_INDEX) = logMinFeatureBagFraction;
+                fallback(BEST_PARAMETER_INDEX) = logMaxFeatureBagFraction;
+                fallback(MAX_PARAMETER_INDEX) = logMaxFeatureBagFraction;
+                m_LogFeatureBagFractionInterval =
+                    this->testLossLineSearch(
+                            frame, applyFeatureBagFraction, logMinFeatureBagFraction,
+                            logMaxFeatureBagFraction, -mainLoopSearchInterval / 2.0,
+                            mainLoopSearchInterval / 2.0, adjustTestLoss)
+                        .value_or(fallback);
+
+                // Truncate the log(fraction) to be less than or equal to log(MAX_FEATURE_BAG_FRACTION).
+                m_LogFeatureBagFractionInterval =
+                    min(m_LogFeatureBagFractionInterval,
+                        TVector{CTools::stableLog(MAX_FEATURE_BAG_FRACTION)});
+                LOG_TRACE(<< "log feature bag fraction search interval = ["
+                          << m_LogFeatureBagFractionInterval.toDelimited() << "]");
+
+                m_TreeImpl->m_FeatureBagFraction = CTools::stableExp(
+                    m_LogFeatureBagFractionInterval(BEST_PARAMETER_INDEX));
+
+                if (intervalIsEmpty(m_LogFeatureBagFractionInterval)) {
+                    m_TreeImpl->m_FeatureBagFractionOverride = m_TreeImpl->m_FeatureBagFraction;
                 }
             })) {
             m_TreeImpl->m_TrainingProgress.increment(
@@ -917,7 +1007,8 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
                                         double intervalLeftEnd,
                                         double intervalRightEnd,
                                         double returnedIntervalLeftEndOffset,
-                                        double returnedIntervalRightEndOffset) const {
+                                        double returnedIntervalRightEndOffset,
+                                        const TAdjustTestLoss& adjustTestLoss_) const {
 
     // This has the following steps:
     //   1. Coarse search the interval [intervalLeftEnd, intervalRightEnd] using
@@ -936,17 +1027,12 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
 
-    auto boptVector = [](double parameter) {
-        return SConstant<CBayesianOptimisation::TVector>::get(1, parameter);
-    };
-
     TMinAccumulator minTestLoss;
     TDoubleDoublePrVec testLosses;
     testLosses.reserve(MAX_LINE_SEARCH_ITERATIONS);
     // Ensure we choose one value based on expected improvement.
     std::size_t minNumberTestLosses{5};
 
-    CBayesianOptimisation bopt{{{intervalLeftEnd, intervalRightEnd}}};
     for (auto parameter :
          {intervalLeftEnd, (2.0 * intervalLeftEnd + intervalRightEnd) / 3.0,
           (intervalLeftEnd + 2.0 * intervalRightEnd) / 3.0, intervalRightEnd}) {
@@ -961,10 +1047,33 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
         std::tie(forest, testLoss, std::ignore) = m_TreeImpl->trainForest(
             frame, m_TreeImpl->m_TrainingRowMasks[0],
             m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
-        bopt.add(boptVector(parameter), testLoss, 0.0);
         minTestLoss.add(testLoss);
         testLosses.emplace_back(parameter, testLoss);
     }
+
+    if (testLosses.empty()) {
+        return TOptionalVector{};
+    }
+
+    auto boptVector = [](double parameter) {
+        return SConstant<CBayesianOptimisation::TVector>::get(1, parameter);
+    };
+    auto adjustTestLoss = [=](double parameter, double testLoss) {
+        auto min = std::min_element(testLosses.begin(), testLosses.end(),
+                                    COrderings::SSecondLess{});
+        return adjustTestLoss_(parameter, min->second, testLoss);
+    };
+
+    CBayesianOptimisation bopt{{{intervalLeftEnd, intervalRightEnd}}};
+    for (auto& parameterAndTestLoss : testLosses) {
+        double parameter;
+        double testLoss;
+        std::tie(parameter, testLoss) = parameterAndTestLoss;
+        double adjustedTestLoss{adjustTestLoss(parameter, testLoss)};
+        bopt.add(boptVector(parameter), adjustedTestLoss, 0.0);
+        parameterAndTestLoss.second = adjustedTestLoss;
+    }
+
     while (testLosses.size() > 0 && testLosses.size() < MAX_LINE_SEARCH_ITERATIONS) {
         CBayesianOptimisation::TVector parameter;
         TOptionalDouble EI;
@@ -977,22 +1086,22 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
                 (MAX_LINE_SEARCH_ITERATIONS - testLosses.size()) * m_TreeImpl->m_MaximumNumberTrees);
             break;
         }
+
         CBoostedTreeImpl::TNodeVecVec forest;
         double testLoss;
         std::tie(forest, testLoss, std::ignore) = m_TreeImpl->trainForest(
             frame, m_TreeImpl->m_TrainingRowMasks[0],
             m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
-        bopt.add(parameter, testLoss, 0.0);
+
         minTestLoss.add(testLoss);
-        testLosses.emplace_back(parameter(0), testLoss);
+
+        double adjustedTestLoss{adjustTestLoss(parameter(0), testLoss)};
+        bopt.add(parameter, adjustedTestLoss, 0.0);
+        testLosses.emplace_back(parameter(0), adjustedTestLoss);
     }
 
     std::sort(testLosses.begin(), testLosses.end());
     LOG_TRACE(<< "test losses = " << core::CContainerPrinter::print(testLosses));
-
-    if (testLosses.empty()) {
-        return TOptionalVector{};
-    }
 
     // Find the smallest test losses and the corresponding parameter interval.
     auto minimumTestLosses = CBasicStatistics::orderStatisticsAccumulator<TDoubleDoublePr>(
@@ -1305,13 +1414,9 @@ CBoostedTreeFactory& CBoostedTreeFactory::trainingStateCallback(TTrainingStateCa
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::earlyStoppingEnabled(bool earlyStoppingEnabled) {
-    this->stopHyperparameterOptimizationEarly(earlyStoppingEnabled);
+CBoostedTreeFactory& CBoostedTreeFactory::earlyStoppingEnabled(bool enable) {
+    m_TreeImpl->m_StopHyperparameterOptimizationEarly = enable;
     return *this;
-}
-
-void CBoostedTreeFactory::stopHyperparameterOptimizationEarly(bool stopEarly) {
-    m_TreeImpl->m_StopHyperparameterOptimizationEarly = stopEarly;
 }
 
 std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
@@ -1364,6 +1469,9 @@ void CBoostedTreeFactory::startProgressMonitoringInitializeHyperparameters(const
         totalNumberSteps += this->lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
+        totalNumberSteps += this->lineSearchMaximumNumberIterations(frame);
+    }
+    if (m_TreeImpl->m_FeatureBagFractionOverride == boost::none) {
         totalNumberSteps += this->lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_DownsampleFactorOverride == boost::none) {
@@ -1426,6 +1534,10 @@ void CBoostedTreeFactory::skipProgressMonitoringInitializeHyperparameters() {
 }
 
 void CBoostedTreeFactory::noopRecordTrainingState(CBoostedTree::TPersistFunc) {
+}
+
+double CBoostedTreeFactory::noopAdjustTestLoss(double, double, double testLoss) {
+    return testLoss;
 }
 
 namespace {

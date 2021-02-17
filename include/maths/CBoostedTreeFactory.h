@@ -119,7 +119,7 @@ public:
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& numberTopShapValues(std::size_t numberTopShapValues);
     //! Set the flag to enable or disable early stopping.
-    CBoostedTreeFactory& earlyStoppingEnabled(bool earlyStoppingEnabled);
+    CBoostedTreeFactory& earlyStoppingEnabled(bool enable);
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&
@@ -148,6 +148,7 @@ private:
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
     using TApplyParameter = std::function<bool(CBoostedTreeImpl&, double)>;
+    using TAdjustTestLoss = std::function<double(double, double, double)>;
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss);
@@ -190,6 +191,9 @@ private:
     //! search bounding box.
     void initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
 
+    //! Estimate a good central value for the feature bag fraction search interval.
+    void initializeUnsetFeatureBagFraction(core::CDataFrame& frame);
+
     //! Estimates a good central value for the downsample factor search interval.
     void initializeUnsetDownsampleFactor(core::CDataFrame& frame);
 
@@ -212,7 +216,8 @@ private:
                                        double intervalLeftEnd,
                                        double intervalRightEnd,
                                        double returnedIntervalLeftEndOffset,
-                                       double returnedIntervalRightEndOffset) const;
+                                       double returnedIntervalRightEndOffset,
+                                       const TAdjustTestLoss& adjustTestLoss = noopAdjustTestLoss) const;
 
     //! Initialize the state for hyperparameter optimisation.
     void initializeHyperparameterOptimisation() const;
@@ -265,7 +270,7 @@ private:
     static void noopRecordTrainingState(CBoostedTree::TPersistFunc);
 
     //! Stop hyperparameter optimization early if the process is not promising.
-    void stopHyperparameterOptimizationEarly(bool stopEarly);
+    static double noopAdjustTestLoss(double, double, double testLoss);
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
@@ -285,6 +290,7 @@ private:
     TVector m_LogLeafWeightPenaltyMultiplierSearchInterval;
     TVector m_SoftDepthLimitSearchInterval;
     TVector m_LogEtaSearchInterval;
+    TVector m_LogFeatureBagFractionInterval;
     TTrainingStateCallback m_RecordTrainingState = noopRecordTrainingState;
 };
 }
