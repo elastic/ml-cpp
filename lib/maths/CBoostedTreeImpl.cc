@@ -270,10 +270,12 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
 
         this->restoreBestHyperparameters();
         this->startProgressMonitoringFinalTrain();
-        std::tie(m_BestForest, std::ignore, std::ignore) = this->trainForest(
-            frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
+        if (m_BestForest.empty()) {
+            std::tie(m_BestForest, std::ignore, std::ignore) = this->trainForest(
+                frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
 
-        this->recordState(recordTrainStateCallback);
+            this->recordState(recordTrainStateCallback);
+        }
         m_Instrumentation->iteration(m_CurrentRound);
         m_Instrumentation->flush(TRAIN_FINAL_FOREST);
 
