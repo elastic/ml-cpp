@@ -180,7 +180,6 @@ public:
 
 public:
     CBoostedTreeHyperparameters() = default;
-
     CBoostedTreeHyperparameters(const TRegularization& regularization,
                                 double downsampleFactor,
                                 double eta,
@@ -232,19 +231,19 @@ private:
     TRegularization m_Regularization;
 
     //! The downsample factor.
-    double m_DownsampleFactor;
+    double m_DownsampleFactor = 0.0;
 
     //! Shrinkage.
-    double m_Eta;
+    double m_Eta = 0.0;
 
     //! Rate of growth of shrinkage in the training loop.
-    double m_EtaGrowthRatePerTree;
+    double m_EtaGrowthRatePerTree = 0.0;
 
     //! The maximum number of trees we'll use.
-    std::size_t m_MaximumNumberTrees;
+    std::size_t m_MaximumNumberTrees = 0;
 
     //! The fraction of features we use per bag.
-    double m_FeatureBagFraction;
+    double m_FeatureBagFraction = 0.0;
 };
 }
 }
