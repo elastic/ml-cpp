@@ -1294,9 +1294,10 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     TVector maxBoundary;
     std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
 
-    // Downsampling acts as a regularisation and also increases the variance
-    // of each of the base learners so we scale the other regularisation terms
-    // and the weight shrinkage to compensate.
+    // Downsampling directly affects the loss terms: it multiplies the sums over
+    // gradients and Hessians in expectation by the downsample factor. To preserve
+    // the same effect for regularisers we need to scale these terms by the same
+    // multiplier.
     double scale{1.0};
     if (m_DownsampleFactorOverride == boost::none) {
         auto i = std::distance(m_TunableHyperparameters.begin(),

@@ -767,7 +767,7 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                                               CTools::stableLog(searchIntervalSize)};
                 double meanLogDownSampleFactor{
                     (logMinDownsampleFactor + logMaxDownsampleFactor) / 2.0};
-                LOG_TRACE(<< "mean log down sample factor = " << meanLogDownSampleFactor);
+                LOG_TRACE(<< "mean log downsample factor = " << meanLogDownSampleFactor);
 
                 double previousDownsampleFactor{m_TreeImpl->m_DownsampleFactor};
                 double previousDepthPenaltyMultiplier{
@@ -778,7 +778,7 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                     m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier()};
 
                 // We need to scale the regularisation terms to account for the difference
-                // in the down sample factor compared to the value used in the line search.
+                // in the downsample factor compared to the value used in the line search.
                 auto scaleRegularizers = [&](CBoostedTreeImpl& tree, double downsampleFactor) {
                     double scale{previousDownsampleFactor / downsampleFactor};
                     if (tree.m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
@@ -810,7 +810,7 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
 
                 // If there is very little relative difference in the loss prefer smaller
                 // downsample factors because they train faster. We add a penalty which is
-                // eps * lmin * (x - xmin) / (xmax - xmin) for x the down sample factor,
+                // eps * lmin * (x - xmin) / (xmax - xmin) for x the downsample factor,
                 // [xmin, xmax] the search interval and lmin the minimum test loss. This
                 // means we'll never use a parameter whose loss is more than 1 + eps times
                 // larger than the minimum.
@@ -835,12 +835,12 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                         .value_or(fallback);
 
                 // Truncate the log(factor) to be less than or equal to log(1.0) and the
-                // down sampled set contains at least ten examples on average.
+                // downsampled set contains at least ten examples on average.
                 m_LogDownsampleFactorSearchInterval =
                     min(max(m_LogDownsampleFactorSearchInterval,
                             TVector{CTools::stableLog(10.0 / numberTrainingRows)}),
                         TVector{0.0});
-                LOG_TRACE(<< "log down sample factor search interval = ["
+                LOG_TRACE(<< "log downsample factor search interval = ["
                           << m_LogDownsampleFactorSearchInterval.toDelimited() << "]");
 
                 m_TreeImpl->m_DownsampleFactor = CTools::stableExp(
