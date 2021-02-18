@@ -51,6 +51,12 @@ fi
 VERSION=$(cat ../gradle.properties | grep '^elasticsearchVersion' | awk -F= '{ print $2 }' | xargs echo)
 HARDWARE_ARCH=$(uname -m)
 
+# arm64 catches macOS on ARM but not Linux, as Linux reports aarch64
+if [ "$HARDWARE_ARCH" = arm64 ] ; then
+    echo "$VERSION is not built on $HARDWARE_ARCH"
+    exit 0
+fi
+
 # Jenkins sets BUILD_SNAPSHOT, but our Docker scripts require SNAPSHOT
 if [ "$BUILD_SNAPSHOT" = false ] ; then
     export SNAPSHOT=no
