@@ -228,10 +228,9 @@ bool restoreAttributePeopleData(core::CStateRestoreTraverser& traverser, TSizeUS
                 data.resize(lastCid + 1);
             }
         } else if (name == PERSON_TAG) {
-            if (!seenCid) {
-                LOG_ERROR(<< "Incorrect format - person ID before attribute ID in "
+            if (seenCid == false) {
+                LOG_ABORT(<< "Incorrect format - person ID before attribute ID in "
                           << traverser.value());
-                return false;
             }
             std::size_t pid = 0;
             if (core::CStringUtils::stringToType(traverser.value(), pid) == false) {
