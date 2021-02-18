@@ -35,7 +35,7 @@ URL="https://s3-eu-west-1.amazonaws.com/prelert-artifacts/dependencies/$ARCHIVE"
 echo "Downloading dependencies from $URL"
 cd "$TMPDIR" && curl -s -S --retry 5 -O "$URL"
 echo "Extracting dependencies from $ARCHIVE"
-cd "$DEST" && tar jxf "$TMPDIR/$ARCHIVE"
+cd "$DEST" && tar -jmxf "$TMPDIR/$ARCHIVE"
 echo "Cleaning up dependency archive"
 rm -f "$TMPDIR/$ARCHIVE"
 
