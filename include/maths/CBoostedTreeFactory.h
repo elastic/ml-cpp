@@ -269,7 +269,7 @@ private:
     //! Stubs out persistence.
     static void noopRecordTrainingState(CBoostedTree::TPersistFunc);
 
-    //! Stop hyperparameter optimization early if the process is not promising.
+    //! Stubs out test loss adjustment.
     static double noopAdjustTestLoss(double, double, double testLoss);
 
 private:
