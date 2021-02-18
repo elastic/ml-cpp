@@ -1,0 +1,14 @@
+{
+    "job_id": "facebook-regression",
+    "rows": 6000,
+    "cols": 54,
+    "memory_limit": 50000000,
+    "threads": 3,
+    "results_field": "ml",
+    "analysis": {
+      "name": "regression",
+      "parameters": {
+        "dependent_variable": "54"
+      }
+    }
+  }
