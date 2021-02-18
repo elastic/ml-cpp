@@ -313,10 +313,13 @@ BOOST_AUTO_TEST_CASE(testPerSplitDerivatives) {
 }
 
 BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
+
+    // Check the node gain upper bounds are always larger than the actual node gains.
+
     using TRegularization = maths::CBoostedTreeRegularization<double>;
     using TLeafNodeStatisticsPtr = maths::CBoostedTreeLeafNodeStatistics::TPtr;
     using TNodeVec = maths::CBoostedTree::TNodeVec;
-    // create dataset and encoding
+
     std::size_t cols{2};
     TSizeVec extraColumns{2, 3, 4, 5};
     std::size_t rows{50};
@@ -376,7 +379,8 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
 
         core::CPackedBitVector trainingRowMask(rows, true);
 
-        TSizeVec featureBag{0};
+        TSizeVec treeFeatureBag{0};
+        TSizeVec nodeFeatureBag{0};
 
         TRegularization regularization;
         regularization.softTreeDepthLimit(1.0).softTreeDepthTolerance(1.0);
@@ -384,8 +388,9 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         TNodeVec tree(1);
 
         auto rootSplit = std::make_shared<maths::CBoostedTreeLeafNodeStatistics>(
-            0 /*root*/, extraColumns, 1, numberThreads, *frame, encoder, regularization,
-            featureSplits, featureBag, 0 /*depth*/, trainingRowMask, workspace);
+            0 /*root*/, extraColumns, 1, numberThreads, *frame, encoder,
+            regularization, featureSplits, treeFeatureBag, nodeFeatureBag,
+            0 /*depth*/, trainingRowMask, workspace);
 
         std::size_t splitFeature;
         double splitValue;
@@ -400,8 +405,8 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
         std::tie(leftChild, rightChild) = rootSplit->split(
-            leftChildId, rightChildId, numberThreads, 0.0, *frame, encoder,
-            regularization, featureBag, tree[rootSplit->id()], workspace);
+            leftChildId, rightChildId, numberThreads, 0.0, *frame, encoder, regularization,
+            treeFeatureBag, nodeFeatureBag, tree[rootSplit->id()], workspace);
         if (leftChild != nullptr) {
             BOOST_REQUIRE(rootSplit->leftChildMaxGain() >= leftChild->gain());
         }
