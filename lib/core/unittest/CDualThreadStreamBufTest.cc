@@ -188,7 +188,9 @@ BOOST_AUTO_TEST_CASE(testSlowConsumer) {
     ml::core_t::TTime delaySecs(
         static_cast<ml::core_t::TTime>((DELAY * numNewLines * TEST_SIZE) / 1000));
     BOOST_TEST_REQUIRE(duration >= delaySecs);
-    static const ml::core_t::TTime TOLERANCE(3);
+    // Tolerance is high because sleep seems to sleep too long when running
+    // under Jenkins on Apple M1
+    static const ml::core_t::TTime TOLERANCE(5);
     BOOST_TEST_REQUIRE(duration <= delaySecs + TOLERANCE);
 }
 
