@@ -165,9 +165,6 @@ private:
     TVector kinvf() const;
     TVector transformTo01(const TVector& x) const;
     TVector scaledKernelParameters() const;
-
-    //! Check the state invariants after restoration
-    //! Abort on failure.
     void checkRestoredInvariants() const;
 
 private:

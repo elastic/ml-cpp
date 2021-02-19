@@ -594,7 +594,7 @@ BOOST_AUTO_TEST_CASE(testFitSingleSeasonalComponent) {
                 expected(i), maths::CBasicStatistics::mean(actuals[0][i]), 4.0 * sigma);
             meanError(std::fabs(expected(i) - maths::CBasicStatistics::mean(actuals[0][i])) / sigma);
         }
-        BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 1.5);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 1.5);
     }
 }
 
@@ -666,7 +666,7 @@ BOOST_AUTO_TEST_CASE(testFitMultipleSeasonalComponents) {
                           sigma);
             }
         }
-        BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 2.5);
+        BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 2.5);
         overallMeanError += meanError;
 
         // We can only really guaranty individual component values up to additive
@@ -687,7 +687,7 @@ BOOST_AUTO_TEST_CASE(testFitMultipleSeasonalComponents) {
     }
 
     LOG_DEBUG(<< "Overall mean error = " << maths::CBasicStatistics::mean(overallMeanError));
-    BOOST_REQUIRE(maths::CBasicStatistics::mean(overallMeanError) < 1.25);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(overallMeanError) < 1.25);
 }
 
 BOOST_AUTO_TEST_CASE(testFitTradingDaySeasonalComponents) {
@@ -810,7 +810,7 @@ BOOST_AUTO_TEST_CASE(testFitSingleSeasonalComponentRobust) {
 
     LOG_DEBUG(<< "Overall improvement = "
               << maths::CBasicStatistics::mean(overallImprovement));
-    BOOST_REQUIRE(maths::CBasicStatistics::mean(overallImprovement) > 1.75);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(overallImprovement) > 1.75);
 }
 
 BOOST_AUTO_TEST_CASE(testFitMultipleSeasonalComponentsRobust) {
@@ -894,7 +894,7 @@ BOOST_AUTO_TEST_CASE(testFitMultipleSeasonalComponentsRobust) {
 
     LOG_DEBUG(<< "Overall improvement = "
               << maths::CBasicStatistics::mean(overallImprovement));
-    BOOST_REQUIRE(maths::CBasicStatistics::mean(overallImprovement) > 4.0);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(overallImprovement) > 4.0);
 }
 
 BOOST_AUTO_TEST_CASE(testSingleComponentSeasonalDecomposition) {
@@ -935,7 +935,7 @@ BOOST_AUTO_TEST_CASE(testSingleComponentSeasonalDecomposition) {
 
         // We can detect additional components but must detect the real
         // component first.
-        BOOST_REQUIRE(decomposition.size() >= 1);
+        BOOST_TEST_REQUIRE(decomposition.size() >= 1);
 
         decomposition.resize(1);
 
@@ -999,7 +999,7 @@ BOOST_AUTO_TEST_CASE(testMultipleSeasonalDecomposition) {
 
         // We can detect additional components but must detect the two real
         // components first.
-        BOOST_REQUIRE(decomposition.size() >= 2);
+        BOOST_TEST_REQUIRE(decomposition.size() >= 2);
 
         decomposition.resize(2);
         std::sort(period.begin(), period.end());
@@ -1011,7 +1011,7 @@ BOOST_AUTO_TEST_CASE(testMultipleSeasonalDecomposition) {
     }
 
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-    BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.01);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.01);
 }
 
 BOOST_AUTO_TEST_CASE(testMultipleDiurnalSeasonalDecomposition) {
@@ -1303,8 +1303,8 @@ BOOST_AUTO_TEST_CASE(testSmoothResample) {
             }
 
             BOOST_REQUIRE_CLOSE(totalCount, totalResampledCount, 0.1 /*%*/);
-            BOOST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(errorMoments)) < 0.05);
-            BOOST_REQUIRE(maths::CBasicStatistics::variance(errorMoments) < 1.2);
+            BOOST_TEST_REQUIRE(std::fabs(maths::CBasicStatistics::mean(errorMoments)) < 0.05);
+            BOOST_TEST_REQUIRE(maths::CBasicStatistics::variance(errorMoments) < 1.2);
 
             averageVariance.add(maths::CBasicStatistics::variance(errorMoments));
         }
