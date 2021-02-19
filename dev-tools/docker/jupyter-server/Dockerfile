@@ -15,10 +15,14 @@ ENV CPP_SRC_HOME=/ml-cpp
 RUN --mount=type=cache,target=/root/.ccache . ./set_env.sh  && make -j`nproc`
 ##############################################
 FROM centos:7
+
+USER root
+WORKDIR /root
+
+COPY dev-tools/docker/jupyter-server/init.sh /root/
 COPY jupyter/requirements.txt /root/
 COPY dev-tools/docker/jupyter-server/gcsfuse.repo /etc/yum.repos.d/
 
-WORKDIR /root
 RUN \
     yum install -y epel-release && \
     yum install -y python3-pip python3-devel python3-virtualenv openssl gcsfuse htop tmux && \
@@ -27,10 +31,11 @@ RUN \
     source env/bin/activate && \
     pip install -r /root/requirements.txt && \
     jupyter notebook --generate-config && \
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com" -keyout mykey.key -out mycert.pem 
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com" -keyout mykey.key -out mycert.pem && \
+    chmod 700 /root/init.sh
 
 COPY dev-tools/docker/jupyter-server/jupyter_notebook_config.py /root/.jupyter/jupyter_notebook_config.py
-COPY dev-tools/docker/jupyter-server/init.sh /root/
+
 COPY --from=builder /ml-cpp/build/distribution/platform/linux-x86_64 /ml-cpp
 COPY ./jupyter /root/notebooks
 
