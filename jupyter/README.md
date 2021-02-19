@@ -98,7 +98,7 @@ docker tag myjupyter:latest gcr.io/elastic-ml/incremental-learning-jupyter:try42
 ```
 
 ```bash
-docker push gcr.io/elastic-ml/valeriy-jupyter:latest
+docker push gcr.io/elastic-ml/incremental-learning-jupyter:try42
 ```
 
 Since docker images are layered, if you have change a lot in some of the layers, it may take a bit.
@@ -120,8 +120,8 @@ E2 machine types offer up to 32 vCPU with up to 128GB memory. This machine type 
 To create a compute instance using machine type `e2-standard-16` with 200GB local disk space:
 
 ```bash
-gcloud compute instances create-with-container valeriy-jupyter-mlcpp-large \
---container-image=gcr.io/elastic-ml/valeriy-jupyter:latest --boot-disk-size=200GB \
+gcloud compute instances create-with-container jupyter-mlcpp-large \
+--container-image=gcr.io/elastic-ml/incremental-learning-jupyter:try42 --boot-disk-size=200GB \
 --container-privileged --tags=https-server,incremental-jupyter-server,allow-ssh \
 --machine-type=e2-standard-16
 ```
