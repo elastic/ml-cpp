@@ -37,6 +37,6 @@ RUN \
 COPY jupyter/docker/jupyter_notebook_config.py /root/.jupyter/jupyter_notebook_config.py
 
 COPY --from=builder /ml-cpp/build/distribution/platform/linux-x86_64 /ml-cpp
-COPY ./jupyter /root/notebooks
+COPY ./jupyter/notebooks /root/notebooks
 
 ENTRYPOINT ["/root/env/bin/jupyter", "notebook"]
