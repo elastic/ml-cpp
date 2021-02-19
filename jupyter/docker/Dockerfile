@@ -19,9 +19,9 @@ FROM centos:7
 USER root
 WORKDIR /root
 
-COPY dev-tools/docker/jupyter-server/init.sh /root/
+COPY jupyter/docker/init.sh /root/
 COPY jupyter/requirements.txt /root/
-COPY dev-tools/docker/jupyter-server/gcsfuse.repo /etc/yum.repos.d/
+COPY jupyter/docker/gcsfuse.repo /etc/yum.repos.d/
 
 RUN \
     yum install -y epel-release && \
@@ -34,7 +34,7 @@ RUN \
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=US/ST=Denial/L=Springfield/O=Dis/CN=www.example.com" -keyout mykey.key -out mycert.pem && \
     chmod 700 /root/init.sh
 
-COPY dev-tools/docker/jupyter-server/jupyter_notebook_config.py /root/.jupyter/jupyter_notebook_config.py
+COPY jupyter/docker/jupyter_notebook_config.py /root/.jupyter/jupyter_notebook_config.py
 
 COPY --from=builder /ml-cpp/build/distribution/platform/linux-x86_64 /ml-cpp
 COPY ./jupyter /root/notebooks

@@ -1,5 +1,6 @@
+# Evaluation Workbench for Incremental Learning <!-- omit in toc -->
 
-- [Zero to hero on running `jupyter notebook`](#zero-to-hero-on-runningjupyter-notebook)
+- [Zero-to-hero launching `jupyter notebook`](#zero-to-hero-launchingjupyter-notebook)
   - [Running locally for development](#running-locally-for-development)
   - [Running inside docker container](#running-inside-docker-container)
     - [Build and push docker container](#build-and-push-docker-container)
@@ -10,18 +11,45 @@
       - [Using custom machine configuration](#using-custom-machine-configuration)
     - [Working with the GCP dataset bucket](#working-with-the-gcp-dataset-bucket)
       - [Install `gcsfuse`](#install-gcsfuse)
-      - [Working with the bucket](#working-with-the-bucket)
-      - [Copy data without mounting](#copy-data-without-mounting)
-  - [Miscellaneous](#miscellaneous)
-    - [Working with large jobs on GCP](#working-with-large-jobs-on-gcp)
+- [Running jupyter notebooks](#running-jupyter-notebooks)
+- [Miscellaneous topics](#miscellaneous-topics)
+  - [Working with large jobs on GCP](#working-with-large-jobs-on-gcp)
+  - [Working with the GCP buckets](#working-with-the-gcp-buckets)
+    - [Copy data without mounting](#copy-data-without-mounting)
 
-# Zero to hero on running `jupyter notebook`
+## Zero-to-hero launching `jupyter notebook`
 
-## Running locally for development
+### Running locally for development
 
-## Running inside docker container
+Set up a local instance of Jupyter using the following instructions
 
-### Build and push docker container
+1. Set up a virtual environment called `env`
+
+    ```bash
+    python3 -m venv env
+    ```
+
+2. Activate it
+
+    ```bash
+    source env/bin/activate
+    ```
+
+3. Install the required dependencies for your chosen Jupyter notebook
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4. Launch Jupyter
+
+    ```bash
+    jupyter notebook
+    ```
+
+### Running inside docker container
+
+#### Build and push docker container
 
 Since the jupyter notebooks reside in the same repository as the C++ files, `docker` will try to re-build the `data_frame_analyzer` even if you only change the `ipynb` files.
 
@@ -30,27 +58,27 @@ To remedy this and to accelerate the building process, we use `ccache` within do
 To build the docker container, run the following command from the root of your `ml-cpp` project:
 
 ```bash
-DOCKER_BUILDKIT=1 docker build -t myjupyter -f ./dev-tools/docker/jupyter-server/Dockerfile .
+DOCKER_BUILDKIT=1 docker build -t myjupyter -f ./jupyter/docker/Dockerfile .
 ```
 
 For debugging purposes, it may be useful to build only the C++ part. You can do it like this:
 
 ```bash
 DOCKER_BUILDKIT=1 docker build --target builder -t myjupyter:builder \
--f ./dev-tools/docker/jupyter-server/Dockerfile .
+-f ./jupyter/docker/Dockerfile .
 ```
 
-### Running docker container locally
+#### Running docker container locally
 
 Run the docker container forwarding port 9999.
 
 ```bash
-docker run --privileged -p 9999:9999 -v ~/data:/data myjupyter:latest
+docker run -p 9999:9999 myjupyter:latest
 ```
 
-Then you can access the jupyter on [https://localhost:9999](https://localhost:9999). Since it is HTTPS and we are using self-signed certificates, you will need to confirm security exception.
+Now, **navigate to** [https://localhost:9999](https://localhost:9999). Since it is HTTPS and we are using self-signed certificates, you will need to confirm security exception.
 
-#### Authorize docker to push to the google image registry
+##### Authorize docker to push to the google image registry
 
 Before pushing the docker container for the first time to the `gcr` registry, you need to authorize
 docker to do this.
@@ -61,7 +89,7 @@ gcloud auth configure-docker
 
 This will lead you to a web page where you will need to login and confirm the authorization.
 
-#### Pushing docker container to the google registry
+##### Pushing docker container to the google registry
 
 First, you need to tag you docker container with a qualified name to push it to the `gcr` registry. I suggest that you use a unique label (instead of `latest`).
 
@@ -75,7 +103,7 @@ docker push gcr.io/elastic-ml/valeriy-jupyter:latest
 
 Since docker images are layered, if you have change a lot in some of the layers, it may take a bit.
 
-### Create an GCP instance from your docker container
+#### Create an GCP instance from your docker container
 
 GCP has a predefined set of machines that we can use. For example, you can select one of the following machine types
 
@@ -98,15 +126,11 @@ gcloud compute instances create-with-container valeriy-jupyter-mlcpp-large \
 --machine-type=e2-standard-16
 ```
 
-Once the instance is created, you will receive the external IP address of the instance. You can access the jupyter notebook using the URL
+Once the instance is created, you will receive the external IP address of the instance.
 
-```url
-https://<external_ip>:9999
-```
+Now, **navigate to** `https://<external_ip>:9999`. Since it is HTTPS and we are using self-signed certificates, you will need to confirm security exception.
 
-We are using self-signed certificates in the docker instance. Therefore, browser will give you a security warning and you will have to accept the exception.
-
-#### Using custom machine configuration
+##### Using custom machine configuration
 
 Alternatively, you can specify a [custom machine type](https://cloud.google.com/compute/docs/instances/creating-instance-with-custom-machine-type#gcloud). For instance, to create an instance with 16 CPUs and 32 GB memory, you can specify
 
@@ -116,9 +140,9 @@ Alternatively, you can specify a [custom machine type](https://cloud.google.com/
 
 instead of the `--machine-type` parameter.
 
-### Working with the GCP dataset bucket
+#### Working with the GCP dataset bucket
 
-#### Install `gcsfuse`
+##### Install `gcsfuse`
 
 Follow [the instructions](https://github.com/GoogleCloudPlatform/gcsfuse/blob/master/docs/installing.md) to install `gcsfuse` on your system. If you have problems mounting the dataset bucket, you may need generate the authorization token for  `gcsfuse`:
 
@@ -126,7 +150,33 @@ Follow [the instructions](https://github.com/GoogleCloudPlatform/gcsfuse/blob/ma
 gcloud auth application-default login
 ```
 
-#### Working with the bucket
+## Running jupyter notebooks
+
+If you run jupyter notebook from GCP, you may want to start by running `init.sh` script to mount the `ml-incremental-learning-datasets` bucket under `/data` and copy the dataset into the instance.
+
+Within your jupyter notebook instance you will find the directory `notebooks` with the following file structure:
+
+```tree
+notebooks
+├── configs
+│   ├── facebook_6000.json
+│   └── ...
+├── datasets
+│   ├── facebook_6000.csv
+│   └── ...
+├── scenario-1.ipynb
+└── ...
+```
+
+Please note that these file are copied from this repository into the docker container. This means that once the container is deleted, the data will be lost! Make sure to `docker cp` or `gsutil cp` the data you wish to keep.
+
+## Miscellaneous topics
+
+### Working with large jobs on GCP
+
+All calls to `data_frame_analyzer` are performed in `tmux`. This ensures that even you loose the connection or close you broser, you can go back to your jupyter notebook and open the running notebook (e.g. from the tab `Running`). If it is still in the call to wait_job_complete(job) you can interrupt the kernel and re-run the last cell. The output in the cell will be updated again. The state of the variables should be also unchanged.
+
+### Working with the GCP buckets
 
 To mount the dataset bucket locally to `~/data` (the directory should already exist):
 
@@ -149,9 +199,3 @@ To copy `dataset.csv` to the bucket:
 ```bash
 gsutil cp dataset.csv gs://ml-incremental-learning-datasets
 ```
-
-## Miscellaneous
-
-### Working with large jobs on GCP
-
-All calls to `data_frame_analyzer` are performed in `tmux`. This ensures that even you loose the connection or close you broser, you can go back to your jupyter notebook and open the running notebook (e.g. from the tab `Running`). If it is still in the call to wait_job_complete(job) you can interrupt the kernel and re-run the last cell. The output in the cell will be updated again. The state of the variables should be also unchanged.
