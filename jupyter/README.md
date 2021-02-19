@@ -1,6 +1,5 @@
-# Run jupyter
 
-- [Run jupyter](#run-jupyter)
+- [Zero to hero on running `jupyter notebook`](#zero-to-hero-on-runningjupyter-notebook)
   - [Running locally for development](#running-locally-for-development)
   - [Running inside docker container](#running-inside-docker-container)
     - [Build and push docker container](#build-and-push-docker-container)
@@ -8,10 +7,15 @@
       - [Authorize docker to push to the google image registry](#authorize-docker-to-push-to-the-google-image-registry)
       - [Pushing docker container to the google registry](#pushing-docker-container-to-the-google-registry)
     - [Create an GCP instance from your docker container](#create-an-gcp-instance-from-your-docker-container)
+      - [Using custom machine configuration](#using-custom-machine-configuration)
     - [Working with the GCP dataset bucket](#working-with-the-gcp-dataset-bucket)
       - [Install `gcsfuse`](#install-gcsfuse)
       - [Working with the bucket](#working-with-the-bucket)
       - [Copy data without mounting](#copy-data-without-mounting)
+  - [Miscellaneous](#miscellaneous)
+    - [Working with large jobs on GCP](#working-with-large-jobs-on-gcp)
+
+# Zero to hero on running `jupyter notebook`
 
 ## Running locally for development
 
@@ -38,9 +42,13 @@ DOCKER_BUILDKIT=1 docker build --target builder -t myjupyter:builder \
 
 ### Running docker container locally
 
+Run the docker container forwarding port 9999.
+
 ```bash
 docker run --privileged -p 9999:9999 -v ~/data:/data myjupyter:latest
 ```
+
+Then you can access the jupyter on [https://localhost:9999](https://localhost:9999). Since it is HTTPS and we are using self-signed certificates, you will need to confirm security exception.
 
 #### Authorize docker to push to the google image registry
 
@@ -90,11 +98,23 @@ gcloud compute instances create-with-container valeriy-jupyter-mlcpp-large \
 --machine-type=e2-standard-16
 ```
 
+Once the instance is created, you will receive the external IP address of the instance. You can access the jupyter notebook using the URL
+
+```url
+https://<external_ip>:9999
+```
+
+We are using self-signed certificates in the docker instance. Therefore, browser will give you a security warning and you will have to accept the exception.
+
+#### Using custom machine configuration
+
 Alternatively, you can specify a [custom machine type](https://cloud.google.com/compute/docs/instances/creating-instance-with-custom-machine-type#gcloud). For instance, to create an instance with 16 CPUs and 32 GB memory, you can specify
 
 ```bash
 --custom-cpu 16 --custom-memory 32GB --custom-vm-type e2
 ```
+
+instead of the `--machine-type` parameter.
 
 ### Working with the GCP dataset bucket
 
@@ -129,3 +149,9 @@ To copy `dataset.csv` to the bucket:
 ```bash
 gsutil cp dataset.csv gs://ml-incremental-learning-datasets
 ```
+
+## Miscellaneous
+
+### Working with large jobs on GCP
+
+All calls to `data_frame_analyzer` are performed in `tmux`. This ensures that even you loose the connection or close you broser, you can go back to your jupyter notebook and open the running notebook (e.g. from the tab `Running`). If it is still in the call to wait_job_complete(job) you can interrupt the kernel and re-run the last cell. The output in the cell will be updated again. The state of the variables should be also unchanged.
