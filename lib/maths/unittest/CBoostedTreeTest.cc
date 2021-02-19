@@ -1389,7 +1389,7 @@ BOOST_AUTO_TEST_CASE(testImbalancedClasses) {
     LOG_DEBUG(<< "recalls    = " << core::CContainerPrinter::print(recalls));
 
     BOOST_TEST_REQUIRE(std::fabs(precisions[0] - precisions[1]) < 0.1);
-    BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.11);
+    BOOST_TEST_REQUIRE(std::fabs(recalls[0] - recalls[1]) < 0.13);
 }
 
 BOOST_AUTO_TEST_CASE(testClassificationWeightsOverride) {
