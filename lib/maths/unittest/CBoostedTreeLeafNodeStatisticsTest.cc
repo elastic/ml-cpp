@@ -407,10 +407,10 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
             leftChildId, rightChildId, numberThreads, 0.0, *frame, encoder, regularization,
             treeFeatureBag, nodeFeatureBag, tree[rootSplit->id()], workspace);
         if (leftChild != nullptr) {
-            BOOST_REQUIRE(rootSplit->leftChildMaxGain() >= leftChild->gain());
+            BOOST_TEST_REQUIRE(rootSplit->leftChildMaxGain() >= leftChild->gain());
         }
         if (rightChild != nullptr) {
-            BOOST_REQUIRE(rootSplit->rightChildMaxGain() >= rightChild->gain());
+            BOOST_TEST_REQUIRE(rootSplit->rightChildMaxGain() >= rightChild->gain());
         }
         BOOST_REQUIRE(rightChild != nullptr || leftChild != nullptr);
     }
