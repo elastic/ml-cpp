@@ -119,7 +119,7 @@ public:
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& numberTopShapValues(std::size_t numberTopShapValues);
     //! Set the flag to enable or disable early stopping.
-    CBoostedTreeFactory& earlyStoppingEnabled(bool earlyStoppingEnabled);
+    CBoostedTreeFactory& earlyStoppingEnabled(bool enable);
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&
@@ -147,7 +147,8 @@ private:
     using TOptionalVector = boost::optional<TVector>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
-    using TApplyRegularizer = std::function<bool(CBoostedTreeImpl&, double)>;
+    using TApplyParameter = std::function<bool(CBoostedTreeImpl&, double)>;
+    using TAdjustTestLoss = std::function<double(double, double, double)>;
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss);
@@ -190,6 +191,9 @@ private:
     //! search bounding box.
     void initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
 
+    //! Estimate a good central value for the feature bag fraction search interval.
+    void initializeUnsetFeatureBagFraction(core::CDataFrame& frame);
+
     //! Estimates a good central value for the downsample factor search interval.
     void initializeUnsetDownsampleFactor(core::CDataFrame& frame);
 
@@ -208,11 +212,12 @@ private:
     //! \return The interval to search during the main hyperparameter optimisation
     //! loop or null if this couldn't be found.
     TOptionalVector testLossLineSearch(core::CDataFrame& frame,
-                                       const TApplyRegularizer& applyRegularizerStep,
+                                       const TApplyParameter& applyParameterStep,
                                        double intervalLeftEnd,
                                        double intervalRightEnd,
                                        double returnedIntervalLeftEndOffset,
-                                       double returnedIntervalRightEndOffset) const;
+                                       double returnedIntervalRightEndOffset,
+                                       const TAdjustTestLoss& adjustTestLoss = noopAdjustTestLoss) const;
 
     //! Initialize the state for hyperparameter optimisation.
     void initializeHyperparameterOptimisation() const;
@@ -264,8 +269,8 @@ private:
     //! Stubs out persistence.
     static void noopRecordTrainingState(CBoostedTree::TPersistFunc);
 
-    //! Stop hyperparameter optimization early if the process is not promising.
-    void stopHyperparameterOptimizationEarly(bool stopEarly);
+    //! Stubs out test loss adjustment.
+    static double noopAdjustTestLoss(double, double, double testLoss);
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
@@ -280,6 +285,7 @@ private:
     std::size_t m_NumberThreads;
     TBoostedTreeImplUPtr m_TreeImpl;
     TVector m_LogDownsampleFactorSearchInterval;
+    TVector m_LogFeatureBagFractionInterval;
     TVector m_LogDepthPenaltyMultiplierSearchInterval;
     TVector m_LogTreeSizePenaltyMultiplierSearchInterval;
     TVector m_LogLeafWeightPenaltyMultiplierSearchInterval;
