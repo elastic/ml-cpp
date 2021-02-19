@@ -1099,7 +1099,7 @@ std::size_t CBoostedTreeImpl::featureBagSize(double fraction) const {
 
 void CBoostedTreeImpl::treeFeatureBag(TDoubleVec& probabilities, TSizeVec& treeFeatureBag) const {
 
-    std::size_t size{this->featureBagSize(1.5 * m_FeatureBagFraction)};
+    std::size_t size{this->featureBagSize(1.25 * m_FeatureBagFraction)};
 
     this->candidateRegressorFeatures(probabilities, treeFeatureBag);
     if (size >= treeFeatureBag.size()) {
@@ -1294,9 +1294,10 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     TVector maxBoundary;
     std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
 
-    // Downsampling acts as a regularisation and also increases the variance
-    // of each of the base learners so we scale the other regularisation terms
-    // and the weight shrinkage to compensate.
+    // Downsampling directly affects the loss terms: it multiplies the sums over
+    // gradients and Hessians in expectation by the downsample factor. To preserve
+    // the same effect for regularisers we need to scale these terms by the same
+    // multiplier.
     double scale{1.0};
     if (m_DownsampleFactorOverride == boost::none) {
         auto i = std::distance(m_TunableHyperparameters.begin(),
@@ -1313,13 +1314,14 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     for (std::size_t i = 0; i < m_TunableHyperparameters.size(); ++i) {
         switch (m_TunableHyperparameters[i]) {
         case E_Alpha:
-            parameters(i) = CTools::stableLog(m_Regularization.depthPenaltyMultiplier());
+            parameters(i) =
+                CTools::stableLog(m_Regularization.depthPenaltyMultiplier() / scale);
             break;
         case E_DownsampleFactor:
             parameters(i) = CTools::stableLog(m_DownsampleFactor);
             break;
         case E_Eta:
-            parameters(i) = CTools::stableLog(m_Eta) / scale;
+            parameters(i) = CTools::stableLog(m_Eta);
             break;
         case E_EtaGrowthRatePerTree:
             parameters(i) = m_EtaGrowthRatePerTree;
@@ -1380,13 +1382,14 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     for (std::size_t i = 0; i < m_TunableHyperparameters.size(); ++i) {
         switch (m_TunableHyperparameters[i]) {
         case E_Alpha:
-            m_Regularization.depthPenaltyMultiplier(CTools::stableExp(parameters(i)));
+            m_Regularization.depthPenaltyMultiplier(
+                scale * CTools::stableExp(parameters(i)));
             break;
         case E_DownsampleFactor:
             m_DownsampleFactor = CTools::stableExp(parameters(i));
             break;
         case E_Eta:
-            m_Eta = CTools::stableExp(scale * parameters(i));
+            m_Eta = CTools::stableExp(parameters(i));
             break;
         case E_EtaGrowthRatePerTree:
             m_EtaGrowthRatePerTree = parameters(i);
