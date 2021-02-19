@@ -60,6 +60,10 @@ function pickCloneTarget {
 
 pickCloneTarget
 
+if ["$PR_TARGET_BRANCH" = "feature/incremental-learning"]; then
+    exit 0
+fi
+
 cd "$1"
 rm -rf elasticsearch
 git clone -b "$SELECTED_BRANCH" "git@github.com:${SELECTED_FORK}/elasticsearch.git" --depth=1
