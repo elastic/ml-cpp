@@ -40,7 +40,7 @@ compile_commands.json
 
 # python virtualenv and notebook checkpoints
 **/jupyter/env
-**/jupyter/.ipynb_checkpoints
+**/jupyter/notebooks/.ipynb_checkpoints
 
 # native binary stuff:
 *.o
