@@ -2046,7 +2046,7 @@ BOOST_FIXTURE_TEST_CASE(testStability, CTestFixture) {
         debug.addPrediction(time, prediction, trend(time) - prediction);
 
         if (time > 20 * WEEK) {
-            BOOST_REQUIRE(std::fabs(trend(time) - prediction) < 5.0);
+            BOOST_TEST_REQUIRE(std::fabs(trend(time) - prediction) < 5.0);
         }
     }
 }

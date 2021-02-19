@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE(testVarianceAtPercentile) {
     }
 
     LOG_DEBUG(<< "bias = " << maths::CBasicStatistics::mean(bias));
-    BOOST_REQUIRE(maths::CBasicStatistics::mean(bias) < 0.1);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(bias) < 0.1);
 }
 
 BOOST_AUTO_TEST_CASE(testCentralMoments) {
