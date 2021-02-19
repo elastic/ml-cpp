@@ -1,0 +1,12 @@
+[
+	{
+		"source_text": "Hugging Face Inc. is a company based in New York City. Its headquarters are in DUMBO, therefore very close to the Manhattan Bridge.",
+		"input": {"request_id": "one", "tokens": [101, 20164, 10932, 10289, 3561, 119, 1110, 170, 1419, 1359, 1107, 1203, 1365, 1392, 119, 2098, 3834, 1132, 1107, 141, 25810, 23904, 117, 3335, 1304, 1665, 20316, 1106, 1103, 6545, 3640, 119, 102]},
+		"expected_output": {"request_id": "one", "inference": [0, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 8, 8, 8, 0, 0, 0, 0, 0, 8, 8, 8, 0, 0, 0, 0, 0, 0, 0, 8, 8, 0, 0]}
+	},
+	{
+		"source_text": "Jim bought 300 shares of Acme Corp. in 2006",
+		"input": {"request_id": "two", "tokens": [101, 3104, 3306, 3127, 6117, 1104, 138, 1665, 3263, 13619, 119, 1107, 1386, 102]},
+		"expected_output": {"request_id": "two", "inference": [0, 4, 0, 0, 0, 0, 6, 6, 6, 6, 6, 0, 0, 0]}
+	}
+]

@@ -3,13 +3,25 @@ Reads a TorchScript model from file and restores it to the C++
 app, together with the encoded tokens from the input_tokens
 file.  Then it checks the model's response matches the expected.
 
-This script first prepares the input files, then launches the C++
-pytorch_inference program which handles them in batch.
+This script reads the input files and expected outputs, then 
+launches the C++ pytorch_inference program which handles and 
+sends the request. The reponse is checked against the expected 
+defined in the test file
 
 Run this script with input from one of the example directories,
 for example:
 
-python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/input.json  examples/ner/expected_response.json
+python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json 
+
+
+The test file must have the format:
+[
+    {
+        "input": {"request_id": "foo", "tokens": [1, 2, 3]},
+        "expected_output": {"request_id": "foo", "inference": [1, 2, 3]}
+    },
+    ...
+]
 '''
 
 import argparse
@@ -22,8 +34,8 @@ import subprocess
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('model', help='A TorchScript model with .pt extension')
-    parser.add_argument('input_tokens', help='JSON file with an array field "tokens"')
-    parser.add_argument('expected_output', help='Expected output. Another JSON file with an array field "tokens"')
+    parser.add_argument('test_file', help='JSON file with an array of objects each '
+     'containing "input" and "expected_output" subobjects')
     parser.add_argument('--restore_file', default='restore_file')
     parser.add_argument('--input_file', default='input_file')
     parser.add_argument('--output_file', default='output_file')
@@ -64,18 +76,14 @@ def stream_file(source, destination) :
 
         destination.write(piece)
 
-def write_tokens(destination, tokens):
-
-    num_tokens = len(tokens)
-    destination.write(num_tokens.to_bytes(4, 'big'))
-    for token in tokens:
-        destination.write(token.to_bytes(4, 'big'))
+def write_request(request, destination):    
+    json.dump(request, destination)
 
 def main():
 
     args = parse_arguments()
 
-    try:
+    try:                    
         # create the restore file
         with open(args.restore_file, 'wb') as restore_file:
             file_stats = os.stat(args.model)
@@ -90,28 +98,35 @@ def main():
             with open(args.model, 'rb') as source_file:
                 stream_file(source_file, restore_file)
 
-        with open(args.input_file, 'wb') as input_file:
-            with open(args.input_tokens) as token_file:
-                input_tokens = json.load(token_file)
+        with open(args.input_file, 'w') as input_file:
+            with open(args.test_file) as test_file:
+                test_evaluation = json.load(test_file)
             print("writing query", flush=True)
-            write_tokens(input_file, input_tokens['tokens'])
-
-        # one shot inference
+            for doc in test_evaluation:
+                write_request(doc['input'], input_file)
+        
         launch_pytorch_app(args)
 
-        print("reading results", flush=True)
-        with open(args.expected_output) as expected_output_file:
-            expected = json.load(expected_output_file)
-
+        print("reading results", flush=True)    
         with open(args.output_file) as output_file:
-            results = json.load(output_file)
+            
+            doc_count = 0
+            results_match = True 
+            # output is NDJSON
+            for jsonline in output_file:
+                result = json.loads(jsonline)       
+                expected = test_evaluation[doc_count]['expected_output']
 
-        # compare to expected
-        if results['inference'] == expected['tokens']:
-            print('inference results match expected results')
-        else:
-            print('ERROR: inference results do not match expected results')
-            print(results)
+                # compare to expected
+                if result != expected:
+                    print('ERROR: inference result [{}] does not match expected results'.format(doc_count))
+                    print(result, expected)
+                    results_match = False
+
+                doc_count = doc_count +1
+
+            if results_match:
+                print('SUCCESS: inference results match expected')
 
     finally:        
         if os.path.isfile(args.restore_file):
@@ -120,6 +135,7 @@ def main():
             os.remove(args.input_file)
         if os.path.isfile(args.output_file):
             os.remove(args.output_file)                        
+
 
 
 if __name__ == "__main__":

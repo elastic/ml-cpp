@@ -23,7 +23,7 @@ void debug(const rapidjson::Document& doc) {
 	rapidjson::StringBuffer buffer;
 	rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
 	doc.Accept(writer);
-	LOG_INFO(<< buffer.GetString());
+	LOG_DEBUG(<< buffer.GetString());
 }
 }	
 
