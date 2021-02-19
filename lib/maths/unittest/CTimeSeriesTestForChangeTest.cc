@@ -101,9 +101,9 @@ void testChange(const TGeneratorVec& trends,
 
     truePositives /= static_cast<double>(numberTests);
 
-    BOOST_REQUIRE(truePositives >= 0.98);
-    BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.04);
-    BOOST_REQUIRE(maths::CBasicStatistics::mean(meanTimeError) < 5000);
+    BOOST_TEST_REQUIRE(truePositives >= 0.98);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.04);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanTimeError) < 5000);
 }
 }
 
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(testNoChange) {
 
     trueNegatives /= static_cast<double>(numberTests);
 
-    BOOST_REQUIRE(trueNegatives >= 0.99);
+    BOOST_TEST_REQUIRE(trueNegatives >= 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testLevelShift) {
@@ -245,7 +245,7 @@ BOOST_AUTO_TEST_CASE(testWithReversion) {
 
         LOG_TRACE(<< (change == nullptr ? "null" : change->print()));
         if (change != nullptr) {
-            BOOST_REQUIRE(change->largeEnough(3.0 * std::sqrt(noiseVariance)) == false);
+            BOOST_TEST_REQUIRE(change->largeEnough(3.0 * std::sqrt(noiseVariance)) == false);
         }
     }
 }
