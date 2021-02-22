@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticNoSeasonality) {
     }
 
     LOG_DEBUG(<< "True negative rate = " << TN / (FP + TN));
-    BOOST_REQUIRE(TN / (FP + TN) > 0.99);
+    BOOST_TEST_REQUIRE(TN / (FP + TN) > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
@@ -209,8 +209,8 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnal) {
 
     LOG_DEBUG(<< "recall = " << TP / (TP + FN));
     LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
-    BOOST_REQUIRE(TP / (TP + FN) > 0.99);
-    BOOST_REQUIRE(TP / (TP + FP) > 0.99);
+    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.99);
+    BOOST_TEST_REQUIRE(TP / (TP + FP) > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testRealSpikeyDaily) {
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE(testRealSpikeyDaily) {
     BOOST_REQUIRE(test::CTimeSeriesTestData::parse(
         "testfiles/spikey_data.csv", timeseries, startTime, endTime,
         test::CTimeSeriesTestData::CSV_UNIX_REGEX));
-    BOOST_REQUIRE(timeseries.size() > 0);
+    BOOST_TEST_REQUIRE(timeseries.size() > 0);
 
     LOG_DEBUG(<< "timeseries = "
               << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10)
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE(testRealTradingDays) {
         "testfiles/thirty_minute_samples.csv", timeseries, startTime, endTime,
         test::CTimeSeriesTestData::CSV_ISO8601_REGEX,
         test::CTimeSeriesTestData::CSV_ISO8601_DATE_FORMAT));
-    BOOST_REQUIRE(timeseries.size() > 0);
+    BOOST_TEST_REQUIRE(timeseries.size() > 0);
 
     LOG_DEBUG(<< "timeseries = "
               << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10)
@@ -308,7 +308,7 @@ BOOST_AUTO_TEST_CASE(testRealTradingDaysPlusOutliers) {
     BOOST_REQUIRE(test::CTimeSeriesTestData::parse(
         "testfiles/diurnal.csv", timeseries, startTime, endTime,
         test::CTimeSeriesTestData::CSV_UNIX_REGEX));
-    BOOST_REQUIRE(timeseries.size() > 0);
+    BOOST_TEST_REQUIRE(timeseries.size() > 0);
 
     LOG_DEBUG(<< "timeseries = "
               << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10)
@@ -350,7 +350,7 @@ BOOST_AUTO_TEST_CASE(testRealSwitchingNoSeasonality) {
         "testfiles/no_periods.csv", timeseries, startTime, endTime,
         test::CTimeSeriesTestData::CSV_ISO8601_REGEX,
         test::CTimeSeriesTestData::CSV_ISO8601_DATE_FORMAT));
-    BOOST_REQUIRE(timeseries.size() > 0);
+    BOOST_TEST_REQUIRE(timeseries.size() > 0);
 
     LOG_DEBUG(<< "timeseries = "
               << core::CContainerPrinter::print(timeseries.begin(), timeseries.begin() + 10)
@@ -372,7 +372,7 @@ BOOST_AUTO_TEST_CASE(testRealSwitchingNoSeasonality) {
             maths::CTimeSeriesTestForSeasonality seasonality{lastTest, lastTest, HOUR,
                                                              HALF_HOUR, values};
             auto result = seasonality.decompose();
-            BOOST_REQUIRE(result.print() == "[]");
+            BOOST_TEST_REQUIRE(result.print() == "[]");
             values.assign(window / HOUR, TFloatMeanAccumulator{});
             lastTest = time;
         }
@@ -477,12 +477,12 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnal) {
     LOG_DEBUG(<< "accuracy @ 0% error = " << TP[0] / (TP[0] + FP));
     LOG_DEBUG(<< "accuracy @ 1% error = " << TP[1] / (TP[1] + FP));
     LOG_DEBUG(<< "accuracy @ 5% error = " << TP[2] / (TP[2] + FP));
-    BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.98);
-    BOOST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.99);
-    BOOST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.99);
-    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.96);
-    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.96);
-    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.96);
+    BOOST_TEST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.98);
+    BOOST_TEST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.99);
+    BOOST_TEST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.99);
+    BOOST_TEST_REQUIRE(TP[0] / (TP[0] + FP) > 0.96);
+    BOOST_TEST_REQUIRE(TP[1] / (TP[1] + FP) > 0.96);
+    BOOST_TEST_REQUIRE(TP[2] / (TP[2] + FP) > 0.96);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticSparseDaily) {
@@ -519,7 +519,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticSparseDaily) {
                 maths::CTimeSeriesTestForSeasonality seasonality{0, 0, HALF_HOUR,
                                                                  HALF_HOUR, values};
                 auto result = seasonality.decompose();
-                BOOST_REQUIRE(result.print() == (test == 0 ? "[86400]" : "[]"));
+                BOOST_TEST_REQUIRE(result.print() == (test == 0 ? "[86400]" : "[]"));
             }
         }
     }
@@ -573,9 +573,9 @@ BOOST_AUTO_TEST_CASE(testSyntheticSparseWeekly) {
                 auto result = seasonality.decompose();
                 LOG_DEBUG(<< result.print());
                 if (test == 0) {
-                    BOOST_REQUIRE(result.print() == "[86400/(0,172800), 604800/(0,172800), 604800/(172800,604800)]");
+                    BOOST_TEST_REQUIRE(result.print() == "[86400/(0,172800), 604800/(0,172800), 604800/(172800,604800)]");
                 } else {
-                    BOOST_REQUIRE(result.print() == "[]");
+                    BOOST_TEST_REQUIRE(result.print() == "[]");
                 }
             }
         }
@@ -635,7 +635,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
                     startTime, startTime, bucketLength, bucketLength, values};
                 auto result = seasonality.decompose();
                 LOG_DEBUG(<< result.print());
-                BOOST_REQUIRE(result.print() == "[" + std::to_string(period) + "]");
+                BOOST_TEST_REQUIRE(result.print() == "[" + std::to_string(period) + "]");
             }
         }
     }
@@ -677,7 +677,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticWithOutliers) {
                 startTime, startTime, bucketLength, bucketLength, std::move(values)};
             auto result = seasonality.decompose();
             LOG_DEBUG(<< result.print());
-            BOOST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800)]");
+            BOOST_TEST_REQUIRE(result.print() == "[86400/(0,172800), 86400/(172800,604800)]");
         }
     }
 }
@@ -769,8 +769,8 @@ BOOST_AUTO_TEST_CASE(testSyntheticMixtureOfSeasonalities) {
 
     LOG_DEBUG(<< "recall = " << TP / (TP + FN));
     LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
-    BOOST_REQUIRE(TP / (TP + FN) > 0.99);
-    BOOST_REQUIRE(TP / (TP + FP) > 0.99);
+    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.99);
+    BOOST_TEST_REQUIRE(TP / (TP + FP) > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithLinearScaling) {
@@ -842,7 +842,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithLinearScaling) {
     }
 
     LOG_DEBUG(<< "Recall = " << TP / (TP + FN));
-    BOOST_REQUIRE(TP / (TP + FN) > 0.99);
+    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.99);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnalWithLinearTrend) {
@@ -942,12 +942,12 @@ BOOST_AUTO_TEST_CASE(testSyntheticNonDiurnalWithLinearTrend) {
     LOG_DEBUG(<< "accuracy @ 0% error = " << TP[0] / (TP[0] + FP));
     LOG_DEBUG(<< "accuracy @ 1% error = " << TP[1] / (TP[1] + FP));
     LOG_DEBUG(<< "accuracy @ 5% error = " << TP[2] / (TP[2] + FP));
-    BOOST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.98);
-    BOOST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.99);
-    BOOST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.99);
-    BOOST_REQUIRE(TP[0] / (TP[0] + FP) > 0.94);
-    BOOST_REQUIRE(TP[1] / (TP[1] + FP) > 0.94);
-    BOOST_REQUIRE(TP[2] / (TP[2] + FP) > 0.94);
+    BOOST_TEST_REQUIRE(TP[0] / (TP[0] + FN[0]) > 0.98);
+    BOOST_TEST_REQUIRE(TP[1] / (TP[1] + FN[1]) > 0.99);
+    BOOST_TEST_REQUIRE(TP[2] / (TP[2] + FN[2]) > 0.99);
+    BOOST_TEST_REQUIRE(TP[0] / (TP[0] + FP) > 0.94);
+    BOOST_TEST_REQUIRE(TP[1] / (TP[1] + FP) > 0.94);
+    BOOST_TEST_REQUIRE(TP[2] / (TP[2] + FP) > 0.94);
 }
 
 BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend) {
@@ -1028,7 +1028,7 @@ BOOST_AUTO_TEST_CASE(testSyntheticDiurnalWithPiecewiseLinearTrend) {
     }
 
     LOG_DEBUG(<< "Recall = " << TP / (TP + FN));
-    BOOST_REQUIRE(TP / (TP + FN) > 0.92);
+    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.92);
 }
 
 BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithNoChange) {
@@ -1150,8 +1150,8 @@ BOOST_AUTO_TEST_CASE(testModelledSeasonalityWithChange) {
 
     LOG_DEBUG(<< "recall = " << TP / (TP + FN));
     LOG_DEBUG(<< "accuracy = " << TP / (TP + FP));
-    BOOST_REQUIRE(TP / (TP + FN) > 0.92);
-    BOOST_REQUIRE(TP / (TP + FP) > 0.85);
+    BOOST_TEST_REQUIRE(TP / (TP + FN) > 0.92);
+    BOOST_TEST_REQUIRE(TP / (TP + FP) > 0.85);
 }
 
 BOOST_AUTO_TEST_CASE(testNewComponentInitialValues) {
@@ -1424,7 +1424,7 @@ BOOST_AUTO_TEST_CASE(testNewTrendSummaryPiecewiseLinearTrend) {
         }
     }
 
-    BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.03);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 0.03);
 }
 
 BOOST_AUTO_TEST_CASE(testWithSuppliedPredictor) {

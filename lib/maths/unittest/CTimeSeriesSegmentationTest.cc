@@ -539,7 +539,7 @@ BOOST_AUTO_TEST_CASE(testMeanScalePiecewiseLinearScaledSeasonal) {
             values = TSegmentation::constantScalePiecewiseLinearScaledSeasonal(
                 std::move(values), periods[i], segmentation, meanScale, 0.05,
                 scaledModels, modelScales);
-            BOOST_REQUIRE(values.size() > 0);
+            BOOST_TEST_REQUIRE(values.size() > 0);
 
             maths::CSignal::fitSeasonalComponents(periods[i], values, components);
 
@@ -623,14 +623,14 @@ BOOST_AUTO_TEST_CASE(testPiecewiseTimeShifted) {
             error += std::abs(static_cast<int>(estimatedSegmentation[j]) -
                               static_cast<int>(segmentation[j]));
         }
-        BOOST_REQUIRE(error < 10);
+        BOOST_TEST_REQUIRE(error < 10);
         BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(shifts),
                             core::CContainerPrinter::print(estimatedShifts));
         meanError.add(static_cast<double>(error));
     }
 
     LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError));
-    BOOST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 2.7);
+    BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError) < 2.7);
 }
 
 BOOST_AUTO_TEST_CASE(testMeanScale) {
