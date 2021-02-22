@@ -36,12 +36,10 @@
 #endif
 
 static const std::string INFERENCE{"inference"};
+static const std::string ERROR{"error"};
 
 torch::Tensor infer(torch::jit::script::Module& module, 
     ml::torch::CCommandParser::SRequest& request) {
-
-
-    ml::torch::CCommandParser::TUint32Vec data{request.s_Tokens.begin(), request.s_Tokens.end()};
 
     torch::Tensor tokensTensor =
         torch::from_blob(static_cast<void*>(request.s_Tokens.data()), 
@@ -64,8 +62,7 @@ torch::Tensor infer(torch::jit::script::Module& module,
 
     torch::NoGradGuard noGrad;
     auto tuple = module.forward(inputs).toTuple();
-    auto predictions = tuple->elements()[0].toTensor();
-
+    auto predictions = tuple->elements()[0].toTensor();    
     return torch::argmax(predictions, 2);
 }
 
@@ -85,14 +82,29 @@ void writePrediction(const torch::Tensor& prediction, const std::string& request
     jsonWriter.EndObject();
 }
 
+void writeError(const std::string& requestId, const std::string& message,
+                     std::ostream& outputStream) {
+    rapidjson::OStreamWrapper writeStream(outputStream);
+    ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> jsonWriter(writeStream);
+    jsonWriter.StartObject();
+    jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
+    jsonWriter.String(requestId);
+    jsonWriter.Key(ERROR);    
+    jsonWriter.String(message);
+    jsonWriter.EndObject();
+}
+
 
 bool handleRequest(ml::torch::CCommandParser::SRequest& request,
     torch::jit::script::Module& module,
     std::ostream& outputStream) {
 
-    
-    torch::Tensor results = infer(module, request);
-    writePrediction(results, request.s_RequestId, outputStream);
+    try {    
+        torch::Tensor results = infer(module, request);
+        writePrediction(results, request.s_RequestId, outputStream);
+    } catch (std::runtime_error& e) {        
+        writeError(request.s_RequestId, e.what(), outputStream);
+    }
 
     return true;
 }
