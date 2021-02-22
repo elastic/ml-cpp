@@ -28,6 +28,13 @@
 
 //=== Regressions
 
+== {es} version 7.13.0
+
+=== Enhancements
+
+* Speed up training of regression and classification model training for data sets
+  with many features. (See {ml-pull}1746[#1746].)
+
 == {es} version 7.12.0
 
 === Enhancements
