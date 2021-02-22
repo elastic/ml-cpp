@@ -6,6 +6,7 @@
 
 #include "TestUtils.h"
 
+#include <maths/CCompositeFunctions.h>
 #include <maths/CEqualWithTolerance.h>
 #include <maths/CIntegration.h>
 #include <maths/CPrior.h>

@@ -11,7 +11,6 @@
 #include <core/CLogger.h>
 
 #include <maths/CBasicStatistics.h>
-#include <maths/CCompositeFunctions.h>
 #include <maths/CEqualWithTolerance.h>
 #include <maths/CMathsFuncs.h>
 #include <maths/COrderings.h>
@@ -860,8 +859,8 @@ public:
     //! \param[out] fx Set to the value of f at \p x.
     template<typename T, typename F>
     static bool globalMaximize(const T& p, const F& f, double& x, double& fx) {
-        CCompositeFunctions::CMinus<F> f_(f);
-        bool result = globalMinimize(p, f_, x, fx);
+        auto minusF = [&](double x_) { return -f(x_); };
+        bool result{globalMinimize(p, minusF, x, fx)};
         fx = -fx;
         return result;
     }
@@ -923,7 +922,7 @@ public:
 
         // [a, x] and [b, r] bracket the sublevel set end points.
 
-        CCompositeFunctions::CMinusConstant<F> f_(f, fc);
+        auto fMinusFc = [=](double x_) { return f(x_) - fc; };
 
         LOG_TRACE(<< "a = " << a << ", x = " << x << ", b = " << b);
         LOG_TRACE(<< "f_(a) = " << fa - fc << ", f_(x) = " << fx - fc
@@ -935,7 +934,7 @@ public:
 
         try {
             std::size_t n = maxIterations;
-            solve(a, x, fa - fc, fx - fc, f_, n, equal, result.first);
+            solve(a, x, fa - fc, fx - fc, fMinusFc, n, equal, result.first);
             LOG_TRACE(<< "iterations = " << n);
         } catch (const std::exception& e) {
             LOG_ERROR(<< "Failed to find left end point: " << e.what());
@@ -944,7 +943,7 @@ public:
 
         try {
             std::size_t n = maxIterations;
-            solve(x, b, fx - fc, fb - fc, f_, n, equal, result.second);
+            solve(x, b, fx - fc, fb - fc, fMinusFc, n, equal, result.second);
             LOG_TRACE(<< "iterations = " << n);
         } catch (std::exception& e) {
             LOG_ERROR(<< "Failed to find right end point: " << e.what());

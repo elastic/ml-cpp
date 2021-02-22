@@ -215,8 +215,6 @@ private:
                                        const TApplyParameter& applyParameterStep,
                                        double intervalLeftEnd,
                                        double intervalRightEnd,
-                                       double returnedIntervalLeftEndOffset,
-                                       double returnedIntervalRightEndOffset,
                                        const TAdjustTestLoss& adjustTestLoss = noopAdjustTestLoss) const;
 
     //! Initialize the state for hyperparameter optimisation.

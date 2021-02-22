@@ -10,6 +10,7 @@
 #include <core/CRapidXmlStatePersistInserter.h>
 #include <core/CRapidXmlStateRestoreTraverser.h>
 
+#include <maths/CCompositeFunctions.h>
 #include <maths/CGammaRateConjugate.h>
 #include <maths/CLogNormalMeanPrecConjugate.h>
 #include <maths/CMultimodalPrior.h>
