@@ -169,9 +169,8 @@ CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,
 }
 
 CBoostedTreeImpl::CBoostedTreeImpl() = default;
-
 CBoostedTreeImpl::~CBoostedTreeImpl() = default;
-
+CBoostedTreeImpl::CBoostedTreeImpl(CBoostedTreeImpl&&) = default;
 CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
 
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
@@ -235,7 +234,7 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
             this->captureBestHyperparameters(lossMoments, maximumNumberTrees, numberNodes);
 
             if (this->selectNextHyperparameters(lossMoments, *m_BayesianOptimization) == false) {
-                LOG_WARN(<< "Hyperparameter selection failed: exiting loop early");
+                LOG_INFO(<< "Exiting hyperparameter optimisation loop early");
                 break;
             }
 
@@ -837,14 +836,18 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     // Sampling transforms the probabilities. We use a placeholder outside
     // the loop adding nodes so we only allocate the vector once.
     TDoubleVec featureSampleProbabilities{m_FeatureSampleProbabilities};
-    TSizeVec featureBag;
-    this->featureBag(featureSampleProbabilities, featureBag);
+    TSizeVec treeFeatureBag;
+    TSizeVec nodeFeatureBag;
+    this->treeFeatureBag(featureSampleProbabilities, treeFeatureBag);
+
+    featureSampleProbabilities = m_FeatureSampleProbabilities;
+    this->nodeFeatureBag(treeFeatureBag, featureSampleProbabilities, nodeFeatureBag);
 
     TLeafNodeStatisticsPtrQueue splittableLeaves(maximumNumberInternalNodes / 2 + 3);
     splittableLeaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatistics>(
         0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
-        frame, *m_Encoder, m_Regularization, candidateSplits, featureBag,
-        0 /*depth*/, trainingRowMask, workspace));
+        frame, *m_Encoder, m_Regularization, candidateSplits, treeFeatureBag,
+        nodeFeatureBag, 0 /*depth*/, trainingRowMask, workspace));
 
     // We update local variables because the callback can be expensive if it
     // requires accessing atomics.
@@ -902,7 +905,7 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                                    leaf->gain(), leaf->curvature(), tree);
 
         featureSampleProbabilities = m_FeatureSampleProbabilities;
-        this->featureBag(featureSampleProbabilities, featureBag);
+        this->nodeFeatureBag(treeFeatureBag, featureSampleProbabilities, nodeFeatureBag);
 
         std::size_t numberSplittableLeaves{splittableLeaves.size()};
         std::size_t currentNumberInternalNodes{(tree.size() - 1) / 2};
@@ -918,8 +921,9 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         TLeafNodeStatisticsPtr leftChild;
         TLeafNodeStatisticsPtr rightChild;
         std::tie(leftChild, rightChild) = leaf->split(
-            leftChildId, rightChildId, m_NumberThreads, smallestCandidateGain, frame,
-            *m_Encoder, m_Regularization, featureBag, tree[leaf->id()], workspace);
+            leftChildId, rightChildId, m_NumberThreads, smallestCandidateGain,
+            frame, *m_Encoder, m_Regularization, treeFeatureBag, nodeFeatureBag,
+            tree[leaf->id()], workspace);
 
         // Need gain to be computed to compare here
         if (leftChild != nullptr && rightChild != nullptr && less(rightChild, leftChild)) {
@@ -1088,22 +1092,69 @@ std::size_t CBoostedTreeImpl::numberFeatures() const {
     return m_Encoder->numberEncodedColumns();
 }
 
-std::size_t CBoostedTreeImpl::featureBagSize() const {
+std::size_t CBoostedTreeImpl::featureBagSize(double fraction) const {
     return static_cast<std::size_t>(std::max(
-        std::ceil(m_FeatureBagFraction * static_cast<double>(this->numberFeatures())), 1.0));
+        std::ceil(std::min(fraction, 1.0) * static_cast<double>(this->numberFeatures())), 1.0));
 }
 
-void CBoostedTreeImpl::featureBag(TDoubleVec& probabilities, TSizeVec& bag) const {
+void CBoostedTreeImpl::treeFeatureBag(TDoubleVec& probabilities, TSizeVec& treeFeatureBag) const {
 
-    std::size_t size{this->featureBagSize()};
+    std::size_t size{this->featureBagSize(1.25 * m_FeatureBagFraction)};
 
-    this->candidateRegressorFeatures(probabilities, bag);
-    if (size >= bag.size()) {
+    this->candidateRegressorFeatures(probabilities, treeFeatureBag);
+    if (size >= treeFeatureBag.size()) {
         return;
     }
 
-    CSampling::categoricalSampleWithoutReplacement(m_Rng, probabilities, size, bag);
-    std::sort(bag.begin(), bag.end());
+    CSampling::categoricalSampleWithoutReplacement(m_Rng, probabilities, size, treeFeatureBag);
+    std::sort(treeFeatureBag.begin(), treeFeatureBag.end());
+}
+
+void CBoostedTreeImpl::nodeFeatureBag(const TSizeVec& treeFeatureBag,
+                                      TDoubleVec& probabilities,
+                                      TSizeVec& nodeFeatureBag) const {
+
+    std::size_t size{this->featureBagSize(m_FeatureBagFraction)};
+
+    if (size >= treeFeatureBag.size()) {
+        // Since we don't include features with zero probability of being sampled
+        // in the bag we can just copy this collection over as the candidates.
+        nodeFeatureBag = treeFeatureBag;
+        return;
+    }
+
+    // We have P(i in S) = P(i in S | i in B) P(i in B) for sample S and bag B.
+    // We'd ideally like to preserve P(i in S) by arranging for P(i in S | i in B)
+    // to be equal to P(i in S) / P(i in B). P(i in B) is the chance of sampling
+    // item i without replacement for weights w. There is no closed form solution
+    // for this probability. We can simply sample many bags and use the relative
+    // frequency to get this quantity to arbitrary precision, but this isn't
+    // worthwhile. There are two limits, for |B| / |F| -> 0 then P(i in B) -> w_i
+    // and we want to sample uniformly at random from B and for |B| -> |F| then
+    // P(i in B) -> 1 and we want to sample according to w so we reweight by
+    // 1 / (w_i + |B| / |F| (1 - w_i)).
+
+    double fraction{static_cast<double>(treeFeatureBag.size()) /
+                    static_cast<double>(std::count_if(
+                        probabilities.begin(), probabilities.end(),
+                        [](auto probability) { return probability > 0.0; }))};
+    LOG_TRACE(<< "fraction = " << fraction);
+
+    for (std::size_t i = 0; i < treeFeatureBag.size(); ++i) {
+        probabilities[i] = probabilities[treeFeatureBag[i]];
+    }
+    probabilities.resize(treeFeatureBag.size());
+    double Z{std::accumulate(probabilities.begin(), probabilities.end(), 0.0)};
+    for (auto& probability : probabilities) {
+        probability /= Z;
+        probability /= probability + fraction * (1.0 - probability);
+    }
+
+    CSampling::categoricalSampleWithoutReplacement(m_Rng, probabilities, size, nodeFeatureBag);
+    for (auto& i : nodeFeatureBag) {
+        i = treeFeatureBag[i];
+    }
+    std::sort(nodeFeatureBag.begin(), nodeFeatureBag.end());
 }
 
 void CBoostedTreeImpl::candidateRegressorFeatures(const TDoubleVec& probabilities,
@@ -1243,9 +1294,10 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     TVector maxBoundary;
     std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
 
-    // Downsampling acts as a regularisation and also increases the variance
-    // of each of the base learners so we scale the other regularisation terms
-    // and the weight shrinkage to compensate.
+    // Downsampling directly affects the loss terms: it multiplies the sums over
+    // gradients and Hessians in expectation by the downsample factor. To preserve
+    // the same effect for regularisers we need to scale these terms by the same
+    // multiplier.
     double scale{1.0};
     if (m_DownsampleFactorOverride == boost::none) {
         auto i = std::distance(m_TunableHyperparameters.begin(),
@@ -1262,13 +1314,14 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     for (std::size_t i = 0; i < m_TunableHyperparameters.size(); ++i) {
         switch (m_TunableHyperparameters[i]) {
         case E_Alpha:
-            parameters(i) = CTools::stableLog(m_Regularization.depthPenaltyMultiplier());
+            parameters(i) =
+                CTools::stableLog(m_Regularization.depthPenaltyMultiplier() / scale);
             break;
         case E_DownsampleFactor:
             parameters(i) = CTools::stableLog(m_DownsampleFactor);
             break;
         case E_Eta:
-            parameters(i) = CTools::stableLog(m_Eta) / scale;
+            parameters(i) = CTools::stableLog(m_Eta);
             break;
         case E_EtaGrowthRatePerTree:
             parameters(i) = m_EtaGrowthRatePerTree;
@@ -1329,13 +1382,14 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     for (std::size_t i = 0; i < m_TunableHyperparameters.size(); ++i) {
         switch (m_TunableHyperparameters[i]) {
         case E_Alpha:
-            m_Regularization.depthPenaltyMultiplier(CTools::stableExp(parameters(i)));
+            m_Regularization.depthPenaltyMultiplier(
+                scale * CTools::stableExp(parameters(i)));
             break;
         case E_DownsampleFactor:
             m_DownsampleFactor = CTools::stableExp(parameters(i));
             break;
         case E_Eta:
-            m_Eta = CTools::stableExp(scale * parameters(i));
+            m_Eta = CTools::stableExp(parameters(i));
             break;
         case E_EtaGrowthRatePerTree:
             m_EtaGrowthRatePerTree = parameters(i);

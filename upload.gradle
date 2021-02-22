@@ -67,7 +67,7 @@ class DownloadPlatformSpecific extends DefaultTask {
   File extractDirectory
 
   @Input
-  List<String> platforms = [ 'darwin-x86_64', 'linux-aarch64', 'linux-x86_64', 'windows-x86_64' ]
+  List<String> platforms = [ 'darwin-aarch64', 'darwin-x86_64', 'linux-aarch64', 'linux-x86_64', 'windows-x86_64' ]
 
   DownloadPlatformSpecific() {
     // Always run this task, in case the platform-specific zips have changed

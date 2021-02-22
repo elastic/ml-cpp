@@ -43,6 +43,7 @@ class CImmutableRadixSet;
 }
 namespace maths {
 class CBayesianOptimisation;
+class CBoostedTreeImplForTest;
 class CTreeShapFeatureImportance;
 
 //! \brief Implementation of CBoostedTree.
@@ -78,6 +79,7 @@ public:
     CBoostedTreeImpl(std::size_t numberThreads,
                      TLossFunctionUPtr loss,
                      TAnalysisInstrumentationPtr instrumentation = nullptr);
+    CBoostedTreeImpl(CBoostedTreeImpl&&);
 
     ~CBoostedTreeImpl();
 
@@ -190,8 +192,9 @@ private:
         E_TreeSizePenaltyMultiplierInitialized = 3,
         E_LeafWeightPenaltyMultiplierInitialized = 4,
         E_DownsampleFactorInitialized = 5,
-        E_EtaInitialized = 6,
-        E_FullyInitialized = 7
+        E_FeatureBagFractionInitialized = 6,
+        E_EtaInitialized = 7,
+        E_FullyInitialized = 8
     };
 
 private:
@@ -262,10 +265,15 @@ private:
     std::size_t numberFeatures() const;
 
     //! Get the number of features to consider splitting on.
-    std::size_t featureBagSize() const;
+    std::size_t featureBagSize(double fractionMultiplier) const;
 
     //! Sample the features according to their categorical distribution.
-    void featureBag(TDoubleVec& probabilities, TSizeVec& features) const;
+    void treeFeatureBag(TDoubleVec& probabilities, TSizeVec& treeFeatureBag) const;
+
+    //! Sample the features according to their categorical distribution.
+    void nodeFeatureBag(const TSizeVec& treeFeatureBag,
+                        TDoubleVec& probabilities,
+                        TSizeVec& nodeFeatureBag) const;
 
     //! Get a column mask of the suitable regressor features.
     void candidateRegressorFeatures(const TDoubleVec& probabilities, TSizeVec& features) const;
@@ -401,6 +409,7 @@ private:
 
 private:
     friend class CBoostedTreeFactory;
+    friend class CBoostedTreeImplForTest;
 };
 }
 }

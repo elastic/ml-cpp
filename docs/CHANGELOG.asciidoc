@@ -39,6 +39,13 @@
 * The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 9.3. (See
   {ml-pull}1170[#1170].)
 
+== {es} version 7.13.0
+
+=== Enhancements
+
+* Speed up training of regression and classification model training for data sets
+  with many features. (See {ml-pull}1746[#1746].)
+
 == {es} version 7.12.0
 
 === Enhancements
@@ -51,6 +58,8 @@
   model training. (See {ml-pull}1676[#1676].)
 * Correct upgrade for pre-6.3 state for lat_long anomaly anomaly detectors. (See
   {ml-pull}1681[#1681].)
+* Per tree feature bag to speed up training of regression and classification models
+  and improve scalability for large numbers of features. (See {ml-pull}1733[#1733].)
 
 === Bug Fixes
 

@@ -10,6 +10,7 @@
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
+#include <core/RestoreMacros.h>
 
 #include <functional>
 
@@ -100,9 +101,8 @@ bool CTokenListCategory::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
             m_BaseTokenIds.push_back(tokenAndWeight);
         } else if (name == BASE_TOKEN_WEIGHT) {
             if (m_BaseTokenIds.empty()) {
-                LOG_ERROR(<< "Base token weight precedes base token ID in "
+                LOG_ABORT(<< "Base token weight precedes base token ID in "
                           << traverser.value());
-                return false;
             }
 
             TSizeSizePr& tokenAndWeight = m_BaseTokenIds.back();
@@ -162,12 +162,12 @@ bool CTokenListCategory::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
         } else if (name == ORIG_UNIQUE_TOKEN_WEIGHT) {
             if (core::CStringUtils::stringToType(traverser.value(),
                                                  m_OrigUniqueTokenWeight) == false) {
-                LOG_ERROR(<< "Invalid maximum string length in " << traverser.value());
+                LOG_ERROR(<< "Invalid unique token weight in " << traverser.value());
                 return false;
             }
         } else if (name == NUM_MATCHES) {
             if (core::CStringUtils::stringToType(traverser.value(), m_NumMatches) == false) {
-                LOG_ERROR(<< "Invalid maximum string length in " << traverser.value());
+                LOG_ERROR(<< "Invalid number of matches in " << traverser.value());
                 return false;
             }
         } else if (name == BASE_RAW_STRING_LENGTH) {
@@ -177,6 +177,9 @@ bool CTokenListCategory::acceptRestoreTraverser(core::CStateRestoreTraverser& tr
             }
         }
     } while (traverser.next());
+
+    // Ensure that m_CommonUniqueTokenIds is sorted in ascending order.
+    std::sort(m_CommonUniqueTokenIds.begin(), m_CommonUniqueTokenIds.end(), CTokenIdLess{});
 
     // m_BaseRawStringLen will only have been persisted by 7.9 and above.
     // In this case the absolute maximum set at the beginning of the method
