@@ -1077,7 +1077,7 @@ void COutliers::compute(const SComputeParameters& params,
 
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: computing outliers for data frame. There "
-                     << "may be more details in the logs. Please report this problem.")
+                     << "may be more details in the logs. Please report this problem.");
     }
 }
 

@@ -100,7 +100,7 @@ void CBoostedTreeInferenceModelBuilder::addNode(std::size_t splitFeature,
     // use dynamic cast to prevent using wrong type of trained models
     auto tree = dynamic_cast<CTree*>(ensemble->trainedModels().back().get());
     if (tree == nullptr) {
-        HANDLE_FATAL(<< "Internal error. Tree points to a nullptr.")
+        HANDLE_FATAL(<< "Internal error. Tree points to a nullptr.");
     }
     tree->treeStructure().emplace_back(tree->size(), splitValue, assignMissingToLeft,
                                        nodeValue.to<TDoubleVec>(), splitFeature,
