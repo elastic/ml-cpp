@@ -223,8 +223,8 @@ BOOST_FIXTURE_TEST_CASE(testWarnAndErrorThrottling, CTestFixture) {
     logger.reconfigure(TEST_PIPE_NAME, "");
 
     for (std::size_t i = 0; i < 10; ++i) {
-        LOG_WARN(<< messages[0])
-        LOG_ERROR(<< messages[1])
+        LOG_WARN(<< messages[0]);
+        LOG_ERROR(<< messages[1]);
     }
 
     // reset the logger to end the stream and revert state for following tests
