@@ -241,9 +241,10 @@ BOOST_AUTO_TEST_CASE(testReadLock) {
 
     LOG_INFO(<< "Reader concurrency test took " << duration << " seconds");
 
-    // Allow the test to run slightly over 1 second, as there is processing
-    // other than the sleeping.
-    BOOST_TEST_REQUIRE(duration <= 2);
+    // Allow the test to run up to 3 seconds, as there is processing
+    // other than the sleeping, and also sleeps are not very accurate
+    // under Jenkins on Apple M1.
+    BOOST_TEST_REQUIRE(duration <= 3);
     BOOST_TEST_REQUIRE(duration >= 1);
 
     BOOST_REQUIRE_EQUAL(testVariable, reader1.lastRead());
