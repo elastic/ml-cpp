@@ -5,14 +5,8 @@ file.  Then it checks the model's response matches the expected.
 
 This script reads the input files and expected outputs, then 
 launches the C++ pytorch_inference program which handles and 
-sends the request. The reponse is checked against the expected 
+sends the request. The response is checked against the expected 
 defined in the test file
-
-Run this script with input from one of the example directories,
-for example:
-
-python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json 
-
 
 The test file must have the format:
 [
@@ -22,6 +16,14 @@ The test file must have the format:
     },
     ...
 ]
+
+
+EXAMPLES
+--------
+Run this script with input from one of the example directories,
+for example:
+
+python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json 
 '''
 
 import argparse

@@ -40,13 +40,18 @@ public:
 
 	static const std::string REQUEST_ID;
 	static const std::string TOKENS;
+	static const std::string VAR_ARG_PREFIX;
+
+	using TUint32Vec = std::vector<std::uint32_t>;
+	using TUint32VecVec = std::vector<TUint32Vec>;
 
 	struct SRequest {
 		std::string s_RequestId;
-		std::vector<std::uint32_t> s_Tokens;
+		TUint32Vec s_Tokens;
+		TUint32VecVec s_SecondaryArguments;
 	};
 
-	using TRequestHandlerFunc = std::function<bool(const SRequest&)>;
+	using TRequestHandlerFunc = std::function<bool(SRequest&)>;
 
 
 public:

@@ -35,18 +35,32 @@
 #include <netinet/in.h>
 #endif
 
-using TFloatVec = std::vector<float>;
+static const std::string INFERENCE{"inference"};
 
-torch::Tensor infer(torch::jit::script::Module& module, TFloatVec& data) {
+torch::Tensor infer(torch::jit::script::Module& module, 
+    ml::torch::CCommandParser::SRequest& request) {
+
+
+    ml::torch::CCommandParser::TUint32Vec data{request.s_Tokens.begin(), request.s_Tokens.end()};
+
     torch::Tensor tokensTensor =
-        torch::from_blob(data.data(), {1, static_cast<std::int64_t>(data.size())})
+        torch::from_blob(static_cast<void*>(request.s_Tokens.data()), 
+            {1, static_cast<std::int64_t>(request.s_Tokens.size())}, 
+            at::dtype(torch::kInt32))
             .to(torch::kInt64);
+
     std::vector<torch::jit::IValue> inputs;
     inputs.push_back(tokensTensor);
-    inputs.push_back(torch::ones({1, static_cast<std::int64_t>(data.size())})); // attention mask
-    inputs.push_back(
-        torch::zeros({1, static_cast<std::int64_t>(data.size())}).to(torch::kInt64)); // token type ids
-    inputs.push_back(torch::arange(static_cast<std::int64_t>(data.size())).to(torch::kInt64)); // position ids
+
+    for (auto args : request.s_SecondaryArguments) {
+        torch::Tensor tensor =
+            torch::from_blob(static_cast<void*>(args.data()), 
+                {1, static_cast<std::int64_t>(args.size())}, 
+                at::dtype(torch::kInt32))
+                .to(torch::kInt64);
+
+        inputs.push_back(tensor);
+    }
 
     torch::NoGradGuard noGrad;
     auto tuple = module.forward(inputs).toTuple();
@@ -61,7 +75,7 @@ void writePrediction(const torch::Tensor& prediction, const std::string& request
     jsonWriter.StartObject();
     jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
     jsonWriter.String(requestId);
-    jsonWriter.Key("inference");
+    jsonWriter.Key(INFERENCE);
     jsonWriter.StartArray();
     auto arr = prediction.accessor<std::int64_t, 2>();
     for (int i = 0; i < arr.size(1); i++) {
@@ -72,13 +86,12 @@ void writePrediction(const torch::Tensor& prediction, const std::string& request
 }
 
 
-bool handleRequest(const ml::torch::CCommandParser::SRequest& request,
+bool handleRequest(ml::torch::CCommandParser::SRequest& request,
     torch::jit::script::Module& module,
     std::ostream& outputStream) {
 
-    // A float vector is needed to create the tensor
-    TFloatVec tokens{request.s_Tokens.begin(), request.s_Tokens.end()};
-    torch::Tensor results = infer(module, tokens);
+    
+    torch::Tensor results = infer(module, request);
     writePrediction(results, request.s_RequestId, outputStream);
 
     return true;
@@ -171,7 +184,7 @@ int main(int argc, char** argv) {
 
     ml::torch::CCommandParser commandParser{ioMgr.inputStream()};
 
-    commandParser.ioLoop([&module, &ioMgr](const ml::torch::CCommandParser::SRequest& request){
+    commandParser.ioLoop([&module, &ioMgr](ml::torch::CCommandParser::SRequest& request){
         return handleRequest(request, module, ioMgr.outputStream());
     });
 

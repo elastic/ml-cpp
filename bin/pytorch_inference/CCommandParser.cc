@@ -29,6 +29,7 @@ void debug(const rapidjson::Document& doc) {
 
 const std::string CCommandParser::REQUEST_ID{"request_id"};
 const std::string CCommandParser::TOKENS{"tokens"};
+const std::string CCommandParser::VAR_ARG_PREFIX{"arg_"};
 
 CCommandParser::CCommandParser(std::istream& strmIn) : m_StrmIn(strmIn) {
 
@@ -61,7 +62,8 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler) const {
 
 		
 		debug(doc);
-		requestHandler(jsonToRequest(doc));
+		CCommandParser::SRequest request = jsonToRequest(doc);
+		requestHandler(request);
 	}
 	
 	return true;	
@@ -84,16 +86,46 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc) const {
 		return false;
 	}
 
+	// check optional args
+	std::uint64_t varCount{1};
+	std::string varArgName = VAR_ARG_PREFIX + std::to_string(varCount);
+	while (doc.HasMember(varArgName)) {
+		const rapidjson::Value& value = doc[varArgName];
+		if (value.IsArray() == false) {
+			LOG_ERROR(<< "Malformed command request: argument [" << varArgName << "] is not an array");
+			return false;
+		}
+
+		++varCount;
+		varArgName = VAR_ARG_PREFIX + std::to_string(varCount);
+	}
+
 	return true;
 }
 
 CCommandParser::SRequest CCommandParser::jsonToRequest(const rapidjson::Document& doc) const {
-	std::vector<std::uint32_t> tokens;
+	TUint32Vec tokens;
 	const rapidjson::Value& arr = doc[TOKENS];
 	for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
 		tokens.push_back(itr->GetUint());
 	}
-	return {doc[REQUEST_ID].GetString(), tokens};
+
+	std::uint64_t varCount{1};
+	std::string varArgName = VAR_ARG_PREFIX + std::to_string(varCount);
+	TUint32VecVec args;
+
+	while (doc.HasMember(varArgName)) {
+		TUint32Vec arg;
+		const rapidjson::Value& v = doc[varArgName];
+		for (auto itr = v.Begin(); itr != v.End(); ++itr) {
+			arg.push_back(itr->GetUint());
+		}
+
+		args.push_back(arg);
+		++varCount;
+		varArgName = VAR_ARG_PREFIX + std::to_string(varCount);
+	}
+	return {doc[REQUEST_ID].GetString(), tokens, args};
 }
 
 }
