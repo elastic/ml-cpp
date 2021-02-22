@@ -33,7 +33,7 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
         analysisParametersDoc.Parse(analysisParameters);
         if (analysisParametersDoc.GetParseError()) {
             HANDLE_FATAL(<< "Input error: analysis parameters " << analysisParameters
-                         << " cannot be parsed as json. Please report this problem.")
+                         << " cannot be parsed as json. Please report this problem.");
         }
     }
     write(jobId, rows, cols, memoryLimit, numberThreads, temporaryDirectory,
@@ -105,7 +105,7 @@ void CDataFrameAnalysisSpecificationJsonWriter::write(const std::string& jobId,
             writer.write(analysisParametersDocument);
         } else {
             HANDLE_FATAL(<< "Input error: analysis parameters suppose to "
-                         << "contain an object as root node.")
+                         << "contain an object as root node.");
         }
     }
 

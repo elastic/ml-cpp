@@ -114,7 +114,7 @@ void CDataFrameOutliersRunner::writeOneRow(const core::CDataFrame& frame,
 
 bool CDataFrameOutliersRunner::validate(const core::CDataFrame& frame) const {
     if (frame.numberColumns() < 1) {
-        HANDLE_FATAL(<< "Input error: analysis needs at least one feature")
+        HANDLE_FATAL(<< "Input error: analysis needs at least one feature");
         return false;
     }
     return true;

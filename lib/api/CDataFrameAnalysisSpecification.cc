@@ -118,14 +118,14 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
     rapidjson::Document specification;
     if (specification.Parse(jsonSpecification) == false) {
         HANDLE_FATAL(<< "Input error: failed to parse analysis specification '"
-                     << jsonSpecification << "'. Please report this problem.")
+                     << jsonSpecification << "'. Please report this problem.");
     } else {
 
         auto parameters = CONFIG_READER.read(specification);
 
         for (auto name : {ROWS, COLS, MEMORY_LIMIT, THREADS}) {
             if (parameters[name].as<std::size_t>() == 0) {
-                HANDLE_FATAL(<< "Input error: '" << name << "' must be non-zero")
+                HANDLE_FATAL(<< "Input error: '" << name << "' must be non-zero");
             }
         }
         m_NumberRows = parameters[ROWS].as<std::size_t>();
@@ -144,11 +144,11 @@ CDataFrameAnalysisSpecification::CDataFrameAnalysisSpecification(
         if (m_MissingFieldValue != core::CDataFrame::DEFAULT_MISSING_STRING &&
             core::CStringUtils::stringToTypeSilent(m_MissingFieldValue, missing)) {
             HANDLE_FATAL(<< "Input error: you can't use a number (" << missing
-                         << ") to denote a missing field value.")
+                         << ") to denote a missing field value.");
         }
         if (m_DiskUsageAllowed && m_TemporaryDirectory.empty()) {
             HANDLE_FATAL(<< "Input error: temporary directory path should be explicitly set if disk"
-                            " usage is allowed! Please report this problem.")
+                            " usage is allowed! Please report this problem.");
         }
 
         auto jsonAnalysis = parameters[ANALYSIS].jsonObject();
@@ -218,7 +218,7 @@ bool CDataFrameAnalysisSpecification::validate(const core::CDataFrame& frame) co
     if (frame.numberRows() > this->numberRows()) {
         HANDLE_FATAL(<< "Input error: expected no more than '" << this->numberRows()
                      << "' rows but got '" << frame.numberRows() << "' rows"
-                     << ". Please report this problem.")
+                     << ". Please report this problem.");
         return false;
     }
     // As with rows, we only care if the analysis might use more memory than was
@@ -226,12 +226,12 @@ bool CDataFrameAnalysisSpecification::validate(const core::CDataFrame& frame) co
     if (frame.numberColumns() > this->numberColumns()) {
         HANDLE_FATAL(<< "Input error: expected '" << this->numberColumns()
                      << "' columns but got '" << frame.numberRows() << "' columns"
-                     << ". Please report this problem.")
+                     << ". Please report this problem.");
         return false;
     }
 
     if (frame.numberRows() == 0) {
-        HANDLE_FATAL(<< "Input error: no data sent.")
+        HANDLE_FATAL(<< "Input error: no data sent.");
         return false;
     }
 
@@ -245,7 +245,7 @@ CDataFrameAnalysisRunner* CDataFrameAnalysisSpecification::runner() {
 void CDataFrameAnalysisSpecification::estimateMemoryUsage(CMemoryUsageEstimationResultJsonWriter& writer) const {
     if (m_Runner == nullptr) {
         HANDLE_FATAL(<< "Internal error: no runner available so can't estimate memory."
-                     << " Please report this problem.")
+                     << " Please report this problem.");
         return;
     }
     m_Runner->estimateMemoryUsage(writer);
@@ -270,7 +270,7 @@ void CDataFrameAnalysisSpecification::initializeRunner(const rapidjson::Value& j
     }
 
     HANDLE_FATAL(<< "Input error: unexpected analysis name '" << m_AnalysisName
-                 << "'. Please report this problem.")
+                 << "'. Please report this problem.");
 }
 
 CDataFrameAnalysisSpecification::TDataAdderUPtr
