@@ -119,7 +119,7 @@ void CDataFrameAnalysisInstrumentation::updateMemoryUsage(std::int64_t delta) {
                      << memoryReestimateBytes << ".");
             HANDLE_FATAL(<< "Input error: memory limit [" << bytesToString(m_MemoryLimit)
                          << "] has been exceeded. Please force stop the job, increase to new estimated limit ["
-                         << bytesToString(memoryReestimateBytes) << "] and restart.")
+                         << bytesToString(memoryReestimateBytes) << "] and restart.");
         }
     } else {
         // Something has gone wrong with memory estimation. Trap this case

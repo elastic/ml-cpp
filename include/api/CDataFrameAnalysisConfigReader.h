@@ -75,7 +75,7 @@ public:
         T as() const {
             if (m_Value == nullptr) {
                 HANDLE_FATAL(<< "Input error: expected value for '" << m_Name
-                             << "'. Please report this problem.")
+                             << "'. Please report this problem.");
             }
             return this->fallback(T{});
         }
@@ -84,7 +84,7 @@ public:
                                           const std::string& value) const {
             if (m_Value == nullptr) {
                 HANDLE_FATAL(<< "Input error: expected value for '" << m_Name
-                             << "'. Please report this problem.")
+                             << "'. Please report this problem.");
             }
             return this->fallback(name, value, std::make_pair("", 0.0));
         }
