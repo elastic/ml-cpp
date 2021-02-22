@@ -12,8 +12,6 @@
 # 3. If this is not a PR build, upload the build to the artifacts directory on
 #    S3 that subsequent Java builds will download the C++ components from
 
-$ErrorActionPreference="Stop"
-
 # If this isn't a PR build then obtain credentials from Vault
 if (!(Test-Path Env:PR_AUTHOR)) {
     # Generate a Vault token
@@ -22,18 +20,30 @@ if (!(Test-Path Env:PR_AUTHOR)) {
         Exit $LastExitCode
     }
 
-    $AwsCreds=& vault read -format=json -field=data aws-dev/creds/prelertartifacts
-    if ($LastExitCode -ne 0) {
-        Exit $LastExitCode
-    }
-    $Env:ML_AWS_ACCESS_KEY=(echo $AwsCreds | jq -r ".access_key")
-    $Env:ML_AWS_SECRET_KEY=(echo $AwsCreds | jq -r ".secret_key")
+    $Failures=0
+    do {
+        $AwsCreds=& vault read -format=json -field=data aws-dev/creds/prelertartifacts
+        if ($LastExitCode -eq 0) {
+            $Env:ML_AWS_ACCESS_KEY=(echo $AwsCreds | jq -r ".access_key")
+            $Env:ML_AWS_SECRET_KEY=(echo $AwsCreds | jq -r ".secret_key")
+        } else {
+            $Failures++
+            Write-Output "Attempt $Failures to get AWS credentials failed"
+        }
+    } while (($Failures -lt 3) -and [string]::IsNullOrEmpty($Env:ML_AWS_ACCESS_KEY))
 
     # Remove VAULT_* environment variables
     Remove-Item Env:VAULT_TOKEN
     Remove-Item Env:VAULT_ROLE_ID
     Remove-Item Env:VAULT_SECRET_ID
+
+    if ([string]::IsNullOrEmpty($Env:ML_AWS_ACCESS_KEY) -or [string]::IsNullOrEmpty($Env:ML_AWS_SECRET_KEY)) {
+        Write-Output "Exiting after failing to get AWS credentials $Failures times"
+        Exit 1
+    }
 }
+
+$ErrorActionPreference="Stop"
 
 # Change directory to the top level of the repo
 Set-Location -Path "$PSScriptRoot\.."
