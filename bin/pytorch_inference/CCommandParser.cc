@@ -63,8 +63,8 @@ bool CCommandParser::ioLoop(const TRequestHandlerFunc& requestHandler) const {
         debug(doc);
         CCommandParser::SRequest request = jsonToRequest(doc);
         if (requestHandler(request) == false) {
-            LOG_ERROR(<< "Request handler forced exit");
-            return false;
+        	LOG_ERROR(<< "Request handler forced exit");
+        	return false;
         }
     }
 
@@ -94,7 +94,8 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc) const {
     while (doc.HasMember(varArgName)) {
         const rapidjson::Value& value = doc[varArgName];
         if (value.IsArray() == false) {
-            LOG_ERROR(<< "Invalid command: argument [" << varArgName << "] is not an array");
+            LOG_ERROR(<< "Invalid command: argument [" << varArgName
+                      << "] is not an array");
             return false;
         }
 
