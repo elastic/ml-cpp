@@ -89,6 +89,12 @@ public:
     //! Train the model on the values in \p frame.
     void train(core::CDataFrame& frame, const TTrainingStateCallback& recordTrainStateCallback);
 
+    //! Incrementally train the current model on the values in \p frame.
+    //!
+    //! \warning Assumes that train has been called or a trained model has been
+    //! reloaded.
+    bool trainIncrementally(core::CDataFrame& frame, const TTrainingStateCallback& recordTrainStateCallback);
+
     //! Write the predictions of the best trained model to \p frame.
     //!
     //! \warning Must be called only if a trained model is available.

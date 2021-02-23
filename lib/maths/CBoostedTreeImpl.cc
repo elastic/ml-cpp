@@ -291,6 +291,17 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
 }
 
+bool CBoostedTreeImpl::trainIncrementally(core::CDataFrame& /*frame*/,
+                                          const TTrainingStateCallback& /*recordTrainStateCallback*/) {
+
+    if (m_BestForest.empty()) {
+        LOG_ERROR(<< "No model available to incrementally train.");
+        return false;
+    }
+
+    // TODO.
+}
+
 void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {
     recordTrainState([this](core::CStatePersistInserter& inserter) {
         this->acceptPersistInserter(inserter);
@@ -1883,7 +1894,6 @@ void CBoostedTreeImpl::checkTrainInvariants(const core::CDataFrame& frame) const
     if (m_DependentVariable >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
                      << "' was incorrectly initialized. Please report this problem.");
-        return;
     }
     if (m_Loss == nullptr) {
         HANDLE_FATAL(<< "Internal error: must supply a loss function for training. "

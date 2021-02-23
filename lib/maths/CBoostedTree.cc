@@ -155,6 +155,10 @@ void CBoostedTree::train() {
     m_Impl->train(this->frame(), this->trainingStateRecorder());
 }
 
+bool CBoostedTree::trainIncrementally() {
+    return m_Impl->trainIncrementally(this->frame(), this->trainingStateRecorder());
+}
+
 void CBoostedTree::predict() const {
     m_Impl->predict(this->frame());
 }
