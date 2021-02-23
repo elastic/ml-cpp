@@ -3,9 +3,9 @@ Reads a TorchScript model from file and restores it to the C++
 app, together with the encoded tokens from the input_tokens
 file.  Then it checks the model's response matches the expected.
 
-This script reads the input files and expected outputs, then 
-launches the C++ pytorch_inference program which handles and 
-sends the request. The response is checked against the expected 
+This script reads the input files and expected outputs, then
+launches the C++ pytorch_inference program which handles and
+sends the request. The response is checked against the expected
 defined in the test file
 
 The test file must have the format:
@@ -23,11 +23,12 @@ EXAMPLES
 Run this script with input from one of the example directories,
 for example:
 
-python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json 
+python3 evaluate.py /path/to/conll03_traced_ner.pt examples/ner/test_run.json
 '''
 
 import argparse
 import json
+import math
 import os
 import platform
 import stat
@@ -78,14 +79,41 @@ def stream_file(source, destination) :
 
         destination.write(piece)
 
-def write_request(request, destination):    
+def write_request(request, destination):
     json.dump(request, destination)
+
+
+def compare_results(expected, actual):
+    if expected['request_id'] != actual['request_id']:
+        print("request_ids do not match [{}], [{}]".format(expected['request_id'], actual['request_id']), flush=True)
+        return False
+
+    if len(expected['inference']) != len(actual['inference']):
+        print("len(inference) does not match [{}], [{}]".format(len(expected['inference']), len(actual['inference'])), flush=True)
+        return False
+
+    for i in range(len(expected['inference'])):
+        expected_row = expected['inference'][i]
+        actual_row = actual['inference'][i]
+
+        if len(expected_row) != len(actual_row):
+            print("row [{}] lengths are not equal [{}], [{}]".format(i, len(expected_row), len(actual_row)), flush=True)
+            return False
+
+        are_close = True
+        for j in range(len(expected_row)):
+            are_close = are_close and math.isclose(expected_row[j], actual_row[j], rel_tol=1e-04)
+
+        if are_close == False:
+            print("row [{}] values are not close {}, {}".format(i, expected_row, actual_row), flush=True)
+            return False
+
 
 def main():
 
     args = parse_arguments()
 
-    try:                    
+    try:
         # create the restore file
         with open(args.restore_file, 'wb') as restore_file:
             file_stats = os.stat(args.model)
@@ -106,37 +134,46 @@ def main():
             print("writing query", flush=True)
             for doc in test_evaluation:
                 write_request(doc['input'], input_file)
-        
+
         launch_pytorch_app(args)
 
-        print("reading results", flush=True)    
+        print()
+        print("reading results...", flush=True)
         with open(args.output_file) as output_file:
-            
+
             doc_count = 0
-            results_match = True 
+            results_match = True
             # output is NDJSON
             for jsonline in output_file:
-                result = json.loads(jsonline)       
+                try:
+                    result = json.loads(jsonline)
+                except:
+                    print("Error parsing json: ", jsonline)
+                    return
+
                 expected = test_evaluation[doc_count]['expected_output']
 
                 # compare to expected
-                if result != expected:
+                if compare_results(expected, result) == False:
+                    print()
                     print('ERROR: inference result [{}] does not match expected results'.format(doc_count))
-                    print(result, expected)
+                    print()
                     results_match = False
 
                 doc_count = doc_count +1
 
             if results_match:
-                print('SUCCESS: inference results match expected')
+                print()
+                print('SUCCESS: inference results match expected', flush=True)
+                print()
 
-    finally:        
+    finally:
         if os.path.isfile(args.restore_file):
             os.remove(args.restore_file)
         if os.path.isfile(args.input_file):
             os.remove(args.input_file)
         if os.path.isfile(args.output_file):
-            os.remove(args.output_file)                        
+            os.remove(args.output_file)
 
 
 

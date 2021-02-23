@@ -7,52 +7,48 @@
 #ifndef INCLUDED_ml_torch_CCommandParser_h
 #define INCLUDED_ml_torch_CCommandParser_h
 
-#include <iosfwd>
 #include <functional>
+#include <iosfwd>
 #include <string>
 #include <vector>
 
 #include <rapidjson/document.h>
 
-
 namespace ml {
 namespace torch {
 
-
 //! \brief
-//! Reads JSON documents from a stream emitting a request for 
-//! each parsed document.
+//! Reads JSON documents from a stream calling the request handler
+//! for each parsed document.
 //!
 //! DESCRIPTION:\n
-//! 
+//!
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! RapidJSON will natively parse a stream of rootless JSON documents
-//! given the correct parse flags. The documents may be separated by 
+//! given the correct parse flags. The documents may be separated by
 //!	whitespace but no other delineator is allowed.
-//! 
+//!
 //! The input stream is held by reference.  They must outlive objects of
 //! this class, which, in practice, means that the CIoManager object managing
 //! them must outlive this object.
 //!
-class CCommandParser {	
+class CCommandParser {
 public:
+    static const std::string REQUEST_ID;
+    static const std::string TOKENS;
+    static const std::string VAR_ARG_PREFIX;
 
-	static const std::string REQUEST_ID;
-	static const std::string TOKENS;
-	static const std::string VAR_ARG_PREFIX;
+    using TUint32Vec = std::vector<std::uint32_t>;
+    using TUint32VecVec = std::vector<TUint32Vec>;
 
-	using TUint32Vec = std::vector<std::uint32_t>;
-	using TUint32VecVec = std::vector<TUint32Vec>;
+    struct SRequest {
+        std::string s_RequestId;
+        TUint32Vec s_Tokens;
+        TUint32VecVec s_SecondaryArguments;
+    };
 
-	struct SRequest {
-		std::string s_RequestId;
-		TUint32Vec s_Tokens;
-		TUint32VecVec s_SecondaryArguments;
-	};
-
-	using TRequestHandlerFunc = std::function<bool(SRequest&)>;
-
+    using TRequestHandlerFunc = std::function<bool(SRequest&)>;
 
 public:
     CCommandParser(std::istream& strmIn);
@@ -64,13 +60,12 @@ public:
     CCommandParser& operator=(const CCommandParser&) = delete;
 
 private:
-	bool validateJson(const rapidjson::Document& doc) const;
-	SRequest jsonToRequest(const rapidjson::Document& doc) const;
+    bool validateJson(const rapidjson::Document& doc) const;
+    SRequest jsonToRequest(const rapidjson::Document& doc) const;
+
 private:
-	//! 
     std::istream& m_StrmIn;
 };
-
 }
 }
 
