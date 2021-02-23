@@ -28,11 +28,25 @@ if [ -z "$PR_AUTHOR" ] ; then
     set +x
     export VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID" secret_id="$VAULT_SECRET_ID")
 
-    AWS_CREDS=$(vault read -format=json -field=data aws-dev/creds/prelertartifacts)
-    export ML_AWS_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.access_key')
-    export ML_AWS_SECRET_KEY=$(echo $AWS_CREDS | jq -r '.secret_key')
+    unset ML_AWS_ACCESS_KEY ML_AWS_SECRET_KEY
+    FAILURES=0
+    while [ $FAILURES -lt 3 -a -z "$ML_AWS_ACCESS_KEY" ] ; do
+        AWS_CREDS=$(vault read -format=json -field=data aws-dev/creds/prelertartifacts)
+        if [ $? -eq 0 ] ; then
+            export ML_AWS_ACCESS_KEY=$(echo $AWS_CREDS | jq -r '.access_key')
+            export ML_AWS_SECRET_KEY=$(echo $AWS_CREDS | jq -r '.secret_key')
+        else
+            let FAILURES++
+            echo "Attempt $FAILURES to get AWS credentials failed"
+        fi
+    done
 
     unset VAULT_TOKEN VAULT_ROLE_ID VAULT_SECRET_ID
+
+    if [ -z "$ML_AWS_ACCESS_KEY" -o -z "$ML_AWS_SECRET_KEY" ] ; then
+        echo "Exiting after failing to get AWS credentials $FAILURES times"
+        exit 1
+    fi
     set -x
 fi
 
