@@ -43,14 +43,11 @@ torch::Tensor infer(torch::jit::script::Module& module,
     inputs.reserve(1 + request.s_SecondaryArguments.size());
     inputs.push_back(tokensTensor);
 
-    for (auto args : request.s_SecondaryArguments) {
-        torch::Tensor tensor =
-            torch::from_blob(static_cast<void*>(args.data()),
-                             {1, static_cast<std::int64_t>(args.size())},
-                             at::dtype(torch::kInt32))
-                .to(torch::kInt64);
-
-        inputs.push_back(tensor);
+    for (auto& args : request.s_SecondaryArguments) {
+        inputs.emplace_back(torch::from_blob(static_cast<void*>(args.data()),
+                                             {1, static_cast<std::int64_t>(args.size())},
+                                             at::dtype(torch::kInt32))
+                                .to(torch::kInt64));
     }
 
     torch::NoGradGuard noGrad;
