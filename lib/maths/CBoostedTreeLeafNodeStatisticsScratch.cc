@@ -116,9 +116,7 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
     const TRegularization& regularization,
     const TSizeVec& nodeFeatureBag,
     CWorkspace& workspace)
-    : CBoostedTreeLeafNodeStatistics{id,
-                                     parent.depth() + 1,
-                                     parent.extraColumns(),
+    : CBoostedTreeLeafNodeStatistics{id, parent.depth() + 1, parent.extraColumns(),
                                      parent.numberLossParameters(),
                                      parent.candidateSplits()},
       m_Derivatives{std::move(parent.m_Derivatives)} {
@@ -468,13 +466,14 @@ CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(const TRegular
                          regularization.treeSizePenaltyMultiplier() -
                          regularization.depthPenaltyMultiplier() *
                              (2.0 * penaltyForDepthPlusOne - penaltyForDepth)};
-        SSplitStatistics candidate{totalGain,
-                                   h.trace() / static_cast<double>(this->numberLossParameters()),
-                                   feature,
-                                   splitAt,
-                                   std::min(leftChildRowCount, c - leftChildRowCount),
-                                   2 * leftChildRowCount < c,
-                                   assignMissingToLeft};
+        SSplitStatistics candidate{
+            totalGain,
+            h.trace() / static_cast<double>(this->numberLossParameters()),
+            feature,
+            splitAt,
+            std::min(leftChildRowCount, c - leftChildRowCount),
+            2 * leftChildRowCount < c,
+            assignMissingToLeft};
         LOG_TRACE(<< "candidate split: " << candidate.print());
 
         if (candidate > result) {
@@ -488,7 +487,8 @@ CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(const TRegular
         result.s_RightChildMaxGain = INF;
     } else if (result.s_Gain > 0) {
         double childPenaltyForDepth{regularization.penaltyForDepth(this->depth() + 1)};
-        double childPenaltyForDepthPlusOne{regularization.penaltyForDepth(this->depth() + 2)};
+        double childPenaltyForDepthPlusOne{
+            regularization.penaltyForDepth(this->depth() + 2)};
         double childPenalty{regularization.treeSizePenaltyMultiplier() +
                             regularization.depthPenaltyMultiplier() *
                                 (2.0 * childPenaltyForDepthPlusOne - childPenaltyForDepth)};
