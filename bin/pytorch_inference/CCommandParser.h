@@ -7,12 +7,12 @@
 #ifndef INCLUDED_ml_torch_CCommandParser_h
 #define INCLUDED_ml_torch_CCommandParser_h
 
+#include <rapidjson/document.h>
+
 #include <functional>
 #include <iosfwd>
 #include <string>
 #include <vector>
-
-#include <rapidjson/document.h>
 
 namespace ml {
 namespace torch {
@@ -46,6 +46,8 @@ public:
         std::string s_RequestId;
         TUint32Vec s_Tokens;
         TUint32VecVec s_SecondaryArguments;
+
+        void clear();
     };
 
     using TRequestHandlerFunc = std::function<bool(SRequest&)>;
@@ -54,17 +56,18 @@ public:
     CCommandParser(std::istream& strmIn);
 
     //! Pass input to the processor until it's consumed as much as it can.
-    bool ioLoop(const TRequestHandlerFunc& requestHandler) const;
+    bool ioLoop(const TRequestHandlerFunc& requestHandler);
 
     CCommandParser(const CCommandParser&) = delete;
     CCommandParser& operator=(const CCommandParser&) = delete;
 
 private:
     bool validateJson(const rapidjson::Document& doc) const;
-    SRequest jsonToRequest(const rapidjson::Document& doc) const;
+    void jsonToRequest(const rapidjson::Document& doc);
 
 private:
     std::istream& m_StrmIn;
+    SRequest m_Request;
 };
 }
 }

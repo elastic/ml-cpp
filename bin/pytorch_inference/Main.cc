@@ -4,13 +4,16 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <api/CIoManager.h>
 #include <core/CBlockingCallCancellingTimer.h>
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
 #include <core/CRapidJsonLineWriter.h>
+
 #include <seccomp/CSystemCallFilter.h>
+
 #include <ver/CBuildInfo.h>
+
+#include <api/CIoManager.h>
 
 #include "CBufferedIStreamAdapter.h"
 #include "CCmdLineParser.h"
@@ -22,8 +25,10 @@
 #include <memory>
 #include <string>
 
-static const std::string INFERENCE{"inference"};
-static const std::string ERROR{"error"};
+namespace {
+const std::string INFERENCE{"inference"};
+const std::string ERROR{"error"};
+}
 
 torch::Tensor infer(torch::jit::script::Module& module,
                     ml::torch::CCommandParser::SRequest& request) {
@@ -35,6 +40,7 @@ torch::Tensor infer(torch::jit::script::Module& module,
             .to(torch::kInt64);
 
     std::vector<torch::jit::IValue> inputs;
+    inputs.reserve(1 + request.s_SecondaryArguments.size());
     inputs.push_back(tokensTensor);
 
     for (auto args : request.s_SecondaryArguments) {
@@ -58,6 +64,8 @@ void writePrediction(const torch::Tensor& prediction,
 
     torch::Tensor view;
     auto sizes = prediction.sizes();
+    // Some models return a 3D tensor in which case
+    // the first dimension must have size == 1
     if (sizes.size() == 3 && sizes[0] == 1) {
         view = prediction[0];
     } else {

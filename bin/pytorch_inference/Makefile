@@ -13,7 +13,6 @@ ML_LIBS=$(LIB_ML_CORE) $(LIB_ML_API)
 
 USE_BOOST=1
 USE_BOOST_PROGRAMOPTIONS_LIBS=1
-USE_NET=1
 USE_RAPIDJSON=1
 USE_TORCH=1
 
@@ -26,8 +25,6 @@ SRCS= \
     CBufferedIStreamAdapter.cc \
     CCmdLineParser.cc \
     CCommandParser.cc \
-
-NO_TEST_CASES=1
 
 include $(CPP_SRC_HOME)/mk/stdapp.mk
 
