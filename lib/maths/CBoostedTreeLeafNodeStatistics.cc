@@ -12,6 +12,10 @@
 
 namespace ml {
 namespace maths {
+std::size_t CBoostedTreeLeafNodeStatistics::memoryUsage() const {
+    return core::CMemory::dynamicSize(m_RowMask);
+}
+
 bool CBoostedTreeLeafNodeStatistics::operator<(const CBoostedTreeLeafNodeStatistics& rhs) const {
     return COrderings::lexicographical_compare(m_BestSplit, m_Id, rhs.m_BestSplit, rhs.m_Id);
 }
@@ -60,8 +64,8 @@ core::CPackedBitVector& CBoostedTreeLeafNodeStatistics::rowMask() {
     return m_RowMask;
 }
 
-std::size_t CBoostedTreeLeafNodeStatistics::memoryUsage() const {
-    return core::CMemory::dynamicSize(m_RowMask);
+std::string CBoostedTreeLeafNodeStatistics::print() const {
+    return m_BestSplit.print();
 }
 
 CBoostedTreeLeafNodeStatistics::CBoostedTreeLeafNodeStatistics(std::size_t id,

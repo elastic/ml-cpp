@@ -619,6 +619,9 @@ public:
                             const CBoostedTreeNode& split,
                             CWorkspace& workspace) = 0;
 
+    //! Get the memory used by this object.
+    virtual std::size_t memoryUsage() const;
+
     //! Order two leaves by decreasing gain in splitting them.
     bool operator<(const CBoostedTreeLeafNodeStatistics& rhs) const;
 
@@ -656,11 +659,8 @@ public:
     //! Get the row mask for this leaf node.
     core::CPackedBitVector& rowMask();
 
-    //! Get the memory used by this object.
-    virtual std::size_t memoryUsage() const;
-
     //! Get the best split info as a string.
-    std::string print() const { return m_BestSplit.print(); }
+    std::string print() const;
 
 protected:
     using TSizeVecCRef = std::reference_wrapper<const TSizeVec>;
