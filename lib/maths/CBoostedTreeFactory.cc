@@ -1419,15 +1419,21 @@ CBoostedTreeFactory& CBoostedTreeFactory::earlyStoppingEnabled(bool enable) {
     return *this;
 }
 
-std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
-                                                     std::size_t numberColumns) const {
+std::size_t CBoostedTreeFactory::estimateMemoryUsageTrain(std::size_t numberRows,
+                                                          std::size_t numberColumns) const {
     std::size_t maximumNumberTrees{this->mainLoopMaximumNumberTrees(
         m_TreeImpl->m_EtaOverride != boost::none ? *m_TreeImpl->m_EtaOverride
                                                  : computeEta(numberColumns))};
     std::swap(maximumNumberTrees, m_TreeImpl->m_MaximumNumberTrees);
-    std::size_t result{m_TreeImpl->estimateMemoryUsage(numberRows, numberColumns)};
+    std::size_t result{m_TreeImpl->estimateMemoryUsageTrain(numberRows, numberColumns)};
     std::swap(maximumNumberTrees, m_TreeImpl->m_MaximumNumberTrees);
     return result;
+}
+
+std::size_t
+CBoostedTreeFactory::estimateMemoryUsageTrainIncremental(std::size_t numberRows,
+                                                         std::size_t numberColumns) const {
+    return m_TreeImpl->estimateMemoryUsageTrainIncremental(numberRows, numberColumns);
 }
 
 std::size_t CBoostedTreeFactory::numberExtraColumnsForTrain() const {

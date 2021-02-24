@@ -21,6 +21,8 @@
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
+#include <maths/CBoostedTreeLeafNodeStatisticsIncremental.h>
+#include <maths/CBoostedTreeLeafNodeStatisticsScratch.h>
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameAnalysisInstrumentationInterface.h>
@@ -291,15 +293,17 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
 }
 
-bool CBoostedTreeImpl::trainIncrementally(core::CDataFrame& /*frame*/,
-                                          const TTrainingStateCallback& /*recordTrainStateCallback*/) {
+bool CBoostedTreeImpl::trainIncremental(core::CDataFrame& /*frame*/,
+                                        const TTrainingStateCallback& /*recordTrainStateCallback*/) {
 
     if (m_BestForest.empty()) {
         LOG_ERROR(<< "No model available to incrementally train.");
         return false;
     }
 
-    // TODO.
+    // TODO Placeholder.
+
+    return true;
 }
 
 void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {
@@ -329,8 +333,8 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
     }
 }
 
-std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
-                                                  std::size_t numberColumns) const {
+std::size_t CBoostedTreeImpl::estimateMemoryUsageTrain(std::size_t numberRows,
+                                                       std::size_t numberColumns) const {
     // The maximum tree size is defined is the maximum number of leaves minus one.
     // A binary tree with n + 1 leaves has 2n + 1 nodes in total.
     std::size_t maximumNumberLeaves{this->maximumTreeSize(numberRows) + 1};
@@ -362,7 +366,7 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     // halves the peak number of statistics we maintain.
     std::size_t leafNodeStatisticsMemoryUsage{
         rowMaskMemoryUsage + maximumNumberLeaves *
-                                 CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(
+                                 CBoostedTreeLeafNodeStatisticsScratch::estimateMemoryUsage(
                                      maximumNumberFeatures, m_NumberSplitsPerFeature,
                                      m_Loss->numberParameters()) /
                                  2};
@@ -385,6 +389,14 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
         trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage};
 
     return CBoostedTreeImpl::correctedMemoryUsage(static_cast<double>(worstCaseMemoryUsage));
+}
+
+std::size_t
+CBoostedTreeImpl::estimateMemoryUsageTrainIncremental(std::size_t /*numberRows*/,
+                                                      std::size_t /*numberColumns*/) const {
+
+    // TODO Placeholder.
+    return 0;
 }
 
 std::size_t CBoostedTreeImpl::correctedMemoryUsage(double memoryUsageBytes) {
@@ -855,7 +867,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     this->nodeFeatureBag(treeFeatureBag, featureSampleProbabilities, nodeFeatureBag);
 
     TLeafNodeStatisticsPtrQueue splittableLeaves(maximumNumberInternalNodes / 2 + 3);
-    splittableLeaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatistics>(
+    // TODO this needs to be a factory function so we can reuse for incremental training.
+    splittableLeaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
         0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
         frame, *m_Encoder, m_Regularization, candidateSplits, treeFeatureBag,
         nodeFeatureBag, 0 /*depth*/, trainingRowMask, workspace));

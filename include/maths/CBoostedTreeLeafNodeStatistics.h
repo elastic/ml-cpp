@@ -11,7 +11,6 @@
 #include <core/CImmutableRadixSet.h>
 #include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
-#include <core/CSmallVector.h>
 
 #include <maths/CBoostedTreeHyperparameters.h>
 #include <maths/CBoostedTreeUtils.h>
@@ -48,7 +47,7 @@ class CEncodedDataFrameRowRef;
 //! The regression tree is grown top down by greedily selecting the split with
 //! the maximum gain (in the loss). This finds and scores the maximum gain split
 //! of a single leaf of the tree.
-class MATHS_EXPORT CBoostedTreeLeafNodeStatistics final {
+class MATHS_EXPORT CBoostedTreeLeafNodeStatistics {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
@@ -503,6 +502,8 @@ public:
     //! times they need to be allocated. This has the added advantage of keeping
     //! the cache warm since the critical path is always working on the derivatives
     //! objects stored in this class.
+    //
+    // TODO needs to be hierarchy
     class MATHS_EXPORT CWorkspace {
     public:
         using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
@@ -597,40 +598,7 @@ public:
     };
 
 public:
-    CBoostedTreeLeafNodeStatistics(std::size_t id,
-                                   const TSizeVec& extraColumns,
-                                   std::size_t numberLossParameters,
-                                   std::size_t numberThreads,
-                                   const core::CDataFrame& frame,
-                                   const CDataFrameCategoryEncoder& encoder,
-                                   const TRegularization& regularization,
-                                   const TImmutableRadixSetVec& candidateSplits,
-                                   const TSizeVec& treeFeatureBag,
-                                   const TSizeVec& nodeFeatureBag,
-                                   std::size_t depth,
-                                   const core::CPackedBitVector& rowMask,
-                                   CWorkspace& workspace);
-
-    //! Only called by split but is public so it's accessible to std::make_shared.
-    CBoostedTreeLeafNodeStatistics(std::size_t id,
-                                   const CBoostedTreeLeafNodeStatistics& parent,
-                                   std::size_t numberThreads,
-                                   const core::CDataFrame& frame,
-                                   const CDataFrameCategoryEncoder& encoder,
-                                   const TRegularization& regularization,
-                                   const TSizeVec& treeFeatureBag,
-                                   const TSizeVec& nodeFeatureBag,
-                                   bool isLeftChild,
-                                   const CBoostedTreeNode& split,
-                                   CWorkspace& workspace);
-
-    //! Only called by split but is public so it's accessible to std::make_shared.
-    CBoostedTreeLeafNodeStatistics(std::size_t id,
-                                   CBoostedTreeLeafNodeStatistics&& parent,
-                                   const TRegularization& regularization,
-                                   const TSizeVec& nodeFeatureBag,
-                                   CWorkspace& workspace);
-
+    virtual ~CBoostedTreeLeafNodeStatistics() = default;
     CBoostedTreeLeafNodeStatistics(const CBoostedTreeLeafNodeStatistics&) = delete;
     CBoostedTreeLeafNodeStatistics& operator=(const CBoostedTreeLeafNodeStatistics&) = delete;
 
@@ -639,17 +607,17 @@ public:
     //! Apply the split defined by \p split.
     //!
     //! \return Shared pointers to the left and right child node statistics.
-    TPtrPtrPr split(std::size_t leftChildId,
-                    std::size_t rightChildId,
-                    std::size_t numberThreads,
-                    double gainThreshold,
-                    const core::CDataFrame& frame,
-                    const CDataFrameCategoryEncoder& encoder,
-                    const TRegularization& regularization,
-                    const TSizeVec& treeFeatureBag,
-                    const TSizeVec& nodeFeatureBag,
-                    const CBoostedTreeNode& split,
-                    CWorkspace& workspace);
+    virtual TPtrPtrPr split(std::size_t leftChildId,
+                            std::size_t rightChildId,
+                            std::size_t numberThreads,
+                            double gainThreshold,
+                            const core::CDataFrame& frame,
+                            const CDataFrameCategoryEncoder& encoder,
+                            const TRegularization& regularization,
+                            const TSizeVec& treeFeatureBag,
+                            const TSizeVec& nodeFeatureBag,
+                            const CBoostedTreeNode& split,
+                            CWorkspace& workspace) = 0;
 
     //! Order two leaves by decreasing gain in splitting them.
     bool operator<(const CBoostedTreeLeafNodeStatistics& rhs) const;
@@ -683,22 +651,18 @@ public:
     std::size_t id() const;
 
     //! Get the row mask for this leaf node.
+    const core::CPackedBitVector& rowMask() const;
+
+    //! Get the row mask for this leaf node.
     core::CPackedBitVector& rowMask();
 
     //! Get the memory used by this object.
-    std::size_t memoryUsage() const;
+    virtual std::size_t memoryUsage() const;
 
     //! Get the best split info as a string.
     std::string print() const { return m_BestSplit.print(); }
 
-    //! Estimate the maximum leaf statistics' memory usage training on a data frame
-    //! with \p numberCols columns using \p numberSplitsPerFeature for a loss function
-    //! with \p numberLossParameters parameters.
-    static std::size_t estimateMemoryUsage(std::size_t numberCols,
-                                           std::size_t numberSplitsPerFeature,
-                                           std::size_t numberLossParameters);
-
-private:
+protected:
     using TSizeVecCRef = std::reference_wrapper<const TSizeVec>;
 
     //! \brief Statistics relating to a split of the node.
@@ -743,29 +707,18 @@ private:
         double s_RightChildMaxGain = boosted_tree_detail::INF;
     };
 
-private:
-    void computeAggregateLossDerivatives(std::size_t numberThreads,
-                                         const core::CDataFrame& frame,
-                                         const CDataFrameCategoryEncoder& encoder,
-                                         const TSizeVec& featureBag,
-                                         const core::CPackedBitVector& rowMask,
-                                         CWorkspace& workspace) const;
-    void computeRowMaskAndAggregateLossDerivatives(std::size_t numberThreads,
-                                                   const core::CDataFrame& frame,
-                                                   const CDataFrameCategoryEncoder& encoder,
-                                                   bool isLeftChild,
-                                                   const CBoostedTreeNode& split,
-                                                   const TSizeVec& featureBag,
-                                                   const core::CPackedBitVector& parentRowMask,
-                                                   CWorkspace& workspace) const;
-    void addRowDerivatives(const TSizeVec& featureBag,
-                           const CEncodedDataFrameRowRef& row,
-                           CSplitsDerivatives& splitsDerivatives) const;
+protected:
+    CBoostedTreeLeafNodeStatistics(std::size_t id,
+                                   std::size_t depth,
+                                   TSizeVecCRef extraColumns,
+                                   std::size_t numberLossParameters,
+                                   const TImmutableRadixSetVec& candidateSplits);
 
-    SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
-                                                const TSizeVec& featureBag) const;
-
-    double childMaxGain(double gChild, double minLossChild, double lambda) const;
+    SSplitStatistics& bestSplitStatistics();
+    std::size_t depth() const;
+    TSizeVecCRef extraColumns() const;
+    std::size_t numberLossParameters() const;
+    const TImmutableRadixSetVec& candidateSplits() const;
 
 private:
     std::size_t m_Id;
@@ -774,7 +727,6 @@ private:
     std::size_t m_NumberLossParameters;
     const TImmutableRadixSetVec& m_CandidateSplits;
     core::CPackedBitVector m_RowMask;
-    CSplitsDerivatives m_Derivatives;
     SSplitStatistics m_BestSplit;
 };
 }

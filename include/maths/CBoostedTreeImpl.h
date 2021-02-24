@@ -93,7 +93,8 @@ public:
     //!
     //! \warning Assumes that train has been called or a trained model has been
     //! reloaded.
-    bool trainIncrementally(core::CDataFrame& frame, const TTrainingStateCallback& recordTrainStateCallback);
+    bool trainIncremental(core::CDataFrame& frame,
+                          const TTrainingStateCallback& recordTrainStateCallback);
 
     //! Write the predictions of the best trained model to \p frame.
     //!
@@ -137,9 +138,15 @@ public:
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
 
-    //! Estimate the maximum booking memory that training the boosted tree on a data
+    //! Estimate the maximum booking memory that training a boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
-    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
+    std::size_t estimateMemoryUsageTrain(std::size_t numberRows, std::size_t numberColumns) const;
+
+    //! Estimate the maximum booking memory that incrementally training a boosted
+    //! tree on a data frame with \p numberRows row and \p numberColumns columns
+    //! will use.
+    std::size_t estimateMemoryUsageTrainIncremental(std::size_t numberRows,
+                                                    std::size_t numberColumns) const;
 
     //! Correct from worst case memory usage to a more realistic estimate.
     static std::size_t correctedMemoryUsage(double memoryUsageBytes);
