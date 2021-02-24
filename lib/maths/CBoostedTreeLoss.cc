@@ -779,7 +779,7 @@ double CMsle::value(const TMemoryMappedFloatVector& logPrediction, double actual
     double logOffsetPrediction{CTools::stableLog(m_Offset + prediction)};
     if (actual < 0.0) {
         HANDLE_FATAL(<< "Input error: target value needs to be non-negative to use "
-                     << "with MSLE loss, received: " << actual)
+                     << "with MSLE loss, received: " << actual);
     }
     double logOffsetActual{CTools::stableLog(m_Offset + actual)};
     return weight * CTools::pow2(logOffsetPrediction - logOffsetActual);

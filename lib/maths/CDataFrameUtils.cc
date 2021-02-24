@@ -594,7 +594,7 @@ CDataFrameUtils::categoryFrequencies(std::size_t numberThreads,
                  copyCategoryCounts, reduceCategoryCounts, result);
     } catch (const std::exception& e) {
         HANDLE_FATAL(<< "Internal error: '" << e.what() << "' exception calculating"
-                     << " category frequencies. Please report this problem.")
+                     << " category frequencies. Please report this problem.");
     }
 
     double Z{rowMask.manhattan()};
@@ -656,7 +656,7 @@ CDataFrameUtils::meanValueOfTargetForCategories(const CColumnValue& target,
                  copyColumnMeans, reduceColumnMeans, means);
     } catch (const std::exception& e) {
         HANDLE_FATAL(<< "Internal error: '" << e.what() << "' exception calculating"
-                     << " mean target values for categories. Please report this problem.")
+                     << " mean target values for categories. Please report this problem.");
         return result;
     }
     for (std::size_t i = 0; i < result.size(); ++i) {
@@ -1028,7 +1028,7 @@ CDataFrameUtils::maximizeMinimumRecallForBinary(std::size_t numberThreads,
     TQuantileSketchVec classProbabilityClassOneQuantiles;
     if (doReduce(frame.readRows(numberThreads, 0, frame.numberRows(), readQuantiles, &rowMask),
                  copyQuantiles, reduceQuantiles, classProbabilityClassOneQuantiles) == false) {
-        HANDLE_FATAL(<< "Failed to compute category quantiles")
+        HANDLE_FATAL(<< "Failed to compute category quantiles");
         return TDoubleVector::Ones(2);
     }
 
