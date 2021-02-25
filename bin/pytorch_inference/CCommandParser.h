@@ -71,6 +71,7 @@ public:
 
 private:
     bool validateJson(const rapidjson::Document& doc) const;
+    bool checkArrayContainsUInts(const rapidjson::Value& arr) const;
     void jsonToRequest(const rapidjson::Document& doc);
 
 private:

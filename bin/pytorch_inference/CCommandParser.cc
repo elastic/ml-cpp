@@ -77,6 +77,11 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc) const {
         return false;
     }
 
+    if (doc[REQUEST_ID].IsString() == false) {
+        LOG_ERROR(<< "Invalid command: [" << REQUEST_ID << "] field is not a string");
+        return false;
+    }
+
     if (doc.HasMember(TOKENS) == false) {
         LOG_ERROR(<< "Invalid command: missing field [" << TOKENS << "]");
         return false;
@@ -85,6 +90,11 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc) const {
     const rapidjson::Value& tokens = doc[TOKENS];
     if (tokens.IsArray() == false) {
         LOG_ERROR(<< "Invalid command: expected an array [" << TOKENS << "]");
+        return false;
+    }
+
+    if (checkArrayContainsUInts(tokens) == false) {
+        LOG_ERROR(<< "Invalid command: array [" << TOKENS << "] contains values that are not unsigned integers");
         return false;
     }
 
@@ -98,11 +108,26 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc) const {
             return false;
         }
 
+        if (checkArrayContainsUInts(value) == false) {
+            LOG_ERROR(<< "Invalid command: array [" << varArgName << "] contains values that are not unsigned integers");
+            return false;
+        }
+
         ++varCount;
         varArgName = VAR_ARG_PREFIX + std::to_string(varCount);
     }
 
     return true;
+}
+
+bool CCommandParser::checkArrayContainsUInts(const rapidjson::Value& arr) const {
+    bool allInts{true};
+
+    for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
+        allInts = allInts && itr->IsUint64();
+    }
+
+    return allInts;
 }
 
 void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {

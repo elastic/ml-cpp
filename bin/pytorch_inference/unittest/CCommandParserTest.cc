@@ -58,6 +58,58 @@ BOOST_AUTO_TEST_CASE(testParsingInvalidDoc) {
     BOOST_REQUIRE_EQUAL(0, parsed.size());
 }
 
+BOOST_AUTO_TEST_CASE(testParsingInvalidRequestId) {
+
+    std::vector<ml::torch::CCommandParser::SRequest> parsed;
+
+    std::string command{"{\"request_id\": 1}"};
+
+    std::istringstream commandStream{command};
+
+    ml::torch::CCommandParser processor{commandStream};
+    BOOST_TEST_REQUIRE(processor.ioLoop([&parsed](const ml::torch::CCommandParser::SRequest& request) {
+        parsed.push_back(request);
+        return true;
+    }));
+
+    BOOST_REQUIRE_EQUAL(0, parsed.size());
+}
+
+BOOST_AUTO_TEST_CASE(testParsingTokenArrayNotInts) {
+
+    std::vector<ml::torch::CCommandParser::SRequest> parsed;
+
+    std::string command{"{\"request_id\": \"tokens_should_be_uints\", \"tokens\": [\"a\", \"b\", \"c\"]}"};
+
+    std::istringstream commandStream{command};
+
+    ml::torch::CCommandParser processor{commandStream};
+    BOOST_TEST_REQUIRE(processor.ioLoop([&parsed](const ml::torch::CCommandParser::SRequest& request) {
+        parsed.push_back(request);
+        return true;
+    }));
+
+    BOOST_REQUIRE_EQUAL(0, parsed.size());
+}
+
+BOOST_AUTO_TEST_CASE(testParsingTokenVarArgsNotInts) {
+
+    std::vector<ml::torch::CCommandParser::SRequest> parsed;
+
+    std::string command{"{\"request_id\": \"bad\", \"tokens\": [1, 2], \"arg_1\": [\"a\", \"b\"]}"};
+
+    std::istringstream commandStream{command};
+
+    ml::torch::CCommandParser processor{commandStream};
+    BOOST_TEST_REQUIRE(processor.ioLoop([&parsed](const ml::torch::CCommandParser::SRequest& request) {
+        parsed.push_back(request);
+        return true;
+    }));
+
+    BOOST_REQUIRE_EQUAL(0, parsed.size());
+}
+
+
 BOOST_AUTO_TEST_CASE(testParsingWhitespaceSeparatedDocs) {
 
     std::vector<ml::torch::CCommandParser::SRequest> parsed;
