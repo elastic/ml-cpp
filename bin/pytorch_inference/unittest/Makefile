@@ -15,7 +15,7 @@ USE_TORCH=1
 
 all: build
 
-LIB_OBJS=\
+LIBS=\
     ../.objs/C*$(OBJECT_FILE_EXT) \
 
 SRCS=\
