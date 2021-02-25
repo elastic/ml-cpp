@@ -114,7 +114,7 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
     m_Request.s_Tokens.reserve(arr.Size());
 
     for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
-        m_Request.s_Tokens.push_back(itr->GetUint());
+        m_Request.s_Tokens.push_back(itr->GetUint64());
     }
 
     std::uint64_t varCount{1};
@@ -122,11 +122,11 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
 
     // wipe any previous
     m_Request.s_SecondaryArguments.clear();
-    TUint32Vec arg;
+    TUint64Vec arg;
     while (doc.HasMember(varArgName)) {
         const rapidjson::Value& v = doc[varArgName];
         for (auto itr = v.Begin(); itr != v.End(); ++itr) {
-            arg.push_back(itr->GetUint());
+            arg.push_back(itr->GetUint64());
         }
 
         m_Request.s_SecondaryArguments.push_back(arg);

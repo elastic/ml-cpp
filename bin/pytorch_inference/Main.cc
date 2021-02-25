@@ -36,18 +36,16 @@ torch::Tensor infer(torch::jit::script::Module& module,
     torch::Tensor tokensTensor =
         torch::from_blob(static_cast<void*>(request.s_Tokens.data()),
                          {1, static_cast<std::int64_t>(request.s_Tokens.size())},
-                         at::dtype(torch::kInt32))
-            .to(torch::kInt64);
+                         at::dtype(torch::kInt64));
 
     std::vector<torch::jit::IValue> inputs;
     inputs.reserve(1 + request.s_SecondaryArguments.size());
     inputs.push_back(tokensTensor);
 
     for (auto& args : request.s_SecondaryArguments) {
-        inputs.emplace_back(torch::from_blob(static_cast<void*>(args.data()),
-                                             {1, static_cast<std::int64_t>(args.size())},
-                                             at::dtype(torch::kInt32))
-                                .to(torch::kInt64));
+        inputs.emplace_back(torch::from_blob(
+            static_cast<void*>(args.data()),
+            {1, static_cast<std::int64_t>(args.size())}, at::dtype(torch::kInt64)));
     }
 
     torch::NoGradGuard noGrad;

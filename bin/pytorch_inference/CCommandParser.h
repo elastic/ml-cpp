@@ -47,13 +47,13 @@ public:
     static const std::string TOKENS;
     static const std::string VAR_ARG_PREFIX;
 
-    using TUint32Vec = std::vector<std::uint32_t>;
-    using TUint32VecVec = std::vector<TUint32Vec>;
+    using TUint64Vec = std::vector<std::uint64_t>;
+    using TUint64VecVec = std::vector<TUint64Vec>;
 
     struct SRequest {
         std::string s_RequestId;
-        TUint32Vec s_Tokens;
-        TUint32VecVec s_SecondaryArguments;
+        TUint64Vec s_Tokens;
+        TUint64VecVec s_SecondaryArguments;
 
         void clear();
     };

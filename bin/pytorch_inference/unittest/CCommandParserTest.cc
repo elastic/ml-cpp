@@ -27,14 +27,14 @@ BOOST_AUTO_TEST_CASE(testParsingStream) {
     BOOST_REQUIRE_EQUAL(2, parsed.size());
     {
         BOOST_REQUIRE_EQUAL("foo", parsed[0].s_RequestId);
-        ml::torch::CCommandParser::TUint32Vec expected{1, 2, 3};
+        ml::torch::CCommandParser::TUint64Vec expected{1, 2, 3};
         BOOST_REQUIRE_EQUAL_COLLECTIONS(parsed[0].s_Tokens.begin(),
                                         parsed[0].s_Tokens.end(),
                                         expected.begin(), expected.end());
     }
     {
         BOOST_REQUIRE_EQUAL("bar", parsed[1].s_RequestId);
-        ml::torch::CCommandParser::TUint32Vec expected{4, 5};
+        ml::torch::CCommandParser::TUint64Vec expected{4, 5};
         BOOST_REQUIRE_EQUAL_COLLECTIONS(parsed[1].s_Tokens.begin(),
                                         parsed[1].s_Tokens.end(),
                                         expected.begin(), expected.end());
@@ -98,10 +98,10 @@ BOOST_AUTO_TEST_CASE(testParsingVariableArguments) {
 
     BOOST_REQUIRE_EQUAL(2, parsed.size());
     {
-        ml::torch::CCommandParser::TUint32Vec expectedArg1{0, 0};
-        ml::torch::CCommandParser::TUint32Vec expectedArg2{0, 1};
+        ml::torch::CCommandParser::TUint64Vec expectedArg1{0, 0};
+        ml::torch::CCommandParser::TUint64Vec expectedArg2{0, 1};
 
-        ml::torch::CCommandParser::TUint32VecVec extraArgs = parsed[0].s_SecondaryArguments;
+        ml::torch::CCommandParser::TUint64VecVec extraArgs = parsed[0].s_SecondaryArguments;
         BOOST_REQUIRE_EQUAL(2, extraArgs.size());
 
         BOOST_REQUIRE_EQUAL_COLLECTIONS(extraArgs[0].begin(), extraArgs[0].end(),
@@ -110,10 +110,10 @@ BOOST_AUTO_TEST_CASE(testParsingVariableArguments) {
                                         expectedArg2.begin(), expectedArg2.end());
     }
     {
-        ml::torch::CCommandParser::TUint32Vec expectedArg1{1, 0};
-        ml::torch::CCommandParser::TUint32Vec expectedArg2{1, 1};
+        ml::torch::CCommandParser::TUint64Vec expectedArg1{1, 0};
+        ml::torch::CCommandParser::TUint64Vec expectedArg2{1, 1};
 
-        ml::torch::CCommandParser::TUint32VecVec extraArgs = parsed[1].s_SecondaryArguments;
+        ml::torch::CCommandParser::TUint64VecVec extraArgs = parsed[1].s_SecondaryArguments;
         BOOST_REQUIRE_EQUAL(2, extraArgs.size());
 
         BOOST_REQUIRE_EQUAL_COLLECTIONS(extraArgs[0].begin(), extraArgs[0].end(),
