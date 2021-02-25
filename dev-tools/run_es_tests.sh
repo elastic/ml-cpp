@@ -72,10 +72,12 @@ if [ -z "$ES_BUILD_JAVA" ]; then
 fi
 
 # On aarch64 adoptopenjdk is used in place of openjdk,
-# and the CDS archive can cause problems with Gradle
+# and the CDS archive can cause problems with Java
+# (both for Gradle and the tests themselves)
 if [ `uname -m` = aarch64 ] ; then
     export ES_BUILD_JAVA=adopt$ES_BUILD_JAVA
     export GRADLE_OPTS=-Xshare:off
+    export EXTRA_TEST_OPTS=-Xshare:off
 fi
 
 echo "Setting JAVA_HOME=$HOME/.java/$ES_BUILD_JAVA"
@@ -94,5 +96,5 @@ export GIT_COMMIT="$(git rev-parse HEAD)"
 export GIT_PREVIOUS_COMMIT="$GIT_COMMIT"
 
 IVY_REPO_URL="file://$2"
-./gradlew -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest
-./gradlew -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}"
+./gradlew -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:ml:qa:native-multi-node-tests:javaRestTest $EXTRA_TEST_OPTS
+./gradlew -Dbuild.ml_cpp.repo="$IVY_REPO_URL" :x-pack:plugin:yamlRestTest --tests "org.elasticsearch.xpack.test.rest.XPackRestIT.test {p0=ml/*}" $EXTRA_TEST_OPTS
