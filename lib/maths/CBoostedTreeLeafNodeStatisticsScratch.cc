@@ -1,3 +1,9 @@
+/*
+ * Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+ * or more contributor license agreements. Licensed under the Elastic License;
+ * you may not use this file except in compliance with the Elastic License.
+ */
+
 #include <maths/CBoostedTreeLeafNodeStatisticsScratch.h>
 
 #include <core/CDataFrame.h>
@@ -27,6 +33,7 @@ struct SChildredGainStats {
 
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
+const std::size_t MASK_INDEX{0};
 }
 
 CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
@@ -51,14 +58,14 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 
-    m_Derivatives.swap(workspace.reducedDerivatives());
+    m_Derivatives.swap(workspace.reducedDerivatives(MASK_INDEX));
     this->bestSplitStatistics() =
         this->computeBestSplitStatistics(regularization, nodeFeatureBag);
-    workspace.reducedDerivatives().swap(m_Derivatives);
+    workspace.reducedDerivatives(MASK_INDEX).swap(m_Derivatives);
 
     if (this->gain() > workspace.minimumGain()) {
         this->rowMask() = rowMask;
-        CSplitsDerivatives tmp{workspace.derivatives()[0]};
+        CSplitsDerivatives tmp{workspace.derivatives(MASK_INDEX)[0]};
         m_Derivatives = std::move(tmp);
     }
 }
@@ -98,14 +105,14 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 
-    m_Derivatives.swap(workspace.reducedDerivatives());
+    m_Derivatives.swap(workspace.reducedDerivatives(MASK_INDEX));
     this->bestSplitStatistics() =
         this->computeBestSplitStatistics(regularization, nodeFeatureBag);
-    workspace.reducedDerivatives().swap(m_Derivatives);
+    workspace.reducedDerivatives(MASK_INDEX).swap(m_Derivatives);
 
     if (this->gain() >= workspace.minimumGain()) {
-        CSplitsDerivatives tmp{workspace.reducedDerivatives()};
-        this->rowMask() = workspace.reducedMask(parent.rowMask().size());
+        CSplitsDerivatives tmp{workspace.reducedDerivatives(MASK_INDEX)};
+        this->rowMask() = workspace.reducedMask(MASK_INDEX, parent.rowMask().size());
         m_Derivatives = std::move(tmp);
     }
 }
@@ -123,12 +130,12 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
 
     // Lazily compute the row mask to avoid unnecessary work.
 
-    m_Derivatives.subtract(workspace.reducedDerivatives());
+    m_Derivatives.subtract(workspace.reducedDerivatives(MASK_INDEX));
     this->bestSplitStatistics() =
         this->computeBestSplitStatistics(regularization, nodeFeatureBag);
     if (this->gain() >= workspace.minimumGain()) {
         this->rowMask() = std::move(parent.rowMask());
-        this->rowMask() ^= workspace.reducedMask(this->rowMask().size());
+        this->rowMask() ^= workspace.reducedMask(MASK_INDEX, this->rowMask().size());
     }
 }
 
@@ -209,7 +216,7 @@ void CBoostedTreeLeafNodeStatisticsScratch::computeAggregateLossDerivatives(
     aggregators.reserve(numberThreads);
 
     for (std::size_t i = 0; i < numberThreads; ++i) {
-        auto& splitsDerivatives = workspace.derivatives()[i];
+        auto& splitsDerivatives = workspace.derivatives(MASK_INDEX)[i];
         splitsDerivatives.zero();
         aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {
             for (auto row = beginRows; row != endRows; ++row) {
@@ -237,8 +244,8 @@ void CBoostedTreeLeafNodeStatisticsScratch::computeRowMaskAndAggregateLossDeriva
     aggregators.reserve(numberThreads);
 
     for (std::size_t i = 0; i < numberThreads; ++i) {
-        auto& mask = workspace.masks()[i];
-        auto& splitsDerivatives = workspace.derivatives()[i];
+        auto& mask = workspace.masks(MASK_INDEX)[i];
+        auto& splitsDerivatives = workspace.derivatives(MASK_INDEX)[i];
         mask.clear();
         splitsDerivatives.zero();
         aggregators.push_back([&](TRowItr beginRows, TRowItr endRows) {

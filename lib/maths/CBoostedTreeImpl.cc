@@ -633,7 +633,17 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
     LOG_TRACE(<< "Training one forest...");
 
-    std::size_t maximumTreeSize{this->maximumTreeSize(trainingRowMask)};
+    auto makeRootLeafNodeStatistics =
+        [&](const TImmutableRadixSetVec& candidateSplits,
+            const TSizeVec& treeFeatureBag, const TSizeVec& nodeFeatureBag,
+            const core::CPackedBitVector& trainingRowMask_, TWorkspace& workspace) {
+            return std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
+                0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
+                frame, *m_Encoder, m_Regularization, candidateSplits, treeFeatureBag,
+                nodeFeatureBag, 0 /*depth*/, trainingRowMask_, workspace);
+        };
+
+    std::size_t maximumNumberInternalNodes{this->maximumTreeSize(trainingRowMask)};
 
     TNodeVecVec forest{this->initializePredictionsAndLossDerivatives(
         frame, trainingRowMask, testingRowMask)};
@@ -670,11 +680,12 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     TDoubleVec losses;
     losses.reserve(m_MaximumNumberTrees);
     CTrainForestStoppingCondition stoppingCondition{m_MaximumNumberTrees};
-    TWorkspace workspace;
+    TWorkspace workspace{1};
 
     do {
         auto tree = this->trainTree(frame, downsampledRowMask, candidateSplits,
-                                    maximumTreeSize, workspace);
+                                    maximumNumberInternalNodes,
+                                    makeRootLeafNodeStatistics, workspace);
 
         retries = tree.size() == 1 ? retries + 1 : 0;
 
@@ -841,12 +852,12 @@ CBoostedTreeImpl::TNodeVec
 CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
                             const TImmutableRadixSetVec& candidateSplits,
-                            const std::size_t maximumNumberInternalNodes,
+                            std::size_t maximumNumberInternalNodes,
+                            const TMakeRootLeafNodeStatistics& makeRootLeafNodeStatistics,
                             TWorkspace& workspace) const {
 
     LOG_TRACE(<< "Training one tree...");
 
-    using TLeafNodeStatisticsPtr = CBoostedTreeLeafNodeStatistics::TPtr;
     using TLeafNodeStatisticsPtrQueue = boost::circular_buffer<TLeafNodeStatisticsPtr>;
 
     workspace.reinitialize(m_NumberThreads, candidateSplits, m_Loss->numberParameters());
@@ -867,11 +878,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     this->nodeFeatureBag(treeFeatureBag, featureSampleProbabilities, nodeFeatureBag);
 
     TLeafNodeStatisticsPtrQueue splittableLeaves(maximumNumberInternalNodes / 2 + 3);
-    // TODO this needs to be a factory function so we can reuse for incremental training.
-    splittableLeaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
-        0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
-        frame, *m_Encoder, m_Regularization, candidateSplits, treeFeatureBag,
-        nodeFeatureBag, 0 /*depth*/, trainingRowMask, workspace));
+    splittableLeaves.push_back(makeRootLeafNodeStatistics(
+        candidateSplits, treeFeatureBag, nodeFeatureBag, trainingRowMask, workspace));
 
     // We update local variables because the callback can be expensive if it
     // requires accessing atomics.

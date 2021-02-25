@@ -502,15 +502,16 @@ public:
     //! times they need to be allocated. This has the added advantage of keeping
     //! the cache warm since the critical path is always working on the derivatives
     //! objects stored in this class.
-    //
-    // TODO needs to be hierarchy
     class MATHS_EXPORT CWorkspace {
     public:
         using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
+        using TPackedBitVectorVecVec = std::vector<TPackedBitVectorVec>;
         using TSplitsDerivativesVec = std::vector<CSplitsDerivatives>;
+        using TSplitsDerivativesVecVec = std::vector<TSplitsDerivativesVec>;
 
     public:
-        CWorkspace() = default;
+        explicit CWorkspace(std::size_t numberMasks)
+            : m_NumberMasks{numberMasks} {}
         CWorkspace(CWorkspace&&) = default;
         CWorkspace& operator=(const CWorkspace& other) = delete;
         CWorkspace& operator=(CWorkspace&&) = default;
@@ -520,16 +521,20 @@ public:
                           const TImmutableRadixSetVec& candidateSplits,
                           std::size_t numberLossParameters) {
             m_MinimumGain = 0.0;
-            m_Masks.resize(numberThreads);
-            m_Derivatives.reserve(numberThreads);
-            for (auto& mask : m_Masks) {
-                mask.clear();
-            }
-            for (auto& derivatives : m_Derivatives) {
-                derivatives.reinitialize(candidateSplits, numberLossParameters);
-            }
-            for (std::size_t i = m_Derivatives.size(); i < numberThreads; ++i) {
-                m_Derivatives.emplace_back(candidateSplits, numberLossParameters);
+            m_Masks.resize(m_NumberMasks);
+            m_Derivatives.reserve(m_NumberMasks);
+            for (std::size_t i = 0; i < m_NumberMasks; ++i) {
+                m_Masks[i].resize(numberThreads);
+                m_Derivatives[i].reserve(numberThreads);
+                for (auto& mask : m_Masks[i]) {
+                    mask.clear();
+                }
+                for (auto& derivatives : m_Derivatives[i]) {
+                    derivatives.reinitialize(candidateSplits, numberLossParameters);
+                }
+                for (std::size_t j = m_Derivatives[i].size(); j < numberThreads; ++j) {
+                    m_Derivatives[i].emplace_back(candidateSplits, numberLossParameters);
+                }
             }
         }
 
@@ -552,35 +557,37 @@ public:
         }
 
         //! Get the reduction of the per thread aggregate derivatives.
-        CSplitsDerivatives& reducedDerivatives() {
+        CSplitsDerivatives& reducedDerivatives(std::size_t index) {
             if (m_ReducedDerivatives == false) {
                 for (std::size_t i = 1; i < m_NumberThreads; ++i) {
-                    m_Derivatives[0].add(m_Derivatives[i]);
+                    m_Derivatives[index][0].add(m_Derivatives[index][i]);
                 }
-                m_Derivatives[0].remapCurvature();
+                m_Derivatives[index][0].remapCurvature();
                 m_ReducedDerivatives = true;
             }
-            return m_Derivatives[0];
+            return m_Derivatives[index][0];
         }
 
         //! Get the reduction of the per thread masks.
-        const core::CPackedBitVector& reducedMask(std::size_t size) {
+        const core::CPackedBitVector& reducedMask(std::size_t index, std::size_t size) {
             if (m_ReducedMasks == false) {
-                m_Masks[0].extend(false, size - m_Masks[0].size());
+                m_Masks[index][0].extend(false, size - m_Masks[0].size());
                 for (std::size_t i = 1; i < m_NumberThreads; ++i) {
-                    m_Masks[i].extend(false, size - m_Masks[i].size());
-                    m_Masks[0] |= m_Masks[i];
+                    m_Masks[index][i].extend(false, size - m_Masks[i].size());
+                    m_Masks[index][0] |= m_Masks[index][i];
                 }
                 m_ReducedMasks = true;
             }
-            return m_Masks[0];
+            return m_Masks[index][0];
         }
 
         //! Get the workspace row masks.
-        TPackedBitVectorVec& masks() { return m_Masks; }
+        TPackedBitVectorVec& masks(std::size_t index) { return m_Masks[index]; }
 
         //! Get the workspace derivatives.
-        TSplitsDerivativesVec& derivatives() { return m_Derivatives; }
+        TSplitsDerivativesVec& derivatives(std::size_t index) {
+            return m_Derivatives[index];
+        }
 
         //! Get the memory used by this object.
         std::size_t memoryUsage() const {
@@ -589,12 +596,13 @@ public:
         }
 
     private:
+        std::size_t m_NumberMasks = 0;
         std::size_t m_NumberThreads = 0;
         double m_MinimumGain = 0.0;
         bool m_ReducedMasks = false;
         bool m_ReducedDerivatives = false;
-        TPackedBitVectorVec m_Masks;
-        TSplitsDerivativesVec m_Derivatives;
+        TPackedBitVectorVecVec m_Masks;
+        TSplitsDerivativesVecVec m_Derivatives;
     };
 
 public:
