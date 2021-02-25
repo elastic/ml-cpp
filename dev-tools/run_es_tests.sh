@@ -77,7 +77,7 @@ fi
 if [ `uname -m` = aarch64 ] ; then
     export ES_BUILD_JAVA=adopt$ES_BUILD_JAVA
     export GRADLE_OPTS=-Xshare:off
-    export EXTRA_TEST_OPTS=-Xshare:off
+    export EXTRA_TEST_OPTS="-Dtests.jvm.argline=-Xshare:off"
 fi
 
 echo "Setting JAVA_HOME=$HOME/.java/$ES_BUILD_JAVA"
