@@ -109,8 +109,9 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
 
     m_Request.s_RequestId = doc[REQUEST_ID].GetString();
     const rapidjson::Value& arr = doc[TOKENS];
-    // overwrite any previous
-    m_Request.s_Tokens.resize(arr.Size());
+    // wipe any previous
+    m_Request.s_Tokens.clear();
+    m_Request.s_Tokens.reserve(arr.Size());
 
     for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
         m_Request.s_Tokens.push_back(itr->GetUint());

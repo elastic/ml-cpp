@@ -22,12 +22,20 @@ namespace torch {
 //! for each parsed document.
 //!
 //! DESCRIPTION:\n
-//!
+//! Validation on the input documents is light. It is expected the input
+//! comes from another process which tightly controls what is sent.
+//! Input from an outside source that has not been sanitized should never
+//! be sent.
 //!
 //! IMPLEMENTATION DECISIONS:\n
 //! RapidJSON will natively parse a stream of rootless JSON documents
 //! given the correct parse flags. The documents may be separated by
 //!	whitespace but no other delineator is allowed.
+//!
+//! The parsed request is a member of this class and will be modified when
+//! a new command is parsed. The function handler passed to ioLoop must
+//! not keep a reference to the request object beyond the scope of the
+//! handle function as the request will change.
 //!
 //! The input stream is held by reference.  They must outlive objects of
 //! this class, which, in practice, means that the CIoManager object managing
