@@ -22,12 +22,12 @@ namespace torch {
 //! for each parsed document.
 //!
 //! DESCRIPTION:\n
-//! Validation on the input documents is light. It is expected the input
-//! comes from another process which tightly controls what is sent.
-//! Input from an outside source that has not been sanitized should never
-//! be sent.
 //!
 //! IMPLEMENTATION DECISIONS:\n
+//! Validation exists to prevent memory violations from malicious input,
+//! but no more. The caller is responsible for sending input that will
+//! not result in errors from libTorch and will produce meaningful results.
+//!
 //! RapidJSON will natively parse a stream of rootless JSON documents
 //! given the correct parse flags. The documents may be separated by
 //!	whitespace but no other delineator is allowed.
