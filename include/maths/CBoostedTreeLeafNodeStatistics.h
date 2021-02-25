@@ -522,7 +522,7 @@ public:
                           std::size_t numberLossParameters) {
             m_MinimumGain = 0.0;
             m_Masks.resize(m_NumberMasks);
-            m_Derivatives.reserve(m_NumberMasks);
+            m_Derivatives.resize(m_NumberMasks);
             for (std::size_t i = 0; i < m_NumberMasks; ++i) {
                 m_Masks[i].resize(numberThreads);
                 m_Derivatives[i].reserve(numberThreads);
@@ -571,9 +571,9 @@ public:
         //! Get the reduction of the per thread masks.
         const core::CPackedBitVector& reducedMask(std::size_t index, std::size_t size) {
             if (m_ReducedMasks == false) {
-                m_Masks[index][0].extend(false, size - m_Masks[0].size());
+                m_Masks[index][0].extend(false, size - m_Masks[index][0].size());
                 for (std::size_t i = 1; i < m_NumberThreads; ++i) {
-                    m_Masks[index][i].extend(false, size - m_Masks[i].size());
+                    m_Masks[index][i].extend(false, size - m_Masks[index][i].size());
                     m_Masks[index][0] |= m_Masks[index][i];
                 }
                 m_ReducedMasks = true;
