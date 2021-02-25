@@ -84,29 +84,36 @@ def write_request(request, destination):
 
 
 def compare_results(expected, actual):
-    if expected['request_id'] != actual['request_id']:
-        print("request_ids do not match [{}], [{}]".format(expected['request_id'], actual['request_id']), flush=True)
-        return False
-
-    if len(expected['inference']) != len(actual['inference']):
-        print("len(inference) does not match [{}], [{}]".format(len(expected['inference']), len(actual['inference'])), flush=True)
-        return False
-
-    for i in range(len(expected['inference'])):
-        expected_row = expected['inference'][i]
-        actual_row = actual['inference'][i]
-
-        if len(expected_row) != len(actual_row):
-            print("row [{}] lengths are not equal [{}], [{}]".format(i, len(expected_row), len(actual_row)), flush=True)
+    try:
+        if expected['request_id'] != actual['request_id']:
+            print("request_ids do not match [{}], [{}]".format(expected['request_id'], actual['request_id']), flush=True)
             return False
 
-        are_close = True
-        for j in range(len(expected_row)):
-            are_close = are_close and math.isclose(expected_row[j], actual_row[j], rel_tol=1e-04)
-
-        if are_close == False:
-            print("row [{}] values are not close {}, {}".format(i, expected_row, actual_row), flush=True)
+        if len(expected['inference']) != len(actual['inference']):
+            print("len(inference) does not match [{}], [{}]".format(len(expected['inference']), len(actual['inference'])), flush=True)
             return False
+
+        for i in range(len(expected['inference'])):
+            expected_row = expected['inference'][i]
+            actual_row = actual['inference'][i]
+
+            if len(expected_row) != len(actual_row):
+                print("row [{}] lengths are not equal [{}], [{}]".format(i, len(expected_row), len(actual_row)), flush=True)
+                return False
+
+            are_close = True
+            for j in range(len(expected_row)):
+                are_close = are_close and math.isclose(expected_row[j], actual_row[j], rel_tol=1e-04)
+
+            if are_close == False:
+                print("row [{}] values are not close {}, {}".format(i, expected_row, actual_row), flush=True)
+                return False
+    except KeyError as e:
+        print("ERROR: comparing results {}. Actual = {}".format(e, actual))
+        return False
+
+    return True
+
 
 
 def main():
