@@ -103,6 +103,7 @@ fi
 
 echo "Setting JAVA_HOME=$HOME/.java/$ES_BUILD_JAVA"
 export JAVA_HOME="$HOME/.java/$ES_BUILD_JAVA"
+export RUNTIME_JAVA_HOME="$JAVA_HOME"
 
 # For the ES build we need to:
 # 1. Convince it that this is not part of a PR build, becuase it will get
