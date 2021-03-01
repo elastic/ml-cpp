@@ -21,7 +21,7 @@ In **Settings**, make sure *C_Cpp:Autocomplete* and *C_Cpp:Intelli Sense Engine*
 are disabled. Note that we don't want to disable the complete C/C++ Extension, since we are still going to use the
 debugging capabilities.
 
-Now for the `clangd` plugin, make sure that you have the correct path specified in **Settings** und *Clangd: Path*.
+Now for the `clangd` plugin, make sure that you have the correct path specified in **Settings** and *Clangd: Path*.
 *Clangd: Arguments* can look something like this:
 
 ```text
