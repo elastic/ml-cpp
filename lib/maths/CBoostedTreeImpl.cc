@@ -261,6 +261,8 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         LOG_TRACE(<< "Test loss = " << m_BestForestTestLoss);
 
         this->restoreBestHyperparameters();
+        this->scaleRegularizers(allTrainingRowsMask.manhattan() /
+                                m_TrainingRowMasks[0].manhattan());
         this->startProgressMonitoringFinalTrain();
         std::tie(m_BestForest, std::ignore, std::ignore) = this->trainForest(
             frame, allTrainingRowsMask, allTrainingRowsMask, m_TrainingProgress);
@@ -300,7 +302,7 @@ void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainStat
 void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
     if (m_BestForestTestLoss == INF) {
         HANDLE_FATAL(<< "Internal error: no model available for prediction. "
-                     << "Please report this problem.")
+                     << "Please report this problem.");
         return;
     }
     bool successful;
@@ -314,7 +316,7 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
         });
     if (successful == false) {
         HANDLE_FATAL(<< "Internal error: failed model inference. "
-                     << "Please report this problem.")
+                     << "Please report this problem.");
     }
 }
 
@@ -485,7 +487,7 @@ void CBoostedTreeImpl::computeClassificationWeights(const core::CDataFrame& fram
                     } else {
                         LOG_WARN(<< "Missing weight for class '" << classes[i] << "'. Overrides = "
                                  << core::CContainerPrinter::print(m_ClassificationWeightsOverride)
-                                 << ".")
+                                 << ".");
                     }
                 }
                 LOG_TRACE(<< "classification weights = "
@@ -1099,7 +1101,7 @@ std::size_t CBoostedTreeImpl::featureBagSize(double fraction) const {
 
 void CBoostedTreeImpl::treeFeatureBag(TDoubleVec& probabilities, TSizeVec& treeFeatureBag) const {
 
-    std::size_t size{this->featureBagSize(1.5 * m_FeatureBagFraction)};
+    std::size_t size{this->featureBagSize(1.25 * m_FeatureBagFraction)};
 
     this->candidateRegressorFeatures(probabilities, treeFeatureBag);
     if (size >= treeFeatureBag.size()) {
@@ -1294,9 +1296,10 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     TVector maxBoundary;
     std::tie(minBoundary, maxBoundary) = bopt.boundingBox();
 
-    // Downsampling acts as a regularisation and also increases the variance
-    // of each of the base learners so we scale the other regularisation terms
-    // and the weight shrinkage to compensate.
+    // Downsampling directly affects the loss terms: it multiplies the sums over
+    // gradients and Hessians in expectation by the downsample factor. To preserve
+    // the same effect for regularisers we need to scale these terms by the same
+    // multiplier.
     double scale{1.0};
     if (m_DownsampleFactorOverride == boost::none) {
         auto i = std::distance(m_TunableHyperparameters.begin(),
@@ -1313,13 +1316,14 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     for (std::size_t i = 0; i < m_TunableHyperparameters.size(); ++i) {
         switch (m_TunableHyperparameters[i]) {
         case E_Alpha:
-            parameters(i) = CTools::stableLog(m_Regularization.depthPenaltyMultiplier());
+            parameters(i) =
+                CTools::stableLog(m_Regularization.depthPenaltyMultiplier() / scale);
             break;
         case E_DownsampleFactor:
             parameters(i) = CTools::stableLog(m_DownsampleFactor);
             break;
         case E_Eta:
-            parameters(i) = CTools::stableLog(m_Eta) / scale;
+            parameters(i) = CTools::stableLog(m_Eta);
             break;
         case E_EtaGrowthRatePerTree:
             parameters(i) = m_EtaGrowthRatePerTree;
@@ -1380,13 +1384,14 @@ bool CBoostedTreeImpl::selectNextHyperparameters(const TMeanVarAccumulator& loss
     for (std::size_t i = 0; i < m_TunableHyperparameters.size(); ++i) {
         switch (m_TunableHyperparameters[i]) {
         case E_Alpha:
-            m_Regularization.depthPenaltyMultiplier(CTools::stableExp(parameters(i)));
+            m_Regularization.depthPenaltyMultiplier(
+                scale * CTools::stableExp(parameters(i)));
             break;
         case E_DownsampleFactor:
             m_DownsampleFactor = CTools::stableExp(parameters(i));
             break;
         case E_Eta:
-            m_Eta = CTools::stableExp(scale * parameters(i));
+            m_Eta = CTools::stableExp(parameters(i));
             break;
         case E_EtaGrowthRatePerTree:
             m_EtaGrowthRatePerTree = parameters(i);
@@ -1447,6 +1452,21 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
               << ", eta growth rate per tree* = " << m_EtaGrowthRatePerTree
               << ", maximum number trees* = " << m_MaximumNumberTrees
               << ", feature bag fraction* = " << m_FeatureBagFraction);
+}
+
+void CBoostedTreeImpl::scaleRegularizers(double scale) {
+    if (m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
+        m_Regularization.depthPenaltyMultiplier(
+            scale * m_Regularization.depthPenaltyMultiplier());
+    }
+    if (m_RegularizationOverride.treeSizePenaltyMultiplier() == boost::none) {
+        m_Regularization.treeSizePenaltyMultiplier(
+            scale * m_Regularization.treeSizePenaltyMultiplier());
+    }
+    if (m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
+        m_Regularization.leafWeightPenaltyMultiplier(
+            scale * m_Regularization.leafWeightPenaltyMultiplier());
+    }
 }
 
 std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {
@@ -1879,46 +1899,46 @@ void CBoostedTreeImpl::checkRestoredInvariants() const {
 void CBoostedTreeImpl::checkTrainInvariants(const core::CDataFrame& frame) const {
     if (m_DependentVariable >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
-                     << "' was incorrectly initialized. Please report this problem.")
+                     << "' was incorrectly initialized. Please report this problem.");
         return;
     }
     if (m_Loss == nullptr) {
         HANDLE_FATAL(<< "Internal error: must supply a loss function for training. "
-                     << "Please report this problem.")
+                     << "Please report this problem.");
     }
     if (m_Encoder == nullptr) {
         HANDLE_FATAL(<< "Internal error: must supply an category encoder. "
-                     << "Please report this problem.")
+                     << "Please report this problem.");
     }
     if (m_BayesianOptimization == nullptr) {
-        HANDLE_FATAL(<< "Internal error: must supply an optimizer. Please report this problem.")
+        HANDLE_FATAL(<< "Internal error: must supply an optimizer. Please report this problem.");
     }
     for (const auto& mask : m_MissingFeatureRowMasks) {
         if (mask.size() != frame.numberRows()) {
             HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
                          << mask.size() << " !=  " << frame.numberRows()
-                         << "). Please report this problem.")
+                         << "). Please report this problem.");
         }
     }
     for (const auto& mask : m_MissingFeatureRowMasks) {
         if (mask.size() != frame.numberRows()) {
             HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
                          << mask.size() << " !=  " << frame.numberRows()
-                         << "). Please report this problem.")
+                         << "). Please report this problem.");
         }
     }
     for (const auto& mask : m_TrainingRowMasks) {
         if (mask.size() != frame.numberRows()) {
             HANDLE_FATAL(<< "Internal error: unexpected missing training mask ("
                          << mask.size() << " !=  " << frame.numberRows()
-                         << "). Please report this problem.")
+                         << "). Please report this problem.");
         }
     }
     for (const auto& mask : m_TestingRowMasks) {
         if (mask.size() != frame.numberRows()) {
             HANDLE_FATAL(<< "Internal error: unexpected missing testing mask ("
                          << mask.size() << " !=  " << frame.numberRows()
-                         << "). Please report this problem.")
+                         << "). Please report this problem.");
         }
     }
 }
@@ -2024,7 +2044,7 @@ const CBoostedTreeImpl::TNodeVecVec& CBoostedTreeImpl::trainedModel() const {
 CBoostedTreeImpl::TLossFunction& CBoostedTreeImpl::loss() const {
     if (m_Loss == nullptr) {
         HANDLE_FATAL(<< "Internal error: loss function unavailable. "
-                     << "Please report this problem.")
+                     << "Please report this problem.");
     }
     return *m_Loss;
 }

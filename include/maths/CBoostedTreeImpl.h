@@ -192,8 +192,9 @@ private:
         E_TreeSizePenaltyMultiplierInitialized = 3,
         E_LeafWeightPenaltyMultiplierInitialized = 4,
         E_DownsampleFactorInitialized = 5,
-        E_EtaInitialized = 6,
-        E_FullyInitialized = 7
+        E_FeatureBagFractionInitialized = 6,
+        E_EtaInitialized = 7,
+        E_FullyInitialized = 8
     };
 
 private:
@@ -309,6 +310,9 @@ private:
 
     //! Set the hyperparamaters from the best recorded.
     void restoreBestHyperparameters();
+
+    //! Scale the regulariser multipliers by \p scale.
+    void scaleRegularizers(double scale);
 
     //! Check invariants which are assumed to hold after restoring.
     void checkRestoredInvariants() const;

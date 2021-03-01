@@ -39,6 +39,17 @@
 * The Linux build platform for the {ml} C++ code is now CentOS 7 running gcc 9.3. (See
   {ml-pull}1170[#1170].)
 
+== {es} version 7.13.0
+
+=== Enhancements
+
+* Speed up training of regression and classification model training for data sets
+  with many features. (See {ml-pull}1746[#1746].)
+* Avoid overfitting in final training by scaling regularizers to account for the
+  difference in the number of training examples. This results in a better match
+  between train and test error for classification and regression and often slightly
+  improved test errors. (See {ml-pull}1755[#1755].)
+
 == {es} version 7.12.0
 
 === Enhancements
