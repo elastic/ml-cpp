@@ -71,11 +71,32 @@ if [ -z "$ES_BUILD_JAVA" ]; then
     exit 1
 fi
 
-# On aarch64 adoptopenjdk is used in place of openjdk,
-# and the CDS archive can cause problems with Java
-# (both for Gradle and the tests themselves)
+# On aarch64:
+# - openjdk is built with a 64KB page size
+# - adoptopenjdk is built with a 4KB page size
+# It's necessary to use use the one that matches the page size of the
+# distribution that it's running on, which is:
+# - 4KB for Ubuntu, Debian and SLES
+# - 64KB for RHEL and CentOS
+# We still disable the CDS archive as an extra measure to avoid warnings related
+# to mismatched page sizes that can cause problems with Java (both for Gradle
+# and the tests themselves).  This should cease to be necessary in Java 17 and
+# above.
 if [ `uname -m` = aarch64 ] ; then
-    export ES_BUILD_JAVA=adopt$ES_BUILD_JAVA
+    case `getconf PAGE_SIZE` in
+        4096)
+            export ES_BUILD_JAVA=adopt$ES_BUILD_JAVA
+            ;;
+
+        65536)
+            export ES_BUILD_JAVA=$(echo $ES_BUILD_JAVA | sed 's/^adopt//')
+            ;;
+
+        *)
+            echo "Unexpected page size:" `getconf PAGE_SIZE 2>&1`
+            exit 2
+            ;;
+    esac
     export GRADLE_OPTS=-Xshare:off
     export EXTRA_TEST_OPTS="-Dtests.jvm.argline=-Xshare:off"
 fi
