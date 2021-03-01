@@ -19,7 +19,7 @@ Checks: >
   -modernize-use-nodiscard,
   -modernize-replace-random-shuffle,
   -modernize-unary-static-assert,
-  -modernize-use-uncaught-exceptio
+  -modernize-use-uncaught-exception,
   
   performance-*,
   
