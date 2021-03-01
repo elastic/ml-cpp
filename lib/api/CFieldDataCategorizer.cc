@@ -470,8 +470,11 @@ bool CFieldDataCategorizer::doPersistState(const TStrVec& partitionFieldValues,
                                            std::size_t categorizerAllocationFailures,
                                            core::CDataAdder& persister) {
 
-    // Takes care of clearing the cache of program counters when exiting the current scope.
-    core::CProgramCounters::CCacheManager cacheMgr;
+    // TODO: if the standalone categorize program is ever progressed, a mechanism needs
+    // to be added that does the following:
+    // 1. Caches program counters in the foreground before starting background persistence
+    // 2. Calls core::CProgramCounters::staticsAcceptPersistInserter once and only once per persist
+    // 3. Clears the program counter cache after persistence is complete
 
     // The two input vectors should have the same size _unless_ we are not
     // doing per-partition categorization, in which case partition field values
