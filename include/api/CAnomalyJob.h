@@ -165,18 +165,22 @@ public:
     bool restoreState(core::CDataSearcher& restoreSearcher,
                       core_t::TTime& completeToTime) override;
 
-    //! Persist current state
+    //! Persist state in the foreground. As this blocks the current thread of execution
+    //! it should only be called in special circumstances, e.g. at job close, where it won't impact job analysis.
     bool persistStateInForeground(core::CDataAdder& persister,
                                   const std::string& descriptionPrefix) override;
 
-    //! Persist the current model state regardless of whether
+    //! Persist the current model state in the foreground regardless of whether
     //! any results have been output.
     bool doPersistStateInForeground(core::CDataAdder& persister,
                                     const std::string& description,
                                     const std::string& snapshotId,
                                     core_t::TTime snapshotTimestamp);
 
-    //! Persist state of the residual models only
+    //! Persist state of the residual models only.
+    //! This method is not intended to be called in production code
+    //! as it only persists a very small subset of model state with longer,
+    //! human readable tags.
     bool persistModelsState(core::CDataAdder& persister,
                             core_t::TTime timestamp,
                             const std::string& outputFormat);
@@ -275,7 +279,10 @@ private:
     bool periodicPersistStateInBackground() override;
     bool periodicPersistStateInForeground() override;
 
-    //! Persist state of the residual models only
+    //! Persist state of the residual models only.
+    //! This method is not intended to be called in production code.
+    //! \p outputFormat specifies the format of the output document and may
+    //! either be JSON or XML.
     bool persistModelsState(const TKeyCRefAnomalyDetectorPtrPrVec& detectors,
                             core::CDataAdder& persister,
                             core_t::TTime timestamp,

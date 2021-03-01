@@ -81,7 +81,7 @@ protected:
             foregroundStream = new std::ostringstream()};
         ml::api::CSingleStreamDataAdder foregroundDataAdder{foregroundStreamPtr};
 
-        // The 30000 second persist interval is set large enough that the timer will
+        // The 30000 second persist interval is set large enough that the timer
         // will not trigger during the test - we bypass the timer in this test
         // and kick off the background persistence chain explicitly
         ml::api::CPersistenceManager persistenceManager{

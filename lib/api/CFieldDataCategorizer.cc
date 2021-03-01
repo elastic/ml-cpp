@@ -425,7 +425,7 @@ bool CFieldDataCategorizer::persistStateInForeground(core::CDataAdder& persister
         return false;
     }
 
-    LOG_DEBUG(<< "Persist categorizer state");
+    LOG_DEBUG(<< "Persist categorizer state in foreground");
 
     TStrVec partitionFieldValues;
     TPersistFuncVec dataCategorizerPersistFuncs;
@@ -469,6 +469,13 @@ bool CFieldDataCategorizer::doPersistState(const TStrVec& partitionFieldValues,
                                            const TPersistFuncVec& dataCategorizerPersistFuncs,
                                            std::size_t categorizerAllocationFailures,
                                            core::CDataAdder& persister) {
+
+    // TODO: if the standalone categorize program is ever progressed, a mechanism needs
+    // to be added that does the following:
+    // 1. Caches program counters in the foreground before starting background persistence
+    // 2. Calls core::CProgramCounters::staticsAcceptPersistInserter once and only once per persist
+    // 3. Clears the program counter cache after persistence is complete
+
     // The two input vectors should have the same size _unless_ we are not
     // doing per-partition categorization, in which case partition field values
     // should be empty and there should be exactly one categorizer
@@ -537,7 +544,7 @@ bool CFieldDataCategorizer::doPersistState(const TStrVec& partitionFieldValues,
 }
 
 bool CFieldDataCategorizer::periodicPersistStateInBackground() {
-    LOG_DEBUG(<< "Periodic persist categorizer state");
+    LOG_DEBUG(<< "Periodic persist categorizer state in background");
 
     // Make sure that the model size stats are up to date
     for (auto& dataCategorizerEntry : m_DataCategorizers) {
@@ -598,7 +605,7 @@ bool CFieldDataCategorizer::periodicPersistStateInBackground() {
 }
 
 bool CFieldDataCategorizer::periodicPersistStateInForeground() {
-    LOG_DEBUG(<< "Periodic persist categorizer state");
+    LOG_DEBUG(<< "Periodic persist categorizer state in foreground");
 
     if (m_PersistenceManager == nullptr) {
         return false;

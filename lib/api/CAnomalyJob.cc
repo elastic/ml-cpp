@@ -1099,9 +1099,10 @@ bool CAnomalyJob::doPersistStateInForeground(core::CDataAdder& persister,
     std::string normaliserState;
     m_Normalizer.toJson(m_LastResultsTime, "api", normaliserState, true);
 
-    // Persistence operates on a cached collection of counters rather than on the live counters directly.
-    // This is in order that background persistence operates on a consistent set of counters however we
-    // also must ensure that foreground persistence has access to an up-to-date cache of counters as well.
+    // Persistence of static counters is expected to operate on a cached collection of counters rather
+    // than on the live counters directly. This is in order that the more frequently used background persistence
+    // operates on a consistent set of counters. Hence, to avoid an error regarding the cache not existing, we
+    // also must ensure that foreground persistence has access to an up-to-date cache of counters.
     core::CProgramCounters::cacheCounters();
 
     return this->persistCopiedState(
@@ -1254,6 +1255,12 @@ bool CAnomalyJob::persistCopiedState(const std::string& description,
                                      core_t::TTime latestRecordTime,
                                      core_t::TTime lastResultsTime,
                                      core::CDataAdder& persister) {
+    // Ensure that the cache of program counters is cleared upon exiting the current scope.
+    // As the cache is cleared when the simple count detector is persisted this may seem
+    // unnecessary at first, but there are occasions when the simple count detector does not exist,
+    // e.g. when no data is seen but time is advanced.
+    core::CProgramCounters::CCacheManager cacheMgr;
+
     // Persist state for each detector separately by streaming
     try {
         core::CStateCompressor compressor(persister);
@@ -1597,7 +1604,7 @@ CAnomalyJob::makeDetector(const model::CAnomalyDetectorModelConfig& modelConfig,
 void CAnomalyJob::populateDetectorKeys(const CAnomalyJobConfig& jobConfig, TKeyVec& keys) {
     keys.clear();
 
-    // Add a key for the simple count detector.
+    // Always add a key for the simple count detector.
     keys.push_back(model::CSearchKey::simpleCountKey());
 
     for (const auto& fieldOptions : jobConfig.analysisConfig().detectorsConfig()) {

@@ -53,6 +53,10 @@ void addStringInt(TGenericLineWriter& writer,
 }
 }
 
+CProgramCounters::CCacheManager::~CCacheManager() {
+    CProgramCounters::clearCachedCounters();
+}
+
 CProgramCounters& CProgramCounters::instance() {
     return ms_Instance;
 }
@@ -88,6 +92,15 @@ void CProgramCounters::cacheCounters() {
     }
     ms_Instance.m_Cache.assign(ms_Instance.m_Counters.begin(),
                                ms_Instance.m_Counters.end());
+    LOG_TRACE(<< "Cached " << ms_Instance.m_Cache.size() << " counters.");
+}
+
+void CProgramCounters::clearCachedCounters() {
+    if (ms_Instance.m_Cache.empty() == false) {
+        LOG_TRACE(<< "Clearing cache of " << ms_Instance.m_Cache.size() << " counters.");
+        // clear the cache
+        TUInt64Vec().swap(ms_Instance.m_Cache);
+    }
 }
 
 void CProgramCounters::staticsAcceptPersistInserter(CStatePersistInserter& inserter) {
@@ -125,10 +138,11 @@ void CProgramCounters::staticsAcceptPersistInserter(CStatePersistInserter& inser
 
         staticsAcceptPersistInserter(ms_Instance.m_Counters);
     } else {
+        LOG_TRACE(<< "Persisting " << ms_Instance.m_Cache.size() << " cached counters.");
         staticsAcceptPersistInserter(ms_Instance.m_Cache);
 
         // clear the cache
-        TUInt64Vec().swap(ms_Instance.m_Cache);
+        clearCachedCounters();
     }
 }
 
