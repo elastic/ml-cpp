@@ -109,7 +109,6 @@ BOOST_AUTO_TEST_CASE(testParsingTokenVarArgsNotInts) {
     BOOST_REQUIRE_EQUAL(0, parsed.size());
 }
 
-
 BOOST_AUTO_TEST_CASE(testParsingWhitespaceSeparatedDocs) {
 
     std::vector<ml::torch::CCommandParser::SRequest> parsed;

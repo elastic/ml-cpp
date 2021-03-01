@@ -94,7 +94,8 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc) const {
     }
 
     if (checkArrayContainsUInts(tokens) == false) {
-        LOG_ERROR(<< "Invalid command: array [" << TOKENS << "] contains values that are not unsigned integers");
+        LOG_ERROR(<< "Invalid command: array [" << TOKENS
+                  << "] contains values that are not unsigned integers");
         return false;
     }
 
@@ -109,7 +110,8 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc) const {
         }
 
         if (checkArrayContainsUInts(value) == false) {
-            LOG_ERROR(<< "Invalid command: array [" << varArgName << "] contains values that are not unsigned integers");
+            LOG_ERROR(<< "Invalid command: array [" << varArgName
+                      << "] contains values that are not unsigned integers");
             return false;
         }
 
