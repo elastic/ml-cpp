@@ -4,6 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
+#include <core/CBlockingCallCancellingTimer.h>
 #include <core/CDataSearcher.h>
 #include <core/CJsonStateRestoreTraverser.h>
 #include <core/CLogger.h>
@@ -15,7 +16,7 @@
 #include <ver/CBuildInfo.h>
 
 #include <api/CAnomalyJob.h>
-#include <api/CFieldConfig.h>
+#include <api/CAnomalyJobConfig.h>
 #include <api/CIoManager.h>
 #include <api/CSingleStreamDataAdder.h>
 #include <api/CSingleStreamSearcher.h>
@@ -41,27 +42,49 @@ int main(int argc, char** argv) {
 
     // Read command line options
     std::string logProperties;
+    ml::core_t::TTime namedPipeConnectTimeout{
+        ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
     std::string inputFileName;
     bool isInputFileNamedPipe{false};
     std::string outputFileName;
     bool isOutputFileNamedPipe{false};
+    std::string restoreFileName;
+    bool isRestoreFileNamedPipe{false};
+    std::string persistFileName;
+    bool isPersistFileNamedPipe{false};
     std::string outputFormat;
     if (model_extractor::CCmdLineParser::parse(
-            argc, argv, logProperties, inputFileName, isInputFileNamedPipe,
-            outputFileName, isOutputFileNamedPipe, outputFormat) == false) {
+            argc, argv, logProperties, namedPipeConnectTimeout, inputFileName, isInputFileNamedPipe,
+            outputFileName, isOutputFileNamedPipe, restoreFileName, isRestoreFileNamedPipe,
+            persistFileName, isPersistFileNamedPipe, outputFormat) == false) {
         return EXIT_FAILURE;
     }
+
+    ml::core::CBlockingCallCancellingTimer cancellerThread{
+        ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
 
     // Construct the IO manager before reconfiguring the logger, as it performs
     // std::ios actions that only work before first use
-    ml::api::CIoManager ioMgr(inputFileName, isInputFileNamedPipe,
-                              outputFileName, isOutputFileNamedPipe);
+    ml::api::CIoManager ioMgr{
+        cancellerThread,        inputFileName,         isInputFileNamedPipe,
+        outputFileName,         isOutputFileNamedPipe, restoreFileName,
+        isRestoreFileNamedPipe, persistFileName,       isPersistFileNamedPipe};
 
-    const std::string logPipe;
-    if (ml::core::CLogger::instance().reconfigure(logPipe, logProperties) == false) {
-        LOG_FATAL(<< "Could not reconfigure logging");
+    if (cancellerThread.start() == false) {
+        // This log message will probably never been seen as it will go to the
+        // real stderr of this process rather than the log pipe...
+        LOG_FATAL(<< "Could not start blocking call canceller thread");
         return EXIT_FAILURE;
     }
+
+    const std::string logPipe;
+    if (ml::core::CLogger::instance().reconfigure(
+            logPipe, logProperties, cancellerThread.hasCancelledBlockingCall()) == false) {
+        LOG_FATAL(<< "Could not reconfigure logging");
+        cancellerThread.stop();
+        return EXIT_FAILURE;
+    }
+    cancellerThread.stop();
 
     // Log the program version immediately after reconfiguring the logger.  This
     // must be done from the program, and NOT a shared library, as each program
@@ -86,12 +109,8 @@ int main(int argc, char** argv) {
     static const std::string JOB_ID{"job"};
 
     ml::model::CLimits limits;
-    ml::api::CFieldConfig fieldConfig;
+    ml::api::CAnomalyJobConfig jobConfig;
 
-    if (fieldConfig.initFromFile(ml::core::COsFileFuncs::NULL_FILENAME) == false) {
-        std::cerr << "Failed to initialize field configuration." << std::endl;
-        exit(EXIT_FAILURE);
-    }
     const int latencyBuckets{0};
 
     ml::model::CAnomalyDetectorModelConfig modelConfig =
@@ -108,7 +127,7 @@ int main(int argc, char** argv) {
     ml::api::CAnomalyJob restoredJob{
         JOB_ID,
         limits,
-        fieldConfig,
+        jobConfig,
         modelConfig,
         wrappedOutputStream,
         [](ml::api::CModelSnapshotJsonWriter::SModelSnapshotReport) {},
