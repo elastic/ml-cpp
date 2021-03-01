@@ -2,7 +2,7 @@
 
 - [Zero-to-hero launching `jupyter notebook`](#zero-to-hero-launchingjupyter-notebook)
   - [Running locally for development](#running-locally-for-development)
-  - [Running inside docker container](#running-inside-docker-container)
+  - [Running inside the docker container](#running-inside-the-docker-container)
     - [Build and push docker container](#build-and-push-docker-container)
     - [Running docker container locally](#running-docker-container-locally)
       - [Authorize docker to push to the google image registry](#authorize-docker-to-push-to-the-google-image-registry)
@@ -23,7 +23,7 @@
 
 Set up a local instance of Jupyter using the following instructions
 
-1. Set up a virtual environment called `env`
+1. Navigate to `ml-cpp/jupyter` and set up a virtual environment called `env`
 
     ```bash
     python3 -m venv env
@@ -47,15 +47,27 @@ Set up a local instance of Jupyter using the following instructions
     jupyter notebook
     ```
 
-### Running inside docker container
+### Running inside the docker container
+
+In the following, we assume that you have
+[`docker` installed successfully running](https://docs.docker.com/get-started/) on your host system. 
+
+Furthermore, in the [`Dockerfile`](docker/Dockerfile) we fetch the base image from `docker.elastic.co`. To this end, you
+need to be authorized and authenticated to use `docker.elastic.co` (e.g., your GitHub account should be a part of
+*elastic* org). Alternatively, you can create the base image yourself using this
+[`Dockerfile`](../dev-tools/docker/linux_image/Dockerfile) albeit it will take a while. You then will need to tag your
+image correctly or change the base image name to the one you have created.
 
 #### Build and push docker container
 
-Since the jupyter notebooks reside in the same repository as the C++ files, `docker` will try to re-build the `data_frame_analyzer` even if you only change the `ipynb` files.
+Since the jupyter notebooks reside in the same repository as the C++ files, `docker` will try to re-build the
+`data_frame_analyzer` even if you only change the `ipynb` files.
 
-To remedy this and to accelerate the building process, we use `ccache` within docker container when building `ml-cpp`. To use this experimental functionality, you need to set `DOCKER_BUILDKIT` environment variable before running `docker build`.
+To remedy this and to accelerate the building process, we use `ccache` within the docker container when building `ml-cpp`.
+To use this experimental functionality, you need to set `DOCKER_BUILDKIT` environment variable before running
+`docker build`.
 
-To build the docker container, run the following command from the root of your `ml-cpp` project:
+To build the docker container, run the following command from the root directory of your `ml-cpp` project:
 
 ```bash
 DOCKER_BUILDKIT=1 docker build -t myjupyter -f ./jupyter/docker/Dockerfile .
@@ -68,6 +80,9 @@ DOCKER_BUILDKIT=1 docker build --target builder -t myjupyter:builder \
 -f ./jupyter/docker/Dockerfile .
 ```
 
+If during the build process you face errors due to out-of-memory, consider increasing container memory using `--memory`
+parameter (e.g., `--memory=4g` for 4 GB of memory in the container).
+
 #### Running docker container locally
 
 Run the docker container forwarding port 9999.
@@ -76,7 +91,8 @@ Run the docker container forwarding port 9999.
 docker run -p 9999:9999 myjupyter:latest
 ```
 
-Now, **navigate to** [https://localhost:9999](https://localhost:9999). Since it is HTTPS and we are using self-signed certificates, you will need to confirm security exception.
+Now, **navigate to** [https://localhost:9999](https://localhost:9999). Since it is HTTPS and we are using self-signed
+certificates, you will need to confirm security exception.
 
 ##### Authorize docker to push to the google image registry
 
@@ -91,7 +107,8 @@ This will lead you to a web page where you will need to login and confirm the au
 
 ##### Pushing docker container to the google registry
 
-First, you need to tag you docker container with a qualified name to push it to the `gcr` registry. I suggest that you use a unique label (instead of `latest`).
+First, you need to tag you docker container with a qualified name to push it to the `gcr` registry. I suggest that you
+use a unique label (instead of `latest`).
 
 ```bash
 docker tag myjupyter:latest gcr.io/elastic-ml/incremental-learning-jupyter:try42
@@ -115,7 +132,8 @@ GCP has a predefined set of machines that we can use. For example, you can selec
 | e2-standard-16 | 16           | 64GB   |
 | e2-standard-32 | 32           | 128GB  |
 
-E2 machine types offer up to 32 vCPU with up to 128GB memory. This machine type is probably the best cost-optimized option for use.
+E2 machine types offer up to 32 vCPU with up to 128GB memory. This machine type is probably the best cost-optimized
+option for use.
 
 To create a compute instance using machine type `e2-standard-16` with 200GB local disk space:
 
@@ -128,11 +146,14 @@ gcloud compute instances create-with-container jupyter-mlcpp-large \
 
 Once the instance is created, you will receive the external IP address of the instance.
 
-Now, **navigate to** `https://<external_ip>:9999`. Since it is HTTPS and we are using self-signed certificates, you will need to confirm security exception.
+Now, **navigate to** `https://<external_ip>:9999`. Since it is HTTPS and we are using self-signed certificates, you will
+need to confirm the security exception.
 
 ##### Using custom machine configuration
 
-Alternatively, you can specify a [custom machine type](https://cloud.google.com/compute/docs/instances/creating-instance-with-custom-machine-type#gcloud). For instance, to create an instance with 16 CPUs and 32 GB memory, you can specify
+Alternatively, you can specify a
+[custom machine type](https://cloud.google.com/compute/docs/instances/creating-instance-with-custom-machine-type#gcloud).
+For instance, to create an instance with 16 CPUs and 32 GB memory, you can specify
 
 ```bash
 --custom-cpu 16 --custom-memory 32GB --custom-vm-type e2
@@ -144,7 +165,9 @@ instead of the `--machine-type` parameter.
 
 ##### Install `gcsfuse`
 
-Follow [the instructions](https://github.com/GoogleCloudPlatform/gcsfuse/blob/master/docs/installing.md) to install `gcsfuse` on your system. If you have problems mounting the dataset bucket, you may need generate the authorization token for  `gcsfuse`:
+Follow [the instructions](https://github.com/GoogleCloudPlatform/gcsfuse/blob/master/docs/installing.md) to install
+`gcsfuse` on your system. If you have problems mounting the dataset bucket, you may need to generate the authorization
+token for `gcsfuse`:
 
 ```bash
 gcloud auth application-default login
@@ -152,7 +175,8 @@ gcloud auth application-default login
 
 ## Running jupyter notebooks
 
-If you run jupyter notebook from GCP, you may want to start by running `init.sh` script to mount the `ml-incremental-learning-datasets` bucket under `/data` and copy the dataset into the instance.
+If you run jupyter notebook from GCP, you may want to start by running `init.sh` script to mount the
+`ml-incremental-learning-datasets` bucket under `/data` and copy the dataset into the instance.
 
 Within your jupyter notebook instance you will find the directory `notebooks` with the following file structure:
 
@@ -168,13 +192,17 @@ notebooks
 └── ...
 ```
 
-Please note that these file are copied from this repository into the docker container. This means that once the container is deleted, the data will be lost! Make sure to `docker cp` or `gsutil cp` the data you wish to keep.
+Please note that these files are copied from this repository into the docker container. This means that once the
+container is deleted, the data will be lost! Make sure to `docker cp` or `gsutil cp` the data you wish to keep.
 
 ## Miscellaneous topics
 
 ### Working with large jobs on GCP
 
-All calls to `data_frame_analyzer` are performed in `tmux`. This ensures that even you loose the connection or close you broser, you can go back to your jupyter notebook and open the running notebook (e.g. from the tab `Running`). If it is still in the call to wait_job_complete(job) you can interrupt the kernel and re-run the last cell. The output in the cell will be updated again. The state of the variables should be also unchanged.
+All calls to `data_frame_analyzer` are performed in `tmux`. This ensures that even you lose the connection or close your
+browser, you can go back to your jupyter notebook and open the running notebook (e.g. from the tab `Running`). If it is
+still in the call to wait_job_complete(job) you can interrupt the kernel and re-run the last cell. The output in the
+cell will be updated again. The state of the variables should also be unchanged.
 
 ### Working with the GCP buckets
 
