@@ -9,9 +9,11 @@
 
 umask 0002
 
-# Modify some limits (soft limits only, hence -S)
-ulimit -S -c unlimited
-ulimit -S -n 1024
+# Modify some limits if not running in Docker (soft limits only, hence -S)
+if [ ! -f /.dockerenv ]; then
+    ulimit -S -c unlimited
+    ulimit -S -n 1024
+fi
 
 # Set $CPP_SRC_HOME to be an absolute path to this script's location, as
 # different builds will come from different repositories and go to different
