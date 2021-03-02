@@ -34,10 +34,15 @@ public:
     static bool parse(int argc,
                       const char* const* argv,
                       std::string& logProperties,
+                      core_t::TTime& namedPipeConnectTimeout,
                       std::string& inputFileName,
                       bool& isInputFileNamedPipe,
                       std::string& outputFileName,
                       bool& isOutputFileNamedPipe,
+                      std::string& restoreFileName,
+                      bool& isRestoreFileNamedPipe,
+                      std::string& persistFileName,
+                      bool& isPersistFileNamedPipe,
                       std::string& outputFormat);
 
 private:

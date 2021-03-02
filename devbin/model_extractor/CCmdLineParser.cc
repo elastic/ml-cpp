@@ -23,10 +23,15 @@ const std::string CCmdLineParser::DESCRIPTION = "Usage: model_extractor [options
 bool CCmdLineParser::parse(int argc,
                            const char* const* argv,
                            std::string& logProperties,
+                           core_t::TTime& namedPipeConnectTimeout,
                            std::string& inputFileName,
                            bool& isInputFileNamedPipe,
                            std::string& outputFileName,
                            bool& isOutputFileNamedPipe,
+                           std::string& restoreFileName,
+                           bool& isRestoreFileNamedPipe,
+                           std::string& persistFileName,
+                           bool& isPersistFileNamedPipe,
                            std::string& outputFormat) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
@@ -36,12 +41,20 @@ bool CCmdLineParser::parse(int argc,
             ("version", "Display version information and exit")
             ("logProperties", boost::program_options::value<std::string>(),
                         "Optional logger properties file")
+            ("namedPipeConnectTimeout", boost::program_options::value<core_t::TTime>(),
+             "Optional timeout (in seconds) for connecting named pipes on startup - default is 300 seconds")
             ("input", boost::program_options::value<std::string>(),
                         "Optional file to read input from - not present means read from STDIN")
             ("inputIsPipe", "Specified input file is a named pipe")
             ("output", boost::program_options::value<std::string>(),
                         "Optional file to write output to - not present means write to STDOUT")
             ("outputIsPipe", "Specified output file is a named pipe")
+            ("restore", boost::program_options::value<std::string>(),
+             "Optional file to restore state from - not present means no state restoration")
+            ("restoreIsPipe", "Specified restore file is a named pipe")
+            ("persist", boost::program_options::value<std::string>(),
+             "Optional file to persist state to - not present means no state persistence")
+            ("persistIsPipe", "Specified persist file is a named pipe")
             ("outputFormat", boost::program_options::value<std::string>()->default_value("JSON"), "Format of output documents [JSON|XML].")
 
         ;
@@ -70,6 +83,9 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("logProperties") > 0) {
             logProperties = vm["logProperties"].as<std::string>();
         }
+        if (vm.count("namedPipeConnectTimeout") > 0) {
+            namedPipeConnectTimeout = vm["namedPipeConnectTimeout"].as<core_t::TTime>();
+        }
         if (vm.count("input") > 0) {
             inputFileName = vm["input"].as<std::string>();
         }
@@ -81,6 +97,18 @@ bool CCmdLineParser::parse(int argc,
         }
         if (vm.count("outputIsPipe") > 0) {
             isOutputFileNamedPipe = true;
+        }
+        if (vm.count("restore") > 0) {
+            restoreFileName = vm["restore"].as<std::string>();
+        }
+        if (vm.count("restoreIsPipe") > 0) {
+            isRestoreFileNamedPipe = true;
+        }
+        if (vm.count("persist") > 0) {
+            persistFileName = vm["persist"].as<std::string>();
+        }
+        if (vm.count("persistIsPipe") > 0) {
+            isPersistFileNamedPipe = true;
         }
         if (vm.count("outputFormat") > 0 &&
             (vm["outputFormat"].as<std::string>() == std::string("XML") ||
