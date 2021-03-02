@@ -52,7 +52,12 @@ Here is an example of user tasks specified in `tasks.json`:
             "label": "Format code",
             "type": "shell",
             "command": "docker run --rm -v ${workspaceFolder}:/ml-cpp -u $(id -u):$(id -g) docker.elastic.co/ml-dev/ml-check-style:2 /ml-cpp/dev-tools/clang-format.sh",
-            "problemMatcher": []
+            "problemMatcher": [],
+            "options": {
+                "env": {
+                    "PATH": "${env:PATH}"
+                }
+            }             
         },
         {
             "label": "Build ml-cpp lib",
