@@ -14,7 +14,7 @@ USE_RAPIDJSON=1
 
 all: build
 
-LIBS=\
+TESTED_OBJS=\
     ../.objs/C*$(OBJECT_FILE_EXT) \
 
 SRCS=\
