@@ -64,7 +64,12 @@ Here is an example of user tasks specified in `tasks.json`:
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "options": {
+                "env": {
+                    "CPP_SRC_HOME": "${env:CPP_SRC_HOME}"
+                }
+            }            
         },
         {
             "label": "Build ml-cpp api tests",
@@ -75,7 +80,12 @@ Here is an example of user tasks specified in `tasks.json`:
             ],
             "dependsOn": [
                 "Build ml-cpp lib"
-            ]
+            ],
+            "options": {
+                "env": {
+                    "CPP_SRC_HOME": "${env:CPP_SRC_HOME}"
+                }
+            }              
         },
         {
             "label": "Build ml-cpp core tests",
@@ -86,7 +96,12 @@ Here is an example of user tasks specified in `tasks.json`:
             ],
             "dependsOn": [
                 "Build ml-cpp lib"
-            ]
+            ],
+            "options": {
+                "env": {
+                    "CPP_SRC_HOME": "${env:CPP_SRC_HOME}"
+                }
+            }              
         },
         {
             "label": "Build ml-cpp maths tests",
@@ -97,8 +112,13 @@ Here is an example of user tasks specified in `tasks.json`:
             ],
             "dependsOn": [
                 "Build ml-cpp lib"
-            ]
-        }
+            ],
+            "options": {
+                "env": {
+                    "CPP_SRC_HOME": "${env:CPP_SRC_HOME}"
+                }
+            }                       
+        },
         {
             "label": "Build ml-cpp bin",
             "type": "shell",
@@ -108,7 +128,12 @@ Here is an example of user tasks specified in `tasks.json`:
             ],
             "dependsOn": [
                 "Build ml-cpp lib"
-            ]
+            ],
+            "options": {
+                "env": {
+                    "CPP_SRC_HOME": "${env:CPP_SRC_HOME}"
+                }
+            }               
         }
     ]
 }
