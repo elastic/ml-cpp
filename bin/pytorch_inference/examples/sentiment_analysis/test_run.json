@@ -1,0 +1,20 @@
+[
+	{
+		"source_text": "The cat was sick on the bed",
+		"input": {
+			"request_id": "one",
+			"tokens": [101, 1996, 4937, 2001, 5305, 2006, 1996, 2793, 102],
+			"arg_1": [1, 1, 1, 1, 1, 1, 1, 1, 1]
+		},
+		"expected_output": {"request_id": "one", "inference": [[3.9489, -3.2416]]}
+	},
+	{
+		"source_text": "The movie was awesome!!",
+		"input": {
+			"request_id": "two",
+			"tokens": [101, 1996, 3185, 2001, 12476, 999, 999, 102],
+			"arg_1": [1, 1, 1, 1, 1, 1, 1, 1]
+		},
+		"expected_output": {"request_id": "two", "inference": [[-4.2720, 4.6515]]}
+	}
+]

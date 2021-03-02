@@ -8,98 +8,114 @@
 #include <core/CLogger.h>
 #include <core/CProcessPriority.h>
 #include <core/CRapidJsonLineWriter.h>
-#include <core/CoreTypes.h>
+
+#include <seccomp/CSystemCallFilter.h>
 
 #include <ver/CBuildInfo.h>
 
 #include <api/CIoManager.h>
 
-#include <seccomp/CSystemCallFilter.h>
-
 #include "CBufferedIStreamAdapter.h"
 #include "CCmdLineParser.h"
+#include "CCommandParser.h"
 
 #include <rapidjson/ostreamwrapper.h>
 #include <torch/script.h>
 
-#include <boost/optional.hpp>
-
 #include <memory>
 #include <string>
 
-// For ntohl
-#ifdef Windows
-#include <WinSock2.h>
-#else
-#include <netinet/in.h>
-#endif
+namespace {
+const std::string INFERENCE{"inference"};
+const std::string ERROR{"error"};
+}
 
-using TFloatVec = std::vector<float>;
+torch::Tensor infer(torch::jit::script::Module& module,
+                    ml::torch::CCommandParser::SRequest& request) {
 
-torch::Tensor infer(torch::jit::script::Module& module, TFloatVec& data) {
     torch::Tensor tokensTensor =
-        torch::from_blob(data.data(), {1, static_cast<std::int64_t>(data.size())})
-            .to(torch::kInt64);
+        torch::from_blob(static_cast<void*>(request.s_Tokens.data()),
+                         {1, static_cast<std::int64_t>(request.s_Tokens.size())},
+                         at::dtype(torch::kInt64));
+
     std::vector<torch::jit::IValue> inputs;
+    inputs.reserve(1 + request.s_SecondaryArguments.size());
     inputs.push_back(tokensTensor);
-    inputs.push_back(torch::ones({1, static_cast<std::int64_t>(data.size())})); // attention mask
-    inputs.push_back(
-        torch::zeros({1, static_cast<std::int64_t>(data.size())}).to(torch::kInt64)); // token type ids
-    inputs.push_back(torch::arange(static_cast<std::int64_t>(data.size())).to(torch::kInt64)); // position ids
+
+    for (auto& args : request.s_SecondaryArguments) {
+        inputs.emplace_back(torch::from_blob(
+            static_cast<void*>(args.data()),
+            {1, static_cast<std::int64_t>(args.size())}, at::dtype(torch::kInt64)));
+    }
 
     torch::NoGradGuard noGrad;
     auto tuple = module.forward(inputs).toTuple();
-    auto predictions = tuple->elements()[0].toTensor();
-
-    return torch::argmax(predictions, 2);
+    return tuple->elements()[0].toTensor();
 }
 
-bool readUInt32(std::istream& stream, std::uint32_t& num) {
-    std::uint32_t netNum{0};
-    stream.read(reinterpret_cast<char*>(&netNum), sizeof(std::uint32_t));
-    num = ntohl(netNum);
-    return stream.good();
-}
+void writePrediction(const torch::Tensor& prediction,
+                     const std::string& requestId,
+                     std::ostream& outputStream) {
 
-boost::optional<TFloatVec> readTokens(std::istream& inputStream) {
-    if (inputStream.eof()) {
-        LOG_ERROR(<< "Unexpected end of stream reading tokens");
-        return boost::none;
+    torch::Tensor view;
+    auto sizes = prediction.sizes();
+    // Some models return a 3D tensor in which case
+    // the first dimension must have size == 1
+    if (sizes.size() == 3 && sizes[0] == 1) {
+        view = prediction[0];
+    } else {
+        view = prediction;
     }
 
-    // return a float vector rather than integers because
-    // float is needed to create the tensor
-    TFloatVec tokens;
-    std::uint32_t numTokens;
-    if (readUInt32(inputStream, numTokens) == false) {
-        LOG_ERROR(<< "Error reading the number of tokens");
-        return boost::none;
-    }
+    // creating the accessor will throw if view does not
+    // have exactly 2 dimensions. Do this before writing
+    // any output so the error message isn't mingled with
+    // a partial result
+    auto accessor = view.accessor<float, 2>();
 
-    for (uint32_t i = 0; i < numTokens; ++i) {
-        std::uint32_t token;
-        if (readUInt32(inputStream, token) == false) {
-            LOG_ERROR(<< "Error reading token");
-            return boost::none;
-        }
-        tokens.push_back(token);
-    }
-
-    return tokens;
-}
-
-void writePrediction(torch::Tensor& prediction, std::ostream& outputStream) {
     rapidjson::OStreamWrapper writeStream(outputStream);
     ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> jsonWriter(writeStream);
     jsonWriter.StartObject();
-    jsonWriter.Key("inference");
+    jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
+    jsonWriter.String(requestId);
+    jsonWriter.Key(INFERENCE);
     jsonWriter.StartArray();
-    auto arr = prediction.accessor<std::int64_t, 2>();
-    for (int i = 0; i < arr.size(1); i++) {
-        jsonWriter.Int64(arr[0][i]);
+
+    for (int i = 0; i < accessor.size(0); ++i) {
+        jsonWriter.StartArray();
+        for (int j = 0; j < accessor.size(1); ++j) {
+            jsonWriter.Double(static_cast<double>(accessor[i][j]));
+        }
+        jsonWriter.EndArray();
     }
+
     jsonWriter.EndArray();
     jsonWriter.EndObject();
+}
+
+void writeError(const std::string& requestId, const std::string& message, std::ostream& outputStream) {
+    rapidjson::OStreamWrapper writeStream(outputStream);
+    ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> jsonWriter(writeStream);
+    jsonWriter.StartObject();
+    jsonWriter.Key(ml::torch::CCommandParser::REQUEST_ID);
+    jsonWriter.String(requestId);
+    jsonWriter.Key(ERROR);
+    jsonWriter.String(message);
+    jsonWriter.EndObject();
+}
+
+bool handleRequest(ml::torch::CCommandParser::SRequest& request,
+                   torch::jit::script::Module& module,
+                   std::ostream& outputStream) {
+
+    try {
+        torch::Tensor results = infer(module, request);
+        writePrediction(results, request.s_RequestId, outputStream);
+    } catch (std::runtime_error& e) {
+        writeError(request.s_RequestId, e.what(), outputStream);
+    }
+
+    return true;
 }
 
 int main(int argc, char** argv) {
@@ -186,14 +202,11 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    boost::optional<TFloatVec> tokens = readTokens(ioMgr.inputStream());
-    if (!tokens) {
-        LOG_ERROR(<< "Cannot infer, failed to read input tokens");
-        return EXIT_FAILURE;
-    }
+    ml::torch::CCommandParser commandParser{ioMgr.inputStream()};
 
-    torch::Tensor results = infer(module, *tokens);
-    writePrediction(results, ioMgr.outputStream());
+    commandParser.ioLoop([&module, &ioMgr](ml::torch::CCommandParser::SRequest& request) {
+        return handleRequest(request, module, ioMgr.outputStream());
+    });
 
     LOG_DEBUG(<< "ML Torch model prototype exiting");
 
