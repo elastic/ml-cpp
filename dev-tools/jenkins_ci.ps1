@@ -12,6 +12,8 @@
 # 3. If this is not a PR build, upload the build to the artifacts directory on
 #    S3 that subsequent Java builds will download the C++ components from
 
+Write-Output "ML CI script running"
+
 # If this isn't a PR build then obtain credentials from Vault
 if (!(Test-Path Env:PR_AUTHOR)) {
     # Generate a Vault token
@@ -49,7 +51,9 @@ $ErrorActionPreference="Stop"
 Set-Location -Path "$PSScriptRoot\.."
 
 # Ensure 3rd party dependencies are installed
+Write-Output "About to download dependencies"
 & "dev-tools\download_windows_deps.ps1"
+Write-Output "Finished downloading dependencies"
 
 # Default to a snapshot build
 if (!(Test-Path Env:BUILD_SNAPSHOT)) {
