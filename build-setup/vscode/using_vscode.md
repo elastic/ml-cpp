@@ -151,7 +151,8 @@ To use [debugging](https://code.visualstudio.com/docs/editor/debugging), you nee
 arguments in a json file. You can use `preLaunchTask` to specify the user tasks that should be executed before the start
 (e.g. building project).
 
-Here is a example of the `launch.json` file:
+Here is a example of the `launch.json` file. Please replace `YOUR_PLATFORM` in the `program` path with your 
+platform specific value (`linux-x86_64`, `darwin-x86_64`, etc):
 
 ```json
 {
@@ -161,7 +162,7 @@ Here is a example of the `launch.json` file:
             "name": "data_frame_analyzer",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/distribution/platform/linux-x86_64/bin/data_frame_analyzer",
+            "program": "${workspaceFolder}/build/distribution/platform/YOUR_PLATFORM/bin/data_frame_analyzer",
             "args": ["--input", "OnlineNewsPopularity_small.csv",
                 "--config", "es_regression_configuration_small.json", 
                 "--output", "output.txt"],
@@ -184,9 +185,6 @@ Here is a example of the `launch.json` file:
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/lib/api/unittest/ml_test",
-            "args": [
-                "--run_test= CInferenceModelMetadataTest/testJsonSchema"
-            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/lib/api/unittest",
             "environment": [],
@@ -206,9 +204,6 @@ Here is a example of the `launch.json` file:
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/lib/maths/unittest/ml_test",
-            "args": [
-                "--run_test=CBoostedTreeTest/testPiecewiseConstant"
-            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/lib/maths/unittest",
             "environment": [],
@@ -226,6 +221,15 @@ Here is a example of the `launch.json` file:
     ]
 }
 ```
+
+To run a specific unit test add the test class/test name in the `args` field:
+```
+            "args": [
+                "--run_test=CBoostedTreeTest/testPiecewiseConstant"
+            ],
+```
+
+
 
 ## Limitations
 
