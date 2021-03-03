@@ -36,6 +36,7 @@ class CBoostedTreeImpl;
 //! Factory for CBoostedTree objects.
 class MATHS_EXPORT CBoostedTreeFactory final {
 public:
+    using TStrDoublePrVec = std::vector<std::pair<std::string, double>>;
     using TVector = CVectorNx1<double, 3>;
     using TBoostedTreeUPtr = std::unique_ptr<CBoostedTree>;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
@@ -73,6 +74,8 @@ public:
     //! Set the objective to use when choosing the class assignments.
     CBoostedTreeFactory&
     classAssignmentObjective(CBoostedTree::EClassAssignmentObjective objective);
+    //! Set the class weights used for assigning labels to classes from the predicted probabilities.
+    CBoostedTreeFactory& classificationWeights(TStrDoublePrVec weights);
     //! Set the minimum fraction with a category value to one-hot encode.
     CBoostedTreeFactory& minimumFrequencyToOneHotEncode(double frequency);
     //! Set the number of folds to use for estimating the generalisation error.
@@ -116,7 +119,7 @@ public:
     //! Set the number of training examples we need per feature we'll include.
     CBoostedTreeFactory& numberTopShapValues(std::size_t numberTopShapValues);
     //! Set the flag to enable or disable early stopping.
-    CBoostedTreeFactory& earlyStoppingEnabled(bool earlyStoppingEnabled);
+    CBoostedTreeFactory& earlyStoppingEnabled(bool enable);
 
     //! Set pointer to the analysis instrumentation.
     CBoostedTreeFactory&
@@ -144,7 +147,8 @@ private:
     using TOptionalVector = boost::optional<TVector>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TBoostedTreeImplUPtr = std::unique_ptr<CBoostedTreeImpl>;
-    using TApplyRegularizer = std::function<bool(CBoostedTreeImpl&, double)>;
+    using TApplyParameter = std::function<bool(CBoostedTreeImpl&, double)>;
+    using TAdjustTestLoss = std::function<double(double, double, double)>;
 
 private:
     CBoostedTreeFactory(std::size_t numberThreads, TLossFunctionUPtr loss);
@@ -187,6 +191,9 @@ private:
     //! search bounding box.
     void initializeUnsetRegularizationHyperparameters(core::CDataFrame& frame);
 
+    //! Estimate a good central value for the feature bag fraction search interval.
+    void initializeUnsetFeatureBagFraction(core::CDataFrame& frame);
+
     //! Estimates a good central value for the downsample factor search interval.
     void initializeUnsetDownsampleFactor(core::CDataFrame& frame);
 
@@ -205,11 +212,12 @@ private:
     //! \return The interval to search during the main hyperparameter optimisation
     //! loop or null if this couldn't be found.
     TOptionalVector testLossLineSearch(core::CDataFrame& frame,
-                                       const TApplyRegularizer& applyRegularizerStep,
+                                       const TApplyParameter& applyParameterStep,
                                        double intervalLeftEnd,
                                        double intervalRightEnd,
                                        double returnedIntervalLeftEndOffset,
-                                       double returnedIntervalRightEndOffset) const;
+                                       double returnedIntervalRightEndOffset,
+                                       const TAdjustTestLoss& adjustTestLoss = noopAdjustTestLoss) const;
 
     //! Initialize the state for hyperparameter optimisation.
     void initializeHyperparameterOptimisation() const;
@@ -261,8 +269,8 @@ private:
     //! Stubs out persistence.
     static void noopRecordTrainingState(CBoostedTree::TPersistFunc);
 
-    //! Stop hyperparameter optimization early if the process is not promising.
-    void stopHyperparameterOptimizationEarly(bool stopEarly);
+    //! Stubs out test loss adjustment.
+    static double noopAdjustTestLoss(double, double, double testLoss);
 
 private:
     TOptionalDouble m_MinimumFrequencyToOneHotEncode;
@@ -277,6 +285,7 @@ private:
     std::size_t m_NumberThreads;
     TBoostedTreeImplUPtr m_TreeImpl;
     TVector m_LogDownsampleFactorSearchInterval;
+    TVector m_LogFeatureBagFractionInterval;
     TVector m_LogDepthPenaltyMultiplierSearchInterval;
     TVector m_LogTreeSizePenaltyMultiplierSearchInterval;
     TVector m_LogLeafWeightPenaltyMultiplierSearchInterval;

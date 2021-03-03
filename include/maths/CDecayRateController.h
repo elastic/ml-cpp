@@ -113,6 +113,10 @@ private:
     bool decreaseDecayRateErrorNotDecreasing(const TDouble3Ary& stats) const;
     bool decreaseDecayRateNotBiased(const TDouble3Ary& stats) const;
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
 private:
     //! The checks we perform to detect error conditions.
     int m_Checks = 0;

@@ -94,7 +94,7 @@ CDataFrameAnalyzerTrainingFactory::setupBinaryClassificationData(const TStrVec& 
             row[j] = regressors[i + j];
         }
 
-        for (std::size_t j = 0; j < row.size() - 1; ++j) {
+        for (std::size_t j = 0; j < row.size(); ++j) {
             fieldValues[j] = core::CStringUtils::typeToStringPrecise(
                 row[j], core::CIEEE754::E_DoublePrecision);
         }

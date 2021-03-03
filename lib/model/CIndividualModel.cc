@@ -416,6 +416,8 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
         }
     }
 
+    VIOLATES_INVARIANT(m_FirstBucketTimes.size(), !=, m_LastBucketTimes.size());
+
     return true;
 }
 

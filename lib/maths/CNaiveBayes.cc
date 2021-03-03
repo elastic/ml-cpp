@@ -61,7 +61,14 @@ bool CNaiveBayesFeatureDensityFromPrior::acceptRestoreTraverser(
                                CPriorStateSerialiser(), std::cref(params),
                                std::ref(m_Prior), std::placeholders::_1)));
     } while (traverser.next());
+
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CNaiveBayesFeatureDensityFromPrior::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT_NO_EVALUATION(m_Prior, ==, nullptr);
 }
 
 void CNaiveBayesFeatureDensityFromPrior::acceptPersistInserter(core::CStatePersistInserter& inserter) const {

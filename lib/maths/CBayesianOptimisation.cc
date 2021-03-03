@@ -715,11 +715,24 @@ bool CBayesianOptimisation::acceptRestoreTraverser(core::CStateRestoreTraverser&
             return false;
         }
 
+        this->checkRestoredInvariants();
+
         return true;
     }
     LOG_ERROR(<< "Input error: unsupported state serialization version. Currently supported version: "
               << VERSION_7_5_TAG);
     return false;
+}
+
+void CBayesianOptimisation::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT(m_FunctionMeanValues.size(), !=, m_ErrorVariances.size());
+    VIOLATES_INVARIANT(m_MinBoundary.size(), !=, m_MaxBoundary.size());
+    VIOLATES_INVARIANT(m_KernelParameters.size(), !=, m_MinBoundary.size() + 1);
+    VIOLATES_INVARIANT(m_MinimumKernelCoordinateDistanceScale.size(), !=,
+                       m_MinBoundary.size());
+    for (const auto& point : m_FunctionMeanValues) {
+        VIOLATES_INVARIANT(point.first.size(), !=, m_MinBoundary.size());
+    }
 }
 
 std::size_t CBayesianOptimisation::memoryUsage() const {

@@ -43,13 +43,18 @@ class CImmutableRadixSet;
 }
 namespace maths {
 class CBayesianOptimisation;
+class CBoostedTreeImplForTest;
 class CTreeShapFeatureImportance;
 
 //! \brief Implementation of CBoostedTree.
 class MATHS_EXPORT CBoostedTreeImpl final {
 public:
     using TDoubleVec = std::vector<double>;
+    using TSizeVec = std::vector<std::size_t>;
     using TStrVec = std::vector<std::string>;
+    using TOptionalDouble = boost::optional<double>;
+    using TStrDoublePrVec = std::vector<std::pair<std::string, double>>;
+    using TOptionalStrDoublePrVec = boost::optional<TStrDoublePrVec>;
     using TVector = CDenseVector<double>;
     using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
@@ -62,9 +67,7 @@ public:
     using TLossFunction = boosted_tree::CLoss;
     using TLossFunctionUPtr = CBoostedTree::TLossFunctionUPtr;
     using TTrainingStateCallback = CBoostedTree::TTrainingStateCallback;
-    using TOptionalDouble = boost::optional<double>;
     using TRegularization = CBoostedTreeRegularization<double>;
-    using TSizeVec = std::vector<std::size_t>;
     using TAnalysisInstrumentationPtr = CDataFrameTrainBoostedTreeInstrumentationInterface*;
     using THyperparameterImportanceVec =
         std::vector<boosted_tree_detail::SHyperparameterImportance>;
@@ -76,6 +79,7 @@ public:
     CBoostedTreeImpl(std::size_t numberThreads,
                      TLossFunctionUPtr loss,
                      TAnalysisInstrumentationPtr instrumentation = nullptr);
+    CBoostedTreeImpl(CBoostedTreeImpl&&);
 
     ~CBoostedTreeImpl();
 
@@ -112,7 +116,7 @@ public:
 
     //! Get the weights to apply to each class's predicted probability when
     //! assigning classes.
-    TVector classificationWeights() const;
+    const TVector& classificationWeights() const;
 
     //! Get the number of columns training the model will add to the data frame.
     static std::size_t numberExtraColumnsForTrain(std::size_t numberLossParameters) {
@@ -188,8 +192,9 @@ private:
         E_TreeSizePenaltyMultiplierInitialized = 3,
         E_LeafWeightPenaltyMultiplierInitialized = 4,
         E_DownsampleFactorInitialized = 5,
-        E_EtaInitialized = 6,
-        E_FullyInitialized = 7
+        E_FeatureBagFractionInitialized = 6,
+        E_EtaInitialized = 7,
+        E_FullyInitialized = 8
     };
 
 private:
@@ -260,10 +265,15 @@ private:
     std::size_t numberFeatures() const;
 
     //! Get the number of features to consider splitting on.
-    std::size_t featureBagSize() const;
+    std::size_t featureBagSize(double fractionMultiplier) const;
 
     //! Sample the features according to their categorical distribution.
-    void featureBag(TDoubleVec& probabilities, TSizeVec& features) const;
+    void treeFeatureBag(TDoubleVec& probabilities, TSizeVec& treeFeatureBag) const;
+
+    //! Sample the features according to their categorical distribution.
+    void nodeFeatureBag(const TSizeVec& treeFeatureBag,
+                        TDoubleVec& probabilities,
+                        TSizeVec& nodeFeatureBag) const;
 
     //! Get a column mask of the suitable regressor features.
     void candidateRegressorFeatures(const TDoubleVec& probabilities, TSizeVec& features) const;
@@ -300,6 +310,12 @@ private:
 
     //! Set the hyperparamaters from the best recorded.
     void restoreBestHyperparameters();
+
+    //! Check invariants which are assumed to hold after restoring.
+    void checkRestoredInvariants() const;
+
+    //! Check invariants which are assumed to hold in order to train on \p frame.
+    void checkTrainInvariants(const core::CDataFrame& frame) const;
 
     //! Get the number of hyperparameters to tune.
     std::size_t numberHyperparametersToTune() const;
@@ -355,6 +371,7 @@ private:
     TOptionalSize m_NumberFoldsOverride;
     TOptionalSize m_MaximumNumberTreesOverride;
     TOptionalDouble m_FeatureBagFractionOverride;
+    TOptionalStrDoublePrVec m_ClassificationWeightsOverride;
     TRegularization m_Regularization;
     TVector m_ClassificationWeights;
     double m_DownsampleFactor = 0.5;
@@ -392,6 +409,7 @@ private:
 
 private:
     friend class CBoostedTreeFactory;
+    friend class CBoostedTreeImplForTest;
 };
 }
 }

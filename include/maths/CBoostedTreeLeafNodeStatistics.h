@@ -605,7 +605,8 @@ public:
                                    const CDataFrameCategoryEncoder& encoder,
                                    const TRegularization& regularization,
                                    const TImmutableRadixSetVec& candidateSplits,
-                                   const TSizeVec& featureBag,
+                                   const TSizeVec& treeFeatureBag,
+                                   const TSizeVec& nodeFeatureBag,
                                    std::size_t depth,
                                    const core::CPackedBitVector& rowMask,
                                    CWorkspace& workspace);
@@ -617,7 +618,8 @@ public:
                                    const core::CDataFrame& frame,
                                    const CDataFrameCategoryEncoder& encoder,
                                    const TRegularization& regularization,
-                                   const TSizeVec& featureBag,
+                                   const TSizeVec& treeFeatureBag,
+                                   const TSizeVec& nodeFeatureBag,
                                    bool isLeftChild,
                                    const CBoostedTreeNode& split,
                                    CWorkspace& workspace);
@@ -626,7 +628,7 @@ public:
     CBoostedTreeLeafNodeStatistics(std::size_t id,
                                    CBoostedTreeLeafNodeStatistics&& parent,
                                    const TRegularization& regularization,
-                                   const TSizeVec& featureBag,
+                                   const TSizeVec& nodeFeatureBag,
                                    CWorkspace& workspace);
 
     CBoostedTreeLeafNodeStatistics(const CBoostedTreeLeafNodeStatistics&) = delete;
@@ -644,7 +646,8 @@ public:
                     const core::CDataFrame& frame,
                     const CDataFrameCategoryEncoder& encoder,
                     const TRegularization& regularization,
-                    const TSizeVec& featureBag,
+                    const TSizeVec& treeFeatureBag,
+                    const TSizeVec& nodeFeatureBag,
                     const CBoostedTreeNode& split,
                     CWorkspace& workspace);
 
@@ -708,18 +711,12 @@ private:
                          double splitAt,
                          std::size_t minimumChildRowCount,
                          bool leftChildHasFewerRows,
-                         bool assignMissingToLeft,
-                         std::size_t leftChildRowCount, // TODO remove after stats measurement
-                         std::size_t rightChildRowCount, // TODO remove after stats measurement
-                         double leftChildMaxGain = boosted_tree_detail::INF,
-                         double rightChildMaxGain = boosted_tree_detail::INF)
+                         bool assignMissingToLeft)
             : s_Gain{CMathsFuncs::isNan(gain) ? -boosted_tree_detail::INF : gain},
               s_Curvature{curvature}, s_Feature{feature}, s_SplitAt{splitAt},
               s_MinimumChildRowCount{static_cast<std::uint32_t>(minimumChildRowCount)},
-              s_LeftChildRowCount{static_cast<std::uint32_t>(leftChildRowCount)},
-              s_RightChildRowCount{static_cast<std::uint32_t>(rightChildRowCount)},
-              s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft},
-              s_LeftChildMaxGain{leftChildMaxGain}, s_RightChildMaxGain{rightChildMaxGain} {}
+              s_LeftChildHasFewerRows{leftChildHasFewerRows}, s_AssignMissingToLeft{assignMissingToLeft} {
+        }
 
         bool operator<(const SSplitStatistics& rhs) const {
             return COrderings::lexicographical_compare(
@@ -740,8 +737,6 @@ private:
         std::size_t s_Feature = std::numeric_limits<std::size_t>::max();
         double s_SplitAt = boosted_tree_detail::INF;
         std::uint32_t s_MinimumChildRowCount = 0;
-        std::uint32_t s_LeftChildRowCount = 0; // TODO remove after stats measurement
-        std::uint32_t s_RightChildRowCount = 0; //  TODO remove after stats measurement
         bool s_LeftChildHasFewerRows = true;
         bool s_AssignMissingToLeft = true;
         double s_LeftChildMaxGain = boosted_tree_detail::INF;
@@ -752,6 +747,7 @@ private:
     void computeAggregateLossDerivatives(std::size_t numberThreads,
                                          const core::CDataFrame& frame,
                                          const CDataFrameCategoryEncoder& encoder,
+                                         const TSizeVec& featureBag,
                                          const core::CPackedBitVector& rowMask,
                                          CWorkspace& workspace) const;
     void computeRowMaskAndAggregateLossDerivatives(std::size_t numberThreads,
@@ -759,9 +755,11 @@ private:
                                                    const CDataFrameCategoryEncoder& encoder,
                                                    bool isLeftChild,
                                                    const CBoostedTreeNode& split,
+                                                   const TSizeVec& featureBag,
                                                    const core::CPackedBitVector& parentRowMask,
                                                    CWorkspace& workspace) const;
-    void addRowDerivatives(const CEncodedDataFrameRowRef& row,
+    void addRowDerivatives(const TSizeVec& featureBag,
+                           const CEncodedDataFrameRowRef& row,
                            CSplitsDerivatives& splitsDerivatives) const;
 
     SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,

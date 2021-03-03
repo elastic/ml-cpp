@@ -165,6 +165,7 @@ private:
     TVector kinvf() const;
     TVector transformTo01(const TVector& x) const;
     TVector scaledKernelParameters() const;
+    void checkRestoredInvariants() const;
 
 private:
     CPRNG::CXorOShiro128Plus m_Rng;

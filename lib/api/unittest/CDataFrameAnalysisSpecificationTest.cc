@@ -15,6 +15,7 @@
 #include <api/CDataFrameTrainBoostedTreeClassifierRunner.h>
 #include <api/CDataFrameTrainBoostedTreeRegressionRunner.h>
 
+#include <test/CDataFrameAnalysisSpecificationFactory.h>
 #include <test/CTestTmpDir.h>
 
 #include "CDataFrameMockAnalysisRunner.h"
@@ -366,6 +367,20 @@ BOOST_AUTO_TEST_CASE(testCreate) {
             api::CDataFrameAnalysisSpecificationJsonWriter::jsonString(
                 "testJob", 10000, 5, 100000000, 1, "42", {}, true,
                 test::CTestTmpDir::tmpDir(), "", "regression", parameters)};
+        LOG_DEBUG(<< core::CContainerPrinter::print(errors));
+        BOOST_TEST_REQUIRE(errors.size() > 0);
+    }
+
+    LOG_DEBUG(<< "Invalid number of class weights");
+    {
+        errors.clear();
+        test::CDataFrameAnalysisSpecificationFactory specFactory;
+        auto spec = specFactory.rows(5)
+                        .predictionCategoricalFieldNames({"f1", "target"})
+                        .numberClasses(2)
+                        .classificationWeights({{"a", 0.1}, {"b", 0.4}, {"c", 0.5}})
+                        .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::classification(),
+                                        "target");
         LOG_DEBUG(<< core::CContainerPrinter::print(errors));
         BOOST_TEST_REQUIRE(errors.size() > 0);
     }

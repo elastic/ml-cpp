@@ -468,7 +468,6 @@ BOOST_AUTO_TEST_CASE(testAnovaConstantFactor) {
 
 BOOST_AUTO_TEST_CASE(testAnovaTotalVariance) {
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-    TMeanAccumulator meanAccumulator;
     std::size_t dim{2};
     std::size_t mcSamples{1000};
     TDoubleVecVec testSamples;
@@ -493,7 +492,6 @@ BOOST_AUTO_TEST_CASE(testAnovaTotalVariance) {
 
 BOOST_AUTO_TEST_CASE(testAnovaMainEffect) {
     using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
-    TMeanAccumulator meanAccumulator;
     std::size_t dim{2};
     std::size_t mcSamples{1000};
     TDoubleVecVec testSamples;

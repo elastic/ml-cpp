@@ -10,6 +10,21 @@
 namespace ml {
 namespace core {
 
+#define VIOLATES_INVARIANT(lhs, op, rhs)                                       \
+    do {                                                                       \
+        if (lhs op rhs) {                                                      \
+            LOG_ABORT(<< "Invariance check failed: " #lhs " " #op " " #rhs "." \
+                      << " [" << lhs << " " #op " " << rhs << "]");            \
+        }                                                                      \
+    } while (0)
+
+#define VIOLATES_INVARIANT_NO_EVALUATION(lhs, op, rhs)                           \
+    do {                                                                         \
+        if (lhs op rhs) {                                                        \
+            LOG_ABORT(<< "Invariance check failed: " #lhs " " #op " " #rhs "."); \
+        }                                                                        \
+    } while (0)
+
 #define RESTORE(tag, restore)                                                          \
     if (name == tag) {                                                                 \
         if ((restore) == false) {                                                      \

@@ -32,6 +32,7 @@ namespace test {
 class TEST_EXPORT CDataFrameAnalysisSpecificationFactory {
 public:
     using TStrVec = std::vector<std::string>;
+    using TStrDoublePrVec = std::vector<std::pair<std::string, double>>;
     using TDataAdderUPtr = std::unique_ptr<core::CDataAdder>;
     using TPersisterSupplier = std::function<TDataAdderUPtr()>;
     using TDataSearcherUPtr = std::unique_ptr<core::CDataSearcher>;
@@ -96,6 +97,8 @@ public:
     CDataFrameAnalysisSpecificationFactory& numberClasses(std::size_t number);
     CDataFrameAnalysisSpecificationFactory& numberTopClasses(std::size_t number);
     CDataFrameAnalysisSpecificationFactory& predictionFieldType(const std::string& type);
+    CDataFrameAnalysisSpecificationFactory&
+    classificationWeights(const TStrDoublePrVec& weights);
 
     std::string outlierParams() const;
     TSpecificationUPtr outlierSpec() const;
@@ -147,6 +150,7 @@ private:
     std::size_t m_NumberTopClasses = 0;
     std::string m_PredictionFieldType;
     bool m_EarlyStoppingEnabled = true;
+    TStrDoublePrVec m_ClassificationWeights;
 };
 }
 }

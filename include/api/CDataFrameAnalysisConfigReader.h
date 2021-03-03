@@ -16,6 +16,7 @@
 #include <map>
 #include <string>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace ml {
@@ -78,6 +79,15 @@ public:
             }
             return this->fallback(T{});
         }
+        //! Get a name value pair parameter.
+        std::pair<std::string, double> as(const std::string& name,
+                                          const std::string& value) const {
+            if (m_Value == nullptr) {
+                HANDLE_FATAL(<< "Input error: expected value for '" << m_Name
+                             << "'. Please report this problem.");
+            }
+            return this->fallback(name, value, std::make_pair("", 0.0));
+        }
         //! Get the JSON object.
         const rapidjson::Value* jsonObject() { return m_Value; }
         //! Get a boolean parameter.
@@ -90,6 +100,16 @@ public:
         double fallback(double value) const;
         //! Get a string parameter.
         std::string fallback(const std::string& value) const;
+        //! Get a (name, value) pair parameter.
+        std::pair<std::string, double>
+        fallback(const std::string& name,
+                 const std::string& value,
+                 const std::pair<std::string, double>& fallback) const;
+        //! Get an array of (name, value) pair objects.
+        std::vector<std::pair<std::string, double>>
+        fallback(const std::string& name,
+                 const std::string& value,
+                 const std::vector<std::pair<std::string, double>>& fallback) const;
         //! Get an enum point parameter.
         template<typename ENUM>
         ENUM fallback(ENUM value) const {
@@ -110,13 +130,13 @@ public:
         }
         //! Get an array of objects of type T.
         template<typename T>
-        std::vector<T> fallback(const std::vector<T>& value) const {
+        std::vector<T> fallback(const std::vector<T>& fallback) const {
             if (m_Value == nullptr) {
-                return value;
+                return fallback;
             }
             if (m_Value->IsArray() == false) {
                 this->handleFatal();
-                return value;
+                return fallback;
             }
             std::vector<T> result;
             result.reserve(m_Value->Size());

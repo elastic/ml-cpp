@@ -66,10 +66,14 @@ CDataFrameTrainBoostedTreeClassifierRunner::parameterReader() {
                                 {typeBool, int{E_PredictionFieldTypeBool}}});
         int accuracy{maths::CDataFramePredictiveModel::E_Accuracy};
         int recall{maths::CDataFramePredictiveModel::E_MinimumRecall};
+        int custom{maths::CDataFramePredictiveModel::E_Custom};
         theReader.addParameter(
             CLASS_ASSIGNMENT_OBJECTIVE, CDataFrameAnalysisConfigReader::E_OptionalParameter,
             {{CLASS_ASSIGNMENT_OBJECTIVE_VALUES[accuracy], accuracy},
-             {CLASS_ASSIGNMENT_OBJECTIVE_VALUES[recall], int{recall}}});
+             {CLASS_ASSIGNMENT_OBJECTIVE_VALUES[recall], recall},
+             {CLASS_ASSIGNMENT_OBJECTIVE_VALUES[custom], custom}});
+        theReader.addParameter(CLASSIFICATION_WEIGHTS,
+                               CDataFrameAnalysisConfigReader::E_OptionalParameter);
         return theReader;
     }()};
     return PARAMETER_READER;
@@ -81,20 +85,41 @@ CDataFrameTrainBoostedTreeClassifierRunner::CDataFrameTrainBoostedTreeClassifier
     : CDataFrameTrainBoostedTreeRunner{
           spec, parameters, loss(parameters[NUM_CLASSES].as<std::size_t>())} {
 
+    std::size_t numberClasses{parameters[NUM_CLASSES].as<std::size_t>()};
+    auto classAssignmentObjective = parameters[CLASS_ASSIGNMENT_OBJECTIVE].fallback(
+        maths::CBoostedTree::E_MinimumRecall);
     m_NumTopClasses = parameters[NUM_TOP_CLASSES].fallback(std::ptrdiff_t{0});
     m_PredictionFieldType =
         parameters[PREDICTION_FIELD_TYPE].fallback(E_PredictionFieldTypeString);
-    this->boostedTreeFactory().classAssignmentObjective(
-        parameters[CLASS_ASSIGNMENT_OBJECTIVE].fallback(maths::CBoostedTree::E_MinimumRecall));
+    this->boostedTreeFactory().classAssignmentObjective(classAssignmentObjective);
+    auto classificationWeights = parameters[CLASSIFICATION_WEIGHTS].fallback(
+        CLASSIFICATION_WEIGHTS_CLASS, CLASSIFICATION_WEIGHTS_WEIGHT,
+        std::vector<std::pair<std::string, double>>{});
+    if (classificationWeights.size() > 0) {
+        this->boostedTreeFactory().classificationWeights(classificationWeights);
+    }
 
     const TStrVec& categoricalFieldNames{spec.categoricalFieldNames()};
     if (std::find(categoricalFieldNames.begin(), categoricalFieldNames.end(),
                   this->dependentVariableFieldName()) == categoricalFieldNames.end()) {
-        HANDLE_FATAL(<< "Input error: trying to perform classification with numeric target.")
+        HANDLE_FATAL(<< "Input error: trying to perform classification with numeric target.");
     }
     if (PREDICTION_FIELD_NAME_BLACKLIST.count(this->predictionFieldName()) > 0) {
         HANDLE_FATAL(<< "Input error: " << PREDICTION_FIELD_NAME << " must not be equal to any of "
-                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST) << ".")
+                     << core::CContainerPrinter::print(PREDICTION_FIELD_NAME_BLACKLIST)
+                     << ".");
+    }
+    if (classificationWeights.size() > 0 &&
+        classAssignmentObjective != maths::CBoostedTree::E_Custom) {
+        HANDLE_FATAL(<< "Input error: expected "
+                     << CLASS_ASSIGNMENT_OBJECTIVE_VALUES[maths::CDataFramePredictiveModel::E_Custom]
+                     << " for " << CLASS_ASSIGNMENT_OBJECTIVE << " if supplying "
+                     << CLASSIFICATION_WEIGHTS << " but got '"
+                     << CLASS_ASSIGNMENT_OBJECTIVE_VALUES[classAssignmentObjective] << "'.");
+    }
+    if (classificationWeights.size() > 0 && classificationWeights.size() != numberClasses) {
+        HANDLE_FATAL(<< "Input error: expected " << numberClasses << " " << CLASSIFICATION_WEIGHTS
+                     << " but got " << classificationWeights.size() << ".");
     }
 }
 
@@ -166,12 +191,13 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
     }
 
     if (featureImportance != nullptr) {
-        std::size_t numberClasses{classValues.size()};
+        int numberClasses{static_cast<int>(classValues.size())};
         m_InferenceModelMetadata.columnNames(featureImportance->columnNames());
         m_InferenceModelMetadata.classValues(classValues);
         m_InferenceModelMetadata.predictionFieldTypeResolverWriter(
-            [this](const std::string& categoryValue, core::CRapidJsonConcurrentLineWriter& writer) {
-                this->writePredictedCategoryValue(categoryValue, writer);
+            [this](const std::string& categoryValue,
+                   core::CRapidJsonConcurrentLineWriter& writer_) {
+                this->writePredictedCategoryValue(categoryValue, writer_);
             });
         featureImportance->shap(
             row, [&](const maths::CTreeShapFeatureImportance::TSizeVec& indices,
@@ -188,7 +214,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                             // output feature importance for individual classes in binary case
                             writer.Key(CLASSES_FIELD_NAME);
                             writer.StartArray();
-                            for (std::size_t j = 0; j < numberClasses; ++j) {
+                            for (int j = 0; j < numberClasses; ++j) {
                                 writer.StartObject();
                                 writer.Key(CLASS_NAME_FIELD_NAME);
                                 writePredictedCategoryValue(classValues[j], writer);
@@ -205,8 +231,7 @@ void CDataFrameTrainBoostedTreeClassifierRunner::writeOneRow(
                             // output feature importance for individual classes in multiclass case
                             writer.Key(CLASSES_FIELD_NAME);
                             writer.StartArray();
-                            for (std::size_t j = 0;
-                                 j < shap[i].size() && j < numberClasses; ++j) {
+                            for (int j = 0; j < shap[i].size() && j < numberClasses; ++j) {
                                 writer.StartObject();
                                 writer.Key(CLASS_NAME_FIELD_NAME);
                                 writePredictedCategoryValue(classValues[j], writer);
@@ -275,13 +300,13 @@ void CDataFrameTrainBoostedTreeClassifierRunner::validate(const core::CDataFrame
                      << "two classes. Trying to predict '"
                      << frame.columnNames()[dependentVariableColumn] << "' which has '"
                      << categoryCount << "' categories in the training data. "
-                     << "The number of rows read is '" << frame.numberRows() << "'.")
+                     << "The number of rows read is '" << frame.numberRows() << "'.");
     } else if (categoryCount > MAX_NUMBER_CLASSES) {
         HANDLE_FATAL(<< "Input error: the maximum number of classes supported is "
                      << MAX_NUMBER_CLASSES << ". Trying to predict '"
                      << frame.columnNames()[dependentVariableColumn] << "' which has '"
                      << categoryCount << "' categories in the training data. "
-                     << "The number of rows read is '" << frame.numberRows() << "'.")
+                     << "The number of rows read is '" << frame.numberRows() << "'.");
     }
 }
 
@@ -315,7 +340,11 @@ const std::string CDataFrameTrainBoostedTreeClassifierRunner::NUM_TOP_CLASSES{"n
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::PREDICTION_FIELD_TYPE{"prediction_field_type"};
 const std::string CDataFrameTrainBoostedTreeClassifierRunner::CLASS_ASSIGNMENT_OBJECTIVE{"class_assignment_objective"};
 const CDataFrameTrainBoostedTreeClassifierRunner::TStrVec
-CDataFrameTrainBoostedTreeClassifierRunner::CLASS_ASSIGNMENT_OBJECTIVE_VALUES{"maximize_accuracy", "maximize_minimum_recall"};
+CDataFrameTrainBoostedTreeClassifierRunner::CLASS_ASSIGNMENT_OBJECTIVE_VALUES{
+    "maximize_accuracy", "maximize_minimum_recall", "custom"};
+const std::string CDataFrameTrainBoostedTreeClassifierRunner::CLASSIFICATION_WEIGHTS{"classification_weights"};
+const std::string CDataFrameTrainBoostedTreeClassifierRunner::CLASSIFICATION_WEIGHTS_CLASS{"class"};
+const std::string CDataFrameTrainBoostedTreeClassifierRunner::CLASSIFICATION_WEIGHTS_WEIGHT{"weight"};
 // clang-format on
 
 const std::string& CDataFrameTrainBoostedTreeClassifierRunnerFactory::name() const {
@@ -325,7 +354,7 @@ const std::string& CDataFrameTrainBoostedTreeClassifierRunnerFactory::name() con
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::TRunnerUPtr
 CDataFrameTrainBoostedTreeClassifierRunnerFactory::makeImpl(const CDataFrameAnalysisSpecification&) const {
     HANDLE_FATAL(<< "Input error: classification has a non-optional parameter '"
-                 << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.")
+                 << CDataFrameTrainBoostedTreeRunner::DEPENDENT_VARIABLE_NAME << "'.");
     return nullptr;
 }
 

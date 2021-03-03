@@ -19,15 +19,18 @@
 
 package org.elastic.gradle
 
-import com.amazonaws.ClientConfiguration
-import com.amazonaws.auth.AWSCredentials
-import com.amazonaws.auth.BasicAWSCredentials
-import com.amazonaws.services.s3.AmazonS3Client
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.internal.logging.progress.ProgressLogger
 import org.gradle.internal.logging.progress.ProgressLoggerFactory
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import javax.inject.Inject
 
@@ -36,19 +39,10 @@ import javax.inject.Inject
  */
 class UploadS3Task extends DefaultTask {
 
-
     private Map<File, Object> toUpload = new LinkedHashMap<>()
 
     @Input
     String bucket
-
-    /** True if a sha1 hash of each file should exist and be uploaded. This is ignored for uploading directories. */
-    @Input
-    boolean addSha1Hash = false
-
-    /** True if a signature of each file should exist and be uploaded. This is ignored for uploading directories. */
-    @Input
-    boolean addSignature = false
 
     UploadS3Task() {
         ext.set('needs.aws', true)
@@ -70,14 +64,12 @@ class UploadS3Task extends DefaultTask {
 
     @TaskAction
     public void uploadToS3() {
-        AWSCredentials creds = new BasicAWSCredentials(project.mlAwsAccessKey, project.mlAwsSecretKey)
 
-        ClientConfiguration clientConfiguration = new ClientConfiguration();
-        // the response metadata cache is only there for diagnostics purposes,
-        // but can force objects from every response to the old generation.
-        clientConfiguration.setResponseMetadataCacheSize(0);
+        Region region = Region.EU_WEST_1
+        AwsCredentials creds = AwsBasicCredentials.create(project.mlAwsAccessKey, project.mlAwsSecretKey)
+        AwsCredentialsProvider credsProvider = StaticCredentialsProvider.create(creds)
+        S3Client client = S3Client.builder().region(region).credentialsProvider(credsProvider).build()
 
-        AmazonS3Client client = new AmazonS3Client(creds, clientConfiguration);
         ProgressLogger progressLogger = getProgressLoggerFactory().newOperation("s3upload")
         progressLogger.description = "upload files to s3"
         progressLogger.started()
@@ -89,19 +81,13 @@ class UploadS3Task extends DefaultTask {
                 uploadDir(client, progressLogger, file, key)
             } else {
                 uploadFile(client, progressLogger, file, key)
-                if (addSha1Hash) {
-                    uploadFile(client, progressLogger, new File(file.path + '.sha1'), key + '.sha1')
-                }
-                if (addSignature) {
-                    uploadFile(client, progressLogger, new File(file.path + '.asc'), key + '.asc')
-                }
             }
         }
         progressLogger.completed()
     }
 
     /** Recursively upload all files in a directory. */
-    private void uploadDir(AmazonS3Client client, ProgressLogger progressLogger, File dir, String prefix) {
+    private void uploadDir(S3Client client, ProgressLogger progressLogger, File dir, String prefix) {
         for (File subfile : dir.listFiles()) {
             if (subfile.isDirectory()) {
                 uploadDir(client, progressLogger, subfile, "${prefix}/${subfile.name}")
@@ -113,9 +99,10 @@ class UploadS3Task extends DefaultTask {
     }
 
     /** Upload a single file */
-    private void uploadFile(AmazonS3Client client, ProgressLogger progressLogger, File file, String key) {
+    private void uploadFile(S3Client client, ProgressLogger progressLogger, File file, String key) {
         logger.info("Uploading ${file.name} to ${key}")
         progressLogger.progress("uploading ${file.name}")
-        client.putObject(bucket, key, file)
+        PutObjectRequest objectRequest = PutObjectRequest.builder().bucket(bucket).key(key).build()
+        client.putObject(objectRequest, file.toPath())
     }
 }

@@ -73,7 +73,20 @@ bool CQDigest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
         }
     } while (traverser.next());
 
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CQDigest::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT_NO_EVALUATION(m_Root, ==, nullptr);
+
+    // This check on invariants is proving unreliable as it
+    // fails on occasion, see ml-cpp#1728 for details.
+    // Disabling the check pending investigation.
+    //    if (this->checkInvariants() == false) {
+    //        LOG_ABORT(<< "Invariance check failed for Q Digest");
+    //    }
 }
 
 void CQDigest::add(uint32_t value, uint64_t n) {
@@ -102,8 +115,6 @@ void CQDigest::add(uint32_t value, uint64_t n) {
         TNodePtrVec compress(1u, &leaf);
         this->compress(compress);
     }
-
-    //this->checkInvariants();
 }
 
 void CQDigest::merge(const CQDigest& digest) {
@@ -122,8 +133,6 @@ void CQDigest::merge(const CQDigest& digest) {
 
     // Compress the whole tree.
     this->compress();
-
-    //this->checkInvariants();
 }
 
 void CQDigest::propagateForwardsByTime(double time) {

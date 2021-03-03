@@ -135,6 +135,11 @@ public:
     virtual std::string print() const;
 
 private:
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
+private:
     using TPriorPtr = std::unique_ptr<CPrior>;
 
 private:

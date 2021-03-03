@@ -20,6 +20,7 @@
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CLeastSquaresOnlineRegression.h>
 #include <maths/CLeastSquaresOnlineRegressionDetail.h>
+#include <maths/COrderings.h>
 #include <maths/CSampling.h>
 
 #include <boost/optional/optional_io.hpp>
@@ -33,11 +34,12 @@ using TDoubleVec = std::vector<double>;
 using TRowItr = core::CDataFrame::TRowItr;
 
 namespace {
-const std::size_t MIN_REGULARIZER_INDEX{0};
-const std::size_t BEST_REGULARIZER_INDEX{1};
-const std::size_t MAX_REGULARIZER_INDEX{2};
+const std::size_t MIN_PARAMETER_INDEX{0};
+const std::size_t BEST_PARAMETER_INDEX{1};
+const std::size_t MAX_PARAMETER_INDEX{2};
 const std::size_t MAX_LINE_SEARCH_ITERATIONS{10};
 const double LINE_SEARCH_MINIMUM_RELATIVE_EI_TO_CONTINUE{0.01};
+const double MIN_ROWS_PER_FEATURE{20.0};
 const double MIN_SOFT_DEPTH_LIMIT{2.0};
 const double MIN_SOFT_DEPTH_LIMIT_TOLERANCE{0.05};
 const double MAX_SOFT_DEPTH_LIMIT_TOLERANCE{0.25};
@@ -46,11 +48,13 @@ const double MIN_ETA_SCALE{0.5};
 const double MAX_ETA_SCALE{2.0};
 const double MIN_ETA_GROWTH_RATE_SCALE{0.5};
 const double MAX_ETA_GROWTH_RATE_SCALE{1.5};
-const double MIN_FEATURE_BAG_FRACTION{0.2};
+const double FEATURE_BAG_FRACTION_LINE_SEARCH_RANGE{8.0};
 const double MAX_FEATURE_BAG_FRACTION{0.8};
 const double MIN_DOWNSAMPLE_LINE_SEARCH_RANGE{2.0};
 const double MAX_DOWNSAMPLE_LINE_SEARCH_RANGE{144.0};
 const double MIN_DOWNSAMPLE_FACTOR{1e-3};
+const double MIN_INITIAL_DOWNSAMPLE_FACTOR{0.05};
+const double MAX_INITIAL_DOWNSAMPLE_FACTOR{0.5};
 const double MIN_DOWNSAMPLE_FACTOR_SCALE{0.3};
 const double MAX_DOWNSAMPLE_FACTOR_SCALE{3.0};
 // This isn't a hard limit but we increase the number of default training folds
@@ -58,6 +62,7 @@ const double MAX_DOWNSAMPLE_FACTOR_SCALE{3.0};
 const double MAX_DESIRED_INITIAL_DOWNSAMPLE_FRACTION{0.5};
 const double MAX_NUMBER_FOLDS{5.0};
 const std::size_t MAX_NUMBER_TREES{static_cast<std::size_t>(2.0 / MIN_ETA + 0.5)};
+const double EPS{0.01};
 
 double computeEta(std::size_t numberRegressors) {
     // eta is the learning rate. There is a lot of empirical evidence that
@@ -81,7 +86,7 @@ std::size_t computeMaximumNumberTrees(double eta) {
 }
 
 bool intervalIsEmpty(const CBoostedTreeFactory::TVector& interval) {
-    return interval(MAX_REGULARIZER_INDEX) - interval(MIN_REGULARIZER_INDEX) == 0.0;
+    return interval(MAX_PARAMETER_INDEX) - interval(MIN_PARAMETER_INDEX) == 0.0;
 }
 }
 
@@ -133,7 +138,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
 
     if (dependentVariable != m_TreeImpl->m_DependentVariable) {
         HANDLE_FATAL(<< "Internal error: expected dependent variable "
-                     << m_TreeImpl->m_DependentVariable << " got " << dependentVariable)
+                     << m_TreeImpl->m_DependentVariable << " got " << dependentVariable);
         return nullptr;
     }
 
@@ -146,6 +151,7 @@ CBoostedTreeFactory::restoreFor(core::CDataFrame& frame, std::size_t dependentVa
     case CBoostedTreeImpl::E_TreeSizePenaltyMultiplierInitialized:
     case CBoostedTreeImpl::E_LeafWeightPenaltyMultiplierInitialized:
     case CBoostedTreeImpl::E_DownsampleFactorInitialized:
+    case CBoostedTreeImpl::E_FeatureBagFractionInitialized:
     case CBoostedTreeImpl::E_EtaInitialized:
         return this->buildFor(frame, dependentVariable);
     }
@@ -186,38 +192,38 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
         case E_DownsampleFactor:
             if (m_TreeImpl->m_DownsampleFactorOverride == boost::none) {
                 boundingBox.emplace_back(
-                    m_LogDownsampleFactorSearchInterval(MIN_REGULARIZER_INDEX),
-                    m_LogDownsampleFactorSearchInterval(MAX_REGULARIZER_INDEX));
+                    m_LogDownsampleFactorSearchInterval(MIN_PARAMETER_INDEX),
+                    m_LogDownsampleFactorSearchInterval(MAX_PARAMETER_INDEX));
             }
             break;
         case E_Alpha:
             if (m_TreeImpl->m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
                 boundingBox.emplace_back(
-                    m_LogDepthPenaltyMultiplierSearchInterval(MIN_REGULARIZER_INDEX),
-                    m_LogDepthPenaltyMultiplierSearchInterval(MAX_REGULARIZER_INDEX));
+                    m_LogDepthPenaltyMultiplierSearchInterval(MIN_PARAMETER_INDEX),
+                    m_LogDepthPenaltyMultiplierSearchInterval(MAX_PARAMETER_INDEX));
             }
             break;
         case E_Lambda:
             if (m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier() ==
                 boost::none) {
                 boundingBox.emplace_back(
-                    m_LogLeafWeightPenaltyMultiplierSearchInterval(MIN_REGULARIZER_INDEX),
-                    m_LogLeafWeightPenaltyMultiplierSearchInterval(MAX_REGULARIZER_INDEX));
+                    m_LogLeafWeightPenaltyMultiplierSearchInterval(MIN_PARAMETER_INDEX),
+                    m_LogLeafWeightPenaltyMultiplierSearchInterval(MAX_PARAMETER_INDEX));
             }
             break;
         case E_Gamma:
             if (m_TreeImpl->m_RegularizationOverride.treeSizePenaltyMultiplier() ==
                 boost::none) {
                 boundingBox.emplace_back(
-                    m_LogTreeSizePenaltyMultiplierSearchInterval(MIN_REGULARIZER_INDEX),
-                    m_LogTreeSizePenaltyMultiplierSearchInterval(MAX_REGULARIZER_INDEX));
+                    m_LogTreeSizePenaltyMultiplierSearchInterval(MIN_PARAMETER_INDEX),
+                    m_LogTreeSizePenaltyMultiplierSearchInterval(MAX_PARAMETER_INDEX));
             }
             break;
         case E_SoftTreeDepthLimit:
             if (m_TreeImpl->m_RegularizationOverride.softTreeDepthLimit() == boost::none) {
                 boundingBox.emplace_back(
-                    m_SoftDepthLimitSearchInterval(MIN_REGULARIZER_INDEX),
-                    m_SoftDepthLimitSearchInterval(MAX_REGULARIZER_INDEX));
+                    m_SoftDepthLimitSearchInterval(MIN_PARAMETER_INDEX),
+                    m_SoftDepthLimitSearchInterval(MAX_PARAMETER_INDEX));
             }
             break;
         case E_SoftTreeDepthTolerance:
@@ -228,8 +234,8 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
             break;
         case E_Eta:
             if (m_TreeImpl->m_EtaOverride == boost::none) {
-                boundingBox.emplace_back(m_LogEtaSearchInterval(MIN_REGULARIZER_INDEX),
-                                         m_LogEtaSearchInterval(MAX_REGULARIZER_INDEX));
+                boundingBox.emplace_back(m_LogEtaSearchInterval(MIN_PARAMETER_INDEX),
+                                         m_LogEtaSearchInterval(MAX_PARAMETER_INDEX));
             }
             break;
         case E_EtaGrowthRatePerTree:
@@ -242,7 +248,9 @@ void CBoostedTreeFactory::initializeHyperparameterOptimisation() const {
             break;
         case E_FeatureBagFraction:
             if (m_TreeImpl->m_FeatureBagFractionOverride == boost::none) {
-                boundingBox.emplace_back(MIN_FEATURE_BAG_FRACTION, MAX_FEATURE_BAG_FRACTION);
+                boundingBox.emplace_back(
+                    CTools::stableExp(m_LogFeatureBagFractionInterval(MIN_PARAMETER_INDEX)),
+                    CTools::stableExp(m_LogFeatureBagFractionInterval(MAX_PARAMETER_INDEX)));
             }
             break;
         }
@@ -432,6 +440,7 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
     }
 
     this->initializeUnsetDownsampleFactor(frame);
+    this->initializeUnsetFeatureBagFraction(frame);
     this->initializeUnsetEta(frame);
 }
 
@@ -455,15 +464,22 @@ void CBoostedTreeFactory::initializeHyperparametersSetup(core::CDataFrame& frame
         m_TreeImpl->m_MaximumNumberTrees = computeMaximumNumberTrees(m_TreeImpl->m_Eta);
     }
 
+    double numberFeatures{static_cast<double>(m_TreeImpl->m_Encoder->numberEncodedColumns())};
+
     if (m_TreeImpl->m_FeatureBagFractionOverride != boost::none) {
         m_TreeImpl->m_FeatureBagFraction = *(m_TreeImpl->m_FeatureBagFractionOverride);
+    } else {
+        m_TreeImpl->m_FeatureBagFraction =
+            std::min(m_TreeImpl->m_FeatureBagFraction,
+                     m_TreeImpl->m_TrainingRowMasks[0].manhattan() /
+                         MIN_ROWS_PER_FEATURE / numberFeatures);
     }
 
-    double numberFeatures{static_cast<double>(m_TreeImpl->m_Encoder->numberEncodedColumns())};
     double downsampleFactor{m_InitialDownsampleRowsPerFeature * numberFeatures /
                             m_TreeImpl->m_TrainingRowMasks[0].manhattan()};
     m_TreeImpl->m_DownsampleFactor = m_TreeImpl->m_DownsampleFactorOverride.value_or(
-        CTools::truncate(downsampleFactor, 0.05, 0.5));
+        CTools::truncate(downsampleFactor, MIN_INITIAL_DOWNSAMPLE_FACTOR,
+                         MAX_INITIAL_DOWNSAMPLE_FACTOR));
 
     m_TreeImpl->m_Regularization
         .depthPenaltyMultiplier(
@@ -555,7 +571,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                     LOG_TRACE(<< "soft depth limit search interval = ["
                               << m_SoftDepthLimitSearchInterval.toDelimited() << "]");
                     m_TreeImpl->m_Regularization.softTreeDepthLimit(
-                        m_SoftDepthLimitSearchInterval(BEST_REGULARIZER_INDEX));
+                        m_SoftDepthLimitSearchInterval(BEST_PARAMETER_INDEX));
                 }
                 if (m_GainPerNode90thPercentile <= 0.0 ||
                     intervalIsEmpty(m_SoftDepthLimitSearchInterval)) {
@@ -593,9 +609,9 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                     };
 
                     TVector fallback;
-                    fallback(MIN_REGULARIZER_INDEX) = logMinDepthPenaltyMultiplier;
-                    fallback(BEST_REGULARIZER_INDEX) = meanLogDepthPenaltyMultiplier;
-                    fallback(MAX_REGULARIZER_INDEX) = logMaxDepthPenaltyMultiplier;
+                    fallback(MIN_PARAMETER_INDEX) = logMinDepthPenaltyMultiplier;
+                    fallback(BEST_PARAMETER_INDEX) = meanLogDepthPenaltyMultiplier;
+                    fallback(MAX_PARAMETER_INDEX) = logMaxDepthPenaltyMultiplier;
 
                     m_LogDepthPenaltyMultiplierSearchInterval =
                         this->testLossLineSearch(frame, applyDepthPenaltyMultiplier,
@@ -609,7 +625,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                               << "]");
 
                     m_TreeImpl->m_Regularization.depthPenaltyMultiplier(CTools::stableExp(
-                        m_LogDepthPenaltyMultiplierSearchInterval(BEST_REGULARIZER_INDEX)));
+                        m_LogDepthPenaltyMultiplierSearchInterval(BEST_PARAMETER_INDEX)));
                 }
                 if (m_GainPerNode90thPercentile <= 0.0 ||
                     intervalIsEmpty(m_LogDepthPenaltyMultiplierSearchInterval)) {
@@ -647,9 +663,9 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                         };
 
                     TVector fallback;
-                    fallback(MIN_REGULARIZER_INDEX) = logMinTreeSizePenaltyMultiplier;
-                    fallback(BEST_REGULARIZER_INDEX) = meanLogTreeSizePenaltyMultiplier;
-                    fallback(MAX_REGULARIZER_INDEX) = logMaxTreeSizePenaltyMultiplier;
+                    fallback(MIN_PARAMETER_INDEX) = logMinTreeSizePenaltyMultiplier;
+                    fallback(BEST_PARAMETER_INDEX) = meanLogTreeSizePenaltyMultiplier;
+                    fallback(MAX_PARAMETER_INDEX) = logMaxTreeSizePenaltyMultiplier;
 
                     m_LogTreeSizePenaltyMultiplierSearchInterval =
                         this->testLossLineSearch(frame, applyTreeSizePenaltyMultiplier,
@@ -663,7 +679,7 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                               << "]");
 
                     m_TreeImpl->m_Regularization.treeSizePenaltyMultiplier(CTools::stableExp(
-                        m_LogTreeSizePenaltyMultiplierSearchInterval(BEST_REGULARIZER_INDEX)));
+                        m_LogTreeSizePenaltyMultiplierSearchInterval(BEST_PARAMETER_INDEX)));
                 }
                 if (m_GainPerNode90thPercentile <= 0.0 ||
                     intervalIsEmpty(m_LogTreeSizePenaltyMultiplierSearchInterval)) {
@@ -702,9 +718,9 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                         };
 
                     TVector fallback;
-                    fallback(MIN_REGULARIZER_INDEX) = logMinLeafWeightPenaltyMultiplier;
-                    fallback(BEST_REGULARIZER_INDEX) = meanLogLeafWeightPenaltyMultiplier;
-                    fallback(MAX_REGULARIZER_INDEX) = logMaxLeafWeightPenaltyMultiplier;
+                    fallback(MIN_PARAMETER_INDEX) = logMinLeafWeightPenaltyMultiplier;
+                    fallback(BEST_PARAMETER_INDEX) = meanLogLeafWeightPenaltyMultiplier;
+                    fallback(MAX_PARAMETER_INDEX) = logMaxLeafWeightPenaltyMultiplier;
 
                     m_LogLeafWeightPenaltyMultiplierSearchInterval =
                         this->testLossLineSearch(frame, applyLeafWeightPenaltyMultiplier,
@@ -716,9 +732,8 @@ void CBoostedTreeFactory::initializeUnsetRegularizationHyperparameters(core::CDa
                     LOG_TRACE(<< "log leaf weight penalty multiplier search interval = ["
                               << m_LogLeafWeightPenaltyMultiplierSearchInterval.toDelimited()
                               << "]");
-                    m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier(
-                        CTools::stableExp(m_LogLeafWeightPenaltyMultiplierSearchInterval(
-                            BEST_REGULARIZER_INDEX)));
+                    m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier(CTools::stableExp(
+                        m_LogLeafWeightPenaltyMultiplierSearchInterval(BEST_PARAMETER_INDEX)));
                 }
                 if (m_TotalCurvaturePerNode90thPercentile <= 0.0 ||
                     intervalIsEmpty(m_LogLeafWeightPenaltyMultiplierSearchInterval)) {
@@ -752,7 +767,7 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                                               CTools::stableLog(searchIntervalSize)};
                 double meanLogDownSampleFactor{
                     (logMinDownsampleFactor + logMaxDownsampleFactor) / 2.0};
-                LOG_TRACE(<< "mean log down sample factor = " << meanLogDownSampleFactor);
+                LOG_TRACE(<< "mean log downsample factor = " << meanLogDownSampleFactor);
 
                 double previousDownsampleFactor{m_TreeImpl->m_DownsampleFactor};
                 double previousDepthPenaltyMultiplier{
@@ -763,7 +778,7 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                     m_TreeImpl->m_Regularization.leafWeightPenaltyMultiplier()};
 
                 // We need to scale the regularisation terms to account for the difference
-                // in the down sample factor compared to the value used in the line search.
+                // in the downsample factor compared to the value used in the line search.
                 auto scaleRegularizers = [&](CBoostedTreeImpl& tree, double downsampleFactor) {
                     double scale{previousDownsampleFactor / downsampleFactor};
                     if (tree.m_RegularizationOverride.depthPenaltyMultiplier() == boost::none) {
@@ -793,27 +808,43 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
                     return tree.m_DownsampleFactor * numberTrainingRows > 10.0;
                 };
 
-                TVector fallback{{logMinDownsampleFactor, meanLogDownSampleFactor,
-                                  logMaxDownsampleFactor}};
+                // If there is very little relative difference in the loss prefer smaller
+                // downsample factors because they train faster. We add a penalty which is
+                // eps * lmin * (x - xmin) / (xmax - xmin) for x the downsample factor,
+                // [xmin, xmax] the search interval and lmin the minimum test loss. This
+                // means we'll never use a parameter whose loss is more than 1 + eps times
+                // larger than the minimum.
+                auto adjustTestLoss = [=](double logDownsampleFactor,
+                                          double minTestLoss, double testLoss) {
+                    return testLoss + CTools::linearlyInterpolate(
+                                          logMinDownsampleFactor, logMaxDownsampleFactor,
+                                          0.0, EPS * minTestLoss, logDownsampleFactor);
+                };
+
+                TVector fallback;
+                fallback(MIN_PARAMETER_INDEX) = logMinDownsampleFactor;
+                fallback(BEST_PARAMETER_INDEX) = meanLogDownSampleFactor;
+                fallback(MAX_PARAMETER_INDEX) = logMaxDownsampleFactor;
+
                 m_LogDownsampleFactorSearchInterval =
                     this->testLossLineSearch(
                             frame, applyDownsampleFactor,
                             logMinDownsampleFactor, logMaxDownsampleFactor,
                             CTools::stableLog(MIN_DOWNSAMPLE_FACTOR_SCALE),
-                            CTools::stableLog(MAX_DOWNSAMPLE_FACTOR_SCALE))
+                            CTools::stableLog(MAX_DOWNSAMPLE_FACTOR_SCALE), adjustTestLoss)
                         .value_or(fallback);
 
-                // Truncate the log(scale) to be less than or equal to log(1.0) and the down
-                // sampled set contains at least ten examples on average.
+                // Truncate the log(factor) to be less than or equal to log(1.0) and the
+                // downsampled set contains at least ten examples on average.
                 m_LogDownsampleFactorSearchInterval =
                     min(max(m_LogDownsampleFactorSearchInterval,
                             TVector{CTools::stableLog(10.0 / numberTrainingRows)}),
                         TVector{0.0});
-                LOG_TRACE(<< "log down sample factor search interval = ["
+                LOG_TRACE(<< "log downsample factor search interval = ["
                           << m_LogDownsampleFactorSearchInterval.toDelimited() << "]");
 
                 m_TreeImpl->m_DownsampleFactor = CTools::stableExp(
-                    m_LogDownsampleFactorSearchInterval(BEST_REGULARIZER_INDEX));
+                    m_LogDownsampleFactorSearchInterval(BEST_PARAMETER_INDEX));
 
                 TVector logScale{CTools::stableLog(
                     scaleRegularizers(*m_TreeImpl, m_TreeImpl->m_DownsampleFactor))};
@@ -822,6 +853,67 @@ void CBoostedTreeFactory::initializeUnsetDownsampleFactor(core::CDataFrame& fram
 
                 if (intervalIsEmpty(m_LogDownsampleFactorSearchInterval)) {
                     m_TreeImpl->m_DownsampleFactorOverride = m_TreeImpl->m_DownsampleFactor;
+                }
+            })) {
+            m_TreeImpl->m_TrainingProgress.increment(
+                this->lineSearchMaximumNumberIterations(frame));
+        }
+    }
+}
+
+void CBoostedTreeFactory::initializeUnsetFeatureBagFraction(core::CDataFrame& frame) {
+
+    if (m_TreeImpl->m_FeatureBagFractionOverride == boost::none) {
+        if (this->skipCheckpointIfAtOrAfter(CBoostedTreeImpl::E_FeatureBagFractionInitialized, [&] {
+                double searchIntervalSize{FEATURE_BAG_FRACTION_LINE_SEARCH_RANGE};
+                double logMaxFeatureBagFraction{CTools::stableLog(std::min(
+                    2.0 * m_TreeImpl->m_FeatureBagFraction, MAX_FEATURE_BAG_FRACTION))};
+                double logMinFeatureBagFraction{logMaxFeatureBagFraction -
+                                                CTools::stableLog(searchIntervalSize)};
+                double mainLoopSearchInterval{CTools::stableLog(0.2 * searchIntervalSize)};
+
+                auto applyFeatureBagFraction = [&](CBoostedTreeImpl& tree,
+                                                   double logFeatureBagFraction) {
+                    tree.m_FeatureBagFraction = CTools::stableExp(logFeatureBagFraction);
+                    return tree.featureBagSize(tree.m_FeatureBagFraction) > 1;
+                };
+
+                // If there is very little relative difference in the loss prefer smaller
+                // feature bag fractions because they train faster. We add a penalty which
+                // is eps * lmin * (x - xmin) / (xmax - xmin) for x the feature bag fraction,
+                // [xmin, xmax] the search interval and lmin the minimum test loss. This
+                // means we'll never use a parameter whose loss is more than 1 + eps times
+                // larger than the minimum.
+                auto adjustTestLoss = [=](double logFeatureBagFraction,
+                                          double minTestLoss, double testLoss) {
+                    return testLoss + CTools::linearlyInterpolate(
+                                          logMinFeatureBagFraction, logMaxFeatureBagFraction,
+                                          0.0, EPS * minTestLoss, logFeatureBagFraction);
+                };
+
+                TVector fallback;
+                fallback(MIN_PARAMETER_INDEX) = logMinFeatureBagFraction;
+                fallback(BEST_PARAMETER_INDEX) = logMaxFeatureBagFraction;
+                fallback(MAX_PARAMETER_INDEX) = logMaxFeatureBagFraction;
+                m_LogFeatureBagFractionInterval =
+                    this->testLossLineSearch(
+                            frame, applyFeatureBagFraction, logMinFeatureBagFraction,
+                            logMaxFeatureBagFraction, -mainLoopSearchInterval / 2.0,
+                            mainLoopSearchInterval / 2.0, adjustTestLoss)
+                        .value_or(fallback);
+
+                // Truncate the log(fraction) to be less than or equal to log(MAX_FEATURE_BAG_FRACTION).
+                m_LogFeatureBagFractionInterval =
+                    min(m_LogFeatureBagFractionInterval,
+                        TVector{CTools::stableLog(MAX_FEATURE_BAG_FRACTION)});
+                LOG_TRACE(<< "log feature bag fraction search interval = ["
+                          << m_LogFeatureBagFractionInterval.toDelimited() << "]");
+
+                m_TreeImpl->m_FeatureBagFraction = CTools::stableExp(
+                    m_LogFeatureBagFractionInterval(BEST_PARAMETER_INDEX));
+
+                if (intervalIsEmpty(m_LogFeatureBagFractionInterval)) {
+                    m_TreeImpl->m_FeatureBagFractionOverride = m_TreeImpl->m_FeatureBagFraction;
                 }
             })) {
             m_TreeImpl->m_TrainingProgress.increment(
@@ -854,9 +946,9 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
                 };
 
                 TVector fallback;
-                fallback(MIN_REGULARIZER_INDEX) = logMinEta;
-                fallback(BEST_REGULARIZER_INDEX) = meanLogEta;
-                fallback(MAX_REGULARIZER_INDEX) = logMaxEta;
+                fallback(MIN_PARAMETER_INDEX) = logMinEta;
+                fallback(BEST_PARAMETER_INDEX) = meanLogEta;
+                fallback(MAX_PARAMETER_INDEX) = logMaxEta;
 
                 m_LogEtaSearchInterval =
                     this->testLossLineSearch(frame, applyEta, logMinEta, logMaxEta,
@@ -866,7 +958,7 @@ void CBoostedTreeFactory::initializeUnsetEta(core::CDataFrame& frame) {
                 m_LogEtaSearchInterval = min(m_LogEtaSearchInterval, TVector{0.0});
                 LOG_TRACE(<< "log eta search interval = ["
                           << m_LogEtaSearchInterval.toDelimited() << "]");
-                applyEta(*m_TreeImpl, m_LogEtaSearchInterval(BEST_REGULARIZER_INDEX));
+                applyEta(*m_TreeImpl, m_LogEtaSearchInterval(BEST_PARAMETER_INDEX));
 
                 if (intervalIsEmpty(m_LogEtaSearchInterval)) {
                     m_TreeImpl->m_EtaOverride = m_TreeImpl->m_Eta;
@@ -911,11 +1003,12 @@ CBoostedTreeFactory::estimateTreeGainAndCurvature(core::CDataFrame& frame,
 
 CBoostedTreeFactory::TOptionalVector
 CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
-                                        const TApplyRegularizer& applyRegularizer,
+                                        const TApplyParameter& applyParameter,
                                         double intervalLeftEnd,
                                         double intervalRightEnd,
                                         double returnedIntervalLeftEndOffset,
-                                        double returnedIntervalRightEndOffset) const {
+                                        double returnedIntervalRightEndOffset,
+                                        const TAdjustTestLoss& adjustTestLoss_) const {
 
     // This has the following steps:
     //   1. Coarse search the interval [intervalLeftEnd, intervalRightEnd] using
@@ -934,21 +1027,16 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
     using TMeanVarAccumulator = CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
     using TMinAccumulator = CBasicStatistics::SMin<double>::TAccumulator;
 
-    auto boptVector = [](double regularizer) {
-        return SConstant<CBayesianOptimisation::TVector>::get(1, regularizer);
-    };
-
     TMinAccumulator minTestLoss;
     TDoubleDoublePrVec testLosses;
     testLosses.reserve(MAX_LINE_SEARCH_ITERATIONS);
     // Ensure we choose one value based on expected improvement.
     std::size_t minNumberTestLosses{5};
 
-    CBayesianOptimisation bopt{{{intervalLeftEnd, intervalRightEnd}}};
-    for (auto regularizer :
+    for (auto parameter :
          {intervalLeftEnd, (2.0 * intervalLeftEnd + intervalRightEnd) / 3.0,
           (intervalLeftEnd + 2.0 * intervalRightEnd) / 3.0, intervalRightEnd}) {
-        if (applyRegularizer(*m_TreeImpl, regularizer) == false) {
+        if (applyParameter(*m_TreeImpl, parameter) == false) {
             m_TreeImpl->m_TrainingProgress.increment(
                 (MAX_LINE_SEARCH_ITERATIONS - testLosses.size()) * m_TreeImpl->m_MaximumNumberTrees);
             break;
@@ -959,67 +1047,88 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
         std::tie(forest, testLoss, std::ignore) = m_TreeImpl->trainForest(
             frame, m_TreeImpl->m_TrainingRowMasks[0],
             m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
-        bopt.add(boptVector(regularizer), testLoss, 0.0);
         minTestLoss.add(testLoss);
-        testLosses.emplace_back(regularizer, testLoss);
+        testLosses.emplace_back(parameter, testLoss);
     }
-    while (testLosses.size() > 0 && testLosses.size() < MAX_LINE_SEARCH_ITERATIONS) {
-        CBayesianOptimisation::TVector regularizer;
-        TOptionalDouble EI;
-        std::tie(regularizer, EI) = bopt.maximumExpectedImprovement();
-        double threshold{LINE_SEARCH_MINIMUM_RELATIVE_EI_TO_CONTINUE * minTestLoss[0]};
-        LOG_TRACE(<< "EI = " << EI << " threshold to continue = " << threshold);
-        if ((testLosses.size() >= minNumberTestLosses && EI != boost::none && *EI < threshold) ||
-            applyRegularizer(*m_TreeImpl, regularizer(0)) == false) {
-            m_TreeImpl->m_TrainingProgress.increment(
-                (MAX_LINE_SEARCH_ITERATIONS - testLosses.size()) * m_TreeImpl->m_MaximumNumberTrees);
-            break;
-        }
-        CBoostedTreeImpl::TNodeVecVec forest;
-        double testLoss;
-        std::tie(forest, testLoss, std::ignore) = m_TreeImpl->trainForest(
-            frame, m_TreeImpl->m_TrainingRowMasks[0],
-            m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
-        bopt.add(regularizer, testLoss, 0.0);
-        minTestLoss.add(testLoss);
-        testLosses.emplace_back(regularizer(0), testLoss);
-    }
-
-    std::sort(testLosses.begin(), testLosses.end());
-    LOG_TRACE(<< "test losses = " << core::CContainerPrinter::print(testLosses));
 
     if (testLosses.empty()) {
         return TOptionalVector{};
     }
 
-    // Find the smallest test losses and the corresponding regularizer interval.
+    auto boptVector = [](double parameter) {
+        return SConstant<CBayesianOptimisation::TVector>::get(1, parameter);
+    };
+    auto adjustTestLoss = [=](double parameter, double testLoss) {
+        auto min = std::min_element(testLosses.begin(), testLosses.end(),
+                                    COrderings::SSecondLess{});
+        return adjustTestLoss_(parameter, min->second, testLoss);
+    };
+
+    CBayesianOptimisation bopt{{{intervalLeftEnd, intervalRightEnd}}};
+    for (auto& parameterAndTestLoss : testLosses) {
+        double parameter;
+        double testLoss;
+        std::tie(parameter, testLoss) = parameterAndTestLoss;
+        double adjustedTestLoss{adjustTestLoss(parameter, testLoss)};
+        bopt.add(boptVector(parameter), adjustedTestLoss, 0.0);
+        parameterAndTestLoss.second = adjustedTestLoss;
+    }
+
+    while (testLosses.size() > 0 && testLosses.size() < MAX_LINE_SEARCH_ITERATIONS) {
+        CBayesianOptimisation::TVector parameter;
+        TOptionalDouble EI;
+        std::tie(parameter, EI) = bopt.maximumExpectedImprovement();
+        double threshold{LINE_SEARCH_MINIMUM_RELATIVE_EI_TO_CONTINUE * minTestLoss[0]};
+        LOG_TRACE(<< "EI = " << EI << " threshold to continue = " << threshold);
+        if ((testLosses.size() >= minNumberTestLosses && EI != boost::none && *EI < threshold) ||
+            applyParameter(*m_TreeImpl, parameter(0)) == false) {
+            m_TreeImpl->m_TrainingProgress.increment(
+                (MAX_LINE_SEARCH_ITERATIONS - testLosses.size()) * m_TreeImpl->m_MaximumNumberTrees);
+            break;
+        }
+
+        CBoostedTreeImpl::TNodeVecVec forest;
+        double testLoss;
+        std::tie(forest, testLoss, std::ignore) = m_TreeImpl->trainForest(
+            frame, m_TreeImpl->m_TrainingRowMasks[0],
+            m_TreeImpl->m_TestingRowMasks[0], m_TreeImpl->m_TrainingProgress);
+
+        minTestLoss.add(testLoss);
+
+        double adjustedTestLoss{adjustTestLoss(parameter(0), testLoss)};
+        bopt.add(parameter, adjustedTestLoss, 0.0);
+        testLosses.emplace_back(parameter(0), adjustedTestLoss);
+    }
+
+    std::sort(testLosses.begin(), testLosses.end());
+    LOG_TRACE(<< "test losses = " << core::CContainerPrinter::print(testLosses));
+
+    // Find the smallest test losses and the corresponding parameter interval.
     auto minimumTestLosses = CBasicStatistics::orderStatisticsAccumulator<TDoubleDoublePr>(
         minNumberTestLosses - 1, COrderings::SSecondLess{});
     minimumTestLosses.add(testLosses);
-    double minGoodRegularizer{std::min_element(minimumTestLosses.begin(),
-                                               minimumTestLosses.end(),
-                                               COrderings::SFirstLess{})
-                                  ->first};
-    double maxGoodRegularizer{std::max_element(minimumTestLosses.begin(),
-                                               minimumTestLosses.end(),
-                                               COrderings::SFirstLess{})
-                                  ->first};
-    auto beginGoodRegularizerLosses =
+    double minGoodParameter{std::min_element(minimumTestLosses.begin(),
+                                             minimumTestLosses.end(), COrderings::SFirstLess{})
+                                ->first};
+    double maxGoodParameter{std::max_element(minimumTestLosses.begin(),
+                                             minimumTestLosses.end(), COrderings::SFirstLess{})
+                                ->first};
+    auto beginGoodParameterLosses =
         std::find_if(testLosses.begin(), testLosses.end(),
-                     [minGoodRegularizer](const TDoubleDoublePr& loss) {
-                         return loss.first == minGoodRegularizer;
+                     [minGoodParameter](const TDoubleDoublePr& loss) {
+                         return loss.first == minGoodParameter;
                      });
-    auto endGoodRegularizerLosses =
+    auto endGoodParameterLosses =
         std::find_if(testLosses.begin(), testLosses.end(),
-                     [maxGoodRegularizer](const TDoubleDoublePr& loss) {
-                         return loss.first == maxGoodRegularizer;
+                     [maxGoodParameter](const TDoubleDoublePr& loss) {
+                         return loss.first == maxGoodParameter;
                      }) +
         1;
-    LOG_TRACE(<< "good regularizer range = [" << minGoodRegularizer << ","
-              << maxGoodRegularizer << "]");
+    LOG_TRACE(<< "good parameter range = [" << minGoodParameter << ","
+              << maxGoodParameter << "]");
 
     CLeastSquaresOnlineRegression<2, double> leastSquaresQuadraticTestLoss;
-    for (auto loss = beginGoodRegularizerLosses; loss != endGoodRegularizerLosses; ++loss) {
+    for (auto loss = beginGoodParameterLosses; loss != endGoodParameterLosses; ++loss) {
         leastSquaresQuadraticTestLoss.add(loss->first, loss->second);
     }
     CLeastSquaresOnlineRegression<2, double>::TArray params;
@@ -1035,28 +1144,27 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
     // Find the minimizer of the least squares quadratic fit to the test loss
     // in the search interval. (Note step size is negative.)
     double stationaryPoint{-(gradient == curvature ? 0.5 : gradient / 2.0 / curvature)};
-    double bestRegularizer{[&] {
+    double bestParameter{[&] {
         if (curvature < 0.0) {
             // Stationary point is a maximum so use furthest point in interval.
-            double distanceToLeftEndpoint{std::fabs(minGoodRegularizer - stationaryPoint)};
-            double distanceToRightEndpoint{std::fabs(maxGoodRegularizer - stationaryPoint)};
-            return distanceToLeftEndpoint > distanceToRightEndpoint
-                       ? minGoodRegularizer
-                       : maxGoodRegularizer;
+            double distanceToLeftEndpoint{std::fabs(minGoodParameter - stationaryPoint)};
+            double distanceToRightEndpoint{std::fabs(maxGoodParameter - stationaryPoint)};
+            return distanceToLeftEndpoint > distanceToRightEndpoint ? minGoodParameter
+                                                                    : maxGoodParameter;
         }
         // Stationary point is a minimum so use nearest point in the interval.
-        return CTools::truncate(stationaryPoint, minGoodRegularizer, maxGoodRegularizer);
+        return CTools::truncate(stationaryPoint, minGoodParameter, maxGoodParameter);
     }()};
-    LOG_TRACE(<< "best regularizer = " << bestRegularizer);
+    LOG_TRACE(<< "best parameter = " << bestParameter);
 
     TVector interval{{returnedIntervalLeftEndOffset, 0.0, returnedIntervalRightEndOffset}};
-    if (minGoodRegularizer > intervalLeftEnd) {
-        interval(MIN_REGULARIZER_INDEX) = std::max(
-            minGoodRegularizer - bestRegularizer, interval(MIN_REGULARIZER_INDEX));
+    if (minGoodParameter > intervalLeftEnd) {
+        interval(MIN_PARAMETER_INDEX) = std::max(minGoodParameter - bestParameter,
+                                                 interval(MIN_PARAMETER_INDEX));
     }
-    if (maxGoodRegularizer < intervalRightEnd) {
-        interval(MAX_REGULARIZER_INDEX) = std::min(
-            maxGoodRegularizer - bestRegularizer, interval(MAX_REGULARIZER_INDEX));
+    if (maxGoodParameter < intervalRightEnd) {
+        interval(MAX_PARAMETER_INDEX) = std::min(maxGoodParameter - bestParameter,
+                                                 interval(MAX_PARAMETER_INDEX));
     }
     if (curvature > 0.0) {
         // Find a short interval with a high probability of containing the optimal
@@ -1066,23 +1174,22 @@ CBoostedTreeFactory::testLossLineSearch(core::CDataFrame& frame,
         // extrapolate the loss function outside the line segment we searched so
         // don't truncate if an endpoint lies outside the searched interval.
         TMeanVarAccumulator residualMoments;
-        for (auto loss = beginGoodRegularizerLosses;
-             loss != endGoodRegularizerLosses; ++loss) {
+        for (auto loss = beginGoodParameterLosses; loss != endGoodParameterLosses; ++loss) {
             residualMoments.add(loss->second -
                                 leastSquaresQuadraticTestLoss.predict(loss->first));
         }
         double sigma{std::sqrt(CBasicStatistics::variance(residualMoments))};
         double threeSigmaInterval{std::sqrt(3.0 * sigma / curvature)};
-        if (bestRegularizer - threeSigmaInterval >= minGoodRegularizer) {
-            interval(MIN_REGULARIZER_INDEX) =
+        if (bestParameter - threeSigmaInterval >= minGoodParameter) {
+            interval(MIN_PARAMETER_INDEX) =
                 std::max(-threeSigmaInterval, returnedIntervalLeftEndOffset);
         }
-        if (bestRegularizer + threeSigmaInterval <= maxGoodRegularizer) {
-            interval(MAX_REGULARIZER_INDEX) =
+        if (bestParameter + threeSigmaInterval <= maxGoodParameter) {
+            interval(MAX_PARAMETER_INDEX) =
                 std::min(threeSigmaInterval, returnedIntervalRightEndOffset);
         }
     }
-    interval += TVector{bestRegularizer};
+    interval += TVector{bestParameter};
 
     return TOptionalVector{interval};
 }
@@ -1125,6 +1232,11 @@ CBoostedTreeFactory::~CBoostedTreeFactory() = default;
 CBoostedTreeFactory&
 CBoostedTreeFactory::classAssignmentObjective(CBoostedTree::EClassAssignmentObjective objective) {
     m_TreeImpl->m_ClassAssignmentObjective = objective;
+    return *this;
+}
+
+CBoostedTreeFactory& CBoostedTreeFactory::classificationWeights(TStrDoublePrVec weights) {
+    m_TreeImpl->m_ClassificationWeightsOverride = std::move(weights);
     return *this;
 }
 
@@ -1302,13 +1414,9 @@ CBoostedTreeFactory& CBoostedTreeFactory::trainingStateCallback(TTrainingStateCa
     return *this;
 }
 
-CBoostedTreeFactory& CBoostedTreeFactory::earlyStoppingEnabled(bool earlyStoppingEnabled) {
-    this->stopHyperparameterOptimizationEarly(earlyStoppingEnabled);
+CBoostedTreeFactory& CBoostedTreeFactory::earlyStoppingEnabled(bool enable) {
+    m_TreeImpl->m_StopHyperparameterOptimizationEarly = enable;
     return *this;
-}
-
-void CBoostedTreeFactory::stopHyperparameterOptimizationEarly(bool stopEarly) {
-    m_TreeImpl->m_StopHyperparameterOptimizationEarly = stopEarly;
 }
 
 std::size_t CBoostedTreeFactory::estimateMemoryUsage(std::size_t numberRows,
@@ -1361,6 +1469,9 @@ void CBoostedTreeFactory::startProgressMonitoringInitializeHyperparameters(const
         totalNumberSteps += this->lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_RegularizationOverride.leafWeightPenaltyMultiplier() == boost::none) {
+        totalNumberSteps += this->lineSearchMaximumNumberIterations(frame);
+    }
+    if (m_TreeImpl->m_FeatureBagFractionOverride == boost::none) {
         totalNumberSteps += this->lineSearchMaximumNumberIterations(frame);
     }
     if (m_TreeImpl->m_DownsampleFactorOverride == boost::none) {
@@ -1425,6 +1536,10 @@ void CBoostedTreeFactory::skipProgressMonitoringInitializeHyperparameters() {
 void CBoostedTreeFactory::noopRecordTrainingState(CBoostedTree::TPersistFunc) {
 }
 
+double CBoostedTreeFactory::noopAdjustTestLoss(double, double, double testLoss) {
+    return testLoss;
+}
+
 namespace {
 const std::string VERSION_7_9_TAG{"7.9"};
 
@@ -1437,6 +1552,7 @@ const std::string INITIALIZATION_CHECKPOINT_TAG{"initialization_checkpoint"};
 const std::string LOG_DEPTH_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_depth_penalty_multiplier_search_interval"};
 const std::string LOG_DOWNSAMPLE_FACTOR_SEARCH_INTERVAL_TAG{"log_downsample_factor_search_interval"};
 const std::string LOG_ETA_SEARCH_INTERVAL_TAG{"log_eta_search_interval"};
+const std::string LOG_FEATURE_BAG_FRACTION_INTERVAL_TAG{"log_feature_bag_fraction_interval"};
 const std::string LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_leaf_weight_penalty_multiplier_search_interval"};
 const std::string LOG_TREE_SIZE_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG{"log_tree_size_penalty_multiplier_search_interval"};
 const std::string SOFT_DEPTH_LIMIT_SEARCH_INTERVAL_TAG{"soft_depth_limit_search_interval"};
@@ -1462,6 +1578,8 @@ void CBoostedTreeFactory::acceptPersistInserter(core::CStatePersistInserter& ins
                                      m_LogDownsampleFactorSearchInterval, inserter);
         core::CPersistUtils::persist(LOG_ETA_SEARCH_INTERVAL_TAG,
                                      m_LogEtaSearchInterval, inserter);
+        core::CPersistUtils::persist(LOG_FEATURE_BAG_FRACTION_INTERVAL_TAG,
+                                     m_LogFeatureBagFractionInterval, inserter);
         core::CPersistUtils::persist(
             LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
             m_LogLeafWeightPenaltyMultiplierSearchInterval, inserter);
@@ -1513,6 +1631,10 @@ bool CBoostedTreeFactory::acceptRestoreTraverser(core::CStateRestoreTraverser& t
                         RESTORE(LOG_ETA_SEARCH_INTERVAL_TAG,
                                 core::CPersistUtils::restore(LOG_ETA_SEARCH_INTERVAL_TAG,
                                                              m_LogEtaSearchInterval, traverser))
+                        RESTORE(LOG_FEATURE_BAG_FRACTION_INTERVAL_TAG,
+                                core::CPersistUtils::restore(
+                                    LOG_FEATURE_BAG_FRACTION_INTERVAL_TAG,
+                                    m_LogFeatureBagFractionInterval, traverser))
                         RESTORE(LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,
                                 core::CPersistUtils::restore(
                                     LOG_LEAF_WEIGHT_PENALTY_MULTIPLIER_SEARCH_INTERVAL_TAG,

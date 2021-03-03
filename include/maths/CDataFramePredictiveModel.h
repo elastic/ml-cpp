@@ -39,8 +39,9 @@ public:
 
     //! The objective for the classification decision (given predicted class probabilities).
     enum EClassAssignmentObjective {
-        E_Accuracy,     //!< Maximize prediction accuracy.
-        E_MinimumRecall //!< Maximize the minimum per class recall.
+        E_Accuracy,      //!< Maximize prediction accuracy.
+        E_MinimumRecall, //!< Maximize the minimum per class recall.
+        E_Custom         //!< User defined class weights.
     };
 
 public:
@@ -68,12 +69,6 @@ public:
 
     //! Read the raw model prediction from \p row and make posthoc adjustments.
     virtual TDouble2Vec readAndAdjustPrediction(const TRowRef& row) const = 0;
-
-    //! \name Test Only
-    //@{
-    //! Get the weight that has been chosen for each feature for training.
-    virtual const TDoubleVec& featureWeightsForTraining() const = 0;
-    //@}
 
 protected:
     CDataFramePredictiveModel(core::CDataFrame& frame, TTrainingStateCallback recordTrainingState);

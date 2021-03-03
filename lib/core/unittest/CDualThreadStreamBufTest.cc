@@ -144,25 +144,26 @@ BOOST_AUTO_TEST_CASE(testThroughput) {
 }
 
 BOOST_AUTO_TEST_CASE(testSlowConsumer) {
-    static const size_t TEST_SIZE(25);
-    static const std::uint32_t DELAY(200);
-    size_t dataSize(std::strlen(DATA));
-    size_t numNewLines(std::count(DATA, DATA + dataSize, '\n'));
-    size_t totalDataSize(TEST_SIZE * dataSize);
+    static const std::size_t TEST_SIZE{25};
+    static const std::uint32_t DELAY{200};
+    std::size_t dataSize{std::strlen(DATA)};
+    std::size_t numNewLines{
+        static_cast<std::size_t>(std::count(DATA, DATA + dataSize, '\n'))};
+    std::size_t totalDataSize{TEST_SIZE * dataSize};
 
     ml::core::CDualThreadStreamBuf buf;
-    CInputThread inputThread(buf, DELAY);
+    CInputThread inputThread{buf, DELAY};
     inputThread.start();
 
-    ml::core_t::TTime start(ml::core::CTimeUtils::now());
+    ml::core_t::TTime start{ml::core::CTimeUtils::now()};
     LOG_INFO(<< "Starting REST buffer slow consumer test at "
              << ml::core::CTimeUtils::toTimeString(start));
 
-    for (size_t count = 0; count < TEST_SIZE; ++count) {
+    for (std::size_t count = 0; count < TEST_SIZE; ++count) {
         std::streamsize toWrite(static_cast<std::streamsize>(dataSize));
-        const char* ptr(DATA);
+        const char* ptr{DATA};
         while (toWrite > 0) {
-            std::streamsize written(buf.sputn(ptr, toWrite));
+            std::streamsize written{buf.sputn(ptr, toWrite)};
             BOOST_TEST_REQUIRE(written > 0);
             toWrite -= written;
             ptr += written;
@@ -174,21 +175,23 @@ BOOST_AUTO_TEST_CASE(testSlowConsumer) {
     inputThread.waitForFinish();
     inputThread.propagateLastDetectedMismatch();
 
-    ml::core_t::TTime end(ml::core::CTimeUtils::now());
+    ml::core_t::TTime end{ml::core::CTimeUtils::now()};
     LOG_INFO(<< "Finished REST buffer slow consumer test at "
              << ml::core::CTimeUtils::toTimeString(end));
 
     BOOST_REQUIRE_EQUAL(totalDataSize, inputThread.totalData());
 
-    ml::core_t::TTime duration(end - start);
+    ml::core_t::TTime duration{end - start};
     LOG_INFO(<< "REST buffer slow consumer test with test size " << TEST_SIZE
              << ", " << numNewLines << " newlines per message and delay "
              << DELAY << "ms took " << duration << " seconds");
 
-    ml::core_t::TTime delaySecs(
-        static_cast<ml::core_t::TTime>((DELAY * numNewLines * TEST_SIZE) / 1000));
+    ml::core_t::TTime delaySecs{
+        static_cast<ml::core_t::TTime>((DELAY * numNewLines * TEST_SIZE) / 1000)};
     BOOST_TEST_REQUIRE(duration >= delaySecs);
-    static const ml::core_t::TTime TOLERANCE(3);
+    // Tolerance is high because sleep seems to sleep too long when running
+    // under Jenkins on Apple M1
+    static const ml::core_t::TTime TOLERANCE{6};
     BOOST_TEST_REQUIRE(duration <= delaySecs + TOLERANCE);
 }
 

@@ -239,7 +239,7 @@ bool CDataFrameAnalyzer::handleControlMessage(const TStrVec& fieldValues) {
     }
     if (unrecognised || fieldValues[m_ControlFieldIndex].size() > 1) {
         HANDLE_FATAL(<< "Input error: invalid control message value '"
-                     << fieldValues[m_ControlFieldIndex] << "'. Please report this problem.")
+                     << fieldValues[m_ControlFieldIndex] << "'. Please report this problem.");
         return false;
     }
     return true;

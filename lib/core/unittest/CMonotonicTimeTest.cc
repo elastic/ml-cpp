@@ -29,7 +29,9 @@ BOOST_AUTO_TEST_CASE(testMilliseconds) {
 
     // Allow 10% margin of error - this is as much for the sleep as the timer
     BOOST_TEST_REQUIRE(diff > 900);
-    BOOST_TEST_REQUIRE(diff < 1100);
+    // Allow 20% margin of error - sleep seems to sleep too long under Jenkins
+    // on Apple M1
+    BOOST_TEST_REQUIRE(diff < 1200);
 }
 
 BOOST_AUTO_TEST_CASE(testNanoseconds) {
@@ -47,7 +49,9 @@ BOOST_AUTO_TEST_CASE(testNanoseconds) {
 
     // Allow 10% margin of error - this is as much for the sleep as the timer
     BOOST_TEST_REQUIRE(diff > 900000000);
-    BOOST_TEST_REQUIRE(diff < 1100000000);
+    // Allow 20% margin of error - sleep seems to sleep too long under Jenkins
+    // on Apple M1
+    BOOST_TEST_REQUIRE(diff < 1200000000);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
