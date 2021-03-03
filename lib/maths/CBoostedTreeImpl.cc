@@ -301,7 +301,7 @@ bool CBoostedTreeImpl::trainIncremental(core::CDataFrame& /*frame*/,
         return false;
     }
 
-    // TODO Placeholder.
+    // TODO https://github.com/elastic/ml-cpp/issues/1721.
 
     return true;
 }
@@ -395,7 +395,7 @@ std::size_t
 CBoostedTreeImpl::estimateMemoryUsageTrainIncremental(std::size_t /*numberRows*/,
                                                       std::size_t /*numberColumns*/) const {
 
-    // TODO Placeholder.
+    // TODO https://github.com/elastic/ml-cpp/issues/1790.
     return 0;
 }
 

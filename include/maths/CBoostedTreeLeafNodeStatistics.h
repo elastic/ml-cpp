@@ -172,7 +172,7 @@ public:
         }
 
     private:
-        std::size_t m_Count = 0;
+        std::size_t m_Count{0};
         TMemoryMappedDoubleVector m_Gradient;
         TMemoryMappedDoubleMatrix m_Curvature;
     };
@@ -184,28 +184,13 @@ public:
 
     public:
         explicit CSplitsDerivatives(std::size_t numberLossParameters = 0)
-            : m_NumberLossParameters{numberLossParameters},
-              m_PositiveDerivativesSum{TDerivatives2x1::Zero()},
-              m_NegativeDerivativesSum{TDerivatives2x1::Zero()},
-              m_PositiveDerivativesMax{-boosted_tree_detail::INF},
-              m_PositiveDerivativesMin{boosted_tree_detail::INF},
-              m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {}
+            : m_NumberLossParameters{numberLossParameters} {}
         CSplitsDerivatives(const TImmutableRadixSetVec& candidateSplits, std::size_t numberLossParameters)
-            : m_NumberLossParameters{numberLossParameters},
-              m_PositiveDerivativesSum{TDerivatives2x1::Zero()},
-              m_NegativeDerivativesSum{TDerivatives2x1::Zero()},
-              m_PositiveDerivativesMax{-boosted_tree_detail::INF},
-              m_PositiveDerivativesMin{boosted_tree_detail::INF},
-              m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {
+            : m_NumberLossParameters{numberLossParameters} {
             this->map(candidateSplits);
         }
         CSplitsDerivatives(const CSplitsDerivatives& other)
-            : m_NumberLossParameters{other.m_NumberLossParameters},
-              m_PositiveDerivativesSum{TDerivatives2x1::Zero()},
-              m_NegativeDerivativesSum{TDerivatives2x1::Zero()},
-              m_PositiveDerivativesMax{-boosted_tree_detail::INF},
-              m_PositiveDerivativesMin{boosted_tree_detail::INF},
-              m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {
+            : m_NumberLossParameters{other.m_NumberLossParameters} {
             this->map(other.m_Derivatives);
             this->add(other);
         }
@@ -374,10 +359,12 @@ public:
             return seed;
         }
 
+        //! Get the number of parameters in the loss function.
         std::size_t numberLossParameters() const {
             return m_NumberLossParameters;
         }
 
+        //! Update the positive derivative statistics.
         void addPositiveDerivatives(const TMemoryMappedFloatVector& derivatives) {
             m_PositiveDerivativesSum += derivatives;
             m_PositiveDerivativesMin = std::min(
@@ -386,31 +373,38 @@ public:
                 m_PositiveDerivativesMax, static_cast<double>(derivatives(0)));
         }
 
+        //! Update the negative derivative statistics.
         void addNegativeDerivatives(const TMemoryMappedFloatVector& derivatives) {
             m_NegativeDerivativesSum += derivatives;
             m_NegativeDerivativesMin = m_NegativeDerivativesMin.cwiseMin(derivatives);
         }
 
+        //! Get the sum of positive loss gradients.
         double positiveDerivativesGSum() const {
             return m_PositiveDerivativesSum(0);
         }
 
+        //! Get the sum of negative loss gradients.
         double negativeDerivativesGSum() const {
             return m_NegativeDerivativesSum(0);
         }
 
+        //! Get the largest positive gradient.
         double positiveDerivativesGMax() const {
             return m_PositiveDerivativesMax;
         }
 
+        //! Get the smallest loss curvature.
         double positiveDerivativesHMin() const {
             return m_PositiveDerivativesMin;
         }
 
+        //! Get the smallest negative loss gradient.
         double negativeDerivativesGMin() const {
             return m_NegativeDerivativesMin(0);
         }
 
+        //! Get the smallest loss curvature.
         double negativeDerivativesHMin() const {
             return m_NegativeDerivativesMin(1);
         }
@@ -484,15 +478,15 @@ public:
         }
 
     private:
-        std::size_t m_NumberLossParameters = 0;
+        std::size_t m_NumberLossParameters{0};
         TDerivativesVecVec m_Derivatives;
         TDerivativesVec m_MissingDerivatives;
         TAlignedDoubleVec m_Storage;
-        TDerivatives2x1 m_PositiveDerivativesSum;
-        TDerivatives2x1 m_NegativeDerivativesSum;
-        double m_PositiveDerivativesMax;
-        double m_PositiveDerivativesMin;
-        TDerivatives2x1 m_NegativeDerivativesMin;
+        TDerivatives2x1 m_PositiveDerivativesSum{TDerivatives2x1::Zero()};
+        TDerivatives2x1 m_NegativeDerivativesSum{TDerivatives2x1::Zero()};
+        double m_PositiveDerivativesMax{-boosted_tree_detail::INF};
+        double m_PositiveDerivativesMin{boosted_tree_detail::INF};
+        TDerivatives2x1 m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF};
     };
 
     //! \brief The derivatives and row masks objects to use for computations.
@@ -596,11 +590,11 @@ public:
         }
 
     private:
-        std::size_t m_NumberMasks = 0;
-        std::size_t m_NumberThreads = 0;
-        double m_MinimumGain = 0.0;
-        bool m_ReducedMasks = false;
-        bool m_ReducedDerivatives = false;
+        std::size_t m_NumberMasks{0};
+        std::size_t m_NumberThreads{0};
+        double m_MinimumGain{0.0};
+        bool m_ReducedMasks{false};
+        bool m_ReducedDerivatives{false};
         TPackedBitVectorVecVec m_Masks;
         TSplitsDerivativesVecVec m_Derivatives;
     };
@@ -704,15 +698,15 @@ protected:
             return result.str();
         }
 
-        double s_Gain = -boosted_tree_detail::INF;
-        double s_Curvature = 0.0;
-        std::size_t s_Feature = std::numeric_limits<std::size_t>::max();
-        double s_SplitAt = boosted_tree_detail::INF;
-        std::uint32_t s_MinimumChildRowCount = 0;
-        bool s_LeftChildHasFewerRows = true;
-        bool s_AssignMissingToLeft = true;
-        double s_LeftChildMaxGain = boosted_tree_detail::INF;
-        double s_RightChildMaxGain = boosted_tree_detail::INF;
+        double s_Gain{-boosted_tree_detail::INF};
+        double s_Curvature{0.0};
+        std::size_t s_Feature{std::numeric_limits<std::size_t>::max()};
+        double s_SplitAt{boosted_tree_detail::INF};
+        std::uint32_t s_MinimumChildRowCount{0};
+        bool s_LeftChildHasFewerRows{true};
+        bool s_AssignMissingToLeft{true};
+        double s_LeftChildMaxGain{boosted_tree_detail::INF};
+        double s_RightChildMaxGain{boosted_tree_detail::INF};
     };
 
 protected:
