@@ -11,7 +11,6 @@
 #include <core/CImmutableRadixSet.h>
 #include <core/CMemory.h>
 #include <core/CPackedBitVector.h>
-#include <core/CSmallVector.h>
 
 #include <maths/CBoostedTreeHyperparameters.h>
 #include <maths/CBoostedTreeUtils.h>
@@ -48,7 +47,7 @@ class CEncodedDataFrameRowRef;
 //! The regression tree is grown top down by greedily selecting the split with
 //! the maximum gain (in the loss). This finds and scores the maximum gain split
 //! of a single leaf of the tree.
-class MATHS_EXPORT CBoostedTreeLeafNodeStatistics final {
+class MATHS_EXPORT CBoostedTreeLeafNodeStatistics {
 public:
     using TDoubleVec = std::vector<double>;
     using TSizeVec = std::vector<std::size_t>;
@@ -173,7 +172,7 @@ public:
         }
 
     private:
-        std::size_t m_Count = 0;
+        std::size_t m_Count{0};
         TMemoryMappedDoubleVector m_Gradient;
         TMemoryMappedDoubleMatrix m_Curvature;
     };
@@ -185,28 +184,13 @@ public:
 
     public:
         explicit CSplitsDerivatives(std::size_t numberLossParameters = 0)
-            : m_NumberLossParameters{numberLossParameters},
-              m_PositiveDerivativesSum{TDerivatives2x1::Zero()},
-              m_NegativeDerivativesSum{TDerivatives2x1::Zero()},
-              m_PositiveDerivativesMax{-boosted_tree_detail::INF},
-              m_PositiveDerivativesMin{boosted_tree_detail::INF},
-              m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {}
+            : m_NumberLossParameters{numberLossParameters} {}
         CSplitsDerivatives(const TImmutableRadixSetVec& candidateSplits, std::size_t numberLossParameters)
-            : m_NumberLossParameters{numberLossParameters},
-              m_PositiveDerivativesSum{TDerivatives2x1::Zero()},
-              m_NegativeDerivativesSum{TDerivatives2x1::Zero()},
-              m_PositiveDerivativesMax{-boosted_tree_detail::INF},
-              m_PositiveDerivativesMin{boosted_tree_detail::INF},
-              m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {
+            : m_NumberLossParameters{numberLossParameters} {
             this->map(candidateSplits);
         }
         CSplitsDerivatives(const CSplitsDerivatives& other)
-            : m_NumberLossParameters{other.m_NumberLossParameters},
-              m_PositiveDerivativesSum{TDerivatives2x1::Zero()},
-              m_NegativeDerivativesSum{TDerivatives2x1::Zero()},
-              m_PositiveDerivativesMax{-boosted_tree_detail::INF},
-              m_PositiveDerivativesMin{boosted_tree_detail::INF},
-              m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF} {
+            : m_NumberLossParameters{other.m_NumberLossParameters} {
             this->map(other.m_Derivatives);
             this->add(other);
         }
@@ -375,10 +359,12 @@ public:
             return seed;
         }
 
+        //! Get the number of parameters in the loss function.
         std::size_t numberLossParameters() const {
             return m_NumberLossParameters;
         }
 
+        //! Update the positive derivative statistics.
         void addPositiveDerivatives(const TMemoryMappedFloatVector& derivatives) {
             m_PositiveDerivativesSum += derivatives;
             m_PositiveDerivativesMin = std::min(
@@ -387,31 +373,38 @@ public:
                 m_PositiveDerivativesMax, static_cast<double>(derivatives(0)));
         }
 
+        //! Update the negative derivative statistics.
         void addNegativeDerivatives(const TMemoryMappedFloatVector& derivatives) {
             m_NegativeDerivativesSum += derivatives;
             m_NegativeDerivativesMin = m_NegativeDerivativesMin.cwiseMin(derivatives);
         }
 
+        //! Get the sum of positive loss gradients.
         double positiveDerivativesGSum() const {
             return m_PositiveDerivativesSum(0);
         }
 
+        //! Get the sum of negative loss gradients.
         double negativeDerivativesGSum() const {
             return m_NegativeDerivativesSum(0);
         }
 
+        //! Get the largest positive gradient.
         double positiveDerivativesGMax() const {
             return m_PositiveDerivativesMax;
         }
 
+        //! Get the smallest loss curvature.
         double positiveDerivativesHMin() const {
             return m_PositiveDerivativesMin;
         }
 
+        //! Get the smallest negative loss gradient.
         double negativeDerivativesGMin() const {
             return m_NegativeDerivativesMin(0);
         }
 
+        //! Get the smallest loss curvature.
         double negativeDerivativesHMin() const {
             return m_NegativeDerivativesMin(1);
         }
@@ -485,15 +478,16 @@ public:
         }
 
     private:
-        std::size_t m_NumberLossParameters = 0;
+        std::size_t m_NumberLossParameters{0};
         TDerivativesVecVec m_Derivatives;
         TDerivativesVec m_MissingDerivatives;
         TAlignedDoubleVec m_Storage;
-        TDerivatives2x1 m_PositiveDerivativesSum;
-        TDerivatives2x1 m_NegativeDerivativesSum;
-        double m_PositiveDerivativesMax;
-        double m_PositiveDerivativesMin;
-        TDerivatives2x1 m_NegativeDerivativesMin;
+        TDerivatives2x1 m_PositiveDerivativesSum{TDerivatives2x1::Zero()};
+        TDerivatives2x1 m_NegativeDerivativesSum{TDerivatives2x1::Zero()};
+        double m_PositiveDerivativesMax{-boosted_tree_detail::INF};
+        double m_PositiveDerivativesMin{boosted_tree_detail::INF};
+        TDerivatives2x1 m_NegativeDerivativesMin{boosted_tree_detail::INF,
+                                                 boosted_tree_detail::INF};
     };
 
     //! \brief The derivatives and row masks objects to use for computations.
@@ -506,10 +500,13 @@ public:
     class MATHS_EXPORT CWorkspace {
     public:
         using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
+        using TPackedBitVectorVecVec = std::vector<TPackedBitVectorVec>;
         using TSplitsDerivativesVec = std::vector<CSplitsDerivatives>;
+        using TSplitsDerivativesVecVec = std::vector<TSplitsDerivativesVec>;
 
     public:
-        CWorkspace() = default;
+        explicit CWorkspace(std::size_t numberMasks)
+            : m_NumberMasks{numberMasks} {}
         CWorkspace(CWorkspace&&) = default;
         CWorkspace& operator=(const CWorkspace& other) = delete;
         CWorkspace& operator=(CWorkspace&&) = default;
@@ -519,16 +516,20 @@ public:
                           const TImmutableRadixSetVec& candidateSplits,
                           std::size_t numberLossParameters) {
             m_MinimumGain = 0.0;
-            m_Masks.resize(numberThreads);
-            m_Derivatives.reserve(numberThreads);
-            for (auto& mask : m_Masks) {
-                mask.clear();
-            }
-            for (auto& derivatives : m_Derivatives) {
-                derivatives.reinitialize(candidateSplits, numberLossParameters);
-            }
-            for (std::size_t i = m_Derivatives.size(); i < numberThreads; ++i) {
-                m_Derivatives.emplace_back(candidateSplits, numberLossParameters);
+            m_Masks.resize(m_NumberMasks);
+            m_Derivatives.resize(m_NumberMasks);
+            for (std::size_t i = 0; i < m_NumberMasks; ++i) {
+                m_Masks[i].resize(numberThreads);
+                m_Derivatives[i].reserve(numberThreads);
+                for (auto& mask : m_Masks[i]) {
+                    mask.clear();
+                }
+                for (auto& derivatives : m_Derivatives[i]) {
+                    derivatives.reinitialize(candidateSplits, numberLossParameters);
+                }
+                for (std::size_t j = m_Derivatives[i].size(); j < numberThreads; ++j) {
+                    m_Derivatives[i].emplace_back(candidateSplits, numberLossParameters);
+                }
             }
         }
 
@@ -551,35 +552,37 @@ public:
         }
 
         //! Get the reduction of the per thread aggregate derivatives.
-        CSplitsDerivatives& reducedDerivatives() {
+        CSplitsDerivatives& reducedDerivatives(std::size_t index) {
             if (m_ReducedDerivatives == false) {
                 for (std::size_t i = 1; i < m_NumberThreads; ++i) {
-                    m_Derivatives[0].add(m_Derivatives[i]);
+                    m_Derivatives[index][0].add(m_Derivatives[index][i]);
                 }
-                m_Derivatives[0].remapCurvature();
+                m_Derivatives[index][0].remapCurvature();
                 m_ReducedDerivatives = true;
             }
-            return m_Derivatives[0];
+            return m_Derivatives[index][0];
         }
 
         //! Get the reduction of the per thread masks.
-        const core::CPackedBitVector& reducedMask(std::size_t size) {
+        const core::CPackedBitVector& reducedMask(std::size_t index, std::size_t size) {
             if (m_ReducedMasks == false) {
-                m_Masks[0].extend(false, size - m_Masks[0].size());
+                m_Masks[index][0].extend(false, size - m_Masks[index][0].size());
                 for (std::size_t i = 1; i < m_NumberThreads; ++i) {
-                    m_Masks[i].extend(false, size - m_Masks[i].size());
-                    m_Masks[0] |= m_Masks[i];
+                    m_Masks[index][i].extend(false, size - m_Masks[index][i].size());
+                    m_Masks[index][0] |= m_Masks[index][i];
                 }
                 m_ReducedMasks = true;
             }
-            return m_Masks[0];
+            return m_Masks[index][0];
         }
 
         //! Get the workspace row masks.
-        TPackedBitVectorVec& masks() { return m_Masks; }
+        TPackedBitVectorVec& masks(std::size_t index) { return m_Masks[index]; }
 
         //! Get the workspace derivatives.
-        TSplitsDerivativesVec& derivatives() { return m_Derivatives; }
+        TSplitsDerivativesVec& derivatives(std::size_t index) {
+            return m_Derivatives[index];
+        }
 
         //! Get the memory used by this object.
         std::size_t memoryUsage() const {
@@ -588,49 +591,17 @@ public:
         }
 
     private:
-        std::size_t m_NumberThreads = 0;
-        double m_MinimumGain = 0.0;
-        bool m_ReducedMasks = false;
-        bool m_ReducedDerivatives = false;
-        TPackedBitVectorVec m_Masks;
-        TSplitsDerivativesVec m_Derivatives;
+        std::size_t m_NumberMasks{0};
+        std::size_t m_NumberThreads{0};
+        double m_MinimumGain{0.0};
+        bool m_ReducedMasks{false};
+        bool m_ReducedDerivatives{false};
+        TPackedBitVectorVecVec m_Masks;
+        TSplitsDerivativesVecVec m_Derivatives;
     };
 
 public:
-    CBoostedTreeLeafNodeStatistics(std::size_t id,
-                                   const TSizeVec& extraColumns,
-                                   std::size_t numberLossParameters,
-                                   std::size_t numberThreads,
-                                   const core::CDataFrame& frame,
-                                   const CDataFrameCategoryEncoder& encoder,
-                                   const TRegularization& regularization,
-                                   const TImmutableRadixSetVec& candidateSplits,
-                                   const TSizeVec& treeFeatureBag,
-                                   const TSizeVec& nodeFeatureBag,
-                                   std::size_t depth,
-                                   const core::CPackedBitVector& rowMask,
-                                   CWorkspace& workspace);
-
-    //! Only called by split but is public so it's accessible to std::make_shared.
-    CBoostedTreeLeafNodeStatistics(std::size_t id,
-                                   const CBoostedTreeLeafNodeStatistics& parent,
-                                   std::size_t numberThreads,
-                                   const core::CDataFrame& frame,
-                                   const CDataFrameCategoryEncoder& encoder,
-                                   const TRegularization& regularization,
-                                   const TSizeVec& treeFeatureBag,
-                                   const TSizeVec& nodeFeatureBag,
-                                   bool isLeftChild,
-                                   const CBoostedTreeNode& split,
-                                   CWorkspace& workspace);
-
-    //! Only called by split but is public so it's accessible to std::make_shared.
-    CBoostedTreeLeafNodeStatistics(std::size_t id,
-                                   CBoostedTreeLeafNodeStatistics&& parent,
-                                   const TRegularization& regularization,
-                                   const TSizeVec& nodeFeatureBag,
-                                   CWorkspace& workspace);
-
+    virtual ~CBoostedTreeLeafNodeStatistics() = default;
     CBoostedTreeLeafNodeStatistics(const CBoostedTreeLeafNodeStatistics&) = delete;
     CBoostedTreeLeafNodeStatistics& operator=(const CBoostedTreeLeafNodeStatistics&) = delete;
 
@@ -639,17 +610,20 @@ public:
     //! Apply the split defined by \p split.
     //!
     //! \return Shared pointers to the left and right child node statistics.
-    TPtrPtrPr split(std::size_t leftChildId,
-                    std::size_t rightChildId,
-                    std::size_t numberThreads,
-                    double gainThreshold,
-                    const core::CDataFrame& frame,
-                    const CDataFrameCategoryEncoder& encoder,
-                    const TRegularization& regularization,
-                    const TSizeVec& treeFeatureBag,
-                    const TSizeVec& nodeFeatureBag,
-                    const CBoostedTreeNode& split,
-                    CWorkspace& workspace);
+    virtual TPtrPtrPr split(std::size_t leftChildId,
+                            std::size_t rightChildId,
+                            std::size_t numberThreads,
+                            double gainThreshold,
+                            const core::CDataFrame& frame,
+                            const CDataFrameCategoryEncoder& encoder,
+                            const TRegularization& regularization,
+                            const TSizeVec& treeFeatureBag,
+                            const TSizeVec& nodeFeatureBag,
+                            const CBoostedTreeNode& split,
+                            CWorkspace& workspace) = 0;
+
+    //! Get the memory used by this object.
+    virtual std::size_t memoryUsage() const;
 
     //! Order two leaves by decreasing gain in splitting them.
     bool operator<(const CBoostedTreeLeafNodeStatistics& rhs) const;
@@ -683,22 +657,15 @@ public:
     std::size_t id() const;
 
     //! Get the row mask for this leaf node.
+    const core::CPackedBitVector& rowMask() const;
+
+    //! Get the row mask for this leaf node.
     core::CPackedBitVector& rowMask();
 
-    //! Get the memory used by this object.
-    std::size_t memoryUsage() const;
-
     //! Get the best split info as a string.
-    std::string print() const { return m_BestSplit.print(); }
+    std::string print() const;
 
-    //! Estimate the maximum leaf statistics' memory usage training on a data frame
-    //! with \p numberCols columns using \p numberSplitsPerFeature for a loss function
-    //! with \p numberLossParameters parameters.
-    static std::size_t estimateMemoryUsage(std::size_t numberCols,
-                                           std::size_t numberSplitsPerFeature,
-                                           std::size_t numberLossParameters);
-
-private:
+protected:
     using TSizeVecCRef = std::reference_wrapper<const TSizeVec>;
 
     //! \brief Statistics relating to a split of the node.
@@ -732,40 +699,29 @@ private:
             return result.str();
         }
 
-        double s_Gain = -boosted_tree_detail::INF;
-        double s_Curvature = 0.0;
-        std::size_t s_Feature = std::numeric_limits<std::size_t>::max();
-        double s_SplitAt = boosted_tree_detail::INF;
-        std::uint32_t s_MinimumChildRowCount = 0;
-        bool s_LeftChildHasFewerRows = true;
-        bool s_AssignMissingToLeft = true;
-        double s_LeftChildMaxGain = boosted_tree_detail::INF;
-        double s_RightChildMaxGain = boosted_tree_detail::INF;
+        double s_Gain{-boosted_tree_detail::INF};
+        double s_Curvature{0.0};
+        std::size_t s_Feature{std::numeric_limits<std::size_t>::max()};
+        double s_SplitAt{boosted_tree_detail::INF};
+        std::uint32_t s_MinimumChildRowCount{0};
+        bool s_LeftChildHasFewerRows{true};
+        bool s_AssignMissingToLeft{true};
+        double s_LeftChildMaxGain{boosted_tree_detail::INF};
+        double s_RightChildMaxGain{boosted_tree_detail::INF};
     };
 
-private:
-    void computeAggregateLossDerivatives(std::size_t numberThreads,
-                                         const core::CDataFrame& frame,
-                                         const CDataFrameCategoryEncoder& encoder,
-                                         const TSizeVec& featureBag,
-                                         const core::CPackedBitVector& rowMask,
-                                         CWorkspace& workspace) const;
-    void computeRowMaskAndAggregateLossDerivatives(std::size_t numberThreads,
-                                                   const core::CDataFrame& frame,
-                                                   const CDataFrameCategoryEncoder& encoder,
-                                                   bool isLeftChild,
-                                                   const CBoostedTreeNode& split,
-                                                   const TSizeVec& featureBag,
-                                                   const core::CPackedBitVector& parentRowMask,
-                                                   CWorkspace& workspace) const;
-    void addRowDerivatives(const TSizeVec& featureBag,
-                           const CEncodedDataFrameRowRef& row,
-                           CSplitsDerivatives& splitsDerivatives) const;
+protected:
+    CBoostedTreeLeafNodeStatistics(std::size_t id,
+                                   std::size_t depth,
+                                   TSizeVecCRef extraColumns,
+                                   std::size_t numberLossParameters,
+                                   const TImmutableRadixSetVec& candidateSplits);
 
-    SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
-                                                const TSizeVec& featureBag) const;
-
-    double childMaxGain(double gChild, double minLossChild, double lambda) const;
+    SSplitStatistics& bestSplitStatistics();
+    std::size_t depth() const;
+    TSizeVecCRef extraColumns() const;
+    std::size_t numberLossParameters() const;
+    const TImmutableRadixSetVec& candidateSplits() const;
 
 private:
     std::size_t m_Id;
@@ -774,7 +730,6 @@ private:
     std::size_t m_NumberLossParameters;
     const TImmutableRadixSetVec& m_CandidateSplits;
     core::CPackedBitVector m_RowMask;
-    CSplitsDerivatives m_Derivatives;
     SSplitStatistics m_BestSplit;
 };
 }

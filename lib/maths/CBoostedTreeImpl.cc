@@ -21,6 +21,8 @@
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeFactory.h>
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
+#include <maths/CBoostedTreeLeafNodeStatisticsIncremental.h>
+#include <maths/CBoostedTreeLeafNodeStatisticsScratch.h>
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameAnalysisInstrumentationInterface.h>
@@ -293,6 +295,19 @@ void CBoostedTreeImpl::train(core::CDataFrame& frame,
         static_cast<std::int64_t>(this->memoryUsage()) - lastMemoryUsage);
 }
 
+bool CBoostedTreeImpl::trainIncremental(core::CDataFrame& /*frame*/,
+                                        const TTrainingStateCallback& /*recordTrainStateCallback*/) {
+
+    if (m_BestForest.empty()) {
+        LOG_ERROR(<< "No model available to incrementally train.");
+        return false;
+    }
+
+    // TODO https://github.com/elastic/ml-cpp/issues/1721.
+
+    return true;
+}
+
 void CBoostedTreeImpl::recordState(const TTrainingStateCallback& recordTrainState) const {
     recordTrainState([this](core::CStatePersistInserter& inserter) {
         this->acceptPersistInserter(inserter);
@@ -320,8 +335,8 @@ void CBoostedTreeImpl::predict(core::CDataFrame& frame) const {
     }
 }
 
-std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
-                                                  std::size_t numberColumns) const {
+std::size_t CBoostedTreeImpl::estimateMemoryUsageTrain(std::size_t numberRows,
+                                                       std::size_t numberColumns) const {
     // The maximum tree size is defined is the maximum number of leaves minus one.
     // A binary tree with n + 1 leaves has 2n + 1 nodes in total.
     std::size_t maximumNumberLeaves{this->maximumTreeSize(numberRows) + 1};
@@ -353,7 +368,7 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
     // halves the peak number of statistics we maintain.
     std::size_t leafNodeStatisticsMemoryUsage{
         rowMaskMemoryUsage + maximumNumberLeaves *
-                                 CBoostedTreeLeafNodeStatistics::estimateMemoryUsage(
+                                 CBoostedTreeLeafNodeStatisticsScratch::estimateMemoryUsage(
                                      maximumNumberFeatures, m_NumberSplitsPerFeature,
                                      m_Loss->numberParameters()) /
                                  2};
@@ -376,6 +391,14 @@ std::size_t CBoostedTreeImpl::estimateMemoryUsage(std::size_t numberRows,
         trainTestMaskMemoryUsage + bayesianOptimisationMemoryUsage};
 
     return CBoostedTreeImpl::correctedMemoryUsage(static_cast<double>(worstCaseMemoryUsage));
+}
+
+std::size_t
+CBoostedTreeImpl::estimateMemoryUsageTrainIncremental(std::size_t /*numberRows*/,
+                                                      std::size_t /*numberColumns*/) const {
+
+    // TODO https://github.com/elastic/ml-cpp/issues/1790.
+    return 0;
 }
 
 std::size_t CBoostedTreeImpl::correctedMemoryUsage(double memoryUsageBytes) {
@@ -612,7 +635,17 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
 
     LOG_TRACE(<< "Training one forest...");
 
-    std::size_t maximumTreeSize{this->maximumTreeSize(trainingRowMask)};
+    auto makeRootLeafNodeStatistics =
+        [&](const TImmutableRadixSetVec& candidateSplits,
+            const TSizeVec& treeFeatureBag, const TSizeVec& nodeFeatureBag,
+            const core::CPackedBitVector& trainingRowMask_, TWorkspace& workspace) {
+            return std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
+                0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
+                frame, *m_Encoder, m_Regularization, candidateSplits, treeFeatureBag,
+                nodeFeatureBag, 0 /*depth*/, trainingRowMask_, workspace);
+        };
+
+    std::size_t maximumNumberInternalNodes{this->maximumTreeSize(trainingRowMask)};
 
     TNodeVecVec forest{this->initializePredictionsAndLossDerivatives(
         frame, trainingRowMask, testingRowMask)};
@@ -649,11 +682,12 @@ CBoostedTreeImpl::trainForest(core::CDataFrame& frame,
     TDoubleVec losses;
     losses.reserve(m_MaximumNumberTrees);
     CTrainForestStoppingCondition stoppingCondition{m_MaximumNumberTrees};
-    TWorkspace workspace;
+    TWorkspace workspace{1};
 
     do {
         auto tree = this->trainTree(frame, downsampledRowMask, candidateSplits,
-                                    maximumTreeSize, workspace);
+                                    maximumNumberInternalNodes,
+                                    makeRootLeafNodeStatistics, workspace);
 
         retries = tree.size() == 1 ? retries + 1 : 0;
 
@@ -820,12 +854,12 @@ CBoostedTreeImpl::TNodeVec
 CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
                             const core::CPackedBitVector& trainingRowMask,
                             const TImmutableRadixSetVec& candidateSplits,
-                            const std::size_t maximumNumberInternalNodes,
+                            std::size_t maximumNumberInternalNodes,
+                            const TMakeRootLeafNodeStatistics& makeRootLeafNodeStatistics,
                             TWorkspace& workspace) const {
 
     LOG_TRACE(<< "Training one tree...");
 
-    using TLeafNodeStatisticsPtr = CBoostedTreeLeafNodeStatistics::TPtr;
     using TLeafNodeStatisticsPtrQueue = boost::circular_buffer<TLeafNodeStatisticsPtr>;
 
     workspace.reinitialize(m_NumberThreads, candidateSplits, m_Loss->numberParameters());
@@ -846,10 +880,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
     this->nodeFeatureBag(treeFeatureBag, featureSampleProbabilities, nodeFeatureBag);
 
     TLeafNodeStatisticsPtrQueue splittableLeaves(maximumNumberInternalNodes / 2 + 3);
-    splittableLeaves.push_back(std::make_shared<CBoostedTreeLeafNodeStatistics>(
-        0 /*root*/, m_ExtraColumns, m_Loss->numberParameters(), m_NumberThreads,
-        frame, *m_Encoder, m_Regularization, candidateSplits, treeFeatureBag,
-        nodeFeatureBag, 0 /*depth*/, trainingRowMask, workspace));
+    splittableLeaves.push_back(makeRootLeafNodeStatistics(
+        candidateSplits, treeFeatureBag, nodeFeatureBag, trainingRowMask, workspace));
 
     // We update local variables because the callback can be expensive if it
     // requires accessing atomics.
@@ -1885,7 +1917,6 @@ void CBoostedTreeImpl::checkTrainInvariants(const core::CDataFrame& frame) const
     if (m_DependentVariable >= frame.numberColumns()) {
         HANDLE_FATAL(<< "Internal error: dependent variable '" << m_DependentVariable
                      << "' was incorrectly initialized. Please report this problem.");
-        return;
     }
     if (m_Loss == nullptr) {
         HANDLE_FATAL(<< "Internal error: must supply a loss function for training. "

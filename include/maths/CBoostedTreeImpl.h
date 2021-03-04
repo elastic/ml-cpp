@@ -89,6 +89,13 @@ public:
     //! Train the model on the values in \p frame.
     void train(core::CDataFrame& frame, const TTrainingStateCallback& recordTrainStateCallback);
 
+    //! Incrementally train the current model on the values in \p frame.
+    //!
+    //! \warning Assumes that train has been called or a trained model has been
+    //! reloaded.
+    bool trainIncremental(core::CDataFrame& frame,
+                          const TTrainingStateCallback& recordTrainStateCallback);
+
     //! Write the predictions of the best trained model to \p frame.
     //!
     //! \warning Must be called only if a trained model is available.
@@ -131,9 +138,15 @@ public:
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
 
-    //! Estimate the maximum booking memory that training the boosted tree on a data
+    //! Estimate the maximum booking memory that training a boosted tree on a data
     //! frame with \p numberRows row and \p numberColumns columns will use.
-    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
+    std::size_t estimateMemoryUsageTrain(std::size_t numberRows, std::size_t numberColumns) const;
+
+    //! Estimate the maximum booking memory that incrementally training a boosted
+    //! tree on a data frame with \p numberRows row and \p numberColumns columns
+    //! will use.
+    std::size_t estimateMemoryUsageTrainIncremental(std::size_t numberRows,
+                                                    std::size_t numberColumns) const;
 
     //! Correct from worst case memory usage to a more realistic estimate.
     static std::size_t correctedMemoryUsage(double memoryUsageBytes);
@@ -173,6 +186,7 @@ private:
     using TOptionalDoubleVec = std::vector<TOptionalDouble>;
     using TOptionalDoubleVecVec = std::vector<TOptionalDoubleVec>;
     using TOptionalSize = boost::optional<std::size_t>;
+    using TDoubleVecVec = std::vector<TDoubleVec>;
     using TPackedBitVectorVec = std::vector<core::CPackedBitVector>;
     using TImmutableRadixSetVec = std::vector<core::CImmutableRadixSet<double>>;
     using TNodeVecVecDoubleDoubleVecTuple = std::tuple<TNodeVecVec, double, TDoubleVec>;
@@ -180,9 +194,17 @@ private:
     using TDataTypeVec = CDataFrameUtils::TDataTypeVec;
     using TRegularizationOverride = CBoostedTreeRegularization<TOptionalDouble>;
     using TTreeShapFeatureImportanceUPtr = std::unique_ptr<CTreeShapFeatureImportance>;
+    using TLeafNodeStatisticsPtr = CBoostedTreeLeafNodeStatistics::TPtr;
     using TWorkspace = CBoostedTreeLeafNodeStatistics::CWorkspace;
     using THyperparametersVec = std::vector<boosted_tree_detail::EHyperparameters>;
-    using TDoubleVecVec = std::vector<TDoubleVec>;
+    // clang-format off
+    using TMakeRootLeafNodeStatistics =
+        std::function<TLeafNodeStatisticsPtr (const TImmutableRadixSetVec&,
+                                              const TSizeVec&,
+                                              const TSizeVec&,
+                                              const core::CPackedBitVector&,
+                                              TWorkspace&)>;
+    // clang-format on
 
     //! Tag progress through initialization.
     enum EInitializationStage {
@@ -248,7 +270,8 @@ private:
     TNodeVec trainTree(core::CDataFrame& frame,
                        const core::CPackedBitVector& trainingRowMask,
                        const TImmutableRadixSetVec& candidateSplits,
-                       const std::size_t maximumTreeSize,
+                       std::size_t maximumNumberInternalNodes,
+                       const TMakeRootLeafNodeStatistics& makeRootLeafNodeStatistics,
                        TWorkspace& workspace) const;
 
     //! Compute the minimum mean test loss per fold for any round.

@@ -124,8 +124,6 @@ BOOST_AUTO_TEST_CASE(testIntegrationRegression) {
             .predictionSpec(test::CDataFrameAnalysisSpecificationFactory::regression(), "target_col"),
         outputWriterFactory};
 
-    TDataFrameUPtr frame{
-        core::makeMainStorageDataFrame(cols + 2, numberExamples).first};
     for (std::size_t i = 0; i < numberExamples; ++i) {
         for (std::size_t j = 0; j < cols; ++j) {
             fieldValues[j] = core::CStringUtils::typeToStringPrecise(

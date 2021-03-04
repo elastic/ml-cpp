@@ -28,6 +28,7 @@ CBoostedTreeFactory.cc \
 CBoostedTreeHyperparameters.cc \
 CBoostedTreeImpl.cc \
 CBoostedTreeLeafNodeStatistics.cc \
+CBoostedTreeLeafNodeStatisticsScratch.cc \
 CBoostedTreeLoss.cc \
 CBoostedTreeUtils.cc \
 CCalendarCyclicTest.cc \

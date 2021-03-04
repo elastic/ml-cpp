@@ -1582,7 +1582,7 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrain) {
 
         std::int64_t estimatedMemory(maths::CBoostedTreeFactory::constructFromParameters(
                                          1, std::make_unique<maths::boosted_tree::CMse>())
-                                         .estimateMemoryUsage(rows, cols));
+                                         .estimateMemoryUsageTrain(rows, cols));
 
         CTestInstrumentation instrumentation;
         auto regression = maths::CBoostedTreeFactory::constructFromParameters(
@@ -1643,14 +1643,14 @@ BOOST_AUTO_TEST_CASE(testEstimateMemoryUsedByTrainWithTestRows) {
         }
         frame->finishWritingRows();
 
-        double percentTrainingRows = 1.0 - static_cast<double>(numTestRows) /
-                                               static_cast<double>(rows);
+        double percentTrainingRows{1.0 - static_cast<double>(numTestRows) /
+                                             static_cast<double>(rows)};
+        std::size_t trainRows{static_cast<std::size_t>(static_cast<double>(rows) *
+                                                       percentTrainingRows)};
 
-        std::int64_t estimatedMemory(
-            maths::CBoostedTreeFactory::constructFromParameters(
-                1, std::make_unique<maths::boosted_tree::CMse>())
-                .estimateMemoryUsage(static_cast<std::size_t>(static_cast<double>(rows) * percentTrainingRows),
-                                     cols));
+        std::int64_t estimatedMemory(maths::CBoostedTreeFactory::constructFromParameters(
+                                         1, std::make_unique<maths::boosted_tree::CMse>())
+                                         .estimateMemoryUsageTrain(trainRows, cols));
 
         CTestInstrumentation instrumentation;
         auto regression = maths::CBoostedTreeFactory::constructFromParameters(

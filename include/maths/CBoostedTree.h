@@ -223,6 +223,11 @@ public:
     //! Train on the examples in the data frame supplied to the constructor.
     void train() override;
 
+    //! Incrementally train the current model.
+    //!
+    //! \warning Train must have been previously called or a model loaded.
+    bool trainIncremental() override;
+
     //! Write the predictions to the data frame supplied to the constructor.
     //!
     //! \warning This can only be called after train.

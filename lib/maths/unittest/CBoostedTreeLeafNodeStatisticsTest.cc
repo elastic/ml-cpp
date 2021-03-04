@@ -8,6 +8,7 @@
 
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeLeafNodeStatistics.h>
+#include <maths/CBoostedTreeLeafNodeStatisticsScratch.h>
 #include <maths/CBoostedTreeUtils.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CLinearAlgebraEigen.h>
@@ -373,7 +374,7 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
         TImmutableRadixSetVec featureSplits;
         featureSplits.push_back(TImmutableRadixSet(splitValues));
 
-        maths::CBoostedTreeLeafNodeStatistics::CWorkspace workspace;
+        maths::CBoostedTreeLeafNodeStatistics::CWorkspace workspace{1};
         workspace.reinitialize(numberThreads, featureSplits, 1);
 
         core::CPackedBitVector trainingRowMask(rows, true);
@@ -386,7 +387,7 @@ BOOST_AUTO_TEST_CASE(testGainBoundComputation) {
 
         TNodeVec tree(1);
 
-        auto rootSplit = std::make_shared<maths::CBoostedTreeLeafNodeStatistics>(
+        auto rootSplit = std::make_shared<maths::CBoostedTreeLeafNodeStatisticsScratch>(
             0 /*root*/, extraColumns, 1, numberThreads, *frame, encoder,
             regularization, featureSplits, treeFeatureBag, nodeFeatureBag,
             0 /*depth*/, trainingRowMask, workspace);

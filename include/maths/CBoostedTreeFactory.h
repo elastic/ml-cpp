@@ -127,9 +127,14 @@ public:
     //! Set the callback function for training state recording.
     CBoostedTreeFactory& trainingStateCallback(TTrainingStateCallback callback);
 
-    //! Estimate the maximum booking memory that training the boosted tree on a
-    //! data frame with \p numberRows row and \p numberColumns columns will use.
-    std::size_t estimateMemoryUsage(std::size_t numberRows, std::size_t numberColumns) const;
+    //! Estimate the maximum booking memory that training a boosted tree on a data
+    //! frame with \p numberRows row and \p numberColumns columns will use.
+    std::size_t estimateMemoryUsageTrain(std::size_t numberRows, std::size_t numberColumns) const;
+    //! Estimate the maximum booking memory that incrementally training a boosted
+    //! tree on a data frame with \p numberRows row and \p numberColumns columns
+    //! will use.
+    std::size_t estimateMemoryUsageTrainIncremental(std::size_t numberRows,
+                                                    std::size_t numberColumns) const;
     //! Get the number of columns training the model will add to the data frame.
     std::size_t numberExtraColumnsForTrain() const;
     //! Build a boosted tree object for a given data frame.
