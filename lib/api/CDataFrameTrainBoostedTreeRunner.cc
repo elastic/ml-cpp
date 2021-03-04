@@ -358,7 +358,7 @@ std::size_t CDataFrameTrainBoostedTreeRunner::estimateBookkeepingMemoryUsage(
     std::size_t totalNumberRows,
     std::size_t /*partitionNumberRows*/,
     std::size_t numberColumns) const {
-    // TODO Incremental training.
+    // TODO https://github.com/elastic/ml-cpp/issues/1790.
     return m_BoostedTreeFactory->estimateMemoryUsageTrain(
         static_cast<std::size_t>(static_cast<double>(totalNumberRows) * m_TrainingPercent + 0.5),
         numberColumns);
