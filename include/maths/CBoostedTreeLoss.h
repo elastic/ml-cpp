@@ -10,6 +10,7 @@
 #include <core/CStateRestoreTraverser.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CBoostedTree.h>
 #include <maths/CLinearAlgebra.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CPRNG.h>
@@ -31,14 +32,16 @@ class MATHS_EXPORT CArgMinLossImpl {
 public:
     using TDoubleVector = CDenseVector<double>;
     using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
+    using TNodeVec = CBoostedTree::TNodeVec;
 
 public:
-    CArgMinLossImpl(double lambda);
+    explicit CArgMinLossImpl(double lambda);
     virtual ~CArgMinLossImpl() = default;
 
     virtual std::unique_ptr<CArgMinLossImpl> clone() const = 0;
     virtual bool nextPass() = 0;
-    virtual void add(const TMemoryMappedFloatVector& prediction,
+    virtual void add(const CEncodedDataFrameRowRef& row,
+                     const TMemoryMappedFloatVector& prediction,
                      double actual,
                      double weight = 1.0) = 0;
     virtual void merge(const CArgMinLossImpl& other) = 0;
@@ -55,10 +58,16 @@ private:
 //! regularized MSE w.r.t. the actual values.
 class MATHS_EXPORT CArgMinMseImpl final : public CArgMinLossImpl {
 public:
-    CArgMinMseImpl(double lambda);
+    explicit CArgMinMseImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
+    void add(const CEncodedDataFrameRowRef& /*row*/,
+             const TMemoryMappedFloatVector& prediction,
+             double actual,
+             double weight = 1.0) override {
+        this->add(prediction, actual, weight);
+    }
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0);
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
 
@@ -69,6 +78,35 @@ private:
     TMeanAccumulator m_MeanError;
 };
 
+//! \brief Finds the value to add to a set of predictions which minimises the
+//! adjusted regularized MSE difference w.r.t. the actual values.
+//!
+//! DESCRIPTION:\n
+//! This applies a correction to the loss based on the difference between from
+//! the predictions of a supplied tree (the one being retrained).
+class MATHS_EXPORT CArgMinMseIncrementalImpl final : public CArgMinLossImpl {
+public:
+    CArgMinMseIncrementalImpl(double lambda, double eta, double mu, const TNodeVec& tree);
+    std::unique_ptr<CArgMinLossImpl> clone() const override;
+    bool nextPass() override;
+    void add(const CEncodedDataFrameRowRef& row,
+             const TMemoryMappedFloatVector& prediction,
+             double actual,
+             double weight = 1.0) override;
+    void merge(const CArgMinLossImpl& other) override;
+    TDoubleVector value() const override;
+
+private:
+    using TMeanAccumulator = CBasicStatistics::SSampleMean<double>::TAccumulator;
+
+private:
+    double m_Eta;
+    double m_Mu;
+    const TNodeVec* m_Tree;
+    TMeanAccumulator m_MeanError;
+    TMeanAccumulator m_MeanTreePredictions;
+};
+
 //! \brief Finds the value to add to a set of predictions which approximately
 //! minimises the regularised mean squared logarithmic error (MSLE).
 class MATHS_EXPORT CArgMinMsleImpl final : public CArgMinLossImpl {
@@ -76,10 +114,16 @@ public:
     using TObjective = std::function<double(double)>;
 
 public:
-    CArgMinMsleImpl(double lambda, double offset = 1.0);
+    explicit CArgMinMsleImpl(double lambda, double offset = 1.0);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
+    void add(const CEncodedDataFrameRowRef& /*row*/,
+             const TMemoryMappedFloatVector& prediction,
+             double actual,
+             double weight = 1.0) override {
+        this->add(prediction, actual, weight);
+    }
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0);
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
 
@@ -140,9 +184,13 @@ public:
     CArgMinPseudoHuberImpl(double lambda, double delta);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(const TMemoryMappedFloatVector& predictionVector,
+    void add(const CEncodedDataFrameRowRef& /*row*/,
+             const TMemoryMappedFloatVector& prediction,
              double actual,
-             double weight = 1.0) override;
+             double weight = 1.0) override {
+        this->add(prediction, actual, weight);
+    }
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0);
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
 
@@ -195,10 +243,16 @@ private:
 //! 0 and 1, respectively, in the bucket \f$B\f$.
 class MATHS_EXPORT CArgMinBinomialLogisticLossImpl final : public CArgMinLossImpl {
 public:
-    CArgMinBinomialLogisticLossImpl(double lambda);
+    explicit CArgMinBinomialLogisticLossImpl(double lambda);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
+    void add(const CEncodedDataFrameRowRef& /*row*/,
+             const TMemoryMappedFloatVector& prediction,
+             double actual,
+             double weight = 1.0) override {
+        this->add(prediction, actual, weight);
+    }
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0);
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
 
@@ -269,7 +323,13 @@ public:
                                        const CPRNG::CXorOShiro128Plus& rng);
     std::unique_ptr<CArgMinLossImpl> clone() const override;
     bool nextPass() override;
-    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0) override;
+    void add(const CEncodedDataFrameRowRef& /*row*/,
+             const TMemoryMappedFloatVector& prediction,
+             double actual,
+             double weight = 1.0) override {
+        this->add(prediction, actual, weight);
+    }
+    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0);
     void merge(const CArgMinLossImpl& other) override;
     TDoubleVector value() const override;
 
@@ -325,7 +385,10 @@ public:
     bool nextPass() const;
 
     //! Update with a point prediction and actual value.
-    void add(const TMemoryMappedFloatVector& prediction, double actual, double weight = 1.0);
+    void add(const CEncodedDataFrameRowRef& row,
+             const TMemoryMappedFloatVector& prediction,
+             double actual,
+             double weight = 1.0);
 
     //! Get the minimiser over the predictions and actual values added to both
     //! this and \p other.

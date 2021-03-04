@@ -313,12 +313,6 @@ private:
     //! Compute the mean of the loss function on the masked rows of \p frame.
     double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;
 
-    //! Get the root node of \p tree.
-    static const CBoostedTreeNode& root(const TNodeVec& tree);
-
-    //! Get the root node of \p tree.
-    static CBoostedTreeNode& root(TNodeVec& tree);
-
     //! Get the forest's prediction for \p row.
     TVector predictRow(const CEncodedDataFrameRowRef& row, const TNodeVecVec& forest) const;
 

@@ -21,6 +21,7 @@ namespace maths {
 namespace boosted_tree {
 class CLoss;
 }
+class CBoostedTreeNode;
 namespace boosted_tree_detail {
 using TSizeVec = std::vector<std::size_t>;
 using TRowRef = core::CDataFrame::TRowRef;
@@ -60,6 +61,12 @@ struct SHyperparameterImportance {
     double s_RelativeImportance;
     bool s_Supplied;
 };
+
+//! Get the root node of \p tree.
+const CBoostedTreeNode& root(const std::vector<CBoostedTreeNode>& tree);
+
+//! Get the root node of \p tree.
+CBoostedTreeNode& root(std::vector<CBoostedTreeNode>& tree);
 
 //! Get the size of upper triangle of the loss Hessain.
 inline std::size_t lossHessianUpperTriangleSize(std::size_t numberLossParameters) {

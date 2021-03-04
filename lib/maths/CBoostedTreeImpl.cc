@@ -1202,10 +1202,6 @@ void CBoostedTreeImpl::candidateRegressorFeatures(const TDoubleVec& probabilitie
     }
 }
 
-const CBoostedTreeNode& CBoostedTreeImpl::root(const TNodeVec& tree) {
-    return tree[0];
-}
-
 void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& frame,
                                                             const core::CPackedBitVector& trainingRowMask,
                                                             const core::CPackedBitVector& testingRowMask,
@@ -1233,12 +1229,13 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                     const auto& rootNode = root(tree);
                     for (auto row_ = beginRows; row_ != endRows; ++row_) {
                         auto row = *row_;
+                        auto encodedRow = m_Encoder->encode(row);
                         auto prediction = readPrediction(row, m_ExtraColumns,
                                                          numberLossParameters);
                         double actual{readActual(row, m_DependentVariable)};
                         double weight{readExampleWeight(row, m_ExtraColumns)};
-                        leafValues_[rootNode.leafIndex(m_Encoder->encode(row), tree)]
-                            .add(prediction, actual, weight);
+                        leafValues_[rootNode.leafIndex(encodedRow, tree)].add(
+                            encodedRow, prediction, actual, weight);
                     }
                 },
                 std::move(leafValues)),
@@ -1304,10 +1301,6 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
     LOG_TRACE(<< "mean loss = " << CBasicStatistics::mean(loss));
 
     return CBasicStatistics::mean(loss);
-}
-
-CBoostedTreeNode& CBoostedTreeImpl::root(TNodeVec& tree) {
-    return tree[0];
 }
 
 CBoostedTreeImpl::TVector CBoostedTreeImpl::predictRow(const CEncodedDataFrameRowRef& row,

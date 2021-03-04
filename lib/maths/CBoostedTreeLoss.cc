@@ -111,6 +111,66 @@ CArgMinMseImpl::TDoubleVector CArgMinMseImpl::value() const {
     return result;
 }
 
+CArgMinMseIncrementalImpl::CArgMinMseIncrementalImpl(double lambda,
+                                                     double eta,
+                                                     double mu,
+                                                     const TNodeVec& tree)
+    : CArgMinLossImpl{lambda}, m_Eta{eta}, m_Mu{mu}, m_Tree{&tree} {
+}
+
+std::unique_ptr<CArgMinLossImpl> CArgMinMseIncrementalImpl::clone() const {
+    return std::make_unique<CArgMinMseIncrementalImpl>(*this);
+}
+
+bool CArgMinMseIncrementalImpl::nextPass() {
+    return false;
+}
+
+void CArgMinMseIncrementalImpl::add(const CEncodedDataFrameRowRef& row,
+                                    const TMemoryMappedFloatVector& prediction,
+                                    double actual,
+                                    double weight) {
+    m_MeanError.add(actual - prediction(0), weight);
+    m_MeanTreePredictions.add(root(*m_Tree).value(row, *m_Tree)(0));
+}
+
+void CArgMinMseIncrementalImpl::merge(const CArgMinLossImpl& other) {
+    const auto* mse = dynamic_cast<const CArgMinMseIncrementalImpl*>(&other);
+    if (mse != nullptr) {
+        m_MeanError += mse->m_MeanError;
+        m_MeanTreePredictions += mse->m_MeanTreePredictions;
+    }
+}
+
+CArgMinMseIncrementalImpl::TDoubleVector CArgMinMseIncrementalImpl::value() const {
+
+    // We searching for the value x which minimises
+    //
+    //    x^* = argmin_x{ sum_i{(a_i - (p_i + x))^2 + mu (p_i' - eta x)^2} + lambda * x^2 }
+    //
+    // Here, a_i are the actuals p_i the predictions and p_i' the predictions from
+    // the tree being retrained. This is convex so there is one minimum where the
+    // derivative w.r.t. x is zero and
+    //
+    //   x^* = 1 / (n (1 + mu eta) + lambda) sum_i{ a_i - p_i + mu p_i' }.
+    //
+    // Denoting the mean prediction error m = 1/n sum_i{ a_i - p_i } and the mean
+    // tree predictions p' = 1/n sum_i{p_i'} we have
+    //
+    //   x^* = n / (n (1 + mu eta) + lambda) m + mu p'.
+
+    double count{CBasicStatistics::count(m_MeanError)};
+    double meanError{CBasicStatistics::mean(m_MeanError)};
+    double meanTreePrediction{CBasicStatistics::mean(m_MeanTreePredictions)};
+
+    TDoubleVector result(1);
+    result(0) = count == 0.0
+                    ? 0.0
+                    : count / (count * (1.0 + m_Mu * m_Eta) + this->lambda()) *
+                          (meanError + m_Mu * meanTreePrediction);
+    return result;
+}
+
 CArgMinBinomialLogisticLossImpl::CArgMinBinomialLogisticLossImpl(double lambda)
     : CArgMinLossImpl{lambda}, m_ClassCounts{0},
       m_BucketsClassCounts(NUMBER_BUCKETS, TDoubleVector2x1{0.0}) {
@@ -539,17 +599,16 @@ bool CArgMinPseudoHuberImpl::nextPass() {
     return this->bucketWidth() > 0.0 && m_CurrentPass < 2;
 }
 
-void CArgMinPseudoHuberImpl::add(const TMemoryMappedFloatVector& predictionVector,
+void CArgMinPseudoHuberImpl::add(const TMemoryMappedFloatVector& prediction,
                                  double actual,
                                  double weight) {
-    double prediction{predictionVector[0]};
     switch (m_CurrentPass) {
     case 0: {
-        m_ErrorMinMax.add(actual - prediction);
+        m_ErrorMinMax.add(actual - prediction[0]);
         break;
     }
     case 1: {
-        double error{actual - prediction};
+        double error{actual - prediction[0]};
         auto bucketIndex{this->bucket(error)};
         m_Buckets[bucketIndex].add(error, weight);
         break;
@@ -633,13 +692,17 @@ CLoss::TLossUPtr CLoss::restoreLoss(core::CStateRestoreTraverser& traverser) {
     try {
         if (lossFunctionName == CMse::NAME) {
             return std::make_unique<CMse>(traverser);
-        } else if (lossFunctionName == CMsle::NAME) {
+        }
+        if (lossFunctionName == CMsle::NAME) {
             return std::make_unique<CMsle>(traverser);
-        } else if (lossFunctionName == CPseudoHuber::NAME) {
+        }
+        if (lossFunctionName == CPseudoHuber::NAME) {
             return std::make_unique<CPseudoHuber>(traverser);
-        } else if (lossFunctionName == CBinomialLogisticLoss::NAME) {
+        }
+        if (lossFunctionName == CBinomialLogisticLoss::NAME) {
             return std::make_unique<CBinomialLogisticLoss>(traverser);
-        } else if (lossFunctionName == CMultinomialLogisticLoss::NAME) {
+        }
+        if (lossFunctionName == CMultinomialLogisticLoss::NAME) {
             return std::make_unique<CMultinomialLogisticLoss>(traverser);
         }
     } catch (const std::exception& e) {
@@ -668,8 +731,11 @@ bool CArgMinLoss::nextPass() const {
     return m_Impl->nextPass();
 }
 
-void CArgMinLoss::add(const TMemoryMappedFloatVector& prediction, double actual, double weight) {
-    return m_Impl->add(prediction, actual, weight);
+void CArgMinLoss::add(const CEncodedDataFrameRowRef& row,
+                      const TMemoryMappedFloatVector& prediction,
+                      double actual,
+                      double weight) {
+    return m_Impl->add(row, prediction, actual, weight);
 }
 
 void CArgMinLoss::merge(CArgMinLoss& other) {

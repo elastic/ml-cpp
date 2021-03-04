@@ -5,6 +5,7 @@
  */
 
 #include <core/CContainerPrinter.h>
+#include <core/CDataFrame.h>
 
 #include <maths/CBasicStatistics.h>
 #include <maths/CBoostedTreeLoss.h>
@@ -197,8 +198,10 @@ BOOST_AUTO_TEST_CASE(testBinomialLogisticMinimizerRandom) {
             LOG_DEBUG(<< "expected = " << expected
                       << " objective(expected) = " << objectiveAtExpected);
 
+            CArgMinBinomialLogisticLossImpl argminPartition[2]{
+                CArgMinBinomialLogisticLossImpl{lambda},
+                CArgMinBinomialLogisticLossImpl{lambda}};
             CArgMinBinomialLogisticLossImpl argmin{lambda};
-            CArgMinBinomialLogisticLossImpl argminPartition[2]{{lambda}, {lambda}};
             auto nextPass = [&] {
                 bool done{argmin.nextPass() == false};
                 done &= (argminPartition[0].nextPass() == false);

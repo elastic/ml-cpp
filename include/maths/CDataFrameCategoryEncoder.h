@@ -223,7 +223,7 @@ public:
     CDataFrameCategoryEncoder(CMakeDataFrameCategoryEncoder&& builder);
 
     //! Initialize from serialized data.
-    CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser);
+    explicit CDataFrameCategoryEncoder(core::CStateRestoreTraverser& traverser);
 
     CDataFrameCategoryEncoder(const CDataFrameCategoryEncoder&) = delete;
     CDataFrameCategoryEncoder& operator=(const CDataFrameCategoryEncoder&) = delete;

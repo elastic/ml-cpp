@@ -14,6 +14,14 @@ namespace maths {
 namespace boosted_tree_detail {
 using namespace boosted_tree;
 
+const CBoostedTreeNode& root(const std::vector<CBoostedTreeNode>& tree) {
+    return tree[0];
+}
+
+CBoostedTreeNode& root(std::vector<CBoostedTreeNode>& tree) {
+    return tree[0];
+}
+
 void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters) {
     for (std::size_t i = 0; i < numberLossParameters; ++i) {
         row.writeColumn(extraColumns[E_Prediction] + i, 0.0);
