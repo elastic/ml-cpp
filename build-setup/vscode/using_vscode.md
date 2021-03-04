@@ -56,7 +56,7 @@ Here is an example of user tasks specified in `tasks.json`:
             "options": {
                 "env": {
                     "PATH": "${env:PATH}",
-                    "CPP_SRC_HOME": "${env:CPP_SRC_HOME}"
+                    "CPP_SRC_HOME": "${workspaceFolder}"
                 }
             }             
         },
@@ -73,7 +73,7 @@ Here is an example of user tasks specified in `tasks.json`:
             },
             "options": {
                 "env": {
-                    "CPP_SRC_HOME": "${env:CPP_SRC_HOME}"
+                    "CPP_SRC_HOME": "${workspaceFolder}"
                 }
             }            
         },
@@ -89,7 +89,7 @@ Here is an example of user tasks specified in `tasks.json`:
             ],
             "options": {
                 "env": {
-                    "CPP_SRC_HOME": "${env:CPP_SRC_HOME}"
+                    "CPP_SRC_HOME": "${workspaceFolder}"
                 }
             }              
         },
@@ -105,7 +105,7 @@ Here is an example of user tasks specified in `tasks.json`:
             ],
             "options": {
                 "env": {
-                    "CPP_SRC_HOME": "${env:CPP_SRC_HOME}"
+                    "CPP_SRC_HOME": "${workspaceFolder}"
                 }
             }              
         },
@@ -121,7 +121,7 @@ Here is an example of user tasks specified in `tasks.json`:
             ],
             "options": {
                 "env": {
-                    "CPP_SRC_HOME": "${env:CPP_SRC_HOME}"
+                    "CPP_SRC_HOME": "${workspaceFolder}"
                 }
             }                       
         },
@@ -137,7 +137,7 @@ Here is an example of user tasks specified in `tasks.json`:
             ],
             "options": {
                 "env": {
-                    "CPP_SRC_HOME": "${env:CPP_SRC_HOME}"
+                    "CPP_SRC_HOME": "${workspaceFolder}"
                 }
             }               
         }
