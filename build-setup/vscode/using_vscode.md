@@ -151,7 +151,7 @@ To use [debugging](https://code.visualstudio.com/docs/editor/debugging), you nee
 arguments in a json file. You can use `preLaunchTask` to specify the user tasks that should be executed before the start
 (e.g. building project).
 
-Here is a example of the `launch.json` file. Please replace `YOUR_PLATFORM` in the `program` path with your 
+Here is an example of the `launch.json` file. Please replace `YOUR_PLATFORM` in the `program` path with your 
 platform specific value (`linux-x86_64`, `darwin-x86_64`, etc):
 
 ```json
