@@ -38,6 +38,10 @@ Thumbs.db
 # compilation database stuff
 compile_commands.json
 
+# python virtualenv and notebook checkpoints
+**/jupyter/env
+**/jupyter/notebooks/.ipynb_checkpoints
+
 # native binary stuff:
 *.o
 *.obj
