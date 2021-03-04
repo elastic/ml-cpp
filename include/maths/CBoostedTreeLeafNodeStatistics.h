@@ -486,7 +486,8 @@ public:
         TDerivatives2x1 m_NegativeDerivativesSum{TDerivatives2x1::Zero()};
         double m_PositiveDerivativesMax{-boosted_tree_detail::INF};
         double m_PositiveDerivativesMin{boosted_tree_detail::INF};
-        TDerivatives2x1 m_NegativeDerivativesMin{boosted_tree_detail::INF, boosted_tree_detail::INF};
+        TDerivatives2x1 m_NegativeDerivativesMin{boosted_tree_detail::INF,
+                                                 boosted_tree_detail::INF};
     };
 
     //! \brief The derivatives and row masks objects to use for computations.
