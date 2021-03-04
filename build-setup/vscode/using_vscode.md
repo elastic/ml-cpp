@@ -13,7 +13,7 @@ In this tutorial, we assume that you have `gcc` or `clang` installed as describe
 described there since `clangd` also uses it.
 
 [Install `clangd`](https://clangd.llvm.org/installation.html). Version 11.0 had a significant performance improvement,
-so it is worse to go an extra mile and install the latest stable version. Install
+so it is worth going the extra mile and install the latest stable version. Install
 [Visual Studio Code](https://code.visualstudio.com/) with
 [clangd plugin](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd).
 
