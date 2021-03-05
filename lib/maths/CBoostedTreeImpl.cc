@@ -1269,7 +1269,8 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                 double actual{readActual(row, m_DependentVariable)};
                 double weight{readExampleWeight(row, m_ExtraColumns)};
                 prediction += rootNode.value(m_Encoder->encode(row), tree);
-                writeLossGradient(row, m_ExtraColumns, *m_Loss, prediction, actual, weight);
+                writeLossGradient(row, m_ExtraColumns, *m_Encoder, *m_Loss,
+                                  prediction, actual, weight);
                 writeLossCurvature(row, m_ExtraColumns, *m_Loss, prediction, actual, weight);
             }
         },
@@ -1284,10 +1285,12 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
         core::bindRetrievableState(
             [&](TMeanAccumulator& loss, TRowItr beginRows, TRowItr endRows) {
                 std::size_t numberLossParameters{m_Loss->numberParameters()};
-                for (auto row = beginRows; row != endRows; ++row) {
-                    auto prediction = readPrediction(*row, m_ExtraColumns, numberLossParameters);
-                    double actual{readActual(*row, m_DependentVariable)};
-                    loss.add(m_Loss->value(prediction, actual));
+                for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                    auto row = *row_;
+                    auto encodedRow = m_Encoder->encode(row);
+                    auto prediction = readPrediction(row, m_ExtraColumns, numberLossParameters);
+                    double actual{readActual(row, m_DependentVariable)};
+                    loss.add(m_Loss->value(encodedRow, prediction, actual));
                 }
             },
             TMeanAccumulator{}),

@@ -8,6 +8,7 @@
 
 #include <maths/CBoostedTree.h>
 #include <maths/CBoostedTreeLoss.h>
+#include <maths/CDataFrameCategoryEncoder.h>
 
 namespace ml {
 namespace maths {
@@ -36,6 +37,7 @@ void zeroLossGradient(const TRowRef& row, const TSizeVec& extraColumns, std::siz
 
 void writeLossGradient(const TRowRef& row,
                        const TSizeVec& extraColumns,
+                       const CDataFrameCategoryEncoder& encoder,
                        const CLoss& loss,
                        const TMemoryMappedFloatVector& prediction,
                        double actual,
@@ -45,7 +47,7 @@ void writeLossGradient(const TRowRef& row,
     };
     // We wrap the writer in another lambda which we know takes advantage
     // of std::function small size optimization to avoid heap allocations.
-    loss.gradient(prediction, actual,
+    loss.gradient(encoder.encode(row), prediction, actual,
                   [&writer](std::size_t i, double value) { writer(i, value); }, weight);
 }
 

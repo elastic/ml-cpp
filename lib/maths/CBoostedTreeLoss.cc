@@ -785,14 +785,14 @@ double CMse::value(const TMemoryMappedFloatVector& prediction, double actual, do
 
 void CMse::gradient(const TMemoryMappedFloatVector& prediction,
                     double actual,
-                    TWriter writer,
+                    const TWriter& writer,
                     double weight) const {
     writer(0, 2.0 * weight * (prediction(0) - actual));
 }
 
 void CMse::curvature(const TMemoryMappedFloatVector& /*prediction*/,
                      double /*actual*/,
-                     TWriter writer,
+                     const TWriter& writer,
                      double weight) const {
     writer(0, 2.0 * weight);
 }
@@ -856,16 +856,20 @@ std::size_t CMseIncremental::numberParameters() const {
     return 1;
 }
 
-double CMseIncremental::value(const TMemoryMappedFloatVector& prediction,
+double CMseIncremental::value(const CEncodedDataFrameRowRef& row,
+                              const TMemoryMappedFloatVector& prediction,
                               double actual,
                               double weight) const {
+    // TODO https://github.com/elastic/ml-cpp/issues/1721. This needs the old and
+    // new tree to compute the difference.
     double treePrediction{root(*m_Tree).value(row, *m_Tree)(0)};
-    return weight * (CTools::pow2(prediction(0) - actual) + m_Mu * CTools::pow2(treePrediction);
+    return weight * (CTools::pow2(prediction(0) - actual) + m_Mu * CTools::pow2(treePrediction));
 }
 
-void CMseIncremental::gradient(const TMemoryMappedFloatVector& prediction,
+void CMseIncremental::gradient(const CEncodedDataFrameRowRef& row,
+                               const TMemoryMappedFloatVector& prediction,
                                double actual,
-                               TWriter writer,
+                               const TWriter& writer,
                                double weight) const {
     double treePrediction{root(*m_Tree).value(row, *m_Tree)(0)};
     writer(0, 2.0 * weight * (prediction(0) - actual + 2.0 * m_Mu * m_Eta * treePrediction));
@@ -873,7 +877,7 @@ void CMseIncremental::gradient(const TMemoryMappedFloatVector& prediction,
 
 void CMseIncremental::curvature(const TMemoryMappedFloatVector& /*prediction*/,
                                 double /*actual*/,
-                                TWriter writer,
+                                const TWriter& writer,
                                 double weight) const {
     writer(0, 2.0 * weight * (1.0 + m_Mu * CTools::pow2(m_Eta)));
 }
@@ -946,7 +950,7 @@ double CMsle::value(const TMemoryMappedFloatVector& logPrediction, double actual
 
 void CMsle::gradient(const TMemoryMappedFloatVector& logPrediction,
                      double actual,
-                     TWriter writer,
+                     const TWriter& writer,
                      double weight) const {
     double prediction{CTools::stableExp(logPrediction(0))};
     double log1PlusPrediction{CTools::stableLog(m_Offset + prediction)};
@@ -956,7 +960,7 @@ void CMsle::gradient(const TMemoryMappedFloatVector& logPrediction,
 
 void CMsle::curvature(const TMemoryMappedFloatVector& logPrediction,
                       double actual,
-                      TWriter writer,
+                      const TWriter& writer,
                       double weight) const {
     double prediction{CTools::stableExp(logPrediction(0))};
     double logOffsetPrediction{CTools::stableLog(m_Offset + prediction)};
@@ -1041,7 +1045,7 @@ double CPseudoHuber::value(const TMemoryMappedFloatVector& predictionVec,
 
 void CPseudoHuber::gradient(const TMemoryMappedFloatVector& predictionVec,
                             double actual,
-                            TWriter writer,
+                            const TWriter& writer,
                             double weight) const {
     double prediction{predictionVec(0)};
     writer(0, weight * (prediction - actual) /
@@ -1050,7 +1054,7 @@ void CPseudoHuber::gradient(const TMemoryMappedFloatVector& predictionVec,
 
 void CPseudoHuber::curvature(const TMemoryMappedFloatVector& predictionVec,
                              double actual,
-                             TWriter writer,
+                             const TWriter& writer,
                              double weight) const {
     double prediction{predictionVec(0)};
     double result{1.0 / (std::sqrt(1.0 + CTools::pow2((actual - prediction) / m_Delta)))};
@@ -1129,7 +1133,7 @@ double CBinomialLogisticLoss::value(const TMemoryMappedFloatVector& prediction,
 
 void CBinomialLogisticLoss::gradient(const TMemoryMappedFloatVector& prediction,
                                      double actual,
-                                     TWriter writer,
+                                     const TWriter& writer,
                                      double weight) const {
     if (prediction(0) > -LOG_EPSILON && actual == 1.0) {
         writer(0, -weight * CTools::stableExp(-prediction(0)));
@@ -1140,7 +1144,7 @@ void CBinomialLogisticLoss::gradient(const TMemoryMappedFloatVector& prediction,
 
 void CBinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& prediction,
                                       double /*actual*/,
-                                      TWriter writer,
+                                      const TWriter& writer,
                                       double weight) const {
     if (prediction(0) > -LOG_EPSILON) {
         writer(0, weight * CTools::stableExp(-prediction(0)));
@@ -1229,7 +1233,7 @@ double CMultinomialLogisticLoss::value(const TMemoryMappedFloatVector& predictio
 
 void CMultinomialLogisticLoss::gradient(const TMemoryMappedFloatVector& predictions,
                                         double actual,
-                                        TWriter writer,
+                                        const TWriter& writer,
                                         double weight) const {
 
     // We prefer an implementation which avoids any memory allocations.
@@ -1268,7 +1272,7 @@ void CMultinomialLogisticLoss::gradient(const TMemoryMappedFloatVector& predicti
 
 void CMultinomialLogisticLoss::curvature(const TMemoryMappedFloatVector& predictions,
                                          double /*actual*/,
-                                         TWriter writer,
+                                         const TWriter& writer,
                                          double weight) const {
 
     // Return the lower triangle of the Hessian column major.

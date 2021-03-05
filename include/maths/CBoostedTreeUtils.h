@@ -22,6 +22,7 @@ namespace boosted_tree {
 class CLoss;
 }
 class CBoostedTreeNode;
+class CDataFrameCategoryEncoder;
 namespace boosted_tree_detail {
 using TSizeVec = std::vector<std::size_t>;
 using TRowRef = core::CDataFrame::TRowRef;
@@ -108,6 +109,7 @@ void zeroLossGradient(const TRowRef& row, const TSizeVec& extraColumns, std::siz
 MATHS_EXPORT
 void writeLossGradient(const TRowRef& row,
                        const TSizeVec& extraColumns,
+                       const CDataFrameCategoryEncoder& encoder,
                        const boosted_tree::CLoss& loss,
                        const TMemoryMappedFloatVector& prediction,
                        double actual,

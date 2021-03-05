@@ -443,14 +443,15 @@ public:
                          double actual,
                          double weight = 1.0) const = 0;
     //! The gradient of the loss function.
-    virtual void gradient(const TMemoryMappedFloatVector& prediction,
+    virtual void gradient(const CEncodedDataFrameRowRef& row,
+                          const TMemoryMappedFloatVector& prediction,
                           double actual,
-                          TWriter writer,
+                          const TWriter& writer,
                           double weight = 1.0) const = 0;
     //! The Hessian of the loss function (flattened).
     virtual void curvature(const TMemoryMappedFloatVector& prediction,
                            double actual,
-                           TWriter writer,
+                           const TWriter& writer,
                            double weight = 1.0) const = 0;
     //! Returns true if the loss curvature is constant.
     virtual bool isCurvatureConstant() const = 0;
@@ -504,13 +505,20 @@ public:
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const;
+    void gradient(const CEncodedDataFrameRowRef&,
+                  const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  const TWriter& writer,
+                  double weight = 1.0) const override {
+        this->gradient(prediction, actual, writer, weight);
+    }
     void gradient(const TMemoryMappedFloatVector& prediction,
                   double actual,
-                  TWriter writer,
-                  double weight = 1.0) const override;
+                  const TWriter& writer,
+                  double weight = 1.0) const;
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
-                   TWriter writer,
+                   const TWriter& writer,
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
     //! \return \p prediction.
@@ -542,13 +550,14 @@ public:
                  const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const override;
-    void gradient(const TMemoryMappedFloatVector& prediction,
+    void gradient(const CEncodedDataFrameRowRef& row,
+                  const TMemoryMappedFloatVector& prediction,
                   double actual,
-                  TWriter writer,
+                  const TWriter& writer,
                   double weight = 1.0) const override;
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
-                   TWriter writer,
+                   const TWriter& writer,
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
     //! \return \p prediction.
@@ -597,13 +606,20 @@ public:
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const;
+    void gradient(const CEncodedDataFrameRowRef&,
+                  const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  const TWriter& writer,
+                  double weight = 1.0) const override {
+        this->gradient(prediction, actual, writer, weight);
+    }
     void gradient(const TMemoryMappedFloatVector& prediction,
                   double actual,
-                  TWriter writer,
-                  double weight = 1.0) const override;
+                  const TWriter& writer,
+                  double weight = 1.0) const;
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
-                   TWriter writer,
+                   const TWriter& writer,
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
     //! \return (P(class 0), P(class 1)).
@@ -649,13 +665,20 @@ public:
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const;
+    void gradient(const CEncodedDataFrameRowRef&,
+                  const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  const TWriter& writer,
+                  double weight = 1.0) const override {
+        this->gradient(prediction, actual, writer, weight);
+    }
     void gradient(const TMemoryMappedFloatVector& prediction,
                   double actual,
-                  TWriter writer,
-                  double weight = 1.0) const override;
+                  const TWriter& writer,
+                  double weight = 1.0) const;
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
-                   TWriter writer,
+                   const TWriter& writer,
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
     //! \return (P(class 0), P(class 1), ..., P(class n)).
@@ -706,13 +729,20 @@ public:
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const;
+    void gradient(const CEncodedDataFrameRowRef&,
+                  const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  const TWriter& writer,
+                  double weight = 1.0) const override {
+        this->gradient(prediction, actual, writer, weight);
+    }
     void gradient(const TMemoryMappedFloatVector& prediction,
                   double actual,
-                  TWriter writer,
-                  double weight = 1.0) const override;
+                  const TWriter& writer,
+                  double weight = 1.0) const;
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
-                   TWriter writer,
+                   const TWriter& writer,
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
     //! \return exp(\p prediction).
@@ -772,13 +802,20 @@ public:
     double value(const TMemoryMappedFloatVector& predictionVec,
                  double actual,
                  double weight = 1.0) const;
+    void gradient(const CEncodedDataFrameRowRef&,
+                  const TMemoryMappedFloatVector& prediction,
+                  double actual,
+                  const TWriter& writer,
+                  double weight = 1.0) const override {
+        this->gradient(prediction, actual, writer, weight);
+    }
     void gradient(const TMemoryMappedFloatVector& prediction,
                   double actual,
-                  TWriter writer,
-                  double weight = 1.0) const override;
+                  const TWriter& writer,
+                  double weight = 1.0) const;
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
-                   TWriter writer,
+                   const TWriter& writer,
                    double weight = 1.0) const override;
     bool isCurvatureConstant() const override;
     //! \return \p prediction.
