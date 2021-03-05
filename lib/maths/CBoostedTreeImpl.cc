@@ -1898,34 +1898,34 @@ void CBoostedTreeImpl::checkTrainInvariants(const core::CDataFrame& frame) const
     if (m_BayesianOptimization == nullptr) {
         HANDLE_FATAL(<< "Internal error: must supply an optimizer. Please report this problem.");
     }
-    for (const auto& mask : m_MissingFeatureRowMasks) {
-        if (mask.size() != frame.numberRows()) {
-            HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
-                         << mask.size() << " !=  " << frame.numberRows()
-                         << "). Please report this problem.");
-        }
-    }
-    for (const auto& mask : m_MissingFeatureRowMasks) {
-        if (mask.size() != frame.numberRows()) {
-            HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
-                         << mask.size() << " !=  " << frame.numberRows()
-                         << "). Please report this problem.");
-        }
-    }
-    for (const auto& mask : m_TrainingRowMasks) {
-        if (mask.size() != frame.numberRows()) {
-            HANDLE_FATAL(<< "Internal error: unexpected missing training mask ("
-                         << mask.size() << " !=  " << frame.numberRows()
-                         << "). Please report this problem.");
-        }
-    }
-    for (const auto& mask : m_TestingRowMasks) {
-        if (mask.size() != frame.numberRows()) {
-            HANDLE_FATAL(<< "Internal error: unexpected missing testing mask ("
-                         << mask.size() << " !=  " << frame.numberRows()
-                         << "). Please report this problem.");
-        }
-    }
+    // for (const auto& mask : m_MissingFeatureRowMasks) {
+    //     if (mask.size() != frame.numberRows()) {
+    //         HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
+    //                      << mask.size() << " !=  " << frame.numberRows()
+    //                      << "). Please report this problem.");
+    //     }
+    // }
+    // for (const auto& mask : m_MissingFeatureRowMasks) {
+    //     if (mask.size() != frame.numberRows()) {
+    //         HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
+    //                      << mask.size() << " !=  " << frame.numberRows()
+    //                      << "). Please report this problem.");
+    //     }
+    // }
+    // for (const auto& mask : m_TrainingRowMasks) {
+    //     if (mask.size() != frame.numberRows()) {
+    //         HANDLE_FATAL(<< "Internal error: unexpected missing training mask ("
+    //                      << mask.size() << " !=  " << frame.numberRows()
+    //                      << "). Please report this problem.");
+    //     }
+    // }
+    // for (const auto& mask : m_TestingRowMasks) {
+    //     if (mask.size() != frame.numberRows()) {
+    //         HANDLE_FATAL(<< "Internal error: unexpected missing testing mask ("
+    //                      << mask.size() << " !=  " << frame.numberRows()
+    //                      << "). Please report this problem.");
+    //     }
+    // }
 }
 
 std::size_t CBoostedTreeImpl::memoryUsage() const {

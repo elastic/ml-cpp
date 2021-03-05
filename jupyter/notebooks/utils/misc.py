@@ -10,6 +10,8 @@ import libtmux
 from IPython import display
 import time
 from typing import Union
+import base64
+import gzip
 
 # I assume, your host OS is not CentOS
 cloud = (platform.system() == 'Linux') and (platform.dist()[0] == 'centos')
@@ -28,6 +30,12 @@ server = libtmux.Server()
 def is_temp(obj: object):
     return isinstance(obj, tempfile._TemporaryFileWrapper)
 
+def decompress(compressed_str: str):
+    base64_bytes = compressed_str
+    gzip_bytes = base64.b64decode(base64_bytes)
+    message_bytes = gzip.decompress(gzip_bytes)
+    message = message_bytes.decode('utf8')
+    return message
 
 class Job:
     def __init__(self, input: Union[str, tempfile._TemporaryFileWrapper],
@@ -63,7 +71,7 @@ class Job:
         self.pane = None
         self.output = tempfile.NamedTemporaryFile(mode='wt')
         self.model = ''
-    
+
     def _set_dependent_variable_name(self):
         with open(self.config_filename) as fp:
             config = json.load(fp)
@@ -83,7 +91,7 @@ class Job:
         if self.name:
             server.kill_session(target_session=self.name)
 
-    def wait_job_complete(self):
+    def wait_to_complete(self)->bool:
         while True:
             display.clear_output(wait=True)
             err = "\n".join(self.pane.capture_pane())
@@ -114,25 +122,26 @@ class Job:
         if success:
             with open(self.output.name) as fp:
                 self.results = json.load(fp)
-            print("Getting model from {} {}".format(is_temp(self.persist), self.persist_filename))
             if is_temp(self.persist):
                 with open(self.persist_filename) as fp:
                     self.model = "\n".join(fp.readlines()[-3:])
             print('Job succeeded')
+            self.cleanup()
+            return True
         elif failure:
             self.results = {}
             print('Job failed')
-        self.cleanup()
-
+            self.cleanup()
+            return False
+        
 
     def get_predictions(self) -> np.array:
         predictions = []
         for item in self.results:
             if 'row_results' in item:
                 predictions.append(item['row_results']['results']
-                                ['ml']['{}_prediction'.format(self.dependent_variable)])
+                                   ['ml']['{}_prediction'.format(self.dependent_variable)])
         return np.array(predictions)
-
 
     def get_hyperparameters(self) -> dict:
         hyperparameters = {}
@@ -143,15 +152,12 @@ class Job:
                                     ] = hyperparameter['value']
         return hyperparameters
 
-
     def get_model_definition(self) -> dict:
         """Usage:
         definition = get_model_definition(results)
         trained_models = definition['trained_model']['ensemble']['trained_models']
         forest = Forest(trained_models)
         """
-        import base64
-        import gzip
         for item in self.results:
             if 'compressed_inference_model' in item:
                 base64_bytes = item['compressed_inference_model']['definition']
@@ -162,11 +168,11 @@ class Job:
                 return definition
         return {}
 
-    def get_model_blob(self) ->str:
+    def get_model_blob(self) -> str:
         return self.model
 
 
-def run_job(input, config, persist=None, restore=None)->Job:
+def run_job(input, config, persist=None, restore=None) -> Job:
     job = Job(input=input, config=config, persist=persist, restore=restore)
     job_suffix = ''.join(random.choices(string.ascii_lowercase, k=5))
     job_name = 'job_{}'.format(job_suffix)
@@ -214,9 +220,9 @@ def train(dataset_name: str, dataset: pandas.DataFrame) -> Job:
     config_file = tempfile.NamedTemporaryFile(mode='wt')
     json.dump(config, config_file)
     config_file.file.close()
-    
+
     model_file = tempfile.NamedTemporaryFile(mode='wt')
-    
+
     job = run_job(input=data_file, config=config_file, persist=model_file)
     return job
 
@@ -248,7 +254,12 @@ def evaluate(dataset_name: str, dataset: pandas.DataFrame, model: str) -> Job:
     return job
 
 
-def summarize(dataset_name: str, dataset: pandas.DataFrame, nrows: int,  model: str) -> pandas.DataFrame:
+def summarize(dataset_name: str,
+              dataset: pandas.DataFrame,
+              size: Union[int, float],
+              model: str) -> pandas.DataFrame:
     # TODO: implement
-
-    return dataset.sample(nrows)
+    if isinstance(size, float):
+        return dataset.sample(frac=size)
+    else:
+        return dataset.sample(n=size)
