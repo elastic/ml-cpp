@@ -663,7 +663,7 @@ bool CAdaptiveBucketing::knots(core_t::TTime time,
                                      }),
                       indices.end() - 1);
         if (indices.size() < knots.size()) {
-            for (std::size_t i = 0u; i < indices.size(); ++i) {
+            for (std::size_t i = 0; i < indices.size(); ++i) {
                 knots[i] = knots[indices[i]];
                 values[i] = values[indices[i]];
                 variances[i] = variances[indices[i]];

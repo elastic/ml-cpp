@@ -237,8 +237,8 @@ void COneOfNPrior::setToNonInformative(double offset, double decayRate) {
 void COneOfNPrior::removeModels(CModelFilter& filter) {
     CScopeCanonicalizeWeights<TPriorPtr> canonicalize(m_Models);
 
-    std::size_t last = 0u;
-    for (std::size_t i = 0u; i < m_Models.size(); ++i) {
+    std::size_t last = 0;
+    for (std::size_t i = 0; i < m_Models.size(); ++i) {
         if (last != i) {
             std::swap(m_Models[last], m_Models[i]);
         }
@@ -271,7 +271,7 @@ double COneOfNPrior::adjustOffset(const TDouble1Vec& samples,
 
     if (CBasicStatistics::mean(result) != 0.0) {
         CScopeCanonicalizeWeights<TPriorPtr> canonicalize(m_Models);
-        for (std::size_t i = 0u; i < penalties.size(); ++i) {
+        for (std::size_t i = 0; i < penalties.size(); ++i) {
             if (m_Models[i].second->participatesInModelSelection() &&
                 CMathsFuncs::isFinite(penalties)) {
                 CModelWeight& weight = m_Models[i].first;
@@ -758,7 +758,7 @@ void COneOfNPrior::sampleMarginalLikelihood(std::size_t numberSamples,
 
     samples.reserve(numberSamples);
     TDouble1Vec modelSamples;
-    for (std::size_t i = 0u; i < m_Models.size(); ++i) {
+    for (std::size_t i = 0; i < m_Models.size(); ++i) {
         modelSamples.clear();
         m_Models[i].second->sampleMarginalLikelihood(sampling[i], modelSamples);
         for (auto sample : modelSamples) {
@@ -846,7 +846,7 @@ bool COneOfNPrior::minusLogJointCdfImpl(bool complement,
     if (!CTools::logWillUnderflow<double>(maxLogUpperBound[0])) {
         maxLogUpperBound[0] = 0.0;
     }
-    for (std::size_t i = 0u; i < logLowerBounds.size(); ++i) {
+    for (std::size_t i = 0; i < logLowerBounds.size(); ++i) {
         lowerBound += std::exp(logLowerBounds[i] - maxLogLowerBound[0]);
         upperBound += std::exp(logUpperBounds[i] - maxLogUpperBound[0]);
     }
@@ -915,7 +915,7 @@ bool COneOfNPrior::probabilityOfLessLikelySamples(maths_t::EProbabilityCalculati
     TDoubleSizePr5Vec logWeights = this->normalizedLogWeights();
 
     TDoubleTailPrMaxAccumulator tail_;
-    for (std::size_t i = 0u; i < logWeights.size(); ++i) {
+    for (std::size_t i = 0; i < logWeights.size(); ++i) {
         double weight = std::exp(logWeights[i].first);
         const CPrior& model = *m_Models[logWeights[i].second].second;
 
@@ -1103,7 +1103,7 @@ COneOfNPrior::TDoubleSizePr5Vec COneOfNPrior::normalizedLogWeights() const {
 
     TDoubleSizePr5Vec result;
     double Z = 0.0;
-    for (std::size_t i = 0u; i < m_Models.size(); ++i) {
+    for (std::size_t i = 0; i < m_Models.size(); ++i) {
         if (m_Models[i].second->participatesInModelSelection()) {
             double logWeight = m_Models[i].first.logWeight();
             result.emplace_back(logWeight, i);

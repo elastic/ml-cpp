@@ -128,8 +128,8 @@ void CModelTools::CFuzzyDeduplicate::computeEpsilons(core_t::TTime bucketLength,
         m_ValueEps.assign(m_RandomSample[0].size(), 0.0);
         if (m_RandomSample.size() > 1) {
             TDoubleVec values(m_RandomSample.size());
-            for (std::size_t i = 0u; i < m_ValueEps.size(); ++i) {
-                for (std::size_t j = 0u; j < m_RandomSample.size(); ++j) {
+            for (std::size_t i = 0; i < m_ValueEps.size(); ++i) {
+                for (std::size_t j = 0; j < m_RandomSample.size(); ++j) {
                     values[j] = m_RandomSample[j][i];
                 }
                 std::size_t p10{values.size() / 10};
@@ -153,7 +153,7 @@ std::size_t CModelTools::CFuzzyDeduplicate::duplicate(core_t::TTime time, TDoubl
 }
 
 CModelTools::TDouble2Vec CModelTools::CFuzzyDeduplicate::quantize(TDouble2Vec value) const {
-    for (std::size_t i = 0u; i < m_ValueEps.size(); ++i) {
+    for (std::size_t i = 0; i < m_ValueEps.size(); ++i) {
         value[i] = m_ValueEps[i] > 0.0
                        ? m_ValueEps[i] * std::floor(value[i] / m_ValueEps[i])
                        : value[i];
@@ -282,7 +282,7 @@ bool CModelTools::CCategoryProbabilityCache::lookup(std::size_t attribute, doubl
         LOG_TRACE(<< "P({c}) <= " << core::CContainerPrinter::print(ub));
         m_Cache.swap(lb);
         m_SmallestProbability = 1.0;
-        for (std::size_t i = 0u; i < ub.size(); ++i) {
+        for (std::size_t i = 0; i < ub.size(); ++i) {
             m_Cache[i] = (m_Cache[i] + ub[i]) / 2.0;
             m_SmallestProbability = std::min(m_SmallestProbability, m_Cache[i]);
         }

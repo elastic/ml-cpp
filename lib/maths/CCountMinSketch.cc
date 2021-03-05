@@ -205,7 +205,7 @@ void CCountMinSketch::add(uint32_t category, double count) {
     } else {
         try {
             SSketch& sketch = boost::get<SSketch>(m_Sketch);
-            for (std::size_t i = 0u; i < sketch.s_Hashes.size(); ++i) {
+            for (std::size_t i = 0; i < sketch.s_Hashes.size(); ++i) {
                 uint32_t hash = (sketch.s_Hashes[i])(category);
                 std::size_t j = static_cast<std::size_t>(hash) % m_Columns;
                 sketch.s_Counts[i][j] += count;
@@ -232,14 +232,14 @@ void CCountMinSketch::removeFromMap(uint32_t category) {
 void CCountMinSketch::age(double alpha) {
     TUInt32FloatPrVec* counts = boost::get<TUInt32FloatPrVec>(&m_Sketch);
     if (counts) {
-        for (std::size_t i = 0u; i < counts->size(); ++i) {
+        for (std::size_t i = 0; i < counts->size(); ++i) {
             (*counts)[i].second *= alpha;
         }
     } else {
         try {
             SSketch& sketch = boost::get<SSketch>(m_Sketch);
-            for (std::size_t i = 0u; i < sketch.s_Counts.size(); ++i) {
-                for (std::size_t j = 0u; j < sketch.s_Counts[i].size(); ++j) {
+            for (std::size_t i = 0; i < sketch.s_Counts.size(); ++i) {
+                for (std::size_t j = 0; j < sketch.s_Counts[i].size(); ++j) {
                     sketch.s_Counts[i][j] *= alpha;
                 }
             }
@@ -269,7 +269,7 @@ double CCountMinSketch::count(uint32_t category) const {
     TMinAccumulator result;
     try {
         const SSketch& sketch = boost::get<SSketch>(m_Sketch);
-        for (std::size_t i = 0u; i < sketch.s_Hashes.size(); ++i) {
+        for (std::size_t i = 0; i < sketch.s_Hashes.size(); ++i) {
             uint32_t hash = (sketch.s_Hashes[i])(category);
             std::size_t j = static_cast<std::size_t>(hash) % m_Columns;
             LOG_TRACE(<< "count (i,j) = (" << i << "," << j << ")"
@@ -373,7 +373,7 @@ void CCountMinSketch::sketch() {
             counts_.swap(*counts);
             m_TotalCount = 0.0;
             m_Sketch = SSketch(m_Rows, m_Columns);
-            for (std::size_t i = 0u; i < counts_.size(); ++i) {
+            for (std::size_t i = 0; i < counts_.size(); ++i) {
                 this->add(counts_[i].first, counts_[i].second);
             }
         }

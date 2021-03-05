@@ -149,7 +149,7 @@ void CDynamicStringIdRegistry::removeNames(std::size_t lowestNameToRemove) {
 
 void CDynamicStringIdRegistry::recycleNames(const TSizeVec& namesToRemove,
                                             const std::string& defaultName) {
-    for (std::size_t i = 0u; i < namesToRemove.size(); ++i) {
+    for (std::size_t i = 0; i < namesToRemove.size(); ++i) {
         std::size_t id = namesToRemove[i];
         if (id >= m_Names.size()) {
             LOG_ERROR(<< "Unexpected " << m_NameType << " identifier " << id);
@@ -208,7 +208,7 @@ uint64_t CDynamicStringIdRegistry::checksum() const {
 
     TStrCRefVec people;
     people.reserve(m_Names.size());
-    for (std::size_t pid = 0u; pid < m_Names.size(); ++pid) {
+    for (std::size_t pid = 0; pid < m_Names.size(); ++pid) {
         if (this->isIdActive(pid)) {
             people.emplace_back(*m_Names[pid]);
         }

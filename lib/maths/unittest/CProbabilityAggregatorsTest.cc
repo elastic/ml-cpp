@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE(testJointProbabilityOfLessLikelySamples) {
 
     CRandomNumbers rng;
 
-    const unsigned int numberSamples = 20000u;
+    const unsigned int numberSamples = 20000;
     const double percentiles[] = {0.02, 0.1, 0.3, 0.5};
 
     LOG_DEBUG(<< "*** Test independent ***");
@@ -437,7 +437,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfExtremeSample) {
     for (size_t i = 0; i < boost::size(sampleSizes); ++i) {
         for (size_t j = 0; j < boost::size(probabilities); ++j) {
             CProbabilityOfExtremeSample probabilityCalculator;
-            for (std::size_t k = 0u; k < sampleSizes[i]; ++k) {
+            for (std::size_t k = 0; k < sampleSizes[i]; ++k) {
                 // Add on a small positive number to make sure we are
                 // sampling the minimum probability.
                 double noise = static_cast<double>(k % 20) / 50.0;
@@ -450,7 +450,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfExtremeSample) {
             LOG_DEBUG(<< "sample size = " << sampleSizes[i] << ", extreme sample probability = "
                       << probabilities[j] << ", probability = " << probability);
 
-            unsigned int nTrials = 10000u;
+            unsigned int nTrials = 10000;
             unsigned int count = 0;
 
             for (unsigned int k = 0; k < nTrials; ++k) {
@@ -461,7 +461,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfExtremeSample) {
                 using TMinValue = CBasicStatistics::COrderStatisticsStack<double, 1u>;
 
                 TMinValue minValue;
-                for (std::size_t l = 0u; l < samples.size(); ++l) {
+                for (std::size_t l = 0; l < samples.size(); ++l) {
                     double p = 2.0 * boost::math::cdf(normal, -std::fabs(samples[l]));
                     minValue.add(p);
                 }
@@ -506,7 +506,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
         double probabilities[] = {0.5, 0.5, 0.4,  0.02, 0.7, 0.9,
                                   0.4, 0.2, 0.03, 0.5,  0.6};
 
-        for (std::size_t i = 1u; i < 6u; ++i) {
+        for (std::size_t i = 1; i < 6; ++i) {
             CExpectedLogProbabilityOfMFromNExtremeSamples expectedProbabilityCalculator(i);
             CLogProbabilityOfMFromNExtremeSamples probabilityCalculator(i);
 
@@ -531,7 +531,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
 
         std::size_t numberProbabilities = boost::size(probabilities);
 
-        const std::size_t numberSamples = 50u;
+        const std::size_t numberSamples = 50;
 
         CRandomNumbers rng;
 
@@ -554,7 +554,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
             double totalProbability = 0.0;
             for (;;) {
                 TDoubleVec extremeSampleProbabilities;
-                for (std::size_t j = 0u; j < index.size(); ++j) {
+                for (std::size_t j = 0; j < index.size(); ++j) {
                     extremeSampleProbabilities.push_back(probabilities[index[j]]);
                 }
                 LOG_DEBUG(<< "extreme samples probabilities = "
@@ -562,10 +562,10 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
 
                 CLogProbabilityOfMFromNExtremeSamples probabilityCalculator(i);
 
-                for (std::size_t j = 0u; j < index.size(); ++j) {
+                for (std::size_t j = 0; j < index.size(); ++j) {
                     probabilityCalculator.add(probabilities[index[j]]);
                 }
-                for (std::size_t j = 0u; j < numberSamples - index.size(); ++j) {
+                for (std::size_t j = 0; j < numberSamples - index.size(); ++j) {
                     probabilityCalculator.add(0.3);
                 }
 
@@ -573,7 +573,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
                 BOOST_TEST_REQUIRE(probabilityCalculator.calculate(p));
                 p = std::exp(p);
 
-                unsigned int nTrials = 50000u;
+                unsigned int nTrials = 50000;
                 unsigned int count = 0;
 
                 for (unsigned int j = 0; j < nTrials; ++j) {
@@ -584,7 +584,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
                     using TMinValues = CBasicStatistics::COrderStatisticsHeap<double>;
 
                     TMinValues minValues(i);
-                    for (std::size_t k = 0u; k < samples.size(); ++k) {
+                    for (std::size_t k = 0; k < samples.size(); ++k) {
                         double p1 = 2.0 * boost::math::cdf(normal, -std::fabs(samples[k]));
                         minValues.add(p1);
                     }
@@ -646,7 +646,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
         std::size_t n = boost::size(probabilities);
         std::size_t numberSamples[] = {n, 10 * n, 1000 * n};
 
-        for (std::size_t i = 1u; i < 6; ++i) {
+        for (std::size_t i = 1; i < 6; ++i) {
             LOG_DEBUG(<< "M = " << i);
 
             for (std::size_t j = 0; j < boost::size(numberSamples); ++j) {
@@ -701,7 +701,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
             0.9917012, 0.9917012, 0.9917012, 0.9917012, 0.9917012};
 
         CLogProbabilityOfMFromNExtremeSamples probabilityCalculator(5);
-        for (std::size_t i = 0u; i < boost::size(probabilities); ++i) {
+        for (std::size_t i = 0; i < boost::size(probabilities); ++i) {
             probabilityCalculator.add(probabilities[i]);
         }
 
@@ -713,7 +713,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
 
     {
         CLogProbabilityOfMFromNExtremeSamples probabilityCalculator(5);
-        for (std::size_t i = 0u; i < 10; ++i) {
+        for (std::size_t i = 0; i < 10; ++i) {
             probabilityCalculator.add(1.0 - 1e-10);
         }
 
@@ -726,7 +726,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
     {
         CExpectedLogProbabilityOfMFromNExtremeSamples expectedProbabilityCalculator(3);
         CLogProbabilityOfMFromNExtremeSamples probabilityCalculator(3);
-        for (std::size_t i = 0u; i < 10; ++i) {
+        for (std::size_t i = 0; i < 10; ++i) {
             expectedProbabilityCalculator.add(maths::CTools::smallestProbability());
             probabilityCalculator.add(maths::CTools::smallestProbability());
         }
@@ -776,7 +776,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
         probabilityCalculator.add(p[1]);
         probabilityCalculator.add(p[2]);
 
-        for (std::size_t i = 0u; i < 19; ++i) {
+        for (std::size_t i = 0; i < 19; ++i) {
             expectedProbabilityCalculator.add(1.0);
             probabilityCalculator.add(1.0);
         }
@@ -795,11 +795,11 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfMFromNExtremeSamples) {
         CExpectedLogProbabilityOfMFromNExtremeSamples expectedProbabilityCalculator(5);
         CLogProbabilityOfMFromNExtremeSamples probabilityCalculator(5);
 
-        for (std::size_t i = 0u; i < boost::size(probabilities); ++i) {
+        for (std::size_t i = 0; i < boost::size(probabilities); ++i) {
             expectedProbabilityCalculator.add(probabilities[i]);
             probabilityCalculator.add(probabilities[i]);
         }
-        for (std::size_t i = 0u; i < 19; ++i) {
+        for (std::size_t i = 0; i < 19; ++i) {
             expectedProbabilityCalculator.add(1.0);
             probabilityCalculator.add(1.0);
         }

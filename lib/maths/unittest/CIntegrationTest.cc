@@ -39,7 +39,7 @@ public:
 
     bool operator()(const double& x, double& result) const {
         result = 0.0;
-        for (unsigned int i = 0u; i < ORDER + 1; ++i) {
+        for (unsigned int i = 0; i < ORDER + 1; ++i) {
             result += m_Coefficients[i] * std::pow(x, static_cast<double>(i));
         }
         return true;
@@ -60,7 +60,7 @@ std::ostream& operator<<(std::ostream& o, const CPolynomialFunction<0u>& f) {
 template<unsigned int ORDER>
 std::ostream& operator<<(std::ostream& o, const CPolynomialFunction<ORDER>& f) {
     o << f.coefficient(0) << " + ";
-    for (unsigned int i = 1u; i < ORDER; ++i) {
+    for (unsigned int i = 1; i < ORDER; ++i) {
         o << f.coefficient(i) << "x^" << i << " + ";
     }
     if (ORDER > 0) {
@@ -106,10 +106,10 @@ public:
 
     bool operator()(const TVector& x, double& result) const {
         result = 0.0;
-        for (std::size_t i = 0u; i < m_Terms.size(); ++i) {
+        for (std::size_t i = 0; i < m_Terms.size(); ++i) {
             const SMonomial& monomial = m_Terms[i];
             double term = monomial.s_Coefficient;
-            for (unsigned int j = 0u; j < DIMENSION; ++j) {
+            for (unsigned int j = 0; j < DIMENSION; ++j) {
                 if (monomial.s_Powers[j] > 0.0) {
                     term *= std::pow(x(j), monomial.s_Powers[j]);
                 }
@@ -130,15 +130,15 @@ std::ostream&
 operator<<(std::ostream& o, const CMultivariatePolynomialFunction<DIMENSION>& f) {
     if (!f.terms().empty()) {
         o << (f.terms())[0].s_Coefficient;
-        for (unsigned int j = 0u; j < DIMENSION; ++j) {
+        for (unsigned int j = 0; j < DIMENSION; ++j) {
             if ((f.terms())[0].s_Powers[j] > 0.0) {
                 o << ".x" << j << "^" << (f.terms())[0].s_Powers[j];
             }
         }
     }
-    for (std::size_t i = 1u; i < f.terms().size(); ++i) {
+    for (std::size_t i = 1; i < f.terms().size(); ++i) {
         o << " + " << (f.terms())[i].s_Coefficient;
-        for (unsigned int j = 0u; j < DIMENSION; ++j) {
+        for (unsigned int j = 0; j < DIMENSION; ++j) {
             if ((f.terms())[i].s_Powers[j] > 0.0) {
                 o << ".x" << j << "^" << (f.terms())[i].s_Powers[j];
             }
@@ -154,7 +154,7 @@ double integrate(const CMultivariatePolynomialFunction<DIMENSION>& f,
                  const TDoubleVec& a,
                  const TDoubleVec& b) {
     double result = 0.0;
-    for (std::size_t i = 0u; i < f.terms().size(); ++i) {
+    for (std::size_t i = 0; i < f.terms().size(); ++i) {
         double term = (f.terms())[i].s_Coefficient;
         for (unsigned int j = 0; j < DIMENSION; ++j) {
             double n = (f.terms())[i].s_Powers[j] + 1.0;
@@ -184,7 +184,7 @@ bool readGrid(const std::string& file, TDoubleVec& weights, TDoubleVecVec& point
         core::CStringUtils::trimWhitespace(weight);
 
         points.push_back(TDoubleVec());
-        for (std::size_t i = 0u; i < point.size(); ++i) {
+        for (std::size_t i = 0; i < point.size(); ++i) {
             core::CStringUtils::trimWhitespace(point[i]);
             double xi;
             if (!core::CStringUtils::stringToType(point[i], xi)) {
@@ -756,7 +756,7 @@ BOOST_AUTO_TEST_CASE(testAdaptive) {
             TDoubleDoublePr(20.0, 30.0), TDoubleDoublePr(30.0, 40.0)};
         TDoubleDoublePrVec intervals(std::begin(intervals_), std::end(intervals_));
         TDoubleVec fIntervals(intervals.size());
-        for (std::size_t i = 0u; i < intervals.size(); ++i) {
+        for (std::size_t i = 0; i < intervals.size(); ++i) {
             CIntegration::gaussLegendre<CIntegration::OrderThree>(
                 heavySide, intervals[i].first, intervals[i].second, fIntervals[i]);
         }
@@ -774,7 +774,7 @@ BOOST_AUTO_TEST_CASE(testAdaptive) {
         CNormal normal(21.0, 3.0);
 
         double expectedResult = 0.0;
-        for (std::size_t i = 0u; i < 400; ++i) {
+        for (std::size_t i = 0; i < 400; ++i) {
             double fi;
             CIntegration::gaussLegendre<CIntegration::OrderThree>(
                 normal, 0.1 * static_cast<double>(i), 0.1 * static_cast<double>(i + 1), fi);
@@ -786,7 +786,7 @@ BOOST_AUTO_TEST_CASE(testAdaptive) {
             TDoubleDoublePr(20.0, 30.0), TDoubleDoublePr(30.0, 40.0)};
         TDoubleDoublePrVec intervals(std::begin(intervals_), std::end(intervals_));
         TDoubleVec fIntervals(intervals.size());
-        for (std::size_t i = 0u; i < intervals.size(); ++i) {
+        for (std::size_t i = 0; i < intervals.size(); ++i) {
             CIntegration::gaussLegendre<CIntegration::OrderThree>(
                 normal, intervals[i].first, intervals[i].second, fIntervals[i]);
         }
@@ -807,7 +807,7 @@ BOOST_AUTO_TEST_CASE(testAdaptive) {
         CCompositeFunctions::CProduct<CSmoothHeavySide, CNormal> f(heavySide, normal);
 
         double expectedResult = 0.0;
-        for (std::size_t i = 0u; i < 400; ++i) {
+        for (std::size_t i = 0; i < 400; ++i) {
             double fi;
             CIntegration::gaussLegendre<CIntegration::OrderThree>(
                 f, 0.1 * static_cast<double>(i), 0.1 * static_cast<double>(i + 1), fi);
@@ -818,7 +818,7 @@ BOOST_AUTO_TEST_CASE(testAdaptive) {
                                         TDoubleDoublePr(20.0, 40.0)};
         TDoubleDoublePrVec intervals(std::begin(intervals_), std::end(intervals_));
         TDoubleVec fIntervals(intervals.size());
-        for (std::size_t i = 0u; i < intervals.size(); ++i) {
+        for (std::size_t i = 0; i < intervals.size(); ++i) {
             CIntegration::gaussLegendre<CIntegration::OrderThree>(
                 f, intervals[i].first, intervals[i].second, fIntervals[i]);
         }
@@ -853,13 +853,13 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         BOOST_REQUIRE_EQUAL(expectedWeights.size(), sparse.weights().size());
         BOOST_REQUIRE_EQUAL(expectedPoints.size(), sparse.points().size());
 
-        for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
+        for (std::size_t i = 0; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i],
                                          (sparse.weights())[i] / 4.0, 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
-            for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
+            for (std::size_t j = 0; j < expectedPoints[i].size(); ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPoints[i][j],
                                              0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
@@ -883,13 +883,13 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         BOOST_REQUIRE_EQUAL(expectedWeights.size(), sparse.weights().size());
         BOOST_REQUIRE_EQUAL(expectedPoints.size(), sparse.points().size());
 
-        for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
+        for (std::size_t i = 0; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i],
                                          (sparse.weights())[i] / 4.0, 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
-            for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
+            for (std::size_t j = 0; j < expectedPoints[i].size(); ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPoints[i][j],
                                              0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
@@ -913,13 +913,13 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         BOOST_REQUIRE_EQUAL(expectedWeights.size(), sparse.weights().size());
         BOOST_REQUIRE_EQUAL(expectedPoints.size(), sparse.points().size());
 
-        for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
+        for (std::size_t i = 0; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeights[i],
                                          (sparse.weights())[i] / 4.0, 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
-            for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
+            for (std::size_t j = 0; j < expectedPoints[i].size(); ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPoints[i][j],
                                              0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
@@ -943,13 +943,13 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         BOOST_REQUIRE_EQUAL(expectedWeights.size(), sparse.weights().size());
         BOOST_REQUIRE_EQUAL(expectedPoints.size(), sparse.points().size());
 
-        for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
+        for (std::size_t i = 0; i < expectedWeights.size(); ++i) {
             LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(
                 expectedWeights[i], (sparse.weights())[i] / std::pow(2.0, 7.0), 1e-6);
 
             LOG_DEBUG(<< "point = " << (sparse.points())[i]);
-            for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
+            for (std::size_t j = 0; j < expectedPoints[i].size(); ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPoints[i][j],
                                              0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
@@ -973,7 +973,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         BOOST_REQUIRE_EQUAL(expectedWeights.size(), sparse.weights().size());
         BOOST_REQUIRE_EQUAL(expectedPoints.size(), sparse.points().size());
 
-        for (std::size_t i = 0u; i < expectedWeights.size(); ++i) {
+        for (std::size_t i = 0; i < expectedWeights.size(); ++i) {
             if (i % 10 == 0) {
                 LOG_DEBUG(<< "weight = " << (sparse.weights())[i]);
             }
@@ -983,7 +983,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
             if (i % 10 == 0) {
                 LOG_DEBUG(<< "point = " << (sparse.points())[i]);
             }
-            for (std::size_t j = 0u; j < expectedPoints[i].size(); ++j) {
+            for (std::size_t j = 0; j < expectedPoints[i].size(); ++j) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedPoints[i][j],
                                              0.5 + (sparse.points())[i](j) / 2.0, 1e-6);
             }
@@ -1000,7 +1000,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         {1, 15, 113, 589, 2437},  {1, 17, 145, 849, 3905},
         {1, 19, 181, 1177, 5965}, {1, 21, 221, 1581, 8761}};
 
-    for (std::size_t i = 0u; i < boost::size(dimensions); ++i) {
+    for (std::size_t i = 0; i < boost::size(dimensions); ++i) {
         LOG_DEBUG(<< "DIMENSION = " << dimensions[i]);
 
 #define NUMBER_POINTS(dimension, n)                                                                       \
@@ -1034,10 +1034,10 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
         n = 0;                                                                                            \
         break;                                                                                            \
     }
-        for (std::size_t j = 0u; j < boost::size(order); ++j) {
+        for (std::size_t j = 0; j < boost::size(order); ++j) {
             LOG_DEBUG(<< "ORDER = " << order[j]);
 
-            std::size_t numberPoints = 0u;
+            std::size_t numberPoints = 0;
             switch (dimensions[i]) {
             case 1:
                 NUMBER_POINTS(CIntegration::OneDimension, numberPoints);
@@ -1070,7 +1070,7 @@ BOOST_AUTO_TEST_CASE(testSparseGrid) {
                 NUMBER_POINTS(CIntegration::TenDimensions, numberPoints);
                 break;
             default:
-                numberPoints = 0u;
+                numberPoints = 0;
                 break;
             }
 #undef NUMBER_POINTS
@@ -1095,13 +1095,13 @@ BOOST_AUTO_TEST_CASE(testMultivariateSmooth) {
     {
         LOG_DEBUG(<< "*** Dimension = 2 ***");
 
-        static const std::size_t DIMENSION = 2u;
+        static const std::size_t DIMENSION = 2;
 
         for (std::size_t l = 2; l < 5; ++l) {
             LOG_DEBUG(<< "ORDER = " << 1 + l);
 
-            for (std::size_t t = 0u; t < 20; ++t) {
-                std::size_t n = 3u;
+            for (std::size_t t = 0; t < 20; ++t) {
+                std::size_t n = 3;
 
                 TSizeVec coefficients;
                 rng.generateUniformSamples(1, 50, n, coefficients);
@@ -1110,7 +1110,7 @@ BOOST_AUTO_TEST_CASE(testMultivariateSmooth) {
                 rng.generateUniformSamples(0, l, DIMENSION * n, powers);
 
                 CMultivariatePolynomialFunction<DIMENSION> polynomial;
-                for (std::size_t i = 0u; i < n; ++i) {
+                for (std::size_t i = 0; i < n; ++i) {
                     double c = static_cast<double>(coefficients[i]);
                     double p[] = {static_cast<double>(powers[DIMENSION * i + 0]),
                                   static_cast<double>(powers[DIMENSION * i + 1])};
@@ -1172,13 +1172,13 @@ BOOST_AUTO_TEST_CASE(testMultivariateSmooth) {
     {
         LOG_DEBUG(<< "*** Dimension = 5 ***");
 
-        static const std::size_t DIMENSION = 5u;
+        static const std::size_t DIMENSION = 5;
 
         for (std::size_t l = 2; l < 5; ++l) {
             LOG_DEBUG(<< "ORDER = " << l);
 
-            for (std::size_t t = 0u; t < 20; ++t) {
-                std::size_t n = 10u;
+            for (std::size_t t = 0; t < 20; ++t) {
+                std::size_t n = 10;
 
                 TSizeVec coefficients;
                 rng.generateUniformSamples(1, 50, n, coefficients);
@@ -1187,7 +1187,7 @@ BOOST_AUTO_TEST_CASE(testMultivariateSmooth) {
                 rng.generateUniformSamples(0, l, DIMENSION * n, powers);
 
                 CMultivariatePolynomialFunction<DIMENSION> polynomial;
-                for (std::size_t i = 0u; i < n; ++i) {
+                for (std::size_t i = 0; i < n; ++i) {
                     double c = static_cast<double>(coefficients[i]);
                     double p[] = {static_cast<double>(powers[5 * i + 0]),
                                   static_cast<double>(powers[5 * i + 1]),

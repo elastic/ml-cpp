@@ -150,7 +150,7 @@ void importData(core_t::TTime firstTime,
 
     core_t::TTime lastBucketTime = maths::CIntegerTools::ceil(firstTime, bucketLength);
 
-    for (std::size_t i = 0u; i < timeData.size(); ++i) {
+    for (std::size_t i = 0; i < timeData.size(); ++i) {
         core_t::TTime time = timeData[i].first;
 
         for (/**/; lastBucketTime + bucketLength <= time; lastBucketTime += bucketLength) {
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
         LOG_DEBUG(<< "anomaly factors = " << core::CContainerPrinter::print(anomalyFactors));
         LOG_DEBUG(<< "anomaly rates = " << core::CContainerPrinter::print(anomalyRates));
 
-        for (std::size_t j = 0u; j < highAnomalyTimes.size(); ++j) {
+        for (std::size_t j = 0; j < highAnomalyTimes.size(); ++j) {
             LOG_DEBUG(<< "Testing " << core::CContainerPrinter::print(highAnomalyTimes[j])
                       << ' ' << highAnomalyFactors[j]);
             BOOST_TEST_REQUIRE(
@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE(testAnomalies) {
         LOG_DEBUG(<< "partition rate = " << partitionRate);
 
         // Compute the ratio of noise in the two rate channels.
-        for (std::size_t j = 0u; j < anomalyFactors.size(); ++j) {
+        for (std::size_t j = 0; j < anomalyFactors.size(); ++j) {
             (anomalyRates[j] > partitionRate ? highRateNoise : lowRateNoise) +=
                 anomalyFactors[j];
         }

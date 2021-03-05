@@ -253,7 +253,7 @@ public:
 
         if (k >= clusters.size()) {
             TSphericalClusterVec cluster(1);
-            for (std::size_t i = 0u; i < clusters.size(); ++i) {
+            for (std::size_t i = 0; i < clusters.size(); ++i) {
                 cluster[0] = clusters[i];
                 result.push_back(cluster);
             }
@@ -307,10 +307,10 @@ public:
 
         result.reserve(split.size());
         TStoragePointMeanAccumulatorDoublePrVec clusters;
-        for (std::size_t i = 0u; i < split.size(); ++i) {
+        for (std::size_t i = 0; i < split.size(); ++i) {
             clusters.clear();
             clusters.reserve(split[i].size());
-            for (std::size_t j = 0u; j < split[i].size(); ++j) {
+            for (std::size_t j = 0; j < split[i].size(); ++j) {
                 clusters.push_back(m_Clusters[split[i][j]]);
             }
             result.emplace_back(clusters, m_K, m_DecayRate, m_MinClusterSize,
@@ -367,7 +367,7 @@ public:
     void age(double alpha) {
         LOG_TRACE(<< "clusters = " << core::CContainerPrinter::print(m_Clusters));
 
-        for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+        for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
             m_Clusters[i].first.age(alpha);
         }
 
@@ -407,13 +407,13 @@ public:
         TDoubleVec counts;
         counts.reserve(m_Clusters.size());
         double Z{0.0};
-        for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+        for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
             double ni{CBasicStatistics::count(m_Clusters[i].first)};
             counts.push_back(ni);
             Z += ni;
         }
         Z /= static_cast<double>(numberSamples);
-        for (std::size_t i = 0u; i < counts.size(); ++i) {
+        for (std::size_t i = 0; i < counts.size(); ++i) {
             counts[i] /= Z;
         }
         LOG_TRACE(<< "weights = " << core::CContainerPrinter::print(counts)
@@ -423,7 +423,7 @@ public:
 
         TDoubleVec weights;
         TDoublePointVec clusterSamples;
-        for (std::size_t i = 0u; i < m_Clusters.size(); ++i) {
+        for (std::size_t i = 0; i < m_Clusters.size(); ++i) {
             double ni{counts[i]};
 
             clusterSamples.clear();
@@ -451,7 +451,7 @@ public:
         for (;;) {
             CBasicStatistics::SMin<TDoubleSizePr>::TAccumulator nearest;
             const TDoublePoint& sample_{CBasicStatistics::mean(sample)};
-            for (std::size_t j = 0u; j < result.size(); ++j) {
+            for (std::size_t j = 0; j < result.size(); ++j) {
                 if (weights[j] > 0.0) {
                     nearest.add({las::distance(result[j], sample_), j});
                 }
@@ -508,12 +508,12 @@ protected:
             LOG_ERROR(<< "Bad split = " << core::CContainerPrinter::print(split));
             return false;
         }
-        for (std::size_t i = 0u; i < split.size(); ++i) {
+        for (std::size_t i = 0; i < split.size(); ++i) {
             if (split[i].empty()) {
                 LOG_ERROR(<< "Bad split = " << core::CContainerPrinter::print(split));
                 return false;
             }
-            for (std::size_t j = 0u; j < split[i].size(); ++j) {
+            for (std::size_t j = 0; j < split[i].size(); ++j) {
                 if (split[i][j] >= m_Clusters.size()) {
                     LOG_ERROR(<< "Bad split = " << core::CContainerPrinter::print(split));
                     return false;

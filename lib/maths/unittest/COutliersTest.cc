@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE(testLof) {
         maths::COutliers::lof(k, points, scores);
 
         TMaxAccumulator outliers_(numberOutliers);
-        for (std::size_t i = 0u; i < scores.size(); ++i) {
+        for (std::size_t i = 0; i < scores.size(); ++i) {
             outliers_.add({scores[i], i});
         }
         TSizeVec outliers(numberOutliers);

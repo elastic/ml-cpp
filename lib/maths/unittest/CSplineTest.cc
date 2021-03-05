@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(testNatural) {
         maths::CSpline<> spline(maths::CSplineTypes::E_Cubic);
         spline.interpolate(x, y, maths::CSplineTypes::E_Natural);
 
-        for (std::size_t i = 0u; i < x.size(); ++i) {
+        for (std::size_t i = 0; i < x.size(); ++i) {
             double yy = spline.value(x[i]);
             LOG_DEBUG(<< "f(x[" << i << "]) = " << yy);
             BOOST_REQUIRE_EQUAL(y[i], yy);
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(testNatural) {
 
         TDoubleVec y;
         y.reserve(x.size());
-        for (std::size_t i = 0u; i < x.size(); ++i) {
+        for (std::size_t i = 0; i < x.size(); ++i) {
             x[i] *= boost::math::double_constants::two_pi;
             y.push_back(std::sin(x[i]));
         }
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE(testNatural) {
         maths::CSpline<> spline(maths::CSplineTypes::E_Cubic);
         spline.interpolate(x, y, maths::CSplineTypes::E_Natural);
 
-        for (std::size_t i = 0u; i < 21; ++i) {
+        for (std::size_t i = 0; i < 21; ++i) {
             double xx = boost::math::double_constants::two_pi *
                         static_cast<double>(i) / 20.0;
             double yy = spline.value(xx);
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(testParabolicRunout) {
         maths::CSpline<> spline(maths::CSplineTypes::E_Cubic);
         spline.interpolate(x, y, maths::CSplineTypes::E_ParabolicRunout);
 
-        for (std::size_t i = 0u; i < x.size(); ++i) {
+        for (std::size_t i = 0; i < x.size(); ++i) {
             double yy = spline.value(x[i]);
             LOG_DEBUG(<< "f(x[" << i << "]) = " << yy);
             BOOST_REQUIRE_EQUAL(y[i], yy);
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(testParabolicRunout) {
 
         TDoubleVec y;
         y.reserve(x.size());
-        for (std::size_t i = 0u; i < x.size(); ++i) {
+        for (std::size_t i = 0; i < x.size(); ++i) {
             x[i] *= boost::math::double_constants::two_pi;
             y.push_back(std::sin(x[i]));
         }
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(testParabolicRunout) {
         maths::CSpline<> spline(maths::CSplineTypes::E_Cubic);
         spline.interpolate(x, y, maths::CSplineTypes::E_ParabolicRunout);
 
-        for (std::size_t i = 0u; i < 21; ++i) {
+        for (std::size_t i = 0; i < 21; ++i) {
             double xx = boost::math::double_constants::two_pi *
                         static_cast<double>(i) / 20.0;
             double yy = spline.value(xx);
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE(testPeriodic) {
 
         TDoubleVec y;
         y.reserve(x.size());
-        for (std::size_t i = 0u; i < x.size(); ++i) {
+        for (std::size_t i = 0; i < x.size(); ++i) {
             x[i] *= boost::math::double_constants::two_pi;
             y.push_back(std::cos(x[i]));
         }
@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE(testPeriodic) {
         maths::CSpline<> spline(maths::CSplineTypes::E_Cubic);
         spline.interpolate(x, y, maths::CSplineTypes::E_Periodic);
 
-        for (std::size_t i = 0u; i < 21; ++i) {
+        for (std::size_t i = 0; i < 21; ++i) {
             double xx = boost::math::double_constants::two_pi *
                         static_cast<double>(i) / 20.0;
             double yy = spline.value(xx);
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE(testPeriodic) {
 
     {
         TDoubleVec x;
-        for (std::size_t i = 0u; i < 40; ++i) {
+        for (std::size_t i = 0; i < 40; ++i) {
             x.push_back(static_cast<double>(i) * 5.0);
         }
         double y_[] = {10.0, 7.0,  5.0,  3.0,  1.5,  3.5,  7.5,
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(testMean) {
         double y_[] = {0.0, 3.0, 4.0, 1.0, 6.0, 6.0, 5.0, 2.0, 2.5, 3.0, 5.0};
         TDoubleVec y(std::begin(y_), std::end(y_));
 
-        for (std::size_t t = 0u; t < boost::size(types); ++t) {
+        for (std::size_t t = 0; t < boost::size(types); ++t) {
             LOG_DEBUG(<< "*** Interpolation '" << print(types[t]) << "' ***");
 
             maths::CSpline<> spline(types[t]);
@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE(testMean) {
 
     {
         test::CRandomNumbers rng;
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             TSizeVec n;
             rng.generateUniformSamples(10, 20, 1, n);
             TDoubleVec x;
@@ -325,13 +325,13 @@ BOOST_AUTO_TEST_CASE(testMean) {
     {
         TDoubleVec x;
         TDoubleVec y;
-        for (std::size_t i = 0u; i < 21; ++i) {
+        for (std::size_t i = 0; i < 21; ++i) {
             x.push_back(static_cast<double>(20 * i));
             y.push_back(std::cos(boost::math::double_constants::two_pi *
                                  static_cast<double>(i) / 10.0));
         }
 
-        for (std::size_t t = 0u; t < boost::size(types); ++t) {
+        for (std::size_t t = 0; t < boost::size(types); ++t) {
             LOG_DEBUG(<< "*** Interpolation '" << print(types[t]) << "' ***");
 
             maths::CSpline<> spline(types[t]);
@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE(testIllposed) {
     maths::CSplineTypes::EType types[] = {maths::CSplineTypes::E_Linear,
                                           maths::CSplineTypes::E_Cubic};
 
-    for (std::size_t t = 0u; t < boost::size(types); ++t) {
+    for (std::size_t t = 0; t < boost::size(types); ++t) {
         LOG_DEBUG(<< "*** Interpolation '" << print(types[t]) << "' ***");
 
         maths::CSpline<> spline(types[t]);
@@ -366,11 +366,11 @@ BOOST_AUTO_TEST_CASE(testIllposed) {
 
         TDoubleVec curvatures = spline.curvatures();
         LOG_DEBUG(<< "curvatures = " << core::CContainerPrinter::print(curvatures));
-        for (std::size_t i = 0u; i < curvatures.size(); ++i) {
+        for (std::size_t i = 0; i < curvatures.size(); ++i) {
             BOOST_TEST_REQUIRE(std::fabs(curvatures[i]) < 2e-7);
         }
 
-        for (std::size_t i = 0u; i <= 30; ++i) {
+        for (std::size_t i = 0; i <= 30; ++i) {
             LOG_DEBUG(<< "expected = " << 0.2 * static_cast<double>(i)
                       << ", actual = " << spline.value(static_cast<double>(i)));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(0.2 * static_cast<double>(i),
@@ -395,14 +395,14 @@ BOOST_AUTO_TEST_CASE(testSlope) {
         TDoubleVec y(std::begin(y_), std::end(y_));
         double range = x[n] - x[0];
 
-        for (std::size_t t = 0u; t < boost::size(types); ++t) {
+        for (std::size_t t = 0; t < boost::size(types); ++t) {
             LOG_DEBUG(<< "*** Interpolation '" << print(types[t]) << "' ***");
 
             maths::CSpline<> spline(types[t]);
             spline.interpolate(x, y, maths::CSplineTypes::E_Natural);
 
             CSplineFunctor f(spline);
-            for (std::size_t i = 1u; i < 20; ++i) {
+            for (std::size_t i = 1; i < 20; ++i) {
                 double xi = x[0] + range * static_cast<double>(i) / 20.0 + eps;
                 double xiPlusEps = xi + eps;
                 double xiMinusEps = xi - eps;
@@ -418,7 +418,7 @@ BOOST_AUTO_TEST_CASE(testSlope) {
 
     {
         test::CRandomNumbers rng;
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             TSizeVec n;
             rng.generateUniformSamples(10, 20, 1, n);
             TDoubleVec x;
@@ -460,20 +460,20 @@ BOOST_AUTO_TEST_CASE(testSlope) {
     {
         TDoubleVec x;
         TDoubleVec y;
-        for (std::size_t i = 0u; i < 21; ++i) {
+        for (std::size_t i = 0; i < 21; ++i) {
             x.push_back(static_cast<double>(20 * i));
             y.push_back(std::cos(boost::math::double_constants::two_pi *
                                  static_cast<double>(i) / 10.0));
         }
         double range = x[x.size() - 1] - x[0];
 
-        for (std::size_t t = 0u; t < boost::size(types); ++t) {
+        for (std::size_t t = 0; t < boost::size(types); ++t) {
             LOG_DEBUG(<< "*** Interpolation '" << print(types[t]) << "' ***");
 
             maths::CSpline<> spline(types[t]);
             spline.interpolate(x, y, maths::CSplineTypes::E_Periodic);
 
-            for (std::size_t i = 1u; i < 20; ++i) {
+            for (std::size_t i = 1; i < 20; ++i) {
                 double xi = x[0] + range * static_cast<double>(i) / 20.0 + eps;
                 double xiPlusEps = xi + eps;
                 double xiMinusEps = xi - eps;
@@ -499,7 +499,7 @@ BOOST_AUTO_TEST_CASE(testSplineReference) {
 
     TDoubleVec y;
     y.reserve(x.size());
-    for (std::size_t i = 0u; i < x.size(); ++i) {
+    for (std::size_t i = 0; i < x.size(); ++i) {
         x[i] *= boost::math::double_constants::two_pi;
         y.push_back(std::sin(x[i]));
     }
@@ -521,7 +521,7 @@ BOOST_AUTO_TEST_CASE(testSplineReference) {
     BOOST_REQUIRE_EQUAL(core::CContainerPrinter::print(spline.curvatures()),
                         core::CContainerPrinter::print(splineRef.curvatures()));
 
-    for (std::size_t i = 0u; i < 21; ++i) {
+    for (std::size_t i = 0; i < 21; ++i) {
         double xx = boost::math::double_constants::two_pi * static_cast<double>(i) / 20.0;
 
         LOG_DEBUG(<< "spline.value(" << xx << ") = " << spline.value(xx)

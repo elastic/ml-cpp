@@ -169,7 +169,7 @@ void CPriorStateSerialiser::operator()(const CPrior& prior,
 bool CPriorStateSerialiser::operator()(const SDistributionRestoreParams& params,
                                        TMultivariatePriorPtr& ptr,
                                        core::CStateRestoreTraverser& traverser) const {
-    std::size_t numResults = 0u;
+    std::size_t numResults = 0;
 
     do {
         const std::string& name = traverser.name();

@@ -54,7 +54,7 @@ class MATHS_EXPORT CKMostCorrelated {
 public:
     //! The number of projections of the data to maintain
     //! simultaneously.
-    static const std::size_t NUMBER_PROJECTIONS = 10u;
+    static const std::size_t NUMBER_PROJECTIONS = 10;
 
 public:
     using TDoubleVec = std::vector<double>;

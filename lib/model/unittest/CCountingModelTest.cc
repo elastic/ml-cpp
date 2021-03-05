@@ -232,7 +232,7 @@ BOOST_FIXTURE_TEST_CASE(testInterimBucketCorrector, CTestFixture) {
     TDoubleVec uniform01;
     TSizeVec offsets;
 
-    for (std::size_t i = 0u; i < 10; ++i, time += bucketLength) {
+    for (std::size_t i = 0; i < 10; ++i, time += bucketLength) {
         rng.generateUniformSamples(0, bucketLength, 10, offsets);
         std::sort(offsets.begin(), offsets.end());
         for (auto offset : offsets) {
@@ -247,7 +247,7 @@ BOOST_FIXTURE_TEST_CASE(testInterimBucketCorrector, CTestFixture) {
     rng.generateUniformSamples(0, bucketLength, 10, offsets);
     std::sort(offsets.begin(), offsets.end());
 
-    for (std::size_t i = 0u; i < offsets.size(); ++i) {
+    for (std::size_t i = 0; i < offsets.size(); ++i) {
         rng.generateUniformSamples(0.0, 1.0, 1, uniform01);
         this->addArrival(SMessage(time + static_cast<core_t::TTime>(offsets[i]),
                                   uniform01[0] < 0.5 ? "p1" : "p2", TOptionalStr()),

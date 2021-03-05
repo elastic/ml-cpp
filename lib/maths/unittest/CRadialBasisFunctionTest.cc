@@ -68,12 +68,12 @@ BOOST_AUTO_TEST_CASE(testDerivative) {
 
     LOG_DEBUG(<< "*** Gaussian ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
-        for (std::size_t j = 0u; j < boost::size(scales); ++j) {
+    for (std::size_t i = 0; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0; j < boost::size(scales); ++j) {
             LOG_DEBUG(<< "centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CGaussianBasisFunction gaussian;
-            for (std::size_t k = 0u; k < 10; ++k) {
+            for (std::size_t k = 0; k < 10; ++k) {
                 double x = a + static_cast<double>(k) / 10.0 * (b - a);
                 double d = gaussian.derivative(x, centres[i], scales[j]);
                 double e = (gaussian.value(x + eps, centres[i], scales[j]) -
@@ -89,12 +89,12 @@ BOOST_AUTO_TEST_CASE(testDerivative) {
 
     LOG_DEBUG(<< "*** Inverse Quadratic ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
-        for (std::size_t j = 0u; j < boost::size(scales); ++j) {
+    for (std::size_t i = 0; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0; j < boost::size(scales); ++j) {
             LOG_DEBUG(<< "centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CInverseQuadraticBasisFunction inverseQuadratic;
-            for (std::size_t k = 0u; k < 10; ++k) {
+            for (std::size_t k = 0; k < 10; ++k) {
                 double x = a + static_cast<double>(k) / 10.0 * (b - a);
                 double d = inverseQuadratic.derivative(x, centres[i], scales[j]);
                 double e = (inverseQuadratic.value(x + eps, centres[i], scales[j]) -
@@ -119,14 +119,14 @@ BOOST_AUTO_TEST_CASE(testMean) {
 
     LOG_DEBUG(<< "*** Gaussian ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
-        for (std::size_t j = 0u; j < boost::size(scales); ++j) {
+    for (std::size_t i = 0; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0; j < boost::size(scales); ++j) {
             LOG_DEBUG(<< "centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CGaussianBasisFunction gaussian;
             CValueAdaptor f(gaussian, centres[i], scales[j]);
             double expectedMean = 0.0;
-            for (std::size_t k = 0u; k < 20; ++k) {
+            for (std::size_t k = 0; k < 20; ++k) {
                 double aa = a + static_cast<double>(k) / 20.0 * (b - a);
                 double bb = a + static_cast<double>(k + 1) / 20.0 * (b - a);
                 double interval;
@@ -144,14 +144,14 @@ BOOST_AUTO_TEST_CASE(testMean) {
 
     LOG_DEBUG(<< "*** Inverse Quadratic ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
-        for (std::size_t j = 0u; j < boost::size(scales); ++j) {
+    for (std::size_t i = 0; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0; j < boost::size(scales); ++j) {
             LOG_DEBUG(<< "centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CInverseQuadraticBasisFunction inverseQuadratic;
             CValueAdaptor f(inverseQuadratic, centres[i], scales[j]);
             double expectedMean = 0.0;
-            for (std::size_t k = 0u; k < 20; ++k) {
+            for (std::size_t k = 0; k < 20; ++k) {
                 double aa = a + static_cast<double>(k) / 20.0 * (b - a);
                 double bb = a + static_cast<double>(k + 1) / 20.0 * (b - a);
                 double interval;
@@ -178,14 +178,14 @@ BOOST_AUTO_TEST_CASE(testMeanSquareDerivative) {
 
     LOG_DEBUG(<< "*** Gaussian ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
-        for (std::size_t j = 0u; j < boost::size(scales); ++j) {
+    for (std::size_t i = 0; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0; j < boost::size(scales); ++j) {
             LOG_DEBUG(<< "centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CGaussianBasisFunction gaussian;
             CSquareDerivativeAdaptor f(gaussian, centres[i], scales[j]);
             double expectedMean = 0.0;
-            for (std::size_t k = 0u; k < 50; ++k) {
+            for (std::size_t k = 0; k < 50; ++k) {
                 double aa = a + static_cast<double>(k) / 50.0 * (b - a);
                 double bb = a + static_cast<double>(k + 1) / 50.0 * (b - a);
                 double interval;
@@ -203,14 +203,14 @@ BOOST_AUTO_TEST_CASE(testMeanSquareDerivative) {
 
     LOG_DEBUG(<< "*** Inverse Quadratic ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
-        for (std::size_t j = 0u; j < boost::size(scales); ++j) {
+    for (std::size_t i = 0; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0; j < boost::size(scales); ++j) {
             LOG_DEBUG(<< "centre = " << centres[i] << ", scale = " << scales[j]);
 
             maths::CInverseQuadraticBasisFunction inverseQuadratic;
             CSquareDerivativeAdaptor f(inverseQuadratic, centres[i], scales[j]);
             double expectedMean = 0.0;
-            for (std::size_t k = 0u; k < 50; ++k) {
+            for (std::size_t k = 0; k < 50; ++k) {
                 double aa = a + static_cast<double>(k) / 50.0 * (b - a);
                 double bb = a + static_cast<double>(k + 1) / 50.0 * (b - a);
                 double interval;
@@ -238,10 +238,10 @@ BOOST_AUTO_TEST_CASE(testProduct) {
 
     LOG_DEBUG(<< "*** Gaussian ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
-        for (std::size_t j = 0u; j < boost::size(centres); ++j) {
-            for (std::size_t k = 0u; k < boost::size(scales); ++k) {
-                for (std::size_t l = 0u; l < boost::size(scales); ++l) {
+    for (std::size_t i = 0; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0; j < boost::size(centres); ++j) {
+            for (std::size_t k = 0; k < boost::size(scales); ++k) {
+                for (std::size_t l = 0; l < boost::size(scales); ++l) {
                     LOG_DEBUG(<< "centre1 = " << centres[i] << ", centre2 = "
                               << centres[j] << ", scale1 = " << scales[k]
                               << ", scale2 = " << scales[l]);
@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE(testProduct) {
                     maths::CCompositeFunctions::CProduct<CValueAdaptor, CValueAdaptor> f(
                         f1, f2);
                     double expectedProduct = 0.0;
-                    for (std::size_t m = 0u; m < 50; ++m) {
+                    for (std::size_t m = 0; m < 50; ++m) {
                         double aa = a + static_cast<double>(m) / 50.0 * (b - a);
                         double bb = a + static_cast<double>(m + 1) / 50.0 * (b - a);
                         double interval;
@@ -274,10 +274,10 @@ BOOST_AUTO_TEST_CASE(testProduct) {
 
     LOG_DEBUG(<< "*** Inverse Quadratic ***");
 
-    for (std::size_t i = 0u; i < boost::size(centres); ++i) {
-        for (std::size_t j = 0u; j < boost::size(centres); ++j) {
-            for (std::size_t k = 0u; k < boost::size(scales); ++k) {
-                for (std::size_t l = 0u; l < boost::size(scales); ++l) {
+    for (std::size_t i = 0; i < boost::size(centres); ++i) {
+        for (std::size_t j = 0; j < boost::size(centres); ++j) {
+            for (std::size_t k = 0; k < boost::size(scales); ++k) {
+                for (std::size_t l = 0; l < boost::size(scales); ++l) {
                     LOG_DEBUG(<< "centre1 = " << centres[i] << ", centre2 = "
                               << centres[j] << ", scale1 = " << scales[k]
                               << ", scale2 = " << scales[l]);
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE(testProduct) {
                     double expectedProduct = 0.0;
                     maths::CCompositeFunctions::CProduct<CValueAdaptor, CValueAdaptor> f(
                         f1, f2);
-                    for (std::size_t m = 0u; m < 50; ++m) {
+                    for (std::size_t m = 0; m < 50; ++m) {
                         double aa = a + static_cast<double>(m) / 50.0 * (b - a);
                         double bb = a + static_cast<double>(m + 1) / 50.0 * (b - a);
                         double interval;

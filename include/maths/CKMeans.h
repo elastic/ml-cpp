@@ -129,7 +129,7 @@ public:
     //! \p centres to the collections of points in \p clusters.
     static double dispersion(const TPointVec& centres, const TPointVecVec& clusters) {
         CBasicStatistics::SSampleMean<double>::TAccumulator result;
-        for (std::size_t i = 0u; i < centres.size(); ++i) {
+        for (std::size_t i = 0; i < centres.size(); ++i) {
             for (const auto& point : clusters[i]) {
                 result.add(las::distance(centres[i], point));
             }
@@ -174,7 +174,7 @@ public:
             return true;
         }
         TMeanAccumulatorVec newCentres;
-        for (std::size_t i = 0u; i < maxIterations; ++i) {
+        for (std::size_t i = 0; i < maxIterations; ++i) {
             if (!this->updateCentres(newCentres)) {
                 return true;
             }
@@ -193,7 +193,7 @@ public:
         result.resize(m_Centres.size());
         TPointVecVec clusters;
         this->clusters(clusters);
-        for (std::size_t i = 0u; i < m_Centres.size(); ++i) {
+        for (std::size_t i = 0; i < m_Centres.size(); ++i) {
             result[i].centre(m_Centres[i]);
             result[i].points(std::move(clusters[i]));
         }
@@ -444,7 +444,7 @@ protected:
                                 TPointVecVec& closestPoints)
             : m_Centres(&centres), m_ClosestPoints(&closestPoints) {
             m_ClosestPoints->resize(centres.size());
-            for (std::size_t i = 0u; i < m_ClosestPoints->size(); ++i) {
+            for (std::size_t i = 0; i < m_ClosestPoints->size(); ++i) {
                 (*m_ClosestPoints)[i].clear();
                 (*m_ClosestPoints)[i].reserve(numberPoints / m_ClosestPoints->size() + 1);
             }
@@ -475,7 +475,7 @@ private:
         m_Points.preorderDepthFirst(computer);
         bool changed = false;
         POINT newCentre;
-        for (std::size_t i = 0u; i < newCentres.size(); ++i) {
+        for (std::size_t i = 0; i < newCentres.size(); ++i) {
             newCentre = CBasicStatistics::mean(newCentres[i]);
             if (las::distance(m_Centres[i], newCentre) >
                 precision * las::norm(m_Centres[i])) {

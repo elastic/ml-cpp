@@ -134,10 +134,10 @@ void CModelDetailsView::addCurrentBucketValues(core_t::TTime time,
     };
 
     if (model_t::includeEmptyBuckets(feature)) {
-        for (std::size_t pid = 0u; pid < gatherer.numberPeople(); ++pid) {
+        for (std::size_t pid = 0; pid < gatherer.numberPeople(); ++pid) {
             if (gatherer.isPersonActive(pid)) {
                 if (isPopulation) {
-                    for (std::size_t cid = 0u; cid < gatherer.numberAttributes(); ++cid) {
+                    for (std::size_t cid = 0; cid < gatherer.numberAttributes(); ++cid) {
                         if (gatherer.isAttributeActive(cid)) {
                             addCurrentBucketValue(pid, cid);
                         }

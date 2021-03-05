@@ -462,7 +462,7 @@ private:
             x.s_Sign = 0;
             x.s_Mantissa = (dx / 2) & core::CIEEE754::IEEE754_MANTISSA_MASK;
             x.s_Exponent = 1022;
-            for (std::size_t i = 0u; i < BINS;
+            for (std::size_t i = 0; i < BINS;
                  ++i, x.s_Mantissa = (x.s_Mantissa + dx) & core::CIEEE754::IEEE754_MANTISSA_MASK) {
                 double value;
                 static_assert(sizeof(double) == sizeof(core::CIEEE754::SDoubleRep),
@@ -527,7 +527,7 @@ public:
                                      const CVectorNx1<T, N>& a,
                                      const CVectorNx1<T, N>& b) {
         CVectorNx1<T, N> result(x);
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             result(i) = truncate(result(i), a(i), b(i));
         }
         return result;
@@ -538,7 +538,7 @@ public:
     static CVector<T>
     truncate(const CVector<T>& x, const CVector<T>& a, const CVector<T>& b) {
         CVector<T> result(x);
-        for (std::size_t i = 0u; i < result.dimension(); ++i) {
+        for (std::size_t i = 0; i < result.dimension(); ++i) {
             result(i) = truncate(result(i), a(i), b(i));
         }
         return result;
@@ -550,7 +550,7 @@ public:
                                              const core::CSmallVector<T, N>& a,
                                              const core::CSmallVector<T, N>& b) {
         core::CSmallVector<T, N> result(x);
-        for (std::size_t i = 0u; i < result.size(); ++i) {
+        for (std::size_t i = 0; i < result.size(); ++i) {
             result[i] = truncate(result[i], a[i], b[i]);
         }
         return result;

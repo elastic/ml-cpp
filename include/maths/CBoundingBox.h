@@ -90,7 +90,7 @@ public:
     bool closerToX(const POINT& x, const POINT& y) const {
         POINT xy = y - x;
         POINT f(m_B);
-        for (std::size_t i = 0u; i < las::dimension(x); ++i) {
+        for (std::size_t i = 0; i < las::dimension(x); ++i) {
             if (xy(i) < TCoordinate{0}) {
                 f(i) = m_A(i);
             }

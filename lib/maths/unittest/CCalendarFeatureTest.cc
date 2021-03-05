@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(testInitialize) {
     TSizeVec times;
     rng.generateUniformSamples(100000, 10000000, 10, times);
 
-    for (std::size_t i = 0u; i < times.size(); ++i) {
+    for (std::size_t i = 0; i < times.size(); ++i) {
         core_t::TTime time{static_cast<core_t::TTime>(times[i])};
 
         maths::CCalendarFeature::TCalendarFeature4Ary expected;
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(testComparison) {
 
     TCalendarFeatureVec features;
 
-    for (std::size_t i = 0u; i < times.size(); ++i) {
+    for (std::size_t i = 0; i < times.size(); ++i) {
         core_t::TTime time{static_cast<core_t::TTime>(times[i])};
         maths::CCalendarFeature::TCalendarFeature4Ary fi =
             maths::CCalendarFeature::features(time);
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE(testComparison) {
     std::sort(features.begin(), features.end());
     features.erase(std::unique(features.begin(), features.end()), features.end());
 
-    for (std::size_t i = 0u; i < features.size(); ++i) {
+    for (std::size_t i = 0; i < features.size(); ++i) {
         BOOST_TEST_REQUIRE(features[i] == features[i]);
         BOOST_REQUIRE(!(features[i] < features[i] || features[i] > features[i]));
         for (std::size_t j = i + 1; j < features.size(); ++j) {
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(testOffset) {
     TSizeVec times;
     rng.generateUniformSamples(0, 30000000, 1000, times);
 
-    std::size_t tests = 0u;
+    std::size_t tests = 0;
 
     for (const auto& time_ : times) {
         core_t::TTime time{start + static_cast<core_t::TTime>(time_)};
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     maths::CCalendarFeature::TCalendarFeature4Ary features =
         maths::CCalendarFeature::features(core::CTimeUtils::now());
 
-    for (std::size_t i = 0u; i < 4; ++i) {
+    for (std::size_t i = 0; i < 4; ++i) {
         std::string state = features[i].toDelimited();
         LOG_DEBUG(<< "state = " << state);
 

@@ -59,12 +59,12 @@ bool naturalBreaksBranchAndBound(const TTupleVec& categories,
     static const double INF = std::numeric_limits<double>::max();
 
     std::size_t N = categories.size();
-    std::size_t m = n - 1u;
+    std::size_t m = n - 1;
     LOG_TRACE(<< "m = " << m);
 
     TSizeVec split;
     split.reserve(m + 1);
-    for (std::size_t i = 1u; i < n; ++i) {
+    for (std::size_t i = 1; i < n; ++i) {
         split.push_back(i);
     }
     split.push_back(N);
@@ -85,7 +85,7 @@ bool naturalBreaksBranchAndBound(const TTupleVec& categories,
 
         double deviation = 0.0;
 
-        for (std::size_t i = 0u, j = 0u; i < split.size(); ++i) {
+        for (std::size_t i = 0u, j = 0; i < split.size(); ++i) {
             TTuple category;
             for (/**/; j < split[i]; ++j) {
                 category += categories[j];
@@ -139,7 +139,7 @@ bool naturalBreaksBranchAndBound(const TTupleVec& categories,
     }
 
     result.reserve(n);
-    for (std::size_t i = 0u, j = 0u; i < bestSplit.size(); ++i) {
+    for (std::size_t i = 0u, j = 0; i < bestSplit.size(); ++i) {
         TTuple category;
         for (/**/; j < bestSplit[i]; ++j) {
             category += categories[j];
@@ -161,10 +161,10 @@ BOOST_AUTO_TEST_CASE(testCategories) {
         TDoubleVec samples;
         rng.generateUniformSamples(0.0, 15.0, 5000, samples);
 
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             classifier.add(samples[i]);
             if (i > 0 && i % 50 == 0) {
-                for (std::size_t j = 3u; j < 7; ++j) {
+                for (std::size_t j = 3; j < 7; ++j) {
                     LOG_TRACE(<< "# samples = " << i << ", # splits = " << j);
 
                     TTupleVec split;
@@ -196,11 +196,11 @@ BOOST_AUTO_TEST_CASE(testCategories) {
         TDoubleVec samples;
         rng.generateUniformSamples(0.0, 15.0, 500, samples);
 
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             classifier.add(samples[i]);
             if (i > 0 && i % 10 == 0) {
-                for (std::size_t j = 3u; j < 7; ++j) {
-                    std::size_t k = 1u;
+                for (std::size_t j = 3; j < 7; ++j) {
+                    std::size_t k = 1;
                     do {
                         k *= 2;
                         LOG_TRACE(<< "# samples = " << i << ", # splits = " << j
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE(testCategories) {
         TDoubleVec samples;
         rng.generateNormalSamples(10.0, 3.0, 5000, samples);
 
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             classifier.add(samples[i]);
         }
 
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE(testCategories) {
         {
             CNaturalBreaksClassifier classifier(6);
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 classifier.add(samples[i]);
             }
 
@@ -327,7 +327,7 @@ BOOST_AUTO_TEST_CASE(testCategories) {
 
             CNaturalBreaksClassifier classifier(12);
 
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 classifier.add(samples[j]);
             }
 
@@ -426,7 +426,7 @@ BOOST_AUTO_TEST_CASE(testCategories) {
 
             CNaturalBreaksClassifier classifier(12);
 
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 classifier.add(samples[j]);
             }
 
@@ -502,7 +502,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
 
     CNaturalBreaksClassifier classifier(4, 0.1);
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         classifier.add(samples[i]);
     }
 
@@ -519,7 +519,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardsByTime) {
 
     // We expect the category with count of 1 to have been pruned out.
     BOOST_REQUIRE_EQUAL(std::size_t(3), categories.size());
-    for (std::size_t i = 0u; i < categories.size(); ++i) {
+    for (std::size_t i = 0; i < categories.size(); ++i) {
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(categories[i]) != 100.0);
     }
 }
@@ -553,7 +553,7 @@ BOOST_AUTO_TEST_CASE(testSample) {
     CNaturalBreaksClassifier classifier(8, 0.1);
 
     TDoubleVec expectedSampled;
-    for (std::size_t i = 0u; i < 5; ++i) {
+    for (std::size_t i = 0; i < 5; ++i) {
         classifier.add(samples[i]);
         expectedSampled.push_back(samples[i]);
     }
@@ -568,13 +568,13 @@ BOOST_AUTO_TEST_CASE(testSample) {
     LOG_DEBUG(<< "sampled  = " << core::CContainerPrinter::print(sampled));
 
     double error = 0.0;
-    for (std::size_t i = 0u; i < expectedSampled.size(); ++i) {
+    for (std::size_t i = 0; i < expectedSampled.size(); ++i) {
         error += std::fabs(expectedSampled[i] - sampled[i]);
     }
 
     BOOST_REQUIRE_CLOSE_ABSOLUTE(0.0, error, 2e-6);
 
-    for (std::size_t i = 5u; i < samples.size(); ++i) {
+    for (std::size_t i = 5; i < samples.size(); ++i) {
         classifier.add(samples[i]);
     }
 
@@ -584,7 +584,7 @@ BOOST_AUTO_TEST_CASE(testSample) {
 
     TMeanVarAccumulator meanVar1;
     TMeanVarAccumulator meanVar2;
-    for (std::size_t i = 0u; i < sampled.size(); ++i) {
+    for (std::size_t i = 0; i < sampled.size(); ++i) {
         if (sampled[i] < 15.0) {
             meanVar1.add(sampled[i]);
         } else {
@@ -621,7 +621,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     CNaturalBreaksClassifier origClassifier(8, 0.1);
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         origClassifier.add(samples[i]);
     }
 

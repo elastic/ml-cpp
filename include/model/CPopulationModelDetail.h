@@ -16,7 +16,7 @@ namespace model {
 
 template<typename T>
 CPopulationModel::TSizeSizePr CPopulationModel::personRange(const T& data, std::size_t pid) {
-    const std::size_t minCid = 0u;
+    const std::size_t minCid = 0;
     const std::size_t maxCid = std::numeric_limits<std::size_t>::max();
     auto begin = std::lower_bound(data.begin(), data.end(), std::make_pair(pid, minCid),
                                   maths::COrderings::SFirstLess());
