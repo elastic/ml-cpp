@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
     CMultinomialConjugate filter1(CMultinomialConjugate::nonInformativePrior(5u));
     CMultinomialConjugate filter2(filter1);
 
-    for (std::size_t j = 0u; j < samples.size(); ++j) {
+    for (std::size_t j = 0; j < samples.size(); ++j) {
         filter1.addSamples(TDouble1Vec(1, samples[j]));
     }
     filter2.addSamples(samples);
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(testPropagation) {
 
     CMultinomialConjugate filter(CMultinomialConjugate::nonInformativePrior(5u));
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         filter.addSamples(TDouble1Vec(1, static_cast<double>(samples[i])));
     }
 
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityEstimation) {
 
     const double decayRates[] = {0.0, 0.001, 0.01};
 
-    const unsigned int nTests = 5000u;
+    const unsigned int nTests = 5000;
     const double testIntervals[] = {50.0, 60.0, 70.0, 80.0,
                                     85.0, 90.0, 95.0, 99.0};
 
@@ -137,17 +137,17 @@ BOOST_AUTO_TEST_CASE(testProbabilityEstimation) {
             CMultinomialConjugate filter(
                 CMultinomialConjugate::nonInformativePrior(6, decayRates[i]));
 
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 filter.addSamples(TDouble1Vec(1, samples[j]));
                 filter.propagateForwardsByTime(1.0);
             }
 
-            for (size_t j = 0u; j < boost::size(testIntervals); ++j) {
+            for (size_t j = 0; j < boost::size(testIntervals); ++j) {
                 TDoubleDoublePrVec confidenceIntervals =
                     filter.confidenceIntervalProbabilities(testIntervals[j]);
                 BOOST_REQUIRE_EQUAL(confidenceIntervals.size(), probabilities.size());
 
-                for (std::size_t k = 0u; k < probabilities.size(); ++k) {
+                for (std::size_t k = 0; k < probabilities.size(); ++k) {
                     if (probabilities[k] < confidenceIntervals[k].first ||
                         probabilities[k] > confidenceIntervals[k].second) {
                         ++errors[j][k];
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityEstimation) {
         for (size_t j = 0; j < boost::size(testIntervals); ++j) {
             TDoubleVec intervals;
             intervals.reserve(errors[j].size());
-            for (std::size_t k = 0u; k < errors[j].size(); ++k) {
+            for (std::size_t k = 0; k < errors[j].size(); ++k) {
                 intervals.push_back(100.0 * errors[j][k] / static_cast<double>(nTests));
             }
             LOG_DEBUG(<< "interval = " << core::CContainerPrinter::print(intervals)
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityEstimation) {
             // If the decay rate is zero the intervals should be accurate.
             // Otherwise, they should be an upper bound.
             double meanError = 0.0;
-            for (std::size_t k = 0u; k < intervals.size(); ++k) {
+            for (std::size_t k = 0; k < intervals.size(); ++k) {
                 if (decayRates[i] == 0.0) {
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(
                         intervals[k], 100.0 - testIntervals[j],
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
             CMultinomialConjugate filter(
                 CMultinomialConjugate::nonInformativePrior(3, decayRates[i]));
 
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 TDouble1Vec sample(1, samples[j]);
 
                 filter.addSamples(sample);
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
 
         // Compute the outer products of size 2 and 3.
         TDoubleVecVec o2, o3;
-        for (std::size_t i = 0u; i < categories.size(); ++i) {
+        for (std::size_t i = 0; i < categories.size(); ++i) {
             for (std::size_t j = i; j < categories.size(); ++j) {
                 o2.push_back(TDoubleVec());
                 o2.back().push_back(categories[i]);
@@ -281,13 +281,13 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
 
         CMultinomialConjugate filter(maths::CMultinomialConjugate(3, categories, concentrations));
 
-        const unsigned int nTests = 100000u;
+        const unsigned int nTests = 100000;
 
         {
             // Compute the likelihoods of the various 2-category combinations.
 
             TDoubleVec p2;
-            for (std::size_t i = 0u; i < o2.size(); ++i) {
+            for (std::size_t i = 0; i < o2.size(); ++i) {
                 double p;
                 BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
                                     filter.jointLogMarginalLikelihood(o2[i], p));
@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
             TDoubleVec samples;
             rng.generateMultinomialSamples(categories, probabilities, 2 * nTests, samples);
 
-            for (unsigned int test = 0u; test < nTests; ++test) {
+            for (unsigned int test = 0; test < nTests; ++test) {
                 TDoubleVec sample;
                 sample.push_back(samples[2 * test]);
                 sample.push_back(samples[2 * test + 1]);
@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                 frequencies[i] += 1.0;
             }
 
-            for (std::size_t i = 0u; i < o2.size(); ++i) {
+            for (std::size_t i = 0; i < o2.size(); ++i) {
                 double p = frequencies[i] / static_cast<double>(nTests);
 
                 LOG_DEBUG(<< "category = " << core::CContainerPrinter::print(o2[i])
@@ -328,7 +328,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
             // Compute the likelihoods of the various 3-category combinations.
 
             TDoubleVec p3;
-            for (std::size_t i = 0u; i < o3.size(); ++i) {
+            for (std::size_t i = 0; i < o3.size(); ++i) {
                 double p;
                 BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
                                     filter.jointLogMarginalLikelihood(o3[i], p));
@@ -345,7 +345,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
             TDoubleVec samples;
             rng.generateMultinomialSamples(categories, probabilities, 3 * nTests, samples);
 
-            for (unsigned int test = 0u; test < nTests; ++test) {
+            for (unsigned int test = 0; test < nTests; ++test) {
                 TDoubleVec sample;
                 sample.push_back(samples[3 * test]);
                 sample.push_back(samples[3 * test + 1]);
@@ -358,7 +358,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                 frequencies[i] += 1.0;
             }
 
-            for (std::size_t i = 0u; i < o3.size(); ++i) {
+            for (std::size_t i = 0; i < o3.size(); ++i) {
                 double p = frequencies[i] / static_cast<double>(nTests);
 
                 LOG_DEBUG(<< "category = " << core::CContainerPrinter::print(o3[i])
@@ -605,7 +605,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             double categoryProbabilities[] = {0.10, 0.12, 0.29,
                                               0.39, 0.04, 0.06};
             TDoubleDoubleVecMap categoryPairProbabilities;
-            for (size_t i = 0u; i < boost::size(categories); ++i) {
+            for (size_t i = 0; i < boost::size(categories); ++i) {
                 for (size_t j = i; j < boost::size(categories); ++j) {
                     double p = (i != j ? 2.0 : 1.0) * categoryProbabilities[i] *
                                categoryProbabilities[j];
@@ -626,7 +626,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             for (TDoubleDoubleVecMapCItr itr = categoryPairProbabilities.begin();
                  itr != categoryPairProbabilities.end(); ++itr) {
                 pc += itr->first * static_cast<double>(itr->second.size() / 2u);
-                for (std::size_t i = 0u; i < itr->second.size(); i += 2u) {
+                for (std::size_t i = 0; i < itr->second.size(); i += 2u) {
                     TDoubleVec categoryPair;
                     categoryPair.push_back(itr->second[i]);
                     categoryPair.push_back(itr->second[i + 1u]);
@@ -697,7 +697,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
         BOOST_REQUIRE_EQUAL(boost::size(rawCategories), boost::size(rawProbabilities));
 
         test::CRandomNumbers rng;
-        const std::size_t numberSamples = 10000u;
+        const std::size_t numberSamples = 10000;
 
         // Generate samples from the Dirichlet prior.
         TDoubleVecVec dirichletSamples(boost::size(rawProbabilities));
@@ -705,35 +705,35 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             TDoubleVec& samples = dirichletSamples[i];
             rng.generateGammaSamples(rawProbabilities[i] * 100.0, 1.0, numberSamples, samples);
         }
-        for (std::size_t i = 0u; i < numberSamples; ++i) {
+        for (std::size_t i = 0; i < numberSamples; ++i) {
             double n = 0.0;
-            for (std::size_t j = 0u; j < dirichletSamples.size(); ++j) {
+            for (std::size_t j = 0; j < dirichletSamples.size(); ++j) {
                 n += dirichletSamples[j][i];
             }
-            for (std::size_t j = 0u; j < dirichletSamples.size(); ++j) {
+            for (std::size_t j = 0; j < dirichletSamples.size(); ++j) {
                 dirichletSamples[j][i] /= n;
             }
         }
 
         // Compute the expected probabilities w.r.t. the Dirichlet prior.
         TDoubleVec expectedProbabilities(boost::size(rawCategories), 0.0);
-        for (std::size_t i = 0u; i < numberSamples; ++i) {
+        for (std::size_t i = 0; i < numberSamples; ++i) {
             TDoubleSizePrVec probabilities;
             probabilities.reserve(dirichletSamples.size() + 1);
-            for (std::size_t j = 0u; j < dirichletSamples.size(); ++j) {
+            for (std::size_t j = 0; j < dirichletSamples.size(); ++j) {
                 probabilities.push_back(TDoubleSizePr(dirichletSamples[j][i], j));
             }
             std::sort(probabilities.begin(), probabilities.end());
-            for (std::size_t j = 1u; j < probabilities.size(); ++j) {
+            for (std::size_t j = 1; j < probabilities.size(); ++j) {
                 probabilities[j].first += probabilities[j - 1].first;
             }
             probabilities.push_back(TDoubleSizePr(1.0, probabilities.size()));
-            for (std::size_t j = 0u; j < probabilities.size() - 1; ++j) {
+            for (std::size_t j = 0; j < probabilities.size() - 1; ++j) {
                 expectedProbabilities[probabilities[j].second] +=
                     probabilities[j + 1].first;
             }
         }
-        for (std::size_t i = 0u; i < expectedProbabilities.size(); ++i) {
+        for (std::size_t i = 0; i < expectedProbabilities.size(); ++i) {
             expectedProbabilities[i] /= static_cast<double>(numberSamples);
         }
         LOG_DEBUG(<< "expectedProbabilities = "
@@ -742,7 +742,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
         TDoubleVec categories(std::begin(rawCategories), std::end(rawCategories));
         CMultinomialConjugate filter(
             CMultinomialConjugate::nonInformativePrior(categories.size()));
-        for (std::size_t i = 0u; i < categories.size(); ++i) {
+        for (std::size_t i = 0; i < categories.size(); ++i) {
             filter.addSamples({categories[i]},
                               {maths_t::countWeight(rawProbabilities[i] * 100.0)});
         }
@@ -755,14 +755,14 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
                             core::CContainerPrinter::print(upperBounds));
 
         double totalError = 0.0;
-        for (std::size_t i = 0u; i < lowerBounds.size(); ++i) {
+        for (std::size_t i = 0; i < lowerBounds.size(); ++i) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedProbabilities[i], lowerBounds[i], 0.1);
             totalError += std::fabs(lowerBounds[i] - expectedProbabilities[i]);
         }
         LOG_DEBUG(<< "totalError = " << totalError);
         BOOST_TEST_REQUIRE(totalError < 0.7);
 
-        for (std::size_t i = 0u; i < categories.size(); ++i) {
+        for (std::size_t i = 0; i < categories.size(); ++i) {
             double lowerBound, upperBound;
             BOOST_TEST_REQUIRE(filter.probabilityOfLessLikelySamples(
                 maths_t::E_TwoSided, TDouble1Vec(1, categories[i]), lowerBound, upperBound));
@@ -868,7 +868,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     TDoubleVec samples;
     rng.generateMultinomialSamples(categories, probabilities, 100, samples);
     maths::CMultinomialConjugate origFilter(CMultinomialConjugate::nonInformativePrior(5));
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         origFilter.addSamples({samples[i]}, maths_t::CUnitWeights::SINGLE_UNIT);
     }
     double decayRate = origFilter.decayRate();
@@ -914,12 +914,12 @@ BOOST_AUTO_TEST_CASE(testOverflow, *boost::unit_test::disabled()) {
 
 BOOST_AUTO_TEST_CASE(testConcentration) {
     CMultinomialConjugate filter(CMultinomialConjugate::nonInformativePrior(5u));
-    for (std::size_t i = 1u; i <= 5u; ++i) {
+    for (std::size_t i = 1; i <= 5; ++i) {
         filter.addSamples(TDouble1Vec(i, static_cast<double>(i)));
     }
 
     double concentration;
-    for (std::size_t i = 1u; i <= 5u; ++i) {
+    for (std::size_t i = 1; i <= 5; ++i) {
         double category = static_cast<double>(i);
         filter.concentration(category, concentration);
         BOOST_REQUIRE_EQUAL(category, concentration);

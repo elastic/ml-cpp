@@ -38,7 +38,7 @@ using TDoubleVecVec = std::vector<TDoubleVec>;
 double multinomialProbability(const TDoubleVec& probabilities, const TSizeVec& counts) {
     std::size_t n = std::accumulate(counts.begin(), counts.end(), std::size_t(0));
     double logP = std::lgamma(static_cast<double>(n + 1));
-    for (std::size_t i = 0u; i < counts.size(); ++i) {
+    for (std::size_t i = 0; i < counts.size(); ++i) {
         double ni = static_cast<double>(counts[i]);
         if (ni > 0.0) {
             logP += ni * std::log(probabilities[i]) - std::lgamma(ni + 1.0);
@@ -52,7 +52,7 @@ namespace test_detail {
 //! Subtract two vectors.
 TDoubleVec minus(const TDoubleVec& v1, const TDoubleVec& v2) {
     TDoubleVec result;
-    for (std::size_t i = 0u; i < v1.size(); ++i) {
+    for (std::size_t i = 0; i < v1.size(); ++i) {
         result.push_back(v1[i] - v2[i]);
     }
     return result;
@@ -61,9 +61,9 @@ TDoubleVec minus(const TDoubleVec& v1, const TDoubleVec& v2) {
 //! Subtract two matrices.
 TDoubleVecVec minus(const TDoubleVecVec& m1, const TDoubleVecVec& m2) {
     TDoubleVecVec result;
-    for (std::size_t i = 0u; i < m1.size(); ++i) {
+    for (std::size_t i = 0; i < m1.size(); ++i) {
         result.push_back(TDoubleVec());
-        for (std::size_t j = 0u; j < m1[i].size(); ++j) {
+        for (std::size_t j = 0; j < m1[i].size(); ++j) {
             result.back().push_back(m1[i][j] - m2[i][j]);
         }
     }
@@ -73,9 +73,9 @@ TDoubleVecVec minus(const TDoubleVecVec& m1, const TDoubleVecVec& m2) {
 //! Compute the outer product of two vectors.
 TDoubleVecVec outer(const TDoubleVec& v1, const TDoubleVec& v2) {
     TDoubleVecVec result;
-    for (std::size_t i = 0u; i < v1.size(); ++i) {
+    for (std::size_t i = 0; i < v1.size(); ++i) {
         result.push_back(TDoubleVec());
-        for (std::size_t j = 0u; j < v2.size(); ++j) {
+        for (std::size_t j = 0; j < v2.size(); ++j) {
             result.back().push_back(v1[i] * v2[j]);
         }
     }
@@ -84,8 +84,8 @@ TDoubleVecVec outer(const TDoubleVec& v1, const TDoubleVec& v2) {
 
 //! Add two matrices.
 void add(const TDoubleVecVec& m1, TDoubleVecVec& m2) {
-    for (std::size_t i = 0u; i < m1.size(); ++i) {
-        for (std::size_t j = 0u; j < m1[i].size(); ++j) {
+    for (std::size_t i = 0; i < m1.size(); ++i) {
+        for (std::size_t j = 0; j < m1[i].size(); ++j) {
             m2[i][j] += m1[i][j];
         }
     }
@@ -93,8 +93,8 @@ void add(const TDoubleVecVec& m1, TDoubleVecVec& m2) {
 
 //! Divide a matrix by a constant.
 void divide(TDoubleVecVec& m, double c) {
-    for (std::size_t i = 0u; i < m.size(); ++i) {
-        for (std::size_t j = 0u; j < m[i].size(); ++j) {
+    for (std::size_t i = 0; i < m.size(); ++i) {
+        for (std::size_t j = 0; j < m[i].size(); ++j) {
             m[i][j] /= c;
         }
     }
@@ -103,7 +103,7 @@ void divide(TDoubleVecVec& m, double c) {
 //! Euclidean norm of a vector.
 double euclidean(const TDoubleVec& v) {
     double result = 0.0;
-    for (std::size_t i = 0u; i < v.size(); ++i) {
+    for (std::size_t i = 0; i < v.size(); ++i) {
         result += v[i] * v[i];
     }
     return std::sqrt(result);
@@ -112,8 +112,8 @@ double euclidean(const TDoubleVec& v) {
 //! Frobenius norm of a matrix.
 double frobenius(const TDoubleVecVec& m) {
     double result = 0.0;
-    for (std::size_t i = 0u; i < m.size(); ++i) {
-        for (std::size_t j = 0u; j < m.size(); ++j) {
+    for (std::size_t i = 0; i < m.size(); ++i) {
+        for (std::size_t j = 0; j < m.size(); ++j) {
             result += m[i][j] * m[i][j];
         }
     }
@@ -398,7 +398,7 @@ BOOST_AUTO_TEST_CASE(testSobolSequenceSampling) {
                                {0.625}, {0.125}, {0.1875}, {0.6875}, {0.9375}};
         TDoubleVecVec actual;
         maths::CSampling::sobolSequenceSample(dim, n, actual);
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             BOOST_REQUIRE_EQUAL_COLLECTIONS(expected[i].begin(), expected[i].end(),
                                             actual[i].begin(), actual[i].end());
         }
@@ -414,7 +414,7 @@ BOOST_AUTO_TEST_CASE(testSobolSequenceSampling) {
             {0.6875, 0.8125}, {0.9375, 0.0625}};
         TDoubleVecVec actual;
         maths::CSampling::sobolSequenceSample(dim, n, actual);
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             BOOST_REQUIRE_EQUAL_COLLECTIONS(expected[i].begin(), expected[i].end(),
                                             actual[i].begin(), actual[i].end());
         }

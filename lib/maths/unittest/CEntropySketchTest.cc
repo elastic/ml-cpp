@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
     double epsDeviations[][3] = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
 
     TSizeVec counts;
-    for (std::size_t t = 0u; t < numberCategories.size(); ++t) {
+    for (std::size_t t = 0; t < numberCategories.size(); ++t) {
         rng.generateUniformSamples(1, 10, numberCategories[t], counts);
         std::size_t Z = std::accumulate(counts.begin(), counts.end(), 0);
 
@@ -49,9 +49,9 @@ BOOST_AUTO_TEST_CASE(testAll) {
             maths::CEntropySketch(static_cast<std::size_t>(K[1])),
             maths::CEntropySketch(static_cast<std::size_t>(K[2]))};
 
-        for (std::size_t i = 0u; i < 3; ++i) {
+        for (std::size_t i = 0; i < 3; ++i) {
             TSizeDoubleUMap p;
-            for (std::size_t j = 0u; j < numberCategories[t]; ++j) {
+            for (std::size_t j = 0; j < numberCategories[t]; ++j) {
                 entropy[i].add(j, counts[j]);
                 p[j] += static_cast<double>(counts[j]) / static_cast<double>(Z);
             }
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
 
             meanError[i].add(std::fabs(ha - h) / h);
             maxError[i].add(std::fabs(ha - h) / h);
-            for (std::size_t k = 0u; k < 3; ++k) {
+            for (std::size_t k = 0; k < 3; ++k) {
                 if (std::fabs(ha - h) > eps[k]) {
                     epsDeviations[i][k] += 1.0;
                 }
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
 
     double maxMaxErrors[] = {0.14, 0.11, 0.08};
     double maxMeanErrors[] = {0.05, 0.04, 0.03};
-    for (std::size_t i = 0u; i < 3; ++i) {
+    for (std::size_t i = 0; i < 3; ++i) {
         LOG_DEBUG(<< "max error  = " << maxError[i][0]);
         LOG_DEBUG(<< "mean error = " << maths::CBasicStatistics::mean(meanError[i]));
         LOG_DEBUG(<< "large deviations = "
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE(testAll) {
         BOOST_TEST_REQUIRE(maxError[i][0] < maxMaxErrors[i]);
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanError[i]) < maxMeanErrors[i]);
         // Test additive approximation bounds.
-        for (std::size_t j = 0u; j < 3; ++j) {
+        for (std::size_t j = 0; j < 3; ++j) {
             BOOST_TEST_REQUIRE(epsDeviations[i][j] / 1000.0 <
                                2.0 * std::exp(-K[i] * eps[j] * eps[j] / 6.0));
         }

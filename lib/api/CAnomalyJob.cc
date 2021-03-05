@@ -193,7 +193,7 @@ bool CAnomalyJob::handleRecord(const TStrStrUMap& dataRowFields, TOptionalTime t
         this->populateDetectorKeys(m_JobConfig, m_DetectorKeys);
     }
 
-    for (std::size_t i = 0u; i < m_DetectorKeys.size(); ++i) {
+    for (std::size_t i = 0; i < m_DetectorKeys.size(); ++i) {
         const std::string& partitionFieldName(m_DetectorKeys[i].partitionFieldName());
 
         // An empty partitionFieldName means no partitioning
@@ -268,7 +268,7 @@ void CAnomalyJob::description() const {
     LOG_INFO(<< "\tpartition " << partition.get());
     LOG_INFO(<< "\t\tkey " << detectors[0].first.second.get());
     LOG_INFO(<< "\t\t\t" << detectors[0].second->description());
-    for (std::size_t i = 1u; i < detectors.size(); ++i) {
+    for (std::size_t i = 1; i < detectors.size(); ++i) {
         if (detectors[i].first.first.get() != partition.get()) {
             partition = detectors[i].first.first;
             LOG_INFO(<< "\tpartition " << partition.get());
@@ -295,7 +295,7 @@ void CAnomalyJob::descriptionAndDebugMemoryUsage() const {
     ss << "\t\t\t" << detectors[0].second->description() << std::endl;
     detectors[0].second->showMemoryUsage(ss);
 
-    for (std::size_t i = 1u; i < detectors.size(); ++i) {
+    for (std::size_t i = 1; i < detectors.size(); ++i) {
         ss << std::endl;
         if (detectors[i].first.first.get() != partition.get()) {
             partition = detectors[i].first.first;
@@ -1630,7 +1630,7 @@ void CAnomalyJob::addRecord(const TAnomalyDetectorPtr detector,
     model::CAnomalyDetector::TStrCPtrVec fieldValues;
     const TStrVec& fieldNames = detector->fieldsOfInterest();
     fieldValues.reserve(fieldNames.size());
-    for (std::size_t i = 0u; i < fieldNames.size(); ++i) {
+    for (std::size_t i = 0; i < fieldNames.size(); ++i) {
         fieldValues.push_back(fieldValue(fieldNames[i], dataRowFields));
     }
 

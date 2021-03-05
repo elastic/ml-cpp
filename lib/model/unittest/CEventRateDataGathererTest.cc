@@ -209,7 +209,7 @@ void testInfluencerPerFeature(model_t::EFeature feature,
                         addPerson(gatherer, resourceMonitor, "p", valueField, 1));
 
     BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
-    for (std::size_t i = 0u; i < features.size(); ++i) {
+    for (std::size_t i = 0; i < features.size(); ++i) {
         BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
     }
 
@@ -233,7 +233,7 @@ void testInfluencerPerFeature(model_t::EFeature feature,
     BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
 
     core_t::TTime time = startTime;
-    for (std::size_t i = 0, j = 0u; i < data.size(); ++i) {
+    for (std::size_t i = 0, j = 0; i < data.size(); ++i) {
         for (/**/; j < 5 && data[i] >= time + bucketLength;
              time += bucketLength, ++j, gatherer.timeNow(time)) {
             LOG_DEBUG(<< "Processing bucket [" << time << ", " << time + bucketLength << ")");
@@ -421,7 +421,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
 
         BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
-        for (std::size_t i = 0u; i < 1; ++i) {
+        for (std::size_t i = 0; i < 1; ++i) {
             BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
         BOOST_TEST_REQUIRE(gatherer.hasFeature(model_t::E_IndividualCountByBucketAndPerson));
@@ -448,7 +448,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         BOOST_REQUIRE_EQUAL(bucketLength, gatherer.bucketLength());
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
+        for (std::size_t i = 0, j = 0; i < boost::size(data); ++i) {
             for (/**/; j < 5 && data[i] >= time + bucketLength;
                  time += bucketLength, ++j, gatherer.timeNow(time)) {
                 LOG_DEBUG(<< "Processing bucket [" << time << ", "
@@ -484,7 +484,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
+        for (std::size_t i = 0, j = 0; i < boost::size(data); ++i) {
             for (/**/; j < 5 && data[i] >= time + bucketLength;
                  time += bucketLength, ++j, gatherer.timeNow(time)) {
                 LOG_DEBUG(<< "Processing bucket [" << time << ", "
@@ -524,7 +524,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
+        for (std::size_t i = 0, j = 0; i < boost::size(data); ++i) {
             for (/**/; j < 5 && data[i] >= time + bucketLength;
                  time += bucketLength, ++j, gatherer.timeNow(time)) {
                 LOG_DEBUG(<< "Processing bucket [" << time << ", "
@@ -596,7 +596,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
 
         core_t::TTime time = startTime;
-        std::size_t i1 = 0u, i2 = 0u, j = 0u;
+        std::size_t i1 = 0u, i2 = 0u, j = 0;
         for (;;) {
             for (/**/; j < 5 && std::min(data1[i1], data2[i2]) >= time + bucketLength;
                  time += bucketLength, ++j) {
@@ -666,7 +666,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(3), addPerson(gatherer, m_ResourceMonitor, "p4"));
         BOOST_REQUIRE_EQUAL(std::size_t(4), addPerson(gatherer, m_ResourceMonitor, "p5"));
 
-        for (std::size_t i = 0u; i < 5; ++i) {
+        for (std::size_t i = 0; i < 5; ++i) {
             addArrival(gatherer, m_ResourceMonitor, startTime, gatherer.personName(i));
         }
         addArrival(gatherer, m_ResourceMonitor, startTime + 1, gatherer.personName(2));
@@ -740,7 +740,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     BOOST_REQUIRE_EQUAL(std::size_t(7), addPerson(gatherer, m_ResourceMonitor, "p8"));
 
     core_t::TTime counts[] = {0, 3, 5, 2, 0, 5, 7, 10};
-    for (std::size_t i = 0u; i < boost::size(counts); ++i) {
+    for (std::size_t i = 0; i < boost::size(counts); ++i) {
         for (core_t::TTime time = 0; time < counts[i]; ++time) {
             addArrival(gatherer, m_ResourceMonitor, startTime + time,
                        gatherer.personName(i));
@@ -771,7 +771,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
                             addPerson(expectedGatherer, m_ResourceMonitor, "p8"));
 
         core_t::TTime expectedCounts[] = {5, 2, 0, 5, 7, 10};
-        for (std::size_t i = 0u; i < boost::size(expectedCounts); ++i) {
+        for (std::size_t i = 0; i < boost::size(expectedCounts); ++i) {
             for (core_t::TTime time = 0; time < expectedCounts[i]; ++time) {
                 addArrival(expectedGatherer, m_ResourceMonitor,
                            startTime + time, expectedGatherer.personName(i));
@@ -801,7 +801,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
                             addPerson(expectedGatherer, m_ResourceMonitor, "p7"));
 
         core_t::TTime expectedCounts[] = {5, 5, 7};
-        for (std::size_t i = 0u; i < boost::size(expectedCounts); ++i) {
+        for (std::size_t i = 0; i < boost::size(expectedCounts); ++i) {
             for (core_t::TTime time = 0; time < expectedCounts[i]; ++time) {
                 addArrival(expectedGatherer, m_ResourceMonitor,
                            startTime + time, expectedGatherer.personName(i));
@@ -886,7 +886,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
         addPerson(gatherer, m_ResourceMonitor, "p");
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
+        for (std::size_t i = 0, j = 0; i < boost::size(data); ++i) {
             for (/**/; j < 5 && data[i] >= time + latencyTime;
                  time += bucketLength, ++j, gatherer.timeNow(time)) {
                 LOG_DEBUG(<< "Processing bucket [" << time << ", "
@@ -923,7 +923,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
+        for (std::size_t i = 0, j = 0; i < boost::size(data); ++i) {
             for (/**/; j < 5 && data[i] >= time + latencyTime;
                  time += bucketLength, ++j, gatherer.timeNow(time)) {
                 LOG_DEBUG(<< "Processing bucket [" << time << ", "
@@ -963,7 +963,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrderFinalResult, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson(gatherer, m_ResourceMonitor, "p"));
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0, j = 0u; i < boost::size(data); ++i) {
+        for (std::size_t i = 0, j = 0; i < boost::size(data); ++i) {
             for (/**/; j < 5 && data[i] >= time + latencyTime;
                  time += bucketLength, ++j, gatherer.timeNow(time)) {
                 LOG_DEBUG(<< "Processing bucket [" << time << ", "
@@ -1163,7 +1163,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(1), addPerson(gatherer, m_ResourceMonitor, "p2"));
 
         core_t::TTime time = startTime;
-        std::size_t i1 = 0u, i2 = 0u, j = 0u;
+        std::size_t i1 = 0u, i2 = 0u, j = 0;
         for (;;) {
             for (/**/; j < 5 && std::min(data1[i1], data2[i2]) >= time + latencyTime;
                  time += bucketLength, ++j) {
@@ -1232,7 +1232,7 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeriesOutOfOrderFinalResult, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(3), addPerson(gatherer, m_ResourceMonitor, "p4"));
         BOOST_REQUIRE_EQUAL(std::size_t(4), addPerson(gatherer, m_ResourceMonitor, "p5"));
 
-        for (std::size_t i = 0u; i < 5; ++i) {
+        for (std::size_t i = 0; i < 5; ++i) {
             addArrival(gatherer, m_ResourceMonitor, startTime, gatherer.personName(i));
         }
         addArrival(gatherer, m_ResourceMonitor, startTime + 1, gatherer.personName(2));
@@ -1804,7 +1804,7 @@ BOOST_FIXTURE_TEST_CASE(testDistinctStrings, CTestFixture) {
                             addPerson(gatherer, m_ResourceMonitor, "p", "v", 1));
 
         BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
-        for (std::size_t i = 0u; i < 1; ++i) {
+        for (std::size_t i = 0; i < 1; ++i) {
             BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
         BOOST_TEST_REQUIRE(gatherer.hasFeature(model_t::E_IndividualUniqueCountByBucketAndPerson));
@@ -1855,7 +1855,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
         BOOST_TEST_REQUIRE(!gatherer.isPopulation());
 
         BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
-        for (std::size_t i = 0u; i < 1; ++i) {
+        for (std::size_t i = 0; i < 1; ++i) {
             BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
         BOOST_TEST_REQUIRE(gatherer.hasFeature(model_t::E_IndividualTimeOfDayByBucketAndPerson));
@@ -1977,7 +1977,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
         BOOST_TEST_REQUIRE(!gatherer.isPopulation());
 
         BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
-        for (std::size_t i = 0u; i < 1; ++i) {
+        for (std::size_t i = 0; i < 1; ++i) {
             BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
         BOOST_TEST_REQUIRE(gatherer.hasFeature(model_t::E_IndividualTimeOfWeekByBucketAndPerson));
@@ -2099,7 +2099,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
         BOOST_TEST_REQUIRE(gatherer.isPopulation());
 
         BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
-        for (std::size_t i = 0u; i < 1; ++i) {
+        for (std::size_t i = 0; i < 1; ++i) {
             BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
         BOOST_TEST_REQUIRE(gatherer.hasFeature(
@@ -2223,7 +2223,7 @@ BOOST_FIXTURE_TEST_CASE(testDiurnalFeatures, CTestFixture) {
         BOOST_TEST_REQUIRE(gatherer.isPopulation());
 
         BOOST_REQUIRE_EQUAL(std::size_t(1), gatherer.numberFeatures());
-        for (std::size_t i = 0u; i < 1; ++i) {
+        for (std::size_t i = 0; i < 1; ++i) {
             BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
         BOOST_TEST_REQUIRE(gatherer.hasFeature(

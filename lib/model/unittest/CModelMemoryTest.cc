@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE(testOnlineMetricModel) {
 
     double mean = 5.0;
     double variance = 2.0;
-    std::size_t anomalousBucket = 12u;
+    std::size_t anomalousBucket = 12;
     double anomaly = 5 * std::sqrt(variance);
 
     CDataGatherer::TFeatureVec features;

@@ -91,7 +91,7 @@ public:
         // Construct the c.d.f.
         m_Cdf.push_back(0.0);
         double r = 1.0 / static_cast<double>(concentrations.size());
-        for (std::size_t i = 0u; i < concentrations.size(); ++i) {
+        for (std::size_t i = 0; i < concentrations.size(); ++i) {
             double p = concentrations[i] / totalConcentration;
             m_Cdf.push_back(m_Cdf.back() + p);
             m_Pu += r - p;
@@ -111,7 +111,7 @@ public:
     void dump(TDoubleVec& lowerBounds, TDoubleVec& upperBounds) const {
         lowerBounds.reserve(m_Cdf.size() - 2u);
         upperBounds.reserve(m_Cdf.size() - 2u);
-        for (std::size_t i = 1u; i < m_Cdf.size() - 1u; ++i) {
+        for (std::size_t i = 1; i < m_Cdf.size() - 1; ++i) {
             lowerBounds.push_back(m_Cdf[i]);
             upperBounds.push_back(m_Cdf[i] + m_Pu);
         }
@@ -168,7 +168,7 @@ public:
     void dump(TDoubleVec& lowerBounds, TDoubleVec& upperBounds) const {
         lowerBounds.reserve(m_CdfComplement.size() - 2u);
         upperBounds.reserve(m_CdfComplement.size() - 2u);
-        for (std::size_t i = 1u; i < m_CdfComplement.size() - 1u; ++i) {
+        for (std::size_t i = 1; i < m_CdfComplement.size() - 1; ++i) {
             lowerBounds.push_back(m_CdfComplement[i]);
             upperBounds.push_back(m_CdfComplement[i] + m_Pu);
         }
@@ -220,7 +220,7 @@ void generateBetaSamples(double a, double b, std::size_t numberSamples, TDouble7
         double q = dq;
         double f = 0.0;
         mean /= dq;
-        for (std::size_t i = 1u; i < numberSamples; ++i, q += dq) {
+        for (std::size_t i = 1; i < numberSamples; ++i, q += dq) {
             double xq = boost::math::quantile(beta, q);
             double fq = boost::math::cdf(betaAlphaPlus1, xq);
             samples.push_back(mean * (fq - f));
@@ -402,7 +402,7 @@ void CMultinomialConjugate::addSamples(const TDouble1Vec& samples,
     // i.e. n(i), so for example updating with {(x, 2)} is equivalent to
     // updating with {x, x}.
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         double x = samples[i];
         if (CMathsFuncs::isNan(x)) {
             LOG_ERROR(<< "Discarding " << x);
@@ -473,7 +473,7 @@ void CMultinomialConjugate::propagateForwardsByTime(double time) {
         (alpha * m_TotalConcentration + (1.0 - alpha) * NON_INFORMATIVE_CONCENTRATION) / m_TotalConcentration,
         1.0);
 
-    for (std::size_t i = 0u; i < m_Concentrations.size(); ++i) {
+    for (std::size_t i = 0; i < m_Concentrations.size(); ++i) {
         m_Concentrations[i] *= factor;
     }
 
@@ -512,7 +512,7 @@ double CMultinomialConjugate::marginalLikelihoodMean() const {
 
     TMeanAccumulator result;
     TDoubleVec probabilities = this->probabilities();
-    for (std::size_t i = 0u; i < m_Categories.size(); ++i) {
+    for (std::size_t i = 0; i < m_Categories.size(); ++i) {
         result.add(m_Categories[i], probabilities[i]);
     }
     return CBasicStatistics::mean(result);
@@ -526,8 +526,8 @@ double CMultinomialConjugate::marginalLikelihoodMode(const TDoubleWeightsAry& /*
 
     // This is just the category with the maximum concentration.
 
-    std::size_t mode = 0u;
-    for (std::size_t i = 1u; i < m_Concentrations.size(); ++i) {
+    std::size_t mode = 0;
+    for (std::size_t i = 1; i < m_Concentrations.size(); ++i) {
         if (m_Concentrations[i] > m_Concentrations[mode]) {
             mode = i;
         }
@@ -552,7 +552,7 @@ double CMultinomialConjugate::marginalLikelihoodVariance(const TDoubleWeightsAry
 
     TMeanVarAccumulator result;
     TDoubleVec probabilities = this->probabilities();
-    for (std::size_t i = 0u; i < m_Categories.size(); ++i) {
+    for (std::size_t i = 0; i < m_Categories.size(); ++i) {
         result.add(m_Categories[i], probabilities[i]);
     }
     return CBasicStatistics::variance(result);
@@ -575,7 +575,7 @@ CMultinomialConjugate::marginalLikelihoodConfidenceInterval(double percentage,
     quantiles.reserve(m_Concentrations.size());
     double pU = 0.0;
     double pCumulative = 0.0;
-    for (std::size_t i = 0u; i < m_Concentrations.size(); ++i) {
+    for (std::size_t i = 0; i < m_Concentrations.size(); ++i) {
         double p = m_Concentrations[i] / m_TotalConcentration;
         pCumulative += p;
         quantiles.push_back(pCumulative);
@@ -654,7 +654,7 @@ CMultinomialConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     TDoubleDoubleMap categoryCounts;
     double numberSamples = 0.0;
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         double n = maths_t::countForUpdate(weights[i]);
         numberSamples += n;
         categoryCounts[samples[i]] += n;
@@ -720,7 +720,7 @@ void CMultinomialConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
 
     TDoubleVec probabilities;
     probabilities.reserve(m_Categories.size());
-    for (std::size_t i = 0u; i < m_Concentrations.size(); ++i) {
+    for (std::size_t i = 0; i < m_Concentrations.size(); ++i) {
         double p = m_Concentrations[i] / m_TotalConcentration;
         probabilities.push_back(p);
     }
@@ -734,7 +734,7 @@ void CMultinomialConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
     }
 
     samples.reserve(numberSamples);
-    for (std::size_t i = 0u; i < m_Categories.size(); ++i) {
+    for (std::size_t i = 0; i < m_Categories.size(); ++i) {
         std::fill_n(std::back_inserter(samples), sampling[i], m_Categories[i]);
     }
     LOG_TRACE(<< "samples = " << core::CContainerPrinter::print(samples));
@@ -781,7 +781,7 @@ bool CMultinomialConjugate::minusLogJointCdf(const TDouble1Vec& samples,
 
     static const double MAX_DOUBLE = boost::numeric::bounds<double>::highest();
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         double x = samples[i];
         double n = maths_t::count(weights[i]);
 
@@ -813,7 +813,7 @@ bool CMultinomialConjugate::minusLogJointCdfComplement(const TDouble1Vec& sample
 
     static const double MAX_DOUBLE = boost::numeric::bounds<double>::highest();
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         double x = samples[i];
         double n = maths_t::count(weights[i]);
 
@@ -875,7 +875,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
         CJointProbabilityOfLessLikelySamples jointUpperBound;
 
         detail::CCdf cdf(m_Categories, m_Concentrations, m_TotalConcentration);
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             double x = samples[i];
             double n = maths_t::count(weights[i]);
             double sampleLowerBound, sampleUpperBound;
@@ -969,7 +969,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
 
         {
             double r = 1.0 / static_cast<double>(m_Concentrations.size());
-            for (std::size_t i = 0u; i < m_Concentrations.size(); ++i) {
+            for (std::size_t i = 0; i < m_Concentrations.size(); ++i) {
                 double p = m_Concentrations[i] / m_TotalConcentration;
                 pCategories.emplace_back(p, p, i);
                 pU += r - p;
@@ -990,7 +990,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
 
             // Compute probabilities of less likely categories.
             double pCumulative = 0.0;
-            for (std::size_t i = 0u, j = 0u; i < pCategories.size(); /**/) {
+            for (std::size_t i = 0u, j = 0; i < pCategories.size(); /**/) {
                 // Find the probability equal range [i, j).
                 double p = pCategories[i].get<1>();
                 pCumulative += p;
@@ -1015,7 +1015,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
             // Extract the indices of the categories we want.
             TSizeVec categoryIndices;
             categoryIndices.reserve(samples.size());
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 std::size_t index = std::lower_bound(m_Categories.begin(),
                                                      m_Categories.end(), samples[i]) -
                                     m_Categories.begin();
@@ -1025,7 +1025,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
             }
             std::sort(categoryIndices.begin(), categoryIndices.end());
 
-            for (std::size_t i = 0u; i < pCategories.size(); ++i) {
+            for (std::size_t i = 0; i < pCategories.size(); ++i) {
                 // For all categories that we actually want compute the
                 // average probability over a set of independent samples
                 // from the marginal prior for this category, which by the
@@ -1044,7 +1044,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
                               << ", samples = " << marginalSamples);
 
                     TMeanAccumulator pAcc;
-                    for (std::size_t k = 0u; k < marginalSamples.size(); ++k) {
+                    for (std::size_t k = 0; k < marginalSamples.size(); ++k) {
                         TDoubleDoubleSizeTr x(1.05 * marginalSamples[k], 0.0, 0);
                         ptrdiff_t r = std::min(
                             std::upper_bound(pCategories.begin(), pCategories.end(), x) -
@@ -1107,7 +1107,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
         TDoubleDoubleMap categoryCounts;
 
         // Count the occurrences of each category in the sample set.
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             double x = samples[i];
             double n = maths_t::count(weights[i]);
             categoryCounts[x] += n;
@@ -1156,7 +1156,7 @@ bool CMultinomialConjugate::probabilityOfLessLikelySamples(maths_t::EProbability
         CJointProbabilityOfLessLikelySamples jointUpperBound;
 
         detail::CCdfComplement cdfComplement(m_Categories, m_Concentrations, m_TotalConcentration);
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             double x = samples[i];
             double n = maths_t::count(weights[i]);
             double sampleLowerBound, sampleUpperBound;
@@ -1205,7 +1205,7 @@ std::string CMultinomialConjugate::printJointDensityFunction() const {
     result << "hold off" << core_t::LINE_ENDING;
 
     // We show the marginals for each category plotted on the same axes.
-    for (std::size_t i = 0u; i < m_Concentrations.size(); ++i) {
+    for (std::size_t i = 0; i < m_Concentrations.size(); ++i) {
         double a = m_Concentrations[i];
         double b = m_TotalConcentration - m_Concentrations[i];
         boost::math::beta_distribution<> beta(a, b);
@@ -1216,14 +1216,14 @@ std::string CMultinomialConjugate::printJointDensityFunction() const {
         double x = xStart;
 
         result << "x = [";
-        for (unsigned int j = 0u; j < POINTS; ++j, x += xIncrement) {
+        for (unsigned int j = 0; j < POINTS; ++j, x += xIncrement) {
             result << x << " ";
         }
         result << "];" << core_t::LINE_ENDING;
 
         result << "pdf = [";
         x = xStart;
-        for (unsigned int j = 0u; j < POINTS; ++j, x += xIncrement) {
+        for (unsigned int j = 0; j < POINTS; ++j, x += xIncrement) {
             result << CTools::safePdf(beta, x) << " ";
         }
         result << "];" << core_t::LINE_ENDING;
@@ -1276,11 +1276,11 @@ void CMultinomialConjugate::removeCategories(TDoubleVec categoriesToRemove) {
         return;
     }
 
-    std::size_t end = 0u;
+    std::size_t end = 0;
 
     std::sort(categoriesToRemove.begin(), categoriesToRemove.end());
     categoriesToRemove.push_back(boost::numeric::bounds<double>::highest());
-    for (std::size_t i = 0u, j = 0u; i < m_Categories.size(); /**/) {
+    for (std::size_t i = 0u, j = 0; i < m_Categories.size(); /**/) {
         if (m_Categories[i] < categoriesToRemove[j]) {
             std::swap(m_Categories[end], m_Categories[i]);
             std::swap(m_Concentrations[end], m_Concentrations[i]);
@@ -1353,7 +1353,7 @@ bool CMultinomialConjugate::probability(double category, double& result) const {
 
 CMultinomialConjugate::TDoubleVec CMultinomialConjugate::probabilities() const {
     TDoubleVec result(m_Concentrations);
-    for (std::size_t i = 0u; i < result.size(); ++i) {
+    for (std::size_t i = 0; i < result.size(); ++i) {
         result[i] /= m_TotalConcentration;
     }
     return result;
@@ -1381,7 +1381,7 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
 
         {
             double r = 1.0 / static_cast<double>(m_Concentrations.size());
-            for (std::size_t i = 0u; i < m_Concentrations.size(); ++i) {
+            for (std::size_t i = 0; i < m_Concentrations.size(); ++i) {
                 double p = m_Concentrations[i] / m_TotalConcentration;
                 pCategories.emplace_back(p, p, i);
                 pU += r - p;
@@ -1402,7 +1402,7 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
 
             // Compute probabilities of less likely categories.
             double pCumulative = 0.0;
-            for (std::size_t i = 0u, j = 0u; i < pCategories.size(); /**/) {
+            for (std::size_t i = 0u, j = 0; i < pCategories.size(); /**/) {
                 // Find the probability equal range [i, j).
                 double p = pCategories[i].get<1>();
                 pCumulative += p;
@@ -1431,7 +1431,7 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
         double pLast = -1.0;
         std::size_t n = detail::numberPriorSamples(m_TotalConcentration);
         LOG_TRACE(<< "n = " << n);
-        for (std::size_t i = 0u; i < pCategories.size(); ++i) {
+        for (std::size_t i = 0; i < pCategories.size(); ++i) {
             std::size_t j = pCategories[i].get<2>();
 
             // We compute the average probability over a set of
@@ -1451,7 +1451,7 @@ void CMultinomialConjugate::probabilitiesOfLessLikelyCategories(maths_t::EProbab
                           << ", samples = " << core::CContainerPrinter::print(samples));
 
                 TMeanAccumulator pAcc;
-                for (std::size_t k = 0u; k < samples.size(); ++k) {
+                for (std::size_t k = 0; k < samples.size(); ++k) {
                     TDoubleDoubleSizeTr x(1.05 * samples[k], 0.0, 0);
                     ptrdiff_t r = std::min(
                         std::upper_bound(pCategories.begin(), pCategories.end(), x) -
@@ -1523,7 +1523,7 @@ CMultinomialConjugate::confidenceIntervalProbabilities(double percentage) const 
     double lowerPercentile = 0.5 * (1.0 - percentage);
     double upperPercentile = 0.5 * (1.0 + percentage);
 
-    for (std::size_t i = 0u; i < m_Concentrations.size(); ++i) {
+    for (std::size_t i = 0; i < m_Concentrations.size(); ++i) {
         double a = m_Concentrations[i];
         double b = m_TotalConcentration - m_Concentrations[i];
         boost::math::beta_distribution<> beta(a, b);

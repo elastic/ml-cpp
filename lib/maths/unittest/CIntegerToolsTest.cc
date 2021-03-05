@@ -28,7 +28,7 @@ using TSizeVec = std::vector<std::size_t>;
 
 std::string printBits(std::uint64_t x) {
     std::string result(64, '0');
-    for (std::size_t i = 0u; i < 64; ++i, x >>= 1) {
+    for (std::size_t i = 0; i < 64; ++i, x >>= 1) {
         if (x & 0x1) {
             result[63 - i] = '1';
         }
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(testNextPow2) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t test = 1u, shift = 1u;
+    for (std::size_t test = 1u, shift = 1;
          test < (std::numeric_limits<std::size_t>::max() >> 1) + 1; test <<= 1, ++shift) {
         LOG_DEBUG(<< "Testing shift = " << shift);
 
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(testNextPow2) {
 
         TSizeVec offsets;
         rng.generateUniformSamples(0, test, 100, offsets);
-        for (std::size_t i = 0u; i < offsets.size(); ++i) {
+        for (std::size_t i = 0; i < offsets.size(); ++i) {
             BOOST_REQUIRE_EQUAL(shift, maths::CIntegerTools::nextPow2(test + offsets[i]));
         }
     }
@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE(testReverseBits) {
 
     std::string expected;
     std::string actual;
-    for (std::size_t i = 0u; i < values.size(); ++i) {
+    for (std::size_t i = 0; i < values.size(); ++i) {
         std::uint64_t x = static_cast<std::uint64_t>(values[i]);
         expected = printBits(x);
         std::reverse(expected.begin(), expected.end());
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE(testGcd) {
     LOG_DEBUG(<< "--- gcd(a, b) ---");
     std::size_t primes[] = {2,  3,  5,  7,   11,   13,  17,
                             19, 29, 97, 821, 5851, 7877};
-    for (std::size_t i = 0u; i < 1000; ++i) {
+    for (std::size_t i = 0; i < 1000; ++i) {
         TSizeVec indices;
         TSizeVec split;
         rng.generateUniformSamples(0, boost::size(primes), 7, indices);
@@ -114,12 +114,12 @@ BOOST_AUTO_TEST_CASE(testGcd) {
 
         // Use 64 bit integers here otherwise overflow will occur in 32 bit code
         std::uint64_t bigGcd = 1;
-        for (std::size_t j = 0u; j < cf.size(); ++j) {
+        for (std::size_t j = 0; j < cf.size(); ++j) {
             bigGcd *= primes[cf[j]];
         }
 
         std::uint64_t big1 = 1;
-        for (std::size_t j = 0u; j < split[0]; ++j) {
+        for (std::size_t j = 0; j < split[0]; ++j) {
             big1 *= primes[indices[j]];
         }
         std::uint64_t big2 = 1;
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE(testGcd) {
     }
 
     LOG_DEBUG(<< "--- gcd(a, b, c) ---");
-    for (std::size_t i = 0u; i < 1000; ++i) {
+    for (std::size_t i = 0; i < 1000; ++i) {
         TSizeVec indices;
         rng.generateUniformSamples(0, 10, 9, indices);
         std::sort(indices.begin(), indices.begin() + 3);
@@ -147,12 +147,12 @@ BOOST_AUTO_TEST_CASE(testGcd) {
                               indices.end(), std::back_inserter(tmp));
         cf.swap(tmp);
         std::size_t gcd = 1;
-        for (std::size_t j = 0u; j < cf.size(); ++j) {
+        for (std::size_t j = 0; j < cf.size(); ++j) {
             gcd *= primes[cf[j]];
         }
 
         TSizeVec n(3, 1);
-        for (std::size_t j = 0u; j < 3; ++j) {
+        for (std::size_t j = 0; j < 3; ++j) {
             n[0] *= primes[indices[j]];
         }
         for (std::size_t j = 3; j < 6; ++j) {
@@ -228,8 +228,8 @@ BOOST_AUTO_TEST_CASE(testLcm) {
 BOOST_AUTO_TEST_CASE(testBinomial) {
     unsigned int n[] = {1u, 2u, 5u, 7u, 10u};
 
-    for (std::size_t i = 0u; i < boost::size(n); ++i) {
-        for (unsigned int j = 0u; j <= n[i]; ++j) {
+    for (std::size_t i = 0; i < boost::size(n); ++i) {
+        for (unsigned int j = 0; j <= n[i]; ++j) {
             LOG_DEBUG(<< "j = " << j << ", n = " << n[i]
                       << ", (n j) = " << maths::CIntegerTools::binomial(n[i], j));
 

@@ -230,7 +230,7 @@ public:
 
         TPoint numberSamples(0.0);
         TCovariance covariancePost(N);
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             TPoint x(samples[i]);
             TPoint n(maths_t::countForUpdate(weights[i]));
             TPoint varianceScale = TPoint(maths_t::seasonalVarianceScale(weights[i])) *
@@ -270,7 +270,7 @@ public:
             double truncatedMean = max(m_GaussianMean, TPoint(1e-8)).euclidean();
             double minimumDeviation = truncatedMean * MINIMUM_COEFFICIENT_OF_VARIATION;
             double minimumDiagonal = m_WishartDegreesFreedom * minimumDeviation * minimumDeviation;
-            for (std::size_t i = 0u; i < N; ++i) {
+            for (std::size_t i = 0; i < N; ++i) {
                 m_WishartScaleMatrix(i, i) = std::max(m_WishartScaleMatrix(i, i), minimumDiagonal);
             }
         }
@@ -466,9 +466,9 @@ public:
 
         TPoint2 m1;
         TMatrix2 c11;
-        for (std::size_t i = 0u; i < 2; ++i) {
+        for (std::size_t i = 0; i < 2; ++i) {
             m1(i) = m(i1[i]);
-            for (std::size_t j = 0u; j < 2; ++j) {
+            for (std::size_t j = 0; j < 2; ++j) {
                 c11(i, j) = c(i1[i], i1[j]);
             }
         }
@@ -595,7 +595,7 @@ public:
 
             TDoubleVec z;
             CSampling::uniformSample(0.0, 1.0, 3 * N, z);
-            for (std::size_t i = 0u; i < z.size(); i += N) {
+            for (std::size_t i = 0; i < z.size(); i += N) {
                 status = this->jointLogMarginalLikelihood(
                     samples, TPoint(&z[i], &z[i + N]), weights, logLikelihood);
                 if (status & maths_t::E_FpFailed) {
@@ -683,7 +683,7 @@ public:
         double v = m_WishartDegreesFreedom - d - 1.0;
         TPoint mean(m_GaussianMean);
         TMatrix covariance(m_WishartScaleMatrix);
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             if (m_GaussianPrecision(i) > 0.0 && v > 0.0) {
                 scaleCovariances(i, (1.0 - 1.0 / m_GaussianPrecision(i)) / v, covariance);
             }
@@ -819,7 +819,7 @@ public:
         std::size_t rank = static_cast<std::size_t>(precision.rank());
 
         TDenseVector diag = precision.singularValues();
-        for (std::size_t i = 0u; i < rank; ++i) {
+        for (std::size_t i = 0; i < rank; ++i) {
             diag(i) = 1.0 / std::sqrt(diag(i));
         }
         for (std::size_t i = rank; i < N; ++i) {
@@ -832,7 +832,7 @@ public:
 
         TDoubleVec chi;
         TDoubleVec chii;
-        for (std::size_t i = 0u; i < rank; ++i) {
+        for (std::size_t i = 0; i < rank; ++i) {
             chii.clear();
             CSampling::chiSquaredSample(f - static_cast<double>(i), n, chii);
             chi.insert(chi.end(), chii.begin(), chii.end());
@@ -841,11 +841,11 @@ public:
         CSampling::normalSample(0.0, 1.0, n * rank * (rank - 1) / 2, normal);
 
         TDenseMatrix A(N, N);
-        for (std::size_t s = 0u; s < n; ++s) {
+        for (std::size_t s = 0; s < n; ++s) {
             A.setZero();
-            for (std::size_t i = 0, k = 0u; i < rank; ++i) {
+            for (std::size_t i = 0, k = 0; i < rank; ++i) {
                 A(i, i) = std::sqrt(chi[i * n + s]);
-                for (std::size_t j = 0u; j < i; ++j, ++k) {
+                for (std::size_t j = 0; j < i; ++j, ++k) {
                     A(i, j) = normal[(s * rank * (rank - 1)) / 2 + k];
                 }
             }
@@ -876,7 +876,7 @@ public:
         double f = m_WishartDegreesFreedom - d + 1.0;
         TPoint mean(m_GaussianMean);
         TMatrix covariance = m_WishartScaleMatrix;
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             if (m_GaussianPrecision(i) > 0.0 && f > 0.0) {
                 scaleCovariances(i, 1.0 / (m_GaussianPrecision(i) * f), covariance);
             }
@@ -890,7 +890,7 @@ public:
         TPoint zero(0.0);
         CSampling::multivariateNormalSample(zero, covariance, n, result);
 
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             result[i] = mean + (f / chi[i]) * result[i];
         }
     }
@@ -918,7 +918,7 @@ public:
         TPoint zero(0.0);
         CSampling::multivariateNormalSample(zero, m_WishartScaleMatrix, n, result);
 
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             result[i] = mean + (f / chi[i]) * result[i];
         }
     }
@@ -939,7 +939,7 @@ public:
         double d = static_cast<double>(N);
         double v = m_WishartDegreesFreedom - d - 1.0;
         TMatrix covariance(m_WishartScaleMatrix);
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             if (m_GaussianPrecision(i) > 0.0 && v > 0.0) {
                 scaleCovariances(i, (1.0 - 1.0 / m_GaussianPrecision(i)) / v, covariance);
             }
@@ -1018,7 +1018,7 @@ private:
                 TSize10Vec& condition_,
                 CDenseVector<double>& x) const {
         condition_.reserve(condition.size());
-        for (std::size_t i = 0u; i < condition.size(); ++i) {
+        for (std::size_t i = 0; i < condition.size(); ++i) {
             condition_.push_back(condition[i].first);
             x(i) = condition[i].second;
         }
@@ -1040,7 +1040,7 @@ private:
         TCovariance covariancePost(N);
         double logCountVarianceScales = 0.0;
         TPoint m(this->marginalLikelihoodMean());
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             TPoint x(samples[i]);
             TPoint n(maths_t::countForUpdate(weights[i]));
             TPoint seasonalScale =
@@ -1049,7 +1049,7 @@ private:
             x = m + (x + offset - m) / seasonalScale;
             numberSamples += this->smallest(n.template toVector<TDouble10Vec>());
             covariancePost.add(x, n / countVarianceScale);
-            for (std::size_t j = 0u; j < N; ++j) {
+            for (std::size_t j = 0; j < N; ++j) {
                 logCountVarianceScales -= 0.5 * std::log(countVarianceScale(j));
             }
         }
@@ -1061,7 +1061,7 @@ private:
 
         double logGaussianPrecisionPrior = 0.0;
         double logGaussianPrecisionPost = 0.0;
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             logGaussianPrecisionPrior += std::log(m_GaussianPrecision(i));
             logGaussianPrecisionPost +=
                 std::log(m_GaussianPrecision(i) + scaledNumberSamples(i));
@@ -1085,7 +1085,7 @@ private:
         double logGammaPrior = 0.0;
         double logGammaPostMinusPrior = 0.0;
 
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             if (CTools::lgamma(0.5 * (wishartDegreesFreedomPost - static_cast<double>(i)),
                                logGammaPost, true) &&
                 CTools::lgamma(0.5 * (wishartDegreesFreedomPrior - static_cast<double>(i)),

@@ -82,7 +82,7 @@ public:
     using std::swap;                                                           \
     std::size_t last{0u};                                                      \
     std::size_t n{values1.size()};                                             \
-    for (std::size_t i = 0u; i < n; ++i) {                                     \
+    for (std::size_t i = 0; i < n; ++i) {                                      \
         if (last != i) {                                                       \
             CUSTOM_SWAP_VALUES                                                 \
         }                                                                      \
@@ -150,7 +150,7 @@ public:
     template<typename ITR1, typename ITR2>
     static std::size_t
     setIntersectSize(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
-        std::size_t result = 0u;
+        std::size_t result = 0;
         while (beginLhs != endLhs && beginRhs != endRhs) {
             if (*beginLhs < *beginRhs) {
                 ++beginLhs;
@@ -169,7 +169,7 @@ public:
     //! [\p beginLhs, \p endLhs) and [\p beginRhs, \p endRhs).
     template<typename ITR1, typename ITR2>
     static std::size_t setUnionSize(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
-        std::size_t result = 0u;
+        std::size_t result = 0;
         while (beginLhs != endLhs && beginRhs != endRhs) {
             if (*beginLhs < *beginRhs) {
                 ++beginLhs;
@@ -190,8 +190,8 @@ public:
     //! This is defined as \f$\frac{|A\cap B|}{|A\cup B|}\f$.
     template<typename ITR1, typename ITR2>
     static double jaccard(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
-        std::size_t numer = 0u;
-        std::size_t denom = 0u;
+        std::size_t numer = 0;
+        std::size_t denom = 0;
         while (beginLhs != endLhs && beginRhs != endRhs) {
             if (*beginLhs < *beginRhs) {
                 ++beginLhs;
@@ -215,9 +215,9 @@ public:
     //! This is defined as \f$\frac{|A\cap B|}{\min(|A|,|B|)}\f$.
     template<typename ITR1, typename ITR2>
     static double overlap(ITR1 beginLhs, ITR1 endLhs, ITR2 beginRhs, ITR2 endRhs) {
-        std::size_t numer = 0u;
-        std::size_t nl = 0u;
-        std::size_t nr = 0u;
+        std::size_t numer = 0;
+        std::size_t nl = 0;
+        std::size_t nr = 0;
         while (beginLhs != endLhs && beginRhs != endRhs) {
             if (*beginLhs < *beginRhs) {
                 ++beginLhs;

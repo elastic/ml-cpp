@@ -159,7 +159,7 @@ double maximumLikelihoodShape(double oldShape,
     static const double MIN_DOWN_FACTOR = 0.25;
     static const double MAX_UP_FACTOR = 8.0;
 
-    std::size_t maxIterations = 20u;
+    std::size_t maxIterations = 20;
 
     double oldNumber = CBasicStatistics::count(oldMoments);
     double oldMean = CBasicStatistics::mean(oldMoments);
@@ -363,7 +363,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             // The non-informative prior is improper and effectively zero
             // everywhere. (It is acceptable to approximate all finite samples
             // as at the median of this distribution.)
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 double n = maths_t::count(weights[i]);
                 double x = samples[i] + offset;
                 result = aggregate(result, func(CTools::SImproperDistribution(), x), n);
@@ -393,7 +393,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             double rate = (priorShape - 2.0) / priorRate;
             LOG_TRACE(<< "shape = " << shape << ", rate = " << rate);
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 // We assume the data are described by X = Y - u where, Y is
                 // gamma distributed and u is a constant offset. This means
                 // that {x(i) + u} are gamma distributed.
@@ -420,7 +420,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             //
             // and then using the beta distribution.
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 // We assume the data are described by X = Y - u where, Y is
                 // gamma distributed and u is a constant offset. This means
                 // that {x(i) + u} are gamma distributed.
@@ -586,7 +586,7 @@ public:
         double logSeasonalScaleSum = 0.0;
 
         try {
-            for (std::size_t i = 0u; i < m_Samples.size(); ++i) {
+            for (std::size_t i = 0; i < m_Samples.size(); ++i) {
                 double n = maths_t::countForUpdate(m_Weights[i]);
                 double varianceScale = maths_t::seasonalVarianceScale(m_Weights[i]) *
                                        maths_t::countVarianceScale(m_Weights[i]);
@@ -637,7 +637,7 @@ private:
         double logGammaScaledLikelihoodShape = 0.0;
         double scaledImpliedShape = 0.0;
 
-        for (std::size_t i = 0u; i < m_Weights.size(); ++i) {
+        for (std::size_t i = 0; i < m_Weights.size(); ++i) {
             double n = maths_t::countForUpdate(m_Weights[i]);
             double varianceScale = maths_t::seasonalVarianceScale(m_Weights[i]) *
                                    maths_t::countVarianceScale(m_Weights[i]);
@@ -873,7 +873,7 @@ void CGammaRateConjugate::addSamples(const TDouble1Vec& samples,
 
     try {
         double shift = boost::math::digamma(m_LikelihoodShape);
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             double x = samples[i] + m_Offset;
             double n = maths_t::countForUpdate(weights[i]);
             double varianceScale = maths_t::seasonalVarianceScale(weights[i]) *
@@ -1260,7 +1260,7 @@ void CGammaRateConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
 
         double lastPartialExpectation = 0.0;
 
-        for (std::size_t i = 1u; i < numberSamples; ++i) {
+        for (std::size_t i = 1; i < numberSamples; ++i) {
             double q = static_cast<double>(i) / static_cast<double>(numberSamples);
             double xq = boost::math::quantile(beta1, q);
 
@@ -1500,7 +1500,7 @@ std::string CGammaRateConjugate::printJointDensityFunction() const {
     std::ostringstream xCoordinates;
     std::ostringstream yCoordinates;
     xCoordinates << "x = [";
-    for (unsigned int i = 0u; i < POINTS; ++i, x += xIncrement) {
+    for (unsigned int i = 0; i < POINTS; ++i, x += xIncrement) {
         xCoordinates << x << " ";
     }
     xCoordinates << "];" << core_t::LINE_ENDING;
@@ -1508,7 +1508,7 @@ std::string CGammaRateConjugate::printJointDensityFunction() const {
     std::ostringstream pdf;
     pdf << "pdf = [";
     x = xStart;
-    for (unsigned int i = 0u; i < POINTS; ++i, x += xIncrement) {
+    for (unsigned int i = 0; i < POINTS; ++i, x += xIncrement) {
         pdf << CTools::safePdf(gamma, x) << " ";
     }
     pdf << "];" << core_t::LINE_ENDING << "plot(x, pdf);";

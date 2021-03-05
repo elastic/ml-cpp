@@ -67,10 +67,10 @@ BOOST_AUTO_TEST_CASE(testClassification) {
             nb.initialClassCounts({{initialCount, 1}, {initialCount, 2}});
         }
 
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             nb.addTrainingDataPoint(1, {{trainingData[0][i]}, {trainingData[1][i]}});
         }
-        for (std::size_t i = 0u; i < 200; ++i) {
+        for (std::size_t i = 0; i < 200; ++i) {
             nb.addTrainingDataPoint(2, {{trainingData[2][i]}, {trainingData[3][i]}});
         }
 
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(testClassification) {
 
         TMeanAccumulator meanErrors[3];
 
-        for (std::size_t i = 0u; i < xtest.size(); i += 2) {
+        for (std::size_t i = 0; i < xtest.size(); i += 2) {
             auto test = [i](double p1, double p2, const TDoubleSizePrVec& p,
                             TMeanAccumulator& meanError) {
                 double Z{p1 + p2};
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(testClassification) {
             test(p1, p2, probabilities, meanErrors[2]);
         }
 
-        for (std::size_t i = 0u; i < 3; ++i) {
+        for (std::size_t i = 0; i < 3; ++i) {
             LOG_DEBUG(<< "Mean relative error = "
                       << maths::CBasicStatistics::mean(meanErrors[i]));
             BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(meanErrors[i]) < 0.05);
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(testUninitialized) {
 
     TDoubleVec trainingData[2];
 
-    for (std::size_t i = 0u; i < 2; ++i) {
+    for (std::size_t i = 0; i < 2; ++i) {
         BOOST_REQUIRE_EQUAL(false, nb.initialized());
 
         double x{static_cast<double>(i)};
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE(testPropagationByTime) {
         maths::CNaiveBayes{maths::CNaiveBayesFeatureDensityFromPrior(normal), 0.05}};
 
     TDoubleVec trainingData[4];
-    for (std::size_t i = 0u; i < 1000; ++i) {
+    for (std::size_t i = 0; i < 1000; ++i) {
         double x{static_cast<double>(i)};
         rng.generateNormalSamples(0.02 * x - 14.0, 16.0, 1, trainingData[0]);
         rng.generateNormalSamples(0.02 * x - 14.0, 16.0, 1, trainingData[1]);
@@ -279,10 +279,10 @@ BOOST_AUTO_TEST_CASE(testMemoryUsage) {
     TNaiveBayesUPtr nb{std::make_unique<maths::CNaiveBayes>(
         maths::CNaiveBayesFeatureDensityFromPrior(normal), 0.1)};
 
-    for (std::size_t i = 0u; i < 100; ++i) {
+    for (std::size_t i = 0; i < 100; ++i) {
         nb->addTrainingDataPoint(1, {{trainingData[0][i]}, {trainingData[1][i]}});
     }
-    for (std::size_t i = 0u; i < 200; ++i) {
+    for (std::size_t i = 0; i < 200; ++i) {
         nb->addTrainingDataPoint(2, {{trainingData[2][i]}, {trainingData[3][i]}});
     }
 
@@ -313,10 +313,10 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         maths_t::E_ContinuousData, 0.1)};
     maths::CNaiveBayes origNb{maths::CNaiveBayesFeatureDensityFromPrior(normal), 0.1};
 
-    for (std::size_t i = 0u; i < 100; ++i) {
+    for (std::size_t i = 0; i < 100; ++i) {
         origNb.addTrainingDataPoint(1, {{trainingData[0][i]}, {trainingData[1][i]}});
     }
-    for (std::size_t i = 0u; i < 200; ++i) {
+    for (std::size_t i = 0; i < 200; ++i) {
         origNb.addTrainingDataPoint(2, {{trainingData[2][i]}, {trainingData[3][i]}});
     }
 

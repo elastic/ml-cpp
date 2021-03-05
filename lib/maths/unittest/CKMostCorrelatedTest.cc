@@ -81,7 +81,7 @@ double mutualInformation(const TDoubleVec& p1, const TDoubleVec& p2) {
     double f2[] = {0.0, 0.0};
     double f12[][2] = {{0.0, 0.0}, {0.0, 0.0}};
 
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         f1[p1[i] < 0 ? 0 : 1] += 1.0;
         f2[p2[i] < 0 ? 0 : 1] += 1.0;
         f12[p1[i] < 0 ? 0 : 1][p2[i] < 0 ? 0 : 1] += 1.0;
@@ -90,8 +90,8 @@ double mutualInformation(const TDoubleVec& p1, const TDoubleVec& p2) {
     double I = 0.0;
     double H1 = 0.0;
     double H2 = 0.0;
-    for (std::size_t i = 0u; i < 2; ++i) {
-        for (std::size_t j = 0u; j < 2; ++j) {
+    for (std::size_t i = 0; i < 2; ++i) {
+        for (std::size_t j = 0; j < 2; ++j) {
             if (f12[i][j] > 0.0) {
                 I += f12[i][j] / static_cast<double>(n) *
                      std::log(f12[i][j] * static_cast<double>(n) / f1[i] / f2[j]);
@@ -122,14 +122,14 @@ void estimateCorrelation(const std::size_t trials,
 
     TMeanVar2Accumulator sampleMoments;
 
-    for (std::size_t t = 0u; t < trials; ++t) {
+    for (std::size_t t = 0; t < trials; ++t) {
         TVector2Vec samples;
         maths::CSampling::multivariateNormalSample(mean, covariance, 50, samples);
 
         TVector10Vec projections;
         TDoubleVec uniform01;
         rng.generateUniformSamples(0.0, 1.0, 500, uniform01);
-        for (std::size_t i = 0u; i < uniform01.size(); i += 10) {
+        for (std::size_t i = 0; i < uniform01.size(); i += 10) {
             double v[] = {uniform01[i + 0] < 0.5 ? -1.0 : 1.0,
                           uniform01[i + 1] < 0.5 ? -1.0 : 1.0,
                           uniform01[i + 2] < 0.5 ? -1.0 : 1.0,
@@ -147,7 +147,7 @@ void estimateCorrelation(const std::size_t trials,
 
         TVector10 px(0.0);
         TVector10 py(0.0);
-        for (std::size_t i = 0u; i < projections.size(); ++i) {
+        for (std::size_t i = 0; i < projections.size(); ++i) {
             sampleMoments.add(samples[i]);
             if (maths::CBasicStatistics::count(sampleMoments) > 1.0) {
                 px += projections[i] *
@@ -251,30 +251,30 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
 
     CKMostCorrelatedForTest::TVectorVec p1 = mostCorrelated.projections();
     LOG_DEBUG(<< "projections 1 = ");
-    for (std::size_t i = 0u; i < p1.size(); ++i) {
+    for (std::size_t i = 0; i < p1.size(); ++i) {
         LOG_DEBUG(<< "  " << core::CContainerPrinter::print(p1[i]));
     }
     BOOST_TEST_REQUIRE(!p1.empty());
     BOOST_REQUIRE_EQUAL(std::size_t(10), p1[0].dimension());
     TDoubleVecVec projections1(10, TDoubleVec(p1.size()));
-    for (std::size_t i = 0u; i < p1.size(); ++i) {
-        for (std::size_t j = 0u; j < p1[i].dimension(); ++j) {
+    for (std::size_t i = 0; i < p1.size(); ++i) {
+        for (std::size_t j = 0; j < p1[i].dimension(); ++j) {
             projections1[j][i] = p1[i](j);
         }
     }
 
     TMeanAccumulator I1;
-    for (std::size_t i = 0u; i < projections1.size(); ++i) {
-        for (std::size_t j = 0u; j < i; ++j) {
+    for (std::size_t i = 0; i < projections1.size(); ++i) {
+        for (std::size_t j = 0; j < i; ++j) {
             I1.add(mutualInformation(projections1[i], projections1[j]));
         }
     }
     LOG_DEBUG(<< "I1 = " << maths::CBasicStatistics::mean(I1));
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(I1) < 0.1);
 
-    for (std::size_t i = 0u; i < 19; ++i) {
-        for (std::size_t j = 0u, X = 0u; j < variables; j += 2) {
-            for (std::size_t k = 0u; k < boost::size(combinations); ++k, ++X) {
+    for (std::size_t i = 0; i < 19; ++i) {
+        for (std::size_t j = 0u, X = 0; j < variables; j += 2) {
+            for (std::size_t k = 0; k < boost::size(combinations); ++k, ++X) {
                 double x = combinations[k][0] * samples[i * variables + j] +
                            combinations[k][1] * samples[i * variables + j + 1];
                 mostCorrelated.add(X, x);
@@ -284,8 +284,8 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
     }
 
     // This should trigger the next projection to be generated.
-    for (std::size_t i = 0u, X = 0u; i < variables; i += 2) {
-        for (std::size_t j = 0u; j < boost::size(combinations); ++j, ++X) {
+    for (std::size_t i = 0u, X = 0; i < variables; i += 2) {
+        for (std::size_t j = 0; j < boost::size(combinations); ++j, ++X) {
             double x = combinations[j][0] * samples[19 * variables + i] +
                        combinations[j][1] * samples[19 * variables + i + 1];
             mostCorrelated.add(X, x);
@@ -302,40 +302,40 @@ BOOST_AUTO_TEST_CASE(testNextProjection) {
 
     CKMostCorrelatedForTest::TVectorVec p2 = mostCorrelated.projections();
     LOG_DEBUG(<< "projections 2 = ");
-    for (std::size_t i = 0u; i < p2.size(); ++i) {
+    for (std::size_t i = 0; i < p2.size(); ++i) {
         LOG_DEBUG(<< "  " << core::CContainerPrinter::print(p2[i]));
     }
     BOOST_TEST_REQUIRE(!p2.empty());
     BOOST_REQUIRE_EQUAL(std::size_t(10), p2[0].dimension());
     TDoubleVecVec projections2(10, TDoubleVec(p2.size()));
-    for (std::size_t i = 0u; i < p2.size(); ++i) {
-        for (std::size_t j = 0u; j < p2[i].dimension(); ++j) {
+    for (std::size_t i = 0; i < p2.size(); ++i) {
+        for (std::size_t j = 0; j < p2[i].dimension(); ++j) {
             projections2[j][i] = p2[i](j);
         }
     }
 
     TMeanAccumulator I2;
-    for (std::size_t i = 0u; i < projections2.size(); ++i) {
-        for (std::size_t j = 0u; j < i; ++j) {
+    for (std::size_t i = 0; i < projections2.size(); ++i) {
+        for (std::size_t j = 0; j < i; ++j) {
             I2.add(mutualInformation(projections2[i], projections2[j]));
         }
     }
     LOG_DEBUG(<< "I2 = " << maths::CBasicStatistics::mean(I2));
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(I2) < 0.1);
     TMeanAccumulator I12;
-    for (std::size_t i = 0u; i < projections1.size(); ++i) {
-        for (std::size_t j = 0u; j < projections2.size(); ++j) {
+    for (std::size_t i = 0; i < projections1.size(); ++i) {
+        for (std::size_t j = 0; j < projections2.size(); ++j) {
             I12.add(mutualInformation(projections1[i], projections2[j]));
         }
     }
     LOG_DEBUG(<< "I12 = " << maths::CBasicStatistics::mean(I12));
     BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(I12) < 0.1);
 
-    for (std::size_t i = 0u; i < moments1.size(); ++i) {
+    for (std::size_t i = 0; i < moments1.size(); ++i) {
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::count(moments1[i]) >
                            maths::CBasicStatistics::count(moments2[i]));
     }
-    for (std::size_t i = 0u; i < correlations2.size(); ++i) {
+    for (std::size_t i = 0; i < correlations2.size(); ++i) {
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::count(correlations2[i].s_Correlation) > 0.0);
         BOOST_TEST_REQUIRE(maths::CBasicStatistics::count(correlations2[i].s_Correlation) < 1.0);
     }
@@ -361,9 +361,9 @@ BOOST_AUTO_TEST_CASE(testMostCorrelated) {
     CKMostCorrelatedForTest mostCorrelated(100, 0.0);
     mostCorrelated.addVariables((variables * boost::size(combinations)) / 2);
 
-    for (std::size_t i = 0u; i < 19; ++i) {
-        for (std::size_t j = 0u, X = 0u; j < variables; j += 2) {
-            for (std::size_t k = 0u; k < boost::size(combinations); ++k, ++X) {
+    for (std::size_t i = 0; i < 19; ++i) {
+        for (std::size_t j = 0u, X = 0; j < variables; j += 2) {
+            for (std::size_t k = 0; k < boost::size(combinations); ++k, ++X) {
                 double x = combinations[k][0] * samples[i * variables + j] +
                            combinations[k][1] * samples[i * variables + j + 1];
                 mostCorrelated.add(X, x);
@@ -412,8 +412,8 @@ BOOST_AUTO_TEST_CASE(testRemoveVariables) {
     TDoubleVec samples;
     rng.generateUniformSamples(0.0, 10.0, 2000, samples);
 
-    for (std::size_t i = 0u; i < samples.size(); i += 10) {
-        for (std::size_t j = 0u; j < 10; j += 2) {
+    for (std::size_t i = 0; i < samples.size(); i += 10) {
+        for (std::size_t j = 0; j < 10; j += 2) {
             samples[i + j + 1] = combinations[0][0] * samples[i + j] +
                                  combinations[0][1] * samples[i + j + 1];
         }
@@ -422,8 +422,8 @@ BOOST_AUTO_TEST_CASE(testRemoveVariables) {
     CKMostCorrelatedForTest mostCorrelated(10, 0.0);
     mostCorrelated.addVariables(10);
 
-    for (std::size_t i = 0u; i < samples.size(); i += 10) {
-        for (std::size_t j = 0u; j < 10; ++j) {
+    for (std::size_t i = 0; i < samples.size(); i += 10) {
+        for (std::size_t j = 0; j < 10; ++j) {
             mostCorrelated.add(j, samples[i + j]);
         }
         mostCorrelated.capture();
@@ -439,7 +439,7 @@ BOOST_AUTO_TEST_CASE(testRemoveVariables) {
     mostCorrelated.mostCorrelated(correlatedPairs);
     LOG_DEBUG(<< "correlatedPairs = " << core::CContainerPrinter::print(correlatedPairs));
 
-    for (std::size_t i = 0u; i < correlatedPairs.size(); ++i) {
+    for (std::size_t i = 0; i < correlatedPairs.size(); ++i) {
         BOOST_TEST_REQUIRE(std::find(remove.begin(), remove.end(),
                                      correlatedPairs[i].first) == remove.end());
         BOOST_TEST_REQUIRE(std::find(remove.begin(), remove.end(),
@@ -459,14 +459,14 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t t = 0u; t < 10; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "*** test = " << t + 1 << " ***");
 
         TDoubleVec samples;
         rng.generateUniformSamples(0.0, 10.0, 2000, samples);
 
-        for (std::size_t i = 0u; i < samples.size(); i += 10) {
-            for (std::size_t j = 0u; j < 10; j += 2) {
+        for (std::size_t i = 0; i < samples.size(); i += 10) {
+            for (std::size_t j = 0; j < 10; j += 2) {
                 samples[i + j + 1] = combinations[0][0] * samples[i + j] +
                                      combinations[0][1] * samples[i + j + 1];
             }
@@ -475,8 +475,8 @@ BOOST_AUTO_TEST_CASE(testAccuracy) {
         CKMostCorrelatedForTest mostCorrelated(10, 0.0);
         mostCorrelated.addVariables(10);
 
-        for (std::size_t i = 0u; i < samples.size(); i += 10) {
-            for (std::size_t j = 0u; j < 10; ++j) {
+        for (std::size_t i = 0; i < samples.size(); i += 10) {
+            for (std::size_t j = 0; j < 10; ++j) {
                 mostCorrelated.add(j, samples[i + j]);
             }
             mostCorrelated.capture();
@@ -519,12 +519,12 @@ BOOST_AUTO_TEST_CASE(testStability) {
     TDoubleVec samples;
     rng.generateUniformSamples(0.0, 10.0, 16000, samples);
 
-    for (std::size_t i = 0u; i < samples.size(); i += 20) {
-        for (std::size_t j = 0u; j < 10; j += 2) {
+    for (std::size_t i = 0; i < samples.size(); i += 20) {
+        for (std::size_t j = 0; j < 10; j += 2) {
             samples[i + j + 1] = combinations[0][0] * samples[i + j] +
                                  combinations[0][1] * samples[i + j + 1];
         }
-        for (std::size_t j = 10u; j < 20; j += 2) {
+        for (std::size_t j = 10; j < 20; j += 2) {
             samples[i + j + 1] = combinations[1][0] * samples[i + j] +
                                  combinations[1][1] * samples[i + j + 1];
         }
@@ -533,8 +533,8 @@ BOOST_AUTO_TEST_CASE(testStability) {
     CKMostCorrelatedForTest mostCorrelated(10, 0.0);
     mostCorrelated.addVariables(20);
 
-    for (std::size_t i = 0u; i < samples.size(); i += 20) {
-        for (std::size_t j = 0u; j < 20; ++j) {
+    for (std::size_t i = 0; i < samples.size(); i += 20) {
+        for (std::size_t j = 0; j < 20; ++j) {
             mostCorrelated.add(j, samples[i + j]);
         }
         mostCorrelated.capture();
@@ -572,8 +572,8 @@ BOOST_AUTO_TEST_CASE(testChangingCorrelation) {
     TDoubleVec samples;
     rng.generateUniformSamples(0.0, 10.0, 4000, samples);
 
-    for (std::size_t i = 0u; i < samples.size(); i += 10) {
-        for (std::size_t j = 0u; j < 8; j += 2) {
+    for (std::size_t i = 0; i < samples.size(); i += 10) {
+        for (std::size_t j = 0; j < 8; j += 2) {
             samples[i + j + 1] = combinations[0][0] * samples[i + j] +
                                  combinations[0][1] * samples[i + j + 1];
         }
@@ -586,8 +586,8 @@ BOOST_AUTO_TEST_CASE(testChangingCorrelation) {
     CKMostCorrelatedForTest mostCorrelated(10, 0.0);
     mostCorrelated.addVariables(10);
 
-    for (std::size_t i = 0u; i < samples.size(); i += 10) {
-        for (std::size_t j = 0u; j < 10; ++j) {
+    for (std::size_t i = 0; i < samples.size(); i += 10) {
+        for (std::size_t j = 0; j < 10; ++j) {
             mostCorrelated.add(j, samples[i + j]);
         }
         mostCorrelated.capture();
@@ -596,7 +596,7 @@ BOOST_AUTO_TEST_CASE(testChangingCorrelation) {
               << core::CContainerPrinter::print(mostCorrelated.correlations()));
 
     bool present = false;
-    for (std::size_t i = 0u; i < mostCorrelated.correlations().size(); ++i) {
+    for (std::size_t i = 0; i < mostCorrelated.correlations().size(); ++i) {
         if (mostCorrelated.correlations()[i].s_X == 8 &&
             mostCorrelated.correlations()[i].s_Y == 9) {
             BOOST_TEST_REQUIRE(maths::CBasicStatistics::mean(
@@ -624,8 +624,8 @@ BOOST_AUTO_TEST_CASE(testMissingData) {
     TDoubleVec samples;
     rng.generateUniformSamples(0.0, 10.0, 4000, samples);
 
-    for (std::size_t i = 0u; i < samples.size(); i += 10) {
-        for (std::size_t j = 0u; j < 10; j += 2) {
+    for (std::size_t i = 0; i < samples.size(); i += 10) {
+        for (std::size_t j = 0; j < 10; j += 2) {
             samples[i + j + 1] = combinations[0][0] * samples[i + j] +
                                  combinations[0][1] * samples[i + j + 1];
         }
@@ -634,8 +634,8 @@ BOOST_AUTO_TEST_CASE(testMissingData) {
     CKMostCorrelatedForTest mostCorrelated(10, 0.0);
     mostCorrelated.addVariables(10);
 
-    for (std::size_t i = 0u; i < samples.size(); i += 10) {
-        for (std::size_t j = 0u; j < 10; ++j) {
+    for (std::size_t i = 0; i < samples.size(); i += 10) {
+        for (std::size_t j = 0; j < 10; ++j) {
             if (j == 4 || j == 6) {
                 TDoubleVec test;
                 rng.generateUniformSamples(0.0, 1.0, 1, test);
@@ -682,7 +682,7 @@ BOOST_AUTO_TEST_CASE(testScale) {
     std::size_t n[] = {200, 400, 800, 1600, 3200};
     uint64_t elapsed[5];
 
-    for (std::size_t s = 0u; s < boost::size(n); ++s) {
+    for (std::size_t s = 0; s < boost::size(n); ++s) {
         double proportions[] = {0.2, 0.3, 0.5};
         std::size_t b = 200;
         std::size_t ns[] = {
@@ -707,10 +707,10 @@ BOOST_AUTO_TEST_CASE(testScale) {
 
         TDoubleVecVec samples(b, TDoubleVec(n[s]));
         const TDoubleVec* samples_[] = {&uniform, &gamma, &normal};
-        for (std::size_t i = 0u; i < b; ++i) {
-            for (std::size_t j = 0u, l = 0u; j < 3; ++j) {
+        for (std::size_t i = 0; i < b; ++i) {
+            for (std::size_t j = 0u, l = 0; j < 3; ++j) {
                 std::size_t m = samples_[j]->size() / b;
-                for (std::size_t k = 0u; k < m; ++k, ++l) {
+                for (std::size_t k = 0; k < m; ++k, ++l) {
                     samples[i][labels[l]] = scales[k] * (*samples_[j])[i * m + k];
                 }
             }
@@ -724,8 +724,8 @@ BOOST_AUTO_TEST_CASE(testScale) {
         core::CStopWatch watch;
 
         watch.start();
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
-            for (std::size_t j = 0u; j < samples[i].size(); j += 2) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
+            for (std::size_t j = 0; j < samples[i].size(); j += 2) {
                 double x = weights[0][0] * samples[i][j] +
                            weights[0][1] * samples[i][j + 1];
                 double y = weights[1][0] * samples[i][j] +
@@ -744,7 +744,7 @@ BOOST_AUTO_TEST_CASE(testScale) {
 
     // Test that the slope is subquadratic
     TMeanVarAccumulator slope;
-    for (std::size_t i = 1u; i < boost::size(elapsed); ++i) {
+    for (std::size_t i = 1; i < boost::size(elapsed); ++i) {
         slope.add(static_cast<double>(elapsed[i]) / static_cast<double>(elapsed[i - 1]));
     }
     double exponent = std::log(maths::CBasicStatistics::mean(slope)) / std::log(2.0);
@@ -778,8 +778,8 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
     TDoubleVec samples;
     rng.generateUniformSamples(0.0, 10.0, 4000, samples);
 
-    for (std::size_t i = 0u; i < samples.size(); i += 10) {
-        for (std::size_t j = 0u; j < 10; j += 2) {
+    for (std::size_t i = 0; i < samples.size(); i += 10) {
+        for (std::size_t j = 0; j < 10; j += 2) {
             samples[i + j + 1] = combinations[0][0] * samples[i + j] +
                                  combinations[0][1] * samples[i + j + 1];
         }
@@ -788,8 +788,8 @@ BOOST_AUTO_TEST_CASE(testPersistence) {
     maths::CKMostCorrelated origMostCorrelated(10, 0.001);
     origMostCorrelated.addVariables(10);
 
-    for (std::size_t i = 0u; i < samples.size(); i += 10) {
-        for (std::size_t j = 0u; j < 10; ++j) {
+    for (std::size_t i = 0; i < samples.size(); i += 10) {
+        for (std::size_t j = 0; j < 10; ++j) {
             origMostCorrelated.add(j, samples[i + j]);
         }
         origMostCorrelated.capture();

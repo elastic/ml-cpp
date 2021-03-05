@@ -159,7 +159,7 @@ template<typename T, unsigned int ORDER>
 uint64_t CBasicStatistics::SSampleCentralMoments<T, ORDER>::checksum() const {
     std::ostringstream raw;
     raw << basic_statistics_detail::typeToString(s_Count);
-    for (std::size_t i = 0u; i < ORDER; ++i) {
+    for (std::size_t i = 0; i < ORDER; ++i) {
         raw << ' ';
         raw << basic_statistics_detail::typeToString(s_Moments[i]);
     }
@@ -178,7 +178,7 @@ bool CBasicStatistics::SSampleCovariances<POINT>::fromDelimited(std::string str)
     str = str.substr(pos + 1);
 
     std::size_t count{0u};
-    for (std::size_t i = 0u; i < dimension; ++i) {
+    for (std::size_t i = 0; i < dimension; ++i) {
         count = str.find_first_of(CLinearAlgebra::DELIMITER, count + 1);
     }
     if (!s_Count.fromDelimited(str.substr(0, count))) {
@@ -188,7 +188,7 @@ bool CBasicStatistics::SSampleCovariances<POINT>::fromDelimited(std::string str)
 
     str = str.substr(count + 1);
     std::size_t means{0u};
-    for (std::size_t i = 0u; i < dimension; ++i) {
+    for (std::size_t i = 0; i < dimension; ++i) {
         means = str.find_first_of(CLinearAlgebra::DELIMITER, means + 1);
     }
     if (!s_Mean.fromDelimited(str.substr(0, means))) {
@@ -311,7 +311,7 @@ uint64_t CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::checksum(ui
     std::sort(sorted.begin(), sorted.end(), m_Less);
     std::ostringstream raw;
     raw << basic_statistics_detail::typeToString(sorted[0]);
-    for (std::size_t i = 1u; i < sorted.size(); ++i) {
+    for (std::size_t i = 1; i < sorted.size(); ++i) {
         raw << ' ';
         raw << basic_statistics_detail::typeToString(sorted[i]);
     }

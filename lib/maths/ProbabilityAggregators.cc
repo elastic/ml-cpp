@@ -128,7 +128,7 @@ public:
             // near the lowest probability.
             m_P.push_back(p[0]);
             m_Corrections.push_back(0.0);
-            for (std::size_t i = 1u; i < std::min(p.count(), MAX_DIMENSION); ++i) {
+            for (std::size_t i = 1; i < std::min(p.count(), MAX_DIMENSION); ++i) {
                 m_P.push_back(truncate(p[i], m_P[i - 1]));
                 m_Corrections.push_back(p[i] == p[i - 1]
                                             ? 0.0
@@ -757,12 +757,12 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
     }
 
     m_MinValues.sort();
-    for (std::size_t i = 0u; i < M; ++i) {
+    for (std::size_t i = 0; i < M; ++i) {
         m_MinValues[i] =
             CTools::truncate(m_MinValues[i], CTools::smallestProbability(), 1.0);
     }
 
-    for (std::size_t m = 1u; m < M; ++m) {
+    for (std::size_t m = 1; m < M; ++m) {
         double p = m_MinValues[M - m];
         LOG_TRACE(<< "p(" << m << ") = " << p);
 
@@ -770,7 +770,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
 
         // Update the coefficients (they are stored in reverse order).
         double sum = 0.0;
-        for (std::size_t i = 0u; i < coeffs.size(); ++i) {
+        for (std::size_t i = 0; i < coeffs.size(); ++i) {
             double index = static_cast<double>(coeffs.size() - i);
             coeffs[i] /= index;
             sum += coeffs[i] * CTools::powOneMinusX(p / 2.0, index);
@@ -790,14 +790,14 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
 
         // Re-normalize the coefficients if they aren't all identically zero.
         double cmax = 0.0;
-        for (std::size_t i = 0u; i < coeffs.size(); ++i) {
+        for (std::size_t i = 0; i < coeffs.size(); ++i) {
             if (std::fabs(coeffs[i]) > 1.0 / boost::numeric::bounds<double>::highest()) {
                 cmax = std::max(cmax, std::fabs(coeffs[i]));
             }
         }
         if (cmax > 0.0) {
             LOG_TRACE(<< "cmax = " << cmax);
-            for (std::size_t i = 0u; i < coeffs.size(); ++i) {
+            for (std::size_t i = 0; i < coeffs.size(); ++i) {
                 coeffs[i] /= cmax;
             }
             logLargestCoeff += std::log(cmax);
@@ -808,12 +808,12 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
     // Re-normalize in the case that we haven't been able to in the loop
     // because of overflow.
     double cmax = 0.0;
-    for (std::size_t i = 0u; i < coeffs.size(); ++i) {
+    for (std::size_t i = 0; i < coeffs.size(); ++i) {
         cmax = std::max(cmax, std::fabs(coeffs[i]));
     }
     if (cmax > 0.0 && cmax < 1.0 / boost::numeric::bounds<double>::highest()) {
         logLargestCoeff = std::log(cmax);
-        for (std::size_t i = 0u; i < coeffs.size(); ++i) {
+        for (std::size_t i = 0; i < coeffs.size(); ++i) {
             coeffs[i] /= cmax;
         }
     }
@@ -836,7 +836,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
         double negative = 0.0;
         TDoubleVec terms;
         terms.reserve(coeffs.size());
-        for (std::size_t i = 0u; i < coeffs.size(); ++i) {
+        for (std::size_t i = 0; i < coeffs.size(); ++i) {
             double index = static_cast<double>(coeffs.size() - i);
             double c = coeffs[i] / index;
             double p = CTools::oneMinusPowOneMinusX(pM / 2.0, index);
@@ -862,7 +862,7 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
             double condition = 0.0;
             double logPMin = std::log(pMin);
             if (logPMin - logScale > core::constants::LOG_MAX_DOUBLE) {
-                for (std::size_t i = 0u; i < terms.size(); ++i) {
+                for (std::size_t i = 0; i < terms.size(); ++i) {
                     LOG_TRACE(<< "remainder(" << i << ") = " << std::fabs(terms[i]));
                     result += std::fabs(terms[i]);
                 }
@@ -870,14 +870,14 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
             } else {
                 if (logPMin - logScale < core::constants::LOG_MIN_DOUBLE) {
                     pMin = 0.0;
-                    for (std::size_t i = 0u; i < terms.size(); ++i) {
+                    for (std::size_t i = 0; i < terms.size(); ++i) {
                         result += terms[i];
                         condition = std::max(condition, std::fabs(terms[i]));
                     }
                 } else {
                     pMin /= std::exp(logScale);
                     LOG_TRACE(<< "pMin = " << pMin);
-                    for (std::size_t i = 0u; i < terms.size(); ++i) {
+                    for (std::size_t i = 0; i < terms.size(); ++i) {
                         double remainder = std::fabs(terms[i]) * pMin / sum + terms[i];
                         result += remainder;
                         double absTerms[] = {std::fabs(terms[i]),
@@ -910,11 +910,11 @@ bool CLogProbabilityOfMFromNExtremeSamples::calculate(double& result) {
     // than one on occasion we use a tolerance which should be much
     // larger than necessary, but we are only interested in values
     // well outside the range as indicative of a genuine problem.
-    for (std::size_t i = 0u; i < 2; ++i) {
+    for (std::size_t i = 0; i < 2; ++i) {
         if (!(result < 0.001)) {
             std::ostringstream minValues;
             minValues << std::setprecision(16) << "[" << m_MinValues[0];
-            for (std::size_t j = 1u; j < m_MinValues.count(); ++j) {
+            for (std::size_t j = 1; j < m_MinValues.count(); ++j) {
                 minValues << " " << m_MinValues[j];
             }
             minValues << "]";

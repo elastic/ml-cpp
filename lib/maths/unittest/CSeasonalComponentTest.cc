@@ -84,7 +84,7 @@ void generateSeasonalValues(test::CRandomNumbers& rng,
     rng.generateUniformSamples(static_cast<std::size_t>(startTime),
                                static_cast<std::size_t>(endTime), numberSamples, times);
     std::sort(times.begin(), times.end());
-    for (std::size_t i = 0u; i < times.size(); ++i) {
+    for (std::size_t i = 0; i < times.size(); ++i) {
         core_t::TTime offset = static_cast<core_t::TTime>(times[i] % period);
         std::size_t b = std::lower_bound(function.begin(), function.end(), offset,
                                          maths::COrderings::SFirstLess()) -
@@ -244,7 +244,7 @@ BOOST_AUTO_TEST_CASE(testConstant) {
 
     test::CRandomNumbers rng;
 
-    std::size_t n = 5000u;
+    std::size_t n = 5000;
 
     TTimeDoublePrVec samples;
     generateSeasonalValues(rng, function, startTime,
@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE(testConstant) {
     double totalError1 = 0.0;
     double totalError2 = 0.0;
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u, d = 0u; i < n; ++i) {
+    for (std::size_t i = 0u, d = 0; i < n; ++i) {
         seasonal.addPoint(samples[i].first, samples[i].second + residuals[i]);
 
         if (samples[i].first >= time + core::constants::DAY) {
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE(testConstant) {
 
             double error1 = 0.0;
             double error2 = 0.0;
-            for (std::size_t j = 0u; j < function.size(); ++j) {
+            for (std::size_t j = 0; j < function.size(); ++j) {
                 TDoubleDoublePr interval = seasonal.value(time + function[j].first, 70.0);
                 double f = function[j].second + residualMean;
 
@@ -314,14 +314,14 @@ BOOST_AUTO_TEST_CASE(testStablePeriodic) {
         LOG_DEBUG(<< "*** sin(2 * pi * t / 24 hrs) ***");
 
         TTimeDoublePrVec function;
-        for (core_t::TTime i = 0u; i < 49; ++i) {
+        for (core_t::TTime i = 0; i < 49; ++i) {
             core_t::TTime t = (i * core::constants::DAY) / 48;
             double ft = 100.0 + 40.0 * std::sin(boost::math::double_constants::two_pi *
                                                 static_cast<double>(i) / 48.0);
             function.emplace_back(t, ft);
         }
 
-        std::size_t n = 5000u;
+        std::size_t n = 5000;
 
         TTimeDoublePrVec samples;
         generateSeasonalValues(rng, function, startTime,
@@ -336,7 +336,7 @@ BOOST_AUTO_TEST_CASE(testStablePeriodic) {
         double totalError1 = 0.0;
         double totalError2 = 0.0;
         core_t::TTime time = startTime;
-        for (std::size_t i = 0u, d = 0u; i < n; ++i) {
+        for (std::size_t i = 0u, d = 0; i < n; ++i) {
             seasonal.addPoint(samples[i].first, samples[i].second + residuals[i]);
 
             if (samples[i].first >= time + core::constants::DAY) {
@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE(testStablePeriodic) {
 
                 double error1 = 0.0;
                 double error2 = 0.0;
-                for (std::size_t j = 0u; j < function.size(); ++j) {
+                for (std::size_t j = 0; j < function.size(); ++j) {
                     TDoubleDoublePr interval = seasonal.value(time + function[j].first, 70.0);
                     double f = residualMean + function[j].second;
                     double e = mean(interval) - f;
@@ -414,7 +414,7 @@ BOOST_AUTO_TEST_CASE(testStablePeriodic) {
             TTimeDoublePr(82800, 1.0),   TTimeDoublePr(84600, 1.0),
             TTimeDoublePr(86400, 1.0)};
 
-        std::size_t n = 6000u;
+        std::size_t n = 6000;
 
         TTimeDoublePrVec samples;
         generateSeasonalValues(rng, function, startTime,
@@ -429,7 +429,7 @@ BOOST_AUTO_TEST_CASE(testStablePeriodic) {
         double totalError1 = 0.0;
         double totalError2 = 0.0;
         core_t::TTime time = startTime;
-        for (std::size_t i = 0u, d = 0u; i < n; ++i) {
+        for (std::size_t i = 0u, d = 0; i < n; ++i) {
             seasonal.addPoint(samples[i].first, samples[i].second + residuals[i]);
 
             if (samples[i].first >= time + core::constants::DAY) {
@@ -438,7 +438,7 @@ BOOST_AUTO_TEST_CASE(testStablePeriodic) {
                 time += core::constants::DAY;
                 double error1 = 0.0;
                 double error2 = 0.0;
-                for (std::size_t j = 0u; j < function.size(); ++j) {
+                for (std::size_t j = 0; j < function.size(); ++j) {
                     TDoubleDoublePr interval = seasonal.value(time + function[j].first, 70.0);
                     double f = residualMean + function[j].second;
 
@@ -519,7 +519,7 @@ BOOST_AUTO_TEST_CASE(testTimeVaryingPeriodic) {
     double totalError2 = 0.0;
     double numberErrors = 0.0;
 
-    for (std::size_t d = 0u; d < 365; ++d) {
+    for (std::size_t d = 0; d < 365; ++d) {
         double scale = 2.0 + 2.0 * std::sin(3.14159265358979 * static_cast<double>(d) / 365.0);
 
         TTimeDoublePrVec samples;
@@ -529,7 +529,7 @@ BOOST_AUTO_TEST_CASE(testTimeVaryingPeriodic) {
         rng.generateGammaSamples(10.0, 1.2, 100, residuals);
         double residualMean = maths::CBasicStatistics::mean(residuals);
 
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             seasonal.addPoint(samples[i].first, scale * samples[i].second + residuals[i]);
         }
 
@@ -542,7 +542,7 @@ BOOST_AUTO_TEST_CASE(testTimeVaryingPeriodic) {
         if (seasonal.initialized()) {
             double error1 = 0.0;
             double error2 = 0.0;
-            for (std::size_t j = 0u; j < function.size(); ++j) {
+            for (std::size_t j = 0; j < function.size(); ++j) {
                 TDoubleDoublePr interval = seasonal.value(time + function[j].first, 70.0);
                 double f = residualMean + scale * function[j].second;
 
@@ -657,13 +657,13 @@ BOOST_AUTO_TEST_CASE(testVeryLowVariation) {
     const core_t::TTime startTime = 1354492800;
 
     TTimeDoublePrVec function;
-    for (std::size_t i = 0u; i < 25; ++i) {
+    for (std::size_t i = 0; i < 25; ++i) {
         function.emplace_back((i * core::constants::DAY) / 24, 50.0);
     }
 
     test::CRandomNumbers rng;
 
-    std::size_t n = 5000u;
+    std::size_t n = 5000;
 
     TTimeDoublePrVec samples;
     generateSeasonalValues(rng, function, startTime,
@@ -680,7 +680,7 @@ BOOST_AUTO_TEST_CASE(testVeryLowVariation) {
     double totalError1 = 0.0;
     double totalError2 = 0.0;
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u, d = 0u; i < n; ++i) {
+    for (std::size_t i = 0u, d = 0; i < n; ++i) {
         seasonal.addPoint(samples[i].first, samples[i].second + residuals[i]);
 
         if (samples[i].first >= time + core::constants::DAY) {
@@ -690,7 +690,7 @@ BOOST_AUTO_TEST_CASE(testVeryLowVariation) {
 
             double error1 = 0.0;
             double error2 = 0.0;
-            for (std::size_t j = 0u; j < function.size(); ++j) {
+            for (std::size_t j = 0; j < function.size(); ++j) {
                 TDoubleDoublePr interval = seasonal.value(time + function[j].first, 70.0);
                 double f = residualMean + function[j].second;
 
@@ -731,25 +731,25 @@ BOOST_AUTO_TEST_CASE(testVariance) {
     test::CRandomNumbers rng;
 
     TTimeDoublePrVec function;
-    for (core_t::TTime i = 0u; i < 481; ++i) {
+    for (core_t::TTime i = 0; i < 481; ++i) {
         core_t::TTime t = (i * core::constants::DAY) / 48;
         double vt = 80.0 + 20.0 * std::sin(boost::math::double_constants::two_pi *
                                            static_cast<double>(i % 48) / 48.0);
         TDoubleVec sample;
         rng.generateNormalSamples(0.0, vt, 10, sample);
-        for (std::size_t j = 0u; j < sample.size(); ++j) {
+        for (std::size_t j = 0; j < sample.size(); ++j) {
             function.emplace_back(t, sample[j]);
         }
     }
 
     CTestSeasonalComponent seasonal(core::constants::DAY, 24);
 
-    for (std::size_t i = 0u; i < function.size(); ++i) {
+    for (std::size_t i = 0; i < function.size(); ++i) {
         seasonal.addPoint(function[i].first, function[i].second);
     }
 
     TMeanAccumulator error;
-    for (core_t::TTime i = 0u; i < 48; ++i) {
+    for (core_t::TTime i = 0; i < 48; ++i) {
         core_t::TTime t = (i * core::constants::DAY) / 48;
         double v_ = 80.0 + 20.0 * std::sin(boost::math::double_constants::two_pi *
                                            static_cast<double>(i) / 48.0);
@@ -779,14 +779,14 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     test::CRandomNumbers rng;
 
     TTimeDoublePrVec function;
-    for (core_t::TTime i = 0u; i < 49; ++i) {
+    for (core_t::TTime i = 0; i < 49; ++i) {
         core_t::TTime t = (i * core::constants::DAY) / 48;
         double ft = 100.0 + 40.0 * std::sin(boost::math::double_constants::two_pi *
                                             static_cast<double>(i) / 48.0);
         function.emplace_back(t, ft);
     }
 
-    std::size_t n = 3300u;
+    std::size_t n = 3300;
 
     TTimeDoublePrVec samples;
     generateSeasonalValues(rng, function, startTime,
@@ -797,7 +797,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     CTestSeasonalComponent origSeasonal(core::constants::DAY, 24, decayRate);
 
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         origSeasonal.addPoint(samples[i].first, samples[i].second + residuals[i]);
     }
 

@@ -133,7 +133,7 @@ public:
 
     //! Create from part of a state document.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-        std::size_t i = 0u;
+        std::size_t i = 0;
         do {
             const std::string& name = traverser.name();
             TMetricPartialStatistic stat(m_Dimension);
@@ -180,7 +180,7 @@ public:
             if (bucketValue.size() > 0) {
                 TStrCRefDouble1VecDoublePrPrVecVec influenceValues(
                     m_InfluencerBucketStats.size());
-                for (std::size_t i = 0u; i < m_InfluencerBucketStats.size(); ++i) {
+                for (std::size_t i = 0; i < m_InfluencerBucketStats.size(); ++i) {
                     const TStoredStringPtrStatUMap& influencerStats =
                         m_InfluencerBucketStats[i].get(time);
                     influenceValues[i].reserve(influencerStats.size());
@@ -253,7 +253,7 @@ public:
         m_BucketStats.get(time).add(statistic, time, count);
         m_Classifier.add(FEATURE, statistic, count);
         std::size_t n = std::min(influences.size(), m_InfluencerBucketStats.size());
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             if (!influences[i]) {
                 continue;
             }

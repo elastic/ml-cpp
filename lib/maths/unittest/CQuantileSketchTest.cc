@@ -49,7 +49,7 @@ void testSketch(maths::CQuantileSketch::EInterpolation interpolation,
 
     TMeanAccumulator bias;
     TMeanAccumulator error;
-    for (std::size_t i = 1u; i < 20; ++i) {
+    for (std::size_t i = 1; i < 20; ++i) {
         double q = static_cast<double>(i) / 20.0;
         double xq = samples[static_cast<std::size_t>(static_cast<double>(N) * q)];
         double sq;
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 
         double points[][2] = {{5.0, 1.0}, {0.4, 2.0}, {0.4, 1.0}, {1.0, 1.0},
                               {1.2, 2.0}, {1.2, 1.5}, {5.0, 1.0}};
-        for (std::size_t i = 0u; i < boost::size(points); ++i) {
+        for (std::size_t i = 0; i < boost::size(points); ++i) {
             sketch.add(points[i][0], points[i][1]);
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, 30);
 
-        for (std::size_t i = 0u; i <= 30; ++i) {
+        for (std::size_t i = 0; i <= 30; ++i) {
             sketch.add(static_cast<double>(i));
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
                         75.0, 80.0, 85.0, 90.0, 95.0, 100.0};
 
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, 10);
-        for (std::size_t i = 0u; i < boost::size(points); ++i) {
+        for (std::size_t i = 0; i < boost::size(points); ++i) {
             sketch.add(points[i]);
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
             if ((i + 1) % 5 == 0) {
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 
         std::sort(std::begin(points), std::end(points));
         TMeanAccumulator error;
-        for (std::size_t i = 0u; i < boost::size(cdf); ++i) {
+        for (std::size_t i = 0; i < boost::size(cdf); ++i) {
             double x;
             BOOST_TEST_REQUIRE(sketch.quantile(cdf[i], x));
             LOG_DEBUG(<< "expected quantile = " << points[i] << ", actual quantile = " << x);
@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 
         double points[][2] = {{5.0, 1.0}, {0.4, 2.0}, {0.4, 1.0}, {1.0, 1.0},
                               {1.2, 2.0}, {1.2, 1.5}, {5.0, 1.0}};
-        for (std::size_t i = 0u; i < boost::size(points); ++i) {
+        for (std::size_t i = 0; i < boost::size(points); ++i) {
             sketch.add(points[i][0], points[i][1]);
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_PiecewiseConstant, 30);
 
-        for (std::size_t i = 0u; i <= 30; ++i) {
+        for (std::size_t i = 0; i <= 30; ++i) {
             sketch.add(static_cast<double>(i));
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
         }
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
                         75.0, 80.0, 85.0, 90.0, 95.0, 100.0};
 
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_PiecewiseConstant, 10);
-        for (std::size_t i = 0u; i < boost::size(points); ++i) {
+        for (std::size_t i = 0; i < boost::size(points); ++i) {
             sketch.add(points[i]);
             BOOST_TEST_REQUIRE(sketch.checkInvariants());
             if ((i + 1) % 5 == 0) {
@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE(testReduce) {
 
         std::sort(std::begin(points), std::end(points));
         TMeanAccumulator error;
-        for (std::size_t i = 0u; i < boost::size(cdf); ++i) {
+        for (std::size_t i = 0; i < boost::size(cdf); ++i) {
             double x;
             BOOST_TEST_REQUIRE(sketch.quantile(cdf[i], x));
             LOG_DEBUG(<< "expected quantile = " << points[i] << ", actual quantile = " << x);
@@ -291,7 +291,7 @@ BOOST_AUTO_TEST_CASE(testMerge) {
 
         maths::CQuantileSketch sketch1(maths::CQuantileSketch::E_Linear, 10);
         maths::CQuantileSketch sketch2(maths::CQuantileSketch::E_Linear, 10);
-        for (std::size_t i = 0u; i < boost::size(points); i += 2) {
+        for (std::size_t i = 0; i < boost::size(points); i += 2) {
             sketch1.add(points[i]);
             sketch2.add(points[i + 1]);
         }
@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE(testMerge) {
 
         std::sort(std::begin(points), std::end(points));
         TMeanAccumulator error;
-        for (std::size_t i = 0u; i < boost::size(cdf); ++i) {
+        for (std::size_t i = 0; i < boost::size(cdf); ++i) {
             double x;
             BOOST_TEST_REQUIRE(sketch3.quantile(cdf[i], x));
             LOG_DEBUG(<< "expected quantile = " << points[i] << ", actual quantile = " << x);
@@ -355,7 +355,7 @@ BOOST_AUTO_TEST_CASE(testMedian) {
 
     TMeanAccumulator bias;
     TMeanAccumulator error;
-    for (std::size_t t = 0u; t < 500; ++t) {
+    for (std::size_t t = 0; t < 500; ++t) {
         TDoubleVec samples;
         rng.generateUniformSamples(0.0, 100.0, 501, samples);
         maths::CQuantileSketch sketch(maths::CQuantileSketch::E_PiecewiseConstant, 20);
@@ -405,7 +405,7 @@ BOOST_AUTO_TEST_CASE(testMad) {
                                maths::CQuantileSketch::E_Linear}) {
         TMeanAccumulator error;
 
-        for (std::size_t t = 0u; t < 100; ++t) {
+        for (std::size_t t = 0; t < 100; ++t) {
             rng.generateNormalSamples(10.0, 10.0, 101, samples);
 
             maths::CQuantileSketch sketch(interpolation, 20);
@@ -462,7 +462,7 @@ BOOST_AUTO_TEST_CASE(testQuantileAccuracy) {
     {
         TMeanAccumulator meanBias;
         TMeanAccumulator meanError;
-        for (std::size_t t = 0u; t < 5; ++t) {
+        for (std::size_t t = 0; t < 5; ++t) {
             TDoubleVec samples;
             rng.generateUniformSamples(0.0, 20.0 * static_cast<double>(t + 1), 1000, samples);
             testSketch(maths::CQuantileSketch::E_Linear, 20, samples, 0.15, 0.3,
@@ -478,7 +478,7 @@ BOOST_AUTO_TEST_CASE(testQuantileAccuracy) {
     {
         TMeanAccumulator meanBias;
         TMeanAccumulator meanError;
-        for (std::size_t t = 0u; t < 5; ++t) {
+        for (std::size_t t = 0; t < 5; ++t) {
             TDoubleVec samples;
             rng.generateNormalSamples(20.0 * static_cast<double>(t),
                                       20.0 * static_cast<double>(t + 1), 1000, samples);
@@ -495,7 +495,7 @@ BOOST_AUTO_TEST_CASE(testQuantileAccuracy) {
     {
         TMeanAccumulator meanBias;
         TMeanAccumulator meanError;
-        for (std::size_t t = 0u; t < 5; ++t) {
+        for (std::size_t t = 0; t < 5; ++t) {
             TDoubleVec samples;
             rng.generateLogNormalSamples(0.1 * static_cast<double>(t),
                                          0.4 * static_cast<double>(t + 1), 1000, samples);
@@ -513,7 +513,7 @@ BOOST_AUTO_TEST_CASE(testQuantileAccuracy) {
         TMeanAccumulator meanErrorLinear;
         TMeanAccumulator meanBiasPiecewise;
         TMeanAccumulator meanErrorPiecewise;
-        for (std::size_t t = 0u; t < 5; ++t) {
+        for (std::size_t t = 0; t < 5; ++t) {
             TDoubleVec samples_[4] = {};
             rng.generateNormalSamples(10.0 * static_cast<double>(t),
                                       20.0 * static_cast<double>(t + 1), 400,
@@ -528,7 +528,7 @@ BOOST_AUTO_TEST_CASE(testQuantileAccuracy) {
                                        550.0 * static_cast<double>(t + 1), 600,
                                        samples_[3]);
             TDoubleVec samples;
-            for (std::size_t i = 0u; i < 4; ++i) {
+            for (std::size_t i = 0; i < 4; ++i) {
                 samples.insert(samples.end(), samples_[i].begin(), samples_[i].end());
             }
             rng.random_shuffle(samples.begin(), samples.end());
@@ -560,7 +560,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
         {
             maths::CQuantileSketch sketch(maths::CQuantileSketch::E_PiecewiseConstant, 10);
             sketch = std::for_each(std::begin(values), std::end(values), sketch);
-            for (std::size_t i = 0u; i < 10; ++i) {
+            for (std::size_t i = 0; i < 10; ++i) {
                 double x;
                 sketch.quantile(10.0 * static_cast<double>(i) + 5.0, x);
                 double f;
@@ -574,7 +574,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
         {
             maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, 10);
             sketch = std::for_each(std::begin(values), std::end(values), sketch);
-            for (std::size_t i = 0u; i < 10; ++i) {
+            for (std::size_t i = 0; i < 10; ++i) {
                 double x;
                 sketch.quantile(10.0 * static_cast<double>(i) + 5.0, x);
                 double f;
@@ -598,14 +598,14 @@ BOOST_AUTO_TEST_CASE(testCdf) {
     {
         TMeanAccumulator meanBias;
         TMeanAccumulator meanError;
-        for (std::size_t t = 0u; t < 5; ++t) {
+        for (std::size_t t = 0; t < 5; ++t) {
             LOG_DEBUG(<< "test " << t + 1);
             TDoubleVec samples;
             rng.generateUniformSamples(0.0, 20.0 * static_cast<double>(t + 1), 1000, samples);
             {
                 maths::CQuantileSketch sketch(maths::CQuantileSketch::E_Linear, 20);
                 sketch = std::for_each(samples.begin(), samples.end(), sketch);
-                for (std::size_t i = 0u; i <= 100; ++i) {
+                for (std::size_t i = 0; i <= 100; ++i) {
                     double x;
                     sketch.quantile(static_cast<double>(i), x);
                     double f;
@@ -628,7 +628,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     generator.generateUniformSamples(0.0, 5000.0, 500u, samples);
 
     maths::CQuantileSketch origSketch(maths::CQuantileSketch::E_Linear, 100u);
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         origSketch.add(samples[i]);
     }
 

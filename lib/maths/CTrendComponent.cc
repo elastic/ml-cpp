@@ -122,7 +122,7 @@ CTrendComponent::CTrendComponent(double decayRate)
       m_TimeOfLastLevelChange(UNSET_TIME),
       m_ProbabilityOfLevelChangeModel(initialProbabilityOfChangeModel(decayRate)),
       m_MagnitudeOfLevelChangeModel(initialMagnitudeOfChangeModel(decayRate)) {
-    for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
+    for (std::size_t i = 0; i < NUMBER_MODELS; ++i) {
         m_TrendModels.emplace_back(modelWeight(1.0, TIME_SCALES[i]));
     }
 }
@@ -202,7 +202,7 @@ void CTrendComponent::clear() {
     m_FirstUpdate = UNSET_TIME;
     m_LastUpdate = UNSET_TIME;
     m_RegressionOrigin = UNSET_TIME;
-    for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
+    for (std::size_t i = 0; i < NUMBER_MODELS; ++i) {
         m_TrendModels[i] = SModel(modelWeight(1.0, TIME_SCALES[i]));
     }
     m_PredictionErrorVariance = 0.0;
@@ -229,7 +229,7 @@ void CTrendComponent::shiftSlope(core_t::TTime time, double shift) {
     // predicted value as a result of adjusting the gradient. Otherwise,
     // this changes by "shift" x "scaled time since the regression origin".
     if (std::fabs(shift) > 0.0) {
-        for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
+        for (std::size_t i = 0; i < NUMBER_MODELS; ++i) {
             double modelDecayRate{m_DefaultDecayRate * TIME_SCALES[i]};
             double shift_{std::min(modelDecayRate / m_TargetDecayRate, 1.0) * shift};
             m_TrendModels[i].s_Regression.shiftGradient(shift_);
@@ -662,7 +662,7 @@ CTrendComponent::TSizeVec CTrendComponent::selectModelOrdersForForecasting() con
 
 CTrendComponent::TDoubleVec CTrendComponent::initialForecastModelWeights() const {
     TDoubleVec result(NUMBER_MODELS);
-    for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
+    for (std::size_t i = 0; i < NUMBER_MODELS; ++i) {
         result[i] = std::exp(static_cast<double>(NUMBER_MODELS / 2) -
                              static_cast<double>(i));
     }
@@ -671,7 +671,7 @@ CTrendComponent::TDoubleVec CTrendComponent::initialForecastModelWeights() const
 
 CTrendComponent::TDoubleVec CTrendComponent::initialForecastErrorWeights() const {
     TDoubleVec result(NUMBER_MODELS + 1);
-    for (std::size_t i = 0u; i < NUMBER_MODELS; ++i) {
+    for (std::size_t i = 0; i < NUMBER_MODELS; ++i) {
         result[i] = std::exp(static_cast<double>(NUMBER_MODELS / 2) -
                              static_cast<double>(i));
     }
@@ -692,7 +692,7 @@ double CTrendComponent::value(const TDoubleVec& weights,
                               const TRegressionArrayVec& models,
                               double time) const {
     TMeanAccumulator prediction;
-    for (std::size_t i = 0u; i < models.size(); ++i) {
+    for (std::size_t i = 0; i < models.size(); ++i) {
         prediction.add(TRegression::predict(models[i], time), weights[i]);
     }
     return CBasicStatistics::mean(prediction);

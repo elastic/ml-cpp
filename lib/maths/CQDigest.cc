@@ -52,7 +52,7 @@ void CQDigest::acceptPersistInserter(core::CStatePersistInserter& inserter) cons
 }
 
 bool CQDigest::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    std::size_t nodeCount = 0u;
+    std::size_t nodeCount = 0;
 
     do {
         const std::string& name = traverser.name();
@@ -183,7 +183,7 @@ bool CQDigest::scale(double factor) {
 
     // Reinsert the scaled summary values.
     boost::random::mt11213b generator;
-    for (std::size_t i = 0u; i < sketch.size(); ++i) {
+    for (std::size_t i = 0; i < sketch.size(); ++i) {
         const TUInt32UInt32UInt64Tr& node = sketch[i];
 
         uint32_t min = node.get<0>();
@@ -195,14 +195,14 @@ bool CQDigest::scale(double factor) {
                   << ", count = " << count << ", remainder = " << remainder);
 
         if (count > 0) {
-            for (uint32_t j = 0u; j < span; ++j) {
+            for (uint32_t j = 0; j < span; ++j) {
                 this->add(static_cast<uint32_t>(factor * static_cast<double>(min + j) + 0.5),
                           count);
             }
         }
         if (remainder > 0) {
             boost::random::uniform_int_distribution<uint32_t> uniform(0u, span - 1);
-            for (uint64_t j = 0u; j < remainder; ++j) {
+            for (uint64_t j = 0; j < remainder; ++j) {
                 this->add(static_cast<uint32_t>(
                     factor * static_cast<double>(min + uniform(generator)) + 0.5));
             }
@@ -229,7 +229,7 @@ void CQDigest::clear() {
 }
 
 bool CQDigest::quantile(double q, uint32_t& result) const {
-    result = 0u;
+    result = 0;
 
     if (m_N == 0) {
         LOG_ERROR(<< "Can't compute quantiles on empty set");
@@ -330,7 +330,7 @@ void CQDigest::pdf(uint32_t x, double confidence, double& lowerBound, double& up
         return;
     }
 
-    uint32_t infimum = 0u;
+    uint32_t infimum = 0;
     m_Root->superlevelSetInfimum(x, infimum);
 
     uint32_t supremum = std::numeric_limits<uint32_t>::max();
@@ -378,7 +378,7 @@ void CQDigest::summary(TUInt32UInt64PrVec& result) const {
 
     uint32_t last = nodes[0]->max();
     uint64_t count = nodes[0]->count();
-    for (std::size_t i = 1u; i < nodes.size(); ++i) {
+    for (std::size_t i = 1; i < nodes.size(); ++i) {
         if (nodes[i]->max() != last) {
             result.emplace_back(last, count);
             last = nodes[i]->max();
@@ -450,7 +450,7 @@ std::string CQDigest::print() const {
 }
 
 void CQDigest::compress() {
-    for (std::size_t i = 0u; i < 3 * m_K + 2; ++i) {
+    for (std::size_t i = 0; i < 3 * m_K + 2; ++i) {
         TNodePtrVec compress;
         m_Root->postOrder(compress);
         if (!this->compress(compress)) {
@@ -507,7 +507,7 @@ CQDigest::CNode::CNode(uint32_t min, uint32_t max, uint64_t count, uint64_t subt
 }
 
 std::size_t CQDigest::CNode::size() const {
-    std::size_t size = 1u;
+    std::size_t size = 1;
 
     for (const auto& descendant : m_Descendants) {
         size += descendant->size();
@@ -716,7 +716,7 @@ CQDigest::CNode* CQDigest::CNode::compress(CNodeAllocator& allocator, uint64_t c
 }
 
 uint64_t CQDigest::CNode::age(double factor) {
-    m_SubtreeCount = 0u;
+    m_SubtreeCount = 0;
 
     for (auto& descendant : m_Descendants) {
         m_SubtreeCount += descendant->age(factor);
@@ -732,7 +732,7 @@ uint64_t CQDigest::CNode::age(double factor) {
 }
 
 uint32_t CQDigest::CNode::span() const {
-    return m_Max - m_Min + 1u;
+    return m_Max - m_Min + 1;
 }
 
 uint32_t CQDigest::CNode::min() const {
@@ -819,7 +819,7 @@ bool CQDigest::CNode::checkInvariants(uint64_t compressionFactor) const {
     SPostLess postLess;
     uint64_t subtreeCount = m_Count;
 
-    for (std::size_t i = 0u; i < m_Descendants.size(); ++i) {
+    for (std::size_t i = 0; i < m_Descendants.size(); ++i) {
         if (m_Descendants[i]->m_Ancestor != this) {
             LOG_ERROR(<< "Bad connectivity: " << this->print() << " -> "
                       << m_Descendants[i]->print() << " <- "
@@ -1058,7 +1058,7 @@ void CQDigest::CNodeAllocator::release(CNode& node) {
 }
 
 std::size_t CQDigest::CNodeAllocator::findBlock(const CNode& node) const {
-    std::size_t result = 0u;
+    std::size_t result = 0;
 
     if (m_Nodes.size() == 1u) {
         return result;

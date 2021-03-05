@@ -164,8 +164,8 @@ void prune(TUInt8Vec& b, uint8_t z) {
     //  |<---8 bits--->|<---8 bits--->|<---8 bits--->|
     //  |(g >> 8) % 256|    g % 256   |    zeros     |
 
-    std::size_t j = 0u;
-    for (std::size_t i = 0u; i < b.size(); i += 3) {
+    std::size_t j = 0;
+    for (std::size_t i = 0; i < b.size(); i += 3) {
         if (b[i + 2] >= z) {
             b[j] = b[i];
             b[j + 1] = b[i + 1];
@@ -234,8 +234,8 @@ uint8_t CBjkstUniqueValues::trailingZeros(uint32_t value) {
     static const uint32_t MASKS[] = {0xffff, 0xff, 0xf, 0x3, 0x1};
     static const uint8_t SHIFTS[] = {16, 8, 4, 2, 1};
 
-    uint8_t result = 0u;
-    for (std::size_t i = 0u; i < 5; ++i) {
+    uint8_t result = 0;
+    for (std::size_t i = 0; i < 5; ++i) {
         switch (value & MASKS[i]) {
         case 0:
             value >>= SHIFTS[i];
@@ -499,7 +499,7 @@ void CBjkstUniqueValues::sketch() {
             TUInt32Vec values_;
             values_.swap(*values);
             m_Sketch = SSketch(m_NumberHashes);
-            for (std::size_t i = 0u; i < values_.size(); ++i) {
+            for (std::size_t i = 0; i < values_.size(); ++i) {
                 this->add(values_[i]);
             }
         }
@@ -575,7 +575,7 @@ void CBjkstUniqueValues::SSketch::acceptPersistInserter(core::CStatePersistInser
         HASH_H_TAG, core::CPersistUtils::toString(s_H, hashToString, DELIMITER));
     inserter.insertValue(
         Z_TAG, core::CPersistUtils::toString(s_Z, CToString<int>(), DELIMITER));
-    for (std::size_t i = 0u; i < s_B.size(); ++i) {
+    for (std::size_t i = 0; i < s_B.size(); ++i) {
         inserter.insertValue(B_TAG, core::CPersistUtils::toString(
                                         s_B[i], CToString<int>(), DELIMITER));
     }
@@ -583,7 +583,7 @@ void CBjkstUniqueValues::SSketch::acceptPersistInserter(core::CStatePersistInser
 
 void CBjkstUniqueValues::SSketch::add(std::size_t maxSize, uint32_t value) {
     LOG_TRACE(<< "Adding " << value);
-    for (std::size_t i = 0u; i < s_Z.size(); ++i) {
+    for (std::size_t i = 0; i < s_Z.size(); ++i) {
         uint8_t zeros = trailingZeros((s_H[i])(value));
         if (zeros >= s_Z[i]) {
             TUInt8Vec& b = s_B[i];
@@ -608,7 +608,7 @@ void CBjkstUniqueValues::SSketch::add(std::size_t maxSize, uint32_t value) {
 }
 
 void CBjkstUniqueValues::SSketch::remove(uint32_t value) {
-    for (std::size_t i = 0u; i < s_Z.size(); ++i) {
+    for (std::size_t i = 0; i < s_Z.size(); ++i) {
         uint8_t zeros = trailingZeros((s_H[i])(value));
         if (zeros >= s_Z[i]) {
             TUInt8Vec& b = s_B[i];
@@ -623,7 +623,7 @@ uint32_t CBjkstUniqueValues::SSketch::number() const {
     // This uses the median trick to reduce the error.
     TUInt32Vec estimates;
     estimates.reserve(s_Z.size());
-    for (std::size_t i = 0u; i < s_Z.size(); ++i) {
+    for (std::size_t i = 0; i < s_Z.size(); ++i) {
         LOG_TRACE(<< "|B| = " << s_B[i].size()
                   << ", z = " << static_cast<uint32_t>(s_Z[i]));
         estimates.push_back(static_cast<uint32_t>(s_B[i].size() / 3) * (1 << s_Z[i]));

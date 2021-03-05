@@ -427,7 +427,7 @@ BOOST_AUTO_TEST_CASE(testNonNegative) {
     core_t::TTime time{0};
     std::vector<maths_t::TDouble2VecWeightsAry> weights{
         maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
-    for (std::size_t d = 0u; d < 20; ++d) {
+    for (std::size_t d = 0; d < 20; ++d) {
         TDoubleVec noise;
         rng.generateNormalSamples(2.0, 3.0, 48, noise);
         for (auto value = noise.begin(); value != noise.end(); ++value, time += bucketLength) {
@@ -459,7 +459,7 @@ BOOST_AUTO_TEST_CASE(testNonNegative) {
     std::size_t outOfBounds{0};
     std::size_t count{0};
 
-    for (std::size_t i = 0u; i < prediction.size(); ++i) {
+    for (std::size_t i = 0; i < prediction.size(); ++i) {
         TDoubleVec noise;
         rng.generateNormalSamples(2.0, 3.0, 48, noise);
         for (auto value = noise.begin(); i < prediction.size() && value != noise.end();
@@ -512,7 +512,7 @@ BOOST_AUTO_TEST_CASE(testFinancialIndex) {
     std::size_t n{5 * timeseries.size() / 6};
 
     TDouble2VecWeightsAryVec weights{maths_t::CUnitWeights::unit<TDouble2Vec>(1)};
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         maths::CModelAddSamplesParams params;
         params.integer(false).propagationInterval(1.0).trendWeights(weights).priorWeights(weights);
         model.addSamples(
@@ -539,7 +539,7 @@ BOOST_AUTO_TEST_CASE(testFinancialIndex) {
     std::size_t count{0};
     TMeanAccumulator error;
 
-    for (std::size_t i = n, j = 0u;
+    for (std::size_t i = n, j = 0;
          i < timeseries.size() && j < prediction.size(); ++i, ++j) {
         double yi{timeseries[i].second};
         outOfBounds +=

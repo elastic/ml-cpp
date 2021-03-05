@@ -181,7 +181,7 @@ public:
                 //     < p^2 + 2*p
                 //     < 2^64
                 uint64_t h = static_cast<uint64_t>(m_A[0]) * x[0];
-                for (std::size_t i = 1u; i < x.size(); ++i) {
+                for (std::size_t i = 1; i < x.size(); ++i) {
                     h = (h % BIG_PRIME + static_cast<uint64_t>(m_A[i]) * x[i]);
                 }
                 return static_cast<uint32_t>(((h + static_cast<uint64_t>(m_B)) % BIG_PRIME) %

@@ -35,8 +35,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrixNxN) {
     {
         maths::CSymmetricMatrixNxN<double, 3> matrix;
         LOG_DEBUG(<< "matrix = " << matrix);
-        for (std::size_t i = 0u; i < 3; ++i) {
-            for (std::size_t j = 0u; j < 3; ++j) {
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 3; ++j) {
                 BOOST_REQUIRE_EQUAL(0.0, matrix(i, j));
             }
         }
@@ -45,8 +45,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrixNxN) {
     {
         maths::CSymmetricMatrixNxN<double, 3> matrix(3.0);
         LOG_DEBUG(<< "matrix = " << matrix);
-        for (std::size_t i = 0u; i < 3; ++i) {
-            for (std::size_t j = 0u; j < 3; ++j) {
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 3; ++j) {
                 BOOST_REQUIRE_EQUAL(3.0, matrix(i, j));
             }
         }
@@ -60,8 +60,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrixNxN) {
                       {4.0, 1.0, 3.1, 1.1, 1.0}};
         maths::CSymmetricMatrixNxN<double, 5> matrix(m);
         LOG_DEBUG(<< "matrix = " << matrix);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
                 BOOST_REQUIRE_EQUAL(m[i][j], matrix(i, j));
             }
         }
@@ -72,8 +72,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrixNxN) {
         maths::CVectorNx1<double, 4> vector(v);
         maths::CSymmetricMatrixNxN<double, 4> matrix(maths::E_OuterProduct, vector);
         LOG_DEBUG(<< "matrix = " << matrix);
-        for (std::size_t i = 0u; i < 4; ++i) {
-            for (std::size_t j = 0u; j < 4; ++j) {
+        for (std::size_t i = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
                 BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1) * (j + 1)), matrix(i, j));
             }
         }
@@ -84,8 +84,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrixNxN) {
         maths::CVectorNx1<double, 4> vector(v);
         maths::CSymmetricMatrixNxN<double, 4> matrix(maths::E_Diagonal, vector);
         LOG_DEBUG(<< "matrix = " << matrix);
-        for (std::size_t i = 0u; i < 4; ++i) {
-            for (std::size_t j = 0u; j < 4; ++j) {
+        for (std::size_t i = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
                 BOOST_REQUIRE_EQUAL(i == j ? vector(i) : 0.0, matrix(i, j));
             }
         }
@@ -103,8 +103,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrixNxN) {
         maths::CSymmetricMatrixNxN<double, 5> matrix(m);
         maths::CSymmetricMatrixNxN<double, 5> sum = matrix + matrix;
         LOG_DEBUG(<< "sum = " << sum);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
                 BOOST_REQUIRE_EQUAL(2.0 * m[i][j], sum(i, j));
             }
         }
@@ -118,8 +118,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrixNxN) {
         maths::CSymmetricMatrixNxN<double, 3> matrix2(m2);
         maths::CSymmetricMatrixNxN<double, 3> difference = matrix1 - matrix2;
         LOG_DEBUG(<< "difference = " << difference);
-        for (std::size_t i = 0u; i < 3; ++i) {
-            for (std::size_t j = 0u; j < 3; ++j) {
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 3; ++j) {
                 BOOST_REQUIRE_EQUAL(m1[i][j] - m2[i][j], difference(i, j));
             }
         }
@@ -132,8 +132,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrixNxN) {
         maths::CSymmetricMatrixNxN<double, 5> m(maths::E_OuterProduct, vector);
         maths::CSymmetricMatrixNxN<double, 5> ms = m * 3.0;
         LOG_DEBUG(<< "3 * m = " << ms);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
                 BOOST_REQUIRE_EQUAL(3.0 * static_cast<double>((i + 1) * (j + 1)),
                                     ms(i, j));
             }
@@ -147,8 +147,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrixNxN) {
         maths::CSymmetricMatrixNxN<double, 5> m(maths::E_OuterProduct, vector);
         maths::CSymmetricMatrixNxN<double, 5> ms = m / 4.0;
         LOG_DEBUG(<< "m / 4.0 = " << ms);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
                 BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1) * (j + 1)) / 4.0,
                                     ms(i, j));
             }
@@ -161,14 +161,14 @@ BOOST_AUTO_TEST_CASE(testVectorNx1) {
     {
         maths::CVectorNx1<double, 3> vector;
         LOG_DEBUG(<< "vector = " << vector);
-        for (std::size_t i = 0u; i < 3; ++i) {
+        for (std::size_t i = 0; i < 3; ++i) {
             BOOST_REQUIRE_EQUAL(0.0, vector(i));
         }
     }
     {
         maths::CVectorNx1<double, 3> vector(3.0);
         LOG_DEBUG(<< "vector = " << vector);
-        for (std::size_t i = 0u; i < 3; ++i) {
+        for (std::size_t i = 0; i < 3; ++i) {
             BOOST_REQUIRE_EQUAL(3.0, vector(i));
         }
     }
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE(testVectorNx1) {
         double v[]{1.1, 2.4, 1.4, 3.7, 4.0};
         maths::CVectorNx1<double, 5> vector(v);
         LOG_DEBUG(<< "vector = " << vector);
-        for (std::size_t i = 0u; i < 5; ++i) {
+        for (std::size_t i = 0; i < 5; ++i) {
             BOOST_REQUIRE_EQUAL(v[i], vector(i));
         }
     }
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(testVectorNx1) {
         maths::CVectorNx1<double, 5> vector(v);
         maths::CVectorNx1<double, 5> sum = vector + vector;
         LOG_DEBUG(<< "vector = " << sum);
-        for (std::size_t i = 0u; i < 5; ++i) {
+        for (std::size_t i = 0; i < 5; ++i) {
             BOOST_REQUIRE_EQUAL(2.0 * v[i], sum(i));
         }
     }
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE(testVectorNx1) {
         maths::CVectorNx1<double, 3> vector2(v2);
         maths::CVectorNx1<double, 3> difference = vector1 - vector2;
         LOG_DEBUG(<< "vector = " << difference);
-        for (std::size_t i = 0u; i < 3; ++i) {
+        for (std::size_t i = 0; i < 3; ++i) {
             BOOST_REQUIRE_EQUAL(v1[i] - v2[i], difference(i));
         }
     }
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE(testVectorNx1) {
 
         Eigen::Matrix4d randomMatrix;
         Eigen::Vector4d randomVector;
-        for (std::size_t t = 0u; t < 20; ++t) {
+        for (std::size_t t = 0; t < 20; ++t) {
             randomMatrix.setRandom();
             Eigen::Matrix4d a = randomMatrix.selfadjointView<Eigen::Lower>();
             LOG_DEBUG(<< "A   =\n" << a);
@@ -226,7 +226,7 @@ BOOST_AUTO_TEST_CASE(testVectorNx1) {
             LOG_DEBUG(<< "y   =\n" << y);
             maths::CVectorNx1<double, 4> sy = s * y;
             LOG_DEBUG(<< "Sy = " << sy);
-            for (std::size_t i = 0u; i < 4; ++i) {
+            for (std::size_t i = 0; i < 4; ++i) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expected(i), sy(i), 1e-14);
             }
         }
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE(testVectorNx1) {
         maths::CVectorNx1<double, 5> vector(v);
         maths::CVectorNx1<double, 5> vs = vector * 3.0;
         LOG_DEBUG(<< "3 * v = " << vs);
-        for (std::size_t i = 0u; i < 5; ++i) {
+        for (std::size_t i = 0; i < 5; ++i) {
             BOOST_REQUIRE_EQUAL(3.0 * static_cast<double>((i + 1)), vs(i));
         }
     }
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE(testVectorNx1) {
         maths::CVectorNx1<double, 5> vector(v);
         maths::CVectorNx1<double, 5> vs = vector / 4.0;
         LOG_DEBUG(<< "v / 4.0 = " << vs);
-        for (std::size_t i = 0u; i < 5; ++i) {
+        for (std::size_t i = 0; i < 5; ++i) {
             BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1)) / 4.0, vs(i));
         }
     }
@@ -262,8 +262,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrix) {
         LOG_DEBUG(<< "matrix = " << matrix);
         BOOST_REQUIRE_EQUAL(std::size_t(3), matrix.rows());
         BOOST_REQUIRE_EQUAL(std::size_t(3), matrix.columns());
-        for (std::size_t i = 0u; i < 3; ++i) {
-            for (std::size_t j = 0u; j < 3; ++j) {
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 3; ++j) {
                 BOOST_REQUIRE_EQUAL(0.0, matrix(i, j));
             }
         }
@@ -273,8 +273,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrix) {
         LOG_DEBUG(<< "matrix = " << matrix);
         BOOST_REQUIRE_EQUAL(std::size_t(4), matrix.rows());
         BOOST_REQUIRE_EQUAL(std::size_t(4), matrix.columns());
-        for (std::size_t i = 0u; i < 4; ++i) {
-            for (std::size_t j = 0u; j < 4; ++j) {
+        for (std::size_t i = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
                 BOOST_REQUIRE_EQUAL(3.0, matrix(i, j));
             }
         }
@@ -286,8 +286,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrix) {
                        {3.7, 0.7, 4.7, 4.7, 1.1},
                        {4.0, 1.0, 3.1, 1.1, 1.0}};
         TDoubleVecVec m(5, TDoubleVec(5));
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
                 m[i][j] = m_[i][j];
             }
         }
@@ -295,8 +295,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrix) {
         LOG_DEBUG(<< "matrix = " << matrix);
         BOOST_REQUIRE_EQUAL(std::size_t(5), matrix.rows());
         BOOST_REQUIRE_EQUAL(std::size_t(5), matrix.columns());
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
                 BOOST_REQUIRE_EQUAL(m[i][j], matrix(i, j));
             }
         }
@@ -309,8 +309,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrix) {
         LOG_DEBUG(<< "matrix = " << matrix);
         BOOST_REQUIRE_EQUAL(std::size_t(5), matrix.rows());
         BOOST_REQUIRE_EQUAL(std::size_t(5), matrix.columns());
-        for (std::size_t i = 0u, k = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++k) {
+        for (std::size_t i = 0u, k = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++k) {
                 BOOST_REQUIRE_EQUAL(m[k], matrix(i, j));
                 BOOST_REQUIRE_EQUAL(m[k], matrix(j, i));
             }
@@ -324,8 +324,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrix) {
         LOG_DEBUG(<< "matrix = " << matrix);
         BOOST_REQUIRE_EQUAL(std::size_t(4), matrix.rows());
         BOOST_REQUIRE_EQUAL(std::size_t(4), matrix.columns());
-        for (std::size_t i = 0u; i < 4; ++i) {
-            for (std::size_t j = 0u; j < 4; ++j) {
+        for (std::size_t i = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
                 BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1) * (j + 1)), matrix(i, j));
             }
         }
@@ -338,8 +338,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrix) {
         LOG_DEBUG(<< "matrix = " << matrix);
         BOOST_REQUIRE_EQUAL(std::size_t(4), matrix.rows());
         BOOST_REQUIRE_EQUAL(std::size_t(4), matrix.columns());
-        for (std::size_t i = 0u; i < 4; ++i) {
-            for (std::size_t j = 0u; j < 4; ++j) {
+        for (std::size_t i = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
                 BOOST_REQUIRE_EQUAL(i == j ? vector(i) : 0.0, matrix(i, j));
             }
         }
@@ -354,8 +354,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrix) {
         maths::CSymmetricMatrix<double> matrix(std::begin(m), std::end(m));
         maths::CSymmetricMatrix<double> sum = matrix + matrix;
         LOG_DEBUG(<< "sum = " << sum);
-        for (std::size_t i = 0u, k = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++k) {
+        for (std::size_t i = 0u, k = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++k) {
                 BOOST_REQUIRE_EQUAL(2.0 * m[k], sum(i, j));
                 BOOST_REQUIRE_EQUAL(2.0 * m[k], sum(j, i));
             }
@@ -370,8 +370,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrix) {
         maths::CSymmetricMatrix<double> matrix2(std::begin(m2), std::end(m2));
         maths::CSymmetricMatrix<double> difference = matrix1 - matrix2;
         LOG_DEBUG(<< "difference = " << difference);
-        for (std::size_t i = 0u, k = 0u; i < 3; ++i) {
-            for (std::size_t j = 0u; j <= i; ++j, ++k) {
+        for (std::size_t i = 0u, k = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j <= i; ++j, ++k) {
                 BOOST_REQUIRE_EQUAL(m1[k] - m2[k], difference(i, j));
                 BOOST_REQUIRE_EQUAL(m1[k] - m2[k], difference(j, i));
             }
@@ -385,8 +385,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrix) {
         maths::CSymmetricMatrix<double> m(maths::E_OuterProduct, vector);
         maths::CSymmetricMatrix<double> ms = m * 3.0;
         LOG_DEBUG(<< "3 * m = " << ms);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
                 BOOST_REQUIRE_EQUAL(3.0 * static_cast<double>((i + 1) * (j + 1)),
                                     ms(i, j));
             }
@@ -400,8 +400,8 @@ BOOST_AUTO_TEST_CASE(testSymmetricMatrix) {
         maths::CSymmetricMatrix<double> m(maths::E_OuterProduct, vector);
         maths::CSymmetricMatrix<double> ms = m / 4.0;
         LOG_DEBUG(<< "m / 4.0 = " << ms);
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < 5; ++j) {
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < 5; ++j) {
                 BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1) * (j + 1)) / 4.0,
                                     ms(i, j));
             }
@@ -415,7 +415,7 @@ BOOST_AUTO_TEST_CASE(testVector) {
         maths::CVector<double> vector(3);
         LOG_DEBUG(<< "vector = " << vector);
         BOOST_REQUIRE_EQUAL(std::size_t(3), vector.dimension());
-        for (std::size_t i = 0u; i < 3; ++i) {
+        for (std::size_t i = 0; i < 3; ++i) {
             BOOST_REQUIRE_EQUAL(0.0, vector(i));
         }
     }
@@ -423,7 +423,7 @@ BOOST_AUTO_TEST_CASE(testVector) {
         maths::CVector<double> vector(4, 3.0);
         LOG_DEBUG(<< "vector = " << vector);
         BOOST_REQUIRE_EQUAL(std::size_t(4), vector.dimension());
-        for (std::size_t i = 0u; i < 4; ++i) {
+        for (std::size_t i = 0; i < 4; ++i) {
             BOOST_REQUIRE_EQUAL(3.0, vector(i));
         }
     }
@@ -433,7 +433,7 @@ BOOST_AUTO_TEST_CASE(testVector) {
         maths::CVector<double> vector(v);
         BOOST_REQUIRE_EQUAL(std::size_t(5), vector.dimension());
         LOG_DEBUG(<< "vector = " << vector);
-        for (std::size_t i = 0u; i < 5; ++i) {
+        for (std::size_t i = 0; i < 5; ++i) {
             BOOST_REQUIRE_EQUAL(v[i], vector(i));
         }
     }
@@ -442,7 +442,7 @@ BOOST_AUTO_TEST_CASE(testVector) {
         maths::CVector<double> vector(std::begin(v), std::end(v));
         BOOST_REQUIRE_EQUAL(std::size_t(5), vector.dimension());
         LOG_DEBUG(<< "vector = " << vector);
-        for (std::size_t i = 0u; i < 5; ++i) {
+        for (std::size_t i = 0; i < 5; ++i) {
             BOOST_REQUIRE_EQUAL(v[i], vector(i));
         }
     }
@@ -455,7 +455,7 @@ BOOST_AUTO_TEST_CASE(testVector) {
         maths::CVector<double> vector(std::begin(v), std::end(v));
         maths::CVector<double> sum = vector + vector;
         LOG_DEBUG(<< "vector = " << sum);
-        for (std::size_t i = 0u; i < 5; ++i) {
+        for (std::size_t i = 0; i < 5; ++i) {
             BOOST_REQUIRE_EQUAL(2.0 * v[i], sum(i));
         }
     }
@@ -468,7 +468,7 @@ BOOST_AUTO_TEST_CASE(testVector) {
         maths::CVector<double> vector2(std::begin(v2), std::end(v2));
         maths::CVector<double> difference = vector1 - vector2;
         LOG_DEBUG(<< "vector = " << difference);
-        for (std::size_t i = 0u; i < 3; ++i) {
+        for (std::size_t i = 0; i < 3; ++i) {
             BOOST_REQUIRE_EQUAL(v1[i] - v2[i], difference(i));
         }
     }
@@ -477,7 +477,7 @@ BOOST_AUTO_TEST_CASE(testVector) {
 
         Eigen::MatrixXd randomMatrix(std::size_t(4), std::size_t(4));
         Eigen::VectorXd randomVector(4);
-        for (std::size_t t = 0u; t < 20; ++t) {
+        for (std::size_t t = 0; t < 20; ++t) {
             randomMatrix.setRandom();
             Eigen::MatrixXd a = randomMatrix.selfadjointView<Eigen::Lower>();
             LOG_DEBUG(<< "A   =\n" << a);
@@ -492,7 +492,7 @@ BOOST_AUTO_TEST_CASE(testVector) {
             LOG_DEBUG(<< "y   =\n" << y);
             maths::CVector<double> sy = s * y;
             LOG_DEBUG(<< "Sy = " << sy);
-            for (std::size_t i = 0u; i < 4; ++i) {
+            for (std::size_t i = 0; i < 4; ++i) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(expected(i), sy(i), 1e-10);
             }
         }
@@ -504,7 +504,7 @@ BOOST_AUTO_TEST_CASE(testVector) {
         maths::CVector<double> vector(std::begin(v), std::end(v));
         maths::CVector<double> vs = vector * 3.0;
         LOG_DEBUG(<< "3 * v = " << vs);
-        for (std::size_t i = 0u; i < 5; ++i) {
+        for (std::size_t i = 0; i < 5; ++i) {
             BOOST_REQUIRE_EQUAL(3.0 * static_cast<double>((i + 1)), vs(i));
         }
     }
@@ -515,7 +515,7 @@ BOOST_AUTO_TEST_CASE(testVector) {
         maths::CVector<double> vector(std::begin(v), std::end(v));
         maths::CVector<double> vs = vector / 4.0;
         LOG_DEBUG(<< "v / 4.0 = " << vs);
-        for (std::size_t i = 0u; i < 5; ++i) {
+        for (std::size_t i = 0; i < 5; ++i) {
             BOOST_REQUIRE_EQUAL(static_cast<double>((i + 1)) / 4.0, vs(i));
         }
     }
@@ -528,7 +528,7 @@ BOOST_AUTO_TEST_CASE(testNorms) {
                   {-3.0, 1.1, -3.3, 1.8, 6.1}};
     double expectedEuclidean[]{4.30697, 5.12543, 9.01942, 7.84538};
 
-    for (std::size_t i = 0u; i < boost::size(v); ++i) {
+    for (std::size_t i = 0; i < boost::size(v); ++i) {
         maths::CVectorNx1<double, 5> v_(v[i]);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedEuclidean[i], v_.euclidean(), 5e-6);
     }
@@ -540,7 +540,7 @@ BOOST_AUTO_TEST_CASE(testNorms) {
         {-3.0, 1.1, -3.3, 1.8, 6.1, -1.3, 1.3, 4.2, 3.1, 1.9, -2.3, 3.1, 2.4, 2.3, 1.0}};
     double expectedFrobenius[]{13.78550, 18.00250, 20.72052, 14.80844};
 
-    for (std::size_t i = 0u; i < boost::size(m); ++i) {
+    for (std::size_t i = 0; i < boost::size(m); ++i) {
         maths::CSymmetricMatrixNxN<double, 5> m_(std::begin(m[i]), std::end(m[i]));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedFrobenius[i], m_.frobenius(), 5e-6);
     }
@@ -561,17 +561,17 @@ BOOST_AUTO_TEST_CASE(testUtils) {
         {
             double expected[]{1.0, 3.1, 2.2, 4.0, 4.0};
             LOG_DEBUG(<< "min(v1, 4.0) = " << maths::min(v1, 4.0));
-            for (std::size_t i = 0u; i < 5; ++i) {
+            for (std::size_t i = 0; i < 5; ++i) {
                 BOOST_REQUIRE_EQUAL(expected[i], (maths::min(v1, 4.0))(i));
             }
         }
-        for (std::size_t i = 0u; i < 5; ++i) {
+        for (std::size_t i = 0; i < 5; ++i) {
             BOOST_REQUIRE_EQUAL((maths::min(v1, 4.0))(i), (maths::min(4.0, v1))(i));
         }
         {
             double expected[]{1.0, 3.0, 2.2, 4.9, 8.0};
             LOG_DEBUG(<< "min(v1, v2) = " << maths::min(v1, v2));
-            for (std::size_t i = 0u; i < 5; ++i) {
+            for (std::size_t i = 0; i < 5; ++i) {
                 BOOST_REQUIRE_EQUAL(expected[i], (maths::min(v1, v2))(i));
             }
         }
@@ -579,17 +579,17 @@ BOOST_AUTO_TEST_CASE(testUtils) {
         {
             double expected[]{3.0, 3.1, 3.0, 4.9, 12.0};
             LOG_DEBUG(<< "max(v1, 3.0) = " << maths::max(v1, 3.0));
-            for (std::size_t i = 0u; i < 5; ++i) {
+            for (std::size_t i = 0; i < 5; ++i) {
                 BOOST_REQUIRE_EQUAL(expected[i], (maths::max(v1, 3.0))(i));
             }
         }
-        for (std::size_t i = 0u; i < 5; ++i) {
+        for (std::size_t i = 0; i < 5; ++i) {
             BOOST_REQUIRE_EQUAL((maths::max(v1, 3.0))(i), (maths::max(3.0, v1))(i));
         }
         {
             double expected[]{1.5, 3.1, 2.7, 5.2, 12.0};
             LOG_DEBUG(<< "max(v1, v2) = " << maths::max(v1, v2));
-            for (std::size_t i = 0u; i < 5; ++i) {
+            for (std::size_t i = 0; i < 5; ++i) {
                 BOOST_REQUIRE_EQUAL(expected[i], (maths::max(v1, v2))(i));
             }
         }
@@ -598,7 +598,7 @@ BOOST_AUTO_TEST_CASE(testUtils) {
             double expected[]{1.0, std::sqrt(3.1), std::sqrt(2.2),
                               std::sqrt(4.9), std::sqrt(12.0)};
             LOG_DEBUG(<< "sqrt(v1) = " << maths::sqrt(v1));
-            for (std::size_t i = 0u; i < 5; ++i) {
+            for (std::size_t i = 0; i < 5; ++i) {
                 BOOST_REQUIRE_EQUAL(expected[i], (maths::sqrt(v1))(i));
             }
         }
@@ -606,7 +606,7 @@ BOOST_AUTO_TEST_CASE(testUtils) {
         {
             const double expected[]{1.0, 3.1, 2.2, 4.9, 12.0};
             LOG_DEBUG(<< "fabs(v3) = " << maths::fabs(v3));
-            for (std::size_t i = 0u; i < 5; ++i) {
+            for (std::size_t i = 0; i < 5; ++i) {
                 BOOST_REQUIRE_EQUAL(expected[i], (maths::fabs(v3))(i));
             }
         }
@@ -624,14 +624,14 @@ BOOST_AUTO_TEST_CASE(testUtils) {
         {
             double expected[][3]{{2.1, 0.3, 0.4}, {0.3, 1.2, 3.0}, {0.4, 3.0, 0.2}};
             LOG_DEBUG(<< "min(m1, 3.0) = " << maths::min(m1, 3.0));
-            for (std::size_t i = 0u; i < 3; ++i) {
-                for (std::size_t j = 0u; j < 3; ++j) {
+            for (std::size_t i = 0; i < 3; ++i) {
+                for (std::size_t j = 0; j < 3; ++j) {
                     BOOST_REQUIRE_EQUAL(expected[i][j], (maths::min(m1, 3.0))(i, j));
                 }
             }
         }
-        for (std::size_t i = 0u; i < 3; ++i) {
-            for (std::size_t j = 0u; j < 3; ++j) {
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 3; ++j) {
                 BOOST_REQUIRE_EQUAL((maths::min(m1, 3.0))(i, j),
                                     (maths::min(3.0, m1))(i, j));
             }
@@ -639,8 +639,8 @@ BOOST_AUTO_TEST_CASE(testUtils) {
         {
             double expected[][3]{{1.1, 0.3, 0.4}, {0.3, 1.2, 1.8}, {0.4, 1.8, 0.2}};
             LOG_DEBUG(<< "min(m1, m2) = " << maths::min(m1, m2));
-            for (std::size_t i = 0u; i < 3; ++i) {
-                for (std::size_t j = 0u; j < 3; ++j) {
+            for (std::size_t i = 0; i < 3; ++i) {
+                for (std::size_t j = 0; j < 3; ++j) {
                     BOOST_REQUIRE_EQUAL(expected[i][j], (maths::min(m1, m2))(i, j));
                 }
             }
@@ -649,14 +649,14 @@ BOOST_AUTO_TEST_CASE(testUtils) {
         {
             double expected[][3]{{2.1, 2.0, 2.0}, {2.0, 2.0, 3.8}, {2.0, 3.8, 2.0}};
             LOG_DEBUG(<< "max(m1, 2.0) = " << maths::max(m1, 2.0));
-            for (std::size_t i = 0u; i < 3; ++i) {
-                for (std::size_t j = 0u; j < 3; ++j) {
+            for (std::size_t i = 0; i < 3; ++i) {
+                for (std::size_t j = 0; j < 3; ++j) {
                     BOOST_REQUIRE_EQUAL(expected[i][j], (maths::max(m1, 2.0))(i, j));
                 }
             }
         }
-        for (std::size_t i = 0u; i < 3; ++i) {
-            for (std::size_t j = 0u; j < 3; ++j) {
+        for (std::size_t i = 0; i < 3; ++i) {
+            for (std::size_t j = 0; j < 3; ++j) {
                 BOOST_REQUIRE_EQUAL((maths::max(m1, 2.0))(i, j),
                                     (maths::max(2.0, m1))(i, j));
             }
@@ -664,8 +664,8 @@ BOOST_AUTO_TEST_CASE(testUtils) {
         {
             double expected[][3]{{2.1, 0.4, 1.4}, {0.4, 1.2, 3.8}, {1.4, 3.8, 0.8}};
             LOG_DEBUG(<< "max(m1, m2) = " << maths::max(m1, m2));
-            for (std::size_t i = 0u; i < 3; ++i) {
-                for (std::size_t j = 0u; j < 3; ++j) {
+            for (std::size_t i = 0; i < 3; ++i) {
+                for (std::size_t j = 0; j < 3; ++j) {
                     BOOST_REQUIRE_EQUAL(expected[i][j], (maths::max(m1, m2))(i, j));
                 }
             }
@@ -676,8 +676,8 @@ BOOST_AUTO_TEST_CASE(testUtils) {
                                  {std::sqrt(0.3), std::sqrt(1.2), std::sqrt(3.8)},
                                  {std::sqrt(0.4), std::sqrt(3.8), std::sqrt(0.2)}};
             LOG_DEBUG(<< "sqrt(m1) = " << maths::sqrt(m1));
-            for (std::size_t i = 0u; i < 3; ++i) {
-                for (std::size_t j = 0u; j < 3; ++j) {
+            for (std::size_t i = 0; i < 3; ++i) {
+                for (std::size_t j = 0; j < 3; ++j) {
                     BOOST_REQUIRE_EQUAL(expected[i][j], (maths::sqrt(m1))(i, j));
                 }
             }
@@ -686,8 +686,8 @@ BOOST_AUTO_TEST_CASE(testUtils) {
         {
             double expected[][3]{{2.1, 0.3, 0.4}, {0.3, 1.2, 3.8}, {0.4, 3.8, 0.2}};
             LOG_DEBUG(<< "fabs(m3) = " << maths::fabs(m3));
-            for (std::size_t i = 0u; i < 3; ++i) {
-                for (std::size_t j = 0u; j < 3; ++j) {
+            for (std::size_t i = 0; i < 3; ++i) {
+                for (std::size_t j = 0; j < 3; ++j) {
                     BOOST_REQUIRE_EQUAL(expected[i][j], (maths::fabs(m3))(i, j));
                 }
             }
@@ -709,7 +709,7 @@ BOOST_AUTO_TEST_CASE(testScaleCovariances) {
         maths::scaleCovariances(scale, covariance);
         LOG_DEBUG(<< "scaled covariances =" << covariance);
 
-        for (std::size_t i = 0u; i < 4; ++i) {
+        for (std::size_t i = 0; i < 4; ++i) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(scale_[i] * covariance_[i][i],
                                          covariance(i, i), 1e-10);
             for (std::size_t j = i + 1; j < 4; ++j) {
@@ -733,7 +733,7 @@ BOOST_AUTO_TEST_CASE(testScaleCovariances) {
         maths::scaleCovariances(scale, covariance);
         LOG_DEBUG(<< "scaled covariances =\n" << covariance);
 
-        for (std::size_t i = 0u; i < 4; ++i) {
+        for (std::size_t i = 0; i < 4; ++i) {
             BOOST_REQUIRE_CLOSE_ABSOLUTE(scale_[i] * covariance_[i][i],
                                          covariance(i, i), 1e-10);
             for (std::size_t j = i + 1; j < 4; ++j) {
@@ -769,7 +769,7 @@ BOOST_AUTO_TEST_CASE(testGaussianLogLikelihood) {
                                 -9.794163, -8.602336, -8.462027, -9.096402,
                                 -8.521042, -8.590054};
 
-        for (std::size_t i = 0u; i < boost::size(x_); ++i) {
+        for (std::size_t i = 0; i < boost::size(x_); ++i) {
             maths::CVectorNx1<double, 4> x(x_[i]);
             double likelihood;
             BOOST_REQUIRE_EQUAL(maths_t::E_FpNoErrors,
@@ -905,7 +905,7 @@ BOOST_AUTO_TEST_CASE(testSampleGaussian) {
 
         maths::CBasicStatistics::SSampleCovariances<maths::CVectorNx1<double, 4>> covariances(4);
 
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             covariances.add(samples[i]);
         }
 
@@ -959,7 +959,7 @@ BOOST_AUTO_TEST_CASE(testSampleGaussian) {
 
         maths::CBasicStatistics::SSampleCovariances<maths::CVectorNx1<double, 4>> covariances(4);
 
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             covariances.add(samples[i]);
         }
 
@@ -1003,7 +1003,7 @@ BOOST_AUTO_TEST_CASE(testLogDeterminant) {
                                 3.1654e-06, 8.5319e-02, 2.0840e-03, 6.8008e-03,
                                 1.4755e-02, 2.6315e-05};
 
-        for (std::size_t i = 0u; i < boost::size(matrices); ++i) {
+        for (std::size_t i = 0; i < boost::size(matrices); ++i) {
             maths::CSymmetricMatrixNxN<double, 3> M(matrices[i]);
             double logDeterminant;
             maths::logDeterminant(M, logDeterminant);
@@ -1434,8 +1434,8 @@ BOOST_AUTO_TEST_CASE(testShims) {
         LOG_DEBUG(<< "outer = " << outer1);
         LOG_DEBUG(<< "outer = " << outer2);
         LOG_DEBUG(<< "outer =\n" << outer3);
-        for (std::size_t i = 0u; i < 4; ++i) {
-            for (std::size_t j = 0u; j < 4; ++j) {
+        for (std::size_t i = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
                 BOOST_REQUIRE_EQUAL(vector1(i) * vector1(j), outer1(i, j));
                 BOOST_REQUIRE_EQUAL(vector2(i) * vector2(j), outer2(i, j));
                 BOOST_REQUIRE_EQUAL(vector3(i) * vector3(j), outer3(i, j));
@@ -1498,8 +1498,8 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         LOG_DEBUG(<< "delimited = " << str);
 
-        for (std::size_t i = 0u; i < 4; ++i) {
-            for (std::size_t j = 0u; j < 4; ++j) {
+        for (std::size_t i = 0; i < 4; ++i) {
+            for (std::size_t j = 0; j < 4; ++j) {
                 BOOST_REQUIRE_EQUAL(matrix(i, j), restoredMatrix(i, j));
             }
         }
@@ -1523,7 +1523,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         LOG_DEBUG(<< "delimited = " << str);
 
-        for (std::size_t i = 0u; i < 3; ++i) {
+        for (std::size_t i = 0; i < 3; ++i) {
             BOOST_REQUIRE_EQUAL(vector(i), restoredVector(i));
         }
 

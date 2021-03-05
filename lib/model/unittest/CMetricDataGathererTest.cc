@@ -235,7 +235,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
         BOOST_REQUIRE_EQUAL(std::size_t(4), gatherer.numberFeatures());
-        for (std::size_t i = 0u; i < 4; ++i) {
+        for (std::size_t i = 0; i < 4; ++i) {
             BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
 
@@ -360,11 +360,11 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeries, CTestFixture) {
         buckets.push_back(TTimeDoublePrVec(std::begin(bucket4), std::end(bucket4)));
         buckets.push_back(TTimeDoublePrVec(std::begin(bucket5), std::end(bucket5)));
 
-        for (std::size_t i = 0u; i < buckets.size(); ++i) {
+        for (std::size_t i = 0; i < buckets.size(); ++i) {
             LOG_DEBUG(<< "Processing bucket " << i);
             gatherer.timeNow(startTime + i * bucketLength);
             const TTimeDoublePrVec& bucket = buckets[i];
-            for (std::size_t j = 0u; j < bucket.size(); ++j) {
+            for (std::size_t j = 0; j < bucket.size(); ++j) {
                 addArrival(gatherer, m_ResourceMonitor, bucket[j].first, "p",
                            bucket[j].second);
             }
@@ -464,19 +464,19 @@ BOOST_FIXTURE_TEST_CASE(testMultipleSeries, CTestFixture) {
     buckets2.push_back(TTimeDoublePrVec(std::begin(bucket24), std::end(bucket24)));
     buckets2.push_back(TTimeDoublePrVec(std::begin(bucket25), std::end(bucket25)));
 
-    for (std::size_t i = 0u; i < 5; ++i) {
+    for (std::size_t i = 0; i < 5; ++i) {
         LOG_DEBUG(<< "Processing bucket " << i);
         gatherer.timeNow(startTime + i * bucketLength);
 
         const TTimeDoublePrVec& bucket1 = buckets1[i];
-        for (std::size_t j = 0u; j < bucket1.size(); ++j) {
+        for (std::size_t j = 0; j < bucket1.size(); ++j) {
             addArrival(gatherer, m_ResourceMonitor, bucket1[j].first, "p1",
                        bucket1[j].second);
         }
 
         const TTimeDoublePrVec& bucket2 = buckets2[i];
         TMeanAccumulator a;
-        for (std::size_t j = 0u; j < bucket2.size(); ++j) {
+        for (std::size_t j = 0; j < bucket2.size(); ++j) {
             addArrival(gatherer, m_ResourceMonitor, bucket2[j].first, "p2",
                        bucket2[j].second);
             a.add(bucket2[j].second);
@@ -611,7 +611,7 @@ BOOST_FIXTURE_TEST_CASE(testSampleCount, CTestFixture) {
 
     const core_t::TTime startTime = 0;
     const core_t::TTime bucketLength = 600;
-    const std::size_t numberBuckets = 3u;
+    const std::size_t numberBuckets = 3;
 
     TFeatureVec features;
     features.push_back(model_t::E_IndividualMeanByPerson);
@@ -627,7 +627,7 @@ BOOST_FIXTURE_TEST_CASE(testSampleCount, CTestFixture) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < numberBuckets; ++i) {
+    for (std::size_t i = 0; i < numberBuckets; ++i) {
         LOG_DEBUG(<< "Processing bucket " << i);
         gatherer.timeNow(startTime + i * bucketLength);
 
@@ -650,7 +650,7 @@ BOOST_FIXTURE_TEST_CASE(testSampleCount, CTestFixture) {
             TDoubleVec count;
             rng.generateUniformSamples(1.0, 5.0, 1, count);
             LOG_DEBUG(<< "count p2 = " << std::floor(count[0]));
-            for (std::size_t j = 0u; j < static_cast<std::size_t>(count[0]); ++j) {
+            for (std::size_t j = 0; j < static_cast<std::size_t>(count[0]); ++j) {
                 addArrival(gatherer, m_ResourceMonitor,
                            startTime + i * bucketLength + 100 * (j + 1), "p2", 1.0);
             }
@@ -716,8 +716,8 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         {4.0, 1.0, 8.0, 1.0, 0.3, 1.1, 10.3, 0.0},
         {2.0, 5.0, 6.0, 1.0, 0.2, 3.1, 7.1, 6.2},
     };
-    for (std::size_t i = 0u; i < boost::size(values); ++i) {
-        for (std::size_t j = 0u; j < boost::size(values[i]); ++j) {
+    for (std::size_t i = 0; i < boost::size(values); ++i) {
+        for (std::size_t j = 0; j < boost::size(values[i]); ++j) {
             if (values[i][j] > 0.0) {
                 addArrival(gatherer, m_ResourceMonitor, startTime + times[i][j],
                            gatherer.personName(i), values[i][j]);
@@ -749,8 +749,8 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
                             addPerson("p8", expectedGatherer, m_ResourceMonitor));
 
         std::size_t people[] = {2, 3, 4, 5, 6, 7};
-        for (std::size_t i = 0u; i < boost::size(people); ++i) {
-            for (std::size_t j = 0u; j < boost::size(values[people[i]]); ++j) {
+        for (std::size_t i = 0; i < boost::size(people); ++i) {
+            for (std::size_t j = 0; j < boost::size(values[people[i]]); ++j) {
                 if (values[people[i]][j] > 0.0) {
                     addArrival(expectedGatherer, m_ResourceMonitor,
                                startTime + times[people[i]][j],
@@ -782,8 +782,8 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
                             addPerson("p7", expectedGatherer, m_ResourceMonitor));
 
         std::size_t people[] = {2, 5, 6};
-        for (std::size_t i = 0u; i < boost::size(people); ++i) {
-            for (std::size_t j = 0u; j < boost::size(values[people[i]]); ++j) {
+        for (std::size_t i = 0; i < boost::size(people); ++i) {
+            for (std::size_t j = 0; j < boost::size(values[people[i]]); ++j) {
                 if (values[people[i]][j] > 0.0) {
                     addArrival(expectedGatherer, m_ResourceMonitor,
                                startTime + times[people[i]][j],
@@ -850,7 +850,7 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
     BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p1", nonZeroSum, m_ResourceMonitor));
 
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u; i < boost::size(bucketCounts); ++i) {
+    for (std::size_t i = 0; i < boost::size(bucketCounts); ++i) {
         std::size_t count = bucketCounts[i];
 
         TDoubleVec times;
@@ -861,7 +861,7 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
         rng.generateNormalSamples(5.0, 4.0, count, values);
 
         double expected = 0.0;
-        for (std::size_t j = 0u; j < times.size(); ++j) {
+        for (std::size_t j = 0; j < times.size(); ++j) {
             addArrival(sum, m_ResourceMonitor,
                        bucketStart + static_cast<core_t::TTime>(times[j]), "p1",
                        values[j]);
@@ -876,7 +876,7 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
             TFeatureSizeFeatureDataPrVecPrVec data;
             sum.featureData(bucketStart, bucketLength, data);
             BOOST_REQUIRE_EQUAL(std::size_t(1), data.size());
-            for (std::size_t j = 0u; j < data.size(); ++j) {
+            for (std::size_t j = 0; j < data.size(); ++j) {
                 const TSizeFeatureDataPrVec& featureData = data[j].second;
                 BOOST_REQUIRE_EQUAL(std::size_t(1), featureData.size());
                 BOOST_REQUIRE_EQUAL(
@@ -893,7 +893,7 @@ BOOST_FIXTURE_TEST_CASE(testSum, CTestFixture) {
             TFeatureSizeFeatureDataPrVecPrVec data;
             nonZeroSum.featureData(bucketStart, bucketLength, data);
             BOOST_REQUIRE_EQUAL(std::size_t(1), data.size());
-            for (std::size_t j = 0u; j < data.size(); ++j) {
+            for (std::size_t j = 0; j < data.size(); ++j) {
                 const TSizeFeatureDataPrVec& featureData = data[j].second;
                 if (count == 0) {
                     BOOST_REQUIRE_EQUAL(std::size_t(0), featureData.size());
@@ -947,7 +947,7 @@ BOOST_FIXTURE_TEST_CASE(testSingleSeriesOutOfOrder, CTestFixture) {
         BOOST_REQUIRE_EQUAL(std::size_t(0), addPerson("p", gatherer, m_ResourceMonitor));
 
         BOOST_REQUIRE_EQUAL(std::size_t(4), gatherer.numberFeatures());
-        for (std::size_t i = 0u; i < 4; ++i) {
+        for (std::size_t i = 0; i < 4; ++i) {
             BOOST_REQUIRE_EQUAL(features[i], gatherer.feature(i));
         }
 
@@ -1470,21 +1470,21 @@ BOOST_FIXTURE_TEST_CASE(testInfluenceStatistics, CTestFixture) {
     addPerson("p2", gatherer, m_ResourceMonitor, influencerNames.size());
 
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u, b = 0u; i < boost::size(data); ++i) {
+    for (std::size_t i = 0u, b = 0; i < boost::size(data); ++i) {
         if (data[i].get<0>() >= bucketStart + bucketLength) {
             LOG_DEBUG(<< "*** processing bucket ***");
             TFeatureSizeFeatureDataPrVecPrVec featureData;
             gatherer.featureData(bucketStart, bucketLength, featureData);
-            for (std::size_t j = 0u; j < featureData.size(); ++j) {
+            for (std::size_t j = 0; j < featureData.size(); ++j) {
                 model_t::EFeature feature = featureData[j].first;
                 LOG_DEBUG(<< "feature = " << model_t::print(feature));
 
                 const TSizeFeatureDataPrVec& data_ = featureData[j].second;
-                for (std::size_t k = 0u; k < data_.size(); ++k) {
+                for (std::size_t k = 0; k < data_.size(); ++k) {
                     TStrDoubleDoublePrPrVec statistics;
-                    for (std::size_t m = 0u;
+                    for (std::size_t m = 0;
                          m < data_[k].second.s_InfluenceValues.size(); ++m) {
-                        for (std::size_t n = 0u;
+                        for (std::size_t n = 0;
                              n < data_[k].second.s_InfluenceValues[m].size(); ++n) {
                             statistics.emplace_back(
                                 data_[k].second.s_InfluenceValues[m][n].first,
@@ -1664,11 +1664,11 @@ BOOST_FIXTURE_TEST_CASE(testMultivariate, CTestFixture) {
         buckets.push_back(TTimeDoubleDoubleTupleVec(std::begin(bucket4), std::end(bucket4)));
         buckets.push_back(TTimeDoubleDoubleTupleVec(std::begin(bucket5), std::end(bucket5)));
 
-        for (std::size_t i = 0u; i < buckets.size(); ++i) {
+        for (std::size_t i = 0; i < buckets.size(); ++i) {
             LOG_DEBUG(<< "Processing bucket " << i);
             gatherer.timeNow(startTime + i * bucketLength);
             const TTimeDoubleDoubleTupleVec& bucket = buckets[i];
-            for (std::size_t j = 0u; j < bucket.size(); ++j) {
+            for (std::size_t j = 0; j < bucket.size(); ++j) {
                 addArrival(gatherer, m_ResourceMonitor, bucket[j].get<0>(), "p",
                            bucket[j].get<1>(), bucket[j].get<2>(), DELIMITER);
             }

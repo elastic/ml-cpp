@@ -104,12 +104,12 @@ struct SUnitWeightFactory<double> {
 template<typename VECTOR>
 struct SWeightArithmetic {
     static void add(const VECTOR& lhs, VECTOR& rhs) {
-        for (std::size_t i = 0u; i < lhs.size(); ++i) {
+        for (std::size_t i = 0; i < lhs.size(); ++i) {
             rhs[i] += lhs[i];
         }
     }
     static void multiply(const VECTOR& lhs, VECTOR& rhs) {
-        for (std::size_t i = 0u; i < lhs.size(); ++i) {
+        for (std::size_t i = 0; i < lhs.size(); ++i) {
             rhs[i] *= lhs[i];
         }
     }

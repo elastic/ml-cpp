@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
         // All one value.
         CQDigest qDigest(10u);
 
-        for (std::size_t i = 0u; i < 50u; ++i) {
+        for (std::size_t i = 0; i < 50; ++i) {
             qDigest.add(5);
         }
 
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
             std::string("5 | 5 | { \"[0,0],1,1\" \"[1,1],1,1\" \"[2,2],1,1\" \"[3,3],1,1\" \"[4,4],1,1\" \"[0,7],0,5\" }"),
         };
 
-        for (std::size_t i = 0u; i < 5u; ++i) {
+        for (std::size_t i = 0; i < 5; ++i) {
             qDigest.add(static_cast<uint32_t>(i));
 
             LOG_DEBUG(<< qDigest.print());
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(testAdd) {
         double totalErrors[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
         TUInt64Set orderedSamples;
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             uint32_t sample = static_cast<uint32_t>(std::floor(samples[i]));
 
             qDigest.add(sample);
@@ -148,15 +148,15 @@ BOOST_AUTO_TEST_CASE(testCdf) {
     // of quantile. We also test the quality of the approximation versus
     // the true c.d.f. of the data.
 
-    const std::size_t k = 100u;
+    const std::size_t k = 100;
     CQDigest qDigest(k + 1);
 
-    const std::size_t nSamples = 5000u;
+    const std::size_t nSamples = 5000;
     TDoubleVec samples;
     CRandomNumbers generator;
     generator.generateUniformSamples(0.0, 500.0, nSamples, samples);
 
-    std::size_t s = 0u;
+    std::size_t s = 0;
     for (/**/; s < std::min(k, samples.size()); ++s) {
         uint32_t sample = static_cast<uint32_t>(std::floor(samples[s]));
         qDigest.add(sample);
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
     qDigest.summary(summary);
     LOG_DEBUG(<< "summary = " << core::CContainerPrinter::print(summary));
 
-    for (std::size_t i = 0u; i < summary.size(); ++i) {
+    for (std::size_t i = 0; i < summary.size(); ++i) {
         double lowerBound;
         double upperBound;
         qDigest.cdf(summary[i].first, 0.0, lowerBound, upperBound);
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(testCdf) {
     qDigest.summary(summary);
     LOG_DEBUG(<< "summary = " << core::CContainerPrinter::print(summary));
 
-    for (std::size_t i = 0u; i < summary.size(); ++i) {
+    for (std::size_t i = 0; i < summary.size(); ++i) {
         double lowerBound;
         double upperBound;
         qDigest.cdf(summary[i].first, 0.0, lowerBound, upperBound);
@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE(testSummary) {
         CRandomNumbers generator;
         generator.generateUniformSamples(0.0, 500.0, 100u, samples);
 
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             uint32_t sample = static_cast<uint32_t>(std::floor(samples[i]));
             qDigest.add(sample);
         }
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE(testSummary) {
         qDigest.summary(summary);
         LOG_DEBUG(<< "summary = " << core::CContainerPrinter::print(summary));
 
-        for (std::size_t i = 0u; i < summary.size(); ++i) {
+        for (std::size_t i = 0; i < summary.size(); ++i) {
             double q = static_cast<double>(summary[i].second) / 100.0;
 
             uint32_t xq;
@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
 
         TDoubleVec samples;
         rng.generateNormalSamples(mean, std * std, 200000, samples);
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             qDigest.add(static_cast<uint32_t>(samples[i] + 0.5));
         }
 
@@ -383,9 +383,9 @@ BOOST_AUTO_TEST_CASE(testPropagateForwardByTime) {
         double std = 100.0;
 
         TDoubleVec samples;
-        for (std::size_t i = 0u; i < 500; ++i) {
+        for (std::size_t i = 0; i < 500; ++i) {
             rng.generateNormalSamples(mean, std * std, 2000, samples);
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 qDigest.add(static_cast<uint32_t>(samples[j] + 0.5));
             }
             if (i % 10 == 0) {
@@ -474,7 +474,7 @@ BOOST_AUTO_TEST_CASE(testScale) {
         CRandomNumbers generator;
         generator.generateNormalSamples(50.0, 5.0, 500u, samples);
 
-        for (std::size_t i = 0u; i < boost::size(scales); ++i) {
+        for (std::size_t i = 0; i < boost::size(scales); ++i) {
             LOG_DEBUG(<< "*** Testing scale = " << scales[i] << " ***");
 
             CQDigest qDigest(20u);
@@ -535,7 +535,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     TDoubleVec samples;
     generator.generateUniformSamples(0.0, 5000.0, 1000u, samples);
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         uint32_t sample = static_cast<uint32_t>(std::floor(samples[i]));
 
         origQDigest.add(sample);

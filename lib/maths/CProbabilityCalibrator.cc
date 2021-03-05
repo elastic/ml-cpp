@@ -23,7 +23,7 @@ namespace maths {
 
 namespace {
 
-const uint64_t QUANTILE_SIZE = 200u;
+const uint64_t QUANTILE_SIZE = 200;
 const double DISCRETIZATION_FACTOR = 100.0;
 
 //! Convert a probability to a positive integer.

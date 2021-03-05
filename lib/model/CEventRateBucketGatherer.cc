@@ -88,7 +88,7 @@ struct STimesBucketSerializer {
         }
         std::sort(ordered.begin(), ordered.end(),
                   core::CFunctional::SDereference<maths::COrderings::SFirstLess>());
-        for (std::size_t i = 0u; i < ordered.size(); ++i) {
+        for (std::size_t i = 0; i < ordered.size(); ++i) {
             inserter.insertValue(PERSON_TAG, CDataGatherer::extractPersonId(*ordered[i]));
             inserter.insertValue(ATTRIBUTE_TAG,
                                  CDataGatherer::extractAttributeId(*ordered[i]));
@@ -124,7 +124,7 @@ struct SStrDataBucketSerializer {
         }
         std::sort(ordered.begin(), ordered.end(),
                   core::CFunctional::SDereference<maths::COrderings::SFirstLess>());
-        for (std::size_t i = 0u; i != ordered.size(); ++i) {
+        for (std::size_t i = 0; i != ordered.size(); ++i) {
             inserter.insertValue(PERSON_TAG, CDataGatherer::extractPersonId(*ordered[i]));
             inserter.insertValue(ATTRIBUTE_TAG,
                                  CDataGatherer::extractAttributeId(*ordered[i]));
@@ -167,7 +167,7 @@ void persistAttributePeopleData(const TSizeUSetVec& data,
         // it easier to compare state records.
         TSizeVec orderedPeople(people.begin(), people.end());
         std::sort(orderedPeople.begin(), orderedPeople.end());
-        for (std::size_t i = 0u; i < orderedPeople.size(); ++i) {
+        for (std::size_t i = 0; i < orderedPeople.size(); ++i) {
             inserter.insertValue(PERSON_TAG, orderedPeople[i]);
         }
     }
@@ -362,15 +362,15 @@ struct SRemovePeople {
     void operator()(TSizeUSetVec& attributePeople,
                     std::size_t lowestPersonToRemove,
                     std::size_t endPeople) const {
-        for (std::size_t cid = 0u; cid < attributePeople.size(); ++cid) {
+        for (std::size_t cid = 0; cid < attributePeople.size(); ++cid) {
             for (std::size_t pid = lowestPersonToRemove; pid < endPeople; ++pid) {
                 attributePeople[cid].erase(pid);
             }
         }
     }
     void operator()(TSizeUSetVec& attributePeople, const TSizeVec& peopleToRemove) const {
-        for (std::size_t cid = 0u; cid < attributePeople.size(); ++cid) {
-            for (std::size_t i = 0u; i < peopleToRemove.size(); ++i) {
+        for (std::size_t cid = 0; cid < attributePeople.size(); ++cid) {
+            for (std::size_t i = 0; i < peopleToRemove.size(); ++i) {
                 attributePeople[cid].erase(peopleToRemove[i]);
             }
         }
@@ -423,7 +423,7 @@ struct SRemoveAttributes {
         }
     }
     void operator()(TSizeUSetVec& attributePeople, const TSizeVec& attributesToRemove) const {
-        for (std::size_t i = 0u; i < attributesToRemove.size(); ++i) {
+        for (std::size_t i = 0; i < attributesToRemove.size(); ++i) {
             attributePeople[attributesToRemove[i]].clear();
         }
     }
@@ -471,7 +471,7 @@ struct SChecksum {
         using TStrCRef = std::reference_wrapper<const std::string>;
         using TStrCRefVec = std::vector<TStrCRef>;
 
-        for (std::size_t cid = 0u; cid < attributePeople.size(); ++cid) {
+        for (std::size_t cid = 0; cid < attributePeople.size(); ++cid) {
             if (gatherer.isAttributeActive(cid)) {
                 TStrCRefVec people;
                 people.reserve(attributePeople[cid].size());
@@ -1269,7 +1269,7 @@ void CEventRateBucketGatherer::peoplePerAttribute(model_t::EFeature feature,
     try {
         const TSizeUSetVec& attributePeople = boost::any_cast<const TSizeUSetVec&>(i->second);
         result.reserve(attributePeople.size());
-        for (std::size_t cid = 0u; cid < attributePeople.size(); ++cid) {
+        for (std::size_t cid = 0; cid < attributePeople.size(); ++cid) {
             if (m_DataGatherer.isAttributeActive(cid)) {
                 result.emplace_back(TSizeSizePr(0, cid), attributePeople[cid].size());
             }
@@ -1298,10 +1298,10 @@ void CEventRateBucketGatherer::attributeIndicator(model_t::EFeature feature,
     std::sort(result.begin(), result.end(), maths::COrderings::SFirstLess());
 
     this->addInfluencerCounts(time, result);
-    for (std::size_t i = 0u; i < result.size(); ++i) {
+    for (std::size_t i = 0; i < result.size(); ++i) {
         SEventRateFeatureData& data = result[i].second;
-        for (std::size_t j = 0u; j < data.s_InfluenceValues.size(); ++j) {
-            for (std::size_t k = 0u; k < data.s_InfluenceValues[j].size(); ++k) {
+        for (std::size_t j = 0; j < data.s_InfluenceValues.size(); ++j) {
+            for (std::size_t k = 0; k < data.s_InfluenceValues[j].size(); ++k) {
                 data.s_InfluenceValues[j][k].second.first = TDoubleVec{1.0};
             }
         }
@@ -1453,10 +1453,10 @@ void CEventRateBucketGatherer::bucketMeanTimesPerPerson(model_t::EFeature featur
         // so the best we can do is use the person and attribute
         // bucket mean.
         this->addInfluencerCounts(time, result);
-        for (std::size_t j = 0u; j < result.size(); ++j) {
+        for (std::size_t j = 0; j < result.size(); ++j) {
             SEventRateFeatureData& data = result[j].second;
-            for (std::size_t k = 0u; k < data.s_InfluenceValues.size(); ++k) {
-                for (std::size_t l = 0u; l < data.s_InfluenceValues[k].size(); ++l) {
+            for (std::size_t k = 0; k < data.s_InfluenceValues.size(); ++k) {
+                for (std::size_t l = 0; l < data.s_InfluenceValues[k].size(); ++l) {
                     data.s_InfluenceValues[k][l].second.first =
                         TDouble1Vec{static_cast<double>(data.s_Count)};
                 }
@@ -1496,10 +1496,10 @@ void CEventRateBucketGatherer::bucketMeanTimesPerPersonAttribute(model_t::EFeatu
         // so the best we can do is use the person and attribute
         // bucket mean.
         this->addInfluencerCounts(time, result);
-        for (std::size_t j = 0u; j < result.size(); ++j) {
+        for (std::size_t j = 0; j < result.size(); ++j) {
             SEventRateFeatureData& data = result[j].second;
-            for (std::size_t k = 0u; k < data.s_InfluenceValues.size(); ++k) {
-                for (std::size_t l = 0u; l < data.s_InfluenceValues[k].size(); ++l) {
+            for (std::size_t k = 0; k < data.s_InfluenceValues.size(); ++k) {
+                for (std::size_t l = 0; l < data.s_InfluenceValues[k].size(); ++l) {
                     data.s_InfluenceValues[k][l].second.first =
                         TDouble1Vec{static_cast<double>(data.s_Count)};
                 }
@@ -1672,11 +1672,11 @@ void CEventRateBucketGatherer::addInfluencerCounts(core_t::TTime time,
         return;
     }
 
-    for (std::size_t i = 0u; i < result.size(); ++i) {
+    for (std::size_t i = 0; i < result.size(); ++i) {
         result[i].second.s_InfluenceValues.resize(influencers.size());
     }
 
-    for (std::size_t i = 0u; i < influencers.size(); ++i) {
+    for (std::size_t i = 0; i < influencers.size(); ++i) {
         for (const auto& influence : influencers[i]) {
             std::size_t pid = CDataGatherer::extractPersonId(influence.first);
             auto k = std::lower_bound(result.begin(), result.end(), pid,
@@ -1701,11 +1701,11 @@ void CEventRateBucketGatherer::addInfluencerCounts(core_t::TTime time,
         return;
     }
 
-    for (std::size_t i = 0u; i < result.size(); ++i) {
+    for (std::size_t i = 0; i < result.size(); ++i) {
         result[i].second.s_InfluenceValues.resize(influencers.size());
     }
 
-    for (std::size_t i = 0u; i < influencers.size(); ++i) {
+    for (std::size_t i = 0; i < influencers.size(); ++i) {
         for (const auto& influence : influencers[i]) {
             auto k = std::lower_bound(result.begin(), result.end(),
                                       influence.first.first,
@@ -1746,7 +1746,7 @@ void CUniqueStringFeatureData::populateDistinctCountFeatureData(SEventRateFeatur
     featureData.s_Count = m_UniqueStrings.size();
     featureData.s_InfluenceValues.clear();
     featureData.s_InfluenceValues.resize(m_InfluencerUniqueStrings.size());
-    for (std::size_t i = 0u; i < m_InfluencerUniqueStrings.size(); ++i) {
+    for (std::size_t i = 0; i < m_InfluencerUniqueStrings.size(); ++i) {
         TStrCRefDouble1VecDoublePrPrVec& data = featureData.s_InfluenceValues[i];
         data.reserve(m_InfluencerUniqueStrings[i].size());
         for (const auto& influence : m_InfluencerUniqueStrings[i]) {
@@ -1776,7 +1776,7 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
             compressor.addString(string);
         });
 
-        std::size_t length = 0u;
+        std::size_t length = 0;
         if (compressor.length(true, length) == false) {
             LOG_ERROR(<< "Failed to get compressed length");
             compressor.reset();
@@ -1784,7 +1784,7 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
         featureData.s_Count = length;
 
         featureData.s_InfluenceValues.reserve(m_InfluencerUniqueStrings.size());
-        for (std::size_t i = 0u; i < m_InfluencerUniqueStrings.size(); ++i) {
+        for (std::size_t i = 0; i < m_InfluencerUniqueStrings.size(); ++i) {
             featureData.s_InfluenceValues.push_back(TStrCRefDouble1VecDoublePrPrVec());
             TStrCRefDouble1VecDoublePrPrVec& data =
                 featureData.s_InfluenceValues.back();
@@ -1799,7 +1799,7 @@ void CUniqueStringFeatureData::populateInfoContentFeatureData(SEventRateFeatureD
                               [&compressor](const std::string& string) {
                                   compressor.addString(string);
                               });
-                length = 0u;
+                length = 0;
                 if (compressor.length(true, length) == false) {
                     LOG_ERROR(<< "Failed to get compressed length");
                     compressor.reset();
@@ -1818,7 +1818,7 @@ void CUniqueStringFeatureData::acceptPersistInserter(core::CStatePersistInserter
     inserter.insertLevel(UNIQUE_STRINGS_TAG, std::bind(&persistUniqueStrings,
                                                        std::cref(m_UniqueStrings),
                                                        std::placeholders::_1));
-    for (std::size_t i = 0u; i < m_InfluencerUniqueStrings.size(); ++i) {
+    for (std::size_t i = 0; i < m_InfluencerUniqueStrings.size(); ++i) {
         inserter.insertLevel(INFLUENCER_UNIQUE_STRINGS_TAG,
                              std::bind(&persistInfluencerUniqueStrings,
                                        std::cref(m_InfluencerUniqueStrings[i]),
