@@ -4,12 +4,12 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <exception>
 #include <maths/CBoostedTreeLoss.h>
 
 #include <core/CPersistUtils.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CLbfgs.h>
 #include <maths/CLinearAlgebraEigen.h>
 #include <maths/CPRNG.h>
@@ -18,6 +18,7 @@
 #include <maths/CTools.h>
 #include <maths/CToolsDetail.h>
 
+#include <exception>
 #include <limits>
 
 namespace ml {
@@ -152,12 +153,12 @@ CArgMinMseIncrementalImpl::TDoubleVector CArgMinMseIncrementalImpl::value() cons
     // the tree being retrained. This is convex so there is one minimum where the
     // derivative w.r.t. x is zero and
     //
-    //   x^* = 1 / (n (1 + mu eta) + lambda) sum_i{ a_i - p_i + mu p_i' }.
+    //   x^* = 1 / (n (1 + mu eta^2) + lambda) sum_i{ a_i - p_i + mu eta p_i' }.
     //
     // Denoting the mean prediction error m = 1/n sum_i{ a_i - p_i } and the mean
     // tree predictions p' = 1/n sum_i{p_i'} we have
     //
-    //   x^* = n / (n (1 + mu eta) + lambda) m + mu p'.
+    //   x^* = n / (n (1 + mu eta^2) + lambda) m + mu eta p'.
 
     double count{CBasicStatistics::count(m_MeanError)};
     double meanError{CBasicStatistics::mean(m_MeanError)};
@@ -166,8 +167,8 @@ CArgMinMseIncrementalImpl::TDoubleVector CArgMinMseIncrementalImpl::value() cons
     TDoubleVector result(1);
     result(0) = count == 0.0
                     ? 0.0
-                    : count / (count * (1.0 + m_Mu * m_Eta) + this->lambda()) *
-                          (meanError + m_Mu * meanTreePrediction);
+                    : count / (count * (1.0 + m_Mu * CTools::pow2(m_Eta)) + this->lambda()) *
+                          (meanError + m_Mu * m_Eta * meanTreePrediction);
     return result;
 }
 
@@ -564,24 +565,24 @@ CArgMinMsleImpl::TObjective CArgMinMsleImpl::objective() const {
             double loss{meanLogActualSquared - 2.0 * meanLogActual * logPrediction +
                         CTools::pow2(logPrediction)};
             return loss + this->lambda() * CTools::pow2(weight);
-        } else {
-            double loss{0.0};
-            double totalCount{0.0};
-            for (const auto& bucketPrediction : m_Buckets) {
-                for (const auto& bucketActual : bucketPrediction) {
-                    double count{CBasicStatistics::count(bucketActual)};
-                    if (count > 0.0) {
-                        const auto& bucketMean{CBasicStatistics::mean(bucketActual)};
-                        double expPrediction{bucketMean(MSLE_PREDICTION_INDEX)};
-                        double logActual{bucketMean(MSLE_ACTUAL_INDEX)};
-                        double logPrediction{CTools::fastLog(m_Offset + expPrediction * weight)};
-                        loss += count * CTools::pow2(logActual - logPrediction);
-                        totalCount += count;
-                    }
+        }
+
+        double loss{0.0};
+        double totalCount{0.0};
+        for (const auto& bucketPrediction : m_Buckets) {
+            for (const auto& bucketActual : bucketPrediction) {
+                double count{CBasicStatistics::count(bucketActual)};
+                if (count > 0.0) {
+                    const auto& bucketMean{CBasicStatistics::mean(bucketActual)};
+                    double expPrediction{bucketMean(MSLE_PREDICTION_INDEX)};
+                    double logActual{bucketMean(MSLE_ACTUAL_INDEX)};
+                    double logPrediction{CTools::fastLog(m_Offset + expPrediction * weight)};
+                    loss += count * CTools::pow2(logActual - logPrediction);
+                    totalCount += count;
                 }
             }
-            return loss / totalCount + this->lambda() * CTools::pow2(weight);
         }
+        return loss / totalCount + this->lambda() * CTools::pow2(weight);
     };
 }
 
@@ -637,8 +638,9 @@ void CArgMinPseudoHuberImpl::merge(const CArgMinLossImpl& other) {
 }
 
 CArgMinPseudoHuberImpl::TDoubleVector CArgMinPseudoHuberImpl::value() const {
-    // Set the lower (upper) bounds for minimisation such that every example will have the same sign
-    // error if the weight is smaller (larger) than this bound and so would only increase the loss.
+    // Set the lower (upper) bounds for minimisation such that every example will
+    // have the same sign error if the weight is smaller (larger) than this bound
+    // and so would only increase the loss.
     double minWeight = m_ErrorMinMax.min();
     double maxWeight = m_ErrorMinMax.max();
 
@@ -749,19 +751,24 @@ CArgMinLoss::TDoubleVector CArgMinLoss::value() const {
 CArgMinLoss::CArgMinLoss(const CArgMinLossImpl& impl) : m_Impl{impl.clone()} {
 }
 
-CArgMinLoss CLoss::makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& impl) const {
-    return {impl};
+CArgMinLoss CLoss::makeMinimizer(const boosted_tree_detail::CArgMinLossImpl& impl) {
+    return CArgMinLoss{impl};
 }
 
 CMse::CMse(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel(std::bind(&CMse::acceptRestoreTraverser, this,
-                                             std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         throw std::runtime_error{"failed to restore CMse"};
     }
 }
 
 std::unique_ptr<CLoss> CMse::clone() const {
     return std::make_unique<CMse>(*this);
+}
+
+std::unique_ptr<CLoss> CMse::cloneForRetraining(double, double, const TNodeVec&) const {
+    return nullptr;
 }
 
 ELossType CMse::type() const {
@@ -812,18 +819,100 @@ bool CMse::isRegression() const {
 
 void CMse::acceptPersistInserter(core::CStatePersistInserter& /* inserter */) const {
 }
+
 bool CMse::acceptRestoreTraverser(core::CStateRestoreTraverser& /* traverser */) {
     return true;
 }
 
 const std::string CMse::NAME{"mse"};
 
+CMseIncremental::CMseIncremental(core::CStateRestoreTraverser& traverser) {
+    if (traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
+        throw std::runtime_error{"failed to restore CMse"};
+    }
+}
+
+CMseIncremental::CMseIncremental(double eta, double mu, const TNodeVec& tree)
+    : m_Eta{eta}, m_Mu{mu}, m_Tree{&tree} {
+}
+
+std::unique_ptr<CLoss> CMseIncremental::clone() const {
+    return std::make_unique<CMseIncremental>(*this);
+}
+
+std::unique_ptr<CLoss>
+CMseIncremental::cloneForRetraining(double eta, double mu, const TNodeVec& tree) const {
+    return std::make_unique<CMseIncremental>(eta, mu, tree);
+}
+
+ELossType CMseIncremental::type() const {
+    // TODO https://github.com/elastic/ml-cpp/issues/1721. Do we need to differentiate?
+    return E_MseRegression;
+}
+
+std::size_t CMseIncremental::numberParameters() const {
+    return 1;
+}
+
+double CMseIncremental::value(const TMemoryMappedFloatVector& prediction,
+                              double actual,
+                              double weight) const {
+    double treePrediction{root(*m_Tree).value(row, *m_Tree)(0)};
+    return weight * (CTools::pow2(prediction(0) - actual) + m_Mu * CTools::pow2(treePrediction);
+}
+
+void CMseIncremental::gradient(const TMemoryMappedFloatVector& prediction,
+                               double actual,
+                               TWriter writer,
+                               double weight) const {
+    double treePrediction{root(*m_Tree).value(row, *m_Tree)(0)};
+    writer(0, 2.0 * weight * (prediction(0) - actual + 2.0 * m_Mu * m_Eta * treePrediction));
+}
+
+void CMseIncremental::curvature(const TMemoryMappedFloatVector& /*prediction*/,
+                                double /*actual*/,
+                                TWriter writer,
+                                double weight) const {
+    writer(0, 2.0 * weight * (1.0 + m_Mu * CTools::pow2(m_Eta)));
+}
+
+bool CMseIncremental::isCurvatureConstant() const {
+    return true;
+}
+
+CMse::TDoubleVector CMseIncremental::transform(const TMemoryMappedFloatVector& prediction) const {
+    return TDoubleVector{prediction};
+}
+
+CArgMinLoss CMseIncremental::minimizer(double lambda, const CPRNG::CXorOShiro128Plus&) const {
+    return this->makeMinimizer(CArgMinMseIncrementalImpl{lambda, m_Eta, m_Mu, *m_Tree});
+}
+
+const std::string& CMseIncremental::name() const {
+    return NAME;
+}
+
+bool CMseIncremental::isRegression() const {
+    return true;
+}
+
+void CMseIncremental::acceptPersistInserter(core::CStatePersistInserter& /* inserter */) const {
+}
+bool CMseIncremental::acceptRestoreTraverser(core::CStateRestoreTraverser& /* traverser */) {
+    return true;
+}
+
+const std::string CMseIncremental::NAME{"mse_incremental"};
+
 CMsle::CMsle(double offset) : m_Offset{offset} {
 }
 
 CMsle::CMsle(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel(std::bind(&CMsle::acceptRestoreTraverser, this,
-                                             std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         throw std::runtime_error{"failed to restore CMsle"};
     }
 }
@@ -834,6 +923,10 @@ ELossType CMsle::type() const {
 
 std::unique_ptr<CLoss> CMsle::clone() const {
     return std::make_unique<CMsle>(*this);
+}
+
+std::unique_ptr<CLoss> CMsle::cloneForRetraining(double, double, const TNodeVec&) const {
+    return nullptr;
 }
 
 std::size_t CMsle::numberParameters() const {
@@ -914,8 +1007,9 @@ const std::string CMsle::NAME{"msle"};
 CPseudoHuber::CPseudoHuber(double delta) : m_Delta{delta} {};
 
 CPseudoHuber::CPseudoHuber(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel(std::bind(&CPseudoHuber::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         throw std::runtime_error{"failed to restore CPseudoHuber"};
     }
 }
@@ -926,6 +1020,10 @@ ELossType CPseudoHuber::type() const {
 
 std::unique_ptr<CLoss> CPseudoHuber::clone() const {
     return std::make_unique<CPseudoHuber>(*this);
+}
+
+std::unique_ptr<CLoss> CPseudoHuber::cloneForRetraining(double, double, const TNodeVec&) const {
+    return nullptr;
 }
 
 std::size_t CPseudoHuber::numberParameters() const {
@@ -998,14 +1096,20 @@ bool CPseudoHuber::acceptRestoreTraverser(core::CStateRestoreTraverser& traverse
 const std::string CPseudoHuber::NAME{"pseudo_huber"};
 
 CBinomialLogisticLoss::CBinomialLogisticLoss(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel(std::bind(&CBinomialLogisticLoss::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         throw std::runtime_error{"failed to restore CBinomialLogisticLoss"};
     }
 }
 
 std::unique_ptr<CLoss> CBinomialLogisticLoss::clone() const {
     return std::make_unique<CBinomialLogisticLoss>(*this);
+}
+
+std::unique_ptr<CLoss>
+CBinomialLogisticLoss::cloneForRetraining(double, double, const TNodeVec&) const {
+    return nullptr;
 }
 
 ELossType CBinomialLogisticLoss::type() const {
@@ -1085,14 +1189,20 @@ CMultinomialLogisticLoss::CMultinomialLogisticLoss(std::size_t numberClasses)
 }
 
 CMultinomialLogisticLoss::CMultinomialLogisticLoss(core::CStateRestoreTraverser& traverser) {
-    if (traverser.traverseSubLevel(std::bind(&CMultinomialLogisticLoss::acceptRestoreTraverser,
-                                             this, std::placeholders::_1)) == false) {
+    if (traverser.traverseSubLevel([this](core::CStateRestoreTraverser& traverser_) {
+            return this->acceptRestoreTraverser(traverser_);
+        }) == false) {
         throw std::runtime_error{"failed to restore CMultinomialLogisticLoss"};
     }
 }
 
 std::unique_ptr<CLoss> CMultinomialLogisticLoss::clone() const {
     return std::make_unique<CMultinomialLogisticLoss>(m_NumberClasses);
+}
+
+std::unique_ptr<CLoss>
+CMultinomialLogisticLoss::cloneForRetraining(double, double, const TNodeVec&) const {
+    return nullptr;
 }
 
 ELossType CMultinomialLogisticLoss::type() const {
