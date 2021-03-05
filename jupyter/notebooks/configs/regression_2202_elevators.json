@@ -1,0 +1,14 @@
+{
+    "job_id": "regression_2202_elevators",
+    "rows": 16599,
+    "cols": 19,  
+    "memory_limit": 50000000,
+    "threads": 3,
+    "results_field": "ml",
+    "analysis": {
+      "name": "regression",
+      "parameters": {
+        "dependent_variable": "Goal"
+      }
+    }
+  }
