@@ -41,7 +41,7 @@ void empiricalProbabilityOfLessLikelySamples(const TDoubleVec& mean,
     TDoubleVecVec samples;
     rng.generateMultivariateNormalSamples(mean, covariance, 1000, samples);
     result.resize(samples.size());
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         maths::gaussianLogLikelihood(
             TMatrix2(covariance), TVector2(samples[i]) - TVector2(mean), result[i]);
     }
@@ -73,7 +73,7 @@ void gaussianSamples(test::CRandomNumbers& rng,
     rng.generateMultivariateNormalSamples(
         mean.toVector<TDoubleVec>(), covariance.toVectors<TDoubleVecVec>(), n, samples_);
     samples.reserve(samples.size() + samples_.size());
-    for (std::size_t j = 0u; j < samples_.size(); ++j) {
+    for (std::size_t j = 0; j < samples_.size(); ++j) {
         samples.push_back(TDouble10Vec(samples_[j].begin(), samples_[j].end()));
     }
     LOG_DEBUG(<< "# samples = " << samples.size());
@@ -102,7 +102,7 @@ void calibrationExperiment() {
 
     TDouble10Vec1Vec samples;
     samples.reserve(samples.size() + samples_.size());
-    for (std::size_t j = 0u; j < samples_.size(); ++j) {
+    for (std::size_t j = 0; j < samples_.size(); ++j) {
         samples.push_back(TDouble10Vec(samples_[j].begin(), samples_[j].end()));
     }
 
@@ -119,8 +119,8 @@ void calibrationExperiment() {
     std::size_t indices[][2] = {{0, 1}, {0, 2}, {0, 3}, {0, 4}, {0, 5},
                                 {0, 6}, {0, 7}, {0, 8}, {0, 9}};
 
-    for (std::size_t i = 0u; i < 200; ++i) {
-        for (std::size_t j = 0u; j < boost::size(filters); ++j) {
+    for (std::size_t i = 0; i < 200; ++i) {
+        for (std::size_t j = 0; j < boost::size(filters); ++j) {
             TDouble10Vec1Vec sample(1, TDouble10Vec(2));
             sample[0][0] = samples[i][indices[j][0]];
             sample[0][1] = samples[i][indices[j][1]];
@@ -132,10 +132,10 @@ void calibrationExperiment() {
     TDoubleVecVec p(boost::size(filters));
     TDoubleVec mp;
     TDoubleVec ep;
-    for (std::size_t i = 200u; i < 2000; ++i) {
+    for (std::size_t i = 200; i < 2000; ++i) {
         double mpi = 1.0;
         maths::CProbabilityOfExtremeSample epi;
-        for (std::size_t j = 0u; j < boost::size(filters); ++j) {
+        for (std::size_t j = 0; j < boost::size(filters); ++j) {
             TDouble10Vec1Vec sample(1, TDouble10Vec(2));
             sample[0][0] = samples[i][indices[j][0]];
             sample[0][1] = samples[i][indices[j][1]];
@@ -154,15 +154,15 @@ void calibrationExperiment() {
         ep.push_back(pi);
     }
 
-    for (std::size_t i = 0u; i < p.size(); ++i) {
+    for (std::size_t i = 0; i < p.size(); ++i) {
         std::sort(p[i].begin(), p[i].end());
     }
     std::sort(mp.begin(), mp.end());
     std::sort(ep.begin(), ep.end());
 
     double test[] = {0.01, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99};
-    for (std::size_t i = 0u; i < boost::size(test); ++i) {
-        for (std::size_t j = 0u; j < p.size(); ++j) {
+    for (std::size_t i = 0; i < boost::size(test); ++i) {
+        for (std::size_t j = 0; j < p.size(); ++j) {
             LOG_DEBUG(<< j << ") " << test[i] << " "
                       << static_cast<double>(
                              std::lower_bound(p[j].begin(), p[j].end(), test[i]) -
@@ -194,10 +194,10 @@ void dataGenerator() {
     test::CRandomNumbers rng;
 
     TDouble10Vec1Vec samples[4];
-    for (std::size_t i = 0u; i < boost::size(means); ++i) {
+    for (std::size_t i = 0; i < boost::size(means); ++i) {
         gaussianSamples(rng, 10000, means[i], covariances[i], samples[i]);
     }
-    for (std::size_t i = 0u; i < boost::size(anomalies); ++i) {
+    for (std::size_t i = 0; i < boost::size(anomalies); ++i) {
         std::size_t j = static_cast<std::size_t>(anomalies[i][1]);
         std::size_t k = static_cast<std::size_t>(anomalies[i][0]);
         samples[j][k][0] += anomalies[i][2];
@@ -206,8 +206,8 @@ void dataGenerator() {
 
     std::ofstream f("four_2d_gaussian.csv");
     core_t::TTime time = 1451606400;
-    for (std::size_t i = 0u; i < 10000; ++i, time += 30) {
-        for (std::size_t j = 0u; j < boost::size(samples); ++j) {
+    for (std::size_t i = 0; i < 10000; ++i, time += 30) {
+        for (std::size_t j = 0; j < boost::size(samples); ++j) {
             f << time << ",x" << 2 * j << "," << samples[j][i][0] << "\n";
             f << time << ",x" << 2 * j + 1 << "," << samples[j][i][1] << "\n";
         }
@@ -239,7 +239,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
             maths::CMultivariateNormalConjugate<2>::nonInformativePrior(dataTypes[i]));
         maths::CMultivariateNormalConjugate<2> filter2(filter1);
 
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             filter1.addSamples({samples[j]},
                                maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
         }
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
         maths_t::TDouble10VecWeightsAry1Vec weights;
         weights.resize(samples.size() / 2, maths_t::countVarianceScaleWeight(1.5, 2));
         weights.resize(samples.size(), maths_t::countVarianceScaleWeight(2.0, 2));
-        for (std::size_t j = 0u; j < samples.size(); ++j) {
+        for (std::size_t j = 0; j < samples.size(); ++j) {
             filter1.addSamples({samples[j]}, {weights[j]});
         }
         filter2.addSamples(samples, weights);
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE(testMultipleUpdate) {
 
         double x = 3.0;
         std::size_t count = 10;
-        for (std::size_t j = 0u; j < count; ++j) {
+        for (std::size_t j = 0; j < count; ++j) {
             filter1.addSamples({TDouble10Vec(2, x)},
                                maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
         }
@@ -313,7 +313,7 @@ BOOST_AUTO_TEST_CASE(testPropagation) {
     TDouble10Vec1Vec samples;
     gaussianSamples(rng, 100, mean, covariance, samples);
 
-    for (std::size_t i = 0u; i < boost::size(dataTypes); ++i) {
+    for (std::size_t i = 0; i < boost::size(dataTypes); ++i) {
         LOG_DEBUG(<< "*** data type = " << print(dataTypes[i]) << " ***");
 
         maths::CMultivariateNormalConjugate<2> filter(
@@ -352,7 +352,7 @@ BOOST_AUTO_TEST_CASE(testMeanVectorEstimation) {
 
     const double decayRates[] = {0.0, 0.001, 0.01};
 
-    const unsigned int nt = 500u;
+    const unsigned int nt = 500;
     const double testIntervals[] = {50.0, 60.0, 70.0, 80.0,
                                     85.0, 90.0, 95.0, 99.0};
 
@@ -383,7 +383,7 @@ BOOST_AUTO_TEST_CASE(testMeanVectorEstimation) {
             maths::CMultivariateNormalConjugate<2> filter(
                 maths::CMultivariateNormalConjugate<2>::nonInformativePrior(
                     maths_t::E_ContinuousData, decayRates[i]));
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 filter.addSamples({samples[j]},
                                   maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
                 filter.propagateForwardsByTime(1.0);
@@ -406,7 +406,7 @@ BOOST_AUTO_TEST_CASE(testMeanVectorEstimation) {
                     static_cast<double>(n) * (0.5 - testIntervals[j] / 200.0));
                 std::size_t u = static_cast<std::size_t>(
                     static_cast<double>(n) * (0.5 + testIntervals[j] / 200.0));
-                for (std::size_t k = 0u; k < 2; ++k) {
+                for (std::size_t k = 0; k < 2; ++k) {
                     double a = componentSamples[k][l];
                     double b = componentSamples[k][u];
                     if (mean_[k] < a || mean_[k] > b) {
@@ -417,7 +417,7 @@ BOOST_AUTO_TEST_CASE(testMeanVectorEstimation) {
         }
 
         for (std::size_t j = 0; j < boost::size(testIntervals); ++j) {
-            for (std::size_t k = 0u; k < 2; ++k) {
+            for (std::size_t k = 0; k < 2; ++k) {
                 double interval = 100.0 * errors[k][j] / static_cast<double>(nt);
 
                 LOG_DEBUG(<< "interval = " << interval
@@ -445,7 +445,7 @@ BOOST_AUTO_TEST_CASE(testPrecisionMatrixEstimation) {
 
     const double decayRates[] = {0.0, 0.004, 0.04};
 
-    const unsigned int nt = 500u;
+    const unsigned int nt = 500;
     const double testIntervals[] = {50.0, 60.0, 70.0, 80.0,
                                     85.0, 90.0, 95.0, 99.0};
 
@@ -484,7 +484,7 @@ BOOST_AUTO_TEST_CASE(testPrecisionMatrixEstimation) {
             maths::CMultivariateNormalConjugate<2> filter(
                 maths::CMultivariateNormalConjugate<2>::nonInformativePrior(
                     maths_t::E_ContinuousData, decayRates[i]));
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 filter.addSamples({samples[j]},
                                   maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
                 filter.propagateForwardsByTime(1.0);
@@ -517,7 +517,7 @@ BOOST_AUTO_TEST_CASE(testPrecisionMatrixEstimation) {
                     static_cast<double>(n) * (0.5 - testIntervals[j] / 200.0));
                 std::size_t u = static_cast<std::size_t>(
                     static_cast<double>(n) * (0.5 + testIntervals[j] / 200.0));
-                for (std::size_t k = 0u; k < elementSamples.size(); ++k) {
+                for (std::size_t k = 0; k < elementSamples.size(); ++k) {
                     double a = elementSamples[k][l];
                     double b = elementSamples[k][u];
                     if (precisionMatrix(ij[k][0], ij[k][1]) < a ||
@@ -529,7 +529,7 @@ BOOST_AUTO_TEST_CASE(testPrecisionMatrixEstimation) {
         }
 
         for (std::size_t j = 0; j < boost::size(testIntervals); ++j) {
-            for (std::size_t k = 0u; k < boost::size(errors); ++k) {
+            for (std::size_t k = 0; k < boost::size(errors); ++k) {
                 double interval = 100.0 * errors[k][j] / static_cast<double>(nt);
 
                 LOG_DEBUG(<< "interval = " << interval
@@ -567,7 +567,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
     TDoubleVec covariancesij;
     rng.generateUniformSamples(-10.0, 10.0, 1 * nt, covariancesij);
 
-    for (std::size_t t = 0u; t < nt; ++t) {
+    for (std::size_t t = 0; t < nt; ++t) {
         LOG_DEBUG(<< "*** Test " << t + 1 << " ***");
 
         // Generate the samples.
@@ -587,7 +587,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
         TMeanAccumulator meanMeanError;
         TMeanAccumulator meanCovarianceError;
 
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             filter.addSamples({samples[i]},
                               maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
 
@@ -597,7 +597,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                 LOG_DEBUG(<< "m = " << core::CContainerPrinter::print(m));
                 LOG_DEBUG(<< "v = " << core::CContainerPrinter::print(v));
                 double trace = 0.0;
-                for (std::size_t j = 0u; j < v.size(); ++j) {
+                for (std::size_t j = 0; j < v.size(); ++j) {
                     trace += v[j][j];
                 }
                 double intervals[][2] = {
@@ -622,7 +622,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihood) {
                 double z = 0.0;
                 TVector2 actualMean(0.0);
                 TMatrix2 actualCovariance(0.0);
-                for (std::size_t j = 0u; j < boost::size(intervals); ++j) {
+                for (std::size_t j = 0; j < boost::size(intervals); ++j) {
                     TDoubleVec a(std::begin(intervals[j]), std::end(intervals[j]));
                     TDoubleVec b(a);
                     b[0] += 2.0 * std::sqrt(trace);
@@ -681,7 +681,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
 
     maths::CMultivariateNormalConjugate<2> filter(
         maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData));
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         filter.addSamples({samples[i]},
                           maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
     }
@@ -692,11 +692,11 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodMode) {
 
     TDoubleVec epsilons;
     rng.generateUniformSamples(-0.01, 0.01, 10, epsilons);
-    for (std::size_t i = 0u; i < epsilons.size(); i += 2) {
+    for (std::size_t i = 0; i < epsilons.size(); i += 2) {
         TDouble10Vec1Vec modeMinusEps(1, TDouble10Vec(2));
         TDouble10Vec1Vec modePlusEps(1, TDouble10Vec(2));
         double norm = 0.0;
-        for (std::size_t j = 0u; j < 2; ++j) {
+        for (std::size_t j = 0; j < 2; ++j) {
             double eps = epsilons[i + j];
             modeMinusEps[0][j] = mode[j] - eps;
             modePlusEps[0][j] = mode[j] + eps;
@@ -742,7 +742,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
     maths::CMultivariateNormalConjugate<2> filter(
         maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData));
 
-    std::size_t i = 0u;
+    std::size_t i = 0;
     for (/**/; i < samples.size(); ++i) {
         if (!filter.isNonInformative()) {
             break;
@@ -777,7 +777,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
 
         TDouble10Vec1Vec resamples;
         filter.sampleMarginalLikelihood(40, resamples);
-        for (std::size_t j = 0u; j < resamples.size(); ++j) {
+        for (std::size_t j = 0; j < resamples.size(); ++j) {
             covariances.add(TVector2(resamples[j]));
         }
 
@@ -795,7 +795,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
             (sampleCov - likelihoodCov).frobenius() / likelihoodCov.frobenius() < 0.01);
 
         TDoubleVec sampleProbabilities;
-        for (std::size_t j = 0u; j < resamples.size(); ++j) {
+        for (std::size_t j = 0; j < resamples.size(); ++j) {
             double ll;
             filter.jointLogMarginalLikelihood(
                 {resamples[j]}, maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2), ll);
@@ -806,7 +806,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
         std::sort(sampleProbabilities.begin(), sampleProbabilities.end());
         LOG_DEBUG(<< "sample p = " << core::CContainerPrinter::print(sampleProbabilities));
 
-        for (std::size_t j = 0u; j < sampleProbabilities.size(); ++j) {
+        for (std::size_t j = 0; j < sampleProbabilities.size(); ++j) {
             double expectedProbability = static_cast<double>(j + 1) /
                                          static_cast<double>(sampleProbabilities.size());
             double error = std::fabs(sampleProbabilities[j] - expectedProbability);
@@ -842,11 +842,11 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < boost::size(means); ++i) {
+    for (std::size_t i = 0; i < boost::size(means); ++i) {
         TDoubleVec mean(means[i], means[i] + 2);
         LOG_DEBUG(<< "mean = " << core::CContainerPrinter::print(mean));
 
-        for (std::size_t j = 0u; j < boost::size(covariances); ++j) {
+        for (std::size_t j = 0; j < boost::size(covariances); ++j) {
             TDoubleVecVec covariance;
             covariance.push_back(TDoubleVec(covariances[j], covariances[j] + 2));
             covariance.push_back(TDoubleVec(covariances[j] + 1, covariances[j] + 3));
@@ -858,7 +858,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             maths::CMultivariateNormalConjugate<2> filter(
                 maths::CMultivariateNormalConjugate<2>::nonInformativePrior(
                     maths_t::E_ContinuousData));
-            for (std::size_t k = 0u; k < samples.size(); ++k) {
+            for (std::size_t k = 0; k < samples.size(); ++k) {
                 filter.addSamples({samples[k]},
                                   maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
             }
@@ -869,7 +869,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
             TMeanAccumulator meanAbsError;
             TMeanAccumulator meanRelError;
 
-            for (std::size_t k = 0u; k < boost::size(offsets); ++k) {
+            for (std::size_t k = 0; k < boost::size(offsets); ++k) {
                 TVector2 x = TVector2(mean) + TVector2(offsets[k]);
 
                 double ll;
@@ -917,13 +917,13 @@ BOOST_AUTO_TEST_CASE(testIntegerData) {
         {100.0, 50.0},
     };
     const double covariances[][3] = {{10.0, 0.0, 10.0}, {10.0, 9.0, 10.0}};
-    const std::size_t n = 10000u;
+    const std::size_t n = 10000;
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < boost::size(means); ++i) {
+    for (std::size_t i = 0; i < boost::size(means); ++i) {
         TVector2 mean(means[i], means[i] + 2);
-        for (std::size_t j = 0u; j < boost::size(covariances); ++j) {
+        for (std::size_t j = 0; j < boost::size(covariances); ++j) {
             TMatrix2 covariance(covariances[j], covariances[j] + 3);
 
             TDoubleVecVec samples;
@@ -934,7 +934,7 @@ BOOST_AUTO_TEST_CASE(testIntegerData) {
             TDoubleVecVec uniform;
             TDoubleVec uniform_;
             rng.generateUniformSamples(0.0, 1.0, 2 * n, uniform_);
-            for (std::size_t k = 0u; k < uniform_.size(); k += 2) {
+            for (std::size_t k = 0; k < uniform_.size(); k += 2) {
                 uniform.push_back(TDoubleVec(&uniform_[k], &uniform_[k] + 2));
             }
 
@@ -944,7 +944,7 @@ BOOST_AUTO_TEST_CASE(testIntegerData) {
                 maths::CMultivariateNormalConjugate<2>::nonInformativePrior(
                     maths_t::E_ContinuousData));
 
-            for (std::size_t k = 0u; k < n; ++k) {
+            for (std::size_t k = 0; k < n; ++k) {
                 TVector2 x(samples[k]);
                 TDouble10Vec1Vec sample(1, x.toVector<TDouble10Vec>());
                 filter1.addSamples(
@@ -960,7 +960,7 @@ BOOST_AUTO_TEST_CASE(testIntegerData) {
 
             TMeanAccumulator meanLogLikelihood1;
             TMeanAccumulator meanLogLikelihood2;
-            for (std::size_t k = 0u; k < n; ++k) {
+            for (std::size_t k = 0; k < n; ++k) {
                 TVector2 x(samples[k]);
 
                 TDouble10Vec1Vec sample(1, x.toVector<TDouble10Vec>());
@@ -991,7 +991,7 @@ BOOST_AUTO_TEST_CASE(testLowVariationData) {
     {
         maths::CMultivariateNormalConjugate<2> filter(
             maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_IntegerData));
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             filter.addSamples({TDouble10Vec(2, 430.0)},
                               maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
         }
@@ -1004,7 +1004,7 @@ BOOST_AUTO_TEST_CASE(testLowVariationData) {
     {
         maths::CMultivariateNormalConjugate<2> filter(
             maths::CMultivariateNormalConjugate<2>::nonInformativePrior(maths_t::E_ContinuousData));
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             filter.addSamples({TDouble10Vec(2, 430.0)},
                               maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
         }
@@ -1032,7 +1032,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     maths::CMultivariateNormalConjugate<2> origFilter(
         maths::CMultivariateNormalConjugate<2>::nonInformativePrior(dataType));
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         origFilter.addSamples({samples[i]},
                               maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
     }

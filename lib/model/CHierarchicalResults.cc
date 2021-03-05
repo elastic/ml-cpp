@@ -240,7 +240,7 @@ void SNode::propagateFields() {
     s_Spec.s_PersonFieldName = s_Children[0]->s_Spec.s_PersonFieldName;
     s_Spec.s_PersonFieldValue = s_Children[0]->s_Spec.s_PersonFieldValue;
     s_BucketStartTime = s_Children[0]->s_BucketStartTime;
-    for (std::size_t i = 1u; i < s_Children.size(); ++i) {
+    for (std::size_t i = 1; i < s_Children.size(); ++i) {
         if (!unset(s_Spec.s_PartitionFieldName) &&
             !equal(s_Spec.s_PartitionFieldName, s_Children[i]->s_Spec.s_PartitionFieldName)) {
             s_Spec.s_PartitionFieldName = UNSET_STRING;
@@ -425,7 +425,7 @@ void CHierarchicalResults::buildHierarchy() {
     if (layer.size() > 1) {
         TNode& root = this->newNode();
         bool population = false;
-        for (std::size_t i = 0u; i < layer.size(); ++i) {
+        for (std::size_t i = 0; i < layer.size(); ++i) {
             root.s_Children.push_back(layer[i]);
             layer[i]->s_Parent = &root;
             population |= layer[i]->s_Spec.s_IsPopulation;
@@ -524,7 +524,7 @@ bool CHierarchicalResults::empty() const {
 }
 
 std::size_t CHierarchicalResults::resultCount() const {
-    std::size_t result = 0u;
+    std::size_t result = 0;
     for (const auto& node : m_Nodes) {
         if (isLeaf(node) && !node.s_Spec.s_IsSimpleCount) {
             ++result;

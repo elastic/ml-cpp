@@ -292,7 +292,7 @@ double numericalIntervalExpectation(const DISTRIBUTION& distribution, double a, 
     CPdf<DISTRIBUTION> fx(distribution);
     maths::CCompositeFunctions::CProduct<CPdf<DISTRIBUTION>, CIdentity> xfx(fx);
     double dx = (b - a) / 10.0;
-    for (std::size_t i = 0u; i < 10; ++i, a += dx) {
+    for (std::size_t i = 0; i < 10; ++i, a += dx) {
         double fxi;
         BOOST_TEST_REQUIRE(maths::CIntegration::gaussLegendre<maths::CIntegration::OrderFive>(
             fx, a, a + dx, fxi));
@@ -968,17 +968,17 @@ BOOST_AUTO_TEST_CASE(testMixtureProbabilityOfLessLikelySample) {
     TDoubleVec weights;
     rng.generateUniformSamples(1.0, 10.0, n, weights);
 
-    for (std::size_t i = 4u; i <= 20; i += 4) {
+    for (std::size_t i = 4; i <= 20; i += 4) {
         LOG_DEBUG(<< "*** modes = " << i << " ***");
 
         TMeanAccumulator meanError;
         TMeanAccumulator meanLogError;
-        for (std::size_t j = 0u; j < n - i; j += i) {
+        for (std::size_t j = 0; j < n - i; j += i) {
             TDoubleVec modeWeights;
             std::vector<boost::math::normal> modes;
             double a = std::numeric_limits<double>::max();
             double b = -std::numeric_limits<double>::max();
-            for (std::size_t k = 0u; k < i; ++k) {
+            for (std::size_t k = 0; k < i; ++k) {
                 modeWeights.push_back(weights[j + k]);
                 modes.push_back(boost::math::normal(means[j + k], sd[j + k]));
                 a = std::min(a, means[j + k]);
@@ -986,7 +986,7 @@ BOOST_AUTO_TEST_CASE(testMixtureProbabilityOfLessLikelySample) {
             }
 
             maths::CMixtureDistribution<boost::math::normal> mixture(modeWeights, modes);
-            for (std::size_t k = 0u; k < x.size(); ++k) {
+            for (std::size_t k = 0; k < x.size(); ++k) {
                 double logFx = maths::pdf(mixture, x[k]);
                 if (logFx == 0.0) {
                     logFx = 10.0 * core::constants::LOG_MIN_DOUBLE;
@@ -996,7 +996,7 @@ BOOST_AUTO_TEST_CASE(testMixtureProbabilityOfLessLikelySample) {
 
                 maths::CTools::CMixtureProbabilityOfLessLikelySample calculator(
                     i, x[k], logFx, a, b);
-                for (std::size_t l = 0u; l < modeWeights.size(); ++l) {
+                for (std::size_t l = 0; l < modeWeights.size(); ++l) {
                     calculator.addMode((mixture.weights())[l],
                                        boost::math::mean(modes[l]),
                                        boost::math::standard_deviation(modes[l]));
@@ -1058,7 +1058,7 @@ BOOST_AUTO_TEST_CASE(testAnomalyScore) {
     // Test p = inverseAnomalyScore(anomalyScore(p))
 
     double p = 0.04;
-    for (std::size_t i = 0u; i < 305; ++i, p *= 0.1) {
+    for (std::size_t i = 0; i < 305; ++i, p *= 0.1) {
         double anomalyScore = CTools::anomalyScore(p);
         LOG_DEBUG(<< "p = " << p << ", anomalyScore = " << anomalyScore);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(p, CTools::inverseAnomalyScore(anomalyScore), 1e-3 * p);
@@ -1072,7 +1072,7 @@ BOOST_AUTO_TEST_CASE(testFastLog) {
     {
         TDoubleVec x;
         rng.generateUniformSamples(-100.0, 0.0, 10000, x);
-        for (std::size_t i = 0u; i < x.size(); ++i) {
+        for (std::size_t i = 0; i < x.size(); ++i) {
             LOG_TRACE(<< "x = " << std::exp(x[i]) << ", log(x) = " << x[i]
                       << ", fast log(x) = " << maths::CTools::fastLog(std::exp(x[i])));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(x[i], maths::CTools::fastLog(std::exp(x[i])), 5e-5);
@@ -1082,7 +1082,7 @@ BOOST_AUTO_TEST_CASE(testFastLog) {
     {
         TDoubleVec x;
         rng.generateUniformSamples(1.0, 1e6, 10000, x);
-        for (std::size_t i = 0u; i < x.size(); ++i) {
+        for (std::size_t i = 0; i < x.size(); ++i) {
             LOG_TRACE(<< "x = " << x[i] << ", log(x) = " << std::log(x[i])
                       << ", fast log(x) = " << maths::CTools::fastLog(x[i]));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(std::log(x[i]),
@@ -1093,7 +1093,7 @@ BOOST_AUTO_TEST_CASE(testFastLog) {
     {
         TDoubleVec x;
         rng.generateUniformSamples(20.0, 80.0, 10000, x);
-        for (std::size_t i = 0u; i < x.size(); ++i) {
+        for (std::size_t i = 0; i < x.size(); ++i) {
             LOG_TRACE(<< "x = " << std::exp(x[i]) << ", log(x) = " << x[i]
                       << ", fast log(x) = " << maths::CTools::fastLog(std::exp(x[i])));
             BOOST_REQUIRE_CLOSE_ABSOLUTE(x[i], maths::CTools::fastLog(std::exp(x[i])), 5e-5);
@@ -1114,7 +1114,7 @@ BOOST_AUTO_TEST_CASE(testMiscellaneous) {
         {0.0, 3.0, 2.1, 0.0, 3.0},  {0.5, 2.5, 2.1, 0.5, 2.5},
         {1.0, 2.0, 2.0, 1.0, 2.0},  {1.5, 1.5, 1.5, 1.5, 1.5}};
 
-    for (std::size_t i = 0u; a <= b; ++i) {
+    for (std::size_t i = 0; a <= b; ++i) {
         maths::CVectorNx1<double, 5> expect(expected[i]);
         maths::CVectorNx1<double, 5> actual = maths::CTools::truncate(x, a, b);
 
@@ -1137,7 +1137,7 @@ BOOST_AUTO_TEST_CASE(testLgamma) {
          45.7477139169563926657247066032141447067260742187500,
          2.882355039447984e+27, 2.919076782442754e+27, 5.074673490557339e+27}};
 
-    for (std::size_t i = 0u; i < testData.size(); ++i) {
+    for (std::size_t i = 0; i < testData.size(); ++i) {
         double actual;
         double expected = expectedData[i];
         BOOST_TEST_REQUIRE(maths::CTools::lgamma(testData[i], actual, true));

@@ -120,8 +120,8 @@ void CAnnotatedProbabilityBuilder::build() {
         double cutoff = std::max(1.1 * m_MinAttributeProbabilities[0].s_Probability,
                                  maths::LARGEST_SIGNIFICANT_PROBABILITY);
 
-        for (std::size_t i = 0u; i < m_MinAttributeProbabilities.count() &&
-                                 m_MinAttributeProbabilities[i].s_Probability <= cutoff;
+        for (std::size_t i = 0; i < m_MinAttributeProbabilities.count() &&
+                                m_MinAttributeProbabilities[i].s_Probability <= cutoff;
              ++i) {
             m_Result.s_AttributeProbabilities.push_back(m_MinAttributeProbabilities[i]);
         }

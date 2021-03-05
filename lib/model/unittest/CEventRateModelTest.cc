@@ -62,7 +62,7 @@ public:
         uint64_t counts[] = {54, 67, 39, 58, 46, 50, 42,
                              48, 53, 51, 50, 57, 53, 49};
         TUInt64Vec result;
-        for (std::size_t i = 0u; i < copies; ++i) {
+        for (std::size_t i = 0; i < copies; ++i) {
             result.insert(result.end(), std::begin(counts), std::end(counts));
         }
         return result;
@@ -191,7 +191,7 @@ public:
                                                  model_t::E_EventRateOnline, m_Gatherer,
                                                  m_Model, {}, summaryCountField);
 
-        for (std::size_t i = 0u; i < numberPeople; ++i) {
+        for (std::size_t i = 0; i < numberPeople; ++i) {
             BOOST_REQUIRE_EQUAL(
                 i, this->addPerson("p" + core::CStringUtils::typeToString(i + 1), m_Gatherer));
         }
@@ -398,7 +398,7 @@ BOOST_FIXTURE_TEST_CASE(testRare, CTestFixture) {
     model->sample(time, time + bucketLength, m_ResourceMonitor);
 
     TDoubleVec probabilities;
-    for (std::size_t pid = 0u; pid < 5; ++pid) {
+    for (std::size_t pid = 0; pid < 5; ++pid) {
         SAnnotatedProbability annotatedProbability;
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         BOOST_TEST_REQUIRE(model->computeProbability(
@@ -546,7 +546,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForLowNonZeroCount, CTestFixtu
     for (auto count : bucketCounts) {
         LOG_DEBUG(<< "Writing " << count << " values");
 
-        for (std::size_t i = 0u; i < count; ++i) {
+        for (std::size_t i = 0; i < count; ++i) {
             this->addArrival(SMessage(time + static_cast<core_t::TTime>(i),
                                       "p1", TOptionalDouble()),
                              m_Gatherer);
@@ -592,7 +592,7 @@ BOOST_FIXTURE_TEST_CASE(testProbabilityCalculationForHighNonZeroCount, CTestFixt
     for (auto count : bucketCounts) {
         LOG_DEBUG(<< "Writing " << count << " values");
 
-        for (std::size_t i = 0u; i < count; ++i) {
+        for (std::size_t i = 0; i < count; ++i) {
             this->addArrival(SMessage(time + static_cast<core_t::TTime>(i),
                                       "p1", TOptionalDouble()),
                              m_Gatherer);
@@ -659,15 +659,15 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
                                          TMinAccumulator{2}, TMinAccumulator{2}};
 
         core_t::TTime time{startTime};
-        for (std::size_t i = 0u, anomaly = 0u; i < numberBuckets; ++i) {
-            for (std::size_t j = 0u; j < samples[i].size(); ++j) {
+        for (std::size_t i = 0u, anomaly = 0; i < numberBuckets; ++i) {
+            for (std::size_t j = 0; j < samples[i].size(); ++j) {
                 std::string person = std::string("p") +
                                      core::CStringUtils::typeToString(j + 1);
                 double n = samples[i][j];
                 if (i == anomalyBuckets[anomaly]) {
                     n += anomalies[anomaly][j];
                 }
-                for (std::size_t k = 0u; k < static_cast<std::size_t>(n); ++k) {
+                for (std::size_t k = 0; k < static_cast<std::size_t>(n); ++k) {
                     this->addArrival(SMessage(time + static_cast<core_t::TTime>(j),
                                               person, TOptionalDouble()),
                                      m_Gatherer);
@@ -678,7 +678,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
             }
             model->sample(time, time + bucketLength, m_ResourceMonitor);
 
-            for (std::size_t pid = 0u; pid < samples[i].size(); ++pid) {
+            for (std::size_t pid = 0; pid < samples[i].size(); ++pid) {
                 SAnnotatedProbability p;
                 CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
                 BOOST_TEST_REQUIRE(model->computeProbability(
@@ -696,10 +696,10 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
 
         TStrVec expectedResults{"[(100,p2), (190,p2)]", "[(100,p1), (190,p1)]",
                                 "[(160,p4), (190,p4)]", "[(160,p3), (190,p3)]"};
-        for (std::size_t i = 0u; i < probabilities.size(); ++i) {
+        for (std::size_t i = 0; i < probabilities.size(); ++i) {
             LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
             std::string results[2];
-            for (std::size_t j = 0u; j < 2; ++j) {
+            for (std::size_t j = 0; j < 2; ++j) {
                 results[j] =
                     std::string("(") +
                     core::CStringUtils::typeToString(probabilities[i][j].second) +
@@ -756,8 +756,8 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
                                          TMinAccumulator{3}, TMinAccumulator{3}};
 
         core_t::TTime time{startTime};
-        for (std::size_t i = 0u, anomaly = 0u; i < numberBuckets; ++i) {
-            for (std::size_t j = 0u; j < samples[i].size(); ++j) {
+        for (std::size_t i = 0u, anomaly = 0; i < numberBuckets; ++i) {
+            for (std::size_t j = 0; j < samples[i].size(); ++j) {
                 std::string person = std::string("p") +
                                      core::CStringUtils::typeToString(j + 1);
                 double n = samples[i][j];
@@ -765,7 +765,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
                     n += anomalies[anomaly][j];
                 }
                 n = std::max(n, 0.0);
-                for (std::size_t k = 0u; k < static_cast<std::size_t>(n); ++k) {
+                for (std::size_t k = 0; k < static_cast<std::size_t>(n); ++k) {
                     this->addArrival(SMessage(time + static_cast<core_t::TTime>(j),
                                               person, TOptionalDouble()),
                                      m_Gatherer);
@@ -776,7 +776,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
             }
             model->sample(time, time + bucketLength, m_ResourceMonitor);
 
-            for (std::size_t pid = 0u; pid < samples[i].size(); ++pid) {
+            for (std::size_t pid = 0; pid < samples[i].size(); ++pid) {
                 SAnnotatedProbability p;
                 CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
                 BOOST_TEST_REQUIRE(model->computeProbability(
@@ -794,7 +794,7 @@ BOOST_FIXTURE_TEST_CASE(testCorrelatedNoTrend, CTestFixture) {
 
         TStrVecVec expectedResults{
             {"100,", "190,"}, {"100,", "190,"}, {"160,", "190,"}, {"160,", "190,"}};
-        for (std::size_t i = 0u; i < probabilities.size(); ++i) {
+        for (std::size_t i = 0; i < probabilities.size(); ++i) {
             LOG_DEBUG(<< "probabilities = " << probabilities[i].print());
             TStrVec results;
             for (const auto& result : probabilities[i]) {
@@ -967,7 +967,7 @@ BOOST_FIXTURE_TEST_CASE(testPrune, CTestFixture) {
     BOOST_TEST_REQUIRE(expectedModel);
 
     TEventDataVec events;
-    for (std::size_t i = 0u; i < eventCounts.size(); ++i) {
+    for (std::size_t i = 0; i < eventCounts.size(); ++i) {
         TTimeVec eventTimes;
         generateEvents(startTime, bucketLength, eventCounts[i], eventTimes);
         if (eventTimes.size() > 0) {
@@ -1104,7 +1104,7 @@ BOOST_FIXTURE_TEST_CASE(testModelsWithValueFields, CTestFixture) {
         TStrVec strings{"p1", "c1", "c2"};
         TSizeVecVecVec fieldsPerBucket;
 
-        for (std::size_t i = 0u; i < numberBuckets; i++) {
+        for (std::size_t i = 0; i < numberBuckets; i++) {
             TSizeVecVec fields;
             std::size_t attribute1Strings = 10;
             std::size_t attribute2Strings = 10;
@@ -1113,7 +1113,7 @@ BOOST_FIXTURE_TEST_CASE(testModelsWithValueFields, CTestFixture) {
                 attribute2Strings = 15;
             }
 
-            for (std::size_t j = 0u;
+            for (std::size_t j = 0;
                  j < std::max(attribute1Strings, attribute2Strings); j++) {
                 std::ostringstream ss1;
                 std::ostringstream ss2;
@@ -1158,7 +1158,7 @@ BOOST_FIXTURE_TEST_CASE(testModelsWithValueFields, CTestFixture) {
 
         TSizeVecVecVec fieldsPerBucket;
 
-        for (std::size_t i = 0u; i < numberBuckets; i++) {
+        for (std::size_t i = 0; i < numberBuckets; i++) {
             TSizeVecVec fields;
 
             TSizeVec fb;
@@ -1562,7 +1562,7 @@ BOOST_FIXTURE_TEST_CASE(testCountProbabilityCalculationWithInfluence, CTestFixtu
         SAnnotatedProbability::TStoredStringPtrStoredStringPtrPrDoublePrVec lastInfluencersResult;
         core_t::TTime bucketStartTime = startTime;
         core_t::TTime bucketEndTime = startTime + bucketLength;
-        for (std::size_t i = 0u, j = 0u; bucketStartTime < endTime;
+        for (std::size_t i = 0u, j = 0; bucketStartTime < endTime;
              bucketStartTime += bucketLength, bucketEndTime += bucketLength, ++j) {
 
             double count{0.0};
@@ -1968,7 +1968,7 @@ BOOST_FIXTURE_TEST_CASE(testRareWithInfluence, CTestFixture) {
     model->sample(time, time + bucketLength, m_ResourceMonitor);
 
     TDoubleVec probabilities;
-    for (std::size_t pid = 0u; pid < 5; ++pid) {
+    for (std::size_t pid = 0; pid < 5; ++pid) {
         SAnnotatedProbability annotatedProbability;
         CPartitioningFields partitioningFields(EMPTY_STRING, EMPTY_STRING);
         BOOST_TEST_REQUIRE(model->computeProbability(
@@ -2033,7 +2033,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
                                              model_t::E_EventRateOnline,
                                              gathererNoGap, modelNoGap_);
     CEventRateModel* modelNoGap = dynamic_cast<CEventRateModel*>(modelNoGap_.get());
-    for (std::size_t i = 0u; i < 2; ++i) {
+    for (std::size_t i = 0; i < 2; ++i) {
         BOOST_REQUIRE_EQUAL(
             i, this->addPerson("p" + core::CStringUtils::typeToString(i + 1), gathererNoGap));
     }
@@ -2054,7 +2054,7 @@ BOOST_FIXTURE_TEST_CASE(testSkipSampling, CTestFixture) {
                                              model_t::E_EventRateOnline,
                                              gathererWithGap, modelWithGap_);
     CEventRateModel* modelWithGap = dynamic_cast<CEventRateModel*>(modelWithGap_.get());
-    for (std::size_t i = 0u; i < 2; ++i) {
+    for (std::size_t i = 0; i < 2; ++i) {
         BOOST_REQUIRE_EQUAL(
             i, this->addPerson("p" + core::CStringUtils::typeToString(i + 1), gathererWithGap));
     }
@@ -2591,7 +2591,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
                                        t < core::constants::WEEK + 4 * 3600
                                    ? 1.0
                                    : 0.0);
-            for (std::size_t i = 0u; i < static_cast<std::size_t>(rate[0]); ++i) {
+            for (std::size_t i = 0; i < static_cast<std::size_t>(rate[0]); ++i) {
                 this->addArrival(
                     SMessage(t + bucketLength / 2, "p1", TOptionalDouble()), gatherer);
                 this->addArrival(SMessage(t + bucketLength / 2, "p1", TOptionalDouble()),
@@ -2655,7 +2655,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
                           (t < 5 * core::constants::WEEK ? 1.0 : 2.0);
             TDoubleVec noise;
             rng.generateUniformSamples(0.0, 3.0, 1, noise);
-            for (std::size_t i = 0u; i < static_cast<std::size_t>(rate + noise[0]); ++i) {
+            for (std::size_t i = 0; i < static_cast<std::size_t>(rate + noise[0]); ++i) {
                 this->addArrival(
                     SMessage(t + bucketLength / 2, "p1", TOptionalDouble()), gatherer);
                 this->addArrival(SMessage(t + bucketLength / 2, "p1", TOptionalDouble()),
@@ -2724,7 +2724,7 @@ BOOST_FIXTURE_TEST_CASE(testDecayRateControl, CTestFixture) {
                                           static_cast<double>(core::constants::WEEK)));
             TDoubleVec noise;
             rng.generateUniformSamples(0.0, 3.0, 1, noise);
-            for (std::size_t i = 0u; i < static_cast<std::size_t>(rate + noise[0]); ++i) {
+            for (std::size_t i = 0; i < static_cast<std::size_t>(rate + noise[0]); ++i) {
                 this->addArrival(
                     SMessage(t + bucketLength / 2, "p1", TOptionalDouble()), gatherer);
                 this->addArrival(SMessage(t + bucketLength / 2, "p1", TOptionalDouble()),

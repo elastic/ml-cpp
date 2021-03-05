@@ -853,7 +853,7 @@ enum EAggregationParam {
 const std::size_t NUMBER_AGGREGATION_PARAMS = E_MaxExtremeSamples + 1;
 
 //! The dummy attribute identifier used for modeling individual features.
-const std::size_t INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID = 0u;
+const std::size_t INDIVIDUAL_ANALYSIS_ATTRIBUTE_ID = 0;
 }
 }
 

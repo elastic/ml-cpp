@@ -43,7 +43,7 @@ bool CGradientDescent::run(std::size_t n,
     CBasicStatistics::COrderStatisticsStack<double, 1> min;
     CBasicStatistics::SSampleMean<double>::TAccumulator scale;
 
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         double fx;
         if (!f(x, fx)) {
             LOG_ERROR(<< "Bailing on iteration " << i);
@@ -87,7 +87,7 @@ bool CGradientDescent::CEmpiricalCentralGradient::operator()(const TVector& x,
     }
 
     xShiftEps = x;
-    for (std::size_t i = 0u; i < las::dimension(x); ++i) {
+    for (std::size_t i = 0; i < las::dimension(x); ++i) {
         xShiftEps(i) -= m_Eps;
         double fMinusEps;
         if (!m_F(xShiftEps, fMinusEps)) {

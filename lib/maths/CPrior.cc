@@ -135,7 +135,7 @@ std::string CPrior::printMarginalLikelihoodFunction(double weight) const {
 
     abscissa << "x = [";
     likelihood << "likelihood = [";
-    for (std::size_t i = 0u; i < plot.s_Abscissa.size(); ++i) {
+    for (std::size_t i = 0; i < plot.s_Abscissa.size(); ++i) {
         abscissa << plot.s_Abscissa[i] << " ";
         likelihood << plot.s_Ordinates[i] << " ";
     }
@@ -214,7 +214,7 @@ void CPrior::adjustOffsetResamples(double minimumSample,
         LOG_ERROR(<< "Bad samples (" << this->debug() << ")");
         n = resamples.size();
     }
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         resamples[i] = std::max(resamples[i], minimumSample);
     }
 
@@ -284,7 +284,7 @@ double CPrior::adjustOffsetWithCost(const TDouble1Vec& samples,
     if (increment > 0.0) {
         TDouble1Vec trialOffsets;
         trialOffsets.reserve(ADJUST_OFFSET_TRIALS);
-        for (std::size_t i = 0u; i < ADJUST_OFFSET_TRIALS; ++i) {
+        for (std::size_t i = 0; i < ADJUST_OFFSET_TRIALS; ++i) {
             offset += increment;
             trialOffsets.push_back(offset);
         }
@@ -317,7 +317,7 @@ CPrior::TStrStrPr CPrior::printMarginalLikelihoodStatistics() const {
     return this->doPrintMarginalLikelihoodStatistics();
 }
 const double CPrior::FALLBACK_DECAY_RATE = 0.001;
-const std::size_t CPrior::ADJUST_OFFSET_SAMPLE_SIZE = 50u;
+const std::size_t CPrior::ADJUST_OFFSET_SAMPLE_SIZE = 50;
 const std::string CPrior::UNKNOWN_VALUE_STRING = "<unknown>";
 
 ////////// CPrior::CModelFilter Implementation //////////

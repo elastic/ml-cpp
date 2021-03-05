@@ -47,7 +47,7 @@ template<typename T>
 void hashActive(const CDataGatherer& gatherer,
                 const std::vector<T>& values,
                 TStrCRefUInt64Map& hashes) {
-    for (std::size_t pid = 0u; pid < values.size(); ++pid) {
+    for (std::size_t pid = 0; pid < values.size(); ++pid) {
         if (gatherer.isPersonActive(pid)) {
             uint64_t& hash = hashes[std::cref(gatherer.personName(pid))];
             hash = maths::CChecksum::calculate(hash, values[pid]);
@@ -55,7 +55,7 @@ void hashActive(const CDataGatherer& gatherer,
     }
 }
 
-const std::size_t CHUNK_SIZE = 500u;
+const std::size_t CHUNK_SIZE = 500;
 
 // We use short field names to reduce the state size
 const std::string WINDOW_BUCKET_COUNT_TAG("a");
@@ -90,7 +90,7 @@ CIndividualModel::CIndividualModel(const SModelParams& params,
 
     if (this->params().s_MultivariateByFields) {
         m_FeatureCorrelatesModels.reserve(featureCorrelatesModels.size());
-        for (std::size_t i = 0u; i < featureCorrelatesModels.size(); ++i) {
+        for (std::size_t i = 0; i < featureCorrelatesModels.size(); ++i) {
             m_FeatureCorrelatesModels.emplace_back(
                 featureCorrelatesModels[i].first,
                 newFeatureCorrelateModelPriors[i].second,
@@ -207,7 +207,7 @@ void CIndividualModel::prune(std::size_t maximumAge) {
     CDataGatherer& gatherer = this->dataGatherer();
 
     TSizeVec peopleToRemove;
-    for (std::size_t pid = 0u; pid < m_LastBucketTimes.size(); ++pid) {
+    for (std::size_t pid = 0; pid < m_LastBucketTimes.size(); ++pid) {
         if (gatherer.isPersonActive(pid) &&
             !CAnomalyDetectorModel::isTimeUnset(m_LastBucketTimes[pid])) {
             std::size_t bucketsSinceLastEvent = static_cast<std::size_t>(
@@ -611,7 +611,7 @@ std::string CIndividualModel::printCurrentBucket() const {
 }
 
 std::size_t CIndividualModel::numberCorrelations() const {
-    std::size_t result = 0u;
+    std::size_t result = 0;
     for (const auto& feature : m_FeatureCorrelatesModels) {
         result += feature.s_Models->correlationModels().size();
     }

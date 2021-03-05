@@ -71,7 +71,7 @@ using TFeatureSizeSizePrFeatureDataPrVecPr =
 using TFeatureSizeSizePrFeatureDataPrVecPrVec = std::vector<TFeatureSizeSizePrFeatureDataPrVecPr>;
 
 TStrVec allCategories() {
-    const std::size_t numberCategories = 30u;
+    const std::size_t numberCategories = 30;
     TStrVec categories;
     for (std::size_t i = 0; i < numberCategories; ++i) {
         categories.push_back("c" + boost::lexical_cast<std::string>(i));
@@ -80,9 +80,9 @@ TStrVec allCategories() {
 }
 
 TStrVec allPeople() {
-    const std::size_t numberPeople = 5u;
+    const std::size_t numberPeople = 5;
     TStrVec people;
-    for (std::size_t i = 0u; i < numberPeople; ++i) {
+    for (std::size_t i = 0; i < numberPeople; ++i) {
         people.push_back("p" + boost::lexical_cast<std::string>(i));
     }
     return people;
@@ -103,7 +103,7 @@ void generateTestMessages(test::CRandomNumbers& rng,
     const double rates[] = {1.0, 0.3, 10.1, 25.0, 105.0};
 
     TSizeVec bucketCounts;
-    for (std::size_t j = 0u; j < categories.size(); ++j) {
+    for (std::size_t j = 0; j < categories.size(); ++j) {
         double rate = rates[j % boost::size(rates)];
         TUIntVec sample;
         rng.generatePoissonSamples(rate, 1u, sample);
@@ -121,12 +121,12 @@ void generateTestMessages(test::CRandomNumbers& rng,
     }
     LOG_DEBUG(<< "bucketPeople = " << core::CContainerPrinter::print(bucketPeople));
 
-    for (std::size_t i = 0u; i < categories.size(); ++i) {
+    for (std::size_t i = 0; i < categories.size(); ++i) {
         TDoubleVec offsets;
         rng.generateUniformSamples(0.0, static_cast<double>(bucketLength) - 1.0,
                                    bucketCounts[i], offsets);
 
-        for (std::size_t j = 0u; j < offsets.size(); ++j) {
+        for (std::size_t j = 0; j < offsets.size(); ++j) {
             messages.push_back(SMessage(
                 time + static_cast<core_t::TTime>(offsets[j]), categories[i],
                 people[bucketPeople[j % bucketPeople.size()]]));
@@ -139,7 +139,7 @@ void generateTestMessages(test::CRandomNumbers& rng,
 
 const TSizeSizePrFeatureDataPrVec&
 extract(const TFeatureSizeSizePrFeatureDataPrVecPrVec& featureData, model_t::EFeature feature) {
-    for (std::size_t i = 0u; i < featureData.size(); ++i) {
+    for (std::size_t i = 0; i < featureData.size(); ++i) {
         if (featureData[i].first == feature) {
             return featureData[i].second;
         }
@@ -225,7 +225,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeCounts, CTestFixture) {
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
-    const std::size_t numberBuckets = 20u;
+    const std::size_t numberBuckets = 20;
 
     test::CRandomNumbers rng;
 
@@ -242,17 +242,17 @@ BOOST_FIXTURE_TEST_CASE(testAttributeCounts, CTestFixture) {
     BOOST_REQUIRE_EQUAL(bucketLength, dataGatherer.bucketLength());
 
     TSizeSizeSetMap expectedAttributePeople;
-    std::size_t attributeOrder = 0u;
+    std::size_t attributeOrder = 0;
     TStrSizeMap expectedAttributeOrder;
-    std::size_t personOrder = 0u;
+    std::size_t personOrder = 0;
     TStrSizeMap expectedPeopleOrder;
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < numberBuckets; ++i, time += bucketLength) {
+    for (std::size_t i = 0; i < numberBuckets; ++i, time += bucketLength) {
         TMessageVec messages;
         generateTestMessages(rng, time, bucketLength, messages);
 
         TSizeSizePrUInt64Map expectedAttributeCounts;
-        for (std::size_t j = 0u; j < messages.size(); ++j) {
+        for (std::size_t j = 0; j < messages.size(); ++j) {
             addArrival(messages[j].s_Time, messages[j].s_Person,
                        messages[j].s_Attribute, dataGatherer, m_ResourceMonitor);
 
@@ -286,7 +286,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeCounts, CTestFixture) {
             extractPeoplePerAttribute(featureData);
         BOOST_REQUIRE_EQUAL(expectedAttributePeople.size(), peoplePerAttribute.size());
         TSizeSizePrFeatureDataPrVec expectedPeoplePerAttribute;
-        for (std::size_t j = 0u; j < peoplePerAttribute.size(); ++j) {
+        for (std::size_t j = 0; j < peoplePerAttribute.size(); ++j) {
             expectedPeoplePerAttribute.push_back(TSizeSizePrFeatureDataPr(
                 std::make_pair(size_t(0), j), expectedAttributePeople[j].size()));
         }
@@ -311,7 +311,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeCounts, CTestFixture) {
 
     TStrVec categories = allCategories();
     TSizeVec attributeIds;
-    for (std::size_t i = 0u; i < categories.size(); ++i) {
+    for (std::size_t i = 0; i < categories.size(); ++i) {
         std::size_t cid;
         BOOST_TEST_REQUIRE(dataGatherer.attributeId(categories[i], cid));
         attributeIds.push_back(cid);
@@ -323,7 +323,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeCounts, CTestFixture) {
 
     TStrVec people = allPeople();
     TSizeVec peopleIds;
-    for (std::size_t i = 0u; i < people.size(); ++i) {
+    for (std::size_t i = 0; i < people.size(); ++i) {
         std::size_t pid;
         BOOST_TEST_REQUIRE(dataGatherer.personId(people[i], pid));
         peopleIds.push_back(pid);
@@ -340,7 +340,7 @@ BOOST_FIXTURE_TEST_CASE(testAttributeIndicator, CTestFixture) {
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
-    const std::size_t numberBuckets = 20u;
+    const std::size_t numberBuckets = 20;
 
     test::CRandomNumbers rng;
 
@@ -352,12 +352,12 @@ BOOST_FIXTURE_TEST_CASE(testAttributeIndicator, CTestFixture) {
                                EMPTY_STRING, {}, searchKey, features, startTime, 0);
 
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < numberBuckets; ++i, time += bucketLength) {
+    for (std::size_t i = 0; i < numberBuckets; ++i, time += bucketLength) {
         TMessageVec messages;
         generateTestMessages(rng, time, bucketLength, messages);
 
         TSizeSizePrUInt64Map expectedAttributeIndicator;
-        for (std::size_t j = 0u; j < messages.size(); ++j) {
+        for (std::size_t j = 0; j < messages.size(); ++j) {
             addArrival(messages[j].s_Time, messages[j].s_Person,
                        messages[j].s_Attribute, dataGatherer, m_ResourceMonitor);
 
@@ -399,7 +399,7 @@ BOOST_FIXTURE_TEST_CASE(testUniqueValueCounts, CTestFixture) {
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
-    const std::size_t numberBuckets = 20u;
+    const std::size_t numberBuckets = 20;
 
     test::CRandomNumbers rng;
 
@@ -411,14 +411,14 @@ BOOST_FIXTURE_TEST_CASE(testUniqueValueCounts, CTestFixture) {
                                "value", {}, searchKey, features, startTime, 0);
 
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < numberBuckets; ++i, time += bucketLength) {
+    for (std::size_t i = 0; i < numberBuckets; ++i, time += bucketLength) {
         TMessageVec messages;
         generateTestMessages(rng, time, bucketLength, messages);
 
         TSizeSizePrUInt64Map expectedUniqueCounts;
 
         TSizeSizeSetMap bucketPeopleCategories;
-        for (std::size_t j = 0u; j < messages.size(); ++j) {
+        for (std::size_t j = 0; j < messages.size(); ++j) {
             std::ostringstream ss;
             ss << "thing"
                << "_" << time << "_" << i;
@@ -467,7 +467,7 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
-    const std::size_t numberBuckets = 20u;
+    const std::size_t numberBuckets = 20;
 
     test::CRandomNumbers rng;
 
@@ -479,12 +479,12 @@ BOOST_FIXTURE_TEST_CASE(testCompressedLength, CTestFixture) {
                                "value", {}, searchKey, features, startTime, 0);
 
     core_t::TTime time = startTime;
-    for (std::size_t i = 0u; i < numberBuckets; ++i, time += bucketLength) {
+    for (std::size_t i = 0; i < numberBuckets; ++i, time += bucketLength) {
         TMessageVec messages;
         generateTestMessages(rng, time, bucketLength, messages);
 
         TSizeStrSetMap bucketPeopleCategories;
-        for (std::size_t j = 0u; j < messages.size(); ++j) {
+        for (std::size_t j = 0; j < messages.size(); ++j) {
             addArrival(messages[j].s_Time, messages[j].s_Person, "attribute",
                        messages[j].s_Attribute, dataGatherer, m_ResourceMonitor);
 
@@ -556,7 +556,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
 
     const core_t::TTime startTime = 1367280000;
     const core_t::TTime bucketLength = 3600;
-    const std::size_t numberBuckets = 50u;
+    const std::size_t numberBuckets = 50;
 
     test::CRandomNumbers rng;
 
@@ -567,10 +567,10 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
                            EMPTY_STRING, EMPTY_STRING, EMPTY_STRING, EMPTY_STRING,
                            EMPTY_STRING, {}, searchKey, features, startTime, 0);
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u; i < numberBuckets; ++i, bucketStart += bucketLength) {
+    for (std::size_t i = 0; i < numberBuckets; ++i, bucketStart += bucketLength) {
         TMessageVec messages;
         generateTestMessages(rng, bucketStart, bucketLength, messages);
-        for (std::size_t j = 0u; j < messages.size(); ++j) {
+        for (std::size_t j = 0; j < messages.size(); ++j) {
             addArrival(messages[j].s_Time, messages[j].s_Person,
                        messages[j].s_Attribute, gatherer, m_ResourceMonitor);
         }
@@ -586,7 +586,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     BOOST_REQUIRE_EQUAL(numberPeople, gatherer.numberOverFieldValues());
     TStrVec expectedPersonNames;
     TSizeVec expectedPersonIds;
-    for (std::size_t i = 0u; i < numberPeople; ++i) {
+    for (std::size_t i = 0; i < numberPeople; ++i) {
         if (!std::binary_search(peopleToRemove.begin(), peopleToRemove.end(), i)) {
             expectedPersonNames.push_back(gatherer.personName(i));
             expectedPersonIds.push_back(i);
@@ -599,7 +599,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     {
         TSizeUInt64PrVec nonZeroCounts;
         gatherer.personNonZeroCounts(bucketStart - bucketLength, nonZeroCounts);
-        for (std::size_t i = 0u; i < nonZeroCounts.size(); ++i) {
+        for (std::size_t i = 0; i < nonZeroCounts.size(); ++i) {
             if (!std::binary_search(peopleToRemove.begin(), peopleToRemove.end(),
                                     nonZeroCounts[i].first)) {
                 const std::string& name = gatherer.personName(nonZeroCounts[i].first);
@@ -617,9 +617,9 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         TStrFeatureDataPrVec expected;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart - bucketLength, bucketLength, featureData);
-        for (std::size_t i = 0u; i < featureData.size(); ++i) {
+        for (std::size_t i = 0; i < featureData.size(); ++i) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
-            for (std::size_t j = 0u; j < data.size(); ++j) {
+            for (std::size_t j = 0; j < data.size(); ++j) {
                 if (!std::binary_search(peopleToRemove.begin(),
                                         peopleToRemove.end(), data[j].first.first)) {
                     std::string key = model_t::print(featureData[i].first) + " " +
@@ -636,7 +636,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     gatherer.recyclePeople(peopleToRemove);
 
     BOOST_REQUIRE_EQUAL(numberPeople - peopleToRemove.size(), gatherer.numberActivePeople());
-    for (std::size_t i = 0u; i < expectedPersonNames.size(); ++i) {
+    for (std::size_t i = 0; i < expectedPersonNames.size(); ++i) {
         std::size_t pid;
         BOOST_TEST_REQUIRE(gatherer.personId(expectedPersonNames[i], pid));
         BOOST_REQUIRE_EQUAL(expectedPersonIds[i], pid);
@@ -645,7 +645,7 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
     TStrSizeMap actualNonZeroCounts;
     TSizeUInt64PrVec nonZeroCounts;
     gatherer.personNonZeroCounts(bucketStart - bucketLength, nonZeroCounts);
-    for (std::size_t i = 0u; i < nonZeroCounts.size(); ++i) {
+    for (std::size_t i = 0; i < nonZeroCounts.size(); ++i) {
         const std::string& name = gatherer.personName(nonZeroCounts[i].first);
         actualNonZeroCounts[name] = static_cast<size_t>(nonZeroCounts[i].second);
     }
@@ -661,9 +661,9 @@ BOOST_FIXTURE_TEST_CASE(testRemovePeople, CTestFixture) {
         TStrFeatureDataPrVec actual;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart - bucketLength, bucketLength, featureData);
-        for (std::size_t i = 0u; i < featureData.size(); ++i) {
+        for (std::size_t i = 0; i < featureData.size(); ++i) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
-            for (std::size_t j = 0u; j < data.size(); ++j) {
+            for (std::size_t j = 0; j < data.size(); ++j) {
                 std::string key = model_t::print(featureData[i].first) + " " +
                                   gatherer.personName(data[j].first.first) + " " +
                                   gatherer.attributeName(data[j].first.second);
@@ -695,7 +695,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
     generateTestMessages(rng, startTime, bucketLength, messages);
 
     core_t::TTime bucketStart = startTime;
-    for (std::size_t i = 0u; i < messages.size(); ++i) {
+    for (std::size_t i = 0; i < messages.size(); ++i) {
         addArrival(messages[i].s_Time, messages[i].s_Person,
                    messages[i].s_Attribute, gatherer, m_ResourceMonitor);
     }
@@ -712,7 +712,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
     BOOST_REQUIRE_EQUAL(numberAttributes, gatherer.numberByFieldValues());
     TStrVec expectedAttributeNames;
     TSizeVec expectedAttributeIds;
-    for (std::size_t i = 0u; i < numberAttributes; ++i) {
+    for (std::size_t i = 0; i < numberAttributes; ++i) {
         if (!std::binary_search(attributesToRemove.begin(), attributesToRemove.end(), i)) {
             expectedAttributeNames.push_back(gatherer.attributeName(i));
             expectedAttributeIds.push_back(i);
@@ -727,9 +727,9 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
         TStrFeatureDataPrVec expected;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
-        for (std::size_t i = 0u; i < featureData.size(); ++i) {
+        for (std::size_t i = 0; i < featureData.size(); ++i) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
-            for (std::size_t j = 0u; j < data.size(); ++j) {
+            for (std::size_t j = 0; j < data.size(); ++j) {
                 if (!std::binary_search(attributesToRemove.begin(),
                                         attributesToRemove.end(), data[j].first.second)) {
                     std::string key = model_t::print(featureData[i].first) + " " +
@@ -747,7 +747,7 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
 
     BOOST_REQUIRE_EQUAL(numberAttributes - attributesToRemove.size(),
                         gatherer.numberActiveAttributes());
-    for (std::size_t i = 0u; i < expectedAttributeNames.size(); ++i) {
+    for (std::size_t i = 0; i < expectedAttributeNames.size(); ++i) {
         std::size_t cid;
         BOOST_TEST_REQUIRE(gatherer.attributeId(expectedAttributeNames[i], cid));
         BOOST_REQUIRE_EQUAL(expectedAttributeIds[i], cid);
@@ -759,9 +759,9 @@ BOOST_FIXTURE_TEST_CASE(testRemoveAttributes, CTestFixture) {
         TStrFeatureDataPrVec actual;
         TFeatureSizeSizePrFeatureDataPrVecPrVec featureData;
         gatherer.featureData(bucketStart, bucketLength, featureData);
-        for (std::size_t i = 0u; i < featureData.size(); ++i) {
+        for (std::size_t i = 0; i < featureData.size(); ++i) {
             const TSizeSizePrFeatureDataPrVec& data = featureData[i].second;
-            for (std::size_t j = 0u; j < data.size(); ++j) {
+            for (std::size_t j = 0; j < data.size(); ++j) {
                 std::string key = model_t::print(featureData[i].first) + " " +
                                   gatherer.personName(data[j].first.first) + " " +
                                   gatherer.attributeName(data[j].first.second);
@@ -800,7 +800,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
         TMessageVec messages;
         generateTestMessages(rng, startTime, bucketLength, messages);
 
-        for (std::size_t i = 0u; i < messages.size(); ++i) {
+        for (std::size_t i = 0; i < messages.size(); ++i) {
             addArrival(messages[i].s_Time, messages[i].s_Person,
                        messages[i].s_Attribute, origDataGatherer, m_ResourceMonitor);
         }
@@ -838,7 +838,7 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
     }
     {
         // Check feature data for model_t::E_UniqueValues
-        const std::size_t numberBuckets = 20u;
+        const std::size_t numberBuckets = 20;
 
         test::CRandomNumbers rng;
         CDataGatherer::TFeatureVec features;
@@ -850,11 +850,11 @@ BOOST_FIXTURE_TEST_CASE(testPersistence, CTestFixture) {
                                    searchKey, features, startTime, 0);
 
         core_t::TTime time = startTime;
-        for (std::size_t i = 0u; i < numberBuckets; ++i, time += bucketLength) {
+        for (std::size_t i = 0; i < numberBuckets; ++i, time += bucketLength) {
             TMessageVec messages;
             generateTestMessages(rng, time, bucketLength, messages);
 
-            for (std::size_t j = 0u; j < messages.size(); ++j) {
+            for (std::size_t j = 0; j < messages.size(); ++j) {
                 addArrival(messages[j].s_Time, messages[j].s_Person, "attribute",
                            messages[j].s_Attribute, dataGatherer, m_ResourceMonitor);
 

@@ -953,14 +953,14 @@ BOOST_AUTO_TEST_CASE(testRoundtripMaxDouble) {
     ml::core::CIEEE754::EPrecision precisions[] = {
         ml::core::CIEEE754::E_SinglePrecision, ml::core::CIEEE754::E_DoublePrecision};
     double tolerances[] = {5e-7, 5e-15};
-    for (std::size_t i = 0u; i < boost::size(precisions); ++i) {
+    for (std::size_t i = 0; i < boost::size(precisions); ++i) {
         double max = std::numeric_limits<double>::max();
         std::string str = ml::core::CStringUtils::typeToStringPrecise(max, precisions[i]);
         double d = 0.0;
         BOOST_TEST_REQUIRE(ml::core::CStringUtils::stringToType(str, d));
         BOOST_REQUIRE_CLOSE_ABSOLUTE(max, d, tolerances[i] * max);
     }
-    for (std::size_t i = 0u; i < boost::size(precisions); ++i) {
+    for (std::size_t i = 0; i < boost::size(precisions); ++i) {
         double min = -std::numeric_limits<double>::max();
         std::string str = ml::core::CStringUtils::typeToStringPrecise(min, precisions[i]);
         double d = 0.0;

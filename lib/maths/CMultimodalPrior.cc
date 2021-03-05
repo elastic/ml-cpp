@@ -160,7 +160,7 @@ CMultimodalPrior::CMultimodalPrior(maths_t::EDataType dataType,
     m_Clusterer = std::make_unique<CKMeansOnline1d>(normals);
 
     m_Modes.reserve(normals.size());
-    for (std::size_t i = 0u; i < normals.size(); ++i) {
+    for (std::size_t i = 0; i < normals.size(); ++i) {
         m_Modes.emplace_back(i, TPriorPtr(normals.back().clone()));
     }
 }

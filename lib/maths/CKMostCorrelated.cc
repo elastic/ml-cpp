@@ -158,7 +158,7 @@ void CKMostCorrelated::mostCorrelated(TSizeSizePrVec& result) const {
     std::size_t N = std::min(m_K, m_MostCorrelated.size());
     if (N > 0) {
         result.reserve(N);
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             result.emplace_back(m_MostCorrelated[i].s_X, m_MostCorrelated[i].s_Y);
         }
     }
@@ -177,7 +177,7 @@ void CKMostCorrelated::mostCorrelated(std::size_t n,
         if (pearson) {
             pearson->reserve(n);
         }
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             correlates.emplace_back(m_MostCorrelated[i].s_X, m_MostCorrelated[i].s_Y);
             if (pearson) {
                 pearson->push_back(CBasicStatistics::mean(m_MostCorrelated[i].s_Correlation));
@@ -191,7 +191,7 @@ void CKMostCorrelated::correlations(TDoubleVec& result) const {
     std::size_t N = std::min(m_K, m_MostCorrelated.size());
     if (N > 0) {
         result.reserve(N);
-        for (std::size_t i = 0u; i < N; ++i) {
+        for (std::size_t i = 0; i < N; ++i) {
             result.push_back(CBasicStatistics::mean(m_MostCorrelated[i].s_Correlation));
         }
     }
@@ -202,7 +202,7 @@ void CKMostCorrelated::correlations(std::size_t n, TDoubleVec& result) const {
     n = std::min(n, m_MostCorrelated.size());
     if (n > 0) {
         result.reserve(n);
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             result.push_back(CBasicStatistics::mean(m_MostCorrelated[i].s_Correlation));
         }
     }
@@ -214,7 +214,7 @@ void CKMostCorrelated::addVariables(std::size_t n) {
 
 void CKMostCorrelated::removeVariables(const TSizeVec& remove) {
     LOG_TRACE(<< "removing = " << core::CContainerPrinter::print(remove));
-    for (std::size_t i = 0u; i < remove.size(); ++i) {
+    for (std::size_t i = 0; i < remove.size(); ++i) {
         if (remove[i] < m_Moments.size()) {
             m_Moments[remove[i]] = TMeanVarAccumulator();
             m_Projected.erase(remove[i]);
@@ -280,7 +280,7 @@ void CKMostCorrelated::capture() {
 
         // For existing indices in the "most correlated" collection
         // compute the updated statistics.
-        for (std::size_t i = 0u; i < m_MostCorrelated.size(); ++i) {
+        for (std::size_t i = 0; i < m_MostCorrelated.size(); ++i) {
             m_MostCorrelated[i].update(m_Projected);
         }
         std::stable_sort(m_MostCorrelated.begin(), m_MostCorrelated.end());
@@ -332,7 +332,7 @@ void CKMostCorrelated::capture() {
                 Z += oneMinusCorrelation;
             }
             if (Z > 0.0) {
-                for (std::size_t i = 0u; i < p.size(); ++i) {
+                for (std::size_t i = 0; i < p.size(); ++i) {
                     p[i] /= Z;
                 }
                 LOG_TRACE(<< "p = " << core::CContainerPrinter::print(p));
@@ -340,7 +340,7 @@ void CKMostCorrelated::capture() {
                 TSizeVec replace;
                 CSampling::categoricalSampleWithoutReplacement(m_Rng, p, n - added, replace);
 
-                for (std::size_t i = 1u; i <= n - added; ++i) {
+                for (std::size_t i = 1; i <= n - added; ++i) {
                     m_MostCorrelated[vunerable + replace[i - 1]] = add[n - added - i];
                 }
             }
@@ -396,7 +396,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
     }
 
     TSizeSizePrUSet lookup;
-    for (std::size_t i = 0u; i < m_MostCorrelated.size(); ++i) {
+    for (std::size_t i = 0; i < m_MostCorrelated.size(); ++i) {
         std::size_t X = m_MostCorrelated[i].s_X;
         std::size_t Y = m_MostCorrelated[i].s_Y;
         lookup.insert(std::make_pair(std::min(X, Y), std::max(X, Y)));
@@ -481,7 +481,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
         try {
             TPointRTree rtree(points);
             TPointSizePrVec nearest;
-            for (std::size_t i = 0u; i < seeds.size(); ++i) {
+            for (std::size_t i = 0; i < seeds.size(); ++i) {
                 std::size_t X = points[seeds[i]].second;
                 const TVectorPackedBitVectorPr& px = m_Projected.at(X);
 
@@ -497,7 +497,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
                                bgi::nearest((-px.first.to<double>()).toBoostArray(), k),
                            std::back_inserter(nearest));
 
-                for (std::size_t j = 0u; j < nearest.size(); ++j) {
+                for (std::size_t j = 0; j < nearest.size(); ++j) {
                     std::size_t n = mostCorrelated.count();
                     std::size_t S = n == desired ? mostCorrelated.biggest().s_X : 0;
                     std::size_t T = n == desired ? mostCorrelated.biggest().s_Y : 0;
@@ -518,7 +518,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
             LOG_TRACE(<< "# seeds = " << mostCorrelated.count());
             LOG_TRACE(<< "seed most correlated = " << mostCorrelated);
 
-            for (std::size_t i = 0u; i < points.size(); ++i) {
+            for (std::size_t i = 0; i < points.size(); ++i) {
                 const SCorrelation& biggest = mostCorrelated.biggest();
                 double threshold = biggest.distance(amax);
                 LOG_TRACE(<< "threshold = " << threshold);
@@ -550,7 +550,7 @@ void CKMostCorrelated::mostCorrelated(TCorrelationVec& result) const {
                 }
                 LOG_TRACE(<< "# candidates = " << nearest.size());
 
-                for (std::size_t j = 0u; j < nearest.size(); ++j) {
+                for (std::size_t j = 0; j < nearest.size(); ++j) {
                     std::size_t n = mostCorrelated.count();
                     std::size_t S = n == desired ? mostCorrelated.biggest().s_X : 0;
                     std::size_t T = n == desired ? mostCorrelated.biggest().s_Y : 0;
@@ -585,8 +585,8 @@ void CKMostCorrelated::nextProjection() {
                              NUMBER_PROJECTIONS * PROJECTION_DIMENSION, uniform01);
     m_Projections.reserve(PROJECTION_DIMENSION);
     m_Projections.resize(PROJECTION_DIMENSION);
-    for (std::size_t i = 0u, j = 0u; i < PROJECTION_DIMENSION; ++i) {
-        for (std::size_t k = 0u; k < NUMBER_PROJECTIONS; ++j, ++k) {
+    for (std::size_t i = 0u, j = 0; i < PROJECTION_DIMENSION; ++i) {
+        for (std::size_t k = 0; k < NUMBER_PROJECTIONS; ++j, ++k) {
             m_Projections[i](k) = uniform01[j] < 0.5 ? -1.0 : 1.0;
         }
     }
@@ -595,10 +595,10 @@ void CKMostCorrelated::nextProjection() {
 
     double factor = std::exp(-m_DecayRate);
     m_MaximumCount *= factor;
-    for (std::size_t i = 0u; i < m_Moments.size(); ++i) {
+    for (std::size_t i = 0; i < m_Moments.size(); ++i) {
         m_Moments[i].age(factor);
     }
-    for (std::size_t i = 0u; i < m_MostCorrelated.size(); ++i) {
+    for (std::size_t i = 0; i < m_MostCorrelated.size(); ++i) {
         m_MostCorrelated[i].s_Correlation.age(factor);
     }
 }
@@ -619,7 +619,7 @@ const CKMostCorrelated::TMeanVarAccumulatorVec& CKMostCorrelated::moments() cons
     return m_Moments;
 }
 
-const std::size_t CKMostCorrelated::PROJECTION_DIMENSION = 20u;
+const std::size_t CKMostCorrelated::PROJECTION_DIMENSION = 20;
 const double CKMostCorrelated::MINIMUM_SPARSENESS = 0.5;
 const double CKMostCorrelated::REPLACE_FRACTION = 0.1;
 
@@ -726,7 +726,7 @@ double CKMostCorrelated::SCorrelation::correlation(const TVector& px,
 
         TMeanVarAccumulator dmv;
         TMeanVarAccumulator smv;
-        for (std::size_t i = 0u; i < px.dimension(); ++i) {
+        for (std::size_t i = 0; i < px.dimension(); ++i) {
             dmv.add((px(i) - py(i)) * (px(i) - py(i)));
             smv.add((px(i) + py(i)) * (px(i) + py(i)));
         }

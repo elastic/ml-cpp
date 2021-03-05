@@ -168,8 +168,8 @@ CAnomalyDetectorModelConfig::CAnomalyDetectorModelConfig()
       m_NormalizedScoreKnotPoints(std::begin(DEFAULT_NORMALIZED_SCORE_KNOT_POINTS),
                                   std::end(DEFAULT_NORMALIZED_SCORE_KNOT_POINTS)),
       m_DetectionRules(EMPTY_RULES_MAP), m_ScheduledEvents(EMPTY_EVENTS) {
-    for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
-        for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
+    for (std::size_t i = 0; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
+        for (std::size_t j = 0; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
             m_AggregationStyleParams[i][j] = DEFAULT_AGGREGATION_STYLE_PARAMS[i][j];
         }
     }
@@ -284,7 +284,7 @@ bool CAnomalyDetectorModelConfig::normalizedScoreKnotPoints(const TDoubleDoubleP
         LOG_ERROR(<< "Last knot point must be (100,100)");
         return false;
     }
-    for (std::size_t i = 0u; i < points.size(); i += 2) {
+    for (std::size_t i = 0; i < points.size(); i += 2) {
         if (points[i].first < 0.0 || points[i].first > 100.0) {
             LOG_ERROR(<< "Unexpected value " << points[i].first << " for percentile");
             return false;
@@ -525,7 +525,7 @@ CAnomalyDetectorModelConfig::factory(int detectorIndex,
     // Simple state machine to deduce the factory type from
     // a collection of features.
     EFactoryType factory = E_UnknownFactory;
-    for (std::size_t i = 0u; i < features.size(); ++i) {
+    for (std::size_t i = 0; i < features.size(); ++i) {
         switch (factory) {
         case E_EventRateFactory:
             switch (model_t::analysisCategory(features[i])) {
@@ -938,8 +938,8 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
                 result = false;
                 continue;
             }
-            for (std::size_t j = 0u, l = 0u; j < model_t::NUMBER_AGGREGATION_STYLES; ++j) {
-                for (std::size_t k = 0u; k < model_t::NUMBER_AGGREGATION_PARAMS; ++k, ++l) {
+            for (std::size_t j = 0u, l = 0; j < model_t::NUMBER_AGGREGATION_STYLES; ++j) {
+                for (std::size_t k = 0; k < model_t::NUMBER_AGGREGATION_PARAMS; ++k, ++l) {
                     double value;
                     if (core::CStringUtils::stringToType(strings[l], value) == false) {
                         LOG_ERROR(<< "Unexpected value " << strings[l]
@@ -997,7 +997,7 @@ bool CAnomalyDetectorModelConfig::processStanza(const boost::property_tree::ptre
             TDoubleDoublePrVec points;
             points.reserve(strings.size() / 2 + 2);
             points.emplace_back(0.0, 0.0);
-            for (std::size_t j = 0u; j < strings.size(); j += 2) {
+            for (std::size_t j = 0; j < strings.size(); j += 2) {
                 double rate;
                 double score;
                 if (core::CStringUtils::stringToType(strings[j], rate) == false) {

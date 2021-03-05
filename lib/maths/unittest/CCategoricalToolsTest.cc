@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
     using TDoubleVecVec = std::vector<TDoubleVec>;
     using TMeanVarAccumulator = maths::CBasicStatistics::SSampleMeanVar<double>::TAccumulator;
 
-    static const std::size_t nTrials = 4000u;
+    static const std::size_t nTrials = 4000;
 
     test::CRandomNumbers rng;
 
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
             double probabilities[] = {0.2, 0.2, 0.2, 0.2, 0.2};
 
             TMeanVarAccumulator expectedDistinctCategories;
-            for (std::size_t i = 0u; i < nTrials; ++i) {
+            for (std::size_t i = 0; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(
                     TDoubleVec(std::begin(categories), std::end(categories)),
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
             double probabilities[] = {0.1, 0.3, 0.4, 0.1, 0.1};
 
             TMeanVarAccumulator expectedDistinctCategories;
-            for (std::size_t i = 0u; i < nTrials; ++i) {
+            for (std::size_t i = 0; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(
                     TDoubleVec(std::begin(categories), std::end(categories)),
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
             double probabilities[] = {0.35, 0.1, 0.25, 0.25, 0.05};
 
             TMeanVarAccumulator expectedDistinctCategories;
-            for (std::size_t i = 0u; i < nTrials; ++i) {
+            for (std::size_t i = 0; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(
                     TDoubleVec(std::begin(categories), std::end(categories)),
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                                       0.1, 0.1, 0.1, 0.1, 0.1};
 
             TMeanVarAccumulator expectedDistinctCategories;
-            for (std::size_t i = 0u; i < nTrials; ++i) {
+            for (std::size_t i = 0; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(
                     TDoubleVec(std::begin(categories), std::end(categories)),
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                                       0.05, 0.05, 0.01, 0.02, 0.07};
 
             TMeanVarAccumulator expectedDistinctCategories;
-            for (std::size_t i = 0u; i < nTrials; ++i) {
+            for (std::size_t i = 0; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(
                     TDoubleVec(std::begin(categories), std::end(categories)),
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
                                       0.05, 0.1, 0.15, 0.15, 0.05};
 
             TMeanVarAccumulator expectedDistinctCategories;
-            for (std::size_t i = 0u; i < nTrials; ++i) {
+            for (std::size_t i = 0; i < nTrials; ++i) {
                 TDoubleVec samples;
                 rng.generateMultinomialSamples(
                     TDoubleVec(std::begin(categories), std::end(categories)),
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
     }
     {
         TDoubleVec categories;
-        for (std::size_t i = 1u; i < 101; ++i) {
+        for (std::size_t i = 1; i < 101; ++i) {
             categories.push_back(static_cast<double>(i));
         }
 
@@ -266,9 +266,9 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
 
             TDoubleVecVec probabilities;
             rng.generateDirichletSamples(concentrations, 50u, probabilities);
-            for (std::size_t i = 0u; i < 50; ++i) {
+            for (std::size_t i = 0; i < 50; ++i) {
                 TMeanVarAccumulator expectedDistinctCategories;
-                for (std::size_t j = 0u; j < nTrials; ++j) {
+                for (std::size_t j = 0; j < nTrials; ++j) {
                     TDoubleVec samples;
                     rng.generateMultinomialSamples(categories, probabilities[i],
                                                    categories.size(), samples);
@@ -303,9 +303,9 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
 
             TDoubleVecVec probabilities;
             rng.generateDirichletSamples(concentrations, 50u, probabilities);
-            for (std::size_t i = 0u; i < 50; ++i) {
+            for (std::size_t i = 0; i < 50; ++i) {
                 TMeanVarAccumulator expectedDistinctCategories;
-                for (std::size_t j = 0u; j < nTrials; ++j) {
+                for (std::size_t j = 0; j < nTrials; ++j) {
                     TDoubleVec samples;
                     rng.generateMultinomialSamples(categories, probabilities[i],
                                                    categories.size(), samples);
@@ -344,9 +344,9 @@ BOOST_AUTO_TEST_CASE(testExpectedDistinctCategories) {
 
             TDoubleVecVec probabilities;
             rng.generateDirichletSamples(concentrations, 50u, probabilities);
-            for (std::size_t i = 0u; i < 50; ++i) {
+            for (std::size_t i = 0; i < 50; ++i) {
                 TMeanVarAccumulator expectedDistinctCategories;
-                for (std::size_t j = 0u; j < nTrials; ++j) {
+                for (std::size_t j = 0; j < nTrials; ++j) {
                     TDoubleVec samples;
                     rng.generateMultinomialSamples(categories, probabilities[i],
                                                    categories.size(), samples);
@@ -381,13 +381,13 @@ BOOST_AUTO_TEST_CASE(testLogBinomialProbability) {
     double n[] = {10, 100, 10000};
     double p[] = {0.1, 0.5, 0.9};
 
-    for (std::size_t i = 0u; i < boost::size(n); ++i) {
-        for (std::size_t j = 0u; j < boost::size(p); ++j) {
+    for (std::size_t i = 0; i < boost::size(n); ++i) {
+        for (std::size_t j = 0; j < boost::size(p); ++j) {
             LOG_DEBUG(<< "n = " << n[i] << ", p = " << p[j]);
 
             boost::math::binomial_distribution<> binomial(n[i], p[j]);
             double median = boost::math::median(binomial);
-            for (std::size_t f = 1u; f < 10; ++f) {
+            for (std::size_t f = 1; f < 10; ++f) {
                 double f_ = static_cast<double>(f) / 10.0;
                 double m = std::floor(f_ * median);
                 double pdf = boost::math::pdf(binomial, m);
@@ -400,7 +400,7 @@ BOOST_AUTO_TEST_CASE(testLogBinomialProbability) {
                           << ", actual = " << std::exp(logpdf));
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(pdf, std::exp(logpdf), 1e-6 * pdf);
             }
-            for (std::size_t f = 1u; f < 10; ++f) {
+            for (std::size_t f = 1; f < 10; ++f) {
                 double f_ = static_cast<double>(f) / 10.0;
                 double m = median + std::floor(f_ * (n[i] - median));
                 double pdf = boost::math::pdf(binomial, m);
@@ -428,13 +428,13 @@ BOOST_AUTO_TEST_CASE(testLogMultinomialProbability) {
         double n[] = {10, 100, 10000};
         double p[] = {0.1, 0.5, 0.9};
 
-        for (std::size_t i = 0u; i < boost::size(n); ++i) {
-            for (std::size_t j = 0u; j < boost::size(p); ++j) {
+        for (std::size_t i = 0; i < boost::size(n); ++i) {
+            for (std::size_t j = 0; j < boost::size(p); ++j) {
                 LOG_DEBUG(<< "n = " << n[i] << ", p = " << p[j]);
 
                 boost::math::binomial_distribution<> binomial(n[i], p[j]);
                 double median = boost::math::median(binomial);
-                for (std::size_t f = 1u; f < 10; ++f) {
+                for (std::size_t f = 1; f < 10; ++f) {
                     double f_ = static_cast<double>(f) / 10.0;
                     double m = std::floor(f_ * median);
                     double pdf = boost::math::pdf(binomial, m);
@@ -452,7 +452,7 @@ BOOST_AUTO_TEST_CASE(testLogMultinomialProbability) {
                               << ", actual = " << std::exp(logpdf));
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(pdf, std::exp(logpdf), 1e-6 * pdf);
                 }
-                for (std::size_t f = 1u; f < 10; ++f) {
+                for (std::size_t f = 1; f < 10; ++f) {
                     double f_ = static_cast<double>(f) / 10.0;
                     double m = median + std::floor(f_ * (n[i] - median));
                     double pdf = boost::math::pdf(binomial, m);
@@ -483,9 +483,9 @@ BOOST_AUTO_TEST_CASE(testLogMultinomialProbability) {
         pi.push_back(0.6);
 
         std::size_t n = 10;
-        for (std::size_t m = 0u; m <= n; ++m) {
+        for (std::size_t m = 0; m <= n; ++m) {
             double marginal = 0.0;
-            for (std::size_t i = 0u; i <= n - m; ++i) {
+            for (std::size_t i = 0; i <= n - m; ++i) {
                 double logpdf;
                 TSizeVec ni;
                 ni.push_back(m);

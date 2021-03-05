@@ -90,7 +90,7 @@ BOOST_FIXTURE_TEST_CASE(testSwap, CTestFixture) {
         rng.generateNormalSamples(0.0, 2.0, 100, noise);
 
         core_t::TTime start{now + static_cast<core_t::TTime>(86400 * p)};
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             core_t::TTime t{start + static_cast<core_t::TTime>(864 * i)};
             if (bucketing1.feature().inWindow(t)) {
                 double y{0.02 * (static_cast<double>(i) - 50.0) *
@@ -220,7 +220,7 @@ BOOST_FIXTURE_TEST_CASE(testPropagateForwardsByTime, CTestFixture) {
     bucketing.propagateForwardsByTime(1.0);
 
     double lastCount = bucketing.count();
-    for (std::size_t i = 0u; i < 20; ++i) {
+    for (std::size_t i = 0; i < 20; ++i) {
         bucketing.propagateForwardsByTime(1.0);
         double count = bucketing.count();
         LOG_DEBUG(<< "count = " << count << ", lastCount = " << lastCount
@@ -390,7 +390,7 @@ BOOST_FIXTURE_TEST_CASE(testKnots, CTestFixture) {
 
         TMeanAccumulator meanError;
         TMeanAccumulator meanValue;
-        for (std::size_t i = 0u; i < knots.size(); ++i) {
+        for (std::size_t i = 0; i < knots.size(); ++i) {
             double expectedValue{0.0002 * (knots[i] - 43800.0) * (knots[i] - 43800.0)};
             LOG_DEBUG(<< "expected = " << expectedValue << ", value = " << values[i]);
             BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedValue, values[i], 50000.0);
@@ -434,7 +434,7 @@ BOOST_FIXTURE_TEST_CASE(testKnots, CTestFixture) {
 
         TMeanAccumulator meanError;
         TMeanAccumulator meanVariance;
-        for (std::size_t i = 0u; i < knots.size(); ++i) {
+        for (std::size_t i = 0; i < knots.size(); ++i) {
             double expectedVariance{0.001 * (static_cast<double>(knots[i]) - 43800.0) *
                                     (static_cast<double>(knots[i]) - 43800.0) / 86400};
             LOG_DEBUG(<< "expected = " << expectedVariance
@@ -462,7 +462,7 @@ BOOST_FIXTURE_TEST_CASE(testPersist, CTestFixture) {
 
     bucketing.initialize(10);
     for (std::size_t p = 0; p < 10; ++p) {
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             core_t::TTime t{static_cast<core_t::TTime>(p * 86400 + 864 * i)};
             if (bucketing.feature().inWindow(t)) {
                 double y{0.02 * (static_cast<double>(i) - 50.0) *

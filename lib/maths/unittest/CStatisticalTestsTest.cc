@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(testCramerVonMises) {
 
     double averageMeanError = 0.0;
 
-    for (std::size_t i = 0u; i < boost::size(n); ++i) {
+    for (std::size_t i = 0; i < boost::size(n); ++i) {
         LOG_DEBUG(<< "*** n = " << n[i] << " ***");
         {
             LOG_DEBUG(<< "N(" << 5.0 << "," << std::sqrt(2.0) << ")");
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(testCramerVonMises) {
             boost::math::normal_distribution<> normal(5.0, std::sqrt(2.0));
 
             TDoubleVec p;
-            for (std::size_t j = 0u; j < samples.size() / n[i]; ++j) {
+            for (std::size_t j = 0; j < samples.size() / n[i]; ++j) {
                 maths::CStatisticalTests::CCramerVonMises cvm(n[i] - 1);
                 for (std::size_t k = n[i] * j; k < n[i] * (j + 1); ++k) {
                     cvm.addF(boost::math::cdf(normal, samples[k]));
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(testCramerVonMises) {
             boost::math::lognormal_distribution<> lognormal(2.0, 1.0);
 
             TDoubleVec p;
-            for (std::size_t j = 0u; j < samples.size() / n[i]; ++j) {
+            for (std::size_t j = 0; j < samples.size() / n[i]; ++j) {
                 maths::CStatisticalTests::CCramerVonMises cvm(n[i] - 1);
                 for (std::size_t k = n[i] * j; k < n[i] * (j + 1); ++k) {
                     cvm.addF(boost::math::cdf(lognormal, samples[k]));
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
         maths::CStatisticalTests::CCramerVonMises origCvm(9);
         TDoubleVec p;
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             origCvm.addF(boost::math::cdf(normal, samples[i]));
         }
 

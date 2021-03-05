@@ -122,7 +122,7 @@ void CEventRatePopulationModel::initialize(
 
     if (this->params().s_MultivariateByFields) {
         m_FeatureCorrelatesModels.reserve(featureCorrelatesModels.size());
-        for (std::size_t i = 0u; i < featureCorrelatesModels.size(); ++i) {
+        for (std::size_t i = 0; i < featureCorrelatesModels.size(); ++i) {
             m_FeatureCorrelatesModels.emplace_back(
                 featureCorrelatesModels[i].first,
                 newFeatureCorrelateModelPriors[i].second,
@@ -188,7 +188,7 @@ void CEventRatePopulationModel::acceptPersistInserter(core::CStatePersistInserte
 }
 
 bool CEventRatePopulationModel::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
-    std::size_t i = 0u, j = 0u;
+    std::size_t i = 0u, j = 0;
     do {
         const std::string& name = traverser.name();
         RESTORE(POPULATION_STATE_TAG,
@@ -607,7 +607,7 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
     resultBuilder.attributeProbabilityPrior(&m_AttributeProbabilityPrior);
     resultBuilder.personAttributeProbabilityPrior(&personAttributeProbabilityPrior);
 
-    for (std::size_t i = 0u; i < gatherer.numberFeatures(); ++i) {
+    for (std::size_t i = 0; i < gatherer.numberFeatures(); ++i) {
         model_t::EFeature feature = gatherer.feature(i);
         LOG_TRACE(<< "feature = " << model_t::print(feature));
 
@@ -664,7 +664,7 @@ bool CEventRatePopulationModel::computeProbability(std::size_t pid,
                         pConditional.emplace(cid, pConditionalTemplate).first->second;
                     const auto& influenceValues =
                         CDataGatherer::extractData(featureData[j]).s_InfluenceValues;
-                    for (std::size_t k = 0u; k < influenceValues.size(); ++k) {
+                    for (std::size_t k = 0; k < influenceValues.size(); ++k) {
                         if (const CInfluenceCalculator* influenceCalculator =
                                 this->influenceCalculator(feature, k)) {
                             calculator.plugin(*influenceCalculator);
@@ -769,7 +769,7 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
 
     const TDoubleVec& categories = m_AttributeProbabilityPrior.categories();
     const TDoubleVec& concentrations = m_AttributeProbabilityPrior.concentrations();
-    for (std::size_t i = 0u; i < categories.size(); ++i) {
+    for (std::size_t i = 0; i < categories.size(); ++i) {
         std::size_t cid = static_cast<std::size_t>(categories[i]);
         uint64_t& hash =
             hashes[{std::cref(EMPTY_STRING), std::cref(this->attributeName(cid))}];
@@ -777,7 +777,7 @@ uint64_t CEventRatePopulationModel::checksum(bool includeCurrentBucketStats) con
     }
 
     for (const auto& feature : m_FeatureModels) {
-        for (std::size_t cid = 0u; cid < feature.s_Models.size(); ++cid) {
+        for (std::size_t cid = 0; cid < feature.s_Models.size(); ++cid) {
             if (gatherer.isAttributeActive(cid)) {
                 uint64_t& hash =
                     hashes[{std::cref(EMPTY_STRING), std::cref(gatherer.attributeName(cid))}];

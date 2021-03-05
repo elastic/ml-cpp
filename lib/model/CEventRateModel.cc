@@ -468,7 +468,7 @@ uint64_t CEventRateModel::checksum(bool includeCurrentBucketStats) const {
     TStrCRefUInt64Map hashes;
     const TDoubleVec& categories = m_ProbabilityPrior.categories();
     const TDoubleVec& concentrations = m_ProbabilityPrior.concentrations();
-    for (std::size_t i = 0u; i < categories.size(); ++i) {
+    for (std::size_t i = 0; i < categories.size(); ++i) {
         uint64_t& hash =
             hashes[std::cref(this->personName(static_cast<std::size_t>(categories[i])))];
         hash = maths::CChecksum::calculate(hash, concentrations[i]);
@@ -572,7 +572,7 @@ void CEventRateModel::clearPrunedResources(const TSizeVec& people, const TSizeVe
 
     TDoubleVec categoriesToRemove;
     categoriesToRemove.reserve(people.size());
-    for (std::size_t i = 0u; i < people.size(); ++i) {
+    for (std::size_t i = 0; i < people.size(); ++i) {
         categoriesToRemove.push_back(static_cast<double>(people[i]));
     }
     m_ProbabilityPrior.removeCategories(categoriesToRemove);
@@ -720,7 +720,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
             params.s_Values[i] = TDouble2Vec{
                 model_t::offsetCountToZero(feature, static_cast<double>(data[0]->s_Count)),
                 model_t::offsetCountToZero(feature, static_cast<double>(data[1]->s_Count))};
-            for (std::size_t j = 0u; j < data[0]->s_InfluenceValues.size(); ++j) {
+            for (std::size_t j = 0; j < data[0]->s_InfluenceValues.size(); ++j) {
                 for (const auto& influenceValue : data[0]->s_InfluenceValues[j]) {
                     TStrCRef influence = influenceValue.first;
                     std::size_t match = static_cast<std::size_t>(
@@ -745,7 +745,7 @@ void CEventRateModel::fill(model_t::EFeature feature,
     if (interim && model_t::requiresInterimResultAdjustment(feature)) {
         TDouble2Vec1Vec modes = params.s_Model->correlateModes(
             time, params.s_ComputeProbabilityParams.weights());
-        for (std::size_t i = 0u; i < modes.size(); ++i) {
+        for (std::size_t i = 0; i < modes.size(); ++i) {
             TDouble2Vec& value_ = params.s_Values[i];
             if (!value_.empty()) {
                 TDouble2Vec correction(
