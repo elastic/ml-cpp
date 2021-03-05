@@ -39,11 +39,11 @@ BOOST_AUTO_TEST_CASE(testCorrect) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < boost::size(scales); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j) {
+        for (std::size_t j = 0; j < logp.size(); ++j) {
             if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 equalizer.add(static_cast<int>(i), p);
@@ -53,11 +53,11 @@ BOOST_AUTO_TEST_CASE(testCorrect) {
 
     TDoubleVec raw[3];
     TDoubleVec corrected[3];
-    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < boost::size(scales); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j) {
+        for (std::size_t j = 0; j < logp.size(); ++j) {
             if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 raw[i].push_back(p);
@@ -67,8 +67,8 @@ BOOST_AUTO_TEST_CASE(testCorrect) {
     }
 
     TMeanAccumulator similarityIncrease;
-    for (std::size_t i = 1u, k = 0u; i < 3; ++i) {
-        for (std::size_t j = 0u; j < i; ++j, ++k) {
+    for (std::size_t i = 1u, k = 0; i < 3; ++i) {
+        for (std::size_t j = 0; j < i; ++j, ++k) {
             double increase =
                 maths::CStatisticalTests::twoSampleKS(corrected[i], corrected[j]) /
                 maths::CStatisticalTests::twoSampleKS(raw[i], raw[j]);
@@ -92,11 +92,11 @@ BOOST_AUTO_TEST_CASE(testAge) {
 
     test::CRandomNumbers rng;
 
-    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < boost::size(scales); ++i) {
         TDoubleVec logp;
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j) {
+        for (std::size_t j = 0; j < logp.size(); ++j) {
             if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 equalizer.add(static_cast<int>(i), p);
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(testAge) {
         TMeanAccumulator meanBias;
         TMeanAccumulator meanError;
         double logp = THRESHOLD;
-        for (std::size_t j = 0u; j < 150; ++j, logp += std::log(0.9)) {
+        for (std::size_t j = 0; j < 150; ++j, logp += std::log(0.9)) {
             double p = std::exp(logp);
             double pc = equalizer.correct(i, p);
             double pca = equalizerAged.correct(i, p);
@@ -136,10 +136,10 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     TDoubleVec logp;
     rng.generateGammaSamples(1.0, 3.1, 1000, logp);
 
-    for (std::size_t i = 0u; i < boost::size(scales); ++i) {
+    for (std::size_t i = 0; i < boost::size(scales); ++i) {
         rng.generateGammaSamples(1.0, scales[i], 1000, logp);
 
-        for (std::size_t j = 0u; j < logp.size(); ++j) {
+        for (std::size_t j = 0; j < logp.size(); ++j) {
             if (-logp[j] <= THRESHOLD) {
                 double p = std::exp(-logp[j]);
                 origEqualizer.add(static_cast<int>(i), p);

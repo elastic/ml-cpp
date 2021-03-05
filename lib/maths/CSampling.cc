@@ -73,7 +73,7 @@ void doUniformSample(RNG& rng, TYPE a, TYPE b, std::size_t n, std::vector<TYPE>&
     result.clear();
     result.reserve(n);
     typename SRng<TYPE>::Type uniform(SRng<TYPE>::min(a), SRng<TYPE>::max(b));
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         result.push_back(uniform(rng));
     }
 }
@@ -102,7 +102,7 @@ void doNormalSample(RNG& rng, double mean, double variance, std::size_t n, TDoub
 
     result.reserve(n);
     boost::random::normal_distribution<double> normal(mean, std::sqrt(variance));
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         result.push_back(normal(rng));
     }
 }
@@ -113,7 +113,7 @@ void doChiSquaredSample(RNG& rng, double f, std::size_t n, TDoubleVec& result) {
     result.clear();
     result.reserve(n);
     boost::random::chi_squared_distribution<double> chi2(f);
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         result.push_back(chi2(rng));
     }
 }
@@ -168,7 +168,7 @@ void doCategoricalSampleWithReplacement(RNG& rng,
     } else {
         result.reserve(n);
         boost::random::uniform_real_distribution<> uniform(0.0, probabilities[m - 1]);
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             double u0X{uniform(rng)};
             result.push_back(std::min(
                 static_cast<std::size_t>(std::lower_bound(probabilities.begin(),
@@ -273,7 +273,7 @@ bool doMultivariateNormalSample(RNG& rng,
     LOG_TRACE(<< "mean = " << core::CContainerPrinter::print(mean));
 
     CDenseMatrix<double> C(d, d);
-    for (std::size_t i = 0u; i < d; ++i) {
+    for (std::size_t i = 0; i < d; ++i) {
         C(i, i) = covariance[i][i];
         if (covariance[i].size() < d - i) {
             LOG_ERROR(<< "Bad covariance matrix: "
@@ -295,7 +295,7 @@ bool doMultivariateNormalSample(RNG& rng,
     const auto& U = svd.matrixU();
     TDoubleVec stddevs;
     stddevs.reserve(d);
-    for (std::size_t i = 0u; i < d; ++i) {
+    for (std::size_t i = 0; i < d; ++i) {
         stddevs.push_back(std::sqrt(std::max(S(i), 0.0)));
     }
     LOG_TRACE(<< "Singular values of C = " << S.transpose());
@@ -306,8 +306,8 @@ bool doMultivariateNormalSample(RNG& rng,
     {
         samples.resize(n, mean);
         CDenseVector<double> sample(d);
-        for (std::size_t i = 0u; i < n; ++i) {
-            for (std::size_t j = 0u; j < d; ++j) {
+        for (std::size_t i = 0; i < n; ++i) {
+            for (std::size_t j = 0; j < d; ++j) {
                 if (stddevs[j] == 0.0) {
                     sample(j) = 0.0;
                 } else {
@@ -316,7 +316,7 @@ bool doMultivariateNormalSample(RNG& rng,
                 }
             }
             sample = U * sample;
-            for (std::size_t j = 0u; j < d; ++j) {
+            for (std::size_t j = 0; j < d; ++j) {
                 samples[i][j] += sample(j);
             }
         }
@@ -348,7 +348,7 @@ void doMultivariateNormalSample(RNG& rng,
     const auto& S = svd.singularValues();
     const auto& U = svd.matrixU();
     T stddevs[N] = {};
-    for (std::size_t i = 0u; i < N; ++i) {
+    for (std::size_t i = 0; i < N; ++i) {
         stddevs[i] = std::sqrt(std::max(S(i), 0.0));
     }
 
@@ -375,7 +375,7 @@ void sampleQuantiles(const DISTRIBUTION& distribution, std::size_t n, TDoubleVec
     double dq = 1.0 / static_cast<double>(n);
 
     double a = boost::numeric::bounds<double>::lowest();
-    for (std::size_t i = 1u; i < n; ++i) {
+    for (std::size_t i = 1; i < n; ++i) {
         double q = static_cast<double>(i) * dq;
         double b = boost::math::quantile(distribution, q);
         result.push_back(expectation(distribution, a, b));
@@ -659,7 +659,7 @@ void CSampling::multinomialSampleFast(TDoubleVec& probabilities,
         double p = 1.0;
         std::size_t m = probabilities.size() - 1;
         core::CScopedFastLock scopedLock(ms_Lock);
-        for (std::size_t i = 0u; r > 0 && i < m; ++i) {
+        for (std::size_t i = 0; r > 0 && i < m; ++i) {
             boost::random::binomial_distribution<> binomial(static_cast<int>(r),
                                                             probabilities[i] / p);
             std::size_t ni = static_cast<std::size_t>(binomial(ms_Rng));
@@ -676,7 +676,7 @@ void CSampling::multinomialSampleFast(TDoubleVec& probabilities,
 void CSampling::multinomialSampleStable(TDoubleVec probabilities, std::size_t n, TSizeVec& sample) {
     TSizeVec indices;
     indices.reserve(probabilities.size());
-    for (std::size_t i = 0u; i < probabilities.size(); ++i) {
+    for (std::size_t i = 0; i < probabilities.size(); ++i) {
         indices.push_back(i);
     }
     COrderings::simultaneousSort(probabilities, indices, std::greater<double>());
@@ -686,7 +686,7 @@ void CSampling::multinomialSampleStable(TDoubleVec probabilities, std::size_t n,
     multinomialSampleFast(probabilities, n, sample);
 
     sample.resize(probabilities.size(), 0);
-    for (std::size_t i = 0u; i < sample.size(); /**/) {
+    for (std::size_t i = 0; i < sample.size(); /**/) {
         std::size_t j = indices[i];
         if (i != j) {
             std::swap(sample[i], sample[j]);
@@ -742,7 +742,7 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
     remainders[1].reserve(weights.size());
 
     double totalRemainder = 0.0;
-    for (std::size_t i = 0u; i < weights.size(); ++i) {
+    for (std::size_t i = 0; i < weights.size(); ++i) {
         // We need to re-normalize so that the probabilities sum to one.
         double number = weights[i] * static_cast<double>(n) / totalWeight;
         choices.push_back((number - std::floor(number) < 0.5) ? 0u : 1u);
@@ -758,7 +758,7 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
         LOG_TRACE(<< "ideal choice function = " << core::CContainerPrinter::print(choices));
 
         TDoubleSizePrVec candidates;
-        for (std::size_t i = 0u; i < choices.size(); ++i) {
+        for (std::size_t i = 0; i < choices.size(); ++i) {
             if ((totalRemainder > 0.0 && choices[i] == 0u) ||
                 (totalRemainder < 0.0 && choices[i] == 1u)) {
                 candidates.emplace_back(-std::fabs(remainders[choices[i]][i]), i);
@@ -767,18 +767,18 @@ void CSampling::weightedSample(std::size_t n, const TDoubleVec& weights, TSizeVe
         std::sort(candidates.begin(), candidates.end());
         LOG_TRACE(<< "candidates = " << core::CContainerPrinter::print(candidates));
 
-        for (std::size_t i = 0u;
+        for (std::size_t i = 0;
              i < candidates.size() && std::fabs(totalRemainder) > 0.5; ++i) {
             std::size_t j = candidates[i].second;
             unsigned int choice = choices[j];
-            choices[j] = (choice + 1u) % 2u;
+            choices[j] = (choice + 1u) % 2;
             totalRemainder += remainders[choices[j]][j] - remainders[choice][j];
         }
     }
     LOG_TRACE(<< "choice function = " << core::CContainerPrinter::print(choices));
 
     sampling.reserve(weights.size());
-    for (std::size_t i = 0u; i < weights.size(); ++i) {
+    for (std::size_t i = 0; i < weights.size(); ++i) {
         double number = weights[i] * static_cast<double>(n) / totalWeight;
 
         sampling.push_back(static_cast<std::size_t>(
@@ -835,8 +835,8 @@ void CSampling::sobolSequenceSample(std::size_t dim, std::size_t n, TDoubleVecVe
         boost::random::sobol engine(dim);
         TSobolGenerator gen(engine, boost::uniform_01<double>());
         samples.resize(n, TDoubleVec(dim));
-        for (std::size_t i = 0u; i < n; ++i) {
-            for (std::size_t j = 0u; j < dim; ++j) {
+        for (std::size_t i = 0; i < n; ++i) {
+            for (std::size_t j = 0; j < dim; ++j) {
                 samples[i][j] = gen();
             }
         }

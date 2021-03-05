@@ -506,7 +506,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
         core_t::TTime time{0};
         for (const auto& sample : samples) {
             TDouble10Vec1Vec detrended{TDouble10Vec(3)};
-            for (std::size_t i = 0u; i < sample.size(); ++i) {
+            for (std::size_t i = 0; i < sample.size(); ++i) {
                 trends[i]->addPoint(time, sample[i]);
                 detrended[0][i] = trends[i]->detrend(time, sample[i], 0.0);
             }
@@ -524,7 +524,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
         }
         TDouble2Vec expectedMode(prior.marginalLikelihoodMode(
             maths_t::CUnitWeights::unit<TDouble10Vec>(3)));
-        for (std::size_t i = 0u; i < trends.size(); ++i) {
+        for (std::size_t i = 0; i < trends.size(); ++i) {
             expectedMode[i] += maths::CBasicStatistics::mean(trends[i]->value(time));
         }
         TDouble2Vec mode(model.mode(time, maths_t::CUnitWeights::unit<TDouble2Vec>(3)));
@@ -555,7 +555,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
         core_t::TTime time{0};
         for (auto& sample : samples) {
             double amplitude{10.0};
-            for (std::size_t i = 0u; i < sample.size(); ++i) {
+            for (std::size_t i = 0; i < sample.size(); ++i) {
                 sample[i] += 30.0 + amplitude *
                                         std::sin(boost::math::double_constants::two_pi *
                                                  static_cast<double>(time) / 86400.0);
@@ -592,7 +592,7 @@ BOOST_AUTO_TEST_CASE(testMode) {
         }
         TDouble2Vec expectedMode(prior.marginalLikelihoodMode(
             maths_t::CUnitWeights::unit<TDouble10Vec>(3)));
-        for (std::size_t i = 0u; i < trends.size(); ++i) {
+        for (std::size_t i = 0; i < trends.size(); ++i) {
             expectedMode[i] += maths::CBasicStatistics::mean(trends[i]->value(time));
         }
         TDouble2Vec mode(model.mode(time, maths_t::CUnitWeights::unit<TDouble2Vec>(3)));
@@ -627,7 +627,7 @@ BOOST_AUTO_TEST_CASE(testAddBucketValue) {
         maths_t::countWeight(TDouble2Vec{weights[2]}),
         maths_t::countWeight(TDouble2Vec{weights[3]})};
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         prior.addSamples({samples[i].second[0]}, {maths_t::countWeight(weights[i])});
     }
     prior.propagateForwardsByTime(1.0);
@@ -710,7 +710,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
 
         model.addSamples(addSampleParams(modelWeights), samples);
 
-        for (std::size_t i = 0u; i < trends.size(); ++i) {
+        for (std::size_t i = 0; i < trends.size(); ++i) {
             trends[i]->addPoint(samples[1].first, samples[1].second[i],
                                 maths_t::countWeight(weights[0][i]));
             trends[i]->addPoint(samples[2].first, samples[2].second[i],
@@ -727,7 +727,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
         prior.addSamples(samples_, weights_);
         prior.propagateForwardsByTime(1.0);
 
-        for (std::size_t i = 0u; i < trends.size(); ++i) {
+        for (std::size_t i = 0; i < trends.size(); ++i) {
             uint64_t checksum1{trends[i]->checksum()};
             uint64_t checksum2{model.trendModel()[i]->checksum()};
             LOG_DEBUG(<< "checksum1 = " << checksum1 << " checksum2 = " << checksum2);
@@ -753,12 +753,12 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
         maths_t::setCountVarianceScale(TDouble2Vec{1.1}, weights[0]);
 
         core_t::TTime time{0};
-        for (std::size_t i = 0u; i < 3; ++i) {
+        for (std::size_t i = 0; i < 3; ++i) {
             TTimeDouble2VecSizeTrVec sample{core::make_triple(time, samples[i], TAG)};
             model.addSamples(addSampleParams(interval[i], weights), sample);
 
             TDoubleWeightsAry1Vec weight{maths_t::CUnitWeights::UNIT};
-            for (std::size_t j = 0u; j < weights[0].size(); ++j) {
+            for (std::size_t j = 0; j < weights[0].size(); ++j) {
                 weight[0][j] = weights[0][j][0];
             }
             prior.addSamples(TDouble1Vec(samples[i]), weight);
@@ -791,12 +791,12 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
         maths_t::setCountVarianceScale(TDouble2Vec{2.0, 2.1, 2.2}, weights[0]);
 
         core_t::TTime time{0};
-        for (std::size_t i = 0u; i < 3; ++i) {
+        for (std::size_t i = 0; i < 3; ++i) {
             TTimeDouble2VecSizeTrVec sample{core::make_triple(time, samples[i], TAG)};
             model.addSamples(addSampleParams(interval[i], weights), sample);
 
             TDouble10VecWeightsAry1Vec weight{maths_t::CUnitWeights::unit<TDouble10Vec>(3)};
-            for (std::size_t j = 0u; j < weights[0].size(); ++j) {
+            for (std::size_t j = 0; j < weights[0].size(); ++j) {
                 weight[0][j] = weights[0][j];
             }
             prior.addSamples({TDouble10Vec(samples[i])}, weight);
@@ -894,7 +894,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             TDouble1Vec mean(3);
 
             double amplitude{10.0};
-            for (std::size_t i = 0u; i < sample.size(); ++i) {
+            for (std::size_t i = 0; i < sample.size(); ++i) {
                 sample[i] = 30.0 +
                             amplitude * std::sin(boost::math::double_constants::two_pi *
                                                  static_cast<double>(time) / 86400.0) +
@@ -908,7 +908,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             bool hasTrend{false};
             bool reinitialize{false};
 
-            for (std::size_t i = 0u; i < sample.size(); ++i) {
+            for (std::size_t i = 0; i < sample.size(); ++i) {
                 trends[i]->addPoint(time, sample[i], maths_t::CUnitWeights::UNIT,
                                     [&reinitialize](TFloatMeanAccumulatorVec) {
                                         reinitialize = true;
@@ -936,7 +936,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
             if (prior.numberSamples() > 20.0) {
                 TDouble1Vec prediction(prior.marginalLikelihoodMean());
                 TDouble1Vec predictionError(3);
-                for (std::size_t d = 0u; d < 3; ++d) {
+                for (std::size_t d = 0; d < 3; ++d) {
                     predictionError[d] = detrended[0][d] - prediction[d];
                 }
                 double multiplier{controllers[1].multiplier(
@@ -945,7 +945,7 @@ BOOST_AUTO_TEST_CASE(testAddSamples) {
                 prior.decayRate(multiplier * prior.decayRate());
             }
 
-            for (std::size_t i = 0u; i < trends.size(); ++i) {
+            for (std::size_t i = 0; i < trends.size(); ++i) {
                 uint64_t checksum1{trends[i]->checksum()};
                 uint64_t checksum2{model.trendModel()[i]->checksum()};
                 BOOST_REQUIRE_EQUAL(checksum1, checksum2);
@@ -1103,7 +1103,7 @@ BOOST_AUTO_TEST_CASE(testPredict) {
         for (core_t::TTime time_ = time; time_ < time + 86400; time_ += 3600) {
             maths::CMultivariatePrior::TSize10Vec marginalize{1, 2};
             maths::CMultivariatePrior::TSizeDoublePr10Vec condition;
-            for (std::size_t i = 0u; i < mean.size(); ++i) {
+            for (std::size_t i = 0; i < mean.size(); ++i) {
                 double trend_{mean[i] + 10.0 +
                               10.0 * std::sin(boost::math::double_constants::two_pi *
                                               static_cast<double>(time_) / 86400.0)};
@@ -1144,12 +1144,12 @@ BOOST_AUTO_TEST_CASE(testPredict) {
             TDoubleVecVec samples_;
             rng.generateMultivariateNormalSamples(means[1], covariance, 500, samples_);
             for (const auto& sample : samples) {
-                for (std::size_t i = 0u; i < 3; ++i) {
+                for (std::size_t i = 0; i < 3; ++i) {
                     modes[0][i].add(sample[i]);
                 }
             }
             for (const auto& sample : samples_) {
-                for (std::size_t i = 0u; i < 3; ++i) {
+                for (std::size_t i = 0; i < 3; ++i) {
                     modes[1][i].add(sample[i]);
                 }
             }
@@ -1170,7 +1170,7 @@ BOOST_AUTO_TEST_CASE(testPredict) {
                                maths::CBasicStatistics::mean(modes[1])};
         TDouble2Vec predicted[]{model.predict(time, empty, {0.0, 0.0, 0.0}),
                                 model.predict(time, empty, {10.0, 10.0, 10.0})};
-        for (std::size_t i = 0u; i < 3; ++i) {
+        for (std::size_t i = 0; i < 3; ++i) {
             LOG_DEBUG(<< "expected(0) = " << expected[0][i]
                       << " actual(0) = " << predicted[0][i]);
             LOG_DEBUG(<< "expected(1) = " << expected[1][i]
@@ -1254,7 +1254,7 @@ BOOST_AUTO_TEST_CASE(testProbability) {
                     maths_t::ETail expectedTail[2];
                     {
                         maths_t::TDoubleWeightsAry weight_(maths_t::CUnitWeights::UNIT);
-                        for (std::size_t i = 0u; i < weight.size(); ++i) {
+                        for (std::size_t i = 0; i < weight.size(); ++i) {
                             weight_[i] = weight[i][0];
                         }
                         double lb[2], ub[2];
@@ -1349,7 +1349,7 @@ BOOST_AUTO_TEST_CASE(testProbability) {
                     {
                         maths_t::TDouble10VecWeightsAry weight_(
                             maths_t::CUnitWeights::unit<TDouble10Vec>(3));
-                        for (std::size_t i = 0u; i < weight.size(); ++i) {
+                        for (std::size_t i = 0; i < weight.size(); ++i) {
                             weight_[i] = weight[i];
                         }
                         double lb[2], ub[2];
@@ -1357,7 +1357,7 @@ BOOST_AUTO_TEST_CASE(testProbability) {
                             calculation, {TDouble10Vec(sample)}, {weight_},
                             lb[0], ub[0], expectedTail[0]);
                         TDouble10Vec detrended;
-                        for (std::size_t j = 0u; j < sample.size(); ++j) {
+                        for (std::size_t j = 0; j < sample.size(); ++j) {
                             detrended.push_back(model1.trendModel()[j]->detrend(
                                 time, sample[j], confidence));
                         }
@@ -1381,7 +1381,7 @@ BOOST_AUTO_TEST_CASE(testProbability) {
 
                     BOOST_REQUIRE_EQUAL(expectedProbability[0], results[0].s_Probability);
                     BOOST_REQUIRE_EQUAL(expectedProbability[1], results[1].s_Probability);
-                    for (std::size_t j = 0u; j < 3; ++j) {
+                    for (std::size_t j = 0; j < 3; ++j) {
                         BOOST_REQUIRE_EQUAL(expectedTail[0][j], results[0].s_Tail[j]);
                         BOOST_REQUIRE_EQUAL(expectedTail[1][j], results[1].s_Tail[j]);
                     }

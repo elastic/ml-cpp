@@ -638,7 +638,7 @@ double offsetCountToZero(EFeature feature, double count) {
 }
 
 void offsetCountToZero(EFeature feature, TDouble1Vec& count) {
-    for (std::size_t i = 0u; i < count.size(); ++i) {
+    for (std::size_t i = 0; i < count.size(); ++i) {
         count[i] = offsetCountToZero(feature, count[i]);
     }
 }
@@ -686,7 +686,7 @@ double inverseOffsetCountToZero(EFeature feature, double count) {
 }
 
 void inverseOffsetCountToZero(EFeature feature, TDouble1Vec& count) {
-    for (std::size_t i = 0u; i < count.size(); ++i) {
+    for (std::size_t i = 0; i < count.size(); ++i) {
         count[i] = inverseOffsetCountToZero(feature, count[i]);
     }
 }

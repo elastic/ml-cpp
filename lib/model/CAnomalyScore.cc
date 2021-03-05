@@ -40,8 +40,8 @@ using TDoubleVec = std::vector<double>;
 //! number of valid probabilities.
 template<typename AGGREGATOR>
 std::size_t addProbabilities(const TDoubleVec& probabilities, AGGREGATOR& aggregator) {
-    std::size_t n = 0u;
-    for (std::size_t i = 0u; i < probabilities.size(); ++i) {
+    std::size_t n = 0;
+    for (std::size_t i = 0; i < probabilities.size(); ++i) {
         double p = probabilities[i];
         if (!(p >= 0.0 && p <= 1.0)) {
             LOG_ERROR(<< "Invalid probability " << p);
@@ -555,7 +555,7 @@ bool CAnomalyScore::CNormalizer::updateQuantiles(const CMaximumScoreScope& scope
                 (HIGH_PERCENTILE / 100.0) * static_cast<double>(n) + 0.5);
 
             // Estimate the high percentile score and update the count.
-            std::size_t i = 1u;
+            std::size_t i = 1;
             m_HighPercentileScore = L[0].first;
             m_HighPercentileCount = L[0].second;
             for (/**/; i < L.size(); ++i) {

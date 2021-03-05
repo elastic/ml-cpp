@@ -96,7 +96,7 @@ std::ptrdiff_t nextDifferent(TFloatFloatPrVec& knots, std::size_t index) {
 }
 
 const double EPS = static_cast<double>(std::numeric_limits<float>::epsilon());
-const std::size_t MINIMUM_MAX_SIZE = 3u;
+const std::size_t MINIMUM_MAX_SIZE = 3;
 const core::TPersistenceTag UNSORTED_TAG("a", "unsorted");
 const core::TPersistenceTag KNOTS_TAG("b", "knots");
 const core::TPersistenceTag COUNT_TAG("c", "count");
@@ -350,7 +350,7 @@ bool CQuantileSketch::checkInvariants() const {
         return false;
     }
     double count = 0.0;
-    for (std::size_t i = 0u; i < m_Knots.size(); ++i) {
+    for (std::size_t i = 0; i < m_Knots.size(); ++i) {
         count += m_Knots[i].second;
     }
     if (std::fabs(m_Count - count) > 10.0 * EPS * m_Count) {
@@ -375,7 +375,7 @@ void CQuantileSketch::quantile(EInterpolation interpolation,
 
     double partial = 0.0;
     double cutoff = percentage * count;
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         partial += knots[i].second;
         if (partial >= cutoff - count * EPS) {
             switch (interpolation) {

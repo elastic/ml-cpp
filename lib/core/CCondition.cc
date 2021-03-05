@@ -94,7 +94,7 @@ bool CCondition::convert(uint32_t t, timespec& tm) {
         uint32_t s((remainder * 1000U) + static_cast<uint32_t>(now.tv_usec));
 
         tm.tv_sec = tm.tv_sec + (s / 1000000U);
-        tm.tv_nsec = (s % 1000000U) * 1000U;
+        tm.tv_nsec = (s % 1000000U) * 1000;
     }
 
     return true;

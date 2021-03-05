@@ -1176,7 +1176,7 @@ const TFunctionVec EMPTY_FUNCTIONS;
 //! Add the features corresponding to \p function to \p map.
 void addFeatures(EFunction function, TFeatureFunctionVecMap& map) {
     const TFeatureVec& features = function_t::features(function);
-    for (std::size_t i = 0u; i < features.size(); ++i) {
+    for (std::size_t i = 0; i < features.size(); ++i) {
         map[features[i]].push_back(function);
     }
 }
@@ -1469,7 +1469,7 @@ EFunction mostSpecific(const TFunctionVec& functions) {
 
     EFunction result = functions[0];
     std::size_t numberFeatures = features(functions[0]).size();
-    for (std::size_t i = 1u; i < functions.size(); ++i) {
+    for (std::size_t i = 1; i < functions.size(); ++i) {
         std::size_t n = features(functions[i]).size();
         if (n < numberFeatures) {
             result = functions[i];
@@ -1667,7 +1667,7 @@ EFunction function(const TFeatureVec& features) {
     }
 
     TFunctionVec candidates;
-    std::size_t i = 0u;
+    std::size_t i = 0;
 
     for (/**/; candidates.empty() && i < features.size(); ++i) {
         TFeatureFunctionVecMapCItr functionsItr = FUNCTIONS_BY_FEATURE.find(features[i]);

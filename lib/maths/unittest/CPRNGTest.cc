@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
     // Test min and max.
     maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1> min;
     maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t>> max;
-    for (std::size_t i = 0u; i < 10000; ++i) {
+    for (std::size_t i = 0; i < 10000; ++i) {
         uint64_t x = rng1();
         min.add(x);
         max.add(x);
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
     uint64_t samples1[50] = {0u};
     rng1.generate(&samples1[0], &samples1[50]);
     uint64_t samples2[50] = {0u};
-    for (std::size_t i = 0u; i < 50; ++i) {
+    for (std::size_t i = 0; i < 50; ++i) {
         samples2[i] = rng2();
     }
     BOOST_TEST_REQUIRE(std::equal(&samples1[0], &samples1[50], &samples2[0]));
@@ -59,10 +59,10 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
         double p2[50] = {0.0};
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m1;
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m2;
-        for (std::size_t t = 0u; t < 50; ++t) {
+        for (std::size_t t = 0; t < 50; ++t) {
             maths::CStatisticalTests::CCramerVonMises cvm1(50);
             maths::CStatisticalTests::CCramerVonMises cvm2(50);
-            for (std::size_t i = 0u; i < 5000; ++i) {
+            for (std::size_t i = 0; i < 5000; ++i) {
                 cvm1.addF(u01(rng1));
                 cvm2.addF(u01(mt));
             }
@@ -85,10 +85,10 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
         double p2[50] = {0.0};
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m1;
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m2;
-        for (std::size_t t = 0u; t < 50; ++t) {
+        for (std::size_t t = 0; t < 50; ++t) {
             maths::CStatisticalTests::CCramerVonMises cvm1(50);
             maths::CStatisticalTests::CCramerVonMises cvm2(50);
-            for (std::size_t i = 0u; i < 5000; ++i) {
+            for (std::size_t i = 0; i < 5000; ++i) {
                 cvm1.addF(boost::math::cdf(n410, norm(rng1)));
                 cvm2.addF(boost::math::cdf(n410, norm(mt)));
             }
@@ -108,10 +108,10 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
     // Test discard.
     maths::CPRNG::CSplitMix64 rng3 = rng1;
     rng1.discard(10);
-    for (std::size_t i = 0u; i < 10; ++i) {
+    for (std::size_t i = 0; i < 10; ++i) {
         rng3();
     }
-    for (std::size_t t = 0u; t < 500; ++t) {
+    for (std::size_t t = 0; t < 500; ++t) {
         BOOST_REQUIRE_EQUAL(rng1(), rng3());
     }
 
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE(testSplitMix64) {
     LOG_DEBUG(<< "state = " << state);
     maths::CPRNG::CSplitMix64 rng4;
     BOOST_TEST_REQUIRE(rng4.fromString(state));
-    for (std::size_t t = 0u; t < 500; ++t) {
+    for (std::size_t t = 0; t < 500; ++t) {
         BOOST_REQUIRE_EQUAL(rng1(), rng4());
     }
 }
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
     // Test min and max.
     maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1> min;
     maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t>> max;
-    for (std::size_t i = 0u; i < 10000; ++i) {
+    for (std::size_t i = 0; i < 10000; ++i) {
         uint64_t x = rng1();
         min.add(x);
         max.add(x);
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
     uint64_t samples1[50] = {0u};
     rng1.generate(&samples1[0], &samples1[50]);
     uint64_t samples2[50] = {0u};
-    for (std::size_t i = 0u; i < 50; ++i) {
+    for (std::size_t i = 0; i < 50; ++i) {
         samples2[i] = rng2();
     }
     BOOST_TEST_REQUIRE(std::equal(&samples1[0], &samples1[50], &samples2[0]));
@@ -165,10 +165,10 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
         double p2[50] = {0.0};
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m1;
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m2;
-        for (std::size_t t = 0u; t < 50; ++t) {
+        for (std::size_t t = 0; t < 50; ++t) {
             maths::CStatisticalTests::CCramerVonMises cvm1(50);
             maths::CStatisticalTests::CCramerVonMises cvm2(50);
-            for (std::size_t i = 0u; i < 5000; ++i) {
+            for (std::size_t i = 0; i < 5000; ++i) {
                 cvm1.addF(u01(rng1));
                 cvm2.addF(u01(mt));
             }
@@ -191,10 +191,10 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
         double p2[50] = {0.0};
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m1;
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m2;
-        for (std::size_t t = 0u; t < 50; ++t) {
+        for (std::size_t t = 0; t < 50; ++t) {
             maths::CStatisticalTests::CCramerVonMises cvm1(50);
             maths::CStatisticalTests::CCramerVonMises cvm2(50);
-            for (std::size_t i = 0u; i < 5000; ++i) {
+            for (std::size_t i = 0; i < 5000; ++i) {
                 cvm1.addF(boost::math::cdf(nm44, norm(rng1)));
                 cvm2.addF(boost::math::cdf(nm44, norm(mt)));
             }
@@ -214,10 +214,10 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
     // Test discard.
     maths::CPRNG::CXorOShiro128Plus rng3 = rng1;
     rng1.discard(10);
-    for (std::size_t i = 0u; i < 10; ++i) {
+    for (std::size_t i = 0; i < 10; ++i) {
         rng3();
     }
-    for (std::size_t t = 0u; t < 500; ++t) {
+    for (std::size_t t = 0; t < 500; ++t) {
         BOOST_REQUIRE_EQUAL(rng1(), rng3());
     }
 
@@ -228,12 +228,12 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
     maths::CPRNG::CXorOShiro128Plus rng4(rng1);
     maths::CPRNG::CXorOShiro128Plus rng5(rng1);
     std::size_t steps[] = {10, 3, 19};
-    for (std::size_t s = 0u; s < boost::size(steps); ++s) {
+    for (std::size_t s = 0; s < boost::size(steps); ++s) {
         rng4.jump();
         rng4.discard(steps[s]);
         rng5.discard(steps[s]);
         rng5.jump();
-        for (std::size_t t = 0u; t < 20; ++t) {
+        for (std::size_t t = 0; t < 20; ++t) {
             BOOST_REQUIRE_EQUAL(rng4(), rng5());
         }
     }
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(testXorOShiro128Plus) {
     std::string state = rng1.toString();
     LOG_DEBUG(<< "state = " << state);
     BOOST_TEST_REQUIRE(rng4.fromString(state));
-    for (std::size_t t = 0u; t < 500; ++t) {
+    for (std::size_t t = 0; t < 500; ++t) {
         BOOST_REQUIRE_EQUAL(rng1(), rng4());
     }
 }
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
     // Test min and max.
     maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1> min;
     maths::CBasicStatistics::COrderStatisticsStack<uint64_t, 1, std::greater<uint64_t>> max;
-    for (std::size_t i = 0u; i < 10000; ++i) {
+    for (std::size_t i = 0; i < 10000; ++i) {
         uint64_t x = rng1();
         min.add(x);
         max.add(x);
@@ -275,7 +275,7 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
     uint64_t samples1[50] = {0u};
     rng1.generate(&samples1[0], &samples1[50]);
     uint64_t samples2[50] = {0u};
-    for (std::size_t i = 0u; i < 50; ++i) {
+    for (std::size_t i = 0; i < 50; ++i) {
         samples2[i] = rng2();
     }
     BOOST_TEST_REQUIRE(std::equal(&samples1[0], &samples1[50], &samples2[0]));
@@ -287,10 +287,10 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
         double p2[50] = {0.0};
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m1;
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m2;
-        for (std::size_t t = 0u; t < 50; ++t) {
+        for (std::size_t t = 0; t < 50; ++t) {
             maths::CStatisticalTests::CCramerVonMises cvm1(50);
             maths::CStatisticalTests::CCramerVonMises cvm2(50);
-            for (std::size_t i = 0u; i < 5000; ++i) {
+            for (std::size_t i = 0; i < 5000; ++i) {
                 cvm1.addF(u01(rng1));
                 cvm2.addF(u01(mt));
             }
@@ -313,10 +313,10 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
         double p2[50] = {0.0};
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m1;
         maths::CBasicStatistics::SSampleMean<double>::TAccumulator m2;
-        for (std::size_t t = 0u; t < 50; ++t) {
+        for (std::size_t t = 0; t < 50; ++t) {
             maths::CStatisticalTests::CCramerVonMises cvm1(50);
             maths::CStatisticalTests::CCramerVonMises cvm2(50);
-            for (std::size_t i = 0u; i < 5000; ++i) {
+            for (std::size_t i = 0; i < 5000; ++i) {
                 cvm1.addF(boost::math::cdf(n1008000, norm(rng1)));
                 cvm2.addF(boost::math::cdf(n1008000, norm(mt)));
             }
@@ -336,10 +336,10 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
     // Test discard.
     maths::CPRNG::CXorShift1024Mult rng3 = rng1;
     rng1.discard(10);
-    for (std::size_t i = 0u; i < 10; ++i) {
+    for (std::size_t i = 0; i < 10; ++i) {
         rng3();
     }
-    for (std::size_t t = 0u; t < 500; ++t) {
+    for (std::size_t t = 0; t < 500; ++t) {
         BOOST_REQUIRE_EQUAL(rng1(), rng3());
     }
 
@@ -350,12 +350,12 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
     maths::CPRNG::CXorShift1024Mult rng4(rng1);
     maths::CPRNG::CXorShift1024Mult rng5(rng1);
     std::size_t steps[] = {10, 3, 19};
-    for (std::size_t s = 0u; s < boost::size(steps); ++s) {
+    for (std::size_t s = 0; s < boost::size(steps); ++s) {
         rng4.jump();
         rng4.discard(steps[s]);
         rng5.discard(steps[s]);
         rng5.jump();
-        for (std::size_t t = 0u; t < 20; ++t) {
+        for (std::size_t t = 0; t < 20; ++t) {
             BOOST_REQUIRE_EQUAL(rng4(), rng5());
         }
     }
@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE(testXorShift1024Mult) {
     std::string state = rng1.toString();
     LOG_DEBUG(<< "state = " << state);
     BOOST_TEST_REQUIRE(rng4.fromString(state));
-    for (std::size_t t = 0u; t < 500; ++t) {
+    for (std::size_t t = 0; t < 500; ++t) {
         BOOST_REQUIRE_EQUAL(rng1(), rng4());
     }
 }

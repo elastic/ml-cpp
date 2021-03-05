@@ -42,8 +42,8 @@ void CRandomNumbers::generateMultivariateNormalSamples(const TDoubleVec& mean,
     std::size_t d = covariances_.size();
 
     Eigen::MatrixXd covariances(d, d);
-    for (std::size_t i = 0u; i < d; ++i) {
-        for (std::size_t j = 0u; j < d; ++j) {
+    for (std::size_t i = 0; i < d; ++i) {
+        for (std::size_t j = 0; j < d; ++j) {
             covariances(i, j) = covariances_[i][j];
         }
     }
@@ -53,20 +53,20 @@ void CRandomNumbers::generateMultivariateNormalSamples(const TDoubleVec& mean,
     std::size_t r = static_cast<std::size_t>(svd.rank());
 
     TDoubleVecVec residuals(r);
-    for (std::size_t i = 0u; i < r; ++i) {
+    for (std::size_t i = 0; i < r; ++i) {
         this->generateNormalSamples(0.0, svd.singularValues()(i), numberSamples,
                                     residuals[i]);
     }
 
     Eigen::VectorXd ri(d);
     TDoubleVec xi(d, 0.0);
-    for (std::size_t i = 0u; i < numberSamples; ++i) {
-        for (std::size_t j = 0u; j < r; ++j) {
+    for (std::size_t i = 0; i < numberSamples; ++i) {
+        for (std::size_t j = 0; j < r; ++j) {
             ri(j) = j < r ? residuals[j][i] : 0.0;
         }
         ri = svd.matrixU() * ri;
 
-        for (std::size_t j = 0u; j < r; ++j) {
+        for (std::size_t j = 0; j < r; ++j) {
             xi[j] = mean[j] + ri(j);
         }
         samples.push_back(xi);
@@ -138,7 +138,7 @@ void CRandomNumbers::generateMultinomialSamples(const TDoubleVec& categories,
                      std::back_inserter(transform));
 
     // Map the samples to categories.
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         std::size_t j = std::lower_bound(transform.begin(), transform.end(), samples[i]) -
                         transform.begin();
         if (j == transform.size()) {
@@ -157,18 +157,18 @@ void CRandomNumbers::generateDirichletSamples(const TDoubleVec& concentrations,
     for (std::size_t i = 0; i < concentrations.size(); ++i) {
         TDoubleVec raw;
         generateGammaSamples(concentrations[i], 1.0, numberSamples, raw);
-        for (std::size_t j = 0u; j < numberSamples; ++j) {
+        for (std::size_t j = 0; j < numberSamples; ++j) {
             samples[j].reserve(concentrations.size());
             samples[j].push_back(raw[j]);
         }
     }
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         double normalizer = 0.0;
-        for (std::size_t j = 0u; j < concentrations.size(); ++j) {
+        for (std::size_t j = 0; j < concentrations.size(); ++j) {
             normalizer += samples[i][j];
         }
-        for (std::size_t j = 0u; j < samples[i].size(); ++j) {
+        for (std::size_t j = 0; j < samples[i].size(); ++j) {
             samples[i][j] /= normalizer;
         }
     }
@@ -183,10 +183,10 @@ void CRandomNumbers::generateWords(std::size_t length, std::size_t numberSamples
     boost::random::uniform_int_distribution<size_t> uniform(0u, boost::size(characterSet) - 1);
 
     samples.resize(numberSamples);
-    for (std::size_t i = 0u; i < numberSamples; ++i) {
+    for (std::size_t i = 0; i < numberSamples; ++i) {
         std::string& word = samples[i];
         word.resize(length);
-        for (std::size_t j = 0u; j < length; ++j) {
+        for (std::size_t j = 0; j < length; ++j) {
             word[j] = characterSet[uniform(m_Generator)];
         }
     }

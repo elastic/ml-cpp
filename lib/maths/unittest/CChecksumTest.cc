@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(testContainers) {
     {
         boost::unordered_set<double> a;
         std::set<double> b;
-        for (std::size_t i = 0u; i < boost::size(values); ++i) {
+        for (std::size_t i = 0; i < boost::size(values); ++i) {
             a.insert(values[i]);
             b.insert(values[i]);
         }
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(testContainers) {
     {
         boost::unordered_map<std::string, double> a;
         std::map<std::string, double> b;
-        for (std::size_t i = 0u; i < boost::size(keys); ++i) {
+        for (std::size_t i = 0; i < boost::size(keys); ++i) {
             a.insert(std::make_pair(keys[i], values[i]));
             b.insert(std::make_pair(keys[i], values[i]));
         }

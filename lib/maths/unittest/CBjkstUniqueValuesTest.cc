@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(testTrailingZeros) {
     CRandomNumbers rng;
     rng.generateUniformSamples(0.0, std::numeric_limits<uint32_t>::max(), 10000, samples);
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         uint32_t sample = static_cast<uint32_t>(samples[i]);
         BOOST_REQUIRE_EQUAL(trailingZeros(sample),
                             CBjkstUniqueValues::trailingZeros(sample));
@@ -59,16 +59,16 @@ BOOST_AUTO_TEST_CASE(testTrailingZeros) {
 BOOST_AUTO_TEST_CASE(testNumber) {
     // Test the approximation errors.
 
-    const std::size_t numberTests = 1000u;
+    const std::size_t numberTests = 1000;
 
     CRandomNumbers rng;
 
     double totalError5 = 0.0;
-    std::size_t largeError5Count = 0u;
+    std::size_t largeError5Count = 0;
     double totalError6 = 0.0;
-    std::size_t largeError6Count = 0u;
+    std::size_t largeError6Count = 0;
 
-    for (std::size_t i = 0u; i < numberTests; ++i) {
+    for (std::size_t i = 0; i < numberTests; ++i) {
         CBjkstUniqueValues approxUniqueValues5(5, 60);
         CBjkstUniqueValues approxUniqueValues6(6, 60);
         TUInt32Set uniqueValues;
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE(testNumber) {
         TDoubleVec samples;
         rng.generateUniformSamples(0.0, 20000.0, 500u + i, samples);
 
-        for (std::size_t j = 0u; j < 2 * samples.size(); ++j) {
+        for (std::size_t j = 0; j < 2 * samples.size(); ++j) {
             uint32_t sample = static_cast<uint32_t>(samples[j % samples.size()]);
             approxUniqueValues5.add(sample);
             approxUniqueValues6.add(sample);
@@ -132,20 +132,20 @@ BOOST_AUTO_TEST_CASE(testRemove) {
     TSizeVec categories;
     rng.generateUniformSamples(0, 50000, 1000, categories);
 
-    std::size_t numberTests = 500u;
+    std::size_t numberTests = 500;
     TSizeVec toRemove;
     rng.generateUniformSamples(100, 500, numberTests, toRemove);
 
     TMeanAccumulator meanRelativeErrorBeforeRemove;
     TMeanAccumulator meanRelativeErrorAfterRemove;
 
-    for (std::size_t t = 0u; t < numberTests; ++t) {
+    for (std::size_t t = 0; t < numberTests; ++t) {
         if (t % 10 == 0) {
             LOG_DEBUG(<< "*** test = " << t + 1 << " ***");
         }
         maths::CBjkstUniqueValues sketch(2, 150);
         TUInt32Set unique;
-        for (std::size_t i = 0u; i < categories.size(); ++i) {
+        for (std::size_t i = 0; i < categories.size(); ++i) {
             uint32_t category = static_cast<uint32_t>(categories[i]);
             sketch.add(category);
             unique.insert(category);
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE(testRemove) {
                                           static_cast<double>(unique.size()));
 
         rng.random_shuffle(categories.begin(), categories.end());
-        for (std::size_t i = 0u; i < toRemove[t]; ++i) {
+        for (std::size_t i = 0; i < toRemove[t]; ++i) {
             uint32_t category = static_cast<uint32_t>(categories[i]);
             sketch.remove(category);
             unique.erase(category);
@@ -204,16 +204,16 @@ BOOST_AUTO_TEST_CASE(testSwap) {
     maths::CBjkstUniqueValues sketch2(2, 110);
     maths::CBjkstUniqueValues sketch3(3, 120);
     maths::CBjkstUniqueValues sketch4(2, 180);
-    for (std::size_t i = 0u; i < categories1.size(); ++i) {
+    for (std::size_t i = 0; i < categories1.size(); ++i) {
         sketch1.add(static_cast<uint32_t>(categories1[i]));
     }
-    for (std::size_t i = 0u; i < categories2.size(); ++i) {
+    for (std::size_t i = 0; i < categories2.size(); ++i) {
         sketch2.add(static_cast<uint32_t>(categories2[i]));
     }
-    for (std::size_t i = 0u; i < categories3.size(); ++i) {
+    for (std::size_t i = 0; i < categories3.size(); ++i) {
         sketch3.add(static_cast<uint32_t>(categories3[i]));
     }
-    for (std::size_t i = 0u; i < categories4.size(); ++i) {
+    for (std::size_t i = 0; i < categories4.size(); ++i) {
         sketch4.add(static_cast<uint32_t>(categories4[i]));
     }
 
@@ -261,7 +261,7 @@ BOOST_AUTO_TEST_CASE(testSmall) {
 
     maths::CBjkstUniqueValues sketch(3, 100);
     TUInt32Set unique;
-    for (std::size_t i = 0u; i < 100; ++i) {
+    for (std::size_t i = 0; i < 100; ++i) {
         uint32_t category = static_cast<uint32_t>(categories[i]);
         sketch.add(category);
         unique.insert(category);
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE(testSmall) {
     }
 
     LOG_DEBUG(<< "# categories = " << sketch.number());
-    for (std::size_t i = 100u; i < categories.size(); ++i) {
+    for (std::size_t i = 100; i < categories.size(); ++i) {
         uint32_t category = static_cast<uint32_t>(categories[i]);
         sketch.add(category);
         unique.insert(category);
@@ -297,7 +297,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     rng.generateUniformSamples(0, 50000, 1000, categories);
 
     maths::CBjkstUniqueValues origSketch(2, 100);
-    for (std::size_t i = 0u; i < 100; ++i) {
+    for (std::size_t i = 0; i < 100; ++i) {
         origSketch.add(static_cast<uint32_t>(categories[i]));
     }
 
@@ -328,7 +328,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
         BOOST_REQUIRE_EQUAL(origXml, newXml);
     }
 
-    for (std::size_t i = 100u; i < categories.size(); ++i) {
+    for (std::size_t i = 100; i < categories.size(); ++i) {
         origSketch.add(static_cast<uint32_t>(categories[i]));
     }
 

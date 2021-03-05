@@ -325,7 +325,7 @@ protected:
                 m_Clusters[i].cost(COST(bestClusterPoints[0]).calculate());
                 m_Clusters[i].centre(bestClusterCentres[0]);
                 m_Clusters[i].points(bestClusterPoints[0]);
-                for (std::size_t j = 1u; j < bestClusterCentres.size(); ++j) {
+                for (std::size_t j = 1; j < bestClusterCentres.size(); ++j) {
                     m_Clusters.push_back(CCluster());
                     m_Clusters.back().cost(COST(bestClusterPoints[j]).calculate());
                     m_Clusters.back().centre(bestClusterCentres[j]);

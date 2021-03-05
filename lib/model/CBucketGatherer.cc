@@ -286,7 +286,7 @@ bool CBucketGatherer::addEventData(CEventData& data) {
         }
 
         TStoredStringPtrVec canonicalInfluences(influencerCounts.size());
-        for (std::size_t i = 0u; i < influences.size(); ++i) {
+        for (std::size_t i = 0; i < influences.size(); ++i) {
             const CEventData::TOptionalStr& influence = influences[i];
             if (influence) {
                 const auto& inf = CStringStore::influencers().get(*influence);

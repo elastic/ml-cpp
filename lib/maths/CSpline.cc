@@ -164,12 +164,12 @@ bool solvePeturbedTridiagonal(const TDoubleVec& a,
     // Apply the correction.
     double vx = 0.0;
     double vu = 0.0;
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         vx += v[i] * x[i];
         vu += v[i] * u[i];
     }
     double delta = vx / (1.0 + vu);
-    for (std::size_t i = 0u; i < n; ++i) {
+    for (std::size_t i = 0; i < n; ++i) {
         x[i] -= delta * u[i];
     }
 

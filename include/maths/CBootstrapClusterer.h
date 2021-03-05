@@ -178,7 +178,7 @@ protected:
         void initializeQueue() {
             s_Queue.clear();
             s_Queue.reserve(s_ToVisit.size());
-            for (std::size_t i = 0u; i < s_ToVisit.size(); ++i) {
+            for (std::size_t i = 0; i < s_ToVisit.size(); ++i) {
                 s_Queue.push_back(std::make_pair(s_Adjacency[s_ToVisit[i]], i));
             }
             std::make_heap(s_Queue.begin(), s_Queue.end(), std::less<TDoubleSizePr>());
@@ -237,21 +237,21 @@ protected:
         sampling.reserve(n);
         bootstrapPoints.reserve(n);
 
-        for (std::size_t i = 1u; i < b; ++i) {
+        for (std::size_t i = 1; i < b; ++i) {
             sampling.clear();
             CSampling::uniformSample(m_Rng, 0, n, n, sampling);
             std::sort(sampling.begin(), sampling.end());
             LOG_TRACE(<< "# samples = " << sampling.size());
 
             bootstrapPoints.clear();
-            for (std::size_t j = 0u; j < n; ++j) {
+            for (std::size_t j = 0; j < n; ++j) {
                 bootstrapPoints.push_back(points[sampling[j]]);
             }
 
             result.push_back(TSizeVecVec());
             clusterer.cluster(bootstrapPoints, result.back());
-            for (std::size_t j = 0u; j < result.back().size(); ++j) {
-                for (std::size_t k = 0u; k < (result.back())[j].size(); ++k) {
+            for (std::size_t j = 0; j < result.back().size(); ++j) {
+                for (std::size_t k = 0; k < (result.back())[j].size(); ++k) {
                     (result.back())[j][k] = sampling[(result.back())[j][k]];
                 }
             }
@@ -260,8 +260,8 @@ protected:
 
         m_Offsets.clear();
         m_Offsets.resize(result.size());
-        std::size_t k = 0u;
-        for (std::size_t i = 0u; i < result.size(); ++i) {
+        std::size_t k = 0;
+        for (std::size_t i = 0; i < result.size(); ++i) {
             m_Offsets[i] = k;
             k += result[i].size();
         }
@@ -290,8 +290,8 @@ protected:
         // clusters.
         TSizeSizePrUSet ambiguous;
 
-        for (std::size_t i = 0u; i < bootstrapClusters.size(); ++i) {
-            for (std::size_t j = 0u; j < bootstrapClusters[i].size(); ++j) {
+        for (std::size_t i = 0; i < bootstrapClusters.size(); ++i) {
+            for (std::size_t j = 0; j < bootstrapClusters[i].size(); ++j) {
                 std::sort(bootstrapClusters[i][j].begin(),
                           bootstrapClusters[i][j].end());
             }
@@ -299,13 +299,13 @@ protected:
         TSizeVec cik;
         cik.reserve(points.size());
         TDoubleVec overlaps;
-        for (std::size_t i = 0u; i < bootstrapClusters.size(); ++i) {
-            for (std::size_t j = 0u; j < bootstrapClusters.size(); ++j) {
+        for (std::size_t i = 0; i < bootstrapClusters.size(); ++i) {
+            for (std::size_t j = 0; j < bootstrapClusters.size(); ++j) {
                 if (i == j) {
                     continue;
                 }
 
-                for (std::size_t k = 0u; k < bootstrapClusters[i].size(); ++k) {
+                for (std::size_t k = 0; k < bootstrapClusters[i].size(); ++k) {
                     cik = bootstrapClusters[i][k];
                     cik.erase(std::unique(cik.begin(), cik.end()), cik.end());
                     double nik = static_cast<double>(cik.size());
@@ -313,7 +313,7 @@ protected:
                     overlaps.clear();
                     double sum = 0.0;
 
-                    for (std::size_t l = 0u;
+                    for (std::size_t l = 0;
                          !cik.empty() && l < bootstrapClusters[j].size(); ++l) {
                         const TSizeVec& cjl = bootstrapClusters[j][l];
                         double o = static_cast<double>(cik.size());
@@ -327,7 +327,7 @@ protected:
                     if (sum == 0.0) {
                         ambiguous.insert(std::make_pair(this->toVertex(i, k), j));
                     } else {
-                        for (std::size_t l = 0u; l < overlaps.size(); ++l) {
+                        for (std::size_t l = 0; l < overlaps.size(); ++l) {
                             if (overlaps[l] > m_OverlapThreshold * sum) {
                                 std::size_t u = this->toVertex(i, k);
                                 std::size_t v = this->toVertex(j, l);
@@ -373,7 +373,7 @@ protected:
                              consistent.end());
             LOG_TRACE(<< "consistent = " << core::CContainerPrinter::print(consistent));
 
-            for (std::size_t k = 0u; k < consistent.size(); ++k) {
+            for (std::size_t k = 0; k < consistent.size(); ++k) {
                 boost::put(boost::edge_weight, graph,
                            boost::add_edge(u, consistent[k].second, graph).first,
                            consistent[k].first);
@@ -412,10 +412,10 @@ protected:
 
         // Build a map from voters to point indices.
         TSizeSizeUMapVec voters(n);
-        for (std::size_t i = 0u; i < components.size(); ++i) {
+        for (std::size_t i = 0; i < components.size(); ++i) {
             TSizeSizeUMap& cluster = voters[components[i]];
             const TSizeVec& vertex = this->fromVertex(bootstrapClusters, i);
-            for (std::size_t j = 0u; j < vertex.size(); ++j) {
+            for (std::size_t j = 0; j < vertex.size(); ++j) {
                 ++cluster[vertex[j]];
             }
         }
@@ -423,11 +423,11 @@ protected:
         // Extract clusters via majority vote.
         result.clear();
         result.resize(voters.size());
-        for (std::size_t i = 0u; i < points.size(); ++i) {
-            std::size_t jmax = 0u;
-            std::size_t cmax = 0u;
-            std::size_t nmax = 0u;
-            for (std::size_t j = 0u; j < n; ++j) {
+        for (std::size_t i = 0; i < points.size(); ++i) {
+            std::size_t jmax = 0;
+            std::size_t cmax = 0;
+            std::size_t nmax = 0;
+            for (std::size_t j = 0; j < n; ++j) {
                 TSizeSizeUMapCItr k = voters[j].find(i);
                 if (k == voters[j].end()) {
                     continue;
@@ -472,12 +472,12 @@ protected:
         TBoolVec parities(V);
         TGraph component(1);
 
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             LOG_TRACE(<< "component = " << i);
 
             // Extract the component vertices.
             inverse.clear();
-            for (std::size_t j = 0u; j < V; ++j) {
+            for (std::size_t j = 0; j < V; ++j) {
                 if (components[j] == i) {
                     inverse.push_back(j);
                     mapping[j] = inverse.size() - 1;
@@ -500,7 +500,7 @@ protected:
                 LOG_TRACE(<< "parities = "
                           << core::CContainerPrinter::print(parities.begin(),
                                                             parities.begin() + Vi));
-                for (std::size_t j = 0u; j < Vi; ++j) {
+                for (std::size_t j = 0; j < Vi; ++j) {
                     if (parities[j]) {
                         components[inverse[j]] = n;
                     }
@@ -534,7 +534,7 @@ protected:
         result.assign(V, true);
 
         std::size_t D = V;
-        for (std::size_t i = 0u; i < V; ++i) {
+        for (std::size_t i = 0; i < V; ++i) {
             D = std::min(D, boost::out_degree(i, graph));
         }
         TDoubleVec weights;
@@ -563,10 +563,10 @@ protected:
         // fewer than D + 1 vertices.
         double bound = std::numeric_limits<double>::max();
         std::sort(weights.begin(), weights.end());
-        for (std::size_t i = 1u; i < weights.size(); ++i) {
+        for (std::size_t i = 1; i < weights.size(); ++i) {
             weights[i] += weights[i - 1];
         }
-        for (std::size_t i = 1u; i <= V / 2 + 1; ++i) {
+        for (std::size_t i = 1; i <= V / 2 + 1; ++i) {
             std::size_t C = std::max(
                 i * (D - std::min(D, i - 1)),
                 (i * (V - i)) - std::min(i * (V - i), (V * (V - 1)) / 2 - E));
@@ -585,10 +585,10 @@ protected:
 
         TSizeSizePrVec cut;
         TSizeSizePrVec newCut;
-        for (std::size_t i = 0u; i < seeds.size(); ++i) {
+        for (std::size_t i = 0; i < seeds.size(); ++i) {
             if (cut.empty()) {
                 TEdgeItr seed = boost::edges(graph).first;
-                for (std::size_t j = 0u;
+                for (std::size_t j = 0;
                      j < static_cast<std::size_t>(seeds[i] * static_cast<double>(E));
                      ++j, ++seed) {
                 }
@@ -685,7 +685,7 @@ protected:
 
                 // Find the smallest component.
                 TSizeVec sizes(c, 0);
-                for (std::size_t i = 0u; i < components.size(); ++i) {
+                for (std::size_t i = 0; i < components.size(); ++i) {
                     if (parities[i]) {
                         ++sizes[components[i]];
                     }
@@ -697,7 +697,7 @@ protected:
 
                 // Add all its vertices to the "to visit" set.
                 std::size_t n = state.s_ToVisit.size();
-                for (std::size_t i = 0u; i < components.size(); ++i) {
+                for (std::size_t i = 0; i < components.size(); ++i) {
                     if (parities[i] && components[i] == smallest && !state.toVisit(i)) {
                         state.s_ToVisit.push_back(i);
                     }
@@ -705,7 +705,7 @@ protected:
 
                 state.mergeAfter(n);
 
-                for (std::size_t i = 0u; i < components.size(); ++i) {
+                for (std::size_t i = 0; i < components.size(); ++i) {
                     if (parities[i] && components[i] == smallest) {
                         next = state.nextToVisit(i);
                         this->visit(next, graph, parities, state);
@@ -774,7 +774,7 @@ private:
     //! from \p graph into a new graph structure in \p result.
     void copy(const TGraph& graph, const TSizeVec& mapping, const TSizeVec& inverse, TGraph& result) const {
         result = TGraph(inverse.size());
-        for (std::size_t i = 0u; i < inverse.size(); ++i) {
+        for (std::size_t i = 0; i < inverse.size(); ++i) {
             TOutEdgeItr j, end;
             for (boost::tie(j, end) = boost::out_edges(inverse[i], graph); j != end; ++j) {
                 std::size_t u = boost::source(*j, graph);
@@ -795,7 +795,7 @@ private:
     bool findNext(const TBoolVec& parities, const TGraph& graph, SCutState& state) const {
         state.initializeQueue();
         TSizeVec components;
-        for (std::size_t i = 0u; i < state.s_ToVisit.size(); ++i) {
+        for (std::size_t i = 0; i < state.s_ToVisit.size(); ++i) {
             std::size_t candidate = state.next();
             std::size_t v = state.s_ToVisit[candidate];
             const_cast<TBoolVec&>(parities)[v] = false;
@@ -921,13 +921,13 @@ public:
 
         result.resize(clusters.size());
 
-        for (std::size_t i = 0u; i < clusters.size(); ++i) {
+        for (std::size_t i = 0; i < clusters.size(); ++i) {
             const TPointVec& clusterPoints = clusters[i];
 
             result[i].clear();
             result[i].reserve(clusterPoints.size());
 
-            for (std::size_t j = 0u; j < clusterPoints.size(); ++j) {
+            for (std::size_t j = 0; j < clusterPoints.size(); ++j) {
                 std::size_t k = points.size();
                 for (TPointVecCItr l = this->begin(points, clusterPoints[j]),
                                    end = this->end(points, clusterPoints[j]);
@@ -1000,7 +1000,7 @@ public:
 
         // Extract
         TPointVecCRefVec clusterPoints;
-        for (std::size_t i = 0u; i < m_Xmeans.clusters().size(); ++i) {
+        for (std::size_t i = 0; i < m_Xmeans.clusters().size(); ++i) {
             clusterPoints.push_back(std::cref(m_Xmeans.clusters()[i].points()));
         }
         this->extract(points, clusterPoints, result);

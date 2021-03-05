@@ -173,7 +173,7 @@ bool CStatisticalTests::CCramerVonMises::acceptRestoreTraverser(core::CStateRest
 void CStatisticalTests::CCramerVonMises::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
     inserter.insertValue(SIZE_TAG, m_Size);
     inserter.insertValue(T_TAG, m_T.toDelimited());
-    for (std::size_t i = 0u; i < m_F.size(); ++i) {
+    for (std::size_t i = 0; i < m_F.size(); ++i) {
         inserter.insertValue(F_TAG, static_cast<int>(m_F[i]));
     }
 }
@@ -182,7 +182,7 @@ void CStatisticalTests::CCramerVonMises::addF(double f) {
     if (m_F.size() == m_Size) {
         TDoubleVec ff;
         ff.reserve(m_F.size() + 1);
-        for (std::size_t i = 0u; i < m_F.size(); ++i) {
+        for (std::size_t i = 0; i < m_F.size(); ++i) {
             ff.push_back(static_cast<double>(m_F[i]) / SCALE);
         }
         ff.push_back(f);
@@ -192,7 +192,7 @@ void CStatisticalTests::CCramerVonMises::addF(double f) {
         // Compute the test statistic.
         double n = static_cast<double>(ff.size());
         double t = 1.0 / (12.0 * n);
-        for (std::size_t i = 0u; i < ff.size(); ++i) {
+        for (std::size_t i = 0; i < ff.size(); ++i) {
             double r = (2.0 * static_cast<double>(i) + 1.0) / (2.0 * n) - ff[i];
             t += r * r;
         }
@@ -216,7 +216,7 @@ double CStatisticalTests::CCramerVonMises::pValue() const {
     double alpha = static_cast<double>(m_Size + 1 - N[row - 1]) /
                    static_cast<double>(N[row] - N[row - 1]);
     double beta = 1.0 - alpha;
-    for (std::size_t i = 0u; i < 16; ++i) {
+    for (std::size_t i = 0; i < 16; ++i) {
         tt[i] = alpha * T_VALUES[row][i] + beta * T_VALUES[row - 1][i];
     }
     LOG_TRACE(<< "n = " << m_Size + 1 << ", tt = " << core::CContainerPrinter::print(tt));

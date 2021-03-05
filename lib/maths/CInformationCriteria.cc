@@ -22,7 +22,7 @@ double logDeterminant_(const MATRIX& covariance, double upper) {
     auto svd = covariance.jacobiSvd();
     double result = 0.0;
     double epsilon = svd.threshold() * svd.singularValues()(0);
-    for (int i = 0u; i < svd.singularValues().size(); ++i) {
+    for (int i = 0; i < svd.singularValues().size(); ++i) {
         result += std::log(std::max(upper * svd.singularValues()(i), epsilon));
     }
     return result;

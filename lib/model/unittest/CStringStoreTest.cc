@@ -186,7 +186,7 @@ BOOST_FIXTURE_TEST_CASE(testStringStore, CTestFixture) {
         LOG_DEBUG(<< "Testing multi-threaded string duplication rate");
 
         TStrVec lotsOfStrings;
-        for (std::size_t i = 0u; i < 1000; ++i) {
+        for (std::size_t i = 0; i < 1000; ++i) {
             lotsOfStrings.push_back(core::CStringUtils::typeToString(i));
         }
 
