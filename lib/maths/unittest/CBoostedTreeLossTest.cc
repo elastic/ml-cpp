@@ -8,7 +8,11 @@
 #include <core/CDataFrame.h>
 
 #include <maths/CBasicStatistics.h>
+#include <maths/CBoostedTree.h>
+#include <maths/CBoostedTreeFactory.h>
+#include <maths/CBoostedTreeImpl.h>
 #include <maths/CBoostedTreeLoss.h>
+#include <maths/CBoostedTreeUtils.h>
 #include <maths/CLbfgs.h>
 #include <maths/CPRNG.h>
 #include <maths/CSolvers.h>
@@ -34,15 +38,77 @@ using TDoubleVec = std::vector<double>;
 using TDoubleVecVec = std::vector<TDoubleVec>;
 using TDoubleVector = maths::boosted_tree::CLoss::TDoubleVector;
 using TDoubleVectorVec = std::vector<TDoubleVector>;
+using TRowRef = core::CDataFrame::TRowRef;
+using TRowItr = core::CDataFrame::TRowItr;
+using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
+using TArgMinLossVec = std::vector<maths::boosted_tree::CArgMinLoss>;
 using TMemoryMappedFloatVector = maths::boosted_tree::CLoss::TMemoryMappedFloatVector;
 using maths::boosted_tree::CBinomialLogisticLoss;
 using maths::boosted_tree::CMultinomialLogisticLoss;
 using maths::boosted_tree_detail::CArgMinBinomialLogisticLossImpl;
+using maths::boosted_tree_detail::CArgMinMseIncrementalImpl;
 using maths::boosted_tree_detail::CArgMinMsleImpl;
 using maths::boosted_tree_detail::CArgMinMultinomialLogisticLossImpl;
 using maths::boosted_tree_detail::CArgMinPseudoHuberImpl;
+using maths::boosted_tree_detail::readActual;
+using maths::boosted_tree_detail::readExampleWeight;
+using maths::boosted_tree_detail::readPrediction;
+using maths::boosted_tree_detail::root;
 
 namespace {
+auto setupLinearRegressionProblem(std::size_t cols) {
+
+    using TBoolVec = std::vector<bool>;
+
+    test::CRandomNumbers rng;
+    double noiseVariance{100.0};
+    std::size_t rows{200};
+
+    auto target = [&]() {
+        TDoubleVec m;
+        TDoubleVec s;
+        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
+        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
+        double offset{0.0};
+
+        return [=](const TRowRef& row) {
+            double result{0.0};
+            for (std::size_t i = 0; i < cols - 1; ++i) {
+                result += m[i] + s[i] * row[i];
+            }
+            return offset + result;
+        };
+    }();
+
+    TDoubleVecVec x(cols - 1);
+    for (std::size_t i = 0; i < cols - 1; ++i) {
+        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
+    }
+
+    TDoubleVec noise;
+    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
+
+    auto frame = core::makeMainStorageDataFrame(cols, rows).first;
+
+    frame->categoricalColumns(TBoolVec(cols, false));
+    for (std::size_t i = 0; i < rows; ++i) {
+        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
+            for (std::size_t j = 0; j < cols - 1; ++j, ++column) {
+                *column = x[j][i];
+            }
+        });
+    }
+    frame->finishWritingRows();
+    frame->writeColumns(1, [&](TRowItr beginRows, TRowItr endRows) {
+        for (auto row = beginRows; row != endRows; ++row) {
+            double targetValue{target(*row) + noise[row->index()]};
+            row->writeColumn(cols - 1, targetValue);
+        }
+    });
+
+    return frame;
+}
+
 void minimizeGridSearch(std::function<double(const TDoubleVector&)> objective,
                         double scale,
                         int d,
@@ -590,8 +656,8 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticMinimizerRandom) {
     TDoubleVec labels;
     TDoubleVectorVec predictions;
 
-    double scales[]{6.0, 1.0};
-    double lambdas[]{0.0, 10.0};
+    TDoubleVec scales{6.0, 1.0};
+    TDoubleVec lambdas{0.0, 10.0};
 
     for (auto i : {0, 1}) {
 
@@ -834,7 +900,6 @@ BOOST_AUTO_TEST_CASE(testMultinomialLogisticLossForUnderflow) {
 
 BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
     // Test that the calculated objective function is close to the correct value.
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     maths::CPRNG::CXorOShiro128Plus rng;
     test::CRandomNumbers testRng;
@@ -918,7 +983,7 @@ BOOST_AUTO_TEST_CASE(testMsleArgminObjective) {
 }
 
 BOOST_AUTO_TEST_CASE(testMsleArgminValue) {
-    // test on a single data point with known output
+    // Test on a single data point with known output.
     {
         double lambda{0.0};
         CArgMinMsleImpl argmin{lambda};
@@ -941,11 +1006,11 @@ BOOST_AUTO_TEST_CASE(testMsleArgminValue) {
         } while (argmin.nextPass());
         double expectedWeight{std::log(targets[0] / predictions[0])};
         double estimatedWeight{argmin.value()[0]};
-        // LOG_DEBUG(<< "Estimate weight " << estimatedWeight << " true weight " << optimalWeight);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedWeight, estimatedWeight, 1e-3);
     }
 
-    // test against scipy and scikit learn
+    // Test against scipy and scikit learn.
+    //
     // To reproduce run in Python:
     // from sklearn.metrics import mean_squared_log_error
     // import numpy as np
@@ -982,7 +1047,6 @@ BOOST_AUTO_TEST_CASE(testMsleArgminValue) {
 
 BOOST_AUTO_TEST_CASE(testPseudoHuberArgminObjective) {
     // Test that the calculated objective function is close to the correct value.
-    using TMeanAccumulator = maths::CBasicStatistics::SSampleMean<double>::TAccumulator;
 
     maths::CPRNG::CXorOShiro128Plus rng;
     test::CRandomNumbers testRng;
@@ -1044,7 +1108,7 @@ BOOST_AUTO_TEST_CASE(testPseudoHuberArgminObjective) {
 }
 
 BOOST_AUTO_TEST_CASE(testPseudoHuberArgminValue) {
-    // test on a single data point with known output
+    // Test on a single data point with known output.
     {
         double lambda{0.0};
         double delta{1.0};
@@ -1106,6 +1170,118 @@ BOOST_AUTO_TEST_CASE(testPseudoHuberArgminValue) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(optimalObjective, estimatedObjective, 1e-5);
         BOOST_REQUIRE_CLOSE_ABSOLUTE(optimalWeight, estimatedWeight, 1e-2);
     }
+}
+
+BOOST_AUTO_TEST_CASE(testMseIncrementalLogisticMinimizer) {
+
+    // Test that the minimizer finds a local minimum of the adjusted MSE loss
+    // function (it's convex so this is unique).
+
+    double eps{0.01};
+    std::size_t min{0};
+    std::size_t minMinusEps{1};
+    std::size_t minPlusEps{2};
+    std::size_t cols{5};
+
+    auto frame = setupLinearRegressionProblem(cols);
+    auto regression = maths::CBoostedTreeFactory::constructFromParameters(
+                          1, std::make_unique<maths::boosted_tree::CMse>())
+                          .buildFor(*frame, cols - 1);
+    regression->train();
+    regression->predict();
+
+    double lambda{regression->impl().bestHyperparameters().regularization().leafWeightPenaltyMultiplier()};
+    double eta{regression->impl().bestHyperparameters().eta()};
+    double mu{0.1};
+    auto forest = regression->impl().trainedModel();
+
+    BOOST_TEST_REQUIRE(forest.size() > 1);
+
+    const auto& tree = forest[1];
+    const auto& extraColumns = regression->impl().extraColumns();
+    const auto& encoder = regression->impl().encoder();
+    maths::boosted_tree::CMseIncremental loss{eta, mu, tree};
+
+    auto adjustedLoss = [&](const TRowRef& row, double x) {
+        double actual{readActual(row, regression->columnHoldingDependentVariable())};
+        auto prediction = readPrediction(row, extraColumns, loss.numberParameters());
+        double treePrediction{root(tree).value(encoder.encode(row), tree)(0)};
+        return maths::CTools::pow2(actual - (prediction(0) + x)) +
+               mu * maths::CTools::pow2(treePrediction - eta * x);
+    };
+
+    TDoubleVec leafMinimizers;
+    {
+        maths::CPRNG::CXorOShiro128Plus rng;
+        TArgMinLossVec leafValues(tree.size(), loss.minimizer(lambda, rng));
+        auto result = frame->readRows(
+            1, core::bindRetrievableState(
+                   [&](TArgMinLossVec& leafValues_, TRowItr beginRows, TRowItr endRows) {
+                       std::size_t numberLossParameters{loss.numberParameters()};
+                       const auto& rootNode = root(tree);
+                       for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                           auto row = *row_;
+                           auto encodedRow = encoder.encode(row);
+                           auto prediction = readPrediction(row, extraColumns,
+                                                            numberLossParameters);
+                           double actual{readActual(
+                               row, regression->columnHoldingDependentVariable())};
+                           double weight{readExampleWeight(row, extraColumns)};
+                           leafValues_[rootNode.leafIndex(encodedRow, tree)].add(
+                               encodedRow, prediction, actual, weight);
+                       }
+                   },
+                   std::move(leafValues)));
+        leafValues = std::move(result.first[0].s_FunctionState);
+        leafMinimizers.reserve(leafValues.size());
+        for (const auto& leaf : leafValues) {
+            leafMinimizers.push_back(leaf.value()(0));
+        }
+    }
+
+    TDoubleVecVec leafLosses(leafMinimizers.size(), TDoubleVec(3));
+    for (std::size_t i = 0; i < leafMinimizers.size(); ++i) {
+        leafLosses[i][min] = lambda * maths::CTools::pow2(leafMinimizers[i]);
+        leafLosses[i][minMinusEps] = lambda * maths::CTools::pow2(leafMinimizers[i] - eps);
+        leafLosses[i][minPlusEps] = lambda * maths::CTools::pow2(leafMinimizers[i] + eps);
+    }
+    {
+        auto result = frame->readRows(
+            1, core::bindRetrievableState(
+                   [&](TDoubleVecVec& adjustedLosses_, TRowItr beginRows, TRowItr endRows) {
+                       const auto& rootNode = root(tree);
+                       for (auto row_ = beginRows; row_ != endRows; ++row_) {
+                           auto row = *row_;
+                           auto encodedRow = encoder.encode(row);
+                           auto i = rootNode.leafIndex(encodedRow, tree);
+                           double x{leafMinimizers[i]};
+                           adjustedLosses_[i][min] += adjustedLoss(row, x);
+                           adjustedLosses_[i][minMinusEps] += adjustedLoss(row, x - 0.01);
+                           adjustedLosses_[i][minPlusEps] += adjustedLoss(row, x + 0.01);
+                       }
+                   },
+                   std::move(leafLosses)));
+        leafLosses = std::move(result.first[0].s_FunctionState);
+    }
+
+    double decrease{0.0};
+    for (const auto& leafLoss : leafLosses) {
+        BOOST_TEST_REQUIRE(leafLoss[min] <= leafLoss[minMinusEps]);
+        BOOST_TEST_REQUIRE(leafLoss[min] <= leafLoss[minPlusEps]);
+        decrease += leafLoss[minMinusEps] - leafLoss[min];
+        decrease += leafLoss[minPlusEps] - leafLoss[min];
+    }
+    LOG_DEBUG(<< "total decrease = " << decrease);
+    BOOST_TEST_REQUIRE(decrease > 0.0);
+}
+
+BOOST_AUTO_TEST_CASE(testMseIncrementalLossGradientAndCurvature) {
+
+    // Test that:
+    //   1. The gradient and curvature of the loss match MSE when mu is zero
+    //   2. The gradient is corrected towards the old prediction, i.e. if the
+    //      old prediction for a row is positive (negative) the gradient is
+    //      larger (smaller) than the gradient of MSE.
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -2050,6 +2050,10 @@ const CBoostedTreeImpl::TDoubleVec& CBoostedTreeImpl::featureSampleProbabilities
     return m_FeatureSampleProbabilities;
 }
 
+const CDataFrameCategoryEncoder& CBoostedTreeImpl::encoder() const {
+    return *m_Encoder;
+}
+
 const CBoostedTreeImpl::TNodeVecVec& CBoostedTreeImpl::trainedModel() const {
     return m_BestForest;
 }

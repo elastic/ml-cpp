@@ -68,8 +68,8 @@ public:
     ~CBoostedTreeFactory();
     CBoostedTreeFactory(CBoostedTreeFactory&) = delete;
     CBoostedTreeFactory& operator=(CBoostedTreeFactory&) = delete;
-    CBoostedTreeFactory(CBoostedTreeFactory&&);
-    CBoostedTreeFactory& operator=(CBoostedTreeFactory&&);
+    CBoostedTreeFactory(CBoostedTreeFactory&&) noexcept;
+    CBoostedTreeFactory& operator=(CBoostedTreeFactory&&) noexcept;
 
     //! Set the objective to use when choosing the class assignments.
     CBoostedTreeFactory&

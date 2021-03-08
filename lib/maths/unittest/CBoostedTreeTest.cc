@@ -103,9 +103,9 @@ class CTestInstrumentation : public maths::CDataFrameTrainBoostedTreeInstrumenta
 public:
     using TIntVec = std::vector<int>;
     struct STaskProgess {
-        STaskProgess(const std::string& name, bool monotonic, const TIntVec& tenPercentProgressPoints)
-            : s_Name{name}, s_Monotonic{monotonic}, s_TenPercentProgressPoints{
-                                                        tenPercentProgressPoints} {}
+        STaskProgess(std::string name, bool monotonic, TIntVec tenPercentProgressPoints)
+            : s_Name{std::move(name)}, s_Monotonic{monotonic},
+              s_TenPercentProgressPoints{std::move(tenPercentProgressPoints)} {}
 
         std::string s_Name;
         bool s_Monotonic;

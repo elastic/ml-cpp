@@ -673,9 +673,8 @@ CArgMinPseudoHuberImpl::TObjective CArgMinPseudoHuberImpl::objective() const {
                 }
             }
             return loss / totalCount + this->lambda() * CTools::pow2(weight);
-        } else {
-            return 0.0;
         }
+        return 0.0;
     };
 }
 }

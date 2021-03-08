@@ -1223,9 +1223,9 @@ CBoostedTreeFactory::CBoostedTreeFactory(std::size_t numberThreads, TLossFunctio
       m_LogLeafWeightPenaltyMultiplierSearchInterval{0.0} {
 }
 
-CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) = default;
+CBoostedTreeFactory::CBoostedTreeFactory(CBoostedTreeFactory&&) noexcept = default;
 
-CBoostedTreeFactory& CBoostedTreeFactory::operator=(CBoostedTreeFactory&&) = default;
+CBoostedTreeFactory& CBoostedTreeFactory::operator=(CBoostedTreeFactory&&) noexcept = default;
 
 CBoostedTreeFactory::~CBoostedTreeFactory() = default;
 

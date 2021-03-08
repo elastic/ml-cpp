@@ -109,6 +109,9 @@ public:
     //! Get the vector of hyperparameter importances.
     THyperparameterImportanceVec hyperparameterImportance() const;
 
+    //! Get the data frame row encoder.
+    const CDataFrameCategoryEncoder& encoder() const;
+
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
 
