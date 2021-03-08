@@ -903,7 +903,10 @@ bool CMseIncremental::isRegression() const {
 }
 
 void CMseIncremental::acceptPersistInserter(core::CStatePersistInserter& /* inserter */) const {
+    // We purposely don't persist and restore the state since this is only
+    // temporarily attached and only between persistence events.
 }
+
 bool CMseIncremental::acceptRestoreTraverser(core::CStateRestoreTraverser& /* traverser */) {
     return true;
 }
