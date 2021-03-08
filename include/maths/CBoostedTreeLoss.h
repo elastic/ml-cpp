@@ -438,8 +438,7 @@ public:
     virtual std::size_t numberParameters() const = 0;
 
     //! The value of the loss function.
-    virtual double value(const CEncodedDataFrameRowRef& row,
-                         const TMemoryMappedFloatVector& prediction,
+    virtual double value(const TMemoryMappedFloatVector& prediction,
                          double actual,
                          double weight = 1.0) const = 0;
     //! The gradient of the loss function.
@@ -449,7 +448,8 @@ public:
                           const TWriter& writer,
                           double weight = 1.0) const = 0;
     //! The Hessian of the loss function (flattened).
-    virtual void curvature(const TMemoryMappedFloatVector& prediction,
+    virtual void curvature(const CEncodedDataFrameRowRef& row,
+                           const TMemoryMappedFloatVector& prediction,
                            double actual,
                            const TWriter& writer,
                            double weight = 1.0) const = 0;
@@ -496,15 +496,9 @@ public:
     cloneForRetraining(double eta, double mu, const TNodeVec& tree) const override;
     ELossType type() const override;
     std::size_t numberParameters() const override;
-    double value(const CEncodedDataFrameRowRef&,
-                 const TMemoryMappedFloatVector& prediction,
-                 double actual,
-                 double weight = 1.0) const override {
-        return this->value(prediction, actual, weight);
-    }
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
-                 double weight = 1.0) const;
+                 double weight = 1.0) const override;
     void gradient(const CEncodedDataFrameRowRef&,
                   const TMemoryMappedFloatVector& prediction,
                   double actual,
@@ -516,10 +510,17 @@ public:
                   double actual,
                   const TWriter& writer,
                   double weight = 1.0) const;
+    void curvature(const CEncodedDataFrameRowRef&,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const override {
+        this->curvature(prediction, actual, writer, weight);
+    }
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
                    const TWriter& writer,
-                   double weight = 1.0) const override;
+                   double weight = 1.0) const;
     bool isCurvatureConstant() const override;
     //! \return \p prediction.
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
@@ -546,8 +547,7 @@ public:
     cloneForRetraining(double eta, double mu, const TNodeVec& tree) const override;
     ELossType type() const override;
     std::size_t numberParameters() const override;
-    double value(const CEncodedDataFrameRowRef& row,
-                 const TMemoryMappedFloatVector& prediction,
+    double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
                  double weight = 1.0) const override;
     void gradient(const CEncodedDataFrameRowRef& row,
@@ -555,10 +555,17 @@ public:
                   double actual,
                   const TWriter& writer,
                   double weight = 1.0) const override;
+    void curvature(const CEncodedDataFrameRowRef&,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const override {
+        this->curvature(prediction, actual, writer, weight);
+    }
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
                    const TWriter& writer,
-                   double weight = 1.0) const override;
+                   double weight = 1.0) const;
     bool isCurvatureConstant() const override;
     //! \return \p prediction.
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
@@ -597,15 +604,9 @@ public:
     cloneForRetraining(double eta, double mu, const TNodeVec& tree) const override;
     ELossType type() const override;
     std::size_t numberParameters() const override;
-    double value(const CEncodedDataFrameRowRef&,
-                 const TMemoryMappedFloatVector& prediction,
-                 double actual,
-                 double weight = 1.0) const override {
-        return this->value(prediction, actual, weight);
-    }
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
-                 double weight = 1.0) const;
+                 double weight = 1.0) const override;
     void gradient(const CEncodedDataFrameRowRef&,
                   const TMemoryMappedFloatVector& prediction,
                   double actual,
@@ -617,10 +618,17 @@ public:
                   double actual,
                   const TWriter& writer,
                   double weight = 1.0) const;
+    void curvature(const CEncodedDataFrameRowRef&,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const override {
+        this->curvature(prediction, actual, writer, weight);
+    }
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
                    const TWriter& writer,
-                   double weight = 1.0) const override;
+                   double weight = 1.0) const;
     bool isCurvatureConstant() const override;
     //! \return (P(class 0), P(class 1)).
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
@@ -656,15 +664,9 @@ public:
     std::unique_ptr<CLoss>
     cloneForRetraining(double eta, double mu, const TNodeVec& tree) const override;
     std::size_t numberParameters() const override;
-    double value(const CEncodedDataFrameRowRef&,
-                 const TMemoryMappedFloatVector& prediction,
-                 double actual,
-                 double weight = 1.0) const override {
-        return this->value(prediction, actual, weight);
-    }
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
-                 double weight = 1.0) const;
+                 double weight = 1.0) const override;
     void gradient(const CEncodedDataFrameRowRef&,
                   const TMemoryMappedFloatVector& prediction,
                   double actual,
@@ -676,10 +678,17 @@ public:
                   double actual,
                   const TWriter& writer,
                   double weight = 1.0) const;
+    void curvature(const CEncodedDataFrameRowRef&,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const override {
+        this->curvature(prediction, actual, writer, weight);
+    }
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
                    const TWriter& writer,
-                   double weight = 1.0) const override;
+                   double weight = 1.0) const;
     bool isCurvatureConstant() const override;
     //! \return (P(class 0), P(class 1), ..., P(class n)).
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
@@ -720,15 +729,9 @@ public:
     std::unique_ptr<CLoss>
     cloneForRetraining(double eta, double mu, const TNodeVec& tree) const override;
     std::size_t numberParameters() const override;
-    double value(const CEncodedDataFrameRowRef&,
-                 const TMemoryMappedFloatVector& prediction,
-                 double actual,
-                 double weight = 1.0) const override {
-        return this->value(prediction, actual, weight);
-    }
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
-                 double weight = 1.0) const;
+                 double weight = 1.0) const override;
     void gradient(const CEncodedDataFrameRowRef&,
                   const TMemoryMappedFloatVector& prediction,
                   double actual,
@@ -740,10 +743,17 @@ public:
                   double actual,
                   const TWriter& writer,
                   double weight = 1.0) const;
+    void curvature(const CEncodedDataFrameRowRef&,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const override {
+        this->curvature(prediction, actual, writer, weight);
+    }
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
                    const TWriter& writer,
-                   double weight = 1.0) const override;
+                   double weight = 1.0) const;
     bool isCurvatureConstant() const override;
     //! \return exp(\p prediction).
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;
@@ -793,15 +803,9 @@ public:
     std::unique_ptr<CLoss>
     cloneForRetraining(double eta, double mu, const TNodeVec& tree) const override;
     std::size_t numberParameters() const override;
-    double value(const CEncodedDataFrameRowRef&,
-                 const TMemoryMappedFloatVector& prediction,
-                 double actual,
-                 double weight = 1.0) const override {
-        return this->value(prediction, actual, weight);
-    }
     double value(const TMemoryMappedFloatVector& predictionVec,
                  double actual,
-                 double weight = 1.0) const;
+                 double weight = 1.0) const override;
     void gradient(const CEncodedDataFrameRowRef&,
                   const TMemoryMappedFloatVector& prediction,
                   double actual,
@@ -813,10 +817,17 @@ public:
                   double actual,
                   const TWriter& writer,
                   double weight = 1.0) const;
+    void curvature(const CEncodedDataFrameRowRef&,
+                   const TMemoryMappedFloatVector& prediction,
+                   double actual,
+                   const TWriter& writer,
+                   double weight = 1.0) const override {
+        this->curvature(prediction, actual, writer, weight);
+    }
     void curvature(const TMemoryMappedFloatVector& prediction,
                    double actual,
                    const TWriter& writer,
-                   double weight = 1.0) const override;
+                   double weight = 1.0) const;
     bool isCurvatureConstant() const override;
     //! \return \p prediction.
     TDoubleVector transform(const TMemoryMappedFloatVector& prediction) const override;

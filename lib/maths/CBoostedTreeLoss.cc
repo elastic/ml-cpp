@@ -856,14 +856,15 @@ std::size_t CMseIncremental::numberParameters() const {
     return 1;
 }
 
-double CMseIncremental::value(const CEncodedDataFrameRowRef& row,
-                              const TMemoryMappedFloatVector& prediction,
+double CMseIncremental::value(const TMemoryMappedFloatVector& prediction,
                               double actual,
                               double weight) const {
-    // TODO https://github.com/elastic/ml-cpp/issues/1721. This needs the old and
-    // new tree to compute the difference.
-    double treePrediction{root(*m_Tree).value(row, *m_Tree)(0)};
-    return weight * (CTools::pow2(prediction(0) - actual) + m_Mu * CTools::pow2(treePrediction));
+    // This purposely doesn't include any loss term for changing the prediction.
+    // This is used to estimate the quality of a retrained forest and select
+    // hyperaparameters which penalise changing predictions such as mu. As such
+    // we compute loss on a hold out from the old data to act as a proxy for how
+    // much we might have damaged accuracy on the original training data.
+    return weight * CTools::pow2(prediction(0) - actual);
 }
 
 void CMseIncremental::gradient(const CEncodedDataFrameRowRef& row,

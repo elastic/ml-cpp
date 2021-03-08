@@ -60,6 +60,7 @@ void zeroLossCurvature(const TRowRef& row, const TSizeVec& extraColumns, std::si
 
 void writeLossCurvature(const TRowRef& row,
                         const TSizeVec& extraColumns,
+                        const CDataFrameCategoryEncoder& encoder,
                         const CLoss& loss,
                         const TMemoryMappedFloatVector& prediction,
                         double actual,
@@ -69,7 +70,7 @@ void writeLossCurvature(const TRowRef& row,
     };
     // We wrap the writer in another lambda which we know takes advantage
     // of std::function small size optimization to avoid heap allocations.
-    loss.curvature(prediction, actual,
+    loss.curvature(encoder.encode(row), prediction, actual,
                    [&writer](std::size_t i, double value) { writer(i, value); }, weight);
 }
 }

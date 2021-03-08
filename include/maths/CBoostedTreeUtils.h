@@ -131,6 +131,7 @@ void zeroLossCurvature(const TRowRef& row, const TSizeVec& extraColumns, std::si
 MATHS_EXPORT
 void writeLossCurvature(const TRowRef& row,
                         const TSizeVec& extraColumns,
+                        const CDataFrameCategoryEncoder& encoder,
                         const boosted_tree::CLoss& curvature,
                         const TMemoryMappedFloatVector& prediction,
                         double actual,

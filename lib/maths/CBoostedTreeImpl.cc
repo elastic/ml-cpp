@@ -172,8 +172,8 @@ CBoostedTreeImpl::CBoostedTreeImpl(std::size_t numberThreads,
 
 CBoostedTreeImpl::CBoostedTreeImpl() = default;
 CBoostedTreeImpl::~CBoostedTreeImpl() = default;
-CBoostedTreeImpl::CBoostedTreeImpl(CBoostedTreeImpl&&) = default;
-CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) = default;
+CBoostedTreeImpl::CBoostedTreeImpl(CBoostedTreeImpl&&) noexcept = default;
+CBoostedTreeImpl& CBoostedTreeImpl::operator=(CBoostedTreeImpl&&) noexcept = default;
 
 void CBoostedTreeImpl::train(core::CDataFrame& frame,
                              const TTrainingStateCallback& recordTrainStateCallback) {
@@ -933,7 +933,8 @@ CBoostedTreeImpl::trainTree(core::CDataFrame& frame,
         bool assignMissingToLeft{leaf->assignMissingToLeft()};
 
         // add the left and right children to the tree
-        std::size_t leftChildId, rightChildId;
+        std::size_t leftChildId;
+        std::size_t rightChildId;
         std::tie(leftChildId, rightChildId) =
             tree[leaf->id()].split(splitFeature, splitValue, assignMissingToLeft,
                                    leaf->gain(), leaf->curvature(), tree);
@@ -1271,7 +1272,8 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                 prediction += rootNode.value(m_Encoder->encode(row), tree);
                 writeLossGradient(row, m_ExtraColumns, *m_Encoder, *m_Loss,
                                   prediction, actual, weight);
-                writeLossCurvature(row, m_ExtraColumns, *m_Loss, prediction, actual, weight);
+                writeLossCurvature(row, m_ExtraColumns, *m_Encoder, *m_Loss,
+                                   prediction, actual, weight);
             }
         },
         &updateRowMask);
@@ -1287,10 +1289,9 @@ double CBoostedTreeImpl::meanLoss(const core::CDataFrame& frame,
                 std::size_t numberLossParameters{m_Loss->numberParameters()};
                 for (auto row_ = beginRows; row_ != endRows; ++row_) {
                     auto row = *row_;
-                    auto encodedRow = m_Encoder->encode(row);
                     auto prediction = readPrediction(row, m_ExtraColumns, numberLossParameters);
                     double actual{readActual(row, m_DependentVariable)};
-                    loss.add(m_Loss->value(encodedRow, prediction, actual));
+                    loss.add(m_Loss->value(prediction, actual));
                 }
             },
             TMeanAccumulator{}),
