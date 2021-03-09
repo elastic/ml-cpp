@@ -106,42 +106,11 @@ public:
                     const CBoostedTreeNode& split,
                     CWorkspace& workspace) override;
 
-    //! Get the memory used by this object.
-    std::size_t memoryUsage() const override;
-
-    //! Estimate the maximum leaf statistics' memory usage training on a data frame
-    //! with \p numberCols columns using \p numberSplitsPerFeature for a loss function
-    //! with \p numberLossParameters parameters.
-    static std::size_t estimateMemoryUsage(std::size_t numberCols,
-                                           std::size_t numberSplitsPerFeature,
-                                           std::size_t numberLossParameters);
-
 private:
-    void computeAggregateLossDerivatives(std::size_t numberThreads,
-                                         const core::CDataFrame& frame,
-                                         const CDataFrameCategoryEncoder& encoder,
-                                         const TSizeVec& featureBag,
-                                         const core::CPackedBitVector& rowMask,
-                                         CWorkspace& workspace) const;
-    void computeRowMaskAndAggregateLossDerivatives(std::size_t numberThreads,
-                                                   const core::CDataFrame& frame,
-                                                   const CDataFrameCategoryEncoder& encoder,
-                                                   bool isLeftChild,
-                                                   const CBoostedTreeNode& split,
-                                                   const TSizeVec& featureBag,
-                                                   const core::CPackedBitVector& parentRowMask,
-                                                   CWorkspace& workspace) const;
-    void addRowDerivatives(const TSizeVec& featureBag,
-                           const CEncodedDataFrameRowRef& row,
-                           CSplitsDerivatives& splitsDerivatives) const;
-
     SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;
 
-    double childMaxGain(double gChild, double minLossChild, double lambda) const;
-
-private:
-    CSplitsDerivatives m_Derivatives;
+    double childMaxGain(double childGain, double minLossChild, double lambda) const;
 };
 }
 }

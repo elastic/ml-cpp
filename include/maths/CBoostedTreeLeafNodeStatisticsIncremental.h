@@ -51,6 +51,40 @@ class CEncodedDataFrameRowRef;
 class MATHS_EXPORT CBoostedTreeLeafNodeStatisticsIncremental final
     : public CBoostedTreeLeafNodeStatistics {
 public:
+    CBoostedTreeLeafNodeStatisticsIncremental(std::size_t id,
+                                              const TSizeVec& extraColumns,
+                                              std::size_t numberLossParameters,
+                                              std::size_t numberThreads,
+                                              const core::CDataFrame& frame,
+                                              const CDataFrameCategoryEncoder& encoder,
+                                              const TRegularization& regularization,
+                                              const TImmutableRadixSetVec& candidateSplits,
+                                              const TSizeVec& treeFeatureBag,
+                                              const TSizeVec& nodeFeatureBag,
+                                              std::size_t depth,
+                                              const core::CPackedBitVector& rowMask,
+                                              CWorkspace& workspace);
+
+    //! Only called by split but is public so it's accessible to std::make_shared.
+    CBoostedTreeLeafNodeStatisticsIncremental(std::size_t id,
+                                              const CBoostedTreeLeafNodeStatisticsIncremental& parent,
+                                              std::size_t numberThreads,
+                                              const core::CDataFrame& frame,
+                                              const CDataFrameCategoryEncoder& encoder,
+                                              const TRegularization& regularization,
+                                              const TSizeVec& treeFeatureBag,
+                                              const TSizeVec& nodeFeatureBag,
+                                              bool isLeftChild,
+                                              const CBoostedTreeNode& split,
+                                              CWorkspace& workspace);
+
+    //! Only called by split but is public so it's accessible to std::make_shared.
+    CBoostedTreeLeafNodeStatisticsIncremental(std::size_t id,
+                                              CBoostedTreeLeafNodeStatisticsIncremental&& parent,
+                                              const TRegularization& regularization,
+                                              const TSizeVec& nodeFeatureBag,
+                                              CWorkspace& workspace);
+
     CBoostedTreeLeafNodeStatisticsIncremental(const CBoostedTreeLeafNodeStatisticsIncremental&) = delete;
     CBoostedTreeLeafNodeStatisticsIncremental&
     operator=(const CBoostedTreeLeafNodeStatisticsIncremental&) = delete;
@@ -72,17 +106,9 @@ public:
                     const CBoostedTreeNode& split,
                     CWorkspace& workspace) override;
 
-    //! Get the memory used by this object.
-    std::size_t memoryUsage() const override;
-
-    //! Estimate the maximum leaf statistics' memory usage training on a data frame
-    //! with \p numberCols columns using \p numberSplitsPerFeature for a loss function
-    //! with \p numberLossParameters parameters.
-    static std::size_t estimateMemoryUsage(std::size_t numberCols,
-                                           std::size_t numberSplitsPerFeature,
-                                           std::size_t numberLossParameters);
-
 private:
+    SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
+                                                const TSizeVec& featureBag) const;
 };
 }
 }
