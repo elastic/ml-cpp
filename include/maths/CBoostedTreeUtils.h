@@ -21,6 +21,8 @@ namespace maths {
 namespace boosted_tree {
 class CLoss;
 }
+class CBoostedTreeNode;
+class CDataFrameCategoryEncoder;
 namespace boosted_tree_detail {
 using TSizeVec = std::vector<std::size_t>;
 using TRowRef = core::CDataFrame::TRowRef;
@@ -60,6 +62,14 @@ struct SHyperparameterImportance {
     double s_RelativeImportance;
     bool s_Supplied;
 };
+
+//! Get the root node of \p tree.
+MATHS_EXPORT
+const CBoostedTreeNode& root(const std::vector<CBoostedTreeNode>& tree);
+
+//! Get the root node of \p tree.
+MATHS_EXPORT
+CBoostedTreeNode& root(std::vector<CBoostedTreeNode>& tree);
 
 //! Get the size of upper triangle of the loss Hessain.
 inline std::size_t lossHessianUpperTriangleSize(std::size_t numberLossParameters) {
@@ -101,6 +111,7 @@ void zeroLossGradient(const TRowRef& row, const TSizeVec& extraColumns, std::siz
 MATHS_EXPORT
 void writeLossGradient(const TRowRef& row,
                        const TSizeVec& extraColumns,
+                       const CDataFrameCategoryEncoder& encoder,
                        const boosted_tree::CLoss& loss,
                        const TMemoryMappedFloatVector& prediction,
                        double actual,
@@ -122,6 +133,7 @@ void zeroLossCurvature(const TRowRef& row, const TSizeVec& extraColumns, std::si
 MATHS_EXPORT
 void writeLossCurvature(const TRowRef& row,
                         const TSizeVec& extraColumns,
+                        const CDataFrameCategoryEncoder& encoder,
                         const boosted_tree::CLoss& curvature,
                         const TMemoryMappedFloatVector& prediction,
                         double actual,

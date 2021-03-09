@@ -79,12 +79,12 @@ public:
     CBoostedTreeImpl(std::size_t numberThreads,
                      TLossFunctionUPtr loss,
                      TAnalysisInstrumentationPtr instrumentation = nullptr);
-    CBoostedTreeImpl(CBoostedTreeImpl&&);
+    CBoostedTreeImpl(CBoostedTreeImpl&&) noexcept;
 
     ~CBoostedTreeImpl();
 
     CBoostedTreeImpl& operator=(const CBoostedTreeImpl&) = delete;
-    CBoostedTreeImpl& operator=(CBoostedTreeImpl&&);
+    CBoostedTreeImpl& operator=(CBoostedTreeImpl&&) noexcept;
 
     //! Train the model on the values in \p frame.
     void train(core::CDataFrame& frame, const TTrainingStateCallback& recordTrainStateCallback);
@@ -108,6 +108,9 @@ public:
 
     //! Get the vector of hyperparameter importances.
     THyperparameterImportanceVec hyperparameterImportance() const;
+
+    //! Get the data frame row encoder.
+    const CDataFrameCategoryEncoder& encoder() const;
 
     //! Get the model produced by training if it has been run.
     const TNodeVecVec& trainedModel() const;
@@ -312,12 +315,6 @@ private:
 
     //! Compute the mean of the loss function on the masked rows of \p frame.
     double meanLoss(const core::CDataFrame& frame, const core::CPackedBitVector& rowMask) const;
-
-    //! Get the root node of \p tree.
-    static const CBoostedTreeNode& root(const TNodeVec& tree);
-
-    //! Get the root node of \p tree.
-    static CBoostedTreeNode& root(TNodeVec& tree);
 
     //! Get the forest's prediction for \p row.
     TVector predictRow(const CEncodedDataFrameRowRef& row, const TNodeVecVec& forest) const;
