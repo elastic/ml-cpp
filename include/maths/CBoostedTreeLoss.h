@@ -427,10 +427,9 @@ public:
 public:
     virtual ~CLoss() = default;
     //! Clone the loss.
-    virtual std::unique_ptr<CLoss> clone() const = 0;
+    virtual TLossUPtr clone() const = 0;
     //! Clone the loss for retraining \p tree.
-    virtual std::unique_ptr<CLoss>
-    cloneForRetraining(double eta, double mu, const TNodeVec& tree) const = 0;
+    virtual TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const = 0;
 
     //! Get the type of prediction problem to which this loss applies.
     virtual ELossType type() const = 0;
@@ -491,9 +490,8 @@ public:
 public:
     explicit CMse(core::CStateRestoreTraverser& traverser);
     CMse() = default;
-    std::unique_ptr<CLoss> clone() const override;
-    std::unique_ptr<CLoss>
-    cloneForRetraining(double eta, double mu, const TNodeVec& tree) const override;
+    TLossUPtr clone() const override;
+    TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     ELossType type() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
@@ -542,9 +540,8 @@ public:
     explicit CMseIncremental(core::CStateRestoreTraverser& traverser);
     CMseIncremental(double eta, double mu, const TNodeVec& tree);
     CMseIncremental() = default;
-    std::unique_ptr<CLoss> clone() const override;
-    std::unique_ptr<CLoss>
-    cloneForRetraining(double eta, double mu, const TNodeVec& tree) const override;
+    TLossUPtr clone() const override;
+    TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     ELossType type() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
@@ -599,9 +596,8 @@ public:
 public:
     explicit CBinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     CBinomialLogisticLoss() = default;
-    std::unique_ptr<CLoss> clone() const override;
-    std::unique_ptr<CLoss>
-    cloneForRetraining(double eta, double mu, const TNodeVec& tree) const override;
+    TLossUPtr clone() const override;
+    TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     ELossType type() const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
@@ -660,9 +656,8 @@ public:
     explicit CMultinomialLogisticLoss(core::CStateRestoreTraverser& traverser);
     explicit CMultinomialLogisticLoss(std::size_t numberClasses);
     ELossType type() const override;
-    std::unique_ptr<CLoss> clone() const override;
-    std::unique_ptr<CLoss>
-    cloneForRetraining(double eta, double mu, const TNodeVec& tree) const override;
+    TLossUPtr clone() const override;
+    TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
@@ -725,9 +720,8 @@ public:
     explicit CMsle(core::CStateRestoreTraverser& traverser);
     explicit CMsle(double offset = 1.0);
     ELossType type() const override;
-    std::unique_ptr<CLoss> clone() const override;
-    std::unique_ptr<CLoss>
-    cloneForRetraining(double eta, double mu, const TNodeVec& tree) const override;
+    TLossUPtr clone() const override;
+    TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& prediction,
                  double actual,
@@ -799,9 +793,8 @@ public:
     explicit CPseudoHuber(core::CStateRestoreTraverser& traverser);
     explicit CPseudoHuber(double delta);
     ELossType type() const override;
-    std::unique_ptr<CLoss> clone() const override;
-    std::unique_ptr<CLoss>
-    cloneForRetraining(double eta, double mu, const TNodeVec& tree) const override;
+    TLossUPtr clone() const override;
+    TLossUPtr incremental(double eta, double mu, const TNodeVec& tree) const override;
     std::size_t numberParameters() const override;
     double value(const TMemoryMappedFloatVector& predictionVec,
                  double actual,

@@ -762,12 +762,12 @@ CMse::CMse(core::CStateRestoreTraverser& traverser) {
     }
 }
 
-std::unique_ptr<CLoss> CMse::clone() const {
+CMse::TLossUPtr CMse::clone() const {
     return std::make_unique<CMse>(*this);
 }
 
-std::unique_ptr<CLoss> CMse::cloneForRetraining(double, double, const TNodeVec&) const {
-    return nullptr;
+CMse::TLossUPtr CMse::incremental(double eta, double mu, const TNodeVec& tree) const {
+    return std::make_unique<CMseIncremental>(eta, mu, tree);
 }
 
 ELossType CMse::type() const {
@@ -837,12 +837,12 @@ CMseIncremental::CMseIncremental(double eta, double mu, const TNodeVec& tree)
     : m_Eta{eta}, m_Mu{mu}, m_Tree{&tree} {
 }
 
-std::unique_ptr<CLoss> CMseIncremental::clone() const {
+CMseIncremental::TLossUPtr CMseIncremental::clone() const {
     return std::make_unique<CMseIncremental>(*this);
 }
 
-std::unique_ptr<CLoss>
-CMseIncremental::cloneForRetraining(double eta, double mu, const TNodeVec& tree) const {
+CMseIncremental::TLossUPtr
+CMseIncremental::incremental(double eta, double mu, const TNodeVec& tree) const {
     return std::make_unique<CMseIncremental>(eta, mu, tree);
 }
 
@@ -928,11 +928,11 @@ ELossType CMsle::type() const {
     return E_MsleRegression;
 }
 
-std::unique_ptr<CLoss> CMsle::clone() const {
+CMsle::TLossUPtr CMsle::clone() const {
     return std::make_unique<CMsle>(*this);
 }
 
-std::unique_ptr<CLoss> CMsle::cloneForRetraining(double, double, const TNodeVec&) const {
+CMsle::TLossUPtr CMsle::incremental(double, double, const TNodeVec&) const {
     return nullptr;
 }
 
@@ -1025,11 +1025,11 @@ ELossType CPseudoHuber::type() const {
     return E_HuberRegression;
 }
 
-std::unique_ptr<CLoss> CPseudoHuber::clone() const {
+CPseudoHuber::TLossUPtr CPseudoHuber::clone() const {
     return std::make_unique<CPseudoHuber>(*this);
 }
 
-std::unique_ptr<CLoss> CPseudoHuber::cloneForRetraining(double, double, const TNodeVec&) const {
+CPseudoHuber::TLossUPtr CPseudoHuber::incremental(double, double, const TNodeVec&) const {
     return nullptr;
 }
 
@@ -1110,12 +1110,12 @@ CBinomialLogisticLoss::CBinomialLogisticLoss(core::CStateRestoreTraverser& trave
     }
 }
 
-std::unique_ptr<CLoss> CBinomialLogisticLoss::clone() const {
+CBinomialLogisticLoss::TLossUPtr CBinomialLogisticLoss::clone() const {
     return std::make_unique<CBinomialLogisticLoss>(*this);
 }
 
-std::unique_ptr<CLoss>
-CBinomialLogisticLoss::cloneForRetraining(double, double, const TNodeVec&) const {
+CBinomialLogisticLoss::TLossUPtr
+CBinomialLogisticLoss::incremental(double, double, const TNodeVec&) const {
     return nullptr;
 }
 
@@ -1203,12 +1203,12 @@ CMultinomialLogisticLoss::CMultinomialLogisticLoss(core::CStateRestoreTraverser&
     }
 }
 
-std::unique_ptr<CLoss> CMultinomialLogisticLoss::clone() const {
+CMultinomialLogisticLoss::TLossUPtr CMultinomialLogisticLoss::clone() const {
     return std::make_unique<CMultinomialLogisticLoss>(m_NumberClasses);
 }
 
-std::unique_ptr<CLoss>
-CMultinomialLogisticLoss::cloneForRetraining(double, double, const TNodeVec&) const {
+CMultinomialLogisticLoss::TLossUPtr
+CMultinomialLogisticLoss::incremental(double, double, const TNodeVec&) const {
     return nullptr;
 }
 
