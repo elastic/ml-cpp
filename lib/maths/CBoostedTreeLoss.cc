@@ -96,7 +96,7 @@ void CArgMinMseImpl::merge(const CArgMinLossImpl& other) {
 
 CArgMinMseImpl::TDoubleVector CArgMinMseImpl::value() const {
 
-    // We searching for the value x which satisfies
+    // We searching for the value x^* which satisfies
     //
     //    x^* = argmin_x{ sum_i{(a_i - (p_i + x))^2} + lambda * x^2 }
     //
@@ -145,7 +145,7 @@ void CArgMinMseIncrementalImpl::merge(const CArgMinLossImpl& other) {
 
 CArgMinMseIncrementalImpl::TDoubleVector CArgMinMseIncrementalImpl::value() const {
 
-    // We searching for the value x which satisfies
+    // We searching for the value x^* which satisfies
     //
     //    x^* = argmin_x{ sum_i{(a_i - (p_i + x))^2 + mu (p_i' - eta x)^2} + lambda * x^2 }
     //

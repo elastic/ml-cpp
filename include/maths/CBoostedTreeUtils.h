@@ -64,9 +64,11 @@ struct SHyperparameterImportance {
 };
 
 //! Get the root node of \p tree.
+MATHS_EXPORT
 const CBoostedTreeNode& root(const std::vector<CBoostedTreeNode>& tree);
 
 //! Get the root node of \p tree.
+MATHS_EXPORT
 CBoostedTreeNode& root(std::vector<CBoostedTreeNode>& tree);
 
 //! Get the size of upper triangle of the loss Hessain.
