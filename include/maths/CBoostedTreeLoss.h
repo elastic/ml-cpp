@@ -84,8 +84,8 @@ private:
 //! training.
 //!
 //! DESCRIPTION:\n
-//! This applies a correction to the loss based on the difference between from
-//! the predictions of a supplied tree (the one being retrained).
+//! This applies a correction to the loss based on the difference from the
+//! predictions of a supplied tree (the one being retrained).
 class MATHS_EXPORT CArgMinMseIncrementalImpl final : public CArgMinLossImpl {
 public:
     CArgMinMseIncrementalImpl(double lambda, double eta, double mu, const TNodeVec& tree);
