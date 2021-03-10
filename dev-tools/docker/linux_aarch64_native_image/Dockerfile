@@ -120,17 +120,20 @@ ENV PATH=${PATH}:/usr/local/cmake/bin
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
 RUN \
   cd ${build_dir} && \
-  git -c advice.detachedHead=false clone --depth=1 --branch=v1.7.1 https://github.com/pytorch/pytorch.git && \
+  git -c advice.detachedHead=false clone --depth=1 --branch=v1.8.0 https://github.com/pytorch/pytorch.git && \
   cd pytorch && \
   git submodule sync && \
   git submodule update --init --recursive && \
+  export BLAS=Eigen && \
   export BUILD_TEST=OFF && \
   export USE_FBGEMM=OFF  && \
+  export USE_KINETO=OFF  && \
   export USE_NUMPY=OFF && \
   export USE_DISTRIBUTED=OFF && \
   export USE_MKLDNN=OFF && \
-  export BLAS=Eigen && \
-  export PYTORCH_BUILD_VERSION=1.7.1 && \
+  export USE_QNNPACK=OFF && \
+  export USE_PYTORCH_QNNPACK=OFF && \
+  export PYTORCH_BUILD_VERSION=1.8.0 && \
   export PYTORCH_BUILD_NUMBER=1 && \
   /usr/local/bin/python3.7 setup.py install && \
   mkdir /usr/local/gcc93/include/pytorch && \
