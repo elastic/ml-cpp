@@ -183,14 +183,15 @@ external processes.
 Build as follows:
 
 ```
+# TODO: add BLAS=vecLib when we upgrade to 1.9
 export BUILD_TEST=OFF
 export BUILD_CAFFE2=OFF
 export USE_NUMPY=OFF
 export USE_DISTRIBUTED=OFF
 export USE_MKLDNN=OFF
-# TODO: add BLAS=vecLib when we upgrade to 1.9
-[ $(uname -m) != x86_64 ] && export USE_QNNPACK=OFF
-[ $(uname -m) != x86_64 ] && export USE_PYTORCH_QNNPACK=OFF
+export USE_QNNPACK=OFF
+export USE_PYTORCH_QNNPACK=OFF
+[ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
 # TODO: recheck if this is still necessary next time we upgrade
 [ $(uname -m) != x86_64 ] && export CMAKE_OSX_ARCHITECTURES=`uname -m`
 export PYTORCH_BUILD_VERSION=1.8.0
