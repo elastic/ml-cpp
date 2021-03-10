@@ -183,14 +183,16 @@ external processes.
 Build as follows:
 
 ```
-export CMAKE_OSX_ARCHITECTURES=`uname -m`
 export BUILD_TEST=OFF
 export BUILD_CAFFE2=OFF
 export USE_NUMPY=OFF
 export USE_DISTRIBUTED=OFF
 export USE_MKLDNN=OFF
+# TODO: add BLAS=vecLib when we upgrade to 1.9
 [ $(uname -m) != x86_64 ] && export USE_QNNPACK=OFF
 [ $(uname -m) != x86_64 ] && export USE_PYTORCH_QNNPACK=OFF
+# TODO: recheck if this is still necessary next time we upgrade
+[ $(uname -m) != x86_64 ] && export CMAKE_OSX_ARCHITECTURES=`uname -m`
 export PYTORCH_BUILD_VERSION=1.8.0
 export PYTORCH_BUILD_NUMBER=1
 /Library/Frameworks/Python.framework/Versions/3.7/bin/python3.7 setup.py install
@@ -199,7 +201,7 @@ export PYTORCH_BUILD_NUMBER=1
 Once built copy headers and libraries to system directories:
 
 ```
-sudo mkdir /usr/local/include/pytorch
+sudo mkdir -p /usr/local/include/pytorch
 sudo cp -r torch/include/* /usr/local/include/pytorch/
 sudo cp torch/lib/libtorch_cpu.dylib /usr/local/lib/
 sudo cp torch/lib/libc10.dylib /usr/local/lib/
