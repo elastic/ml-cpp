@@ -155,7 +155,7 @@ Download the graphical installer for Python 3.7.9 from <https://www.python.org/f
 
 Install using all the default options.  When the installer completes a Finder window pops up.  Double click the `Install Certificates.command` file in this folder to install the SSL certificates Python needs.
 
-### PyTorch 1.7.1
+### PyTorch 1.8.0
 
 PyTorch requires that certain Python modules are installed.  To install them:
 
@@ -166,21 +166,32 @@ sudo /Library/Frameworks/Python.framework/Versions/3.7/bin/pip3.7 install instal
 Then obtain the PyTorch code:
 
 ```
-git clone --depth=1 --branch=v1.7.1 https://github.com/pytorch/pytorch.git
+git clone --depth=1 --branch=v1.8.0 https://github.com/pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
 ```
 
+Edit `torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp` and replace all
+occurrences of `system(` with `strlen(`. This file is used to compile
+fused CPU kernels, which we do not expect to be doing and never want to
+do for security reasons. Replacing the calls to `system()` ensures that
+a heuristic virus scanner looking for potentially dangerous function
+calls in our shipped product will not encounter these functions that run
+external processes.
+
 Build as follows:
 
 ```
+export CMAKE_OSX_ARCHITECTURES=`uname -m`
 export BUILD_TEST=OFF
 export BUILD_CAFFE2=OFF
 export USE_NUMPY=OFF
 export USE_DISTRIBUTED=OFF
 export USE_MKLDNN=OFF
-export PYTORCH_BUILD_VERSION=1.7.1
+[ $(uname -m) != x86_64 ] && export USE_QNNPACK=OFF
+[ $(uname -m) != x86_64 ] && export USE_PYTORCH_QNNPACK=OFF
+export PYTORCH_BUILD_VERSION=1.8.0
 export PYTORCH_BUILD_NUMBER=1
 /Library/Frameworks/Python.framework/Versions/3.7/bin/python3.7 setup.py install
 ```
