@@ -62,7 +62,7 @@ CStatistics& CStatistics::instance() {
 
 CStat& CStatistics::stat(int index) {
     if (static_cast<std::size_t>(index) >= ms_Instance.m_Stats.size()) {
-        LOG_ABORT(<< "Bad index " << index);
+        LOG_ABORT(<< "Bad stat index " << index);
     }
     return ms_Instance.m_Stats[index];
 }
@@ -88,13 +88,12 @@ void CStatistics::staticsAcceptPersistInserter(CStatePersistInserter& inserter) 
 }
 
 bool CStatistics::staticsAcceptRestoreTraverser(CStateRestoreTraverser& traverser) {
-    uint64_t value = 0;
-    int key = 0;
+    uint64_t value{0};
+    int key{-1};
     do {
         const std::string& name = traverser.name();
         if (name == KEY_TAG) {
-            value = 0;
-            if (CStringUtils::stringToType(traverser.value(), key) == false) {
+            if (CStringUtils::stringToType(traverser.value(), key) == false || key < 0) {
                 LOG_ERROR(<< "Invalid key value in " << traverser.value());
                 return false;
             }
@@ -103,9 +102,13 @@ bool CStatistics::staticsAcceptRestoreTraverser(CStateRestoreTraverser& traverse
                 LOG_ERROR(<< "Invalid stat value in " << traverser.value());
                 return false;
             }
-            stat(key).set(value);
-            key = 0;
-            value = 0;
+            if (key < 0) {
+                LOG_ERROR(<< "Found counter value without corresponding key "
+                          << traverser.value());
+            } else {
+                stat(key).set(value);
+                key = -1;
+            }
         }
     } while (traverser.next());
 
