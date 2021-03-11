@@ -124,7 +124,7 @@ bool CBasicStatistics::SSampleCentralMoments<T, ORDER>::fromDelimited(const std:
 
     std::size_t lastDelimPos{delimPos};
     std::size_t index{0};
-    while (lastDelimPos != std::string::npos) {
+    while (lastDelimPos != std::string::npos && index < ORDER) {
         delimPos = str.find(INTERNAL_DELIMITER, lastDelimPos + 1);
         if (delimPos == std::string::npos) {
             token.assign(str, lastDelimPos + 1, str.length() - lastDelimPos);
