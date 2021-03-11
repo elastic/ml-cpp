@@ -265,7 +265,11 @@ bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(
     }
     m_Statistics[--m_UnusedCount] = statistic;
 
-    while (delimPos != value.size()) {
+    while (delimPos < value.size()) {
+        if (m_UnusedCount == 0) {
+            LOG_ERROR(<< "Too many statistics in '" << value << "' - expected at most " << m_Statistics.size());
+            return false;
+        }
         std::size_t nextDelimPos{
             std::min(value.find(INTERNAL_DELIMITER, delimPos + 1), value.size())};
         token.assign(value, delimPos + 1, nextDelimPos - delimPos - 1);
