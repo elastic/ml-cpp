@@ -255,8 +255,8 @@ PyTorch currently requires Python 3.6, 3.7 or 3.8, and version 3.7 appears to ca
 
 ```
 tar -xzf Python-3.7.9.tgz
-cd Python-3.7.9/
-./configure --enable-optimizations
+cd Python-3.7.9
+./configure --prefix=/usr/local/gcc93 --enable-optimizations
 make
 sudo make altinstall
 ```
@@ -266,7 +266,7 @@ sudo make altinstall
 PyTorch requires that certain Python modules are installed. Install these modules with `pip` using the same Python version you will build PyTorch with. If you followed the instructions above and built Python from source use `python3.7`:
 
 ```
-sudo /usr/local/bin/python3.7 -m pip install install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+sudo /usr/local/gcc93/bin/python3.7 -m pip install install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 ```
 
 Then obtain the PyTorch code:
@@ -301,7 +301,7 @@ export USE_PYTORCH_QNNPACK=OFF
 [ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
 export PYTORCH_BUILD_VERSION=1.8.0
 export PYTORCH_BUILD_NUMBER=1
-/usr/local/bin/python3.7 setup.py install
+/usr/local/gcc93/bin/python3.7 setup.py install
 ```
 
 Once built copy headers and libraries to system directories:

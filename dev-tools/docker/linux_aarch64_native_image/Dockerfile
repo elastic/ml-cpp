@@ -91,17 +91,19 @@ RUN \
 
 # Build Python 3.7
 # --enable-optimizations for a stable/release build
+# Not using --prefix=/usr/local/gcc93 so that this can be excluded from the final image
 RUN \
   cd ${build_dir} && \
   wget --quiet -O - https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz | tar xzf - && \
-  cd Python-3.7.9/ && \  
-  ./configure --enable-optimizations && \ 
+  cd Python-3.7.9 && \
+  ./configure --enable-optimizations && \
   make altinstall && \
-  cd .. && rm -rf Python-3.7.9
+  cd .. && \
+  rm -rf Python-3.7.9
 
-# Install Python dependencies 
+# Install Python dependencies
 RUN \
-  /usr/local/bin/pip3.7 install numpy pyyaml setuptools cffi typing_extensions future six requests dataclasses  
+  /usr/local/bin/pip3.7 install numpy pyyaml setuptools cffi typing_extensions future six requests dataclasses
 
 # Install CMake
 # v3.5 minimum is required
@@ -124,10 +126,11 @@ RUN \
   cd pytorch && \
   git submodule sync && \
   git submodule update --init --recursive && \
+  sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
   export BLAS=Eigen && \
   export BUILD_TEST=OFF && \
-  export USE_FBGEMM=OFF  && \
-  export USE_KINETO=OFF  && \
+  export USE_FBGEMM=OFF && \
+  export USE_KINETO=OFF && \
   export USE_NUMPY=OFF && \
   export USE_DISTRIBUTED=OFF && \
   export USE_MKLDNN=OFF && \
@@ -140,11 +143,11 @@ RUN \
   cp -r torch/include/* /usr/local/gcc93/include/pytorch/ && \
   cp torch/lib/libtorch_cpu.so /usr/local/gcc93/lib && \
   cp torch/lib/libc10.so /usr/local/gcc93/lib && \
-  cd .. && rm -rf ${build_dir}/*
+  cd .. && \
+  rm -rf pytorch
 
 FROM centos:7
 COPY --from=builder /usr/local/gcc93 /usr/local/gcc93
-COPY --from=builder /usr/include /usr/include
 RUN \
   rm /var/lib/rpm/__db.* && \
   yum install -y bzip2 gcc git make unzip which zip zlib-devel
