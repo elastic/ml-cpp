@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.spatial
 import pandas
 import tempfile
 import json
@@ -12,6 +13,9 @@ import time
 from typing import Union
 import base64
 import gzip
+import heapq
+from operator import itemgetter
+from .trees import Tree
 
 # I assume, your host OS is not CentOS
 cloud = (platform.system() == 'Linux') and (platform.dist()[0] == 'centos')
@@ -30,6 +34,7 @@ server = libtmux.Server()
 def is_temp(obj: object):
     return isinstance(obj, tempfile._TemporaryFileWrapper)
 
+
 def decompress(compressed_str: str):
     base64_bytes = compressed_str
     gzip_bytes = base64.b64decode(base64_bytes)
@@ -37,13 +42,16 @@ def decompress(compressed_str: str):
     message = message_bytes.decode('utf8')
     return message
 
+
 class Job:
     def __init__(self, input: Union[str, tempfile._TemporaryFileWrapper],
                  config: Union[str, tempfile._TemporaryFileWrapper],
                  persist: Union[None, str, tempfile._TemporaryFileWrapper] = None,
-                 restore: Union[None, str, tempfile._TemporaryFileWrapper] = None):
+                 restore: Union[None, str, tempfile._TemporaryFileWrapper] = None,
+                 verbose: bool = True):
         self.input = input
         self.config = config
+        self.verbose = verbose
 
         if is_temp(self.input):
             self.input_filename = self.input.name
@@ -91,25 +99,26 @@ class Job:
         if self.name:
             server.kill_session(target_session=self.name)
 
-    def wait_to_complete(self)->bool:
+    def wait_to_complete(self) -> bool:
         while True:
-            display.clear_output(wait=True)
             err = "\n".join(self.pane.capture_pane())
             with open(self.output.name) as f:
                 out = f.readlines()[-10:]
                 out = [l[:80] for l in out]
             # out =  !grep "phase_progress" $output.name | tail -n10
             out = "\n".join(out)
-            display.display_html(display.HTML("""<table><tr>
-                                                        <td width="50%" style="text-align:center;"><b>stderr</b></td>
-                                                        <td width="50%" style="text-align:center;"><b>output</b></td>
-                                                        </tr>
-                                                        <tr>
-                                                        <td width="50%" style="text-align:left;"><pre>{}</pre></td>
-                                                        <td width="50%" style="text-align:left;"><pre>{}</pre></td>
-                                                        </tr>
-                                                </table>"""
-                                              .format(err, out)))
+            if self.verbose:
+                display.clear_output(wait=True)
+                display.display_html(display.HTML("""<table><tr>
+                                                            <td width="50%" style="text-align:center;"><b>stderr</b></td>
+                                                            <td width="50%" style="text-align:center;"><b>output</b></td>
+                                                            </tr>
+                                                            <tr>
+                                                            <td width="50%" style="text-align:left;"><pre>{}</pre></td>
+                                                            <td width="50%" style="text-align:left;"><pre>{}</pre></td>
+                                                            </tr>
+                                                    </table>"""
+                                                  .format(err, out)))
             # the line in main.cc where final output is produced
             success = sum(
                 ['Main.cc@246' in line for line in self.pane.capture_pane()[-5:]]) == 1
@@ -125,15 +134,16 @@ class Job:
             if is_temp(self.persist):
                 with open(self.persist_filename) as fp:
                     self.model = "\n".join(fp.readlines()[-3:])
-            print('Job succeeded')
+            if self.verbose:
+                print('Job succeeded')
             self.cleanup()
             return True
         elif failure:
             self.results = {}
-            print('Job failed')
+            if self.verbose:
+                print('Job failed')
             self.cleanup()
             return False
-        
 
     def get_predictions(self) -> np.array:
         predictions = []
@@ -172,8 +182,9 @@ class Job:
         return self.model
 
 
-def run_job(input, config, persist=None, restore=None) -> Job:
-    job = Job(input=input, config=config, persist=persist, restore=restore)
+def run_job(input, config, persist=None, restore=None, verbose=True) -> Job:
+    job = Job(input=input, config=config, persist=persist,
+              restore=restore, verbose=verbose)
     job_suffix = ''.join(random.choices(string.ascii_lowercase, k=5))
     job_name = 'job_{}'.format(job_suffix)
 
@@ -193,14 +204,16 @@ def run_job(input, config, persist=None, restore=None) -> Job:
     window = session.new_window(attach=False)
     pane = window.split_window(attach=False)
 
-    print("session: {}\tcommand:\n{}".format(session.get('session_name'), cmd))
+    if verbose:
+        print("session: {}\tcommand:\n{}".format(
+            session.get('session_name'), cmd))
     pane.send_keys(cmd)
     job.name = job_name
     job.pane = pane
     return job
 
 
-def train(dataset_name: str, dataset: pandas.DataFrame) -> Job:
+def train(dataset_name: str, dataset: pandas.DataFrame, verbose: bool = True) -> Job:
     """Train a model on the dataset .
 
     Args:
@@ -223,11 +236,12 @@ def train(dataset_name: str, dataset: pandas.DataFrame) -> Job:
 
     model_file = tempfile.NamedTemporaryFile(mode='wt')
 
-    job = run_job(input=data_file, config=config_file, persist=model_file)
+    job = run_job(input=data_file, config=config_file,
+                  persist=model_file, verbose=verbose)
     return job
 
 
-def evaluate(dataset_name: str, dataset: pandas.DataFrame, model: str) -> Job:
+def evaluate(dataset_name: str, dataset: pandas.DataFrame, model: str, verbose: bool = True) -> Job:
     """Evaluate the model on a given dataset .
 
     Args:
@@ -250,16 +264,130 @@ def evaluate(dataset_name: str, dataset: pandas.DataFrame, model: str) -> Job:
     fmodel = tempfile.NamedTemporaryFile(mode='wt')
     fmodel.write(model)
     fmodel.file.close()
-    job = run_job(input=fdata, config=fconfig, restore=fmodel)
+    job = run_job(input=fdata, config=fconfig, restore=fmodel, verbose=verbose)
     return job
+
+
+def get_kdtree_samples(X: np.array, nsamples: int) -> np.array:
+    def traverse_kdtree(node, max_level, split_dim, split_value):
+        if node is not None and node.level <= max_level:
+            if node.split_dim >= 0:
+                split_dim.append(node.split_dim)
+                split_value.append(node.split)
+                split_dim, split_value = traverse_kdtree(
+                    node.lesser, max_level, split_dim, split_value)
+                split_dim, split_value = traverse_kdtree(
+                    node.greater, max_level, split_dim, split_value)
+        return split_dim, split_value
+
+    kdtree = scipy.spatial.cKDTree(X)
+    max_level = np.ceil(np.log2(nsamples))
+    split_dim, split_value = traverse_kdtree(
+        node=kdtree.tree, max_level=max_level, split_dim=[], split_value=[])
+    centers = np.where(X[:, split_dim] == split_value)[0]
+    return X[centers[:nsamples], :]
+
+
+def get_covertree_samples(X: np.array, nsamples: int) -> np.array:
+    from . import covertree
+    leafsize = 10
+    ctree = covertree.CoverTree(
+        data=X, distance=scipy.spatial.distance.euclidean, leafsize=leafsize)
+    leaf_idx = int(leafsize*nsamples/X.shape[0])
+    num_centers = 0
+    queue = [ctree.root]
+    centers = []
+    while num_centers < nsamples and len(queue) > 0:
+        node = queue.pop(0)
+        if isinstance(node, covertree.CoverTree._InnerNode):
+            centers.append(node.ctr_idx)
+            for child in node.children:
+                queue.append(child)
+        elif isinstance(node, covertree.CoverTree._LeafNode):
+            centers += node.idx[:leaf_idx]
+        num_centers = pandas.unique(centers).shape[0]
+    centers = pandas.unique(centers)
+    # print("Num samples {}".format(num_centers))
+    return X[list(centers)[:nsamples], :]
 
 
 def summarize(dataset_name: str,
               dataset: pandas.DataFrame,
               size: Union[int, float],
-              model: str) -> pandas.DataFrame:
-    # TODO: implement
+              model: str,
+              method: str = 'random',
+              verbose: bool = True) -> pandas.DataFrame:
+    total_size = dataset.shape[0]
     if isinstance(size, float):
-        return dataset.sample(frac=size)
+        sample_size = int(total_size*size)
     else:
-        return dataset.sample(n=size)
+        sample_size = size
+    if method == 'random':
+        return dataset.sample(n=sample_size)
+    if method == 'diversity':
+        import diversipy
+        summarization = diversipy.subset.psa_select(
+            dataset.to_numpy(), sample_size)
+        summarization_df = pandas.DataFrame(
+            data=summarization, columns=dataset.columns)
+        return summarization_df
+    if method == 'kdtree':
+        summarization = get_kdtree_samples(dataset.to_numpy(), sample_size)
+        summarization_df = pandas.DataFrame(
+            data=summarization, columns=dataset.columns)
+        return summarization_df
+    if method == 'cover-tree':
+        summarization = get_covertree_samples(dataset.to_numpy(), sample_size)
+        summarization_df = pandas.DataFrame(
+            data=summarization, columns=dataset.columns)
+        return summarization_df
+
+
+class DataStream():
+    def __init__(self, dataset: pandas.DataFrame, tree: Tree):
+        self.dataset = dataset
+        self.current_index = 0
+        self.tree = tree
+
+    def length(self) -> int:
+        return self.dataset.shape[0]-self.current_index
+
+    def weight(self) -> float:
+        node = self.tree.nodes[self.tree.get_leaf_id(
+            self.dataset.loc[self.current_index])]
+        num_samples = node.number_samples
+        return float(num_samples)
+        # return 1.0
+
+    def next(self):
+        self.current_index += 1
+
+    def current(self):
+        return self.dataset.loc[self.current_index]
+
+    def empty(self) -> bool:
+        return self.current_index == self.dataset.shape[0]
+
+    def columns(self):
+        return self.dataset.columns
+
+
+def reservoir_sample_with_jumps(S: DataStream, k: int):
+    H = []  # min priority queue
+    while not S.empty() and len(H) < k:
+        r = random.random()**(1.0/S.weight())
+        heapq.heappush(H, (r, S.current()))
+        S.next()
+    Hmin = H[0][0]
+    X = np.log(random.random())/np.log(Hmin)
+    while not S.empty():
+        X -= S.weight()
+        if X <= 0:
+            t = Hmin**S.weight()
+            r = random.uniform(t, 1)**(1.0/S.weight())
+            heapq.heappop(H)
+            heapq.heappush(H, (r, S.current()))
+            Hmin = H[0][0]
+            X = np.log(random.random())/np.log(Hmin)
+        S.next()
+    return pandas.DataFrame(data=map(itemgetter(1), H), columns=S.columns())

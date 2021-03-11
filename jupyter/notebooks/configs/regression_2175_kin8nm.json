@@ -8,7 +8,7 @@
     "analysis": {
       "name": "regression",
       "parameters": {
-        "dependent_variable": "quality"
+        "dependent_variable": "y"
       }
     }
   }
