@@ -128,16 +128,20 @@ int main(int argc, char** argv) {
     std::string restoreFileName;
     bool isRestoreFileNamedPipe{false};
     std::string logFileName;
-    bool isLogFileNamedPipe{false};
+    std::string logProperties;
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
+
+    LOG_INFO(<< "Parsing command args");
 
     if (ml::torch::CCmdLineParser::parse(
             argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
             isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
-            isRestoreFileNamedPipe, logFileName, isLogFileNamedPipe) == false) {
+            isRestoreFileNamedPipe, logFileName, logProperties) == false) {
         return EXIT_FAILURE;
     }
+
+    LOG_INFO(<< "Passed command parsing");
 
     ml::core::CBlockingCallCancellingTimer cancellerThread{
         ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
@@ -162,13 +166,11 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
-    if (isLogFileNamedPipe) {
-        if (ml::core::CLogger::instance().reconfigureLogToNamedPipe(
-                logFileName, cancellerThread.hasCancelledBlockingCall()) == false) {
-            LOG_FATAL(<< "Could not reconfigure logging");
-            cancellerThread.stop();
-            return EXIT_FAILURE;
-        }
+    if (ml::core::CLogger::instance().reconfigure(
+            logFileName, logProperties, cancellerThread.hasCancelledBlockingCall()) == false) {
+        LOG_FATAL(<< "Could not reconfigure logging");
+        cancellerThread.stop();
+        return EXIT_FAILURE;
     }
     cancellerThread.stop();
 
