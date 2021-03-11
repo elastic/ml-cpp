@@ -269,7 +269,14 @@ PyTorch requires that certain Python modules are installed. Install these module
 sudo /usr/local/gcc93/bin/python3.7 -m pip install install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
 ```
 
+For aarch64 the `ninja` module is not available, so use:
+
+```
+sudo /usr/local/gcc93/bin/python3.7 -m pip install install numpy pyyaml setuptools cffi typing_extensions future six requests dataclasses
+```
+
 Then obtain the PyTorch code:
+
 ```
 git clone --depth=1 --branch=v1.8.0 git@github.com:pytorch/pytorch.git
 cd pytorch
