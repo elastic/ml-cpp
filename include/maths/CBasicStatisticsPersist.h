@@ -267,7 +267,8 @@ bool CBasicStatistics::COrderStatisticsImpl<T, CONTAINER, LESS>::fromDelimited(
 
     while (delimPos < value.size()) {
         if (m_UnusedCount == 0) {
-            LOG_ERROR(<< "Too many statistics in '" << value << "' - expected at most " << m_Statistics.size());
+            LOG_ERROR(<< "Too many statistics in '" << value
+                      << "' - expected at most " << m_Statistics.size());
             return false;
         }
         std::size_t nextDelimPos{
