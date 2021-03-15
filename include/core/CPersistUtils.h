@@ -970,7 +970,12 @@ private:
                         LOG_ERROR(<< "Restoration error at " << traverser.name());
                         return false;
                     }
-                    *(i++) = value;
+                    if (i == container.end()) {
+                        LOG_ERROR(<< "Too many values for size " << N
+                                  << " array during restoration");
+                    } else {
+                        *(i++) = value;
+                    }
                 }
             } while (traverser.next());
             return true;
