@@ -187,10 +187,13 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
     const TRegularization& regularization,
     const TSizeVec& featureBag) const {
 
-    // We have three possible regularization terms we'll use:
+    // We have four possible regularization terms we'll use:
     //   1. Tree size: gamma * "node count"
     //   2. Sum square weights: lambda * sum{"leaf weight" ^ 2)}
     //   3. Tree depth: alpha * sum{exp(("depth" / "target depth" - 1.0) / "tolerance")}
+    //   4. Tree topology change: we get a fixed penalty for choosing a different split
+    //      feature and a smaller penalty for choosing a different split value for the
+    //      same feature which is proportional to the difference.
 
     SSplitStatistics result;
 
@@ -386,14 +389,19 @@ CBoostedTreeLeafNodeStatisticsIncremental::penaltyForTreeChange(const TRegulariz
     }
 
     const auto& candidateSplits = this->candidateSplits()[feature];
-    double range{*(candidateSplits.end() - 1) - *candidateSplits.begin()};
-    if (range == 0.0) {
+    if (candidateSplits.empty()) {
+        return 0.0;
+    }
+
+    double a{*candidateSplits.begin()};
+    double b{*(candidateSplits.end() - 1)};
+    if (a == b) {
         return 0.0;
     }
 
     double splitAt{candidateSplits[split]};
     return 0.5 * regularization.treeTopologyChangePenalty() *
-           (splitAt - m_PreviousSplit->s_SplitAt) / range;
+           std::fabs(splitAt - CTools::truncate(m_PreviousSplit->s_SplitAt, a, b) / (b - a);
 }
 
 CBoostedTreeLeafNodeStatisticsIncremental::TOptionalPreviousSplit
