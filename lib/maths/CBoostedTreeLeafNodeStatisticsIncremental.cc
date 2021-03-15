@@ -401,7 +401,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::penaltyForTreeChange(const TRegulariz
 
     double splitAt{candidateSplits[split]};
     return 0.5 * regularization.treeTopologyChangePenalty() *
-           std::fabs(splitAt - CTools::truncate(m_PreviousSplit->s_SplitAt, a, b) / (b - a);
+           std::fabs(splitAt - CTools::truncate(m_PreviousSplit->s_SplitAt, a, b)) / (b - a);
 }
 
 CBoostedTreeLeafNodeStatisticsIncremental::TOptionalPreviousSplit
