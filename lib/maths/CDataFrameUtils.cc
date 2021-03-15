@@ -291,14 +291,15 @@ std::string CDataFrameUtils::SDataType::toDelimited() const {
 
 bool CDataFrameUtils::SDataType::fromDelimited(const std::string& delimited) {
     TDoubleVec state(3);
-    int pos{0}, i{0};
-    for (auto delimiter = delimited.find(INTERNAL_DELIMITER); delimiter != std::string::npos;
+    std::size_t pos{0}, i{0};
+    for (auto delimiter = delimited.find(INTERNAL_DELIMITER);
+         delimiter != std::string::npos && i < state.size();
          delimiter = delimited.find(INTERNAL_DELIMITER, pos)) {
         if (core::CStringUtils::stringToType(delimited.substr(pos, delimiter - pos),
                                              state[i++]) == false) {
             return false;
         }
-        pos = static_cast<int>(delimiter + 1);
+        pos = delimiter + 1;
     }
     std::tie(s_IsInteger, s_Min, s_Max) =
         std::make_tuple(state[0] == 1.0, state[1], state[2]);

@@ -285,7 +285,7 @@ BOOST_FIXTURE_TEST_CASE(testUnknownCounter, ml::test::CProgramCounterClearingFix
     std::ifstream log(logFile);
     BOOST_TEST_REQUIRE(log.is_open());
     ml::core::CRegex regex;
-    BOOST_TEST_REQUIRE(regex.init(".*Bad index.*"));
+    BOOST_TEST_REQUIRE(regex.init(".*Bad counter index.*"));
     std::string line;
     while (std::getline(log, line)) {
         LOG_INFO(<< "Got '" << line << "'");

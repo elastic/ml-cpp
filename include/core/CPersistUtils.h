@@ -977,7 +977,12 @@ private:
                         LOG_ERROR(<< "Restoration error at " << traverser.name());
                         return false;
                     }
-                    *(i++) = std::move(value);
+                    if (i == container.end()) {
+                        LOG_ERROR(<< "Too many values for size " << N
+                                  << " array during restoration");
+                    } else {
+                        *(i++) = std::move(value);
+                    }
                 }
             } while (traverser.next());
             return true;
