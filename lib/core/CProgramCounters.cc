@@ -72,7 +72,7 @@ CProgramCounters::TCounter& CProgramCounters::counter(std::size_t index) {
         // can only happen when restoring state that contains one or more counters that are unknown to this version of the application.
         // As this doesn't indicate a problem with the analytics in the running application we simply log a warning.
         // A dummy counter is returned in which to store the unknown counter.
-        LOG_WARN(<< "Bad index " << index);
+        LOG_WARN(<< "Bad counter index " << index);
         return ms_Instance.m_DummyCounter;
     }
     return ms_Instance.m_Counters[index];
@@ -147,13 +147,12 @@ void CProgramCounters::staticsAcceptPersistInserter(CStatePersistInserter& inser
 }
 
 bool CProgramCounters::staticsAcceptRestoreTraverser(CStateRestoreTraverser& traverser) {
-    std::uint64_t value = 0;
-    int key = 0;
+    std::uint64_t value{0};
+    int key{-1};
     do {
         const std::string& name = traverser.name();
         if (name == KEY_TAG) {
-            value = 0;
-            if (CStringUtils::stringToType(traverser.value(), key) == false) {
+            if (CStringUtils::stringToType(traverser.value(), key) == false || key < 0) {
                 LOG_ERROR(<< "Invalid key value in " << traverser.value());
                 return false;
             }
@@ -171,9 +170,13 @@ bool CProgramCounters::staticsAcceptRestoreTraverser(CStateRestoreTraverser& tra
                     value = 0;
                 }
             }
-            counter(key) = value;
-            key = 0;
-            value = 0;
+            if (key < 0) {
+                LOG_ERROR(<< "Found counter value without corresponding key "
+                          << traverser.value());
+            } else {
+                counter(key) = value;
+                key = -1;
+            }
         }
     } while (traverser.next());
 
