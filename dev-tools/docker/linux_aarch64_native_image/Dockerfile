@@ -127,11 +127,11 @@ RUN \
   git submodule sync && \
   git submodule update --init --recursive && \
   sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
+  sed -i -e '88d' -e '88,93s/ + begin//' -e '88,93s/end - begin/size/' -e '93d' aten/src/ATen/cpu/vml.h && \
   export BLAS=Eigen && \
   export BUILD_TEST=OFF && \
   export USE_FBGEMM=OFF && \
   export USE_KINETO=OFF && \
-  export USE_NUMPY=OFF && \
   export USE_DISTRIBUTED=OFF && \
   export USE_MKLDNN=OFF && \
   export USE_QNNPACK=OFF && \

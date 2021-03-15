@@ -292,6 +292,30 @@ a heuristic virus scanner looking for potentially dangerous function
 calls in our shipped product will not encounter these functions that run
 external processes.
 
+If you are building on aarch64, also edit `aten/src/ATen/cpu/vml.h` and
+change lines 88-93 from:
+
+```
+    parallel_for(0, size, 2048, [out, in](int64_t begin, int64_t end) {           \
+      map([](const Vec256<scalar_t>& x) { return x.op(); },                       \
+          out + begin,                                                            \
+          in + begin,                                                             \
+          end - begin);                                                           \
+    });                                                                           \
+```
+
+to:
+
+```
+    map([](const Vec256<scalar_t>& x) { return x.op(); },                         \
+        out,                                                                      \
+        in,                                                                       \
+        size);                                                                    \
+```
+
+(That edit is a workaround for a compiler bug that affects gcc 9.3 and 10.2
+and will hopefully become unnecessary if we upgrade to gcc 9.4 or 10.3.)
+
 Build as follows:
 
 ```
@@ -300,7 +324,7 @@ export BUILD_TEST=OFF
 [ $(uname -m) = x86_64 ] && export BUILD_CAFFE2=OFF
 [ $(uname -m) != x86_64 ] && export USE_FBGEMM=OFF
 [ $(uname -m) != x86_64 ] && export USE_KINETO=OFF
-export USE_NUMPY=OFF
+[ $(uname -m) = x86_64 ] && export USE_NUMPY=OFF
 export USE_DISTRIBUTED=OFF
 export USE_MKLDNN=OFF
 export USE_QNNPACK=OFF

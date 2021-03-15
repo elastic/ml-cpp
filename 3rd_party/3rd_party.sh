@@ -46,6 +46,7 @@ case `uname` in
         BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
         XML_LOCATION=
         GCC_RT_LOCATION=
+        OMP_LOCATION=
         STL_LOCATION=
         ZLIB_LOCATION=
         TORCH_LIBRARIES="torch_cpu c10"
@@ -68,6 +69,8 @@ case `uname` in
             XML_EXTENSION=.so.2
             GCC_RT_LOCATION=/usr/local/gcc93/lib64
             GCC_RT_EXTENSION=.so.1
+            OMP_LOCATION=/usr/local/gcc93/lib64
+            OMP_EXTENSION=.so.1
             STL_LOCATION=/usr/local/gcc93/lib64
             STL_PATTERN=libstdc++
             STL_EXTENSION=.so.6
@@ -83,6 +86,7 @@ case `uname` in
             BOOST_LIBRARIES='atomic chrono date_time filesystem iostreams log log_setup program_options regex system thread'
             XML_LOCATION=
             GCC_RT_LOCATION=
+            OMP_LOCATION=
             STL_LOCATION=
             ZLIB_LOCATION=
             TORCH_LIBRARIES="torch_cpu c10"
@@ -104,6 +108,7 @@ case `uname` in
             XML_EXTENSION=.so.2
             GCC_RT_LOCATION=$SYSROOT/usr/local/gcc93/lib64
             GCC_RT_EXTENSION=.so.1
+            OMP_LOCATION=$SYSROOT/usr/local/gcc93/lib64
             STL_LOCATION=$SYSROOT/usr/local/gcc93/lib64
             STL_PREFIX=libstdc++
             STL_EXTENSION=.so.6
@@ -124,6 +129,7 @@ case `uname` in
         XML_LOCATION=/$LOCAL_DRIVE/usr/local/bin
         XML_EXTENSION=.dll
         GCC_RT_LOCATION=
+        OMP_LOCATION=
         # Read VCBASE from environment if defined, otherwise default to VS Professional 2019
         DEFAULTVCBASE=`cd /$LOCAL_DRIVE && cygpath -m -s "Program Files (x86)/Microsoft Visual Studio/2019/Professional"`
         VCBASE=${VCBASE:-$DEFAULTVCBASE}
@@ -188,6 +194,18 @@ if [ ! -z "$GCC_RT_LOCATION" ] ; then
         exit 7
     fi
 fi
+if [ ! -z "$OMP_LOCATION" ] ; then
+    if ls $OMP_LOCATION/libgomp*$OMP_EXTENSION >/dev/null ; then
+        if [ -n "$INSTALL_DIR" ] ; then
+            rm -f $INSTALL_DIR/libgomp*$OMP_EXTENSION
+            cp $OMP_LOCATION/libgomp*$OMP_EXTENSION $INSTALL_DIR
+            chmod u+wx $INSTALL_DIR/libgomp*$OMP_EXTENSION
+        fi
+    else
+        echo "OMP runtime library not found"
+        exit 8
+    fi
+fi
 if [ ! -z "$STL_LOCATION" ] ; then
     if ls $STL_LOCATION/*$STL_PATTERN*$STL_EXTENSION >/dev/null ; then
         if [ -n "$INSTALL_DIR" ] ; then
@@ -197,7 +215,7 @@ if [ ! -z "$STL_LOCATION" ] ; then
         fi
     else
         echo "C++ standard library not found"
-        exit 8
+        exit 9
     fi
 fi
 if [ ! -z "$ZLIB_LOCATION" ] ; then
@@ -209,7 +227,7 @@ if [ ! -z "$ZLIB_LOCATION" ] ; then
         fi
     else
         echo "zlib not found"
-        exit 9
+        exit 10
     fi
 fi
 if [ ! -z "$TORCH_LOCATION" ] ; then
@@ -224,7 +242,7 @@ if [ ! -z "$TORCH_LOCATION" ] ; then
         fi        
     else
         echo "Torch libraries not found"
-        exit 10
+        exit 11
     fi
 fi
 
