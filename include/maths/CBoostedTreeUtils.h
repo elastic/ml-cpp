@@ -63,6 +63,10 @@ struct SHyperparameterImportance {
     bool s_Supplied;
 };
 
+//! Get the index of the root node in a canonical tree node vector.
+MATHS_EXPORT
+std::size_t rootIndex();
+
 //! Get the root node of \p tree.
 MATHS_EXPORT
 const CBoostedTreeNode& root(const std::vector<CBoostedTreeNode>& tree);

@@ -55,6 +55,8 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 
+    m_PreviousSplit = this->rootPreviousSplit(workspace);
+
     this->derivatives().swap(workspace.reducedDerivatives(MASK_INDEX));
     this->bestSplitStatistics() =
         this->computeBestSplitStatistics(regularization, nodeFeatureBag);
@@ -89,10 +91,16 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     this->computeRowMaskAndAggregateLossDerivatives(
         CNoLookAheadBound{}, numberThreads, frame, encoder, isLeftChild, split,
         treeFeatureBag, parent.rowMask(), workspace);
+    this->derivatives().swap(workspace.reducedDerivatives(MASK_INDEX));
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 
-    this->derivatives().swap(workspace.reducedDerivatives(MASK_INDEX));
+    // Set the split feature and value for this node in the tree being retrained.
+    std::size_t parentSplitFeature{parent.bestSplit().first};
+    m_PreviousSplit =
+        (isLeftChild ? parent.leftChildPreviousSplit(parentSplitFeature, workspace)
+                     : parent.rightChildPreviousSplit(parentSplitFeature, workspace));
+
     this->bestSplitStatistics() =
         this->computeBestSplitStatistics(regularization, nodeFeatureBag);
     workspace.reducedDerivatives(MASK_INDEX).swap(this->derivatives());
@@ -109,6 +117,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     CBoostedTreeLeafNodeStatisticsIncremental&& parent,
     const TRegularization& regularization,
     const TSizeVec& nodeFeatureBag,
+    bool isLeftChild,
     CWorkspace& workspace)
     : CBoostedTreeLeafNodeStatistics{id,
                                      parent.depth() + 1,
@@ -120,8 +129,16 @@ CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncreme
     // Lazily compute the row mask to avoid unnecessary work.
 
     this->derivatives().subtract(workspace.reducedDerivatives(MASK_INDEX));
+
+    // Set the split feature and value for this node in the tree being retrained.
+    std::size_t parentSplitFeature{parent.bestSplit().first};
+    m_PreviousSplit =
+        (isLeftChild ? parent.leftChildPreviousSplit(parentSplitFeature, workspace)
+                     : parent.rightChildPreviousSplit(parentSplitFeature, workspace));
+
     this->bestSplitStatistics() =
         this->computeBestSplitStatistics(regularization, nodeFeatureBag);
+
     if (this->gain() >= workspace.minimumGain()) {
         this->rowMask() = std::move(parent.rowMask());
         this->rowMask() ^= workspace.reducedMask(MASK_INDEX, this->rowMask().size());
@@ -147,7 +164,8 @@ CBoostedTreeLeafNodeStatisticsIncremental::split(std::size_t leftChildId,
             leftChildId, *this, numberThreads, frame, encoder, regularization,
             treeFeatureBag, nodeFeatureBag, true /*is left child*/, split, workspace);
         rightChild = std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
-            rightChildId, std::move(*this), regularization, nodeFeatureBag, workspace);
+            rightChildId, std::move(*this), regularization, nodeFeatureBag,
+            false /*is left child*/, workspace);
         return {std::move(leftChild), std::move(rightChild)};
     }
 
@@ -155,7 +173,8 @@ CBoostedTreeLeafNodeStatisticsIncremental::split(std::size_t leftChildId,
         rightChildId, *this, numberThreads, frame, encoder, regularization,
         treeFeatureBag, nodeFeatureBag, false /*is left child*/, split, workspace);
     leftChild = std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
-        leftChildId, std::move(*this), regularization, nodeFeatureBag, workspace);
+        leftChildId, std::move(*this), regularization, nodeFeatureBag,
+        true /*is left child*/, workspace);
     return {std::move(leftChild), std::move(rightChild)};
 }
 
@@ -375,6 +394,60 @@ CBoostedTreeLeafNodeStatisticsIncremental::penaltyForTreeChange(const TRegulariz
     double splitAt{candidateSplits[split]};
     return 0.5 * regularization.treeTopologyChangePenalty() *
            (splitAt - m_PreviousSplit->s_SplitAt) / range;
+}
+
+CBoostedTreeLeafNodeStatisticsIncremental::TOptionalPreviousSplit
+CBoostedTreeLeafNodeStatisticsIncremental::rootPreviousSplit(const CWorkspace& workspace) const {
+
+    if (workspace.retraining() == nullptr) {
+        return {};
+    }
+
+    const auto& tree = *workspace.retraining();
+    const auto& node = root(tree);
+    if (node.isLeaf()) {
+        return {};
+    }
+
+    return SPreviousSplit{rootIndex(), node.splitFeature(), node.splitValue()};
+}
+
+CBoostedTreeLeafNodeStatisticsIncremental::TOptionalPreviousSplit
+CBoostedTreeLeafNodeStatisticsIncremental::leftChildPreviousSplit(std::size_t feature,
+                                                                  const CWorkspace& workspace) const {
+    if (workspace.retraining() == nullptr || m_PreviousSplit == boost::none ||
+        m_PreviousSplit->s_Feature != feature) {
+        return {};
+    }
+
+    const auto& tree = *workspace.retraining();
+    if (tree[m_PreviousSplit->s_NodeIndex].isLeaf()) {
+        return {};
+    }
+
+    std::size_t leftChildIndex{tree[m_PreviousSplit->s_NodeIndex].leftChildIndex()};
+    const auto& node = tree[leftChildIndex];
+
+    return SPreviousSplit{leftChildIndex, node.splitFeature(), node.splitValue()};
+}
+
+CBoostedTreeLeafNodeStatisticsIncremental::TOptionalPreviousSplit
+CBoostedTreeLeafNodeStatisticsIncremental::rightChildPreviousSplit(std::size_t feature,
+                                                                   const CWorkspace& workspace) const {
+    if (workspace.retraining() == nullptr || m_PreviousSplit == boost::none ||
+        m_PreviousSplit->s_Feature != feature) {
+        return {};
+    }
+
+    const auto& tree = *workspace.retraining();
+    if (tree[m_PreviousSplit->s_NodeIndex].isLeaf()) {
+        return {};
+    }
+
+    std::size_t rightChildIndex{tree[m_PreviousSplit->s_NodeIndex].leftChildIndex()};
+    auto& node = tree[rightChildIndex];
+
+    return SPreviousSplit{rightChildIndex, node.splitFeature(), node.splitValue()};
 }
 }
 }

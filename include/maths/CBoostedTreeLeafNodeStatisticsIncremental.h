@@ -83,6 +83,7 @@ public:
                                               CBoostedTreeLeafNodeStatisticsIncremental&& parent,
                                               const TRegularization& regularization,
                                               const TSizeVec& nodeFeatureBag,
+                                              bool isLeftChild,
                                               CWorkspace& workspace);
 
     CBoostedTreeLeafNodeStatisticsIncremental(const CBoostedTreeLeafNodeStatisticsIncremental&) = delete;
@@ -110,8 +111,12 @@ public:
     std::size_t staticSize() const override;
 
 private:
-    //! \brief Describes a split in the tree being incrementally retrained.
+    //! \brief Describes a split of the tree being incrementally retrained.
     struct SPreviousSplit {
+        SPreviousSplit(std::size_t nodeIndex, std::size_t feature, double splitAt)
+            : s_NodeIndex{nodeIndex}, s_Feature{feature}, s_SplitAt{splitAt} {}
+
+        std::size_t s_NodeIndex;
         std::size_t s_Feature;
         double s_SplitAt;
     };
@@ -123,6 +128,11 @@ private:
     double penaltyForTreeChange(const TRegularization& regularization,
                                 std::size_t feature,
                                 std::size_t split) const;
+    TOptionalPreviousSplit rootPreviousSplit(const CWorkspace& workspace) const;
+    TOptionalPreviousSplit leftChildPreviousSplit(std::size_t feature,
+                                                  const CWorkspace& workspace) const;
+    TOptionalPreviousSplit rightChildPreviousSplit(std::size_t feature,
+                                                   const CWorkspace& workspace) const;
 
 private:
     TOptionalPreviousSplit m_PreviousSplit;

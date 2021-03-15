@@ -134,6 +134,9 @@ public:
     //! Get the feature index of the split.
     std::size_t splitFeature() const { return m_SplitFeature; }
 
+    //! Get the feature value at which to split .
+    double splitValue() const { return m_SplitValue; }
+
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
 
