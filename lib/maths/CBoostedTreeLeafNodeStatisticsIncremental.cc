@@ -159,6 +159,10 @@ CBoostedTreeLeafNodeStatisticsIncremental::split(std::size_t leftChildId,
     return {std::move(leftChild), std::move(rightChild)};
 }
 
+std::size_t CBoostedTreeLeafNodeStatisticsIncremental::staticSize() const {
+    return sizeof(*this);
+}
+
 CBoostedTreeLeafNodeStatisticsIncremental::SSplitStatistics
 CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
     const TRegularization& regularization,
@@ -234,8 +238,6 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
     TDoubleMatrix hr[]{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
 
     double gain[2];
-    double minLossLeft[2]{0.0, 0.0};
-    double minLossRight[2]{0.0, 0.0};
 
     const auto derivatives = this->derivatives();
 
@@ -288,23 +290,25 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
             if (cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c) {
                 gain[ASSIGN_MISSING_TO_LEFT] = -INF;
             } else {
-                minLossLeft[ASSIGN_MISSING_TO_LEFT] = minimumLoss(
-                    gl[ASSIGN_MISSING_TO_LEFT], hl[ASSIGN_MISSING_TO_LEFT]);
-                minLossRight[ASSIGN_MISSING_TO_LEFT] = minimumLoss(
-                    gr[ASSIGN_MISSING_TO_LEFT], hr[ASSIGN_MISSING_TO_LEFT]);
-                gain[ASSIGN_MISSING_TO_LEFT] = minLossLeft[ASSIGN_MISSING_TO_LEFT] +
-                                               minLossRight[ASSIGN_MISSING_TO_LEFT];
+                double minLossLeft{minimumLoss(gl[ASSIGN_MISSING_TO_LEFT],
+                                               hl[ASSIGN_MISSING_TO_LEFT])};
+                double minLossRight{minimumLoss(gr[ASSIGN_MISSING_TO_LEFT],
+                                                hr[ASSIGN_MISSING_TO_LEFT])};
+                gain[ASSIGN_MISSING_TO_LEFT] =
+                    minLossLeft + minLossRight -
+                    this->penaltyForTreeChange(regularization, feature, split);
             }
 
             if (cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c) {
                 gain[ASSIGN_MISSING_TO_RIGHT] = -INF;
             } else {
-                minLossLeft[ASSIGN_MISSING_TO_RIGHT] = minimumLoss(
-                    gl[ASSIGN_MISSING_TO_RIGHT], hl[ASSIGN_MISSING_TO_RIGHT]);
-                minLossRight[ASSIGN_MISSING_TO_RIGHT] = minimumLoss(
-                    gr[ASSIGN_MISSING_TO_RIGHT], hr[ASSIGN_MISSING_TO_RIGHT]);
-                gain[ASSIGN_MISSING_TO_RIGHT] = minLossLeft[ASSIGN_MISSING_TO_RIGHT] +
-                                                minLossRight[ASSIGN_MISSING_TO_RIGHT];
+                double minLossLeft{minimumLoss(gl[ASSIGN_MISSING_TO_RIGHT],
+                                               hl[ASSIGN_MISSING_TO_RIGHT])};
+                double minLossRight{minimumLoss(gr[ASSIGN_MISSING_TO_RIGHT],
+                                                hr[ASSIGN_MISSING_TO_RIGHT])};
+                gain[ASSIGN_MISSING_TO_RIGHT] =
+                    minLossLeft + minLossRight -
+                    this->penaltyForTreeChange(regularization, feature, split);
             }
 
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
@@ -348,6 +352,29 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
     LOG_TRACE(<< "best split: " << result.print());
 
     return result;
+}
+
+double
+CBoostedTreeLeafNodeStatisticsIncremental::penaltyForTreeChange(const TRegularization& regularization,
+                                                                std::size_t feature,
+                                                                std::size_t split) const {
+    if (m_PreviousSplit == boost::none) {
+        return 0.0;
+    }
+
+    if (feature != m_PreviousSplit->s_Feature) {
+        return regularization.treeTopologyChangePenalty();
+    }
+
+    const auto& candidateSplits = this->candidateSplits()[feature];
+    double range{*(candidateSplits.end() - 1) - *candidateSplits.begin()};
+    if (range == 0.0) {
+        return 0.0;
+    }
+
+    double splitAt{candidateSplits[split]};
+    return 0.5 * regularization.treeTopologyChangePenalty() *
+           (splitAt - m_PreviousSplit->s_SplitAt) / range;
 }
 }
 }

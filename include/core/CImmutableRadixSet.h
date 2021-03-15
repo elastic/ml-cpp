@@ -62,8 +62,8 @@ public:
 
     //! \name Iterators
     //@{
-    TCItr begin() const { m_Values.begin(); }
-    TCItr end() const { m_Values.end(); }
+    TCItr begin() const { return m_Values.begin(); }
+    TCItr end() const { return m_Values.end(); }
     //@}
 
     //! \name Lookup

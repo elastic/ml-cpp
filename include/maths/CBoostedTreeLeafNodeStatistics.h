@@ -667,6 +667,9 @@ public:
     //! Get the row mask for this leaf node.
     core::CPackedBitVector& rowMask();
 
+    //! Get the size of this object.
+    virtual std::size_t staticSize() const = 0;
+
     //! Get the memory used by this object.
     std::size_t memoryUsage() const;
 

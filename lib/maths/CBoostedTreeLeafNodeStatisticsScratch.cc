@@ -175,6 +175,10 @@ CBoostedTreeLeafNodeStatisticsScratch::split(std::size_t leftChildId,
     return {std::move(leftChild), std::move(rightChild)};
 }
 
+std::size_t CBoostedTreeLeafNodeStatisticsScratch::staticSize() const {
+    return sizeof(*this);
+}
+
 CBoostedTreeLeafNodeStatisticsScratch::SSplitStatistics
 CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(const TRegularization& regularization,
                                                                   const TSizeVec& featureBag) const {

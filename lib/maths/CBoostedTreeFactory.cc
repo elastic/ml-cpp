@@ -435,7 +435,7 @@ void CBoostedTreeFactory::initializeHyperparameters(core::CDataFrame& frame) {
     skipIfAfter(CBoostedTreeImpl::E_NotInitialized,
                 [&] { this->initializeHyperparametersSetup(frame); });
 
-    if (m_TreeImpl->m_RegularizationOverride.countNotSet() > 0) {
+    if (m_TreeImpl->m_RegularizationOverride.countNotSetForTrain() > 0) {
         this->initializeUnsetRegularizationHyperparameters(frame);
     }
 

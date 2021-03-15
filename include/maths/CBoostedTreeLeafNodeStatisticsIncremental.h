@@ -106,9 +106,26 @@ public:
                     const CBoostedTreeNode& split,
                     CWorkspace& workspace) override;
 
+    //! Get the size of this object.
+    std::size_t staticSize() const override;
+
+private:
+    //! \brief Describes a split in the tree being incrementally retrained.
+    struct SPreviousSplit {
+        std::size_t s_Feature;
+        double s_SplitAt;
+    };
+    using TOptionalPreviousSplit = boost::optional<SPreviousSplit>;
+
 private:
     SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;
+    double penaltyForTreeChange(const TRegularization& regularization,
+                                std::size_t feature,
+                                std::size_t split) const;
+
+private:
+    TOptionalPreviousSplit m_PreviousSplit;
 };
 }
 }

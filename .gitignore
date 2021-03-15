@@ -20,6 +20,7 @@ nbactions.xml
 #vscode files
 .vscode
 .clangd
+.cache
 
 # gradle stuff
 .gradle/

@@ -106,6 +106,9 @@ public:
                     const CBoostedTreeNode& split,
                     CWorkspace& workspace) override;
 
+    //! Get the size of this object.
+    std::size_t staticSize() const override;
+
 private:
     SSplitStatistics computeBestSplitStatistics(const TRegularization& regularization,
                                                 const TSizeVec& featureBag) const;

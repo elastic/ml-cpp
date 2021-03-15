@@ -54,8 +54,16 @@ public:
         return *this;
     }
 
+    //! Set the tolerance in the depth tree depth limit.
+    CBoostedTreeRegularization& treeTopologyChangePenalty(double treeTopologyChangePenalty) {
+        m_TreeTopologyChangePenalty = treeTopologyChangePenalty;
+        return *this;
+    }
+
     //! Count the number of parameters which have their default values.
-    std::size_t countNotSet() const {
+    std::size_t countNotSetForTrain() const {
+        // We do not count m_TreeTopologyChangePenalty here because it is not tuned as
+        // part of train from scratch.
         return (m_DepthPenaltyMultiplier == T{} ? 1 : 0) +
                (m_TreeSizePenaltyMultiplier == T{} ? 1 : 0) +
                (m_LeafWeightPenaltyMultiplier == T{} ? 1 : 0) +
@@ -86,14 +94,18 @@ public:
                         m_SoftTreeDepthTolerance);
     }
 
+    //! Get the penalty for changing a split feature when training incrementally.
+    T treeTopologyChangePenalty() const { return m_TreeTopologyChangePenalty; }
+
     //! Get description of the regularization parameters.
     std::string print() const {
         return "(depth penalty multiplier = " + toString(m_DepthPenaltyMultiplier) +
                ", soft depth limit = " + toString(m_SoftTreeDepthLimit) +
                ", soft depth tolerance = " + toString(m_SoftTreeDepthTolerance) +
                ", tree size penalty multiplier = " + toString(m_TreeSizePenaltyMultiplier) +
-               ", leaf weight penalty multiplier = " +
-               toString(m_LeafWeightPenaltyMultiplier) + ")";
+               ", leaf weight penalty multiplier = " + toString(m_LeafWeightPenaltyMultiplier) +
+               ", tree topology change penalty = " + toString(m_TreeTopologyChangePenalty) +
+               ")";
     }
 
     //! Persist by passing information to \p inserter.
@@ -108,6 +120,8 @@ public:
                                      m_SoftTreeDepthLimit, inserter);
         core::CPersistUtils::persist(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
                                      m_SoftTreeDepthTolerance, inserter);
+        core::CPersistUtils::persist(REGULARIZATION_TREE_TOPOLOGY_CHANGE_PENALTY_TAG,
+                                     m_TreeTopologyChangePenalty, inserter);
     }
 
     //! Populate the object from serialized data.
@@ -129,6 +143,9 @@ public:
             RESTORE(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
                     core::CPersistUtils::restore(REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG,
                                                  m_SoftTreeDepthTolerance, traverser))
+            RESTORE(REGULARIZATION_TREE_TOPOLOGY_CHANGE_PENALTY_TAG,
+                    core::CPersistUtils::restore(REGULARIZATION_TREE_TOPOLOGY_CHANGE_PENALTY_TAG,
+                                                 m_TreeTopologyChangePenalty, traverser))
         } while (traverser.next());
         return true;
     }
@@ -139,6 +156,7 @@ public:
     static const std::string REGULARIZATION_LEAF_WEIGHT_PENALTY_MULTIPLIER_TAG;
     static const std::string REGULARIZATION_SOFT_TREE_DEPTH_LIMIT_TAG;
     static const std::string REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG;
+    static const std::string REGULARIZATION_TREE_TOPOLOGY_CHANGE_PENALTY_TAG;
 
 private:
     using TOptionalDouble = boost::optional<double>;
@@ -150,11 +168,12 @@ private:
     }
 
 private:
-    T m_DepthPenaltyMultiplier = T{};
-    T m_TreeSizePenaltyMultiplier = T{};
-    T m_LeafWeightPenaltyMultiplier = T{};
-    T m_SoftTreeDepthLimit = T{};
-    T m_SoftTreeDepthTolerance = T{};
+    T m_DepthPenaltyMultiplier{};
+    T m_TreeSizePenaltyMultiplier{};
+    T m_LeafWeightPenaltyMultiplier{};
+    T m_SoftTreeDepthLimit{};
+    T m_SoftTreeDepthTolerance{};
+    T m_TreeTopologyChangePenalty{};
 };
 
 template<typename T>
@@ -172,6 +191,9 @@ const std::string CBoostedTreeRegularization<T>::REGULARIZATION_SOFT_TREE_DEPTH_
 template<typename T>
 const std::string CBoostedTreeRegularization<T>::REGULARIZATION_SOFT_TREE_DEPTH_TOLERANCE_TAG{
     "regularization_soft_tree_depth_tolerance"};
+template<typename T>
+const std::string CBoostedTreeRegularization<T>::REGULARIZATION_TREE_TOPOLOGY_CHANGE_PENALTY_TAG{
+    "regularization_tree_topology_change_penalty"};
 
 //! \brief The algorithm parameters we'll directly optimise to improve test error.
 class MATHS_EXPORT CBoostedTreeHyperparameters {
