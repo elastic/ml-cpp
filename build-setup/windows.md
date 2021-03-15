@@ -213,7 +213,7 @@ On the "Advanced Options" screen, check "Install for all users" and "Add Python 
 
 For the time being, do not take advantage of the option on the final installer screen to reconfigure the machine to allow paths longer than 260 characters.  We still support Windows versions that do not have this option.
 
-### PyTorch 1.7.1
+### PyTorch 1.8.0
 
 PyTorch requires that certain Python modules are installed.  Start a command prompt "cmd.exe" using "Run as administrator".  In it run:
 
@@ -227,19 +227,45 @@ Next, in a Git bash shell run:
 
 ```
 cd /c/tools
-git clone --depth=1 --branch=v1.7.1 git@github.com:pytorch/pytorch.git
+git clone --depth=1 --branch=v1.8.0 git@github.com:pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
 ```
 
-In `caffe2/utils/CMakeLists.txt` delete the following line (line 4):
+Edit `torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp` and replace:
 
 ```
-    utils/threadpool/pthreadpool-cpp.cc
+  std::unique_ptr<FILE, decltype(&_pclose)> pipe(
+      _wpopen(cmd.c_str(), L"r"), _pclose);
 ```
 
-In `torch/CMakeLists.txt` remove the guards around `onnx_library`, i.e. change lines 99-101 from:
+with:
+
+```
+  std::unique_ptr<FILE> pipe;
+```
+
+Also replace:
+
+```
+  intptr_t r = _wspawnve(_P_WAIT, comspec, a, e.data());
+  return r;
+```
+
+with:
+
+```
+  return -1;
+```
+
+This file is used to compile fused CPU kernels, which we do not expect to be
+doing and never want to do for security reasons. Replacing the calls to
+`_wpopen()` and `_wspawnve()` ensures that a heuristic virus scanner looking for
+potentially dangerous function calls in our shipped product will not encounter
+these functions that run external processes.
+
+In `torch/CMakeLists.txt` remove the guards around `onnx_library`, i.e. change lines 98-100 from:
 
 ```
     if(BUILD_TEST)
@@ -261,8 +287,11 @@ set BUILD_TEST=OFF
 set BUILD_CAFFE2=OFF
 set USE_NUMPY=OFF
 set USE_DISTRIBUTED=OFF
+set USE_QNNPACK=OFF
+set USE_PYTORCH_QNNPACK=OFF
+set USE_XNNPACK=OFF
 set MSVC_Z7_OVERRIDE=OFF
-set PYTORCH_BUILD_VERSION=1.7.1
+set PYTORCH_BUILD_VERSION=1.8.0
 set PYTORCH_BUILD_NUMBER=1
 python setup.py install
 ```
