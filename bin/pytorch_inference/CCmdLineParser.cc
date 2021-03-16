@@ -28,7 +28,7 @@ bool CCmdLineParser::parse(int argc,
                            std::string& restoreFileName,
                            bool& isRestoreFileNamedPipe,
                            std::string& loggingFileName,
-                           bool& isLogFileNamedPipe) {
+                           std::string& logProperties) {
     try {
         boost::program_options::options_description desc(DESCRIPTION);
         // clang-format off
@@ -48,9 +48,9 @@ bool CCmdLineParser::parse(int argc,
             ("restore", boost::program_options::value<std::string>(),
                         "Named pipe to read model from")    
             ("restoreIsPipe", "Specified restore file is a named pipe")
-            ("log", boost::program_options::value<std::string>(),
+            ("logPipe", boost::program_options::value<std::string>(),
                         "Named pipe to write log messages to")
-            ("logIsPipe", "Specified log file is a named pipe")                        
+            ("logProperties", "Optional logger properties file")
             ;
         // clang-format on
 
@@ -93,13 +93,12 @@ bool CCmdLineParser::parse(int argc,
         if (vm.count("restoreIsPipe") > 0) {
             isRestoreFileNamedPipe = true;
         }
-        if (vm.count("log") > 0) {
-            loggingFileName = vm["log"].as<std::string>();
+        if (vm.count("logPipe") > 0) {
+            loggingFileName = vm["logPipe"].as<std::string>();
         }
-        if (vm.count("logIsPipe") > 0) {
-            isLogFileNamedPipe = true;
+        if (vm.count("logProperties") > 0) {
+            vm["logProperties"].as<std::string>();
         }
-
     } catch (std::exception& e) {
         std::cerr << "Error processing command line: " << e.what() << std::endl;
         return false;

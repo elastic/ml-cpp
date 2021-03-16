@@ -40,7 +40,7 @@ public:
                       std::string& restoreFileName,
                       bool& isRestoreFileNamedPipe,
                       std::string& loggingFileName,
-                      bool& isLogFileNamedPipe);
+                      std::string& logProperties);
 
 private:
     static const std::string DESCRIPTION;
