@@ -52,7 +52,7 @@ bool CCmdLineParser::parse(int argc,
         desc.add_options()
             ("help", "Display this information and exit")
             ("version", "Display version information and exit")
-            ("config", boost::program_options::value<std::string>()->required(),
+            ("config", boost::program_options::value<std::string>(),
                     "The job configuration file")
             ("filtersconfig", boost::program_options::value<std::string>(),
                     "The filters configuration file")
@@ -114,9 +114,12 @@ bool CCmdLineParser::parse(int argc,
                       << ver::CBuildInfo::fullInfo() << std::endl;
             return false;
         }
-        if (vm.count("config") > 0) {
-            configFile = vm["config"].as<std::string>();
+        if (vm.count("config") == 0) {
+            std::cerr << "Error processing command line: the option '--config' is required but missing";
+            return false;
         }
+
+        configFile = vm["config"].as<std::string>();
         if (vm.count("filtersconfig") > 0) {
             filtersConfigFile = vm["filtersconfig"].as<std::string>();
         }
