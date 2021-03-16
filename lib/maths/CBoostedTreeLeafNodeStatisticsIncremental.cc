@@ -261,7 +261,7 @@ CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
 
     double gain[2];
 
-    const auto derivatives = this->derivatives();
+    const auto& derivatives = this->derivatives();
 
     for (auto feature : featureBag) {
         std::size_t c{derivatives.missingCount(feature)};

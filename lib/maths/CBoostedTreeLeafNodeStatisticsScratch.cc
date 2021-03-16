@@ -258,7 +258,7 @@ CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(const TRegular
     SChildredGainStats bestSplitChildrenGainStats;
     SChildredGainStats featureChildrenGainStats;
 
-    const auto derivatives = this->derivatives();
+    const auto& derivatives = this->derivatives();
 
     for (auto feature : featureBag) {
         std::size_t c{derivatives.missingCount(feature)};
