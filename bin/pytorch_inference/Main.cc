@@ -132,16 +132,12 @@ int main(int argc, char** argv) {
     ml::core_t::TTime namedPipeConnectTimeout{
         ml::core::CBlockingCallCancellingTimer::DEFAULT_TIMEOUT_SECONDS};
 
-    LOG_INFO(<< "Parsing command args");
-
     if (ml::torch::CCmdLineParser::parse(
             argc, argv, modelId, namedPipeConnectTimeout, inputFileName,
             isInputFileNamedPipe, outputFileName, isOutputFileNamedPipe, restoreFileName,
             isRestoreFileNamedPipe, logFileName, logProperties) == false) {
         return EXIT_FAILURE;
     }
-
-    LOG_INFO(<< "Passed command parsing");
 
     ml::core::CBlockingCallCancellingTimer cancellerThread{
         ml::core::CThread::currentThreadId(), std::chrono::seconds{namedPipeConnectTimeout}};
