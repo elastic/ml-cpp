@@ -4,7 +4,7 @@
  * you may not use this file except in compliance with the Elastic License.
  */
 
-#include <maths/CBoostedTreeLeafNodeStatisticsScratch.h>
+#include <maths/CBoostedTreeLeafNodeStatisticsIncremental.h>
 
 #include <core/CDataFrame.h>
 #include <core/CImmutableRadixSet.h>
@@ -25,15 +25,15 @@ namespace {
 struct SChildredGainStats {
     double s_MinLossLeft = -INF;
     double s_MinLossRight = -INF;
-    double s_GainLeft = -INF;
-    double s_GainRight = -INF;
+    double s_GLeft = -INF;
+    double s_GRight = -INF;
 };
 
 const std::size_t ASSIGN_MISSING_TO_LEFT{0};
 const std::size_t ASSIGN_MISSING_TO_RIGHT{1};
 }
 
-CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
+CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncremental(
     std::size_t id,
     const TSizeVec& extraColumns,
     std::size_t numberLossParameters,
@@ -50,10 +50,12 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
     : CBoostedTreeLeafNodeStatistics{id, depth, extraColumns,
                                      numberLossParameters, candidateSplits} {
 
-    this->computeAggregateLossDerivatives(CLookAheadBound{}, numberThreads, frame,
+    this->computeAggregateLossDerivatives(CNoLookAheadBound{}, numberThreads, frame,
                                           encoder, treeFeatureBag, rowMask, workspace);
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
+
+    m_PreviousSplit = this->rootPreviousSplit(workspace);
 
     this->derivatives().swap(workspace.reducedDerivatives(MASK_INDEX));
     this->bestSplitStatistics() =
@@ -67,9 +69,9 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
     }
 }
 
-CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
+CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncremental(
     std::size_t id,
-    const CBoostedTreeLeafNodeStatisticsScratch& parent,
+    const CBoostedTreeLeafNodeStatisticsIncremental& parent,
     std::size_t numberThreads,
     const core::CDataFrame& frame,
     const CDataFrameCategoryEncoder& encoder,
@@ -87,12 +89,18 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
                                                 parent, treeFeatureBag));
 
     this->computeRowMaskAndAggregateLossDerivatives(
-        CLookAheadBound{}, numberThreads, frame, encoder, isLeftChild, split,
+        CNoLookAheadBound{}, numberThreads, frame, encoder, isLeftChild, split,
         treeFeatureBag, parent.rowMask(), workspace);
+    this->derivatives().swap(workspace.reducedDerivatives(MASK_INDEX));
 
     // Lazily copy the mask and derivatives to avoid unnecessary allocations.
 
-    this->derivatives().swap(workspace.reducedDerivatives(MASK_INDEX));
+    // Set the split feature and value for this node in the tree being retrained.
+    std::size_t parentSplitFeature{parent.bestSplit().first};
+    m_PreviousSplit =
+        (isLeftChild ? parent.leftChildPreviousSplit(parentSplitFeature, workspace)
+                     : parent.rightChildPreviousSplit(parentSplitFeature, workspace));
+
     this->bestSplitStatistics() =
         this->computeBestSplitStatistics(regularization, nodeFeatureBag);
     workspace.reducedDerivatives(MASK_INDEX).swap(this->derivatives());
@@ -104,11 +112,12 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
     }
 }
 
-CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
+CBoostedTreeLeafNodeStatisticsIncremental::CBoostedTreeLeafNodeStatisticsIncremental(
     std::size_t id,
-    CBoostedTreeLeafNodeStatisticsScratch&& parent,
+    CBoostedTreeLeafNodeStatisticsIncremental&& parent,
     const TRegularization& regularization,
     const TSizeVec& nodeFeatureBag,
+    bool isLeftChild,
     CWorkspace& workspace)
     : CBoostedTreeLeafNodeStatistics{id,
                                      parent.depth() + 1,
@@ -120,73 +129,71 @@ CBoostedTreeLeafNodeStatisticsScratch::CBoostedTreeLeafNodeStatisticsScratch(
     // Lazily compute the row mask to avoid unnecessary work.
 
     this->derivatives().subtract(workspace.reducedDerivatives(MASK_INDEX));
+
+    // Set the split feature and value for this node in the tree being retrained.
+    std::size_t parentSplitFeature{parent.bestSplit().first};
+    m_PreviousSplit =
+        (isLeftChild ? parent.leftChildPreviousSplit(parentSplitFeature, workspace)
+                     : parent.rightChildPreviousSplit(parentSplitFeature, workspace));
+
     this->bestSplitStatistics() =
         this->computeBestSplitStatistics(regularization, nodeFeatureBag);
+
     if (this->gain() >= workspace.minimumGain()) {
         this->rowMask() = std::move(parent.rowMask());
         this->rowMask() ^= workspace.reducedMask(MASK_INDEX, this->rowMask().size());
     }
 }
 
-CBoostedTreeLeafNodeStatisticsScratch::TPtrPtrPr
-CBoostedTreeLeafNodeStatisticsScratch::split(std::size_t leftChildId,
-                                             std::size_t rightChildId,
-                                             std::size_t numberThreads,
-                                             double gainThreshold,
-                                             const core::CDataFrame& frame,
-                                             const CDataFrameCategoryEncoder& encoder,
-                                             const TRegularization& regularization,
-                                             const TSizeVec& treeFeatureBag,
-                                             const TSizeVec& nodeFeatureBag,
-                                             const CBoostedTreeNode& split,
-                                             CWorkspace& workspace) {
+CBoostedTreeLeafNodeStatisticsIncremental::TPtrPtrPr
+CBoostedTreeLeafNodeStatisticsIncremental::split(std::size_t leftChildId,
+                                                 std::size_t rightChildId,
+                                                 std::size_t numberThreads,
+                                                 double /*gainThreshold*/,
+                                                 const core::CDataFrame& frame,
+                                                 const CDataFrameCategoryEncoder& encoder,
+                                                 const TRegularization& regularization,
+                                                 const TSizeVec& treeFeatureBag,
+                                                 const TSizeVec& nodeFeatureBag,
+                                                 const CBoostedTreeNode& split,
+                                                 CWorkspace& workspace) {
     TPtr leftChild;
     TPtr rightChild;
     if (this->leftChildHasFewerRows()) {
-        if (this->bestSplitStatistics().s_LeftChildMaxGain > gainThreshold) {
-            leftChild = std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
-                leftChildId, *this, numberThreads, frame, encoder, regularization,
-                treeFeatureBag, nodeFeatureBag, true /*is left child*/, split, workspace);
-            if (this->bestSplitStatistics().s_RightChildMaxGain > gainThreshold) {
-                rightChild = std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
-                    rightChildId, std::move(*this), regularization, nodeFeatureBag, workspace);
-            }
-        } else if (this->bestSplitStatistics().s_RightChildMaxGain > gainThreshold) {
-            rightChild = std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
-                rightChildId, *this, numberThreads, frame, encoder, regularization,
-                treeFeatureBag, nodeFeatureBag, false /*is left child*/, split, workspace);
-        }
+        leftChild = std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
+            leftChildId, *this, numberThreads, frame, encoder, regularization,
+            treeFeatureBag, nodeFeatureBag, true /*is left child*/, split, workspace);
+        rightChild = std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
+            rightChildId, std::move(*this), regularization, nodeFeatureBag,
+            false /*is left child*/, workspace);
         return {std::move(leftChild), std::move(rightChild)};
     }
 
-    if (this->bestSplitStatistics().s_RightChildMaxGain > gainThreshold) {
-        rightChild = std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
-            rightChildId, *this, numberThreads, frame, encoder, regularization,
-            treeFeatureBag, nodeFeatureBag, false /*is left child*/, split, workspace);
-        if (this->bestSplitStatistics().s_LeftChildMaxGain > gainThreshold) {
-            leftChild = std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
-                leftChildId, std::move(*this), regularization, nodeFeatureBag, workspace);
-        }
-    } else if (this->bestSplitStatistics().s_LeftChildMaxGain > gainThreshold) {
-        leftChild = std::make_shared<CBoostedTreeLeafNodeStatisticsScratch>(
-            leftChildId, *this, numberThreads, frame, encoder, regularization,
-            treeFeatureBag, nodeFeatureBag, true /*is left child*/, split, workspace);
-    }
+    rightChild = std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
+        rightChildId, *this, numberThreads, frame, encoder, regularization,
+        treeFeatureBag, nodeFeatureBag, false /*is left child*/, split, workspace);
+    leftChild = std::make_shared<CBoostedTreeLeafNodeStatisticsIncremental>(
+        leftChildId, std::move(*this), regularization, nodeFeatureBag,
+        true /*is left child*/, workspace);
     return {std::move(leftChild), std::move(rightChild)};
 }
 
-std::size_t CBoostedTreeLeafNodeStatisticsScratch::staticSize() const {
+std::size_t CBoostedTreeLeafNodeStatisticsIncremental::staticSize() const {
     return sizeof(*this);
 }
 
-CBoostedTreeLeafNodeStatisticsScratch::SSplitStatistics
-CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(const TRegularization& regularization,
-                                                                  const TSizeVec& featureBag) const {
+CBoostedTreeLeafNodeStatisticsIncremental::SSplitStatistics
+CBoostedTreeLeafNodeStatisticsIncremental::computeBestSplitStatistics(
+    const TRegularization& regularization,
+    const TSizeVec& featureBag) const {
 
-    // We have three possible regularization terms we'll use:
+    // We have four possible regularization terms we'll use:
     //   1. Tree size: gamma * "node count"
     //   2. Sum square weights: lambda * sum{"leaf weight" ^ 2)}
     //   3. Tree depth: alpha * sum{exp(("depth" / "target depth" - 1.0) / "tolerance")}
+    //   4. Tree topology change: we get a fixed penalty for choosing a different split
+    //      feature and a smaller penalty for choosing a different split value for the
+    //      same feature which is proportional to the difference.
 
     SSplitStatistics result;
 
@@ -253,10 +260,6 @@ CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(const TRegular
     TDoubleMatrix hr[]{TDoubleMatrix{d, d}, TDoubleMatrix{d, d}};
 
     double gain[2];
-    double minLossLeft[2]{0.0, 0.0};
-    double minLossRight[2]{0.0, 0.0};
-    SChildredGainStats bestSplitChildrenGainStats;
-    SChildredGainStats featureChildrenGainStats;
 
     const auto& derivatives = this->derivatives();
 
@@ -309,23 +312,25 @@ CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(const TRegular
             if (cl[ASSIGN_MISSING_TO_LEFT] == 0 || cl[ASSIGN_MISSING_TO_LEFT] == c) {
                 gain[ASSIGN_MISSING_TO_LEFT] = -INF;
             } else {
-                minLossLeft[ASSIGN_MISSING_TO_LEFT] = minimumLoss(
-                    gl[ASSIGN_MISSING_TO_LEFT], hl[ASSIGN_MISSING_TO_LEFT]);
-                minLossRight[ASSIGN_MISSING_TO_LEFT] = minimumLoss(
-                    gr[ASSIGN_MISSING_TO_LEFT], hr[ASSIGN_MISSING_TO_LEFT]);
-                gain[ASSIGN_MISSING_TO_LEFT] = minLossLeft[ASSIGN_MISSING_TO_LEFT] +
-                                               minLossRight[ASSIGN_MISSING_TO_LEFT];
+                double minLossLeft{minimumLoss(gl[ASSIGN_MISSING_TO_LEFT],
+                                               hl[ASSIGN_MISSING_TO_LEFT])};
+                double minLossRight{minimumLoss(gr[ASSIGN_MISSING_TO_LEFT],
+                                                hr[ASSIGN_MISSING_TO_LEFT])};
+                gain[ASSIGN_MISSING_TO_LEFT] =
+                    minLossLeft + minLossRight -
+                    this->penaltyForTreeChange(regularization, feature, split);
             }
 
             if (cl[ASSIGN_MISSING_TO_RIGHT] == 0 || cl[ASSIGN_MISSING_TO_RIGHT] == c) {
                 gain[ASSIGN_MISSING_TO_RIGHT] = -INF;
             } else {
-                minLossLeft[ASSIGN_MISSING_TO_RIGHT] = minimumLoss(
-                    gl[ASSIGN_MISSING_TO_RIGHT], hl[ASSIGN_MISSING_TO_RIGHT]);
-                minLossRight[ASSIGN_MISSING_TO_RIGHT] = minimumLoss(
-                    gr[ASSIGN_MISSING_TO_RIGHT], hr[ASSIGN_MISSING_TO_RIGHT]);
-                gain[ASSIGN_MISSING_TO_RIGHT] = minLossLeft[ASSIGN_MISSING_TO_RIGHT] +
-                                                minLossRight[ASSIGN_MISSING_TO_RIGHT];
+                double minLossLeft{minimumLoss(gl[ASSIGN_MISSING_TO_RIGHT],
+                                               hl[ASSIGN_MISSING_TO_RIGHT])};
+                double minLossRight{minimumLoss(gr[ASSIGN_MISSING_TO_RIGHT],
+                                                hr[ASSIGN_MISSING_TO_RIGHT])};
+                gain[ASSIGN_MISSING_TO_RIGHT] =
+                    minLossLeft + minLossRight -
+                    this->penaltyForTreeChange(regularization, feature, split);
             }
 
             if (gain[ASSIGN_MISSING_TO_LEFT] > maximumGain) {
@@ -333,22 +338,12 @@ CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(const TRegular
                 splitAt = this->candidateSplits()[feature][split];
                 leftChildRowCount = cl[ASSIGN_MISSING_TO_LEFT];
                 assignMissingToLeft = true;
-                // If gain > -INF then minLossLeft and minLossRight were initialized.
-                featureChildrenGainStats = {minLossLeft[ASSIGN_MISSING_TO_LEFT],
-                                            minLossRight[ASSIGN_MISSING_TO_LEFT],
-                                            gl[ASSIGN_MISSING_TO_LEFT](0),
-                                            gr[ASSIGN_MISSING_TO_LEFT](0)};
             }
             if (gain[ASSIGN_MISSING_TO_RIGHT] > maximumGain) {
                 maximumGain = gain[ASSIGN_MISSING_TO_RIGHT];
                 splitAt = this->candidateSplits()[feature][split];
                 leftChildRowCount = cl[ASSIGN_MISSING_TO_RIGHT];
                 assignMissingToLeft = false;
-                // If gain > -INF then minLossLeft and minLossRight were initialized.
-                featureChildrenGainStats = {minLossLeft[ASSIGN_MISSING_TO_RIGHT],
-                                            minLossRight[ASSIGN_MISSING_TO_RIGHT],
-                                            gl[ASSIGN_MISSING_TO_RIGHT](0),
-                                            gr[ASSIGN_MISSING_TO_RIGHT](0)};
             }
         }
 
@@ -373,25 +368,7 @@ CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(const TRegular
 
         if (candidate > result) {
             result = candidate;
-            bestSplitChildrenGainStats = featureChildrenGainStats;
         }
-    }
-    if (derivatives.numberLossParameters() <= 2 && result.s_Gain > 0) {
-        double childPenaltyForDepth{regularization.penaltyForDepth(this->depth() + 1)};
-        double childPenaltyForDepthPlusOne{
-            regularization.penaltyForDepth(this->depth() + 2)};
-        double childPenalty{regularization.treeSizePenaltyMultiplier() +
-                            regularization.depthPenaltyMultiplier() *
-                                (2.0 * childPenaltyForDepthPlusOne - childPenaltyForDepth)};
-        result.s_LeftChildMaxGain =
-            0.5 * this->childMaxGain(bestSplitChildrenGainStats.s_GainLeft,
-                                     bestSplitChildrenGainStats.s_MinLossLeft, lambda) -
-            childPenalty;
-
-        result.s_RightChildMaxGain =
-            0.5 * this->childMaxGain(bestSplitChildrenGainStats.s_GainRight,
-                                     bestSplitChildrenGainStats.s_MinLossRight, lambda) -
-            childPenalty;
     }
 
     LOG_TRACE(<< "best split: " << result.print());
@@ -399,45 +376,87 @@ CBoostedTreeLeafNodeStatisticsScratch::computeBestSplitStatistics(const TRegular
     return result;
 }
 
-double CBoostedTreeLeafNodeStatisticsScratch::childMaxGain(double childGain,
-                                                           double minLossChild,
-                                                           double lambda) const {
+double
+CBoostedTreeLeafNodeStatisticsIncremental::penaltyForTreeChange(const TRegularization& regularization,
+                                                                std::size_t feature,
+                                                                std::size_t split) const {
+    if (m_PreviousSplit == boost::none) {
+        return 0.0;
+    }
 
-    // This computes the maximum possible gain we can expect splitting a child node given
-    // we know the sum of the positive (g^+) and negative gradients (g^-) at its parent,
-    // the minimum curvature on the positive and negative gradient set (hmin^+ and hmin^-)
-    // and largest and smallest gradient (gmax and gmin, respectively). The highest possible
-    // gain consistent with these constraints can be shown to be:
-    //
-    //   (g^+)^2 / (hmin^+ * g^+ / gmax + lambda) + (g^-)^2 / (hmin^- * g^- / gmin + lambda)
-    //
-    // Since gchild = gchild^+ + gchild^-, we can improve estimates on g^+ and g^- for the
-    // child as:
-    //   g^+ = max(min(gchild - g^-, g^+), 0),
-    //   g^- = max(min(gchild - g^+, g^-), 0).
+    if (feature != m_PreviousSplit->s_Feature) {
+        return regularization.treeTopologyChangePenalty();
+    }
 
-    double positiveDerivativesGSum =
-        std::max(std::min(childGain - this->derivatives().negativeDerivativesGSum(),
-                          this->derivatives().positiveDerivativesGSum()),
-                 0.0);
-    double negativeDerivativesGSum =
-        std::min(std::max(childGain - this->derivatives().positiveDerivativesGSum(),
-                          this->derivatives().negativeDerivativesGSum()),
-                 0.0);
-    double lookAheadGain{
-        ((positiveDerivativesGSum != 0.0)
-             ? CTools::pow2(positiveDerivativesGSum) /
-                   (this->derivatives().positiveDerivativesHMin() * positiveDerivativesGSum /
-                        this->derivatives().positiveDerivativesGMax() +
-                    lambda + 1e-10)
-             : 0.0) +
-        ((negativeDerivativesGSum != 0.0)
-             ? CTools::pow2(negativeDerivativesGSum) /
-                   (this->derivatives().negativeDerivativesHMin() * negativeDerivativesGSum /
-                        this->derivatives().negativeDerivativesGMin() +
-                    lambda + 1e-10)
-             : 0.0)};
-    return lookAheadGain - minLossChild;
+    const auto& candidateSplits = this->candidateSplits()[feature];
+    if (candidateSplits.empty()) {
+        return 0.0;
+    }
+
+    double a{*candidateSplits.begin()};
+    double b{*(candidateSplits.end() - 1)};
+    if (a == b) {
+        return 0.0;
+    }
+
+    double splitAt{candidateSplits[split]};
+    double previousSplitAt{CTools::truncate(m_PreviousSplit->s_SplitAt, a, b)};
+    return 0.5 * regularization.treeTopologyChangePenalty() *
+           std::fabs(splitAt - previousSplitAt) / (b - a);
+}
+
+CBoostedTreeLeafNodeStatisticsIncremental::TOptionalPreviousSplit
+CBoostedTreeLeafNodeStatisticsIncremental::rootPreviousSplit(const CWorkspace& workspace) const {
+
+    if (workspace.retraining() == nullptr) {
+        return {};
+    }
+
+    const auto& tree = *workspace.retraining();
+    const auto& node = root(tree);
+    if (node.isLeaf()) {
+        return {};
+    }
+
+    return SPreviousSplit{rootIndex(), node.splitFeature(), node.splitValue()};
+}
+
+CBoostedTreeLeafNodeStatisticsIncremental::TOptionalPreviousSplit
+CBoostedTreeLeafNodeStatisticsIncremental::leftChildPreviousSplit(std::size_t feature,
+                                                                  const CWorkspace& workspace) const {
+    if (workspace.retraining() == nullptr || m_PreviousSplit == boost::none ||
+        m_PreviousSplit->s_Feature != feature) {
+        return {};
+    }
+
+    const auto& tree = *workspace.retraining();
+    if (tree[m_PreviousSplit->s_NodeIndex].isLeaf()) {
+        return {};
+    }
+
+    std::size_t leftChildIndex{tree[m_PreviousSplit->s_NodeIndex].leftChildIndex()};
+    const auto& node = tree[leftChildIndex];
+
+    return SPreviousSplit{leftChildIndex, node.splitFeature(), node.splitValue()};
+}
+
+CBoostedTreeLeafNodeStatisticsIncremental::TOptionalPreviousSplit
+CBoostedTreeLeafNodeStatisticsIncremental::rightChildPreviousSplit(std::size_t feature,
+                                                                   const CWorkspace& workspace) const {
+    if (workspace.retraining() == nullptr || m_PreviousSplit == boost::none ||
+        m_PreviousSplit->s_Feature != feature) {
+        return {};
+    }
+
+    const auto& tree = *workspace.retraining();
+    if (tree[m_PreviousSplit->s_NodeIndex].isLeaf()) {
+        return {};
+    }
+
+    std::size_t rightChildIndex{tree[m_PreviousSplit->s_NodeIndex].leftChildIndex()};
+    auto& node = tree[rightChildIndex];
+
+    return SPreviousSplit{rightChildIndex, node.splitFeature(), node.splitValue()};
 }
 }
 }

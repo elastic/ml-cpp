@@ -1484,7 +1484,7 @@ void CBoostedTreeImpl::restoreBestHyperparameters() {
 }
 
 std::size_t CBoostedTreeImpl::numberHyperparametersToTune() const {
-    return m_RegularizationOverride.countNotSet() +
+    return m_RegularizationOverride.countNotSetForTrain() +
            (m_DownsampleFactorOverride != boost::none ? 0 : 1) +
            (m_EtaOverride != boost::none
                 ? 0

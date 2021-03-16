@@ -15,12 +15,16 @@ namespace maths {
 namespace boosted_tree_detail {
 using namespace boosted_tree;
 
+std::size_t rootIndex() {
+    return 0;
+}
+
 const CBoostedTreeNode& root(const std::vector<CBoostedTreeNode>& tree) {
-    return tree[0];
+    return tree[rootIndex()];
 }
 
 CBoostedTreeNode& root(std::vector<CBoostedTreeNode>& tree) {
-    return tree[0];
+    return tree[rootIndex()];
 }
 
 void zeroPrediction(const TRowRef& row, const TSizeVec& extraColumns, std::size_t numberLossParameters) {
