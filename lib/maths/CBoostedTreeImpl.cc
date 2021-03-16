@@ -1898,6 +1898,7 @@ void CBoostedTreeImpl::checkTrainInvariants(const core::CDataFrame& frame) const
     if (m_BayesianOptimization == nullptr) {
         HANDLE_FATAL(<< "Internal error: must supply an optimizer. Please report this problem.");
     }
+    // TODO #1811 reactivate the checks once we have a dedicated way to evaluate persisted model on new data.
     // for (const auto& mask : m_MissingFeatureRowMasks) {
     //     if (mask.size() != frame.numberRows()) {
     //         HANDLE_FATAL(<< "Internal error: unexpected missing feature mask ("
