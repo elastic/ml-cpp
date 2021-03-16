@@ -1,3 +1,7 @@
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License;
+# you may not use this file except in compliance with the Elastic License.
+
 import numpy as np
 import scipy.spatial
 import pandas
@@ -15,7 +19,7 @@ import base64
 import gzip
 import heapq
 from operator import itemgetter
-from .trees import Tree
+from .trees import Tree, Forest
 
 # I assume, your host OS is not CentOS
 cloud = (platform.system() == 'Linux') and (platform.dist()[0] == 'centos')
@@ -44,11 +48,22 @@ def decompress(compressed_str: str):
 
 
 class Job:
+    """Job class .
+    """
     def __init__(self, input: Union[str, tempfile._TemporaryFileWrapper],
                  config: Union[str, tempfile._TemporaryFileWrapper],
                  persist: Union[None, str, tempfile._TemporaryFileWrapper] = None,
                  restore: Union[None, str, tempfile._TemporaryFileWrapper] = None,
                  verbose: bool = True):
+        """Initialize the class .
+
+        Args:
+            input (Union[str, tempfile._TemporaryFileWrapper]): input filename or temp file handler
+            config (Union[str, tempfile._TemporaryFileWrapper]): config filename or temp file handler
+            persist (Union[None, str, tempfile._TemporaryFileWrapper], optional): filename or temp file handler for model to persist to. Defaults to None.
+            restore (Union[None, str, tempfile._TemporaryFileWrapper], optional): filename or temp file handler for model to restore from. Defaults to None.
+            verbose (bool, optional): Verbosity. Defaults to True.
+        """
         self.input = input
         self.config = config
         self.verbose = verbose
@@ -100,6 +115,11 @@ class Job:
             server.kill_session(target_session=self.name)
 
     def wait_to_complete(self) -> bool:
+        """Wait until the job is complete .
+
+        Returns:
+            bool: True if job run successfully, False otherwise.
+        """        
         while True:
             err = "\n".join(self.pane.capture_pane())
             with open(self.output.name) as f:
@@ -119,6 +139,7 @@ class Job:
                                                             </tr>
                                                     </table>"""
                                                   .format(err, out)))
+                print(err)
             # the line in main.cc where final output is produced
             success = sum(
                 ['Main.cc@246' in line for line in self.pane.capture_pane()[-5:]]) == 1
@@ -146,6 +167,11 @@ class Job:
             return False
 
     def get_predictions(self) -> np.array:
+        """Returns a numpy array of the predicted values for the model
+
+        Returns:
+            np.array: predictions
+        """
         predictions = []
         for item in self.results:
             if 'row_results' in item:
@@ -154,6 +180,11 @@ class Job:
         return np.array(predictions)
 
     def get_hyperparameters(self) -> dict:
+        """Get all the hyperparameter values for the model.
+
+        Returns:
+            dict: hyperparameters
+        """
         hyperparameters = {}
         for item in self.results:
             if 'model_metadata' in item:
@@ -163,7 +194,10 @@ class Job:
         return hyperparameters
 
     def get_model_definition(self) -> dict:
-        """Usage:
+        """
+        Get model definition json.
+
+        Usage:
         definition = get_model_definition(results)
         trained_models = definition['trained_model']['ensemble']['trained_models']
         forest = Forest(trained_models)
@@ -183,6 +217,18 @@ class Job:
 
 
 def run_job(input, config, persist=None, restore=None, verbose=True) -> Job:
+    """Run a DFA job.
+
+    Args:
+        input (str or temp file handler ): Dataset
+        config (str or temp file handler): Configuration
+        persist (str or temp file handler, optional): Persist model to file. Defaults to None.
+        restore (str or temp file handler, optional): Restore model from file. Defaults to None.
+        verbose (bool, optional): Verbosity. Defaults to True.
+
+    Returns:
+        Job: job object with job process started asynchronously.
+    """
     job = Job(input=input, config=config, persist=persist,
               restore=restore, verbose=verbose)
     job_suffix = ''.join(random.choices(string.ascii_lowercase, k=5))
@@ -314,9 +360,9 @@ def get_covertree_samples(X: np.array, nsamples: int) -> np.array:
 def summarize(dataset_name: str,
               dataset: pandas.DataFrame,
               size: Union[int, float],
-              model: str,
+              model_definition,
               method: str = 'random',
-              verbose: bool = True) -> pandas.DataFrame:
+              verbose: bool = True, **kwargs) -> pandas.DataFrame:
     total_size = dataset.shape[0]
     if isinstance(size, float):
         sample_size = int(total_size*size)
@@ -324,39 +370,94 @@ def summarize(dataset_name: str,
         sample_size = size
     if method == 'random':
         return dataset.sample(n=sample_size)
-    if method == 'diversity':
+    elif method == 'stratified-random':
+        if 'dependent_variable' not in kwargs:
+            raise ValueError(
+                "Method 'stratified-random' requires parameter 'dependent_variable' specified.")
+        D = dataset.copy()
+        dependent_variable = kwargs.get('dependent_variable')
+        sampling_ratio = float(sample_size)/total_size
+        _, bins = np.histogram(D[dependent_variable], bins='auto')
+        D['bin'] = pandas.cut(D[dependent_variable], bins)
+        summarization_df = D.groupby('bin', group_keys=False).apply(
+            lambda x: x.sample(frac=sampling_ratio, replace=False))
+        summarization_df.drop(columns=['bin'], inplace=True)
+        return summarization_df
+
+    elif method == 'diversity':
         import diversipy
         summarization = diversipy.subset.psa_select(
             dataset.to_numpy(), sample_size)
         summarization_df = pandas.DataFrame(
             data=summarization, columns=dataset.columns)
         return summarization_df
-    if method == 'kdtree':
+    elif method == 'kdtree':
         summarization = get_kdtree_samples(dataset.to_numpy(), sample_size)
         summarization_df = pandas.DataFrame(
             data=summarization, columns=dataset.columns)
         return summarization_df
-    if method == 'cover-tree':
+    elif method == 'cover-tree':
         summarization = get_covertree_samples(dataset.to_numpy(), sample_size)
         summarization_df = pandas.DataFrame(
             data=summarization, columns=dataset.columns)
         return summarization_df
+    elif method == 'tree-guided':
+        trained_models = model_definition['trained_model']['ensemble']['trained_models']
+        forest = Forest(trained_models)
+        sampling_ratio = float(sample_size)/total_size
+        summarization_df = batch_sampling(
+            forest=forest, D=dataset, sampling_ratio=sampling_ratio, method='tree-guided')
+        return summarization_df
 
 
 class DataStream():
-    def __init__(self, dataset: pandas.DataFrame, tree: Tree):
+    def __init__(self, dataset: pandas.DataFrame, tree: Tree, sample_ratio: float):
         self.dataset = dataset
         self.current_index = 0
         self.tree = tree
+        self.sample_ratio = sample_ratio
+        self._actual_samples = {}
 
     def length(self) -> int:
         return self.dataset.shape[0]-self.current_index
 
-    def weight(self) -> float:
+    def process_push(self):
         node = self.tree.nodes[self.tree.get_leaf_id(
             self.dataset.loc[self.current_index])]
-        num_samples = node.number_samples
-        return float(num_samples)
+        # print("Push {}".format(node.id))
+        if node.id in self._actual_samples:
+            self._actual_samples[node.id] += 1
+        else:
+            self._actual_samples[node.id] = 1
+
+    def process_pop(self, sample_id: int):
+        node = self.tree.nodes[self.tree.get_leaf_id(
+            self.dataset.loc[sample_id])]
+        # print("Pop {}".format(node.id))
+        self._actual_samples[node.id] -= 1
+
+    def actual_samples(self, node_id: int):
+        return self._actual_samples[node_id]/self.sample_ratio
+
+    def desired_samples(self, node_id: int):
+        return self.tree.nodes[node_id].number_samples
+
+    def weight(self, H: list) -> float:
+        if len(H) == 0:
+            return 1.0
+        node = self.tree.nodes[self.tree.get_leaf_id(
+            self.dataset.loc[self.current_index])]
+        if node.id not in self._actual_samples:
+            return 1.0
+
+        if self.desired_samples(node.id) > self.actual_samples(node.id):
+            weight = (self.desired_samples(node.id) -
+                      self.actual_samples(node.id))/self.desired_samples(node.id)
+            return weight
+        else:
+            return 0.0
+        # num_samples = node.number_samples
+        # return float(num_samples)
         # return 1.0
 
     def next(self):
@@ -373,21 +474,99 @@ class DataStream():
 
 
 def reservoir_sample_with_jumps(S: DataStream, k: int):
+    """Algorithm A-ExpJ"""
     H = []  # min priority queue
     while not S.empty() and len(H) < k:
-        r = random.random()**(1.0/S.weight())
-        heapq.heappush(H, (r, S.current()))
+        weight = S.weight(H)
+        if weight > 0:
+            r = random.random()**(1.0/weight)
+        else:
+            r = -random.random()
+        heapq.heappush(H, (r, S.current(), S.current_index))
+        S.process_push()
         S.next()
     Hmin = H[0][0]
     X = np.log(random.random())/np.log(Hmin)
     while not S.empty():
-        X -= S.weight()
+        X -= S.weight(H)
         if X <= 0:
-            t = Hmin**S.weight()
-            r = random.uniform(t, 1)**(1.0/S.weight())
-            heapq.heappop(H)
-            heapq.heappush(H, (r, S.current()))
+            weight = S.weight(H)
+            if weight > 0:
+                t = Hmin**weight
+                r = random.uniform(t, 1)**(1.0/weight)
+            else:
+                r = -random.random()
+            el = heapq.heappop(H)
+            S.process_pop(el[2])
+            heapq.heappush(H, (r, S.current(), S.current_index))
+            S.process_push()
             Hmin = H[0][0]
             X = np.log(random.random())/np.log(Hmin)
         S.next()
     return pandas.DataFrame(data=map(itemgetter(1), H), columns=S.columns())
+
+
+def get_chi2(tree: Tree, sample: pandas.DataFrame):
+    observed_frequencies = {}
+    for row in sample.iterrows():
+        leaf_id = tree.get_leaf_id(row[1].to_dict())
+        if leaf_id in observed_frequencies:
+            observed_frequencies[leaf_id] += 1.0
+        else:
+            observed_frequencies[leaf_id] = 1.0
+
+    expected_frequencies = tree.get_leaves_num_samples()
+#     for k,v in expected_frequencies.items():
+#         expected_frequencies[k] = float(v)
+
+    observed_stats = []
+    expected_stats = []
+    for k, v in observed_frequencies.items():
+        if v >= 5:  # only look at the leaves with 5 samples and more to get correct test results
+            observed_stats.append(float(v))
+            expected_stats.append(float(expected_frequencies[k]))
+    expected_stats = expected_stats / \
+        np.sum(expected_stats)*np.sum(observed_stats)
+
+    res = scipy.stats.power_divergence(
+        observed_stats, expected_stats, lambda_="pearson")
+    return res.pvalue
+
+
+def get_mean_chi2(forest: Forest, sample: pandas.DataFrame):
+    pvals = []
+    # for tree_idx in trees:
+    for tree_idx in range(1, len(forest.trees)):
+        tree = forest.trees[tree_idx]
+        pvals.append(get_chi2(tree, sample))
+    return np.mean(pvals), np.array(pvals)
+
+
+def batch_sampling(forest: Forest, D: pandas.DataFrame, sampling_ratio: float, method: str = 'tree-guided') -> pandas.DataFrame:
+    # configuration
+    n = D.shape[0]  # dataset size
+    k = int(n*sampling_ratio)  # samples size
+    num_trees = len(forest.trees)  # number of trees in the forest
+    b = int(num_trees*sampling_ratio)  # number of batches
+    batch_size = int(n/b)  # batch size
+    samples_from_batch = int(k/b)
+
+    sample = pandas.DataFrame(columns=D.columns)
+    for batch_index in range(b):
+        # Take a batch of data points of size 𝑛/𝑏
+        batch = pandas.DataFrame(
+            D.iloc[batch_index*batch_size:(batch_index+1)*batch_size])
+        batch.reset_index(inplace=True, drop=True)
+
+        if method == 'tree-guided':
+            # Select a tree 𝑡 from the forest at random
+            t = random.randrange(1, num_trees)
+            S = DataStream(batch, forest.trees[t], float(samples_from_batch)/n)
+            batch_sample = reservoir_sample_with_jumps(S, samples_from_batch)
+        elif method == 'random':
+            batch_sample = batch.sample(n=samples_from_batch)
+        else:
+            raise ValueError(
+                'Invalid argument: "method" should be "tree-guided" or "random".')
+        sample = sample.append(batch_sample, ignore_index=True)
+    return sample

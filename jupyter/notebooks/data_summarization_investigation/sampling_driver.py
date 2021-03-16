@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
-
+#
+# Copyright Elasticsearch B.V. and/or licensed to Elasticsearch B.V. under one
+# or more contributor license agreements. Licensed under the Elastic License;
+# you may not use this file except in compliance with the Elastic License.
+#
 # # Data summarization evaluation
 #
 # 1. From the dataset D create train dataset D1 (90%) and test dataset D0 (10%)
@@ -31,9 +35,10 @@ from sklearn.metrics import max_error, mean_absolute_error, mean_squared_error
 from sklearn.model_selection import train_test_split
 from graphviz import Digraph
 
-from utils.misc import train, summarize, evaluate
+from ..utils.misc import train, summarize, evaluate
 
-sampling_method = 'cover-tree' #['diversity', 'random', 'kdtree']
+# ['diversity', 'random', 'kdtree', 'cover-tree', 'tree-guided', 'stratified-random']
+sampling_method = 'stratified-random'
 
 datasets = ['ccpp', 'electrical-grid-stability',
             'regression_2175_kin8nm',
@@ -60,7 +65,9 @@ for dataset_name in datasets:
     D2 = {}
     for i in [0.25, 0.5, 0.75]:
         D2[i] = summarize(dataset_name=dataset_name, dataset=D1,
-                          size=i, model=None, method=sampling_method, verbose=False)
+                          size=i, model_definition=job1.get_model_definition(), 
+                          method=sampling_method, verbose=False, 
+                          dependent_variable=job1.dependent_variable)
 
     # ## 4. Train a new model (M2i) on D2i
 
