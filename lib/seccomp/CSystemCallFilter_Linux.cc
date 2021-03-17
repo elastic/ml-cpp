@@ -104,9 +104,9 @@ const struct sock_filter FILTER[] = {
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_madvise, 10, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_nanosleep, 9, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_set_robust_list, 8, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mprotect, 7, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_munmap, 6, 0),
-    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mmap, 5, 0),
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mprotect, 7, 0), // for malloc arenas and pthread stacks
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_munmap, 6, 0), // for malloc arenas
+    BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_mmap, 5, 0),   // for malloc arenas
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_getuid, 4, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_exit_group, 3, 0),
     BPF_JUMP(BPF_JMP | BPF_JEQ | BPF_K, __NR_brk, 2, 0),
