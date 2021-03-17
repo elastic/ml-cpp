@@ -83,7 +83,7 @@ def write_request(request, destination):
     json.dump(request, destination)
 
 
-def compare_results(expected, actual):
+def compare_results(expected, actual, tolerance):
     try:
         if expected['request_id'] != actual['request_id']:
             print("request_ids do not match [{}], [{}]".format(expected['request_id'], actual['request_id']), flush=True)
@@ -103,7 +103,7 @@ def compare_results(expected, actual):
 
             are_close = True
             for j in range(len(expected_row)):
-                are_close = are_close and math.isclose(expected_row[j], actual_row[j], rel_tol=1e-04)
+                are_close = are_close and math.isclose(expected_row[j], actual_row[j], abs_tol=tolerance)
 
             if are_close == False:
                 print("row [{}] values are not close {}, {}".format(i, expected_row, actual_row), flush=True)
@@ -159,9 +159,13 @@ def main():
                     return
 
                 expected = test_evaluation[doc_count]['expected_output']
+                 
+                tolerance = 1e-04
+                if 'how_close' in test_evaluation[doc_count]:
+                    tolerance = test_evaluation[doc_count]['how_close']                    
 
                 # compare to expected
-                if compare_results(expected, result) == False:
+                if compare_results(expected, result, tolerance) == False:
                     print()
                     print('ERROR: inference result [{}] does not match expected results'.format(doc_count))
                     print()
