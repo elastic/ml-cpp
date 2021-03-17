@@ -169,6 +169,12 @@ def main():
 
                 doc_count = doc_count +1
 
+            if doc_count != len(test_evaluation): 
+                print()
+                print('ERROR: The number of inference results [{}] does not match expected count [{}]'.format(doc_count, len(test_evaluation)))
+                print()
+                results_match = False
+
             if results_match:
                 print()
                 print('SUCCESS: inference results match expected', flush=True)
