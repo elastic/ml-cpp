@@ -46,6 +46,7 @@ public:
     static const std::string REQUEST_ID;
     static const std::string TOKENS;
     static const std::string VAR_ARG_PREFIX;
+    static const std::string UNKNOWN_ID;
 
     using TUint64Vec = std::vector<std::uint64_t>;
     using TUint64VecVec = std::vector<TUint64Vec>;
@@ -59,18 +60,23 @@ public:
     };
 
     using TRequestHandlerFunc = std::function<bool(SRequest&)>;
+    using TErrorHandlerFunc =
+        std::function<void(const std::string& requestId, const std::string& message)>;
 
 public:
-    CCommandParser(std::istream& strmIn);
+    explicit CCommandParser(std::istream& strmIn);
 
     //! Pass input to the processor until it's consumed as much as it can.
-    bool ioLoop(const TRequestHandlerFunc& requestHandler);
+    //! Parsed requests are passed to the requestHandler, errors such
+    //! as a failed validation are passed to errorHandler
+    bool ioLoop(const TRequestHandlerFunc& requestHandler, const TErrorHandlerFunc& errorHandler);
 
     CCommandParser(const CCommandParser&) = delete;
     CCommandParser& operator=(const CCommandParser&) = delete;
 
 private:
-    bool validateJson(const rapidjson::Document& doc) const;
+    bool validateJson(const rapidjson::Document& doc,
+                      const TErrorHandlerFunc& errorHandler) const;
     bool checkArrayContainsUInts(const rapidjson::Value& arr) const;
     void jsonToRequest(const rapidjson::Document& doc);
 
