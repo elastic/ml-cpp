@@ -408,7 +408,7 @@ BOOST_AUTO_TEST_CASE(testEvaluate) {
     TDoubleVecVec testPoints{{0.3, 0.3}, {0.3, 0.6}, {0.6, 0.3}};
     TDoubleVec testTargets{0.17823499, 0.45056931, 0.45056931};
 
-    for (std::size_t i = 0u; i < testPoints.size(); ++i) {
+    for (std::size_t i = 0; i < testPoints.size(); ++i) {
         TVector x{vector(testPoints[i])};
         double actualTarget{bopt.evaluate(x)};
         BOOST_REQUIRE_CLOSE_ABSOLUTE(actualTarget, testTargets[i], 1e-5);
@@ -432,7 +432,7 @@ BOOST_AUTO_TEST_CASE(testEvaluate1D) {
     for (int d = 0; d < static_cast<int>(dim); ++d) {
         TMeanAccumulator meanAccumulator;
         double ftActual{bopt.evaluate1D(testInput[0], d)};
-        for (std::size_t i = 0u; i < mcSamples; ++i) {
+        for (std::size_t i = 0; i < mcSamples; ++i) {
             TVector input{vector(testSamples[i])};
             input(d) = testInput[0];
             meanAccumulator.add(bopt.evaluate(input) - f0);
@@ -454,7 +454,7 @@ BOOST_AUTO_TEST_CASE(testAnovaConstantFactor) {
         TMeanAccumulator meanAccumulator;
         maths::CBayesianOptimisation bopt{initBayesianOptimization(dim, 20, min, max)};
         double f0Actual{bopt.anovaConstantFactor()};
-        for (std::size_t i = 0u; i < mcSamples; ++i) {
+        for (std::size_t i = 0; i < mcSamples; ++i) {
             TVector input{(vector(testSamples[i]) * (max - min)).array() + min};
             meanAccumulator.add(bopt.evaluate(input));
         }
@@ -478,7 +478,7 @@ BOOST_AUTO_TEST_CASE(testAnovaTotalVariance) {
         maths::CBayesianOptimisation bopt{initBayesianOptimization(dim, 20, min, max)};
         double f0{bopt.anovaConstantFactor()};
         double totalVarianceActual{bopt.anovaTotalVariance()};
-        for (std::size_t i = 0u; i < mcSamples; ++i) {
+        for (std::size_t i = 0; i < mcSamples; ++i) {
             TVector input{(vector(testSamples[i]) * (max - min)).array() + min};
             meanAccumulator.add(maths::CTools::pow2(bopt.evaluate(input) - f0));
         }

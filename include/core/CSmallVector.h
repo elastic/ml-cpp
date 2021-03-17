@@ -36,7 +36,7 @@ struct SPlusAssign {
 template<typename T>
 struct SPlusAssign<T, boost::true_type> {
     static void compute(CSmallVectorBase<T>& lhs, const CSmallVectorBase<T>& rhs) {
-        for (std::size_t i = 0u; i < std::min(lhs.size(), rhs.size()); ++i) {
+        for (std::size_t i = 0; i < std::min(lhs.size(), rhs.size()); ++i) {
             lhs[i] += rhs[i];
         }
     }
@@ -50,7 +50,7 @@ struct SMinusAssign {
 template<typename T>
 struct SMinusAssign<T, boost::true_type> {
     static void compute(CSmallVectorBase<T>& lhs, const CSmallVectorBase<T>& rhs) {
-        for (std::size_t i = 0u; i < std::min(lhs.size(), rhs.size()); ++i) {
+        for (std::size_t i = 0; i < std::min(lhs.size(), rhs.size()); ++i) {
             lhs[i] -= rhs[i];
         }
     }

@@ -36,7 +36,7 @@ namespace {
 template<typename T>
 T sum(const T& params, const T& delta) {
     T result;
-    for (std::size_t i = 0u; i < params.size(); ++i) {
+    for (std::size_t i = 0; i < params.size(); ++i) {
         result[i] = params[i] + delta[i];
     }
     return result;
@@ -45,10 +45,10 @@ T sum(const T& params, const T& delta) {
 template<typename T>
 double squareResidual(const T& params, const TDoubleVec& x, const TDoubleVec& y) {
     double result = 0.0;
-    for (std::size_t i = 0u; i < x.size(); ++i) {
+    for (std::size_t i = 0; i < x.size(); ++i) {
         double yi = 0.0;
         double xi = 1.0;
-        for (std::size_t j = 0u; j < params.size(); ++j, xi *= x[i]) {
+        for (std::size_t j = 0; j < params.size(); ++j, xi *= x[i]) {
             yi += params[j] * xi;
         }
         result += (y[i] - yi) * (y[i] - yi);
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
     double slope = 2.0;
     double curvature = 0.2;
 
-    for (std::size_t t = 0u; t < 100; ++t) {
+    for (std::size_t t = 0; t < 100; ++t) {
         maths::CLeastSquaresOnlineRegression<2, double> ls;
 
         TDoubleVec increments;
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
         TDoubleVec xs;
         TDoubleVec ys;
         double x = 0.0;
-        for (std::size_t i = 0u; i < n; ++i) {
+        for (std::size_t i = 0; i < n; ++i) {
             x += increments[i];
             double y = curvature * x * x + slope * x + intercept + errors[i];
             ls.add(x, y);
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(testInvariants) {
 
         TDoubleVec delta;
         rng.generateUniformSamples(-1e-4, 1e-4, 15, delta);
-        for (std::size_t j = 0u; j < delta.size(); j += 3) {
+        for (std::size_t j = 0; j < delta.size(); j += 3) {
             TDoubleArray3 deltaj;
             deltaj[0] = delta[j];
             deltaj[1] = delta[j + 1];
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE(testFit) {
         TMeanAccumulator interceptError;
         TMeanAccumulator slopeError;
 
-        for (std::size_t t = 0u; t < 100; ++t) {
+        for (std::size_t t = 0; t < 100; ++t) {
             maths::CLeastSquaresOnlineRegression<1> ls;
 
             TDoubleVec increments;
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE(testFit) {
             rng.generateNormalSamples(0.0, 2.0, n, errors);
 
             double x = 0.0;
-            for (std::size_t i = 0u; i < n; ++i) {
+            for (std::size_t i = 0; i < n; ++i) {
                 double y = slope * x + intercept + errors[i];
                 ls.add(x, y);
                 x += increments[i];
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE(testFit) {
     // Test a variety of the randomly generated polynomial fits.
 
     {
-        for (std::size_t t = 0u; t < 10; ++t) {
+        for (std::size_t t = 0; t < 10; ++t) {
             maths::CLeastSquaresOnlineRegression<2, double> ls;
 
             TDoubleVec curve;
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(testFit) {
             rng.generateUniformSamples(1.0, 2.0, n, increments);
 
             double x = 0.0;
-            for (std::size_t i = 0u; i < n; ++i) {
+            for (std::size_t i = 0; i < n; ++i) {
                 double y = curve[2] * x * x + curve[1] * x + curve[0];
                 ls.add(x, y);
                 x += increments[i];
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE(testFit) {
 
             LOG_DEBUG(<< "curve  = " << core::CContainerPrinter::print(curve));
             LOG_DEBUG(<< "params = " << core::CContainerPrinter::print(params));
-            for (std::size_t i = 0u; i < curve.size(); ++i) {
+            for (std::size_t i = 0; i < curve.size(); ++i) {
                 BOOST_REQUIRE_CLOSE_ABSOLUTE(curve[i], params[i], 0.03 * curve[i]);
             }
         }
@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE(testShiftAbscissa) {
         maths::CLeastSquaresOnlineRegression<1> ls;
         maths::CLeastSquaresOnlineRegression<1> lss;
 
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             double x = static_cast<double>(i);
             ls.add(x, slope * x + intercept);
             lss.add((x - 50.0), slope * x + intercept);
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(testShiftAbscissa) {
         maths::CLeastSquaresOnlineRegression<2, double> ls;
         maths::CLeastSquaresOnlineRegression<2, double> lss;
 
-        for (std::size_t i = 0u; i < 100; ++i) {
+        for (std::size_t i = 0; i < 100; ++i) {
             double x = static_cast<double>(i);
             ls.add(x, curvature * x * x + slope * x + intercept);
             lss.add(x - 50.0, curvature * x * x + slope * x + intercept);
@@ -349,7 +349,7 @@ BOOST_AUTO_TEST_CASE(testLinearScale) {
     LOG_DEBUG(<< "parameters 1 = " << core::CContainerPrinter::print(params1));
     LOG_DEBUG(<< "parameters 2 = " << core::CContainerPrinter::print(params2));
 
-    for (std::size_t i = 0u; i < 4; ++i) {
+    for (std::size_t i = 0; i < 4; ++i) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(0.1 * params1[i], params2[i], 1e-6);
     }
 
@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE(testLinearScale) {
     LOG_DEBUG(<< "parameters 1 = " << core::CContainerPrinter::print(params1));
     LOG_DEBUG(<< "parameters 2 = " << core::CContainerPrinter::print(params2));
 
-    for (std::size_t i = 0u; i < 4; ++i) {
+    for (std::size_t i = 0; i < 4; ++i) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(10.0 * params1[i], params2[i], 1e-6);
     }
 }
@@ -375,7 +375,7 @@ BOOST_AUTO_TEST_CASE(testAge) {
     {
         maths::CLeastSquaresOnlineRegression<1> ls;
 
-        for (std::size_t i = 0u; i <= 100; ++i) {
+        for (std::size_t i = 0; i <= 100; ++i) {
             double x = static_cast<double>(i);
             ls.add(x, slope * x + intercept, 5.0);
         }
@@ -426,7 +426,7 @@ BOOST_AUTO_TEST_CASE(testAge) {
     {
         maths::CLeastSquaresOnlineRegression<2, double> ls;
 
-        for (std::size_t i = 0u; i <= 100; ++i) {
+        for (std::size_t i = 0; i <= 100; ++i) {
             double x = static_cast<double>(i);
             ls.add(x, curvature * x * x + slope * x + intercept, 5.0);
         }
@@ -501,7 +501,7 @@ BOOST_AUTO_TEST_CASE(testPrediction) {
     TMeanAccumulator e4;
 
     double x0 = 0.0;
-    for (std::size_t i = 0u; i <= 400; ++i) {
+    for (std::size_t i = 0; i <= 400; ++i) {
         double x = 0.005 * pi * static_cast<double>(i);
         double y = std::sin(x);
 
@@ -582,7 +582,7 @@ BOOST_AUTO_TEST_CASE(testCombination) {
     maths::CLeastSquaresOnlineRegression<2> lsB;
     maths::CLeastSquaresOnlineRegression<2> ls;
 
-    for (std::size_t i = 0u; i < (2 * n) / 3; ++i) {
+    for (std::size_t i = 0; i < (2 * n) / 3; ++i) {
         double x = static_cast<double>(i);
         double y = curvature * x * x + slope * x + intercept + errors[i];
         lsA.add(x, y);
@@ -611,7 +611,7 @@ BOOST_AUTO_TEST_CASE(testCombination) {
     LOG_DEBUG(<< "params       = " << core::CContainerPrinter::print(params));
     LOG_DEBUG(<< "params A + B = " << core::CContainerPrinter::print(paramsAPlusB));
 
-    for (std::size_t i = 0u; i < params.size(); ++i) {
+    for (std::size_t i = 0; i < params.size(); ++i) {
         BOOST_REQUIRE_CLOSE_ABSOLUTE(params[i], paramsAPlusB[i],
                                      5e-3 * std::fabs(params[i]));
     }
@@ -740,7 +740,7 @@ BOOST_AUTO_TEST_CASE(testScale) {
 
     maths::CLeastSquaresOnlineRegression<1, double> regression;
 
-    for (std::size_t i = 0u; i < 20; ++i) {
+    for (std::size_t i = 0; i < 20; ++i) {
         double x = static_cast<double>(i);
         regression.add(x, 5.0 + 0.3 * x);
     }
@@ -846,7 +846,7 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
         double variance = 16.0;
 
         maths::CBasicStatistics::SSampleCovariances<TVector2> covariances(2);
-        for (std::size_t i = 0u; i < 500; ++i) {
+        for (std::size_t i = 0; i < 500; ++i) {
             TDoubleVec noise;
             rng.generateNormalSamples(0.0, variance, static_cast<std::size_t>(n), noise);
             maths::CLeastSquaresOnlineRegression<1, double> regression;
@@ -877,7 +877,7 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
         double variance = 16.0;
 
         maths::CBasicStatistics::SSampleCovariances<TVector3> covariances(3);
-        for (std::size_t i = 0u; i < 500; ++i) {
+        for (std::size_t i = 0; i < 500; ++i) {
             TDoubleVec noise;
             rng.generateNormalSamples(0.0, variance, static_cast<std::size_t>(n), noise);
             maths::CLeastSquaresOnlineRegression<2, double> regression;
@@ -907,12 +907,12 @@ BOOST_AUTO_TEST_CASE(testCovariances) {
 BOOST_AUTO_TEST_CASE(testParameters) {
     maths::CLeastSquaresOnlineRegression<3, double> regression;
 
-    for (std::size_t i = 0u; i < 20; ++i) {
+    for (std::size_t i = 0; i < 20; ++i) {
         double x = static_cast<double>(i);
         regression.add(x, 5.0 + 0.3 * x + 0.5 * x * x - 0.03 * x * x * x);
     }
 
-    for (std::size_t i = 20u; i < 25; ++i) {
+    for (std::size_t i = 20; i < 25; ++i) {
         TDoubleArray4 params1 = regression.parameters(static_cast<double>(i - 19));
 
         maths::CLeastSquaresOnlineRegression<3, double> regression2(regression);
@@ -932,7 +932,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
 
     maths::CLeastSquaresOnlineRegression<2, double> origRegression;
 
-    for (std::size_t i = 0u; i < 20; ++i) {
+    for (std::size_t i = 0; i < 20; ++i) {
         double x = static_cast<double>(i);
         origRegression.add(x, 5.0 + 0.3 * x + 0.5 * x * x);
     }

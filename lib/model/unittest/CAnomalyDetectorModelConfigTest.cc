@@ -89,8 +89,8 @@ BOOST_AUTO_TEST_CASE(testNormal) {
         BOOST_REQUIRE_EQUAL(std::size_t(20),
                             config.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor);
         TDoubleVec params;
-        for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
-            for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
+        for (std::size_t i = 0; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
+            for (std::size_t j = 0; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
                 params.push_back(config.aggregationStyleParam(
                     static_cast<model_t::EAggregationStyle>(i),
                     static_cast<model_t::EAggregationParam>(j)));
@@ -223,8 +223,8 @@ BOOST_AUTO_TEST_CASE(testErrors) {
         BOOST_REQUIRE_EQUAL(
             config2.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor,
             config1.factory(1, POPULATION_METRIC)->modelParams().s_SampleCountFactor);
-        for (std::size_t i = 0u; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
-            for (std::size_t j = 0u; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
+        for (std::size_t i = 0; i < model_t::NUMBER_AGGREGATION_STYLES; ++i) {
+            for (std::size_t j = 0; j < model_t::NUMBER_AGGREGATION_PARAMS; ++j) {
                 BOOST_REQUIRE_EQUAL(config2.aggregationStyleParam(
                                         static_cast<model_t::EAggregationStyle>(i),
                                         static_cast<model_t::EAggregationParam>(j)),

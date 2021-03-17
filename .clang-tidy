@@ -1,0 +1,58 @@
+---
+Checks: >
+  -*,
+  bugprone-*,
+  -bugprone-incorrect-roundings,
+
+  clang-diagnostic-*,
+  -clang-diagnostic-sign-conversion,
+  
+  google-*,
+  -google-build-using-namespace,
+  -google-readability-namespace-comments,
+  -google-runtime-references,
+  misc-*,
+  
+  modernize-*,
+  -modernize-use-trailing-return-type,
+  -modernize-concat-nested-namespaces,
+  -modernize-use-nodiscard,
+  -modernize-replace-random-shuffle,
+  -modernize-unary-static-assert,
+  -modernize-use-uncaught-exception,
+  
+  performance-*,
+  
+  readability-*,
+  -readability-magic-numbers,
+  -readability-named-parameter,
+  -readability-redundant-access-specifiers,
+  
+WarningsAsErrors: false
+AnalyzeTemporaryDtors: false
+FormatStyle:     file
+CheckOptions:
+  - key:             bugprone-assert-side-effect.AssertMacros
+    value:           'FXL_DCHECK'
+  - key:             google-readability-braces-around-statements.ShortStatementLines
+    value:           '2'
+  - key:             google-readability-function-size.StatementThreshold
+    value:           '800'
+  - key:             modernize-loop-convert.MaxCopySize
+    value:           '16'
+  - key:             modernize-loop-convert.MinConfidence
+    value:           reasonable
+  - key:             modernize-loop-convert.NamingStyle
+    value:           CamelCase
+  - key:             modernize-pass-by-value.IncludeStyle
+    value:           llvm
+  - key:             modernize-replace-auto-ptr.IncludeStyle
+    value:           llvm
+  - key:             modernize-use-default-member-init.UseAssignment
+    value:           '1'
+  - key:             modernize-use-nullptr.NullMacros
+    value:           'NULL'
+  - key:             readability-braces-around-statements.ShortStatementLines
+    value:           '2'
+  - key:             bugprone-suspicious-string-compare.WarnOnLogicalNotComparison
+    value:           'true'

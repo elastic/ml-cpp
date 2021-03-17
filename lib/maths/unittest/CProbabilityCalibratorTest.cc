@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(testCalibration) {
         double improvements[] = {0.03, 0.07};
         double maxImprovements[] = {0.01, 0.9};
 
-        for (std::size_t i = 0u; i < boost::size(styles); ++i) {
+        for (std::size_t i = 0; i < boost::size(styles); ++i) {
             maths::CProbabilityCalibrator calibrator(styles[i], 0.99);
 
             CNormalMeanPrecConjugate normal =
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(testCalibration) {
             double maxRawError = 0.0;
             double maxCalibratedError = 0.0;
 
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 TDoubleVec sample(1u, samples[j]);
                 normal.addSamples(sample);
                 lognormal.addSamples(sample);
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(testCalibration) {
         double improvements[] = {0.18, 0.19};
         double maxImprovements[] = {0.0, -0.04};
 
-        for (std::size_t i = 0u; i < boost::size(styles); ++i) {
+        for (std::size_t i = 0; i < boost::size(styles); ++i) {
             maths::CProbabilityCalibrator calibrator(styles[i], 0.99);
 
             CNormalMeanPrecConjugate normal =
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(testCalibration) {
             double maxRawError = 0.0;
             double maxCalibratedError = 0.0;
 
-            for (std::size_t j = 0u; j < samples.size(); ++j) {
+            for (std::size_t j = 0; j < samples.size(); ++j) {
                 TDoubleVec sample(1u, samples[j]);
                 normal.addSamples(sample);
                 CNormalMeanPrecConjugate& mode = samples[j] < 10.0 ? normal1 : normal2;

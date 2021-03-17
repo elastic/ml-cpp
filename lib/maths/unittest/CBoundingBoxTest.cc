@@ -28,7 +28,7 @@ namespace {
 
 bool closerToX(const TBoundingBox2& bb, const TVector2& x, const TVector2& y) {
     TVector2 cc[] = {bb.blc(), bb.trc()};
-    for (std::size_t c = 0u; c < 4; ++c) {
+    for (std::size_t c = 0; c < 4; ++c) {
         double p[] = {cc[c / 2](0), cc[c % 2](1)};
         TVector2 corner(p, p + 2);
         if ((x - corner).euclidean() > (y - corner).euclidean()) {
@@ -40,7 +40,7 @@ bool closerToX(const TBoundingBox2& bb, const TVector2& x, const TVector2& y) {
 
 bool closerToX(const TBoundingBox4& bb, const TVector4& x, const TVector4& y) {
     TVector4 cc[] = {bb.blc(), bb.trc()};
-    for (std::size_t c = 0u; c < 16; ++c) {
+    for (std::size_t c = 0; c < 16; ++c) {
         double p[] = {cc[c / 8](0), cc[(c / 4) % 2](1), cc[(c / 2) % 2](2), cc[c % 2](3)};
         TVector4 corner(p, p + 4);
         if ((x - corner).euclidean() > (y - corner).euclidean()) {
@@ -107,14 +107,14 @@ BOOST_AUTO_TEST_CASE(testCloserTo) {
     TDoubleVec probes;
     rng.generateUniformSamples(-1000.0, 1000.0, 160, probes);
 
-    for (std::size_t i = 0u; i < n; i += 4) {
+    for (std::size_t i = 0; i < n; i += 4) {
         TVector2 x1(&points[i], &points[i + 2]);
         TVector2 x2(&points[i + 2], &points[i + 4]);
 
         TBoundingBox2 bb(x1);
         bb.add(x2);
 
-        for (std::size_t j = 0u; j + 4 <= probes.size(); j += 4) {
+        for (std::size_t j = 0; j + 4 <= probes.size(); j += 4) {
             TVector2 y1(&probes[j], &probes[j + 2]);
             TVector2 y2(&probes[j + 2], &probes[j + 4]);
             bool closer = closerToX(bb, y1, y2);
@@ -132,14 +132,14 @@ BOOST_AUTO_TEST_CASE(testCloserTo) {
         }
     }
 
-    for (std::size_t i = 0u; i < n; i += 8) {
+    for (std::size_t i = 0; i < n; i += 8) {
         TVector4 x1(&points[i], &points[i + 4]);
         TVector4 x2(&points[i + 4], &points[i + 8]);
 
         TBoundingBox4 bb(x1);
         bb.add(x2);
 
-        for (std::size_t j = 0u; j + 8 <= probes.size(); j += 4) {
+        for (std::size_t j = 0; j + 8 <= probes.size(); j += 4) {
             TVector4 y1(&probes[j], &probes[j + 4]);
             TVector4 y2(&probes[j + 4], &probes[j + 8]);
             bool closer = closerToX(bb, y1, y2);

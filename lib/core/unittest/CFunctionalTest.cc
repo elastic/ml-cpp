@@ -55,8 +55,8 @@ BOOST_AUTO_TEST_CASE(testDereference) {
     std::less<double> less;
     core::CFunctional::SDereference<std::less<double>> derefLess;
     const double* values[] = {&one, &two, &three};
-    for (std::size_t i = 0u; i < boost::size(values); ++i) {
-        for (std::size_t j = 0u; j < boost::size(values); ++j) {
+    for (std::size_t i = 0; i < boost::size(values); ++i) {
+        for (std::size_t j = 0; j < boost::size(values); ++j) {
             BOOST_REQUIRE_EQUAL(less(*values[i], *values[j]),
                                 derefLess(values[i], values[j]));
         }

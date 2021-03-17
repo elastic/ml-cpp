@@ -343,7 +343,7 @@ public:
 
         result.clear();
         result.reserve(rawFeatureData.size());
-        for (std::size_t i = 0u; i < rawFeatureData.size(); ++i) {
+        for (std::size_t i = 0; i < rawFeatureData.size(); ++i) {
             TFeatureAnyPr& feature = rawFeatureData[i];
 
             // Check the typeid before attempting the cast so we

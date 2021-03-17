@@ -389,7 +389,7 @@ bool CCategoricalTools::expectedDistinctCategories(const TDoubleVec& probabiliti
         return false;
     }
 
-    for (std::size_t i = 0u; i < probabilities.size(); ++i) {
+    for (std::size_t i = 0; i < probabilities.size(); ++i) {
         if (probabilities[i] > 0.0 && probabilities[i] < 1.0) {
             boost::math::binomial_distribution<> binomial(n, probabilities[i]);
             result += boost::math::cdf(boost::math::complement(binomial, 0.0));
@@ -457,7 +457,7 @@ bool CCategoricalTools::probabilityOfLessLikelyCategoryCount(TDoubleVec& probabi
 
     TDoubleVec probabilities_;
     probabilities_.reserve(i.size());
-    for (std::size_t i_ = 0u; i_ < i.size(); ++i_) {
+    for (std::size_t i_ = 0; i_ < i.size(); ++i_) {
         if (i[i_] >= probabilities.size()) {
             LOG_ERROR(<< "Bad category: " << i[i_] << " out of range");
             return false;
@@ -476,12 +476,12 @@ bool CCategoricalTools::probabilityOfLessLikelyCategoryCount(TDoubleVec& probabi
     TDoubleVec g;
     g.reserve(trials);
 
-    for (std::size_t i_ = 0u; i_ < trials; ++i_) {
+    for (std::size_t i_ = 0; i_ < trials; ++i_) {
         sample.clear();
         CSampling::multinomialSampleFast(probabilities, n, sample, true);
 
         double logPMin = 0.0;
-        for (std::size_t j = 0u; j < sample.size(); ++j) {
+        for (std::size_t j = 0; j < sample.size(); ++j) {
             // We check the sample is in the right tail because
             // we are interested in unusually large values.
             double pj = probabilities[j];
@@ -585,7 +585,7 @@ CCategoricalTools::logMultinomialProbability(const TDoubleVec& probabilities,
         return maths_t::E_FpOverflowed;
     }
 
-    for (std::size_t i = 0u; i < ni.size(); ++i) {
+    for (std::size_t i = 0; i < ni.size(); ++i) {
         double ni_ = static_cast<double>(ni[i]);
         if (ni_ > 0.0) {
             double pi_ = probabilities[i];

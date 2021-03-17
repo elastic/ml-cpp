@@ -256,7 +256,7 @@ case `uname` in
             for FILE in `find . -type f | egrep -v '^core|-debug$|libMl'`
             do
                 # Replace RPATH for 3rd party libraries that already have one
-                patchelf --print-rpath $FILE | grep lib >/dev/null 2>&1 && patchelf --set-rpath '$ORIGIN/.' $FILE
+                patchelf --print-rpath $FILE | grep lib >/dev/null 2>&1 && patchelf --force-rpath --set-rpath '$ORIGIN' $FILE
                 if [ $? -eq 0 ] ; then
                     echo "Set RPATH in $FILE"
                 else

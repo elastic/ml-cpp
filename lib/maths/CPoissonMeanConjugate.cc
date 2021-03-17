@@ -111,7 +111,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             // The non-informative prior is improper and effectively 0 everywhere.
             // (It is acceptable to approximate all finite samples as at the median
             // of this distribution.)
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 double x = samples[i] + offset;
                 double n = maths_t::count(weights[i]);
                 result = aggregate(result, func(CTools::SImproperDistribution(), x), n);
@@ -130,7 +130,7 @@ bool evaluateFunctionOnJointDistribution(const TDouble1Vec& samples,
             // "a" is the shape and "b" is the rate of the gamma distribution,
             // and the error function is significantly cheaper to compute.
 
-            for (std::size_t i = 0u; i < samples.size(); ++i) {
+            for (std::size_t i = 0; i < samples.size(); ++i) {
                 double n = maths_t::count(weights[i]);
                 double x = samples[i] + offset;
 
@@ -331,7 +331,7 @@ void CPoissonMeanConjugate::addSamples(const TDouble1Vec& samples,
 
     double numberSamples = 0.0;
     double sampleSum = 0.0;
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         double x = samples[i] + m_Offset;
         double n = maths_t::countForUpdate(weights[i]);
         if (x < 0.0 || !CMathsFuncs::isFinite(x) || !CMathsFuncs::isFinite(n)) {
@@ -526,7 +526,7 @@ CPoissonMeanConjugate::jointLogMarginalLikelihood(const TDouble1Vec& samples,
     double sampleSum = 0.0;
     double sampleLogFactorialSum = 0.0;
 
-    for (std::size_t i = 0u; i < samples.size(); ++i) {
+    for (std::size_t i = 0; i < samples.size(); ++i) {
         double n = maths_t::countForUpdate(weights[i]);
         double x = samples[i] + m_Offset;
         if (x < 0.0) {
@@ -630,7 +630,7 @@ void CPoissonMeanConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
         try {
             boost::math::normal normal(mean, std::sqrt(variance));
 
-            for (std::size_t i = 1u; i < numberSamples; ++i) {
+            for (std::size_t i = 1; i < numberSamples; ++i) {
                 double q = static_cast<double>(i) / static_cast<double>(numberSamples);
                 double xq = boost::math::quantile(normal, q);
 
@@ -679,7 +679,7 @@ void CPoissonMeanConjugate::sampleMarginalLikelihood(std::size_t numberSamples,
             TNegativeBinomialRealQuantile negativeBinomial1(r, p);
             TNegativeBinomialRealQuantile negativeBinomial2(r + 1.0, p);
 
-            for (std::size_t i = 1u; i < numberSamples; ++i) {
+            for (std::size_t i = 1; i < numberSamples; ++i) {
                 double q = static_cast<double>(i) / static_cast<double>(numberSamples);
                 double xq = boost::math::quantile(negativeBinomial1, q);
 
@@ -847,7 +847,7 @@ std::string CPoissonMeanConjugate::printJointDensityFunction() const {
     std::ostringstream pdf;
     coordinates << "x = [";
     pdf << "pdf = [";
-    for (unsigned int i = 0u; i < POINTS; ++i, x += increment) {
+    for (unsigned int i = 0; i < POINTS; ++i, x += increment) {
         coordinates << x << " ";
         pdf << CTools::safePdf(gamma, x) << " ";
     }

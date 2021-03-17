@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(testCounts) {
     LOG_DEBUG(<< "");
     LOG_DEBUG(<< "Test Uniform");
 
-    for (std::size_t t = 0u, n = 100u; n < 1500; ++t, n += 100) {
+    for (std::size_t t = 0u, n = 100; n < 1500; ++t, n += 100) {
         LOG_DEBUG(<< "*** number categories = " << n << " ***");
 
         TDoubleVec counts;
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(testCounts) {
 
         maths::CCountMinSketch sketch(2, 751);
 
-        for (std::size_t i = 0u; i < counts.size(); ++i) {
+        for (std::size_t i = 0; i < counts.size(); ++i) {
             counts[i] = std::floor(counts[i]);
             sketch.add(static_cast<uint32_t>(i), counts[i]);
         }
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(testCounts) {
 
         TMeanAccumulator meanError;
         double errorCount = 0.0;
-        for (std::size_t i = 0u; i < counts.size(); ++i) {
+        for (std::size_t i = 0; i < counts.size(); ++i) {
             double count = counts[i];
             double estimated = sketch.count(static_cast<uint32_t>(i));
             if (i % 50 == 0) {
@@ -87,18 +87,18 @@ BOOST_AUTO_TEST_CASE(testCounts) {
 
         maths::CCountMinSketch sketch(2, 751);
 
-        for (std::size_t i = 0u; i < heavyHitters.size(); ++i) {
+        for (std::size_t i = 0; i < heavyHitters.size(); ++i) {
             heavyHitters[i] = std::floor(heavyHitters[i]);
             sketch.add(static_cast<uint32_t>(i), heavyHitters[i]);
         }
-        for (std::size_t i = 0u; i < counts.size(); ++i) {
+        for (std::size_t i = 0; i < counts.size(); ++i) {
             counts[i] = std::floor(counts[i]);
             sketch.add(static_cast<uint32_t>(i + heavyHitters.size()), counts[i]);
         }
         LOG_DEBUG(<< "error = " << sketch.oneMinusDeltaError());
 
         TMeanAccumulator meanRelativeError;
-        for (std::size_t i = 0u; i < heavyHitters.size(); ++i) {
+        for (std::size_t i = 0; i < heavyHitters.size(); ++i) {
             double count = heavyHitters[i];
             double estimated = sketch.count(static_cast<uint32_t>(i));
             LOG_DEBUG(<< "category = " << i << ", true count = " << count
@@ -132,16 +132,16 @@ BOOST_AUTO_TEST_CASE(testSwap) {
     maths::CCountMinSketch sketch2(2, 750);
     maths::CCountMinSketch sketch3(3, 300);
     maths::CCountMinSketch sketch4(2, 400);
-    for (std::size_t i = 0u; i < counts1.size(); ++i) {
+    for (std::size_t i = 0; i < counts1.size(); ++i) {
         sketch1.add(static_cast<uint32_t>(i), counts1[i]);
     }
-    for (std::size_t i = 0u; i < counts2.size(); ++i) {
+    for (std::size_t i = 0; i < counts2.size(); ++i) {
         sketch2.add(static_cast<uint32_t>(i), counts2[i]);
     }
-    for (std::size_t i = 0u; i < counts3.size(); ++i) {
+    for (std::size_t i = 0; i < counts3.size(); ++i) {
         sketch3.add(static_cast<uint32_t>(i), counts3[i]);
     }
-    for (std::size_t i = 0u; i < counts4.size(); ++i) {
+    for (std::size_t i = 0; i < counts4.size(); ++i) {
         sketch4.add(static_cast<uint32_t>(i), counts4[i]);
     }
 
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     rng.generateUniformSamples(2.0, 301.0, 500, counts);
 
     maths::CCountMinSketch origSketch(2, 600);
-    for (std::size_t i = 0u; i < counts.size(); ++i) {
+    for (std::size_t i = 0; i < counts.size(); ++i) {
         origSketch.add(static_cast<uint32_t>(i), counts[i]);
     }
 
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE(testPersist) {
     // Sketch.
     TDoubleVec moreCounts;
     rng.generateUniformSamples(2.0, 301.0, 500, moreCounts);
-    for (std::size_t i = 0u; i < moreCounts.size(); ++i) {
+    for (std::size_t i = 0; i < moreCounts.size(); ++i) {
         origSketch.add(static_cast<uint32_t>(counts.size() + i), moreCounts[i]);
     }
 

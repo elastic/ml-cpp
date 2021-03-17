@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodCovariance) {
 
     TDouble10Vec10Vec covariance = filter.marginalLikelihoodCovariance();
     BOOST_REQUIRE_EQUAL(std::size_t(4), covariance.size());
-    for (std::size_t i = 0u; i < 4; ++i) {
+    for (std::size_t i = 0; i < 4; ++i) {
         BOOST_REQUIRE_EQUAL(std::size_t(4), covariance[i].size());
         BOOST_REQUIRE_EQUAL(boost::numeric::bounds<double>::highest(), covariance[i][i]);
         for (std::size_t j = 0; j < i; ++j) {
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE(testMarginalLikelihoodCovariance) {
 
     covariance = filter.marginalLikelihoodCovariance();
     BOOST_REQUIRE_EQUAL(std::size_t(4), covariance.size());
-    for (std::size_t i = 0u; i < 4; ++i) {
+    for (std::size_t i = 0; i < 4; ++i) {
         BOOST_REQUIRE_EQUAL(std::size_t(4), covariance[i].size());
         for (std::size_t j = 0; j < 4; ++j) {
             BOOST_REQUIRE_EQUAL(0.0, covariance[i][j]);
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(testSampleMarginalLikelihood) {
 
     filter.sampleMarginalLikelihood(4, samples);
     BOOST_REQUIRE_EQUAL(std::size_t(4), samples.size());
-    for (std::size_t i = 0u; i < 4; ++i) {
+    for (std::size_t i = 0; i < 4; ++i) {
         BOOST_REQUIRE_EQUAL(std::string("[1.2, 4.1]"),
                             core::CContainerPrinter::print(samples[i]));
     }
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
         TDouble10Vec1Vec(1, TDouble10Vec(std::begin(samples_[0]), std::end(samples_[0]))),
         TDouble10Vec1Vec(1, TDouble10Vec(std::begin(samples_[1]), std::end(samples_[1]))),
         TDouble10Vec1Vec(1, TDouble10Vec(std::begin(samples_[2]), std::end(samples_[2])))};
-    for (std::size_t i = 0u; i < boost::size(samples); ++i) {
+    for (std::size_t i = 0; i < boost::size(samples); ++i) {
         double lb, ub;
         maths::CMultivariateConstantPrior::TTail10Vec tail;
         filter.probabilityOfLessLikelySamples(
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityOfLessLikelySamples) {
     BOOST_TEST_REQUIRE(!filter.isNonInformative());
 
     std::string expectedTails[] = {"[0, 0]", "[1, 2]", "[1, 2]"};
-    for (std::size_t i = 0u; i < boost::size(samples); ++i) {
+    for (std::size_t i = 0; i < boost::size(samples); ++i) {
         double lb, ub;
         maths::CMultivariateConstantPrior::TTail10Vec tail;
         filter.probabilityOfLessLikelySamples(

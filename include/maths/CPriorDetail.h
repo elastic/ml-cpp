@@ -34,7 +34,7 @@ bool CPrior::expectation(const F& f,
     TDoubleWeightsAry1Vec weights{weight};
     CPrior::CLogMarginalLikelihood logLikelihood(*this, weights);
     CCompositeFunctions::CExp<const CPrior::CLogMarginalLikelihood&> likelihood(logLikelihood);
-    for (std::size_t i = 0u; i < numberIntervals; ++i, x += dx) {
+    for (std::size_t i = 0; i < numberIntervals; ++i, x += dx) {
         T productIntegral;
         T fIntegral;
         double likelihoodIntegral;

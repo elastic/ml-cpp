@@ -267,7 +267,7 @@ public:
             }
             (sum[0].value())[0] += value[0];
             sum[0].count() += static_cast<double>(count);
-            for (std::size_t i = 0u; i < influences.size(); ++i) {
+            for (std::size_t i = 0; i < influences.size(); ++i) {
                 if (!influences[i]) {
                     continue;
                 }

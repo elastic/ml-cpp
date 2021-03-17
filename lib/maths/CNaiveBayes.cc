@@ -242,7 +242,7 @@ void CNaiveBayes::addTrainingDataPoint(std::size_t label, const TDouble1VecVec& 
     }
 
     bool updateCount{false};
-    for (std::size_t i = 0u; i < x.size(); ++i) {
+    for (std::size_t i = 0; i < x.size(); ++i) {
         if (x[i].size() > 0) {
             class_.conditionalDensities()[i]->add(x[i]);
             updateCount = true;
@@ -309,7 +309,7 @@ CNaiveBayes::TDoubleSizePrVec CNaiveBayes::classProbabilities(const TDouble1VecV
     }
 
     TDoubleVec logLikelihoods;
-    for (std::size_t i = 0u; i < x.size(); ++i) {
+    for (std::size_t i = 0; i < x.size(); ++i) {
         if (x[i].size() > 0) {
             TMaxAccumulator maxLogLikelihood;
             logLikelihoods.clear();
@@ -327,7 +327,7 @@ CNaiveBayes::TDoubleSizePrVec CNaiveBayes::classProbabilities(const TDouble1VecV
                         std::fabs(*m_MinMaxLogLikelihoodToUseFeature),
                     0.1);
             }
-            for (std::size_t j = 0u; j < logLikelihoods.size(); ++j) {
+            for (std::size_t j = 0; j < logLikelihoods.size(); ++j) {
                 p[j].first += weight * logLikelihoods[j];
             }
         }

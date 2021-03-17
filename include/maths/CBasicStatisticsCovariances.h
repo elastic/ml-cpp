@@ -59,9 +59,9 @@ struct SCovariancesLedoitWolf {
 
         TCoordinate mn{s.trace() / d};
         TCoordinate norm(0);
-        for (std::size_t i = 0u; i < dimension; ++i) {
+        for (std::size_t i = 0; i < dimension; ++i) {
             norm += pow2(s(i, i) - mn);
-            for (std::size_t j = 0u; j < i; ++j) {
+            for (std::size_t j = 0; j < i; ++j) {
                 norm += TCoordinate(2) * pow2(s(i, j));
             }
         }
@@ -70,9 +70,9 @@ struct SCovariancesLedoitWolf {
         TCoordinate z{n * n};
         for (const auto& point : points) {
             norm = TCoordinate(0);
-            for (std::size_t i = 0u; i < dimension; ++i) {
+            for (std::size_t i = 0; i < dimension; ++i) {
                 norm += pow2(pow2(TCoordinate(point(i)) - m(i)) - s(i, i));
-                for (std::size_t j = 0u; j < i; ++j) {
+                for (std::size_t j = 0; j < i; ++j) {
                     norm += TCoordinate(2) * pow2((TCoordinate(point(i)) - m(i)) *
                                                       (TCoordinate(point(j)) - m(j)) -
                                                   s(i, j));
@@ -84,14 +84,14 @@ struct SCovariancesLedoitWolf {
         LOG_TRACE(<< "m = " << mn << ", d = " << dn << ", b = " << bn);
 
         covariances.s_Covariances *= std::max((TCoordinate(1) - bn / dn), 0.0);
-        for (std::size_t i = 0u; i < dimension; ++i) {
+        for (std::size_t i = 0; i < dimension; ++i) {
             covariances.s_Covariances(i, i) += bn / dn * mn;
         }
     }
 
     template<typename MATRIX, typename T>
     static MATRIX minusDiagonal(std::size_t dimension, MATRIX m, T diagonal) {
-        for (std::size_t i = 0u; i < dimension; ++i) {
+        for (std::size_t i = 0; i < dimension; ++i) {
             m(i, i) -= diagonal;
         }
         return m;
@@ -221,7 +221,7 @@ operator-=(const SSampleCovariances<OTHER_POINT>& rhs) {
         // up to zero and zero the corresponding row and column.
         for (std::size_t i = 0u, dimension = las::dimension(s_Mean); i < dimension; ++i) {
             if (s_Covariances(i, i) < TCoordinate{0}) {
-                for (std::size_t j = 0u; j < dimension; ++j) {
+                for (std::size_t j = 0; j < dimension; ++j) {
                     s_Covariances(i, j) = s_Covariances(j, i) = TCoordinate{0};
                 }
             }
@@ -249,7 +249,7 @@ CBasicStatistics::covariances(const SSampleCovariances<POINT>& accumulator) {
     using TMatrix = typename SConformableMatrix<POINT>::Type;
 
     POINT bias(accumulator.s_Count);
-    for (std::size_t i = 0u; i < las::dimension(bias); ++i) {
+    for (std::size_t i = 0; i < las::dimension(bias); ++i) {
         if (bias(i) > TCoordinate{1}) {
             bias(i) /= bias(i) - TCoordinate(1);
         } else {

@@ -159,7 +159,7 @@ void decompose(double trend,
     double x0{trend};
     TDoubleVec x(m + n);
     double xhat{x0};
-    for (std::size_t i = 0u; i < m; ++i) {
+    for (std::size_t i = 0; i < m; ++i) {
         x[i] = CBasicStatistics::mean(seasonal[i]->value(time, 0.0));
         xhat += x[i];
     }
@@ -184,7 +184,7 @@ void decompose(double trend,
     error = decomposition[0] - xhat;
     referenceError = decomposition[0] - x0;
     decomposition[0] = x0 + (decomposition[0] - xhat) / Z;
-    for (std::size_t i = 0u; i < m; ++i) {
+    for (std::size_t i = 0; i < m; ++i) {
         predictions[i] = x[i] - seasonal[i]->meanValue();
         decomposition[i + 1] = x[i] + (decomposition[i + 1] - xhat) / Z + deltas[i];
     }
@@ -2566,7 +2566,7 @@ bool CTimeSeriesDecompositionDetail::CComponents::CSeasonal::removeComponentsWit
 
     TBoolVec remove(m_Components.size(), false);
     bool anyBadComponentsFound{false};
-    for (std::size_t i = 0u; i < m_Components.size(); ++i) {
+    for (std::size_t i = 0; i < m_Components.size(); ++i) {
         const CSeasonalTime& time_{m_Components[i].time()};
         if (m_Components[i].isBad()) {
             LOG_DEBUG(<< "Removing seasonal component"

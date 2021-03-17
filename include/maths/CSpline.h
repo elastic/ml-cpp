@@ -216,7 +216,7 @@ public:
         TMeanAccumulator result;
         switch (m_Type) {
         case E_Linear:
-            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
+            for (std::size_t i = 1; i < this->knots().size(); ++i) {
                 double h = this->knots()[i] - this->knots()[i - 1];
                 double c = (this->values()[i] - this->values()[i - 1]) / h;
                 double d = this->values()[i - 1];
@@ -225,7 +225,7 @@ public:
             break;
 
         case E_Cubic:
-            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
+            for (std::size_t i = 1; i < this->knots().size(); ++i) {
                 double h = this->knots()[i] - this->knots()[i - 1];
                 double a = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
                 double b = this->curvatures()[i - 1] / 2.0;
@@ -287,13 +287,13 @@ public:
 
         switch (m_Type) {
         case E_Linear:
-            for (std::size_t i = 1u; i < n; ++i) {
+            for (std::size_t i = 1; i < n; ++i) {
                 result += std::fabs((this->values()[i] - this->values()[i - 1]));
             }
             break;
 
         case E_Cubic:
-            for (std::size_t i = 1u; i < n; ++i) {
+            for (std::size_t i = 1; i < n; ++i) {
                 double a = this->knots()[i - 1];
                 double b = this->knots()[i];
                 double h = b - a;
@@ -345,7 +345,7 @@ public:
 
         switch (m_Type) {
         case E_Linear:
-            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
+            for (std::size_t i = 1; i < this->knots().size(); ++i) {
                 double h = this->knots()[i] - this->knots()[i - 1];
                 if (a)
                     a->push_back(0.0);
@@ -359,7 +359,7 @@ public:
             break;
 
         case E_Cubic:
-            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
+            for (std::size_t i = 1; i < this->knots().size(); ++i) {
                 double h = this->knots()[i] - this->knots()[i - 1];
                 if (a)
                     a->push_back((this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h);
@@ -418,7 +418,7 @@ public:
         // to the last element in the reduced knot set.
         std::size_t last = std::numeric_limits<std::size_t>::max();
         std::size_t n = this->knots().size();
-        for (std::size_t i = 1u; i <= n; ++i) {
+        for (std::size_t i = 1; i <= n; ++i) {
             std::size_t i_ = i - 1;
             double knot = this->knots()[i_];
             for (/**/; i < n && this->knots()[i] == knot; ++i) {
@@ -494,7 +494,7 @@ public:
                 break;
             }
 
-            for (std::size_t i = 1u; i + 1 < n; ++i) {
+            for (std::size_t i = 1; i + 1 < n; ++i) {
                 h_ = h;
                 h = this->knots()[i + 1] - this->knots()[i];
                 a.push_back(h_);
@@ -569,7 +569,7 @@ public:
         result += ":";
         switch (m_Type) {
         case E_Linear:
-            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
+            for (std::size_t i = 1; i < this->knots().size(); ++i) {
                 double h = this->knots()[i] - this->knots()[i - 1];
                 double c = (this->values()[i] - this->values()[i - 1]) / h;
                 double d = this->values()[i - 1];
@@ -584,7 +584,7 @@ public:
             break;
 
         case E_Cubic:
-            for (std::size_t i = 1u; i < this->knots().size(); ++i) {
+            for (std::size_t i = 1; i < this->knots().size(); ++i) {
                 double h = this->knots()[i] - this->knots()[i - 1];
                 double a = (this->curvatures()[i] - this->curvatures()[i - 1]) / 6.0 / h;
                 double b = this->curvatures()[i - 1] / 2.0;

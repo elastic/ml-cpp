@@ -427,8 +427,8 @@ uint64_t CMetricModel::checksum(bool includeCurrentBucketStats) const {
     if (includeCurrentBucketStats) {
         const TFeatureSizeFeatureDataPrVecPrVec& featureData =
             m_CurrentBucketStats.s_FeatureData;
-        for (std::size_t i = 0u; i < featureData.size(); ++i) {
-            for (std::size_t j = 0u; j < featureData[i].second.size(); ++j) {
+        for (std::size_t i = 0; i < featureData.size(); ++i) {
+            for (std::size_t j = 0; j < featureData[i].second.size(); ++j) {
                 uint64_t& hash = hashes[KEY(featureData[i].second[j].first)];
                 const TFeatureData& data = featureData[i].second[j].second;
                 hash = maths::CChecksum::calculate(hash, data.s_BucketValue);
@@ -641,7 +641,7 @@ void CMetricModel::fill(model_t::EFeature feature,
     TDouble2Vec seasonalWeights[2];
     TDouble2Vec weight(2);
 
-    for (std::size_t i = 0u; i < correlates.size(); ++i) {
+    for (std::size_t i = 0; i < correlates.size(); ++i) {
         TSize2Vec variables(pid == correlates[i][0] ? TSize2Vec{0, 1} : TSize2Vec{1, 0});
         params.s_CorrelatedLabels[i] =
             gatherer.personNamePtr(correlates[i][variables[1]]);
@@ -673,7 +673,7 @@ void CMetricModel::fill(model_t::EFeature feature,
                 params.s_ElapsedTime, times[1] - firstBucketTimes[correlates[i][1]]);
             params.s_Times[i] = TTime2Vec{times[0], times[1]};
             params.s_Values[i].resize(2 * bucket0->value().size());
-            for (std::size_t j = 0u; j < bucket0->value().size(); ++j) {
+            for (std::size_t j = 0; j < bucket0->value().size(); ++j) {
                 params.s_Values[i][2 * j + 0] = bucket0->value()[j];
                 params.s_Values[i][2 * j + 1] = bucket1->value()[j];
             }
@@ -681,7 +681,7 @@ void CMetricModel::fill(model_t::EFeature feature,
             weight[variables[0]] = bucket0->varianceScale();
             weight[variables[1]] = bucket1->varianceScale();
             maths_t::setCountVarianceScale(weight, weights);
-            for (std::size_t j = 0u; j < data[0]->s_InfluenceValues.size(); ++j) {
+            for (std::size_t j = 0; j < data[0]->s_InfluenceValues.size(); ++j) {
                 for (const auto& influenceValue : data[0]->s_InfluenceValues[j]) {
                     TStrCRef influence = influenceValue.first;
                     std::size_t match = static_cast<std::size_t>(
@@ -696,7 +696,7 @@ void CMetricModel::fill(model_t::EFeature feature,
                         const TDouble1VecDoublePr& value1 =
                             data[1]->s_InfluenceValues[j][match].second;
                         value.first.resize(2 * value0.first.size());
-                        for (std::size_t k = 0u; k < value0.first.size(); ++k) {
+                        for (std::size_t k = 0; k < value0.first.size(); ++k) {
                             value.first[2 * k + 0] = value0.first[k];
                             value.first[2 * k + 1] = value1.first[k];
                         }
@@ -712,12 +712,12 @@ void CMetricModel::fill(model_t::EFeature feature,
         core_t::TTime time{bucketTime + bucketLength / 2};
         TDouble2Vec1Vec modes(params.s_Model->correlateModes(
             time, params.s_ComputeProbabilityParams.weights()));
-        for (std::size_t i = 0u; i < modes.size(); ++i) {
+        for (std::size_t i = 0; i < modes.size(); ++i) {
             if (!params.s_Values.empty()) {
                 TDouble2Vec value_{params.s_Values[i][0], params.s_Values[i][1]};
                 TDouble2Vec correction(
                     this->interimValueCorrector().corrections(modes[i], value_));
-                for (std::size_t j = 0u; j < 2; ++j) {
+                for (std::size_t j = 0; j < 2; ++j) {
                     params.s_Values[i][j] += correction[j];
                 }
                 this->currentBucketInterimCorrections().emplace(

@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussian) {
         double upper = maths::information_criteria_detail::confidence(n - 1.0);
 
         double likelihood = 0.0;
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             likelihood += -2.0 * logfSphericalGaussian(mean, variance, samples[i]) +
                           2.0 * std::log(upper);
         }
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussian) {
         double upper = maths::information_criteria_detail::confidence(n - 1.0);
 
         double likelihood = 0.0;
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             likelihood += -2.0 * logfSphericalGaussian(mean, variance, samples[i]) +
                           4.0 * std::log(upper);
         }
@@ -152,7 +152,7 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussian) {
         maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_BIC> bic1(samples);
         maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_AICc> aic1(samples);
 
-        for (std::size_t t = 0u; t < 100; ++t) {
+        for (std::size_t t = 0; t < 100; ++t) {
             rng.random_shuffle(samples.begin(), samples.end());
 
             TSizeVec split;
@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussian) {
 
         maths::CKMeans<TVector2> kmeans;
         kmeans.setPoints(samples);
-        for (std::size_t t = 0u; t < centres.size(); t += 2) {
+        for (std::size_t t = 0; t < centres.size(); t += 2) {
             TVector2Vec tcentres(&centres[t], &centres[t + 2]);
             kmeans.setCentres(tcentres);
 
@@ -218,20 +218,20 @@ BOOST_AUTO_TEST_CASE(testSphericalGaussianWithSphericalCluster) {
     double means_[][2] = {{10.0, 20.0}, {12.0, 30.0}};
     double lowerTriangle[] = {5.0, 0.0, 5.0};
     TVector2Vec means;
-    for (std::size_t i = 0u; i < boost::size(means_); ++i) {
+    for (std::size_t i = 0; i < boost::size(means_); ++i) {
         means.push_back(TVector2(std::begin(means_[i]), std::end(means_[i])));
     }
     TMatrix2 covariance(std::begin(lowerTriangle), std::end(lowerTriangle));
     LOG_DEBUG(<< "means = " << core::CContainerPrinter::print(means));
     LOG_DEBUG(<< "covariance = " << covariance);
 
-    for (std::size_t t = 0u; t < 10; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "*** trial = " << t + 1 << " ***");
 
         TVector2VecVec points(means.size());
         TSphericalCluster2VecVec clusters;
 
-        for (std::size_t i = 0u; i < means.size(); ++i) {
+        for (std::size_t i = 0; i < means.size(); ++i) {
             maths::CSampling::multivariateNormalSample(means[i], covariance,
                                                        1000, points[i]);
             TMeanVar2Accumulator moments;
@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE(testGaussian) {
         double upper = maths::information_criteria_detail::confidence(n - 1.0);
 
         double likelihood = 0.0;
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             likelihood += -2.0 * logfGaussian(mean, covariance, samples[i]) +
                           2.0 * std::log(upper);
         }
@@ -320,7 +320,7 @@ BOOST_AUTO_TEST_CASE(testGaussian) {
         double upper = maths::information_criteria_detail::confidence(n - 1.0);
 
         double likelihood = 0.0;
-        for (std::size_t i = 0u; i < samples.size(); ++i) {
+        for (std::size_t i = 0; i < samples.size(); ++i) {
             likelihood += -2.0 * logfGaussian(mean, covariance, samples[i]) +
                           4.0 * std::log(upper);
         }
@@ -359,7 +359,7 @@ BOOST_AUTO_TEST_CASE(testGaussian) {
         maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_BIC> bic1(samples);
         maths::CSphericalGaussianInfoCriterion<TVector2, maths::E_AICc> aic1(samples);
 
-        for (std::size_t t = 0u; t < 100; ++t) {
+        for (std::size_t t = 0; t < 100; ++t) {
             rng.random_shuffle(samples.begin(), samples.end());
 
             TSizeVec split;
@@ -389,7 +389,7 @@ BOOST_AUTO_TEST_CASE(testGaussian) {
 
         maths::CKMeans<TVector2> kmeans;
         kmeans.setPoints(samples);
-        for (std::size_t t = 0u; t < centres.size(); t += 2) {
+        for (std::size_t t = 0; t < centres.size(); t += 2) {
             TVector2Vec tcentres(&centres[t], &centres[t + 2]);
             kmeans.setCentres(tcentres);
 
@@ -421,20 +421,20 @@ BOOST_AUTO_TEST_CASE(testGaussianWithSphericalCluster) {
     double means_[][2] = {{10.0, 20.0}, {12.0, 30.0}};
     double lowerTriangle[] = {5.0, 0.0, 5.0};
     TVector2Vec means;
-    for (std::size_t i = 0u; i < boost::size(means_); ++i) {
+    for (std::size_t i = 0; i < boost::size(means_); ++i) {
         means.push_back(TVector2(std::begin(means_[i]), std::end(means_[i])));
     }
     TMatrix2 covariance(std::begin(lowerTriangle), std::end(lowerTriangle));
     LOG_DEBUG(<< "means = " << core::CContainerPrinter::print(means));
     LOG_DEBUG(<< "covariance = " << covariance);
 
-    for (std::size_t t = 0u; t < 10; ++t) {
+    for (std::size_t t = 0; t < 10; ++t) {
         LOG_DEBUG(<< "*** trial = " << t + 1 << " ***");
 
         TVector2VecVec points(means.size());
         TSphericalCluster2VecVec clusters;
 
-        for (std::size_t i = 0u; i < means.size(); ++i) {
+        for (std::size_t i = 0; i < means.size(); ++i) {
             maths::CSampling::multivariateNormalSample(means[i], covariance,
                                                        1000, points[i]);
             TMeanVar2Accumulator moments;

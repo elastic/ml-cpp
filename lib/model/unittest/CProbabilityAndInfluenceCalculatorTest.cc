@@ -230,7 +230,7 @@ void testProbabilityAndGetInfluences(model_t::EFeature feature,
     maths::CJointProbabilityOfLessLikelySamples pJoint;
     maths::CProbabilityOfExtremeSample pExtreme;
 
-    for (std::size_t i = 0u; i < values.size(); ++i) {
+    for (std::size_t i = 0; i < values.size(); ++i) {
         std::size_t dimension{values[i].size() - 1};
         TTime2Vec1Vec time{TTime2Vec{time_}};
         TDouble2Vec1Vec value{TDouble2Vec(&values[i][0], &values[i][dimension])};
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE(testInfluenceUnavailableCalculator) {
 
         TDoubleVec samples_;
         rng.generateNormalSamples(10.0, 1.0, 50, samples_);
-        for (std::size_t i = 0u; i < samples_.size(); ++i) {
+        for (std::size_t i = 0; i < samples_.size(); ++i) {
             prior.addSamples({TDouble10Vec(2, samples_[i])},
                              maths_t::CUnitWeights::singleUnit<maths_t::TDouble10Vec>(2));
         }
@@ -447,7 +447,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
             std::string expectedInfluencerValues[]{"i1", "i2"};
             TDoubleVecVec expectedInfluences{{1.0, 1.0}, {0.0, 0.0}, {1.0, 1.0}, {0.8, 0.6}};
 
-            for (std::size_t i = 0u; i < testTimes.size(); ++i) {
+            for (std::size_t i = 0; i < testTimes.size(); ++i) {
                 core_t::TTime time = testTimes[i];
                 LOG_DEBUG(<< "  time = " << time);
                 LOG_DEBUG(<< "  baseline = " << model.predict(time));
@@ -464,7 +464,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
                                   p, tail, I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                for (std::size_t j = 0u; j < influences.size(); ++j) {
+                for (std::size_t j = 0; j < influences.size(); ++j) {
                     BOOST_REQUIRE_EQUAL(expectedInfluencerValues[j],
                                         *influences[j].first.second);
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedInfluences[i][j],
@@ -493,7 +493,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
             covariances[0][1] = covariances[1][0] = 4.0;
             TDoubleVecVec samples_;
             rng.generateMultivariateNormalSamples(mean, covariances, 50, samples_);
-            for (std::size_t i = 0u; i < samples_.size(); ++i) {
+            for (std::size_t i = 0; i < samples_.size(); ++i) {
                 prior.addSamples({TDouble10Vec(samples_[i])},
                                  maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
             }
@@ -532,7 +532,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
             covariances[0][1] = covariances[1][0] = 4.0;
             TDoubleVecVec samples_;
             rng.generateMultivariateNormalSamples(mean, covariances, 50, samples_);
-            for (std::size_t i = 0u; i < samples_.size(); ++i) {
+            for (std::size_t i = 0; i < samples_.size(); ++i) {
                 prior.addSamples({TDouble10Vec(samples_[i])},
                                  maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
             }
@@ -598,7 +598,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
                     {0.8, 0.65}
                 };
 
-            for (std::size_t i = 0u; i < boost::size(testTimes); ++i)
+            for (std::size_t i = 0; i < boost::size(testTimes); ++i)
             {
                 core_t::TTime time = testTimes[i];
                 LOG_DEBUG(<< "  time = " << time);
@@ -648,7 +648,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityComplementInfluenceCalculator) {
                                   I, influencerValues, influences);
 
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-                for (std::size_t j = 0u; j < influences.size(); ++j)
+                for (std::size_t j = 0; j < influences.size(); ++j)
                 {
                     BOOST_REQUIRE_EQUAL(expectedInfluencerValues[j], *influences[j].first.second);
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedInfluences[i][j], influences[j].second, 0.05);
@@ -817,7 +817,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                 covariances[0][1] = covariances[1][0] = 4.0;
                 TDoubleVecVec samples_;
                 rng.generateMultivariateNormalSamples(mean, covariances, 50, samples_);
-                for (std::size_t i = 0u; i < samples_.size(); ++i) {
+                for (std::size_t i = 0; i < samples_.size(); ++i) {
                     prior.addSamples({TDouble10Vec(samples_[i])},
                                      maths_t::CUnitWeights::singleUnit<TDouble10Vec>(2));
                 }
@@ -856,7 +856,7 @@ BOOST_AUTO_TEST_CASE(testMeanInfluenceCalculator) {
                 TDoubleVecVec samples_;
                 rng.generateMultivariateNormalSamples(mean, covariances, 50, samples_);
                 TDouble10Vec1Vec samples;
-                for (std::size_t i = 0u; i < samples_.size(); ++i)
+                for (std::size_t i = 0; i < samples_.size(); ++i)
                 {
                     samples.push_back(samples_[i]);
                 }
@@ -1097,7 +1097,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
             std::string expectedInfluencerValues[] = {"i1", "i2"};
             TDoubleVecVec expectedInfluences{{1.0, 1.0}, {1.0, 1.0}, {1.0, 1.0}, {1.0, 0.7}};
 
-            for (std::size_t i = 0u; i < testTimes.size(); ++i) {
+            for (std::size_t i = 0; i < testTimes.size(); ++i) {
                 core_t::TTime time = testTimes[i];
                 LOG_DEBUG(<< "  time = " << time);
 
@@ -1115,7 +1115,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
                 LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
                 std::sort(influences.begin(), influences.end(),
                           maths::COrderings::SFirstLess());
-                for (std::size_t j = 0u; j < influences.size(); ++j) {
+                for (std::size_t j = 0; j < influences.size(); ++j) {
                     BOOST_REQUIRE_EQUAL(expectedInfluencerValues[j],
                                         *influences[j].first.second);
                     BOOST_REQUIRE_CLOSE_ABSOLUTE(expectedInfluences[i][j],
@@ -1142,7 +1142,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
     //                TDoubleVecVec samples_;
     //                rng.generateMultivariateNormalSamples(mean, covariances, 50, samples_);
     //                TDouble10Vec1Vec samples;
-    //                for (std::size_t i = 0u; i < samples_.size(); ++i)
+    //                for (std::size_t i = 0; i < samples_.size(); ++i)
     //                {
     //                    samples.push_back(samples_[i]);
     //                }
@@ -1189,7 +1189,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
     //                TDoubleVecVec samples_;
     //                rng.generateMultivariateNormalSamples(mean, covariances, 50, samples_);
     //                TDouble10Vec1Vec samples;
-    //                for (std::size_t i = 0u; i < samples_.size(); ++i)
+    //                for (std::size_t i = 0; i < samples_.size(); ++i)
     //                {
     //                    samples.push_back(samples_[i]);
     //                }
@@ -1272,7 +1272,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
     //                    {1.0, 0.85}
     //                };
     //
-    //            for (std::size_t i = 0u; i < boost::size(testTimes); ++i)
+    //            for (std::size_t i = 0; i < boost::size(testTimes); ++i)
     //            {
     //                core_t::TTime time = testTimes[i];
     //                LOG_DEBUG(<< "  time = " << time);
@@ -1322,7 +1322,7 @@ BOOST_AUTO_TEST_CASE(testLogProbabilityInfluenceCalculator) {
     //                                  I, influencerValues, influences);
     //
     //                LOG_DEBUG(<< "  influences = " << core::CContainerPrinter::print(influences));
-    //                for (std::size_t j = 0u; j < influences.size(); ++j)
+    //                for (std::size_t j = 0; j < influences.size(); ++j)
     //                {
     //                    BOOST_REQUIRE_EQUAL(expectedInfluencerValues[j],
     //                                         *influences[j].first.second);
@@ -1450,8 +1450,8 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
         maths::CJointProbabilityOfLessLikelySamples pJoint;
         maths::CProbabilityOfExtremeSample pExtreme;
 
-        for (std::size_t i = 0u; i < 5; ++i) {
-            for (std::size_t j = 0u; j < features.size(); ++j) {
+        for (std::size_t i = 0; i < 5; ++i) {
+            for (std::size_t j = 0; j < features.size(); ++j) {
                 TDouble2Vec1Vec value{TDouble2Vec(&values[i + 5 * j][0],
                                                   &values[i + 5 * j][1 + j])};
                 maths_t::TDouble2VecWeightsAry weights(
@@ -1519,7 +1519,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
              {{TStrCRef(i2), make_pair(7.0, 12.0, 1.5)}},
              {{TStrCRef(i2), make_pair(9.0, 14.0, 1.0)}},
              {{TStrCRef(i1), make_pair(17.0, 22.0, 2.0)}}}};
-        for (std::size_t i = 0u; i < features.size(); ++i) {
+        for (std::size_t i = 0; i < features.size(); ++i) {
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
             testProbabilityAndGetInfluences(features[i], *models[i], now, values[i],
                                             influencerValues[i], influences);
@@ -1547,7 +1547,7 @@ BOOST_AUTO_TEST_CASE(testProbabilityAndInfluenceCalculator) {
              {{TStrCRef(i1), make_pair(10.8, 15.8, 1.0)}},
              {{TStrCRef(i2), make_pair(19.0, 24.0, 1.0)}}}};
 
-        for (std::size_t i = 0u; i < features.size(); ++i) {
+        for (std::size_t i = 0; i < features.size(); ++i) {
             TStoredStringPtrStoredStringPtrPrDoublePrVec influences;
             testProbabilityAndGetInfluences(features[i], *models[i], now, values[i],
                                             influencerValues[i], influences);

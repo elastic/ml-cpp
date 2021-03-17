@@ -363,7 +363,7 @@ public:
                        const F& extractId,
                        CBucketQueue<std::vector<T>>& queue) {
         for (auto bucketItr = queue.begin(); bucketItr != queue.end(); ++bucketItr) {
-            for (std::size_t i = 0u; i < bucketItr->size(); ++i) {
+            for (std::size_t i = 0; i < bucketItr->size(); ++i) {
                 T& bucket = (*bucketItr)[i];
                 for (auto j = bucket.begin(); j != bucket.end(); /**/) {
                     if (std::binary_search(toRemove.begin(), toRemove.end(),

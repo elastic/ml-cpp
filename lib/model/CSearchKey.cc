@@ -135,7 +135,7 @@ void CSearchKey::acceptPersistInserter(core::CStatePersistInserter& inserter) co
     inserter.insertValue(BY_FIELD_NAME_TAG, *m_ByFieldName);
     inserter.insertValue(OVER_FIELD_NAME_TAG, *m_OverFieldName);
     inserter.insertValue(PARTITION_FIELD_NAME_TAG, *m_PartitionFieldName);
-    for (std::size_t i = 0u; i < m_InfluenceFieldNames.size(); ++i) {
+    for (std::size_t i = 0; i < m_InfluenceFieldNames.size(); ++i) {
         inserter.insertValue(INFLUENCE_FIELD_NAME_TAG, *m_InfluenceFieldNames[i]);
     }
 }
@@ -206,7 +206,7 @@ bool CSearchKey::operator<(const CSearchKey& rhs) const {
                             rhs.m_InfluenceFieldNames.size()) {
                             return false;
                         }
-                        for (std::size_t i = 0u; i < m_InfluenceFieldNames.size(); ++i) {
+                        for (std::size_t i = 0; i < m_InfluenceFieldNames.size(); ++i) {
                             comp = m_InfluenceFieldNames[i]->compare(
                                 *rhs.m_InfluenceFieldNames[i]);
                             if (comp != 0) {

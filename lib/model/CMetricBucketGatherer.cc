@@ -1172,7 +1172,7 @@ bool CMetricBucketGatherer::processFields(const TStrCPtrVec& fieldValues,
                       << m_FieldMetricCategories.size());
             allOk = false;
         }
-        for (std::size_t j = 0u; allOk && i < m_FieldNames.size(); ++i, ++j) {
+        for (std::size_t j = 0; allOk && i < m_FieldNames.size(); ++i, ++j) {
             model_t::EMetricCategory category = m_FieldMetricCategories[j];
             if (fieldValues[i] == nullptr ||
                 m_DataGatherer.extractMetricFromField(
