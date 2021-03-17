@@ -245,58 +245,103 @@ CMake version 3.5 is the minimum required to build PyTorch. Download version 3.1
 chmod +x cmake-3.19.3-Linux-x86_64.sh
 sudo mkdir /usr/local/cmake
 sudo ./cmake-3.19.3-Linux-x86_64.sh --skip-license --prefix=/usr/local/cmake
-```  
+```
 
-Please ensure `/usr/local/cmake/bin` is in your `PATH` environment variable. 
+Please ensure `/usr/local/cmake/bin` is in your `PATH` environment variable.
 
-### Python 
+### Python
 
 PyTorch currently requires Python 3.6, 3.7 or 3.8, and version 3.7 appears to cause fewest problems in their test status matrix, so we use that. If your system does not have a requisite version of Python install it with a package manager or build the last 3.7 release from source by downloading `Python-3.7.9.tgz` from <https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz> then extract and build:
 
 ```
 tar -xzf Python-3.7.9.tgz
-cd Python-3.7.9/
-./configure --enable-optimizations
+cd Python-3.7.9
+./configure --prefix=/usr/local/gcc93 --enable-optimizations
 make
 sudo make altinstall
 ```
 
-### PyTorch 1.7.1
+### PyTorch 1.8.0
 
 PyTorch requires that certain Python modules are installed. Install these modules with `pip` using the same Python version you will build PyTorch with. If you followed the instructions above and built Python from source use `python3.7`:
 
 ```
-sudo /usr/local/bin/python3.7 -m pip install install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+sudo /usr/local/gcc93/bin/python3.7 -m pip install install numpy ninja pyyaml setuptools cffi typing_extensions future six requests dataclasses
+```
+
+For aarch64 the `ninja` module is not available, so use:
+
+```
+sudo /usr/local/gcc93/bin/python3.7 -m pip install install numpy pyyaml setuptools cffi typing_extensions future six requests dataclasses
 ```
 
 Then obtain the PyTorch code:
+
 ```
-git clone --depth=1 --branch=v1.7.1 git@github.com:pytorch/pytorch.git
+git clone --depth=1 --branch=v1.8.0 git@github.com:pytorch/pytorch.git
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
 ```
 
-Build as follows:
+Edit `torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp` and replace all
+occurrences of `system(` with `strlen(`. This file is used to compile
+fused CPU kernels, which we do not expect to be doing and never want to
+do for security reasons. Replacing the calls to `system()` ensures that
+a heuristic virus scanner looking for potentially dangerous function
+calls in our shipped product will not encounter these functions that run
+external processes.
+
+If you are building on aarch64, also edit `aten/src/ATen/cpu/vml.h` and
+change lines 88-93 from:
+
 ```
+    parallel_for(0, size, 2048, [out, in](int64_t begin, int64_t end) {           \
+      map([](const Vec256<scalar_t>& x) { return x.op(); },                       \
+          out + begin,                                                            \
+          in + begin,                                                             \
+          end - begin);                                                           \
+    });                                                                           \
+```
+
+to:
+
+```
+    map([](const Vec256<scalar_t>& x) { return x.op(); },                         \
+        out,                                                                      \
+        in,                                                                       \
+        size);                                                                    \
+```
+
+(That edit is a workaround for a compiler bug that affects gcc 9.3 and 10.2
+and will hopefully become unnecessary if we upgrade to gcc 9.4 or 10.3.)
+
+Build as follows:
+
+```
+export BLAS=Eigen
 export BUILD_TEST=OFF
-export BUILD_CAFFE2=OFF
-export USE_NUMPY=OFF
+[ $(uname -m) = x86_64 ] && export BUILD_CAFFE2=OFF
+[ $(uname -m) != x86_64 ] && export USE_FBGEMM=OFF
+[ $(uname -m) != x86_64 ] && export USE_KINETO=OFF
+[ $(uname -m) = x86_64 ] && export USE_NUMPY=OFF
 export USE_DISTRIBUTED=OFF
 export USE_MKLDNN=OFF
-export BLAS=Eigen
-export PYTORCH_BUILD_VERSION=1.7.1
+export USE_QNNPACK=OFF
+export USE_PYTORCH_QNNPACK=OFF
+[ $(uname -m) = x86_64 ] && export USE_XNNPACK=OFF
+export PYTORCH_BUILD_VERSION=1.8.0
 export PYTORCH_BUILD_NUMBER=1
-/usr/local/bin/python3.7 setup.py install
+/usr/local/gcc93/bin/python3.7 setup.py install
 ```
 
 Once built copy headers and libraries to system directories:
 
 ```
-sudo mkdir /usr/local/gcc93/include/pytorch
-sudo cp -r torch/include/* /usr/local/gcc93/include/pytorch/ 
-sudo cp torch/lib/libtorch_cpu.so /usr/local/gcc93/lib 
-sudo cp torch/lib/libc10.so /usr/local/gcc93/lib 
+sudo mkdir -p /usr/local/gcc93/include/pytorch
+sudo cp -r torch/include/* /usr/local/gcc93/include/pytorch/
+sudo cp torch/lib/libtorch_cpu.so /usr/local/gcc93/lib
+sudo cp torch/lib/libc10.so /usr/local/gcc93/lib
 ```
 
 ### valgrind

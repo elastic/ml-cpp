@@ -91,17 +91,19 @@ RUN \
 
 # Build Python 3.7
 # --enable-optimizations for a stable/release build
+# Not using --prefix=/usr/local/gcc93 so that this can be excluded from the final image
 RUN \
   cd ${build_dir} && \
   wget --quiet -O - https://www.python.org/ftp/python/3.7.9/Python-3.7.9.tgz | tar xzf - && \
-  cd Python-3.7.9/ && \  
-  ./configure --enable-optimizations && \ 
+  cd Python-3.7.9 && \
+  ./configure --enable-optimizations && \
   make altinstall && \
-  cd .. && rm -rf Python-3.7.9
+  cd .. && \
+  rm -rf Python-3.7.9
 
-# Install Python dependencies 
+# Install Python dependencies
 RUN \
-  /usr/local/bin/pip3.7 install numpy pyyaml setuptools cffi typing_extensions future six requests dataclasses  
+  /usr/local/bin/pip3.7 install numpy pyyaml setuptools cffi typing_extensions future six requests dataclasses
 
 # Install CMake
 # v3.5 minimum is required
@@ -120,28 +122,32 @@ ENV PATH=${PATH}:/usr/local/cmake/bin
 # If the PyTorch branch is changed also update PYTORCH_BUILD_VERSION
 RUN \
   cd ${build_dir} && \
-  git -c advice.detachedHead=false clone --depth=1 --branch=v1.7.1 https://github.com/pytorch/pytorch.git && \
+  git -c advice.detachedHead=false clone --depth=1 --branch=v1.8.0 https://github.com/pytorch/pytorch.git && \
   cd pytorch && \
   git submodule sync && \
   git submodule update --init --recursive && \
+  sed -i -e 's/system(/strlen(/' torch/csrc/jit/codegen/fuser/cpu/fused_kernel.cpp && \
+  sed -i -e '88d' -e '88,93s/ + begin//' -e '88,93s/end - begin/size/' -e '93d' aten/src/ATen/cpu/vml.h && \
+  export BLAS=Eigen && \
   export BUILD_TEST=OFF && \
-  export USE_FBGEMM=OFF  && \
-  export USE_NUMPY=OFF && \
+  export USE_FBGEMM=OFF && \
+  export USE_KINETO=OFF && \
   export USE_DISTRIBUTED=OFF && \
   export USE_MKLDNN=OFF && \
-  export BLAS=Eigen && \
-  export PYTORCH_BUILD_VERSION=1.7.1 && \
+  export USE_QNNPACK=OFF && \
+  export USE_PYTORCH_QNNPACK=OFF && \
+  export PYTORCH_BUILD_VERSION=1.8.0 && \
   export PYTORCH_BUILD_NUMBER=1 && \
   /usr/local/bin/python3.7 setup.py install && \
   mkdir /usr/local/gcc93/include/pytorch && \
   cp -r torch/include/* /usr/local/gcc93/include/pytorch/ && \
   cp torch/lib/libtorch_cpu.so /usr/local/gcc93/lib && \
   cp torch/lib/libc10.so /usr/local/gcc93/lib && \
-  cd .. && rm -rf ${build_dir}/*
+  cd .. && \
+  rm -rf pytorch
 
 FROM centos:7
 COPY --from=builder /usr/local/gcc93 /usr/local/gcc93
-COPY --from=builder /usr/include /usr/include
 RUN \
   rm /var/lib/rpm/__db.* && \
   yum install -y bzip2 gcc git make unzip which zip zlib-devel
