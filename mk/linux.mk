@@ -78,7 +78,7 @@ EIGENINCLUDES=-isystem $(CPP_SRC_HOME)/3rd_party/eigen
 EIGENCPPFLAGS=-DEIGEN_MPL2_ONLY -DEIGEN_MAX_ALIGN_BYTES=32
 XMLINCLUDES=`/usr/local/gcc75/bin/xml2-config --cflags`
 XMLLIBS=`/usr/local/gcc75/bin/xml2-config --libs`
-DYNAMICLIBLDFLAGS=$(PLATPICFLAGS) -shared -Wl,--as-needed -L$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR) $(COVERAGE) -Wl,-z,relro -Wl,-z,now -Wl,-rpath,'$$ORIGIN/.'
+DYNAMICLIBLDFLAGS=$(PLATPICFLAGS) -shared -Wl,--as-needed -L$(CPP_PLATFORM_HOME)/$(DYNAMIC_LIB_DIR) $(COVERAGE) -Wl,-z,relro -Wl,-z,now -Wl,-rpath,'$$ORIGIN'
 JAVANATIVEINCLUDES=-I$(JAVA_HOME)/include
 JAVANATIVELDFLAGS=-L$(JAVA_HOME)/jre/lib/server
 JAVANATIVELIBS=-ljvm
