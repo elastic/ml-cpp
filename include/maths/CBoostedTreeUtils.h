@@ -164,15 +164,15 @@ inline double readActual(const TRowRef& row, std::size_t dependentVariable) {
 //! Compute the probabilities with which to select each tree for retraining.
 MATHS_EXPORT
 TDoubleVec
-retrainSelectionProbabilities(std::size_t numberThreads,
-                              const core::CDataFrame& frame,
-                              const TSizeVec& extraColumns,
-                              std::size_t dependentVariable,
-                              const CDataFrameCategoryEncoder& encoder,
-                              const core::CPackedBitVector& oldTrainingDataRowMask,
-                              const core::CPackedBitVector& newTrainingDataRowMask,
-                              const boosted_tree::CLoss& loss,
-                              const std::vector<std::vector<CBoostedTreeNode>>& forest);
+retrainTreeSelectionProbabilities(std::size_t numberThreads,
+                                  const core::CDataFrame& frame,
+                                  const TSizeVec& extraColumns,
+                                  std::size_t dependentVariable,
+                                  const CDataFrameCategoryEncoder& encoder,
+                                  const core::CPackedBitVector& oldTrainingDataRowMask,
+                                  const core::CPackedBitVector& newTrainingDataRowMask,
+                                  const boosted_tree::CLoss& loss,
+                                  const std::vector<std::vector<CBoostedTreeNode>>& forest);
 
 constexpr double INF{std::numeric_limits<double>::max()};
 }

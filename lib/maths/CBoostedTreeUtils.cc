@@ -108,15 +108,15 @@ void writeLossCurvature(const TRowRef& row,
 }
 
 TDoubleVec
-retrainSelectionProbabilities(std::size_t numberThreads,
-                              const core::CDataFrame& frame,
-                              const TSizeVec& extraColumns,
-                              std::size_t dependentVariable,
-                              const CDataFrameCategoryEncoder& encoder,
-                              const core::CPackedBitVector& oldTrainingDataRowMask,
-                              const core::CPackedBitVector& newTrainingDataRowMask,
-                              const boosted_tree::CLoss& loss,
-                              const std::vector<std::vector<CBoostedTreeNode>>& forest) {
+retrainTreeSelectionProbabilities(std::size_t numberThreads,
+                                  const core::CDataFrame& frame,
+                                  const TSizeVec& extraColumns,
+                                  std::size_t dependentVariable,
+                                  const CDataFrameCategoryEncoder& encoder,
+                                  const core::CPackedBitVector& oldTrainingDataRowMask,
+                                  const core::CPackedBitVector& newTrainingDataRowMask,
+                                  const boosted_tree::CLoss& loss,
+                                  const std::vector<std::vector<CBoostedTreeNode>>& forest) {
 
     using TFloatVec = std::vector<CFloatStorage>;
     using TRowItr = core::CDataFrame::TRowItr;
