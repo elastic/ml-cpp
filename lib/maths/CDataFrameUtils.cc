@@ -74,7 +74,7 @@ public:
     using TSamplerSelector = std::function<std::size_t(const TRowRef&)>;
 
 public:
-    CStratifiedSampler(std::size_t size) : m_SampledRowIndices(size) {
+    explicit CStratifiedSampler(std::size_t size) : m_SampledRowIndices(size) {
         m_DesiredCounts.reserve(size);
         m_Samplers.reserve(size);
     }
@@ -122,6 +122,7 @@ private:
     TRowSamplerVec m_Samplers;
     TSamplerSelector m_Selector;
 };
+
 using TStratifiedSamplerPtr = std::unique_ptr<CStratifiedSampler>;
 
 //! Get a classifier stratified row sampler for cross fold validation.

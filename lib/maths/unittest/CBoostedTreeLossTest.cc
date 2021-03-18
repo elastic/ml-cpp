@@ -1231,7 +1231,7 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLogisticMinimizer) {
                                row, regression->columnHoldingDependentVariable())};
                            double weight{readExampleWeight(row, extraColumns)};
                            leafValues_[rootNode.leafIndex(encodedRow, tree)].add(
-                               encodedRow, prediction, actual, weight);
+                               encodedRow, true /*new example*/, prediction, actual, weight);
                        }
                    },
                    std::move(leafValues)));
@@ -1326,12 +1326,12 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLossGradientAndCurvature) {
                 mse.curvature(prediction, actual, [&](std::size_t, double curvature) {
                     expectedCurvature = curvature;
                 });
-                mseIncremental.gradient(encodedRow, prediction, actual,
-                                        [&](std::size_t, double gradient) {
+                mseIncremental.gradient(encodedRow, false /*new example*/, prediction,
+                                        actual, [&](std::size_t, double gradient) {
                                             actualGradient = gradient;
                                         });
-                mseIncremental.curvature(encodedRow, prediction, actual,
-                                         [&](std::size_t, double curvature) {
+                mseIncremental.curvature(encodedRow, false /*new example*/, prediction,
+                                         actual, [&](std::size_t, double curvature) {
                                              actualCurvature = curvature;
                                          });
                 BOOST_TEST_REQUIRE(expectedGradient, actualGradient);
@@ -1356,8 +1356,8 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLossGradientAndCurvature) {
                 mse.gradient(prediction, actual, [&](std::size_t, double gradient) {
                     mseGradient = gradient;
                 });
-                mseIncremental.gradient(encodedRow, prediction, actual,
-                                        [&](std::size_t, double gradient) {
+                mseIncremental.gradient(encodedRow, false /*new example*/, prediction,
+                                        actual, [&](std::size_t, double gradient) {
                                             mseIncrementalGradient = gradient;
                                         });
                 LOG_TRACE(<< "tree prediction = " << treePrediction

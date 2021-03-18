@@ -24,6 +24,7 @@ class CLoss;
 class CBoostedTreeNode;
 class CDataFrameCategoryEncoder;
 namespace boosted_tree_detail {
+using TDoubleVec = std::vector<double>;
 using TSizeVec = std::vector<std::size_t>;
 using TRowRef = core::CDataFrame::TRowRef;
 using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
@@ -114,6 +115,7 @@ void zeroLossGradient(const TRowRef& row, const TSizeVec& extraColumns, std::siz
 //! Write the loss gradient to \p row.
 MATHS_EXPORT
 void writeLossGradient(const TRowRef& row,
+                       bool newExample,
                        const TSizeVec& extraColumns,
                        const CDataFrameCategoryEncoder& encoder,
                        const boosted_tree::CLoss& loss,
@@ -136,9 +138,10 @@ void zeroLossCurvature(const TRowRef& row, const TSizeVec& extraColumns, std::si
 //! Write the loss Hessian to \p row.
 MATHS_EXPORT
 void writeLossCurvature(const TRowRef& row,
+                        bool newExample,
                         const TSizeVec& extraColumns,
                         const CDataFrameCategoryEncoder& encoder,
-                        const boosted_tree::CLoss& curvature,
+                        const boosted_tree::CLoss& loss,
                         const TMemoryMappedFloatVector& prediction,
                         double actual,
                         double weight = 1.0);
@@ -157,6 +160,19 @@ inline void writeExampleWeight(const TRowRef& row, const TSizeVec& extraColumns,
 inline double readActual(const TRowRef& row, std::size_t dependentVariable) {
     return row[dependentVariable];
 }
+
+//! Compute the probabilities with which to select each tree for retraining.
+MATHS_EXPORT
+TDoubleVec
+retrainSelectionProbabilities(std::size_t numberThreads,
+                              const core::CDataFrame& frame,
+                              const TSizeVec& extraColumns,
+                              std::size_t dependentVariable,
+                              const CDataFrameCategoryEncoder& encoder,
+                              const core::CPackedBitVector& oldTrainingDataRowMask,
+                              const core::CPackedBitVector& newTrainingDataRowMask,
+                              const boosted_tree::CLoss& loss,
+                              const std::vector<std::vector<CBoostedTreeNode>>& forest);
 
 constexpr double INF{std::numeric_limits<double>::max()};
 }

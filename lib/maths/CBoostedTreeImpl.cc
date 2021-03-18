@@ -1236,7 +1236,7 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                         double actual{readActual(row, m_DependentVariable)};
                         double weight{readExampleWeight(row, m_ExtraColumns)};
                         leafValues_[rootNode.leafIndex(encodedRow, tree)].add(
-                            encodedRow, prediction, actual, weight);
+                            encodedRow, true /*new example*/, prediction, actual, weight);
                     }
                 },
                 std::move(leafValues)),
@@ -1270,10 +1270,10 @@ void CBoostedTreeImpl::refreshPredictionsAndLossDerivatives(core::CDataFrame& fr
                 double actual{readActual(row, m_DependentVariable)};
                 double weight{readExampleWeight(row, m_ExtraColumns)};
                 prediction += rootNode.value(m_Encoder->encode(row), tree);
-                writeLossGradient(row, m_ExtraColumns, *m_Encoder, *m_Loss,
-                                  prediction, actual, weight);
-                writeLossCurvature(row, m_ExtraColumns, *m_Encoder, *m_Loss,
-                                   prediction, actual, weight);
+                writeLossGradient(row, true /*new example*/, m_ExtraColumns,
+                                  *m_Encoder, *m_Loss, prediction, actual, weight);
+                writeLossCurvature(row, true /*new example*/, m_ExtraColumns,
+                                   *m_Encoder, *m_Loss, prediction, actual, weight);
             }
         },
         &updateRowMask);
