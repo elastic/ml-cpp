@@ -34,6 +34,8 @@
 
 * Speed up training of regression and classification model training for data sets
   with many features. (See {ml-pull}1746[#1746].)
+* Adjust the syscall filter to allow mremap and avoid spurious audit logging.
+  (See {ml-pull}1819[#1819].)
 
 == {es} version 7.12.0
 
