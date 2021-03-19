@@ -255,8 +255,10 @@ CBjkstUniqueValues::CBjkstUniqueValues(std::size_t numberHashes, std::size_t max
 
 CBjkstUniqueValues::CBjkstUniqueValues(core::CStateRestoreTraverser& traverser)
     : m_MaxSize(0), m_NumberHashes(0) {
-    traverser.traverseSubLevel(std::bind(&CBjkstUniqueValues::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CBjkstUniqueValues::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 void CBjkstUniqueValues::swap(CBjkstUniqueValues& other) noexcept {

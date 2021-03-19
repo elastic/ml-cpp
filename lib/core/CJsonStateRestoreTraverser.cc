@@ -29,6 +29,10 @@ bool CJsonStateRestoreTraverser::isEof() const {
 }
 
 bool CJsonStateRestoreTraverser::next() {
+    if (haveBadState()) {
+        return false;
+    }
+
     if (!m_Started) {
         if (this->start() == false) {
             return false;
@@ -82,6 +86,10 @@ bool CJsonStateRestoreTraverser::hasSubLevel() const {
 }
 
 const std::string& CJsonStateRestoreTraverser::name() const {
+    if (haveBadState()) {
+        return EMPTY_STRING;
+    }
+
     if (!m_Started) {
         if (const_cast<CJsonStateRestoreTraverser*>(this)->start() == false) {
             return EMPTY_STRING;
@@ -92,6 +100,10 @@ const std::string& CJsonStateRestoreTraverser::name() const {
 }
 
 const std::string& CJsonStateRestoreTraverser::value() const {
+    if (haveBadState()) {
+        return EMPTY_STRING;
+    }
+
     if (!m_Started) {
         if (const_cast<CJsonStateRestoreTraverser*>(this)->start() == false) {
             return EMPTY_STRING;
@@ -262,6 +274,10 @@ bool CJsonStateRestoreTraverser::start() {
 }
 
 bool CJsonStateRestoreTraverser::advance() {
+    if (haveBadState()) {
+        return false;
+    }
+
     bool keepGoing(true);
 
     while (keepGoing) {

@@ -58,9 +58,11 @@ CSeasonalComponent::CSeasonalComponent(double decayRate,
     : CDecompositionComponent{0, CSplineTypes::E_Periodic,
                               valueInterpolationType, varianceInterpolationType},
       m_LastInterpolationTime{2 * (std::numeric_limits<core_t::TTime>::min() / 3)} {
-    traverser.traverseSubLevel(std::bind(&CSeasonalComponent::acceptRestoreTraverser,
-                                         this, decayRate, minimumBucketLength,
-                                         std::placeholders::_1));
+    if (traverser.traverseSubLevel(
+            std::bind(&CSeasonalComponent::acceptRestoreTraverser, this, decayRate,
+                      minimumBucketLength, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 void CSeasonalComponent::swap(CSeasonalComponent& other) {
@@ -73,6 +75,7 @@ void CSeasonalComponent::swap(CSeasonalComponent& other) {
 bool CSeasonalComponent::acceptRestoreTraverser(double decayRate,
                                                 double minimumBucketLength,
                                                 core::CStateRestoreTraverser& traverser) {
+    bool restoredBucketing{false};
     do {
         const std::string& name{traverser.name()};
         RESTORE(DECOMPOSITION_COMPONENT_TAG,
@@ -83,9 +86,15 @@ bool CSeasonalComponent::acceptRestoreTraverser(double decayRate,
         RESTORE_SETUP_TEARDOWN(BUCKETING_TAG,
                                CSeasonalComponentAdaptiveBucketing bucketing(
                                    decayRate, minimumBucketLength, traverser),
-                               true, m_Bucketing.swap(bucketing))
+                               restoredBucketing = (traverser.haveBadState() == false),
+                               m_Bucketing.swap(bucketing))
         RESTORE_BUILT_IN(LAST_INTERPOLATION_TAG, m_LastInterpolationTime)
     } while (traverser.next());
+
+    if (restoredBucketing == false) {
+        LOG_ERROR(<< "Did not restore seasonal component adaptive bucketing");
+        return false;
+    }
 
     return true;
 }

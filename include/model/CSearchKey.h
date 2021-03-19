@@ -120,6 +120,10 @@ private:
     //! Initialise by traversing a state document.
     bool acceptRestoreTraverser(core::CStateRestoreTraverser& traverser);
 
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const;
+
 public:
     //! Persist state by passing information to the supplied inserter
     void acceptPersistInserter(core::CStatePersistInserter& inserter) const;

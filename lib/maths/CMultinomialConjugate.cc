@@ -276,8 +276,10 @@ CMultinomialConjugate::CMultinomialConjugate(const SDistributionRestoreParams& p
                                              core::CStateRestoreTraverser& traverser)
     : CPrior(maths_t::E_DiscreteData, params.s_DecayRate),
       m_NumberAvailableCategories(0), m_TotalConcentration(0.0) {
-    traverser.traverseSubLevel(std::bind(&CMultinomialConjugate::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CMultinomialConjugate::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CMultinomialConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {
