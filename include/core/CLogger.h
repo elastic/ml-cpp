@@ -136,7 +136,7 @@ public:
     //! Access to underlying logger (must only be called from macros)
     TLevelSeverityLogger& logger();
 
-    //! Throw a fatal exception
+    //! Terminate the program.
     [[noreturn]] static void fatal();
 
     //! Register a new global fatal error handler.
