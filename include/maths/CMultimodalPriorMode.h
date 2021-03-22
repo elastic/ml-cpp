@@ -71,7 +71,15 @@ struct SMultimodalPriorMode {
                                    std::ref(s_Prior), std::placeholders::_1)))
         } while (traverser.next());
 
+        this->checkRestoredInvariants();
+
         return true;
+    }
+
+    //! Check the state invariants after restoration
+    //! Abort on failure.
+    void checkRestoredInvariants() const {
+        VIOLATES_INVARIANT_NO_EVALUATION(s_Prior, ==, nullptr);
     }
 
     //! Persist state by passing information to the supplied inserter.
