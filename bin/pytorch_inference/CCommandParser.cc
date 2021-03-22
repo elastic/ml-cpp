@@ -165,7 +165,7 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
     TUint64Vec arg;
     while (doc.HasMember(varArgName)) {
         const rapidjson::Value& v = doc[varArgName];
-        for (const auto* itr = v.Begin(); itr != v.End(); ++itr) {
+        for (auto itr = v.Begin(); itr != v.End(); ++itr) {
             arg.push_back(itr->GetUint64());
         }
 
