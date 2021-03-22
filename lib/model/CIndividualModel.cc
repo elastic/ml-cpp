@@ -385,6 +385,10 @@ bool CIndividualModel::doAcceptRestoreTraverser(core::CStateRestoreTraverser& tr
         RESTORE_BUILT_IN(UPGRADING_PRE_7_5_STATE, upgradingPre7p5State)
     } while (traverser.next());
 
+    if (traverser.haveBadState()) {
+        return false;
+    }
+
     const double DEFAULT_CUTOFF_TO_MODEL_EMPTY_BUCKETS{0.2};
 
     for (auto& feature : m_FeatureModels) {

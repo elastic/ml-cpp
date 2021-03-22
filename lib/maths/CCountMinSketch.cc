@@ -43,8 +43,10 @@ CCountMinSketch::CCountMinSketch(std::size_t rows, std::size_t columns)
 
 CCountMinSketch::CCountMinSketch(core::CStateRestoreTraverser& traverser)
     : m_Rows(0), m_Columns(0), m_TotalCount(0.0), m_Sketch() {
-    traverser.traverseSubLevel(std::bind(&CCountMinSketch::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CCountMinSketch::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 void CCountMinSketch::swap(CCountMinSketch& other) noexcept {
