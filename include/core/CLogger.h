@@ -116,10 +116,10 @@ public:
     log4cxx::LoggerPtr logger();
 
 #ifdef Windows
-    //! Throw a fatal exception
+    //! Terminate the program.
     __declspec(noreturn) static void fatal();
 #else
-    //! Throw a fatal exception
+    //! Terminate the program.
     __attribute__((noreturn)) static void fatal();
 #endif
 
