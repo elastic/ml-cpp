@@ -22,6 +22,8 @@ namespace boosted_tree {
 class CLoss;
 }
 class CBoostedTreeNode;
+template<typename>
+class CBoostedTreeRegularization;
 class CDataFrameCategoryEncoder;
 namespace boosted_tree_detail {
 using TDoubleVec = std::vector<double>;
@@ -31,6 +33,7 @@ using TMemoryMappedFloatVector = CMemoryMappedDenseVector<CFloatStorage>;
 using TSizeAlignmentPrVec = std::vector<std::pair<std::size_t, core::CAlignment::EType>>;
 using TAlignedMemoryMappedFloatVector =
     CMemoryMappedDenseVector<CFloatStorage, Eigen::Aligned16>;
+using TRegularization = CBoostedTreeRegularization<double>;
 
 enum EExtraColumn { E_Prediction = 0, E_Gradient, E_Curvature, E_Weight };
 
@@ -172,6 +175,9 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
                                   const core::CPackedBitVector& oldTrainingDataRowMask,
                                   const core::CPackedBitVector& newTrainingDataRowMask,
                                   const boosted_tree::CLoss& loss,
+                                  const TRegularization& regularization,
+                                  double eta,
+                                  double etaGrowthRate,
                                   const std::vector<std::vector<CBoostedTreeNode>>& forest);
 
 constexpr double INF{std::numeric_limits<double>::max()};

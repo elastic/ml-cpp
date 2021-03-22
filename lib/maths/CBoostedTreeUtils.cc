@@ -9,6 +9,7 @@
 #include <core/Concurrency.h>
 
 #include <maths/CBoostedTree.h>
+#include <maths/CBoostedTreeHyperparameters.h>
 #include <maths/CBoostedTreeLoss.h>
 #include <maths/CDataFrameCategoryEncoder.h>
 #include <maths/CLinearAlgebraEigen.h>
@@ -115,13 +116,25 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
                                   const CDataFrameCategoryEncoder& encoder,
                                   const core::CPackedBitVector& oldTrainingDataRowMask,
                                   const core::CPackedBitVector& newTrainingDataRowMask,
-                                  const boosted_tree::CLoss& loss,
+                                  const CLoss& loss,
+                                  const TRegularization& regularization,
+                                  double eta,
+                                  double etaGrowthRate,
                                   const std::vector<std::vector<CBoostedTreeNode>>& forest) {
 
     using TFloatVec = std::vector<CFloatStorage>;
     using TRowItr = core::CDataFrame::TRowItr;
+    using TLossUPtrVec = std::vector<CLoss::TLossUPtr>;
 
     std::size_t numberLossParameters{loss.numberParameters()};
+
+    TLossUPtrVec losses;
+    losses.reserve(forest.size());
+    for (const auto& tree : forest) {
+        losses.push_back(
+            loss.incremental(eta, regularization.treeTopologyChangePenalty(), tree));
+        eta *= etaGrowthRate;
+    }
 
     auto makeComputeTotalLossGradient = [&](const bool& isOldTrainingData) {
         return [&](TDoubleVectorVecVec& leafLossGradients, TRowItr beginRows, TRowItr endRows) {
@@ -142,8 +155,8 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
                     auto writer = [&](std::size_t j, double gradient) {
                         leafLossGradients[i][leaf](j) = gradient;
                     };
-                    loss.gradient(encodedRow, isOldTrainingData,
-                                  predictionMinusTree, actual, writer, weight);
+                    losses[i]->gradient(encodedRow, isOldTrainingData,
+                                        predictionMinusTree, actual, writer, weight);
                 }
             }
         };
