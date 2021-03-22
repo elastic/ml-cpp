@@ -126,6 +126,19 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
     using TRowItr = core::CDataFrame::TRowItr;
     using TLossUPtrVec = std::vector<CLoss::TLossUPtr>;
 
+    // The first tree is used to centre the data and we never retrain this.
+
+    if (forest.size() < 2) {
+        return {};
+    }
+    if (newTrainingDataRowMask.size() == 0) {
+        TDoubleVec result(forest.size(), 0.0);
+        for (std::size_t i = 1; i < result.size(); ++i) {
+            result[i] = 1.0 / static_cast<double>(result.size() - 1);
+        }
+        return result;
+    }
+
     std::size_t numberLossParameters{loss.numberParameters()};
 
     TLossUPtrVec losses;
@@ -209,7 +222,7 @@ retrainTreeSelectionProbabilities(std::size_t numberThreads,
 
     TDoubleVec result(forest.size(), 0.0);
     double Z{0.0};
-    for (std::size_t i = 0; i < forest.size(); ++i) {
+    for (std::size_t i = 1; i < forest.size(); ++i) {
         for (std::size_t j = 0; j < forest[i].size(); ++j) {
             result[i] += (newTrainingDataLossGradients[i][j] +
                           oldTrainingDataLossGradients[i][j])

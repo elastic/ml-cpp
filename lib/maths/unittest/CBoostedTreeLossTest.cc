@@ -22,6 +22,8 @@
 #include <test/BoostTestCloseAbsolute.h>
 #include <test/CRandomNumbers.h>
 
+#include "BoostedTreeTestData.h"
+
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>
@@ -57,59 +59,6 @@ using maths::boosted_tree_detail::readPrediction;
 using maths::boosted_tree_detail::root;
 
 namespace {
-auto setupLinearRegressionProblem(std::size_t cols) {
-
-    using TBoolVec = std::vector<bool>;
-
-    test::CRandomNumbers rng;
-    double noiseVariance{100.0};
-    std::size_t rows{200};
-
-    auto target = [&]() {
-        TDoubleVec m;
-        TDoubleVec s;
-        rng.generateUniformSamples(0.0, 10.0, cols - 1, m);
-        rng.generateUniformSamples(-10.0, 10.0, cols - 1, s);
-        double offset{0.0};
-
-        return [=](const TRowRef& row) {
-            double result{0.0};
-            for (std::size_t i = 0; i < cols - 1; ++i) {
-                result += m[i] + s[i] * row[i];
-            }
-            return offset + result;
-        };
-    }();
-
-    TDoubleVecVec x(cols - 1);
-    for (std::size_t i = 0; i < cols - 1; ++i) {
-        rng.generateUniformSamples(0.0, 10.0, rows, x[i]);
-    }
-
-    TDoubleVec noise;
-    rng.generateNormalSamples(0.0, noiseVariance, rows, noise);
-
-    auto frame = core::makeMainStorageDataFrame(cols, rows).first;
-
-    frame->categoricalColumns(TBoolVec(cols, false));
-    for (std::size_t i = 0; i < rows; ++i) {
-        frame->writeRow([&](core::CDataFrame::TFloatVecItr column, std::int32_t&) {
-            for (std::size_t j = 0; j < cols - 1; ++j, ++column) {
-                *column = x[j][i];
-            }
-        });
-    }
-    frame->finishWritingRows();
-    frame->writeColumns(1, [&](TRowItr beginRows, TRowItr endRows) {
-        for (auto row = beginRows; row != endRows; ++row) {
-            double targetValue{target(*row) + noise[row->index()]};
-            row->writeColumn(cols - 1, targetValue);
-        }
-    });
-
-    return frame;
-}
-
 void minimizeGridSearch(std::function<double(const TDoubleVector&)> objective,
                         double scale,
                         int d,
@@ -1184,9 +1133,10 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLogisticMinimizer) {
     std::size_t min{0};
     std::size_t minMinusEps{1};
     std::size_t minPlusEps{2};
+    std::size_t rows{200};
     std::size_t cols{5};
 
-    auto frame = setupLinearRegressionProblem(cols);
+    auto frame = setupLinearRegressionProblem(rows, cols);
     auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::boosted_tree::CMse>())
                           .buildFor(*frame, cols - 1);
@@ -1286,9 +1236,10 @@ BOOST_AUTO_TEST_CASE(testMseIncrementalLossGradientAndCurvature) {
     //      old prediction for a row is positive (negative) the gradient is
     //      larger (smaller) than the gradient of MSE.
 
+    std::size_t rows{200};
     std::size_t cols{5};
 
-    auto frame = setupLinearRegressionProblem(cols);
+    auto frame = setupLinearRegressionProblem(rows, cols);
     auto regression = maths::CBoostedTreeFactory::constructFromParameters(
                           1, std::make_unique<maths::boosted_tree::CMse>())
                           .buildFor(*frame, cols - 1);
