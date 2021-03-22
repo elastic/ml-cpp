@@ -39,8 +39,10 @@ CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples)
 CCategoryExamplesCollector::CCategoryExamplesCollector(std::size_t maxExamples,
                                                        core::CStateRestoreTraverser& traverser)
     : m_MaxExamples(maxExamples) {
-    traverser.traverseSubLevel(std::bind(&CCategoryExamplesCollector::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CCategoryExamplesCollector::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CCategoryExamplesCollector::add(CLocalCategoryId categoryId, const std::string& example) {

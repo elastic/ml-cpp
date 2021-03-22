@@ -89,8 +89,10 @@ CMetricModel::CMetricModel(const SModelParams& params,
                        influenceCalculators),
       m_CurrentBucketStats(CAnomalyDetectorModel::TIME_UNSET),
       m_InterimBucketCorrector(interimBucketCorrector) {
-    traverser.traverseSubLevel(std::bind(&CMetricModel::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CMetricModel::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 CMetricModel::CMetricModel(bool isForPersistence, const CMetricModel& other)

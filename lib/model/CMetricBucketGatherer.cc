@@ -945,9 +945,12 @@ CMetricBucketGatherer::CMetricBucketGatherer(CDataGatherer& dataGatherer,
     : CBucketGatherer(dataGatherer, 0, influenceFieldNames.size()),
       m_ValueFieldName(valueFieldName), m_BeginValueFields(0) {
     this->initializeFieldNamesPart1(personFieldName, attributeFieldName, influenceFieldNames);
-    traverser.traverseSubLevel(std::bind(&CMetricBucketGatherer::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
-    this->initializeFieldNamesPart2(valueFieldName, summaryCountFieldName);
+    if (traverser.traverseSubLevel(std::bind(&CMetricBucketGatherer::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    } else {
+        this->initializeFieldNamesPart2(valueFieldName, summaryCountFieldName);
+    }
 }
 
 CMetricBucketGatherer::CMetricBucketGatherer(bool isForPersistence,

@@ -629,8 +629,10 @@ CLogNormalMeanPrecConjugate::CLogNormalMeanPrecConjugate(const SDistributionRest
     : CPrior(params.s_DataType, params.s_DecayRate), m_Offset(0.0),
       m_OffsetMargin(offsetMargin), m_GaussianMean(0.0),
       m_GaussianPrecision(0.0), m_GammaShape(0.0), m_GammaRate(0.0) {
-    traverser.traverseSubLevel(std::bind(&CLogNormalMeanPrecConjugate::acceptRestoreTraverser,
-                                         this, std::placeholders::_1));
+    if (traverser.traverseSubLevel(std::bind(&CLogNormalMeanPrecConjugate::acceptRestoreTraverser,
+                                             this, std::placeholders::_1)) == false) {
+        traverser.setBadState();
+    }
 }
 
 bool CLogNormalMeanPrecConjugate::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser) {

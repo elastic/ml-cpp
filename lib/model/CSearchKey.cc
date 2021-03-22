@@ -13,6 +13,7 @@
 #include <core/CStatePersistInserter.h>
 #include <core/CStateRestoreTraverser.h>
 #include <core/CStringUtils.h>
+#include <core/RestoreMacros.h>
 
 #include <maths/CChecksum.h>
 
@@ -123,7 +124,16 @@ bool CSearchKey::acceptRestoreTraverser(core::CStateRestoreTraverser& traverser)
         }
     } while (traverser.next());
 
+    this->checkRestoredInvariants();
+
     return true;
+}
+
+void CSearchKey::checkRestoredInvariants() const {
+    VIOLATES_INVARIANT_NO_EVALUATION(m_FieldName, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_ByFieldName, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_OverFieldName, ==, nullptr);
+    VIOLATES_INVARIANT_NO_EVALUATION(m_PartitionFieldName, ==, nullptr);
 }
 
 void CSearchKey::acceptPersistInserter(core::CStatePersistInserter& inserter) const {
