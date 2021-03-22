@@ -18,7 +18,6 @@
 #include <ios>
 #include <iterator>
 #include <sstream>
-#include <stdexcept>
 #include <string>
 #include <thread>
 #include <vector>
@@ -104,11 +103,8 @@ BOOST_FIXTURE_TEST_CASE(testLogging, CTestFixture) {
     LOG_AT_LEVEL(ml::core::CLogger::E_Error, << "Dynamic ERROR");
     LOG_FATAL(<< "Fatal - application to handle exit");
     LOG_AT_LEVEL(ml::core::CLogger::E_Fatal, << "Dynamic FATAL " << t);
-    try {
-        LOG_ABORT(<< "Throwing exception " << 1221U << ' ' << 0.23124);
 
-        BOOST_TEST_REQUIRE(false);
-    } catch (std::runtime_error&) { BOOST_TEST_REQUIRE(true); }
+    // It's not possible to test LOG_ABORT as it calls std::terminate
 }
 
 BOOST_FIXTURE_TEST_CASE(testReconfiguration, CTestFixture) {
