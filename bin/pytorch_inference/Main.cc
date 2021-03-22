@@ -202,9 +202,13 @@ int main(int argc, char** argv) {
 
     ml::torch::CCommandParser commandParser{ioMgr.inputStream()};
 
-    commandParser.ioLoop([&module, &ioMgr](ml::torch::CCommandParser::SRequest& request) {
-        return handleRequest(request, module, ioMgr.outputStream());
-    });
+    commandParser.ioLoop(
+        [&module, &ioMgr](ml::torch::CCommandParser::SRequest& request) {
+            return handleRequest(request, module, ioMgr.outputStream());
+        },
+        [&ioMgr](const std::string& requestId, const std::string& message) {
+            writeError(requestId, message, ioMgr.outputStream());
+        });
 
     LOG_DEBUG(<< "ML Torch model prototype exiting");
 

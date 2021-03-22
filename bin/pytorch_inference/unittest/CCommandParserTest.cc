@@ -7,6 +7,18 @@
 #include "../CCommandParser.h"
 
 #include <boost/test/unit_test.hpp>
+#include <string>
+
+namespace {
+void unexpectedError(const std::string&, const std::string& message) {
+    BOOST_TEST_FAIL(message);
+}
+
+bool unexpectedRequest(const ml::torch::CCommandParser::SRequest& request) {
+    BOOST_TEST_FAIL("Unexpected request " + request.s_RequestId);
+    return true;
+}
+}
 
 BOOST_AUTO_TEST_SUITE(CCommandParserTest)
 
@@ -19,10 +31,12 @@ BOOST_AUTO_TEST_CASE(testParsingStream) {
     std::istringstream commandStream{command};
 
     ml::torch::CCommandParser processor{commandStream};
-    BOOST_TEST_REQUIRE(processor.ioLoop([&parsed](const ml::torch::CCommandParser::SRequest& request) {
-        parsed.push_back(request);
-        return true;
-    }));
+    BOOST_TEST_REQUIRE(processor.ioLoop(
+        [&parsed](const ml::torch::CCommandParser::SRequest& request) {
+            parsed.push_back(request);
+            return true;
+        },
+        unexpectedError));
 
     BOOST_REQUIRE_EQUAL(2, parsed.size());
     {
@@ -43,70 +57,75 @@ BOOST_AUTO_TEST_CASE(testParsingStream) {
 
 BOOST_AUTO_TEST_CASE(testParsingInvalidDoc) {
 
-    std::vector<ml::torch::CCommandParser::SRequest> parsed;
+    std::vector<std::string> errors;
 
     std::string command{"{\"foo\": 1, }"};
 
     std::istringstream commandStream{command};
 
     ml::torch::CCommandParser processor{commandStream};
-    BOOST_TEST_REQUIRE(processor.ioLoop([&parsed](const ml::torch::CCommandParser::SRequest& request) {
-        parsed.push_back(request);
-        return true;
-    }) == false);
+    BOOST_TEST_REQUIRE(
+        processor.ioLoop(unexpectedRequest, [&errors](const std::string& id,
+                                                      const ::std::string& message) {
+            errors.push_back(message);
+            BOOST_REQUIRE_EQUAL(ml::torch::CCommandParser::UNKNOWN_ID, id);
+        }) == false);
 
-    BOOST_REQUIRE_EQUAL(0, parsed.size());
+    BOOST_REQUIRE_EQUAL(1, errors.size());
 }
 
 BOOST_AUTO_TEST_CASE(testParsingInvalidRequestId) {
 
-    std::vector<ml::torch::CCommandParser::SRequest> parsed;
+    std::vector<std::string> errors;
 
     std::string command{"{\"request_id\": 1}"};
 
     std::istringstream commandStream{command};
 
     ml::torch::CCommandParser processor{commandStream};
-    BOOST_TEST_REQUIRE(processor.ioLoop([&parsed](const ml::torch::CCommandParser::SRequest& request) {
-        parsed.push_back(request);
-        return true;
-    }));
+    BOOST_TEST_REQUIRE(processor.ioLoop(
+        unexpectedRequest, [&errors](const std::string& id, const ::std::string& message) {
+            BOOST_REQUIRE_EQUAL(ml::torch::CCommandParser::UNKNOWN_ID, id);
+            errors.push_back(message);
+        }));
 
-    BOOST_REQUIRE_EQUAL(0, parsed.size());
+    BOOST_REQUIRE_EQUAL(1, errors.size());
 }
 
 BOOST_AUTO_TEST_CASE(testParsingTokenArrayNotInts) {
 
-    std::vector<ml::torch::CCommandParser::SRequest> parsed;
+    std::vector<std::string> errors;
 
-    std::string command{"{\"request_id\": \"tokens_should_be_uints\", \"tokens\": [\"a\", \"b\", \"c\"]}"};
+    std::string command{R"({"request_id": "tokens_should_be_uints", "tokens": ["a", "b", "c"]})"};
 
     std::istringstream commandStream{command};
 
     ml::torch::CCommandParser processor{commandStream};
-    BOOST_TEST_REQUIRE(processor.ioLoop([&parsed](const ml::torch::CCommandParser::SRequest& request) {
-        parsed.push_back(request);
-        return true;
-    }));
+    BOOST_TEST_REQUIRE(processor.ioLoop(
+        unexpectedRequest, [&errors](const std::string& id, const ::std::string& message) {
+            BOOST_REQUIRE_EQUAL(id, "tokens_should_be_uints");
+            errors.push_back(message);
+        }));
 
-    BOOST_REQUIRE_EQUAL(0, parsed.size());
+    BOOST_REQUIRE_EQUAL(1, errors.size());
 }
 
 BOOST_AUTO_TEST_CASE(testParsingTokenVarArgsNotInts) {
 
-    std::vector<ml::torch::CCommandParser::SRequest> parsed;
+    std::vector<std::string> errors;
 
-    std::string command{"{\"request_id\": \"bad\", \"tokens\": [1, 2], \"arg_1\": [\"a\", \"b\"]}"};
+    std::string command{R"({"request_id": "bad", "tokens": [1, 2], "arg_1": ["a", "b"]})"};
 
     std::istringstream commandStream{command};
 
     ml::torch::CCommandParser processor{commandStream};
-    BOOST_TEST_REQUIRE(processor.ioLoop([&parsed](const ml::torch::CCommandParser::SRequest& request) {
-        parsed.push_back(request);
-        return true;
-    }));
+    BOOST_TEST_REQUIRE(processor.ioLoop(
+        unexpectedRequest, [&errors](const std::string& id, const ::std::string& message) {
+            BOOST_REQUIRE_EQUAL("bad", id);
+            errors.push_back(message);
+        }));
 
-    BOOST_REQUIRE_EQUAL(0, parsed.size());
+    BOOST_REQUIRE_EQUAL(1, errors.size());
 }
 
 BOOST_AUTO_TEST_CASE(testParsingWhitespaceSeparatedDocs) {
@@ -120,10 +139,12 @@ BOOST_AUTO_TEST_CASE(testParsingWhitespaceSeparatedDocs) {
     std::istringstream commandStream{command};
 
     ml::torch::CCommandParser processor{commandStream};
-    BOOST_TEST_REQUIRE(processor.ioLoop([&parsed](const ml::torch::CCommandParser::SRequest& request) {
-        parsed.push_back(request);
-        return true;
-    }));
+    BOOST_TEST_REQUIRE(processor.ioLoop(
+        [&parsed](const ml::torch::CCommandParser::SRequest& request) {
+            parsed.push_back(request);
+            return true;
+        },
+        unexpectedError));
 
     BOOST_REQUIRE_EQUAL(4, parsed.size());
     BOOST_REQUIRE_EQUAL("foo", parsed[0].s_RequestId);
@@ -142,10 +163,12 @@ BOOST_AUTO_TEST_CASE(testParsingVariableArguments) {
     std::istringstream commandStream{command};
 
     ml::torch::CCommandParser processor{commandStream};
-    BOOST_TEST_REQUIRE(processor.ioLoop([&parsed](const ml::torch::CCommandParser::SRequest& request) {
-        parsed.push_back(request);
-        return true;
-    }));
+    BOOST_TEST_REQUIRE(processor.ioLoop(
+        [&parsed](const ml::torch::CCommandParser::SRequest& request) {
+            parsed.push_back(request);
+            return true;
+        },
+        unexpectedError));
 
     BOOST_REQUIRE_EQUAL(2, parsed.size());
     {
@@ -176,18 +199,19 @@ BOOST_AUTO_TEST_CASE(testParsingVariableArguments) {
 
 BOOST_AUTO_TEST_CASE(testParsingInvalidVarArg) {
 
-    std::vector<ml::torch::CCommandParser::SRequest> parsed;
+    std::vector<std::string> errors;
 
-    std::string command{"{\"request_id\": \"foo\", \"tokens\": [1, 2], \"arg_1\": \"not_an_array\"}"};
+    std::string command{R"({"request_id": "foo", "tokens": [1, 2], "arg_1": "not_an_array"})"};
     std::istringstream commandStream{command};
 
     ml::torch::CCommandParser processor{commandStream};
-    BOOST_TEST_REQUIRE(processor.ioLoop([&parsed](const ml::torch::CCommandParser::SRequest& request) {
-        parsed.push_back(request);
-        return true;
-    }));
+    BOOST_TEST_REQUIRE(processor.ioLoop(
+        unexpectedRequest, [&errors](const std::string& id, const ::std::string& message) {
+            BOOST_REQUIRE_EQUAL("foo", id);
+            errors.push_back(message);
+        }));
 
-    BOOST_REQUIRE_EQUAL(0, parsed.size());
+    BOOST_REQUIRE_EQUAL(1, errors.size());
 }
 
 BOOST_AUTO_TEST_CASE(testRequestHandlerExitsLoop) {
@@ -200,11 +224,12 @@ BOOST_AUTO_TEST_CASE(testRequestHandlerExitsLoop) {
 
     ml::torch::CCommandParser processor{commandStream};
     // handler returns false
-    BOOST_TEST_REQUIRE(
-        false == processor.ioLoop([&parsed](const ml::torch::CCommandParser::SRequest& request) {
-            parsed.push_back(request);
-            return false;
-        }));
+    BOOST_TEST_REQUIRE(false == processor.ioLoop(
+                                    [&parsed](const ml::torch::CCommandParser::SRequest& request) {
+                                        parsed.push_back(request);
+                                        return false;
+                                    },
+                                    unexpectedError));
 
     // ioloop should exit after the first call to the handler
     BOOST_REQUIRE_EQUAL(1, parsed.size());
