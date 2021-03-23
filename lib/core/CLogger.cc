@@ -26,10 +26,10 @@
 #include <cerrno>
 #include <cstdlib>
 #include <cstring>
+#include <exception>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <stdexcept>
 
 // environ is a global variable from the C runtime library
 #ifdef Windows
@@ -209,7 +209,7 @@ CLogger::TLevelSeverityLogger& CLogger::logger() {
 }
 
 void CLogger::fatal() {
-    throw std::runtime_error("Ml Fatal Exception");
+    std::terminate();
 }
 
 void CLogger::fatalErrorHandler(const TFatalErrorHandler& handler) {
