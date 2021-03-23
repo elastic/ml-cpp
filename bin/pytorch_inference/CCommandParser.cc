@@ -32,6 +32,7 @@ namespace torch {
 
 const std::string CCommandParser::REQUEST_ID{"request_id"};
 const std::string CCommandParser::TOKENS{"tokens"};
+const std::string CCommandParser::INPUTS{"inputs"};
 const std::string CCommandParser::VAR_ARG_PREFIX{"arg_"};
 const std::string CCommandParser::UNKNOWN_ID;
 
@@ -90,23 +91,37 @@ bool CCommandParser::validateJson(const rapidjson::Document& doc,
         return false;
     }
 
-    if (doc.HasMember(TOKENS) == false) {
-        errorHandler(doc[REQUEST_ID].GetString(),
-                     "Invalid command: missing field [" + TOKENS + "]");
-        return false;
-    }
+    if (doc.HasMember(TOKENS)) {
+        const rapidjson::Value& tokens = doc[TOKENS];
+        if (tokens.IsArray() == false) {
+            errorHandler(doc[REQUEST_ID].GetString(),
+                         "Invalid command: expected an array [" + TOKENS + "]");
+            return false;
+        }
 
-    const rapidjson::Value& tokens = doc[TOKENS];
-    if (tokens.IsArray() == false) {
-        errorHandler(doc[REQUEST_ID].GetString(),
-                     "Invalid command: expected an array [" + TOKENS + "]");
-        return false;
-    }
+        if (checkArrayContainsUInts(tokens) == false) {
+            errorHandler(doc[REQUEST_ID].GetString(),
+                         "Invalid command: array [" + TOKENS +
+                             "] contains values that are not unsigned integers");
+            return false;
+        }
+    } else if (doc.HasMember(INPUTS)) {
+        const rapidjson::Value& inputs = doc[INPUTS];
+        if (inputs.IsArray() == false) {
+            errorHandler(doc[REQUEST_ID].GetString(),
+                         "Invalid command: expected an array [" + INPUTS + "]");
+            return false;
+        }
 
-    if (checkArrayContainsUInts(tokens) == false) {
+        if (checkArrayContainsDoubles(inputs) == false) {
+            errorHandler(doc[REQUEST_ID].GetString(),
+                         "Invalid command: array [" + INPUTS +
+                             "] contains values that are not doubles");
+            return false;
+        }
+    } else {
         errorHandler(doc[REQUEST_ID].GetString(),
-                     "Invalid command: array [" + TOKENS +
-                         "] contains values that are not unsigned integers");
+                     "Invalid command: missing field [" + TOKENS + "|" + INPUTS + "]");
         return false;
     }
 
@@ -145,16 +160,37 @@ bool CCommandParser::checkArrayContainsUInts(const rapidjson::Value& arr) const 
     return allInts;
 }
 
+bool CCommandParser::checkArrayContainsDoubles(const rapidjson::Value& arr) const {
+    bool allDoubles{true};
+
+    for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
+        allDoubles = allDoubles && itr->IsDouble();
+    }
+
+    return allDoubles;
+}
+
 void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
 
     m_Request.s_RequestId = doc[REQUEST_ID].GetString();
-    const rapidjson::Value& arr = doc[TOKENS];
+
     // wipe any previous
     m_Request.s_Tokens.clear();
-    m_Request.s_Tokens.reserve(arr.Size());
+    if (doc.HasMember(TOKENS)) {
+        const rapidjson::Value& arr = doc[TOKENS];
+        m_Request.s_Tokens.reserve(arr.Size());
+        for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
+            m_Request.s_Tokens.push_back(itr->GetUint64());
+        }
+    }
 
-    for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
-        m_Request.s_Tokens.push_back(itr->GetUint64());
+    m_Request.s_Inputs.clear();
+    if (doc.HasMember(INPUTS)) {
+        const rapidjson::Value& arr = doc[INPUTS];
+        m_Request.s_Inputs.reserve(arr.Size());
+        for (auto itr = arr.Begin(); itr != arr.End(); ++itr) {
+            m_Request.s_Inputs.push_back(itr->GetDouble());
+        }
     }
 
     std::uint64_t varCount{1};
@@ -174,6 +210,10 @@ void CCommandParser::jsonToRequest(const rapidjson::Document& doc) {
         ++varCount;
         varArgName = VAR_ARG_PREFIX + std::to_string(varCount);
     }
+}
+
+bool CCommandParser::SRequest::hasTokens() {
+    return s_Tokens.empty() == false;
 }
 }
 }

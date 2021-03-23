@@ -45,18 +45,21 @@ class CCommandParser {
 public:
     static const std::string REQUEST_ID;
     static const std::string TOKENS;
+    static const std::string INPUTS;
     static const std::string VAR_ARG_PREFIX;
     static const std::string UNKNOWN_ID;
 
     using TUint64Vec = std::vector<std::uint64_t>;
     using TUint64VecVec = std::vector<TUint64Vec>;
+    using TDoubleVec = std::vector<double>;
 
     struct SRequest {
         std::string s_RequestId;
         TUint64Vec s_Tokens;
         TUint64VecVec s_SecondaryArguments;
+        TDoubleVec s_Inputs;
 
-        void clear();
+        bool hasTokens();
     };
 
     using TRequestHandlerFunc = std::function<bool(SRequest&)>;
@@ -78,6 +81,7 @@ private:
     bool validateJson(const rapidjson::Document& doc,
                       const TErrorHandlerFunc& errorHandler) const;
     bool checkArrayContainsUInts(const rapidjson::Value& arr) const;
+    bool checkArrayContainsDoubles(const rapidjson::Value& arr) const;
     void jsonToRequest(const rapidjson::Document& doc);
 
 private:

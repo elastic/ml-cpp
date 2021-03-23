@@ -23,6 +23,7 @@
 #include <torch/script.h>
 
 #include <memory>
+#include <sstream>
 #include <string>
 
 namespace {
@@ -33,45 +34,71 @@ const std::string ERROR{"error"};
 torch::Tensor infer(torch::jit::script::Module& module,
                     ml::torch::CCommandParser::SRequest& request) {
 
-    torch::Tensor tokensTensor =
-        torch::from_blob(static_cast<void*>(request.s_Tokens.data()),
-                         {1, static_cast<std::int64_t>(request.s_Tokens.size())},
-                         at::dtype(torch::kInt64));
-
     std::vector<torch::jit::IValue> inputs;
-    inputs.reserve(1 + request.s_SecondaryArguments.size());
-    inputs.push_back(tokensTensor);
 
-    for (auto& args : request.s_SecondaryArguments) {
-        inputs.emplace_back(torch::from_blob(
-            static_cast<void*>(args.data()),
-            {1, static_cast<std::int64_t>(args.size())}, at::dtype(torch::kInt64)));
+    if (request.hasTokens()) {
+        inputs.reserve(1 + request.s_SecondaryArguments.size());
+
+        // BERT UInt tokens
+        inputs.emplace_back(
+            torch::from_blob(static_cast<void*>(request.s_Tokens.data()),
+                             {1, static_cast<std::int64_t>(request.s_Tokens.size())},
+                             at::dtype(torch::kInt64)));
+
+        for (auto& args : request.s_SecondaryArguments) {
+            inputs.emplace_back(torch::from_blob(
+                static_cast<void*>(args.data()),
+                {1, static_cast<std::int64_t>(args.size())}, at::dtype(torch::kInt64)));
+        }
+    } else {
+        // floating point inputs
+        inputs.emplace_back(
+            torch::from_blob(static_cast<void*>(request.s_Inputs.data()),
+                             {1, static_cast<std::int64_t>(request.s_Inputs.size())},
+                             at::dtype(torch::kFloat64))
+                .to(torch::kFloat32));
     }
 
     torch::NoGradGuard noGrad;
-    auto tuple = module.forward(inputs).toTuple();
-    return tuple->elements()[0].toTensor();
+    auto result = module.forward(inputs);
+    if (result.isTuple()) {
+        // For BERT models the result tensor is the first element in a tuple
+        return result.toTuple()->elements()[0].toTensor();
+    } else {
+        return result.toTensor();
+    }
 }
 
+void writeTensor(torch::TensorAccessor<float, 1> accessor,
+                 ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
+    jsonWriter.StartArray();
+    for (int i = 0; i < accessor.size(0); ++i) {
+        jsonWriter.Double(static_cast<double>(accessor[i]));
+    }
+    jsonWriter.EndArray();
+}
+
+void writeTensor(torch::TensorAccessor<float, 2> accessor,
+                 ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper>& jsonWriter) {
+    for (int i = 0; i < accessor.size(0); ++i) {
+        jsonWriter.StartArray();
+        for (int j = 0; j < accessor.size(1); ++j) {
+            jsonWriter.Double(static_cast<double>(accessor[i][j]));
+        }
+        jsonWriter.EndArray();
+    }
+}
+
+template<std::size_t N>
 void writePrediction(const torch::Tensor& prediction,
                      const std::string& requestId,
                      std::ostream& outputStream) {
 
-    torch::Tensor view;
-    auto sizes = prediction.sizes();
-    // Some models return a 3D tensor in which case
-    // the first dimension must have size == 1
-    if (sizes.size() == 3 && sizes[0] == 1) {
-        view = prediction[0];
-    } else {
-        view = prediction;
-    }
-
-    // creating the accessor will throw if view does not
-    // have exactly 2 dimensions. Do this before writing
+    // creating the accessor will throw if the tensor does
+    // not have exactly N dimensions. Do this before writing
     // any output so the error message isn't mingled with
     // a partial result
-    auto accessor = view.accessor<float, 2>();
+    auto accessor = prediction.accessor<float, N>();
 
     rapidjson::OStreamWrapper writeStream(outputStream);
     ml::core::CRapidJsonLineWriter<rapidjson::OStreamWrapper> jsonWriter(writeStream);
@@ -81,13 +108,7 @@ void writePrediction(const torch::Tensor& prediction,
     jsonWriter.Key(INFERENCE);
     jsonWriter.StartArray();
 
-    for (int i = 0; i < accessor.size(0); ++i) {
-        jsonWriter.StartArray();
-        for (int j = 0; j < accessor.size(1); ++j) {
-            jsonWriter.Double(static_cast<double>(accessor[i][j]));
-        }
-        jsonWriter.EndArray();
-    }
+    writeTensor(accessor, jsonWriter);
 
     jsonWriter.EndArray();
     jsonWriter.EndObject();
@@ -107,10 +128,23 @@ void writeError(const std::string& requestId, const std::string& message, std::o
 bool handleRequest(ml::torch::CCommandParser::SRequest& request,
                    torch::jit::script::Module& module,
                    std::ostream& outputStream) {
-
     try {
         torch::Tensor results = infer(module, request);
-        writePrediction(results, request.s_RequestId, outputStream);
+        auto sizes = results.sizes();
+        // Some models return a 3D tensor in which case
+        // the first dimension must have size == 1
+        if (sizes.size() == 3 && sizes[0] == 1) {
+            writePrediction<2>(results[0], request.s_RequestId, outputStream);
+        } else if (sizes.size() == 2) {
+            writePrediction<2>(results, request.s_RequestId, outputStream);
+        } else if (sizes.size() == 1) {
+            writePrediction<1>(results, request.s_RequestId, outputStream);
+        } else {
+            std::ostringstream ss;
+            ss << "Cannot convert results tensor of size [" << sizes << "]";
+            writeError(request.s_RequestId, ss.str(), outputStream);
+        }
+
     } catch (std::runtime_error& e) {
         writeError(request.s_RequestId, e.what(), outputStream);
     }
