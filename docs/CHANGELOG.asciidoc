@@ -37,6 +37,12 @@
 * Adjust the syscall filter to allow mremap and avoid spurious audit logging.
   (See {ml-pull}1819[#1819].)
 
+== {es} version 7.12.1
+
+=== Enhancements
+
+* Make ML native processes work with glibc 2.33 on x86_64. (See {ml-pull}1828[#1828].)
+
 == {es} version 7.12.0
 
 === Enhancements
